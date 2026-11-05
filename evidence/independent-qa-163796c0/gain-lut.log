@@ -1,0 +1,3 @@
+/usr/bin/ld: /tmp/ccUAHJDt.o: in function `original_voice_gain_oscillator':
+original_gain_lut_test.c:(.text+0x74b): undefined reference to `original_oscillator_sample_gains'
+collect2: error: ld returned 1 exit status

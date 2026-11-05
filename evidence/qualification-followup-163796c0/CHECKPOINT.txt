@@ -1,0 +1,84 @@
+NEXT STAGE: QUALIFICATION FOLLOW-UP AFTER COMPLETED INDEPENDENT QA
+
+The user explicitly requires: when this stage is done, hand off to a NEW THREAD using the LoopyX0X37 Classic Build plugin. This is the next stage after completed native independent QA, not another copy of the same review. One authenticated creator, one exclusive cloud receipt, same verified running environment, and actual receiver consumption are required. Do not substitute a native child for the requested standalone new thread. Do not create duplicates or claim a thread from a plan/admission alone.
+
+QA STAGE IS COMPLETE — PRODUCT QUALIFICATION IS NOT
+Independent reviewer /root/qa_163796c0 completed the bounded review of production commit 163796c0f74c17471a62db44905b02292cf49559, tree d0d8b422023cb815abf2b8cfefadbcef9437062d, required base a06e20189141ff5fb8766e2c6152be460f4356c3. Verdict: NEEDS CHANGES; broader full-suite/native acceptance INCOMPLETE. 26 distinct focused checks passed, and no production sound/state/PCM defect was demonstrated. Host Clang coverage was NOT_RUN. Actual source identity and receipt-linked hashes were verified by the predecessor.
+Review: /workspace/work/recut/qa-163796c0/REVIEW.md
+Review SHA-256: 0fde0bce5ad55c8bf7c0c4a37df8d2c2eb814faeefe13435350fa633ed33d1f3
+Machine receipt and commands/log hashes: /workspace/work/recut/qa-163796c0/receipt.json, focused-results.json, additional-results.json, supplemental-results.json.
+
+EXACT FOLLOW-UP
+QA-01 (P1/INCOMPLETE): No authentic current combined 336-check/486784-byte full-suite/native input/artifact receipts were found. Preserve historical narrow evidence. Retrieve matching producer receipts or actually rerun the missing combined full host suite and both Elite/Pro SDK V1.2.1 development builds; report exact inputs, commands, exits, hashes and size/app RAM/.ram_text/pool deltas against a06e20189. Do not relabel older narrow 333-check/475000-byte proof as current.
+QA-02 (P2): Required optimizer regressions are not enforced by tests/run_tests.sh or a required aggregate. In particular structural/emit 909, VCA sustain, Chicago FX2 zero-skip, master idle and other scoped optimizer runners remain standalone. Register the applicable complete regression set or a required explicitly reported supplemental aggregate. An exhaustive skip switch must not silently erase required tanh proof.
+QA-03 (P2): tests/host/run_ima_delta_lut.sh silently continues past missing compilers. Provide explicit per-compiler statuses and fail required missing coverage or retain NOT_RUN honestly. For 0 fail/0 skip qualification, supply real host GCC AND host Clang; do not substitute the JieLi target compiler for host Clang.
+
+Work within the existing producer's qualification scope and preserve one writer. Inspect current ownership before shared branch writes; do not take over an active producer or integrator. Prepare minimal test/harness fixes on an isolated checkout while preserving production sound/source and every existing test/assertion. Deliver a nonforced update to the existing named lane only within verified writer authority, reusing any existing PR and opening no duplicate. Return the exact changed closure to the SAME reviewer for affected recheck. Existing integration/publication ownership and genuine gates remain intact; no main/nightly/.github changes, merges, hardware access, firmware publication, binaries/tokens/raw captures, or new feature work.
+
+Source owner/receiver must execute the actual required proof in its authorized cloud environment; a commit-message claim, CI badge, launched job or old fixture log is not acceptance. Reuse verified unchanged tests only where full input closure still matches; rerun affected/missing/failed proof. Required acceptance is 0 FAIL / 0 SKIP / 0 NOT_RUN across the accepted host/compiler coverage plus genuine Elite/Pro SDK V1.2.1 builds. Device cycles at about 7256 cycles/sample remain UNMEASURED; do not operate devices to close this source/build stage.
+
+ROUTE AND INPUT ACCESS
+Use existing running environmentId ccarenv_b64_Y2NhcmVudl8wNWYzZWUwYjY1ZjA4MTkxOTYxYWZmMTk2ZDA5NmIxZQ, verified cwd /workspace/work/recut/tree. Do not provision a fresh saved-config instance merely to create another chat. Same-instance native inputs/checkpoints are present. Current local /workspace/work/recut/tree is HISTORICAL narrow source (4b41097), not the combined candidate. Use an isolated checkout; locate the reviewer's separately verified candidate and compare source hashes before reusing it. Git source is durably accessible through the canonical GitHub API at the exact SHA. Read the prepared original checkpoint below for pins, scope and constraints; this FOLLOW-UP supersedes its previous 'next stage is independent review' assignment.
+
+The predecessor's cloud-management status is not a grant to bypass access controls: runtime profile management probe returned HTTP 401, both documented profile pointers were absent, no other same-instance CLI store was found, first device flow timed out without saving a credential, second flow was canceled after user steering, and a read-only authenticated-creator probe on the connected Mac-mini timed out with MCP -32603. No cloud thread creation RPC has been sent. Use a valid existing same-account creator/profile if available; do not repeat blind login requests, copy raw credentials, spoof privileges or claim auth succeeded from CLI login status alone. The creator must use one dedicated receipt for THIS distinct qualification-follow-up handoff and reconcile any uncertain creation before retrying.
+
+ACCEPTANCE OF HANDOFF
+Receiver must read this complete checkpoint, verify candidate/base and accessible inputs, then perform its first scoped source/evidence action and report real progress. It should proceed autonomously through qualification fixes/proof and preserve failed/unrun gates. Predecessor stays read-only to verify handoff; no owner confirmation is needed for routine authorized actions. Stage ends with exact follow-up delivery plus affected independent recheck, or a precise actual missing dependency. No permission to merge, release or operate hardware is implied.
+
+ORIGINAL SOURCE/PROOF CHECKPOINT FOLLOWS FOR CONTEXT
+
+UPDATED CONTINUATION ROUTE — apply before the older environment-retrieval notes below:
+Use the existing verified running environmentId ccarenv_b64_Y2NhcmVudl8wNWYzZWUwYjY1ZjA4MTkxOTYxYWZmMTk2ZDA5NmIxZQ, cwd /workspace/work/recut/tree. This is an ordinary same-instance continuation, not a new machine. The shared source checkout remains the historical 4b41097 tree; fetch current candidate 163796c0 into a separate review directory, preserving all producer checkouts. Shared native inputs are present at the paths below. The predecessor has stopped shared-source writes. Reuse the authorized profile selected by the helper or its path-only pointer; never start another device login merely because this is a new chat. The user explicitly authorized this successor. Report effective backend model/settings honestly; the minimal helper exposes no explicit model/effort/service-tier selector. Verify exact input consumption, then continue substantive independent QA.
+The lane includes the durable checkpoint-only child f5b8faef0a00d232a236d5c8708653c8752bcc83; the review's production source pin remains 163796c0f74c17471a62db44905b02292cf49559 unless a fresh read reveals further production changes.
+
+DnBOX next stage: independent exact-candidate review
+
+USER AUTHORITY AND OBJECTIVE
+The user explicitly asked the predecessor to continue and hand off the next stage itself, using the LoopyX0X37 Classic Build plugin. Original task: recut lane/build-25-all-opt-struct-20261106 patches onto a06e20189141ff5fb8766e2c6152be460f4356c3, build Elite and Pro with SDK V1.2.1, run the full host suite in the cloud, fix failures, target 0 fail/0 skip (NOT_RUN is not a pass), report size/RAM/.ram_text deltas and deliver only to the named lane or its existing PR.
+Next bounded stage: independently review the CURRENT combined optimizer candidate and its input/evidence closure; produce a source/build review verdict and exact next action for the existing producer/integrator. Do substantive work after verifying this checkpoint; a readiness-only acknowledgment is insufficient. Do not restart completed unchanged work merely because this is a new thread.
+
+CURRENT INPUTS — VERIFIED THROUGH CONNECTED GITHUB API
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Candidate branch: lane/build-25-all-opt-struct-20261106
+Current candidate commit: 163796c0f74c17471a62db44905b02292cf49559
+Current candidate tree: d0d8b422023cb815abf2b8cfefadbcef9437062d
+Its first parent: 9231c26285c09356b49b2d9afbcd225377aae5c5 (minimal Chicago insert selectors/stable factory prerequisites).
+Required original base remains a06e20189141ff5fb8766e2c6152be460f4356c3. Verify exact ancestry and scope; never silently move this base. Live wip/one-build is now 48e92b76c2f476cf40771e00a04e1838136bb55d, which is observation only, not authority to rebase/integrate.
+There was no PR for this head branch at the verified read. Recheck before any PR-related action; no duplicate PRs.
+Current maintained nightly policy pin: 66073c68dd80d51a7053432c2c161a8b720a1341. Read its AGENTS.md and skills/x0x37-workflow/SKILL.md plus the actual candidate rules. AGENTS.md at the original base must be read first for the original task.
+
+CRITICAL SCOPE CHANGE AND PROOF SEPARATION
+The predecessor delivered only the final tanh-pair tip patch at 4b41097ec3a711372f6b0f916f82584e09855599. It REALLY ran 333 host checks with 0 fail/0 skip/0 NOT_RUN, both base and candidate Elite/Pro V1.2.1 DEV builds, 23280-block state/four-bus comparisons at -O0/-O2, exhaustive comparisons of 1024 table pairs and all 4278190082 non-NaN binary32 inputs at -O0/-O2, plus ASan/UBSan paired-read checks. That narrower candidate's image was 475000 B (+160), app static RAM 95780 B (delta 0), .ram_text 2712 B/844 instructions/no calls (delta 0), pool free 8600 B. This is real historical proof for that narrower scope ONLY.
+Another producer has since replaced/recovered the named lane with the combined optimizer series at 163796c0. Its commit message REPORTS 336 PASS/0 FAIL/0 SKIP, both native models passing, image 486784 B (+11944), RAM 95780 B (delta 0), .ram_text 2712 B (delta 0), and supplemental GCC/Clang/sanitizer checks. The predecessor has verified that message and Git source identity, NOT independently authenticated that broader run's full receipts. Do not turn reported results into independently verified PASS.
+The current commit explicitly preserves evidence/recut-build-25-struct-20261106 byte-for-byte as historical narrow proof. Those 333-check/475000-byte records do NOT qualify the combined candidate. Locate the combined candidate's matching run/build/input records or report the exact missing closure. Do not overwrite or reinterpret the historical records.
+Historical full transcript SHA-256: e21ab381796e309584596b87af0a87addb38dbd067e7fb863d1aea93e69f84c5.
+Durable historical evidence: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/163796c0f74c17471a62db44905b02292cf49559/evidence/recut-build-25-struct-20261106
+
+OWNERSHIP AND CONSTRAINTS
+Predecessor stops shared-source writes and remains a result reader. Current combined source producer and existing sole integrator retain source/integration ownership. Your delegated scope is independent review/qualification; do not edit the producer branch, merge, force-push, change protections, publish firmware, or act on devices. Never touch main, nightly, .github source, bootloader, BTIF 0xC0000-0xC0FFF, USRTRIM 0xC1000, efuse or key_mac. No binaries, tokens, raw captures, SDK/toolchain bytes, unrelated samples/backups or secret material in commits/prompts/reports.
+Use only the canonical repository for authorized Git delivery; connected account default author/committer. No custom Git identity. No Git over the network: connected GitHub API/tarballs/verified blobs only. No Actions execution or badges as proof.
+App RAM limit 98304 B; pool free >=8192 B; about 7256 cycles/sample at 44.1 kHz/320 MHz. Device cycle/deadline compliance is unmeasured. Source/build review is not device/install/release acceptance.
+No explicit new Full Send, Full Stop or Sol Loop mode was requested. Do not invent a Sol review. No device, release, integration or publication grant follows from this handoff.
+
+COORDINATION / NO DUPLICATES
+Coordination snapshot verified at 4a35a6cdaa0f112db6b3f577542138afd170c20d. Read coordination/automation/runtime-contract.md, roles.json, requests/requests.json and merge-queue/current-delivery.json as needed. Exact lane/current/historical SHAs had no matching request/delivery row in that snapshot; this is not proof that other contexts are inactive. Registered independent_qa automation ID is 6adafbbf54088191a86715d49e7dc6b0; this handoff does not activate or impersonate that identity. Preserve registered owners and discover any already-running exact-candidate review before duplicating it. No scheduler changes or run-now cascade.
+
+ENVIRONMENT AND RETRIEVAL
+Runnable saved cloud configuration ID (preserve full prefix): ddb4eb32-6b7d-4be3-a729-1c1870f1a903~cecfg_6adc962db260819b8a0b2b574d97bf85
+Predecessor instance ID: ccarenv_b64_Y2NhcmVudl8wNWYzZWUwYjY1ZjA4MTkxOTYxYWZmMTk2ZDA5NmIxZQ
+A new thread may use another instance. Verify actual environment ID and shared mounts; do not assume local state or OAuth profiles transferred. Source is durably available through the authenticated GitHub API at the exact candidate SHA. No dirty/unpushed shared-source changes remain in the predecessor's narrower checkout.
+Predecessor paths, ONLY IF verified shared: /workspace/work/recut/tree (historical narrow checkout at 4b41097, NOT current candidate); /workspace/work/recut/inputs/toolchain/jieli-linux-toolchains-20260730.1; /workspace/work/recut/inputs/sdk; /workspace/work/recut/refs. Toolchain tar.xz SHA-256 a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd, 695 validated members/44 safe relative symlinks, actual JieLi clang 4.0.1.
+SDK V1.2.1 required package file pins:
+ cpu/wl82/tools/uboot.boot 4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4
+ cpu/wl82/tools/cfg_tool.bin 276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b
+ cpu/wl82/tools/cfg/eq_cfg_hw.bin 41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d
+References: charlesvestal/schwung-9W9 10cbe5c1e1c9e65b0818bb34644ab1a13092082c; charlesvestal/schwung-8W8 94aa2716d4c2e5851fc7c5dbb4c17adfd133c997; charlesvestal/schwung-tb3po f49d81d05d1e29ae37728a08e30f193892be3bc9.
+Use the supported per-command network grant for execution where needed. On this predecessor, the default sandbox caused Node spawnSync EPERM and LeakSanitizer failure; the supported grant allowed both to run. No sanitizers or tests were disabled. Preserve proxy/CA configuration. Never copy auth stores to another instance.
+
+NEXT EXECUTABLE ACTION / ACCEPTANCE
+1. Read base AGENTS, actual candidate rules, and fresh remote branch metadata. If the lane advanced, pin your review and label it accordingly; do not overwrite newer work.
+2. Fetch/verify the exact current candidate tree and compare it with the original base. Inspect the combined changes and relevant callers for sound/state/PCM preservation, sample boundaries, overflow, signed-zero/subnormal behavior, scheduler/tail/reset ownership and host test registration. Verify minimal prerequisites and no inherited unrelated stack/protected edits.
+3. Authenticate current combined full-suite/native receipts against complete inputs; keep old narrow proof separate. Reuse unchanged valid proof; run only changed/uncovered/failed checks. Do not claim device cycles from host timing or build size.
+4. Deliver an exact-candidate ACCEPTED, NEEDS CHANGES or INCOMPLETE review with concrete findings, commands/results, accepted and unrun coverage, immutable evidence pointers, and one next action for the existing producer/integrator. Missing broad receipts block broad build acceptance, not source review.
+5. Report your actual environment ID, candidate SHA/tree and FIRST scoped action/result promptly in this thread. A generic acknowledgment or admitted turn is not acceptance. Then continue the bounded review through its actual result. No source edits or merges as part of this stage.
+Stop this stage when its independent review verdict and precise next consumer action are evidenced, or a narrow required capability/input/authority is genuinely unavailable. Do not create another successor to bypass an authentication or policy denial.

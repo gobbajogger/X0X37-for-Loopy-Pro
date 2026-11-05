@@ -1,0 +1,3 @@
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 packed 4104->3046 B + 19 pot curves -> x0x_drum_tables.h
+PASS: 23280 blocks; full state (7648 bytes) and four PCM buses identical
+PASS: 23280 blocks; full state (7648 bytes) and four PCM buses identical

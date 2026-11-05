@@ -1,0 +1,12 @@
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-hmeir0zb -O0 -Dmaster_comp1_pots=reference_master_comp1_pots -Dmaster_djf_pots=reference_master_djf_pots -Dmaster_format=reference_master_format -Dmaster_get=reference_master_get -Dmaster_init=reference_master_init -Dmaster_key=reference_master_key -Dmaster_nparams=reference_master_nparams -Dmaster_param=reference_master_param -Dmaster_process=reference_master_process -Dmaster_process_st=reference_master_process_st -Dmaster_set=reference_master_set -c /tmp/a3-master-hmeir0zb/reference.c -o /tmp/a3-master-hmeir0zb/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-hmeir0zb -O0 -c /tmp/a3-master-hmeir0zb/candidate.c -o /tmp/a3-master-hmeir0zb/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-hmeir0zb -O0 tests/host/a3_master_equivalence_test.c /tmp/a3-master-hmeir0zb/ref.o /tmp/a3-master-hmeir0zb/new.o firmware/src/dsp/x0x_param.c -lm -o /tmp/a3-master-hmeir0zb/test
+/tmp/a3-master-hmeir0zb/test
+master state/audio silence-tail-restart equivalence: PASS
+master -O0: PASS
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-hmeir0zb -O2 -Dmaster_comp1_pots=reference_master_comp1_pots -Dmaster_djf_pots=reference_master_djf_pots -Dmaster_format=reference_master_format -Dmaster_get=reference_master_get -Dmaster_init=reference_master_init -Dmaster_key=reference_master_key -Dmaster_nparams=reference_master_nparams -Dmaster_param=reference_master_param -Dmaster_process=reference_master_process -Dmaster_process_st=reference_master_process_st -Dmaster_set=reference_master_set -c /tmp/a3-master-hmeir0zb/reference.c -o /tmp/a3-master-hmeir0zb/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-hmeir0zb -O2 -c /tmp/a3-master-hmeir0zb/candidate.c -o /tmp/a3-master-hmeir0zb/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-master-hmeir0zb -O2 tests/host/a3_master_equivalence_test.c /tmp/a3-master-hmeir0zb/ref.o /tmp/a3-master-hmeir0zb/new.o firmware/src/dsp/x0x_param.c -lm -o /tmp/a3-master-hmeir0zb/test
+/tmp/a3-master-hmeir0zb/test
+master state/audio silence-tail-restart equivalence: PASS
+master -O2: PASS

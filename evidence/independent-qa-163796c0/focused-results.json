@@ -1,0 +1,154 @@
+[
+  {
+    "name": "ima-delta",
+    "command": [
+      "bash",
+      "tests/host/run_ima_delta_lut.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.467
+  },
+  {
+    "name": "vca-sustain",
+    "command": [
+      "sh",
+      "tests/host/vca_sustain_test.sh",
+      "/workspace/work/recut/qa-163796c0/build-vca"
+    ],
+    "exit": 0,
+    "seconds": 2.332
+  },
+  {
+    "name": "insert-idle",
+    "command": [
+      "sh",
+      "tests/host/chicago_insert_idle_identity_test.sh",
+      "/workspace/work/recut/qa-163796c0/build-insert-idle"
+    ],
+    "exit": 0,
+    "seconds": 1.731
+  },
+  {
+    "name": "fx2-zero",
+    "command": [
+      "sh",
+      "tests/host/chicago_fx2_zero_skip_test.sh",
+      "/workspace/work/recut/qa-163796c0/build-fx2-zero"
+    ],
+    "exit": 0,
+    "seconds": 36.134
+  },
+  {
+    "name": "master-idle",
+    "command": [
+      "sh",
+      "tests/host/master_idle_identity_test.sh",
+      "/workspace/work/recut/qa-163796c0/build-master-idle"
+    ],
+    "exit": 0,
+    "seconds": 1.179
+  },
+  {
+    "name": "fxbus-idle",
+    "command": [
+      "sh",
+      "tests/host/fxbus_idle_identity_test.sh",
+      "/workspace/work/recut/qa-163796c0/build-fxbus-idle"
+    ],
+    "exit": 0,
+    "seconds": 4.154
+  },
+  {
+    "name": "fxbus-cache",
+    "command": [
+      "sh",
+      "tests/host/fxbus_coef_cache_test.sh"
+    ],
+    "exit": 0,
+    "seconds": 1.082
+  },
+  {
+    "name": "peaking-cache",
+    "command": [
+      "sh",
+      "tests/host/chicago_peaking_coef_cache_test.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.515
+  },
+  {
+    "name": "bpm-unchanged",
+    "command": [
+      "sh",
+      "tests/host/chicago_bpm_unchanged_tempo_test.sh"
+    ],
+    "exit": 0,
+    "seconds": 10.761
+  },
+  {
+    "name": "modulation-hoist",
+    "command": [
+      "python3",
+      "tests/host/run_chicago_modulation_hoist.py"
+    ],
+    "exit": 0,
+    "seconds": 2.132
+  },
+  {
+    "name": "ensemble-hoist",
+    "command": [
+      "python3",
+      "tests/host/run_chicago_ens_hoist.py"
+    ],
+    "exit": 0,
+    "seconds": 3.303
+  },
+  {
+    "name": "a3-master",
+    "command": [
+      "python3",
+      "tests/host/run_a3_dsp_equivalence.py",
+      "master"
+    ],
+    "exit": 0,
+    "seconds": 0.718
+  },
+  {
+    "name": "a3-drum808",
+    "command": [
+      "python3",
+      "tests/host/run_a3_dsp_equivalence.py",
+      "drum808"
+    ],
+    "exit": 0,
+    "seconds": 1.576
+  },
+  {
+    "name": "a3-fxbus",
+    "command": [
+      "python3",
+      "tests/host/run_a3_dsp_equivalence.py",
+      "fxbus"
+    ],
+    "exit": 0,
+    "seconds": 1.32
+  },
+  {
+    "name": "break-silent",
+    "command": [
+      "sh",
+      "tests/host/breaks_silent_skip_test.sh"
+    ],
+    "exit": 0,
+    "seconds": 1.222
+  },
+  {
+    "name": "clip-latency",
+    "command": [
+      "sh",
+      "tests/host/clip_latency_equivalence_test.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.572
+  }
+]

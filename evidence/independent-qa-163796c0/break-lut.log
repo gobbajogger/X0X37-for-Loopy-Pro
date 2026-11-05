@@ -1,0 +1,2 @@
+PASS: 1536 exhaustive bit comparisons; const table 2400 B
+PASS: 24576 complete trigger-state comparisons (invalid banks; RNG retained)

@@ -1,0 +1,4 @@
++ cc -O2 -std=c99 -fno-fast-math -ffp-contract=off -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/dsp -I/tmp/x0x-fxbus-coef-cache -Dfxbus_init=old_fxbus_init -Dfxbus_set=old_fxbus_set -Dfxbus_set_bpm=old_fxbus_set_bpm -Dfxbus_get=old_fxbus_get -Dfxbus_param=old_fxbus_param -Dfxbus_nparams=old_fxbus_nparams -Dfxbus_param_si=old_fxbus_param_si -Dfxbus_process=old_fxbus_process -Dfxbus_process_st=old_fxbus_process_st -c /tmp/x0x-fxbus-coef-cache/wrapper.c -o /tmp/x0x-fxbus-coef-cache/reference.o
++ cc -O2 -std=c99 -fno-fast-math -ffp-contract=off -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/dsp -I/tmp/x0x-fxbus-coef-cache tests/host/fxbus_coef_cache_test.c firmware/src/dsp/fxbus.c /tmp/x0x-fxbus-coef-cache/reference.o -lm -o /tmp/x0x-fxbus-coef-cache/test
++ /tmp/x0x-fxbus-coef-cache/test
+PASS fxbus coefficient cache: 12288 blocks, 2124567 samples, 24608 states, sizeof=18320 (unchanged)

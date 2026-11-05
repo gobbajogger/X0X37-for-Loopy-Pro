@@ -1,0 +1,17 @@
+[
+  {
+    "name": "gain-lut-corrected",
+    "exit": 0,
+    "command": "cc -std=c99 -O2 -ffp-contract=off -fno-fast-math -ffunction-sections -fdata-sections -Wall -Wextra -Werror -Iexperiments/original_synth tests/host/original_gain_lut_test.c -Wl,--gc-sections -lm -o ../gain-lut-test && ../gain-lut-test",
+    "log": "gain-lut-rerun.log",
+    "initial_harness_exit": 1,
+    "initial_harness_log": "gain-lut.log",
+    "resolution": "Add dead-section elimination for unrelated unresolved oscillator symbol; no source change."
+  },
+  {
+    "name": "control-lut",
+    "exit": 0,
+    "command": "cc -std=c99 -O2 -ffp-contract=off -fno-fast-math -ffunction-sections -fdata-sections -Wall -Wextra -Werror -Ifirmware/src -Iexperiments/original_synth tests/host/original_control_lut_test.c -Wl,--gc-sections -lm -o ../control-lut-test && ../control-lut-test",
+    "log": "control-lut.log"
+  }
+]

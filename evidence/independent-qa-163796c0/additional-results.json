@@ -1,0 +1,56 @@
+[
+  {
+    "name": "engine-level",
+    "command": "python3 tests/host/engine_mix_lut_test.py level",
+    "exit": 0,
+    "seconds": 0.097
+  },
+  {
+    "name": "engine-send",
+    "command": "python3 tests/host/engine_mix_lut_test.py send",
+    "exit": 0,
+    "seconds": 0.093
+  },
+  {
+    "name": "undo-word",
+    "command": "cc -std=c99 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function tests/host/undo_word_scan_test.c -o ../undo-test && ../undo-test",
+    "exit": 0,
+    "seconds": 0.228
+  },
+  {
+    "name": "lz-max",
+    "command": "cc -std=c99 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function tests/host/lz_max_match_test.c -o ../lz-test && ../lz-test",
+    "exit": 0,
+    "seconds": 0.18
+  },
+  {
+    "name": "busfx",
+    "command": "cc -std=c99 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Ifirmware/src/dsp tests/host/busfx_invariant_test.c -lm -o ../busfx-test && ../busfx-test",
+    "exit": 0,
+    "seconds": 0.528
+  },
+  {
+    "name": "break-lut",
+    "command": "cc -std=c99 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Ifirmware/src/dsp tests/host/break_retrigger_lut_test.c -lm -o ../break-lut-test && ../break-lut-test",
+    "exit": 0,
+    "seconds": 0.413
+  },
+  {
+    "name": "gain-lut",
+    "command": "cc -std=c99 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Iexperiments/original_synth tests/host/original_gain_lut_test.c -lm -o ../gain-lut-test && ../gain-lut-test",
+    "exit": 1,
+    "seconds": 0.09
+  },
+  {
+    "name": "project-stream",
+    "command": "sh tests/host/run_project_stream_copy.sh",
+    "exit": 0,
+    "seconds": 1.055
+  },
+  {
+    "name": "909-emit",
+    "command": "python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h && sh tests/host/run_drum909_emit_equivalence.sh",
+    "exit": 0,
+    "seconds": 8.576
+  }
+]

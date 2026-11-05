@@ -1,0 +1,4 @@
+COMMAND: cc -std=c99 -O2 -Wall -Wextra -Werror -DX0X_HOST -fno-fast-math -ffp-contract=off -I/tmp/chicago-ens-hoist-723som2k -Ifirmware/src/app -Ifirmware/src/dsp tests/host/chicago_ens_hoist_test.c -lm -o /tmp/chicago-ens-hoist-723som2k/test
+PASS Ensemble: 20070162 samples, 135176 calls; output and full state bit-exact
+COMMAND: cc -std=c99 -Os -Wall -Wextra -Werror -DX0X_HOST -fno-fast-math -ffp-contract=off -I/tmp/chicago-ens-hoist-723som2k -Ifirmware/src/app -Ifirmware/src/dsp tests/host/chicago_ens_hoist_test.c -lm -o /tmp/chicago-ens-hoist-723som2k/test
+PASS Ensemble: 20070162 samples, 135176 calls; output and full state bit-exact

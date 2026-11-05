@@ -1,0 +1,2 @@
+cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror /tmp/engine-mix-lut-z7io5o5d/test.c -o /tmp/engine-mix-lut-z7io5o5d/test
+PASS: 128 exhaustive pots, 131073 nearby integers, 10M random integers, int edges; bit-identical

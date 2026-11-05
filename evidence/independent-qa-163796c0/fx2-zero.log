@@ -1,0 +1,22 @@
+ieee type  3: 40 seeds, 42327509 frames identical, 98365 skipped blocks
+ieee type 12: 40 seeds, 42327509 frames identical, 89095 skipped blocks
+ieee type 13: 40 seeds, 45233011 frames identical, 83056 skipped blocks
+ieee type 15: 40 seeds, 42327509 frames identical, 93718 skipped blocks
+ieee type 16: 40 seeds, 42327509 frames identical, 17754 skipped blocks
+ftz type  3: 40 seeds, 42327509 frames identical, 98365 skipped blocks
+ftz type 12: 40 seeds, 42327509 frames identical, 89095 skipped blocks
+ftz type 13: 40 seeds, 45233011 frames identical, 83056 skipped blocks
+ftz type 15: 40 seeds, 42327509 frames identical, 93728 skipped blocks
+ftz type 16: 40 seeds, 42327509 frames identical, 17754 skipped blocks
+chicago_fx2_zero_skip_test: OK
+ieee type  3: 40 seeds, 42327509 frames identical, 98365 skipped blocks
+ieee type 12: 40 seeds, 42327509 frames identical, 89095 skipped blocks
+ieee type 13: 40 seeds, 45233011 frames identical, 83056 skipped blocks
+ieee type 15: 40 seeds, 42327509 frames identical, 93718 skipped blocks
+ieee type 16: 40 seeds, 42327509 frames identical, 17754 skipped blocks
+ftz type  3: 40 seeds, 42327509 frames identical, 98365 skipped blocks
+ftz type 12: 40 seeds, 42327509 frames identical, 89095 skipped blocks
+ftz type 13: 40 seeds, 45233011 frames identical, 83056 skipped blocks
+ftz type 15: 40 seeds, 42327509 frames identical, 93728 skipped blocks
+ftz type 16: 40 seeds, 42327509 frames identical, 17754 skipped blocks
+chicago_fx2_zero_skip_test: OK

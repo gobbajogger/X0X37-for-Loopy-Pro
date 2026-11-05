@@ -1,0 +1,14 @@
+python3 tools/gen_drum_samples.py /tmp/a3-fxbus-aajj95fn/x0x_drum_samples.h
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 packed 4104->3046 B + 19 pot curves -> x0x_drum_tables.h
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-aajj95fn -O0 -Dfxbus_get=reference_fxbus_get -Dfxbus_init=reference_fxbus_init -Dfxbus_nparams=reference_fxbus_nparams -Dfxbus_param=reference_fxbus_param -Dfxbus_param_si=reference_fxbus_param_si -Dfxbus_process=reference_fxbus_process -Dfxbus_process_st=reference_fxbus_process_st -Dfxbus_set=reference_fxbus_set -Dfxbus_set_bpm=reference_fxbus_set_bpm -c /tmp/a3-fxbus-aajj95fn/reference.c -o /tmp/a3-fxbus-aajj95fn/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-aajj95fn -O0 -c /tmp/a3-fxbus-aajj95fn/candidate.c -o /tmp/a3-fxbus-aajj95fn/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-aajj95fn -O0 tests/host/a3_fxbus_equivalence_test.c /tmp/a3-fxbus-aajj95fn/ref.o /tmp/a3-fxbus-aajj95fn/new.o firmware/src/dsp/x0x_param.c -lm -o /tmp/a3-fxbus-aajj95fn/test
+/tmp/a3-fxbus-aajj95fn/test
+FX bus state/line/audio silence-tail-restart equivalence: PASS
+fxbus -O0: PASS
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-aajj95fn -O2 -Dfxbus_get=reference_fxbus_get -Dfxbus_init=reference_fxbus_init -Dfxbus_nparams=reference_fxbus_nparams -Dfxbus_param=reference_fxbus_param -Dfxbus_param_si=reference_fxbus_param_si -Dfxbus_process=reference_fxbus_process -Dfxbus_process_st=reference_fxbus_process_st -Dfxbus_set=reference_fxbus_set -Dfxbus_set_bpm=reference_fxbus_set_bpm -c /tmp/a3-fxbus-aajj95fn/reference.c -o /tmp/a3-fxbus-aajj95fn/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-aajj95fn -O2 -c /tmp/a3-fxbus-aajj95fn/candidate.c -o /tmp/a3-fxbus-aajj95fn/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/tmp/a3-fxbus-aajj95fn -O2 tests/host/a3_fxbus_equivalence_test.c /tmp/a3-fxbus-aajj95fn/ref.o /tmp/a3-fxbus-aajj95fn/new.o firmware/src/dsp/x0x_param.c -lm -o /tmp/a3-fxbus-aajj95fn/test
+/tmp/a3-fxbus-aajj95fn/test
+FX bus state/line/audio silence-tail-restart equivalence: PASS
+fxbus -O2: PASS

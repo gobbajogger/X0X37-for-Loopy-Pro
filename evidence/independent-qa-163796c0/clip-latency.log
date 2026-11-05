@@ -1,0 +1,2 @@
+PASS: 20459520 key cases; counts and all output bytes equal; raw path calls no helpers
+PASS: 414720 arp cases; list/event/state bytes equal; max 4 expansions saved

@@ -1,0 +1,31 @@
+{
+  "note": "Complete logs, commands, review and receipt are included. Large immutable source metadata/diff remain available on the shared instance and can be regenerated from the pinned GitHub API source; they are not claimed missing or different. No binaries, archive bytes, credentials or raw captures are published.",
+  "source_commit": "163796c0f74c17471a62db44905b02292cf49559",
+  "source_tree": "d0d8b422023cb815abf2b8cfefadbcef9437062d",
+  "metadata_retained_on_shared_instance": [
+    {
+      "name": "parent-tree.json",
+      "sha256": "e32b82467004ceae25c6e6a4bbf289aa84ed0d4567eed4691f9b8ae0972082be",
+      "bytes": 1379512,
+      "shared_path": "/workspace/work/recut/qa-163796c0/parent-tree.json"
+    },
+    {
+      "name": "tree.json",
+      "sha256": "1b31fdf3a2ab8154d7c97a552e7370a2270b77fab919d8b131404e83ab0657cb",
+      "bytes": 1397635,
+      "shared_path": "/workspace/work/recut/qa-163796c0/tree.json"
+    },
+    {
+      "name": "candidate-api.json",
+      "sha256": "445df3574775566962d123b012a75ca61896536139d19c7eb9ebd99c778fdc2a",
+      "bytes": 965548,
+      "shared_path": "/workspace/work/recut/qa-163796c0/candidate-api.json"
+    },
+    {
+      "name": "production.diff",
+      "sha256": "67f6af2f1d49cfbd6f34e8dc908aca1b192a254ab858c719b3568f88c686c581",
+      "bytes": 77399,
+      "shared_path": "/workspace/work/recut/qa-163796c0/production.diff"
+    }
+  ]
+}
