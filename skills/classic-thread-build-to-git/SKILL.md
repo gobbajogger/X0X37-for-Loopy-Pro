@@ -17,7 +17,8 @@ For LoopyX0X37, first apply the [current project workflow](../../docs/rules/work
 Consume the existing owner/request checkpoint. Reports and local stage completion
 are nonblocking; continue the next authorized action. Preserve sole integration
 ownership, independent QA and actual action-specific gates. A new provider or
-thread is needed only for a real execution transfer, with a supported result reader.
+thread follows the current owner contract at meaningful stage handoffs, with a
+supported result reader.
 Verify receiver consumption through its actual first scoped action on pinned inputs.
 
 ## 1. Discover the environment before saying a tool is unavailable

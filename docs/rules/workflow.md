@@ -1,5 +1,8 @@
 # Authorized project delivery
 
+Read the [current owner contract](current-owner-contract.md) for the later cloud,
+Grok ownership and meaningful-stage instructions before applying this workflow.
+
 This is the active workflow for this production checkout. It applies the same
 continuation, ownership and evidence contract as the maintained development
 workflow. Resolve development `nightly` to its full SHA before reading its
@@ -32,10 +35,10 @@ Planning is followed by the next authorized action.
 
 ## Continue through the current owners
 
-Use a capable current executor and supported result reader. There is no mandatory
-local Codex launch, particular provider, fresh thread per stage or return to root
-for every step. Preserve active delegated ownership. Create a receiver only for a
-real transfer that needs it. A provider name or stored active flag proves neither
+Use a capable cloud executor and supported result reader. Follow the current
+owner contract for new meaningful stage threads and end-of-stage handoffs; do not
+create a thread for every task. Preserve Grok and active delegated ownership.
+No particular provider or return to root is required for every step. A provider name or stored active flag proves neither
 execution capability nor free capacity.
 
 Keep one writer per shared scope and the existing sole ledger, firmware
