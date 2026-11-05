@@ -15,7 +15,7 @@ static uint8_t pattern_before[sizeof(pattern_t)];
 
 #define CHECK(c) do { \
     checks++; \
-    if (!(c)) { failures++; fprintf(stderr, "FAIL line %d: %s\n", __LINE__, #c); } \
+    if (!(c)) { failures++; fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, #c); } \
 } while (0)
 
 static void log_event(int kind, int a, int b)
