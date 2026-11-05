@@ -110,8 +110,11 @@ static void begin(void *p) { (void)p; }
 static void tempo(void *p,int32_t value)
 {
     original_chicago_fx2_compact *s = p;
+    int changed = s->tempo_times10 != value;
     s->tempo_times10 = value;
-    if (s->selected && s->selected_type == 13)
+    /* parameter() already recomputes these three coefficients after edits.
+     * Processing moves only the ring/pair, so equal tempo needs no rewrite. */
+    if (changed && s->selected && s->selected_type == 13)
         chi_fx2_insert_set(&s->arena.insert, 13, s->edit[0], s->edit[1], value);
 }
 
