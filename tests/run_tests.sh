@@ -290,6 +290,7 @@ fi
 W="-O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror"
 run dsp-host-linkage sh tests/host/run_dsp_host_linkage.sh
 run fastmath sh -c "$CC -DX0X_HOST -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/fastmath_test tests/host/fastmath_test.c -lm && $OUT/fastmath_test"   # its reference is double on purpose
+run busfx-invariant sh -c "$CC -O2 -ffp-contract=off -Wall -Wextra -Werror -Ifirmware/src/dsp -o $OUT/busfx_invariant_test tests/host/busfx_invariant_test.c -lm && $OUT/busfx_invariant_test"
 run fastmath-ubsan sh tests/host/run_fastmath_ubsan.sh  # negative exponent shifts must be defined
 TB3PO_REF="${TB3PO_REF:-../schwung-tb3po/src/dsp/tb3po.c}"
 seq_test() {
