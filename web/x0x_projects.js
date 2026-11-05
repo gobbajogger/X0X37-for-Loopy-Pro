@@ -37,8 +37,11 @@ export async function sha256(b) {
 // The inner file is firmware's canonical persistent project schema, not a sample archive.
 export function parseProject(b, expectedLength = null) {
   b = bytes(b);
-  // Header word 28: 0, or (current layout only) 0x4F460000|partOffMask with mask 1..31 (firmware PROJ_FILE_OFF_OK).
-  const offWordOk=(w,p,s)=>w===0 || (p===13 && s===13 && (w&0xFFFFFF00)>>>0===0x4F460000 && (w&0xFF)>=1 && (w&0xFF)<=31);
+  // Header word 28: 0, or (current layout only) 0x4F460000 | check<<8 | partOffMask with mask 1..31 and check the
+  // CRC-8 (polynomial 0x17) of the mask, as firmware PROJ_FILE_OFF_OK (x0x.h).
+  const offChk=m=>(m&1?0x17:0)^(m&2?0x2E:0)^(m&4?0x5C:0)^(m&8?0xB8:0)^(m&16?0x67:0);
+  const offWordOk=(w,p,s)=>w===0 || (p===13 && s===13 && (w&0xFFFF0000)>>>0===0x4F460000 && (w&0xFF)>=1 && (w&0xFF)<=31 &&
+    (w>>>8&0xFF)===offChk(w&0xFF));
   if (b.length < PROJECT_HEADER || b.length > 0x1FFFFF) throw fail("Invalid project file size.");
   const v = view(b);
   if (v.getUint32(0, true) !== 0x50583058) throw fail("The project header is missing.");
