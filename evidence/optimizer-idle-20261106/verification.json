@@ -1,0 +1,44 @@
+{
+  "schema": "dnbox-source-qualification-summary-v1",
+  "branch": "lane/optimizer-idle-20261106",
+  "pr_base": "wip/one-build",
+  "pinned_base": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "prior_lane": "b186be6c849456de13363738f20ebbb65ebe087f",
+  "tested_recut": "2f759f0c1c562f0d312040d4bba37c1800926486",
+  "built_and_tested_source_tree": "00370c8cf385577395f616e9df3cbc45a0d23041",
+  "sdk_version": "V1.2.1",
+  "configuration": "SMK-37 DEV, pad calibration enabled, Chicago/Miami profile",
+  "native_builds": {
+    "elite": {
+      "result": "PASS",
+      "exit_code": 0,
+      "package_model_crc_integrity": "PASS",
+      "app_code_free_bytes": 72104,
+      "static_ram_free_bytes": 2524,
+      "pool_free_bytes": 8600
+    },
+    "pro": {
+      "result": "PASS",
+      "exit_code": 0,
+      "package_model_crc_integrity": "PASS",
+      "app_code_free_bytes": 72104,
+      "static_ram_free_bytes": 2524,
+      "pool_free_bytes": 8600
+    }
+  },
+  "controller_build_and_integrity": "PASS",
+  "full_host_suite": {
+    "result": "PASS",
+    "exit_code": 0,
+    "pass": 336,
+    "fail": 0,
+    "skip": 0,
+    "selection": "complete maintained suite, eight jobs",
+    "source_clean_before_after": true,
+    "transcript_sha256": "11091299b66c661c4ff4f303698c5f49e1032917e3f68caa4b37cc8d6715244c",
+    "run_record_sha256": "22991164c9aed503f7352be2c343e4f69acc18b019b47d672dd0e5e4f1161865"
+  },
+  "source_review": "Independent read-only review: no blocking findings",
+  "setup_repair": "The first full run had 335 passes and one missing-host-Clang failure. The dependency was supplied, the optimizer check passed, and a fresh full run produced the final 336/0/0 result. No tests or expectations changed.",
+  "delivery_scope": "Text summary only; detailed execution logs and input inventories retained locally. No binaries, tokens, SDK/toolchain payload, device operations or protected branch updates."
+}
