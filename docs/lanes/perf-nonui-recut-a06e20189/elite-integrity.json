@@ -1,0 +1,1 @@
+{"bytes": 651591, "model": "elite", "package_crc32": "6100275d", "payloads": ["flash.bin", "ota.bin"], "product": "SMK-37 Elite_900", "sha256_check": "package header, flash/app and OTA CRC verified"}

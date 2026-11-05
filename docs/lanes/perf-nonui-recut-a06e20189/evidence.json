@@ -1,0 +1,2009 @@
+{
+  "request": "Recut perf-nonui-on-25opt-v2 lane tip patches onto pinned one-build",
+  "base": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+  "base_tree": "33690b177cc7c9c8a697eb45b9f7309510d986ec",
+  "source_tree": "8af7086bde88faf42b155575cdbe8a47a623784b",
+  "lane": "lane/dev-perf-nonui-on-25opt-v2-20261106",
+  "original_tip": "d010d7dd5e3ddb027d9589ab3cef71ab4b007386",
+  "own_tip_boundary": "bdc4965e2c9b2025c2e2cf9ea5b4d4a6b03008ca",
+  "own_tip_commits": [
+    "01f5fca228ecf2089172d1057856409ca809e544",
+    "2456043164f4b98311049866528cb28a57d47cdf",
+    "b062a020ffef35b65878cad6ab7ce39092e3ce32",
+    "75918231e272a5adaeaa05e83aa8ba6cb6c4fe3c",
+    "e5b8205dfd8335d56c91ac362450f0a0d8ee7724",
+    "d010d7dd5e3ddb027d9589ab3cef71ab4b007386"
+  ],
+  "empty_commits_omitted": [
+    "01f5fca228ecf2089172d1057856409ca809e544",
+    "2456043164f4b98311049866528cb28a57d47cdf",
+    "b062a020ffef35b65878cad6ab7ce39092e3ce32"
+  ],
+  "applied_nonempty_commits": [
+    "75918231e272a5adaeaa05e83aa8ba6cb6c4fe3c",
+    "e5b8205dfd8335d56c91ac362450f0a0d8ee7724",
+    "d010d7dd5e3ddb027d9589ab3cef71ab4b007386"
+  ],
+  "adaptations": [
+    "Insert only usb-retry after trs in base runner",
+    "Omit tick stubs for absent earlier-stack tests: uac_out_irq_fake_usb.h, uac_out_test.c, usb_desc_dump.c"
+  ],
+  "changed_files_sha256": {
+    "firmware/src/usb.c": "e68e54dbeb6aaad80a5c9d020f0597694051fe6c3c3de45911eb8f098b60678e",
+    "tests/host/run_usb_retry.sh": "4f507dcd6e3c60fbd63c509c3214766616a919f7115cd065700e26472bb6a075",
+    "tests/host/smk_clip_knob_fake_usb.h": "2c8be52634a1851ae2784bba1c6eceb3a60d26f37d95f9cf159bc4d6292e8698",
+    "tests/host/smk_clip_usb_clear_fake_usb.h": "be102452bc47ad90deeb0f2ff4894269e61ceffeab492d4db82284f1d79aa7f0",
+    "tests/host/trs_test.c": "4d10c2013a64fd9283def9791420d16e1d665ab82b20e35b3c5a15274417d09e",
+    "tests/host/uac_test.c": "d88562ca13775d1e729fd5494cbb071c222c1e3cc18dfcc4f27c9db63a54e109",
+    "tests/host/usb_retry_fake_usb.h": "204a6ce938dcad75f473c06161eb84753ecf1942e505aff6043b1104f7e84578",
+    "tests/host/usb_retry_test.c": "a6b17cbc09dd6a985d88f2d1753939a63ee48b7b3d11e619c1158b795363e3cc",
+    "tests/run_tests.sh": "5a01d4c9e656d089e3782ebb25dd63d6949aed53dd02d86f9b68c941153c35c9"
+  },
+  "host_suite": {
+    "result": "PASS",
+    "exit_code": 0,
+    "pass": 333,
+    "fail": 0,
+    "skip": 0,
+    "not_run": 0,
+    "strict_preflight": {
+      "pass": 16,
+      "fail": 0
+    },
+    "log_sha256": "885f844cce0690e8eef675de3a92863b7ecbf262baa852cb13b2b20b36a848d7",
+    "tests": [
+      {
+        "name": "dsp-host-linkage",
+        "result": "PASS",
+        "log_sha256": "101502d810c58282aa4106461bbe0a2d8ea7b5436b87916aea1d646f8a5ef918"
+      },
+      {
+        "name": "fastmath",
+        "result": "PASS",
+        "log_sha256": "55570686ef73f43fe35e77cedb364005290a572013b8c5d7f5f06a2095ea90f4"
+      },
+      {
+        "name": "fastmath-ubsan",
+        "result": "PASS",
+        "log_sha256": "55570686ef73f43fe35e77cedb364005290a572013b8c5d7f5f06a2095ea90f4"
+      },
+      {
+        "name": "home-tie-semantics",
+        "result": "PASS",
+        "log_sha256": "0874b928d0c9c2704e6a8cfaf7315fdacd26df6c99944e92bc889148c3b0103c"
+      },
+      {
+        "name": "sequencer",
+        "result": "PASS",
+        "log_sha256": "a0b8a28600249da3426cfab8454794c5a82055b5e9754c2840cfc4e61151085f"
+      },
+      {
+        "name": "bass-prob-midi",
+        "result": "PASS",
+        "log_sha256": "d29863702f2212647b5e3a6a131c9a5401855c98f3690f25273888f37121f983"
+      },
+      {
+        "name": "seq-tb3po-bars",
+        "result": "PASS",
+        "log_sha256": "2be660abaf104ea3aa73cc8b434fe3ec19ed3c8f6ae61bb17600ee38b8218c0b"
+      },
+      {
+        "name": "seq-random-swing",
+        "result": "PASS",
+        "log_sha256": "e19c2844463c843444af95cc67953c39d73f7fa09bf1718f8319974572b35c9a"
+      },
+      {
+        "name": "seq-random-clock-handoff",
+        "result": "PASS",
+        "log_sha256": "d919639193c9cd08d5ca747a4d90a3f40bbd91416e14a7bb7dce28faa521bc88"
+      },
+      {
+        "name": "seq-long-notes",
+        "result": "PASS",
+        "log_sha256": "52100036d6515a09f40438f6d64c1f1d1d985a6c36ed460b5d615d7b032462c7"
+      },
+      {
+        "name": "seq-pingpong-resize",
+        "result": "PASS",
+        "log_sha256": "fb99e2360311c491d7e84838d4ae888730d0b5055d948945a8c40349a079bfb1"
+      },
+      {
+        "name": "clk-lock",
+        "result": "PASS",
+        "log_sha256": "0f5b892adc95fc5a3e3a957f0142dd684e4c8b1624378ebd0bb3130ae68b4a34"
+      },
+      {
+        "name": "seq-random-tie-preview",
+        "result": "PASS",
+        "log_sha256": "09b8b0f230ecae6633033f1d91677efd669fe552a5c33338947a6625eaf1968a"
+      },
+      {
+        "name": "encoder",
+        "result": "PASS",
+        "log_sha256": "782ad031458770b476dd5aca5a2a51a6054c8cae14f4d66cc25b90c637e1b061"
+      },
+      {
+        "name": "bass-midi-pending-native",
+        "result": "PASS",
+        "log_sha256": "60958420490a2ead0d660f23df54e2c1e92e4baa03991f8686a98044e16947fe"
+      },
+      {
+        "name": "uac",
+        "result": "PASS",
+        "log_sha256": "e08534704cd353e432aa38dad3b5b6b28f9baa53c3a3c605933d22ca1f925e21"
+      },
+      {
+        "name": "trs",
+        "result": "PASS",
+        "log_sha256": "adb7bd0ea7a0c27b38ba4b0dedb94c5806186e704caf3e5dd7e43ec730284fef"
+      },
+      {
+        "name": "usb-retry",
+        "result": "PASS",
+        "log_sha256": "ff1cc9cc457b5fa014b10368c4b53bd6dafb5b414b7926e2e698c04b8de1f8a8"
+      },
+      {
+        "name": "undo",
+        "result": "PASS",
+        "log_sha256": "222d4cf01d17e9e612fc3377fb135fb840ed84d4d1a7c630187accae7de222a9"
+      },
+      {
+        "name": "undo-capacity",
+        "result": "PASS",
+        "log_sha256": "a2e88b7e5e998892e06abb79ff75eff4cef991148509e54617a41f5beb856c73"
+      },
+      {
+        "name": "lz",
+        "result": "PASS",
+        "log_sha256": "c1239ab364cd4182d68ca884e953649f49e841c6768ba10582bb133381cb291e"
+      },
+      {
+        "name": "motion",
+        "result": "PASS",
+        "log_sha256": "4d91e54dfc9a91a2628759cd5edde76cc8e11e1d9e9ce2c811cac7fd4827a7bb"
+      },
+      {
+        "name": "host-build",
+        "result": "PASS",
+        "log_sha256": "fc442661604b7ecd321b8bc3c7054fd9a93d37ef0bf5e087289ef845064bb6e1"
+      },
+      {
+        "name": "original-release-integration",
+        "result": "PASS",
+        "log_sha256": "1753d31a0cdf9038e67ee08d9af114f63bd02fa12620bb25c6adceb6f4b586e8"
+      },
+      {
+        "name": "original-release-ui",
+        "result": "PASS",
+        "log_sha256": "83e83b496ec3d9924ab0744b47476aafbfc4c595fba1aeb81f0f784f0d332af6"
+      },
+      {
+        "name": "original-build",
+        "result": "PASS",
+        "log_sha256": "aa925d35af40af586064e60804e479ab93e68a707533c98be37df57e1e79cb54"
+      },
+      {
+        "name": "freeplay-rate-pads",
+        "result": "PASS",
+        "log_sha256": "8138f63d98de2f0e3ac1b656dbc20f8358e391cd15280b36ebd543bad435f16d"
+      },
+      {
+        "name": "boot-screen",
+        "result": "PASS",
+        "log_sha256": "d96abf7edbbf8db347c20713230575a78846166b6e6c979a4d736baa22ebace5"
+      },
+      {
+        "name": "ui-theme",
+        "result": "PASS",
+        "log_sha256": "28c6aaef1678692001fac9d134b4e0e8cf23773b947ad08ece7e1eac886da8ca"
+      },
+      {
+        "name": "project-protocol",
+        "result": "PASS",
+        "log_sha256": "1a9773fc5a168928c7a4fecbd6111a80335e6b6ba03ff75e1fc1d143142b779e"
+      },
+      {
+        "name": "project-save-preflight",
+        "result": "PASS",
+        "log_sha256": "be3ce649561da2bed36da7759d051b614eea8062f3cbe832e2d7eda13b1a5bf1"
+      },
+      {
+        "name": "editor-ota-dispatch",
+        "result": "PASS",
+        "log_sha256": "e84444147359ff21eacd0637e2f285835fda0e1220fabe270226fb53c8930d5f"
+      },
+      {
+        "name": "storage-scratch",
+        "result": "PASS",
+        "log_sha256": "a0e131a91bae1e227192082e8722fa814a56655397c4bc1ce6f117b491883a48"
+      },
+      {
+        "name": "project-stage",
+        "result": "PASS",
+        "log_sha256": "9af28f6ca43ced7f6f7721d89f3a9020e31b082622cb21025a6e8d0e109367f8"
+      },
+      {
+        "name": "project-runtime",
+        "result": "PASS",
+        "log_sha256": "8b38ade291b45d2a3d209d8ed174a41bca60fabcf061b912766d4af6ec2c071b"
+      },
+      {
+        "name": "save-note-quiet",
+        "result": "PASS",
+        "log_sha256": "bd79cffb9052508d3a511081f4ed4755cddad1d029a5c58de726777797220781"
+      },
+      {
+        "name": "font-pack",
+        "result": "PASS",
+        "log_sha256": "255f1a313146650e2d39aa29b737ad51a1cad645a438020c0a65c0f1caa81144"
+      },
+      {
+        "name": "smc-protocol",
+        "result": "PASS",
+        "log_sha256": "7dd80227d6127e4d93cd62751cc2242f4123ac82ccaa3e744c9a433c6bce773b"
+      },
+      {
+        "name": "smc-fader",
+        "result": "PASS",
+        "log_sha256": "d0188c0936de6698d2ac4c58c843bd746bd27d0e986df3f9e104494a708a8fe2"
+      },
+      {
+        "name": "smc-buttons",
+        "result": "PASS",
+        "log_sha256": "e880287af13ea82c662e0fd18a7d8f35d426801620a6d60e4867a91b3fa9fb23"
+      },
+      {
+        "name": "smc-select-mode",
+        "result": "PASS",
+        "log_sha256": "f933f87e41bfbae4760170c234980cee5f70b527e984fa755422f758d032c9f2"
+      },
+      {
+        "name": "smc-fx",
+        "result": "PASS",
+        "log_sha256": "64c4964dd0cf9b30e880cfcb9f49cf77ebbebfec687c619e35e8176f17f377d4"
+      },
+      {
+        "name": "smc-mixer-edges",
+        "result": "PASS",
+        "log_sha256": "77dd7ed4a534bed68abccd844fa74cc71b6f2c788b01c7b5e7e0755c22f4a3a8"
+      },
+      {
+        "name": "smc-action-source",
+        "result": "PASS",
+        "log_sha256": "704b65c9e672e97734fc87d425e467862c82017dbd42b17600585174743c8496"
+      },
+      {
+        "name": "smc-fx-caption",
+        "result": "PASS",
+        "log_sha256": "5c29d4d87a6f61c21a9a7fb305ad7803663788036f5603dbbaf64667cc2c2768"
+      },
+      {
+        "name": "smc-fx-page-port",
+        "result": "PASS",
+        "log_sha256": "8cd523c8c15cc6d0e427dc640ffac12f8eb319838a61f4ae13662136b690f988"
+      },
+      {
+        "name": "smc-fx-peer-view",
+        "result": "PASS",
+        "log_sha256": "00ec8221910691201e61ba7face7c4d6c309e9cd2c0da1268eb7e1c702558f77"
+      },
+      {
+        "name": "smc-fx-preset-preserve",
+        "result": "PASS",
+        "log_sha256": "b2a4fdcebbc5ecb19dbbd7c9b4c78f13e174ee5c0cf7cc4618c3536656323972"
+      },
+      {
+        "name": "smc-queue",
+        "result": "PASS",
+        "log_sha256": "da6b4dac8ef71a42c86a5719f3c42555d17693de206db28ec95344beabbd26cb"
+      },
+      {
+        "name": "smc-solo-overflow",
+        "result": "PASS",
+        "log_sha256": "fe34645e456af75ba0db6827a6c7cadda24162fefadd3d416806f2941d837864"
+      },
+      {
+        "name": "engine-cq-rec-overflow",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "engine-cq-isr-preemption",
+        "result": "PASS",
+        "log_sha256": "f76bc779cd8eb45530cf3275327a0b8e35b4a723f7db847335c9e7a1d653b1d2"
+      },
+      {
+        "name": "engine-cq-boff-overflow",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "engine-cq-brk-overflow",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "engine-cq-bon-overflow",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "engine-cq-drum-overflow",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "midi-mq-noteoff-overflow",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "midi-mq-rt-overflow",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "midi-overflow-order",
+        "result": "PASS",
+        "log_sha256": "91458317ae5a7f3be9a3c8146754cd0102e20f25720003a832e762cefa4965b1"
+      },
+      {
+        "name": "midi-out-mq-noteoff-overflow",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "ble-out-noteoff-overflow",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "ble-out-rt-overflow",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "usb-sxq-sticky-apc",
+        "result": "PASS",
+        "log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+      },
+      {
+        "name": "smc-host-data7",
+        "result": "PASS",
+        "log_sha256": "a046ad952b0f503a327f63344e8d9c4774d3e42669bc75535a429de17d10b59f"
+      },
+      {
+        "name": "smc-host-overflow-data7",
+        "result": "PASS",
+        "log_sha256": "0182e71d3051c47473c593acba6ad5fabacb07ca6b3369544b14f019887fbe44"
+      },
+      {
+        "name": "smc-sender-isolation",
+        "result": "PASS",
+        "log_sha256": "15fe5ddaad57091be40b1d9d3e98e8ca71d9f668bdddf0e0e30f36a8e108b3e2"
+      },
+      {
+        "name": "smc-ble-payload",
+        "result": "PASS",
+        "log_sha256": "64b9226208a7f74fb08886d301337952f5c2ed29c9172c07100e1367a0b0a9d2"
+      },
+      {
+        "name": "smc-link",
+        "result": "PASS",
+        "log_sha256": "2267283443edeee352a891f132e99bc2212453cb5c7477b982406651354448fc"
+      },
+      {
+        "name": "smc-reconnect-epoch",
+        "result": "PASS",
+        "log_sha256": "1665067ec4ff626d18133c68008e087b45ff4e950a4a4af421f362d63a345b7e"
+      },
+      {
+        "name": "smc-boot-saved-roles",
+        "result": "PASS",
+        "log_sha256": "feba0c2e097ccf11fc8f60cf01751d66faa51605a614e797824cb36a7a7075f8"
+      },
+      {
+        "name": "ble-central-first-notification",
+        "result": "PASS",
+        "log_sha256": "dbd34ccba534739271e1fab239ea3cf2ba85f10b25223cee451b35ebcecf4b41"
+      },
+      {
+        "name": "ble-active-peer-contract",
+        "result": "PASS",
+        "log_sha256": "a3531c277f87df9d1b0cab494acf80984d52f3e62ba2925a97637923374dfb9a"
+      },
+      {
+        "name": "ble-smc-outbound-slots",
+        "result": "PASS",
+        "log_sha256": "aae28caf9aa82006e8970e718a6cc7f2060ff81db13ed7d1e812598df9c2fe8d"
+      },
+      {
+        "name": "ble-one-peer-command",
+        "result": "PASS",
+        "log_sha256": "3861b2a0e5052be618bbb98e015c2dfa76435b3c7f35a20f2b8f1874a5d7894d"
+      },
+      {
+        "name": "ble-dual-peer",
+        "result": "PASS",
+        "log_sha256": "bf3321f020f59b49671644f45a21fe83717bbf70d7a575b0dbb2058ec4acd3ed"
+      },
+      {
+        "name": "ble-command-credit",
+        "result": "PASS",
+        "log_sha256": "5be8c333d10fa91425a6e7ba3d4e3972b012dcc28d17f18dac9868bbbcddaa0b"
+      },
+      {
+        "name": "ble-controller-heap",
+        "result": "PASS",
+        "log_sha256": "952c158daf50c706c9afc5ba627f6342ab7d43d06dd0cd1dc544ca47cc32259c"
+      },
+      {
+        "name": "ble-midi-receive",
+        "result": "PASS",
+        "log_sha256": "3450c2bf940bdc93ae74f862c5e01253c29a106b215d069e22bafcba2f7c6a9d"
+      },
+      {
+        "name": "ble-capture-replay",
+        "result": "PASS",
+        "log_sha256": "c2a1e9c256f264926f1d12ce33eac0c110fc94609e1961d1ffb128441958852e"
+      },
+      {
+        "name": "ble-acl-start-flags",
+        "result": "PASS",
+        "log_sha256": "6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47"
+      },
+      {
+        "name": "ble-hci-completed",
+        "result": "PASS",
+        "log_sha256": "c08b463af8703fe2815c788d6a2a19890dd7ffa43f064f5db69765959481e0b0"
+      },
+      {
+        "name": "ble-acl-zero-credit",
+        "result": "PASS",
+        "log_sha256": "b97ac9f801858a6730b0c24f58ce77d2097071af36363d211e3b5f7c71fe910f"
+      },
+      {
+        "name": "ble-link-epoch-reset",
+        "result": "PASS",
+        "log_sha256": "6676ebff1d54df92ad612c08b6b1e431d99763aa87b7f082b6d8106f44faefd8"
+      },
+      {
+        "name": "ble-disconnect-status",
+        "result": "PASS",
+        "log_sha256": "1375d2c4497e46abf9894c1ae1df4782608d08eba06f07a82ac0cab8e9d179ed"
+      },
+      {
+        "name": "smc-reachability",
+        "result": "PASS",
+        "log_sha256": "035aa77ee47ad6de3edf8852110167e3618c63fe8d12e882dffcc6cabe25abb1"
+      },
+      {
+        "name": "smc-pickup-acceptance",
+        "result": "PASS",
+        "log_sha256": "a48a7c0ab1c39b553d86e1be716ba2d63f2c704ef1ea3c4b9c23dc8b3993e643"
+      },
+      {
+        "name": "smc-lock",
+        "result": "PASS",
+        "log_sha256": "23e12546d46a7dd48dd7bedd7050701a0665dd689b39cf849075f80244f35f14"
+      },
+      {
+        "name": "smc-lock-beat",
+        "result": "PASS",
+        "log_sha256": "11d55e3e69951e0d18f97dce4bbc6ba18e81cf43a89250654bb613d753a29086"
+      },
+      {
+        "name": "smc-multi-peer",
+        "result": "PASS",
+        "log_sha256": "c63472324ce52d32a236d31848726257e13795ce9c5c6d3e543ee18ae31c9bd6"
+      },
+      {
+        "name": "smc-multi-peer-negative",
+        "result": "PASS",
+        "log_sha256": "f7bf39dc0a6f68557bf4d93dd83d6f21b9ba6fa6982f9d018f14f349e09ef634"
+      },
+      {
+        "name": "smc-pause-loss",
+        "result": "PASS",
+        "log_sha256": "a3a755891233ace348f4b57f37c561b7cbca761bfc2eb79c36691e5d2db233e3"
+      },
+      {
+        "name": "smk-wheel-mode",
+        "result": "PASS",
+        "log_sha256": "7cf99b54e8d10f4dfdc9d4f82c0e3cfd56a2b0d79663848ccee45bdadfac956d"
+      },
+      {
+        "name": "miami-table-interpolation",
+        "result": "PASS",
+        "log_sha256": "411184785152cfb9972282f761b90176a00ba1913e7852aa948c675c08955729"
+      },
+      {
+        "name": "legacy-303-project",
+        "result": "PASS",
+        "log_sha256": "7d33f138365f145e66eebb80b90b6ab2708b9d08839ca9f6915cf07cde23e86f"
+      },
+      {
+        "name": "smc-interaction-negative",
+        "result": "PASS",
+        "log_sha256": "d0194f49b0e4d6aa334bbc0d74f248333e81fb59a10c57255a284ef41261c35a"
+      },
+      {
+        "name": "corner-coverage",
+        "result": "PASS",
+        "log_sha256": "de38e3c913f23329e8f4b3cad69bec39c6fd4078c30e791c27afe6894d16011e"
+      },
+      {
+        "name": "part-order",
+        "result": "PASS",
+        "log_sha256": "2c1778a00f6a51605997f571d4aa288c4b7c1e3c61a5f11465a7b5f4979cdb7c"
+      },
+      {
+        "name": "smc-ui",
+        "result": "PASS",
+        "log_sha256": "0b1c6751ed33ed86a0435c78254b9bc15651391c2b18a2fb31b38bbd4d4228de"
+      },
+      {
+        "name": "smc-ui-popup",
+        "result": "PASS",
+        "log_sha256": "6a53e26fdc19fda1e4cc4d439f1ca0947ada07fef906d9db414a2840ab49242e"
+      },
+      {
+        "name": "smc-mode-page",
+        "result": "PASS",
+        "log_sha256": "d06a687cc3c330532a4b56c3bbbcb579620332e59ae2123e218b283cfada8e24"
+      },
+      {
+        "name": "smc-mixer-page",
+        "result": "PASS",
+        "log_sha256": "b1aa7844f14b1df8a0fab32a11a65721ab2013a7936d7a06c51e927d41f408be"
+      },
+      {
+        "name": "ui-shared-glyph",
+        "result": "PASS",
+        "log_sha256": "cf86380f1e305d2e6c9c65c7e28b2441d38f5a6f1d911843ff9ebf94b2c8dd15"
+      },
+      {
+        "name": "ui-drum-mix-material",
+        "result": "PASS",
+        "log_sha256": "078d3a41bd75ad7c45671ce6ce7f32b6fe6450923054aafd5b1c1a07933c643a"
+      },
+      {
+        "name": "ui-waveform-truth",
+        "result": "PASS",
+        "log_sha256": "1a8a905cb406dbdcef3e8d340534105cef79e87534f778ccbe99f61eb57e3c19"
+      },
+      {
+        "name": "smc-ui-bounds",
+        "result": "PASS",
+        "log_sha256": "9c6af0d7db85370c13074ae610598bb276f1f4b1829f85bd9ab333e2d55bcd11"
+      },
+      {
+        "name": "smc-ui-negative",
+        "result": "PASS",
+        "log_sha256": "147e0a72efef4caeb6daa2230fce835ebb14cd2068cc9a282cde8c67ff8efda7"
+      },
+      {
+        "name": "smc-mapping",
+        "result": "PASS",
+        "log_sha256": "39324d034d08f8f8d801a4772456136f688a06fe764a6fb6df6e94456b7e8c99"
+      },
+      {
+        "name": "smc-drum-mutes",
+        "result": "PASS",
+        "log_sha256": "5f34a82c4b87bf2e4da9c375d4318498261f65d3a32d1e1dc7d008a3cbad8762"
+      },
+      {
+        "name": "smc-drum-rs",
+        "result": "PASS",
+        "log_sha256": "88287569ebb53fc95a781bc75a85713e7732fc1cac6214b79f1a6e9e7c61a0da"
+      },
+      {
+        "name": "smc-performance-abort",
+        "result": "PASS",
+        "log_sha256": "a554e8ffcfb7df0d45d73347c73343d9260f4f1427b15e8d30ee1cd468ea1c2f"
+      },
+      {
+        "name": "smc-filter",
+        "result": "PASS",
+        "log_sha256": "4a8e1afdd584ebbb3bc29c9892cedfaa2b2ec76b3c27e45c3b44cc7c5c9c5f92"
+      },
+      {
+        "name": "smc-feedback",
+        "result": "PASS",
+        "log_sha256": "becf8d2e15737202ed3c7e778606779c1269103beba29b8d2b2e97e37c5300f7"
+      },
+      {
+        "name": "smc-record-feedback",
+        "result": "PASS",
+        "log_sha256": "31e5ba71c0fe658c4273e744b9d076051da23c1e839486a05c06b87efa5961bb"
+      },
+      {
+        "name": "smc-part-select",
+        "result": "PASS",
+        "log_sha256": "232941838900ea044e95c2e848228751dd188b6c5441145fc0dc70069c338938"
+      },
+      {
+        "name": "smc-clip-visibility",
+        "result": "PASS",
+        "log_sha256": "1069e67bd4b28e47b02b5a8f7560e276cd956dd8a5e78589cd57cba15724e00d"
+      },
+      {
+        "name": "drum-pan",
+        "result": "PASS",
+        "log_sha256": "2417426f1cdde649695950194b32b9eee4ce25df3727ddb50d19d479a044156d"
+      },
+      {
+        "name": "stereo",
+        "result": "PASS",
+        "log_sha256": "ba6a8109e1e5f86157e6ec420b1b1d0baca855c9f87342a2cf6e6a89cad5f575"
+      },
+      {
+        "name": "master",
+        "result": "PASS",
+        "log_sha256": "b3151c2114d0afd475ce314026032eda0772877d0cb6ebe76ab1a5ad49b7ce4f"
+      },
+      {
+        "name": "drum-kit-identity",
+        "result": "PASS",
+        "log_sha256": "cf7509b1c67f3c8ea6de19bed80da4d738376e64a246dae4a17f65009cf7a510"
+      },
+      {
+        "name": "drum909-adpcm",
+        "result": "PASS",
+        "log_sha256": "6267965cc328500afe59dd6b935bc22ffc52815f9620518d6d632f97f4ec2d23"
+      },
+      {
+        "name": "drum909",
+        "result": "PASS",
+        "log_sha256": "95f1a0fca87b316e8ebfcfb2c7a11e4a36f6ae54c1ba7f07da48d46652f5d9d6"
+      },
+      {
+        "name": "drum808",
+        "result": "PASS",
+        "log_sha256": "f786066cb55e75e7dde3a6ab072319dfadf73bda18fff1a806f6d7bd6c5e6945"
+      },
+      {
+        "name": "breaks",
+        "result": "PASS",
+        "log_sha256": "e50f60dc0a45d5aadc959f2b381a1b6795721a31e0551115e12dc96d0133dca6"
+      },
+      {
+        "name": "break-suite-registration",
+        "result": "PASS",
+        "log_sha256": "a532c70c777f14de1a3f429cbfc4cc358708088b2bdd862dbd2648900087b523"
+      },
+      {
+        "name": "adaptive-break-dsp",
+        "result": "PASS",
+        "log_sha256": "74ee2009cc86d5b2047f767d9a65055d067edad3675779277ef6fa5a6f17b085"
+      },
+      {
+        "name": "adaptive-break-controls",
+        "result": "PASS",
+        "log_sha256": "e65eef18681c9bcbd158ef51113b44c0dd41241dcbad9ecd7112bc6324d58ce9"
+      },
+      {
+        "name": "adaptive-break-storage",
+        "result": "PASS",
+        "log_sha256": "6f9912de195a813ecb7644c95b76b292d35b7cff73dc099ee6e480b2447b85f0"
+      },
+      {
+        "name": "adaptive-break-midi-pair",
+        "result": "PASS",
+        "log_sha256": "201239e220d939565fc9004403ab7036d864b85dbe3b9ddbf917847a857360ce"
+      },
+      {
+        "name": "break-performance",
+        "result": "PASS",
+        "log_sha256": "2e81538a714de5265120aa4e07c8f1a657ef025097fc9ca4928084ea76352358"
+      },
+      {
+        "name": "brk-loops-seamless",
+        "result": "PASS",
+        "log_sha256": "809e1c857b916cadb63fa310c9c496f05c403419a307fcfaca5b59dbaa408f1c"
+      },
+      {
+        "name": "brk-outline",
+        "result": "PASS",
+        "log_sha256": "83ca7061256d8c40e75e79c2c1526d1c5c890eb80b95a393840212d5e41e8b8f"
+      },
+      {
+        "name": "brk-outline-gate",
+        "result": "PASS",
+        "log_sha256": "4a16e72a26f68ed5276a9c0870317de9e34fb8cd8caa6defc6c63c8ae23c4d00"
+      },
+      {
+        "name": "chicago-fx-bridge",
+        "result": "PASS",
+        "log_sha256": "febabcfa5459d4004d55cbe43d92b1aa049845f91c8933910aee1c0d1154cffa"
+      },
+      {
+        "name": "au-compare-align",
+        "result": "PASS",
+        "log_sha256": "e90023b28003ab8ebc5491117ef057bd119b822fdf402f8d50bca97d07276a60"
+      },
+      {
+        "name": "au-compare-battery",
+        "result": "PASS",
+        "log_sha256": "dcd2147edfda2291b456dfb6d9f3021f0fed07760d5a1c8869fc5446f30e28fe"
+      },
+      {
+        "name": "install-gate-guard",
+        "result": "PASS",
+        "log_sha256": "a0e6bc95b6901ce0e8284706c639e478614e4ec9071ea96c638cf829680bb287"
+      },
+      {
+        "name": "queue-guard",
+        "result": "PASS",
+        "log_sha256": "def4d8a7402e9956534cf18c1356da39d6b79a6553517299e3df8eeb73718149"
+      },
+      {
+        "name": "install-guards",
+        "result": "PASS",
+        "log_sha256": "8584db41d80a6c27c415c75ac8b5edd0ef64f5a673494d1335f11deaef0a4f7b"
+      },
+      {
+        "name": "install-head",
+        "result": "PASS",
+        "log_sha256": "9e1afba75e04c4d00584cb51594fd4892a02ee4e04f3a35da50754be42bd88e6"
+      },
+      {
+        "name": "release-tree",
+        "result": "PASS",
+        "log_sha256": "f9526c5a44040b6ce426bc1338914538c0cf53b30271d21570447f7dd5034d20"
+      },
+      {
+        "name": "prepush-trim",
+        "result": "PASS",
+        "log_sha256": "44e52177573c340cdf5a6efda5b18800861f8da25efd93955ac874a9d0f96f62"
+      },
+      {
+        "name": "prepush-allow",
+        "result": "PASS",
+        "log_sha256": "edbe2e98e344c947e102f5d69de1fa12a3be809893ec692d9947931cca92a08e"
+      },
+      {
+        "name": "gate-configs",
+        "result": "PASS",
+        "log_sha256": "c32cb3544314176313b8f893a980354544803e8720d42ccb138653c157424811"
+      },
+      {
+        "name": "gate-trap",
+        "result": "PASS",
+        "log_sha256": "81fea960e2c9e9f67e9dca5dd46f85fb16314da4ed5e779ee709d07c18cb35cc"
+      },
+      {
+        "name": "quickcheck-plan",
+        "result": "PASS",
+        "log_sha256": "5369cab8bda0553e1b5d1bf55879f66cdad2db2e19726e5f2fb69ff96bc3707c"
+      },
+      {
+        "name": "host-failure-summary",
+        "result": "PASS",
+        "log_sha256": "e5840d81745d70e519c4b51c32c74260ee861d0467aa478a17f053f85a6bc139"
+      },
+      {
+        "name": "ctl-compile",
+        "result": "PASS",
+        "log_sha256": "bec6537bb1ae48d3ee16458f78d381e64bd8e22de267b124e6c746f6cc882e7c"
+      },
+      {
+        "name": "host-setup",
+        "result": "PASS",
+        "log_sha256": "8d32ee671a92f1c6039468df5da32662d23accb169c3412e4dc0992b1fbe1f42"
+      },
+      {
+        "name": "gen-nonfont-tables",
+        "result": "PASS",
+        "log_sha256": "575e857d2f5b7feb00a68e695e03d1334cbb6e8e0350ed635978e712eee71f93"
+      },
+      {
+        "name": "stereo-alone-gen",
+        "result": "PASS",
+        "log_sha256": "99d312de39c2ed6ef60d89d7e8bbfb1aba1ce534346761a5abf1bb7d8e948d65"
+      },
+      {
+        "name": "runner-admission",
+        "result": "PASS",
+        "log_sha256": "13305f7dabfb79126f86d4f078b2b72f1af48a9ac565a2a157b19f4acfcacebf"
+      },
+      {
+        "name": "update-names",
+        "result": "PASS",
+        "log_sha256": "5dd24fbb53a55d7b9b7792665d9c6e0df6640933afa66b4574398c1d0d1da854"
+      },
+      {
+        "name": "gate-reason",
+        "result": "PASS",
+        "log_sha256": "38774a04a044e176365763115b317faa5fc8f87afbbaaf78ee3036c484111cf2"
+      },
+      {
+        "name": "validation-inputs",
+        "result": "PASS",
+        "log_sha256": "5c25b43db9261990c677ea9f64d8ea5d0c7453ddae06b9c67495b873b779c58a"
+      },
+      {
+        "name": "stage-handoff",
+        "result": "PASS",
+        "log_sha256": "5d7a03ba8edf9bfa1d13102e407e2fb284bf7b3d2631233c7a9d8c787450df62"
+      },
+      {
+        "name": "dev-validate",
+        "result": "PASS",
+        "log_sha256": "2cc79b7fcd8403579d4741ac8686925664f2079d74d9fa9db52d02895d074ac1"
+      },
+      {
+        "name": "dev-validate-composed",
+        "result": "PASS",
+        "log_sha256": "cb4ff97095c5983fd169f17c557830f174f2a10777cbe5c1a07c26e735a8a0a0"
+      },
+      {
+        "name": "nightly-publish",
+        "result": "PASS",
+        "log_sha256": "e6bcacfece1da1e8fbe3009c51590f00f450d215458a3f79484dbb6239176174"
+      },
+      {
+        "name": "gen-cache",
+        "result": "PASS",
+        "log_sha256": "9fdf31ad6ec59898e74bb7cc56ee889ac69cd4991c70b2f99290d9d78bf2cdc6"
+      },
+      {
+        "name": "smk-update-contract",
+        "result": "PASS",
+        "log_sha256": "6cd1037fc699ec8f18e26887d10819b5167dc9d251ba62d727e749e7f350a04d"
+      },
+      {
+        "name": "gen-order",
+        "result": "PASS",
+        "log_sha256": "c279e9522b5bdc8cd394ce8c2752825409c2821a9e334a570d93089054fc150e"
+      },
+      {
+        "name": "quickcheck-devbug",
+        "result": "PASS",
+        "log_sha256": "404152bc382879cc5ae7fc1cde3d7d1f6e6cb30b6de525beff62257501159590"
+      },
+      {
+        "name": "status-lanes",
+        "result": "PASS",
+        "log_sha256": "b465e611132cf9e8f5b714ab0848b1fa7bdeef6c3aaf9056eac86774b15044fd"
+      },
+      {
+        "name": "status-isolation",
+        "result": "PASS",
+        "log_sha256": "722537375179a5548877be4ad9344edb7b2f25ad5835009554d05f396b6968c4"
+      },
+      {
+        "name": "loop-bars",
+        "result": "PASS",
+        "log_sha256": "1aceccc601b6d5d39096a830778e0b9af0d4b644e90146945bc558ae746a5acd"
+      },
+      {
+        "name": "installer",
+        "result": "PASS",
+        "log_sha256": "548849f23539656ff57ea92b07f26269e4ba54117298a44a438d43edeb73c47c"
+      },
+      {
+        "name": "installer-f02-bind",
+        "result": "PASS",
+        "log_sha256": "a5442dec04276e9a606f949d35dead79cdd04caca06cffb1b03ce59e5326f4b2"
+      },
+      {
+        "name": "installer-f02-bind-web",
+        "result": "PASS",
+        "log_sha256": "82c0428229e2f279f655094adb10f63f420a46620934d41cb42fa9d09e34d2b9"
+      },
+      {
+        "name": "locked-settings",
+        "result": "PASS",
+        "log_sha256": "82f10fc3f906cea581f2c2717f57bc70e6de5e320a72625ede9b4401e1d38589"
+      },
+      {
+        "name": "smk-flash",
+        "result": "PASS",
+        "log_sha256": "0c03e13fa54153ed05ad1fd61ce0273bd981052fe7c6828880f2ad05a0b9068f"
+      },
+      {
+        "name": "smk-storage",
+        "result": "PASS",
+        "log_sha256": "7a64ab0b3132df05a1b95d4054c8d89ef34ada87f036e22d42056d67d2b8d5c0"
+      },
+      {
+        "name": "smk-apc40-map",
+        "result": "PASS",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "smk-apc40",
+        "result": "PASS",
+        "log_sha256": "95b5e844401c4bd42a0b09935309e73cef328271d86117c25a410f63723339d1"
+      },
+      {
+        "name": "smk-clip-ble-clear",
+        "result": "PASS",
+        "log_sha256": "4e2352f42cc2a43ab06e066b7802b41c96a8bfd672174c6099f560234045704d"
+      },
+      {
+        "name": "smk-clip-keys",
+        "result": "PASS",
+        "log_sha256": "4d05c672c4540119f6bf8d544dccc44c896c312e174e91c39177efccea8ca6c0"
+      },
+      {
+        "name": "smk-chord-recognize",
+        "result": "PASS",
+        "log_sha256": "61fa6736cc7469c15d445159dbc4c1bcb899a47891f2e58fe92ab1d140f3051a"
+      },
+      {
+        "name": "smk-clip-chord-display",
+        "result": "PASS",
+        "log_sha256": "16f30a33bf108290ae34339e59aadfddfa0bce6c09ef30beefe221c3ba416ff3"
+      },
+      {
+        "name": "smk-ck-page-layout",
+        "result": "PASS",
+        "log_sha256": "3024b9a8f91235021cc64a6eeb2e5ebd9ff8fad4a920498c053d65f0f1568506"
+      },
+      {
+        "name": "smk-arrows",
+        "result": "PASS",
+        "log_sha256": "69a77e7e7b83031aa59087854e65fa1db0e404a28cbb154a9033e7e164592151"
+      },
+      {
+        "name": "smk-arrows-owner",
+        "result": "PASS",
+        "log_sha256": "53ff0f94ed457dcadec856eaaa7f5c7769da2bf9ed46e9727af78af1d13b730d"
+      },
+      {
+        "name": "apc40-tables",
+        "result": "PASS",
+        "log_sha256": "8b17ae5399b2c7c3cfe3fdc83b04b4eb6887ec689ce53ba882286c76939fe1dc"
+      },
+      {
+        "name": "smk-clip-idle",
+        "result": "PASS",
+        "log_sha256": "ef3ef0970fc43c9c5af8b0d4a9327740c28a57cbd604e18f514b79ecb74aed41"
+      },
+      {
+        "name": "smk-clip-idle-pad",
+        "result": "PASS",
+        "log_sha256": "eacca7b9c11275de722a7ca5fd563523d77b86ffd9e82733f5f105e0c78f99a3"
+      },
+      {
+        "name": "apc40-pad-owner",
+        "result": "PASS",
+        "log_sha256": "5b5e6dda36dcbab76397a54338658066d47ff59e39bda6dfee8576baa33f6218"
+      },
+      {
+        "name": "smk-padcal",
+        "result": "PASS",
+        "log_sha256": "54533665f631235a6ea73f9329c177f8c5bf9c8a501a57fc5149f09d54cec7bf"
+      },
+      {
+        "name": "padcal-view",
+        "result": "PASS",
+        "log_sha256": "f637dca5d5059ecad03f1fa9285fcffe3d18a2ded763b7e08db3359e746719ba"
+      },
+      {
+        "name": "smk-padcal-export",
+        "result": "PASS",
+        "log_sha256": "74e0b24fdca6eadc9caf264b26cc9b16496ceea58fa3dd58e765c3780cec7c0d"
+      },
+      {
+        "name": "smk-padcal-wiring",
+        "result": "PASS",
+        "log_sha256": "f28f105004a6efbcd3dee6e8714bef8ff584eaf5fbb90707691e0ff939218996"
+      },
+      {
+        "name": "pad-placement-doc",
+        "result": "PASS",
+        "log_sha256": "80e0ca2f56c13dc27b19fd15766668b1d769e76de986f51178e7dd2edfeb0378"
+      },
+      {
+        "name": "padcal-flag",
+        "result": "PASS",
+        "log_sha256": "8fc3a3b7af77cb22bca5697b42dd0df320be8a7f742a1abca5406669294573eb"
+      },
+      {
+        "name": "apc40-lcd565-csv",
+        "result": "PASS",
+        "log_sha256": "22bc9ed3e9339881a15983047ce1fda0832ff6e845762aadc06c8086d6df83a1"
+      },
+      {
+        "name": "apc-palette",
+        "result": "PASS",
+        "log_sha256": "8513b55c01dda88792f39549d474c6db30db682aeda1f1cb5a43efe54c0fd5dd"
+      },
+      {
+        "name": "installer-targets",
+        "result": "PASS",
+        "log_sha256": "54c5f5a50d86dcb87ffe3449a3144c7bade9088059e2a545a3dae08c4f08173d"
+      },
+      {
+        "name": "diag-size",
+        "result": "PASS",
+        "log_sha256": "0d2ae93d9d2682218bd98a605b699703641853031f849b8b66c102b51649c31f"
+      },
+      {
+        "name": "smk-inlog",
+        "result": "PASS",
+        "log_sha256": "20248e7936291ab12379008d1b15e08896b5ffe51cc7b119be9c528379fed4b2"
+      },
+      {
+        "name": "ble-central-diag",
+        "result": "PASS",
+        "log_sha256": "23e1fda6a358d6abf4bffaa33cc25911565b5858e45ced2e8a1efaf7f250226d"
+      },
+      {
+        "name": "ble-role-switch",
+        "result": "PASS",
+        "log_sha256": "392653209a2372ed3b8d1b01e2978ca088642f2f3a5aa6f0ab5a9e075b78ed1b"
+      },
+      {
+        "name": "inlog-tool",
+        "result": "PASS",
+        "log_sha256": "0680a269b46f8e1a5cd203820833d97b4d70b5ebfcd0ec41859f10acacd359ae"
+      },
+      {
+        "name": "smk-pad-inputs",
+        "result": "PASS",
+        "log_sha256": "7f5c6a4c86265bfb9179e814a7d93e8d67eb16cb759260ada07662cfb9fc0f89"
+      },
+      {
+        "name": "smk-clip-ble-notify",
+        "result": "PASS",
+        "log_sha256": "73d23272a62a95c9c73a0d7b0fdee35a07fcba1c87d15c2c155676248c1c2b74"
+      },
+      {
+        "name": "smk-clip-dark",
+        "result": "PASS",
+        "log_sha256": "be5f2285bd9ffad689e0ef311d7756a579073d178e9b716ebe8bd974e619efdf"
+      },
+      {
+        "name": "smk-clip-usb-clear",
+        "result": "PASS",
+        "log_sha256": "d154137c6a9eac18505f14167458774a8557506a46d6bc0fced791340689b0ed"
+      },
+      {
+        "name": "smk-clip-isolation",
+        "result": "PASS",
+        "log_sha256": "d5b069b9d5ac8ddf244c45d7a5a56f7b930931438ca524f9e552903e8cc6f920"
+      },
+      {
+        "name": "smk-clip-knob",
+        "result": "PASS",
+        "log_sha256": "e9871a134e82e602958b97e7e639d2a90f4f5a49ae89a3a2e9d3fb2c0df9ecdf"
+      },
+      {
+        "name": "smk-fader-pickup",
+        "result": "PASS",
+        "log_sha256": "9a5b9e5479071cd83dc5e3c4eefafeec81026da9da1ae6090fbc1b3659639061"
+      },
+      {
+        "name": "smk-clip-wait",
+        "result": "PASS",
+        "log_sha256": "e04ed6b94a262a5d1c66751c7af6b7df51c69e87ce7c7b098770e2af675a77b7"
+      },
+      {
+        "name": "smk-apc40-violet",
+        "result": "PASS",
+        "log_sha256": "fc36b52cb40ef62997a2616043a5bc943624a4667a8b87ab45af92c1dfc35f5f"
+      },
+      {
+        "name": "smk-package",
+        "result": "PASS",
+        "log_sha256": "a704dd6928ea926bd6a7681aa11831a2acc4959c8a5345a4a02809f98dc96418"
+      },
+      {
+        "name": "smk-ota-entry",
+        "result": "PASS",
+        "log_sha256": "f4fadd0e69a20b803a5eb1c6ff684d33c52f74da31bbdf54b5a1ffd58622b67f"
+      },
+      {
+        "name": "smk-ota-entry-model1",
+        "result": "PASS",
+        "log_sha256": "9e86cfe397d00498bdf9d2b2db73b51eeac63a08d679ebe38edf600d2433b354"
+      },
+      {
+        "name": "smk-ota-entry-model2",
+        "result": "PASS",
+        "log_sha256": "220d43db689d146c54062f674411ba357338f50ac9f00a605e0a6d45e78ec4a3"
+      },
+      {
+        "name": "smk-update-loader",
+        "result": "PASS",
+        "log_sha256": "fefe301f15d77157551bf38ef9c32f54d787999a83dab426336b6522df5ce67b"
+      },
+      {
+        "name": "smk-build-package",
+        "result": "PASS",
+        "log_sha256": "a704dd6928ea926bd6a7681aa11831a2acc4959c8a5345a4a02809f98dc96418"
+      },
+      {
+        "name": "smk-build-package-elite",
+        "result": "PASS",
+        "log_sha256": "8e7ffb6b973257e15e2c05331715507d2ce866dfe9d87f414d506f235856653b"
+      },
+      {
+        "name": "ble-sysex-bounds",
+        "result": "PASS",
+        "log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2"
+      },
+      {
+        "name": "ble",
+        "result": "PASS",
+        "log_sha256": "e1451de0d2f3a62d7a59db0dca219c09513df5a3417c02c8c7f711381033fbd1"
+      },
+      {
+        "name": "ble-package",
+        "result": "PASS",
+        "log_sha256": "f4f4a4502181893d710d210cd5a40b3b9d1ea31c077f2f5650c9d12d7cd8016f"
+      },
+      {
+        "name": "upload-images",
+        "result": "PASS",
+        "log_sha256": "53885c4238816b9add0dc4334997338d53824868d99c3c2ea8b0714261aa2629"
+      },
+      {
+        "name": "upload-tools",
+        "result": "PASS",
+        "log_sha256": "012fdb7719a8db3cc52533eae16843b5809d3dd33876ee28eb25031c6492b7fa"
+      },
+      {
+        "name": "builtin-break-output",
+        "result": "PASS",
+        "log_sha256": "72973f209152deadab2580ec4a7f52c90385ea0287180b410f8e36bace6ab3c7"
+      },
+      {
+        "name": "break-pack",
+        "result": "PASS",
+        "log_sha256": "91cd5efaf5567172a73f0fd20e37dd21f83b8f262c286dcd732935386578192c"
+      },
+      {
+        "name": "break-pack-web",
+        "result": "PASS",
+        "log_sha256": "39db4f771f015883454671e8689a95aef5d466d2cc55de1d08306c5c98a3adc5"
+      },
+      {
+        "name": "breaks-web",
+        "result": "PASS",
+        "log_sha256": "3820099a1604cbc1c4b21d875f6be308eeda5bcaaf0ed20316dbf29bc4799643"
+      },
+      {
+        "name": "breaks-page",
+        "result": "PASS",
+        "log_sha256": "2da910cd169ed6f21c6ee51adcdf77b155cc080b4c7dd030648699e6e4815b33"
+      },
+      {
+        "name": "project-adoption-identities",
+        "result": "PASS",
+        "log_sha256": "f6c109d5a69b879d80fffdf9e5c6746bb4962d6d69df4da183ffe004679fe947"
+      },
+      {
+        "name": "projects-web",
+        "result": "PASS",
+        "log_sha256": "b96c2df0673472e5c1b61294d0cdfa4b9a5a9e44a6408597454f096b3f95da33"
+      },
+      {
+        "name": "installer-project-handoff",
+        "result": "PASS",
+        "log_sha256": "a0004abb0fbfaae32c936b3b5894625d9d17081a53713ec9c0081f12141353d7"
+      },
+      {
+        "name": "projects-page",
+        "result": "PASS",
+        "log_sha256": "1f3bdf563111b5edec2becdd2afee1ad83fd8a5014b20577a26abb2f810c9001"
+      },
+      {
+        "name": "install-slots-web",
+        "result": "PASS",
+        "log_sha256": "617341613b598f03af4b8aab85d1ebc5fe8717e7678c08878e9bb478a4d4cb6c"
+      },
+      {
+        "name": "installer-backup-selection",
+        "result": "PASS",
+        "log_sha256": "ebce5d7b86da42456dbd3a5f44151f66b85cf095b6a9cf847b568cb7de61778b"
+      },
+      {
+        "name": "slot-build-safe",
+        "result": "PASS",
+        "log_sha256": "c70fb06b53a23fc6b1506cd42237786fdd442d347ec609476bccba910f110b08"
+      },
+      {
+        "name": "wav-import-integrity",
+        "result": "PASS",
+        "log_sha256": "3f3679053c7d98e0fe0bdc31991a792f4befa260e0463ac3a0c5a2fb33d17c31"
+      },
+      {
+        "name": "slot-backup",
+        "result": "PASS",
+        "log_sha256": "eeeb7ebdd00e8a54c363855335f5c64cc539670f6570fa09f99c74ed4ef9e7a8"
+      },
+      {
+        "name": "slot-begin-cancel",
+        "result": "PASS",
+        "log_sha256": "7164520f7c18ab21716a303634c8c59391c2ab064c61257a46ec1f175bfebf0c"
+      },
+      {
+        "name": "smp-begin-cancel",
+        "result": "PASS",
+        "log_sha256": "2484dafa98669234950593dbe8f73089a4dba857387c2ba5f0b635d8988c1789"
+      },
+      {
+        "name": "slot-backup-durable",
+        "result": "PASS",
+        "log_sha256": "b9499986cea8d62e079107782d19c79bf23696d4308739c3a72757caefc9614c"
+      },
+      {
+        "name": "slot-archive-zone",
+        "result": "PASS",
+        "log_sha256": "8ef22e86f92eae70cba0c41d45e22ee4d041279e9b011bcba35892ffb7307bf0"
+      },
+      {
+        "name": "slot-verify-order",
+        "result": "PASS",
+        "log_sha256": "2bf9411d25983664e883c761f3ff9891944ee8891e7dbec21d9ffd4487bbe4cf"
+      },
+      {
+        "name": "slot-read-reply",
+        "result": "PASS",
+        "log_sha256": "b71156fce326afd80920e208eda13cd460eea45b19fadbe856a8c81f3bd933dc"
+      },
+      {
+        "name": "slot-ack-integrity",
+        "result": "PASS",
+        "log_sha256": "98ff0e15b93d4d5950297f99d321be036b5ddbf54c6a49fa87e88c649040d4ec"
+      },
+      {
+        "name": "slot-echo-7bit",
+        "result": "PASS",
+        "log_sha256": "5b7938e36b2d44ebc196a87e680953b002a4034b7e6d84b020a5c27f59e33f92"
+      },
+      {
+        "name": "slot-migration-matching",
+        "result": "PASS",
+        "log_sha256": "afc838c19b190a0f7f06cda46298b4e2626ac70778d0e3bf320b2457cecaeca7"
+      },
+      {
+        "name": "slot-break-menu-migration",
+        "result": "PASS",
+        "log_sha256": "a4be65af8f2e3cca4a05a40efdec935bbe22e03e835f8d85844d4e896b1ea855"
+      },
+      {
+        "name": "installer-slots",
+        "result": "PASS",
+        "log_sha256": "125772249b6fb1bee4769b64627df655906386529d36bee4e372951a3fa13478"
+      },
+      {
+        "name": "installer-restore-status",
+        "result": "PASS",
+        "log_sha256": "0c882dec4eeb807cf6eff3cf2b794936121152b82c0b3f7424e23f0f26316b3f"
+      },
+      {
+        "name": "installer-ota-finish-ack",
+        "result": "PASS",
+        "log_sha256": "5a90c69c440139703aeda61cab125da6dfa2349070a0b7ba015f96b6f0bd6a92"
+      },
+      {
+        "name": "installer-backup-snapshot",
+        "result": "PASS",
+        "log_sha256": "15b5b2311eccf1a9e8108d485f6b74f4fd67511ca9397082e6de75b773319cf6"
+      },
+      {
+        "name": "installer-ctl",
+        "result": "PASS",
+        "log_sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+      },
+      {
+        "name": "ctl-read-framing",
+        "result": "PASS",
+        "log_sha256": "271b02bbacca7d1300a5cf1138ad66748a592f44ea98c75a67ade2ab76255c17"
+      },
+      {
+        "name": "ctl-publish-atomic",
+        "result": "PASS",
+        "log_sha256": "aeea3e0a18060a244c732e0a51969651b85d5611bc6b3cab6823713c77670e82"
+      },
+      {
+        "name": "rec-held-duration",
+        "result": "PASS",
+        "log_sha256": "03b8d6ec12900da3a5d71f7a3d12678768e90e16535e9351fdf8bf3227cb5a8f"
+      },
+      {
+        "name": "original-stale-release",
+        "result": "PASS",
+        "log_sha256": "28738fd484c1a5c01645dff0ca0fd48fdc6a7c989221a97d8b30d7d57ef569fb"
+      },
+      {
+        "name": "rec-endpoint-lifecycle",
+        "result": "PASS",
+        "log_sha256": "6be518cdc8309e3b2e138d7787bb273401b5d1cfcfa71139262a99011c61d2f7"
+      },
+      {
+        "name": "rec-endpoint-storage",
+        "result": "PASS",
+        "log_sha256": "68ada40c08b5932eef50516602d1a2b64f1f0dada1952570ef1982506ba8517b"
+      },
+      {
+        "name": "rec-nonforward-guard",
+        "result": "PASS",
+        "log_sha256": "9568e3c6589cff46445c63441b497dbc9c8a96d1b14bb64908b45d5af02a184f"
+      },
+      {
+        "name": "rec-live-smk",
+        "result": "PASS",
+        "log_sha256": "3b7e527cedddcd0c47c08db25853dae9aad402a628e9c992e9a17daed13c421b"
+      },
+      {
+        "name": "ext-midi-rec-smk",
+        "result": "PASS",
+        "log_sha256": "6793ac23517ef51d3baf535767a3e40901fd903e6c8d10f9209385523e6b3590"
+      },
+      {
+        "name": "copy-semantics",
+        "result": "PASS",
+        "log_sha256": "ab44688c616ce84b8179ab63abb910b80880305f68be2e6903260efd844005f7"
+      },
+      {
+        "name": "song-actions",
+        "result": "PASS",
+        "log_sha256": "f3cee9bb32f11eee7eebe173c4f1bfc708176b81c8b7d64005ac3f4185ada24d"
+      },
+      {
+        "name": "ui-feedback",
+        "result": "PASS",
+        "log_sha256": "b15c66bf7867c57ea0b05b33d5e66a0630d7c4e1d38dc780973bc1d89a388827"
+      },
+      {
+        "name": "remaining-feature-proof-selftest",
+        "result": "PASS",
+        "log_sha256": "7ffda15959781bbeb74d2c9ce9c4733de3476eef648354bb85a78ce6d9366e2e"
+      },
+      {
+        "name": "home-pattern-glyph",
+        "result": "PASS",
+        "log_sha256": "7c2f09f20baf792de5c107d8a93da0733e50f2bfd7f1f64382afc72b4affdafe"
+      },
+      {
+        "name": "home-overview",
+        "result": "PASS",
+        "log_sha256": "a2996a6b716793aa8f9ac0aea0442f12d47194c81fc3d8fc14913a025bd79bb5"
+      },
+      {
+        "name": "sound-matrix",
+        "result": "PASS",
+        "log_sha256": "1fdfd3fd682032459665faef219e2b6d7f36f6c771a24d0527b027ced1f4be8e"
+      },
+      {
+        "name": "sound-layout",
+        "result": "PASS",
+        "log_sha256": "be3998336c01eee0bc77d4fe33d01118e67897c7238886a2bf77702c294b9cfa"
+      },
+      {
+        "name": "perf-wheel-motion",
+        "result": "PASS",
+        "log_sha256": "330c710ab738f48bc5629e4277c90153870b32410293a0083454bfdb95cf76a2"
+      },
+      {
+        "name": "chicago-presentation",
+        "result": "PASS",
+        "log_sha256": "d45e8d1260ace29abba7554bdea6080afda2422f12ead48c60fb3f315c16fc49"
+      },
+      {
+        "name": "chicago-readout",
+        "result": "PASS",
+        "log_sha256": "57b7ab6bef928ae4c521f634e720c8cd660167d3c5049ccb2ebbd7c8160745b1"
+      },
+      {
+        "name": "ui-drum-glyph",
+        "result": "PASS",
+        "log_sha256": "70744e0bd0a3336f7c58f7e228dbb14e47f14ee54496383cbc7454817189666b"
+      },
+      {
+        "name": "ui-glyph-polish",
+        "result": "PASS",
+        "log_sha256": "0c3a36525be6dcf154332125740cb32b71d98ad173f771fd8f384380c8bed649"
+      },
+      {
+        "name": "ui-chicago-env-motion",
+        "result": "PASS",
+        "log_sha256": "d377b64937abefca5f8e5862dc36364c4672559815c953634266fd243a39f8af"
+      },
+      {
+        "name": "matrix-knob-caption",
+        "result": "PASS",
+        "log_sha256": "5b4188c6462184e2938c388b72a7cf59e86e67b1facd5ad3da61261ef2be63c0"
+      },
+      {
+        "name": "preset-navigation-noop",
+        "result": "PASS",
+        "log_sha256": "da534ebbc6f32948637d2870ed3d1cc840de6a4393eb4ec48bf7c350f2954f87"
+      },
+      {
+        "name": "ui-303-entry",
+        "result": "PASS",
+        "log_sha256": "1cbd88e268ec1036b706fd2046591cfe89c2eb1dbf7e5f0f8eadef96e30ebc47"
+      },
+      {
+        "name": "scenario-arrows",
+        "result": "PASS",
+        "log_sha256": "7b340ad039cf1a84a719a69b1a37158ded236e412937976a9be32ffc79b6078c"
+      },
+      {
+        "name": "scenario-autosave",
+        "result": "PASS",
+        "log_sha256": "c1fbe94fc38a7ed6b5aeabea12daeac1c44732369a2c94ab29b206fcf497a2dc"
+      },
+      {
+        "name": "scenario-bleclock",
+        "result": "PASS",
+        "log_sha256": "f02f7e6040b586fc1a193774875f140d6e9232359cba959248e7ddecacd43f49"
+      },
+      {
+        "name": "scenario-blenotes",
+        "result": "PASS",
+        "log_sha256": "ca548ed7ba07730afce900acc333b3cd158b63b378335825f71837201718d470"
+      },
+      {
+        "name": "scenario-brkslice",
+        "result": "PASS",
+        "log_sha256": "9cece66121d3104da8bc03303f9baf7494119c1961825a1d4484130d4a1ea6f4"
+      },
+      {
+        "name": "scenario-brkslice_mode_toggle",
+        "result": "PASS",
+        "log_sha256": "7ef1d375b5558775854910345d038946e044ba10599009c77b0129e5273b01b5"
+      },
+      {
+        "name": "scenario-brkslice_trs_overlap",
+        "result": "PASS",
+        "log_sha256": "cc2a1df9f29893a2363877818b90204f32c94b686fd6330cad97a280122c10f5"
+      },
+      {
+        "name": "scenario-clip-arrow-menu",
+        "result": "PASS",
+        "log_sha256": "49b8ebbc9d5c24456e42c52b0d1fb92903543751fce6245b26f88e702e45c1dc"
+      },
+      {
+        "name": "scenario-clklock",
+        "result": "PASS",
+        "log_sha256": "e4d209eb39ff59d5b33fc31dc2d7e2f53ba27e872e74a6c747fa719e5aee03c2"
+      },
+      {
+        "name": "scenario-clkmove",
+        "result": "PASS",
+        "log_sha256": "be46201e55f3c7c4695e7c28c9f21ce363474e86e244ab757a5391a6d3680352"
+      },
+      {
+        "name": "scenario-clocksrc",
+        "result": "PASS",
+        "log_sha256": "1f3fc093869fb1816b13d80e8e387093da25ccf5c86fbaaa54673e0f5d51359c"
+      },
+      {
+        "name": "scenario-drum_bass_ch_consume",
+        "result": "PASS",
+        "log_sha256": "d928c9716f87ec8bb2034ce7cf558291aae5f2d29046666c63008c9fbe2d59db"
+      },
+      {
+        "name": "scenario-edit_midi_rec_guard",
+        "result": "PASS",
+        "log_sha256": "13d1facb2e24c813f7d59dd715affa657b08881351f70ba83951bf5410063d85"
+      },
+      {
+        "name": "scenario-edit_oct_no_hidden",
+        "result": "PASS",
+        "log_sha256": "7d91367de8e3a800840825b158b6984e5f6837bedaddbe5d7d1e5ebbe00a749e"
+      },
+      {
+        "name": "scenario-extclock",
+        "result": "PASS",
+        "log_sha256": "11a8c006998d59cbd8437c52ab8514747d9f7515fe31d0afc090131fda02a76d"
+      },
+      {
+        "name": "scenario-freeplay",
+        "result": "PASS",
+        "log_sha256": "43f8a9e3634866b7c159402f24d8cefd4fef23fdf4295cc26bbae8f24cf52b67"
+      },
+      {
+        "name": "scenario-getting_started",
+        "result": "PASS",
+        "log_sha256": "78fe78bc4b60db39ee9e88176be25f9aa7913df31bcffa88cec461750ed07989"
+      },
+      {
+        "name": "scenario-groove",
+        "result": "PASS",
+        "log_sha256": "360c76d5c71cc1380aeeb9438d42f347e0e4eec8a75d91cb22a051746a2ad3ec"
+      },
+      {
+        "name": "scenario-guard",
+        "result": "PASS",
+        "log_sha256": "53ee4e6b4a4a16953dbb3920cf9dafd07dd0ea55e64c62594d10f0f532766f88"
+      },
+      {
+        "name": "scenario-help",
+        "result": "PASS",
+        "log_sha256": "2eb12eff143d6c183561258cba15dd817797c7a2b0865d8dcd177681c3a9e93c"
+      },
+      {
+        "name": "scenario-jam",
+        "result": "PASS",
+        "log_sha256": "3ade8f0fc1417017fcf9501381cc7a76f33ebcbc1feaf9e8e2c74f66d993cc13"
+      },
+      {
+        "name": "scenario-keysound",
+        "result": "PASS",
+        "log_sha256": "771e993025357d614fc7f87dcd9e1d99f688d210e4a8731b6c996a0c8a6b7272"
+      },
+      {
+        "name": "scenario-knobs",
+        "result": "PASS",
+        "log_sha256": "e0500752259add5e3c53e411fe3148a80b5a8d1a77c1df5b5a75beb0f361d15f"
+      },
+      {
+        "name": "scenario-midiowner",
+        "result": "PASS",
+        "log_sha256": "423b7984ecb61b34496d5c88432d8087cdc9c796aa728e7a624aca7294068c36"
+      },
+      {
+        "name": "scenario-migrate",
+        "result": "PASS",
+        "log_sha256": "9578246d1ca7d508aa8cae4a5af4cb017d6fad7c37595c7ba27792be3f873bf7"
+      },
+      {
+        "name": "scenario-migrate0102",
+        "result": "PASS",
+        "log_sha256": "9578246d1ca7d508aa8cae4a5af4cb017d6fad7c37595c7ba27792be3f873bf7"
+      },
+      {
+        "name": "scenario-patterns",
+        "result": "PASS",
+        "log_sha256": "f89784566c8627e4e8b9729162cc245e62a7f194cdf8e862faaebb3d4cf833a5"
+      },
+      {
+        "name": "scenario-perf",
+        "result": "PASS",
+        "log_sha256": "7e7e20301d36cd7b9f7335fd34ac3b3c18b409d2d4f6d07b0ca9999d828f0a07"
+      },
+      {
+        "name": "scenario-perfsave",
+        "result": "PASS",
+        "log_sha256": "28cf36f99880e1642e546420987d62a9f7f21aa407d504dda77fe2a75d7d5981"
+      },
+      {
+        "name": "scenario-plock",
+        "result": "PASS",
+        "log_sha256": "686834fe6845826ab53d0362abf50c922e22219ba518cc2fb3d7b5d766382d46"
+      },
+      {
+        "name": "scenario-prob",
+        "result": "PASS",
+        "log_sha256": "c2092dbda18eaee46b61241486a5570fb25f76a547e0fcc31051daeaa4c2b2f3"
+      },
+      {
+        "name": "scenario-probcond",
+        "result": "PASS",
+        "log_sha256": "02ade42e2efa6995b93e0f61d016211497049fede4b50627b81e626d6b76bb65"
+      },
+      {
+        "name": "scenario-probreset",
+        "result": "PASS",
+        "log_sha256": "26f370ceb71c2281dffa01aad27fa182160445f3456097882b7327cffae4ad91"
+      },
+      {
+        "name": "scenario-roll_continuation",
+        "result": "PASS",
+        "log_sha256": "bb55b10b79e7b11f65f25f4531369887e105eb4009e901d128eb600b560c89f7"
+      },
+      {
+        "name": "scenario-roll_short_tie",
+        "result": "PASS",
+        "log_sha256": "dd2fdf0d6244eb7e700d9b49a5132cbe95022f211dfbd876fa0383bd9ebaa062"
+      },
+      {
+        "name": "scenario-savefeedback",
+        "result": "PASS",
+        "log_sha256": "48c5e4be95ca3705e0441a849201f4706999642f8b6131e00492539fea6058ff"
+      },
+      {
+        "name": "scenario-savewait",
+        "result": "PASS",
+        "log_sha256": "ae90fb8b069d34709725c438b5558f8f184033cc96e20a28511d47a8f083d6ea"
+      },
+      {
+        "name": "scenario-showcase",
+        "result": "PASS",
+        "log_sha256": "70c1c87e2ff8752c6b840525eb4c58bfab7176146e87157ecd4da22e13bdf597"
+      },
+      {
+        "name": "scenario-slices",
+        "result": "PASS",
+        "log_sha256": "894389df9d5c13ed9bc66efd17973b3d3dbfc5e8fbeda448cdedc8f75a6948d3"
+      },
+      {
+        "name": "scenario-song",
+        "result": "PASS",
+        "log_sha256": "d90807078d6796ab9d9f5e49cbb24ccc132b2b90404c1cd08139561177cb4153"
+      },
+      {
+        "name": "scenario-song_live_mute_save",
+        "result": "PASS",
+        "log_sha256": "7c4b3773fd67ae5fc272182018181c0c676e8029471599719f9d2cee092fb209"
+      },
+      {
+        "name": "scenario-songrep",
+        "result": "PASS",
+        "log_sha256": "86410789fae96bbf8cc6b2e9f39486224c4df5b4eb8d311b2ab8c0a183c5207f"
+      },
+      {
+        "name": "scenario-sound_matrix_chicago",
+        "result": "PASS",
+        "log_sha256": "cf62c62c223e5975fe41aeca232e20efc4e99f4e951d76a0b719d630d76bb74b"
+      },
+      {
+        "name": "scenario-sound_matrix_chicago_idle",
+        "result": "PASS",
+        "log_sha256": "36da65873d1c46a25338d8e938266eeaf744388f2d57e9135eed60c421fa15cc"
+      },
+      {
+        "name": "scenario-sound_matrix_drum",
+        "result": "PASS",
+        "log_sha256": "9875cbfcd2a8abb2deb44c50cbaa26f3976e5f6c7a2272da1002100a8fad7949"
+      },
+      {
+        "name": "scenario-sound_matrix_lock",
+        "result": "PASS",
+        "log_sha256": "c83d97177279443025be28750bde3150cd0763fbea68c022a04b309086e3f396"
+      },
+      {
+        "name": "scenario-sound_matrix_miami",
+        "result": "PASS",
+        "log_sha256": "7fa01785d5455ca755dafaf9cc7a8a52a9ae9ddef52ed9df402e2fa229f70691"
+      },
+      {
+        "name": "scenario-sound_page_split",
+        "result": "PASS",
+        "log_sha256": "a0a8c2ab3ec93ed699c0dc6fc088ed5943d0b1d7bdb7e2e86327a82600653ad3"
+      },
+      {
+        "name": "scenario-step303",
+        "result": "PASS",
+        "log_sha256": "0493935e8f884c4d798b75677402c61cfa94c29d7b9b89b0a6d5e83e0a5ddc72"
+      },
+      {
+        "name": "scenario-steps64",
+        "result": "PASS",
+        "log_sha256": "3299caa2b61626cbcab1790dcccf28f2baad04edce389e3a2b029c76bdfd312e"
+      },
+      {
+        "name": "scenario-stereo",
+        "result": "PASS",
+        "log_sha256": "8994f2db618d8ab938cdda8efdefcb57769766dc1e94b1ecc2353a431134f3e4"
+      },
+      {
+        "name": "scenario-tb3po",
+        "result": "PASS",
+        "log_sha256": "53b94a4992d4194efbc18f09f6e8f596fa161d92d654f91434f9ad2c9732964d"
+      },
+      {
+        "name": "scenario-tour",
+        "result": "PASS",
+        "log_sha256": "8d7e014c8791595eb88a33a270c429b1ebd7431abf7948aa1b189dc9a003ac1b"
+      },
+      {
+        "name": "scenario-trackmute",
+        "result": "PASS",
+        "log_sha256": "9c846d36638241ab12c366b2eb6c389f5ebb4a42f5a8476753a4ba9586a2d275"
+      },
+      {
+        "name": "scenario-undo",
+        "result": "PASS",
+        "log_sha256": "a1e5b954d3146062df72f7fc3ef58d8986920c1563e853497af2f1bc040a6652"
+      },
+      {
+        "name": "scenario-upload",
+        "result": "PASS",
+        "log_sha256": "980cd0b5027e170f26c09337a7d53aaf4e90f0f4a17e3e886181822117842221"
+      },
+      {
+        "name": "scenario-upload44",
+        "result": "PASS",
+        "log_sha256": "49da11557eedf57f05a8c06a8d81b02229f678f285bd52f67be624a68183dd03"
+      },
+      {
+        "name": "scenario-usbnotes",
+        "result": "PASS",
+        "log_sha256": "62a7263362d1a24c69184022367fb8e5d59f616ca7a22a183ce0d069ddfa68da"
+      },
+      {
+        "name": "perf-scratch",
+        "result": "PASS",
+        "log_sha256": "22e4a1fabb174c8b6f18a9a302b52ab325d58c49313576cc5d45c58d64e2abaa"
+      }
+    ]
+  },
+  "host_environment": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "environment_repair": "Initial diagnostic suite stopped with exit 143 after Node spawnSync EPERM despite successful child exit. Minimal reproducer passes under supported network-enabled execution profile; unchanged full suite rerun there.",
+  "sdk": {
+    "version": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "files_sha256": {
+      "uboot.boot": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+      "cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+    }
+  },
+  "toolchain": {
+    "distribution": "jieli-linux-toolchains-20260730.1",
+    "clang_version": "4.0.1",
+    "clang_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f"
+  },
+  "references": {
+    "9W9": {
+      "repo": "synthfr/schwung-9W9",
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c"
+    },
+    "8W8": {
+      "repo": "charlesvestal/schwung-8W8",
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997"
+    },
+    "TB3PO": {
+      "repo": "charlesvestal/schwung-tb3po",
+      "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9"
+    }
+  },
+  "native_builds": [
+    {
+      "model": "elite",
+      "base": {
+        "app_bytes": 474840,
+        "ram_bytes": 95780,
+        "ram_limit": 98304,
+        "pool_bytes": 335464,
+        "pool_limit": 344064,
+        "ram_text_bytes": 2712,
+        "package_bytes": 651457
+      },
+      "candidate": {
+        "app_bytes": 474936,
+        "ram_bytes": 95780,
+        "ram_limit": 98304,
+        "pool_bytes": 335464,
+        "pool_limit": 344064,
+        "ram_text_bytes": 2712,
+        "package_bytes": 651591
+      },
+      "delta": {
+        "app_bytes": 96,
+        "ram_bytes": 0,
+        "ram_text_bytes": 0,
+        "package_bytes": 134
+      }
+    },
+    {
+      "model": "pro",
+      "base": {
+        "app_bytes": 474840,
+        "ram_bytes": 95780,
+        "ram_limit": 98304,
+        "pool_bytes": 335464,
+        "pool_limit": 344064,
+        "ram_text_bytes": 2712,
+        "package_bytes": 651457
+      },
+      "candidate": {
+        "app_bytes": 474936,
+        "ram_bytes": 95780,
+        "ram_limit": 98304,
+        "pool_bytes": 335464,
+        "pool_limit": 344064,
+        "ram_text_bytes": 2712,
+        "package_bytes": 651587
+      },
+      "delta": {
+        "app_bytes": 96,
+        "ram_bytes": 0,
+        "ram_text_bytes": 0,
+        "package_bytes": 130
+      }
+    }
+  ],
+  "native_artifact_and_log_hashes": [
+    {
+      "configuration": "base",
+      "model": "elite",
+      "config": "dev",
+      "exit": 0,
+      "app": {
+        "bytes": 474840,
+        "sha256": "47c8d02545a6d3138ece9dba260c946a1eb251968f7bf7849c397304e43735dd"
+      },
+      "loader": {
+        "bytes": 7341,
+        "sha256": "7f7b107048194dc2f2e62936c365589bb87f9c1409eb67d120cc4c4e69dc2a21"
+      },
+      "package": {
+        "bytes": 651457,
+        "sha256": "f074d3c71eb150abfe645d53fce94ceca143a66191f267d38cce2e31e05b6fc8"
+      },
+      "ram_text": {
+        "bytes": 2712,
+        "sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+      },
+      "build_log": {
+        "bytes": 1697,
+        "sha256": "c628eb76e70d69c69408a7b35e78042205d0bccf604c129aa2efbf1da85d2b4c"
+      }
+    },
+    {
+      "configuration": "base",
+      "model": "pro",
+      "config": "dev",
+      "exit": 0,
+      "app": {
+        "bytes": 474840,
+        "sha256": "d6f4a728ff649b2d5d4d69cf9c2f1c33d429924a184dfb05028fba405aad3992"
+      },
+      "loader": {
+        "bytes": 7341,
+        "sha256": "9047d7ab8946f73260525d2c03197e5f1b2101af3941b3f2702d843ee9e75229"
+      },
+      "package": {
+        "bytes": 651457,
+        "sha256": "3ffffef212d0c3997dbe953aeafd45255bd08d8cbc6f737e3d66c1435e10d20a"
+      },
+      "ram_text": {
+        "bytes": 2712,
+        "sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+      },
+      "build_log": {
+        "bytes": 1044,
+        "sha256": "f90604bd1fe2308337be6bd411e92df3bf60fdbd2d9ff179611b764b76891334"
+      }
+    },
+    {
+      "configuration": "candidate",
+      "model": "elite",
+      "config": "dev",
+      "exit": 0,
+      "app": {
+        "bytes": 474936,
+        "sha256": "5ba402208f23b010358f4834d8de37ce2c4d2eb9d2781b5966d05ca04134a976"
+      },
+      "loader": {
+        "bytes": 7475,
+        "sha256": "799b217d715057d2effdfb00390cdfd065ff977b82855833b20fbf8102d68bdc"
+      },
+      "package": {
+        "bytes": 651591,
+        "sha256": "dd584e9ac1d28e783a440e10719ef926062b672aedb96b0fd31b7a831fadccd3"
+      },
+      "ram_text": {
+        "bytes": 2712,
+        "sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+      },
+      "build_log": {
+        "bytes": 1805,
+        "sha256": "d0af7ad17b6133d432ac7260530563a46c2e0fb80454cac39c96035c527d4650"
+      }
+    },
+    {
+      "configuration": "candidate",
+      "model": "pro",
+      "config": "dev",
+      "exit": 0,
+      "app": {
+        "bytes": 474936,
+        "sha256": "1d6a8acbbf517c78187902de02e318e76d2acca5966a9c2d4dd57da4ca4e864e"
+      },
+      "loader": {
+        "bytes": 7471,
+        "sha256": "4afc686289f1f66b3159f10e8dfabd3c54cc7f659d873217f23bef0240da82aa"
+      },
+      "package": {
+        "bytes": 651587,
+        "sha256": "caad14a55b9c26fce4ed29b4787a72a34fb952001af2c6af7dd819a2570e95a5"
+      },
+      "ram_text": {
+        "bytes": 2712,
+        "sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+      },
+      "build_log": {
+        "bytes": 1152,
+        "sha256": "625ef010a452dd48d017a13c68fea4486564bd7d98f654bb1c6bed108f2bf37d"
+      }
+    }
+  ],
+  "matching_controller_and_packages": [
+    {
+      "model": "elite",
+      "package_sha256": "d1395274937fe1d1a772c32ecc88482156b03e4abb1cbf72ede48aa3c7b8ca54",
+      "package_size": 651591,
+      "controller_sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+      "controller_size": 61088,
+      "controller_source": "Unchanged controller/ABI inputs at a06e20189; compiled here once",
+      "build_exit": 0,
+      "composition_exit": 0,
+      "integrity_exit": 0
+    },
+    {
+      "model": "pro",
+      "package_sha256": "9347869f8a32e99c70d00a5b943bd6285e73d45140aa12a9a78a2ab44ea833c4",
+      "package_size": 651587,
+      "controller_sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+      "controller_size": 61088,
+      "controller_source": "Unchanged controller/ABI inputs at a06e20189; compiled here once",
+      "build_exit": 0,
+      "composition_exit": 0,
+      "integrity_exit": 0
+    }
+  ],
+  "native_checks": {
+    "base_and_candidate_elite_pro_exit_codes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "ram_limit_bytes": 98304,
+    "ram_free_bytes": 2524,
+    "pool_free_bytes": 8600,
+    "ram_text_no_calls": "PASS",
+    "dsp_engine_objects_identical_per_model": 66,
+    "dsp_engine_objects_different_per_model": 0
+  },
+  "negative_tests": [
+    {
+      "case": "old-blocking",
+      "exit": 1,
+      "expected": "test rejects broken retry",
+      "lines": [
+        "RED usb-retry: no attach before 25 ms across the tick wrap (resets 3 attaches 3 up 1 detached 0 ticks 595903 timeouts 0)",
+        "RED usb-retry: dead-SIE count resets without attaching (resets 5 attaches 5 up 1 detached 0 ticks 600000 timeouts 0)"
+      ]
+    },
+    {
+      "case": "missing-timeout-clear",
+      "exit": 1,
+      "expected": "test rejects broken retry",
+      "lines": [
+        "RED usb-retry: attach after 25 ms is up with the timeout count cleared (resets 5 attaches 4 up 0 detached 0 ticks 600000 timeouts 3)"
+      ]
+    }
+  ],
+  "review": {
+    "scope": "Actual nine-file frozen recut of three nonempty own-tip USB patches on pinned base",
+    "reviewer": "independent read-only review_scope subagent",
+    "blocking_runtime_findings": 0,
+    "frozen_manifest_sha256": "acc76ed6615086aa83016bce146038839bd4575897e5c024c596701521505c88",
+    "all_nine_file_hashes": "MATCH; independently recomputed",
+    "scope_verification": "Reconstruction from own-commits.json matches USB source plus four existing stubs; all three added files match original lane Git blob SHA; runner exactly base plus one registration; absent tests remain absent; no prior stack imported",
+    "notes": [
+      "600000 ticks are simulated host time, not device timing",
+      "Absent-test stub edits and runner context adapted to base only"
+    ]
+  },
+  "performance": {
+    "cycle_budget_at_44100_hz_320mhz": 7256.235827664399,
+    "target_cycles_measured": false,
+    "device_timing_measured": false,
+    "note": "USB retry returns while the reset settles; no measured target speedup claimed. Audio DSP/engine object bytes match baseline."
+  },
+  "boundaries": {
+    "protected_refs_changed": false,
+    "github_workflows_changed": false,
+    "device_operations": false,
+    "binaries_published": false,
+    "controller_compile": "PASS; compiled here once from unchanged controller/ABI source and hash-pinned SDK archives; model package composition and integrity PASS",
+    "qualification": "BUILD_ONLY; no installability/publication/DEV CHECKED/device claim",
+    "device": "NOT_RUN"
+  },
+  "one_build_observed_before_delivery": "a49605bcb34c8d6751817dd33699640d19a24c29",
+  "source_commit": "d6f7e18aba49575f6f8340264fa0735f321df2c4",
+  "delivery": {
+    "state": "Candidate proof; verify named branch ref separately. This record alone does not prove branch delivery.",
+    "original_expected_sha": "d010d7dd5e3ddb027d9589ab3cef71ab4b007386",
+    "existing_prs": [],
+    "authority": "Owner explicitly requested recutting this lane onto the pinned base and updating the same lane, with no preceding stack. Only this named lane may be replaced; no protected ref changes."
+  }
+}

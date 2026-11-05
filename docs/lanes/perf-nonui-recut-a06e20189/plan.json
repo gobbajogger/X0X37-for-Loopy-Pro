@@ -1,0 +1,32 @@
+{
+  "request": "perf-nonui-on-25opt-v2 recut",
+  "base": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+  "lane": "lane/dev-perf-nonui-on-25opt-v2-20261106",
+  "original_tip": "d010d7dd5e3ddb027d9589ab3cef71ab4b007386",
+  "own_boundary": "bdc4965e2c9b2025c2e2cf9ea5b4d4a6b03008ca",
+  "scope": "Only six own tip commits; three empty, three USB retry/test patches. No earlier stack.",
+  "steps": [
+    "Verify base and lane input pins and blob integrity",
+    "Apply own tip patches to isolated base source",
+    "Run full host suite here; diagnose and fix actual failures",
+    "Build base and candidate Elite/Pro DEV SDK V1.2.1; report size/RAM/.ram_text deltas",
+    "Read-only independent review; deliver to same branch without protected changes, duplicate PRs or binaries; remote readback"
+  ],
+  "stop_if": "Lane own patches already contained in pinned wip/one-build",
+  "boundaries": [
+    "No main/nightly/.github writes",
+    "No flash/device operations",
+    "No binaries/tokens/raw captures committed or published",
+    "Default connected author only",
+    "No force push; recut branch replacement requires explicit user recut authority"
+  ],
+  "owner": "current Codex thread",
+  "reviewer": "review_scope",
+  "status": "Implementation, independent scope review, 333/333 full host checks, Elite/Pro base/candidate DEV builds, controller and composition/integrity complete; same-lane API delivery next",
+  "native_results": "4/4 app/loader builds, controller compile, both model compositions and integrity guards PASS",
+  "scope_exclusions": [
+    "Three empty own commits contribute no patch",
+    "Earlier lane stack excluded",
+    "Absent earlier-stack UAC output/descriptor test stubs omitted"
+  ]
+}
