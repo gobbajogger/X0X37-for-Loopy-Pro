@@ -110,6 +110,8 @@ int original_chicago_peaking_init(original_chicago_peaking *s){
 void original_chicago_peaking_reset(original_chicago_peaking *s){if(s)memset(s->history,0,sizeof s->history);}
 int original_chicago_peaking_set(original_chicago_peaking *s,unsigned p,unsigned v){
  if(!s||p>2||v>127)return 0;
+ /* Init prepares every coefficient; reset and audio preserve the parameter keys. */
+ if(s->parameter[p]==v)return 1;
  s->parameter[p]=(uint8_t)v;
  eq_coefficients(s,p!=1);
  return 1;
