@@ -51,9 +51,13 @@ scope prevents new overlapping claims until reconciled. When a writer lock looks
 idle, the sole ledger writer contacts the holder directly, finds out why it is
 held and resolves it: the holder finishes, hands the work off or releases the
 lock, and the outcome is recorded in the sole ledger. The ledger writer takes over
-only when the holder explicitly releases or hands off; an unreachable holder is
-escalated to the coordinator/owner, and the ledger writer does not take over on
-its own. This grants no merge or publication authority. None of this erases an
+only when the holder explicitly releases or hands off. If the holder does not
+answer, the sole ledger writer escalates to the coordinator and the owner and
+records that escalation in the sole ledger. The lock stays with the holder until
+the holder or the owner explicitly hands it off or releases it. There is no timeout
+and no automatic reclaim. The coordinator does not release or reassign the lock.
+The ledger writer does not take over on its own.
+This grants no merge or publication authority. None of this erases an
 already accepted independent continuation. Independent QA and builds can run on
 the same immutable candidate while disjoint implementation proceeds. Serialize
 overlapping writes and integration, not the whole queue.
