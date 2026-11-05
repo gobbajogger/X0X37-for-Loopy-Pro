@@ -49,6 +49,10 @@
 #include <libproc.h>
 #include <unistd.h>
 #endif
+/* ui.c calls this. Host builds strip __attribute__ later, so the weak
+ * stub has to be declared first. engine.c's strong definition wins when
+ * the current engine is linked; an older copied engine keeps this no-op. */
+__attribute__((weak)) void engine_request_notes_off(void) {}
 #define __attribute__(x)
 
 /* ------------------------------------------------------------ screen --- */

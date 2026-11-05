@@ -1493,6 +1493,9 @@ static void engine_notes_off_apply(void)
 #endif
 }
 
+/* Defined outside drain so a host check that copies drain alone does not
+ * require the panic helpers. The full firmware still compiles them in. */
+#define X0X_PANIC_DRAIN 1
 static void drain(void)
 {
     original_midi_context();
@@ -1501,12 +1504,14 @@ static void drain(void)
     if (seq.req_stop) seq_advance(&seq, 0, &SINK);
     uint32_t r = cq_r, pkt;
     int guard = 64;
+#ifdef X0X_PANIC_DRAIN
     int panic_cycle = 0;
     __asm__ volatile("" ::: "memory");
     if (notes_off_req) {
         notes_off_req = 0;
         panic_cycle = 1;
     }
+#endif
     brk_channel_reconcile();
     /* Finish old contexts before a queued new press can acquire note ownership. */
     for (int k = 0; k < NBASS; k++) {
@@ -1522,10 +1527,12 @@ static void drain(void)
     while (r != cq_w && budget--) {
         uint32_t c = cq[r % CQ], type = c >> 28, a = (c >> 20) & 0xFFu, b = (c >> 12) & 0xFFu, v = c & 0xFFFu;
         r++;
+#ifdef X0X_PANIC_DRAIN
         /* PANIC_DROP_QUEUED */
         if (panic_cycle && (type == C_DRUM || type == C_BON || type == C_REC ||
                             (type == C_BRK && b != 0u)))
             continue;
+#endif
         uint32_t rec_epoch = a >> 1;
         if (type == C_REC) a &= 1u;
         if (type < 8u)
@@ -1575,10 +1582,12 @@ static void drain(void)
             brk_local_event((int)a, (int)b);
     }
     cq_r = r;
+#ifdef X0X_PANIC_DRAIN
     /* The 128-event budget can leave a note behind the parameter flood from boot.
      * Keep the panic armed until that backlog is scanned, so the note cannot sound. */
     if (panic_cycle && r != cq_w)
         notes_off_req = 1;
+#endif
     int16_t wheel = brk_wheel;
     if (wheel != brk_wheel_seen) {
         breaks_bend(&brk, wheel);
@@ -1588,8 +1597,10 @@ static void drain(void)
     while (guard-- > 0 && plat_midi_in(&pkt))
         if (!project_midi_drop) midi_in(pkt);
     if (guard >= 0) project_midi_drop = 0;
+#ifdef X0X_PANIC_DRAIN
     if (panic_cycle)
         engine_notes_off_apply();
+#endif
 }
 
 static void live_key_drain(void)
