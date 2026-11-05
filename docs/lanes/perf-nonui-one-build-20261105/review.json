@@ -1,0 +1,16 @@
+{
+  "base": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "head": "4822094c39198da5d824b1ec43ac741830d9d30b",
+  "reviewer": "/root/review_rebased_lane",
+  "mode": "read-only independent source review",
+  "result": "PASS",
+  "blocking_findings": [],
+  "coverage": [
+    "cooperative USB reset timing, wrap and cancellation",
+    "boot bring-up preservation",
+    "test registrations and needs_gen conflict resolution",
+    "tree-preserving ancestry merge",
+    "scope and historical evidence boundary"
+  ],
+  "tests_run_by_reviewer": false
+}

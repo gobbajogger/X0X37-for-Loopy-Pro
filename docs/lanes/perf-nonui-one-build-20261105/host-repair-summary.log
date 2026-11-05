@@ -1,0 +1,14 @@
+PASS tests/run_tests.sh: /workspace/X0X37-for-Loopy-Pro/tests/run_tests.sh
+PASS host/build_host.sh: /workspace/X0X37-for-Loopy-Pro/host/build_host.sh
+PASS tool python3: /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3
+PASS tool sh: /usr/bin/sh
+PASS tool bash: /usr/bin/bash
+PASS tool node: /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node
+PASS tool c++: /usr/bin/c++
+PASS tool CC: cc
+PASS Python Pillow: import PIL
+PASS ASan+UBSan link: compiler linked sanitizer probe
+PREFLIGHT: 10 PASS, 0 FAIL
+  ok   optimization-equivalence
+  ok   original-stale-release
+all tests passed

@@ -1,0 +1,46 @@
+{
+  "state": "BUILD_ONLY",
+  "base": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "previous_lane": "c71695452e04f4e7618562dbb80c2f54865c1f79",
+  "checked_head": "4822094c39198da5d824b1ec43ac741830d9d30b",
+  "checked_tree": "e6d07a39e2a1677d94c3b54551609abf77177b9d",
+  "host": {
+    "result": "PASS",
+    "pass": 340,
+    "fail": 0,
+    "skip": 0,
+    "not_run": 0,
+    "full_run_exit": 1,
+    "full_run_pass": 339,
+    "full_run_fail": 1,
+    "full_command": "X0X_TEST_JOBS=4 X0X_STRICT_PREFLIGHT=1 sh tests/run_tests.sh",
+    "initial_failure": "optimization-equivalence: required host compiler missing: clang",
+    "nested_initial_skips": "original-stale-release Clang variants (compiler missing)",
+    "repair_command": "X0X_TESTS='optimization-equivalence original-stale-release' X0X_TEST_JOBS=4 X0X_STRICT_PREFLIGHT=1 sh tests/run_tests.sh",
+    "repair_exit": 0,
+    "repaired_selectors": [
+      "optimization-equivalence",
+      "original-stale-release"
+    ],
+    "basis": "Complete full-suite run with unchanged passing proof retained; failed/Clang-dependent selectors rerun after environment repair. Source and assertions unchanged."
+  },
+  "native": {
+    "elite": "PASS",
+    "pro": "PASS",
+    "controller": "PASS",
+    "sdk": "V1.2.1",
+    "configuration": "DEV X0X_DEV_PADCAL=1",
+    "post_suite_artifact_digests": "MATCH"
+  },
+  "review": "PASS: no blocking findings in read-only independent source review",
+  "proof_boundary": "New evidence-only tree changes do not change checked firmware, tools, tests or build inputs. Historical a06 receipts cover only their original source.",
+  "not_claimed": [
+    "DEV CHECKED runner record",
+    "release",
+    "publication",
+    "installability",
+    "device/hardware proof",
+    "measured target cycles"
+  ],
+  "environment_id": "ccarenv_b64_Y2NhcmVudl9iYWY0NjMyMmIxOTA4MTkxOTlkNDNlN2YzZmRiZDRkZQ"
+}

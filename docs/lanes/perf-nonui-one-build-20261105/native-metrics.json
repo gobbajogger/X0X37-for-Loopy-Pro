@@ -1,0 +1,99 @@
+{
+  "source_head": "4822094c39198da5d824b1ec43ac741830d9d30b",
+  "source_tree": "e6d07a39e2a1677d94c3b54551609abf77177b9d",
+  "config": "DEV X0X_DEV_PADCAL=1",
+  "sdk_tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "state": "BUILD_ONLY",
+  "models": {
+    "elite": {
+      "result": "PASS",
+      "exit_code": 0,
+      "image_bytes": 480664,
+      "app_ram_bytes": 95780,
+      "app_ram_limit": 98304,
+      "pool_bytes": 335464,
+      "pool_limit": 344064,
+      "pool_free": 8600,
+      "ram_text_instructions": 844,
+      "ram_text_calls": 0,
+      "artifacts": {
+        "app": {
+          "bytes": 480664,
+          "sha256": "7c9147e4916eef34fa45f26e1434b9b17d1d34d91e7d5d6f42b191a37e8f5bac",
+          "crc32": "2cd5d317"
+        },
+        "loader": {
+          "bytes": 7475,
+          "sha256": "799b217d715057d2effdfb00390cdfd065ff977b82855833b20fbf8102d68bdc",
+          "crc32": "9a840485"
+        },
+        "package": {
+          "bytes": 651591,
+          "sha256": "b21d180ace08ee0bb5077ff052b0e519fe0e0e8f654e426b65b157ef7702ba23",
+          "crc32": "a57de2c7"
+        },
+        "ram_text": {
+          "bytes": 2712,
+          "sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c",
+          "crc32": "7969d1f9"
+        },
+        "elf": {
+          "bytes": 569092,
+          "sha256": "d4534b47b120f96d632d1bcbc9d7c3bb524ee8640d0b2f011b741d1788a9c584",
+          "crc32": "63b82777"
+        }
+      }
+    },
+    "pro": {
+      "result": "PASS",
+      "exit_code": 0,
+      "image_bytes": 480664,
+      "app_ram_bytes": 95780,
+      "app_ram_limit": 98304,
+      "pool_bytes": 335464,
+      "pool_limit": 344064,
+      "pool_free": 8600,
+      "ram_text_instructions": 844,
+      "ram_text_calls": 0,
+      "artifacts": {
+        "app": {
+          "bytes": 480664,
+          "sha256": "c6d4f3543f438e2c7c746d8666229b3155959940e8b472ef8dd60823e09b0c6d",
+          "crc32": "5d515422"
+        },
+        "loader": {
+          "bytes": 7471,
+          "sha256": "4afc686289f1f66b3159f10e8dfabd3c54cc7f659d873217f23bef0240da82aa",
+          "crc32": "3f0d4f45"
+        },
+        "package": {
+          "bytes": 651587,
+          "sha256": "666b9c16fc15b3d2ec9c62836bafc383f8f33f70df2f87c5dc929da0b45b41c0",
+          "crc32": "845567cb"
+        },
+        "ram_text": {
+          "bytes": 2712,
+          "sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c",
+          "crc32": "7969d1f9"
+        },
+        "elf": {
+          "bytes": 569084,
+          "sha256": "b6c0b0932bea032a90f33f03b1dc14e8d36eee1ee9d87cc3a26dad5dd5cb2a33",
+          "crc32": "1164d40f"
+        }
+      }
+    }
+  },
+  "controller": {
+    "result": "PASS",
+    "exit_code": 0,
+    "bytes": 61088,
+    "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+    "crc32": "8738d71f",
+    "undefined_symbols": 0,
+    "ram_bytes": 26336,
+    "ram_limit": 26368,
+    "tool_reported_payload_crc32": "9aa7f77f"
+  }
+}
