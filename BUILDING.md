@@ -1,11 +1,11 @@
-Publish only with current action-specific authority through the assigned publisher under [the active workflow](docs/rules/workflow.md). Reuse applicable standing permission; a build or source push does not grant publication or device access.
+Publish only with current action-specific authority through the assigned publisher under [the active workflow](RULES.md). Reuse applicable standing permission; a build or source push does not grant publication or device access.
 
 # Building X0X
 
 Default to development builds and installs (`X0X_DEV_PADCAL=1`). Build a release
 configuration only after the user explicitly requests a release build for the
 current work. Until then, always skip the full gate, including trial runs. See
-[the active release boundary](docs/rules/workflow.md).
+[the active release boundary](RULES.md).
 
 Maintained targets are SMK-37 Elite and Pro. The gate builds and tests both in dev
 and release configurations. FM-1 source is reference-only for porting; its target
@@ -93,7 +93,7 @@ compiler options in the runner's supported flags.
 
 Use checks scoped to the change and development validation by default.
 Only after an explicit user request for a release build may the full gate run
-under [the active release boundary](docs/rules/workflow.md). Generic full-validation, build or
+under [the active release boundary](RULES.md). Generic full-validation, build or
 install requests do not authorize a release build. Reuse matching evidence.
 
 For a development install, prepare a JSON plan with `base` (the reviewed base
@@ -276,7 +276,7 @@ compiler options in the runner's supported flags.
 
 Use checks scoped to the change and development validation by default.
 Only after an explicit user request for a release build may the full gate run
-under [the active release boundary](docs/rules/workflow.md). Generic full-validation, build or
+under [the active release boundary](RULES.md). Generic full-validation, build or
 install requests do not authorize a release build. Reuse matching evidence.
 
 For a development install, prepare a JSON plan with `base` (the reviewed base
@@ -494,7 +494,7 @@ script (the command list is at the top of `host/x0x_host.c`).
 
 These command examples are not device authorization. Apply current model- and
 action-specific permission, validated exact artifacts and the designated installer
-under [the active workflow](docs/rules/workflow.md) before any hardware command.
+under [the active workflow](RULES.md) before any hardware command.
 
 X0X's web installer for this repo is
 <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/> (version + model picker, sample
