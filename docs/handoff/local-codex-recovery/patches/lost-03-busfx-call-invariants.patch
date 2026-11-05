@@ -1,0 +1,86 @@
+# NOTE: unified diff was truncated in Codex JSONL output mid-hunk.
+# Full original: dnbox/optimizer/patches/03-busfx-call-invariants.patch on the other machine.
+# Intent: hoist cutoff target + rhythm tempo period once per nonempty busfx call.
+# Local SHA f8a015ae (never on GitHub). Equivalence test: lost-03-busfx_equivalence_test.py
+#
+diff --git a/firmware/src/dsp/busfx.h b/firmware/src/dsp/busfx.h
+--- a/firmware/src/dsp/busfx.h
++++ b/firmware/src/dsp/busfx.h
+@@ -98,9 +98,9 @@
+     return busfx_sp16(bpm) * 2u;
+ }
+ 
+-static inline float busfx_rhythm_target(int effect, float bpm, uint32_t abs_s)
+-{
+-    uint32_t sp16 = busfx_sp16(bpm), sp8 = busfx_sp8(bpm), period, pos, sixteenth;
++static inline float busfx_rhythm_target_periods(int effect, uint32_t sp16, uint32_t sp8, uint32_t abs_s)
++{
++    uint32_t period, pos, sixteenth;
+     float ph, duty = 0.5f;
+     if (sp16 < 32u)
+         sp16 = 32u;
+@@ -129,6 +129,11 @@
+     return ph < duty ? 1.0f : 0.0f;
+ }
+ 
++static inline float busfx_rhythm_target(int effect, float bpm, uint32_t abs_s)
++{
++    return busfx_rhythm_target_periods(effect, busfx_sp16(bpm), busfx_sp8(bpm), abs_s);
++}
++
+ static inline void busfx_ring_write(busfx_stut_t *st, int ch, float x)
+ {
+     uint8_t w;
+@@ -188,21 +193,26 @@
+     if (release_at < 0)
+         release_at = n;
+     bpm = busfx_bpm_clamp(bpm);
++    if (n <= 0)
++        return;
++    /* Arguments are fixed for this call; keep every sample recurrence below. */
++    float target;
++    if (cut >= 126.5f)
++        target = 1.0f;
++    else {
++        float fc = 40.0f * fm_exp2f(cut * (8.2f / 127.0f));
++        target = 1.0f - fm_expf(-2.0f * FM_PI * fc / 44100.0f);
++        if (target > 1.0f)
++            target = 1.0f;
++    }
++    uint32_t sp16 = busfx_is_rhythm(effect) ? busfx_sp16(bpm) : 0u;
+     for (i = 0; i < n; i++) {
+-        float target, want_hp, want_lp, peak = 0.0f, rg_tgt = 1.0f;
++        float want_hp, want_lp, peak = 0.0f, rg_tgt = 1.0f;
+         uint32_t abs_s = sample0 + (uint32_t)i;
+         if (i == press_at)
+             held = 1;
+         if (i == release_at)
+             held = 0;
+-        if (cut >= 126.5f)
+-            target = 1.0f;
+-        else {
+-            float fc = 40.0f * fm_exp2f(cut * (8.2f / 127.0f));
+-            target = 1.0f - fm_expf(-2.0f * FM_PI * fc / 44100.0f);
+-            if (target > 1.0f)
+-                target = 1.0f;
+-        }
+         s->a += (target - s->a) * slew;
+         if (fm_fabsf(target - s->a) < 1.0e-4f)
+             s->a = target;
+@@ -215,7 +225,7 @@
+         if (fm_fabsf(want_lp - s->lp_mix) < 1.0e-4f)
+             s->lp_mix = want_lp;
+         if (held && busfx_is_rhythm(effect))
+-            rg_tgt = busfx_rhythm_target(effect, bpm, abs_s);
++            rg_tgt = busfx_rhythm_target_periods(effect, sp16, sp16 * 2u, abs_s);
+         if (!(held && (busfx_is_decay_gate(effect) || busfx_is_rhythm(effect)))) {
+             s->gate += (1.0f - s->gate) * 0.02f;
+             if (s->gate > 0.999f)
+@@ -242,7 +252,6 @@
+                 peak = ax;
+             if (held && effect == BFX_STUT && stut) {
+                 int ring_ch = stut_base + k;
+-                uint32_t sp16 = busfx_sp16(bpm);
+                 uint32_t pos = abs_s % sp16;
+                 uint32_t chunk = sp16 / 4u;
+                 if (chunk < 8u)
