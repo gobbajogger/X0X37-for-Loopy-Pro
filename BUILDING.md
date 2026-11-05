@@ -53,8 +53,8 @@ Run Linux-specific checks in the local container. Docker Desktop and Colima both
 
 Install Pillow in the agent environment when you can (`bash tools/agent_env_install.sh`).
 Missing optional host tooling (Pillow, ASan, missing reference repos) does not stop
-independent ready work. Its dependent checks stay NOT_RUN; a missing required check
-blocks only its dependent qualification, merge or publication claim.
+independent ready work. Its dependent optional checks may stay NOT_RUN.
+For firmware integration and packaging qualification, require the full host test suite plus the Elite and Pro builds with 0 fail / 0 skip. NOT_RUN does not meet this bar for required checks.
 A generation step that actually ran and failed still fails the suite.
 
 For docs and rules work, read current `AGENTS.md` and the selected maintained

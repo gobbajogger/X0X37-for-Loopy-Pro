@@ -25,11 +25,9 @@ push, change protections or bypass a denied action. A workflow mode does not gra
 device access. Current Elite recovery/flash remains withdrawn; authorized Pro
 investigation is read-only through its assigned integrator.
 
-Use [scoped local proof](docs/rules/local-proof.md). Optional tooling gaps stay
-NOT_RUN for their dependent checks while other work continues. Actual failures
-remain FAIL. Required missing proof prevents the affected claim. GitHub Actions
-and billing status are not substitutes for agent-run tests. Documentation-only
-edits do not need firmware builds. Workflow tooling needs its relevant tests.
+Use [scoped local proof](docs/rules/local-proof.md). For firmware integration and packaging qualification, require the full host test suite plus the Elite and Pro builds with 0 fail / 0 skip. NOT_RUN does not meet this bar for required checks. A check that runs and fails remains FAIL. Review comments are evidence to inspect, not substitutes for local proof.
+Required missing proof prevents the affected claim. GitHub Actions
+and billing status are not substitutes for agent-run tests. Documentation-only changes require content, link and policy checks, not firmware builds. Workflow tooling needs its relevant tests.
 
 For build commands and pins, read [BUILDING.md](BUILDING.md); for distribution,
 read [LICENSING.md](LICENSING.md). Discover prerequisites only for the selected
