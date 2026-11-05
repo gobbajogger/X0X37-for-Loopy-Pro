@@ -189,8 +189,11 @@ static void priority_regression(void)
             assert(smc.lit[16 + strip] == (strip < 3));
             assert(smc.lit[24 + strip] == (strip == 0));
         }
+        /* Navigate with taps; overlapping BANK L/R is the panic chord. */
+        message(0x80, 0x2F, 0);
         message(0x90, 0x2E, 127);
         for (int strip = 0; strip < 8; strip++) assert(smc.lit[16 + strip] == 1);
+        message(0x80, 0x2E, 0);
         /* The owner-selected drum R/S layout follows the same visible bank. */
         setup(kit + 1, 1);
         message(0x90, 1, 127);
