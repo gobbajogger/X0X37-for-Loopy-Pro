@@ -10,6 +10,29 @@
 #else
 #define ref_fma fmaf
 #endif
+/* Integer control-span durations 1..64: exact old 1.0f/(float)D results.
+ * 256 bytes in rodata; larger durations retain the original division. */
+static const float control_span_inverse[64]={
+ 0x1.0000000000000p+0f, 0x1.0000000000000p-1f, 0x1.5555560000000p-2f, 0x1.0000000000000p-2f,
+ 0x1.99999a0000000p-3f, 0x1.5555560000000p-3f, 0x1.24924a0000000p-3f, 0x1.0000000000000p-3f,
+ 0x1.c71c720000000p-4f, 0x1.99999a0000000p-4f, 0x1.745d180000000p-4f, 0x1.5555560000000p-4f,
+ 0x1.3b13b20000000p-4f, 0x1.24924a0000000p-4f, 0x1.1111120000000p-4f, 0x1.0000000000000p-4f,
+ 0x1.e1e1e20000000p-5f, 0x1.c71c720000000p-5f, 0x1.af286c0000000p-5f, 0x1.99999a0000000p-5f,
+ 0x1.8618620000000p-5f, 0x1.745d180000000p-5f, 0x1.642c860000000p-5f, 0x1.5555560000000p-5f,
+ 0x1.47ae140000000p-5f, 0x1.3b13b20000000p-5f, 0x1.2f684c0000000p-5f, 0x1.24924a0000000p-5f,
+ 0x1.1a7b960000000p-5f, 0x1.1111120000000p-5f, 0x1.0842100000000p-5f, 0x1.0000000000000p-5f,
+ 0x1.f07c200000000p-6f, 0x1.e1e1e20000000p-6f, 0x1.d41d420000000p-6f, 0x1.c71c720000000p-6f,
+ 0x1.bacf920000000p-6f, 0x1.af286c0000000p-6f, 0x1.a41a420000000p-6f, 0x1.99999a0000000p-6f,
+ 0x1.8f9c180000000p-6f, 0x1.8618620000000p-6f, 0x1.7d05f40000000p-6f, 0x1.745d180000000p-6f,
+ 0x1.6c16c20000000p-6f, 0x1.642c860000000p-6f, 0x1.5c98820000000p-6f, 0x1.5555560000000p-6f,
+ 0x1.4e5e0a0000000p-6f, 0x1.47ae140000000p-6f, 0x1.4141420000000p-6f, 0x1.3b13b20000000p-6f,
+ 0x1.3521d00000000p-6f, 0x1.2f684c0000000p-6f, 0x1.29e4120000000p-6f, 0x1.24924a0000000p-6f,
+ 0x1.1f70480000000p-6f, 0x1.1a7b960000000p-6f, 0x1.15b1e60000000p-6f, 0x1.1111120000000p-6f,
+ 0x1.0c97140000000p-6f, 0x1.0842100000000p-6f, 0x1.0410420000000p-6f, 0x1.0000000000000p-6f,
+};
+static float duration_inverse(uint32_t D){
+ return D>=1u&&D<=64u?control_span_inverse[D-1u]:1.0f/(float)D;
+}
 static float clamp(float x,float lo,float hi){return x<lo?lo:x>hi?hi:x;}
 static void target(original_ramp *r,float t,float inverse){r->target=t;r->delta=inverse*(t-r->current);}
 static float advance(original_ramp *r){
@@ -28,7 +51,7 @@ int original_voice_gain_prepare(original_voice_gain *s,const original_voice_gain
  if(c->envelope< -1||c->envelope>1||c->output<0||c->output>1||c->velocity<0||c->velocity>1||c->spread<0||c->spread>1||c->filter_gain<1||c->filter_gain>4||(c->ms20&&c->filter_gain!=1))return 0;
  for(unsigned i=0;i<4;i++)if(!original_binary32_isfinite(c->level[i])||!original_binary32_isfinite(c->mod_specific[i])||!original_binary32_isfinite(s->oscillator[i].current)||s->oscillator[i].current<0||s->oscillator[i].current>ORIGINAL_OSCILLATOR_GAIN_MAX)return 0;
  for(unsigned i=0;i<2;i++)if(!original_binary32_isfinite(s->stereo[i].current)||s->stereo[i].current<0||s->stereo[i].current>4)return 0;
- original_voice_gain n=*s;float inverse=1.0f/(float)D;
+ original_voice_gain n=*s;float inverse=duration_inverse(D);
  for(unsigned i=0;i<4;i++) {
   if(!active[i]) {n.oscillator[i].target=0;n.oscillator[i].delta=(-n.oscillator[i].current)*inverse;continue;}
   float q=c->level[i]+c->mod_level;q=q+c->mod_specific[i];q=clamp(q,0,1);
