@@ -3,6 +3,60 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:67 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#26 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:150; /workspace/docs-audit/roadmap-status.md:67; out/docs/roadmap-evidence/#26.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#26 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#26 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:67 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:150",
+      "/workspace/docs-audit/roadmap-status.md:67",
+      "out/docs/roadmap-evidence/#26.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "NOT_COVERED",
+    "tests": [],
+    "evidence": "No qualifying literal identifier reference found in runner-mapped test source.",
+    "identifiers": [
+      {
+        "identifier": "brk_midi_events",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:150"
+      }
+    ],
+    "matches": [],
+    "recorded_results": {},
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/engine.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/engine.c",
+        "line": 852,
+        "identifier": "brk_midi_events",
+        "quote": "static brk_midi_event_t brk_midi_events[BRK_MIDI_EVENTS];"
+      },
+      {
+        "file": "firmware/src/app/engine.c",
+        "line": 862,
+        "identifier": "brk_midi_events",
+        "quote": "brk_midi_events[n] = (brk_midi_event_t){(uint8_t)(12 + slice), seq.ch[TRK_BRK],"
+      },
+      {
+        "file": "firmware/src/app/engine.c",
+        "line": 872,
+        "identifier": "brk_midi_events",
+        "quote": "(void)plat_midi_pulse(brk_midi_events[i].channel, brk_midi_events[i].note, 100);"
+      }
+    ]
+  }
 }

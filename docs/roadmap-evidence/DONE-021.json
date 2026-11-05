@@ -3,6 +3,38 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "docs/roadmap-completeness-audit-0.0.24.5.json id=DONE-021 result=MISSING (audit pin 70b5a033; rematch to 5f578fc0 by id)",
-  "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:39; out/docs/roadmap-evidence/DONE-021.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id",
+      "proof_source": "docs/roadmap-completeness-audit-0.0.24.5.json id=DONE-021 result=MISSING (audit pin 70b5a033; rematch to 5f578fc0 by id)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:39",
+      "out/docs/roadmap-evidence/DONE-021.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "NOT_COVERED",
+    "tests": [],
+    "evidence": "No qualifying literal identifier reference found in runner-mapped test source.",
+    "identifiers": [
+      {
+        "identifier": "configuration",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:39"
+      }
+    ],
+    "matches": [],
+    "recorded_results": {},
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [],
+    "firmware_references": []
+  }
 }

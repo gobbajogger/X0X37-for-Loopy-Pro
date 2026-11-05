@@ -3,6 +3,59 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:131 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#90 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:214; /workspace/docs-audit/roadmap-status.md:131; out/docs/roadmap-evidence/#90.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#90 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#90 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:131 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:214",
+      "/workspace/docs-audit/roadmap-status.md:131",
+      "out/docs/roadmap-evidence/#90.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "offline-sequencer"
+    ],
+    "evidence": "web/offline-sequencer/model.test.mjs:14: test('sound drafts/engine ordering/Undo strict scope and singleMiami cap',()=>{const s=new DraftStore();s.edit(d=>d.engines=['Chicago','Miami']);assert.throws(()=>s.edit(d=>d.engines=['Miami','Miami']),/One Miami/);const b=copy(s.doc);s.edit(d=>d.sound['synth1/Miami/9']=90);assert.deepEqual(s.doc.patterns,b.patterns);s.undo();assert.deepEqual(s.doc,b);});",
+    "identifiers": [
+      {
+        "identifier": "drafts",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:214"
+      }
+    ],
+    "matches": [
+      {
+        "test": "offline-sequencer",
+        "symbol_from_row": "drafts",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:214",
+        "file": "web/offline-sequencer/model.test.mjs",
+        "line": 14,
+        "quote": "test('sound drafts/engine ordering/Undo strict scope and singleMiami cap',()=>{const s=new DraftStore();s.edit(d=>d.engines=['Chicago','Miami']);assert.throws(()=>s.edit(d=>d.engines=['Miami','Miami']),/One Miami/);const b=copy(s.doc);s.edit(d=>d.sound['synth1/Miami/9']=90);assert.deepEqual(s.doc.patterns,b.patterns);s.undo();assert.deepEqual(s.doc,b);});",
+        "identifier": "drafts"
+      }
+    ],
+    "recorded_results": {
+      "offline-sequencer": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "web/offline-sequencer/editor.js"
+    ],
+    "firmware_references": []
+  }
 }

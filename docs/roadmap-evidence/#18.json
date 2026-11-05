@@ -3,6 +3,119 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:59 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#18 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:142; /workspace/docs-audit/roadmap-status.md:59; out/docs/roadmap-evidence/#18.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#18 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint ONLY: green scenario-usbnotes (/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 45) exercises link-end note ownership while external USB clock runs; narrow clock-transition lead. The row does not name it; this is not a binding and does not justify PRESENT.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#18 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:59 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:142",
+      "/workspace/docs-audit/roadmap-status.md:59",
+      "out/docs/roadmap-evidence/#18.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "sequencer",
+      "smc-lock-beat",
+      "smc-remainder"
+    ],
+    "evidence": "tests/host/seq_test.c:854: CHECK(seq_midi_rt(&S, 0xF8) == 1 && seq_midi_rt(&S, 0xFA) == 1 && seq_midi_rt(&S, 0xFB) == 1 &&; tests/host/smc_lock_beat_test.c:85: CHECK(seq_clk_take(&seq, 0xF8, 0)); CHECK(seq_midi_rt(&seq, 0xF8));; tests/host/smc_remainder_test.c:186: seq_midi_rt(&seq,0xf8); render_audio(1); CHECK(seq.metro_view==1);",
+    "identifiers": [
+      {
+        "identifier": "seq_midi_rt",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:142"
+      },
+      {
+        "identifier": "seq_clk_drop",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:142"
+      }
+    ],
+    "matches": [
+      {
+        "test": "sequencer",
+        "symbol_from_row": "seq_midi_rt",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:142",
+        "file": "tests/host/seq_test.c",
+        "line": 854,
+        "quote": "CHECK(seq_midi_rt(&S, 0xF8) == 1 && seq_midi_rt(&S, 0xFA) == 1 && seq_midi_rt(&S, 0xFB) == 1 &&",
+        "identifier": "seq_midi_rt"
+      },
+      {
+        "test": "smc-lock-beat",
+        "symbol_from_row": "seq_midi_rt",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:142",
+        "file": "tests/host/smc_lock_beat_test.c",
+        "line": 85,
+        "quote": "CHECK(seq_clk_take(&seq, 0xF8, 0)); CHECK(seq_midi_rt(&seq, 0xF8));",
+        "identifier": "seq_midi_rt"
+      },
+      {
+        "test": "smc-remainder",
+        "symbol_from_row": "seq_midi_rt",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:142",
+        "file": "tests/host/smc_remainder_test.c",
+        "line": 186,
+        "quote": "seq_midi_rt(&seq,0xf8); render_audio(1); CHECK(seq.metro_view==1);",
+        "identifier": "seq_midi_rt"
+      }
+    ],
+    "recorded_results": {
+      "sequencer": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-lock-beat": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-remainder": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/engine.c",
+      "firmware/src/seq/sequencer.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/seq/sequencer.c",
+        "line": 975,
+        "identifier": "seq_midi_rt",
+        "quote": "int seq_midi_rt(seq_t *s, uint8_t st)"
+      },
+      {
+        "file": "firmware/src/seq/sequencer.c",
+        "line": 989,
+        "identifier": "seq_midi_rt",
+        "quote": "/* MID-15: Clock, Start, Continue, Stop and Song Position of one input only. Called before seq_midi_rt, in the same context"
+      },
+      {
+        "file": "firmware/src/seq/sequencer.c",
+        "line": 1001,
+        "identifier": "seq_midi_rt",
+        "quote": "if (s->clk_src == SEQ_CLK_INT) {                  /* seq_midi_rt drops them */"
+      },
+      {
+        "file": "firmware/src/seq/sequencer.c",
+        "line": 1034,
+        "identifier": "seq_clk_drop",
+        "quote": "void seq_clk_drop(seq_t *s, uint32_t src)"
+      }
+    ]
+  }
 }

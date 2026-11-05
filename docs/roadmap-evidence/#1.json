@@ -3,6 +3,127 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:42 (reconciled; gate result=PRESENT)",
-  "notes": "Old gate PRESENT on 8be16486 (audit pin 70b5a033 / blob 4bfb141f); blob proofs retained in notes only. New schema requires test_refs; left UNPROVEN (no invented test_refs). | recorded_code_paths_unverified_for_PRESENT: firmware/src/app/engine.c | recorded_origin_blob:8ddeb9d588ece0612b8aedaafe1900d573c7215f path:firmware/src/app/engine.c | matched_5f578fc0_master id=#1 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:125; /workspace/docs-audit/roadmap-status.md:42; out/docs/roadmap-evidence/#1.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "Old gate PRESENT on 8be16486 (audit pin 70b5a033 / blob 4bfb141f); blob proofs retained in notes only. New schema requires test_refs; left UNPROVEN (no invented test_refs). | recorded_code_paths_unverified_for_PRESENT: firmware/src/app/engine.c | recorded_origin_blob:8ddeb9d588ece0612b8aedaafe1900d573c7215f path:firmware/src/app/engine.c | matched_5f578fc0_master id=#1 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "Old gate PRESENT on 8be16486 (audit pin 70b5a033 / blob 4bfb141f); blob proofs retained in notes only. New schema requires test_refs; left UNPROVEN (no invented test_refs). | recorded_code_paths_unverified_for_PRESENT: firmware/src/app/engine.c | recorded_origin_blob:8ddeb9d588ece0612b8aedaafe1900d573c7215f path:firmware/src/app/engine.c | matched_5f578fc0_master id=#1 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:42 (reconciled; gate result=PRESENT)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:125",
+      "/workspace/docs-audit/roadmap-status.md:42",
+      "out/docs/roadmap-evidence/#1.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "control-recompile",
+      "original-stale-release",
+      "ui-glyph-polish"
+    ],
+    "evidence": "tests/host/control_recompile_test.c:71: CHECK(original_runtime_init(&part,cell,120,&tuning,&owner)==ORIGINAL_RUNTIME_OK);; tests/host/test_original_runtime_lost_off.py:76: CHECK(original_runtime_key(&p, ORIGINAL_INPUT_USB, 48, 100) == ORIGINAL_RUNTIME_OK);; tests/host/ui_glyph_polish_test.c:47: CHECK(original_runtime_init(&live,cell,125,&tuning,&owner)==1);CHECK(original_runtime_key(&live,ORIGINAL_INPUT_KEYS,48,120)==1);",
+    "identifiers": [
+      {
+        "identifier": "original_runtime_*",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:125"
+      },
+      {
+        "identifier": "diagnose_909_memory_usage",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:125"
+      },
+      {
+        "identifier": "published_in_nightly_catalog_only",
+        "source": "/workspace/docs-audit/roadmap-status.md:42"
+      },
+      {
+        "identifier": "hardware_tested",
+        "source": "/workspace/docs-audit/roadmap-status.md:42"
+      }
+    ],
+    "matches": [
+      {
+        "test": "control-recompile",
+        "symbol_from_row": "original_runtime_*",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:125",
+        "file": "tests/host/control_recompile_test.c",
+        "line": 71,
+        "quote": "CHECK(original_runtime_init(&part,cell,120,&tuning,&owner)==ORIGINAL_RUNTIME_OK);",
+        "identifier": "original_runtime_init"
+      },
+      {
+        "test": "original-stale-release",
+        "symbol_from_row": "original_runtime_*",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:125",
+        "file": "tests/host/test_original_runtime_lost_off.py",
+        "line": 76,
+        "quote": "CHECK(original_runtime_key(&p, ORIGINAL_INPUT_USB, 48, 100) == ORIGINAL_RUNTIME_OK);",
+        "identifier": "original_runtime_key"
+      },
+      {
+        "test": "ui-glyph-polish",
+        "symbol_from_row": "original_runtime_*",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:125",
+        "file": "tests/host/ui_glyph_polish_test.c",
+        "line": 47,
+        "quote": "CHECK(original_runtime_init(&live,cell,125,&tuning,&owner)==1);CHECK(original_runtime_key(&live,ORIGINAL_INPUT_KEYS,48,120)==1);",
+        "identifier": "original_runtime_init"
+      }
+    ],
+    "recorded_results": {
+      "control-recompile": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "original-stale-release": {
+        "result": "FAIL",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 20",
+        "raw": "  FAIL original-stale-release"
+      },
+      "ui-glyph-polish": {
+        "result": "FAIL",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 22",
+        "raw": "  FAIL ui-glyph-polish"
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/engine.c",
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/engine.c",
+        "line": 44,
+        "identifier": "original_runtime_*",
+        "quote": "static original_runtime_part original_bass[NBASS] POOL;"
+      },
+      {
+        "file": "firmware/src/app/engine.c",
+        "line": 52,
+        "identifier": "original_runtime_*",
+        "quote": "(original_runtime_owned(&original_bass[v]) ? ENGINE_ORIGINAL_TAIL_OWNED : 0u) | ((unsigned)original_switch_gain[v] << 17) : UINT32_MAX;"
+      },
+      {
+        "file": "firmware/src/app/engine.c",
+        "line": 55,
+        "identifier": "original_runtime_*",
+        "quote": "static original_runtime_workspace original_workspace POOL;"
+      },
+      {
+        "file": "firmware/src/app/engine.c",
+        "line": 95,
+        "identifier": "original_runtime_*",
+        "quote": "{ return (unsigned)v < NBASS && original_runtime_filter_view(&original_bass[v], eg, depth); }"
+      }
+    ]
+  }
 }

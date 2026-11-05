@@ -3,6 +3,97 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:52 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#11 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:135; /workspace/docs-audit/roadmap-status.md:52; out/docs/roadmap-evidence/#11.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#11 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#11 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:52 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:135",
+      "/workspace/docs-audit/roadmap-status.md:52",
+      "out/docs/roadmap-evidence/#11.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "bass-prob-midi",
+      "seq-random-tie-preview",
+      "seq-long-notes"
+    ],
+    "evidence": "tests/host/bass_probability_midi_test.c:147: CHECK(seq.bass_out_valid[0], \"recorded live MIDI note remains tracked for its eventual NoteOff\");; tests/host/seq_random_tie_lookahead_test.c:84: EXPECT(m_off==0,\"selected TIE does not send premature external MIDI NoteOff\");; tests/host/seq_long_note_test.c:142: CHECK(at(ON, 0, slide ? 43 : 36, 8820, slide));",
+    "identifiers": [
+      {
+        "identifier": "TIE",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:135"
+      },
+      {
+        "identifier": "slide",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:135"
+      },
+      {
+        "identifier": "NoteOff",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:135"
+      }
+    ],
+    "matches": [
+      {
+        "test": "bass-prob-midi",
+        "symbol_from_row": "NoteOff",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:135",
+        "file": "tests/host/bass_probability_midi_test.c",
+        "line": 147,
+        "quote": "CHECK(seq.bass_out_valid[0], \"recorded live MIDI note remains tracked for its eventual NoteOff\");",
+        "identifier": "NoteOff"
+      },
+      {
+        "test": "seq-random-tie-preview",
+        "symbol_from_row": "NoteOff",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:135",
+        "file": "tests/host/seq_random_tie_lookahead_test.c",
+        "line": 84,
+        "quote": "EXPECT(m_off==0,\"selected TIE does not send premature external MIDI NoteOff\");",
+        "identifier": "NoteOff"
+      },
+      {
+        "test": "seq-long-notes",
+        "symbol_from_row": "slide",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:135",
+        "file": "tests/host/seq_long_note_test.c",
+        "line": 142,
+        "quote": "CHECK(at(ON, 0, slide ? 43 : 36, 8820, slide));",
+        "identifier": "slide"
+      }
+    ],
+    "recorded_results": {
+      "bass-prob-midi": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "seq-random-tie-preview": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "seq-long-notes": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/seq/sequencer.c"
+    ],
+    "firmware_references": []
+  }
 }

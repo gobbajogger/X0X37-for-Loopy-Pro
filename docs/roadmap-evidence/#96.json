@@ -3,6 +3,59 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:137 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#96 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:220; /workspace/docs-audit/roadmap-status.md:137; out/docs/roadmap-evidence/#96.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#96 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#96 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:137 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:220",
+      "/workspace/docs-audit/roadmap-status.md:137",
+      "out/docs/roadmap-evidence/#96.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "offline-sequencer"
+    ],
+    "evidence": "web/offline-sequencer/model.test.mjs:15: test('seeded local New/Mutate preview is deterministic, bounded and isolated; no preview mutation',()=>{for(let part=0;part<2;part++)for(let seed of [0,1,48879,0xffffffff]){const s=new DraftStore(),before=copy(s.doc);const p=generatePlan(s,0,part,'new',{seed});assert.deepEqual(p,generatePlan(s,0,part,'new',{seed}));assert.deepEqual(s.doc,before);assert.ok(notesOf(getPart(p.candidate,0,part)).length>=1);assert.deepEqual(getPart(p.candidate,0,1-part),getPart(before,0,1-part));applyPlan(s,p);s.undo();assert.deepEqual(s.doc,before);}const s=new DraftStore();s.edit(d=>putNote(d,0,0,{start:63,pitch:80,velocity:20}));const p=generatePlan(s,0,0,'new',{seed:1});assert.equal(getPart(p.candidate,0,0).steps[63].flags,0);const cleared=new DraftStore();assert.equal(notesOf(getPart(generatePlan(cleared,0,0,'mutate',{density:0}).candidate,0,0)).length,0);assert.throws(()=>generatePlan(s,0,2,'new',{}));assert.throws(()=>generatePlan(s,0,0,'new',{density:101}));});",
+    "identifiers": [
+      {
+        "identifier": "Mutate",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:220"
+      }
+    ],
+    "matches": [
+      {
+        "test": "offline-sequencer",
+        "symbol_from_row": "Mutate",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:220",
+        "file": "web/offline-sequencer/model.test.mjs",
+        "line": 15,
+        "quote": "test('seeded local New/Mutate preview is deterministic, bounded and isolated; no preview mutation',()=>{for(let part=0;part<2;part++)for(let seed of [0,1,48879,0xffffffff]){const s=new DraftStore(),before=copy(s.doc);const p=generatePlan(s,0,part,'new',{seed});assert.deepEqual(p,generatePlan(s,0,part,'new',{seed}));assert.deepEqual(s.doc,before);assert.ok(notesOf(getPart(p.candidate,0,part)).length>=1);assert.deepEqual(getPart(p.candidate,0,1-part),getPart(before,0,1-part));applyPlan(s,p);s.undo();assert.deepEqual(s.doc,before);}const s=new DraftStore();s.edit(d=>putNote(d,0,0,{start:63,pitch:80,velocity:20}));const p=generatePlan(s,0,0,'new',{seed:1});assert.equal(getPart(p.candidate,0,0).steps[63].flags,0);const cleared=new DraftStore();assert.equal(notesOf(getPart(generatePlan(cleared,0,0,'mutate',{density:0}).candidate,0,0)).length,0);assert.throws(()=>generatePlan(s,0,2,'new',{}));assert.throws(()=>generatePlan(s,0,0,'new',{density:101}));});",
+        "identifier": "Mutate"
+      }
+    ],
+    "recorded_results": {
+      "offline-sequencer": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "web/offline-sequencer/generator.js"
+    ],
+    "firmware_references": []
+  }
 }

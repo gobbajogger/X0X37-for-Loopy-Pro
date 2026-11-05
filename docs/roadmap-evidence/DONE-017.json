@@ -3,6 +3,48 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "docs/roadmap-completeness-audit-0.0.24.5.json id=DONE-017 result=MISSING (audit pin 70b5a033; rematch to 5f578fc0 by id)",
-  "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:35; No explicit ok for scenario-blenotes / blenotes.x0x at ce278129 in the searched receipts, and no cited identical-tree/test-blob carry-forward for that test.",
+  "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id\nPASS1: [UNCLEAR] Named suite entries have no explicit result in supplied transcript: scenario-blenotes. Named files: tests/scenarios/blenotes.x0x\nPASS2: [UNCLEAR] No explicit ok for scenario-blenotes / blenotes.x0x at ce278129 in the searched receipts, and no cited identical-tree/test-blob carry-forward for that test.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id",
+      "proof_source": "docs/roadmap-completeness-audit-0.0.24.5.json id=DONE-017 result=MISSING (audit pin 70b5a033; rematch to 5f578fc0 by id)"
+    },
+    "category": "UNCLEAR",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:35",
+      "out/docs/roadmap-evidence/DONE-017.json:original notes"
+    ],
+    "named_tests": [
+      [
+        "/workspace/docs-audit/_ROADMAP-5f578fc0.md:35",
+        "tests/scenarios/blenotes.x0x"
+      ]
+    ],
+    "bindings": {
+      "scenario-blenotes": [
+        {
+          "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:35",
+          "named": "tests/scenarios/blenotes.x0x",
+          "file": "tests/scenarios/blenotes.x0x",
+          "mapping": "tests/run_tests.sh:679-682 (literal scenario loop)"
+        }
+      ]
+    },
+    "missing_results": [
+      "scenario-blenotes"
+    ]
+  },
+  "pass2": {
+    "status": "UNPROVEN",
+    "category": "UNCLEAR",
+    "reason": "No explicit ok for scenario-blenotes / blenotes.x0x at ce278129 in the searched receipts, and no cited identical-tree/test-blob carry-forward for that test.",
+    "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:35; No explicit ok for scenario-blenotes / blenotes.x0x at ce278129 in the searched receipts, and no cited identical-tree/test-blob carry-forward for that test.",
+    "quote": "",
+    "quote_source": "",
+    "code_paths": [],
+    "test_refs": []
+  }
 }

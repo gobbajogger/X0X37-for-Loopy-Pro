@@ -3,6 +3,22 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "docs/roadmap-completeness-audit-0.0.24.5.json id=DONE-015 result=MISSING (audit pin 70b5a033; rematch to 5f578fc0 by id)",
-  "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:33; out/docs/roadmap-evidence/DONE-015.json:original notes; Historical iPhone Bluetooth connection/link stability on device.",
+  "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id\nPASS1: [DEVICE_BLOCKED] Historical iPhone Bluetooth connection/link stability on device.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id",
+      "proof_source": "docs/roadmap-completeness-audit-0.0.24.5.json id=DONE-015 result=MISSING (audit pin 70b5a033; rematch to 5f578fc0 by id)"
+    },
+    "category": "DEVICE_BLOCKED",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:33",
+      "out/docs/roadmap-evidence/DONE-015.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  }
 }

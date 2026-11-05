@@ -3,6 +3,107 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:51 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#10 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:134; /workspace/docs-audit/roadmap-status.md:51; out/docs/roadmap-evidence/#10.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#10 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#10 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:51 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:134",
+      "/workspace/docs-audit/roadmap-status.md:51",
+      "out/docs/roadmap-evidence/#10.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "chicago-presentation",
+      "chicago-readout",
+      "original-release-integration"
+    ],
+    "evidence": "tests/host/chicago_presentation_test.c:64: CHECK(engine_bass_preset_pending(v)==6);; tests/host/chicago_readout_test.c:59: CHECK(engine_bass_choice_serial()==serial && engine_bass_preset_pending(v)==pending);; tests/host/original_release_integration_test.c:29: CHECK(engine_bass_preset_pending(v) == 0);",
+    "identifiers": [
+      {
+        "identifier": "original_sound_name",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:134"
+      },
+      {
+        "identifier": "engine_bass_preset_pending",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:134"
+      }
+    ],
+    "matches": [
+      {
+        "test": "chicago-presentation",
+        "symbol_from_row": "engine_bass_preset_pending",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:134",
+        "file": "tests/host/chicago_presentation_test.c",
+        "line": 64,
+        "quote": "CHECK(engine_bass_preset_pending(v)==6);",
+        "identifier": "engine_bass_preset_pending"
+      },
+      {
+        "test": "chicago-readout",
+        "symbol_from_row": "engine_bass_preset_pending",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:134",
+        "file": "tests/host/chicago_readout_test.c",
+        "line": 59,
+        "quote": "CHECK(engine_bass_choice_serial()==serial && engine_bass_preset_pending(v)==pending);",
+        "identifier": "engine_bass_preset_pending"
+      },
+      {
+        "test": "original-release-integration",
+        "symbol_from_row": "engine_bass_preset_pending",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:134",
+        "file": "tests/host/original_release_integration_test.c",
+        "line": 29,
+        "quote": "CHECK(engine_bass_preset_pending(v) == 0);",
+        "identifier": "engine_bass_preset_pending"
+      }
+    ],
+    "recorded_results": {
+      "chicago-presentation": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "chicago-readout": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "original-release-integration": {
+        "result": "FAIL",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 6",
+        "raw": "  FAIL original-release-integration"
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/engine.c",
+      "firmware/src/app/original_sound.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/original_sound.c",
+        "line": 81,
+        "identifier": "original_sound_name",
+        "quote": "const char *original_sound_name(unsigned kind, unsigned factory)"
+      },
+      {
+        "file": "firmware/src/app/engine.c",
+        "line": 1856,
+        "identifier": "engine_bass_preset_pending",
+        "quote": "int fade = engine_bass_preset_pending(b) == 2 && !original_runtime_owned(&original_bass[b]);"
+      }
+    ]
+  }
 }

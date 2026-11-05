@@ -3,6 +3,109 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:88 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#47 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:171; /workspace/docs-audit/roadmap-status.md:88; out/docs/roadmap-evidence/#47.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#47 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint ONLY: green scenario-steps64 (/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 37) checks packed save/recall and memory-full preservation; possible save-safety lead. The row does not name it; this is not a binding and does not justify PRESENT.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#47 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:88 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:171",
+      "/workspace/docs-audit/roadmap-status.md:88",
+      "out/docs/roadmap-evidence/#47.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "original-release-integration",
+      "part-off",
+      "project-stage"
+    ],
+    "evidence": "tests/host/original_release_integration_test.c:168: CHECK(project_save()==0 && project_load_stage()==0);; tests/host/part_off_test.c:446: CHECK(project_save() == -9 && store_writes == w);; tests/host/project_stage_test.c:309: CHECK(project_save() == 0);",
+    "identifiers": [
+      {
+        "identifier": "project_save",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:171"
+      }
+    ],
+    "matches": [
+      {
+        "test": "original-release-integration",
+        "symbol_from_row": "project_save",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:171",
+        "file": "tests/host/original_release_integration_test.c",
+        "line": 168,
+        "quote": "CHECK(project_save()==0 && project_load_stage()==0);",
+        "identifier": "project_save"
+      },
+      {
+        "test": "part-off",
+        "symbol_from_row": "project_save",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:171",
+        "file": "tests/host/part_off_test.c",
+        "line": 446,
+        "quote": "CHECK(project_save() == -9 && store_writes == w);",
+        "identifier": "project_save"
+      },
+      {
+        "test": "project-stage",
+        "symbol_from_row": "project_save",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:171",
+        "file": "tests/host/project_stage_test.c",
+        "line": 309,
+        "quote": "CHECK(project_save() == 0);",
+        "identifier": "project_save"
+      }
+    ],
+    "recorded_results": {
+      "original-release-integration": {
+        "result": "FAIL",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 6",
+        "raw": "  FAIL original-release-integration"
+      },
+      "part-off": {
+        "result": "ok",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 123, tool_result.value.output line 21",
+        "raw": "  ok   part-off"
+      },
+      "project-stage": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/project.c",
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/project.c",
+        "line": 794,
+        "identifier": "project_save",
+        "quote": "int project_save(void)"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 2143,
+        "identifier": "project_save",
+        "quote": "rc = project_save();"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 8396,
+        "identifier": "project_save",
+        "quote": "switch (project_save()) {"
+      }
+    ]
+  }
 }

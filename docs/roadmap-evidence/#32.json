@@ -3,6 +3,118 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:73 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#32 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:156; /workspace/docs-audit/roadmap-status.md:73; out/docs/roadmap-evidence/#32.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#32 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#32 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:73 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:156",
+      "/workspace/docs-audit/roadmap-status.md:73",
+      "out/docs/roadmap-evidence/#32.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "part-order",
+      "smc-audit-core",
+      "smc-lock-beat"
+    ],
+    "evidence": "tests/host/part_order_test.c:99: pref_t captured=smc_target(2);CHECK(captured.b==PART_BRK && smc_lock_toggle());; tests/host/smc_audit_core_test.c:9: CHECK(!smc_lock_toggle());; tests/host/smc_lock_beat_test.c:115: CHECK(smc_lock_toggle());",
+    "identifiers": [
+      {
+        "identifier": "smc_lock_button",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:156"
+      },
+      {
+        "identifier": "smc_lock_toggle",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:156"
+      }
+    ],
+    "matches": [
+      {
+        "test": "part-order",
+        "symbol_from_row": "smc_lock_toggle",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:156",
+        "file": "tests/host/part_order_test.c",
+        "line": 99,
+        "quote": "pref_t captured=smc_target(2);CHECK(captured.b==PART_BRK && smc_lock_toggle());",
+        "identifier": "smc_lock_toggle"
+      },
+      {
+        "test": "smc-audit-core",
+        "symbol_from_row": "smc_lock_toggle",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:156",
+        "file": "tests/host/smc_audit_core_test.c",
+        "line": 9,
+        "quote": "CHECK(!smc_lock_toggle());",
+        "identifier": "smc_lock_toggle"
+      },
+      {
+        "test": "smc-lock-beat",
+        "symbol_from_row": "smc_lock_toggle",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:156",
+        "file": "tests/host/smc_lock_beat_test.c",
+        "line": 115,
+        "quote": "CHECK(smc_lock_toggle());",
+        "identifier": "smc_lock_toggle"
+      }
+    ],
+    "recorded_results": {
+      "part-order": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-audit-core": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-lock-beat": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/smc_mixer.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 678,
+        "identifier": "smc_lock_toggle",
+        "quote": "int smc_lock_toggle(void)"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 713,
+        "identifier": "smc_lock_button",
+        "quote": "int smc_lock_button(int pressed)"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 717,
+        "identifier": "smc_lock_toggle",
+        "quote": "int changed = smc_lock_ready() ? smc_lock_toggle() : 0;"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 725,
+        "identifier": "smc_lock_toggle",
+        "quote": "if (!smc.locked) return smc_lock_toggle();"
+      }
+    ]
+  }
 }

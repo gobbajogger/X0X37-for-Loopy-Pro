@@ -3,6 +3,103 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:75 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#34 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:158; /workspace/docs-audit/roadmap-status.md:75; out/docs/roadmap-evidence/#34.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#34 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#34 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:75 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:158",
+      "/workspace/docs-audit/roadmap-status.md:75",
+      "out/docs/roadmap-evidence/#34.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "smc-multi-peer",
+      "smc-mixer-page",
+      "smc-remainder"
+    ],
+    "evidence": "tests/host/smc_multi_peer_test.c:137: smc_ble_link_slot(0,0);smc_poll();CHECK(fx_mask&2);; tests/host/smc_mixer_page_test.c:15: smc_ble_link_slot(1,1);smc_poll();; tests/host/smc_remainder_test.c:319: setup(V_FX,PART_303B); smc_ble_link_slot(1,1); smc_poll();",
+    "identifiers": [
+      {
+        "identifier": "smc_ble_link_slot",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:158"
+      }
+    ],
+    "matches": [
+      {
+        "test": "smc-multi-peer",
+        "symbol_from_row": "smc_ble_link_slot",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:158",
+        "file": "tests/host/smc_multi_peer_test.c",
+        "line": 137,
+        "quote": "smc_ble_link_slot(0,0);smc_poll();CHECK(fx_mask&2);",
+        "identifier": "smc_ble_link_slot"
+      },
+      {
+        "test": "smc-mixer-page",
+        "symbol_from_row": "smc_ble_link_slot",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:158",
+        "file": "tests/host/smc_mixer_page_test.c",
+        "line": 15,
+        "quote": "smc_ble_link_slot(1,1);smc_poll();",
+        "identifier": "smc_ble_link_slot"
+      },
+      {
+        "test": "smc-remainder",
+        "symbol_from_row": "smc_ble_link_slot",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:158",
+        "file": "tests/host/smc_remainder_test.c",
+        "line": 319,
+        "quote": "setup(V_FX,PART_303B); smc_ble_link_slot(1,1); smc_poll();",
+        "identifier": "smc_ble_link_slot"
+      }
+    ],
+    "recorded_results": {
+      "smc-multi-peer": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-mixer-page": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-remainder": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/smc_mixer.c",
+      "firmware/src/ble/ble_midi_central.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 314,
+        "identifier": "smc_ble_link_slot",
+        "quote": "void smc_ble_link_slot(unsigned slot, int up)"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 327,
+        "identifier": "smc_ble_link_slot",
+        "quote": "void smc_ble_link(int up) { smc_ble_link_slot(0, up); }"
+      }
+    ]
+  }
 }

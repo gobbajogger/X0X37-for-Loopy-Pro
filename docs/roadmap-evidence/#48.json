@@ -3,6 +3,107 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:89 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#48 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:172; /workspace/docs-audit/roadmap-status.md:89; out/docs/roadmap-evidence/#48.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#48 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint ONLY: green scenario-steps64 (/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 37) checks saved state comes back; possible load-safety lead. The row does not name it; this is not a binding and does not justify PRESENT.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#48 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:89 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:172",
+      "/workspace/docs-audit/roadmap-status.md:89",
+      "out/docs/roadmap-evidence/#48.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "adaptive-break-storage",
+      "legacy-303-project",
+      "part-off"
+    ],
+    "evidence": "tests/host/adaptive_break_storage_test.c:38: project_file_header(h);CHECK(get32(h+20)==PROJ_STREAM);CHECK(project_file_validate(h)==0);; tests/host/legacy_303_project_test.c:33: CHECK(project_file_validate(h)!=0);; tests/host/part_off_test.c:429: CHECK(project_load() == 0);",
+    "identifiers": [
+      {
+        "identifier": "project_load",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:172"
+      },
+      {
+        "identifier": "project_file_validate",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:172"
+      }
+    ],
+    "matches": [
+      {
+        "test": "adaptive-break-storage",
+        "symbol_from_row": "project_file_validate",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:172",
+        "file": "tests/host/adaptive_break_storage_test.c",
+        "line": 38,
+        "quote": "project_file_header(h);CHECK(get32(h+20)==PROJ_STREAM);CHECK(project_file_validate(h)==0);",
+        "identifier": "project_file_validate"
+      },
+      {
+        "test": "legacy-303-project",
+        "symbol_from_row": "project_file_validate",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:172",
+        "file": "tests/host/legacy_303_project_test.c",
+        "line": 33,
+        "quote": "CHECK(project_file_validate(h)!=0);",
+        "identifier": "project_file_validate"
+      },
+      {
+        "test": "part-off",
+        "symbol_from_row": "project_load",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:172",
+        "file": "tests/host/part_off_test.c",
+        "line": 429,
+        "quote": "CHECK(project_load() == 0);",
+        "identifier": "project_load"
+      }
+    ],
+    "recorded_results": {
+      "adaptive-break-storage": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "legacy-303-project": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "part-off": {
+        "result": "ok",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 123, tool_result.value.output line 21",
+        "raw": "  ok   part-off"
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/project.c",
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/project.c",
+        "line": 566,
+        "identifier": "project_load",
+        "quote": "int project_load(void)"
+      },
+      {
+        "file": "firmware/src/app/project.c",
+        "line": 741,
+        "identifier": "project_file_validate",
+        "quote": "int project_file_validate(const uint8_t *h)"
+      }
+    ]
+  }
 }

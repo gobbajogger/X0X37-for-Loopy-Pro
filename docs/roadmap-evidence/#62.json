@@ -3,6 +3,122 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:103 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#62 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:186; /workspace/docs-audit/roadmap-status.md:103; out/docs/roadmap-evidence/#62.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#62 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#62 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:103 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:186",
+      "/workspace/docs-audit/roadmap-status.md:103",
+      "out/docs/roadmap-evidence/#62.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "matrix-knob-caption",
+      "ui-theme",
+      "chicago-presentation"
+    ],
+    "evidence": "tests/host/matrix_knob_caption_test.c:40: CHECK(7+tw(&FONT_T,UI_CAP_HOME \": CANCEL\")+8+nav<=234);; tests/host/ui_theme_test.c:69: CHECK(UI_FIRST_KNOB==5 && !strcmp(UI_CAP_EDIT,\"PARA\"));; tests/host/chicago_presentation_test.c:77: cv_text(x,y,&FONT_T,UI_CAP_ARROWS,c);x+=tw(&FONT_T,UI_CAP_ARROWS)+4;",
+    "identifiers": [
+      {
+        "identifier": "UI_CAP_*",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:186"
+      },
+      {
+        "identifier": "matrix_knob_caption",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:186"
+      },
+      {
+        "identifier": "matrix_row_hint",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:186"
+      }
+    ],
+    "matches": [
+      {
+        "test": "matrix-knob-caption",
+        "symbol_from_row": "UI_CAP_*",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:186",
+        "file": "tests/host/matrix_knob_caption_test.c",
+        "line": 40,
+        "quote": "CHECK(7+tw(&FONT_T,UI_CAP_HOME \": CANCEL\")+8+nav<=234);",
+        "identifier": "UI_CAP_HOME"
+      },
+      {
+        "test": "ui-theme",
+        "symbol_from_row": "UI_CAP_*",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:186",
+        "file": "tests/host/ui_theme_test.c",
+        "line": 69,
+        "quote": "CHECK(UI_FIRST_KNOB==5 && !strcmp(UI_CAP_EDIT,\"PARA\"));",
+        "identifier": "UI_CAP_EDIT"
+      },
+      {
+        "test": "chicago-presentation",
+        "symbol_from_row": "UI_CAP_*",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:186",
+        "file": "tests/host/chicago_presentation_test.c",
+        "line": 77,
+        "quote": "cv_text(x,y,&FONT_T,UI_CAP_ARROWS,c);x+=tw(&FONT_T,UI_CAP_ARROWS)+4;",
+        "identifier": "UI_CAP_ARROWS"
+      }
+    ],
+    "recorded_results": {
+      "matrix-knob-caption": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "ui-theme": {
+        "result": "FAIL",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 11",
+        "raw": "  FAIL ui-theme"
+      },
+      "chicago-presentation": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 35,
+        "identifier": "UI_CAP_*",
+        "quote": "#define UI_CAP_HOME \"PATCH\""
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 36,
+        "identifier": "UI_CAP_*",
+        "quote": "#define UI_CAP_EDIT \"PARA\""
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 37,
+        "identifier": "UI_CAP_*",
+        "quote": "#define UI_CAP_SEL \"SCALE\""
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 38,
+        "identifier": "UI_CAP_*",
+        "quote": "#define UI_CAP_LFO \"NOTE REPEAT\""
+      }
+    ]
+  }
 }

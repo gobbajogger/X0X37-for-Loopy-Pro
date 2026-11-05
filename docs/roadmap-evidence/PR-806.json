@@ -3,6 +3,91 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:180 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=PR-806 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:263; /workspace/docs-audit/roadmap-status.md:180; out/docs/roadmap-evidence/PR-806.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=PR-806 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=PR-806 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:180 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:263",
+      "/workspace/docs-audit/roadmap-status.md:180",
+      "out/docs/roadmap-evidence/PR-806.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "installer",
+      "installer-f02-bind",
+      "usb-product-names"
+    ],
+    "evidence": "tests/install_test.py:295: ok(rc == 6 and dev.upgrades == 0, \"a '37PRO' USB name never overrides the reported model (FM-1 -> exit 6)\"); tests/install_f02_loader_bind_test.py:121: ok(e.code == \"model\" and \"more than one new device\" in str(e),; tests/host/usb_product_names_test.py:43: f\"-DX0X_USB_37{model.upper()}=1\", \"-Ifirmware/src\"]",
+    "identifiers": [
+      {
+        "identifier": "version",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:263"
+      },
+      {
+        "identifier": "model",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:263"
+      }
+    ],
+    "matches": [
+      {
+        "test": "installer",
+        "symbol_from_row": "model",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:263",
+        "file": "tests/install_test.py",
+        "line": 295,
+        "quote": "ok(rc == 6 and dev.upgrades == 0, \"a '37PRO' USB name never overrides the reported model (FM-1 -> exit 6)\")",
+        "identifier": "model"
+      },
+      {
+        "test": "installer-f02-bind",
+        "symbol_from_row": "model",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:263",
+        "file": "tests/install_f02_loader_bind_test.py",
+        "line": 121,
+        "quote": "ok(e.code == \"model\" and \"more than one new device\" in str(e),",
+        "identifier": "model"
+      },
+      {
+        "test": "usb-product-names",
+        "symbol_from_row": "model",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:263",
+        "file": "tests/host/usb_product_names_test.py",
+        "line": 43,
+        "quote": "f\"-DX0X_USB_37{model.upper()}=1\", \"-Ifirmware/src\"]",
+        "identifier": "model"
+      }
+    ],
+    "recorded_results": {
+      "installer": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "installer-f02-bind": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "usb-product-names": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [],
+    "firmware_references": []
+  }
 }

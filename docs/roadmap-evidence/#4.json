@@ -3,6 +3,93 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:45 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#4 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:128; /workspace/docs-audit/roadmap-status.md:45; out/docs/roadmap-evidence/#4.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#4 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#4 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:45 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:128",
+      "/workspace/docs-audit/roadmap-status.md:45",
+      "out/docs/roadmap-evidence/#4.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "control-recompile",
+      "perf-wheel-motion",
+      "perf-wheel-noise"
+    ],
+    "evidence": "tests/host/control_recompile_test.c:32: CHECK(widths==((id==bend||id==cutoff)?0:4)); \\; tests/host/perf_wheel_motion_test.c:36: CHECK(plane(v,bend)<0 && plane(v,mod)<0);            /* not playing: no lane */; tests/host/perf_wheel_noise_test.c:28: CHECK(plane(0,mod)<0);CHECK(plane(0,bend)<0);        /* nothing recorded */",
+    "identifiers": [
+      {
+        "identifier": "bend",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:128"
+      },
+      {
+        "identifier": "damper",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:128"
+      }
+    ],
+    "matches": [
+      {
+        "test": "control-recompile",
+        "symbol_from_row": "bend",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:128",
+        "file": "tests/host/control_recompile_test.c",
+        "line": 32,
+        "quote": "CHECK(widths==((id==bend||id==cutoff)?0:4)); \\",
+        "identifier": "bend"
+      },
+      {
+        "test": "perf-wheel-motion",
+        "symbol_from_row": "bend",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:128",
+        "file": "tests/host/perf_wheel_motion_test.c",
+        "line": 36,
+        "quote": "CHECK(plane(v,bend)<0 && plane(v,mod)<0);            /* not playing: no lane */",
+        "identifier": "bend"
+      },
+      {
+        "test": "perf-wheel-noise",
+        "symbol_from_row": "bend",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:128",
+        "file": "tests/host/perf_wheel_noise_test.c",
+        "line": 28,
+        "quote": "CHECK(plane(0,mod)<0);CHECK(plane(0,bend)<0);        /* nothing recorded */",
+        "identifier": "bend"
+      }
+    ],
+    "recorded_results": {
+      "control-recompile": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "perf-wheel-motion": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "perf-wheel-noise": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/engine.c"
+    ],
+    "firmware_references": []
+  }
 }

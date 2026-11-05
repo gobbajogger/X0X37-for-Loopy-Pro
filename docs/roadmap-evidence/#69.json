@@ -3,6 +3,126 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:110 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#69 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:193; /workspace/docs-audit/roadmap-status.md:110; out/docs/roadmap-evidence/#69.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#69 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#69 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:110 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:193",
+      "/workspace/docs-audit/roadmap-status.md:110",
+      "out/docs/roadmap-evidence/#69.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "chicago-presentation",
+      "chicago-readout",
+      "ext-midi-rec-smk"
+    ],
+    "evidence": "tests/host/chicago_presentation_test.c:146: CHECK(!engine_bass_preset_pending(v) && ui.view==V_PART && cur_page()==page);; tests/host/chicago_readout_test.c:94: CHECK(!engine_bass_preset_pending(v) && ui.view==V_PART);; tests/host/ext_midi_rec_test.c:117: CHECK(ui.rec && seq.playing && ui.view == V_SEQ, \"%s: REC on, playing, SEQ\", name);",
+    "identifiers": [
+      {
+        "identifier": "V_SEQ",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:193"
+      },
+      {
+        "identifier": "V_PART",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:193"
+      },
+      {
+        "identifier": "V_MIX",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:193"
+      },
+      {
+        "identifier": "add_page_refs",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:193"
+      }
+    ],
+    "matches": [
+      {
+        "test": "chicago-presentation",
+        "symbol_from_row": "V_PART",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:193",
+        "file": "tests/host/chicago_presentation_test.c",
+        "line": 146,
+        "quote": "CHECK(!engine_bass_preset_pending(v) && ui.view==V_PART && cur_page()==page);",
+        "identifier": "V_PART"
+      },
+      {
+        "test": "chicago-readout",
+        "symbol_from_row": "V_PART",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:193",
+        "file": "tests/host/chicago_readout_test.c",
+        "line": 94,
+        "quote": "CHECK(!engine_bass_preset_pending(v) && ui.view==V_PART);",
+        "identifier": "V_PART"
+      },
+      {
+        "test": "ext-midi-rec-smk",
+        "symbol_from_row": "V_SEQ",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:193",
+        "file": "tests/host/ext_midi_rec_test.c",
+        "line": 117,
+        "quote": "CHECK(ui.rec && seq.playing && ui.view == V_SEQ, \"%s: REC on, playing, SEQ\", name);",
+        "identifier": "V_SEQ"
+      }
+    ],
+    "recorded_results": {
+      "chicago-presentation": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "chicago-readout": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "ext-midi-rec-smk": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 82,
+        "identifier": "V_SEQ",
+        "quote": "enum { V_HOME, V_PART, V_GEN, V_FX, V_MIX, V_GLO, V_SONG, V_PERF, V_SEQ, NVIEWS };"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 310,
+        "identifier": "V_SEQ",
+        "quote": "static int part_view(void) { return ui.view == V_PART || ui.view == V_SEQ || ui.view == V_GEN; }"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 311,
+        "identifier": "V_SEQ",
+        "quote": "static int steps_view(void) { return ui.view == V_PART || ui.view == V_SEQ; }"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 316,
+        "identifier": "V_PART",
+        "quote": "static int kbd_on(void) { return is_303() && (ui.view == V_PART || ui.rec || ui.freeplay[bidx()]); }"
+      }
+    ]
+  }
 }

@@ -3,6 +3,118 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:80 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#39 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:163; /workspace/docs-audit/roadmap-status.md:80; out/docs/roadmap-evidence/#39.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#39 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#39 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:80 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:163",
+      "/workspace/docs-audit/roadmap-status.md:80",
+      "out/docs/roadmap-evidence/#39.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "part-order",
+      "smc-audit-core",
+      "smc-drum-mutes"
+    ],
+    "evidence": "tests/host/part_order_test.c:82: CHECK(smc_same(smc_knob_target(pos),PR(R_ENG,T_MIX,p,MX_CUT)));; tests/host/smc_audit_core_test.c:35: CHECK(smc_knob_target(0).a==T_808 && smc_knob_target(0).b==8);; tests/host/smc_drum_mutes_test.c:138: assert(smc_knob_target(strip).kind == R_NONE);",
+    "identifiers": [
+      {
+        "identifier": "smc_knob_target",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:163"
+      },
+      {
+        "identifier": "smc_fader_of",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:163"
+      }
+    ],
+    "matches": [
+      {
+        "test": "part-order",
+        "symbol_from_row": "smc_knob_target",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:163",
+        "file": "tests/host/part_order_test.c",
+        "line": 82,
+        "quote": "CHECK(smc_same(smc_knob_target(pos),PR(R_ENG,T_MIX,p,MX_CUT)));",
+        "identifier": "smc_knob_target"
+      },
+      {
+        "test": "smc-audit-core",
+        "symbol_from_row": "smc_knob_target",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:163",
+        "file": "tests/host/smc_audit_core_test.c",
+        "line": 35,
+        "quote": "CHECK(smc_knob_target(0).a==T_808 && smc_knob_target(0).b==8);",
+        "identifier": "smc_knob_target"
+      },
+      {
+        "test": "smc-drum-mutes",
+        "symbol_from_row": "smc_knob_target",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:163",
+        "file": "tests/host/smc_drum_mutes_test.c",
+        "line": 138,
+        "quote": "assert(smc_knob_target(strip).kind == R_NONE);",
+        "identifier": "smc_knob_target"
+      }
+    ],
+    "recorded_results": {
+      "part-order": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-audit-core": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-drum-mutes": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/smc_mixer.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 594,
+        "identifier": "smc_fader_of",
+        "quote": "static int smc_fader_of(pref_t r)"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 640,
+        "identifier": "smc_knob_target",
+        "quote": "static pref_t smc_knob_target(int n)"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 1037,
+        "identifier": "smc_knob_target",
+        "quote": "pref_t f = smc_target(n), k = smc_knob_target(n);"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 1147,
+        "identifier": "smc_knob_target",
+        "quote": "pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) : smc_target(smc_ui.strip);"
+      }
+    ]
+  }
 }

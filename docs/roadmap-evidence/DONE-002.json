@@ -3,6 +3,90 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "docs/roadmap-completeness-audit-0.0.24.5.json id=DONE-002 result=MISSING (audit pin 70b5a033; rematch to 5f578fc0 by id)",
-  "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:20; out/docs/roadmap-evidence/DONE-002.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id",
+      "proof_source": "docs/roadmap-completeness-audit-0.0.24.5.json id=DONE-002 result=MISSING (audit pin 70b5a033; rematch to 5f578fc0 by id)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:20",
+      "out/docs/roadmap-evidence/DONE-002.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "apc-palette",
+      "smk-clip-knob",
+      "smk-clip-wait"
+    ],
+    "evidence": "tests/apc_palette_test.py:69: check(ok, f\"hue vel {v:3d} {src[v]['apc']:06X}: LCD {hl:5.1f} (blue {blue_lcd:.1f}), \"; tests/host/smk_clip_knob_test.c:405: check(\"K11 clip CC turn starts the quiet interval\", save_calls == 1u && ui.act_t == fm1_ms);; tests/host/smk_clip_wait_test.c:67: check(smk_clip_wait() == 0u, \"W3 USB clip feedback: grid\");",
+    "identifiers": [
+      {
+        "identifier": "clip",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:20"
+      },
+      {
+        "identifier": "LCD",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:20"
+      }
+    ],
+    "matches": [
+      {
+        "test": "apc-palette",
+        "symbol_from_row": "LCD",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:20",
+        "file": "tests/apc_palette_test.py",
+        "line": 69,
+        "quote": "check(ok, f\"hue vel {v:3d} {src[v]['apc']:06X}: LCD {hl:5.1f} (blue {blue_lcd:.1f}), \"",
+        "identifier": "LCD"
+      },
+      {
+        "test": "smk-clip-knob",
+        "symbol_from_row": "clip",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:20",
+        "file": "tests/host/smk_clip_knob_test.c",
+        "line": 405,
+        "quote": "check(\"K11 clip CC turn starts the quiet interval\", save_calls == 1u && ui.act_t == fm1_ms);",
+        "identifier": "clip"
+      },
+      {
+        "test": "smk-clip-wait",
+        "symbol_from_row": "clip",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:20",
+        "file": "tests/host/smk_clip_wait_test.c",
+        "line": 67,
+        "quote": "check(smk_clip_wait() == 0u, \"W3 USB clip feedback: grid\");",
+        "identifier": "clip"
+      }
+    ],
+    "recorded_results": {
+      "apc-palette": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smk-clip-knob": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smk-clip-wait": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [],
+    "firmware_references": []
+  }
 }

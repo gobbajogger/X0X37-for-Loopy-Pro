@@ -3,6 +3,72 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:181 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=PR-808 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:264; /workspace/docs-audit/roadmap-status.md:181; out/docs/roadmap-evidence/PR-808.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=PR-808 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=PR-808 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:181 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:264",
+      "/workspace/docs-audit/roadmap-status.md:181",
+      "out/docs/roadmap-evidence/PR-808.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "offline-sequencer",
+      "offline-sequencer-browser"
+    ],
+    "evidence": "web/offline-sequencer/song-library.test.mjs:42: test('song addresses stay within the editor catalog directory and secure origins',()=>{; web/offline-sequencer/f6b-browser.test.py:127: page.locator('#view-editor').click()",
+    "identifiers": [
+      {
+        "identifier": "editor",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:264"
+      }
+    ],
+    "matches": [
+      {
+        "test": "offline-sequencer",
+        "symbol_from_row": "editor",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:264",
+        "file": "web/offline-sequencer/song-library.test.mjs",
+        "line": 42,
+        "quote": "test('song addresses stay within the editor catalog directory and secure origins',()=>{",
+        "identifier": "editor"
+      },
+      {
+        "test": "offline-sequencer-browser",
+        "symbol_from_row": "editor",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:264",
+        "file": "web/offline-sequencer/f6b-browser.test.py",
+        "line": 127,
+        "quote": "page.locator('#view-editor').click()",
+        "identifier": "editor"
+      }
+    ],
+    "recorded_results": {
+      "offline-sequencer": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "offline-sequencer-browser": {
+        "result": "FAIL",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 18",
+        "raw": "  FAIL offline-sequencer-browser"
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [],
+    "firmware_references": []
+  }
 }

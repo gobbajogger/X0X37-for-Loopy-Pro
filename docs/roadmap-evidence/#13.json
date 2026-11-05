@@ -3,6 +3,60 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:54 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#13 status=in 0.0.24 (historical probability playback only; Drum PARA step-pad editing implementation/test-first pending, NOT delivered)"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:137; /workspace/docs-audit/roadmap-status.md:54; out/docs/roadmap-evidence/#13.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#13 status=in 0.0.24 (historical probability playback only; Drum PARA step-pad editing implementation/test-first pending, NOT delivered)\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#13 status=in 0.0.24 (historical probability playback only; Drum PARA step-pad editing implementation/test-first pending, NOT delivered)",
+      "proof_source": "roadmap-status.md:54 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:137",
+      "/workspace/docs-audit/roadmap-status.md:54",
+      "out/docs/roadmap-evidence/#13.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "bass-prob-midi"
+    ],
+    "evidence": "tests/host/bass_probability_midi_test.c:83: CHECK(on_count == 1, \"probability callback reached for first step\");",
+    "identifiers": [
+      {
+        "identifier": "probability",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:137"
+      }
+    ],
+    "matches": [
+      {
+        "test": "bass-prob-midi",
+        "symbol_from_row": "probability",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:137",
+        "file": "tests/host/bass_probability_midi_test.c",
+        "line": 83,
+        "quote": "CHECK(on_count == 1, \"probability callback reached for first step\");",
+        "identifier": "probability"
+      }
+    ],
+    "recorded_results": {
+      "bass-prob-midi": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/ui.c",
+      "firmware/src/seq/sequencer.c"
+    ],
+    "firmware_references": []
+  }
 }

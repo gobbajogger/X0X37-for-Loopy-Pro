@@ -3,6 +3,114 @@
   "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
   "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "status": "UNPROVEN",
-  "proof_source": "roadmap-status.md:79 (reconciled; gate result=MISSING)",
-  "notes": "matched_5f578fc0_master id=#38 status=in 0.0.24"
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:162; /workspace/docs-audit/roadmap-status.md:79; out/docs/roadmap-evidence/#38.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#38 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#38 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:79 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:162",
+      "/workspace/docs-audit/roadmap-status.md:79",
+      "out/docs/roadmap-evidence/#38.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "smc-audit-core",
+      "smc-mixer-page",
+      "smc-remainder"
+    ],
+    "evidence": "tests/host/smc_audit_core_test.c:36: CHECK(smc_drum_track(PART_808,0)==8);; tests/host/smc_mixer_page_test.c:42: CHECK(smc_drum_track(PART_909, 0)==8 && smc_page_now()==1);; tests/host/smc_remainder_test.c:80: CHECK(smc_drum_mix()==kit && smc_drum_track(kit,7)==7);",
+    "identifiers": [
+      {
+        "identifier": "smc_drum_track",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:162"
+      }
+    ],
+    "matches": [
+      {
+        "test": "smc-audit-core",
+        "symbol_from_row": "smc_drum_track",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:162",
+        "file": "tests/host/smc_audit_core_test.c",
+        "line": 36,
+        "quote": "CHECK(smc_drum_track(PART_808,0)==8);",
+        "identifier": "smc_drum_track"
+      },
+      {
+        "test": "smc-mixer-page",
+        "symbol_from_row": "smc_drum_track",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:162",
+        "file": "tests/host/smc_mixer_page_test.c",
+        "line": 42,
+        "quote": "CHECK(smc_drum_track(PART_909, 0)==8 && smc_page_now()==1);",
+        "identifier": "smc_drum_track"
+      },
+      {
+        "test": "smc-remainder",
+        "symbol_from_row": "smc_drum_track",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:162",
+        "file": "tests/host/smc_remainder_test.c",
+        "line": 80,
+        "quote": "CHECK(smc_drum_mix()==kit && smc_drum_track(kit,7)==7);",
+        "identifier": "smc_drum_track"
+      }
+    ],
+    "recorded_results": {
+      "smc-audit-core": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-mixer-page": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-remainder": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/smc_mixer.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 567,
+        "identifier": "smc_drum_track",
+        "quote": "static int smc_drum_track(int kit, int strip)"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 950,
+        "identifier": "smc_drum_track",
+        "quote": "if (kit >= 0 && smc_drum_track(kit, strip) < 0) return \"--\";"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 1033,
+        "identifier": "smc_drum_track",
+        "quote": "int selected = kit >= 0 ? smc.sel[kit] - smc_drum_track(kit, 0) :"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 1044,
+        "identifier": "smc_drum_track",
+        "quote": "int track = smc_drum_track(kit, n);"
+      }
+    ]
+  }
 }
