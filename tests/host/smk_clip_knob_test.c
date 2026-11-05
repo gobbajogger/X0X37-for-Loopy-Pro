@@ -18,6 +18,7 @@ static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 #define X0X_BLE 0
 #define SMK_BIG
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
+#include "usb_test_time.h"
 #include "src/usb.c"
 void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
 #undef BOARD_SMK37

@@ -25,6 +25,7 @@ static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 #define SMK_BIG
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
+#include "usb_test_time.h"
 #include "src/usb.c"
 #undef BOARD_SMK37                 /* main_fm1.c: leave out the INLOG reply (it needs editor.c), as in smk_clip_dark_test */
 static volatile uint32_t fm1_ms;
