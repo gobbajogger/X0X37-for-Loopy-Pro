@@ -47,7 +47,10 @@ Keep one writer per shared scope and the existing sole ledger, firmware
 integration, browser merger and publication owners. The sole ledger writer may
 admit a batch of disjoint ready tasks within verified free capacity. Existing
 accepted work continues in its owned scope. Unknown conflicting active-writer
-scope prevents new overlapping claims until reconciled; it does not erase an
+scope prevents new overlapping claims until reconciled, or until the owner/coordinator
+has recorded a staleness timeout in the sole ledger and the lock shows no recorded
+activity for that period. Until a timeout is recorded, no lock is stale. The ledger
+writer records the reclaim, the last activity seen and the timeout used; it does not erase an
 already accepted independent continuation. Independent QA and builds can run on
 the same immutable candidate while disjoint implementation proceeds. Serialize
 overlapping writes and integration, not the whole queue.
