@@ -22,9 +22,12 @@ Final coverage: **336 PASS, 0 FAIL, 0 SKIP, 0 NOT_RUN**.
 The root Codex thread ran the entire host suite here: 335 passed and one failed
 because the optimization matrix required a missing Clang executable. After
 installing Clang 19.1.7 and its sanitizer runtime in the workspace, the root thread
-reran the complete optimization selector successfully. Source and test bytes did
-not change. This reuses the other 335 passes; it does not claim one green
-unfiltered invocation. [host-suite.json](host-suite.json) preserves both outcomes,
+reran the complete optimization selector successfully. A final log audit also
+found three optional Clang variants skipped inside the initially passing
+original-stale-release selector. The root thread reran that complete selector:
+all five GCC/Clang plain and sanitizer configurations passed 164 checks each.
+Source and test bytes did not change. This reuses the other 334 passes; it does
+not claim one green unfiltered invocation. [host-suite.json](host-suite.json) preserves both outcomes,
 commands, compiler/reference identities, selector coverage and log digests.
 
 The latency check passed 20,459,520 exhaustive key cases and 414,720 arp cases.

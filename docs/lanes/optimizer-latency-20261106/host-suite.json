@@ -19,7 +19,12 @@
     "failed_selector": "optimization-equivalence",
     "cause": "The required Clang host executable was not initially installed; GCC optimized and ASan/UBSan checks had passed.",
     "stdout_sha256": "558b65e3e264c9437d6cb645b52771e3a7f75ead5bffd610d19c6b91c9a9cc4b",
-    "failed_detail_sha256": "057511c7c0e8d5c7dd2596e395dedcb1f5ca95661b6d2f320ae6ef200a166ae0"
+    "failed_detail_sha256": "057511c7c0e8d5c7dd2596e395dedcb1f5ca95661b6d2f320ae6ef200a166ae0",
+    "internal_skips": {
+      "selector": "original-stale-release",
+      "detail": "Three optional Clang configurations were skipped because Clang was not initially installed. The selector itself returned PASS; all three variants were subsequently executed successfully.",
+      "log_sha256": "28738fd484c1a5c01645dff0ca0fd48fdc6a7c989221a97d8b30d7d57ef569fb"
+    }
   },
   "recovery": {
     "action": "Installed workspace-local Debian Clang 19.1.7, headers, library and sanitizer runtime; supplied it through PATH. No project source or tests changed.",
@@ -41,7 +46,7 @@
     "stdout_sha256": "5d8a155829bb15b2cc65d828561649242b15366f5c7b5d2178fdecac9036a726",
     "detail_sha256": "2bb28e645e26a9b12f5cab9abd8b6ecf3b6cbc28ea63fbeda483318084e68f99"
   },
-  "coverage": "Complete full-suite execution plus successful rerun of its sole environment-dependent failure on identical project inputs. The other 335 passing selectors remain valid. This is not a claim of one green unfiltered invocation.",
+  "coverage": "Complete full-suite execution plus successful reruns of the failed optimization selector and all internally skipped Clang variants in original-stale-release on identical project inputs. The other 334 passing selectors remain valid. This is not a claim of one green unfiltered invocation.",
   "environment": {
     "CC": "GCC 14.2.0",
     "CXX": "GCC 14.2.0",
@@ -188,7 +193,7 @@
     "original-build": "PASS",
     "original-release-integration": "PASS",
     "original-release-ui": "PASS",
-    "original-stale-release": "PASS",
+    "original-stale-release": "PASS_AFTER_RERUN",
     "pad-placement-doc": "PASS",
     "padcal-flag": "PASS",
     "padcal-view": "PASS",
@@ -402,5 +407,17 @@
     "usb-sxq-sticky-apc": "PASS",
     "validation-inputs": "PASS",
     "wav-import-integrity": "PASS"
+  },
+  "additional_rerun": {
+    "selector": "original-stale-release",
+    "command": "X0X_STRICT_PREFLIGHT=1 X0X_TEST_JOBS=1 sh tests/run_tests.sh original-stale-release",
+    "exit_code": 0,
+    "pass": 1,
+    "fail": 0,
+    "skip": 0,
+    "not_run": 0,
+    "variants": "GCC, Clang, GCC UBSan, Clang UBSan, Clang ASan/UBSan: 164 checks and zero failures per configuration.",
+    "stdout_sha256": "a639d0cff3e38559be7ad6fe0f8a05733d55b5de4e271702c4db61c3e0449695",
+    "detail_sha256": "d65ef11ef60b2f259a8a8d6ae31427c2bee288f851462223dcc5df4eccf3f2da"
   }
 }
