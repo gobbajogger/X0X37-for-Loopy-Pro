@@ -9,4 +9,10 @@ The separate `gobbajogger/x0x37-for-Loopy-Pro_nightly` repository remains GPL br
 
 NIGHTLY is intended for the FIRST owner hardware test. A `DEV / HARDWARE TEST — DEVICE NOT TESTED` candidate requires actual pinned as-applicable Elite/Pro DEV target builds and matching controller, model/header/CRC/SHA256, memory/flash budgets, host regressions, backup/readback/restore and installer failure negatives, independent critical QA, licensing and verified immutable hosted bytes. It does NOT require prior physical PASS, production main merge or separate per-build owner approval. If any software/package/distribution check fails or was not run, record history only and leave the installable picker empty for that candidate.
 
+Keep existing NIGHTLY catalog entries and history unchanged, including the current
+0.0.24.5 entry. A new entry is added only through the documented catalog_sync,
+website_main_merger and sole website_publisher steps, and only when every required
+check is PASS (0 fail / 0 skip; NOT_RUN is reported honestly and is not PASS). The
+docs role never edits catalogs or publishes. (Relayed by the coordinator.)
+
 Do not force-push, directly write protected production main, bypass a GitHub safety refusal, use GitHub-hosted Actions for firmware tests/builds, flash devices, or claim PASS without real exact-source test/build evidence. Preserve legacy PRs and stacked dependencies until individually reconciled. Record full remote source SHA, test commands/exits, artifact hashes, QA, status, and next consumer for each handoff.
