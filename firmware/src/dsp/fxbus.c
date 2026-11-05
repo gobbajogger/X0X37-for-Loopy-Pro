@@ -242,7 +242,10 @@ static void fx_reverb(fxbus_t *f, const float *in, float *out, float *out_r, int
     if (f->rv_quiet >= FX_RV_QUIET) {
         int any = 0;
         for (int i = 0; i < n; ++i)
-            any |= in[i] != 0.0f;
+            if (in[i] != 0.0f) {
+                any = 1;
+                break;                      /* one nonzero sample rules out idle */
+            }
         if (!any)
             return;                         /* silent in, silent lines: 0 out */
     }
@@ -317,7 +320,10 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     if (f->dl_quiet >= len) {
         int any = 0;
         for (int i = 0; i < n; ++i)
-            any |= in[i] != 0.0f;
+            if (in[i] != 0.0f) {
+                any = 1;
+                break;                      /* one nonzero sample rules out idle */
+            }
         if (!any) {
             /* the line is all zeros: nothing to read, but time moves on */
             f->w = (f->w + n) % len;
