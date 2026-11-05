@@ -138,6 +138,12 @@ static void test_values_and_bounds(void){
    pref_t r=pg.r[p][k];if(!orig_strip_slot(r))continue;const x0x_param_t *d=pref_desc(r);
    const int pots[5]={0,32,64,96,127};uint32_t previous=0;
    int kind=engine_bass_sound_bank(&proj.sound,r.b);
+   /* ENV shows cutoff+depth: the preceding CUTOFF=127 sweep saturates both
+    * +51% and +100% targets. Compare magnitudes at the same mid cutoff as test_env. */
+   if(kind==ORIGINAL_SOUND_CHICAGO && r.c==4) {
+    pref_set(PR(R_ENG,T_303,r.b,2),64);drain_ms(15);
+    CHECK(pref_get(PR(R_ENG,T_303,r.b,2))==64);
+   }
    for(int v=0;v<5;v++){
     int value=pots[v]*d->max/127;pref_set(r,value);drain_ms(15);
     int x,y;uint32_t h=polish_glyph(r,value,&x,&y);
