@@ -1,23 +1,23 @@
 # Project context and execution
 
-Use the owner's current rules for the **LoopyX0X37** project.
+Read the [current owner contract](../../../docs/rules/current-owner-contract.md)
+for cloud execution, Grok's development/delivery ownership, meaningful stage
+threads and end-of-stage handoffs. The later owner instructions supersede
+classic-only, no-Codex/Work/bot-execution and fixed-orchestrator routing. Use the
+qualified tools actually available in the assigned cloud stage; do not use the
+owner's Mac or migrate already-owned work merely to change a provider label.
 
-## Where work runs
+Keep the existing project context, request, specialist scopes and independent
+reviewers. Use supported subagents for disjoint ready work within verified
+capacity; keep one writer per shared scope and serialize integration/publication
+under their assigned owners. A saved prompt is not a started receiver.
 
-- Builds and host tests run in classic ChatGPT Chat threads in the LoopyX0X37 project. Start a NEW classic thread for each stage. Never use ChatGPT Work or Codex for builds or tests.
-- The ChatGPT Orchestrator only coordinates: plans, handoffs, QA and merge-readiness. It cannot start threads and it never builds.
-- A big task goes first to the ChatGPT Orchestrator for a handoff. Then start a new classic thread at Extra High with that handoff. Use Pro only for hard builder tasks.
-- If a long chat fails to load, start a new thread only after you verify the newest head on GitHub.
-- Rule 1m: no git over the network in chats. Use the GitHub plugin or the GitHub API (zipball or tree) to get source, and use SDK V1.2.1 from the project files.
-- `x0x37-capability-first` is a ChatGPT plugin, not a repository script.
-- Merge bar: a full cloud pass (the full host suite plus the Elite and Pro builds, 0 fail and 0 skip), or the box result `Box host-suite check: PASS` plus a PR comment that the firmware builds pass.
-- The Mac is only for hardware installs and device checks.
-- Install only when all queued features are ready. Before the install, back up the loop slots. After the install, read back and compare the per-slot CRC, and check the slots.
+Use the [continuation procedure](../../x0x37-workflow/references/handoff.md) for
+exact inputs, checked results, ownership release and actual receiver consumption.
+Record a missing creation/result-reader capability honestly while independent
+ready work continues. Reports do not create routine owner-response waits.
 
-## Handoffs
-
-Give each new classic thread a compact handoff from the ChatGPT Orchestrator: project, lane, exact base revision on GitHub, requested operations, relevant skill paths, evidence and the result needed. Return the result and evidence to the ChatGPT Orchestrator for QA and merge-readiness. A saved prompt is not a started thread.
-
-For code work, select the explicit tstack mode in [x0x37-workflow](../../x0x37-workflow/SKILL.md), then apply firmware proof where relevant. Device installation stays separate and needs current action-specific owner permission. Keep data safeguards, sole firmware integration ownership and existing action permissions.
-
-This replaces the earlier routing that sent execution to Codex or Work.
+Select a tstack mode only from the current owner's explicit request under
+[x0x37-workflow](../../x0x37-workflow/SKILL.md). Installation, source push, merge,
+publication and production remain separate actions. Keep actual required
+host/native proof; a box-status string or PR comment is not a substitute.

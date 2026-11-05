@@ -44,10 +44,10 @@ match. Refresh only changed observations and affected checks. Future artifacts,
 optional timing/model-tier metadata and root's direct access to a child are not
 admission gates when the required inputs and a supported result reader exist.
 
-At a stage boundary, perform the next authorized action in the current capable
-execution. If that bounded execution must end with work remaining, persist its
-checkpoint and verify one supported successor or existing authorized relay before
-yielding. Reconcile uncertain launches before retrying. If no route exists, record
+At a meaningful stage boundary, follow the owner's [current stage contract](../../../docs/rules/current-owner-contract.md):
+persist checked inputs/results and hand off to the new stage thread through a
+supported route. Complete necessary work together within the current stage.
+Verify one supported receiver or existing authorized relay before yielding. Reconcile uncertain launches before retrying. If no route exists, record
 the exact missing action/capability and responsible owner; keep other ready work moving.
 Do not claim future monitoring without an active owner and supported reader.
 
@@ -62,8 +62,8 @@ The queue's next changed observation may reactivate its existing authorized owne
    owned scope, completed/failed/unrun checks, acceptance condition, next action and
    supported progress/result reader. Reuse the originating project context.
 2. Check for an existing receiver, including pending or uncertain creation. Use
-   only the supported authorized creation route required by this assignment; no
-   particular vendor or new thread is required for each logical stage. Before a
+   only the supported authorized creation route required by the current meaningful
+   stage. Do not create a new thread for each task or duplicate a receiver. Before a
    receiver writes shared scope, checkpoint final bytes and stop/release the old writer.
 3. Verify receiver consumption through its actual first bounded action against
    the pinned inputs. Record the real receiver/run identity, action and result

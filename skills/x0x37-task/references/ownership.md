@@ -1,11 +1,12 @@
 # Task ownership and shared work
 
 - Keep each task in its assigned isolated lane with one accountable owner.
-  Transfer only when execution needs a qualified receiver; do not migrate active
-  work merely to change chat type or create another copy of the task.
+  Transfer at meaningful stage boundaries through a qualified receiver under the
+  current owner contract; do not migrate active work merely to change chat type
+  or create another copy of the task.
 
   Apply [chat routing](routing.md) before choosing its destination.
-  Logical workflow stages do not each need another chat; use the [current workflow](../../x0x37-workflow/SKILL.md) and its [handoff procedure](../../x0x37-workflow/references/handoff.md).
+  Use new threads at meaningful stage handoffs, not for each task; follow the [current workflow](../../x0x37-workflow/SKILL.md) and its [handoff procedure](../../x0x37-workflow/references/handoff.md).
 - Use old chats for context and handoff details. The owner permits new agents to request that information.
   The owner permits requests for a completion notice from a working chat. The owner also permits that reply.
 
