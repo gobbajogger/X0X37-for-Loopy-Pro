@@ -6,6 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 for CC in gcc clang; do
+    command -v "$CC" >/dev/null 2>&1 || continue
     for MODE in optimized sanitizer; do
         if [[ "$MODE" == optimized ]]; then FLAGS=(-O2 -ffp-contract=off); else FLAGS=(-O1 -g -fno-omit-frame-pointer -ffp-contract=off -fsanitize=address,undefined); fi
         "$CC" -std=c11 -Wall -Wextra -Werror -pedantic -DX0X_IMA_TABLES_DEFINE "${FLAGS[@]}" "$ROOT/tests/host/ima_delta_lut_exact_test.c" -o "$TMP/check"
