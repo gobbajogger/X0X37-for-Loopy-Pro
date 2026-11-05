@@ -30,8 +30,11 @@ expect hit0.0.0 0
 expect store_writes 0
 # Explicit RESET PROJECT is the supported adoption boundary (SET-07).
 tap GLO
-turn SELECT 17
-expect listsel 21
+# GLOBAL > PROJECT (section 3) > RESET PROJECT (row 4)
+turn SELECT 3
+tap SEL
+turn SELECT 4
+expect listsel 4
 tap SEL
 expect overlay 2
 tap SEL

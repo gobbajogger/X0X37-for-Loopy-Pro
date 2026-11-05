@@ -57,6 +57,7 @@ extern u8 __ctl_run_stack_hi[];
 const xb_boot_t *ctl_bp;
 xb_mbox_t *ctl_mb;
 static volatile u32 failed;
+static void *poll_sp;                    /* the app's sp while a poll runs (ctl_asm_guard_call), else 0 */
 
 static u32 ctl_init(u32 bp);
 static u32 ctl_poll(u32 unused);
@@ -132,7 +133,17 @@ void ctl_fail(u32 err)
         ctl_mb->state = XB_ST_FAILED;
         XB_SYNC();
     }
-    for (;;)                              /* the app holds core 1 when its job does not come back */
+    if (poll_sp && !ctl_port_in_irq()) {  /* in a poll: back to the app at once. Core 1 also renders
+                                           * audio; it must not stay here (BT FAILED stress, 2026-10-31) */
+        void *sp = poll_sp;
+        poll_sp = 0;
+        ctl_port_irq_restore(0);          /* the image's interrupts are off (above); core 1's are on again */
+        ctl_asm_unwind(sp, 0);
+    }
+    if (poll_sp)                          /* in an interrupt of a poll: its interrupt is off now; return,
+                                           * and every next poll returns at once (failed) */
+        return;
+    for (;;)                              /* init: the app holds core 1 when its job does not come back */
         ctl_port_cpu_relax();
 }
 
@@ -214,5 +225,8 @@ int ctl_entry_init(const xb_boot_t *bp)
 }
 void ctl_entry_poll(void)
 {
-    ctl_asm_stack_call(ctl_poll, 0, __ctl_run_stack_hi);
+    if (failed)
+        return;
+    ctl_asm_guard_call(ctl_poll, 0, __ctl_run_stack_hi, &poll_sp);
+    poll_sp = 0;
 }
