@@ -482,6 +482,7 @@ run stereo sh -c "mkdir -p build/gen && ([ -f build/gen/x0x_drum_tables.h ] || p
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
 run drum-kit-identity sh tests/host/drum_kit_identity_test.sh   # independent 909 and 808 voices
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
+run ima-delta-lut bash tests/host/run_ima_delta_lut.sh   # exact 64-entry IMA delta rounding LUT
 for t in drum909 drum808 breaks; do
     [ -f "tests/host/run_$t.sh" ] || continue
     if miss=$(optional_ref "$t"); then not_run "$t" "$miss"
