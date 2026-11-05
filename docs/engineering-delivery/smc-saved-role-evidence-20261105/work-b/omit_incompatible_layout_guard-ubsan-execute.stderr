@@ -1,0 +1,61 @@
+FAIL line=97: rc == expected
+FAIL line=100: capture_calls == 0
+FAIL line=101: measure_calls == 0
+FAIL line=102: save_calls == 0
+FAIL line=103: stream_calls == 0
+FAIL line=104: packed_len == 123 && proj.set == 0
+FAIL line=97: rc == expected
+FAIL line=97: rc == expected
+FAIL line=97: rc == expected
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=100: capture_calls == 0
+FAIL line=101: measure_calls == 0
+FAIL line=102: save_calls == 0
+FAIL line=103: stream_calls == 0
+FAIL line=104: packed_len == 123 && proj.set == 0
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=100: capture_calls == 0
+FAIL line=101: measure_calls == 0
+FAIL line=102: save_calls == 0
+FAIL line=103: stream_calls == 0
+FAIL line=104: packed_len == 123 && proj.set == 0
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=100: capture_calls == 0
+FAIL line=101: measure_calls == 0
+FAIL line=102: save_calls == 0
+FAIL line=103: stream_calls == 0
+FAIL line=104: packed_len == 123 && proj.set == 0
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=100: capture_calls == 0
+FAIL line=101: measure_calls == 0
+FAIL line=102: save_calls == 0
+FAIL line=103: stream_calls == 0
+FAIL line=104: packed_len == 123 && proj.set == 0
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=97: rc == expected
+FAIL line=98: layout_calls == (incompatible ? 0u : 1u)

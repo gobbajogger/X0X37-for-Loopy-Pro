@@ -1,0 +1,303 @@
+{
+  "scope": "actual project_save control-flow-with-stubs proof; NOT complete storage/flash/firmware qualification",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "commit": "8d43c53f6fc9d6aba749893c82d82a6e7409773a",
+    "path": "firmware/src/app/project.c",
+    "bytes": 30254,
+    "blob_sha1": "82cc9eba89884e4310b3273941fb9b6335611415",
+    "sha256": "a234ef507289e1b2b9c75bc34d8b84f1de77155709fd2096535d6368487f0ad7"
+  },
+  "extracted_function": {
+    "path": "project_save.extracted.c",
+    "sha256": "1c10fae4e6a6f1c9f8dfbd5ede77155f0f610cdd56fb9379adc4b148be717c6d",
+    "bytes": 1022
+  },
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "machine": "x86_64",
+    "host_macros": {
+      "X0X_HOST": "1",
+      "X0X_BASS_PRESET_PREVIEW": "0",
+      "X0X_BASS_TAGGED_SOUND": "0"
+    }
+  },
+  "commands": [
+    {
+      "name": "compiler_version",
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "exit": 0,
+      "stdout": "compiler_version.stdout",
+      "stderr": "compiler_version.stderr"
+    },
+    {
+      "name": "compiler_target",
+      "argv": [
+        "cc",
+        "-dumpmachine"
+      ],
+      "exit": 0,
+      "stdout": "compiler_target.stdout",
+      "stderr": "compiler_target.stderr"
+    },
+    {
+      "name": "uname",
+      "argv": [
+        "uname",
+        "-a"
+      ],
+      "exit": 0,
+      "stdout": "uname.stdout",
+      "stderr": "uname.stderr"
+    },
+    {
+      "name": "preprocess",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-E",
+        "-P",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/actual.c"
+      ],
+      "exit": 0,
+      "stdout": "preprocess.stdout",
+      "stderr": "preprocess.stderr"
+    },
+    {
+      "name": "preprocessor_macros",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-dM",
+        "-E",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/actual.c"
+      ],
+      "exit": 0,
+      "stdout": "preprocessor_macros.stdout",
+      "stderr": "preprocessor_macros.stderr"
+    },
+    {
+      "name": "actual-plain-compile",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/actual.c",
+        "-o",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/actual-plain"
+      ],
+      "exit": 0,
+      "stdout": "actual-plain-compile.stdout",
+      "stderr": "actual-plain-compile.stderr"
+    },
+    {
+      "name": "actual-plain-ldd",
+      "argv": [
+        "ldd",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/actual-plain"
+      ],
+      "exit": 0,
+      "stdout": "actual-plain-ldd.stdout",
+      "stderr": "actual-plain-ldd.stderr"
+    },
+    {
+      "name": "actual-plain-execute",
+      "argv": [
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/actual-plain"
+      ],
+      "exit": 0,
+      "stdout": "actual-plain-execute.stdout",
+      "stderr": "actual-plain-execute.stderr"
+    },
+    {
+      "name": "actual-ubsan-compile",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=all",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/actual.c",
+        "-o",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/actual-ubsan"
+      ],
+      "exit": 0,
+      "stdout": "actual-ubsan-compile.stdout",
+      "stderr": "actual-ubsan-compile.stderr"
+    },
+    {
+      "name": "actual-ubsan-ldd",
+      "argv": [
+        "ldd",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/actual-ubsan"
+      ],
+      "exit": 0,
+      "stdout": "actual-ubsan-ldd.stdout",
+      "stderr": "actual-ubsan-ldd.stderr"
+    },
+    {
+      "name": "actual-ubsan-execute",
+      "argv": [
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/actual-ubsan"
+      ],
+      "exit": 0,
+      "stdout": "actual-ubsan-execute.stdout",
+      "stderr": "actual-ubsan-execute.stderr"
+    },
+    {
+      "name": "omit_incompatible_layout_guard-ubsan-compile",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=all",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/omit_incompatible_layout_guard.c",
+        "-o",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/omit_incompatible_layout_guard-ubsan"
+      ],
+      "exit": 0,
+      "stdout": "omit_incompatible_layout_guard-ubsan-compile.stdout",
+      "stderr": "omit_incompatible_layout_guard-ubsan-compile.stderr"
+    },
+    {
+      "name": "omit_incompatible_layout_guard-ubsan-ldd",
+      "argv": [
+        "ldd",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/omit_incompatible_layout_guard-ubsan"
+      ],
+      "exit": 0,
+      "stdout": "omit_incompatible_layout_guard-ubsan-ldd.stdout",
+      "stderr": "omit_incompatible_layout_guard-ubsan-ldd.stderr"
+    },
+    {
+      "name": "omit_incompatible_layout_guard-ubsan-execute",
+      "argv": [
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/omit_incompatible_layout_guard-ubsan"
+      ],
+      "exit": 1,
+      "stdout": "omit_incompatible_layout_guard-ubsan-execute.stdout",
+      "stderr": "omit_incompatible_layout_guard-ubsan-execute.stderr"
+    },
+    {
+      "name": "reorder_settings_fence_first-ubsan-compile",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=all",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/reorder_settings_fence_first.c",
+        "-o",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/reorder_settings_fence_first-ubsan"
+      ],
+      "exit": 0,
+      "stdout": "reorder_settings_fence_first-ubsan-compile.stdout",
+      "stderr": "reorder_settings_fence_first-ubsan-compile.stderr"
+    },
+    {
+      "name": "reorder_settings_fence_first-ubsan-ldd",
+      "argv": [
+        "ldd",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/reorder_settings_fence_first-ubsan"
+      ],
+      "exit": 0,
+      "stdout": "reorder_settings_fence_first-ubsan-ldd.stdout",
+      "stderr": "reorder_settings_fence_first-ubsan-ldd.stderr"
+    },
+    {
+      "name": "reorder_settings_fence_first-ubsan-execute",
+      "argv": [
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/reorder_settings_fence_first-ubsan"
+      ],
+      "exit": 1,
+      "stdout": "reorder_settings_fence_first-ubsan-execute.stdout",
+      "stderr": "reorder_settings_fence_first-ubsan-execute.stderr"
+    },
+    {
+      "name": "omit_settings_fence-ubsan-compile",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=all",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/omit_settings_fence.c",
+        "-o",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/omit_settings_fence-ubsan"
+      ],
+      "exit": 0,
+      "stdout": "omit_settings_fence-ubsan-compile.stdout",
+      "stderr": "omit_settings_fence-ubsan-compile.stderr"
+    },
+    {
+      "name": "omit_settings_fence-ubsan-ldd",
+      "argv": [
+        "ldd",
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/omit_settings_fence-ubsan"
+      ],
+      "exit": 0,
+      "stdout": "omit_settings_fence-ubsan-ldd.stdout",
+      "stderr": "omit_settings_fence-ubsan-ldd.stderr"
+    },
+    {
+      "name": "omit_settings_fence-ubsan-execute",
+      "argv": [
+        "/workspace/scratch/lx016-exact-evidence-20261105/work-b/omit_settings_fence-ubsan"
+      ],
+      "exit": 1,
+      "stdout": "omit_settings_fence-ubsan-execute.stdout",
+      "stderr": "omit_settings_fence-ubsan-execute.stderr"
+    }
+  ],
+  "results": {
+    "strict_plain": "PASS",
+    "strict_ubsan": "PASS",
+    "matrix_cases_per_run": 24,
+    "negative_controls": {
+      "omit_incompatible_layout_guard": "KILLED",
+      "reorder_settings_fence_first": "KILLED",
+      "omit_settings_fence": "KILLED"
+    },
+    "preprocessor_configuration": "PASS",
+    "source_unchanged": "PASS",
+    "engine_specific_branches": "NOT_RUN",
+    "device_store_stage_held_branch": "NOT_RUN",
+    "full_storage_flash_firmware_qualification": "NOT_RUN",
+    "checks_per_actual_run": 205,
+    "matrix_return_counts_per_actual_run": {
+      "minus9": 20,
+      "minus8": 3,
+      "zero_positive": 1
+    },
+    "guarded_rows_with_zero_capture_measure_object_and_stream_save_calls": 23
+  },
+  "source_readback": {
+    "bytes_equal_to_initial_and_GitHub_payload": true,
+    "sha256": "a234ef507289e1b2b9c75bc34d8b84f1de77155709fd2096535d6368487f0ad7"
+  }
+}

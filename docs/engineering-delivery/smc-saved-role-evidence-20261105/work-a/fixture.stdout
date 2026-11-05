@@ -1,0 +1,9 @@
++ /usr/bin/python3 /workspace/scratch/lx016-exact-evidence-20261105/work-a/capture_cc.py -std=c99 -O1 -g -Wall -Wextra -Werror /tmp/smc-boot-contract-yndwnjgg/smc_boot.c -o /tmp/smc-boot-contract-yndwnjgg/smc_plain
++ /tmp/smc-boot-contract-yndwnjgg/smc_plain
+SMC boot/persistence production C slices: PASS
+checks=301
++ /usr/bin/python3 /workspace/scratch/lx016-exact-evidence-20261105/work-a/capture_cc.py -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all /tmp/smc-boot-contract-yndwnjgg/smc_boot.c -o /tmp/smc-boot-contract-yndwnjgg/smc_ubsan
++ /tmp/smc-boot-contract-yndwnjgg/smc_ubsan
+SMC boot/persistence production C slices: PASS
+checks=301
+Production-source extraction and host regression: PASS

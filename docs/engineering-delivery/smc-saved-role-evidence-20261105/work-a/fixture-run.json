@@ -1,0 +1,56 @@
+{
+  "started_utc": "2026-11-05T00:10:31.848883+00:00",
+  "finished_utc": "2026-11-05T00:10:32.315391+00:00",
+  "argv": [
+    "python3",
+    "tests/host/test_smc_boot_saved_roles.py"
+  ],
+  "cwd": "/workspace/scratch/lx016-exact-evidence-20261105/work-a/closure",
+  "explicit_environment": {
+    "CC": "/usr/bin/python3 /workspace/scratch/lx016-exact-evidence-20261105/work-a/capture_cc.py"
+  },
+  "exit": 0,
+  "stdout_sha256": "a983da4fd643826d05f46b921b44e61f20bd9252dbaa10f453ba554762c60d90",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "python3_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "uname": [
+    "Linux",
+    "e83bf11e4dd7",
+    "6.18.57",
+    "#1 SMP Tue Oct 20 21:56:04 UTC 2026",
+    "x86_64",
+    ""
+  ],
+  "compiler": {
+    "version": {
+      "argv": [
+        "/usr/bin/cc",
+        "--version"
+      ],
+      "exit": 0,
+      "stdout": "cc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    "target": {
+      "argv": [
+        "/usr/bin/cc",
+        "-dumpmachine"
+      ],
+      "exit": 0,
+      "stdout": "x86_64-linux-gnu\n",
+      "stderr": ""
+    },
+    "fullversion": {
+      "argv": [
+        "/usr/bin/cc",
+        "-dumpfullversion"
+      ],
+      "exit": 0,
+      "stdout": "14.2.0\n",
+      "stderr": ""
+    }
+  }
+}

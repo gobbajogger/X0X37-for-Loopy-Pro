@@ -1,0 +1,74 @@
+[
+  {
+    "label": "captured-plain",
+    "argv": [
+      "/workspace/scratch/lx016-exact-evidence-20261105/work-a/capture/plain/smc_plain"
+    ],
+    "exit": 0,
+    "stdout_sha256": "464217d7a7bcc211b03ed265b8db82dc8b620105434b4b9236abe6eeacce9fe1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "captured-ubsan",
+    "argv": [
+      "/workspace/scratch/lx016-exact-evidence-20261105/work-a/capture/ubsan/smc_ubsan"
+    ],
+    "exit": 0,
+    "stdout_sha256": "464217d7a7bcc211b03ed265b8db82dc8b620105434b4b9236abe6eeacce9fe1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "matrix-compile",
+    "argv": [
+      "/usr/bin/cc",
+      "-std=c99",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "/workspace/scratch/lx016-exact-evidence-20261105/work-a/scratch-controls/matrix.c",
+      "-o",
+      "/workspace/scratch/lx016-exact-evidence-20261105/work-a/scratch-controls/matrix"
+    ],
+    "exit": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "matrix-run",
+    "argv": [
+      "/workspace/scratch/lx016-exact-evidence-20261105/work-a/scratch-controls/matrix"
+    ],
+    "exit": 0,
+    "stdout_sha256": "c8defd374df2e5fd092fe44a30b0f5c3d9f1a64482b2af27794426feaab9ba2c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "no-callee-write-compile",
+    "argv": [
+      "/usr/bin/cc",
+      "-std=c99",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "/workspace/scratch/lx016-exact-evidence-20261105/work-a/scratch-controls/no-callee-write.c",
+      "-o",
+      "/workspace/scratch/lx016-exact-evidence-20261105/work-a/scratch-controls/no-callee-write"
+    ],
+    "exit": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "no-callee-write-run",
+    "argv": [
+      "/workspace/scratch/lx016-exact-evidence-20261105/work-a/scratch-controls/no-callee-write"
+    ],
+    "exit": 1,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "85afbff4c8bd4cc6089ca3d4842f75bb9ce9e0beaf3a5ac494f5aca7dba923ac"
+  }
+]

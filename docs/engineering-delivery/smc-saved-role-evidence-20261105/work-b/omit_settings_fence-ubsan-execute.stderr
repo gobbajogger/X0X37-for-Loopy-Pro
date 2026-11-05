@@ -1,0 +1,18 @@
+FAIL line=98: rc == expected
+FAIL line=101: capture_calls == 0
+FAIL line=102: measure_calls == 0
+FAIL line=103: save_calls == 0
+FAIL line=104: stream_calls == 0
+FAIL line=105: packed_len == 123 && proj.set == 0
+FAIL line=98: rc == expected
+FAIL line=101: capture_calls == 0
+FAIL line=102: measure_calls == 0
+FAIL line=103: save_calls == 0
+FAIL line=104: stream_calls == 0
+FAIL line=105: packed_len == 123 && proj.set == 0
+FAIL line=98: rc == expected
+FAIL line=101: capture_calls == 0
+FAIL line=102: measure_calls == 0
+FAIL line=103: save_calls == 0
+FAIL line=104: stream_calls == 0
+FAIL line=105: packed_len == 123 && proj.set == 0

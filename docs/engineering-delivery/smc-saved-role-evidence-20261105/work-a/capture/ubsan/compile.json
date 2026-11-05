@@ -1,0 +1,23 @@
+{
+  "capture_method": "CC argv-transparent wrapper; copies source before calling real compiler; input bytes and compiler args unchanged",
+  "compiler_argv": [
+    "/usr/bin/cc",
+    "-std=c99",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=undefined",
+    "-fno-sanitize-recover=all",
+    "/tmp/smc-boot-contract-yndwnjgg/smc_boot.c",
+    "-o",
+    "/tmp/smc-boot-contract-yndwnjgg/smc_ubsan"
+  ],
+  "compile_exit": 0,
+  "generated_c_size": 17633,
+  "generated_c_sha256": "aac102f2667c27cfe098f39c8ff985dbe030b1c03c716d44b54058c7655f556e",
+  "binary_sha256": "5826abd9785e705008aa4cd5c01595fe632e488caf15056dad797f27c6df787d",
+  "ldd_exit": 0,
+  "readelf_exit": 0
+}

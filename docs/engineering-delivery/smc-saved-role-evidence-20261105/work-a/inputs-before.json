@@ -1,0 +1,30 @@
+[
+  {
+    "path": "tests/host/test_smc_boot_saved_roles.py",
+    "size": 12968,
+    "git_blob": "8ffe7511ee9373d00793a364de436d589379f6b5",
+    "sha256": "8dbf9a3ce38106a3b704b8320533bf4842c38b85d941cd6e60228e7074b4a071",
+    "retrieval_sha256": "7615c2cc87e2bf6bd3a015316bb92cc894c97095d823303e22f7dcd3c9fbded0"
+  },
+  {
+    "path": "firmware/src/app/project.c",
+    "size": 30254,
+    "git_blob": "82cc9eba89884e4310b3273941fb9b6335611415",
+    "sha256": "a234ef507289e1b2b9c75bc34d8b84f1de77155709fd2096535d6368487f0ad7",
+    "retrieval_sha256": "1245d19ac86c4064b24be7bedfd0ba5e936d5299528fc1fdace9cd5ab104ccab"
+  },
+  {
+    "path": "firmware/src/app/main_fm1.c",
+    "size": 115127,
+    "git_blob": "2fa898c1c00ffceb0c0584fd0d504e5cb66af69d",
+    "sha256": "a9591ce7891a53a72b236f10198ca2fabeaa672a788ce21c3d5aba59fbaec9ee",
+    "retrieval_sha256": "a7f0b62bde2123365c06b0d7f25f5c62bcb2095bf17f408096313c826dfff955"
+  },
+  {
+    "path": "firmware/src/app/x0x.h",
+    "size": 8598,
+    "git_blob": "bf8c0f92eb167d2db3e54e18e736e0edbb3ff8ae",
+    "sha256": "a27457585b24992c8afeda6cadd6c829081a52e0fe2f1352dd122724360d73f4",
+    "retrieval_sha256": "2071ae88a6c33f467f8b3b2a44e80b099a35dbe8fe179ee0eb3341a4130cf3da"
+  }
+]

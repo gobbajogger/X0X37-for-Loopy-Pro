@@ -1,0 +1,27 @@
+CONFIG X0X_HOST=1 X0X_BASS_TAGGED_SOUND=0 X0X_BASS_PRESET_PREVIEW=0
+SCOPE actual_project_save_control_flow_with_stubs; device/engine branches NOT_RUN
+CASE incompatible=0 valid=0 read=0 load=0 expected=-9 actual=-9 layout=1 capture=0 measure=0 save=0 stream=0
+CASE incompatible=0 valid=0 read=0 load=1 expected=-9 actual=-9 layout=1 capture=0 measure=0 save=0 stream=0
+CASE incompatible=0 valid=0 read=1 load=0 expected=-9 actual=-9 layout=1 capture=0 measure=0 save=0 stream=0
+CASE incompatible=0 valid=0 read=1 load=1 expected=-9 actual=-9 layout=1 capture=0 measure=0 save=0 stream=0
+CASE incompatible=0 valid=1 read=0 load=0 expected=0 actual=0 layout=1 capture=1 measure=1 save=2 stream=1
+CASE incompatible=0 valid=1 read=0 load=1 expected=-8 actual=0 layout=1 capture=1 measure=1 save=2 stream=1
+CASE incompatible=0 valid=1 read=1 load=0 expected=-8 actual=0 layout=1 capture=1 measure=1 save=2 stream=1
+CASE incompatible=0 valid=1 read=1 load=1 expected=-8 actual=0 layout=1 capture=1 measure=1 save=2 stream=1
+CASE incompatible=1 valid=0 read=0 load=0 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=1 valid=0 read=0 load=1 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=1 valid=0 read=1 load=0 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=1 valid=0 read=1 load=1 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=1 valid=1 read=0 load=0 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=1 valid=1 read=0 load=1 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=1 valid=1 read=1 load=0 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=1 valid=1 read=1 load=1 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=2 valid=0 read=0 load=0 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=2 valid=0 read=0 load=1 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=2 valid=0 read=1 load=0 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=2 valid=0 read=1 load=1 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=2 valid=1 read=0 load=0 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=2 valid=1 read=0 load=1 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=2 valid=1 read=1 load=0 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+CASE incompatible=2 valid=1 read=1 load=1 expected=-9 actual=-9 layout=0 capture=0 measure=0 save=0 stream=0
+cases=24 checks=217 failures=18 result=FAIL

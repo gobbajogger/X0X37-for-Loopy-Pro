@@ -1,0 +1,21 @@
+FAIL line=98: rc == expected
+FAIL line=99: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=98: rc == expected
+FAIL line=99: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=98: rc == expected
+FAIL line=99: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=99: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=99: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=99: layout_calls == (incompatible ? 0u : 1u)
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected
+FAIL line=98: rc == expected

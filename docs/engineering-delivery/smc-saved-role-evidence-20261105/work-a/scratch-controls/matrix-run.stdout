@@ -1,0 +1,22 @@
+MATRIX role=0 sound=-1 stream=16 validation=0 expected=2 actual=2
+MATRIX role=0 sound=0 stream=-1 validation=0 expected=2 actual=2
+MATRIX role=0 sound=-8 stream=16 validation=0 expected=0 actual=0
+MATRIX role=0 sound=0 stream=-2 validation=0 expected=0 actual=0
+MATRIX role=0 sound=0 stream=16 validation=-1 expected=2 actual=2
+MATRIX role=1 sound=-1 stream=16 validation=0 expected=2 actual=2
+MATRIX role=1 sound=0 stream=-1 validation=0 expected=2 actual=2
+MATRIX role=1 sound=-8 stream=16 validation=0 expected=0 actual=0
+MATRIX role=1 sound=0 stream=-2 validation=0 expected=0 actual=0
+MATRIX role=1 sound=0 stream=16 validation=-1 expected=2 actual=2
+MATRIX role=16 sound=-1 stream=16 validation=0 expected=2 actual=2
+MATRIX role=16 sound=0 stream=-1 validation=0 expected=2 actual=2
+MATRIX role=16 sound=-8 stream=16 validation=0 expected=0 actual=0
+MATRIX role=16 sound=0 stream=-2 validation=0 expected=0 actual=0
+MATRIX role=16 sound=0 stream=16 validation=-1 expected=2 actual=2
+MATRIX role=17 sound=-1 stream=16 validation=0 expected=2 actual=2
+MATRIX role=17 sound=0 stream=-1 validation=0 expected=2 actual=2
+MATRIX role=17 sound=-8 stream=16 validation=0 expected=0 actual=0
+MATRIX role=17 sound=0 stream=-2 validation=0 expected=0 actual=0
+MATRIX role=17 sound=0 stream=16 validation=-1 expected=2 actual=2
+SMC boot/persistence production C slices: PASS
+checks=301
