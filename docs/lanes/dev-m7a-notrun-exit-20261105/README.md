@@ -1,5 +1,8 @@
 # M7a rebase proof
 
+Current PR #854 follow-up: [defaults mutation repair and complete qualification](review-fix/README.md).
+The follow-up records a single complete 340-PASS run and all 31 compiled mutants killed.
+
 The root Codex session rebased the M7a lane onto wip/one-build at
 48e92b76c2f476cf40771e00a04e1838136bb55d, built Elite and Pro DEV with
 SDK V1.2.1, and ran the full host suite here. The source review was read-only;
