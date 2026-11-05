@@ -1,0 +1,174 @@
+native evidence build of M1 base 69351a26 (UNREVIEWED), baseline for the M1 size delta, not release qualification
+
+===== command =====
+time_start=2026-11-05T11:28:39Z
+time_end=2026-11-05T11:28:48Z
+cwd=/tmp/base-evidence
+argv=curl -fL --retry 3 https://pkgman.jieliapp.com/s/linux-toolchain
+http_code=200
+url=https://jl-update.oss-cn-shenzhen.aliyuncs.com/jieli-linux-toolchains-20260730.1.tar.xz
+redirect=HTTP 302 from pkgman.jieliapp.com, then HTTP 200 from AliyunOSS
+bytes=26027508
+sha256=a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd
+clang_version=clang version 4.0.1
+clang_sha256=c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f
+extract=tar -xJ into $HOME/.jieli and symlink toolchain, same layout as tools/get_toolchain.sh
+rc=0
+duration_s=9
+
+===== command =====
+time_start=2026-11-05T11:28:42Z
+time_end=2026-11-05T11:29:32Z
+argv=git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git /home/ubuntu/fw-AC79_AIoT_SDK
+sdk_head=d179b4484759423312073f5fbb232501aa491047
+rc=0
+duration_s=50
+
+===== command =====
+time_start=2026-11-05T11:29:54Z
+time_end=2026-11-05T11:30:01Z
+cwd=/agent/repos/X0X37-for-Loopy-Pro
+argv=sudo apt-get update && sudo apt-get install -y libclang-rt-18-dev lua5.1
+note=trimmed transcript in apt.log. A first wrapper exited before apt-get because /usr/bin/time is not installed. That wrapper changed no packages.
+rc=0
+duration_s=7
+
+===== command =====
+time_start=2026-11-05T11:30:23Z
+cwd=/agent/repos/X0X37-for-Loopy-Pro
+argv=python3 tools/check_locked_settings.py
+env JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+env AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+env JIELI_DOCKER=0
+env X0X_DEV_PADCAL=0
+env CTL_NO_CACHE=1
+env MODEL=<unset>
+env BOARD=<unset>
+env SDK_LOCAL=<unset>
+env CTL_NATIVE=<unset>
+env CC=<unset>
+env X0X_JOBS=<unset>
+time_end=2026-11-05T11:30:23Z
+rc=0
+duration_s=0
+log=check.log
+
+===== command =====
+time_start=2026-11-05T11:30:23Z
+cwd=/agent/repos/X0X37-for-Loopy-Pro
+argv=MODEL=elite ./build.sh --board smk37
+env JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+env AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+env JIELI_DOCKER=0
+env X0X_DEV_PADCAL=0
+env CTL_NO_CACHE=1
+env MODEL=elite
+env BOARD=<unset>
+env SDK_LOCAL=<unset>
+env CTL_NATIVE=<unset>
+env CC=<unset>
+env X0X_JOBS=<unset default 4>
+time_end=2026-11-05T11:30:28Z
+rc=0
+duration_s=5
+log=elite-build.log
+
+===== command =====
+time_start=2026-11-05T11:30:28Z
+cwd=/agent/repos/X0X37-for-Loopy-Pro
+argv=MODEL=pro ./build.sh --board smk37
+env JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+env AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+env JIELI_DOCKER=0
+env X0X_DEV_PADCAL=0
+env CTL_NO_CACHE=1
+env MODEL=pro
+env BOARD=<unset>
+env SDK_LOCAL=<unset>
+env CTL_NATIVE=<unset>
+env CC=<unset>
+env X0X_JOBS=<unset default 4>
+time_end=2026-11-05T11:30:32Z
+rc=0
+duration_s=4
+log=pro-build.log
+
+===== command =====
+time_start=2026-11-05T11:30:32Z
+cwd=/agent/repos/X0X37-for-Loopy-Pro
+argv=SDK_LOCAL=$AC79_SDK CTL_NATIVE=1 sh ble/ctl/build_ctl.sh
+env JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+env AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+env JIELI_DOCKER=0
+env X0X_DEV_PADCAL=0
+env CTL_NO_CACHE=1
+env MODEL=<unset>
+env BOARD=<unset>
+env SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+env CTL_NATIVE=1
+env CC=<unset>
+env X0X_JOBS=<unset>
+time_end=2026-11-05T11:30:33Z
+rc=0
+duration_s=1
+log=ctl-build.log
+
+===== command =====
+time_start=2026-11-05T11:30:33Z
+cwd=/agent/repos/X0X37-for-Loopy-Pro
+argv=python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-ble.fwsc
+env JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+env AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+env JIELI_DOCKER=0
+env X0X_DEV_PADCAL=0
+env CTL_NO_CACHE=1
+env MODEL=<unset>
+env BOARD=<unset>
+env SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+env CTL_NATIVE=1
+env CC=<unset>
+env X0X_JOBS=<unset>
+time_end=2026-11-05T11:30:34Z
+rc=0
+duration_s=1
+log=addctl-pro.log
+
+===== command =====
+time_start=2026-11-05T11:30:34Z
+cwd=/agent/repos/X0X37-for-Loopy-Pro
+argv=python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-elite-ble.fwsc
+env JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+env AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+env JIELI_DOCKER=0
+env X0X_DEV_PADCAL=0
+env CTL_NO_CACHE=1
+env MODEL=<unset>
+env BOARD=<unset>
+env SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+env CTL_NATIVE=1
+env CC=<unset>
+env X0X_JOBS=<unset>
+time_end=2026-11-05T11:30:34Z
+rc=0
+duration_s=0
+log=addctl-elite.log
+
+===== command =====
+time_start=2026-11-05T11:30:34Z
+cwd=/agent/repos/X0X37-for-Loopy-Pro
+argv=python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
+env JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+env AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+env JIELI_DOCKER=0
+env X0X_DEV_PADCAL=0
+env CTL_NO_CACHE=1
+env MODEL=<unset>
+env BOARD=<unset>
+env SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+env CTL_NATIVE=1
+env CC=<unset>
+env X0X_JOBS=<unset>
+time_end=2026-11-05T11:30:34Z
+rc=0
+duration_s=0
+log=addctl-check.log

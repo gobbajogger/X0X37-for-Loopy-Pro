@@ -1,0 +1,155 @@
+{
+  "label": "native evidence build of M1 base 69351a26 (UNREVIEWED), baseline for the M1 size delta, not release qualification",
+  "commit": "69351a26a756bec914b81633636793f3df3ea827",
+  "tree": "25f03ce94fa3997faa18ab47f6561b17703b6ad3",
+  "parent": "66073c68dd80d51a7053432c2c161a8b720a1341",
+  "role": "baseline for the size of M1 184d737d40749742980c07c30838f5b222f9551d",
+  "m1_evidence_commit": "8af0d17b03d829041a8e34018c1ea522a4e1bd18",
+  "binaries_committed": false,
+  "release_qualification": false,
+  "publish": false,
+  "inputs": {
+    "toolchain_url": "https://pkgman.jieliapp.com/s/linux-toolchain",
+    "toolchain_final_url": "https://jl-update.oss-cn-shenzhen.aliyuncs.com/jieli-linux-toolchains-20260730.1.tar.xz",
+    "toolchain_http": 200,
+    "toolchain_archive_sha256_expected": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "toolchain_archive_sha256_observed": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "toolchain_archive_bytes_expected": 26027508,
+    "toolchain_archive_bytes_observed": 26027508,
+    "clang_version_observed": "4.0.1",
+    "clang_sha256_expected": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "clang_sha256_observed": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "ac79_sdk_expected": "d179b4484759423312073f5fbb232501aa491047",
+    "ac79_sdk_observed": "d179b4484759423312073f5fbb232501aa491047",
+    "uboot_boot_sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+    "uboot_boot_bytes": 14536,
+    "cfg_tool_sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+    "cfg_tool_bytes": 383,
+    "eq_cfg_hw_sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+    "eq_cfg_hw_bytes": 655,
+    "sdk_pins_match": true,
+    "build_scripts_differ_from_m1_evidence_tree": false
+  },
+  "headroom": {
+    "app_code_area": 552672,
+    "ram_cap": 98304,
+    "pool_cap": 344064,
+    "pool_free_floor": 8192,
+    "ble_flash_cap": 65536,
+    "ble_ram_cap": 26368,
+    "floor_violated": false,
+    "ble_flash_free_bytes": 44,
+    "elite": {
+      "app_free": 217212,
+      "ram_used": 95560,
+      "ram_free": 2744,
+      "pool_used": 323000,
+      "pool_free": 21064,
+      "ble_flash": 65492,
+      "ble_ram": 25824,
+      "x0x_bin_bytes": 335460
+    },
+    "pro": {
+      "app_free": 217228,
+      "ram_used": 95560,
+      "ram_free": 2744,
+      "pool_used": 323000,
+      "pool_free": 21064,
+      "ble_flash": 65492,
+      "ble_ram": 25824,
+      "x0x_bin_bytes": 335444
+    }
+  },
+  "delta_base_minus_m1": {
+    "elite": {
+      "app_free": 1168,
+      "ram_used": -16,
+      "ram_free": 16,
+      "pool_used": 0,
+      "pool_free": 0,
+      "ble_flash": 0,
+      "ble_ram": 0,
+      "x0x_bin_bytes": -1168
+    },
+    "pro": {
+      "app_free": 1184,
+      "ram_used": -16,
+      "ram_free": 16,
+      "pool_used": 0,
+      "pool_free": 0,
+      "ble_flash": 0,
+      "ble_ram": 0,
+      "x0x_bin_bytes": -1184
+    }
+  },
+  "delta_m1_minus_base": {
+    "elite": {
+      "app_free": -1168,
+      "ram_used": 16,
+      "ram_free": -16,
+      "pool_used": 0,
+      "pool_free": 0,
+      "ble_flash": 0,
+      "ble_ram": 0,
+      "x0x_bin_bytes": 1168
+    },
+    "pro": {
+      "app_free": -1184,
+      "ram_used": 16,
+      "ram_free": -16,
+      "pool_used": 0,
+      "pool_free": 0,
+      "ble_flash": 0,
+      "ble_ram": 0,
+      "x0x_bin_bytes": 1184
+    }
+  },
+  "outputs": {
+    "elite_fwsc": {
+      "bytes": 651419,
+      "sha256": "7032e5182713d4805fe4ee5ecf164cc27605ab6f68d6237b8379c683aa61f678"
+    },
+    "pro_fwsc": {
+      "bytes": 651419,
+      "sha256": "bd55903df769fa904abd22f1c287bfad3fa93ccc10dde517bd5c36c99d634bf6"
+    },
+    "elite_ble_fwsc": {
+      "bytes": 651419,
+      "sha256": "ab52ef3bf39040a0833f89025c56713bb7830e081ed29c9b7edb877dfdfc1666"
+    },
+    "pro_ble_fwsc": {
+      "bytes": 651419,
+      "sha256": "66a2ad34d59e30b6ebf927857f5fe0da679925c5f6b881d00452bd5024c955af"
+    },
+    "elite_x0x_bin": {
+      "bytes": 335460,
+      "sha256": "a45be5662b23eec879e986a89baa63dcea054dbbb195fc1c7b534f6ceca7c362"
+    },
+    "pro_x0x_bin": {
+      "bytes": 335444,
+      "sha256": "de7cc3a2e6f6681c6728540b73ad7b38c97c95a5c85fa15977985450e6fb22ff"
+    },
+    "ctl_img": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "77b7a496",
+      "byte_identical_to_m1": true
+    }
+  },
+  "symbols": {
+    "shared_names_with_m1_list": 173,
+    "shared_names_size_differences": 0,
+    "absent_on_base": ["kbd_panic", "smc_panic", "smc_panic_held", "smc_panic_mode_seen", "notes_off_req"],
+    "named_on_base_ui_section_and_absent_from_m1_symbol_file": ["blit_hash", "main_colh", "undo_lanes"],
+    "pro_matches_elite_pool_bss_data": true,
+    "full_elite_symbol_lines": 455
+  },
+  "not_run": {
+    "host_tests": "not requested by the authorization",
+    "packaging": "not requested",
+    "gate_sh": "release-only, not part of this authorization",
+    "dev_validate": "not requested by the authorization",
+    "publish_nightly": "not run",
+    "release_alloc_and_ledger": "not run"
+  }
+}
