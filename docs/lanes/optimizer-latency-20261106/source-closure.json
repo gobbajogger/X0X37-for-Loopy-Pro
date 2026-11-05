@@ -1,0 +1,7 @@
+{
+  "commit": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "git_tree": "00370c8cf385577395f616e9df3cbc45a0d23041",
+  "source_manifest_sha256": "fc496c458510c07c8a9ce9b60e0bd38e26b8375b9088af3fe0d36b19d7e19dad",
+  "paths": 1450,
+  "scope": "All tracked build and host-test sources, tools, scripts, assets and controller files. Final evidence-only additions must not change any existing tracked input."
+}
