@@ -1,0 +1,153 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* --generate emits exact hexadecimal binary32 constants; normal mode checks the
+ * production lookup against the old expression for every length and uint8 pot. */
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include "../../firmware/src/dsp/fastmath.h"
+#ifndef GENERATE
+#define X0X_HOST 1
+#define X0X_IMA_TABLES_DEFINE
+#include "../../firmware/src/dsp/breaks.c"
+#endif
+static const uint8_t ticks[6] = {3, 6, 12, 24, 48, 96};
+static float old_probability(unsigned length, unsigned pot)
+{
+    float pbar = (float)pot * 0.01f;
+    float inv_tpb = (float)ticks[length] * (1.0f / 96.0f);
+    return pbar >= 1.0f ? 1.0f : 1.0f - fm_powf(1.0f - pbar, inv_tpb);
+}
+#ifndef GENERATE
+/* Frozen e9e6643e trigger body; unchanged helpers are shared. */
+static void old_fire_trigger(breaks_t *b, int bp, int forced)
+{
+    int slice, held, rb, tpt = bank_ticks(b, b->engine_bank), i, n = 0, fired[4];
+    held = perf_top(&b->perf);
+    rb = held >= 0 ? 0 : b->engine_bank;
+    if (held < 0 && !breaks_bank(b, rb)->valid && breaks_bank(b, rb ^ 1)->valid)
+        rb ^= 1;
+    int count = breaks_count(b, rb);
+    if (forced)
+        slice = 0;
+    else if (b->set[BRK_COMPLEX] == 0)
+        slice = bp * count / 8;
+    else {
+        brk_sel_t in;
+        int pb = PHRASE_BARS[b->set[BRK_PHRASE] % 5u];
+        in.slices = count;
+        in.current_slice = b->current_slice % count;
+        in.beat_position = bp * count / 8;
+        float ramp = fm_minf((float)b->set[BRK_COMPLEX] * 0.04f, 1.0f);   /* X0X: COMPLEXITY is the amount: */
+        in.complexity = (float)b->set[BRK_COMPLEX] * 0.01f;      /* ROLL and FILL come in with it, full */
+        in.anchor = (float)b->set[BRK_ANCHOR] * 0.01f;           /* from 25 % (low settings stay gentle) */
+        in.roll = (float)b->set[BRK_ROLL] * 0.01f * ramp;
+        in.fill = (float)b->set[BRK_FILL] * 0.01f * ramp;
+        in.phrase_bars = pb;
+        in.bar_in_phrase = pb ? b->bar % pb : 0;
+        slice = brk_select_next(&in, b);
+    }
+    held = perf_top(&b->perf);
+    if (held >= 0)
+        slice = held;                                      /* held slice beats the engine */
+    b->current_slice = slice;
+    b->sub_div = 0;
+    if (!forced) {
+        static const uint8_t RDIV[4] = {2, 3, 4, 8};
+        float inv_tpb = (float)tpt * (1.0f / 96.0f);       /* 1 / triggers per bar */
+        for (i = 0; i < 4; i++) {
+            float pbar = (float)b->set[BRK_R2 + i] * 0.01f, p;
+            if (pbar <= 0.0f)
+                continue;
+            p = pbar >= 1.0f ? 1.0f : 1.0f - fm_powf(1.0f - pbar, inv_tpb);
+            if (brk_rand(b) < p)
+                fired[n++] = i;
+        }
+        if (n)
+            b->sub_div = RDIV[fired[brk_rand_u(b) % (uint32_t)n]];
+        if (b->perf.stutter)
+            b->sub_div = 4;                                /* BB Gen's Stutter 4x pad */
+    }
+    b->render_bank = (uint8_t)rb;
+    b->sub_count = 0;
+    b->sub_elapsed = 0;
+    b->sub_len = b->sub_div ? b->spt / (float)b->sub_div : 0.0f;
+    int accepted = slice_start(b, rb, slice);
+    if (accepted && held < 0 && b->running && b->step_on && !b->quiet &&
+        b->v[b->cur].on && b->v[b->cur].snap == breaks_bank(b, rb) && b->accepted)
+        b->accepted(b->accepted_ctx, slice, rb, b->v[b->cur].gen);
+    b->st_trigs++;
+    b->st_slice = (int8_t)slice;
+    b->st_bank = (int8_t)rb;
+    b->st_div = (int8_t)b->sub_div;
+    b->st_bp = (int8_t)bp;
+    b->st_forced = (uint8_t)forced;
+}
+
+static int trigger_identity(void)
+{
+    unsigned checks = 0;
+    for (unsigned l = 0; l < 6; ++l) {
+        for (unsigned p = 0; p < 256; ++p) {
+            for (unsigned mode = 0; mode < 16; ++mode) {
+                breaks_t old, new;
+                memset(&old, 0, sizeof old);
+                breaks_init(&old);
+                old.engine_bank = mode & 1;
+                old.set[BRK_ALEN] = old.engine_bank ? (l + 1) % 6 : l;
+                old.set[BRK_BLEN] = old.engine_bank ? l : (l + 1) % 6;
+                for (unsigned i = 0; i < 4; ++i)
+                    old.set[BRK_R2 + i] = (uint8_t)(p + i * 31);
+                old.set[BRK_COMPLEX] = mode & 2 ? 70 : 0;
+                old.perf.stutter = (mode >> 2) & 1;
+                old.rng = 0x98765432u + p * 1234567u + mode;
+                old.spt = 1000.25f;
+                new = old;
+                old_fire_trigger(&old, (int)(p % 8), (mode >> 3) & 1);
+                fire_trigger(&new, (int)(p % 8), (mode >> 3) & 1);
+                if (memcmp(&old, &new, sizeof old)) {
+                    fprintf(stderr, "FAIL trigger length=%u pot=%u mode=%u\n", l, p, mode);
+                    return 1;
+                }
+                ++checks;
+            }
+        }
+    }
+    printf("PASS: %u complete trigger-state comparisons (invalid banks; RNG retained)\n", checks);
+    return 0;
+}
+#endif
+int main(void)
+{
+#ifdef GENERATE
+    puts("/* SPDX-License-Identifier: GPL-3.0-only */\n"
+         "/* Generated by tests/host/break_retrigger_lut_test.c with GENERATE.\n"
+         " * Exact old binary32 probabilities: 6 lengths x 100 pots x 4 = 2400 B. */\n"
+         "#ifndef X0X_BREAK_RETRIGGER_LUT_H\n#define X0X_BREAK_RETRIGGER_LUT_H\n"
+         "static const float brk_retrigger_lut[6][100] = {");
+    for (unsigned l = 0; l < 6; ++l) {
+        puts("    {");
+        for (unsigned p = 0; p < 100; ++p)
+            printf("        %af,%s", (double)old_probability(l, p), p % 4 == 3 ? "\n" : " ");
+        puts("    },");
+    }
+    puts("};\nstatic inline float brk_retrigger_probability(unsigned length, unsigned pot)\n"
+         "{\n    return pot >= 100 ? 1.0f : brk_retrigger_lut[length][pot];\n}\n#endif");
+#else
+    unsigned checks = 0;
+    for (unsigned l = 0; l < 6; ++l) {
+        for (unsigned p = 0; p < 256; ++p) {
+            float old = old_probability(l, p);
+            float new = brk_retrigger_probability(l, p);
+            if (memcmp(&old, &new, sizeof old)) {
+                fprintf(stderr, "FAIL length=%u pot=%u old=%a new=%a\n", l, p, (double)old, (double)new);
+                return 1;
+            }
+            ++checks;
+        }
+    }
+    if (sizeof brk_retrigger_lut != 2400) return 1;
+    printf("PASS: %u exhaustive bit comparisons; const table 2400 B\n", checks);
+    if (trigger_identity()) return 1;
+#endif
+    return 0;
+}
