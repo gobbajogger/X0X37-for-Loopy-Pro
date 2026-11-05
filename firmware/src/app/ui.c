@@ -3458,7 +3458,7 @@ static void key_event(int k, int down)
 {
     /* End the press-time BREAK owner before modal/view/clip dispatch can hide it.
      * Paging is blocked while held, so its slice identity remains stable. */
-    int oldbl = KEY_BLACK[k];
+    int oldbl = KEY_BLACK[k], w = KEY_WHITE[k];
     if (!down && oldbl >= 0 && ((ui.brk_localkeys | ui.brk_pinkeys) & (1u << oldbl))) {
         if (ui.brk_localkeys & (1u << oldbl))
             engine_brk_live(oldbl < 8 ? 32 + ui.brk_page * 8 + oldbl : oldbl, 0);
@@ -3466,6 +3466,18 @@ static void key_event(int k, int down)
         ui.brk_pinkeys &= (uint16_t)~(1u << oldbl);
         engine_brk_edit_hold((ui.brk_localkeys & 255u) || ui.brk_pinkeys);
         return;
+    }
+    /* Finish the press-time SEQ owner before EDIT's live-key suppression
+     * can consume its key-up. EDIT never starts an unseen step. */
+    if (!down && w >= 0 && ui.view == V_PART) {
+        if (is_drum() && ui.hold_step >= 0 && (ui.hold_step & 15) == w) {
+            drum_step(ui.part, w, 0);
+            return;
+        }
+        if (is_303() && ui.held_step >= 0 && (ui.held_step & 15) == w) {
+            bass_step_key(w, 0);
+            return;
+        }
     }
     if (live_central_event(k,down)) return;
     if (!down) {
@@ -3510,19 +3522,7 @@ static void key_event(int k, int down)
 #endif
         return;   /* clip mode: the pads launch clips, the keybed plays MIDI to Loopy (main_fm1.c clip keys) */
 #endif
-    int w = KEY_WHITE[k], bl = KEY_BLACK[k], wp = w >= 0 ? ui.pbank * 16 + w : -1;   /* wp: a white key's pattern */
-    /* SEQ's held step can remain down while EDIT shows its sound knobs. Its
-     * release finishes that same gesture; EDIT never starts an unseen step. */
-    if (!down && w >= 0 && ui.view == V_PART) {
-        if (is_drum() && ui.hold_step >= 0 && (ui.hold_step & 15) == w) {
-            drum_step(ui.part, w, 0);
-            return;
-        }
-        if (is_303() && ui.held_step >= 0 && (ui.held_step & 15) == w) {
-            bass_step_key(w, 0);
-            return;
-        }
-    }
+    int bl = KEY_BLACK[k], wp = w >= 0 ? ui.pbank * 16 + w : -1;   /* wp: a white key's pattern */
     if (ui.overlay == O_ASK || ui.view == V_PERF || perf_testing())
         return;
     if (down && w >= 0 && (ui.btn & (1u << B_SAVE))) {     /* SAVE held + white key: paste the pattern here */
