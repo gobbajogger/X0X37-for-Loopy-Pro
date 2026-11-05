@@ -76,7 +76,7 @@ MUTANTS = {
     # QA D: the tail used as the mask when the load failed (fresh device), or a stale tail after 44 bytes
     # (the literal D, dropping the rc guard at read_project, is equivalent: every failed load ends at
     # failed: -> project_defaults_for, which clears the mask; this removes that guard instead)
-    'store_defaults_keep_mask': (P_C, '    *part_off_of(pr) = 0;                     /* defaults: every part ON */',
+    'store_defaults_keep_mask': (P_C, '    *part_off_of(pr) = 0;',
                                  '    /* mutant */', 'store_fresh_device_all_on'),
     'store_stale_tail_44': (P_C, '    if ((uint32_t)n == 4u + sizeof *dst)\n        __builtin_memset(io_buf + 4u + sizeof *dst, 0, PROJ_SET_TAIL);\n    else if',
                             '    if ((uint32_t)n == 4u + sizeof *dst)\n        ;\n    else if', 'store_stale_iobuf_44_all_on'),

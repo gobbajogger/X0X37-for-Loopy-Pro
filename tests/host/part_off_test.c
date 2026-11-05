@@ -188,6 +188,11 @@ static void t_independent(void)
     snd = sounding_run(0);
     CHECK(snd == 0 && ons[ch] == 0);
     CHECK(captured() == 0);
+    /* Mute silences the sequencer, but an ON part still accepts live notes. */
+    engine_bass_on_velocity(0, 48, 0, 0, 100); audio(); audio();
+    CHECK(engine_bass_keys_held() & 1);
+    engine_bass_off(0); audio(); audio();
+    CHECK(!(engine_bass_keys_held() & 1));
     seq.mute = 0;
     /* Muted and OFF stay independent. Restoring ON retains the base mute's
      * silent gate; unmuting then restores the original notes. */
