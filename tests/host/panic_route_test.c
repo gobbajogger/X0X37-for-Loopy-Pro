@@ -40,6 +40,8 @@ uint8_t smk_padcal_on(void) { return 0; }
 void smk_padcal_enter(void) {}
 uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 1; }
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len)
+{ (void)slot; (void)msg; (void)len; return 1; }
 void smk_ck_midi_stop(void) { clip_stops++; }
 
 #include "app/smc_mixer.c"
