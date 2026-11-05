@@ -113,12 +113,12 @@ X0X_COLD static void fx_apply(fxbus_t *f, int i, float v)
     case FX_DRIVE: f->drive = v; break;
     case FX_COMP: f->comp = v < 0.0f ? 0.0f : (v > 1.0f ? 1.0f : v); fx_comp_prep(f); break;
     case FX_RV_DECAY: f->rv_decay = v; break;
-    case FX_RV_TONE: f->rv_tone = v; break;
+    case FX_RV_TONE: f->rv_damp = 0.75f - v * 0.55f; break;
     case FX_RV_HPF: d9_biquad_set(&f->rv_hp, D9_HP, v, 0.7071f); break;
     case FX_RV_LEVEL: f->rv_level = v; break;
     case FX_DL_TIME: f->dl_div = (int32_t)v; fx_retime(f); break;
     case FX_DL_FDBK: f->dl_fdbk = v; break;
-    case FX_DL_TONE: f->dl_tone = v; break;
+    case FX_DL_TONE: f->dl_tc = 0.06f + v * 0.6f; break;
     case FX_DL_LEVEL: f->dl_level = v; break;
     case FX_DL_HPF: d9_biquad_set(&f->dl_hp, D9_HP, v, 0.7071f); break;
     case FX_DL_TYPE: f->dl_type = (int32_t)v; break;
@@ -138,6 +138,14 @@ X0X_COLD void fxbus_set(fxbus_t *f, int i, int value)
     const fx_pspec_t *s = &fx_p[i];
     if (value < 0) value = 0;
     if (value > s->ui.max) value = s->ui.max;
+    /* Boot uses exact engine defaults, which differ from the rounded pot
+     * defaults. The first write must still apply the pot mapping. */
+    if (i == FX_RV_TONE && f->pots[i] == value &&
+        (value != fx_p[FX_RV_TONE].ui.def || f->rv_damp != 0.75f - 0.45f * 0.55f))
+        return;
+    if (i == FX_DL_TONE && f->pots[i] == value &&
+        (value != fx_p[FX_DL_TONE].ui.def || f->dl_tc != 0.06f + 0.4f * 0.6f))
+        return;
     f->pots[i] = (uint8_t)value;
     float v;
     if (s->curve == CV_EXP)
@@ -168,13 +176,13 @@ X0X_COLD void fxbus_init(fxbus_t *f, int16_t *dly_buf, int dly_len)
     f->dbuf = dly_buf;
     f->dlen = dly_len;
 
-    f->rv_decay = 0.62f; f->rv_tone = 0.45f; f->rv_level = 0.8f;
+    f->rv_decay = 0.62f; f->rv_damp = 0.75f - 0.45f * 0.55f; f->rv_level = 0.8f;
     d9_biquad_set(&f->rv_hp, D9_HP, 150.0f, 0.7071f);
     f->rv_quiet = FX_RV_QUIET;
 
     f->dl_div = 7;
     f->bpm = 120.0f;
-    f->dl_fdbk = 0.35f; f->dl_tone = 0.4f; f->dl_level = 0.8f;
+    f->dl_fdbk = 0.35f; f->dl_tc = 0.06f + 0.4f * 0.6f; f->dl_level = 0.8f;
     fx_retime(f);
     f->dcur = f->dl_time_ms * 0.001f * D9_SR;
     d9_biquad_set(&f->dl_hp, D9_HP, 150.0f, 0.7071f);
@@ -208,7 +216,7 @@ __attribute__((noinline)) static int32_t sat12_store(int16_t *cell, float v)
 }
 
 /* Distortion sample — one body; stereo process_st calls this for L and R. */
-static inline __attribute__((always_inline)) float dist_one(const d9_shape_t *sh, float x, float k, float *crush)
+__attribute__((noinline)) static float dist_one(const d9_shape_t *sh, float x, float k, float *crush)
 {
     return d9_shape(sh, x * k, crush) * 0.7f;
 }
@@ -242,11 +250,14 @@ static void fx_reverb(fxbus_t *f, const float *in, float *out, float *out_r, int
     if (f->rv_quiet >= FX_RV_QUIET) {
         int any = 0;
         for (int i = 0; i < n; ++i)
-            any |= in[i] != 0.0f;
+            if (in[i] != 0.0f) {
+                any = 1;
+                break;                      /* one nonzero sample rules out idle */
+            }
         if (!any)
             return;                         /* silent in, silent lines: 0 out */
     }
-    const float damp = 0.75f - f->rv_tone * 0.55f;
+    const float damp = f->rv_damp;
     const float fb = f->rv_decay;
     const float lvl = f->muted & 1u ? 0.0f : f->rv_level;
     int16_t *cb[4];
@@ -317,7 +328,10 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     if (f->dl_quiet >= len) {
         int any = 0;
         for (int i = 0; i < n; ++i)
-            any |= in[i] != 0.0f;
+            if (in[i] != 0.0f) {
+                any = 1;
+                break;                      /* one nonzero sample rules out idle */
+            }
         if (!any) {
             /* the line is all zeros: nothing to read, but time moves on */
             f->w = (f->w + n) % len;
@@ -355,7 +369,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     uint32_t wow_i = 0, flut_i = 0, wp = 0, fp = 0;
     if (!tape) {
         fdbk = f->dl_fdbk;
-        tc = 0.06f + f->dl_tone * 0.6f;
+        tc = f->dl_tc;
     } else {
         /* TAPE: wow (0.5 Hz) and flutter (6.1 Hz) on the read, a darker loop,
          * saturation and a 30 Hz DC block inside it, feedback up to 1.15 */
@@ -366,7 +380,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
         wow_i = d9_inc(0.5f);
         flut_i = d9_inc(6.1f);
         fdbk = f->dl_fdbk * (1.15f / 0.85f);
-        tc = (0.06f + f->dl_tone * 0.6f) * (0.6f - 0.3f * wear);
+        tc = f->dl_tc * (0.6f - 0.3f * wear);
         g = 1.0f + 1.5f * wear;
         inv_g = 1.0f / g;
         wp = f->wow_ph;
@@ -427,7 +441,7 @@ __attribute__((noinline)) static float fx_comp_gr(float over, float slope)
 }
 
 /* One glue sample: update det/env, return linear gain (mono + stereo). */
-static inline __attribute__((always_inline)) float fx_comp_gain(float mag, float thr, float slope, float drel,
+__attribute__((noinline)) static float fx_comp_gain(float mag, float thr, float slope, float drel,
                                                     float atk, float rel, float makeup,
                                                     float *det, float *env)
 {
@@ -483,8 +497,9 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
         f->comp_env_db = env;
     }
     const float vol = f->muted & 4u ? 0.0f : f->volume;
-    for (int i = 0; i < n; ++i)
-        out[i] *= vol;
+    if (vol != 1.0f)                                  /* unity needs no output pass, as in stereo */
+        for (int i = 0; i < n; ++i)
+            out[i] *= vol;
 }
 
 /* X0X stereo: 9W9's chain on L and R. The distortion runs on each side; the glue compressor reads
@@ -519,9 +534,8 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
         f->comp_env_db = env;
     }
     const float vol = f->muted & 4u ? 0.0f : f->volume;
-    if (vol != 1.0f)                                  /* x * 1 == x: unity skips the pass */
-        for (int i = 0; i < n; ++i) {
-            out_l[i] *= vol;
-            out_r[i] *= vol;
-        }
+    for (int i = 0; i < n; ++i) {
+        out_l[i] *= vol;
+        out_r[i] *= vol;
+    }
 }

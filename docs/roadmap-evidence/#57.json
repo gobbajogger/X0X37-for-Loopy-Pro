@@ -1,0 +1,87 @@
+{
+  "row_id": "#57",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:181; /workspace/docs-audit/roadmap-status.md:98; out/docs/roadmap-evidence/#57.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#57 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#57 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:98 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:181",
+      "/workspace/docs-audit/roadmap-status.md:98",
+      "out/docs/roadmap-evidence/#57.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "home-pattern-glyph"
+    ],
+    "evidence": "tests/host/home_pattern_glyph_test.c:22: home_pattern_strength8(&pt, lanes, 0, 0, 88, 8, a);",
+    "identifiers": [
+      {
+        "identifier": "home_pattern_strength8",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:181"
+      }
+    ],
+    "matches": [
+      {
+        "test": "home-pattern-glyph",
+        "symbol_from_row": "home_pattern_strength8",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:181",
+        "file": "tests/host/home_pattern_glyph_test.c",
+        "line": 22,
+        "quote": "home_pattern_strength8(&pt, lanes, 0, 0, 88, 8, a);",
+        "identifier": "home_pattern_strength8"
+      }
+    ],
+    "recorded_results": {
+      "home-pattern-glyph": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/home_pattern_glyph.h",
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/home_pattern_glyph.h",
+        "line": 36,
+        "identifier": "home_pattern_strength8",
+        "quote": "static inline void home_pattern_strength8(const pattern_t *pt, const lane_t *lanes,"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 4962,
+        "identifier": "home_pattern_strength8",
+        "quote": "home_pattern_strength8(&proj.pat[pattern],proj.arr.lane,pattern,part,"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 5001,
+        "identifier": "home_pattern_strength8",
+        "quote": "home_pattern_strength8(&proj.pat[pattern-1],proj.arr.lane,pattern-1,part_at(pos),"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 5653,
+        "identifier": "home_pattern_strength8",
+        "quote": "home_pattern_strength8(&proj.pat[c],proj.arr.lane,c,p,"
+      }
+    ]
+  }
+}

@@ -51,11 +51,6 @@ static inline uint32_t seq_part_mask(int p)
 
 #define NSONG 192
 #define SEQ_CH_OFF 0xFFu
-#ifdef PART_OFF_MUTANT                /* host test only: the gates removed */
-#define SEQ_PART_OFF(s, t) ((void)(s), (void)(t), 0)
-#else
-#define SEQ_PART_OFF(s, t) (((s)->part_off >> (t)) & 1u)
-#endif
 /* a step's chance (the T_PROB lanes): 1-100 = that percentage, PROB_COND + k = the cycle k in the order
  * 1:2 2:2 1:3 2:3 3:3 1:4 ... 8:8 (A:B: on the A-th of every B passes of the part's pattern) */
 #define PROB_COND 101
@@ -135,22 +130,13 @@ typedef struct {
     uint8_t own_note;  /* pitch of that press */
 } seq_bass_rec_t;
 
-/* Main loop while playing: cue via pcue[], chain via seq_chain(), and song_start.
- * Performance restore must be stopped before replacing pat, ppat[], pcue[], mute,
- * song_on or bpm as a group. Individual live tempo/mute controls remain supported;
- * this does not permit a multi-field runtime restore during ISR playback. */
 typedef struct {
     pattern_t *pat;                   /* NPAT patterns (the project's) */
     song_t *song;                     /* the project's song (may be 0) */
     volatile uint8_t playing;         /* 1 = running */
     volatile uint8_t ppat[NTRACKS];   /* the pattern each part plays */
     volatile uint8_t pcue[NTRACKS];   /* each part's cued pattern (0xFF = none) */
-    union {
-        volatile uint16_t chain;      /* publish a | b << 8 with one aligned store */
-        struct {                     /* little-endian read aliases for the main-loop UI */
-            volatile uint8_t chain_a, chain_b;
-        };
-    };                               /* a == b = no chain; write only via seq_chain() */
+    volatile uint8_t chain_a, chain_b;/* chain range (whole patterns); a == b = no chain */
     volatile uint8_t song_on;         /* 1 = the song decides the patterns, bar by bar */
     volatile uint8_t song_rec;        /* with song_on: write the live state into the song */
     volatile uint16_t song_pos;       /* bar playing */
@@ -159,7 +145,6 @@ typedef struct {
     volatile uint8_t send_clock;      /* 1 = emit MIDI clock + transport when internal */
     volatile uint8_t send_notes;      /* 1 = echo the sequence on MIDI, on each part's channel */
     volatile uint8_t ch[NTRACKS];     /* each part's MIDI channel, 0-15 (in and out); SEQ_CH_OFF = none */
-    volatile uint8_t part_off;        /* M7: bit t = part t OFF (no new notes); apart from the mutes */
     uint8_t song_rep;                 /* the song bar playing: its passes still to play (SONG_REP) */
     volatile uint32_t mute;           /* MUTE_* bits */
     volatile uint32_t vmute;          /* drum tracks muted on their own (bit k * NDRUM + v): kept apart from
@@ -215,7 +200,6 @@ void seq_init(seq_t *s, pattern_t *patterns);
 uint32_t seq_until_event(seq_t *s, uint32_t n);
 void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o);
 void seq_midi_flush(seq_t *s, const seq_sink_t *o); /* end tracked output without stopping local voices */
-void seq_notes_off(seq_t *s, const seq_sink_t *o); /* sounding notes off; transport, clock and playheads stay */
 
 /* main loop / MIDI side (all are flag writes picked up at the next block) */
 void seq_start(seq_t *s);             /* from step 1 of the current (or cued) pattern */

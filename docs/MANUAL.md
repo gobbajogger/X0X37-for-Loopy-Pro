@@ -389,11 +389,9 @@ bar of a phrase; with PHRASE off, in any bar) and PITCH; LEVEL and 8 SLICES are 
 eight slices. On, every MIDI note on that channel plays a slice (the note number divided by 8,
 the remainder picks the slice), so higher and lower notes replay the same eight slices. Loops follow the
 tempo by playing faster or slower, so their pitch follows it too, as on a sampler; PITCH shifts it
-on top. The default app build leaves the loop bank empty; a packaged firmware may include stock
-loops in the free code tail. The installer keeps the selected package's loops by default. You can
-replace them with the three stock loops, CRAMEN, TASTY and HOTPANT, or your own WAV files.
-The stock pack retains complete loops with one-bar metadata; see `assets/factory-breaks/provenance.json`
-for sample lengths and conversion details. Loops uploaded into sample slots follow the installed loops.
+on top. The default firmware does not carry built-in loops, so that room can hold more of the
+synth. The installer can put the two factory loops back, 909 GR and 909 FL, or your own WAV files
+in their place. Loops you upload into the sample slots come after those, when they are installed.
 
 All of these, the steps, slices and loops, are saved with the pattern. The break's level, pan
 and sends are on the mixer's PARTS page (LFO, black key 5).
@@ -821,11 +819,6 @@ hear, after VOLUME, in stereo.
 Record it in any audio app, or monitor it live through one. The FM-1 keeps its USB audio in step
 with the computer's clock, so live monitoring doesn't drift or drop out. The first moment after an
 app opens the input can click while the FM-1 settles.
-
-It is also an audio output (two channels, 44.1 kHz): an iPhone, iPad or computer can play through
-it. What the host plays comes out of the headphones and line out, added on top of the DnBOX
-engines; the host's own volume sets its level (the MASTER knob does not). The host's audio is not
-sent back to the USB input, so recording the input while playing through the output does not loop.
 
 ---
 

@@ -28,7 +28,6 @@
  * defaults {5,640,800,920,980}). Our scan samples a key once per 1.6 ms, so fast strikes quantise coarsely. */
 #pragma once
 #include <stdint.h>
-#include "../src/app/plat.h"
 #include "fm1_time.h"
 #include "fm1_gpio.h"
 #include "fm1_cc.h"
@@ -151,7 +150,6 @@ static volatile struct {
     uint16_t fad_acc[4];         /* faders: 0..1023 IIR */
     uint8_t fader[4];            /* 0..127 */
     uint16_t wheel[2], pedal, batt;   /* raw 0..1023 (mux C addresses 4, 5, 6, 7) */
-    uint16_t wheel_mod_seq;          /* accepted mod ADC publications, not foreground polls */
     uint16_t fad_raw[4];         /* (debug: the last raw fader readings) */
     uint16_t fad_hist[4][2];     /* the two readings before: a median of 3 drops a lone spike */
     uint32_t adc_ok, adc_miss;   /* (debug: conversions read / not finished within a tick) */
@@ -321,7 +319,7 @@ static void smk__extq(uint32_t k, uint32_t vel)
         smk_extq_overflow=1;return;
     }
     smk_extq[w][0]=smk_ext_enabled?smk_ext_epoch:0;
-    smk_extq[w][1] = PLAT_OUTER_PACK(k, vel, 36 + (int)k + 12 * smk_ext_oct);
+    smk_extq[w][1]=k|(vel<<7)|((uint32_t)(36+(int)k+12*smk_ext_oct)<<14);
     smk_extq_w = (uint8_t)((w + 1u) % SMK_EXTQ);
 }
 
@@ -467,10 +465,10 @@ static void smk__padq(uint32_t pad, uint32_t vel)     /* a pad hit (vel) or rele
         if (!vel) smk_div_held &= (uint16_t)~owned;
         return; /* release belongs to the press-time role */
     }
-    if (vel && pad < SMK_NPAD && smk_div_owner && !smk_pad_note[pad]) {
+    if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad]) {
         smk_div_held |= owned;
-        smk_div_pending = (uint8_t)(pad + 1u);
-        return; /* Free Play pads (rate, wobble shape, empty) never create note/keybed velocity */
+        if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u);
+        return; /* physical rate hit never creates note/keybed velocity */
     }
 #endif
     int32_t n0 = smk_pad_piano ? SMK_PIANO_NOTE[pad] : (int32_t)SMK_WHITE_NOTE[SMK_WHITE_OF_PAD(pad)];
@@ -538,13 +536,6 @@ static void smk__pad(uint32_t p, uint32_t raw)
     }
 }
 
-static void smk__wheel(uint32_t wheel, uint32_t raw)
-{
-    fm1_in.wheel[wheel] = (uint16_t)(fm1_in.wheel[wheel] +
-        ((int32_t)raw - fm1_in.wheel[wheel]) / 4);
-    if (wheel == 1u) fm1_in.wheel_mod_seq++;
-}
-
 static void smk__analog(uint32_t slot, uint32_t raw)
 {
     uint32_t a = smk__slot_addr(slot), ch = slot % 3u;
@@ -567,7 +558,7 @@ static void smk__analog(uint32_t slot, uint32_t raw)
         if (v > fm1_in.fader[f] + 1u || v + 1u < fm1_in.fader[f] || (v != fm1_in.fader[f] && (v == 0u || v == 127u)))
             fm1_in.fader[f] = (uint8_t)v;                    /* +-1 dead band, the ends reachable */
     } else if (a < 6u) {
-        smk__wheel(a - 4u, raw);
+        fm1_in.wheel[a - 4u] = (uint16_t)(fm1_in.wheel[a - 4u] + ((int32_t)raw - fm1_in.wheel[a - 4u]) / 4);
     } else if (a == 6u) {
         fm1_in.pedal = (uint16_t)raw;
     } else {
@@ -636,11 +627,16 @@ static void fm1_input_scan(void)
 }
 
 /* ------------------------------------------------------- main-loop API --- */
-/* Defined by fm1_flash.h later in the unity build: one IRQ primitive. */
-static inline uint32_t irq_save(void);
-static inline void irq_restore(uint32_t flags);
-#define fm1__lock irq_save
-#define fm1__unlock irq_restore
+static inline uint32_t fm1__lock(void)
+{
+    __asm__ volatile("cli" ::: "memory");
+    return 0;
+}
+static inline void fm1__unlock(uint32_t v)
+{
+    (void)v;
+    __asm__ volatile("csync\n\tsti" ::: "memory");
+}
 
 static int32_t fm1_enc_take(uint32_t e)
 {

@@ -7,7 +7,7 @@
 #undef main
 #include "app/original_sound.h"
 
-static struct { uint32_t frames; int32_t wheel[2]; uint16_t wheel_mod_seq; } fm1_in;
+static struct { uint32_t frames; int32_t wheel[2]; } fm1_in;
 /* Exact native utility from firmware/src/x0x.c, absent in the host unity. */
 static inline int32_t clamp(int32_t v, int32_t lo, int32_t hi) { return v < lo ? lo : v > hi ? hi : v; }
 #include "smk_wheels.inc"

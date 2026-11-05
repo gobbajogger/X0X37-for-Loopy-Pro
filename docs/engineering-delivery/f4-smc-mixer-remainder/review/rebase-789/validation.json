@@ -1,9 +1,0 @@
-{
-  "verdicts": [
-    {
-      "#": 1,
-      "validated": true,
-      "reason": "The original diff omitted controller input while peer one alone held FX; the current fixture closes that coverage gap with tap(0x63), assertions that both peer maps remain unchanged and smc_slot returns to zero, followed by the retained keyboard edit assertion. Static inspection only."
-    }
-  ]
-}

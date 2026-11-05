@@ -201,22 +201,8 @@ static void fl_plain_window_init(void)
     __asm__ volatile("csync\n\tsti" ::: "memory");
 }
 
-/* SDK V1.2.1 asm/irq.h local_irq_save/restore: preserve the complete ICFG,
- * including entry from an ISR or an already masked critical section. */
-static inline uint32_t irq_save(void)
-{
-    uint32_t flags;
-    __asm__ volatile("%0 = icfg" : "=r"(flags) :: "memory");
-    uint32_t disabled = flags & ~(1u << 8);
-    __asm__ volatile("icfg = %0" :: "r"(disabled) : "memory");
-    __asm__ volatile("csync" ::: "memory");
-    return flags;
-}
-static inline void irq_restore(uint32_t flags)
-{
-    __asm__ volatile("csync" ::: "memory");
-    __asm__ volatile("icfg = %0" :: "r"(flags) : "memory");
-}
+static inline uint32_t irq_save(void) { __asm__ volatile("cli" ::: "memory"); return 0; }
+static inline void irq_restore(uint32_t f) { (void)f; __asm__ volatile("csync\n\tsti" ::: "memory"); }
 
 /* A Bluetooth controller on core 1 runs from the flash too (fm1_cpu1.h): park core 1 in RAM
  * around each operation that turns the flash off. Without one (or in the loader) these do nothing. */

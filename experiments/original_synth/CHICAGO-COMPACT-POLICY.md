@@ -1,22 +1,14 @@
 # Chicago compact cold-selection policy
 
-LX-REQ-032 originally selected seven original FX2 algorithms: Bypass 0, Chorus 4,
-Phaser 5, Ring 10, Master Compressor 18, Decimator 22 and Peaking EQ 24. F1 restores
-the five archived compact inserts: Ensemble 3, Short Delay 12, BPM Delay 13,
-Hall 15 and Gate Reverb 16. Visible choices 0..6 keep their stored meaning;
-the restored choices are 7..11, displayed as ENSEM, SH DLY, BPM DL, HALL, GT REV.
-This policy
+LX-REQ-032 explicitly selects seven original FX2 algorithms: Bypass 0, Chorus 4,
+Phaser 5, Ring 10, Master Compressor 18, Decimator 22 and Peaking EQ 24. This policy
 discards the previous selected algorithm and its tail when the pending type is
 committed. It preserves the original selected processor's arithmetic, precision,
 control range, constructor defaults, ordinary reset behavior and local invocation
 boundaries after that fresh selection.
 
-`original_chicago_fx2_compact` owns one scalar union and a 4096 B selected-history
-arena. Chorus and the restored inserts share that arena within each part.
-Hall uses the named port's Q12 allpass storage; BPM Delay uses its 2032-slot
-half-rate ring. These two compact storage choices do not claim bit-exact equality
-to the archived float-allpass/full-rate effects. Each firmware part requires its
-own stable object. There is no heap
+`original_chicago_fx2_compact` owns one scalar union and one stereo Chorus
+history. Each firmware part requires its own stable object. There is no heap
 allocation, frame-sized temporary, shared history between parts or shortened
 Chorus history. The original bank, `original_chicago_fx2_owner` and
 `original_chicago_backend_init` retain their explicit full original reference
@@ -27,8 +19,8 @@ contracts. A compact owner cannot be passed as a complete original owner.
 Initialize each compact object once, obtain its
 `original_chicago_fx2_compact_owner` descriptor, and pass that descriptor to
 `original_chicago_backend_init_compact`. Factories retain their raw original
-IDs 0..80. The compact backend admits all 81 factories. The existing 55 visible
-indexes remain unchanged; the other 26 are appended at visible indexes 55..80.
+IDs 0..80. The compact backend admits the 55 factories whose exact converted FX2
+type is supported. The other 26 fail before either backend or FX state changes.
 The caller owns the visible factory mapping and preserves the original float
 values. There is no omitted-type substitution.
 
@@ -82,12 +74,7 @@ external host reset/transport timing and arbitrary raw host-offset retiming
 remain unqualified. Kernel event fixture passes do not prove those upstream
 routes. This policy adds no invented note-to-reset mapping.
 
-Restored insert idle calls refuse `advance_zero` without mutation, so the normal
-DSP path advances modulation phase, delay heads and reverb histories. Empty rings
-alone do not prove that state can be skipped. The original seven exact fixed-point
-shortcuts remain unchanged. This is a correctness choice, not a measured CPU win.
-
-## Historical target resource measurement (before F1)
+## Target resource measurement
 
 The pinned JieLi pi32v2/r3 compiler measures:
 
@@ -107,9 +94,6 @@ whose larger Miami member already covers the new Chicago size absorbs backend
 growth, and the caller chooses whether descriptors occupy static RAM or pool.
 The integrator must derive the actual application delta, alignment and reserve
 from the final linked allocation rather than summing those components twice.
-F1 adds tempo/edit scalars to the pool-resident compact owner. The history arena
-remains 4096 B. Final Elite/Pro static RAM and pool use require fresh native links;
-the historical component numbers above are not final-candidate measurements.
 
 The target assembly shows a 20-byte own stack frame for cold selection, with no
 local history or audio buffer. The wrapper process owns 68 bytes; backend

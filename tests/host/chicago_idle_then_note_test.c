@@ -42,7 +42,7 @@ static void state(FILE *f){
  unsigned active=w.active!=NULL,old=w.old!=NULL;w.active=w.old=NULL;PUT(f,w);PUT(f,active);PUT(f,old);
  original_chicago_fx2_compact_state s=fx.state;
  if(fx.selected_type==4){s.chorus.left=NULL;s.chorus.right=NULL;}
- PUT(f,s);PUT(f,fx.arena.history);PUT(f,fx.queue.count);PUT(f,fx.queue.cursor);PUT(f,fx.ready);PUT(f,fx.selected_type);PUT(f,fx.selected);
+ PUT(f,s);PUT(f,fx.history);PUT(f,fx.queue.count);PUT(f,fx.queue.cursor);PUT(f,fx.ready);PUT(f,fx.selected_type);PUT(f,fx.selected);
  PUT(f,backend.events.count);PUT(f,backend.events.cursor);PUT(f,backend.events.frames);PUT(f,backend.events.next_frame);PUT(f,backend.events.status);
  PUT(f,backend.ready);PUT(f,backend.block_frames);PUT(f,backend.status);PUT(f,backend.block_open);PUT(f,backend.block_prepared);
 }

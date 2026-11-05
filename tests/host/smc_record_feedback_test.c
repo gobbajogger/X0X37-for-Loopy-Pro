@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Exercise independent panel/SMC selection and shared musical REC actions.
- * Keyboard notes record through production UI into the keyboard-selected
- * pattern; SMC Record lamps project the separately selected mixer destination. Radio, hardware I/O and unused clip handlers
+/* Exercise real panel/SMC selection and REC actions, then record keyboard notes
+ * through production UI into the selected pattern. Compare emitted Record
+ * lamps with that destination. Radio, hardware I/O and unused clip handlers
  * are substitutes; no physical-device or audio result is claimed. */
 #define main simulator_main
 #include "../../host/x0x_host.c"
@@ -68,7 +68,7 @@ static void smc_press(int note)
 static void record_feedback(const char *label)
 {
     unsigned actual = 0;
-    unsigned expected = ui.rec ? 1u << display_position[smc.part] : 0;
+    unsigned expected = ui.rec ? 1u << display_position[ui.part] : 0;
     smc_frame();
     for (int part = 0; part < NPARTS; part++) {
         assert(wire_led[part] == 0 || wire_led[part] == 127);
@@ -77,8 +77,8 @@ static void record_feedback(const char *label)
     projections++;
     if (actual != expected || wire_led[0x5F] != (ui.rec ? 127 : 0)) {
         failures++;
-        fprintf(stderr, "FAIL %s: SMC selected part=%u REC=%u emitted strip mask=%u expected=%u global=%u\n",
-                label, smc.part, ui.rec, actual, expected, wire_led[0x5F]);
+        fprintf(stderr, "FAIL %s: selected part=%u REC=%u emitted strip mask=%u expected=%u global=%u\n",
+                label, ui.part, ui.rec, actual, expected, wire_led[0x5F]);
     }
 }
 
@@ -179,7 +179,7 @@ int main(void)
     memset(wire_led, 0xFF, sizeof wire_led);
     record_feedback("boot, recording off");
 
-    /* Panel notes retain their destination; lamps use the mixer selection. */
+    /* Panel REC must report the real destination even before any SMC REC. */
     panel_button(B_EDIT);
     panel_select(PART_303A);
     panel_button(B_SEQ); /* recording onsets belong to the visible SEQ page */
@@ -187,20 +187,20 @@ int main(void)
     panel_button(B_REC);
     record_note("panel REC on 303A", 0);
 
-    /* SMC SELECT must not redirect keyboard recording or its page. */
+    /* SMC SELECT changes the actual recorder while REC remains enabled. */
     smc_press(24 + display_position[PART_303B]);
-    assert(smc.part == PART_303B && ui.part == PART_303A && ui.view == V_SEQ);
-    record_note("SMC SELECT leaves keyboard recorder on 303A", 2);
+    assert(ui.view == V_PART); /* SMC SELECT intentionally opens EDIT */
+    panel_button(B_SEQ);      /* return to SEQ to make a pattern write */
+    record_note("SMC SELECT changes active recorder to 303B", 2);
     smc_press(0x5F);
     assert(!ui.rec);
     record_feedback("SMC global REC off");
 
-    /* The panel can change its recorder without changing mixer selection. */
+    /* Conversely, panel selection must replace the target of SMC-started REC. */
     smc_press(display_position[PART_303A]);
     record_note("SMC strip REC on 303A", 4);
     panel_select(PART_303B);
-    assert(smc.part == PART_303A);
-    record_note("panel selection changes keyboard recorder to 303B", 5);
+    record_note("panel selection changes active recorder to 303B", 5);
     panel_button(B_REC);
     assert(!ui.rec);
     record_feedback("panel REC off");

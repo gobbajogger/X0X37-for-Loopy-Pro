@@ -6,11 +6,7 @@
 #include "app/smc_mixer_edges.h"
 
 enum { O_NONE=0, O_ASK=1, NPARTS=5, SMC_UI_MS=1200, SMC_PEERS=2 };
-typedef struct {
-    uint8_t held[16],home_down,select_down,play_down,solo_target[8],locked;
-    uint8_t fx_home_used,fx_nav_armed;
-    uint32_t fx_nav_t0[6];
-} smc_state_t;
+typedef struct { uint8_t held[16],home_down,select_down,play_down,solo_target[8],locked; } smc_state_t;
 static smc_state_t smc_states[2];
 static uint8_t smc_slot;
 #define smc (smc_states[smc_slot])
@@ -18,10 +14,6 @@ static struct {char msg[32]; uint32_t msg_until;uint8_t help,overlay;} ui;
 static struct {uint32_t until,context; uint8_t on,kind,strip,action,peer;} smc_ui;
 static uint32_t now;
 static unsigned apply_count,lock_down_count,lock_up_count,fx_release_count;
-/* Shared replay state normally declared alongside the production FX helpers. */
-static uint8_t smc_fx_tap_nav_once;
-static int fx_bus = -1;
-static unsigned nav_replay_count;
 static uint32_t plat_ms(void){return now;}
 static int ui_project_busy(void){return 0;}
 static uint32_t smc_ui_context(void){return 9u;}
@@ -36,17 +28,11 @@ static int smc_lock_button(int down){if(down)lock_down_count++;else lock_up_coun
 static int smc_drum_mix(void){return -1;}
 static int smc_drum_track(int kit,int strip){(void)kit;(void)strip;return -1;}
 static int smc_lock_blocks(uint8_t note){(void)note;return 0;}
-/* Dedicated production UI/engine fixtures cover clip precedence and held-FX
- * editing/focus. This extraction fixture keeps those contexts inactive. */
-static int smc_clip_stage_key(uint8_t note){(void)note;return 0;}
-static int smc_fx_arrow(int d){(void)d;return 0;}
-static int smc_fx_header_note(void){return -1;}
-static void smc_fx_show(uint8_t note){(void)note;}
 static void smc_fx_release_note(uint8_t note){(void)note;fx_release_count++;}
-static int smc_fx_bus_now(uint8_t note){(void)note;return fx_bus;}
+static int smc_fx_bus_now(uint8_t note){(void)note;return -1;}
 static void smc_fx_clear(void){}
 static void smc_solo_publish(void){}
-static void smc_button_apply(uint8_t note,int mmc){(void)note;(void)mmc;apply_count++;if(smc_fx_tap_nav_once)nav_replay_count++;}
+static void smc_button_apply(uint8_t note,int mmc){(void)note;(void)mmc;apply_count++;}
 
 /* PRODUCTION_FUNCTIONS_BEGIN */
 /* PRODUCTION_FUNCTIONS_END */
@@ -73,18 +59,6 @@ int main(void)
     smc_slot=0;smc_release(16);CHECK(!smc_hold_any(smc.held));
     smc_slot=1;CHECK(smc_hold_any(smc.held));smc_release(16);CHECK(!smc_hold_any(smc.held));
     smc_slot=0;smc_button(0x5d,0);smc_button(0x5d,0);CHECK(lock_down_count==1);smc_release(0x5d);CHECK(lock_up_count==1);
-    /* Transport and pattern cue inputs never create an action card. */
-    for(int mmc=0;mmc<2;mmc++) {
-        smc_ui_cancel();smc_button(0x5e,mmc);CHECK(!smc_ui_active());smc_release(0x5e);
-        smc_button(0x5b,mmc);CHECK(!smc_ui_active());smc_release(0x5b);
-        smc_button(0x5c,mmc);CHECK(!smc_ui_active());smc_release(0x5c);
-    }
-    /* Exercise the real FX navigation release branch as well as ordinary input. */
-    fx_bus=0;now=100;smc_button(5,0);CHECK(smc.fx_nav_armed&1u);
-    now+=SMC_FX_HOLD_MS-1u;smc_release(5);CHECK(nav_replay_count==1);CHECK(!smc.fx_nav_armed);CHECK(!smc_fx_tap_nav_once);
-    smc_button(5,0);now+=SMC_FX_HOLD_MS;smc_release(5);CHECK(nav_replay_count==1);
-    smc_button(6,0);smc_button(0,0);smc_release(0);smc_release(6);
-    CHECK(nav_replay_count==1);CHECK(!smc.home_down);CHECK(!smc.fx_nav_armed);
     printf("PASS exact-source SMC input/UI smoke: %u assertions\n",checks);
     return 0;
 }

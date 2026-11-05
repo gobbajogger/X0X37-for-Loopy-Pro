@@ -64,36 +64,24 @@ uint64_t plat_physical_keys(void)
     return (uint64_t)plat_keys()<<5;
 #endif
 }
-int plat_outer_keys(plat_outer_event_t *events, uint64_t *keys, int *overflow,
-                    uint32_t epoch, int enabled, int octave, int publish)
+int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
+                    uint32_t epoch,int enabled,int octave,int publish)
 {
-    int n = 0;
+    int n=0;
 #if BOARD_SMK37
-    uint32_t flags = irq_save();
-    *keys = fm1_in.keys;
-    *overflow = smk_extq_overflow;
-    if (publish || *overflow)
-        smk_extq_r = smk_extq_w;
-    else while (smk_extq_r != smk_extq_w && (unsigned)n < SMK_EXTQ - 1u) {
-        events[n].generation = smk_extq[smk_extq_r][0];
-        events[n++].word = smk_extq[smk_extq_r][1];
-        smk_extq_r = (uint8_t)((smk_extq_r + 1u) % SMK_EXTQ);
+    uint32_t flags=irq_save();
+    *keys=fm1_in.keys;*overflow=smk_extq_overflow;
+    if(publish || *overflow)smk_extq_r=smk_extq_w;
+    else while(smk_extq_r!=smk_extq_w && n<31) {
+        events[n].generation=smk_extq[smk_extq_r][0];events[n++].word=smk_extq[smk_extq_r][1];
+        smk_extq_r=(uint8_t)((smk_extq_r+1u)%SMK_EXTQ);
     }
-    smk_extq_overflow = 0;
-    if (publish) {
-        smk_ext_epoch = epoch;
-        smk_ext_enabled = (uint8_t)!!enabled;
-        smk_ext_oct = (int8_t)octave;
-    }
+    smk_extq_overflow=0;
+    if(publish){smk_ext_epoch=epoch;smk_ext_enabled=(uint8_t)!!enabled;smk_ext_oct=(int8_t)octave;}
     irq_restore(flags);
 #else
-    (void)events;
-    (void)epoch;
-    (void)enabled;
-    (void)octave;
-    (void)publish;
-    *keys = plat_physical_keys();
-    *overflow = 0;
+    (void)events;(void)epoch;(void)enabled;(void)octave;(void)publish;
+    *keys=plat_physical_keys();*overflow=0;
 #endif
     return n;
 }
@@ -291,13 +279,12 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity)
 #if !X0X_BLE
 int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
 const char *plat_ble_name(void) { return ""; }
-void plat_ble_peers(plat_ble_peers_t *out) { __builtin_memset(out,0,sizeof *out); out->state=PLAT_BLE_NOIMG; }
 void plat_ble_set(int on) { (void)on; }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 0; }
 int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len) { (void)slot; (void)msg; (void)len; return 0; }
 #endif
 
-int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -2; }
+int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -1; }
 int plat_store_save(uint32_t obj, const void *src, uint32_t len) { return flash_ok ? st_save(obj, src, len) : -9; }
 
 int plat_slot_zones(int k) { return (k >= 0 && k < SMP_USER_SLOTS) ? usr_nz[k] : 0; }
@@ -308,7 +295,7 @@ const uint8_t *plat_slot(int k, int z, uint32_t *nsamples, uint32_t *rate, char 
     uint32_t i, rate_q16;
     if (k < 0 || k >= SMP_USER_SLOTS || z < 0 || z >= usr_nz[k])
         return 0;
-    h = smp_hdr(smp_user_xip((uint32_t)k));
+    h = (const smp_user_hdr_t *)smp_user_xip((uint32_t)k);
     for (i = 0; i < 8u; i++)
         name[i] = h->name[i] >= 32 && h->name[i] < 127 ? h->name[i] : 0;
     name[8] = 0;

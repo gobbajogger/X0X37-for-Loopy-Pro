@@ -8,7 +8,7 @@
 static void midi(int ch,int st,int d1,int d2)
 {min_q[mi_w++%MQ]=(uint32_t)((st>>4)|((st|ch)<<8)|(d1<<16)|(d2<<24));audio();ui_input_only();smk_wheels();}
 static void wheels(int pitch,int mod)
-{fm1_in.frames+=400;fm1_in.wheel[0]=pitch;fm1_in.wheel[1]=mod;fm1_in.wheel_mod_seq++;smk_wheels();audio();}
+{fm1_in.frames+=400;fm1_in.wheel[0]=pitch;fm1_in.wheel[1]=mod;smk_wheels();audio();}
 static void steps(int n) {for(int i=0;i<n*40;i++)audio();}
 static int plane(int v,int param)
 {int part=engine_motion_part(T_303,v);return motion_find(proj.arr.lane,seq.ppat[part],part,T_303,v,param);}

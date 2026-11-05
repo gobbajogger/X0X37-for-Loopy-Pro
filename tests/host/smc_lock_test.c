@@ -53,7 +53,7 @@ static void test_drum_lock(void)
 {
     for (int kit = 0; kit < 2; kit++) for (int bank = 0; bank < 2; bank++) {
         pref_t f[8], k[8];
-        setup(V_SEQ, kit); ui.sel[kit] = smc.sel[kit] = (uint8_t)(bank * 8); build_pages();
+        setup(V_SEQ, kit); ui.sel[kit] = (uint8_t)(bank * 8); build_pages();
         for (int i = 0; i < 8; i++) { f[i] = smc_target(i); k[i] = smc_knob_target(i); }
         CHECK(smc_lock_toggle());
         navigate(V_PART, kit ? PART_909 : PART_808);
@@ -83,7 +83,7 @@ static void test_drum_lock(void)
         for (unsigned i = 0; i < sizeof live / sizeof *live; i++) {
             message(0x90, live[i], 127); message(0x80, live[i], 0);
             CHECK(smc.locked);
-            CHECK(smc_same(find_ref(kit ? T_808 : T_909, smc.lock_bank, "Level"), smc_target(0)));
+            CHECK(smc_same(f[0], smc_target(0)));
         }
         CHECK(smc_lock_toggle());
         CHECK(!smc.locked);
@@ -117,10 +117,10 @@ static void test_engine_lock_and_clip(void)
     int v = pref_get(r); knob(cutoff_knob, 1);
     CHECK(pref_get(r) > v); CHECK(fields[field] == 0);
     CHECK(smc_lock_toggle()); /* release always works, including from clip context */
-    knob(cutoff_knob, 1); CHECK(fields[field] == 0); CHECK(pref_get(r) > v);
+    knob(cutoff_knob, 1); CHECK(fields[field] == 1);
     CHECK(!smc_lock_toggle()); /* no global clip-stage identity is guessed */
     clip_grid_mode = 0;
-    puts("PASS engine/clip boundaries: original part target survives navigation; unlocked SMC edits stay off keyboard clip fields");
+    puts("PASS engine/clip boundaries: original part target survives navigation; unlocked clip fields resume");
 }
 static void test_pattern_lock(void)
 {
@@ -140,7 +140,6 @@ static void test_pattern_lock(void)
     CHECK(proj.pat[8].bass[1].gen.density == 70);
     unchanged(ui_before);
     CHECK(smc_lock_toggle());
-    smc_select_part(PART_303B); /* only explicit SMC navigation changes its owner */
     knob(0, 1); CHECK(proj.pat[8].bass[1].gen.density > 70);
 
     setup(V_SEQ, PART_BRK); seq.ppat[PART_BRK] = 3; build_pages();
@@ -168,7 +167,7 @@ static void test_pattern_lock(void)
 }
 static void test_song_lock(void)
 {
-    setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = smc.song_sel = 2; build_pages();
+    setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = 2; build_pages();
     song()->bar[2].pat[0] = 3; song()->bar[5].pat[0] = 9;
     CHECK(smc_lock_toggle()); ui.song_sel = 5;
     CHECK(smc_knob_target(0).kind == R_NONE); /* cursor is navigation, never a frozen parameter */
@@ -178,14 +177,14 @@ static void test_song_lock(void)
     song()->len = 2; CHECK(smc_knob_target(1).kind == R_NONE);
     knob(1, 1); CHECK(song()->len == 2); /* deleted bar cannot silently regrow */
     CHECK(smc_lock_toggle());
-    setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = smc.song_sel = 3; build_pages();
+    setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = 3; build_pages();
     CHECK(smc_lock_toggle()); ui.song_sel = 0;
     run_action(ACT_SONG_INS, 0); run_action(ACT_SONG_DEL, 0);
     CHECK(song()->len == 7); CHECK(smc_knob_target(1).kind == R_NONE);
     uint8_t pat_before = song()->bar[3].pat[0];
     knob(1, 1); CHECK(song()->bar[3].pat[0] == pat_before);
     CHECK(smc_lock_toggle());
-    setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = smc.song_sel = 3;
+    setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = 3;
     *page_of(V_SONG) = 1; build_pages(); smc_page_set(1); song()->bar[3].mute = 2u << 5;
     CHECK(smc_knob_target(3).kind == R_SREP); CHECK(smc_lock_toggle());
     ui.song_sel = 0; run_action(ACT_SONG_INS, 0);
@@ -193,10 +192,10 @@ static void test_song_lock(void)
     uint8_t mute_before = song()->bar[3].mute;
     knob(3, 1); CHECK(song()->bar[3].mute == mute_before);
     CHECK(smc_lock_toggle());
-    ui.song_sel = smc.song_sel = 3; build_pages(); CHECK(smc_lock_toggle());
+    ui.song_sel = 3; build_pages(); CHECK(smc_lock_toggle());
     song_fill(song()->len); CHECK(smc_knob_target(3).kind == R_NONE);
     CHECK(smc_lock_toggle());
-    ui.song_sel = smc.song_sel = 3; build_pages(); CHECK(smc_lock_toggle());
+    ui.song_sel = 3; build_pages(); CHECK(smc_lock_toggle());
     undo_start(); song()->bar[3].pat[0] ^= 1u; undo_commit(&undo); do_undo(0);
     CHECK(smc_knob_target(3).kind == R_NONE);
     puts("PASS song identity: captured bar, parked cursor and trimmed-bar invalidation");
@@ -212,7 +211,7 @@ static void test_solo_lock_boundaries(void)
         }
         setup(V_SEQ, kit); ui.sel[kit] = 0; build_pages();
         message(0x90, 8, 127); CHECK(smc.drum_solo[kit] == 1u);
-        ui.sel[kit] = smc.sel[kit] = 8; build_pages(); CHECK(smc_lock_toggle());
+        ui.sel[kit] = 8; build_pages(); CHECK(smc_lock_toggle());
         message(0x80, 8, 0); CHECK(!smc_project_active());
         message(0x90, 8, 127); CHECK(smc.drum_solo[kit] == (1u << 8));
         message(0x80, 8, 0); CHECK(!smc_project_active());
@@ -221,7 +220,7 @@ static void test_solo_lock_boundaries(void)
 }
 static void test_edges_and_global_scope(void)
 {
-    setup(V_SEQ, PART_909); ui.sel[0] = smc.sel[0] = 8; build_pages();
+    setup(V_SEQ, PART_909); ui.sel[0] = 8; build_pages();
     pref_t frozen = smc_target(0);
     CHECK(smc_lock_button(1)); navigate(V_PART, PART_303A);
     CHECK(smc_same(frozen, smc_target(0)));
@@ -229,8 +228,7 @@ static void test_edges_and_global_scope(void)
     CHECK(smc_same(frozen, smc_target(0)));
     CHECK(!smc_lock_button(0)); CHECK(!smc_lock_button(0));
     CHECK(!smc_lock_button(1)); now_ms += 900; smc_poll();
-    CHECK(!smc.locked); CHECK(smc_same(smc_target(0), frozen));
-    smc_view(V_HOME,0); CHECK(smc_same(smc_target(0), smc_home_target(0)));
+    CHECK(!smc.locked); CHECK(smc_same(smc_target(0), smc_home_target(0)));
     CHECK(!smc_lock_button(1)); CHECK(!smc_lock_button(0));
     CHECK(smc_lock_button(1)); /* lock HOME targets while UI is on a sound page */
     navigate(V_SEQ, PART_808);
@@ -238,8 +236,7 @@ static void test_edges_and_global_scope(void)
     CHECK(smc_same(smc_target(0), smc_home_target(0)));
     CHECK(!smc_lock_button(1)); now_ms += 900; smc_poll(); /* reconnect rearms a new hold */
     CHECK(!smc.locked);
-    CHECK(smc_same(smc_target(0), smc_home_target(0)));
-    smc_select_part(PART_808); smc_view(V_SEQ,0); CHECK(smc_target(0).a == T_808);
+    CHECK(smc_target(0).a == T_808);
 
     setup(V_SEQ, PART_909); seq.ppat[PART_909] = 1;
     CHECK(smc_lock_toggle()); navigate(V_SEQ, PART_303A); seq.ppat[PART_303A] = 4;
@@ -249,7 +246,7 @@ static void test_edges_and_global_scope(void)
     seq.ppat[PART_909] = 2; /* consume cue as the sequencer does at its boundary */
     message(0x90, 0x5B, 127); CHECK(seq_cue_of(&seq, PART_909) == 1);
     int rec = ui.rec;
-    message(0x90, 0x5F, 127); CHECK(ui.rec != rec); CHECK(smc.rec_part == PART_909 && ui.part == PART_303A);
+    message(0x90, 0x5F, 127); CHECK(ui.rec != rec); CHECK(smc.rec_part == PART_303A);
     puts("PASS edge/global scope: held duplicates, release/reconnect, captured-part pattern cues, current-part global REC");
 }
 static void test_pickup_and_display(void)
@@ -273,8 +270,6 @@ static void test_pickup_and_display(void)
     fader(0, 127); CHECK(pref_get(r) >= original); CHECK(pref_get(next) == nextval);
     pref_set(r, 25); smc_frame(); CHECK(!(smc.picked & 1u));
     CHECK(smc_lock_toggle()); CHECK(!(smc.picked & 1u)); CHECK(smc.seen & 1u);
-    CHECK(smc_same(r, smc_target(0))); /* keyboard navigation did not retarget unlock */
-    smc_select_part(PART_808); smc.sel[1]=8; smc_view(V_SEQ,0);
     CHECK(smc_same(next, smc_target(0)));
     fader(0, 127); CHECK(pref_get(next) == nextval); CHECK(!(smc.picked & 1u));
     fader(0, smc_scaled(next)); CHECK(smc.picked & 1u);
@@ -289,13 +284,13 @@ static void test_pickup_and_display(void)
 }
 static void test_physical_pause_input_and_output(void)
 {
-    setup(V_SEQ, PART_909); ui.sel[0] = smc.sel[0] = 8; build_pages();
+    setup(V_SEQ, PART_909); ui.sel[0] = 8; build_pages();
     pref_t r = smc_target(0);
     seq_start(&seq);
     screen_state_t before = screen_state();
     message(0x90, 0x5D, 127);
     CHECK(smc.locked); CHECK(smc.lock_down);
-    CHECK(seq.req_start && !seq.req_stop); CHECK(smc_ui_active());
+    CHECK(seq.req_start && !seq.req_stop); CHECK(!smc_ui_active());
     CHECK(ui.view == before.view && ui.overlay == before.overlay && !memcmp(ui.page, before.page, sizeof ui.page));
     navigate(V_PART, PART_303A);
     for (int i = 0; i < 7; i++) message(0x90, 0x5D, 127);
@@ -334,7 +329,7 @@ static void test_physical_pause_input_and_output(void)
     smc_ble_link(1); smc_poll(); CHECK(smc.locked);
     reset_output(); smc_frame(); CHECK(led_count == 43); CHECK(led_transport_count == 3);
     reset_output(); smc_frame(); CHECK(send_count == 0);
-    message(0x90, 0x5D, 127); CHECK(smc.locked); now_ms += 900; smc_poll(); CHECK(!smc.locked); CHECK(smc_ui_active());
+    message(0x90, 0x5D, 127); CHECK(smc.locked); now_ms += 900; smc_poll(); CHECK(!smc.locked); CHECK(!smc_ui_active());
     message(0x90, 0x5D, 0);
     seq.ext_now = smc.beat_at + smc.beat_period / 2u; smc_frame(); reset_output();
     seq.ext_now = smc.beat_at + smc.beat_period; smc_frame();
@@ -342,23 +337,17 @@ static void test_physical_pause_input_and_output(void)
     reset_output(); seq.ext_now += smc.beat_period / 2u; smc_frame();
     CHECK(send_count == 1 && sent[0][0] == 0x90 && sent[0][1] == 0x5D && sent[0][2] == 0);
     reset_output(); smc_frame(); CHECK(send_count == 0);
-    puts("PASS captured Pause dispatch: duplicate/release edges, no keyboard navigation, popup feedback, channel isolation, MMC stop, Play toggle, lock persistence and LED route");
+    puts("PASS captured Pause dispatch: duplicate/release edges, no navigation/overlay, channel isolation, MMC stop, Play toggle, lock persistence and LED route");
 }
 static void test_guard_reset(void)
 {
     setup(V_HOME, PART_303A); ui.overlay = O_ASK;
     CHECK(!smc_lock_toggle()); ui.overlay = O_NONE;
     perf.test = 0; CHECK(!smc_lock_toggle()); perf.test = PT_IDLE;
-    audio_block(); CHECK(!engine_project_notes());
-    CHECK(ui_project_begin() == 0); CHECK(ui_project_busy());
-    CHECK(!smc_lock_toggle()); ui_project_end(0);
+    CHECK(ui_project_begin() == 0); CHECK(!smc_lock_toggle()); ui_project_end(0);
     CHECK(smc_lock_toggle());
-    smc_project_reset(); CHECK(!smc.locked && smc.view == V_HOME);
-    pref_t reset_target = smc_target(0);
-    navigate(V_SEQ, PART_909);
-    CHECK(smc_same(reset_target, smc_target(0))); /* keyboard remains independent */
-    message(0x90, 24, 127); message(0x80, 24, 0); /* explicit SMC drum navigation */
-    CHECK(smc_drum_mix() == PART_909);
+    smc_project_reset(); navigate(V_SEQ, PART_909);
+    CHECK(smc_drum_mix() == PART_909); /* reset removes old home context */
     CHECK(smc_target(0).a == T_909);
     puts("PASS guards/reset: confirmation and project ownership reject capture; project reset releases context");
 }
@@ -376,19 +365,16 @@ static void test_select_and_play(void)
     for (int kit = 0; kit < NKIT; kit++) {
         setup(V_HOME, PART_303A);
         int rec = ui.rec;
-        screen_state_t keyboard = screen_state();
-        press(24 + kit); CHECK(smc.part == kit); CHECK(smc.view == V_PART);
-        CHECK(ui.part == keyboard.part && ui.view == keyboard.view && ui.mixsel == keyboard.mixsel);
-        CHECK(!memcmp(ui.page, keyboard.page, sizeof ui.page));
-        CHECK(smc_ui_active() && !smc.fx_down);
+        press(24 + kit); CHECK(ui.part == kit); CHECK(ui.view == V_PART);
+        CHECK(!smc_ui_active() && !smc.fx_down);
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         setup(V_MIX, kit); *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages(); smc_page_set(kit + 1);
         CHECK(drum_mix_page() == kit); CHECK(ui.rec == rec);
-        unsigned selected = smc.sel[kit];
+        unsigned selected = ui.sel[kit];
         unsigned other = selected == 0 ? 1 : 0;
-        press(24 + other); CHECK(smc.sel[kit] == other); CHECK(drum_mix_page() == kit);
-        message(0x90, 24 + other, 127); CHECK(smc_page_now() == 0); CHECK(cur_page() == kit + 1); CHECK(smc_ui_active());
-        message(0x90, 24 + other, 127); CHECK(smc_page_now() == 0); /* held repeat is one gesture */
+        press(24 + other); CHECK(ui.sel[kit] == other); CHECK(drum_mix_page() == kit);
+        message(0x90, 24 + other, 127); CHECK(cur_page() == 0); CHECK(!smc_ui_active());
+        message(0x90, 24 + other, 127); CHECK(cur_page() == 0); /* held repeat is one gesture */
         message(0x80, 24 + other, 0);
         *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages(); smc_page_set(kit + 1);
         CHECK(drum_mix_page() == kit);
@@ -396,15 +382,11 @@ static void test_select_and_play(void)
         pref_t frozen = smc_target(0), knob_target = smc_knob_target(0);
         press(0); CHECK(ui.rec != rec); CHECK(ui.part == kit);
         press(0); CHECK(ui.rec == rec);
-        press(24 + other); CHECK(smc.sel[kit] == other); CHECK(drum_mix_page() == kit); CHECK(smc_ui_active());
+        press(24 + other); CHECK(ui.sel[kit] == other); CHECK(drum_mix_page() == kit); CHECK(!smc_ui_active());
         /* Locked: the repeat SELECT returns the SMC's own captured page to the
          * main mixer; the keyboard page stays where it was. */
         press(24 + other); CHECK(smc_page_now() == 0); CHECK(cur_page() == kit + 1);
-        /* Lock only stops following the keyboard: the SMC's own page change
-         * retargets to its main mixer strips. */
-        CHECK(!smc_same(frozen, smc_target(0))); CHECK(smc_same(smc_home_target(0), smc_target(0)));
-        CHECK(!smc_same(knob_target, smc_knob_target(0)));
-        CHECK(smc_same(PR(R_ENG, T_MIX, part_at(0), smc.knob_bank ? MX_PAN : MX_CUT), smc_knob_target(0)) || smc.knob_bank > 1);
+        CHECK(smc_same(frozen, smc_target(0))); CHECK(smc_same(knob_target, smc_knob_target(0)));
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         CHECK(smc_lock_toggle());
     }
@@ -429,7 +411,7 @@ static void test_lost_edge_release(void)
         int select = edge == 1, pause = edge == 2;
         unsigned note = pause ? 0x5Du : select ? 24u : 0x5Eu;
         press(note); /* settle into ordinary selected/playing request state */
-        if (select) CHECK(smc.part == PART_909); /* ordinary SELECT outside FX chooses its source */
+        if (select) CHECK(ui.part == PART_909); /* ordinary SELECT outside FX chooses its source */
         else if (!pause) { seq.req_start = 0; seq.playing = 1; }
         message(0x90, note, 127); /* leave held */
         CHECK(pause ? smc.lock_down != 0 : select ? smc.select_down != 0 : smc.play_down != 0);
@@ -488,62 +470,12 @@ static void test_plain_unlock(void)
     CHECK(smc_lock_button(1)); CHECK(smc.locked); CHECK(!smc_lock_button(0)); /* a new press while following locks at once */
     puts("PASS plain unlock: key-up after 900 ms or lock_tick; early key-up stays locked");
 }
-
-/* Locked SMC is its own surface: BANK arrows (0x60/0x61) cycle knob banks and
- * BANK 1-8/9-16 (0x2E/0x2F) move strips in the LOCKED context, never the
- * keyboard's live page. Restores codex/mixer-ux 6c84db92 smc_capture_bank. */
-static void test_lock_knob_banks(void)
-{
-    static const char *const names[] = {"Pan", "Rev", "Dly"};
-    for (int kit = 0; kit < NKIT; kit++) {
-        setup(V_SEQ, kit); ui.sel[kit] = 0; build_pages(); smc.knob_bank = 0;
-        pref_t f[8];
-        for (int i = 0; i < 8; i++) f[i] = smc_target(i);
-        CHECK(smc_lock_toggle());
-        navigate(V_HOME, PART_303A);    /* keyboard leaves; SMC stays on its lock page */
-        for (int b = 1; b <= 3; b++) {
-            press(0x61);
-            CHECK(smc.knob_bank == b % 3);
-            for (int i = 0; i < 8; i++) {
-                CHECK(smc_same(smc_knob_target(i), find_ref(kit ? T_808 : T_909, i, names[b % 3])));
-                CHECK(smc_same(smc_target(i), f[i]));
-            }
-        }
-        press(0x60); CHECK(smc.knob_bank == 2);
-        CHECK(smc_same(smc_knob_target(0), find_ref(kit ? T_808 : T_909, 0, "Dly")));
-        press(0x2F);                    /* drum strips 9-16 inside the locked kit */
-        CHECK(smc.locked && smc.lock_bank == 8);
-        CHECK(smc_same(smc_target(0), find_ref(kit ? T_808 : T_909, 8, "Level")));
-        CHECK(smc_same(smc_knob_target(0), find_ref(kit ? T_808 : T_909, 8, "Dly")));
-        press(0x2E); CHECK(smc.lock_bank == 0);
-        CHECK(smc_same(smc_target(0), f[0]));
-        CHECK(smc_lock_toggle()); CHECK(!smc.locked);
-    }
-    /* HOME lock: Cut/Pan/Rev/Dly knob banks retarget, faders stay levels. */
-    setup(V_HOME, PART_303A); smc.knob_bank = 0; build_pages();
-    pref_t f0 = smc_target(0);
-    static const uint8_t params[] = {MX_CUT, MX_PAN, MX_REV, MX_DLY};
-    CHECK(smc_lock_toggle());
-    navigate(V_PART, PART_808);
-    for (int b = 1; b <= 4; b++) {
-        press(0x61); CHECK(smc.knob_bank == b % 4);
-        CHECK(smc_same(smc_knob_target(0), PR(R_ENG, T_MIX, part_at(0), params[b % 4])));
-        CHECK(smc_same(smc_target(0), f0));
-    }
-    CHECK(smc_lock_toggle());
-    /* Unlocked: unchanged, bank follows the live page. */
-    setup(V_HOME, PART_303A); smc.knob_bank = 0; build_pages();
-    press(0x61);
-    CHECK(smc_same(smc_knob_target(0), PR(R_ENG, T_MIX, part_at(0), MX_PAN)));
-    smc.knob_bank = 0;
-    puts("PASS lock knob banks: BANK arrows and drum 1-8/9-16 retarget in the locked context");
-}
 int main(void)
 {
     test_plain_unlock();
     test_dropped_pause_press(); test_lost_edge_release(); test_select_and_play(); test_drum_lock(); test_engine_lock_and_clip(); test_pattern_lock(); test_song_lock();
     test_solo_lock_boundaries(); test_edges_and_global_scope(); test_pickup_and_display();
-    test_physical_pause_input_and_output(); test_lock_knob_banks(); test_guard_reset();
+    test_physical_pause_input_and_output(); test_guard_reset();
     printf("smc_lock: PASS (%u checks; captured Pause input route; physical LED identity unverified)\n", checks);
     return 0;
 }

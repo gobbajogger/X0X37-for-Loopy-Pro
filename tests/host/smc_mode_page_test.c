@@ -22,7 +22,7 @@ static void enter(const ctx_t *c)
 {
     setup(c->view, c->part);
     if (preset_user) proj.set.bt |= PROJ_BT_SMC_USER;
-    if (c->page >= 0) smc_page_set(c->page);
+    if (c->page >= 0) { build_pages(); *page_of(c->view) = (uint8_t)c->page; build_pages(); }
     tick();
 }
 /* Every other destination of the main and drum mixers keeps its value. */
@@ -97,7 +97,7 @@ static void check_burst(void)
         for (int page = 0; page < 2; page++) {
             setup(V_MIX, PART_909);
             if (preset_user) proj.set.bt |= PROJ_BT_SMC_USER;
-            build_pages(); smc_page_set(page); tick();
+            build_pages(); *page_of(V_MIX) = (uint8_t)page; build_pages(); tick();
             pref_t r = smc_target(2);
             const x0x_param_t *d = pref_desc(r);
             pref_set(r, 0); tick();
@@ -147,7 +147,7 @@ int main(void)
             enter(c);
             int kit = c->view == V_SEQ ? c->part : c->view == V_MIX && (c->page == 1 || c->page == 2) ? c->page - 1 : -1;
             for (int bank = 0; bank < (kit >= 0 ? 2 : 1); bank++) {
-                if (kit >= 0) { smc.sel[kit] = (uint8_t)(bank * 8); tick(); }
+                if (kit >= 0) { ui.sel[kit] = (uint8_t)(bank * 8); tick(); }
                 for (int n = 0; n < 8; n++) {
                     pref_t f, k;
                     if (kit >= 0) {

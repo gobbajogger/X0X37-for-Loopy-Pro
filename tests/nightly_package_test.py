@@ -35,7 +35,7 @@ def make_controller(size=4096, **overrides):
     return bytes(data)
 
 
-def make_package(model, loader=True, version="0.1.3", extra=b""):
+def make_package(model, loader=True):
     """Real packer/layout/CRCs; synthetic SDK placeholders and non-executable application bytes."""
     fake_sdk = {"uboot.boot": b"SYNTHETIC-BOOT-NOT-FIRMWARE" * 4,
                 "cfg_tool.bin": b"SYNTHETIC-CFG" * 4,
@@ -44,8 +44,7 @@ def make_package(model, loader=True, version="0.1.3", extra=b""):
     try:
         pm.set_board("smk37")
         with patch.object(pm, "sdk_file", side_effect=lambda name: fake_sdk[name]):
-            about = b"" if version is None else ("DnBOX " + version + "  MEM ").encode("ascii") + b"\0"
-            flash = pm.flash_image(b"SYNTHETIC-APPLICATION-NOT-FIRMWARE" * 16 + about + extra, pm.KEY)
+            flash = pm.flash_image(b"SYNTHETIC-APPLICATION-NOT-FIRMWARE" * 16, pm.KEY)
         ota = b"SYNTHETIC-LOADER-NOT-FIRMWARE " + (b"FELUCCA-LOADER-1" if loader else b"NO-UPDATE-LOADER")
         return pm.ufw(flash, ota, nightly.MODELS[model] + "_900")
     finally:
@@ -195,22 +194,7 @@ def main(argv=None):
         assert receipt_v["product"].endswith("_9000103") and "_openbeta" not in receipt_v["product"]
         refused(lambda raw=stamped, m=model: nightly.inspect(raw, m, digest, size, "0.1.4"), "does not match")
         refused(lambda raw=stamped, m=model: nightly.inspect(raw, m, digest, size, "0.1.3_openbeta"), "not a firmware version")
-        assert nightly.inspect(complete, model, digest, size)["firmware_version"] == "0.1.3"
-        assert receipt["product"] == nightly.MODELS[model] + "_900"
-        for absent in (None, "DEV"):
-            refused(lambda: nightly.inspect(add_ctl.add(make_package(model, version=absent), ctl),
-                                           model, digest, size), "firmware version" if absent is None else "DnBOX DEV")
-        refused(lambda: nightly.inspect(complete, model, digest, size, "0.0.23"), "does not match")
-        # A valid numeric ABOUT string must not conceal a stale USB or other DEV string.
-        for encoding in ("ascii", "utf-16-le", "utf-16-be"):
-            stale = add_ctl.add(make_package(model, extra="DnBOX DEV".encode(encoding)), ctl)
-            refused(lambda: nightly.inspect(stale, model, digest, size, "0.1.3"), "DnBOX DEV")
-        ambiguous = add_ctl.add(make_package(model, extra=b"DnBOX 0.0.23  MEM \0"), ctl)
-        refused(lambda: nightly.inspect(ambiguous, model, digest, size), "firmware version")
-        # A USB display string alone is not firmware identity or version evidence.
-        usb_only = add_ctl.add(make_package(model, version=None,
-                                            extra="DnBOX 0.0.23 37PRO".encode("utf-16-le")), ctl)
-        refused(lambda: nightly.inspect(usb_only, model, digest, size), "firmware version")
+        assert nightly.inspect(complete, model, digest, size)["firmware_version"] is None
         refused(lambda: nightly.inspect(complete, model, "0" * 64, size), "reviewed pin")
         refused(lambda: nightly.inspect(complete, model, digest, size - 1), "reviewed pin")
         refused(lambda: nightly.inspect(fixtures[model + "-outer-crc.fwsc"], model, digest, size), "package integrity")
@@ -240,28 +224,11 @@ def main(argv=None):
             pkg.write_bytes(raw)
             control.write_bytes(ctl)
             command = [str(pkg), str(control), "--model", model, "--controller-sha256", digest,
-                       "--controller-size", str(size), "--firmware-version", "0.1.3", "-o", str(out)]
+                       "--controller-size", str(size), "-o", str(out)]
             stdout = io.StringIO()
             with contextlib.redirect_stdout(stdout):
                 assert nightly.main(command) == 0
             assert out.read_bytes() == complete and json.loads(stdout.getvalue()) == receipt
-            check = [str(out), "--check", "--model", model, "--controller-sha256", digest,
-                     "--controller-size", str(size), "--firmware-version", "0.1.3"]
-            with contextlib.redirect_stdout(io.StringIO()):
-                assert nightly.main(check) == 0
-            with contextlib.redirect_stderr(io.StringIO()):
-                try:
-                    nightly.main(check[:-2])
-                except SystemExit as exc:
-                    assert exc.code == 2, "--firmware-version is mandatory"
-                else:
-                    raise AssertionError("missing --firmware-version accepted")
-            for version, extra in ((None, b""), ("0.1.3", b"DnBOX DEV"),
-                                   ("0.1.3", "DnBOX DEV".encode("utf-16-le")),
-                                   ("0.1.3", "DnBOX DEV".encode("utf-16-be"))):
-                out.write_bytes(add_ctl.add(make_package(model, version=version, extra=extra), ctl))
-                with contextlib.redirect_stderr(io.StringIO()):
-                    assert nightly.main(check) == 1
             out.write_bytes(b"KEEP-EXISTING")
             control.write_bytes(ctl[:-1])
             with contextlib.redirect_stderr(io.StringIO()):
@@ -297,4 +264,3 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
-

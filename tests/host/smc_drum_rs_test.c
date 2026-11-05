@@ -114,14 +114,10 @@ static void mmc(int note, int host)
 
 static void view(int kit, int bank)
 {
-    smc_select_part(kit);
-    smc.sel[kit] = (uint8_t)(bank * 8);
+    if (strip_view == V_SEQ) ui.part = (uint8_t)kit;
     smc_view(strip_view, strip_view == V_MIX ? kit + 1 : 0);
-    /* Set up the keyboard independently for the pad/recording half of this test. */
-    ui.part = (uint8_t)kit;
     ui.sel[kit] = (uint8_t)(bank * 8);
-    set_view(strip_view); build_pages();
-    if (strip_view == V_MIX) *page_of(V_MIX) = (uint8_t)(kit + 1);
+    build_pages();
     smc_frame();
 }
 static void setup(int kit, int bank)
@@ -201,13 +197,10 @@ static void destination(int kit, int bank, int strip)
         return;
     }
     destinations++;
-    CHECK(smc.part == kit && smc.sel[kit] == track && ui.rec);
-    CHECK(ui.part == initial_part && ui.sel[kit] == bank * 8);
+    CHECK(ui.part == kit && ui.sel[kit] == track && ui.rec);
     CHECK(ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE);
     CHECK(wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127);
-    if (smc.part != kit || smc.sel[kit] != track || smc.view != strip_view) return;
-    /* Keyboard pads keep their own selected sound; align it explicitly here. */
-    ui.part = (uint8_t)kit;ui.sel[kit] = (uint8_t)track;build_pages();
+    if (ui.part != kit || ui.sel[kit] != track || ui.view != strip_view) return;
     ui.spage = (uint8_t)(track & 1);
     int physical = (track * 3) % 16, step = ui.spage * 16 + physical;
     pad_tap(physical);
@@ -222,15 +215,11 @@ static void destination(int kit, int bank, int strip)
     tap(strip);
     CHECK(!ui.rec && ui.part == kit && ui.sel[kit] == track && !wire_led[strip]);
 
-    /* SELECT focuses only the mixer; keyboard pad sequencing remains independent. */
+    /* SELECT also focuses the real kit; pad sequencing works with REC off. */
     if (strip_view == V_MIX) ui.part = PART_303A;
     ui.sel[kit] = (uint8_t)(bank * 8 + (strip + 1) % (bank ? 3 : 8));
-    smc.sel[kit] = ui.sel[kit];
-    int keyboard_part = ui.part, keyboard_track = ui.sel[kit];
     tap(24 + strip);
-    CHECK(smc.part == kit && smc.sel[kit] == track && !ui.rec && smc.view == strip_view);
-    CHECK(ui.part == keyboard_part && ui.sel[kit] == keyboard_track && ui.view == strip_view);
-    ui.part = (uint8_t)kit;ui.sel[kit] = (uint8_t)track;build_pages();
+    CHECK(ui.part == kit && ui.sel[kit] == track && !ui.rec && ui.view == strip_view);
     pad_tap(physical);
     only_hit(kit, track, step);
     pad_writes++;
@@ -275,35 +264,34 @@ static void banks_and_owners(void)
         strip_view = mode ? V_SEQ : V_MIX;
         setup(kit, 0);
         tap(0x2F);
-        CHECK(smc.part == kit && smc.sel[kit] == 8 && smc.view == strip_view);
-        CHECK(ui.part == kit && ui.sel[kit] == 0 && ui.view == strip_view);
+        CHECK(ui.part == kit && ui.sel[kit] == 8 && ui.view == strip_view);
         CHECK(smc_target(0).b == 8 && smc_target(3).kind == R_NONE);
         tap(0x31);
-        CHECK(smc.sel[kit] == 9 && ui.sel[kit] == 0);
+        CHECK(ui.sel[kit] == 9);
         tap(0x30);
-        CHECK(smc.sel[kit] == 8 && ui.sel[kit] == 0);
+        CHECK(ui.sel[kit] == 8);
         tap(0x2E);
-        CHECK(smc.sel[kit] == 0 && ui.sel[kit] == 0 && smc_target(7).b == 7);
+        CHECK(ui.sel[kit] == 0 && smc_target(7).b == 7);
         ui.help = 1;
         tap(0);
         /* SMC-02: help is a card, not an input owner. REC still toggles. */
         CHECK(ui.help && ui.rec && ui.sel[kit] == 0);
         tap(0);
         CHECK(ui.help && !ui.rec && ui.sel[kit] == 0);
-        tap(6);                       /* Explicit R7 closes Help without toggling REC. */
+        tap(6);                       /* R7 alone closes the help card. */
         CHECK(!ui.help && !ui.rec && ui.sel[kit] == 0);
         ui.overlay = O_ASK;
         tap(0);
-        CHECK(!ui.rec && ui.sel[kit] == 0); /* confirmation parks musical actions */
+        CHECK(!ui.rec && ui.sel[kit] == 0);
     }
     strip_view = V_MIX;
     context = "303 SEQ retains the main mixer map";
     setup(-1, 0);
     ui.part = PART_303A;
-    smc_select_part(PART_303A);smc_view(V_SEQ, 0);
+    smc_view(V_SEQ, 0);
     for (int strip = 0; strip < 8; strip++) CHECK(smc_same(smc_target(strip), smc_home_target(strip)));
     tap(1);
-    CHECK(smc.part == PART_808 && ui.part == PART_303A && ui.rec); /* musical REC does not navigate the keyboard */
+    CHECK(ui.part == PART_808 && ui.rec); /* unchanged main-map Record before entering a drum context */
 }
 
 static void solo_transitions(void)
@@ -341,7 +329,7 @@ static void solo_transitions(void)
         press(8 + strip);
         smc_view(V_PART, 0);
         press(8 + strip);
-        CHECK(smc.view == V_PART && ui.view == V_MIX && smc_project_active());
+        CHECK(ui.view == V_PART && smc_project_active());
         release(8 + strip);
         CHECK(!smc_project_active());
     }
@@ -355,8 +343,7 @@ static void solo_transitions(void)
         mmc(10, route);
         CHECK(!smc_project_active() && !wire_led[10]);
         mmc(2, route);
-        CHECK(smc.part == 1 && smc.sel[1] == 10 && ui.rec);
-        CHECK(ui.part == 1 && ui.sel[1] == 8);
+        CHECK(ui.part == 1 && ui.sel[1] == 10 && ui.rec);
     }
 }
 
@@ -403,7 +390,7 @@ static void pad_release_context(void)
     for (int mode = 0; mode < 3; mode++) {
         context = "held pad release cannot edit the newly selected drum";
         setup(0, 0);
-        smc.sel[0] = 1; /* avoid the mixer's repeat-SELECT return-to-main gesture */
+        ui.sel[0] = 1; build_pages(); /* select a different sound, not the new return-to-main gesture */
         tap(24);
         uint32_t *old = proj.pat[seq.ppat[0]].drum[0].hit[0];
         uint32_t *next = proj.pat[seq.ppat[0]].drum[0].hit[mode == 2 ? 8 : 1];
@@ -418,7 +405,6 @@ static void pad_release_context(void)
     for (int v = 0; v < 2; v++) {
         setup(-1, 0);
         smc_view(v ? V_FX : V_MIX, 0);
-        set_view(v ? V_FX : V_MIX);build_pages();
         pad_tap(0);
         CHECK(!sm_any(proj.pat[seq.ppat[0]].drum[0].hit[0]));
     }
@@ -428,22 +414,19 @@ static void held_edit_context(void)
 {
     static lane_t before[NLANE];
     static const int actions[] = {1, 25, 0x2F, 0x31};
-    context = "SMC target changes cannot redirect a held keyboard probability edit";
+    context = "drum target change cancels a held pad before probability edits";
     strip_view = V_SEQ;
     for (int kit = 0; kit < NKIT; kit++) for (int action = 0; action < 4; action++) {
         setup(kit, 0);
         sm_set(pat_of(kit)->drum[kit].hit[0], 3);
         pad(3, 1);
         tap(actions[action]);
-        CHECK(smc.sel[kit] == (action == 2 ? 8 : 1));
-        CHECK(ui.sel[kit] == 0);
+        CHECK(ui.sel[kit] == (action == 2 ? 8 : 1));
         memcpy(before, proj.arr.lane, sizeof before);
         enc_acc[EN_SELECT] = -1;       /* 100 -> 95 would create a wrong-track probability lock */
         now_ms += 20;
         input();
-        for (int lane = 0; lane < NLANE; lane++)
-            if (memcmp(&before[lane], &proj.arr.lane[lane], sizeof before[lane]))
-                CHECK(proj.arr.lane[lane].part == kit && proj.arr.lane[lane].v == (kit << 4));
+        CHECK(!memcmp(before, proj.arr.lane, sizeof before));
         pad(3, 0);
     }
     strip_view = V_MIX;
@@ -452,7 +435,7 @@ static void held_edit_context(void)
     setup(0, 0);
     ui.part = PART_909;
     ui.sel[PART_909] = ui.spage = 0;
-    smc_view(V_PART, 0);set_view(V_PART);build_pages();
+    smc_view(V_PART, 0);
     pref_t r = pg.r[cur_page()][0];
     CHECK(r.kind == R_ENG && r.a == T_909);
     if (r.kind != R_ENG || r.a != T_909) return;
@@ -462,9 +445,9 @@ static void held_edit_context(void)
     CHECK(observed_909 && drum909_get(observed_909, r.b, r.c) == base);
     sm_set(pat_of(PART_909)->drum[PART_909].hit[0], 3);
     /* 0a2eae49: steps are held on SEQ; the held step carries to EDIT's sound knobs. */
-    smc_view(V_SEQ, 0);set_view(V_SEQ);build_pages();
+    smc_view(V_SEQ, 0);
     pad(3, 1);
-    smc_view(V_PART, 0);set_view(V_PART);build_pages();
+    smc_view(V_PART, 0);
     CHECK(ui.view == V_PART && pg.r[cur_page()][0].c == r.c);
     enc_acc[EN_K1] = 1;
     now_ms += 20;

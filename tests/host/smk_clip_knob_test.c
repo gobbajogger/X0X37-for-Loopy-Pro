@@ -28,8 +28,7 @@ typedef struct {                    /* the clip keys fields of settings_t (app/x
     uint8_t autosave_off;
 } settings_t;
 static struct { settings_t set; } proj;
-seq_t seq;                          /* usb.c (LIVE-A update guard) sees the real seq_t through app/engine.h */
-int engine_project_notes(void) { return 0; }   /* no live notes in this fixture */
+static struct { uint16_t bpm; uint8_t playing, req_start, req_cont, req_stop; } seq;
 static uint8_t project_busy;
 static int ui_project_busy(void) { return project_busy; }
 /* This clip/MIDI fixture has no active boot capture or maintenance lease. */
@@ -111,7 +110,6 @@ static int project_save(void) { save_calls++; return 0; }
 static void say(const char *s, uint32_t t) { (void)s; (void)t; }
 static void save_project(void) { save_wait = 0u; project_save(); }
 #define BOARD_SMK37 1
-int project_storage_unsupported(void) { return 0; }   /* #810 autosave guard: supported storage here */
 #include "autosave.inc"
 #undef BOARD_SMK37
 

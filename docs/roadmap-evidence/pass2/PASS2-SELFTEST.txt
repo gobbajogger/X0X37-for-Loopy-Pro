@@ -1,0 +1,15 @@
+PASS GREEN (exit=0)
+#1: PRESENT_OK
+#2: UNPROVEN
+TOTALS present_ok=1 present_bad=0 UNPROVEN=1 MISSING=1 rows=2
+ROADMAP_PIN blob=a204a54c989d6f323d619e70f799427603756541 commit=5f578fc0642a1200a5163802bcd69277c511bfc7
+PASS RED_missing_path (exit=1)
+MUTANT RED_missing_path: drop the os.path.isfile(code_path) check -> RED would exit 0; this case catches it.
+PASS RED_empty_result (exit=1)
+MUTANT RED_empty_result: treat empty result as PASS (or skip result validation) -> RED would exit 0; this case catches it.
+PASS RED_disagreeing_pin (exit=1)
+MUTANT RED_disagreeing_pin: keep only the first file's pin and never compare later files -> RED would exit 0; this case catches it.
+PASS RED_malformed_json (exit=1)
+MUTANT RED_malformed_json: wrap json.load in a bare except that continues as UNPROVEN/OK -> RED would exit 0; this case catches it.
+----
+SELFTEST pass=5 fail=0

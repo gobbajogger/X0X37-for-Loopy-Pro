@@ -47,11 +47,6 @@ int plat_division_pad(unsigned owner);
 /* Outer physical events retain their publication epoch and strike pitch.
  * Snapshot/cutoff includes the complete physical bitmap under an IRQ guard. */
 typedef struct { uint32_t generation, word; } plat_outer_event_t;
-#define PLAT_OUTER_PACK(key, vel, pitch) \
-    ((uint32_t)(key) | ((uint32_t)(vel) << 7) | ((uint32_t)(pitch) << 14))
-#define PLAT_OUTER_KEY(word) ((uint32_t)(word) & 127u)
-#define PLAT_OUTER_VEL(word) (((uint32_t)(word) >> 7) & 127u)
-#define PLAT_OUTER_PITCH(word) ((uint32_t)(word) >> 14)
 #if defined(X0X_HOST) && !defined(X0X_LIVE_KEY_TEST)
 static inline uint64_t plat_physical_keys(void) { return (uint64_t)plat_keys()<<5; }
 static inline int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
@@ -82,12 +77,7 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity); /* CPU0 on
 void plat_midi_out(uint32_t pkt);      /* queue one (audio ISR or main loop) */
 
 /* persistent storage (Felucca storage.c objects: A/B sectors, CRC, torn-write safe) */
-/* Bytes loaded; -1 = confirmed empty, -2 = read failure (retry), -3 = damaged
- * committed data (validated adoption only), -8 = busy.
- * Only -1 permits first-boot defaults to be persisted. */
-/* OR into obj to read its older valid A/B copy without modifying flash. */
-#define PLAT_STORE_PREVIOUS 0x80000000u
-int plat_store_load(uint32_t obj, void *dst, uint32_t max);
+int plat_store_load(uint32_t obj, void *dst, uint32_t max);   /* bytes loaded, < 0 = none / bad */
 int plat_store_save(uint32_t obj, const void *src, uint32_t len);   /* 0 = ok */
 #define PLAT_STORE_MAX 3840u           /* bytes per object */
 enum { OBJ_SET, OBJ_SOUND, OBJ_PAT0, OBJ_PAT1, OBJ_PANEL, OBJ_SONG, OBJ_MOTION, OBJ_NOBJ };
@@ -121,10 +111,6 @@ enum { PLAT_BLE_NOIMG, PLAT_BLE_OFF, PLAT_BLE_RESTART, PLAT_BLE_STARTING, PLAT_B
        PLAT_BLE_FAILED, PLAT_BLE_BADIMG };
 int plat_ble_state(void);
 const char *plat_ble_name(void);
-#define PLAT_BLE_PEER_CAP 2u
-#define PLAT_BLE_PEER_NAME_MAX 20u
-typedef struct { unsigned count; int state, central; char name[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX+1u]; } plat_ble_peers_t;
-void plat_ble_peers(plat_ble_peers_t *out);   /* connected SMC peer names, one snapshot */
 void plat_ble_set(int on);
 /* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len);

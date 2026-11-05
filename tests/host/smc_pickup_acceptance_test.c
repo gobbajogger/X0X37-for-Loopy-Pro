@@ -24,25 +24,29 @@ void pickup_engine_set(int t, int v, int i, int val)
     written_t = t; written_voice = v; written_param = i; written_value = val;
     engine_set(t, v, i, val);
 }
-static unsigned popup_pickup_hints;
+static unsigned peek_pickup_hints;
 static void status_is(const char *status)
 {
     CHECK(smc_ui_active());
     ui_frame();
     memcpy(active_fb, fb, sizeof fb);
-    cv_begin(240, KNOB_H, C_BLACK);
-    /* F4 (#800) shows the pickup direction and ACTIVE as pictograms, not prose. */
-    if (status[0] == 'P') {
-        ui_pictogram(108, 49, strstr(status, " UP ") ? UI_G_UP : UI_G_DOWN, 1, C_HI);
-        ui_pictogram(123, 49, UI_G_TARGET, 1, C_WHITE);
-    } else {
-        CHECK(!strcmp(status, "ACTIVE"));
-        ui_pictogram(116, 49, UI_G_CHECK, 1, C_HI);
+    if (smc_peek->on) {
+        /* Approved #737 peek: the status is the second header line, drawn
+         * over the real page. Compare that line only. */
+        cv_begin(240, HDR_H, C_BLACK);
+        text_c(120, vc(&FONT_T, 10, 10), &FONT_T, status,
+               status[0] == 'P' ? C_HI : C_GRAY);
+        cv_commit(0, 0, 0);
+        CHECK(!memcmp(active_fb + 10 * 240, fb + 10 * 240,
+                      240 * (HDR_H - 10) * sizeof *fb));
+        if (status[0] == 'P') peek_pickup_hints++;
+        return;
     }
+    cv_begin(240, KNOB_H, C_BLACK);
+    text_c(120, 49, &FONT_XS, status, C_HI);
     cv_commit(3, 0, KNOB_Y);
     CHECK(!memcmp(active_fb + (KNOB_Y + 49) * 240,
                   fb + (KNOB_Y + 49) * 240, 240 * 10 * sizeof *fb));
-    if(status[0]=='P')popup_pickup_hints++;
 }
 static void prepare(int view, int part, int strip, int target)
 {
@@ -93,14 +97,14 @@ static void routing_epochs(void)
         if (epoch == 0) CHECK(smc_lock_toggle());
         if (epoch == 1) { CHECK(smc_lock_toggle()); CHECK(smc_lock_toggle()); }
         if (epoch == 2) {
-            smc_select_part(PART_808); smc.sel[1]=8; smc_view(V_SEQ,0);
+            ui.part = PART_808; set_view(V_SEQ); ui.sel[1] = 8; build_pages();
             pref_set(smc_target(0), 80); smc_frame();
         }
         if (epoch == 3) {
-            smc_select_part(PART_909); smc.sel[0]=8; smc_view(V_SEQ,0);
+            ui.part = PART_909; set_view(V_SEQ); ui.sel[0] = 8; build_pages();
             pref_set(smc_target(0), 80); smc_frame();
         }
-        expire();writes = 0; ui_frame(); CHECK(!smc_ui_active());
+        writes = 0; ui_frame(); CHECK(!smc_ui_active());
         fader(0, start); CHECK(!writes && !smc_ui_active());
         fader(0, end); CHECK(writes == 1 && (smc.picked & 1)); status_is("ACTIVE");
     }
@@ -197,17 +201,17 @@ static void stateful_sequences(void)
                 CHECK(smc_lock_toggle()); accepted = 0;
             } else if (op == 2) {
                 /* Parked switch away/back; edit the destination while away. */
-                uint8_t view = smc.view, part = smc.part;
-                smc_select_part(PART_808); smc.sel[1]=8; smc_view(V_SEQ,0);accepted=0;
+                uint8_t view = ui.view, part = ui.part;
+                ui.part = PART_808; set_view(V_SEQ); ui.sel[1] = 8; build_pages();
                 pref_t away = smc_target(0);
                 if (!have_target || !smc_same(away, target) || pref_get(away) != cached) accepted = 0;
                 target = away; cached = pref_get(away); have_target = 1;
                 smc_frame();
                 pref_set(smc_home_target(0), (rng >> 8) & 127);
-                smc_select_part(part); smc_view(view,-1); smc_ui_cancel();accepted=0;
+                ui.part = part; set_view(view); build_pages(); smc_ui_cancel();
             } else if (op == 3) {
-                smc_select_part((rng >> 9) & 1); smc.sel[smc.part]=(rng & 1)?8:0;
-                smc_view(V_SEQ,0); smc_ui_cancel();accepted=0;
+                ui.part = (rng >> 9) & 1; set_view(V_SEQ);
+                ui.sel[ui.part] = (rng & 1) ? 8 : 0; build_pages(); smc_ui_cancel();
             } else if (op == 4) {
                 smc_ble_link(0); smc_poll(); smc_ble_link(1); smc_poll();
                 accepted = history = 0;
@@ -267,7 +271,7 @@ int main(int argc, char **argv)
     else if (argc > 1 && !strcmp(argv[1], "mute")) mute_takeover();
     else { crossing_matrix(); mute_takeover(); routing_epochs(); motion_acquisition(); monotonic_ramps(); stateful_sequences(); }
     printf("smc_pickup_acceptance: PASS (%u assertions)\n", checks);
-    CHECK(popup_pickup_hints > 0); /* pickup hint uses the existing SMC footer */
-    printf("PASS pickup hint on SMC popup (%u checks)\n", popup_pickup_hints);
+    CHECK(peek_pickup_hints > 0); /* hint drawn on the #737 peek page */
+    printf("PASS pickup hint on peek page (%u checks)\n", peek_pickup_hints);
     return 0;
 }

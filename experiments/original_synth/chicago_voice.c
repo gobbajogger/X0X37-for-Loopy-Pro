@@ -3,31 +3,9 @@
 #include "binary32_classify.h"
 #include <math.h>
 #include <string.h>
-static inline uint32_t cv_bits(float x){uint32_t u;memcpy(&u,&x,4);return u;}
 #ifdef ORIGINAL_USE_SOFT_FMA
-/* exact: its FMA feeds a recursion; fast FMA moved the output by -78 dBFS (docs/perf) */
-#define X0X_EXACT_FMA_HERE 1
 #include "fused_reference.h"
-/* Exact shortcut: when a*b is exact in binary32 (a zero factor, or the two
- * significands fit in 24 bits and the product is normal), the fused result
- * is the single rounding of p+c, which is the float add. Else the exact
- * software FMA. Same bits as original_rne_fmaf for all finite inputs. */
-static inline float cv_fma(float a,float b,float c){
- uint32_t ua=cv_bits(a),ub=cv_bits(b),uc=cv_bits(c);
- uint32_t ea=(ua>>23)&255u,eb=(ub>>23)&255u;
- if(((uc>>23)&255u)!=255u&&ea!=255u&&eb!=255u){
-  if(!(ua<<1)||!(ub<<1))return a*b+c;
-  if(ea&&eb){
-   uint32_t ma=(ua&0x7fffffu)|0x800000u,mb=(ub&0x7fffffu)|0x800000u;
-   if((24u-(unsigned)__builtin_ctz(ma))+(24u-(unsigned)__builtin_ctz(mb))<=24u){
-    float p=a*b;uint32_t ep=(cv_bits(p)>>23)&255u;
-    if(ep&&ep!=255u)return p+c;
-   }
-  }
- }
- return original_rne_fmaf(a,b,c);
-}
-#define ref_fma cv_fma
+#define ref_fma original_rne_fmaf
 #else
 #define ref_fma fmaf
 #endif
@@ -46,14 +24,10 @@ int original_chicago_voice_tables_bind(original_chicago_voice_tables *out,origin
  float a,e;if(!read(context,0,&a,&e)||!original_binary32_isfinite(a)||a<0||a>1||!original_binary32_isfinite(e)||e< -1||e>1)return 0;
  original_chicago_voice_tables t;memset(&t,0,sizeof t);t.read=read;t.context=context;t.pitch=pitch;t.a0=a;t.e0=e;t.ready=TABLE_READY;*out=t;return 1;
 }
-static int program_valid(const original_chicago_program *p){
- for(unsigned i=0;i<22;i++)if(!original_binary32_isfinite(p->macro[i])||p->macro[i]<0||p->macro[i]>1)return 0;
- for(unsigned i=0;i<29;i++)if(!original_binary32_isfinite(p->target[i])||p->target[i]<0||p->target[i]>1)return 0;
- return 1;
-}
 int original_chicago_voice_compile(original_chicago_voice_controls *out,const original_chicago_program *p){
  if(!out||!p)return 0;
- if(!program_valid(p))return 0;
+ for(unsigned i=0;i<22;i++)if(!original_binary32_isfinite(p->macro[i])||p->macro[i]<0||p->macro[i]>1)return 0;
+ for(unsigned i=0;i<29;i++)if(!original_binary32_isfinite(p->target[i])||p->target[i]<0||p->target[i]>1)return 0;
  original_chicago_voice_controls c;memset(&c,0,sizeof c);
  c.pitch.master_tune=bipolar(native(p,0));c.pitch.unison_detune=native(p,90);c.pitch.bend_range=24.0f*native(p,55);c.pitch.transpose=(int)Q(native(p,18),49)-24;c.pitch.detune=native(p,17);c.pitch.portamento=native(p,16);
  for(unsigned i=0;i<4;i++){unsigned j=i*4;c.shape[i]=(uint8_t)Q(native(p,j+1),5);if(c.shape[i]>3)return 0;c.pitch.semitone[i]=(int)Q(native(p,j+2),49)-24;c.pitch.fine_tune[i]=i?bipolar(native(p,j)):0;c.gain.level[i]=native(p,j+3);c.vcf[i]=native(p,28+i);c.vca[i]=native(p,32+i);}
@@ -68,118 +42,23 @@ int original_chicago_voice_compile(original_chicago_voice_controls *out,const or
  for(unsigned i=0;i<2;i++){c.mg_shape[i]=(uint8_t)Q(native(p,i?49:43),5);if(c.mg_shape[i]>3)return 0;c.mg_frequency[i]=native(p,i?50:44);c.mg_tempo[i]=(uint8_t)Q(native(p,i?52:46),2);c.mg_base[i]=base[Q(native(p,i?53:47),10)];c.mg_times[i]=(float)(16-Q(native(p,i?54:48),16));}
  c.revision=p->revision;c.ready=CONTROL_READY;*out=c;return 1;
 }
-/* The serial control owner supplies a corresponding preceding snapshot and
- * exactly one mapped edit. Keep validation; reuse only unaffected conversions.
- * Any other macro or uncertain cache takes the complete compiler above. */
-int original_chicago_voice_recompile(original_chicago_voice_controls *out,const original_chicago_program *p,unsigned macro){
- if(!out||!p)return 0;
- if((macro!=20&&macro!=2)||out->ready!=CONTROL_READY||p->revision!=out->revision+UINT32_C(1))
-  return original_chicago_voice_compile(out,p);
- if(!program_valid(p))return 0;
- if(macro==20)out->routing.bend_bipolar=bipolar(native(p,105));
- else out->cutoff=native(p,24);
- out->revision=p->revision;return 1;
-}
 static int mg_output(original_chicago_voice_mg *m,unsigned shape){if(!original_miami_mg_shape(shape,m->phase,&m->bipolar,&m->unipolar))return 0;m->wrapped=0;return 1;}
-static int mg_advance(original_chicago_voice_mg *m,original_chicago_voice_mg_coefficients *cache,
- const original_chicago_voice_controls *c,unsigned i,float bpm,uint32_t D){
+static int mg_advance(original_chicago_voice_mg *m,const original_chicago_voice_controls *c,unsigned i,float bpm,uint32_t D){
  float delta;
-#ifdef CHICAGO_COEF_CACHE_REFERENCE
- (void)cache;
  if(c->mg_tempo[i]){float numerator=(bpm*fl(0x3f4ccccd))*(float)D;float denominator=(44100.0f*c->mg_base[i])*c->mg_times[i];delta=numerator/denominator;if(delta>1)delta=1;}
  else {float f=clamp(c->mg_frequency[i]+0.0f,0,1),f2=f*f;f=f*f2;f=ref_fma(f,fl(0x4347e666),fl(0x3c23d70a));delta=((float)D*f)/44100.0f;}
-#else
- if(c->mg_tempo[i]){
-  uint32_t base_bits=cv_bits(c->mg_base[i]),times_bits=cv_bits(c->mg_times[i]),bpm_bits=cv_bits(bpm);
-  int changed=!cache->tempo_valid||cache->base_bits!=base_bits||cache->times_bits!=times_bits;
-  if(changed){
-   cache->tempo_den=(44100.0f*c->mg_base[i])*c->mg_times[i];
-   cache->base_bits=base_bits;cache->times_bits=times_bits;cache->tempo_valid=1;
-  }
-  if(!cache->delta_valid||changed||cache->mode!=c->mg_tempo[i]||
-     cache->bpm_bits!=bpm_bits||cache->duration!=D){
-   float numerator=(bpm*fl(0x3f4ccccd))*(float)D;
-   delta=numerator/cache->tempo_den;if(delta>1)delta=1;
-   cache->delta=delta;cache->mode=c->mg_tempo[i];cache->bpm_bits=bpm_bits;
-   cache->duration=D;cache->delta_valid=1;
-  }else delta=cache->delta;
- }else{
-  uint32_t frequency_bits=cv_bits(c->mg_frequency[i]);
-  int changed=!cache->free_valid||cache->frequency_bits!=frequency_bits;
-  if(changed){
-   float f=clamp(c->mg_frequency[i]+0.0f,0,1),f2=f*f;
-   f=f*f2;f=ref_fma(f,fl(0x4347e666),fl(0x3c23d70a));
-   cache->free_f=f;cache->frequency_bits=frequency_bits;cache->free_valid=1;
-  }
-  if(!cache->delta_valid||changed||cache->mode!=c->mg_tempo[i]||cache->duration!=D){
-   delta=((float)D*cache->free_f)/44100.0f;
-   cache->delta=delta;cache->mode=c->mg_tempo[i];cache->duration=D;cache->delta_valid=1;
-  }else delta=cache->delta;
- }
-#endif
  float next=m->phase+delta;if(!original_binary32_isfinite(next))return 0;if(next>=1){next=next-2;m->wrapped=1;}m->phase=next;return 1;
 }
 static float fourth(float x){float y=x*x;return y*y;}
-static void vcf_tick(original_chicago_voice *v,const float c[4],uint32_t D){
- original_vca *s=&v->vcf;
- original_chicago_voice_vcf_coefficients *cache=&v->coefficients.vcf;
-#ifdef CHICAGO_COEF_CACHE_REFERENCE
- (void)cache;
-#endif
+static void vcf_tick(original_vca *s,const float c[4],uint32_t D){
  float e=s->level;
- if(s->state==0){
-  float numerator=(float)D*(1.2999999523162842f-e),den;
-#ifdef CHICAGO_COEF_CACHE_REFERENCE
-  den=44100.0f*ref_fma(fourth(c[0]),13,fl(0x3a83126f));
-#else
-  uint32_t bits=cv_bits(c[0]);
-  if(!cache->attack_valid||cache->attack_bits!=bits){
-   cache->attack_den=44100.0f*ref_fma(fourth(c[0]),13,fl(0x3a83126f));
-   cache->attack_bits=bits;cache->attack_valid=1;
-  }
-  den=cache->attack_den;
-#endif
-  e=e+numerator/den;if(e>=1){e=1;s->state=1;}
- }
- else if(s->state==1){
-  if(e<c[2])e=c[2];else {
-   float numerator=(float)D*(c[2]-e),den;
-#ifdef CHICAGO_COEF_CACHE_REFERENCE
-   den=ref_fma(fourth(c[1]),25,fl(0x3a83126f))*44100.0f;
-#else
-   uint32_t bits=cv_bits(c[1]);
-   if(!cache->decay_valid||cache->decay_bits!=bits){
-    cache->decay_den=ref_fma(fourth(c[1]),25,fl(0x3a83126f))*44100.0f;
-    cache->decay_bits=bits;cache->decay_valid=1;
-   }
-   den=cache->decay_den;
-#endif
-   e=e+numerator/den;e=(e+1)-1;
-  }
- }
- else if(s->state==3){
-  if(e>=fl(0x3727c5ac)){
-#ifdef CHICAGO_COEF_CACHE_REFERENCE
-   float den=ref_fma(fourth(c[3]),25,fl(0x3b03126f))*44100.0f;
-   e=e*(1.0f-(float)D/den);
-#else
-   uint32_t bits=cv_bits(c[3]);
-   if(!cache->release_valid||cache->release_bits!=bits){
-    cache->release_den=ref_fma(fourth(c[3]),25,fl(0x3b03126f))*44100.0f;
-    cache->release_bits=bits;cache->release_valid=1;cache->release_ratio_valid=0;
-   }
-   if(!cache->release_ratio_valid||cache->release_duration!=D){
-    cache->release_ratio=(float)D/cache->release_den;
-    cache->release_duration=D;cache->release_ratio_valid=1;
-   }
-   e=e*(1.0f-cache->release_ratio);
-#endif
-   e=(e+1)-1;
-  }else{e=0;s->state=6;}
- }
+ if(s->state==0){float numerator=(float)D*(1.2999999523162842f-e),den=44100.0f*ref_fma(fourth(c[0]),13,fl(0x3a83126f));e=e+numerator/den;if(e>=1){e=1;s->state=1;}}
+ else if(s->state==1){if(e<c[2])e=c[2];else {float numerator=(float)D*(c[2]-e),den=ref_fma(fourth(c[1]),25,fl(0x3a83126f))*44100.0f;e=e+numerator/den;e=(e+1)-1;}}
+ else if(s->state==3){if(e>=fl(0x3727c5ac)){float den=ref_fma(fourth(c[3]),25,fl(0x3b03126f))*44100.0f;e=e*(1.0f-(float)D/den);e=(e+1)-1;}else{e=0;s->state=6;}}
  s->level=e;
 }
 static void stage(original_ramp *r,float target,float reciprocal){r->target=target;r->delta=(target-r->current)*reciprocal;}
+static float advance(original_ramp *r){float next=r->current+r->delta;if((r->delta>0)!=(r->target>next))next=r->target;r->current=next;return next;}
 /* Chicago uses raw voice10 in MP4 tracking, including selector-generated>127.
  * Preserve native arithmetic instead of imposing the older helper's MIDI bound.
  * The accepted immutable packed reader and sample recurrence stay unchanged. */
@@ -194,17 +73,7 @@ static int mp4_prepare(original_chicago_voice *s,const original_chicago_voice_co
 static int pitch_prepare(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,uint32_t D,uint32_t increment[4]){
  const original_chicago_voice_pitch_controls *p=&c->pitch;
  float common=p->master_tune+0.0f;common=ref_fma(s->unison_coordinate,p->unison_detune,common);common=ref_fma(0,48,common);common=common+(float)p->transpose;common=ref_fma(p->bend_range,c->routing.bend_bipolar,common);
- float alpha;
-#ifdef CHICAGO_COEF_CACHE_REFERENCE
- float porta=clamp(p->portamento+0.0f,0,1);alpha=porta*porta;alpha=ref_fma(alpha,fl(0x49f42400),fl(0x3a83126f));alpha=44100.0f*alpha;alpha=(float)D/alpha;alpha=alpha*fl(0x4a8ab75d);if(alpha>1)alpha=1;
-#else
- original_chicago_voice_glide_coefficients *cache=&s->coefficients.glide;
- uint32_t bits=cv_bits(p->portamento);
- if(!cache->valid||cache->portamento_bits!=bits||cache->duration!=D){
-  float porta=clamp(p->portamento+0.0f,0,1);alpha=porta*porta;alpha=ref_fma(alpha,fl(0x49f42400),fl(0x3a83126f));alpha=44100.0f*alpha;alpha=(float)D/alpha;alpha=alpha*fl(0x4a8ab75d);if(alpha>1)alpha=1;
-  cache->alpha=alpha;cache->portamento_bits=bits;cache->duration=D;cache->valid=1;
- }else alpha=cache->alpha;
-#endif
+ float porta=clamp(p->portamento+0.0f,0,1),alpha=porta*porta;alpha=ref_fma(alpha,fl(0x49f42400),fl(0x3a83126f));alpha=44100.0f*alpha;alpha=(float)D/alpha;alpha=alpha*fl(0x4a8ab75d);if(alpha>1)alpha=1;
  float detune=clamp(p->detune+0.0f,0,1)*.3499999940395355f;
  for(unsigned i=0;i<4;i++){
   s->pitch.current[i]=ref_fma(s->pitch.target[i]-s->pitch.current[i],alpha,s->pitch.current[i]);
@@ -246,8 +115,8 @@ int original_chicago_voice_control_admitted(original_chicago_voice *s,const orig
  uint32_t D=0;int due=original_control_tick(&s->counter,44100,&D);if(due<0)return 0;if(!due)return 1;
  s->previous_vcf=s->vcf.level;s->previous_vca=s->vca.level;s->previous_mg[0]=s->mg[0].bipolar;s->previous_mg[1]=s->mg[1].bipolar;
  s->mod_cutoff=clamp(s->previous_vcf*c->patch_cutoff+0.0f,-1,1);s->mod_gain=clamp(s->keyboard_source*c->patch_gain+0.0f,-1,1);s->mod_slave=clamp(s->previous_vca*c->patch_slave+0.0f,-1,1);
- for(unsigned i=0;i<2;i++)if(!mg_output(&s->mg[i],c->mg_shape[i])||!mg_advance(&s->mg[i],&s->coefficients.mg[i],c,i,bpm,D))return 0;
- vcf_tick(s,c->vcf,D);
+ for(unsigned i=0;i<2;i++)if(!mg_output(&s->mg[i],c->mg_shape[i])||!mg_advance(&s->mg[i],c,i,bpm,D))return 0;
+ vcf_tick(&s->vcf,c->vcf,D);
  const float gate[4]={0,0,1,0};const float *eg=c->routing.vca_eg_mode?gate:c->vca;
  if(!original_vca_tick(&s->vca,44100,D,eg[0],eg[1],eg[2],eg[3],action))return 0;
  if(*action){s->active=0;s->vca.level=0;s->vcf.level=0;s->vcf.state=6;
@@ -262,7 +131,7 @@ int original_chicago_voice_control(original_chicago_voice *s,const original_chic
 }
 static int note_valid(const original_chicago_voice_note *n){if(!n||n->raw_note<0||n->raw_note>187||n->velocity>127||n->unison_flag>2||!original_binary32_isfinite(n->tuned_pitch)||!original_binary32_isfinite(n->last_pitch)||!original_binary32_isfinite(n->unison_coordinate))return 0;for(unsigned i=0;i<2;i++)if(!original_binary32_isfinite(n->mg[i].phase)||n->mg[i].phase< -1||n->mg[i].phase>1||!original_binary32_isfinite(n->mg[i].hold))return 0;return 1;}
 static int full_note_mask(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,const original_chicago_voice_note *note,unsigned mask,float bpm){
- original_chicago_voice n=*s;memset(&n.coefficients,0,sizeof n.coefficients);for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.pitch.current[i]=note->last_pitch;n.activation[i]=-1;}
+ original_chicago_voice n=*s;for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.pitch.current[i]=note->last_pitch;n.activation[i]=-1;}
  n.raw_note=note->raw_note;n.raw_velocity=note->velocity;n.velocity=(float)note->velocity/127.0f;n.keyboard_source=((float)note->raw_note-64.0f)*.015625f;n.unison_coordinate=note->unison_coordinate;n.unison_flag=(uint8_t)note->unison_flag;
  for(unsigned i=0;i<2;i++){n.mg[i]=note->mg[i];if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;}
  if(!original_chicago_mp4_init(&n.filter,t->a0,t->e0))return 0;
@@ -275,7 +144,7 @@ int original_chicago_voice_full_note(original_chicago_voice *s,const original_ch
 }
 int original_chicago_voice_partial_note(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,int32_t key,unsigned velocity,float pitch,unsigned mask,float bpm){
  if(!valid(s,c,t,bpm)||!s->active||s->awaiting_restart||s->vca.state==5||key<0||key>187||velocity>127||!original_binary32_isfinite(pitch)||!mask||mask>15)return 0;
- original_chicago_voice n=*s;memset(&n.coefficients,0,sizeof n.coefficients);for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=pitch;n.activation[i]=-1;}
+ original_chicago_voice n=*s;for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=pitch;n.activation[i]=-1;}
  n.raw_note=key;n.raw_velocity=velocity;n.velocity=(float)velocity/127.0f;n.keyboard_source=((float)key-64.0f)*.015625f;n.key_down=1;n.damper_deferred=0;
  for(unsigned i=0;i<2;i++)if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;
  unsigned action;if(!original_chicago_voice_control(&n,c,t,bpm,1,&action))return 0;*s=n;return 1;
@@ -291,20 +160,13 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
  else n.awaiting_restart=1;
  *s=n;return 1;
 }
-int original_chicago_voice_kernel(original_voice_gain *vg,original_oscillators *ph,const original_prepared_oscillators *p,
- original_ramp *noise_gain,uint32_t *noise_state,float vco_gain,original_chicago_mp4 *f,float *left,float *right);
 int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right){
  if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
  if(!s->active){*left=0;*right=0;return 1;}
- return original_chicago_voice_kernel(&s->gain,&s->pitch.oscillator,&s->prepared,&s->noise_gain,&s->noise,c->vco_gain,&s->filter,left,right);
-}
-int original_chicago_voice_span(original_voice_gain *vg,original_oscillators *ph,const original_prepared_oscillators *p,
- original_ramp *noise_gain,uint32_t *noise_state,float vco_gain,original_chicago_mp4 *f,uint32_t *left,uint32_t *right,uint32_t n);
-/* n>=1 frames of render_frame with no control tick due inside. */
-int original_chicago_voice_render_span(original_chicago_voice *s,const original_chicago_voice_controls *c,uint32_t *left,uint32_t *right,uint32_t n){
- if(!s||!c||!left||!right||left==right||!n||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
- if(!s->active){for(uint32_t i=0;i<n;i++)left[i]=right[i]=0;return 1;}
- return original_chicago_voice_span(&s->gain,&s->pitch.oscillator,&s->prepared,&s->noise_gain,&s->noise,c->vco_gain,&s->filter,left,right,n);
+ float mix,filtered;if(!original_voice_gain_oscillator(&s->gain,&s->pitch.oscillator,&s->prepared,1,&mix))return 0;
+ float ng=advance(&s->noise_gain);unsigned choose=(s->noise&0x40000000u)==0;s->noise=(s->noise+s->noise)^(choose?8393u:0);float input=ng*(choose?.5f:-.5f)+mix;input=c->vco_gain*input;
+ if(!original_chicago_mp4_sample(&s->filter,input,&filtered))return 0;
+ return original_voice_gain_stereo(&s->gain,filtered,left,right);
 }
 int original_chicago_voice_sample(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm,float *left,float *right,unsigned *action){
  if(!left||!right||left==right||!action||!valid(s,c,t,bpm)||s->awaiting_restart)return 0;
@@ -329,10 +191,10 @@ int original_chicago_voice_immediate_raw(original_chicago_voice *s,const origina
  if(!action||!valid(s,c,t,bpm)||s->awaiting_restart||full>1||!mask||mask>15||!source_note_valid(note)||!original_binary32_isfinite(note->tuned_pitch))return 0;
  if(full){
   if(s->vca.state!=6||!note_valid(note))return 0;
-  original_chicago_voice n=*s;memset(&n.coefficients,0,sizeof n.coefficients);if(!full_note_mask(&n,c,t,note,mask,bpm))return 0;
+  original_chicago_voice n=*s;if(!full_note_mask(&n,c,t,note,mask,bpm))return 0;
   *s=n;*action=0;return 1;
  }
- original_chicago_voice n=*s;memset(&n.coefficients,0,sizeof n.coefficients);for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.activation[i]=-1;}
+ original_chicago_voice n=*s;for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.activation[i]=-1;}
  original_chicago_voice_sources sources;if(!original_chicago_voice_source_values(note,&sources))return 0;
  n.raw_note=note->raw_note;n.raw_velocity=note->velocity;n.velocity=sources.velocity_unipolar;n.keyboard_source=sources.key_bipolar;n.unison_flag=(uint8_t)note->unison_flag;n.unison_coordinate=note->unison_coordinate;n.key_down=1;n.damper_deferred=0;n.active=1;
  for(unsigned i=0;i<2;i++)if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;

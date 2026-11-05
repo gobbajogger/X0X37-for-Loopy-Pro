@@ -228,7 +228,7 @@ static void chicago_refusals(unsigned type){
  memcpy(&ca.output.fx2,&saved,sizeof saved);
  if(type){
   switch(type){
-   case 4:fa.arena.history[0]=1;break;
+   case 4:fa.history[0]=1;break;
    case 5:fa.state.phaser.history[0][0]=1;break;
    case 10:fa.state.ring.frequency_acc^=32768;break;
    case 18:fa.state.mastercomp.highpass[0]=1;break;

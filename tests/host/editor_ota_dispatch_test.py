@@ -32,13 +32,6 @@ if block.count("ed_service()") != 1 or block.count("ota_service()") != 1:
 # dispatch fixture. Ending at BOARD_SMK37 used to work; boot-screen install
 # commands put the include inside that window and broke the host compile.
 definitions = editor[editor.index("#ifndef ED_MAINTENANCE_ADMIT"):editor.index('#include "boot_screen.h"')]
-# The extracted definitions move into a temporary directory. Keep the wire
-# header bound to the selected source snapshot rather than that directory.
-wire_include = '#include "../../../tools/mboot/session_wire.h"'
-if definitions.count(wire_include) > 1:
-    raise SystemExit("ambiguous editor session wire include")
-wire_header = (SRC / "app/../../../tools/mboot/session_wire.h").resolve()
-definitions = definitions.replace(wire_include, f'#include "{wire_header}"')
 with tempfile.TemporaryDirectory(prefix="editor-ota-dispatch-") as td:
     out = Path(td)
     (out / "editor_service.inc").write_text(service)
