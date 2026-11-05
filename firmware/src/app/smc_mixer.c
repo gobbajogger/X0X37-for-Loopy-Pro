@@ -1669,9 +1669,13 @@ static void smc_button_apply(uint8_t note, int mmc)
         return;
     }
     if (ui.overlay == O_ASK) {
-        if (note == 5 || note == 6)
-            button_tap(note == 5 ? B_SEL : B_HOME);
-        return;
+        if (note == 0x5E) {
+            if (play_answer_question(smc_home_held())) return;
+        } else {
+            if (note == 5 || note == 6)
+                button_tap(note == 5 ? B_SEL : B_HOME);
+            return;
+        }
     }
     /* Button navigation stays live while Pause holds fader/knob targets. */
     if (smc_lock_blocks(note)) {
@@ -1748,6 +1752,11 @@ static void smc_button_apply(uint8_t note, int mmc)
             } else if (row == 2)       /* MUTE */
                 mute_part(part);
             else {                     /* SELECT */
+                if (smc_home_held() && !smc.locked && ui.overlay == O_NONE && !ui.help &&
+                    !smk_clip_mode_on() && !project_busy) {
+                    ask_sound_reset(part);
+                    return;
+                }
                 int repeat_drum = part < NKIT && ui.part == part && ui.overlay == O_NONE;
                 smc_select_part(part);
                 smc_view(repeat_drum ? V_MIX : V_PART, repeat_drum ? part + 1 : -1);
@@ -1837,7 +1846,8 @@ static void smc_button(uint8_t note, int mmc)
     char saved[sizeof ui.msg];
     uint32_t until = ui.msg_until;
     int kit = smc_drum_mix();
-    int action = !smc_lock_blocks(note) && (note == 0x5Du || note == 0x5Eu || note == 0x5Fu ||
+    int answering_play = ui.overlay == O_ASK && note == 0x5Eu;
+    int action = !answering_play && !smc_lock_blocks(note) && (note == 0x5Du || note == 0x5Eu || note == 0x5Fu ||
         (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :
             (((note & 7u) < NPARTS && note != 14u) || note >= 16u))));
     memcpy(saved, ui.msg, sizeof saved);
@@ -2053,8 +2063,13 @@ static void smc_poll_peer(void)
     }
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
-        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
-        memset(smc.held, 0, sizeof smc.held);
+        smc.lock_down = 0; /* a question cancels a pending hold-to-unlock */
+        /* A question parks edits, not physical PLAY/HOME ownership. Retain
+         * press edges so HOME+PLAY stays redo and held PLAY cannot retoggle. */
+        if (!allow) {
+            smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+            memset(smc.held, 0, sizeof smc.held);
+        }
         smc_fx_clear();
         smc.picked = smc.seen = 0;
         smc.knob_i = 0;
