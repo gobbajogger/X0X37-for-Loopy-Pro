@@ -1,6 +1,6 @@
 # Evidence, continuation and receiver consumption
 
-Apply the [current workflow](../../../../docs/rules/workflow.md). Keep the original
+Apply the [current workflow](../../../../RULES.md). Keep the original
 request/outcome, existing owner, exact inputs, owned paths, current permission,
 checks and requested completion criterion. Git and the approved coordination flow
 carry durable evidence; a chat claim is not remote delivery.
