@@ -24,7 +24,10 @@ build capability, and a workflow mode grants no device access.
 
 Use **meaningful stages**, with parallel subagents for disjoint ready work within
 verified capacity. The owner's 2026-11-03 clarification requires new stage threads
-and an end-of-stage handoff, not a fresh thread for every task. Complete the
+and an end-of-stage handoff, not a fresh thread for every task. Docs-only and rules
+typo fixes may finish inside the current Docs or QA stage; open a new stage thread
+only when the stage boundary or owner changes (the documentation review rules
+below still apply). Complete the
 current stage's necessary work and proof together. At its boundary, preserve exact
 inputs, results, owned paths, next owner/action and supported result reader; release
 the old writer before the receiver writes. Verify actual receiver consumption.
