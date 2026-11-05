@@ -1,0 +1,8 @@
+{
+  "reviewer": "/root/review_perf_recut",
+  "scope": "Four own tip patches recut onto a06; no source edits by reviewer",
+  "result": "PASS: no blocking firmware defect found",
+  "resolved_finding": "USB test now covers detach and usb.up cancellation during pending reset, stale attach rejection, one-second retry gate and fresh-reset recovery",
+  "verification": "Parent ran full host suite 336 PASS, 0 FAIL, 0 SKIP, 0 NOT_RUN; four native baseline/candidate Elite/Pro builds PASS; mutation output inspected for actual mismatches",
+  "limitations": "Read-only source review; no hardware cycle, device, release or formal GitHub approval claim"
+}

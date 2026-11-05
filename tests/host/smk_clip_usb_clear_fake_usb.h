@@ -6,6 +6,10 @@
 #pragma once
 #include <stdint.h>
 #define FM1_INLINE static inline
+#ifndef FM1_TICKS_PER_US
+#define FM1_TICKS_PER_US 24u
+#endif
+static uint32_t fm1_ticks(void) { return 0; }
 static uint8_t fake_reg[8][32];         /* [INDEX][register]; registers below 16 use INDEX 0 */
 static uint32_t fake_rd_r, fake_index;
 static uint16_t fake_frame;             /* SOF frame number: it moves while a host is there */

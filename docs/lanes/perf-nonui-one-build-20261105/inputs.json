@@ -1,0 +1,34 @@
+{
+  "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+  "sdk_archive_sha256": "4c8e0e0aa68b0c780d3316925f6ada2854fdbb0839894b9a4f513bbc64783b2a",
+  "sdk_tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_checked_files": 11,
+  "refs": {
+    "schwung-9W9": {
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "tree": "2a32b748456d4f162010932771f2ca26fc5d34d6"
+    },
+    "schwung-8W8": {
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "tree": "a042961b65cb420bd1555de3cd93cbb7c807652f"
+    },
+    "schwung-tb3po": {
+      "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "tree": "2d87c9ef8a0fe1fca4b0af524e8939fbdf6fb904"
+    }
+  },
+  "original_inputs_manifest_sha256": "9c7ac9b0a71e775fb7009e2d4035fce827b2c56c4e8e692a7a8910c9c6c881bc",
+  "original_inputs_result": "PASS",
+  "host_clang": {
+    "version": "Debian clang 19.1.7 (3+b1)",
+    "setup": "Signed Debian snapshot apt index; packages extracted under work, no system installation",
+    "packages": {
+      "libclang-rt-19-dev_1%3a19.1.7-3+b1_amd64.deb": "0c03a0a8fa37228e2de6c36d02ff0806643885c515a8137d1bcd22e248497cd6",
+      "clang-19_1%3a19.1.7-3+b1_amd64.deb": "bbb74458d782b7792b61b0eed92746df5e6d033778c045cf8c2b3835b7c4efc4",
+      "libclang-cpp19_1%3a19.1.7-3+b1_amd64.deb": "a7d2b6df51050834f6ea5c0d5e34869c2298b0bcdaa91eff17ba3db2cd545c47",
+      "llvm-19-linker-tools_1%3a19.1.7-3+b1_amd64.deb": "874a0a5cde797cda3e94e9310a0a9958608f526f177637414a8ce9620c804818",
+      "libclang-common-19-dev_1%3a19.1.7-3+b1_amd64.deb": "4018e40e2d4144fe38c45822e68cca63c1bf6c7872c3073ebb262ad4b2f9b8bc"
+    }
+  }
+}
