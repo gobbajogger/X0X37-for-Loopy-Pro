@@ -89,8 +89,18 @@ static void reset_priority(void)
     open_reset(PART_909);
     CHECK(ui.overlay != O_ASK);
     setup(V_FX, PART_909);
-    open_reset(PART_909);
+    /* This base's controller R7 navigates HOME immediately. Use the physical
+     * HOME modifier to exercise the existing FX route while FX still owns it. */
+    int note = 24 + part_position(PART_909);
+    int bus = smc_fx_bus_now((uint8_t)note);
+    CHECK(bus >= 0);
+    smc_fx_publish(); /* establish the default assignment before computing its successor */
+    uint8_t effect = smcfx_cycle(bus, smc.fx_effect[bus]);
+    held_btn = 1u << B_HOME;
+    message(0x90, note, 127); message(0x90, note, 0);
+    held_btn = 0;
     CHECK(ui.overlay != O_ASK);
+    CHECK(smc.fx_effect[bus] == effect);
     setup(V_HOME, PART_909);
     CHECK(smc_lock_toggle());
     open_reset(PART_909);
