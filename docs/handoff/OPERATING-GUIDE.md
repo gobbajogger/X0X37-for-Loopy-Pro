@@ -44,8 +44,8 @@ Note: Merge Integrator used to ask for owner approval in its own chat before mer
 ## 4. Roles and routing
 
 - **ChatGPT Orchestrator** (LoopyX0X37 project) does coordination only: plans, handoffs, QA and merge-readiness. It is never a builder. It cannot start Codex tasks or threads.
-- **Builders** are new Codex tasks or threads (owner decision 2026-11-06). Use GPT-6 at Extra High. Never use GPT-5.6. Use Pro only for really hard builder tasks.
-- Send bigger tasks to the ChatGPT Orchestrator. If it is busy, start a new Codex task or thread at Extra High.
+- **Builders** are new Codex tasks or threads (owner decision 2026-11-06). Use GPT-6. Never use GPT-5.6. Use Pro only for really hard builder tasks.
+- Send bigger tasks to the ChatGPT Orchestrator. If it is busy, start a new Codex task or thread.
 - Start a new thread for each stage: plan, build, QA, fix, test.
 - Before you tell the owner something is missing, ask the ChatGPT Orchestrator to check its files.
 - **Grok helper bots:** PR Babysitter, Merge Integrator, Firmware Main Builder, Second Builder, Build and Test Runner, Docs Keeper, Release Packager, Test Plan Writer, BugBot, Firmware Q&A.
