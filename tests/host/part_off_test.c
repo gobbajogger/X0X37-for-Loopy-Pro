@@ -593,23 +593,46 @@ static void t_store(void)
     }
     end();
     begin("file_word28_bit_errors_refused");
-    {   /* every 1- and 2-bit error of word 28, for every mask 0-31: refused (-1), staged and live unchanged */
+    {   /* every 1..4-bit error of word 28, for every mask 0-31: refused (-1), staged and live unchanged.
+         * Exhaustive over C(32,d) positions (x0x.h: every 1-4 bit error in the word is refused). Distances
+         * 3 and 4 add C(32,3)+C(32,4) = 40920 words per mask; OFF_OK fails before the payload CRC. */
         uint8_t h[PROJECT_FILE_HDR];
-        unsigned bad = 0;
+        unsigned bad = 0, checked = 0;
         set_off(0);
         project_capture_stage();
         project_file_header(h);
         for (unsigned m = 0; m < 32; m++) {
             uint32_t w = PROJ_FILE_OFF_WORD(m);
-            for (unsigned i = 0; i < 32; i++)
-                for (unsigned j = i; j < 32; j++) {
-                    put32(h + 28, w ^ (1u << i) ^ (i == j ? 0u : 1u << j));
+            unsigned i, j, k, l;
+            for (i = 0; i < 32; i++) {                         /* distance 1 */
+                put32(h + 28, w ^ (1u << i));
+                part_off_staged = 0x0Au;
+                if (project_file_validate(h) != -1 || part_off_staged != 0x0Au || live_mask() != 0u) bad++;
+                checked++;
+            }
+            for (i = 0; i < 32; i++) for (j = i + 1; j < 32; j++) {  /* distance 2 */
+                put32(h + 28, w ^ (1u << i) ^ (1u << j));
+                part_off_staged = 0x0Au;
+                if (project_file_validate(h) != -1 || part_off_staged != 0x0Au || live_mask() != 0u) bad++;
+                checked++;
+            }
+            for (i = 0; i < 32; i++) for (j = i + 1; j < 32; j++) for (k = j + 1; k < 32; k++) {  /* distance 3 */
+                put32(h + 28, w ^ (1u << i) ^ (1u << j) ^ (1u << k));
+                part_off_staged = 0x0Au;
+                if (project_file_validate(h) != -1 || part_off_staged != 0x0Au || live_mask() != 0u) bad++;
+                checked++;
+            }
+            for (i = 0; i < 32; i++) for (j = i + 1; j < 32; j++)
+                for (k = j + 1; k < 32; k++) for (l = k + 1; l < 32; l++) {  /* distance 4 */
+                    put32(h + 28, w ^ (1u << i) ^ (1u << j) ^ (1u << k) ^ (1u << l));
                     part_off_staged = 0x0Au;
                     if (project_file_validate(h) != -1 || part_off_staged != 0x0Au || live_mask() != 0u) bad++;
+                    checked++;
                 }
         }
-        if (bad) printf("    %u accepted bit errors\n", bad);
-        CHECK(bad == 0);
+        if (bad) printf("    %u accepted bit errors (of %u checked)\n", bad, checked);
+        else printf("    refused all %u errors at distances 1-4\n", checked);
+        CHECK(bad == 0 && checked == 1326336u);  /* 32 * (C(32,1)+C(32,2)+C(32,3)+C(32,4)) */
     }
     end();
     begin("file_validate_crc_fail_keeps_staged");

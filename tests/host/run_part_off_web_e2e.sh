@@ -1,7 +1,8 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
 # M7a end to end firmware -> web: build the whole host app with tests/host/part_off_web_e2e.c, export the .x0x
-# project for every part OFF mask, then run tests/host/part_off_web_e2e.mjs (real web parseProject) on it.
+# project for every part OFF mask (and cross-check web-built word 28 via project_file_validate), then run
+# tests/host/part_off_web_e2e.mjs (real web parseProject + agreement with fw_validate.txt) on it.
 #   SAN_FLAGS="-fsanitize=address,undefined"  sanitizer build. No node: FAIL (exit 1); D6 forbids false-green NOT_RUN.
 set -eu
 cd "$(dirname "$0")/../.."
@@ -15,4 +16,7 @@ ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -w -DX0X_HOST -D_POSIX_C_SOURCE=2008
     -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen \
     tests/host/part_off_web_e2e.c $ORIGINAL_FLAGS $ORIGINAL_SOURCES -lm -o "$OUT/export"
 "$OUT/export" "$OUT/files" >"$OUT/export.log"
+cat "$OUT/export.log"
+# C harness prints PASS/FAIL and exits non-zero on its cross-checks; keep that failure.
+grep -q '^part_off_web_e2e_fw: ok' "$OUT/export.log" || { echo "  FAIL part_off_web_e2e (firmware validate cross-check)"; exit 1; }
 node tests/host/part_off_web_e2e.mjs "$OUT/files"
