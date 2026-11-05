@@ -4390,7 +4390,13 @@ _Static_assert(HDR_H <= CV_ROWS, "header taller than the screen strip");
 _Static_assert(HDR_H + 2u * BAND_H + KNOB_H == 240u, "the three strips must tile the 240-row panel");
 #endif
 
+#include "lcd_tiles.h"
+/* A pixel DMA always uses a dedicated, bounded .bss buffer, never cv_px.
+ * Pool capacity is unchanged (0.0.24.1 has only 136 bytes above its pool gate).
+ * 48 x 16 x RGB565 = 1536 bytes, 1.024 ms at the SMK-37's 12 MHz SPI. */
+static uint16_t cv_lcd_txbuf[X0X_LCD_MAX_DMA_BYTES / 2u];
 static uint32_t blit_hash[4];
+static uint8_t cv_tile_valid[4];
 static uint32_t cv_hash(void)
 {
     uint32_t i, h = 2166136261u, n = cv_w * cv_h;
@@ -4398,91 +4404,79 @@ static uint32_t cv_hash(void)
         h = (h ^ cv_px[i]) * 16777619u;
     return h ^ (cv_w << 16) ^ cv_h;
 }
+#if BOARD_SMK37 && !defined(X0X_HOST)
+void smk_ck_poll(void);                     /* clip keybed's MIDI note/arp service in main_fm1.c */
+#endif
+static void cv_lcd_input(void)
+{
+#if X0X_LCD_TRACE
+    lcd_trace_dispatch();
+#endif
+    input();                                /* exact normal key/MIDI input path, preserving queue order */
+    division_pad_input();
+#if BOARD_SMK37 && !defined(X0X_HOST)
+    smk_ck_poll();                          /* clip-mode notes must not wait for the screen */
+#endif
+}
+typedef struct { uint32_t x, y; } cv_lcd_pos_t;
+static void cv_lcd_emit(void *context, const uint16_t *px, uint32_t stride,
+                         uint32_t x, uint32_t y, uint32_t w, uint32_t h)
+{
+    const cv_lcd_pos_t *pos = (const cv_lcd_pos_t *)context;
+    /* The previous DMA can still read cv_lcd_txbuf: never overwrite it early.
+     * This wait is bounded by the previous <=1536-byte pixel transfer. */
+    lcd_sync();
+    x0x_lcd_tile_pack(cv_lcd_txbuf, px, stride, x, y, w, h);
+    lcd_blit(pos->x + x, pos->y + y, w, h, cv_lcd_txbuf);
+    cv_lcd_input();                         /* run while this bounded DMA is active */
+}
+static void cv_lcd_full(uint32_t x, uint32_t y)
+{
+    cv_lcd_pos_t pos = {x, y};
+    uint32_t row, col;
+    const uint32_t chunk_w = X0X_LCD_TILE_W * X0X_LCD_MAX_COLS_PER_DMA;
+    for (row = 0; row < cv_h; row += X0X_LCD_TILE_H) {
+        uint32_t h = cv_h - row < X0X_LCD_TILE_H ? cv_h - row : X0X_LCD_TILE_H;
+        for (col = 0; col < cv_w; col += chunk_w) {
+            uint32_t w = cv_w - col < chunk_w ? cv_w - col : chunk_w;
+            cv_lcd_emit(&pos, cv_px, cv_w, col, row, w, h);
+        }
+    }
+}
 static void cv_commit(int region, uint32_t x, uint32_t y)
 {
     uint32_t h = cv_hash();
     if (h != blit_hash[region]) {
         blit_hash[region] = h;
-        cv_blit(x, y);
+        cv_tile_valid[region] = 0;          /* next tiled owner must repaint after a whole-strip owner */
+        cv_lcd_full(x, y);
     }
 }
 
-/* the main area sends only the rectangle that changed: the panel has no tearing-effect line the
- * FM-1 can see, so a transfer the panel's refresh overtakes shows half old, half new. The whole
- * area is 69 KB, 18 ms at 30 MHz, longer than a refresh, so every playhead step sheared; the two
- * columns a step changes are ~3 ms. Rows and 8-pixel column blocks are hashed against the last
- * frame sent; the changed rectangle is packed to the front of the canvas (it is rebuilt every
- * frame) and sent as one transfer. blit_hash[region] == 0 (a reset) sends it all. */
+/* Hash 16x16 tiles, not the cross product of all changed rows and columns.
+ * Adjacent changed tiles are grouped up to 48 pixels wide. Scattered playheads
+ * stay separate, and no single display operation blocks input for a whole strip. */
 #define MAIN_ROWS (2 * BAND_H)
-#define MAIN_COLB (240 / 8)
-static uint32_t main_rowh[MAIN_ROWS], main_colh[MAIN_COLB];
-static uint32_t knob_rowh[KNOB_H], knob_colh[MAIN_COLB];
-/* rows: the strip's height; last_rowh/last_colh: its hashes as last sent */
-static void cv_commit_rows(int region, uint32_t x, uint32_t y, uint32_t rows, uint32_t *last_rowh, uint32_t *last_colh)
+#define KNOB_ROWS KNOB_H
+#define LCD_TILE_ROWS(n) (((n) + X0X_LCD_TILE_H - 1u) / X0X_LCD_TILE_H)
+static uint32_t main_tileh[LCD_TILE_ROWS(MAIN_ROWS) * X0X_LCD_TILE_COLS];
+static uint32_t knob_tileh[LCD_TILE_ROWS(KNOB_ROWS) * X0X_LCD_TILE_COLS];
+static void cv_commit_rows(int region, uint32_t x, uint32_t y,
+                           uint32_t rows, uint32_t *hashes)
 {
-    uint32_t rowh[MAIN_ROWS], colh[MAIN_COLB], r, c, r0 = rows, r1 = 0, c0 = MAIN_COLB, c1 = 0, w, h, k;
-    for (c = 0; c < MAIN_COLB; c++)
-        colh[c] = 2166136261u;
-    for (r = 0; r < rows; r++) {
-        const uint16_t *q = cv_px + r * 240u;
-        uint32_t hr = 2166136261u;
-        for (c = 0; c < MAIN_COLB; c++) {
-            uint32_t hc = colh[c];
-            for (k = 0; k < 8u; k++) {
-                hr = (hr ^ q[k]) * 16777619u;
-                hc = (hc ^ q[k]) * 16777619u;
-            }
-            colh[c] = hc;
-            q += 8;
-        }
-        rowh[r] = hr;
-    }
-    if (!blit_hash[region]) {                         /* after a reset: all of it */
-        r0 = c0 = 0;
-        r1 = rows - 1;
-        c1 = MAIN_COLB - 1;
-    } else {
-        for (r = 0; r < rows; r++)
-            if (rowh[r] != last_rowh[r]) {
-                if (r0 == rows)
-                    r0 = r;
-                r1 = r;
-            }
-        for (c = 0; c < MAIN_COLB; c++)
-            if (colh[c] != last_colh[c]) {
-                if (c0 == MAIN_COLB)
-                    c0 = c;
-                c1 = c;
-            }
-        if (r0 == rows || c0 == MAIN_COLB)
-            return;                                     /* nothing changed */
-    }
-    blit_hash[region] = 1;
-    for (r = 0; r < rows; r++)
-        last_rowh[r] = rowh[r];
-    for (c = 0; c < MAIN_COLB; c++)
-        last_colh[c] = colh[c];
-    w = (c1 - c0 + 1u) * 8u;
-    h = r1 - r0 + 1u;
-    for (r = 0; r < h; r++) {                         /* pack: the destination never passes the source */
-        const uint16_t *src = cv_px + (r0 + r) * 240u + c0 * 8u;
-        uint16_t *dst = cv_px + r * w;
-        for (k = 0; k < w; k++)
-            dst[k] = src[k];
-    }
-    lcd_blit(x + c0 * 8u, y + r0, w, h, cv_px);
+    cv_lcd_pos_t pos = {x, y};
+    int force = !blit_hash[region] || !cv_tile_valid[region];
+    blit_hash[region] = 1u;
+    cv_tile_valid[region] = 1u;
+    x0x_lcd_tile_commit(cv_px, rows, hashes, force, cv_lcd_emit, &pos);
 }
 static void cv_commit_rect(int region, uint32_t x, uint32_t y)
 {
-    cv_commit_rows(region, x, y, MAIN_ROWS, main_rowh, main_colh);
+    cv_commit_rows(region, x, y, MAIN_ROWS, main_tileh);
 }
-/* The knob strip (82 rows, 39 KB) took 26 ms of SPI at the SMK-37's 12 MHz whenever any pixel
- * of it moved, and its live glyphs (ADSR playhead, wobble, glide, ENV knee, voice meters) move
- * every frame while a synth plays. The main loop polls the keys only between frames, so in
- * Free Play each key waited behind that transfer. Send only the changed rectangle, as above. */
 static void cv_commit_knobs(int region)
 {
-    cv_commit_rows(region, 0, KNOB_Y, KNOB_H, knob_rowh, knob_colh);
+    cv_commit_rows(region, 0, KNOB_Y, KNOB_ROWS, knob_tileh);
 }
 
 static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
@@ -5896,6 +5890,25 @@ static UI_DRAW void draw_perf(int band)
     static const char *const SN_TAIL[ENG_PROF_N - NPARTS] = {"FX", "MASTER", "SEQ"};
     char t[40], *q;
     int k;
+#if X0X_LCD_TRACE && !defined(X0X_HOST)
+    /* Development trace readout: last 64 samples, P50/P95/worst in microseconds.
+     * The ordinary PERF display is byte-for-byte unchanged in default builds. */
+    if (band && perf.test < 0) {
+        static const char *const names[LCD_T_COUNT] = {"KEY", "MIDI", "LCD", "FRAME", "TMR5", "AUDIO"};
+        for (int n = 0; n < LCD_T_COUNT; ++n) {
+            q = put_s(t, names[n]); q = put_s(q, " ");
+            q = put_i(q, (int)lcd_trace_percentile((unsigned)n, 50));
+            q = put_s(q, "/");
+            q = put_i(q, (int)lcd_trace_percentile((unsigned)n, 95));
+            q = put_s(q, "/");
+            put_i(q, (int)lcd_trace_hist[n].worst);
+            cv_text(4, 1 + n * 10, &FONT_T, t, C_GRAY);
+        }
+        put_i(put_s(t, "LCD B/FRAME "), (int)lcd_trace_last_frame_bytes);
+        cv_text(4, 61, &FONT_T, t, C_DIM);
+        return;
+    }
+#endif
     if (band == 0) {
         q = put_s(t, "CLOCK ");
         if (perf.mhz10) {
@@ -8157,8 +8170,10 @@ X0X_COLD void ui_init(void)
     ui.save_failed = 0;
     save_wait = 0;
     palette_set(proj.set.palette);
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++) {
         blit_hash[i] = 0;
+        cv_tile_valid[i] = 0;
+    }
     build_pages();
     undo_start();                                   /* the project as loaded is where undo stops */
     if (project_storage_unsupported()) {
