@@ -56,7 +56,7 @@ static const original_allocator_callbacks callbacks={enabled,vca,state,note};
 const original_allocator_callbacks *original_miami_voice_owner_callbacks(void){return &callbacks;}
 int original_miami_voice_owner_bind(original_miami_voice_owner *s,original_miami_selected_voice *v,original_miami_pending_note *p,original_miami_extra_sources *e,unsigned count,original_miami_allocator *a,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_note_producers *producer,float bpm){
  if(!s||!v||!p||!e||!count||!a||count!=a->storage_voices||!c||!t||!producer||!producer->tune||!producer->full_mg||!producer->full_helper_seed||!producer->helper_exit||!original_binary32_isfinite(bpm)||bpm<20||bpm>400)return 0;
- *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1,{0}};return 1;
+ *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1,{.base_bits={0}}};return 1;
 }
 void original_miami_voice_owner_invalidate_caches(original_miami_voice_owner *s){
  if(!s)return;
