@@ -211,7 +211,7 @@ __attribute__((noinline)) static float soft_ceiling(float s)
 
 
 /* Compressor/pump gain advance after ms is updated — one body for mono + stereo. */
-__attribute__((noinline)) static void comp_tick(master_t *m, float *grmax)
+__attribute__((noinline)) static void comp_tick(master_t *m, float *grmax, float att_in, float rel_in, float pump_in)
 {
     float lv, want, total;
     if (m->cr == 0) {                                /* the static curve, every MST_CR samples */
@@ -219,10 +219,10 @@ __attribute__((noinline)) static void comp_tick(master_t *m, float *grmax)
         m->want = (lv > 1e-12f && m->slope > 0.0f) ? gr_of(m, 3.0103f * fm_log2f(lv)) : 0.0f;
     }
     want = m->want;
-    m->gr = want > m->gr ? m->a_att * m->gr + (1.0f - m->a_att) * want
-                         : m->a_rel * m->gr + (1.0f - m->a_rel) * want;
+    m->gr = want > m->gr ? m->a_att * m->gr + att_in * want
+                         : m->a_rel * m->gr + rel_in * want;
     if (m->pump_tgt > m->pump) {                     /* PUMP: rise to the kick's depth ... */
-        m->pump = m->a_pump * m->pump + (1.0f - m->a_pump) * m->pump_tgt;
+        m->pump = m->a_pump * m->pump + pump_in * m->pump_tgt;
         if (m->pump_tgt - m->pump < 0.05f)
             m->pump_tgt = 0.0f;                      /* ... then let go: the release swells back */
     } else {
@@ -245,8 +245,8 @@ __attribute__((noinline)) static void limit_env(master_t *m, float a)
     if (a >= m->env) {
         m->env = a;
         m->hold = MST_LA;
-        float r = 1.0f / fm_maxf(a, 0.8f);
-        m->inv_env = a > 0.8f ? r : 0.0f;
+        /* Below the ceiling the reciprocal is discarded, including at silence. */
+        m->inv_env = a > 0.8f ? 1.0f / a : 0.0f;
     } else if (m->hold) {
         m->hold--;
     } else {
@@ -292,17 +292,24 @@ __attribute__((noinline)) static float clamp_pm1(float s)
 
 void master_process(master_t *m, float *x, int n, float volume)
 {
-    int i, mode = m->pot[MST_MODE];
+    int i, mode = m->pot[MST_MODE], comp_on = m->comp_on, limit = m->pot[MST_LIMIT];
     float k = m->k, grmax = 0.0f;
+    float det_in = 0.0f, att_in = 0.0f, rel_in = 0.0f, pump_in = 0.0f;
+    if (comp_on) {
+        det_in = 1.0f - m->a_det;
+        att_in = 1.0f - m->a_att;
+        rel_in = 1.0f - m->a_rel;
+        pump_in = 1.0f - m->a_pump;
+    }
     for (i = 0; i < n; i++) {
         float s = x[i];
-        if (m->comp_on) {
+        if (comp_on) {
             float wet;
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
              * millisecond: audio-rate gain movement, heard as clicks */
-            m->ms = fm_flush(m->a_det * m->ms + (1.0f - m->a_det) * s * s);
-            comp_tick(m, &grmax);
+            m->ms = fm_flush(m->a_det * m->ms + det_in * s * s);
+            comp_tick(m, &grmax, att_in, rel_in, pump_in);
             wet = s * m->g_lin;
             s = s + (wet - s) * m->mix;
         }
@@ -311,7 +318,7 @@ void master_process(master_t *m, float *x, int n, float volume)
             s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
         }
         s *= volume;
-        if (m->pot[MST_LIMIT]) {
+        if (limit) {
             /* look ahead MST_LA samples: a peak is seen when it enters, the gain eases down over the
              * MST_LA samples it takes to come out, and is held for them. (It used to halve the
              * distance every sample: a step in the waveform, a click on every limited kick.) */
@@ -329,20 +336,58 @@ void master_process(master_t *m, float *x, int n, float volume)
     m->gr_view = grmax > m->gr_view ? grmax : m->gr_view * 0.93f;   /* the meter: peak, falling */
 }
 
+/* The default settled stereo chain has no DSP left to do. Require positive
+ * zero bytes so signed-zero output/history is preserved too. Compressor and
+ * filter transitions, volume slew and limiter release use the ordinary loop. */
+static int master_zero_bytes(const void *p, unsigned n)
+{
+    const unsigned char *b = p;
+    for (unsigned i = 0; i < n; ++i) if (b[i]) return 0;
+    return 1;
+}
+
+static int master_settled_zero(master_t *m, const float *l, const float *r, int n, float volume)
+{
+    if (n < 32 || m->comp_on || m->pot[MST_MODE] ||
+        !(volume > 0.0f && volume <= 1.0f) || m->vol_cur != volume)
+        return 0;
+    if (m->pot[MST_LIMIT] &&
+        (m->gain != 1.0f || !master_zero_bytes(&m->env, sizeof m->env) ||
+         !master_zero_bytes(&m->inv_env, sizeof m->inv_env) ||
+         !master_zero_bytes(m->la, sizeof m->la) ||
+         !master_zero_bytes(m->la_r, sizeof m->la_r))) return 0;
+    if (!master_zero_bytes(l, (unsigned)n * sizeof *l) ||
+        !master_zero_bytes(r, (unsigned)n * sizeof *r)) return 0;
+    if (m->pot[MST_LIMIT]) {
+        m->la_pos = (m->la_pos + (n & (MST_LA - 1))) & (MST_LA - 1);
+        m->hold = MST_LA; /* limit_env sees a >= env on every zero sample */
+    }
+    m->gr_view = 0.0f > m->gr_view ? 0.0f : m->gr_view * 0.93f;
+    return 1;
+}
+
 void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
 {
-    int i, mode = m->pot[MST_MODE];
+    if (master_settled_zero(m, xl, xr, n, volume)) return;
+    int i, mode = m->pot[MST_MODE], comp_on = m->comp_on, limit = m->pot[MST_LIMIT];
     float k = m->k, grmax = 0.0f, vc = m->vol_cur < 0.0f ? volume : m->vol_cur;
+    float det_in = 0.0f, att_in = 0.0f, rel_in = 0.0f, pump_in = 0.0f;
+    if (comp_on) {
+        det_in = 1.0f - m->a_det;
+        att_in = 1.0f - m->a_att;
+        rel_in = 1.0f - m->a_rel;
+        pump_in = 1.0f - m->a_pump;
+    }
     for (i = 0; i < n; i++) {
         float s = xl[i], sr = xr[i];
-        if (m->comp_on) {
+        if (comp_on) {
             float wet;
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
              * millisecond: audio-rate gain movement, heard as clicks */
             /* both sides' power, each term as master_process forms it, so l == r gives its value */
-            m->ms = fm_flush(m->a_det * m->ms + 0.5f * ((1.0f - m->a_det) * s * s + (1.0f - m->a_det) * sr * sr));
-            comp_tick(m, &grmax);
+            m->ms = fm_flush(m->a_det * m->ms + 0.5f * (det_in * s * s + det_in * sr * sr));
+            comp_tick(m, &grmax, att_in, rel_in, pump_in);
             wet = s * m->g_lin;
             s = s + (wet - s) * m->mix;
             wet = sr * m->g_lin;
@@ -360,7 +405,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
         }
         s *= vc;
         sr *= vc;
-        if (m->pot[MST_LIMIT]) {
+        if (limit) {
             /* look ahead MST_LA samples: a peak is seen when it enters, the gain eases down over the
              * MST_LA samples it takes to come out, and is held for them. (It used to halve the
              * distance every sample: a step in the waveform, a click on every limited kick.) */

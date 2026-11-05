@@ -64,16 +64,75 @@ int original_sound_factory_source(unsigned kind, unsigned factory)
 }
 const char *original_sound_fx_name(unsigned choice)
 { return choice < ORIGINAL_CHICAGO_FX_CHOICES ? original_sound_fx_names[choice] : 0; }
+/* Exact binary32 results of the old control-byte divisions (816 rodata bytes).
+ * No runtime cache: untouched factory floats still bypass this conversion. */
+static const float original_sound_unit_value[128] = {
+    0x0.0p+0f, 0x1.0204080000000p-7f, 0x1.0204080000000p-6f, 0x1.83060c0000000p-6f,
+    0x1.0204080000000p-5f, 0x1.42850a0000000p-5f, 0x1.83060c0000000p-5f, 0x1.c3870e0000000p-5f,
+    0x1.0204080000000p-4f, 0x1.22448a0000000p-4f, 0x1.42850a0000000p-4f, 0x1.62c58c0000000p-4f,
+    0x1.83060c0000000p-4f, 0x1.a3468e0000000p-4f, 0x1.c3870e0000000p-4f, 0x1.e3c7900000000p-4f,
+    0x1.0204080000000p-3f, 0x1.1224480000000p-3f, 0x1.22448a0000000p-3f, 0x1.3264ca0000000p-3f,
+    0x1.42850a0000000p-3f, 0x1.52a54a0000000p-3f, 0x1.62c58c0000000p-3f, 0x1.72e5cc0000000p-3f,
+    0x1.83060c0000000p-3f, 0x1.93264c0000000p-3f, 0x1.a3468e0000000p-3f, 0x1.b366ce0000000p-3f,
+    0x1.c3870e0000000p-3f, 0x1.d3a74e0000000p-3f, 0x1.e3c7900000000p-3f, 0x1.f3e7d00000000p-3f,
+    0x1.0204080000000p-2f, 0x1.0a14280000000p-2f, 0x1.1224480000000p-2f, 0x1.1a34680000000p-2f,
+    0x1.22448a0000000p-2f, 0x1.2a54aa0000000p-2f, 0x1.3264ca0000000p-2f, 0x1.3a74ea0000000p-2f,
+    0x1.42850a0000000p-2f, 0x1.4a952a0000000p-2f, 0x1.52a54a0000000p-2f, 0x1.5ab56a0000000p-2f,
+    0x1.62c58c0000000p-2f, 0x1.6ad5ac0000000p-2f, 0x1.72e5cc0000000p-2f, 0x1.7af5ec0000000p-2f,
+    0x1.83060c0000000p-2f, 0x1.8b162c0000000p-2f, 0x1.93264c0000000p-2f, 0x1.9b366c0000000p-2f,
+    0x1.a3468e0000000p-2f, 0x1.ab56ae0000000p-2f, 0x1.b366ce0000000p-2f, 0x1.bb76ee0000000p-2f,
+    0x1.c3870e0000000p-2f, 0x1.cb972e0000000p-2f, 0x1.d3a74e0000000p-2f, 0x1.dbb76e0000000p-2f,
+    0x1.e3c7900000000p-2f, 0x1.ebd7b00000000p-2f, 0x1.f3e7d00000000p-2f, 0x1.fbf7f00000000p-2f,
+    0x1.0204080000000p-1f, 0x1.060c180000000p-1f, 0x1.0a14280000000p-1f, 0x1.0e1c380000000p-1f,
+    0x1.1224480000000p-1f, 0x1.162c580000000p-1f, 0x1.1a34680000000p-1f, 0x1.1e3c780000000p-1f,
+    0x1.22448a0000000p-1f, 0x1.264c9a0000000p-1f, 0x1.2a54aa0000000p-1f, 0x1.2e5cba0000000p-1f,
+    0x1.3264ca0000000p-1f, 0x1.366cda0000000p-1f, 0x1.3a74ea0000000p-1f, 0x1.3e7cfa0000000p-1f,
+    0x1.42850a0000000p-1f, 0x1.468d1a0000000p-1f, 0x1.4a952a0000000p-1f, 0x1.4e9d3a0000000p-1f,
+    0x1.52a54a0000000p-1f, 0x1.56ad5a0000000p-1f, 0x1.5ab56a0000000p-1f, 0x1.5ebd7a0000000p-1f,
+    0x1.62c58c0000000p-1f, 0x1.66cd9c0000000p-1f, 0x1.6ad5ac0000000p-1f, 0x1.6eddbc0000000p-1f,
+    0x1.72e5cc0000000p-1f, 0x1.76eddc0000000p-1f, 0x1.7af5ec0000000p-1f, 0x1.7efdfc0000000p-1f,
+    0x1.83060c0000000p-1f, 0x1.870e1c0000000p-1f, 0x1.8b162c0000000p-1f, 0x1.8f1e3c0000000p-1f,
+    0x1.93264c0000000p-1f, 0x1.972e5c0000000p-1f, 0x1.9b366c0000000p-1f, 0x1.9f3e7c0000000p-1f,
+    0x1.a3468e0000000p-1f, 0x1.a74e9e0000000p-1f, 0x1.ab56ae0000000p-1f, 0x1.af5ebe0000000p-1f,
+    0x1.b366ce0000000p-1f, 0x1.b76ede0000000p-1f, 0x1.bb76ee0000000p-1f, 0x1.bf7efe0000000p-1f,
+    0x1.c3870e0000000p-1f, 0x1.c78f1e0000000p-1f, 0x1.cb972e0000000p-1f, 0x1.cf9f3e0000000p-1f,
+    0x1.d3a74e0000000p-1f, 0x1.d7af5e0000000p-1f, 0x1.dbb76e0000000p-1f, 0x1.dfbf7e0000000p-1f,
+    0x1.e3c7900000000p-1f, 0x1.e7cfa00000000p-1f, 0x1.ebd7b00000000p-1f, 0x1.efdfc00000000p-1f,
+    0x1.f3e7d00000000p-1f, 0x1.f7efe00000000p-1f, 0x1.fbf7f00000000p-1f, 0x1.0000000000000p+0f,
+};
+static const float original_sound_upper_value[64] = {
+    0x1.0000000000000p-1f, 0x1.0410420000000p-1f, 0x1.0820820000000p-1f, 0x1.0c30c40000000p-1f,
+    0x1.1041040000000p-1f, 0x1.1451460000000p-1f, 0x1.1861860000000p-1f, 0x1.1c71c80000000p-1f,
+    0x1.2082080000000p-1f, 0x1.24924a0000000p-1f, 0x1.28a28a0000000p-1f, 0x1.2cb2cc0000000p-1f,
+    0x1.30c30c0000000p-1f, 0x1.34d34e0000000p-1f, 0x1.38e38e0000000p-1f, 0x1.3cf3d00000000p-1f,
+    0x1.4104100000000p-1f, 0x1.4514520000000p-1f, 0x1.4924920000000p-1f, 0x1.4d34d40000000p-1f,
+    0x1.5145140000000p-1f, 0x1.5555560000000p-1f, 0x1.5965960000000p-1f, 0x1.5d75d80000000p-1f,
+    0x1.6186180000000p-1f, 0x1.65965a0000000p-1f, 0x1.69a69a0000000p-1f, 0x1.6db6dc0000000p-1f,
+    0x1.71c71c0000000p-1f, 0x1.75d75e0000000p-1f, 0x1.79e79e0000000p-1f, 0x1.7df7e00000000p-1f,
+    0x1.8208200000000p-1f, 0x1.8618620000000p-1f, 0x1.8a28a40000000p-1f, 0x1.8e38e40000000p-1f,
+    0x1.9249240000000p-1f, 0x1.9659660000000p-1f, 0x1.9a69a80000000p-1f, 0x1.9e79e80000000p-1f,
+    0x1.a28a280000000p-1f, 0x1.a69a6a0000000p-1f, 0x1.aaaaac0000000p-1f, 0x1.aebaec0000000p-1f,
+    0x1.b2cb2c0000000p-1f, 0x1.b6db6e0000000p-1f, 0x1.baebb00000000p-1f, 0x1.befbf00000000p-1f,
+    0x1.c30c300000000p-1f, 0x1.c71c720000000p-1f, 0x1.cb2cb40000000p-1f, 0x1.cf3cf40000000p-1f,
+    0x1.d34d340000000p-1f, 0x1.d75d760000000p-1f, 0x1.db6db80000000p-1f, 0x1.df7df80000000p-1f,
+    0x1.e38e380000000p-1f, 0x1.e79e7a0000000p-1f, 0x1.ebaebc0000000p-1f, 0x1.efbefc0000000p-1f,
+    0x1.f3cf3c0000000p-1f, 0x1.f7df7e0000000p-1f, 0x1.fbefc00000000p-1f, 0x1.0000000000000p+0f,
+};
+static const float original_sound_macro_value[12] = {
+    0x0.0p+0f, 0x1.745d180000000p-4f, 0x1.745d180000000p-3f, 0x1.1745d20000000p-2f,
+    0x1.745d180000000p-2f, 0x1.d1745e0000000p-2f, 0x1.1745d20000000p-1f, 0x1.45d1740000000p-1f,
+    0x1.745d180000000p-1f, 0x1.a2e8ba0000000p-1f, 0x1.d1745e0000000p-1f, 0x1.0000000000000p+0f,
+};
 int original_sound_control_value(unsigned kind, unsigned parameter, unsigned control, float *value)
 {
     const x0x_param_t *p = original_sound_param(kind, parameter);
     if (!value || !p || control > p->max) return 0;
     if (kind == ORIGINAL_SOUND_CHICAGO && parameter == ORIGINAL_CHICAGO_FX_TYPE)
-        *value = (float)original_sound_fx_macros[control] / 11.0f;
+        *value = original_sound_macro_value[original_sound_fx_macros[control]];
     else if (original_sound_centered(kind, parameter))
         *value = control < 64u ? (float)control / 128.0f :
-            0.5f + (float)(control - 64u) / 126.0f;
-    else *value = (float)control / 127.0f;
+            original_sound_upper_value[control - 64u];
+    else *value = original_sound_unit_value[control];
     return 1;
 }
 uint32_t original_sound_engine_id(unsigned kind)

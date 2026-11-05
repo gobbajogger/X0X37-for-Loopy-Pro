@@ -55,6 +55,7 @@ static void brk_config_unlock(uint32_t state) { (void)state; }
 #define BRK_FAST_REV_SKIP 1
 #endif
 #include "fastmath.h"
+#include "break_retrigger_lut.h"
 #include "ima_adpcm.h"
 
 /* ---- parameters ------------------------------------------------------------------------- */
@@ -578,7 +579,7 @@ __attribute__((noinline)) static int bank_ticks(const breaks_t *b, int bk) { ret
 /* BB_FIRE_TRIGGER: decide, then sound. forced = transport start / bank switch: slice 0, no retrig */
 static void fire_trigger(breaks_t *b, int bp, int forced)
 {
-    int slice, held, rb, tpt = bank_ticks(b, b->engine_bank), i, n = 0, fired[4];
+    int slice, held, rb, length = b->set[b->engine_bank ? BRK_BLEN : BRK_ALEN] % 6u, i, n = 0, fired[4];
     held = perf_top(&b->perf);
     rb = held >= 0 ? 0 : b->engine_bank;
     if (held < 0 && !breaks_bank(b, rb)->valid && breaks_bank(b, rb ^ 1)->valid)
@@ -610,12 +611,12 @@ static void fire_trigger(breaks_t *b, int bp, int forced)
     b->sub_div = 0;
     if (!forced) {
         static const uint8_t RDIV[4] = {2, 3, 4, 8};
-        float inv_tpb = (float)tpt * (1.0f / 96.0f);       /* 1 / triggers per bar */
         for (i = 0; i < 4; i++) {
-            float pbar = (float)b->set[BRK_R2 + i] * 0.01f, p;
-            if (pbar <= 0.0f)
+            unsigned pot = b->set[BRK_R2 + i];
+            float p;
+            if (!pot)
                 continue;
-            p = pbar >= 1.0f ? 1.0f : 1.0f - fm_powf(1.0f - pbar, inv_tpb);
+            p = brk_retrigger_probability((unsigned)length, pot);
             if (brk_rand(b) < p)
                 fired[n++] = i;
         }

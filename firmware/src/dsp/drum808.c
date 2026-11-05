@@ -1810,7 +1810,7 @@ __attribute__((noinline)) static void voice_stop(drum808_t *d, int l)
 __attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float *buf, int m)
 {
     d8_lane_t *ln = &d->lane[l];
-    float pk = ln->pk;
+    float pk = ln->pk, threshold = pk * D8_TAIL_K;
     int32_t qn = ln->qn;
     float now = 0.0f;
     int i;
@@ -1818,9 +1818,11 @@ __attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float
         float a = buf[i] < 0.0f ? -buf[i] : buf[i];
         if (a > now)
             now = a;
-        if (a > pk)
+        if (a > pk) {
             pk = a;
-        if (a > pk * D8_TAIL_K)
+            threshold = pk * D8_TAIL_K;
+        }
+        if (a > threshold)
             qn = 0;
         else
             qn++;
