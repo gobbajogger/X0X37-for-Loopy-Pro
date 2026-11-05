@@ -12,6 +12,7 @@ static int fails;
 
 static int span_of(int part, int *target, int *voice, int *nvoice, int *tag)
 {
+    *target = 0;
     *voice = 0;
     *nvoice = 1;
     *tag = -1;
@@ -142,6 +143,85 @@ static void no_saved(int part)
     CHECK(undo.n == 0 && undo.cur == 0 && undo.used == 0, "part %d empty path wrote undo", part);
 }
 
+/* One nonzero byte in an otherwise zero part. A 303 tag byte, or parameter
+ * index NPARAMS_MAX-1, is a saved sound and the reset must run. */
+static void one_saved_byte(int part, int tag_byte)
+{
+    sound_t live, factory, snap;
+    uint8_t shadow[sizeof live], mute = 0x77;
+    undo_t undo;
+    uint32_t lo, hi;
+    int target, voice, nvoice, tag, rc;
+    const char *name;
+
+    memset(&live, 0, sizeof live);
+    memset(&factory, 0, sizeof factory);
+    span_of(part, &target, &voice, &nvoice, &tag);
+    if (tag_byte) {
+        name = "bass-tag";
+        live.bass[tag].bytes[BASS_SOUND_TAG_BYTES - 1] = 0x3c;
+        factory.bass[tag].bytes[BASS_SOUND_TAG_BYTES - 1] = 0x91;
+    } else {
+        name = "last-parameter";
+        live.v[target][voice][NPARAMS_MAX - 1] = 0x3c;
+        factory.v[target][voice][NPARAMS_MAX - 1] = 0x91;
+    }
+    paint_mixer(&live, part, 0x21, 0x32, 0x43, 0x54, 0x65);
+    snap = live;
+    undo_init(&undo, &live, shadow, sizeof live);
+    rc = sound_reset_part(&live, &factory, part, &mute, &undo);
+    CHECK(rc == SOUND_RESET_OK, "%s reset status %d", name, rc);
+    CHECK(rc != SOUND_RESET_NO_SAVED, "%s stayed NO_SAVED", name);
+    CHECK(part_is(&live, &factory, part), "%s was not reset", name);
+    CHECK(memcmp(live.v[T_MIX], snap.v[T_MIX], sizeof live.v[T_MIX]) == 0, "%s moved the mixer", name);
+    CHECK(memcmp(live.v[T_FX], snap.v[T_FX], sizeof live.v[T_FX]) == 0, "%s moved fx", name);
+    CHECK(memcmp(live.v[T_MST], snap.v[T_MST], sizeof live.v[T_MST]) == 0, "%s moved master", name);
+    CHECK(mute == 0x77, "%s changed mute", name);
+    CHECK(undo.n == 1 && undo.cur == 1, "%s stored no undo", name);
+    CHECK(undo_undo(&undo, 0, &lo, &hi) == 1, "%s undo failed", name);
+    CHECK(memcmp(&live, &snap, sizeof live) == 0, "%s undo did not restore the single byte", name);
+}
+
+/* A dirty tail past the sound makes the undo diff larger than the pool.
+ * BAD must leave this part as it was. undo.c still clears the pool. */
+static void oversize_undo(int part)
+{
+    enum { GAP = (int)UNDO_GAP + 1, TAIL = (int)UNDO_POOL };
+    struct holder {
+        sound_t sound;
+        uint8_t gap[GAP];
+        uint8_t tail[TAIL];
+    };
+    static struct holder hold, image;
+    static uint8_t shadow_buf[sizeof(struct holder)];
+    sound_t factory;
+    undo_t undo;
+    uint8_t mute = 0x76;
+    int rc;
+
+    memset(&hold, 0x5a, sizeof hold);
+    memset(&factory, 0x11, sizeof factory);
+    paint_part(&hold.sound, part, 0x30);
+    paint_mixer(&hold.sound, part, 0x21, 0x32, 0x43, 0x54, 0x65);
+    undo_init(&undo, &hold, shadow_buf, sizeof hold);
+    memset(hold.tail, 0xa5, sizeof hold.tail);
+    image = hold;
+    rc = sound_reset_part(&hold.sound, &factory, part, &mute, &undo);
+    CHECK(rc == SOUND_RESET_BAD, "part %d oversize diff status %d", part, rc);
+    CHECK(part_is(&hold.sound, &image.sound, part), "part %d oversize diff kept the factory cells", part);
+    CHECK(memcmp(hold.sound.v[T_MIX], image.sound.v[T_MIX], sizeof hold.sound.v[T_MIX]) == 0,
+          "part %d oversize diff changed the mixer", part);
+    CHECK(memcmp(hold.sound.v[T_FX], image.sound.v[T_FX], sizeof hold.sound.v[T_FX]) == 0,
+          "part %d oversize diff changed fx", part);
+    CHECK(memcmp(hold.sound.v[T_MST], image.sound.v[T_MST], sizeof hold.sound.v[T_MST]) == 0,
+          "part %d oversize diff changed master", part);
+    CHECK(mute == 0x76, "part %d oversize diff changed mute", part);
+    CHECK(undo.n == 0 && undo.cur == 0 && undo.used == 0, "part %d oversize diff kept undo history", part);
+    CHECK(hold.tail[0] == 0xa5, "part %d oversize diff rewrote bytes outside the sound", part);
+    CHECK(part_is(&hold.sound, (const sound_t *)shadow_buf, part),
+          "part %d oversize diff left the part pending", part);
+}
+
 static void bad_args(void)
 {
     sound_t live, factory, snap;
@@ -175,6 +255,10 @@ int main(void)
         saved_part(part);
         no_saved(part);
     }
+    one_saved_byte(PART_909, 0);
+    one_saved_byte(PART_303A, 1);
+    oversize_undo(PART_909);
+    oversize_undo(PART_303A);
     bad_args();
     if (fails)
         printf("sound-reset: %d FAILED\n", fails);

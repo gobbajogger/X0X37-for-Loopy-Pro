@@ -10,10 +10,27 @@
  *
  * The write set is those sound cells. Mixer level, pan, reverb send, delay
  * send, cutoff and the mute byte at mixer_mute stay as they are.
+ * mixer_mute is only a null check. Commit mixer edits before this call.
+ * An uncommitted mixer byte in the undo region joins the same undo entry,
+ * and undoing the reset writes that mixer byte back.
+ *
+ * Pass factory and sound as two objects that do not overlap. memcpy copies
+ * the cells, so a shifted alias is undefined. The call returns
+ * SOUND_RESET_BAD when the two pointers are equal.
  *
  * SOUND_RESET_NO_SAVED: every sound cell of the part, including a 303 bass
  * tag, is zero. No saved sound is present. The call leaves the sound, the
  * mixer and the undo pool as they are.
+ *
+ * SOUND_RESET_OK includes a part that already matches factory. The copy
+ * changes nothing, undo_commit adds no entry, and the status is still OK.
+ *
+ * When the diff does not fit the undo pool, undo_commit clears that pool
+ * and returns -1 (the clear lives in undo.c). This call then copies the
+ * part's previous sound cells back into the sound and into the undo
+ * shadow, and returns SOUND_RESET_BAD. The part matches the bytes from
+ * before the call and is not a pending diff. Bytes outside the part stay
+ * as undo.c left them: the pool is empty and that region is the baseline.
  */
 #pragma once
 #include "engine.h"
