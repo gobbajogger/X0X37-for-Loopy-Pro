@@ -58,7 +58,10 @@
     }
   ],
   "headroom": {
-    "app_code_free": {"elite": 38664, "pro": 38680},
+    "app_code_free": {
+      "elite": 38664,
+      "pro": 38680
+    },
     "ram_used": 97328,
     "ram_free": 976,
     "ram_cap": 98304,
@@ -75,7 +78,7 @@
       "pool_free": "PASS",
       "ble_flash": "PASS",
       "ble_ram": "PASS",
-      "note": "Pool free is 8200, which is 8 bytes above 8192."
+      "note": "Pool free is 8200 bytes. The floor is 8192, so the margin is 8 bytes. The sibling build of 490e656c reported the same 8200 bytes free."
     }
   },
   "host_tests": {
@@ -184,5 +187,96 @@
       "reason": "Trees not present. drum909 and drum808 are not-run."
     }
   ],
-  "binaries_committed": false
+  "binaries_committed": false,
+  "sanitizer_rerun": {
+    "label": "sanitizer re-run (compiler-rt installed)",
+    "primary_suite_unchanged": {
+      "ok": 375,
+      "fail": 28,
+      "not_run": 6
+    },
+    "package": "libclang-rt-18-dev",
+    "package_version": "1:18.1.3-1ubuntu1",
+    "first_apt_rc": 100,
+    "first_apt_error": "E: Package 'libclang-rt-18-dev' has no installation candidate",
+    "install_rc": 0,
+    "command": "sh tests/run_tests.sh <14 names>",
+    "duration_s": 128,
+    "rc": 0,
+    "ok": 14,
+    "fail": 0,
+    "not_run": 0,
+    "tests": [
+      {
+        "name": "fastmath-ubsan",
+        "first": "FAIL",
+        "rerun": "ok"
+      },
+      {
+        "name": "original-release-integration",
+        "first": "FAIL",
+        "rerun": "ok"
+      },
+      {
+        "name": "chicago-fx2-inserts",
+        "first": "FAIL",
+        "rerun": "ok"
+      },
+      {
+        "name": "original-sound-cell",
+        "first": "FAIL",
+        "rerun": "ok"
+      },
+      {
+        "name": "freeplay-rate-pads",
+        "first": "FAIL",
+        "rerun": "ok"
+      },
+      {
+        "name": "engine-808-scratch-alias",
+        "first": "FAIL",
+        "rerun": "ok"
+      },
+      {
+        "name": "ble-device-setting-flow",
+        "first": "FAIL",
+        "rerun": "ok"
+      },
+      {
+        "name": "ble-toggle-persistence-gate",
+        "first": "FAIL",
+        "rerun": "ok"
+      },
+      {
+        "name": "smc-ui-bounds",
+        "first": "FAIL",
+        "rerun": "ok"
+      },
+      {
+        "name": "original-stale-release",
+        "first": "FAIL",
+        "rerun": "ok"
+      },
+      {
+        "name": "ble-midi-receive",
+        "first": "NOT_RUN",
+        "rerun": "ok"
+      },
+      {
+        "name": "ble-capture-replay",
+        "first": "NOT_RUN",
+        "rerun": "ok"
+      },
+      {
+        "name": "ble-role-switch",
+        "first": "NOT_RUN",
+        "rerun": "ok"
+      },
+      {
+        "name": "ui-303-entry",
+        "first": "NOT_RUN",
+        "rerun": "ok"
+      }
+    ]
+  }
 }

@@ -336,3 +336,124 @@ duration_s: 1
 rc: 0
 log: /tmp/x0x-evidence-35b72991/logs/package-pro-check.log
 
+===== apt-clang-rt =====
+start_utc: 2026-11-05T10:36:03Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: sudo apt-get install -y libclang-rt-18-dev
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=pro
+  BOARD=smk37
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:36:03Z
+duration_s: 0
+rc: 100
+log: /tmp/x0x-evidence-35b72991/logs/apt-clang-rt.log
+
+===== apt-update =====
+start_utc: 2026-11-05T10:36:34Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: sudo apt-get update
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=pro
+  BOARD=smk37
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:36:35Z
+duration_s: 1
+rc: 0
+log: /tmp/x0x-evidence-35b72991/logs/apt-update.log
+
+===== apt-clang-rt-2 =====
+start_utc: 2026-11-05T10:36:35Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: sudo apt-get install -y libclang-rt-18-dev
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=pro
+  BOARD=smk37
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:36:38Z
+duration_s: 3
+rc: 0
+log: /tmp/x0x-evidence-35b72991/logs/apt-clang-rt-2.log
+
+===== find-asan-rt =====
+start_utc: 2026-11-05T10:36:54Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: bash -c find\ /\ -name\ \"libclang_rt.asan\*\"\ 2\>/dev/null\;\ echo\ ---\;\ find\ /\ -name\ \"libclang_rt.ubsan_standalone\*\"\ 2\>/dev/null
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=pro
+  BOARD=smk37
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:36:54Z
+duration_s: 0
+rc: 1
+log: /tmp/x0x-evidence-35b72991/logs/find-asan-rt.log
+
+===== sanitizer-rerun =====
+start_utc: 2026-11-05T10:37:01Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: sh tests/run_tests.sh fastmath-ubsan original-release-integration chicago-fx2-inserts original-sound-cell freeplay-rate-pads engine-808-scratch-alias ble-device-setting-flow ble-toggle-persistence-gate smc-ui-bounds original-stale-release ble-midi-receive ble-capture-replay ble-role-switch ui-303-entry
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=
+  BOARD=
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:39:09Z
+duration_s: 128
+rc: 0
+log: /tmp/x0x-evidence-35b72991/logs/sanitizer-rerun.log
+
+note: find rc 1 is unreadable directories. The log lists libclang_rt.asan-x86_64.a, libclang_rt.asan_static-x86_64.a, and libclang_rt.ubsan_standalone-x86_64.a. Sanitizer re-run result: all tests passed; ok 14, fail 0, not-run 0.

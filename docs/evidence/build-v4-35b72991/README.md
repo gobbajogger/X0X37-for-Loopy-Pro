@@ -67,7 +67,7 @@ Caps: RAM 98304, pool 344064, pool free at least 8192, BLE flash 65536, BLE RAM 
 | BLE flash | 61552 / 65536 | same image | under the cap |
 | BLE RAM | 26336 / 26368 | same image | under the cap |
 
-Floor verdict: pass. Pool free is 8 bytes above 8192. That is inside the floor, and it is close. Against the `8be16486` reference (app 40904 free, RAM 97312 used and 992 free, pool 335736 used and 8328 free, BLE flash 61552, BLE RAM 26336), this tip uses more app code and 128 more pool bytes. BLE flash and BLE RAM match that reference.
+Floor verdict: pass. Pool free is 8200 bytes. The floor is 8192, so the margin is 8 bytes. The sibling build of `490e656c` reported the same 8200 bytes free. Against the `8be16486` reference (app 40904 free, RAM 97312 used and 992 free, pool 335736 used and 8328 free, BLE flash 61552, BLE RAM 26336), this tip uses more app code and 128 more pool bytes. BLE flash and BLE RAM match that reference.
 
 ## Host tests
 
@@ -85,7 +85,48 @@ Eleven FAIL names are new relative to that list. All eleven are from this machin
 
 - Missing UBSan runtime (`libclang_rt.ubsan_standalone-x86_64.a`): `fastmath-ubsan`, `freeplay-rate-pads`, `smc-ui-bounds`, `original-stale-release`.
 - Missing ASan runtime (`libclang_rt.asan-x86_64.a`): `chicago-fx2-inserts`, `original-sound-cell`, `engine-808-scratch-alias`, `ble-device-setting-flow`, `ble-toggle-persistence-gate`, `original-release-integration`.
-- `part-off`: `PART_OFF_REQUIRE_BASE` and base `4b240bd33a0eb7008b44e12bc270aba4d32b82c1` is not in this clone, so `tests/host/run_part_off.sh` exits 1. That is the script's fail-closed path, not a silent skip.
+- `part-off`: `PART_OFF_REQUIRE_BASE` and base `4b240bd33a0eb7008b44e12bc270aba4d32b82c1` is not in this clone, so `tests/host/run_part_off.sh` exits 1. That is the script's fail-closed path, not a silent skip. It is not a missing-archive failure.
+
+The primary totals above stay the raw full-suite result. They are not revised by the later re-run.
+
+### Missing compiler-rt archives
+
+The full-suite log contains `cannot find .../libclang_rt.asan-x86_64.a`, `libclang_rt.asan_static-x86_64.a`, and `libclang_rt.ubsan_standalone-x86_64.a`. These tests were FAIL or NOT_RUN only because those archives were missing:
+
+FAIL at link time: `fastmath-ubsan`, `freeplay-rate-pads`, `smc-ui-bounds`, `original-stale-release` (UBSan), and `chicago-fx2-inserts`, `original-sound-cell`, `engine-808-scratch-alias`, `ble-device-setting-flow`, `ble-toggle-persistence-gate`, `original-release-integration` (ASan). `original-release-integration` left an empty suite log; the linker line is in `build/ui-theme/original-integration/sanitized.compile.log`.
+
+NOT_RUN from `asan_links` in `tests/run_tests.sh` once that same link failed: `ble-midi-receive`, `ble-capture-replay`, `ble-role-switch`, `ui-303-entry`.
+
+`part-off` is not in this set. `drum909` and `drum808` are not-run because the reference trees are absent.
+
+The first `sudo apt-get install -y libclang-rt-18-dev` exited 100: `E: Package 'libclang-rt-18-dev' has no installation candidate`. The local package lists were stale. `sudo apt-get update` then the same install exited 0 and installed `1:18.1.3-1ubuntu1` from `http://archive.ubuntu.com/ubuntu noble-updates/universe`. `find / -name 'libclang_rt.asan*'` then listed `/usr/lib/llvm-18/lib/clang/18/lib/linux/libclang_rt.asan-x86_64.a` and `libclang_rt.asan_static-x86_64.a`. The UBSan archive `libclang_rt.ubsan_standalone-x86_64.a` is in that same directory. Nothing from apt was committed.
+
+`tests/run_tests.sh` accepts names on the command line and through `X0X_TESTS` (lines 8 and 47). The re-run used only the 14 names above:
+
+`sh tests/run_tests.sh fastmath-ubsan original-release-integration chicago-fx2-inserts original-sound-cell freeplay-rate-pads engine-808-scratch-alias ble-device-setting-flow ble-toggle-persistence-gate smc-ui-bounds original-stale-release ble-midi-receive ble-capture-replay ble-role-switch ui-303-entry`
+
+It started after the install, ran 128 seconds, and exited 0. The last line is `all tests passed`.
+
+### sanitizer re-run (compiler-rt installed)
+
+| Test | First full suite | Sanitizer re-run |
+| --- | --- | --- |
+| `fastmath-ubsan` | FAIL | ok |
+| `original-release-integration` | FAIL | ok |
+| `chicago-fx2-inserts` | FAIL | ok |
+| `original-sound-cell` | FAIL | ok |
+| `freeplay-rate-pads` | FAIL | ok |
+| `engine-808-scratch-alias` | FAIL | ok |
+| `ble-device-setting-flow` | FAIL | ok |
+| `ble-toggle-persistence-gate` | FAIL | ok |
+| `smc-ui-bounds` | FAIL | ok |
+| `original-stale-release` | FAIL | ok |
+| `ble-midi-receive` | NOT_RUN (ASan runtime) | ok |
+| `ble-capture-replay` | NOT_RUN (ASan runtime) | ok |
+| `ble-role-switch` | NOT_RUN (ASan runtime) | ok |
+| `ui-303-entry` | NOT_RUN (ASan) | ok |
+
+Sanitizer re-run totals, this subset only: ok 14, fail 0, not-run 0. These numbers are not added to the full-suite totals of ok 375, fail 28, not-run 6.
 
 ## part-off web e2e: false-green check
 
@@ -147,7 +188,7 @@ The receipt field `release_display` is `0.0.25_openbeta`. That string is the too
 | `tools/publish_nightly.py` | Requires Elite and Pro DEV CHECKED records, which were not produced. No `--push` and no `--remote`. |
 | `tools/release_alloc.py` and `releases/openbeta/ledger.json` | The coordinator said there is no open-beta allocation. The ledger was not edited. |
 | Reference DSP trees `schwung-9W9` and `schwung-8W8` | Not present. Dependent host tests are the not-run lines above. |
-| ASan and UBSan compiler-rt | Not installed. The suite's own ASan gate marked four tests not-run. Other sanitizer tests failed at link time and are in the FAIL list. |
+| ASan and UBSan compiler-rt during the full suite | The archives were absent for that run. The four ASan-gated tests are not-run in the primary totals, and ten other tests failed at link time. A later public install of `libclang-rt-18-dev` is a separate re-run, not a change to those totals. |
 
 No package or check step was skipped for lack of a ledger number.
 

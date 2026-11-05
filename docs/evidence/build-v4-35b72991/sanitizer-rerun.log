@@ -1,0 +1,15 @@
+  ok   fastmath-ubsan
+  ok   original-release-integration
+  ok   chicago-fx2-inserts
+  ok   original-sound-cell
+  ok   freeplay-rate-pads
+  ok   engine-808-scratch-alias
+  ok   ble-midi-receive
+  ok   ble-capture-replay
+  ok   ble-device-setting-flow
+  ok   ble-toggle-persistence-gate
+  ok   smc-ui-bounds
+  ok   ble-role-switch
+  ok   original-stale-release
+  ok   ui-303-entry
+all tests passed
