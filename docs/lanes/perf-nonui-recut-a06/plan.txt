@@ -1,0 +1,11 @@
+# perf-nonui recut onto a06e20189
+
+Owner: this thread, sole local writer. User task: recut only the four own tip commits of lane/dev-perf-nonui-20261105, pinned ad073576fff8b209564973a03ca2177f5cf900d8, onto a06e20189141ff5fb8766e2c6152be460f4356c3. Stop if contained; API comparison and missing USB retry test establish it is not contained.
+
+1. Recover and verify complete pinned source by API archive and Git tree hashes. Read target build and proof rules.
+2. Apply commits 7a4b9116d0a28ad0a4e58fcfae9b65fbbd7b6d8e, 93bedd2dad337f10ab0e5059b677de68cd19099f, 27342baba871bcbc0a8fc557f8ddce5834be09bf and ad073576fff8b209564973a03ca2177f5cf900d8, excluding their inherited stack. Inspect conflicts and caller behavior.
+3. Verify SDK V1.2.1/toolchain inputs; build Elite and Pro DEV baseline/candidate, record image, app RAM and .ram_text deltas against baseline and 98304-byte RAM limit. Do not claim target cycle measurements without measurement.
+4. Run full host suite locally, fix real failures without skips or weakened assertions, and rerun affected proof. Independent review on fixed candidate.
+5. Deliver source and sanitized evidence via GitHub API to existing lane/PR with an exact expected-old-SHA lease under the current user same-lane recut instruction; no duplicates or protected branch/path edits, binaries, private inputs, credentials or raw captures. Verify remote SHA. The explicit current same-lane recut request supersedes generic external-file no-force guidance. Reject a mismatched old SHA and reconcile instead of overwriting another writer.
+
+Protected: main, nightly, .github/, protected flash/device areas. No device operations. Full suite target: 0 FAIL, 0 SKIP; NOT_RUN is not PASS. This is BUILD_ONLY, not device or release proof.
