@@ -376,7 +376,7 @@
   },
   "target_cycles": "NOT_MEASURED; no target hardware execution. 320000000/44100 ~=7256 cycles/sample budget is not a measured outcome.",
   "device_and_release": "NOT_RUN; no install, flash, publication, main/nightly update or binary delivery authorized",
-  "delivery": "PREPARED: update only lane/dev-perf-nonui-20261105 with expected-SHA lease ad073576fff8b209564973a03ca2177f5cf900d8. The current user explicitly requests a recut onto a06 and delivery to the same lane, which necessarily authorizes its non-fast-forward replacement and supersedes the generic repository/skill no-force guidance. No protected ref or permissions change. Remote readback required before reporting PUSHED.",
+  "delivery": "PUSHED and read back in gobbajogger/X0X37-for-Loopy-Pro: lane/dev-perf-nonui-20261105 at 82c96b0494e39151b0217bb5affdfae78e05a0ad. Exact expected-old-SHA replacement succeeded. This follow-up changes evidence only; source head/tree and all checked firmware/test inputs remain unchanged.",
   "artifact_readback": "PASS: all four native build digest receipts match retained artifacts",
   "concurrent_wip_head": "a49605bcb34c8d6751817dd33699640d19a24c29",
   "prepared_source_head": "2639d35004650cb83c8fea20e540e12ff3a77fb9",
@@ -388,5 +388,7 @@
     "bus_fx": "byte-identical candidate blob fcc2e6be747b1fe1a24771ec62304403a98db534",
     "usb_retry": "NOT CONTAINED: usb.c still baseline blob 3df6f132ce984a0397116801efaa6d1fd93fd9c8"
   },
-  "authority": "Current user task: recut own tip patches onto a06e20189 and push to the same lane branch. This action-specific current instruction takes priority over generic external-file workflow guidance; use exact old-SHA lease, never a blind overwrite."
+  "authority": "Current user task: recut own tip patches onto a06e20189 and push to the same lane branch. This action-specific current instruction takes priority over generic external-file workflow guidance; use exact old-SHA lease, never a blind overwrite.",
+  "state": "DONE: requested source recut, native builds, full host suite and same-lane source delivery complete",
+  "pr": "none; same lane updated, no duplicate or new PR"
 }

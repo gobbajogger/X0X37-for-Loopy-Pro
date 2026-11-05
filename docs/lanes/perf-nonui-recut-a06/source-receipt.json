@@ -1,1 +1,32 @@
-{"base":"a06e20189141ff5fb8766e2c6152be460f4356c3","source_head":"2639d35004650cb83c8fea20e540e12ff3a77fb9","commits":[{"original":"7a4b9116d0a28ad0a4e58fcfae9b65fbbd7b6d8e","recut":"ebdd963d52c17fc79d9af637f36a4429357b23b5","tree":"d6d66d810bf289e86afb399ac0e7fe4179123508"},{"original":"93bedd2dad337f10ab0e5059b677de68cd19099f","recut":"9a40617c5328d1ad357ca4969a3b61f1ffffa02c","tree":"67bfb118d33fc79356e5f6407ba7cb9492ef2fb8"},{"original":"27342baba871bcbc0a8fc557f8ddce5834be09bf","recut":"953806d69453902bcbc78d0b776a97dc877665f2","tree":"b22fad5656315af6e640b842b6949dd62b570ba7"},{"original":"ad073576fff8b209564973a03ca2177f5cf900d8","recut":"2639d35004650cb83c8fea20e540e12ff3a77fb9","tree":"fb2bdfdbc428fd5b172f0588a976d8c524589026"}],"branch_updated":false}
+{
+  "base": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+  "source_head": "2639d35004650cb83c8fea20e540e12ff3a77fb9",
+  "commits": [
+    {
+      "original": "7a4b9116d0a28ad0a4e58fcfae9b65fbbd7b6d8e",
+      "recut": "ebdd963d52c17fc79d9af637f36a4429357b23b5",
+      "tree": "d6d66d810bf289e86afb399ac0e7fe4179123508"
+    },
+    {
+      "original": "93bedd2dad337f10ab0e5059b677de68cd19099f",
+      "recut": "9a40617c5328d1ad357ca4969a3b61f1ffffa02c",
+      "tree": "67bfb118d33fc79356e5f6407ba7cb9492ef2fb8"
+    },
+    {
+      "original": "27342baba871bcbc0a8fc557f8ddce5834be09bf",
+      "recut": "953806d69453902bcbc78d0b776a97dc877665f2",
+      "tree": "b22fad5656315af6e640b842b6949dd62b570ba7"
+    },
+    {
+      "original": "ad073576fff8b209564973a03ca2177f5cf900d8",
+      "recut": "2639d35004650cb83c8fea20e540e12ff3a77fb9",
+      "tree": "fb2bdfdbc428fd5b172f0588a976d8c524589026"
+    }
+  ],
+  "branch_updated": true,
+  "branch": "lane/dev-perf-nonui-20261105",
+  "verified_remote_head": "82c96b0494e39151b0217bb5affdfae78e05a0ad",
+  "verified_remote_tree": "d0f15fea43bbe03dcb5f1ec1cfe52de291e1441a",
+  "verification": "Authenticated connected GitHub API branch/commit readback",
+  "following_evidence_only_commit": "Does not change checked firmware/test inputs or the source head/tree"
+}
