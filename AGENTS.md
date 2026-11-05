@@ -1,5 +1,9 @@
 # x0x37 project instructions
 
+Read the [current owner contract](docs/rules/current-owner-contract.md) first for
+cloud execution, meaningful stage handoffs, Grok delivery and docs ownership.
+It supersedes conflicting older process routing while preserving target safeguards.
+
 Read the [active delivery workflow](docs/rules/workflow.md) before work and the
 [writing skill](.agents/skills/x0x37-writing/SKILL.md) for output. Current owner
 instructions and action-specific permissions govern. Older stage handoffs and
@@ -9,8 +13,9 @@ Consume the existing request, owner and checkpoint. Complete authorized work and
 applicable proof, report each meaningful result, then continue the next authorized
 action without waiting for routine owner acknowledgment. Preserve one writer per
 shared scope, independent QA and existing integration/publication owners. A
-blocked item must not stop independent ready work. No fresh chat or fixed provider
-is required for each logical stage.
+blocked item must not stop independent ready work. Use new threads and handoffs
+at meaningful stage boundaries under the current owner contract; do not create
+a thread for every task or require a fixed provider.
 
 Resolve the maintained development `nightly` to its full SHA when reading its
 workflow skills; also apply this actual target checkout's rules. Policy adoption
