@@ -1,9 +1,28 @@
 #!/bin/sh
 # ROADMAP evidence check: PRESENT paths + recorded test_refs; pin agreement.
 # Usage: roadmap_evidence_check.sh [tree_root] [evidence_dir]
+# Strict final gate: roadmap_evidence_check.sh --strict [--candidate-sha <40hex>] [tree_root] [evidence_dir]
+# Strict requires --candidate-sha (before paths) or X0X_CANDIDATE_SHA.
 # Default tree_root=.; default evidence_dir=<tree_root>/docs/roadmap-evidence
-# Exit 0 only when every PRESENT row is OK and all pins agree.
+# Reporting (default): structural checks only; FAIL/NOT_RUN and UNPROVEN are allowed.
+# Strict: REQUIRED_ROWS.txt coverage, all PRESENT/PASS, candidate SHA and tree checks.
+# Exit 0=accepted, 1=evidence failure, 2=usage/setup error.
 set -eu
+
+STRICT=0
+CANDIDATE_SHA=${X0X_CANDIDATE_SHA:-}
+if [ "${1:-}" = --strict ]; then
+  STRICT=1
+  shift
+  if [ "${1:-}" = --candidate-sha ]; then
+    if [ "$#" -lt 2 ]; then
+      echo "ERROR: --candidate-sha requires a 40hex SHA" >&2
+      exit 2
+    fi
+    CANDIDATE_SHA=$2
+    shift 2
+  fi
+fi
 
 ROOT=${1:-.}
 EVID=${2:-"$ROOT/docs/roadmap-evidence"}
@@ -13,12 +32,178 @@ if [ ! -d "$EVID" ]; then
   exit 2
 fi
 
-export ROOT EVID
+export ROOT EVID STRICT CANDIDATE_SHA
 python3 - <<'PY'
 import json, os, sys, glob
 
 root = os.environ["ROOT"]
 evid = os.environ["EVID"]
+
+def strict_main():
+    import re
+    import shlex
+    from collections import defaultdict
+
+    candidate = os.environ["CANDIDATE_SHA"]
+    if not re.fullmatch(r"[0-9a-fA-F]{40}", candidate):
+        print("ERROR: strict mode requires --candidate-sha <40hex> or "
+              "X0X_CANDIDATE_SHA=<40hex>", file=sys.stderr)
+        return 2
+
+    failures = defaultdict(list)
+
+    def bad(row, reason):
+        failures[row].append(reason)
+
+    required = set()
+    manifest = os.path.join(evid, "REQUIRED_ROWS.txt")
+    try:
+        with open(manifest, encoding="utf-8") as f:
+            for number, line in enumerate(f, 1):
+                row = line.strip()
+                if not row or "/" in row or "\\" in row or row in (".", ".."):
+                    bad("REQUIRED_ROWS", f"invalid_id:line_{number}")
+                elif row in required:
+                    bad(row, "duplicate_required_id")
+                else:
+                    required.add(row)
+    except (OSError, UnicodeError) as e:
+        bad("REQUIRED_ROWS", f"manifest_unreadable:{e}")
+    if not required:
+        bad("REQUIRED_ROWS", "empty_manifest")
+
+    # Include hidden and underscore-prefixed JSON: reject every extra file.
+    strict_files = sorted(
+        entry.path for entry in os.scandir(evid) if entry.name.endswith(".json")
+    )
+    actual = {os.path.basename(p)[:-5] for p in strict_files if os.path.isfile(p)}
+    # STRICT_CHECK_A: required inventory, including unexpected JSON files.
+    for row in sorted(required - actual):
+        bad(row, "missing_required_json")
+    for row in sorted(actual - required):
+        bad(row, "unexpected_json")
+
+    tree_root = os.path.realpath(root)
+
+    def tree_file(path):
+        if not isinstance(path, str) or not path or os.path.isabs(path):
+            return False
+        try:
+            full = os.path.realpath(os.path.join(tree_root, path))
+            return os.path.commonpath((tree_root, full)) == tree_root and os.path.isfile(full)
+        except (OSError, ValueError):
+            return False
+
+    # Read literal run entries only; never execute the test runner or its commands.
+    run_names = set()
+    runner_error = None
+    try:
+        if not tree_file("tests/run_tests.sh"):
+            raise OSError("missing tests/run_tests.sh under tree root")
+        with open(os.path.join(tree_root, "tests/run_tests.sh"), encoding="utf-8") as f:
+            for line in f:
+                # Tokenize without executing shell text. Recognize command positions
+                # after separators and control words, including `else run name ...`.
+                lexer = shlex.shlex(line, posix=True, punctuation_chars=";&|(){}")
+                lexer.whitespace_split = True
+                command_start = True
+                try:
+                    while True:
+                        token = lexer.get_token()
+                        if token is None:
+                            break
+                        if token in (";", "&&", "||", "|", "&", "(", ")", "{", "}"):
+                            command_start = True
+                        elif command_start and token in ("if", "then", "else", "elif", "do", "!"):
+                            continue
+                        else:
+                            if command_start and token == "run":
+                                name = lexer.get_token()
+                                if name and re.fullmatch(r"[A-Za-z0-9_.-]+", name):
+                                    run_names.add(name)
+                            command_start = False
+                except ValueError:
+                    # A multiline quoted command may continue on the next line;
+                    # any preceding literal run name has already been recorded.
+                    continue
+    except (OSError, UnicodeError) as e:
+        runner_error = str(e)
+
+    pin = None
+    for row in sorted(actual):
+        try:
+            with open(os.path.join(evid, row + ".json"), encoding="utf-8") as f:
+                data = json.load(f)
+            if not isinstance(data, dict):
+                raise ValueError("expected JSON object")
+        except (OSError, ValueError, UnicodeError) as e:
+            bad(row, f"malformed_json:{e}")
+            continue
+
+        for field in ("row_id", "roadmap_pin_commit", "roadmap_blob", "status", "proof_source"):
+            if field not in data or data[field] in (None, ""):
+                bad(row, f"missing_{field}")
+        if data.get("row_id") != row:
+            bad(row, "row_id_filename_mismatch")
+        row_pin = (data.get("roadmap_pin_commit"), data.get("roadmap_blob"))
+        if all(isinstance(v, str) and re.fullmatch(r"[0-9a-fA-F]{40}", v) for v in row_pin):
+            if pin is None:
+                pin = row_pin
+            elif row_pin != pin:
+                bad(row, "pin_disagree")
+        else:
+            bad(row, "invalid_pin")
+
+        present = data.get("status") == "PRESENT"
+        # STRICT_CHECK_B: every required row must be PRESENT.
+        if row in required and not present:
+            bad(row, f"status_not_PRESENT:{data.get('status')!r}")
+
+        paths = data.get("code_paths", [])
+        if present and (not isinstance(paths, list) or not paths):
+            bad(row, "missing_code_paths")
+        if not isinstance(paths, list):
+            bad(row, "bad_code_paths")
+        else:
+            # STRICT_CHECK_E_PATHS: code paths must resolve to files inside the tree.
+            for cp in paths:
+                if not tree_file(cp):
+                    bad(row, f"missing_or_outside_code_path:{cp!r}")
+
+        refs = data.get("test_refs", [])
+        # STRICT_CHECK_C: PRESENT needs refs, and every recorded result must PASS.
+        if present and (not isinstance(refs, list) or not refs):
+            bad(row, "missing_test_refs")
+        if not isinstance(refs, list):
+            bad(row, "bad_test_refs")
+            continue
+        for i, ref in enumerate(refs):
+            if not isinstance(ref, dict):
+                bad(row, f"bad_test_ref:{i}")
+                continue
+            if ref.get("result") != "PASS":
+                bad(row, f"result_not_PASS:{i}:{ref.get('result')!r}")
+            # STRICT_CHECK_D: results must belong to the exact candidate.
+            sha = ref.get("source_sha")
+            if not isinstance(sha, str) or sha.lower() != candidate.lower():
+                bad(row, f"source_sha_mismatch:{i}")
+            # STRICT_CHECK_E_REFS: proof file and literal runner entry must exist.
+            if not tree_file(ref.get("file")):
+                bad(row, f"missing_or_outside_test_file:{i}:{ref.get('file')!r}")
+            test = ref.get("test")
+            if not isinstance(test, str) or test not in run_names:
+                bad(row, f"unknown_run_test:{i}:{test!r}")
+            if runner_error:
+                bad(row, f"runner_unreadable:{runner_error}")
+
+    for row, reasons in sorted(failures.items()):
+        print(f"STRICT_FAIL {row}: " + ",".join(reasons))
+    result = "FAIL" if failures else "PASS"
+    print(f"STRICT_RESULT {result} rows={len(actual)} required={len(required)}")
+    return 1 if failures else 0
+
+if os.environ["STRICT"] == "1":
+    sys.exit(strict_main())
 
 files = sorted(
     p for p in glob.glob(os.path.join(evid, "*.json"))

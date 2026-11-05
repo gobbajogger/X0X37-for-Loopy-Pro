@@ -5,7 +5,7 @@ set -eu
 
 HERE=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 CHECK=${CHECK:-"$HERE/roadmap_evidence_check.sh"}
-TMP=${TMPDIR:-/tmp}/roadmap_evidence_check_test_$$
+TMP=$(mktemp -d "${TMPDIR:-/tmp}/roadmap_evidence_check_test.XXXXXX")
 trap 'rm -rf "$TMP"' EXIT INT HUP TERM
 mkdir -p "$TMP"
 
@@ -143,6 +143,144 @@ write_good_present "$R4" "$R4/docs/roadmap-evidence"
 printf '{not-json\n' > "$R4/docs/roadmap-evidence/#1.json"
 expect_nonzero RED_malformed_json sh "$CHECK" "$R4" "$R4/docs/roadmap-evidence"
 note "MUTANT RED_malformed_json: wrap json.load in a bare except that continues as UNPROVEN/OK -> RED would exit 0; this case catches it."
+
+# --- Strict fixtures: synthetic files and run entries only; nothing is executed. ---
+CANDIDATE=ce27812951555ff7ed9694bf99d20a65dd5f410b
+
+write_strict_present() {
+  write_good_present "$1" "$1/docs/roadmap-evidence"
+  mkdir -p "$1/tests/host"
+  printf 'fixture\n' > "$1/tests/host/example_test.c"
+  printf '#!/bin/sh\nif [ 1 = 0 ]; then :; else run engines_selectable true; fi\n' > "$1/tests/run_tests.sh"
+  printf '#1\n' > "$1/docs/roadmap-evidence/REQUIRED_ROWS.txt"
+}
+
+expect_strict_failure() {
+  label=$1
+  fixture=$2
+  reason=$3
+  row=${4:-'#1'}
+  set +e
+  out=$(sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$fixture" "$fixture/docs/roadmap-evidence" 2>&1)
+  rc=$?
+  set -e
+  if [ "$rc" -eq 1 ] &&
+     printf '%s\n' "$out" | grep -F "STRICT_FAIL $row: " | grep -Fq "$reason" &&
+     printf '%s\n' "$out" | grep -q '^STRICT_RESULT FAIL rows=[0-9][0-9]* required=[0-9][0-9]*$'; then
+    note "PASS $label (strict exit=1; $reason)"
+    pass=$((pass + 1))
+  else
+    note "FAIL $label (expected strict exit=1 with $row: $reason; got $rc)"
+    note "  output: $out"
+    fail=$((fail + 1))
+  fi
+}
+
+SG=$TMP/strict_green
+write_strict_present "$SG"
+expect_zero STRICT_GREEN sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$SG" "$SG/docs/roadmap-evidence"
+if [ "$LAST_OUT" != 'STRICT_RESULT PASS rows=1 required=1' ]; then
+  note "FAIL STRICT_GREEN summary: $LAST_OUT"
+  fail=$((fail + 1))
+fi
+
+# The four Watchdog negatives must remain accepted by legacy reporting.
+for kind in FAIL NOT_RUN UNPROVEN missing_test_file; do
+  fixture=$TMP/strict_$kind
+  write_strict_present "$fixture"
+  python3 - "$fixture" "$kind" <<'PY'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+kind = sys.argv[2]
+p = root / "docs/roadmap-evidence/#1.json"
+d = json.loads(p.read_text())
+if kind in ("FAIL", "NOT_RUN"):
+    d["test_refs"][0]["result"] = kind
+elif kind == "UNPROVEN":
+    d["status"] = "UNPROVEN"
+else:
+    d["test_refs"][0]["file"] = "tests/host/does_not_exist.c"
+p.write_text(json.dumps(d))
+PY
+  expect_zero "LEGACY_$kind" sh "$CHECK" "$fixture" "$fixture/docs/roadmap-evidence"
+  case "$kind" in
+    FAIL|NOT_RUN) reason=result_not_PASS ;;
+    UNPROVEN) reason=status_not_PRESENT ;;
+    missing_test_file) reason=missing_or_outside_test_file ;;
+  esac
+  expect_strict_failure "STRICT_RED_$kind" "$fixture" "$reason"
+done
+
+# Additional contract probes isolate checks (a)-(e) for real mutant detection.
+for kind in missing_row extra_row wrong_sha missing_refs forged_test missing_code_path \
+            bad_status bad_pin malformed_json; do
+  fixture=$TMP/contract_$kind
+  write_strict_present "$fixture"
+  python3 - "$fixture" "$kind" <<'PY'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+kind = sys.argv[2]
+evid = root / "docs/roadmap-evidence"
+p = evid / "#1.json"
+d = json.loads(p.read_text())
+if kind == "missing_row":
+    (evid / "REQUIRED_ROWS.txt").write_text("#1\n#2\n")
+elif kind in ("extra_row", "bad_pin"):
+    d["row_id"] = "#2"
+    if kind == "bad_pin":
+        d["roadmap_pin_commit"] = "a" * 40
+        (evid / "REQUIRED_ROWS.txt").write_text("#1\n#2\n")
+    (evid / "#2.json").write_text(json.dumps(d))
+elif kind == "wrong_sha":
+    d["test_refs"][0]["source_sha"] = "a" * 40
+elif kind == "missing_refs":
+    del d["test_refs"]
+elif kind == "forged_test":
+    d["test_refs"][0]["test"] = "forged_test"
+    # A comment is not a run entry.
+    with (root / "tests/run_tests.sh").open("a") as f:
+        f.write("# run forged_test true\n")
+        f.write("printf '%s\\n' 'run forged_test true'\n")
+elif kind == "missing_code_path":
+    (root / "firmware/src/app/engine.c").unlink()
+elif kind == "bad_status":
+    d["status"] = "UNKNOWN"
+elif kind == "malformed_json":
+    p.write_text("{not-json\n")
+if kind not in ("missing_row", "extra_row", "bad_pin", "malformed_json"):
+    p.write_text(json.dumps(d))
+PY
+  row='#1'
+  case "$kind" in
+    missing_row) reason=missing_required_json; row='#2' ;;
+    extra_row) reason=unexpected_json; row='#2' ;;
+    wrong_sha) reason=source_sha_mismatch ;;
+    missing_refs) reason=missing_test_refs ;;
+    forged_test) reason=unknown_run_test ;;
+    missing_code_path) reason=missing_or_outside_code_path ;;
+    bad_status) reason=status_not_PRESENT ;;
+    bad_pin) reason=pin_disagree; row='#2' ;;
+    malformed_json) reason=malformed_json ;;
+  esac
+  expect_strict_failure "STRICT_CONTRACT_$kind" "$fixture" "$reason" "$row"
+done
+
+# Candidate setup errors must be exit 2; the env form must also support GREEN.
+printf '#!/bin/sh\nrun engines_selectable true\n' > "$SG/tests/run_tests.sh"
+expect_zero STRICT_GREEN_env env X0X_CANDIDATE_SHA="$CANDIDATE" sh "$CHECK" --strict "$SG" "$SG/docs/roadmap-evidence"
+for value in '' not-a-sha; do
+  set +e
+  out=$(X0X_CANDIDATE_SHA="$value" sh "$CHECK" --strict "$SG" "$SG/docs/roadmap-evidence" 2>&1)
+  rc=$?
+  set -e
+  if [ "$rc" -eq 2 ] && printf '%s\n' "$out" | grep -q 'ERROR: strict mode requires'; then
+    note "PASS STRICT_candidate_setup (value='$value' exit=2)"
+    pass=$((pass + 1))
+  else
+    note "FAIL STRICT_candidate_setup (value='$value' exit=$rc): $out"
+    fail=$((fail + 1))
+  fi
+done
 
 note "----"
 note "SELFTEST pass=$pass fail=$fail"
