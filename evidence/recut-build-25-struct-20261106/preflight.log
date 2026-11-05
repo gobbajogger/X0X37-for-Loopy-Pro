@@ -1,0 +1,17 @@
+PASS tests/run_tests.sh: /workspace/work/recut/tree/tests/run_tests.sh
+PASS host/build_host.sh: /workspace/work/recut/tree/host/build_host.sh
+PASS tool python3: /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3
+PASS tool sh: /usr/bin/sh
+PASS tool bash: /usr/bin/bash
+PASS tool node: /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node
+PASS tool c++: /usr/bin/c++
+PASS tool CC: cc
+PASS Python Pillow: import PIL
+PASS ASan+UBSan link: compiler linked sanitizer probe
+PASS reference drum909: /workspace/work/recut/refs/schwung-9W9/src/dsp/er99_engine.c
+PASS reference drum808: /workspace/work/recut/refs/schwung-8W8/src/dsp/sc808_engine.cpp
+PASS reference sequencer: /workspace/work/recut/refs/schwung-tb3po/src/dsp/tb3po.c
+PASS SMK app: build/smk37/x0x.bin
+PASS SMK loader: build/smk37/loader/ota.bin
+PASS AC79_SDK: /workspace/work/recut/inputs/sdk
+PREFLIGHT: 16 PASS, 0 FAIL

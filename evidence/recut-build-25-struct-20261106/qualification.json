@@ -1,0 +1,22 @@
+{
+  "pass": 333,
+  "fail": 0,
+  "skip": 0,
+  "not_run": 0,
+  "exit_code": 0,
+  "local_checked_head": "cc6566db154c57ff13f1cb8c03fbedeac61b1c20",
+  "checked_source_tree": "bab80c4ba34093d106a8fcbfe509616c82a0fdfa",
+  "remote_equivalent_source_commit": "22fe54c030ccbb10d1b25802f06a736d64130777",
+  "transcript_sha256": "e21ab381796e309584596b87af0a87addb38dbd067e7fb863d1aea93e69f84c5",
+  "base": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+  "tip_patch": "32802577dbf148adf472113316c6e636f880e08b",
+  "native_models": [
+    "elite",
+    "pro"
+  ],
+  "sdk": "AC79NN_SDK_V1.2.1_2023-12-13",
+  "device_cycles_measured": false,
+  "delivered_source_tree": "bbdeeb2f750d05c18386cdd041431705b1d8dc86",
+  "format_only_proof": "fixture-format-equivalence.json",
+  "proof_reuse": "Only the extra final blank line in the C test fixture was removed after the full run. Its -E -P output and its actual -O0/-O2 compiled object bytes match the full-run input exactly. All other checked source and native artifacts are unchanged."
+}

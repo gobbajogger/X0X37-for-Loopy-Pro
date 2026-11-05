@@ -1,0 +1,98 @@
+{
+  "source_base": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+  "source_tip_patch": "32802577dbf148adf472113316c6e636f880e08b",
+  "candidate_local_commit": "cc6566db154c57ff13f1cb8c03fbedeac61b1c20",
+  "candidate_tree": "bab80c4ba34093d106a8fcbfe509616c82a0fdfa",
+  "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+  "tools": {
+    "common/bin/clang": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "pi32v2/bin/ld": "fd61aff15616bb6f6b58fd2e9ede7af741c7bf05facb3e0cb3d3c9817c268fd9",
+    "common/bin/objdump": "f7e449e2c8001d5ed4493a45d1f5f304c8910418e4074acdc8715079ef64e08a",
+    "common/bin/objcopy": "295151226e28891115c97262e6460a06fe67fc0753858e0df3234eb000ea6e66"
+  },
+  "sdk": {
+    "cpu/wl82/tools/cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+    "cpu/wl82/tools/uboot.boot": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+    "cpu/wl82/tools/cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+  },
+  "references": {
+    "schwung-9W9": {
+      "repository": "charlesvestal/schwung-9W9",
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "consumed_files": {
+        "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+        "src/ui_chain.js": "e2f0ee5e2675dc89b374b30878171cf45ee099093d933e9de999f2d5fb7d8f53",
+        "src/module.json": "182a7992133c97b2230ef57ad56741f0285afeab4d5711bf7d6a6577e0ef4535",
+        "src/web_ui.html": "a93581efa6b6cdc763d8c97723c5a93dea8c3434c6580078fdb78ad149e252b1",
+        "src/help.json": "2563c9e80f824b4652927a48254749de57a38f2cfef2a2f3f8ae1c8ac8bccf1c",
+        "src/tools/loadtest.c": "a3446cdaa36d4cb18286f4a9d2cce65980954cf2d43925b754d6779ebed68ec0",
+        "src/tools/render.c": "a21fd26ba75d392c7bbe388f0b1ac3ccc9d8ba8454c772dd40a9981c2d54fd31",
+        "src/dsp/er99_plugin.c": "c833e19aa836c4b641c4e7e7f99f96ccf5e1d0503637238d14ffee8f54e16de6",
+        "src/dsp/er99_engine.c": "8013b3df3385f6551a007a5359f9e6fc1e7eb9391443f3959e0ab912aa7568db",
+        "src/dsp/er99_pots.h": "3536808283c010bb2feb2e1ce30f66848b61798b91c545c9518e1cbba50591c5",
+        "src/dsp/webaudio.h": "3ba3d5be5238022d7dde7013dd7975125af6f3dbb24ae5390773247b3fb7d18b",
+        "src/dsp/er99_perc909.h": "5d3fbbbc4af297a7c8dcd712faa5ec2ca5664adf9daaf4319e8d960d2d16537d",
+        "src/dsp/er99_params.h": "948cf045fc78db695ba70fcadaca3ef08fea961ac069ee3645a2a936dfe49b4e",
+        "src/dsp/er99_engine.h": "04f25799c91d3b5987646f74d61415f5e35f0242e95017d841e4c06a325fb574",
+        "src/dsp/er99_tom909.h": "29515e11a06f1bd18fe7fcf9565a5bac085d42203ff169b2986bdbec30e2d04d",
+        "src/dsp/er99_circuit.h": "4a64a1836582c143630c100c384665ad4323b1e2d420d09c88ff4126e7dd5db9",
+        "src/host/plugin_api_v1.h": "2c410cbc65202239d35dc0e6cd0cfa451be11d7693bf620ec6337c635358c646",
+        "src/patches/9W9.json": "265f98b055ae5a4793a2d7bb374c3d3a2796fa4c08e59d445215435bc5630705"
+      }
+    },
+    "schwung-8W8": {
+      "repository": "charlesvestal/schwung-8W8",
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "consumed_files": {
+        "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+        "src/ui_chain.js": "82bc68d7c7d1f33c48a6d5b06eea8ffa053bf47888ce534809f63e533b3be883",
+        "src/module.json": "f06291f3cdd71a361beace6f045c92944eb33781aaa38243f038bb25ed30d523",
+        "src/web_ui.html": "8ab49dce7b2743ff6d98c2b08ae05e7c428bbae9ecd39723493beb18bb4a6200",
+        "src/help.json": "c4bc4036c10a5aaf1d5d6890e686bdd1f45dec0c91ed6f66b2ef8b2ddd1942c9",
+        "src/tools/loadtest.c": "fa1be7456358d6e6462186c5f63af506c34b915a702b68f4395e0fc0720a381c",
+        "src/tools/nullref.cpp": "3809d1b9447cf766bba9eebe1b3c113924b420de63a7905cfb726ed068593cbd",
+        "src/tools/probes.cpp": "0c1cb3a852226569e44ac2ec81e8391fad870b33021604ab5e87c67a5e97fe10",
+        "src/tools/demo_pattern.h": "22cd7c82b2440dd69787914bded29e7b66aaa4b3dc23d681976e5ed5d5bb774c",
+        "src/tools/render.cpp": "df6d2ee1b6e4d410d77620916490bbfa2c030e1659d126920acf5c1849cb5da2",
+        "src/tools/bench.cpp": "213e50d9edb5af67d41a759ee5064c5cade2cb57f6839e5ff458bdd3489c55d5",
+        "src/dsp/sc808_fx.h": "b160446c1ca9c00caf6ca4ccc752ce24885dbe73ff09efd85bb35303cfe1ad6d",
+        "src/dsp/sc808_engine.cpp": "81a926b7fbde0b8eb777c53909613afb6396b4fd5eabd773cf30214e1e085f53",
+        "src/dsp/sc808_engine.h": "85d142a2ab0f1eb01beac74f25059cc44be3122e3b8a5a271161a061856bff06",
+        "src/dsp/sc808_voices.h": "58969682be9f3d0feb704a8552427ca9953dc4dd4f66d2ecbae0b135743805a2",
+        "src/dsp/sc808_params.h": "693a2b775ac6d5f32d514a2d32ed5f4b2b5f74a37aa30f850c1bbd760b802965",
+        "src/dsp/sc808_shape.h": "34a19fd7ea6d2071ef46df2d32224921a922440414dc8e9ed5cff14d2f0f2417",
+        "src/dsp/sc808_circuit_common.h": "a35d63dea29c4e7f5e8864d95b26dfab0ca6567d2fd6e0209bac742cb41c4814",
+        "src/dsp/sc_ugens.h": "af9d55df75d2d2a3587c1eda8a6b3679fffdd7e0ef99da1f6c70e7f05aa01bdd",
+        "src/dsp/sc808_sd_circuit.h": "116c6dd803740026470a1a5848c82cd7609cb853dee41d526266010d8485cca5",
+        "src/dsp/sc808_mt_circuit.h": "3bdbf5f389100063cbc6287a5bb83160c4db0d1e6075c6398b9ec3ba67a1ba0a",
+        "src/dsp/sc808_rs_circuit.h": "40ea48128de7770bf082adb1a4724398d43868d5769350cf22691251df441a9d",
+        "src/dsp/sc808_plugin.cpp": "eac0fcc6a0d48f0ef14673ddd5b22530e5ce046a264ce05bca3690ec6542697f",
+        "src/dsp/sc808_tom_circuit.h": "d35b90513893fad2498ff539b28138195d63e9802a0f09b095d305672b6845b1",
+        "src/dsp/sc808_bd_circuit.h": "ba4be526d507c734814754d04775bb248e7e0590f20a76825cb092c1d4e262aa",
+        "src/dsp/sc808_cp_circuit.h": "14c68a032cd008d5cec7086f70355eac3c897679e521adb4d57928266174307d",
+        "src/host/plugin_api_v1.h": "2c410cbc65202239d35dc0e6cd0cfa451be11d7693bf620ec6337c635358c646",
+        "src/patches/8W8.json": "8c2b10fc6d0788f85516eae165e8d950e0cfbf8a7dd1979ffc035242acd69c6c",
+        "src/vendor/sc808/sc808.scd": "1d5d381bfeab976ac611c83922257de9a1cbcc437f0b30a5c5d739f26bab4aa4"
+      }
+    },
+    "schwung-tb3po": {
+      "repository": "charlesvestal/schwung-tb3po",
+      "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "consumed_files": {
+        "src/dsp/tb3po.c": "f9345b97eb05692a161893ac1d3d2d100025eb68f4f90e8b7ae7605533d7c9e6",
+        "src/dsp/include/plugin_api_v1.h": "ed1f56dc7773969a367d48b0b63bd06bfa433a43c57cc1827846779701aece5e"
+      }
+    }
+  },
+  "configuration": {
+    "board": "smk37",
+    "models": [
+      "elite",
+      "pro"
+    ],
+    "X0X_DEV_PADCAL": "1",
+    "release": false,
+    "target_cycles_per_sample_at_44100hz_320mhz": 7256.235827664399,
+    "device_cycles_measured": false
+  }
+}

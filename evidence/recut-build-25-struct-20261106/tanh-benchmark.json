@@ -1,0 +1,9 @@
+{
+  "environment": "Linux x86-64; GCC 14.2.0; full host suite completed before this portable benchmark",
+  "workload": "8388608 lookups/pass; 4096 deterministic uniform float values in [-8,8); seven alternating-order pairs",
+  "reference_median_seconds": 0.088111681,
+  "candidate_median_seconds": 0.03271065,
+  "change_percent": -62.875921071123365,
+  "scope": "tanh microbenchmark only; no full-engine or device cycle/deadline claim",
+  "source_sha256": "2bad5caedfa21adea4ac4808fbc875bef540e9ce4b6bc2b1e467e51b9638daa9"
+}

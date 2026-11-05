@@ -1,0 +1,4 @@
+PASS: 23280 blocks; full state (7648 bytes) and four PCM buses identical
+PASS: 23280 blocks; full state (7648 bytes) and four PCM buses identical
+PASS: 1024 indices, 4278190082 non-NaN binary32 inputs bit-identical
+PASS: 1024 indices, 4278190082 non-NaN binary32 inputs bit-identical

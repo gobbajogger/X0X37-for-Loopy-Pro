@@ -1,0 +1,20 @@
+{
+  "before": {
+    "preprocessed_sha256": "e08900e3b4480cbe78030bdc57d0489f3f4c7d890672eb562ec3c869f8324190",
+    "objects": {
+      "0": "6a7c791441feb0c0c41d213648b9bd9791b12e7582d60aa865f1a8145626f982",
+      "2": "2c9c12e497e052598eac24179e714b9420c7eda9990be16e14982ef7c3a1ed7d"
+    }
+  },
+  "after": {
+    "preprocessed_sha256": "e08900e3b4480cbe78030bdc57d0489f3f4c7d890672eb562ec3c869f8324190",
+    "objects": {
+      "0": "6a7c791441feb0c0c41d213648b9bd9791b12e7582d60aa865f1a8145626f982",
+      "2": "2c9c12e497e052598eac24179e714b9420c7eda9990be16e14982ef7c3a1ed7d"
+    }
+  },
+  "reason": "Remove extra EOF blank line only; preprocessor output and both actual compiled fixture object bytes remain identical to the full-suite input.",
+  "changed_path": "tests/host/drum909_emit_equivalence.c",
+  "original_source_tree": "bab80c4ba34093d106a8fcbfe509616c82a0fdfa",
+  "new_blob_sha": "960a0ee494b9ab7b6124d2a8d4a5886d2cf502ea"
+}

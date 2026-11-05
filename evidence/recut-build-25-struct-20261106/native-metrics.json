@@ -1,0 +1,150 @@
+{
+  "base": {
+    "elite": {
+      "image_bytes": 474840,
+      "image_sha256": "47c8d02545a6d3138ece9dba260c946a1eb251968f7bf7849c397304e43735dd",
+      "app_ram_budget_used_bytes": 95780,
+      "app_ram_free_bytes": 2524,
+      "pool_used_bytes": 335464,
+      "pool_free_bytes": 8600,
+      "code_free_bytes": 77832,
+      "sections": {
+        ".text": 471088,
+        ".ram_sink": 1024,
+        ".ram_text": 2712,
+        ".c1_text": 608,
+        ".data": 428,
+        ".bss": 95332,
+        ".pool": 335464,
+        ".noinit": 308,
+        ".ble_ram": 3880,
+        ".shstrtab": 96,
+        ".symtab": 44160,
+        ".strtab": 41904
+      },
+      "ram_text_instructions": 844,
+      "ram_text_sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+    },
+    "pro": {
+      "image_bytes": 474840,
+      "image_sha256": "d6f4a728ff649b2d5d4d69cf9c2f1c33d429924a184dfb05028fba405aad3992",
+      "app_ram_budget_used_bytes": 95780,
+      "app_ram_free_bytes": 2524,
+      "pool_used_bytes": 335464,
+      "pool_free_bytes": 8600,
+      "code_free_bytes": 77832,
+      "sections": {
+        ".text": 471088,
+        ".ram_sink": 1024,
+        ".ram_text": 2712,
+        ".c1_text": 608,
+        ".data": 428,
+        ".bss": 95332,
+        ".pool": 335464,
+        ".noinit": 308,
+        ".ble_ram": 3880,
+        ".shstrtab": 96,
+        ".symtab": 44160,
+        ".strtab": 41898
+      },
+      "ram_text_instructions": 844,
+      "ram_text_sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+    }
+  },
+  "tree": {
+    "elite": {
+      "image_bytes": 475000,
+      "image_sha256": "1a30d276152c58ebcc278536aa233906e8d74a664ea3a22f14ea4534822ba858",
+      "app_ram_budget_used_bytes": 95780,
+      "app_ram_free_bytes": 2524,
+      "pool_used_bytes": 335464,
+      "pool_free_bytes": 8600,
+      "code_free_bytes": 77672,
+      "sections": {
+        ".text": 471248,
+        ".ram_sink": 1024,
+        ".ram_text": 2712,
+        ".c1_text": 608,
+        ".data": 428,
+        ".bss": 95332,
+        ".pool": 335464,
+        ".noinit": 308,
+        ".ble_ram": 3880,
+        ".shstrtab": 96,
+        ".symtab": 44160,
+        ".strtab": 41904
+      },
+      "ram_text_instructions": 844,
+      "ram_text_sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+    },
+    "pro": {
+      "image_bytes": 475000,
+      "image_sha256": "f05261a308d31f3a3b1534f6df1cfbf76e480218f659cfcb4aa653914f1a41f0",
+      "app_ram_budget_used_bytes": 95780,
+      "app_ram_free_bytes": 2524,
+      "pool_used_bytes": 335464,
+      "pool_free_bytes": 8600,
+      "code_free_bytes": 77672,
+      "sections": {
+        ".text": 471248,
+        ".ram_sink": 1024,
+        ".ram_text": 2712,
+        ".c1_text": 608,
+        ".data": 428,
+        ".bss": 95332,
+        ".pool": 335464,
+        ".noinit": 308,
+        ".ble_ram": 3880,
+        ".shstrtab": 96,
+        ".symtab": 44160,
+        ".strtab": 41898
+      },
+      "ram_text_instructions": 844,
+      "ram_text_sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+    }
+  },
+  "delta": {
+    "elite": {
+      "image_bytes": 160,
+      "app_ram_budget_used_bytes": 0,
+      "pool_used_bytes": 0,
+      "code_free_bytes": -160,
+      "ram_text_bytes": 0,
+      "sections": {
+        ".text": 160,
+        ".ram_sink": 0,
+        ".ram_text": 0,
+        ".c1_text": 0,
+        ".data": 0,
+        ".bss": 0,
+        ".pool": 0,
+        ".noinit": 0,
+        ".ble_ram": 0,
+        ".shstrtab": 0,
+        ".symtab": 0,
+        ".strtab": 0
+      }
+    },
+    "pro": {
+      "image_bytes": 160,
+      "app_ram_budget_used_bytes": 0,
+      "pool_used_bytes": 0,
+      "code_free_bytes": -160,
+      "ram_text_bytes": 0,
+      "sections": {
+        ".text": 160,
+        ".ram_sink": 0,
+        ".ram_text": 0,
+        ".c1_text": 0,
+        ".data": 0,
+        ".bss": 0,
+        ".pool": 0,
+        ".noinit": 0,
+        ".ble_ram": 0,
+        ".shstrtab": 0,
+        ".symtab": 0,
+        ".strtab": 0
+      }
+    }
+  }
+}

@@ -501,6 +501,91 @@ static int16_t mod_ctl[NBASS] = {-1, -1};
 static volatile uint8_t ext_touch[NBASS];           /* ISR -> UI: bit0 bend, bit1 mod moved by ext MIDI */
 static int mod_param(int v)
 { return original_bass[v].kind == ORIGINAL_SOUND_MIAMI ? ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF; }
+/* Exact binary32 values of the original square-law expression, pots 0..127.
+ * Const storage only: motion ramps can update this in every audio block. */
+static float mix_level_from_pot(int val)
+{
+    static const float table[128] = {
+        0x0p+0f, 0x1.a36e2ep-14f, 0x1.a36e2ep-12f, 0x1.d7dbf4p-11f,
+        0x1.a36e2ep-10f, 0x1.47ae14p-9f, 0x1.d7dbf4p-9f, 0x1.41205cp-8f,
+        0x1.a36e2ep-8f, 0x1.096bbap-7f, 0x1.47ae14p-7f, 0x1.8c7e28p-7f,
+        0x1.d7dbf4p-7f, 0x1.14e3bcp-6f, 0x1.41205cp-6f, 0x1.70a3d8p-6f,
+        0x1.a36e2ep-6f, 0x1.d97f62p-6f, 0x1.096bbap-5f, 0x1.27bb3p-5f,
+        0x1.47ae14p-5f, 0x1.694468p-5f, 0x1.8c7e28p-5f, 0x1.b15b58p-5f,
+        0x1.d7dbf4p-5f, 0x1p-4f, 0x1.14e3bcp-4f, 0x1.2a993p-4f,
+        0x1.41205cp-4f, 0x1.58793ep-4f, 0x1.70a3d8p-4f, 0x1.89a028p-4f,
+        0x1.a36e2ep-4f, 0x1.be0deep-4f, 0x1.d97f62p-4f, 0x1.f5c29p-4f,
+        0x1.096bbap-3f, 0x1.185f06p-3f, 0x1.27bb3p-3f, 0x1.378034p-3f,
+        0x1.47ae14p-3f, 0x1.5844dp-3f, 0x1.694468p-3f, 0x1.7aacdap-3f,
+        0x1.8c7e28p-3f, 0x1.9eb852p-3f, 0x1.b15b58p-3f, 0x1.c46738p-3f,
+        0x1.d7dbf4p-3f, 0x1.ebb98cp-3f, 0x1p-2f, 0x1.0a57a8p-2f,
+        0x1.14e3bcp-2f, 0x1.1fa44p-2f, 0x1.2a993p-2f, 0x1.35c29p-2f,
+        0x1.41205cp-2f, 0x1.4cb296p-2f, 0x1.58793ep-2f, 0x1.647454p-2f,
+        0x1.70a3d8p-2f, 0x1.7d07c8p-2f, 0x1.89a028p-2f, 0x1.966cf4p-2f,
+        0x1.a36e2ep-2f, 0x1.b0a3d8p-2f, 0x1.be0deep-2f, 0x1.cbac72p-2f,
+        0x1.d97f62p-2f, 0x1.e786c2p-2f, 0x1.f5c29p-2f, 0x1.021966p-1f,
+        0x1.096bbap-1f, 0x1.10d844p-1f, 0x1.185f06p-1f, 0x1.2p-1f,
+        0x1.27bb3p-1f, 0x1.2f9096p-1f, 0x1.378034p-1f, 0x1.3f8a0ap-1f,
+        0x1.47ae14p-1f, 0x1.4fec56p-1f, 0x1.5844dp-1f, 0x1.60b78p-1f,
+        0x1.694468p-1f, 0x1.71eb86p-1f, 0x1.7aacdap-1f, 0x1.838866p-1f,
+        0x1.8c7e28p-1f, 0x1.958e22p-1f, 0x1.9eb852p-1f, 0x1.a7fcbap-1f,
+        0x1.b15b58p-1f, 0x1.bad42cp-1f, 0x1.c46738p-1f, 0x1.ce147ap-1f,
+        0x1.d7dbf4p-1f, 0x1.e1bda6p-1f, 0x1.ebb98cp-1f, 0x1.f5cfaap-1f,
+        0x1p+0f, 0x1.052546p+0f, 0x1.0a57a8p+0f, 0x1.0f9724p+0f,
+        0x1.14e3bcp+0f, 0x1.1a3d7p+0f, 0x1.1fa44p+0f, 0x1.25182ap+0f,
+        0x1.2a993p+0f, 0x1.302752p+0f, 0x1.35c29p+0f, 0x1.3b6ae8p+0f,
+        0x1.41205cp+0f, 0x1.46e2ecp+0f, 0x1.4cb296p+0f, 0x1.528f5cp+0f,
+        0x1.58793ep+0f, 0x1.5e703ap+0f, 0x1.647454p+0f, 0x1.6a8588p+0f,
+        0x1.70a3d8p+0f, 0x1.76cf42p+0f, 0x1.7d07c8p+0f, 0x1.834d6ap+0f,
+        0x1.89a028p+0f, 0x1.9p+0f, 0x1.966cf4p+0f, 0x1.9ce704p+0f,
+    };
+    if ((unsigned)val < 128u)
+        return table[val];
+    return (float)val * (float)val / (100.0f * 100.0f); /* Preserve non-pot callers. */
+}
+
+/* Exact original /127 send values; shared by both 7-bit send controls. */
+static float mix_send_from_pot(int val)
+{
+    static const float table[128] = {
+        0x0p+0f, 0x1.020408p-7f, 0x1.020408p-6f, 0x1.83060cp-6f,
+        0x1.020408p-5f, 0x1.42850ap-5f, 0x1.83060cp-5f, 0x1.c3870ep-5f,
+        0x1.020408p-4f, 0x1.22448ap-4f, 0x1.42850ap-4f, 0x1.62c58cp-4f,
+        0x1.83060cp-4f, 0x1.a3468ep-4f, 0x1.c3870ep-4f, 0x1.e3c79p-4f,
+        0x1.020408p-3f, 0x1.122448p-3f, 0x1.22448ap-3f, 0x1.3264cap-3f,
+        0x1.42850ap-3f, 0x1.52a54ap-3f, 0x1.62c58cp-3f, 0x1.72e5ccp-3f,
+        0x1.83060cp-3f, 0x1.93264cp-3f, 0x1.a3468ep-3f, 0x1.b366cep-3f,
+        0x1.c3870ep-3f, 0x1.d3a74ep-3f, 0x1.e3c79p-3f, 0x1.f3e7dp-3f,
+        0x1.020408p-2f, 0x1.0a1428p-2f, 0x1.122448p-2f, 0x1.1a3468p-2f,
+        0x1.22448ap-2f, 0x1.2a54aap-2f, 0x1.3264cap-2f, 0x1.3a74eap-2f,
+        0x1.42850ap-2f, 0x1.4a952ap-2f, 0x1.52a54ap-2f, 0x1.5ab56ap-2f,
+        0x1.62c58cp-2f, 0x1.6ad5acp-2f, 0x1.72e5ccp-2f, 0x1.7af5ecp-2f,
+        0x1.83060cp-2f, 0x1.8b162cp-2f, 0x1.93264cp-2f, 0x1.9b366cp-2f,
+        0x1.a3468ep-2f, 0x1.ab56aep-2f, 0x1.b366cep-2f, 0x1.bb76eep-2f,
+        0x1.c3870ep-2f, 0x1.cb972ep-2f, 0x1.d3a74ep-2f, 0x1.dbb76ep-2f,
+        0x1.e3c79p-2f, 0x1.ebd7bp-2f, 0x1.f3e7dp-2f, 0x1.fbf7fp-2f,
+        0x1.020408p-1f, 0x1.060c18p-1f, 0x1.0a1428p-1f, 0x1.0e1c38p-1f,
+        0x1.122448p-1f, 0x1.162c58p-1f, 0x1.1a3468p-1f, 0x1.1e3c78p-1f,
+        0x1.22448ap-1f, 0x1.264c9ap-1f, 0x1.2a54aap-1f, 0x1.2e5cbap-1f,
+        0x1.3264cap-1f, 0x1.366cdap-1f, 0x1.3a74eap-1f, 0x1.3e7cfap-1f,
+        0x1.42850ap-1f, 0x1.468d1ap-1f, 0x1.4a952ap-1f, 0x1.4e9d3ap-1f,
+        0x1.52a54ap-1f, 0x1.56ad5ap-1f, 0x1.5ab56ap-1f, 0x1.5ebd7ap-1f,
+        0x1.62c58cp-1f, 0x1.66cd9cp-1f, 0x1.6ad5acp-1f, 0x1.6eddbcp-1f,
+        0x1.72e5ccp-1f, 0x1.76eddcp-1f, 0x1.7af5ecp-1f, 0x1.7efdfcp-1f,
+        0x1.83060cp-1f, 0x1.870e1cp-1f, 0x1.8b162cp-1f, 0x1.8f1e3cp-1f,
+        0x1.93264cp-1f, 0x1.972e5cp-1f, 0x1.9b366cp-1f, 0x1.9f3e7cp-1f,
+        0x1.a3468ep-1f, 0x1.a74e9ep-1f, 0x1.ab56aep-1f, 0x1.af5ebep-1f,
+        0x1.b366cep-1f, 0x1.b76edep-1f, 0x1.bb76eep-1f, 0x1.bf7efep-1f,
+        0x1.c3870ep-1f, 0x1.c78f1ep-1f, 0x1.cb972ep-1f, 0x1.cf9f3ep-1f,
+        0x1.d3a74ep-1f, 0x1.d7af5ep-1f, 0x1.dbb76ep-1f, 0x1.dfbf7ep-1f,
+        0x1.e3c79p-1f, 0x1.e7cfap-1f, 0x1.ebd7bp-1f, 0x1.efdfcp-1f,
+        0x1.f3e7dp-1f, 0x1.f7efep-1f, 0x1.fbf7fp-1f, 0x1p+0f,
+    };
+    if ((unsigned)val < 128u)
+        return table[val];
+    return (float)val / 127.0f; /* Preserve non-pot callers. */
+}
+
 static void apply_param(int t, int v, int i, int val)    /* ISR */
 {
     switch (t) {
@@ -528,11 +613,11 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
         if (v < 0 || v >= NPARTS)
             break;
         if (i == MX_LEVEL)
-            mix_level[v] = (float)val * (float)val / (100.0f * 100.0f);     /* 100 = unity, square law */
+            mix_level[v] = mix_level_from_pot(val);     /* 100 = unity, square law */
         else if (i == MX_REV)
-            mix_rev[v] = (float)val / 127.0f;
+            mix_rev[v] = mix_send_from_pot(val);
         else if (i == MX_DLY)
-            mix_dly[v] = (float)val / 127.0f;
+            mix_dly[v] = mix_send_from_pot(val);
         else if (i == MX_PAN)
             x0x_pan_gains(val, &mix_pl[v], &mix_pr[v]);
         else if (i == MX_CUT)
@@ -1704,9 +1789,13 @@ static void core2_job(uint32_t arg)
         pt = plat_cycles();
     }
     brk_silent_now = breaks_silent(&brk);                 /* the render writes zeros: nothing to mix */
-    breaks_render(&brk, kbuf, (int)n);
-    if (!brk_silent_now)
+    if (!brk_silent_now) {
+        /* A silent render changes no BRK state and only clears kbuf. This
+         * stretch never reads kbuf in that case; the next audible render
+         * writes all of its samples before they are mixed. */
+        breaks_render(&brk, kbuf, (int)n);
         bfx_shape(PART_BRK, kbuf, 0, 0, 0, 1, (int)n);
+    }
     if (timed)
         PROF_ADD(PR_BRK, pt);
 }

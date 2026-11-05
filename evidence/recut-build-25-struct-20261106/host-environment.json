@@ -1,0 +1,6 @@
+{
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "gcc": "cc (Debian 14.2.0-19) 14.2.0",
+  "node": "v24.19.0"
+}
