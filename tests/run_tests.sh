@@ -447,6 +447,7 @@ run part-order sh tests/host/part_order_test.sh
 run part-off env PART_OFF_REQUIRE_BASE=1 PART_OFF_BASE_REF=c32c54ac8ec68aaca53adccf7af66f155590f2dc sh tests/host/run_part_off.sh   # M7a; all-ON bit-exact vs the pre-M7 base
 run part-off-web-e2e sh tests/host/run_part_off_web_e2e.sh   # M7a: firmware-exported .x0x (real header word 28) through the real web parseProject, all 32 masks
 run part-off-web-e2e-node-gate sh tests/host/run_part_off_web_e2e_node_gate_test.sh   # D6: missing node must FAIL (non-zero), not false-green NOT_RUN
+run part-off-web-e2e-not-run-exit sh tests/host/run_part_off_web_e2e_not_run_exit_test.sh   # D6: a required NOT_RUN must exit non-zero
 run smc-ui sh tests/host/smc_ui_test.sh
 run smc-ui-popup sh tests/host/smc_ui_popup_test.sh
 run smc-remainder sh tests/host/smc_remainder_test.sh
