@@ -14,8 +14,9 @@
   Keep independent ready work moving. Do not create a new timer job merely to wait;
   retain existing authorized checkup/watchdog ownership and verify actual handoffs.
   Do not assign new execution work to an old chat.
-- At task start, check other project chats. Read their current status and scope before shared work.
-  Check again before shared changes if that information can be out of date.
+- At task start, check the merge-queue/ledger record for the scope you will touch.
+  Read other project chats only when that record is missing or stale for the scope.
+  Re-check the ledger before a shared change if it may have changed since task start.
 
   Do not duplicate work or compete for ownership.
 - Use a separate lane for each task. Preserve other work.
