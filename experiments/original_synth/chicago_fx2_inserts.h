@@ -127,6 +127,78 @@ static inline void chi_bpm2_process(chi_bpm2_t *d, float *buf, int n)
     }
 }
 
+/* Byte checks deliberately reject negative zero and tiny residual tails. No
+ * epsilon flush: a refusal leaves the entire arena untouched. */
+static inline int chi_fx2_zero_bytes(const void *p, unsigned n)
+{
+    const unsigned char *b = p;
+    for (unsigned i = 0; i < n; ++i) if (b[i]) return 0;
+    return 1;
+}
+
+/* Exact settled-silence advance. Coefficients come from insert_set. Histories
+ * must be empty, including cells outside the currently selected delay time. */
+static inline int chi_fx2_insert_advance_zero(chi_fx2_insert_arena *a, unsigned type, uint32_t n)
+{
+    /* History scans cost more than a few ordinary samples. */
+    if (n < 128u) return 0;
+    switch (type) {
+    case 3: {
+        chi_ens_t *e = &a->ens;
+        if (e->wet <= 0.0f) return 1;
+        if (!chi_fx2_zero_bytes(e->buf, sizeof e->buf)) return 0;
+        for (uint32_t k = 0; k < n; ++k)
+            for (int v = 0; v < CHI_ENS_VOICES; ++v) {
+                e->phase[v] += e->inc * (1.0f + 0.17f * (float)v);
+                if (e->phase[v] >= 1.0f) e->phase[v] -= 1.0f;
+            }
+        e->w = (uint16_t)((e->w + n % CHI_ENS_MAX) % CHI_ENS_MAX);
+        return 1;
+    }
+    case 12: {
+        chi_sdly_t *d = &a->sdly;
+        if (d->wet <= 0.0f) return 1;
+        if (!chi_fx2_zero_bytes(d->buf, sizeof d->buf)) return 0;
+        d->w = (uint16_t)((d->w + n % CHI_SDLY_MAX) % CHI_SDLY_MAX);
+        return 1;
+    }
+    case 13: {
+        chi_bpm2_t *d = &a->bpm;
+        if (d->wet <= 0.0f) return 1;
+        if (!chi_fx2_zero_bytes(d->buf, sizeof d->buf) ||
+            !chi_fx2_zero_bytes(&d->pair, sizeof d->pair)) return 0;
+        d->w = (d->w + n % (2u * CHI_BPM2_SLOTS)) % (2u * CHI_BPM2_SLOTS);
+        return 1;
+    }
+    case 15: {
+        chi_hall_q_t *h = &a->hall;
+        static const uint16_t cl[4] = { CHI_HALL_C0, CHI_HALL_C1, CHI_HALL_C2, CHI_HALL_C3 };
+        if (h->wet <= 0.0f) return 1;
+        if (!chi_fx2_zero_bytes(h->comb, sizeof h->comb) ||
+            !chi_fx2_zero_bytes(h->ap0, sizeof h->ap0) ||
+            !chi_fx2_zero_bytes(h->ap1, sizeof h->ap1) ||
+            !chi_fx2_zero_bytes(h->cdmp, sizeof h->cdmp)) return 0;
+        for (int c = 0; c < 4; ++c) h->cpos[c] = (uint16_t)((h->cpos[c] + n % cl[c]) % cl[c]);
+        h->apos0 = (uint16_t)((h->apos0 + n % CHI_HALL_AP0) % CHI_HALL_AP0);
+        h->apos1 = (uint16_t)((h->apos1 + n % CHI_HALL_AP1) % CHI_HALL_AP1);
+        return 1;
+    }
+    case 16: {
+        chi_gaterev_t *g = &a->grev;
+        static const uint16_t cl[3] = { CHI_GREV_C0, CHI_GREV_C1, CHI_GREV_C2 };
+        if (g->wet <= 0.0f) return 1;
+        if (!chi_fx2_zero_bytes(g->comb, sizeof g->comb) ||
+            !chi_fx2_zero_bytes(g->ap0, sizeof g->ap0) ||
+            !chi_fx2_zero_bytes(g->cdmp, sizeof g->cdmp) ||
+            !chi_fx2_zero_bytes(&g->lp, 4u * sizeof(float))) return 0;
+        for (int c = 0; c < 3; ++c) g->cpos[c] = (uint16_t)((g->cpos[c] + n % cl[c]) % cl[c]);
+        g->apos0 = (uint16_t)((g->apos0 + n % CHI_GREV_AP0) % CHI_GREV_AP0);
+        return 1;
+    }
+    default: return 0;
+    }
+}
+
 static inline void chi_fx2_insert_init(chi_fx2_insert_arena *a, unsigned type)
 {
     memset(a, 0, sizeof *a);

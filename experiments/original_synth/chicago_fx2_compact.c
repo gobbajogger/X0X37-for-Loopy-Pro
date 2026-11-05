@@ -129,9 +129,9 @@ static int advance_zero(void *p,uint32_t n,int16_t constant[2])
     case 18: ok=original_chicago_mastercomp_advance_zero(&s->state.mastercomp,n); break;
     case 22: ok=original_chicago_decimator_advance_zero(&s->state.decimator,n); break;
     case 24: ok=original_chicago_peaking_advance_zero(&s->state.peaking,n,value); break;
-    /* Restored inserts use ordinary silence processing. Their delay heads,
-     * LFO phase and reverb state must advance even with an empty ring. */
-    default: break;
+    default:
+        ok=chi_fx2_insert_advance_zero(&s->arena.insert,s->selected_type,n);
+        break;
     }
     if(ok){queue_from_selected(s);constant[0]=value[0];constant[1]=value[1];}
     return ok;
