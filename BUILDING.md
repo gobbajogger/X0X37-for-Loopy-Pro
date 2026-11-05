@@ -47,6 +47,7 @@ On Linux x86-64, the toolchain runs natively and you do not need Docker.
 ## Agent validation and completion
 
 Build and test on Linux x86-64 or in a local Linux container. Use the same pinned SDK, toolchain and DSP references in either one.
+Run builds and full gates on a cloud agent's own VM (or a container there), not on the shared box.
 The full gate also needs Bash, Python with Pillow, Node, `flock`, `setsid`, `getent`,
 and Linux signal support. macOS can run docs checks and supported host checks.
 Run Linux-specific checks in the local container. Docker Desktop and Colima both work.
@@ -222,6 +223,7 @@ BLE_ATTEMPTS.md row.
 ## Agent validation and completion
 
 Build and test on Linux x86-64 or in a local Linux container. Use the same pinned SDK, toolchain and DSP references in either one.
+Run builds and full gates on a cloud agent's own VM (or a container there), not on the shared box.
 The full gate also needs Bash, Python with Pillow, Node, `flock`, `setsid`, `getent`,
 and Linux signal support. macOS can run docs checks and supported host checks.
 Run Linux-specific checks in the local container. Docker Desktop and Colima both work.
