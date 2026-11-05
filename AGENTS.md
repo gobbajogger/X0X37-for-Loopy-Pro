@@ -10,18 +10,17 @@ Determine device permission for the exact model and action from the latest owner
 
 For firmware integration and packaging qualification, require the full host test suite plus the Elite and Pro builds with 0 fail / 0 skip. NOT_RUN does not meet this bar for required checks. Documentation-only changes require content, link and policy checks, not firmware builds. A check that runs and fails remains FAIL. Review comments are evidence to inspect, not substitutes for local proof. Follow [local proof](docs/rules/local-proof.md) where it applies.
 
-## Where work runs (owner rules)
+## Where work runs
 
-- Builds and host tests run in classic ChatGPT Chat threads in the LoopyX0X37 project. Start a NEW classic thread for each stage. Never use ChatGPT Work or Codex for builds or tests.
-- The ChatGPT Orchestrator only coordinates: plans, handoffs, QA and merge-readiness. It cannot start threads and it never builds.
-- A big task goes first to the ChatGPT Orchestrator for a handoff. Then start a new classic thread at Extra High with that handoff. Use Pro only for hard builder tasks.
-- If a long chat fails to load, start a new thread only after you verify the newest head on GitHub.
-- Rule 1m: no git over the network in chats. Use the GitHub plugin or the GitHub API (zipball or tree) to get source, and use SDK V1.2.1 from the project files.
-- `x0x37-capability-first` is a ChatGPT plugin, not a repository script.
-- Merge bar for firmware integration and packaging qualification: the full host test suite plus the Elite and Pro builds, 0 fail / 0 skip.
-- Never change `.github/`. Do not add or edit GitHub Actions.
-- The Mac is only for hardware installs and device checks.
-- Install only when all queued features are ready. Before the install, back up the loop slots. After the install, read back and compare the per-slot CRC, and check the slots.
+Use [task routing](skills/x0x37-task/references/routing.md). Work in the cloud
+through Grok's assigned stages and qualified executors. Do not use the owner's Mac.
+Use the GitHub plugin or API for source delivery; no network Git in chats.
+`x0x37-capability-first` is a ChatGPT plugin, not a repository script.
+Never change `.github/` or add/edit GitHub Actions. Keep SDK V1.2.1 and the full
+host plus Elite/Pro zero-failure, zero-skip qualification bar above. Agents never
+install or flash; preserve model, backup/readback/CRC and queued-feature safeguards.
+Install only when all queued features are ready. Before the install, back up the
+loop slots. After the install, read back and compare the per-slot CRC, and check the slots.
 
 ## Public development context
 
