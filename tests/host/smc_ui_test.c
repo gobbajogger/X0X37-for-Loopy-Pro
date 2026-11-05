@@ -250,6 +250,12 @@ static void test_clip(void)
     expire(); unchanged(before);
     puts("PASS clip: grid/waiting framebuffer restores; actual extracted CK turn shows full field UI");
 }
+static void audio_block(void)
+{
+    /* Service the real audio task before admitting the next project transfer. */
+    int32_t block[512];
+    engine_render(block, 256);
+}
 static void test_actions_and_reset(void)
 {
     setup(V_HOME, PART_303A);
@@ -273,9 +279,21 @@ static void test_actions_and_reset(void)
     }
     setup(V_PART, PART_303A); fader(0, 0); CHECK(smc_ui_active());
     ui_init(); CHECK(!smc_ui_active());
+    /* ui_init returned to drum SEQ with no notes. Publish a real synth key
+     * before the popup cancels it; project admission waits for audio's ack. */
+    ui.part = PART_303A; set_view(V_PART); ui.freeplay[0] = 1; input();
+    CHECK(ui_live_key_owner() == 1);
+    held_keys = 1u << 7; input();
+    CHECK(engine_project_notes());
     fader(0, 1); CHECK(smc_ui_active());
-    CHECK(ui_project_begin() == 0); CHECK(!smc_ui_active());
+    input(); /* The popup revokes the accepted keyboard live-key owner. */
+    held_keys = 0; input(); /* BUSY below must come from audio acknowledgement, not a held key. */
+    CHECK(engine_project_notes());
+    CHECK(ui_project_begin() == UI_PROJECT_BUSY); CHECK(!ui_project_busy());
+    audio_block(); CHECK(!engine_project_notes());
+    CHECK(ui_project_begin() == 0); CHECK(ui_project_busy()); CHECK(!smc_ui_active());
     fader(0, 0); CHECK(!smc_ui_active()); ui_project_end(0);
+    held_keys = 0; input();
     fader(0, 2); CHECK(smc_ui_active()); smc_project_reset(); CHECK(!smc_ui_active());
     puts("PASS actions/reset: mute+Solo, inactive strips, init/project lock/reset");
 }
