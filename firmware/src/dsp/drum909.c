@@ -716,17 +716,24 @@ static void d9_render_bd(d9_bt_t *v, const float *nz, const d9_bus_t *bus, int n
         d9_warm(&v->click_lp, nz);
         v->click_warm = 0;
     }
+    /* bd_df is unchanged during pitch hold. Reuse the same rounded increment;
+     * on the first decay sample, still read the frequency before decaying it. */
+    const uint32_t hold_inc = v->bd_phold > 0 && m > 0
+        ? d9_inc(v->bd_base + v->bd_df) : 0;
     for (int i = 0; i < m; ++i) {
-        const float f = v->bd_base + v->bd_df;
-        if (v->bd_phold > 0)
+        uint32_t inc;
+        if (v->bd_phold > 0) {
+            inc = hold_inc;
             --v->bd_phold;
-        else
+        } else {
+            inc = d9_inc(v->bd_base + v->bd_df);
             v->bd_df *= v->bd_mult;
+        }
         if (v->amp_hold_left > 0 && --v->amp_hold_left == 0)
             d9_env_exp(&v->amp, 0.00001f, v->decay * 0.001f * D9_SR);
         const float amp = d9_env_tick(&v->amp);
 
-        v->ph += d9_inc(f);
+        v->ph += inc;
         float o = d9_diode16(d9_tri(v->ph));
         o += 0.05f * o * o;
         o = d9_biquad_tick(&v->dc_block, o);
