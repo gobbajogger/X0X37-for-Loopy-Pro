@@ -84,6 +84,11 @@ another ref the owner names); record that SHA in the evidence (the earlier revie
 pin was `a8205aff483dce09414093defdc19cf79d57b719`)
 and current target rules; source push, merge, publication, live bytes and device
 acceptance remain separate.
+Keep existing NIGHTLY catalog entries and history unchanged, including the current
+0.0.24.5 entry. A new entry is added only through the documented catalog_sync,
+website_main_merger and sole website_publisher steps, and only when every required
+check is PASS (0 fail / 0 skip; NOT_RUN is reported honestly and is not PASS). The
+docs role never edits catalogs or publishes. (Relayed by the coordinator.)
 
 Preserve feature, model, sample-quality, data, licensing and binary protections.
 Existing synth `*_private.h` filenames are not a deletion instruction. Keep the
