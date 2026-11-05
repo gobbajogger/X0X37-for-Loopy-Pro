@@ -1,7 +1,7 @@
 # X0X for the M-VAVE FM-1
 
 For project work, read [AGENTS.md](AGENTS.md) and the
-[active workflow](docs/rules/workflow.md). Build, publication and device commands
+[active rules](RULES.md). Build, publication and device commands
 below require their current action authority and applicable evidence; older
 examples do not assign an integration or publisher role.
 
