@@ -36,7 +36,7 @@ enum { FX_VOLUME, FX_DIST, FX_DRIVE, FX_COMP,
 
 struct fxbus {
     /* reverb */
-    float rv_decay, rv_tone, rv_level;
+    float rv_decay, rv_damp, rv_level; /* rv_damp caches 0.75 - tone*0.55 */
     d9_biquad_t rv_hp;
     int16_t comb[FX_RV_COMB_TOTAL];
     volatile uint8_t muted;          /* uses alignment padding: reverb/delay/master output gates, not pots */
