@@ -2,6 +2,8 @@ Rule 1 (owner, explicit, 2026-10-31): Don't do stupid work. Only do work that mo
 
 Rule 2 (owner, explicit, 2026-10-31): Always start a new Codex/ChatGPT thread for each job. Never reuse old threads.
 
+SUPERSEDED 2026-11-05 by docs/rules/current-owner-contract.md (owner decisions recorded there: 2026-11-03 clarification: new stage threads and an end-of-stage handoff, not a fresh thread for every task; 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions supersede fixed-orchestrator routing; see audit docs/audit/dnbox-rules-20261105.md).
+
 Rule 3 (owner, explicit, 2026-10-31): Speed first. Fix blockers (like forbidden files) first, run tests and builds in parallel, and cut anything the build does not need.
 
 Rule 4 (owner, explicit, 2026-10-31): Don't overcomplicate it. Keep work and messages simple.
@@ -27,7 +29,9 @@ Owner: Docs Keeper (living document). Docs Keeper updates this file when an agen
 - Purpose: Builds, debugs and installs custom firmware. Owns Bluetooth/JieLi work on ble-stage3. Only agent allowed to install (with backups + CRC + pre-install heads-up).
 - Never: (none specific beyond rules). From USER_PREFERENCES.md: never write the bootloader, never install in the background, never install without a slot backup and a CRC compare.
 - Worktree: /Users/mac/Documents/x0x37/flash_review (branch ble-stage3).
+  - SUPERSEDED 2026-11-05 by docs/rules/current-owner-contract.md (owner decisions recorded there: 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions: work in the cloud; do not use or transfer this work to the owner's Mac; agents never install or flash; see audit docs/audit/dnbox-rules-20261105.md).
 - Box copy: /workspace/x0x37-firmware-main-builder. Commits there, then syncs the commits to the Mac repo before each install.
+  - SUPERSEDED 2026-11-05 by docs/rules/current-owner-contract.md (owner decisions recorded there: 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions: work in the cloud; do not use or transfer this work to the owner's Mac; agents never install or flash; see audit docs/audit/dnbox-rules-20261105.md).
 - Rooms: Loopy, Integration, Feature Design, User Test.
 
 ### Second Builder
@@ -35,7 +39,9 @@ Owner: Docs Keeper (living document). Docs Keeper updates this file when an agen
 - Purpose: Builds clip-mode keybed, scale/chord/arp, tempo carry-over on clip-keys. (TO CONFIRM: the agent profile has no description.)
 - Never: Installs. Does not edit the flash_review tree (it belongs to Firmware Main Builder).
 - Worktree: /Users/mac/Documents/x0x37/flash_review_clipkeys (branch clip-keys).
+  - SUPERSEDED 2026-11-05 by docs/rules/current-owner-contract.md (owner decisions recorded there: 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions: work in the cloud; do not use or transfer this work to the owner's Mac; agents never install or flash; see audit docs/audit/dnbox-rules-20261105.md).
 - Box copy: /workspace/x0x37-second-builder. Commits there, then syncs to the Mac branch clip-keys.
+  - SUPERSEDED 2026-11-05 by docs/rules/current-owner-contract.md (owner decisions recorded there: 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions: work in the cloud; do not use or transfer this work to the owner's Mac; agents never install or flash; see audit docs/audit/dnbox-rules-20261105.md).
 - Rooms: Loopy, Feature Design, User Test.
 
 ### Firmware Q&A
@@ -49,6 +55,7 @@ Owner: Docs Keeper (living document). Docs Keeper updates this file when an agen
 - Purpose: Merges branches into an integration branch on commits. Runs build + unit tests. Surfaces conflicts early. Reports in plain English in Integration and Loopy. Keeps caches and worktrees clean.
 - Never: Installs firmware.
 - Worktree: /Users/mac/Documents/x0x37/flash_review_integration (branch integration).
+  - SUPERSEDED 2026-11-05 by docs/rules/current-owner-contract.md (owner decisions recorded there: 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions: work in the cloud; do not use or transfer this work to the owner's Mac; agents never install or flash; see audit docs/audit/dnbox-rules-20261105.md).
 - Rooms: Loopy, Integration.
 
 ### Build and Test Runner
@@ -114,10 +121,14 @@ Rule: a room can have a maximum of 6 agents. Before you add an agent to a full r
 - Use simple English. Keep logs (x0x37-progress-log.md, merge-monitor-log.md) updated.
 - Docs Keeper handles paperwork.
 - Build, test and analyze on a copy of the project on the box. Use the Mac only for installs and device access.
+  - SUPERSEDED 2026-11-05 by docs/rules/current-owner-contract.md (owner decisions recorded there: 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions: work in the cloud; do not use or transfer this work to the owner's Mac; agents never install or flash; see audit docs/audit/dnbox-rules-20261105.md).
 - If the Mac does not respond, retry for 5 minutes. Report it offline only after 5 minutes.
+  - SUPERSEDED 2026-11-05 by docs/rules/current-owner-contract.md (owner decisions recorded there: 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions: work in the cloud; do not use or transfer this work to the owner's Mac; agents never install or flash; see audit docs/audit/dnbox-rules-20261105.md).
 - All agents share one box. Each agent uses its own box folder, /workspace/x0x37-<agent-name>. Never use another agent's folder.
 - Builders commit on the box, then sync the commits to the Mac repo before an install.
+  - SUPERSEDED 2026-11-05 by docs/rules/current-owner-contract.md (owner decisions recorded there: 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions: work in the cloud; do not use or transfer this work to the owner's Mac; agents never install or flash; see audit docs/audit/dnbox-rules-20261105.md).
 - Keep one copy of the project on the box and one on the Mac. Keep the two copies in sync.
+  - SUPERSEDED 2026-11-05 by docs/rules/current-owner-contract.md (owner decisions recorded there: 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions: work in the cloud; do not use or transfer this work to the owner's Mac; agents never install or flash; see audit docs/audit/dnbox-rules-20261105.md).
 - Shared bare repository on the box: /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it. No agent pushes outside the box. (User approved 2026-10-16 02:09.)
 - Generic work is approved automatically. Notify the user first before anything that changes how the device works or feels. Safety rules stay. (User, 2026-10-16 02:11.)
 
