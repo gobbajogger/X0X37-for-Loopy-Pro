@@ -1,3 +1,5 @@
+Ownership and qualification bars have one home: [current owner contract](../../../docs/rules/current-owner-contract.md). Do not fork them here.
+
 # Task ownership and shared work
 
 - Keep each task in its assigned isolated lane with one accountable owner.
