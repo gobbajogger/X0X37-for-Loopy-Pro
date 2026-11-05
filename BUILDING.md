@@ -40,7 +40,8 @@ The build makes three files in `build/`:
       https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git ~/fw-AC79_AIoT_SDK
   ```
 
-- Node.js (optional, for the web tests).
+- Node.js (for the web tests; optional for docs-only or non-gate host work, required
+  for the full firmware gate below).
 
 On Linux x86-64, the toolchain runs natively and you do not need Docker.
 
@@ -53,7 +54,8 @@ and Linux signal support. macOS can run docs checks and supported host checks.
 Run Linux-specific checks in the local container. Docker Desktop and Colima both work.
 
 Install Pillow in the agent environment when you can (`bash tools/agent_env_install.sh`).
-Missing optional host tooling (Pillow, ASan, missing reference repos) does not stop
+Pillow and Node are required for the full firmware gate (see above). Outside that
+gate, missing optional host tooling (Pillow, ASan, missing reference repos) does not stop
 independent ready work. Its dependent optional checks may stay NOT_RUN.
 For firmware integration and packaging qualification, require the full host test suite plus the Elite and Pro builds with 0 fail / 0 skip. NOT_RUN does not meet this bar for required checks.
 A generation step that actually ran and failed still fails the suite.
