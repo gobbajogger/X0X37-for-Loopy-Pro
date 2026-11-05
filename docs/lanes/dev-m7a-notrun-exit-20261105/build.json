@@ -1,0 +1,107 @@
+{
+  "state": "BUILD_ONLY",
+  "base": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "rebased_source": "9bd447b2265a1b99e3cfa0a348a42c05483f623f",
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_version": "AC79NN_SDK_V1.2.1_2023-12-13",
+  "sdk_pins": "11/11 SHA256 MATCH",
+  "toolchain": "JieLi clang 4.0.1 / jieli-linux-toolchains-20260730.1",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "reference_inputs": {
+    "schwung-9W9": {
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "tree": "2a32b748456d4f162010932771f2ca26fc5d34d6"
+    },
+    "schwung-8W8": {
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "tree": "a042961b65cb420bd1555de3cd93cbb7c807652f"
+    },
+    "schwung-tb3po": {
+      "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "tree": "2d87c9ef8a0fe1fca4b0af524e8939fbdf6fb904"
+    }
+  },
+  "artifacts": {
+    "build/smk37/x0x.bin": {
+      "bytes": 481256,
+      "sha256": "fecaa4d472b0e67a052a2b3ff25177f82e4a118179ce34c0c0d68bde33f5cfec"
+    },
+    "build/smk37/loader/ota.bin": {
+      "bytes": 7341,
+      "sha256": "9047d7ab8946f73260525d2c03197e5f1b2101af3941b3f2702d843ee9e75229"
+    },
+    "build/x0x-smk37.fwsc": {
+      "bytes": 651457,
+      "sha256": "3fa7c8107219ee161f077d7d1d6113802aee72e27658ad8c9feeb41ab8e10edc"
+    },
+    "build/smk37-elite/x0x.bin": {
+      "bytes": 481256,
+      "sha256": "424b909d963731bba1129324655c2e81547f8cf0417320d15fdbec8c40528c1e"
+    },
+    "build/smk37-elite/loader/ota.bin": {
+      "bytes": 7341,
+      "sha256": "7f7b107048194dc2f2e62936c365589bb87f9c1409eb67d120cc4c4e69dc2a21"
+    },
+    "build/x0x-smk37-elite.fwsc": {
+      "bytes": 651457,
+      "sha256": "267bd62cc58eff124d84bd4ffaa7e557eb9c94b26386c6ec91806aa412997222"
+    },
+    "ble/ctl/out/ctl.img": {
+      "bytes": 61088,
+      "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7"
+    }
+  },
+  "models": {
+    "elite": {
+      "result": "PASS",
+      "app_image_bytes": 481256,
+      "static_ram_bytes": 95780,
+      "ram_text_bytes": 2712,
+      "pool_used_bytes": 335464,
+      "pool_budget_bytes": 344064,
+      "pool_free_bytes": 8600,
+      "log_sha256": "3d64cd36b6b2e15804929c91e847b2306e3eea477335d3c334a16f3fe10063ab"
+    },
+    "pro": {
+      "result": "PASS",
+      "app_image_bytes": 481256,
+      "static_ram_bytes": 95780,
+      "ram_text_bytes": 2712,
+      "pool_used_bytes": 335464,
+      "pool_budget_bytes": 344064,
+      "pool_free_bytes": 8600,
+      "log_sha256": "38ab5e18967c70afb5a5a92d164610d5d5b42264e22d442af4284d56a4c035bd"
+    }
+  },
+  "controller": {
+    "result": "PASS",
+    "bytes": 61088,
+    "crc32": "9aa7f77f",
+    "ram_bytes": 26336,
+    "ram_budget_bytes": 26368
+  },
+  "host_suite": "PASS; 340 selectors after the documented compiler repair and affected-selector rerun",
+  "device": "NOT_RUN",
+  "release": "NOT_RUN",
+  "publication": "NOT_RUN",
+  "source_identity": {
+    "checked_commit": "9bd447b2265a1b99e3cfa0a348a42c05483f623f",
+    "native_inputs_unchanged": true,
+    "runner_blob": "8d8cfc607941ad85dd37e9b9e3a2299e5b58af3d",
+    "runner_mode": "100755",
+    "later_changes": "Runner executable mode and metadata-only evidence. Firmware, experiments, host and build tools remain byte-identical to checked commit."
+  },
+  "host_compilers": {
+    "gcc": "14.2.0",
+    "clang": "Debian 19.1.7 (3+b1)"
+  },
+  "external_input_manifest_sha256": "9c7ac9b0a71e775fb7009e2d4035fce827b2c56c4e8e692a7a8910c9c6c881bc",
+  "review": {
+    "model": "GPT-6.1 Sol",
+    "scope": "Original-versus-rebased diff, automatic firmware merges and runner integration",
+    "result": "No concrete rebase-induced source regressions",
+    "finding": "P2: inherited runner executable-mode removal",
+    "disposition": "Reproduced with test -x, restored 100755, verified via direct executable selector run",
+    "execution": "Read-only; no tests or builds delegated"
+  }
+}
