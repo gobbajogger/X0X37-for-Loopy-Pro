@@ -208,8 +208,13 @@ static int st_put(void *ctx, const uint8_t *p, uint32_t n)
                 return -1;
             }
         }
-        io_buf[o->fill++] = *p++;
-        n--;
+        uint32_t chunk = PLAT_STORE_MAX - o->fill;
+        if (chunk > n)
+            chunk = n;
+        __builtin_memcpy(io_buf + o->fill, p, chunk);
+        o->fill += chunk;
+        p += chunk;
+        n -= chunk;
     }
     return 0;
 }

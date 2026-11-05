@@ -1,0 +1,77 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "verdict_scope": "Source review approves the frozen six-file change. The caller must separately complete its full host suite, Elite/Pro native budget comparison and source delivery; this review grants no merge, device or release authority.",
+  "scope": {
+    "base": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+    "branch": "lane/recover-perf6-busfx-20261106",
+    "head_sha": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+    "working_tree_delta": true,
+    "pr_url": null,
+    "files_changed": 6
+  },
+  "intent": "Restore bounded project-stream copies and bus-FX cutoff/tempo call invariants on the exact base. Preserve packed bytes, object and flush boundaries, capacity and failure behavior, audio and filter/gate/ring state, with no persistent RAM additions or forbidden payload.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "performance",
+    "adversarial"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan": "docs/evidence/recover-perf6-busfx-20261106/PLAN.md",
+    "source": "explicit",
+    "readiness": "legacy concrete plan",
+    "code_requirements": "met: both restorations, recovered differential coverage, runtime hoist counters, exact baseline reference and suite registration",
+    "caller_owned_acceptance": "Full-suite execution, identical-input Elite/Pro size/RAM/pool/.ram_text comparisons and verified branch delivery remain outside this source review."
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Target latency and memory placement remain measurement-dependent: the host call-count assertions establish the cutoff/tempo hoists but do not measure JieLi memcpy lowering, DSP cycles, or .ram_text/RAM effects. Identical-input Elite/Pro native comparisons are being collected separately; no measured cycle benefit is asserted by this review."
+  ],
+  "testing_gaps": [],
+  "coverage": {
+    "scope_mode": "local working tree against explicit base",
+    "tracked_files": 3,
+    "explicitly_included_untracked_files": [
+      "tests/busfx_equivalence_test.py",
+      "tests/host/project_stream_chunk_copy_test.py",
+      "docs/evidence/recover-perf6-busfx-20261106/PLAN.md"
+    ],
+    "scoped_standards": "root AGENTS.md fallback and applicable workflow/writing references",
+    "scope_helper": "complete; lite disabled: header and shell paths uncounted; no CE config, packs or learnings corpus",
+    "conditional_lenses": {
+      "testing": "differential harnesses and suite registration",
+      "performance": "DSP loop invariants and storage batching under SMK limits",
+      "adversarial": "persistence boundaries and green-while-red harness fidelity"
+    },
+    "reviewer_outcomes": "5 completed, 0 failed",
+    "cross_model_pass": "not run: only Codex CLI installed; no attested different-provider route. Local adversarial reviewer completed.",
+    "independent_serving_family_corroboration": false,
+    "validators": "0 selected findings; no validator batch required",
+    "suppressed_by_confidence": {},
+    "malformed_findings": 0,
+    "malformed_returns": 0,
+    "mode_aware_demotions": 0,
+    "validator_drops": 0,
+    "diff_whitespace": "PASS",
+    "reviewer_execution": "Read-only inspection only; no builds, host-suite execution, canonical source changes, staging, commits or remote writes by reviewers.",
+    "reviewed_sha256": {
+      "firmware/src/app/project.c": "98bec9623407963e9df3620d146e60701d5f4fcbec9e5bab39e476ffd88b7850",
+      "firmware/src/dsp/busfx.h": "e943b3bda335cdb4edd16eca86c0a90b3b27d86c9b6bd6faf1d467cf3191dc71",
+      "tests/run_tests.sh": "e2348ce6e9c02bfa88d507ddedd391414b972f0518400511f354700849fdbb64",
+      "tests/busfx_equivalence_test.py": "3d149c44d6cf7e1dc694544cf32729ec31b20dd6868cc98c0d07297dbdad5e6d",
+      "tests/host/project_stream_chunk_copy_test.py": "c335dd20ca06bdcc00855f8505f6d64bb2cf126f0518df853528e204b65b5b89",
+      "docs/evidence/recover-perf6-busfx-20261106/PLAN.md": "f0f84c57c56508b68d9b8955304f7e419ffc80dbd0090cac00b5531a6da2ea71"
+    }
+  },
+  "artifact_path": "/tmp/compound-engineering-1000/ce-code-review/20261105-183326-92d80e02",
+  "run_id": "20261105-183326-92d80e02"
+}

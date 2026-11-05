@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "pass": 334,
+  "fail": 0,
+  "skip": 0,
+  "not_run": 0,
+  "exit_code": 0,
+  "command": [
+    "sh",
+    "tests/run_tests.sh"
+  ],
+  "environment": {
+    "X0X_STRICT_PREFLIGHT": "1",
+    "X0X_TEST_JOBS": "8",
+    "X0X_TEST_TIME_SCALE": "20",
+    "CC": "clang 19.1.7",
+    "CXX": "clang++ 19.1.7",
+    "platform": "Linux x86-64",
+    "execution_profile": "network enabled; sanitizer runtime executed normally"
+  },
+  "preflight": {
+    "pass": 16,
+    "fail": 0
+  },
+  "focused_checks": 7,
+  "busfx_calls_per_optimization_level": 188160,
+  "busfx_optimization_levels": [
+    "O0",
+    "O2"
+  ],
+  "stream_differential_cases": 5760,
+  "source_sha256": {
+    "firmware/src/app/project.c": "98bec9623407963e9df3620d146e60701d5f4fcbec9e5bab39e476ffd88b7850",
+    "firmware/src/dsp/busfx.h": "e943b3bda335cdb4edd16eca86c0a90b3b27d86c9b6bd6faf1d467cf3191dc71",
+    "tests/run_tests.sh": "e2348ce6e9c02bfa88d507ddedd391414b972f0518400511f354700849fdbb64",
+    "tests/busfx_equivalence_test.py": "3d149c44d6cf7e1dc694544cf32729ec31b20dd6868cc98c0d07297dbdad5e6d",
+    "tests/host/project_stream_chunk_copy_test.py": "c335dd20ca06bdcc00855f8505f6d64bb2cf126f0518df853528e204b65b5b89"
+  },
+  "log_sha256": "e48fb9bb87388eb0d014a190309dd41c43c09df40298d88adc263b78e0cf4b59"
+}

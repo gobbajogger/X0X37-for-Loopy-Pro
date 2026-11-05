@@ -1,0 +1,7 @@
+{
+  "firmware/src/app/project.c": "98bec9623407963e9df3620d146e60701d5f4fcbec9e5bab39e476ffd88b7850",
+  "firmware/src/dsp/busfx.h": "e943b3bda335cdb4edd16eca86c0a90b3b27d86c9b6bd6faf1d467cf3191dc71",
+  "tests/run_tests.sh": "e2348ce6e9c02bfa88d507ddedd391414b972f0518400511f354700849fdbb64",
+  "tests/busfx_equivalence_test.py": "3d149c44d6cf7e1dc694544cf32729ec31b20dd6868cc98c0d07297dbdad5e6d",
+  "tests/host/project_stream_chunk_copy_test.py": "c335dd20ca06bdcc00855f8505f6d64bb2cf126f0518df853528e204b65b5b89"
+}

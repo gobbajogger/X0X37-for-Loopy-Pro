@@ -1,0 +1,166 @@
+{
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_files": [
+    {
+      "path": "cpu/wl82/liba/btctrler.a",
+      "sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de",
+      "bytes": 5157416
+    },
+    {
+      "path": "cpu/wl82/liba/wl_rf_common.a",
+      "sha256": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2",
+      "bytes": 321802
+    },
+    {
+      "path": "cpu/wl82/liba/crypto_toolbox_Osize.a",
+      "sha256": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e",
+      "bytes": 421662
+    },
+    {
+      "path": "cpu/wl82/liba/lib_ccm_aes.a",
+      "sha256": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c",
+      "bytes": 33128
+    },
+    {
+      "path": "include_lib/newlib/pi32v2-lib/libc.a",
+      "sha256": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4",
+      "bytes": 188988
+    },
+    {
+      "path": "include_lib/newlib/pi32v2-lib/libcompiler_rt.a",
+      "sha256": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009",
+      "bytes": 111588
+    },
+    {
+      "path": "apps/common/net/wifi_conf.c",
+      "sha256": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb",
+      "bytes": 52960
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "bytes": 11357
+    },
+    {
+      "path": "cpu/wl82/tools/uboot.boot",
+      "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+      "bytes": 14536
+    },
+    {
+      "path": "cpu/wl82/tools/cfg_tool.bin",
+      "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "bytes": 383
+    },
+    {
+      "path": "cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+      "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+      "bytes": 655
+    }
+  ],
+  "references": [
+    {
+      "name": "schwung-tb3po",
+      "repository": "charlesvestal/schwung-tb3po",
+      "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "archive_sha256": "a142281ad3e1e58c96afad56f290ff783016d6b3625283d3efb30295776326fa",
+      "directory": "/workspace/work/perf6/inputs/refs/schwung-tb3po"
+    },
+    {
+      "name": "schwung-9W9",
+      "repository": "charlesvestal/schwung-9W9",
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "archive_sha256": "58b35783ebca7a921c5f36f9397285635d1532e07ab11d21abfa48d39ce3988d",
+      "directory": "/workspace/work/perf6/inputs/refs/schwung-9W9"
+    },
+    {
+      "name": "schwung-8W8",
+      "repository": "charlesvestal/schwung-8W8",
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "archive_sha256": "48d9fe7088862f57a9905c550d3b3a534c9713a56b6c0319cbd2d973b2089fb7",
+      "directory": "/workspace/work/perf6/inputs/refs/schwung-8W8"
+    },
+    {
+      "name": "schwung-303",
+      "repository": "charlesvestal/schwung-303",
+      "commit": "7680578cdecd91e512cfddb9c9eb07b287fb64f4",
+      "archive_sha256": "7adc3537cf2217dde11d69177fd3d024f51405bba653fdba656e58ace52fb371",
+      "directory": "/workspace/work/perf6/inputs/refs/schwung-303"
+    }
+  ],
+  "errors": [],
+  "toolchain": {
+    "directory": "/workspace/work/perf6/inputs/jieli-linux-toolchains-20260730.1",
+    "archive_bytes": 26027508,
+    "archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "version": "clang version 4.0.1",
+    "members": 695,
+    "relative_symlinks": 44
+  },
+  "reference_tree_verification": [
+    {
+      "name": "schwung-tb3po",
+      "blobs_verified": 70,
+      "tree": "f49d81d05d1e29ae37728a08e30f193892be3bc9"
+    },
+    {
+      "name": "schwung-9W9",
+      "blobs_verified": 41,
+      "tree": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c"
+    },
+    {
+      "name": "schwung-8W8",
+      "blobs_verified": 68,
+      "tree": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997"
+    },
+    {
+      "name": "schwung-303",
+      "blobs_verified": 54,
+      "tree": "7680578cdecd91e512cfddb9c9eb07b287fb64f4"
+    }
+  ],
+  "host_compiler": {
+    "version": "Debian clang version 19.1.7 (3+b1)",
+    "cc": "/workspace/work/perf6/inputs/host-clang/bin/clang",
+    "cxx": "/workspace/work/perf6/inputs/host-clang/bin/clang++",
+    "packages_receipt": "/workspace/work/perf6/inputs/host-clang/receipt.json",
+    "cxx_compile_run": "PASS",
+    "asan_ubsan_compile_link": "PASS",
+    "asan_ubsan_run_network_enabled_profile": "PASS",
+    "asan_ubsan_run_default_sandbox": "FAIL: LeakSanitizer ptrace restriction; exact executable passes in approved additional-permissions profile"
+  },
+  "base_commit": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+  "base_tree": "33690b177cc7c9c8a697eb45b9f7309510d986ec",
+  "source_verification": "All archived source blobs and modes verified against the recursive API tree; exact local Git root tree and base commit reconstructed and matched.",
+  "recovery_commit": "2abf039d503e77c0c15ee71188a471e019fc3bb7",
+  "recovery_inputs": [
+    {
+      "file": "lost-03-A-engines.md",
+      "sha256": "aab4e4bedd011aef4e609344b9487160bcda47999520de2c273a8fa46d5dd31b"
+    },
+    {
+      "file": "lost-03-busfx-call-invariants.patch",
+      "sha256": "21c295917d4a6271742b93548627e17aed02d9de97c38f58ca237f6bd993e6f1"
+    },
+    {
+      "file": "lost-03-busfx_equivalence_test.py",
+      "sha256": "7ab466896a2765c5569e94bf49fbfa2e14ec9815d651064e2c60682e6f5029dd"
+    },
+    {
+      "file": "lost-06-C-storage.md",
+      "sha256": "9968e24097f6e7984cb3cf7b3232cf988e34fcd07d73b75bd9dd1725b6ca96a0"
+    },
+    {
+      "file": "lost-06-project-stream-chunk-copy.NOTES.md",
+      "sha256": "b0b780fed4bf51e4281b06402aa0bdf8e037b18219c02bde296d714ec5fa08fc"
+    },
+    {
+      "file": "lost-06-project_stream_chunk_copy_test.py",
+      "sha256": "d8eec2627accf05b991ffe892c60ad44912298ccb256dbf31cc0947503e11a5e"
+    },
+    {
+      "file": "recovered-project.patch",
+      "sha256": "9ac889484396c0bfed22dc5143294b5da32b7a65f44b7ad23e69e7ae772bd2b4"
+    }
+  ],
+  "recovery_tree": "f958ad0c3ea7c2f4c9fe44bc4c8d3a6c66084ae5"
+}
