@@ -688,7 +688,7 @@ test("revision 13 round-trips every project payload byte and original sample thr
     } });
     const raw = rawProject(2), prepared = await prepareProjectImport(device, await bundle(raw, snapshot(), false));
     assert.deepEqual(parseProject(raw), { length: 36452, payloadLength: 36420, fileVersion: 1,
-      projectVersion: 1, patternVersion: 13, soundRevision: 13 });
+      projectVersion: 1, patternVersion: 13, soundRevision: 13, partOffMask: 0 });
     await applyProjectImport(device, prepared, { confirmed: true });
     assert.deepEqual((await readProjectSnapshot(device)).project, raw);
     assert.deepEqual(keyboard.images, snapshot().images); assert.equal(keyboard.sampleWrites().length, 0);
