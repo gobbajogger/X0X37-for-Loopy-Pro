@@ -919,6 +919,10 @@ static void d9_render_smp(d9_smp_t *s, const d9_bus_t *bus, int n)
     const float pre = 1.0f + s->drive * 0.5f;
     const uint8_t *adpcm = s->adpcm;
     const uint32_t len = s->len;
+    /* With no fractional position or rate, interpolation returns a exactly:
+     * a and b are finite PCM values, and a is never negative zero. Keep the
+     * forward decode (including its lookahead) identical for later retuning. */
+    const int integral = (s->frac | s->incf) == 0;
     for (int i = 0; i < m; ++i) {
         float v = 0.0f;
         if (s->pos < len) {
@@ -932,12 +936,17 @@ static void d9_render_smp(d9_smp_t *s, const d9_bus_t *bus, int n)
             }
             const int last = s->pos + 1 >= len;
             const float a = (float)(last ? s->h1 : s->h0) * (1.0f / 32768.0f);
-            const float b = last ? 0.0f : (float)s->h1 * (1.0f / 32768.0f);
-            const float fr = (float)s->frac * (1.0f / 4294967296.0f);
-            v = a + (b - a) * fr;
-            const uint32_t f2 = s->frac + s->incf;
-            s->pos += s->inc + (f2 < s->frac);
-            s->frac = f2;
+            if (integral) {
+                v = a;
+                s->pos += s->inc;
+            } else {
+                const float b = last ? 0.0f : (float)s->h1 * (1.0f / 32768.0f);
+                const float fr = (float)s->frac * (1.0f / 4294967296.0f);
+                v = a + (b - a) * fr;
+                const uint32_t f2 = s->frac + s->incf;
+                s->pos += s->inc + (f2 < s->frac);
+                s->frac = f2;
+            }
         }
         v *= d9_env_tick(&s->out);
         if (drive)
