@@ -233,6 +233,7 @@ d = json.loads(p.read_text())
 if kind in ("FAIL", "NOT_RUN"):
     d["test_refs"][0]["result"] = kind
 elif kind == "UNPROVEN":
+    # Paths and refs stay filled. The empty stub shape is STRICT_EMPTY_UNPROVEN.
     d["status"] = "UNPROVEN"
 else:
     d["test_refs"][0]["file"] = "tests/host/does_not_exist.c"
@@ -458,8 +459,43 @@ PYFIX
     note "FAIL STRICT_REAL_PIN inventory: $LAST_OUT"
     fail=$((fail + 1))
   fi
+  # One required row matches the queued stubs: UNPROVEN and both lists empty.
+  # The other 202 rows stay PRESENT, so only status_not_PRESENT can fail.
+  empty=$TMP/real_empty_unproven
+  cp -a "$real" "$empty"
+  row='#1'
+  python3 - "$empty" "$row" <<'PY'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+row = sys.argv[2]
+p = root / "docs/roadmap-evidence" / (row + ".json")
+d = json.loads(p.read_text())
+d["status"] = "UNPROVEN"
+d["code_paths"] = []
+d["test_refs"] = []
+p.write_text(json.dumps(d))
+PY
+  set +e
+  out=$(sh "$REAL_CHECK" --strict --candidate-sha "$CANDIDATE" \
+    "$empty" "$empty/docs/roadmap-evidence" 2>&1)
+  rc=$?
+  set -e
+  fail_line="STRICT_FAIL $row: status_not_PRESENT:'UNPROVEN'"
+  if [ "$rc" -eq 1 ] &&
+     printf '%s\n' "$out" | grep -Fxq "$fail_line" &&
+     printf '%s\n' "$out" | grep -qx 'STRICT_RESULT FAIL rows=203 required=203' &&
+     [ "$(printf '%s\n' "$out" | grep -c '^STRICT_FAIL ')" -eq 1 ]; then
+    note "PASS STRICT_EMPTY_UNPROVEN (strict exit=1; status_not_PRESENT)"
+    pass=$((pass + 1))
+  else
+    note "FAIL STRICT_EMPTY_UNPROVEN (expected exit=1, one $fail_line, rows=203; got $rc)"
+    note "  output: $out"
+    fail=$((fail + 1))
+  fi
+  note "MUTANT STRICT_EMPTY_UNPROVEN: skip status_not_PRESENT when code_paths and test_refs are both empty -> this fixture and today's stubs strict-PASS."
 else
   note "SKIP STRICT_REAL_PIN: $REAL_ROADMAP not present (synthetic checks still run)"
+  note "SKIP STRICT_EMPTY_UNPROVEN: $REAL_ROADMAP not present"
 fi
 
 note "----"
