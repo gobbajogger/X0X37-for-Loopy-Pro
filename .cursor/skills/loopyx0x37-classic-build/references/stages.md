@@ -1,7 +1,8 @@
 # Stage evidence and existing owners
 
 Apply the current [project workflow](../../../../docs/rules/workflow.md) and target
-repository rules. A stage is an evidence boundary, not a new-thread requirement.
+repository rules and current owner contract for meaningful stage threads.
+A stage is an evidence and handoff boundary; individual tasks need no new thread.
 Reuse applicable current standing authority; do not require its repetition in
 this run. Preserve the existing sole source, integration and publication owners.
 An assignment to another role is not this worker's permission to take its scope.
