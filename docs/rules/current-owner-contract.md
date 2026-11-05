@@ -9,8 +9,10 @@ an integration ref. Historical plans, exports, rosters and status dates are evid
 
 The owner's 2026-11-05 assignment gives **Grok Bot development and delivery from
 start to finish**, including arranging source pushes, merges and publication
-through the assigned integrator, independent QA, Build and publisher. Dot owns
-the present documentation cleanup. Do not restart dot's development workers or
+through the assigned integrator, independent QA, Build and publisher. After the
+2026-11-05 handoff (~07:22Z) and owner immediate-start (~08:19Z), Grok Bot is
+the primary coordinator; DnBOX Docs writes rules/docs; DnBOX QA reviews exact
+trees; no one waits on dot. Do not restart dot's development workers or
 take over Grok's source work. Current accepted specialist scopes and original
 reviewers remain; preserve unknown review budgets.
 
@@ -82,8 +84,9 @@ and proprietary SDK/toolchain/DSP bytes from public delivery.
 
 Grok's dedicated **DnBOX Docs** bot maintains docs and rules after this cleanup.
 Its creation/role confirmation was reported by the project coordinator; this file
-does not claim an independent runtime or subscription check. It stays read-only
-while dot is the current docs writer. Transfer maintenance with the exact reviewed
+does not claim an independent runtime or subscription check. DnBOX Docs is the
+current docs writer after the 2026-11-05 handoff (~07:22Z) and owner
+immediate-start (~08:19Z). Transfer maintenance with the exact reviewed
 patches, source pins, checks, unresolved conflicts and ownership receipt. Before
 future edits, reconcile any existing docs-consistency role and accepted scopes;
 do not create a competing writer or scheduler.

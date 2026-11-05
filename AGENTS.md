@@ -10,7 +10,7 @@ Keep firmware source integration with the assigned integrator. Firmware `nightly
 
 Determine device permission for the exact model and action from the latest owner instruction. Do not infer a device write or recovery grant from a workflow mode, a connected device, or an old standing instruction. Do not force push, bypass a protected merge, or treat an incomplete check as PASS.
 
-Optional host tooling gaps may be recorded as NOT_RUN while independent work continues. A check that actually runs and fails remains FAIL. GitHub Actions, billing errors, and review comments are evidence to inspect, not substitutes for local proof. Follow [local proof](docs/rules/local-proof.md) where it applies.
+For firmware integration and packaging qualification, require the full host test suite plus the Elite and Pro builds with 0 fail / 0 skip. NOT_RUN does not meet this bar for required checks. Documentation-only changes require content, link and policy checks, not firmware builds. A check that runs and fails remains FAIL. Review comments are evidence to inspect, not substitutes for local proof. Follow [local proof](docs/rules/local-proof.md) where it applies.
 
 ## Public development context
 
