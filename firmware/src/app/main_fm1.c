@@ -1210,6 +1210,11 @@ CK_FN static uint32_t ck_key_notes(uint32_t k, uint8_t *out)
     CK_BASE;
     CK_SET;
     uint32_t c = cp->on & CK_M_CHORD;
+    /* With both pitch stages off, no scale or chord work can affect the key. */
+    if (!(cp->on & (CK_M_SCALE | CK_M_CHORD))) {
+        out[0] = (uint8_t)(CK_BASE_NOTE + k);
+        return 1u;
+    }
     return ck_notes(CK_BASE_NOTE + k, ck_mask(sp->ck_scale, sp->ck_root), cp->on & CK_M_SCALE ? sp->ck_snap + 1u : 0u,
                     c ? (int32_t)sp->ck_chord : -1, c ? sp->ck_inv : 0u, out);
 }
@@ -1429,7 +1434,8 @@ CK_FN static void ck_arp_step(uint32_t rate, uint32_t pos)
     uint8_t list[CK_ARPN], out[CK_MAXN];
     uint32_t n = 0, i, j, c;
     int note;
-    for (i = 0; i < cp->nk; i++)
+    /* Later keys cannot contribute once the bounded list is full. */
+    for (i = 0; i < cp->nk && n < CK_ARPN; i++)
         for (j = 0, c = ck_key_notes(cp->korder[i], out); j < c && n < CK_ARPN; j++) {
             uint32_t x = out[j], p = n++;
             if (sp->ck_ord != CK_ORD_PLAYED)
