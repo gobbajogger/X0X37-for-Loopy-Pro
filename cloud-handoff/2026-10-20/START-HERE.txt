@@ -36,7 +36,12 @@ transfer-sha256.json verifies the exact copied files.
 
 3. FM-1's eight-file unfinished patch is
    delivery_convergence_20261020/fm1-stage2-checkpoint.patch, based on 649c5bc.
-   Its manifest/logs are in fm1_reference_stage2_20261020/build/fm1-reference-stage2.
+   Its historical manifest/logs remain at the immutable public base:
+   https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/c007de94f6afd4e46b22ff3e88dd0ec581cc2674/cloud-handoff/2026-10-20/fm1_reference_stage2_20261020/build/fm1-reference-stage2
+   The current source-only candidate omits those five payloads. See the current
+   proposed retention disposition in
+   ../../docs/engineering-delivery/fm1-stage2-evidence-retention-20261105.md.
+   These records retain their historical scope; they do not qualify current source.
    Reconcile net identity/regression/gate changes with candidate source.
    Do not downgrade installed tools or weaken the failing installer guards.
 
