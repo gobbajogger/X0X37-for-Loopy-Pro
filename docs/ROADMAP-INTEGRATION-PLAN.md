@@ -1,9 +1,13 @@
 # ROADMAP Integration Plan
 
 **Proposed path:** `docs/ROADMAP-INTEGRATION-PLAN.md`  
-**Local box path:** `/workspace/m7a-out/plan1/ROADMAP-INTEGRATION-PLAN.md`  
+**Local box path:** `/workspace/m7a-out/plan2/ROADMAP-INTEGRATION-PLAN.md` (revision; originals kept in plan1)
+**Pushed baseline:** `lane/dev-roadmap-integration-plan-20261105` @ `02afd2d0154e0d6ad167e397871efb6c301cd9a4` (Git Verifier PASS #832 c6654912614)
+**Revision:** applies Watchdog integrator corrections (19:52 UTC+10) + Build review #832 c6654974253; docs-only proposals, not owner decisions.  
 **Docs-only.** No merges, pushes, approvals, or owner decisions are made here.  
 **Written:** 2026-11-05 ~19:40 Asia/Vladivostok (UTC+10) by DnBOX Dev (executor).  
+**Revised:** 2026-11-05 ~19:56 Asia/Vladivostok in `/workspace/m7a-out/plan2/`.  
+**Revision banner:** proposals below marked with `integrator correction 2026-11-05 19:52 UTC+10` or Build `#832 c6654974253` are integrator/Build corrections — not owner approvals.
 **Repo:** `gobbajogger/X0X37-for-Loopy-Pro` (public). Tracking: issue **#832**. Sole integrator: **PR #698**.
 
 Every factual claim cites a source (`file@sha`, `#issue`/`#PR`, or `#832` comment id). Anything not directly stated is marked **INFERRED**. PASS / FAIL / NOT_RUN are kept distinct. This plan does **not** approve, accept, merge, or publish anything on the owner's behalf.
@@ -23,9 +27,10 @@ Related drafts (cite/reconcile, do not copy as authority): `/workspace/dnbox/mas
 | 24.5 candidate | `8be16486e33f65b31c76710e1d825b6aa701c2c9` tree `f952ab4455723e4a1a68fdb3a8eea22d2da59710` | gate-output.txt; ROADMAP/#832; master-plan §3.1 |
 | RC1 | `c32c54ac8ec68aaca53adccf7af66f155590f2dc` tree `ac490f7fae9198748aa54bd914d42f99d45444f9` | get_commit; #832 c6653704790 / c6654544506 |
 | #698 head (time of writing) | `02cc7d104254b4427f257c310fb366bfc16a8e02` on `wip/one-build` → base `nightly` (`66073c68…`), draft, mergeable=true | get_pull_request #698 |
-| Gate inputs / selection | selection-ref `c51790052aa1e2d6753a4a2357c464e912325435` blob `936581ba…` (branch push pending per task brief / Dev plans) | gate-output.txt; #832 c6653641857 |
+| Gate inputs / selection | **Was local** `wip/roadmap-gate-inputs-5f578fc0` @ `c5179005…` (blob `936581ba…`) used by xport5; **GitHub API could not resolve** `c5179005` as a public ref at Build review time (`#832 c6654974253 (Build native_build review of 02afd2d0)`). **Now pushed:** `lane/dev-roadmap-gate-inputs-5f578fc0-20261105` @ `d960101d9de4f1c65d94bb65dc977dcc28158692` tree `68e9b1b2…`, parent #822 `46d3e952…`; same selection blob `936581ba…`. QA advisory PASS on `d960101d` (#832 c6654865520). | xport5 gate-output (c5179005 local); #832 c6654666960; c6654681811; c6654865520; #832 c6654974253 (Build native_build review of 02afd2d0) |
 | Gate run (xport5) | candidate 8be16486 + ROADMAP 5f578fc0 + selection c5179005 → **PRESENT=2 MISSING=144 QUEUED=63**, `passed=false` | `/workspace/m7a-out/xport5/gate-output.txt`, `gate-breakdown.txt`, `gate-report.json` |
-| M7a Option A combined-v3 | `lane/dev-m7a-option-a-combined-v3-20261105` head `490e656c01b21c52b5116b109bde8e94be856016` tree `7cbc23087ca5109159d0c8cce7a216e4fcb63cdd` | #832 c6654544506; Git Verifier PASS c6654589751 |
+| M7a firmware+web candidate | **Preferred (integrator):** v4 carry `lane/dev-m7a-v4-24.5-carry-20261105` — local tip tree `ccb0aa5b0ad2827f4a5176f12c032eba3db23c71` (pushed tip `35b729914792d947c675d29cb9bd80ac7d65d704` (Git Verifier PASS #832 c6655064573; local v4check tip `84c1f5d9…` had a different identity and is NOT the pushed commit)). Base combined-v3 `490e656c…` / tree `7cbc2308…` plus clean cherry of 10 commits `d8086cc0..8be16486` (LCD/SMC). Admission gates: v4check REPORT + QA receipt + Git Verifier PASS. | integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d); /workspace/m7a-out/v4check/REPORT.md; #832 c6654544506 / c6654589751 |
+| Native evidence @8be16486 | UNREVIEWED evidence (not release qualification): branch `evidence/build-0245-8be16486-20261105` @ `f5e66f2708f912512342e4c861bd061cab5783a7` tree `8e22a0db…`; host `sh tests/run_tests.sh` → **365 ok / 17 FAIL / 2 NOT_RUN**; native floors measured (pool free 8328 ≥ 8192). No authorization for `gate.sh` release purpose. | #832 c6654109606; c6654693516; c6654757232; c6654804927; #832 c6654974253 (Build native_build review of 02afd2d0) |
 
 **Selected release fixes** (selection c5179005 / gate `selected_release_rows`): `FIX-809-REVERT`, `FIX-INSTALLER-BACKUP`, `FIX-SMC-ALIGN`, `FIX-UI-TILES`, `PR-820`, `PR-821` — all **MISSING** proofs in the xport5 gate run.
 
@@ -268,13 +273,19 @@ Columns shortened for size. Full titles/status in ROADMAP@5f578fc0 / `gate-inven
 
 \* Areas with trailing intuition from titles or known hotspots; file-level claims for hotspots are sourced in §3. Owners: see §2.3.
 
-### 2.3 Named owners only (else unassigned)
+### 2.3 Named owners / executor lanes
 
-| ID | Owner | Source |
+| ID / scope | Owner / executor | Source |
 |---|---|---|
-| M1 / L6 | Codex stage | master-plan.md §3.2 (#839) |
+| M1 / L6 (historical PR author) | Codex stage on #839 draft (last update 2026-11-04T18:00Z; **inactive**) | master-plan.md §3.2; get_pull_request #839; integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d) |
+| M1 completion + M1 `ui.c` writer | **DnBOX Dev** on a **NEW** branch based on `wip/m1-panic-core-20261103` @ `69351a26` | coordinator relay (integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d)); **not owner words** |
 | M13 | `plan_global_seq_rates` | ROADMAP@5f578fc0 M13 Source |
-| (all other rows) | unassigned (no owner named in sources) | — |
+| Unassigned ROADMAP items (executor lead) | **DnBOX Dev** as lead for unassigned rows | Grok Bot coordinator decision / relay (integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d)); **not owner words** |
+| `ui.c` / `miami_*` / Chicago | **one writer** at a time (serialize) | integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d); overlap §3 |
+| M4 | non-`ui.c` slice first; `ui.c` part as separate patch on PANIC/#839 tip after freeze | integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d) |
+| ROW-63901cf850f6 (cache) | new branch **on top of** cache lane `f6621476` | integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d); #832 c6653465505 |
+| native_build (same as Build row) | Public-input evidence build of 8be16486 exists (UNREVIEWED). 401 hosted-apps Library was **not** required for that evidence build (#832 c6654757232). `gate.sh` still needs owner `--purpose` + private reference inputs. | #832 c6654757232; c6654693516 |
+| (rows without a named source owner) | still listed `unassigned (no owner named in sources)` in inventory; Dev-lead is coordinator relay for execution only | integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d) |
 
 Deps / overlap / next-step detail: §3–§5 and ROADMAP Next step column; pipeline board in `roadmap-pipeline.md`.
 
@@ -298,7 +309,7 @@ Deps / overlap / next-step detail: §3–§5 and ROADMAP Next step column; pipel
 1. **settings_t budget** — M7a Option A claims no growth of `settings_t` (40 B) while encoding part-OFF in `.x0x` word 28 + optional flash object growth (#832 c6653641857). Any other feature adding settings fields must prove layout compatibility before #698 admission (**owner/integrator**, not decided here).
 2. **Word 28 / format** — Independent QA `QA-LX016-M7A-V2-CROSS-BRANCH-WORD28-NEGATIVE` (#832 c6654007069): web-v2 embedded firmware macro lacked CRC8 check byte while web JS required it (31/31 reject). Combined-v3 (#832 c6654544506) puts firmware+web+e2e in one tree; **QA exact-tree review still pending** per Dev hand-off.
 3. **ui.c ownership** — Multiple 24.5 selected fixes and 0.0.25 UI features contend. M7b (per-part ON/OFF UI) is explicitly **NOT started** and depends on PANIC/ui.c ownership clarity (#832 c6653641857).
-4. **PANIC #839 vs M7a/M7b** — #839 is core-only draft @69351a26; full chain private. M7a reports PANIC overlap re-check **NOT_RUN** (#832 c6654544506). Do not assume non-overlap.
+4. **PANIC #839 vs M7a/M7b** — #839 is core-only draft @69351a26 (owner inactive; last update 2026-11-04T18:00Z). M7a admission is **not** blocked by the PANIC overlap check (integrator correction 2026-11-05 19:52 UTC+10). Overlap check gates **before M7b**, after M7a (+ optional v4) is frozen. M1 completion assigned to Dev on a NEW branch from #839 tip (coordinator relay). Source: integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d); #832 c6654544506.
 5. **Miami #814** — Open PR @dcc9833f onto `build/0.0.24`; master-plan notes missing private GCC14 fix `51e8e211`. ROW-63901cf850f6 still “no measured savings”.
 
 ---
@@ -314,7 +325,7 @@ Deps / overlap / next-step detail: §3–§5 and ROADMAP Next step column; pipel
 | QA | `e63e4749…` — advisory exact-tree review | #832 c6653684011; c6653787449 |
 | QA 2 | `2ae655aa…` — second advisory | #832 c6653684011; c6653617848 |
 | Docs | `452fbdec-f2bd-4b8f-892a-a9d66a968521` — docs/rules writer | #832 c6653684011 |
-| Build (Grok Bot) | `76a6e0f4…` — gaps/runbooks/host-only; **not** native_build | #832 c6653684011; c6653962863 |
+| Build / **native_build** | DnBOX Build acts as **native_build** (aligns former separate `6ada6857…` native_build slot). Runs firmware-touching native floors; does not publish/catalog. | #832 c6654757232; #832 c6654974253 (Build native_build review of 02afd2d0); #832 c6653684011 (historical host-only label superseded for role) |
 | Git Verifier | `2835999d…` — push readback | #832 c6653684011; c6653921403; c6654589751 |
 | #698 integrator | PR #698; live operator **UNKNOWN** | master-plan §3.6; get_pull_request #698 |
 | native_build | role id `6ada68578b488191ac2ce427fd41cff4`; JieLi clang 4.0.1 + AC79 SDK V1.2.1 | #832 c6653962863; master-plan §3.6 |
@@ -336,36 +347,43 @@ Deps / overlap / next-step detail: §3–§5 and ROADMAP Next step column; pipel
 
 ### 4.3 Must serialize
 
-1. Any two writers on **`ui.c`** (24.5 LCD/SMC/OPT-C fixes, PANIC UI, M7b, M4/M6/M8).
-2. **Firmware+web format** changes (M7a word 28) — ship as **one** immutable tree (lesson from c6654007069).
-3. **#698 integrator steps** — one frozen source tree per step (M9 / master-plan).
-4. **Native build → formal independent_qa → catalog_sync → website_publisher** publication chain (publication-blockers.md; nightly-publication-path.md).
-5. **M10 pool measurements** at every integration step before calling a step done (ROADMAP M10).
+1. Any two writers on **`ui.c`** / **`miami_*`** / Chicago — **one writer** rule (integrator correction 2026-11-05 19:52 UTC+10). Dev is current M1 `ui.c` writer (coordinator relay). M7b only after frozen base post-M7a+PANIC.
+2. **Firmware+web format** changes (M7a word 28) — ship as **one** immutable tree (lesson from c6654007069); v4 carry keeps that single-tree rule.
+3. **#698 integrator steps** — one frozen source tree per step; **one firmware+web admission at a time** (integrator correction 2026-11-05 19:52 UTC+10): M7a(/v4) → M1 → M8 → M7b.
+4. **Native evidence → formal independent_qa → package/publish tools** — repo-verifiable tools are `tools/package_nightly.py` and `tools/publish_nightly.py` (#832 c6654974253 (Build native_build review of 02afd2d0)). Role names `catalog_sync` / `website_main_merger` / `website_publisher` appear in drafts (publication-blockers / master-plan) but **were not found as repo tools** by Build; treat role names as process labels until catalog_sync owner confirms.
+5. **M10 / native floors:** pool free **≥ 8192** (not 4096) on Elite **and** Pro at every firmware-touching step (#832 c6654974253 (Build native_build review of 02afd2d0); ROADMAP M10).
+
+### 4.4 Parallel (non-firmware writers)
+
+While the integrator freezes one firmware+web tree at a time, these may run in parallel (integrator correction 2026-11-05 19:52 UTC+10): **Build** evidence + file:line FAIL triage; **QA** receipts; **Docs**; **Git Verifier**.
 
 ---
 
 ## 5. Merge order via #698 integrator
 
-Integrator PR: **#698** `wip/one-build` @ `02cc7d104254…` → `nightly`. Draft. Missing pieces vs 24.5/25 called out in master-plan §3.2 / publication-blockers §3 / executor-status-832 — **not** re-decided here.
+Integrator PR: **#698** `wip/one-build` @ `02cc7d104254…` → `nightly`. Draft. Missing pieces vs 24.5/25 called out in master-plan §3.2 / publication-blockers §3 — **not** re-decided here.
 
 **Rule:** each step freezes **one immutable source tree** (commit+tree SHA). Gates between steps must cite that tree. Owner/integrator select actual admission; this is a proposed order with dependency reasons only.
 
+**integrator correction 2026-11-05 19:52 UTC+10 — order change vs 02afd2d0:** M7a (combined-v3 **or** v4 24.5-carry) is the **first firmware+web candidate**, **not** after full 24.5 NIGHTLY steps 3–5 and **not** after PANIC. PANIC×M7a overlap check gates **before M7b**, not as a blocker for M7a. Next closures **one firmware+web at a time:** M1 PANIC → M8 → M7b `ui.c` (only on a frozen base post-M7a+PANIC; never two `ui.c` writers). In parallel: Build FAIL triage, QA receipts, Docs, Verifier.
+
 | Step | Admit / freeze | Why this order | Integrator freeze | Gate before next |
 |---:|---|---|---|---|
-| 0 | Pin bases: `8be16486` (24.5), `c32c54ac` (RC1 lineage), ROADMAP `5f578fc0` | Shared references for all proofs | Record SHAs in #698 / #832 | Git Verifier identity on any new lane tips |
-| 1 | Docs/rules lane intended for nightly (#841 / successor) if integrator accepts | Docs-only; unblocks AGENTS 0-fail bar clarity | Freeze docs tree | QA advisory + no firmware behavior change |
-| 2 | M12 tooling #822 + **gate inputs** selection/evidence @`c5179005` (or owner-approved successor) pinned to ROADMAP blob `a204a54c` | Gate cannot PASS without matching pins | Freeze tool+json tree | `roadmap_completeness.py` runs; expect QUEUED for unselected; close MISSING proofs |
-| 3 | 24.5 selected fixes proofs + test-only closures (PR-820/821, FIX-*, launcher/saved-role/builtin-break as applicable) onto frozen 24.5-derived tree **X245** | Closes publication blockers for NIGHTLY host bar without inventing scope | Freeze X245 = production bytes decision (owner D1) | Host suite receipts; classify FAIL/NOT_RUN separately |
-| 4 | Native Elite+Pro on X245 (`native_build`) | RM checklist; M10 precursor | Freeze build receipts | exit 0; RAM/pool reported |
-| 5 | Formal independent_qa on X245 + M12 PASS → publication chain | Separates advisory from acceptance | Freeze accepted inputs | #816/#822 HOLD disposition by their owners |
-| 6 | Carry-forward matrix 24.5→25; compose **X25** base | H9: every 24.5 delta PRESENT or owner exclusion | Freeze X25 parent tree | Matrix reviewed |
-| 7 | M1 PANIC (public #839 + whatever owner authorizes from private chain) | Approved 0.0.25; touches panic/ui — before M7b | Freeze after PANIC | Host+mutants; ui.c ownership note; M10 |
-| 8 | M7a combined firmware+web tree (`490e656c` / `7cbc2308` or successor after QA) | Format change; must be one tree; before M7b UI | Freeze M7a tree | QA exact-tree; word-28 e2e; PANIC overlap check no longer NOT_RUN |
-| 9 | M8 / M4 / other owner-selected D8 items | Depend on ui/SMC clarity post-PANIC | One item per freeze | Per-item QA + M10 |
-| 10 | M7b `ui.c` ON/OFF UI | Explicitly depends on ui.c ownership after PANIC/M7a | Freeze UI tree | Device/UI mockup rules |
-| 11 | Engine cache / #814 only if selected (D8) and attribution exists | ROADMAP forbids claiming savings without measurement | Freeze opt tree | Audio identity; CPU evidence |
-| 12 | M13 only if owner D9 approves | Not downgrade-safe; deferred | Freeze or skip | Schema decision recorded |
-| 13 | X25 native + M10 both models + M12 PASS + formal QA → M11 publish path | End state “ready for owner to publish” | Freeze X25 release tree | Owner checklist §6.2 (master-plan) |
+| 0 | Pin bases: `8be16486` (24.5), `c32c54ac` (RC1), ROADMAP `5f578fc0`, gate inputs `d960101d` (was local `c5179005`) | Shared references | Record SHAs in #698 / #832 | Git Verifier on new lane tips |
+| 1 | Docs/rules (#841 / successors) if integrator accepts | Docs-only; AGENTS clarity | Freeze docs tree | QA advisory; no firmware behavior change; native NOT_RUN OK (#832 c6654974253 (Build native_build review of 02afd2d0)) |
+| 2 | M12 tooling #822 + gate inputs @`d960101d` (selection blob `936581ba…`) | Pins for completeness gate; QA advisory PASS c6654865520 | Freeze tool+json tree | xport5-class run PRESENT/MISSING/QUEUED recorded |
+| **3** | **M7a firmware+web candidate FIRST** — prefer **v4** `lane/dev-m7a-v4-24.5-carry-20261105` tree `ccb0aa5b…` (pushed tip `35b72991…`, Git Verifier PASS) = combined-v3 `490e656c`/`7cbc2308` + 10 LCD/SMC cherries; else combined-v3 alone | Format change must be one tree; carry 24.5 LCD/SMC lost from RC1/v3 (/workspace/m7a-out/v4check/REPORT.md) | Freeze M7a/v4 tree as FW+web candidate | **Admission =** v4check `/workspace/m7a-out/v4check/REPORT.md` + QA receipt + Git Verifier PASS (integrator correction 2026-11-05 19:52 UTC+10); then **common native_build floors** (#832 c6654974253 (Build native_build review of 02afd2d0)) |
+| 4 | Host FAIL triage on frozen candidate + on `8be16486` baseline (Build file:line) | Do not pick 18 vs 19; use Build's frozen lists | Record FAIL lists per tree | Classify 13 real @8be (11 everywhere; smc-remainder + ui-feedback from the 10) per /workspace/m7a-out/v4check/REPORT.md |
+| 5 | Native floors on frozen M7a/v4 tree (`native_build`) | Firmware-touching tree | Freeze build receipts | **Common native_build floors** (#832 c6654974253 (Build native_build review of 02afd2d0)): `./build.sh --board smk37` exit 0 pro+elite `X0X_DEV_PADCAL=0`; clang 4.0.1 + SDK `d179b448`; app-code free **>0**; RAM free **>0** (cap 98304); pool free **≥8192** (cap 344064); BLE flash **≤65536**; BLE RAM **≤26368**; ctl.img hash unchanged unless `ble/` changed (baseline 61552 B, `a334208b…`); `sh tests/run_tests.sh` **no NEW FAIL** vs frozen baseline for that tree; `tools/package_nightly.py --check` both models; hashes/sizes recorded; no binaries in git |
+| 6 | M1 PANIC — Dev NEW branch on `#839` tip `wip/m1-panic-core-20261103` @`69351a26` (Codex #839 inactive) | One FW+web at a time after M7a; Dev = M1/`ui.c` writer (coordinator relay) | Freeze M1 tree | Host+mutants; **PANIC×M7a overlap check here / before M7b** (integrator correction 2026-11-05 19:52 UTC+10); native floors |
+| 7 | M8 (PLAY answers NO first) | Next single admission | Freeze M8 tree | Per-item QA + native floors; no parallel `ui.c` writer |
+| 8 | M7b `ui.c` ON/OFF UI | Only after **frozen base post-M7a+PANIC** | Freeze UI tree | Never two `ui.c` writers (integrator correction 2026-11-05 19:52 UTC+10) |
+| 9 | M4 non-`ui.c` slice first; M4 `ui.c` patch later on PANIC tip; cache ROW-63901cf850f6 as **new branch on `f6621476`**; other D8 only if selected | Split slices avoid `ui.c` collisions | One item per freeze | QA + native floors; CPU attribution before cache savings claims |
+| 10 | Optional: remaining 24.5 proof closures / test-only branches onto published path as integrator directs | Evidence vs production bytes | Freeze as directed | PR-789/PR-800 **must not** count in production bytes until ready (integrator correction 2026-11-05 19:52 UTC+10) |
+| 11 | Formal independent_qa on frozen release candidate + M12 PASS | Advisory ≠ acceptance | Freeze accepted inputs | #816/#822 HOLD disposition by their owners |
+| 12 | M13 only if owner schema decision | Not downgrade-safe | Freeze or skip | Owner decision |
+| 13 | Package via `tools/package_nightly.py`; publish via `tools/publish_nightly.py` (no `--dry-run`; omit `--push` for preview) + process roles as confirmed | Repo-verified tool names (#832 c6654974253 (Build native_build review of 02afd2d0)) | Freeze release artifacts | M10/M11 path; **M11 auto vs owner publish = OPEN for coordinator** — do not resolve here (integrator correction 2026-11-05 19:52 UTC+10) |
+
 
 ---
 
@@ -382,19 +400,28 @@ For each frozen tree `T` (commit + tree SHA):
 | Host suites | Build / Dev / QA as scoped | commands + rc recorded | PASS / FAIL / NOT_RUN / SKIP listed separately |
 | Mutants | Dev/QA as scoped | red then green on revert (e.g. M7a word28) | — |
 | ASan/UBSan | Dev/QA as scoped | rc=0 on scoped tests | NOT_RUN if env missing |
-| Native Elite + Pro | **native_build** only | JieLi **clang 4.0.1** + **AC79 SDK V1.2.1** (`d179b448…`); `X0X_DEV_PADCAL=0`; exit 0 | Native remains **NOT_RUN** until that owner runs it (#832 c6653962863) |
-| M10 pool | native_build | ≥8192 B Elite **and** Pro, fresh, not inferred | NOT_RUN blocks |
+| Native Elite + Pro | **native_build** (DnBOX Build) | Common floors ({BUILD}): `./build.sh --board smk37` exit 0 pro+elite `X0X_DEV_PADCAL=0`; JieLi clang 4.0.1 + AC79 SDK V1.2.1 `d179b448`; app-code free >0; RAM free >0 (cap 98304); pool ≥8192 (cap 344064); BLE flash ≤65536; BLE RAM ≤26368; ctl.img hash stable unless ble/ changed; no NEW FAIL vs frozen baseline; `package_nightly.py --check` both models | **Split:** release/`gate.sh` authorization still NOT granted; UNREVIEWED evidence build of 8be16486 exists (`evidence/build-0245-8be16486-20261105` @ `f5e66f27`, #832 c6654804927 / c6654693516) |
+| M10 pool | native_build | pool free **≥ 8192** Elite **and** Pro (use 8192, not ROADMAP budget 4096 conflict — #832 c6654974253 (Build native_build review of 02afd2d0)) | NOT_RUN blocks release; evidence 8be measured 8328 free (#832 c6654693516) |
 | M12 completeness | #822 tool + pins | PRESENT for required; QUEUED for unselected; `passed=true` | xport5 today: PASS **not** met (2/144/63) |
 | Formal independent_qa | independent_qa role | names T + native receipts | advisory Grok QA does not count |
-| Publication | catalog_sync → website_main_merger → website_publisher | live bytes match; owner install path | agents never flash (M11 / ROADMAP) |
+| Publication / package | Build runs package check; publish operators | Repo-verified: `tools/package_nightly.py --check` (needs `--model`, `--controller-sha256`, `--controller-size`, `--firmware-version`) and `tools/publish_nightly.py` (no `--dry-run`; preview = run without `--push`). Draft role names `catalog_sync` / `website_main_merger` / `website_publisher` **not found as repo tools** by Build — process labels pending catalog_sync owner confirm; catalog schema 1 vs 2 UNRESOLVED (#832 c6654974253 (Build native_build review of 02afd2d0)) | agents never flash (ROADMAP M11) |
 
-### 6.2 Known host baseline (do not collapse)
+### 6.2 Known host baseline (do not collapse; one frozen FAIL list per tree)
 
-| Claim | Value | Source |
+| Tree | Host result | Source |
 |---|---|---|
-| Catalog / master-plan host on 8be16486 | **366 PASS / 18 FAIL**; DEVICE NOT TESTED | publication-blockers.md; master-plan §3.1; #832 c6653465505 |
-| Dev M7a combined-v3 note | full `tests/run_tests.sh` + **19-FAIL baseline comparison** = **NOT_RUN** on that tree | #832 c6654544506 |
-| Contradiction | **18 FAIL** vs **19-FAIL** wording | See §8 |
+| `8be16486` (Build run) | **365 ok / 17 FAIL / 2 NOT_RUN** (`sh tests/run_tests.sh`) | #832 c6654693516; #832 c6654974253 (Build native_build review of 02afd2d0) |
+| `8be16486` (catalog/master-plan claim) | 366 PASS / 18 FAIL (older claim) | publication-blockers.md; master-plan §3.1 — **do not prefer over Build's run** (integrator correction 2026-11-05 19:52 UTC+10) |
+| M7a combined-v3 note | “19-FAIL baseline comparison” NOT_RUN on that tree | #832 c6654544506 — different wording; do not equate to 8be list |
+| `d8086cc0` QA2 family | 33 FAIL baseline (different tree) | keep separate (#832 c6654974253 (Build native_build review of 02afd2d0)) |
+
+**13 real mismatches @8be16486** (Build #832 c6654693516; attribution /workspace/m7a-out/v4check/REPORT.md §6b):
+smc-solo-overflow, smc-remainder, sound-matrix, ui-glyph-polish, smc-select-mode, smc-multi-peer, ui-peer-names, smc-ui, ui-feedback, scenario-plock, original-build, builtin-break-output, smc-boot-saved-roles.
+- **11** fail on all tips (8be, RC1, v3, cherry) — pre-existing / outside the 10 LCD commits.
+- **2 introduced by the 10** (`d8086cc0..8be16486`): **smc-remainder**, **ui-feedback** (pass on RC1+v3; fail on 8be+cherry).
+
+Environment NOT_RUN/extra: drum909/drum808 (2 NOT_RUN); playwright/lua env fails separate; empty-log tests need rerun — not in the 13.
+
 
 ### 6.3 Gate inputs status (xport5 run)
 
@@ -410,7 +437,7 @@ Source: `gate-breakdown.txt`, `gate-output.txt`, `gate-report.json` with selecti
 
 | Item | State | Who decides to clear | Source |
 |---|---|---|---|
-| Native build | NOT_RUN (runbook ready; auth historically blocked) | native_build owner + owner auth (D7) | #832 c6653962863; publication-blockers §1 |
+| Native build | **Split:** (a) release/`gate.sh` authorization = NOT granted / NOT_RUN for release purpose; (b) UNREVIEWED evidence build of `8be16486` **exists** on `evidence/build-0245-8be16486-20261105` @ `f5e66f27` (#832 c6654804927) with floors measured — not qualification | native_build + owner for `gate.sh --purpose` | #832 c6654974253 (Build native_build review of 02afd2d0); #832 c6654693516; c6654757232 |
 | Device / hardware | NOT_TESTED on catalog 8be entry | owner install via nightly site | ROADMAP M11; catalog notes |
 | #816 | QA HOLD / separate RC1 QA entry | #816 owners / QA process | PR #816; master-plan §3.2 |
 | #822 publication | HOLD; scoped source passes ≠ release | #822 reviewer / independent_qa | master-plan §3.2 |
@@ -421,40 +448,43 @@ Source: `gate-breakdown.txt`, `gate-output.txt`, `gate-report.json` with selecti
 
 ### 6.5 Per merge-step NIGHTLY needs (abbrev)
 
-- **Steps 0–2:** docs + gate pins; host optional; native NOT_RUN OK for docs-only.
-- **Steps 3–5 (24.5 NIGHTLY):** full host 0 FAIL/0 SKIP/0 NOT_RUN **or** owner-documented waiver (D6 recommends keep bar); native Elite+Pro; M12 PASS; formal QA; publisher — see master-plan §6.1.
-- **Steps 6–13 (0.0.25):** carry-forward + M10 every step + M7 firmware**and**web together + disposition QA1/QA2 — master-plan §6.2.
+- **Steps 0–2:** docs + gate pins; native NOT_RUN OK unless build scripts/firmware touched (#832 c6654974253 (Build native_build review of 02afd2d0)).
+- **Step 3 (M7a/v4 FIRST):** admission = v4check REPORT + QA + Git Verifier; then full native floors; pool ≥8192 both models after word-28 (integrator correction 2026-11-05 19:52 UTC+10; #832 c6654974253 (Build native_build review of 02afd2d0)).
+- **Steps 6–8:** M1 → M8 → M7b one at a time; overlap before M7b; native floors each freeze.
+- **Host bar:** Build rule = **no NEW FAIL** vs frozen per-tree list; plan text that demanded 0 FAIL / waiver remains an **owner D6** choice — do not resolve here (#832 c6654974253 (Build native_build review of 02afd2d0); integrator correction 2026-11-05 19:52 UTC+10).
+- **Publish:** `package_nightly.py` / `publish_nightly.py`; M11 auto vs owner = **OPEN for coordinator**.
+
 
 ---
 
 ## 7. M7a / M7b
 
-### 7.1 Option A status
+### 7.1 Option A status + v4 carry
 
 | Fact | Detail | Source |
 |---|---|---|
-| Decision | Option A = refuse legacy 67801b9a-format `.x0x` word-28 OFF files | #832 c6653641857; coordinator GS/D13 |
-| Combined-v3 branch | `lane/dev-m7a-option-a-combined-v3-20261105` @ `490e656c…` tree `7cbc2308…` | #832 c6654544506 |
-| Git Verifier | PASS on tip/tree/identity; 16 linear commits; no PR | #832 c6654589751 |
-| Earlier v2 | fw `8c9332fc` / web `5f4b0c82` — superseded; word-28 cross-branch NEGATIVE | #832 c6653921403; c6654007069 |
-| Host evidence | e2e PASS; part_off PASS; project_stage PASS; scoped ASan/UBSan; mutants red/green | #832 c6654544506 |
-| QA review | **pending** exact-tree review on combined-v3 (Dev hand-off) | #832 c6654544506 |
-| Integrator | **UNREVIEWED** / not admitted to #698 | #832 c6654544506 |
-| settings_t | stays 40 B | #832 c6653641857 |
-| Ships together | **firmware + web** in one release; old firmware and current web refuse OFF files | #832 c6653704790; c6654544506 |
+| Decision | Option A = refuse legacy 67801b9a-format `.x0x` word-28 OFF files | #832 c6653641857 |
+| Combined-v3 | `lane/dev-m7a-option-a-combined-v3-20261105` @ `490e656c…` tree `7cbc2308…` | #832 c6654544506; Verifier c6654589751 |
+| **v4 candidate (integrator preferred)** | `lane/dev-m7a-v4-24.5-carry-20261105` — tree `ccb0aa5b…`; pushed tip `35b729914792d947c675d29cb9bd80ac7d65d704` (Git Verifier PASS) | integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d); /workspace/m7a-out/v4check/REPORT.md |
+| 24.5 carry | All **10** commits `d8086cc0..8be16486` **LOST** from RC1 and from v3; cherry-picks onto v3 **CLEAN**; matrix group **“24.5 LCD/SMC fixes”** | /workspace/m7a-out/v4check/REPORT.md; #832 c6632026584 |
+| ROADMAP M7 status text | Treat as **code @490e656c QUEUED/unadmitted** (not “mockup only”) | integrator correction 2026-11-05 19:52 UTC+10 |
+| Admission | v4check REPORT + QA receipt + Git Verifier PASS — **before** counting as #698 candidate | integrator correction 2026-11-05 19:52 UTC+10 |
+| settings_t | stays 40 B (asserts PASS on b245/RC1/v3/cherry) | #832 c6653641857; /workspace/m7a-out/v4check/REPORT.md §5 |
+| Ships together | firmware + web in one tree/release | #832 c6653704790; c6654544506 |
 
 ### 7.2 What ships together
 
-- Firmware: `PROJ_FILE_OFF_WORD` CRC8 in `x0x.h` / `project.c`; seq/engine gates for part OFF.
-- Web: `web/x0x_projects.js` parser + tests requiring check byte.
-- Tests: `part_off_web_e2e` wired into `tests/run_tests.sh` (class G) on combined-v3.
-- **Not** included: M7b UI, native build, device, PANIC overlap proof.
+- Firmware: CRC8 `PROJ_FILE_OFF_WORD`; seq/engine part-OFF gates; on v4 also the 10 LCD/SMC commits’ firmware blobs (= 8be for those paths).
+- Web: parser/tests requiring check byte.
+- Tests: `part_off_web_e2e` (class G) on combined-v3; re-verify on v4.
+- **Not** included in M7a admission: M7b UI; PANIC overlap (gates later); release qualification.
 
 ### 7.3 M7b `ui.c`
 
 - **Not started** (#832 c6653641857).
-- Depends on **`ui.c` ownership** after PANIC (#839 / full chain) and other ui.c admissions (24.5 LCD/SMC fixes).
-- Must not begin a second ui.c writer lane until the integrator names the frozen base tree for UI work (**INFERRED** process rule from serialize list; ownership assignment = owner/integrator).
+- Only after **frozen base post-M7a(+v4)+PANIC/M1** (integrator correction 2026-11-05 19:52 UTC+10).
+- Never two `ui.c` writers; Dev is M1 `ui.c` writer until that freeze completes (coordinator relay).
+
 
 ---
 
@@ -467,7 +497,7 @@ Each item labels **who can decide**. Owner decisions are **only the user (`gobba
 | D1 | Is 24.5 NIGHTLY exact `8be16486` bytes + test closures, or a new candidate? | **Owner** | master-plan §5.5 |
 | D2 | Confirm selection rows pinned to 5f578fc0 (6 fixes ± #111–#113) | **Owner** | master-plan §5.5; selection c5179005 |
 | D3 | #13 PARA editing remainder required vs queued | **Owner** | ROADMAP #13; master-plan D3 |
-| D4 | Who presses publish vs M11 automatic | **Owner** | ROADMAP M11; master-plan D4 |
+| D4 / M11 | Who presses publish vs M11 automatic | **OPEN for coordinator** — do **not** resolve in this plan ({MARK}); owner remains final for production | ROADMAP M11; master-plan D4; integrator correction 2026-11-05 19:52 UTC+10 |
 | D5 | Native build mandatory for 24.5? | **Owner** | ROADMAP checklist; #822 review notes via master-plan |
 | D6 | Keep zero FAIL/SKIP/NOT_RUN bar? | **Owner** | ROADMAP pre-publish; AGENTS v3 |
 | D7 | Restore native-build auth (401) | **Owner** | publication-blockers §1 |
@@ -482,15 +512,22 @@ Each item labels **who can decide**. Owner decisions are **only the user (`gobba
 | K-ops | Are native_build / independent_qa / catalog automations still running? | **Owner** / automation operators | master-plan K1 UNKNOWN |
 | K-698-op | Live #698 operator UNKNOWN | **Owner** | master-plan §3.6 |
 
-### 8.1 Contradictions found between sources
+### 8.1 Contradictions / reconciliations (integrator correction 2026-11-05 19:52 UTC+10; #832 c6654974253 (Build native_build review of 02afd2d0))
 
-| Topic | Source A | Source B | Handling in this plan |
-|---|---|---|---|
-| Host FAIL count on 24.5 | master-plan / publication-blockers: **366 PASS / 18 FAIL** | #832 c6654544506: **19-FAIL baseline** comparison NOT_RUN on M7a tree | Report both; do not pick. Classify FAILs on frozen tree before NIGHTLY claim. |
-| Can gate run on 5f578fc0? | master-plan §5.1 (earlier): gate exits 2 because selection/evidence pinned to old blob `4bfb141f` | xport5 run with selection **`c5179005`** against ROADMAP **5f578fc0** produced PRESENT=2 MISSING=144 QUEUED=63 | Prefer **live xport5 evidence**; treat master-plan sentence as stale relative to c5179005. |
-| PR-789 / PR-800 “in 0.0.24” | ROADMAP status in 0.0.24 | Both still **draft** open PRs (list_pull_requests / master-plan §5.2) | Flagged inconsistency; owner/#812 clarify (master-plan). |
-| M11 auto-publish vs “owner publishes” | ROADMAP M11 | Task/master-plan D4 tension | Owner D4 only. |
-| M7 status “missing (mockup only)” vs Option A code | ROADMAP M7 status text | Pushed combined-v3 with host evidence | Status text not yet updated; code exists but **QUEUED/unadmitted**. |
+| Topic | Sources | Handling in this revision |
+|---|---|---|
+| Host FAIL count @8be | master-plan 366/18; Dev “19-FAIL”; Build **365 ok / 17 FAIL / 2 NOT_RUN** | **Do not pick 18 vs 19.** Use Build’s frozen list @8be; classify the **13 real** failures; keep per-tree lists (#832 c6654974253 (Build native_build review of 02afd2d0); /workspace/m7a-out/v4check/REPORT.md §6b) |
+| Gate on 5f578fc0 | Older master-plan “cannot run”; live xport5 + selection | Use **live xport5** with selection blob `936581ba…`: PRESENT=2 MISSING=144 QUEUED=63. Local ref was `c5179005` (API-unresolvable); public pin **`d960101d`** with QA advisory PASS (#832 c6654865520) |
+| PR-789 / PR-800 “in 0.0.24” vs draft open | ROADMAP vs open PRs | **Must not count in production bytes until ready** (integrator correction 2026-11-05 19:52 UTC+10) |
+| M7 “mockup only” vs code | ROADMAP status vs combined-v3 | Replace handling with **code @490e656c QUEUED/unadmitted** (v4 preferred candidate) (integrator correction 2026-11-05 19:52 UTC+10) |
+| M11 auto vs owner publish | ROADMAP M11 vs task text | Leave **OPEN for coordinator**; do not resolve (integrator correction 2026-11-05 19:52 UTC+10) |
+| Pool 4096 vs 8192 | ROADMAP budget lines vs M10 | Use **8192** (#832 c6654974253 (Build native_build review of 02afd2d0)) |
+| Publication role tool names | master-plan role ids vs repo | Clarify: `package_nightly.py` / `publish_nightly.py` exist; role tool trio **not found in repo** (#832 c6654974253 (Build native_build review of 02afd2d0)) |
+
+### 8.1b 24.5 carry-forward finding (integrator correction 2026-11-05 19:52 UTC+10)
+
+All **10** commits in `d8086cc0..8be16486` are **LOST** from RC1 `c32c54ac` and from combined-v3 `490e656c`. Cherry-picks onto v3 applied **CLEAN** → local v4 tree `ccb0aa5b…`. Matrix group: **“24.5 LCD/SMC fixes”** (#832 comment [6632026584](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/832#issuecomment-6632026584); /workspace/m7a-out/v4check/REPORT.md).
+
 
 ### 8.2 INFERRED items in this document
 
@@ -498,7 +535,8 @@ Each item labels **who can decide**. Owner decisions are **only the user (`gobba
 - M13 areas `seq.c` from #824 scope.
 - M8/M4 “likely ui.c” touch.
 - Process rule “no second ui.c writer until integrator names base” (derived from serialize constraints, not an owner quote).
-- Merge-step numbering is a **proposal** for #698, not an integrator commitment.
+- Merge-step numbering is a **proposal** for #698; step order in §5 supersedes 02afd2d0 per integrator correction 2026-11-05 19:52 UTC+10.
+- Dev-lead for unassigned rows and Dev-as-M1/`ui.c` writer are **coordinator relay**, not owner words (integrator correction 2026-11-05 19:52 UTC+10).
 
 ---
 
