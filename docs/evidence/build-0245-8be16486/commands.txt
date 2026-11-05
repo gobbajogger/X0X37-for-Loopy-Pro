@@ -1,0 +1,27 @@
+00-tarsha rc=0 dur=0s :: sha256sum /workspace/build-inputs/jieli-linux-toolchains-20260730.1.tar.xz
+01-clang rc=0 dur=0s :: /workspace/build-inputs/jieli/toolchain/pi32v2/bin/clang --version
+02-sdkhead rc=0 dur=0s :: git -C /workspace/build-inputs/fw-AC79_AIoT_SDK rev-parse HEAD
+03-sdkpins rc=0 dur=0s :: sh -c cd /workspace/build-inputs/fw-AC79_AIoT_SDK/cpu/wl82/tools && sha256sum uboot.boot cfg_tool.bin cfg/eq_cfg_hw.bin; git -C /workspace/build-inputs/fw-AC79_AIoT_SDK status --porcelain | wc -l
+04-locked rc=0 dur=0s :: python3 tools/check_locked_settings.py
+05-elite rc=0 dur=6s :: env MODEL=elite ./build.sh --board smk37
+06-pro rc=0 dur=5s :: env MODEL=pro ./build.sh --board smk37
+07-ctl rc=0 dur=3s :: env SDK_LOCAL=/workspace/build-inputs/fw-AC79_AIoT_SDK CTL_NATIVE=1 sh ble/ctl/build_ctl.sh
+08-addctl-pro rc=0 dur=0s :: python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-ble.fwsc
+09-addctl-elite rc=0 dur=1s :: python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-elite-ble.fwsc
+10-ctlcheck rc=0 dur=0s :: python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
+11-status rc=0 dur=0s :: git status --porcelain
+20-ctl-elite rc=0 :: MODEL=elite SDK_LOCAL=$AC79_SDK CTL_NATIVE=1 sh ble/ctl/build_ctl.sh
+20-ctl-pro rc=0 :: MODEL=pro SDK_LOCAL=$AC79_SDK CTL_NATIVE=1 sh ble/ctl/build_ctl.sh
+21-check-x0x-smk37-ble rc=1 :: add_ctl.py x0x-smk37-ble.fwsc --check
+21-check-x0x-smk37-elite-ble rc=1 :: add_ctl.py x0x-smk37-elite-ble.fwsc --check
+22-pncheck-x0x-smk37-elite-ble rc=2 :: package_nightly.py x0x-smk37-elite-ble.fwsc --check --model elite --controller-sha256 a334208b… --controller-size 61552 (read-only)
+22-pncheck-x0x-smk37-ble rc=2 :: package_nightly.py x0x-smk37-ble.fwsc --check --model pro --controller-sha256 a334208b… --controller-size 61552 (read-only)
+22-pncheck-x0x-smk37 rc=2 :: package_nightly.py x0x-smk37.fwsc --check --model pro --controller-sha256 a334208b… --controller-size 61552 (read-only)
+23-roundtrip-x0x-smk37 remove rc=0 readd rc=0; plain==base: yes; readd==ble: yes
+23-roundtrip-x0x-smk37-elite remove rc=0 readd rc=0; plain==base: yes; readd==ble: yes
+24-postcheck rc=0 :: rev-parse/status/ps in fresh worktree at 8be16486 (see 24-postcheck.log)
+31-run_tests rc=126 dur=0s :: tests/run_tests.sh (env in log)
+32-run_tests-sh rc=1 dur=1000s :: sh tests/run_tests.sh (env in log)
+33-dev_validate-elite rc=0 dur=14s :: dev_validate.py run --model elite (env in log)
+33-dev_validate-pro rc=0 dur=13s :: dev_validate.py run --model pro (env in log)
+34-gate NOT_RUN :: tools/gate.sh 8be16486... not invoked; see REPORT

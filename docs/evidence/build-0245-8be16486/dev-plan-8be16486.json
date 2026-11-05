@@ -1,0 +1,7 @@
+{
+  "base": "8be16486e33f65b31c76710e1d825b6aa701c2c9",
+  "scope": "Evidence-only DEV validation of 8be16486 (build/0.0.24.5) as-is; no source change vs base. Plan authored by Grok Bot executor from BUILDING.md:95-105 (plan format and the example check) and tools/dev_validate.py:10-11,66-79 (schema).",
+  "checks": [
+    {"reason": "install evidence contract (BUILDING.md example check)", "argv": ["sh", "tests/host/test_install_gate_guard.sh"]}
+  ]
+}
