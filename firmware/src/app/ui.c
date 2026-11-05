@@ -11,6 +11,7 @@
  * Keys: F3..G5; the 16 white keys are steps (HOME: patterns), the 11 black keys a drum
  * machine's tracks or the break's slice pads (HOME: part mutes). */
 #include "x0x.h"
+#include "panic_chord.h"
 #include "../x0x_cold.h"                       /* X0X_COLD: input and menu code of the main loop, built for size */
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
@@ -3656,6 +3657,23 @@ X0X_COLD static void button_tap(int b)
     }
 }
 
+static x0x_panic_chord_t kbd_panic;
+
+static unsigned keyboard_panic(uint32_t btn, uint32_t changed)
+{
+    unsigned held = 0, result;
+    if (!(changed & ((1u << B_FX) | (1u << B_SEQ))))
+        return 0;
+    if (btn & (1u << B_FX))
+        held |= X0X_PANIC_FIRST;
+    if (btn & (1u << B_SEQ))
+        held |= X0X_PANIC_SECOND;
+    result = x0x_panic_chord_update(&kbd_panic, held, X0X_PANIC_KEYBOARD);
+    if (result & X0X_PANIC_FIRE)
+        engine_request_notes_off();
+    return (result & X0X_PANIC_CONSUME) ? 1u : 0u;
+}
+
 X0X_COLD static void input(void)
 {
 #if X0X_BASS_PRESET_PREVIEW
@@ -3665,6 +3683,7 @@ X0X_COLD static void input(void)
     }
 #endif
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
+    unsigned panic_consume;
     uint8_t revision = project_revision;
     int e;
     if (project_busy) {
@@ -3700,6 +3719,7 @@ X0X_COLD static void input(void)
     extern void smk_play_note_button(uint8_t pressed, uint8_t home_held);
 #endif
     ch = btn ^ ui.btn;
+    panic_consume = keyboard_panic(btn, ch);
 #if BOARD_SMK37
     if (ch || keys != ui.keys)
         smc_ui_cancel();
@@ -3708,6 +3728,18 @@ X0X_COLD static void input(void)
         uint32_t m = 1u << i;
         if (!(ch & m))
             continue;
+        /* PANIC_CONSUME */
+        if ((i == B_FX || i == B_SEQ) && panic_consume) {
+            if (btn & m) {
+                any_button = 1;
+                ui.down_t[i] = plat_ms();
+                ui.btn_used |= m;
+            } else
+                ui.btn_used &= ~m;
+            if (revision != project_revision)
+                return;
+            continue;
+        }
 #if BOARD_SMK37
         if ((i == B_PLAY || i == B_REC) &&
             smk_clip_history_button((uint8_t)i, (uint8_t)((btn & m) != 0u), (uint8_t)((btn >> B_HOME) & 1u))) {
