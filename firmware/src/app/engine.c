@@ -1915,9 +1915,13 @@ static void core2_job(uint32_t arg)
         pt = plat_cycles();
     }
     brk_silent_now = breaks_silent(&brk);                 /* the render writes zeros: nothing to mix */
-    breaks_render(&brk, kbuf, (int)n);
-    if (!brk_silent_now)
+    if (!brk_silent_now) {
+        /* A silent render changes no BRK state and only clears kbuf. This
+         * stretch never reads kbuf in that case; the next audible render
+         * writes all of its samples before they are mixed. */
+        breaks_render(&brk, kbuf, (int)n);
         bfx_shape(PART_BRK, kbuf, 0, 0, 0, 1, (int)n);
+    }
     if (timed)
         PROF_ADD(PR_BRK, pt);
 }
