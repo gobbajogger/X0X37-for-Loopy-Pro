@@ -111,11 +111,13 @@ python3 tools/dev_validate.py run --commit <commit> --model elite --plan /path/p
 python3 tools/fm1_install.py /path/new-dev-result/x0x-smk37-elite.fwsc --commit <commit> --config dev --dev-record /path/new-dev-result/record.json --ctl /path/new-dev-result/ctl.img
 ```
 
-Use `--model pro` for Pro (package `x0x-smk37.fwsc`). On macOS, use native orchestration with the local Linux/amd64 validation image:
+Use `--model pro` for Pro (package `x0x-smk37.fwsc`). To orchestrate natively with the local Linux/amd64 validation image on a cloud or
+container host, use the example below. The owner's Mac is not used; the former
+`/Users/mac/...` example is superseded.
 
 ```
-export JIELI_TOOLCHAIN=/Users/mac/.jieli/toolchain
-export AC79_SDK=/Users/mac/fw-AC79_AIoT_SDK
+export JIELI_TOOLCHAIN=$HOME/.jieli/toolchain
+export AC79_SDK=$HOME/fw-AC79_AIoT_SDK
 export CC=cc CXX=c++
 python3 -B tools/dev_validate.py run --commit COMMIT --model elite \
   --plan dev-plan.json --output build/dev-check-result \
@@ -123,7 +125,7 @@ python3 -B tools/dev_validate.py run --commit COMMIT --model elite \
 ```
 
 Set reference paths and check flags for the selected plan. Each dependency path
-must exist on macOS and resolve to the same bytes in the worker. The runner mounts
+must exist on the orchestrating host and resolve to the same bytes in the worker. The runner mounts
 source, shared Git metadata, scratch, SDK, toolchain, references, plan dependencies,
 and absolute check inputs at their actual paths. Use `--worker-mount PATH` for
 another read-only input. Every extra consumed input must also be declared in
@@ -239,7 +241,8 @@ Installed distributions use their file manifests. If a distro omits the manifest
 capture hashes the source, extensions and data under its declared `top_level.txt`
 modules. Missing, empty or unsafe installed-module coverage stops validation.
 Gate logs are retained per run. Keep `validation-inputs.json` with transferred gate
-logs; `sync_results_to_mac.sh` includes it. Install consumers verify the recorded
+logs. (The former `sync_results_to_mac.sh` transfer is superseded: do not sync
+results to the owner's Mac.) Install consumers verify the recorded
 identity and exact artifacts without needing the producer's SDK on the installer.
 
 For docs and rules work, read current `AGENTS.md` and the selected maintained
