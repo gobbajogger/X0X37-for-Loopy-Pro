@@ -2,7 +2,7 @@
 
 This skill adapts the single-file export of plugin `loopyx0x37-classic-build-handoff`, verified version **0.1.47**, release `pluginrel_6adce6992d408191b7df8bf46ec27616`, retrieved 2026-10-24 UTC. The export contained 52 UTF-8 files. Their original SHA-256 values attest to that package text. They do not attest to compiled artifacts or to the current Git head.
 
-The export is historical provenance. The current root `AGENTS.md` and [project workflow](../../../../docs/rules/workflow.md) govern this adapter. Preserve pinned candidate evidence, build-before-publication, independent QA and the NIGHTLY/production distinction. Read actual build and publisher implementations before using their commands; a script cannot grant authority or override a current denial. Discover tools in the actual executor. This adapter neither installs other providers' routes nor proves that a currently exposed route is unavailable.
+The export is historical provenance. The current root `AGENTS.md` and [project workflow](../../../../RULES.md) govern this adapter. Preserve pinned candidate evidence, build-before-publication, independent QA and the NIGHTLY/production distinction. Read actual build and publisher implementations before using their commands; a script cannot grant authority or override a current denial. Discover tools in the actual executor. This adapter neither installs other providers' routes nor proves that a currently exposed route is unavailable.
 
 ## Do not replay the 2026-10-23 patches
 
@@ -22,7 +22,7 @@ Refresh every SHA against live Git before acting. If a file is absent, record th
 ## Current authority and historical routing
 
 The export's dated ownership, provider routing and force-publisher examples are
-historical. Apply the current [project workflow](../../../../docs/rules/workflow.md),
+historical. Apply the current [project workflow](../../../../RULES.md),
 live target rules and actual tool capabilities. Preserve existing delegated owners
 and applicable standing permission; no repetition in a new run is required.
 An old role name alone does not assign that role to this worker.
