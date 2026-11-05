@@ -103,7 +103,7 @@ class FakeSMK {
     if (!r) return;
     this.waiting = r;
     const [addr, len] = r;
-    const u = [0, 0x59, 0x30, 0, 0, 0, 0, addr & 0xFF, (addr >>> 8) & 0xFF, (addr >>> 16) & 0xFF, (addr >>> 24) & 0xFF, len & 0xFF, len >> 8, 0];
+    const u = [0, 0x59, 0x30, 8, 0, 0, 0, addr & 0xFF, (addr >>> 8) & 0xFF, (addr >>> 16) & 0xFF, (addr >>> 24) & 0xFF, len & 0xFF, len >> 8, 0];
     let s = 0;
     for (let i = 6; i < 14; i++) s += u[i];
     u.push(~s & 0xFF);

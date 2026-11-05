@@ -59,11 +59,11 @@ def main():
         loops = bp.loops_from_export(export)
         factory = bp.encode_pack(loops)
         got = bp.parse_pack(factory)
-        check(got is not None and [L["name"] for L in got[1]] == ["909 GR", "909 FL"], "factory names")
-        check(all(L["nsamples"] == 220500 and L["bars"] == 2 for L in got[1]), "factory loops are 5 seconds, 2 bars")
-        check(got[1][0]["adpcm"] != got[1][1]["adpcm"][:32] or got[1][0]["adpcm"][:32] != got[1][1]["adpcm"][:32],
-              "the two loops do not share a prefix")
-        check(got[1][0]["adpcm"] == (export / "909GR.adpcm").read_bytes(), "pack is the generator's ADPCM")
+        check(got is not None and [L["name"] for L in got[1]] == ["CRAMEN", "TASTY", "HOTPANT"], "factory names")
+        check([L["nsamples"] for L in got[1]] == [70589, 105827, 85725] and
+              all(L["bars"] == 1 for L in got[1]), "factory loops keep whole source lengths and one-bar metadata")
+        check(len({L["adpcm"] for L in got[1]}) == 3, "the three loops are distinct")
+        check(got[1][0]["adpcm"] == (export / "CRAMEN.adpcm").read_bytes(), "pack is the designated ADPCM")
         raw = (export / "factory-break-pack.bin").read_bytes()
         check(raw == factory, "the saved factory pack matches")
     else:

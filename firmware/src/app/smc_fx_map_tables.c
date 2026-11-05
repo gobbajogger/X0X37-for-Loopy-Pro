@@ -23,12 +23,13 @@ const uint8_t SMCFX_SUIT[SMCFX_N][SMCFX_SUIT_MAX] = {
 };
 const uint8_t SMCFX_SUIT_N[SMCFX_N] = {4, 4, 7, 6, 4, 7, 5, 7};
 
+/* The SELECT fallback stays suited when a page-two SELECT cell is empty.
+ * Audible effects and displayed captions use each independent button mapping. */
 const uint8_t SMCFX_PAGE[SMCFX_NPAGE][SMCFX_N] = {
-    {SMCFX_REV, SMCFX_DLY, SMCFX_HP, SMCFX_LP, SMCFX_GATE, SMCFX_REV, SMCFX_DLY, SMCFX_GATE16},
+    {SMCFX_SHUF, SMCFX_SHUF, SMCFX_LP, SMCFX_REV, SMCFX_HP, SMCFX_TRANCE, SMCFX_GATE16, SMCFX_STUT},
     {SMCFX_DLY, SMCFX_REV, SMCFX_HP, SMCFX_DLY, SMCFX_HP, SMCFX_GATE16, SMCFX_STUT, SMCFX_TRANCE},
-    {SMCFX_DLY, SMCFX_REV, SMCFX_REV, SMCFX_REV, SMCFX_DLY, SMCFX_STUT, SMCFX_SHUF, SMCFX_GATE8},
 };
-const char *const SMCFX_PAGE_NAME[SMCFX_NPAGE] = {"ROOM", "TIGHT", "ECHO"};
+const char *const SMCFX_PAGE_NAME[SMCFX_NPAGE] = {"ROOM", "TIGHT"};
 const char *const SMCFX_SHORT[SMCFX_NFX] = {
     "GATE", "REV", "HPF", "DLY", "LPF", "G8", "G16", "TRNC", "STUT", "SHUF"};
 const char *const SMCFX_LONG[SMCFX_NFX] = {"DECAY GATE", "REV THROW", "HIGH-PASS", "DLY THROW", "LOW-PASS",

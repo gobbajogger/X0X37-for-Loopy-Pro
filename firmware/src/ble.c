@@ -244,8 +244,12 @@ static void ble_start(void)
     ble_r.ow = ble_r.orr = 0;
     ble_r.sysex_drops = 0;
     ble_c0_ready = 0;
-    if (!ble_boot_on)
+    if (!ble_boot_on) {                         /* not started this boot: no stale READY/FAILED of the
+                                                 * last boot in DIAG (ble_guard keeps that record) */
+        ble_r.mb.state = XB_ST_OFF;
+        ble_r.mb.err = XB_E_NONE;
         return;
+    }
     {
         uint8_t *z = (uint8_t *)mb;
         uint32_t i;
@@ -571,8 +575,14 @@ int plat_ble_state(void)
     if (ble_central_role) {
         if (blec_connected(&ble_r.host.c) || blec_connected(&ble_r.host.c2)) return PLAT_BLE_CONNECTED;
         if (!ble_up || ble_r.host.c.state == BLEC_STARTING) return PLAT_BLE_STARTING;
+#if BLEC_TWO_PEER
         if (ble_r.host.c.state == BLEC_FAILED &&
             (ble_r.host.c2.state == BLEC_FAILED || ble_r.host.c2.state == BLEC_OFF)) return PLAT_BLE_FAILED;
+#else
+        /* One peer: a failed attempt rejoins in 1 s (blec_pair_poll); show it as
+         * searching, not FAILED. A dead controller is ble_dead above. */
+        if (ble_r.host.c.state == BLEC_FAILED) return PLAT_BLE_READY;
+#endif
         return blec_connected(&ble_r.host.c) ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
     }
     if (!ble_up || ble_r.host.h.state == BLEH_STARTING || ble_r.host.h.state == BLEH_IDLE)
@@ -595,6 +605,17 @@ unsigned plat_ble_peer_names(char names[2][21])
     }
     irq_restore(f);
     return n;
+}
+/* Snapshot of the connected SMC peers under one interrupt guard; no live pointer escapes. */
+void plat_ble_peers(plat_ble_peers_t *out)
+{
+    char names[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX + 1u];
+    __builtin_memset(out, 0, sizeof *out);
+    out->state = plat_ble_state();
+    out->central = ble_central_role && smc_ble_role_get();
+    if (!out->central || out->state != PLAT_BLE_CONNECTED) return;
+    out->count = plat_ble_peer_names(names);
+    __builtin_memcpy(out->name, names, sizeof names);
 }
 const char *plat_ble_name(void)
 {

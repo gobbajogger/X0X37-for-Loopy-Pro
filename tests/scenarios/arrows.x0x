@@ -20,35 +20,52 @@ expect page 1
 arrow L tap
 expect page 0
 expect arrowsteps 4
-# GLO: the first row is CLOCK SOURCE. The row does not move
+# GLO opens its sections. ">" enters a section. In a section ">" steps the value of the row up;
+# "<" goes back out to the sections, as HOME, and never edits a row. A held entry or exit arrow
+# is consumed until release.
 tap GLO
 expect view 5
 expect overlay 1
-expect listsel 1
+expect listsel 0
+arrow R tap
+expect listsel 0
 expect clksrc 0
 arrow R tap
 expect clksrc 1
-expect listsel 1
+expect listsel 0
 arrow R tap
 expect clksrc 2
 arrow R tap
 expect clksrc 2
 expect setbyte27 12
 arrow L tap
-expect clksrc 1
-arrow L tap
-arrow L tap
+expect overlay 1
+expect listsel 0
+expect clksrc 2
+arrow R tap
+turn ALGO -2
 expect clksrc 0
-expect listsel 1
+expect listsel 0
 expect setbyte27 8
-# the same steps as ALGORITHM
-turn ALGO 1
-expect clksrc 1
+# held ">" entry and held "<" exit do not edit CLOCK SOURCE
 arrow L tap
+arrow R down
+wait 1000
+arrow R up
 expect clksrc 0
+wait 100
+arrow R tap
+expect clksrc 1
+turn ALGO -1
+arrow L down
+wait 1000
+arrow L up
+expect clksrc 0
+expect listsel 0
+arrow R tap
 # hold repeat on MIDI CH 909 (10, range OFF 0 .. 16)
 turn SELECT 3
-expect listsel 4
+expect listsel 3
 expect rowval 10
 arrow R down
 wait 20
@@ -65,23 +82,21 @@ arrow R up
 expect rowval 16
 arrow R tap
 expect rowval 16
-arrow L down
-wait 3000
-arrow L up
-expect rowval 0
-arrow L tap
+turn ALGO -16
 expect rowval 0
 arrow R tap
 expect rowval 1
 turn ALGO 9
 expect rowval 10
-expect listsel 4
-# Action rows do not run: SAVE, CLEAR PATTERN, RESET PROJECT, PERFORMANCE.
-turn SELECT 10
-expect listsel 17
+expect listsel 3
+# Action rows do not run: PROJECT > SAVE, CLEAR PATTERN, RESET PROJECT; SYSTEM > PERFORMANCE.
+arrow L tap
+turn SELECT 3
+expect listsel 3
+arrow R tap
+expect listsel 0
 expect store_writes 0
 arrow R tap
-arrow L tap
 arrow R down
 wait 1000
 arrow R up
@@ -89,45 +104,45 @@ expect store_writes 0
 expect overlay 1
 # Skip LOAD SAVED and AUTOSAVE to reach CLEAR PATTERN.
 turn SELECT 3
-expect listsel 20
+expect listsel 3
 arrow R tap
-arrow L tap
 arrow R down
 wait 1000
 arrow R up
 expect overlay 1
 turn SELECT 1
-expect listsel 21
+expect listsel 4
 arrow R tap
-arrow L down
-wait 1000
-arrow L up
 expect overlay 1
-turn SELECT 1
-expect listsel 23
-arrow R tap
 arrow L tap
+expect listsel 3
+turn SELECT 1
+arrow R tap
+expect listsel 0
+arrow R tap
 expect overlay 1
 expect view 5
-expect listsel 23
-# Back to CLOCK SOURCE: PERFORMANCE is selectable offset 18.
-turn SELECT -18
-expect listsel 1
+expect listsel 0
+# Back to MIDI + CLOCK: it remembers MIDI CH 909, three rows below CLOCK SOURCE.
+arrow L tap
+turn SELECT -4
+arrow R tap
+expect listsel 3
+turn SELECT -3
+expect listsel 0
 expect clksrc 0
 # clip mode, GLO open: one press gives one step (only smk_arrows reads the arrows), and a hold repeats
 clipmode 1
-expect arrowsteps 110
 arrow R tap
 expect clksrc 1
-expect arrowsteps 111
 arrow R down
 wait 450
 arrow R up
 expect clksrc 2
-expect arrowsteps 113
 arrow L tap
-expect clksrc 1
-arrow L tap
+expect listsel 0
+arrow R tap
+turn ALGO -2
 expect clksrc 0
 # clip mode, no menu: smk_arrows gives no step (the clip keys page takes < and >, CLP-76; not in the host)
 tap GLO
@@ -138,12 +153,12 @@ arrow L down
 wait 1000
 arrow L up
 expect page 0
-expect arrowsteps 115
+expect arrowsteps 79
 clipmode 0
 # HOME held: the arrows do nothing (SELECT is the tempo)
 tap GLO
 expect overlay 1
-expect listsel 1
+expect listsel 0
 expect tempo 125
 press HOME
 arrow R tap
@@ -152,7 +167,7 @@ wait 1000
 arrow R up
 expect clksrc 0
 expect tempo 125
-expect arrowsteps 115
+expect arrowsteps 79
 release HOME
 expect setsize 40
 expect setbyte27 8
