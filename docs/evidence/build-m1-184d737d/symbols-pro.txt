@@ -1,0 +1,157 @@
+native evidence build of M1 184d737d (UNREVIEWED)
+model: pro
+Sizes are from the linked ELF symbol table (toolchain objdump -t).
+object= is the .o whose symbol table defines that name.
+.pool origin 0x01C20000 length 344064. RAM .data+.bss origin 0x01C08000 length 98304.
+ui.c and smc_mixer.c are included by firmware/src/x0x.c, so their objects are x0x.o.
+engine.c, drum909.c, drum808.c and sequencer.c are separate -O2 units.
+No floor failed on this build. The list is still included.
+
+TOP 25 POOL SYMBOLS BY SIZE
+  158400  .pool     0x01c442dc  dly_buf  object=app_engine.o
+   66240  .pool     0x01c2a114  cv_px  object=x0x.o
+   36396  .pool     0x01c20000  project_stage  object=x0x.o
+   18316  .pool     0x01c3aa40  fx  object=app_engine.o
+   16408  .pool     0x01c6ada0  chi_fx  object=app_engine.o
+    7612  .pool     0x01c40f48  d909  object=app_engine.o
+    6332  .pool     0x01c3f1cc  brk  object=app_engine.o
+    4252  .pool     0x01c28f58  undo  object=x0x.o
+    3628  .pool     0x01c42d04  d808  object=app_engine.o
+    1760  .pool     0x01c43b30  b303  object=app_engine.o
+     664  .pool     0x01c40ab0  mst  object=app_engine.o
+     634  .pool     0x01c3a7c6  padled_buf  object=x0x.o
+     480  .pool     0x01c3a5e6  lcd_fillbuf  object=x0x.o
+     370  .pool     0x01c3a474  smk_trim_key  object=x0x.o
+     256  .pool     0x01c40d48  eng_scope  object=app_engine.o
+     256  .pool     0x01c29ff4  list_rows  object=x0x.o
+     224  .pool     0x01c28e78  ble_oq  object=x0x.o
+     196  .pool     0x01c44218  dev_wobble  object=app_engine.o
+     160  .pool     0x01c3a3d4  smk_trim_pad  object=x0x.o
+     136  .pool     0x01c40e84  bfx_send_st  object=app_engine.o
+      60  .pool     0x01c40f0c  bfx_stut_hub  object=app_engine.o
+      48  .pool     0x01c40e54  chi_arp_run  object=app_engine.o
+      44  .pool     0x01c28e30  ck  object=x0x.o
+      40  .pool     0x01c40a88  bass_slot  object=app_engine.o
+      28  .pool     0x01c28e5c  fm1_capture_barrier  object=x0x.o
+
+TOP 25 RAM SYMBOLS BY SIZE (.data and .bss)
+   36396  .bss      0x01c16548  proj  object=x0x.o
+    8192  .bss      0x01c0a22c  abuf  object=x0x.o
+    8192  .bss      0x01c0d6b0  ua_ring  object=x0x.o
+    4096  .bss      0x01c1277c  cq  object=app_engine.o
+    4096  .bss      0x01c0c434  x0x_main_scratch  object=x0x.o
+    4008  .bss      0x01c110a0  brk_side  object=dsp_breaks.o
+    3840  .bss      0x01c08e40  st_buf  object=x0x.o
+    1844  .bss      0x01c12048  mot  object=app_engine.o
+    1024  .bss      0x01c13f7c  dly  object=app_engine.o
+    1024  .bss      0x01c14b7c  dry_l  object=app_engine.o
+    1024  .bss      0x01c1477c  dry_r  object=app_engine.o
+    1024  .bss      0x01c15b7c  kbuf  object=app_engine.o
+    1024  .bss      0x01c14f7c  mono  object=app_engine.o
+    1024  .bss      0x01c1437c  rev  object=app_engine.o
+    1024  .bss      0x01c1377c  t0  object=app_engine.o
+    1024  .bss      0x01c1537c  t1  object=app_engine.o
+    1024  .bss      0x01c1577c  t2  object=app_engine.o
+    1024  .bss      0x01c13b7c  tr  object=app_engine.o
+     732  .bss      0x01c0fa10  ed_out  object=x0x.o
+     640  .bss      0x01c0f778  sx_frame  object=x0x.o
+     632  .bss      0x01c09d40  fm1_in  object=x0x.o
+     564  .bss      0x01c09fbc  ui  object=x0x.o
+     552  .bss      0x01c0d488  main_rowh  object=x0x.o
+     516  .bss      0x01c0c22c  smk_inlog_g  object=x0x.o
+     472  .bss      0x01c10e60  pg  object=x0x.o
+
+M1-TOUCHED FILES: POOL AND RAM SYMBOLS
+
+# firmware/src/app/engine.c via app_engine.o  linked_symbols=105  bytes=232309
+Listed symbols are 32 bytes or larger. Smaller engine symbols are named on the following summary line.
+  158400  .pool     0x01c442dc  dly_buf  object=app_engine.o
+   18316  .pool     0x01c3aa40  fx  object=app_engine.o
+   16408  .pool     0x01c6ada0  chi_fx  object=app_engine.o
+    7612  .pool     0x01c40f48  d909  object=app_engine.o
+    6332  .pool     0x01c3f1cc  brk  object=app_engine.o
+    4096  .bss      0x01c1277c  cq  object=app_engine.o
+    3628  .pool     0x01c42d04  d808  object=app_engine.o
+    1844  .bss      0x01c12048  mot  object=app_engine.o
+    1760  .pool     0x01c43b30  b303  object=app_engine.o
+    1024  .bss      0x01c13f7c  dly  object=app_engine.o
+    1024  .bss      0x01c14b7c  dry_l  object=app_engine.o
+    1024  .bss      0x01c1477c  dry_r  object=app_engine.o
+    1024  .bss      0x01c15b7c  kbuf  object=app_engine.o
+    1024  .bss      0x01c14f7c  mono  object=app_engine.o
+    1024  .bss      0x01c1437c  rev  object=app_engine.o
+    1024  .bss      0x01c1377c  t0  object=app_engine.o
+    1024  .bss      0x01c1537c  t1  object=app_engine.o
+    1024  .bss      0x01c1577c  t2  object=app_engine.o
+    1024  .bss      0x01c13b7c  tr  object=app_engine.o
+     664  .pool     0x01c40ab0  mst  object=app_engine.o
+     392  .bss      0x01c1f3a0  seq  object=app_engine.o
+     340  .bss      0x01c163f0  bfx_st  object=app_engine.o
+     256  .pool     0x01c40d48  eng_scope  object=app_engine.o
+     256  .bss      0x01c162f0  user_names  object=app_engine.o
+     240  .data     0x01c08090  mix_glide  object=app_engine.o
+     224  .bss      0x01c16210  pack_loops  object=app_engine.o
+     196  .pool     0x01c44218  dev_wobble  object=app_engine.o
+     160  .bss      0x01c16170  loop_names  object=app_engine.o
+     136  .pool     0x01c40e84  bfx_send_st  object=app_engine.o
+      68  .bss      0x01c16128  bfx_flt_st  object=app_engine.o
+      60  .pool     0x01c40f0c  bfx_stut_hub  object=app_engine.o
+      55  .bss      0x01c160f0  prob  object=app_engine.o
+      48  .bss      0x01c160c0  brk_down  object=app_engine.o
+      48  .pool     0x01c40e54  chi_arp_run  object=app_engine.o
+      40  .pool     0x01c40a88  bass_slot  object=app_engine.o
+      40  .bss      0x01c16070  loop_slot  object=app_engine.o
+      40  .bss      0x01c16098  loop_zone  object=app_engine.o
+      32  .bss      0x01c16050  brk_builtin.L  object=app_engine.o
+      32  .bss      0x01c1f528  eng_prof  object=app_engine.o
+       1  .bss      0x01c15f84  notes_off_req  object=app_engine.o
+omitted 65 symbols under the size cutoff (345 B): eng_hit=22, mix_cut=20, mix_dly=20, mix_level=20, mix_pl=20, mix_pr=20, mix_rev=20, part_peak=20, brk_applied=12, eng_peak=10
+  bfx_fx_pub=8, src_held=6, bfx_eff=5, bfx_hold=5, eng_step=5, bfx_bpm_snap=4, bfx_phase_snap=4, brk_builtin.which=4, brk_silent_now=4, cq_r=4, cq_w=4, eng_guard_count=4
+  eng_prof_frames=4, eng_scope_w=4, guard_avg_q8=4, guard_calm=4, guard_on=4, loops_ready=4, mot_base_snd=4, nloops=4, out_lim=4, out_scale=4, pack_n=4, prob_rng=4
+  smc_solo_state=4, usb_full=4, vol_after=4, bass_held=2, bass_held_count=2, bass_held_src=2, bfx_send_eff=2, bfx_send_hold=2, chi_arp_accent=2, chi_arp_mode=2, chi_arp_on=2
+  chi_arp_range=2, chi_arp_speed=2, chi_arp_vel=2, chi_damp_latched=2, chi_damper=2, chi_fx_e1=2, chi_fx_e2=2, chi_fx_type=2, bfx_down_pub=1, bfx_flt_eff=1, bfx_flt_hold=1
+  d808_was_active=1, guard_applied=1, guard_enabled=1, mot_on=1, mot_playing=1, mot_release_req=1, mot_was_on=1, project_hold=1, project_midi_drop=1
+
+# firmware/src/dsp/drum909.c via dsp_drum909.o  linked_symbols=3  bytes=92
+      44  .bss      0x01c11044  d9_pl0  object=dsp_drum909.o
+      44  .bss      0x01c11070  d9_pr0  object=dsp_drum909.o
+       4  .bss      0x01c11040  d9_dry_r  object=dsp_drum909.o
+
+# firmware/src/dsp/drum808.c via dsp_drum808.o  linked_symbols=2  bytes=8
+       4  .bss      0x01c1109c  d8_dry_r  object=dsp_drum808.o
+       4  .data     0x01c08040  drum808_quiet  object=dsp_drum808.o
+
+# firmware/src/seq/sequencer.c via seq_sequencer.o  linked_symbols=0  bytes=0
+(this object has no pool, .data or .bss symbol)
+
+# firmware/src/app/ui.c inside x0x.o  linked_symbols=22  bytes=1142
+Matched file-scope variable names in this .c file to x0x.o pool/RAM symbols.
+     564  .bss      0x01c09fbc  ui  object=x0x.o
+     472  .bss      0x01c10e60  pg  object=x0x.o
+      48  .bss      0x01c0d458  capm  object=x0x.o
+      16  .bss      0x01c0ffd8  list_title  object=x0x.o
+       4  .bss      0x01c0fe78  accel_smc  object=x0x.o
+       4  .bss      0x01c0fe6c  any_button  object=x0x.o
+       4  .bss      0x01c0fe08  project_busy  object=x0x.o
+       4  .bss      0x01c0fe0c  save_wait  object=x0x.o
+       4  .bss      0x01c0fe74  smk_mute_intended  object=x0x.o
+       4  .bss      0x01c0fe18  song_structure_revision  object=x0x.o
+       2  .bss      0x01c0fda2  kbd_panic  object=x0x.o
+omitted 11 symbols under the size cutoff (16 B): bass_rec_pat=2, bass_rec_playing=2, bass_rec_step=2, kbd_held_key=2, kbd_held_note=2, pg_grp=1, project_revision=1, smk_mute_active=1, smk_mute_bank=1, smk_mute_edit=1, smk_mute_known=1
+
+# firmware/src/app/smc_mixer.c inside x0x.o  linked_symbols=24  bytes=892
+Matched file-scope variable names in this .c file to x0x.o pool/RAM symbols.
+     460  .bss      0x01c10c90  smc  object=x0x.o
+     224  .bss      0x01c10638  smc_q  object=x0x.o
+      96  .bss      0x01c103f0  smc_host_q  object=x0x.o
+      32  .bss      0x01c10088  smc_mmc_q  object=x0x.o
+      16  .bss      0x01c0ffc8  smc_release_lost  object=x0x.o
+      16  .bss      0x01c0ffe8  smc_release_seen  object=x0x.o
+       8  .bss      0x01c0ff70  smc_mmc_stop_published  object=x0x.o
+       8  .bss      0x01c0ff88  smc_mmc_stop_seen  object=x0x.o
+       4  .bss      0x01c0fe14  smc_link_published  object=x0x.o
+       4  .bss      0x01c0fe1c  smc_link_seen  object=x0x.o
+       4  .bss      0x01c0febc  smc_panic_held  object=x0x.o
+       4  .data     0x01c08004  smc_panic_mode_seen  object=x0x.o
+       2  .bss      0x01c0fda6  smc_panic  object=x0x.o
+omitted 11 symbols under the size cutoff (14 B): smc_mmc_r=2, smc_mmc_stop_boundary=2, smc_mmc_w=2, smc_dispatched=1, smc_dropped=1, smc_enqueued=1, smc_host_r=1, smc_host_w=1, smc_qr=1, smc_qw=1, smc_reason=1

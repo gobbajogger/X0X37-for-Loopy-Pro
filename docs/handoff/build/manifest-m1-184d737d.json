@@ -1,0 +1,105 @@
+{
+  "label": "native evidence build of M1 184d737d (UNREVIEWED), size estimate for M1 on its own base 69351a26, not after a port onto v4-fix, not release qualification",
+  "commit": "184d737d40749742980c07c30838f5b222f9551d",
+  "tree": "bfeefddce643d3591ffe7b2cea0c4e034b2b0719",
+  "parent": "b446995665bae681eba7b53913f47b962382e0b7",
+  "base": "69351a26a756bec914b81633636793f3df3ea827",
+  "binaries_committed": false,
+  "release_qualification": false,
+  "publish": false,
+  "inputs": {
+    "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "toolchain_archive_bytes": 26027508,
+    "toolchain_archive_matches_expected": true,
+    "clang_version": "4.0.1",
+    "clang_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "clang_sha256_matches_expected": true,
+    "ac79_sdk": "d179b4484759423312073f5fbb232501aa491047",
+    "sdk_pins_match": true
+  },
+  "headroom": {
+    "app_code_area": 552672,
+    "ram_cap": 98304,
+    "pool_cap": 344064,
+    "pool_free_floor": 8192,
+    "ble_flash_cap": 65536,
+    "ble_ram_cap": 26368,
+    "floor_violated": false,
+    "elite": {
+      "app_free": 216044,
+      "ram_used": 95576,
+      "ram_free": 2728,
+      "pool_used": 323000,
+      "pool_free": 21064,
+      "ble_flash": 65492,
+      "ble_ram": 25824
+    },
+    "pro": {
+      "app_free": 216044,
+      "ram_used": 95576,
+      "ram_free": 2728,
+      "pool_used": 323000,
+      "pool_free": 21064,
+      "ble_flash": 65492,
+      "ble_ram": 25824
+    },
+    "delta_vs_v4": {
+      "elite_app_free": 177380,
+      "pro_app_free": 177364,
+      "ram_used": -1752,
+      "ram_free": 1752,
+      "pool_used": -12864,
+      "pool_free": 12864,
+      "ble_flash": 3940,
+      "ble_ram": -512
+    }
+  },
+  "outputs": {
+    "elite_fwsc": {
+      "bytes": 651419,
+      "sha256": "4fed26faa4b97461218715544b8f819d17cc57ed7da6d90c55b822283c6aaae4",
+      "vs_v4_prefix_be4d608e": "differs"
+    },
+    "pro_fwsc": {
+      "bytes": 651419,
+      "sha256": "c0d286f95fa2083dfbacf3bb3d020431c8fdc959696873293da77515b8b20a1b",
+      "vs_v4_prefix_0773c61a": "differs"
+    },
+    "elite_ble_fwsc": {
+      "bytes": 651419,
+      "sha256": "a6afd211766ba7be09186d03342e92f08bcf3fc3786fd899bd19c20278314fa0"
+    },
+    "pro_ble_fwsc": {
+      "bytes": 651419,
+      "sha256": "de59d67203cdaa68bf66f1284803620e170926c66adf68efc42d9107106500d6"
+    },
+    "ctl_img": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "77b7a496",
+      "vs_v4_a334208b": "differs"
+    }
+  },
+  "host_tests": {
+    "rc": 1,
+    "duration_s": 508,
+    "ok": 286,
+    "fail": 30,
+    "not_run": 5,
+    "panic": {
+      "panic-chord": "ok",
+      "panic-notes": "ok",
+      "panic-clear": "ok",
+      "panic-route": "ok",
+      "panic-mutants": "ok"
+    }
+  },
+  "package_check": {
+    "nightly_version_flag": "rejected by build.py",
+    "release_0_0_25_scratch_rc": 0,
+    "package_nightly_rc": 1,
+    "package_nightly_error": "firmware version is not allocated",
+    "bundled_package_written": false,
+    "ledger_edited": false
+  }
+}

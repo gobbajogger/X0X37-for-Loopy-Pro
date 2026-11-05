@@ -1,0 +1,29 @@
+native evidence build of M1 184d737d (UNREVIEWED)
+Scratch worktree: /tmp/m1-pkgbuild at 184d737d40749742980c07c30838f5b222f9551d
+tree bfeefddce643d3591ffe7b2cea0c4e034b2b0719
+
+Exact argv refused by tools/build.py (rc 2):
+  MODEL=elite ./build.sh --board smk37 --nightly-version 0.0.25 --git-sha 184d737d40749742980c07c30838f5b222f9551d
+  build.py: error: unrecognized arguments: --nightly-version 0.0.25 --git-sha 184d737d40749742980c07c30838f5b222f9551d
+
+Substitute on this tree, scratch only, X0X_DEV_PADCAL=0:
+  MODEL=elite ./build.sh --board smk37 --release 0.0.25  rc=0 duration_s=4
+  app code free 215916; image 336756 B; RAM 95576/98304; pool 323000/344064
+  package build/x0x-smk37-elite-0.0.25.fwsc 651419 B
+  sha256 de086428fc47c874fdded61a50c1b7b175602330cc952a16867a29a09da92c1f
+  identity SMK-37 Elite_9000025
+
+  MODEL=pro ./build.sh --board smk37 --release 0.0.25  rc=0 duration_s=4
+  app code free 215932; image 336740 B; RAM 95576/98304; pool 323000/344064
+  package build/x0x-smk37-0.0.25.fwsc 651419 B
+  sha256 4c41087c9d977ec3889f6fb7f5cd38afbf5ba2995a0a154ac76b62d0e1f033b5
+  identity SMK-37 Pro_9000025
+
+package_nightly.py create and --check, --firmware-version 0.0.25,
+controller sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a size 65492:
+  elite create rc=1: package_nightly: firmware version is not allocated
+  pro create rc=1: package_nightly: firmware version is not allocated
+  elite --check rc=1: package_nightly: firmware version is not allocated
+  pro --check rc=1: package_nightly: firmware version is not allocated
+No bundled package was written. releases/openbeta/ledger.json allocations is empty.
+release_alloc.py was not run. The ledger was not edited.

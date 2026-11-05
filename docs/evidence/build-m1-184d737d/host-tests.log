@@ -1,0 +1,51 @@
+native evidence build of M1 184d737d (UNREVIEWED)
+command: timeout 40m sh tests/run_tests.sh
+rc=1 duration_s=508 (under the 40 minute cap)
+result lines: 321; ok 286; FAIL 30; not-run 5
+final line: TESTS FAILED
+
+FAIL
+FAIL project-save-preflight (see build/host/project-save-preflight.log)
+FAIL editor-ota-dispatch (see build/host/editor-ota-dispatch.log)
+FAIL project-stage (see build/host/project-stage.log)
+FAIL smc-buttons (see build/host/smc-buttons.log)
+FAIL ble-central-first-notification (see build/host/ble-central-first-notification.log)
+FAIL smc-reachability (see build/host/smc-reachability.log)
+FAIL smc-ui-negative (see build/host/smc-ui-negative.log)
+FAIL smc-mapping (see build/host/smc-mapping.log)
+FAIL smc-drum-mutes (see build/host/smc-drum-mutes.log)
+FAIL smc-drum-rs (see build/host/smc-drum-rs.log)
+FAIL smc-filter (see build/host/smc-filter.log)
+FAIL smc-feedback (see build/host/smc-feedback.log)
+FAIL smk-clip-chord-display (see build/host/smk-clip-chord-display.log)
+FAIL padcal-flag (see build/host/padcal-flag.log)
+FAIL smk-clip-knob (see build/host/smk-clip-knob.log)
+FAIL rec-held-duration (see build/host/rec-held-duration.log)
+FAIL rec-live (see build/host/rec-live.log)
+FAIL rec-live-smk (see build/host/rec-live-smk.log)
+FAIL scenario-getting_started (see build/host/scenario-getting_started.log)
+FAIL scenario-patterns (see build/host/scenario-patterns.log)
+FAIL scenario-perf (see build/host/scenario-perf.log)
+FAIL scenario-plock (see build/host/scenario-plock.log)
+FAIL scenario-song (see build/host/scenario-song.log)
+FAIL scenario-sound_matrix_chicago (see build/host/scenario-sound_matrix_chicago.log)
+FAIL scenario-sound_matrix_chicago_idle (see build/host/scenario-sound_matrix_chicago_idle.log)
+FAIL scenario-sound_matrix_lock (see build/host/scenario-sound_matrix_lock.log)
+FAIL scenario-sound_matrix_miami (see build/host/scenario-sound_matrix_miami.log)
+FAIL scenario-steps64 (see build/host/scenario-steps64.log)
+FAIL scenario-undo (see build/host/scenario-undo.log)
+FAIL perf-scratch (see build/host/perf-scratch.log)
+
+not-run
+not-run drum909 (../schwung-9W9/src/dsp/er99_engine.c)
+not-run drum808 (../schwung-8W8/src/dsp/sc808_engine.cpp)
+not-run bass303 (../schwung-303/src/dsp/open303/rosic_Open303.cpp)
+not-run chicago-au-compare (CHICAGO_AU_REFS)
+not-run miami-au-compare (MIAMI_AU_REFS)
+
+panic tests
+ok   panic-chord
+ok   panic-notes
+ok   panic-clear
+ok   panic-route
+ok   panic-mutants
