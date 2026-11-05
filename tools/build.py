@@ -126,7 +126,8 @@ ORIGINAL_SYNTH_BACKENDS = [
     "firmware/src/app/original_sound.c",
 ]
 ORIGINAL_SYNTH_FLAGS = ["-fno-fast-math", "-ffp-contract=off", "-DNDEBUG",
-                        "-DORIGINAL_USE_SOFT_FMA", "-DMIAMI_FX_NO_HOST_FENV"]
+                        "-DORIGINAL_USE_SOFT_FMA", "-DMIAMI_FX_NO_HOST_FENV",
+                        "-DX0X_FAST_FMA"]   # device: mul+add for the soft FMA (docs/perf/engine-load-20261031.md)
 LINE = re.compile(r"^\s*([0-9a-f]+):\s+((?:[0-9a-f]{2} )+)\s*\t(.*)$")
 
 # SDK files of AC79NN_SDK_V1.2.1_2023-12-13 (the tested version)
@@ -234,13 +235,14 @@ def generate():
     if failed:
         raise SystemExit(f"build: {', '.join(failed)} failed")
     # The default image has no built-in loops: that flash is code room. X0X_FACTORY_BREAKS=1
-    # puts the 909 loops back in the image. X0X_BREAK_BANK=DIR uses another bank instead.
+    # puts the designated stock loops in the image. X0X_BREAK_BANK=DIR uses another bank instead.
     import break_pack
     bank = os.environ.get("X0X_BREAK_BANK")
     factory = os.environ.get("X0X_FACTORY_BREAKS") == "1"
     if bank or factory:
         cmd = ([sys.executable, str(tools / "gen_break_bank.py"), bank, str(GEN / "x0x_break_bank.h")] if bank
-               else ["sh", str(tools / "gen_builtin_break.sh"), str(GEN)])
+               else [sys.executable, str(tools / "break_pack.py"), "--from-export",
+                     str(SRC / "assets" / "factory-breaks"), "--header", str(GEN / "x0x_break_bank.h")])
         r = subprocess.run(cmd, capture_output=True, text=True)
         sys.stdout.write(r.stdout)
         if r.returncode:

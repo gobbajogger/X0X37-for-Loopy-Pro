@@ -7,7 +7,7 @@
 int original_chicago_fx2_compact_supports(unsigned type)
 {
     return type == 0 || type == 4 || type == 5 || type == 10 ||
-        type == 18 || type == 22 || type == 24;
+        type == 18 || type == 22 || type == 24 || chi_fx2_insert_supports(type);
 }
 
 static int live(const original_chicago_fx2_compact *s)
@@ -46,6 +46,13 @@ static void queue_from_selected(original_chicago_fx2_compact *s)
 static void parameter(void *p,unsigned id,unsigned value)
 {
     original_chicago_fx2_compact *s = p;
+    if (chi_fx2_insert_supports(s->selected_type)) {
+        if (id == 2u || id == 3u) {
+            s->edit[id - 2u] = (uint8_t)(value & 127u);
+            chi_fx2_insert_set(&s->arena.insert, s->selected_type, s->edit[0], s->edit[1], s->tempo_times10);
+        }
+        return;
+    }
     switch (s->selected_type) {
     case 0: (void)original_chicago_bypass_parameter(id,(int32_t)value); break;
     case 4: (void)original_chicago_chorus_set(&s->state.chorus,id,value); break;
@@ -61,6 +68,11 @@ static void parameter(void *p,unsigned id,unsigned value)
 static void reset(void *p)
 {
     original_chicago_fx2_compact *s = p;
+    if (chi_fx2_insert_supports(s->selected_type)) {
+        chi_fx2_insert_init(&s->arena.insert, s->selected_type);
+        chi_fx2_insert_set(&s->arena.insert, s->selected_type, s->edit[0], s->edit[1], s->tempo_times10);
+        return;
+    }
     switch (s->selected_type) {
     case 4: original_chicago_chorus_reset(&s->state.chorus); break;
     case 5: original_chicago_phaser_reset(&s->state.phaser); break;
@@ -83,13 +95,24 @@ static void process(void *p,int16_t *left,int16_t *right,uint32_t n)
     case 18: (void)original_chicago_mastercomp_process(&s->state.mastercomp,left,right,n); break;
     case 22: (void)original_chicago_decimator_process(&s->state.decimator,left,right,n); break;
     case 24: (void)original_chicago_peaking_process(&s->state.peaking,left,right,n); break;
-    default: break;
+    default:
+        if (chi_fx2_insert_supports(s->selected_type))
+            chi_fx2_insert_process(&s->arena.insert, s->selected_type, left, right, n);
+        break;
     }
     queue_from_selected(s);
 }
 
 static void begin(void *p) { (void)p; }
-static void tempo(void *p,int32_t value) { (void)p; (void)value; }
+/* Original kernels ignore tempo. BPM Delay follows the live tempo, as the
+ * archived insert did after #677; it keeps its ring and write position. */
+static void tempo(void *p,int32_t value)
+{
+    original_chicago_fx2_compact *s = p;
+    s->tempo_times10 = value;
+    if (s->selected && s->selected_type == 13)
+        chi_fx2_insert_set(&s->arena.insert, 13, s->edit[0], s->edit[1], value);
+}
 
 static int advance_zero(void *p,uint32_t n,int16_t constant[2])
 {
@@ -105,7 +128,10 @@ static int advance_zero(void *p,uint32_t n,int16_t constant[2])
     case 18: ok=original_chicago_mastercomp_advance_zero(&s->state.mastercomp,n); break;
     case 22: ok=original_chicago_decimator_advance_zero(&s->state.decimator,n); break;
     case 24: ok=original_chicago_peaking_advance_zero(&s->state.peaking,n,value); break;
-    default: break;
+    default:
+        if(chi_fx2_insert_supports(s->selected_type))
+            ok=chi_fx2_insert_advance_zero(&s->arena.insert,s->selected_type,n);
+        break;
     }
     if(ok){queue_from_selected(s);constant[0]=value[0];constant[1]=value[1];}
     return ok;
@@ -144,13 +170,18 @@ static const original_chicago_fx2_kernel *select_cold(void *p,unsigned type)
      * A reset of reused union bytes alone is not a valid new object. */
     memset(&s->state,0,sizeof s->state);
     switch (type) {
-    case 4: (void)original_chicago_chorus_init(&s->state.chorus,s->history,s->history+1024); break;
+    case 4: (void)original_chicago_chorus_init(&s->state.chorus,s->arena.history,s->arena.history+1024); break;
     case 5: original_chicago_phaser_init(&s->state.phaser); break;
     case 10: original_chicago_ring_init(&s->state.ring); break;
     case 18: (void)original_chicago_mastercomp_init(&s->state.mastercomp); break;
     case 22: (void)original_chicago_decimator_init(&s->state.decimator); break;
     case 24: (void)original_chicago_peaking_init(&s->state.peaking); break;
-    default: break;
+    default:
+        if (chi_fx2_insert_supports(type)) {
+            s->edit[0] = s->edit[1] = 0;
+            chi_fx2_insert_init(&s->arena.insert, type);
+        }
+        break;
     }
     s->selected_type = (uint8_t)type;
     s->selected = 1;
@@ -173,6 +204,7 @@ int original_chicago_fx2_compact_init(original_chicago_fx2_compact *s)
     if (!s) return 0;
     memset(s,0,sizeof *s);
     s->kernel = (original_chicago_fx2_kernel){s,process,parameter,reset,begin,retire,tempo,activity};
+    s->tempo_times10 = 1200;
     s->ready = COMPACT_READY;
     return 1;
 }
@@ -204,6 +236,8 @@ void original_chicago_fx2_compact_direct_event(original_chicago_fx2_compact *s,u
     case 18: original_chicago_mastercomp_direct_event(&s->state.mastercomp,type); break;
     case 22: original_chicago_decimator_direct_event(&s->state.decimator,type); break;
     case 24: original_chicago_peaking_direct_event(&s->state.peaking,type); break;
-    default: break;
+    default:
+        if (type == 5u && chi_fx2_insert_supports(s->selected_type)) reset(s);
+        break;
     }
 }

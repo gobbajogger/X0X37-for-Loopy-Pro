@@ -13,7 +13,15 @@
 #define SMC_EVENT_LEN_MASK 0x3Fu
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
 extern int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len);
+/* One SMC peer by default (owner 2026-10-31); -DBLEC_TWO_PEER=1 restores two. */
+#ifndef BLEC_TWO_PEER
+#define BLEC_TWO_PEER 0
+#endif
+#if BLEC_TWO_PEER
 #define SMC_PEERS 2u
+#else
+#define SMC_PEERS 1u
+#endif
 /* Main-loop context only. Interrupt producers always address their explicit slot. */
 static uint8_t smc_slot;
 /* Temporary mapped-page peek (SMC-07): show the real MIX/FX page of a home
