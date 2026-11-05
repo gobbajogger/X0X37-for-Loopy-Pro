@@ -40,5 +40,102 @@
   },
   "source_review": "Independent read-only review: no blocking findings",
   "setup_repair": "The first full run had 335 passes and one missing-host-Clang failure. The dependency was supplied, the optimizer check passed, and a fresh full run produced the final 336/0/0 result. No tests or expectations changed.",
-  "delivery_scope": "Text summary only; detailed execution logs and input inventories retained locally. No binaries, tokens, SDK/toolchain payload, device operations or protected branch updates."
+  "delivery_scope": "Text summary only; detailed execution logs and input inventories retained locally. No binaries, tokens, SDK/toolchain payload, device operations or protected branch updates.",
+  "cloud_integration_verification": {
+    "stage": "cloud integration verification",
+    "tested_head": "eb894b3d14ad7e1b07d0bfbe41c3d05d3e8046e5",
+    "tested_tree": "7a66ad04b09cc3d179884cb7247b996bc72f83b5",
+    "base_head": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+    "base_status": "already up to date; base is ancestor; no rebase or history rewrite",
+    "source_clean_before_after": true,
+    "sdk_version": "V1.2.1",
+    "sdk_consumed_file_pins": "11/11 MATCH",
+    "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "native_builds": {
+      "elite": {
+        "result": "PASS",
+        "exit_code": 0,
+        "app_bytes": 480568,
+        "loader_bytes": 7341,
+        "package_bytes": 651457,
+        "app_code_free_bytes": 72104,
+        "static_ram_free_bytes": 2524,
+        "pool_free_bytes": 8600,
+        "model_crc_integrity": "PASS"
+      },
+      "pro": {
+        "result": "PASS",
+        "exit_code": 0,
+        "app_bytes": 480568,
+        "loader_bytes": 7341,
+        "package_bytes": 651457,
+        "app_code_free_bytes": 72104,
+        "static_ram_free_bytes": 2524,
+        "pool_free_bytes": 8600,
+        "model_crc_integrity": "PASS"
+      }
+    },
+    "controller": {
+      "result": "PASS",
+      "bytes": 61088,
+      "crc_integrity": "PASS"
+    },
+    "full_host_suite": {
+      "pass": 336,
+      "fail": 0,
+      "skip": 0,
+      "not_run": 0,
+      "exit_code": 0,
+      "result": "PASS",
+      "jobs": 8,
+      "strict_preflight": "16 PASS, 0 FAIL",
+      "selection": "full maintained suite"
+    },
+    "setup_repair": "First full run: 334 PASS, 2 FAIL, 0 skip. Both failures were missing host Clang sanitizer libraries. Installed matching runtime package; both failed checks passed; fresh complete run passed. No source, tests or expectations changed.",
+    "artifacts": {
+      "build/smk37-elite/x0x.bin": {
+        "bytes": 480568,
+        "sha256": "c3fe751c4880977463cd147d57577dfde456638aff95d95a77317fd085e734a3"
+      },
+      "build/smk37-elite/loader/ota.bin": {
+        "bytes": 7341,
+        "sha256": "7f7b107048194dc2f2e62936c365589bb87f9c1409eb67d120cc4c4e69dc2a21"
+      },
+      "build/x0x-smk37-elite.fwsc": {
+        "bytes": 651457,
+        "sha256": "b489a201d37295ae1e826e032ecd5128878c3805ba839e16fd17da9cc7395621"
+      },
+      "build/smk37/x0x.bin": {
+        "bytes": 480568,
+        "sha256": "91ebab680d92bf5d666bc8a73d58c245c753fa17dc43a638af428e5bdd8e39a8"
+      },
+      "build/smk37/loader/ota.bin": {
+        "bytes": 7341,
+        "sha256": "9047d7ab8946f73260525d2c03197e5f1b2101af3941b3f2702d843ee9e75229"
+      },
+      "build/x0x-smk37.fwsc": {
+        "bytes": 651457,
+        "sha256": "124d757660b79cca2e98778a17dab75662b2d28d1100742f973ba30d2777e300"
+      },
+      "ble/ctl/out/ctl.img": {
+        "bytes": 61088,
+        "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7"
+      }
+    },
+    "references": {
+      "ref-9W9": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "ref-8W8": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "schwung-tb3po": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "sdk": "d179b4484759423312073f5fbb232501aa491047"
+    },
+    "transcript_sha256": "92a00e817e7f24317f36a4cc15a543bf2468b7797c350484aaa12c9a7947e1bc",
+    "build_log_sha256": {
+      "elite": "cb4e9bf624bf222b2b6c724bb3cdfe91eebe7ac6c8d39c9144a9d1eda4e414b2",
+      "pro": "bd0cbf4a0727266bb74738a8c668430616da8788e2ef06ec74c9090ad337c341",
+      "controller": "5c184ae5cb2d7d54f22a6ce6fd9d06757053f6407976d8db1a1679da44c56d46"
+    },
+    "qualification": "BUILD_ONLY plus full host proof; not DEV CHECKED, release, device or installability proof",
+    "next_owner": "assigned wip/one-build integrator",
+    "next_action": "review evidence and merge PR858 into wip/one-build under existing integration authority"
+  }
 }
