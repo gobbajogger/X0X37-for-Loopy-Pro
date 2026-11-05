@@ -53,7 +53,7 @@ held and resolves it: the holder finishes, hands the work off or releases the
 lock, and the outcome is recorded in the sole ledger. The ledger writer takes over
 only when the holder explicitly releases or hands off; an unreachable holder is
 escalated to the coordinator/owner, and the ledger writer does not take over on
-its own. This grants no merge or publication authority. Neither rule erases an
+its own. This grants no merge or publication authority. None of this erases an
 already accepted independent continuation. Independent QA and builds can run on
 the same immutable candidate while disjoint implementation proceeds. Serialize
 overlapping writes and integration, not the whole queue.
