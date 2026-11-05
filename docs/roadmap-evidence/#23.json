@@ -1,0 +1,112 @@
+{
+  "row_id": "#23",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:147; /workspace/docs-audit/roadmap-status.md:64; out/docs/roadmap-evidence/#23.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "Old gate PRESENT on 8be16486 (audit pin 70b5a033 / blob 4bfb141f); blob proofs retained in notes only. New schema requires test_refs; left UNPROVEN (no invented test_refs). | recorded_code_paths_unverified_for_PRESENT: firmware/src/app/engine.h | recorded_origin_blob:b63872df6fc471ec024fad80965cf28d27c3092a path:firmware/src/app/engine.h | matched_5f578fc0_master id=#23 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint ONLY: green scenario-trackmute (/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 41) selects 909 and 808 and checks distinct mute bit ranges; narrow model-identity lead. The row does not name it; this is not a binding and does not justify PRESENT.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "Old gate PRESENT on 8be16486 (audit pin 70b5a033 / blob 4bfb141f); blob proofs retained in notes only. New schema requires test_refs; left UNPROVEN (no invented test_refs). | recorded_code_paths_unverified_for_PRESENT: firmware/src/app/engine.h | recorded_origin_blob:b63872df6fc471ec024fad80965cf28d27c3092a path:firmware/src/app/engine.h | matched_5f578fc0_master id=#23 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:64 (reconciled; gate result=PRESENT)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:147",
+      "/workspace/docs-audit/roadmap-status.md:64",
+      "out/docs/roadmap-evidence/#23.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "smc-audit-core",
+      "smc-drum-mutes",
+      "smc-lock"
+    ],
+    "evidence": "tests/host/smc_audit_core_test.c:34: CHECK(smc_target(0).a==T_808 && smc_target(0).b==8);; tests/host/smc_drum_mutes_test.c:71: assert(expected.kind == R_ENG && expected.a == (mode == 1 ? T_909 : T_808));; tests/host/smc_lock_test.c:86: CHECK(smc_same(find_ref(kit ? T_808 : T_909, smc.lock_bank, \"Level\"), smc_target(0)));",
+    "identifiers": [
+      {
+        "identifier": "T_909",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:147"
+      },
+      {
+        "identifier": "T_808",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:147"
+      },
+      {
+        "identifier": "published_in_nightly_catalog_only",
+        "source": "/workspace/docs-audit/roadmap-status.md:64"
+      }
+    ],
+    "matches": [
+      {
+        "test": "smc-audit-core",
+        "symbol_from_row": "T_808",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:147",
+        "file": "tests/host/smc_audit_core_test.c",
+        "line": 34,
+        "quote": "CHECK(smc_target(0).a==T_808 && smc_target(0).b==8);",
+        "identifier": "T_808"
+      },
+      {
+        "test": "smc-drum-mutes",
+        "symbol_from_row": "T_808",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:147",
+        "file": "tests/host/smc_drum_mutes_test.c",
+        "line": 71,
+        "quote": "assert(expected.kind == R_ENG && expected.a == (mode == 1 ? T_909 : T_808));",
+        "identifier": "T_808"
+      },
+      {
+        "test": "smc-lock",
+        "symbol_from_row": "T_808",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:147",
+        "file": "tests/host/smc_lock_test.c",
+        "line": 86,
+        "quote": "CHECK(smc_same(find_ref(kit ? T_808 : T_909, smc.lock_bank, \"Level\"), smc_target(0)));",
+        "identifier": "T_808"
+      }
+    ],
+    "recorded_results": {
+      "smc-audit-core": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-drum-mutes": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-lock": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/engine.h"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/engine.h",
+        "line": 9,
+        "identifier": "T_909",
+        "quote": "*   T_909 / T_808   voice = track 0..10, or DR_KIT / D8_KIT (= 11) for the kit"
+      },
+      {
+        "file": "firmware/src/app/engine.h",
+        "line": 25,
+        "identifier": "T_909",
+        "quote": "enum { T_909, T_808, T_303, T_BRK, T_FX, T_MIX, T_MST, NTARGETS };"
+      }
+    ]
+  }
+}

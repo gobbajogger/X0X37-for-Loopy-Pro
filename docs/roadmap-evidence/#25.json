@@ -1,0 +1,61 @@
+{
+  "row_id": "#25",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:149; /workspace/docs-audit/roadmap-status.md:66; out/docs/roadmap-evidence/#25.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#25 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#25 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:66 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:149",
+      "/workspace/docs-audit/roadmap-status.md:66",
+      "out/docs/roadmap-evidence/#25.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "adaptive-break-controls"
+    ],
+    "evidence": "tests/host/adaptive_break_controls_test.c:138: count_set(32,0);ui.brk_page=3;key_event(0,1);key_event(black(7),1);CHECK(proj.pat[seq.ppat[TRK_BRK]].brk.slice[0]==32);",
+    "identifiers": [
+      {
+        "identifier": "slice",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:149"
+      }
+    ],
+    "matches": [
+      {
+        "test": "adaptive-break-controls",
+        "symbol_from_row": "slice",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:149",
+        "file": "tests/host/adaptive_break_controls_test.c",
+        "line": 138,
+        "quote": "count_set(32,0);ui.brk_page=3;key_event(0,1);key_event(black(7),1);CHECK(proj.pat[seq.ppat[TRK_BRK]].brk.slice[0]==32);",
+        "identifier": "slice"
+      }
+    ],
+    "recorded_results": {
+      "adaptive-break-controls": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": []
+  }
+}
