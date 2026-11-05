@@ -28,7 +28,8 @@
   "firmware_version_string": "DEV",
   "firmware_version_source": "firmware/src/app/version.h:7 and the string DnBOX DEV  MEM in build/smk37-elite/x0x.bin and build/smk37/x0x.bin",
   "expected_display_version": "0.0.24.5",
-  "version_agreement": "display_version 0.0.24.5 agrees across the manifest, the catalog row, and versions-would-be.json",
+  "catalog_description": "UNREVIEWED · DEVICE NOT TESTED. Host run measured 391 ok, 6 FAIL, 0 NOT_RUN. FAIL: original-release-ui, smc-ui, offline-sequencer-browser, ui-feedback, ui-glyph-polish, scenario-plock. NOT_RUN: none. package_nightly --check was NOT_RUN: there is no canonical X.Y.Z version for this build, and there is no installer and no package_check digest. The firmware images show \"DnBOX DEV\". display_version 0.0.24.5 is a carried catalog label only. It is not the firmware's own string.",
+  "version_agreement": "display_version 0.0.24.5 agrees across the manifest, the catalog row, and versions-would-be.json. It is a carried catalog label. The firmware images show DnBOX DEV.",
   "toolchain": {
     "name": "jieli-linux-toolchains-20260730.1",
     "clang_version": "4.0.1",

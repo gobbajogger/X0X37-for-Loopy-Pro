@@ -26,7 +26,7 @@ No gh-pages write, no `--push`, and no `--remote` was run. No ledger number was 
 | `source_tree` | `a917fb6a2c738bb410601bd784278bf35c142f1c` |
 | `display_version` | `0.0.24.5` |
 | `title` | `UNREVIEWED · DEVICE NOT TESTED` |
-| `description` | Host measured 391 ok, 6 FAIL, 0 NOT_RUN. FAIL: original-release-ui, smc-ui, offline-sequencer-browser, ui-feedback, ui-glyph-polish, scenario-plock. NOT_RUN: none. The reference 364 / 19 / 6 differs. |
+| `description` | UNREVIEWED · DEVICE NOT TESTED. Host run measured 391 ok, 6 FAIL, 0 NOT_RUN. FAIL: original-release-ui, smc-ui, offline-sequencer-browser, ui-feedback, ui-glyph-polish, scenario-plock. NOT_RUN: none. package_nightly --check was NOT_RUN: there is no canonical X.Y.Z version for this build, and there is no installer and no package_check digest. The firmware images show "DnBOX DEV". display_version 0.0.24.5 is a carried catalog label only. It is not the firmware's own string. |
 | `models.elite.product` | `SMK-37 Elite_900` |
 | `models.elite.sha256` | `4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb` |
 | `models.elite.size` | `651570` |

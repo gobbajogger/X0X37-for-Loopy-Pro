@@ -84,9 +84,9 @@ BLE flash is 61552 of 65536. BLE RAM is 26336 of 26368. Both match 43de100c. No 
 
 ## Version agreement
 
-`display_version` is `0.0.24.5` in the manifest, in the catalog row, and in `versions-would-be.json` `versions[0].display_version`. Those three agree.
+The catalog description is: UNREVIEWED · DEVICE NOT TESTED. Host run measured 391 ok, 6 FAIL, 0 NOT_RUN. FAIL: original-release-ui, smc-ui, offline-sequencer-browser, ui-feedback, ui-glyph-polish, scenario-plock. NOT_RUN: none. package_nightly --check was NOT_RUN: there is no canonical X.Y.Z version for this build, and there is no installer and no package_check digest. The firmware images show "DnBOX DEV". display_version 0.0.24.5 is a carried catalog label only. It is not the firmware's own string.
 
-That string is the carry read from gh-pages `7c7baecb1be17b860b13e8832882a399679231c1` `versions.json`, entry `nightly-8be16486-dev`, field `display_version`. The same entry says the embedded firmware reports 0.0.24 and that 0.0.24.5 is a catalog label. A byte search of this candidate's app images and `.fwsc` files does not find `0.0.24.5`. `firmware/src/app/version.h` line 7 is the default `X0X_VERSION` macro, and the built ABOUT line uses that macro. The catalog field stays `0.0.24.5`.
+`display_version` stays `0.0.24.5` in the manifest, the catalog row, and `versions-would-be.json`. That value is carried from gh-pages `7c7baecb1be17b860b13e8832882a399679231c1`, entry `nightly-8be16486-dev`. The firmware images show "DnBOX DEV".
 
 The label is exactly `UNREVIEWED · DEVICE NOT TESTED` (U+00B7). `hardware_tested` is false. The version key is `nightly-ce278129-dev`. The build id `ce278129` is the prefix of `ce27812951555ff7ed9694bf99d20a65dd5f410b`.
 
