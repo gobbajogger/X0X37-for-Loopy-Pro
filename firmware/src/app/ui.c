@@ -4528,6 +4528,7 @@ _Static_assert(HDR_H + 2u * BAND_H + KNOB_H == 240u, "the three strips must tile
 static uint16_t cv_lcd_txbuf[X0X_LCD_MAX_DMA_BYTES / 2u];
 static uint32_t blit_hash[4];
 static uint8_t cv_tile_valid[4];
+static uint8_t part_header_snapshot_valid;
 static uint32_t cv_hash(void)
 {
     uint32_t i, h = 2166136261u, n = cv_w * cv_h;
@@ -4645,6 +4646,7 @@ static void cv_commit_full_with_tiles(int region, uint32_t x, uint32_t y,
  * pay only the same single whole-band hash as 0.0.24.3. */
 static void cv_commit_header(void)
 {
+    part_header_snapshot_valid = 0; /* every header owner invalidates semantic reuse */
     if (!blit_hash[0] || !cv_tile_valid[0]) {
         /* Cold full-band transfer already computes all tile hashes. Avoid
          * hashing the full canvas twice; learn its full hash next frame. */
@@ -4922,6 +4924,7 @@ static float turns(float y, float x)
 
 /* a knob: a 270-degree track from 7:30 to 4:30, thickness th, anti-aliased, round ends; the
  * value filled from the start (or from the top, for a bipolar value) and a round handle */
+#include "ui_arc8_geometry.h"
 static void arc(int32_t cx, int32_t cy, int32_t r, float v, uint16_t track, uint16_t fill, int bipolar)
 {
     const float th = 3.4f, a0 = 0.375f, sweep = 0.75f;  /* start at 135 degrees, in turns */
@@ -4929,7 +4932,16 @@ static void arc(int32_t cx, int32_t cy, int32_t r, float v, uint16_t track, uint
     float lo = bipolar ? (v < 0.5f ? v : 0.5f) : 0.0f, hi = bipolar ? (v < 0.5f ? 0.5f : v) : v;
     int32_t x, y;
     v = fm_clampf(v, 0.0f, 1.0f);
-    for (y = -r - 1; y <= r + 1; y++)
+    if (r == 8) {
+        /* Keep original y/x order, exact float t bits and rounded coverage.
+         * Caps/handle below and every other radius retain the original path. */
+        for (unsigned i = 0; i < sizeof arc8_geometry / sizeof *arc8_geometry; ++i) {
+            float t;
+            memcpy(&t, &arc8_geometry[i].turns_bits, sizeof t);
+            px_blend(cx + arc8_geometry[i].x, cy + arc8_geometry[i].y,
+                     (t >= lo && t <= hi) ? fill : track, arc8_geometry[i].coverage);
+        }
+    } else for (y = -r - 1; y <= r + 1; y++)
         for (x = -r - 1; x <= r + 1; x++) {
             float dx = (float)x + 0.5f - 0.5f, dy = (float)y + 0.5f - 0.5f, d = fm_sqrtf(dx * dx + dy * dy), t, a;
             a = fm_clampf(ro + 0.5f - d, 0.0f, 1.0f) * fm_clampf(d - ri + 0.5f, 0.0f, 1.0f);
@@ -5104,6 +5116,16 @@ static UI_DRAW void header_pattern_cue(int x,int part)
     nav_arrow(x,6,1,ink);header_pattern_badge(x+8,part,cue,0,C_GRAY);
 }
 
+/* Exact inputs of the static PART-header branch. Cues, pad labels, messages
+ * and all other headers keep their existing dynamic renderer. No project
+ * dirty flag or wall-clock rate limit is used as display state. */
+typedef struct {
+    const char *name;
+    uint16_t colours[5], col;
+    uint8_t light, part, page, pages, phase, rec, save, night;
+} part_header_snapshot_t;
+static part_header_snapshot_t part_header_snapshot;
+
 static UI_DRAW void draw_header(void)
 {
 #if BOARD_SMK37
@@ -5114,6 +5136,27 @@ static UI_DRAW void draw_header(void)
     int ss = save_state();
     int pickup = ui.msg[0] == 'P' && ui.msg[1] == 'I' && ui.msg[2] == 'C' &&
                  ui.msg[3] == 'K' && ui.msg[4] == ' ';
+    part_header_snapshot_t snapshot = {0};
+    int cacheable = !ui.msg_until && ui.view == V_PART && (is_drum() || is_303()) &&
+        ui.overlay == O_NONE && !ui.help && !division_pad_owner() &&
+        seq_cue_of(&seq, ui.part) < 0
+#if BOARD_SMK37
+        && !smk_clip_mode_on()
+#endif
+        ;
+    if (cacheable) {
+        snapshot.name = part_display(ui.part);
+        if (is_303()) snapshot.name = engine_bass_bank(bidx()) == ORIGINAL_SOUND_MIAMI ?
+            (bidx() ? "MIAMI B" : "MIAMI A") : (bidx() ? "CHICAGO B" : "CHICAGO A");
+        memcpy(snapshot.colours, pal, sizeof pal);
+        snapshot.col = matrix_col(); snapshot.light = ui_theme_light;
+        snapshot.part = ui.part; snapshot.page = (uint8_t)cur_page(); snapshot.pages = pg.n;
+        snapshot.phase = seq.metro_view; snapshot.rec = ui.rec; snapshot.save = (uint8_t)ss;
+        snapshot.night = (uint8_t)(matrix_three_rows() || X0X_ORIGINAL_SYNTH);
+        if (part_header_snapshot_valid && blit_hash[0] && cv_tile_valid[0] &&
+            !memcmp(&snapshot, &part_header_snapshot, sizeof snapshot)) return;
+    }
+    part_header_snapshot_valid = 0;
     cv_begin(240, HDR_H, C_BLACK);
     night_panel(0,0,240,HDR_H,0);
     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
@@ -5176,6 +5219,10 @@ static UI_DRAW void draw_header(void)
         if(ui.rec) dot(190,9,3,RGB(255,50,50));
         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
         cv_commit_header();
+        if (cacheable) {
+            part_header_snapshot = snapshot;
+            part_header_snapshot_valid = 1;
+        }
         return;
     }
     if (pickup) {                         /* fader pickup hint in the left chip; song/pattern and tempo stay visible */
@@ -5938,7 +5985,7 @@ static UI_DRAW void draw_master_wave(void)
     enum { X0=8,W=188,MID=34,AMP=26 };
     static int16_t latched[SCOPE_N];
     static uint32_t last_ms, last_w, last_hash;
-    static uint8_t have;
+    static uint8_t have, flat;
     uint32_t now = plat_ms(), w = eng_scope_w, h, base;
     int i, x, y0, y1;
     if (!have || (int32_t)(now - last_ms) >= 100) {
@@ -5947,8 +5994,11 @@ static UI_DRAW void draw_master_wave(void)
         for (i = 0; i < (int)SCOPE_N; i++)
             h = (h ^ (uint32_t)(uint16_t)eng_scope[(base + (uint32_t)i) & (SCOPE_N - 1u)]) * 16777619u;
         if (!have || h != last_hash || w != last_w) {
-            for (i = 0; i < (int)SCOPE_N; i++)
+            flat = 1;
+            for (i = 0; i < (int)SCOPE_N; i++) {
                 latched[i] = eng_scope[(base + (uint32_t)i) & (SCOPE_N - 1u)];
+                if (latched[i]) flat = 0;
+            }
             last_hash = h;
             last_w = w;
             have = 1;
@@ -5957,6 +6007,11 @@ static UI_DRAW void draw_master_wave(void)
     }
     night_panel(3,1,198,66,0);
     cv_rect(X0,MID,W,1,C_LINE);
+    if (flat) {
+        /* Same inclusive horizontal pixels as 187 adjacent one-pixel spans. */
+        cv_line(X0, MID, X0 + W - 1, MID, part_col());
+        return;
+    }
     y0 = MID - (int)latched[0] * AMP / 32768;
     if (y0 < 2)
         y0 = 2;
@@ -8371,6 +8426,7 @@ X0X_COLD void ui_init(void)
         cv_tile_valid[i] = 0;
     }
     header_full_hash = popup_knob_full_hash = 0;
+    part_header_snapshot_valid = 0;
     build_pages();
     undo_start();                                   /* the project as loaded is where undo stops */
     if (project_storage_unsupported()) {
