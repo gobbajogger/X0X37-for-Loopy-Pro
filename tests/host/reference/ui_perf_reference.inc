@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Frozen pre-ITEM3 raster paths. Test only; never included by firmware. */
+/* Pre-ITEM3 raster paths. Test only; never included by firmware.
+ * The later #807 content-badge correctness repair is shared with production,
+ * so comparisons isolate the performance delta. Raw original: item3 checkpoint. */
 static void arc_reference(int32_t cx, int32_t cy, int32_t r, float v, uint16_t track, uint16_t fill, int bipolar)
 {
     const float th = 3.4f, a0 = 0.375f, sweep = 0.75f;  /* start at 135 degrees, in turns */
@@ -167,10 +169,15 @@ static UI_DRAW void draw_header_reference(void)
     {   /* the pattern of the part on screen (else the 909's), its cue; in SONG mode the bar */
         int part = part_view() ? ui.part : PART_909, cue = seq_cue_of(&seq, part);
         int pending=cue>=0 && cue!=seq.ppat[part] && !seq.song_on;
-        x=ui_position_badge(seq.song_on?UI_G_SONG:UI_G_PATTERN,
-            (seq.song_on?(seq.playing?seq.song_pos:ui.song_sel):seq.ppat[part])+1,
-            pending?cue+1:0,seq.song_on?(seq.song_rec?RGB(255,90,80):C_AMB):C_WHITE,
-            (ui.frame & 16u)?C_WHITE:C_GRAY);
+        if (seq.song_on)
+            x=ui_position_badge(UI_G_SONG,(seq.playing?seq.song_pos:ui.song_sel)+1,
+                0,seq.song_rec?RGB(255,90,80):C_AMB,C_GRAY);
+        else {
+            /* #807: real saved content, not a static pattern symbol. The
+             * queued arrow follows actual steps and stays still when stopped. */
+            x=header_pattern_badge(132,part,seq.ppat[part],1,C_WHITE);
+            header_pattern_cue(156,part);
+        }
         if (!pending && seq.chain_a != seq.chain_b && !seq.song_on) {
             cv_text(x + 3, vc(&FONT_XS, 1, 17), &FONT_XS, "CHN", C_AMB);
         } else if (!pending && steps_view() && steps_len() > 16) {   /* the 16 steps the keys show */

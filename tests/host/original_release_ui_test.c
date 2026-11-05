@@ -351,6 +351,7 @@ static void picture_rule_cases(void)
     seq_t before=seq;
     for(int theme=0;theme<=5;theme+=5){
         palette_set(theme); ui.msg_until=0; draw_header();
+        shot(theme ? "header-content-light" : "header-content-dark");
         /* Eight columns cover all saved steps: current {0,8} -> 0x11;
          * queued {2} -> 0x02. Header badges must show content, not assignment. */
         for(int i=0;i<8;i++)for(int y=8;y<=10;y++){

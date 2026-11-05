@@ -5097,15 +5097,15 @@ static UI_DRAW void row_picture(int x,int y,uint16_t ink)
 {
     for(int row=0;row<3;row++)cv_rect(x,y+1+row*3,10,row==1?2:1,ink);
 }
-static UI_DRAW void header_pattern_badge(int x,int part,int pattern,int current,uint16_t ink)
+static UI_DRAW int header_pattern_badge(int x,int part,int pattern,int current,uint16_t ink)
 {
     uint8_t strength[8];char number[4];
-    if(part<0 || part>=NPARTS || pattern<0 || pattern>=NPAT)return;
+    if(part<0 || part>=NPARTS || pattern<0 || pattern>=NPAT)return x;
     frame(x,6,10,7,ink);
     home_pattern_strength8(&proj.pat[pattern],proj.arr.lane,pattern,part,
                           proj.set.accent_q7,T_VEL,strength);
     pat_glyph_row(x+1,8,strength,PART_COL[part],current);
-    put_i(number,pattern+1);cv_text(x+12,vc(&FONT_T,1,17),&FONT_T,number,ink);
+    put_i(number,pattern+1);return cv_text(x+12,vc(&FONT_T,1,17),&FONT_T,number,ink);
 }
 static UI_DRAW void header_pattern_cue(int x,int part)
 {
@@ -5285,10 +5285,15 @@ static UI_DRAW void draw_header(void)
     {   /* the pattern of the part on screen (else the 909's), its cue; in SONG mode the bar */
         int part = part_view() ? ui.part : PART_909, cue = seq_cue_of(&seq, part);
         int pending=cue>=0 && cue!=seq.ppat[part] && !seq.song_on;
-        x=ui_position_badge(seq.song_on?UI_G_SONG:UI_G_PATTERN,
-            (seq.song_on?(seq.playing?seq.song_pos:ui.song_sel):seq.ppat[part])+1,
-            pending?cue+1:0,seq.song_on?(seq.song_rec?RGB(255,90,80):C_AMB):C_WHITE,
-            (ui.frame & 16u)?C_WHITE:C_GRAY);
+        if (seq.song_on)
+            x=ui_position_badge(UI_G_SONG,(seq.playing?seq.song_pos:ui.song_sel)+1,
+                0,seq.song_rec?RGB(255,90,80):C_AMB,C_GRAY);
+        else {
+            /* #807: real saved content, not a static pattern symbol. The
+             * queued arrow follows actual steps and stays still when stopped. */
+            x=header_pattern_badge(132,part,seq.ppat[part],1,C_WHITE);
+            header_pattern_cue(156,part);
+        }
         if (!pending && seq.chain_a != seq.chain_b && !seq.song_on) {
             cv_text(x + 3, vc(&FONT_XS, 1, 17), &FONT_XS, "CHN", C_AMB);
         } else if (!pending && steps_view() && steps_len() > 16) {   /* the 16 steps the keys show */
