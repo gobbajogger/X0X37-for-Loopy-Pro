@@ -1,0 +1,71 @@
+{
+  "row_id": "#68",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "PRESENT",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:192 names tests/host/sound_matrix_test.c; tests/run_tests.sh:660 -> tests/host/sound_matrix_test.sh:14; /workspace/qa-receipt-m7a-final-ce278129.md:11-12 pins SHA/tree; /workspace/qa-receipt-m7a-final-ce278129.md:72 pins gcc run; /workspace/qa-receipt-m7a-final-ce278129.md:83: **Became ok versus recorded gcc `43de100c` (9):** `original-build`, `ui-theme`, `smc-select-mode`, `smc-solo-overflow`, `smc-boot-saved-roles`, `smc-multi-peer`, `ui-peer-names`, `builtin-break-output`, `sound-matrix`. On this gcc run, `ui-theme` logged `PASS ui_theme checks=14865102` and `smc-boot-saved-roles` is `ok`. Comment 6657404493 says those two still FAIL; that run’s other names look like clang. My clang suite was not finished, and its partial log already has `ui-theme` FAIL, so I do not override that clang result.",
+  "notes": "matched_5f578fc0_master id=#68 status=in 0.0.24\nPASS1: [UNCLEAR] Named suite entries have no explicit result in supplied transcript: sound-matrix. Named files: tests/host/sound_matrix_test.c\nPASS2: [PRESENT] Named sound-matrix has an explicit ok result on pinned ce278129 (QA gcc run).",
+  "code_paths": [
+    "firmware/src/app/ui.c",
+    "tests/host/sound_matrix_test.c"
+  ],
+  "test_refs": [
+    {
+      "file": "tests/host/sound_matrix_test.c",
+      "test": "sound-matrix",
+      "result": "PASS",
+      "source_sha": "ce27812951555ff7ed9694bf99d20a65dd5f410b"
+    }
+  ],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#68 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:109 (reconciled; gate result=MISSING)"
+    },
+    "category": "UNCLEAR",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:192",
+      "/workspace/docs-audit/roadmap-status.md:109",
+      "out/docs/roadmap-evidence/#68.json:original notes"
+    ],
+    "named_tests": [
+      [
+        "/workspace/docs-audit/_ROADMAP-5f578fc0.md:192",
+        "tests/host/sound_matrix_test.c"
+      ]
+    ],
+    "bindings": {
+      "sound-matrix": [
+        {
+          "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:192",
+          "named": "tests/host/sound_matrix_test.c",
+          "file": "tests/host/sound_matrix_test.c",
+          "mapping": "tests/run_tests.sh:660 -> tests/host/sound_matrix_test.sh:14"
+        }
+      ]
+    },
+    "missing_results": [
+      "sound-matrix"
+    ]
+  },
+  "pass2": {
+    "status": "PRESENT",
+    "category": "PRESENT",
+    "reason": "Named sound-matrix has an explicit ok result on pinned ce278129 (QA gcc run).",
+    "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:192 names tests/host/sound_matrix_test.c; tests/run_tests.sh:660 -> tests/host/sound_matrix_test.sh:14; /workspace/qa-receipt-m7a-final-ce278129.md:11-12 pins SHA/tree; /workspace/qa-receipt-m7a-final-ce278129.md:72 pins gcc run; /workspace/qa-receipt-m7a-final-ce278129.md:83: **Became ok versus recorded gcc `43de100c` (9):** `original-build`, `ui-theme`, `smc-select-mode`, `smc-solo-overflow`, `smc-boot-saved-roles`, `smc-multi-peer`, `ui-peer-names`, `builtin-break-output`, `sound-matrix`. On this gcc run, `ui-theme` logged `PASS ui_theme checks=14865102` and `smc-boot-saved-roles` is `ok`. Comment 6657404493 says those two still FAIL; that run’s other names look like clang. My clang suite was not finished, and its partial log already has `ui-theme` FAIL, so I do not override that clang result.",
+    "quote": "**Became ok versus recorded gcc `43de100c` (9):** `original-build`, `ui-theme`, `smc-select-mode`, `smc-solo-overflow`, `smc-boot-saved-roles`, `smc-multi-peer`, `ui-peer-names`, `builtin-break-output`, `sound-matrix`. On this gcc run, `ui-theme` logged `PASS ui_theme checks=14865102` and `smc-boot-saved-roles` is `ok`. Comment 6657404493 says those two still FAIL; that run’s other names look like clang. My clang suite was not finished, and its partial log already has `ui-theme` FAIL, so I do not override that clang result.",
+    "quote_source": "/workspace/qa-receipt-m7a-final-ce278129.md:83",
+    "test_refs": [
+      {
+        "file": "tests/host/sound_matrix_test.c",
+        "test": "sound-matrix",
+        "result": "PASS",
+        "source_sha": "ce27812951555ff7ed9694bf99d20a65dd5f410b"
+      }
+    ],
+    "code_paths": [
+      "firmware/src/app/ui.c",
+      "tests/host/sound_matrix_test.c"
+    ]
+  }
+}
