@@ -1,0 +1,81 @@
+# Commands for the native evidence build of 2f451528 (UNREVIEWED), not release qualification.
+# Durations are wall seconds from date +%s.
+# The five package files are not in git. SHA256SUMS is the text record.
+
+# --- identity check, before the branch ---
+git rev-parse HEAD
+# rc 0  ce27812951555ff7ed9694bf99d20a65dd5f410b
+git rev-parse 'HEAD^{tree}'
+# rc 0  a917fb6a2c738bb410601bd784278bf35c142f1c
+
+# --- host packages ---
+# sudo apt-get update && sudo apt-get install -y libclang-rt-18-dev lua5.1 libstdc++-14-dev python3-pil
+# rc 0
+# python3 -c "import PIL; print('PIL', PIL.__version__, PIL.__file__)"
+# rc 0  PIL 13.0.0 /home/ubuntu/.local/lib/python3.12/site-packages/PIL/__init__.py
+# apt package python3-pil 10.2.0-1ubuntu1.4 is also installed. The import uses the user-site copy.
+
+# --- public inputs ---
+# curl -fL --retry 3 -o linux-toolchain.bin https://pkgman.jieliapp.com/s/linux-toolchain
+# size 26027508 expected 26027508 MATCH
+# sha256 a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd MATCH
+# tar -xJf into $HOME/.jieli and ln -sfn jieli-linux-toolchains-20260730.1 toolchain
+# clang sha256 c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f MATCH
+# clang version 4.0.1
+# git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git $HOME/fw-AC79_AIoT_SDK
+# HEAD d179b4484759423312073f5fbb232501aa491047 MATCH
+# pins, all MATCH:
+#   cpu/wl82/tools/uboot.boot size 14536 sha256 4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4
+#   cpu/wl82/tools/cfg_tool.bin size 383 sha256 276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b
+#   cpu/wl82/tools/cfg/eq_cfg_hw.bin size 655 sha256 41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d
+# reference checkouts:
+#   SCHWUNG303=/agent/repos/schwung-303 7680578cdecd91e512cfddb9c9eb07b287fb64f4 MATCH
+#   TB3PO_REF=/agent/repos/schwung-tb3po/src/dsp/tb3po.c repo f49d81d05d1e29ae37728a08e30f193892be3bc9 MATCH
+#   NINEW9 requested 10cbe5c1e1c9e65b0818bb34644ab1a13092082c ABSENT on the public remote (HTTP 422, clone history has no such object). Checked out a9e030d9bad46e3e53aafce92c7104b8e7bba47f. src/dsp/er99_engine.c is absent.
+#   EIGHTW8 requested 94aa2716d4c2e5851fc7c5dbb4c17adfd133c997 ABSENT on the public remote (HTTP 422). Checked out 1dbef27e13a6c63cb1fc078dd9b4d86172237c51. src/dsp/sc808_engine.cpp is absent.
+
+# --- merges, then a plain push, then the builds ---
+# git checkout -b lane/build-25-integration-20261106 ce27812951555ff7ed9694bf99d20a65dd5f410b
+# git -c user.name=gobbajogger -c user.email=255244738+gobbajogger@users.noreply.github.com -c core.hooksPath=/tmp/empty-githooks merge --no-ff --no-commit dd51bd3791b2236111b11afbc66acff26f6644ec
+# rc 0  no conflict. tree 88d48b859f14d88ad4c036226e6d0e70959d9a89
+# git -c core.hooksPath=/tmp/empty-githooks commit -m 'Merge lane/dev-M4-sound-reset-data-v2-20261105 into build-25 integration (dd51bd37)'
+# rc 0  e34cc16acaae649320a981363344d491f9861cd2
+# git -c core.hooksPath=/tmp/empty-githooks merge --no-ff --no-commit c26529661e7b287b49bd4cbffaa21156329e87ae
+# rc 0  no conflict. tree 60c119ff5a462915cee291b4c436cb724b7a8b6b
+# git -c core.hooksPath=/tmp/empty-githooks commit -m 'Merge lane/dev-M8-play-question-v2-20261105 into build-25 integration (c2652966)'
+# rc 0  2f451528dbf3d3f8a1f13c3b384dc155d12fa70b
+# git push origin lane/build-25-integration-20261106
+# rc 0  new branch. No pull request was opened.
+
+# --- env at both builds ---
+#   JIELI_TOOLCHAIN=$HOME/.jieli/toolchain
+#   AC79_SDK=$HOME/fw-AC79_AIoT_SDK
+#   JIELI_DOCKER=0
+#   X0X_DEV_PADCAL=0
+#   CTL_NO_CACHE=1
+#   CC=cc CXX=c++
+#   SDK_LOCAL=$AC79_SDK on the controller build
+# M4 worktree /tmp/build25-m4 at e34cc16acaae649320a981363344d491f9861cd2
+# tip checkout at 2f451528dbf3d3f8a1f13c3b384dc155d12fa70b
+# python3 tools/check_locked_settings.py
+# rc 0  "check_locked_settings: 20 settings ok" on both trees
+# MODEL=elite ./build.sh --board smk37
+# M4 rc 0 elapsed 6. Tip rc 0 elapsed 6.
+# MODEL=pro ./build.sh --board smk37
+# M4 rc 0 elapsed 5. Tip rc 0 elapsed 5.
+# SDK_LOCAL=$AC79_SDK CTL_NATIVE=1 sh ble/ctl/build_ctl.sh
+# M4 rc 0 elapsed 3. Tip rc 0 elapsed 3.
+# python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-ble.fwsc
+# rc 0
+# python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-elite-ble.fwsc
+# rc 0
+# python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
+# rc 0  "ctl.img: ok"
+
+# --- host suite on the pushed tip only ---
+# env: NINEW9_DIR EIGHTW8_DIR SCHWUNG303 TB3PO_REF AC79_SDK JIELI_TOOLCHAIN JIELI_DOCKER=0 X0X_DEV_PADCAL=0 CC=cc CXX=c++
+# timeout 2400 sh tests/run_tests.sh
+# started 2026-11-05T14:26:41Z
+# ended 2026-11-05T14:47:59Z
+# rc 1  elapsed 1278
+# ok 391  FAIL 6  NOT_RUN 2

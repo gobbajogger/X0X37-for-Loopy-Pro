@@ -1,0 +1,16 @@
+commit 2f451528dbf3d3f8a1f13c3b384dc155d12fa70b
+tree 60c119ff5a462915cee291b4c436cb724b7a8b6b
+command timeout 2400 sh tests/run_tests.sh
+started 2026-11-05T14:26:41Z
+NINEW9_DIR /agent/repos/schwung-9W9 head a9e030d9bad46e3e53aafce92c7104b8e7bba47f requested 10cbe5c1e1c9e65b0818bb34644ab1a13092082c
+EIGHTW8_DIR /agent/repos/schwung-8W8 head 1dbef27e13a6c63cb1fc078dd9b4d86172237c51 requested 94aa2716d4c2e5851fc7c5dbb4c17adfd133c997
+SCHWUNG303 /agent/repos/schwung-303 head 7680578cdecd91e512cfddb9c9eb07b287fb64f4
+TB3PO_REF /agent/repos/schwung-tb3po/src/dsp/tb3po.c repo f49d81d05d1e29ae37728a08e30f193892be3bc9
+PIL 13.0.0 /home/ubuntu/.local/lib/python3.12/site-packages/PIL/__init__.py
+er99 absent
+sc808 absent
+open303 present
+tb3po present
+ended 2026-11-05T14:47:59Z
+elapsed_s 1278
+rc 1

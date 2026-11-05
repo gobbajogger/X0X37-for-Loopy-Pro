@@ -1,0 +1,24 @@
+LABEL tip
+START 2026-11-05T14:25:20Z
+COMMIT 2f451528dbf3d3f8a1f13c3b384dc155d12fa70b
+TREE 60c119ff5a462915cee291b4c436cb724b7a8b6b
+BEGIN check 2026-11-05T14:25:20Z :: python3 tools/check_locked_settings.py
+END check rc=0 elapsed_s=0
+BEGIN elite 2026-11-05T14:25:20Z :: env MODEL=elite ./build.sh --board smk37
+END elite rc=0 elapsed_s=6
+BEGIN pro 2026-11-05T14:25:26Z :: env MODEL=pro ./build.sh --board smk37
+END pro rc=0 elapsed_s=5
+BEGIN ctl 2026-11-05T14:25:31Z :: env SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK CTL_NATIVE=1 sh ble/ctl/build_ctl.sh
+END ctl rc=0 elapsed_s=3
+BEGIN add-pro 2026-11-05T14:25:34Z :: python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-ble.fwsc
+END add-pro rc=0 elapsed_s=0
+BEGIN add-elite 2026-11-05T14:25:34Z :: python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-elite-ble.fwsc
+END add-elite rc=0 elapsed_s=1
+BEGIN ctl-check 2026-11-05T14:25:35Z :: python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
+END ctl-check rc=0 elapsed_s=0
+be4d608eb98b1408ffaed1e254b0e38f1c154b8c7865ae9a46f8ac184452bf85  651570  build/x0x-smk37-elite.fwsc
+0773c61a48a7e1c84585a40d3b52f0e8c2cc49759b3c8693b3ac0ed983a67489  651566  build/x0x-smk37.fwsc
+4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb  651570  build/x0x-smk37-elite-ble.fwsc
+cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7  651566  build/x0x-smk37-ble.fwsc
+a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984  61552  ble/ctl/out/ctl.img
+DONE 2026-11-05T14:25:35Z
