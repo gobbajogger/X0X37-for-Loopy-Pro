@@ -1,0 +1,187 @@
+{
+  "source_commit": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "source_tree": "00370c8cf385577395f616e9df3cbc45a0d23041",
+  "configuration": {
+    "board": "smk37",
+    "X0X_DEV_PADCAL": "1",
+    "sdk_tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+    "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "target_compiler": "JieLi clang 4.0.1",
+    "platform": "Linux x86_64"
+  },
+  "models": {
+    "elite": {
+      "result": "BUILD_ONLY PASS",
+      "exit_code": 0,
+      "log_sha256": "5fbdf1bce5df0cf5d6a7032cd89a99f7f6b7af85eadcb9e5334878b476c93be9",
+      "app_code_free": 72104,
+      "app_ram_used": 95780,
+      "app_ram_budget": 98304,
+      "pool_used": 335464,
+      "pool_budget": 344064,
+      "pool_free": 8600,
+      "artifacts": {
+        "app": {
+          "size": 480568,
+          "sha256": "c3fe751c4880977463cd147d57577dfde456638aff95d95a77317fd085e734a3"
+        },
+        "loader": {
+          "size": 7341,
+          "sha256": "7f7b107048194dc2f2e62936c365589bb87f9c1409eb67d120cc4c4e69dc2a21"
+        },
+        "package": {
+          "size": 651457,
+          "sha256": "b489a201d37295ae1e826e032ecd5128878c3805ba839e16fd17da9cc7395621"
+        }
+      }
+    },
+    "pro": {
+      "result": "BUILD_ONLY PASS",
+      "exit_code": 0,
+      "log_sha256": "d77edabae67e39e4b73132241d583d426d49b466dbdbe92728c97441056c9195",
+      "app_code_free": 72104,
+      "app_ram_used": 95780,
+      "app_ram_budget": 98304,
+      "pool_used": 335464,
+      "pool_budget": 344064,
+      "pool_free": 8600,
+      "artifacts": {
+        "app": {
+          "size": 480568,
+          "sha256": "91ebab680d92bf5d666bc8a73d58c245c753fa17dc43a638af428e5bdd8e39a8"
+        },
+        "loader": {
+          "size": 7341,
+          "sha256": "9047d7ab8946f73260525d2c03197e5f1b2101af3941b3f2702d843ee9e75229"
+        },
+        "package": {
+          "size": 651457,
+          "sha256": "124d757660b79cca2e98778a17dab75662b2d28d1100742f973ba30d2777e300"
+        }
+      }
+    }
+  },
+  "controller": {
+    "result": "BUILD_ONLY PASS",
+    "exit_code": 0,
+    "size": 61088,
+    "crc32": "9aa7f77f",
+    "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+    "ram_used": 26336,
+    "ram_budget": 26368,
+    "log_sha256": "5122bd8a63333487c0c7d39f0450fb0d9c32c1902fbfd7c6a0f057d6780f61bd"
+  },
+  "sdk_inputs": [
+    {
+      "path": "cpu/wl82/tools/uboot.boot",
+      "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+      "expected_sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4"
+    },
+    {
+      "path": "cpu/wl82/tools/cfg_tool.bin",
+      "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "expected_sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b"
+    },
+    {
+      "path": "cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+      "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+      "expected_sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+    },
+    {
+      "path": "cpu/wl82/liba/btctrler.a",
+      "sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de",
+      "expected_sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de"
+    },
+    {
+      "path": "cpu/wl82/liba/wl_rf_common.a",
+      "sha256": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2",
+      "expected_sha256": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2"
+    },
+    {
+      "path": "cpu/wl82/liba/crypto_toolbox_Osize.a",
+      "sha256": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e",
+      "expected_sha256": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e"
+    },
+    {
+      "path": "cpu/wl82/liba/lib_ccm_aes.a",
+      "sha256": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c",
+      "expected_sha256": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c"
+    },
+    {
+      "path": "include_lib/newlib/pi32v2-lib/libc.a",
+      "sha256": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4",
+      "expected_sha256": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4"
+    },
+    {
+      "path": "include_lib/newlib/pi32v2-lib/libcompiler_rt.a",
+      "sha256": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009",
+      "expected_sha256": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009"
+    },
+    {
+      "path": "apps/common/net/wifi_conf.c",
+      "sha256": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb",
+      "expected_sha256": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "expected_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    }
+  ],
+  "independent_qa": {
+    "source_head": "072c1bdfe626c2436600b9900d0c238458cdab42",
+    "source_tree": "f31d6aad6e7e61215ed094b44ce2325366d3bd52",
+    "executor": "Independent successor Codex QA thread, Linux x86_64",
+    "result": "BUILD_ONLY PASS",
+    "date_utc": "2026-11-05",
+    "sdk_tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+    "sdk_files_verified": 11,
+    "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "commands": [
+      "X0X_DEV_PADCAL=1 MODEL=elite bash build.sh --board smk37",
+      "X0X_DEV_PADCAL=1 MODEL=pro bash build.sh --board smk37",
+      "CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh"
+    ],
+    "environment": "JIELI_TOOLCHAIN and AC79_SDK point to independently fetched pinned inputs; SDK_LOCAL points to the same SDK; X0X_GEN_CACHE is workspace-local.",
+    "models": {
+      "elite": {
+        "exit_code": 0,
+        "log_sha256": "53e09d4dc302b7258178d203063c6d3602bc1f15253e92afb08522d04db91045",
+        "artifacts_match_producer": true,
+        "app_bytes": 480568,
+        "package_bytes": 651457,
+        "app_ram_used": 95780,
+        "app_ram_budget": 98304,
+        "pool_used": 335464,
+        "pool_budget": 344064
+      },
+      "pro": {
+        "exit_code": 0,
+        "log_sha256": "a60ae2a7aa1c79351cafe83616e5ed195fb11244013d7b45203bc2d683dec560",
+        "artifacts_match_producer": true,
+        "app_bytes": 480568,
+        "package_bytes": 651457,
+        "app_ram_used": 95780,
+        "app_ram_budget": 98304,
+        "pool_used": 335464,
+        "pool_budget": 344064
+      },
+      "controller": {
+        "exit_code": 0,
+        "log_sha256": "1f9380cd3717d48a165c409820b620523835e6a6bcf3becb203de5b6a4dd4e7e",
+        "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+        "bytes": 61088,
+        "image_payload_crc32": "9aa7f77f",
+        "whole_file_crc32": "8738d71f",
+        "ram_used": 26336,
+        "ram_budget": 26368
+      }
+    },
+    "package_integrity": "Elite/Pro product identities, package/OTA/app CRCs and controller header/CRC verified with tools/check_native_build_output.py",
+    "setup_recovery": "Initial Elite attempt stopped at generation because default HOME cache was read-only; reran with workspace-local X0X_GEN_CACHE. No source changes.",
+    "hardware": "NOT_RUN"
+  }
+}
