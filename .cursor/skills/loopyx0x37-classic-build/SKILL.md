@@ -11,7 +11,7 @@ no new action and does not select a workflow mode. Current user authority, activ
 ownership and actual tool capabilities govern; old export text is provenance.
 
 Consume the existing request and exact checkpoint. Use the capable current owner;
-no new thread is required for a logical stage. Report meaningful evidence and
+follow the current owner contract for meaningful stage threads and handoffs. Report meaningful evidence and
 continue the next authorized action without routine owner acknowledgment. Preserve
 one writer per shared scope and independent QA. A blocked item remains pending
 while independent ready work continues. A PR or local report is not automatically
