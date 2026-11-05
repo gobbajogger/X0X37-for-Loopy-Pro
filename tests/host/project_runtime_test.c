@@ -98,7 +98,8 @@ static void reset_during_play(void)
     check_stopped();
     assert(seq.bpm == 125.0f && seq.accent_q7 == 88 && seq.clk_src == SEQ_CLK_AUTO);
     assert(seq.send_clock == 1 && seq.send_notes == 0 && seq.ch[TRK_BASS0] == 1);
-    assert((proj.set.bt & PROJ_DEVICE_BT) == (PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER | 1u));
+    assert((proj.set.bt & PROJ_DEVICE_BT) == (PROJ_BT_SMC_CENTRAL | 1u));
+    assert(!(proj.set.bt & PROJ_BT_SMC_USER)); /* retired profile does not survive reset */
     assert(ui.dirty && store_writes == writes && transport_out_count == transports + 1);
     assert(!strcmp(ui.msg, "PROJECT RESET: SAMPLES KEPT"));
     render();

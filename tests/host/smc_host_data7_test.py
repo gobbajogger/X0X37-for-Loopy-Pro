@@ -47,6 +47,7 @@ static uint32_t packet(uint8_t st, uint8_t a, uint8_t b)
 static unsigned tested, failed;
 static void check(const char *name, uint8_t st, uint8_t a, uint8_t b, int enabled, int expected)
 {
+    memset(smc_inputs, 0, sizeof smc_inputs);
     smc_host_r = smc_host_w = 0;
     memset(smc_host_q, 0, sizeof smc_host_q);
     proj.set.bt = enabled ? PROJ_BT_SMC_USER : 0;
@@ -61,10 +62,10 @@ static void check(const char *name, uint8_t st, uint8_t a, uint8_t b, int enable
 }
 int main(void)
 {
-    check("valid-solo-on", 0x9F, 8, 127, 1, 1);
-    check("valid-solo-off", 0x8F, 8, 0, 1, 1);
-    check("valid-user-fader", 0xBF, 40, 127, 1, 1);
-    check("valid-user-knob", 0xBF, 16, 1, 1, 1);
+    check("valid-solo-on", 0x9F, 8, 127, 1, 0);
+    check("valid-solo-off", 0x8F, 8, 0, 1, 0);
+    check("valid-user-fader", 0xBF, 40, 127, 1, 0);
+    check("valid-user-knob", 0xBF, 16, 1, 1, 0);
     check("user-disabled", 0x9F, 8, 127, 0, 0);
     check("wrong-channel", 0x90, 8, 127, 1, 0);
     check("instrument-note", 0x9F, 36, 127, 1, 0);
@@ -80,18 +81,9 @@ int main(void)
 '''
 
 
-def spill_block(text):
-    """Production overflow mailbox for continuous controls."""
-    return text[text.index('/* SMC spill begin'):text.index('/* SMC spill end */')]
-
-
 def main():
     production = SOURCE.read_text()
-    src = (HOST + function(PROTOCOL.read_text(), 'smc_host_accept') + '\n'
-           + function(PROTOCOL.read_text(), 'smc_relative') + '\n'
-           + spill_block(SOURCE.read_text()) + '\n'
-           + function(production, 'smc_is_solo_release') + '\n'
-           + function(production, 'smc_midi_host') + '\n' + TEST)
+    src = (HOST + function(production, 'smc_midi_host') + '\n' + TEST)
     with tempfile.TemporaryDirectory(prefix='smc-host-data7-') as td:
         srcfile, exe = Path(td) / 'test.c', Path(td) / 'test'
         srcfile.write_text(src)

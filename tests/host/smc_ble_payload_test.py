@@ -27,7 +27,6 @@ static struct { struct { uint8_t bt; } set; } proj;
 static unsigned buttons, releases, faders, knobs, mmcs, checks, failures;
 static unsigned last_note, last_fader, last_value;
 static int perf_testing(void) { return 0; }
-static uint8_t smc_mmc_note(uint8_t v) { return v == 16u ? 8u : 0xFFu; }
 static void smc_guarded_button(uint8_t n, int mmc, int allow)
 { if (mmc && allow) { ++mmcs; last_note = n; } }
 static void smc_fader(int n, uint8_t v)
@@ -44,12 +43,12 @@ static void smc_release(uint8_t n) { ++releases; last_note = n; }
 suffix = r'''
 int main(void)
 {
-    const uint8_t valid_press[3] = {0x9Fu, 8u, 127u};
+    const uint8_t valid_press[3] = {0x90u, 8u, 127u};
     const uint8_t bad_press_note[3] = {0x9Fu, 0x88u, 127u};
     const uint8_t bad_press_vel[3] = {0x9Fu, 8u, 0xFFu};
     const uint8_t bad_release_note[3] = {0x8Fu, 0x88u, 0u};
     const uint8_t bad_release_vel[3] = {0x8Fu, 8u, 0xFFu};
-    const uint8_t valid_release[3] = {0x8Fu, 8u, 0u};
+    const uint8_t valid_release[3] = {0x80u, 8u, 0u};
     const uint8_t valid_cc[3] = {0xBFu, 40u, 77u};
     const uint8_t bad_cc_no[3] = {0xBFu, 0xA8u, 77u};
     const uint8_t bad_cc_data[3] = {0xBFu, 40u, 0xCDu};
@@ -58,6 +57,10 @@ int main(void)
     const uint8_t bad_daw[3] = {0xE0u, 0x82u, 4u};
     const uint8_t invalid_status[3] = {0xF4u, 8u, 127u};
     proj.set.bt = PROJ_BT_SMC_USER;
+    const uint8_t retired_press[3]={0x9F,8,127}, retired_release[3]={0x8F,8,0};
+    CHECK(smc_message(retired_press,3u,1)==4u);
+    CHECK(smc_message(retired_release,3u,1)==4u);
+    CHECK(!buttons && !releases);
     CHECK(smc_message(valid_press, 3u, 1) == 0u);
     CHECK(buttons == 1u && last_note == 8u);
     CHECK(smc_message(bad_press_note, 3u, 1) == 4u);
@@ -71,20 +74,20 @@ int main(void)
     CHECK(smc_message(bad_cc_no, 3u, 1) == 4u);
     CHECK(smc_message(bad_cc_data, 3u, 1) == 4u);
     CHECK(faders == 0u);
-    CHECK(smc_message(valid_cc, 3u, 1) == 0u);
-    CHECK(faders == 1u && last_fader == 0u && last_value == 77u);
-    CHECK(smc_message(valid_mmc, 6u, 1) == 0u);
-    CHECK(mmcs == 1u && last_note == 8u);
+    CHECK(smc_message(valid_cc, 3u, 1) == 4u);
+    CHECK(faders == 0u); /* retired User CC is not a DAW fader */
+    CHECK(smc_message(valid_mmc, 6u, 1) == 4u);
+    CHECK(mmcs == 0u && last_note == 8u);
     CHECK(smc_message(invalid_status, 3u, 1) == 4u);
-    CHECK(buttons == 1u && faders == 1u);
+    CHECK(buttons == 1u && faders == 0u);
     proj.set.bt = 0u;
     CHECK(smc_message(valid_daw, 3u, 1) == 0u);
-    CHECK(faders == 2u);
+    CHECK(faders == 1u && last_fader == 0u && last_value == 4u);
     CHECK(smc_message(bad_daw, 3u, 1) == 4u);
-    CHECK(faders == 2u);
+    CHECK(faders == 1u && last_fader == 0u && last_value == 4u);
     CHECK(smc_message(valid_press, 2u, 1) == 4u);
     CHECK(smc_message(valid_press, 0u, 1) == 4u);
-    CHECK(buttons == 1u && mmcs == 1u && releases == 1u && knobs == 0u);
+    CHECK(buttons == 1u && mmcs == 0u && releases == 1u && knobs == 0u);
     printf("checks=%u failed=%u\n", checks, failures);
     return failures ? 1 : 0;
 }

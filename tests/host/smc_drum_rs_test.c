@@ -335,15 +335,17 @@ static void solo_transitions(void)
     }
 
     for (int route = -1; route < 2; route++) {
-        context = "User MMC drum Solo latch and transport routes";
+        context = "Retired User MMC cannot reactivate drum Solo or transport";
         setup(1, 1);
         proj.set.bt |= PROJ_BT_SMC_USER;
+        unsigned rec_before=ui.rec, start_before=seq.req_start, stop_before=seq.req_stop;
         mmc(10, route);
-        CHECK(smc_project_active() && wire_led[10] == 127);
+        CHECK(!smc_project_active() && !wire_led[10]);
         mmc(10, route);
         CHECK(!smc_project_active() && !wire_led[10]);
         mmc(2, route);
-        CHECK(ui.part == 1 && ui.sel[1] == 10 && ui.rec);
+        CHECK(ui.rec==rec_before);              /* retired MMC REC cannot arm */
+        CHECK(seq.req_start==start_before && seq.req_stop==stop_before);
     }
 }
 

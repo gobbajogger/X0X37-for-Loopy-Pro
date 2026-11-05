@@ -93,7 +93,7 @@ static void check_knob(const ctx_t *c, int n, pref_t want)
  * or any encoder detent, in either preset, on the main and drum mixers. */
 static void check_burst(void)
 {
-    for (preset_user = 0; preset_user < 2; preset_user++)
+    for (preset_user = 0; preset_user < 1; preset_user++) /* DAW only: User retired */
         for (int page = 0; page < 2; page++) {
             setup(V_MIX, PART_909);
             if (preset_user) proj.set.bt |= PROJ_BT_SMC_USER;
@@ -141,7 +141,7 @@ int main(void)
         {"808 SEQ", V_SEQ, -1, PART_808},
         {"MASTER", V_MIX, 3, PART_909},
     };
-    for (preset_user = 0; preset_user < 2; preset_user++)
+    for (preset_user = 0; preset_user < 1; preset_user++) /* DAW only: User retired */
         for (unsigned i = 0; i < sizeof ctx / sizeof *ctx; i++) {
             const ctx_t *c = &ctx[i];
             enter(c);
