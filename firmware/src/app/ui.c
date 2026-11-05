@@ -14,6 +14,7 @@
 #include "home_pattern_glyph.h" /* HOME complete patterns, per-hit velocity */
 #include "ui_pictograms.h"
 #include "panic_chord.h"
+#include "play_question.h"
 #include "../x0x_cold.h"                       /* X0X_COLD: input and menu code of the main loop, built for size */
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
@@ -3711,6 +3712,30 @@ static int cancel_sound_request(void)
 }
 #endif
 
+/* Shared NO behavior: restore the question's caller, including Global's list. */
+static void answer_no(void)
+{
+    ui.overlay = ui.ask_overlay;
+    say("CANCELLED", 0);
+    if (ui.view == V_GLO) ui.overlay = O_LIST;
+}
+
+/* Return 1 when HOME+PLAY has already performed redo. Otherwise the caller
+ * continues its normal PLAY path, after answering NO when a question is open. */
+static int play_answer_question(int home_held)
+{
+    x0x_play_question_t policy = x0x_play_question_resolve(ui.overlay == O_ASK, 1, home_held);
+    for (unsigned i = 0; i < policy.n; ++i) {
+        if (policy.act[i] == X0X_PQ_ANSWER_NO) answer_no();
+        else if (policy.act[i] == X0X_PQ_REDO) {
+            ui.btn_used |= ui.btn & (1u << B_HOME);
+            do_undo(1);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 X0X_COLD static void button_tap(int b)
 {
     if (perf_testing()) {                             /* the test owns the transport: HOME or PLAY stop it */
@@ -3718,13 +3743,14 @@ X0X_COLD static void button_tap(int b)
             perf_test_abort();
         return;
     }
-    if (ui.overlay == O_ASK) {                        /* a question takes SEL or HOME only */
+    if (ui.overlay == O_ASK && b == B_PLAY &&
+        play_answer_question(ui.btn & (1u << B_HOME))) return;
+    if (ui.overlay == O_ASK) {                        /* SEL confirms; HOME answers NO */
         if (b == B_SEL) {
             ui.overlay = O_NONE;
             run_action(ui.ask_act, ui.ask_arg);
         } else if (b == B_HOME) {
-            ui.overlay = ui.ask_overlay;
-            say("CANCELLED", 0);
+            answer_no();
         } else
             return;
         if (ui.view == V_GLO)
