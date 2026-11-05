@@ -538,7 +538,7 @@ static void t_store(void)
         set_off(m);
         project_capture_stage();
         project_file_header(h);
-        CHECK(get32(h + 28) == (m ? (PROJ_FILE_OFF_TAG | m) : 0u));
+        CHECK(get32(h + 28) == PROJ_FILE_OFF_WORD(m) && (m == 0) == (get32(h + 28) == 0u));
         set_off(m ^ 31u);                                 /* the runtime differs until the commit */
         part_off_staged = (uint8_t)(m ^ 31u);
         int rc = project_file_validate(h);
@@ -551,7 +551,9 @@ static void t_store(void)
     begin("file_rejects_bad_word28");
     {   /* word 28 is outside the payload CRC: anything but 0 or the tag with a 1-31 mask is refused (-1) */
         static const uint32_t bad[] = {1u, 5u, 0x1Fu, PROJ_FILE_OFF_TAG, PROJ_FILE_OFF_TAG | 0x20u, PROJ_FILE_OFF_TAG | 0xFFu,
-                                       PROJ_FILE_OFF_TAG | 0x105u, 0x4E460005u, 0xCF460005u, 0x4F460005u | 0x10000000u};
+                                       PROJ_FILE_OFF_TAG | 0x105u, 0x4E460005u, 0xCF460005u, 0x4F460005u | 0x10000000u,
+                                       PROJ_FILE_OFF_TAG | 0x05u, PROJ_FILE_OFF_WORD(5u) ^ 0x100u, PROJ_FILE_OFF_WORD(5u) ^ 1u,
+                                       PROJ_FILE_OFF_WORD(5u) ^ 0x8000u, PROJ_FILE_OFF_WORD(4u) | 1u};
         uint8_t h[PROJECT_FILE_HDR];
         set_off(0x05u);
         project_capture_stage();
@@ -561,8 +563,28 @@ static void t_store(void)
             part_off_staged = 0x0Au;
             CHECK(project_file_validate(h) == -1 && part_off_staged == 0x0Au && live_mask() == 0x05u);
         }
-        put32(h + 28, PROJ_FILE_OFF_TAG | 0x05u);
+        put32(h + 28, PROJ_FILE_OFF_WORD(0x05u));
         CHECK(project_file_validate(h) == 0 && part_off_staged == 0x05u);
+    }
+    end();
+    begin("file_word28_bit_errors_refused");
+    {   /* every 1- and 2-bit error of word 28, for every mask 0-31: refused (-1), staged and live unchanged */
+        uint8_t h[PROJECT_FILE_HDR];
+        unsigned bad = 0;
+        set_off(0);
+        project_capture_stage();
+        project_file_header(h);
+        for (unsigned m = 0; m < 32; m++) {
+            uint32_t w = PROJ_FILE_OFF_WORD(m);
+            for (unsigned i = 0; i < 32; i++)
+                for (unsigned j = i; j < 32; j++) {
+                    put32(h + 28, w ^ (1u << i) ^ (i == j ? 0u : 1u << j));
+                    part_off_staged = 0x0Au;
+                    if (project_file_validate(h) != -1 || part_off_staged != 0x0Au || live_mask() != 0u) bad++;
+                }
+        }
+        if (bad) printf("    %u accepted bit errors\n", bad);
+        CHECK(bad == 0);
     }
     end();
     begin("file_validate_crc_fail_keeps_staged");
@@ -587,7 +609,7 @@ static void t_store(void)
         part_off_staged = 0x0Au;
         CHECK(project_file_validate(h) == 0 && part_off_staged == 0x05u);
         project_file_header(h2);
-        CHECK(get32(h2 + 28) == (PROJ_FILE_OFF_TAG | 0x05u));
+        CHECK(get32(h2 + 28) == PROJ_FILE_OFF_WORD(0x05u));
         CHECK(project_file_validate(h2) == 0 && part_off_staged == 0x05u && live_mask() == 0x0Au);
         project_commit_stage();
         project_apply_io();
