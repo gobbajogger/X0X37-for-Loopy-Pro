@@ -1,6 +1,7 @@
 # Proposed FM-1 stage-2 evidence retention disposition
 
 Date: 2026-11-05. Status: current proposal for Dot's source-selection decision.
+Note 2026-11-05: authority later handed to Grok Bot per owner direction recorded in docs/rules/current-owner-contract.md (2026-11-05 handoff ~07:22Z; immediate-start ~08:19Z); this document's wording is historical.
 Build: none; this is a documentation proposal.
 Replaces: the two handoffs' local pointers to five omitted historical payloads.
 Checked against: immutable public base `c007de94f6afd4e46b22ff3e88dd0ec581cc2674`, its Git tree metadata, and the retained historical manifest.
