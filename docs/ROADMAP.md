@@ -101,3 +101,16 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 - Ship JieLi Bluetooth files with the firmware.
 
 Last update: 2026-10-19.
+
+## Alignment note (2026-11-05)
+
+- The per-row pipeline board is [`docs/roadmap-pipeline.md` at commit
+  `02afd2d0154e0d6ad167e397871efb6c301cd9a4`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/02afd2d0154e0d6ad167e397871efb6c301cd9a4/docs/roadmap-pipeline.md),
+  with its companion [`docs/ROADMAP-INTEGRATION-PLAN.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/02afd2d0154e0d6ad167e397871efb6c301cd9a4/docs/ROADMAP-INTEGRATION-PLAN.md).
+  Both are an unreviewed proposal on lane branch
+  `lane/dev-roadmap-integration-plan-20261105` until merged. They change no status
+  word here and grant no merge, publication, install or flash authority.
+- That board is pinned to the Master tracker in `docs/ROADMAP.md` at
+  `5f578fc0642a1200a5163802bcd69277c511bfc7` (open PR #812, not merged), not to
+  this file. This file on main has no Master tracker; its "Where we are now"
+  section is as of 2026-10-19.
