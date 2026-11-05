@@ -1,0 +1,40 @@
+Dev and rel printed the same 16 FAIL names. First line is from the dev worktree.
+Runner logs for original-release-ui and ui-theme are empty because the compiler
+output is in build/ui-theme/*/normal.compile.log.
+
+PRE-EXISTING
+original-release-ui: error: call to undeclared function 'header_transport'
+  tests/host/original_release_ui_test.c:377
+original-build: AssertionError: 'if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad])' not found
+  test_rate_pad_port_preserves_574f_press_ownership_and_native_eight_rates
+ui-theme: error: call to undeclared function 'header_transport'
+  tests/host/original_release_ui_test.c:377 via tests/host/ui_theme_test.c
+smc-select-mode: FAIL tests/host/smc_select_mode_test.c:61: smc_page_now() == (strip == 5 ? 0 : strip == 6 ? 1 : 3)
+smc-solo-overflow: error: 'struct <anonymous>' has no member named 'kind'
+  test.c:455
+smc-boot-saved-roles: ValueError: substring not found
+  looked for: int bad = 0, rc = load_settings(&set);
+smc-multi-peer: FAIL tests/host/smc_multi_peer_test.c:145: smc_states[0].fx_effect[0] != smc_states[1].fx_effect[0]
+ui-peer-names: FAIL tests/host/ui_peer_names_test.c:15: name_row
+smc-ui: FAIL tests/host/smc_ui_test.c:285: engine_project_notes()
+builtin-break-output: AssertionError: '909 GR' not found in web/factory_break_pack.js line 2
+ui-feedback: Assertion `help_with_pending_readout == help_only' failed.
+  tests/host/ui_feedback_test.c:98
+sound-matrix: error: call to undeclared function 'adsr_inline_page'
+  tests/host/sound_matrix_test.c:143
+ui-glyph-polish: error: too few arguments to function call, expected 5, have 3
+  tests/host/ui_glyph_polish_test.c:80
+scenario-plock: FAIL expect lanes == 1, got 2
+
+ENV
+offline-sequencer-browser: ModuleNotFoundError: No module named 'playwright'
+  web/offline-sequencer/f6b-browser.test.py:5
+
+REAL
+gate-trap: FAIL gate.log: gate: KILLED by SIGTERM sender unknown (no result)
+  gate trap: 3 of 5 ok
+  also: FAIL output: rc=143 gate: SCRIPT CHANGED during the run: gate_flashmap.py
+
+Passed this run, after the environment fix:
+engine-808-scratch-alias: BITEXACT normal and san, DEV_WOBBLE 1 and 0
+smc-interaction-negative: ok

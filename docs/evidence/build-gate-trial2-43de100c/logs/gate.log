@@ -1,0 +1,7 @@
+gate: Purpose: owner-validation; Run reason: informational trial 2 of 43de100c on a cloud VM after environment fixes, not a release
+gate: removed the build variables of the caller: JIELI_DOCKER=0
+gate: builds of the two configs took 15 s
+gate: took the gate lock after 0 s
+gate: released the gate lock; the tests took 1342 s
+gate: FAIL tests (dev): 16 failed (original-release-ui (see build/host/original-release-ui.log))
+gate: FAIL tests (rel): 16 failed (original-release-ui (see build/host/original-release-ui.log))

@@ -1,0 +1,5 @@
+START 2026-11-05T11:54:32Z
+TRIAL FAIL 43de100 (time scale 1) tests (dev): 16 failed (original-release-ui (see build/host/original-release-ui.log))
+GATE_WRAPPER_RC=1
+END 2026-11-05T12:17:17Z
+WRAPPER_DONE:1

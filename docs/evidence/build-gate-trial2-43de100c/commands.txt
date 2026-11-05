@@ -1,0 +1,50 @@
+Label: informational / gate TRIAL 2 on 43de100c (UNREVIEWED), not release qualification
+Commit under test: 43de100c83d845409bb801ecf29238a78f179aed
+Git tree: 4993a90ae993da7d68ece0d352c88b27244b327e
+
+Environment fixes. Public packages and local scratch refs only.
+
+1. sudo apt-get install -y python3-pil
+   rc 0. Also installed libimagequant0, libraqm0, python3-olefile.
+   User-site Pillow 13.0.0 shadowed the apt package when HOME was the real home.
+   The gate hashes whichever pillow importlib finds, once before it sets a private HOME.
+   python3 -m pip uninstall -y Pillow
+   rc 0. Removed pillow 13.0.0 from /home/ubuntu/.local.
+   After that, both homes import /usr/lib/python3/dist-packages/PIL/__init__.py
+   pillow distribution version 10.2.0.
+   Check: HOME=/tmp/empty-home-pil python3 -c "import PIL" prints the dist-packages path.
+
+2. Scratch bare repo /tmp/x0x37.git already contained object 2456968ba39b521610364f3ea17a118b456269c0.
+   git -C /tmp/x0x37.git update-ref refs/remotes/origin/build/0.0.22 2456968ba39b521610364f3ea17a118b456269c0
+   git -C /tmp/x0x37.git update-ref refs/heads/build/0.0.22 2456968ba39b521610364f3ea17a118b456269c0
+   The heads ref is scratch-only. tools/gate.sh fetches refs/heads/* into refs/remotes/origin/*,
+   so the worktree can resolve origin/build/0.0.22. No push. The engine-808 test asks for
+   that one ref (git show origin/build/0.0.22:firmware/src/app/engine.c). No other missing
+   ref was named by a failing line. part-off's c32c54ac object was already in the bare repo.
+
+3. libstdc++-14-dev was already installed (14.2.0-4ubuntu2~24.04.1). Left in place.
+   playwright and chromium were not installed.
+
+Gate
+command: bash tools/gate.sh 43de100c83d845409bb801ecf29238a78f179aed --purpose owner-validation --reason "informational trial 2 of 43de100c on a cloud VM after environment fixes, not a release" --trial
+cap: timeout --signal=TERM 3600
+start: 2026-11-05T11:54:32Z
+end: 2026-11-05T12:17:17Z
+gate duration: 1363 s
+tests held the lock: 1342 s
+builds of the two configs: 15 s
+wrapper rc: 1
+one line: TRIAL FAIL 43de100 (time scale 1) tests (dev): 16 failed (original-release-ui (see build/host/original-release-ui.log))
+
+Env at execution:
+JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+JIELI_DOCKER=0
+X0X_REF_PINS=schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d
+X0X_REFS=/agent/repos
+X0X_REPO=/tmp/x0x37.git
+X0X_RESULTS=/tmp/x0x37-results
+X0X_GATE_LOCK=/tmp/x0x37-gate.lock
+X0X_GATE_WORK unset
+X0X_TEST_JOBS unset
+X0X_PREPUSH_HOOK unset
