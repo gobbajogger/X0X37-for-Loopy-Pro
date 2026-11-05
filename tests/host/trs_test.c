@@ -9,6 +9,7 @@
 static uint32_t fm1_irq_mask_save(unsigned n) { (void)n; return 0; }
 static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
+#include "usb_test_time.h"
 #include "usb.c"
 #include "midi_uart.c"
 
