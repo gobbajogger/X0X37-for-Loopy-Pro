@@ -87,9 +87,10 @@ Its creation/role confirmation was reported by the project coordinator; this fil
 does not claim an independent runtime or subscription check. DnBOX Docs is the
 current docs writer after the 2026-11-05 handoff (~07:22Z) and owner
 immediate-start (~08:19Z). Transfer maintenance with the exact reviewed
-patches, source pins, checks, unresolved conflicts and ownership receipt. Before
-future edits, reconcile any existing docs-consistency role and accepted scopes;
-do not create a competing writer or scheduler.
+patches, source pins, checks, unresolved conflicts and ownership receipt. Reconcile any
+existing docs-consistency role and accepted scopes once, at docs-role takeover,
+and record the result; later edits check only the ledger for the touched scope; re-reconcile if a new
+docs role appears. Do not create a competing writer or scheduler.
 
 For each later owner decision, DnBOX Docs records its source and chronology,
 updates the affected rule in its single home, fixes entrypoint links and explicitly
