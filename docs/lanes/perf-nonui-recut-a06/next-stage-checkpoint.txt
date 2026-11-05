@@ -1,0 +1,62 @@
+Continue the owner-authorized DnBOX perf-nonui delivery. This is the next-stage handoff, not a request to restart the completed build stage.
+
+USER AUTHORITY AND CONSTRAINTS
+The user originally requested: read AGENTS.md at wip/one-build tip a06e20189 first; work only atop a06e20189; locate lane/* containing perf-nonui with original tip ad073576f; recut ONLY that lane's own tip patches, never the inherited stack; build Elite and Pro with SDK V1.2.1 and run the full host suite here, fix failures, target 0 FAIL / 0 SKIP (NOT_RUN is not PASS); report size/RAM/.ram_text deltas; deliver on same lane or reuse existing PR; never main, nightly, .github/, protected flash/device areas, binaries, tokens or raw captures. The latest user now explicitly says: "continue: hand off the next stage yourself."
+Use LoopyX0X37 Classic Build Handoff skills. Read current target AGENTS.md, maintained workflow and current integration ownership. Current user authority overrides stale Mac-only build rules. Do not infer Full Send, merge, install, hardware access or publication authority. No additional force update or history rewrite is authorized by this handoff. Respect actual denials.
+
+NEXT STAGE / DONE CONDITION
+Own a bounded integration-readiness and exact-candidate QA stage for the delivered lane. First verify source and evidence and recompute containment against live wip/one-build. Identify the genuinely remaining integration delta; avoid repeating already-contained optimizations. Reuse valid unchanged proof instead of rerunning the entire suite/builds. Inspect the relevant current integration/request owner before overlapping work. Reuse an existing PR for this lane if one exists; if none exists and the maintained workflow calls for PR delivery, open only one review PR from THIS lane to wip/one-build with exact proof and a clear conflict/remaining-delta report. Do not merge; preserve the assigned integrator. Keep the a06 source pin: do not rebase onto the moving integration branch or import another lane's stack. If integration needs changes outside that pin/scope, deliver the exact required patch/conflict to the existing integrator instead of widening authority.
+Stop this bounded stage when the existing integrator/review path has a usable exact-source PR/packet and the receiver's actual scoped consumption is verified, or a precise unavailable capability/authority/input is established. If the entire remaining change is now contained, report that evidence and stop without duplicate work. Continue independent permitted work when another item is blocked.
+
+VERIFIED SOURCE
+Only write destination: https://github.com/gobbajogger/X0X37-for-Loopy-Pro, connected account default author/committer.
+Lane: lane/dev-perf-nonui-20261105.
+Delivered HEAD re-read through GitHub API: 6574595ed7b029e2ecf2d70d6fdfc176833cbd93.
+Final tree: 7c6ad3912d172201ba976d4beeab71472dc79526.
+Fixed base: a06e20189141ff5fb8766e2c6152be460f4356c3, root tree 33690b177cc7c9c8a697eb45b9f7309510d986ec.
+Checked firmware/test source head: 2639d35004650cb83c8fea20e540e12ff3a77fb9; tree fb2bdfdbc428fd5b172f0588a976d8c524589026.
+HEAD is six commits ahead / zero behind the fixed base: FOUR source/test recuts plus TWO evidence-only commits. No inherited original lane stack.
+Original -> recut:
+7a4b9116d0a28ad0a4e58fcfae9b65fbbd7b6d8e -> ebdd963d52c17fc79d9af637f36a4429357b23b5 (undo equal-word scan).
+93bedd2dad337f10ab0e5059b677de68cd19099f -> 9a40617c5328d1ad357ca4969a3b61f1ffffa02c (project stream chunk copy).
+27342baba871bcbc0a8fc557f8ddce5834be09bf -> 953806d69453902bcbc78d0b776a97dc877665f2 (bus FX invariant hoisting).
+ad073576fff8b209564973a03ca2177f5cf900d8 -> 2639d35004650cb83c8fea20e540e12ff3a77fb9 (cooperative USB retry; boot still waits 25 ms).
+Test registration adapted to the older pinned base. Three USB test files existing only in the inherited stack were NOT resurrected. Added pending-reset cancellation/recovery regression coverage. Bus FX invariant test is registered.
+GitHub PR query for this exact head lane (all states) returned no PR at predecessor handoff preflight; recheck before creation.
+
+DURABLE EVIDENCE / EXACT PROOF
+https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/6574595ed7b029e2ecf2d70d6fdfc176833cbd93/docs/lanes/perf-nonui-recut-a06
+Read validation.json, native-metrics.json, inputs.json, review.json, host-summary.log, source-receipt.json and plan.txt at this exact pin.
+Predecessor actually ran full host suite in this cloud: 336 PASS / 0 FAIL / 0 SKIP / 0 NOT_RUN, exit 0. Command: X0X_TEST_JOBS=4 X0X_STRICT_PREFLIGHT=1 sh tests/run_tests.sh, with exact reference/SDK paths below. GitHub Actions are not this proof.
+JieLi clang 4.0.1, jieli-linux-toolchains-20260730.1. SDK V1.2.1 required packaging input hashes asserted against tools/build.py (uboot.boot, cfg_tool.bin, cfg/eq_cfg_hw.bin); SDK archive CRC checked. Original-synth input manifest passed. All three reference archive trees matched recorded pins.
+Both Elite and Pro DEV (X0X_DEV_PADCAL=1) native baseline AND candidate builds passed. Each model app image: 474840 -> 475048 B (+208). App RAM allocation incl alignment: 95780/98304 B (delta 0; 2524 free). Direct .data+.bss section sum: 95760 B. .ram_text: 2712 B, 844 instructions, no calls, delta 0 and byte-identical baseline/candidate. Pool: 335464/344064 B, 8600 free.
+Target cycles are NOT MEASURED; ~7256 cycles/sample at 44.1 kHz/320 MHz is a budget, not proven target performance. BUILD_ONLY, no installability/device/release claim.
+Independent read-only reviewer /root/review_perf_recut found no blocking source defect. Pending USB cancellation coverage finding was fixed and re-reviewed. Mutant checks inspected actual mismatches for undo, project bytes and bus FX; mere mutant nonzero status is insufficient.
+All four retained native baseline/candidate app/package hashes were rechecked after the full suite and matched native-metrics.json. Final two commits change evidence only.
+
+LIVE INTEGRATION OBSERVATION
+Latest verified wip/one-build: a49605bcb34c8d6751817dd33699640d19a24c29 (recheck live).
+It already contains the undo/project/bus FX changes byte-for-byte:
+undo.c 1809a6b0f987f17a2b2a556f61affd75d0353ae0
+project.c d38381867db3c5f4f889e61b23df0b4c5fed33f6
+busfx.h fcc2e6be747b1fe1a24771ec62304403a98db534.
+USB retry was still absent: usb.c baseline blob 3df6f132ce984a0397116801efaa6d1fd93fd9c8.
+Do not label proof on the fixed four-patch tree as proof for the whole newer optimization stack.
+
+ENVIRONMENT / RETRIEVAL
+Predecessor environment ID: ccarenv_b64_Y2NhcmVudl8wYWY3MDJmMzUzNzA4MTkxODcyMGQ2YjNjM2U0M2FmZA.
+Runnable saved environment config: ddb4eb32-6b7d-4be3-a729-1c1870f1a903~cecfg_6adc962db260819b8a0b2b574d97bf85.
+Verify your actual instance/mounts before relying on these paths. Do not assume ad-hoc files or credentials transferred.
+If shared: /workspace/work/perf-nonui/base is the exact checked source tree, still staged locally atop a06 (complete changes are pushed through API; local HEAD alone is NOT the delivered SHA). baseline is /workspace/work/perf-nonui/baseline. Source JSON receipts/full log/patch are in /workspace/work/perf-nonui/.
+JIELI_TOOLCHAIN=/workspace/work/perf-nonui/toolchain/jieli-linux-toolchains-20260730.1
+AC79_SDK=/workspace/work/perf-nonui/sdk
+X0X_GEN_CACHE=/workspace/work/perf-nonui/cache (default HOME cache is read-only).
+NINEW9_DIR=/workspace/work/perf-nonui/refs/schwung-9W9
+EIGHTW8_DIR=/workspace/work/perf-nonui/refs/schwung-8W8
+TB3PO_REF=/workspace/work/perf-nonui/refs/schwung-tb3po/src/dsp/tb3po.c.
+A default network-restricted sandbox caused Node spawnSync EPERM despite child completion. Full suite succeeded using supported additional network permission; no test was weakened. The first two interrupted runs are not full passes; full-host-3.log is the complete successful run.
+For a fresh instance use connected GitHub API archive/tree source and pinned evidence; recover only actually required private/native inputs lawfully if rerun needed. Never upload private inputs, SDK/toolchain, generated binaries, captures or credentials. Use inherited proxy/CA; no git over network.
+
+OWNERSHIP / ACCEPTANCE
+Predecessor has stopped source and lane writes. You become sole bounded lane-stage writer only after verifying exact inputs and checking existing stage ownership. Preserve sole integrator/publication roles; no competing writer/merger or duplicate PR/reviewer.
+Your first turn must do actual work: report actual environment/input access and a GitHub readback of the exact lane SHA plus the live integration delta. A ceremonial readiness ACK is insufficient. Then continue the bounded next action without waiting for the owner. Save request/plan/checkpoint in existing lane coordination flow. Report exact SHA, PR or none, actual checks, next owner/action and genuine blockers.
