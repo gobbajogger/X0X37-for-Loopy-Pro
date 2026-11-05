@@ -95,5 +95,9 @@ docs role appears. Do not create a competing writer or scheduler.
 For each later owner decision, DnBOX Docs records its source and chronology,
 updates the affected rule in its single home, fixes entrypoint links and explicitly
 supersedes conflicting text while preserving history. Use the maintained docs
-skill, exact diff/link/policy checks and independent review. Documentation does
+skill. Rules, process or ownership edits, and any edit that changes the meaning of
+a rule, need exact diff/link/policy checks and independent QA review on the exact
+tree. Pure typo, link or wrapping fixes that change no rule meaning need diff/link
+checks; independent review is optional unless requested. If in doubt, treat the edit as a
+meaning change; record the classification and the exact diff; QA may reclassify it. Documentation does
 not grant development, integration, publication, device or access authority.
