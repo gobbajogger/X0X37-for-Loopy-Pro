@@ -1,0 +1,191 @@
+{
+  "label": "native evidence build of ce278129 (UNREVIEWED), not release qualification, not a publish",
+  "commit": "ce27812951555ff7ed9694bf99d20a65dd5f410b",
+  "tree": "a917fb6a2c738bb410601bd784278bf35c142f1c",
+  "parent": "b9d97e100e70b0b14d713b3892328d17ec709211",
+  "parent_chain": [
+    {
+      "commit": "ce27812951555ff7ed9694bf99d20a65dd5f410b",
+      "tree": "a917fb6a2c738bb410601bd784278bf35c142f1c",
+      "parent": "b9d97e100e70b0b14d713b3892328d17ec709211"
+    },
+    {
+      "commit": "b9d97e100e70b0b14d713b3892328d17ec709211",
+      "parent": "43de100c83d845409bb801ecf29238a78f179aed",
+      "subject": "Update host tests to the current pad, mixer, envelope, and stock-pack checks"
+    },
+    {
+      "commit": "43de100c83d845409bb801ecf29238a78f179aed",
+      "tree": "4993a90ae993da7d68ece0d352c88b27244b327e",
+      "parent": "35b729914792d947c675d29cb9bd80ac7d65d704"
+    },
+    {
+      "commit": "35b729914792d947c675d29cb9bd80ac7d65d704",
+      "role": "v4 candidate"
+    }
+  ],
+  "catalog_version": "nightly-ce278129-dev",
+  "firmware_version_string": "DEV",
+  "firmware_version_source": "firmware/src/app/version.h:7 and the string DnBOX DEV  MEM in build/smk37-elite/x0x.bin and build/smk37/x0x.bin",
+  "expected_display_version": "0.0.24.5",
+  "version_agreement": "disagree",
+  "toolchain": {
+    "name": "jieli-linux-toolchains-20260730.1",
+    "clang_version": "4.0.1",
+    "archive_url": "https://pkgman.jieliapp.com/s/linux-toolchain",
+    "archive_size": 26027508,
+    "archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "archive_expected_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "archive_match": "identical",
+    "clang_path": "/home/ubuntu/.jieli/toolchain/pi32v2/bin/clang",
+    "clang_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "clang_expected_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "clang_match": "identical"
+  },
+  "sdk": {
+    "url": "https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git",
+    "tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "commit": "d179b4484759423312073f5fbb232501aa491047",
+    "expected_commit": "d179b4484759423312073f5fbb232501aa491047",
+    "match": "identical",
+    "shallow": true,
+    "pins": [
+      {
+        "path": "cpu/wl82/tools/uboot.boot",
+        "size": 14536,
+        "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+        "match": "identical"
+      },
+      {
+        "path": "cpu/wl82/tools/cfg_tool.bin",
+        "size": 383,
+        "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+        "match": "identical"
+      },
+      {
+        "path": "cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+        "size": 655,
+        "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+        "match": "identical"
+      }
+    ]
+  },
+  "outputs": [
+    {
+      "name": "x0x-smk37-elite.fwsc",
+      "path": "build/x0x-smk37-elite.fwsc",
+      "size": 651570,
+      "sha256": "be4d608eb98b1408ffaed1e254b0e38f1c154b8c7865ae9a46f8ac184452bf85",
+      "expected_size": 651570,
+      "expected_sha256": "be4d608eb98b1408ffaed1e254b0e38f1c154b8c7865ae9a46f8ac184452bf85",
+      "versus_43de100c": "identical",
+      "product": "SMK-37 Elite_900"
+    },
+    {
+      "name": "x0x-smk37.fwsc",
+      "path": "build/x0x-smk37.fwsc",
+      "size": 651566,
+      "sha256": "0773c61a48a7e1c84585a40d3b52f0e8c2cc49759b3c8693b3ac0ed983a67489",
+      "expected_size": 651566,
+      "expected_sha256": "0773c61a48a7e1c84585a40d3b52f0e8c2cc49759b3c8693b3ac0ed983a67489",
+      "versus_43de100c": "identical",
+      "product": "SMK-37 Pro_900"
+    },
+    {
+      "name": "x0x-smk37-elite-ble.fwsc",
+      "path": "build/x0x-smk37-elite-ble.fwsc",
+      "size": 651570,
+      "sha256": "4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb",
+      "expected_sha256": "4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb",
+      "versus_43de100c": "identical",
+      "product": "SMK-37 Elite_900"
+    },
+    {
+      "name": "x0x-smk37-ble.fwsc",
+      "path": "build/x0x-smk37-ble.fwsc",
+      "size": 651566,
+      "sha256": "cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7",
+      "expected_sha256": "cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7",
+      "versus_43de100c": "identical",
+      "product": "SMK-37 Pro_900"
+    },
+    {
+      "name": "ctl.img",
+      "path": "ble/ctl/out/ctl.img",
+      "size": 61552,
+      "sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "expected_size": 61552,
+      "expected_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "versus_43de100c": "identical"
+    }
+  ],
+  "headroom": {
+    "elite": {
+      "app_code_area": 552672,
+      "app_code_free": 38664,
+      "app_code_free_43de100c": 38664,
+      "ram_used": 97328,
+      "ram_free": 976,
+      "ram_cap": 98304,
+      "ram_used_43de100c": 97328,
+      "ram_free_43de100c": 976,
+      "pool_used": 335864,
+      "pool_free": 8200,
+      "pool_cap": 344064,
+      "pool_free_43de100c": 8200,
+      "pool_floor": 8192,
+      "pool_free_ge_8192": true,
+      "source_line": "image 514008 B; RAM .data+.bss 97328 B of 98304; pool 335864 B of 344064"
+    },
+    "pro": {
+      "app_code_area": 552672,
+      "app_code_free": 38680,
+      "app_code_free_43de100c": 38680,
+      "ram_used": 97328,
+      "ram_free": 976,
+      "ram_cap": 98304,
+      "ram_used_43de100c": 97328,
+      "ram_free_43de100c": 976,
+      "pool_used": 335864,
+      "pool_free": 8200,
+      "pool_cap": 344064,
+      "pool_free_43de100c": 8200,
+      "pool_floor": 8192,
+      "pool_free_ge_8192": true,
+      "source_line": "image 513992 B; RAM .data+.bss 97328 B of 98304; pool 335864 B of 344064"
+    },
+    "ble": {
+      "flash_used": 61552,
+      "flash_cap": 65536,
+      "flash_43de100c": 61552,
+      "ram_used": 26336,
+      "ram_cap": 26368,
+      "ram_43de100c": 26336,
+      "source_line": "ctl.img: 61552 B of 65536, crc32 564a8f55, RAM 0x1c01800..0x1c07ee0 (26336 B of 26368)"
+    },
+    "floor_violation": false
+  },
+  "package_check": {
+    "status": "NOT_RUN",
+    "tool": "tools/package_nightly.py --check",
+    "sha256": null,
+    "size": null,
+    "files": [],
+    "exact_line": "package_nightly: firmware version must be canonical X.Y.Z (components 0..99)",
+    "image_line_when_a_canonical_argument_is_supplied": "package_nightly: NIGHTLY image contains DnBOX DEV",
+    "allocation_line": "NOT_REACHED",
+    "comparison_to_outputs": "NOT_RUN",
+    "why": "package_nightly --check printed no sha256, so there is no package_check digest to compare with outputs[]. The refusal is the version argument and then the DEV string in the image. The add_ctl -ble files are already the outputs[] entries; they were not produced by package_nightly."
+  },
+  "installer_packages": [],
+  "host": {
+    "status": "running",
+    "command": "timeout 2400 sh tests/run_tests.sh",
+    "started": "2026-11-05T12:02:37Z",
+    "ok": null,
+    "fail": null,
+    "not_run": null
+  },
+  "scratch": "/home/ubuntu/x0x-scratch-ce278129/pkg/",
+  "binaries_committed": false
+}

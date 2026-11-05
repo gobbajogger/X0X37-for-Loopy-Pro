@@ -1,0 +1,100 @@
+# Commands for the unreviewed native evidence build of ce278129.
+# Durations are wall seconds from date +%s unless a tool reported elapsed_ms.
+# A first attempt used /usr/bin/time, which is not installed. Those lines did not compile.
+
+# --- identity check ---
+# env: none beyond the checkout
+git rev-parse HEAD
+# rc 0  ce27812951555ff7ed9694bf99d20a65dd5f410b
+git rev-parse 'HEAD^{tree}'
+# rc 0  a917fb6a2c738bb410601bd784278bf35c142f1c
+git rev-parse 'HEAD~1'
+# rc 0  b9d97e100e70b0b14d713b3892328d17ec709211
+git rev-parse 'HEAD~2'
+# rc 0  43de100c83d845409bb801ecf29238a78f179aed
+git rev-parse '43de100c83d845409bb801ecf29238a78f179aed^{tree}'
+# rc 0  4993a90ae993da7d68ece0d352c88b27244b327e
+git rev-parse '43de100c83d845409bb801ecf29238a78f179aed^'
+# rc 0  35b729914792d947c675d29cb9bd80ac7d65d704
+git diff --stat 43de100c83d845409bb801ecf29238a78f179aed HEAD
+# rc 0  13 files, all tests/host. No firmware/, ble/, web/, or tools/ paths.
+git ls-remote origin refs/heads/evidence/build-ce278129-20261105
+# rc 0  empty (branch did not exist)
+df -i /
+# before: IUsed 278679  IFree 10534761  IUse% 3%
+
+# --- host packages ---
+# sudo apt-get update && sudo apt-get install -y libclang-rt-18-dev lua5.1 libstdc++-14-dev python3-pil
+# rc 0  elapsed_ms 6862
+# python3 -c "import PIL; print('PIL', PIL.__version__)"
+# rc 0  PIL 13.0.0
+# import path: /home/ubuntu/.local/lib/python3.12/site-packages/PIL/__init__.py
+# apt package python3-pil 10.2.0-1ubuntu1.4 is also installed. The import uses the user-site copy.
+
+# --- public inputs ---
+# curl -fL --retry 3 -o /home/ubuntu/x0x-inputs/linux-toolchain.bin https://pkgman.jieliapp.com/s/linux-toolchain
+# rc 0
+# size 26027508 expected 26027508 MATCH
+# sha256 a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd MATCH
+# tar -xJf into $HOME/.jieli and ln -sfn jieli-linux-toolchains-20260730.1 toolchain
+# clang: $HOME/.jieli/toolchain/pi32v2/bin/clang -> ../../common/bin/clang
+# clang sha256 c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f MATCH
+# clang version 4.0.1
+# git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git /home/ubuntu/fw-AC79_AIoT_SDK
+# rc 0  (toolchain download + sdk clone together elapsed_ms 61882)
+# HEAD d179b4484759423312073f5fbb232501aa491047 MATCH (grafted, tag AC79NN_SDK_V1.2.1_2023-12-13)
+# pins, all MATCH:
+#   cpu/wl82/tools/uboot.boot size 14536 sha256 4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4
+#   cpu/wl82/tools/cfg_tool.bin size 383 sha256 276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b
+#   cpu/wl82/tools/cfg/eq_cfg_hw.bin size 655 sha256 41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d
+# reference clones, each detached at the pinned SHA, elapsed_ms 1731 rc 0:
+#   NINEW9_DIR=/agent/repos/schwung-9W9 10cbe5c1e1c9e65b0818bb34644ab1a13092082c
+#   EIGHTW8_DIR=/agent/repos/schwung-8W8 94aa2716d4c2e5851fc7c5dbb4c17adfd133c997
+#   SCHWUNG303=/agent/repos/schwung-303 7680578cdecd91e512cfddb9c9eb07b287fb64f4
+#   TB3PO_REF=/agent/repos/schwung-tb3po/src/dsp/tb3po.c  (repo HEAD f49d81d05d1e29ae37728a08e30f193892be3bc9, file present)
+
+# --- failed timing wrapper, no compile ---
+# /usr/bin/time is absent (rc 127). python3 tools/check_locked_settings.py, both ./build.sh runs, and build_ctl.sh were not started by that wrapper.
+
+# --- real build ---
+# env at execution:
+#   JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+#   AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+#   JIELI_DOCKER=0
+#   X0X_DEV_PADCAL=0
+#   CTL_NO_CACHE=1
+#   CC=cc CXX=c++
+#   SDK_LOCAL=$AC79_SDK on the controller build
+# python3 tools/check_locked_settings.py
+# rc 0 elapsed 0  "check_locked_settings: 20 settings ok"
+# The same line is also printed inside each ./build.sh and inside build_ctl.sh.
+# MODEL=elite ./build.sh --board smk37
+# rc 0 elapsed 6  package build/x0x-smk37-elite.fwsc 651570 B identity SMK-37 Elite_900
+# MODEL=pro ./build.sh --board smk37
+# rc 0 elapsed 5  package build/x0x-smk37.fwsc 651566 B identity SMK-37 Pro_900
+# SDK_LOCAL=$AC79_SDK CTL_NATIVE=1 sh ble/ctl/build_ctl.sh
+# rc 0 elapsed 3  ble/ctl/out/ctl.img 61552 B
+# python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-ble.fwsc
+# rc 0 elapsed 1
+# python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-elite-ble.fwsc
+# rc 0 elapsed 0
+# python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
+# rc 0 elapsed 0  "ble/ctl/out/ctl.img: ok"
+
+# --- package_nightly, all refused, no new package bytes ---
+# See logs/package-nightly.txt. No --push. No ledger edit. No release_alloc.py.
+
+# --- catalog read (HTTPS GET, no auth) ---
+# curl https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/versions.json
+# HTTP/2 200  size 66132  sha256 3585a36cdd5da576be04834704f8ff98e8b59a03cef3d186cae336b89c19dd90
+# curl https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/versions.json
+# HTTP/2 404
+# publish_nightly.py was not executed.
+
+# --- host suite, still running at this commit ---
+# env: NINEW9_DIR EIGHTW8_DIR SCHWUNG303 TB3PO_REF AC79_SDK JIELI_TOOLCHAIN JIELI_DOCKER=0 X0X_DEV_PADCAL=0 CC=cc CXX=c++
+# timeout 2400 sh tests/run_tests.sh
+# started 2026-11-05T12:02:37Z
+# rc: not finished
+df -i /
+# after the builds, while the host suite was running: IUsed 299647  IFree 10513793  IUse% 3%

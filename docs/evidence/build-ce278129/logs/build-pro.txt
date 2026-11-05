@@ -1,0 +1,17 @@
+START_PRO 2026-11-05T12:00:30Z
+ENV JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK JIELI_DOCKER=0 X0X_DEV_PADCAL=0 CTL_NO_CACHE=1 CC=cc CXX=c++
+MODEL=pro ./build.sh --board smk37
+check_locked_settings: 20 settings ok
+generate: cached font, drums, and break bank
+loader: image 8520 B at 0x1c0a800, bss end 0x1c0f770
+loader: ota.bin 7450 B
+  ok    app code area 552672 B, 38680 B free (Bluetooth block at app.bin 0x86ee0)
+  ok    image 513992 B; RAM .data+.bss 97328 B of 98304; pool 335864 B of 344064
+  ok    register access: hal/ only (src/, loader/ clean)
+app      build/smk37/x0x.bin  513992 B
+loader   build/smk37/loader/ota.bin  7450 B
+package  build/x0x-smk37.fwsc  651566 B, identity SMK-37 Pro_900, board smk37
+pro_rc=0 elapsed=5
+END_PRO 2026-11-05T12:00:35Z
+pool_free = 344064 - 335864 = 8200
+assertion pool_free >= 8192: 8200 >= 8192 holds
