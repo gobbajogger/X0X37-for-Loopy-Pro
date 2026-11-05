@@ -73,7 +73,10 @@ PASS and another per-candidate chat reply are not required. The assigned publish
 then verifies actual served page/catalog/package hashes before recommending an
 installation. Keep prior safe versions. Agents never install or flash. Production
 firmware/installer behaviour still requires exact same-byte, affected-model owner
-hardware PASS and separate production approval. Follow the [NIGHTLY gate](https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/blob/a8205aff483dce09414093defdc19cf79d57b719/docs/nightly-first-development-gate.md)
+hardware PASS and separate production approval. Follow the [NIGHTLY gate](https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/blob/main/docs/nightly-first-development-gate.md)
+at the verified remote SHA of the nightly repository's default branch `main` (or
+another ref the owner names); record that SHA in the evidence (the earlier reviewed
+pin was `a8205aff483dce09414093defdc19cf79d57b719`)
 and current target rules; source push, merge, publication, live bytes and device
 acceptance remain separate.
 
