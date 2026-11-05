@@ -242,8 +242,8 @@ D9_ONE float d9_tanh(float u)
     } else {
         const int32_t i = (int32_t)a;
         const float fr = a - (float)i;
-        float t0, t1;
-        d9_tanh_pair((unsigned)i, &t0, &t1);
+        const float t0 = x0x_tanh_raw[(unsigned)i];      /* 0e88652c0: one exact const float table */
+        const float t1 = x0x_tanh_raw[(unsigned)i + 1u];
         t = t0 + (t1 - t0) * fr;
     }
     return u < 0.0f ? -t : t;

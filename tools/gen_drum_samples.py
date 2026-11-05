@@ -12,9 +12,9 @@ Writes two headers (both flash-resident `static const` data):
                       BREAK loops). drum909.c decodes them as they play
                       (firmware/src/dsp/ima_adpcm.h). 4 bits a sample: 55,275 B of
                       flash instead of 221,098 B of int16.
-  x0x_drum_tables.h   the tanh lookup used by every saturator (lossless IEEE
-                      binary32 pack by float exponent: shared hi + packed low
-                      bits, exact reconstruct via x0x_tanh_value), and 9W9's EXP
+  x0x_drum_tables.h   the tanh lookup used by every saturator (exact binary32
+                      constants for direct reads, plus the original packed
+                      representation for compatibility and proof), and 9W9's EXP
                       pot curves (er99_pots.h: min * (max/min)^(pot/127)) packed
                       the same way (x0x_pot_exp_value), so the device needs no
                       powf and gets the same values 9W9 computes with libm.
@@ -207,6 +207,10 @@ def main():
           "#endif",
           arr("uint32_t", "x0x_tanh_words", tanh_words,
               lambda v: f"0x{v:08x}u", per=8, shared=True),
+          "/* Direct tanh reads: flash/rodata only, one copy (shared), no RAM.",
+          " * Retain the packed representation above for the old decoder oracle.",
+          " * cfloat emits a decimal literal that round-trips to the same binary32. */",
+          arr("float", "x0x_tanh_raw", tab, cfloat, per=6, shared=True),
           "/* Exact binary32 table entry i (0 .. X0X_TANH_N+1). Hot-path inline. */",
           "static inline float x0x_tanh_value(unsigned i)",
           "{",
