@@ -446,6 +446,23 @@ static inline __attribute__((always_inline)) float fx_comp_gain(float mag, float
     return fm_db2lin(*env + makeup);
 }
 
+/* A settled glue detector/envelope maps positive zero to positive zero for
+ * every legal compressor setting. Keep all send, distortion and volume work;
+ * only the redundant per-sample detector/envelope/gain work is omitted. */
+static int fx_comp_zero_bytes(const void *p, unsigned n)
+{
+    const unsigned char *b = p;
+    for (unsigned i = 0; i < n; ++i) if (b[i]) return 0;
+    return 1;
+}
+static int fx_comp_settled_zero(const fxbus_t *f, const float *l, const float *r, int n)
+{
+    return n >= 32 && fx_comp_zero_bytes(&f->comp_det, sizeof f->comp_det) &&
+        fx_comp_zero_bytes(&f->comp_env_db, sizeof f->comp_env_db) &&
+        fx_comp_zero_bytes(l, (unsigned)n * sizeof *l) &&
+        (!r || fx_comp_zero_bytes(r, (unsigned)n * sizeof *r));
+}
+
 /* ===================================================================== */
 /* Master: distortion, glue (master_glue), volume                         */
 /* ===================================================================== */
@@ -462,7 +479,7 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
         for (int i = 0; i < n; ++i)
             out[i] = dist_one(&f->shape, out[i], k, f->crush_st);
     }
-    if (f->comp > 0.001f) {
+    if (f->comp > 0.001f && !fx_comp_settled_zero(f, out, 0, n)) {
         const float thr = f->c_thr, slope = f->c_slope, makeup = f->c_makeup;
         const float drel = f->c_drel, atk = f->c_atk, rel = f->c_rel;
         float det = f->comp_det, env = f->comp_env_db;
@@ -496,7 +513,7 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
             out_r[i] = dist_one(&f->shape, out_r[i], k, f->crush_str);
         }
     }
-    if (f->comp > 0.001f) {
+    if (f->comp > 0.001f && !fx_comp_settled_zero(f, out_l, out_r, n)) {
         const float thr = f->c_thr, slope = f->c_slope, makeup = f->c_makeup;
         const float drel = f->c_drel, atk = f->c_atk, rel = f->c_rel;
         float det = f->comp_det, env = f->comp_env_db;

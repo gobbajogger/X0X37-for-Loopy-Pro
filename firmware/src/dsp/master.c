@@ -330,8 +330,39 @@ void master_process(master_t *m, float *x, int n, float volume)
     m->gr_view = grmax > m->gr_view ? grmax : m->gr_view * 0.93f;   /* the meter: peak, falling */
 }
 
+/* The default settled stereo chain has no DSP left to do. Require positive
+ * zero bytes so signed-zero output/history is preserved too. Compressor and
+ * filter transitions, volume slew and limiter release use the ordinary loop. */
+static int master_zero_bytes(const void *p, unsigned n)
+{
+    const unsigned char *b = p;
+    for (unsigned i = 0; i < n; ++i) if (b[i]) return 0;
+    return 1;
+}
+
+static int master_settled_zero(master_t *m, const float *l, const float *r, int n, float volume)
+{
+    if (n < 32 || m->comp_on || m->pot[MST_MODE] ||
+        !(volume > 0.0f && volume <= 1.0f) || m->vol_cur != volume)
+        return 0;
+    if (m->pot[MST_LIMIT] &&
+        (m->gain != 1.0f || !master_zero_bytes(&m->env, sizeof m->env) ||
+         !master_zero_bytes(&m->inv_env, sizeof m->inv_env) ||
+         !master_zero_bytes(m->la, sizeof m->la) ||
+         !master_zero_bytes(m->la_r, sizeof m->la_r))) return 0;
+    if (!master_zero_bytes(l, (unsigned)n * sizeof *l) ||
+        !master_zero_bytes(r, (unsigned)n * sizeof *r)) return 0;
+    if (m->pot[MST_LIMIT]) {
+        m->la_pos = (m->la_pos + (n & (MST_LA - 1))) & (MST_LA - 1);
+        m->hold = MST_LA; /* limit_env sees a >= env on every zero sample */
+    }
+    m->gr_view = 0.0f > m->gr_view ? 0.0f : m->gr_view * 0.93f;
+    return 1;
+}
+
 void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
 {
+    if (master_settled_zero(m, xl, xr, n, volume)) return;
     int i, mode = m->pot[MST_MODE], comp_on = m->comp_on, limit = m->pot[MST_LIMIT];
     float k = m->k, grmax = 0.0f, vc = m->vol_cur < 0.0f ? volume : m->vol_cur;
     for (i = 0; i < n; i++) {
