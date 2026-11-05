@@ -212,7 +212,7 @@ static inline __attribute__((always_inline)) float soft_ceiling(float s)
 
 
 /* Compressor/pump gain advance after ms is updated — one body for mono + stereo. */
-static inline __attribute__((always_inline)) void comp_tick(master_t *m, float *grmax)
+static inline __attribute__((always_inline)) void comp_tick(master_t *m, float *grmax, float att_in, float rel_in, float pump_in)
 {
     float lv, want, total;
     if (m->cr == 0) {                                /* the static curve, every MST_CR samples */
@@ -220,10 +220,10 @@ static inline __attribute__((always_inline)) void comp_tick(master_t *m, float *
         m->want = (lv > 1e-12f && m->slope > 0.0f) ? gr_of(m, 3.0103f * fm_log2f(lv)) : 0.0f;
     }
     want = m->want;
-    m->gr = want > m->gr ? m->a_att * m->gr + (1.0f - m->a_att) * want
-                         : m->a_rel * m->gr + (1.0f - m->a_rel) * want;
+    m->gr = want > m->gr ? m->a_att * m->gr + att_in * want
+                         : m->a_rel * m->gr + rel_in * want;
     if (m->pump_tgt > m->pump) {                     /* PUMP: rise to the kick's depth ... */
-        m->pump = m->a_pump * m->pump + (1.0f - m->a_pump) * m->pump_tgt;
+        m->pump = m->a_pump * m->pump + pump_in * m->pump_tgt;
         if (m->pump_tgt - m->pump < 0.05f)
             m->pump_tgt = 0.0f;                      /* ... then let go: the release swells back */
     } else {
@@ -295,6 +295,13 @@ void master_process(master_t *m, float *x, int n, float volume)
 {
     int i, mode = m->pot[MST_MODE], comp_on = m->comp_on, limit = m->pot[MST_LIMIT];
     float k = m->k, grmax = 0.0f;
+    float det_in = 0.0f, att_in = 0.0f, rel_in = 0.0f, pump_in = 0.0f;
+    if (comp_on) {                                  /* invariant for this render call */
+        det_in = 1.0f - m->a_det;
+        att_in = 1.0f - m->a_att;
+        rel_in = 1.0f - m->a_rel;
+        pump_in = 1.0f - m->a_pump;
+    }
     for (i = 0; i < n; i++) {
         float s = x[i];
         if (comp_on) {
@@ -302,8 +309,8 @@ void master_process(master_t *m, float *x, int n, float volume)
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
              * millisecond: audio-rate gain movement, heard as clicks */
-            m->ms = fm_flush(m->a_det * m->ms + (1.0f - m->a_det) * s * s);
-            comp_tick(m, &grmax);
+            m->ms = fm_flush(m->a_det * m->ms + det_in * s * s);
+            comp_tick(m, &grmax, att_in, rel_in, pump_in);
             wet = s * m->g_lin;
             s = s + (wet - s) * m->mix;
         }
@@ -334,6 +341,13 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
 {
     int i, mode = m->pot[MST_MODE], comp_on = m->comp_on, limit = m->pot[MST_LIMIT];
     float k = m->k, grmax = 0.0f, vc = m->vol_cur < 0.0f ? volume : m->vol_cur;
+    float det_in = 0.0f, att_in = 0.0f, rel_in = 0.0f, pump_in = 0.0f;
+    if (comp_on) {                                  /* invariant for this render call */
+        det_in = 1.0f - m->a_det;
+        att_in = 1.0f - m->a_att;
+        rel_in = 1.0f - m->a_rel;
+        pump_in = 1.0f - m->a_pump;
+    }
     for (i = 0; i < n; i++) {
         float s = xl[i], sr = xr[i];
         if (comp_on) {
@@ -342,8 +356,8 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
              * millisecond: audio-rate gain movement, heard as clicks */
             /* both sides' power, each term as master_process forms it, so l == r gives its value */
-            m->ms = fm_flush(m->a_det * m->ms + 0.5f * ((1.0f - m->a_det) * s * s + (1.0f - m->a_det) * sr * sr));
-            comp_tick(m, &grmax);
+            m->ms = fm_flush(m->a_det * m->ms + 0.5f * (det_in * s * s + det_in * sr * sr));
+            comp_tick(m, &grmax, att_in, rel_in, pump_in);
             wet = s * m->g_lin;
             s = s + (wet - s) * m->mix;
             wet = sr * m->g_lin;

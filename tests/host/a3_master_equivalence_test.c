@@ -54,6 +54,14 @@ int main(void)
                 int cutoff = block == 25 ? 10 : 120;
                 reference_master_set(&a, MST_CUTOFF, cutoff); master_set(&b, MST_CUTOFF, cutoff);
             }
+            if (comp && block % 17 == 0) {
+                /* Exercise complement rounding across the full pot range. */
+                const int ids[] = {MST_ATTACK, MST_RELEASE, MST_PUMP, MST_MIX, MST_MAKEUP};
+                for (unsigned j = 0; j < sizeof ids / sizeof *ids; ++j) {
+                    int value = (int)(random_word() & 127u);
+                    reference_master_set(&a, ids[j], value); master_set(&b, ids[j], value);
+                }
+            }
             memcpy(cl, l, sizeof l); memcpy(cr, r, sizeof r);
             float vol = block < 80 ? 0.9f : block < 160 ? 0.2f : 1.1f;
             if (stereo) {
