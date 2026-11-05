@@ -1033,3 +1033,18 @@ int drum909_active(const drum909_t *d)
             return 1;
     return 0;
 }
+
+void drum909_all_off(drum909_t *d)
+{
+    int i;
+    d->bt[DR_BD].mute = 0;
+    d->bt[DR_SD].mute = 0;
+    for (i = 0; i < 3; i++)
+        d->tom[i].mute = 0;
+    d->rim.mute = 0;
+    d->clap.mute = 0;
+    for (i = 0; i < 4; i++) {
+        d->smp[i].mute = 0;
+        d->smp[i].playing = 0;
+    }
+}
