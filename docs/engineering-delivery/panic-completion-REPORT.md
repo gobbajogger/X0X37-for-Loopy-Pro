@@ -1,3 +1,57 @@
+# Pinned M1 recut validation — 2026-11-05
+
+State: BUILD_ONLY. The results below were executed by the task's primary agent on Linux x86-64. No device, install, publication or measured target-cycle qualification is claimed.
+
+- Required base: `a06e20189141ff5fb8766e2c6152be460f4356c3`.
+- Original lane: `lane/build-25-m1-port-v2-20261106`, tip `a18561f17977be8592cef5a3d3cbebf70e4dbf1b`.
+- Own tip boundary: `a0311156fab64e889516203d5676e77039b6a06b`; apply only its 12 following panic commits. The earlier integration stack is excluded.
+- Validated source: `e4c7fc671437ecdcb06c35582df54ca9feb08763`, tree `b6d666abc6d575a4ede2211ab48d01773b7c9122`. This report is a later evidence-only update.
+- Full host suite: **337 PASS, 0 FAIL, 0 SKIP, 0 NOT_RUN; exit 0**. All 11 distinct panic mutants were killed by executed assertions. GCC/Clang sanitizer coverage ran; compiler/setup errors are rejected by the mutation runner.
+- Full-suite log SHA-256: `3391ed96cd1d4ec49b1a42d3dcf8cef3b705ac4f9490be7c2fa27974d013ae69`.
+- Independent source review completed; all actionable findings and the navigation-fixture follow-up were closed.
+
+## Native DEV builds
+
+Both Elite and Pro builds completed with SDK `AC79NN_SDK_V1.2.1_2023-12-13` at `d179b4484759423312073f5fbb232501aa491047` and JieLi Clang 4.0.1. All three app SDK inputs and eight controller-source inputs matched their pins. The ten required private synth inputs matched the committed manifest; their bytes remain excluded from Git.
+
+Native builds used source `690aef5b754d27ba8626290b8e808da510b36e65`. The only later source edits before the full-suite run were two host-test corrections; all native build inputs remained identical, and all eight recorded native artifact digests still match.
+
+| Metric, both models | Base | Recut | Delta |
+| --- | ---: | ---: | ---: |
+| App image | 474,840 B | 475,992 B | +1,152 B |
+| App RAM region | 95,780 B | 95,780 B | 0 B |
+| `.ram_text` | 2,712 B | 2,712 B | 0 B |
+| Pool | 335,464 B | 335,464 B | 0 B |
+
+App RAM headroom is 2,524 B against 98,304 B. Pool headroom is 8,600 B, above the 8,192 B minimum. `.ram_text` has 844 disassembled instructions and no calls. Neither model links soft-double routines; all 20 locked settings pass. Target cycles/sample remain unmeasured against the approximately 7,256-cycle budget.
+
+Package digests (bytes are retained locally, not committed):
+
+- `build/x0x-smk37.fwsc`: `079a6855a89b56b15373a96eae7e9eece714be1d32eebf7ebafb786172a773e1`
+- `build/x0x-smk37-elite.fwsc`: `51c08a8ac4be5f0a6d84f8e0383b0a4180ead8b184cbecbcc9004696ed72b4b2`
+
+## Repairs verified in this recut
+
+Panic consumes pending physical-key presses before silence, keeps SMC chord state per peer, resets a peer's stale chord after a lost BANK release, and preserves BREAK's bank/phrase progression. Tests cover bank B/slice 2 through panic followed by bank B/slice 3, audible 808 silence, fresh physical-key input, independent peers and queue overflow. Chicago fixtures explicitly select the native engine and controls.
+
+The existing drum-mute navigation fixture now releases BANK R before pressing BANK L, retaining every original assertion. Simultaneous BANK L/R remains covered by the panic-route regression.
+
+Executed commands, with pinned compiler/SDK/reference environment configured:
+
+```sh
+X0X_DEV_PADCAL=1 MODEL=pro ./build.sh --board smk37
+X0X_DEV_PADCAL=1 MODEL=elite ./build.sh --board smk37
+X0X_STRICT_PREFLIGHT=1 X0X_TEST_JOBS=8 sh tests/run_tests.sh
+```
+
+Reference commits: 9W9 `10cbe5c1e1c9e65b0818bb34644ab1a13092082c`, 8W8 `94aa2716d4c2e5851fc7c5dbb4c17adfd133c997`, TB3PO `f49d81d05d1e29ae37728a08e30f193892be3bc9`. SDK/toolchain/private inputs, firmware binaries, credentials and raw captures are excluded from source delivery. Source delivery is verified separately by live lane-ref readback.
+
+---
+
+## Historical original-lane report
+
+The following report retains its original source pins and earlier results.
+
 # M1 panic completion report
 
 Lane: `lane/dev-m1-panic-complete-20261105`
