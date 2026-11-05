@@ -28,7 +28,7 @@ When uncertain, check the relevant facts. Do not ask again for authorized revers
 The owner permits retaining useful chains and subagents where supported; do not require them for every stage.
 Use helpers for bounded independent work when justified by the authorized task, explicitly requested, or required for independent review.
 Verify the current interface exposes delegation tools. If unavailable, work sequentially or prepare a handoff.
-Do not switch classic chat to Work or Codex solely to obtain helpers; apply [chat routing](../x0x37-task/references/routing.md).
+Run work in Codex (owner decision 2026-11-06); apply [chat routing](../x0x37-task/references/routing.md).
 Use the fewest helpers and smallest relevant context. Account for their added usage; do not promise a quota saving.
 Give each helper the current skill entry point, input commit or tree, task, owned files, relevant skill paths, and completion criteria.
 

@@ -45,8 +45,6 @@ src = (
     + "\n"
     + function(b, "ble_out_pkt_is_keep")
     + "\n"
-    + function(b, "ble_out_is_pitch_bend")
-    + "\n"
     + function(b, "ble_out")
     + r"""
 static uint32_t mk(unsigned cin, unsigned st, unsigned d1, unsigned d2)

@@ -12,7 +12,6 @@ harness = r'''
 #include <assert.h>
 #include <stdint.h>
 #include "app/smc_protocol.h"
-#include "app/param_trace.h"   /* smc_fader traces pickups (B4); off in this build */
 enum { R_NONE, R_ACT, R_HDR, R_ENG };
 typedef struct { uint8_t kind; } pref_t;
 typedef struct { int max; } x0x_param_t;
@@ -27,7 +26,7 @@ static void pref_set(pref_t r,int v) { (void)r; value=v; writes++; }
 static uint8_t smc_scaled(pref_t r) { (void)r; return value; }
 static void motion_touch(pref_t r) { (void)r; motions++; }
 static int volume_muted(pref_t r) { (void)r; return 0; }
-static void smc_ui_begin(int n,int knob) { (void)n;(void)knob; shows++;shown=value; }
+static void smc_show(int n,int knob,pref_t r) { (void)n;(void)knob;(void)r; shows++;shown=value; }
 static uint32_t plat_ms(void) { return 1234; }
 '''+f+r'''
 int main(void) {

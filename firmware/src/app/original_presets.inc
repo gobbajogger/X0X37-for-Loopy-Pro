@@ -201,10 +201,6 @@ static void bass_preset_boundary(void)
         __builtin_memcpy(sound->v[T_303][v], next, sizeof next);
         bass_tag_set(sound, v, bank, preset, 0);
         bass_named_preset[v] = (int16_t)preset;
-        /* A committed bank/preset replacement, never merely a pending request.
-         * parameter -1 identifies the bank; parameter -2 the factory index. */
-        PARAM_TRACE(PARAM_PRESET, T_303, v, -1, bank);
-        PARAM_TRACE(PARAM_PRESET, T_303, v, -2, preset);
         original_seq_note[v] = -1;
         (void)original_runtime_prepare(&original_bass[v], seq_tempo(&seq));
         __asm__ volatile("" ::: "memory");

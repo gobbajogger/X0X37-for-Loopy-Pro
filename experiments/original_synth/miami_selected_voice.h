@@ -39,10 +39,6 @@ typedef struct {
  original_miami_pitch_controls pitch;
  original_voice_gain_controls gain;
  float cutoff,resonance,env_depth,noise,pw_intensity,pw_width,xmod,vco_gain;
- /* Source/MI/MW are zero in this selected profile: widths change only with
-  * the program. Compile once instead of repeating four checked conversions
-  * at every voice start and 690 Hz control tick. */
- float wave_width[4];
  float patch_slave,patch_cutoff,patch_gain;
  float mg_base[2],mg_times[2];
  float bend_normalized;
@@ -57,25 +53,12 @@ typedef struct {
  * All18 macros have explicit voice/outer endpoints in this immutable view. */
 int original_miami_voice_compile(original_miami_voice_controls *out,
  const original_miami_program *program);
-/* Incremental bend/cutoff edit of an initialized corresponding snapshot.
- * Program must differ only by the named program_set edit. Other edits, an
- * unready snapshot or a revision gap use full compilation. Failure is atomic. */
-int original_miami_voice_recompile(original_miami_voice_controls *out,
- const original_miami_program *program,unsigned macro);
 
 typedef struct {
  float phase,unipolar,bipolar,hold;
  uint32_t noise;
  uint8_t wrapped;
 } original_miami_voice_mg;
-/* One shared cache for both selected voices of a Miami part. The common
- * BPM/duration key and per-MG validity mask avoid duplicate per-voice state.
- * A zero glide duration means invalid; D is nonzero in every valid tick. */
-typedef struct {
- uint32_t base_bits[2],times_bits[2],bpm_bits,duration,mg_valid_mask;
- float denominator[2],delta[2];
- original_glide_cache glide;
-} original_miami_coefficient_cache;
 typedef struct {
  original_miami_pitch pitch;
  original_voice_gain gain;
@@ -91,8 +74,7 @@ typedef struct {
  uint32_t counter,last_duration,control_updates,wave_preparations;
  uint32_t pending_tail_duration;
  int32_t activation[4];
- uint8_t unison_flag,note_key,key_down,damper_deferred,active,ready,awaiting_restart,cache_witness;
- /* cache_witness occupies the former padding byte and is not serialized. */
+ uint8_t unison_flag,note_key,key_down,damper_deferred,active,ready,awaiting_restart;
 } original_miami_selected_voice;
 typedef struct {
  unsigned note_key,velocity,last_note;
@@ -178,7 +160,6 @@ int original_miami_selected_voice_render_frame(original_miami_selected_voice *,c
  * downstream DSP checks. Event/note APIs remain checked. */
 int original_miami_selected_voice_block_valid(const original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm);
 int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm,unsigned *action);
-int original_miami_selected_voice_control_prevalidated_cached(original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm,unsigned *action,original_miami_coefficient_cache *);
 int original_miami_selected_voice_render_prevalidated(original_miami_selected_voice *,const original_miami_voice_controls *,float *left,float *right);
 /* B0738 owned-state projection. Preserve oscillator phases and the separate
  * normalized velocity source (core42c8), while resetting current raw velocity
@@ -187,6 +168,4 @@ int original_miami_selected_voice_render_prevalidated(original_miami_selected_vo
  * controller reset and master preservation remain with their matching owner.
  * Constructor phase zeroing is separate; call init for a new value object. */
 int original_miami_selected_voice_core_reset(original_miami_selected_voice *,const original_miami_voice_tables *,unsigned voice_index);
-/* Call on note-on, program replacement and decoded snapshot adoption. */
-void original_miami_selected_voice_invalidate_caches(original_miami_selected_voice *);
 #endif

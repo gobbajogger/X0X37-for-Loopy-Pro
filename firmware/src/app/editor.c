@@ -19,8 +19,7 @@
 enum { ED_INFO = 1, ED_PROJECT = 9, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
        ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38, ED_BOOT_INFO = 39,
        ED_BOOT_BEGIN = 43, ED_BOOT_WRITE, ED_BOOT_READ, ED_BOOT_END, ED_BOOT_ABORT,
-       ED_INSTALL = 48, ED_CAPTURE = 49 };
-#include "../../../tools/mboot/session_wire.h"
+       ED_INSTALL = 48 };
 #include "boot_screen.h"
 #if BOARD_SMK37
 /* ED_INLOG (SMK-37, read only, a76): the inbound recorder (app/smk_inlog.h). No arg or arg 0: the entry
@@ -119,21 +118,6 @@ static void ed_put7(const uint8_t *src, uint32_t n)
             ed_b(src[k + j]);
     }
 }
-/* Offset is 21 bits; count is in byte pairs. Invalid offsets send no reply. */
-static int ed_read_area(const uint8_t *base, uint32_t size, const uint8_t *a)
-{
-    uint32_t off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
-    uint32_t count = a[3] > ED_READ_MAX / 2u ? ED_READ_MAX : a[3] * 2u;
-    if (off >= size)
-        return 0;
-    if (count > size - off)
-        count = size - off;
-    ed_b(off);
-    ed_b(off >> 7);
-    ed_b(off >> 14);
-    ed_put7(base + off, count);
-    return 1;
-}
 /* Sample/project chunk staging: 512 B, live only for the duration of one ed_handle
  * (fill then consume; no cross-message retention). On the device this aliases the
  * main-loop scratch at OTA_DEC_OFF (x0x.c ED_SMP_SCRATCH), the same call-scoped
@@ -179,7 +163,7 @@ static struct {
 
 static uint32_t ed_project_sample_len(uint32_t k)
 {
-    const smp_user_hdr_t *h = smp_hdr(smp_user_xip(k));
+    const smp_user_hdr_t *h = (const smp_user_hdr_t *)smp_user_xip(k);
     return usr_nz[k] ? SMP_USER_DATA + h->data_len : 0;
 }
 static void ed_project_sample_snapshot(void)
@@ -396,7 +380,7 @@ static int ed_smp_backup_sec0(uint32_t k)
 }
 static int ed_smp_backup_present(uint32_t k)
 {
-    const smp_user_hdr_t *h = smp_hdr(fm1_xip_ptr(SMP_SEC0_BACKUP_OFF(k)));
+    const smp_user_hdr_t *h = (const smp_user_hdr_t *)fm1_xip_ptr(SMP_SEC0_BACKUP_OFF(k));
     return h->magic == SMP_USER_MAGIC && h->version == 1 && h->nz && h->nz <= 16u;
 }
 static void ed_smp_clear_backup(uint32_t k)
@@ -511,7 +495,7 @@ static int ed_smp_erase_for_write(uint32_t k, uint32_t off, uint32_t *took)
 }
 static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
 {
-    const smp_user_hdr_t *h = smp_hdr(ed_smp_buf);
+    const smp_user_hdr_t *h = (const smp_user_hdr_t *)ed_smp_buf;
     uint32_t n = ed_unpack_exact(a, na, ed_smp_buf, ED_SMP_BUF_SIZE);
     if (n != sizeof(smp_user_hdr_t) && n != SMP_USER_DATA) {
         ed_smp_try_restore(k);
@@ -833,16 +817,6 @@ static void ed_handle(const uint8_t *f, uint32_t n)
     if (cmd >= ED_SMP_BEGIN && cmd <= ED_SMP_ERASE)
         ed_install_dirty();
     switch (cmd) {
-    case ED_CAPTURE: {
-        /* MBOOT read-only session, disabled: production has no qualified
-         * provider. This only reports zero capabilities. It cannot acquire a
-         * lease, read flash, or dispatch a write operation. */
-        uint8_t reply[21];
-        uint32_t qn = ed_unpack_exact(a, na, ed_smp_buf, MB_WIRE_REQUEST_MAX);
-        size_t rn = mb_wire_disabled(ed_smp_buf, qn, reply, sizeof reply);
-        ed_put7(reply, (uint32_t)rn);
-        break;
-    }
     case ED_INSTALL: {
         int start = ed_install_handle(a, na);
         int sent = ed_send();
@@ -961,11 +935,22 @@ static void ed_handle(const uint8_t *f, uint32_t n)
     case ED_SMP_READ: {                              /* X0X: slot, offset (3 x 7 bits, from the slot's start,
                                                       * its header included), count -> slot, offset, the bytes
                                                       * packed 7 to 8 (as WRITE takes them) */
+        uint32_t off, n;
+        const uint8_t *src;
         if (na < 5u || a[0] >= SMP_USER_SLOTS)
             return;
-        ed_b(a[0]);
-        if (!ed_read_area(smp_user_xip(a[0]), SMP_USER_SIZE(a[0]), a + 1))
+        off = (uint32_t)a[1] | (uint32_t)a[2] << 7 | (uint32_t)a[3] << 14;
+        n = a[4] > ED_READ_MAX / 2u ? ED_READ_MAX : a[4] * 2u;   /* the count is in pairs (7 bits) */
+        if (off >= SMP_USER_SIZE(a[0]))
             return;
+        if (n > SMP_USER_SIZE(a[0]) - off)
+            n = SMP_USER_SIZE(a[0]) - off;
+        src = smp_user_xip(a[0]) + off;
+        ed_b(a[0]);
+        ed_b(off);
+        ed_b(off >> 7);
+        ed_b(off >> 14);
+        ed_put7(src, n);
         break;
     }
     case ED_SMP_INFO: {                              /* count, size (KiB, 7 bits: the SMALLEST slot, so an older
@@ -980,7 +965,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(SMP_USER_SLOTS);
         ed_b(mn / 1024u > 127u ? 127u : mn / 1024u);
         for (i = 0; i < SMP_USER_SLOTS; i++) {
-            const smp_user_hdr_t *h = smp_hdr(smp_user_xip(i));
+            const smp_user_hdr_t *h = (const smp_user_hdr_t *)smp_user_xip(i);
             char nm[9] = {0};
             uint32_t j;
             ed_b(usr_nz[i]);
@@ -993,7 +978,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b('X');
         ed_b(1);
         for (i = 0; i < SMP_USER_SLOTS; i++) {
-            const smp_user_hdr_t *h = smp_hdr(smp_user_xip(i));
+            const smp_user_hdr_t *h = (const smp_user_hdr_t *)smp_user_xip(i);
             uint32_t v[3], j;
             v[0] = SMP_USER_OFF(i) / 0x1000u;
             v[1] = SMP_USER_SIZE(i) / 0x1000u;
@@ -1017,13 +1002,11 @@ static void ed_handle(const uint8_t *f, uint32_t n)
             const uint32_t *t = op == 3u ? (const uint32_t *)&fm1_t5w_prev : (const uint32_t *)&fm1_c0_dead;
             const uint32_t *g = (const uint32_t *)&fm1_can;
             const uint32_t nt = op == 3u ? sizeof fm1_t5w_prev / 4u : sizeof fm1_c0_dead / 4u;
-            const uint32_t words = nt + (op == 3u ? 1u : sizeof fm1_can / 4u);
+            const uint32_t n = nt + (op == 3u ? 1u : sizeof fm1_can / 4u);
             uint32_t k;
-            _Static_assert(sizeof fm1_t5w_prev / 4u + 1u <= 127u, "ED_BT_TEST op 3 count fits 7 bits");
-            _Static_assert(sizeof fm1_c0_dead / 4u + sizeof fm1_can / 4u <= 127u, "ED_BT_TEST op 4 count fits 7 bits");
             ed_b(op);
-            ed_b(words);
-            for (k = 0; k < words; k++) {
+            ed_b(n);
+            for (k = 0; k < n; k++) {
                 uint32_t v = k < nt ? t[k] : op == 3u ? fm1_t5w.hits : g[k - nt];
                 ed_b(v);
                 ed_b(v >> 7);
@@ -1046,12 +1029,23 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         break;
     }
     case ED_CTL_READ: {
+        uint32_t off, n;
+        const uint8_t *src;
         _Static_assert(XB_FLASH_OFF == FL_BLE_LO && XB_FLASH_SIZE == FL_BLE_HI - FL_BLE_LO,
                        "ED_CTL_READ: the Bluetooth block is FL_BLE");
         if (na < 4u)
             return;
-        if (!ed_read_area(fm1_xip_ptr(XB_FLASH_OFF), XB_FLASH_SIZE, a))
+        off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+        n = a[3] > ED_READ_MAX / 2u ? ED_READ_MAX : a[3] * 2u;
+        if (off >= XB_FLASH_SIZE)
             return;
+        if (n > XB_FLASH_SIZE - off)
+            n = XB_FLASH_SIZE - off;
+        src = fm1_xip_ptr(XB_FLASH_OFF) + off;     /* the app area: reads decrypted, as core 1 runs it */
+        ed_b(off);
+        ed_b(off >> 7);
+        ed_b(off >> 14);
+        ed_put7(src, n);
         break;
     }
 #endif
@@ -1090,7 +1084,7 @@ static int ed_service(void)
     }
     /* Boot writes are longer than the 64-byte stack copy below. A truncated
      * frame would fail the check and must not be stored. */
-    if (p[3] == ED_CAPTURE || p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ) || boot_cmd(p[3])) {
+    if (p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ) || boot_cmd(p[3])) {
         ed_handle(p, n);
         ota_frame_done();
         return 0;

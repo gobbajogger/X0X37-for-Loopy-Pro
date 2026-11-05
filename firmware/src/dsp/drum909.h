@@ -111,9 +111,6 @@ typedef struct drum909 drum909_t;
 
 void drum909_init(drum909_t *d);
 void drum909_trigger(drum909_t *d, int voice, float vel);
-/* Noise/history only: engine calls this only while the kit is inactive. */
-void drum909_advance_noise(drum909_t *d, int n);
-void drum909_all_off(drum909_t *d); /* stop sounding voices; pots stay */
 void drum909_render(drum909_t *d, float *dry, float *rev, float *dly, int n);
 /* X0X stereo: each voice placed by its PAN into dry_l / dry_r (sends mono); all centred, both are
  * drum909_render's dry exactly */

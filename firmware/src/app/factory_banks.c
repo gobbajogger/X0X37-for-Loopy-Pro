@@ -2,7 +2,6 @@
 #include "factory_banks.h"
 #include "original_sound.h"
 
-typedef char factory_chicago_count_matches[FACTORY_CHICAGO_NPRESETS == ORIGINAL_CHICAGO_FACTORIES ? 1 : -1];
 static const factory_bank_t factory_banks[FACTORY_BANK_COUNT] = {
     { "chicago", "Chicago", FACTORY_BANK_CHICAGO, FACTORY_CHICAGO_NPARAMS,
       FACTORY_CHICAGO_NPRESETS, 0, 0 },

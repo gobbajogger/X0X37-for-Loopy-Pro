@@ -49,10 +49,6 @@
 #include <libproc.h>
 #include <unistd.h>
 #endif
-/* ui.c calls this. Host builds strip __attribute__ later, so the weak
- * stub has to be declared first. engine.c's strong definition wins when
- * the current engine is linked; an older copied engine keeps this no-op. */
-__attribute__((weak)) void engine_request_notes_off(void) {}
 #define __attribute__(x)
 
 /* ------------------------------------------------------------ screen --- */
@@ -67,12 +63,10 @@ static void lcd_fill(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint16_t c)
             fb[j * 240u + i] = sc;
 }
 static uint32_t blits;
-static uint64_t blit_px;                 /* pixels sent: a frame's SPI time (tests) */
 static void lcd_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const uint16_t *px)
 {
     uint32_t i, j;
     blits++;
-    blit_px += (uint64_t)w * h;
     for (j = 0; j < h; j++)
         for (i = 0; i < w; i++)
             if (x + i < 240u && y + j < 240u)
@@ -166,31 +160,23 @@ int plat_midi_pulse(uint8_t ch, uint8_t note, uint8_t velocity)
 
 /* flash: one buffer per object, kept across a simulated reboot */
 static uint8_t store[OBJ_NOBJ][PLAT_STORE_MAX];
-static uint8_t store_previous[OBJ_NOBJ][PLAT_STORE_MAX];
-static int store_previous_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
 static int store_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
 static uint32_t store_writes;
 static int store_fail;
 int plat_store_load(uint32_t obj, void *dst, uint32_t max)
 {
-    int previous = (obj & PLAT_STORE_PREVIOUS) != 0;
-    obj &= ~PLAT_STORE_PREVIOUS;
-    if (obj >= OBJ_NOBJ) return -1;
-    int n = previous ? store_previous_len[obj] : store_len[obj];
-    if (n < 0)
+    int n = store_len[obj];
+    if (obj >= OBJ_NOBJ || n < 0)
         return -1;
     if ((uint32_t)n > max)
         n = (int)max;
-    memcpy(dst, previous ? store_previous[obj] : store[obj], (size_t)n);
+    memcpy(dst, store[obj], (size_t)n);
     return n;
 }
 int plat_store_save(uint32_t obj, const void *src, uint32_t len)
 {
     if (store_fail || obj >= OBJ_NOBJ || len > PLAT_STORE_MAX)
         return -1;
-    store_previous_len[obj] = store_len[obj];
-    if (store_len[obj] >= 0)
-        memcpy(store_previous[obj], store[obj], (size_t)store_len[obj]);
     memcpy(store[obj], src, len);
     store_len[obj] = (int)len;
     store_writes++;
@@ -270,16 +256,7 @@ int plat_cpu2_wait(void) { int fail = cpu2_fail_once; cpu2_fail_once = 0; return
 int plat_cpu2_gave_up(void) { return 0; }
 uint32_t plat_cpu2_bad(void) { return 0; }
 static int ble_on;                              /* Bluetooth MIDI: no controller image on the host */
-#ifdef X0X_HOST_BLE_STATE
-int plat_ble_state(void) { return X0X_HOST_BLE_STATE; }
-#else
 int plat_ble_state(void) { return PLAT_BLE_NOIMG + 0 * ble_on; }
-#endif
-#ifdef X0X_HOST_BLE_PEERS
-void plat_ble_peers(plat_ble_peers_t *out) { X0X_HOST_BLE_PEERS(out); }
-#else
-void plat_ble_peers(plat_ble_peers_t *out) { memset(out, 0, sizeof *out); out->state = plat_ble_state(); }
-#endif
 const char *plat_ble_name(void) { return ""; }
 void plat_ble_set(int on) { ble_on = on; }
 uint32_t plat_cpu_pct(void) { return cpu_pct; }
@@ -313,20 +290,6 @@ void plat_stalls_enable(int on) { (void)on; }
 #include "../firmware/src/app/smc_fx_map_tables.c"    /* one SMC FX map table for engine + smc_mixer */
 #include "../firmware/src/app/project.c"
 #include "../firmware/src/app/ui.c"
-
-#if X0X_PARAM_TRACE
-void x0x_param_trace(int source, int target, int voice, int parameter, int value)
-{
-    static const char *const names[] = {
-        "wheel-pitch", "wheel-mod", "panel-knob", "smc-knob", "smc-pickup",
-        "motion", "motion-restore", "preset", "midi"
-    };
-    if ((unsigned)target >= NTARGETS || (unsigned)voice >= NVOICES_MAX ||
-        (unsigned)source >= sizeof names / sizeof names[0]) return;
-    fprintf(stderr, "param-write ms=%u source=%s target=%d voice=%d param=%d value=%d\n",
-            plat_ms(), names[source], target, voice, parameter, value);
-}
-#endif
 #if BOARD_SMK37
 /* Native SMC fixtures provide clip input substitutes; real keybed/pad reset is hardware-only. */
 int smk_project_active(void) { extern uint8_t smk_ck_flash_busy(void); return smk_ck_flash_busy(); }
@@ -352,10 +315,7 @@ static void host_arrows(void)
         return;
     arrow_steps++;                                   /* (expect arrowsteps: the steps that the arrows gave) */
     if (route == ARW_MENU)
-    {
-        if (ui_menu_arrow(d))
-            arw_rearm(&host_arw, arrows_held);       /* as main_fm1.c: entry consumes the held arrow */
-    }
+        ui_menu_arrow(d);
     else
         enc_acc[EN_SELECT] += d;
 }
@@ -491,8 +451,6 @@ static uint64_t ins_total, ins_frames, ins_block_max;
 /* the engine's stage timing (eng_prof, in plat_cycles() units: here nanoseconds), summed per block
  * while playing; printed with X0X_PROFILE=1 in the environment */
 static uint64_t prof_tot[ENG_PROF_N];
-/* worst blocks while playing (wall ns), with the stage split, for X0X_PROFILE */
-static double blk_worst_ns[8]; static uint32_t blk_worst_ms[8]; static uint32_t blk_worst_pr[8][ENG_PROF_N]; static uint64_t blk_count;
 static uint64_t instr_now(void)
 {
 #ifdef __APPLE__
@@ -544,19 +502,8 @@ static void run_ms(uint32_t ms)
             di = instr_now() - i0;
             dt = now_ns() - t0;
             if (seq.playing) {                           /* the cost that matters: while it plays */
-                int w, j;
                 for (k = 0; k < ENG_PROF_N; k++)
                     prof_tot[k] += (uint32_t)(eng_prof[k] - pr0[k]);
-                blk_count++;
-                for (w = 0; w < 8 && blk_worst_ns[w] >= dt; w++) {}
-                if (w < 8) {
-                    for (j = 7; j > w; j--) {
-                        blk_worst_ns[j] = blk_worst_ns[j - 1]; blk_worst_ms[j] = blk_worst_ms[j - 1];
-                        memcpy(blk_worst_pr[j], blk_worst_pr[j - 1], sizeof blk_worst_pr[j]);
-                    }
-                    blk_worst_ns[w] = dt; blk_worst_ms[w] = now_ms;
-                    for (k = 0; k < ENG_PROF_N; k++) blk_worst_pr[w][k] = (uint32_t)(eng_prof[k] - pr0[k]);
-                }
                 ins_total += di;
                 ins_frames += 256;
                 if (di > ins_block_max)
@@ -568,11 +515,6 @@ static void run_ms(uint32_t ms)
             if (cpu_pct > cpu_peak)
                 cpu_peak = cpu_pct;
             engine_load(load_force >= 0 ? (uint32_t)load_force : cpu_pct, 256);
-            {   /* X0X_RAW=FILE: the engine's 24-bit output words, for exact A/B checks */
-                static FILE *raw; static int raw_init;
-                if (!raw_init) { const char *f = getenv("X0X_RAW"); raw_init = 1; raw = f ? fopen(f, "wb") : NULL; }
-                if (raw) fwrite(blk, 4, 512, raw);
-            }
             for (k = 0; k < 256; k++) {
                 float l = (float)blk[2 * k] / 8388608.0f, r = (float)blk[2 * k + 1] / 8388608.0f;
                 int16_t s[2];
@@ -1149,9 +1091,6 @@ int main(int argc, char **argv)
                     return 1;
                 }
                 store_len[o] = n;
-                /* Legacy dump files contain one generation only. Do not let
-                 * the previous in-memory session supply unrelated A/B data. */
-                if (ld) store_previous_len[o] = -1;
             }
             fclose(f);
             if (ld) {                                    /* boot on it */
@@ -1219,13 +1158,6 @@ int main(int argc, char **argv)
         for (k = 0; k < ENG_PROF_N; k++)
             printf(" %s %.1f%% (%.1f)", N[k], tot ? 100.0 * (double)prof_tot[k] / (double)tot : 0.0,
                    ins_frames ? (double)prof_tot[k] / (double)ins_frames : 0.0);
-        printf("\n");
-        printf("worst blocks (us; deadline %.0f us per 256 frames) of %llu:", 256.0 * 1e6 / 44100.0, (unsigned long long)blk_count);
-        for (k = 0; k < 8 && blk_worst_ns[k] > 0; k++) {
-            int q;
-            printf("\n  %.1f at %u ms:", blk_worst_ns[k] / 1000.0, blk_worst_ms[k]);
-            for (q = 0; q < ENG_PROF_N; q++) printf(" %s %.1f", N[q], blk_worst_pr[k][q] / 1000.0);
-        }
         printf("\n");
     }
     if (ins_frames && ins_total)

@@ -10,7 +10,7 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = 'e9e6643e612b9fb4e968a77d016f3bb24213dc88'
+BASE = 'a06e20189141ff5fb8766e2c6152be460f4356c3'
 
 def run(args):
     print(shlex.join(map(str, args)), flush=True)
@@ -32,7 +32,10 @@ def main():
                    'drum808': 'tail_step(drum808_t *d, int l, const float *x, int n) { lane_tail(d, l, x, n); }'}
         for opt in ('-O0', '-O2'):
             ref = tmp / 'reference.c'
-            ref.write_text(old + ('\nvoid reference_' + helpers[unit] + '\n' if unit in helpers else ''))
+            ref_source = old
+            if unit == 'fxbus':
+                (tmp / 'fxbus.h').write_bytes(subprocess.check_output(['git', 'show', BASE + ':firmware/src/dsp/fxbus.h'], cwd=ROOT))
+            ref.write_text(ref_source + ('\nvoid reference_' + helpers[unit] + '\n' if unit in helpers else ''))
             candidate = tmp / 'candidate.c'
             candidate.write_text('#include "' + str(ROOT / source) + '"\n' +
                                  ('void candidate_' + helpers[unit] + '\n' if unit in helpers else ''))

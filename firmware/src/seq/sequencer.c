@@ -4,10 +4,6 @@
 #include "tb3po.h"
 #include "../x0x_cold.h"              /* X0X_COLD: boot/UI cue/chain — not advance/fire/clock/MIDI */
 
-#ifndef SEQ_CHAIN_STORE_HOOK
-#define SEQ_CHAIN_STORE_HOOK(s) ((void)0)
-#endif
-
 #define NEVER 0xFFFFFFFFu
 #define RANDOM_PASS_STEPS 0x7Fu
 #define RANDOM_SWING_ODD  0x80u
@@ -195,8 +191,6 @@ __attribute__((noinline)) static void fire_drum(seq_t *s, int k, int p, uint32_t
     int w = p >> 5;
     float accent_vel = (d->accent[w] & bit) ? 1.0f : (float)s->accent_q7 / 127.0f;
     int v;
-    if (SEQ_PART_OFF(s, k))
-        return;
     for (v = 0; v < NDRUM; v++) {
         uint8_t sv;
         float vel;
@@ -272,12 +266,10 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
         gate = bstep_gate(st);
     }
     uint8_t prev_slide = tr->held_note & 0x80u;     /* bit 7: the step that sounded slides on */
-    /* Internal synth timing/voice state runs behind the bus mute. Keep the
-     * existing muted MIDI-output policy without releasing the internal gate. */
-    int muted = (s->mute & (1u << (MUTE_BASS0 + b))) != 0;
-    if (muted) bass_midi_flush(s, b, o);
+    if (s->mute & (1u << (MUTE_BASS0 + b)))
+        gate = G_REST;
     /* A TIE continues an audible note; an orphan TIE is a rest, never an onset. */
-    if (gate == G_REST || (gate == G_TIE && !tr->sounding) || SEQ_PART_OFF(s, TRK_BASS0 + b)) {
+    if (gate == G_REST || (gate == G_TIE && !tr->sounding)) {
         bass_release(s, b, o);
         tr->held_note = 0;
         return;
@@ -289,7 +281,7 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
         /* A chance-rejected step is a rest for both the internal 303 and MIDI out.
          * REC's live-hit skip still echoes MIDI (REC-06); it is not a chance miss. */
         int played = skip || o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide, bstep_velocity(st));
-        if (played && !muted && s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
+        if (played && s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
             uint8_t old = s->bass_notes_out[b], ch = s->ch[TRK_BASS0 + b];
             uint8_t had_old = s->bass_out_valid[b], old_ch = s->bass_out_ch[b];
             if (s->bass_slide_valid[b])                  /* only one old MIDI pitch can remain open */
@@ -404,11 +396,9 @@ static uint32_t bar_end(seq_t *s, int start)
                 s->pcue[t] = 0xFF;
                 cued = 1;
             }
-        uint16_t chain = s->chain;                    /* one snapshot of the published pair */
-        int ca = chain & 0xFFu, cb = chain >> 8;
-        if (!cued && !start && ca != cb) {
-            int a = ca < cb ? ca : cb;
-            int b = ca < cb ? cb : ca, c = s->ppat[TRK_DRUM];
+        if (!cued && !start && s->chain_a != s->chain_b) {
+            int a = s->chain_a < s->chain_b ? s->chain_a : s->chain_b;
+            int b = s->chain_a < s->chain_b ? s->chain_b : s->chain_a, c = s->ppat[TRK_DRUM];
             c = (c < a || c >= b) ? a : c + 1;
             for (t = 0; t < NTRACKS; t++)
                 next[t] = (uint8_t)c;
@@ -501,8 +491,7 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
     else if (t == TRK_BRK) {
         if (o->brk)
             o->brk(o->ctx, p, tr->bars, (float)L / 256.0f,
-                   (s->pat[s->ppat[TRK_BRK]].brk.steps >> p & 1u) && !(s->mute & (1u << MUTE_BRK)) &&
-                   !SEQ_PART_OFF(s, TRK_BRK));
+                   (s->pat[s->ppat[TRK_BRK]].brk.steps >> p & 1u) && !(s->mute & (1u << MUTE_BRK)));
     } else
         fire_bass(s, t - TRK_BASS0, p, L, carry, skip, o);
     if (s->ext) {
@@ -567,13 +556,6 @@ __attribute__((noinline)) static void bass_and_brk_stop(seq_t *s, const seq_sink
     bass_release_all(s, o);
     if (o->brk_stop)
         o->brk_stop(o->ctx);
-}
-
-/* Global panic: release notes the sequencer owns. Do not stop, rewind or send Stop. */
-void seq_notes_off(seq_t *s, const seq_sink_t *o)
-{
-    /* PANIC_NOTE_OFF */
-    bass_and_brk_stop(s, o);
 }
 
 __attribute__((noinline)) static void seq_send_rt(seq_t *s, const seq_sink_t *o, uint8_t remote, uint8_t st)
@@ -1106,8 +1088,8 @@ X0X_COLD void seq_chain(seq_t *s, int a, int b)
      * chain otherwise selects a non-existent pattern at the next bar. */
     if (a < 0 || a >= NPAT || b < 0 || b >= NPAT)
         return;
-    s->chain = (uint16_t)((uint16_t)a | (uint16_t)b << 8);
-    SEQ_CHAIN_STORE_HOOK(s); /* host test: interrupt at the publication boundary */
+    s->chain_a = (uint8_t)a;
+    s->chain_b = (uint8_t)b;
 }
 
 

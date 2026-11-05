@@ -5,7 +5,7 @@
 set -eu
 cd "$(dirname "$0")/../.."
 OUT=build/909-emit-proof
-BASE=a18561f17977be8592cef5a3d3cbebf70e4dbf1b
+BASE=a06e20189141ff5fb8766e2c6152be460f4356c3
 mkdir -p "$OUT"
 git show "$BASE:firmware/src/dsp/drum909.c" > "$OUT/base.c"
 python3 - "$OUT" <<'PY'

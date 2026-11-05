@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = "e9e6643e612b9fb4e968a77d016f3bb24213dc88"
+BASE = "a06e20189141ff5fb8766e2c6152be460f4356c3"
 PATH = "experiments/original_synth/chicago_modulation.c"
 source = subprocess.check_output(["git", "show", f"{BASE}:{PATH}"], cwd=ROOT, text=True)
 names = re.findall(r"^(?:int|void) (original_\w+)\(", source, re.MULTILINE)
@@ -29,5 +29,6 @@ with tempfile.TemporaryDirectory(prefix="chicago-mod-hoist-") as folder:
         run(flags + [f"-D{name}=before_{name}" for name in names] +
             ["-c", before, "-o", out / "before.o"])
         run(flags + ["tests/host/chicago_modulation_hoist_test.c", PATH,
+                     "experiments/original_synth/fused_reference.c",
                      out / "before.o", "-lm", "-o", out / "test"])
         run([out / "test"])

@@ -19,7 +19,9 @@
 #include "../dsp/fxbus.h"            /* FX_* param indices (the send pages) */
 #include "factory_banks.h"           /* Chicago / Miami factory metadata */
 
-#include "version.h"                    /* shared DEV or numeric firmware version */
+#ifndef X0X_VERSION                     /* a release build passes its numeric X.Y.Z (tools/build.py --release) */
+#define X0X_VERSION "DEV"
+#endif
 #ifndef X0X_RELEASE_LABEL              /* display only, e.g. 0.1.3_openbeta; not the package identity */
 #define X0X_RELEASE_LABEL ""
 #endif
@@ -61,16 +63,6 @@
 #define PROJ_DEVICE_BT (1u | PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER)
 #define PROJ_CLK_SRC(bt) ((uint8_t)((bt) >> 1 & 3u))
 #define PROJ_A74_CLK_OFF 38u
-/* M7 per-part ON/OFF in the settings object (OBJ_SET, project.c): while every part is ON it is the 40-byte
- * settings_t, byte for byte the older layout. With any part OFF, PROJ_SET_TAIL bytes follow it: the OFF mask
- * (bit p = PART_p: 909, 808, 303A, 303B, BRK; 0-31) and three reserved zero bytes. settings_t, project_t and
- * the .x0x file keep their sizes; older firmware refuses the longer object (unsupported) and writes nothing. */
-#define PROJ_SET_TAIL 4u
-#define PROJ_PART_OFF_ALL 31u
-/* the settings payload sizes (format word included) a load accepts, and a tail it refuses (mask > 31 or a
- * non-zero reserved byte) */
-#define PROJ_SET_LEN_OK(n) ((n) == 4u + sizeof(settings_t) || (n) == 4u + sizeof(settings_t) + PROJ_SET_TAIL)
-#define PROJ_SET_TAIL_BAD(t) ((t)[0] > PROJ_PART_OFF_ALL || (t)[1] || (t)[2] || (t)[3])
 
 typedef struct {
     uint32_t magic, format;
@@ -115,10 +107,7 @@ extern project_t proj;
 extern project_t project_stage;          /* exclusive staging, otherwise the UI undo shadow */
 
 void project_defaults(void);
-void project_device_bt_set(int on);     /* live now; saved by project_device_bt_save */
-int project_device_bt_pending(void);
-int project_device_bt_save(void);          /* caller must hold engine and admit safe flash */
-int project_storage_unsupported(void); /* 1 unsupported, 2 damaged; validated adoption required to save */
+int project_storage_unsupported(void); /* stored format retained; explicit validated adoption required */
 int project_load(void);                  /* 0 = loaded; else defaults are in place */
 int project_save(void);                  /* 0 = verified; -7 = memory full; -9 = unsupported data retained (nothing written) */
 void project_apply_io(void);             /* the settings into the sequencer and the engine: MIDI, the output */
@@ -132,17 +121,6 @@ int project_validate_stage(void);         /* 0 good, -1 invalid, -7 storage capa
 void project_commit_stage(void);          /* adopt with the audio engine held */
 #define PROJECT_FILE_HDR 32u
 #define PROJECT_FILE_SIZE (PROJECT_FILE_HDR + sizeof(project_t))
-/* .x0x header word 28 (was always 0, and older firmware and the web tool refuse any other value): 0 while
- * every part is ON (byte for byte the older file); with any part OFF the tag in bytes 30-31, the OFF mask
- * (1-31) in byte 28 and in byte 29 its check byte (CRC-8, polynomial 0x17, of the mask; linear, so the XOR
- * of the per-bit values). Not covered by the payload CRC (word 12): the check byte makes any two valid OFF
- * words differ in at least 5 bits, so every 1-4 bit error in the word is refused (-1). */
-#define PROJ_FILE_OFF_TAG 0x4F460000u
-#define PROJ_FILE_OFF_CHK(m) ((((m) & 1u) ? 0x17u : 0u) ^ (((m) & 2u) ? 0x2Eu : 0u) ^ (((m) & 4u) ? 0x5Cu : 0u) ^ \
-                              (((m) & 8u) ? 0xB8u : 0u) ^ (((m) & 16u) ? 0x67u : 0u))
-#define PROJ_FILE_OFF_WORD(m) ((m) ? PROJ_FILE_OFF_TAG | PROJ_FILE_OFF_CHK(m) << 8 | (uint32_t)(m) : 0u)
-#define PROJ_FILE_OFF_OK(w) ((w) == 0u || (((w) & 0xFFFF0000u) == PROJ_FILE_OFF_TAG && ((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL && \
-                                           ((w) >> 8 & 0xFFu) == PROJ_FILE_OFF_CHK((w) & 0xFFu)))
 void project_file_header(uint8_t *header);
 int project_file_validate(const uint8_t *header); /* also -4 for a payload CRC mismatch */
 

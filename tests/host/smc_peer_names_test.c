@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
-#include "../../firmware/src/app/plat.h"
 typedef struct { uint8_t up, link_name[21]; } blec_t;
 static struct { char nm[21]; struct { blec_t c,c2; } host; } ble_r;
 static int ble_central_role, locked_irq;

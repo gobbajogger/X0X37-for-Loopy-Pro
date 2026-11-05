@@ -32,7 +32,7 @@ static void check_caption(const char *caption,const char *name)
     for(int y=0;y<11;y++)for(int x=8;x<232;x++)if(fb[(top+y)*240+x]!=cv_px[y*240+x]) {
         fprintf(stderr,"caption %s mismatch page%d top%d x%d y%d got%04x want%04x\n",name,page,top,x,y,fb[(top+y)*240+x],cv_px[y*240+x]);CHECK(0);
     }
-    int nav=tw(&FONT_T,UI_CAP_ARROWS)+28;   /* F5 row picture */
+    int nav=tw(&FONT_T,UI_CAP_ARROWS)+18+tw(&FONT_T,"ROW");
     char range[12];put_i(put_s(put_i(range,page/4*4+1),"-"),page/4*4+4<pg.n?page/4*4+4:pg.n);
     cv_begin(240,12,SOUND_FACE);
     uint16_t gray=SOUND_GRAY,hint=SOUND_AMBER;
@@ -41,9 +41,9 @@ static void check_caption(const char *caption,const char *name)
         cv_text(7,0,&FONT_T,UI_CAP_HOME ": CANCEL",gray);expected_row_hint(234-nav,0,hint);
     } else {
         const char *right=sound?UI_CAP_HOME ": BACK":range;
-        int x=expected_row_hint(7,0,gray),next_end=matrix_next_hint(x+8,0,gray);   /* #798 F1 next hint */
-        CHECK(next_end+8+tw(&FONT_T,right)<=234);
-        if(sound) expected_home_back(0,hint); else text_r(234,0,&FONT_T,right,hint);   /* #807 F5 */
+        int x=expected_row_hint(7,0,gray);cv_text(x+8,0,&FONT_T,UI_CAP_EDIT ": NEXT",gray);
+        CHECK(x+8+tw(&FONT_T,UI_CAP_EDIT ": NEXT")+8+tw(&FONT_T,right)<=234);
+        text_r(234,0,&FONT_T,right,hint);
     }
     for(int y=0;y<11;y++)for(int x=7;x<234;x++)CHECK(fb[(228+y)*240+x]==cv_px[y*240+x]);
 }

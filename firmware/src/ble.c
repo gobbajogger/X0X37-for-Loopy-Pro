@@ -244,12 +244,8 @@ static void ble_start(void)
     ble_r.ow = ble_r.orr = 0;
     ble_r.sysex_drops = 0;
     ble_c0_ready = 0;
-    if (!ble_boot_on) {                         /* not started this boot: no stale READY/FAILED of the
-                                                 * last boot in DIAG (ble_guard keeps that record) */
-        ble_r.mb.state = XB_ST_OFF;
-        ble_r.mb.err = XB_E_NONE;
+    if (!ble_boot_on)
         return;
-    }
     {
         uint8_t *z = (uint8_t *)mb;
         uint32_t i;
@@ -384,11 +380,6 @@ static int ble_out_pkt_is_keep(uint32_t pkt)
     return ble_out_is_note_off(pkt) || ble_out_is_rt_transport(pkt);
 }
 
-static int ble_out_is_pitch_bend(uint32_t pkt)
-{
-    return (pkt & 0xFu) == 0xEu;
-}
-
 /* the audio ISR (single producer): mirror one MIDI out packet */
 static void ble_out(uint32_t pkt)
 {
@@ -406,28 +397,7 @@ static void ble_out(uint32_t pkt)
         goto done;
     }
     /* Full BLE out mirror: drop CCs under notify backpressure; never drop Note Off
-     * or Start/Continue/Stop (stuck note / sticky transport into Loopy over BLE).
-     * Bends coalesce or replace CCs, but remain disposable for those keep events. */
-    if (ble_out_is_pitch_bend(pkt)) {
-        /* Coalesce the newest bend for this cable/channel; never replace a
-         * release or transport event to make room for fader feedback. */
-        for (i = ww; i != rr;) {
-            uint32_t p = ble_oq[(--i) % BLE_OQ];
-            if (ble_out_is_pitch_bend(p) && !((p ^ pkt) & 0xFF0u)) {
-                ble_oq[i % BLE_OQ] = pkt;
-                RING_PUBLISH();
-                goto done;
-            }
-        }
-        for (i = rr; i != ww; i++) {
-            if ((ble_oq[i % BLE_OQ] & 0xFu) == 0xBu) {
-                ble_oq[i % BLE_OQ] = pkt;
-                RING_PUBLISH();
-                goto done;
-            }
-        }
-        goto done;
-    }
+     * or Start/Continue/Stop (stuck note / sticky transport into Loopy over BLE). */
     if (!ble_out_pkt_is_keep(pkt))
         goto done;
     for (pass = 0; pass < 2u; pass++) {
@@ -601,14 +571,8 @@ int plat_ble_state(void)
     if (ble_central_role) {
         if (blec_connected(&ble_r.host.c) || blec_connected(&ble_r.host.c2)) return PLAT_BLE_CONNECTED;
         if (!ble_up || ble_r.host.c.state == BLEC_STARTING) return PLAT_BLE_STARTING;
-#if BLEC_TWO_PEER
         if (ble_r.host.c.state == BLEC_FAILED &&
             (ble_r.host.c2.state == BLEC_FAILED || ble_r.host.c2.state == BLEC_OFF)) return PLAT_BLE_FAILED;
-#else
-        /* One peer: a failed attempt rejoins in 1 s (blec_pair_poll); show it as
-         * searching, not FAILED. A dead controller is ble_dead above. */
-        if (ble_r.host.c.state == BLEC_FAILED) return PLAT_BLE_READY;
-#endif
         return blec_connected(&ble_r.host.c) ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
     }
     if (!ble_up || ble_r.host.h.state == BLEH_STARTING || ble_r.host.h.state == BLEH_IDLE)
@@ -617,39 +581,26 @@ int plat_ble_state(void)
         return PLAT_BLE_FAILED;
     return bleh_connected(&ble_r.host.h) ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
 }
-unsigned plat_ble_peer_names(char names[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX + 1u])
+unsigned plat_ble_peer_names(char names[2][21])
 {
-    _Static_assert(sizeof ((blec_t *)0)->link_name == PLAT_BLE_PEER_NAME_MAX + 1u,
-                   "BLE link names must match the platform peer-name limit");
     unsigned n = 0;
     uint32_t f = irq_save();
-    if (ble_central_role) for (unsigned slot = 0; slot < PLAT_BLE_PEER_CAP; slot++) {
+    if (ble_central_role) for (unsigned slot = 0; slot < 2; slot++) {
         const blec_t *c = slot ? &ble_r.host.c2 : &ble_r.host.c;
         if (!blec_connected(c)) continue;
         const char *name = c->link_name[0] ? (const char *)c->link_name : "SMC-Mixer";
         unsigned i = 0;
-        for (; i < PLAT_BLE_PEER_NAME_MAX && name[i]; i++) names[n][i] = name[i];
+        for (; i < 20u && name[i]; i++) names[n][i] = name[i];
         names[n++][i] = 0;
     }
     irq_restore(f);
     return n;
 }
-/* Snapshot of the connected SMC peers under one interrupt guard; no live pointer escapes. */
-void plat_ble_peers(plat_ble_peers_t *out)
-{
-    char names[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX + 1u];
-    __builtin_memset(out, 0, sizeof *out);
-    out->state = plat_ble_state();
-    out->central = ble_central_role && smc_ble_role_get();
-    if (!out->central || out->state != PLAT_BLE_CONNECTED) return;
-    out->count = plat_ble_peer_names(names);
-    __builtin_memcpy(out->name, names, sizeof names);
-}
 const char *plat_ble_name(void)
 {
     if (!ble_central_role) return ble_r.nm;
-    static char names[PLAT_BLE_PEER_CAP * (PLAT_BLE_PEER_NAME_MAX + 2u) - 1u];
-    char peers[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX + 1u];
+    static char names[43];
+    char peers[2][21];
     unsigned count = plat_ble_peer_names(peers), n = 0;
     for (unsigned p = 0; p < count; p++) {
         if (p) { names[n++] = ','; names[n++] = ' '; }

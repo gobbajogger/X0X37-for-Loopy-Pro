@@ -1,8 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Two physical-peer contracts through the complete production UI/engine/SMC.
  * Radio is substituted; this does not establish physical two-device behavior. */
-/* Exercise the opt-in topology; production keeps its owner-selected one peer. */
-#define BLEC_TWO_PEER 1
 #include <stdint.h>
 #include <string.h>
 static uint8_t out[2][512][3];
@@ -24,9 +22,6 @@ static int require_zero_fx;
 #define SMC_UI_SEND_IMPLEMENTED 1
 #define SMC_UI_MAIN smc_ui_baseline_main
 #include "smc_ui_test.c"
-#if SMC_PEERS != 2
-#error "The two-peer regression requires the explicit two-peer topology"
-#endif
 
 #undef engine_smc_solo_targets
 #undef engine_smc_busfx
@@ -62,15 +57,16 @@ static void independent_targets(void)
 {
     pair_setup();
     smc_view(V_MIX,1); ui.sel[0]=0; build_pages(); peer_lock(0);
-    /* Each controller captures its own context, independently of the keyboard. */
-    smc_slot=1; smc_view(V_MIX,2); smc.sel[1]=8; smc_slot=0; peer_lock(1);
+    /* Peer 0 is locked: its page buttons move only its own page. Move the
+     * shared keyboard page to 808 MIX before peer 1 captures it. */
+    smc_view(V_MIX,-1); *page_of(V_MIX)=2; ui.sel[1]=8; build_pages(); peer_lock(1);
     CHECK(smc_states[0].locked && smc_states[1].locked);
     CHECK(smc_states[0].lock_kit == 1 && smc_states[0].lock_bank == 0);
     CHECK(smc_states[1].lock_kit == 2 && smc_states[1].lock_bank == 8);
     pref_t a=smc_states[0].lock_fader[0], b=smc_states[1].lock_fader[0];
     CHECK(!smc_same(a,b));
     pref_set(a,64); pref_set(b,96); smc_frame();
-    set_view(V_HOME); build_pages(); /* Keyboard navigation cannot recapture either SMC lock. */
+    smc_view(V_HOME,0); build_pages();
     smc_slot=0; unsigned av=smc_scaled(a); smc_slot=1; unsigned bv=smc_scaled(b); smc_slot=0;
     peer_msg(0,0xE0,0,av); CHECK(smc_states[0].picked&1); CHECK(!(smc_states[1].picked&1));
     peer_msg(0,0xE0,0,0); CHECK(pref_get(a)==0); CHECK(pref_get(b)==96);
@@ -128,24 +124,16 @@ static void independent_feedback(void)
 }
 static void independent_fx(void)
 {
-    pair_setup();
-    for (smc_slot=0; smc_slot<SMC_PEERS; smc_slot++) smc_view(V_FX,0);
-    smc_slot=0;
+    pair_setup(); smc_view(V_FX,0); build_pages();
     peer_msg(0,0x90,24,127); peer_msg(1,0x90,25,127);
     CHECK((fx_mask&3)==3);
     peer_msg(0,0x80,24,0); CHECK(!(fx_mask&1) && (fx_mask&2));
     smc_ble_link_slot(0,0);smc_poll();CHECK(fx_mask&2);
     peer_msg(1,0x80,25,0);CHECK(!fx_mask);
     smc_ble_link_slot(0,1);smc_poll();
-    /* Assign by holding SELECT and pressing the right arrow. HOME+SELECT
-     * no longer remaps. A live strip captures that assignment on key-down. */
-    uint8_t original = smc_states[0].fx_effect[0];
-    peer_msg(1,0x90,24,127);
-    peer_msg(1,0x90,0x63,127); peer_msg(1,0x80,0x63,0);
-    peer_msg(1,0x80,24,0);
-    CHECK(smc_states[0].fx_effect[0] == original);
-    CHECK(smc_states[1].fx_effect[0] == smcfx_cycle(0, original));
     peer_msg(0,0x90,24,127);peer_msg(1,0x90,24,127);
+    smc_states[1].fx_effect[0]=smcfx_cycle(0,smc_states[0].fx_effect[0]);
+    smc_slot=1;smc_fx_publish();smc_slot=0;
     /* A held FX SELECT plays the holding peer's assigned effect (574f5329,
      * #741); the first holding peer wins and saved effects stay unchanged. */
     CHECK(fx_values[0]==smc_states[0].fx_effect[0]);

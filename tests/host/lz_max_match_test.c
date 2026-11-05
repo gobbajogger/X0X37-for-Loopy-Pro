@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Same packed bytes and sink-refusal prefixes after skipping a run candidate
  * that cannot beat a maximum-length hash match. The frozen compressor below
- * is from fd3da791; helpers and buffers come from the existing LZ test.
+ * is also unchanged at a06e20189; helpers and buffers come from the existing LZ test.
  * Run in the authorized host environment:
  * cc -std=c99 -O2 -Wall -Wextra tests/host/lz_max_match_test.c -o /tmp/lz-max-match
  * /tmp/lz-max-match
  * Also run with -fsanitize=address,undefined -fno-omit-frame-pointer.
- * A wrong early-out threshold can change match selection and packed bytes.
+ * Wrong match lengths or distances change the packed bytes and are rejected.
  */
 #define main lz_roundtrip_main
 #include "lz_test.c"

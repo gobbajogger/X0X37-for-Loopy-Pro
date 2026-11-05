@@ -5,8 +5,7 @@
 Reads the source from the requested checkout, not an approximate Python model.
 Runs without the JieLi SDK, hardware or private DSP headers. It does not prove
 that the firmware links, that the musical rate is bit-exact, or that pads work on
-hardware. Also covers the bottom-row wobble SHAPE pads (9-12) and the empty
-pads (13-16) that do nothing.
+hardware. Does not implement the separate shape-pad feature.
 """
 import os
 from pathlib import Path
@@ -44,8 +43,6 @@ def compile_and_run():
     index = function(ui, "static int division_pad_index(void)")
     label = function(ui, "static const char *division_pad_label(void)")
     handler = function(ui, "static void division_pad_input(void)")
-    shape = function(ui, "static int division_shape_index(void)")
-    shape_enum = re.search(r"enum \{ DIVISION_SHAPE_PADS = \d+ \};", ui).group(0)
 
     pad_func = hal.index("static void smk__padq(uint32_t pad, uint32_t vel)")
     pad_branch_start = hal.index("#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE", pad_func)
@@ -71,20 +68,16 @@ def compile_and_run():
 #define V_SEQ 1
 #define V_PART 2
 #define O_NONE 0
-#define O_LIST 1
-#define O_ASK 2
 #define B_HOME 1
 #define B_SAVE 2
 #define R_ENG 1
 #define T_303 2
 #define ORIGINAL_MIAMI_WOBBLE_RATE 13
-#define ORIGINAL_MIAMI_WOBBLE_SHAPE 11
-#define SMK_NPAD 16u
 #define PR(k,t,v,p) ((pref_t){k,t,v,p})
 typedef struct { int kind, target, voice, parameter; } pref_t;
 static int project_busy, perftest, clip, smc_active;
 static int banks[2] = {ORIGINAL_SOUND_MIAMI, ORIGINAL_SOUND_MIAMI};
-static int rate[2], wshape[2], shape_edits, rate_edits, note_down, note_up, feedbacks;
+static int rate[2], rate_edits, note_down, note_up, feedbacks;
 static const char *const names[] = {"1/2","1/4","1/8","1/16","1/3","1/6","1/12","1/24"};
 static uint8_t smk_pad_note[16];
 static struct {int rec,help,overlay,btn,view,part,freeplay[2],dirty;unsigned act_t;} ui;
@@ -94,13 +87,11 @@ static int bidx(void) {return ui.part;}
 static int engine_bass_bank(int v) {return banks[v];}
 uint8_t smk_clip_mode_on(void) {return (uint8_t)clip;}
 static int smc_ui_active(void) {return smc_active;}
-static int pref_get(pref_t p) { assert(p.kind==R_ENG && p.target==T_303 && (p.parameter==13 || p.parameter==11));return p.parameter==13?rate[p.voice]:wshape[p.voice]; }
-static void pref_set(pref_t p, int v) {assert(p.kind==R_ENG && p.target==T_303 && (p.parameter==13 || p.parameter==11)); assert(v>=0&&v<=127);
-    if(p.parameter==13){rate[p.voice]=v;rate_edits++;}else{wshape[p.voice]=v;shape_edits++;}}
+static int pref_get(pref_t p) { assert(p.kind==R_ENG && p.target==T_303 && p.parameter==13);return rate[p.voice]; }
+static void pref_set(pref_t p, int v) {assert(p.kind==R_ENG && p.target==T_303 && p.parameter==13); assert(v>=0&&v<=127);rate[p.voice]=v;rate_edits++;}
 static void mark_dirty(void) {ui.dirty=1;}
 static unsigned plat_ms(void) {return 1234u;}
-static const char *said;
-static void say(const char *a,const char *b) {assert(!strcmp(a,"WOBBLE "));assert(b && *b);said=b;feedbacks++;}
+static void say(const char *a,const char *b) {assert(!strcmp(a,"WOBBLE "));assert(b && *b);feedbacks++;}
 static volatile uint8_t smk_div_owner, smk_div_pending;
 static uint16_t smk_div_held;
 ''' + poll + r'''
@@ -110,7 +101,7 @@ static void smk__padq(uint32_t pad, uint32_t vel) {
  else if(smk_pad_note[pad]){smk_pad_note[pad]=0;note_up++;}
 }
 static int plat_division_pad(unsigned owner) {return smk__division_poll(owner);}
-''' + owner + '\n' + index + '\n' + label + '\n' + shape_enum + '\n' + shape + '\n' + handler + r'''
+''' + owner + '\n' + index + '\n' + label + '\n' + handler + r'''
 int main(void) {
     ui.view=V_PART; ui.part=0; ui.freeplay[0]=1;
 #if X0X_DEV_WOBBLE
@@ -131,29 +122,21 @@ int main(void) {
     }
     assert(note_down==0 && note_up==0); /* rate hits never play notes */
 
-    /* Bottom row: pads 9-12 pick the wobble shape TRI, DOWN, UP, SQR; pads 13-16
-     * are empty. No pad of the bottom row plays a note or edits the rate. */
-    static const char *const shapes[4]={"SHAPE TRI","SHAPE DOWN","SHAPE UP","SHAPE SQR"};
-    static const int values[4]={0,42,85,127};
+    /* The eight unused physical pads are ordinary notes, not silent rate hits.
+     * Releasing after the UI changes owner must still end those notes. */
     for (int pad=8;pad<16;pad++) {
-        int rates=rate_edits, edits=shape_edits, fb=feedbacks, before=division_shape_index();
-        division_pad_input();
         smk__padq((uint32_t)pad,80);
-        assert(smk_pad_note[pad]==0 && (smk_div_held & (uint16_t)(1u<<pad)));
-        division_pad_input();
-        assert(rate_edits==rates);
-        if (pad<12) {
-            assert(shape_edits==edits+1 && wshape[0]==values[pad-8]);
-            assert(division_shape_index()==pad-8 && !strcmp(said,shapes[pad-8]));
-            assert(feedbacks==fb+1);
-        } else {
-            assert(shape_edits==edits && feedbacks==fb && division_shape_index()==before);
-        }
-        smk__padq((uint32_t)pad,0);
-        assert(smk_div_held==0 && smk_pad_note[pad]==0);
+        assert(smk_pad_note[pad]!=0);
+        assert(smk_div_pending==0);
+        assert(!(smk_div_held & (uint16_t)(1u<<pad)));
     }
-    assert(note_down==0 && note_up==0);
-    project_busy=1;division_pad_input();assert(smk_div_owner==0);
+    project_busy=1;division_pad_input();
+    assert(smk_div_owner==0);
+    for (int pad=8;pad<16;pad++) {
+        smk__padq((uint32_t)pad,0);
+        assert(smk_pad_note[pad]==0);
+    }
+    assert(note_down==8 && note_up==8);
     project_busy=0;division_pad_input();
     note_down=note_up=0; /* keep later mixed ownership tests independent */
 
@@ -176,31 +159,10 @@ int main(void) {
     ui.part=0;assert(division_pad_index()==7); /* previous rate was 1/24 */
     smk__padq(7,0);
 
-    /* A settings list or HELP does not take the pads: each rate pad still sets
-     * the rate it shows (owner request: pads work as labelled under settings). */
-    for (int cx=0;cx<2;cx++) {
-        if (cx) ui.help=1; else ui.overlay=O_LIST;
-        assert(division_pad_owner()==1);
-        for (int pad=0;pad<8;pad++) {
-            int edits=rate_edits;
-            division_pad_input();smk__padq((uint32_t)pad,90);division_pad_input();
-            assert(rate_edits==edits+1 && division_pad_index()==pad);
-            assert(strstr(division_pad_label(), names[pad]));
-            smk__padq((uint32_t)pad,0);
-        }
-        for (int pad=8;pad<16;pad++) {
-            int edits=shape_edits, rates=rate_edits;
-            division_pad_input();smk__padq((uint32_t)pad,90);division_pad_input();
-            assert(rate_edits==rates && shape_edits==edits+(pad<12));
-            if (pad<12) assert(division_shape_index()==pad-8);
-            smk__padq((uint32_t)pad,0);
-        }
-        ui.help=0;ui.overlay=O_NONE;
-    }
-    assert(note_down==1 && note_up==1);   /* no stray notes from rate pads */
-    /* UI ownership goes away under a question, recording, clip/SMC ownership. */
+    /* UI ownership goes away under overlays, recording, clip/SMC ownership. */
     ui.rec=1;assert(!division_pad_owner());ui.rec=0;
-    ui.overlay=O_ASK;assert(!division_pad_owner());ui.overlay=O_NONE;
+    ui.help=1;assert(!division_pad_owner());ui.help=0;
+    ui.overlay=1;assert(!division_pad_owner());ui.overlay=O_NONE;
     ui.btn=1u<<B_HOME;assert(!division_pad_owner());ui.btn=0;
     ui.btn=1u<<B_SAVE;assert(!division_pad_owner());ui.btn=0;
     perftest=1;assert(!division_pad_owner());perftest=0;
@@ -225,9 +187,9 @@ int main(void) {
     assert(rate_edits==0 && smk_div_pending==0 && smk_div_held==0);
     assert(!ui.dirty && !ui.act_t);
     (void)names;
-    (void)project_busy; (void)said; (void)shape_edits;
+    (void)project_busy;
 #endif
-    puts("PASS: physical Free Play rate pads: eight rates, four wobble shapes, four empty pads and opt-out note behavior");
+    puts("PASS: physical Free Play rate pads: eight rates and opt-out note behavior");
     return 0;
 }
 '''

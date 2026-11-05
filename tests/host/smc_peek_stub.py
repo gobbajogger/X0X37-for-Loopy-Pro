@@ -28,10 +28,7 @@ static __attribute__((unused)) void smc_peek_begin(int n) { (void)n; }
 def strip(text: str) -> str:
     a = text.find(START)
     if a < 0:
-        # Wiring-only source has no page peek; isolated input tests omit display.
-        text = text.replace("static void smc_ui_begin(int n, int kind);", "")
-        text = text.replace("static void smc_ui_off(void);", "")
-        return text + "\n#ifndef smc_ui_cancel\nstatic __attribute__((unused)) void smc_ui_cancel(void) {}\n#endif\n"
+        return text  # source before #737: nothing to replace
     b = text.index(END, a) + len(END)
     rest = text[b:]
     # Drop the forward declaration of smc_ui_off(): a harness that does not

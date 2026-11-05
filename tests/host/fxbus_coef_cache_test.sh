@@ -6,7 +6,7 @@ set -eu
 cd "$(dirname "$0")/../.."
 OUT=${X0X_FXBUS_COEF_OUT:-/tmp/x0x-fxbus-coef-cache}
 mkdir -p "$OUT"
-BASE=e9e6643e612b9fb4e968a77d016f3bb24213dc88
+BASE=a06e20189141ff5fb8766e2c6152be460f4356c3
 git show "$BASE:firmware/src/dsp/fxbus.h" > "$OUT/fxbus.h"
 git show "$BASE:firmware/src/dsp/fxbus.c" | sed 's|"../x0x_cold.h"|"x0x_cold.h"|' > "$OUT/reference.c"
 cat > "$OUT/wrapper.c" <<'WRAP'

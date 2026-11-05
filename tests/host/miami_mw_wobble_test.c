@@ -52,7 +52,7 @@ int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
 
 #include SMC_MIXER_SOURCE
 
-static struct { uint32_t frames; int32_t wheel[2]; uint16_t wheel_mod_seq; } fm1_in;
+static struct { uint32_t frames; int32_t wheel[2]; } fm1_in;
 static int clamp(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
 #include "smk_wheels.inc"
 

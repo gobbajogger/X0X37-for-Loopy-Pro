@@ -6,7 +6,6 @@
  * accel flag) so the real queue/link/clip regressions can compile and run. */
 #pragma once
 #include "app/smc_fx_map.h"
-#include "app/smc_fx_strip.h"
 #include "app/smc_fx_map_tables.c" /* one map copy for single-file smc_mixer harnesses */
 
 /* Solo / BLE-reconnect extractors omit smc_knob; queue/link/buttons still write it. */

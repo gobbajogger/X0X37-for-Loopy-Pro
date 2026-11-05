@@ -1038,11 +1038,9 @@ wait 30
 expect playing 0
 # INTERNAL: X0X ignores Start and clock from both inputs
 tap GLO
-# GLOBAL opens its sections; SEL enters MIDI + CLOCK (CLOCK SOURCE is row 0)
-tap SEL
 turn ALGO 1
 expect clksrc 1
-tap GLO
+tap HOME
 wait 100
 midi FA 00 00 0
 midi FA 00 00 1
@@ -1146,11 +1144,9 @@ expect playing 0
 expect clkext 0
 # AUTO again: the first input gets the clock
 tap GLO
-# GLOBAL opens its sections; SEL enters MIDI + CLOCK (CLOCK SOURCE is row 0)
-tap SEL
 turn ALGO -1
 expect clksrc 0
-tap GLO
+tap HOME
 wait 100
 midi FA 00 00 0
 midi FC 00 00 1

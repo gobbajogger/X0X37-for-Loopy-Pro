@@ -6,8 +6,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 for CC in gcc clang; do
-    command -v "$CC" >/dev/null 2>&1 || continue
+    command -v "$CC" >/dev/null 2>&1 || { echo "required host compiler missing: $CC" >&2; exit 1; }
     for MODE in optimized sanitizer; do
+        echo "CHECK IMA delta LUT: $CC $MODE"
         if [[ "$MODE" == optimized ]]; then FLAGS=(-O2 -ffp-contract=off); else FLAGS=(-O1 -g -fno-omit-frame-pointer -ffp-contract=off -fsanitize=address,undefined); fi
         "$CC" -std=c11 -Wall -Wextra -Werror -pedantic -DX0X_IMA_TABLES_DEFINE "${FLAGS[@]}" "$ROOT/tests/host/ima_delta_lut_exact_test.c" -o "$TMP/check"
         ASAN_OPTIONS=detect_leaks=1:abort_on_error=1 UBSAN_OPTIONS=halt_on_error=1 "$TMP/check" --check

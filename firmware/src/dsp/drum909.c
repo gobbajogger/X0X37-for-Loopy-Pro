@@ -984,9 +984,11 @@ __attribute__((noinline)) static void d9_bus(d9_bus_t *b, drum909_t *d, int voic
     b->dly = b->sdly != 0.0f ? dly : 0;
 }
 
-/* Identical noise/history transition for an active or silent span. */
-static float *d9_noise_span(drum909_t *d, int n)
+static void d9_render(drum909_t *d, float *dry, float *rev, float *dly, int n, uint16_t audible_tracks)
 {
+    d9_bus_t bus;
+    if (n > 256)
+        n = 256;
     /* the shared noise, written on after the previous block so nz[-DR_NZ_HIST
      * .. -1] is the noise before this block; the tail is moved to the front
      * only when the buffer runs out (every other 256-frame block) */
@@ -999,21 +1001,6 @@ static float *d9_noise_span(drum909_t *d, int n)
     d->nz_pos += n;
     for (int i = 0; i < n; ++i)
         nz[i] = d9_noise(&d->noise);
-    return nz;
-}
-
-void drum909_advance_noise(drum909_t *d, int n)
-{
-    if (n > 256) n = 256;
-    if (n > 0) (void)d9_noise_span(d, n);
-}
-
-static void d9_render(drum909_t *d, float *dry, float *rev, float *dly, int n, uint16_t audible_tracks)
-{
-    d9_bus_t bus;
-    if (n > 256)
-        n = 256;
-    float *const nz = d9_noise_span(d, n);
 
     /* 9W9's summing order: BD SD LT MT HT RS CP OH RD CR CH */
     if (d->bt[DR_BD].mute > 0) {
@@ -1091,19 +1078,4 @@ int drum909_active(const drum909_t *d)
         if (d->smp[i].mute > 0 && d->smp[i].playing)
             return 1;
     return 0;
-}
-
-void drum909_all_off(drum909_t *d)
-{
-    int i;
-    d->bt[DR_BD].mute = 0;
-    d->bt[DR_SD].mute = 0;
-    for (i = 0; i < 3; i++)
-        d->tom[i].mute = 0;
-    d->rim.mute = 0;
-    d->clap.mute = 0;
-    for (i = 0; i < 4; i++) {
-        d->smp[i].mute = 0;
-        d->smp[i].playing = 0;
-    }
 }

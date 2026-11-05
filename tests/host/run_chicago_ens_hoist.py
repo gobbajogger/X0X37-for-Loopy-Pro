@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = "e9e6643e612b9fb4e968a77d016f3bb24213dc88"
+BASE = "a06e20189141ff5fb8766e2c6152be460f4356c3"
 source = subprocess.check_output(
     ["git", "show", f"{BASE}:firmware/src/app/chicago_ens.h"], cwd=ROOT, text=True
 )

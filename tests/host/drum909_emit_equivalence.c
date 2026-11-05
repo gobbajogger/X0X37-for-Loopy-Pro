@@ -8,7 +8,6 @@
 void ref_drum909_init(drum909_t *);
 void ref_drum909_set(drum909_t *, int, int, int);
 void ref_drum909_trigger(drum909_t *, int, float);
-void ref_drum909_all_off(drum909_t *);
 void ref_drum909_pan_settle(drum909_t *);
 void ref_drum909_render(drum909_t *, float *, float *, float *, int);
 void ref_drum909_render_st_masked(drum909_t *, float *, float *, float *, float *, int, uint16_t);
@@ -78,7 +77,12 @@ int main(void)
                 }
             }
             if (block % 29 == 0) { drum909_pan_settle(&a); ref_drum909_pan_settle(&b); }
-            if (block % 97 == 96) { drum909_all_off(&a); ref_drum909_all_off(&b); }
+            /* The pinned base has no panic API; compare its real reset lifecycle. */
+            if (block % 97 == 96) {
+                drum909_init(&a); ref_drum909_init(&b);
+                /* Reset restores each TU's separately allocated immutable arrays. */
+                for (int v = 0; v < 4; ++v) b.smp[v].adpcm = a.smp[v].adpcm;
+            }
             if (block % 19 == 0) for (int v = 0; v < DR_NUM; ++v) {
                 const float vel = (float)(next() % 128u) / 127.0f;
                 drum909_trigger(&a, v, vel); ref_drum909_trigger(&b, v, vel);

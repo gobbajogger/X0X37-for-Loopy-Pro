@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "miami_selected_voice.h"
 #include "binary32_classify.h"
-#include "binary32_math.h"
 #include <math.h>
 #include <string.h>
 #ifdef ORIGINAL_USE_SOFT_FMA
@@ -39,14 +38,10 @@ int original_miami_voice_tables_init(original_miami_voice_tables *out,original_m
  memcpy(storage->a,in->a,sizeof storage->a);memcpy(storage->b,in->b,sizeof storage->b);memcpy(storage->r,in->r,sizeof storage->r);memcpy(storage->cap,in->cap,sizeof storage->cap);memcpy(storage->pitch,pitch,sizeof storage->pitch);
  original_miami_voice_tables t;memset(&t,0,sizeof t);t.filter=(original_ms20_tables){storage->a,storage->b,storage->r,storage->cap};t.pitch=storage->pitch;t.ready=TABLE_READY;*out=t;return 1;
 }
-static int program_valid(const original_miami_program *p){
- for(unsigned i=0;i<18;i++)if(!original_binary32_isfinite(p->macro[i])||p->macro[i]<0||p->macro[i]>1)return 0;
- for(unsigned i=0;i<24;i++)if(!original_binary32_isfinite(p->target[i])||p->target[i]<0||p->target[i]>1)return 0;
- return 1;
-}
 int original_miami_voice_compile(original_miami_voice_controls *out,const original_miami_program *p){
  if(!out||!p)return 0;
- if(!program_valid(p))return 0;
+ for(unsigned i=0;i<18;i++)if(!original_binary32_isfinite(p->macro[i])||p->macro[i]<0||p->macro[i]>1)return 0;
+ for(unsigned i=0;i<24;i++)if(!original_binary32_isfinite(p->target[i])||p->target[i]<0||p->target[i]>1)return 0;
  original_miami_voice_controls c;memset(&c,0,sizeof c);
  c.pitch.master_tune=bipolar(native(p,0));
  c.pitch.unison_detune=native(p,90);c.pitch.bend_range=24.0f*native(p,55);
@@ -64,8 +59,6 @@ int original_miami_voice_compile(original_miami_voice_controls *out,const origin
  c.gain.curve=0;c.gain.ms20=1;c.gain.filter_gain=1;
  c.cutoff=native(p,24);c.resonance=native(p,25);c.env_depth=bipolar(native(p,26));c.noise=native(p,23);
  c.pw_intensity=native(p,21);c.pw_width=native(p,22);
- for(unsigned i=0;i<4;i++)
-  if(!original_pw_width(c.shape[i],c.pw_intensity,0,c.pw_width,0,0,&c.wave_width[i]))return 0;
  if(!original_xmod_coefficient(native(p,39),0,&c.xmod))return 0;
  c.vco_gain=ref_fma(native(p,102),3,1);
  c.patch_slave=bipolar(native(p,80));c.patch_cutoff=bipolar(native(p,81));c.patch_gain=bipolar(native(p,87));
@@ -80,44 +73,14 @@ int original_miami_voice_compile(original_miami_voice_controls *out,const origin
  c.decimator_normalized[0]=native(p,110);c.decimator_normalized[1]=native(p,111);
  c.revision=p->revision;c.ready=CONTROL_READY;*out=c;return 1;
 }
-/* The serial control owner supplies a corresponding preceding snapshot and
- * exactly one mapped edit. Keep validation; reuse only unaffected conversions.
- * Any other macro or uncertain cache takes the complete compiler above. */
-int original_miami_voice_recompile(original_miami_voice_controls *out,const original_miami_program *p,unsigned macro){
- if(!out||!p)return 0;
- if((macro!=16&&macro!=12)||out->ready!=CONTROL_READY||p->revision!=out->revision+UINT32_C(1))
-  return original_miami_voice_compile(out,p);
- if(!program_valid(p))return 0;
- /* Full compilation also rejects PCM and unsupported MG shapes. */
- for(unsigned i=0;i<4;i++)if(quantize(native(p,1+4*i),5)>3)return 0;
- if(quantize(native(p,43),5)>3||quantize(native(p,49),5)>3)return 0;
- if(macro==16)out->bend_normalized=native(p,105);
- else out->patch_cutoff=bipolar(native(p,81));
- out->revision=p->revision;return 1;
-}
 static int mg_output(original_miami_voice_mg *m,unsigned shape){
  if(!original_miami_mg_shape(shape,m->phase,&m->bipolar,&m->unipolar))return 0;
  m->wrapped=0;return 1;
 }
-void original_miami_selected_voice_invalidate_caches(original_miami_selected_voice *s){
- if(s)s->cache_witness=0; /* owner observes this before reusing shared cache */
-}
-/* Each part owns one cache, shared across its two selected voices. */
-static void mg_advance(original_miami_voice_mg *m,original_miami_coefficient_cache *cache,unsigned i,float base,float times,float bpm,uint32_t D){
- uint32_t bb=original_math_bits(base),tb=original_math_bits(times),bp=original_math_bits(bpm);
- float delta;
- if(cache&&(cache->mg_valid_mask&(1u<<i))&&cache->base_bits[i]==bb&&cache->times_bits[i]==tb&&cache->bpm_bits==bp&&cache->duration==D)
-  delta=cache->delta[i];
- else{
-  float numerator=(bpm*.800000011920929f)*(float)D;
-  float denominator=(44100.0f*base)*times;
-  delta=numerator/denominator;if(delta>1)delta=1;
-  if(cache){
-   if(cache->bpm_bits!=bp||cache->duration!=D)cache->mg_valid_mask=0;
-   cache->base_bits[i]=bb;cache->times_bits[i]=tb;cache->bpm_bits=bp;cache->duration=D;
-   cache->denominator[i]=denominator;cache->delta[i]=delta;cache->mg_valid_mask|=1u<<i;
-  }
- }
+static void mg_advance(original_miami_voice_mg *m,float base,float times,float bpm,uint32_t D){
+ float numerator=(bpm*.800000011920929f)*(float)D;
+ float denominator=(44100.0f*base)*times;
+ float delta=numerator/denominator;if(delta>1)delta=1;
  m->phase=m->phase+delta;if(m->phase>=1){m->phase=m->phase-2.0f;m->wrapped=1;}
 }
 /* VCF EG selected controls A0/D.5/S1/R0; distinct native release threshold.
@@ -169,14 +132,14 @@ int original_miami_selected_voice_pedal(original_miami_selected_voice *s,const o
  if(!c->damper&&s->damper_deferred)release(s);
  return 1;
 }
-static int preparation_tail(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,uint32_t D,original_miami_coefficient_cache *cache){
+static int preparation_tail(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,uint32_t D){
  s->vcf_bipolar=s->vcf.level-1.0f;s->vca_bipolar=s->vca.level-1.0f;
  original_miami_pitch_controls pc=c->pitch;pc.unison_coordinate=s->unison_coordinate;pc.bend=bipolar(c->bend_normalized);pc.mod_slave_pitch=s->mod_slave;
  original_osc_controls oc;memset(&oc,0,sizeof oc);
- if(cache?!original_miami_pitch_prepare_cached(&s->pitch,&pc,t->pitch,44100,D,oc.increment,&cache->glide):!original_miami_pitch_prepare(&s->pitch,&pc,t->pitch,44100,D,oc.increment))return 0;
+ if(!original_miami_pitch_prepare(&s->pitch,&pc,t->pitch,44100,D,oc.increment))return 0;
  for(unsigned i=0;i<4;i++){
   oc.shape[i]=c->shape[i];
-  oc.width[i]=c->wave_width[i];
+  if(!original_pw_width(oc.shape[i],c->pw_intensity,0,c->pw_width,0,0,&oc.width[i]))return 0;
  }
  oc.xmod=c->xmod;
  if(!s->prepared.ready||memcmp(&s->prepared.controls,&oc,sizeof oc)){
@@ -192,7 +155,7 @@ static int preparation_tail(original_miami_selected_voice *s,const original_miam
 int original_miami_selected_voice_block_valid(const original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm){
  return valid(s,c,t,bpm)&&!s->awaiting_restart;
 }
-int original_miami_selected_voice_control_prevalidated_cached(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action,original_miami_coefficient_cache *cache){
+int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
  if(s->awaiting_restart)return 0;
  *action=0;if(!s->active||s->vca.state==6)return 1;
  uint32_t D=0;int due=original_control_tick(&s->counter,44100,&D);if(due<0)return 0;if(!due)return 1;
@@ -204,7 +167,7 @@ int original_miami_selected_voice_control_prevalidated_cached(original_miami_sel
  s->mod_gain=clamp(s->previous_vca*c->patch_gain+0.0f,-1,1);
  for(unsigned i=0;i<2;i++){
   if(!mg_output(&s->mg[i],c->mg_shape[i]))return 0;
-  mg_advance(&s->mg[i],cache,i,c->mg_base[i],c->mg_times[i],bpm,D);
+  mg_advance(&s->mg[i],c->mg_base[i],c->mg_times[i],bpm,D);
  }
  vcf_tick(&s->vcf,D);
  if(!original_vca_tick(&s->vca,44100,D,0,1,1,0,action))return 0;
@@ -215,10 +178,7 @@ int original_miami_selected_voice_control_prevalidated_cached(original_miami_sel
  /* Native ordinary retirement B3D94->CF08->B3EC8 reaches B3ECC: despite
   * cleared levels/states, recompute E-S and continue the preparation tail.
   * State5 returns earlier and resumes this tail only after D8F0 parts. */
- return preparation_tail(s,c,t,D,cache);
-}
-int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
- return original_miami_selected_voice_control_prevalidated_cached(s,c,t,bpm,action,NULL);
+ return preparation_tail(s,c,t,D);
 }
 int original_miami_selected_voice_control(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
  if(!action||!valid(s,c,t,bpm))return 0;
@@ -227,7 +187,6 @@ int original_miami_selected_voice_control(original_miami_selected_voice *s,const
 static int note_values(unsigned key,unsigned velocity,float pitch){return key<=127&&velocity>=1&&velocity<=127&&original_binary32_isfinite(pitch)&&pitch>=0&&pitch<=127;}
 static int full_mask(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_voice_note *note,unsigned mask,float bpm){
  original_miami_selected_voice n=*s;
- original_miami_selected_voice_invalidate_caches(&n);
  for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.pitch.current[i]=(float)note->last_note;n.activation[i]=-1;}
  n.note_key=(uint8_t)note->note_key;n.raw_velocity=note->velocity;n.velocity=(float)note->velocity/127.0f;n.unison_coordinate=note->unison_coordinate;n.unison_flag=(uint8_t)note->unison_flag;
  for(unsigned i=0;i<2;i++){n.mg[i]=note->mg[i];if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;}
@@ -245,7 +204,6 @@ int original_miami_selected_voice_full_note(original_miami_selected_voice *s,con
 int original_miami_selected_voice_partial_note(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,unsigned key,unsigned velocity,float pitch,unsigned mask,float bpm){
  if(!valid(s,c,t,bpm)||!s->active||s->awaiting_restart||!mask||mask>15||!note_values(key,velocity,pitch))return 0;
  original_miami_selected_voice n=*s;
- original_miami_selected_voice_invalidate_caches(&n);
  if(!original_miami_pitch_note(&n.pitch,key,0,mask,0))return 0;
  for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=pitch;n.activation[i]=-1;}
  n.note_key=(uint8_t)key;n.raw_velocity=velocity;n.velocity=(float)velocity/127.0f;n.key_down=1;n.damper_deferred=0;
@@ -293,7 +251,6 @@ int original_miami_selected_voice_immediate_raw(original_miami_selected_voice *s
  if(!action||!valid(s,c,t,bpm)||s->awaiting_restart||full>1||!mask||mask>15||!raw_note_valid(note,full))return 0;
  if(full){if(s->vca.state!=6)return 0;int result=full_mask(s,c,t,note,mask,bpm);if(result)*action=0;return result;}
  original_miami_selected_voice n=*s;
- original_miami_selected_voice_invalidate_caches(&n);
  for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.activation[i]=-1;}
  n.note_key=(uint8_t)note->note_key;n.raw_velocity=note->velocity;n.velocity=(float)note->velocity/127.0f;n.unison_flag=(uint8_t)note->unison_flag;n.unison_coordinate=note->unison_coordinate;n.active=1;n.key_down=1;n.damper_deferred=0;
  for(unsigned i=0;i<2;i++)if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;
@@ -303,7 +260,7 @@ int original_miami_selected_voice_resume_part(original_miami_selected_voice *s,c
  if(!valid(s,c,t,bpm)||!s->awaiting_restart||!raw_note_valid(note,1)||final_part>1||!mask||mask>15||((mask&(mask-1))&&mask!=15)||(mask==15&&!final_part))return 0;
  original_miami_selected_voice n=*s;uint32_t D=n.pending_tail_duration;n.awaiting_restart=0;
  if(!full_mask(&n,c,t,note,mask,bpm))return 0;
- if(final_part){if(!preparation_tail(&n,c,t,D,NULL))return 0;n.pending_tail_duration=0;}
+ if(final_part){if(!preparation_tail(&n,c,t,D))return 0;n.pending_tail_duration=0;}
  else n.awaiting_restart=1;
  *s=n;return 1;
 }

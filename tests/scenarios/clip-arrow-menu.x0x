@@ -12,24 +12,19 @@ wait 600
 tap GLO
 expect view 5
 expect overlay 1
-expect listsel 0
+expect listsel 1
 wait 1500
 expect clksrc 0
 arrow R up
 wait 50
 expect clksrc 0
-# a new press enters MIDI + CLOCK, the next one steps the value, as GEN-56; a held "<" goes back, no edit
-arrow R tap
-expect clksrc 0
+# a new press steps the value, as GEN-56; the repeat still works in the new list
 arrow R tap
 expect clksrc 1
 arrow L down
 wait 1000
 arrow L up
 wait 50
-expect clksrc 1
-arrow R tap
-turn ALGO -1
 expect clksrc 0
 # "<" held while GLO closes and a page list opens: no edit there either
 arrow L down
@@ -52,17 +47,13 @@ arrow R down
 wait 30
 expect view 5
 expect overlay 1
-expect listsel 0
-expect clksrc 0
+expect listsel 1
+expect clksrc 1
 arrow R up
 wait 50
-expect clksrc 0
-# the fresh press entered the section; the next press steps CLOCK SOURCE
-arrow R tap
 expect clksrc 1
-turn ALGO -1
-expect clksrc 0
 arrow L tap
+expect clksrc 0
 # repeated switches with ">" held all the time (pressed with no menu open, where the clip keys page
 # has it): a page list, GLO, no menu, a page list, GLO. No list gets an edit, no repeat.
 tap GLO
@@ -95,11 +86,8 @@ release GLO
 arrow R down
 wait 30
 expect view 5
-expect clksrc 0
+expect clksrc 1
 arrow R up
 wait 50
-arrow R tap
-expect clksrc 1
-turn ALGO -1
-expect clksrc 0
 arrow L tap
+expect clksrc 0

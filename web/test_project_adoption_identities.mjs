@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ProjectDevice } from './x0x_projects.js';
+import { ProjectDevice, PROJECT_OP } from './x0x_projects.js';
 
 test('legacy adoption requires two explicit dense identities, never an omitted engine', async () => {
   const device = new ProjectDevice({}), calls = [];
@@ -16,10 +16,8 @@ test('legacy adoption requires two explicit dense identities, never an omitted e
     assert.deepEqual(calls, []);
   }
   for (const engines of [[0,0], [0,1], [1,0]]) {
-    // Intentional policy change: even formerly valid identities cannot migrate legacy data.
-    await assert.rejects(device.adoptLegacyBass(engines, { confirmed: true }),
-      e => e.code === 'version' && /revision 13/.test(e.message));
-    assert.deepEqual(calls, [], 'explicit identities cannot bypass revision-13-only imports');
+    await device.adoptLegacyBass(engines, { confirmed: true });
+    assert.deepEqual(calls.at(-1), [PROJECT_OP.ADOPT_BASS, [...engines, 0x58, 0x30]]);
   }
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 3);
 });

@@ -198,21 +198,20 @@ static float gr_of(const master_t *m, float lv)
 
 /* Limiter soft knee over 0.89. Outlined once for mono + L/R stereo (pi32: one
  * body beats two inlined tanh copies inside master_process_st). */
-/* The knee itself (tanh) stays outlined once for mono + stereo; the common
- * case, |s| <= 0.89, is an inline compare (no call per sample). */
-__attribute__((noinline)) static float soft_knee(float s)
+/* One |s| path for the ±knee (same math as the prior mirrored branches). */
+__attribute__((noinline)) static float soft_ceiling(float s)
 {
-    float a = 0.89f + 0.11f * fm_tanhf((fm_fabsf(s) - 0.89f) * 9.0f);
-    return s < 0.0f ? -a : a;
-}
-static inline __attribute__((always_inline)) float soft_ceiling(float s)
-{
-    return fm_fabsf(s) > 0.89f ? soft_knee(s) : s;
+    float a = fm_fabsf(s);
+    if (a > 0.89f) {
+        a = 0.89f + 0.11f * fm_tanhf((a - 0.89f) * 9.0f);
+        return s < 0.0f ? -a : a;
+    }
+    return s;
 }
 
 
 /* Compressor/pump gain advance after ms is updated — one body for mono + stereo. */
-static inline __attribute__((always_inline)) void comp_tick(master_t *m, float *grmax, float att_in, float rel_in, float pump_in)
+__attribute__((noinline)) static void comp_tick(master_t *m, float *grmax, float att_in, float rel_in, float pump_in)
 {
     float lv, want, total;
     if (m->cr == 0) {                                /* the static curve, every MST_CR samples */
@@ -241,7 +240,7 @@ static inline __attribute__((always_inline)) void comp_tick(master_t *m, float *
 }
 
 /* Look-ahead limiter envelope + gain — one body for mono and stereo. */
-static inline __attribute__((always_inline)) void limit_env(master_t *m, float a)
+__attribute__((noinline)) static void limit_env(master_t *m, float a)
 {
     if (a >= m->env) {
         m->env = a;
@@ -285,15 +284,15 @@ __attribute__((noinline)) static float djf_gsmooth(master_t *m, float k)
     return g;
 }
 
-/* ±1 clamp when the limiter is off (inline: two compares). */
-static inline __attribute__((always_inline)) float clamp_pm1(float s)
+/* ±1 clamp — one body for mono + stereo when the limiter is off. */
+__attribute__((noinline)) static float clamp_pm1(float s)
 {
     return fm_clampf(s, -1.0f, 1.0f);
 }
 
 void master_process(master_t *m, float *x, int n, float volume)
 {
-    int i, mode = m->pot[MST_MODE], comp_on = m->comp_on, limit = m->pot[MST_LIMIT];
+    int i, mode = m->pot[MST_MODE], comp_on = m->comp_on;
     float k = m->k, grmax = 0.0f;
     float det_in = 0.0f, att_in = 0.0f, rel_in = 0.0f, pump_in = 0.0f;
     if (comp_on) {                                  /* invariant for this render call */
@@ -304,7 +303,7 @@ void master_process(master_t *m, float *x, int n, float volume)
     }
     for (i = 0; i < n; i++) {
         float s = x[i];
-        if (comp_on) {
+        if (m->comp_on) {
             float wet;
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
@@ -315,11 +314,11 @@ void master_process(master_t *m, float *x, int n, float volume)
             s = s + (wet - s) * m->mix;
         }
         if (mode) {
-            float g = m->g != m->g_t ? djf_gsmooth(m, k) : m->g, a1 = m->a1;
+            float g = djf_gsmooth(m, k), a1 = m->a1;
             s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
         }
         s *= volume;
-        if (limit) {
+        if (m->pot[MST_LIMIT]) {
             /* look ahead MST_LA samples: a peak is seen when it enters, the gain eases down over the
              * MST_LA samples it takes to come out, and is held for them. (It used to halve the
              * distance every sample: a step in the waveform, a click on every limited kick.) */
@@ -327,7 +326,7 @@ void master_process(master_t *m, float *x, int n, float volume)
             limit_env(m, a);
             d = m->la[m->la_pos];
             m->la[m->la_pos] = s;
-            m->la_pos = (m->la_pos + 1) & (MST_LA - 1);   /* MST_LA: a power of two */
+            m->la_pos = (m->la_pos + 1) % MST_LA;
             s = soft_ceiling(d * m->gain);
         } else {
             s = clamp_pm1(s);
@@ -370,7 +369,7 @@ static int master_settled_zero(master_t *m, const float *l, const float *r, int 
 void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
 {
     if (master_settled_zero(m, xl, xr, n, volume)) return;
-    int i, mode = m->pot[MST_MODE], comp_on = m->comp_on, limit = m->pot[MST_LIMIT];
+    int i, mode = m->pot[MST_MODE], comp_on = m->comp_on;
     float k = m->k, grmax = 0.0f, vc = m->vol_cur < 0.0f ? volume : m->vol_cur;
     float det_in = 0.0f, att_in = 0.0f, rel_in = 0.0f, pump_in = 0.0f;
     if (comp_on) {                                  /* invariant for this render call */
@@ -381,7 +380,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
     }
     for (i = 0; i < n; i++) {
         float s = xl[i], sr = xr[i];
-        if (comp_on) {
+        if (m->comp_on) {
             float wet;
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
@@ -395,7 +394,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
             sr = sr + (wet - sr) * m->mix;
         }
         if (mode) {
-            float g = m->g != m->g_t ? djf_gsmooth(m, k) : m->g, a1 = m->a1;
+            float g = djf_gsmooth(m, k), a1 = m->a1;
             s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
             sr = djf_tick(sr, &m->ic1r, &m->ic2r, mode, g, a1, k);
         }
@@ -406,7 +405,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
         }
         s *= vc;
         sr *= vc;
-        if (limit) {
+        if (m->pot[MST_LIMIT]) {
             /* look ahead MST_LA samples: a peak is seen when it enters, the gain eases down over the
              * MST_LA samples it takes to come out, and is held for them. (It used to halve the
              * distance every sample: a step in the waveform, a click on every limited kick.) */
@@ -416,7 +415,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
             dr = m->la_r[m->la_pos];
             m->la[m->la_pos] = s;
             m->la_r[m->la_pos] = sr;
-            m->la_pos = (m->la_pos + 1) & (MST_LA - 1);   /* MST_LA: a power of two */
+            m->la_pos = (m->la_pos + 1) % MST_LA;
             s = soft_ceiling(d * m->gain);
             sr = soft_ceiling(dr * m->gain);
         } else {

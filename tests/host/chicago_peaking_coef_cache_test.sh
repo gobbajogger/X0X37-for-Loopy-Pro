@@ -5,7 +5,7 @@ set -eu
 cd "$(dirname "$0")/../.."
 OUT=${X0X_PEAKING_COEF_OUT:-/tmp/x0x-peaking-coef-cache}
 mkdir -p "$OUT"
-git show e9e6643e612b9fb4e968a77d016f3bb24213dc88:experiments/original_synth/chicago_dynamics.c > "$OUT/reference.c"
+git show a06e20189141ff5fb8766e2c6152be460f4356c3:experiments/original_synth/chicago_dynamics.c > "$OUT/reference.c"
 CC=${CC:-cc}
 FLAGS="-O2 -std=c99 -fno-fast-math -ffp-contract=off -Wall -Wextra -Werror -DORIGINAL_USE_SOFT_FMA -ffunction-sections -fdata-sections -Iexperiments/original_synth"
 RENAMES=""

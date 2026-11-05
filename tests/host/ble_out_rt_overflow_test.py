@@ -34,8 +34,6 @@ helpers = (
     + function(b, "ble_out_is_rt_transport")
     + "\n"
     + function(b, "ble_out_pkt_is_keep")
-    + "\n"
-    + function(b, "ble_out_is_pitch_bend")
 )
 
 src = (

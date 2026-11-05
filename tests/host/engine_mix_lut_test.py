@@ -9,7 +9,7 @@ import tempfile
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = 'e9e6643e612b9fb4e968a77d016f3bb24213dc88'
+BASE = 'a06e20189141ff5fb8766e2c6152be460f4356c3'
 mode = sys.argv[1] if len(sys.argv) > 1 else 'level'
 assert mode in ('level', 'send')
 EXPRESSION = '(float)val * (float)val / (100.0f * 100.0f)' if mode == 'level' else '(float)val / 127.0f'

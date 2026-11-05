@@ -7,7 +7,7 @@ OUT=${1:-/tmp/master_idle_identity}; mkdir -p "$OUT"
 python3 - "$OUT/old.c" <<'PY'
 import re,sys,subprocess
 from pathlib import Path
-s=subprocess.check_output(['git','show','e9e6643e612b9fb4e968a77d016f3bb24213dc88:firmware/src/dsp/master.c'],text=True)
+s=subprocess.check_output(['git','show','a06e20189141ff5fb8766e2c6152be460f4356c3:firmware/src/dsp/master.c'],text=True)
 for name in re.findall(r'^\w[\w *]*\b(master_\w+)\(',s,re.M):
     s=re.sub(r'\b'+name+r'\b','old_'+name,s)
 Path(sys.argv[1]).write_text(s)

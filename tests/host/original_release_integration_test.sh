@@ -33,7 +33,7 @@ for mode in normal sanitized; do
     "$OUT/$mode" "$OUT/$mode-images" > "$OUT/$mode.log" 2>&1
 done
 cmp "$OUT/normal.log" "$OUT/sanitized.log"
-for choice in 0 1 2 3 4 5 6 7 8 9 10 11; do
+for choice in 0 1 2 3 4 5 6; do
     cmp "$OUT/normal-images/chicago-fx-$choice.png" "$OUT/sanitized-images/chicago-fx-$choice.png"
 done
 cat "$OUT/normal.log"

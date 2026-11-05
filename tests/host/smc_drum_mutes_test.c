@@ -49,9 +49,9 @@ static void setup(int mode, int bank)
     if (!mode) smc_view(V_HOME, 0);
     else {
         smc_view(V_MIX, mode);
-        smc_select_part(mode - 1);
-        smc.sel[mode - 1] = bank * 8;
-        assert(smc_drum_mix() == mode - 1);
+        ui.sel[mode - 1] = bank * 8;
+        build_pages();
+        assert(drum_mix_page() == mode - 1);
     }
     seq.mute = seq.vmute = 0;
     smc.solo = 0;
@@ -128,10 +128,8 @@ static void mute_regression(int mode, int bank, int strip)
         mute_track(kit, track);
         smc_frame();
         assert(smc.lit[16 + strip] == 0);
-        smc.sel[kit] = bank * 8 + (strip + 1) % (bank ? 3 : 8);
         message(0x90, 24 + strip, 127);
-        assert(smc.sel[kit] == track && smc.view == V_MIX);
-        assert(ui.sel[kit] == bank * 8 + 2 && ui.part == 3);
+        assert(ui.sel[kit] == track && ui.view == V_MIX);
         assert(smc.lit[24 + strip] == 1);
     } else {
         assert(smc_target(strip).kind == R_NONE);
@@ -166,7 +164,7 @@ static void main_regression(void)
 
 static void priority_regression(void)
 {
-    /* Keyboard menu/clip ownership must not retarget the independent drum mixer. */
+    /* Keep the existing main-part mute behavior while menu or clip owns input. */
     for (int owner = 0; owner < 4; owner++) {
         setup(1, 0);
         if (owner == 0) ui.help = 1;
@@ -174,10 +172,10 @@ static void priority_regression(void)
         if (owner == 2) ui.overlay = O_LIST;
         if (owner == 3) clip_mode = 1;
         message(0x90, 17, 127);
-        /* Keyboard menus and clips cannot retarget the independent mixer.
-         * Confirmation still parks its musical actions. */
-        assert(seq.vmute == (owner == 1 ? 0 : (1u << 1)));
-        assert(seq.mute == 0);
+        /* Help leaves drum MIX mutes working; confirmation parks the surface;
+         * menu/clip fall through to whole-part mute instead. */
+        assert(seq.vmute == (owner == 0 ? (1u << 1) : 0));
+        assert(seq.mute == (owner >= 2 ? MUTE_MASK[1] : 0));
     }
     for (int kit = 0; kit < 2; kit++) {
         setup(kit + 1, 0);
@@ -186,7 +184,7 @@ static void priority_regression(void)
         smc_frame();
         for (int strip = 0; strip < 8; strip++) assert(smc.lit[16 + strip] == 1);
         message(0x90, 0x2F, 127);
-        assert(smc.sel[kit] == 8);
+        assert(ui.sel[kit] == 8);
         for (int strip = 0; strip < 8; strip++) {
             assert(smc.lit[16 + strip] == (strip < 3));
             assert(smc.lit[24 + strip] == (strip == 0));
@@ -196,8 +194,7 @@ static void priority_regression(void)
         /* The owner-selected drum R/S layout follows the same visible bank. */
         setup(kit + 1, 1);
         message(0x90, 1, 127);
-        assert(smc.part == kit && smc.sel[kit] == 9 && ui.rec);
-        assert(ui.part == PART_909 && ui.sel[kit] == 0);
+        assert(ui.part == kit && ui.sel[kit] == 9 && ui.rec);
         message(0x90, 9, 127);
         assert(smc_project_active() && smc.lit[9] == 1);
         message(0x80, 9, 0);

@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Frozen reference: control_math.c at e9e6643e612b9fb4e968a77d016f3bb24213dc88.
+/* Frozen reference: control_math.c at a06e20189141ff5fb8766e2c6152be460f4356c3.
  * Compare every level bit, state, action and return across individual calls
  * and seeded streams with mid-stream parameter and gate changes. */
 #include "control_math.h"

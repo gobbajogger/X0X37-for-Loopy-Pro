@@ -13,10 +13,14 @@ static fxbus_t a, b;
 static int16_t line_a[16384], line_b[16384];
 static void same(void)
 {
-    /* Separate line ownership is the only expected pointer difference. */
-    fxbus_t normalized = b;
+    /* The base stores tone controls where the candidate stores their derived
+     * coefficients. Normalize only those two declared representation changes;
+     * compare all other state and line bytes exactly. */
+    fxbus_t reference = a, normalized = b;
+    reference.rv_damp = 0.75f - a.rv_damp * 0.55f;
+    reference.dl_tc = 0.06f + a.dl_tc * 0.6f;
     normalized.dbuf = a.dbuf;
-    assert(!memcmp(&a, &normalized, sizeof a));
+    assert(!memcmp(&reference, &normalized, sizeof a));
     assert(!memcmp(line_a, line_b, sizeof line_a));
 }
 int main(void)
