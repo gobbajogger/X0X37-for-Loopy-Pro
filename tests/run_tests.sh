@@ -93,9 +93,9 @@ test_class() {
     rec-live-smk|panic-mutants) TEST_CLASS=S ;;   # rec-live-smk reads build/gen from host-build (phase 1); mutants edit sources so they run alone
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|freeplay-live-keys|synth-bus-mute|storage-warning|freeplay-latency|pads-in-settings|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|part-off|part-off-web-e2e|part-off-web-e2e-node-gate|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-two-page-strip|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance|panic-clear|panic-route) TEST_CLASS=G ;;
+    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|part-off|part-off-web-e2e|part-off-web-e2e-node-gate|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|project-stream-copy|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-two-page-strip|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance|panic-clear|panic-route) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage|audio-stress) TEST_CLASS=G ;;
-    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|part-off|part-off-web-e2e|part-off-web-e2e-node-gate|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-two-page-strip|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|smc-remainder|smc-popup-engine|smc-audit-core|smc-audit-contract|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|part-off|part-off-web-e2e|part-off-web-e2e-node-gate|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|project-stream-copy|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-two-page-strip|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|smc-remainder|smc-popup-engine|smc-audit-core|smc-audit-contract|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
     synth-param-jump|param-write-sources) TEST_CLASS=G ;;
     chicago-adsr-graph|ui-settings-sections) TEST_CLASS=G ;;
@@ -137,7 +137,7 @@ lk() {                  # name command...: start the command. An install-path te
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
     case "$1" in save-note-quiet) return 0 ;; esac
-    case "$1" in dsp-host-linkage|bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|panic-clear|panic-route) return 0 ;; *) return 1 ;; esac
+    case "$1" in dsp-host-linkage|bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-protocol|project-runtime|project-stage|project-save-preflight|project-stream-copy|smp-begin-cancel|panic-clear|panic-route) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -332,6 +332,7 @@ run usb-audio-descriptors env CC="$CC" python3 -B tests/host/usb_audio_descripto
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
 run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tests/host/undo_test.c && $OUT/undo_test"
 run sound-reset sh tests/host/sound_reset_test.sh
+run undo-word-scan sh -c "$CC -O2 -Wall -Wextra -Werror -Wno-unused-function -o $OUT/undo_word_scan_test tests/host/undo_word_scan_test.c && $OUT/undo_word_scan_test"
 run undo-capacity sh tests/host/run_undo_capacity.sh
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
@@ -353,6 +354,7 @@ run boot-screen sh tests/host/boot_screen_test.sh
 run ui-theme env ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/original_release_ui_test.sh build/ui-theme/theme
 run project-protocol sh tests/host/run_project_protocol.sh
 run project-save-preflight sh tests/host/run_project_save_preflight.sh   # BF-021 memory-full + FNV32 sound collision
+run project-stream-copy sh tests/host/run_project_stream_copy.sh   # chunked st_put matches the byte copy
 run editor-ota-dispatch python3 -B tests/host/editor_ota_dispatch_test.py
 run editor-read-area python3 -B tests/host/editor_read_area_test.py
 run sample-header-alignment python3 -B tests/host/sample_header_alignment_test.py
@@ -367,6 +369,7 @@ run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
 run smc-select-mode sh tests/host/smc_select_mode_test.sh
 run smc-fx sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Ifirmware/src/dsp -Ifirmware/src/app -o $OUT/smc_fx_test tests/host/smc_fx_test.c firmware/src/app/smc_fx_map_tables.c -lm && $OUT/smc_fx_test"
+run busfx-invariants sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Werror -Wdouble-promotion -Ifirmware/src/dsp -o $OUT/busfx_invariant_test tests/host/busfx_invariant_test.c -lm && $OUT/busfx_invariant_test"
 run smc-mixer-edges sh tests/host/smc_mixer_edges_test.sh
 run smc-action-source python3 tests/host/smc_action_source_test.py
 run smc-fx-caption sh tests/host/smc_fx_caption_test.sh
