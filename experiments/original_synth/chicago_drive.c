@@ -33,11 +33,19 @@ int original_chicago_drive_process(original_chicago_drive *s,const int16_t *left
  if(!s)return 0;
  if(!count)return 1;
  if(!left||!right||!ol||!orr||ol==orr)return 0;
- for(size_t i=0;i<count;i++){
-  int32_t k=s->activity?32767:102;s->drive=smooth(s->drive,s->target_drive,k);s->gain=smooth(s->gain,s->target_gain,k);
-  int32_t threshold_target=s->target_drive<19660?19660-s->target_drive:0;s->threshold=smooth(s->threshold,threshold_target,k);
+ int32_t k=s->activity?32767:102,threshold_target=s->target_drive<19660?19660-s->target_drive:0;
+ size_t i=0;
+ for(;i<count;i++){
+  int32_t d0=s->drive,g0=s->gain,t0=s->threshold;
+  s->drive=smooth(d0,s->target_drive,k);s->gain=smooth(g0,s->target_gain,k);s->threshold=smooth(t0,threshold_target,k);
   int32_t d=asr(s->drive,15),g=asr(s->gain,15),threshold=asr(s->threshold,15),fb=asr(mul(d,23919),15);
   int16_t l=left[i],r=right[i];ol[i]=channel(s,0,l,d,g,threshold,fb);orr[i]=channel(s,1,r,d,g,threshold,fb);
+  /* Settled: smooth() returned its input for all three, so every later
+   * sample of this block has the same d, g, threshold and fb. */
+  if(s->drive==d0&&s->gain==g0&&s->threshold==t0){
+   for(++i;i<count;i++){int16_t l2=left[i],r2=right[i];ol[i]=channel(s,0,l2,d,g,threshold,fb);orr[i]=channel(s,1,r2,d,g,threshold,fb);}
+   break;
+  }
  }
  return 1;
 }
