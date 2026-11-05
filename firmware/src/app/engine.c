@@ -1482,6 +1482,10 @@ static void engine_notes_off_apply(void)
         if (brk.keys & (uint16_t)(1u << s))
             breaks_live(&brk, s, 0);
     brk.keys = 0;
+    for (s = 0; s < 32; s++)
+        if (brk.slices & (1u << s))
+            breaks_slice_hold(&brk, s, 0);
+    brk_local = 0;
     drum909_all_off(&d909);
     drum808_all_off(&d808);
 #if BOARD_SMK37
@@ -1571,6 +1575,10 @@ static void drain(void)
             brk_local_event((int)a, (int)b);
     }
     cq_r = r;
+    /* The 128-event budget can leave a note behind the parameter flood from boot.
+     * Keep the panic armed until that backlog is scanned, so the note cannot sound. */
+    if (panic_cycle && r != cq_w)
+        notes_off_req = 1;
     int16_t wheel = brk_wheel;
     if (wheel != brk_wheel_seen) {
         breaks_bend(&brk, wheel);
