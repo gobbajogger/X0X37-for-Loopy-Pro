@@ -1,0 +1,21 @@
+{
+  "reviewer": "/root/chain_review",
+  "scope": "read-only source review; no independent build/test execution",
+  "findings": [
+    {
+      "id": "CHAIN-REC-OFF",
+      "severity": "P2",
+      "status": "RESOLVED",
+      "behavior": "Song playback uses natural 909 wrap after REC turns off"
+    },
+    {
+      "id": "CHAIN-PART-CUE",
+      "severity": "P2",
+      "status": "RESOLVED",
+      "behavior": "A part-only cue preserves the unchanged 909 phase at a partial chain boundary"
+    }
+  ],
+  "reviewed_sequencer_blob": "c54cb0e0588600ab83604c44446234ff1fa942ec",
+  "new_production_findings": [],
+  "documentation_correction": "Clarified that playback ignores a retained latch until the next natural wrap clears it"
+}

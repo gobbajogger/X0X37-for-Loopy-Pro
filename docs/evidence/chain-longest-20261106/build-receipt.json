@@ -1,0 +1,43 @@
+{
+  "status": "BUILD_ONLY",
+  "sdk_version": "AC79NN_SDK_V1.2.1_2023-12-13",
+  "sdk_archive_sha256": "4c8e0e0aa68b0c780d3316925f6ada2854fdbb0839894b9a4f513bbc64783b2a",
+  "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+  "models": {
+    "elite": {
+      "configuration": "DEV X0X_DEV_PADCAL=1",
+      "image_bytes": 480872,
+      "app_free_bytes": 71800,
+      "ram_data_bss_bytes": 95784,
+      "ram_limit_bytes": 98304,
+      "pool_used_bytes": 335464,
+      "pool_limit_bytes": 344064,
+      "pool_free_bytes": 8600,
+      "package": {
+        "bytes": 651457,
+        "sha256": "db54e33b3330bb0d002e1a05cf040bbe591b9b65ddbcfd170e162f546a79dd08"
+      },
+      "log_sha256": "d323996086a984d0808f57272b462b0b823c1be5134d190ea193b5501bbe80e7"
+    },
+    "pro": {
+      "configuration": "DEV X0X_DEV_PADCAL=1",
+      "image_bytes": 480872,
+      "app_free_bytes": 71800,
+      "ram_data_bss_bytes": 95784,
+      "ram_limit_bytes": 98304,
+      "pool_used_bytes": 335464,
+      "pool_limit_bytes": 344064,
+      "pool_free_bytes": 8600,
+      "package": {
+        "bytes": 651457,
+        "sha256": "8f54e0eee0142791ba77c616609cb2d48a32ca300e8f80f3cfdc2051dbca3681"
+      },
+      "log_sha256": "32c0930e721c4371b65562c06256fffb70caed2632f0c8fc1ec4b48b83ce4d3a"
+    }
+  },
+  "controller": {
+    "bytes": 61088,
+    "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7"
+  },
+  "hardware": "NOT_RUN"
+}
