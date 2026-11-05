@@ -22,6 +22,8 @@ static struct {
 } ui;
 static uint32_t clock_ms;
 static uint32_t blit_hash[4] = {1,2,3,4};
+/* Production popup renderer cache, used by extracted peer UI functions. */
+static uint32_t popup_knob_full_hash;
 static int busy, clip;
 static uint8_t project_revision, bass_bank[2];
 static int smk_clip_mode_on(void) { return clip; }
