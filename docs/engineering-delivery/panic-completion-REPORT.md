@@ -8,7 +8,7 @@ Code tip before this report: `184d737d40749742980c07c30838f5b222f9551d`
 
 Tree of that tip: `bfeefddce643d3591ffe7b2cea0c4e034b2b0719`
 
-The commit that adds this report is the branch tip after it is pushed. Its parent is the code tip above.
+This report was first committed as `ddbeb3c8205f8d4978ace0a97087ddcea7326fea` (tree `e3293c4387ad519bd2beca2a88c57fe403d8381c`). The commit that records that SHA is the branch tip.
 
 ## Commits
 
@@ -153,11 +153,7 @@ Not touched: project format, `settings_t`, `smc_buttons_test.py`, `smc_action_so
 
 ## Remote refs
 
-`git ls-remote origin 'refs/heads/lane/dev-m1*'` at the code tip:
-
-```
-184d737d40749742980c07c30838f5b222f9551d  refs/heads/lane/dev-m1-panic-complete-20261105
-```
+`git ls-remote origin 'refs/heads/lane/dev-m1*'` after the code tip, and again after the report commits. The lane ref moves forward with those commits. The code tip above is `184d737d40749742980c07c30838f5b222f9551d`. The first report commit is `ddbeb3c8205f8d4978ace0a97087ddcea7326fea`.
 
 `refs/heads/wip/m1-panic-core-20261103` is still `69351a26a756bec914b81633636793f3df3ea827`.
 
