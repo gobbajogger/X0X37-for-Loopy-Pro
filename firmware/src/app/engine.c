@@ -297,6 +297,7 @@ enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC };
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
+static volatile uint8_t notes_off_req;
 
 /* The scan may be preempted after choosing a victim. Revalidate the slot only
  * while the consumer source is masked, then publish exactly one aligned word.
@@ -814,6 +815,11 @@ void engine_bass_record(int part, int note, int velocity, int flags)
            (uint32_t)((flags & BS_ACCENT ? 1 : 0) | (velocity << 2) | (flags & BS_SLIDE ? 512 : 0)));
 }
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
+void engine_request_notes_off(void)
+{
+    notes_off_req = 1;
+    __asm__ volatile("" ::: "memory");
+}
 void engine_bass_off_note(int part, int note)
 {
     if (note <= 0)
@@ -1016,6 +1022,7 @@ void smk_apc_clock_tick(void);
 void smk_apc_clock_start(void);
 void smk_apc_clock_position(uint32_t sixteenths);
 void smk_ck_midi_stop(void);
+__attribute__((weak)) void smk_ck_midi_stop(void) {}
 #endif
 
 X0X_COLD int engine_project_notes(void)
@@ -1297,6 +1304,20 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
 }
 #ifdef X0X_HOST
 int engine_bass_attacked(int part) { return (unsigned)part < NBASS && bass_attacked[part]; }
+/* Host oracle: bit 0 a 909 voice is inside its mute window; bit 1/2 bass A/B gates. */
+int engine_part_sounding(void)
+{
+    int k, on = drum909_active(&d909) ? 1 : 0;
+    for (k = 0; k < NBASS; k++) {
+#if X0X_DEV_WOBBLE
+        if (bass_wobble_voice(k))
+            on |= synth_active(&bass_slot[k]) ? (2 << k) : 0;
+        else
+#endif
+            on |= b303[k].gate ? (2 << k) : 0;
+    }
+    return on;
+}
 int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
 {
     int k, r = brk.keys << 8 & 0xFF00;
@@ -1720,10 +1741,44 @@ static void bass_preset_boundary(void)
 #endif
 
 /* ---------------------------------------------------------------- render --- */
+static void engine_notes_off_apply(void)
+{
+    int v, src, s;
+    /* PANIC_APPLY */
+    seq_notes_off(&seq, &SINK);
+    for (v = 0; v < NBASS; v++) {
+        chi_damp_latched[v] = 0;
+        chi_arp_halt(v);
+        s_boff(0, v);
+        bass_held[v] = 0;
+        bass_held_count[v] = 0;
+    }
+    for (src = 0; src < MIDI_NSRC; src++) {
+        src_held[src] = 0;
+        for (s = 0; s < 16; s++)
+            brk_down[src][s] = 0;
+    }
+    for (s = 0; s < 8; s++)
+        if (brk.keys & (uint16_t)(1u << s))
+            breaks_live(&brk, s, 0);
+    brk.keys = 0;
+    drum909_all_off(&d909);
+    drum808_all_off(&d808);
+#if BOARD_SMK37
+    smk_ck_midi_stop();
+#endif
+}
+
 static void drain(void)
 {
     uint32_t r = cq_r, pkt;
     int guard = 64;
+    int panic_cycle = 0;
+    __asm__ volatile("" ::: "memory");
+    if (notes_off_req) {
+        notes_off_req = 0;
+        panic_cycle = 1;
+    }
     /* Finish old contexts before a queued new press can acquire note ownership. */
     for (int k = 0; k < NBASS; k++) {
         const seq_bass_rec_t *rec = &seq.rec_bass[k];
@@ -1737,6 +1792,10 @@ static void drain(void)
     while (r != cq_w) {
         uint32_t c = cq[r % CQ], type = c >> 28, a = (c >> 20) & 0xFFu, b = (c >> 12) & 0xFFu, v = c & 0xFFFu;
         r++;
+        /* PANIC_DROP_QUEUED */
+        if (panic_cycle && (type == C_DRUM || type == C_BON || type == C_REC ||
+                            (type == C_BRK && b != 0u)))
+            continue;
         uint32_t rec_epoch = a >> 1;
         if (type == C_REC) a &= 1u;
         if (type < 8u)
@@ -1820,6 +1879,8 @@ static void drain(void)
             midi_in(pkt);
     if (guard >= 0)                   /* the ring was empty; subsequent MIDI belongs to live operation */
         project_midi_drop = 0;
+    if (panic_cycle)
+        engine_notes_off_apply();
 }
 
 static float part_peak[NPARTS];
