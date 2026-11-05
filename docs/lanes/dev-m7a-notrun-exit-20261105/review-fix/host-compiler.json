@@ -1,0 +1,19 @@
+{
+  "compiler": "Debian clang 19.1.7 (3+b1)",
+  "packages": {
+    "libclang-common-19-dev.deb": "4018e40e2d4144fe38c45822e68cca63c1bf6c7872c3073ebb262ad4b2f9b8bc",
+    "libclang-cpp19.deb": "a7d2b6df51050834f6ea5c0d5e34869c2298b0bcdaa91eff17ba3db2cd545c47",
+    "clang-19.deb": "bbb74458d782b7792b61b0eed92746df5e6d033778c045cf8c2b3835b7c4efc4",
+    "libclang-rt-19-dev.deb": "0c03a0a8fa37228e2de6c36d02ff0806643885c515a8137d1bcd22e248497cd6"
+  },
+  "runtime_libraries": {
+    "usr/lib/llvm-19/lib/clang/19/lib/linux/libclang_rt.asan-x86_64.a": "655e54e7030965354bf55fe8ebf8d3f21957a8b6b80676b77e2e6c25b4507e4f",
+    "usr/lib/llvm-19/lib/clang/19/lib/linux/libclang_rt.ubsan_standalone-x86_64.a": "cd4664d997a561b97f625052ff12640cfccc9dad612a7efa2fd017a096e27754"
+  },
+  "probe": "clang -fsanitize=address,undefined native-probe.c; compile and execute exit 0 under explicit network permission",
+  "binary_sha256": {
+    "/workspace/work/pr854/host-clang/root/usr/lib/llvm-19/bin/clang": "0a3c55936ac43954fbe4914e6e73b577ca9e35e75d89ef13d3e28c187f41ca1a",
+    "/workspace/work/pr854/host-clang/root/usr/lib/x86_64-linux-gnu/libclang-cpp.so.19.1": "0108c687d2f500d77687984c46c9fad663782603f5c623e3c14224c155b4fd21",
+    "/usr/lib/x86_64-linux-gnu/libLLVM.so.19.1": "3523f50f635d2a1ea47518a392451f2854b92823ceaf1345fb806099dd1a3b8a"
+  }
+}

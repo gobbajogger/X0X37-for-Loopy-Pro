@@ -1,0 +1,14 @@
+{
+  "state": "FAIL_DIAGNOSTIC_SUPERSEDED",
+  "source": "14413a784ff0eab30e55d4d8744f1f501d1e5a9f",
+  "exit": 1,
+  "passed": 338,
+  "failed": [
+    "optimization-equivalence",
+    "original-stale-release"
+  ],
+  "skipped": [],
+  "cause": "Clang sanitizer runtime package was absent for these two checks when they ran. The matching compiler-rt was restored; both complete selectors passed without disabling sanitizers. The final unfiltered invocation then passed all 340 selectors in one run with 0 FAIL, 0 SKIP and exit 0.",
+  "log_sha256": "f8609dc4355b9050985c4847d5f8d409fc7888e76ee37434c5d2e0e41f95ddc7",
+  "final_result": "host-suite.json"
+}

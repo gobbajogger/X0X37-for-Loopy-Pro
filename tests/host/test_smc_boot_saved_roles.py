@@ -41,7 +41,7 @@ assert 'goto unsupported;' in settings_body
 # Preserve the real bitmasks and exact default assignment.
 bt_macros = '\n'.join(unique(r'^#define\s+' + key + r'\s+[^\n]+$', HEADER, key).group(0)
                      for key in ('PROJ_BT_CLK_IN', 'PROJ_BT_SMC_CENTRAL', 'PROJ_BT_SMC_USER', 'PROJ_DEVICE_BT'))
-default_bt = unique(r'^\s*pr->set\.bt\s*=\s*\(uint8_t\)\([^\n]*\);', PROJECT, 'production default Bluetooth assignment').group(0)
+default_bt = unique(r'^\s*(?:pr->set\.bt|s->bt)\s*=\s*\(uint8_t\)\([^\n]*\);', PROJECT, 'production default Bluetooth assignment').group(0).replace('s->bt', 'pr->set.bt')
 
 c_source = r'''
 #include <assert.h>
@@ -61,6 +61,10 @@ typedef struct {
 } settings_t;
 typedef struct { settings_t set; } project_t;
 static project_t proj;
+/* Unrelated OFF-tail state used by the extracted loader block. Bluetooth
+ * expectations still come from the production assignment and branch slice. */
+static uint8_t io_buf[128], off_mask;
+static uint8_t *part_off_of(project_t *pr) { (void)pr; return &off_mask; }
 static int settings_result, checks;
 static settings_t saved;
 static int load_settings(settings_t *out) {

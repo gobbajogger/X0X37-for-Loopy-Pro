@@ -1,0 +1,171 @@
+{
+  "state": "BUILD_ONLY",
+  "candidate": "14413a784ff0eab30e55d4d8744f1f501d1e5a9f",
+  "candidate_tree": "967871135f3e2edcd27ee0637cf1c6b903348695",
+  "base": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "inputs": {
+    "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "compiler_version": "clang version 4.0.1 () ()",
+    "sdk_pins_sha256": {
+      "cpu/wl82/tools/uboot.boot": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+      "cpu/wl82/tools/cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "cpu/wl82/tools/cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+    },
+    "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+    "sdk_pins": {
+      "cpu/wl82/tools/uboot.boot": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+      "cpu/wl82/tools/cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "cpu/wl82/tools/cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+      "cpu/wl82/liba/btctrler.a": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de",
+      "cpu/wl82/liba/wl_rf_common.a": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2",
+      "cpu/wl82/liba/crypto_toolbox_Osize.a": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e",
+      "cpu/wl82/liba/lib_ccm_aes.a": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c",
+      "include_lib/newlib/pi32v2-lib/libc.a": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4",
+      "include_lib/newlib/pi32v2-lib/libcompiler_rt.a": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009",
+      "apps/common/net/wifi_conf.c": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb",
+      "LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "toolchain_closure_sha256": "25c5a75ff9a6e5aca74adcf99e9612a12c5077a1c17c8f0c624f88ad23d0ec41",
+    "toolchain_closure_entries": 643,
+    "toolchain_relative_symlinks": 44
+  },
+  "references": {
+    "schwung-9W9": {
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "tree": "2a32b748456d4f162010932771f2ca26fc5d34d6"
+    },
+    "schwung-8W8": {
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "tree": "a042961b65cb420bd1555de3cd93cbb7c807652f"
+    },
+    "schwung-tb3po": {
+      "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "tree": "2d87c9ef8a0fe1fca4b0af524e8939fbdf6fb904"
+    }
+  },
+  "artifacts": {
+    "build/smk37/x0x.bin": {
+      "bytes": 481256,
+      "sha256": "fecaa4d472b0e67a052a2b3ff25177f82e4a118179ce34c0c0d68bde33f5cfec"
+    },
+    "build/smk37/loader/ota.bin": {
+      "bytes": 7341,
+      "sha256": "9047d7ab8946f73260525d2c03197e5f1b2101af3941b3f2702d843ee9e75229"
+    },
+    "build/x0x-smk37.fwsc": {
+      "bytes": 651457,
+      "sha256": "3fa7c8107219ee161f077d7d1d6113802aee72e27658ad8c9feeb41ab8e10edc"
+    },
+    "build/smk37-elite/x0x.bin": {
+      "bytes": 481256,
+      "sha256": "424b909d963731bba1129324655c2e81547f8cf0417320d15fdbec8c40528c1e"
+    },
+    "build/smk37-elite/loader/ota.bin": {
+      "bytes": 7341,
+      "sha256": "7f7b107048194dc2f2e62936c365589bb87f9c1409eb67d120cc4c4e69dc2a21"
+    },
+    "build/x0x-smk37-elite.fwsc": {
+      "bytes": 651457,
+      "sha256": "267bd62cc58eff124d84bd4ffaa7e557eb9c94b26386c6ec91806aa412997222"
+    },
+    "ble/ctl/out/ctl.img": {
+      "bytes": 61088,
+      "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7"
+    }
+  },
+  "models": {
+    "elite": {
+      "result": "PASS",
+      "exit": 0,
+      "app_bytes": 481256,
+      "app_code_budget_bytes": 552672,
+      "static_ram_bytes": 95780,
+      "static_ram_budget_bytes": 98304,
+      "ram_text_bytes": 2712,
+      "pool_used_bytes": 335464,
+      "pool_budget_bytes": 344064,
+      "pool_free_bytes": 8600,
+      "log_sha256": "fb8ee9e51ccd7168896cd6a7b4010271fbb93cda9774fbdfa20d6532c16257f1"
+    },
+    "pro": {
+      "result": "PASS",
+      "exit": 0,
+      "app_bytes": 481256,
+      "app_code_budget_bytes": 552672,
+      "static_ram_bytes": 95780,
+      "static_ram_budget_bytes": 98304,
+      "ram_text_bytes": 2712,
+      "pool_used_bytes": 335464,
+      "pool_budget_bytes": 344064,
+      "pool_free_bytes": 8600,
+      "log_sha256": "87d9a2894e5d4fe08d7d6a2d5f2316f4ee4de8173d91d08a4c14128c9360b01e"
+    }
+  },
+  "controller": {
+    "result": "PASS",
+    "exit": 0,
+    "bytes": 61088,
+    "crc32": "9aa7f77f",
+    "ram_bytes": 26336,
+    "ram_budget_bytes": 26368
+  },
+  "source_scope": "Only host test files differ from de871c51. All firmware, build tools, assets, host simulator and controller source bytes consumed by these actual builds are identical at the fixed candidate. tools/build.py does not consume Git commit identity.",
+  "device": "NOT_RUN",
+  "release": "NOT_RUN",
+  "publication": "NOT_RUN",
+  "commands": {
+    "elite": {
+      "argv": [
+        "./build.sh",
+        "--board",
+        "smk37"
+      ],
+      "cwd": "/workspace/work/pr854/repo",
+      "environment": {
+        "X0X_GEN_CACHE": "/workspace/work/pr854/gen-cache",
+        "JIELI_TOOLCHAIN": "/workspace/work/pr854/jieli/jieli-linux-toolchains-20260730.1",
+        "X0X_JOBS": "4",
+        "AC79_SDK": "/workspace/work/pr854/sdk",
+        "MODEL": "elite",
+        "X0X_DEV_PADCAL": "1"
+      },
+      "exit": 0
+    },
+    "pro": {
+      "argv": [
+        "./build.sh",
+        "--board",
+        "smk37"
+      ],
+      "cwd": "/workspace/work/pr854/repo",
+      "environment": {
+        "X0X_GEN_CACHE": "/workspace/work/pr854/gen-cache",
+        "JIELI_TOOLCHAIN": "/workspace/work/pr854/jieli/jieli-linux-toolchains-20260730.1",
+        "X0X_JOBS": "4",
+        "AC79_SDK": "/workspace/work/pr854/sdk",
+        "MODEL": "pro",
+        "X0X_DEV_PADCAL": "1"
+      },
+      "exit": 0
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "cwd": "/workspace/work/pr854/repo",
+      "environment": {
+        "X0X_GEN_CACHE": "/workspace/work/pr854/gen-cache",
+        "JIELI_TOOLCHAIN": "/workspace/work/pr854/jieli/jieli-linux-toolchains-20260730.1",
+        "X0X_JOBS": "4",
+        "SDK_LOCAL": "/workspace/work/pr854/sdk",
+        "CTL_NATIVE": "1",
+        "CTL_NO_CACHE": "1"
+      },
+      "exit": 0
+    }
+  },
+  "ram_text_measurement": "Both actual build/smk37[-elite]/ramtext.bin files measure 2712 bytes; ELF .ram_text size 0x0a98."
+}
