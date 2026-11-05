@@ -85,8 +85,9 @@ Missing, skipped, inconclusive or failing required checks are not PASS.
 
 ## Visual changes
 
-Within the agreed scope, use mockup, internal independent review, implementation,
-then actual validation. Reuse unchanged approved mockups. Label proposals and
+Within the agreed scope, presentation/UX changes use mockup, internal independent
+review, implementation, then actual validation. Typo or factual status-text edits
+skip the mockup stage: implement, then run link/content checks. Reuse unchanged approved mockups. Label proposals and
 validate the real affected candidate-pinned render or interaction before rollout.
 Resolve blocking correctness/design findings internally. Report each meaningful
 completed stage and continue without waiting for an owner aesthetic reply.
