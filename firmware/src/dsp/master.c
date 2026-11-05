@@ -246,8 +246,8 @@ static inline __attribute__((always_inline)) void limit_env(master_t *m, float a
     if (a >= m->env) {
         m->env = a;
         m->hold = MST_LA;
-        float r = 1.0f / fm_maxf(a, 0.8f);
-        m->inv_env = a > 0.8f ? r : 0.0f;
+        /* Below the ceiling the reciprocal is discarded, including at silence. */
+        m->inv_env = a > 0.8f ? 1.0f / a : 0.0f;
     } else if (m->hold) {
         m->hold--;
     } else {
