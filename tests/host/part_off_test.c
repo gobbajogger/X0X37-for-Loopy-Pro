@@ -565,6 +565,35 @@ static void t_store(void)
         CHECK(project_file_validate(h) == 0 && part_off_staged == 0x05u);
     }
     end();
+    begin("file_validate_crc_fail_keeps_staged");
+    {   /* QA X1: a header that fails the payload CRC (-4) must not stage its mask */
+        uint8_t h[PROJECT_FILE_HDR];
+        set_off(0x05u);
+        project_capture_stage();
+        project_file_header(h);
+        put32(h + 12, get32(h + 12) ^ 1u);
+        part_off_staged = 0x0Au;
+        CHECK(project_file_validate(h) == -4 && part_off_staged == 0x0Au && live_mask() == 0x05u);
+    }
+    end();
+    begin("file_double_validate_keeps_imported_mask");
+    {   /* QA X3: the editor re-headers after VALIDATE (editor.c:320) and may VALIDATE again; the header
+         * must carry the staged (imported) mask, not the live one, until the commit */
+        uint8_t h[PROJECT_FILE_HDR], h2[PROJECT_FILE_HDR];
+        set_off(0x05u);
+        project_capture_stage();
+        project_file_header(h);
+        set_off(0x0Au);
+        part_off_staged = 0x0Au;
+        CHECK(project_file_validate(h) == 0 && part_off_staged == 0x05u);
+        project_file_header(h2);
+        CHECK(get32(h2 + 28) == (PROJ_FILE_OFF_TAG | 0x05u));
+        CHECK(project_file_validate(h2) == 0 && part_off_staged == 0x05u && live_mask() == 0x0Au);
+        project_commit_stage();
+        project_apply_io();
+        CHECK(live_mask() == 0x05u);
+    }
+    end();
 #else
     begin("file_import_all_on");
     {   /* the base: the .x0x file has no part ON/OFF */
