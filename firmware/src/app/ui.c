@@ -4391,8 +4391,8 @@ _Static_assert(HDR_H + 2u * BAND_H + KNOB_H == 240u, "the three strips must tile
 #endif
 
 #include "lcd_tiles.h"
-/* A pixel DMA always uses a dedicated, bounded .bss buffer, never cv_px.
- * Pool capacity is unchanged (0.0.24.1 has only 136 bytes above its pool gate).
+/* Dirty-tile DMA uses a dedicated, bounded .bss buffer. Full-row DMA
+ * reads the untouched canvas until lcd_sync. Pool capacity is unchanged (0.0.24.1 has only 136 bytes above its pool gate).
  * 48 x 16 x RGB565 = 1536 bytes, 1.024 ms at the SMK-37's 12 MHz SPI. */
 static uint16_t cv_lcd_txbuf[X0X_LCD_MAX_DMA_BYTES / 2u];
 static uint32_t blit_hash[4];
@@ -4418,6 +4418,17 @@ static void cv_lcd_input(void)
     smk_ck_poll();                          /* clip-mode notes must not wait for the screen */
 #endif
 }
+/* At most one normal foreground dispatch per hardware millisecond.
+ * The timer interrupt continues changing plat_ms during each bounded DMA. */
+static void cv_lcd_maybe_input(void)
+{
+    static uint32_t last_ms = UINT32_MAX;
+    const uint32_t now = plat_ms();
+    if (last_ms != now) {
+        last_ms = now;
+        cv_lcd_input();
+    }
+}
 typedef struct { uint32_t x, y; } cv_lcd_pos_t;
 static void cv_lcd_emit(void *context, const uint16_t *px, uint32_t stride,
                          uint32_t x, uint32_t y, uint32_t w, uint32_t h)
@@ -4428,19 +4439,19 @@ static void cv_lcd_emit(void *context, const uint16_t *px, uint32_t stride,
     lcd_sync();
     x0x_lcd_tile_pack(cv_lcd_txbuf, px, stride, x, y, w, h);
     lcd_blit(pos->x + x, pos->y + y, w, h, cv_lcd_txbuf);
-    cv_lcd_input();                         /* run while this bounded DMA is active */
+    cv_lcd_maybe_input();
 }
+/* A whole-strip repaint already has contiguous full-width rows in cv_px.
+ * DMA can read directly from that canvas without packing or an extra copy:
+ * the next cv_begin() calls lcd_sync() before it writes to the canvas. */
 static void cv_lcd_full(uint32_t x, uint32_t y)
 {
-    cv_lcd_pos_t pos = {x, y};
-    uint32_t row, col;
-    const uint32_t chunk_w = X0X_LCD_TILE_W * X0X_LCD_MAX_COLS_PER_DMA;
-    for (row = 0; row < cv_h; row += X0X_LCD_TILE_H) {
-        uint32_t h = cv_h - row < X0X_LCD_TILE_H ? cv_h - row : X0X_LCD_TILE_H;
-        for (col = 0; col < cv_w; col += chunk_w) {
-            uint32_t w = cv_w - col < chunk_w ? cv_w - col : chunk_w;
-            cv_lcd_emit(&pos, cv_px, cv_w, col, row, w, h);
-        }
+    if (!cv_w) return;
+    const uint32_t rows_per_dma = X0X_LCD_MAX_DMA_BYTES / (2u * cv_w);
+    for (uint32_t row = 0; row < cv_h; row += rows_per_dma) {
+        const uint32_t h = cv_h - row < rows_per_dma ? cv_h - row : rows_per_dma;
+        lcd_blit(x, y + row, cv_w, h, cv_px + row * cv_w);
+        cv_lcd_maybe_input();
     }
 }
 static void cv_commit(int region, uint32_t x, uint32_t y)
