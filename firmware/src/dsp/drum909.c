@@ -678,8 +678,13 @@ __attribute__((noinline)) static void d9_emit(const d9_bus_t *b, int i, float y)
 {
     if (!b->dry) return;              /* runtime solo suppresses the voice, including an already-playing tail */
     if (b->dry_r) {
-        b->dry[i] += y * (b->pl + b->dpl * (float)i);
-        b->dry_r[i] += y * (b->pr + b->dpr * (float)i);
+        if (b->dpl == 0.0f && b->dpr == 0.0f) {
+            b->dry[i] += y * b->pl;
+            b->dry_r[i] += y * b->pr;
+        } else {
+            b->dry[i] += y * (b->pl + b->dpl * (float)i);
+            b->dry_r[i] += y * (b->pr + b->dpr * (float)i);
+        }
     } else
         b->dry[i] += y;
     if (b->rev) b->rev[i] += y * b->srev;
@@ -711,17 +716,24 @@ static void d9_render_bd(d9_bt_t *v, const float *nz, const d9_bus_t *bus, int n
         d9_warm(&v->click_lp, nz);
         v->click_warm = 0;
     }
+    /* bd_df is unchanged during pitch hold. Reuse the same rounded increment;
+     * on the first decay sample, still read the frequency before decaying it. */
+    const uint32_t hold_inc = v->bd_phold > 0 && m > 0
+        ? d9_inc(v->bd_base + v->bd_df) : 0;
     for (int i = 0; i < m; ++i) {
-        const float f = v->bd_base + v->bd_df;
-        if (v->bd_phold > 0)
+        uint32_t inc;
+        if (v->bd_phold > 0) {
+            inc = hold_inc;
             --v->bd_phold;
-        else
+        } else {
+            inc = d9_inc(v->bd_base + v->bd_df);
             v->bd_df *= v->bd_mult;
+        }
         if (v->amp_hold_left > 0 && --v->amp_hold_left == 0)
             d9_env_exp(&v->amp, 0.00001f, v->decay * 0.001f * D9_SR);
         const float amp = d9_env_tick(&v->amp);
 
-        v->ph += d9_inc(f);
+        v->ph += inc;
         float o = d9_diode16(d9_tri(v->ph));
         o += 0.05f * o * o;
         o = d9_biquad_tick(&v->dc_block, o);
@@ -831,24 +843,47 @@ static void d9_render_tom(d9_tom_t *t, const d9_bt_t *p, const float *nz, const 
     }
 }
 
+/* Rim band-pass ringing after two +0 inputs: b0*0 + b1*0 + b2*0
+ * is exactly +0 for these finite BP coefficients. Keep that leading +0 to
+ * preserve the original subtraction order and signed-zero behavior. The
+ * caller has already flushed x1/x2, which therefore need no further writes. */
+static inline float d9_rim_ring(d9_biquad_t *f)
+{
+    const float y = 0.0f - f->a1 * f->y1 - f->a2 * f->y2;
+    f->y2 = f->y1;
+    f->y1 = y;
+    return y;
+}
+
 /* Rim shot (er99_rim909_render) */
 static void d9_render_rim(d9_rim_t *v, const float *nz, const d9_bus_t *bus, int n)
 {
     const int m = n < v->mute ? n : v->mute;
     v->mute -= m;
     d9_env_anchor(&v->amp);
-    const float g = v->level;
-    for (int i = 0; i < m; ++i) {
+    const float g = v->level, accent = v->accent, noise_mix = v->noise_mix;
+    const d9_shape_t shape = v->shape;
+    /* Keep the impulse and the next two zero inputs on the general path. */
+    const int warm = v->impulse < m - 2 ? v->impulse + 2 : m;
+    int i = 0;
+    for (; i < warm; ++i) {
         float exc = 0.0f;
         if (v->impulse > 0) {
-            exc += 1.0f + nz[i] * v->noise_mix;
+            exc += 1.0f + nz[i] * noise_mix;
             v->impulse--;
         }
         const float a = d9_env_tick(&v->amp);
         float y = d9_biquad_tick(&v->bp1, exc) * 60.0f + d9_biquad_tick(&v->bp2, exc) * 32.0f;
-        y = d9_shape(&v->shape, y * a, v->crush_st);
+        y = d9_shape(&shape, y * a, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
-        d9_emit(bus, i, y * g * v->accent);
+        d9_emit(bus, i, y * g * accent);
+    }
+    for (; i < m; ++i) {
+        const float a = d9_env_tick(&v->amp);
+        float y = d9_rim_ring(&v->bp1) * 60.0f + d9_rim_ring(&v->bp2) * 32.0f;
+        y = d9_shape(&shape, y * a, v->crush_st);
+        y = d9_biquad_tick(&v->hp, y);
+        d9_emit(bus, i, y * g * accent);
     }
 }
 
@@ -860,25 +895,31 @@ __attribute__((noinline)) static void d9_render_clap(d9_clap_t *v, const float *
     v->mute -= m;
     d9_env_anchor(&v->burst);
     d9_env_anchor(&v->tail);
+    const float g = v->level, accent = v->accent;
+    const float burst_samples = v->burst_decay * D9_MS;
+    const float tail_samples = v->tail_decay * D9_MS;
+    const float spread_samples = v->spread * D9_MS;
+    const float tail_level = v->tail_level;
+    const d9_shape_t shape = v->shape;
     for (int i = 0; i < m; ++i) {
         if (v->pulse_index < 4) {
             if (v->next_pulse <= 0.0f) {
                 d9_env_set(&v->burst, amp[v->pulse_index]);
-                d9_env_exp(&v->burst, 0.00001f, v->burst_decay * D9_MS);
+                d9_env_exp(&v->burst, 0.00001f, burst_samples);
                 if (v->pulse_index == 3) {
-                    d9_env_set(&v->tail, v->tail_level);
-                    d9_env_exp(&v->tail, 0.00001f, v->tail_decay * D9_MS);
+                    d9_env_set(&v->tail, tail_level);
+                    d9_env_exp(&v->tail, 0.00001f, tail_samples);
                 }
                 v->pulse_index++;
-                v->next_pulse = v->spread * D9_MS;
+                v->next_pulse = spread_samples;
             }
             v->next_pulse -= 1.0f;
         }
         const float env = d9_env_tick(&v->burst) + d9_env_tick(&v->tail);
         float y = d9_biquad_tick(&v->bp, nz[i]) * env;
-        y = d9_shape(&v->shape, y, v->crush_st);
+        y = d9_shape(&shape, y, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
-        d9_emit(bus, i, y * v->level * v->accent);
+        d9_emit(bus, i, y * g * accent);
     }
 }
 
@@ -932,6 +973,11 @@ __attribute__((noinline)) static void d9_bus(d9_bus_t *b, drum909_t *d, int voic
     b->pr = d9_pr0[voice];
     b->dpl = d->pan_dl[voice];
     b->dpr = d->pan_dr[voice];
+    if (b->dpl == 0.0f && b->dpr == 0.0f) {
+        /* Match the glide expression's signed zero once for the whole block. */
+        b->pl += b->dpl * 0.0f;
+        b->pr += b->dpr * 0.0f;
+    }
     b->srev = d->send_rev[voice];
     b->sdly = d->send_dly[voice];
     b->rev = b->srev != 0.0f ? rev : 0;
