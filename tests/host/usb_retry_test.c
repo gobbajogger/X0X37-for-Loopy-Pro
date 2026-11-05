@@ -70,14 +70,34 @@ int main(void)
     usb_retry(2000u);
     expect(fake_resets == 1u && fake_attaches == 1u, "no second reset while USB is up");
 
+    /* Detach in the open window. The old case set the flag only after settle
+     * had already finished, so it never required the clear of settling. */
     clear_link();
-    usb.detached = 1;
+    fake_ticks = 0;
     r0 = fake_resets;
     a0 = fake_attaches;
     usb_retry(3000u);
-    expect(fake_resets == r0 && fake_attaches == a0, "detached cancels settle and does not attach");
-
+    expect(fake_resets == r0 + 1u && fake_attaches == a0 && usb.up == 0u,
+           "detach case starts a reset");
+    fake_ticks = SPAN / 2u;                         /* mid-window, before 600000 ticks */
+    usb.detached = 1;
+    usb_retry(3000u);
+    expect(fake_resets == r0 + 1u && fake_attaches == a0 && usb.up == 0u,
+           "detach mid-window does not attach");
+    fake_ticks = SPAN;                              /* the old attach instant */
+    usb_retry(3000u);
+    expect(fake_resets == r0 + 1u && fake_attaches == a0 && usb.up == 0u,
+           "no attach at 25 ms while still detached");
+    /* A stuck settling bit is hidden while detached, because that return is
+     * first. This call is still inside the one-second gate (t is 3000), so
+     * the correct clear does not attach and does not reset again. */
     usb.detached = 0;
+    usb_retry(3000u);
+    expect(fake_resets == r0 + 1u && fake_attaches == a0 && usb.up == 0u,
+           "detach cleared settle, so the late call does not attach");
+
+    r0 = fake_resets;
+    a0 = fake_attaches;
     usb.up = 1;
     usb_retry(4000u);
     expect(fake_resets == r0 && fake_attaches == a0, "usb.up does not start a reset");

@@ -1610,6 +1610,14 @@ static void usb_retry(uint32_t now_ms)
         return;
     }
     if (settling) {
+        /* Attach on the first usb_retry() after 25 ms, so D+ pull-up is that
+         * 25 ms plus the rest of the main-loop turn that makes the call
+         * (fm1_main calls usb_retry once per turn). The old in-call wait
+         * attached at exactly 25 ms. 25 ms is the 25000 us settle (MEASURED
+         * by usb_retry_test as 600000 TIMER4 ticks). No maximum remainder is
+         * derivable: the 16 ms test in fm1_main only spaces UI frames, and
+         * fm1_lcd_wait stops after 4000000 spins, which is not a measured time
+         * and is not once per turn. */
         if ((uint32_t)(fm1_ticks() - reset_at) < 25000u * FM1_TICKS_PER_US)
             return;
         settling = 0;
