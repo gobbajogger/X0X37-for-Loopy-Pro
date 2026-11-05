@@ -21,7 +21,9 @@ for signature in ("CK_FN static uint32_t ck_key_notes(",
         end += 1
     blocks.append(source[start:end])
 pathlib.Path(sys.argv[2]).write_text(
-    blocks[0] + "\n#define ck_key_notes counted_key_notes\n" + blocks[1])
+    "#define ck_mask counted_mask\n#define ck_notes counted_notes\n" +
+    blocks[0] + "\n#undef ck_mask\n#undef ck_notes\n" +
+    "#define ck_key_notes counted_key_notes\n" + blocks[1])
 PY
 cc -std=c11 -O2 -Wall -Wextra -Werror -I"$tmp" -I"$root/firmware/src" \
     "$root/tests/host/clip_latency_equivalence_test.c" -o "$tmp/test"

@@ -28,7 +28,19 @@ typedef struct {
 } trace_t;
 static trace_t trace;
 static unsigned calls, saved_max;
+static unsigned mask_calls, notes_calls;
 static uint32_t counted_key_notes(uint32_t k, uint8_t *out);
+static uint32_t counted_mask(uint32_t scale, uint32_t root)
+{
+    mask_calls++;
+    return ck_mask(scale, root);
+}
+static uint32_t counted_notes(uint32_t note, uint32_t m, uint32_t snap,
+                              int32_t type, uint32_t inv, uint8_t *out)
+{
+    notes_calls++;
+    return ck_notes(note, m, snap, type, inv, out);
+}
 static void ck_arp_stop_note(void)
 {
     if (ck.arp_note) {
@@ -57,6 +69,15 @@ static uint32_t counted_key_notes(uint32_t k, uint8_t *out)
     return ck_key_notes(k, out);
 }
 
+static uint32_t reference_key_notes(uint32_t k, uint8_t *out)
+{
+    CK_BASE;
+    CK_SET;
+    uint32_t c = cp->on & CK_M_CHORD;
+    return ck_notes(CK_BASE_NOTE + k, ck_mask(sp->ck_scale, sp->ck_root), cp->on & CK_M_SCALE ? sp->ck_snap + 1u : 0u,
+                    c ? (int32_t)sp->ck_chord : -1, c ? sp->ck_inv : 0u, out);
+}
+
 /* Frozen baseline. Keep the unbounded outer scan to detect any change to the
  * retained prefix, sort order, note-off/on sequence or gate state. */
 static void reference_arp_step(uint32_t rate, uint32_t pos)
@@ -66,14 +87,16 @@ static void reference_arp_step(uint32_t rate, uint32_t pos)
     uint8_t list[CK_ARPN], out[CK_MAXN];
     uint32_t n = 0, i, j, c;
     int note;
-    for (i = 0; i < cp->nk; i++)
-        for (j = 0, c = counted_key_notes(cp->korder[i], out); j < c && n < CK_ARPN; j++) {
+    for (i = 0; i < cp->nk; i++) {
+        calls++;
+        for (j = 0, c = reference_key_notes(cp->korder[i], out); j < c && n < CK_ARPN; j++) {
             uint32_t x = out[j], p = n++;
             if (sp->ck_ord != CK_ORD_PLAYED)
                 for (; p && list[p - 1u] > x; p--)
                     list[p] = list[p - 1u];
             list[p] = (uint8_t)x;
         }
+    }
     ck_arp_stop_note();
     if (!n)
         return;
@@ -111,6 +134,31 @@ static void compare(uint32_t rate, uint32_t pos)
 int main(void)
 {
     unsigned cases = 0;
+    unsigned key_cases = 0;
+    for (unsigned mode = 0; mode < 8; mode++)
+        for (unsigned scale = 0; scale < CK_NSCALE; scale++)
+            for (unsigned root = 0; root < 12; root++)
+                for (unsigned snap = 0; snap < 2; snap++)
+                    for (unsigned type = 0; type < CK_NCHORD; type++)
+                        for (unsigned inv = 0; inv < 4; inv++)
+                            for (unsigned key = 0; key < CK_NKEY; key++) {
+                                uint8_t before[CK_MAXN], after[CK_MAXN];
+                                memset(before, 0xA5, sizeof before);
+                                memset(after, 0xA5, sizeof after);
+                                ck.on = mode;
+                                proj.set = (settings_t){.ck_scale = scale, .ck_root = root,
+                                    .ck_snap = snap, .ck_chord = type, .ck_inv = inv};
+                                mask_calls = notes_calls = 0;
+                                uint32_t expected = reference_key_notes(key, before);
+                                assert(ck_key_notes(key, after) == expected);
+                                assert(memcmp(before, after, sizeof before) == 0);
+                                unsigned bypass = !(mode & (CK_M_SCALE | CK_M_CHORD));
+                                assert(mask_calls == (bypass ? 0u : 1u));
+                                assert(notes_calls == (bypass ? 0u : 1u));
+                                key_cases++;
+                            }
+    printf("PASS: %u key cases; counts and all output bytes equal; raw path calls no helpers\n",
+           key_cases);
     for (unsigned type = 0; type < CK_NCHORD; type++)
         for (unsigned mode = 0; mode < 4; mode++)
             for (unsigned order = 0; order < CK_NORD; order++)
