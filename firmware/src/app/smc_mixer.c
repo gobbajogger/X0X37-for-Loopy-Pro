@@ -1809,14 +1809,12 @@ static void smc_button_apply(uint8_t note, int mmc)
         ui.help = 0;
         return;
     }
-    if (ui.overlay == O_ASK) {
-        if (note == 0x5E) {
-            if (play_answer_question(smc_home_held())) return;
-        } else {
-            if (note == 5 || note == 6)
-                button_tap(note == 5 ? B_SEL : B_HOME);
-            return;
-        }
+    /* PLAY during a question is answered in smc_button, which owns the
+     * physical HOME edge. This slice stays on SEL/HOME and then transport. */
+    if (ui.overlay == O_ASK && note != 0x5E) {
+        if (note == 5 || note == 6)
+            button_tap(note == 5 ? B_SEL : B_HOME);
+        return;
     }
     /* Button navigation stays live while Pause holds fader/knob targets. */
     if (smc_lock_blocks(note)) {
@@ -1900,12 +1898,8 @@ static void smc_button_apply(uint8_t note, int mmc)
                 say((smc.solo & (1u << part)) ? "SOLO" : "UNSOLO", PART_N[part]);
             } else if (row == 2)       /* MUTE */
                 mute_part(part);
-            else {                     /* whole-part SELECT; drum/FX routes above retain priority */
-                if (smc_home_held() && !smc.locked && ui.overlay == O_NONE && !ui.help &&
-                    !smk_clip_mode_on() && !project_busy) {
-                    ask_sound_reset(part);
-                    return;
-                }
+            else {                     /* whole-part SELECT; drum/FX routes above retain priority.
+                                        * HOME+SELECT reset is claimed in smc_button before this call. */
                 int repeat_drum = part < NKIT && smc.part == part && ui.overlay == O_NONE;
                 smc_select_part(part);
                 smc_view(repeat_drum ? V_MIX : V_PART, repeat_drum ? part + 1 : -1);
@@ -2038,6 +2032,22 @@ static int smc_panic_bank(uint8_t note, int down, int mmc)
     return (result & X0X_PANIC_CONSUME) != 0;
 }
 
+/* True only when smc_button_apply would reach whole-part SELECT and return
+ * after the reset ask. Earlier owners (drum bank, FX) still run apply. */
+static int smc_part_reset_gesture(uint8_t note)
+{
+    if (!(smc_home_held() && !smc.locked && ui.overlay == O_NONE && !ui.help &&
+          !smk_clip_mode_on() && !project_busy))
+        return 0;
+    if (note >= 32u || (note >> 3) != 3 || (note & 7) >= NPARTS)
+        return 0;
+    if (smc_drum_mix() >= 0)
+        return 0;
+    if (!smc_fx_tap_nav_once && smc_fx_bus_now(note) >= 0)
+        return 0;
+    return 1;
+}
+
 static void smc_button(uint8_t note, int mmc)
 {
 #ifdef SMC_PANIC_HOOKS
@@ -2093,7 +2103,16 @@ static void smc_button(uint8_t note, int mmc)
         else if (note != 0x5B && note != 0x5C)
             smc_ui_cancel();           /* other navigation owns its new screen */
     }
-    smc_button_apply(note, mmc);
+    /* Question PLAY and HOME+SELECT reset stay outside smc_button_apply.
+     * That function is compiled alone by the button-mapping harness.
+     * Redo consumes PLAY here; apply would have returned before transport. */
+    int consumed = ui.overlay == O_ASK && note == 0x5E &&
+        play_answer_question(smc_home_held());
+    if (!consumed && smc_part_reset_gesture(note)) {
+        smc_fx_publish();              /* apply's FX probe publishes, then does not take the key */
+        ask_sound_reset(part_at(note & 7));
+    } else if (!consumed)
+        smc_button_apply(note, mmc);
     if (smc_fx_bus_now(24u) < 0) smc_fx_clear(); /* queued SMC navigation also cancels holds */
     if (action) {
         memcpy(ui.msg, saved, sizeof saved);  /* Help keeps its card and the preexisting notice too. */
@@ -2330,11 +2349,14 @@ static void smc_poll_peer(void)
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
         /* A question parks edits, not physical PLAY/HOME ownership. Retain
-         * press edges so HOME+PLAY stays redo and held PLAY cannot retoggle. */
+         * those press edges so HOME+PLAY stays redo and held PLAY cannot
+         * retoggle. Pause's unlock arm is not one of those edges: a question
+         * cancels it, or the hold would unlock when the question closes. */
         if (!allow) {
             smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
             memset(smc.held, 0, sizeof smc.held);
-        }
+        } else
+            smc.lock_down = 0;
         smc_fx_clear();
         smc.picked = smc.seen = 0;
         smc.knob_i = 0;
