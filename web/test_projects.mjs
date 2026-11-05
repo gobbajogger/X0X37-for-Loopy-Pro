@@ -708,3 +708,21 @@ test("adaptive BREAK stream 8/9 project schemas keep exact bytes and CRC checks"
     b[100] ^= 1; assert.throws(() => parseProject(b), /CRC/);
   }
 });
+
+// .x0x header word 28 with parts OFF: mask (byte 28), CRC-8 check (byte 29: MSB first, polynomial 0x17, init 0,
+// no reflection or final XOR, of the mask), tag 0x46 0x4F. Computed independently (xport3/vectors.py), the same
+// table as firmware tests/host/part_off_test.c file_check_byte_known_answer.
+const OFF_CHECK = [0x17, 0x2E, 0x39, 0x5C, 0x4B, 0x72, 0x65, 0xB8, 0xAF, 0x96, 0x81, 0xE4, 0xF3, 0xCA, 0xDD, 0x67, 0x70, 0x49, 0x5E, 0x3B, 0x2C, 0x15, 0x02, 0xDF, 0xC8, 0xF1, 0xE6, 0x83, 0x94, 0xAD, 0xBA];
+function offProject(mask, check) {
+  const b = rawProject(); b.set([mask, check, 0x46, 0x4F], 28);
+  return b;
+}
+test("part OFF word 28 known-answer check bytes are accepted with their mask", () => {
+  assert.equal(OFF_CHECK.length, 31);
+  for (let m = 1; m < 32; m++) assert.equal(parseProject(offProject(m, OFF_CHECK[m - 1]), 36452).partOffMask, m, `mask ${m}`);
+});
+test("part OFF word 28 with a wrong check byte is refused as a version error", () => {
+  for (let m = 1; m < 32; m++) for (const flip of [0x01, 0x80, 0xFF])
+    assert.throws(() => parseProject(offProject(m, OFF_CHECK[m - 1] ^ flip), 36452), e => e.code === "version", `mask ${m} flip ${flip}`);
+  assert.throws(() => parseProject(offProject(5, 0), 36452), e => e.code === "version");
+});
