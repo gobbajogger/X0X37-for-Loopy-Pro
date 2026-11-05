@@ -1,0 +1,125 @@
+{
+  "base": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+  "base_tree": "33690b177cc7c9c8a697eb45b9f7309510d986ec",
+  "candidate_source_tree": "b1b41456069fbeddde88ad0c4264b0310d6d2190",
+  "files": [
+    {
+      "path": "tests/run_tests.sh",
+      "git_blob": "d429aa8ec0fa4dcdbabe1b0f8e25730abd212bd4",
+      "mode": "100755",
+      "sha256": "b6eeae30ce626f99d57a2be24551842ce0806e59c2e49eb3b40ad969023af234"
+    },
+    {
+      "path": "firmware/src/app/play_question.h",
+      "git_blob": "b981dc579ded10c535272c217d653afb0637991b",
+      "mode": "100644",
+      "sha256": "f76a890cf5510941f0f79a173c0fb20698029d2d7f24bdf367bd3702bcbd791d"
+    },
+    {
+      "path": "firmware/src/app/sound_reset.c",
+      "git_blob": "efa6d8433086a3fa1e97b564fb12a1d2dcc0b150",
+      "mode": "100644",
+      "sha256": "e88d573394aba2a564f776e04056ea3290f0cf4fd0c043b9720ba0585cfa6489"
+    },
+    {
+      "path": "firmware/src/app/sound_reset.h",
+      "git_blob": "cda8359fc60130b853ea4971bc480735fcf67d81",
+      "mode": "100644",
+      "sha256": "5131154c2c3b28230551a98419ad9c010aa7b124b9e9ac7bfa475aed363676a5"
+    },
+    {
+      "path": "tests/host/play_question_test.c",
+      "git_blob": "9f69c4a753edaf4459a729623aea7590c750d8fb",
+      "mode": "100644",
+      "sha256": "f291904b53a97eac7353a240e5aa73aaedeb3e0926031bb6f4df0fe6e039cf87"
+    },
+    {
+      "path": "tests/host/play_question_test.sh",
+      "git_blob": "2c20169c5a1ede1c581f384301c37bfb83b3494d",
+      "mode": "100755",
+      "sha256": "2c9722ec772607712be6b2be08ceefdfd8f572f42bd4a55444ac71784aaabfbb"
+    },
+    {
+      "path": "tests/host/sound_reset_test.c",
+      "git_blob": "3e351fab3f8c061880ab54eb5762b25145bb6c0b",
+      "mode": "100644",
+      "sha256": "f1afefe8ca1b132c051499a93e3fedfa8dbbf426f5352bb8eba2fa8039450bb7"
+    },
+    {
+      "path": "tests/host/sound_reset_test.sh",
+      "git_blob": "adc4d94a89071cb8eae14d11968c43852b926562",
+      "mode": "100644",
+      "sha256": "0aa7fca5987b0be21771372e076dff2434fc39335c60429e4c6f97ec83b780df"
+    }
+  ],
+  "sdk_version": "AC79NN_SDK_V1.2.1_2023-12-13",
+  "sdk_input_pins": [
+    {
+      "path": "cpu/wl82/liba/btctrler.a",
+      "sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de"
+    },
+    {
+      "path": "cpu/wl82/liba/wl_rf_common.a",
+      "sha256": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2"
+    },
+    {
+      "path": "cpu/wl82/liba/crypto_toolbox_Osize.a",
+      "sha256": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e"
+    },
+    {
+      "path": "cpu/wl82/liba/lib_ccm_aes.a",
+      "sha256": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c"
+    },
+    {
+      "path": "include_lib/newlib/pi32v2-lib/libc.a",
+      "sha256": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4"
+    },
+    {
+      "path": "include_lib/newlib/pi32v2-lib/libcompiler_rt.a",
+      "sha256": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009"
+    },
+    {
+      "path": "apps/common/net/wifi_conf.c",
+      "sha256": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "cpu/wl82/tools/uboot.boot",
+      "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4"
+    },
+    {
+      "path": "cpu/wl82/tools/cfg_tool.bin",
+      "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b"
+    },
+    {
+      "path": "cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+      "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+    }
+  ],
+  "compiler": "JieLi clang 4.0.1 for pi32v2",
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "compiler_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+  "references": [
+    {
+      "repository": "michaelmenesescs/schwung-9W9",
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "archive_sha256": "19a2d86986c66b66281c073121ab6aa49c3ba4a07ddce321203d1097da5cafcf"
+    },
+    {
+      "repository": "charlesvestal/schwung-8W8",
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "archive_sha256": "48d9fe7088862f57a9905c550d3b3a534c9713a56b6c0319cbd2d973b2089fb7"
+    },
+    {
+      "repository": "charlesvestal/schwung-tb3po",
+      "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "archive_sha256": "a142281ad3e1e58c96afad56f290ff783016d6b3625283d3efb30295776326fa"
+    }
+  ],
+  "source_recovery": "Authenticated GitHub API archive; all 4735 blobs and root/commit identities verified. Seven recut helper/test blobs/modes match exact donor tree; runner adds two registrations.",
+  "executor": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "host_cc": "cc (Debian 14.2.0-19) 14.2.0"
+}
