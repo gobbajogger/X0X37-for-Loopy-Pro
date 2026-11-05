@@ -569,6 +569,29 @@ static void t_store(void)
         CHECK(project_file_validate(h) == 0 && part_off_staged == 0x05u);
     }
     end();
+    begin("file_check_byte_known_answer");
+    {   /* byte 29: CRC-8, MSB first, polynomial 0x17, init 0, no reflection or final XOR, of the mask byte.
+         * Expected values computed independently (bitwise CRC, xport3/vectors.py), not with PROJ_FILE_OFF_CHK. */
+        static const uint8_t kat[31] = {
+            0x17, 0x2E, 0x39, 0x5C, 0x4B, 0x72, 0x65, 0xB8,
+            0xAF, 0x96, 0x81, 0xE4, 0xF3, 0xCA, 0xDD, 0x67,
+            0x70, 0x49, 0x5E, 0x3B, 0x2C, 0x15, 0x02, 0xDF,
+            0xC8, 0xF1, 0xE6, 0x83, 0x94, 0xAD, 0xBA };
+        for (unsigned m = 1; m < 32; m++) {
+            uint8_t h[PROJECT_FILE_HDR];
+            set_off(m);
+            project_capture_stage();
+            project_file_header(h);
+            int ok = h[28] == m && h[29] == kat[m - 1] && h[30] == 0x46u && h[31] == 0x4Fu;
+            if (!ok) printf("    mask %u: word 28 bytes %02x %02x %02x %02x, expected check 0x%02x\n", m, h[28], h[29], h[30], h[31], kat[m - 1]);
+            CHECK(ok);
+            h[29] ^= 0x01u;
+            part_off_staged = 0x0Au;
+            CHECK(project_file_validate(h) == -1 && part_off_staged == 0x0Au);
+        }
+        set_off(0);
+    }
+    end();
     begin("file_word28_bit_errors_refused");
     {   /* every 1- and 2-bit error of word 28, for every mask 0-31: refused (-1), staged and live unchanged */
         uint8_t h[PROJECT_FILE_HDR];

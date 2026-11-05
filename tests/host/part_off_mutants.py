@@ -59,6 +59,10 @@ MUTANTS = {
     'file_tag_ignored': (X_H, '(((w) & 0xFFFF0000u) == PROJ_FILE_OFF_TAG &&', '(1 &&', 'file_rejects_bad_word28'),
     'file_chk_ignored': (X_H, '((w) >> 8 & 0xFFu) == PROJ_FILE_OFF_CHK((w) & 0xFFu)))', '1))', 'file_word28_bit_errors_refused'),
     'file_chk_not_written': (X_H, 'PROJ_FILE_OFF_TAG | PROJ_FILE_OFF_CHK(m) << 8 | (uint32_t)(m) : 0u)', 'PROJ_FILE_OFF_TAG | (uint32_t)(m) : 0u)', 'file_roundtrip_all_masks'),
+    # QA C1/C7: a consistently wrong check byte on export and validate (poly 0x07; a non-zero init/XOR)
+    'file_chk_poly07': (X_H, '((((m) & 1u) ? 0x17u : 0u) ^ (((m) & 2u) ? 0x2Eu : 0u) ^ (((m) & 4u) ? 0x5Cu : 0u) ^ \\\n                              (((m) & 8u) ? 0xB8u : 0u) ^ (((m) & 16u) ? 0x67u : 0u))',
+                        '((((m) & 1u) ? 0x07u : 0u) ^ (((m) & 2u) ? 0x0Eu : 0u) ^ (((m) & 4u) ? 0x1Cu : 0u) ^ \\\n                              (((m) & 8u) ? 0x38u : 0u) ^ (((m) & 16u) ? 0x70u : 0u))', 'file_check_byte_known_answer'),
+    'file_chk_init_xor': (X_H, '(((m) & 16u) ? 0x67u : 0u))', '(((m) & 16u) ? 0x67u : 0u) ^ 0xFFu)', 'file_check_byte_known_answer'),
     'file_chk_weak': (X_H, '(((m) & 16u) ? 0x67u : 0u))', '(((m) & 16u) ? 0x01u : 0u))', 'file_word28_bit_errors_refused'),
     'file_tag_mask_zero': (X_H, '((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL &&', '((w) & 0xFFu) <= PROJ_PART_OFF_ALL &&', 'file_rejects_bad_word28'),
     'file_accept_gt31': (X_H, '((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL &&', '((w) & 0xFFu) - 1u < 0xFFu &&', 'file_rejects_bad_word28'),
