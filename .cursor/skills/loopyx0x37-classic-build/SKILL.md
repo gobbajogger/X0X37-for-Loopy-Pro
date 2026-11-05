@@ -6,7 +6,7 @@ description: "Apply the current LoopyX0X37 workflow in Cursor for source changes
 # LoopyX0X37 execution in Cursor
 
 Read root [AGENTS.md](../../../AGENTS.md) and the
-[maintained workflow](../../../docs/rules/workflow.md). This runtime adapter grants
+[maintained workflow](../../../RULES.md). This runtime adapter grants
 no new action and does not select a workflow mode. Current user authority, active
 ownership and actual tool capabilities govern; old export text is provenance.
 
