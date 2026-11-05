@@ -1,0 +1,26 @@
+{
+  "schwung-9W9": {
+    "repository": "charlesvestal/schwung-9W9",
+    "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+    "tree": "2a32b748456d4f162010932771f2ca26fc5d34d6",
+    "archive_sha256": "8b0cdd28d68490f1766266b15cff11245f5567e6fa9f1a972f9fb4663eef8149"
+  },
+  "schwung-8W8": {
+    "repository": "charlesvestal/schwung-8W8",
+    "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+    "tree": "a042961b65cb420bd1555de3cd93cbb7c807652f",
+    "archive_sha256": "af6d775ffdd7d7bcf7b85a40eeb20075bda6bf7bca2e29c473a5f7943ea2a384"
+  },
+  "schwung-303": {
+    "repository": "charlesvestal/schwung-303",
+    "commit": "7680578cdecd91e512cfddb9c9eb07b287fb64f4",
+    "tree": "5ca9b1d6504fde78c7ddc89944f0b99aa40a0cd4",
+    "archive_sha256": "afaf68d8fd55bcf4724375c3a413ddc6f79f5b7af38b961fd66590e520bb754d"
+  },
+  "schwung-tb3po": {
+    "repository": "charlesvestal/schwung-tb3po",
+    "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+    "tree": "2d87c9ef8a0fe1fca4b0af524e8939fbdf6fb904",
+    "archive_sha256": "a570fee053c37e6062bc44f4317ced5dc26e0e71f8c4806480d4f947dc176965"
+  }
+}

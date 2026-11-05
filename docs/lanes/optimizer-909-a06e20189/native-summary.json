@@ -1,0 +1,93 @@
+{
+  "base-elite": {
+    "x0x.bin": {
+      "bytes": 474840,
+      "sha256": "47c8d02545a6d3138ece9dba260c946a1eb251968f7bf7849c397304e43735dd"
+    },
+    "ramtext.bin": {
+      "bytes": 2712,
+      "sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+    },
+    "data.bin": {
+      "bytes": 428,
+      "sha256": "372428db887d982c9313055ff198888b031979f1b80b325882899863b23d7a04"
+    }
+  },
+  "base-pro": {
+    "x0x.bin": {
+      "bytes": 474840,
+      "sha256": "d6f4a728ff649b2d5d4d69cf9c2f1c33d429924a184dfb05028fba405aad3992"
+    },
+    "ramtext.bin": {
+      "bytes": 2712,
+      "sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+    },
+    "data.bin": {
+      "bytes": 428,
+      "sha256": "372428db887d982c9313055ff198888b031979f1b80b325882899863b23d7a04"
+    }
+  },
+  "candidate-elite": {
+    "x0x.bin": {
+      "bytes": 475576,
+      "sha256": "a5b0e6013a78618915d78d6d5d8c63d4c6031dbf5db0f00b9be2644daf182c0f"
+    },
+    "ramtext.bin": {
+      "bytes": 2712,
+      "sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+    },
+    "data.bin": {
+      "bytes": 428,
+      "sha256": "7744e9ccb40dee5a2171cb5ed4d00db7aeff03edfa2faf85b95525583f2a2670"
+    }
+  },
+  "candidate-pro": {
+    "x0x.bin": {
+      "bytes": 475576,
+      "sha256": "2579a2b851c56f889e00355d689454e1008f439b9429f21720a06432ad5c2d5d"
+    },
+    "ramtext.bin": {
+      "bytes": 2712,
+      "sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c"
+    },
+    "data.bin": {
+      "bytes": 428,
+      "sha256": "7744e9ccb40dee5a2171cb5ed4d00db7aeff03edfa2faf85b95525583f2a2670"
+    }
+  },
+  "limits": {
+    "app_ram_bytes": 98304,
+    "clock_hz": 320000000,
+    "sample_rate_hz": 44100,
+    "cycles_per_sample_budget": 7256.235827664399
+  },
+  "results": {
+    "base_elite": "PASS",
+    "base_pro": "PASS",
+    "candidate_elite": "PASS",
+    "candidate_pro": "PASS",
+    "configuration": "DEV X0X_DEV_PADCAL=1",
+    "data_bss_bytes": 95780,
+    "app_ram_free_bytes": 2524,
+    "pool_used_bytes": 335464,
+    "pool_free_bytes": 8600,
+    "ram_text_insns": 844,
+    "ram_text_bytes": 2712,
+    "ram_text_calls": 0,
+    "app_delta_bytes": 736,
+    "data_bss_delta_bytes": 0,
+    "ram_text_delta_bytes": 0,
+    "device_cycles_per_sample": "NOT_MEASURED"
+  },
+  "inputs": {
+    "base_commit": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+    "base_tree": "33690b177cc7c9c8a697eb45b9f7309510d986ec",
+    "source_tree": "748c0b168617fa4304f2730821e58ca2fb1e86cf",
+    "source_tip": "daf1e281a93c581fe564c749d42e3aeac0fdcf2f",
+    "source_tip_parent_before_patches": "a18561f17977be8592cef5a3d3cbebf70e4dbf1b",
+    "sdk": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "sdk_required_files": "3/3 exact SHA256 MATCH to tools/build.py pins",
+    "toolchain": "jieli-linux-toolchains-20260730.1, pi32v2 clang 4.0.1",
+    "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd"
+  }
+}
