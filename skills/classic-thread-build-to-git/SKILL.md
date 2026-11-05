@@ -13,7 +13,7 @@ Use this skill when a classic ChatGPT thread is asked to inspect or change repos
 
 Current user instructions and maintained repository rules override this skill. At startup, inspect the checked-out revision's `AGENTS.md`, project rules, build instructions, licensing, and active ownership. If those files are absent, discover the actual repository layout rather than treating examples here as authoritative. Do not turn a documentation-only task into a firmware release.
 
-For LoopyX0X37, first apply the [current project workflow](../../docs/rules/workflow.md).
+For LoopyX0X37, first apply the [current project workflow](../../RULES.md).
 Consume the existing owner/request checkpoint. Reports and local stage completion
 are nonblocking; continue the next authorized action. Preserve sole integration
 ownership, independent QA and actual action-specific gates. A new provider or
