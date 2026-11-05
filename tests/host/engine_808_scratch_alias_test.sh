@@ -20,8 +20,22 @@ for mode in normal san; do
   src=$D/engine-base.c; [ $v = new ] && src=firmware/src/app/engine.c
   cc $F -Dseq_until_event=output_window_until_event -Dplat_cpu2_run=output_window_cpu2_run -Dplat_cpu2_wait=output_window_cpu2_wait -c $src -o $D/eng-$v.o
   cc $F tests/host/engine_output_window_test.c $U $D/eng-$v.o -lm -o $D/h-$v
-  ASAN_OPTIONS=detect_leaks=0 $D/h-$v $D/$mode-$dw-$v.pcm | tail -1
+  ASAN_OPTIONS=detect_leaks=0 $D/h-$v $D/$mode-$dw-$v.pcm > $D/h-$v.log || {
+   status=$?
+   cat $D/h-$v.log
+   exit "$status"
+  }
+  tail -1 $D/h-$v.log
  done
- cmp $D/$mode-$dw-base.pcm $D/$mode-$dw-new.pcm && echo "BITEXACT $mode DEV_WOBBLE=$dw $(stat -c%s $D/$mode-$dw-new.pcm) B $(sha256sum < $D/$mode-$dw-new.pcm | cut -c1-16)"
+ cmp $D/$mode-$dw-base.pcm $D/$mode-$dw-new.pcm
+ metadata=$(python3 - "$D/$mode-$dw-new.pcm" <<'PY'
+import hashlib
+import pathlib
+import sys
+pcm = pathlib.Path(sys.argv[1]).read_bytes()
+print(f'{len(pcm)} B {hashlib.sha256(pcm).hexdigest()[:16]}')
+PY
+)
+ printf 'BITEXACT %s DEV_WOBBLE=%s %s\n' "$mode" "$dw" "$metadata"
  done
 done
