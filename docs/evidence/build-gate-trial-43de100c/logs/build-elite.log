@@ -1,0 +1,1 @@
+build.sh: python3 has no Pillow (pip3 install Pillow)

@@ -1,0 +1,39 @@
+Dev and rel printed the same 58 FAIL names. First line below is from the dev worktree.
+Runner log empty means the script redirected the failure into assets.log. That file's last line is quoted.
+
+ENV Pillow. First line: ModuleNotFoundError: No module named 'PIL'
+from tools/gen_font.py. Applies to:
+original-release-integration, original-release-ui, freeplay-live-keys, synth-bus-mute,
+storage-warning, freeplay-latency, pads-in-settings, ui-theme, smc-select-mode,
+smc-pickup-acceptance, smc-lock, smc-lock-beat, smc-multi-peer, ui-peer-names,
+smc-pause-loss, smk-wheel-mode, legacy-303-project, part-order, part-off,
+part-off-web-e2e, smc-ui, smc-ui-popup, smc-remainder, smc-popup-engine,
+smc-audit-core, smc-audit-contract, smc-mode-page, smc-mixer-page, ui-shared-glyph,
+ui-drum-mix-material, chicago-adsr-graph, ui-settings-sections, smc-ui-bounds,
+smc-clip-visibility, adaptive-break-controls, adaptive-break-storage, gen-cache,
+rec-held-duration, rec-endpoint-lifecycle, rec-nonforward-guard, perf-wheel-motion,
+perf-wheel-noise, audio-stress, synth-param-jump, param-write-sources, ui-drum-glyph,
+ui-glyph-polish, ui-chicago-env-motion
+Also, after another message, the same PIL line:
+smc-multi-peer-negative: RuntimeError: Compiler rejection is not a negative PASS: shared-ingress
+smc-ui-negative: RuntimeError: unmodified control failed; mutations cannot count as proof
+
+ENV missing module, also on the earlier 43de100c fail list:
+offline-sequencer-browser: ModuleNotFoundError: No module named 'playwright'
+
+ENV missing git ref in the scratch clone:
+engine-808-scratch-alias: fatal: invalid object name 'origin/build/0.0.22'.
+The source checkout has that remote-tracking ref (2456968ba39b521610364f3ea17a118b456269c0).
+The bare repo has no refs/heads/build/0.0.22, so the gate worktree cannot see it.
+
+PRE-EXISTING (on the earlier 43de100c host-test fail list, and this run reached an assertion):
+original-build: FAIL: test_rate_pad_port_preserves_574f_press_ownership_and_native_eight_rates
+smc-solo-overflow: error: 'struct <anonymous>' has no member named 'kind'
+smc-boot-saved-roles: ValueError: substring not found
+  (looked for: int bad = 0, rc = load_settings(&set);)
+builtin-break-output: AssertionError: '909 GR' not found in web/factory_break_pack.js line 2
+
+REAL:
+gate-trap: FAIL gate.log: gate: KILLED by SIGTERM sender unknown (no result)
+  (gate trap: 3 of 5 ok)
+smc-interaction-negative: pause-unbound: expected runtime assertion, got 1

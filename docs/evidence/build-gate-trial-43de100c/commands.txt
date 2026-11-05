@@ -1,0 +1,72 @@
+Label: informational / gate TRIAL on 43de100c (UNREVIEWED), not release qualification
+Commit under test: 43de100c83d845409bb801ecf29238a78f179aed
+Git tree: 4993a90ae993da7d68ece0d352c88b27244b327e
+Inodes before: IUsed 269083, IFree 10544357, IUse 3% on /
+Inodes after: IUsed 305537, IFree 10507903, IUse 3% on /
+
+Host packages
+command: sudo apt-get update && sudo apt-get install -y libclang-rt-18-dev lua5.1
+rc: 0
+Later, so clang's c++ driver could link libstdc++: sudo apt-get install -y libstdc++-14-dev g++-14
+rc: 0
+
+Reference clones (siblings, --filter=blob:none, then checkout --detach). Parallel wall about 1 s. Each rc 0.
+git clone --filter=blob:none https://github.com/synthfr/schwung-9W9.git /agent/repos/schwung-9W9
+HEAD 10cbe5c1e1c9e65b0818bb34644ab1a13092082c  license file: LICENSE
+git clone --filter=blob:none https://github.com/michaelmenesescs/schwung-8W8.git /agent/repos/schwung-8W8
+HEAD 94aa2716d4c2e5851fc7c5dbb4c17adfd133c997  license file: LICENSE
+git clone --filter=blob:none https://github.com/charlesvestal/schwung-303.git /agent/repos/schwung-303
+HEAD 7680578cdecd91e512cfddb9c9eb07b287fb64f4  license file: LICENSE
+git clone --filter=blob:none https://github.com/charlesvestal/schwung-tb3po.git /agent/repos/schwung-tb3po
+HEAD f49d81d05d1e29ae37728a08e30f193892be3bc9  license file: LICENSE
+
+Scratch repo (no push): git clone --bare /agent/repos/X0X37-for-Loopy-Pro /tmp/x0x37.git
+rc: 0. HEAD and 43de100c are present. Origin of the bare repo is the local checkout path.
+
+Drum and sequencer host run
+command: NINEW9_DIR=/agent/repos/schwung-9W9 EIGHTW8_DIR=/agent/repos/schwung-8W8 SCHWUNG303=/agent/repos/schwung-303 TB3PO_REF=/agent/repos/schwung-tb3po/src/dsp/tb3po.c CC=cc CXX=c++ X0X_TEST_JOBS=1 X0X_TESTS="drum909 drum808 sequencer" sh tests/run_tests.sh
+start: 2026-11-05T11:40:39Z  end: 2026-11-05T11:40:52Z  duration: 13 s  rc: 1
+  ok   sequencer
+  ok   drum909
+  FAIL drum808 (see build/host/drum808.log)
+       /usr/bin/ld: cannot find -lstdc++: No such file or directory
+
+drum808 after libstdc++-14-dev
+command: same variables, X0X_TESTS=drum808
+start: 2026-11-05T11:41:24Z  end: 2026-11-05T11:41:28Z  duration: 4 s  rc: 0
+  ok   drum808
+log: 436 cases, 0 over 1e-03; worst rel 6.135e-04 (BD tune=0)
+
+Toolchain
+command: curl -fL --retry 3 -o /tmp/x0x-trial/linux-toolchain.bin https://pkgman.jieliapp.com/s/linux-toolchain
+then tar -xJf into /home/ubuntu/.jieli and symlink toolchain
+start: 2026-11-05T11:39:52Z  end: 2026-11-05T11:40:00Z  rc: 0
+bytes: 26027508 (expected 26027508)
+sha256: a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd (match)
+clang: /home/ubuntu/.jieli/toolchain/pi32v2/bin/clang
+clang sha256: c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f (match)
+clang --version: clang version 4.0.1
+directory: jieli-linux-toolchains-20260730.1
+
+AC79 SDK
+command: git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git /home/ubuntu/fw-AC79_AIoT_SDK
+start: 2026-11-05T11:40:36Z  end: 2026-11-05T11:41:15Z  duration: 39 s  rc: 0
+HEAD: d179b4484759423312073f5fbb232501aa491047
+HEAD^{commit}: d179b4484759423312073f5fbb232501aa491047 (expected match)
+cpu/wl82/tools/uboot.boot: present
+
+AU compare scripts (not registered in tests/run_tests.sh)
+python3 tests/host/render_chicago_au_compare.py  rc 0
+  skip chicago-au-compare (CHICAGO_AU_REFS unset)
+python3 tests/host/render_miami_au_compare.py  rc 0
+  skip miami-au-compare (MIAMI_AU_REFS unset)
+
+Gate trial
+tools/gate.sh is mode 100644 in this tree. Direct exec returned rc 126: Permission denied.
+The trial used the same arguments through bash. No chmod.
+command: bash tools/gate.sh 43de100c83d845409bb801ecf29238a78f179aed --purpose owner-validation --reason "informational trial of 43de100c on a cloud VM, not a release" --trial
+cap: timeout --signal=TERM 3600
+start: 2026-11-05T11:42:46Z  end: 2026-11-05T11:45:46Z  wrapper rc: 1
+gate's own duration line: 176 s
+env at execution: see README.md
+one line: TRIAL FAIL 43de100 (time scale 1) Elite build (dev):

@@ -1,0 +1,14 @@
+  0x000000-0x003fff   16 KiB  head
+  0x004120-0x08afff  539 KiB  app code
+  0x08b000-0x09afff   64 KiB  Bluetooth block
+  0x09b000-0x09cfff    8 KiB  app slot end and cfg
+  0x09d000-0x0affff   76 KiB  store
+  0x0b0000-0x0bafff   44 KiB  VM spare
+  0x0bb000-0x0bffff   20 KiB  OTA
+  0x0c0000-0x0c1fff    8 KiB  BTIF and USRTRIM
+  0x0c2000-0x0f3fff  200 KiB  slots 1 and 2
+  0x0f4000-0x0fdfff   40 KiB  USR
+  0x0ff000-0x0fffff    4 KiB  key_mac
+owner tag (ST_OWNER_SECTOR): 0xaf000
+VM spare: 0xb0000-0xbafff, 44 KiB
+flashmap: PASS

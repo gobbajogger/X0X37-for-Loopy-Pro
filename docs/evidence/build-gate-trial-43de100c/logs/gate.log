@@ -1,0 +1,37 @@
+gate: Purpose: owner-validation; Run reason: informational trial of 43de100c on a cloud VM, not a release
+gate: removed the build variables of the caller: JIELI_DOCKER=0
+gate: builds of the two configs took 1 s
+gate: FAIL Elite build (dev): 
+gate: FAIL Pro build (dev): 
+gate: FAIL Elite build (rel): 
+gate: FAIL Pro build (rel): 
+gate: took the gate lock after 0 s
+gate: released the gate lock; the tests took 170 s
+gate: FAIL tests (dev): 58 failed (original-release-integration (see build/host/original-release-integration.log))
+gate: FAIL tests (dev): 1 skipped
+gate: FAIL tests (dev) did not run: ble-package chicago-presentation chicago-readout copy-semantics ext-midi-rec-smk font-pack gen-order home-overview host-build matrix-knob-caption perf-scratch preset-navigation-noop project-runtime rec-live-smk save-note-quiet scenario-arrows scenario-autosave scenario-bleclock scenario-blenotes scenario-brkslice scenario-brkslice_mode_toggle scenario-brkslice_trs_overlap scenario-clip-arrow-menu scenario-clklock scenario-clkmove scenario-clocksrc scenario-drum_bass_ch_consume scenario-edit_midi_rec_guard scenario-edit_oct_no_hidden scenario-extclock scenario-freeplay scenario-getting_started scenario-groove scenario-guard scenario-help scenario-jam scenario-keysound scenario-knobs scenario-midiowner scenario-migrate scenario-migrate0102 scenario-patterns scenario-perf scenario-perfsave scenario-plock scenario-prob scenario-probcond scenario-probreset scenario-roll_continuation scenario-roll_short_tie scenario-savefeedback scenario-savewait scenario-showcase scenario-slices scenario-song scenario-song_live_mute_save scenario-songrep scenario-sound_matrix_chicago scenario-sound_matrix_chicago_idle scenario-sound_matrix_drum scenario-sound_matrix_lock scenario-sound_matrix_miami scenario-sound_page_split scenario-step303 scenario-steps64 scenario-stereo scenario-tb3po scenario-tour scenario-trackmute scenario-undo scenario-upload scenario-upload44 scenario-usbnotes smc-drum-mutes smc-drum-rs smc-performance-abort smc-reachability smc-record-feedback smk-build-package smk-build-package-elite smk-clip-chord-display smk-ota-entry smk-ota-entry-model1 smk-ota-entry-model2 smk-package smk-update-loader song-actions sound-layout sound-matrix ui-303-entry ui-feedback
+gate: FAIL test smk-build-package (dev) did not pass
+gate: FAIL test ble-package (dev) did not pass
+gate: FAIL tests (rel): 58 failed (original-release-integration (see build/host/original-release-integration.log))
+gate: FAIL tests (rel): 1 skipped
+gate: FAIL tests (rel) did not run: ble-package chicago-presentation chicago-readout copy-semantics ext-midi-rec-smk font-pack gen-order home-overview host-build matrix-knob-caption perf-scratch preset-navigation-noop project-runtime rec-live-smk save-note-quiet scenario-arrows scenario-autosave scenario-bleclock scenario-blenotes scenario-brkslice scenario-brkslice_mode_toggle scenario-brkslice_trs_overlap scenario-clip-arrow-menu scenario-clklock scenario-clkmove scenario-clocksrc scenario-drum_bass_ch_consume scenario-edit_midi_rec_guard scenario-edit_oct_no_hidden scenario-extclock scenario-freeplay scenario-getting_started scenario-groove scenario-guard scenario-help scenario-jam scenario-keysound scenario-knobs scenario-midiowner scenario-migrate scenario-migrate0102 scenario-patterns scenario-perf scenario-perfsave scenario-plock scenario-prob scenario-probcond scenario-probreset scenario-roll_continuation scenario-roll_short_tie scenario-savefeedback scenario-savewait scenario-showcase scenario-slices scenario-song scenario-song_live_mute_save scenario-songrep scenario-sound_matrix_chicago scenario-sound_matrix_chicago_idle scenario-sound_matrix_drum scenario-sound_matrix_lock scenario-sound_matrix_miami scenario-sound_page_split scenario-step303 scenario-steps64 scenario-stereo scenario-tb3po scenario-tour scenario-trackmute scenario-undo scenario-upload scenario-upload44 scenario-usbnotes smc-drum-mutes smc-drum-rs smc-performance-abort smc-reachability smc-record-feedback smk-build-package smk-build-package-elite smk-clip-chord-display smk-ota-entry smk-ota-entry-model1 smk-ota-entry-model2 smk-package smk-update-loader song-actions sound-layout sound-matrix ui-303-entry ui-feedback
+gate: FAIL test smk-build-package (rel) did not pass
+gate: FAIL test ble-package (rel) did not pass
+gate: FAIL elite build: app code over the limit (no 'B free' line)
+gate: FAIL elite build: app RAM over the limit
+gate: FAIL elite build: pool headroom 0 B < 8192 B
+gate: FAIL pro build: app code over the limit (no 'B free' line)
+gate: FAIL pro build: app RAM over the limit
+gate: FAIL pro build: pool headroom 0 B < 8192 B
+gate: FAIL elite-rel build: app code over the limit (no 'B free' line)
+gate: FAIL elite-rel build: app RAM over the limit
+gate: FAIL elite-rel build: pool headroom 0 B < 8192 B
+gate: FAIL pro-rel build: app code over the limit (no 'B free' line)
+gate: FAIL pro-rel build: app RAM over the limit
+gate: FAIL pro-rel build: pool headroom 0 B < 8192 B
+gate: FAIL BLE Elite package (dev): add_ctl.py failed (add_ctl: [Errno 2] No such file or directory: 'build/x0x-smk37-elite.fwsc')
+gate: FAIL BLE Elite package (rel): add_ctl.py failed (add_ctl: [Errno 2] No such file or directory: 'build/x0x-smk37-elite.fwsc')
+gate: FAIL CRC manifest
+gate: FAIL CRC manifest: no line for build/x0x-smk37-elite-ble.fwsc
+gate: FAIL CRC manifest: no line for rel/build/x0x-smk37-elite-ble.fwsc
+gate: FAIL validation inputs changed during run

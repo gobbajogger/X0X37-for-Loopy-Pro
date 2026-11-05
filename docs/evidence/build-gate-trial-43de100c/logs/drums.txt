@@ -1,0 +1,18 @@
+First host run, 13 s, rc 1. X0X_TESTS="drum909 drum808 sequencer"
+  ok   sequencer
+  ok   drum909
+  FAIL drum808
+first failing line:
+  /usr/bin/ld: cannot find -lstdc++: No such file or directory
+  c++: error: linker command failed with exit code 1 (use -v to see invocation)
+sequencer log included: TB-3PO vs schwung-tb3po: 31920 / 31920 steps identical
+drum909 log ended: PASS: 0 failure(s)
+
+Second host run, drum808 only, after libstdc++-14-dev, 4 s, rc 0
+  ok   drum808
+436 cases, 0 over 1e-03; worst rel 6.135e-04 (BD tune=0)
+
+Inside the gate (private HOME, after the library install)
+  ok   sequencer
+  ok   drum909
+  ok   drum808

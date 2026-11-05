@@ -1,0 +1,8 @@
+  load 02087000  vma 02087000      68 B
+  load 02087044  vma 02087044   51848 B
+  load 02093ad0  vma 02093ad0    4304 B
+  load 02094ba0  vma 01c01800    3516 B
+  load 0209595c  vma 01c025bc    1812 B
+/home/ubuntu/.cache/x0x37-gate/43de100/ble/ctl/out/ctl.img: 61552 B of 65536, crc32 564a8f55, RAM 0x1c01800..0x1c07ee0 (26336 B of 26368)
+Controller cache updated: /home/ubuntu/.cache/x0x37-gate/43de100-20261105-1142-4199.logs/home/.config/x0x/ctl.img
+Done: /home/ubuntu/.cache/x0x37-gate/43de100/ble/ctl/out/ctl.img
