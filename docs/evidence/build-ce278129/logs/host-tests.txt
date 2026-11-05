@@ -1,7 +1,31 @@
-status: running
-START_TESTS 2026-11-05T12:02:37Z
+status: finished
 command: timeout 2400 sh tests/run_tests.sh
-log: /home/ubuntu/x0x-scratch-ce278129/logs/run_tests.log
-The suite process was alive and compiling host tests when this note was written.
-Totals, FAIL names, and NOT_RUN names are not in this commit. They follow when the suite finishes.
-part-off and part-off-web-e2e parsed status: not yet captured.
+started: 2026-11-05T12:02:37Z
+ended: 2026-11-05T12:23:46Z
+elapsed_s: 1269
+rc: 1
+ok: 391
+FAIL: 6
+NOT_RUN: 0
+reference: 364 ok / 19 FAIL / 6 NOT_RUN
+difference: +27 ok, -13 FAIL, -6 NOT_RUN
+
+FAIL original-release-ui
+  captured log empty; only the FAIL status line
+FAIL smc-ui
+  FAIL tests/host/smc_ui_test.c:285: engine_project_notes()
+FAIL offline-sequencer-browser
+  ModuleNotFoundError: No module named 'playwright'
+FAIL ui-feedback
+  Assertion `help_with_pending_readout == help_only' failed
+  tests/host/ui_feedback_test.c:98
+FAIL ui-glyph-polish
+  error: too few arguments to function call, expected 5, have 3
+  draw_adsr_inline
+FAIL scenario-plock
+  FAIL expect lanes == 1, got 2
+
+part_off: ok (0 failing cases)
+part_off_web_e2e: ok (0 failing cases)
+part-off runner line: ok
+part-off-web-e2e runner line: ok

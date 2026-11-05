@@ -1,5 +1,5 @@
 START_ELITE 2026-11-05T12:00:24Z
-ENV JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK JIELI_DOCKER=0 X0X_DEV_PADCAL=0 CTL_NO_CACHE=1 CC=cc CXX=c++
+ENV JIELI_TOOLCHAIN=$JIELI_TOOLCHAIN AC79_SDK=$AC79_SDK JIELI_DOCKER=0 X0X_DEV_PADCAL=0 CTL_NO_CACHE=1 CC=cc CXX=c++
 MODEL=elite ./build.sh --board smk37
 check_locked_settings: 20 settings ok
 loader: image 8524 B at 0x1c0a800, bss end 0x1c0f770

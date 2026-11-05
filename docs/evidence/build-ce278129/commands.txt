@@ -28,11 +28,11 @@ df -i /
 # rc 0  elapsed_ms 6862
 # python3 -c "import PIL; print('PIL', PIL.__version__)"
 # rc 0  PIL 13.0.0
-# import path: /home/ubuntu/.local/lib/python3.12/site-packages/PIL/__init__.py
+# import path: the user-site Pillow module
 # apt package python3-pil 10.2.0-1ubuntu1.4 is also installed. The import uses the user-site copy.
 
 # --- public inputs ---
-# curl -fL --retry 3 -o /home/ubuntu/x0x-inputs/linux-toolchain.bin https://pkgman.jieliapp.com/s/linux-toolchain
+# curl -fL --retry 3 -o linux-toolchain.bin https://pkgman.jieliapp.com/s/linux-toolchain
 # rc 0
 # size 26027508 expected 26027508 MATCH
 # sha256 a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd MATCH
@@ -40,7 +40,7 @@ df -i /
 # clang: $HOME/.jieli/toolchain/pi32v2/bin/clang -> ../../common/bin/clang
 # clang sha256 c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f MATCH
 # clang version 4.0.1
-# git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git /home/ubuntu/fw-AC79_AIoT_SDK
+# git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git $AC79_SDK
 # rc 0  (toolchain download + sdk clone together elapsed_ms 61882)
 # HEAD d179b4484759423312073f5fbb232501aa491047 MATCH (grafted, tag AC79NN_SDK_V1.2.1_2023-12-13)
 # pins, all MATCH:
@@ -58,8 +58,8 @@ df -i /
 
 # --- real build ---
 # env at execution:
-#   JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
-#   AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+#   JIELI_TOOLCHAIN=$JIELI_TOOLCHAIN
+#   AC79_SDK=$AC79_SDK
 #   JIELI_DOCKER=0
 #   X0X_DEV_PADCAL=0
 #   CTL_NO_CACHE=1

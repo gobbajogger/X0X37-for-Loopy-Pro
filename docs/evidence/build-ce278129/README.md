@@ -4,7 +4,7 @@ This is a native evidence build of `ce27812951555ff7ed9694bf99d20a65dd5f410b`. I
 
 The player-facing firmware bytes match the `43de100c` packages. The two commits since that build change host tests only. Elite pool free is 8200 bytes and Pro pool free is 8200 bytes. Both are at or above the 8192 byte floor.
 
-The host suite was still running when this note was written. Totals are not claimed here.
+The host suite finished with 391 ok, 6 FAIL, and 0 NOT_RUN. That differs from the reference figure of 364 ok / 19 FAIL / 6 NOT_RUN.
 
 ## Commit chain
 
@@ -49,7 +49,7 @@ None of those paths are under `firmware/`, `ble/`, `web/`, or `tools/`. The last
 | schwung-303 | `7680578cdecd91e512cfddb9c9eb07b287fb64f4` | identical (`SCHWUNG303`) |
 | schwung-tb3po | `f49d81d05d1e29ae37728a08e30f193892be3bc9` | identical (`TB3PO_REF` file present) |
 
-Build environment: `JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain`, `AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK`, `JIELI_DOCKER=0`, `X0X_DEV_PADCAL=0`, `CTL_NO_CACHE=1`, `CC=cc`, `CXX=c++`. The controller build also set `SDK_LOCAL` to that SDK and `CTL_NATIVE=1`.
+Build environment: `JIELI_TOOLCHAIN=$JIELI_TOOLCHAIN`, `AC79_SDK=$AC79_SDK`, `JIELI_DOCKER=0`, `X0X_DEV_PADCAL=0`, `CTL_NO_CACHE=1`, `CC=cc`, `CXX=c++`. The controller build also set `SDK_LOCAL` to that SDK and `CTL_NATIVE=1`.
 
 `python3 -c "import PIL"` succeeds. The loaded module is Pillow 13.0.0 from the user site. `apt` also installed `python3-pil` 10.2.0. `lua5.1`, `libclang-rt-18-dev`, and `libstdc++-14-dev` are installed. Node is v22.23.4. Playwright and Chromium were not installed.
 
@@ -84,19 +84,11 @@ BLE flash is 61552 of 65536. BLE RAM is 26336 of 26368. Both match 43de100c. No 
 
 ## Version agreement
 
-| source | value | where |
-| --- | --- | --- |
-| firmware ABOUT string | `DEV` | `firmware/src/app/version.h` line 7, `#define X0X_VERSION "DEV"`. `firmware/src/app/ui.c` builds `DnBOX ` + that macro + `  MEM `. Both app images contain `DnBOX DEV  MEM ` and `X0X DEV`. |
-| manifest | `DEV` | `docs/handoff/build/manifest-ce278129.json` field `firmware_version_string` |
-| catalog row `display_version` | `DEV` | `publish-ready-ce278129.md` and `versions-would-be.json` |
-| would-be `versions.json` | `DEV` | `versions-would-be.json` → `versions[0].display_version` |
-| expected display version | `0.0.24.5` | coordinator plan. The live entry `nightly-8be16486-dev` stores that string, and its description says the embedded firmware reports 0.0.24 and that 0.0.24.5 is a catalog label only. This tree does not contain `0.0.24.5` as `X0X_VERSION`. |
-| label / version key | `nightly-ce278129-dev` | manifest `catalog_version`, catalog row `version`, `versions-would-be.json` `latest` and `versions[0].version` |
-| build id | `ce278129` | prefix of commit `ce27812951555ff7ed9694bf99d20a65dd5f410b` |
+`display_version` is `0.0.24.5` in the manifest, in the catalog row, and in `versions-would-be.json` `versions[0].display_version`. Those three agree.
 
-The firmware string, the manifest, the catalog row, and the would-be `versions.json` entry agree with each other on `DEV`. They disagree with the expected display version `0.0.24.5`. Nothing was edited to close that gap.
+That string is the carry read from gh-pages `7c7baecb1be17b860b13e8832882a399679231c1` `versions.json`, entry `nightly-8be16486-dev`, field `display_version`. The same entry says the embedded firmware reports 0.0.24 and that 0.0.24.5 is a catalog label. A byte search of this candidate's app images and `.fwsc` files does not find `0.0.24.5`. `firmware/src/app/version.h` line 7 is the default `X0X_VERSION` macro, and the built ABOUT line uses that macro. The catalog field stays `0.0.24.5`.
 
-`build.py --nightly-version` accepts only canonical `X.Y.Z`. It rejects `DEV`, `0.0.24.5`, and `nightly-ce278129-dev` with `firmware version must be canonical X.Y.Z (components 0..99)` and does not compile. `package_nightly.py` has `--firmware-version` and does not have `--nightly-version`. The same canonical-shape error is what `--check` prints for `DEV` and for `0.0.24.5`. A diagnostic `--firmware-version 0.0.24` (not used as the identity) then prints `NIGHTLY image contains DnBOX DEV`. The allocation line was not reached. No ledger file was edited.
+The label is exactly `UNREVIEWED · DEVICE NOT TESTED` (U+00B7). `hardware_tested` is false. The version key is `nightly-ce278129-dev`. The build id `ce278129` is the prefix of `ce27812951555ff7ed9694bf99d20a65dd5f410b`.
 
 ## package_check against outputs
 
@@ -106,29 +98,72 @@ The `-ble` files in `outputs[]` come from `tools/add_ctl.py`, not from `package_
 
 ## Host suite
 
-Status: **running**. Command: `timeout 2400 sh tests/run_tests.sh`, started 2026-11-05T12:02:37Z, with `NINEW9_DIR`, `EIGHTW8_DIR`, `SCHWUNG303`, and `TB3PO_REF` set to the pinned checkouts. Parsed part-off and part-off web status lines are not available yet. A NOT_RUN, SKIP, or missing-node line will be reported as NOT_RUN even if the process exit code is 0. Playwright was not installed, so `offline-sequencer-browser` is expected to stay an environment gap. Its exact message will be copied from the log.
+`timeout 2400 sh tests/run_tests.sh` started 2026-11-05T12:02:37Z and ended 2026-11-05T12:23:46Z. Exit code 1. Elapsed 1269 seconds. The reference checkouts were set, and `drum909`, `drum808`, and `sequencer` each printed ok.
+
+Measured: **391 ok, 6 FAIL, 0 NOT_RUN**. The reference figure 364 ok / 19 FAIL / 6 NOT_RUN differs: this run has 27 more ok, 13 fewer FAIL, and 6 fewer NOT_RUN.
+
+FAIL names, with the first failing line:
+
+- `original-release-ui`: the captured log is empty. The only recorded line is `FAIL original-release-ui`.
+- `smc-ui`: `FAIL tests/host/smc_ui_test.c:285: engine_project_notes()`
+- `offline-sequencer-browser`: `ModuleNotFoundError: No module named 'playwright'`. The runner printed FAIL, not a not-run line.
+- `ui-feedback`: `Assertion help_with_pending_readout == help_only failed` in `tests/host/ui_feedback_test.c:98`
+- `ui-glyph-polish`: `error: too few arguments to function call, expected 5, have 3` at `draw_adsr_inline`
+- `scenario-plock`: `FAIL expect lanes == 1, got 2`
+
+NOT_RUN names: none.
+
+Compared with the 8be16486 FAIL names, none of these six are new. Compared with the 43de100c FAIL names, these now print ok: `original-build`, `ui-theme`, `smc-select-mode`, `smc-solo-overflow`, `smc-boot-saved-roles`, `smc-multi-peer`, `ui-peer-names`, `builtin-break-output`, `sound-matrix`, `smc-remainder`, `offline-touchosc-lua`.
+
+`part-off` parsed status: `part_off: ok (0 failing cases)`. `part-off-web-e2e` parsed status: `part_off_web_e2e: ok (0 failing cases)`. The runner lines are `ok` as well. Neither is NOT_RUN.
 
 ## Catalog dry run
 
 Live file: `https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/versions.json`, HTTP 200, 66132 bytes, sha256 `3585a36cdd5da576be04834704f8ff98e8b59a03cef3d186cae336b89c19dd90`. The `install/versions.json` URL returned HTTP 404. No authentication challenge occurred. Nothing was pushed and the gh-pages branch was not cloned into a remote write.
 
-The live `versions` array has 28 entries. One of them is `nightly-8be16486-dev`. There are 27 other entries, not 28 others. `latest` on the live file is `nightly-8be16486-dev`. `history` is an empty list.
+The gh-pages tip read for this dry run is `7c7baecb1be17b860b13e8832882a399679231c1`. `git ls-remote` showed that same SHA as `refs/heads/gh-pages` of `gobbajogger/x0x37-for-Loopy-Pro_nightly`. The tip had not moved. The file `versions.json` at that commit is byte-identical to the HTTP 200 pages file above.
 
-`versions-would-be.json` is that file plus one new entry, and `latest` points at `nightly-ce278129-dev`. `versions-json.diff` is `diff -u` of the live file against that draft. `catalog-entry-sha256.txt` is the canonical JSON sha256 of each of the 28 pre-existing entries before and after the addition. All 28 lines say `equal`, including `nightly-8be16486-dev`. Differing count is 0.
+The live `versions` array has 28 entries. One of them is `nightly-8be16486-dev`. There are 27 other entries. `latest` on the live file is `nightly-8be16486-dev`. `history` is an empty list. That commit's tree has no `.fwsc` files. `nightly-8be16486-dev` points `pkg` at raw GitHub URLs in the main repository.
 
-`publish_nightly.py` was not run. The command lines are in `publish-ready-ce278129.md`. That file is a draft waiting for the owner's go-ahead. It is not a publish.
+`versions-would-be.json` adds one entry and points `latest` at `nightly-ce278129-dev`. `versions-json.diff` is `diff -u` against that gh-pages file. The only removed line is the old `latest` value. The 28 pre-existing entries are unchanged. `catalog-entry-sha256.txt` says `equal` for all 28, including `nightly-8be16486-dev`.
+
+## Push A
+
+This is a listing. It was not executed. No file was written to gh-pages, and no `.fwsc` is in git.
+
+Paths relative to the gh-pages root, matching a new `artifacts/nightly-dev/` directory. Sizes and sha256 are the bundled packages from this build.
+
+| path | size | sha256 |
+| --- | --- | --- |
+| `artifacts/nightly-dev/4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb/x0x37-elite-dev.fwsc` | 651570 | `4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb` |
+| `artifacts/nightly-dev/cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7/x0x37-pro-dev.fwsc` | 651566 | `cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7` |
+
+`versions.json` would be modified, not added. The `nightly-8be16486-dev` layout stores the controller as `controller_sha256` and `controller_size` on the model. It does not add a separate controller file. `ctl.img` is 61552 bytes, sha256 `a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984`. `package_nightly.py` produced no installer file.
+
+The Pages URLs in the new catalog row are:
+
+- `https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb/x0x37-elite-dev.fwsc`
+- `https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7/x0x37-pro-dev.fwsc`
+
+Would-be `git diff --stat --no-renames` if those paths were added and only `versions.json` were edited:
+
+```
+ artifacts/nightly-dev/4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb/x0x37-elite-dev.fwsc | Bin 0 -> 651570 bytes
+ artifacts/nightly-dev/cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7/x0x37-pro-dev.fwsc | Bin 0 -> 651566 bytes
+ versions.json | 34 +++++-
+ 3 files changed, 34 insertions(+), 1 deletion(-)
+```
+
+The committed `versions-json.diff` does not contain the binary lines. It shows only the new catalog entry and the `latest` pointer.
 
 ## Copying the bytes
 
-`SHA256SUMS` lists every produced artifact: name, size, sha256. The files are in `/home/ubuntu/x0x-scratch-ce278129/pkg/` and also in the gitignored `build/` and `ble/ctl/out/` directories of this checkout. They are not in git. This VM disk is not a release archive. The bytes remain only while this machine keeps that scratch directory.
-
-No binary, package, toolchain, SDK, or reference tree is in this commit.
+`SHA256SUMS` lists name, size, and sha256. The bytes are not in git. No installer package was produced.
 
 ## NOT_RUN
 
-- `package_nightly.py` create and `--check`: `package_nightly: firmware version must be canonical X.Y.Z (components 0..99)`. No installer package file was produced. Allocation text was not reached.
-- `publish_nightly.py`: not executed. It needs DEV CHECKED records this unreviewed build does not have. `--push` was not passed.
-- Public `pkg` URL for the new catalog row: not published. The draft stores the local scratch path.
+- `package_nightly.py` create and `--check`: `package_nightly: firmware version must be canonical X.Y.Z (components 0..99)`. No installer file. Allocation text was not reached.
+- `publish_nightly.py`: not executed. No `--push` and no `--remote`.
 - Ledger number and `release_alloc.py`: not used.
-- Host totals, FAIL names, NOT_RUN names, and the parsed part-off lines: the suite was still running.
 - `tools/gate.sh`: not run.
+- Host NOT_RUN names: none were printed.

@@ -21,7 +21,7 @@ python3 tools/package_nightly.py build/x0x-smk37-ble.fwsc --check --model pro --
 rc=1
 package_nightly: firmware version must be canonical X.Y.Z (components 0..99)
 
-python3 tools/package_nightly.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img --model elite --controller-sha256 a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984 --controller-size 61552 --firmware-version DEV -o /home/ubuntu/x0x-scratch-ce278129/pkg/elite-package-nightly.fwsc
+python3 tools/package_nightly.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img --model elite --controller-sha256 a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984 --controller-size 61552 --firmware-version DEV -o scratch-elite-package-nightly.fwsc
 rc=1
 package_nightly: firmware version must be canonical X.Y.Z (components 0..99)
 No output file was written.

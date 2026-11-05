@@ -1,5 +1,5 @@
+Base: gh-pages 7c7baecb1be17b860b13e8832882a399679231c1 versions.json
 canonical sha256 of each pre-existing versions[] entry before and after adding nightly-ce278129-dev
-equal means the entry bytes of the canonical JSON are unchanged
 pre-existing count 28 differing 0
 equal 2c7bdfeb79b45aeec22cdac1a30edef4fa02a2918909f91ecaf3e121f60ded4a nightly-8be16486-dev
 equal e3f5eb0a709eec283d9e93a84869beeaaf20fb680581e7c387c63f5b10d25cf0 nightly-179ab384-dev
