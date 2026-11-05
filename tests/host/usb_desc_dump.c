@@ -9,6 +9,10 @@
 static uint32_t fm1_irq_mask_save(unsigned n) { (void)n; return 0; }
 static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
+#ifndef FM1_TICKS_PER_US
+#define FM1_TICKS_PER_US 24u
+#endif
+static uint32_t fm1_ticks(void) { return 0; }
 #include "usb.c"
 
 static void dump(const char *tag, uint32_t wvalue)

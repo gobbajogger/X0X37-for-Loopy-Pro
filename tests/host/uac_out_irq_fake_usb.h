@@ -3,6 +3,10 @@
  * unused controller operations are inert, with no physical device access. */
 #pragma once
 #include <stdint.h>
+#ifndef FM1_TICKS_PER_US
+#define FM1_TICKS_PER_US 24u
+#endif
+static uint32_t fm1_ticks(void) { return 0; }
 static uint8_t fake_reg[8][32];
 static uint32_t fake_index, fake_rd_r;
 static uint8_t *fake_slot(uint32_t r)
