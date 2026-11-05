@@ -164,8 +164,9 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
         self.assertIn("smk_div_held & owned", hal)
         self.assertIn("if (!vel) smk_div_held &= (uint16_t)~owned", hal)
-        self.assertIn("if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad])", hal)
-        self.assertIn("if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u)", hal)
+        self.assertIn("#define SMK_NPAD 16u", hal)
+        self.assertIn("if (vel && pad < SMK_NPAD && smk_div_owner && !smk_pad_note[pad])", hal)
+        self.assertIn("smk_div_pending = (uint8_t)(pad + 1u)", hal)
         self.assertIn("smk_div_pending = 0;", hal)
         self.assertIn("smk_div_owner = (uint8_t)owner;", hal)
         self.assertRegex(plat, r"(?s)uint32_t flags = irq_save\(\);"

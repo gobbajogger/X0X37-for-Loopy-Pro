@@ -373,11 +373,21 @@ static void picture_rule_cases(void)
     }
     CHECK(!memcmp(saved,&proj,sizeof proj)); CHECK(!memcmp(&before,&seq,sizeof seq)); free(saved);
     palette_set(proj.set.palette);
-    /* A stop square and a play triangle are distinct, bounded status pictures. */
-    cv_begin(240,HDR_H,C_BLACK); header_transport(10,0); uint32_t stopped=picture_pixels(cv_px,10,4,9,11);
+    /* The header play mark is one triangle. Metro phase picks its colour:
+     * dim while stopped, white on the beat, bright after it. Ink stays in the 9 by 11 box. */
+    seq.metro_view=0; cv_begin(240,HDR_H,C_BLACK);
+    play_icon(10,4,!seq.metro_view?C_DIM:seq.metro_view<=4u?C_WHITE:C_HI);
+    uint32_t stopped=picture_pixels(cv_px,10,4,9,11);
     for(int y=0;y<HDR_H;y++)for(int x=0;x<240;x++)if(cv_px[y*240+x]!=swap16(C_BLACK))CHECK(x>=10&&x<19&&y>=4&&y<15);
-    seq.playing=1; cv_begin(240,HDR_H,C_BLACK); header_transport(10,0);
-    CHECK(picture_pixels(cv_px,10,4,9,11)!=stopped); seq.playing=0;
+    seq.metro_view=1; cv_begin(240,HDR_H,C_BLACK);
+    play_icon(10,4,!seq.metro_view?C_DIM:seq.metro_view<=4u?C_WHITE:C_HI);
+    uint32_t beat=picture_pixels(cv_px,10,4,9,11);
+    CHECK(beat!=stopped);
+    for(int y=0;y<HDR_H;y++)for(int x=0;x<240;x++)if(cv_px[y*240+x]!=swap16(C_BLACK))CHECK(x>=10&&x<19&&y>=4&&y<15);
+    seq.metro_view=5; cv_begin(240,HDR_H,C_BLACK);
+    play_icon(10,4,!seq.metro_view?C_DIM:seq.metro_view<=4u?C_WHITE:C_HI);
+    uint32_t late=picture_pixels(cv_px,10,4,9,11);
+    CHECK(late!=beat && late!=stopped); seq.metro_view=0; seq.playing=0;
     for(int p=PART_303A;p<=PART_303B;p++){
         screen(V_PART,p,0); uint8_t page=cur_page(),view=ui.view,part=ui.part;
         cv_begin(240,KNOB_H,C_BLACK); int end=matrix_row_hint(7,50,C_HI);

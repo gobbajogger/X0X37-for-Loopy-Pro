@@ -54,11 +54,16 @@ static void check_plain_select(void)
         if (views[v] == V_GEN) { smc.part = PART_303A; build_pages(); }
         screen_state_t keyboard = screen_state();
         int rec = ui.rec;
+        int mix_before = smc.view == V_MIX;
+        int page_before = smc_page_now();
         message(0x90, 24 + strip, 127);
         CHECK(!smc.fx_down && !smc.fx_main_wait);
         if (strip < NPARTS) { CHECK(smc.part == (strip==2?4:strip==4?2:strip)); CHECK(smc.view == V_PART); check_select_led(strip, 1); }
         else { CHECK(smc.view == (strip == 7 ? V_MIX : V_FX)); /* SELECT 7 opens the mixer on page 0; on the mixer it steps to the next page. */
-               CHECK(smc_page_now() == (strip == 5 ? 0 : strip == 6 ? 1 : 3)); }
+               if (strip != 7) CHECK(smc_page_now() == (strip == 5 ? 0 : 1));
+               else if (!mix_before) CHECK(smc_page_now() == 0);
+               else { int count = smc_page_count(); CHECK(count > 1);
+                      CHECK(smc_page_now() == (page_before + 1) % count); } }
         int view = smc.view, page = smc_page_now(), part = smc.part;
         message(0x90, 24 + strip, 127); /* repeat cannot acquire FX after navigation */
         now_ms += 200; smc_poll();

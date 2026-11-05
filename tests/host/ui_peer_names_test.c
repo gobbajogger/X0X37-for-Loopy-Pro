@@ -12,7 +12,7 @@ static void peers(unsigned count,const char*a,const char*b){memset(&fixture,0,si
 static void peer_frame(const char *name){ui.msg_until=0;ui_frame();shot(name);}
 static unsigned name_row;
 int main(void){
- setup(V_HOME,PART_909);any_button=1;pref_set(PR(R_BT,0,0,0),1);pref_set(PR(R_ENG,T_MST,0,MST_PUMP),0);audio_due_ms=now_ms;run_ms(20);open_global();ui.overlay=O_LIST;ui.help=0;for(unsigned i=0;i<ui.list_n;i++)if(list_rows[i].kind==R_BTNAME)name_row=i;CHECK(name_row);ui.list_top=name_row>=3?name_row-3:0;ui.list_sel=name_row-1;
+ setup(V_HOME,PART_909);any_button=1;pref_set(PR(R_BT,0,0,0),1);pref_set(PR(R_ENG,T_MST,0,MST_PUMP),0);audio_due_ms=now_ms;run_ms(20);open_global();global_section(1);ui.overlay=O_LIST;ui.help=0;int found=0;for(unsigned i=0;i<ui.list_n;i++)if(list_rows[i].kind==R_BTNAME){name_row=i;found=1;}CHECK(found);ui.list_top=name_row>=3?name_row-3:0;ui.list_sel=name_row?name_row-1:0;
  peers(0,"","");peer_frame("00-none");char joined[PEER_TEXT_CAP];peer_join(joined,&fixture);CHECK(!strcmp(joined,"-"));
  peers(1,"SMC-Mixer","");peer_frame("01-one");peer_join(joined,&fixture);CHECK(!strcmp(joined,"SMC-Mixer"));
  peers(2,"SMC-Mixer","SMC-Mixer");peer_frame("02-duplicates");peer_join(joined,&fixture);CHECK(!strcmp(joined,"SMC-Mixer, SMC-Mixer"));
