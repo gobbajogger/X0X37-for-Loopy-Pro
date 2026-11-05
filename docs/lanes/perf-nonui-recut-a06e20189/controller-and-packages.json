@@ -1,0 +1,24 @@
+[
+  {
+    "model": "elite",
+    "package_sha256": "d1395274937fe1d1a772c32ecc88482156b03e4abb1cbf72ede48aa3c7b8ca54",
+    "package_size": 651591,
+    "controller_sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+    "controller_size": 61088,
+    "controller_source": "Unchanged controller/ABI inputs at a06e20189; compiled here once",
+    "build_exit": 0,
+    "composition_exit": 0,
+    "integrity_exit": 0
+  },
+  {
+    "model": "pro",
+    "package_sha256": "9347869f8a32e99c70d00a5b943bd6285e73d45140aa12a9a78a2ab44ea833c4",
+    "package_size": 651587,
+    "controller_sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+    "controller_size": 61088,
+    "controller_source": "Unchanged controller/ABI inputs at a06e20189; compiled here once",
+    "build_exit": 0,
+    "composition_exit": 0,
+    "integrity_exit": 0
+  }
+]
