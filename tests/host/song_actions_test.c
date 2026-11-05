@@ -100,6 +100,7 @@ int main(void)
 
     set_view(V_GLO);
     open_global();
+    global_section(4);                                   /* GLOBAL > PROJECT */
     row = action_row(ACT_CLEAR_PAT);
     CHECK(row >= 0, "Global menu must contain CLEAR PATTERN");
     ui.list_sel = (uint8_t)row;

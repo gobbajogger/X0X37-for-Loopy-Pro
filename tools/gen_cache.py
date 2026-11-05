@@ -152,6 +152,10 @@ def fingerprint():
         _add_file(hasher, path)
     for path in _wavs(SRC / "assets" / "909"):
         _add_file(hasher, path)
+    if mode == "factory":
+        for path in sorted((SRC / "assets" / "factory-breaks").iterdir()):
+            if path.name == "pack.txt" or path.suffix == ".adpcm":
+                _add_file(hasher, path)
     bank = os.environ.get("X0X_BREAK_BANK")
     if bank:
         for path in sorted(p for p in Path(bank).rglob("*") if p.is_file()):
