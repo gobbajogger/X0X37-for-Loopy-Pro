@@ -674,6 +674,8 @@ run ui-chicago-env-motion sh tests/host/ui_chicago_env_motion_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run matrix-knob-caption Pillow; else run matrix-knob-caption sh tests/host/matrix_knob_caption_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run preset-navigation-noop Pillow; else run preset-navigation-noop sh tests/host/preset_navigation_noop_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run ui-303-entry Pillow; elif [ "$ASAN_SKIP" = 1 ]; then not_run ui-303-entry ASan; else run ui-303-entry sh tests/host/pro_303_entry_crash_test.sh; fi
+run roadmap-evidence-check sh tests/host/roadmap_evidence_check.sh
+run roadmap-evidence-check-selftest sh tests/host/roadmap_evidence_check_test.sh
 # When X0X_TESTS selects scenarios alone, host-build is filtered out — build x0x_host here
 # (same pattern as perf-scratch) so filtered-alone runs do not fail on a missing binary.
 for s in tests/scenarios/*.x0x; do

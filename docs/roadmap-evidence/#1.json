@@ -1,0 +1,8 @@
+{
+  "row_id": "#1",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "roadmap-status.md:42 (reconciled; gate result=PRESENT)",
+  "notes": "Old gate PRESENT on 8be16486 (audit pin 70b5a033 / blob 4bfb141f); blob proofs retained in notes only. New schema requires test_refs; left UNPROVEN (no invented test_refs). | recorded_code_paths_unverified_for_PRESENT: firmware/src/app/engine.c | recorded_origin_blob:8ddeb9d588ece0612b8aedaafe1900d573c7215f path:firmware/src/app/engine.c | matched_5f578fc0_master id=#1 status=in 0.0.24"
+}
