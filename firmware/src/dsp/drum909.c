@@ -866,25 +866,31 @@ __attribute__((noinline)) static void d9_render_clap(d9_clap_t *v, const float *
     v->mute -= m;
     d9_env_anchor(&v->burst);
     d9_env_anchor(&v->tail);
+    const float g = v->level, accent = v->accent;
+    const float burst_samples = v->burst_decay * D9_MS;
+    const float tail_samples = v->tail_decay * D9_MS;
+    const float spread_samples = v->spread * D9_MS;
+    const float tail_level = v->tail_level;
+    const d9_shape_t shape = v->shape;
     for (int i = 0; i < m; ++i) {
         if (v->pulse_index < 4) {
             if (v->next_pulse <= 0.0f) {
                 d9_env_set(&v->burst, amp[v->pulse_index]);
-                d9_env_exp(&v->burst, 0.00001f, v->burst_decay * D9_MS);
+                d9_env_exp(&v->burst, 0.00001f, burst_samples);
                 if (v->pulse_index == 3) {
-                    d9_env_set(&v->tail, v->tail_level);
-                    d9_env_exp(&v->tail, 0.00001f, v->tail_decay * D9_MS);
+                    d9_env_set(&v->tail, tail_level);
+                    d9_env_exp(&v->tail, 0.00001f, tail_samples);
                 }
                 v->pulse_index++;
-                v->next_pulse = v->spread * D9_MS;
+                v->next_pulse = spread_samples;
             }
             v->next_pulse -= 1.0f;
         }
         const float env = d9_env_tick(&v->burst) + d9_env_tick(&v->tail);
         float y = d9_biquad_tick(&v->bp, nz[i]) * env;
-        y = d9_shape(&v->shape, y, v->crush_st);
+        y = d9_shape(&shape, y, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
-        d9_emit(bus, i, y * v->level * v->accent);
+        d9_emit(bus, i, y * g * accent);
     }
 }
 
