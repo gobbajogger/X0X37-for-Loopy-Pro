@@ -1,25 +1,35 @@
 # x0x37 project instructions
 
-Read [x0x37-task](skills/x0x37-task/SKILL.md) at task start and [x0x37-writing](.agents/skills/x0x37-writing/SKILL.md) for output. Load only the project skill relevant to the current step. [x0x37-workflow](skills/x0x37-workflow/SKILL.md) routes code and PR work through an explicitly selected tstack mode; installing a skill selects no mode. Current owner instructions take precedence over saved handoffs and older checkout text.
+Read the [active delivery workflow](docs/rules/workflow.md) before work and the
+[writing skill](.agents/skills/x0x37-writing/SKILL.md) for output. Current owner
+instructions and action-specific permissions govern. Older stage handoffs and
+archived plans are evidence, not executable workflow instructions.
 
-Keep firmware source integration with the assigned integrator. Firmware `nightly` is the development integration branch; `main` is production and requires same-byte, matching-model hardware validation plus current action-specific authority. Review exact source and artifact evidence and use [scoped checks](skills/x0x37-check/SKILL.md). A documentation-only workflow change does not start a firmware build or automatic successor loop.
+Consume the existing request, owner and checkpoint. Complete authorized work and
+applicable proof, report each meaningful result, then continue the next authorized
+action without waiting for routine owner acknowledgment. Preserve one writer per
+shared scope, independent QA and existing integration/publication owners. A
+blocked item must not stop independent ready work. No fresh chat or fixed provider
+is required for each logical stage.
 
-Determine device permission for the exact model and action from the latest owner instruction. Do not infer a device write or recovery grant from a workflow mode, a connected device, or an old standing instruction. Do not force push, bypass a protected merge, or treat an incomplete check as PASS.
+Resolve the maintained development `nightly` to its full SHA when reading its
+workflow skills; also apply this actual target checkout's rules. Policy adoption
+is not firmware promotion. Firmware `main` and production behavior retain exact
+matching-model hardware proof and separate production authority. Do not force
+push, change protections or bypass a denied action. A workflow mode does not grant
+device access. Current Elite recovery/flash remains withdrawn; authorized Pro
+investigation is read-only through its assigned integrator.
 
-Optional host tooling gaps may be recorded as NOT_RUN while independent work continues. A check that actually runs and fails remains FAIL. GitHub Actions, billing errors, and review comments are evidence to inspect, not substitutes for local proof. Follow [local proof](docs/rules/local-proof.md) where it applies.
+Use [scoped local proof](docs/rules/local-proof.md). Optional tooling gaps stay
+NOT_RUN for their dependent checks while other work continues. Actual failures
+remain FAIL. Required missing proof prevents the affected claim. GitHub Actions
+and billing status are not substitutes for agent-run tests. Documentation-only
+edits do not need firmware builds. Workflow tooling needs its relevant tests.
 
-## Public development context
+For build commands and pins, read [BUILDING.md](BUILDING.md); for distribution,
+read [LICENSING.md](LICENSING.md). Discover prerequisites only for the selected
+action. Never infer a device or release grant from setup instructions.
 
-Both `gobbajogger/X0X37-for-Loopy-Pro` and `gobbajogger/x0x37-for-Loopy-Pro_nightly` are public project repositories. **Closed DEV means the owner is the sole tester; it does not mean private source.** Project source, documentation, sanitized test/review evidence and nonsecret provenance may be delivered to their authorized public destinations. Internal creation or temporary private Library storage does not itself make those materials confidential or prohibit later authorized delivery. Credentials, unrelated private samples/backups, and proprietary or license-restricted third-party bytes remain excluded. Owner-designated personal samples selected as stock loops may be included in their authorized stock distribution after verifying the exact selection, provenance and intended destination; this does not authorize other personal files. Preserve copyright notices and applicable distribution obligations.
-
-Use the latest action-specific owner authorization. A completed stage's read-only, local-only, or no-publication limit is not a permanent project-wide ban; a later authorized stage may expand that scope. Do not infer a new grant merely from a stage change. Actual tool denials remain binding for the denied operation; do not retry or route around them without the required changed authorization or permitted resolution. Continue independent authorized work. Source delivery, review, build, merge, publication and owner-available results remain separate states.
-
-For queued work and handoffs, apply the [continuation contract](skills/x0x37-workflow/references/handoff.md). Consume the existing request and checkpoint, then perform the next authorized action. A bounded unit limits ownership and concurrency; its report does not end an unfinished outcome. Preserve current delegated owners and continue independent ready work without waiting for owner acknowledgment. Use the maintained development policy at the verified `nightly` revision; older production-main instructions do not reinstate retired stage loops or authorize firmware promotion.
-
-For recurring and queued work, resolve the live `coordination/merge-queue` ref and read the [shared automation contract](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/coordination/merge-queue/coordination/automation/runtime-contract.md), `coordination/automation/roles.json` and relevant request/delivery records at that same commit. New authorized work updates the existing request and acceptance data; keep each role bootstrap stable. Actual permissions, role ownership and action-specific denials still govern.
-
-## Autonomous visual stages
-
-Within the agreed task, visual UI, glyph, menu, website and 3D work follows **mockup → internal independent review → implementation → actual validation**. Reuse unchanged approved presentations. Label mockups as proposals; they are not implemented renders. Resolve blocking design findings before implementation, then validate the actual candidate-pinned render or interaction and report it before rollout. Report each meaningful completed stage with evidence and its next action, then continue the next authorized step without waiting for an owner reply. These stage reports and previews are informative, not another aesthetic approval gate.
-
-This supersedes earlier owner-aesthetic-response waits within the agreed scope, not actual preview evidence or independent correctness checks. A required UI-completion-before-boot dependency means finish and validate the UI stage first, not wait for the owner to answer. Current action-specific authority, real tool denials, licensing, device validation, production and publication boundaries remain. A materially new scope or action still needs its applicable authority; continue independent authorized work meanwhile.
+Classic and Cursor skill entrypoints are adapters to this workflow. Their tool
+examples are subordinate to current capabilities, ownership and permissions.
+See [historical instruction boundaries](docs/rules/workflow-history.md).

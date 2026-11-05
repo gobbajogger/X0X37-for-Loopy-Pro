@@ -42,11 +42,11 @@ export function parseProject(b, expectedLength = null) {
   if (v.getUint32(0, true) !== 0x50583058) throw fail("The project header is missing.");
   const patternVersion=v.getUint32(20,true), soundRevision=v.getUint32(24,true);
   const knownSchema=(patternVersion===3 && (soundRevision===4 || soundRevision===10)) ||
-    (patternVersion===6 && (soundRevision===10 || soundRevision===11)) ||
-    (patternVersion===7 && soundRevision===11);
+    ([6,8].includes(patternVersion) && (soundRevision===10 || soundRevision===11)) ||
+    ([7,9].includes(patternVersion) && soundRevision===11) || (patternVersion===13 && soundRevision===13);
   if(v.getUint32(4,true)!==1 || v.getUint32(16,true)!==1 || !knownSchema || v.getUint32(28,true)!==0)
     throw fail("This project uses an incompatible file, project, pattern or sound version.","version");
-  if([6,7].includes(patternVersion) && soundRevision===11 && b.length!==36452)
+  if((soundRevision===13 || [6,7,8,9].includes(patternVersion) && soundRevision===11) && b.length!==36452)
     throw fail("This tagged project has an unsupported structural layout.","version");
   if (v.getUint32(8, true) !== b.length - PROJECT_HEADER) throw fail("The project payload length is incorrect.");
   if (expectedLength !== null && b.length !== expectedLength) throw fail("The project size does not match this firmware.", "version");
@@ -456,7 +456,7 @@ export async function prepareProjectImport(device, input, { progress = () => {} 
     const layout = await device.layout();
     validateRecoveryLayout(file, layout);
     const changes = file.meta.slots.map((to, k) => ({ k, to, from: { slot: k + 1, empty: null, unknown: true }, action: to.empty ? "clear" : "restore" }));
-    return { file, recovery: true, layout, plan: { changes, collisions: [], unchanged: [] }, backupBytes: null };
+    return { session: device.link, file, recovery: true, layout, plan: { changes, collisions: [], unchanged: [] }, backupBytes: null };
   }
   const before = await readProjectSnapshot(device, progress);
   const plan = await planProjectImport(file, before);
@@ -464,7 +464,7 @@ export async function prepareProjectImport(device, input, { progress = () => {} 
   const backup = await readProjectFile(backupBytes, device.projectLength);
   if (!sameBytes(backup.project, before.project) || before.images.some((img, k) => !sameBytes(img, backup.images[k])))
     throw fail("The recovery backup did not verify.", "backup");
-  return { file, before, plan, backupBytes };
+  return { session: device.link, file, before, plan, backupBytes };
 }
 
 function validateRecoveryLayout(file, layout) {
@@ -482,6 +482,7 @@ async function verifyImages(device, wanted, progress) {
 // Preparation is read-only. Applying needs an explicit live-project confirmation and,
 // for occupied-slot collisions, a user-acknowledged, verified downloadable backup.
 export async function applyProjectImport(device, prepared, { confirmed = false, backupSaved = false, progress = () => {} } = {}) {
+  if (prepared.session !== device.link) throw fail("The keyboard connection changed. Prepare the import again.", "connection");
   if (confirmed !== true) throw fail("Confirm replacing the live project before importing.", "confirmation");
   const file = await readProjectFile(prepared.file.bytes, await device.query());
   if (prepared.recovery) return applyRecoveryImport(device, file, prepared.layout, progress);
@@ -569,7 +570,7 @@ async function applyRecoveryImport(device, file, originalLayout, progress) {
 // Minimal Web MIDI adapter. Device methods above also run against the host-test mock.
 export class ProjectMidiLink {
   constructor(input, output) {
-    this.input = input; this.output = output; this.queue = []; this.pending = null;
+    this.input = input; this.output = output; this.queue = []; this.pending = null; this.closed = false;
     this.listener = (event) => {
       const d = event.data;
       if (d.length < 6 || d[0] !== 0xF0 || d.at(-1) !== 0xF7 || d[1] !== 0x7D || d[2] !== 0x46 || d[3] !== 0x4C) return;
@@ -579,8 +580,9 @@ export class ProjectMidiLink {
     input.addEventListener("midimessage", this.listener);
   }
   drain() { this.queue.length = 0; }
-  send(frame) { try { if (this.output.state === "disconnected") return false; this.output.send(frame); return true; } catch { return false; } }
+  send(frame) { try { this.session?.assert(); if (this.closed || this.input.state === "disconnected" || this.output.state === "disconnected") return false; this.output.send(frame); return true; } catch { return false; } }
   read(ms) {
+    if (this.closed) return Promise.resolve(null);
     if (this.queue.length) return Promise.resolve(this.queue.shift());
     return new Promise((resolve) => {
       const timer = setTimeout(() => { this.pending = null; resolve(null); }, ms);
@@ -588,6 +590,7 @@ export class ProjectMidiLink {
     });
   }
   close() {
+    this.closed = true; this.session?.close();
     this.input.removeEventListener("midimessage", this.listener);
     if (this.pending) { clearTimeout(this.pending.timer); this.pending.resolve(null); this.pending = null; }
     this.queue.length = 0;

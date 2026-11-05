@@ -19,15 +19,22 @@ from pathlib import Path
 import subprocess, sys, time
 source = sys.argv[sys.argv.index('-c') + 1]
 out = Path(sys.argv[sys.argv.index('-o') + 1])
-assert '-Werror' in sys.argv and '-flto' in sys.argv and '-Isrc' in sys.argv
-assert ('-w' in sys.argv) == source.startswith('gen/')
+unit = source.startswith(('src/', 'gen/'))
+if unit:
+    assert '-Werror' in sys.argv and '-flto' in sys.argv and '-Isrc' in sys.argv
+    assert ('-w' in sys.argv) == source.startswith('gen/')
+else:
+    assert '-flto' not in sys.argv and '-fmerge-functions' not in sys.argv
+    assert Path(source).read_text() == ('bitcode' if source == 'obj/ctl.bc' else 'optimized bitcode')
+    assert ('-emit-llvm' in sys.argv) == (source == 'obj/ctl.bc')
+    assert ('-O2' if source == 'obj/ctl.bc' else '-Oz') in sys.argv
 def event(kind):
     with open(os.environ['EVENTS'], 'a') as f:
         fcntl.flock(f, fcntl.LOCK_EX)
         f.write(json.dumps([kind, source, os.getpid(), str(Path.cwd())]) + '\n')
         f.flush()
 event('start')
-if os.environ.get('BARRIER'):
+if unit and os.environ.get('BARRIER'):
     units = ['src/a.c', 'src/b.c', 'src/c.S', 'gen/d.c']
     jobs = int(os.environ['X0X_JOBS'])
     required = (units.index(source) // jobs + 1) * jobs
@@ -52,16 +59,25 @@ print('stderr ' + source, file=sys.stderr)
 if os.environ.get('FAIL') == source:
     event('fail')
     sys.exit(7)
-out.write_text(source)
+out.write_text(source if unit else 'optimized bitcode' if source == 'obj/ctl.bc' else 'native object')
 event('end')
 '''
 LINKER = r'''
-import json, os, sys
+import json, os, sys, subprocess, time
 from pathlib import Path
 args = sys.argv[1:]
-Path(os.environ['OUT'], 'link.json').write_text(json.dumps(args))
+emit = '--plugin-opt=emit-llvm' in args
+Path(os.environ['OUT'], 'lto-link.json' if emit else 'link.json').write_text(json.dumps(args))
 Path(args[args.index('-Map') + 1]).write_text('map')
-Path(args[args.index('-o') + 1]).write_text('elf')
+if os.environ.get('LINK_HANG') == ('emit' if emit else 'final'):
+    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])
+    with open(os.environ['CHILDREN'], 'a') as f: f.write(str(child.pid) + '\n')
+    time.sleep(60)
+if os.environ.get('LINK_FAIL') == ('emit' if emit else 'final'):
+    sys.exit(9)
+if not emit:
+    assert Path('obj/ctl.o').read_text() == 'native object'
+Path(args[args.index('-o') + 1]).write_text(('not bitcode' if os.environ.get('BAD_IR') else 'bitcode') if emit else 'elf')
 '''
 CLEANUP_MONITOR = r'''
 import json, os, subprocess, sys
@@ -170,10 +186,15 @@ class ControllerCompile(unittest.TestCase):
                     peak = max(peak, active)
                 self.assertEqual(active, 0)
                 self.assertEqual(peak, jobs)
-                args = json.loads((self.out / 'link.json').read_text())
+                args = json.loads((self.out / 'lto-link.json').read_text())
                 self.assertEqual([v for v in args if v.startswith('obj/') and v.endswith('.o')],
                                  ['obj/' + Path(u).name + '.o' for u in self.units])
                 self.assertIn('--plugin-opt=-enable-ipra=true', args)
+                self.assertIn('--plugin-opt=emit-llvm', args)
+                final = json.loads((self.out / 'link.json').read_text())
+                self.assertEqual([v for v in final if v.startswith('obj/') and v.endswith('.o')], ['obj/ctl.o', 'obj/c.S.o'])
+                self.assertNotIn('--plugin-opt=emit-llvm', final)
+                self.assertIn('ctl.ld', final)
                 self.assertEqual((self.out / 'cc_warn.txt').read_text().splitlines(),
                                  [stream + ' ' + unit for unit in self.units for stream in ('stderr', 'stdout')])
                 self.assert_clean()
@@ -192,6 +213,52 @@ class ControllerCompile(unittest.TestCase):
         self.assertIn('stderr src/a.c', (self.out / 'cc_warn.txt').read_text())
         self.assert_stopped([int(n) for n in self.children.read_text().splitlines()])
         self.assert_clean()
+
+    def test_emit_optimization_codegen_and_final_link_fail_closed(self):
+        for env in ({'LINK_FAIL': 'emit'}, {'FAIL': 'obj/ctl.bc'},
+                    {'FAIL': 'obj/ctl-opt.bc'}, {'LINK_FAIL': 'final'}, {'BAD_IR': '1'}):
+            with self.subTest(stage=env):
+                for key in ('LINK_FAIL', 'FAIL', 'BAD_IR'): self.env.pop(key, None)
+                self.env.update(env)
+                for name in ('ctl.img', 'ctl.elf', 'sections.txt', 'symbols.txt'):
+                    (self.out / name).write_text('stale success')
+                p = self.run_build(2)
+                self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+                for name in ('ctl.img', 'ctl.elf', 'sections.txt', 'symbols.txt'):
+                    self.assertFalse((self.out / name).exists(), name)
+                self.assert_clean()
+
+    def test_emit_and_final_link_interruption_joins_children(self):
+        self.monitor_cleanup()
+        for phase in ('emit', 'final'):
+            with self.subTest(phase=phase):
+                self.children.unlink(missing_ok=True)
+                self.env.update(X0X_JOBS='2', LINK_HANG=phase)
+                p = subprocess.Popen(['sh', str(TOP / 'ble/ctl/build_in_container.sh')],
+                                     env=self.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                try:
+                    deadline = time.monotonic() + 5
+                    while not self.child_pids():
+                        self.assertLess(time.monotonic(), deadline)
+                        time.sleep(.01)
+                    p.send_signal(signal.SIGTERM)
+                    stdout, stderr = p.communicate(timeout=5)
+                    self.assertEqual(p.returncode, 143, stdout + stderr)
+                    self.assertFalse((self.out / 'ctl.elf').exists())
+                    self.assert_children_stopped_before_cleanup()
+                finally:
+                    if p.poll() is None:
+                        p.send_signal(signal.SIGTERM); p.communicate(timeout=5)
+                    self.stop_fixture_children()
+        self.env.pop('LINK_HANG', None)
+
+    def test_codegen_child_is_reaped_on_failure(self):
+        self.monitor_cleanup()
+        self.env.update(FAIL='obj/ctl-opt.bc', SPAWN_CHILD='obj/ctl-opt.bc')
+        p = self.run_build(2)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertFalse((self.out / 'ctl.elf').exists())
+        self.assert_children_stopped_before_cleanup()
 
     def test_invalid_job_counts_fail_without_stale_success(self):
         for jobs in ('', '0', '-1', 'abc', '65', '99999999999999999999', '01', '2.5'):

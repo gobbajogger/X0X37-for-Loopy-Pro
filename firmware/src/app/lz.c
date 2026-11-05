@@ -79,7 +79,8 @@ static int lz_compress(const uint8_t *in, uint32_t n, lz_sink_t *o)
                 best = len;
                 dist = i - c;
             }
-            if (i && (len = lz_match_len(in, n, i - 1u, i)) > best) {   /* a run */
+            /* A maximum-length match cannot be beaten; ties keep the hash candidate. */
+            if (best < LZ_MAXLEN && i && (len = lz_match_len(in, n, i - 1u, i)) > best) {   /* a run */
                 best = len;
                 dist = 1;
             }

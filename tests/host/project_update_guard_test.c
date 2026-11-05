@@ -6,6 +6,8 @@
 static struct { unsigned ota_req, uboot_req; } usb;
 static struct { unsigned pending; } bootguard;
 static uint32_t fm1_ms, ed_reboot_at;
+static uint8_t ed_install_pending;
+static void ed_install_forget(void) { ed_install_pending = 0; }
 static int busy, next_busy, inject_update, flash_ok = 1, seq, pending_ota;
 static unsigned reboots, detaches, ota_polls, ota_entries, uboot_entries, stops;
 enum { C_BLACK = 0 };

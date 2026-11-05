@@ -72,8 +72,8 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
       document: { createElement: () => ({ click() {}, remove() {} }),
         body: { appendChild() {} } }
     };
-    ctx = createContext(mock);
-    new Script(`let writing=false,lastId=null,image=sampleImage,stock=null,chosenModel="elite",ctl=null,ctlLoadSerial=0,scanSerial=0,ctlNeedsResolution=false;
+    ctx = createContext({ renderConnectionAction() {}, refreshJourney() {}, ...mock });
+    new Script(`let connectionState="idle",writing=false,lastId=null,image=sampleImage,stock=null,chosenModel="elite",ctl=null,ctlLoadSerial=0,scanSerial=0,ctlNeedsResolution=false;
 ${scan}
 ${run}
 globalThis.start=run; globalThis.manualScan=scan; globalThis.isWriting=()=>writing;`).runInContext(ctx);
@@ -157,8 +157,8 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
       Blob, URL, setTimeout,
       document: { createElement: () => ({}), body: { appendChild() {} } },
     };
-    const ctx = createContext(mock);
-    new Script(`let writing=false,lastId=null,image=null,stock=null,chosenModel="elite",ctl=null,ctlLoadSerial=0,scanSerial=0,ctlNeedsResolution=false;
+    const ctx = createContext({ renderConnectionAction() {}, refreshJourney() {}, ...mock });
+    new Script(`let connectionState="idle",writing=false,lastId=null,image=null,stock=null,chosenModel="elite",ctl=null,ctlLoadSerial=0,scanSerial=0,ctlNeedsResolution=false;
 ${run}
 globalThis.runRestoreTest=run;`).runInContext(ctx);
     await ctx.runRestoreTest(new Uint8Array([1]), model, { selectionGuard: () => true });

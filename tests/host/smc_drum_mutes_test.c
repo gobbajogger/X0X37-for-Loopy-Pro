@@ -16,6 +16,12 @@ int smk_ck_smc_turn(int n, int delta) { (void)n; (void)delta; return 0; }
 int smk_ck_smc_nav(uint8_t note) { (void)note; return 0; }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
 { (void)msg; (void)len; return 1; }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #ifndef SMC_MIXER_SOURCE
 #define SMC_MIXER_SOURCE "app/smc_mixer.c"
 #endif
@@ -106,6 +112,7 @@ static void mute_regression(int mode, int bank, int strip)
     smc_frame();
     uint32_t expected = track < NDRUM ? 1u << (kit * NDRUM + track) : 0;
     message(0x90, 16 + strip, 127);
+    message(0x80, 16 + strip, 0);           /* release: a repeat NoteOn is not a toggle (d06b6c96) */
     assert(seq.vmute == expected);
     assert(seq.mute == 0);
     assert(smc.lit[16 + strip] == (track < NDRUM));
@@ -142,8 +149,12 @@ static void main_regression(void)
         int before = strip < NPARTS ? 0 : pref_get(fx);
         assert(strip < NPARTS || before > 0);
         message(0x90, 16 + strip, 127);
+        message(0x80, 16 + strip, 0);       /* release: a repeat NoteOn is not a toggle (d06b6c96) */
         assert(seq.vmute == 0 && smc.lit[16 + strip] == 1);
-        if (strip < NPARTS) assert(seq.mute == MUTE_MASK[strip]);
+        if (strip < NPARTS) {
+            static const int expected_part[5] = {PART_909, PART_808, PART_BRK, PART_303B, PART_303A};
+            assert(seq.mute == MUTE_MASK[expected_part[strip]]);
+        }
         else assert(seq.mute == 0 && pref_get(fx) == 0);
         message(0x90, 16 + strip, 127);
         assert(seq.vmute == 0 && seq.mute == 0 && smc.lit[16 + strip] == 0);

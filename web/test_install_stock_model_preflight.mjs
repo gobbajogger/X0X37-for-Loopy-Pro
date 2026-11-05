@@ -50,7 +50,7 @@ for (const v of cases) {
     t:k=>({stockalias:"MODEL NAME DIFFERENCE ",stockaliasTo:" PACKAGE ",stockaliasEnd:" Check model."})[k],
     window:{confirm(prompt){assert.match(prompt,/MODEL NAME DIFFERENCE/);alias++;return v.ack!==false;}},
     confirmWrite(){regular++;return v.ok!==false;},
-    run(){write++;},sayK(k){errors.push(k);},
+    ownedRun(){write++;},sayK(k){errors.push(k);},
     currentDevice:v.d?{model:v.d,text:v.d}:null,
     currentStock:v.p?{product:v.p,image:new Uint8Array([1])}:null,
     busy:v.busy===true

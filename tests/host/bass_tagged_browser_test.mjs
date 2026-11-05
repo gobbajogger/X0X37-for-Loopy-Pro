@@ -5,8 +5,8 @@ import {parseProject,ProjectDevice,PROJECT_OP} from '../../web/x0x_projects.js';
 let checks=0;
 for(const path of process.argv.slice(2)) {
  const b=new Uint8Array(readFileSync(path)), meta=parseProject(b,b.length);
- assert.ok([6,7].includes(meta.patternVersion));assert.equal(meta.soundRevision,11);assert.equal(meta.payloadLength,36420);checks+=3;
- for(const stream of [4,5,8]) {const bad=b.slice();new DataView(bad.buffer).setUint32(20,stream,true);assert.throws(()=>parseProject(bad),e=>e.code==='version');checks++;}
+ assert.ok([8,9].includes(meta.patternVersion));assert.equal(meta.soundRevision,11);assert.equal(meta.payloadLength,36420);checks+=3;
+ for(const stream of [4,5,10]) {const bad=b.slice();new DataView(bad.buffer).setUint32(20,stream,true);assert.throws(()=>parseProject(bad),e=>e.code==='version');checks++;}
  const bad=b.slice();bad[80]^=1;assert.throws(()=>parseProject(bad),e=>/CRC/.test(e.message));checks++;
 }
 const queryDevice=new ProjectDevice({});

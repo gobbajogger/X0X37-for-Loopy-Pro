@@ -103,6 +103,20 @@ static volatile uint8_t smk_pad_grid;   /* set by the UI: pads as a step grid, w
 static const int8_t SMK_PIANO_NOTE[SMK_NPAD] = {7, 9, 11, 12, 14, 16, 18, 19, 8, 10, -1, 13, 15, 17, -1, 20};
 static volatile uint8_t smk_pad_piano;
 static uint8_t smk_pad_note[SMK_NPAD];   /* the note key a pad pressed (+1; 0 = none): its release ends that one */
+#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE
+/* Press owner, pending hit and held-release ownership copied from 6ae0928. */
+static volatile uint8_t smk_div_owner, smk_div_pending;
+static uint16_t smk_div_held;
+static int smk__division_poll(unsigned owner)
+{
+    int hit = -1;
+    if (owner == smk_div_owner && smk_div_pending)
+        hit = (int)smk_div_pending - 1;
+    smk_div_pending = 0;
+    smk_div_owner = (uint8_t)owner;
+    return hit;
+}
+#endif
 #define SMK_WHITE_OF_PAD(p) (smk_pad_grid ? (p) : (p) < 8u ? (p) + 8u : (p) - 8u)
 
 #define SMK_TRIM_FLASH 0xC1000u   /* USRTRIM: the factory calibration record ("trimdat"), never written here */
@@ -144,8 +158,10 @@ static volatile struct {
 
 /* key events beyond the FM-1's 27 (keybed keys 0..4 and 32..36): key << 8 | velocity (0 = release) */
 #define SMK_EXTQ 32u
-static volatile uint16_t smk_extq[SMK_EXTQ];
-static volatile uint8_t smk_extq_w, smk_extq_r;
+static volatile uint32_t smk_extq[SMK_EXTQ][2]; /* generation, physical/velocity/pitch */
+static volatile uint8_t smk_extq_w, smk_extq_r, smk_extq_overflow, smk_ext_enabled;
+static volatile uint32_t smk_ext_epoch;
+static volatile int8_t smk_ext_oct;
 
 static uint8_t fm1_led[SMK_NLED];     /* 1 = lit (button LED i = button i) */
 static volatile uint32_t smk_ledw[2]; /* per LED group: 0xFFFF0000 | low half (LED lines active low) */
@@ -299,9 +315,11 @@ FM1_INLINE uint32_t smk__closed(uint32_t code) { return (fm1_in.raw[code >> 4] >
 static void smk__extq(uint32_t k, uint32_t vel)
 {
     uint8_t w = smk_extq_w;
-    if ((uint8_t)(w + 1u) % SMK_EXTQ == smk_extq_r)
-        return;
-    smk_extq[w] = (uint16_t)(k << 8 | vel);
+    if ((uint8_t)(w + 1u) % SMK_EXTQ == smk_extq_r) {
+        smk_extq_overflow=1;return;
+    }
+    smk_extq[w][0]=smk_ext_enabled?smk_ext_epoch:0;
+    smk_extq[w][1]=k|(vel<<7)|((uint32_t)(36+(int)k+12*smk_ext_oct)<<14);
     smk_extq_w = (uint8_t)((w + 1u) % SMK_EXTQ);
 }
 
@@ -441,6 +459,18 @@ static void fm1__frame(void)
 
 static void smk__padq(uint32_t pad, uint32_t vel)     /* a pad hit (vel) or release (0): its white key */
 {
+#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE
+    uint16_t owned = (uint16_t)(1u << pad);
+    if (smk_div_held & owned) {
+        if (!vel) smk_div_held &= (uint16_t)~owned;
+        return; /* release belongs to the press-time role */
+    }
+    if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad]) {
+        smk_div_held |= owned;
+        if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u);
+        return; /* physical rate hit never creates note/keybed velocity */
+    }
+#endif
     int32_t n0 = smk_pad_piano ? SMK_PIANO_NOTE[pad] : (int32_t)SMK_WHITE_NOTE[SMK_WHITE_OF_PAD(pad)];
     uint32_t n, bit;
     if (vel) {
@@ -638,15 +668,6 @@ static uint32_t fm1_input_note_edges(void)
 }
 
 /* the next outer-key event (keybed key << 8 | velocity, 0 = release), -1 if none */
-static int32_t smk_extkey_take(void)
-{
-    int32_t v = -1;
-    if (smk_extq_r != smk_extq_w) {
-        v = smk_extq[smk_extq_r];
-        smk_extq_r = (uint8_t)((smk_extq_r + 1u) % SMK_EXTQ);
-    }
-    return v;
-}
 
 /* LED of button id (0..17); note keys have no LED on the SMK (the pads show the step grid) */
 static void fm1_led_key(uint32_t id, int on)

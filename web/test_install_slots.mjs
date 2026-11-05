@@ -309,7 +309,7 @@ ok(packageSlotMap(packageOf(NEW_PKG, { map: NEW.map }).image).map((m) => [m.off,
 const strip = (src) => src.replace(/^export\s+/gm, "").replace(/^import .*?;\n/gms, "");
 async function page(pkg, product, firmware, from, fill, opts = {}) {
   // Match tools/make_pages.py LIB order (boot preview + factory loops).
-  const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "factory_break_pack.js", "boot_screen.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
+  const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "factory_break_pack.js", "boot_screen.js", "device_session.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
   const html = readFileSync(new URL("x0x_installer.html", import.meta.url), "utf8");
   const model = /^SMK-37 Elite/i.test(product) ? "elite" : /^MKE-P37/i.test(product) ? "mke"
     : /^FM-1/i.test(product) ? "fm1" : "pro";
@@ -352,6 +352,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
         putImageData() {}, getImageData: () => ({ data: new Uint8ClampedArray(4), width: 1, height: 1 }),
         createImageData: (w, h) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }),
         canvas: { width: 128, height: 64 } }; },
+      classList: {toggle() {},add(){},remove(){}},
       addEventListener(t, f) { this.handlers[t] = f; },
       append(...nodes) { for (const n of nodes) this.children.push(n); },
       appendChild(n) { this.children.push(n); return n; },
@@ -440,7 +441,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   const blobs = new Map();
   URL.createObjectURL = (b) => { const u = `blob:${blobs.size}`; blobs.set(u, b); return u; };
   URL.revokeObjectURL = () => {};
-  Object.defineProperty(globalThis, "navigator", { configurable: true, value: { requestMIDIAccess: async () => dev.access } });
+  Object.defineProperty(globalThis, "navigator", { configurable: true, value: { locks: {request: async (_name, _opts, fn) => fn({})}, requestMIDIAccess: async () => dev.access } });
   await import("data:text/javascript;base64," + Buffer.from(js + `\n//${Math.random()}`).toString("base64"));
   for (let i = 0; i < 200 && ids.go?.disabled !== false; i++) await new Promise((r) => setTimeout(r, 10));
   if (!ids.go || ids.go.disabled !== false) throw new Error("installer page did not enable Install");

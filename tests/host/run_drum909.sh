@@ -37,10 +37,10 @@ grep -q "double x1, x2, y1, y2" "$OUT/ref_dbl/webaudio.h" && grep -q "return (fl
 
 # the port, warnings are errors
 WARN="-Wall -Wextra -Wdouble-promotion -Werror"
-for f in drum909 fxbus; do
+for f in drum909 fxbus x0x_param; do
     "$CC" -O2 -ffp-contract=off $WARN -std=c99 -Ifirmware/src/dsp -Ibuild/gen -c firmware/src/dsp/$f.c -o "$OUT/$f.o"
 done
 "$CC" -O2 -ffp-contract=off $WARN -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen -c tests/host/drum909_test.c -o "$OUT/drum909_test.o"
-"$CC" -o "$OUT/drum909_test" "$OUT/drum909_test.o" "$OUT/drum909.o" "$OUT/fxbus.o" "$OUT/er99_engine.o" "$OUT/drum909_ref.o" "$OUT/drum909_refd.o" -lm
+"$CC" -o "$OUT/drum909_test" "$OUT/drum909_test.o" "$OUT/drum909.o" "$OUT/fxbus.o" "$OUT/x0x_param.o" "$OUT/er99_engine.o" "$OUT/drum909_ref.o" "$OUT/drum909_refd.o" -lm
 
 "$OUT/drum909_test" "$OUT/ref_src" build/drum909_demo.wav

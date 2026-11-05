@@ -10,7 +10,7 @@
 #include "ble_glue.h"
 static struct {
     xb_mbox_t mb;
-    union { bleh_t h; blec_t c; } host;
+    union { bleh_t h; struct { blec_t c, c2; }; } host;
     uint8_t fr[XB_FRAME_MAX];
     char nm[9];
     unsigned ow, orr;
@@ -22,6 +22,7 @@ static unsigned failures, releases, queue_full, apc_up, central_up, reset_count;
 static int smc_ble_role_get(void) { return desired; }
 static void ble_fail(void) { failures++; ble_up = 0; }
 static void ble_central_link_notify(int up) { central_up = (unsigned)up; }
+static void ble_central_link_notify_slot(unsigned slot, int up) { if (!slot) central_up = (unsigned)up; }
 static void smk_apc_ble_link(int up, int notify) { apc_up = (unsigned)(up && notify); }
 static int ble_send(uint8_t type, const uint8_t *p, uint16_t n, void *ctx)
 {
@@ -74,8 +75,11 @@ static void setup(unsigned central)
     fm1_ms = 10;
     ble_r.ow = 9; ble_r.orr = 2;
     ble_sx_n = ble_sx_over = ble_sx_reply = ble_sx_ch = 1;
-    if (central) blec_init(&ble_r.host.c, ble_send, ble_central_midi, 0, address);
-    else bleh_init(&ble_r.host.h, ble_send, 0, ble_r.nm, address);
+    if (central) {
+        blec_init(&ble_r.host.c, ble_send, ble_central_midi, 0, address);
+        blec_init(&ble_r.host.c2, ble_send, ble_central_midi, (void *)1, address);
+        blec_pair_bind(&ble_r.host.c, &ble_r.host.c2);
+    } else { blec_pair_bind(0, 0); bleh_init(&ble_r.host.h, ble_send, 0, ble_r.nm, address); }
 }
 static unsigned take_command(void)
 {
@@ -118,7 +122,7 @@ static void device_to_host(void)
 static void host_to_device(void)
 {
     setup(1); blec_t *c = &ble_r.host.c;
-    c->state = BLEC_CONNECTED; c->conn = 0x40; c->step = S_READY;
+    c->state = BLEC_CONNECTED; c->conn = 0x40;c->linked=1; c->step = S_READY;
     central_up = 1; desired = 0;
     ble_service(); assert(ble_central_role && ble_role_changing);
     assert(take_command() == COP_DISCONNECT && !reset_count);
@@ -164,7 +168,7 @@ static void connecting_cancel_race(void)
     uint8_t connection[21] = {0x3e, 19, 1, 0, 0x40, 0, 0};
     assert(xb_frame_put(&ble_r.mb.c2h, 4, connection, sizeof connection) == 0);
     ble_service(); assert(take_command() == COP_DISCONNECT && ble_central_role);
-    disconnected(); ble_service(); assert_clean(0);
+    complete(COP_DISCONNECT); disconnected(); ble_service(); assert_clean(0);
 }
 static void startup_and_backlog(void)
 {
@@ -193,7 +197,7 @@ static void startup_and_backlog(void)
 static void failed_stop(void)
 {
     setup(1); blec_t *c = &ble_r.host.c;
-    c->state = BLEC_CONNECTED; c->conn = 0x40; c->step = S_READY; desired = 0;
+    c->state = BLEC_CONNECTED; c->conn = 0x40;c->linked=1; c->step = S_READY; desired = 0;
     ble_service(); assert(take_command() == COP_DISCONNECT);
     uint8_t error[] = {0x0f, 4, 0x0c, 1, 6, 4};
     assert(xb_frame_put(&ble_r.mb.c2h, 4, error, sizeof error) == 0);
@@ -201,9 +205,27 @@ static void failed_stop(void)
     fm1_ms += 3000; ble_service();
     assert(failures == 1 && !ble_up && ble_central_role && c->conn == 0x40 && !reset_count);
 }
+static void two_host_links_stop(void)
+{
+    setup(1); blec_t *a=&ble_r.host.c,*b=&ble_r.host.c2;
+    a->state=b->state=BLEC_CONNECTED;a->step=b->step=S_READY;a->conn=0x40;a->linked=1;b->conn=0x41;b->linked=1;
+    desired=0;ble_service();assert(take_command()==COP_DISCONNECT);
+    complete(COP_DISCONNECT);ble_service();assert(take_command()==COP_DISCONNECT);
+    disconnected();ble_service();assert(ble_central_role && b->conn==0x41);
+    /* Link down does not authorize changing the union while command status is outstanding. */
+    uint8_t event[]={5,4,0,0x41,0,0x13};
+    assert(xb_frame_put(&ble_r.mb.c2h,4,event,sizeof event)==0);
+    ble_service();assert(ble_central_role && blec_command_owner);
+    uint8_t no_credit[]={0x0e,4,0,6,4,0};
+    assert(xb_frame_put(&ble_r.mb.c2h,4,no_credit,sizeof no_credit)==0);
+    ble_service();assert(ble_central_role && ble_host_on && !reset_count);
+    uint8_t credit[]={0x0e,4,1,0,0,0};
+    assert(xb_frame_put(&ble_r.mb.c2h,4,credit,sizeof credit)==0);
+    ble_service();assert_clean(0);
+}
 int main(void)
 {
-    device_to_host(); host_to_device(); pending_and_reversal(); off_and_timeout();
+    two_host_links_stop(); device_to_host(); host_to_device(); pending_and_reversal(); off_and_timeout();
     connecting_cancel_race(); startup_and_backlog(); failed_stop();
     puts("PASS Bluetooth runtime role transitions, stop acknowledgement, release backpressure, reversal, OFF and timeout");
 }

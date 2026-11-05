@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #pragma once
 #include <stdint.h>
-/* Built-in Chicago / Miami faithful-303 factory banks (private/dev).
+/* Built-in Chicago / Miami factory banks (private/dev).
  * Owner-paid personal-use packs; owner strips before public redistribution.
  * User-imported presets stay allowed in a separate writable bank. */
 
@@ -11,7 +11,7 @@
 
 #define FACTORY_CHICAGO_NPARAMS 22
 #define FACTORY_MIAMI_NPARAMS 18
-#define FACTORY_CHICAGO_NPRESETS 81
+#define FACTORY_CHICAGO_NPRESETS 55
 #define FACTORY_MIAMI_NPRESETS 30
 #define FACTORY_NAME_MAX 24
 #define FACTORY_PARAMS_MAX 22
@@ -28,11 +28,13 @@ typedef struct {
     uint8_t bank_id;
     uint8_t nparams;
     uint16_t npresets;
-    const factory_preset_t *presets;
-    const char *const *param_names;
+    const factory_preset_t *presets; /* NULL in the original profile: use original_sound_init */
+    const char *const *param_names;  /* NULL in the original profile: use original_sound_param */
 } factory_bank_t;
 
-/* Read-only factory banks (ROM). Always present after install / factory reset. */
+/* Original profile names/counts describe the admitted program selection, without
+ * duplicate rounded byte records. factory_preset() returns NULL in that profile;
+ * callers load exact programs through bass_preset_decode/original_sound_init. */
 const factory_bank_t *factory_bank(int bank_id);
 int factory_bank_count(void);
 const factory_preset_t *factory_preset(int bank_id, int index);

@@ -31,7 +31,76 @@ enum { PART_909, PART_808, PART_303A, PART_303B, PART_BRK, NPARTS };
  * channel cutoff (127 = open, before the master filter). */
 enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #define NVOICES_MAX 12                 /* a drum machine: 11 tracks + the kit */
-#define NPARAMS_MAX 32                 /* params per (target, voice); fills at Chicago aux PBend/Damp 30..31 */
+#define NPARAMS_MAX 32                 /* fixed sound cell, including original factory/edit metadata */
+
+/* The replacement profile owns a new project/patch format. It does not admit
+ * legacy synth identities or their converters. */
+#ifndef X0X_ORIGINAL_SYNTH
+#define X0X_ORIGINAL_SYNTH 1
+#endif
+#if X0X_ORIGINAL_SYNTH != 1
+#error Only X0X_ORIGINAL_SYNTH=1 is supported
+#endif
+#if X0X_ORIGINAL_SYNTH
+#undef X0X_BASS_PRESET_PREVIEW
+#define X0X_BASS_PRESET_PREVIEW 1
+#undef X0X_BASS_TAGGED_SOUND
+#define X0X_BASS_TAGGED_SOUND 1
+#undef X0X_BASS_NOTE_SOUND
+#define X0X_BASS_NOTE_SOUND 0
+#endif
+/* Separate optional storage features for the legacy build profile. */
+#ifndef X0X_BASS_PRESET_PREVIEW
+#define X0X_BASS_PRESET_PREVIEW 0
+#endif
+#ifndef X0X_BASS_TAGGED_SOUND
+#define X0X_BASS_TAGGED_SOUND 0
+#endif
+#ifndef X0X_BASS_NOTE_SOUND
+#define X0X_BASS_NOTE_SOUND 0
+#endif
+#if X0X_BASS_NOTE_SOUND && !X0X_BASS_TAGGED_SOUND
+#error Note sounds require tagged bass storage
+#endif
+#if X0X_BASS_TAGGED_SOUND && !X0X_BASS_PRESET_PREVIEW
+#error Tagged bass unit requires the reviewed runtime preset unit
+#endif
+#if X0X_BASS_TAGGED_SOUND
+#include "bass_identity.h"
+#endif
+#if X0X_BASS_PRESET_PREVIEW
+#include "factory_banks.h"
+const x0x_param_t *engine_bass_bank_param(int bank, int param);
+int engine_bass_bank(int voice);
+int engine_bass_bank_available(int voice, int bank);
+int engine_bass_preset_index(int voice);
+int engine_bass_preset_edited(int voice);
+/* 1 ready, -1 original Chicago FX storage has not been admitted, -2 DSP fault.
+ * This is not an idle flag; ready original owners render every audio frame. */
+int engine_bass_status(int voice);
+/* Chicago only, UI: live filter EG level 0..1 and env depth; 0 when not available */
+int engine_bass_filter_view(int voice, float *eg, float *depth);
+/* Chicago native compiled envelope controls (including macro scaling). */
+int engine_bass_adsr_view(int voice, float values[4], unsigned *gate);
+/* UI-only snapshot of the real amplitude EG and first modulator. */
+int engine_bass_voice_view(int voice, float *level, float *modulation, unsigned *state, unsigned *key_down);
+/* drums, UI: ms since the track's last hit, its live amp envelope 0..1; 0 when silent */
+int engine_drum_view(int kit, int voice, uint32_t *age_ms, float *env);
+/* UI: the 909 kick's pitch t ms after a hit for these engine values (drum909_bd_hz) */
+float engine_bd909_hz(float tau, float depth, float pitch, float t_ms);
+int engine_bass_requested_bank(int voice);
+int engine_bass_requested_preset(int voice);
+/* 0 applied; 1 next audio boundary; 2 held/release tail; 3 wheel; 4 sound locks; 5 old input; 6 publication. */
+int engine_bass_preset_pending(int voice);
+void engine_bass_cancel_preset(int voice);
+/* Main-loop edit/undo snapshots defer preset application without muting audio. */
+void engine_bass_edit_hold(int hold);
+int engine_bass_preview_changed(void);
+void engine_bass_wheel_owners(uint8_t mask);
+#endif
+void engine_bass_mod(int v, int val);       /* mod wheel: Chicago cutoff / Miami wobble depth, recordable */
+int engine_bass_mod_param(int v);
+int engine_bass_ext_touch(int v);           /* bit0 bend, bit1 mod moved by ext MIDI since last call */
 
 /* Review-only runtime and separately guarded tagged-storage units; defaults OFF. */
 #ifndef X0X_BASS_PRESET_PREVIEW
@@ -107,6 +176,7 @@ void engine_smc_solo(uint8_t mask);                         /* runtime SMC solo 
 void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808); /* union of parts and drum tracks */
 void engine_fx_mute(uint8_t mask);                          /* runtime output gates, never edits intended pots or motion */
 uint8_t engine_fx_muted(void);
+uint8_t engine_tape_active(void); /* actual tape input/wet activity, presentation only */
 void engine_smc_busfx(uint8_t down, const uint8_t effect[8]); /* SMC momentary buses; effect may be null */
 void engine_motion_reset(void);                             /* lanes replaced (undo): knobs to their own values */
 /* overload guard (engine.c): the platform reports each block's load after rendering it */
@@ -136,8 +206,10 @@ void engine_project_flush(void);                /* held only: end old output not
 int engine_nvoices(int target);
 int engine_nparams(int target, int voice);
 const x0x_param_t *engine_param(int target, int voice, int i);
+/* a pot's engine value and its X0X_U_* unit, for the UI readout */
+int engine_param_si(int target, int voice, int i, int pot, float *val);
 const char *engine_voice_name(int target, int voice);
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE || X0X_ORIGINAL_SYNTH
 int engine_bass_is_wobble(int voice); /* live WBL1 backend on 303 A/B voice */
 #else
 static inline int engine_bass_is_wobble(int voice)
@@ -149,6 +221,13 @@ static inline int engine_bass_is_wobble(int voice)
 
 /* main loop -> ISR */
 void engine_set(int target, int voice, int i, int value);   /* queued; the sound_t mirror is the caller's */
+void engine_set_base(int target, int voice, int i);         /* exact patch value, after a temporary edit */
+#if X0X_ORIGINAL_SYNTH
+#ifdef X0X_HOST
+unsigned engine_original_keys(int voice, int latched);
+uint32_t engine_original_value_bits(int voice, unsigned parameter);
+#endif
+#endif
 void engine_out_loud(int on);          /* 1: the output at the codec's full scale (6 dB hotter than Felucca's) */
 void engine_usb_full(int on);          /* 1: engine_render at full level, engine_volume the MASTER knob after */
 void engine_volume(int32_t *out_lr, uint32_t n);   /* ISR, after engine_render (and the USB tap) */
@@ -161,8 +240,23 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
 void engine_bass_record(int part, int note, int velocity, int flags); /* accepted live REC press, audio-owned */
 void engine_bass_off(int part);
 void engine_bass_off_note(int part, int note); /* Chicago arp: release one held pitch; 0 note = all */
+void engine_brk_bend(int value); /* transient -8192..8191, +/-12 semitones */
+#ifdef X0X_HOST
+int engine_brk_bend_value(void);
+#endif
 void engine_brk_live(int key, int down);
-void engine_brk_slice_mode_reconcile(void);                 /* clear MIDI slice holds after 8 SLICES toggles */
+void engine_brk_edit_hold(int held);
+uint32_t engine_brk_held(void); /* aggregate slice ownership, macros excluded */
+/* External MIDI record events (engine midi_in -> UI). One writer (midi_in), one reader (ui_frame).
+ * Packing: bits 0..3 part (PART_909, PART_808, PART_BRK), 4..9 voice (drum) or slice (break),
+ * 10..16 velocity, 17..24 the record step (seq_rec_step at the note). */
+#define REC_EV(part, voice, vel, step) ((uint32_t)(part) | (uint32_t)(voice) << 4 | (uint32_t)(vel) << 10 | (uint32_t)(step) << 17)
+#define REC_EV_PART(e) ((int)((e) & 15u))
+#define REC_EV_VOICE(e) ((int)(((e) >> 4) & 63u))
+#define REC_EV_VEL(e) ((int)(((e) >> 10) & 127u))
+#define REC_EV_STEP(e) ((int)(((e) >> 17) & 255u))
+int engine_rec_ev_get(uint32_t *ev);   /* 1 = a current-generation event was taken; stale entries are dropped */
+int engine_brk_count(int bank); /* currently applied snapshot count; requested changes may wait for release */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes);
@@ -176,8 +270,18 @@ void engine_motion_rec(int lane);                           /* record a pass fro
 void engine_motion_hold(int lane);                          /* the knob wins for a pass */
 void engine_motion_clear(int lane);                         /* free a motion lane (undo / bulk edit) */
 float engine_gr_db(void);                                   /* master compressor gain reduction (UI meter) */
+int engine_master_get(int i);                             /* read-only applied master pot */
 void engine_master_format(int i, char *buf);                /* a master pot in its unit */
 int engine_brk_nslots(void);                                /* built-in loops + user slots */
 const char *const *engine_brk_slot_names(void);
 
 /* Physical recording edges use the existing audio command queue. */
+
+/* Physical eligible Free Play only; velocity zero releases the captured token.
+ * state arp=-1 means serial-exhausted admission: fail closed until cold boot. */
+void engine_live_key_state(int voice,uint32_t *generation,int *arp,uint32_t *context);
+void engine_live_key_cancel(int voice);
+int engine_live_key(int voice,uint32_t generation,int token,int pitch,int velocity,int accent,int slide);
+
+#ifdef X0X_HOST
+#endif

@@ -122,8 +122,67 @@ static void test_none(void)
     assert(hold(&a, R, ARW_MENU, 2000, 3000, 0) == 0);
 }
 
+/* CLP-82: a list change with an arrow held: no step, no repeat, until a new press */
+static void test_rearm(void)
+{
+    arw_t a = {0};
+    assert(arw_frame(&a, R, ARW_MENU, 1000) == 1);
+    assert(hold(&a, R, ARW_MENU, 1016, 1500, 0) > 0);     /* repeating in the old list */
+    arw_rearm(&a, R);
+    assert(hold(&a, R, ARW_MENU, 1500, 4000, 0) == 0);
+    assert(arw_frame(&a, 0, ARW_MENU, 4016) == 0);
+    assert(arw_frame(&a, L, ARW_MENU, 4032) == -1);       /* a new press steps */
+    assert(arw_menu_id(5, 1) != arw_menu_id(5, 2) && arw_menu_id(5, 1) != arw_menu_id(6, 1));
+}
+
+/* CLP-82 (QA PR #719): the list changes in the same frame as a NEW press: the press steps the new list.
+ * Also the first open of a menu (from ARW_NONE and ARW_SELECT) and repeated switches. */
+static void test_rearm_fresh(void)
+{
+    arw_t a = {0};
+    uint32_t i;
+    /* the old list, ">" released; then the list changes and ">" goes down in the same frame */
+    assert(arw_frame(&a, R, ARW_MENU, 1000) == 1);
+    assert(arw_frame(&a, 0, ARW_MENU, 1016) == 0);
+    arw_rearm(&a, R);
+    assert(arw_frame(&a, R, ARW_MENU, 1032) == 1);
+    assert(hold(&a, R, ARW_MENU, 1048, 1432, 0) == 0);    /* the repeat timing starts at the fresh press */
+    assert(hold(&a, R, ARW_MENU, 1432, 1512, 0) == 1);
+    /* "<" held from the old list, ">" fresh in the switch frame: only ">" counts */
+    a = (arw_t){0};
+    assert(arw_frame(&a, L, ARW_MENU, 2000) == -1);
+    arw_rearm(&a, L | R);
+    assert(arw_frame(&a, L | R, ARW_MENU, 2016) == 1);
+    /* first open from no menu (clip mode) and from SELECT, with a fresh press in that frame */
+    a = (arw_t){0};
+    assert(arw_frame(&a, 0, ARW_NONE, 3000) == 0);
+    arw_rearm(&a, R);
+    assert(arw_frame(&a, R, ARW_MENU, 3016) == 1);
+    a = (arw_t){0};
+    assert(arw_frame(&a, 0, ARW_SELECT, 3100) == 0);
+    arw_rearm(&a, L);
+    assert(arw_frame(&a, L, ARW_MENU, 3116) == -1);
+    /* first open with an arrow held from before: no step, no repeat */
+    a = (arw_t){0};
+    assert(arw_frame(&a, R, ARW_NONE, 4000) == 0);
+    arw_rearm(&a, R);
+    assert(hold(&a, R, ARW_MENU, 4016, 6000, 0) == 0);
+    /* repeated switches with ">" held: never a step; after the release a new press steps */
+    a = (arw_t){0};
+    assert(arw_frame(&a, R, ARW_MENU, 7000) == 1);
+    for (i = 0; i < 10; i++) {
+        arw_rearm(&a, R);
+        assert(hold(&a, R, ARW_MENU, 7016 + i * 600, 7600 + i * 600, 0) == 0);
+    }
+    assert(arw_frame(&a, 0, ARW_MENU, 14000) == 0);
+    arw_rearm(&a, R);                                      /* switch and fresh press in one frame again */
+    assert(arw_frame(&a, R, ARW_MENU, 14016) == 1);
+}
+
 int main(void)
 {
+    test_rearm();
+    test_rearm_fresh();
     test_route();
     test_menu_step();
     test_repeat_timing();

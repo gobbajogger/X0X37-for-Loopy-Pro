@@ -102,7 +102,7 @@ function goCase({hash,approvedHash="sha-2",withCtl=true,approved=true,pending=fa
     currentVersion:()=>({models:{elite:{controller_sha256:approvedHash}}}),
     isCatalogChecked:()=>approved,hasVerifiedNightlySelection:()=>approved,confirmWrite:()=>true,
     guardApprovedSelection:()=>()=>true, // R26 captures approved selection before mocked run().
-    insertCtl:img=>{inserts++;return img;},run:()=>{writes++;},
+    insertCtl:img=>{inserts++;return img;},ownedRun:()=>{writes++;},
     sayK:k=>errors.push(k),t:()=> "SHA mismatch"
   });
   new Script('let image=new Uint8Array([1]),selectedProduct="SMK-37 Elite_9001100",'

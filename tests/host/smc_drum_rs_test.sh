@@ -25,20 +25,19 @@ masked = "void drum909_render_st_masked" in (root / "firmware/src/dsp/drum909.h"
 Path(sys.argv[2]).write_text(("#define SMC_MASKED_AUDIO\n" if masked else "") + "\n\n".join(pieces) + "\n")
 PY
 cd "$SRC"
-U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c
-firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
-firmware/src/seq/pattern.c firmware/src/seq/motion.c"
+. tests/host/original_build.sh
+U=$(printf '%s\n' "$ORIGINAL_SOURCES" | tr ' ' '\n' | grep -v '^firmware/src/app/engine.c$' | tr '\n' ' ')
 X0X_HOST_OUT="$OUT/host" sh host/build_host.sh --generate-only > "$OUT/build.log" 2>&1 || { cat "$OUT/build.log"; exit 1; }
 # A forwarding observer exposes the real engine's 909 instance to the p-lock
 # restoration check. The production DSP setter still performs every write.
 ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
     -D_POSIX_C_SOURCE=200809L -DX0X_HOST ${X0X_HOST_DEFS:-} \
-    -Ddrum909_set=smc_test_drum909_set -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
+    -Ddrum909_set=smc_test_drum909_set -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen $ORIGINAL_FLAGS \
     -c firmware/src/app/engine.c -o "$OUT/engine.o"
 ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
     -D_POSIX_C_SOURCE=200809L -DX0X_HOST ${X0X_HOST_DEFS:-} \
     -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen -I"$OUT" \
     "-DX0X_HOST_SOURCE=\"$SRC/host/x0x_host.c\"" \
-    "-DSMC_MIXER_SOURCE=\"$SRC/firmware/src/app/smc_mixer.c\"" \
-    "$TEST_ROOT/tests/host/smc_drum_rs_test.c" $U "$OUT/engine.o" -lm -o "$OUT/probe"
+    "-DSMC_MIXER_SOURCE=\"${SMC_SOURCE_FILE:-$SRC/firmware/src/app/smc_mixer.c}\"" \
+    "$TEST_ROOT/tests/host/smc_drum_rs_test.c" $ORIGINAL_FLAGS $U "$OUT/engine.o" -lm -o "$OUT/probe"
 "$OUT/probe"

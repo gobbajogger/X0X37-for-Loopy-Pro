@@ -72,10 +72,19 @@ typedef struct {
     uint32_t steps;                   /* bit s = the break may sound on 16th s of the bar */
     uint8_t set[BRK_NSET];            /* breaks.h param values, in BRK_* order */
     uint8_t slot_a, slot_b;           /* loop A / B: the built-in bank, then the user slots (engine_brk_slot_names) */
-    uint8_t slice_mode;               /* 0 = MIDI notes 36-43; 1 = every note, slice = note mod 8 */
+    uint8_t slice_mode;               /* packed A/B count codes (2 bits each): 0=8,1=4,2=16,3=32 */
     uint8_t rsv;
-    uint8_t slice[16];                /* per 16th: 0 = the generator chooses, 1..8 = loop A's slice 1..8 */
+    uint8_t slice[16];                /* per 16th: 0 = the generator chooses, 1..32 = loop A's stored slice intent (resolved modulo count) */
 } brkpart_t;
+
+static inline unsigned brk_slice_code_count(unsigned code)
+{
+    return code == 0 ? 8u : code == 1 ? 4u : code == 2 ? 16u : 32u;
+}
+static inline unsigned brk_slice_count(const brkpart_t *p, unsigned which)
+{
+    return brk_slice_code_count((p->slice_mode >> (2u * which)) & 3u);
+}
 
 typedef struct {
     dpart_t drum[NKIT];

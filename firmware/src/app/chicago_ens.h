@@ -20,13 +20,15 @@ typedef struct {
     float wet;
 } chi_ens_t;
 static inline int16_t chi_ens_q15(float x) {
-    if (x > 1.0f) x = 1.0f; if (x < -1.0f) x = -1.0f;
+    if (x > 1.0f) x = 1.0f;
+    if (x < -1.0f) x = -1.0f;
     return (int16_t)(x * 32767.0f);
 }
 static inline void chi_ens_set(chi_ens_t *e, uint8_t e1, uint8_t e2, float sr) {
     static const float base_ms0[CHI_ENS_VOICES] = { 7.0f, 11.0f, 15.0f };
     float send, t, depth_ms, rate_hz, max_d; int v;
-    if (!e) return; if (sr < 1.0f) sr = CHI_ENS_SR;
+    if (!e) return;
+    if (sr < 1.0f) sr = CHI_ENS_SR;
     send = (float)e1 * (1.0f / 127.0f); t = (float)e2 * (1.0f / 127.0f);
     e->wet = send < 0.45f ? 0.45f : send;
     depth_ms = 0.35f + 2.8f * t;
@@ -52,18 +54,24 @@ static inline void chi_ens_init(chi_ens_t *e) {
     }
 }
 static inline void chi_ens_process(chi_ens_t *e, float *buf, int n) {
-    float wet, dry_g, depth, inc, base[CHI_ENS_VOICES], ph[CHI_ENS_VOICES];
+    float wet, dry_g, depth, inc, base[CHI_ENS_VOICES], ph[CHI_ENS_VOICES], step[CHI_ENS_VOICES];
     uint16_t w; int k, v;
-    if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+    if (!e || !buf || n <= 0) return;
+    wet = e->wet;
+    if (wet <= 0.0f) return;
     dry_g = 1.0f - wet; depth = e->depth; inc = e->inc; w = e->w;
-    for (v = 0; v < CHI_ENS_VOICES; v++) { base[v] = e->base[v]; ph[v] = e->phase[v]; }
+    for (v = 0; v < CHI_ENS_VOICES; v++) {
+        base[v] = e->base[v]; ph[v] = e->phase[v];
+        /* The voice rate is constant for this call. Keep the float order. */
+        step[v] = inc * (1.0f + 0.17f * (float)v);
+    }
     for (k = 0; k < n; k++) {
         float x = buf[k], sum = 0.0f, y;
         e->buf[w] = chi_ens_q15(x);
         for (v = 0; v < CHI_ENS_VOICES; v++) {
             float lfo, dly, di, frac, a, b, delayed; uint16_t i0, i1;
             lfo = fm_sin_turns(ph[v]);
-            ph[v] += inc * (1.0f + 0.17f * (float)v);
+            ph[v] += step[v];
             if (ph[v] >= 1.0f) ph[v] -= 1.0f;
             dly = base[v] + depth * lfo;
             if (dly < 1.0f) dly = 1.0f;

@@ -326,3 +326,35 @@ New diagnostics are installed, but physical input delivery remains NOT TESTED.
 No external push or publication was performed.
 
 Slot map (owner, 2026-10-26, not a Bluetooth change, not installed): user sample slots go from 3 to 2. Locked settings `slot_offsets`, `slot_sizes` and `pkg_slotmap` move with the source. Slots 1 and 2 stay at 0xC2000 (80 KiB) and 0xD6000 (120 KiB). The 44 KiB window at 0xB0000 is no longer a sample slot. The store still stops before it.
+
+
+## LX-REQ-007 dual central source qualification — 2026-10-27
+
+The assigned integration work changes `config_btctler_le_hw_nums` from 1 to 2
+and `config_btctler_le_master_multilink` from 0 to 1, with the matching locked
+settings in this source change. The purpose is two independent SMC central
+links; the peripheral and central roles remain mutually exclusive. ACL packet
+length, five-buffer total, RX buffers, RF settings and sample layout are unchanged.
+Per-handle outstanding ACL accounting refunds only that link on disconnection,
+and one command owner serializes HCI commands across both peers. Native mock
+transport tests are not physical radio evidence. Fresh corresponding controller
+and application builds and exact resource checks are required before a package
+qualifies. No hardware observation, flash, RF claim or publication is recorded here.
+
+
+## One-peer SMC recovery controller declaration — 2026-10-29
+
+The isolated `smc-a-port-20261029` A-recovery source already sets one central
+link: `config_btctler_le_hw_nums` 2 -> 1, shared ACL TX buffers
+`config_btctler_le_acl_total_nums` 3 -> 5 and
+`config_btctler_le_master_multilink` 1 -> 0. This commit updates the three
+corresponding `tools/locked_settings.json` declarations without disabling or
+weakening the locked-settings verifier. RX buffers (5), ACL packet length (27),
+flash guards and sample locations remain unchanged.
+
+This one-SMC recovery slice intentionally does not complete the project goal of
+two independent mixers. Historical dual-peer regression fixtures are retained
+but marked not applicable to the one-peer controller. The active one-peer native
+host tests cover unaccepted HCI writes, delayed command credits, STOP/cancel
+cutoffs and saved Bluetooth setup. No firmware, controller or device PASS is
+claimed here; Elite/Pro SDK V1.2.1 and physical connection checks remain pending.
