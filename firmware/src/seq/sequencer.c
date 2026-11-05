@@ -561,6 +561,10 @@ __attribute__((noinline)) static void bass_and_brk_stop(seq_t *s, const seq_sink
 /* Global panic: release notes the sequencer owns. Do not stop, rewind or send Stop. */
 void seq_notes_off(seq_t *s, const seq_sink_t *o)
 {
+    /* Finalize live captures before releasing gates, so silent held notes cannot
+     * keep overwriting future cells or retain ownership after panic. */
+    for (int b = 0; b < NBASS; b++)
+        seq_rec_cancel(s, b);
     /* PANIC_NOTE_OFF */
     bass_and_brk_stop(s, o);
 }

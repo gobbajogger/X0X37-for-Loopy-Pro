@@ -152,6 +152,64 @@ static void notes_off_keeps_transport(void)
     CHECK(seq.req_stop == 0);
 }
 
+/* Panic must retire capture ownership as well as the sounding gate. */
+static void panic_finishes_recording_without_overwriting_future_notes(void)
+{
+    int src, b;
+    for (src = 0; src <= 3; src++) {
+        bstep_t future[NBASS];
+        uint8_t gen[NBASS], pos[NBASS];
+        uint32_t next[NBASS];
+        setup();
+        seq.rec_mask = src == 3 ? (1u << NBASS) - 1u : 0;
+        seq.rec_ext_mask = src < 3 ? (1u << NBASS) - 1u : 0;
+        seq_start(&seq);
+        run(64);
+        for (b = 0; b < NBASS; b++) {
+            seq_bass_rec_t *r = &seq.rec_bass[b];
+            seq_rec_bass(&seq, b, 60 + b, 100, 1, src, 0);
+            r->own_ok = 1;
+            r->own_gen = r->gen;
+            r->own_src = (uint8_t)src;
+            r->own_note = (uint8_t)(60 + b);
+            CHECK(r->active);
+            future[b] = patterns[0].bass[b].step[4];
+            gen[b] = r->gen;
+            pos[b] = seq.t[TRK_BASS0 + b].pos;
+            next[b] = seq.t[TRK_BASS0 + b].to_next;
+        }
+        seq_notes_off(&seq, &sink);
+        for (b = 0; b < NBASS; b++) {
+            CHECK(!seq.rec_bass[b].active);
+            CHECK(!seq.rec_bass[b].own_ok);
+            CHECK(seq.rec_bass[b].gen != gen[b]);
+            CHECK(seq.t[TRK_BASS0 + b].to_off == 0);
+            CHECK(seq.t[TRK_BASS0 + b].pos == pos[b]);
+            CHECK(seq.t[TRK_BASS0 + b].to_next == next[b]);
+        }
+        CHECK(seq.playing && !seq.req_stop && !seq.req_start);
+        CHECK(seq.rec_mask == (src == 3 ? (1u << NBASS) - 1u : 0));
+        CHECK(seq.rec_ext_mask == (src < 3 ? (1u << NBASS) - 1u : 0));
+        run(4u * 4410u);
+        for (b = 0; b < NBASS; b++) {
+            CHECK(memcmp(&future[b], &patterns[0].bass[b].step[4], sizeof future[b]) == 0);
+            CHECK(count_kind(EV_ON, b) == 2);
+        }
+        memcpy(pattern_before, &patterns[0], sizeof pattern_before);
+        /* The eventual release of the cancelled press is harmless. */
+        for (b = 0; b < NBASS; b++)
+            seq_rec_bass(&seq, b, 60 + b, 0, 0, src, 0);
+        CHECK(memcmp(pattern_before, &patterns[0], sizeof pattern_before) == 0);
+        for (b = 0; b < NBASS; b++) {
+            /* REC remains armed, and a new press can record normally. */
+            seq_rec_bass(&seq, b, 67 + b, 100, 1, src, 0);
+            CHECK(seq.rec_bass[b].active);
+            CHECK(seq.rec_bass[b].note == 67 + b);
+        }
+        CHECK(!saw_status(0xFC));
+    }
+}
+
 static void silent_call_is_safe(void)
 {
     setup();
@@ -165,6 +223,7 @@ static void silent_call_is_safe(void)
 int main(void)
 {
     notes_off_keeps_transport();
+    panic_finishes_recording_without_overwriting_future_notes();
     silent_call_is_safe();
     if (failures) {
         fprintf(stderr, "panic notes: %u checks, %u failures\n", checks, failures);
