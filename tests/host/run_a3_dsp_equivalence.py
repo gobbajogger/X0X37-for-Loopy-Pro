@@ -28,12 +28,14 @@ def main():
                  '-Wall', '-Wextra', '-Werror', '-DX0X_HOST', '-Ifirmware/src', '-Ifirmware/src/dsp', '-I' + str(tmp)]
         if unit == 'fxbus':
             run(['python3', 'tools/gen_drum_samples.py', str(tmp / 'x0x_drum_samples.h')])
+        helpers = {'master': 'limit_step(master_t *m, float a) { limit_env(m, a); }',
+                   'drum808': 'tail_step(drum808_t *d, int l, const float *x, int n) { lane_tail(d, l, x, n); }'}
         for opt in ('-O0', '-O2'):
             ref = tmp / 'reference.c'
-            ref.write_text(old + ('\nvoid reference_limit_step(master_t *m, float a) { limit_env(m, a); }\n' if unit == 'master' else ''))
+            ref.write_text(old + ('\nvoid reference_' + helpers[unit] + '\n' if unit in helpers else ''))
             candidate = tmp / 'candidate.c'
             candidate.write_text('#include "' + str(ROOT / source) + '"\n' +
-                                 ('void candidate_limit_step(master_t *m, float a) { limit_env(m, a); }\n' if unit == 'master' else ''))
+                                 ('void candidate_' + helpers[unit] + '\n' if unit in helpers else ''))
             run(flags + [opt] + ['-D' + s + '=reference_' + s for s in symbols] + ['-c', ref, '-o', tmp / 'ref.o'])
             run(flags + [opt, '-c', candidate, '-o', tmp / 'new.o'])
             run(flags + [opt, 'tests/host/a3_' + unit + '_equivalence_test.c', tmp / 'ref.o', tmp / 'new.o',
