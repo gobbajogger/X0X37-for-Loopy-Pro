@@ -553,7 +553,9 @@ static void t_store(void)
         static const uint32_t bad[] = {1u, 5u, 0x1Fu, PROJ_FILE_OFF_TAG, PROJ_FILE_OFF_TAG | 0x20u, PROJ_FILE_OFF_TAG | 0xFFu,
                                        PROJ_FILE_OFF_TAG | 0x105u, 0x4E460005u, 0xCF460005u, 0x4F460005u | 0x10000000u,
                                        PROJ_FILE_OFF_TAG | 0x05u, PROJ_FILE_OFF_WORD(5u) ^ 0x100u, PROJ_FILE_OFF_WORD(5u) ^ 1u,
-                                       PROJ_FILE_OFF_WORD(5u) ^ 0x8000u, PROJ_FILE_OFF_WORD(4u) | 1u};
+                                       PROJ_FILE_OFF_WORD(5u) ^ 0x8000u, PROJ_FILE_OFF_WORD(4u) | 1u,
+                                       PROJ_FILE_OFF_WORD(5u) ^ 0x00010000u, PROJ_FILE_OFF_WORD(5u) ^ 0x80000000u,
+                                       (PROJ_FILE_OFF_WORD(5u) & 0xFFFFu) | 0x464F0000u};   /* right check byte, wrong tag */
         uint8_t h[PROJECT_FILE_HDR];
         set_off(0x05u);
         project_capture_stage();

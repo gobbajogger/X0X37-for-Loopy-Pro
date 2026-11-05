@@ -60,8 +60,8 @@ MUTANTS = {
     'file_chk_ignored': (X_H, '((w) >> 8 & 0xFFu) == PROJ_FILE_OFF_CHK((w) & 0xFFu)))', '1))', 'file_word28_bit_errors_refused'),
     'file_chk_not_written': (X_H, 'PROJ_FILE_OFF_TAG | PROJ_FILE_OFF_CHK(m) << 8 | (uint32_t)(m) : 0u)', 'PROJ_FILE_OFF_TAG | (uint32_t)(m) : 0u)', 'file_roundtrip_all_masks'),
     'file_chk_weak': (X_H, '(((m) & 16u) ? 0x67u : 0u))', '(((m) & 16u) ? 0x01u : 0u))', 'file_word28_bit_errors_refused'),
-    'file_tag_mask_zero': (X_H, '((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL))', '((w) & 0xFFu) <= PROJ_PART_OFF_ALL))', 'file_rejects_bad_word28'),
-    'file_accept_gt31': (X_H, '((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL))', '((w) & 0xFFu) - 1u < 0xFFu))', 'file_rejects_bad_word28'),
+    'file_tag_mask_zero': (X_H, '((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL &&', '((w) & 0xFFu) <= PROJ_PART_OFF_ALL &&', 'file_rejects_bad_word28'),
+    'file_accept_gt31': (X_H, '((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL &&', '((w) & 0xFFu) - 1u < 0xFFu &&', 'file_rejects_bad_word28'),
     'file_all_on_tagged': (X_H, '#define PROJ_FILE_OFF_WORD(m) ((m) ? PROJ_FILE_OFF_TAG |', '#define PROJ_FILE_OFF_WORD(m) ((1) ? PROJ_FILE_OFF_TAG |', 'file_all_on_is_older_header'),
     # QA X1: the staged mask set before the payload CRC check; QA X3: the header from the live mask
     'file_staged_before_crc': (P_C, '        get32(h + 24) != PROJ_SND_REV || !PROJ_FILE_OFF_OK(get32(h + 28)))\n        return -1;\n',
