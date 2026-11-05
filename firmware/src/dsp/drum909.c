@@ -842,18 +842,19 @@ static void d9_render_rim(d9_rim_t *v, const float *nz, const d9_bus_t *bus, int
     const int m = n < v->mute ? n : v->mute;
     v->mute -= m;
     d9_env_anchor(&v->amp);
-    const float g = v->level;
+    const float g = v->level, accent = v->accent, noise_mix = v->noise_mix;
+    const d9_shape_t shape = v->shape;
     for (int i = 0; i < m; ++i) {
         float exc = 0.0f;
         if (v->impulse > 0) {
-            exc += 1.0f + nz[i] * v->noise_mix;
+            exc += 1.0f + nz[i] * noise_mix;
             v->impulse--;
         }
         const float a = d9_env_tick(&v->amp);
         float y = d9_biquad_tick(&v->bp1, exc) * 60.0f + d9_biquad_tick(&v->bp2, exc) * 32.0f;
-        y = d9_shape(&v->shape, y * a, v->crush_st);
+        y = d9_shape(&shape, y * a, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
-        d9_emit(bus, i, y * g * v->accent);
+        d9_emit(bus, i, y * g * accent);
     }
 }
 
