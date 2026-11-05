@@ -1972,6 +1972,7 @@ static void smc_button_apply(uint8_t note, int mmc)
     }
 }
 
+#define SMC_PANIC_HOOKS 1
 static x0x_panic_chord_t smc_panic;
 static unsigned smc_panic_held;
 static int smc_panic_mode_seen = -1;
@@ -2030,8 +2031,10 @@ static int smc_panic_bank(uint8_t note, int down, int mmc)
 
 static void smc_button(uint8_t note, int mmc)
 {
+#ifdef SMC_PANIC_HOOKS
     if ((note == 0x2Eu || note == 0x2Fu) && smc_panic_bank(note, 1, mmc))
         return;
+#endif
     /* A second NoteOn without its NoteOff is a repeat, not another toggle.
      * Each peer retains its own physical key owner across UI navigation. */
     if (!mmc && !smc_hold_press(smc.held, note)) return;
@@ -2093,8 +2096,10 @@ static void smc_button(uint8_t note, int mmc)
 
 static void smc_release(uint8_t note)
 {
+#ifdef SMC_PANIC_HOOKS
     if (note == 0x2Eu || note == 0x2Fu)
         smc_panic_bank(note, 0, 0);
+#endif
     int was_held = smc_hold_release(smc.held, note);
     int nav = smc_fx_nav_index(note), nav_tap = 0;
     if (nav >= 0) {
@@ -2255,7 +2260,9 @@ static void smc_poll_peer(void)
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
         smc_ui_cancel();
+#ifdef SMC_PANIC_HOOKS
         smc_panic_reset();
+#endif
         return;
     }
     if (link != smc_link_seen) {
@@ -2290,7 +2297,9 @@ static void smc_poll_peer(void)
         smc.pending = 0xFFu;
         for (int i = 0; i < 128; i++) smc.known[i] = 0;
         smc_solo_clear();              /* also covers a down/up pair coalesced before this poll */
+#ifdef SMC_PANIC_HOOKS
         smc_panic_reset();
+#endif
         if (!smc.up) {
             smc_ui_cancel();
             ui_say("SMC LOST", 0);
@@ -2319,7 +2328,9 @@ static void smc_poll_peer(void)
         smc_ui_cancel();            /* keyboard modal keeps display ownership */
         if (smc_project_active()) smc_solo_clear();
     }
+#ifdef SMC_PANIC_HOOKS
     smc_panic_sync_mode();
+#endif
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
         __asm__ volatile("" ::: "memory");
