@@ -53,6 +53,8 @@ int main(void) {
          * distinct exact boot default (RvTone=.45, pot=57). */
         set(&s,old,FX_RV_TONE,57);
         set(&s,old,FX_RV_TONE,57);
+        set(&s,old,FX_DL_TONE,51);
+        set(&s,old,FX_DL_TONE,51);
         state(&s,old,ring,oldring,len);
         for (unsigned block=0;block<768;block++) {
             float dry[256], right[256], rev[256], delay[256], a[256], b[256], ar[256], br[256];
@@ -62,6 +64,11 @@ int main(void) {
                 int v=(int)((block/2)%128);
                 set(&s,old,FX_RV_TONE,v);
                 set(&s,old,FX_DL_TONE,127-v);
+            }
+            /* Changing tape type/wear must consume the same cached base tone. */
+            if (block%7==0) {
+                set(&s,old,FX_DL_TYPE,(int)((block/7)&1u));
+                set(&s,old,FX_DL_WEAR,(int)(block%128));
             }
             if (block%13==0) {
                 int i=(int)(draw()%FX_NPARAMS);

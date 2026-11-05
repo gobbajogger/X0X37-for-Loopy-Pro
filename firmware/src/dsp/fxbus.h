@@ -49,7 +49,7 @@ struct fxbus {
                                        * signs through its own allpasses (the left is 9W9's) */
     int32_t aposr[2];
     /* delay */
-    float dl_time_ms, dl_fdbk, dl_tone, dl_level, bpm, wear;
+    float dl_time_ms, dl_fdbk, dl_tc, dl_level, bpm, wear; /* dl_tc caches 0.06 + tone*0.6 */
     int32_t dl_div, dl_type;
     d9_biquad_t dl_hp;
     int16_t *dbuf;

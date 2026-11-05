@@ -23,6 +23,7 @@ void ref_snapshot(void *p, void *out) {
     fxbus_t s = *(fxbus_t *)p;
     /* Only the representation of the cached scalar changes. */
     s.rv_tone = 0.75f - s.rv_tone * 0.55f;
+    s.dl_tone = 0.06f + s.dl_tone * 0.6f;
     memcpy(out,&s,sizeof s);
 }
 WRAP

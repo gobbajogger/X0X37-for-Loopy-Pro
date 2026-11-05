@@ -118,7 +118,7 @@ X0X_COLD static void fx_apply(fxbus_t *f, int i, float v)
     case FX_RV_LEVEL: f->rv_level = v; break;
     case FX_DL_TIME: f->dl_div = (int32_t)v; fx_retime(f); break;
     case FX_DL_FDBK: f->dl_fdbk = v; break;
-    case FX_DL_TONE: f->dl_tone = v; break;
+    case FX_DL_TONE: f->dl_tc = 0.06f + v * 0.6f; break;
     case FX_DL_LEVEL: f->dl_level = v; break;
     case FX_DL_HPF: d9_biquad_set(&f->dl_hp, D9_HP, v, 0.7071f); break;
     case FX_DL_TYPE: f->dl_type = (int32_t)v; break;
@@ -142,6 +142,9 @@ X0X_COLD void fxbus_set(fxbus_t *f, int i, int value)
      * defaults. The first write must still apply the pot mapping. */
     if (i == FX_RV_TONE && f->pots[i] == value &&
         (value != fx_p[FX_RV_TONE].ui.def || f->rv_damp != 0.75f - 0.45f * 0.55f))
+        return;
+    if (i == FX_DL_TONE && f->pots[i] == value &&
+        (value != fx_p[FX_DL_TONE].ui.def || f->dl_tc != 0.06f + 0.4f * 0.6f))
         return;
     f->pots[i] = (uint8_t)value;
     float v;
@@ -179,7 +182,7 @@ X0X_COLD void fxbus_init(fxbus_t *f, int16_t *dly_buf, int dly_len)
 
     f->dl_div = 7;
     f->bpm = 120.0f;
-    f->dl_fdbk = 0.35f; f->dl_tone = 0.4f; f->dl_level = 0.8f;
+    f->dl_fdbk = 0.35f; f->dl_tc = 0.06f + 0.4f * 0.6f; f->dl_level = 0.8f;
     fx_retime(f);
     f->dcur = f->dl_time_ms * 0.001f * D9_SR;
     d9_biquad_set(&f->dl_hp, D9_HP, 150.0f, 0.7071f);
@@ -360,7 +363,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     uint32_t wow_i = 0, flut_i = 0, wp = 0, fp = 0;
     if (!tape) {
         fdbk = f->dl_fdbk;
-        tc = 0.06f + f->dl_tone * 0.6f;
+        tc = f->dl_tc;
     } else {
         /* TAPE: wow (0.5 Hz) and flutter (6.1 Hz) on the read, a darker loop,
          * saturation and a 30 Hz DC block inside it, feedback up to 1.15 */
@@ -371,7 +374,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
         wow_i = d9_inc(0.5f);
         flut_i = d9_inc(6.1f);
         fdbk = f->dl_fdbk * (1.15f / 0.85f);
-        tc = (0.06f + f->dl_tone * 0.6f) * (0.6f - 0.3f * wear);
+        tc = f->dl_tc * (0.6f - 0.3f * wear);
         g = 1.0f + 1.5f * wear;
         inv_g = 1.0f / g;
         wp = f->wow_ph;
