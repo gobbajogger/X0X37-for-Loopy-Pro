@@ -836,6 +836,18 @@ static void d9_render_tom(d9_tom_t *t, const d9_bt_t *p, const float *nz, const 
     }
 }
 
+/* Rim band-pass ringing after two +0 inputs: b0*0 + b1*0 + b2*0
+ * is exactly +0 for these finite BP coefficients. Keep that leading +0 to
+ * preserve the original subtraction order and signed-zero behavior. The
+ * caller has already flushed x1/x2, which therefore need no further writes. */
+static inline float d9_rim_ring(d9_biquad_t *f)
+{
+    const float y = 0.0f - f->a1 * f->y1 - f->a2 * f->y2;
+    f->y2 = f->y1;
+    f->y1 = y;
+    return y;
+}
+
 /* Rim shot (er99_rim909_render) */
 static void d9_render_rim(d9_rim_t *v, const float *nz, const d9_bus_t *bus, int n)
 {
@@ -844,7 +856,10 @@ static void d9_render_rim(d9_rim_t *v, const float *nz, const d9_bus_t *bus, int
     d9_env_anchor(&v->amp);
     const float g = v->level, accent = v->accent, noise_mix = v->noise_mix;
     const d9_shape_t shape = v->shape;
-    for (int i = 0; i < m; ++i) {
+    /* Keep the impulse and the next two zero inputs on the general path. */
+    const int warm = v->impulse < m - 2 ? v->impulse + 2 : m;
+    int i = 0;
+    for (; i < warm; ++i) {
         float exc = 0.0f;
         if (v->impulse > 0) {
             exc += 1.0f + nz[i] * noise_mix;
@@ -852,6 +867,13 @@ static void d9_render_rim(d9_rim_t *v, const float *nz, const d9_bus_t *bus, int
         }
         const float a = d9_env_tick(&v->amp);
         float y = d9_biquad_tick(&v->bp1, exc) * 60.0f + d9_biquad_tick(&v->bp2, exc) * 32.0f;
+        y = d9_shape(&shape, y * a, v->crush_st);
+        y = d9_biquad_tick(&v->hp, y);
+        d9_emit(bus, i, y * g * accent);
+    }
+    for (; i < m; ++i) {
+        const float a = d9_env_tick(&v->amp);
+        float y = d9_rim_ring(&v->bp1) * 60.0f + d9_rim_ring(&v->bp2) * 32.0f;
         y = d9_shape(&shape, y * a, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
         d9_emit(bus, i, y * g * accent);

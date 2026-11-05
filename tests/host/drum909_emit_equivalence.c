@@ -27,6 +27,32 @@ static void check(const void *a, const void *b, size_t n, const char *what, int 
 int main(void)
 {
     unsigned blocks = 0;
+    /* Exercise ringing through signed zero/subnormal histories, impulse
+     * boundaries, partial final blocks and the eventual silent state. */
+    for (int phase = 0; phase < 12; ++phase) {
+        drum909_t a, b;
+        memset(&a, 0, sizeof a);
+        drum909_init(&a);
+        drum909_trigger(&a, DR_RS, 1.0f);
+        a.rim.impulse = phase % 3;
+        a.rim.bp1.y1 = phase & 1 ? -1.0e-40f : 1.0e-40f;
+        a.rim.bp1.y2 = phase & 2 ? -0.0f : 0.0f;
+        a.rim.bp2.y1 = -a.rim.bp1.y1;
+        a.rim.bp2.y2 = -a.rim.bp1.y2;
+        a.pan_lc[DR_RS] = a.pan_l[DR_RS] = phase & 4 ? -0.0f : 0.0f;
+        a.pan_rc[DR_RS] = a.pan_r[DR_RS] = 0.0f;
+        memcpy(&b, &a, sizeof b);
+        static const int sizes[] = { 0, 1, 2, 3, 4, 255, 256, 17 };
+        for (int block = 0; block < 120; ++block) {
+            float x[4][256] = {{0}}, y[4][256] = {{0}};
+            int n = sizes[block % 8];
+            drum909_render_st_masked(&a, x[0], x[1], x[2], x[3], n, 0x7ff);
+            ref_drum909_render_st_masked(&b, y[0], y[1], y[2], y[3], n, 0x7ff);
+            check(x, y, sizeof x, "ring PCM", phase, -1, block);
+            check(&a, &b, sizeof a, "ring state", phase, -1, block);
+            ++blocks;
+        }
+    }
     for (int seed = 1; seed <= 6; ++seed) for (int dist = 0; dist < 7; ++dist) {
         drum909_t a, b;
         memset(&a, 0, sizeof a); memset(&b, 0, sizeof b);
