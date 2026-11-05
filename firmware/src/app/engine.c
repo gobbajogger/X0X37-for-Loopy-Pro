@@ -297,7 +297,6 @@ enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC };
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
-static volatile uint8_t notes_off_req;
 
 /* The scan may be preempted after choosing a victim. Revalidate the slot only
  * while the consumer source is masked, then publish exactly one aligned word.
@@ -815,6 +814,7 @@ void engine_bass_record(int part, int note, int velocity, int flags)
            (uint32_t)((flags & BS_ACCENT ? 1 : 0) | (velocity << 2) | (flags & BS_SLIDE ? 512 : 0)));
 }
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
+static volatile uint8_t notes_off_req;
 void engine_request_notes_off(void)
 {
     notes_off_req = 1;
