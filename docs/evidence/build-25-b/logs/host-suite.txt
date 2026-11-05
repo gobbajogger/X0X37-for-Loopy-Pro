@@ -1,0 +1,504 @@
+SUITE_HEAD a18561f17977be8592cef5a3d3cbebf70e4dbf1b
+SUITE_TREE 032c43043958cfe802e04b7858b49e1861555736
+SUITE_START 2026-11-05T15:19:24Z
+303 7680578cdecd91e512cfddb9c9eb07b287fb64f4
+tb3po f49d81d05d1e29ae37728a08e30f193892be3bc9
+  ok   dsp-host-linkage
+  ok   fastmath
+  ok   fastmath-ubsan
+  ok   home-tie-semantics
+  ok   play-question
+  ok   sequencer
+  ok   seq-chain-atomic
+  ok   bass-prob-midi
+  ok   seq-tb3po-bars
+  ok   seq-random-swing
+  ok   seq-random-clock-handoff
+  ok   seq-long-notes
+  ok   seq-pingpong-resize
+  ok   clk-lock
+  ok   seq-random-tie-preview
+  ok   encoder
+  ok   bass-midi-pending-native
+  ok   usb-product-names
+  ok   nightly-version
+  ok   nightly-package
+  ok   uac
+  ok   uac-out
+  ok   uac-out-irq
+  ok   usb-audio-descriptors
+  ok   trs
+  ok   undo
+  ok   sound-reset
+  ok   undo-capacity
+  ok   lz
+  ok   motion
+  ok   motion-pattern-handoff
+  ok   host-build
+  ok   original-release-integration
+  ok   chicago-fx2-inserts
+  ok   original-sound-cell
+  FAIL original-release-ui (see build/host/original-release-ui.log)
+  ok   original-build
+  ok   freeplay-rate-pads
+  ok   freeplay-live-keys
+  ok   synth-bus-mute
+  ok   storage-warning
+  ok   freeplay-latency
+  ok   lcd-bounded-tiles
+  ok   pads-in-settings
+  ok   boot-screen
+  ok   ui-theme
+  ok   project-protocol
+  ok   project-save-preflight
+  ok   editor-ota-dispatch
+  ok   editor-read-area
+  ok   sample-header-alignment
+  ok   editor-diagnostic-count
+  ok   storage-scratch
+  ok   project-stage
+  ok   project-runtime
+  ok   save-note-quiet
+  ok   font-pack
+  ok   smc-protocol
+  ok   smc-fader
+  ok   smc-buttons
+  ok   smc-select-mode
+  ok   smc-fx
+  ok   smc-mixer-edges
+  ok   smc-action-source
+  ok   smc-fx-caption
+  ok   smc-fx-page-port
+  ok   smc-fx-two-page-strip
+  ok   smc-fx-peer-view
+  ok   smc-fx-preset-preserve
+  ok   smc-queue
+  ok   smc-solo-overflow
+  ok   engine-cq-rec-overflow
+  ok   engine-cq-isr-preemption
+  ok   engine-cq-boff-overflow
+  ok   engine-cq-brk-overflow
+  ok   engine-cq-bon-overflow
+  ok   engine-cq-drum-overflow
+  ok   engine-808-scratch-alias
+  ok   midi-mq-noteoff-overflow
+  ok   midi-mq-rt-overflow
+  ok   midi-overflow-order
+  ok   midi-out-mq-noteoff-overflow
+  ok   ble-out-noteoff-overflow
+  ok   ble-out-rt-overflow
+  ok   usb-sxq-sticky-apc
+  ok   usb-live-update
+  ok   live-a-mix-report
+  ok   smc-host-data7
+  ok   smc-host-overflow-data7
+  ok   smc-sender-isolation
+  ok   ble-ctl-fail-return
+  ok   smc-ble-payload
+  ok   smc-link
+  ok   smc-reconnect-epoch
+  ok   smc-boot-saved-roles
+  ok   ble-central-first-notification
+  ok   ble-active-peer-contract
+  ok   ble-smc-outbound-slots
+  ok   ble-one-peer-command
+  ok   ble-single-peer-status
+  ok   ble-dual-peer
+  ok   ble-command-credit
+  ok   ble-controller-heap
+  ok   ble-midi-receive
+  ok   ble-capture-replay
+  ok   ble-acl-start-flags
+  ok   ble-hci-completed
+  ok   ble-acl-zero-credit
+  ok   ble-zero-conn
+  ok   ble-link-epoch-reset
+  ok   ble-disconnect-status
+  ok   smc-reachability
+  ok   smc-pickup-acceptance
+  ok   smc-lock
+  ok   smc-lock-beat
+  ok   smc-multi-peer
+  ok   ui-peer-names
+  ok   ble-peer-name-bounds
+  ok   irq-state
+  ok   outer-pack
+  ok   usb-sysex-parser
+  ok   midi-ring-displace
+  ok   midi-ingress-busy
+  ok   midi-mq-pb-overflow
+  ok   midi-out-mq-pb-overflow
+  ok   ble-out-pb-overflow
+  ok   ble-device-setting-flow
+  ok   ble-toggle-persistence-gate
+  ok   smc-multi-peer-negative
+  ok   smc-pause-loss
+  ok   smk-wheel-mode
+  ok   miami-table-interpolation
+  ok   miami-coef-cache
+  ok   legacy-303-project
+  ok   smc-interaction-negative
+  ok   corner-coverage
+  ok   part-order
+  ok   part-off
+  ok   part-off-web-e2e
+  ok   part-off-web-e2e-node-gate
+  ok   part-off-web-e2e-not-run-exit
+  FAIL smc-ui (see build/host/smc-ui.log)
+       1 warning generated.
+       FAIL tests/host/smc_ui_test.c:285: engine_project_notes()
+       PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+       PASS maps: both kits/banks, production descriptors, keyboard list isolation
+       PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+       PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+       PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+       PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+       PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/live-locked; knob arc extremes and bipolar center
+       PASS restore: eight views preserve complete navigation state and exact framebuffer
+       PASS activity: pickup, live values, repeated controls, exact boundary and wrap
+       PASS feedback: existing header message and local knob readout survive temporary UI
+       PASS navigation: physical buttons, encoder, key and SMC navigation cancel
+       PASS overlays: confirmation blocks input; menu/help state survives activity and timeout
+       PASS clip: grid/waiting framebuffer restores; keyboard clip fields stay unchanged under independent SMC popup
+  ok   smc-ui-popup
+  ok   smc-remainder
+  ok   smc-popup-engine
+  ok   smc-audit-core
+  ok   smc-audit-contract
+  ok   smc-mode-page
+  ok   smc-mixer-page
+  ok   ui-shared-glyph
+  ok   ui-drum-mix-material
+  ok   ui-waveform-truth
+  ok   ui-page-wrap
+  ok   chicago-adsr-graph
+  ok   ui-settings-sections
+  ok   smc-ui-bounds
+  ok   smc-ui-negative
+  ok   smc-mapping
+  FAIL smc-drum-mutes (see build/host/smc-drum-mutes.log)
+       probe: tests/host/smc_drum_mutes_test.c:195: void priority_regression(void): Assertion `smc.lit[16 + strip] == 1' failed.
+       Aborted
+  ok   smc-drum-rs
+  ok   smc-performance-abort
+  ok   smc-filter
+  ok   smc-feedback
+  ok   smc-record-feedback
+  ok   smc-part-select
+  ok   smc-clip-visibility
+  ok   drum-pan
+  ok   stereo
+  ok   master
+  ok   drum-kit-identity
+  ok   drum909-adpcm
+  not-run drum909 (/home/ubuntu/x0x-refs/missing-schwung-9W9/src/dsp/er99_engine.c)
+  not-run drum808 (/home/ubuntu/x0x-refs/missing-schwung-8W8/src/dsp/sc808_engine.cpp)
+  ok   breaks
+  ok   break-suite-registration
+  ok   adaptive-break-dsp
+  ok   adaptive-break-controls
+  ok   adaptive-break-storage
+  ok   adaptive-break-midi-pair
+  ok   break-performance
+  ok   engine-brk-mute
+  ok   brk-loops-seamless
+  ok   brk-outline
+  ok   brk-outline-gate
+  ok   chicago-fx-bridge
+  ok   au-compare-align
+  ok   au-compare-battery
+  ok   install-gate-guard
+  ok   queue-guard
+  ok   install-guards
+  ok   install-head
+  ok   release-tree
+  ok   prepush-trim
+  ok   prepush-allow
+  ok   gate-configs
+  ok   gate-trap
+  ok   quickcheck-plan
+  ok   host-failure-summary
+  ok   ctl-compile
+  ok   host-setup
+  ok   gen-nonfont-tables
+  ok   stereo-alone-gen
+  ok   runner-admission
+  ok   update-names
+  ok   gate-reason
+  ok   validation-inputs
+  ok   stage-handoff
+  FAIL dev-validate (see build/host/dev-validate.log)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "/agent/repos/X0X37-for-Loopy-Pro/tests/host/test_dev_validate.py", line 176, in test_success_without_gate_and_queue_enforced
+           self.ready()
+         File "/agent/repos/X0X37-for-Loopy-Pro/tests/host/test_dev_validate.py", line 103, in ready
+           self.assertEqual(r.returncode, 0, r.stdout+r.stderr)
+       AssertionError: 3 != 0 : HEAD is now at 34e7e9a fixture
+       Preparing worktree (detached HEAD 34e7e9a)
+       REFUSED: [Errno 2] No such file or directory: '/home/ubuntu/x0x-refs/missing-schwung-9W9'
+       
+       
+       ----------------------------------------------------------------------
+       Ran 20 tests in 5.234s
+       
+       FAILED (failures=10)
+  FAIL dev-validate-composed (see build/host/dev-validate-composed.log)
+       FAIL: test_real_record_and_guard_preserve_queue_release_and_hash_guards (__main__.ComposedValidation.test_real_record_and_guard_preserve_queue_release_and_hash_guards)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "/agent/repos/X0X37-for-Loopy-Pro/tests/host/test_dev_validate_composed.py", line 81, in test_real_record_and_guard_preserve_queue_release_and_hash_guards
+           self.ready()
+         File "/agent/repos/X0X37-for-Loopy-Pro/tests/host/test_dev_validate_composed.py", line 78, in ready
+           r=self.run_it();self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       AssertionError: 3 != 0 : REFUSED: [Errno 2] No such file or directory: '/home/ubuntu/x0x-refs/missing-schwung-9W9'
+       
+       
+       ----------------------------------------------------------------------
+       Ran 11 tests in 1.381s
+       
+       FAILED (failures=1)
+  ok   nightly-publish
+  ok   gen-cache
+  ok   smk-update-contract
+  ok   gen-order
+  ok   quickcheck-devbug
+  ok   status-lanes
+  ok   status-isolation
+  ok   loop-bars
+  ok   installer
+  ok   installer-f02-bind
+  ok   installer-f02-bind-web
+  ok   ota-request-guards-web
+  ok   installer-six-stage-web
+  ok   locked-settings
+  ok   smk-update-protection
+  ok   smk-vendor-update-gate
+  ok   smk-flash
+  ok   smk-storage
+  ok   smk-apc40-map
+  ok   smk-apc40
+  ok   smk-clip-ble-clear
+  ok   smk-clip-keys
+  ok   smk-chord-recognize
+  ok   smk-clip-chord-display
+  ok   smk-ck-page-layout
+  ok   smk-arrows
+  ok   smk-arrows-owner
+  ok   apc40-tables
+  ok   smk-clip-idle
+  ok   smk-clip-idle-pad
+  ok   apc40-pad-owner
+  ok   smk-padcal
+  ok   padcal-view
+  ok   smk-padcal-export
+  ok   smk-padcal-wiring
+  ok   pad-placement-doc
+  ok   padcal-flag
+  ok   apc40-lcd565-csv
+  ok   apc-palette
+  ok   installer-targets
+  ok   diag-size
+  ok   smk-inlog
+  ok   ble-central-diag
+  ok   ble-role-switch
+  ok   inlog-tool
+  ok   smk-pad-inputs
+  ok   smk-clip-ble-notify
+  ok   smk-clip-dark
+  ok   smk-clip-usb-clear
+  ok   smk-clip-isolation
+  ok   smk-clip-knob
+  ok   smk-fader-pickup
+  ok   smk-clip-wait
+  ok   smk-apc40-violet
+  ok   smk-package
+  ok   smk-ota-entry
+  ok   smk-ota-entry-model1
+  ok   smk-ota-entry-model2
+  ok   smk-update-loader
+  ok   smk-build-package
+  ok   smk-build-package-elite
+  ok   ble-sysex-bounds
+  ok   ble
+  ok   ble-package
+  ok   upload-images
+  ok   upload-tools
+  ok   builtin-break-output
+  ok   break-pack
+  ok   break-pack-web
+  ok   breaks-web
+  ok   breaks-page
+  ok   project-adoption-identities
+  ok   offline-sequencer
+  FAIL offline-sequencer-browser (see build/host/offline-sequencer-browser.log)
+       Traceback (most recent call last):
+         File "/agent/repos/X0X37-for-Loopy-Pro/web/offline-sequencer/f6b-browser.test.py", line 5, in <module>
+           from playwright.sync_api import sync_playwright
+       ModuleNotFoundError: No module named 'playwright'
+  ok   offline-touchosc-pack
+  ok   offline-touchosc-lua
+  ok   projects-web
+  ok   installer-project-handoff
+  ok   projects-page
+  ok   site-generation-web
+  ok   install-slots-web
+  ok   installer-backup-selection
+  ok   slot-build-safe
+  ok   wav-import-integrity
+  ok   slot-backup
+  ok   slot-begin-cancel
+  ok   smp-begin-cancel
+  ok   slot-backup-durable
+  ok   slot-archive-zone
+  ok   slot-verify-order
+  ok   slot-read-reply
+  ok   slot-ack-integrity
+  ok   slot-echo-7bit
+  ok   slot-migration-matching
+  ok   slot-break-menu-migration
+  ok   installer-slots
+  ok   installer-restore-status
+  ok   installer-ota-finish-ack
+  ok   installer-backup-snapshot
+  ok   installer-ctl
+  ok   ctl-read-framing
+  ok   ctl-publish-atomic
+  ok   panic-chord
+  ok   panic-notes
+  FAIL panic-clear (see build/host/panic-clear.log)
+       panic clear: 0 failures
+       FAIL tests/host/panic_clear_test.c:93: engine_part_sounding() & 2
+       FAIL tests/host/panic_clear_test.c:101: engine_part_sounding() & 2
+       panic clear: 2 failures
+  FAIL panic-route (see build/host/panic-route.log)
+       FAIL tests/host/panic_route_test.c:182: ui.part != part
+       FAIL tests/host/panic_route_test.c:200: ui.part == part_neighbor(part, 1)
+       panic route: 2 failures
+  ok   panic-mutants
+  ok   rec-held-duration
+  ok   original-stale-release
+  ok   rec-endpoint-lifecycle
+  ok   rec-endpoint-storage
+  ok   rec-nonforward-guard
+  ok   rec-live-smk
+  ok   ext-midi-rec-smk
+  ok   copy-semantics
+  ok   song-actions
+  FAIL ui-feedback (see build/host/ui-feedback.log)
+       test: tests/host/ui_feedback_test.c:98: void readout_does_not_cover_help(void): Assertion `help_with_pending_readout == help_only' failed.
+       Aborted
+  ok   remaining-feature-proof-selftest
+  ok   home-pattern-glyph
+  ok   home-overview
+  ok   sound-matrix
+  ok   sound-layout
+  ok   perf-wheel-motion
+  ok   perf-wheel-noise
+  ok   control-recompile
+  ok   chicago-coef-cache
+  ok   audio-stress
+  ok   synth-param-jump
+  ok   param-write-sources
+  ok   chicago-presentation
+  ok   chicago-readout
+  ok   ui-drum-glyph
+  FAIL ui-glyph-polish (see build/host/ui-glyph-polish.log)
+        7055 | static UI_DRAW void draw_adsr_inline(int p,int active,int y,int h,int off)
+             |                     ^                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       tests/host/ui_glyph_polish_test.c:126:55: error: too few arguments to function call, expected 5, have 3
+         126 |   cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(0,49,0);
+             |                                ~~~~~~~~~~~~~~~~       ^
+       tests/host/../../host/../firmware/src/app/ui.c:7055:21: note: 'draw_adsr_inline' declared here
+        7055 | static UI_DRAW void draw_adsr_inline(int p,int active,int y,int h,int off)
+             |                     ^                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       tests/host/ui_glyph_polish_test.c:129:55: error: too few arguments to function call, expected 5, have 3
+         129 |   cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(0,49,0);
+             |                                ~~~~~~~~~~~~~~~~       ^
+       tests/host/../../host/../firmware/src/app/ui.c:7055:21: note: 'draw_adsr_inline' declared here
+        7055 | static UI_DRAW void draw_adsr_inline(int p,int active,int y,int h,int off)
+             |                     ^                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       1 warning and 5 errors generated.
+  ok   ui-chicago-env-motion
+  ok   matrix-knob-caption
+  ok   preset-navigation-noop
+  ok   ui-303-entry
+  ok   scenario-arrows
+  ok   scenario-autosave
+  ok   scenario-bleclock
+  ok   scenario-blenotes
+  ok   scenario-brkslice
+  ok   scenario-brkslice_mode_toggle
+  ok   scenario-brkslice_trs_overlap
+  ok   scenario-clip-arrow-menu
+  ok   scenario-clklock
+  ok   scenario-clkmove
+  ok   scenario-clocksrc
+  ok   scenario-drum_bass_ch_consume
+  ok   scenario-edit_midi_rec_guard
+  ok   scenario-edit_oct_no_hidden
+  ok   scenario-extclock
+  ok   scenario-freeplay
+  ok   scenario-getting_started
+  ok   scenario-groove
+  ok   scenario-guard
+  ok   scenario-help
+  ok   scenario-jam
+  ok   scenario-keysound
+  ok   scenario-knobs
+  ok   scenario-midiowner
+  ok   scenario-migrate
+  ok   scenario-migrate0102
+  ok   scenario-patterns
+  ok   scenario-perf
+  ok   scenario-perfsave
+  FAIL scenario-plock (see build/host/scenario-plock.log)
+         ok hit0.0.0 == 0
+         ok hit0.0.0 == 1
+         ok playhead0 == 5
+         ok motion0.0.0 == 54
+         ok playhead0 == 6
+         ok motion0.0.0 == -1
+         ok sound0.0.0 == 34
+         ok lanes == 0
+         ok hit0.0.4 == 1
+         ok lanes == 0
+         ok part == 2
+         ok laneval2.0.1.2 == 95
+         ok sound2.0.1 == 115
+       FAIL expect lanes == 1, got 2
+       host: 4711 ms simulated, 1549 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-prob
+  ok   scenario-probcond
+  ok   scenario-probreset
+  ok   scenario-roll_continuation
+  ok   scenario-roll_short_tie
+  ok   scenario-savefeedback
+  ok   scenario-savewait
+  ok   scenario-showcase
+  ok   scenario-slices
+  ok   scenario-song
+  ok   scenario-song_live_mute_save
+  ok   scenario-songrep
+  ok   scenario-sound_matrix_chicago
+  ok   scenario-sound_matrix_chicago_idle
+  ok   scenario-sound_matrix_drum
+  ok   scenario-sound_matrix_lock
+  ok   scenario-sound_matrix_miami
+  ok   scenario-sound_page_split
+  ok   scenario-step303
+  ok   scenario-steps64
+  ok   scenario-stereo
+  ok   scenario-tb3po
+  ok   scenario-tour
+  ok   scenario-trackmute
+  ok   scenario-undo
+  ok   scenario-upload
+  ok   scenario-upload44
+  ok   scenario-usbnotes
+  ok   perf-scratch
+TESTS FAILED
+SUITE_EXIT:1
+SUITE_END 2026-11-05T15:49:45Z
+SUITE_WRAP:0

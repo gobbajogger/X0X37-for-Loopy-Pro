@@ -1,0 +1,54 @@
+# Commands for the native evidence build of a18561f1 (UNREVIEWED), not release qualification.
+# Host Ubuntu 24.04 x86-64. Pillow import is 13.0.0 from the user site.
+# apt also installed python3-pil 10.2.0-1ubuntu1.4. The import path is the user-site copy.
+
+git rev-parse HEAD
+# a18561f17977be8592cef5a3d3cbebf70e4dbf1b
+git rev-parse 'HEAD^{tree}'
+# 032c43043958cfe802e04b7858b49e1861555736
+
+sudo apt-get update
+sudo apt-get install -y libclang-rt-18-dev lua5.1 libstdc++-14-dev python3-pil
+python3 -c 'import PIL; print(PIL.__version__, PIL.__file__)'
+# 13.0.0 /home/ubuntu/.local/lib/python3.12/site-packages/PIL/__init__.py
+
+curl -fL --retry 3 -o "$HOME/.jieli/linux-toolchain.bin" https://pkgman.jieliapp.com/s/linux-toolchain
+# size 26027508
+# sha256 a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd
+tar -xJf linux-toolchain.bin
+ln -sfn jieli-linux-toolchains-20260730.1 toolchain
+# clang sha256 c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f
+# clang version 4.0.1
+
+git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git "$HOME/fw-AC79_AIoT_SDK"
+# HEAD d179b4484759423312073f5fbb232501aa491047
+# uboot.boot, cfg_tool.bin, eq_cfg_hw.bin hashes MATCH the ce278129 pin list
+
+export JIELI_TOOLCHAIN="$HOME/.jieli/toolchain"
+export AC79_SDK="$HOME/fw-AC79_AIoT_SDK"
+export JIELI_DOCKER=0
+export X0X_DEV_PADCAL=0
+export CTL_NO_CACHE=1
+export CC=cc
+export CXX=c++
+export SDK_LOCAL="$AC79_SDK"
+
+python3 tools/check_locked_settings.py
+MODEL=elite ./build.sh --board smk37
+MODEL=pro ./build.sh --board smk37
+SDK_LOCAL="$AC79_SDK" CTL_NATIVE=1 sh ble/ctl/build_ctl.sh
+python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
+python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-ble.fwsc
+python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-elite-ble.fwsc
+
+# Pre-M1 tip a0311156 (tree e1eb8d90) was built the same way for Elite and Pro only.
+# Its app image sizes match the ce278129 evidence build.
+
+# Host suite. Pinned 9W9 10cbe5c1 and 8W8 94aa2716 are not in the public GitHub
+# repositories (API 422). Those two checks are not-run. 303 and TB3PO are the pins.
+export SCHWUNG303="$HOME/x0x-refs/schwung-303"          # 7680578c
+export TB3PO_REF="$HOME/x0x-refs/schwung-tb3po/src/dsp/tb3po.c"  # f49d81d0
+export NINEW9_DIR="$HOME/x0x-refs/missing-schwung-9W9"
+export EIGHTW8_DIR="$HOME/x0x-refs/missing-schwung-8W8"
+timeout 2400 sh tests/run_tests.sh
+# rc 1. 392 ok / 11 FAIL / 2 not-run. See logs/host-suite.txt.

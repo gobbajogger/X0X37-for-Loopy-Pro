@@ -1,0 +1,3 @@
+FAIL tests/host/panic_route_test.c:182: ui.part != part
+FAIL tests/host/panic_route_test.c:200: ui.part == part_neighbor(part, 1)
+panic route: 2 failures

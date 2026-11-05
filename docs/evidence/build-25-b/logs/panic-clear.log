@@ -1,0 +1,4 @@
+panic clear: 0 failures
+FAIL tests/host/panic_clear_test.c:93: engine_part_sounding() & 2
+FAIL tests/host/panic_clear_test.c:101: engine_part_sounding() & 2
+panic clear: 2 failures
