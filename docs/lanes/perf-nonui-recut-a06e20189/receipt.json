@@ -1,0 +1,1025 @@
+{
+  "state": "BUILD_ONLY_AND_HOST_CHECKED",
+  "base_sha": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+  "source_tree_sha": "044347b710fd37bf8d78b1719c8fa28071d6a0e6",
+  "source_diff_sha256": "f765fb7c74e6bc3897c99e72a4355e906d18adeaf9613d4a94e83aaef816713b",
+  "lane": "lane/dev-perf-nonui-on-25opt-20261106",
+  "original_lane_sha": "e5b8205dfd8335d56c91ac362450f0a0d8ee7724",
+  "lane_parent_sha": "bdc4965e2c9b2025c2e2cf9ea5b4d4a6b03008ca",
+  "own_tip_commits": [
+    "01f5fca228ecf2089172d1057856409ca809e544",
+    "2456043164f4b98311049866528cb28a57d47cdf",
+    "b062a020ffef35b65878cad6ab7ce39092e3ce32",
+    "75918231e272a5adaeaa05e83aa8ba6cb6c4fe3c",
+    "e5b8205dfd8335d56c91ac362450f0a0d8ee7724"
+  ],
+  "empty_tip_commits": [
+    "01f5fca228ecf2089172d1057856409ca809e544",
+    "2456043164f4b98311049866528cb28a57d47cdf",
+    "b062a020ffef35b65878cad6ab7ce39092e3ce32"
+  ],
+  "recut_nonempty_commits": [
+    "75918231e272a5adaeaa05e83aa8ba6cb6c4fe3c",
+    "e5b8205dfd8335d56c91ac362450f0a0d8ee7724"
+  ],
+  "scope": "Only two nonempty own tip patches; inherited stack and absent UAC output tests excluded. Test-only follow-up strengthens failed attach and retry boundary coverage. Timing comment distinguishes modeled ticks from device measurement.",
+  "source_files": [
+    {
+      "path": "firmware/src/usb.c",
+      "mode": "100644",
+      "git_blob_sha": "c2f65b868dd01f19af6689140591f1a8b27d8b02",
+      "sha256": "0a99b1907fcd544990d03daa56bd15afc959356e0455e172b98e764cb3a9d6c7"
+    },
+    {
+      "path": "tests/host/run_usb_retry.sh",
+      "mode": "100755",
+      "git_blob_sha": "72c4011cd6d6fc1cfa86e65f2cc392b1cb64f66b",
+      "sha256": "4f507dcd6e3c60fbd63c509c3214766616a919f7115cd065700e26472bb6a075"
+    },
+    {
+      "path": "tests/host/smk_clip_knob_fake_usb.h",
+      "mode": "100644",
+      "git_blob_sha": "a04918e0934b325c80b734e95eac0f6feb8d9a78",
+      "sha256": "2c8be52634a1851ae2784bba1c6eceb3a60d26f37d95f9cf159bc4d6292e8698"
+    },
+    {
+      "path": "tests/host/smk_clip_usb_clear_fake_usb.h",
+      "mode": "100644",
+      "git_blob_sha": "6a4cdb1c7a1689119f5acebea2207633fc2d4252",
+      "sha256": "be102452bc47ad90deeb0f2ff4894269e61ceffeab492d4db82284f1d79aa7f0"
+    },
+    {
+      "path": "tests/host/trs_test.c",
+      "mode": "100644",
+      "git_blob_sha": "37baaf5231f2c8543267fd1ce04119b8948fbbc0",
+      "sha256": "4d10c2013a64fd9283def9791420d16e1d665ab82b20e35b3c5a15274417d09e"
+    },
+    {
+      "path": "tests/host/uac_test.c",
+      "mode": "100644",
+      "git_blob_sha": "f413a3ed3026fe239ce8cbb4842cedd9dffc37a5",
+      "sha256": "d88562ca13775d1e729fd5494cbb071c222c1e3cc18dfcc4f27c9db63a54e109"
+    },
+    {
+      "path": "tests/host/usb_retry_fake_usb.h",
+      "mode": "100644",
+      "git_blob_sha": "55ef50a0bd14e54e97a910e6009a8e1ed85816a1",
+      "sha256": "b8dcbca0d394ca08a9f768d426b92b3096c4b39844f8ef1a468cb70a64f7d893"
+    },
+    {
+      "path": "tests/host/usb_retry_test.c",
+      "mode": "100644",
+      "git_blob_sha": "89f6984ca9c39c49c6776bd55b0dcab57e9aa6fc",
+      "sha256": "76cb378bd395054263ee3151b9726266da5539720948f50319ad3dc5a8906f31"
+    },
+    {
+      "path": "tests/run_tests.sh",
+      "mode": "100755",
+      "git_blob_sha": "9032ba9fa5088eb1c88f06a985556c8e7f36f005",
+      "sha256": "5a01d4c9e656d089e3782ebb25dd63d6949aed53dd02d86f9b68c941153c35c9"
+    }
+  ],
+  "builds": {
+    "elite": {
+      "status": "PASS",
+      "sdk": "V1.2.1",
+      "config": "DEV X0X_DEV_PADCAL=1",
+      "baseline": {
+        "model": "elite",
+        "label": "baseline",
+        "app_bytes": 474840,
+        "package_bytes": 651457,
+        "app_sha256": "47c8d02545a6d3138ece9dba260c946a1eb251968f7bf7849c397304e43735dd",
+        "ram_used_bytes": 95780,
+        "ram_limit_bytes": 98304,
+        "ram_headroom_bytes": 2524,
+        "pool_bytes": 335464,
+        "pool_free_bytes": 8600,
+        "sections": {
+          "00000000": 0,
+          ".text": 471088,
+          ".ram_sink": 1024,
+          ".ram_text": 2712,
+          ".c1_text": 608,
+          ".data": 428,
+          ".bss": 95332,
+          ".pool": 335464,
+          ".noinit": 308,
+          ".ble_ram": 3880,
+          ".shstrtab": 96,
+          ".symtab": 44160,
+          ".strtab": 41904
+        }
+      },
+      "candidate": {
+        "model": "elite",
+        "label": "candidate",
+        "app_bytes": 474936,
+        "package_bytes": 651591,
+        "app_sha256": "5ba402208f23b010358f4834d8de37ce2c4d2eb9d2781b5966d05ca04134a976",
+        "ram_used_bytes": 95780,
+        "ram_limit_bytes": 98304,
+        "ram_headroom_bytes": 2524,
+        "pool_bytes": 335464,
+        "pool_free_bytes": 8600,
+        "sections": {
+          "00000000": 0,
+          ".text": 471184,
+          ".ram_sink": 1024,
+          ".ram_text": 2712,
+          ".c1_text": 608,
+          ".data": 428,
+          ".bss": 95332,
+          ".pool": 335464,
+          ".noinit": 308,
+          ".ble_ram": 3880,
+          ".shstrtab": 96,
+          ".symtab": 44208,
+          ".strtab": 41959
+        }
+      },
+      "delta": {
+        "app_bytes": 96,
+        "package_bytes": 134,
+        "ram_used_bytes": 0,
+        "pool_bytes": 0
+      },
+      "ram_text_delta_bytes": 0
+    },
+    "pro": {
+      "status": "PASS",
+      "sdk": "V1.2.1",
+      "config": "DEV X0X_DEV_PADCAL=1",
+      "baseline": {
+        "model": "pro",
+        "label": "baseline",
+        "app_bytes": 474840,
+        "package_bytes": 651457,
+        "app_sha256": "d6f4a728ff649b2d5d4d69cf9c2f1c33d429924a184dfb05028fba405aad3992",
+        "ram_used_bytes": 95780,
+        "ram_limit_bytes": 98304,
+        "ram_headroom_bytes": 2524,
+        "pool_bytes": 335464,
+        "pool_free_bytes": 8600,
+        "sections": {
+          "00000000": 0,
+          ".text": 471088,
+          ".ram_sink": 1024,
+          ".ram_text": 2712,
+          ".c1_text": 608,
+          ".data": 428,
+          ".bss": 95332,
+          ".pool": 335464,
+          ".noinit": 308,
+          ".ble_ram": 3880,
+          ".shstrtab": 96,
+          ".symtab": 44160,
+          ".strtab": 41898
+        }
+      },
+      "candidate": {
+        "model": "pro",
+        "label": "candidate",
+        "app_bytes": 474936,
+        "package_bytes": 651587,
+        "app_sha256": "1d6a8acbbf517c78187902de02e318e76d2acca5966a9c2d4dd57da4ca4e864e",
+        "ram_used_bytes": 95780,
+        "ram_limit_bytes": 98304,
+        "ram_headroom_bytes": 2524,
+        "pool_bytes": 335464,
+        "pool_free_bytes": 8600,
+        "sections": {
+          "00000000": 0,
+          ".text": 471184,
+          ".ram_sink": 1024,
+          ".ram_text": 2712,
+          ".c1_text": 608,
+          ".data": 428,
+          ".bss": 95332,
+          ".pool": 335464,
+          ".noinit": 308,
+          ".ble_ram": 3880,
+          ".shstrtab": 96,
+          ".symtab": 44208,
+          ".strtab": 41953
+        }
+      },
+      "delta": {
+        "app_bytes": 96,
+        "package_bytes": 130,
+        "ram_used_bytes": 0,
+        "pool_bytes": 0
+      },
+      "ram_text_delta_bytes": 0
+    },
+    "controller": {
+      "status": "PASS",
+      "bytes": 61088,
+      "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+      "crc32": "9aa7f77f",
+      "ram_bytes": 26336,
+      "ram_limit_bytes": 26368
+    }
+  },
+  "sdk": {
+    "version": "V1.2.1",
+    "commit": "d179b4484759423312073f5fbb232501aa491047",
+    "files": [
+      {
+        "path": "cpu/wl82/liba/btctrler.a",
+        "sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de",
+        "bytes": 5157416
+      },
+      {
+        "path": "cpu/wl82/liba/wl_rf_common.a",
+        "sha256": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2",
+        "bytes": 321802
+      },
+      {
+        "path": "cpu/wl82/liba/crypto_toolbox_Osize.a",
+        "sha256": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e",
+        "bytes": 421662
+      },
+      {
+        "path": "cpu/wl82/liba/lib_ccm_aes.a",
+        "sha256": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c",
+        "bytes": 33128
+      },
+      {
+        "path": "include_lib/newlib/pi32v2-lib/libc.a",
+        "sha256": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4",
+        "bytes": 188988
+      },
+      {
+        "path": "include_lib/newlib/pi32v2-lib/libcompiler_rt.a",
+        "sha256": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009",
+        "bytes": 111588
+      },
+      {
+        "path": "apps/common/net/wifi_conf.c",
+        "sha256": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb",
+        "bytes": 52960
+      },
+      {
+        "path": "LICENSE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "bytes": 11357
+      },
+      {
+        "path": "cpu/wl82/tools/uboot.boot",
+        "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+        "bytes": 14536
+      },
+      {
+        "path": "cpu/wl82/tools/cfg_tool.bin",
+        "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+        "bytes": 383
+      },
+      {
+        "path": "cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+        "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+        "bytes": 655
+      }
+    ]
+  },
+  "toolchain": {
+    "archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "root": "/workspace/work/perf-recut/inputs/jieli-linux-toolchains-20260730.1",
+    "version": "clang version 4.0.1 () ()\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /workspace/work/perf-recut/inputs/jieli-linux-toolchains-20260730.1/pi32v2/bin\n"
+  },
+  "references": [
+    {
+      "repository": "michaelmenesescs/schwung-9W9",
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "root_tree": "2a32b748456d4f162010932771f2ca26fc5d34d6",
+      "full_archive_blob_validation": "MATCH",
+      "verified_blob_count": 41,
+      "archive_sha256": "abdfde2783f9b7074c4ac3ad4d6dc833c2cd379bb71f0927d49be6655055d6cc",
+      "extraction_scope": [
+        "src",
+        "LICENSE",
+        "NOTICE",
+        "README.md"
+      ],
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+          "bytes": 35149
+        },
+        {
+          "path": "README.md",
+          "git_blob": "6a6f1324425b2ef528077f5e34304829b6176e1c",
+          "sha256": "b7d6d1452650390f1d0460c69a8052fd9981e78845946c6d44d986fa329ece05",
+          "bytes": 9051
+        },
+        {
+          "path": "src/dsp/er99_circuit.h",
+          "git_blob": "93569f10f0ca0be4bce12a42d3e9ddbbfae2b856",
+          "sha256": "4a64a1836582c143630c100c384665ad4323b1e2d420d09c88ff4126e7dd5db9",
+          "bytes": 21974
+        },
+        {
+          "path": "src/dsp/er99_engine.c",
+          "git_blob": "81a0c946c634bf3cbd52b1ed5879328e7ede9efb",
+          "sha256": "8013b3df3385f6551a007a5359f9e6fc1e7eb9391443f3959e0ab912aa7568db",
+          "bytes": 47207
+        },
+        {
+          "path": "src/dsp/er99_engine.h",
+          "git_blob": "b5c2de6a1996900856acbb096d3ca02cafdb8381",
+          "sha256": "04f25799c91d3b5987646f74d61415f5e35f0242e95017d841e4c06a325fb574",
+          "bytes": 7766
+        },
+        {
+          "path": "src/dsp/er99_params.h",
+          "git_blob": "9c0cae0105995e31887ce9cdd7a29cbce5142318",
+          "sha256": "948cf045fc78db695ba70fcadaca3ef08fea961ac069ee3645a2a936dfe49b4e",
+          "bytes": 26801
+        },
+        {
+          "path": "src/dsp/er99_perc909.h",
+          "git_blob": "b0ad749fe54494ecea61d53002eff3aadd159bd2",
+          "sha256": "5d3fbbbc4af297a7c8dcd712faa5ec2ca5664adf9daaf4319e8d960d2d16537d",
+          "bytes": 8275
+        },
+        {
+          "path": "src/dsp/er99_plugin.c",
+          "git_blob": "37df249dcff0c9bbaabafad7e401659ef421b73c",
+          "sha256": "c833e19aa836c4b641c4e7e7f99f96ccf5e1d0503637238d14ffee8f54e16de6",
+          "bytes": 14608
+        },
+        {
+          "path": "src/dsp/er99_pots.h",
+          "git_blob": "0e4b25b08ff3f2fb5d07d6434ee7efa902de4004",
+          "sha256": "3536808283c010bb2feb2e1ce30f66848b61798b91c545c9518e1cbba50591c5",
+          "bytes": 10135
+        },
+        {
+          "path": "src/dsp/er99_tom909.h",
+          "git_blob": "194df7923078c961110abc26f7c8b774cbf9cdb9",
+          "sha256": "29515e11a06f1bd18fe7fcf9565a5bac085d42203ff169b2986bdbec30e2d04d",
+          "bytes": 6632
+        },
+        {
+          "path": "src/dsp/webaudio.h",
+          "git_blob": "71a62f373633bb14fc5e95e499737e181bd07f60",
+          "sha256": "3ba3d5be5238022d7dde7013dd7975125af6f3dbb24ae5390773247b3fb7d18b",
+          "bytes": 12690
+        },
+        {
+          "path": "src/help.json",
+          "git_blob": "5c4b21d6c413dd0e667c1d06eeb1790c3c36bff2",
+          "sha256": "2563c9e80f824b4652927a48254749de57a38f2cfef2a2f3f8ae1c8ac8bccf1c",
+          "bytes": 3008
+        },
+        {
+          "path": "src/host/plugin_api_v1.h",
+          "git_blob": "318406a227a850373fcf6360327a93db7517c540",
+          "sha256": "2c410cbc65202239d35dc0e6cd0cfa451be11d7693bf620ec6337c635358c646",
+          "bytes": 8517
+        },
+        {
+          "path": "src/module.json",
+          "git_blob": "881306be27a9879df5ed1c81958fef8121168315",
+          "sha256": "182a7992133c97b2230ef57ad56741f0285afeab4d5711bf7d6a6577e0ef4535",
+          "bytes": 561
+        },
+        {
+          "path": "src/patches/9W9.json",
+          "git_blob": "c79b3daca2eabea570800c034c0030a4847f7ab5",
+          "sha256": "265f98b055ae5a4793a2d7bb374c3d3a2796fa4c08e59d445215435bc5630705",
+          "bytes": 162
+        },
+        {
+          "path": "src/samples/crash.wav",
+          "git_blob": "7451f3330e6ff3a18f65f3b3c6e9be23d93503df",
+          "sha256": "4a1b8d8828f9e530e9ae7f1a3cdffbcb1466e633a2b0607b3aac914699bc8400",
+          "bytes": 86644
+        },
+        {
+          "path": "src/samples/hh.wav",
+          "git_blob": "3cbd3b911490d38850387931c00f835c386a1034",
+          "sha256": "8ae963e80b8604bf23733545117d3b115767aa48ecd3013ad5d91506337d289a",
+          "bytes": 65536
+        },
+        {
+          "path": "src/samples/ride.wav",
+          "git_blob": "985f418679f58eed7a340928e1ad18483331d179",
+          "sha256": "f1d1cee24a7c91bb2ca9c6eb97badad3841226897ad0daabfc35801371d78182",
+          "bytes": 94042
+        },
+        {
+          "path": "src/tools/loadtest.c",
+          "git_blob": "4e83b99d5bd14fb2f4ce73a6fc3465273b6a71b2",
+          "sha256": "a3446cdaa36d4cb18286f4a9d2cce65980954cf2d43925b754d6779ebed68ec0",
+          "bytes": 28882
+        },
+        {
+          "path": "src/tools/render.c",
+          "git_blob": "de9a9768879716e9e4e6cede5b1c76c9b6965611",
+          "sha256": "a21fd26ba75d392c7bbe388f0b1ac3ccc9d8ba8454c772dd40a9981c2d54fd31",
+          "bytes": 4804
+        },
+        {
+          "path": "src/ui_chain.js",
+          "git_blob": "8dd2c9f8a4848ac26d4e92bca64291726c48c1df",
+          "sha256": "e2f0ee5e2675dc89b374b30878171cf45ee099093d933e9de999f2d5fb7d8f53",
+          "bytes": 21937
+        },
+        {
+          "path": "src/web_ui.html",
+          "git_blob": "168c30ee5a660d0dfbb5eabe63040c72f311b44c",
+          "sha256": "a93581efa6b6cdc763d8c97723c5a93dea8c3434c6580078fdb78ad149e252b1",
+          "bytes": 11827
+        }
+      ]
+    },
+    {
+      "repository": "michaelmenesescs/schwung-8W8",
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "root_tree": "a042961b65cb420bd1555de3cd93cbb7c807652f",
+      "full_archive_blob_validation": "MATCH",
+      "verified_blob_count": 68,
+      "archive_sha256": "08d8737148e7fc331c1d2db8076d45cc44633e60d25a0c38c61f89f9a1c331a2",
+      "extraction_scope": [
+        "src",
+        "LICENSE",
+        "NOTICE",
+        "README.md"
+      ],
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+          "bytes": 35149
+        },
+        {
+          "path": "README.md",
+          "git_blob": "0c9f0262a1031a4961ef77398cd2a6436cd2b2b9",
+          "sha256": "e2ef5660d904d17fe5c1d643846059cfbbf1bffe5c07a326ae38eedf6789ee51",
+          "bytes": 12908
+        },
+        {
+          "path": "src/dsp/sc808_bd_circuit.h",
+          "git_blob": "3505e09815d0c14d19af325ee3be6ecc52de0bfe",
+          "sha256": "ba4be526d507c734814754d04775bb248e7e0590f20a76825cb092c1d4e262aa",
+          "bytes": 17221
+        },
+        {
+          "path": "src/dsp/sc808_circuit_common.h",
+          "git_blob": "585f964c19d3d90e92fe03cdd3c9e5cd75a1da7c",
+          "sha256": "a35d63dea29c4e7f5e8864d95b26dfab0ca6567d2fd6e0209bac742cb41c4814",
+          "bytes": 6531
+        },
+        {
+          "path": "src/dsp/sc808_cp_circuit.h",
+          "git_blob": "44be9b6cf29843bb53dc0fb501193e8e7c9926a9",
+          "sha256": "14c68a032cd008d5cec7086f70355eac3c897679e521adb4d57928266174307d",
+          "bytes": 9831
+        },
+        {
+          "path": "src/dsp/sc808_engine.cpp",
+          "git_blob": "cc58c68a1039b18bebc7fae78422945bba13ab25",
+          "sha256": "81a926b7fbde0b8eb777c53909613afb6396b4fd5eabd773cf30214e1e085f53",
+          "bytes": 42051
+        },
+        {
+          "path": "src/dsp/sc808_engine.h",
+          "git_blob": "d569cd3850b7ceeaf996ef0f15f178615ecfa12b",
+          "sha256": "85d142a2ab0f1eb01beac74f25059cc44be3122e3b8a5a271161a061856bff06",
+          "bytes": 3284
+        },
+        {
+          "path": "src/dsp/sc808_fx.h",
+          "git_blob": "59ce2d446e92dee35e015ff632c725f6421ad648",
+          "sha256": "b160446c1ca9c00caf6ca4ccc752ce24885dbe73ff09efd85bb35303cfe1ad6d",
+          "bytes": 9205
+        },
+        {
+          "path": "src/dsp/sc808_mt_circuit.h",
+          "git_blob": "3aff9732ddf83c8896bc8948fc469e17e792e201",
+          "sha256": "3bdbf5f389100063cbc6287a5bb83160c4db0d1e6075c6398b9ec3ba67a1ba0a",
+          "bytes": 37529
+        },
+        {
+          "path": "src/dsp/sc808_params.h",
+          "git_blob": "bac38873268b51748b70166ac6da78e0764b7b24",
+          "sha256": "693a2b775ac6d5f32d514a2d32ed5f4b2b5f74a37aa30f850c1bbd760b802965",
+          "bytes": 44779
+        },
+        {
+          "path": "src/dsp/sc808_plugin.cpp",
+          "git_blob": "a8efdde74556e7c53a2cb7bd90d1a3af0b4b34f5",
+          "sha256": "eac0fcc6a0d48f0ef14673ddd5b22530e5ce046a264ce05bca3690ec6542697f",
+          "bytes": 16883
+        },
+        {
+          "path": "src/dsp/sc808_rs_circuit.h",
+          "git_blob": "783a38c34c0ef142bcdb4b5b2bfc33f1a997ae2c",
+          "sha256": "40ea48128de7770bf082adb1a4724398d43868d5769350cf22691251df441a9d",
+          "bytes": 8537
+        },
+        {
+          "path": "src/dsp/sc808_sd_circuit.h",
+          "git_blob": "58804b6b41a5b3ca3c93a08cff33870bf7cedbbf",
+          "sha256": "116c6dd803740026470a1a5848c82cd7609cb853dee41d526266010d8485cca5",
+          "bytes": 11254
+        },
+        {
+          "path": "src/dsp/sc808_shape.h",
+          "git_blob": "6d98205202403a61e19562e26e02c435ebabd07a",
+          "sha256": "34a19fd7ea6d2071ef46df2d32224921a922440414dc8e9ed5cff14d2f0f2417",
+          "bytes": 7196
+        },
+        {
+          "path": "src/dsp/sc808_tom_circuit.h",
+          "git_blob": "3ac958b540e02e31c3232468591c6a6ff2cc3748",
+          "sha256": "d35b90513893fad2498ff539b28138195d63e9802a0f09b095d305672b6845b1",
+          "bytes": 13296
+        },
+        {
+          "path": "src/dsp/sc808_voices.h",
+          "git_blob": "e5215066eb9a214385c9da6b2554904520d11083",
+          "sha256": "58969682be9f3d0feb704a8552427ca9953dc4dd4f66d2ecbae0b135743805a2",
+          "bytes": 31961
+        },
+        {
+          "path": "src/dsp/sc_ugens.h",
+          "git_blob": "f59dae20520b7212ab0fa7ae4491bde81760d14d",
+          "sha256": "af9d55df75d2d2a3587c1eda8a6b3679fffdd7e0ef99da1f6c70e7f05aa01bdd",
+          "bytes": 27358
+        },
+        {
+          "path": "src/help.json",
+          "git_blob": "5921d2f9bfbd8adbc8604f68da302f18e7a0ed55",
+          "sha256": "c4bc4036c10a5aaf1d5d6890e686bdd1f45dec0c91ed6f66b2ef8b2ddd1942c9",
+          "bytes": 6758
+        },
+        {
+          "path": "src/host/plugin_api_v1.h",
+          "git_blob": "318406a227a850373fcf6360327a93db7517c540",
+          "sha256": "2c410cbc65202239d35dc0e6cd0cfa451be11d7693bf620ec6337c635358c646",
+          "bytes": 8517
+        },
+        {
+          "path": "src/module.json",
+          "git_blob": "66f71f80a766b1fe11fea4a72de63c8575d5a123",
+          "sha256": "f06291f3cdd71a361beace6f045c92944eb33781aaa38243f038bb25ed30d523",
+          "bytes": 769
+        },
+        {
+          "path": "src/patches/8W8.json",
+          "git_blob": "2bf4115a80b5f80f0139b4f3581d64306f45791c",
+          "sha256": "8c2b10fc6d0788f85516eae165e8d950e0cfbf8a7dd1979ffc035242acd69c6c",
+          "bytes": 162
+        },
+        {
+          "path": "src/tools/bench.cpp",
+          "git_blob": "7dd416089a05c0fd890ea36f0ac715eda77aab56",
+          "sha256": "213e50d9edb5af67d41a759ee5064c5cade2cb57f6839e5ff458bdd3489c55d5",
+          "bytes": 4560
+        },
+        {
+          "path": "src/tools/demo_pattern.h",
+          "git_blob": "de84c233cc901ab5504e8cb2e3c22e31127c5dd1",
+          "sha256": "22cd7c82b2440dd69787914bded29e7b66aaa4b3dc23d681976e5ed5d5bb774c",
+          "bytes": 3180
+        },
+        {
+          "path": "src/tools/loadtest.c",
+          "git_blob": "602c662c1d2a2e251caf87179f4b44bb778af1c5",
+          "sha256": "fa1be7456358d6e6462186c5f63af506c34b915a702b68f4395e0fc0720a381c",
+          "bytes": 26653
+        },
+        {
+          "path": "src/tools/nullref.cpp",
+          "git_blob": "b9e21c7cb98dac24acb5105b6530ba697e93320c",
+          "sha256": "3809d1b9447cf766bba9eebe1b3c113924b420de63a7905cfb726ed068593cbd",
+          "bytes": 7557
+        },
+        {
+          "path": "src/tools/probes.cpp",
+          "git_blob": "78d42e6738431a30bf8a61451afdde4fe084b85a",
+          "sha256": "0c1cb3a852226569e44ac2ec81e8391fad870b33021604ab5e87c67a5e97fe10",
+          "bytes": 5799
+        },
+        {
+          "path": "src/tools/render.cpp",
+          "git_blob": "9f1b01efd8538db8e25e0f1845d101df7cc214b2",
+          "sha256": "df6d2ee1b6e4d410d77620916490bbfa2c030e1659d126920acf5c1849cb5da2",
+          "bytes": 3333
+        },
+        {
+          "path": "src/ui_chain.js",
+          "git_blob": "e26e5e05d5a830c7d6c64a4adba751522815e989",
+          "sha256": "82bc68d7c7d1f33c48a6d5b06eea8ffa053bf47888ce534809f63e533b3be883",
+          "bytes": 24094
+        },
+        {
+          "path": "src/vendor/sc808/sc808.scd",
+          "git_blob": "790f312e1a3e724c13cad480697988edfd32778f",
+          "sha256": "1d5d381bfeab976ac611c83922257de9a1cbcc437f0b30a5c5d739f26bab4aa4",
+          "bytes": 19944
+        },
+        {
+          "path": "src/web_ui.html",
+          "git_blob": "2cc74d5d868327c63f7117eb16a835b25e9afc42",
+          "sha256": "8ab49dce7b2743ff6d98c2b08ae05e7c428bbae9ecd39723493beb18bb4a6200",
+          "bytes": 28940
+        }
+      ]
+    }
+  ],
+  "host_suite": {
+    "command": "X0X_STRICT_PREFLIGHT=1 X0X_TEST_JOBS=8 sh tests/run_tests.sh",
+    "exit_code": 0,
+    "passed": 333,
+    "failed": 0,
+    "top_level_skipped": 0,
+    "top_level_not_run": 0,
+    "initial_internal_clang_variants_skipped": 3,
+    "supplemental_command": "PATH=<local host clang>:$PATH X0X_STRICT_PREFLIGHT=1 X0X_TESTS='usb-retry original-stale-release' sh tests/run_tests.sh",
+    "supplemental_exit_code": 0,
+    "supplemental_selectors_passed": 2,
+    "compiler_matrix_variants_executed": 5,
+    "assertions_per_compiler_variant": 164,
+    "outstanding_skipped": 0,
+    "outstanding_not_run": 0,
+    "full_log_sha256": "a2e6bb1f79efff2e7dfbc28f083ffbd4e33c8558db5cf000002f081ea4f88e91",
+    "supplemental_log_sha256": "6818c20bd1a5e2cd050f349e5386160fe51efe262464dd4922074f812387f41e",
+    "results": [
+      "ok   dsp-host-linkage",
+      "ok   fastmath",
+      "ok   fastmath-ubsan",
+      "ok   home-tie-semantics",
+      "ok   sequencer",
+      "ok   bass-prob-midi",
+      "ok   seq-tb3po-bars",
+      "ok   seq-random-swing",
+      "ok   seq-random-clock-handoff",
+      "ok   seq-long-notes",
+      "ok   seq-pingpong-resize",
+      "ok   clk-lock",
+      "ok   seq-random-tie-preview",
+      "ok   encoder",
+      "ok   bass-midi-pending-native",
+      "ok   uac",
+      "ok   trs",
+      "ok   usb-retry",
+      "ok   undo",
+      "ok   undo-capacity",
+      "ok   lz",
+      "ok   motion",
+      "ok   host-build",
+      "ok   original-release-integration",
+      "ok   original-release-ui",
+      "ok   original-build",
+      "ok   freeplay-rate-pads",
+      "ok   boot-screen",
+      "ok   ui-theme",
+      "ok   project-protocol",
+      "ok   project-save-preflight",
+      "ok   editor-ota-dispatch",
+      "ok   storage-scratch",
+      "ok   project-stage",
+      "ok   project-runtime",
+      "ok   save-note-quiet",
+      "ok   font-pack",
+      "ok   smc-protocol",
+      "ok   smc-fader",
+      "ok   smc-buttons",
+      "ok   smc-select-mode",
+      "ok   smc-fx",
+      "ok   smc-mixer-edges",
+      "ok   smc-action-source",
+      "ok   smc-fx-caption",
+      "ok   smc-fx-page-port",
+      "ok   smc-fx-peer-view",
+      "ok   smc-fx-preset-preserve",
+      "ok   smc-queue",
+      "ok   smc-solo-overflow",
+      "ok   engine-cq-rec-overflow",
+      "ok   engine-cq-isr-preemption",
+      "ok   engine-cq-boff-overflow",
+      "ok   engine-cq-brk-overflow",
+      "ok   engine-cq-bon-overflow",
+      "ok   engine-cq-drum-overflow",
+      "ok   midi-mq-noteoff-overflow",
+      "ok   midi-mq-rt-overflow",
+      "ok   midi-overflow-order",
+      "ok   midi-out-mq-noteoff-overflow",
+      "ok   ble-out-noteoff-overflow",
+      "ok   ble-out-rt-overflow",
+      "ok   usb-sxq-sticky-apc",
+      "ok   smc-host-data7",
+      "ok   smc-host-overflow-data7",
+      "ok   smc-sender-isolation",
+      "ok   smc-ble-payload",
+      "ok   smc-link",
+      "ok   smc-reconnect-epoch",
+      "ok   smc-boot-saved-roles",
+      "ok   ble-central-first-notification",
+      "ok   ble-active-peer-contract",
+      "ok   ble-smc-outbound-slots",
+      "ok   ble-one-peer-command",
+      "ok   ble-dual-peer",
+      "ok   ble-command-credit",
+      "ok   ble-controller-heap",
+      "ok   ble-midi-receive",
+      "ok   ble-capture-replay",
+      "ok   ble-acl-start-flags",
+      "ok   ble-hci-completed",
+      "ok   ble-acl-zero-credit",
+      "ok   ble-link-epoch-reset",
+      "ok   ble-disconnect-status",
+      "ok   smc-reachability",
+      "ok   smc-pickup-acceptance",
+      "ok   smc-lock",
+      "ok   smc-lock-beat",
+      "ok   smc-multi-peer",
+      "ok   smc-multi-peer-negative",
+      "ok   smc-pause-loss",
+      "ok   smk-wheel-mode",
+      "ok   miami-table-interpolation",
+      "ok   legacy-303-project",
+      "ok   smc-interaction-negative",
+      "ok   corner-coverage",
+      "ok   part-order",
+      "ok   smc-ui",
+      "ok   smc-ui-popup",
+      "ok   smc-mode-page",
+      "ok   smc-mixer-page",
+      "ok   ui-shared-glyph",
+      "ok   ui-drum-mix-material",
+      "ok   ui-waveform-truth",
+      "ok   smc-ui-bounds",
+      "ok   smc-ui-negative",
+      "ok   smc-mapping",
+      "ok   smc-drum-mutes",
+      "ok   smc-drum-rs",
+      "ok   smc-performance-abort",
+      "ok   smc-filter",
+      "ok   smc-feedback",
+      "ok   smc-record-feedback",
+      "ok   smc-part-select",
+      "ok   smc-clip-visibility",
+      "ok   drum-pan",
+      "ok   stereo",
+      "ok   master",
+      "ok   drum-kit-identity",
+      "ok   drum909-adpcm",
+      "ok   drum909",
+      "ok   drum808",
+      "ok   breaks",
+      "ok   break-suite-registration",
+      "ok   adaptive-break-dsp",
+      "ok   adaptive-break-controls",
+      "ok   adaptive-break-storage",
+      "ok   adaptive-break-midi-pair",
+      "ok   break-performance",
+      "ok   brk-loops-seamless",
+      "ok   brk-outline",
+      "ok   brk-outline-gate",
+      "ok   chicago-fx-bridge",
+      "ok   au-compare-align",
+      "ok   au-compare-battery",
+      "ok   install-gate-guard",
+      "ok   queue-guard",
+      "ok   install-guards",
+      "ok   install-head",
+      "ok   release-tree",
+      "ok   prepush-trim",
+      "ok   prepush-allow",
+      "ok   gate-configs",
+      "ok   gate-trap",
+      "ok   quickcheck-plan",
+      "ok   host-failure-summary",
+      "ok   ctl-compile",
+      "ok   host-setup",
+      "ok   gen-nonfont-tables",
+      "ok   stereo-alone-gen",
+      "ok   runner-admission",
+      "ok   update-names",
+      "ok   gate-reason",
+      "ok   validation-inputs",
+      "ok   stage-handoff",
+      "ok   dev-validate",
+      "ok   dev-validate-composed",
+      "ok   nightly-publish",
+      "ok   gen-cache",
+      "ok   smk-update-contract",
+      "ok   gen-order",
+      "ok   quickcheck-devbug",
+      "ok   status-lanes",
+      "ok   status-isolation",
+      "ok   loop-bars",
+      "ok   installer",
+      "ok   installer-f02-bind",
+      "ok   installer-f02-bind-web",
+      "ok   locked-settings",
+      "ok   smk-flash",
+      "ok   smk-storage",
+      "ok   smk-apc40-map",
+      "ok   smk-apc40",
+      "ok   smk-clip-ble-clear",
+      "ok   smk-clip-keys",
+      "ok   smk-chord-recognize",
+      "ok   smk-clip-chord-display",
+      "ok   smk-ck-page-layout",
+      "ok   smk-arrows",
+      "ok   smk-arrows-owner",
+      "ok   apc40-tables",
+      "ok   smk-clip-idle",
+      "ok   smk-clip-idle-pad",
+      "ok   apc40-pad-owner",
+      "ok   smk-padcal",
+      "ok   padcal-view",
+      "ok   smk-padcal-export",
+      "ok   smk-padcal-wiring",
+      "ok   pad-placement-doc",
+      "ok   padcal-flag",
+      "ok   apc40-lcd565-csv",
+      "ok   apc-palette",
+      "ok   installer-targets",
+      "ok   diag-size",
+      "ok   smk-inlog",
+      "ok   ble-central-diag",
+      "ok   ble-role-switch",
+      "ok   inlog-tool",
+      "ok   smk-pad-inputs",
+      "ok   smk-clip-ble-notify",
+      "ok   smk-clip-dark",
+      "ok   smk-clip-usb-clear",
+      "ok   smk-clip-isolation",
+      "ok   smk-clip-knob",
+      "ok   smk-fader-pickup",
+      "ok   smk-clip-wait",
+      "ok   smk-apc40-violet",
+      "ok   smk-package",
+      "ok   smk-ota-entry",
+      "ok   smk-ota-entry-model1",
+      "ok   smk-ota-entry-model2",
+      "ok   smk-update-loader",
+      "ok   smk-build-package",
+      "ok   smk-build-package-elite",
+      "ok   ble-sysex-bounds",
+      "ok   ble",
+      "ok   ble-package",
+      "ok   upload-images",
+      "ok   upload-tools",
+      "ok   builtin-break-output",
+      "ok   break-pack",
+      "ok   break-pack-web",
+      "ok   breaks-web",
+      "ok   breaks-page",
+      "ok   project-adoption-identities",
+      "ok   projects-web",
+      "ok   installer-project-handoff",
+      "ok   projects-page",
+      "ok   install-slots-web",
+      "ok   installer-backup-selection",
+      "ok   slot-build-safe",
+      "ok   wav-import-integrity",
+      "ok   slot-backup",
+      "ok   slot-begin-cancel",
+      "ok   smp-begin-cancel",
+      "ok   slot-backup-durable",
+      "ok   slot-archive-zone",
+      "ok   slot-verify-order",
+      "ok   slot-read-reply",
+      "ok   slot-ack-integrity",
+      "ok   slot-echo-7bit",
+      "ok   slot-migration-matching",
+      "ok   slot-break-menu-migration",
+      "ok   installer-slots",
+      "ok   installer-restore-status",
+      "ok   installer-ota-finish-ack",
+      "ok   installer-backup-snapshot",
+      "ok   installer-ctl",
+      "ok   ctl-read-framing",
+      "ok   ctl-publish-atomic",
+      "ok   rec-held-duration",
+      "ok   original-stale-release",
+      "ok   rec-endpoint-lifecycle",
+      "ok   rec-endpoint-storage",
+      "ok   rec-nonforward-guard",
+      "ok   rec-live-smk",
+      "ok   ext-midi-rec-smk",
+      "ok   copy-semantics",
+      "ok   song-actions",
+      "ok   ui-feedback",
+      "ok   remaining-feature-proof-selftest",
+      "ok   home-pattern-glyph",
+      "ok   home-overview",
+      "ok   sound-matrix",
+      "ok   sound-layout",
+      "ok   perf-wheel-motion",
+      "ok   chicago-presentation",
+      "ok   chicago-readout",
+      "ok   ui-drum-glyph",
+      "ok   ui-glyph-polish",
+      "ok   ui-chicago-env-motion",
+      "ok   matrix-knob-caption",
+      "ok   preset-navigation-noop",
+      "ok   ui-303-entry",
+      "ok   scenario-arrows",
+      "ok   scenario-autosave",
+      "ok   scenario-bleclock",
+      "ok   scenario-blenotes",
+      "ok   scenario-brkslice",
+      "ok   scenario-brkslice_mode_toggle",
+      "ok   scenario-brkslice_trs_overlap",
+      "ok   scenario-clip-arrow-menu",
+      "ok   scenario-clklock",
+      "ok   scenario-clkmove",
+      "ok   scenario-clocksrc",
+      "ok   scenario-drum_bass_ch_consume",
+      "ok   scenario-edit_midi_rec_guard",
+      "ok   scenario-edit_oct_no_hidden",
+      "ok   scenario-extclock",
+      "ok   scenario-freeplay",
+      "ok   scenario-getting_started",
+      "ok   scenario-groove",
+      "ok   scenario-guard",
+      "ok   scenario-help",
+      "ok   scenario-jam",
+      "ok   scenario-keysound",
+      "ok   scenario-knobs",
+      "ok   scenario-midiowner",
+      "ok   scenario-migrate",
+      "ok   scenario-migrate0102",
+      "ok   scenario-patterns",
+      "ok   scenario-perf",
+      "ok   scenario-perfsave",
+      "ok   scenario-plock",
+      "ok   scenario-prob",
+      "ok   scenario-probcond",
+      "ok   scenario-probreset",
+      "ok   scenario-roll_continuation",
+      "ok   scenario-roll_short_tie",
+      "ok   scenario-savefeedback",
+      "ok   scenario-savewait",
+      "ok   scenario-showcase",
+      "ok   scenario-slices",
+      "ok   scenario-song",
+      "ok   scenario-song_live_mute_save",
+      "ok   scenario-songrep",
+      "ok   scenario-sound_matrix_chicago",
+      "ok   scenario-sound_matrix_chicago_idle",
+      "ok   scenario-sound_matrix_drum",
+      "ok   scenario-sound_matrix_lock",
+      "ok   scenario-sound_matrix_miami",
+      "ok   scenario-sound_page_split",
+      "ok   scenario-step303",
+      "ok   scenario-steps64",
+      "ok   scenario-stereo",
+      "ok   scenario-tb3po",
+      "ok   scenario-tour",
+      "ok   scenario-trackmute",
+      "ok   scenario-undo",
+      "ok   scenario-upload",
+      "ok   scenario-upload44",
+      "ok   scenario-usbnotes",
+      "ok   perf-scratch"
+    ]
+  },
+  "regression_red_green": {
+    "base_runtime_exit": 1,
+    "candidate_runtime_exit": 0,
+    "mutation_negatives": [
+      {
+        "mutation": "missing-timeout-clear",
+        "compile_exit": 0,
+        "run_exit": 1,
+        "runtime_assertions_detected": true
+      },
+      {
+        "mutation": "late-rearm-boundary",
+        "compile_exit": 0,
+        "run_exit": 1,
+        "runtime_assertions_detected": true
+      },
+      {
+        "mutation": "removed-boot-delay",
+        "compile_exit": 0,
+        "run_exit": 1,
+        "runtime_assertions_detected": true
+      }
+    ]
+  },
+  "source_review": {
+    "status": "complete",
+    "run_id": "20261105-perf-recut-code-review",
+    "actionable_findings": 0,
+    "resolved_findings": [
+      "failed-attach recovery and retry boundary coverage"
+    ],
+    "cross_provider_review": "not available; local adversarial source review completed"
+  },
+  "target_cycles_per_sample": "NOT_MEASURED; no per-sample DSP change; no hardware operation performed",
+  "device_and_release_state": "Not installed, flashed, qualified for hardware, or published. No firmware/controller binaries included.",
+  "delivery_policy": "Current task specifically requests recut onto a06 and delivery to the same lane; publish with expected-head lease only while original lane tip matches. Never update main/nightly or .github."
+}
