@@ -102,7 +102,7 @@ static void projection_cases(void)
     preview[4]=cell[4]; CHECK(ui_original_controls_update(&cache,1,cell,preview,1u<<4)); CHECK(cache.preview_mask==(1u<<4));
     CHECK(!ui_original_controls_project(&cache.view,cell,preview,1u<<22));
     cell[28]=0; CHECK(!ui_original_controls_update(&cache,1,cell,preview,0) && !cache.valid);
-    CHECK(sizeof(ui_original_control_cache)==76 && sizeof(ui_original_control_view)==14);
+    CHECK(sizeof(ui_original_control_cache)==164 && sizeof(ui_original_control_view)==104);
 }
 static void pages_and_edits(void)
 {
@@ -182,6 +182,40 @@ static void locks_and_undo(void)
     CHECK(!undo_wait && engine_bass_bank(0)==0 && !memcmp(saved,proj.sound.v[T_303][0],32));
     do_undo(1); settle(); CHECK(!undo_wait && engine_bass_bank(0)==1 && proj.sound.v[T_303][0][30]==29);
 }
+/* Owner-approved restoration: real output fields, not a proposed screenshot. */
+static void restoration_ui_cases(void)
+{
+    static const uint32_t input[] = {120u,255u,256u,300u,511u,65535u,65536u,UINT32_MAX};
+    static const uint16_t output[] = {120u,255u,256u,300u,511u,65535u,65535u,65535u};
+    for(unsigned i=0;i<sizeof input/sizeof input[0];i++)
+        CHECK(ui_perf_percent(input[i])==output[i]);
+    uint8_t cell[32],preview[22]={0};
+    ui_original_control_view v;
+    CHECK(original_sound_init(cell,0,0));
+    CHECK(ui_original_controls_project(&v,cell,preview,0));
+    CHECK(UI_ORIGINAL_WAVE_W==29 && UI_ORIGINAL_WAVE_H==19);
+    for(int i=0;i<UI_ORIGINAL_WAVE_W;i++) CHECK(v.wave[0][i]<UI_ORIGINAL_WAVE_H);
+    choose(1,0,0); screen(V_PART,PART_303B,3);
+    for(unsigned stage=0;stage<4;stage++){
+        ui.touched=(int8_t)stage; ui.touch_until=now_ms+1000u;
+        pref_t touched=pg.r[cur_page()][stage];
+        ui.touch_view=ui.view;ui.touch_part=ui.part;ui.touch_page=cur_page();
+        ui.touch_kind=touched.kind;ui.touch_a=touched.a;ui.touch_b=touched.b;ui.touch_c=touched.c;
+        CHECK(adsr_touch_active());
+        draw_main(); draw_knobs();
+        char name[48];snprintf(name,sizeof name,"chicago-touch-%u",stage);shot(name);
+    }
+    ui.touched=-1;
+    choose(0,1,0);screen(V_PART,PART_303A,0);
+    CHECK(ui_original_controls_project(&v,proj.sound.v[T_303][0],preview,0));
+    for(int slot=0;slot<3;slot++)for(int i=0;i<UI_ORIGINAL_WAVE_W;i++)
+        CHECK(v.wave[slot][i]<UI_ORIGINAL_WAVE_H);
+    /* An injected PERF reading above 255 must survive the actual screen path. */
+    perf.load=300; perf.peak=511;
+    screen(V_PERF,PART_909,0);
+    shot("perf-high-percent");
+}
+
 static void image_cases(void)
 {
     capture("home",V_HOME,PART_909,0); capture("mix-parts",V_MIX,PART_909,0); capture("mix-master",V_MIX,PART_909,3);
@@ -224,7 +258,7 @@ static void image_cases(void)
 int ORIGINAL_UI_MAIN(int argc,char **argv)
 {
     image_dir=argc==2?argv[1]:0; projection_cases(); load_force=0; boot(); settle();
-    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases();
+    pages_and_edits(); selector_cases(); locks_and_undo(); restoration_ui_cases(); image_cases();
     printf("PASS original_release_ui checks=%u captures=%u cache=%zu view=%zu ui=%zu pages=%zu freeplay=%zu\n",
            checks,captures,sizeof original_controls,sizeof original_controls.view,sizeof ui,sizeof pg,sizeof live_keys+sizeof live_outer);
     return 0;

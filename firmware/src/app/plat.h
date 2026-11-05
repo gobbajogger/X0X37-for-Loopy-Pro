@@ -111,6 +111,8 @@ enum { PLAT_BLE_NOIMG, PLAT_BLE_OFF, PLAT_BLE_RESTART, PLAT_BLE_STARTING, PLAT_B
        PLAT_BLE_FAILED, PLAT_BLE_BADIMG };
 int plat_ble_state(void);
 const char *plat_ble_name(void);
+/* Current connected SMC peer names, bounded to 20 characters per slot. */
+unsigned plat_ble_peer_names(char names[2][21]);
 void plat_ble_set(int on);
 /* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
