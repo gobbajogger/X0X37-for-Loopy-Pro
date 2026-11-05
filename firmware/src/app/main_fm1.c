@@ -1429,7 +1429,8 @@ CK_FN static void ck_arp_step(uint32_t rate, uint32_t pos)
     uint8_t list[CK_ARPN], out[CK_MAXN];
     uint32_t n = 0, i, j, c;
     int note;
-    for (i = 0; i < cp->nk; i++)
+    /* Later keys cannot contribute once the bounded list is full. */
+    for (i = 0; i < cp->nk && n < CK_ARPN; i++)
         for (j = 0, c = ck_key_notes(cp->korder[i], out); j < c && n < CK_ARPN; j++) {
             uint32_t x = out[j], p = n++;
             if (sp->ck_ord != CK_ORD_PLAYED)
