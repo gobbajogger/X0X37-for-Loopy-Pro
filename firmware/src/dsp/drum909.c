@@ -678,8 +678,13 @@ __attribute__((noinline)) static void d9_emit(const d9_bus_t *b, int i, float y)
 {
     if (!b->dry) return;              /* runtime solo suppresses the voice, including an already-playing tail */
     if (b->dry_r) {
-        b->dry[i] += y * (b->pl + b->dpl * (float)i);
-        b->dry_r[i] += y * (b->pr + b->dpr * (float)i);
+        if (b->dpl == 0.0f && b->dpr == 0.0f) {
+            b->dry[i] += y * b->pl;
+            b->dry_r[i] += y * b->pr;
+        } else {
+            b->dry[i] += y * (b->pl + b->dpl * (float)i);
+            b->dry_r[i] += y * (b->pr + b->dpr * (float)i);
+        }
     } else
         b->dry[i] += y;
     if (b->rev) b->rev[i] += y * b->srev;
@@ -932,6 +937,11 @@ __attribute__((noinline)) static void d9_bus(d9_bus_t *b, drum909_t *d, int voic
     b->pr = d9_pr0[voice];
     b->dpl = d->pan_dl[voice];
     b->dpr = d->pan_dr[voice];
+    if (b->dpl == 0.0f && b->dpr == 0.0f) {
+        /* Match the glide expression's signed zero once for the whole block. */
+        b->pl += b->dpl * 0.0f;
+        b->pr += b->dpr * 0.0f;
+    }
     b->srev = d->send_rev[voice];
     b->sdly = d->send_dly[voice];
     b->rev = b->srev != 0.0f ? rev : 0;
