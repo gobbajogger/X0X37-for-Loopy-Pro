@@ -128,3 +128,50 @@ The 14 shared names fail with the same file:line and the same cause as the 8be16
 - `gate-trap` on 490e656c was not repeated outside `/tmp`. The 8be PASS is the comparison.
 - `part-off` beyond the missing base commit: NOT_RUN in substance, labelled FAIL by the runner because of `PART_OFF_REQUIRE_BASE`.
 - Reference DSP compares `drum909` and `drum808`: NOT_RUN. SMK package tests: NOT_RUN. No Elite or Pro firmware build was made.
+
+## gate.sh NOT_RUN analysis
+
+`tools/gate.sh` and `BUILDING.md` were read at `8be16486` (those two blobs are unchanged on this branch). `tools/gate.sh` was not executed.
+
+The script's only entry is `tools/gate.sh <commit> --purpose <purpose> --reason "<concrete reason>"` (`tools/gate.sh:4`, `:92-101`). `--purpose` must be `release-install`, `release-package`, or `owner-validation` (`tools/gate.sh:95-97`). `--reason` must name the release step or the owner request (`tools/gate.sh:99-101`). `--trial` is allowed only with `owner-validation` (`tools/gate.sh:102-103`). `BUILDING.md:95` and `BUILDING.md:278` say the full gate may run only after an explicit request for a release build. This follow-up is host-only and does not make that request. No stage below is documented as both authorization-free and host-only, so none was run.
+
+`BUILDING.md:163` still shows `bash tools/gate.sh <commit>` without `--purpose`. The script at `:95-97` refuses that call. `BUILDING.md:318` shows the purpose form and is still a release-install invocation.
+
+Input names used below:
+
+- Public: the git tree, `python3`, and the host packages already used for `tests/run_tests.sh`.
+- Private kit: the owner's V1.2.1 SDK archive, SHA-256 prefix `2570c8f9`. It is not in this clone. The gate does not hash it. It looks for `cpu/wl82/tools/uboot.boot` under `AC79_SDK` (`tools/gate.sh:150`, `:261`).
+- Native toolchain: JieLi `pi32v2/bin/clang`, via `X0X_TOOLCHAIN` or `JIELI_TOOLCHAIN`, else `~/.jieli/toolchain` (`tools/gate.sh:150-152`, `:260`). Not downloaded.
+- Reference trees: `X0X_REFS` (default `/workspace/x0x37-refs/schwung`) pinned to `schwung-9W9=10cbe5c`, `schwung-8W8=94aa271`, `schwung-303=7680578`, `schwung-tb3po=f49d81d` (`tools/gate.sh:70`, `:166`, `:312-316`). `../schwung-9W9` and `../schwung-8W8` are the same 9W9 and 8W8 trees the host suite already marked NOT_RUN. They are not on this machine.
+
+| Stage | file:line | Inputs | Could it run host-only? | This run |
+| --- | --- | --- | --- | --- |
+| Parse commit, purpose, reason, `--force`, `--trial` | `tools/gate.sh:74-106` | The script only | The refusal itself needs no toolchain. Choosing a purpose is a release or owner request. | NOT_RUN. No release-build request (`BUILDING.md:95`, `:278`). |
+| Linux x86-64 check | `tools/gate.sh:109-111` | `uname` | Yes, but only after the purpose check. | NOT_RUN. Same reason. |
+| Re-exec through `gate_sigwrap.py` | `tools/gate.sh:112-115` | Public `python3` and `tools/gate_sigwrap.py` | Yes, but only inside an accepted gate run. | NOT_RUN. |
+| Watch `gate.sh` and `gate_flashmap.py` mtimes (check 13) | `tools/gate.sh:116-127` | Those two local files | Yes, as a side check of a run. | NOT_RUN. |
+| Record the sender of a stop signal (check 5) | `tools/gate.sh:128-139`, traps `:178-195` | The signal wrapper file | Only if a run is stopped. | NOT_RUN. |
+| Resolve the commit; require `refs/heads/integration` unless `--trial` | `tools/gate.sh:169-173` | Public git. `--trial` still needs purpose `owner-validation`. | The git lookup is host-only. It is not an authorization-free mode. | NOT_RUN. |
+| Tree id: SHA-1 of `git ls-tree -r` without `*.md`, and `^{tree}` | `tools/gate.sh:199-200` | Public git | Yes. Not a separate free entry. | NOT_RUN. |
+| Capture validation-input identity | `tools/gate.sh:202-208` via `tools/validation_inputs.py` | Native toolchain, private SDK, reference pins, pre-push hook | No. The capture hashes those external bytes. The module says it is not permission to build. | NOT_RUN. Missing toolchain, kit `2570c8f9`, and reference trees. |
+| Create the results index and reuse a prior two-config PASS | `tools/gate.sh:210-257` | `X0X_RESULTS` and a PASS whose input SHA-256 still matches | No. Reuse is a release result, and the identity includes the private inputs. | NOT_RUN. |
+| Preflight: JieLi clang must be executable | `tools/gate.sh:260` | Native toolchain file `pi32v2/bin/clang` | No. | NOT_RUN. Toolchain not present and not downloaded. A real call would print `VOID <hash> setup: no toolchain` and exit 2. |
+| Preflight: AC79 SDK file must exist | `tools/gate.sh:261` | Private kit file `cpu/wl82/tools/uboot.boot` (documented kit prefix `2570c8f9`) | No. | NOT_RUN. Kit not present and not downloaded. |
+| Move a work directory that is under `/tmp` | `tools/gate.sh:262-266` | The work path only | The path test is host-only. It is not a free entry. | NOT_RUN. This is the check that failed `gate-trap` when the 490e656c worktree was under `/tmp`. |
+| Clone `.repo`, copy the pre-push hook, disable outside push URLs | `tools/gate.sh:269-279` | Public git plus `tools/pre-push.hook` or `X0X_PREPUSH_HOOK` | No. This prepares the build clone and runs only after the toolchain and SDK preflight. | NOT_RUN. |
+| `X0X_GATE_SETUP_ONLY=1` stop | `tools/gate.sh:68`, `:280` | Same clone, and the preflight above | No. Comment at `:7` refuses a missing purpose before setup. Code at `:260-261` still requires the toolchain and SDK before this stop. | NOT_RUN. Not authorization-free and not host-only. |
+| Fetch and add the dev and rel worktrees | `tools/gate.sh:281-295` | Public git | The checkout is host-only. It is after the private preflight. | NOT_RUN. |
+| Link the toolchain and SDK into the private HOME; pin-check reference folders | `tools/gate.sh:305-328` | Native toolchain, private kit, and `schwung-9W9`, `schwung-8W8`, `schwung-303`, `schwung-tb3po` at the pins above | No. | NOT_RUN. 9W9 and 8W8 are the trees already absent for `drum909` and `drum808`. |
+| Step 1: Elite and Pro `./build.sh --board smk37`, dev (`X0X_DEV_PADCAL=1`) and rel (`0`) | `tools/gate.sh:330-349` | Native toolchain and private kit | No. | NOT_RUN. This follow-up forbids a native build and a toolchain download. |
+| Bluetooth controller image (`ble/ctl/build_ctl.sh`, `CTL_NATIVE=1`, private `/tmp`) | `tools/gate.sh:350-353` | Native toolchain and private kit | No. | NOT_RUN. Same ban. |
+| Step 2: `tests/run_tests.sh` for dev and rel, time scale forced to 1, under the gate lock | `tools/gate.sh:355-427` | SDK and reference variables (`:326-328`). A skip is a failure (`:390`). `smk-build-package` and `ble-package` must pass (`:394`). | The host subset can run without the SDK. The gate's own test stage cannot: it fails on any skip and requires the package tests from step 1. | NOT_RUN as a gate stage. The host subset was already run outside the gate and is the PASS/FAIL/NOT_RUN table above. |
+| Step 3: flash map | `tools/gate.sh:430-431`, script `tools/gate_flashmap.py:10-11` | Public headers `firmware/hal/fm1_flash_map.h` and `firmware/src/storage.c` | The script is read-only and could run on public source. It is step 3 of the release gate, not documented as authorization-free. | NOT_RUN. |
+| Code, RAM, and pool budgets from the four build logs (pool headroom at least 8192) | `tools/gate.sh:432-447` | Native build logs | No. | NOT_RUN. No build logs. |
+| `X0X_RAM_CANARY` default must be 0 | `tools/gate.sh:448-456` | Public `firmware/src/ble.c`, plus build logs for a nonzero setting | The source read could be host-only. It is not a separate free stage. | NOT_RUN. |
+| `ctl.img` size and core RAM | `tools/gate.sh:457-463` | The controller build log | No. | NOT_RUN. |
+| BLE Elite package via `tools/add_ctl.py` for dev and rel | `tools/gate.sh:464-474` | Built `x0x-smk37-elite.fwsc` and `ctl.img` | No. | NOT_RUN. |
+| CRC manifest of the packages, bins, and loader | `tools/gate.sh:475-499` | Those built files | No. | NOT_RUN. |
+| Recheck that validation inputs did not change | `tools/gate.sh:500-502` | Same toolchain, kit, and reference trees as the capture | No. | NOT_RUN. |
+| Write the result file and the index row | `tools/gate.sh:503-579` | The stages above, and a writable `X0X_RESULTS` | No. Writing a PASS would be a release result. | NOT_RUN. |
+
+Nothing in `gate.sh` or `BUILDING.md` calls a stage authorization-free. The flash-map script and the canary source read are the only checks that need no private kit, no reference tree, and no native toolchain. They stay NOT_RUN because they are not a documented free entry, and this task does not request a release build.
