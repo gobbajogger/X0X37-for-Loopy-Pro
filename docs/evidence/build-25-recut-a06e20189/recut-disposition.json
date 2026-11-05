@@ -1,0 +1,36 @@
+{
+  "base": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+  "donor": "2f451528dbf3d3f8a1f13c3b384dc155d12fa70b",
+  "scope": "Tip-only recut; preserve the pinned base. Do not replay the older integration stack.",
+  "applied": [
+    {
+      "commits": [
+        "9427a68047af6150e9f26340572e8a08dda0a06a",
+        "dd51bd3791b2236111b11afbc66acff26f6644ec"
+      ],
+      "result": "Exact final M4 sound-reset implementation/header/tests; register sound-reset in base host runner. No device UI wiring."
+    },
+    {
+      "commits": [
+        "f82c3c1fef38c3c4ac20d2ab2bf50bf2cb0d3cca",
+        "c26529661e7b287b49bd4cbffaa21156329e87ae"
+      ],
+      "result": "Exact final M8 PLAY-question policy helper/tests; register play-question in base host runner. No device UI wiring."
+    }
+  ],
+  "excluded_as_inapplicable": [
+    {
+      "commit": "43de100c83d845409bb801ecf29238a78f179aed",
+      "reason": "Repairs part-OFF and SMC remainder tests from the older lane stack. Those production features/tests are absent from the requested base. Do not add orphan runner registrations or import their older implementation stack."
+    },
+    {
+      "commit": "ce27812951555ff7ed9694bf99d20a65dd5f410b",
+      "reason": "Strengthens part-OFF word-28 end-to-end tests. The base has no part-OFF API, persistence implementation, or test files."
+    },
+    {
+      "commit": "b9d97e100e70b0b14d713b3892328d17ec709211",
+      "reason": "Repairs fixtures for lane-only UI, sixteen-pad rate ownership, factory stock pack, and project-load flag changes. The base retains the older inline ADSR API, eight-pad rate capture, generated 909 stock pack, and load_settings decision. Keep its matching assertions rather than rewrite them for absent donor behavior."
+    }
+  ],
+  "delivery_strategy": "Retain base as first parent and observed old lane head as second parent, with a tree constructed from base plus the reviewed recut/evidence. This allows a nonforced fast-forward of the existing named lane without replaying its earlier content."
+}
