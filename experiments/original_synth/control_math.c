@@ -40,7 +40,12 @@ int original_vca_tick(original_vca *s,float fs,uint32_t duration,float a,float d
   if(q>=1){q=1;s->state=1;}e=q;break;
  case 1:
   if(e<sustain)e=sustain;
-  else{den=fs*ref_fma(fourth(d),25.0f,0.0010000000474974513f);delta=D*(sustain-e);q=e+delta/den;e=(q+1.0f)-1.0f;}break;
+  else{
+   q=e;
+   if(e!=sustain){den=fs*ref_fma(fourth(d),25.0f,0.0010000000474974513f);delta=D*(sustain-e);q=e+delta/den;}
+   /* Equal sustain still needs the original binary32 rounding. */
+   e=(q+1.0f)-1.0f;
+  }break;
  case 3:
   if(e>=0.03999999910593033f){den=fs*ref_fma(fourth(r),25.0f,0.0020000000949949026f);q=e*(1.0f-D/den);e=(q+1.0f)-1.0f;}
   else if(e>0.0010000000474974513f){q=e*0.5f;e=(q+1.0f)-1.0f;}

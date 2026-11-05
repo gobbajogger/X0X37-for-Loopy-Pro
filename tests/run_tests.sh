@@ -326,6 +326,7 @@ if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh h
 run original-release-integration sh tests/host/original_release_integration_test.sh build/ui-theme/original-integration
 run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
 run original-build python3 tests/host/test_original_build_composition.py
+run vca-sustain sh tests/host/vca_sustain_test.sh
 run freeplay-rate-pads python3 tests/host/test_freeplay_rate_pad_port.py
 run boot-screen sh tests/host/boot_screen_test.sh
 run ui-theme env ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/original_release_ui_test.sh build/ui-theme/theme
