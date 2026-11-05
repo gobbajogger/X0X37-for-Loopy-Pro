@@ -6,15 +6,21 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 BASE = 'e9e6643e612b9fb4e968a77d016f3bb24213dc88'
-EXPRESSION = '(float)val * (float)val / (100.0f * 100.0f)'
+mode = sys.argv[1] if len(sys.argv) > 1 else 'level'
+assert mode in ('level', 'send')
+EXPRESSION = '(float)val * (float)val / (100.0f * 100.0f)' if mode == 'level' else '(float)val / 127.0f'
+name = 'mix_' + mode + '_from_pot'
+fields = ['mix_level'] if mode == 'level' else ['mix_rev', 'mix_dly']
 source = (ROOT / 'firmware/src/app/engine.c').read_text()
 old = subprocess.check_output(['git', 'show', BASE + ':firmware/src/app/engine.c'], cwd=ROOT, text=True)
-assert 'mix_level[v] = ' + EXPRESSION + ';' in old
-assert 'mix_level[v] = mix_level_from_pot(val);' in source
-helper = re.search(r'static float mix_level_from_pot\(int val\)\n\{.*?\n\}', source, re.S).group()
+for field in fields:
+    assert field + '[v] = ' + EXPRESSION + ';' in old
+    assert field + '[v] = ' + name + '(val);' in source
+helper = re.search(r'static float ' + name + r'\(int val\)\n\{.*?\n\}', source, re.S).group()
 program = r'''
 #include <stdint.h>
 #include <stdio.h>
@@ -43,7 +49,7 @@ int main(void) {
     puts("PASS: 128 exhaustive pots, 131073 nearby integers, 10M random integers, int edges; bit-identical");
     return 0;
 }
-'''.replace('HELPER', helper).replace('EXPRESSION', EXPRESSION)
+'''.replace('HELPER', helper).replace('EXPRESSION', EXPRESSION).replace('mix_level_from_pot', name)
 with tempfile.TemporaryDirectory(prefix='engine-mix-lut-') as tmp:
     p = Path(tmp)
     (p / 'test.c').write_text(program)
