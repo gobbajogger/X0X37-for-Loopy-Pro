@@ -27,6 +27,7 @@
 #include "../dsp/fxbus.h"                      /* FX_* indices for SEND FX commit */
 #include "note_names.h"                        /* X0X_NOTE_N: one C…B table with clip/chord */
 #include "undo.c"
+#include "sound_reset.c"
 
 /* Printed SMK-37 Pro/Elite legends: panel.c + smk_input.h (unit-confirmed).
  * Simulator commands and logical button/encoder roles do not change. */
@@ -149,6 +150,7 @@ enum { ACT_NONE, ACT_SAVE, ACT_LOAD, ACT_CLEAR_PART, ACT_CLEAR_PAT, ACT_COPY, AC
 #if BOARD_SMK37 && X0X_DEV_PADCAL
        ACT_PADCAL,
 #endif
+       ACT_RESET_SOUND,
 };
 
 typedef struct {
@@ -2402,6 +2404,76 @@ static void perf_test_tick(void)
     }
 }
 
+static int saved_sound_present(int part)
+{
+    int target, voice, nvoice, tag;
+    return !sound_reset_span(part, &target, &voice, &nvoice, &tag) &&
+        !sound_reset_empty(&proj.sound, target, voice, nvoice, tag);
+}
+
+static void ask_sound_reset(int part)
+{
+    engine_bass_edit_hold(1);
+    if (saved_sound_present(part)) ask(ACT_RESET_SOUND, part, "RESET SOUND", PART_N[part]);
+    else say("NO SAVED SOUND ", PART_N[part]);
+    engine_bass_edit_hold(0);
+}
+
+/* Foreground only. Stack factory image avoids persistent RAM and never borrows
+ * project_stage: that object holds the undo baseline. Reset is one gesture. */
+X0X_COLD static void reset_sound(int part)
+{
+    sound_t factory;
+    int target, voice, nvoice, tag;
+    uint8_t mute_proxy = (uint8_t)seq.mute; /* data helper only checks this pointer for null */
+    if (project_busy || sound_reset_span(part, &target, &voice, &nvoice, &tag)) return;
+    engine_bass_edit_hold(1);
+    if (!saved_sound_present(part)) {
+        say("NO SAVED SOUND", 0);
+        engine_bass_edit_hold(0);
+        return;
+    }
+    record_finish(); /* finalize audio-owned recording before the undo snapshot */
+    engine_sound_defaults(&factory);
+#if X0X_BASS_TAGGED_SOUND
+    unsigned mask = tag >= 0 ? 1u << tag : 0;
+    if (mask) {
+        bass_base_state_t next;
+        memcpy(next.cell, factory.v[T_303], sizeof next.cell);
+        memcpy(next.tag, factory.bass, sizeof next.tag);
+        engine_project_hold(1);
+        int ready = engine_bass_base_ready(mask, &next);
+        if (ready) {
+            engine_project_hold(0);
+            ui.overlay = O_ASK; /* retry after notes/input or sound locks are released */
+            say(ready > 0 ? "UNDO WAIT NOTE / INPUT" :
+                ready == -4 ? "UNDO SOUND LOCKS" : "UNDO ENGINE UNAVAILABLE", 0);
+            engine_bass_edit_hold(0);
+            return;
+        }
+    }
+#endif
+    /* Keep preceding mixer/part edits out of the reset's undo entry. */
+    undo_commit_stable();
+    int result = sound_reset_part(&proj.sound, &factory, part, &mute_proxy, &undo);
+    if (result == SOUND_RESET_OK) {
+#if X0X_BASS_TAGGED_SOUND
+        if (mask) engine_bass_base_restore(mask);
+        else
+#endif
+        for (int v = 0; v < nvoice; ++v)
+            for (int i = 0; i < engine_nparams(target, voice + v) && i < NPARAMS_MAX; ++i)
+                ui_restore_base(target, voice + v, i);
+        mark_dirty();
+        build_pages();
+        say("RESET SOUND ", PART_N[part]);
+    } else say(result == SOUND_RESET_NO_SAVED ? "NO SAVED SOUND" : "UNDO UNAVAILABLE", 0);
+#if X0X_BASS_TAGGED_SOUND
+    if (mask) engine_project_hold(0);
+#endif
+    engine_bass_edit_hold(0);
+}
+
 static void set_view(int v);
 
 X0X_COLD static void run_action(int act, int arg)
@@ -2409,6 +2481,7 @@ X0X_COLD static void run_action(int act, int arg)
     char t[28];
     if (act == ACT_CLEAR_PART || act == ACT_CLEAR_PAT || act == ACT_COPY) record_finish();
     switch (act) {
+    case ACT_RESET_SOUND: reset_sound(arg); break;
     case ACT_SAVE: save_project(); break;
     case ACT_LOAD: (void)ui_project_load(); break;
     case ACT_CLEAR_PART:

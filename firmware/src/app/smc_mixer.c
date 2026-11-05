@@ -1900,7 +1900,12 @@ static void smc_button_apply(uint8_t note, int mmc)
                 say((smc.solo & (1u << part)) ? "SOLO" : "UNSOLO", PART_N[part]);
             } else if (row == 2)       /* MUTE */
                 mute_part(part);
-            else {                     /* SELECT */
+            else {                     /* whole-part SELECT; drum/FX routes above retain priority */
+                if (smc_home_held() && !smc.locked && ui.overlay == O_NONE && !ui.help &&
+                    !smk_clip_mode_on() && !project_busy) {
+                    ask_sound_reset(part);
+                    return;
+                }
                 int repeat_drum = part < NKIT && smc.part == part && ui.overlay == O_NONE;
                 smc_select_part(part);
                 smc_view(repeat_drum ? V_MIX : V_PART, repeat_drum ? part + 1 : -1);
