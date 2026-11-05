@@ -1,13 +1,13 @@
 # ROADMAP Integration Plan
 
 **Proposed path:** `docs/ROADMAP-INTEGRATION-PLAN.md`  
-**Local box path:** `/workspace/m7a-out/plan2/ROADMAP-INTEGRATION-PLAN.md` (revision; originals kept in plan1)
-**Pushed baseline:** `lane/dev-roadmap-integration-plan-20261105` @ `02afd2d0154e0d6ad167e397871efb6c301cd9a4` (Git Verifier PASS #832 c6654912614)
-**Revision:** applies Watchdog integrator corrections (19:52 UTC+10) + Build review #832 c6654974253; docs-only proposals, not owner decisions.  
+**Local box path:** `/workspace/m7a-out/plan3/ROADMAP-INTEGRATION-PLAN.md` (revision; plan1/plan2 kept unmodified)
+**Source of truth (pushed):** `lane/dev-roadmap-integration-plan-v2-20261105` @ `061a0d9a…` tree `10c86647…` (equals plan2 + v4 tip `35b72991` already applied). plan3 applies advisory QA `qa-roadmap-plan-acceptance-criteria-02afd2d0.md` (MAJOR1–7 + MINORs).  
+**Prior push:** `lane/dev-roadmap-integration-plan-20261105` @ `02afd2d0…` (Git Verifier PASS #832 c6654912614).  
 **Docs-only.** No merges, pushes, approvals, or owner decisions are made here.  
 **Written:** 2026-11-05 ~19:40 Asia/Vladivostok (UTC+10) by DnBOX Dev (executor).  
-**Revised:** 2026-11-05 ~19:56 Asia/Vladivostok in `/workspace/m7a-out/plan2/`.  
-**Revision banner:** proposals below marked with `integrator correction 2026-11-05 19:52 UTC+10` or Build `#832 c6654974253` are integrator/Build corrections — not owner approvals.
+**Revised:** 2026-11-05 ~20:15 Asia/Vladivostok in `/workspace/m7a-out/plan3/`.  
+**Revision banner:** QA advisory corrections + new sourced facts (v4 Verifier PASS, Chicago `c038cc17`, M1/M4/M8 lanes, docs v8 pending). Integrator/Build marks from plan2 retained.
 **Repo:** `gobbajogger/X0X37-for-Loopy-Pro` (public). Tracking: issue **#832**. Sole integrator: **PR #698**.
 
 Every factual claim cites a source (`file@sha`, `#issue`/`#PR`, or `#832` comment id). Anything not directly stated is marked **INFERRED**. PASS / FAIL / NOT_RUN are kept distinct. This plan does **not** approve, accept, merge, or publish anything on the owner's behalf.
@@ -20,17 +20,27 @@ Related drafts (cite/reconcile, do not copy as authority): `/workspace/dnbox/mas
 
 | Pin | Value | Source |
 |---|---|---|
-| ROADMAP | `docs/ROADMAP.md` @ `5f578fc0642a1200a5163802bcd69277c511bfc7` (blob `a204a54c989d6f323d619e70f799427603756541`) | PR #812 head; local `/workspace/m7a-out/xport5/ROADMAP-5f578fc0.md`; gate-report.json |
+| ROADMAP | `docs/ROADMAP.md` @ `5f578fc0642a1200a5163802bcd69277c511bfc7` (blob `a204a54c989d6f323d619e70f799427603756541`) | PR #812 head; local `/workspace/m7a-out/xport5/ROADMAP-5f578fc0.md`; gate-report.json. **The tracker is not the `docs/ROADMAP.md` in the plan-branch tip.** On plan trees (`02afd2d0` / `061a0d9a`) that path is blob `a8c452c9…` (2026-10-19). Reviewers must `git show 5f578fc0642a1200a5163802bcd69277c511bfc7:docs/ROADMAP.md`. |
 | ROADMAP rows (gate parser) | 203 tracker+Done rows; Master tracker 182; historical Done 21; +6 selected fixes → **209 gate rows** | gate-report.json `total_roadmap_rows=203`; `rows` len 209; ROADMAP Counts line |
 | Issue #832 comments read | **90** comments; through id **`6654589751`** at `2026-11-05T09:34:30Z` (09:34Z = 19:34 Asia/Vladivostok) | cursor-github `list_issue_comments` page1 per_page=100 |
 | `main` SHA | `1a6bc3fe0245277b5ae31ab554c73d74b9ab4d83` | cursor-github `get_commit` ref=main; #832 c6653921403 / c6654589751 |
 | 24.5 candidate | `8be16486e33f65b31c76710e1d825b6aa701c2c9` tree `f952ab4455723e4a1a68fdb3a8eea22d2da59710` | gate-output.txt; ROADMAP/#832; master-plan §3.1 |
 | RC1 | `c32c54ac8ec68aaca53adccf7af66f155590f2dc` tree `ac490f7fae9198748aa54bd914d42f99d45444f9` | get_commit; #832 c6653704790 / c6654544506 |
 | #698 head (time of writing) | `02cc7d104254b4427f257c310fb366bfc16a8e02` on `wip/one-build` → base `nightly` (`66073c68…`), draft, mergeable=true | get_pull_request #698 |
-| Gate inputs / selection | **Was local** `wip/roadmap-gate-inputs-5f578fc0` @ `c5179005…` (blob `936581ba…`) used by xport5; **GitHub API could not resolve** `c5179005` as a public ref at Build review time (`#832 c6654974253 (Build native_build review of 02afd2d0)`). **Now pushed:** `lane/dev-roadmap-gate-inputs-5f578fc0-20261105` @ `d960101d9de4f1c65d94bb65dc977dcc28158692` tree `68e9b1b2…`, parent #822 `46d3e952…`; same selection blob `936581ba…`. QA advisory PASS on `d960101d` (#832 c6654865520). | xport5 gate-output (c5179005 local); #832 c6654666960; c6654681811; c6654865520; #832 c6654974253 (Build native_build review of 02afd2d0) |
-| Gate run (xport5) | candidate 8be16486 + ROADMAP 5f578fc0 + selection c5179005 → **PRESENT=2 MISSING=144 QUEUED=63**, `passed=false` | `/workspace/m7a-out/xport5/gate-output.txt`, `gate-breakdown.txt`, `gate-report.json` |
+| Gate inputs / selection | Local `c5179005…` **not on GitHub** (API 422). **Public pin:** `lane/dev-roadmap-gate-inputs-5f578fc0-20261105` @ `d960101d9de4f1c65d94bb65dc977dcc28158692` tree `68e9b1b2830c6ba0b8c1f4be78eefee84a09daed`, parent #822 `46d3e952…`; selection blob `936581ba30a4c75b009adc4abbb4af693b8c9e71`. Tool/JSON **absent** on plan branch — use pinned tool commit, not the plan tree. QA advisory PASS (#832 c6654865520). | get_commit d960101d; #832 c6654666960; c6654681811; c6654865520; #832 c6654974253 |
+| Gate run (independently recomputed) | Gate inputs are **absent** on the plan branch (`02afd2d0`/`061a0d9a`). Local selection `c5179005…` is **not on GitHub** (API 422). Cite QA receipt on pushed `lane/dev-roadmap-gate-inputs-5f578fc0-20261105` @ `d960101d9de4f1c65d94bb65dc977dcc28158692` (#832 c6654865520): tool parent `#822` tip `46d3e952…` (tool/tests byte-identical on parent+subject); selection-ref `d960101d…`; selection-blob `936581ba30a4c75b009adc4abbb4af693b8c9e71`; result **PRESENT=2 MISSING=144 QUEUED=63**, `passed=false`, exit 1. QA receipt does **not** publish `/tmp/dnbox-qa/subject-report.json` sha256; Dev xport5 twin run (same blob/counts) has `report_sha256` `6bcb44ae662b0b6d216622f433d76000b0af035f947c4834a7eedd774b356882` (workspace; not the QA receipt hash). Do **not** cite PRESENT=2 as checked beyond that receipt. | #832 c6654865520; get_commit d960101d; xport5 gate-report.json (Dev twin) |
 | M7a firmware+web candidate | **Preferred (integrator):** v4 carry `lane/dev-m7a-v4-24.5-carry-20261105` — local tip tree `ccb0aa5b0ad2827f4a5176f12c032eba3db23c71` (pushed tip `35b729914792d947c675d29cb9bd80ac7d65d704` (Git Verifier PASS #832 c6655064573; local v4check tip `84c1f5d9…` had a different identity and is NOT the pushed commit)). Base combined-v3 `490e656c…` / tree `7cbc2308…` plus clean cherry of 10 commits `d8086cc0..8be16486` (LCD/SMC). Admission gates: v4check REPORT + QA receipt + Git Verifier PASS. | integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d); /workspace/m7a-out/v4check/REPORT.md; #832 c6654544506 / c6654589751 |
 | Native evidence @8be16486 | UNREVIEWED evidence (not release qualification): branch `evidence/build-0245-8be16486-20261105` @ `f5e66f2708f912512342e4c861bd061cab5783a7` tree `8e22a0db…`; host `sh tests/run_tests.sh` → **365 ok / 17 FAIL / 2 NOT_RUN**; native floors measured (pool free 8328 ≥ 8192). No authorization for `gate.sh` release purpose. | #832 c6654109606; c6654693516; c6654757232; c6654804927; #832 c6654974253 (Build native_build review of 02afd2d0) |
+
+### 1.1 In-flight facts since plan v2 push (sourced; no Done/PASS invented)
+
+| Fact | State | Source |
+|---|---|---|
+| M7a v4 tip `35b729914792d947c675d29cb9bd80ac7d65d704` / tree `ccb0aa5b0ad2827f4a5176f12c032eba3db23c71` | Git Verifier **PASS** (faithful carry of 10 commits). Merge/approval still open. | #832 c6655064573 |
+| Chicago strict branch | tip `c038cc1722b78521a36ac9dad2c3b5c098f04683` tree `88117e5b…` pushed; ROW-63901cf850f6; **UNREVIEWED**; QA reviewing. Does **not** claim measured CPU savings. | get_commit c038cc17 |
+| M1 completion lane | `lane/dev-m1-panic-complete-20261105` **running, not yet pushed** (GitHub branch 404 at plan3 write). | coordinator relay; get_branch 404 |
+| M4 data / M8 policy lanes | **running** (public stage still NOT-STARTED until public SHA). | coordinator relay |
+| Docs v8 push | **pending**. | coordinator relay |
 
 **Selected release fixes** (selection c5179005 / gate `selected_release_rows`): `FIX-809-REVERT`, `FIX-INSTALLER-BACKUP`, `FIX-SMC-ALIGN`, `FIX-UI-TILES`, `PR-820`, `PR-821` — all **MISSING** proofs in the xport5 gate run.
 
@@ -53,7 +63,7 @@ Gate row set = historical Done (DONE-001…) + Master tracker (#n / L* / M* / RO
 | Selected release fixes | 6 | gate-report selected_release_rows |
 | Gate rows total | 209 | gate-report rows |
 | Gate PRESENT / MISSING / QUEUED | 2 / 144 / 63 | gate-report summary |
-| Open PRs surveyed (API page) | 100 | list_pull_requests state=open |
+| Open PRs surveyed (API page) | First **100 of 116** open PRs (Link header 2026-11-05). Not a complete census. | list_pull_requests state=open |
 
 ### 2.2 Inventory table (every gate row — 209)
 
@@ -246,30 +256,31 @@ Columns shortened for size. Full titles/status in ROADMAP@5f578fc0 / `gate-inven
 | M1 | Global PANIC: keyboard FX+SEQ; SMC B | #839@69351a26 | approved, planned for 0.0.25→QUEUED | engine/ui/seq; panic_* | 25/gate |
 | M2 | muted fader takes its level on unmut | — | done→MISSING | see ROADMAP* | Y |
 | M3 | instant tempo | — | done→MISSING | see ROADMAP* | Y |
-| M4 | Reset the selected part's saved soun | private | missing (reset-overlay mocku→QUEUED | see ROADMAP* | 25/gate |
+| M4 | Reset the selected part's saved soun | private, unpushed | missing (reset-overlay mocku→QUEUED | see ROADMAP* | 25/gate |
 | M5 | (unknown item) | — | waiting on owner→QUEUED | see ROADMAP* | 25/gate |
 | M6 | SMC FX page effect selection/throw a | #815/#800 | missing (effect mockup appro→QUEUED | see ROADMAP* | 25/gate |
-| M7 | Per-part settings ON/OFF toggle (909 | combined-v3@490e656c | missing (mockup proposal onl→QUEUED | project/settings_t/web; M7b=ui.c | 25/gate |
-| M8 | PLAY while a question is open: answe | private | approved, planned for 0.0.25→QUEUED | see ROADMAP* | 25/gate |
+| M7a | Per-part settings ON/OFF (storage+web) | combined-v3@490e656c; v4 tip `35b72991`/tree `ccb0aa5b` | storage+web in progress, QA pending, full suite NOT_RUN→QUEUED | project/settings_t/web | 25/gate |
+| M7b | Per-part ON/OFF UI (`ui.c`) | not started | missing (mockup proposal only)→QUEUED | ui.c | 25/gate |
+| M8 | PLAY while a question is open: answe | private, unpushed | approved, planned for 0.0.25→QUEUED | see ROADMAP* | 25/gate |
 | M9 | Approved 0.0.25 integration plan, 15 | #812 | approved, planned for 0.0.25→QUEUED | see ROADMAP* | 25/gate |
 | M10 | Mandatory measured free pool headroo | gate | approved, mandatory gate for→QUEUED | see ROADMAP* | 25/gate |
 | M11 | NIGHTLY publishing automatically fol | workflow | approved, mandatory NIGHTLY →QUEUED | see ROADMAP* | 25/gate |
-| M12 | ROADMAP completeness gate for pinned | #822@46d3e952 | implementation pending (orig→QUEUED | docs/build | 25/gate |
+| M12 | ROADMAP completeness gate for pinned | #822 tip `46d3e952` / tree `a7bbf33f`; scoped acceptance `80703c23` / `675cd05c` | implementation pending; **46d3 needs its own receipt** (scoped ≠ tip)→QUEUED | docs/build | 25/gate |
 | M13 | Straight 1/8 and 1/4 SEQ rates for 9 | #824@a12ea10c | open (timing CORE delivered →QUEUED | sequencer* | 25/gate |
 | QA1 | Rate-pad composition host test fails | #834+ | open (pre-existing baseline →QUEUED | see ROADMAP* | 25/gate |
 | QA2 | Repair 33 known host-test failures a | — | open, scheduled after the 20→QUEUED | see ROADMAP* | 25/gate |
 | ROW-ecaaa1c520af | FX hold + < > remap per button | — | in progress→QUEUED | see ROADMAP* | Q |
 | ROW-938cc69314d2 | Instant unmute (muted bus keeps runn | — | in 0.0.24→MISSING | see ROADMAP* | Y |
 | ROW-80982d592fa7 | Strict installer model match | — | done→MISSING | see ROADMAP* | Y |
-| ROW-63901cf850f6 | Engine coefficient caching (Chicago/ | #813/#814 | in progress (existing Chicag→QUEUED | engine miami/chicago | Q |
+| ROW-63901cf850f6 | Engine coefficient caching (Chicago/ | #813/#814 | in progress (existing Chicag→QUEUED | engine miami/chicago | Q; Chicago strict tip `c038cc17` pushed UNREVIEWED |
 | ROW-e3113dfd04ab | CPU idle bug | — | in progress→QUEUED | see ROADMAP* | Q |
 | L14 | Screen lag bug (existing row; canoni | #821 | in progress (hardware lag no→QUEUED | ui.c | Q |
-| FIX-809-REVERT |  | sel c5179005 | required selected release fi→MISSING | ui.c | Y |
-| FIX-INSTALLER-BACKUP |  | sel | required selected release fi→MISSING | see ROADMAP* | Y |
-| FIX-SMC-ALIGN |  | sel/#820 | required selected release fi→MISSING | ui.c | Y |
-| FIX-UI-TILES |  | sel/#821 | required selected release fi→MISSING | ui.c | Y |
-| PR-820 |  | #820@c3d35f80 | required selected release fi→MISSING | ui.c | Y |
-| PR-821 |  | #821@179ab384 | required selected release fi→MISSING | ui.c | Y |
+| FIX-809-REVERT | OPT-C UI frame revert (alias of PR-809) | sel c5179005 | required selected release fi→MISSING | ui.c | Y |
+| FIX-INSTALLER-BACKUP | NIGHTLY installer backup/restore samples (alias of #51) | sel | required selected release fi→MISSING | see ROADMAP* | Y |
+| FIX-SMC-ALIGN | SMC popup/header alignment (alias of #42 / PR-820) | sel/#820 | required selected release fi→MISSING | ui.c | Y |
+| FIX-UI-TILES | Screen lag / UI tiles (alias of L14 / PR-821) | sel/#821 | required selected release fi→MISSING | ui.c | Y |
+| PR-820 | Reduce SMC popup and header LCD repaint delays | #820@c3d35f80 | required selected release fi→MISSING | ui.c | Y |
+| PR-821 | Reduce live key lag by bounding LCD transfers | #821@179ab384 | required selected release fi→MISSING | ui.c | Y |
 
 \* Areas with trailing intuition from titles or known hotspots; file-level claims for hotspots are sourced in §3. Owners: see §2.3.
 
@@ -300,7 +311,7 @@ Deps / overlap / next-step detail: §3–§5 and ROADMAP Next step column; pipel
 | `ui.c` ownership | #16 held-notes; #65 visuals; FIX-UI-TILES/#821/L14; FIX-SMC-ALIGN/#820; FIX-809-REVERT/#809; M1 PANIC UI; M7b ON/OFF UI (**not started**); M4/M6/M8 (likely) | Serialize writers; integrator freezes one tree per step | ROADMAP statuses; #839; #832 c6653641857 (M7b NOT started); master-plan §5.3 |
 | `project.c` | M7a capture/header; saved-role fences (#789 evidence); #698 gaps (`read_settings_payload`) | #698 still lacks saved-role fences per master-plan §3.2 | #832 c6654544506; master-plan §3.2 / PB §3 |
 | `seq.c` / sequencer | #11–#13; M13 (#824); M7a seq/engine gates | M13 deferred behind profiling; schema owner decision | ROADMAP M13; #824 |
-| PANIC files / M1 | PR #839 core; private combined `cf9b47bb`; L6 alias | Full chain not public; overlap with M7a/M7b **NOT_RUN** re-check | #839; master-plan §3.5; #832 c6654544506 NOT_RUN list |
+| PANIC files / M1 | PR #839 core; combined chain **private, unpushed**; L6 alias | Full chain not public; overlap with M7a/M7b **NOT_RUN** re-check. Public stage = NOT-STARTED until a public object exists. | #839; master-plan §3.5; #832 c6654544506 NOT_RUN list |
 | `miami_*` / Chicago coef | #814 Miami, #813 Chicago, ROW-63901cf850f6, cache-retention lane, engine profiling on 8be16486 | Cache lane Chicago **strict FAIL** (unused `cache`); no measured savings admitted | #814; ROADMAP ROW-63901cf850f6; #832 c6653465505 |
 | Docs / rules / AGENTS | #812 ROADMAP; #841/#842; Docs lanes v3/v4; M12 gate docs | #842 draft do-not-merge; candidate 0-fail bar vs main | #841/#842; master-plan §3.3; D10 |
 
@@ -310,7 +321,7 @@ Deps / overlap / next-step detail: §3–§5 and ROADMAP Next step column; pipel
 2. **Word 28 / format** — Independent QA `QA-LX016-M7A-V2-CROSS-BRANCH-WORD28-NEGATIVE` (#832 c6654007069): web-v2 embedded firmware macro lacked CRC8 check byte while web JS required it (31/31 reject). Combined-v3 (#832 c6654544506) puts firmware+web+e2e in one tree; **QA exact-tree review still pending** per Dev hand-off.
 3. **ui.c ownership** — Multiple 24.5 selected fixes and 0.0.25 UI features contend. M7b (per-part ON/OFF UI) is explicitly **NOT started** and depends on PANIC/ui.c ownership clarity (#832 c6653641857).
 4. **PANIC #839 vs M7a/M7b** — #839 is core-only draft @69351a26 (owner inactive; last update 2026-11-04T18:00Z). M7a admission is **not** blocked by the PANIC overlap check (integrator correction 2026-11-05 19:52 UTC+10). Overlap check gates **before M7b**, after M7a (+ optional v4) is frozen. M1 completion assigned to Dev on a NEW branch from #839 tip (coordinator relay). Source: integrator correction 2026-11-05 19:52 UTC+10 (Watchdog/integrator c5b8f94d); #832 c6654544506.
-5. **Miami #814** — Open PR @dcc9833f onto `build/0.0.24`; master-plan notes missing private GCC14 fix `51e8e211`. ROW-63901cf850f6 still “no measured savings”.
+5. **Miami #814** — Open PR @dcc9833f onto `build/0.0.24`; master-plan notes a missing GCC14 fix that remains **private, unpushed**. ROW-63901cf850f6 still “no measured savings”.
 
 ---
 
@@ -337,7 +348,7 @@ Deps / overlap / next-step detail: §3–§5 and ROADMAP Next step column; pipel
 | Lane group | Can run in parallel | Serialize against |
 |---|---|---|
 | A. Docs/rules (#841/#842, Docs v3/v4) | yes, docs-only trees | production `main` merge (#842 needs owner auth) |
-| B. M12 gate inputs (selection+evidence @c5179005) | yes vs firmware feature lanes | must match ROADMAP blob a204a54c before gate PASS |
+| B. M12 gate inputs (selection+evidence @`d960101d` / blob `936581ba…`; local c5179005 absent) | yes vs firmware feature lanes | must match ROADMAP blob a204a54c before gate PASS; use pinned tool commit not plan tree |
 | C. Host FAIL classification on 8be16486 (Build/QA) | yes | native_build auth |
 | D. Fixture/test-only branches (#823,#834–#840, builtin-break, saved-role) | yes among themselves if different files | #698 admission order |
 | E. Engine coef / Miami #814 / cache lane | yes vs M7a **if** no shared merge yet | miami_* file ownership at integrate time |
@@ -402,7 +413,7 @@ For each frozen tree `T` (commit + tree SHA):
 | ASan/UBSan | Dev/QA as scoped | rc=0 on scoped tests | NOT_RUN if env missing |
 | Native Elite + Pro | **native_build** (DnBOX Build) | Common floors ({BUILD}): `./build.sh --board smk37` exit 0 pro+elite `X0X_DEV_PADCAL=0`; JieLi clang 4.0.1 + AC79 SDK V1.2.1 `d179b448`; app-code free >0; RAM free >0 (cap 98304); pool ≥8192 (cap 344064); BLE flash ≤65536; BLE RAM ≤26368; ctl.img hash stable unless ble/ changed; no NEW FAIL vs frozen baseline; `package_nightly.py --check` both models | **Split:** release/`gate.sh` authorization still NOT granted; UNREVIEWED evidence build of 8be16486 exists (`evidence/build-0245-8be16486-20261105` @ `f5e66f27`, #832 c6654804927 / c6654693516) |
 | M10 pool | native_build | pool free **≥ 8192** Elite **and** Pro (use 8192, not ROADMAP budget 4096 conflict — #832 c6654974253 (Build native_build review of 02afd2d0)) | NOT_RUN blocks release; evidence 8be measured 8328 free (#832 c6654693516) |
-| M12 completeness | #822 tool + pins | PRESENT for required; QUEUED for unselected; `passed=true` | xport5 today: PASS **not** met (2/144/63) |
+| M12 completeness | #822 tool + pins | PRESENT for required; QUEUED for unselected; `passed=true` | QA@d960101d / tool@46d3e952 / sel-blob `936581ba…`: PASS **not** met (2/144/**63**). Older 80703 audit: 2/144/**62**. Different pins; both failed. |
 | Formal independent_qa | independent_qa role | names T + native receipts | advisory Grok QA does not count |
 | Publication / package | Build runs package check; publish operators | Repo-verified: `tools/package_nightly.py --check` (needs `--model`, `--controller-sha256`, `--controller-size`, `--firmware-version`) and `tools/publish_nightly.py` (no `--dry-run`; preview = run without `--push`). Draft role names `catalog_sync` / `website_main_merger` / `website_publisher` **not found as repo tools** by Build — process labels pending catalog_sync owner confirm; catalog schema 1 vs 2 UNRESOLVED (#832 c6654974253 (Build native_build review of 02afd2d0)) | agents never flash (ROADMAP M11) |
 
@@ -411,7 +422,7 @@ For each frozen tree `T` (commit + tree SHA):
 | Tree | Host result | Source |
 |---|---|---|
 | `8be16486` (Build run) | **365 ok / 17 FAIL / 2 NOT_RUN** (`sh tests/run_tests.sh`) | #832 c6654693516; #832 c6654974253 (Build native_build review of 02afd2d0) |
-| `8be16486` (catalog/master-plan claim) | 366 PASS / 18 FAIL (older claim) | publication-blockers.md; master-plan §3.1 — **do not prefer over Build's run** (integrator correction 2026-11-05 19:52 UTC+10) |
+| `8be16486` / `d8086cc09` full-suite logs | **NOT_RUN** in this plan tree | **Deleted** workspace-only 366/18 (and “19-FAIL”) host FAIL totals that cited files outside git until `tests/run_tests.sh` logs exist for `8be16486` and `d8086cc09`. Keep Build’s **365 ok / 17 FAIL / 2 NOT_RUN** with attribution #832 c6654693516 / c6654974253 only. |
 | M7a combined-v3 note | “19-FAIL baseline comparison” NOT_RUN on that tree | #832 c6654544506 — different wording; do not equate to 8be list |
 | `d8086cc0` QA2 family | 33 FAIL baseline (different tree) | keep separate (#832 c6654974253 (Build native_build review of 02afd2d0)) |
 
@@ -425,13 +436,14 @@ Environment NOT_RUN/extra: drum909/drum808 (2 NOT_RUN); playwright/lua env fails
 
 ### 6.3 Gate inputs status (xport5 run)
 
-| Class | Count | Notes |
-|---|---:|---|
-| PRESENT | 2 | #1, #23 |
-| MISSING | 144 | includes required Master/Done rows lacking pinned proofs + 6 selected fixes + #65 unrecognized status |
-| QUEUED | 63 | explicitly not yet built/accepted (incl. M13 new vs 70b5a033) |
+| Class | Count | Pin (tool / selection / report) | Notes |
+|---|---:|---|---|
+| PRESENT | 2 | tool `@46d3e952` (parent of d960101d; byte-identical tool); selection-blob `936581ba…` @ `d960101d`; QA subject report path `/tmp/dnbox-qa/subject-report.json` (**sha256 not published in c6654865520**); Dev twin `report_sha256` `6bcb44ae…` | #1, #23 only |
+| MISSING | 144 | same pin as PRESENT | required Master/Done lacking proofs + 6 selected fixes; #65 unrecognized status (no longer required on d960101d) |
+| QUEUED | **63** | same pin as PRESENT (`d960101d` / blob `a204a54c`) | includes M13 (+1 vs parent) |
+| QUEUED (older pin) | **62** | ROADMAP@5f578fc0 line 297 / tool tree `675cd05c` (`80703c23` scoped audit); blob `4bfb141f…` era | **Different pin.** Both failed (`passed=false`). Neither is a new run. |
 
-Source: `gate-breakdown.txt`, `gate-output.txt`, `gate-report.json` with selection `c5179005` and ROADMAP `5f578fc0`.
+**Record the tool commit, selection blob, and report sha256 beside any count. 62 and 63 are different pins. Both failed. Neither is a new run.** Source: #832 c6654865520; ROADMAP@5f578fc0 L297; xport5 twin.
 
 ### 6.4 What stays NOT_RUN / HOLD (who decides)
 
@@ -451,7 +463,7 @@ Source: `gate-breakdown.txt`, `gate-output.txt`, `gate-report.json` with selecti
 - **Steps 0–2:** docs + gate pins; native NOT_RUN OK unless build scripts/firmware touched (#832 c6654974253 (Build native_build review of 02afd2d0)).
 - **Step 3 (M7a/v4 FIRST):** admission = v4check REPORT + QA + Git Verifier; then full native floors; pool ≥8192 both models after word-28 (integrator correction 2026-11-05 19:52 UTC+10; #832 c6654974253 (Build native_build review of 02afd2d0)).
 - **Steps 6–8:** M1 → M8 → M7b one at a time; overlap before M7b; native floors each freeze.
-- **Host bar:** Build rule = **no NEW FAIL** vs frozen per-tree list; plan text that demanded 0 FAIL / waiver remains an **owner D6** choice — do not resolve here (#832 c6654974253 (Build native_build review of 02afd2d0); integrator correction 2026-11-05 19:52 UTC+10).
+- **Host bar (QA MAJOR5):** Steps 3–5 need `tests/run_tests.sh` with 0 FAIL, 0 SKIP, and no required NOT_RUN, plus native Elite and Pro, M12 `passed=true`, and formal independent QA. An owner note may remove a named check from the required set. It must **not** relabel a FAIL, SKIP, or NOT_RUN as PASS. Until that note exists, **D6 does not change the bar**. Build’s “no NEW FAIL vs frozen list” remains a classification aid, not a waiver. D5 (native mandatory?) **must not be applied to a firmware image while open** — current workflow/ROADMAP answer is yes for firmware NIGHTLY; docs-only may leave native NOT_RUN.
 - **Publish:** `package_nightly.py` / `publish_nightly.py`; M11 auto vs owner = **OPEN for coordinator**.
 
 
@@ -498,8 +510,8 @@ Each item labels **who can decide**. Owner decisions are **only the user (`gobba
 | D2 | Confirm selection rows pinned to 5f578fc0 (6 fixes ± #111–#113) | **Owner** | master-plan §5.5; selection c5179005 |
 | D3 | #13 PARA editing remainder required vs queued | **Owner** | ROADMAP #13; master-plan D3 |
 | D4 / M11 | Who presses publish vs M11 automatic | **OPEN for coordinator** — do **not** resolve in this plan ({MARK}); owner remains final for production | ROADMAP M11; master-plan D4; integrator correction 2026-11-05 19:52 UTC+10 |
-| D5 | Native build mandatory for 24.5? | **Owner** | ROADMAP checklist; #822 review notes via master-plan |
-| D6 | Keep zero FAIL/SKIP/NOT_RUN bar? | **Owner** | ROADMAP pre-publish; AGENTS v3 |
+| D5 | Native build mandatory for 24.5? | **Owner** — **do not apply to a firmware image while this question is open** (workflow.md 117–118 / ROADMAP L115 currently say yes for firmware NIGHTLY; docs-only may leave native NOT_RUN) | ROADMAP checklist; workflow.md; QA advisory 02afd2d0 |
+| D6 | Keep zero FAIL/SKIP/NOT_RUN bar? | **Owner** — until an owner note removes a **named** check from the required set, D6 does **not** change the bar; FAIL, SKIP, or NOT_RUN must not be relabelled as PASS. AGENTS “v3” is only a **proposed patch** (comment c6653465505), not `AGENTS.md` on the plan branch. | ROADMAP pre-publish L114; QA advisory 02afd2d0 MAJOR5/MINOR6 |
 | D7 | Restore native-build auth (401) | **Owner** | publication-blockers §1 |
 | D8 | 0.0.25 scope beyond M1/M8/M9/M10–M12 (M7/M4/M6/cache/…) | **Owner** | master-plan D8 |
 | D9 | M13 schema/protocol + downgrade | **Owner** | ROADMAP M13 |
@@ -516,9 +528,9 @@ Each item labels **who can decide**. Owner decisions are **only the user (`gobba
 
 | Topic | Sources | Handling in this revision |
 |---|---|---|
-| Host FAIL count @8be | master-plan 366/18; Dev “19-FAIL”; Build **365 ok / 17 FAIL / 2 NOT_RUN** | **Do not pick 18 vs 19.** Use Build’s frozen list @8be; classify the **13 real** failures; keep per-tree lists (#832 c6654974253 (Build native_build review of 02afd2d0); /workspace/m7a-out/v4check/REPORT.md §6b) |
-| Gate on 5f578fc0 | Older master-plan “cannot run”; live xport5 + selection | Use **live xport5** with selection blob `936581ba…`: PRESENT=2 MISSING=144 QUEUED=63. Local ref was `c5179005` (API-unresolvable); public pin **`d960101d`** with QA advisory PASS (#832 c6654865520) |
-| PR-789 / PR-800 “in 0.0.24” vs draft open | ROADMAP vs open PRs | **Must not count in production bytes until ready** (integrator correction 2026-11-05 19:52 UTC+10) |
+| Host FAIL count @8be | Build **365 ok / 17 FAIL / 2 NOT_RUN** (#832 c6654693516 / c6654974253). Workspace 366/18 deleted until rerun logs exist. Dev “19-FAIL” compare = NOT_RUN (c6654544506) | Use Build’s frozen list @8be only; classify the **13 real** failures; keep per-tree lists (/workspace/m7a-out/v4check/REPORT.md §6b) |
+| Gate on 5f578fc0 | Older master-plan “cannot run”; live xport5 + selection | Cite **QA@d960101d** (tool@46d3e952; sel-blob `936581ba…`): PRESENT=2 MISSING=144 QUEUED=**63**, `passed=false`. Older 80703/`675cd05c` audit: QUEUED=**62**. Local `c5179005` API-unresolvable. Record pin beside every count. |
+| Every PR-789…PR-811 row | ROADMAP “merged in d8086cc09” vs GitHub still open draft | Commit ancestry and GitHub PR state disagree. List the whole PR block together. Bytes may be ancestors of `8be16486` while the PR object stays draft. **Must not count as production NIGHTLY freeze until ready.** |
 | M7 “mockup only” vs code | ROADMAP status vs combined-v3 | Replace handling with **code @490e656c QUEUED/unadmitted** (v4 preferred candidate) (integrator correction 2026-11-05 19:52 UTC+10) |
 | M11 auto vs owner publish | ROADMAP M11 vs task text | Leave **OPEN for coordinator**; do not resolve (integrator correction 2026-11-05 19:52 UTC+10) |
 | Pool 4096 vs 8192 | ROADMAP budget lines vs M10 | Use **8192** (#832 c6654974253 (Build native_build review of 02afd2d0)) |
@@ -544,8 +556,8 @@ All **10** commits in `d8086cc0..8be16486` are **LOST** from RC1 `c32c54ac` and 
 
 | PR | Head (12) | Base | Draft | Role in plan |
 |---|---|---|---|---|
-| #698 | 02cc7d104254 | nightly | True | WIP: one-build rev13 integration, UI glyphs, freeplay rate p |
-| #812 | 5f578fc0642a | build/0.0.24 | False | docs: master tracker in ROADMAP.md |
+| #698 | 02cc7d104254 | nightly | True | **PR title** (not tip subject): WIP: one-build rev13 integration, UI glyphs, freeplay rate p. Tip subject: “Merge #743 + #746: drum glyphs…” |
+| #812 | 5f578fc0642a | build/0.0.24 | False | **PR title** (not tip subject): docs: master tracker in ROADMAP.md. Tip subject: “docs: record owner approval for selected public break samples”. ROADMAP blob pin still correct. |
 | #814 | dcc9833f24b2 | build/0.0.24 | False | perf(miami): cache MG and glide coefficients without sound c |
 | #816 | ea47aa52c0d9 | artifacts/nightly-dev | True | Prepare separate 0.0.25-rc1 QA entry |
 | #817 | 53849739f1fc | build/0.0.24.1 | True | Keep Miami p-lock edits to one lane |
