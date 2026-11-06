@@ -1,0 +1,2455 @@
+diff --git a/experiments/original_synth/chicago_control_owner.c b/experiments/original_synth/chicago_control_owner.c
+index e244e947..214f942d 100644
+--- a/experiments/original_synth/chicago_control_owner.c
++++ b/experiments/original_synth/chicago_control_owner.c
+@@ -6,8 +6,8 @@ int original_chicago_control_owner_bind(original_chicago_control_owner *s,origin
+ }
+ int original_chicago_control_owner_edit(original_chicago_control_owner *s,unsigned macro,float normalized){
+  if(!s||!s->status)return 0;
+- original_chicago_program next=*s->program;original_chicago_voice_controls compiled;
+- if(!original_chicago_program_set(&next,macro,normalized)||!original_chicago_voice_compile(&compiled,&next))return 0;
++ original_chicago_program next=*s->program;original_chicago_voice_controls compiled=*s->voice;
++ if(!original_chicago_program_set(&next,macro,normalized)||!original_chicago_voice_recompile(&compiled,&next,macro))return 0;
+  const original_chicago_routing *r=&compiled.routing;
+  if(!original_chicago_fx2_wrapper_supports(&s->output->fx2,r->fx[1][0]))return 0;
+  /* Publish before immediate native108 callbacks: they can inspect the newly
+diff --git a/experiments/original_synth/chicago_mp4.c b/experiments/original_synth/chicago_mp4.c
+index 7e67d577..8cf841e9 100644
+--- a/experiments/original_synth/chicago_mp4.c
++++ b/experiments/original_synth/chicago_mp4.c
+@@ -51,3 +51,79 @@ int original_chicago_mp4_sample(original_chicago_mp4 *s,float input,float *out){
+  if(!original_binary32_isfinite(z1)||!original_binary32_isfinite(z2)||!original_binary32_isfinite(z3)||!original_binary32_isfinite(z4)||!original_binary32_isfinite(tmp))return 0;
+  n.history[0]=z1;n.history[1]=z2;n.history[2]=z3;n.history[3]=z4;n.history[4]=tmp;*s=n;*out=z4;return 1;
+ }
++
++/* One Chicago voice sample: oscillators (sync 1), noise, MP4 filter and
++ * stereo gain. The same float operations in the same order as
++ * original_voice_gain_oscillator + the noise step + original_chicago_mp4_sample
++ * + original_voice_gain_stereo, without the per-call state copies.
++ * Returns 0 (state unchanged except as the original would fail) on a
++ * nonfinite filter value. */
++#include "voice_gain.h"
++#include "oscillator_motion.h"
++static inline float ck_clamp(float x,float lo,float hi){return x<lo?lo:x>hi?hi:x;}
++static inline float ck_saw(float p,float correction){return p-ck_clamp((p*correction)*128.0f,-1,1);}
++static inline float ck_wave(unsigned shape,float p,float width,float correction,float triangle){
++ if(shape==0){float t=2.0f*(.5f-original_binary32_abs(p));float t2=t*t,t3=t*t2;return t+triangle*t3;}
++ float value=ck_saw(p,correction);
++ if(shape>=2){float q=p+(width+width);if(q>1)q=q-2;value=value-ck_saw(q,correction);}
++ return value;
++}
++static inline float ck_phase(uint32_t u){return (float)(int32_t)u*0x1p-31f;}
++static inline float ck_xadvance(original_ramp *r){float n=r->current+r->delta;if((r->delta>0)!=(r->target>n))n=r->target;r->current=n;return n;}
++/* One sample. Locals stand in for the voice state; the caller loads and
++ * stores them once per span. Commit order matches the original: phases,
++ * gain ramps and noise advance before the filter checks; the filter state
++ * changes only when every filter value is finite. */
++static inline __attribute__((always_inline)) int ck_step(const original_prepared_oscillators *p,float vco_gain,
++ uint32_t phase[4],original_ramp og[4],original_ramp st[2],original_ramp *ngr,uint32_t *nsp,
++ float H[5],original_ramp *ra,original_ramp *re,original_ramp *rr,uint32_t *lo,uint32_t *ro){
++ const original_osc_controls *c=&p->controls;float w[4],gain[4];
++ for(unsigned i=0;i<4;i++)gain[i]=og[i].current;
++ for(unsigned i=0;i<4;i+=2){
++  uint32_t old=phase[i];phase[i]-=c->increment[i];
++  float b=(float)c->increment[i+1]*0x1p-31f,step;
++  if(gain[i]!=0.0f||c->xmod!=0.0f){
++   w[i]=ck_wave(c->shape[i],ck_phase(phase[i]),c->width[i],p->correction[i],p->triangle[i]);
++   float a=w[i]*c->xmod;step=ck_clamp(a+b,-1,1)*0x1p31f;
++  }else{w[i]=0.0f;step=ck_clamp(b,-1,1)*0x1p31f;}
++  phase[i+1]-=(uint32_t)(step>=0x1p31f?INT32_MAX:(int32_t)step);
++  if((int32_t)phase[i]>(int32_t)old)phase[i+1]=0x7fffffffu;
++  w[i+1]=gain[i+1]!=0.0f?ck_wave(c->shape[i+1],ck_phase(phase[i+1]),c->width[i+1],p->correction[i+1],p->triangle[i+1]):0.0f;
++ }
++ float mix=gain[0]!=0.0f?w[0]*(gain[0]*.5f):0.0f;for(unsigned i=1;i<4;i++)if(gain[i]!=0.0f)mix=mix+w[i]*(gain[i]*.5f);
++ for(unsigned i=0;i<4;i++)(void)ck_xadvance(&og[i]);
++ float ng=ck_xadvance(ngr);uint32_t ns=*nsp;unsigned choose=(ns&0x40000000u)==0;*nsp=(ns+ns)^(choose?8393u:0);
++ float input=ng*(choose?.5f:-.5f)+mix;input=vco_gain*input;
++ if(!original_binary32_isfinite(input))return 0;
++ original_ramp a2=*ra,e2=*re,r2=*rr;
++ float A=advance(&a2),E=advance(&e2),R=advance(&r2);
++ float tmp=H[3]+E*H[4],d=H[4]-E*tmp;
++ if(!original_binary32_isfinite(d))return 0;
++ float u=original_binary32_abs(d)>=1?0:1-original_binary32_abs(d);float u2=u*u,u4=u2*u2,u5=u*u4;float v5=1-u5;float nonlinear=d>=0?v5:-v5;
++ float v=input-R*nonlinear,z1=v+A*(H[0]-v),z2=z1+A*(H[1]-z1),z3=z2+A*(H[2]-z2),z4=z3+A*(H[3]-z3);
++ if(!original_binary32_isfinite(z1)||!original_binary32_isfinite(z2)||!original_binary32_isfinite(z3)||!original_binary32_isfinite(z4)||!original_binary32_isfinite(tmp))return 0;
++ *ra=a2;*re=e2;*rr=r2;H[0]=z1;H[1]=z2;H[2]=z3;H[3]=z4;H[4]=tmp;
++ float l=ck_xadvance(&st[0]),r=ck_xadvance(&st[1]);
++ *lo=original_math_bits(z4*l);*ro=original_math_bits(z4*r);return 1;
++}
++/* n samples (n>=1) into bit-pattern outputs. Returns 0 at the first
++ * nonfinite filter value, with state committed as the per-sample path. */
++int original_chicago_voice_span(original_voice_gain *vg,original_oscillators *ph,const original_prepared_oscillators *p,
++ original_ramp *noise_gain,uint32_t *noise_state,float vco_gain,original_chicago_mp4 *f,uint32_t *left,uint32_t *right,uint32_t n){
++ if(!p->ready||!f->prepared)return 0;
++ uint32_t phase[4]={ph->phase[0],ph->phase[1],ph->phase[2],ph->phase[3]};
++ original_ramp og[4]={vg->oscillator[0],vg->oscillator[1],vg->oscillator[2],vg->oscillator[3]},st[2]={vg->stereo[0],vg->stereo[1]};
++ original_ramp ngr=*noise_gain,ra=f->a,re=f->e,rr=f->resonance;uint32_t ns=*noise_state;
++ float H[5]={f->history[0],f->history[1],f->history[2],f->history[3],f->history[4]};
++ int ok=1;
++ for(uint32_t k=0;k<n;k++)if(!ck_step(p,vco_gain,phase,og,st,&ngr,&ns,H,&ra,&re,&rr,left+k,right+k)){ok=0;break;}
++ for(unsigned i=0;i<4;i++){ph->phase[i]=phase[i];vg->oscillator[i]=og[i];}
++ vg->stereo[0]=st[0];vg->stereo[1]=st[1];*noise_gain=ngr;*noise_state=ns;
++ f->a=ra;f->e=re;f->resonance=rr;for(unsigned i=0;i<5;i++)f->history[i]=H[i];
++ return ok;
++}
++int original_chicago_voice_kernel(original_voice_gain *vg,original_oscillators *ph,const original_prepared_oscillators *p,
++ original_ramp *noise_gain,uint32_t *noise_state,float vco_gain,original_chicago_mp4 *f,float *left,float *right){
++ uint32_t l,r;if(!original_chicago_voice_span(vg,ph,p,noise_gain,noise_state,vco_gain,f,&l,&r,1))return 0;
++ *left=original_math_float(l);*right=original_math_float(r);return 1;
++}
+diff --git a/experiments/original_synth/chicago_packed.c b/experiments/original_synth/chicago_packed.c
+index 990bf527..975a56e9 100644
+--- a/experiments/original_synth/chicago_packed.c
++++ b/experiments/original_synth/chicago_packed.c
+@@ -2,9 +2,16 @@
+ #include "chicago_packed.h"
+ #include "chicago_packed_private.h"
+ #include <string.h>
++#include <stdint.h>
+ int original_chicago_packed_lookup(const void *context,uint32_t index,float *a,float *e){
+  if(context||!a||!e||a==e)return 0;
++ /* The tables are constant: repeat the last decoded pair for the same index. */
++ static uint32_t last_index=UINT32_MAX,last_a,last_e;
+  uint32_t ab,eb;
+- if(!original_lossless_second16_lookup(&original_chicago_packed_a,index,&ab)||!original_lossless_second16_lookup(&original_chicago_packed_e,index,&eb))return 0;
++ if(index==last_index){ab=last_a;eb=last_e;}
++ else{
++  if(!original_lossless_second16_lookup(&original_chicago_packed_a,index,&ab)||!original_lossless_second16_lookup(&original_chicago_packed_e,index,&eb))return 0;
++  last_index=index;last_a=ab;last_e=eb;
++ }
+  memcpy(a,&ab,4);memcpy(e,&eb,4);return 1;
+ }
+diff --git a/experiments/original_synth/chicago_scheduler.c b/experiments/original_synth/chicago_scheduler.c
+index 869e3e3f..d8f9466b 100644
+--- a/experiments/original_synth/chicago_scheduler.c
++++ b/experiments/original_synth/chicago_scheduler.c
+@@ -129,6 +129,21 @@ int original_chicago_scheduler_quiet(original_chicago_scheduler *s,chicago_arp_c
+  }
+  return 1;
+ }
++uint32_t original_chicago_scheduler_skip(original_chicago_scheduler *s,chicago_arp_clock *c1,uint32_t frames){
++ original_chicago_allocator *a=s->allocator;chicago_arp_clock *c2=s->clock;
++ if(!frames||a->mg1_key_reset||a->mg2_key_reset)return 0;
++ float bpm=s->clock_input->bpm,x=c1->accumulator,y=c2->accumulator;
++ uint32_t n=original_chicago_clock_span(&x,bpm,c1->threshold,frames);
++ uint32_t m=original_chicago_clock_span(&y,bpm,c2->threshold,n);
++ if(m<n){x=c1->accumulator;n=original_chicago_clock_span(&x,bpm,c1->threshold,m);}
++ if(!n)return 0;
++ c1->accumulator=x;c2->accumulator=y;c1->key_reset=c2->key_reset=0;
++ if(a->gate_remaining>0){
++  if((uint32_t)a->gate_remaining<=n){a->gate_remaining=0;a->last_note=a->keys->current_note;}
++  else a->gate_remaining-=(int32_t)n;
++ }
++ s->dispatch_result=1;return n;
++}
+ int original_chicago_scheduler_voice_action(original_chicago_scheduler *s,unsigned id,unsigned action){
+  if(id>=s->allocator->storage_voices||action>2)return 0;
+  if(action==0)return 1;
+diff --git a/experiments/original_synth/chicago_scheduler.h b/experiments/original_synth/chicago_scheduler.h
+index 3861153a..7e0a99b2 100644
+--- a/experiments/original_synth/chicago_scheduler.h
++++ b/experiments/original_synth/chicago_scheduler.h
+@@ -61,6 +61,9 @@ int original_chicago_scheduler_after_events(original_chicago_scheduler *);
+  * physical/latched keys and voice/restart activity for the entire span, and
+  * keep BPM and both thresholds unchanged through those callbacks. */
+ int original_chicago_scheduler_quiet(original_chicago_scheduler *,chicago_arp_clock *mg1_clock,uint32_t frames);
++/* Applies k<=frames leading after_events frames that have no clock edge and
++ * no key reset (no callback, no step), the interior part of _quiet. Returns k. */
++uint32_t original_chicago_scheduler_skip(original_chicago_scheduler *,chicago_arp_clock *mg1_clock,uint32_t frames);
+ /* Voice control action0 leaves ownership; action1 performs A818 by voice ID;
+  * action2 validates and retains active ownership. Caller handles action2's
+  * exact pending full/partial initializers and same-frame render. No global
+diff --git a/experiments/original_synth/chicago_voice.c b/experiments/original_synth/chicago_voice.c
+index 86dec201..0912163c 100644
+--- a/experiments/original_synth/chicago_voice.c
++++ b/experiments/original_synth/chicago_voice.c
+@@ -3,9 +3,31 @@
+ #include "binary32_classify.h"
+ #include <math.h>
+ #include <string.h>
++static inline uint32_t cv_bits(float x){uint32_t u;memcpy(&u,&x,4);return u;}
+ #ifdef ORIGINAL_USE_SOFT_FMA
++/* exact: its FMA feeds a recursion; fast FMA moved the output by -78 dBFS (docs/perf) */
++#define X0X_EXACT_FMA_HERE 1
+ #include "fused_reference.h"
+-#define ref_fma original_rne_fmaf
++/* Exact shortcut: when a*b is exact in binary32 (a zero factor, or the two
++ * significands fit in 24 bits and the product is normal), the fused result
++ * is the single rounding of p+c, which is the float add. Else the exact
++ * software FMA. Same bits as original_rne_fmaf for all finite inputs. */
++static inline float cv_fma(float a,float b,float c){
++ uint32_t ua=cv_bits(a),ub=cv_bits(b),uc=cv_bits(c);
++ uint32_t ea=(ua>>23)&255u,eb=(ub>>23)&255u;
++ if(((uc>>23)&255u)!=255u&&ea!=255u&&eb!=255u){
++  if(!(ua<<1)||!(ub<<1))return a*b+c;
++  if(ea&&eb){
++   uint32_t ma=(ua&0x7fffffu)|0x800000u,mb=(ub&0x7fffffu)|0x800000u;
++   if((24u-(unsigned)__builtin_ctz(ma))+(24u-(unsigned)__builtin_ctz(mb))<=24u){
++    float p=a*b;uint32_t ep=(cv_bits(p)>>23)&255u;
++    if(ep&&ep!=255u)return p+c;
++   }
++  }
++ }
++ return original_rne_fmaf(a,b,c);
++}
++#define ref_fma cv_fma
+ #else
+ #define ref_fma fmaf
+ #endif
+@@ -24,10 +46,14 @@ int original_chicago_voice_tables_bind(original_chicago_voice_tables *out,origin
+  float a,e;if(!read(context,0,&a,&e)||!original_binary32_isfinite(a)||a<0||a>1||!original_binary32_isfinite(e)||e< -1||e>1)return 0;
+  original_chicago_voice_tables t;memset(&t,0,sizeof t);t.read=read;t.context=context;t.pitch=pitch;t.a0=a;t.e0=e;t.ready=TABLE_READY;*out=t;return 1;
+ }
+-int original_chicago_voice_compile(original_chicago_voice_controls *out,const original_chicago_program *p){
+- if(!out||!p)return 0;
++static int program_valid(const original_chicago_program *p){
+  for(unsigned i=0;i<22;i++)if(!original_binary32_isfinite(p->macro[i])||p->macro[i]<0||p->macro[i]>1)return 0;
+  for(unsigned i=0;i<29;i++)if(!original_binary32_isfinite(p->target[i])||p->target[i]<0||p->target[i]>1)return 0;
++ return 1;
++}
++int original_chicago_voice_compile(original_chicago_voice_controls *out,const original_chicago_program *p){
++ if(!out||!p)return 0;
++ if(!program_valid(p))return 0;
+  original_chicago_voice_controls c;memset(&c,0,sizeof c);
+  c.pitch.master_tune=bipolar(native(p,0));c.pitch.unison_detune=native(p,90);c.pitch.bend_range=24.0f*native(p,55);c.pitch.transpose=(int)Q(native(p,18),49)-24;c.pitch.detune=native(p,17);c.pitch.portamento=native(p,16);
+  for(unsigned i=0;i<4;i++){unsigned j=i*4;c.shape[i]=(uint8_t)Q(native(p,j+1),5);if(c.shape[i]>3)return 0;c.pitch.semitone[i]=(int)Q(native(p,j+2),49)-24;c.pitch.fine_tune[i]=i?bipolar(native(p,j)):0;c.gain.level[i]=native(p,j+3);c.vcf[i]=native(p,28+i);c.vca[i]=native(p,32+i);}
+@@ -42,19 +68,112 @@ int original_chicago_voice_compile(original_chicago_voice_controls *out,const or
+  for(unsigned i=0;i<2;i++){c.mg_shape[i]=(uint8_t)Q(native(p,i?49:43),5);if(c.mg_shape[i]>3)return 0;c.mg_frequency[i]=native(p,i?50:44);c.mg_tempo[i]=(uint8_t)Q(native(p,i?52:46),2);c.mg_base[i]=base[Q(native(p,i?53:47),10)];c.mg_times[i]=(float)(16-Q(native(p,i?54:48),16));}
+  c.revision=p->revision;c.ready=CONTROL_READY;*out=c;return 1;
+ }
++/* The serial control owner supplies a corresponding preceding snapshot and
++ * exactly one mapped edit. Keep validation; reuse only unaffected conversions.
++ * Any other macro or uncertain cache takes the complete compiler above. */
++int original_chicago_voice_recompile(original_chicago_voice_controls *out,const original_chicago_program *p,unsigned macro){
++ if(!out||!p)return 0;
++ if((macro!=20&&macro!=2)||out->ready!=CONTROL_READY||p->revision!=out->revision+UINT32_C(1))
++  return original_chicago_voice_compile(out,p);
++ if(!program_valid(p))return 0;
++ if(macro==20)out->routing.bend_bipolar=bipolar(native(p,105));
++ else out->cutoff=native(p,24);
++ out->revision=p->revision;return 1;
++}
+ static int mg_output(original_chicago_voice_mg *m,unsigned shape){if(!original_miami_mg_shape(shape,m->phase,&m->bipolar,&m->unipolar))return 0;m->wrapped=0;return 1;}
+-static int mg_advance(original_chicago_voice_mg *m,const original_chicago_voice_controls *c,unsigned i,float bpm,uint32_t D){
++static int mg_advance(original_chicago_voice_mg *m,original_chicago_voice_mg_coefficients *cache,
++ const original_chicago_voice_controls *c,unsigned i,float bpm,uint32_t D){
+  float delta;
++#ifdef CHICAGO_COEF_CACHE_REFERENCE
++ (void)cache;
+  if(c->mg_tempo[i]){float numerator=(bpm*fl(0x3f4ccccd))*(float)D;float denominator=(44100.0f*c->mg_base[i])*c->mg_times[i];delta=numerator/denominator;if(delta>1)delta=1;}
+  else {float f=clamp(c->mg_frequency[i]+0.0f,0,1),f2=f*f;f=f*f2;f=ref_fma(f,fl(0x4347e666),fl(0x3c23d70a));delta=((float)D*f)/44100.0f;}
++#else
++ if(c->mg_tempo[i]){
++  uint32_t base_bits=cv_bits(c->mg_base[i]),times_bits=cv_bits(c->mg_times[i]),bpm_bits=cv_bits(bpm);
++  int changed=!cache->tempo_valid||cache->base_bits!=base_bits||cache->times_bits!=times_bits;
++  if(changed){
++   cache->tempo_den=(44100.0f*c->mg_base[i])*c->mg_times[i];
++   cache->base_bits=base_bits;cache->times_bits=times_bits;cache->tempo_valid=1;
++  }
++  if(!cache->delta_valid||changed||cache->mode!=c->mg_tempo[i]||
++     cache->bpm_bits!=bpm_bits||cache->duration!=D){
++   float numerator=(bpm*fl(0x3f4ccccd))*(float)D;
++   delta=numerator/cache->tempo_den;if(delta>1)delta=1;
++   cache->delta=delta;cache->mode=c->mg_tempo[i];cache->bpm_bits=bpm_bits;
++   cache->duration=D;cache->delta_valid=1;
++  }else delta=cache->delta;
++ }else{
++  uint32_t frequency_bits=cv_bits(c->mg_frequency[i]);
++  int changed=!cache->free_valid||cache->frequency_bits!=frequency_bits;
++  if(changed){
++   float f=clamp(c->mg_frequency[i]+0.0f,0,1),f2=f*f;
++   f=f*f2;f=ref_fma(f,fl(0x4347e666),fl(0x3c23d70a));
++   cache->free_f=f;cache->frequency_bits=frequency_bits;cache->free_valid=1;
++  }
++  if(!cache->delta_valid||changed||cache->mode!=c->mg_tempo[i]||cache->duration!=D){
++   delta=((float)D*cache->free_f)/44100.0f;
++   cache->delta=delta;cache->mode=c->mg_tempo[i];cache->duration=D;cache->delta_valid=1;
++  }else delta=cache->delta;
++ }
++#endif
+  float next=m->phase+delta;if(!original_binary32_isfinite(next))return 0;if(next>=1){next=next-2;m->wrapped=1;}m->phase=next;return 1;
+ }
+ static float fourth(float x){float y=x*x;return y*y;}
+-static void vcf_tick(original_vca *s,const float c[4],uint32_t D){
++static void vcf_tick(original_chicago_voice *v,const float c[4],uint32_t D){
++ original_vca *s=&v->vcf;
++ original_chicago_voice_vcf_coefficients *cache=&v->coefficients.vcf;
+  float e=s->level;
+- if(s->state==0){float numerator=(float)D*(1.2999999523162842f-e),den=44100.0f*ref_fma(fourth(c[0]),13,fl(0x3a83126f));e=e+numerator/den;if(e>=1){e=1;s->state=1;}}
+- else if(s->state==1){if(e<c[2])e=c[2];else {float numerator=(float)D*(c[2]-e),den=ref_fma(fourth(c[1]),25,fl(0x3a83126f))*44100.0f;e=e+numerator/den;e=(e+1)-1;}}
+- else if(s->state==3){if(e>=fl(0x3727c5ac)){float den=ref_fma(fourth(c[3]),25,fl(0x3b03126f))*44100.0f;e=e*(1.0f-(float)D/den);e=(e+1)-1;}else{e=0;s->state=6;}}
++ if(s->state==0){
++  float numerator=(float)D*(1.2999999523162842f-e),den;
++#ifdef CHICAGO_COEF_CACHE_REFERENCE
++  den=44100.0f*ref_fma(fourth(c[0]),13,fl(0x3a83126f));
++#else
++  uint32_t bits=cv_bits(c[0]);
++  if(!cache->attack_valid||cache->attack_bits!=bits){
++   cache->attack_den=44100.0f*ref_fma(fourth(c[0]),13,fl(0x3a83126f));
++   cache->attack_bits=bits;cache->attack_valid=1;
++  }
++  den=cache->attack_den;
++#endif
++  e=e+numerator/den;if(e>=1){e=1;s->state=1;}
++ }
++ else if(s->state==1){
++  if(e<c[2])e=c[2];else {
++   float numerator=(float)D*(c[2]-e),den;
++#ifdef CHICAGO_COEF_CACHE_REFERENCE
++   den=ref_fma(fourth(c[1]),25,fl(0x3a83126f))*44100.0f;
++#else
++   uint32_t bits=cv_bits(c[1]);
++   if(!cache->decay_valid||cache->decay_bits!=bits){
++    cache->decay_den=ref_fma(fourth(c[1]),25,fl(0x3a83126f))*44100.0f;
++    cache->decay_bits=bits;cache->decay_valid=1;
++   }
++   den=cache->decay_den;
++#endif
++   e=e+numerator/den;e=(e+1)-1;
++  }
++ }
++ else if(s->state==3){
++  if(e>=fl(0x3727c5ac)){
++#ifdef CHICAGO_COEF_CACHE_REFERENCE
++   float den=ref_fma(fourth(c[3]),25,fl(0x3b03126f))*44100.0f;
++   e=e*(1.0f-(float)D/den);
++#else
++   uint32_t bits=cv_bits(c[3]);
++   if(!cache->release_valid||cache->release_bits!=bits){
++    cache->release_den=ref_fma(fourth(c[3]),25,fl(0x3b03126f))*44100.0f;
++    cache->release_bits=bits;cache->release_valid=1;cache->release_ratio_valid=0;
++   }
++   if(!cache->release_ratio_valid||cache->release_duration!=D){
++    cache->release_ratio=(float)D/cache->release_den;
++    cache->release_duration=D;cache->release_ratio_valid=1;
++   }
++   e=e*(1.0f-cache->release_ratio);
++#endif
++   e=(e+1)-1;
++  }else{e=0;s->state=6;}
++ }
+  s->level=e;
+ }
+ static void stage(original_ramp *r,float target,float reciprocal){r->target=target;r->delta=(target-r->current)*reciprocal;}
+@@ -73,7 +192,17 @@ static int mp4_prepare(original_chicago_voice *s,const original_chicago_voice_co
+ static int pitch_prepare(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,uint32_t D,uint32_t increment[4]){
+  const original_chicago_voice_pitch_controls *p=&c->pitch;
+  float common=p->master_tune+0.0f;common=ref_fma(s->unison_coordinate,p->unison_detune,common);common=ref_fma(0,48,common);common=common+(float)p->transpose;common=ref_fma(p->bend_range,c->routing.bend_bipolar,common);
+- float porta=clamp(p->portamento+0.0f,0,1),alpha=porta*porta;alpha=ref_fma(alpha,fl(0x49f42400),fl(0x3a83126f));alpha=44100.0f*alpha;alpha=(float)D/alpha;alpha=alpha*fl(0x4a8ab75d);if(alpha>1)alpha=1;
++ float alpha;
++#ifdef CHICAGO_COEF_CACHE_REFERENCE
++ float porta=clamp(p->portamento+0.0f,0,1);alpha=porta*porta;alpha=ref_fma(alpha,fl(0x49f42400),fl(0x3a83126f));alpha=44100.0f*alpha;alpha=(float)D/alpha;alpha=alpha*fl(0x4a8ab75d);if(alpha>1)alpha=1;
++#else
++ original_chicago_voice_glide_coefficients *cache=&s->coefficients.glide;
++ uint32_t bits=cv_bits(p->portamento);
++ if(!cache->valid||cache->portamento_bits!=bits||cache->duration!=D){
++  float porta=clamp(p->portamento+0.0f,0,1);alpha=porta*porta;alpha=ref_fma(alpha,fl(0x49f42400),fl(0x3a83126f));alpha=44100.0f*alpha;alpha=(float)D/alpha;alpha=alpha*fl(0x4a8ab75d);if(alpha>1)alpha=1;
++  cache->alpha=alpha;cache->portamento_bits=bits;cache->duration=D;cache->valid=1;
++ }else alpha=cache->alpha;
++#endif
+  float detune=clamp(p->detune+0.0f,0,1)*.3499999940395355f;
+  for(unsigned i=0;i<4;i++){
+   s->pitch.current[i]=ref_fma(s->pitch.target[i]-s->pitch.current[i],alpha,s->pitch.current[i]);
+@@ -115,8 +244,8 @@ int original_chicago_voice_control_admitted(original_chicago_voice *s,const orig
+  uint32_t D=0;int due=original_control_tick(&s->counter,44100,&D);if(due<0)return 0;if(!due)return 1;
+  s->previous_vcf=s->vcf.level;s->previous_vca=s->vca.level;s->previous_mg[0]=s->mg[0].bipolar;s->previous_mg[1]=s->mg[1].bipolar;
+  s->mod_cutoff=clamp(s->previous_vcf*c->patch_cutoff+0.0f,-1,1);s->mod_gain=clamp(s->keyboard_source*c->patch_gain+0.0f,-1,1);s->mod_slave=clamp(s->previous_vca*c->patch_slave+0.0f,-1,1);
+- for(unsigned i=0;i<2;i++)if(!mg_output(&s->mg[i],c->mg_shape[i])||!mg_advance(&s->mg[i],c,i,bpm,D))return 0;
+- vcf_tick(&s->vcf,c->vcf,D);
++ for(unsigned i=0;i<2;i++)if(!mg_output(&s->mg[i],c->mg_shape[i])||!mg_advance(&s->mg[i],&s->coefficients.mg[i],c,i,bpm,D))return 0;
++ vcf_tick(s,c->vcf,D);
+  const float gate[4]={0,0,1,0};const float *eg=c->routing.vca_eg_mode?gate:c->vca;
+  if(!original_vca_tick(&s->vca,44100,D,eg[0],eg[1],eg[2],eg[3],action))return 0;
+  if(*action){s->active=0;s->vca.level=0;s->vcf.level=0;s->vcf.state=6;
+@@ -131,7 +260,7 @@ int original_chicago_voice_control(original_chicago_voice *s,const original_chic
+ }
+ static int note_valid(const original_chicago_voice_note *n){if(!n||n->raw_note<0||n->raw_note>187||n->velocity>127||n->unison_flag>2||!original_binary32_isfinite(n->tuned_pitch)||!original_binary32_isfinite(n->last_pitch)||!original_binary32_isfinite(n->unison_coordinate))return 0;for(unsigned i=0;i<2;i++)if(!original_binary32_isfinite(n->mg[i].phase)||n->mg[i].phase< -1||n->mg[i].phase>1||!original_binary32_isfinite(n->mg[i].hold))return 0;return 1;}
+ static int full_note_mask(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,const original_chicago_voice_note *note,unsigned mask,float bpm){
+- original_chicago_voice n=*s;for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.pitch.current[i]=note->last_pitch;n.activation[i]=-1;}
++ original_chicago_voice n=*s;memset(&n.coefficients,0,sizeof n.coefficients);for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.pitch.current[i]=note->last_pitch;n.activation[i]=-1;}
+  n.raw_note=note->raw_note;n.raw_velocity=note->velocity;n.velocity=(float)note->velocity/127.0f;n.keyboard_source=((float)note->raw_note-64.0f)*.015625f;n.unison_coordinate=note->unison_coordinate;n.unison_flag=(uint8_t)note->unison_flag;
+  for(unsigned i=0;i<2;i++){n.mg[i]=note->mg[i];if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;}
+  if(!original_chicago_mp4_init(&n.filter,t->a0,t->e0))return 0;
+@@ -144,7 +273,7 @@ int original_chicago_voice_full_note(original_chicago_voice *s,const original_ch
+ }
+ int original_chicago_voice_partial_note(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,int32_t key,unsigned velocity,float pitch,unsigned mask,float bpm){
+  if(!valid(s,c,t,bpm)||!s->active||s->awaiting_restart||s->vca.state==5||key<0||key>187||velocity>127||!original_binary32_isfinite(pitch)||!mask||mask>15)return 0;
+- original_chicago_voice n=*s;for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=pitch;n.activation[i]=-1;}
++ original_chicago_voice n=*s;memset(&n.coefficients,0,sizeof n.coefficients);for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=pitch;n.activation[i]=-1;}
+  n.raw_note=key;n.raw_velocity=velocity;n.velocity=(float)velocity/127.0f;n.keyboard_source=((float)key-64.0f)*.015625f;n.key_down=1;n.damper_deferred=0;
+  for(unsigned i=0;i<2;i++)if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;
+  unsigned action;if(!original_chicago_voice_control(&n,c,t,bpm,1,&action))return 0;*s=n;return 1;
+@@ -160,13 +289,20 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
+  else n.awaiting_restart=1;
+  *s=n;return 1;
+ }
++int original_chicago_voice_kernel(original_voice_gain *vg,original_oscillators *ph,const original_prepared_oscillators *p,
++ original_ramp *noise_gain,uint32_t *noise_state,float vco_gain,original_chicago_mp4 *f,float *left,float *right);
+ int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right){
+  if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
+  if(!s->active){*left=0;*right=0;return 1;}
+- float mix,filtered;if(!original_voice_gain_oscillator(&s->gain,&s->pitch.oscillator,&s->prepared,1,&mix))return 0;
+- float ng=advance(&s->noise_gain);unsigned choose=(s->noise&0x40000000u)==0;s->noise=(s->noise+s->noise)^(choose?8393u:0);float input=ng*(choose?.5f:-.5f)+mix;input=c->vco_gain*input;
+- if(!original_chicago_mp4_sample(&s->filter,input,&filtered))return 0;
+- return original_voice_gain_stereo(&s->gain,filtered,left,right);
++ return original_chicago_voice_kernel(&s->gain,&s->pitch.oscillator,&s->prepared,&s->noise_gain,&s->noise,c->vco_gain,&s->filter,left,right);
++}
++int original_chicago_voice_span(original_voice_gain *vg,original_oscillators *ph,const original_prepared_oscillators *p,
++ original_ramp *noise_gain,uint32_t *noise_state,float vco_gain,original_chicago_mp4 *f,uint32_t *left,uint32_t *right,uint32_t n);
++/* n>=1 frames of render_frame with no control tick due inside. */
++int original_chicago_voice_render_span(original_chicago_voice *s,const original_chicago_voice_controls *c,uint32_t *left,uint32_t *right,uint32_t n){
++ if(!s||!c||!left||!right||left==right||!n||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
++ if(!s->active){for(uint32_t i=0;i<n;i++)left[i]=right[i]=0;return 1;}
++ return original_chicago_voice_span(&s->gain,&s->pitch.oscillator,&s->prepared,&s->noise_gain,&s->noise,c->vco_gain,&s->filter,left,right,n);
+ }
+ int original_chicago_voice_sample(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm,float *left,float *right,unsigned *action){
+  if(!left||!right||left==right||!action||!valid(s,c,t,bpm)||s->awaiting_restart)return 0;
+@@ -191,10 +327,10 @@ int original_chicago_voice_immediate_raw(original_chicago_voice *s,const origina
+  if(!action||!valid(s,c,t,bpm)||s->awaiting_restart||full>1||!mask||mask>15||!source_note_valid(note)||!original_binary32_isfinite(note->tuned_pitch))return 0;
+  if(full){
+   if(s->vca.state!=6||!note_valid(note))return 0;
+-  original_chicago_voice n=*s;if(!full_note_mask(&n,c,t,note,mask,bpm))return 0;
++  original_chicago_voice n=*s;memset(&n.coefficients,0,sizeof n.coefficients);if(!full_note_mask(&n,c,t,note,mask,bpm))return 0;
+   *s=n;*action=0;return 1;
+  }
+- original_chicago_voice n=*s;for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.activation[i]=-1;}
++ original_chicago_voice n=*s;memset(&n.coefficients,0,sizeof n.coefficients);for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.activation[i]=-1;}
+  original_chicago_voice_sources sources;if(!original_chicago_voice_source_values(note,&sources))return 0;
+  n.raw_note=note->raw_note;n.raw_velocity=note->velocity;n.velocity=sources.velocity_unipolar;n.keyboard_source=sources.key_bipolar;n.unison_flag=(uint8_t)note->unison_flag;n.unison_coordinate=note->unison_coordinate;n.key_down=1;n.damper_deferred=0;n.active=1;
+  for(unsigned i=0;i<2;i++)if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;
+diff --git a/experiments/original_synth/chicago_voice.h b/experiments/original_synth/chicago_voice.h
+index 45b19fe7..a2a57df7 100644
+--- a/experiments/original_synth/chicago_voice.h
++++ b/experiments/original_synth/chicago_voice.h
+@@ -47,6 +47,11 @@ typedef struct {
+  * Outer ARP/FX/master endpoints remain explicit in routing; they are not
+  * silently applied per voice. No getters/conversions in the audio sample path. */
+ int original_chicago_voice_compile(original_chicago_voice_controls *out,const original_chicago_program *program);
++/* Incremental bend/cutoff edit of an initialized corresponding snapshot.
++ * Program must differ only by the named program_set edit. Other edits, an
++ * unready snapshot or a revision gap use full compilation. Failure is atomic. */
++int original_chicago_voice_recompile(original_chicago_voice_controls *out,
++ const original_chicago_program *program,unsigned macro);
+ typedef struct {float phase,unipolar,bipolar,hold;uint32_t noise;uint8_t wrapped;} original_chicago_voice_mg;
+ typedef struct {
+  uint32_t oscillator_phase[4],noise;
+@@ -60,6 +65,29 @@ typedef struct {
+  float tuned_pitch,last_pitch,unison_coordinate;
+  original_chicago_voice_mg mg[2];
+ } original_chicago_voice_note;
++/* Derived runtime-only coefficients. The Chicago snapshot field schema
++ * deliberately omits these fields; state_codec decode zeroes omitted fields,
++ * clearing all valid flags after restore without changing the wire format. */
++typedef struct {
++ uint32_t attack_bits,decay_bits,release_bits,release_duration;
++ float attack_den,decay_den,release_den,release_ratio;
++ uint8_t attack_valid,decay_valid,release_valid,release_ratio_valid;
++} original_chicago_voice_vcf_coefficients;
++typedef struct {
++ uint32_t base_bits,times_bits,frequency_bits,bpm_bits,duration;
++ float tempo_den,free_f,delta;
++ uint8_t mode,tempo_valid,free_valid,delta_valid;
++} original_chicago_voice_mg_coefficients;
++typedef struct {
++ uint32_t portamento_bits,duration;
++ float alpha;
++ uint8_t valid;
++} original_chicago_voice_glide_coefficients;
++typedef struct {
++ original_chicago_voice_vcf_coefficients vcf;
++ original_chicago_voice_mg_coefficients mg[2];
++ original_chicago_voice_glide_coefficients glide;
++} original_chicago_voice_coefficients;
+ typedef struct {
+  original_miami_pitch pitch;
+  original_voice_gain gain;
+@@ -74,6 +102,7 @@ typedef struct {
+  float previous_vcf,previous_vca,previous_mg[2],mod_cutoff,mod_gain,mod_slave,filter_postgain;
+  uint32_t pending_tail_duration;
+  uint8_t pending_tail_kick,awaiting_restart,unison_flag,key_down,damper_deferred,active,ready;
++ original_chicago_voice_coefficients coefficients;
+ } original_chicago_voice;
+ /* Explicit cold producer input avoids inventing native phase/Analog history.
+  * All phase bits/noise/MG/anchor come from caller; filter/EG/gain init is owned
+@@ -110,6 +139,8 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
+  * returns2 with action2 and untouched outputs when restart resolution is
+  * required; otherwise returns1. It returns0 for invalid call preconditions. */
+ int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right);
++/* render_frame for n>=1 frames, bit patterns out; caller proves no control tick is due inside. */
++int original_chicago_voice_render_span(original_chicago_voice *s,const original_chicago_voice_controls *c,uint32_t *left,uint32_t *right,uint32_t n);
+ /* Internal serial block owner: admit stable resources once, then preserve
+  * every original control tick. No external edits or restored-state writes
+  * may interleave admitted calls. Checked public entries remain unchanged. */
+diff --git a/experiments/original_synth/fixed_fx.c b/experiments/original_synth/fixed_fx.c
+index 6644ea51..63c658fc 100644
+--- a/experiments/original_synth/fixed_fx.c
++++ b/experiments/original_synth/fixed_fx.c
+@@ -36,6 +36,12 @@ int original_fixed_fx_process(original_fixed_fx *s,const int32_t *dryL,const int
+  if(s->dirty){s->active_enable=s->pending_enable;s->target=s->active_enable?32767:0;s->dirty=0;}
+  for(uint32_t i=0;i<n;i++){scratchL[i]=miami_fx_low16(dryL[i]);scratchR[i]=miami_fx_low16(dryR[i]);}
+  effect(context,scratchL,scratchR,n);
++ if(asr15(s->gain_state)==s->target){
++  /* Settled: g stays the target for the whole block. */
++  int32_t g=s->target;
++  for(uint32_t i=0;i<n;i++){outL[i]=mix(dryL[i],scratchL[i],g);outR[i]=mix(dryR[i],scratchR[i],g);}
++  return 1;
++ }
+  for(uint32_t i=0;i<n;i++) {
+   int32_t g=asr15(s->gain_state);
+   if(g!=s->target){s->gain_state=signed32((uint32_t)s->gain_state+(uint32_t)(s->target-g)*32511u);g=asr15(s->gain_state);}
+diff --git a/experiments/original_synth/master.c b/experiments/original_synth/master.c
+index 9e20893e..789799c1 100644
+--- a/experiments/original_synth/master.c
++++ b/experiments/original_synth/master.c
+@@ -21,7 +21,28 @@ int original_master_process(original_master *s,float volume,const uint32_t *il,c
+  for(uint32_t i=0;i<n;i++) {
+   current=current+step;
+   uint32_t l=il[i],r=ir[i];
+-  ol[i]=miami_fx_cleanup_rne(bits(current*fl(l)));orr[i]=miami_fx_cleanup_rne(bits(current*fl(r)));
++  ol[i]=miami_fx_cleanup_fast(bits(current*fl(l)));orr[i]=miami_fx_cleanup_fast(bits(current*fl(r)));
+  }
+  s->current=target;return 1;
+ }
++/* original_master_process on the int16 FX output: the same as converting
++ * every sample with miami_fx_output_rne into out_*, then
++ * original_master_process(out_* in place). One pass, no second read. */
++#define MASTER_I16_BODY(T) \
++ if(!s||!original_binary32_isfinite(volume)||volume<0||volume>1||!original_binary32_isfinite(s->current)||s->current<0||s->current>4){ \
++  for(uint32_t i=0;i<n;i++){ol[i]=miami_fx_output_rne_inline((int16_t)il[i]);orr[i]=miami_fx_output_rne_inline((int16_t)ir[i]);} \
++  return 0;} \
++ if(!n)return 1; \
++ float target=s->desired_mute?0:volume*4,current=s->current,step; \
++ if(s->desired_mute==s->committed_mute)step=(target-current)/(float)n; \
++ else if(s->desired_mute)step=(-current)/(float)n; \
++ else {current=target;step=0;} \
++ s->committed_mute=s->desired_mute;s->target=target;s->step=step; \
++ for(uint32_t i=0;i<n;i++){ \
++  current=current+step; \
++  uint32_t l=miami_fx_output_rne_inline((int16_t)il[i]),r=miami_fx_output_rne_inline((int16_t)ir[i]); \
++  ol[i]=miami_fx_cleanup_fast(bits(current*fl(l)));orr[i]=miami_fx_cleanup_fast(bits(current*fl(r))); \
++ } \
++ s->current=target;return 1;
++int original_master_process_i16(original_master *s,float volume,const int16_t *il,const int16_t *ir,uint32_t *ol,uint32_t *orr,uint32_t n){MASTER_I16_BODY(int16_t)}
++int original_master_process_i32(original_master *s,float volume,const int32_t *il,const int32_t *ir,uint32_t *ol,uint32_t *orr,uint32_t n){MASTER_I16_BODY(int32_t)}
+diff --git a/experiments/original_synth/master.h b/experiments/original_synth/master.h
+index 77f5d34b..e69d7235 100644
+--- a/experiments/original_synth/master.h
++++ b/experiments/original_synth/master.h
+@@ -12,4 +12,8 @@ void original_master_mute(original_master *s,uint8_t byte);
+  * cross-channel/state/buffer overlap is unsupported. Core-only reset preserves
+  * this object. State is exclusively owned by the render/control executor. */
+ int original_master_process(original_master *s,float converted_volume,const uint32_t *in_left,const uint32_t *in_right,uint32_t *out_left,uint32_t *out_right,uint32_t frames);
++/* The same as writing miami_fx_output_rne((int16_t)in[i]) to out, then
++ * original_master_process in place: one pass. i32: the low 16 bits of each word. */
++int original_master_process_i16(original_master *s,float converted_volume,const int16_t *in_left,const int16_t *in_right,uint32_t *out_left,uint32_t *out_right,uint32_t frames);
++int original_master_process_i32(original_master *s,float converted_volume,const int32_t *in_left,const int32_t *in_right,uint32_t *out_left,uint32_t *out_right,uint32_t frames);
+ #endif
+diff --git a/experiments/original_synth/miami_control_owner.c b/experiments/original_synth/miami_control_owner.c
+index 6f0f23ed..114e64fe 100644
+--- a/experiments/original_synth/miami_control_owner.c
++++ b/experiments/original_synth/miami_control_owner.c
+@@ -7,8 +7,8 @@ int original_miami_control_owner_bind(original_miami_control_owner *s,original_m
+ int original_miami_control_owner_edit(original_miami_control_owner *s,unsigned id,float value){
+  if(!s||!s->status)return 0;
+  original_miami_program p=*s->program;
+- original_miami_voice_controls c;
+- if(!original_miami_program_set(&p,id,value)||!original_miami_voice_compile(&c,&p))return 0;
++ original_miami_voice_controls c=*s->controls;
++ if(!original_miami_program_set(&p,id,value)||!original_miami_voice_recompile(&c,&p,id))return 0;
+  *s->program=p;*s->controls=c;s->global_input->waveform1=c.mg_shape[0];s->global_input->waveform2=c.mg_shape[1];
+  if(!original_miami_output_apply(s->output,s->program,id)){s->status=0;return 0;}
+  if(id==17&&!original_chicago_scheduler_damper(s->scheduler,c.damper?127u:0u)){s->status=0;return 0;}
+diff --git a/experiments/original_synth/miami_ms20.c b/experiments/original_synth/miami_ms20.c
+index f753cedf..04f4357a 100644
+--- a/experiments/original_synth/miami_ms20.c
++++ b/experiments/original_synth/miami_ms20.c
+@@ -80,3 +80,81 @@ int original_miami_ms20_sample(original_miami_ms20 *s,float osc,float gain,float
+  /* The output may alias a float field of s, as before: publish it last. */
+  *out=nonlinear;return 1;
+ }
++
++/* Block kernel for one active Miami voice: oscillators (sync 0), MS-20 filter
++ * and stereo gain, added into L/R. The same float operations in the same
++ * order as original_voice_gain_oscillator + original_miami_ms20_sample +
++ * original_voice_gain_stereo per sample, with the state kept in locals.
++ * Finite checks run once at the end of the block (0: fault). */
++#include "voice_gain.h"
++#include "oscillator_motion.h"
++static inline float k_saw(float p,float correction){return p-clamp((p*correction)*128.0f,-1,1);}
++static inline float k_wave(unsigned shape,float p,float width,float correction,float triangle,uint8_t zero_triangle){
++ if(shape==0){
++  float t=2.0f*(.5f-original_binary32_abs(p));
++  /* p is a finite phase in [-1,1], so t and t3=t*(t*t) are finite.
++   * The only zero t is +0 (exact 0.5f-0.5f). With either signed
++   * triangle zero, t+triangle*t3 is bitwise t+0.0f, including t=+0.
++   * Retain an addition: returning t would not generally preserve -0. */
++  if(zero_triangle)return t+0.0f;
++  float t2=t*t,t3=t*t2;return t+triangle*t3;
++ }
++ float value=k_saw(p,correction);
++ if(shape>=2){float q=p+(width+width);if(q>1)q=q-2;value=value-k_saw(q,correction);}
++ return value;
++}
++static inline float k_phase(uint32_t u){return (float)(int32_t)u*0x1p-31f;}
++static inline float k_gain_advance(original_ramp *r){
++ float n=r->current+r->delta;if((r->delta>0)!=(r->target>n))n=r->target;r->current=n;return n;
++}
++int original_miami_voice_render_add(original_miami_ms20 *f,original_voice_gain *vg,original_oscillators *ph,
++ const original_prepared_oscillators *p,float vco_gain,float *L,float *R,uint32_t n){
++ if(!f->prepared||!p->ready||!original_binary32_isfinite(vco_gain))return 0;
++ const original_osc_controls *c=&p->controls;
++ uint8_t zero_triangle[4];
++ for(unsigned i=0;i<4;i++)
++  zero_triangle[i]=(uint8_t)(c->shape[i]==0&&(original_math_bits(p->triangle[i])&0x7fffffffu)==0);
++ original_ramp og[4],st[2];memcpy(og,vg->oscillator,sizeof og);memcpy(st,vg->stereo,sizeof st);
++ uint32_t phase[4];memcpy(phase,ph->phase,sizeof phase);
++ original_ramp ra=f->a,rr=f->resonance,rn=f->noise_gain;
++ float h0=f->history[0],h1=f->history[1],h2=f->history[2],h3=f->history[3],h4=f->history[4],fb=f->b;
++ uint32_t noise=f->noise;float xmod=c->xmod;
++ float b1=(float)c->increment[1]*0x1p-31f,b3=(float)c->increment[3]*0x1p-31f;
++ float st1=clamp(b1,-1,1)*0x1p31f,st3=clamp(b3,-1,1)*0x1p31f;
++ int32_t pstep1=st1>=0x1p31f?INT32_MAX:(int32_t)st1,pstep3=st3>=0x1p31f?INT32_MAX:(int32_t)st3;
++ for(uint32_t j=0;j<n;j++){
++  float gain[4]={og[0].current,og[1].current,og[2].current,og[3].current},w[4];
++  for(unsigned i=0;i<4;i+=2){
++   float b=i?b3:b1;int32_t step_i;
++   phase[i]-=c->increment[i];
++   if(gain[i]!=0.0f||xmod!=0.0f){
++    w[i]=k_wave(c->shape[i],k_phase(phase[i]),c->width[i],p->correction[i],p->triangle[i],zero_triangle[i]);
++    float a=w[i]*xmod;float step=clamp(a+b,-1,1)*0x1p31f;step_i=step>=0x1p31f?INT32_MAX:(int32_t)step;
++   }else{w[i]=0.0f;step_i=i?pstep3:pstep1;}
++   phase[i+1]-=(uint32_t)step_i;
++   w[i+1]=gain[i+1]!=0.0f?k_wave(c->shape[i+1],k_phase(phase[i+1]),c->width[i+1],p->correction[i+1],p->triangle[i+1],zero_triangle[i+1]):0.0f;
++  }
++  float mix=gain[0]!=0.0f?w[0]*(gain[0]*.5f):0.0f;for(unsigned i=1;i<4;i++)if(gain[i]!=0.0f)mix=mix+w[i]*(gain[i]*.5f);
++  for(unsigned i=0;i<4;i++)(void)k_gain_advance(&og[i]);
++  /* MS-20 */
++  float g=advance(&ra),r=advance(&rr),ng=advance(&rn);ra.current=g;rr.current=r;rn.current=ng;
++  unsigned choose=(noise&0x40000000u)==0;noise=(noise+noise)^(choose?8393u:0);
++  float nz=choose?.5f:-.5f;float v=ng*nz+mix;v=vco_gain*v;
++  float x=v*fl(0x3fa47678);x=x*fl(0x3dcccccd);
++  float a=x+g*(h0-x);float b=a+g*(h1-a);
++  float in=h2+b,u=512.0f*original_binary32_abs(in),nl;
++  if(u<512){unsigned k=(unsigned)u;float ta=fl(original_miami_n513_bits[k]),tb=fl(original_miami_n513_bits[k+1]);float gg=interpolate(tb-ta,u-(float)k,ta);nl=in*gg;}
++  else nl=clamp(in,-1,1)*fl(original_miami_n513_bits[512]);
++  float feedback=r*nl,difference=feedback-h4;
++  float d=difference+fb*(h3+difference);float cc=d+fb*(h2-d);
++  h0=a;h1=b;h2=cc;h3=d;h4=feedback;
++  float l=k_gain_advance(&st[0]),rg=k_gain_advance(&st[1]);
++  L[j]=L[j]+nl*l;R[j]=R[j]+nl*rg;
++ }
++ if(!original_binary32_isfinite(h0)||!original_binary32_isfinite(h1)||!original_binary32_isfinite(h2)||
++    !original_binary32_isfinite(h3)||!original_binary32_isfinite(h4))return 0;
++ memcpy(vg->oscillator,og,sizeof og);memcpy(vg->stereo,st,sizeof st);memcpy(ph->phase,phase,sizeof phase);
++ f->a=ra;f->resonance=rr;f->noise_gain=rn;f->noise=noise;
++ f->history[0]=h0;f->history[1]=h1;f->history[2]=h2;f->history[3]=h3;f->history[4]=h4;
++ return 1;
++}
+diff --git a/experiments/original_synth/miami_output.c b/experiments/original_synth/miami_output.c
+index 8adea53e..f48b219b 100644
+--- a/experiments/original_synth/miami_output.c
++++ b/experiments/original_synth/miami_output.c
+@@ -85,6 +85,5 @@ int original_miami_output_process(original_miami_output *s,const original_miami_
+  effect_context effect={&s->fx.decimator,events,ne};
+  (void)original_fixed_fx_process(&s->fx.fx1,w->dryL,w->dryR,w->scratchL,w->scratchR,w->dryL,w->dryR,n,decimate,&effect);
+  original_miami_fx_bypass_process(&s->fx.fx2,w,n);
+- for(uint32_t i=0;i<n;i++){ol[i]=miami_fx_output_rne((int16_t)w->dryL[i]);orr[i]=miami_fx_output_rne((int16_t)w->dryR[i]);}
+- return original_master_process(&s->master,volume*volume,ol,orr,ol,orr,n);
++ return original_master_process_i32(&s->master,volume*volume,w->dryL,w->dryR,ol,orr,n);
+ }
+diff --git a/experiments/original_synth/miami_pitch.c b/experiments/original_synth/miami_pitch.c
+index 65ebc957..95d6a0dd 100644
+--- a/experiments/original_synth/miami_pitch.c
++++ b/experiments/original_synth/miami_pitch.c
+@@ -19,12 +19,15 @@ int original_miami_pitch_note(original_miami_pitch *s,unsigned note,unsigned las
+  for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){s->target[i]=(float)note;if(full)s->current[i]=(float)last;}
+  return 1;
+ }
+-int original_miami_pitch_prepare(original_miami_pitch *s,const original_miami_pitch_controls *c,const int32_t table[128],float fs,uint32_t D,uint32_t out[4]){
++static int pitch_prepare_impl(original_miami_pitch *s,const original_miami_pitch_controls *c,const int32_t table[128],float fs,uint32_t D,uint32_t out[4],original_glide_cache *cache){
+  if(!s||!c||!table||!out||c->modulation_on>1||c->transpose< -120||c->transpose>120)return 0;
+  const float values[]={c->master_tune,c->unison_coordinate,c->unison_detune,c->mod_master_pitch,c->bend_range,c->bend,c->detune,c->mod_detune,c->frequency_mod,c->mod_slave_pitch,c->portamento,c->mod_portamento};
+  for(unsigned i=0;i<sizeof values/sizeof values[0];i++)if(!original_binary32_isfinite(values[i]))return 0;
+  for(unsigned i=0;i<4;i++)if(!original_binary32_isfinite(c->fine_tune[i])||!original_binary32_isfinite(c->mod_pitch[i])||c->semitone[i]< -120||c->semitone[i]>120)return 0;
+- original_miami_pitch next=*s;if(!original_glide(next.current,next.target,c->portamento,c->mod_portamento,fs,D))return 0;
++ original_miami_pitch next=*s;
++ original_glide_cache staged;
++ if(cache)staged=*cache;
++ if(cache?!original_glide_cached(&staged,next.current,next.target,c->portamento,c->mod_portamento,fs,D):!original_glide(next.current,next.target,c->portamento,c->mod_portamento,fs,D))return 0;
+  float common=c->master_tune+0.0f;common=ref_fma(c->unison_coordinate,c->unison_detune,common);common=ref_fma(c->mod_master_pitch,48,common);common=common+(float)c->transpose;common=ref_fma(c->bend_range,c->bend,common);
+  float dt=c->detune+c->mod_detune;if(!original_binary32_isfinite(common)||!original_binary32_isfinite(dt))return 0;dt=clamp(dt,0,1)*.3499999940395355f;
+  uint32_t increments[4];
+@@ -34,5 +37,12 @@ int original_miami_pitch_prepare(original_miami_pitch *s,const original_miami_pi
+   if(c->modulation_on&&(i==1||i==3)){p=c->frequency_mod+p;p=ref_fma(c->mod_slave_pitch,48,p);}
+   if(!original_binary32_isfinite(p)||!original_pitch_increment(p,table,&increments[i]))return 0;
+  }
+- *s=next;memcpy(out,increments,sizeof increments);return 1;
++ *s=next;if(cache)*cache=staged;memcpy(out,increments,sizeof increments);return 1;
++}
++
++int original_miami_pitch_prepare(original_miami_pitch *s,const original_miami_pitch_controls *c,const int32_t table[128],float fs,uint32_t D,uint32_t out[4]){
++ return pitch_prepare_impl(s,c,table,fs,D,out,NULL);
++}
++int original_miami_pitch_prepare_cached(original_miami_pitch *s,const original_miami_pitch_controls *c,const int32_t table[128],float fs,uint32_t D,uint32_t out[4],original_glide_cache *cache){
++ return cache&&pitch_prepare_impl(s,c,table,fs,D,out,cache);
+ }
+diff --git a/experiments/original_synth/miami_pitch.h b/experiments/original_synth/miami_pitch.h
+index 89735b41..52caca0b 100644
+--- a/experiments/original_synth/miami_pitch.h
++++ b/experiments/original_synth/miami_pitch.h
+@@ -20,4 +20,7 @@ int original_miami_pitch_note(original_miami_pitch *s,unsigned note,unsigned las
+  * Output increments feed accepted prepared oscillator state, not active engine.
+  * Complete controls are immutable during this call; output/state transactional. */
+ int original_miami_pitch_prepare(original_miami_pitch *s,const original_miami_pitch_controls *c,const int32_t table[128],float fs,uint32_t duration,uint32_t out[4]);
++
++/* Per-owner coefficient cache for the checked Miami fast path. */
++int original_miami_pitch_prepare_cached(original_miami_pitch *s,const original_miami_pitch_controls *c,const int32_t table[128],float fs,uint32_t D,uint32_t out[4],original_glide_cache *cache);
+ #endif
+diff --git a/experiments/original_synth/miami_selected_voice.c b/experiments/original_synth/miami_selected_voice.c
+index 48caa5d2..8f3d0cec 100644
+--- a/experiments/original_synth/miami_selected_voice.c
++++ b/experiments/original_synth/miami_selected_voice.c
+@@ -1,6 +1,7 @@
+ /* SPDX-License-Identifier: GPL-3.0-only */
+ #include "miami_selected_voice.h"
+ #include "binary32_classify.h"
++#include "binary32_math.h"
+ #include <math.h>
+ #include <string.h>
+ #ifdef ORIGINAL_USE_SOFT_FMA
+@@ -38,10 +39,14 @@ int original_miami_voice_tables_init(original_miami_voice_tables *out,original_m
+  memcpy(storage->a,in->a,sizeof storage->a);memcpy(storage->b,in->b,sizeof storage->b);memcpy(storage->r,in->r,sizeof storage->r);memcpy(storage->cap,in->cap,sizeof storage->cap);memcpy(storage->pitch,pitch,sizeof storage->pitch);
+  original_miami_voice_tables t;memset(&t,0,sizeof t);t.filter=(original_ms20_tables){storage->a,storage->b,storage->r,storage->cap};t.pitch=storage->pitch;t.ready=TABLE_READY;*out=t;return 1;
+ }
+-int original_miami_voice_compile(original_miami_voice_controls *out,const original_miami_program *p){
+- if(!out||!p)return 0;
++static int program_valid(const original_miami_program *p){
+  for(unsigned i=0;i<18;i++)if(!original_binary32_isfinite(p->macro[i])||p->macro[i]<0||p->macro[i]>1)return 0;
+  for(unsigned i=0;i<24;i++)if(!original_binary32_isfinite(p->target[i])||p->target[i]<0||p->target[i]>1)return 0;
++ return 1;
++}
++int original_miami_voice_compile(original_miami_voice_controls *out,const original_miami_program *p){
++ if(!out||!p)return 0;
++ if(!program_valid(p))return 0;
+  original_miami_voice_controls c;memset(&c,0,sizeof c);
+  c.pitch.master_tune=bipolar(native(p,0));
+  c.pitch.unison_detune=native(p,90);c.pitch.bend_range=24.0f*native(p,55);
+@@ -59,6 +64,8 @@ int original_miami_voice_compile(original_miami_voice_controls *out,const origin
+  c.gain.curve=0;c.gain.ms20=1;c.gain.filter_gain=1;
+  c.cutoff=native(p,24);c.resonance=native(p,25);c.env_depth=bipolar(native(p,26));c.noise=native(p,23);
+  c.pw_intensity=native(p,21);c.pw_width=native(p,22);
++ for(unsigned i=0;i<4;i++)
++  if(!original_pw_width(c.shape[i],c.pw_intensity,0,c.pw_width,0,0,&c.wave_width[i]))return 0;
+  if(!original_xmod_coefficient(native(p,39),0,&c.xmod))return 0;
+  c.vco_gain=ref_fma(native(p,102),3,1);
+  c.patch_slave=bipolar(native(p,80));c.patch_cutoff=bipolar(native(p,81));c.patch_gain=bipolar(native(p,87));
+@@ -73,14 +80,44 @@ int original_miami_voice_compile(original_miami_voice_controls *out,const origin
+  c.decimator_normalized[0]=native(p,110);c.decimator_normalized[1]=native(p,111);
+  c.revision=p->revision;c.ready=CONTROL_READY;*out=c;return 1;
+ }
++/* The serial control owner supplies a corresponding preceding snapshot and
++ * exactly one mapped edit. Keep validation; reuse only unaffected conversions.
++ * Any other macro or uncertain cache takes the complete compiler above. */
++int original_miami_voice_recompile(original_miami_voice_controls *out,const original_miami_program *p,unsigned macro){
++ if(!out||!p)return 0;
++ if((macro!=16&&macro!=12)||out->ready!=CONTROL_READY||p->revision!=out->revision+UINT32_C(1))
++  return original_miami_voice_compile(out,p);
++ if(!program_valid(p))return 0;
++ /* Full compilation also rejects PCM and unsupported MG shapes. */
++ for(unsigned i=0;i<4;i++)if(quantize(native(p,1+4*i),5)>3)return 0;
++ if(quantize(native(p,43),5)>3||quantize(native(p,49),5)>3)return 0;
++ if(macro==16)out->bend_normalized=native(p,105);
++ else out->patch_cutoff=bipolar(native(p,81));
++ out->revision=p->revision;return 1;
++}
+ static int mg_output(original_miami_voice_mg *m,unsigned shape){
+  if(!original_miami_mg_shape(shape,m->phase,&m->bipolar,&m->unipolar))return 0;
+  m->wrapped=0;return 1;
+ }
+-static void mg_advance(original_miami_voice_mg *m,float base,float times,float bpm,uint32_t D){
+- float numerator=(bpm*.800000011920929f)*(float)D;
+- float denominator=(44100.0f*base)*times;
+- float delta=numerator/denominator;if(delta>1)delta=1;
++void original_miami_selected_voice_invalidate_caches(original_miami_selected_voice *s){
++ if(s)s->cache_witness=0; /* owner observes this before reusing shared cache */
++}
++/* Each part owns one cache, shared across its two selected voices. */
++static void mg_advance(original_miami_voice_mg *m,original_miami_coefficient_cache *cache,unsigned i,float base,float times,float bpm,uint32_t D){
++ uint32_t bb=original_math_bits(base),tb=original_math_bits(times),bp=original_math_bits(bpm);
++ float delta;
++ if(cache&&(cache->mg_valid_mask&(1u<<i))&&cache->base_bits[i]==bb&&cache->times_bits[i]==tb&&cache->bpm_bits==bp&&cache->duration==D)
++  delta=cache->delta[i];
++ else{
++  float numerator=(bpm*.800000011920929f)*(float)D;
++  float denominator=(44100.0f*base)*times;
++  delta=numerator/denominator;if(delta>1)delta=1;
++  if(cache){
++   if(cache->bpm_bits!=bp||cache->duration!=D)cache->mg_valid_mask=0;
++   cache->base_bits[i]=bb;cache->times_bits[i]=tb;cache->bpm_bits=bp;cache->duration=D;
++   cache->denominator[i]=denominator;cache->delta[i]=delta;cache->mg_valid_mask|=1u<<i;
++  }
++ }
+  m->phase=m->phase+delta;if(m->phase>=1){m->phase=m->phase-2.0f;m->wrapped=1;}
+ }
+ /* VCF EG selected controls A0/D.5/S1/R0; distinct native release threshold.
+@@ -132,14 +169,14 @@ int original_miami_selected_voice_pedal(original_miami_selected_voice *s,const o
+  if(!c->damper&&s->damper_deferred)release(s);
+  return 1;
+ }
+-static int preparation_tail(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,uint32_t D){
++static int preparation_tail(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,uint32_t D,original_miami_coefficient_cache *cache){
+  s->vcf_bipolar=s->vcf.level-1.0f;s->vca_bipolar=s->vca.level-1.0f;
+  original_miami_pitch_controls pc=c->pitch;pc.unison_coordinate=s->unison_coordinate;pc.bend=bipolar(c->bend_normalized);pc.mod_slave_pitch=s->mod_slave;
+  original_osc_controls oc;memset(&oc,0,sizeof oc);
+- if(!original_miami_pitch_prepare(&s->pitch,&pc,t->pitch,44100,D,oc.increment))return 0;
++ if(cache?!original_miami_pitch_prepare_cached(&s->pitch,&pc,t->pitch,44100,D,oc.increment,&cache->glide):!original_miami_pitch_prepare(&s->pitch,&pc,t->pitch,44100,D,oc.increment))return 0;
+  for(unsigned i=0;i<4;i++){
+   oc.shape[i]=c->shape[i];
+-  if(!original_pw_width(oc.shape[i],c->pw_intensity,0,c->pw_width,0,0,&oc.width[i]))return 0;
++  oc.width[i]=c->wave_width[i];
+  }
+  oc.xmod=c->xmod;
+  if(!s->prepared.ready||memcmp(&s->prepared.controls,&oc,sizeof oc)){
+@@ -155,7 +192,7 @@ static int preparation_tail(original_miami_selected_voice *s,const original_miam
+ int original_miami_selected_voice_block_valid(const original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm){
+  return valid(s,c,t,bpm)&&!s->awaiting_restart;
+ }
+-int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
++int original_miami_selected_voice_control_prevalidated_cached(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action,original_miami_coefficient_cache *cache){
+  if(s->awaiting_restart)return 0;
+  *action=0;if(!s->active||s->vca.state==6)return 1;
+  uint32_t D=0;int due=original_control_tick(&s->counter,44100,&D);if(due<0)return 0;if(!due)return 1;
+@@ -167,7 +204,7 @@ int original_miami_selected_voice_control_prevalidated(original_miami_selected_v
+  s->mod_gain=clamp(s->previous_vca*c->patch_gain+0.0f,-1,1);
+  for(unsigned i=0;i<2;i++){
+   if(!mg_output(&s->mg[i],c->mg_shape[i]))return 0;
+-  mg_advance(&s->mg[i],c->mg_base[i],c->mg_times[i],bpm,D);
++  mg_advance(&s->mg[i],cache,i,c->mg_base[i],c->mg_times[i],bpm,D);
+  }
+  vcf_tick(&s->vcf,D);
+  if(!original_vca_tick(&s->vca,44100,D,0,1,1,0,action))return 0;
+@@ -178,7 +215,10 @@ int original_miami_selected_voice_control_prevalidated(original_miami_selected_v
+  /* Native ordinary retirement B3D94->CF08->B3EC8 reaches B3ECC: despite
+   * cleared levels/states, recompute E-S and continue the preparation tail.
+   * State5 returns earlier and resumes this tail only after D8F0 parts. */
+- return preparation_tail(s,c,t,D);
++ return preparation_tail(s,c,t,D,cache);
++}
++int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
++ return original_miami_selected_voice_control_prevalidated_cached(s,c,t,bpm,action,NULL);
+ }
+ int original_miami_selected_voice_control(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
+  if(!action||!valid(s,c,t,bpm))return 0;
+@@ -187,6 +227,7 @@ int original_miami_selected_voice_control(original_miami_selected_voice *s,const
+ static int note_values(unsigned key,unsigned velocity,float pitch){return key<=127&&velocity>=1&&velocity<=127&&original_binary32_isfinite(pitch)&&pitch>=0&&pitch<=127;}
+ static int full_mask(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_voice_note *note,unsigned mask,float bpm){
+  original_miami_selected_voice n=*s;
++ original_miami_selected_voice_invalidate_caches(&n);
+  for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.pitch.current[i]=(float)note->last_note;n.activation[i]=-1;}
+  n.note_key=(uint8_t)note->note_key;n.raw_velocity=note->velocity;n.velocity=(float)note->velocity/127.0f;n.unison_coordinate=note->unison_coordinate;n.unison_flag=(uint8_t)note->unison_flag;
+  for(unsigned i=0;i<2;i++){n.mg[i]=note->mg[i];if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;}
+@@ -204,6 +245,7 @@ int original_miami_selected_voice_full_note(original_miami_selected_voice *s,con
+ int original_miami_selected_voice_partial_note(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,unsigned key,unsigned velocity,float pitch,unsigned mask,float bpm){
+  if(!valid(s,c,t,bpm)||!s->active||s->awaiting_restart||!mask||mask>15||!note_values(key,velocity,pitch))return 0;
+  original_miami_selected_voice n=*s;
++ original_miami_selected_voice_invalidate_caches(&n);
+  if(!original_miami_pitch_note(&n.pitch,key,0,mask,0))return 0;
+  for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=pitch;n.activation[i]=-1;}
+  n.note_key=(uint8_t)key;n.raw_velocity=velocity;n.velocity=(float)velocity/127.0f;n.key_down=1;n.damper_deferred=0;
+@@ -251,6 +293,7 @@ int original_miami_selected_voice_immediate_raw(original_miami_selected_voice *s
+  if(!action||!valid(s,c,t,bpm)||s->awaiting_restart||full>1||!mask||mask>15||!raw_note_valid(note,full))return 0;
+  if(full){if(s->vca.state!=6)return 0;int result=full_mask(s,c,t,note,mask,bpm);if(result)*action=0;return result;}
+  original_miami_selected_voice n=*s;
++ original_miami_selected_voice_invalidate_caches(&n);
+  for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.activation[i]=-1;}
+  n.note_key=(uint8_t)note->note_key;n.raw_velocity=note->velocity;n.velocity=(float)note->velocity/127.0f;n.unison_flag=(uint8_t)note->unison_flag;n.unison_coordinate=note->unison_coordinate;n.active=1;n.key_down=1;n.damper_deferred=0;
+  for(unsigned i=0;i<2;i++)if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;
+@@ -260,7 +303,7 @@ int original_miami_selected_voice_resume_part(original_miami_selected_voice *s,c
+  if(!valid(s,c,t,bpm)||!s->awaiting_restart||!raw_note_valid(note,1)||final_part>1||!mask||mask>15||((mask&(mask-1))&&mask!=15)||(mask==15&&!final_part))return 0;
+  original_miami_selected_voice n=*s;uint32_t D=n.pending_tail_duration;n.awaiting_restart=0;
+  if(!full_mask(&n,c,t,note,mask,bpm))return 0;
+- if(final_part){if(!preparation_tail(&n,c,t,D))return 0;n.pending_tail_duration=0;}
++ if(final_part){if(!preparation_tail(&n,c,t,D,NULL))return 0;n.pending_tail_duration=0;}
+  else n.awaiting_restart=1;
+  *s=n;return 1;
+ }
+diff --git a/experiments/original_synth/miami_selected_voice.h b/experiments/original_synth/miami_selected_voice.h
+index dce65323..7600165c 100644
+--- a/experiments/original_synth/miami_selected_voice.h
++++ b/experiments/original_synth/miami_selected_voice.h
+@@ -39,6 +39,10 @@ typedef struct {
+  original_miami_pitch_controls pitch;
+  original_voice_gain_controls gain;
+  float cutoff,resonance,env_depth,noise,pw_intensity,pw_width,xmod,vco_gain;
++ /* Source/MI/MW are zero in this selected profile: widths change only with
++  * the program. Compile once instead of repeating four checked conversions
++  * at every voice start and 690 Hz control tick. */
++ float wave_width[4];
+  float patch_slave,patch_cutoff,patch_gain;
+  float mg_base[2],mg_times[2];
+  float bend_normalized;
+@@ -53,12 +57,25 @@ typedef struct {
+  * All18 macros have explicit voice/outer endpoints in this immutable view. */
+ int original_miami_voice_compile(original_miami_voice_controls *out,
+  const original_miami_program *program);
++/* Incremental bend/cutoff edit of an initialized corresponding snapshot.
++ * Program must differ only by the named program_set edit. Other edits, an
++ * unready snapshot or a revision gap use full compilation. Failure is atomic. */
++int original_miami_voice_recompile(original_miami_voice_controls *out,
++ const original_miami_program *program,unsigned macro);
+ 
+ typedef struct {
+  float phase,unipolar,bipolar,hold;
+  uint32_t noise;
+  uint8_t wrapped;
+ } original_miami_voice_mg;
++/* One shared cache for both selected voices of a Miami part. The common
++ * BPM/duration key and per-MG validity mask avoid duplicate per-voice state.
++ * A zero glide duration means invalid; D is nonzero in every valid tick. */
++typedef struct {
++ uint32_t base_bits[2],times_bits[2],bpm_bits,duration,mg_valid_mask;
++ float denominator[2],delta[2];
++ original_glide_cache glide;
++} original_miami_coefficient_cache;
+ typedef struct {
+  original_miami_pitch pitch;
+  original_voice_gain gain;
+@@ -74,7 +91,8 @@ typedef struct {
+  uint32_t counter,last_duration,control_updates,wave_preparations;
+  uint32_t pending_tail_duration;
+  int32_t activation[4];
+- uint8_t unison_flag,note_key,key_down,damper_deferred,active,ready,awaiting_restart;
++ uint8_t unison_flag,note_key,key_down,damper_deferred,active,ready,awaiting_restart,cache_witness;
++ /* cache_witness occupies the former padding byte and is not serialized. */
+ } original_miami_selected_voice;
+ typedef struct {
+  unsigned note_key,velocity,last_note;
+@@ -160,6 +178,7 @@ int original_miami_selected_voice_render_frame(original_miami_selected_voice *,c
+  * downstream DSP checks. Event/note APIs remain checked. */
+ int original_miami_selected_voice_block_valid(const original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm);
+ int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm,unsigned *action);
++int original_miami_selected_voice_control_prevalidated_cached(original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm,unsigned *action,original_miami_coefficient_cache *);
+ int original_miami_selected_voice_render_prevalidated(original_miami_selected_voice *,const original_miami_voice_controls *,float *left,float *right);
+ /* B0738 owned-state projection. Preserve oscillator phases and the separate
+  * normalized velocity source (core42c8), while resetting current raw velocity
+@@ -168,4 +187,6 @@ int original_miami_selected_voice_render_prevalidated(original_miami_selected_vo
+  * controller reset and master preservation remain with their matching owner.
+  * Constructor phase zeroing is separate; call init for a new value object. */
+ int original_miami_selected_voice_core_reset(original_miami_selected_voice *,const original_miami_voice_tables *,unsigned voice_index);
++/* Call on note-on, program replacement and decoded snapshot adoption. */
++void original_miami_selected_voice_invalidate_caches(original_miami_selected_voice *);
+ #endif
+diff --git a/experiments/original_synth/miami_voice_owner.c b/experiments/original_synth/miami_voice_owner.c
+index 641e519c..61341b37 100644
+--- a/experiments/original_synth/miami_voice_owner.c
++++ b/experiments/original_synth/miami_voice_owner.c
+@@ -44,6 +44,7 @@ static int action(original_miami_voice_owner *s,unsigned id,unsigned result){
+ }
+ static void note(void *p,unsigned id,const original_voice_record *r,unsigned full,unsigned mask,int32_t anchor){
+  original_miami_voice_owner *s=p;if(!s->status)return;if(id>=s->count||!mask||mask>15){s->status=0;return;}
++ original_miami_selected_voice_invalidate_caches(s->voices+id);
+  unsigned kind=original_miami_selected_voice_request_kind(s->voices+id,full);
+  if(kind==ORIGINAL_MIAMI_REQUEST_STAGE){original_chicago_allocator_stage_pending(s->pending+id,r,mask,s->voices[id].vca.state);s->status=original_miami_selected_voice_stage_raw(s->voices+id);return;}
+  original_miami_voice_note n;if(!kind||!inputs(s,id,r,full,mask,anchor,&n)){s->status=0;return;}
+@@ -55,13 +56,24 @@ static const original_allocator_callbacks callbacks={enabled,vca,state,note};
+ const original_allocator_callbacks *original_miami_voice_owner_callbacks(void){return &callbacks;}
+ int original_miami_voice_owner_bind(original_miami_voice_owner *s,original_miami_selected_voice *v,original_miami_pending_note *p,original_miami_extra_sources *e,unsigned count,original_miami_allocator *a,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_note_producers *producer,float bpm){
+  if(!s||!v||!p||!e||!count||!a||count!=a->storage_voices||!c||!t||!producer||!producer->tune||!producer->full_mg||!producer->full_helper_seed||!producer->helper_exit||!original_binary32_isfinite(bpm)||bpm<20||bpm>400)return 0;
+- *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1};return 1;
++ *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1,{.base_bits={0}}};return 1;
++}
++void original_miami_voice_owner_invalidate_caches(original_miami_voice_owner *s){
++ if(!s)return;
++ s->coefficient_cache.mg_valid_mask=0;
++ s->coefficient_cache.glide.duration=0;
++ for(unsigned i=0;i<s->count;i++)original_miami_selected_voice_invalidate_caches(s->voices+i);
+ }
+ static int control_all(original_miami_voice_owner *s,unsigned prevalidated){
+  if(!s||!s->status||s->allocator->capacity>s->count)return 0;
+  for(unsigned i=0;i<s->allocator->capacity;i++){
+   unsigned result;
+-  int ok=prevalidated?original_miami_selected_voice_control_prevalidated(s->voices+i,s->controls,s->tables,s->bpm,&result):original_miami_selected_voice_control(s->voices+i,s->controls,s->tables,s->bpm,&result);
++  if(!s->voices[i].cache_witness){
++   s->coefficient_cache.mg_valid_mask=0;
++   s->coefficient_cache.glide.duration=0;
++   s->voices[i].cache_witness=1;
++  }
++  int ok=prevalidated?original_miami_selected_voice_control_prevalidated_cached(s->voices+i,s->controls,s->tables,s->bpm,&result,&s->coefficient_cache):original_miami_selected_voice_control(s->voices+i,s->controls,s->tables,s->bpm,&result);
+   if(!ok||!action(s,i,result)){s->status=0;return 0;}
+  }
+  s->status=s->producers.helper_exit(s->producers.context);return s->status;
+diff --git a/experiments/original_synth/miami_voice_owner.h b/experiments/original_synth/miami_voice_owner.h
+index 416570cd..b1f7bab8 100644
+--- a/experiments/original_synth/miami_voice_owner.h
++++ b/experiments/original_synth/miami_voice_owner.h
+@@ -29,6 +29,7 @@ typedef struct {
+  uint32_t count;
+  float bpm;
+  int status;
++ original_miami_coefficient_cache coefficient_cache;
+ } original_miami_voice_owner;
+ /* Bind existing cold/restored resources only; no reset, constructor snapshot,
+  * active selector, MIDI mapping or persistence write. Selected canonical note
+@@ -48,4 +49,5 @@ int original_miami_voice_owner_control_all(original_miami_voice_owner *);
+  * tables, BPM and ready tokens through all prevalidated control/render calls. */
+ int original_miami_voice_owner_block_valid(const original_miami_voice_owner *);
+ int original_miami_voice_owner_control_prevalidated(original_miami_voice_owner *);
++void original_miami_voice_owner_invalidate_caches(original_miami_voice_owner *);
+ #endif
+diff --git a/experiments/original_synth/miami_voice_snapshot.c b/experiments/original_synth/miami_voice_snapshot.c
+index d50e9a66..6a28a8e4 100644
+--- a/experiments/original_synth/miami_voice_snapshot.c
++++ b/experiments/original_synth/miami_voice_snapshot.c
+@@ -151,6 +151,8 @@ int original_miami_voice_snapshot_decode(original_miami_voice_snapshot *out,cons
+  if(!out)return 0;
+  original_miami_voice_snapshot n;
+  if(!original_state_decode(&schema,&n,bytes,length))return 0;
++ /* The 130 wire words never include transient coefficient caches. */
++ original_miami_selected_voice_invalidate_caches(&n.voice);
+  *out=n;
+  return 1;
+ }
+diff --git a/experiments/original_synth/oscillator_motion.c b/experiments/original_synth/oscillator_motion.c
+index 1f99fa13..f5ea378f 100644
+--- a/experiments/original_synth/oscillator_motion.c
++++ b/experiments/original_synth/oscillator_motion.c
+@@ -73,19 +73,52 @@ int original_oscillator_sample_gains(original_oscillators *s,const original_prep
+ int original_oscillator_sample(original_oscillators *s,const original_osc_controls *c,unsigned sync,float *output){
+  original_prepared_oscillators p;if(!original_oscillator_prepare(&p,c))return 0;return original_oscillator_sample_prepared(s,&p,sync,output);
+ }
+-int original_mg_tempo(float *p,unsigned rate,float bpm,float fs,uint32_t D,unsigned *wrapped){
++/* Public checked reference stays stateless; the Miami caller passes an
++ * owned cache. All original validations still run before every phase update. */
++static int mg_tempo_step(original_mg_tempo_cache *cache,float *p,unsigned rate,float bpm,float fs,uint32_t D,unsigned *wrapped){
+  static const float base[8]={3,3,3,3,4,4,4,4},times[8]={16,8,4,2,8,4,2,1};
+  if(!p||!wrapped||rate>7||!original_binary32_isfinite(*p)||*p< -1||*p>1||!original_binary32_isfinite(bpm)||bpm<20||bpm>400||!original_binary32_isfinite(fs)||fs<8000||fs>2147482880.0f||!D||D>(uint32_t)original_binary32_ceil_finite(fs/690.0f))return 0;
+- float numerator=(bpm*fl(0x3f4ccccd))*(float)D;float denominator=(fs*base[rate])*times[rate];
+- float delta=original_binary32_min_one_finite(numerator/denominator);float next=*p+delta;unsigned wrap=next>=1;if(wrap)next=next-2;
++ uint32_t bb=bits(base[rate]),tb=bits(times[rate]),fb=bits(fs),bp=bits(bpm);
++ float delta;
++ if(cache&&cache->valid&&cache->base_bits==bb&&cache->times_bits==tb&&cache->fs_bits==fb&&cache->bpm_bits==bp&&cache->duration==D)
++  delta=cache->delta;
++ else {
++  float numerator=(bpm*fl(0x3f4ccccd))*(float)D;float denominator=(fs*base[rate])*times[rate];
++  delta=original_binary32_min_one_finite(numerator/denominator);
++  if(cache){cache->base_bits=bb;cache->times_bits=tb;cache->fs_bits=fb;cache->bpm_bits=bp;cache->duration=D;cache->denominator=denominator;cache->delta=delta;cache->valid=1;}
++ }
++ float next=*p+delta;unsigned wrap=next>=1;if(wrap)next=next-2;
+  *p=next;*wrapped=wrap;return 1;
+ }
+-int original_glide(float current[4],const float target[4],float port,float mod,float fs,uint32_t D){
++int original_mg_tempo(float *p,unsigned rate,float bpm,float fs,uint32_t D,unsigned *wrapped){
++ return mg_tempo_step(NULL,p,rate,bpm,fs,D,wrapped);
++}
++int original_mg_tempo_cached(original_mg_tempo_cache *cache,float *p,unsigned rate,float bpm,float fs,uint32_t D,unsigned *wrapped){
++ return cache&&mg_tempo_step(cache,p,rate,bpm,fs,D,wrapped);
++}
++/* Keep original_glide's signature and uncached behaviour for non-Miami users.
++ * Only the coefficient is memoized; checked target/current and the four FMAs
++ * are evaluated on every call, including cache hits. */
++static int glide_step(original_glide_cache *cache,float current[4],const float target[4],float port,float mod,float fs,uint32_t D){
+  if(!current||!target||!original_binary32_isfinite(port)||!original_binary32_isfinite(mod)||!original_binary32_isfinite(fs)||fs<8000||fs>2147482880.0f||!D||D>(uint32_t)original_binary32_ceil_finite(fs/690.0f))return 0;
+  for(unsigned i=0;i<4;i++)if(!original_binary32_isfinite(current[i])||current[i]<0||current[i]>127||!original_binary32_isfinite(target[i])||target[i]<0||target[i]>127)return 0;
+- float sum=port+mod;if(!original_binary32_isfinite(sum))return 0;float t=clamp(sum,0,1),a=t*t;a=ref_fma(a,fl(0x49f42400),fl(0x3a83126f));a=fs*a;a=(float)D/a;a=a*fl(0x4a8ab75d);a=original_binary32_min_one_finite(a);
++ float sum=port+mod;if(!original_binary32_isfinite(sum))return 0;
++ uint32_t pb=bits(port),mb=bits(mod),fb=bits(fs);
++ float a;
++ if(cache&&cache->duration!=0&&cache->port_bits==pb&&cache->mod_bits==mb&&cache->fs_bits==fb&&cache->duration==D)
++  a=cache->a;
++ else {
++  float t=clamp(sum,0,1);a=t*t;a=ref_fma(a,fl(0x49f42400),fl(0x3a83126f));a=fs*a;a=(float)D/a;a=a*fl(0x4a8ab75d);a=original_binary32_min_one_finite(a);
++  if(cache){cache->port_bits=pb;cache->mod_bits=mb;cache->fs_bits=fb;cache->duration=D;cache->a=a;}
++ }
+  float next[4];for(unsigned i=0;i<4;i++)next[i]=ref_fma(target[i]-current[i],a,current[i]);memcpy(current,next,sizeof next);return 1;
+ }
++int original_glide(float current[4],const float target[4],float port,float mod,float fs,uint32_t D){
++ return glide_step(NULL,current,target,port,mod,fs,D);
++}
++int original_glide_cached(original_glide_cache *cache,float current[4],const float target[4],float port,float mod,float fs,uint32_t D){
++ return cache&&glide_step(cache,current,target,port,mod,fs,D);
++}
+ int original_pitch_increment(float pitch,const int32_t table[128],uint32_t *out){
+  if(!table||!out||!original_binary32_isfinite(pitch))return 0;
+  float p=clamp(pitch,0,120);unsigned j=(unsigned)p;
+diff --git a/experiments/original_synth/oscillator_motion.h b/experiments/original_synth/oscillator_motion.h
+index 8043c28b..fcdf2725 100644
+--- a/experiments/original_synth/oscillator_motion.h
++++ b/experiments/original_synth/oscillator_motion.h
+@@ -26,11 +26,24 @@ int original_oscillator_sample_gains(original_oscillators *s,const original_prep
+  * Controls immutable for the call; output/state unchanged on invalid input. */
+ int original_oscillator_sample(original_oscillators *s,const original_osc_controls *c,unsigned sync,float *output);
+ int original_waveform(unsigned shape,float phase,uint32_t increment,float width,float *out);
++/* Caller-owned memoized MG/glide coefficients. Valid bits are never serialized.
++ * Key floats by IEEE-754 bit pattern, not numerical equality (+0 != -0). */
++typedef struct {
++ uint32_t base_bits,times_bits,bpm_bits,fs_bits,duration;
++ float denominator,delta;
++ uint8_t valid;
++} original_mg_tempo_cache;
++typedef struct {
++ uint32_t port_bits,mod_bits,fs_bits,duration;
++ float a;
++} original_glide_cache;
+ /* Native public rate ordinal 0..7. Read waveform from old phase before advance.
+  * Explicit input phase avoids guessing original unison initialization order. */
+ int original_mg_tempo(float *phase,unsigned rate,float bpm,float fs,uint32_t duration,unsigned *wrapped);
++int original_mg_tempo_cached(original_mg_tempo_cache *cache,float *phase,unsigned rate,float bpm,float fs,uint32_t duration,unsigned *wrapped);
+ /* Four explicit current/target glide pitches; finite 0..127 (MIDI notes; final oscillator pitch clamps to 120). */
+ int original_glide(float current[4],const float target[4],float portamento,float modulation,float fs,uint32_t duration);
++int original_glide_cached(original_glide_cache *cache,float current[4],const float target[4],float portamento,float modulation,float fs,uint32_t duration);
+ /* Original signed integer lookup requires verified 128-entry table. */
+ int original_pitch_increment(float pitch,const int32_t table[128],uint32_t *out);
+ int original_xmod_coefficient(float native_depth,float modulation,float *out);
+diff --git a/experiments/wobble/miami_decimator_adapter.c b/experiments/wobble/miami_decimator_adapter.c
+index 48c493cf..18011463 100644
+--- a/experiments/wobble/miami_decimator_adapter.c
++++ b/experiments/wobble/miami_decimator_adapter.c
+@@ -44,15 +44,16 @@ int miami_decimator_adapter_process(miami_decimator_adapter_t *s, int16_t *left,
+         if (reset_frames[i]>=frames || (i && reset_frames[i]<reset_frames[i-1])) return 0;
+     /* A constructor's pending state must survive an empty invocation. */
+     if (!frames) return 1;
+-    uint32_t event=0;
+-    for (uint32_t i=0;i<frames;++i) {
++    /* Run the frames between resets as blocks; same order as per frame. */
++    uint32_t event=0, i=0;
++    while (i<frames) {
+         while (event<reset_count && reset_frames[event]==i) {
+             (void)miami_decimator_adapter_reset(s);
+             ++event;
+         }
+-        int16_t out[2];
+-        (void)miami_decimator_frame(&s->kernel,i,left[i],right[i],s->wet_gain,out);
+-        left[i]=out[0];right[i]=out[1];
++        uint32_t end = event<reset_count ? reset_frames[event] : frames;
++        (void)miami_decimator_block(&s->kernel,i,left+i,right+i,end-i,s->wet_gain);
++        i = end;
+     }
+     return 1;
+ }
+diff --git a/experiments/wobble/miami_decimator_component.c b/experiments/wobble/miami_decimator_component.c
+index 7c223d8f..c371c497 100644
+--- a/experiments/wobble/miami_decimator_component.c
++++ b/experiments/wobble/miami_decimator_component.c
+@@ -62,3 +62,38 @@ int miami_decimator_frame(miami_decimator_component_t *s, uint64_t local_index,
+     out[1] = mix(s->held_right, right, wet);
+     return 1;
+ }
++/* miami_decimator_frame for frames [first, first+n) with the state in
++ * locals. floor_q15 is an arithmetic shift right by 15 (GCC defines >> on
++ * negative int as arithmetic); the products fit int32. */
++static inline int16_t mix_fast(int32_t held, int32_t input, int32_t wet, int32_t dry)
++{
++    int32_t value = ((held * wet) >> 15) + ((input * dry) >> 15);
++    if (value < -32767) value = -32767;
++    if (value > 32767) value = 32767;
++    return (int16_t)value;
++}
++int miami_decimator_block(miami_decimator_component_t *s, uint32_t first,
++                          int16_t *left, int16_t *right, uint32_t n, int32_t wet)
++{
++    if (!s || wet < 0 || wet > 32767) return 0;
++    int32_t dry = 32767 - wet;
++    uint32_t phase = s->phase, step = s->step;
++    int32_t hl = s->held_left, hr = s->held_right;
++    for (uint32_t k = 0; k < n; ++k) {
++        if (((first + k) & 63u) == 0 && s->pending) {
++            step = s->pending_step; s->pending = 0;
++        }
++        uint32_t sum = phase + step;
++        phase = sum & 65535u;
++        int32_t l = left[k], r = right[k];
++        if (sum & 65536u) {
++            hl = l == INT16_MIN ? -32767 : l;
++            hr = r == INT16_MIN ? -32767 : r;
++        }
++        left[k] = mix_fast(hl, l, wet, dry);
++        right[k] = mix_fast(hr, r, wet, dry);
++    }
++    s->phase = (uint16_t)phase; s->step = (uint16_t)step;
++    s->held_left = (int16_t)hl; s->held_right = (int16_t)hr;
++    return 1;
++}
+diff --git a/experiments/wobble/miami_decimator_component.h b/experiments/wobble/miami_decimator_component.h
+index 000f9ca3..f302e142 100644
+--- a/experiments/wobble/miami_decimator_component.h
++++ b/experiments/wobble/miami_decimator_component.h
+@@ -21,6 +21,9 @@ int miami_decimator_stage_step(miami_decimator_component_t *s, uint32_t step);
+  * is outside this component. Stereo input is by value, output is exactly2samples.
+  * s and out must not overlap. Both are caller-owned; no allocation/global state.
+  * Failure leaves state and output untouched. A seed is required before processing. */
++/* miami_decimator_frame for frames first..first+n-1, in place. */
++int miami_decimator_block(miami_decimator_component_t *s, uint32_t first,
++                          int16_t *left, int16_t *right, uint32_t n, int32_t wet);
+ int miami_decimator_frame(miami_decimator_component_t *s, uint64_t local_index,
+                           int16_t left, int16_t right, int32_t wet, int16_t out[2]);
+ /* Exact event-free zero-input invocation starting at local index0. Returns0
+diff --git a/experiments/wobble/miami_fx_conversion.c b/experiments/wobble/miami_fx_conversion.c
+index 28d69564..60b4ee20 100644
+--- a/experiments/wobble/miami_fx_conversion.c
++++ b/experiments/wobble/miami_fx_conversion.c
+@@ -85,23 +85,4 @@ int miami_fx_input_rne(uint32_t u, unsigned fz, int16_t *out) {
+     (void)miami_fx_scaled_rne(miami_fx_cleanup_rne(u),fz,&scaled);
+     *out=miami_fx_low16(miami_fx_fcvtzs(scaled)); return 1;
+ }
+-uint32_t miami_fx_output_rne(int16_t input) {
+-    uint32_t magnitude=input<0?(uint32_t)(-(int32_t)input):(uint32_t)input;
+-    if (!magnitude) return 0;
+-    unsigned top=31u-(unsigned)__builtin_clz(magnitude);
+-    uint32_t significand=magnitude<<(23u-top);
+-    /* Exact RNE division by 2^15-1. With the numerator normalized to
+-     * 24 bits, the result is A + round(A/32767). Splitting A at bit15
+-     * leaves a remainder below 32767+512; its half-denominator test
+-     * also covers the single possible quotient carry. The denominator
+-     * is odd, so no halfway case exists. No reciprocal approximation. */
+-    uint32_t quotient=significand>>15;
+-    uint32_t remainder=(significand&32767u)+quotient;
+-    significand+=quotient+(remainder>16383u);
+-    uint32_t exponent=top+112u;
+-    if (significand==0x01000000u) {
+-        significand>>=1;
+-        ++exponent;
+-    }
+-    return (input<0?0x80000000u:0u)|(exponent<<23)|(significand&0x007fffffu);
+-}
++uint32_t miami_fx_output_rne(int16_t input) { return miami_fx_output_rne_inline(input); }
+diff --git a/experiments/wobble/miami_fx_conversion.h b/experiments/wobble/miami_fx_conversion.h
+index 02daa5cc..2762f8f8 100644
+--- a/experiments/wobble/miami_fx_conversion.h
++++ b/experiments/wobble/miami_fx_conversion.h
+@@ -21,4 +21,31 @@ int16_t miami_fx_low16(int32_t input);
+ int miami_fx_input_rne(uint32_t input_bits, unsigned fz, int16_t *out);
+ /* Exact signed16 domain, includes -32768. FDIV32767, NOT reciprocal FMUL. */
+ uint32_t miami_fx_output_rne(int16_t input);
++/* Same result as miami_fx_cleanup_rne for every input: it returns |x|<=0.5
++ * and NaN unchanged, so only the rest calls the full cleanup. */
++static inline uint32_t miami_fx_cleanup_fast(uint32_t u){
++    uint32_t mag=u&0x7fffffffu;
++    return (mag>0x3f000000u&&mag<=0x7f800000u)?miami_fx_cleanup_rne(u):u;
++}
++/* miami_fx_output_rne, inline for the per-sample output loops (same code). */
++static inline uint32_t miami_fx_output_rne_inline(int16_t input) {
++    uint32_t magnitude=input<0?(uint32_t)(-(int32_t)input):(uint32_t)input;
++    if (!magnitude) return 0;
++    unsigned top=31u-(unsigned)__builtin_clz(magnitude);
++    uint32_t significand=magnitude<<(23u-top);
++    /* Exact RNE division by 2^15-1. With the numerator normalized to
++     * 24 bits, the result is A + round(A/32767). Splitting A at bit15
++     * leaves a remainder below 32767+512; its half-denominator test
++     * also covers the single possible quotient carry. The denominator
++     * is odd, so no halfway case exists. No reciprocal approximation. */
++    uint32_t quotient=significand>>15;
++    uint32_t remainder=(significand&32767u)+quotient;
++    significand+=quotient+(remainder>16383u);
++    uint32_t exponent=top+112u;
++    if (significand==0x01000000u) {
++        significand>>=1;
++        ++exponent;
++    }
++    return (input<0?0x80000000u:0u)|(exponent<<23)|(significand&0x007fffffu);
++}
+ #endif
+diff --git a/firmware/src/dsp/original_chicago_backend.c b/firmware/src/dsp/original_chicago_backend.c
+index f60756a4..aaa96409 100644
+--- a/firmware/src/dsp/original_chicago_backend.c
++++ b/firmware/src/dsp/original_chicago_backend.c
+@@ -476,9 +476,42 @@ int original_chicago_backend_render(original_chicago_backend *s,
+         /* No event can edit controls or borrowed resources inside this call.
+          * Admit the serial block once; retain sample-position clock, VCA and
+          * MG ticks, including selector-driven notes and restart continuations. */
+-        if (!original_chicago_voice_owner_render_block(&s->voice_owner, &s->scheduler,
+-                w->core_left, w->core_right, frames) ||
+-            healthy(s) != ORIGINAL_CHICAGO_BACKEND_OK) return fault(s);
++        /* Frames with no clock edge, no global MG tick and no voice control
++         * tick run only counters and the voice render: apply the counters
++         * and render the whole span at once. Every other frame takes the
++         * original per-frame path. Same order, same values. */
++        original_chicago_voice_owner *o = &s->voice_owner;
++        original_chicago_voice *v = o->voices;
++        uint32_t i = 0;
++        while (i < frames) {
++            uint32_t n = 0;
++            if (o->status && s->note_context.status && o->bpm == s->scheduler.clock_input->bpm && o->count == 1 && !v->awaiting_restart && s->global_stage.status &&
++                s->global_input.sample_rate_integer == 44100 &&
++                s->global_input.sample_rate == 44100 && s->global_input.tempo_sync2 == 1) {
++                n = frames - i;
++                uint32_t q = original_chicago_global_mg_quiet_frames(&s->global, &s->global_input);
++                if (q < n) n = q;
++                unsigned ticking = v->active && v->vca.state != 6;
++                if (ticking) {
++                    q = v->counter < 44100u ? (44099u - v->counter) / 690u : 0;
++                    if (q < n) n = q;
++                }
++                if (n) n = original_chicago_scheduler_skip(&s->scheduler, &s->clock1, n);
++                if (n) {
++                    if (ticking) v->counter += 690u * n;
++                    s->global.counter += (int32_t)(690u * n);
++                    s->global_stage.helper_entries += n;
++                    if (!original_chicago_voice_render_span(v, o->controls,
++                            w->core_left + i, w->core_right + i, n)) return fault(s);
++                    i += n;
++                    continue;
++                }
++            }
++            if (!original_chicago_voice_owner_render_block(o, &s->scheduler,
++                    w->core_left + i, w->core_right + i, 1)) return fault(s);
++            ++i;
++        }
++        if (healthy(s) != ORIGINAL_CHICAGO_BACKEND_OK) return fault(s);
+         s->events.next_frame = frames;
+         return end_admitted(s, left, right, 0);
+     }
+diff --git a/firmware/src/dsp/original_miami_backend.c b/firmware/src/dsp/original_miami_backend.c
+index 045b6762..ffd0a686 100644
+--- a/firmware/src/dsp/original_miami_backend.c
++++ b/firmware/src/dsp/original_miami_backend.c
+@@ -91,6 +91,8 @@ int original_miami_backend_load_factory(original_miami_backend *s, unsigned fact
+         !original_miami_voice_compile(&controls, &program)) return 0;
+     s->program = program;
+     s->controls = controls;
++    /* A factory load can reuse the revision of a different program. */
++    original_miami_voice_owner_invalidate_caches(&s->voice_owner);
+     s->global_input.waveform1 = controls.mg_shape[0];
+     s->global_input.waveform2 = controls.mg_shape[1];
+     if (!completed(s, original_miami_output_apply(&s->output, &s->program, 10))) return 0;
+@@ -372,6 +374,7 @@ static int advance_silent_block(original_miami_backend *s, uint32_t frames)
+     return 1;
+ }
+ 
++
+ static int render_voice_frame(original_miami_backend *s, uint32_t *left, uint32_t *right)
+ {
+     float l = 0.0f, r = 0.0f;
+@@ -402,6 +405,30 @@ static int render_prevalidated_frame(original_miami_backend *s, uint32_t *left,
+     return 1;
+ }
+ 
++int original_miami_voice_render_add(original_miami_ms20 *f, original_voice_gain *vg, original_oscillators *ph,
++    const original_prepared_oscillators *p, float vco_gain, float *L, float *R, uint32_t n);
++static int render_span(original_miami_backend *s, uint32_t *left, uint32_t *right, uint32_t n)
++{
++    while (n > 64) {   /* control spans are at most 64 frames (44100 / 690) */
++        if (!render_span(s, left, right, 64)) return 0;
++        left += 64; right += 64; n -= 64;
++    }
++    static float accL[64], accR[64];
++    for (uint32_t j = 0; j < n; ++j) { accL[j] = 0.0f; accR[j] = 0.0f; }
++    for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id) {
++        original_miami_selected_voice *v = &s->voices[id];
++        if (v->awaiting_restart) return completed(s, 0);
++        if (!v->active) continue;
++        if (!completed(s, original_miami_voice_render_add(&v->filter, &v->gain, &v->pitch.oscillator,
++            &v->prepared, s->controls.vco_gain, accL, accR, n))) return 0;
++    }
++    for (uint32_t j = 0; j < n; ++j) {
++        left[j] = original_math_bits(accL[j]);
++        right[j] = original_math_bits(accR[j]);
++    }
++    return 1;
++}
++
+ /* No queued events and ARP off means scheduler clock notifications cannot
+  * spawn/replace a voice inside these spans. Run the control graph at its
+  * genuine 690 Hz boundaries, retaining the original scheduler before each
+@@ -428,18 +455,28 @@ static int render_event_free_block(original_miami_backend *s,
+             uint32_t n = 1 + (44100u - 1 - (uint32_t)s->global.counter) / 690u;
+             if (n < span) span = n;
+         }
+-        for (uint32_t j = 0; j < span; ++j) {
+-            if (j) {
++        /* Inside a span no control tick and no voice change: the per-frame
++         * scheduler/counter work does not touch the rendered state, so the
++         * voices render the whole span (voice-major, the same sum order). */
++        /* Frames with no clock edge or key reset only move the clocks and
++         * the gate (scheduler_skip); the others run the scheduler. */
++        uint32_t rest = span - 1;
++        unsigned skippable = s->voice_owner.bpm == s->scheduler.clock_input->bpm;
++        while (rest) {
++            uint32_t k = skippable ? original_chicago_scheduler_skip(&s->scheduler, &s->clock1, rest) : 0;
++            if (!k) {
+                 if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
+-                for (unsigned id = 0; id < s->allocator.capacity; ++id) {
+-                    original_miami_selected_voice *v = &s->voices[id];
+-                    if (v->active && v->vca.state != 6) v->counter += 690;
+-                }
+-                s->global.counter += 690;
+-                ++s->note_context.helper_entries;
++                k = 1;
++            }
++            for (unsigned id = 0; id < s->allocator.capacity; ++id) {
++                original_miami_selected_voice *v = &s->voices[id];
++                if (v->active && v->vca.state != 6) v->counter += 690u * k;
+             }
+-            if (!render_prevalidated_frame(s, left + offset + j, right + offset + j)) return 0;
++            s->global.counter += (int32_t)(690u * k);
++            s->note_context.helper_entries += k;
++            rest -= k;
+         }
++        if (!render_span(s, left + offset, right + offset, span)) return 0;
+         offset += span;
+     }
+     return 1;
+diff --git a/tests/host/audio_path_identity.c b/tests/host/audio_path_identity.c
+new file mode 100644
+index 00000000..decfbe24
+--- /dev/null
++++ b/tests/host/audio_path_identity.c
+@@ -0,0 +1,137 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Characterize production engine output, USB tap and meter/scope state.
++ * Wrong downmix gain, skipped moving DJF smoothing or USB glide changes must fail. */
++#define main simulator_main
++#include "../../host/x0x_host.c"
++#undef main
++#include <assert.h>
++
++static void put(FILE *f, const void *p, size_t n)
++{
++    if (fwrite(p, 1, n, f) != n) { perror("trace write"); exit(2); }
++}
++static FILE *open_trace(const char *dir, const char *name)
++{
++    char path[1024];
++    snprintf(path, sizeof path, "%s/%s", dir, name);
++    FILE *f = fopen(path, "wb");
++    if (!f) { perror(path); exit(2); }
++    return f;
++}
++static void fill_pattern(int dense)
++{
++    pattern_t *p = &proj.pat[0];
++    for (int k = 0; k < NKIT; ++k)
++        for (int v = 0; v < NDRUM; ++v)
++            for (int s = 0; s < 16; ++s)
++                if (dense || s % 4 == v % 4) sm_set(p->drum[k].hit[v], s);
++    for (int b = 0; b < NBASS; ++b)
++        for (int s = 0; s < 16; ++s) {
++            p->bass[b].step[s].note = 36 + b * 12 + s % 7;
++            p->bass[b].step[s].flags = G_NOTE | (s % 3 == 0 ? BS_ACCENT : 0) |
++                                     (s % 4 == 0 ? BS_SLIDE : 0);
++            p->bass[b].step[s].velocity = 60 + s * 4;
++        }
++    p->brk.steps = 0xffffu;
++    p->brk.slot_a = p->brk.slot_b = 0;
++}
++static int mono(const char *dir)
++{
++    FILE *audio = open_trace(dir, "mono.f32");
++    FILE *state = open_trace(dir, "mono-state.bin");
++    for (int mode = 1; mode <= 3; ++mode)
++        for (int moving = 0; moving <= 1; ++moving) {
++            master_t m;
++            master_init(&m);
++            master_set(&m, MST_MODE, mode);
++            for (int block = 0; block < 256; ++block) {
++                float x[256];
++                if (moving && block % 16 == 0)
++                    master_set(&m, MST_CUTOFF, (block * 7) % 128);
++                if (block == 64) master_set(&m, MST_COMP1, 72);
++                if (block == 128) master_set(&m, MST_LIMIT, 0);
++                for (int i = 0; i < 256; ++i)
++                    x[i] = (float)(((block * 256 + i) * 37) % 1024 - 512) / 256.0f;
++                master_process(&m, x, 256, block < 96 ? 0.8f : 0.3f);
++                put(audio, x, sizeof x);
++                put(state, &m, sizeof m);
++            }
++        }
++    return fclose(audio) || fclose(state);
++}
++#ifndef AUDIO_PATH_IDENTITY_LIBRARY
++int main(int argc, char **argv)
++{
++    if (argc != 4) return 2;
++    const char *scenario = argv[1], *dir = argv[2];
++    if (!strcmp(scenario, "mono")) return mono(dir);
++    boot();
++    engine_guard_enable(0);
++    assert(load_slot(0, 0, argv[3]) == 0);
++    engine_brk_loops();
++    int idle = !strcmp(scenario, "idle");
++    fill_pattern(!strcmp(scenario, "dense"));
++    engine_brk_loops();
++    if (!idle) seq_start(&seq);
++    if (!strcmp(scenario, "comp")) engine_set(T_MST, 0, MST_COMP1, 80);
++    if (!strcmp(scenario, "limiter-off")) engine_set(T_MST, 0, MST_LIMIT, 0);
++    if (!strncmp(scenario, "djf", 3)) {
++        engine_set(T_MST, 0, MST_MODE, scenario[3] - '0');
++        engine_set(T_MST, 0, MST_CUTOFF, 72);
++    }
++    engine_usb_full(!strcmp(scenario, "usb-full"));
++    master = 3072;
++    FILE *audio = open_trace(dir, "audio.i32");
++    FILE *tap = open_trace(dir, "usb.i32");
++    FILE *trace = open_trace(dir, "peak-scope.bin");
++    uint16_t seen[NPARTS] = {0};
++    for (int block = 0; block < 512; ++block) {
++        int32_t lr[512];
++        now_ms = (uint32_t)((uint64_t)block * 256u * 1000u / 44100u);
++        if (!strcmp(scenario, "solo-mute")) {
++            if (block == 64) engine_smc_solo(1u << PART_303A);
++            if (block == 128) seq.mute = seq_part_mask(PART_303B);
++            if (block == 192) engine_smc_solo(0);
++            if (block == 256) seq.mute = 0;
++        }
++        if (!strcmp(scenario, "mix-sweeps") && block % 8 == 0)
++            for (int p = 0; p < NPARTS; ++p) {
++                engine_set(T_MIX, p, MX_LEVEL, (block + p * 19) % 128);
++                engine_set(T_MIX, p, MX_PAN, (block * 3 + p * 23) % 128);
++                engine_set(T_MIX, p, MX_REV, (block + p * 7) % 128);
++                engine_set(T_MIX, p, MX_DLY, (block * 5 + p * 11) % 128);
++            }
++        if (!strncmp(scenario, "djf", 3) && strstr(scenario, "sweep") && block % 16 == 0)
++            engine_set(T_MST, 0, MST_CUTOFF, (block * 7) % 128);
++        if (!strcmp(scenario, "preset-fade")) {
++            if (block == 64) {
++                engine_bass_off(0);
++                engine_bass_off(1);
++                assert(engine_bass_select_preset(0, FACTORY_BANK_MIAMI, 1, &proj.sound) >= 0);
++                assert(engine_bass_select_preset(1, FACTORY_BANK_CHICAGO, 1, &proj.sound) >= 0);
++            }
++        }
++        if (block == 128) master = 1024;
++        if (block == 320) master = 4096;
++        for (int p = 0; p < NPARTS; ++p) eng_peak[p] = (uint16_t)(eng_peak[p] * 15u / 16u);
++        engine_render(lr, 256);
++        put(tap, lr, sizeof lr);
++        engine_volume(lr, 256);
++        put(audio, lr, sizeof lr);
++        for (int p = 0; p < NPARTS; ++p) {
++            uint16_t peak = eng_peak[p];
++            seen[p] |= peak;
++            put(trace, &peak, sizeof peak);
++        }
++        put(trace, eng_scope, sizeof eng_scope);
++        uint32_t w = eng_scope_w;
++        put(trace, &w, sizeof w);
++        assert(engine_bass_status(0) > 0 && engine_bass_status(1) > 0);
++    }
++    if (!strcmp(scenario, "all"))
++        for (int p = 0; p < NPARTS; ++p) assert(seen[p] != 0);
++    if (fclose(audio) || fclose(tap) || fclose(trace)) return 2;
++    return 0;
++}
++
++#endif
+diff --git a/tests/host/audio_path_identity.py b/tests/host/audio_path_identity.py
+new file mode 100644
+index 00000000..c5660741
+--- /dev/null
++++ b/tests/host/audio_path_identity.py
+@@ -0,0 +1,78 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: GPL-3.0-only
++"""Capture production audio-path identity, or compare with a pre-change capture.
++Run both captures with the same compiler, flags and generated assets.
++  python3 tests/host/audio_path_identity.py --output DIR [--baseline DIR]
++No device access. A mismatch exits nonzero; raw files remain inspectable.
++"""
++import argparse
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import struct
++import subprocess
++import sys
++import wave
++
++SCENARIOS = ["all", "solo-mute", "mix-sweeps", "preset-fade",
++             *[f"djf{m}-{state}" for m in (1, 2, 3) for state in ("static", "sweep")],
++             "limiter-off", "comp", "usb-full", "usb-normal", "dense", "idle", "mono"]
++
++def main():
++    ap = argparse.ArgumentParser(description=__doc__)
++    ap.add_argument("--output", required=True, type=Path)
++    ap.add_argument("--baseline", type=Path)
++    args = ap.parse_args()
++    root = Path(__file__).resolve().parents[2]
++    out = args.output.resolve()
++    out.mkdir(parents=True, exist_ok=True)
++    compiler = os.environ.get("CC", "cc")
++    # Reuse the production host build's source closure and exact floating flags.
++    # Only its simulator entry point is replaced by this whole-engine fixture.
++    wrapper = out / "compiler.py"
++    wrapper.write_text("#!" + sys.executable + "\n"
++                       "import os,sys\n"
++                       "args = [os.environ.get('OPT_A_ENGINE_SOURCE', x) if x == "
++                       "'firmware/src/app/engine.c' else "
++                       "os.environ.get('OPT_A_MASTER_SOURCE', x) if x == "
++                       "'firmware/src/dsp/master.c' else "
++                       "'tests/host/audio_path_identity.c' if x == 'host/x0x_host.c' else x "
++                       "for x in sys.argv[1:]]\n"
++                       "os.execvp(os.environ['OPT_A_CC'], [os.environ['OPT_A_CC'], *args])\n")
++    wrapper.chmod(0o755)
++    env = dict(os.environ, CC=str(wrapper), OPT_A_CC=compiler,
++               X0X_HOST_OUT=str(out / "identity"), X0X_DEV_WOBBLE="0")
++    with (out / "build.log").open("w") as log:
++        subprocess.run(["sh", "host/build_host.sh"], cwd=root, env=env,
++                       stdout=log, stderr=subprocess.STDOUT, check=True)
++    fixture = out / "fixture.wav"
++    # A synthetic loop, independently generated and free of recorded sample inputs.
++    with wave.open(str(fixture), "wb") as wav:
++        wav.setparams((1, 2, 22050, 0, "NONE", "not compressed"))
++        wav.writeframes(b"".join(struct.pack("<h", int(10000 * math.sin(2 * math.pi * 173 * i / 22050)))
++                                 for i in range(44100)))
++    hashes = {}
++    for name in SCENARIOS:
++        directory = out / name
++        directory.mkdir(exist_ok=True)
++        subprocess.run([str(out / "identity"), name, str(directory), str(fixture)],
++                       cwd=root, check=True, stdout=subprocess.DEVNULL)
++        for path in sorted(directory.iterdir()):
++            hashes[f"{name}/{path.name}"] = {
++                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
++                "bytes": path.stat().st_size}
++        print("captured", name, flush=True)
++    (out / "hashes.json").write_text(json.dumps(hashes, indent=2) + "\n")
++    if args.baseline:
++        expected = json.loads((args.baseline / "hashes.json").read_text())
++        changed = sorted(k for k in expected.keys() | hashes.keys() if expected.get(k) != hashes.get(k))
++        if changed:
++            print("FAIL: identity mismatch: " + ", ".join(changed), file=sys.stderr)
++            return 1
++        print(f"PASS: {len(SCENARIOS)} scenarios, {len(hashes)} audio/state files bit-identical")
++    return 0
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tests/host/chicago_coef_cache_test.c b/tests/host/chicago_coef_cache_test.c
+new file mode 100644
+index 00000000..9461bdce
+--- /dev/null
++++ b/tests/host/chicago_coef_cache_test.c
+@@ -0,0 +1,149 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* A second compile of chicago_voice.c uses the exact pre-cache coefficient
++ * expressions (CHICAGO_COEF_CACHE_REFERENCE); compare actual audio and state
++ * on every forced helper tick, including parameter changes during notes. */
++#include "chicago_voice.h"
++#include "chicago_voice_snapshot.h"
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++
++int uncached_original_chicago_voice_init(original_chicago_voice *,const original_chicago_voice_tables *,const original_chicago_voice_seed *);
++int uncached_original_chicago_voice_full_note(original_chicago_voice *,const original_chicago_voice_controls *,const original_chicago_voice_tables *,const original_chicago_voice_note *,float);
++int uncached_original_chicago_voice_control(original_chicago_voice *,const original_chicago_voice_controls *,const original_chicago_voice_tables *,float,unsigned,unsigned *);
++int uncached_original_chicago_voice_render_frame(original_chicago_voice *,const original_chicago_voice_controls *,float *,float *);
++int uncached_original_chicago_voice_note_off(original_chicago_voice *,const original_chicago_voice_controls *);
++
++static uint32_t bits(float f){uint32_t u;memcpy(&u,&f,4);return u;}
++#define CHECK(x) do{if(!(x)){fprintf(stderr,"FAIL line %u, step %u: %s\n",(unsigned)__LINE__,step,#x);exit(1);}}while(0)
++static int lookup(const void *ctx,uint32_t index,float *a,float *e){
++ (void)ctx;*a=(float)(1+(index&7))/16.0f;*e=(float)(int)(index&7)/32.0f;return 1;
++}
++static void state_equal(const original_chicago_voice *a,const original_chicago_voice *b,unsigned step){
++ CHECK(a->active==b->active&&a->vca.state==b->vca.state&&a->vcf.state==b->vcf.state);
++ CHECK(bits(a->vca.level)==bits(b->vca.level)&&bits(a->vcf.level)==bits(b->vcf.level));
++ CHECK(bits(a->mod_cutoff)==bits(b->mod_cutoff)&&bits(a->mod_gain)==bits(b->mod_gain));
++ for(unsigned i=0;i<2;i++){
++  CHECK(bits(a->mg[i].phase)==bits(b->mg[i].phase));
++  CHECK(bits(a->mg[i].bipolar)==bits(b->mg[i].bipolar));
++  CHECK(bits(a->mg[i].unipolar)==bits(b->mg[i].unipolar));
++ }
++ for(unsigned i=0;i<4;i++)CHECK(bits(a->pitch.current[i])==bits(b->pitch.current[i]));
++ CHECK(a->wave_preparations==b->wave_preparations);
++}
++static void note_start(original_chicago_voice *a,original_chicago_voice *b,
++  const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,
++  unsigned key,unsigned step,float bpm){
++ original_chicago_voice_note n;memset(&n,0,sizeof n);
++ n.raw_note=(int32_t)key;n.velocity=107;n.unison_flag=1;
++ n.tuned_pitch=(float)key;n.last_pitch=(float)key-3.0f;
++ for(unsigned i=0;i<2;i++)n.mg[i].phase=-1.0f;
++ CHECK(original_chicago_voice_full_note(a,c,t,&n,bpm));
++ CHECK(uncached_original_chicago_voice_full_note(b,c,t,&n,bpm));
++ state_equal(a,b,step);
++}
++int main(void){
++ unsigned step=0,stages[4]={0},modes[2]={0},nonzero=0;
++ int32_t pitches[128];for(unsigned i=0;i<128;i++)pitches[i]=(int32_t)(i+1)*1000000;
++ original_chicago_voice_tables table;
++ CHECK(original_chicago_voice_tables_bind(&table,lookup,NULL,pitches));
++ original_chicago_voice_seed seed;memset(&seed,0,sizeof seed);
++ seed.last_pitch=60.0f;for(unsigned i=0;i<2;i++)seed.mg[i].phase=-1.0f;
++ original_chicago_program program;original_chicago_voice_controls controls;
++ CHECK(original_chicago_program_init(&program,0));
++ CHECK(original_chicago_voice_compile(&controls,&program));
++ original_chicago_voice a,b;
++ CHECK(original_chicago_voice_init(&a,&table,&seed));
++ CHECK(uncached_original_chicago_voice_init(&b,&table,&seed));
++ const float v[]={0.0f,0.0001f,0.02f,0.11f,0.4f,0.75f,1.0f};
++ note_start(&a,&b,&controls,&table,60,step,120.0f);
++ for(step=1;step<=2200;step++){
++  /* Recompile/adopt a new program during testing; both instances cold-reset. */
++  if(step==1100){
++   CHECK(original_chicago_program_init(&program,7));
++   CHECK(original_chicago_voice_compile(&controls,&program));
++   CHECK(original_chicago_voice_init(&a,&table,&seed));
++   CHECK(uncached_original_chicago_voice_init(&b,&table,&seed));
++   note_start(&a,&b,&controls,&table,65,step,123.5f);
++  }
++  /* Controls are snapshots in the real owner. Deliberately replace their
++   * fields between helper ticks to sweep bitwise cache invalidation. */
++  controls.vcf[0]=v[(step/7)%7];
++  controls.vcf[1]=v[(step/11)%7];
++  controls.vcf[2]=.34f;
++  controls.vcf[3]=v[(step/13)%7];
++  controls.vca[0]=v[(step/19)%7];
++  controls.vca[1]=v[(step/23)%7];
++  controls.vca[2]=.42f;
++  controls.vca[3]=v[(step/29)%7];
++  controls.pitch.portamento=v[(step/5)%7];
++  controls.mg_tempo[0]=(uint8_t)((step/31)%2);
++  controls.mg_tempo[1]=(uint8_t)(((step+19)/29)%2);
++  for(unsigned i=0;i<2;i++){
++   controls.mg_base[i]=v[(step/(i?17:37))%7]*32.0f+3.0f;
++   controls.mg_times[i]=v[(step/(i?43:41))%7]*8.0f+1.0f;
++   controls.mg_frequency[i]=v[(step/(i?47:53))%7];
++   modes[controls.mg_tempo[i]?1:0]++;
++  }
++  /* Both signs of zero are distinct keys even if +0 normalizes the maths. */
++  if(step%71==0){controls.vcf[0]=-0.0f;controls.vcf[3]=-0.0f;
++                   controls.pitch.portamento=-0.0f;controls.mg_frequency[0]=-0.0f;}
++  float bpm=(step/17)%3==0?20.0f:(step/17)%3==1?400.0f:123.456f;
++  if(step%113==0&&a.active){
++   CHECK(original_chicago_voice_note_off(&a,&controls));
++   CHECK(uncached_original_chicago_voice_note_off(&b,&controls));
++  }
++  if(!a.active&&a.vca.state==6)note_start(&a,&b,&controls,&table,48+(step%32),step,bpm);
++  if(a.vcf.state<=3)stages[a.vcf.state==3?3:a.vcf.state]++;
++  /* Original control_tick produces D=63 or 64 for these counters. */
++  a.counter=b.counter=step%2?43410u:44099u;
++  unsigned ac=0,bc=0;
++  CHECK(original_chicago_voice_control(&a,&controls,&table,bpm,0,&ac));
++  CHECK(uncached_original_chicago_voice_control(&b,&controls,&table,bpm,0,&bc));
++  CHECK(ac==bc);
++  state_equal(&a,&b,step);
++  float la=0,ra=0,lb=0,rb=0;
++  CHECK(original_chicago_voice_render_frame(&a,&controls,&la,&ra));
++  CHECK(uncached_original_chicago_voice_render_frame(&b,&controls,&lb,&rb));
++  CHECK(bits(la)==bits(lb)&&bits(ra)==bits(rb));
++  nonzero|=((bits(la)|bits(ra))&0x7fffffffu)!=0;
++  CHECK(a.coefficients.glide.valid);
++  CHECK(a.coefficients.mg[0].delta_valid&&a.coefficients.mg[1].delta_valid);
++ }
++ /* Snapshot wire format excludes caches; decoding must clear their validity.
++  * Verify the first restored tick produces the same raw audio/state. */
++ original_chicago_voice_snapshot shot,restored;
++ unsigned char wire[ORIGINAL_CHICAGO_VOICE_SNAPSHOT_BYTES];
++ unsigned char roundtrip[ORIGINAL_CHICAGO_VOICE_SNAPSHOT_BYTES];
++ memset(&shot,0,sizeof shot);shot.voice=a;shot.program_revision=controls.revision;
++ CHECK(original_chicago_voice_snapshot_encode(&shot,wire,sizeof wire));
++ memset(&restored,0xa5,sizeof restored);
++ CHECK(original_chicago_voice_snapshot_decode(&restored,wire,sizeof wire));
++ CHECK(!restored.voice.coefficients.vcf.attack_valid);
++ CHECK(!restored.voice.coefficients.vcf.decay_valid);
++ CHECK(!restored.voice.coefficients.vcf.release_valid);
++ CHECK(!restored.voice.coefficients.vcf.release_ratio_valid);
++ CHECK(!restored.voice.coefficients.mg[0].tempo_valid);
++ CHECK(!restored.voice.coefficients.mg[0].free_valid);
++ CHECK(!restored.voice.coefficients.mg[0].delta_valid);
++ CHECK(!restored.voice.coefficients.mg[1].delta_valid);
++ CHECK(!restored.voice.coefficients.glide.valid);
++ CHECK(original_chicago_voice_snapshot_encode(&restored,roundtrip,sizeof roundtrip));
++ CHECK(!memcmp(wire,roundtrip,sizeof wire));
++ state_equal(&a,&restored.voice,step);
++ if(a.active){
++  unsigned ac=0,bc=0;float la=0,ra=0,lb=0,rb=0;
++  a.counter=restored.voice.counter=43410u;
++  CHECK(original_chicago_voice_control(&a,&controls,&table,120.0f,0,&ac));
++  CHECK(original_chicago_voice_control(&restored.voice,&controls,&table,120.0f,0,&bc));
++  CHECK(ac==bc);state_equal(&a,&restored.voice,step);
++  CHECK(original_chicago_voice_render_frame(&a,&controls,&la,&ra));
++  CHECK(original_chicago_voice_render_frame(&restored.voice,&controls,&lb,&rb));
++  CHECK(bits(la)==bits(lb)&&bits(ra)==bits(rb));
++ }
++ CHECK(stages[0]&&stages[1]&&stages[3]&&modes[0]&&modes[1]&&nonzero);
++ printf("PASS chicago-coef-cache: %u ticks; attack=%u decay=%u release=%u; tempo=%u free=%u; bit-identical PCM/state\n",
++        step-1,stages[0],stages[1],stages[3],modes[1],modes[0]);
++ return 0;
++}
+diff --git a/tests/host/chicago_coef_cache_test.sh b/tests/host/chicago_coef_cache_test.sh
+new file mode 100644
+index 00000000..0a38e12b
+--- /dev/null
++++ b/tests/host/chicago_coef_cache_test.sh
+@@ -0,0 +1,35 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++# Compile the same voice as the production cache and a separate uncached
++# reference; real oscillator, filter, FMA and gain paths are shared.
++set -eu
++cd "$(dirname "$0")/../.."
++CC=${CC:-cc}
++OUT=${X0X_CHICAGO_COEF_CACHE_OUT:-build/host/chicago-coef-cache}
++mkdir -p "$OUT"
++CFLAGS="-O2 -std=c99 -fno-fast-math -ffp-contract=off -ffunction-sections -fdata-sections -DORIGINAL_USE_SOFT_FMA -Iexperiments/original_synth -Iexperiments/wobble -Ifirmware/src -Ifirmware/src/dsp"
++case "$(uname -s)" in
++ Darwin) GC="-Wl,-dead_strip" ;;
++ *) GC="-Wl,--gc-sections" ;;
++esac
++set --
++for name in $(grep -oE 'original_chicago_voice_[a-z0-9_]+[(]' experiments/original_synth/chicago_voice.c | sed 's/($//' | sort -u); do
++ case "$name" in original_chicago_voice_kernel|original_chicago_voice_span) continue ;; esac
++ set -- "$@" "-D${name}=uncached_${name}"
++done
++$CC $CFLAGS -DCHICAGO_COEF_CACHE_REFERENCE "$@" -c experiments/original_synth/chicago_voice.c -o "$OUT/uncached_voice.o"
++$CC $CFLAGS \
++ tests/host/chicago_coef_cache_test.c \
++ experiments/original_synth/chicago_voice.c \
++ experiments/original_synth/chicago_program.c \
++ experiments/original_synth/chicago_mp4.c \
++ experiments/original_synth/chicago_voice_snapshot.c \
++ experiments/original_synth/state_codec.c \
++ experiments/original_synth/control_math.c \
++ experiments/original_synth/miami_ms20.c \
++ experiments/original_synth/oscillator_motion.c \
++ experiments/original_synth/voice_gain.c \
++ experiments/original_synth/fused_reference.c \
++ experiments/wobble/miami_fx_conversion.c \
++ "$OUT/uncached_voice.o" $GC -lm -o "$OUT/test"
++"$OUT/test"
+diff --git a/tests/host/control_recompile_test.c b/tests/host/control_recompile_test.c
+new file mode 100644
+index 00000000..a7750237
+--- /dev/null
++++ b/tests/host/control_recompile_test.c
+@@ -0,0 +1,92 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Compare incremental controls with complete compilation, including failures. */
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <math.h>
++#include "chicago_voice.h"
++#include "miami_selected_voice.h"
++#include "app/original_runtime.h"
++#include "chicago_fx2_compact.h"
++static unsigned checks,widths;
++#define CHECK(x) do {++checks;if(!(x)){fprintf(stderr,"FAIL line %d: %s\n",__LINE__,#x);exit(1);}}while(0)
++int test_real_original_pw_width(unsigned,float,float,float,float,float,float *);
++int original_pw_width(unsigned shape,float intensity,float source,float width,float mi,float mw,float *out)
++{++widths;return test_real_original_pw_width(shape,intensity,source,width,mi,mw,out);}
++#ifdef TEST_BASELINE
++#define original_chicago_voice_recompile(c,p,id) original_chicago_voice_compile(c,p)
++#define original_miami_voice_recompile(c,p,id) original_miami_voice_compile(c,p)
++#else
++int original_chicago_voice_recompile(original_chicago_voice_controls *,const original_chicago_program *,unsigned);
++int original_miami_voice_recompile(original_miami_voice_controls *,const original_miami_program *,unsigned);
++#endif
++#define EXERCISE(kind,factories,macros,targets,bend,cutoff) \
++static void kind##_test(void){ \
++ for(unsigned factory=0;factory<factories;factory++){ \
++  original_##kind##_program p;original_##kind##_voice_controls actual,expected; \
++  CHECK(original_##kind##_program_init(&p,factory));CHECK(original_##kind##_voice_compile(&actual,&p)); \
++  for(unsigned step=0;step<384;step++){ \
++   unsigned id=step%3==0?bend:step%3==1?cutoff:(step/3)%macros;float value=(float)((step*29)%129)/128; \
++   CHECK(original_##kind##_program_set(&p,id,value));CHECK(original_##kind##_voice_compile(&expected,&p));widths=0; \
++   CHECK(original_##kind##_voice_recompile(&actual,&p,id));CHECK(!memcmp(&actual,&expected,sizeof actual)); \
++   CHECK(widths==((id==bend||id==cutoff)?0:4)); \
++  } \
++  /* A revision mismatch or unready cache must rebuild, including wraparound. */ \
++  actual.revision^=17;CHECK(original_##kind##_program_set(&p,bend,.5f));widths=0; \
++  CHECK(original_##kind##_voice_recompile(&actual,&p,bend));CHECK(widths==4); \
++  actual.ready=0;CHECK(original_##kind##_program_set(&p,cutoff,.25f));widths=0; \
++  CHECK(original_##kind##_voice_recompile(&actual,&p,cutoff));CHECK(widths==4); \
++  p.revision=actual.revision=UINT32_MAX;CHECK(original_##kind##_program_set(&p,bend,.5f)); \
++  CHECK(original_##kind##_voice_compile(&expected,&p));widths=0; \
++  CHECK(original_##kind##_voice_recompile(&actual,&p,bend));CHECK(!memcmp(&actual,&expected,sizeof actual));CHECK(widths==0); \
++  /* Invalid unrelated cells and out-of-profile shapes must still reject atomically. */ \
++  for(unsigned lane=0;lane<macros+targets;lane++)for(unsigned v=0;v<4;v++){ \
++   original_##kind##_program bad=p;float value=v==0?NAN:v==1?-1:v==2?2:1; \
++   if(lane<macros)bad.macro[lane]=value;else bad.target[lane-macros]=value; \
++   if(original_##kind##_voice_compile(&expected,&bad))continue; \
++   bad.revision=actual.revision+1;original_##kind##_voice_controls save=actual; \
++   CHECK(!original_##kind##_voice_recompile(&actual,&bad,bend));CHECK(!memcmp(&actual,&save,sizeof actual)); \
++  } \
++  CHECK(!original_##kind##_voice_recompile(NULL,&p,bend));CHECK(!original_##kind##_voice_recompile(&actual,NULL,bend)); \
++ } \
++ /* Every 14-bit bend input through the existing mapper, with repeated values. */ \
++ original_##kind##_program p;original_##kind##_voice_controls a,e; \
++ CHECK(original_##kind##_program_init(&p,0));CHECK(original_##kind##_voice_compile(&a,&p)); \
++ for(unsigned n=0;n<16384;n++){float v=n<8192?(float)n/16384:.5f+(float)(n-8192)/16382; \
++  CHECK(original_##kind##_program_set(&p,bend,v));CHECK(original_##kind##_voice_compile(&e,&p)); \
++  CHECK(original_##kind##_voice_recompile(&a,&p,bend));CHECK(!memcmp(&a,&e,sizeof a)); \
++ } \
++}
++EXERCISE(chicago,81,22,29,20,2)
++EXERCISE(miami,30,18,24,16,12)
++static void production_owner_test(void){
++ static original_runtime_part part;
++ static original_chicago_tuning tuning;
++ static original_chicago_fx2_compact fx;
++ CHECK(original_chicago_tuning_bind(&tuning,0,0,NULL,0x6d70));
++ CHECK(original_chicago_fx2_compact_init(&fx));
++ original_chicago_fx2_cold_owner owner=original_chicago_fx2_compact_owner(&fx);
++ for(unsigned kind=0;kind<2;kind++){
++  uint8_t cell[32];CHECK(original_sound_init(cell,kind,0));
++  CHECK(original_runtime_init(&part,cell,120,&tuning,&owner)==ORIGINAL_RUNTIME_OK);
++  for(unsigned n=0;n<96;n++){
++   unsigned id=n%3==0?(kind?16:20):n%3==1?(kind?12:2):0;
++   float value=(float)((n/2)%9)/8;
++   if(kind){
++    original_miami_program p=part.dsp.miami.program;original_miami_voice_controls controls;
++    CHECK(original_miami_program_set(&p,id,value));CHECK(original_miami_voice_compile(&controls,&p));widths=0;
++    CHECK(original_runtime_param(&part,id,value)==ORIGINAL_RUNTIME_OK);
++    CHECK(widths==(id==0?4:0));CHECK(!memcmp(&part.dsp.miami.program,&p,sizeof p));
++    CHECK(!memcmp(&part.dsp.miami.controls,&controls,sizeof controls));
++   }else{
++    original_chicago_program p=part.dsp.chicago.program;original_chicago_voice_controls controls;
++    CHECK(original_chicago_program_set(&p,id,value));CHECK(original_chicago_voice_compile(&controls,&p));widths=0;
++    CHECK(original_runtime_param(&part,id,value)==ORIGINAL_RUNTIME_OK);
++    CHECK(widths==(id==0?4:0));CHECK(!memcmp(&part.dsp.chicago.program,&p,sizeof p));
++    CHECK(!memcmp(&part.dsp.chicago.controls,&controls,sizeof controls));
++   }
++  }
++  CHECK(original_runtime_retire(&part)==ORIGINAL_RUNTIME_OK);
++ }
++}
++int main(void){chicago_test();miami_test();production_owner_test();printf("PASS control recompilation: %u checks; exact snapshots, validation and bounded width work\n",checks);return 0;}
+diff --git a/tests/host/control_recompile_test.sh b/tests/host/control_recompile_test.sh
+new file mode 100644
+index 00000000..a7060038
+--- /dev/null
++++ b/tests/host/control_recompile_test.sh
+@@ -0,0 +1,26 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++set -eu
++cd "$(dirname "$0")/../.."
++OUT=${X0X_RECOMPILE_OUT:-build/host/control-recompile}
++mkdir -p "$OUT"
++. tests/host/original_build.sh
++case "${X0X_RECOMPILE_EXACT:-1}" in 1) ;; *) echo "Exact FMA required" >&2; exit 2 ;; esac
++compile() {
++    ${CC:-cc} -O2 -g -std=c99 -D_POSIX_C_SOURCE=200809L -DX0X_HOST $ORIGINAL_FLAGS ${SAN_FLAGS:-} -Ifirmware/src -Ifirmware/src/dsp "$@"
++}
++# Rename only the defining object; keep all caller-side width work observable.
++compile -Doriginal_pw_width=test_real_original_pw_width -c experiments/original_synth/oscillator_motion.c -o "$OUT/oscillator_motion.o"
++# This focused probe needs only the synth closure, not app/UI sources.
++sources=$(python3 - <<'PY'
++import ast
++from pathlib import Path
++values={}
++for node in ast.parse(Path('tools/build.py').read_text()).body:
++    if isinstance(node,ast.Assign) and isinstance(node.targets[0],ast.Name) and node.targets[0].id in ('ORIGINAL_SYNTH_UNITS','ORIGINAL_SYNTH_BACKENDS'):
++        values[node.targets[0].id]=ast.literal_eval(node.value)
++print(' '.join(s for k in ('ORIGINAL_SYNTH_UNITS','ORIGINAL_SYNTH_BACKENDS') for s in values[k] if s!='experiments/original_synth/oscillator_motion.c'))
++PY
++)
++compile tests/host/control_recompile_test.c $sources "$OUT/oscillator_motion.o" firmware/src/dsp/x0x_param.c -lm -o "$OUT/test"
++"$OUT/test"
+diff --git a/tests/host/miami_coef_cache_test.c b/tests/host/miami_coef_cache_test.c
+new file mode 100644
+index 00000000..d833c999
+--- /dev/null
++++ b/tests/host/miami_coef_cache_test.c
+@@ -0,0 +1,169 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Differential bit test for caller-owned Miami caches. Static MG tick is
++ * included from production to avoid adding a test-only firmware entrypoint. */
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <math.h>
++#include "../../experiments/original_synth/miami_selected_voice.c"
++
++int original_miami_voice_render_add(original_miami_ms20 *,original_voice_gain *,
++ original_oscillators *,const original_prepared_oscillators *,
++ float,float *,float *,uint32_t);
++
++static uint32_t bits_of(float f){uint32_t n;memcpy(&n,&f,4);return n;}
++static float float_of(uint32_t n){float f;memcpy(&f,&n,4);return f;}
++#define CHECK(c) do{if(!(c)){fprintf(stderr,"miami cache assertion: %s at %s:%d\n",#c,__FILE__,__LINE__);exit(1);}}while(0)
++static void equal(float got,float want,const char *name,unsigned k){
++ if(bits_of(got)!=bits_of(want)){
++  fprintf(stderr,"%s [%u]: %08x != %08x\n",name,k,bits_of(got),bits_of(want));
++  exit(1);
++ }
++}
++static void reference_mg(original_miami_voice_mg *m,float base,float times,float bpm,uint32_t D){
++ float numerator=(bpm*.800000011920929f)*(float)D;
++ float denominator=(44100.0f*base)*times;
++ float delta=numerator/denominator;if(delta>1)delta=1;
++ m->phase=m->phase+delta;if(m->phase>=1){m->phase=m->phase-2.0f;m->wrapped=1;}
++}
++static void check_selected_mg(void){
++ static const float bases[]={96,48,36,24,16,12,8,6,4,3};
++ static const float tempos[]={20,20,37,64,96,120,120.125f,240,400};
++ static const uint32_t durations[]={1,2,32,63,64};
++ original_miami_voice_mg got[2]={{0}},want[2]={{0}};
++ original_miami_coefficient_cache cache={0};
++ for(unsigned i=0;i<2;i++)got[i].phase=want[i].phase=-1.0f;
++ for(unsigned k=0;k<50000;k++){
++  unsigned i=(k/3)%2;
++  float b=bases[(k/37)%10],times=(float)(1+(k/113)%16);
++  float bpm=tempos[(k/197)%9];uint32_t D=durations[(k/47)%5];
++  reference_mg(&want[i],b,times,bpm,D);
++  mg_advance(&got[i],&cache,i,b,times,bpm,D);
++  equal(got[i].phase,want[i].phase,"selected MG phase",k);
++  CHECK(got[i].wrapped==want[i].wrapped);
++  CHECK((cache.mg_valid_mask&(1u<<i))&&cache.base_bits[i]==bits_of(b));
++  CHECK(cache.times_bits[i]==bits_of(times)&&cache.bpm_bits==bits_of(bpm));
++  CHECK(cache.duration==D);
++  equal(cache.denominator[i],(44100.0f*b)*times,"MG denominator",k);
++ }
++ CHECK(cache.mg_valid_mask);
++}
++static void check_full_mg(void){
++ static const float tempos[]={20,45,90,125.5f,180,400};
++ static const uint32_t durations[]={1,2,21,63,64};
++ original_mg_tempo_cache cache[2]={{0}};
++ float got[2]={-1,-1},want[2]={-1,-1};
++ for(unsigned k=0;k<30000;k++){
++  unsigned i=(k/4)%2,rate=(k/131)%8,wi=0,wc=0;
++  float bpm=tempos[(k/43)%6];uint32_t D=durations[(k/137)%5];
++  CHECK(original_mg_tempo(&want[i],rate,bpm,44100.0f,D,&wi));
++  CHECK(original_mg_tempo_cached(&cache[i],&got[i],rate,bpm,44100.0f,D,&wc));
++  equal(got[i],want[i],"checked MG phase",k);
++  CHECK(wi==wc&&cache[i].valid);
++ }
++}
++static void check_glide(void){
++ static const float ports[]={0.0f,-0.0f,.01f,.25f,.8f,1.0f};
++ static const float mods[]={-.75f,-.2f,-0.0f,0.0f,.1f,.75f};
++ static const uint32_t durations[]={1,11,32,63,64};
++ float got[4]={0,32,64,127},want[4]={0,32,64,127};
++ original_glide_cache cache={0};
++ for(unsigned k=0;k<20000;k++){
++  float target[4];
++  for(unsigned j=0;j<4;j++)target[j]=(float)((k/2+j*37)%128);
++  float port=ports[(k/31)%6],mod=mods[(k/47)%6];
++  float fs=(k/223)%2?48000.0f:44100.0f;
++  uint32_t D=durations[(k/97)%5];
++  CHECK(original_glide(want,target,port,mod,fs,D));
++  CHECK(original_glide_cached(&cache,got,target,port,mod,fs,D));
++  for(unsigned j=0;j<4;j++)equal(got[j],want[j],"glide",k);
++  CHECK(cache.duration!=0&&cache.port_bits==bits_of(port)&&cache.mod_bits==bits_of(mod));
++  CHECK(cache.fs_bits==bits_of(fs)&&cache.duration==D);
++ }
++ original_glide_cache saved=cache;
++ float bad_target[4]={NAN,0,60,127};
++ CHECK(!original_glide_cached(&cache,got,bad_target,.2f,0,44100.0f,64));
++ CHECK(memcmp(&saved,&cache,sizeof cache)==0);
++ CHECK(!original_glide_cached(&cache,got,want,INFINITY,0,44100.0f,64));
++ CHECK(memcmp(&saved,&cache,sizeof cache)==0);
++}
++static void check_pitch(void){
++ original_miami_pitch state;
++ original_miami_pitch_controls c={0};
++ original_glide_cache cache={0};
++ int32_t table[128];
++ uint32_t increments[4];
++ for(unsigned i=0;i<128;i++)table[i]=(int32_t)(20000+1000*i);
++ CHECK(original_miami_pitch_init(&state,60));
++ float reference[4]={60,60,60,60};
++ for(unsigned k=0;k<1024;k++){
++  c.portamento=(k/17)%2?.4f:.6f;c.mod_portamento=(k/23)%2?.15f:-.2f;
++  for(unsigned i=0;i<4;i++)state.target[i]=(float)((k/3+i*19)%128);
++  CHECK(original_glide(reference,state.target,c.portamento,c.mod_portamento,44100.0f,64));
++  CHECK(original_miami_pitch_prepare_cached(&state,&c,table,44100.0f,64,increments,&cache));
++  for(unsigned i=0;i<4;i++)equal(state.current[i],reference[i],"Miami pitch",k);
++ }
++ CHECK(cache.duration!=0);
++ CHECK(original_miami_pitch_note(&state,70,60,15,0));
++ /* The cache belongs to the part owner, not the pitch; the owner
++  * observes cache_witness=0 on the enclosing voice and clears it. */
++ CHECK(cache.duration!=0);
++}
++static void check_invalidation(void){
++ original_miami_selected_voice s={0};
++ s.cache_witness=1;
++ original_miami_selected_voice_invalidate_caches(&s);
++ CHECK(!s.cache_witness);
++ original_miami_coefficient_cache shared={0};
++ shared.mg_valid_mask=3;shared.glide.duration=63;
++ CHECK(shared.mg_valid_mask==3&&shared.glide.duration==63);
++ /* Decode leaves witness zero; the owner invalidates on next use. */
++}
++static void check_triangle(uint32_t triangle_bits){
++ original_osc_controls c={0};
++ for(unsigned i=0;i<4;i++){
++  c.increment[i]=0x01000000u*(i+1);c.shape[i]=0;c.width[i]=0;c.gain[i]=.75f;
++ }
++ original_prepared_oscillators prep={0};
++ CHECK(original_oscillator_prepare(&prep,&c));
++ /* Prepared triangle is usually -0 for small increments. Force +0 explicitly. */
++ for(unsigned i=0;i<4;i++)prep.triangle[i]=float_of(triangle_bits);
++ original_voice_gain kernel_gain={0},scalar_gain={0};
++ for(unsigned i=0;i<4;i++)kernel_gain.oscillator[i].current=kernel_gain.oscillator[i].target=.75f;
++ for(unsigned i=0;i<2;i++)kernel_gain.stereo[i].current=kernel_gain.stereo[i].target=.5f;
++ scalar_gain=kernel_gain;
++ original_miami_ms20 kernel_filter={0},scalar_filter={0};
++ CHECK(original_miami_ms20_init(&kernel_filter,0,.125f,.1f,.05f));
++ kernel_filter.prepared=1;
++ kernel_filter.resonance.current=kernel_filter.resonance.target=.05f;
++ kernel_filter.noise_gain.current=kernel_filter.noise_gain.target=.01f;
++ scalar_filter=kernel_filter;
++ original_oscillators kernel_osc={0},scalar_osc={0};
++ for(unsigned i=0;i<4;i++)kernel_osc.phase[i]=(i%2?0xc0000000u:0x40000000u)+c.increment[i];
++ scalar_osc=kernel_osc;
++ float L[256]={0},R[256]={0};
++ CHECK(original_miami_voice_render_add(&kernel_filter,&kernel_gain,&kernel_osc,&prep,1.0f,L,R,256));
++ for(unsigned j=0;j<256;j++){
++  float mix,filtered,l,r;
++  CHECK(original_voice_gain_oscillator(&scalar_gain,&scalar_osc,&prep,0,&mix));
++  CHECK(original_miami_ms20_sample(&scalar_filter,mix,1.0f,&filtered));
++  CHECK(original_voice_gain_stereo(&scalar_gain,filtered,&l,&r));
++  equal(L[j],0.0f+l,"triangle L",j);
++  equal(R[j],0.0f+r,"triangle R",j);
++ }
++ for(unsigned i=0;i<4;i++)CHECK(kernel_osc.phase[i]==scalar_osc.phase[i]);
++ for(unsigned i=0;i<5;i++)equal(kernel_filter.history[i],scalar_filter.history[i],"MS20 history",i);
++}
++int main(void){
++ check_selected_mg();
++ check_full_mg();
++ check_glide();
++ check_pitch();
++ check_invalidation();
++ check_triangle(UINT32_C(0x00000000));
++ check_triangle(UINT32_C(0x80000000));
++ check_triangle(UINT32_C(0xbe8020c5));
++ puts("miami coefficient cache: bitwise differential tests PASS");
++ return 0;
++}
+diff --git a/tests/host/miami_coef_pool_test.c b/tests/host/miami_coef_pool_test.c
+new file mode 100644
+index 00000000..ef34d020
+--- /dev/null
++++ b/tests/host/miami_coef_pool_test.c
+@@ -0,0 +1,15 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++#include "../../firmware/src/app/original_runtime.h"
++#include <stdio.h>
++int main(void){
++ /* Two runtime parts are resident in .pool. This is a host ABI
++  * regression sentinel, NOT a substitute for the target linker check. */
++ const size_t max_part_bytes = 5368u;
++ const size_t actual = sizeof(original_runtime_part);
++ if(actual > max_part_bytes){
++  fprintf(stderr,"FAIL Miami runtime-part sizeof %zu > %zu\n",actual,max_part_bytes);
++  return 1;
++ }
++ printf("PASS Miami runtime-part sizeof %zu <= %zu\n",actual,max_part_bytes);
++ return 0;
++}
+diff --git a/tests/host/run_miami_coef_cache.sh b/tests/host/run_miami_coef_cache.sh
+new file mode 100644
+index 00000000..d7b50473
+--- /dev/null
++++ b/tests/host/run_miami_coef_cache.sh
+@@ -0,0 +1,41 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++# Check the same original arithmetic with hardware and software FMA.
++set -eu
++cd "$(dirname "$0")/../.."
++OUT=build/host/miami-coef-cache
++if [ "$#" -gt 0 ]; then OUT=$1; fi
++mkdir -p "$OUT"
++CC=${CC:-cc}
++case "$(uname -s)" in
++ Darwin) gc_sections="-Wl,-dead_strip" ;;
++ *) gc_sections="-Wl,--gc-sections" ;;
++esac
++"$CC" -std=c99 -O2 -Wall -Wextra -Werror -fno-fast-math \
++ -ffp-contract=off -I. -Iexperiments/original_synth \
++ -Iexperiments/wobble -Ifirmware/src/dsp \
++ tests/host/miami_coef_pool_test.c -o "$OUT/pool-size"
++"$OUT/pool-size"
++for opt in O2 Os; do
++ for fma in hard soft; do
++  opts=""
++  extra=""
++  if [ "$fma" = soft ]; then
++   opts="-DORIGINAL_USE_SOFT_FMA"
++   extra="experiments/original_synth/fused_reference.c"
++  fi
++  "$CC" -std=c99 "-$opt" -Wall -Wextra -Werror \
++    -Wno-unused-function -Wno-missing-braces \
++    -fno-fast-math -ffp-contract=off -frounding-math \
++    -ffunction-sections -fdata-sections "$gc_sections" \
++    -Iexperiments/original_synth -Iexperiments/wobble $opts \
++    tests/host/miami_coef_cache_test.c \
++    experiments/original_synth/oscillator_motion.c \
++    experiments/original_synth/miami_pitch.c \
++    experiments/original_synth/miami_ms20.c \
++    experiments/original_synth/voice_gain.c \
++    experiments/wobble/miami_fx_conversion.c $extra -lm \
++    -o "$OUT/$opt-$fma"
++  "$OUT/$opt-$fma"
++ done
++done
+diff --git a/tests/host/synth_peak_test.c b/tests/host/synth_peak_test.c
+new file mode 100644
+index 00000000..97b4436f
+--- /dev/null
++++ b/tests/host/synth_peak_test.c
+@@ -0,0 +1,112 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Time prepare + events + both synth renders. Host timing is not AC79 timing. */
++#include "app/original_runtime.h"
++#include "chicago_fx2_compact.h"
++#include "chicago_tuning.h"
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <time.h>
++
++static original_runtime_part part[2];
++static original_runtime_workspace work;
++static original_chicago_tuning tuning;
++static original_chicago_fx2_compact fx;
++static original_chicago_fx2_cold_owner owner;
++static unsigned width_calls;
++static int check_precompute;
++#ifdef X0X_PEAK_COUNT_WIDTH
++int __real_original_pw_width(unsigned,float,float,float,float,float,float *);
++int __wrap_original_pw_width(unsigned s,float i,float v,float p,float m,float w,float *o)
++{ ++width_calls; return __real_original_pw_width(s,i,v,p,m,w,o); }
++#endif
++static double ns(clockid_t clock)
++{ struct timespec t; clock_gettime(clock,&t); return (double)t.tv_sec*1e9+t.tv_nsec; }
++static unsigned updates(unsigned i)
++{
++    if (part[i].kind==ORIGINAL_SOUND_CHICAGO) return part[i].dsp.chicago.voice.control_updates;
++    unsigned n=0;
++    for(unsigned v=0;v<ORIGINAL_MIAMI_BACKEND_VOICES;v++) n+=part[i].dsp.miami.voices[v].control_updates;
++    return n;
++}
++static int run(FILE *csv,FILE *pcm,const char *name,int kind,unsigned notes,unsigned factory,unsigned choice)
++{
++    unsigned count=kind==2?2:1;
++    double cold_cpu=ns(CLOCK_THREAD_CPUTIME_ID);
++    for(unsigned i=0;i<count;i++) {
++        unsigned k=kind==2?(i==0?ORIGINAL_SOUND_MIAMI:ORIGINAL_SOUND_CHICAGO):(unsigned)kind;
++        uint8_t cell[32];
++        memset(&part[i],0,sizeof part[i]);
++        if(!original_sound_init(cell,k,k==ORIGINAL_SOUND_MIAMI?factory:0)) return 1;
++        if(k==ORIGINAL_SOUND_CHICAGO && choice && !original_sound_set(cell,ORIGINAL_CHICAGO_FX_TYPE,choice)) return 1;
++        if(original_runtime_init(&part[i],cell,120,&tuning,&owner)!=1) return 1;
++    }
++    cold_cpu=ns(CLOCK_THREAD_CPUTIME_ID)-cold_cpu;
++    width_calls=0;
++    static float l[256],r[256],saved[2][512];
++    const unsigned keys[4]={48,55,60,64};
++    for(unsigned b=0;b<128;b++) {
++        unsigned u[2]={updates(0),count==2?updates(1):0};
++        double wall=ns(CLOCK_MONOTONIC),cpu=ns(CLOCK_THREAD_CPUTIME_ID);
++        for(unsigned i=0;i<count;i++) if(original_runtime_prepare(&part[i],120)!=1) return 1;
++        if(strstr(name,"edits") && b>0 && b<=108) {
++            /* All 18 macro endpoints at 0, .5 and 1, including live width edits.
++             * Compilation is allowed here; it must leave no width work for ticks. */
++            unsigned calls=width_calls;
++            for(unsigned i=0;i<count;i++) if(part[i].kind==ORIGINAL_SOUND_MIAMI &&
++                original_runtime_param(&part[i],(b-1)/6,((b-1)%6)/2*.5f)!=1) return 1;
++            width_calls=calls;
++        }
++        if(b%32==0 || b%32==16) {
++            for(unsigned i=0;i<count;i++) for(unsigned n=0;n<notes;n++)
++                if(original_runtime_key(&part[i],ORIGINAL_INPUT_SEQUENCE,keys[n],b%32==0?100:0)!=1) return 1;
++        }
++        double elapsed=ns(CLOCK_THREAD_CPUTIME_ID)-cpu;
++        for(unsigned i=0;i<count;i++) {
++            cpu=ns(CLOCK_THREAD_CPUTIME_ID);
++            if(original_runtime_render(&part[i],&work,l,r,256)!=1) return 1;
++            elapsed+=ns(CLOCK_THREAD_CPUTIME_ID)-cpu;
++            for(unsigned j=0;j<256;j++) { saved[i][2*j]=l[j];saved[i][2*j+1]=r[j]; }
++        }
++        wall=ns(CLOCK_MONOTONIC)-wall;
++        if(pcm) for(unsigned i=0;i<count;i++)
++            if(fwrite(saved[i],sizeof(float),512,pcm)!=512) return 1;
++        fprintf(csv,"%s,%u,%u,%.0f,%.0f,%u,%u,%.0f\n",name,notes,b,elapsed,wall,updates(0)-u[0],count==2?updates(1)-u[1]:0,b==0?cold_cpu:0);
++    }
++#ifdef X0X_PEAK_COUNT_WIDTH
++    printf("%s notes=%u pw_width_calls_after_init=%u\n",name,notes,width_calls);
++#endif
++    if(check_precompute && width_calls) {
++        fprintf(stderr,"FAIL: pulse width recomputed during note/control work\n");
++        return 1;
++    }
++    for(unsigned i=0;i<count;i++) if(original_runtime_retire(&part[i])!=1) return 1;
++    return 0;
++}
++int main(int argc,char **argv)
++{
++    if(argc!=3 && argc!=4) return 2;
++    check_precompute=argc==4 && !strcmp(argv[3],"--check-precompute");
++#ifndef X0X_PEAK_COUNT_WIDTH
++    if(check_precompute) return 2;
++#endif
++    FILE *csv=fopen(argv[1],"w"),*pcm=fopen(argv[2],"wb");
++    if(!csv||!pcm||!original_chicago_tuning_bind(&tuning,0,0,NULL,0x6d70)||!original_chicago_fx2_compact_init(&fx)) return 1;
++    owner=original_chicago_fx2_compact_owner(&fx);
++    fputs("scenario,notes,block,cpu_ns,wall_ns,control0,control1,cold_init_cpu_ns\n",csv);
++    int rc=0;
++    for(unsigned n=1;n<=4;n+=3) {
++        rc|=run(csv,pcm,"chicago",0,n,0,0);
++        rc|=run(csv,pcm,"miami",1,n,0,0);
++        rc|=run(csv,pcm,"both",2,n,0,0);
++        rc|=run(csv,pcm,"both-miami29-chorus",2,n,29,1);
++        rc|=run(csv,pcm,"both-miami18-peaking",2,n,18,6);
++        rc|=run(csv,pcm,"miami-edits",1,n,0,0);
++        for(unsigned p=0;p<ORIGINAL_MIAMI_BACKEND_FACTORIES;p++) {
++            char name[40];snprintf(name,sizeof name,"miami-p%02u",p);
++            rc|=run(csv,pcm,name,1,n,p,0);
++        }
++    }
++    if(fclose(csv)||fclose(pcm)) rc=1;
++    return rc;
++}
+diff --git a/tests/host/synth_peak_test.py b/tests/host/synth_peak_test.py
+new file mode 100644
+index 00000000..8c21a792
+--- /dev/null
++++ b/tests/host/synth_peak_test.py
+@@ -0,0 +1,131 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: GPL-3.0-only
++"""Host-only peak probe; never builds firmware, flashes, or changes Git refs.
++
++python3 tests/host/synth_peak_test.py --out build/peak-check \
++    --reference-source /path/to/exact-base
++The reference must contain the source closure at the intended base revision.
++Raw PCM and timing stay under --out. A reference comparison requires exact bytes.
++"""
++import argparse
++import ast
++import csv
++import hashlib
++import json
++import os
++from pathlib import Path
++import statistics
++import subprocess
++
++ROOT = Path(__file__).resolve().parents[2]
++
++
++def build(source, out, exact, sanitize, count_width=False):
++    subprocess.run(['python3', str(source/'tools/check_original_inputs.py'),
++                    '--root', str(source), '--scope', 'active'], check=True)
++    names = {'ORIGINAL_SYNTH_UNITS', 'ORIGINAL_SYNTH_BACKENDS', 'ORIGINAL_SYNTH_FLAGS'}
++    values = {}
++    for node in ast.parse((source/'tools/build.py').read_text()).body:
++        if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
++            if node.targets[0].id in names:
++                values[node.targets[0].id] = ast.literal_eval(node.value)
++    flags = values['ORIGINAL_SYNTH_FLAGS']
++    if exact:
++        flags = [f for f in flags if f != '-DX0X_FAST_FMA']
++    units = values['ORIGINAL_SYNTH_UNITS'] + values['ORIGINAL_SYNTH_BACKENDS']
++    units += ['firmware/src/dsp/x0x_param.c']
++    command = [os.environ.get('CC', 'cc'), '-std=c99', '-O2',
++               '-D_POSIX_C_SOURCE=200809L', '-DX0X_HOST', '-DBOARD_SMK37=1',
++               '-DX0X_ORIGINAL_SYNTH=1', *flags,
++               '-I'+str(source/'firmware/src'), '-I'+str(source/'firmware/src/dsp'),
++               '-I'+str(source/'experiments/original_synth'),
++               '-I'+str(source/'experiments/wobble')]
++    if sanitize:
++        command += ['-O1', '-g', '-fsanitize=address,undefined', '-fno-sanitize-recover=all']
++    executable = 'runner-count' if count_width else 'runner'
++    if count_width:
++        command += ['-DX0X_PEAK_COUNT_WIDTH', '-Wl,--wrap=original_pw_width']
++    command += [str(ROOT/'tests/host/synth_peak_test.c'),
++                *(str(source/u) for u in units), '-lm', '-o', str(out/executable)]
++    (out/(executable+'-command.json')).write_text(json.dumps(command, indent=2)+'\n')
++    subprocess.run(command, check=True)
++
++
++def summary(path):
++    groups = {}
++    for row in csv.DictReader(path.open()):
++        groups.setdefault((row['scenario'], row['notes']), []).append(row)
++    result = {}
++    for (scenario, notes), rows in groups.items():
++        cpu = [float(r['cpu_ns']) for r in rows]
++        wall = [float(r['wall_ns']) for r in rows]
++        result[f'{scenario}/{notes}'] = {
++            'max_block_cpu_ns': max(cpu), 'max_block_wall_ns': max(wall),
++            'max_pair_cpu_ns': max(sum(cpu[i:i+2]) for i in range(0, len(cpu), 2)),
++            'avg_ns_per_sample': statistics.mean(cpu)/256,
++            'worst_cpu_block': rows[cpu.index(max(cpu))]['block'],
++            'cold_adoption_cpu_ns': max(float(r['cold_init_cpu_ns']) for r in rows),
++        }
++    return result
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--source', type=Path, default=ROOT)
++    parser.add_argument('--reference-source', type=Path)
++    parser.add_argument('--out', type=Path, required=True)
++    parser.add_argument('--rounds', type=int, default=7)
++    parser.add_argument('--exact', action='store_true', help='exact software FMA, without target fast-FMA flag')
++    parser.add_argument('--sanitize', action='store_true')
++    args = parser.parse_args()
++    if args.rounds < 1:
++        parser.error('--rounds must be positive')
++    out = args.out.resolve()
++    out.mkdir(parents=True, exist_ok=False)
++    if hasattr(os, 'sched_getaffinity'):
++        os.sched_setaffinity(0, {min(os.sched_getaffinity(0))})
++    sides = {'candidate': args.source.resolve()}
++    if args.reference_source:
++        sides['reference'] = args.reference_source.resolve()
++    results = {side: [] for side in sides}
++    for side, source in sides.items():
++        folder = out/side
++        folder.mkdir()
++        build(source, folder, args.exact, args.sanitize)
++    # Keep call-count instrumentation out of both timed executables.
++    folder = out/'candidate'
++    build(sides['candidate'], folder, args.exact, args.sanitize, count_width=True)
++    with (folder/'count.log').open('w') as log:
++        subprocess.run([str(folder/'runner-count'), str(folder/'count.csv'),
++                        str(folder/'count.f32'), '--check-precompute'], check=True, stdout=log)
++    for round_no in range(args.rounds):
++        for side in (list(sides) if round_no % 2 == 0 else list(sides)[::-1]):
++            folder = out/side
++            csv_path = folder/f'round-{round_no}.csv'
++            pcm_path = folder/f'round-{round_no}.f32'
++            command = [str(folder/'runner'), str(csv_path), str(pcm_path)]
++            with (folder/f'round-{round_no}.log').open('w') as log:
++                subprocess.run(command, check=True, stdout=log)
++            results[side].append(summary(csv_path))
++        if 'reference' in sides:
++            reference = (out/'reference'/f'round-{round_no}.f32').read_bytes()
++            candidate = (out/'candidate'/f'round-{round_no}.f32').read_bytes()
++            if reference != candidate:
++                raise SystemExit(f'FAIL: PCM differs in round {round_no}')
++    report = {'host_only': True, 'sample_rate': 44100, 'render_frames': 256,
++              'dma_frames': 512, 'dma_deadline_ns': 512*1e9/44100,
++              'rounds': args.rounds, 'exact_fma': args.exact,
++              'sanitized': args.sanitize, 'pcm_equal': 'reference' in sides,
++              'pcm_bytes_per_round': (out/'candidate/round-0.f32').stat().st_size,
++              'pcm_sha256': hashlib.sha256((out/'candidate/round-0.f32').read_bytes()).hexdigest(),
++              'timing': results,
++              'limits': 'Synth closure only. No AC79 timing, ISR contention, drums, mixer, UI, flash, USB, or DMA execution.'}
++    (out/'result.json').write_text(json.dumps(report, indent=2)+'\n')
++    print('PASS: no pulse-width recomputation during note/control work')
++    if 'reference' in sides:
++        print('PASS: byte-identical reference/candidate PCM')
++    print(out/'result.json')
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index 6993310d..06b017f2 100755
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -408,6 +408,9 @@ run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
+ run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
+ run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
+ run miami-table-interpolation sh tests/host/run_miami_table_interpolation.sh
++run chicago-coef-cache sh tests/host/chicago_coef_cache_test.sh
++run miami-coef-cache sh tests/host/run_miami_coef_cache.sh
++run control-recompile env X0X_RECOMPILE_EXACT=1 sh tests/host/control_recompile_test.sh
+ run legacy-303-project sh tests/host/legacy_303_project_test.sh   # old bass303 projects load as the Chicago default, no crash, no save
+ run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
+ run corner-coverage python3 tests/host/corner_coverage_test.py

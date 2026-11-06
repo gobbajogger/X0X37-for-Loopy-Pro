@@ -1,0 +1,551 @@
+[
+  {
+    "donor": "e0931311b72b347e7c83ab8a01f72feedf4c1a95",
+    "path": "experiments/original_synth/chicago_mp4.c",
+    "proposal_blob": "7e67d577f061d7307f51446419a5b749959cd4dd",
+    "donor_blob": "d80ddcb3de669e148943fcc6527ff1fd3319282e",
+    "candidate_blob": "8cf841e9e9bf4356b6a81476fe4acebc50b35dbb",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e0931311b72b347e7c83ab8a01f72feedf4c1a95",
+    "path": "experiments/original_synth/chicago_voice.c",
+    "proposal_blob": "86dec201fad4d9eb44e5c6c15a1bd1f07e1a77eb",
+    "donor_blob": "f233bcb213a6a16c51bce79b7023baf5e88844f8",
+    "candidate_blob": "0912163ce7ee08b72b4e3f2cc711ecafe2581819",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e0931311b72b347e7c83ab8a01f72feedf4c1a95",
+    "path": "experiments/original_synth/miami_interpolation.h",
+    "proposal_blob": "6258b044484a575d976109bd0a863274cccd041f",
+    "donor_blob": "bea1dbc3d5907a412a600d753b45554c489b2d80",
+    "candidate_blob": "6258b044484a575d976109bd0a863274cccd041f",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": false
+  },
+  {
+    "donor": "e0931311b72b347e7c83ab8a01f72feedf4c1a95",
+    "path": "experiments/original_synth/miami_ms20.c",
+    "proposal_blob": "f753cedf6155a5fd8a0dfd63f02d93d77552f3d7",
+    "donor_blob": "f74384b3f5e8850339fe4d42309b36fc10dd6b3b",
+    "candidate_blob": "04f4357ae5d9c97dc9d1ec404b293b2437722de4",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e0931311b72b347e7c83ab8a01f72feedf4c1a95",
+    "path": "firmware/src/dsp/original_miami_backend.c",
+    "proposal_blob": "045b67623227d11b8bb6111db610bcf50798704e",
+    "donor_blob": "172393a2abf0b2f83c8ac46135943716f97f33be",
+    "candidate_blob": "ffd0a686a5189dc1cbb0eaff6dc6b7061898037c",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/original_synth/chicago_drive.c",
+    "proposal_blob": "b3b1fd53638a6d3c38045ad57f07cbe14438626d",
+    "donor_blob": "8130d9250c7d1171c3f5514e09159479506c69bc",
+    "candidate_blob": "b3b1fd53638a6d3c38045ad57f07cbe14438626d",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": false
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/original_synth/chicago_mp4.c",
+    "proposal_blob": "7e67d577f061d7307f51446419a5b749959cd4dd",
+    "donor_blob": "8cf841e9e9bf4356b6a81476fe4acebc50b35dbb",
+    "candidate_blob": "8cf841e9e9bf4356b6a81476fe4acebc50b35dbb",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/original_synth/chicago_output.c",
+    "proposal_blob": "c34d88f7c2095a561788d7949eba1315672b14dc",
+    "donor_blob": "4cf84de91773f54742b49faebf2824e59ab228cb",
+    "candidate_blob": "c34d88f7c2095a561788d7949eba1315672b14dc",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": false
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/original_synth/chicago_packed.c",
+    "proposal_blob": "990bf5272f595e773cf09d34375932738fb1192e",
+    "donor_blob": "975a56e972af7d831c70e5ecf04cecf59dc8265a",
+    "candidate_blob": "975a56e972af7d831c70e5ecf04cecf59dc8265a",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/original_synth/chicago_scheduler.c",
+    "proposal_blob": "869e3e3f5dc2efeb28998534718de965d2d719bc",
+    "donor_blob": "d8f9466bf1a3098d525486ced0e98c9fdabc99af",
+    "candidate_blob": "d8f9466bf1a3098d525486ced0e98c9fdabc99af",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/original_synth/chicago_scheduler.h",
+    "proposal_blob": "3861153a4c8bd1b825a43cf1b492cb5b136c010d",
+    "donor_blob": "7e0a99b2aaea759f88140466ffcf951a6e3a1b98",
+    "candidate_blob": "7e0a99b2aaea759f88140466ffcf951a6e3a1b98",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/original_synth/chicago_voice.c",
+    "proposal_blob": "86dec201fad4d9eb44e5c6c15a1bd1f07e1a77eb",
+    "donor_blob": "e557816a205e6d409e8e34eda5755d2a32451074",
+    "candidate_blob": "0912163ce7ee08b72b4e3f2cc711ecafe2581819",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/original_synth/chicago_voice.h",
+    "proposal_blob": "45b19fe7d5ab87226f454ba25292a6b031aaef04",
+    "donor_blob": "ee7b5662c17c0b491883b7b1e0dbecb77808f083",
+    "candidate_blob": "a2a57df7215e36c99068175c7a9694650c0abb2c",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/original_synth/master.c",
+    "proposal_blob": "9e20893e180baf601aa16ac3fbcadbd7434612c3",
+    "donor_blob": "52b13a1ff02a53f93ce1fcaa585f9d5949085f3b",
+    "candidate_blob": "789799c1a9ddc80b6d7c4d7b3c71e580bed19e62",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/original_synth/miami_output.c",
+    "proposal_blob": "8adea53e2d6a19c450e38bea7923a6dd9ac21ef0",
+    "donor_blob": "aa48b4a2ce44376796aa659ab2df4cdf578bcca0",
+    "candidate_blob": "f48b219be3c13cc2cd6c94c96e79719329980852",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "experiments/wobble/miami_fx_conversion.h",
+    "proposal_blob": "02daa5cc1ccd6d857ec05e63a0720fb96483b1c4",
+    "donor_blob": "f0be9d6e26f077492d7b4448feea2c656b2d229c",
+    "candidate_blob": "2762f8f8384394ff3c149d208098643eff683c2b",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "firmware/src/dsp/original_chicago_backend.c",
+    "proposal_blob": "f60756a48036c92699dec51288d0dfa8c1db145e",
+    "donor_blob": "9a3b97b5e93cb4d108f8df32a1ab72f010c9cf16",
+    "candidate_blob": "aaa964099579e9ab6373005de2cb34996fafdcb1",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "2ad1b5171c8425011a9bdfb24b6f63c3d86986c8",
+    "path": "firmware/src/dsp/original_miami_backend.c",
+    "proposal_blob": "045b67623227d11b8bb6111db610bcf50798704e",
+    "donor_blob": "17f85e01be818640987904dc571f47b1accbd2d4",
+    "candidate_blob": "ffd0a686a5189dc1cbb0eaff6dc6b7061898037c",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "6319ffec183555f521412e854308f214ee5ff4c3",
+    "path": "experiments/original_synth/fixed_fx.c",
+    "proposal_blob": "6644ea5155f5c2e7790b1a9bf75fb9f5b265f796",
+    "donor_blob": "63c658fccc486cc15d1e23c762f9546d6bd4557f",
+    "candidate_blob": "63c658fccc486cc15d1e23c762f9546d6bd4557f",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "6319ffec183555f521412e854308f214ee5ff4c3",
+    "path": "experiments/wobble/miami_decimator_adapter.c",
+    "proposal_blob": "48c493cf0a262924341d31fb7e54ab1e91ec39a0",
+    "donor_blob": "18011463b208d9a862109d5d2d332292b7ccc061",
+    "candidate_blob": "18011463b208d9a862109d5d2d332292b7ccc061",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "6319ffec183555f521412e854308f214ee5ff4c3",
+    "path": "experiments/wobble/miami_decimator_component.c",
+    "proposal_blob": "7c223d8f47f4f0de6ac5047ba07a3b06e09e809a",
+    "donor_blob": "c371c4971c84d0fcff179656d2d65b203cb3387b",
+    "candidate_blob": "c371c4971c84d0fcff179656d2d65b203cb3387b",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "6319ffec183555f521412e854308f214ee5ff4c3",
+    "path": "experiments/wobble/miami_decimator_component.h",
+    "proposal_blob": "000f9ca32b23e5e3b777866a6867748378483757",
+    "donor_blob": "f302e14242e2645d4fe18ebb88defae97376c202",
+    "candidate_blob": "f302e14242e2645d4fe18ebb88defae97376c202",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "544e7f753b303b46ddd3565a496a4a5751a4b9b4",
+    "path": "experiments/original_synth/chicago_fx2_wrapper.c",
+    "proposal_blob": "ab65f52d991f883f4c21e533fa1b4914a9d3481b",
+    "donor_blob": "02808db5ac70cda4e7caa696c422cf60ac1ed617",
+    "candidate_blob": "ab65f52d991f883f4c21e533fa1b4914a9d3481b",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": false
+  },
+  {
+    "donor": "544e7f753b303b46ddd3565a496a4a5751a4b9b4",
+    "path": "experiments/original_synth/chicago_output.c",
+    "proposal_blob": "c34d88f7c2095a561788d7949eba1315672b14dc",
+    "donor_blob": "de639556b07855e930ace35e98db06698e31ccf8",
+    "candidate_blob": "c34d88f7c2095a561788d7949eba1315672b14dc",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": false
+  },
+  {
+    "donor": "544e7f753b303b46ddd3565a496a4a5751a4b9b4",
+    "path": "experiments/original_synth/master.c",
+    "proposal_blob": "9e20893e180baf601aa16ac3fbcadbd7434612c3",
+    "donor_blob": "789799c1a9ddc80b6d7c4d7b3c71e580bed19e62",
+    "candidate_blob": "789799c1a9ddc80b6d7c4d7b3c71e580bed19e62",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "544e7f753b303b46ddd3565a496a4a5751a4b9b4",
+    "path": "experiments/original_synth/master.h",
+    "proposal_blob": "77f5d34b4ae61ab8a10321a4f3cdf0fcebcc3ea4",
+    "donor_blob": "e69d7235e653bf6796ae99d053c8c430c713abb8",
+    "candidate_blob": "e69d7235e653bf6796ae99d053c8c430c713abb8",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "544e7f753b303b46ddd3565a496a4a5751a4b9b4",
+    "path": "experiments/original_synth/miami_output.c",
+    "proposal_blob": "8adea53e2d6a19c450e38bea7923a6dd9ac21ef0",
+    "donor_blob": "50bdde01c5b379cf3f155fb7b932daae76f82e32",
+    "candidate_blob": "f48b219be3c13cc2cd6c94c96e79719329980852",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "544e7f753b303b46ddd3565a496a4a5751a4b9b4",
+    "path": "experiments/wobble/miami_fx_conversion.c",
+    "proposal_blob": "28d69564f61eb7201e804d67180b9415a1ba9c95",
+    "donor_blob": "60b4ee20b193736a4756e5bc5e3ee5db29c916d3",
+    "candidate_blob": "60b4ee20b193736a4756e5bc5e3ee5db29c916d3",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "544e7f753b303b46ddd3565a496a4a5751a4b9b4",
+    "path": "experiments/wobble/miami_fx_conversion.h",
+    "proposal_blob": "02daa5cc1ccd6d857ec05e63a0720fb96483b1c4",
+    "donor_blob": "8e82c5e6e0aaa9655748023e1e17ad98fdcf15c6",
+    "candidate_blob": "2762f8f8384394ff3c149d208098643eff683c2b",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "544e7f753b303b46ddd3565a496a4a5751a4b9b4",
+    "path": "firmware/src/app/engine.c",
+    "proposal_blob": "eb2c85741e9d903cdae94eec86f76e4dbbab3427",
+    "donor_blob": "f675c64227bb2782d6ef7592d3ab5642aa5a023e",
+    "candidate_blob": "eb2c85741e9d903cdae94eec86f76e4dbbab3427",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": false
+  },
+  {
+    "donor": "544e7f753b303b46ddd3565a496a4a5751a4b9b4",
+    "path": "firmware/src/dsp/master.c",
+    "proposal_blob": "955586fff38a930c04a6f48e99c10ad50b6b026d",
+    "donor_blob": "2b2480a2676121c773105e9fedd498923b85afcf",
+    "candidate_blob": "955586fff38a930c04a6f48e99c10ad50b6b026d",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": false
+  },
+  {
+    "donor": "a41651e9391012c19f9e09df04226f1f0c438afd",
+    "path": "experiments/original_synth/chicago_voice.c",
+    "proposal_blob": "86dec201fad4d9eb44e5c6c15a1bd1f07e1a77eb",
+    "donor_blob": "64a60328889429eb37574f1505a229565cb62e08",
+    "candidate_blob": "0912163ce7ee08b72b4e3f2cc711ecafe2581819",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "a41651e9391012c19f9e09df04226f1f0c438afd",
+    "path": "experiments/original_synth/chicago_voice.h",
+    "proposal_blob": "45b19fe7d5ab87226f454ba25292a6b031aaef04",
+    "donor_blob": "a2a57df7215e36c99068175c7a9694650c0abb2c",
+    "candidate_blob": "a2a57df7215e36c99068175c7a9694650c0abb2c",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "a41651e9391012c19f9e09df04226f1f0c438afd",
+    "path": "tests/host/chicago_coef_cache_test.c",
+    "proposal_blob": null,
+    "donor_blob": "9461bdceadddc4b7f2b24e563c854230756fff75",
+    "candidate_blob": "9461bdceadddc4b7f2b24e563c854230756fff75",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "a41651e9391012c19f9e09df04226f1f0c438afd",
+    "path": "tests/host/chicago_coef_cache_test.sh",
+    "proposal_blob": null,
+    "donor_blob": "0a38e12b0af288822b962439117e59227942a2df",
+    "candidate_blob": "0a38e12b0af288822b962439117e59227942a2df",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "experiments/original_synth/miami_ms20.c",
+    "proposal_blob": "f753cedf6155a5fd8a0dfd63f02d93d77552f3d7",
+    "donor_blob": "04f4357ae5d9c97dc9d1ec404b293b2437722de4",
+    "candidate_blob": "04f4357ae5d9c97dc9d1ec404b293b2437722de4",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "experiments/original_synth/miami_pitch.c",
+    "proposal_blob": "65ebc957a562b54125aebe3a191d649ec435c72f",
+    "donor_blob": "95d6a0dd206961817eb44e9140107a57cbed0c7f",
+    "candidate_blob": "95d6a0dd206961817eb44e9140107a57cbed0c7f",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "experiments/original_synth/miami_pitch.h",
+    "proposal_blob": "89735b414f3b662f92ffb840e9f713d7f4d60490",
+    "donor_blob": "52caca0b6b87db9bd1a7de9f451d54be462db225",
+    "candidate_blob": "52caca0b6b87db9bd1a7de9f451d54be462db225",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "experiments/original_synth/miami_selected_voice.c",
+    "proposal_blob": "48caa5d25d46245f95e9f15f5cd08c41d0e660e2",
+    "donor_blob": "8f3d0cec0cafdcd23fb8844d175fa627835b827d",
+    "candidate_blob": "8f3d0cec0cafdcd23fb8844d175fa627835b827d",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "experiments/original_synth/miami_selected_voice.h",
+    "proposal_blob": "dce65323f8be66d50e04c5ea279397e44de58cd6",
+    "donor_blob": "7600165cab77df834654bb2d285435797ab61d7d",
+    "candidate_blob": "7600165cab77df834654bb2d285435797ab61d7d",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "experiments/original_synth/miami_voice_owner.c",
+    "proposal_blob": "641e519cda9212cb52f288a39c45cc9e5a84ffd8",
+    "donor_blob": "71e395390f6f39eb0c4f4ed0d60d6b288dd5abaf",
+    "candidate_blob": "61341b371ca7490e2cc220f04b93e8e5a6ceccaa",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "experiments/original_synth/miami_voice_owner.h",
+    "proposal_blob": "416570cdd98b1942d89481700dec3a6d98e9b687",
+    "donor_blob": "b1f7bab804e5256ba478ca0eb226684d6fcdcb96",
+    "candidate_blob": "b1f7bab804e5256ba478ca0eb226684d6fcdcb96",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "experiments/original_synth/miami_voice_snapshot.c",
+    "proposal_blob": "d50e9a663228a29a5ddabc0e5d3854461f93f864",
+    "donor_blob": "6a28a8e4af5aa9365a256439599a7ad093fa224a",
+    "candidate_blob": "6a28a8e4af5aa9365a256439599a7ad093fa224a",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "experiments/original_synth/oscillator_motion.c",
+    "proposal_blob": "1f99fa130c7831f63592f154a83838f7bfd8640e",
+    "donor_blob": "c61ee0651d84bda6405cd3f9030a040978b8f52a",
+    "candidate_blob": "f5ea378f581f7f99a8a25f274f1f29795e689769",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "experiments/original_synth/oscillator_motion.h",
+    "proposal_blob": "8043c28b48ab4d3593f69e7dd9af60f9bdbd803c",
+    "donor_blob": "fcdf2725e3dc0a4426ba63e8d0edb41fd60a5f90",
+    "candidate_blob": "fcdf2725e3dc0a4426ba63e8d0edb41fd60a5f90",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "firmware/src/dsp/original_miami_backend.c",
+    "proposal_blob": "045b67623227d11b8bb6111db610bcf50798704e",
+    "donor_blob": "b1354548ea284c01fc586a8e3c7b9e20b460cfc6",
+    "candidate_blob": "ffd0a686a5189dc1cbb0eaff6dc6b7061898037c",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "tests/host/miami_coef_cache_test.c",
+    "proposal_blob": null,
+    "donor_blob": "d833c9997ce0d5effd41ed1b606e1332c00c758a",
+    "candidate_blob": "d833c9997ce0d5effd41ed1b606e1332c00c758a",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "tests/host/miami_coef_pool_test.c",
+    "proposal_blob": null,
+    "donor_blob": "ef34d020526c89dc1769b2b299dbb8d03b675d41",
+    "candidate_blob": "ef34d020526c89dc1769b2b299dbb8d03b675d41",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "path": "tests/host/run_miami_coef_cache.sh",
+    "proposal_blob": null,
+    "donor_blob": "d7b5047343081cef0b43599d7eee55eff376f175",
+    "candidate_blob": "d7b5047343081cef0b43599d7eee55eff376f175",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+    "path": "experiments/original_synth/chicago_control_owner.c",
+    "proposal_blob": "e244e9470cc4518fee1f4350512b8db5e2d684dc",
+    "donor_blob": "214f942d1c16c5cd1b34661f56290805a6aacf27",
+    "candidate_blob": "214f942d1c16c5cd1b34661f56290805a6aacf27",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+    "path": "experiments/original_synth/chicago_voice.c",
+    "proposal_blob": "86dec201fad4d9eb44e5c6c15a1bd1f07e1a77eb",
+    "donor_blob": "c345615bb72bf680e778b175a771661ec099f62d",
+    "candidate_blob": "0912163ce7ee08b72b4e3f2cc711ecafe2581819",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+    "path": "experiments/original_synth/chicago_voice.h",
+    "proposal_blob": "45b19fe7d5ab87226f454ba25292a6b031aaef04",
+    "donor_blob": "a76d57df3c59eb47b39683ca09e04ff7743b3a7c",
+    "candidate_blob": "a2a57df7215e36c99068175c7a9694650c0abb2c",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+    "path": "experiments/original_synth/miami_control_owner.c",
+    "proposal_blob": "6f0f23ed6d4dc1aa6aeb7e9b63e256f3801b22ed",
+    "donor_blob": "114e64fecf27a4e195bd477192c3f2feb1e82e24",
+    "candidate_blob": "114e64fecf27a4e195bd477192c3f2feb1e82e24",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+    "path": "experiments/original_synth/miami_selected_voice.c",
+    "proposal_blob": "48caa5d25d46245f95e9f15f5cd08c41d0e660e2",
+    "donor_blob": "74d928eca49f2708e2fe7592b61f65d54e1e6c12",
+    "candidate_blob": "8f3d0cec0cafdcd23fb8844d175fa627835b827d",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+    "path": "experiments/original_synth/miami_selected_voice.h",
+    "proposal_blob": "dce65323f8be66d50e04c5ea279397e44de58cd6",
+    "donor_blob": "df85dd947b0f857e0021156e217fae45738f5812",
+    "candidate_blob": "7600165cab77df834654bb2d285435797ab61d7d",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+    "path": "tests/host/control_recompile_test.c",
+    "proposal_blob": null,
+    "donor_blob": "a7750237e8cb6261d875a7af1cb5bce40563c243",
+    "candidate_blob": "a7750237e8cb6261d875a7af1cb5bce40563c243",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+    "path": "tests/host/control_recompile_test.sh",
+    "proposal_blob": null,
+    "donor_blob": "f45a231aa16d28fd7c9c0bb02b15ae73df0c873a",
+    "candidate_blob": "a7060038c4d7f85f02aafc0f53ee7c8fa17fc0f1",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "0e04067d670dd77bdfdc7a28903d558f6ccc748e",
+    "path": "experiments/original_synth/miami_selected_voice.c",
+    "proposal_blob": "48caa5d25d46245f95e9f15f5cd08c41d0e660e2",
+    "donor_blob": "83dc2f345ce46f2d7768ef6cb3776f1066f3eeef",
+    "candidate_blob": "8f3d0cec0cafdcd23fb8844d175fa627835b827d",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "0e04067d670dd77bdfdc7a28903d558f6ccc748e",
+    "path": "experiments/original_synth/miami_selected_voice.h",
+    "proposal_blob": "dce65323f8be66d50e04c5ea279397e44de58cd6",
+    "donor_blob": "cd1218ee4fe5c82c8fe7499d4f53e7d30f77d3bf",
+    "candidate_blob": "7600165cab77df834654bb2d285435797ab61d7d",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "0e04067d670dd77bdfdc7a28903d558f6ccc748e",
+    "path": "tests/host/synth_peak_test.c",
+    "proposal_blob": null,
+    "donor_blob": "97b4436f901b8b710a7de00d933e75bc08ccc86d",
+    "candidate_blob": "97b4436f901b8b710a7de00d933e75bc08ccc86d",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  },
+  {
+    "donor": "0e04067d670dd77bdfdc7a28903d558f6ccc748e",
+    "path": "tests/host/synth_peak_test.py",
+    "proposal_blob": null,
+    "donor_blob": "8c21a792e98ba15830f394b473f10f28f2084796",
+    "candidate_blob": "8c21a792e98ba15830f394b473f10f28f2084796",
+    "proposal_exact_donor_file": false,
+    "candidate_changed": true
+  }
+]

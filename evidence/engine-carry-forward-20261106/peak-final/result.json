@@ -1,0 +1,3488 @@
+{
+  "host_only": true,
+  "sample_rate": 44100,
+  "render_frames": 256,
+  "dma_frames": 512,
+  "dma_deadline_ns": 11609977.324263038,
+  "rounds": 3,
+  "exact_fma": true,
+  "sanitized": false,
+  "pcm_equal": true,
+  "pcm_bytes_per_round": 20447232,
+  "pcm_sha256": "6d9ad20ca43cc3e81ba962df8a922d6d419487666150c69d0fc3c2f6da854404",
+  "timing": {
+    "candidate": [
+      {
+        "chicago/1": {
+          "max_block_cpu_ns": 139968.0,
+          "max_block_wall_ns": 140612.0,
+          "max_pair_cpu_ns": 160217.0,
+          "avg_ns_per_sample": 58.15167236328125,
+          "worst_cpu_block": "98",
+          "cold_adoption_cpu_ns": 28692.0
+        },
+        "miami/1": {
+          "max_block_cpu_ns": 88972.0,
+          "max_block_wall_ns": 89355.0,
+          "max_pair_cpu_ns": 127940.0,
+          "avg_ns_per_sample": 90.58154296875,
+          "worst_cpu_block": "102",
+          "cold_adoption_cpu_ns": 13940.0
+        },
+        "both/1": {
+          "max_block_cpu_ns": 98726.0,
+          "max_block_wall_ns": 99419.0,
+          "max_pair_cpu_ns": 156610.0,
+          "avg_ns_per_sample": 139.03582763671875,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 19860.0
+        },
+        "both-miami29-chorus/1": {
+          "max_block_cpu_ns": 181218.0,
+          "max_block_wall_ns": 181993.0,
+          "max_pair_cpu_ns": 247016.0,
+          "avg_ns_per_sample": 161.99105834960938,
+          "worst_cpu_block": "110",
+          "cold_adoption_cpu_ns": 21221.0
+        },
+        "both-miami18-peaking/1": {
+          "max_block_cpu_ns": 117794.0,
+          "max_block_wall_ns": 118418.0,
+          "max_pair_cpu_ns": 193268.0,
+          "avg_ns_per_sample": 154.92083740234375,
+          "worst_cpu_block": "73",
+          "cold_adoption_cpu_ns": 21712.0
+        },
+        "miami-edits/1": {
+          "max_block_cpu_ns": 106108.0,
+          "max_block_wall_ns": 106480.0,
+          "max_pair_cpu_ns": 203552.0,
+          "avg_ns_per_sample": 128.55752563476562,
+          "worst_cpu_block": "110",
+          "cold_adoption_cpu_ns": 9524.0
+        },
+        "miami-p00/1": {
+          "max_block_cpu_ns": 78416.0,
+          "max_block_wall_ns": 78899.0,
+          "max_pair_cpu_ns": 112086.0,
+          "avg_ns_per_sample": 86.45901489257812,
+          "worst_cpu_block": "79",
+          "cold_adoption_cpu_ns": 8432.0
+        },
+        "miami-p01/1": {
+          "max_block_cpu_ns": 74250.0,
+          "max_block_wall_ns": 74772.0,
+          "max_pair_cpu_ns": 107620.0,
+          "avg_ns_per_sample": 74.29428100585938,
+          "worst_cpu_block": "17",
+          "cold_adoption_cpu_ns": 8773.0
+        },
+        "miami-p02/1": {
+          "max_block_cpu_ns": 99959.0,
+          "max_block_wall_ns": 100371.0,
+          "max_pair_cpu_ns": 139498.0,
+          "avg_ns_per_sample": 95.23626708984375,
+          "worst_cpu_block": "10",
+          "cold_adoption_cpu_ns": 8232.0
+        },
+        "miami-p03/1": {
+          "max_block_cpu_ns": 75182.0,
+          "max_block_wall_ns": 75714.0,
+          "max_pair_cpu_ns": 125116.0,
+          "avg_ns_per_sample": 91.645263671875,
+          "worst_cpu_block": "34",
+          "cold_adoption_cpu_ns": 8963.0
+        },
+        "miami-p04/1": {
+          "max_block_cpu_ns": 97775.0,
+          "max_block_wall_ns": 98308.0,
+          "max_pair_cpu_ns": 136673.0,
+          "avg_ns_per_sample": 90.88949584960938,
+          "worst_cpu_block": "77",
+          "cold_adoption_cpu_ns": 8212.0
+        },
+        "miami-p05/1": {
+          "max_block_cpu_ns": 85206.0,
+          "max_block_wall_ns": 85669.0,
+          "max_pair_cpu_ns": 121480.0,
+          "avg_ns_per_sample": 86.6495361328125,
+          "worst_cpu_block": "109",
+          "cold_adoption_cpu_ns": 8323.0
+        },
+        "miami-p06/1": {
+          "max_block_cpu_ns": 50945.0,
+          "max_block_wall_ns": 51397.0,
+          "max_pair_cpu_ns": 82862.0,
+          "avg_ns_per_sample": 76.50650024414062,
+          "worst_cpu_block": "3",
+          "cold_adoption_cpu_ns": 8903.0
+        },
+        "miami-p07/1": {
+          "max_block_cpu_ns": 69803.0,
+          "max_block_wall_ns": 70286.0,
+          "max_pair_cpu_ns": 105655.0,
+          "avg_ns_per_sample": 84.01193237304688,
+          "worst_cpu_block": "13",
+          "cold_adoption_cpu_ns": 7992.0
+        },
+        "miami-p08/1": {
+          "max_block_cpu_ns": 61892.0,
+          "max_block_wall_ns": 62354.0,
+          "max_pair_cpu_ns": 101331.0,
+          "avg_ns_per_sample": 89.07809448242188,
+          "worst_cpu_block": "49",
+          "cold_adoption_cpu_ns": 8552.0
+        },
+        "miami-p09/1": {
+          "max_block_cpu_ns": 137353.0,
+          "max_block_wall_ns": 137767.0,
+          "max_pair_cpu_ns": 167047.0,
+          "avg_ns_per_sample": 74.94671630859375,
+          "worst_cpu_block": "47",
+          "cold_adoption_cpu_ns": 7361.0
+        },
+        "miami-p10/1": {
+          "max_block_cpu_ns": 69343.0,
+          "max_block_wall_ns": 69775.0,
+          "max_pair_cpu_ns": 107660.0,
+          "avg_ns_per_sample": 92.07388305664062,
+          "worst_cpu_block": "79",
+          "cold_adoption_cpu_ns": 8563.0
+        },
+        "miami-p11/1": {
+          "max_block_cpu_ns": 63534.0,
+          "max_block_wall_ns": 63936.0,
+          "max_pair_cpu_ns": 94510.0,
+          "avg_ns_per_sample": 73.557861328125,
+          "worst_cpu_block": "5",
+          "cold_adoption_cpu_ns": 7751.0
+        },
+        "miami-p12/1": {
+          "max_block_cpu_ns": 100509.0,
+          "max_block_wall_ns": 101042.0,
+          "max_pair_cpu_ns": 135711.0,
+          "avg_ns_per_sample": 82.80416870117188,
+          "worst_cpu_block": "40",
+          "cold_adoption_cpu_ns": 8433.0
+        },
+        "miami-p13/1": {
+          "max_block_cpu_ns": 84515.0,
+          "max_block_wall_ns": 85017.0,
+          "max_pair_cpu_ns": 120509.0,
+          "avg_ns_per_sample": 84.73681640625,
+          "worst_cpu_block": "8",
+          "cold_adoption_cpu_ns": 8573.0
+        },
+        "miami-p14/1": {
+          "max_block_cpu_ns": 98076.0,
+          "max_block_wall_ns": 98448.0,
+          "max_pair_cpu_ns": 136322.0,
+          "avg_ns_per_sample": 89.51715087890625,
+          "worst_cpu_block": "98",
+          "cold_adoption_cpu_ns": 9053.0
+        },
+        "miami-p15/1": {
+          "max_block_cpu_ns": 57324.0,
+          "max_block_wall_ns": 57737.0,
+          "max_pair_cpu_ns": 98485.0,
+          "avg_ns_per_sample": 92.86929321289062,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 8122.0
+        },
+        "miami-p16/1": {
+          "max_block_cpu_ns": 42723.0,
+          "max_block_wall_ns": 43105.0,
+          "max_pair_cpu_ns": 68992.0,
+          "avg_ns_per_sample": 61.433258056640625,
+          "worst_cpu_block": "46",
+          "cold_adoption_cpu_ns": 7371.0
+        },
+        "miami-p17/1": {
+          "max_block_cpu_ns": 59748.0,
+          "max_block_wall_ns": 66960.0,
+          "max_pair_cpu_ns": 100097.0,
+          "avg_ns_per_sample": 90.47518920898438,
+          "worst_cpu_block": "106",
+          "cold_adoption_cpu_ns": 7371.0
+        },
+        "miami-p18/1": {
+          "max_block_cpu_ns": 54371.0,
+          "max_block_wall_ns": 54782.0,
+          "max_pair_cpu_ns": 96283.0,
+          "avg_ns_per_sample": 89.58676147460938,
+          "worst_cpu_block": "97",
+          "cold_adoption_cpu_ns": 7712.0
+        },
+        "miami-p19/1": {
+          "max_block_cpu_ns": 49543.0,
+          "max_block_wall_ns": 49885.0,
+          "max_pair_cpu_ns": 84144.0,
+          "avg_ns_per_sample": 78.6431884765625,
+          "worst_cpu_block": "10",
+          "cold_adoption_cpu_ns": 7230.0
+        },
+        "miami-p20/1": {
+          "max_block_cpu_ns": 59809.0,
+          "max_block_wall_ns": 60160.0,
+          "max_pair_cpu_ns": 95452.0,
+          "avg_ns_per_sample": 83.697998046875,
+          "worst_cpu_block": "66",
+          "cold_adoption_cpu_ns": 6600.0
+        },
+        "miami-p21/1": {
+          "max_block_cpu_ns": 76884.0,
+          "max_block_wall_ns": 77267.0,
+          "max_pair_cpu_ns": 111936.0,
+          "avg_ns_per_sample": 81.15695190429688,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 7632.0
+        },
+        "miami-p22/1": {
+          "max_block_cpu_ns": 54311.0,
+          "max_block_wall_ns": 54743.0,
+          "max_pair_cpu_ns": 92998.0,
+          "avg_ns_per_sample": 90.35357666015625,
+          "worst_cpu_block": "99",
+          "cold_adoption_cpu_ns": 7772.0
+        },
+        "miami-p23/1": {
+          "max_block_cpu_ns": 144304.0,
+          "max_block_wall_ns": 146580.0,
+          "max_pair_cpu_ns": 188069.0,
+          "avg_ns_per_sample": 102.64511108398438,
+          "worst_cpu_block": "74",
+          "cold_adoption_cpu_ns": 7160.0
+        },
+        "miami-p24/1": {
+          "max_block_cpu_ns": 87119.0,
+          "max_block_wall_ns": 87552.0,
+          "max_pair_cpu_ns": 124955.0,
+          "avg_ns_per_sample": 84.8529052734375,
+          "worst_cpu_block": "42",
+          "cold_adoption_cpu_ns": 8543.0
+        },
+        "miami-p25/1": {
+          "max_block_cpu_ns": 54630.0,
+          "max_block_wall_ns": 55033.0,
+          "max_pair_cpu_ns": 88511.0,
+          "avg_ns_per_sample": 77.9495849609375,
+          "worst_cpu_block": "111",
+          "cold_adoption_cpu_ns": 8222.0
+        },
+        "miami-p26/1": {
+          "max_block_cpu_ns": 48953.0,
+          "max_block_wall_ns": 50275.0,
+          "max_pair_cpu_ns": 82813.0,
+          "avg_ns_per_sample": 75.64010620117188,
+          "worst_cpu_block": "113",
+          "cold_adoption_cpu_ns": 8342.0
+        },
+        "miami-p27/1": {
+          "max_block_cpu_ns": 81481.0,
+          "max_block_wall_ns": 82113.0,
+          "max_pair_cpu_ns": 121800.0,
+          "avg_ns_per_sample": 91.7811279296875,
+          "worst_cpu_block": "70",
+          "cold_adoption_cpu_ns": 7451.0
+        },
+        "miami-p28/1": {
+          "max_block_cpu_ns": 220877.0,
+          "max_block_wall_ns": 221443.0,
+          "max_pair_cpu_ns": 260886.0,
+          "avg_ns_per_sample": 99.343994140625,
+          "worst_cpu_block": "14",
+          "cold_adoption_cpu_ns": 8072.0
+        },
+        "miami-p29/1": {
+          "max_block_cpu_ns": 158434.0,
+          "max_block_wall_ns": 159139.0,
+          "max_pair_cpu_ns": 200496.0,
+          "avg_ns_per_sample": 88.90301513671875,
+          "worst_cpu_block": "14",
+          "cold_adoption_cpu_ns": 9564.0
+        },
+        "chicago/4": {
+          "max_block_cpu_ns": 85097.0,
+          "max_block_wall_ns": 85559.0,
+          "max_pair_cpu_ns": 105087.0,
+          "avg_ns_per_sample": 52.50341796875,
+          "worst_cpu_block": "45",
+          "cold_adoption_cpu_ns": 16745.0
+        },
+        "miami/4": {
+          "max_block_cpu_ns": 57084.0,
+          "max_block_wall_ns": 57497.0,
+          "max_pair_cpu_ns": 95120.0,
+          "avg_ns_per_sample": 85.949951171875,
+          "worst_cpu_block": "3",
+          "cold_adoption_cpu_ns": 10936.0
+        },
+        "both/4": {
+          "max_block_cpu_ns": 149591.0,
+          "max_block_wall_ns": 150446.0,
+          "max_pair_cpu_ns": 204072.0,
+          "avg_ns_per_sample": 140.8687744140625,
+          "worst_cpu_block": "14",
+          "cold_adoption_cpu_ns": 19869.0
+        },
+        "both-miami29-chorus/4": {
+          "max_block_cpu_ns": 77675.0,
+          "max_block_wall_ns": 78318.0,
+          "max_pair_cpu_ns": 144304.0,
+          "avg_ns_per_sample": 141.83120727539062,
+          "worst_cpu_block": "17",
+          "cold_adoption_cpu_ns": 21212.0
+        },
+        "both-miami18-peaking/4": {
+          "max_block_cpu_ns": 165765.0,
+          "max_block_wall_ns": 166420.0,
+          "max_pair_cpu_ns": 238913.0,
+          "avg_ns_per_sample": 153.8170166015625,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 18848.0
+        },
+        "miami-edits/4": {
+          "max_block_cpu_ns": 363418.0,
+          "max_block_wall_ns": 364147.0,
+          "max_pair_cpu_ns": 412441.0,
+          "avg_ns_per_sample": 138.45806884765625,
+          "worst_cpu_block": "97",
+          "cold_adoption_cpu_ns": 8983.0
+        },
+        "miami-p00/4": {
+          "max_block_cpu_ns": 57024.0,
+          "max_block_wall_ns": 57436.0,
+          "max_pair_cpu_ns": 100107.0,
+          "avg_ns_per_sample": 84.93515014648438,
+          "worst_cpu_block": "33",
+          "cold_adoption_cpu_ns": 26740.0
+        },
+        "miami-p01/4": {
+          "max_block_cpu_ns": 45898.0,
+          "max_block_wall_ns": 46290.0,
+          "max_pair_cpu_ns": 76613.0,
+          "avg_ns_per_sample": 72.24826049804688,
+          "worst_cpu_block": "39",
+          "cold_adoption_cpu_ns": 7942.0
+        },
+        "miami-p02/4": {
+          "max_block_cpu_ns": 57906.0,
+          "max_block_wall_ns": 58428.0,
+          "max_pair_cpu_ns": 100500.0,
+          "avg_ns_per_sample": 94.08377075195312,
+          "worst_cpu_block": "38",
+          "cold_adoption_cpu_ns": 7731.0
+        },
+        "miami-p03/4": {
+          "max_block_cpu_ns": 59658.0,
+          "max_block_wall_ns": 64848.0,
+          "max_pair_cpu_ns": 100228.0,
+          "avg_ns_per_sample": 93.156494140625,
+          "worst_cpu_block": "106",
+          "cold_adoption_cpu_ns": 7421.0
+        },
+        "miami-p04/4": {
+          "max_block_cpu_ns": 79658.0,
+          "max_block_wall_ns": 80011.0,
+          "max_pair_cpu_ns": 124895.0,
+          "avg_ns_per_sample": 92.1533203125,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 6880.0
+        },
+        "miami-p05/4": {
+          "max_block_cpu_ns": 98696.0,
+          "max_block_wall_ns": 99129.0,
+          "max_pair_cpu_ns": 135851.0,
+          "avg_ns_per_sample": 91.56964111328125,
+          "worst_cpu_block": "80",
+          "cold_adoption_cpu_ns": 8643.0
+        },
+        "miami-p06/4": {
+          "max_block_cpu_ns": 83203.0,
+          "max_block_wall_ns": 83616.0,
+          "max_pair_cpu_ns": 115250.0,
+          "avg_ns_per_sample": 77.26992797851562,
+          "worst_cpu_block": "64",
+          "cold_adoption_cpu_ns": 8953.0
+        },
+        "miami-p07/4": {
+          "max_block_cpu_ns": 84324.0,
+          "max_block_wall_ns": 84727.0,
+          "max_pair_cpu_ns": 120958.0,
+          "avg_ns_per_sample": 86.83883666992188,
+          "worst_cpu_block": "10",
+          "cold_adoption_cpu_ns": 7972.0
+        },
+        "miami-p08/4": {
+          "max_block_cpu_ns": 65778.0,
+          "max_block_wall_ns": 66179.0,
+          "max_pair_cpu_ns": 105427.0,
+          "avg_ns_per_sample": 86.50100708007812,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 8523.0
+        },
+        "miami-p09/4": {
+          "max_block_cpu_ns": 90684.0,
+          "max_block_wall_ns": 91197.0,
+          "max_pair_cpu_ns": 123032.0,
+          "avg_ns_per_sample": 72.3746337890625,
+          "worst_cpu_block": "98",
+          "cold_adoption_cpu_ns": 7711.0
+        },
+        "miami-p10/4": {
+          "max_block_cpu_ns": 67630.0,
+          "max_block_wall_ns": 68073.0,
+          "max_pair_cpu_ns": 106998.0,
+          "avg_ns_per_sample": 91.21237182617188,
+          "worst_cpu_block": "6",
+          "cold_adoption_cpu_ns": 8242.0
+        },
+        "miami-p11/4": {
+          "max_block_cpu_ns": 48782.0,
+          "max_block_wall_ns": 49254.0,
+          "max_pair_cpu_ns": 84075.0,
+          "avg_ns_per_sample": 71.60028076171875,
+          "worst_cpu_block": "1",
+          "cold_adoption_cpu_ns": 7150.0
+        },
+        "miami-p12/4": {
+          "max_block_cpu_ns": 52428.0,
+          "max_block_wall_ns": 52849.0,
+          "max_pair_cpu_ns": 88201.0,
+          "avg_ns_per_sample": 78.9920654296875,
+          "worst_cpu_block": "65",
+          "cold_adoption_cpu_ns": 8052.0
+        },
+        "miami-p13/4": {
+          "max_block_cpu_ns": 53970.0,
+          "max_block_wall_ns": 54392.0,
+          "max_pair_cpu_ns": 89202.0,
+          "avg_ns_per_sample": 82.94061279296875,
+          "worst_cpu_block": "15",
+          "cold_adoption_cpu_ns": 7772.0
+        },
+        "miami-p14/4": {
+          "max_block_cpu_ns": 80258.0,
+          "max_block_wall_ns": 80992.0,
+          "max_pair_cpu_ns": 119116.0,
+          "avg_ns_per_sample": 93.262451171875,
+          "worst_cpu_block": "64",
+          "cold_adoption_cpu_ns": 7321.0
+        },
+        "miami-p15/4": {
+          "max_block_cpu_ns": 78807.0,
+          "max_block_wall_ns": 79169.0,
+          "max_pair_cpu_ns": 123484.0,
+          "avg_ns_per_sample": 96.52639770507812,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 8853.0
+        },
+        "miami-p16/4": {
+          "max_block_cpu_ns": 44035.0,
+          "max_block_wall_ns": 44387.0,
+          "max_pair_cpu_ns": 72418.0,
+          "avg_ns_per_sample": 63.1375732421875,
+          "worst_cpu_block": "38",
+          "cold_adoption_cpu_ns": 8002.0
+        },
+        "miami-p17/4": {
+          "max_block_cpu_ns": 112536.0,
+          "max_block_wall_ns": 113280.0,
+          "max_pair_cpu_ns": 151353.0,
+          "avg_ns_per_sample": 97.86831665039062,
+          "worst_cpu_block": "32",
+          "cold_adoption_cpu_ns": 7421.0
+        },
+        "miami-p18/4": {
+          "max_block_cpu_ns": 89271.0,
+          "max_block_wall_ns": 89755.0,
+          "max_pair_cpu_ns": 128889.0,
+          "avg_ns_per_sample": 95.21878051757812,
+          "worst_cpu_block": "43",
+          "cold_adoption_cpu_ns": 8723.0
+        },
+        "miami-p19/4": {
+          "max_block_cpu_ns": 56374.0,
+          "max_block_wall_ns": 56775.0,
+          "max_pair_cpu_ns": 89474.0,
+          "avg_ns_per_sample": 79.004638671875,
+          "worst_cpu_block": "39",
+          "cold_adoption_cpu_ns": 25378.0
+        },
+        "miami-p20/4": {
+          "max_block_cpu_ns": 249829.0,
+          "max_block_wall_ns": 250737.0,
+          "max_pair_cpu_ns": 291641.0,
+          "avg_ns_per_sample": 91.07562255859375,
+          "worst_cpu_block": "100",
+          "cold_adoption_cpu_ns": 7631.0
+        },
+        "miami-p21/4": {
+          "max_block_cpu_ns": 53469.0,
+          "max_block_wall_ns": 53881.0,
+          "max_pair_cpu_ns": 87349.0,
+          "avg_ns_per_sample": 78.92044067382812,
+          "worst_cpu_block": "37",
+          "cold_adoption_cpu_ns": 8873.0
+        },
+        "miami-p22/4": {
+          "max_block_cpu_ns": 92988.0,
+          "max_block_wall_ns": 93461.0,
+          "max_pair_cpu_ns": 150814.0,
+          "avg_ns_per_sample": 94.3804931640625,
+          "worst_cpu_block": "2",
+          "cold_adoption_cpu_ns": 7771.0
+        },
+        "miami-p23/4": {
+          "max_block_cpu_ns": 147509.0,
+          "max_block_wall_ns": 148093.0,
+          "max_pair_cpu_ns": 196582.0,
+          "avg_ns_per_sample": 104.74981689453125,
+          "worst_cpu_block": "10",
+          "cold_adoption_cpu_ns": 8803.0
+        },
+        "miami-p24/4": {
+          "max_block_cpu_ns": 90063.0,
+          "max_block_wall_ns": 90476.0,
+          "max_pair_cpu_ns": 128851.0,
+          "avg_ns_per_sample": 85.9395751953125,
+          "worst_cpu_block": "12",
+          "cold_adoption_cpu_ns": 8703.0
+        },
+        "miami-p25/4": {
+          "max_block_cpu_ns": 56523.0,
+          "max_block_wall_ns": 56955.0,
+          "max_pair_cpu_ns": 92987.0,
+          "avg_ns_per_sample": 77.75521850585938,
+          "worst_cpu_block": "97",
+          "cold_adoption_cpu_ns": 24566.0
+        },
+        "miami-p26/4": {
+          "max_block_cpu_ns": 102322.0,
+          "max_block_wall_ns": 102994.0,
+          "max_pair_cpu_ns": 165005.0,
+          "avg_ns_per_sample": 76.76718139648438,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 7992.0
+        },
+        "miami-p27/4": {
+          "max_block_cpu_ns": 56123.0,
+          "max_block_wall_ns": 56525.0,
+          "max_pair_cpu_ns": 95151.0,
+          "avg_ns_per_sample": 90.56753540039062,
+          "worst_cpu_block": "12",
+          "cold_adoption_cpu_ns": 7882.0
+        },
+        "miami-p28/4": {
+          "max_block_cpu_ns": 60760.0,
+          "max_block_wall_ns": 61162.0,
+          "max_pair_cpu_ns": 98465.0,
+          "avg_ns_per_sample": 89.33755493164062,
+          "worst_cpu_block": "77",
+          "cold_adoption_cpu_ns": 7621.0
+        },
+        "miami-p29/4": {
+          "max_block_cpu_ns": 48702.0,
+          "max_block_wall_ns": 49154.0,
+          "max_pair_cpu_ns": 85026.0,
+          "avg_ns_per_sample": 76.35861206054688,
+          "worst_cpu_block": "81",
+          "cold_adoption_cpu_ns": 8513.0
+        }
+      },
+      {
+        "chicago/1": {
+          "max_block_cpu_ns": 45758.0,
+          "max_block_wall_ns": 46130.0,
+          "max_pair_cpu_ns": 66218.0,
+          "avg_ns_per_sample": 49.700347900390625,
+          "worst_cpu_block": "32",
+          "cold_adoption_cpu_ns": 29413.0
+        },
+        "miami/1": {
+          "max_block_cpu_ns": 55333.0,
+          "max_block_wall_ns": 55784.0,
+          "max_pair_cpu_ns": 92308.0,
+          "avg_ns_per_sample": 85.50775146484375,
+          "worst_cpu_block": "70",
+          "cold_adoption_cpu_ns": 13771.0
+        },
+        "both/1": {
+          "max_block_cpu_ns": 144665.0,
+          "max_block_wall_ns": 145518.0,
+          "max_pair_cpu_ns": 204822.0,
+          "avg_ns_per_sample": 144.26589965820312,
+          "worst_cpu_block": "99",
+          "cold_adoption_cpu_ns": 18398.0
+        },
+        "both-miami29-chorus/1": {
+          "max_block_cpu_ns": 209309.0,
+          "max_block_wall_ns": 210216.0,
+          "max_pair_cpu_ns": 277149.0,
+          "avg_ns_per_sample": 160.41513061523438,
+          "worst_cpu_block": "15",
+          "cold_adoption_cpu_ns": 21582.0
+        },
+        "both-miami18-peaking/1": {
+          "max_block_cpu_ns": 112776.0,
+          "max_block_wall_ns": 113600.0,
+          "max_pair_cpu_ns": 179974.0,
+          "avg_ns_per_sample": 149.01727294921875,
+          "worst_cpu_block": "35",
+          "cold_adoption_cpu_ns": 21522.0
+        },
+        "miami-edits/1": {
+          "max_block_cpu_ns": 129722.0,
+          "max_block_wall_ns": 130286.0,
+          "max_pair_cpu_ns": 189050.0,
+          "avg_ns_per_sample": 129.35040283203125,
+          "worst_cpu_block": "120",
+          "cold_adoption_cpu_ns": 9634.0
+        },
+        "miami-p00/1": {
+          "max_block_cpu_ns": 85216.0,
+          "max_block_wall_ns": 96536.0,
+          "max_pair_cpu_ns": 121360.0,
+          "avg_ns_per_sample": 89.53277587890625,
+          "worst_cpu_block": "48",
+          "cold_adoption_cpu_ns": 9114.0
+        },
+        "miami-p01/1": {
+          "max_block_cpu_ns": 45838.0,
+          "max_block_wall_ns": 46260.0,
+          "max_pair_cpu_ns": 78597.0,
+          "avg_ns_per_sample": 72.14016723632812,
+          "worst_cpu_block": "73",
+          "cold_adoption_cpu_ns": 8623.0
+        },
+        "miami-p02/1": {
+          "max_block_cpu_ns": 137584.0,
+          "max_block_wall_ns": 138088.0,
+          "max_pair_cpu_ns": 176772.0,
+          "avg_ns_per_sample": 94.67449951171875,
+          "worst_cpu_block": "77",
+          "cold_adoption_cpu_ns": 7581.0
+        },
+        "miami-p03/1": {
+          "max_block_cpu_ns": 70835.0,
+          "max_block_wall_ns": 71277.0,
+          "max_pair_cpu_ns": 111916.0,
+          "avg_ns_per_sample": 90.0177001953125,
+          "worst_cpu_block": "98",
+          "cold_adoption_cpu_ns": 8753.0
+        },
+        "miami-p04/1": {
+          "max_block_cpu_ns": 85867.0,
+          "max_block_wall_ns": 86400.0,
+          "max_pair_cpu_ns": 123292.0,
+          "avg_ns_per_sample": 89.930419921875,
+          "worst_cpu_block": "36",
+          "cold_adoption_cpu_ns": 8132.0
+        },
+        "miami-p05/1": {
+          "max_block_cpu_ns": 110744.0,
+          "max_block_wall_ns": 111337.0,
+          "max_pair_cpu_ns": 149211.0,
+          "avg_ns_per_sample": 90.1295166015625,
+          "worst_cpu_block": "75",
+          "cold_adoption_cpu_ns": 8142.0
+        },
+        "miami-p06/1": {
+          "max_block_cpu_ns": 81020.0,
+          "max_block_wall_ns": 81573.0,
+          "max_pair_cpu_ns": 118115.0,
+          "avg_ns_per_sample": 80.977294921875,
+          "worst_cpu_block": "101",
+          "cold_adoption_cpu_ns": 9274.0
+        },
+        "miami-p07/1": {
+          "max_block_cpu_ns": 68611.0,
+          "max_block_wall_ns": 68994.0,
+          "max_pair_cpu_ns": 105776.0,
+          "avg_ns_per_sample": 84.20864868164062,
+          "worst_cpu_block": "48",
+          "cold_adoption_cpu_ns": 8673.0
+        },
+        "miami-p08/1": {
+          "max_block_cpu_ns": 110374.0,
+          "max_block_wall_ns": 111097.0,
+          "max_pair_cpu_ns": 151245.0,
+          "avg_ns_per_sample": 93.88906860351562,
+          "worst_cpu_block": "76",
+          "cold_adoption_cpu_ns": 8563.0
+        },
+        "miami-p09/1": {
+          "max_block_cpu_ns": 46729.0,
+          "max_block_wall_ns": 47061.0,
+          "max_pair_cpu_ns": 76744.0,
+          "avg_ns_per_sample": 69.9403076171875,
+          "worst_cpu_block": "74",
+          "cold_adoption_cpu_ns": 8353.0
+        },
+        "miami-p10/1": {
+          "max_block_cpu_ns": 53380.0,
+          "max_block_wall_ns": 53770.0,
+          "max_pair_cpu_ns": 92538.0,
+          "avg_ns_per_sample": 89.28558349609375,
+          "worst_cpu_block": "104",
+          "cold_adoption_cpu_ns": 8493.0
+        },
+        "miami-p11/1": {
+          "max_block_cpu_ns": 110154.0,
+          "max_block_wall_ns": 110686.0,
+          "max_pair_cpu_ns": 143444.0,
+          "avg_ns_per_sample": 74.91195678710938,
+          "worst_cpu_block": "2",
+          "cold_adoption_cpu_ns": 7231.0
+        },
+        "miami-p12/1": {
+          "max_block_cpu_ns": 156152.0,
+          "max_block_wall_ns": 156765.0,
+          "max_pair_cpu_ns": 191244.0,
+          "avg_ns_per_sample": 89.91290283203125,
+          "worst_cpu_block": "64",
+          "cold_adoption_cpu_ns": 9283.0
+        },
+        "miami-p13/1": {
+          "max_block_cpu_ns": 67930.0,
+          "max_block_wall_ns": 68343.0,
+          "max_pair_cpu_ns": 104304.0,
+          "avg_ns_per_sample": 85.66937255859375,
+          "worst_cpu_block": "43",
+          "cold_adoption_cpu_ns": 8853.0
+        },
+        "miami-p14/1": {
+          "max_block_cpu_ns": 97714.0,
+          "max_block_wall_ns": 98158.0,
+          "max_pair_cpu_ns": 138604.0,
+          "avg_ns_per_sample": 90.88674926757812,
+          "worst_cpu_block": "106",
+          "cold_adoption_cpu_ns": 8152.0
+        },
+        "miami-p15/1": {
+          "max_block_cpu_ns": 63734.0,
+          "max_block_wall_ns": 64176.0,
+          "max_pair_cpu_ns": 103783.0,
+          "avg_ns_per_sample": 93.12054443359375,
+          "worst_cpu_block": "70",
+          "cold_adoption_cpu_ns": 9935.0
+        },
+        "miami-p16/1": {
+          "max_block_cpu_ns": 45317.0,
+          "max_block_wall_ns": 45658.0,
+          "max_pair_cpu_ns": 72256.0,
+          "avg_ns_per_sample": 61.919189453125,
+          "worst_cpu_block": "32",
+          "cold_adoption_cpu_ns": 7881.0
+        },
+        "miami-p17/1": {
+          "max_block_cpu_ns": 146556.0,
+          "max_block_wall_ns": 147041.0,
+          "max_pair_cpu_ns": 204602.0,
+          "avg_ns_per_sample": 96.83255004882812,
+          "worst_cpu_block": "44",
+          "cold_adoption_cpu_ns": 7241.0
+        },
+        "miami-p18/1": {
+          "max_block_cpu_ns": 90674.0,
+          "max_block_wall_ns": 91066.0,
+          "max_pair_cpu_ns": 130613.0,
+          "avg_ns_per_sample": 92.49078369140625,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 8923.0
+        },
+        "miami-p19/1": {
+          "max_block_cpu_ns": 80700.0,
+          "max_block_wall_ns": 81232.0,
+          "max_pair_cpu_ns": 116834.0,
+          "avg_ns_per_sample": 80.77706909179688,
+          "worst_cpu_block": "65",
+          "cold_adoption_cpu_ns": 8853.0
+        },
+        "miami-p20/1": {
+          "max_block_cpu_ns": 129481.0,
+          "max_block_wall_ns": 129956.0,
+          "max_pair_cpu_ns": 165514.0,
+          "avg_ns_per_sample": 85.7044677734375,
+          "worst_cpu_block": "105",
+          "cold_adoption_cpu_ns": 7872.0
+        },
+        "miami-p21/1": {
+          "max_block_cpu_ns": 55021.0,
+          "max_block_wall_ns": 55383.0,
+          "max_pair_cpu_ns": 89722.0,
+          "avg_ns_per_sample": 80.14862060546875,
+          "worst_cpu_block": "106",
+          "cold_adoption_cpu_ns": 8292.0
+        },
+        "miami-p22/1": {
+          "max_block_cpu_ns": 55792.0,
+          "max_block_wall_ns": 56175.0,
+          "max_pair_cpu_ns": 93538.0,
+          "avg_ns_per_sample": 90.26519775390625,
+          "worst_cpu_block": "67",
+          "cold_adoption_cpu_ns": 7381.0
+        },
+        "miami-p23/1": {
+          "max_block_cpu_ns": 59168.0,
+          "max_block_wall_ns": 59529.0,
+          "max_pair_cpu_ns": 101991.0,
+          "avg_ns_per_sample": 97.65847778320312,
+          "worst_cpu_block": "8",
+          "cold_adoption_cpu_ns": 7891.0
+        },
+        "miami-p24/1": {
+          "max_block_cpu_ns": 48050.0,
+          "max_block_wall_ns": 48473.0,
+          "max_pair_cpu_ns": 83002.0,
+          "avg_ns_per_sample": 80.82070922851562,
+          "worst_cpu_block": "37",
+          "cold_adoption_cpu_ns": 8503.0
+        },
+        "miami-p25/1": {
+          "max_block_cpu_ns": 47300.0,
+          "max_block_wall_ns": 47702.0,
+          "max_pair_cpu_ns": 81971.0,
+          "avg_ns_per_sample": 77.44052124023438,
+          "worst_cpu_block": "5",
+          "cold_adoption_cpu_ns": 7421.0
+        },
+        "miami-p26/1": {
+          "max_block_cpu_ns": 76954.0,
+          "max_block_wall_ns": 77336.0,
+          "max_pair_cpu_ns": 108821.0,
+          "avg_ns_per_sample": 76.52566528320312,
+          "worst_cpu_block": "34",
+          "cold_adoption_cpu_ns": 8853.0
+        },
+        "miami-p27/1": {
+          "max_block_cpu_ns": 96953.0,
+          "max_block_wall_ns": 97296.0,
+          "max_pair_cpu_ns": 138515.0,
+          "avg_ns_per_sample": 96.21621704101562,
+          "worst_cpu_block": "70",
+          "cold_adoption_cpu_ns": 8453.0
+        },
+        "miami-p28/1": {
+          "max_block_cpu_ns": 105216.0,
+          "max_block_wall_ns": 105909.0,
+          "max_pair_cpu_ns": 142751.0,
+          "avg_ns_per_sample": 91.40255737304688,
+          "worst_cpu_block": "39",
+          "cold_adoption_cpu_ns": 8482.0
+        },
+        "miami-p29/1": {
+          "max_block_cpu_ns": 69032.0,
+          "max_block_wall_ns": 69544.0,
+          "max_pair_cpu_ns": 113708.0,
+          "avg_ns_per_sample": 86.44833374023438,
+          "worst_cpu_block": "4",
+          "cold_adoption_cpu_ns": 8883.0
+        },
+        "chicago/4": {
+          "max_block_cpu_ns": 58567.0,
+          "max_block_wall_ns": 59009.0,
+          "max_pair_cpu_ns": 80549.0,
+          "avg_ns_per_sample": 50.485595703125,
+          "worst_cpu_block": "4",
+          "cold_adoption_cpu_ns": 15983.0
+        },
+        "miami/4": {
+          "max_block_cpu_ns": 57305.0,
+          "max_block_wall_ns": 57777.0,
+          "max_pair_cpu_ns": 100128.0,
+          "avg_ns_per_sample": 85.942138671875,
+          "worst_cpu_block": "81",
+          "cold_adoption_cpu_ns": 9174.0
+        },
+        "both/4": {
+          "max_block_cpu_ns": 89112.0,
+          "max_block_wall_ns": 89805.0,
+          "max_pair_cpu_ns": 167888.0,
+          "avg_ns_per_sample": 136.84219360351562,
+          "worst_cpu_block": "75",
+          "cold_adoption_cpu_ns": 17456.0
+        },
+        "both-miami29-chorus/4": {
+          "max_block_cpu_ns": 267905.0,
+          "max_block_wall_ns": 268754.0,
+          "max_pair_cpu_ns": 333112.0,
+          "avg_ns_per_sample": 154.62814331054688,
+          "worst_cpu_block": "46",
+          "cold_adoption_cpu_ns": 20671.0
+        },
+        "both-miami18-peaking/4": {
+          "max_block_cpu_ns": 114349.0,
+          "max_block_wall_ns": 115103.0,
+          "max_pair_cpu_ns": 175871.0,
+          "avg_ns_per_sample": 151.30892944335938,
+          "worst_cpu_block": "48",
+          "cold_adoption_cpu_ns": 21883.0
+        },
+        "miami-edits/4": {
+          "max_block_cpu_ns": 86028.0,
+          "max_block_wall_ns": 86419.0,
+          "max_pair_cpu_ns": 150163.0,
+          "avg_ns_per_sample": 124.2645263671875,
+          "worst_cpu_block": "126",
+          "cold_adoption_cpu_ns": 10035.0
+        },
+        "miami-p00/4": {
+          "max_block_cpu_ns": 128460.0,
+          "max_block_wall_ns": 129234.0,
+          "max_pair_cpu_ns": 166847.0,
+          "avg_ns_per_sample": 93.11984252929688,
+          "worst_cpu_block": "34",
+          "cold_adoption_cpu_ns": 8543.0
+        },
+        "miami-p01/4": {
+          "max_block_cpu_ns": 88411.0,
+          "max_block_wall_ns": 88933.0,
+          "max_pair_cpu_ns": 120378.0,
+          "avg_ns_per_sample": 78.54458618164062,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 14461.0
+        },
+        "miami-p02/4": {
+          "max_block_cpu_ns": 63234.0,
+          "max_block_wall_ns": 63595.0,
+          "max_pair_cpu_ns": 105256.0,
+          "avg_ns_per_sample": 93.86373901367188,
+          "worst_cpu_block": "64",
+          "cold_adoption_cpu_ns": 8372.0
+        },
+        "miami-p03/4": {
+          "max_block_cpu_ns": 59218.0,
+          "max_block_wall_ns": 59590.0,
+          "max_pair_cpu_ns": 98416.0,
+          "avg_ns_per_sample": 93.44488525390625,
+          "worst_cpu_block": "44",
+          "cold_adoption_cpu_ns": 8312.0
+        },
+        "miami-p04/4": {
+          "max_block_cpu_ns": 263661.0,
+          "max_block_wall_ns": 264557.0,
+          "max_pair_cpu_ns": 305633.0,
+          "avg_ns_per_sample": 99.62847900390625,
+          "worst_cpu_block": "2",
+          "cold_adoption_cpu_ns": 7952.0
+        },
+        "miami-p05/4": {
+          "max_block_cpu_ns": 257641.0,
+          "max_block_wall_ns": 258258.0,
+          "max_pair_cpu_ns": 294235.0,
+          "avg_ns_per_sample": 98.19821166992188,
+          "worst_cpu_block": "41",
+          "cold_adoption_cpu_ns": 8693.0
+        },
+        "miami-p06/4": {
+          "max_block_cpu_ns": 143582.0,
+          "max_block_wall_ns": 144206.0,
+          "max_pair_cpu_ns": 175399.0,
+          "avg_ns_per_sample": 82.48184204101562,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 9144.0
+        },
+        "miami-p07/4": {
+          "max_block_cpu_ns": 53880.0,
+          "max_block_wall_ns": 54351.0,
+          "max_pair_cpu_ns": 89844.0,
+          "avg_ns_per_sample": 83.97482299804688,
+          "worst_cpu_block": "37",
+          "cold_adoption_cpu_ns": 47881.0
+        },
+        "miami-p08/4": {
+          "max_block_cpu_ns": 52859.0,
+          "max_block_wall_ns": 53220.0,
+          "max_pair_cpu_ns": 94150.0,
+          "avg_ns_per_sample": 85.45587158203125,
+          "worst_cpu_block": "40",
+          "cold_adoption_cpu_ns": 8633.0
+        },
+        "miami-p09/4": {
+          "max_block_cpu_ns": 48352.0,
+          "max_block_wall_ns": 48753.0,
+          "max_pair_cpu_ns": 78937.0,
+          "avg_ns_per_sample": 70.68212890625,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 7371.0
+        },
+        "miami-p10/4": {
+          "max_block_cpu_ns": 55332.0,
+          "max_block_wall_ns": 55784.0,
+          "max_pair_cpu_ns": 94530.0,
+          "avg_ns_per_sample": 90.2210693359375,
+          "worst_cpu_block": "45",
+          "cold_adoption_cpu_ns": 7702.0
+        },
+        "miami-p11/4": {
+          "max_block_cpu_ns": 47310.0,
+          "max_block_wall_ns": 47641.0,
+          "max_pair_cpu_ns": 78316.0,
+          "avg_ns_per_sample": 71.88406372070312,
+          "worst_cpu_block": "102",
+          "cold_adoption_cpu_ns": 6590.0
+        },
+        "miami-p12/4": {
+          "max_block_cpu_ns": 55713.0,
+          "max_block_wall_ns": 56395.0,
+          "max_pair_cpu_ns": 90094.0,
+          "avg_ns_per_sample": 80.32952880859375,
+          "worst_cpu_block": "68",
+          "cold_adoption_cpu_ns": 8213.0
+        },
+        "miami-p13/4": {
+          "max_block_cpu_ns": 76374.0,
+          "max_block_wall_ns": 76745.0,
+          "max_pair_cpu_ns": 141681.0,
+          "avg_ns_per_sample": 83.685791015625,
+          "worst_cpu_block": "68",
+          "cold_adoption_cpu_ns": 8032.0
+        },
+        "miami-p14/4": {
+          "max_block_cpu_ns": 53429.0,
+          "max_block_wall_ns": 53811.0,
+          "max_pair_cpu_ns": 91845.0,
+          "avg_ns_per_sample": 88.41659545898438,
+          "worst_cpu_block": "102",
+          "cold_adoption_cpu_ns": 7682.0
+        },
+        "miami-p15/4": {
+          "max_block_cpu_ns": 167618.0,
+          "max_block_wall_ns": 168102.0,
+          "max_pair_cpu_ns": 219134.0,
+          "avg_ns_per_sample": 105.83297729492188,
+          "worst_cpu_block": "11",
+          "cold_adoption_cpu_ns": 7951.0
+        },
+        "miami-p16/4": {
+          "max_block_cpu_ns": 54491.0,
+          "max_block_wall_ns": 71097.0,
+          "max_pair_cpu_ns": 81952.0,
+          "avg_ns_per_sample": 64.36727905273438,
+          "worst_cpu_block": "80",
+          "cold_adoption_cpu_ns": 8363.0
+        },
+        "miami-p17/4": {
+          "max_block_cpu_ns": 64045.0,
+          "max_block_wall_ns": 64527.0,
+          "max_pair_cpu_ns": 103944.0,
+          "avg_ns_per_sample": 92.30429077148438,
+          "worst_cpu_block": "99",
+          "cold_adoption_cpu_ns": 7962.0
+        },
+        "miami-p18/4": {
+          "max_block_cpu_ns": 93659.0,
+          "max_block_wall_ns": 94171.0,
+          "max_pair_cpu_ns": 132717.0,
+          "avg_ns_per_sample": 92.9141845703125,
+          "worst_cpu_block": "103",
+          "cold_adoption_cpu_ns": 9294.0
+        },
+        "miami-p19/4": {
+          "max_block_cpu_ns": 91905.0,
+          "max_block_wall_ns": 92359.0,
+          "max_pair_cpu_ns": 125314.0,
+          "avg_ns_per_sample": 81.55767822265625,
+          "worst_cpu_block": "109",
+          "cold_adoption_cpu_ns": 28853.0
+        },
+        "miami-p20/4": {
+          "max_block_cpu_ns": 66369.0,
+          "max_block_wall_ns": 66790.0,
+          "max_pair_cpu_ns": 101251.0,
+          "avg_ns_per_sample": 86.59616088867188,
+          "worst_cpu_block": "105",
+          "cold_adoption_cpu_ns": 8042.0
+        },
+        "miami-p21/4": {
+          "max_block_cpu_ns": 99277.0,
+          "max_block_wall_ns": 99680.0,
+          "max_pair_cpu_ns": 134359.0,
+          "avg_ns_per_sample": 86.01998901367188,
+          "worst_cpu_block": "36",
+          "cold_adoption_cpu_ns": 8743.0
+        },
+        "miami-p22/4": {
+          "max_block_cpu_ns": 107890.0,
+          "max_block_wall_ns": 108423.0,
+          "max_pair_cpu_ns": 148069.0,
+          "avg_ns_per_sample": 96.10760498046875,
+          "worst_cpu_block": "17",
+          "cold_adoption_cpu_ns": 8412.0
+        },
+        "miami-p23/4": {
+          "max_block_cpu_ns": 116853.0,
+          "max_block_wall_ns": 117346.0,
+          "max_pair_cpu_ns": 159256.0,
+          "avg_ns_per_sample": 106.29376220703125,
+          "worst_cpu_block": "41",
+          "cold_adoption_cpu_ns": 8722.0
+        },
+        "miami-p24/4": {
+          "max_block_cpu_ns": 53369.0,
+          "max_block_wall_ns": 53771.0,
+          "max_pair_cpu_ns": 88622.0,
+          "avg_ns_per_sample": 83.02401733398438,
+          "worst_cpu_block": "68",
+          "cold_adoption_cpu_ns": 8662.0
+        },
+        "miami-p25/4": {
+          "max_block_cpu_ns": 50295.0,
+          "max_block_wall_ns": 50637.0,
+          "max_pair_cpu_ns": 82993.0,
+          "avg_ns_per_sample": 77.18258666992188,
+          "worst_cpu_block": "112",
+          "cold_adoption_cpu_ns": 8032.0
+        },
+        "miami-p26/4": {
+          "max_block_cpu_ns": 84876.0,
+          "max_block_wall_ns": 85388.0,
+          "max_pair_cpu_ns": 115972.0,
+          "avg_ns_per_sample": 75.41165161132812,
+          "worst_cpu_block": "73",
+          "cold_adoption_cpu_ns": 7501.0
+        },
+        "miami-p27/4": {
+          "max_block_cpu_ns": 141950.0,
+          "max_block_wall_ns": 142454.0,
+          "max_pair_cpu_ns": 184113.0,
+          "avg_ns_per_sample": 97.66119384765625,
+          "worst_cpu_block": "4",
+          "cold_adoption_cpu_ns": 7681.0
+        },
+        "miami-p28/4": {
+          "max_block_cpu_ns": 63184.0,
+          "max_block_wall_ns": 63596.0,
+          "max_pair_cpu_ns": 102492.0,
+          "avg_ns_per_sample": 90.69601440429688,
+          "worst_cpu_block": "101",
+          "cold_adoption_cpu_ns": 8563.0
+        },
+        "miami-p29/4": {
+          "max_block_cpu_ns": 90645.0,
+          "max_block_wall_ns": 91247.0,
+          "max_pair_cpu_ns": 125717.0,
+          "avg_ns_per_sample": 77.48104858398438,
+          "worst_cpu_block": "47",
+          "cold_adoption_cpu_ns": 8923.0
+        }
+      },
+      {
+        "chicago/1": {
+          "max_block_cpu_ns": 52277.0,
+          "max_block_wall_ns": 52629.0,
+          "max_pair_cpu_ns": 72547.0,
+          "avg_ns_per_sample": 49.801788330078125,
+          "worst_cpu_block": "40",
+          "cold_adoption_cpu_ns": 30195.0
+        },
+        "miami/1": {
+          "max_block_cpu_ns": 76012.0,
+          "max_block_wall_ns": 76444.0,
+          "max_pair_cpu_ns": 115901.0,
+          "avg_ns_per_sample": 86.278564453125,
+          "worst_cpu_block": "36",
+          "cold_adoption_cpu_ns": 14772.0
+        },
+        "both/1": {
+          "max_block_cpu_ns": 97344.0,
+          "max_block_wall_ns": 98078.0,
+          "max_pair_cpu_ns": 156672.0,
+          "avg_ns_per_sample": 135.030517578125,
+          "worst_cpu_block": "42",
+          "cold_adoption_cpu_ns": 19659.0
+        },
+        "both-miami29-chorus/1": {
+          "max_block_cpu_ns": 101301.0,
+          "max_block_wall_ns": 101924.0,
+          "max_pair_cpu_ns": 165096.0,
+          "avg_ns_per_sample": 153.58993530273438,
+          "worst_cpu_block": "15",
+          "cold_adoption_cpu_ns": 20470.0
+        },
+        "both-miami18-peaking/1": {
+          "max_block_cpu_ns": 134159.0,
+          "max_block_wall_ns": 135033.0,
+          "max_pair_cpu_ns": 210563.0,
+          "avg_ns_per_sample": 148.6728515625,
+          "worst_cpu_block": "77",
+          "cold_adoption_cpu_ns": 20120.0
+        },
+        "miami-edits/1": {
+          "max_block_cpu_ns": 103564.0,
+          "max_block_wall_ns": 104076.0,
+          "max_pair_cpu_ns": 166708.0,
+          "avg_ns_per_sample": 126.67758178710938,
+          "worst_cpu_block": "74",
+          "cold_adoption_cpu_ns": 9244.0
+        },
+        "miami-p00/1": {
+          "max_block_cpu_ns": 53750.0,
+          "max_block_wall_ns": 54091.0,
+          "max_pair_cpu_ns": 94070.0,
+          "avg_ns_per_sample": 84.10614013671875,
+          "worst_cpu_block": "106",
+          "cold_adoption_cpu_ns": 8312.0
+        },
+        "miami-p01/1": {
+          "max_block_cpu_ns": 118165.0,
+          "max_block_wall_ns": 118599.0,
+          "max_pair_cpu_ns": 151644.0,
+          "avg_ns_per_sample": 75.69796752929688,
+          "worst_cpu_block": "100",
+          "cold_adoption_cpu_ns": 7671.0
+        },
+        "miami-p02/1": {
+          "max_block_cpu_ns": 94450.0,
+          "max_block_wall_ns": 94853.0,
+          "max_pair_cpu_ns": 134700.0,
+          "avg_ns_per_sample": 96.40676879882812,
+          "worst_cpu_block": "66",
+          "cold_adoption_cpu_ns": 8984.0
+        },
+        "miami-p03/1": {
+          "max_block_cpu_ns": 70635.0,
+          "max_block_wall_ns": 71077.0,
+          "max_pair_cpu_ns": 114289.0,
+          "avg_ns_per_sample": 91.61935424804688,
+          "worst_cpu_block": "97",
+          "cold_adoption_cpu_ns": 8543.0
+        },
+        "miami-p04/1": {
+          "max_block_cpu_ns": 280956.0,
+          "max_block_wall_ns": 281764.0,
+          "max_pair_cpu_ns": 320254.0,
+          "avg_ns_per_sample": 99.44784545898438,
+          "worst_cpu_block": "45",
+          "cold_adoption_cpu_ns": 7962.0
+        },
+        "miami-p05/1": {
+          "max_block_cpu_ns": 109602.0,
+          "max_block_wall_ns": 110256.0,
+          "max_pair_cpu_ns": 146667.0,
+          "avg_ns_per_sample": 89.10101318359375,
+          "worst_cpu_block": "32",
+          "cold_adoption_cpu_ns": 8913.0
+        },
+        "miami-p06/1": {
+          "max_block_cpu_ns": 86539.0,
+          "max_block_wall_ns": 87001.0,
+          "max_pair_cpu_ns": 117975.0,
+          "avg_ns_per_sample": 79.06777954101562,
+          "worst_cpu_block": "7",
+          "cold_adoption_cpu_ns": 8883.0
+        },
+        "miami-p07/1": {
+          "max_block_cpu_ns": 52668.0,
+          "max_block_wall_ns": 53120.0,
+          "max_pair_cpu_ns": 88321.0,
+          "avg_ns_per_sample": 81.79367065429688,
+          "worst_cpu_block": "16",
+          "cold_adoption_cpu_ns": 8052.0
+        },
+        "miami-p08/1": {
+          "max_block_cpu_ns": 134620.0,
+          "max_block_wall_ns": 135043.0,
+          "max_pair_cpu_ns": 176603.0,
+          "avg_ns_per_sample": 95.24884033203125,
+          "worst_cpu_block": "14",
+          "cold_adoption_cpu_ns": 7511.0
+        },
+        "miami-p09/1": {
+          "max_block_cpu_ns": 46920.0,
+          "max_block_wall_ns": 47241.0,
+          "max_pair_cpu_ns": 77455.0,
+          "avg_ns_per_sample": 71.21768188476562,
+          "worst_cpu_block": "8",
+          "cold_adoption_cpu_ns": 9544.0
+        },
+        "miami-p10/1": {
+          "max_block_cpu_ns": 57675.0,
+          "max_block_wall_ns": 58068.0,
+          "max_pair_cpu_ns": 95541.0,
+          "avg_ns_per_sample": 89.78573608398438,
+          "worst_cpu_block": "103",
+          "cold_adoption_cpu_ns": 8112.0
+        },
+        "miami-p11/1": {
+          "max_block_cpu_ns": 42984.0,
+          "max_block_wall_ns": 43395.0,
+          "max_pair_cpu_ns": 74691.0,
+          "avg_ns_per_sample": 70.00381469726562,
+          "worst_cpu_block": "15",
+          "cold_adoption_cpu_ns": 7161.0
+        },
+        "miami-p12/1": {
+          "max_block_cpu_ns": 141499.0,
+          "max_block_wall_ns": 142114.0,
+          "max_pair_cpu_ns": 176541.0,
+          "avg_ns_per_sample": 84.55377197265625,
+          "worst_cpu_block": "6",
+          "cold_adoption_cpu_ns": 7622.0
+        },
+        "miami-p13/1": {
+          "max_block_cpu_ns": 52999.0,
+          "max_block_wall_ns": 53420.0,
+          "max_pair_cpu_ns": 88301.0,
+          "avg_ns_per_sample": 83.10055541992188,
+          "worst_cpu_block": "79",
+          "cold_adoption_cpu_ns": 9003.0
+        },
+        "miami-p14/1": {
+          "max_block_cpu_ns": 173508.0,
+          "max_block_wall_ns": 174512.0,
+          "max_pair_cpu_ns": 234949.0,
+          "avg_ns_per_sample": 95.03665161132812,
+          "worst_cpu_block": "68",
+          "cold_adoption_cpu_ns": 7531.0
+        },
+        "miami-p15/1": {
+          "max_block_cpu_ns": 140778.0,
+          "max_block_wall_ns": 141383.0,
+          "max_pair_cpu_ns": 181709.0,
+          "avg_ns_per_sample": 95.78546142578125,
+          "worst_cpu_block": "49",
+          "cold_adoption_cpu_ns": 9003.0
+        },
+        "miami-p16/1": {
+          "max_block_cpu_ns": 79487.0,
+          "max_block_wall_ns": 79910.0,
+          "max_pair_cpu_ns": 106576.0,
+          "avg_ns_per_sample": 66.38388061523438,
+          "worst_cpu_block": "16",
+          "cold_adoption_cpu_ns": 8192.0
+        },
+        "miami-p17/1": {
+          "max_block_cpu_ns": 54961.0,
+          "max_block_wall_ns": 55353.0,
+          "max_pair_cpu_ns": 94079.0,
+          "avg_ns_per_sample": 90.51278686523438,
+          "worst_cpu_block": "67",
+          "cold_adoption_cpu_ns": 8562.0
+        },
+        "miami-p18/1": {
+          "max_block_cpu_ns": 54140.0,
+          "max_block_wall_ns": 54542.0,
+          "max_pair_cpu_ns": 92977.0,
+          "avg_ns_per_sample": 89.24777221679688,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 8313.0
+        },
+        "miami-p19/1": {
+          "max_block_cpu_ns": 47200.0,
+          "max_block_wall_ns": 51708.0,
+          "max_pair_cpu_ns": 81290.0,
+          "avg_ns_per_sample": 77.7303466796875,
+          "worst_cpu_block": "98",
+          "cold_adoption_cpu_ns": 7722.0
+        },
+        "miami-p20/1": {
+          "max_block_cpu_ns": 51516.0,
+          "max_block_wall_ns": 51958.0,
+          "max_pair_cpu_ns": 95621.0,
+          "avg_ns_per_sample": 84.02743530273438,
+          "worst_cpu_block": "13",
+          "cold_adoption_cpu_ns": 6860.0
+        },
+        "miami-p21/1": {
+          "max_block_cpu_ns": 168740.0,
+          "max_block_wall_ns": 169405.0,
+          "max_pair_cpu_ns": 203421.0,
+          "avg_ns_per_sample": 89.412841796875,
+          "worst_cpu_block": "113",
+          "cold_adoption_cpu_ns": 8523.0
+        },
+        "miami-p22/1": {
+          "max_block_cpu_ns": 88431.0,
+          "max_block_wall_ns": 88983.0,
+          "max_pair_cpu_ns": 126897.0,
+          "avg_ns_per_sample": 94.2005615234375,
+          "worst_cpu_block": "49",
+          "cold_adoption_cpu_ns": 9404.0
+        },
+        "miami-p23/1": {
+          "max_block_cpu_ns": 88831.0,
+          "max_block_wall_ns": 89304.0,
+          "max_pair_cpu_ns": 130653.0,
+          "avg_ns_per_sample": 99.23043823242188,
+          "worst_cpu_block": "109",
+          "cold_adoption_cpu_ns": 8362.0
+        },
+        "miami-p24/1": {
+          "max_block_cpu_ns": 72758.0,
+          "max_block_wall_ns": 73160.0,
+          "max_pair_cpu_ns": 109202.0,
+          "avg_ns_per_sample": 82.93621826171875,
+          "worst_cpu_block": "6",
+          "cold_adoption_cpu_ns": 8352.0
+        },
+        "miami-p25/1": {
+          "max_block_cpu_ns": 59287.0,
+          "max_block_wall_ns": 59740.0,
+          "max_pair_cpu_ns": 99737.0,
+          "avg_ns_per_sample": 78.14346313476562,
+          "worst_cpu_block": "10",
+          "cold_adoption_cpu_ns": 8683.0
+        },
+        "miami-p26/1": {
+          "max_block_cpu_ns": 48321.0,
+          "max_block_wall_ns": 48673.0,
+          "max_pair_cpu_ns": 80259.0,
+          "avg_ns_per_sample": 74.3931884765625,
+          "worst_cpu_block": "70",
+          "cold_adoption_cpu_ns": 8142.0
+        },
+        "miami-p27/1": {
+          "max_block_cpu_ns": 58867.0,
+          "max_block_wall_ns": 59299.0,
+          "max_pair_cpu_ns": 97654.0,
+          "avg_ns_per_sample": 90.5289306640625,
+          "worst_cpu_block": "67",
+          "cold_adoption_cpu_ns": 7511.0
+        },
+        "miami-p28/1": {
+          "max_block_cpu_ns": 76202.0,
+          "max_block_wall_ns": 76666.0,
+          "max_pair_cpu_ns": 113558.0,
+          "avg_ns_per_sample": 88.43881225585938,
+          "worst_cpu_block": "105",
+          "cold_adoption_cpu_ns": 7421.0
+        },
+        "miami-p29/1": {
+          "max_block_cpu_ns": 63404.0,
+          "max_block_wall_ns": 63936.0,
+          "max_pair_cpu_ns": 100549.0,
+          "avg_ns_per_sample": 84.61929321289062,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 8593.0
+        },
+        "chicago/4": {
+          "max_block_cpu_ns": 37585.0,
+          "max_block_wall_ns": 37977.0,
+          "max_pair_cpu_ns": 57976.0,
+          "avg_ns_per_sample": 49.561737060546875,
+          "worst_cpu_block": "81",
+          "cold_adoption_cpu_ns": 16094.0
+        },
+        "miami/4": {
+          "max_block_cpu_ns": 55842.0,
+          "max_block_wall_ns": 56194.0,
+          "max_pair_cpu_ns": 93357.0,
+          "avg_ns_per_sample": 85.2794189453125,
+          "worst_cpu_block": "100",
+          "cold_adoption_cpu_ns": 8493.0
+        },
+        "both/4": {
+          "max_block_cpu_ns": 75792.0,
+          "max_block_wall_ns": 76415.0,
+          "max_pair_cpu_ns": 134589.0,
+          "avg_ns_per_sample": 134.41641235351562,
+          "worst_cpu_block": "64",
+          "cold_adoption_cpu_ns": 16875.0
+        },
+        "both-miami29-chorus/4": {
+          "max_block_cpu_ns": 147739.0,
+          "max_block_wall_ns": 148803.0,
+          "max_pair_cpu_ns": 210532.0,
+          "avg_ns_per_sample": 145.22344970703125,
+          "worst_cpu_block": "102",
+          "cold_adoption_cpu_ns": 20400.0
+        },
+        "both-miami18-peaking/4": {
+          "max_block_cpu_ns": 119195.0,
+          "max_block_wall_ns": 120020.0,
+          "max_pair_cpu_ns": 208841.0,
+          "avg_ns_per_sample": 158.93447875976562,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 20210.0
+        },
+        "miami-edits/4": {
+          "max_block_cpu_ns": 241778.0,
+          "max_block_wall_ns": 242395.0,
+          "max_pair_cpu_ns": 305022.0,
+          "avg_ns_per_sample": 144.89810180664062,
+          "worst_cpu_block": "49",
+          "cold_adoption_cpu_ns": 10105.0
+        },
+        "miami-p00/4": {
+          "max_block_cpu_ns": 108981.0,
+          "max_block_wall_ns": 109474.0,
+          "max_pair_cpu_ns": 154949.0,
+          "avg_ns_per_sample": 93.886474609375,
+          "worst_cpu_block": "1",
+          "cold_adoption_cpu_ns": 9224.0
+        },
+        "miami-p01/4": {
+          "max_block_cpu_ns": 47050.0,
+          "max_block_wall_ns": 47512.0,
+          "max_pair_cpu_ns": 79528.0,
+          "avg_ns_per_sample": 72.59884643554688,
+          "worst_cpu_block": "17",
+          "cold_adoption_cpu_ns": 8693.0
+        },
+        "miami-p02/4": {
+          "max_block_cpu_ns": 80528.0,
+          "max_block_wall_ns": 81162.0,
+          "max_pair_cpu_ns": 130723.0,
+          "avg_ns_per_sample": 94.67318725585938,
+          "worst_cpu_block": "3",
+          "cold_adoption_cpu_ns": 9274.0
+        },
+        "miami-p03/4": {
+          "max_block_cpu_ns": 54952.0,
+          "max_block_wall_ns": 55383.0,
+          "max_pair_cpu_ns": 95793.0,
+          "avg_ns_per_sample": 92.85946655273438,
+          "worst_cpu_block": "98",
+          "cold_adoption_cpu_ns": 8163.0
+        },
+        "miami-p04/4": {
+          "max_block_cpu_ns": 54139.0,
+          "max_block_wall_ns": 54471.0,
+          "max_pair_cpu_ns": 92236.0,
+          "avg_ns_per_sample": 88.76712036132812,
+          "worst_cpu_block": "2",
+          "cold_adoption_cpu_ns": 7421.0
+        },
+        "miami-p05/4": {
+          "max_block_cpu_ns": 53660.0,
+          "max_block_wall_ns": 54031.0,
+          "max_pair_cpu_ns": 91566.0,
+          "avg_ns_per_sample": 86.54379272460938,
+          "worst_cpu_block": "112",
+          "cold_adoption_cpu_ns": 7231.0
+        },
+        "miami-p06/4": {
+          "max_block_cpu_ns": 133558.0,
+          "max_block_wall_ns": 133991.0,
+          "max_pair_cpu_ns": 165945.0,
+          "avg_ns_per_sample": 78.79022216796875,
+          "worst_cpu_block": "8",
+          "cold_adoption_cpu_ns": 8232.0
+        },
+        "miami-p07/4": {
+          "max_block_cpu_ns": 51467.0,
+          "max_block_wall_ns": 51878.0,
+          "max_pair_cpu_ns": 87411.0,
+          "avg_ns_per_sample": 84.27200317382812,
+          "worst_cpu_block": "75",
+          "cold_adoption_cpu_ns": 8993.0
+        },
+        "miami-p08/4": {
+          "max_block_cpu_ns": 129070.0,
+          "max_block_wall_ns": 129795.0,
+          "max_pair_cpu_ns": 164513.0,
+          "avg_ns_per_sample": 91.82778930664062,
+          "worst_cpu_block": "47",
+          "cold_adoption_cpu_ns": 8512.0
+        },
+        "miami-p09/4": {
+          "max_block_cpu_ns": 81430.0,
+          "max_block_wall_ns": 81903.0,
+          "max_pair_cpu_ns": 112186.0,
+          "avg_ns_per_sample": 74.90789794921875,
+          "worst_cpu_block": "69",
+          "cold_adoption_cpu_ns": 8503.0
+        },
+        "miami-p10/4": {
+          "max_block_cpu_ns": 76673.0,
+          "max_block_wall_ns": 77086.0,
+          "max_pair_cpu_ns": 115832.0,
+          "avg_ns_per_sample": 92.95147705078125,
+          "worst_cpu_block": "34",
+          "cold_adoption_cpu_ns": 8924.0
+        },
+        "miami-p11/4": {
+          "max_block_cpu_ns": 79658.0,
+          "max_block_wall_ns": 80040.0,
+          "max_pair_cpu_ns": 110634.0,
+          "avg_ns_per_sample": 74.19393920898438,
+          "worst_cpu_block": "74",
+          "cold_adoption_cpu_ns": 7521.0
+        },
+        "miami-p12/4": {
+          "max_block_cpu_ns": 50554.0,
+          "max_block_wall_ns": 50947.0,
+          "max_pair_cpu_ns": 84604.0,
+          "avg_ns_per_sample": 79.06060791015625,
+          "worst_cpu_block": "37",
+          "cold_adoption_cpu_ns": 8392.0
+        },
+        "miami-p13/4": {
+          "max_block_cpu_ns": 52437.0,
+          "max_block_wall_ns": 52859.0,
+          "max_pair_cpu_ns": 89914.0,
+          "avg_ns_per_sample": 82.54443359375,
+          "worst_cpu_block": "5",
+          "cold_adoption_cpu_ns": 7321.0
+        },
+        "miami-p14/4": {
+          "max_block_cpu_ns": 65187.0,
+          "max_block_wall_ns": 65538.0,
+          "max_pair_cpu_ns": 103674.0,
+          "avg_ns_per_sample": 89.95172119140625,
+          "worst_cpu_block": "38",
+          "cold_adoption_cpu_ns": 6891.0
+        },
+        "miami-p15/4": {
+          "max_block_cpu_ns": 113378.0,
+          "max_block_wall_ns": 114111.0,
+          "max_pair_cpu_ns": 159156.0,
+          "avg_ns_per_sample": 98.72653198242188,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 8313.0
+        },
+        "miami-p16/4": {
+          "max_block_cpu_ns": 154609.0,
+          "max_block_wall_ns": 155303.0,
+          "max_pair_cpu_ns": 182831.0,
+          "avg_ns_per_sample": 76.27401733398438,
+          "worst_cpu_block": "4",
+          "cold_adoption_cpu_ns": 8021.0
+        },
+        "miami-p17/4": {
+          "max_block_cpu_ns": 89773.0,
+          "max_block_wall_ns": 90146.0,
+          "max_pair_cpu_ns": 130092.0,
+          "avg_ns_per_sample": 93.17059326171875,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 8613.0
+        },
+        "miami-p18/4": {
+          "max_block_cpu_ns": 104103.0,
+          "max_block_wall_ns": 104928.0,
+          "max_pair_cpu_ns": 143121.0,
+          "avg_ns_per_sample": 94.95272827148438,
+          "worst_cpu_block": "113",
+          "cold_adoption_cpu_ns": 8493.0
+        },
+        "miami-p19/4": {
+          "max_block_cpu_ns": 53709.0,
+          "max_block_wall_ns": 54102.0,
+          "max_pair_cpu_ns": 87329.0,
+          "avg_ns_per_sample": 78.64923095703125,
+          "worst_cpu_block": "40",
+          "cold_adoption_cpu_ns": 8462.0
+        },
+        "miami-p20/4": {
+          "max_block_cpu_ns": 57835.0,
+          "max_block_wall_ns": 58177.0,
+          "max_pair_cpu_ns": 94880.0,
+          "avg_ns_per_sample": 83.05477905273438,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 7371.0
+        },
+        "miami-p21/4": {
+          "max_block_cpu_ns": 57114.0,
+          "max_block_wall_ns": 57457.0,
+          "max_pair_cpu_ns": 93328.0,
+          "avg_ns_per_sample": 79.544189453125,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 8002.0
+        },
+        "miami-p22/4": {
+          "max_block_cpu_ns": 56604.0,
+          "max_block_wall_ns": 56946.0,
+          "max_pair_cpu_ns": 97204.0,
+          "avg_ns_per_sample": 91.37252807617188,
+          "worst_cpu_block": "76",
+          "cold_adoption_cpu_ns": 7571.0
+        },
+        "miami-p23/4": {
+          "max_block_cpu_ns": 84524.0,
+          "max_block_wall_ns": 84978.0,
+          "max_pair_cpu_ns": 127769.0,
+          "avg_ns_per_sample": 100.27587890625,
+          "worst_cpu_block": "5",
+          "cold_adoption_cpu_ns": 7130.0
+        },
+        "miami-p24/4": {
+          "max_block_cpu_ns": 66619.0,
+          "max_block_wall_ns": 67331.0,
+          "max_pair_cpu_ns": 106418.0,
+          "avg_ns_per_sample": 84.71978759765625,
+          "worst_cpu_block": "3",
+          "cold_adoption_cpu_ns": 8352.0
+        },
+        "miami-p25/4": {
+          "max_block_cpu_ns": 49053.0,
+          "max_block_wall_ns": 49414.0,
+          "max_pair_cpu_ns": 82913.0,
+          "avg_ns_per_sample": 78.155517578125,
+          "worst_cpu_block": "106",
+          "cold_adoption_cpu_ns": 9063.0
+        },
+        "miami-p26/4": {
+          "max_block_cpu_ns": 44936.0,
+          "max_block_wall_ns": 45388.0,
+          "max_pair_cpu_ns": 76763.0,
+          "avg_ns_per_sample": 73.36233520507812,
+          "worst_cpu_block": "111",
+          "cold_adoption_cpu_ns": 8182.0
+        },
+        "miami-p27/4": {
+          "max_block_cpu_ns": 79167.0,
+          "max_block_wall_ns": 79759.0,
+          "max_pair_cpu_ns": 118294.0,
+          "avg_ns_per_sample": 91.867431640625,
+          "worst_cpu_block": "37",
+          "cold_adoption_cpu_ns": 7612.0
+        },
+        "miami-p28/4": {
+          "max_block_cpu_ns": 100769.0,
+          "max_block_wall_ns": 101262.0,
+          "max_pair_cpu_ns": 138955.0,
+          "avg_ns_per_sample": 92.15167236328125,
+          "worst_cpu_block": "75",
+          "cold_adoption_cpu_ns": 8373.0
+        },
+        "miami-p29/4": {
+          "max_block_cpu_ns": 121299.0,
+          "max_block_wall_ns": 121733.0,
+          "max_pair_cpu_ns": 158755.0,
+          "avg_ns_per_sample": 83.3370361328125,
+          "worst_cpu_block": "1",
+          "cold_adoption_cpu_ns": 8913.0
+        }
+      }
+    ],
+    "reference": [
+      {
+        "chicago/1": {
+          "max_block_cpu_ns": 87089.0,
+          "max_block_wall_ns": 87671.0,
+          "max_pair_cpu_ns": 119497.0,
+          "avg_ns_per_sample": 79.83969116210938,
+          "worst_cpu_block": "13",
+          "cold_adoption_cpu_ns": 28312.0
+        },
+        "miami/1": {
+          "max_block_cpu_ns": 123543.0,
+          "max_block_wall_ns": 124017.0,
+          "max_pair_cpu_ns": 188288.0,
+          "avg_ns_per_sample": 144.346435546875,
+          "worst_cpu_block": "77",
+          "cold_adoption_cpu_ns": 13770.0
+        },
+        "both/1": {
+          "max_block_cpu_ns": 148500.0,
+          "max_block_wall_ns": 149204.0,
+          "max_pair_cpu_ns": 243120.0,
+          "avg_ns_per_sample": 226.21444702148438,
+          "worst_cpu_block": "37",
+          "cold_adoption_cpu_ns": 23555.0
+        },
+        "both-miami29-chorus/1": {
+          "max_block_cpu_ns": 198053.0,
+          "max_block_wall_ns": 199009.0,
+          "max_pair_cpu_ns": 289648.0,
+          "avg_ns_per_sample": 233.07440185546875,
+          "worst_cpu_block": "80",
+          "cold_adoption_cpu_ns": 22323.0
+        },
+        "both-miami18-peaking/1": {
+          "max_block_cpu_ns": 225111.0,
+          "max_block_wall_ns": 225859.0,
+          "max_pair_cpu_ns": 325540.0,
+          "avg_ns_per_sample": 251.38943481445312,
+          "worst_cpu_block": "39",
+          "cold_adoption_cpu_ns": 23956.0
+        },
+        "miami-edits/1": {
+          "max_block_cpu_ns": 110123.0,
+          "max_block_wall_ns": 110587.0,
+          "max_pair_cpu_ns": 207256.0,
+          "avg_ns_per_sample": 197.91311645507812,
+          "worst_cpu_block": "126",
+          "cold_adoption_cpu_ns": 9764.0
+        },
+        "miami-p00/1": {
+          "max_block_cpu_ns": 88721.0,
+          "max_block_wall_ns": 89124.0,
+          "max_pair_cpu_ns": 142973.0,
+          "avg_ns_per_sample": 140.27197265625,
+          "worst_cpu_block": "48",
+          "cold_adoption_cpu_ns": 8313.0
+        },
+        "miami-p01/1": {
+          "max_block_cpu_ns": 67460.0,
+          "max_block_wall_ns": 67922.0,
+          "max_pair_cpu_ns": 121298.0,
+          "avg_ns_per_sample": 122.69070434570312,
+          "worst_cpu_block": "105",
+          "cold_adoption_cpu_ns": 8633.0
+        },
+        "miami-p02/1": {
+          "max_block_cpu_ns": 75752.0,
+          "max_block_wall_ns": 76114.0,
+          "max_pair_cpu_ns": 134329.0,
+          "avg_ns_per_sample": 135.32281494140625,
+          "worst_cpu_block": "36",
+          "cold_adoption_cpu_ns": 7992.0
+        },
+        "miami-p03/1": {
+          "max_block_cpu_ns": 135510.0,
+          "max_block_wall_ns": 136034.0,
+          "max_pair_cpu_ns": 204061.0,
+          "avg_ns_per_sample": 140.54757690429688,
+          "worst_cpu_block": "40",
+          "cold_adoption_cpu_ns": 8092.0
+        },
+        "miami-p04/1": {
+          "max_block_cpu_ns": 199886.0,
+          "max_block_wall_ns": 200521.0,
+          "max_pair_cpu_ns": 257901.0,
+          "avg_ns_per_sample": 139.05072021484375,
+          "worst_cpu_block": "41",
+          "cold_adoption_cpu_ns": 8252.0
+        },
+        "miami-p05/1": {
+          "max_block_cpu_ns": 112727.0,
+          "max_block_wall_ns": 113330.0,
+          "max_pair_cpu_ns": 178265.0,
+          "avg_ns_per_sample": 152.4599609375,
+          "worst_cpu_block": "7",
+          "cold_adoption_cpu_ns": 8483.0
+        },
+        "miami-p06/1": {
+          "max_block_cpu_ns": 81029.0,
+          "max_block_wall_ns": 81392.0,
+          "max_pair_cpu_ns": 134518.0,
+          "avg_ns_per_sample": 126.9632568359375,
+          "worst_cpu_block": "104",
+          "cold_adoption_cpu_ns": 9604.0
+        },
+        "miami-p07/1": {
+          "max_block_cpu_ns": 78946.0,
+          "max_block_wall_ns": 79279.0,
+          "max_pair_cpu_ns": 138533.0,
+          "avg_ns_per_sample": 135.89398193359375,
+          "worst_cpu_block": "80",
+          "cold_adoption_cpu_ns": 7732.0
+        },
+        "miami-p08/1": {
+          "max_block_cpu_ns": 118756.0,
+          "max_block_wall_ns": 119229.0,
+          "max_pair_cpu_ns": 181078.0,
+          "avg_ns_per_sample": 147.6971435546875,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 7712.0
+        },
+        "miami-p09/1": {
+          "max_block_cpu_ns": 97794.0,
+          "max_block_wall_ns": 98368.0,
+          "max_pair_cpu_ns": 163752.0,
+          "avg_ns_per_sample": 119.31253051757812,
+          "worst_cpu_block": "76",
+          "cold_adoption_cpu_ns": 7921.0
+        },
+        "miami-p10/1": {
+          "max_block_cpu_ns": 114640.0,
+          "max_block_wall_ns": 115304.0,
+          "max_pair_cpu_ns": 180748.0,
+          "avg_ns_per_sample": 145.92709350585938,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 8392.0
+        },
+        "miami-p11/1": {
+          "max_block_cpu_ns": 72528.0,
+          "max_block_wall_ns": 72880.0,
+          "max_pair_cpu_ns": 124265.0,
+          "avg_ns_per_sample": 119.33370971679688,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 7391.0
+        },
+        "miami-p12/1": {
+          "max_block_cpu_ns": 79738.0,
+          "max_block_wall_ns": 80161.0,
+          "max_pair_cpu_ns": 134349.0,
+          "avg_ns_per_sample": 124.31704711914062,
+          "worst_cpu_block": "15",
+          "cold_adoption_cpu_ns": 8623.0
+        },
+        "miami-p13/1": {
+          "max_block_cpu_ns": 100488.0,
+          "max_block_wall_ns": 100972.0,
+          "max_pair_cpu_ns": 177131.0,
+          "avg_ns_per_sample": 158.90313720703125,
+          "worst_cpu_block": "75",
+          "cold_adoption_cpu_ns": 8382.0
+        },
+        "miami-p14/1": {
+          "max_block_cpu_ns": 267115.0,
+          "max_block_wall_ns": 267583.0,
+          "max_pair_cpu_ns": 322687.0,
+          "avg_ns_per_sample": 148.101318359375,
+          "worst_cpu_block": "8",
+          "cold_adoption_cpu_ns": 8783.0
+        },
+        "miami-p15/1": {
+          "max_block_cpu_ns": 117623.0,
+          "max_block_wall_ns": 118107.0,
+          "max_pair_cpu_ns": 185443.0,
+          "avg_ns_per_sample": 159.31900024414062,
+          "worst_cpu_block": "68",
+          "cold_adoption_cpu_ns": 9404.0
+        },
+        "miami-p16/1": {
+          "max_block_cpu_ns": 100919.0,
+          "max_block_wall_ns": 101253.0,
+          "max_pair_cpu_ns": 151673.0,
+          "avg_ns_per_sample": 121.44223022460938,
+          "worst_cpu_block": "64",
+          "cold_adoption_cpu_ns": 8472.0
+        },
+        "miami-p17/1": {
+          "max_block_cpu_ns": 88281.0,
+          "max_block_wall_ns": 88733.0,
+          "max_pair_cpu_ns": 150553.0,
+          "avg_ns_per_sample": 147.6998291015625,
+          "worst_cpu_block": "97",
+          "cold_adoption_cpu_ns": 7851.0
+        },
+        "miami-p18/1": {
+          "max_block_cpu_ns": 123903.0,
+          "max_block_wall_ns": 124387.0,
+          "max_pair_cpu_ns": 191192.0,
+          "avg_ns_per_sample": 152.12109375,
+          "worst_cpu_block": "11",
+          "cold_adoption_cpu_ns": 8393.0
+        },
+        "miami-p19/1": {
+          "max_block_cpu_ns": 117323.0,
+          "max_block_wall_ns": 117938.0,
+          "max_pair_cpu_ns": 179265.0,
+          "avg_ns_per_sample": 140.53143310546875,
+          "worst_cpu_block": "66",
+          "cold_adoption_cpu_ns": 8603.0
+        },
+        "miami-p20/1": {
+          "max_block_cpu_ns": 135661.0,
+          "max_block_wall_ns": 136095.0,
+          "max_pair_cpu_ns": 197201.0,
+          "avg_ns_per_sample": 146.80633544921875,
+          "worst_cpu_block": "106",
+          "cold_adoption_cpu_ns": 7742.0
+        },
+        "miami-p21/1": {
+          "max_block_cpu_ns": 106477.0,
+          "max_block_wall_ns": 107101.0,
+          "max_pair_cpu_ns": 165003.0,
+          "avg_ns_per_sample": 133.86798095703125,
+          "worst_cpu_block": "77",
+          "cold_adoption_cpu_ns": 8813.0
+        },
+        "miami-p22/1": {
+          "max_block_cpu_ns": 81560.0,
+          "max_block_wall_ns": 81913.0,
+          "max_pair_cpu_ns": 147128.0,
+          "avg_ns_per_sample": 141.11724853515625,
+          "worst_cpu_block": "46",
+          "cold_adoption_cpu_ns": 22313.0
+        },
+        "miami-p23/1": {
+          "max_block_cpu_ns": 90534.0,
+          "max_block_wall_ns": 105449.0,
+          "max_pair_cpu_ns": 163430.0,
+          "avg_ns_per_sample": 163.01986694335938,
+          "worst_cpu_block": "110",
+          "cold_adoption_cpu_ns": 7531.0
+        },
+        "miami-p24/1": {
+          "max_block_cpu_ns": 196221.0,
+          "max_block_wall_ns": 196705.0,
+          "max_pair_cpu_ns": 271652.0,
+          "avg_ns_per_sample": 148.39901733398438,
+          "worst_cpu_block": "79",
+          "cold_adoption_cpu_ns": 8853.0
+        },
+        "miami-p25/1": {
+          "max_block_cpu_ns": 103513.0,
+          "max_block_wall_ns": 103926.0,
+          "max_pair_cpu_ns": 156822.0,
+          "avg_ns_per_sample": 127.26431274414062,
+          "worst_cpu_block": "44",
+          "cold_adoption_cpu_ns": 8673.0
+        },
+        "miami-p26/1": {
+          "max_block_cpu_ns": 73728.0,
+          "max_block_wall_ns": 74082.0,
+          "max_pair_cpu_ns": 128989.0,
+          "avg_ns_per_sample": 121.78085327148438,
+          "worst_cpu_block": "16",
+          "cold_adoption_cpu_ns": 8252.0
+        },
+        "miami-p27/1": {
+          "max_block_cpu_ns": 70905.0,
+          "max_block_wall_ns": 71337.0,
+          "max_pair_cpu_ns": 125987.0,
+          "avg_ns_per_sample": 126.45758056640625,
+          "worst_cpu_block": "41",
+          "cold_adoption_cpu_ns": 7581.0
+        },
+        "miami-p28/1": {
+          "max_block_cpu_ns": 135510.0,
+          "max_block_wall_ns": 136035.0,
+          "max_pair_cpu_ns": 199796.0,
+          "avg_ns_per_sample": 147.24609375,
+          "worst_cpu_block": "41",
+          "cold_adoption_cpu_ns": 7280.0
+        },
+        "miami-p29/1": {
+          "max_block_cpu_ns": 107630.0,
+          "max_block_wall_ns": 108073.0,
+          "max_pair_cpu_ns": 162992.0,
+          "avg_ns_per_sample": 129.978271484375,
+          "worst_cpu_block": "110",
+          "cold_adoption_cpu_ns": 9063.0
+        },
+        "chicago/4": {
+          "max_block_cpu_ns": 98425.0,
+          "max_block_wall_ns": 98878.0,
+          "max_pair_cpu_ns": 130803.0,
+          "avg_ns_per_sample": 78.22283935546875,
+          "worst_cpu_block": "7",
+          "cold_adoption_cpu_ns": 16694.0
+        },
+        "miami/4": {
+          "max_block_cpu_ns": 92326.0,
+          "max_block_wall_ns": 92819.0,
+          "max_pair_cpu_ns": 157252.0,
+          "avg_ns_per_sample": 145.99819946289062,
+          "worst_cpu_block": "4",
+          "cold_adoption_cpu_ns": 10436.0
+        },
+        "both/4": {
+          "max_block_cpu_ns": 122131.0,
+          "max_block_wall_ns": 122664.0,
+          "max_pair_cpu_ns": 218675.0,
+          "avg_ns_per_sample": 219.75897216796875,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 21682.0
+        },
+        "both-miami29-chorus/4": {
+          "max_block_cpu_ns": 166577.0,
+          "max_block_wall_ns": 167532.0,
+          "max_pair_cpu_ns": 256501.0,
+          "avg_ns_per_sample": 220.20086669921875,
+          "worst_cpu_block": "100",
+          "cold_adoption_cpu_ns": 21512.0
+        },
+        "both-miami18-peaking/4": {
+          "max_block_cpu_ns": 208307.0,
+          "max_block_wall_ns": 209014.0,
+          "max_pair_cpu_ns": 308776.0,
+          "avg_ns_per_sample": 251.32745361328125,
+          "worst_cpu_block": "48",
+          "cold_adoption_cpu_ns": 21222.0
+        },
+        "miami-edits/4": {
+          "max_block_cpu_ns": 154338.0,
+          "max_block_wall_ns": 154772.0,
+          "max_pair_cpu_ns": 226084.0,
+          "avg_ns_per_sample": 203.74038696289062,
+          "worst_cpu_block": "79",
+          "cold_adoption_cpu_ns": 9243.0
+        },
+        "miami-p00/4": {
+          "max_block_cpu_ns": 79137.0,
+          "max_block_wall_ns": 79550.0,
+          "max_pair_cpu_ns": 146278.0,
+          "avg_ns_per_sample": 143.84695434570312,
+          "worst_cpu_block": "76",
+          "cold_adoption_cpu_ns": 9494.0
+        },
+        "miami-p01/4": {
+          "max_block_cpu_ns": 76914.0,
+          "max_block_wall_ns": 77276.0,
+          "max_pair_cpu_ns": 132086.0,
+          "avg_ns_per_sample": 124.71792602539062,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 8022.0
+        },
+        "miami-p02/4": {
+          "max_block_cpu_ns": 98826.0,
+          "max_block_wall_ns": 99450.0,
+          "max_pair_cpu_ns": 171373.0,
+          "avg_ns_per_sample": 147.92520141601562,
+          "worst_cpu_block": "15",
+          "cold_adoption_cpu_ns": 7651.0
+        },
+        "miami-p03/4": {
+          "max_block_cpu_ns": 353343.0,
+          "max_block_wall_ns": 354413.0,
+          "max_pair_cpu_ns": 415906.0,
+          "avg_ns_per_sample": 156.90914916992188,
+          "worst_cpu_block": "47",
+          "cold_adoption_cpu_ns": 8122.0
+        },
+        "miami-p04/4": {
+          "max_block_cpu_ns": 108141.0,
+          "max_block_wall_ns": 108583.0,
+          "max_pair_cpu_ns": 169983.0,
+          "avg_ns_per_sample": 139.28628540039062,
+          "worst_cpu_block": "79",
+          "cold_adoption_cpu_ns": 9023.0
+        },
+        "miami-p05/4": {
+          "max_block_cpu_ns": 86327.0,
+          "max_block_wall_ns": 86711.0,
+          "max_pair_cpu_ns": 149950.0,
+          "avg_ns_per_sample": 144.01193237304688,
+          "worst_cpu_block": "64",
+          "cold_adoption_cpu_ns": 8283.0
+        },
+        "miami-p06/4": {
+          "max_block_cpu_ns": 111634.0,
+          "max_block_wall_ns": 112149.0,
+          "max_pair_cpu_ns": 166325.0,
+          "avg_ns_per_sample": 124.273193359375,
+          "worst_cpu_block": "46",
+          "cold_adoption_cpu_ns": 8682.0
+        },
+        "miami-p07/4": {
+          "max_block_cpu_ns": 176842.0,
+          "max_block_wall_ns": 177387.0,
+          "max_pair_cpu_ns": 254848.0,
+          "avg_ns_per_sample": 149.03717041015625,
+          "worst_cpu_block": "65",
+          "cold_adoption_cpu_ns": 8342.0
+        },
+        "miami-p08/4": {
+          "max_block_cpu_ns": 114729.0,
+          "max_block_wall_ns": 115253.0,
+          "max_pair_cpu_ns": 178475.0,
+          "avg_ns_per_sample": 150.03646850585938,
+          "worst_cpu_block": "7",
+          "cold_adoption_cpu_ns": 9645.0
+        },
+        "miami-p09/4": {
+          "max_block_cpu_ns": 76844.0,
+          "max_block_wall_ns": 77446.0,
+          "max_pair_cpu_ns": 128210.0,
+          "avg_ns_per_sample": 118.38836669921875,
+          "worst_cpu_block": "111",
+          "cold_adoption_cpu_ns": 8623.0
+        },
+        "miami-p10/4": {
+          "max_block_cpu_ns": 138315.0,
+          "max_block_wall_ns": 138909.0,
+          "max_pair_cpu_ns": 207066.0,
+          "avg_ns_per_sample": 151.00738525390625,
+          "worst_cpu_block": "65",
+          "cold_adoption_cpu_ns": 9384.0
+        },
+        "miami-p11/4": {
+          "max_block_cpu_ns": 73739.0,
+          "max_block_wall_ns": 74132.0,
+          "max_pair_cpu_ns": 126257.0,
+          "avg_ns_per_sample": 123.1002197265625,
+          "worst_cpu_block": "69",
+          "cold_adoption_cpu_ns": 8012.0
+        },
+        "miami-p12/4": {
+          "max_block_cpu_ns": 110834.0,
+          "max_block_wall_ns": 111337.0,
+          "max_pair_cpu_ns": 167318.0,
+          "avg_ns_per_sample": 125.61932373046875,
+          "worst_cpu_block": "2",
+          "cold_adoption_cpu_ns": 8703.0
+        },
+        "miami-p13/4": {
+          "max_block_cpu_ns": 86287.0,
+          "max_block_wall_ns": 86640.0,
+          "max_pair_cpu_ns": 155569.0,
+          "avg_ns_per_sample": 145.1036376953125,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 8593.0
+        },
+        "miami-p14/4": {
+          "max_block_cpu_ns": 134679.0,
+          "max_block_wall_ns": 135173.0,
+          "max_pair_cpu_ns": 195590.0,
+          "avg_ns_per_sample": 143.2645263671875,
+          "worst_cpu_block": "79",
+          "cold_adoption_cpu_ns": 7391.0
+        },
+        "miami-p15/4": {
+          "max_block_cpu_ns": 146837.0,
+          "max_block_wall_ns": 147312.0,
+          "max_pair_cpu_ns": 216490.0,
+          "avg_ns_per_sample": 159.45150756835938,
+          "worst_cpu_block": "100",
+          "cold_adoption_cpu_ns": 24506.0
+        },
+        "miami-p16/4": {
+          "max_block_cpu_ns": 101621.0,
+          "max_block_wall_ns": 102164.0,
+          "max_pair_cpu_ns": 158806.0,
+          "avg_ns_per_sample": 128.53692626953125,
+          "worst_cpu_block": "65",
+          "cold_adoption_cpu_ns": 8242.0
+        },
+        "miami-p17/4": {
+          "max_block_cpu_ns": 142471.0,
+          "max_block_wall_ns": 142875.0,
+          "max_pair_cpu_ns": 208107.0,
+          "avg_ns_per_sample": 156.48226928710938,
+          "worst_cpu_block": "108",
+          "cold_adoption_cpu_ns": 8893.0
+        },
+        "miami-p18/4": {
+          "max_block_cpu_ns": 114460.0,
+          "max_block_wall_ns": 114962.0,
+          "max_pair_cpu_ns": 180688.0,
+          "avg_ns_per_sample": 160.30166625976562,
+          "worst_cpu_block": "11",
+          "cold_adoption_cpu_ns": 9564.0
+        },
+        "miami-p19/4": {
+          "max_block_cpu_ns": 83704.0,
+          "max_block_wall_ns": 84086.0,
+          "max_pair_cpu_ns": 143993.0,
+          "avg_ns_per_sample": 138.15707397460938,
+          "worst_cpu_block": "74",
+          "cold_adoption_cpu_ns": 8682.0
+        },
+        "miami-p20/4": {
+          "max_block_cpu_ns": 81540.0,
+          "max_block_wall_ns": 81894.0,
+          "max_pair_cpu_ns": 149501.0,
+          "avg_ns_per_sample": 146.47976684570312,
+          "worst_cpu_block": "100",
+          "cold_adoption_cpu_ns": 7291.0
+        },
+        "miami-p21/4": {
+          "max_block_cpu_ns": 97335.0,
+          "max_block_wall_ns": 98448.0,
+          "max_pair_cpu_ns": 154400.0,
+          "avg_ns_per_sample": 133.75930786132812,
+          "worst_cpu_block": "78",
+          "cold_adoption_cpu_ns": 8472.0
+        },
+        "miami-p22/4": {
+          "max_block_cpu_ns": 96954.0,
+          "max_block_wall_ns": 97446.0,
+          "max_pair_cpu_ns": 159566.0,
+          "avg_ns_per_sample": 145.02890014648438,
+          "worst_cpu_block": "42",
+          "cold_adoption_cpu_ns": 8372.0
+        },
+        "miami-p23/4": {
+          "max_block_cpu_ns": 104705.0,
+          "max_block_wall_ns": 105078.0,
+          "max_pair_cpu_ns": 176872.0,
+          "avg_ns_per_sample": 164.48248291015625,
+          "worst_cpu_block": "102",
+          "cold_adoption_cpu_ns": 8723.0
+        },
+        "miami-p24/4": {
+          "max_block_cpu_ns": 85516.0,
+          "max_block_wall_ns": 85919.0,
+          "max_pair_cpu_ns": 148449.0,
+          "avg_ns_per_sample": 147.65383911132812,
+          "worst_cpu_block": "41",
+          "cold_adoption_cpu_ns": 8652.0
+        },
+        "miami-p25/4": {
+          "max_block_cpu_ns": 75502.0,
+          "max_block_wall_ns": 75934.0,
+          "max_pair_cpu_ns": 131644.0,
+          "avg_ns_per_sample": 130.2496337890625,
+          "worst_cpu_block": "13",
+          "cold_adoption_cpu_ns": 8252.0
+        },
+        "miami-p26/4": {
+          "max_block_cpu_ns": 113808.0,
+          "max_block_wall_ns": 114242.0,
+          "max_pair_cpu_ns": 166376.0,
+          "avg_ns_per_sample": 124.14434814453125,
+          "worst_cpu_block": "71",
+          "cold_adoption_cpu_ns": 7921.0
+        },
+        "miami-p27/4": {
+          "max_block_cpu_ns": 165886.0,
+          "max_block_wall_ns": 166750.0,
+          "max_pair_cpu_ns": 231143.0,
+          "avg_ns_per_sample": 136.13027954101562,
+          "worst_cpu_block": "81",
+          "cold_adoption_cpu_ns": 8522.0
+        },
+        "miami-p28/4": {
+          "max_block_cpu_ns": 118015.0,
+          "max_block_wall_ns": 118458.0,
+          "max_pair_cpu_ns": 180407.0,
+          "avg_ns_per_sample": 150.478759765625,
+          "worst_cpu_block": "37",
+          "cold_adoption_cpu_ns": 8973.0
+        },
+        "miami-p29/4": {
+          "max_block_cpu_ns": 83103.0,
+          "max_block_wall_ns": 83546.0,
+          "max_pair_cpu_ns": 136463.0,
+          "avg_ns_per_sample": 118.46884155273438,
+          "worst_cpu_block": "112",
+          "cold_adoption_cpu_ns": 8883.0
+        }
+      },
+      {
+        "chicago/1": {
+          "max_block_cpu_ns": 83153.0,
+          "max_block_wall_ns": 83736.0,
+          "max_pair_cpu_ns": 115531.0,
+          "avg_ns_per_sample": 78.815185546875,
+          "worst_cpu_block": "108",
+          "cold_adoption_cpu_ns": 28052.0
+        },
+        "miami/1": {
+          "max_block_cpu_ns": 94791.0,
+          "max_block_wall_ns": 95223.0,
+          "max_pair_cpu_ns": 160077.0,
+          "avg_ns_per_sample": 139.58914184570312,
+          "worst_cpu_block": "97",
+          "cold_adoption_cpu_ns": 13710.0
+        },
+        "both/1": {
+          "max_block_cpu_ns": 133758.0,
+          "max_block_wall_ns": 134472.0,
+          "max_pair_cpu_ns": 235839.0,
+          "avg_ns_per_sample": 217.48562622070312,
+          "worst_cpu_block": "108",
+          "cold_adoption_cpu_ns": 22743.0
+        },
+        "both-miami29-chorus/1": {
+          "max_block_cpu_ns": 142111.0,
+          "max_block_wall_ns": 142924.0,
+          "max_pair_cpu_ns": 235578.0,
+          "avg_ns_per_sample": 225.4595947265625,
+          "worst_cpu_block": "14",
+          "cold_adoption_cpu_ns": 22403.0
+        },
+        "both-miami18-peaking/1": {
+          "max_block_cpu_ns": 135280.0,
+          "max_block_wall_ns": 135985.0,
+          "max_pair_cpu_ns": 246193.0,
+          "avg_ns_per_sample": 239.29296875,
+          "worst_cpu_block": "78",
+          "cold_adoption_cpu_ns": 21993.0
+        },
+        "miami-edits/1": {
+          "max_block_cpu_ns": 115141.0,
+          "max_block_wall_ns": 115534.0,
+          "max_pair_cpu_ns": 211484.0,
+          "avg_ns_per_sample": 201.1805419921875,
+          "worst_cpu_block": "110",
+          "cold_adoption_cpu_ns": 8793.0
+        },
+        "miami-p00/1": {
+          "max_block_cpu_ns": 82362.0,
+          "max_block_wall_ns": 82764.0,
+          "max_pair_cpu_ns": 146397.0,
+          "avg_ns_per_sample": 139.81475830078125,
+          "worst_cpu_block": "75",
+          "cold_adoption_cpu_ns": 8913.0
+        },
+        "miami-p01/1": {
+          "max_block_cpu_ns": 69273.0,
+          "max_block_wall_ns": 69625.0,
+          "max_pair_cpu_ns": 124254.0,
+          "avg_ns_per_sample": 123.58346557617188,
+          "worst_cpu_block": "98",
+          "cold_adoption_cpu_ns": 8112.0
+        },
+        "miami-p02/1": {
+          "max_block_cpu_ns": 128270.0,
+          "max_block_wall_ns": 128833.0,
+          "max_pair_cpu_ns": 188619.0,
+          "avg_ns_per_sample": 139.142578125,
+          "worst_cpu_block": "100",
+          "cold_adoption_cpu_ns": 7812.0
+        },
+        "miami-p03/1": {
+          "max_block_cpu_ns": 170222.0,
+          "max_block_wall_ns": 170647.0,
+          "max_pair_cpu_ns": 228408.0,
+          "avg_ns_per_sample": 140.88909912109375,
+          "worst_cpu_block": "70",
+          "cold_adoption_cpu_ns": 8323.0
+        },
+        "miami-p04/1": {
+          "max_block_cpu_ns": 110194.0,
+          "max_block_wall_ns": 110596.0,
+          "max_pair_cpu_ns": 171374.0,
+          "avg_ns_per_sample": 136.33181762695312,
+          "worst_cpu_block": "12",
+          "cold_adoption_cpu_ns": 7871.0
+        },
+        "miami-p05/1": {
+          "max_block_cpu_ns": 89332.0,
+          "max_block_wall_ns": 89755.0,
+          "max_pair_cpu_ns": 153546.0,
+          "avg_ns_per_sample": 150.5389404296875,
+          "worst_cpu_block": "77",
+          "cold_adoption_cpu_ns": 8512.0
+        },
+        "miami-p06/1": {
+          "max_block_cpu_ns": 135261.0,
+          "max_block_wall_ns": 136034.0,
+          "max_pair_cpu_ns": 164544.0,
+          "avg_ns_per_sample": 133.04446411132812,
+          "worst_cpu_block": "51",
+          "cold_adoption_cpu_ns": 8573.0
+        },
+        "miami-p07/1": {
+          "max_block_cpu_ns": 105276.0,
+          "max_block_wall_ns": 105648.0,
+          "max_pair_cpu_ns": 164142.0,
+          "avg_ns_per_sample": 137.27581787109375,
+          "worst_cpu_block": "12",
+          "cold_adoption_cpu_ns": 8463.0
+        },
+        "miami-p08/1": {
+          "max_block_cpu_ns": 136382.0,
+          "max_block_wall_ns": 136926.0,
+          "max_pair_cpu_ns": 195931.0,
+          "avg_ns_per_sample": 150.6087646484375,
+          "worst_cpu_block": "69",
+          "cold_adoption_cpu_ns": 8803.0
+        },
+        "miami-p09/1": {
+          "max_block_cpu_ns": 97895.0,
+          "max_block_wall_ns": 98358.0,
+          "max_pair_cpu_ns": 150093.0,
+          "avg_ns_per_sample": 118.69851684570312,
+          "worst_cpu_block": "65",
+          "cold_adoption_cpu_ns": 8302.0
+        },
+        "miami-p10/1": {
+          "max_block_cpu_ns": 90734.0,
+          "max_block_wall_ns": 91227.0,
+          "max_pair_cpu_ns": 152745.0,
+          "avg_ns_per_sample": 145.37387084960938,
+          "worst_cpu_block": "11",
+          "cold_adoption_cpu_ns": 8202.0
+        },
+        "miami-p11/1": {
+          "max_block_cpu_ns": 79117.0,
+          "max_block_wall_ns": 79579.0,
+          "max_pair_cpu_ns": 130143.0,
+          "avg_ns_per_sample": 122.55496215820312,
+          "worst_cpu_block": "72",
+          "cold_adoption_cpu_ns": 7341.0
+        },
+        "miami-p12/1": {
+          "max_block_cpu_ns": 130864.0,
+          "max_block_wall_ns": 131468.0,
+          "max_pair_cpu_ns": 219536.0,
+          "avg_ns_per_sample": 134.30111694335938,
+          "worst_cpu_block": "97",
+          "cold_adoption_cpu_ns": 8432.0
+        },
+        "miami-p13/1": {
+          "max_block_cpu_ns": 114268.0,
+          "max_block_wall_ns": 114782.0,
+          "max_pair_cpu_ns": 177361.0,
+          "avg_ns_per_sample": 154.13165283203125,
+          "worst_cpu_block": "7",
+          "cold_adoption_cpu_ns": 9113.0
+        },
+        "miami-p14/1": {
+          "max_block_cpu_ns": 354745.0,
+          "max_block_wall_ns": 355484.0,
+          "max_pair_cpu_ns": 410768.0,
+          "avg_ns_per_sample": 153.35696411132812,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 7752.0
+        },
+        "miami-p15/1": {
+          "max_block_cpu_ns": 148630.0,
+          "max_block_wall_ns": 149034.0,
+          "max_pair_cpu_ns": 216900.0,
+          "avg_ns_per_sample": 162.285888671875,
+          "worst_cpu_block": "38",
+          "cold_adoption_cpu_ns": 9364.0
+        },
+        "miami-p16/1": {
+          "max_block_cpu_ns": 146487.0,
+          "max_block_wall_ns": 146991.0,
+          "max_pair_cpu_ns": 197402.0,
+          "avg_ns_per_sample": 123.30838012695312,
+          "worst_cpu_block": "66",
+          "cold_adoption_cpu_ns": 7751.0
+        },
+        "miami-p17/1": {
+          "max_block_cpu_ns": 81961.0,
+          "max_block_wall_ns": 82354.0,
+          "max_pair_cpu_ns": 147588.0,
+          "avg_ns_per_sample": 149.6680908203125,
+          "worst_cpu_block": "44",
+          "cold_adoption_cpu_ns": 8673.0
+        },
+        "miami-p18/1": {
+          "max_block_cpu_ns": 129291.0,
+          "max_block_wall_ns": 129645.0,
+          "max_pair_cpu_ns": 194447.0,
+          "avg_ns_per_sample": 154.9254150390625,
+          "worst_cpu_block": "10",
+          "cold_adoption_cpu_ns": 9084.0
+        },
+        "miami-p19/1": {
+          "max_block_cpu_ns": 134950.0,
+          "max_block_wall_ns": 135844.0,
+          "max_pair_cpu_ns": 196851.0,
+          "avg_ns_per_sample": 141.65554809570312,
+          "worst_cpu_block": "110",
+          "cold_adoption_cpu_ns": 8933.0
+        },
+        "miami-p20/1": {
+          "max_block_cpu_ns": 109092.0,
+          "max_block_wall_ns": 109765.0,
+          "max_pair_cpu_ns": 176862.0,
+          "avg_ns_per_sample": 148.65005493164062,
+          "worst_cpu_block": "69",
+          "cold_adoption_cpu_ns": 8112.0
+        },
+        "miami-p21/1": {
+          "max_block_cpu_ns": 99457.0,
+          "max_block_wall_ns": 99820.0,
+          "max_pair_cpu_ns": 156712.0,
+          "avg_ns_per_sample": 134.46185302734375,
+          "worst_cpu_block": "44",
+          "cold_adoption_cpu_ns": 8502.0
+        },
+        "miami-p22/1": {
+          "max_block_cpu_ns": 80108.0,
+          "max_block_wall_ns": 80521.0,
+          "max_pair_cpu_ns": 143302.0,
+          "avg_ns_per_sample": 142.50857543945312,
+          "worst_cpu_block": "105",
+          "cold_adoption_cpu_ns": 8152.0
+        },
+        "miami-p23/1": {
+          "max_block_cpu_ns": 197182.0,
+          "max_block_wall_ns": 197777.0,
+          "max_pair_cpu_ns": 267897.0,
+          "avg_ns_per_sample": 171.143798828125,
+          "worst_cpu_block": "80",
+          "cold_adoption_cpu_ns": 7872.0
+        },
+        "miami-p24/1": {
+          "max_block_cpu_ns": 116602.0,
+          "max_block_wall_ns": 116996.0,
+          "max_pair_cpu_ns": 179265.0,
+          "avg_ns_per_sample": 149.226318359375,
+          "worst_cpu_block": "14",
+          "cold_adoption_cpu_ns": 8863.0
+        },
+        "miami-p25/1": {
+          "max_block_cpu_ns": 68441.0,
+          "max_block_wall_ns": 68863.0,
+          "max_pair_cpu_ns": 122591.0,
+          "avg_ns_per_sample": 123.0245361328125,
+          "worst_cpu_block": "7",
+          "cold_adoption_cpu_ns": 7982.0
+        },
+        "miami-p26/1": {
+          "max_block_cpu_ns": 72596.0,
+          "max_block_wall_ns": 72960.0,
+          "max_pair_cpu_ns": 129651.0,
+          "avg_ns_per_sample": 126.45050048828125,
+          "worst_cpu_block": "80",
+          "cold_adoption_cpu_ns": 7481.0
+        },
+        "miami-p27/1": {
+          "max_block_cpu_ns": 102211.0,
+          "max_block_wall_ns": 103355.0,
+          "max_pair_cpu_ns": 157101.0,
+          "avg_ns_per_sample": 129.41220092773438,
+          "worst_cpu_block": "4",
+          "cold_adoption_cpu_ns": 7141.0
+        },
+        "miami-p28/1": {
+          "max_block_cpu_ns": 98937.0,
+          "max_block_wall_ns": 99510.0,
+          "max_pair_cpu_ns": 164284.0,
+          "avg_ns_per_sample": 145.4395751953125,
+          "worst_cpu_block": "37",
+          "cold_adoption_cpu_ns": 7751.0
+        },
+        "miami-p29/1": {
+          "max_block_cpu_ns": 73369.0,
+          "max_block_wall_ns": 73861.0,
+          "max_pair_cpu_ns": 129402.0,
+          "avg_ns_per_sample": 126.02267456054688,
+          "worst_cpu_block": "75",
+          "cold_adoption_cpu_ns": 9043.0
+        },
+        "chicago/4": {
+          "max_block_cpu_ns": 85977.0,
+          "max_block_wall_ns": 86390.0,
+          "max_pair_cpu_ns": 120688.0,
+          "avg_ns_per_sample": 79.10702514648438,
+          "worst_cpu_block": "78",
+          "cold_adoption_cpu_ns": 16625.0
+        },
+        "miami/4": {
+          "max_block_cpu_ns": 89422.0,
+          "max_block_wall_ns": 89795.0,
+          "max_pair_cpu_ns": 151944.0,
+          "avg_ns_per_sample": 144.25656127929688,
+          "worst_cpu_block": "68",
+          "cold_adoption_cpu_ns": 8843.0
+        },
+        "both/4": {
+          "max_block_cpu_ns": 151233.0,
+          "max_block_wall_ns": 151918.0,
+          "max_pair_cpu_ns": 250170.0,
+          "avg_ns_per_sample": 230.13992309570312,
+          "worst_cpu_block": "10",
+          "cold_adoption_cpu_ns": 18978.0
+        },
+        "both-miami29-chorus/4": {
+          "max_block_cpu_ns": 294306.0,
+          "max_block_wall_ns": 295174.0,
+          "max_pair_cpu_ns": 381716.0,
+          "avg_ns_per_sample": 226.21292114257812,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 21772.0
+        },
+        "both-miami18-peaking/4": {
+          "max_block_cpu_ns": 162230.0,
+          "max_block_wall_ns": 163086.0,
+          "max_pair_cpu_ns": 265923.0,
+          "avg_ns_per_sample": 243.0316162109375,
+          "worst_cpu_block": "34",
+          "cold_adoption_cpu_ns": 23044.0
+        },
+        "miami-edits/4": {
+          "max_block_cpu_ns": 117464.0,
+          "max_block_wall_ns": 117887.0,
+          "max_pair_cpu_ns": 212675.0,
+          "avg_ns_per_sample": 197.90249633789062,
+          "worst_cpu_block": "112",
+          "cold_adoption_cpu_ns": 8994.0
+        },
+        "miami-p00/4": {
+          "max_block_cpu_ns": 180037.0,
+          "max_block_wall_ns": 180812.0,
+          "max_pair_cpu_ns": 245133.0,
+          "avg_ns_per_sample": 152.7510986328125,
+          "worst_cpu_block": "8",
+          "cold_adoption_cpu_ns": 8232.0
+        },
+        "miami-p01/4": {
+          "max_block_cpu_ns": 87529.0,
+          "max_block_wall_ns": 87972.0,
+          "max_pair_cpu_ns": 142731.0,
+          "avg_ns_per_sample": 127.75482177734375,
+          "worst_cpu_block": "47",
+          "cold_adoption_cpu_ns": 9324.0
+        },
+        "miami-p02/4": {
+          "max_block_cpu_ns": 110744.0,
+          "max_block_wall_ns": 111227.0,
+          "max_pair_cpu_ns": 174347.0,
+          "avg_ns_per_sample": 148.58059692382812,
+          "worst_cpu_block": "71",
+          "cold_adoption_cpu_ns": 8823.0
+        },
+        "miami-p03/4": {
+          "max_block_cpu_ns": 96684.0,
+          "max_block_wall_ns": 97066.0,
+          "max_pair_cpu_ns": 158656.0,
+          "avg_ns_per_sample": 146.661865234375,
+          "worst_cpu_block": "16",
+          "cold_adoption_cpu_ns": 8232.0
+        },
+        "miami-p04/4": {
+          "max_block_cpu_ns": 82252.0,
+          "max_block_wall_ns": 82705.0,
+          "max_pair_cpu_ns": 142131.0,
+          "avg_ns_per_sample": 137.68502807617188,
+          "worst_cpu_block": "71",
+          "cold_adoption_cpu_ns": 7471.0
+        },
+        "miami-p05/4": {
+          "max_block_cpu_ns": 109262.0,
+          "max_block_wall_ns": 109805.0,
+          "max_pair_cpu_ns": 171083.0,
+          "avg_ns_per_sample": 147.81692504882812,
+          "worst_cpu_block": "47",
+          "cold_adoption_cpu_ns": 7782.0
+        },
+        "miami-p06/4": {
+          "max_block_cpu_ns": 220947.0,
+          "max_block_wall_ns": 221644.0,
+          "max_pair_cpu_ns": 273434.0,
+          "avg_ns_per_sample": 132.54904174804688,
+          "worst_cpu_block": "16",
+          "cold_adoption_cpu_ns": 8713.0
+        },
+        "miami-p07/4": {
+          "max_block_cpu_ns": 86889.0,
+          "max_block_wall_ns": 87241.0,
+          "max_pair_cpu_ns": 149261.0,
+          "avg_ns_per_sample": 135.8172607421875,
+          "worst_cpu_block": "112",
+          "cold_adoption_cpu_ns": 8542.0
+        },
+        "miami-p08/4": {
+          "max_block_cpu_ns": 81071.0,
+          "max_block_wall_ns": 81432.0,
+          "max_pair_cpu_ns": 141781.0,
+          "avg_ns_per_sample": 139.14938354492188,
+          "worst_cpu_block": "12",
+          "cold_adoption_cpu_ns": 7762.0
+        },
+        "miami-p09/4": {
+          "max_block_cpu_ns": 120238.0,
+          "max_block_wall_ns": 120672.0,
+          "max_pair_cpu_ns": 173758.0,
+          "avg_ns_per_sample": 123.10806274414062,
+          "worst_cpu_block": "44",
+          "cold_adoption_cpu_ns": 7441.0
+        },
+        "miami-p10/4": {
+          "max_block_cpu_ns": 104685.0,
+          "max_block_wall_ns": 105188.0,
+          "max_pair_cpu_ns": 171764.0,
+          "avg_ns_per_sample": 149.57928466796875,
+          "worst_cpu_block": "102",
+          "cold_adoption_cpu_ns": 8403.0
+        },
+        "miami-p11/4": {
+          "max_block_cpu_ns": 70775.0,
+          "max_block_wall_ns": 73901.0,
+          "max_pair_cpu_ns": 122761.0,
+          "avg_ns_per_sample": 123.52200317382812,
+          "worst_cpu_block": "71",
+          "cold_adoption_cpu_ns": 7781.0
+        },
+        "miami-p12/4": {
+          "max_block_cpu_ns": 95512.0,
+          "max_block_wall_ns": 96034.0,
+          "max_pair_cpu_ns": 153999.0,
+          "avg_ns_per_sample": 126.82144165039062,
+          "worst_cpu_block": "45",
+          "cold_adoption_cpu_ns": 7591.0
+        },
+        "miami-p13/4": {
+          "max_block_cpu_ns": 165094.0,
+          "max_block_wall_ns": 165919.0,
+          "max_pair_cpu_ns": 232213.0,
+          "avg_ns_per_sample": 153.372314453125,
+          "worst_cpu_block": "66",
+          "cold_adoption_cpu_ns": 8803.0
+        },
+        "miami-p14/4": {
+          "max_block_cpu_ns": 79027.0,
+          "max_block_wall_ns": 79460.0,
+          "max_pair_cpu_ns": 140578.0,
+          "avg_ns_per_sample": 139.57290649414062,
+          "worst_cpu_block": "36",
+          "cold_adoption_cpu_ns": 9123.0
+        },
+        "miami-p15/4": {
+          "max_block_cpu_ns": 159957.0,
+          "max_block_wall_ns": 160441.0,
+          "max_pair_cpu_ns": 228118.0,
+          "avg_ns_per_sample": 165.2464599609375,
+          "worst_cpu_block": "109",
+          "cold_adoption_cpu_ns": 8743.0
+        },
+        "miami-p16/4": {
+          "max_block_cpu_ns": 281937.0,
+          "max_block_wall_ns": 282494.0,
+          "max_pair_cpu_ns": 340965.0,
+          "avg_ns_per_sample": 133.26998901367188,
+          "worst_cpu_block": "1",
+          "cold_adoption_cpu_ns": 8483.0
+        },
+        "miami-p17/4": {
+          "max_block_cpu_ns": 111475.0,
+          "max_block_wall_ns": 112108.0,
+          "max_pair_cpu_ns": 177291.0,
+          "avg_ns_per_sample": 145.54299926757812,
+          "worst_cpu_block": "17",
+          "cold_adoption_cpu_ns": 8342.0
+        },
+        "miami-p18/4": {
+          "max_block_cpu_ns": 96864.0,
+          "max_block_wall_ns": 97387.0,
+          "max_pair_cpu_ns": 164314.0,
+          "avg_ns_per_sample": 152.50363159179688,
+          "worst_cpu_block": "48",
+          "cold_adoption_cpu_ns": 9073.0
+        },
+        "miami-p19/4": {
+          "max_block_cpu_ns": 138444.0,
+          "max_block_wall_ns": 138988.0,
+          "max_pair_cpu_ns": 198343.0,
+          "avg_ns_per_sample": 139.55166625976562,
+          "worst_cpu_block": "81",
+          "cold_adoption_cpu_ns": 8582.0
+        },
+        "miami-p20/4": {
+          "max_block_cpu_ns": 161869.0,
+          "max_block_wall_ns": 162434.0,
+          "max_pair_cpu_ns": 223731.0,
+          "avg_ns_per_sample": 153.2657470703125,
+          "worst_cpu_block": "47",
+          "cold_adoption_cpu_ns": 7972.0
+        },
+        "miami-p21/4": {
+          "max_block_cpu_ns": 116782.0,
+          "max_block_wall_ns": 117226.0,
+          "max_pair_cpu_ns": 173355.0,
+          "avg_ns_per_sample": 137.89376831054688,
+          "worst_cpu_block": "36",
+          "cold_adoption_cpu_ns": 8763.0
+        },
+        "miami-p22/4": {
+          "max_block_cpu_ns": 138394.0,
+          "max_block_wall_ns": 138819.0,
+          "max_pair_cpu_ns": 199423.0,
+          "avg_ns_per_sample": 152.904541015625,
+          "worst_cpu_block": "74",
+          "cold_adoption_cpu_ns": 8152.0
+        },
+        "miami-p23/4": {
+          "max_block_cpu_ns": 273715.0,
+          "max_block_wall_ns": 274613.0,
+          "max_pair_cpu_ns": 347805.0,
+          "avg_ns_per_sample": 184.51730346679688,
+          "worst_cpu_block": "14",
+          "cold_adoption_cpu_ns": 8433.0
+        },
+        "miami-p24/4": {
+          "max_block_cpu_ns": 123212.0,
+          "max_block_wall_ns": 123646.0,
+          "max_pair_cpu_ns": 190160.0,
+          "avg_ns_per_sample": 150.81448364257812,
+          "worst_cpu_block": "64",
+          "cold_adoption_cpu_ns": 8753.0
+        },
+        "miami-p25/4": {
+          "max_block_cpu_ns": 122913.0,
+          "max_block_wall_ns": 123626.0,
+          "max_pair_cpu_ns": 178805.0,
+          "avg_ns_per_sample": 139.07388305664062,
+          "worst_cpu_block": "4",
+          "cold_adoption_cpu_ns": 20190.0
+        },
+        "miami-p26/4": {
+          "max_block_cpu_ns": 167186.0,
+          "max_block_wall_ns": 167842.0,
+          "max_pair_cpu_ns": 223459.0,
+          "avg_ns_per_sample": 133.84808349609375,
+          "worst_cpu_block": "17",
+          "cold_adoption_cpu_ns": 8712.0
+        },
+        "miami-p27/4": {
+          "max_block_cpu_ns": 83323.0,
+          "max_block_wall_ns": 83786.0,
+          "max_pair_cpu_ns": 143221.0,
+          "avg_ns_per_sample": 133.6849365234375,
+          "worst_cpu_block": "97",
+          "cold_adoption_cpu_ns": 8262.0
+        },
+        "miami-p28/4": {
+          "max_block_cpu_ns": 82752.0,
+          "max_block_wall_ns": 83215.0,
+          "max_pair_cpu_ns": 145906.0,
+          "avg_ns_per_sample": 147.2093505859375,
+          "worst_cpu_block": "39",
+          "cold_adoption_cpu_ns": 7912.0
+        },
+        "miami-p29/4": {
+          "max_block_cpu_ns": 129781.0,
+          "max_block_wall_ns": 130375.0,
+          "max_pair_cpu_ns": 182889.0,
+          "avg_ns_per_sample": 120.08505249023438,
+          "worst_cpu_block": "47",
+          "cold_adoption_cpu_ns": 8653.0
+        }
+      },
+      {
+        "chicago/1": {
+          "max_block_cpu_ns": 74150.0,
+          "max_block_wall_ns": 74592.0,
+          "max_pair_cpu_ns": 112166.0,
+          "avg_ns_per_sample": 80.92608642578125,
+          "worst_cpu_block": "81",
+          "cold_adoption_cpu_ns": 28962.0
+        },
+        "miami/1": {
+          "max_block_cpu_ns": 100308.0,
+          "max_block_wall_ns": 100681.0,
+          "max_pair_cpu_ns": 159325.0,
+          "avg_ns_per_sample": 139.0809326171875,
+          "worst_cpu_block": "76",
+          "cold_adoption_cpu_ns": 13430.0
+        },
+        "both/1": {
+          "max_block_cpu_ns": 147258.0,
+          "max_block_wall_ns": 148043.0,
+          "max_pair_cpu_ns": 262237.0,
+          "avg_ns_per_sample": 225.76492309570312,
+          "worst_cpu_block": "97",
+          "cold_adoption_cpu_ns": 22714.0
+        },
+        "both-miami29-chorus/1": {
+          "max_block_cpu_ns": 134649.0,
+          "max_block_wall_ns": 135303.0,
+          "max_pair_cpu_ns": 227667.0,
+          "avg_ns_per_sample": 226.88510131835938,
+          "worst_cpu_block": "16",
+          "cold_adoption_cpu_ns": 22153.0
+        },
+        "both-miami18-peaking/1": {
+          "max_block_cpu_ns": 138454.0,
+          "max_block_wall_ns": 139580.0,
+          "max_pair_cpu_ns": 245875.0,
+          "avg_ns_per_sample": 240.99374389648438,
+          "worst_cpu_block": "14",
+          "cold_adoption_cpu_ns": 22503.0
+        },
+        "miami-edits/1": {
+          "max_block_cpu_ns": 170923.0,
+          "max_block_wall_ns": 171588.0,
+          "max_pair_cpu_ns": 239705.0,
+          "avg_ns_per_sample": 203.72998046875,
+          "worst_cpu_block": "41",
+          "cold_adoption_cpu_ns": 9314.0
+        },
+        "miami-p00/1": {
+          "max_block_cpu_ns": 84294.0,
+          "max_block_wall_ns": 84687.0,
+          "max_pair_cpu_ns": 146125.0,
+          "avg_ns_per_sample": 139.9876708984375,
+          "worst_cpu_block": "101",
+          "cold_adoption_cpu_ns": 8723.0
+        },
+        "miami-p01/1": {
+          "max_block_cpu_ns": 110273.0,
+          "max_block_wall_ns": 110736.0,
+          "max_pair_cpu_ns": 162430.0,
+          "avg_ns_per_sample": 125.10812377929688,
+          "worst_cpu_block": "39",
+          "cold_adoption_cpu_ns": 8373.0
+        },
+        "miami-p02/1": {
+          "max_block_cpu_ns": 78116.0,
+          "max_block_wall_ns": 78468.0,
+          "max_pair_cpu_ns": 137514.0,
+          "avg_ns_per_sample": 137.48751831054688,
+          "worst_cpu_block": "12",
+          "cold_adoption_cpu_ns": 9134.0
+        },
+        "miami-p03/1": {
+          "max_block_cpu_ns": 88681.0,
+          "max_block_wall_ns": 89024.0,
+          "max_pair_cpu_ns": 149150.0,
+          "avg_ns_per_sample": 137.94873046875,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 8482.0
+        },
+        "miami-p04/1": {
+          "max_block_cpu_ns": 97244.0,
+          "max_block_wall_ns": 97717.0,
+          "max_pair_cpu_ns": 155741.0,
+          "avg_ns_per_sample": 135.34432983398438,
+          "worst_cpu_block": "69",
+          "cold_adoption_cpu_ns": 7641.0
+        },
+        "miami-p05/1": {
+          "max_block_cpu_ns": 100379.0,
+          "max_block_wall_ns": 100792.0,
+          "max_pair_cpu_ns": 169662.0,
+          "avg_ns_per_sample": 150.1514892578125,
+          "worst_cpu_block": "33",
+          "cold_adoption_cpu_ns": 7962.0
+        },
+        "miami-p06/1": {
+          "max_block_cpu_ns": 74099.0,
+          "max_block_wall_ns": 74502.0,
+          "max_pair_cpu_ns": 131554.0,
+          "avg_ns_per_sample": 128.89059448242188,
+          "worst_cpu_block": "111",
+          "cold_adoption_cpu_ns": 8834.0
+        },
+        "miami-p07/1": {
+          "max_block_cpu_ns": 143673.0,
+          "max_block_wall_ns": 144167.0,
+          "max_pair_cpu_ns": 204544.0,
+          "avg_ns_per_sample": 137.6722412109375,
+          "worst_cpu_block": "101",
+          "cold_adoption_cpu_ns": 7941.0
+        },
+        "miami-p08/1": {
+          "max_block_cpu_ns": 119057.0,
+          "max_block_wall_ns": 119629.0,
+          "max_pair_cpu_ns": 184634.0,
+          "avg_ns_per_sample": 148.86053466796875,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 8573.0
+        },
+        "miami-p09/1": {
+          "max_block_cpu_ns": 123773.0,
+          "max_block_wall_ns": 124177.0,
+          "max_pair_cpu_ns": 176942.0,
+          "avg_ns_per_sample": 122.28207397460938,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 8964.0
+        },
+        "miami-p10/1": {
+          "max_block_cpu_ns": 137103.0,
+          "max_block_wall_ns": 137566.0,
+          "max_pair_cpu_ns": 201178.0,
+          "avg_ns_per_sample": 152.739501953125,
+          "worst_cpu_block": "41",
+          "cold_adoption_cpu_ns": 9284.0
+        },
+        "miami-p11/1": {
+          "max_block_cpu_ns": 87570.0,
+          "max_block_wall_ns": 87983.0,
+          "max_pair_cpu_ns": 140829.0,
+          "avg_ns_per_sample": 121.13613891601562,
+          "worst_cpu_block": "32",
+          "cold_adoption_cpu_ns": 7851.0
+        },
+        "miami-p12/1": {
+          "max_block_cpu_ns": 69603.0,
+          "max_block_wall_ns": 70306.0,
+          "max_pair_cpu_ns": 122141.0,
+          "avg_ns_per_sample": 122.9212646484375,
+          "worst_cpu_block": "12",
+          "cold_adoption_cpu_ns": 8412.0
+        },
+        "miami-p13/1": {
+          "max_block_cpu_ns": 80989.0,
+          "max_block_wall_ns": 81352.0,
+          "max_pair_cpu_ns": 147408.0,
+          "avg_ns_per_sample": 149.07037353515625,
+          "worst_cpu_block": "48",
+          "cold_adoption_cpu_ns": 8072.0
+        },
+        "miami-p14/1": {
+          "max_block_cpu_ns": 161288.0,
+          "max_block_wall_ns": 161723.0,
+          "max_pair_cpu_ns": 219104.0,
+          "avg_ns_per_sample": 137.49441528320312,
+          "worst_cpu_block": "74",
+          "cold_adoption_cpu_ns": 7832.0
+        },
+        "miami-p15/1": {
+          "max_block_cpu_ns": 125866.0,
+          "max_block_wall_ns": 126510.0,
+          "max_pair_cpu_ns": 196701.0,
+          "avg_ns_per_sample": 160.69259643554688,
+          "worst_cpu_block": "71",
+          "cold_adoption_cpu_ns": 8272.0
+        },
+        "miami-p16/1": {
+          "max_block_cpu_ns": 102210.0,
+          "max_block_wall_ns": 102614.0,
+          "max_pair_cpu_ns": 151614.0,
+          "avg_ns_per_sample": 120.0223388671875,
+          "worst_cpu_block": "75",
+          "cold_adoption_cpu_ns": 8052.0
+        },
+        "miami-p17/1": {
+          "max_block_cpu_ns": 99036.0,
+          "max_block_wall_ns": 99599.0,
+          "max_pair_cpu_ns": 163562.0,
+          "avg_ns_per_sample": 151.9259033203125,
+          "worst_cpu_block": "3",
+          "cold_adoption_cpu_ns": 7912.0
+        },
+        "miami-p18/1": {
+          "max_block_cpu_ns": 88702.0,
+          "max_block_wall_ns": 89144.0,
+          "max_pair_cpu_ns": 154329.0,
+          "avg_ns_per_sample": 150.75396728515625,
+          "worst_cpu_block": "49",
+          "cold_adoption_cpu_ns": 9314.0
+        },
+        "miami-p19/1": {
+          "max_block_cpu_ns": 309308.0,
+          "max_block_wall_ns": 310677.0,
+          "max_pair_cpu_ns": 369687.0,
+          "avg_ns_per_sample": 149.06228637695312,
+          "worst_cpu_block": "33",
+          "cold_adoption_cpu_ns": 8673.0
+        },
+        "miami-p20/1": {
+          "max_block_cpu_ns": 283399.0,
+          "max_block_wall_ns": 283937.0,
+          "max_pair_cpu_ns": 344780.0,
+          "avg_ns_per_sample": 157.58810424804688,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 8983.0
+        },
+        "miami-p21/1": {
+          "max_block_cpu_ns": 83894.0,
+          "max_block_wall_ns": 84327.0,
+          "max_pair_cpu_ns": 156101.0,
+          "avg_ns_per_sample": 133.25442504882812,
+          "worst_cpu_block": "13",
+          "cold_adoption_cpu_ns": 9554.0
+        },
+        "miami-p22/1": {
+          "max_block_cpu_ns": 112937.0,
+          "max_block_wall_ns": 113490.0,
+          "max_pair_cpu_ns": 190020.0,
+          "avg_ns_per_sample": 143.73345947265625,
+          "worst_cpu_block": "75",
+          "cold_adoption_cpu_ns": 8423.0
+        },
+        "miami-p23/1": {
+          "max_block_cpu_ns": 207317.0,
+          "max_block_wall_ns": 208073.0,
+          "max_pair_cpu_ns": 278984.0,
+          "avg_ns_per_sample": 172.64535522460938,
+          "worst_cpu_block": "14",
+          "cold_adoption_cpu_ns": 8973.0
+        },
+        "miami-p24/1": {
+          "max_block_cpu_ns": 139958.0,
+          "max_block_wall_ns": 140331.0,
+          "max_pair_cpu_ns": 203772.0,
+          "avg_ns_per_sample": 154.270751953125,
+          "worst_cpu_block": "104",
+          "cold_adoption_cpu_ns": 9243.0
+        },
+        "miami-p25/1": {
+          "max_block_cpu_ns": 98306.0,
+          "max_block_wall_ns": 98738.0,
+          "max_pair_cpu_ns": 175010.0,
+          "avg_ns_per_sample": 128.16433715820312,
+          "worst_cpu_block": "34",
+          "cold_adoption_cpu_ns": 9204.0
+        },
+        "miami-p26/1": {
+          "max_block_cpu_ns": 71486.0,
+          "max_block_wall_ns": 71888.0,
+          "max_pair_cpu_ns": 125566.0,
+          "avg_ns_per_sample": 125.22210693359375,
+          "worst_cpu_block": "47",
+          "cold_adoption_cpu_ns": 8293.0
+        },
+        "miami-p27/1": {
+          "max_block_cpu_ns": 72367.0,
+          "max_block_wall_ns": 72810.0,
+          "max_pair_cpu_ns": 128390.0,
+          "avg_ns_per_sample": 129.037353515625,
+          "worst_cpu_block": "40",
+          "cold_adoption_cpu_ns": 7371.0
+        },
+        "miami-p28/1": {
+          "max_block_cpu_ns": 80899.0,
+          "max_block_wall_ns": 81303.0,
+          "max_pair_cpu_ns": 144554.0,
+          "avg_ns_per_sample": 142.270263671875,
+          "worst_cpu_block": "17",
+          "cold_adoption_cpu_ns": 7140.0
+        },
+        "miami-p29/1": {
+          "max_block_cpu_ns": 108802.0,
+          "max_block_wall_ns": 109324.0,
+          "max_pair_cpu_ns": 159246.0,
+          "avg_ns_per_sample": 129.21395874023438,
+          "worst_cpu_block": "0",
+          "cold_adoption_cpu_ns": 9845.0
+        },
+        "chicago/4": {
+          "max_block_cpu_ns": 831080.0,
+          "max_block_wall_ns": 833113.0,
+          "max_pair_cpu_ns": 879952.0,
+          "avg_ns_per_sample": 120.2933349609375,
+          "worst_cpu_block": "16",
+          "cold_adoption_cpu_ns": 16174.0
+        },
+        "miami/4": {
+          "max_block_cpu_ns": 273565.0,
+          "max_block_wall_ns": 274462.0,
+          "max_pair_cpu_ns": 339723.0,
+          "avg_ns_per_sample": 159.31689453125,
+          "worst_cpu_block": "74",
+          "cold_adoption_cpu_ns": 11657.0
+        },
+        "both/4": {
+          "max_block_cpu_ns": 154839.0,
+          "max_block_wall_ns": 155594.0,
+          "max_pair_cpu_ns": 255278.0,
+          "avg_ns_per_sample": 225.64984130859375,
+          "worst_cpu_block": "96",
+          "cold_adoption_cpu_ns": 22444.0
+        },
+        "both-miami29-chorus/4": {
+          "max_block_cpu_ns": 186537.0,
+          "max_block_wall_ns": 187512.0,
+          "max_pair_cpu_ns": 325172.0,
+          "avg_ns_per_sample": 222.977294921875,
+          "worst_cpu_block": "7",
+          "cold_adoption_cpu_ns": 22333.0
+        },
+        "both-miami18-peaking/4": {
+          "max_block_cpu_ns": 141960.0,
+          "max_block_wall_ns": 142635.0,
+          "max_pair_cpu_ns": 243129.0,
+          "avg_ns_per_sample": 243.45309448242188,
+          "worst_cpu_block": "15",
+          "cold_adoption_cpu_ns": 21953.0
+        },
+        "miami-edits/4": {
+          "max_block_cpu_ns": 153037.0,
+          "max_block_wall_ns": 153591.0,
+          "max_pair_cpu_ns": 222160.0,
+          "avg_ns_per_sample": 206.61642456054688,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 10927.0
+        },
+        "miami-p00/4": {
+          "max_block_cpu_ns": 154659.0,
+          "max_block_wall_ns": 155334.0,
+          "max_pair_cpu_ns": 215049.0,
+          "avg_ns_per_sample": 149.89984130859375,
+          "worst_cpu_block": "7",
+          "cold_adoption_cpu_ns": 8613.0
+        },
+        "miami-p01/4": {
+          "max_block_cpu_ns": 78606.0,
+          "max_block_wall_ns": 79029.0,
+          "max_pair_cpu_ns": 137072.0,
+          "avg_ns_per_sample": 126.07305908203125,
+          "worst_cpu_block": "33",
+          "cold_adoption_cpu_ns": 8422.0
+        },
+        "miami-p02/4": {
+          "max_block_cpu_ns": 88721.0,
+          "max_block_wall_ns": 89114.0,
+          "max_pair_cpu_ns": 152907.0,
+          "avg_ns_per_sample": 149.156494140625,
+          "worst_cpu_block": "109",
+          "cold_adoption_cpu_ns": 8693.0
+        },
+        "miami-p03/4": {
+          "max_block_cpu_ns": 86427.0,
+          "max_block_wall_ns": 86841.0,
+          "max_pair_cpu_ns": 149982.0,
+          "avg_ns_per_sample": 147.85107421875,
+          "worst_cpu_block": "7",
+          "cold_adoption_cpu_ns": 8122.0
+        },
+        "miami-p04/4": {
+          "max_block_cpu_ns": 184643.0,
+          "max_block_wall_ns": 185318.0,
+          "max_pair_cpu_ns": 246514.0,
+          "avg_ns_per_sample": 142.89382934570312,
+          "worst_cpu_block": "79",
+          "cold_adoption_cpu_ns": 7391.0
+        },
+        "miami-p05/4": {
+          "max_block_cpu_ns": 97815.0,
+          "max_block_wall_ns": 98348.0,
+          "max_pair_cpu_ns": 161009.0,
+          "avg_ns_per_sample": 147.24151611328125,
+          "worst_cpu_block": "39",
+          "cold_adoption_cpu_ns": 8702.0
+        },
+        "miami-p06/4": {
+          "max_block_cpu_ns": 110423.0,
+          "max_block_wall_ns": 110807.0,
+          "max_pair_cpu_ns": 163833.0,
+          "avg_ns_per_sample": 124.50607299804688,
+          "worst_cpu_block": "44",
+          "cold_adoption_cpu_ns": 8492.0
+        },
+        "miami-p07/4": {
+          "max_block_cpu_ns": 116682.0,
+          "max_block_wall_ns": 117036.0,
+          "max_pair_cpu_ns": 176140.0,
+          "avg_ns_per_sample": 139.89971923828125,
+          "worst_cpu_block": "102",
+          "cold_adoption_cpu_ns": 7892.0
+        },
+        "miami-p08/4": {
+          "max_block_cpu_ns": 96192.0,
+          "max_block_wall_ns": 96555.0,
+          "max_pair_cpu_ns": 154278.0,
+          "avg_ns_per_sample": 143.10321044921875,
+          "worst_cpu_block": "46",
+          "cold_adoption_cpu_ns": 8422.0
+        },
+        "miami-p09/4": {
+          "max_block_cpu_ns": 69103.0,
+          "max_block_wall_ns": 69555.0,
+          "max_pair_cpu_ns": 123382.0,
+          "avg_ns_per_sample": 117.27694702148438,
+          "worst_cpu_block": "69",
+          "cold_adoption_cpu_ns": 8723.0
+        },
+        "miami-p10/4": {
+          "max_block_cpu_ns": 144224.0,
+          "max_block_wall_ns": 144718.0,
+          "max_pair_cpu_ns": 219286.0,
+          "avg_ns_per_sample": 152.24069213867188,
+          "worst_cpu_block": "45",
+          "cold_adoption_cpu_ns": 8122.0
+        },
+        "miami-p11/4": {
+          "max_block_cpu_ns": 120739.0,
+          "max_block_wall_ns": 121323.0,
+          "max_pair_cpu_ns": 184413.0,
+          "avg_ns_per_sample": 129.29681396484375,
+          "worst_cpu_block": "15",
+          "cold_adoption_cpu_ns": 7441.0
+        },
+        "miami-p12/4": {
+          "max_block_cpu_ns": 301866.0,
+          "max_block_wall_ns": 302435.0,
+          "max_pair_cpu_ns": 361163.0,
+          "avg_ns_per_sample": 138.63259887695312,
+          "worst_cpu_block": "34",
+          "cold_adoption_cpu_ns": 9024.0
+        },
+        "miami-p13/4": {
+          "max_block_cpu_ns": 112947.0,
+          "max_block_wall_ns": 113611.0,
+          "max_pair_cpu_ns": 177693.0,
+          "avg_ns_per_sample": 154.786865234375,
+          "worst_cpu_block": "70",
+          "cold_adoption_cpu_ns": 11978.0
+        },
+        "miami-p14/4": {
+          "max_block_cpu_ns": 134630.0,
+          "max_block_wall_ns": 135183.0,
+          "max_pair_cpu_ns": 197813.0,
+          "avg_ns_per_sample": 144.103515625,
+          "worst_cpu_block": "111",
+          "cold_adoption_cpu_ns": 9043.0
+        },
+        "miami-p15/4": {
+          "max_block_cpu_ns": 113778.0,
+          "max_block_wall_ns": 114222.0,
+          "max_pair_cpu_ns": 180958.0,
+          "avg_ns_per_sample": 158.60592651367188,
+          "worst_cpu_block": "11",
+          "cold_adoption_cpu_ns": 8963.0
+        },
+        "miami-p16/4": {
+          "max_block_cpu_ns": 148821.0,
+          "max_block_wall_ns": 149474.0,
+          "max_pair_cpu_ns": 203781.0,
+          "avg_ns_per_sample": 123.9967041015625,
+          "worst_cpu_block": "80",
+          "cold_adoption_cpu_ns": 8152.0
+        },
+        "miami-p17/4": {
+          "max_block_cpu_ns": 98907.0,
+          "max_block_wall_ns": 99379.0,
+          "max_pair_cpu_ns": 161881.0,
+          "avg_ns_per_sample": 146.71197509765625,
+          "worst_cpu_block": "65",
+          "cold_adoption_cpu_ns": 8753.0
+        },
+        "miami-p18/4": {
+          "max_block_cpu_ns": 215179.0,
+          "max_block_wall_ns": 216125.0,
+          "max_pair_cpu_ns": 281257.0,
+          "avg_ns_per_sample": 157.2164306640625,
+          "worst_cpu_block": "113",
+          "cold_adoption_cpu_ns": 8693.0
+        },
+        "miami-p19/4": {
+          "max_block_cpu_ns": 114380.0,
+          "max_block_wall_ns": 114793.0,
+          "max_pair_cpu_ns": 175019.0,
+          "avg_ns_per_sample": 144.83200073242188,
+          "worst_cpu_block": "12",
+          "cold_adoption_cpu_ns": 9183.0
+        },
+        "miami-p20/4": {
+          "max_block_cpu_ns": 82292.0,
+          "max_block_wall_ns": 82764.0,
+          "max_pair_cpu_ns": 149311.0,
+          "avg_ns_per_sample": 145.22506713867188,
+          "worst_cpu_block": "77",
+          "cold_adoption_cpu_ns": 8623.0
+        },
+        "miami-p21/4": {
+          "max_block_cpu_ns": 102992.0,
+          "max_block_wall_ns": 103546.0,
+          "max_pair_cpu_ns": 158034.0,
+          "avg_ns_per_sample": 135.19955444335938,
+          "worst_cpu_block": "9",
+          "cold_adoption_cpu_ns": 7912.0
+        },
+        "miami-p22/4": {
+          "max_block_cpu_ns": 85567.0,
+          "max_block_wall_ns": 86009.0,
+          "max_pair_cpu_ns": 151454.0,
+          "avg_ns_per_sample": 140.76791381835938,
+          "worst_cpu_block": "65",
+          "cold_adoption_cpu_ns": 7832.0
+        },
+        "miami-p23/4": {
+          "max_block_cpu_ns": 271332.0,
+          "max_block_wall_ns": 272209.0,
+          "max_pair_cpu_ns": 344391.0,
+          "avg_ns_per_sample": 167.88174438476562,
+          "worst_cpu_block": "110",
+          "cold_adoption_cpu_ns": 7531.0
+        },
+        "miami-p24/4": {
+          "max_block_cpu_ns": 119537.0,
+          "max_block_wall_ns": 119950.0,
+          "max_pair_cpu_ns": 185425.0,
+          "avg_ns_per_sample": 147.03903198242188,
+          "worst_cpu_block": "64",
+          "cold_adoption_cpu_ns": 9374.0
+        },
+        "miami-p25/4": {
+          "max_block_cpu_ns": 113468.0,
+          "max_block_wall_ns": 113881.0,
+          "max_pair_cpu_ns": 170542.0,
+          "avg_ns_per_sample": 131.46240234375,
+          "worst_cpu_block": "104",
+          "cold_adoption_cpu_ns": 8282.0
+        },
+        "miami-p26/4": {
+          "max_block_cpu_ns": 84896.0,
+          "max_block_wall_ns": 85349.0,
+          "max_pair_cpu_ns": 137264.0,
+          "avg_ns_per_sample": 122.2088623046875,
+          "worst_cpu_block": "2",
+          "cold_adoption_cpu_ns": 8702.0
+        },
+        "miami-p27/4": {
+          "max_block_cpu_ns": 103083.0,
+          "max_block_wall_ns": 103545.0,
+          "max_pair_cpu_ns": 162581.0,
+          "avg_ns_per_sample": 137.88510131835938,
+          "worst_cpu_block": "65",
+          "cold_adoption_cpu_ns": 7722.0
+        },
+        "miami-p28/4": {
+          "max_block_cpu_ns": 87469.0,
+          "max_block_wall_ns": 87882.0,
+          "max_pair_cpu_ns": 153707.0,
+          "avg_ns_per_sample": 148.675048828125,
+          "worst_cpu_block": "1",
+          "cold_adoption_cpu_ns": 8202.0
+        },
+        "miami-p29/4": {
+          "max_block_cpu_ns": 71105.0,
+          "max_block_wall_ns": 71577.0,
+          "max_pair_cpu_ns": 126206.0,
+          "avg_ns_per_sample": 118.2037353515625,
+          "worst_cpu_block": "113",
+          "cold_adoption_cpu_ns": 8702.0
+        }
+      }
+    ]
+  },
+  "limits": "Synth closure only. No AC79 timing, ISR contention, drums, mixer, UI, flash, USB, or DMA execution."
+}

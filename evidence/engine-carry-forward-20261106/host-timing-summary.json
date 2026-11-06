@@ -1,0 +1,434 @@
+[
+  {
+    "scenario": "chicago/1",
+    "reference_ns_per_sample": 79.83969116210938,
+    "candidate_ns_per_sample": 49.801788330078125,
+    "change_percent": -37.62276932038879
+  },
+  {
+    "scenario": "miami/1",
+    "reference_ns_per_sample": 139.58914184570312,
+    "candidate_ns_per_sample": 86.278564453125,
+    "change_percent": -38.19106320712663
+  },
+  {
+    "scenario": "both/1",
+    "reference_ns_per_sample": 225.76492309570312,
+    "candidate_ns_per_sample": 139.03582763671875,
+    "change_percent": -38.41566451942554
+  },
+  {
+    "scenario": "both-miami29-chorus/1",
+    "reference_ns_per_sample": 226.88510131835938,
+    "candidate_ns_per_sample": 160.41513061523438,
+    "change_percent": -29.296754311714825
+  },
+  {
+    "scenario": "both-miami18-peaking/1",
+    "reference_ns_per_sample": 240.99374389648438,
+    "candidate_ns_per_sample": 149.01727294921875,
+    "change_percent": -38.1655015023016
+  },
+  {
+    "scenario": "miami-edits/1",
+    "reference_ns_per_sample": 201.1805419921875,
+    "candidate_ns_per_sample": 128.55752563476562,
+    "change_percent": -36.098429618626874
+  },
+  {
+    "scenario": "miami-p00/1",
+    "reference_ns_per_sample": 139.9876708984375,
+    "candidate_ns_per_sample": 86.45901489257812,
+    "change_percent": -38.23812173051652
+  },
+  {
+    "scenario": "miami-p01/1",
+    "reference_ns_per_sample": 123.58346557617188,
+    "candidate_ns_per_sample": 74.29428100585938,
+    "change_percent": -39.88331638097058
+  },
+  {
+    "scenario": "miami-p02/1",
+    "reference_ns_per_sample": 137.48751831054688,
+    "candidate_ns_per_sample": 95.23626708984375,
+    "change_percent": -30.73097233835369
+  },
+  {
+    "scenario": "miami-p03/1",
+    "reference_ns_per_sample": 140.54757690429688,
+    "candidate_ns_per_sample": 91.61935424804688,
+    "change_percent": -34.812569333419894
+  },
+  {
+    "scenario": "miami-p04/1",
+    "reference_ns_per_sample": 136.33181762695312,
+    "candidate_ns_per_sample": 90.88949584960938,
+    "change_percent": -33.33214693996693
+  },
+  {
+    "scenario": "miami-p05/1",
+    "reference_ns_per_sample": 150.5389404296875,
+    "candidate_ns_per_sample": 89.10101318359375,
+    "change_percent": -40.81198331191236
+  },
+  {
+    "scenario": "miami-p06/1",
+    "reference_ns_per_sample": 128.89059448242188,
+    "candidate_ns_per_sample": 79.06777954101562,
+    "change_percent": -38.65512075685328
+  },
+  {
+    "scenario": "miami-p07/1",
+    "reference_ns_per_sample": 137.27581787109375,
+    "candidate_ns_per_sample": 84.01193237304688,
+    "change_percent": -38.800632423157964
+  },
+  {
+    "scenario": "miami-p08/1",
+    "reference_ns_per_sample": 148.86053466796875,
+    "candidate_ns_per_sample": 93.88906860351562,
+    "change_percent": -36.92816647949449
+  },
+  {
+    "scenario": "miami-p09/1",
+    "reference_ns_per_sample": 119.31253051757812,
+    "candidate_ns_per_sample": 71.21768188476562,
+    "change_percent": -40.309972828651695
+  },
+  {
+    "scenario": "miami-p10/1",
+    "reference_ns_per_sample": 145.92709350585938,
+    "candidate_ns_per_sample": 89.78573608398438,
+    "change_percent": -38.47219599396789
+  },
+  {
+    "scenario": "miami-p11/1",
+    "reference_ns_per_sample": 121.13613891601562,
+    "candidate_ns_per_sample": 73.557861328125,
+    "change_percent": -39.27669976411987
+  },
+  {
+    "scenario": "miami-p12/1",
+    "reference_ns_per_sample": 124.31704711914062,
+    "candidate_ns_per_sample": 84.55377197265625,
+    "change_percent": -31.985376155513734
+  },
+  {
+    "scenario": "miami-p13/1",
+    "reference_ns_per_sample": 154.13165283203125,
+    "candidate_ns_per_sample": 84.73681640625,
+    "change_percent": -45.02309236987549
+  },
+  {
+    "scenario": "miami-p14/1",
+    "reference_ns_per_sample": 148.101318359375,
+    "candidate_ns_per_sample": 90.88674926757812,
+    "change_percent": -38.632045768129466
+  },
+  {
+    "scenario": "miami-p15/1",
+    "reference_ns_per_sample": 160.69259643554688,
+    "candidate_ns_per_sample": 93.12054443359375,
+    "change_percent": -42.0505073045204
+  },
+  {
+    "scenario": "miami-p16/1",
+    "reference_ns_per_sample": 121.44223022460938,
+    "candidate_ns_per_sample": 61.919189453125,
+    "change_percent": -49.01346151284899
+  },
+  {
+    "scenario": "miami-p17/1",
+    "reference_ns_per_sample": 149.6680908203125,
+    "candidate_ns_per_sample": 90.51278686523438,
+    "change_percent": -39.52432588059027
+  },
+  {
+    "scenario": "miami-p18/1",
+    "reference_ns_per_sample": 152.12109375,
+    "candidate_ns_per_sample": 89.58676147460938,
+    "change_percent": -41.10825838404848
+  },
+  {
+    "scenario": "miami-p19/1",
+    "reference_ns_per_sample": 141.65554809570312,
+    "candidate_ns_per_sample": 78.6431884765625,
+    "change_percent": -44.48280386206207
+  },
+  {
+    "scenario": "miami-p20/1",
+    "reference_ns_per_sample": 148.65005493164062,
+    "candidate_ns_per_sample": 84.02743530273438,
+    "change_percent": -43.47298738545648
+  },
+  {
+    "scenario": "miami-p21/1",
+    "reference_ns_per_sample": 133.86798095703125,
+    "candidate_ns_per_sample": 81.15695190429688,
+    "change_percent": -39.3753821308872
+  },
+  {
+    "scenario": "miami-p22/1",
+    "reference_ns_per_sample": 142.50857543945312,
+    "candidate_ns_per_sample": 90.35357666015625,
+    "change_percent": -36.597796742032344
+  },
+  {
+    "scenario": "miami-p23/1",
+    "reference_ns_per_sample": 171.143798828125,
+    "candidate_ns_per_sample": 99.23043823242188,
+    "change_percent": -42.01926163151476
+  },
+  {
+    "scenario": "miami-p24/1",
+    "reference_ns_per_sample": 149.226318359375,
+    "candidate_ns_per_sample": 82.93621826171875,
+    "change_percent": -44.42252601716863
+  },
+  {
+    "scenario": "miami-p25/1",
+    "reference_ns_per_sample": 127.26431274414062,
+    "candidate_ns_per_sample": 77.9495849609375,
+    "change_percent": -38.74984802876219
+  },
+  {
+    "scenario": "miami-p26/1",
+    "reference_ns_per_sample": 125.22210693359375,
+    "candidate_ns_per_sample": 75.64010620117188,
+    "change_percent": -39.59524555733246
+  },
+  {
+    "scenario": "miami-p27/1",
+    "reference_ns_per_sample": 129.037353515625,
+    "candidate_ns_per_sample": 91.7811279296875,
+    "change_percent": -28.87243466398758
+  },
+  {
+    "scenario": "miami-p28/1",
+    "reference_ns_per_sample": 145.4395751953125,
+    "candidate_ns_per_sample": 91.40255737304688,
+    "change_percent": -37.15427369043033
+  },
+  {
+    "scenario": "miami-p29/1",
+    "reference_ns_per_sample": 129.21395874023438,
+    "candidate_ns_per_sample": 86.44833374023438,
+    "change_percent": -33.096753181267346
+  },
+  {
+    "scenario": "chicago/4",
+    "reference_ns_per_sample": 79.10702514648438,
+    "candidate_ns_per_sample": 50.485595703125,
+    "change_percent": -36.18064184610708
+  },
+  {
+    "scenario": "miami/4",
+    "reference_ns_per_sample": 145.99819946289062,
+    "candidate_ns_per_sample": 85.942138671875,
+    "change_percent": -41.13479550566683
+  },
+  {
+    "scenario": "both/4",
+    "reference_ns_per_sample": 225.64984130859375,
+    "candidate_ns_per_sample": 136.84219360351562,
+    "change_percent": -39.356397146154755
+  },
+  {
+    "scenario": "both-miami29-chorus/4",
+    "reference_ns_per_sample": 222.977294921875,
+    "candidate_ns_per_sample": 145.22344970703125,
+    "change_percent": -34.87074558065947
+  },
+  {
+    "scenario": "both-miami18-peaking/4",
+    "reference_ns_per_sample": 243.45309448242188,
+    "candidate_ns_per_sample": 153.8170166015625,
+    "change_percent": -36.81862334566932
+  },
+  {
+    "scenario": "miami-edits/4",
+    "reference_ns_per_sample": 203.74038696289062,
+    "candidate_ns_per_sample": 138.45806884765625,
+    "change_percent": -32.04191328404855
+  },
+  {
+    "scenario": "miami-p00/4",
+    "reference_ns_per_sample": 149.89984130859375,
+    "candidate_ns_per_sample": 93.11984252929688,
+    "change_percent": -37.87862500961946
+  },
+  {
+    "scenario": "miami-p01/4",
+    "reference_ns_per_sample": 126.07305908203125,
+    "candidate_ns_per_sample": 72.59884643554688,
+    "change_percent": -42.415257498979706
+  },
+  {
+    "scenario": "miami-p02/4",
+    "reference_ns_per_sample": 148.58059692382812,
+    "candidate_ns_per_sample": 94.08377075195312,
+    "change_percent": -36.6782926574279
+  },
+  {
+    "scenario": "miami-p03/4",
+    "reference_ns_per_sample": 147.85107421875,
+    "candidate_ns_per_sample": 93.156494140625,
+    "change_percent": -36.99302177351973
+  },
+  {
+    "scenario": "miami-p04/4",
+    "reference_ns_per_sample": 139.28628540039062,
+    "candidate_ns_per_sample": 92.1533203125,
+    "change_percent": -33.83891310792214
+  },
+  {
+    "scenario": "miami-p05/4",
+    "reference_ns_per_sample": 147.24151611328125,
+    "candidate_ns_per_sample": 91.56964111328125,
+    "change_percent": -37.80990339515961
+  },
+  {
+    "scenario": "miami-p06/4",
+    "reference_ns_per_sample": 124.50607299804688,
+    "candidate_ns_per_sample": 78.79022216796875,
+    "change_percent": -36.71776783996334
+  },
+  {
+    "scenario": "miami-p07/4",
+    "reference_ns_per_sample": 139.89971923828125,
+    "candidate_ns_per_sample": 84.27200317382812,
+    "change_percent": -39.76256447642071
+  },
+  {
+    "scenario": "miami-p08/4",
+    "reference_ns_per_sample": 143.10321044921875,
+    "candidate_ns_per_sample": 86.50100708007812,
+    "change_percent": -39.55341266730444
+  },
+  {
+    "scenario": "miami-p09/4",
+    "reference_ns_per_sample": 118.38836669921875,
+    "candidate_ns_per_sample": 72.3746337890625,
+    "change_percent": -38.866768917473294
+  },
+  {
+    "scenario": "miami-p10/4",
+    "reference_ns_per_sample": 151.00738525390625,
+    "candidate_ns_per_sample": 91.21237182617188,
+    "change_percent": -39.5974099724951
+  },
+  {
+    "scenario": "miami-p11/4",
+    "reference_ns_per_sample": 123.52200317382812,
+    "candidate_ns_per_sample": 71.88406372070312,
+    "change_percent": -41.80464866689116
+  },
+  {
+    "scenario": "miami-p12/4",
+    "reference_ns_per_sample": 126.82144165039062,
+    "candidate_ns_per_sample": 79.06060791015625,
+    "change_percent": -37.659904444153014
+  },
+  {
+    "scenario": "miami-p13/4",
+    "reference_ns_per_sample": 153.372314453125,
+    "candidate_ns_per_sample": 82.94061279296875,
+    "change_percent": -45.922043956428794
+  },
+  {
+    "scenario": "miami-p14/4",
+    "reference_ns_per_sample": 143.2645263671875,
+    "candidate_ns_per_sample": 89.95172119140625,
+    "change_percent": -37.21284432905626
+  },
+  {
+    "scenario": "miami-p15/4",
+    "reference_ns_per_sample": 159.45150756835938,
+    "candidate_ns_per_sample": 98.72653198242188,
+    "change_percent": -38.08366349869959
+  },
+  {
+    "scenario": "miami-p16/4",
+    "reference_ns_per_sample": 128.53692626953125,
+    "candidate_ns_per_sample": 64.36727905273438,
+    "change_percent": -49.923122544752985
+  },
+  {
+    "scenario": "miami-p17/4",
+    "reference_ns_per_sample": 146.71197509765625,
+    "candidate_ns_per_sample": 93.17059326171875,
+    "change_percent": -36.49421378200288
+  },
+  {
+    "scenario": "miami-p18/4",
+    "reference_ns_per_sample": 157.2164306640625,
+    "candidate_ns_per_sample": 94.95272827148438,
+    "change_percent": -39.603813755078946
+  },
+  {
+    "scenario": "miami-p19/4",
+    "reference_ns_per_sample": 139.55166625976562,
+    "candidate_ns_per_sample": 79.004638671875,
+    "change_percent": -43.38681809444438
+  },
+  {
+    "scenario": "miami-p20/4",
+    "reference_ns_per_sample": 146.47976684570312,
+    "candidate_ns_per_sample": 86.59616088867188,
+    "change_percent": -40.881827740831014
+  },
+  {
+    "scenario": "miami-p21/4",
+    "reference_ns_per_sample": 135.19955444335938,
+    "candidate_ns_per_sample": 79.544189453125,
+    "change_percent": -41.16534645352746
+  },
+  {
+    "scenario": "miami-p22/4",
+    "reference_ns_per_sample": 145.02890014648438,
+    "candidate_ns_per_sample": 94.3804931640625,
+    "change_percent": -34.9229753044153
+  },
+  {
+    "scenario": "miami-p23/4",
+    "reference_ns_per_sample": 167.88174438476562,
+    "candidate_ns_per_sample": 104.74981689453125,
+    "change_percent": -37.604998519400226
+  },
+  {
+    "scenario": "miami-p24/4",
+    "reference_ns_per_sample": 147.65383911132812,
+    "candidate_ns_per_sample": 84.71978759765625,
+    "change_percent": -42.62269907267417
+  },
+  {
+    "scenario": "miami-p25/4",
+    "reference_ns_per_sample": 131.46240234375,
+    "candidate_ns_per_sample": 77.75521850585938,
+    "change_percent": -40.853645514141924
+  },
+  {
+    "scenario": "miami-p26/4",
+    "reference_ns_per_sample": 124.14434814453125,
+    "candidate_ns_per_sample": 75.41165161132812,
+    "change_percent": -39.254865212605225
+  },
+  {
+    "scenario": "miami-p27/4",
+    "reference_ns_per_sample": 136.13027954101562,
+    "candidate_ns_per_sample": 91.867431640625,
+    "change_percent": -32.51506428226673
+  },
+  {
+    "scenario": "miami-p28/4",
+    "reference_ns_per_sample": 148.675048828125,
+    "candidate_ns_per_sample": 90.69601440429688,
+    "change_percent": -38.99715176206499
+  },
+  {
+    "scenario": "miami-p29/4",
+    "reference_ns_per_sample": 118.46884155273438,
+    "candidate_ns_per_sample": 77.48104858398438,
+    "change_percent": -34.59795202817526
+  }
+]

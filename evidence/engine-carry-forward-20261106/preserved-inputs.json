@@ -1,0 +1,50 @@
+[
+  {
+    "path": "experiments/original_synth/chicago_dynamics.c",
+    "base_blob": "76234e83fe37d6354da476bd0a7e0cb65655852b",
+    "candidate_blob": "76234e83fe37d6354da476bd0a7e0cb65655852b",
+    "unchanged": true
+  },
+  {
+    "path": "experiments/original_synth/chicago_dynamics.h",
+    "base_blob": "e8200e394347e2752de03e3e5cfc6ae2bc444119",
+    "candidate_blob": "e8200e394347e2752de03e3e5cfc6ae2bc444119",
+    "unchanged": true
+  },
+  {
+    "path": "experiments/original_synth/control_math.c",
+    "base_blob": "44030196da85756e1675402f893bda88a4f03b8d",
+    "candidate_blob": "44030196da85756e1675402f893bda88a4f03b8d",
+    "unchanged": true
+  },
+  {
+    "path": "experiments/original_synth/control_math.h",
+    "base_blob": "cb51ffbce6140730d1bc746334b62a28d8967e0f",
+    "candidate_blob": "cb51ffbce6140730d1bc746334b62a28d8967e0f",
+    "unchanged": true
+  },
+  {
+    "path": "experiments/original_synth/chicago_program.c",
+    "base_blob": "a6fd3ae523069b8357ac6a6fb30d11cf23723740",
+    "candidate_blob": "a6fd3ae523069b8357ac6a6fb30d11cf23723740",
+    "unchanged": true
+  },
+  {
+    "path": "experiments/original_synth/miami_program.c",
+    "base_blob": "3c0133d81c7049946faf2e751fb5a4f11ec5e80f",
+    "candidate_blob": "3c0133d81c7049946faf2e751fb5a4f11ec5e80f",
+    "unchanged": true
+  },
+  {
+    "path": "experiments/original_synth/miami_interpolation.h",
+    "base_blob": "6258b044484a575d976109bd0a863274cccd041f",
+    "candidate_blob": "6258b044484a575d976109bd0a863274cccd041f",
+    "unchanged": true
+  },
+  {
+    "path": "experiments/original_synth/chicago_global_mg.c",
+    "base_blob": "dce859f14344566e3fb8534460cb0e2acd83a0db",
+    "candidate_blob": "dce859f14344566e3fb8534460cb0e2acd83a0db",
+    "unchanged": true
+  }
+]
