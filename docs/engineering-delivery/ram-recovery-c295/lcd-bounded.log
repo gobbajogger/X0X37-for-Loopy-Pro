@@ -1,0 +1,6 @@
+ok lcd-bounded-tiles: exact pixels, idle no DMA, playhead sparse, non-inflating corners, bounded DMA and dispatch
+scenario      old bytes new bytes old max us new max us old ops new ops
+playhead        8640     3072      5760       342     1     6
+knob           11040     3072      7360       342     1     6
+smc-popup      39360    39360     26240      1024     1    30
+idle               0        0         0         0     0     0

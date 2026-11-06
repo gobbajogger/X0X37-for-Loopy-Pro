@@ -1755,8 +1755,8 @@ volatile uint32_t eng_dbg_wait, eng_dbg_nsub;  /* 24 MHz ticks waiting for core 
 #endif
 
 /* the mix of one stretch between two events: dry left and right, the reverb and delay sends;
- * t0..tr the 808's scratch, kbuf the break's, mono the 909's kit send */
-static float dry_l[256], dry_r[256], rev[256], dly[256], t0[256], t1[256], t2[256], tr[256], kbuf[256], mono[256];
+ * t0..tr the 808's scratch, kbuf the break's */
+static float dry_l[256], dry_r[256], rev[256], dly[256], t0[256], t1[256], t2[256], tr[256], kbuf[256];
 
 /* a glide applied in place to a buffer that started at zero: buf * c is 0 + buf * c exactly, so this
  * is add_glide(zeros, buf) to the bit (the same steps of c) */
@@ -1894,6 +1894,10 @@ __attribute__((noinline)) static void kit_sends(int b, const float *m, uint32_t 
  * 303 B, break): the same sums either way */
 __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n, uint32_t offset)
 {
+    /* The current output window is scratch until the synths and FX write it.
+     * Consume the 909 kit send before those writes. CPU2 uses t0..tr/kbuf,
+     * and earlier output windows remain outside these n samples. */
+    float *mono = out_l;
     float *bb[NBASS] = {out_l, out_r};
     int b;
     float *left808 = t0 + offset, *right808 = tr + offset;

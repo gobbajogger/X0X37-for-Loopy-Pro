@@ -1,0 +1,14 @@
+[
+  {
+    "mode": "normal",
+    "bytes": 1592960,
+    "sha256": "db61a7af0a4ffb567c2aa53551962d354abc0d085b14709a096f770021a93032",
+    "exact_match": true
+  },
+  {
+    "mode": "sanitized",
+    "bytes": 1592960,
+    "sha256": "db61a7af0a4ffb567c2aa53551962d354abc0d085b14709a096f770021a93032",
+    "exact_match": true
+  }
+]

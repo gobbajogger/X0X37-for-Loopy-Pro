@@ -1,0 +1,8 @@
+PASS engine output windows: 1600 blocks; 4670 jobs/3736 joins; nonzero=393597; 0/1/255/256/cap300, uneven splits, fallback/deferred/partial CPU2, guard words
+PASS engine output windows: 1600 blocks; 4670 jobs/3736 joins; nonzero=393597; 0/1/255/256/cap300, uneven splits, fallback/deferred/partial CPU2, guard words
+PASS engine output windows: 1600 blocks; 4670 jobs/3736 joins; nonzero=393598; 0/1/255/256/cap300, uneven splits, fallback/deferred/partial CPU2, guard words
+unsafe dry_l alias detected PASS
+normal exact PCM/meter comparison PASS
+PASS engine output windows: 1600 blocks; 4670 jobs/3736 joins; nonzero=393597; 0/1/255/256/cap300, uneven splits, fallback/deferred/partial CPU2, guard words
+PASS engine output windows: 1600 blocks; 4670 jobs/3736 joins; nonzero=393597; 0/1/255/256/cap300, uneven splits, fallback/deferred/partial CPU2, guard words
+sanitized exact PCM/meter comparison PASS
