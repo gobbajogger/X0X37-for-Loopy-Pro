@@ -1,0 +1,21 @@
+{
+  "ui-peer-names": {
+    "pairs": 12,
+    "byte_identical": true
+  },
+  "ui-settings-sections": {
+    "pairs": 11,
+    "byte_identical": true
+  },
+  "base_state_symbols": [
+    "0000000000136000 0000000000000008 b nm.93",
+    "000000000016f0c0 0000000000000044 b peer_scroll",
+    "0000000000171960 000000000000009c b original_wave",
+    "0000000000171b20 0000000000000248 b ui"
+  ],
+  "candidate_state_symbols": [
+    "00000000001700c0 0000000000000044 b peer_scroll",
+    "0000000000172960 000000000000009c b original_wave",
+    "0000000000172b20 0000000000000248 b ui"
+  ]
+}

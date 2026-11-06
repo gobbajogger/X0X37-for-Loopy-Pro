@@ -1,0 +1,21 @@
+## base-peer.log
+peer names PASS 61 checks
+## base-settings.log
+settings sections PASS 494 checks
+## new-peer.log
+peer names PASS 61 checks
+## new-settings.log
+settings sections PASS 494 checks
+## focused.log
+  ok   play-question-ui
+  ok   sound-reset-ui
+  ok   ui-perf-identity
+  ok   ui-peer-names
+  ok   lcd-bounded
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+all tests passed
+## peer-san.log
+peer names PASS 65 checks
+## legacy-peer.log
+tests/host/../../host/x0x_host.c:277:13: error: redefinition of ‘plat_ble_name’
+tests/host/smc_peer_names_test.c:31:5: error: implicit declaration of function ‘bt_peer_text’ [-Wimplicit-function-declaration]

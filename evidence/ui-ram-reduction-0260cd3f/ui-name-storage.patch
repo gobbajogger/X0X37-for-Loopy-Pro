@@ -1,0 +1,233 @@
+diff --git a/firmware/src/app/plat.h b/firmware/src/app/plat.h
+index 46c8351a5..a34f36ed3 100644
+--- a/firmware/src/app/plat.h
++++ b/firmware/src/app/plat.h
+@@ -115,7 +115,9 @@ uint32_t plat_xruns(void);
+ enum { PLAT_BLE_NOIMG, PLAT_BLE_OFF, PLAT_BLE_RESTART, PLAT_BLE_STARTING, PLAT_BLE_READY, PLAT_BLE_CONNECTED,
+        PLAT_BLE_FAILED, PLAT_BLE_BADIMG };
+ int plat_ble_state(void);
+-const char *plat_ble_name(void);
++/* Caller supplies at least 43 bytes for two 20-byte names, separator and NUL.
++ * The returned string may instead be the peripheral advertising name. */
++const char *plat_ble_name(char *names);
+ #define PLAT_BLE_PEER_CAP 2u
+ #define PLAT_BLE_PEER_NAME_MAX 20u
+ typedef struct { unsigned count; int state, central; char name[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX+1u]; } plat_ble_peers_t;
+diff --git a/firmware/src/app/plat_fm1.c b/firmware/src/app/plat_fm1.c
+index b8f881158..94479a353 100644
+--- a/firmware/src/app/plat_fm1.c
++++ b/firmware/src/app/plat_fm1.c
+@@ -278,7 +278,7 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity)
+ }
+ #if !X0X_BLE
+ int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
+-const char *plat_ble_name(void) { return ""; }
++const char *plat_ble_name(char *names) { (void)names; return ""; }
+ void plat_ble_peers(plat_ble_peers_t *out) { __builtin_memset(out,0,sizeof *out); out->state=PLAT_BLE_NOIMG; }
+ void plat_ble_set(int on) { (void)on; }
+ int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 0; }
+diff --git a/firmware/src/app/ui.c b/firmware/src/app/ui.c
+index 710a1c0d8..b3230534e 100644
+--- a/firmware/src/app/ui.c
++++ b/firmware/src/app/ui.c
+@@ -537,10 +537,8 @@ static const x0x_param_t *pref_desc(pref_t r)
+     case R_CKCH: return &CKCH_P;
+     case R_CLKSRC: return &CLKSRC_P;
+     case R_BTSTAT: return &BTSTAT_P;
+-    case R_BTNAME: {                                   /* read only: the name it advertises */
+-        static const char *nm[1];
+-        static const x0x_param_t d = {"NAME", 0, 0, nm};
+-        nm[0] = plat_ble_name()[0] ? plat_ble_name() : "-";
++    case R_BTNAME: {                                   /* read only: formatted into the caller's value buffer */
++        static const x0x_param_t d = {"NAME", 0, 0, 0};
+         return &d;
+     }
+     case R_SLEN: return &SONG_P[5];
+@@ -1053,6 +1051,13 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
+         engine_bass_edit_hold(0);
+         return;
+     }
++    if (r.kind == R_BTNAME) {
++        if (v != 0) { put_s(num, "INVALID"); return; }
++        const char *name = plat_ble_name(num);
++        if (name != num) put_s(num, name);
++        if (!*num) put_s(num, "-");
++        return;
++    }
+     if (d->names) {
+         /* Retained or incompatible sound data must not become a pointer lookup. */
+         put_s(num, v >= 0 && v <= d->max ? d->names[v] : "INVALID");
+diff --git a/firmware/src/ble.c b/firmware/src/ble.c
+index bfb7af4f3..39a48f4f7 100644
+--- a/firmware/src/ble.c
++++ b/firmware/src/ble.c
+@@ -609,10 +609,9 @@ void plat_ble_peers(plat_ble_peers_t *out)
+     if (!out->central || out->state != PLAT_BLE_CONNECTED) return;
+     out->count = plat_ble_peer_names(out->name);
+ }
+-const char *plat_ble_name(void)
++const char *plat_ble_name(char *names)
+ {
+     if (!ble_central_role) return ble_r.nm;
+-    static char names[43];
+     char peers[2][21];
+     unsigned count = plat_ble_peer_names(peers), n = 0;
+     for (unsigned p = 0; p < count; p++) {
+diff --git a/host/x0x_host.c b/host/x0x_host.c
+index 89c3b9b06..e51b35622 100644
+--- a/host/x0x_host.c
++++ b/host/x0x_host.c
+@@ -274,7 +274,7 @@ void plat_ble_peers(plat_ble_peers_t *out) { X0X_HOST_BLE_PEERS(out); }
+ #else
+ void plat_ble_peers(plat_ble_peers_t *out) { memset(out, 0, sizeof *out); out->state = plat_ble_state(); }
+ #endif
+-const char *plat_ble_name(void) { return ""; }
++const char *plat_ble_name(char *names) { (void)names; return ""; }
+ void plat_ble_set(int on) { ble_on = on; }
+ uint32_t plat_cpu_pct(void) { return cpu_pct; }
+ uint32_t plat_xruns(void) { return 0; }
+diff --git a/tests/host/ble_peer_name_bounds_test.c b/tests/host/ble_peer_name_bounds_test.c
+index 5e4ae2a7f..a67c888ae 100644
+--- a/tests/host/ble_peer_name_bounds_test.c
++++ b/tests/host/ble_peer_name_bounds_test.c
+@@ -24,6 +24,7 @@ int main(void)
+         uint8_t after;
+     } captured;
+     const char *joined;
++    struct { unsigned before; char text[43]; unsigned after; } output = {0x12345678, {0}, 0x87654321};
+     ble_central_role=1;
+     ble_r.host.c.state=ble_r.host.c2.state=BLEC_CONNECTED;
+     memcpy(ble_r.host.c.link_name,"ABCDEFGHIJKLMNOPQRST",21u);
+@@ -33,7 +34,7 @@ int main(void)
+     assert(!memcmp(captured.names[0],"ABCDEFGHIJKLMNOPQRST",21u));
+     assert(!memcmp(captured.names[1],"abcdefghijklmnopqrst",21u));
+     assert(captured.before==0xA5u && captured.after==0xA5u);
+-    joined=plat_ble_name();
++    joined=plat_ble_name(output.text);
+     assert(!memcmp(joined,"ABCDEFGHIJKLMNOPQRST, abcdefghijklmnopqrst",43u));
+     assert(strlen(joined)==42u && joined[42]=='\0');
+ 
+@@ -43,14 +44,14 @@ int main(void)
+     assert(!memcmp(captured.names[0],"XXXXXXXXXXXXXXXXXXXX",21u));
+     assert(captured.before==0xA5u && captured.after==0xA5u);
+     ble_r.host.c.state=BLEC_OFF;
+-    assert(!strcmp(plat_ble_name(),"abcdefghijklmnopqrst"));
++    assert(!strcmp(plat_ble_name(output.text),"abcdefghijklmnopqrst"));
+     ble_r.host.c2.link_name[0]=0;
+-    assert(!strcmp(plat_ble_name(),"SMC-Mixer"));
++    assert(!strcmp(plat_ble_name(output.text),"SMC-Mixer"));
+     ble_r.host.c2.state=BLEC_OFF;
+-    assert(!plat_ble_name()[0]);
++    assert(!plat_ble_name(output.text)[0]);
+     ble_central_role=0;
+     memcpy(ble_r.nm,"X0X37",6u);
+-    assert(!strcmp(plat_ble_name(),"X0X37"));
++    assert(!strcmp(plat_ble_name(output.text),"X0X37"));
+     plat_ble_peers_t snapshot;
+     ble_central_role=1; ble_r.host.c.state=BLEC_CONNECTED;
+     memset(ble_r.host.c.link_name,0,sizeof ble_r.host.c.link_name);
+@@ -61,6 +62,7 @@ int main(void)
+     snapshot_state=PLAT_BLE_OFF; plat_ble_peers(&snapshot);
+     assert(snapshot.count==0 && snapshot.state==PLAT_BLE_OFF);
+     assert(!snapshot.name[0][0] && !snapshot.name[1][0]);
++    assert(output.before==0x12345678 && output.after==0x87654321);
+     assert(!locked_irq);
+     puts("PASS BLE peer-name bounds and maximum-length join");
+     return 0;
+diff --git a/tests/host/ble_peer_name_bounds_test.sh b/tests/host/ble_peer_name_bounds_test.sh
+index 8754b52c0..88040fb7c 100644
+--- a/tests/host/ble_peer_name_bounds_test.sh
++++ b/tests/host/ble_peer_name_bounds_test.sh
+@@ -4,7 +4,7 @@ set -eu
+ cd "$(dirname "$0")/../.."
+ OUT=$(mktemp -d "${TMPDIR:-/tmp}/x0x-ble-peer-name-bounds.XXXXXX")
+ trap 'rm -rf "$OUT"' EXIT HUP INT TERM
+-awk '/^void plat_ble_peers\(/ || /^unsigned plat_ble_peer_names\(/ || /^const char \*plat_ble_name\(void\)/{on=1} on{print} on && /^}/{on=0}' firmware/src/ble.c > "$OUT/ble_peer_names.inc"
++awk '/^void plat_ble_peers\(/ || /^unsigned plat_ble_peer_names\(/ || /^const char \*plat_ble_name\(char \*names\)/{on=1} on{print} on && /^}/{on=0}' firmware/src/ble.c > "$OUT/ble_peer_names.inc"
+ test -s "$OUT/ble_peer_names.inc"
+ # SAN_FLAGS optionally enables the caller's address/undefined sanitizers.
+ # shellcheck disable=SC2086
+diff --git a/tests/host/smc_peer_names_test.c b/tests/host/smc_peer_names_test.c
+index 649f7eaf5..09d16e1ee 100644
+--- a/tests/host/smc_peer_names_test.c
++++ b/tests/host/smc_peer_names_test.c
+@@ -10,6 +10,8 @@ static int blec_connected(const blec_t *p) { return p->up; }
+ static uint32_t irq_save(void) { assert(!locked_irq); locked_irq=1; return 42; }
+ static void irq_restore(uint32_t f) { assert(f==42 && locked_irq); locked_irq=0; }
+ #include "ble_peer_names.inc"
++static const char *test_peer_name(void)
++{ static char names[43]; return plat_ble_name(names); }
+ #define X0X_HOST_BLE_NAME_IMPLEMENTED 1
+ #define SMC_UI_MAIN smc_ui_baseline_main
+ #include "smc_ui_test.c"
+@@ -24,30 +26,30 @@ static void render_names(int selected,const char *shot_name)
+     ui.overlay=O_LIST; ui.list_top=0; ui.list_n=2; ui.list_sel=selected?0:1;
+     list_rows[0]=PR(R_BTNAME,0,0,0); list_rows[1]=PR(R_BTSTAT,0,0,0);
+     char num[64],unit[8]; pref_value(list_rows[0],num,unit);
+-    CHECK(strlen(num)<=42); CHECK(!strcmp(num,plat_ble_name()[0]?plat_ble_name():"-"));
++    CHECK(strlen(num)<=42); CHECK(!strcmp(num,test_peer_name()[0]?test_peer_name():"-"));
+     int room=226-8-tw(selected?&FONT_B:&FONT_S,"NAME")-8;
+     bt_peer_text(num,room); CHECK(tw(&FONT_T,num)<=room);
+-    if(strlen(plat_ble_name())>20) CHECK(strstr(num,", "));
++    if(strlen(test_peer_name())>20) CHECK(strstr(num,", "));
+     ui_frame(); shot(shot_name);
+ }
+ int main(void)
+ {
+     setup(V_GLO,PART_909);
+-    names("SMC Left","SMC Right"); CHECK(!strcmp(plat_ble_name(),"SMC Left, SMC Right"));
++    names("SMC Left","SMC Right"); CHECK(!strcmp(test_peer_name(),"SMC Left, SMC Right"));
+     render_names(1,"names-two-selected"); render_names(0,"names-two-unselected");
+-    names("SMC-Mixer","SMC-Mixer"); CHECK(!strcmp(plat_ble_name(),"SMC-Mixer, SMC-Mixer"));
++    names("SMC-Mixer","SMC-Mixer"); CHECK(!strcmp(test_peer_name(),"SMC-Mixer, SMC-Mixer"));
+     render_names(1,"names-identical");
+-    names("",NULL); CHECK(!strcmp(plat_ble_name(),"SMC-Mixer"));
+-    names(NULL,"Right"); CHECK(!strcmp(plat_ble_name(),"Right"));
+-    strcpy((char *)ble_r.host.c.link_name,"stale"); CHECK(!strcmp(plat_ble_name(),"Right"));
+-    names(NULL,NULL); CHECK(!plat_ble_name()[0]); render_names(1,"names-disconnected");
+-    ble_central_role=0; strcpy(ble_r.nm,"X0X37"); CHECK(!strcmp(plat_ble_name(),"X0X37"));
++    names("",NULL); CHECK(!strcmp(test_peer_name(),"SMC-Mixer"));
++    names(NULL,"Right"); CHECK(!strcmp(test_peer_name(),"Right"));
++    strcpy((char *)ble_r.host.c.link_name,"stale"); CHECK(!strcmp(test_peer_name(),"Right"));
++    names(NULL,NULL); CHECK(!test_peer_name()[0]); render_names(1,"names-disconnected");
++    ble_central_role=0; strcpy(ble_r.nm,"X0X37"); CHECK(!strcmp(test_peer_name(),"X0X37"));
+     /* Pick the widest supported printable native glyph, not an assumed W. */
+     char wide[21],pair[43]; int width=0; char glyph='W';
+     for(char c=32;c<127;c++) { char t[2]={c,0}; int w=tw(&FONT_T,t); if(w>width){width=w;glyph=c;} }
+     memset(wide,glyph,20); wide[20]=0;
+-    names(wide,wide); CHECK(strlen(plat_ble_name())==42);
+-    strcpy(pair,wide); strcat(pair,", "); strcat(pair,wide); CHECK(!strcmp(pair,plat_ble_name()));
++    names(wide,wide); CHECK(strlen(test_peer_name())==42);
++    strcpy(pair,wide); strcat(pair,", "); strcat(pair,wide); CHECK(!strcmp(pair,test_peer_name()));
+     render_names(1,"names-max-selected"); render_names(0,"names-max-unselected");
+     printf("PASS peer names and actual UI buffers: %d checks, max native glyph width %d\n",checks,width);
+     return 0;
+diff --git a/tests/host/smc_peer_names_test.sh b/tests/host/smc_peer_names_test.sh
+index 51c7ce5c8..3177e8ed5 100644
+--- a/tests/host/smc_peer_names_test.sh
++++ b/tests/host/smc_peer_names_test.sh
+@@ -5,6 +5,6 @@ cd "$(dirname "$0")/../.."
+ export SMC_UI_TEST_FILE=tests/host/smc_peer_names_test.c
+ export SMC_UI_OUT="${SMC_PEER_NAMES_OUT:-build/host/smc-peer-names}"
+ mkdir -p "$SMC_UI_OUT"
+-awk '/^unsigned plat_ble_peer_names\(/ || /^const char \*plat_ble_name\(void\)/{on=1} on{print} on && /^}/{on=0}' firmware/src/ble.c > "$SMC_UI_OUT/ble_peer_names.inc"
++awk '/^unsigned plat_ble_peer_names\(/ || /^const char \*plat_ble_name\(char \*names\)/{on=1} on{print} on && /^}/{on=0}' firmware/src/ble.c > "$SMC_UI_OUT/ble_peer_names.inc"
+ test -s "$SMC_UI_OUT/ble_peer_names.inc"
+ exec sh tests/host/smc_ui_test.sh
+diff --git a/tests/host/ui_peer_names_test.c b/tests/host/ui_peer_names_test.c
+index 1de2c9901..3e5275617 100644
+--- a/tests/host/ui_peer_names_test.c
++++ b/tests/host/ui_peer_names_test.c
+@@ -30,5 +30,12 @@ int main(void){
+  peers(1,"SMC-Mixer","");peer_frame("11-restored");CHECK(!strcmp(peer_scroll.text,"SMC-Mixer"));
+  /* Leaving the list stops the scroll clock. */
+  ui.overlay=0;run_ms(20);CHECK(!peer_scroll.active);
++ /* Generic NAME readout keeps its empty fallback and invalid-value contract. */
++ struct { unsigned before; char text[64]; char unit[8]; unsigned after; } value = {0x12345678,{0},{0},0x87654321};
++ pref_value_of(PR(R_BTNAME,0,0,0),0,value.text,value.unit);
++ CHECK(!strcmp(value.text,"-") && !value.unit[0]);
++ pref_value_of(PR(R_BTNAME,0,0,0),-1,value.text,value.unit);CHECK(!strcmp(value.text,"INVALID"));
++ pref_value_of(PR(R_BTNAME,0,0,0),1,value.text,value.unit);CHECK(!strcmp(value.text,"INVALID"));
++ CHECK(value.before==0x12345678 && value.after==0x87654321);
+  printf("peer names PASS %u checks\n",checks);return 0;
+ }

@@ -1,0 +1,21 @@
+{
+  "base_tree": "fba9b1f2df4ca7c075a0f757e60319d04c3a02f9",
+  "candidate_tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+  "source_base_commit": "c295af1554f9e80a29864cd013995eccad66cd2c",
+  "v6_evidence_commit": "66cfa3d0724a039f29803c7770ae0d6233f7fada",
+  "patch_sha256": "558d038601ff8afdc63097bdd1c5e92d5bf7bddf50bae6022d1c93d01a3add19",
+  "changed_files": {
+    "firmware/src/app/plat.h": "8aed256aaa1c0ca5a07880c7ec56b602e1aa84c34addd8a11ef1c5970e6770a7",
+    "firmware/src/app/plat_fm1.c": "9d1609a6fcaee314feeaa95b36f5bf13d6620e42613b4f1494b5b0511dd931ab",
+    "firmware/src/app/ui.c": "2b4edb28d2e40132180243212e0e42ec38313fc97268af7b989fa0504a879848",
+    "firmware/src/ble.c": "a6c5f1123ee7ee66058dad9624df41f71e85dc7b8e8827fda47013044eb1ba79",
+    "host/x0x_host.c": "6ef00678240c62f6625f1cd8b0da182519fcd6edc347b471eea779ab0499ba7c",
+    "tests/host/ble_peer_name_bounds_test.c": "ea61c5383a9a43be06624dba7d95a09f17f13499038e3461672abb5d310b9ac3",
+    "tests/host/ble_peer_name_bounds_test.sh": "859846b51ecf172eb15ba9cb9ab0b5181e5be9bb3a125363d45fc9f17fa7b305",
+    "tests/host/smc_peer_names_test.c": "51666529bb31dd98b4ea42bc489d323bad68d6d38ce1b29a0b722637f6679ace",
+    "tests/host/smc_peer_names_test.sh": "9e1a127d13170df5075d342a630340a6378ed6760b91a06a3973f9a5e1dce47b",
+    "tests/host/ui_peer_names_test.c": "ee93acf6b39bd1cb6b43a155d05284ecb3e9e105f2867d498c496355df0b58f4"
+  },
+  "native_fit": "NOT_RUN",
+  "native_inputs_accessed": false
+}
