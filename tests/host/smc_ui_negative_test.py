@@ -33,8 +33,8 @@ MUTANTS = {
         '(float)smc_scaled(k) / 127.0f', '0.5f',
     ),
     "cryptic-footer-returned": (
-        '    cv_commit(3, 0, KNOB_Y);',
-        '    cv_text(5, 69, &FONT_T, "> R << >> [< >] ^ v < >", C_GRAY);\n    cv_commit(3, 0, KNOB_Y);',
+        '    cv_commit_popup_knobs();',
+        '    cv_text(5, 69, &FONT_T, "> R << >> [< >] ^ v < >", C_GRAY);\n    cv_commit_popup_knobs();',
     ),
     "selection-follows-touch": (
         "if (n == selected) cv_rect(x + 1, 0, 28, 13, C_WHITE);",
