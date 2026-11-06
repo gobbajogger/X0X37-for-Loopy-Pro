@@ -1,0 +1,7 @@
+FAIL /workspace/combined-v3/review/panic_reset_repro.c:290: smc_panic_held == 0
+FAIL /workspace/combined-v3/review/panic_reset_repro.c:294: smc_panic.active == 0
+FAIL /workspace/combined-v3/review/panic_reset_repro.c:295: clip_stops == stops
+before reset held=1 stops=0
+after reset held=1 stops=0
+after unrelated new right held=3 stops=1
+after right active=1 inhibited=0

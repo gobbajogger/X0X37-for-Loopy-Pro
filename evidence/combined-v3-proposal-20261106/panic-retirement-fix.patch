@@ -1,0 +1,152 @@
+diff --git a/firmware/src/app/smc_mixer.c b/firmware/src/app/smc_mixer.c
+index 5f6474c6b59d27d520c83974af73938d3f07b2a1..6e4ded235a6a3ec7ecd6b8125d7adcecc85665c7 100644
+--- a/firmware/src/app/smc_mixer.c
++++ b/firmware/src/app/smc_mixer.c
+@@ -8,6 +8,9 @@
+ #include "smc_mixer_edges.h"
+ #include "smc_fx_caption.h"
+ 
++#define SMC_PANIC_HOOKS 1
++static void smc_panic_reset(void);
++
+ #define SMC_Q 32u
+ /* Preserve the decoding preset in the spare event-length bits. */
+ #define SMC_EVENT_USER 0x40u
+@@ -311,6 +314,9 @@ X0X_COLD void smc_project_reset(void)
+      * peer zero can transiently re-arm peer one's old-project effect. */
+     memset(smc_states, 0, sizeof smc_states);
+     for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) {
++#ifdef SMC_PANIC_HOOKS
++        smc_panic_reset();
++#endif
+         smc.up = smc.fresh = up[smc_slot];
+         smc.preset_user_seen = !!(proj.set.bt & PROJ_BT_SMC_USER);
+         smc.pending = 0xFFu;
+@@ -1824,7 +1830,6 @@ static void smc_button_apply(uint8_t note, int mmc)
+     }
+ }
+ 
+-#define SMC_PANIC_HOOKS 1
+ /* Physical holds belong to one controller; two peers cannot form a chord. */
+ typedef struct {
+     x0x_panic_chord_t chord;
+@@ -2141,6 +2146,10 @@ static void smc_poll_peer(void)
+         smc.pending = 0xFFu;
+         memset(smc.known, 0, sizeof smc.known);
+     }
++
++#ifdef SMC_PANIC_HOOKS
++    smc_panic_sync_mode();
++#endif
+     /* Confirmation parks pickup and solos. Help does not. */
+     if (!allow || ui.overlay == O_ASK) {
+         smc.lock_down = 0; /* a question cancels a pending hold-to-unlock */
+@@ -2150,6 +2159,12 @@ static void smc_poll_peer(void)
+             smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+             memset(smc.held, 0, sizeof smc.held);
+         }
++#ifdef SMC_PANIC_HOOKS
++        /* Retire swallowed bank edges without rearming a mode-change hold. */
++        if (!smc_panic.inhibited)
++            smc_panic_held = 0;
++        smc_panic.active = 0;
++#endif
+         smc_fx_clear();
+         smc.picked = smc.seen = 0;
+         smc.knob_i = 0;
+@@ -2157,9 +2172,6 @@ static void smc_poll_peer(void)
+         if (smc_project_active()) smc_solo_clear();
+     }
+ 
+-#ifdef SMC_PANIC_HOOKS
+-    smc_panic_sync_mode();
+-#endif
+     while (smc_qr != smc_qw && count++ < SMC_Q) {
+         r = smc_qr;
+         __asm__ volatile("" ::: "memory");
+diff --git a/tests/host/panic_route_test.c b/tests/host/panic_route_test.c
+index 6a8ad16f8b379e8fc267d79a16efbb109f25c8f1..87059fd0d02142f007c4784072deb07db75fec4f 100644
+--- a/tests/host/panic_route_test.c
++++ b/tests/host/panic_route_test.c
+@@ -279,12 +279,81 @@ static void smc_lost_release_panic(void)
+     smc_ble_link(0); smc_poll();
+ }
+ 
++static void smc_project_reset_panic(void)
++{
++    boot(); prepare_line(); play_gate(); set_view(V_HOME); connect_smc(0);
++    smc_ble_link_slot(1, 1); smc_poll();
++    int stops = clip_stops;
++    const uint8_t left[3] = {0x90, 0x2E, 127};
++    const uint8_t right[3] = {0x90, 0x2F, 127};
++    for (unsigned peer = 0; peer < SMC_PEERS; peer++)
++        smc_ble_midi_slot(peer, left, 3);
++    smc_poll(); settle();
++    for (unsigned peer = 0; peer < SMC_PEERS; peer++)
++        CHECK(smc_panic_peers[peer].held == X0X_PANIC_FIRST);
++    smc_project_reset();
++    for (unsigned peer = 0; peer < SMC_PEERS; peer++) {
++        CHECK(smc_panic_peers[peer].held == 0);
++        CHECK(smc_panic_peers[peer].chord.active == 0);
++        smc_ble_midi_slot(peer, right, 3);
++    }
++    smc_poll(); settle();
++    CHECK(clip_stops == stops);
++    CHECK(seq.playing == 1);
++    for (unsigned peer = 0; peer < SMC_PEERS; peer++)
++        CHECK(smc_panic_peers[peer].chord.active == 0);
++    smc_ble_link_slot(0, 0); smc_ble_link_slot(1, 0); smc_poll();
++}
++
++static void smc_blocked_release_panic(void)
++{
++    boot(); prepare_line(); play_gate(); set_view(V_HOME); connect_smc(0);
++    int stops = clip_stops;
++    note3(0x90, 0x2E, 127);
++    int saved_test = perf.test, saved_phase = perf.phase;
++    perf.test = 0; perf.phase = 0;
++    const uint8_t release[3] = {0x80, 0x2E, 0};
++    smc_ble_midi(release, 3); smc_poll();
++    CHECK(smc_panic_held == 0);
++    perf.test = saved_test; perf.phase = saved_phase;
++    note3(0x90, 0x2F, 127);
++    CHECK(smc_panic.active == 0);
++    CHECK(clip_stops == stops);
++    smc_ble_link(0); smc_poll();
++}
++
++static void smc_blocked_mode_hold_panic(void)
++{
++    boot(); prepare_line(); play_gate(); set_view(V_HOME); connect_smc(0);
++    int stops = clip_stops;
++    note3(0x90, 0x2E, 127);
++    ui.overlay = O_ASK;
++    proj.set.bt |= PROJ_BT_SMC_USER;
++    smc_poll();
++    CHECK(smc_panic.inhibited == 1);
++    CHECK(smc_panic_held == X0X_PANIC_FIRST);
++    proj.set.bt &= ~PROJ_BT_SMC_USER;
++    smc_poll();
++    CHECK(smc_panic.inhibited == 1);
++    ui.overlay = O_NONE;
++    note3(0x90, 0x2F, 127);
++    CHECK(smc_panic.active == 0);
++    CHECK(clip_stops == stops);
++    note3(0x80, 0x2E, 0);
++    note3(0x80, 0x2F, 0);
++    CHECK(smc_panic.inhibited == 0);
++    smc_ble_link(0); smc_poll();
++}
++
+ int main(void)
+ {
+     keyboard_route();
+     smc_route();
+     smc_cross_peer_panic();
+     smc_lost_release_panic();
++    smc_project_reset_panic();
++    smc_blocked_release_panic();
++    smc_blocked_mode_hold_panic();
+     if (fails) {
+         fprintf(stderr, "panic route: %d failures\n", fails);
+         return 1;

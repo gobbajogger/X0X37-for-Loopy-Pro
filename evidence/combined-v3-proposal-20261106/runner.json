@@ -1,0 +1,93 @@
+[
+  {
+    "name": "eleven_classes",
+    "pass": true,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "part-off_gen_wait_modes",
+    "pass": true,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "part-off_async_gen_fail_without_slot",
+    "pass": true,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "part-off_wait_then_generation_success",
+    "pass": true,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "part-off_serial_gen_fail",
+    "pass": true,
+    "exit": 0,
+    "stdout": "  FAIL part-off (gen-nonfont failed)\n",
+    "stderr": ""
+  },
+  {
+    "name": "part-off_parallel_existing_gen_fail",
+    "pass": true,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "part-off_missing_dependency_mutant",
+    "pass": false,
+    "exit": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "part-off-web-e2e_gen_wait_modes",
+    "pass": true,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "part-off-web-e2e_async_gen_fail_without_slot",
+    "pass": true,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "part-off-web-e2e_wait_then_generation_success",
+    "pass": true,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "part-off-web-e2e_serial_gen_fail",
+    "pass": true,
+    "exit": 0,
+    "stdout": "  FAIL part-off-web-e2e (gen-nonfont failed)\n",
+    "stderr": ""
+  },
+  {
+    "name": "part-off-web-e2e_parallel_existing_gen_fail",
+    "pass": true,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "part-off-web-e2e_missing_dependency_mutant",
+    "pass": false,
+    "exit": 1,
+    "stdout": "",
+    "stderr": ""
+  }
+]

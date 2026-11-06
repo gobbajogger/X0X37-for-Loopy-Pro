@@ -1,0 +1,11 @@
+{
+  "tree": "4ae2dbf21cc85da975cfed750c807e10ad591a06",
+  "registrations": 252,
+  "reconstruction": "PASS",
+  "initial_tree": "9e419590345d4b7544afafd97955e87525d0fce6",
+  "patches": {
+    "panic-retirement-fix.patch": "bf04b1fd064c08de81a7b3671b0f26c24b7817a91cee17dfb17be535a9207730",
+    "repaired-delta-v3.patch": "ebd79b4ab1b3a2510ebf76943d7a139a66d127c02148e850e7aec44775add448",
+    "repaired-combined-v3.patch": "a862c5e39fb3ac086b694e123712bd830b38778cff3e00fa43bd484c65f99f12"
+  }
+}

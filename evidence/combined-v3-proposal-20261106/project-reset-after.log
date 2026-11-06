@@ -1,0 +1,4 @@
+before reset held=1 stops=0
+after reset held=0 stops=0
+after unrelated new right held=2 stops=0
+after right active=0 inhibited=0

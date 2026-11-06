@@ -1,0 +1,5 @@
+FAIL /workspace/combined-v3/review/panic_blocked_release_repro.c:292: smc_panic_held == 0
+FAIL /workspace/combined-v3/review/panic_blocked_release_repro.c:296: smc_panic.active == 0
+FAIL /workspace/combined-v3/review/panic_blocked_release_repro.c:297: clip_stops == stops
+after blocked release held=1
+after new right active=1 stops=1 baseline=0
