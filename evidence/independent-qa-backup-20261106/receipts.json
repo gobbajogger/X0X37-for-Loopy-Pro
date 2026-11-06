@@ -1,0 +1,149 @@
+{
+  "v6": {
+    "focused.log": "  ok   ui-settings-sections\n  ok   ui-peer-names\n  ok   original-release-ui\n  ok   lcd-dispatch-reuse\n  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)\n  ok   seq-mute-carry\n  ok   synth-bus-mute\n  ok   engine-brk-mute\n  ok   panic-route\nall tests passed\n",
+    "composition.json": {
+      "base": "d98072ba1d689cb99bd16e4a6e1e682b22b04c70",
+      "tree": "fba9b1f2df4ca7c075a0f757e60319d04c3a02f9",
+      "ui": "40c9273a6bfbf99c4e799ad26abc5b4ecb68013e",
+      "mute": "3b21f19e1b8dc6d4fa9000c76c368a23379a23d1",
+      "only_overlap": "tests/run_tests.sh",
+      "exact_nonrunner_files": 25,
+      "old_registrations": 258,
+      "new_registrations": 265,
+      "protected_unchanged": [
+        "firmware/src/app/smc_mixer.c",
+        "firmware/src/app/project.c",
+        "firmware/src/storage.c",
+        "firmware/src/app/original_sound.h",
+        "tests/host/panic_route_test.c"
+      ]
+    },
+    "integrity.json": {
+      "tree": "fba9b1f2df4ca7c075a0f757e60319d04c3a02f9",
+      "tracked_leaves": 5120,
+      "mismatches": []
+    },
+    "runner-classes.json": {
+      "ui-settings-sections": "G",
+      "ui-peer-names": "G",
+      "ble-peer-name-bounds": "P",
+      "seq-mute-carry": "P",
+      "synth-bus-mute": "G",
+      "engine-brk-mute": "P",
+      "mute-carry-mutants": "S"
+    }
+  },
+  "ui": {
+    "focused.log": "  ok   play-question-ui\n  ok   sound-reset-ui\n  ok   ui-perf-identity\n  ok   ui-settings-sections\n  ok   ui-peer-names\n  ok   original-release-ui\n  ok   smc-multi-peer\n  ok   lcd-bounded\n  ok   lcd-dispatch-reuse\n  ok   smc-ui\n  ok   ui-waveform-truth\n  ok   smc-ui-bounds\n  ok   smc-record-feedback\n  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)\nall tests passed\n",
+    "integrity.json": {
+      "tree": "40c9273a6bfbf99c4e799ad26abc5b4ecb68013e",
+      "leaves": 5113,
+      "mismatches": []
+    }
+  },
+  "ui-state-reduction": {
+    "focused.log": "  ok   ui-perf-identity\n  ok   ui-settings-sections\n  ok   ui-peer-names\n  ok   ble-peer-name-bounds\n  ok   original-release-ui\n  ok   lcd-bounded\n  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)\nall tests passed\n",
+    "results.json": {
+      "tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+      "unchanged_leaves": 5120,
+      "v6_equal_framebuffers": 63,
+      "lifetime_ASan_UBSan": "PASS",
+      "equivalence_cases": 2646,
+      "peer_ASan_UBSan_checks": 65
+    },
+    "equivalence.log": "PASS 2646 old/new name outputs and canaries\n",
+    "lifetime.log": "PASS separate caller lifetime, disconnect-after-snapshot and reconnect/peripheral transitions\nPASS BLE peer-name bounds and maximum-length join\n"
+  },
+  "test-only-fixtures": {
+    "affected.log": "  ok   project-runtime\n  ok   part-order\n  ok   smk-arrows-owner\n  ok   smk-padcal-wiring\n  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)\n  ok   song-actions\n  ok   scenario-arrows\n  ok   scenario-autosave\n  ok   scenario-clip-arrow-menu\n  ok   scenario-clklock\n  ok   scenario-clkmove\n  ok   scenario-clocksrc\n  ok   scenario-guard\n  ok   scenario-migrate\n  ok   scenario-migrate0102\n  ok   scenario-perf\n  ok   scenario-perfsave\n  ok   scenario-probcond\n  ok   scenario-probreset\n  ok   scenario-tour\n  ok   scenario-undo\n  ok   perf-scratch\nall tests passed\n",
+    "integrity.json": {
+      "tree": "e3bd02f7a4aece4ce96aa0602fb41b990275b629",
+      "leaves": 5120,
+      "modified_leaves_after_tests": 0
+    },
+    "guard-probes.json": {
+      "arrow-rearm": {
+        "exit": 1,
+        "rejected": true
+      },
+      "padcal-clip-guard": {
+        "exit": 1,
+        "rejected": true
+      },
+      "padcal-dev-guard": {
+        "exit": 1,
+        "rejected": true
+      },
+      "padcal-project-hold": {
+        "exit": 1,
+        "rejected": true
+      }
+    },
+    "old-fixture-results.json": {
+      "arrows": 1,
+      "migrate": 1
+    },
+    "assertion-audit.json": {
+      "tests/scenarios/arrows.x0x": {
+        "old_functional_assertions": 60,
+        "new_functional_assertions": 61
+      },
+      "tests/scenarios/autosave.x0x": {
+        "old_functional_assertions": 16,
+        "new_functional_assertions": 16
+      },
+      "tests/scenarios/clip-arrow-menu.x0x": {
+        "old_functional_assertions": 28,
+        "new_functional_assertions": 31
+      },
+      "tests/scenarios/clklock.x0x": {
+        "old_functional_assertions": 34,
+        "new_functional_assertions": 34
+      },
+      "tests/scenarios/clkmove.x0x": {
+        "old_functional_assertions": 30,
+        "new_functional_assertions": 30
+      },
+      "tests/scenarios/clocksrc.x0x": {
+        "old_functional_assertions": 32,
+        "new_functional_assertions": 32
+      },
+      "tests/scenarios/guard.x0x": {
+        "old_functional_assertions": 15,
+        "new_functional_assertions": 15
+      },
+      "tests/scenarios/migrate.x0x": {
+        "old_functional_assertions": 41,
+        "new_functional_assertions": 41
+      },
+      "tests/scenarios/migrate0102.x0x": {
+        "old_functional_assertions": 41,
+        "new_functional_assertions": 41
+      },
+      "tests/scenarios/perf.x0x": {
+        "old_functional_assertions": 23,
+        "new_functional_assertions": 23
+      },
+      "tests/scenarios/perfsave.x0x": {
+        "old_functional_assertions": 15,
+        "new_functional_assertions": 15
+      },
+      "tests/scenarios/probcond.x0x": {
+        "old_functional_assertions": 8,
+        "new_functional_assertions": 8
+      },
+      "tests/scenarios/probreset.x0x": {
+        "old_functional_assertions": 4,
+        "new_functional_assertions": 4
+      },
+      "tests/scenarios/tour.x0x": {
+        "old_functional_assertions": 2,
+        "new_functional_assertions": 2
+      },
+      "tests/scenarios/undo.x0x": {
+        "old_functional_assertions": 40,
+        "new_functional_assertions": 40
+      }
+    }
+  }
+}
