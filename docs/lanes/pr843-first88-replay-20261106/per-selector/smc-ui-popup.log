@@ -1,0 +1,8 @@
+tests/host/smc_ui_popup_test.c:9:9: warning: 'CK_FN' macro redefined [-Wmacro-redefined]
+    9 | #define CK_FN __attribute__((unused))
+      |         ^
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: previous definition is here
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^
+1 warning generated.
+PASS: SMC UI peek map, live meters, HOME knobs, locked PAGE, restore and guards

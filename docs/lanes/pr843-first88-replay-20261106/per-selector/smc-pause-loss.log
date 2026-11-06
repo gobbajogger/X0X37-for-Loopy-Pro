@@ -1,0 +1,11 @@
+In file included from tests/host/smc_pause_loss_test.c:18:
+tests/host/smc_ui_test.c:11:9: warning: 'CK_FN' macro redefined [-Wmacro-redefined]
+   11 | #define CK_FN __attribute__((unused))
+      |         ^
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: previous definition is here
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^
+1 warning generated.
+PASS independent LED backpressure: rejected write retries; cache tracks accepted bytes; lock/unlock phases
+PASS independent Pause release ownership: BLE/host, NoteOff/zero, unrelated Solo/Select/Play losses, actual Pause loss and epoch wrap
+smc_pause_loss: PASS (414 independent production checks)

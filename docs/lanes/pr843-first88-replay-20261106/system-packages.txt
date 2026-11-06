@@ -1,0 +1,4 @@
+gcc	4:14.2.0-1
+libc6:amd64	2.41-12+deb13u4
+libllvm19:amd64	1:19.1.7-3+b1
+libstdc++6:amd64	14.2.0-19

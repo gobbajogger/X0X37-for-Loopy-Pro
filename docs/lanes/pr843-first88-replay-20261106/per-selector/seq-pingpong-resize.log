@@ -1,0 +1,2 @@
+compile: clang -std=c11 -O1 -g -Wall -Wextra -Werror -Wno-unused-function /workspace/pr843-first88/source/build/host/iso/seq-pingpong-resize/tmp/seq-pingpong-29bbzhme/test.c -o /workspace/pr843-first88/source/build/host/iso/seq-pingpong-resize/tmp/seq-pingpong-29bbzhme/test
+ping-pong resize source-window: 178925 pass, 0 fail

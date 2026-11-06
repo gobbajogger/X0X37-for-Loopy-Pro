@@ -1,0 +1,2 @@
+COMPILING clang -std=c99 -O1 -g -Wall -Wextra -Werror -pedantic -Ifirmware/src -I/workspace/pr843-first88/source/build/host/smc-fx-peer-ui tests/host/smc_fx_peer_view_test.c -o /workspace/pr843-first88/source/build/host/smc-fx-peer-ui/test
+PASS: 17 exact-source SMC peer UI assertions

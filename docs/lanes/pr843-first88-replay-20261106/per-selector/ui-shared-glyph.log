@@ -1,0 +1,961 @@
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+In file included from tests/host/ui_shared_glyph_test.c:3:
+tests/host/smc_ui_test.c:11:9: warning: 'CK_FN' macro redefined [-Wmacro-redefined]
+   11 | #define CK_FN __attribute__((unused))
+      |         ^
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: previous definition is here
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^
+3 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+In file included from <built-in>:399:
+<command line>:10:9: warning: 'X0X_WOBBLE' macro redefined [-Wmacro-redefined]
+   10 | #define X0X_WOBBLE 0
+      |         ^
+<command line>:3:9: note: previous definition is here
+    3 | #define X0X_WOBBLE 1
+      |         ^
+<command line>:11:9: warning: 'X0X_DEV_WOBBLE' macro redefined [-Wmacro-redefined]
+   11 | #define X0X_DEV_WOBBLE 0
+      |         ^
+<command line>:4:9: note: previous definition is here
+    4 | #define X0X_DEV_WOBBLE 1
+      |         ^
+2 warnings generated.
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+shared_glyph PASS (18420116 checks, 329 mapped slots, 93 pages)

@@ -1,0 +1,9 @@
+In file included from tests/host/smc_multi_peer_test.c:24:
+tests/host/smc_ui_test.c:11:9: warning: 'CK_FN' macro redefined [-Wmacro-redefined]
+   11 | #define CK_FN __attribute__((unused))
+      |         ^
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: previous definition is here
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^
+1 warning generated.
+SMC two-peer production integration PASS: 5769 checks

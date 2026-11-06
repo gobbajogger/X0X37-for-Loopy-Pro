@@ -1,0 +1,9 @@
+{
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "node": "v24.19.0",
+  "pillow": "12.3.0",
+  "sanitizer_probe_exit": 0,
+  "compiler": "Debian clang version 19.1.7 (3+b1)",
+  "scope": "88 host selectors; SDK and JieLi native compiler not consumed by this subset"
+}

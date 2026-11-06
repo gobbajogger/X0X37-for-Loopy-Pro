@@ -1,0 +1,11 @@
+In file included from tests/host/smc_lock_beat_test.c:5:
+tests/host/smc_ui_test.c:11:9: warning: 'CK_FN' macro redefined [-Wmacro-redefined]
+   11 | #define CK_FN __attribute__((unused))
+      |         ^
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: previous definition is here
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^
+1 warning generated.
+PASS 900 ms gesture: BLE/host, same press, repeat, 899 ms cancel, threshold, wrap, loss, reconnect, guards, reset, no transport
+PASS beat: 62.5/125/250 BPM pickup, AUTO/EXTERNAL last-BPM loss, STOP, reconnect, solid lock, unlock/reset, internal tempo, wrap
+smc_lock_beat: PASS (5141 production checks)

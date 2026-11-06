@@ -1,0 +1,2 @@
+COMPILE clang -std=c99 -O1 -g -Wall -Wextra -Werror -I/workspace/pr843-first88/source/firmware/src -I/workspace/pr843-first88/source/tests/host /workspace/pr843-first88/source/build/host/iso/smc-solo-overflow/tmp/smc-r10-combined-6dw4arxh/test.c -o /workspace/pr843-first88/source/build/host/iso/smc-solo-overflow/tmp/smc-r10-combined-6dw4arxh/test
+SMC combined source-window Solo overflow: 24/24 PASS

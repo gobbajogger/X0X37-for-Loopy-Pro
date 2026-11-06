@@ -1,0 +1,102 @@
+PASS tests/run_tests.sh: /workspace/pr843-first88/source/tests/run_tests.sh
+PASS host/build_host.sh: /workspace/pr843-first88/source/host/build_host.sh
+PASS tool python3: /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3
+PASS tool sh: /usr/bin/sh
+PASS tool bash: /usr/bin/bash
+PASS tool node: /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node
+PASS tool c++: /usr/bin/c++
+PASS tool CC: clang
+PASS Python Pillow: import PIL
+PASS ASan+UBSan link: compiler linked sanitizer probe
+PASS reference sequencer: /workspace/pr843-first88/inputs/charlesvestal-schwung-tb3po-f49d81d/src/dsp/tb3po.c
+PREFLIGHT: 11 PASS, 0 FAIL
+  ok   dsp-host-linkage
+  ok   fastmath
+  ok   fastmath-ubsan
+  ok   home-tie-semantics
+  ok   sequencer
+  ok   bass-prob-midi
+  ok   seq-tb3po-bars
+  ok   seq-random-swing
+  ok   seq-random-clock-handoff
+  ok   seq-long-notes
+  ok   seq-pingpong-resize
+  ok   clk-lock
+  ok   seq-random-tie-preview
+  ok   encoder
+  ok   bass-midi-pending-native
+  ok   uac
+  ok   trs
+  ok   undo
+  ok   undo-capacity
+  ok   lz
+  ok   lz-max-match
+  ok   motion
+  ok   host-build
+  ok   original-release-integration
+  ok   original-release-ui
+  ok   original-build
+  ok   freeplay-rate-pads
+  ok   boot-screen
+  ok   project-protocol
+  ok   project-save-preflight
+  ok   editor-ota-dispatch
+  ok   storage-scratch
+  ok   project-stage
+  ok   project-runtime
+  ok   save-note-quiet
+  ok   font-pack
+  ok   smc-protocol
+  ok   smc-fader
+  ok   smc-buttons
+  ok   smc-fx
+  ok   smc-mixer-edges
+  ok   smc-action-source
+  ok   smc-fx-caption
+  ok   smc-fx-page-port
+  ok   smc-fx-peer-view
+  ok   smc-fx-preset-preserve
+  ok   smc-queue
+  ok   smc-solo-overflow
+  ok   engine-cq-rec-overflow
+  ok   engine-cq-isr-preemption
+  ok   engine-cq-boff-overflow
+  ok   engine-cq-brk-overflow
+  ok   engine-cq-bon-overflow
+  ok   engine-cq-drum-overflow
+  ok   midi-mq-noteoff-overflow
+  ok   midi-mq-rt-overflow
+  ok   midi-overflow-order
+  ok   midi-out-mq-noteoff-overflow
+  ok   ble-out-noteoff-overflow
+  ok   ble-out-rt-overflow
+  ok   usb-sxq-sticky-apc
+  ok   smc-host-data7
+  ok   smc-host-overflow-data7
+  ok   smc-sender-isolation
+  ok   smc-link
+  ok   ble-active-peer-contract
+  ok   ble-smc-outbound-slots
+  ok   ble-midi-receive
+  ok   ble-capture-replay
+  ok   smc-pickup-acceptance
+  ok   smc-lock
+  ok   smc-lock-beat
+  ok   smc-multi-peer
+  ok   smc-multi-peer-negative
+  ok   smc-pause-loss
+  ok   smk-wheel-mode
+  ok   miami-table-interpolation
+  ok   legacy-303-project
+  ok   smc-interaction-negative
+  ok   corner-coverage
+  ok   smc-ui
+  ok   smc-ui-popup
+  ok   smc-mode-page
+  ok   smc-mixer-page
+  ok   ui-shared-glyph
+  ok   ui-waveform-truth
+  ok   smc-mapping
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   install-slots-web
+all tests passed
