@@ -1,0 +1,42 @@
+[
+  {
+    "command": "python3 tests/install_test.py",
+    "exit_code": 0,
+    "log": "install_test.log"
+  },
+  {
+    "command": "python3 tests/install_f02_loader_bind_test.py",
+    "exit_code": 0,
+    "log": "install_f02_loader_bind_test.log"
+  },
+  {
+    "command": "python3 tests/fm1_install_identity_integrity_test.py",
+    "exit_code": 0,
+    "log": "fm1_install_identity_integrity_test.log"
+  },
+  {
+    "command": "python3 tests/install_slots_test.py",
+    "exit_code": 0,
+    "log": "install_slots_test.log"
+  },
+  {
+    "command": "python3 tests/fm1_install_restore_status_test.py",
+    "exit_code": 0,
+    "log": "fm1_install_restore_status_test.log"
+  },
+  {
+    "command": "python3 tests/fm1_install_finish_ack_test.py",
+    "exit_code": 0,
+    "log": "fm1_install_finish_ack_test.log"
+  },
+  {
+    "command": "python3 tests/fm1_install_backup_snapshot_test.py",
+    "exit_code": 0,
+    "log": "fm1_install_backup_snapshot_test.log"
+  },
+  {
+    "command": "python3 tests/install_ctl_test.py",
+    "exit_code": 0,
+    "log": "install_ctl_test.log"
+  }
+]

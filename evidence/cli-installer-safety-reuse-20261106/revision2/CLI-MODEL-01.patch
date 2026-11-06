@@ -1,0 +1,79 @@
+diff --git a/tests/install_test.py b/tests/install_test.py
+index 29b0e94a..42c896a2 100755
+--- a/tests/install_test.py
++++ b/tests/install_test.py
+@@ -140,7 +140,8 @@ class FakeSMK:
+             if self.stall_after and self.served >= self.stall_after:
+                 return
+             if addr == I.FINISH_CHECK:
+-                threading.Timer(0.05, self.boot, ("ota-SMK-37 Pro_900", "Felucca Update")).start()
++                # The normal mock loader keeps the running model; adversarial tests override boot().
++                threading.Timer(0.05, self.boot, ("ota-" + I.model_of(self.identity) + "_900", "Felucca Update")).start()
+             elif addr == I.FINISH_WRITE:
+                 threading.Timer(0.05, self.boot, (self.after_write, "Felucca")).start()
+             else:
+@@ -329,6 +330,41 @@ def exact_models():
+ 
+ 
+ 
++def loader_models():
++    class TransitionSMK(FakeSMK):
++        def __init__(self, image, target, loader):
++            self.loader_identity = loader
++            self.loader_packets = []
++            super().__init__(image, identity=target + "_016", after_write=target + "_900")
++
++        def boot(self, identity, name):
++            if identity.startswith("ota-"):
++                identity, name = self.loader_identity, "Renamed loader"
++            super().boot(identity, name)
++
++        def rx(self, packet):
++            if self.identity.startswith("ota-"):
++                self.loader_packets.append(bytes(packet))
++            super().rx(packet)
++
++    for target, other in (("SMK-37 Pro", "SMK-37 Elite"), ("SMK-37 Elite", "SMK-37 Pro")):
++        raw = package(product=target + "_900")
++        image = I.logical_image(raw)
++        path = pkgfile("transition-" + target.replace(" ", "-") + ".fwsc", raw)
++        for model in (other, "FM-1", target):
++            dev = TransitionSMK(image, target, "ota-" + model + "_900")
++            rc, out, err = cli([path, "--yes", "--no-slots"], dev)
++            if model == target:
++                ok(rc == 0 and dev.upgrades == 2 and dev.bad == 0,
++                   f"transition {target}: matching renamed loader installs")
++            else:
++                ok(rc == I.EXIT["model"] and dev.upgrades == 1 and dev.served == 4
++                   and dev.loader_packets and all(p == I.HS_QUERY for p in dev.loader_packets)
++                   and all(link.closed for link in dev.links),
++                   f"transition {target} -> {model}: refusal, loader handshake only, links closed")
++
++
++
+ def against_js():
+     clean = ROOT / "build/x0x-smk37.fwsc"
+     if not shutil.which("node") or not clean.exists():
+@@ -349,6 +385,7 @@ if __name__ == "__main__":
+     installs()
+     errors()
+     exact_models()
++    loader_models()
+     against_js()
+     shutil.rmtree(TMP, ignore_errors=True)
+     # Family recognition remains for slot planning; it does not authorize cross-model installation.
+diff --git a/tools/fm1_install.py b/tools/fm1_install.py
+index f57d8e2e..164f30fb 100755
+--- a/tools/fm1_install.py
++++ b/tools/fm1_install.py
+@@ -586,6 +586,10 @@ class Updater:
+             dev.link.close()
+             raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")
+         ota = dev if dev.id.loader else self.check(dev, image, step)
++        # Discovery binds the newly appeared port, but does not authorize its model.
++        if not same_model(ota.id.text, product):
++            ota.link.close()
++            raise InstallError("model", f"the loader is {ota.id.text}, the package is for {product}")
+         self.write(ota, image, step)
+         return self.verify(product, step)
+ 

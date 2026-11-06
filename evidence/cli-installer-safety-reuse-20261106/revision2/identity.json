@@ -1,0 +1,16 @@
+{
+  "finding": "CLI-MODEL-01",
+  "candidate_tree": "20c60779d0bb3c086bd6f40a3348df44dfaac9a8",
+  "patches": {
+    "CLI-MODEL-01.patch": {
+      "base_tree": "90b7b2f79196a8840fb174adff39ad0e5edd9a0f",
+      "sha256": "6877a998398ec2c05b6b42f021677709c66663060f5bf11d7ce7aefeac6b897e",
+      "reconstruction": "PASS"
+    },
+    "cli-safety.patch": {
+      "base_tree": "2e38c67d3dbf1b905085580229e395433aefd92d",
+      "sha256": "67d58ca3f16fb0ebf777c8f8f8c85bfa1ec38bf75b6b8ad57c060162968370e0",
+      "reconstruction": "PASS"
+    }
+  }
+}

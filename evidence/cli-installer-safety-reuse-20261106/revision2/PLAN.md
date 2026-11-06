@@ -1,0 +1,5 @@
+# CLI-MODEL-01 repair
+
+Continue the existing CLI lane and return the finding to the same independent reviewer through parent #698/#806 handoff. Exact reviewed tree: 90b7b2f79196a8840fb174adff39ad0e5edd9a0f. Own only tools/fm1_install.py and tests/install_test.py in the existing isolated checkout. Retain prior discovery and ambiguity fixtures unchanged. Do not edit firmware, shared owner branches, version/backup/controller/readback paths or tests/run_tests.sh.
+
+Reproduce the real CLI transition with the existing FakeSMK transport: matching initial Pro/Elite, then opposite-model or FM-1 loader, plus matching-loader positive controls. Require refusal before loader UPGRADE or package response, and closed links. Add exact-model admission immediately after loader selection and before write(). Run affected installer, identity, ambiguity, backup/restore and controller checks. Retain exact prior unchanged version/package evidence. Produce revised net patch and repair delta with exact trees. Synthetic proof only; no devices, merges or firmware publication. Existing independent reviewer owns closure.
