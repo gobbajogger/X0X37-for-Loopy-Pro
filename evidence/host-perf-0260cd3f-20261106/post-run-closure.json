@@ -1,0 +1,12 @@
+{
+  "candidate": {
+    "tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+    "verified_leaves": 5120,
+    "byte_and_mode_mismatches": 0
+  },
+  "integration-baseline": {
+    "tree": "00370c8cf385577395f616e9df3cbc45a0d23041",
+    "verified_leaves": 4935,
+    "byte_and_mode_mismatches": 0
+  }
+}

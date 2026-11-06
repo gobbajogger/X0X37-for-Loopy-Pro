@@ -1,0 +1,42 @@
+{
+  "candidate": {
+    "tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+    "tracked_leaves_verified": 5120,
+    "generated_inputs": {
+      "build/gen/felucca_font.h": "a634b63c7d74266867741bff9c0d1c6077dea7f1903ab7e424cb3f912368f3b8",
+      "build/gen/x0x_drum_tables.h": "6711a6708aca2b4253f039747970a3ff5c451a10e043ff02c79d095b7104c187",
+      "build/gen/x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "build/gen/x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+    },
+    "build_scripts_and_fixture": {
+      "tests/host/night_ui_bench.c": "78673a38e622b42dc2ed6aeb652e0c2057c4b94cf744f42547707633e793da16",
+      "tests/host/smc_ui_test.c": "f91b888ab7ae7fd2e6fd00a99c621d7275639b242fe2b79013cbb6276222fdd9",
+      "tests/host/night_ui_test.sh": "473a442aa874756464a8d562aae8ac20041187d0fa03920bad9ac0015ed27c3f",
+      "tests/host/smc_ui_test.sh": "14eb18e6cfcbae1a4831486258a917c4d6ccc8f1c0cfea8b186b6706f62cb9e2",
+      "tests/host/original_build.sh": "a3bdca18f4b98c9245be477b1d4097e4bb89b65c54e87a239c3a871d0d3a7129",
+      "tools/build.py": "933bf314cfabe5e5334d255b237cdcd4f6aedc1f077ebfb7c9be2b33be1650e9"
+    }
+  },
+  "integration-baseline": {
+    "tree": "00370c8cf385577395f616e9df3cbc45a0d23041",
+    "tracked_leaves_verified": 4935,
+    "generated_inputs": {
+      "build/gen/felucca_font.h": "a634b63c7d74266867741bff9c0d1c6077dea7f1903ab7e424cb3f912368f3b8",
+      "build/gen/x0x_drum_tables.h": "6711a6708aca2b4253f039747970a3ff5c451a10e043ff02c79d095b7104c187",
+      "build/gen/x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "build/gen/x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+    },
+    "build_scripts_and_fixture": {
+      "tests/host/night_ui_bench.c": "78673a38e622b42dc2ed6aeb652e0c2057c4b94cf744f42547707633e793da16",
+      "tests/host/smc_ui_test.c": "f91b888ab7ae7fd2e6fd00a99c621d7275639b242fe2b79013cbb6276222fdd9",
+      "tests/host/night_ui_test.sh": "473a442aa874756464a8d562aae8ac20041187d0fa03920bad9ac0015ed27c3f",
+      "tests/host/smc_ui_test.sh": "14eb18e6cfcbae1a4831486258a917c4d6ccc8f1c0cfea8b186b6706f62cb9e2",
+      "tests/host/original_build.sh": "a3bdca18f4b98c9245be477b1d4097e4bb89b65c54e87a239c3a871d0d3a7129",
+      "tools/build.py": "6d66457c9d60f3a11eaaf2838e547c082c55bc4fb9576d71c2df98c7f437ddf6"
+    }
+  },
+  "compiler_version": "cc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "compiler_sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+  "build_command": "NIGHT_UI_TEST_FILE=tests/host/night_ui_bench.c sh tests/host/night_ui_test.sh <variant-output>",
+  "host_clock_scope": "Draw CPU time only; fixture host HAL, not device LCD transfer, DMA, ISR, audio callback, or dropout measurement"
+}

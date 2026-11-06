@@ -1,0 +1,16 @@
+DRAW_COST HOME full_ms=0.190004 steady_ms=0.079784 static_blits=0 frames=200
+DRAW_COST 909 full_ms=0.213344 steady_ms=0.168158 static_blits=0 frames=200
+DRAW_COST 808 full_ms=0.197449 steady_ms=0.160223 static_blits=0 frames=200
+DRAW_COST MIA full_ms=0.333342 steady_ms=0.304506 static_blits=0 frames=200
+DRAW_COST MIAMI_SOUND full_ms=0.243145 steady_ms=0.230086 static_blits=0 frames=200
+DRAW_COST CHI full_ms=0.288748 steady_ms=0.236542 static_blits=0 frames=200
+DRAW_COST CHICAGO_SOUND full_ms=1.267147 steady_ms=1.191191 static_blits=0 frames=200
+DRAW_COST BRK full_ms=0.219424 steady_ms=0.097040 static_blits=0 frames=200
+DRAW_COST FX full_ms=0.214974 steady_ms=0.097688 static_blits=0 frames=200
+DRAW_COST MIX full_ms=0.189567 steady_ms=0.083139 static_blits=0 frames=200
+DRAW_COST WAVE full_ms=0.187121 steady_ms=0.078003 static_blits=0 frames=200
+DRAW_COST SONG full_ms=0.168263 steady_ms=0.067475 static_blits=0 frames=200
+DRAW_COST DRUM_SEQ full_ms=0.192578 steady_ms=0.093088 static_blits=0 frames=200
+DRAW_COST SYNTH_SEQ full_ms=0.189419 steady_ms=0.078704 static_blits=0 frames=200
+DRAW_COST GLOBAL full_ms=0.197911 steady_ms=0.088547 static_blits=0 frames=200
+night_ui_bench: PASS (60 cache/nonmutation checks)

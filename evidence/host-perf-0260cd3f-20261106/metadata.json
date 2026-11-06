@@ -1,0 +1,16 @@
+{
+  "baseline_commit": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "baseline_tree": "00370c8cf385577395f616e9df3cbc45a0d23041",
+  "candidate_tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+  "status": "EXPLORATORY; provisional baseline; not release qualification",
+  "matrix": "unchanged tests/host/night_ui_bench.c: 15 cases, full_ms and steady_ms, 200 draws per measurement",
+  "core": 2,
+  "rounds": 15,
+  "clock": "CLOCK_PROCESS_CPUTIME_ID",
+  "same_binary_control": "AAAA using exact A executable; outer pair versus inner pair",
+  "classification": "Exploratory rule defined for this diagnostic, NOT recovered project rule: SAME if abs(median paired ABBA percent delta) <= max absolute per-round AAAA percent delta; else SLOWER if positive, FASTER if negative. SAME means unresolved within observed control envelope, not equivalence proof.",
+  "binary_sha256": {
+    "A": "77e9966c670fce42f89487eb1872016d7dfac3e16f1ffe0ca3e9f2779a96b485",
+    "B": "1f812cda21e1e6336fa74a3e192882e1b025431889f466be44baea1382051468"
+  }
+}
