@@ -1,0 +1,14 @@
+{
+  "reviewer": "/root/review_combined",
+  "source_tree": "fba9b1f2df4ca7c075a0f757e60319d04c3a02f9",
+  "result": "No integration issue found",
+  "production_files_match_donors": 25,
+  "only_overlap": "tests/run_tests.sh",
+  "old_registrations_preserved": 258,
+  "total_registrations": 265,
+  "generation_lock_and_mutant_serialization": "PASS",
+  "mute_vs_OFF_semantics": "preserved",
+  "controller_tree": "5bf6aec63e21f527cb962dfbb4698656ee648d80",
+  "native_fit": "NOT_RUN; prior28B static headroom cannot be transferred",
+  "RAM_proposal": "NOT_ADOPTED"
+}

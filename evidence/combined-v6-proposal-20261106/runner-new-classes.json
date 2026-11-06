@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "classes": {
+    "ui-settings-sections": "G",
+    "ui-peer-names": "G",
+    "ble-peer-name-bounds": "P",
+    "seq-mute-carry": "P",
+    "synth-bus-mute": "G",
+    "engine-brk-mute": "P",
+    "mute-carry-mutants": "S"
+  }
+}

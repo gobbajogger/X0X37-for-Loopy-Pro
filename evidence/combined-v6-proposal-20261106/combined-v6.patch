@@ -1,0 +1,1765 @@
+diff --git a/firmware/src/app/engine.c b/firmware/src/app/engine.c
+index eb2c85741e9d903cdae94eec86f76e4dbbab3427..4cc4f01ba82f98f5107a74dfb5ab70f1d9f1e270 100644
+--- a/firmware/src/app/engine.c
++++ b/firmware/src/app/engine.c
+@@ -893,6 +893,21 @@ static void s_boff(void *x, int p)
+     original_seq_note[p] = -1;
+ }
+ static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
++/* Audio-owned control boundary, independent of the bounded CQ drain. Quiet
++ * alone only saves decoding after the gate closes; retire the old step too so
++ * the existing 88-sample gate ramp can close before this buffer ends. Held
++ * slices keep their established live-audition override. Unmute waits for the
++ * next real step, including its enable/probability decision. No new state or
++ * per-sample work; this adds a mute read and bounded control stores per stretch. */
++static void brk_mute_boundary(void)
++{
++    if (seq.mute & (1u << MUTE_BRK)) {
++        breaks_set_quiet(&brk, 1);
++        brk.step_on = 0;
++        brk.gate_to = brk.perf.count ? 1.0f : 0.0f;
++    }
++}
++
+ static void s_brk(void *x, int s16, int bar, float spb, int en)
+ {
+     const brkpart_t *bp = &seq.pat[seq.ppat[TRK_BRK]].brk;
+@@ -1738,6 +1753,10 @@ static glide_t mix_glide[NPARTS][GL_N] = {
+     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}};
+ __attribute__((noinline)) static void mix_targets(int p, float g, uint8_t solo)        /* g: the part level */
+ {
++    /* Synth mute gates only this bus's dry/send gains. MIDI, allocator, ARP,
++     * envelopes and insert histories keep advancing, so unmute needs no note. */
++    if ((p == PART_303A || p == PART_303B) && seq_part_muted(&seq, p))
++        g = 0.0f;
+     if (solo && !(solo & (1u << p)))
+         g = 0.0f;
+     glide_set(&mix_glide[p][GL_L], g * mix_pl[p]);
+@@ -2057,6 +2076,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
+     }
+     while (done < n) {
+         uint32_t k = seq_until_event(&seq, n - done);
++        brk_mute_boundary(); /* also follows song mutes at an in-buffer event */
+         render_sub(out_l + done, out_r + done, k, 0);
+         {
+             PROF_T(pt);
+diff --git a/firmware/src/app/main_fm1.c b/firmware/src/app/main_fm1.c
+index 5219827620103964f3ff7f351168bb5adfc78cd9..59000133f9cae1cfceb36ba041f5f1943dc26328 100644
+--- a/firmware/src/app/main_fm1.c
++++ b/firmware/src/app/main_fm1.c
+@@ -1097,7 +1097,8 @@ static void smk_arrows(void)
+     if (!d)
+         return;
+     if (route == ARW_MENU) {
+-        ui_menu_arrow(d);
++        if (ui_menu_arrow(d))
++            arw_rearm(&arw, now);                 /* a held > that entered a GLOBAL section does not edit it */
+     } else {
+         uint32_t l = fm1__lock();
+         fm1_in.enc_steps[panel.enc[EN_SELECT]] += (int16_t)(d * panel.dir[EN_SELECT]);
+diff --git a/firmware/src/app/plat.h b/firmware/src/app/plat.h
+index 6964a40f651167581db1929d499ef07a210e006c..46c8351a5274a016c4adef5c50b02b7c511c9ccc 100644
+--- a/firmware/src/app/plat.h
++++ b/firmware/src/app/plat.h
+@@ -116,6 +116,10 @@ enum { PLAT_BLE_NOIMG, PLAT_BLE_OFF, PLAT_BLE_RESTART, PLAT_BLE_STARTING, PLAT_B
+        PLAT_BLE_FAILED, PLAT_BLE_BADIMG };
+ int plat_ble_state(void);
+ const char *plat_ble_name(void);
++#define PLAT_BLE_PEER_CAP 2u
++#define PLAT_BLE_PEER_NAME_MAX 20u
++typedef struct { unsigned count; int state, central; char name[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX+1u]; } plat_ble_peers_t;
++void plat_ble_peers(plat_ble_peers_t *out);   /* connected SMC peer names, one snapshot */
+ void plat_ble_set(int on);
+ /* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
+ int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
+diff --git a/firmware/src/app/plat_fm1.c b/firmware/src/app/plat_fm1.c
+index 8853f3b8cde86168c494fd632c33457cf2a36c28..b8f8811586441002c2d68c2c647301a3c725f4b7 100644
+--- a/firmware/src/app/plat_fm1.c
++++ b/firmware/src/app/plat_fm1.c
+@@ -279,6 +279,7 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity)
+ #if !X0X_BLE
+ int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
+ const char *plat_ble_name(void) { return ""; }
++void plat_ble_peers(plat_ble_peers_t *out) { __builtin_memset(out,0,sizeof *out); out->state=PLAT_BLE_NOIMG; }
+ void plat_ble_set(int on) { (void)on; }
+ int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 0; }
+ int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len) { (void)slot; (void)msg; (void)len; return 0; }
+diff --git a/firmware/src/app/ui.c b/firmware/src/app/ui.c
+index 50fc517ad12a54a060870ea09491e043c410d8e3..710a1c0d8d93b2b6ab7805aa24bd883310f0f7c1 100644
+--- a/firmware/src/app/ui.c
++++ b/firmware/src/app/ui.c
+@@ -18,6 +18,7 @@
+ #include "../dsp/fastmath.h"
+ #include "../dsp/master.h"
+ #include "ui_original_controls.h"
++#include "ui_original_wave.h"
+ #include "../dsp/bass_param_ids.h"                    /* BASS303_* (the 303's pages) */
+ #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
+ #include "chicago_fx.h"                        /* CHI_FX_* SEND FX + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert */
+@@ -188,6 +189,8 @@ typedef struct {
+     uint32_t touch_until;
+     uint8_t overlay;
+     uint8_t list_sel, list_top, list_n;
++    int8_t glo_section; /* -1: section index; local navigation, never project state */
++    uint8_t glo_index, glo_sel[6], glo_top[6];
+     uint8_t ask_act;
+     uint8_t ask_overlay;
+     uint16_t ask_arg;
+@@ -371,11 +374,14 @@ static void say(const char *a, const char *b)
+ enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
+        R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
+        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
+-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
++       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+ typedef struct { uint8_t kind, a, b, c; } pref_t;
+ #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
+ #define NONE PR(R_NONE, 0, 0, 0)
++
++static const char *const GLOBAL_SECTIONS[6] = {"MIDI + CLOCK", "BLUETOOTH", "AUDIO", "KEYS + SCREEN", "PROJECT", "SYSTEM"};
+ static ui_original_control_cache original_controls X0X_POOL;
++static ui_original_wave_cache original_wave X0X_POOL;   /* engine waveform cue (ca8299b6 / 9e237cce) */
+ static uint8_t original_page_bank, original_list_bank;
+ static int original_display_value(pref_t r);
+ static const ui_original_control_view *original_text_view(pref_t r, int value);
+@@ -838,6 +844,7 @@ static int in_pattern(pref_t r)
+ /* a knob's label: mixer refs name their part */
+ static const char *pref_name(pref_t r)
+ {
++    if(r.kind==R_SECTION)return GLOBAL_SECTIONS[r.a<6?r.a:0];
+     static const char *const MIXN[NPARTS][MX_NPARAMS] = {{"909", "909 RV", "909 DL", "909 PAN", "909 CUT"},
+                                                          {"808", "808 RV", "808 DL", "808 PAN", "808 CUT"},
+                                                          {"303 A", "A REV", "A DLY", "A PAN", "A CUT"},
+@@ -1534,55 +1541,59 @@ static void open_list_of_pages(void)
+     ui.overlay = ui.list_n ? O_LIST : O_NONE;
+ }
+ 
+-static void open_global(void)
++static void global_index(void)
+ {
+-    ui.list_n = 0;
+-    list_rows[ui.list_n++] = PR(R_HDR, GR_MIDI, 0, 0);
+-    list_add(PR(R_CLKSRC, 0, 0, 0));
+-    list_add(PR(R_CLKOUT, 0, 0, 0));
+-    list_add(PR(R_NOTEOUT, 0, 0, 0));
+-    for (int p = 0; p < NPARTS; p++)
+-        list_add(PR(R_MIDICH, part_at(p), 0, 0));
++    ui.glo_section=-1;ui.list_n=0;
++    for(int g=0;g<6;g++) {
++#if !BOARD_SMK37
++        if(g==1)continue;
++#endif
++        list_add(PR(R_SECTION,g,0,0));
++    }
++    put_s(list_title,"GLOBAL");ui.list_sel=ui.glo_index<ui.list_n?ui.glo_index:0;ui.list_top=0;ui.overlay=O_LIST;
++}
++static void global_section(int g)
++{
++    if(g<0||g>=6)return;
++    ui.glo_index=ui.list_sel;ui.glo_section=(int8_t)g;ui.list_n=0;
++    switch(g) {
++    case 0:
++        list_add(PR(R_CLKSRC,0,0,0));list_add(PR(R_CLKOUT,0,0,0));list_add(PR(R_NOTEOUT,0,0,0));
++        for(int p=0;p<NPARTS;p++)list_add(PR(R_MIDICH,part_at(p),0,0));
+ #if BOARD_SMK37
+-    list_add(PR(R_CKCH, 0, 0, 0));
++        list_add(PR(R_CKCH,0,0,0));
+ #endif
+-    list_rows[ui.list_n++] = PR(R_HDR, GR_AUDIO, 0, 0);
+-    list_add(PR(R_OUTLOUD, 0, 0, 0));
+-    list_add(PR(R_USBFULL, 0, 0, 0));
+-    list_rows[ui.list_n++] = PR(R_HDR, GR_KEYS, 0, 0);
+-    list_add(PR(R_KEYLED, 0, 0, 0));
+-    list_add(PR(R_KEYSOUND, 0, 0, 0));
+-    list_add(PR(R_PALETTE, 0, 0, 0));
+-    list_rows[ui.list_n++] = PR(R_HDR, GR_PROJECT, 0, 0);
+-    list_add(PR(R_ACT, ACT_SAVE, 0, 0));
+-    list_add(PR(R_ACT, ACT_LOAD, 0, 0));
+-    list_add(PR(R_AUTOSAVE, 0, 0, 0));
+-    list_add(PR(R_ACT, ACT_CLEAR_PAT, 0, 0));
+-    list_add(PR(R_ACT, ACT_RESET, 0, 0));
+-    list_rows[ui.list_n++] = PR(R_HDR, GR_SYSTEM, 0, 0);
+-    list_add(PR(R_ACT, ACT_PERF, 0, 0));
+-    list_add(PR(R_ACT, ACT_ABOUT, 0, 0));
+-    list_add(PR(R_BATT, 0, 0, 0));
++        break;
++    case 1:
+ #if BOARD_SMK37
+-#if X0X_DEV_PADCAL
+-    {
+-        extern uint8_t smk_clip_mode_on(void);
+-        if (!smk_clip_mode_on())                  /* the pad calibration (main_fm1.c, CLP-79), not in clip mode */
+-            list_add(PR(R_ACT, ACT_PADCAL, 0, 0));
+-    }
++        list_add(PR(R_BT,0,0,0));list_add(PR(R_SMC_ROLE,0,0,0));list_add(PR(R_SMC_MAP,0,0,0));
++        list_add(PR(R_BTSTAT,0,0,0));list_add(PR(R_BTNAME,0,0,0));
+ #endif
+-    list_rows[ui.list_n++] = PR(R_HDR, GR_BT, 0, 0);
+-    list_add(PR(R_BT, 0, 0, 0));
+-    list_add(PR(R_SMC_ROLE, 0, 0, 0));
+-    list_add(PR(R_SMC_MAP, 0, 0, 0));
+-    list_add(PR(R_BTSTAT, 0, 0, 0));
+-    list_add(PR(R_BTNAME, 0, 0, 0));
++        break;
++    case 2:list_add(PR(R_OUTLOUD,0,0,0));list_add(PR(R_USBFULL,0,0,0));break;
++    case 3:list_add(PR(R_KEYLED,0,0,0));list_add(PR(R_KEYSOUND,0,0,0));list_add(PR(R_PALETTE,0,0,0));break;
++    case 4:
++        list_add(PR(R_ACT,ACT_SAVE,0,0));list_add(PR(R_ACT,ACT_LOAD,0,0));list_add(PR(R_AUTOSAVE,0,0,0));
++        list_add(PR(R_ACT,ACT_CLEAR_PAT,0,0));list_add(PR(R_ACT,ACT_RESET,0,0));break;
++    case 5:
++        list_add(PR(R_ACT,ACT_PERF,0,0));list_add(PR(R_ACT,ACT_ABOUT,0,0));list_add(PR(R_BATT,0,0,0));
++#if BOARD_SMK37 && X0X_DEV_PADCAL
++        {extern uint8_t smk_clip_mode_on(void);if(!smk_clip_mode_on())list_add(PR(R_ACT,ACT_PADCAL,0,0));}
+ #endif
+-    put_s(list_title, "GLOBAL");
+-    ui.list_sel = ui.list_top = 0;
+-    while (list_skip(ui.list_sel))
+-        ui.list_sel++;
+-    ui.overlay = O_LIST;
++        break;
++    }
++    put_s(list_title,GLOBAL_SECTIONS[g]);ui.list_sel=ui.glo_sel[g]<ui.list_n?ui.glo_sel[g]:0;
++    ui.list_top=ui.glo_top[g]<=ui.list_sel?ui.glo_top[g]:0;ui.overlay=O_LIST;
++}
++static void global_back(void)
++{
++    int g=ui.glo_section;
++    if(g>=0&&g<6){ui.glo_sel[g]=ui.list_sel;ui.glo_top[g]=ui.list_top;}
++    global_index();
++}
++static void open_global(void)
++{
++    memset(ui.glo_sel,0,sizeof ui.glo_sel);memset(ui.glo_top,0,sizeof ui.glo_top);ui.glo_index=0;global_index();
+ }
+ 
+ /* ================================================================ questions === */
+@@ -2693,6 +2704,23 @@ static const ui_original_control_view *original_text_view(pref_t r, int value)
+     return ui_original_controls_update(&original_controls,r.b,cell,preview,mask) ? &original_controls.view : 0;
+ }
+ 
++/* The engine waveform of an oscillator control, with the same lock/motion
++ * preview as the text readout. 0 when the slot has no waveform. */
++static const ui_original_wave_cache *original_wave_view(pref_t r, int value)
++{
++    const uint8_t *cell = proj.sound.v[T_303][r.b];
++    unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);
++    uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_WAVE_MASK : UI_ORIGINAL_MIAMI_WAVE_MASK;
++    uint8_t preview[22] = {0}; uint32_t mask = 0;
++    for (unsigned id = 0; id < original_sound_count(kind); id++) if (relevant & (1u<<id)) {
++        pref_t ref = PR(R_ENG,T_303,r.b,id);
++        int q = lock_step() >= 0 ? lock_of(ref,lock_step()) : motion_now(ref);
++        if (q >= 0) { preview[id] = (uint8_t)q; mask |= 1u<<id; }
++    }
++    if ((relevant & (1u<<r.c)) && value != cell[r.c]) { preview[r.c]=(uint8_t)value; mask |= 1u<<r.c; }
++    return ui_original_wave_update(&original_wave,r.b,cell,preview,mask) ? &original_wave : 0;
++}
++
+ static void lock_turn(pref_t r, int e, int role)
+ {
+     int s = lock_step(), part = ui.part, k, cur, nv;
+@@ -3587,6 +3615,7 @@ static void list_move(int d)
+ static void list_enter(void)
+ {
+     pref_t r = list_rows[ui.list_sel];
++    if (r.kind == R_SECTION) {global_section(r.a);return;}
+     if (r.kind != R_ACT)
+         return;
+     if (r.a == ACT_CLEAR_PAT)
+@@ -3608,23 +3637,28 @@ static int ui_menu_open(void) { return ui.overlay == O_LIST && !perf_testing();
+  * submenu, "<" goes back. This lane has no submenu rows. */
+ static int list_sub_arrow(pref_t r, int d)
+ {
+-    (void)r;
+-    (void)d;
+-    return 0;
++    if(r.kind!=R_SECTION)return 0;
++    if(d>0)global_section(r.a);
++    return 1;
+ }
+ /* "<" (d = -1) or ">" (d = +1) in a menu: the value of the selected row one step down or up, as ALGORITHM
+  * does (turn_ref). The value stops at its ends. An action row and a section header do nothing. The knob
+  * acceleration does not start: the presses and the repeats are 60 ms or more apart (accel). */
+-static void ui_menu_arrow(int d)
++static int ui_menu_arrow(int d)
+ {
+ #if BOARD_SMK37
+     smc_ui_cancel();
+ #endif
+     pref_t r = list_rows[ui.list_sel];
++    if (d < 0 && ui.view == V_GLO && ui.glo_section >= 0) {
++        global_back();                                /* "<" leaves a settings section, as HOME */
++        return 1;                                     /* the held "<" must not edit the section index */
++    }
+     if (list_sub_arrow(r, d))
+-        return;
++        return d > 0;                                 /* the caller consumes this held category-entry arrow */
+     turn_ref(r, d, EN_ALGO);
+     ui.act_t = plat_ms();                             /* (the autosave waits for quiet) */
++    return 0;
+ }
+ #endif
+ 
+@@ -3745,6 +3779,7 @@ X0X_COLD static void button_tap(int b)
+         say(ui.rec ? "RECORD ON: KEYS + KNOBS" : "RECORD OFF", 0);
+         break;
+     case B_HOME:                                      /* the pattern; again: the song (a list: back) */
++        if(ui.view==V_GLO && ui.overlay==O_LIST && ui.glo_section>=0) {global_back();break;}
+         if (ui.overlay != O_NONE || ui.view == V_GLO)
+             close_overlay();
+ #if X0X_BASS_PRESET_PREVIEW
+@@ -6108,6 +6143,40 @@ static int release_label_box(const char *label, int selected, int32_t *x, int32_
+     return 1;
+ }
+ 
++/* BT NAME row (restored from 0e58b960): the connected peers joined with ", ",
++ * held 700 ms at each end and moved at 24 px/s when wider than the row. */
++#define PEER_TEXT_CAP (PLAT_BLE_PEER_CAP*(PLAT_BLE_PEER_NAME_MAX+2u)-1u)
++static struct { char text[PEER_TEXT_CAP]; unsigned count; int state, central, active, travel; uint32_t start; } peer_scroll;
++static void peer_join(char out[PEER_TEXT_CAP], const plat_ble_peers_t *peers)
++{
++    unsigned k=0,count=peers->count<PLAT_BLE_PEER_CAP?peers->count:PLAT_BLE_PEER_CAP;
++    for(unsigned i=0;i<count;i++) {
++        if(i){out[k++]=',';out[k++]=' ';}
++        unsigned n=0;while(n<PLAT_BLE_PEER_NAME_MAX && peers->name[i][n]) {
++            unsigned char ch=(unsigned char)peers->name[i][n++];out[k++]=(char)(ch>=32&&ch<=126?ch:'?');
++        }
++    }
++    if(!k)out[k++]='-';
++    out[k]=0;
++}
++static int peer_offset(const char *text,const plat_ble_peers_t *peers,int travel,uint32_t now)
++{
++    if(!peer_scroll.active || strcmp_s(text,peer_scroll.text) || peers->count!=peer_scroll.count ||
++       peers->state!=peer_scroll.state || peers->central!=peer_scroll.central || travel!=peer_scroll.travel) {
++        put_s(peer_scroll.text,text);peer_scroll.count=peers->count;peer_scroll.state=peers->state;
++        peer_scroll.central=peers->central;peer_scroll.travel=travel;peer_scroll.start=now;peer_scroll.active=1;
++    }
++    if(travel<=0)return 0;
++    uint32_t move=((uint32_t)travel*1000u+23u)/24u, phase=(now-peer_scroll.start)%(2u*(700u+move));
++    if(phase<700u)return 0;
++    phase-=700u;
++    if(phase<move)return (int)(phase*24u/1000u);
++    phase-=move;
++    if(phase<700u)return travel;
++    phase-=700u;
++    return travel-(int)(phase*24u/1000u);
++}
++
+ /* a list over the main area: six rows of 24 px */
+ static UI_DRAW void draw_list(int band)
+ {
+@@ -6131,6 +6200,9 @@ static UI_DRAW void draw_list(int band)
+         surface_panel(3,y+1,229,21,sel,sel?dim(part_col(),6):SOUND_FACE,
+                       sel?part_col():SOUND_EDGE,SOUND_SIDE);
+         cv_text(8, vc(sel ? &FONT_B : &FONT_S, y + 1, 18), sel ? &FONT_B : &FONT_S, caps_of(pref_name(r)), sel ? C_WHITE : C_GRAY);
++        if (r.kind == R_SECTION) {                     /* a GLOBAL category: its chevron */
++            cv_line(221,y+8,225,y+11,sel?C_AMB:C_DIM);cv_line(225,y+11,221,y+14,sel?C_AMB:C_DIM);continue;
++        }
+         if (r.kind == R_ACT) {                         /* an action: the return arrow */
+             uint16_t ac = sel ? C_WHITE : C_DIM;
+             if (r.a == ACT_ABOUT) {
+@@ -6144,6 +6216,13 @@ static UI_DRAW void draw_list(int band)
+             cv_line(212, y + 13, 216, y + 17, ac);
+             continue;
+         }
++        if(r.kind==R_BTNAME) {                       /* connected peers: one line, scrolls when long */
++            plat_ble_peers_t peers;char shown[PEER_TEXT_CAP];const felucca_font_t *nf=sel?&FONT_B:&FONT_S;
++            plat_ble_peers(&peers);peer_join(shown,&peers);
++            int left=8+tw(nf,"NAME")+8, width=226-left, travel=tw(nf,shown)-width;
++            int offset=peer_offset(shown,&peers,travel,plat_ms());
++            cv_text_clip(left-offset,vc(nf,y+1,18),nf,shown,sel?C_WHITE:C_HI,left,226);continue;
++        }
+         pref_value(r, num, unit);
+         if (r.kind == R_BPRESET) {
+             const char *name = original_sound_name((unsigned)engine_bass_requested_bank(r.b),
+@@ -6271,7 +6350,7 @@ static uint16_t footer_text(const char **a, const char **b, const char **c)
+         *b = UI_CAP_HOME ": NO";
+     } else if (ui.overlay == O_LIST) {
+         *a = UI_CAP_SELECT ": MOVE";
+-        *b = UI_CAP_ALGO ": CHANGE";
++        *b = ui.view==V_GLO&&ui.glo_section<0?">: ENTER":UI_CAP_ALGO ": CHANGE";
+         *c = UI_CAP_HOME ": BACK";
+     } else if (ui.view == V_HOME) {
+ #if BOARD_SMK37
+@@ -6459,6 +6538,21 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
+     *mix = q == 0 ? 0 : 127; return q == 3 ? 3 : 2;          /* TRI, SQR, PUL */
+ }
+ 
++/* Engine waveform cue (restored from ca8299b6): slot 0 is the Chicago
++ * oscillator mix or the Miami carrier, 1 the Miami modulator, 2 the wobble. */
++static int original_wave_slot(unsigned kind,int p)
++{
++    if(p==0)return 0;
++    if(kind==ORIGINAL_SOUND_MIAMI)return p==6?1:p==11?2:-1;
++    return -1;
++}
++static UI_DRAW void draw_original_wave(int cx,int y,const ui_original_wave_cache *v,int slot,uint16_t ink,uint16_t face)
++{
++    cv_rect(cx-14,y+v->zero[slot],UI_ORIGINAL_WAVE_W,1,blend(face,ink,3));
++    for(int i=1;i<UI_ORIGINAL_WAVE_W;i++)
++        cv_line(cx-15+i,y+v->wave[slot][i-1],cx-14+i,y+v->wave[slot][i],ink);
++}
++
+ enum { MIAMI_WAVE_HEIGHT=19, MIAMI_WAVE_ZERO=9, MIAMI_WAVE_GAIN=8 };
+ /* One affine projection per supported range. The pulse zero is near its low
+  * rail, not the midpoint: preserve its +1 / -1/9 relative amplitudes. */
+@@ -6780,7 +6874,11 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
+         else strip_value(x+45,y+28,num,unit,ink);     /* starts >= x+32: 3 px clear of the glyph */
+     } else
+     if(shape) {
+-        draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
++        int slot=original_wave_slot((unsigned)engine_bass_sound_bank(&proj.sound,r.b),r.c);
++        const ui_original_wave_cache *wave=slot>=0?original_wave_view(r,val):0;
++        uint16_t face=night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE);
++        if(wave) draw_original_wave(cx-10,y+25,wave,slot,ink,face);
++        else draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,face);
+         pref_value_of(r,val,num,unit);           /* original readout text */
+         strip_value(cx+17,y+28,num,unit,ink);
+     } else {
+@@ -7980,6 +8078,7 @@ X0X_COLD void ui_init(void)
+     memset(&ui, 0, sizeof ui);
+     (void)plat_division_pad(0);
+     original_controls.valid = 0;
++    original_wave.valid = 0;
+     memset(kbd_held_note, 0, sizeof kbd_held_note);
+     memset(kbd_held_key, 0, sizeof kbd_held_key);
+     memset(kbd_arp_n, 0, sizeof kbd_arp_n);
+@@ -8198,6 +8297,10 @@ void ui_frame(void)
+         else do_undo(direction);
+     }
+ #endif
++    if(ui.overlay!=O_LIST || ui.help) peer_scroll.active=0;
++    else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
++        if(list_rows[row].kind==R_BTNAME)visible=1;
++        if(!visible)peer_scroll.active=0; }
+     undo_tick();
+     autosave();
+     if (!project_busy)
+diff --git a/firmware/src/app/ui_original_wave.h b/firmware/src/app/ui_original_wave.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..568bcf906655b7dc4eae7b22e0ae1b72369cf63f
+--- /dev/null
++++ b/firmware/src/app/ui_original_wave.h
+@@ -0,0 +1,122 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++#pragma once
++/* Engine waveform cue for the original-synth oscillator controls.
++ * Restored from ca8299b6 (ui_original.h): a small integer projection of
++ * oscillator_motion.c at 128 samples per cycle. It is a raw shape cue, not
++ * audio after modulation, filter or effects. It is sampled only when the
++ * shown cell or its lock/motion preview changes, never per pixel or frame.
++ * Include after ui_original_controls.h. */
++enum { UI_ORIGINAL_WAVE_W=29, UI_ORIGINAL_WAVE_H=19 };
++/* The preview masks of ca8299b6: a superset of the macros that move the
++ * native fields read below (Chicago shapes 1/9, gains 3/11, width 22;
++ * Miami shapes 1/5/43, width 22). */
++#define UI_ORIGINAL_CHICAGO_WAVE_MASK ((1u<<0)|(1u<<2)|(1u<<3)|(1u<<4)|(1u<<11)|(1u<<13)|(1u<<14)|(1u<<15)|(1u<<16)|(1u<<21))
++#define UI_ORIGINAL_MIAMI_WAVE_MASK ((1u<<0)|(1u<<3)|(1u<<6)|(1u<<7)|(1u<<9)|(1u<<10)|(1u<<11)|(1u<<13)|(1u<<17))
++typedef struct {
++    uint8_t cell[ORIGINAL_SOUND_BYTES], preview[22], voice, valid, kind;
++    uint32_t preview_mask;
++    uint8_t wave[3][UI_ORIGINAL_WAVE_W], zero[3];
++} ui_original_wave_cache;
++
++static int32_t ui_original_saw(int32_t p)
++{
++    int32_t edge=p*64;
++    if(edge>65536)edge=65536;
++    if(edge< -65536)edge= -65536;
++    return p-edge;
++}
++static int32_t ui_original_wave(unsigned shape,int32_t p,int32_t width)
++{
++    if(shape==0)return (65536-2*(p<0?-p:p))/4;
++    int32_t z=ui_original_saw(p);
++    if(shape>=2){int32_t q=p+2*width;if(q>65536)q-=131072;z-=ui_original_saw(q);}
++    return z/4;
++}
++static int32_t ui_original_mg(unsigned shape,int32_t p)
++{
++    if(shape==0)return (65536-2*(p<0?-p:p))/4;
++    if(shape==1)return -p/4;
++    if(shape==2)return p/4;
++    return p>=0?-16384:16384;
++}
++static uint8_t ui_original_plot(int32_t z,int32_t lo,int32_t hi)
++{
++    int32_t y=1+((hi-z)*16+(hi-lo)/2)/(hi-lo);
++    return (uint8_t)(y<0?0:y>=UI_ORIGINAL_WAVE_H?UI_ORIGINAL_WAVE_H-1:y);
++}
++static void ui_original_curve(ui_original_wave_cache *v,unsigned slot,unsigned shape,int32_t width,int mg)
++{
++    int32_t lo=-16384,hi=16384;
++    if(!mg && shape>=2){lo=-width/2;hi=32768-width/2;}
++    v->zero[slot]=ui_original_plot(0,lo,hi);
++    for(unsigned i=0;i<UI_ORIGINAL_WAVE_W;i++){
++        int32_t phase=65536-(int32_t)(131072u*i/(UI_ORIGINAL_WAVE_W-1u));
++        int32_t z=mg?ui_original_mg(shape,-phase):ui_original_wave(shape,phase,width);
++        v->wave[slot][i]=ui_original_plot(z,lo,hi);
++    }
++}
++static int32_t ui_original_width(unsigned shape,float native_width)
++{
++    if(native_width<.01f)native_width=.01f;
++    if(native_width>.99f)native_width=.99f;
++    return shape<2?0:shape==2?32768:(int32_t)((1.0f-native_width)*65536.0f+.5f);
++}
++static int ui_original_wave_project(ui_original_wave_cache *out,const uint8_t cell[ORIGINAL_SOUND_BYTES],
++                                    const uint8_t preview[22],uint32_t mask)
++{
++    if(!out || !original_sound_valid(cell))return 0;
++    unsigned kind=cell[29],n=original_sound_count(kind);
++    if(mask>>n)return 0;
++    for(unsigned i=0;i<n;i++)if((mask&(1u<<i)) && preview[i]>original_sound_param(kind,i)->max)return 0;
++    union { original_chicago_program chicago; original_miami_program miami; } program;
++    out->kind=(uint8_t)kind;
++    float x;
++    if(kind==ORIGINAL_SOUND_CHICAGO){
++        original_chicago_program *p=&program.chicago;
++        if(!original_sound_restore_chicago(p,cell))return 0;
++        for(unsigned i=0;i<n;i++)if(mask&(1u<<i)){
++            if(!original_sound_control_value(kind,i,preview[i],&x) || !original_chicago_program_set(p,i,x))return 0;
++        }
++        float na,nb,ga,gb,w;
++        if(!original_chicago_program_native(p,1,&na) || !original_chicago_program_native(p,9,&nb) ||
++           !original_chicago_program_native(p,3,&ga) || !original_chicago_program_native(p,11,&gb) ||
++           !original_chicago_program_native(p,22,&w))return 0;
++        unsigned a=ui_original_quant(na,5),b=ui_original_quant(nb,5);
++        if(a>3 || b>3)return 0;
++        int gain=(int)(ga*32768.0f+.5f),other=(int)(gb*32768.0f+.5f);
++        if(gain<0 || gain>32768 || other<0 || other>32768)return 0;
++        int32_t wa=ui_original_width(a,w),wb=ui_original_width(b,w);
++        out->zero[0]=9;
++        for(unsigned i=0;i<UI_ORIGINAL_WAVE_W;i++){
++            int32_t phase=65536-(int32_t)(131072u*i/(UI_ORIGINAL_WAVE_W-1u));
++            /* Prehalving keeps each product <= 2^29 and the sum in int32_t. */
++            int32_t z=((ui_original_wave(a,phase,wa)/2)*gain+(ui_original_wave(b,phase,wb)/2)*other)/16384;
++            out->wave[0][i]=ui_original_plot(z,-16384,16384);
++        }
++    }else{
++        original_miami_program *p=&program.miami;
++        if(!original_sound_restore_miami(p,cell))return 0;
++        for(unsigned i=0;i<n;i++)if(mask&(1u<<i)){
++            if(!original_sound_control_value(kind,i,preview[i],&x) || !original_miami_program_set(p,i,x))return 0;
++        }
++        float w;
++        if(!original_miami_program_native(p,22,&w))return 0;
++        const unsigned ids[3]={1,5,43};
++        for(unsigned s=0;s<3;s++){
++            if(!original_miami_program_native(p,ids[s],&x))return 0;
++            unsigned shape=ui_original_quant(x,5);if(shape>3)return 0;
++            ui_original_curve(out,s,shape,ui_original_width(shape,w),s==2);
++        }
++    }
++    return 1;
++}
++static int ui_original_wave_update(ui_original_wave_cache *cache,unsigned voice,
++    const uint8_t cell[ORIGINAL_SOUND_BYTES],const uint8_t preview[22],uint32_t mask)
++{
++    if(cache->valid && cache->voice==voice && cache->preview_mask==mask &&
++       !memcmp(cache->cell,cell,ORIGINAL_SOUND_BYTES) && !memcmp(cache->preview,preview,22))return 1;
++    cache->valid=0;
++    if(voice>1 || !ui_original_wave_project(cache,cell,preview,mask))return 0;
++    memcpy(cache->cell,cell,ORIGINAL_SOUND_BYTES);memcpy(cache->preview,preview,22);
++    cache->preview_mask=mask;cache->voice=(uint8_t)voice;cache->valid=1;return 1;
++}
+diff --git a/firmware/src/ble.c b/firmware/src/ble.c
+index 39d863b5363329b92296a61385864fbfd08044de..bfb7af4f3e579ff0a87dc95902ba73c870921ed1 100644
+--- a/firmware/src/ble.c
++++ b/firmware/src/ble.c
+@@ -600,6 +600,15 @@ unsigned plat_ble_peer_names(char names[2][21])
+     irq_restore(f);
+     return n;
+ }
++/* Copy connected SMC peer names under the existing interrupt guard; no live pointer escapes. */
++void plat_ble_peers(plat_ble_peers_t *out)
++{
++    __builtin_memset(out, 0, sizeof *out);
++    out->state = plat_ble_state();
++    out->central = ble_central_role && smc_ble_role_get();
++    if (!out->central || out->state != PLAT_BLE_CONNECTED) return;
++    out->count = plat_ble_peer_names(out->name);
++}
+ const char *plat_ble_name(void)
+ {
+     if (!ble_central_role) return ble_r.nm;
+diff --git a/firmware/src/gfx.c b/firmware/src/gfx.c
+index 4b9bb9857c35b7ff4434232aef9c5b5767196a91..da7cb0dfe63e5a56f2dbf696e2914c60183c26c4 100644
+--- a/firmware/src/gfx.c
++++ b/firmware/src/gfx.c
+@@ -157,7 +157,7 @@ static uint32_t glyph(const felucca_font_t *f, uint32_t ch)
+ 
+ /* text in colour c, each pixel's coverage blended over what is already on the canvas (an
+  * anti-aliased face on a coloured box gets no dark fringe); returns the end x */
+-static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
++static int32_t cv_text_clip(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c, int32_t clip_left, int32_t clip_right)
+ {
+     uint32_t r = c >> 11, g = (c >> 5) & 63u, b = c & 31u;
+     for (; *s; s++) {
+@@ -197,7 +197,7 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
+ #endif
+                 int32_t px = x - f->pad + (int32_t)gx, py = y + (int32_t)gy + cv_oy;
+                 a = (gx & 1u) ? (a & 15u) : (a >> 4);
+-                if (!a || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)
++                if (!a || px < clip_left || px >= clip_right || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)
+                     continue;
+                 if (a == 15u) {
+                     cv_px[(uint32_t)py * cv_w + (uint32_t)px] = swap16(c);
+@@ -214,6 +214,9 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
+     return x;
+ }
+ 
++static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
++{ return cv_text_clip(x,y,f,s,c,0,(int32_t)cv_w); }
++
+ static int32_t text_w(const felucca_font_t *f, const char *s)
+ {
+     int32_t w = 0;
+diff --git a/firmware/src/seq/sequencer.c b/firmware/src/seq/sequencer.c
+index e8637c042a106ad2c29e6e331d4caee452cee9c0..f34d7e05e3c255640d9dfe7506654539b8992988 100644
+--- a/firmware/src/seq/sequencer.c
++++ b/firmware/src/seq/sequencer.c
+@@ -301,8 +301,10 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
+         gate = bstep_gate(st);
+     }
+     uint8_t prev_slide = tr->held_note & 0x80u;     /* bit 7: the step that sounded slides on */
+-    if (s->mute & (1u << (MUTE_BASS0 + b)))
+-        gate = G_REST;
++    /* Internal synth timing/voice state runs behind the bus mute. Keep the
++     * existing muted MIDI-output policy without releasing the internal gate. */
++    int muted = (s->mute & (1u << (MUTE_BASS0 + b))) != 0;
++    if (muted) bass_midi_flush(s, b, o);
+     /* A TIE continues an audible note; an orphan TIE is a rest, never an onset. */
+     if (gate == G_REST || (gate == G_TIE && !tr->sounding) || SEQ_PART_OFF(s, TRK_BASS0 + b)) {
+         bass_release(s, b, o);
+@@ -316,7 +318,7 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
+         /* A chance-rejected step is a rest for both the internal 303 and MIDI out.
+          * REC's live-hit skip still echoes MIDI (REC-06); it is not a chance miss. */
+         int played = skip || o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide, bstep_velocity(st));
+-        if (played && s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
++        if (played && !muted && s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
+             uint8_t old = s->bass_notes_out[b], ch = s->ch[TRK_BASS0 + b];
+             uint8_t had_old = s->bass_out_valid[b], old_ch = s->bass_out_ch[b];
+             if (s->bass_slide_valid[b])                  /* only one old MIDI pitch can remain open */
+diff --git a/host/x0x_host.c b/host/x0x_host.c
+index 943b36946676e328e80890bc5ab5d04471577f30..89c3b9b06e7c7608924ad89000c394cee3d87b8d 100644
+--- a/host/x0x_host.c
++++ b/host/x0x_host.c
+@@ -264,7 +264,16 @@ int plat_cpu2_wait(void) { int fail = cpu2_fail_once; cpu2_fail_once = 0; return
+ int plat_cpu2_gave_up(void) { return 0; }
+ uint32_t plat_cpu2_bad(void) { return 0; }
+ static int ble_on;                              /* Bluetooth MIDI: no controller image on the host */
++#ifdef X0X_HOST_BLE_STATE
++int plat_ble_state(void) { return X0X_HOST_BLE_STATE; }
++#else
+ int plat_ble_state(void) { return PLAT_BLE_NOIMG + 0 * ble_on; }
++#endif
++#ifdef X0X_HOST_BLE_PEERS
++void plat_ble_peers(plat_ble_peers_t *out) { X0X_HOST_BLE_PEERS(out); }
++#else
++void plat_ble_peers(plat_ble_peers_t *out) { memset(out, 0, sizeof *out); out->state = plat_ble_state(); }
++#endif
+ const char *plat_ble_name(void) { return ""; }
+ void plat_ble_set(int on) { ble_on = on; }
+ uint32_t plat_cpu_pct(void) { return cpu_pct; }
+@@ -323,7 +332,10 @@ static void host_arrows(void)
+         return;
+     arrow_steps++;                                   /* (expect arrowsteps: the steps that the arrows gave) */
+     if (route == ARW_MENU)
+-        ui_menu_arrow(d);
++    {
++        if (ui_menu_arrow(d))
++            arw_rearm(&host_arw, arrows_held);       /* as main_fm1.c: entry consumes the held arrow */
++    }
+     else
+         enc_acc[EN_SELECT] += d;
+ }
+diff --git a/tests/host/ble_peer_name_bounds_test.c b/tests/host/ble_peer_name_bounds_test.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..5e4ae2a7f91761c81ea46772a6a0c8926fc885bd
+--- /dev/null
++++ b/tests/host/ble_peer_name_bounds_test.c
+@@ -0,0 +1,67 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Actual peer-name copying/joining, with hardware interrupt stubs only. */
++#include <assert.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include "../../firmware/src/app/plat.h"
++#include "../../firmware/src/ble/ble_midi_central.h"
++
++static struct { char nm[21]; struct { blec_t c, c2; } host; } ble_r;
++static int ble_central_role, locked_irq;
++static uint32_t irq_save(void) { assert(!locked_irq); locked_irq=1; return 42; }
++static void irq_restore(uint32_t state) { assert(state==42 && locked_irq); locked_irq=0; }
++static int snapshot_state = PLAT_BLE_CONNECTED;
++int plat_ble_state(void) { return snapshot_state; }
++int smc_ble_role_get(void) { return 1; }
++#include "ble_peer_names.inc"
++
++int main(void)
++{
++    struct {
++        uint8_t before;
++        char names[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX+1u];
++        uint8_t after;
++    } captured;
++    const char *joined;
++    ble_central_role=1;
++    ble_r.host.c.state=ble_r.host.c2.state=BLEC_CONNECTED;
++    memcpy(ble_r.host.c.link_name,"ABCDEFGHIJKLMNOPQRST",21u);
++    memcpy(ble_r.host.c2.link_name,"abcdefghijklmnopqrst",21u);
++    memset(&captured,0xA5,sizeof captured);
++    assert(plat_ble_peer_names(captured.names)==2u);
++    assert(!memcmp(captured.names[0],"ABCDEFGHIJKLMNOPQRST",21u));
++    assert(!memcmp(captured.names[1],"abcdefghijklmnopqrst",21u));
++    assert(captured.before==0xA5u && captured.after==0xA5u);
++    joined=plat_ble_name();
++    assert(!memcmp(joined,"ABCDEFGHIJKLMNOPQRST, abcdefghijklmnopqrst",43u));
++    assert(strlen(joined)==42u && joined[42]=='\0');
++
++    /* The stored link name need not be terminated within the copy limit. */
++    memset(ble_r.host.c.link_name,'X',sizeof ble_r.host.c.link_name);
++    assert(plat_ble_peer_names(captured.names)==2u);
++    assert(!memcmp(captured.names[0],"XXXXXXXXXXXXXXXXXXXX",21u));
++    assert(captured.before==0xA5u && captured.after==0xA5u);
++    ble_r.host.c.state=BLEC_OFF;
++    assert(!strcmp(plat_ble_name(),"abcdefghijklmnopqrst"));
++    ble_r.host.c2.link_name[0]=0;
++    assert(!strcmp(plat_ble_name(),"SMC-Mixer"));
++    ble_r.host.c2.state=BLEC_OFF;
++    assert(!plat_ble_name()[0]);
++    ble_central_role=0;
++    memcpy(ble_r.nm,"X0X37",6u);
++    assert(!strcmp(plat_ble_name(),"X0X37"));
++    plat_ble_peers_t snapshot;
++    ble_central_role=1; ble_r.host.c.state=BLEC_CONNECTED;
++    memset(ble_r.host.c.link_name,0,sizeof ble_r.host.c.link_name);
++    memcpy(ble_r.host.c.link_name,"Left",5);
++    memset(&snapshot,0xA5,sizeof snapshot); plat_ble_peers(&snapshot);
++    assert(snapshot.count==1 && !strcmp(snapshot.name[0],"Left"));
++    for(unsigned i=0;i<sizeof snapshot.name[1];i++) assert(!snapshot.name[1][i]);
++    snapshot_state=PLAT_BLE_OFF; plat_ble_peers(&snapshot);
++    assert(snapshot.count==0 && snapshot.state==PLAT_BLE_OFF);
++    assert(!snapshot.name[0][0] && !snapshot.name[1][0]);
++    assert(!locked_irq);
++    puts("PASS BLE peer-name bounds and maximum-length join");
++    return 0;
++}
+diff --git a/tests/host/ble_peer_name_bounds_test.sh b/tests/host/ble_peer_name_bounds_test.sh
+new file mode 100644
+index 0000000000000000000000000000000000000000..8754b52c0cbe1dc9ae7a45a64cf4d16905c694cb
+--- /dev/null
++++ b/tests/host/ble_peer_name_bounds_test.sh
+@@ -0,0 +1,13 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++set -eu
++cd "$(dirname "$0")/../.."
++OUT=$(mktemp -d "${TMPDIR:-/tmp}/x0x-ble-peer-name-bounds.XXXXXX")
++trap 'rm -rf "$OUT"' EXIT HUP INT TERM
++awk '/^void plat_ble_peers\(/ || /^unsigned plat_ble_peer_names\(/ || /^const char \*plat_ble_name\(void\)/{on=1} on{print} on && /^}/{on=0}' firmware/src/ble.c > "$OUT/ble_peer_names.inc"
++test -s "$OUT/ble_peer_names.inc"
++# SAN_FLAGS optionally enables the caller's address/undefined sanitizers.
++# shellcheck disable=SC2086
++${CC:-cc} -std=c11 -Wall -Wextra -Werror -DX0X_HOST ${SAN_FLAGS:-} -I"$OUT" \
++    tests/host/ble_peer_name_bounds_test.c -o "$OUT/test"
++"$OUT/test"
+diff --git a/tests/host/engine_brk_mute_test.c b/tests/host/engine_brk_mute_test.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..5c2e5064a9704b4b655d9b610d5e2630dbc4dc6d
+--- /dev/null
++++ b/tests/host/engine_brk_mute_test.c
+@@ -0,0 +1,351 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Production engine control functions are extracted verbatim by the Python
++ * runner. The real breaks.c supplies decoding, held keys, generator and gate.
++ * Other sound owners, master/FX and sequencer timing are inert test boundaries;
++ * step delivery is explicit so a slow BREAK cannot conceal a late mute. */
++#include <assert.h>
++#include <math.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include "../../firmware/src/seq/sequencer.h"
++#define X0X_IMA_TABLES_DEFINE
++#include "../../firmware/src/dsp/breaks.c"
++
++/* New combined panic owner is inert in this BREAK-only harness. Its real
++ * behavior is covered separately by panic-clear/notes/route. */
++static volatile uint8_t notes_off_req;
++static uint8_t notes_off_discard;
++static uint32_t notes_off_cutoff, notes_off_requested_cutoff;
++static void engine_notes_off_apply(void) {}
++static seq_t seq;
++static breaks_t brk;
++static uint8_t brk_applied[BRK_NSET];
++static uint32_t brk_local;
++static int fail_count, click_failed, probability_skip;
++static unsigned split_frames = 256, advance_calls, elapsed_frames;
++static unsigned scheduled_mute_at, scheduled_unmute_at;
++static float captured[256];
++static unsigned captured_count, param_count;
++static uint32_t seen_param[4096];
++
++/* Unrelated owners only. CQ, BREAK local keys, step and render control below
++ * are production bodies, not reimplementations. */
++static uint8_t bass_held[NBASS], bass_held_count[NBASS], bass_held_src[NBASS];
++static uint8_t original_key_pitch[NBASS][38], bass_attacked[NBASS];
++static uint16_t src_held[3];
++static int original_bass[NBASS], brk_bend_owner, project_midi_drop;
++static int16_t brk_wheel, brk_wheel_seen;
++static uint8_t project_hold, tape_signal_seen, usb_full = 1;
++static uint8_t mot_was_on, mot_on, mot_release_req, mot_playing;
++static unsigned eng_prof_frames, eng_scope_w;
++static int16_t eng_scope[512];
++static uint16_t eng_peak[5];
++static float part_peak[5], out_lim = 1.0f, out_scale = 4194304.0f;
++static int mot, mst, fx;
++#define SCOPE_N 512u
++#define ORIGINAL_INPUT_KEYS 1
++#define PROF_T(name) unsigned name = 0
++#define PROF_ADD(stage, name) ((void)(name))
++
++static int prob_skip(int part, int voice) { return probability_skip; }
++static void original_midi_context(void) {}
++static void brk_channel_reconcile(void) {}
++static void original_prepare_all(void) {}
++static void guard_apply(void) {}
++static void live_key_drain(void) {}
++static void brk_midi_drain(void) {}
++static void motion_release(int *owner) {}
++static void motion_tick(int *owner, uint32_t n) {}
++static void fxbus_set_bpm(int *owner, float bpm) {}
++static void master_process_st(int *owner, float *l, float *r, int n, float volume) {}
++uint32_t plat_master(void) { return 4096; }
++int plat_midi_in(uint32_t *packet) { return 0; }
++static void midi_in(uint32_t packet) {}
++static void apply_param(int type, int a, int b, int value)
++{
++    if (param_count < sizeof seen_param / sizeof seen_param[0])
++        seen_param[param_count++] = (uint32_t)value;
++}
++static void mod_apply(int a, int v) {}
++static void apply_base(int a, int b, int v) {}
++static int mot_base(void *x, int a, int b, int v) { return 0; }
++static void mot_apply(void *x, int a, int b, int v, int base) {}
++static void s_drum(void *x, int a, int b, float velocity) {}
++static int live_rec_legato(int a, int source) { return 0; }
++static void live_rec_accept(int a, int source, int note) {}
++static int original_runtime_key(int *owner, int source, unsigned note, unsigned velocity) { return 0; }
++static int original_runtime_release_source(int *owner, int source) { return 0; }
++void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int source, int flags) {}
++float seq_tempo(const seq_t *s) { return 20.0f; }
++int seq_clock_waiting(const seq_t *s) { return 0; }
++/* No external notes in this harness; local key ownership is production code. */
++static int brk_any_slice(int slice) { return (brk_local & (1u << slice)) != 0; }
++static void s_brk(void *, int, int, float, int);
++static const seq_sink_t SINK = {.brk = s_brk};
++
++uint32_t seq_until_event(seq_t *s, uint32_t n)
++{
++    unsigned k = n < split_frames ? n : split_frames;
++    if (scheduled_mute_at > elapsed_frames && scheduled_mute_at - elapsed_frames < k)
++        k = scheduled_mute_at - elapsed_frames;
++    if (scheduled_unmute_at > elapsed_frames && scheduled_unmute_at - elapsed_frames < k)
++        k = scheduled_unmute_at - elapsed_frames;
++    return k;
++}
++
++void seq_advance(seq_t *s, uint32_t n, const seq_sink_t *sink)
++{
++    elapsed_frames += n;
++    ++advance_calls;
++    if (scheduled_mute_at && elapsed_frames == scheduled_mute_at)
++        s->mute |= 1u << MUTE_BRK;
++    if (scheduled_unmute_at && elapsed_frames == scheduled_unmute_at)
++        s->mute &= ~(1u << MUTE_BRK);
++}
++
++static void render_sub(float *l, float *r, uint32_t n, uint32_t offset)
++{
++    /* Real DSP output captured before unrelated effects/master/mixer. */
++    breaks_render(&brk, l, (int)n);
++    assert(captured_count + n <= 256u);
++    for (unsigned i = 0; i < n; ++i) {
++        r[i] = l[i];
++        captured[captured_count++] = l[i];
++    }
++}
++
++#include "production_engine_brk_control.inc"
++
++#define CHECK(condition, message) do { \
++    if (!(condition)) { fprintf(stderr, "FAIL line %d: %s\n", __LINE__, message); ++fail_count; } \
++} while (0)
++
++/* Standard IMA encoder, test data only: a positive plateau makes an abrupt cut
++ * a measurable discontinuity without relying on a fortunate sine phase. */
++#define LOOP_N 88200u
++static uint8_t loop_data[LOOP_N / 2u];
++static const brk_loop_t loop = {loop_data, LOOP_N, 22050, 2, 8};
++static pattern_t pattern;
++
++static void make_loop(void)
++{
++    int pred = 0, index = 0;
++    for (unsigned i = 0; i < LOOP_N; ++i) {
++        int step = IMA_STEP_T[index], diff = 20000 - pred, code = 0, delta = step >> 3;
++        if (diff < 0) { code = 8; diff = -diff; }
++        if (diff >= step) { code |= 4; diff -= step; delta += step; }
++        if (diff >= (step >> 1)) { code |= 2; diff -= step >> 1; delta += step >> 1; }
++        if (diff >= (step >> 2)) { code |= 1; delta += step >> 2; }
++        pred += code & 8 ? -delta : delta;
++        if (pred > 32767) pred = 32767;
++        if (pred < -32768) pred = -32768;
++        index += IMA_IDX_T[code & 7];
++        if (index < 0) index = 0;
++        if (index > 88) index = 88;
++        loop_data[i >> 1] |= (uint8_t)(code << ((i & 1u) * 4u));
++    }
++}
++
++static void block(void)
++{
++    int32_t out[512];
++    captured_count = 0;
++    engine_render(out, 256);
++    CHECK(captured_count == 256, "real engine_render rendered exactly one block");
++}
++
++static float peak(unsigned start, unsigned end)
++{
++    float value = 0.0f;
++    for (unsigned i = start; i < end; ++i)
++        if (fabsf(captured[i]) > value) value = fabsf(captured[i]);
++    return value;
++}
++
++static void fixture(int running)
++{
++    memset(&seq, 0, sizeof seq);
++    memset(&pattern, 0, sizeof pattern);
++    memset(bass_held, 0, sizeof bass_held);
++    memset(bass_held_count, 0, sizeof bass_held_count);
++    memset(bass_held_src, 0, sizeof bass_held_src);
++    memset(brk_applied, 255, sizeof brk_applied);
++    cq_w = cq_r = brk_local = param_count = 0;
++    elapsed_frames = advance_calls = scheduled_mute_at = scheduled_unmute_at = 0;
++    split_frames = 256;
++    probability_skip = 0;
++    seq.pat = &pattern;
++    seq.playing = (uint8_t)running;
++    pattern.brk.steps = 0xFFFFu;
++    breaks_init(&brk);
++    breaks_set_loop(&brk, 0, &loop);
++    breaks_set(&brk, BRK_LEVEL, 100);
++    breaks_set(&brk, BRK_PITCH, 12);
++    for (int i = 0; i < BRK_NSET; ++i) pattern.brk.set[i] = (uint8_t)breaks_get(&brk, i);
++    pattern.brk.set[BRK_COMPLEX] = 0;
++    pattern.brk.set[BRK_ALEN] = 3;
++    if (running) s_brk(0, 0, 0, 33075.0f, 1); /* 20 BPM: no next step for >129 blocks */
++    for (int i = 0; i < 4; ++i) block();
++    elapsed_frames = advance_calls = 0;
++}
++
++static void test_quiet_alone(void)
++{
++    fixture(1);
++    breaks_set_quiet(&brk, 1);
++    block();
++    CHECK(peak(132, 256) > 0.1f, "characterization: quiet alone does not mute an open gate");
++}
++
++static void test_deadline_and_click(void)
++{
++    fixture(1);
++    const float previous = captured[255];
++    CHECK(previous > 0.1f, "pre-mute deterministic plateau is audibly nonzero");
++    const uint32_t triggers = brk.st_trigs;
++    seq.mute |= 1u << MUTE_BRK;
++    block();
++    CHECK(brk.st_trigs == triggers, "deadline does not wait for or manufacture a BREAK step");
++    CHECK(brk.gate == 0.0f && peak(132, 256) == 0.0f, "mute is quiet within the next 256 frames");
++    CHECK(peak(0, 132) > 0.0f || BRK_FADE == 1, "normal mute fades rather than cutting immediately");
++    float delta = fabsf(captured[0] - previous);
++    for (unsigned i = 1; i < 256; ++i)
++        if (fabsf(captured[i] - captured[i - 1]) > delta) delta = fabsf(captured[i] - captured[i - 1]);
++    const float bound = previous * 0.025f + 0.0001f;
++    click_failed = delta > bound;
++    printf("mute peak-step %.7f, bound %.7f; prior %.7f; late peak %.7f\n",
++           (double)delta, (double)bound, (double)previous, (double)peak(132, 256));
++#ifndef ENGINE_BRK_ABRUPT_CONTROL
++    CHECK(!click_failed, "declick peak-step bound, including previous block's final sample");
++#endif
++}
++
++static void test_unmute_and_splits(void)
++{
++    fixture(1);
++    split_frames = 17;
++    seq.mute |= 1u << MUTE_BRK;
++    block();
++    CHECK(peak(132, 256) == 0.0f, "declick completes across uneven engine render stretches");
++    seq.mute &= ~(1u << MUTE_BRK);
++    block();
++    CHECK(peak(0, 256) == 0.0f, "unmute cannot resurrect a previous enabled step");
++    probability_skip = 1;
++    s_brk(0, 1, 0, 33075.0f, 1);
++    block();
++    CHECK(peak(0, 256) == 0.0f, "unmute preserves next-step probability rejection");
++    probability_skip = 0;
++    s_brk(0, 4, 0, 33075.0f, 1); /* ALEN 3 = 24 ticks: steps 0,4,8,12 trigger a slice */
++    block();
++    CHECK(peak(132, 256) > 0.1f, "unmute opens on the next accepted enabled BREAK step");
++    seq.mute |= 1u << MUTE_BRK;
++    seq.mute &= ~(1u << MUTE_BRK);
++    block();
++    CHECK(peak(132, 256) > 0.1f, "latest unmuted state wins before a boundary; no stale mute command");
++    seq.mute |= 1u << MUTE_BRK;
++    block();
++    seq.mute &= ~(1u << MUTE_BRK);
++    seq.mute |= 1u << MUTE_BRK;
++    block();
++    CHECK(peak(0, 256) == 0.0f, "latest muted state wins after rapid toggle");
++}
++
++static void test_event_mute(void)
++{
++    fixture(1);
++    scheduled_mute_at = 17;
++    scheduled_unmute_at = 201;
++    block();
++    CHECK(peak(0, 17) > 0.1f, "fixture presents mute at an in-buffer sequencer event");
++    CHECK(peak(17 + 132, 256) == 0.0f, "song-event mute fades before the next render stretch ends");
++    CHECK(!(seq.mute & (1u << MUTE_BRK)), "fixture delivered subsequent unmute in the same buffer");
++    CHECK(brk.gate_to == 0.0f, "in-buffer unmute still waits for an enabled step");
++}
++
++static void test_queue_backlog(void)
++{
++    for (int protected = 0; protected < 2; ++protected) {
++        fixture(1);
++        for (unsigned i = 0; i < CQ; ++i)
++            cq_put(protected ? C_BRK : C_PARAM_T0, protected ? 32 : 0, 0, i);
++        CHECK(cq_w - cq_r == CQ, "production CQ is saturated before mute");
++        seq.mute |= 1u << MUTE_BRK;
++        block();
++        CHECK(cq_w - cq_r == CQ - 128u, "production CQ drain preserves its bounded 128-command budget");
++        CHECK(peak(132, 256) == 0.0f, "mute bypasses full CQ of parameters or protected releases");
++        seq.mute &= ~(1u << MUTE_BRK);
++        for (int k = 0; k < 8; ++k) block();
++        CHECK(cq_w == cq_r && peak(0, 256) == 0.0f, "old CQ backlog cannot replay mute/unmute state");
++        s_brk(0, 4, 0, 33075.0f, 1); /* ALEN 3 = 24 ticks: steps 0,4,8,12 trigger a slice */
++        block();
++        CHECK(peak(132, 256) > 0.1f, "normal next-step unmute after CQ backlog clears");
++    }
++    /* Real FIFO marker boundaries establish that the queue fixture actually
++     * exposes the delayed delivery that a mute command would have suffered. */
++    fixture(1);
++    for (unsigned i = 0; i < CQ; ++i) cq_put(C_PARAM_T0, 0, 0, i);
++    block();
++    CHECK(param_count == 128u && seen_param[127] == 127u, "position 127 drains on boundary one");
++    block();
++    CHECK(param_count == 256u && seen_param[128] == 128u, "position 128 waits until boundary two");
++    for (int i = 0; i < 6; ++i) block();
++    CHECK(param_count == 1024u && seen_param[1023] == 1023u, "position 1023 waits until boundary eight");
++}
++
++static void test_held_and_stopped(void)
++{
++    for (int running = 0; running < 2; ++running) {
++        fixture(running);
++        if (!running) {
++            pattern.brk.steps = 0;
++            breaks_set_quiet(&brk, 1); /* prior zero-step pattern, stopped audition remains allowed */
++        }
++        cq_put(C_BRK, 32 + 3, 1, 0);
++        block();
++        CHECK(brk.perf.count == 1 && brk.current_slice == 3 && peak(132, 256) > 0.1f,
++              "production local CQ press auditions the held slice");
++        seq.mute |= 1u << MUTE_BRK;
++        block();
++        CHECK(brk.perf.count == 1 && peak(132, 256) > 0.1f,
++              "mute preserves established held-slice override while running or stopped");
++        cq_put(C_BRK, 32 + 3, 0, 0);
++        block();
++        CHECK(brk.perf.count == 0 && peak(132, 256) == 0.0f,
++              "held-slice release fades without reopening the muted old step");
++        cq_put(C_BRK, 32 + 5, 1, 0);
++        block();
++        CHECK(brk.current_slice == 5 && peak(132, 256) > 0.1f,
++              "a fresh local key can audition while muted after gate settled");
++        cq_put(C_BRK, 32 + 5, 0, 0);
++        block();
++        CHECK(peak(132, 256) == 0.0f, "fresh audition releases quietly");
++    }
++    fixture(1);
++    cq_put(C_BRK, 32 + 2, 1, 0); /* pending press at the same mute boundary */
++    seq.mute |= 1u << MUTE_BRK;
++    block();
++    CHECK(brk.perf.count == 1 && peak(132, 256) > 0.1f,
++          "perf_sync still applies a pending held-slice press after mute boundary");
++}
++
++int main(void)
++{
++    make_loop();
++#ifdef ENGINE_BRK_ABRUPT_CONTROL
++    test_deadline_and_click();
++    if (fail_count) return 1;
++    if (!click_failed) { fprintf(stderr, "FAIL abrupt-cut positive control did not fire\n"); return 1; }
++    puts("abrupt-cut positive control FIRED");
++    return 3;
++#else
++    test_quiet_alone();
++    test_deadline_and_click();
++    test_unmute_and_splits();
++    test_event_mute();
++    test_queue_backlog();
++    test_held_and_stopped();
++    printf("engine-brk-mute: %s\n", fail_count ? "FAIL" : "PASS");
++    return fail_count ? 1 : 0;
++#endif
++}
+diff --git a/tests/host/engine_brk_mute_test.py b/tests/host/engine_brk_mute_test.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..03da0bd13a8c40fff3de96268df99699181dcaba
+--- /dev/null
++++ b/tests/host/engine_brk_mute_test.py
+@@ -0,0 +1,87 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: GPL-3.0-only
++"""Exercise production BREAK control/CQ and the real renderer without synth assets.
++
++The C harness replaces only unrelated owners, FX/master and sequencer timing.
++No copied gate or queue model is used: complete production functions, including
++engine_render, are extracted verbatim. Run on the designated build/test box.
++"""
++from pathlib import Path
++import os
++import re
++import shlex
++import subprocess
++import tempfile
++
++
++ROOT = Path(__file__).resolve().parents[2]
++
++
++def function(source, masked, signature):
++    """Retain complete bodies; braces in comments and strings do not count."""
++    start = source.index(signature)
++    brace = masked.index("{", start)
++    depth = 1
++    end = brace + 1
++    while depth:
++        depth += (masked[end] == "{") - (masked[end] == "}")
++        end += 1
++    return source[start:end] + "\n"
++
++
++def main():
++    source = (ROOT / "firmware/src/app/engine.c").read_text()
++    api = (ROOT / "firmware/src/app/engine.h").read_text()
++    masked = re.sub(
++        r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'',
++        lambda match: " " * len(match.group()), source, flags=re.S,
++    )
++    cq_start = source.index("enum { C_PARAM_T0")
++    cq_end = source.index("static volatile uint32_t cq_w, cq_r;", cq_start)
++    cq_end += len("static volatile uint32_t cq_w, cq_r;")
++    declarations = source[cq_start:cq_end]
++    for first in ("enum { T_909,", "enum { PART_909,"):
++        start = api.index(first)
++        declarations += "\n" + api[start:api.index(";", start) + 1]
++    signatures = [
++        "static int cq_replace(",
++        "__attribute__((noinline)) static void cq_put(",
++        "static void s_brk(",
++        "static void brk_local_event(",
++        "static void drain(",
++        "void engine_render(",
++    ]
++    # The exact base has no helper; retaining that case permits a meaningful
++    # audible RED on the base engine_render rather than an extraction failure.
++    if "static void brk_mute_boundary(" in source:
++        signatures.insert(2, "static void brk_mute_boundary(")
++    # Extraction is deliberately strict: an upstream refactor must be reviewed.
++    generated = declarations + "\n" + "\n".join(
++        function(source, masked, signature) for signature in signatures
++    )
++    with tempfile.TemporaryDirectory(prefix="engine-brk-mute-") as directory:
++        work = Path(directory)
++        (work / "production_engine_brk_control.inc").write_text(generated)
++        cc = shlex.split(os.environ.get("CC", "cc"))
++        flags = [
++            "-std=c99", "-O2", "-ffp-contract=off", "-DX0X_HOST",
++            "-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter",
++            "-Wno-unused-function", "-Wno-error=attributes",
++            "-I" + str(work),
++        ]
++        harness = ROOT / "tests/host/engine_brk_mute_test.c"
++        for control in (False, True):
++            executable = work / ("abrupt-control" if control else "mute-test")
++            extra = ["-DBRK_FADE=1", "-DENGINE_BRK_ABRUPT_CONTROL"] if control else []
++            subprocess.run(cc + flags + extra + [str(harness), "-lm", "-o", str(executable)],
++                           cwd=ROOT, check=True)
++            result = subprocess.run([str(executable)], cwd=ROOT, check=False)
++            expected = 3 if control else 0
++            if result.returncode != expected:
++                raise SystemExit(f"{'abrupt-cut control' if control else 'mute regression'}: "
++                                 f"exit {result.returncode}, expected {expected}")
++    print("engine-brk-mute: production control/renderer and abrupt-cut control PASS")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/tests/host/mute_carry_mutants.py b/tests/host/mute_carry_mutants.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..1ee0736b93f6ac3bfbcd93489611aaa0357299ea
+--- /dev/null
++++ b/tests/host/mute_carry_mutants.py
+@@ -0,0 +1,59 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: GPL-3.0-only
++"""Run only in an isolated checkout: restore each production file after its test.
++Compile errors do not count as killed mutants; require the behavioral assertion.
++"""
++from pathlib import Path
++import subprocess
++import tempfile
++
++ROOT = Path(__file__).resolve().parents[2]
++SEQ = 'firmware/src/seq/sequencer.c'
++ENG = 'firmware/src/app/engine.c'
++CASES = [
++    ('mute-releases-voice', SEQ, 'if (muted) bass_midi_flush(s, b, o);',
++     'if (muted) { bass_midi_flush(s, b, o); gate = G_REST; }',
++     ['sh', 'tests/host/seq_mute_carry_test.sh'], 'seq.t[t].sounding'),
++    ('mute-leaks-midi', SEQ, 'played && !muted && s->send_notes',
++     'played && s->send_notes', ['sh', 'tests/host/seq_mute_carry_test.sh'],
++     '!saw_status(0x90 | seq.ch[t])'),
++    ('mute-keeps-owned-midi', SEQ, 'if (muted) bass_midi_flush(s, b, o);',
++     'if (muted) (void)0;', ['sh', 'tests/host/seq_mute_carry_test.sh'],
++     '!seq.bass_out_valid[b]'),
++    ('mute-bypasses-off', SEQ, '|| SEQ_PART_OFF(s, TRK_BASS0 + b)',
++     '|| (SEQ_PART_OFF(s, TRK_BASS0 + b) && !muted)',
++     ['sh', 'tests/host/seq_mute_carry_test.sh'], '!seq.t[t].sounding'),
++    ('bus-gate-removed', ENG,
++     'if ((p == PART_303A || p == PART_303B) && seq_part_muted(&seq, p))',
++     'if (0)', ['sh', 'tests/host/synth_bus_mute_test.sh'],
++     'render_energy(100)<audible/100'),
++    ('break-boundary-removed', ENG,
++     'brk_mute_boundary(); /* also follows song mutes at an in-buffer event */',
++     '/* mutant: no immediate BREAK mute */',
++     ['python3', 'tests/host/engine_brk_mute_test.py'],
++     'mute bypasses full CQ'),
++]
++
++def main():
++    with tempfile.TemporaryDirectory(prefix='mute-carry-mutants-') as directory:
++        for name, relative, old, new, command, expected in CASES:
++            path = ROOT / relative
++            original = path.read_bytes()
++            source = original.decode()
++            if source.count(old) != 1:
++                raise SystemExit(f'{name}: ambiguous mutation anchor')
++            try:
++                path.write_text(source.replace(old, new))
++                result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
++            finally:
++                path.write_bytes(original)
++            log = result.stdout + result.stderr
++            (Path(directory) / (name + '.log')).write_text(log)
++            if result.returncode == 0 or expected not in log or 'error:' in log:
++                print(log)
++                raise SystemExit(f'{name}: survived or invalid failure')
++            print(f'KILLED {name}: {expected}', flush=True)
++    print('mute carry mutants: 6 killed')
++
++if __name__ == '__main__':
++    main()
+diff --git a/tests/host/original_release_ui_test.c b/tests/host/original_release_ui_test.c
+index 5e51b0413598046c9182abef2ae4857843daf610..98e0bf2732b7a7193b8a5508b9397183fe604579 100644
+--- a/tests/host/original_release_ui_test.c
++++ b/tests/host/original_release_ui_test.c
+@@ -218,13 +218,76 @@ static void image_cases(void)
+     uint8_t saved[32]; memcpy(saved,proj.sound.v[T_303][1],32); button_tap(B_EDIT); block();
+     CHECK(!engine_bass_preset_pending(1) && !memcmp(saved,proj.sound.v[T_303][1],32)); engine_bass_off(1);
+ }
++/* Waveform cases ported from 9e237cce; cache/preview checks prevent stale
++ * factory, voice and held-step projections without editing the sound. */
++static void restored_wave_cases(void)
++{
++    unsigned waves=0;
++    for(unsigned kind=0;kind<2;kind++){
++        unsigned voice=kind?0:1; choose(voice,kind,0);
++        screen(V_PART,PART_303A+voice,0);
++        uint8_t saved[ORIGINAL_SOUND_BYTES];
++        memcpy(saved,proj.sound.v[T_303][voice],sizeof saved);
++        for(int id=0;id<32;id++){
++            int slot=original_wave_slot(kind,id),want=id==0?0:kind&&id==6?1:kind&&id==11?2:-1;
++            CHECK(slot==want); waves+=slot>=0;
++            if(slot>=0){
++                pref_t r=PR(R_ENG,T_303,voice,id);
++                const ui_original_wave_cache *v=original_wave_view(r,pref_get(r));
++                CHECK(v && v->valid && v->voice==voice && v->kind==kind);
++                for(int i=0;i<UI_ORIGINAL_WAVE_W;i++) CHECK(v->wave[slot][i]<UI_ORIGINAL_WAVE_H);
++            }
++        }
++        CHECK(!memcmp(saved,proj.sound.v[T_303][voice],sizeof saved));
++        pref_t r=PR(R_ENG,T_303,voice,kind?11:0);
++        ui_original_wave_cache low=*original_wave_view(r,0);
++        const ui_original_wave_cache *high=original_wave_view(r,127);
++        CHECK(high && memcmp(low.wave[ kind?2:0 ],high->wave[ kind?2:0 ],UI_ORIGINAL_WAVE_W));
++        CHECK(!memcmp(saved,proj.sound.v[T_303][voice],sizeof saved));
++        /* A held step must supply the same explicit preview as its readout. */
++        ui.held_step=0; ui.held_step_part=PART_303A+voice;
++        ui.held_step_pat=seq.ppat[PART_303A+voice];
++        lock_turn(r,1,EN_K1); block();
++        int locked=lock_of(r,0); CHECK(locked>=0);
++        const ui_original_wave_cache *locked_wave=original_wave_view(r,original_display_value(r));
++        CHECK(locked_wave && (locked_wave->preview_mask&(1u<<r.c)) && locked_wave->preview[r.c]==locked);
++        CHECK(!memcmp(saved,proj.sound.v[T_303][voice],sizeof saved));
++        lock_release(); ui.held_step=-1;
++        int lane=motion_find(proj.arr.lane,seq.ppat[PART_303A+voice],PART_303A+voice,T_303,voice,r.c);
++        CHECK(lane>=0); engine_motion_clear(lane); block();
++        const ui_original_wave_cache *base=original_wave_view(r,pref_get(r));
++        CHECK(base && !(base->preview_mask&(1u<<r.c)));
++    }
++    CHECK(waves==4);
++    /* Literal geometry from the original modulation laws: DOWN falls on the
++     * display, UP rises, and TRI returns to its starting level. */
++    ui_original_wave_cache v={0};
++    ui_original_curve(&v,2,1,0,1);
++    CHECK(v.wave[2][0]==1 && v.wave[2][14]==9 && v.wave[2][28]==17);
++    ui_original_curve(&v,2,2,0,1);
++    CHECK(v.wave[2][0]==17 && v.wave[2][14]==9 && v.wave[2][28]==1);
++    ui_original_curve(&v,2,0,0,1);
++    CHECK(v.wave[2][0]==17 && v.wave[2][14]==1 && v.wave[2][28]==17);
++    uint8_t cell[ORIGINAL_SOUND_BYTES],preview[22]={0};
++    CHECK(original_sound_init(cell,ORIGINAL_SOUND_MIAMI,0));
++    CHECK(ui_original_wave_update(&v,0,cell,preview,0));
++    CHECK(ui_original_wave_update(&v,1,cell,preview,0) && v.voice==1);
++    CHECK(!ui_original_wave_update(&v,2,cell,preview,0) && !v.valid);
++    CHECK(!ui_original_wave_project(&v,cell,preview,1u<<31));
++    preview[0]=128; CHECK(!ui_original_wave_project(&v,cell,preview,1u)); preview[0]=0;
++    cell[29]=255; CHECK(!ui_original_wave_update(&v,0,cell,preview,0) && !v.valid);
++    choose(1,0,0); capture("restored-chicago-wave",V_PART,PART_303B,0);
++    choose(0,1,0); capture("restored-miami-wave",V_PART,PART_303A,0);
++    capture("restored-miami-xmod-wave",V_PART,PART_303A,1);
++    capture("restored-miami-wobble-wave",V_PART,PART_303A,3);
++}
+ #ifndef ORIGINAL_UI_MAIN
+ #define ORIGINAL_UI_MAIN main
+ #endif
+ int ORIGINAL_UI_MAIN(int argc,char **argv)
+ {
+     image_dir=argc==2?argv[1]:0; projection_cases(); load_force=0; boot(); settle();
+-    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases();
++    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases(); restored_wave_cases();
+     printf("PASS original_release_ui checks=%u captures=%u cache=%zu view=%zu ui=%zu pages=%zu freeplay=%zu\n",
+            checks,captures,sizeof original_controls,sizeof original_controls.view,sizeof ui,sizeof pg,sizeof live_keys+sizeof live_outer);
+     return 0;
+diff --git a/tests/host/part_off_test.c b/tests/host/part_off_test.c
+index 8394f49c265429343523f4cdf81e54c912d3a1b4..ae3f79aa9c095a095c6d9d31183a816c99d3dd50 100644
+--- a/tests/host/part_off_test.c
++++ b/tests/host/part_off_test.c
+@@ -182,20 +182,20 @@ static void t_independent(void)
+     set_byte(0);
+     snd = sounding_run(0);
+     CHECK(snd > 0 && ons[ch] == on_ons);
+-    /* The pinned base releases muted bass gates (fire_bass uses G_REST).
+-     * Keep that contract: MIDI and voice silent, but mute is not saved as OFF. */
++    /* Carried donor mute gates the bus, retaining internal progression.
++     * MIDI stays silent; mute is still not saved as OFF. */
+     seq.mute = seq_part_mask(PART_303A);
+     snd = sounding_run(0);
+-    CHECK(snd == 0 && ons[ch] == 0);
++    CHECK(snd > 0 && ons[ch] == 0);
+     CHECK(captured() == 0);
+-    /* Mute silences the sequencer, but an ON part still accepts live notes. */
++    /* Mute silences the bus, but an ON part still accepts live notes. */
+     engine_bass_on_velocity(0, 48, 0, 0, 100); audio(); audio();
+     CHECK(engine_bass_keys_held() & 1);
+     engine_bass_off(0); audio(); audio();
+     CHECK(!(engine_bass_keys_held() & 1));
+     seq.mute = 0;
+-    /* Muted and OFF stay independent. Restoring ON retains the base mute's
+-     * silent gate; unmuting then restores the original notes. */
++    /* Muted and OFF stay independent. Restoring ON resumes internal notes
++     * behind the mute; unmuting restores the original MIDI notes. */
+     seq.mute = seq_part_mask(PART_303A);
+     set_off(1u << PART_303A);
+     snd = sounding_run(0);
+@@ -204,7 +204,7 @@ static void t_independent(void)
+     set_byte(0);
+     CHECK(seq.mute == seq_part_mask(PART_303A) && captured() == 0);
+     snd = sounding_run(0);
+-    CHECK(snd == 0 && ons[ch] == 0);
++    CHECK(snd > 0 && ons[ch] == 0);
+     seq.mute = 0;
+     snd = sounding_run(0);
+     CHECK(snd > 0 && ons[ch] == on_ons);
+diff --git a/tests/host/seq_mute_carry_test.c b/tests/host/seq_mute_carry_test.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..496e009168534acd97c1582da425297a67dc420f
+--- /dev/null
++++ b/tests/host/seq_mute_carry_test.c
+@@ -0,0 +1,53 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Reuse the production-linked panic fixture; verify mute keeps internal notes
++ * while MIDI stays silent, and OFF/panic still release those internal notes. */
++#define main panic_fixture_main
++#include "panic_notes_test.c"
++#undef main
++
++int main(void)
++{
++    for (int b = 0; b < NBASS; b++) {
++        int t = TRK_BASS0 + b;
++        setup();
++        seq_start(&seq); run(64);
++        CHECK(seq.t[t].sounding);
++        nevents = 0;
++        seq.mute |= 1u << (MUTE_BASS0 + b);
++        run(4410);
++        CHECK(seq.t[t].pos == 1);
++        CHECK(seq.t[t].sounding);
++        CHECK(count_kind(EV_OFF, b) == 0);
++        CHECK(saw_status(0x80 | seq.ch[t]));
++        CHECK(!saw_status(0x90 | seq.ch[t]));
++        CHECK(!seq.bass_out_valid[b]);
++        nevents = 0;
++        run(3u * 4410u);
++        CHECK(seq.t[t].pos == 4);
++        CHECK(seq.t[t].sounding);
++        CHECK(count_kind(EV_ON, b) == 1); /* muted NOTE still progresses */
++        CHECK(!saw_status(0x90 | seq.ch[t]));
++        seq.mute &= ~(1u << (MUTE_BASS0 + b));
++        nevents = 0; run(4410);
++        CHECK(seq.t[t].sounding);
++        CHECK(count_kind(EV_ON, b) == 0); /* unmute TIE needs no new onset */
++        CHECK(!saw_status(0x90 | seq.ch[t])); /* donor MIDI policy */
++        seq.mute |= 1u << (MUTE_BASS0 + b);
++        seq_notes_off(&seq, &sink);
++        CHECK(!seq.t[t].sounding);
++        CHECK(seq.playing);
++        nevents = 0; run(4410);
++        CHECK(!seq.t[t].sounding); /* panic makes the next TIE an orphan */
++        CHECK(count_kind(EV_ON, b) == 0);
++
++        setup(); seq_start(&seq); run(64);
++        seq.mute |= 1u << (MUTE_BASS0 + b);
++        seq.part_off |= 1u << t;
++        run(4410);
++        CHECK(!seq.t[t].sounding);
++        CHECK(count_kind(EV_OFF, b) > 0);
++        CHECK(seq.playing);
++    }
++    printf("seq mute carry: %u checks, %u failures\n", checks, failures);
++    return failures != 0;
++}
+diff --git a/tests/host/seq_mute_carry_test.sh b/tests/host/seq_mute_carry_test.sh
+new file mode 100644
+index 0000000000000000000000000000000000000000..227f92f30ffe32da7cbaaba03a56a0eb2608cc9b
+--- /dev/null
++++ b/tests/host/seq_mute_carry_test.sh
+@@ -0,0 +1,10 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++set -eu
++cd "$(dirname "$0")/../.."
++out=$(mktemp -d)
++trap 'rm -rf "$out"' EXIT HUP INT TERM
++${CC:-cc} -std=c99 -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/seq \
++ tests/host/seq_mute_carry_test.c firmware/src/seq/sequencer.c \
++ firmware/src/seq/pattern.c firmware/src/seq/tb3po.c -o "$out/test"
++"$out/test"
+diff --git a/tests/host/synth_bus_mute_test.c b/tests/host/synth_bus_mute_test.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..3725a3eba50c869af71a99df7da5943239e3724c
+--- /dev/null
++++ b/tests/host/synth_bus_mute_test.c
+@@ -0,0 +1,120 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Real synth render, sequencer and queued SMC dispatch. Removing the bus gate
++ * or turning muted sequence steps into rests breaks the audio assertions. */
++#define SMC_UI_MAIN synth_mute_unused_ui_main
++#include "smc_ui_test.c"
++
++/* Exercise the unchanged physical-fader scanner with real pref_set / mute
++ * state. Only the hardware samples and the bank-button bit are substituted. */
++static struct { uint32_t buttons,frames; uint8_t fader[4]; } fm1_in;
++static uint8_t smk_fbank;
++#define SMK_BTN_FADER_BANK 0u
++#include "smk_faders.inc"
++
++static void physical_muted_fader(int part,int value)
++{
++    int position=part_position(part),slot=position%4;
++    smk_fbank=(uint8_t)(position/4);
++    memset(&fm1_in,0,sizeof fm1_in);fm1_in.frames=300;
++    for(int i=0;i<4;i++)fm1_in.fader[i]=10;
++    project_busy=1;smk_faders();project_busy=0; /* seed hardware history */
++    smk_faders();fm1_in.fader[slot]=(uint8_t)value;smk_faders();
++    CHECK(pref_get(PR(R_ENG,T_MIX,part,MX_LEVEL))==value);
++}
++
++static uint64_t render_energy(unsigned blocks)
++{
++    int32_t out[512];
++    uint64_t energy = 0;
++    while (blocks--) {
++        engine_render(out, 256);
++        energy = 0; /* final block, after the existing gain glide settles */
++        for (unsigned i=0;i<512;i++)
++            energy += out[i] < 0 ? (uint64_t)-(int64_t)out[i] : (uint64_t)out[i];
++    }
++    return energy;
++}
++static void input_midi(int status,int note,int velocity)
++{
++    min_q[mi_w++ % MQ] = (uint32_t)(status>>4) | (uint32_t)status<<8 |
++        (uint32_t)note<<16 | (uint32_t)velocity<<24;
++}
++static void queue_mute(int strip)
++{
++    uint8_t msg[3]={0x90,(uint8_t)(16+strip),127};
++    smc_ble_midi(msg,3);
++}
++static void mute_setup(int bank,int voice)
++{
++    setup(V_HOME,PART_303A+voice);
++    seq_stop(&seq);render_energy(2);
++    CHECK(!engine_bass_select_preset(voice,bank,0,&proj.sound));
++    render_energy(100);
++    CHECK(engine_bass_bank(voice)==bank);
++    for(int p=0;p<NPARTS;p++) {
++        pref_set(PR(R_ENG,T_MIX,p,MX_LEVEL),p==PART_303A+voice?100:0);
++        pref_set(PR(R_ENG,T_MIX,p,MX_REV),0);
++        pref_set(PR(R_ENG,T_MIX,p,MX_DLY),0);
++    }
++    seq.mute=0;render_energy(100);
++}
++static void held_midi_unmute(int bank,int voice,int pedal)
++{
++    mute_setup(bank,voice);
++    int channel=seq.ch[TRK_BASS0+voice],part=PART_303A+voice;
++    int strip=part_position(part);
++    input_midi(0x90|channel,60,110);
++    uint64_t audible=render_energy(8);CHECK(audible>1000);
++    if(pedal) {
++        input_midi(0xB0|channel,64,127);render_energy(1);
++        input_midi(0x80|channel,60,0);render_energy(1);
++    }
++    uint32_t before=seq.mute;
++    queue_mute(strip);CHECK(seq.mute==before); /* interrupt queue has no UI effects */
++    smc_poll();CHECK(seq_part_muted(&seq,part));
++    CHECK(render_energy(100)<audible/100);
++    /* L8 / #788: edits change the saved target while the output stays muted.
++     * No delayed fader application or note retrigger is needed on unmute. */
++    fader(strip,40);CHECK(pref_get(PR(R_ENG,T_MIX,part,MX_LEVEL))==40);
++    physical_muted_fader(part,25);
++    CHECK(seq_part_muted(&seq,part));
++    CHECK(render_energy(100)<audible/100);
++    message(0x80,16+strip,0); /* rearm the physical mute button */
++    queue_mute(strip);smc_poll();CHECK(!seq_part_muted(&seq,part));
++    uint32_t input_count=mi_w;
++    CHECK(render_energy(2)>1000); /* audible before any next incoming note */
++    CHECK(mi_w==input_count);
++    CHECK(pref_get(PR(R_ENG,T_MIX,part,MX_LEVEL))==25);
++    input_midi(0xB0|channel,64,0);input_midi(0x80|channel,60,0);
++    render_energy(100);
++}
++static void sequence_tie_unmute(int bank,int voice)
++{
++    mute_setup(bank,voice);
++    int part=PART_303A+voice;
++    bpart_t *line=&proj.pat[seq.ppat[part]].bass[voice];
++    line->len=16;line->step[0]=(bstep_t){60,G_NOTE|BS_SLIDE,110};
++    for(int i=1;i<16;i++)line->step[i]=(bstep_t){60,G_TIE,110};
++    seq_start(&seq);render_energy(2);
++    CHECK(seq.t[part].sounding);
++    mute_part(part);
++    unsigned guard=0;
++    while(eng_step[part]<2 && guard++<1000)render_energy(1);
++    CHECK(eng_step[part]>=2);CHECK(seq.t[part].sounding);
++    CHECK(render_energy(100)<1000);
++    int step=eng_step[part];mute_part(part);
++    CHECK(render_energy(1)>1000);
++    CHECK(eng_step[part]==step); /* no new step or note triggered the recovery */
++    seq_stop(&seq);render_energy(100);
++}
++int main(void)
++{
++    for(int bank=FACTORY_BANK_CHICAGO;bank<=FACTORY_BANK_MIAMI;bank++)
++        for(int voice=0;voice<NBASS;voice++) {
++            held_midi_unmute(bank,voice,0);
++            held_midi_unmute(bank,voice,1);
++            sequence_tie_unmute(bank,voice);
++        }
++    printf("synth bus mute: %u checks; queued mute, held/pedal notes, ties and muted fader\n",checks);
++    return 0;
++}
+diff --git a/tests/host/synth_bus_mute_test.sh b/tests/host/synth_bus_mute_test.sh
+new file mode 100644
+index 0000000000000000000000000000000000000000..9932e3296127284a192f414aea1fcfc6b6129a95
+--- /dev/null
++++ b/tests/host/synth_bus_mute_test.sh
+@@ -0,0 +1,10 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++set -eu
++cd "$(dirname "$0")/../.."
++OUT=${SMC_UI_OUT:-build/host/synth-bus-mute}
++mkdir -p "$OUT"
++awk '/^static void smk_faders\(void\)/{on=1} on{print} on && /^}/{exit}' \
++    firmware/src/app/main_fm1.c > "$OUT/smk_faders.inc"
++SMC_UI_OUT="$OUT" \
++SMC_UI_TEST_FILE=tests/host/synth_bus_mute_test.c sh tests/host/smc_ui_test.sh
+diff --git a/tests/host/ui_peer_names_test.c b/tests/host/ui_peer_names_test.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..1de2c99019042e0d793e71a1f7e5988a1a93a2be
+--- /dev/null
++++ b/tests/host/ui_peer_names_test.c
+@@ -0,0 +1,34 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++static void peer_fixture_copy(void *out);
++static int peer_fixture_state(void);
++#define X0X_HOST_BLE_PEERS(out) peer_fixture_copy(out)
++#define X0X_HOST_BLE_STATE peer_fixture_state()
++#define SMC_UI_MAIN unused_smc_ui_main
++#include "smc_ui_test.c"
++static plat_ble_peers_t fixture;
++static void peer_fixture_copy(void *out){memcpy(out,&fixture,sizeof fixture);}
++static int peer_fixture_state(void){return fixture.state;}
++static void peers(unsigned count,const char*a,const char*b){memset(&fixture,0,sizeof fixture);fixture.count=count;fixture.state=count?PLAT_BLE_CONNECTED:PLAT_BLE_READY;fixture.central=1;snprintf(fixture.name[0],21,"%s",a);snprintf(fixture.name[1],21,"%s",b);}
++static void peer_frame(const char *name){ui.msg_until=0;ui_frame();shot(name);}
++static unsigned name_row;
++int main(void){
++ setup(V_HOME,PART_909);any_button=1;pref_set(PR(R_BT,0,0,0),1);pref_set(PR(R_ENG,T_MST,0,MST_PUMP),0);audio_due_ms=now_ms;run_ms(20);button_tap(B_GLO);ui.list_sel=1;list_enter();ui.overlay=O_LIST;ui.help=0;for(unsigned i=0;i<ui.list_n;i++)if(list_rows[i].kind==R_BTNAME)name_row=i;CHECK(name_row);ui.list_top=name_row>=3?name_row-3:0;ui.list_sel=name_row-1;
++ peers(0,"","");peer_frame("00-none");char joined[PEER_TEXT_CAP];peer_join(joined,&fixture);CHECK(!strcmp(joined,"-"));
++ peers(1,"SMC-Mixer","");peer_frame("01-one");peer_join(joined,&fixture);CHECK(!strcmp(joined,"SMC-Mixer"));
++ peers(2,"SMC-Mixer","SMC-Mixer");peer_frame("02-duplicates");peer_join(joined,&fixture);CHECK(!strcmp(joined,"SMC-Mixer, SMC-Mixer"));
++ peers(2,"SMC-Mixer Left","SMC-Mixer Right");peer_frame("03-start");uint32_t start=peer_scroll.start;peer_join(joined,&fixture);int travel=tw(&FONT_S,joined)-(226-(8+tw(&FONT_S,"NAME")+8));CHECK(travel>0);CHECK(peer_offset(joined,&fixture,travel,start)==0);CHECK(peer_offset(joined,&fixture,travel,start+699)==0);
++ now_ms=start+700+(uint32_t)travel*1000/48;peer_frame("04-middle");CHECK(peer_offset(joined,&fixture,travel,now_ms)>0);CHECK(peer_offset(joined,&fixture,travel,now_ms)<travel);
++ now_ms=start+700+((uint32_t)travel*1000+23)/24;peer_frame("05-end");CHECK(peer_offset(joined,&fixture,travel,now_ms)==travel);
++ /* NAME is selectable, only edits read-only. */
++ ui.list_sel=name_row;peer_scroll.active=0;peer_frame("06-selected-start");now_ms+=10000;peer_frame("07-selected-motion");
++ peers(1,"SMC-Mixer Left","");peer_frame("08-disconnect-one");CHECK(peer_scroll.start==now_ms);CHECK(!strcmp(peer_scroll.text,"SMC-Mixer Left"));
++ peers(0,"","");fixture.central=0;pref_set(PR(R_SMC_ROLE,0,0,0),0);peer_frame("09-device");CHECK(!strcmp(peer_scroll.text,"-"));fixture.state=PLAT_BLE_OFF;pref_set(PR(R_BT,0,0,0),0);peer_frame("10-off");CHECK(peer_scroll.state==PLAT_BLE_OFF);
++ /* Reachable protocol20-byte cap, both slots, bounded sanitation and duplicate retention. */
++ for(unsigned n=0;n<=20;n++) {peers(2,"","");memset(fixture.name[0],'W',n);memset(fixture.name[1],'X',n);struct{unsigned a;char v[PEER_TEXT_CAP];unsigned b;} q={0x12345678,{0},0x87654321};peer_join(q.v,&fixture);CHECK(q.a==0x12345678&&q.b==0x87654321);CHECK(strlen(q.v)==2*n+2);}
++ memset(fixture.name,'W',sizeof fixture.name);fixture.count=2;peer_join(joined,&fixture);CHECK(strlen(joined)==42);
++ CHECK(peer_offset(joined,&fixture,20,0xfffffff0u)==0);CHECK(peer_offset(joined,&fixture,20,0x000002acu)==0); /*700ms wrap-safe*/
++ peers(1,"SMC-Mixer","");peer_frame("11-restored");CHECK(!strcmp(peer_scroll.text,"SMC-Mixer"));
++ /* Leaving the list stops the scroll clock. */
++ ui.overlay=0;run_ms(20);CHECK(!peer_scroll.active);
++ printf("peer names PASS %u checks\n",checks);return 0;
++}
+diff --git a/tests/host/ui_peer_names_test.sh b/tests/host/ui_peer_names_test.sh
+new file mode 100644
+index 0000000000000000000000000000000000000000..42421ffb4dab39c101eb13a3d5a6bb3c54d0d6f5
+--- /dev/null
++++ b/tests/host/ui_peer_names_test.sh
+@@ -0,0 +1,5 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++set -eu
++cd "$(dirname "$0")/../.."
++NIGHT_UI_TEST_FILE=tests/host/ui_peer_names_test.c exec sh tests/host/night_ui_test.sh "${1:-build/host/ui-peer-names}"
+diff --git a/tests/host/ui_settings_sections_test.c b/tests/host/ui_settings_sections_test.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..8aa2b891ea651e08406e957b6a63fc414ff2bc07
+--- /dev/null
++++ b/tests/host/ui_settings_sections_test.c
+@@ -0,0 +1,36 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++static char bt_name_fixture[21];
++#define X0X_HOST_BLE_NAME bt_name_fixture
++#define SMC_UI_MAIN unused_smc_ui_main
++#include "smc_ui_test.c"
++static void enter_group(int g){ui.msg_until=0;global_index();ui.list_sel=(uint8_t)g;list_enter();CHECK(ui.glo_section==g);}
++int main(void){
++ setup(V_HOME,PART_909);pref_set(PR(R_ENG,T_MST,0,MST_PUMP),0);audio_due_ms=now_ms;run_ms(20);button_tap(B_GLO);CHECK(ui.glo_section==-1&&ui.list_n==6);ui_frame();shot("01-global-sections");
++ project_t *keep=malloc(sizeof proj);CHECK(keep);memcpy(keep,&proj,sizeof proj);turn_ref(list_rows[0],1,EN_ALGO);CHECK(!memcmp(keep,&proj,sizeof proj));
++ pref_t seen[40];int count=0;const int counts[]={9,5,2,3,5,4};
++ for(int g=0;g<6;g++){
++  enter_group(g);CHECK(ui.list_n==counts[g]);for(int i=0;i<ui.list_n;i++){pref_t r=list_rows[i];CHECK(r.kind!=R_HDR&&r.kind!=R_SECTION);for(int j=0;j<count;j++)CHECK(memcmp(&r,&seen[j],sizeof r));seen[count++]=r;}
++  ui_frame();char name[40];snprintf(name,sizeof name,"group-%d",g);shot(name);
++  button_tap(B_HOME);CHECK(ui.glo_section==-1&&ui.list_sel==g);
++ }
++ CHECK(count==28);CHECK(!memcmp(keep,&proj,sizeof proj));
++ enter_group(0);for(int i=0;i<5;i++)CHECK(list_rows[3+i].a==part_at(i));list_move(8);CHECK(ui.list_sel==8&&ui.list_top==3);ui_frame();shot("midi-scroll");button_tap(B_HOME);list_enter();CHECK(ui.list_sel==8&&ui.list_top==3);
++ button_tap(B_GLO);CHECK(ui.view!=V_GLO);button_tap(B_GLO);CHECK(ui.glo_section==-1&&ui.list_sel==0);
++ /* Physical > entry consumes the held repeat until release, including clip mode. */
++ clip_grid_mode=clip_on=1;memset(&host_arw,0,sizeof host_arw);arrows_held=2;host_arrows();CHECK(ui.glo_section==0);int value=pref_get(list_rows[0]);
++ for(int t=0;t<20;t++){now_ms+=80;host_arrows();CHECK(pref_get(list_rows[0])==value);}arrows_held=0;host_arrows();arrows_held=2;host_arrows();CHECK(pref_get(list_rows[0])==value+1);arrows_held=0;host_arrows();
++ /* Physical < leaves a section like HOME; the held repeat never edits a row. */
++ enter_group(3);ui.list_sel=1;int v3=pref_get(list_rows[1]);memset(&host_arw,0,sizeof host_arw);arrows_held=1;host_arrows();CHECK(ui.glo_section==-1&&ui.list_sel==3);
++ for(int t=0;t<20;t++){now_ms+=80;host_arrows();CHECK(ui.glo_section==-1&&ui.list_sel==3);}arrows_held=0;host_arrows();ui_frame();shot("back-arrow");
++ list_enter();CHECK(ui.glo_section==3&&ui.list_sel==1&&pref_get(list_rows[1])==v3);
++ enter_group(5);CHECK(ui.list_n==3);clip_grid_mode=clip_on=0;
++ enter_group(4);ui.list_sel=4;list_enter();CHECK(ui.overlay==O_ASK&&ui.ask_act==ACT_RESET);ui_frame();shot("reset-confirmation");button_tap(B_HOME);CHECK(ui.overlay==O_LIST&&ui.glo_section==4&&ui.list_sel==4);
++ /* Connected-name bounds and marquee are covered by ui_peer_names_test.c. */
++ enter_group(2);ui.list_sel=1;pref_set(PR(R_USBFULL,0,0,0),0);ui_frame();shot("audio-long-enum");
++ /* Existing SMC navigation reaches the same section/back behavior. */
++ global_index();ui.list_sel=1;smc_button_apply(0x63,0);CHECK(ui.glo_section==1&&ui.list_n==5);
++ smc_button_apply(0x61,0);CHECK(ui.list_sel==1);
++ smc_button_apply(0x62,0);CHECK(ui.glo_section==-1&&ui.list_sel==1);
++ smc_button_apply(0x63,0);CHECK(ui.glo_section==1&&ui.list_sel==1);
++ free(keep);printf("settings sections PASS %u checks\n",checks);return 0;
++}
+diff --git a/tests/host/ui_settings_sections_test.sh b/tests/host/ui_settings_sections_test.sh
+new file mode 100644
+index 0000000000000000000000000000000000000000..62af2b00bdd0096c4b01bcc449ad1060590dc76f
+--- /dev/null
++++ b/tests/host/ui_settings_sections_test.sh
+@@ -0,0 +1,5 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++set -eu
++cd "$(dirname "$0")/../.."
++NIGHT_UI_TEST_FILE=tests/host/ui_settings_sections_test.c exec sh tests/host/night_ui_test.sh "${1:-build/host/ui-settings-sections}"
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index 53ce2790077ebfd1dcd55649020304e71afc9bdb..4e374f0ebe1e8796e99dfeeea87f3d91365ec6b4 100755
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -91,11 +91,11 @@ test_class() {
+     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
+     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
+-    rec-live-smk|panic-mutants) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
+-    save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
++    rec-live-smk|panic-mutants|mute-carry-mutants) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
++    save-note-quiet|synth-bus-mute|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
+     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
+     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+-    play-question-ui|sound-reset-ui|held-step-release|ui-perf-identity) TEST_CLASS=G ;;
++    play-question-ui|sound-reset-ui|held-step-release|ui-perf-identity|ui-settings-sections|ui-peer-names) TEST_CLASS=G ;;
+     part-off|part-off-web-e2e) TEST_CLASS=G ;;
+     panic-clear|panic-route) TEST_CLASS=G ;;
+     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
+@@ -314,6 +314,9 @@ run sound-reset sh tests/host/sound_reset_test.sh
+ run sound-reset-ui sh tests/host/sound_reset_ui_test.sh
+ run held-step-release sh tests/host/held_step_release_test.sh
+ run ui-perf-identity sh tests/host/ui_perf_identity_test.sh
++run ui-settings-sections sh tests/host/ui_settings_sections_test.sh
++run ui-peer-names sh tests/host/ui_peer_names_test.sh
++run ble-peer-name-bounds sh tests/host/ble_peer_name_bounds_test.sh
+ run home-tie-semantics sh tests/host/home_tie_semantics_test.sh
+ run sequencer seq_test
+ run chain-longest sh tests/host/chain_longest_test.sh
+@@ -603,6 +606,10 @@ run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the
+ run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
+ run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
+ run panic-chord sh tests/host/panic_chord_test.sh
++run seq-mute-carry sh tests/host/seq_mute_carry_test.sh
++run synth-bus-mute sh tests/host/synth_bus_mute_test.sh
++run engine-brk-mute python3 -B tests/host/engine_brk_mute_test.py
++run mute-carry-mutants python3 -B tests/host/mute_carry_mutants.py
+ run panic-notes sh tests/host/panic_notes_test.sh
+ run panic-clear sh tests/host/panic_clear_test.sh
+ run panic-route sh tests/host/panic_route_test.sh

@@ -1,0 +1,122 @@
+{
+  "source_tree": "fba9b1f2df4ca7c075a0f757e60319d04c3a02f9",
+  "scripts_pass": 12,
+  "script_results": [
+    {
+      "name": "ui-settings",
+      "command": [
+        "sh",
+        "tests/host/ui_settings_sections_test.sh"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "ui-peer-names",
+      "command": [
+        "sh",
+        "tests/host/ui_peer_names_test.sh"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "ble-name-bounds",
+      "command": [
+        "sh",
+        "tests/host/ble_peer_name_bounds_test.sh"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "original-release-ui",
+      "command": [
+        "sh",
+        "tests/host/original_release_ui_test.sh",
+        "/workspace/combined-v6/ui-release"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "waveform-truth",
+      "command": [
+        "sh",
+        "tests/host/ui_waveform_truth_test.sh"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "lcd-dispatch",
+      "command": [
+        "python3",
+        "tests/host/lcd_dispatch_reuse_test.py"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "synth-bus-mute",
+      "command": [
+        "sh",
+        "tests/host/synth_bus_mute_test.sh"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "break-mute",
+      "command": [
+        "python3",
+        "tests/host/engine_brk_mute_test.py"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "seq-mute",
+      "command": [
+        "sh",
+        "tests/host/seq_mute_carry_test.sh"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "part-off-runtime",
+      "command": [
+        "sh",
+        "tests/host/run_part_off.sh"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "panic-route",
+      "command": [
+        "sh",
+        "tests/host/panic_route_test.sh"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "chain-longest",
+      "command": [
+        "sh",
+        "tests/host/chain_longest_test.sh"
+      ],
+      "exit": 0
+    }
+  ],
+  "ui_release": {
+    "checks_each": 23176,
+    "configurations": [
+      "normal",
+      "ASan+UBSan"
+    ],
+    "png_pairs_identical": 40
+  },
+  "runner": {
+    "old_checks_pass": 11,
+    "negative_mutants_killed": 2,
+    "new_classifications_verified": 7,
+    "registrations": 265
+  },
+  "controller": "byte-identical subtree andABI; exactrequired a334208b identity proof reused",
+  "part_off_baseline_cross_firmware": "NOT_RUN",
+  "native_RAM": "NOT_RUN",
+  "full_host": "NOT_RUN",
+  "shared_or_remote_writes": false
+}
