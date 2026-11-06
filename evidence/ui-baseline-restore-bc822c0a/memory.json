@@ -1,0 +1,36 @@
+{
+  "method": "nm -S matching capture-only host executables; writable B/b/D/d symbol sizes (not native linker RAM)",
+  "before_total": 1242647,
+  "after_total": 1242647,
+  "differences": {},
+  "selected": {
+    "ui": [
+      584,
+      584
+    ],
+    "part_header_snapshot": [
+      32,
+      32
+    ],
+    "part_header_snapshot_valid": [
+      1,
+      1
+    ],
+    "original_wave": [
+      156,
+      156
+    ],
+    "peer_scroll": [
+      68,
+      68
+    ],
+    "cv_lcd_txbuf": [
+      1536,
+      1536
+    ],
+    "blit_hash": [
+      16,
+      16
+    ]
+  }
+}

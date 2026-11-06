@@ -1,0 +1,619 @@
+diff --git a/firmware/src/app/ui.c b/firmware/src/app/ui.c
+index b3230534e..9f4c9773b 100644
+--- a/firmware/src/app/ui.c
++++ b/firmware/src/app/ui.c
+@@ -5016,7 +5016,7 @@ static UI_DRAW void draw_header(void)
+         memcpy(snapshot.colours, pal, sizeof pal);
+         snapshot.col = matrix_col(); snapshot.light = ui_theme_light;
+         snapshot.part = ui.part; snapshot.page = (uint8_t)cur_page(); snapshot.pages = pg.n;
+-        snapshot.phase = seq.playing; snapshot.rec = ui.rec; snapshot.save = (uint8_t)ss;
++        snapshot.phase = seq.metro_view; snapshot.rec = ui.rec; snapshot.save = (uint8_t)ss;
+         snapshot.night = (uint8_t)(matrix_three_rows() || X0X_ORIGINAL_SYNTH);
+         if (part_header_snapshot_valid && blit_hash[0] &&
+             !memcmp(&snapshot, &part_header_snapshot, sizeof snapshot)) return;
+@@ -5026,7 +5026,27 @@ static UI_DRAW void draw_header(void)
+     night_panel(0,0,240,HDR_H,0);
+     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
+         box(0, 0, 240, HDR_H - 1, part_col());
+-        text_c(120, vc(&FONT_B, 0, HDR_H - 1), &FONT_B, ui.msg, C_BLACK);
++        if (!memcmp(ui.msg, "NEXT: PAT ", 10)) {
++            int pattern=0, n=10;
++            while (n<(int)sizeof ui.msg-1 && ui.msg[n]>='0' && ui.msg[n]<='9' && pattern<=NPAT)
++                pattern=pattern*10+ui.msg[n++]-'0';
++            put_s(put_s(b, "> "), ui.msg+10);
++            x=(240-tw(&FONT_B,"NEXT")-6-12-6-tw(&FONT_B,b))/2;
++            x=cv_text(x,vc(&FONT_B,0,HDR_H-1),&FONT_B,"NEXT",C_BLACK)+6;
++            frame(x,1,12,17,C_BLACK);
++            if (!ui.msg[n] && pattern>0 && pattern<=NPAT) {
++                for (int pos=0;pos<NPARTS;pos++) {
++                    uint8_t strength[8];
++                    home_pattern_strength8(&proj.pat[pattern-1],proj.arr.lane,pattern-1,part_at(pos),
++                                           proj.set.accent_q7,T_VEL,strength);
++                    pat_glyph_row(x+2,2+pos*3,strength,C_BLACK,0);
++                }
++            }
++            cv_text(x+18,vc(&FONT_B,0,HDR_H-1),&FONT_B,b,C_BLACK);
++        } else {   /* #800 NEXT pattern glyph; other messages keep #806's long-text font fallback */
++            const felucca_font_t *font = tw(&FONT_B, ui.msg) <= 232 ? &FONT_B : &FONT_XS;
++            text_c(120, vc(font, 0, HDR_H - 1), font, ui.msg, C_BLACK);
++        }
+         cv_commit_header();
+         return;
+     }
+@@ -5057,7 +5077,10 @@ static UI_DRAW void draw_header(void)
+                 if (i != cur_page() / 4) dot(dx, 9, 1, night?SOUND_FACE:C_BLACK);
+             }
+         }
+-        if(seq.playing) play_icon(175,4,C_HI);
++        if(!division_pad_owner()) header_pattern_cue(132,ui.part);   /* #807 cue picture */
++        { uint8_t phase = seq.metro_view; /* #688/#788: audio-owned beat phase */
++          play_icon(175, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
++        }
+         if(ui.rec) dot(190,9,3,RGB(255,50,50));
+         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
+         cv_commit_header();
+@@ -5088,21 +5111,16 @@ static UI_DRAW void draw_header(void)
+             }
+         }
+ #endif
+-        int32_t w = tw(&FONT_B, part_label) + 12;
+-        box(0, 1, w, 17, part_col());
+-        cv_text(6, vc(&FONT_B, 1, 17), &FONT_B, part_label, C_BLACK);
+-        x = w + 6;
+-        if (ui.view == V_GEN)
+-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, "TB-3PO", C_HI) + 6;
+-        else if (ui.view == V_SEQ)
+-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, !kbd_on() ? "SEQ" : ui.rec ? "SEQ KEYS" : "FREE PLAY",
+-                        kbd_on() ? C_AMB : C_HI) + 6;
+-        else if (ui.view == V_PART && is_303())
+-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, "SOUND", C_HI) + 6;
+-        else if (kbd_on())                            /* REC: KEYS (written); FREE PLAY: said so */
+-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, ui.rec ? "KEYS" : "FREE PLAY", C_AMB) + 6;
++        const char *mode = ui.view==V_GEN?"TB-3PO":ui.view==V_SEQ?(!kbd_on()?"SEQ":ui.rec?"SEQ KEYS":"FREE PLAY"):
++                           ui.view==V_PART&&is_303()?"SOUND":kbd_on()?(ui.rec?"KEYS":"FREE PLAY"):"";
++        const felucca_font_t *pf=&FONT_B,*mf=&FONT_S;
++        if(tw(pf,part_label)+18+tw(mf,mode)>128)pf=mf=&FONT_XS;
++        int32_t w = tw(pf, part_label) + 12;
++        box(0,1,w,17,part_col());cv_text(6,vc(pf,1,17),pf,part_label,C_BLACK);
++        x=w+6;
++        if(mode[0])x=cv_text(x,vc(mf,1,17),mf,mode,kbd_on()&&ui.view!=V_GEN&&!(ui.view==V_PART&&is_303())?C_AMB:C_HI)+6;
+     } else {
+-        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, VIEW_N[ui.view], C_HI) + 6;
++        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, ui.view==V_GLO?list_title:VIEW_N[ui.view], C_HI) + 6;
+         if (drum_mix_page() >= 0)                     /* MIX: 909 / MIX: 808 (whose tracks these are) */
+             x = cv_text(x - 6, vc(&FONT_B, 1, 17), &FONT_B, drum_mix_page() ? ": 808" : ": 909",
+                         PART_COL[drum_mix_page()]) + 6;
+@@ -5156,8 +5174,9 @@ static UI_DRAW void draw_header(void)
+         put_i(b, shown);
+     }
+     text_r(212, vc(&FONT_S, 1, 17), &FONT_S, b, seq.ext ? C_AMB : C_HI);
+-    if (seq.playing && (!seq_clock_waiting(&seq) || (ui.frame & 32u)))   /* EXTERNAL waits: it blinks */
+-        play_icon(217, 4, (eng_step[TRK_DRUM] & 3) == 0 ? C_WHITE : C_HI);
++    { uint8_t phase = seq.metro_view; /* neutral in STOP/WAIT; no track playhead */
++      play_icon(217, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
++    }
+     if (ui.rec)
+         dot(231, 9, 4, RGB(255, 50, 50));
+     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
+@@ -6131,8 +6150,17 @@ static UI_DRAW void draw_readout(void)
+     }
+ }
+ 
+-/* Open-beta display to the left of the action arrow. Empty on an unversioned build.
+- * The name and the arrow stay put; a label that would touch either one is not drawn. */
++static const char *action_key_cue(void)
++{
++#if BOARD_SMK37
++    extern uint8_t smk_clip_mode_on(void);
++    if(smk_clip_mode_on())return ""; /* Physical SCALE is masked; SMC dispatch stays available. */
++#endif
++    return UI_CAP_SEL;
++}
++
++/* Open-beta display to the left of the physical action cue. Empty on an unversioned build.
++ * The name and cue stay put; a label that would touch either one is not drawn. */
+ static int release_label_box(const char *label, int selected, int32_t *x, int32_t *w)
+ {
+     int32_t name_w, lw, lx;
+@@ -6140,8 +6168,8 @@ static int release_label_box(const char *label, int selected, int32_t *x, int32_
+         return 0;
+     name_w = tw(selected ? &FONT_B : &FONT_S, "ABOUT DnBOX");
+     lw = tw(&FONT_XS, label);
+-    lx = 204 - lw;
+-    if (lx < 8 + name_w + 4 || lx + lw > 206)
++    lx = 226 - tw(&FONT_XS, action_key_cue()) - 8 - lw;
++    if (lx < 8 + name_w + 4 || lx + lw > 226 - tw(&FONT_XS, action_key_cue()) - 8)
+         return 0;
+     *x = lx;
+     *w = lw;
+@@ -6215,10 +6243,7 @@ static UI_DRAW void draw_list(int band)
+                 if (release_label_box(X0X_RELEASE_LABEL, sel, &lx, &lw))
+                     cv_text(lx, vc(&FONT_XS, y + 1, 18), &FONT_XS, X0X_RELEASE_LABEL, sel ? C_WHITE : C_HI);
+             }
+-            cv_rect(212, y + 12, 12, 2, ac);
+-            cv_rect(222, y + 6, 2, 7, ac);
+-            cv_line(212, y + 13, 216, y + 9, ac);
+-            cv_line(212, y + 13, 216, y + 17, ac);
++            text_r(226,vc(&FONT_XS,y+1,18),&FONT_XS,action_key_cue(),ac);
+             continue;
+         }
+         if(r.kind==R_BTNAME) {                       /* connected peers: one line, scrolls when long */
+diff --git a/tests/host/reference/ui_d808_restore.inc b/tests/host/reference/ui_d808_restore.inc
+new file mode 100644
+index 000000000..4c426d86d
+--- /dev/null
++++ b/tests/host/reference/ui_d808_restore.inc
+@@ -0,0 +1,252 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Frozen d8086cc rendering oracle: only function names, commit destination and
++ * out-of-scope normal pattern badge painting differ. Compare x<130 and transport,
++ * or full toast/sound headers, plus full list bands. */
++static const char *donor_action_key_cue(void)
++{
++#if BOARD_SMK37
++    extern uint8_t smk_clip_mode_on(void);
++    if(smk_clip_mode_on())return ""; /* Physical SCALE is masked; SMC dispatch stays available. */
++#endif
++    return UI_CAP_SEL;
++}
++static int donor_release_label_box(const char *label, int selected, int32_t *x, int32_t *w)
++{
++    int32_t name_w, lw, lx;
++    if (!label || !label[0])
++        return 0;
++    name_w = tw(selected ? &FONT_B : &FONT_S, "ABOUT DnBOX");
++    lw = tw(&FONT_XS, label);
++    lx = 226 - tw(&FONT_XS, donor_action_key_cue()) - 8 - lw;
++    if (lx < 8 + name_w + 4 || lx + lw > 226 - tw(&FONT_XS, donor_action_key_cue()) - 8)
++        return 0;
++    *x = lx;
++    *w = lw;
++    return 1;
++}
++static UI_DRAW void donor_draw_header(void)
++{
++#if BOARD_SMK37
++    extern uint8_t smk_clip_mode_on(void);
++#endif
++    char b[24];
++    int32_t x;
++    int ss = save_state();
++    int pickup = ui.msg[0] == 'P' && ui.msg[1] == 'I' && ui.msg[2] == 'C' &&
++                 ui.msg[3] == 'K' && ui.msg[4] == ' ';
++    cv_begin(240, HDR_H, C_BLACK);
++    night_panel(0,0,240,HDR_H,0);
++    if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
++        box(0, 0, 240, HDR_H - 1, part_col());
++        if (!memcmp(ui.msg, "NEXT: PAT ", 10)) {
++            int pattern=0, n=10;
++            while (n<(int)sizeof ui.msg-1 && ui.msg[n]>='0' && ui.msg[n]<='9' && pattern<=NPAT)
++                pattern=pattern*10+ui.msg[n++]-'0';
++            put_s(put_s(b, "> "), ui.msg+10);
++            x=(240-tw(&FONT_B,"NEXT")-6-12-6-tw(&FONT_B,b))/2;
++            x=cv_text(x,vc(&FONT_B,0,HDR_H-1),&FONT_B,"NEXT",C_BLACK)+6;
++            frame(x,1,12,17,C_BLACK);
++            if (!ui.msg[n] && pattern>0 && pattern<=NPAT) {
++                for (int pos=0;pos<NPARTS;pos++) {
++                    uint8_t strength[8];
++                    home_pattern_strength8(&proj.pat[pattern-1],proj.arr.lane,pattern-1,part_at(pos),
++                                           proj.set.accent_q7,T_VEL,strength);
++                    pat_glyph_row(x+2,2+pos*3,strength,C_BLACK,0);
++                }
++            }
++            cv_text(x+18,vc(&FONT_B,0,HDR_H-1),&FONT_B,b,C_BLACK);
++        } else {   /* #800 NEXT pattern glyph; other messages keep #806's long-text font fallback */
++            const felucca_font_t *font = tw(&FONT_B, ui.msg) <= 232 ? &FONT_B : &FONT_XS;
++            text_c(120, vc(font, 0, HDR_H - 1), font, ui.msg, C_BLACK);
++        }
++        donor_header_commit(0, 0, 0);
++        return;
++    }
++    if (!pickup || (int32_t)(ui.msg_until - plat_ms()) <= 0)
++        ui.msg_until = pickup = 0;
++    if (!pickup && ui.view==V_PART && (is_drum() || is_303()) && ui.overlay==O_NONE && !ui.help
++#if BOARD_SMK37
++        && !smk_clip_mode_on()
++#endif
++        ) {
++        const char *name=part_display(ui.part);
++        if(is_303()) {
++            name=engine_bass_bank(bidx())==ORIGINAL_SOUND_MIAMI?(bidx()?"MIAMI B":"MIAMI A"):(bidx()?"CHICAGO B":"CHICAGO A");
++        }
++        int night=matrix_three_rows() || X0X_ORIGINAL_SYNTH;
++        if(night) sound_slab(0,0,240,20,0);
++        cv_text(7,2,&FONT_B,name,night?SOUND_GREEN:matrix_col());
++        if (division_pad_owner()) {
++            int dx = 7 + tw(&FONT_B, name) + 8;
++            dx = cv_text(dx, 6, &FONT_T, "PADS ", C_AMB);
++            cv_text(dx, 6, &FONT_T, division_pad_label() + 11, C_AMB);
++        }
++        {   /* Screen banks, not musical divisions or the selected control row. */
++            int banks = (pg.n + 3) / 4;
++            for (int i = 0; i < banks; i++) {
++                int dx = 232 - (banks - 1 - i) * 10;
++                dot(dx, 9, 2, night?SOUND_AMBER:C_HI);
++                if (i != cur_page() / 4) dot(dx, 9, 1, night?SOUND_FACE:C_BLACK);
++            }
++        }
++        if(!division_pad_owner()) header_pattern_cue(132,ui.part);   /* #807 cue picture */
++        { uint8_t phase = seq.metro_view; /* #688/#788: audio-owned beat phase */
++          play_icon(175, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
++        }
++        if(ui.rec) dot(190,9,3,RGB(255,50,50));
++        if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
++        donor_header_commit(0,0,0);
++        return;
++    }
++    if (pickup) {                         /* fader pickup hint in the left chip; song/pattern and tempo stay visible */
++        x = cv_text(4, vc(&FONT_S, 1, 17), &FONT_S, ui.msg, C_AMB) + 6;
++    }
++#if BOARD_SMK37
++    else if (smk_clip_mode_on()) {                         /* clip mode: the mode chip reads LP (Loopy Pro) */
++        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, "LP", C_HI) + 6;
++    }
++#endif
++    else if (part_view()) {                           /* the part chip, then where we are */
++        const char *part_label=part_display(ui.part);
++#if X0X_BASS_PRESET_PREVIEW
++        if ((ui.view == V_SEQ || ui.view == V_PART) && is_303()) {
++#if X0X_BASS_TAGGED_SOUND
++            if (engine_bass_sound_bank(&proj.sound, bidx()) < 0)
++                part_label = bidx() ? "303 B" : "303 A";
++            else
++#endif
++            {
++            int miami = engine_bass_bank(bidx()) == FACTORY_BANK_MIAMI;
++            part_label = miami ? (bidx() ? "MIAMI B" : "MIAMI A") :
++                                 (bidx() ? "CHICAGO B" : "CHICAGO A");
++            }
++        }
++#endif
++        const char *mode = ui.view==V_GEN?"TB-3PO":ui.view==V_SEQ?(!kbd_on()?"SEQ":ui.rec?"SEQ KEYS":"FREE PLAY"):
++                           ui.view==V_PART&&is_303()?"SOUND":kbd_on()?(ui.rec?"KEYS":"FREE PLAY"):"";
++        const felucca_font_t *pf=&FONT_B,*mf=&FONT_S;
++        if(tw(pf,part_label)+18+tw(mf,mode)>128)pf=mf=&FONT_XS;
++        int32_t w = tw(pf, part_label) + 12;
++        box(0,1,w,17,part_col());cv_text(6,vc(pf,1,17),pf,part_label,C_BLACK);
++        x=w+6;
++        if(mode[0])x=cv_text(x,vc(mf,1,17),mf,mode,kbd_on()&&ui.view!=V_GEN&&!(ui.view==V_PART&&is_303())?C_AMB:C_HI)+6;
++    } else {
++        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, ui.view==V_GLO?list_title:VIEW_N[ui.view], C_HI) + 6;
++        if (drum_mix_page() >= 0)                     /* MIX: 909 / MIX: 808 (whose tracks these are) */
++            x = cv_text(x - 6, vc(&FONT_B, 1, 17), &FONT_B, drum_mix_page() ? ": 808" : ": 909",
++                        PART_COL[drum_mix_page()]) + 6;
++    }
++    if (ss != SAVE_SAVED) {               /* use the gap before pattern/clock, never cover cue or step range */
++        const char *label = project_storage_unsupported() == 2 ? "!" :
++            ss == SAVE_QUEUED ? queued_save_label() : ss == SAVE_FAILED ? "SAVE FAILED" : "UNSAVED";
++        int32_t w = tw(&FONT_XS, label) + 10;
++        uint16_t c = ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB;
++        if (x + w <= 130) {
++            box(x, 3, w, 13, c);
++            text_c(x + w / 2, vc(&FONT_XS, 3, 13), &FONT_XS, label, C_BLACK);
++        } else if (x + 11 <= 130) {       /* a long mode name leaves room only for a short flag */
++            box(x, 3, 11, 13, c);
++            text_c(x + 5, vc(&FONT_XS, 3, 13), &FONT_XS, ss == SAVE_FAILED ? "!" : ss == SAVE_QUEUED ? "Q" : "*", C_BLACK);
++        }
++    }
++#if BOARD_SMK37
++    if (smk_clip_mode_on()) {                         /* clip mode: the clock of the arp, not the pattern */
++        extern uint8_t smk_ck_ext(void);
++        cv_text(132, vc(&FONT_S, 1, 17), &FONT_S, smk_ck_ext() ? "EXT" : "INT", smk_ck_ext() ? C_AMB : C_GRAY);
++    } else
++#endif
++    { x = 132; } /* Position badge region intentionally excluded from donor comparison. */
++    {   /* following an external clock, the measured tempo wanders a little from clock to clock: the
++         * display averages it over about a second, and moves only when that is half a BPM away */
++        static float avg;
++        static int shown;
++        float t = seq_tempo(&seq);
++        if (!seq.ext || avg < 1.0f)
++            avg = t;
++        avg += (t - avg) * 0.03f;
++        if (!seq.ext || fm_fabsf(avg - (float)shown) > 0.6f)
++            shown = (int)(avg + 0.5f);
++        put_i(b, shown);
++    }
++    text_r(212, vc(&FONT_S, 1, 17), &FONT_S, b, seq.ext ? C_AMB : C_HI);
++    { uint8_t phase = seq.metro_view; /* neutral in STOP/WAIT; no track playhead */
++      play_icon(217, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
++    }
++    if (ui.rec)
++        dot(231, 9, 4, RGB(255, 50, 50));
++    if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
++        dot(237, 3, 2, ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB);
++    donor_header_commit(0, 0, 0);
++}
++static UI_DRAW void donor_draw_list(int band)
++{
++    int i;
++    for (i = 0; i < 3; i++) {
++        int row = ui.list_top + band * 3 + i, y = i * 23, sel = row == ui.list_sel;
++        pref_t r;
++        char num[36], unit[8];
++        const x0x_param_t *d;
++        if (row >= ui.list_n)
++            break;
++        r = list_rows[row];
++        if (r.kind == R_HDR) {                         /* a section: whose values follow */
++            char t[28];
++            hdr_name(r.a, t);
++            cv_text(8, vc(&FONT_XS, y + 4, 16), &FONT_XS, t, C_AMB);
++            cv_rect(8, y + 19, 220, 1, C_LINE);
++            continue;
++        }
++        d = pref_desc(r);
++        surface_panel(3,y+1,229,21,sel,sel?dim(part_col(),6):SOUND_FACE,
++                      sel?part_col():SOUND_EDGE,SOUND_SIDE);
++        cv_text(8, vc(sel ? &FONT_B : &FONT_S, y + 1, 18), sel ? &FONT_B : &FONT_S, caps_of(pref_name(r)), sel ? C_WHITE : C_GRAY);
++        if (r.kind == R_SECTION) {                     /* a GLOBAL category: its chevron */
++            cv_line(221,y+8,225,y+11,sel?C_AMB:C_DIM);cv_line(225,y+11,221,y+14,sel?C_AMB:C_DIM);continue;
++        }
++        if (r.kind == R_ACT) {                         /* an action: the return arrow */
++            uint16_t ac = sel ? C_WHITE : C_DIM;
++            if (r.a == ACT_ABOUT) {
++                int32_t lx, lw;
++                if (donor_release_label_box(X0X_RELEASE_LABEL, sel, &lx, &lw))
++                    cv_text(lx, vc(&FONT_XS, y + 1, 18), &FONT_XS, X0X_RELEASE_LABEL, sel ? C_WHITE : C_HI);
++            }
++            text_r(226,vc(&FONT_XS,y+1,18),&FONT_XS,donor_action_key_cue(),ac);
++            continue;
++        }
++        if(r.kind==R_BTNAME) {                       /* connected peers: one line, scrolls when long */
++            plat_ble_peers_t peers;char shown[PEER_TEXT_CAP];const felucca_font_t *nf=sel?&FONT_B:&FONT_S;
++            plat_ble_peers(&peers);peer_join(shown,&peers);
++            int left=8+tw(nf,"NAME")+8, width=226-left, travel=tw(nf,shown)-width;
++            int offset=peer_offset(shown,&peers,travel,plat_ms());
++            cv_text_clip(left-offset,vc(nf,y+1,18),nf,shown,sel?C_WHITE:C_HI,left,226);continue;
++        }
++        pref_value(r, num, unit);
++        if (r.kind == R_BPRESET) {
++            const char *name = original_sound_name((unsigned)engine_bass_requested_bank(r.b),
++                                                   (unsigned)engine_bass_requested_preset(r.b));
++            put_s(num,caps_of(name ? name : "USER"));
++        }
++        {
++            const felucca_font_t *nf = sel ? &FONT_B : &FONT_S;
++            if ((r.kind == R_ENG && r.a == T_303) || r.kind == R_BENGINE || r.kind == R_BPRESET || r.kind == R_BSTATUS) {
++                int room = 226-8-tw(sel ? &FONT_B : &FONT_S,caps_of(pref_name(r)))-8-
++                           (unit[0] ? tw(&FONT_XS,unit)+2 : 0);
++                if (tw(nf,num) > room) nf = tw(&FONT_XS,num) <= room ? &FONT_XS : &FONT_T;
++            }
++            int32_t ny = vc(nf, y + 1, 18), ux = 226 - tw(&FONT_XS, unit);
++            cv_text(ux, base_y(nf, ny, &FONT_XS), &FONT_XS, unit, C_GRAY);
++            text_r(unit[0] ? ux - 2 : 226, ny, nf, num, sel ? C_WHITE : C_HI);
++        }
++        if (d && !d->names && d->max >= 24) {          /* a continuous value: its bar */
++            int v = pref_get(r);
++            rbox(108, y + 18, 70, 3, 1, C_LINE);
++            if (v)
++                rbox(108, y + 18, 3 + v * 67 / d->max, 3, 1, sel ? part_col() : C_DIM);
++        }
++    }
++    if (ui.list_n > 6) {                               /* the scrollbar */
++        int h = 2 * BAND_H * 6 / ui.list_n, y = 2 * BAND_H * ui.list_top / ui.list_n - band * BAND_H;
++        rbox(235, 0, 3, BAND_H, 1, C_LINE);
++        rbox(235, y, 3, h, 1, C_HI);
++    }
++}
+diff --git a/tests/host/reference/ui_perf_reference.inc b/tests/host/reference/ui_perf_reference.inc
+index 69bcba8b9..61cca917f 100644
+--- a/tests/host/reference/ui_perf_reference.inc
++++ b/tests/host/reference/ui_perf_reference.inc
+@@ -47,7 +47,27 @@ static UI_DRAW void draw_header_reference(void)
+     night_panel(0,0,240,HDR_H,0);
+     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
+         box(0, 0, 240, HDR_H - 1, part_col());
+-        text_c(120, vc(&FONT_B, 0, HDR_H - 1), &FONT_B, ui.msg, C_BLACK);
++        if (!memcmp(ui.msg, "NEXT: PAT ", 10)) {
++            int pattern=0, n=10;
++            while (n<(int)sizeof ui.msg-1 && ui.msg[n]>='0' && ui.msg[n]<='9' && pattern<=NPAT)
++                pattern=pattern*10+ui.msg[n++]-'0';
++            put_s(put_s(b, "> "), ui.msg+10);
++            x=(240-tw(&FONT_B,"NEXT")-6-12-6-tw(&FONT_B,b))/2;
++            x=cv_text(x,vc(&FONT_B,0,HDR_H-1),&FONT_B,"NEXT",C_BLACK)+6;
++            frame(x,1,12,17,C_BLACK);
++            if (!ui.msg[n] && pattern>0 && pattern<=NPAT) {
++                for (int pos=0;pos<NPARTS;pos++) {
++                    uint8_t strength[8];
++                    home_pattern_strength8(&proj.pat[pattern-1],proj.arr.lane,pattern-1,part_at(pos),
++                                           proj.set.accent_q7,T_VEL,strength);
++                    pat_glyph_row(x+2,2+pos*3,strength,C_BLACK,0);
++                }
++            }
++            cv_text(x+18,vc(&FONT_B,0,HDR_H-1),&FONT_B,b,C_BLACK);
++        } else {   /* #800 NEXT pattern glyph; other messages keep #806's long-text font fallback */
++            const felucca_font_t *font = tw(&FONT_B, ui.msg) <= 232 ? &FONT_B : &FONT_XS;
++            text_c(120, vc(font, 0, HDR_H - 1), font, ui.msg, C_BLACK);
++        }
+         cv_commit(0, 0, 0);
+         return;
+     }
+@@ -78,7 +98,10 @@ static UI_DRAW void draw_header_reference(void)
+                 if (i != cur_page() / 4) dot(dx, 9, 1, night?SOUND_FACE:C_BLACK);
+             }
+         }
+-        if(seq.playing) play_icon(175,4,C_HI);
++        if(!division_pad_owner()) header_pattern_cue(132,ui.part);   /* #807 cue picture */
++        { uint8_t phase = seq.metro_view; /* #688/#788: audio-owned beat phase */
++          play_icon(175, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
++        }
+         if(ui.rec) dot(190,9,3,RGB(255,50,50));
+         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
+         cv_commit(0,0,0);
+@@ -108,21 +131,16 @@ static UI_DRAW void draw_header_reference(void)
+             }
+         }
+ #endif
+-        int32_t w = tw(&FONT_B, part_label) + 12;
+-        box(0, 1, w, 17, part_col());
+-        cv_text(6, vc(&FONT_B, 1, 17), &FONT_B, part_label, C_BLACK);
+-        x = w + 6;
+-        if (ui.view == V_GEN)
+-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, "TB-3PO", C_HI) + 6;
+-        else if (ui.view == V_SEQ)
+-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, !kbd_on() ? "SEQ" : ui.rec ? "SEQ KEYS" : "FREE PLAY",
+-                        kbd_on() ? C_AMB : C_HI) + 6;
+-        else if (ui.view == V_PART && is_303())
+-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, "SOUND", C_HI) + 6;
+-        else if (kbd_on())                            /* REC: KEYS (written); FREE PLAY: said so */
+-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, ui.rec ? "KEYS" : "FREE PLAY", C_AMB) + 6;
++        const char *mode = ui.view==V_GEN?"TB-3PO":ui.view==V_SEQ?(!kbd_on()?"SEQ":ui.rec?"SEQ KEYS":"FREE PLAY"):
++                           ui.view==V_PART&&is_303()?"SOUND":kbd_on()?(ui.rec?"KEYS":"FREE PLAY"):"";
++        const felucca_font_t *pf=&FONT_B,*mf=&FONT_S;
++        if(tw(pf,part_label)+18+tw(mf,mode)>128)pf=mf=&FONT_XS;
++        int32_t w = tw(pf, part_label) + 12;
++        box(0,1,w,17,part_col());cv_text(6,vc(pf,1,17),pf,part_label,C_BLACK);
++        x=w+6;
++        if(mode[0])x=cv_text(x,vc(mf,1,17),mf,mode,kbd_on()&&ui.view!=V_GEN&&!(ui.view==V_PART&&is_303())?C_AMB:C_HI)+6;
+     } else {
+-        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, VIEW_N[ui.view], C_HI) + 6;
++        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, ui.view==V_GLO?list_title:VIEW_N[ui.view], C_HI) + 6;
+         if (drum_mix_page() >= 0)                     /* MIX: 909 / MIX: 808 (whose tracks these are) */
+             x = cv_text(x - 6, vc(&FONT_B, 1, 17), &FONT_B, drum_mix_page() ? ": 808" : ": 909",
+                         PART_COL[drum_mix_page()]) + 6;
+@@ -176,8 +194,9 @@ static UI_DRAW void draw_header_reference(void)
+         put_i(b, shown);
+     }
+     text_r(212, vc(&FONT_S, 1, 17), &FONT_S, b, seq.ext ? C_AMB : C_HI);
+-    if (seq.playing && (!seq_clock_waiting(&seq) || (ui.frame & 32u)))   /* EXTERNAL waits: it blinks */
+-        play_icon(217, 4, (eng_step[TRK_DRUM] & 3) == 0 ? C_WHITE : C_HI);
++    { uint8_t phase = seq.metro_view; /* neutral in STOP/WAIT; no track playhead */
++      play_icon(217, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
++    }
+     if (ui.rec)
+         dot(231, 9, 4, RGB(255, 50, 50));
+     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
+diff --git a/tests/host/ui_baseline_details_test.c b/tests/host/ui_baseline_details_test.c
+new file mode 100644
+index 000000000..7278aef62
+--- /dev/null
++++ b/tests/host/ui_baseline_details_test.c
+@@ -0,0 +1,65 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++#define SMC_UI_MAIN unused_smc_ui_main
++#include "smc_ui_test.c"
++#ifndef UI_RESTORE_CAPTURE_ONLY
++static uint16_t donor_pixels[240 * BAND_H];
++static void donor_header_commit(int region,uint32_t x,uint32_t y)
++{ (void)region;(void)x;(void)y;memcpy(donor_pixels,cv_px,240*HDR_H*2); }
++#include "reference/ui_d808_restore.inc"
++static void compare_header_region(int full)
++{
++ ui_t saved=ui;donor_draw_header();ui=saved;draw_header();
++ for(int y=0;y<HDR_H;y++)for(int x=0;x<240;x++)
++  if(full || x<130 || (x>=217 && x<228))CHECK(donor_pixels[y*240+x]==fb[y*240+x]);
++}
++static void compare_list(void)
++{
++ for(int band=0;band<2;band++) {
++  cv_begin(240,BAND_H,C_BLACK);donor_draw_list(band);memcpy(donor_pixels,cv_px,240*BAND_H*2);
++  cv_begin(240,BAND_H,C_BLACK);draw_list(band);CHECK(!memcmp(donor_pixels,cv_px,240*BAND_H*2));
++ }
++}
++#else
++static void compare_header_region(int full){(void)full;draw_header();}
++static void compare_list(void){}
++#endif
++static void header_shot(const char *name,int full)
++{compare_header_region(full);shot(name);}
++int main(void)
++{
++ setup(V_HOME,PART_909);button_tap(B_GLO);
++ for(int g=0;g<6;g++) {
++  global_index();ui.list_sel=g;list_enter();ui.msg_until=0;ui_frame();compare_list();
++  char name[32];snprintf(name,sizeof name,"section-%d",g);header_shot(name,0);
++ }
++ /* Physical action cue is unavailable in clip mode; About fitting follows it. */
++ clip_grid_mode=1;global_index();ui.list_sel=5;list_enter();ui_frame();compare_list();shot("actions-clip");clip_grid_mode=0;
++#ifndef UI_RESTORE_CAPTURE_ONLY
++ for(int clip=0;clip<2;clip++)for(int sel=0;sel<2;sel++) {
++  clip_grid_mode=clip;int32_t x1=0,w1=0,x2=0,w2=0;
++  CHECK(!strcmp(action_key_cue(),donor_action_key_cue()));
++  CHECK(release_label_box("0.0.25",sel,&x1,&w1)==donor_release_label_box("0.0.25",sel,&x2,&w2));
++  CHECK(x1==x2 && w1==w2);
++ }clip_grid_mode=0;
++#endif
++ setup(V_SEQ,PART_303B);ui.freeplay[bidx()]=1;ui_frame();header_shot("long-part-freeplay",0);
++ setup(V_HOME,PART_909);
++ CHECK(tw(&FONT_B,"MMMMMMMMMMMMMMMMMMMMMMMMMMM")>232);
++ say("MMMMMMMMMMMMMMMMMMMMMMMMMMM",0);ui_frame();header_shot("long-toast",1);
++ for(int p=1;p<=NPAT;p+=NPAT-1) {
++  char msg[28],name[32];snprintf(msg,sizeof msg,"NEXT: PAT %d",p);say(msg,0);ui_frame();
++  snprintf(name,sizeof name,"next-pattern-%d",p);header_shot(name,1);
++ }
++ say("NEXT: PAT 999",0);ui_frame();header_shot("next-pattern-invalid",1);
++ for(int part=PART_909;part<=PART_303B;part+=PART_303B-PART_909) {
++  setup(V_PART,part);seq.pcue[part]=0xff;ui.msg_until=0;
++  for(int phase=0;phase<9;phase++) {
++   seq.metro_view=phase;seq.playing=phase!=0;char name[40];
++   snprintf(name,sizeof name,"part-%d-phase-%d",part,phase);header_shot(name,1);
++  }
++  seq.pcue[part]=(seq.ppat[part]+1)%NPAT;header_shot(part==PART_909?"drum-pending-cue":"synth-pending-cue",1);
++ }
++ setup(V_HOME,PART_909);ui.msg_until=0;
++ for(int phase=0;phase<9;phase++){seq.metro_view=phase;compare_header_region(0);}
++ printf("PASS baseline UI details %u checks\n",checks);return 0;
++}
+diff --git a/tests/host/ui_baseline_details_test.sh b/tests/host/ui_baseline_details_test.sh
+new file mode 100644
+index 000000000..33b0b4fbf
+--- /dev/null
++++ b/tests/host/ui_baseline_details_test.sh
+@@ -0,0 +1,5 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++set -eu
++cd "$(dirname "$0")/../.."
++X0X_HOST_DEFS="${X0X_HOST_DEFS:-} -DX0X_SMK_CAPTIONS=1" NIGHT_UI_TEST_FILE=tests/host/ui_baseline_details_test.c exec sh tests/host/night_ui_test.sh "${1:-build/host/ui-baseline-details}"
+diff --git a/tests/host/ui_perf_identity_test.c b/tests/host/ui_perf_identity_test.c
+index 97360ba40..39c626e0b 100644
+--- a/tests/host/ui_perf_identity_test.c
++++ b/tests/host/ui_perf_identity_test.c
+@@ -87,7 +87,7 @@ static void headers(void)
+     for (int part = 0; part < NPARTS; ++part) {
+         setup(V_PART, part); palette_set(theme);
+         for (int state = 0; state < 32; ++state) {
+-            ui.rec = state & 1; seq.playing = (state >> 1) & 1;
++            ui.rec = state & 1; seq.playing = (state >> 1) & 1; seq.metro_view = (uint8_t)(state % 9);
+             ui.dirty = !!(state & 4); ui.save_failed = !!(state & 8);
+             *page_of(V_PART) = (uint8_t)(state % pg.n); build_pages();
+             now_ms += 100;
+@@ -104,6 +104,7 @@ static void headers(void)
+              * reference neither preloads its panel nor invalidates its cache. */
+             ui.rec ^= 1; compare_header();
+             seq.playing ^= 1; compare_header();
++            seq.metro_view = (uint8_t)((seq.metro_view + 1) % 9); compare_header();
+             ui.save_failed ^= 1; compare_header();
+             ui.dirty ^= 1; compare_header();
+             *page_of(V_PART) = (uint8_t)((cur_page() + 1) % pg.n); build_pages(); compare_header();
+@@ -124,7 +125,7 @@ static void headers(void)
+             }
+         }
+     }
+-    puts("PASS header: 14400 independent old/new states, byte equality, live cache input/owner/expiry transitions");
++    puts("PASS header: independent donor-aligned raster states and metro-phase transitions, byte equality, live cache input/owner/expiry transitions");
+ }
+ static void waves(void)
+ {
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index 4e374f0eb..c4f7c3ba3 100755
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -95,7 +95,7 @@ test_class() {
+     save-note-quiet|synth-bus-mute|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
+     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
+     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+-    play-question-ui|sound-reset-ui|held-step-release|ui-perf-identity|ui-settings-sections|ui-peer-names) TEST_CLASS=G ;;
++    play-question-ui|sound-reset-ui|held-step-release|ui-perf-identity|ui-settings-sections|ui-peer-names|ui-baseline-details) TEST_CLASS=G ;;
+     part-off|part-off-web-e2e) TEST_CLASS=G ;;
+     panic-clear|panic-route) TEST_CLASS=G ;;
+     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
+@@ -315,6 +315,7 @@ run sound-reset-ui sh tests/host/sound_reset_ui_test.sh
+ run held-step-release sh tests/host/held_step_release_test.sh
+ run ui-perf-identity sh tests/host/ui_perf_identity_test.sh
+ run ui-settings-sections sh tests/host/ui_settings_sections_test.sh
++run ui-baseline-details sh tests/host/ui_baseline_details_test.sh
+ run ui-peer-names sh tests/host/ui_peer_names_test.sh
+ run ble-peer-name-bounds sh tests/host/ble_peer_name_bounds_test.sh
+ run home-tie-semantics sh tests/host/home_tie_semantics_test.sh
