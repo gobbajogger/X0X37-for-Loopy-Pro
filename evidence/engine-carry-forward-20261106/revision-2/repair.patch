@@ -1,0 +1,91 @@
+diff --git a/experiments/original_synth/chicago_packed.c b/experiments/original_synth/chicago_packed.c
+index 975a56e9..a15ecd49 100644
+--- a/experiments/original_synth/chicago_packed.c
++++ b/experiments/original_synth/chicago_packed.c
+@@ -5,6 +5,8 @@
+ #include <stdint.h>
+ int original_chicago_packed_lookup(const void *context,uint32_t index,float *a,float *e){
+  if(context||!a||!e||a==e)return 0;
++ /* Reject invalid indices before the cold-cache sentinel can match. */
++ if(index>=original_chicago_packed_a.count||index>=original_chicago_packed_e.count)return 0;
+  /* The tables are constant: repeat the last decoded pair for the same index. */
+  static uint32_t last_index=UINT32_MAX,last_a,last_e;
+  uint32_t ab,eb;
+diff --git a/tests/host/chicago_packed_cache_test.c b/tests/host/chicago_packed_cache_test.c
+new file mode 100644
+index 00000000..07021551
+--- /dev/null
++++ b/tests/host/chicago_packed_cache_test.c
+@@ -0,0 +1,39 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++#include "chicago_packed.h"
++#include "chicago_packed_private.h"
++#include <stdio.h>
++#include <string.h>
++#include <stdint.h>
++#include <stdlib.h>
++static unsigned checks;
++#define CHECK(x) do { ++checks; if (!(x)) { fprintf(stderr,"FAIL line %d: %s\n",__LINE__,#x); exit(1); } } while(0)
++static uint32_t bits(float f){uint32_t u;memcpy(&u,&f,4);return u;}
++static void rejected(uint32_t index){
++ float a=1.25f,e=-2.5f;
++ CHECK(!original_chicago_packed_lookup(NULL,index,&a,&e));
++ CHECK(bits(a)==bits(1.25f)&&bits(e)==bits(-2.5f));
++}
++int main(void){
++ /* Must be the first lookup: UINT32_MAX was also the cold cache sentinel. */
++ rejected(UINT32_MAX);
++ uint32_t count=original_chicago_packed_a.count;
++ CHECK(count==original_chicago_packed_e.count);
++ for(uint32_t i=0;i<count;i++){
++  uint32_t ab,eb;float a,e;
++  CHECK(original_lossless_second16_lookup(&original_chicago_packed_a,i,&ab));
++  CHECK(original_lossless_second16_lookup(&original_chicago_packed_e,i,&eb));
++  for(unsigned repeat=0;repeat<2;repeat++){
++   CHECK(original_chicago_packed_lookup(NULL,i,&a,&e));
++   CHECK(bits(a)==ab&&bits(e)==eb);
++  }
++ }
++ rejected(count);rejected(count+1);rejected(UINT32_MAX);
++ float a=1.25f,e=-2.5f;
++ CHECK(!original_chicago_packed_lookup(&a,0,&a,&e));
++ CHECK(!original_chicago_packed_lookup(NULL,0,NULL,&e));
++ CHECK(!original_chicago_packed_lookup(NULL,0,&a,NULL));
++ CHECK(!original_chicago_packed_lookup(NULL,0,&a,&a));
++ CHECK(bits(a)==bits(1.25f)&&bits(e)==bits(-2.5f));
++ printf("PASS Chicago packed cache: %u checks, %u entries, cold/warm invalid indices preserve outputs\n",checks,count);
++ return 0;
++}
+diff --git a/tests/host/chicago_packed_cache_test.sh b/tests/host/chicago_packed_cache_test.sh
+new file mode 100644
+index 00000000..70cd9383
+--- /dev/null
++++ b/tests/host/chicago_packed_cache_test.sh
+@@ -0,0 +1,15 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++# Check the real packed cache against the uncached decoder, including cold sentinel.
++set -eu
++cd "$(dirname "$0")/../.."
++OUT=${X0X_PACKED_CACHE_OUT:-build/host/chicago-packed-cache}
++mkdir -p "$OUT"
++for mode in normal sanitized; do
++ flags='-O2'
++ if [ "$mode" = sanitized ]; then flags='-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all'; fi
++ ${CC:-cc} -std=c99 $flags -Wall -Wextra -Werror -Iexperiments/original_synth \
++  tests/host/chicago_packed_cache_test.c experiments/original_synth/chicago_packed.c \
++  experiments/original_synth/lossless_table.c -o "$OUT/$mode"
++ "$OUT/$mode"
++done
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index 06b017f2..887f3297 100755
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -409,6 +409,7 @@ run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
+ run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
+ run miami-table-interpolation sh tests/host/run_miami_table_interpolation.sh
+ run chicago-coef-cache sh tests/host/chicago_coef_cache_test.sh
++run chicago-packed-cache sh tests/host/chicago_packed_cache_test.sh
+ run miami-coef-cache sh tests/host/run_miami_coef_cache.sh
+ run control-recompile env X0X_RECOMPILE_EXACT=1 sh tests/host/control_recompile_test.sh
+ run legacy-303-project sh tests/host/legacy_303_project_test.sh   # old bass303 projects load as the Chicago default, no crash, no save

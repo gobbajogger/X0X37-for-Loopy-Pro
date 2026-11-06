@@ -1,0 +1,14 @@
+{
+  "base_tree": "2e38c67d3dbf1b905085580229e395433aefd92d",
+  "prior_tree": "01194a7f7fd0043833bf657756939819e23c99ca",
+  "candidate_tree": "ca1658126e78a84e33c5a6a430d11bb7362ee659",
+  "repair_sha256": "d8f782e013f8bfeed2fe897dd646114e9876c74e7f8a9f3f9356165d04b624a3",
+  "combined_patch_sha256": "b8664f3de4ba46030d225de3a05713e0048f85c7b1d522be7cc7ddf3a8eae733",
+  "changed_from_prior": [
+    "experiments/original_synth/chicago_packed.c",
+    "tests/host/chicago_packed_cache_test.c",
+    "tests/host/chicago_packed_cache_test.sh",
+    "tests/run_tests.sh"
+  ],
+  "source_state": "NOT_PUSHED"
+}

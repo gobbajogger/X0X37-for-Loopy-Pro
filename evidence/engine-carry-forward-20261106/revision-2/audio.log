@@ -1,0 +1,18 @@
+captured all
+captured solo-mute
+captured mix-sweeps
+captured preset-fade
+captured djf1-static
+captured djf1-sweep
+captured djf2-static
+captured djf2-sweep
+captured djf3-static
+captured djf3-sweep
+captured limiter-off
+captured comp
+captured usb-full
+captured usb-normal
+captured dense
+captured idle
+captured mono
+FAIL: identity mismatch: all/audio.i32, all/peak-scope.bin, all/usb.i32, comp/audio.i32, comp/peak-scope.bin, comp/usb.i32, dense/audio.i32, dense/peak-scope.bin, dense/usb.i32, djf1-static/audio.i32, djf1-static/peak-scope.bin, djf1-static/usb.i32, djf1-sweep/audio.i32, djf1-sweep/peak-scope.bin, djf1-sweep/usb.i32, djf2-static/audio.i32, djf2-static/peak-scope.bin, djf2-static/usb.i32, djf2-sweep/audio.i32, djf2-sweep/peak-scope.bin, djf2-sweep/usb.i32, djf3-static/audio.i32, djf3-static/peak-scope.bin, djf3-static/usb.i32, djf3-sweep/audio.i32, djf3-sweep/peak-scope.bin, djf3-sweep/usb.i32, limiter-off/audio.i32, limiter-off/peak-scope.bin, limiter-off/usb.i32, mix-sweeps/audio.i32, mix-sweeps/peak-scope.bin, mix-sweeps/usb.i32, preset-fade/audio.i32, preset-fade/peak-scope.bin, preset-fade/usb.i32, solo-mute/audio.i32, solo-mute/peak-scope.bin, solo-mute/usb.i32, usb-full/audio.i32, usb-full/peak-scope.bin, usb-full/usb.i32, usb-normal/audio.i32, usb-normal/peak-scope.bin, usb-normal/usb.i32

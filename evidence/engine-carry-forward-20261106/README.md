@@ -1,3 +1,7 @@
+# Revised candidate available
+
+[Revision 2: cold packed-cache boundary repair and explicit per-model resource table](revision-2/REPORT.md) supersedes the revision-1 candidate below. Revised source tree: `ca1658126e78a84e33c5a6a430d11bb7362ee659`. Same independent reviewer retains acceptance ownership.
+
 # Chicago/Miami carry-forward evidence — 2026-11-06
 
 This evidence packet preserves a locally prepared engine integration patch and executed test receipts for the existing #698 integrator. It does not modify the shared source branch or select a release candidate.

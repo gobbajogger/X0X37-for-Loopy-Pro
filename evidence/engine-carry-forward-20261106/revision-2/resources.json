@@ -1,0 +1,28 @@
+{
+  "configuration": "X0X_DEV_PADCAL=1",
+  "gate_pool_free_min": 8192,
+  "models": {
+    "Elite": {
+      "pool_start": "0x1c20000",
+      "pool_end": "0x1c71f08",
+      "pool_used_bytes": 335624,
+      "pool_limit_bytes": 344064,
+      "pool_free_bytes": 8440,
+      "margin_above_gate_bytes": 248,
+      "image_bytes": 493612,
+      "static_ram_used_bytes": 96372,
+      "static_ram_limit_bytes": 98304
+    },
+    "Pro": {
+      "pool_start": "0x1c20000",
+      "pool_end": "0x1c71f08",
+      "pool_used_bytes": 335624,
+      "pool_limit_bytes": 344064,
+      "pool_free_bytes": 8440,
+      "margin_above_gate_bytes": 248,
+      "image_bytes": 493612,
+      "static_ram_used_bytes": 96372,
+      "static_ram_limit_bytes": 98304
+    }
+  }
+}
