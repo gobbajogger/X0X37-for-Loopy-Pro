@@ -1,0 +1,181 @@
+{
+  "baseline_tree": "2e38c67d3dbf1b905085580229e395433aefd92d",
+  "patched_tree": "5c62584b4cf1140858b83f314d5dc9fa65a7f37a",
+  "pairs": [
+    {
+      "name": "01-main-pickup.png",
+      "baseline_sha256": "0456bd8b0e8112a60c033d6787ef3f293be1e6d75f337feace3d27d00e47abc2",
+      "patched_sha256": "0456bd8b0e8112a60c033d6787ef3f293be1e6d75f337feace3d27d00e47abc2",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "02-home-restored.png",
+      "baseline_sha256": "4d2c6e0133e6c147f7f3c2546c352e63cdcbc31a9b0f8ad21e3ecc94e4399eee",
+      "patched_sha256": "4d2c6e0133e6c147f7f3c2546c352e63cdcbc31a9b0f8ad21e3ecc94e4399eee",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "03-picked-fader.png",
+      "baseline_sha256": "02c07b5a46d6b2ec548187d7c94a962519ea917dee79d0127696020dd4d39198",
+      "patched_sha256": "02c07b5a46d6b2ec548187d7c94a962519ea917dee79d0127696020dd4d39198",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "04-delay-knob.png",
+      "baseline_sha256": "207ad913e64ad9171c1163c76f3eecce97c6fca92852a0ab21a65ac3f4767211",
+      "patched_sha256": "207ad913e64ad9171c1163c76f3eecce97c6fca92852a0ab21a65ac3f4767211",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "05-clip-grid-smc.png",
+      "baseline_sha256": "6b72e3779f4cd9293ea1da320d7d2c5a328bbc3d5e2f83aa3b1ab5861415fe0d",
+      "patched_sha256": "6b72e3779f4cd9293ea1da320d7d2c5a328bbc3d5e2f83aa3b1ab5861415fe0d",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "06-clip-wait-smc.png",
+      "baseline_sha256": "6b72e3779f4cd9293ea1da320d7d2c5a328bbc3d5e2f83aa3b1ab5861415fe0d",
+      "patched_sha256": "6b72e3779f4cd9293ea1da320d7d2c5a328bbc3d5e2f83aa3b1ab5861415fe0d",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "07-clip-field.png",
+      "baseline_sha256": "78e0704e7c6a190b3e5be64360da97fc96d1f4bd318ca78e4d037770eb704003",
+      "patched_sha256": "78e0704e7c6a190b3e5be64360da97fc96d1f4bd318ca78e4d037770eb704003",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "08-mute-action.png",
+      "baseline_sha256": "c753419938b987ba6e5c99bd868c28c7bd708fd52a953cf58f4e87fa0ae1ff5d",
+      "patched_sha256": "c753419938b987ba6e5c99bd868c28c7bd708fd52a953cf58f4e87fa0ae1ff5d",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "09-part-pan.png",
+      "baseline_sha256": "249dc09ae908be9393a233aecd26247c64de2ef11509a6afcbd937438406fb9c",
+      "patched_sha256": "249dc09ae908be9393a233aecd26247c64de2ef11509a6afcbd937438406fb9c",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "10-808-seq-bank2-pan.png",
+      "baseline_sha256": "63eba92b14ef5bced00a0c31eb95727d665d0b8ed5dcceff2707b9be3d79c282",
+      "patched_sha256": "63eba92b14ef5bced00a0c31eb95727d665d0b8ed5dcceff2707b9be3d79c282",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "11-list-on-fader.png",
+      "baseline_sha256": "1616e25ed01206678b6db5486c800c4d8b901d7f72b474faba85fae73972a592",
+      "patched_sha256": "1616e25ed01206678b6db5486c800c4d8b901d7f72b474faba85fae73972a592",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "12-parked-knob.png",
+      "baseline_sha256": "4e261e8ac87d123a20cc7b1ffcbd2abac24e74783b15ae649e9bfb81543aa7ed",
+      "patched_sha256": "4e261e8ac87d123a20cc7b1ffcbd2abac24e74783b15ae649e9bfb81543aa7ed",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "13-eight-strip-resonance.png",
+      "baseline_sha256": "2e8d8a71b8ac525ee3cb81aa53c6cb08efb91d8b8023f2ac07a99e1d7b87f558",
+      "patched_sha256": "2e8d8a71b8ac525ee3cb81aa53c6cb08efb91d8b8023f2ac07a99e1d7b87f558",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "14-selected-part-touched-filter.png",
+      "baseline_sha256": "79792106877f4bdea902dde4aab6918051aead159c188df899970109b023d41b",
+      "patched_sha256": "79792106877f4bdea902dde4aab6918051aead159c188df899970109b023d41b",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "15-locked-bank-selected-other-drum.png",
+      "baseline_sha256": "7c74ecafb7e3cb3980f44187135aed86253e7990546f8d7eb479cbfda8e68524",
+      "patched_sha256": "7c74ecafb7e3cb3980f44187135aed86253e7990546f8d7eb479cbfda8e68524",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "16-locked-bank-selection-outside.png",
+      "baseline_sha256": "f91afeb4c1b438e301c1bdb04386b9d0e35692f49457d3a163eebb3777bf6f47",
+      "patched_sha256": "f91afeb4c1b438e301c1bdb04386b9d0e35692f49457d3a163eebb3777bf6f47",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "17-filter-actual-actions.png",
+      "baseline_sha256": "79792106877f4bdea902dde4aab6918051aead159c188df899970109b023d41b",
+      "patched_sha256": "79792106877f4bdea902dde4aab6918051aead159c188df899970109b023d41b",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "18-locked-live-actions.png",
+      "baseline_sha256": "ac176dcd9057daad2378eab691851704c39ff2548c685f8d3bed4ae14a5079bc",
+      "patched_sha256": "ac176dcd9057daad2378eab691851704c39ff2548c685f8d3bed4ae14a5079bc",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "19-pan-left.png",
+      "baseline_sha256": "adf32112d07a6ffad6aa54eb70ee3cff4c1ad6d94edc1eb6eee75b9313593a2c",
+      "patched_sha256": "adf32112d07a6ffad6aa54eb70ee3cff4c1ad6d94edc1eb6eee75b9313593a2c",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "20-pan-center.png",
+      "baseline_sha256": "2ba7cc4d6ade399fdf2c8e4d48ebd38523114b8c4f7a87e8df63ce5abd35400a",
+      "patched_sha256": "2ba7cc4d6ade399fdf2c8e4d48ebd38523114b8c4f7a87e8df63ce5abd35400a",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "21-pan-right.png",
+      "baseline_sha256": "c99643c29d18ac3bafe86f50e054c8424fad7c4076c488e60c550ae580b0faf5",
+      "patched_sha256": "c99643c29d18ac3bafe86f50e054c8424fad7c4076c488e60c550ae580b0faf5",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "22-909-seq-bank1-names.png",
+      "baseline_sha256": "7fa5d5eccf4b97e79f6e460eec737a669ed03af1b58184cae116c3bf789a3555",
+      "patched_sha256": "7fa5d5eccf4b97e79f6e460eec737a669ed03af1b58184cae116c3bf789a3555",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "23-909-seq-bank2-names.png",
+      "baseline_sha256": "c4032a0ce6054b06ffd15bc532ce4d10490cb1d74cd24463529c99af4af9232e",
+      "patched_sha256": "c4032a0ce6054b06ffd15bc532ce4d10490cb1d74cd24463529c99af4af9232e",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "24-808-seq-bank1-names.png",
+      "baseline_sha256": "71dacbdb9a0d290214fdd494722ae15cd1aec26049711ce41bfa9de6bdc8c152",
+      "patched_sha256": "71dacbdb9a0d290214fdd494722ae15cd1aec26049711ce41bfa9de6bdc8c152",
+      "bytes": 173118,
+      "match": true
+    },
+    {
+      "name": "25-808-seq-bank2-names.png",
+      "baseline_sha256": "63eba92b14ef5bced00a0c31eb95727d665d0b8ed5dcceff2707b9be3d79c282",
+      "patched_sha256": "63eba92b14ef5bced00a0c31eb95727d665d0b8ed5dcceff2707b9be3d79c282",
+      "bytes": 173118,
+      "match": true
+    }
+  ]
+}

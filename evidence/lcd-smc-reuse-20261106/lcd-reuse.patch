@@ -1,0 +1,635 @@
+diff --git a/firmware/src/app/lcd_tiles.h b/firmware/src/app/lcd_tiles.h
+new file mode 100644
+index 00000000..c159458c
+--- /dev/null
++++ b/firmware/src/app/lcd_tiles.h
+@@ -0,0 +1,70 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++#ifndef X0X_LCD_TILES_H
++#define X0X_LCD_TILES_H
++#include <stdint.h>
++
++/* SPI1 is 12 MHz on SMK-37; 1536 pixel bytes occupy 1.024 ms on the wire. */
++#define X0X_LCD_TILE_W 16u
++#define X0X_LCD_TILE_H 16u
++#define X0X_LCD_WIDTH 240u
++#define X0X_LCD_TILE_COLS (X0X_LCD_WIDTH / X0X_LCD_TILE_W)
++#define X0X_LCD_MAX_COLS_PER_DMA 3u
++#define X0X_LCD_MAX_DMA_BYTES (X0X_LCD_TILE_W * X0X_LCD_TILE_H * X0X_LCD_MAX_COLS_PER_DMA * 2u)
++
++typedef void (*x0x_lcd_tile_emit_fn)(void *context, const uint16_t *pixels,
++                                      uint32_t stride, uint32_t x, uint32_t y,
++                                      uint32_t w, uint32_t h);
++
++/* Hash the actual pixels of one tile. Last strip may be shorter than 16 rows. */
++static uint32_t x0x_lcd_tile_hash(const uint16_t *px, uint32_t stride,
++                                  uint32_t x, uint32_t y, uint32_t h)
++{
++    uint32_t hash = 2166136261u;
++    for (uint32_t row = 0; row < h; ++row) {
++        const uint16_t *p = px + (y + row) * stride + x;
++        for (uint32_t col = 0; col < X0X_LCD_TILE_W; ++col)
++            hash = (hash ^ p[col]) * 16777619u;
++    }
++    return hash;
++}
++
++/* Pack adjacent dirty tiles into one DMA buffer without overwriting the canvas. */
++static void x0x_lcd_tile_pack(uint16_t *out, const uint16_t *px, uint32_t stride,
++                              uint32_t x, uint32_t y, uint32_t w, uint32_t h)
++{
++    for (uint32_t row = 0; row < h; ++row) {
++        const uint16_t *src = px + (y + row) * stride + x;
++        __builtin_memcpy(out + row * w, src, w * sizeof(*src));
++    }
++}
++
++/* Emit each changed 16x16 tile exactly once; merge only adjacent changed columns.
++ * A transfer contains at most 3 tiles or 1536 bytes. The emitter owns DMA
++ * buffer lifetime and foreground input service between transfers. */
++static void x0x_lcd_tile_commit(const uint16_t *px, uint32_t rows,
++                                 uint32_t *last_hashes, int force,
++                                 x0x_lcd_tile_emit_fn emit, void *context)
++{
++    for (uint32_t row = 0; row < rows; row += X0X_LCD_TILE_H) {
++        const uint32_t h = rows - row < X0X_LCD_TILE_H ? rows - row : X0X_LCD_TILE_H;
++        uint32_t dirty = 0u;
++        for (uint32_t col = 0; col < X0X_LCD_TILE_COLS; ++col) {
++            const uint32_t hash = x0x_lcd_tile_hash(px, X0X_LCD_WIDTH,
++                                                     col * X0X_LCD_TILE_W, row, h);
++            uint32_t *old = &last_hashes[(row / X0X_LCD_TILE_H) * X0X_LCD_TILE_COLS + col];
++            if (force || hash != *old)
++                dirty |= 1u << col;
++            *old = hash;
++        }
++        for (uint32_t col = 0; col < X0X_LCD_TILE_COLS;) {
++            if (!(dirty & (1u << col))) { ++col; continue; }
++            const uint32_t begin = col++;
++            while (col < X0X_LCD_TILE_COLS && col - begin < X0X_LCD_MAX_COLS_PER_DMA &&
++                   (dirty & (1u << col)))
++                ++col;
++            emit(context, px, X0X_LCD_WIDTH, begin * X0X_LCD_TILE_W, row,
++                 (col - begin) * X0X_LCD_TILE_W, h);
++        }
++    }
++}
++#endif
+diff --git a/firmware/src/app/smc_mixer.c b/firmware/src/app/smc_mixer.c
+index b9155e5b..065bf213 100644
+--- a/firmware/src/app/smc_mixer.c
++++ b/firmware/src/app/smc_mixer.c
+@@ -782,6 +782,7 @@ static void smc_ui_off(void)
+     if (!smc_ui.on)
+         return;
+     smc_ui.on = 0;
++    popup_knob_full_hash = 0;
+     for (int i = 0; i < 4; i++) blit_hash[i] = 0;
+ #if BOARD_SMK37
+     { extern void smk_clip_lcd_force(void); smk_clip_lcd_force(); }
+@@ -823,6 +824,7 @@ static void smc_ui_begin(int n, int kind)
+         smc_ui_cancel();
+         return;                         /* Help keeps its card; confirmation keeps ownership. */
+     }
++    if (!smc_ui.on) popup_knob_full_hash = 0;
+     smc_ui.on = 1;
+     smc_ui.peer = smc_slot;
+     smc_ui.strip = (uint8_t)n;
+@@ -1060,7 +1062,7 @@ static void smc_ui_draw_peer(void)
+     cv_text(5, vc(&FONT_XS, 0, HDR_H), &FONT_XS, caps_of(tag), C_GRAY);
+     put_i(put_s(tag, smc_ui.kind == 3 ? "KEY " : smc_ui.kind == 1 || smc_ui.kind == 2 ? "KNOB " : "FADER "), smc_ui.strip + 1);
+     text_r(235, vc(&FONT_S, 0, HDR_H), &FONT_S, tag, C_HI);
+-    cv_commit(0, 0, 0);
++    cv_commit_header();
+     cv_begin(240, 2 * BAND_H, C_BLACK);
+     cv_band(0, 2 * BAND_H);
+     smc_ui_grid();
+@@ -1109,7 +1111,7 @@ static void smc_ui_draw_peer(void)
+       if (unit[0]) cv_text(x + 2, base_y(font, 22, &FONT_XS), &FONT_XS, unit, C_GRAY);
+     }
+     text_c(120, 49, &FONT_XS, status, C_HI);
+-    cv_commit(3, 0, KNOB_Y);
++    cv_commit_popup_knobs();
+ }
+ /* Page-peek is a distinct presentation mode. Keep the full SMC overlay
+  * for every other view, but let the real page paint its live meters while a
+@@ -1149,7 +1151,7 @@ void smc_ui_draw(void)
+             cv_rect(0, 0, 240, HDR_H, C_BLACK);
+             text_c(120, vc(&FONT_XS, 0, 10), &FONT_XS, caps_of(banner), C_HI);
+             text_c(120, vc(&FONT_T, 10, 10), &FONT_T, status, sc);
+-            cv_commit(0, 0, 0);
++            cv_commit_header();
+         }
+     } else smc_ui_draw_peer();
+     smc_slot = saved;
+diff --git a/firmware/src/app/ui.c b/firmware/src/app/ui.c
+index a2d6c6c3..50fc517a 100644
+--- a/firmware/src/app/ui.c
++++ b/firmware/src/app/ui.c
+@@ -4385,8 +4385,14 @@ _Static_assert(HDR_H <= CV_ROWS, "header taller than the screen strip");
+ _Static_assert(HDR_H + 2u * BAND_H + KNOB_H == 240u, "the three strips must tile the 240-row panel");
+ #endif
+ 
++#include "lcd_tiles.h"
++/* Dirty-tile DMA uses a dedicated, bounded .bss buffer. Full-row DMA
++ * reads the untouched canvas until lcd_sync. Recheck target BSS and pool budgets.
++ * 48 x 16 x RGB565 = 1536 bytes, 1.024 ms at the SMK-37's 12 MHz SPI. */
++static uint16_t cv_lcd_txbuf[X0X_LCD_MAX_DMA_BYTES / 2u];
+ static uint32_t blit_hash[4];
+ static uint8_t part_header_snapshot_valid;
++static uint8_t cv_tile_valid[4];
+ static uint32_t cv_hash(void)
+ {
+     uint32_t i, h = 2166136261u, n = cv_w * cv_h;
+@@ -4394,78 +4400,143 @@ static uint32_t cv_hash(void)
+         h = (h ^ cv_px[i]) * 16777619u;
+     return h ^ (cv_w << 16) ^ cv_h;
+ }
++#if BOARD_SMK37 && !defined(X0X_HOST)
++void smk_ck_poll(void);                     /* clip keybed's MIDI note/arp service in main_fm1.c */
++#endif
++static void cv_lcd_input(void)
++{
++    input();                                /* exact normal key/MIDI input path, preserving queue order */
++    division_pad_input();
++#if BOARD_SMK37 && !defined(X0X_HOST)
++    smk_ck_poll();                          /* clip-mode notes must not wait for the screen */
++#endif
++}
++/* At most one normal foreground dispatch per hardware millisecond.
++ * The timer interrupt continues changing plat_ms during each bounded DMA. */
++static void cv_lcd_maybe_input(void)
++{
++    static uint32_t last_ms = UINT32_MAX;
++    const uint32_t now = plat_ms();
++    if (last_ms != now) {
++        last_ms = now;
++        cv_lcd_input();
++    }
++}
++typedef struct { uint32_t x, y; } cv_lcd_pos_t;
++static void cv_lcd_emit(void *context, const uint16_t *px, uint32_t stride,
++                         uint32_t x, uint32_t y, uint32_t w, uint32_t h)
++{
++    const cv_lcd_pos_t *pos = (const cv_lcd_pos_t *)context;
++    /* The previous DMA can still read cv_lcd_txbuf: never overwrite it early.
++     * This wait is bounded by the previous <=1536-byte pixel transfer. */
++    lcd_sync();
++    x0x_lcd_tile_pack(cv_lcd_txbuf, px, stride, x, y, w, h);
++    lcd_blit(pos->x + x, pos->y + y, w, h, cv_lcd_txbuf);
++    cv_lcd_maybe_input();
++}
++/* A whole-strip repaint already has contiguous full-width rows in cv_px.
++ * DMA can read directly from that canvas without packing or an extra copy:
++ * the next cv_begin() calls lcd_sync() before it writes to the canvas. */
++static void cv_lcd_full(uint32_t x, uint32_t y)
++{
++    if (!cv_w) return;
++    const uint32_t rows_per_dma = X0X_LCD_MAX_DMA_BYTES / (2u * cv_w);
++    for (uint32_t row = 0; row < cv_h; row += rows_per_dma) {
++        const uint32_t h = cv_h - row < rows_per_dma ? cv_h - row : rows_per_dma;
++        lcd_blit(x, y + row, cv_w, h, cv_px + row * cv_w);
++        cv_lcd_maybe_input();
++    }
++}
+ static void cv_commit(int region, uint32_t x, uint32_t y)
+ {
+     if (region == 0) part_header_snapshot_valid = 0;
+     uint32_t h = cv_hash();
+     if (h != blit_hash[region]) {
+         blit_hash[region] = h;
+-        cv_blit(x, y);
++        cv_tile_valid[region] = 0;          /* next tiled owner must repaint after a whole-strip owner */
++        cv_lcd_full(x, y);
+     }
+ }
+ 
+-/* the main area sends only the rectangle that changed: the panel has no tearing-effect line the
+- * FM-1 can see, so a transfer the panel's refresh overtakes shows half old, half new. The whole
+- * area is 69 KB, 18 ms at 30 MHz, longer than a refresh, so every playhead step sheared; the two
+- * columns a step changes are ~3 ms. Rows and 8-pixel column blocks are hashed against the last
+- * frame sent; the changed rectangle is packed to the front of the canvas (it is rebuilt every
+- * frame) and sent as one transfer. blit_hash[region] == 0 (a reset) sends it all. */
++/* Hash 16x16 tiles, not the cross product of all changed rows and columns.
++ * Adjacent changed tiles are grouped up to 48 pixels wide. Scattered playheads
++ * stay separate, and no single display operation blocks input for a whole strip. */
+ #define MAIN_ROWS (2 * BAND_H)
+-#define MAIN_COLB (240 / 8)
+-static uint32_t main_rowh[MAIN_ROWS], main_colh[MAIN_COLB];
++#define KNOB_ROWS KNOB_H
++#define LCD_TILE_ROWS(n) (((n) + X0X_LCD_TILE_H - 1u) / X0X_LCD_TILE_H)
++static uint32_t main_tileh[LCD_TILE_ROWS(MAIN_ROWS) * X0X_LCD_TILE_COLS];
++static uint32_t knob_tileh[LCD_TILE_ROWS(KNOB_ROWS) * X0X_LCD_TILE_COLS];
++static uint32_t header_tileh[LCD_TILE_ROWS(HDR_H) * X0X_LCD_TILE_COLS];
++static uint32_t header_full_hash, popup_knob_full_hash;
++static void cv_commit_rows(int region, uint32_t x, uint32_t y,
++                           uint32_t rows, uint32_t *hashes)
++{
++    cv_lcd_pos_t pos = {x, y};
++    int force = !blit_hash[region] || !cv_tile_valid[region];
++    blit_hash[region] = 1u;
++    cv_tile_valid[region] = 1u;
++    x0x_lcd_tile_commit(cv_px, rows, hashes, force, cv_lcd_emit, &pos);
++}
+ static void cv_commit_rect(int region, uint32_t x, uint32_t y)
+ {
+-    uint32_t rowh[MAIN_ROWS], colh[MAIN_COLB], r, c, r0 = MAIN_ROWS, r1 = 0, c0 = MAIN_COLB, c1 = 0, w, h, k;
+-    for (c = 0; c < MAIN_COLB; c++)
+-        colh[c] = 2166136261u;
+-    for (r = 0; r < MAIN_ROWS; r++) {
+-        const uint16_t *q = cv_px + r * 240u;
+-        uint32_t hr = 2166136261u;
+-        for (c = 0; c < MAIN_COLB; c++) {
+-            uint32_t hc = colh[c];
+-            for (k = 0; k < 8u; k++) {
+-                hr = (hr ^ q[k]) * 16777619u;
+-                hc = (hc ^ q[k]) * 16777619u;
+-            }
+-            colh[c] = hc;
+-            q += 8;
+-        }
+-        rowh[r] = hr;
++    cv_commit_rows(region, x, y, MAIN_ROWS, main_tileh);
++}
++static void cv_commit_knobs(int region)
++{
++    cv_commit_rows(region, 0, KNOB_Y, KNOB_ROWS, knob_tileh);
++}
++
++/* Full-band changes need no per-tile pixel packing. Send the same pixels
++ * via 0.0.24.3's <=1,536-byte full-row DMA chunks and initialize the tile
++ * hashes so the very next small change stays a dirty-tile update. */
++static void cv_commit_full_with_tiles(int region, uint32_t x, uint32_t y,
++                                      uint32_t rows, uint32_t *hashes)
++{
++    for (uint32_t row = 0; row < rows; row += X0X_LCD_TILE_H) {
++        uint32_t h = rows - row < X0X_LCD_TILE_H ? rows - row : X0X_LCD_TILE_H;
++        for (uint32_t col = 0; col < X0X_LCD_TILE_COLS; ++col)
++            hashes[(row / X0X_LCD_TILE_H) * X0X_LCD_TILE_COLS + col] =
++                x0x_lcd_tile_hash(cv_px, X0X_LCD_WIDTH,
++                                  col * X0X_LCD_TILE_W, row, h);
+     }
+-    if (!blit_hash[region]) {                         /* after a reset: all of it */
+-        r0 = c0 = 0;
+-        r1 = MAIN_ROWS - 1;
+-        c1 = MAIN_COLB - 1;
+-    } else {
+-        for (r = 0; r < MAIN_ROWS; r++)
+-            if (rowh[r] != main_rowh[r]) {
+-                if (r0 == MAIN_ROWS)
+-                    r0 = r;
+-                r1 = r;
+-            }
+-        for (c = 0; c < MAIN_COLB; c++)
+-            if (colh[c] != main_colh[c]) {
+-                if (c0 == MAIN_COLB)
+-                    c0 = c;
+-                c1 = c;
+-            }
+-        if (r0 == MAIN_ROWS || c0 == MAIN_COLB)
+-            return;                                     /* nothing changed */
++    blit_hash[region] = 1u;
++    cv_tile_valid[region] = 1u;
++    cv_lcd_full(x, y);
++}
++
++/* Tiny beat, cue and status changes use dirty header tiles. Unchanged frames
++ * pay only the same single whole-band hash as 0.0.24.3. */
++static void cv_commit_header(void)
++{
++    part_header_snapshot_valid = 0;
++    if (!blit_hash[0] || !cv_tile_valid[0]) {
++        /* Cold full-band transfer already computes all tile hashes. Avoid
++         * hashing the full canvas twice; learn its full hash next frame. */
++        cv_commit_full_with_tiles(0, 0, 0, HDR_H, header_tileh);
++        header_full_hash = 0;
++        return;
+     }
+-    blit_hash[region] = 1;
+-    for (r = 0; r < MAIN_ROWS; r++)
+-        main_rowh[r] = rowh[r];
+-    for (c = 0; c < MAIN_COLB; c++)
+-        main_colh[c] = colh[c];
+-    w = (c1 - c0 + 1u) * 8u;
+-    h = r1 - r0 + 1u;
+-    for (r = 0; r < h; r++) {                         /* pack: the destination never passes the source */
+-        const uint16_t *src = cv_px + (r0 + r) * 240u + c0 * 8u;
+-        uint16_t *dst = cv_px + r * w;
+-        for (k = 0; k < w; k++)
+-            dst[k] = src[k];
++    uint32_t h = cv_hash();
++    if (h == header_full_hash) return;
++    cv_commit_rows(0, 0, 0, HDR_H, header_tileh);
++    header_full_hash = h;
++}
++
++/* SMC details use small dirty tiles after a full redraw; the separate popup
++ * full hash avoids repeated descriptor-band work in a stable frame. */
++static void cv_commit_popup_knobs(void)
++{
++    if (!blit_hash[3] || !cv_tile_valid[3]) {
++        /* First popup redraw uses the established tile hashes for the whole
++         * strip. Defer its duplicate full-canvas hash until the next frame. */
++        cv_commit_full_with_tiles(3, 0, KNOB_Y, KNOB_ROWS, knob_tileh);
++        popup_knob_full_hash = 0;
++        return;
+     }
+-    lcd_blit(x + c0 * 8u, y + r0, w, h, cv_px);
++    uint32_t h = cv_hash();
++    if (h == popup_knob_full_hash) return;
++    cv_commit_knobs(3);
++    popup_knob_full_hash = h;
+ }
+ 
+ static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
+@@ -4916,7 +4987,7 @@ static UI_DRAW void draw_header(void)
+     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
+         box(0, 0, 240, HDR_H - 1, part_col());
+         text_c(120, vc(&FONT_B, 0, HDR_H - 1), &FONT_B, ui.msg, C_BLACK);
+-        cv_commit(0, 0, 0);
++        cv_commit_header();
+         return;
+     }
+     if (!pickup || (int32_t)(ui.msg_until - plat_ms()) <= 0)
+@@ -4949,7 +5020,7 @@ static UI_DRAW void draw_header(void)
+         if(seq.playing) play_icon(175,4,C_HI);
+         if(ui.rec) dot(190,9,3,RGB(255,50,50));
+         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
+-        cv_commit(0,0,0);
++        cv_commit_header();
+         if (cacheable) { part_header_snapshot = snapshot; part_header_snapshot_valid = 1; }
+         return;
+     }
+@@ -5051,7 +5122,7 @@ static UI_DRAW void draw_header(void)
+         dot(231, 9, 4, RGB(255, 50, 50));
+     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
+         dot(237, 3, 2, ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB);
+-    cv_commit(0, 0, 0);
++    cv_commit_header();
+ }
+ 
+ /* -------------------------------------------------------------- the views --- */
+@@ -7656,7 +7727,7 @@ static UI_DRAW void draw_knobs(void)
+         /* Continuation of the same 4x4 matrix, not a duplicate knob row. */
+         cv_begin(240, KNOB_H, C_BLACK);
+         if (ui.overlay==O_NONE && !ui.help) draw_part_sound(2);
+-        cv_commit(3, 0, KNOB_Y);
++        cv_commit_knobs(3);
+         last_sig = 0;
+         return;
+     }
+@@ -7704,7 +7775,7 @@ static UI_DRAW void draw_knobs(void)
+             text_c(cx, vc(&FONT_XS, 13, 10), &FONT_XS, SN[i], C_GRAY);
+             text_c(cx, vc(&FONT_M, 30, 34), &FONT_M, v, C_WHITE);
+         }
+-        cv_commit(3, 0, KNOB_Y);
++        cv_commit_knobs(3);
+         return;
+     }
+     for (i = 0; i < 4; i++) {
+@@ -7753,7 +7824,7 @@ static UI_DRAW void draw_knobs(void)
+         cell_value(cx-(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP),
+                    vc(&FONT_B,53,13),num,unit,touched?C_WHITE:C_HI);
+     }
+-    cv_commit(3, 0, KNOB_Y);
++    cv_commit_knobs(3);
+ }
+ 
+ /* ===================================================================== LEDs === */
+@@ -7930,8 +8001,11 @@ X0X_COLD void ui_init(void)
+     ui.save_failed = 0;
+     save_wait = 0;
+     palette_set(proj.set.palette);
+-    for (i = 0; i < 4; i++)
++    for (i = 0; i < 4; i++) {
+         blit_hash[i] = 0;
++        cv_tile_valid[i] = 0;
++    }
++    header_full_hash = popup_knob_full_hash = 0;
+     build_pages();
+     undo_start();                                   /* the project as loaded is where undo stops */
+     if (project_storage_unsupported()) {
+diff --git a/tests/host/lcd_bounded_scenarios_test.c b/tests/host/lcd_bounded_scenarios_test.c
+new file mode 100644
+index 00000000..b83435ec
+--- /dev/null
++++ b/tests/host/lcd_bounded_scenarios_test.c
+@@ -0,0 +1,67 @@
++#include <assert.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include "../../firmware/src/app/lcd_tiles.h"
++
++#define W 240u
++#define MAX_ROWS 138u
++#define OLD_COLS (W/8u)
++#define NEW_ROWS ((MAX_ROWS+X0X_LCD_TILE_H-1u)/X0X_LCD_TILE_H)
++static uint16_t canvas[W*MAX_ROWS], dma[X0X_LCD_MAX_DMA_BYTES/2u];
++static uint32_t old_rows[MAX_ROWS],old_cols[OLD_COLS],new_hash[NEW_ROWS*X0X_LCD_TILE_COLS];
++typedef struct { unsigned bytes,max_bytes,ops; } stats_t;
++static stats_t before,after;
++static void add(stats_t *s,unsigned bytes){s->bytes+=bytes;if(bytes>s->max_bytes)s->max_bytes=bytes;s->ops++;}
++static void emit(void *ctx,const uint16_t *src,uint32_t stride,uint32_t x,uint32_t y,uint32_t w,uint32_t h)
++{(void)ctx;unsigned bytes=w*h*2u;assert(bytes<=X0X_LCD_MAX_DMA_BYTES);x0x_lcd_tile_pack(dma,src,stride,x,y,w,h);add(&after,bytes);}
++/* Original cv_commit_rows row/column hash + one cross-product bounding rectangle. */
++static void legacy(uint32_t rows,int force){
++    uint32_t rowh[MAX_ROWS],colh[OLD_COLS],r0=rows,r1=0,c0=OLD_COLS,c1=0;
++    for(unsigned c=0;c<OLD_COLS;c++)colh[c]=2166136261u;
++    for(unsigned r=0;r<rows;r++){
++      const uint16_t*q=canvas+r*W;uint32_t hr=2166136261u;
++      for(unsigned c=0;c<OLD_COLS;c++){
++        uint32_t hc=colh[c];for(unsigned k=0;k<8u;k++){hr=(hr^q[k])*16777619u;hc=(hc^q[k])*16777619u;}
++        colh[c]=hc;q+=8u;
++      }rowh[r]=hr;
++    }
++    if(force){r0=c0=0;r1=rows-1u;c1=OLD_COLS-1u;}
++    else{
++      for(unsigned r=0;r<rows;r++)if(rowh[r]!=old_rows[r]){if(r0==rows)r0=r;r1=r;}
++      for(unsigned c=0;c<OLD_COLS;c++)if(colh[c]!=old_cols[c]){if(c0==OLD_COLS)c0=c;c1=c;}
++      if(r0==rows||c0==OLD_COLS)return;
++    }
++    for(unsigned r=0;r<rows;r++)old_rows[r]=rowh[r];
++    for(unsigned c=0;c<OLD_COLS;c++)old_cols[c]=colh[c];
++    add(&before,(c1-c0+1u)*8u*(r1-r0+1u)*2u);
++}
++static void print_stats(const char *label){
++    printf("%-11s %8u %8u %9u %9u %5u %5u\n",label,before.bytes,after.bytes,
++      (before.max_bytes*2u+2u)/3u,(after.max_bytes*2u+2u)/3u,before.ops,after.ops);
++}
++static void reset(unsigned rows){
++    memset(canvas,0,sizeof canvas);memset(old_rows,0,sizeof old_rows);
++    memset(old_cols,0,sizeof old_cols);memset(new_hash,0,sizeof new_hash);
++    memset(&before,0,sizeof before);memset(&after,0,sizeof after);
++    legacy(rows,1);x0x_lcd_tile_commit(canvas,rows,new_hash,1,emit,0);
++    memset(&before,0,sizeof before);memset(&after,0,sizeof after);
++}
++int main(void){
++    puts("scenario      old bytes new bytes old max us new max us old ops new ops");
++    reset(138u);
++    for(unsigned y=40u;y<=75u;y++){canvas[y*W+50u]=0xffffu;canvas[y*W+165u]=0xffffu;}
++    legacy(138u,0);x0x_lcd_tile_commit(canvas,138u,new_hash,0,emit,0);
++    print_stats("playhead");assert(after.bytes<before.bytes);assert(after.max_bytes<=1536u);
++    reset(82u);
++    for(unsigned y=17u;y<=39u;y++){canvas[y*W+7u]=0x9999u;canvas[y*W+119u]=0x9999u;canvas[y*W+232u]=0x9999u;}
++    legacy(82u,0);x0x_lcd_tile_commit(canvas,82u,new_hash,0,emit,0);
++    print_stats("knob");assert(after.bytes<before.bytes);assert(after.max_bytes<=1536u);
++    reset(82u);
++    for(unsigned y=0;y<82u;y++)for(unsigned x=0;x<W;x++)canvas[y*W+x]=(uint16_t)((y+x)%65535u);
++    add(&before,82u*240u*2u);
++    for(unsigned y=0;y<82u;y+=16u)for(unsigned x=0;x<W;x+=48u){unsigned h=82u-y<16u?82u-y:16u;emit(0,canvas,W,x,y,48u,h);}
++    print_stats("smc-popup");assert(after.bytes==before.bytes);assert(after.max_bytes<=1536u);
++    reset(138u);legacy(138u,0);x0x_lcd_tile_commit(canvas,138u,new_hash,0,emit,0);
++    print_stats("idle");assert(!before.bytes&&!after.bytes);
++}
+diff --git a/tests/host/lcd_bounded_test.c b/tests/host/lcd_bounded_test.c
+new file mode 100644
+index 00000000..dd2dea1c
+--- /dev/null
++++ b/tests/host/lcd_bounded_test.c
+@@ -0,0 +1,48 @@
++#include <assert.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include "../../firmware/src/app/lcd_tiles.h"
++
++#define W 240u
++#define H 138u
++#define NC (W/X0X_LCD_TILE_W)
++#define NR ((H+X0X_LCD_TILE_H-1u)/X0X_LCD_TILE_H)
++static uint16_t canvas[W*H], panel[W*H], dma[X0X_LCD_MAX_DMA_BYTES/2u];
++static uint32_t hashes[NC*NR];
++static unsigned sent, max_bytes, dispatches, operations;
++
++static void emit(void *ctx,const uint16_t *src,uint32_t stride,uint32_t x,uint32_t y,uint32_t w,uint32_t h)
++{
++    (void)ctx;
++    const unsigned bytes=w*h*2u;
++    assert(bytes<=X0X_LCD_MAX_DMA_BYTES);
++    x0x_lcd_tile_pack(dma,src,stride,x,y,w,h);
++    for(unsigned yy=0;yy<h;++yy) for(unsigned xx=0;xx<w;++xx)
++        panel[(y+yy)*W+x+xx]=dma[yy*w+xx];
++    sent+=bytes;
++    if(bytes>max_bytes)max_bytes=bytes;
++    ++dispatches;++operations;
++}
++static void commit(int force)
++{
++    x0x_lcd_tile_commit(canvas,H,hashes,force,emit,0);
++}
++static void reset_counts(void){sent=max_bytes=dispatches=operations=0;}
++static void assert_pixels(void){ assert(!memcmp(canvas,panel,sizeof(canvas))); }
++int main(void) {
++    for (unsigned y=0;y<H;y++) for(unsigned x=0;x<W;x++) canvas[y*W+x]=(uint16_t)((y*151u+x*7u)&65535u);
++    commit(1);assert_pixels();assert(sent==W*H*2);assert(max_bytes<=1536);assert(dispatches==operations);
++    reset_counts();commit(0);assert(!sent);assert(!dispatches);
++    /* Narrow playhead updates cost only touched tiles, not a width-spanning rectangle. */
++    for(unsigned y=17;y<76;y++) canvas[y*W+42]=0xffff;
++    reset_counts();commit(0);assert_pixels();assert(sent<=X0X_LCD_TILE_H*X0X_LCD_TILE_W*2u*5u);assert(max_bytes<=X0X_LCD_TILE_H*X0X_LCD_TILE_W*2u);assert(dispatches>0);
++    /* Two far apart dots must not inflate into the huge bounding rectangle. */
++    canvas[W*3+1]^=1;canvas[W*130+237]^=1;
++    reset_counts();commit(0);assert_pixels();assert(sent<=2u*X0X_LCD_TILE_H*X0X_LCD_TILE_W*2u);
++    /* Knob-like scattering across width may use multiple chunks but stays bounded. */
++    for(unsigned x=0;x<W;x+=31)canvas[W*101+x]^=(uint16_t)(x+1);
++    reset_counts();commit(0);assert_pixels();assert(max_bytes<=X0X_LCD_MAX_DMA_BYTES);
++    reset_counts();commit(0);assert(!sent);
++    puts("ok lcd-bounded-tiles: exact pixels, idle no DMA, playhead sparse, non-inflating corners, bounded DMA and dispatch");
++}
+diff --git a/tests/host/lcd_bounded_test.sh b/tests/host/lcd_bounded_test.sh
+new file mode 100644
+index 00000000..cc8c5d6b
+--- /dev/null
++++ b/tests/host/lcd_bounded_test.sh
+@@ -0,0 +1,9 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++set -eu
++cd "$(dirname "$0")/../.."
++mkdir -p build/host
++for test in lcd_bounded_test lcd_bounded_scenarios_test; do
++  ${CC:-cc} -O2 -std=c11 -Wall -Wextra -Werror -I. "tests/host/$test.c" -o "build/host/$test"
++  "build/host/$test"
++done
+diff --git a/tests/host/lcd_dispatch_reuse_test.py b/tests/host/lcd_dispatch_reuse_test.py
+new file mode 100644
+index 00000000..0b490e09
+--- /dev/null
++++ b/tests/host/lcd_dispatch_reuse_test.py
+@@ -0,0 +1,77 @@
++#!/usr/bin/env python3
++"""Compile actual ui.c commit helpers against a deferred-DMA framebuffer model."""
++from pathlib import Path
++import subprocess
++import tempfile
++root = Path(__file__).resolve().parents[2]
++s = (root / 'firmware/src/app/ui.c').read_text()
++helpers = s[s.index('#include "lcd_tiles.h"'):s.index('static uint16_t blend')]
++preamble = r'''
++#include <assert.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#define BOARD_SMK37 1
++#define HDR_H 20
++#define BAND_H 69
++#define KNOB_H 82
++#define KNOB_Y 158
++static uint16_t canvas[240*138], screen[240*240], pending_copy[768];
++static uint16_t *cv_px=canvas;
++static uint32_t cv_w=240,cv_h,now=7,advance=1;
++static unsigned calls,keys,pads,clips,max_bytes;
++static const uint16_t *pending;
++static unsigned tx,ty,tw,th;
++static uint32_t plat_ms(void){return now;}
++static void input(void){keys++;}
++static void division_pad_input(void){pads++;}
++void smk_ck_poll(void){clips++;}
++static void lcd_sync(void){
++ if(!pending)return;
++ assert(!memcmp(pending,pending_copy,tw*th*2));
++ for(unsigned y=0;y<th;y++)memcpy(screen+(ty+y)*240+tx,pending+y*tw,tw*2);
++ pending=0;
++}
++static void lcd_blit(uint32_t x,uint32_t y,uint32_t w,uint32_t h,const uint16_t *p){
++ lcd_sync(); /* actual lcd_window/lcd_cmd serializes the preceding DMA */
++ assert(w*h*2<=1536 && x+w<=240 && y+h<=240);
++ tx=x;ty=y;tw=w;th=h;pending=p;memcpy(pending_copy,p,w*h*2);
++ if(w*h*2>max_bytes)max_bytes=w*h*2;
++ calls++;now+=advance;
++}
++'''
++checks = r'''
++static void fill(unsigned h,unsigned seed){
++ lcd_sync();cv_h=h;
++ for(unsigned i=0;i<240*h;i++)canvas[i]=(uint16_t)(i*31+seed);
++}
++static void equal(unsigned y){
++ lcd_sync();for(unsigned row=0;row<cv_h;row++)assert(!memcmp(canvas+row*240,screen+(row+y)*240,480));
++}
++int main(void){
++ fill(138,1);cv_commit_rect(1,0,20);equal(20);
++ unsigned n=calls;cv_commit_rect(1,0,20);assert(calls==n);
++ canvas[0]^=1;canvas[240*138-1]^=1;cv_commit_rect(1,0,20);equal(20);assert(calls==n+2);
++ fill(20,2);part_header_snapshot_valid=1;cv_commit_header();equal(0);assert(!part_header_snapshot_valid);
++ n=calls;cv_commit_header();cv_commit_header();assert(calls==n);
++ canvas[4]^=1;cv_commit_header();equal(0);
++ fill(82,3);cv_commit_knobs(3);equal(158);
++ fill(82,4);blit_hash[3]=0;popup_knob_full_hash=0;cv_commit_popup_knobs();equal(158);
++ n=calls;cv_commit_popup_knobs();cv_commit_popup_knobs();assert(calls==n);
++ canvas[240*81+239]^=1;cv_commit_popup_knobs();equal(158);
++ fill(82,5);cv_commit(3,0,158);equal(158);assert(!cv_tile_valid[3]);
++ fill(82,4);cv_commit_popup_knobs();equal(158);assert(cv_tile_valid[3]);
++ /* Fixed hardware tick must not dispatch for every tile. */
++ advance=0;now=1234;n=keys;fill(138,6);cv_commit_rect(1,0,20);equal(20);assert(keys==n+1);
++ fill(138,7);cv_commit_rect(1,0,20);equal(20);assert(keys==n+1);
++ now++;cv_lcd_maybe_input();assert(keys==n+2);
++ now=UINT32_MAX;cv_lcd_maybe_input();now=0;cv_lcd_maybe_input();assert(keys==n+4);
++ assert(keys==pads && keys==clips);assert(max_bytes==1536);
++ printf("PASS production commit helpers: exact pixels, idle, ownership, deferred DMA lifetime, <=1536 bytes, millisecond gating/wrap, key/pad/clip dispatch (%u transfers, %u dispatches)\n",calls,keys);
++}
++'''
++with tempfile.TemporaryDirectory() as tmp:
++    c=Path(tmp)/'test.c'; binary=Path(tmp)/'test'
++    c.write_text(preamble+helpers+checks)
++    subprocess.run(['cc','-std=c11','-O1','-g','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-omit-frame-pointer','-I'+str(root/'firmware/src/app'),str(c),'-o',str(binary)],check=True)
++    subprocess.run([str(binary)],check=True)

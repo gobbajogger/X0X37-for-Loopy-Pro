@@ -1,0 +1,1 @@
+PASS production commit helpers: exact pixels, idle, ownership, deferred DMA lifetime, <=1536 bytes, millisecond gating/wrap, key/pad/clip dispatch (260 transfers, 174 dispatches)

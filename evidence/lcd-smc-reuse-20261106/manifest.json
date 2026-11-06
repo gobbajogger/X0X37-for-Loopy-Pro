@@ -1,0 +1,86 @@
+[
+  {
+    "path": "PLAN.md",
+    "bytes": 1088,
+    "sha256": "f5e084946d82d6e28f34da4e8688e5c42d9c065d6bdae41bdb4c69d3957c34cf",
+    "git_blob": "ece6774f97d29a09b7258cd5aeb335621188a5b0"
+  },
+  {
+    "path": "README.md",
+    "bytes": 10334,
+    "sha256": "1fd08e66c5db1cf4050a0d8b5972521d4c64d4bd2353cdff235391a1a3a28553",
+    "git_blob": "b3edd6c6f904fe2edc210fa55c638b753d385517"
+  },
+  {
+    "path": "framebuffer-pairs.json",
+    "bytes": 7189,
+    "sha256": "3bbf23b0baf3891b756402676ab94792ab08d54fd44225595173769df63b3c6c",
+    "git_blob": "f440cbc06559cb3512ed9b627f29ee3d8b70ab5d"
+  },
+  {
+    "path": "lcd-reuse.patch",
+    "bytes": 28400,
+    "sha256": "5b4c18f1e05b4403b860036f218ee22a32c87849172b2b7e264d87956ac4eae2",
+    "git_blob": "f10f06e96f1de7ba0cebbcffbd293022d6509284"
+  },
+  {
+    "path": "logs/baseline-smc.log",
+    "bytes": 9623,
+    "sha256": "0a321921eabcd378a361a453f1ef9f24725cf38bc9cdeafe04158a19aac19854",
+    "git_blob": "ccf30ef6b63c2c2ab9a1d52261e580761a1776c8"
+  },
+  {
+    "path": "logs/framebuffer-comparison.log",
+    "bytes": 56,
+    "sha256": "b5c8d2fc1447ecd728c3955ee0f5c723c237301f148c1eab627ad3310261be8c",
+    "git_blob": "d934ccd52b38259b18c5cf79cfe2193c10b84669"
+  },
+  {
+    "path": "logs/lcd-bounded.log",
+    "bytes": 434,
+    "sha256": "2036f1f29ede28775fa3aee7649817691c5cc920a06a76a4099f239dbfccbe14",
+    "git_blob": "05dfd45b7076ac8d7765cc1b2a95e3fbf80a60b7"
+  },
+  {
+    "path": "logs/lcd-dispatch.log",
+    "bytes": 179,
+    "sha256": "2b7308d24a40f8b8b8f7336caabfafce935ba5e6e4922ec12816ae042b817659",
+    "git_blob": "2ab55a04166b04235d2c4d9ccb4211d560bb7e17"
+  },
+  {
+    "path": "logs/lcd-trace.log",
+    "bytes": 91,
+    "sha256": "408e02d8c70e59995a7ab930d80c464e435fc4595b336c259bd9d27c00cd1e15",
+    "git_blob": "7e07edd230b1115e8667f81e9f7dd949f0257de3"
+  },
+  {
+    "path": "logs/panic-route.log",
+    "bytes": 24,
+    "sha256": "14b2438792032634412a27b6ea9851d13d7ec033eea4b26d5b0282ccc89c2a3a",
+    "git_blob": "b34ee099ec6cd4ea144c0b554d5b8492eb952225"
+  },
+  {
+    "path": "logs/patched-smc.log",
+    "bytes": 9623,
+    "sha256": "6f83893c98b37d9b5f5658403ee6fb172182c2922e953643e999c7131eb708f4",
+    "git_blob": "7d98804ecb512fe0630337e60ed21cb3208b1bd4"
+  },
+  {
+    "path": "logs/save-note.log",
+    "bytes": 7970,
+    "sha256": "23f2b1ccb3b11c5091720fe872ad6cb72cef6713d542a81c543ffdc7379d9cdb",
+    "git_blob": "38a069328b4d082535d1186beb4becd875e5d613"
+  },
+  {
+    "path": "logs/smc-multi-peer.log",
+    "bytes": 8387,
+    "sha256": "46ec2e57af19f0522719ff54ee1cc6f9f1cd5299a2272fafc4ceda71edfa36f2",
+    "git_blob": "c01a93bacafd5cecab06c8fef093198384100fc3"
+  },
+  {
+    "path": "logs/smc-record-feedback.log",
+    "bytes": 8313,
+    "sha256": "e99b01868e4be62582c43d284185287f7a88475b1491b3ac4deb474894caba29",
+    "git_blob": "bd52e76232d115a9ee631fb15721c43fba3fc52c"
+  }
+]
