@@ -1,0 +1,19 @@
+  ok   project-runtime
+  FAIL smc-fx-peer-view (see build/host/smc-fx-peer-view.log)
+       /workspace/host-validation-0260/baseline/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc: In function ‘smc_ui_off’:
+       /workspace/host-validation-0260/baseline/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:39:5: error: ‘popup_knob_full_hash’ undeclared (first use in this function)
+          39 |     popup_knob_full_hash = 0;
+             |     ^~~~~~~~~~~~~~~~~~~~
+       /workspace/host-validation-0260/baseline/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:39:5: note: each undeclared identifier is reported only once for each function it appears in
+       /workspace/host-validation-0260/baseline/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc: In function ‘smc_ui_begin’:
+       /workspace/host-validation-0260/baseline/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:81:21: error: ‘popup_knob_full_hash’ undeclared (first use in this function)
+          81 |     if (!smc_ui.on) popup_knob_full_hash = 0;
+             |                     ^~~~~~~~~~~~~~~~~~~~
+       Traceback (most recent call last):
+         File "/workspace/host-validation-0260/baseline/tests/host/smc_fx_peer_view_test.py", line 56, in <module>
+           subprocess.run(cmd,cwd=ROOT,check=True)
+         File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-pedantic', '-Ifirmware/src', '-I/workspace/host-validation-0260/baseline/build/host/smc-fx-peer-ui', 'tests/host/smc_fx_peer_view_test.c', '-o', '/workspace/host-validation-0260/baseline/build/host/smc-fx-peer-ui/test']' returned non-zero exit status 1.
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+TESTS FAILED

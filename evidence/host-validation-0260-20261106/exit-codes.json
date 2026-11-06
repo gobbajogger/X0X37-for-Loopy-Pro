@@ -1,0 +1,89 @@
+{
+  "full-host": {
+    "command": "X0X_TEST_JOBS=8 sh tests/run_tests.sh",
+    "exit": 1
+  },
+  "baseline-initial-failures": {
+    "command": "sh tests/run_tests.sh project-runtime smc-fx-peer-view",
+    "exit": 1
+  },
+  "baseline-second-failures": {
+    "command": "sh tests/run_tests.sh part-order smc-ui-negative optimization-equivalence smk-arrows-owner smk-padcal-wiring",
+    "exit": 1
+  },
+  "audio-base": {
+    "exit": 0,
+    "command": "python3 tests/host/audio_path_identity.py --output ../evidence/audio-base"
+  },
+  "audio-candidate": {
+    "exit": 0,
+    "command": "python3 tests/host/audio_path_identity.py --output ../evidence/audio-candidate --baseline ../evidence/audio-v6"
+  },
+  "audio-v6": {
+    "exit": 0,
+    "command": "python3 tests/host/audio_path_identity.py --output ../evidence/audio-v6"
+  },
+  "baseline-failures": {
+    "command": [
+      "sh",
+      "tests/run_tests.sh",
+      "song-actions",
+      "scenario-arrows",
+      "scenario-autosave",
+      "scenario-clip-arrow-menu",
+      "scenario-clklock",
+      "scenario-clkmove",
+      "scenario-clocksrc",
+      "scenario-guard",
+      "scenario-migrate",
+      "scenario-migrate0102",
+      "scenario-perf",
+      "scenario-perfsave",
+      "scenario-probcond",
+      "scenario-probreset",
+      "scenario-tour",
+      "scenario-undo",
+      "perf-scratch"
+    ],
+    "cwd": "/workspace/host-validation-0260/baseline",
+    "exit": 0
+  },
+  "candidate-peer": {
+    "command": [
+      "sh",
+      "tests/host/smc_peer_names_test.sh"
+    ],
+    "cwd": "/workspace/host-validation-0260/candidate",
+    "exit": 1
+  },
+  "name-equivalence-rerun": {
+    "exit": 0,
+    "command": "cc -O1 -g -fsanitize=address,undefined evidence/ui-ram-reduction-0260cd3f/name-equivalence.c -o /workspace/host-validation-0260/name-equivalence && /workspace/host-validation-0260/name-equivalence"
+  },
+  "v6-project-runtime": {
+    "exit": 134,
+    "command": "sh tests/host/project_runtime_test.sh"
+  },
+  "note": "PASS selectors imply command exit 0. Original unmodified runner records nonzero failure but not numeric child exit; no fabricated child exit code. Full/selected runner and supplemental direct command exits are exact.",
+  "candidate-cli": {
+    "command": [
+      "python3",
+      "tests/x0x_cli_executable_mode_test.py"
+    ],
+    "exit": 0
+  },
+  "baseline-peer": {
+    "command": [
+      "sh",
+      "tests/host/smc_peer_names_test.sh"
+    ],
+    "exit": 1
+  },
+  "v6-peer": {
+    "command": [
+      "sh",
+      "tests/host/smc_peer_names_test.sh"
+    ],
+    "exit": 1
+  }
+}

@@ -1,0 +1,1173 @@
+===== project-runtime =====
+project_update_guard: held restart, BEGIN/COMMIT update discard and idle updates ok
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/project_runtime_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘x0x_host_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+project_runtime: tests/host/project_runtime_test.c:43: open_action: Assertion `row >= 0' failed.
+Aborted
+
+===== smc-fx-peer-view =====
+COMPILING cc -std=c99 -O1 -g -Wall -Wextra -Werror -pedantic -Ifirmware/src -I/workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui tests/host/smc_fx_peer_view_test.c -o /workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/test
+In file included from tests/host/smc_fx_peer_view_test.c:33:
+/workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc: In function ‘smc_ui_off’:
+/workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:39:5: error: ‘popup_knob_full_hash’ undeclared (first use in this function)
+   39 |     popup_knob_full_hash = 0;
+      |     ^~~~~~~~~~~~~~~~~~~~
+/workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:39:5: note: each undeclared identifier is reported only once for each function it appears in
+/workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc: In function ‘smc_ui_begin’:
+/workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:81:21: error: ‘popup_knob_full_hash’ undeclared (first use in this function)
+   81 |     if (!smc_ui.on) popup_knob_full_hash = 0;
+      |                     ^~~~~~~~~~~~~~~~~~~~
+Traceback (most recent call last):
+  File "/workspace/host-validation-0260/candidate/tests/host/smc_fx_peer_view_test.py", line 56, in <module>
+    subprocess.run(cmd,cwd=ROOT,check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-pedantic', '-Ifirmware/src', '-I/workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui', 'tests/host/smc_fx_peer_view_test.c', '-o', '/workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/test']' returned non-zero exit status 1.
+
+===== part-order =====
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8,
+                 from tests/host/part_order_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/part_order_test.c: In function ‘order_navigation’:
+tests/host/part_order_test.c:26:5: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+   26 |     for(int i=0;i<NPARTS;i++)CHECK(midi[i]==seq.ch[i]); free(before);
+      |     ^~~
+tests/host/part_order_test.c:26:57: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+   26 |     for(int i=0;i<NPARTS;i++)CHECK(midi[i]==seq.ch[i]); free(before);
+      |                                                         ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+FAIL tests/host/part_order_test.c:71: n==NPARTS
+
+===== smc-ui-negative =====
+PASS negative drum-seq-numbered: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS negative drum-seq-wrong-kit: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS negative drum-seq-ignores-captured-view: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS negative filter-shows-false-solo: FAIL tests/host/smc_ui_test.c:602: !strcmp(smc_button_caption(15), "PART")
+PASS negative static-knob-arc: FAIL tests/host/smc_ui_test.c:645: pixels > 0
+Traceback (most recent call last):
+  File "/workspace/host-validation-0260/candidate/tests/host/smc_ui_negative_test.py", line 76, in <module>
+    raise RuntimeError(f"{name}: expected one production anchor, found {text.count(old)}")
+RuntimeError: cryptic-footer-returned: expected one production anchor, found 0
+
+===== optimization-equivalence =====
+CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/lz_max_match_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/lz-max-match
+CHECK build/optimization-equivalence/lz-max-match
+  ok empty                             0 ->      0
+  ok one byte                          1 ->      2
+  ok zeros                         30000 ->    695
+  ok random (incompressible)       30000 ->  30235
+  ok random, near the limit        60000 ->  60474
+  ok small alphabet 1..399           399 ->    336
+  ok structured                    30000 ->   1265
+lz: all ok
+lz maximum-match differential: 20300 cases ok
+CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/undo_word_scan_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/undo-word-scan
+CHECK build/optimization-equivalence/undo-word-scan
+GREEN undo-word-scan: bit-identical undo entries (2107 cases)
+CHECK sh tests/host/breaks_silent_skip_test.sh
+breaks_silent_skip: ok
+breaks_silent_skip: ok
+CHECK sh tests/host/clip_latency_equivalence_test.sh
+PASS: 20459520 key cases; counts and all output bytes equal; raw path calls no helpers
+PASS: 414720 arp cases; list/event/state bytes equal; max 4 expansions saved
+CHECK sh tests/host/run_project_stream_copy.sh
+GREEN project-stream-copy: bit-identical save_stream output (274 chunk cases, 15 projects)
+CHECK python3 tests/host/run_a3_dsp_equivalence.py master
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe -O0 -Dmaster_comp1_pots=reference_master_comp1_pots -Dmaster_djf_pots=reference_master_djf_pots -Dmaster_format=reference_master_format -Dmaster_get=reference_master_get -Dmaster_init=reference_master_init -Dmaster_key=reference_master_key -Dmaster_nparams=reference_master_nparams -Dmaster_param=reference_master_param -Dmaster_process=reference_master_process -Dmaster_process_st=reference_master_process_st -Dmaster_set=reference_master_set -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/reference.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe -O0 -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/candidate.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe -O0 tests/host/a3_master_equivalence_test.c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/ref.o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/new.o firmware/src/dsp/x0x_param.c -lm -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/test
+/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/test
+master state/audio silence-tail-restart equivalence: PASS
+master -O0: PASS
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe -O2 -Dmaster_comp1_pots=reference_master_comp1_pots -Dmaster_djf_pots=reference_master_djf_pots -Dmaster_format=reference_master_format -Dmaster_get=reference_master_get -Dmaster_init=reference_master_init -Dmaster_key=reference_master_key -Dmaster_nparams=reference_master_nparams -Dmaster_param=reference_master_param -Dmaster_process=reference_master_process -Dmaster_process_st=reference_master_process_st -Dmaster_set=reference_master_set -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/reference.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe -O2 -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/candidate.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe -O2 tests/host/a3_master_equivalence_test.c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/ref.o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/new.o firmware/src/dsp/x0x_param.c -lm -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/test
+/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-master-2nzc0dbe/test
+master state/audio silence-tail-restart equivalence: PASS
+master -O2: PASS
+CHECK python3 tests/host/run_a3_dsp_equivalence.py drum808
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f -O0 -Ddrum808_active=reference_drum808_active -Ddrum808_env=reference_drum808_env -Ddrum808_get=reference_drum808_get -Ddrum808_init=reference_drum808_init -Ddrum808_nparams=reference_drum808_nparams -Ddrum808_pan_settle=reference_drum808_pan_settle -Ddrum808_param=reference_drum808_param -Ddrum808_param_si=reference_drum808_param_si -Ddrum808_quiet=reference_drum808_quiet -Ddrum808_render=reference_drum808_render -Ddrum808_render_st=reference_drum808_render_st -Ddrum808_render_st_masked=reference_drum808_render_st_masked -Ddrum808_set=reference_drum808_set -Ddrum808_trigger=reference_drum808_trigger -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/reference.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f -O0 -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/candidate.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f -O0 tests/host/a3_drum808_equivalence_test.c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/ref.o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/new.o firmware/src/dsp/x0x_param.c -lm -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/test
+/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/test
+808 threshold/state/audio silence-tail-restart equivalence: PASS
+drum808 -O0: PASS
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f -O2 -Ddrum808_active=reference_drum808_active -Ddrum808_env=reference_drum808_env -Ddrum808_get=reference_drum808_get -Ddrum808_init=reference_drum808_init -Ddrum808_nparams=reference_drum808_nparams -Ddrum808_pan_settle=reference_drum808_pan_settle -Ddrum808_param=reference_drum808_param -Ddrum808_param_si=reference_drum808_param_si -Ddrum808_quiet=reference_drum808_quiet -Ddrum808_render=reference_drum808_render -Ddrum808_render_st=reference_drum808_render_st -Ddrum808_render_st_masked=reference_drum808_render_st_masked -Ddrum808_set=reference_drum808_set -Ddrum808_trigger=reference_drum808_trigger -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/reference.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f -O2 -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/candidate.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f -O2 tests/host/a3_drum808_equivalence_test.c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/ref.o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/new.o firmware/src/dsp/x0x_param.c -lm -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/test
+/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-drum808-c0s5hv4f/test
+808 threshold/state/audio silence-tail-restart equivalence: PASS
+drum808 -O2: PASS
+CHECK python3 tests/host/run_a3_dsp_equivalence.py fxbus
+python3 tools/gen_drum_samples.py /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/x0x_drum_samples.h
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 packed 4104->3046 B + 19 pot curves -> x0x_drum_tables.h
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta -O0 -Dfxbus_get=reference_fxbus_get -Dfxbus_init=reference_fxbus_init -Dfxbus_nparams=reference_fxbus_nparams -Dfxbus_param=reference_fxbus_param -Dfxbus_param_si=reference_fxbus_param_si -Dfxbus_process=reference_fxbus_process -Dfxbus_process_st=reference_fxbus_process_st -Dfxbus_set=reference_fxbus_set -Dfxbus_set_bpm=reference_fxbus_set_bpm -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/reference.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta -O0 -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/candidate.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta -O0 tests/host/a3_fxbus_equivalence_test.c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/ref.o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/new.o firmware/src/dsp/x0x_param.c -lm -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/test
+/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/test
+FX bus state/line/audio silence-tail-restart equivalence: PASS
+fxbus -O0: PASS
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta -O2 -Dfxbus_get=reference_fxbus_get -Dfxbus_init=reference_fxbus_init -Dfxbus_nparams=reference_fxbus_nparams -Dfxbus_param=reference_fxbus_param -Dfxbus_param_si=reference_fxbus_param_si -Dfxbus_process=reference_fxbus_process -Dfxbus_process_st=reference_fxbus_process_st -Dfxbus_set=reference_fxbus_set -Dfxbus_set_bpm=reference_fxbus_set_bpm -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/reference.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/ref.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta -O2 -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/candidate.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/new.o
+cc -std=c99 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta -O2 tests/host/a3_fxbus_equivalence_test.c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/ref.o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/new.o firmware/src/dsp/x0x_param.c -lm -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/test
+/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/a3-fxbus-u3ggc3ta/test
+FX bus state/line/audio silence-tail-restart equivalence: PASS
+fxbus -O2: PASS
+CHECK sh tests/host/master_idle_identity_test.sh build/optimization-equivalence/master-idle
+Master idle identity PASS: silence, tail, volume slew, filter/comp/pump, limiter, restart; all state/audio bytes equal
+Master idle identity PASS: silence, tail, volume slew, filter/comp/pump, limiter, restart; all state/audio bytes equal
+CHECK sh tests/host/fxbus_idle_identity_test.sh build/optimization-equivalence/fxbus-idle
+build/optimization-equivalence/fxbus-idle/old.c:464:12: warning: ‘fx_comp_settled_zero’ defined but not used [-Wunused-function]
+  464 | static int fx_comp_settled_zero(const fxbus_t *f, const float *l, const float *r, int n)
+      |            ^~~~~~~~~~~~~~~~~~~~
+FX bus idle identity PASS: mono/stereo, all distortion modes, DIGI/TAPE, tails, retime, restart; state/ring/audio bytes equal
+build/optimization-equivalence/fxbus-idle/old.c:464:12: warning: ‘fx_comp_settled_zero’ defined but not used [-Wunused-function]
+  464 | static int fx_comp_settled_zero(const fxbus_t *f, const float *l, const float *r, int n)
+      |            ^~~~~~~~~~~~~~~~~~~~
+FX bus idle identity PASS: mono/stereo, all distortion modes, DIGI/TAPE, tails, retime, restart; state/ring/audio bytes equal
+CHECK sh tests/host/fxbus_coef_cache_test.sh
++ cc -O2 -std=c99 -fno-fast-math -ffp-contract=off -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/dsp -I/tmp/x0x-fxbus-coef-cache -Dfxbus_init=old_fxbus_init -Dfxbus_set=old_fxbus_set -Dfxbus_set_bpm=old_fxbus_set_bpm -Dfxbus_get=old_fxbus_get -Dfxbus_param=old_fxbus_param -Dfxbus_nparams=old_fxbus_nparams -Dfxbus_param_si=old_fxbus_param_si -Dfxbus_process=old_fxbus_process -Dfxbus_process_st=old_fxbus_process_st -c /tmp/x0x-fxbus-coef-cache/wrapper.c -o /tmp/x0x-fxbus-coef-cache/reference.o
++ cc -O2 -std=c99 -fno-fast-math -ffp-contract=off -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/dsp -I/tmp/x0x-fxbus-coef-cache tests/host/fxbus_coef_cache_test.c firmware/src/dsp/fxbus.c /tmp/x0x-fxbus-coef-cache/reference.o -lm -o /tmp/x0x-fxbus-coef-cache/test
++ /tmp/x0x-fxbus-coef-cache/test
+PASS fxbus coefficient cache: 12288 blocks, 2124567 samples, 24608 states, sizeof=18320 (unchanged)
+CHECK sh tests/host/chicago_peaking_coef_cache_test.sh
++ cc -O2 -std=c99 -fno-fast-math -ffp-contract=off -Wall -Wextra -Werror -DORIGINAL_USE_SOFT_FMA -ffunction-sections -fdata-sections -Iexperiments/original_synth -Doriginal_chicago_mastercomp_activity=old_original_chicago_mastercomp_activity -Doriginal_chicago_mastercomp_advance_zero=old_original_chicago_mastercomp_advance_zero -Doriginal_chicago_mastercomp_bind_events=old_original_chicago_mastercomp_bind_events -Doriginal_chicago_mastercomp_direct_event=old_original_chicago_mastercomp_direct_event -Doriginal_chicago_mastercomp_init=old_original_chicago_mastercomp_init -Doriginal_chicago_mastercomp_process=old_original_chicago_mastercomp_process -Doriginal_chicago_mastercomp_reset=old_original_chicago_mastercomp_reset -Doriginal_chicago_mastercomp_set=old_original_chicago_mastercomp_set -Doriginal_chicago_peaking_activity=old_original_chicago_peaking_activity -Doriginal_chicago_peaking_advance_zero=old_original_chicago_peaking_advance_zero -Doriginal_chicago_peaking_bind_events=old_original_chicago_peaking_bind_events -Doriginal_chicago_peaking_direct_event=old_original_chicago_peaking_direct_event -Doriginal_chicago_peaking_init=old_original_chicago_peaking_init -Doriginal_chicago_peaking_process=old_original_chicago_peaking_process -Doriginal_chicago_peaking_reset=old_original_chicago_peaking_reset -Doriginal_chicago_peaking_set=old_original_chicago_peaking_set -c /tmp/x0x-peaking-coef-cache/reference.c -o /tmp/x0x-peaking-coef-cache/reference.o
++ cc -O2 -std=c99 -fno-fast-math -ffp-contract=off -Wall -Wextra -Werror -DORIGINAL_USE_SOFT_FMA -ffunction-sections -fdata-sections -Iexperiments/original_synth tests/host/chicago_peaking_coef_cache_test.c experiments/original_synth/chicago_dynamics.c experiments/original_synth/fused_reference.c /tmp/x0x-peaking-coef-cache/reference.o -Wl,--gc-sections -lm -o /tmp/x0x-peaking-coef-cache/test
++ /tmp/x0x-peaking-coef-cache/test
+PASS Chicago peaking coefficient cache: 37424 writes, 2798928 samples, 49720 exact states; extra RAM 0 B
+CHECK sh tests/host/vca_sustain_test.sh
+PASS VCA sustain: 10742008 comparisons, 9630702 equality entries; 32 seeds
+PASS VCA sustain: 10742008 comparisons, 9630702 equality entries; 32 seeds
+PASS VCA sustain: 10742008 comparisons, 9630702 equality entries; 32 seeds
+PASS VCA sustain: 10742008 comparisons, 9630702 equality entries; 32 seeds
+CHECK python3 tests/host/run_chicago_ens_hoist.py
+COMMAND: cc -std=c99 -O2 -Wall -Wextra -Werror -DX0X_HOST -fno-fast-math -ffp-contract=off -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-ens-hoist-dl9ljs0l -Ifirmware/src/app -Ifirmware/src/dsp tests/host/chicago_ens_hoist_test.c -lm -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-ens-hoist-dl9ljs0l/test
+PASS Ensemble: 20070162 samples, 135176 calls; output and full state bit-exact
+COMMAND: cc -std=c99 -Os -Wall -Wextra -Werror -DX0X_HOST -fno-fast-math -ffp-contract=off -I/workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-ens-hoist-dl9ljs0l -Ifirmware/src/app -Ifirmware/src/dsp tests/host/chicago_ens_hoist_test.c -lm -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-ens-hoist-dl9ljs0l/test
+PASS Ensemble: 20070162 samples, 135176 calls; output and full state bit-exact
+CHECK python3 tests/host/run_chicago_modulation_hoist.py
+COMMAND: cc -std=c99 -O2 -Wall -Wextra -Werror -DNDEBUG -fno-fast-math -ffp-contract=off -DORIGINAL_USE_SOFT_FMA -DX0X_FAST_FMA -Iexperiments/original_synth -Doriginal_mod_events=before_original_mod_events -Doriginal_chicago_ring_init=before_original_chicago_ring_init -Doriginal_chicago_ring_reset=before_original_chicago_ring_reset -Doriginal_chicago_ring_set=before_original_chicago_ring_set -Doriginal_chicago_ring_process=before_original_chicago_ring_process -Doriginal_chicago_chorus_init=before_original_chicago_chorus_init -Doriginal_chicago_chorus_reset=before_original_chicago_chorus_reset -Doriginal_chicago_chorus_set=before_original_chicago_chorus_set -Doriginal_chicago_chorus_process=before_original_chicago_chorus_process -Doriginal_chicago_phaser_init=before_original_chicago_phaser_init -Doriginal_chicago_phaser_reset=before_original_chicago_phaser_reset -Doriginal_chicago_phaser_set=before_original_chicago_phaser_set -Doriginal_chicago_phaser_process=before_original_chicago_phaser_process -Doriginal_chicago_ring_advance_zero=before_original_chicago_ring_advance_zero -Doriginal_chicago_chorus_advance_zero=before_original_chicago_chorus_advance_zero -Doriginal_chicago_phaser_advance_zero=before_original_chicago_phaser_advance_zero -Doriginal_chicago_ensemble_init=before_original_chicago_ensemble_init -Doriginal_chicago_ensemble_reset=before_original_chicago_ensemble_reset -Doriginal_chicago_ensemble_set=before_original_chicago_ensemble_set -Doriginal_chicago_ensemble_history=before_original_chicago_ensemble_history -Doriginal_chicago_ensemble_process=before_original_chicago_ensemble_process -Doriginal_chicago_ring_direct_event=before_original_chicago_ring_direct_event -Doriginal_chicago_chorus_direct_event=before_original_chicago_chorus_direct_event -Doriginal_chicago_phaser_direct_event=before_original_chicago_phaser_direct_event -Doriginal_chicago_ensemble_direct_event=before_original_chicago_ensemble_direct_event -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-mod-hoist-6li7sz59/before.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-mod-hoist-6li7sz59/before.o
+COMMAND: cc -std=c99 -O2 -Wall -Wextra -Werror -DNDEBUG -fno-fast-math -ffp-contract=off -DORIGINAL_USE_SOFT_FMA -DX0X_FAST_FMA -Iexperiments/original_synth tests/host/chicago_modulation_hoist_test.c experiments/original_synth/chicago_modulation.c experiments/original_synth/fused_reference.c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-mod-hoist-6li7sz59/before.o -lm -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-mod-hoist-6li7sz59/test
+COMMAND: /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-mod-hoist-6li7sz59/test
+PASS modulation: 13972422 channel samples, 49152 calls; PCM, state, histories bit-exact
+COMMAND: cc -std=c99 -Os -Wall -Wextra -Werror -DNDEBUG -fno-fast-math -ffp-contract=off -DORIGINAL_USE_SOFT_FMA -DX0X_FAST_FMA -Iexperiments/original_synth -Doriginal_mod_events=before_original_mod_events -Doriginal_chicago_ring_init=before_original_chicago_ring_init -Doriginal_chicago_ring_reset=before_original_chicago_ring_reset -Doriginal_chicago_ring_set=before_original_chicago_ring_set -Doriginal_chicago_ring_process=before_original_chicago_ring_process -Doriginal_chicago_chorus_init=before_original_chicago_chorus_init -Doriginal_chicago_chorus_reset=before_original_chicago_chorus_reset -Doriginal_chicago_chorus_set=before_original_chicago_chorus_set -Doriginal_chicago_chorus_process=before_original_chicago_chorus_process -Doriginal_chicago_phaser_init=before_original_chicago_phaser_init -Doriginal_chicago_phaser_reset=before_original_chicago_phaser_reset -Doriginal_chicago_phaser_set=before_original_chicago_phaser_set -Doriginal_chicago_phaser_process=before_original_chicago_phaser_process -Doriginal_chicago_ring_advance_zero=before_original_chicago_ring_advance_zero -Doriginal_chicago_chorus_advance_zero=before_original_chicago_chorus_advance_zero -Doriginal_chicago_phaser_advance_zero=before_original_chicago_phaser_advance_zero -Doriginal_chicago_ensemble_init=before_original_chicago_ensemble_init -Doriginal_chicago_ensemble_reset=before_original_chicago_ensemble_reset -Doriginal_chicago_ensemble_set=before_original_chicago_ensemble_set -Doriginal_chicago_ensemble_history=before_original_chicago_ensemble_history -Doriginal_chicago_ensemble_process=before_original_chicago_ensemble_process -Doriginal_chicago_ring_direct_event=before_original_chicago_ring_direct_event -Doriginal_chicago_chorus_direct_event=before_original_chicago_chorus_direct_event -Doriginal_chicago_phaser_direct_event=before_original_chicago_phaser_direct_event -Doriginal_chicago_ensemble_direct_event=before_original_chicago_ensemble_direct_event -c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-mod-hoist-6li7sz59/before.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-mod-hoist-6li7sz59/before.o
+COMMAND: cc -std=c99 -Os -Wall -Wextra -Werror -DNDEBUG -fno-fast-math -ffp-contract=off -DORIGINAL_USE_SOFT_FMA -DX0X_FAST_FMA -Iexperiments/original_synth tests/host/chicago_modulation_hoist_test.c experiments/original_synth/chicago_modulation.c experiments/original_synth/fused_reference.c /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-mod-hoist-6li7sz59/before.o -lm -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-mod-hoist-6li7sz59/test
+COMMAND: /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/chicago-mod-hoist-6li7sz59/test
+PASS modulation: 13972422 channel samples, 49152 calls; PCM, state, histories bit-exact
+CHECK python3 tests/host/engine_mix_lut_test.py level
+cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/engine-mix-lut-zfrtmikb/test.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/engine-mix-lut-zfrtmikb/test
+PASS: 128 exhaustive pots, 131073 nearby integers, 10M random integers, int edges; bit-identical
+CHECK python3 tests/host/engine_mix_lut_test.py send
+cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/engine-mix-lut-nmplxr5w/test.c -o /workspace/host-validation-0260/candidate/build/host/iso/optimization-equivalence/tmp/engine-mix-lut-nmplxr5w/test
+PASS: 128 exhaustive pots, 131073 nearby integers, 10M random integers, int edges; bit-identical
+CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/original_control_lut_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/control-lut
+CHECK build/optimization-equivalence/control-lut
+PASS: 24672 exhaustive control/parameter/kind cases, rejection outputs and null outputs; const=816 B
+CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/original_gain_lut_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/gain-lut
+CHECK build/optimization-equivalence/gain-lut
+PASS: all 64 table entries, 13 duration edges, 10000000 random integer durations; const=256 B
+CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/break_retrigger_lut_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/break-retrigger-lut
+CHECK build/optimization-equivalence/break-retrigger-lut
+PASS: 1536 exhaustive bit comparisons; const table 2400 B
+PASS: 24576 complete trigger-state comparisons (invalid banks; RNG retained)
+CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/busfx_invariant_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/busfx-invariants
+CHECK build/optimization-equivalence/busfx-invariants
+GREEN busfx-invariants: bit-identical samples and filter state (132545 cases)
+CHECK bash tests/host/run_ima_delta_lut.sh
+CHECK IMA delta LUT: gcc optimized
+PASS: 3193789 exact decoder/reference and LUT algebra comparisons across 9 loops
+CHECK IMA delta LUT: gcc sanitizer
+PASS: 3193789 exact decoder/reference and LUT algebra comparisons across 9 loops
+required host compiler missing: clang
+
+===== smk-arrows-owner =====
+Traceback (most recent call last):
+  File "/workspace/host-validation-0260/candidate/tests/smk_arrows_owner_test.py", line 36, in <module>
+    assert re.search(r"if \(route == ARW_MENU\) \{\s*ui_menu_arrow\(d\);", sa), sa
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: static void smk_arrows(void)
+{
+    static arw_t arw;
+    static uint32_t menu_id;
+    uint32_t now = fm1_in.buttons >> SMK_BTN_LEFT & 3u, i, route;
+    int32_t d;
+    if (ui_project_busy()) {
+        (void)arw_frame(&arw, now, ARW_NONE, fm1_ms);
+        return;
+    }
+    for (i = 0; i < NB; i++)
+        if (panel.btn[i] == SMK_BTN_LEFT || panel.btn[i] == SMK_BTN_RIGHT)
+            now &= ~(1u << (panel.btn[i] - SMK_BTN_LEFT));
+    route = arw_route((uint32_t)ui_menu_open(), clip_grid_mode, (plat_buttons() >> B_HOME) & 1u);
+    i = arw_menu_id(ui.view, (uint32_t)cur_page());
+    if (clip_grid_mode && route == ARW_MENU && i != menu_id)
+        arw_rearm(&arw, now);                     /* CLP-82: a held arrow does not edit the new list */
+    menu_id = i;
+    d = arw_frame(&arw, now, route, fm1_ms);
+    if (!d)
+        return;
+    if (route == ARW_MENU) {
+        if (ui_menu_arrow(d))
+            arw_rearm(&arw, now);                 /* a held > that entered a GLOBAL section does not edit it */
+    } else {
+        uint32_t l = fm1__lock();
+        fm1_in.enc_steps[panel.enc[EN_SELECT]] += (int16_t)(d * panel.dir[EN_SELECT]);
+        fm1__unlock(l);
+    }
+
+===== smk-padcal-wiring =====
+Traceback (most recent call last):
+  File "/workspace/host-validation-0260/candidate/tests/smk_padcal_wiring_test.py", line 31, in <module>
+    sysi, bti = glob.index("GR_SYSTEM"), glob.index("GR_BT")
+                ^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: substring not found
+
+===== song-actions =====
+FAIL: Global menu must contain CLEAR PATTERN
+FAIL: Global cancellation must return to its list
+song_actions: FAIL
+
+===== scenario-arrows =====
+  ok setsize == 40
+  ok setbyte27 == 8
+  ok overlay == 0
+  ok page == 0
+  ok page == 1
+  ok page == 2
+  ok page == 1
+  ok page == 0
+  ok arrowsteps == 4
+  ok view == 5
+  ok overlay == 1
+FAIL expect listsel == 1, got 0
+  ok clksrc == 0
+FAIL expect clksrc == 1, got 0
+FAIL expect listsel == 1, got 0
+FAIL expect clksrc == 2, got 1
+  ok clksrc == 2
+  ok setbyte27 == 12
+FAIL expect clksrc == 1, got 2
+FAIL expect clksrc == 0, got 2
+FAIL expect listsel == 1, got 0
+FAIL expect setbyte27 == 8, got 12
+FAIL expect clksrc == 1, got 2
+FAIL expect clksrc == 0, got 2
+FAIL expect listsel == 4, got 3
+FAIL expect rowval == 10, got 0
+FAIL expect rowval == 11, got 0
+FAIL expect rowval == 11, got 0
+FAIL expect rowval == 12, got 0
+FAIL expect rowval == 15, got 0
+FAIL expect rowval == 16, got 0
+FAIL expect rowval == 16, got 0
+FAIL expect rowval == 16, got 0
+  ok rowval == 0
+  ok rowval == 0
+FAIL expect rowval == 1, got 0
+FAIL expect rowval == 10, got 0
+FAIL expect listsel == 4, got 0
+FAIL expect listsel == 17, got 4
+FAIL expect store_writes == 0, got 6
+FAIL expect store_writes == 0, got 6
+  ok overlay == 1
+FAIL expect listsel == 20, got 4
+  ok overlay == 1
+FAIL expect listsel == 21, got 4
+  ok overlay == 1
+FAIL expect listsel == 23, got 4
+  ok overlay == 1
+  ok view == 5
+FAIL expect listsel == 23, got 4
+FAIL expect listsel == 1, got 0
+FAIL expect clksrc == 0, got 2
+FAIL expect arrowsteps == 110, got 24
+FAIL expect clksrc == 1, got 2
+FAIL expect arrowsteps == 111, got 25
+  ok clksrc == 2
+FAIL expect arrowsteps == 113, got 27
+FAIL expect clksrc == 1, got 2
+FAIL expect clksrc == 0, got 2
+  ok overlay == 0
+  ok page == 0
+  ok page == 0
+FAIL expect arrowsteps == 115, got 29
+  ok overlay == 1
+FAIL expect listsel == 1, got 0
+  ok tempo == 125
+FAIL expect clksrc == 0, got 2
+  ok tempo == 125
+FAIL expect arrowsteps == 115, got 29
+  ok setsize == 40
+FAIL expect setbyte27 == 8, got 12
+  ok overlay == 0
+  ok view == 1
+  ok overlay == 1
+  ok listsel == 1
+  ok rowval == 34
+  ok rowval == 35
+  ok listsel == 1
+  ok rowval == 37
+  ok rowval == 34
+  ok listsel == 1
+host: 19904 ms simulated, 1533 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-autosave =====
+  ok store_writes == 0
+  ok store_writes == 0
+  ok store_writes == 6
+  ok hit0.0.0 == 1
+  ok hit0.0.8 == 1
+  ok store_writes == 7
+  ok store_writes == 7
+  ok store_writes == 7
+  ok store_writes == 8
+  ok hit0.0.12 == 1
+FAIL expect listsel == 19, got 4
+FAIL expect rowval == 1, got 0
+  ok rowval == 0
+FAIL expect store_writes == 9, got 8
+  ok store_writes == 9
+FAIL expect hit0.0.2 == 0, got 1
+FAIL expect store_writes == 9, got 10
+host: 129030 ms simulated, 1199 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-clip-arrow-menu =====
+  ok overlay == 1
+  ok view == 5
+  ok overlay == 1
+FAIL expect listsel == 1, got 0
+  ok clksrc == 0
+  ok clksrc == 0
+FAIL expect clksrc == 1, got 0
+  ok clksrc == 0
+  ok overlay == 0
+  ok overlay == 1
+  ok clksrc == 0
+  ok overlay == 1
+  ok view == 1
+  ok view == 5
+  ok overlay == 1
+FAIL expect listsel == 1, got 0
+FAIL expect clksrc == 1, got 0
+FAIL expect clksrc == 1, got 0
+  ok clksrc == 0
+  ok overlay == 0
+  ok overlay == 1
+  ok view == 5
+  ok overlay == 0
+  ok overlay == 1
+  ok view == 5
+  ok clksrc == 0
+  ok overlay == 0
+  ok view == 5
+FAIL expect clksrc == 1, got 0
+  ok clksrc == 0
+host: 9862 ms simulated, 1342 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-clklock =====
+  ok clksrc == 0
+  ok playing == 1
+  ok playing == 1
+  ok clkext == 1
+  ok exttempo == 119 (>116)
+  ok exttempo == 119 (<122)
+  ok playing == 1
+  ok playing == 1
+  ok clkext == 1
+  ok playing == 1
+  ok clkext == 1
+  ok playing == 1
+  ok clkext == 1
+  ok exttempo == 119 (>116)
+  ok exttempo == 119 (<122)
+  ok playing == 1
+  ok playing == 0
+  ok playing == 0
+  ok playing == 1
+  ok playing == 1
+  ok playing == 0
+  ok tempo == 119 (>116)
+  ok tempo == 119 (<122)
+  ok playing == 1
+  ok playing == 0
+  ok playing == 1
+  ok playing == 0
+FAIL expect clksrc == 1, got 0
+FAIL expect playing == 0, got 1
+FAIL expect clkext == 0, got 1
+  ok clksrc == 0
+  ok playing == 1
+  ok playing == 0
+  ok setsize == 40
+host: 9510 ms simulated, 913 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-clkmove =====
+storepoke: no byte 31 in object 0
+  ok clksrc == 0
+  ok setbyte27 == 8
+  ok setbyte38 == 0
+FAIL expect clksrc == 2, got 0
+FAIL unknown expect storeset23
+FAIL unknown expect storeset31
+FAIL unknown expect storeset42
+FAIL unknown expect storeset43
+FAIL expect clksrc == 2, got 0
+FAIL expect clkext == 1, got 0
+
+===== scenario-clocksrc =====
+storepoke: no byte 31 in object 0
+  ok clksrc == 0
+FAIL expect clksrc == 2, got 0
+FAIL expect clkext == 1, got 0
+  ok playing == 1
+FAIL expect waiting == 1, got 0
+FAIL expect msgwait == 1, got 0
+  leds: buttons SAVE SEQ | white#...#.#.#...#... black#..........
+FAIL expect clocks_out == 0, got 39
+FAIL expect transport_out == 0, got 1
+  ok waiting == 0
+  ok playing == 1
+FAIL expect clocks_out == 0, got 39
+FAIL expect transport_out == 0, got 1
+  ok playing == 1
+FAIL expect waiting == 1, got 0
+  ok tempo == 136 (>130)
+  ok playing == 0
+FAIL expect transport_out == 0, got 2
+FAIL expect clksrc == 1, got 0
+FAIL expect playing == 0, got 1
+FAIL expect clkext == 0, got 1
+FAIL expect playing == 1, got 0
+  ok clkext == 0
+FAIL expect clocks_out >60, got 57
+FAIL expect transport_out == 1, got 3
+FAIL expect playing == 0, got 1
+FAIL expect transport_out == 2, got 4
+FAIL expect clksrc == 1, got 0
+FAIL unknown expect storeset31
+
+===== scenario-guard =====
+  ok guard == 0
+  ok guard == 1
+  ok guardcount == 1
+  ok peak -8.2 dBFS
+  ok guard == 1
+  ok guard == 0
+  ok guard == 0
+  ok guard == 1
+  ok guardcount == 2
+  ok guard == 1
+FAIL expect listsel == 23, got 4
+FAIL expect view == 7, got 5
+FAIL expect perftest == 0, got -1
+FAIL expect guard == 0, got 1
+  ok perftest == -1
+  ok guard == 1
+host: 20990 ms simulated, 1770 blits, render 0.7% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-migrate =====
+  ok pattern == 1
+  ok tempo == 125
+  ok hit0.0.0 == 0
+  ok hit0.0.31 == 0
+  ok hit0.0.63 == 0
+  ok gate0.0 == 0
+  ok lanes == 0
+  ok songlen == 0
+  ok clksrc == 0
+  ok sound0.1.3 == 41
+  ok sound0.1.4 == 58
+  ok store_writes == 0
+  ok store_writes == 0
+  ok savestate == 3
+  ok store_writes == 0
+  ok tempo == 125
+  ok lanes == 0
+  ok songlen == 0
+  ok hit0.0.0 == 0
+  ok store_writes == 0
+FAIL expect listsel == 21, got 4
+FAIL expect overlay == 2, got 1
+  ok overlay == 0
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 1
+  ok tempo == 120
+  ok view == 6
+  ok songlen == 2
+  ok songbar2.0 == 16
+FAIL expect savestate == 0, got 3
+FAIL expect store_writes == 6, got 0
+FAIL expect storeset23 == 13, got 0
+FAIL expect tempo == 120, got 125
+FAIL expect hit0.0.0 == 1, got 0
+FAIL expect hit0.0.12 == 1, got 0
+  ok hit0.0.31 == 0
+  ok lanes == 0
+FAIL expect songlen == 2, got 0
+FAIL expect songbar2.0 == 16, got 1
+FAIL expect store_writes == 6, got 0
+host: 29754 ms simulated, 901 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-migrate0102 =====
+  ok pattern == 1
+  ok tempo == 125
+  ok hit0.0.0 == 0
+  ok hit0.0.31 == 0
+  ok hit0.0.63 == 0
+  ok gate0.0 == 0
+  ok lanes == 0
+  ok songlen == 0
+  ok clksrc == 0
+  ok sound0.1.3 == 41
+  ok sound0.1.4 == 58
+  ok store_writes == 0
+  ok store_writes == 0
+  ok savestate == 3
+  ok store_writes == 0
+  ok tempo == 125
+  ok lanes == 0
+  ok songlen == 0
+  ok hit0.0.0 == 0
+  ok store_writes == 0
+FAIL expect listsel == 21, got 4
+FAIL expect overlay == 2, got 1
+  ok overlay == 0
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 1
+  ok tempo == 120
+  ok view == 6
+  ok songlen == 2
+  ok songbar2.0 == 16
+FAIL expect savestate == 0, got 3
+FAIL expect store_writes == 6, got 0
+FAIL expect storeset23 == 13, got 0
+FAIL expect tempo == 120, got 125
+FAIL expect hit0.0.0 == 1, got 0
+FAIL expect hit0.0.12 == 1, got 0
+  ok hit0.0.31 == 0
+  ok lanes == 0
+FAIL expect songlen == 2, got 0
+FAIL expect songbar2.0 == 16, got 1
+FAIL expect store_writes == 6, got 0
+host: 29754 ms simulated, 901 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-perf =====
+  ok tempo == 120
+  ok mute == 4194304
+FAIL expect listsel == 23, got 4
+FAIL expect view == 7, got 5
+FAIL expect perftest == 0, got -1
+FAIL expect patptr == 0, got 1
+FAIL expect perftest == 3, got -1
+FAIL expect perfres0 >0, got 0
+FAIL expect perfres1 >0, got 0
+FAIL expect perfres2 >0, got 0
+  ok patptr == 1
+  ok playing == 0
+  ok tempo == 120
+  ok mute == 4194304
+  ok hit0.0.8 == 1
+  ok sound2.0.0 == 127
+  ok view == 7
+  ok perftest == 0
+  ok patptr == 0
+  ok perftest == -1
+  ok patptr == 1
+  ok playing == 0
+  ok tempo == 120
+  ok mute == 4194304
+host: 28864 ms simulated, 988 blits, render 0.5% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-perfsave =====
+  ok store_writes == 0
+  ok store_writes == 0
+FAIL expect listsel == 23, got 4
+FAIL expect view == 7, got 5
+FAIL expect store_writes >0, got 0
+FAIL expect perftest == 0, got -1
+FAIL expect patptr == 0, got 1
+FAIL expect perftest == 3, got -1
+FAIL expect perfres0 >0, got 0
+FAIL expect perfres1 >0, got 0
+FAIL expect perfres2 >0, got 0
+  ok patptr == 1
+FAIL expect playing == 0, got 1
+  ok hit0.0.0 == 1
+  ok peak -12.7 dBFS
+  ok peak -12.7 dBFS
+host: 19490 ms simulated, 742 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-probcond =====
+  ok laneval7.0.0.0 == 106
+  ok laneval7.0.0.8 == 102
+  ok laneval7.0.0.12 == 135
+  ok laneval7.0.0.12 == 255
+  ok hit0.0.0 == 1
+  ok hit0.0.8 == 1
+  ok noteons == 0
+FAIL expect noteons == 22, got 0
+host: 29686 ms simulated, 3130 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-probreset =====
+  ok laneval7.0.0.0 == 106
+  ok view == 0
+  ok ppat0 == 2
+FAIL expect noteons == 3, got 0
+host: 18308 ms simulated, 2894 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-tour =====
+FAIL expect listsel == 21, got 4
+FAIL expect overlay == 2, got 1
+  ok overlay == 1
+FAIL expect listsel == 21, got 4
+host: 20394 ms simulated, 5150 blits, render 1.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== scenario-undo =====
+  ok sound0.0.0 == 34
+  ok hit0.0.8 == 1
+  ok sound0.0.0 == 39
+  ok sound0.0.0 == 34
+  ok hit0.0.8 == 0
+  ok hit0.0.4 == 1
+  ok hit0.0.0 == 0
+  ok hit0.0.4 == 0
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.8 == 1
+  ok sound0.0.0 == 34
+  ok playing == 0
+  ok hit0.0.8 == 0
+  ok hit0.0.8 == 0
+  ok hit0.0.12 == 1
+  ok sound0.0.0 == 41
+  ok tempo == 130
+FAIL expect listsel == 21, got 4
+FAIL expect overlay == 2, got 1
+  ok overlay == 0
+FAIL expect hit0.0.0 == 0, got 1
+FAIL expect hit0.0.12 == 0, got 1
+FAIL expect sound0.0.0 == 34, got 41
+FAIL expect tempo == 125, got 130
+  ok playing == 0
+  ok rec == 0
+FAIL expect hit0.0.0 == 0, got 1
+FAIL expect hit0.0.12 == 0, got 1
+  ok sound0.0.0 == 34
+FAIL expect tempo == 125, got 130
+FAIL expect hit0.0.0 == 0, got 1
+FAIL expect hit0.0.12 == 0, got 1
+  ok playing == 0
+  ok hit0.0.0 == 1
+FAIL expect hit0.0.0 == 0, got 1
+  ok hit0.0.0 == 1
+FAIL expect hit0.0.12 == 0, got 1
+FAIL expect sound0.0.0 == 34, got 41
+FAIL expect tempo == 125, got 130
+host: 9338 ms simulated, 798 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== perf-scratch =====
+  ok store_writes == 0
+  ok store_writes == 0
+FAIL expect listsel == 23, got 4
+FAIL expect view == 7, got 5
+FAIL expect store_writes >0, got 0
+FAIL expect perftest == 0, got -1
+FAIL expect patptr == 0, got 1
+FAIL expect perftest == 3, got -1
+FAIL expect perfres0 >0, got 0
+FAIL expect perfres1 >0, got 0
+FAIL expect perfres2 >0, got 0
+  ok patptr == 1
+FAIL expect playing == 0, got 1
+  ok hit0.0.0 == 1
+  ok peak -12.7 dBFS
+  ok peak -12.7 dBFS
+host: 19490 ms simulated, 742 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+

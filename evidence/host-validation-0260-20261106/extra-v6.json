@@ -1,0 +1,10 @@
+[
+  {
+    "name": "v6-peer",
+    "command": [
+      "sh",
+      "tests/host/smc_peer_names_test.sh"
+    ],
+    "exit": 1
+  }
+]

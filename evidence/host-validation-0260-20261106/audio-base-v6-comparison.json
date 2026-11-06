@@ -1,0 +1,10 @@
+{
+  "base": "c295af1554f9e80a29864cd013995eccad66cd2c",
+  "candidate": "fba9b1f2df4ca7c075a0f757e60319d04c3a02f9",
+  "files": 50,
+  "changed": [
+    "solo-mute/audio.i32",
+    "solo-mute/peak-scope.bin",
+    "solo-mute/usb.i32"
+  ]
+}

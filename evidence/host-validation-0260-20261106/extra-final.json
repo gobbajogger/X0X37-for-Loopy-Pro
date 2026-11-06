@@ -1,0 +1,37 @@
+[
+  {
+    "name": "candidate-peer",
+    "command": [
+      "sh",
+      "tests/host/smc_peer_names_test.sh"
+    ],
+    "cwd": "/workspace/host-validation-0260/candidate",
+    "exit": 1
+  },
+  {
+    "name": "baseline-failures",
+    "command": [
+      "sh",
+      "tests/run_tests.sh",
+      "song-actions",
+      "scenario-arrows",
+      "scenario-autosave",
+      "scenario-clip-arrow-menu",
+      "scenario-clklock",
+      "scenario-clkmove",
+      "scenario-clocksrc",
+      "scenario-guard",
+      "scenario-migrate",
+      "scenario-migrate0102",
+      "scenario-perf",
+      "scenario-perfsave",
+      "scenario-probcond",
+      "scenario-probreset",
+      "scenario-tour",
+      "scenario-undo",
+      "perf-scratch"
+    ],
+    "cwd": "/workspace/host-validation-0260/baseline",
+    "exit": 0
+  }
+]

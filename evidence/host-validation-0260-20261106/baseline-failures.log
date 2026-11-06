@@ -1,0 +1,19 @@
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   song-actions
+  ok   scenario-arrows
+  ok   scenario-autosave
+  ok   scenario-clip-arrow-menu
+  ok   scenario-clklock
+  ok   scenario-clkmove
+  ok   scenario-clocksrc
+  ok   scenario-guard
+  ok   scenario-migrate
+  ok   scenario-migrate0102
+  ok   scenario-perf
+  ok   scenario-perfsave
+  ok   scenario-probcond
+  ok   scenario-probreset
+  ok   scenario-tour
+  ok   scenario-undo
+  ok   perf-scratch
+all tests passed

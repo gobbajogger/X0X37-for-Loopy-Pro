@@ -1,0 +1,170 @@
+[
+  {
+    "name": "project-runtime",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/project-runtime.log"
+  },
+  {
+    "name": "smc-fx-peer-view",
+    "candidate": "FAIL",
+    "baseline": "FAIL",
+    "classification": "INHERITED_FAILURE",
+    "candidate_log": "full-host-logs/smc-fx-peer-view.log"
+  },
+  {
+    "name": "part-order",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/part-order.log"
+  },
+  {
+    "name": "smc-ui-negative",
+    "candidate": "FAIL",
+    "baseline": "FAIL",
+    "classification": "INHERITED_FAILURE",
+    "candidate_log": "full-host-logs/smc-ui-negative.log"
+  },
+  {
+    "name": "optimization-equivalence",
+    "candidate": "FAIL",
+    "baseline": "FAIL",
+    "classification": "ENVIRONMENT_DEPENDENCY",
+    "candidate_log": "full-host-logs/optimization-equivalence.log"
+  },
+  {
+    "name": "smk-arrows-owner",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/smk-arrows-owner.log"
+  },
+  {
+    "name": "smk-padcal-wiring",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/smk-padcal-wiring.log"
+  },
+  {
+    "name": "song-actions",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/song-actions.log"
+  },
+  {
+    "name": "scenario-arrows",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-arrows.log"
+  },
+  {
+    "name": "scenario-autosave",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-autosave.log"
+  },
+  {
+    "name": "scenario-clip-arrow-menu",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-clip-arrow-menu.log"
+  },
+  {
+    "name": "scenario-clklock",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-clklock.log"
+  },
+  {
+    "name": "scenario-clkmove",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-clkmove.log"
+  },
+  {
+    "name": "scenario-clocksrc",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-clocksrc.log"
+  },
+  {
+    "name": "scenario-guard",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-guard.log"
+  },
+  {
+    "name": "scenario-migrate",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-migrate.log"
+  },
+  {
+    "name": "scenario-migrate0102",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-migrate0102.log"
+  },
+  {
+    "name": "scenario-perf",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-perf.log"
+  },
+  {
+    "name": "scenario-perfsave",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-perfsave.log"
+  },
+  {
+    "name": "scenario-probcond",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-probcond.log"
+  },
+  {
+    "name": "scenario-probreset",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-probreset.log"
+  },
+  {
+    "name": "scenario-tour",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-tour.log"
+  },
+  {
+    "name": "scenario-undo",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/scenario-undo.log"
+  },
+  {
+    "name": "perf-scratch",
+    "candidate": "FAIL",
+    "baseline": "PASS",
+    "classification": "NEW_VS_BASE",
+    "candidate_log": "full-host-logs/perf-scratch.log"
+  }
+]

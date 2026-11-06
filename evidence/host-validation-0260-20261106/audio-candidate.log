@@ -1,0 +1,18 @@
+captured all
+captured solo-mute
+captured mix-sweeps
+captured preset-fade
+captured djf1-static
+captured djf1-sweep
+captured djf2-static
+captured djf2-sweep
+captured djf3-static
+captured djf3-sweep
+captured limiter-off
+captured comp
+captured usb-full
+captured usb-normal
+captured dense
+captured idle
+captured mono
+PASS: 17 scenarios, 50 audio/state files bit-identical

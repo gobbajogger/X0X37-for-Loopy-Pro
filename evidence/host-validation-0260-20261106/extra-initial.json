@@ -1,0 +1,18 @@
+[
+  {
+    "name": "candidate-cli",
+    "command": [
+      "python3",
+      "tests/x0x_cli_executable_mode_test.py"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "baseline-peer",
+    "command": [
+      "sh",
+      "tests/host/smc_peer_names_test.sh"
+    ],
+    "exit": 1
+  }
+]

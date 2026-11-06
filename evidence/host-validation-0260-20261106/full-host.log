@@ -1,0 +1,665 @@
+  ok   dsp-host-linkage
+  ok   fastmath
+  ok   fastmath-ubsan
+  ok   play-question
+  ok   play-question-ui
+  ok   sound-reset
+  ok   sound-reset-ui
+  ok   held-step-release
+  ok   ui-perf-identity
+  ok   ui-settings-sections
+  ok   ui-peer-names
+  ok   ble-peer-name-bounds
+  ok   home-tie-semantics
+  ok   sequencer
+  ok   chain-longest
+  ok   bass-prob-midi
+  ok   seq-tb3po-bars
+  ok   seq-random-swing
+  ok   seq-random-clock-handoff
+  ok   seq-long-notes
+  ok   seq-pingpong-resize
+  ok   clk-lock
+  ok   seq-random-tie-preview
+  ok   encoder
+  ok   bass-midi-pending-native
+  ok   uac
+  ok   trs
+  ok   usb-retry
+  ok   undo
+  ok   undo-capacity
+  ok   lz
+  ok   lz-max-match
+  ok   motion
+  ok   host-build
+  ok   original-release-integration
+  ok   original-release-ui
+  ok   original-build
+  ok   freeplay-rate-pads
+  ok   boot-screen
+  ok   ui-theme
+  ok   project-protocol
+  ok   project-save-preflight
+  ok   editor-ota-dispatch
+  ok   storage-scratch
+  ok   project-stage
+  FAIL project-runtime (see build/host/project-runtime.log)
+        1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+             |                                            ^~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+       tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+        1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+             |                       ~~^~~~~~~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+        1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+             |     ^~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       project_runtime: tests/host/project_runtime_test.c:43: open_action: Assertion `row >= 0' failed.
+       Aborted
+  ok   save-note-quiet
+  ok   font-pack
+  ok   smc-protocol
+  ok   smc-fader
+  ok   smc-buttons
+  ok   smc-select-mode
+  ok   smc-fx
+  ok   smc-mixer-edges
+  ok   smc-action-source
+  ok   smc-fx-caption
+  ok   smc-fx-page-port
+  FAIL smc-fx-peer-view (see build/host/smc-fx-peer-view.log)
+       /workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc: In function ‘smc_ui_off’:
+       /workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:39:5: error: ‘popup_knob_full_hash’ undeclared (first use in this function)
+          39 |     popup_knob_full_hash = 0;
+             |     ^~~~~~~~~~~~~~~~~~~~
+       /workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:39:5: note: each undeclared identifier is reported only once for each function it appears in
+       /workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc: In function ‘smc_ui_begin’:
+       /workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:81:21: error: ‘popup_knob_full_hash’ undeclared (first use in this function)
+          81 |     if (!smc_ui.on) popup_knob_full_hash = 0;
+             |                     ^~~~~~~~~~~~~~~~~~~~
+       Traceback (most recent call last):
+         File "/workspace/host-validation-0260/candidate/tests/host/smc_fx_peer_view_test.py", line 56, in <module>
+           subprocess.run(cmd,cwd=ROOT,check=True)
+         File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-pedantic', '-Ifirmware/src', '-I/workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui', 'tests/host/smc_fx_peer_view_test.c', '-o', '/workspace/host-validation-0260/candidate/build/host/smc-fx-peer-ui/test']' returned non-zero exit status 1.
+  ok   smc-fx-preset-preserve
+  ok   smc-queue
+  ok   smc-solo-overflow
+  ok   engine-cq-rec-overflow
+  ok   engine-cq-isr-preemption
+  ok   engine-cq-boff-overflow
+  ok   engine-cq-brk-overflow
+  ok   engine-cq-bon-overflow
+  ok   engine-cq-drum-overflow
+  ok   midi-mq-noteoff-overflow
+  ok   midi-mq-rt-overflow
+  ok   midi-overflow-order
+  ok   midi-out-mq-noteoff-overflow
+  ok   ble-out-noteoff-overflow
+  ok   ble-out-rt-overflow
+  ok   usb-sxq-sticky-apc
+  ok   smc-host-data7
+  ok   smc-host-overflow-data7
+  ok   smc-sender-isolation
+  ok   smc-ble-payload
+  ok   smc-link
+  ok   smc-reconnect-epoch
+  ok   smc-boot-saved-roles
+  ok   ble-central-first-notification
+  ok   ble-active-peer-contract
+  ok   ble-smc-outbound-slots
+  ok   ble-one-peer-command
+  ok   ble-dual-peer
+  ok   ble-command-credit
+  ok   ble-controller-heap
+  ok   ble-midi-receive
+  ok   ble-capture-replay
+  ok   ble-acl-start-flags
+  ok   ble-hci-completed
+  ok   ble-acl-zero-credit
+  ok   ble-link-epoch-reset
+  ok   ble-disconnect-status
+  ok   smc-reachability
+  ok   smc-pickup-acceptance
+  ok   smc-lock
+  ok   smc-lock-beat
+  ok   smc-multi-peer
+  ok   smc-multi-peer-negative
+  ok   smc-pause-loss
+  ok   smk-wheel-mode
+  ok   miami-table-interpolation
+  ok   lcd-bounded
+  ok   lcd-dispatch-reuse
+  ok   chicago-coef-cache
+  ok   chicago-packed-cache
+  ok   miami-coef-cache
+  ok   control-recompile
+  ok   legacy-303-project
+  ok   smc-interaction-negative
+  ok   corner-coverage
+  FAIL part-order (see build/host/part-order.log)
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       FAIL tests/host/part_order_test.c:71: n==NPARTS
+  ok   part-off
+  ok   part-off-web-e2e
+  ok   part-off-web-e2e-node-gate
+  ok   part-off-web-e2e-not-run-exit
+  ok   smc-ui
+  ok   smc-ui-popup
+  ok   smc-mode-page
+  ok   smc-mixer-page
+  ok   ui-shared-glyph
+  ok   ui-drum-mix-material
+  ok   ui-waveform-truth
+  ok   smc-ui-bounds
+  FAIL smc-ui-negative (see build/host/smc-ui-negative.log)
+       PASS negative drum-seq-numbered: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+       PASS negative drum-seq-wrong-kit: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+       PASS negative drum-seq-ignores-captured-view: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+       PASS negative filter-shows-false-solo: FAIL tests/host/smc_ui_test.c:602: !strcmp(smc_button_caption(15), "PART")
+       PASS negative static-knob-arc: FAIL tests/host/smc_ui_test.c:645: pixels > 0
+       Traceback (most recent call last):
+         File "/workspace/host-validation-0260/candidate/tests/host/smc_ui_negative_test.py", line 76, in <module>
+           raise RuntimeError(f"{name}: expected one production anchor, found {text.count(old)}")
+       RuntimeError: cryptic-footer-returned: expected one production anchor, found 0
+  ok   smc-mapping
+  ok   smc-drum-mutes
+  ok   smc-drum-rs
+  ok   smc-performance-abort
+  ok   smc-filter
+  ok   smc-feedback
+  ok   smc-record-feedback
+  ok   smc-part-select
+  ok   smc-clip-visibility
+  ok   drum-pan
+  ok   stereo
+  ok   master
+  ok   drum-kit-identity
+  ok   drum909-adpcm
+  FAIL optimization-equivalence (see build/host/optimization-equivalence.log)
+       CHECK build/optimization-equivalence/gain-lut
+       PASS: all 64 table entries, 13 duration edges, 10000000 random integer durations; const=256 B
+       CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/break_retrigger_lut_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/break-retrigger-lut
+       CHECK build/optimization-equivalence/break-retrigger-lut
+       PASS: 1536 exhaustive bit comparisons; const table 2400 B
+       PASS: 24576 complete trigger-state comparisons (invalid banks; RNG retained)
+       CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/busfx_invariant_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/busfx-invariants
+       CHECK build/optimization-equivalence/busfx-invariants
+       GREEN busfx-invariants: bit-identical samples and filter state (132545 cases)
+       CHECK bash tests/host/run_ima_delta_lut.sh
+       CHECK IMA delta LUT: gcc optimized
+       PASS: 3193789 exact decoder/reference and LUT algebra comparisons across 9 loops
+       CHECK IMA delta LUT: gcc sanitizer
+       PASS: 3193789 exact decoder/reference and LUT algebra comparisons across 9 loops
+       required host compiler missing: clang
+  ok   bass-preset-descriptor-range
+  not-run drum909 (../schwung-9W9/src/dsp/er99_engine.c)
+  not-run drum808 (../schwung-8W8/src/dsp/sc808_engine.cpp)
+  ok   breaks
+  ok   break-suite-registration
+  ok   adaptive-break-dsp
+  ok   adaptive-break-controls
+  ok   adaptive-break-storage
+  ok   adaptive-break-midi-pair
+  ok   break-performance
+  ok   brk-loops-seamless
+  ok   brk-outline
+  ok   brk-outline-gate
+  ok   chicago-fx-bridge
+  ok   au-compare-align
+  ok   au-compare-battery
+  ok   install-gate-guard
+  ok   queue-guard
+  ok   install-guards
+  ok   install-head
+  ok   release-tree
+  ok   prepush-trim
+  ok   prepush-allow
+  ok   gate-configs
+  ok   gate-trap
+  ok   quickcheck-plan
+  ok   host-failure-summary
+  ok   ctl-compile
+  ok   host-setup
+  ok   gen-nonfont-tables
+  ok   stereo-alone-gen
+  ok   runner-admission
+  ok   update-names
+  ok   gate-reason
+  ok   validation-inputs
+  ok   stage-handoff
+  ok   dev-validate
+  ok   dev-validate-composed
+  ok   nightly-version
+  ok   nightly-package
+  ok   nightly-publish
+  ok   gen-cache
+  ok   smk-update-contract
+  ok   gen-order
+  ok   quickcheck-devbug
+  ok   status-lanes
+  ok   status-isolation
+  ok   loop-bars
+  ok   installer
+  ok   installer-f02-bind
+  ok   installer-f02-bind-web
+  ok   locked-settings
+  ok   smk-flash
+  ok   smk-storage
+  ok   smk-apc40-map
+  ok   smk-apc40
+  ok   smk-clip-ble-clear
+  ok   smk-clip-keys
+  ok   smk-chord-recognize
+  ok   smk-clip-chord-display
+  ok   smk-ck-page-layout
+  ok   smk-arrows
+  FAIL smk-arrows-owner (see build/host/smk-arrows-owner.log)
+           i = arw_menu_id(ui.view, (uint32_t)cur_page());
+           if (clip_grid_mode && route == ARW_MENU && i != menu_id)
+               arw_rearm(&arw, now);                     /* CLP-82: a held arrow does not edit the new list */
+           menu_id = i;
+           d = arw_frame(&arw, now, route, fm1_ms);
+           if (!d)
+               return;
+           if (route == ARW_MENU) {
+               if (ui_menu_arrow(d))
+                   arw_rearm(&arw, now);                 /* a held > that entered a GLOBAL section does not edit it */
+           } else {
+               uint32_t l = fm1__lock();
+               fm1_in.enc_steps[panel.enc[EN_SELECT]] += (int16_t)(d * panel.dir[EN_SELECT]);
+               fm1__unlock(l);
+           }
+  ok   apc40-tables
+  ok   smk-clip-idle
+  ok   smk-clip-idle-pad
+  ok   apc40-pad-owner
+  ok   smk-padcal
+  ok   padcal-view
+  ok   smk-padcal-export
+  FAIL smk-padcal-wiring (see build/host/smk-padcal-wiring.log)
+       Traceback (most recent call last):
+         File "/workspace/host-validation-0260/candidate/tests/smk_padcal_wiring_test.py", line 31, in <module>
+           sysi, bti = glob.index("GR_SYSTEM"), glob.index("GR_BT")
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+       ValueError: substring not found
+  ok   pad-placement-doc
+  ok   padcal-flag
+  ok   apc40-lcd565-csv
+  ok   apc-palette
+  ok   installer-targets
+  ok   diag-size
+  ok   smk-inlog
+  ok   ble-central-diag
+  ok   ble-role-switch
+  ok   inlog-tool
+  ok   smk-pad-inputs
+  ok   smk-clip-ble-notify
+  ok   smk-clip-dark
+  ok   smk-clip-usb-clear
+  ok   smk-clip-isolation
+  ok   smk-clip-knob
+  ok   smk-fader-pickup
+  ok   smk-clip-wait
+  ok   smk-apc40-violet
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   ble-sysex-bounds
+  ok   ble
+  ok   upload-images
+  ok   upload-tools
+  ok   builtin-break-output
+  ok   break-pack
+  ok   break-pack-web
+  ok   breaks-web
+  ok   breaks-page
+  ok   project-adoption-identities
+  ok   projects-web
+  ok   installer-project-handoff
+  ok   projects-page
+  ok   install-slots-web
+  ok   installer-backup-selection
+  ok   slot-build-safe
+  ok   wav-import-integrity
+  ok   slot-backup
+  ok   slot-begin-cancel
+  ok   smp-begin-cancel
+  ok   slot-backup-durable
+  ok   slot-archive-zone
+  ok   slot-verify-order
+  ok   slot-read-reply
+  ok   slot-ack-integrity
+  ok   slot-echo-7bit
+  ok   slot-migration-matching
+  ok   slot-break-menu-migration
+  ok   installer-slots
+  ok   installer-restore-status
+  ok   installer-ota-finish-ack
+  ok   installer-backup-snapshot
+  ok   installer-ctl
+  ok   ctl-read-framing
+  ok   ctl-publish-atomic
+  ok   panic-chord
+  ok   seq-mute-carry
+  ok   synth-bus-mute
+  ok   engine-brk-mute
+  ok   mute-carry-mutants
+  ok   panic-notes
+  ok   panic-clear
+  ok   panic-route
+  ok   panic-mutants
+  ok   rec-held-duration
+  ok   original-stale-release
+  ok   rec-endpoint-lifecycle
+  ok   rec-endpoint-storage
+  ok   rec-nonforward-guard
+  ok   rec-live-smk
+  ok   ext-midi-rec-smk
+  ok   copy-semantics
+  FAIL song-actions (see build/host/song-actions.log)
+       FAIL: Global menu must contain CLEAR PATTERN
+       FAIL: Global cancellation must return to its list
+       song_actions: FAIL
+  ok   ui-feedback
+  ok   remaining-feature-proof-selftest
+  ok   home-pattern-glyph
+  ok   home-overview
+  ok   sound-matrix
+  ok   sound-layout
+  ok   perf-wheel-motion
+  ok   chicago-presentation
+  ok   chicago-readout
+  ok   ui-drum-glyph
+  ok   ui-glyph-polish
+  ok   ui-chicago-env-motion
+  ok   matrix-knob-caption
+  ok   preset-navigation-noop
+  ok   ui-303-entry
+  ok   roadmap-evidence-check
+  ok   roadmap-evidence-check-selftest
+  FAIL scenario-arrows (see build/host/scenario-arrows.log)
+         ok tempo == 125
+       FAIL expect arrowsteps == 115, got 29
+         ok setsize == 40
+       FAIL expect setbyte27 == 8, got 12
+         ok overlay == 0
+         ok view == 1
+         ok overlay == 1
+         ok listsel == 1
+         ok rowval == 34
+         ok rowval == 35
+         ok listsel == 1
+         ok rowval == 37
+         ok rowval == 34
+         ok listsel == 1
+       host: 19904 ms simulated, 1533 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-autosave (see build/host/scenario-autosave.log)
+         ok hit0.0.0 == 1
+         ok hit0.0.8 == 1
+         ok store_writes == 7
+         ok store_writes == 7
+         ok store_writes == 7
+         ok store_writes == 8
+         ok hit0.0.12 == 1
+       FAIL expect listsel == 19, got 4
+       FAIL expect rowval == 1, got 0
+         ok rowval == 0
+       FAIL expect store_writes == 9, got 8
+         ok store_writes == 9
+       FAIL expect hit0.0.2 == 0, got 1
+       FAIL expect store_writes == 9, got 10
+       host: 129030 ms simulated, 1199 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-bleclock
+  ok   scenario-blenotes
+  ok   scenario-brkslice
+  ok   scenario-brkslice_mode_toggle
+  ok   scenario-brkslice_trs_overlap
+  FAIL scenario-clip-arrow-menu (see build/host/scenario-clip-arrow-menu.log)
+       FAIL expect clksrc == 1, got 0
+       FAIL expect clksrc == 1, got 0
+         ok clksrc == 0
+         ok overlay == 0
+         ok overlay == 1
+         ok view == 5
+         ok overlay == 0
+         ok overlay == 1
+         ok view == 5
+         ok clksrc == 0
+         ok overlay == 0
+         ok view == 5
+       FAIL expect clksrc == 1, got 0
+         ok clksrc == 0
+       host: 9862 ms simulated, 1342 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-clklock (see build/host/scenario-clklock.log)
+         ok playing == 0
+         ok tempo == 119 (>116)
+         ok tempo == 119 (<122)
+         ok playing == 1
+         ok playing == 0
+         ok playing == 1
+         ok playing == 0
+       FAIL expect clksrc == 1, got 0
+       FAIL expect playing == 0, got 1
+       FAIL expect clkext == 0, got 1
+         ok clksrc == 0
+         ok playing == 1
+         ok playing == 0
+         ok setsize == 40
+       host: 9510 ms simulated, 913 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-clkmove (see build/host/scenario-clkmove.log)
+       storepoke: no byte 31 in object 0
+         ok clksrc == 0
+         ok setbyte27 == 8
+         ok setbyte38 == 0
+       FAIL expect clksrc == 2, got 0
+       FAIL unknown expect storeset23
+       FAIL unknown expect storeset31
+       FAIL unknown expect storeset42
+       FAIL unknown expect storeset43
+       FAIL expect clksrc == 2, got 0
+       FAIL expect clkext == 1, got 0
+  FAIL scenario-clocksrc (see build/host/scenario-clocksrc.log)
+       FAIL expect waiting == 1, got 0
+         ok tempo == 136 (>130)
+         ok playing == 0
+       FAIL expect transport_out == 0, got 2
+       FAIL expect clksrc == 1, got 0
+       FAIL expect playing == 0, got 1
+       FAIL expect clkext == 0, got 1
+       FAIL expect playing == 1, got 0
+         ok clkext == 0
+       FAIL expect clocks_out >60, got 57
+       FAIL expect transport_out == 1, got 3
+       FAIL expect playing == 0, got 1
+       FAIL expect transport_out == 2, got 4
+       FAIL expect clksrc == 1, got 0
+       FAIL unknown expect storeset31
+  ok   scenario-drum_bass_ch_consume
+  ok   scenario-edit_midi_rec_guard
+  ok   scenario-edit_oct_no_hidden
+  ok   scenario-extclock
+  ok   scenario-freeplay
+  ok   scenario-getting_started
+  ok   scenario-groove
+  FAIL scenario-guard (see build/host/scenario-guard.log)
+         ok guardcount == 1
+         ok peak -8.2 dBFS
+         ok guard == 1
+         ok guard == 0
+         ok guard == 0
+         ok guard == 1
+         ok guardcount == 2
+         ok guard == 1
+       FAIL expect listsel == 23, got 4
+       FAIL expect view == 7, got 5
+       FAIL expect perftest == 0, got -1
+       FAIL expect guard == 0, got 1
+         ok perftest == -1
+         ok guard == 1
+       host: 20990 ms simulated, 1770 blits, render 0.7% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-help
+  ok   scenario-jam
+  ok   scenario-keysound
+  ok   scenario-knobs
+  ok   scenario-midiowner
+  FAIL scenario-migrate (see build/host/scenario-migrate.log)
+         ok view == 6
+         ok songlen == 2
+         ok songbar2.0 == 16
+       FAIL expect savestate == 0, got 3
+       FAIL expect store_writes == 6, got 0
+       FAIL expect storeset23 == 13, got 0
+       FAIL expect tempo == 120, got 125
+       FAIL expect hit0.0.0 == 1, got 0
+       FAIL expect hit0.0.12 == 1, got 0
+         ok hit0.0.31 == 0
+         ok lanes == 0
+       FAIL expect songlen == 2, got 0
+       FAIL expect songbar2.0 == 16, got 1
+       FAIL expect store_writes == 6, got 0
+       host: 29754 ms simulated, 901 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-migrate0102 (see build/host/scenario-migrate0102.log)
+         ok view == 6
+         ok songlen == 2
+         ok songbar2.0 == 16
+       FAIL expect savestate == 0, got 3
+       FAIL expect store_writes == 6, got 0
+       FAIL expect storeset23 == 13, got 0
+       FAIL expect tempo == 120, got 125
+       FAIL expect hit0.0.0 == 1, got 0
+       FAIL expect hit0.0.12 == 1, got 0
+         ok hit0.0.31 == 0
+         ok lanes == 0
+       FAIL expect songlen == 2, got 0
+       FAIL expect songbar2.0 == 16, got 1
+       FAIL expect store_writes == 6, got 0
+       host: 29754 ms simulated, 901 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-patterns
+  FAIL scenario-perf (see build/host/scenario-perf.log)
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+         ok hit0.0.8 == 1
+         ok sound2.0.0 == 127
+         ok view == 7
+         ok perftest == 0
+         ok patptr == 0
+         ok perftest == -1
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+       host: 28864 ms simulated, 988 blits, render 0.5% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-perfsave (see build/host/scenario-perfsave.log)
+       FAIL expect listsel == 23, got 4
+       FAIL expect view == 7, got 5
+       FAIL expect store_writes >0, got 0
+       FAIL expect perftest == 0, got -1
+       FAIL expect patptr == 0, got 1
+       FAIL expect perftest == 3, got -1
+       FAIL expect perfres0 >0, got 0
+       FAIL expect perfres1 >0, got 0
+       FAIL expect perfres2 >0, got 0
+         ok patptr == 1
+       FAIL expect playing == 0, got 1
+         ok hit0.0.0 == 1
+         ok peak -12.7 dBFS
+         ok peak -12.7 dBFS
+       host: 19490 ms simulated, 742 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-plock
+  ok   scenario-prob
+  FAIL scenario-probcond (see build/host/scenario-probcond.log)
+         ok laneval7.0.0.0 == 106
+         ok laneval7.0.0.8 == 102
+         ok laneval7.0.0.12 == 135
+         ok laneval7.0.0.12 == 255
+         ok hit0.0.0 == 1
+         ok hit0.0.8 == 1
+         ok noteons == 0
+       FAIL expect noteons == 22, got 0
+       host: 29686 ms simulated, 3130 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-probreset (see build/host/scenario-probreset.log)
+         ok laneval7.0.0.0 == 106
+         ok view == 0
+         ok ppat0 == 2
+       FAIL expect noteons == 3, got 0
+       host: 18308 ms simulated, 2894 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-roll_continuation
+  ok   scenario-roll_short_tie
+  ok   scenario-savefeedback
+  ok   scenario-savewait
+  ok   scenario-showcase
+  ok   scenario-slices
+  ok   scenario-song
+  ok   scenario-song_live_mute_save
+  ok   scenario-songrep
+  ok   scenario-sound_matrix_chicago
+  ok   scenario-sound_matrix_chicago_idle
+  ok   scenario-sound_matrix_drum
+  ok   scenario-sound_matrix_lock
+  ok   scenario-sound_matrix_miami
+  ok   scenario-sound_page_split
+  ok   scenario-step303
+  ok   scenario-steps64
+  ok   scenario-stereo
+  ok   scenario-tb3po
+  FAIL scenario-tour (see build/host/scenario-tour.log)
+       FAIL expect listsel == 21, got 4
+       FAIL expect overlay == 2, got 1
+         ok overlay == 1
+       FAIL expect listsel == 21, got 4
+       host: 20394 ms simulated, 5150 blits, render 1.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-trackmute
+  FAIL scenario-undo (see build/host/scenario-undo.log)
+         ok rec == 0
+       FAIL expect hit0.0.0 == 0, got 1
+       FAIL expect hit0.0.12 == 0, got 1
+         ok sound0.0.0 == 34
+       FAIL expect tempo == 125, got 130
+       FAIL expect hit0.0.0 == 0, got 1
+       FAIL expect hit0.0.12 == 0, got 1
+         ok playing == 0
+         ok hit0.0.0 == 1
+       FAIL expect hit0.0.0 == 0, got 1
+         ok hit0.0.0 == 1
+       FAIL expect hit0.0.12 == 0, got 1
+       FAIL expect sound0.0.0 == 34, got 41
+       FAIL expect tempo == 125, got 130
+       host: 9338 ms simulated, 798 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-upload
+  ok   scenario-upload44
+  ok   scenario-usbnotes
+  FAIL perf-scratch (see build/host/perf-scratch.log)
+       FAIL expect listsel == 23, got 4
+       FAIL expect view == 7, got 5
+       FAIL expect store_writes >0, got 0
+       FAIL expect perftest == 0, got -1
+       FAIL expect patptr == 0, got 1
+       FAIL expect perftest == 3, got -1
+       FAIL expect perfres0 >0, got 0
+       FAIL expect perfres1 >0, got 0
+       FAIL expect perfres2 >0, got 0
+         ok patptr == 1
+       FAIL expect playing == 0, got 1
+         ok hit0.0.0 == 1
+         ok peak -12.7 dBFS
+         ok peak -12.7 dBFS
+       host: 19490 ms simulated, 742 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+TESTS FAILED

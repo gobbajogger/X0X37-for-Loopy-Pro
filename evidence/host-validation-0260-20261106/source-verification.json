@@ -1,0 +1,31 @@
+{
+  "source_base_commit": "c295af1554f9e80a29864cd013995eccad66cd2c",
+  "v6_evidence_commit": "66cfa3d0724a039f29803c7770ae0d6233f7fada",
+  "ram_evidence_commit": "d5c328862929b14a49104011a843115a7f42d27e",
+  "candidate_tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+  "nightly_policy_pin": "66073c68dd80d51a7053432c2c161a8b720a1341",
+  "main_policy_pin": "1a6bc3fe0245277b5ae31ab554c73d74b9ab4d83",
+  "ram_manifest_file_hash_matches": {
+    "firmware/src/app/plat.h": true,
+    "firmware/src/app/plat_fm1.c": true,
+    "firmware/src/app/ui.c": true,
+    "firmware/src/ble.c": true,
+    "host/x0x_host.c": true,
+    "tests/host/ble_peer_name_bounds_test.c": true,
+    "tests/host/ble_peer_name_bounds_test.sh": true,
+    "tests/host/smc_peer_names_test.c": true,
+    "tests/host/smc_peer_names_test.sh": true,
+    "tests/host/ui_peer_names_test.c": true
+  },
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "commands": {
+    "cc": "cc (Debian 14.2.0-19) 14.2.0",
+    "python": "Python 3.12.14",
+    "node": "v24.19.0",
+    "git": "git version 2.52.0"
+  },
+  "patch_hashes": {
+    "combined-v6.patch": "95b6e01f904cfc20dbeac2bc2530842de6395a66d1f5e760be18d31dd0508bfd",
+    "ui-name-storage.patch": "558d038601ff8afdc63097bdd1c5e92d5bf7bddf50bae6022d1c93d01a3add19"
+  }
+}

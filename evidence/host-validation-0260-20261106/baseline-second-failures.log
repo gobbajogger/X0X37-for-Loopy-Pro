@@ -1,0 +1,31 @@
+  ok   part-order
+  FAIL smc-ui-negative (see build/host/smc-ui-negative.log)
+       PASS negative drum-seq-numbered: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+       PASS negative drum-seq-wrong-kit: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+       PASS negative drum-seq-ignores-captured-view: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+       PASS negative filter-shows-false-solo: FAIL tests/host/smc_ui_test.c:602: !strcmp(smc_button_caption(15), "PART")
+       PASS negative static-knob-arc: FAIL tests/host/smc_ui_test.c:645: pixels > 0
+       Traceback (most recent call last):
+         File "/workspace/host-validation-0260/baseline/tests/host/smc_ui_negative_test.py", line 76, in <module>
+           raise RuntimeError(f"{name}: expected one production anchor, found {text.count(old)}")
+       RuntimeError: cryptic-footer-returned: expected one production anchor, found 0
+  FAIL optimization-equivalence (see build/host/optimization-equivalence.log)
+       CHECK build/optimization-equivalence/gain-lut
+       PASS: all 64 table entries, 13 duration edges, 10000000 random integer durations; const=256 B
+       CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/break_retrigger_lut_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/break-retrigger-lut
+       CHECK build/optimization-equivalence/break-retrigger-lut
+       PASS: 1536 exhaustive bit comparisons; const table 2400 B
+       PASS: 24576 complete trigger-state comparisons (invalid banks; RNG retained)
+       CHECK cc -std=c11 -O2 -ffp-contract=off -fno-fast-math -Wall -Wextra -Werror -Wno-unused-function -ffunction-sections -fdata-sections -DX0X_HOST -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen tests/host/busfx_invariant_test.c -Wl,--gc-sections -lm -o build/optimization-equivalence/busfx-invariants
+       CHECK build/optimization-equivalence/busfx-invariants
+       GREEN busfx-invariants: bit-identical samples and filter state (132545 cases)
+       CHECK bash tests/host/run_ima_delta_lut.sh
+       CHECK IMA delta LUT: gcc optimized
+       PASS: 3193789 exact decoder/reference and LUT algebra comparisons across 9 loops
+       CHECK IMA delta LUT: gcc sanitizer
+       PASS: 3193789 exact decoder/reference and LUT algebra comparisons across 9 loops
+       required host compiler missing: clang
+  ok   smk-arrows-owner
+  ok   smk-padcal-wiring
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+TESTS FAILED
