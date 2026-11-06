@@ -1,0 +1,7 @@
+KILLED mute-releases-voice: seq.t[t].sounding
+KILLED mute-leaks-midi: !saw_status(0x90 | seq.ch[t])
+KILLED mute-keeps-owned-midi: !seq.bass_out_valid[b]
+KILLED mute-bypasses-off: !seq.t[t].sounding
+KILLED bus-gate-removed: render_energy(100)<audible/100
+KILLED break-boundary-removed: mute bypasses full CQ
+mute carry mutants: 6 killed

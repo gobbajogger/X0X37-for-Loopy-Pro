@@ -1,0 +1,869 @@
+diff --git a/firmware/src/app/engine.c b/firmware/src/app/engine.c
+index eb2c8574..4cc4f01b 100644
+--- a/firmware/src/app/engine.c
++++ b/firmware/src/app/engine.c
+@@ -893,6 +893,21 @@ static void s_boff(void *x, int p)
+     original_seq_note[p] = -1;
+ }
+ static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
++/* Audio-owned control boundary, independent of the bounded CQ drain. Quiet
++ * alone only saves decoding after the gate closes; retire the old step too so
++ * the existing 88-sample gate ramp can close before this buffer ends. Held
++ * slices keep their established live-audition override. Unmute waits for the
++ * next real step, including its enable/probability decision. No new state or
++ * per-sample work; this adds a mute read and bounded control stores per stretch. */
++static void brk_mute_boundary(void)
++{
++    if (seq.mute & (1u << MUTE_BRK)) {
++        breaks_set_quiet(&brk, 1);
++        brk.step_on = 0;
++        brk.gate_to = brk.perf.count ? 1.0f : 0.0f;
++    }
++}
++
+ static void s_brk(void *x, int s16, int bar, float spb, int en)
+ {
+     const brkpart_t *bp = &seq.pat[seq.ppat[TRK_BRK]].brk;
+@@ -1738,6 +1753,10 @@ static glide_t mix_glide[NPARTS][GL_N] = {
+     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}};
+ __attribute__((noinline)) static void mix_targets(int p, float g, uint8_t solo)        /* g: the part level */
+ {
++    /* Synth mute gates only this bus's dry/send gains. MIDI, allocator, ARP,
++     * envelopes and insert histories keep advancing, so unmute needs no note. */
++    if ((p == PART_303A || p == PART_303B) && seq_part_muted(&seq, p))
++        g = 0.0f;
+     if (solo && !(solo & (1u << p)))
+         g = 0.0f;
+     glide_set(&mix_glide[p][GL_L], g * mix_pl[p]);
+@@ -2057,6 +2076,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
+     }
+     while (done < n) {
+         uint32_t k = seq_until_event(&seq, n - done);
++        brk_mute_boundary(); /* also follows song mutes at an in-buffer event */
+         render_sub(out_l + done, out_r + done, k, 0);
+         {
+             PROF_T(pt);
+diff --git a/firmware/src/seq/sequencer.c b/firmware/src/seq/sequencer.c
+index e8637c04..f34d7e05 100644
+--- a/firmware/src/seq/sequencer.c
++++ b/firmware/src/seq/sequencer.c
+@@ -301,8 +301,10 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
+         gate = bstep_gate(st);
+     }
+     uint8_t prev_slide = tr->held_note & 0x80u;     /* bit 7: the step that sounded slides on */
+-    if (s->mute & (1u << (MUTE_BASS0 + b)))
+-        gate = G_REST;
++    /* Internal synth timing/voice state runs behind the bus mute. Keep the
++     * existing muted MIDI-output policy without releasing the internal gate. */
++    int muted = (s->mute & (1u << (MUTE_BASS0 + b))) != 0;
++    if (muted) bass_midi_flush(s, b, o);
+     /* A TIE continues an audible note; an orphan TIE is a rest, never an onset. */
+     if (gate == G_REST || (gate == G_TIE && !tr->sounding) || SEQ_PART_OFF(s, TRK_BASS0 + b)) {
+         bass_release(s, b, o);
+@@ -316,7 +318,7 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
+         /* A chance-rejected step is a rest for both the internal 303 and MIDI out.
+          * REC's live-hit skip still echoes MIDI (REC-06); it is not a chance miss. */
+         int played = skip || o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide, bstep_velocity(st));
+-        if (played && s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
++        if (played && !muted && s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
+             uint8_t old = s->bass_notes_out[b], ch = s->ch[TRK_BASS0 + b];
+             uint8_t had_old = s->bass_out_valid[b], old_ch = s->bass_out_ch[b];
+             if (s->bass_slide_valid[b])                  /* only one old MIDI pitch can remain open */
+diff --git a/tests/host/engine_brk_mute_test.c b/tests/host/engine_brk_mute_test.c
+new file mode 100644
+index 00000000..5c2e5064
+--- /dev/null
++++ b/tests/host/engine_brk_mute_test.c
+@@ -0,0 +1,351 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Production engine control functions are extracted verbatim by the Python
++ * runner. The real breaks.c supplies decoding, held keys, generator and gate.
++ * Other sound owners, master/FX and sequencer timing are inert test boundaries;
++ * step delivery is explicit so a slow BREAK cannot conceal a late mute. */
++#include <assert.h>
++#include <math.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include "../../firmware/src/seq/sequencer.h"
++#define X0X_IMA_TABLES_DEFINE
++#include "../../firmware/src/dsp/breaks.c"
++
++/* New combined panic owner is inert in this BREAK-only harness. Its real
++ * behavior is covered separately by panic-clear/notes/route. */
++static volatile uint8_t notes_off_req;
++static uint8_t notes_off_discard;
++static uint32_t notes_off_cutoff, notes_off_requested_cutoff;
++static void engine_notes_off_apply(void) {}
++static seq_t seq;
++static breaks_t brk;
++static uint8_t brk_applied[BRK_NSET];
++static uint32_t brk_local;
++static int fail_count, click_failed, probability_skip;
++static unsigned split_frames = 256, advance_calls, elapsed_frames;
++static unsigned scheduled_mute_at, scheduled_unmute_at;
++static float captured[256];
++static unsigned captured_count, param_count;
++static uint32_t seen_param[4096];
++
++/* Unrelated owners only. CQ, BREAK local keys, step and render control below
++ * are production bodies, not reimplementations. */
++static uint8_t bass_held[NBASS], bass_held_count[NBASS], bass_held_src[NBASS];
++static uint8_t original_key_pitch[NBASS][38], bass_attacked[NBASS];
++static uint16_t src_held[3];
++static int original_bass[NBASS], brk_bend_owner, project_midi_drop;
++static int16_t brk_wheel, brk_wheel_seen;
++static uint8_t project_hold, tape_signal_seen, usb_full = 1;
++static uint8_t mot_was_on, mot_on, mot_release_req, mot_playing;
++static unsigned eng_prof_frames, eng_scope_w;
++static int16_t eng_scope[512];
++static uint16_t eng_peak[5];
++static float part_peak[5], out_lim = 1.0f, out_scale = 4194304.0f;
++static int mot, mst, fx;
++#define SCOPE_N 512u
++#define ORIGINAL_INPUT_KEYS 1
++#define PROF_T(name) unsigned name = 0
++#define PROF_ADD(stage, name) ((void)(name))
++
++static int prob_skip(int part, int voice) { return probability_skip; }
++static void original_midi_context(void) {}
++static void brk_channel_reconcile(void) {}
++static void original_prepare_all(void) {}
++static void guard_apply(void) {}
++static void live_key_drain(void) {}
++static void brk_midi_drain(void) {}
++static void motion_release(int *owner) {}
++static void motion_tick(int *owner, uint32_t n) {}
++static void fxbus_set_bpm(int *owner, float bpm) {}
++static void master_process_st(int *owner, float *l, float *r, int n, float volume) {}
++uint32_t plat_master(void) { return 4096; }
++int plat_midi_in(uint32_t *packet) { return 0; }
++static void midi_in(uint32_t packet) {}
++static void apply_param(int type, int a, int b, int value)
++{
++    if (param_count < sizeof seen_param / sizeof seen_param[0])
++        seen_param[param_count++] = (uint32_t)value;
++}
++static void mod_apply(int a, int v) {}
++static void apply_base(int a, int b, int v) {}
++static int mot_base(void *x, int a, int b, int v) { return 0; }
++static void mot_apply(void *x, int a, int b, int v, int base) {}
++static void s_drum(void *x, int a, int b, float velocity) {}
++static int live_rec_legato(int a, int source) { return 0; }
++static void live_rec_accept(int a, int source, int note) {}
++static int original_runtime_key(int *owner, int source, unsigned note, unsigned velocity) { return 0; }
++static int original_runtime_release_source(int *owner, int source) { return 0; }
++void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int source, int flags) {}
++float seq_tempo(const seq_t *s) { return 20.0f; }
++int seq_clock_waiting(const seq_t *s) { return 0; }
++/* No external notes in this harness; local key ownership is production code. */
++static int brk_any_slice(int slice) { return (brk_local & (1u << slice)) != 0; }
++static void s_brk(void *, int, int, float, int);
++static const seq_sink_t SINK = {.brk = s_brk};
++
++uint32_t seq_until_event(seq_t *s, uint32_t n)
++{
++    unsigned k = n < split_frames ? n : split_frames;
++    if (scheduled_mute_at > elapsed_frames && scheduled_mute_at - elapsed_frames < k)
++        k = scheduled_mute_at - elapsed_frames;
++    if (scheduled_unmute_at > elapsed_frames && scheduled_unmute_at - elapsed_frames < k)
++        k = scheduled_unmute_at - elapsed_frames;
++    return k;
++}
++
++void seq_advance(seq_t *s, uint32_t n, const seq_sink_t *sink)
++{
++    elapsed_frames += n;
++    ++advance_calls;
++    if (scheduled_mute_at && elapsed_frames == scheduled_mute_at)
++        s->mute |= 1u << MUTE_BRK;
++    if (scheduled_unmute_at && elapsed_frames == scheduled_unmute_at)
++        s->mute &= ~(1u << MUTE_BRK);
++}
++
++static void render_sub(float *l, float *r, uint32_t n, uint32_t offset)
++{
++    /* Real DSP output captured before unrelated effects/master/mixer. */
++    breaks_render(&brk, l, (int)n);
++    assert(captured_count + n <= 256u);
++    for (unsigned i = 0; i < n; ++i) {
++        r[i] = l[i];
++        captured[captured_count++] = l[i];
++    }
++}
++
++#include "production_engine_brk_control.inc"
++
++#define CHECK(condition, message) do { \
++    if (!(condition)) { fprintf(stderr, "FAIL line %d: %s\n", __LINE__, message); ++fail_count; } \
++} while (0)
++
++/* Standard IMA encoder, test data only: a positive plateau makes an abrupt cut
++ * a measurable discontinuity without relying on a fortunate sine phase. */
++#define LOOP_N 88200u
++static uint8_t loop_data[LOOP_N / 2u];
++static const brk_loop_t loop = {loop_data, LOOP_N, 22050, 2, 8};
++static pattern_t pattern;
++
++static void make_loop(void)
++{
++    int pred = 0, index = 0;
++    for (unsigned i = 0; i < LOOP_N; ++i) {
++        int step = IMA_STEP_T[index], diff = 20000 - pred, code = 0, delta = step >> 3;
++        if (diff < 0) { code = 8; diff = -diff; }
++        if (diff >= step) { code |= 4; diff -= step; delta += step; }
++        if (diff >= (step >> 1)) { code |= 2; diff -= step >> 1; delta += step >> 1; }
++        if (diff >= (step >> 2)) { code |= 1; delta += step >> 2; }
++        pred += code & 8 ? -delta : delta;
++        if (pred > 32767) pred = 32767;
++        if (pred < -32768) pred = -32768;
++        index += IMA_IDX_T[code & 7];
++        if (index < 0) index = 0;
++        if (index > 88) index = 88;
++        loop_data[i >> 1] |= (uint8_t)(code << ((i & 1u) * 4u));
++    }
++}
++
++static void block(void)
++{
++    int32_t out[512];
++    captured_count = 0;
++    engine_render(out, 256);
++    CHECK(captured_count == 256, "real engine_render rendered exactly one block");
++}
++
++static float peak(unsigned start, unsigned end)
++{
++    float value = 0.0f;
++    for (unsigned i = start; i < end; ++i)
++        if (fabsf(captured[i]) > value) value = fabsf(captured[i]);
++    return value;
++}
++
++static void fixture(int running)
++{
++    memset(&seq, 0, sizeof seq);
++    memset(&pattern, 0, sizeof pattern);
++    memset(bass_held, 0, sizeof bass_held);
++    memset(bass_held_count, 0, sizeof bass_held_count);
++    memset(bass_held_src, 0, sizeof bass_held_src);
++    memset(brk_applied, 255, sizeof brk_applied);
++    cq_w = cq_r = brk_local = param_count = 0;
++    elapsed_frames = advance_calls = scheduled_mute_at = scheduled_unmute_at = 0;
++    split_frames = 256;
++    probability_skip = 0;
++    seq.pat = &pattern;
++    seq.playing = (uint8_t)running;
++    pattern.brk.steps = 0xFFFFu;
++    breaks_init(&brk);
++    breaks_set_loop(&brk, 0, &loop);
++    breaks_set(&brk, BRK_LEVEL, 100);
++    breaks_set(&brk, BRK_PITCH, 12);
++    for (int i = 0; i < BRK_NSET; ++i) pattern.brk.set[i] = (uint8_t)breaks_get(&brk, i);
++    pattern.brk.set[BRK_COMPLEX] = 0;
++    pattern.brk.set[BRK_ALEN] = 3;
++    if (running) s_brk(0, 0, 0, 33075.0f, 1); /* 20 BPM: no next step for >129 blocks */
++    for (int i = 0; i < 4; ++i) block();
++    elapsed_frames = advance_calls = 0;
++}
++
++static void test_quiet_alone(void)
++{
++    fixture(1);
++    breaks_set_quiet(&brk, 1);
++    block();
++    CHECK(peak(132, 256) > 0.1f, "characterization: quiet alone does not mute an open gate");
++}
++
++static void test_deadline_and_click(void)
++{
++    fixture(1);
++    const float previous = captured[255];
++    CHECK(previous > 0.1f, "pre-mute deterministic plateau is audibly nonzero");
++    const uint32_t triggers = brk.st_trigs;
++    seq.mute |= 1u << MUTE_BRK;
++    block();
++    CHECK(brk.st_trigs == triggers, "deadline does not wait for or manufacture a BREAK step");
++    CHECK(brk.gate == 0.0f && peak(132, 256) == 0.0f, "mute is quiet within the next 256 frames");
++    CHECK(peak(0, 132) > 0.0f || BRK_FADE == 1, "normal mute fades rather than cutting immediately");
++    float delta = fabsf(captured[0] - previous);
++    for (unsigned i = 1; i < 256; ++i)
++        if (fabsf(captured[i] - captured[i - 1]) > delta) delta = fabsf(captured[i] - captured[i - 1]);
++    const float bound = previous * 0.025f + 0.0001f;
++    click_failed = delta > bound;
++    printf("mute peak-step %.7f, bound %.7f; prior %.7f; late peak %.7f\n",
++           (double)delta, (double)bound, (double)previous, (double)peak(132, 256));
++#ifndef ENGINE_BRK_ABRUPT_CONTROL
++    CHECK(!click_failed, "declick peak-step bound, including previous block's final sample");
++#endif
++}
++
++static void test_unmute_and_splits(void)
++{
++    fixture(1);
++    split_frames = 17;
++    seq.mute |= 1u << MUTE_BRK;
++    block();
++    CHECK(peak(132, 256) == 0.0f, "declick completes across uneven engine render stretches");
++    seq.mute &= ~(1u << MUTE_BRK);
++    block();
++    CHECK(peak(0, 256) == 0.0f, "unmute cannot resurrect a previous enabled step");
++    probability_skip = 1;
++    s_brk(0, 1, 0, 33075.0f, 1);
++    block();
++    CHECK(peak(0, 256) == 0.0f, "unmute preserves next-step probability rejection");
++    probability_skip = 0;
++    s_brk(0, 4, 0, 33075.0f, 1); /* ALEN 3 = 24 ticks: steps 0,4,8,12 trigger a slice */
++    block();
++    CHECK(peak(132, 256) > 0.1f, "unmute opens on the next accepted enabled BREAK step");
++    seq.mute |= 1u << MUTE_BRK;
++    seq.mute &= ~(1u << MUTE_BRK);
++    block();
++    CHECK(peak(132, 256) > 0.1f, "latest unmuted state wins before a boundary; no stale mute command");
++    seq.mute |= 1u << MUTE_BRK;
++    block();
++    seq.mute &= ~(1u << MUTE_BRK);
++    seq.mute |= 1u << MUTE_BRK;
++    block();
++    CHECK(peak(0, 256) == 0.0f, "latest muted state wins after rapid toggle");
++}
++
++static void test_event_mute(void)
++{
++    fixture(1);
++    scheduled_mute_at = 17;
++    scheduled_unmute_at = 201;
++    block();
++    CHECK(peak(0, 17) > 0.1f, "fixture presents mute at an in-buffer sequencer event");
++    CHECK(peak(17 + 132, 256) == 0.0f, "song-event mute fades before the next render stretch ends");
++    CHECK(!(seq.mute & (1u << MUTE_BRK)), "fixture delivered subsequent unmute in the same buffer");
++    CHECK(brk.gate_to == 0.0f, "in-buffer unmute still waits for an enabled step");
++}
++
++static void test_queue_backlog(void)
++{
++    for (int protected = 0; protected < 2; ++protected) {
++        fixture(1);
++        for (unsigned i = 0; i < CQ; ++i)
++            cq_put(protected ? C_BRK : C_PARAM_T0, protected ? 32 : 0, 0, i);
++        CHECK(cq_w - cq_r == CQ, "production CQ is saturated before mute");
++        seq.mute |= 1u << MUTE_BRK;
++        block();
++        CHECK(cq_w - cq_r == CQ - 128u, "production CQ drain preserves its bounded 128-command budget");
++        CHECK(peak(132, 256) == 0.0f, "mute bypasses full CQ of parameters or protected releases");
++        seq.mute &= ~(1u << MUTE_BRK);
++        for (int k = 0; k < 8; ++k) block();
++        CHECK(cq_w == cq_r && peak(0, 256) == 0.0f, "old CQ backlog cannot replay mute/unmute state");
++        s_brk(0, 4, 0, 33075.0f, 1); /* ALEN 3 = 24 ticks: steps 0,4,8,12 trigger a slice */
++        block();
++        CHECK(peak(132, 256) > 0.1f, "normal next-step unmute after CQ backlog clears");
++    }
++    /* Real FIFO marker boundaries establish that the queue fixture actually
++     * exposes the delayed delivery that a mute command would have suffered. */
++    fixture(1);
++    for (unsigned i = 0; i < CQ; ++i) cq_put(C_PARAM_T0, 0, 0, i);
++    block();
++    CHECK(param_count == 128u && seen_param[127] == 127u, "position 127 drains on boundary one");
++    block();
++    CHECK(param_count == 256u && seen_param[128] == 128u, "position 128 waits until boundary two");
++    for (int i = 0; i < 6; ++i) block();
++    CHECK(param_count == 1024u && seen_param[1023] == 1023u, "position 1023 waits until boundary eight");
++}
++
++static void test_held_and_stopped(void)
++{
++    for (int running = 0; running < 2; ++running) {
++        fixture(running);
++        if (!running) {
++            pattern.brk.steps = 0;
++            breaks_set_quiet(&brk, 1); /* prior zero-step pattern, stopped audition remains allowed */
++        }
++        cq_put(C_BRK, 32 + 3, 1, 0);
++        block();
++        CHECK(brk.perf.count == 1 && brk.current_slice == 3 && peak(132, 256) > 0.1f,
++              "production local CQ press auditions the held slice");
++        seq.mute |= 1u << MUTE_BRK;
++        block();
++        CHECK(brk.perf.count == 1 && peak(132, 256) > 0.1f,
++              "mute preserves established held-slice override while running or stopped");
++        cq_put(C_BRK, 32 + 3, 0, 0);
++        block();
++        CHECK(brk.perf.count == 0 && peak(132, 256) == 0.0f,
++              "held-slice release fades without reopening the muted old step");
++        cq_put(C_BRK, 32 + 5, 1, 0);
++        block();
++        CHECK(brk.current_slice == 5 && peak(132, 256) > 0.1f,
++              "a fresh local key can audition while muted after gate settled");
++        cq_put(C_BRK, 32 + 5, 0, 0);
++        block();
++        CHECK(peak(132, 256) == 0.0f, "fresh audition releases quietly");
++    }
++    fixture(1);
++    cq_put(C_BRK, 32 + 2, 1, 0); /* pending press at the same mute boundary */
++    seq.mute |= 1u << MUTE_BRK;
++    block();
++    CHECK(brk.perf.count == 1 && peak(132, 256) > 0.1f,
++          "perf_sync still applies a pending held-slice press after mute boundary");
++}
++
++int main(void)
++{
++    make_loop();
++#ifdef ENGINE_BRK_ABRUPT_CONTROL
++    test_deadline_and_click();
++    if (fail_count) return 1;
++    if (!click_failed) { fprintf(stderr, "FAIL abrupt-cut positive control did not fire\n"); return 1; }
++    puts("abrupt-cut positive control FIRED");
++    return 3;
++#else
++    test_quiet_alone();
++    test_deadline_and_click();
++    test_unmute_and_splits();
++    test_event_mute();
++    test_queue_backlog();
++    test_held_and_stopped();
++    printf("engine-brk-mute: %s\n", fail_count ? "FAIL" : "PASS");
++    return fail_count ? 1 : 0;
++#endif
++}
+diff --git a/tests/host/engine_brk_mute_test.py b/tests/host/engine_brk_mute_test.py
+new file mode 100644
+index 00000000..03da0bd1
+--- /dev/null
++++ b/tests/host/engine_brk_mute_test.py
+@@ -0,0 +1,87 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: GPL-3.0-only
++"""Exercise production BREAK control/CQ and the real renderer without synth assets.
++
++The C harness replaces only unrelated owners, FX/master and sequencer timing.
++No copied gate or queue model is used: complete production functions, including
++engine_render, are extracted verbatim. Run on the designated build/test box.
++"""
++from pathlib import Path
++import os
++import re
++import shlex
++import subprocess
++import tempfile
++
++
++ROOT = Path(__file__).resolve().parents[2]
++
++
++def function(source, masked, signature):
++    """Retain complete bodies; braces in comments and strings do not count."""
++    start = source.index(signature)
++    brace = masked.index("{", start)
++    depth = 1
++    end = brace + 1
++    while depth:
++        depth += (masked[end] == "{") - (masked[end] == "}")
++        end += 1
++    return source[start:end] + "\n"
++
++
++def main():
++    source = (ROOT / "firmware/src/app/engine.c").read_text()
++    api = (ROOT / "firmware/src/app/engine.h").read_text()
++    masked = re.sub(
++        r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'',
++        lambda match: " " * len(match.group()), source, flags=re.S,
++    )
++    cq_start = source.index("enum { C_PARAM_T0")
++    cq_end = source.index("static volatile uint32_t cq_w, cq_r;", cq_start)
++    cq_end += len("static volatile uint32_t cq_w, cq_r;")
++    declarations = source[cq_start:cq_end]
++    for first in ("enum { T_909,", "enum { PART_909,"):
++        start = api.index(first)
++        declarations += "\n" + api[start:api.index(";", start) + 1]
++    signatures = [
++        "static int cq_replace(",
++        "__attribute__((noinline)) static void cq_put(",
++        "static void s_brk(",
++        "static void brk_local_event(",
++        "static void drain(",
++        "void engine_render(",
++    ]
++    # The exact base has no helper; retaining that case permits a meaningful
++    # audible RED on the base engine_render rather than an extraction failure.
++    if "static void brk_mute_boundary(" in source:
++        signatures.insert(2, "static void brk_mute_boundary(")
++    # Extraction is deliberately strict: an upstream refactor must be reviewed.
++    generated = declarations + "\n" + "\n".join(
++        function(source, masked, signature) for signature in signatures
++    )
++    with tempfile.TemporaryDirectory(prefix="engine-brk-mute-") as directory:
++        work = Path(directory)
++        (work / "production_engine_brk_control.inc").write_text(generated)
++        cc = shlex.split(os.environ.get("CC", "cc"))
++        flags = [
++            "-std=c99", "-O2", "-ffp-contract=off", "-DX0X_HOST",
++            "-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter",
++            "-Wno-unused-function", "-Wno-error=attributes",
++            "-I" + str(work),
++        ]
++        harness = ROOT / "tests/host/engine_brk_mute_test.c"
++        for control in (False, True):
++            executable = work / ("abrupt-control" if control else "mute-test")
++            extra = ["-DBRK_FADE=1", "-DENGINE_BRK_ABRUPT_CONTROL"] if control else []
++            subprocess.run(cc + flags + extra + [str(harness), "-lm", "-o", str(executable)],
++                           cwd=ROOT, check=True)
++            result = subprocess.run([str(executable)], cwd=ROOT, check=False)
++            expected = 3 if control else 0
++            if result.returncode != expected:
++                raise SystemExit(f"{'abrupt-cut control' if control else 'mute regression'}: "
++                                 f"exit {result.returncode}, expected {expected}")
++    print("engine-brk-mute: production control/renderer and abrupt-cut control PASS")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/tests/host/mute_carry_mutants.py b/tests/host/mute_carry_mutants.py
+new file mode 100644
+index 00000000..1ee0736b
+--- /dev/null
++++ b/tests/host/mute_carry_mutants.py
+@@ -0,0 +1,59 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: GPL-3.0-only
++"""Run only in an isolated checkout: restore each production file after its test.
++Compile errors do not count as killed mutants; require the behavioral assertion.
++"""
++from pathlib import Path
++import subprocess
++import tempfile
++
++ROOT = Path(__file__).resolve().parents[2]
++SEQ = 'firmware/src/seq/sequencer.c'
++ENG = 'firmware/src/app/engine.c'
++CASES = [
++    ('mute-releases-voice', SEQ, 'if (muted) bass_midi_flush(s, b, o);',
++     'if (muted) { bass_midi_flush(s, b, o); gate = G_REST; }',
++     ['sh', 'tests/host/seq_mute_carry_test.sh'], 'seq.t[t].sounding'),
++    ('mute-leaks-midi', SEQ, 'played && !muted && s->send_notes',
++     'played && s->send_notes', ['sh', 'tests/host/seq_mute_carry_test.sh'],
++     '!saw_status(0x90 | seq.ch[t])'),
++    ('mute-keeps-owned-midi', SEQ, 'if (muted) bass_midi_flush(s, b, o);',
++     'if (muted) (void)0;', ['sh', 'tests/host/seq_mute_carry_test.sh'],
++     '!seq.bass_out_valid[b]'),
++    ('mute-bypasses-off', SEQ, '|| SEQ_PART_OFF(s, TRK_BASS0 + b)',
++     '|| (SEQ_PART_OFF(s, TRK_BASS0 + b) && !muted)',
++     ['sh', 'tests/host/seq_mute_carry_test.sh'], '!seq.t[t].sounding'),
++    ('bus-gate-removed', ENG,
++     'if ((p == PART_303A || p == PART_303B) && seq_part_muted(&seq, p))',
++     'if (0)', ['sh', 'tests/host/synth_bus_mute_test.sh'],
++     'render_energy(100)<audible/100'),
++    ('break-boundary-removed', ENG,
++     'brk_mute_boundary(); /* also follows song mutes at an in-buffer event */',
++     '/* mutant: no immediate BREAK mute */',
++     ['python3', 'tests/host/engine_brk_mute_test.py'],
++     'mute bypasses full CQ'),
++]
++
++def main():
++    with tempfile.TemporaryDirectory(prefix='mute-carry-mutants-') as directory:
++        for name, relative, old, new, command, expected in CASES:
++            path = ROOT / relative
++            original = path.read_bytes()
++            source = original.decode()
++            if source.count(old) != 1:
++                raise SystemExit(f'{name}: ambiguous mutation anchor')
++            try:
++                path.write_text(source.replace(old, new))
++                result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
++            finally:
++                path.write_bytes(original)
++            log = result.stdout + result.stderr
++            (Path(directory) / (name + '.log')).write_text(log)
++            if result.returncode == 0 or expected not in log or 'error:' in log:
++                print(log)
++                raise SystemExit(f'{name}: survived or invalid failure')
++            print(f'KILLED {name}: {expected}', flush=True)
++    print('mute carry mutants: 6 killed')
++
++if __name__ == '__main__':
++    main()
+diff --git a/tests/host/part_off_test.c b/tests/host/part_off_test.c
+index 8394f49c..ae3f79aa 100644
+--- a/tests/host/part_off_test.c
++++ b/tests/host/part_off_test.c
+@@ -182,20 +182,20 @@ static void t_independent(void)
+     set_byte(0);
+     snd = sounding_run(0);
+     CHECK(snd > 0 && ons[ch] == on_ons);
+-    /* The pinned base releases muted bass gates (fire_bass uses G_REST).
+-     * Keep that contract: MIDI and voice silent, but mute is not saved as OFF. */
++    /* Carried donor mute gates the bus, retaining internal progression.
++     * MIDI stays silent; mute is still not saved as OFF. */
+     seq.mute = seq_part_mask(PART_303A);
+     snd = sounding_run(0);
+-    CHECK(snd == 0 && ons[ch] == 0);
++    CHECK(snd > 0 && ons[ch] == 0);
+     CHECK(captured() == 0);
+-    /* Mute silences the sequencer, but an ON part still accepts live notes. */
++    /* Mute silences the bus, but an ON part still accepts live notes. */
+     engine_bass_on_velocity(0, 48, 0, 0, 100); audio(); audio();
+     CHECK(engine_bass_keys_held() & 1);
+     engine_bass_off(0); audio(); audio();
+     CHECK(!(engine_bass_keys_held() & 1));
+     seq.mute = 0;
+-    /* Muted and OFF stay independent. Restoring ON retains the base mute's
+-     * silent gate; unmuting then restores the original notes. */
++    /* Muted and OFF stay independent. Restoring ON resumes internal notes
++     * behind the mute; unmuting restores the original MIDI notes. */
+     seq.mute = seq_part_mask(PART_303A);
+     set_off(1u << PART_303A);
+     snd = sounding_run(0);
+@@ -204,7 +204,7 @@ static void t_independent(void)
+     set_byte(0);
+     CHECK(seq.mute == seq_part_mask(PART_303A) && captured() == 0);
+     snd = sounding_run(0);
+-    CHECK(snd == 0 && ons[ch] == 0);
++    CHECK(snd > 0 && ons[ch] == 0);
+     seq.mute = 0;
+     snd = sounding_run(0);
+     CHECK(snd > 0 && ons[ch] == on_ons);
+diff --git a/tests/host/seq_mute_carry_test.c b/tests/host/seq_mute_carry_test.c
+new file mode 100644
+index 00000000..496e0091
+--- /dev/null
++++ b/tests/host/seq_mute_carry_test.c
+@@ -0,0 +1,53 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Reuse the production-linked panic fixture; verify mute keeps internal notes
++ * while MIDI stays silent, and OFF/panic still release those internal notes. */
++#define main panic_fixture_main
++#include "panic_notes_test.c"
++#undef main
++
++int main(void)
++{
++    for (int b = 0; b < NBASS; b++) {
++        int t = TRK_BASS0 + b;
++        setup();
++        seq_start(&seq); run(64);
++        CHECK(seq.t[t].sounding);
++        nevents = 0;
++        seq.mute |= 1u << (MUTE_BASS0 + b);
++        run(4410);
++        CHECK(seq.t[t].pos == 1);
++        CHECK(seq.t[t].sounding);
++        CHECK(count_kind(EV_OFF, b) == 0);
++        CHECK(saw_status(0x80 | seq.ch[t]));
++        CHECK(!saw_status(0x90 | seq.ch[t]));
++        CHECK(!seq.bass_out_valid[b]);
++        nevents = 0;
++        run(3u * 4410u);
++        CHECK(seq.t[t].pos == 4);
++        CHECK(seq.t[t].sounding);
++        CHECK(count_kind(EV_ON, b) == 1); /* muted NOTE still progresses */
++        CHECK(!saw_status(0x90 | seq.ch[t]));
++        seq.mute &= ~(1u << (MUTE_BASS0 + b));
++        nevents = 0; run(4410);
++        CHECK(seq.t[t].sounding);
++        CHECK(count_kind(EV_ON, b) == 0); /* unmute TIE needs no new onset */
++        CHECK(!saw_status(0x90 | seq.ch[t])); /* donor MIDI policy */
++        seq.mute |= 1u << (MUTE_BASS0 + b);
++        seq_notes_off(&seq, &sink);
++        CHECK(!seq.t[t].sounding);
++        CHECK(seq.playing);
++        nevents = 0; run(4410);
++        CHECK(!seq.t[t].sounding); /* panic makes the next TIE an orphan */
++        CHECK(count_kind(EV_ON, b) == 0);
++
++        setup(); seq_start(&seq); run(64);
++        seq.mute |= 1u << (MUTE_BASS0 + b);
++        seq.part_off |= 1u << t;
++        run(4410);
++        CHECK(!seq.t[t].sounding);
++        CHECK(count_kind(EV_OFF, b) > 0);
++        CHECK(seq.playing);
++    }
++    printf("seq mute carry: %u checks, %u failures\n", checks, failures);
++    return failures != 0;
++}
+diff --git a/tests/host/seq_mute_carry_test.sh b/tests/host/seq_mute_carry_test.sh
+new file mode 100644
+index 00000000..227f92f3
+--- /dev/null
++++ b/tests/host/seq_mute_carry_test.sh
+@@ -0,0 +1,10 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++set -eu
++cd "$(dirname "$0")/../.."
++out=$(mktemp -d)
++trap 'rm -rf "$out"' EXIT HUP INT TERM
++${CC:-cc} -std=c99 -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/seq \
++ tests/host/seq_mute_carry_test.c firmware/src/seq/sequencer.c \
++ firmware/src/seq/pattern.c firmware/src/seq/tb3po.c -o "$out/test"
++"$out/test"
+diff --git a/tests/host/synth_bus_mute_test.c b/tests/host/synth_bus_mute_test.c
+new file mode 100644
+index 00000000..3725a3eb
+--- /dev/null
++++ b/tests/host/synth_bus_mute_test.c
+@@ -0,0 +1,120 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Real synth render, sequencer and queued SMC dispatch. Removing the bus gate
++ * or turning muted sequence steps into rests breaks the audio assertions. */
++#define SMC_UI_MAIN synth_mute_unused_ui_main
++#include "smc_ui_test.c"
++
++/* Exercise the unchanged physical-fader scanner with real pref_set / mute
++ * state. Only the hardware samples and the bank-button bit are substituted. */
++static struct { uint32_t buttons,frames; uint8_t fader[4]; } fm1_in;
++static uint8_t smk_fbank;
++#define SMK_BTN_FADER_BANK 0u
++#include "smk_faders.inc"
++
++static void physical_muted_fader(int part,int value)
++{
++    int position=part_position(part),slot=position%4;
++    smk_fbank=(uint8_t)(position/4);
++    memset(&fm1_in,0,sizeof fm1_in);fm1_in.frames=300;
++    for(int i=0;i<4;i++)fm1_in.fader[i]=10;
++    project_busy=1;smk_faders();project_busy=0; /* seed hardware history */
++    smk_faders();fm1_in.fader[slot]=(uint8_t)value;smk_faders();
++    CHECK(pref_get(PR(R_ENG,T_MIX,part,MX_LEVEL))==value);
++}
++
++static uint64_t render_energy(unsigned blocks)
++{
++    int32_t out[512];
++    uint64_t energy = 0;
++    while (blocks--) {
++        engine_render(out, 256);
++        energy = 0; /* final block, after the existing gain glide settles */
++        for (unsigned i=0;i<512;i++)
++            energy += out[i] < 0 ? (uint64_t)-(int64_t)out[i] : (uint64_t)out[i];
++    }
++    return energy;
++}
++static void input_midi(int status,int note,int velocity)
++{
++    min_q[mi_w++ % MQ] = (uint32_t)(status>>4) | (uint32_t)status<<8 |
++        (uint32_t)note<<16 | (uint32_t)velocity<<24;
++}
++static void queue_mute(int strip)
++{
++    uint8_t msg[3]={0x90,(uint8_t)(16+strip),127};
++    smc_ble_midi(msg,3);
++}
++static void mute_setup(int bank,int voice)
++{
++    setup(V_HOME,PART_303A+voice);
++    seq_stop(&seq);render_energy(2);
++    CHECK(!engine_bass_select_preset(voice,bank,0,&proj.sound));
++    render_energy(100);
++    CHECK(engine_bass_bank(voice)==bank);
++    for(int p=0;p<NPARTS;p++) {
++        pref_set(PR(R_ENG,T_MIX,p,MX_LEVEL),p==PART_303A+voice?100:0);
++        pref_set(PR(R_ENG,T_MIX,p,MX_REV),0);
++        pref_set(PR(R_ENG,T_MIX,p,MX_DLY),0);
++    }
++    seq.mute=0;render_energy(100);
++}
++static void held_midi_unmute(int bank,int voice,int pedal)
++{
++    mute_setup(bank,voice);
++    int channel=seq.ch[TRK_BASS0+voice],part=PART_303A+voice;
++    int strip=part_position(part);
++    input_midi(0x90|channel,60,110);
++    uint64_t audible=render_energy(8);CHECK(audible>1000);
++    if(pedal) {
++        input_midi(0xB0|channel,64,127);render_energy(1);
++        input_midi(0x80|channel,60,0);render_energy(1);
++    }
++    uint32_t before=seq.mute;
++    queue_mute(strip);CHECK(seq.mute==before); /* interrupt queue has no UI effects */
++    smc_poll();CHECK(seq_part_muted(&seq,part));
++    CHECK(render_energy(100)<audible/100);
++    /* L8 / #788: edits change the saved target while the output stays muted.
++     * No delayed fader application or note retrigger is needed on unmute. */
++    fader(strip,40);CHECK(pref_get(PR(R_ENG,T_MIX,part,MX_LEVEL))==40);
++    physical_muted_fader(part,25);
++    CHECK(seq_part_muted(&seq,part));
++    CHECK(render_energy(100)<audible/100);
++    message(0x80,16+strip,0); /* rearm the physical mute button */
++    queue_mute(strip);smc_poll();CHECK(!seq_part_muted(&seq,part));
++    uint32_t input_count=mi_w;
++    CHECK(render_energy(2)>1000); /* audible before any next incoming note */
++    CHECK(mi_w==input_count);
++    CHECK(pref_get(PR(R_ENG,T_MIX,part,MX_LEVEL))==25);
++    input_midi(0xB0|channel,64,0);input_midi(0x80|channel,60,0);
++    render_energy(100);
++}
++static void sequence_tie_unmute(int bank,int voice)
++{
++    mute_setup(bank,voice);
++    int part=PART_303A+voice;
++    bpart_t *line=&proj.pat[seq.ppat[part]].bass[voice];
++    line->len=16;line->step[0]=(bstep_t){60,G_NOTE|BS_SLIDE,110};
++    for(int i=1;i<16;i++)line->step[i]=(bstep_t){60,G_TIE,110};
++    seq_start(&seq);render_energy(2);
++    CHECK(seq.t[part].sounding);
++    mute_part(part);
++    unsigned guard=0;
++    while(eng_step[part]<2 && guard++<1000)render_energy(1);
++    CHECK(eng_step[part]>=2);CHECK(seq.t[part].sounding);
++    CHECK(render_energy(100)<1000);
++    int step=eng_step[part];mute_part(part);
++    CHECK(render_energy(1)>1000);
++    CHECK(eng_step[part]==step); /* no new step or note triggered the recovery */
++    seq_stop(&seq);render_energy(100);
++}
++int main(void)
++{
++    for(int bank=FACTORY_BANK_CHICAGO;bank<=FACTORY_BANK_MIAMI;bank++)
++        for(int voice=0;voice<NBASS;voice++) {
++            held_midi_unmute(bank,voice,0);
++            held_midi_unmute(bank,voice,1);
++            sequence_tie_unmute(bank,voice);
++        }
++    printf("synth bus mute: %u checks; queued mute, held/pedal notes, ties and muted fader\n",checks);
++    return 0;
++}
+diff --git a/tests/host/synth_bus_mute_test.sh b/tests/host/synth_bus_mute_test.sh
+new file mode 100644
+index 00000000..9932e329
+--- /dev/null
++++ b/tests/host/synth_bus_mute_test.sh
+@@ -0,0 +1,10 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++set -eu
++cd "$(dirname "$0")/../.."
++OUT=${SMC_UI_OUT:-build/host/synth-bus-mute}
++mkdir -p "$OUT"
++awk '/^static void smk_faders\(void\)/{on=1} on{print} on && /^}/{exit}' \
++    firmware/src/app/main_fm1.c > "$OUT/smk_faders.inc"
++SMC_UI_OUT="$OUT" \
++SMC_UI_TEST_FILE=tests/host/synth_bus_mute_test.c sh tests/host/smc_ui_test.sh
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index 53ce2790..309127c9 100755
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -91,8 +91,8 @@ test_class() {
+     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
+     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
+-    rec-live-smk|panic-mutants) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
+-    save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
++    rec-live-smk|panic-mutants|mute-carry-mutants) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
++    save-note-quiet|synth-bus-mute|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
+     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
+     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+     play-question-ui|sound-reset-ui|held-step-release|ui-perf-identity) TEST_CLASS=G ;;
+@@ -603,6 +603,10 @@ run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the
+ run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
+ run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
+ run panic-chord sh tests/host/panic_chord_test.sh
++run seq-mute-carry sh tests/host/seq_mute_carry_test.sh
++run synth-bus-mute sh tests/host/synth_bus_mute_test.sh
++run engine-brk-mute python3 -B tests/host/engine_brk_mute_test.py
++run mute-carry-mutants python3 -B tests/host/mute_carry_mutants.py
+ run panic-notes sh tests/host/panic_notes_test.sh
+ run panic-clear sh tests/host/panic_clear_test.sh
+ run panic-route sh tests/host/panic_route_test.sh

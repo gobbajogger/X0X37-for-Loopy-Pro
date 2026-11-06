@@ -1,0 +1,26 @@
+In file included from /workspace/mute-carry/tests/host/engine_brk_mute_test.c:112:
+/tmp/engine-brk-mute-h37brv0c/production_engine_brk_control.inc: In function ‘drain’:
+/tmp/engine-brk-mute-h37brv0c/production_engine_brk_control.inc:97:9: error: ‘notes_off_req’ undeclared (first use in this function)
+   97 |     if (notes_off_req) {
+      |         ^~~~~~~~~~~~~
+/tmp/engine-brk-mute-h37brv0c/production_engine_brk_control.inc:97:9: note: each undeclared identifier is reported only once for each function it appears in
+/tmp/engine-brk-mute-h37brv0c/production_engine_brk_control.inc:100:9: error: ‘notes_off_cutoff’ undeclared (first use in this function)
+  100 |         notes_off_cutoff = notes_off_requested_cutoff;
+      |         ^~~~~~~~~~~~~~~~
+/tmp/engine-brk-mute-h37brv0c/production_engine_brk_control.inc:100:28: error: ‘notes_off_requested_cutoff’ undeclared (first use in this function)
+  100 |         notes_off_cutoff = notes_off_requested_cutoff;
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/engine-brk-mute-h37brv0c/production_engine_brk_control.inc:101:9: error: ‘notes_off_discard’ undeclared (first use in this function)
+  101 |         notes_off_discard = (uint8_t)(cq_r != notes_off_cutoff);
+      |         ^~~~~~~~~~~~~~~~~
+/tmp/engine-brk-mute-h37brv0c/production_engine_brk_control.inc:183:9: error: implicit declaration of function ‘engine_notes_off_apply’ [-Wimplicit-function-declaration]
+  183 |         engine_notes_off_apply();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+Traceback (most recent call last):
+  File "/workspace/mute-carry/tests/host/engine_brk_mute_test.py", line 87, in <module>
+    main()
+  File "/workspace/mute-carry/tests/host/engine_brk_mute_test.py", line 76, in main
+    subprocess.run(cc + flags + extra + [str(harness), "-lm", "-o", str(executable)],
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O2', '-ffp-contract=off', '-DX0X_HOST', '-Wall', '-Wextra', '-Werror', '-Wno-unused-parameter', '-Wno-unused-function', '-Wno-error=attributes', '-I/tmp/engine-brk-mute-h37brv0c', '/workspace/mute-carry/tests/host/engine_brk_mute_test.c', '-lm', '-o', '/tmp/engine-brk-mute-h37brv0c/mute-test']' returned non-zero exit status 1.

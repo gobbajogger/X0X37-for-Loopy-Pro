@@ -1,0 +1,16 @@
+FAIL line 210: mute is quiet within the next 256 frames
+FAIL line 230: declick completes across uneven engine render stretches
+FAIL line 233: unmute cannot resurrect a previous enabled step
+FAIL line 237: unmute preserves next-step probability rejection
+FAIL line 251: latest muted state wins after rapid toggle
+FAIL line 261: song-event mute fades before the next render stretch ends
+FAIL line 263: in-buffer unmute still waits for an enabled step
+FAIL line 276: mute bypasses full CQ of parameters or protected releases
+FAIL line 279: old CQ backlog cannot replay mute/unmute state
+FAIL line 276: mute bypasses full CQ of parameters or protected releases
+FAIL line 279: old CQ backlog cannot replay mute/unmute state
+FAIL line 314: held-slice release fades without reopening the muted old step
+FAIL line 322: fresh audition releases quietly
+mute peak-step 0.0000000, bound 0.0095605; prior 0.3784187; late peak 0.3784187
+engine-brk-mute: FAIL
+mute regression: exit 1, expected 0
