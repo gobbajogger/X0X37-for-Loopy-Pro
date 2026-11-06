@@ -1,0 +1,67 @@
+diff --git a/firmware/src/app/project.c b/firmware/src/app/project.c
+index 94d54c74..43b04bfa 100644
+--- a/firmware/src/app/project.c
++++ b/firmware/src/app/project.c
+@@ -432,6 +432,8 @@ static int load_stream(project_t *pr, int n, uint32_t format)
+      * and allow the boot-default autosave path to overwrite it. */
+     if (s.unsupported)
+         return -9;
++    if (s.n == -2 || s.n == -8)
++        return s.n; /* preserve continuation I/O/busy classification */
+     if (decode_rc || s.left || crc32_of(raw, raw_len) != crc)
+         return -1;
+     if (!stream_layout_ok(pr, format))
+@@ -499,6 +501,7 @@ static int read_project(project_t *pr)
+     if (n >= 0 && (n < 4 || !stream_known(get32(io_buf)))) goto unsupported;
+     if (n >= 4) {
+         rc = load_stream(pr, n, get32(io_buf));
++        if (rc == -2 || rc == -8) { transient = 1; goto failed; }
+         if (rc == -9) goto unsupported;
+         /* At most 16 A/B combinations, no second stream buffer. A cut can
+          * leave only some newest objects changed (unchanged objects are not
+@@ -506,8 +509,10 @@ static int read_project(project_t *pr)
+         for (unsigned mask = 1; rc && mask < (1u << NSTREAM); ++mask) {
+             stream_previous = (uint8_t)mask;
+             n = load_stream_object(0);
++            if (n == -2 || n == -8) { rc = n; transient = 1; goto failed; }
+             if (n < (int)STREAM_HDR || !stream_known(get32(io_buf))) continue;
+             rc = load_stream(pr, n, get32(io_buf));
++            if (rc == -2 || rc == -8) { transient = 1; goto failed; }
+             if (!rc) rc = project_validate_for(pr);
+         }
+         if (!rc && stream_previous)
+diff --git a/tests/host/project_stage_test.c b/tests/host/project_stage_test.c
+index 9cc79ec2..c21b5039 100644
+--- a/tests/host/project_stage_test.c
++++ b/tests/host/project_stage_test.c
+@@ -748,6 +748,30 @@ static void test_interobject_power_cut(void)
+     proj.pat[0].bass[0].step[0] = (bstep_t){48, G_NOTE, 110};
+     REQUIRE(project_save() == 0);
+     REQUIRE(packed_len > 3u * (PLAT_STORE_MAX - 4u) - (STREAM_HDR - 4u));
++    /* Continuation I/O failure is retryable, never proof of damaged data.
++     * Exercise every occupied continuation at header and payload boundaries. */
++    for (unsigned k = 1; k < NSTREAM; ++k) {
++        for (unsigned payload = 0; payload < 2; ++payload) {
++            st_hdr_t h;
++            int copy = st_current(STREAM_OBJ[k], &h);
++            REQUIRE(copy >= 0);
++            memcpy(&saved_project, &proj, sizeof proj);
++            snapshot();
++            settings_read_failure = (int)(st_sector(STREAM_OBJ[k], (unsigned)copy) +
++                (payload ? ST_PAYLOAD_OFF : 0u));
++            CHECK(project_load() < 0);
++            CHECK(project_storage_unsupported() == 0);
++            CHECK(project_save() == -8);
++            check_no_writes();
++            settings_read_failure = -1;
++            CHECK(project_load_stage() == 0);
++            CHECK(project_save() == -8); /* staging is not live adoption */
++            check_no_writes();
++            CHECK(project_load() == 0);
++            CHECK(!memcmp(&proj, &saved_project, sizeof proj));
++            CHECK(project_save() == 0);
++        }
++    }
+     /* Leave genuinely different A/B history; recovery must choose per object,
+      * rather than blindly taking the older copy of every object. */
+     proj.pat[0].bass[0].step[0] = (bstep_t){60, G_NOTE, 100};
