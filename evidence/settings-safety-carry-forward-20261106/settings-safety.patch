@@ -1,0 +1,797 @@
+diff --git a/firmware/src/app/plat.h b/firmware/src/app/plat.h
+index fa331b99..6964a40f 100644
+--- a/firmware/src/app/plat.h
++++ b/firmware/src/app/plat.h
+@@ -77,7 +77,12 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity); /* CPU0 on
+ void plat_midi_out(uint32_t pkt);      /* queue one (audio ISR or main loop) */
+ 
+ /* persistent storage (Felucca storage.c objects: A/B sectors, CRC, torn-write safe) */
+-int plat_store_load(uint32_t obj, void *dst, uint32_t max);   /* bytes loaded, < 0 = none / bad */
++/* Bytes loaded; -1 = confirmed empty, -2 = read failure (retry), -3 = damaged
++ * committed data (validated adoption only), -8 = busy.
++ * Only -1 permits first-boot defaults to be persisted. */
++/* OR into obj to read its older valid A/B copy without modifying flash. */
++#define PLAT_STORE_PREVIOUS 0x80000000u
++int plat_store_load(uint32_t obj, void *dst, uint32_t max);
+ int plat_store_save(uint32_t obj, const void *src, uint32_t len);   /* 0 = ok */
+ #define PLAT_STORE_MAX 3840u           /* bytes per object */
+ enum { OBJ_SET, OBJ_SOUND, OBJ_PAT0, OBJ_PAT1, OBJ_PANEL, OBJ_SONG, OBJ_MOTION, OBJ_NOBJ };
+diff --git a/firmware/src/app/plat_fm1.c b/firmware/src/app/plat_fm1.c
+index 3b16e8cb..8853f3b8 100644
+--- a/firmware/src/app/plat_fm1.c
++++ b/firmware/src/app/plat_fm1.c
+@@ -284,7 +284,7 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; r
+ int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len) { (void)slot; (void)msg; (void)len; return 0; }
+ #endif
+ 
+-int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -1; }
++int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -2; }
+ int plat_store_save(uint32_t obj, const void *src, uint32_t len) { return flash_ok ? st_save(obj, src, len) : -9; }
+ 
+ int plat_slot_zones(int k) { return (k >= 0 && k < SMP_USER_SLOTS) ? usr_nz[k] : 0; }
+diff --git a/firmware/src/app/project.c b/firmware/src/app/project.c
+index 59f00736..94d54c74 100644
+--- a/firmware/src/app/project.c
++++ b/firmware/src/app/project.c
+@@ -36,7 +36,9 @@ typedef char raw_contiguous[(__builtin_offsetof(project_t, arr) == RAW_OFF + siz
+ 
+ static void arrange_defaults(project_t *pr);
+ static int project_validate_for(const project_t *pr);
+-static uint8_t project_incompatible; /* retain unsupported stored bytes until explicit staged adoption */
++/* 1: unsupported, 2: damaged. Retain flash until validated staged adoption. */
++static uint8_t project_incompatible;
++static uint8_t stream_previous; /* per-object older-copy selection during recovery */
+ static uint32_t packed_len;             /* the last save's (or load's) packed stream, bytes */
+ 
+ /* SMK-37 clip mode keybed settings (main_fm1.c), ck_ch .. ck_x2: channel 2, C MAJOR NEAR, MAJ root position,
+@@ -45,6 +47,9 @@ static uint32_t packed_len;             /* the last save's (or load's) packed st
+  * zeros there: the defaults. */
+ static const uint8_t CK_DEF[12] = {2, 0, 0, 0, 0, 0, 9, 0, 4, 0, 0, 0},
+                      CK_MAX[12] = {15, 11, 23, 1, 29, 5, 12, 3, 9, 3, 63, 127};
++_Static_assert(__builtin_offsetof(settings_t, ck_x2) - __builtin_offsetof(settings_t, ck_ch) == 11,
++               "clock settings must remain twelve adjacent bytes");
++_Static_assert(sizeof CK_MAX == 12, "clock settings bounds must cover twelve fields");
+ typedef char ck_set_size[sizeof(settings_t) == 40u ? 1 : -1];   /* the new bytes use the old padding */
+ 
+ static void project_settings_defaults(settings_t *s, uint8_t device_bt)
+@@ -67,6 +72,7 @@ static void project_settings_defaults(settings_t *s, uint8_t device_bt)
+ }
+ 
+ static uint8_t device_bt_pending, settings_read_failed;
++static uint8_t settings_load_failed; /* Bluetooth retry cannot adopt fallback defaults */
+ static uint8_t part_off_live, part_off_staged;
+ static uint8_t *part_off_of(const project_t *pr) { return pr == &project_stage ? &part_off_staged : &part_off_live; }
+ 
+@@ -133,8 +139,7 @@ static int save_buf(uint32_t obj, uint32_t n)
+     return rc;
+ }
+ 
+-/* the settings may have grown since they were saved: a shorter payload of this format loads into
+- * the front of dst, and the rest keeps what dst held (zeros: the new settings' defaults) */
++/* Read failures invalidate cached equality; only confirmed empty is first boot. */
+ static int read_settings_payload(void)
+ {
+     int n = plat_store_load(OBJ_SET, io_buf, sizeof io_buf);
+@@ -228,7 +233,7 @@ typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
+ static int load_sound(sound_t *dst)
+ {
+     int n = plat_store_load(OBJ_SOUND, io_buf, sizeof io_buf);
+-    if (n < 0) return -1;
++    if (n < 0) return n;
+     if ((uint32_t)n != sizeof *dst + 4u || get32(io_buf) != PROJ_FORMAT) return -9;
+     __builtin_memcpy(dst, io_buf + 4u, sizeof *dst);
+     if (engine_bass_sound_validate(dst)) return -9;
+@@ -325,6 +330,12 @@ typedef struct {
+     uint8_t unsupported; /* a consumed segment must retain its format classification */
+ } st_in_t;
+ 
++static int load_stream_object(int k)
++{
++    return plat_store_load(STREAM_OBJ[k] |
++        ((stream_previous & (1u << k)) ? PLAT_STORE_PREVIOUS : 0u), io_buf, sizeof io_buf);
++}
++
+ static int st_get(void *ctx)
+ {
+     st_in_t *s = ctx;
+@@ -333,7 +344,7 @@ static int st_get(void *ctx)
+     while (s->pos >= (uint32_t)s->n) {
+         if (++s->k >= NSTREAM)
+             return -1;
+-        s->n = plat_store_load(STREAM_OBJ[s->k], io_buf, sizeof io_buf);
++        s->n = load_stream_object(s->k);
+         if (s->n < 4)
+             return -1;
+         uint32_t format = get32(io_buf);
+@@ -451,8 +462,15 @@ static int read_project(project_t *pr)
+     project_defaults_for(pr, device_bt);
+     packed_len = 0;
+     settings_t set = pr->set;
+-    int bad = 0, rc = load_settings(&set);
++    int bad = 0, present = 0, transient = 0, rc = load_settings(&set);
+     uint8_t part_off = rc ? 0u : io_buf[4u + sizeof set];
++    present |= rc != -1;
++    transient |= rc == -2 || rc == -8;
++    int settings_present = rc == 0;
++    if (settings_read_failed) {
++        settings_load_failed = 1;
++        goto failed;
++    }
+     if (rc == -9) goto unsupported;
+     if (!rc) {
+         if (set.magic != PROJ_MAGIC || set.format != PROJ_FORMAT ||
+@@ -470,39 +488,74 @@ static int read_project(project_t *pr)
+ #endif
+     }
+     rc = load_sound(&pr->sound);
++    present |= rc != -1;
++    transient |= rc == -2 || rc == -8;
+     if (rc == -9) goto unsupported;
+     if (rc) bad = 1;
+-    int n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
++    stream_previous = 0;
++    int n = load_stream_object(0);
++    present |= n != -1;
++    transient |= n == -2 || n == -8;
+     if (n >= 0 && (n < 4 || !stream_known(get32(io_buf)))) goto unsupported;
+     if (n >= 4) {
+         rc = load_stream(pr, n, get32(io_buf));
+         if (rc == -9) goto unsupported;
++        /* At most 16 A/B combinations, no second stream buffer. A cut can
++         * leave only some newest objects changed (unchanged objects are not
++         * written), so taking all older copies is not sufficient. */
++        for (unsigned mask = 1; rc && mask < (1u << NSTREAM); ++mask) {
++            stream_previous = (uint8_t)mask;
++            n = load_stream_object(0);
++            if (n < (int)STREAM_HDR || !stream_known(get32(io_buf))) continue;
++            rc = load_stream(pr, n, get32(io_buf));
++            if (!rc) rc = project_validate_for(pr);
++        }
++        if (!rc && stream_previous)
++            for (int k = 0; k < NSTREAM; ++k) stored_known[STREAM_OBJ[k]] = 0;
++        stream_previous = 0;
+         if (rc) {
+             patterns_defaults(pr);
+             arrange_defaults(pr);
+             bad = 1;
+         }
+-    } else bad = 1;
++    } else {
++        bad = 1;
++        /* PAT0 may itself be missing while later committed segments remain. */
++        for (int k = 1; k < NSTREAM; ++k)
++        {
++            int m = load_stream_object(k);
++            present |= m != -1;
++            transient |= m == -2 || m == -8;
++        }
++    }
+     rc = bad ? -1 : project_validate_for(pr);
+     if (!rc) return 0;
+     goto failed;
+ unsupported:
+     rc = -9;
+ failed:
++    /* A later sound/stream failure also discards the loaded settings from pr.
++     * Do not let those fallback defaults replace the original settings. */
++    if (settings_present) settings_load_failed = 1;
+     project_defaults_for(pr, device_bt);
+     packed_len = 0;
++    stream_previous = 0;
++    if (rc != -9 && present && !transient) project_incompatible = 2;
++    if (transient) settings_load_failed = 1;
+     return rc;
+ }
+ 
+ void project_defaults(void) { project_defaults_for(&proj, proj.set.bt); }
+ int project_load(void)
+ {
++    project_incompatible = 0;
+     int rc = read_project(&proj);
+-    project_incompatible = (uint8_t)(rc == -9
++    if (!rc) settings_load_failed = 0;
++    if (rc == -9
+ #if X0X_BASS_TAGGED_SOUND
+         || (!rc && engine_bass_sound_validate(&proj.sound))
+ #endif
+-        );
++        ) project_incompatible = 1;
+     return rc;
+ }
+ int project_storage_unsupported(void) { return project_incompatible; }
+@@ -648,6 +701,8 @@ void project_commit_stage(void)
+     __builtin_memcpy(&proj, &project_stage, sizeof proj);
+     part_off_live = part_off_staged;
+     project_incompatible = 0; /* explicitly validated import/reset is the recovery boundary */
++    settings_load_failed = 0;
++    settings_read_failed = 0;
+     (void)measure_project(&proj, &packed_len);
+ }
+ 
+@@ -729,6 +784,7 @@ int project_save(void)
+ #endif
+     if (project_incompatible || !stream_layout_ok(&proj, PROJ_STREAM))
+         return -9; /* not one settings/sound/pattern object may be rewritten */
++    if (settings_read_failed || settings_load_failed) return -8; /* retry load before saving fallback defaults */
+ #ifndef X0X_HOST
+     extern int store_stage_held(void);
+     if (store_stage_held())                          /* boot upload is using the store buffer */
+diff --git a/firmware/src/storage.c b/firmware/src/storage.c
+index 197c8277..b0a9e041 100644
+--- a/firmware/src/storage.c
++++ b/firmware/src/storage.c
+@@ -136,7 +136,7 @@ int store_stage_held(void) { return st_stage_hold; }
+ static int st_head(uint32_t obj, uint32_t copy, st_hdr_t *h)   /* commit record valid: 0 */
+ {
+     if (st_read(st_sector(obj, copy), h, sizeof *h))
+-        return -1;
++        return -2;
+     if (h->magic != ST_MAGIC || h->type != obj || h->len > ST_PAYLOAD_MAX ||
+         h->hcrc != st_crc32(h, sizeof *h - 4u))
+         return -1;
+@@ -145,7 +145,9 @@ static int st_head(uint32_t obj, uint32_t copy, st_hdr_t *h)   /* commit record
+ 
+ static int st_body(uint32_t obj, uint32_t copy, const st_hdr_t *h)   /* payload -> st_buf, CRC ok: 0 */
+ {
+-    if (st_read(st_sector(obj, copy) + ST_PAYLOAD_OFF, st_buf, h->len) || st_crc32(st_buf, h->len) != h->crc)
++    if (st_read(st_sector(obj, copy) + ST_PAYLOAD_OFF, st_buf, h->len))
++        return -2;
++    if (st_crc32(st_buf, h->len) != h->crc)
+         return -1;
+     return 0;
+ }
+@@ -156,21 +158,35 @@ static int st_body(uint32_t obj, uint32_t copy, const st_hdr_t *h)   /* payload
+ static int st_current(uint32_t obj, st_hdr_t *h)
+ {
+     st_hdr_t a, b;
+-    int va = st_head(obj, 0, &a) == 0, vb = st_head(obj, 1, &b) == 0;
++    int ra = st_head(obj, 0, &a), rb = st_head(obj, 1, &b), rc;
++    int va = ra == 0, vb = rb == 0;
++    /* An unread copy may be newer: do not mistake I/O failure for CRC damage
++     * and silently adopt older settings that a later toggle would overwrite. */
++    if (ra == -2 || rb == -2) return -2;
+     if (vb && (!va || b.seq > a.seq)) {
+-        if (st_body(obj, 1, &b) == 0) {
++        rc = st_body(obj, 1, &b);
++        if (rc == -2) return rc;
++        if (rc == 0) {
+             *h = b;
+             return 1;
+         }
+         vb = 0;
+     }
+-    if (va && st_body(obj, 0, &a) == 0) {
+-        *h = a;
+-        return 0;
++    if (va) {
++        rc = st_body(obj, 0, &a);
++        if (rc == -2) return rc;
++        if (rc == 0) {
++            *h = a;
++            return 0;
++        }
+     }
+-    if (vb && st_body(obj, 1, &b) == 0) {
+-        *h = b;
+-        return 1;
++    if (vb) {
++        rc = st_body(obj, 1, &b);
++        if (rc == -2) return rc;
++        if (rc == 0) {
++            *h = b;
++            return 1;
++        }
+     }
+     return -1;
+ }
+@@ -218,16 +234,40 @@ static int st_pick(uint32_t obj, uint32_t *seq)
+     return -1;
+ }
+ 
+-/* load object into dst (up to max bytes); returns the length, or -1 */
++/* Length, -1 only for confirmed erased headers, -2 unreadable (I/O), -3 readable
++ * but damaged committed data, -8 busy. Integration of #790 and #810: I/O and busy
++ * are retryable (#790); damaged needs validated staged adoption (#810). */
+ static int st_load(uint32_t obj, void *dst, uint32_t max)
+ {
+     st_hdr_t h;
++    int previous = (obj & PLAT_STORE_PREVIOUS) != 0, cur;   /* #810 */
++    obj &= ~PLAT_STORE_PREVIOUS;
++    if (obj >= OBJ_NOBJ) return -1;
+     if (!ST_MAINTENANCE_ADMIT())
+-        return -1;
++        return -8;
+     if (st_stage_hold)                            /* do not wipe a boot record being built */
++        return -8;
++    cur = st_current(obj, &h);
++    if (cur == -2) return -2;
++    if (cur < 0) {
++        st_hdr_t a, b;
++        if (st_read(st_sector(obj, 0), &a, sizeof a) ||
++            st_read(st_sector(obj, 1), &b, sizeof b)) return -2;
++        const uint8_t *pa = (const uint8_t *)&a, *pb = (const uint8_t *)&b;
++        for (uint32_t i = 0; i < sizeof a; ++i)
++            if (pa[i] != 0xFFu || pb[i] != 0xFFu) return -3;   /* readable, committed, damaged */
+         return -1;
+-    if (st_current(obj, &h) < 0)
+-        return -1;
++    }
++    if (previous) {   /* #810: the older valid A/B copy, read-only */
++        st_hdr_t older;
++        int r = st_head(obj, (uint32_t)(1 - cur), &older);
++        if (r == -2) return -2;
++        if (r || older.seq >= h.seq) return -1;
++        r = st_body(obj, (uint32_t)(1 - cur), &older);
++        if (r == -2) return -2;
++        if (r) return -1;
++        h = older;
++    }
+     if (h.len > max)
+         h.len = max;
+     __builtin_memcpy(dst, st_buf, h.len);
+diff --git a/host/x0x_host.c b/host/x0x_host.c
+index bf9b4497..943b3694 100644
+--- a/host/x0x_host.c
++++ b/host/x0x_host.c
+@@ -160,23 +160,31 @@ int plat_midi_pulse(uint8_t ch, uint8_t note, uint8_t velocity)
+ 
+ /* flash: one buffer per object, kept across a simulated reboot */
+ static uint8_t store[OBJ_NOBJ][PLAT_STORE_MAX];
++static uint8_t store_previous[OBJ_NOBJ][PLAT_STORE_MAX];
++static int store_previous_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
+ static int store_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
+ static uint32_t store_writes;
+ static int store_fail;
+ int plat_store_load(uint32_t obj, void *dst, uint32_t max)
+ {
+-    int n = store_len[obj];
+-    if (obj >= OBJ_NOBJ || n < 0)
++    int previous = (obj & PLAT_STORE_PREVIOUS) != 0;
++    obj &= ~PLAT_STORE_PREVIOUS;
++    if (obj >= OBJ_NOBJ) return -1;
++    int n = previous ? store_previous_len[obj] : store_len[obj];
++    if (n < 0)
+         return -1;
+     if ((uint32_t)n > max)
+         n = (int)max;
+-    memcpy(dst, store[obj], (size_t)n);
++    memcpy(dst, previous ? store_previous[obj] : store[obj], (size_t)n);
+     return n;
+ }
+ int plat_store_save(uint32_t obj, const void *src, uint32_t len)
+ {
+     if (store_fail || obj >= OBJ_NOBJ || len > PLAT_STORE_MAX)
+         return -1;
++    store_previous_len[obj] = store_len[obj];
++    if (store_len[obj] >= 0)
++        memcpy(store_previous[obj], store[obj], (size_t)store_len[obj]);
+     memcpy(store[obj], src, len);
+     store_len[obj] = (int)len;
+     store_writes++;
+@@ -1091,6 +1099,9 @@ int main(int argc, char **argv)
+                     return 1;
+                 }
+                 store_len[o] = n;
++                /* Legacy dump files contain one generation only. Do not let
++                 * the previous in-memory session supply unrelated A/B data. */
++                if (ld) store_previous_len[o] = -1;
+             }
+             fclose(f);
+             if (ld) {                                    /* boot on it */
+diff --git a/tests/host/project_save_preflight_test.c b/tests/host/project_save_preflight_test.c
+index 16a7af4d..c505019d 100644
+--- a/tests/host/project_save_preflight_test.c
++++ b/tests/host/project_save_preflight_test.c
+@@ -103,6 +103,38 @@ static int test_sound_hash_collision(void)
+     return 0;
+ }
+ 
++/* Exact-size settings are required; truncated objects cannot partly replace dst. */
++static int test_settings_guards(void)
++{
++    settings_t loaded, before;
++    project_defaults();
++    if (project_validate_for(&proj)) {
++        puts("settings fixture is invalid before ck_x2 mutation");
++        return 1;
++    }
++    proj.set.ck_x2 = 0xFF;
++    if (project_validate_for(&proj) != -1) {
++        puts("invalid ck_x2 accepted");
++        return 1;
++    }
++    project_defaults();
++    if (save_obj(OBJ_SET, &proj.set, sizeof proj.set)) return 1;
++    memset(&loaded, 0xA5, sizeof loaded);
++    before = loaded;
++    --flash_len[OBJ_SET];
++    if (load_settings(&loaded) != -9 || memcmp(&loaded, &before, sizeof loaded)) {
++        puts("short settings object accepted or partially copied");
++        return 1;
++    }
++    ++flash_len[OBJ_SET];
++    if (load_settings(&loaded) || memcmp(&loaded, &proj.set, sizeof loaded)) {
++        puts("exact-size settings object did not load");
++        return 1;
++    }
++    puts("settings guards: short object -9, exact size loads, ck_x2=255 rejected");
++    return 0;
++}
++
+ int main(void)
+ {
+     uint8_t *raw = (uint8_t *)&proj + RAW_OFF;
+@@ -158,5 +190,6 @@ int main(void)
+         return 1;
+     }
+     puts("memory-full preflight: no writes; prior project survives reboot");
++    if (test_settings_guards()) return 1;
+     return test_sound_hash_collision();
+ }
+diff --git a/tests/host/project_stage_test.c b/tests/host/project_stage_test.c
+index 4e53f573..9cc79ec2 100644
+--- a/tests/host/project_stage_test.c
++++ b/tests/host/project_stage_test.c
+@@ -12,6 +12,8 @@
+ static uint8_t nor[0x100000], protected_flash[sizeof nor], before_flash[sizeof nor];
+ static unsigned checks, failures, erases, programs, saves;
+ static const char *test_name;
++static int settings_read_failure = -1; /* byte address; -2 fails every settings read */
++static int cut_before_object = -1;
+ 
+ static void expect(int ok, const char *what, int line)
+ {
+@@ -33,6 +35,10 @@ static int project_range(uint32_t off, uint32_t n)
+ }
+ static int st_read(uint32_t off, void *dst, uint32_t n)
+ {
++    if ((settings_read_failure == -2 && off >= 0x9D000u && off < 0x9F000u) ||
++        (settings_read_failure >= 0 && off <= (uint32_t)settings_read_failure &&
++         (uint32_t)settings_read_failure - off < n))
++        return -1;
+     if (off > sizeof nor || n > sizeof nor - off)
+         return -1;
+     memcpy(dst, nor + off, n);
+@@ -64,12 +70,13 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
+ 
+ int plat_store_load(uint32_t obj, void *dst, uint32_t max)
+ {
+-    REQUIRE(obj < OBJ_NOBJ && obj != OBJ_PANEL);
++    REQUIRE((obj & 0x7FFFFFFFu) < OBJ_NOBJ && (obj & 0x7FFFFFFFu) != OBJ_PANEL);
+     return st_load(obj, dst, max);
+ }
+ int plat_store_save(uint32_t obj, const void *src, uint32_t len)
+ {
+     REQUIRE(obj < OBJ_NOBJ && obj != OBJ_PANEL);
++    if ((int)obj == cut_before_object) return -1;
+     saves++;
+     return st_save(obj, src, len);
+ }
+@@ -78,6 +85,7 @@ void plat_midi_out(uint32_t pkt)
+     (void)pkt;
+     REQUIRE(0);                         /* project storage must not send MIDI */
+ }
++uint32_t plat_ms(void) { REQUIRE(0); return 0; } /* storage must not render audio */
+ int plat_midi_passed(uint32_t mark) { (void)mark; return 1; }
+ 
+ static project_t before_project, saved_project;
+@@ -137,6 +145,7 @@ static void fixture(const char *name)
+ {
+     uint32_t i, k;
+     test_name = name;
++    settings_read_failure = -1;
+     memset(nor, 0xFF, sizeof nor);
+     /* Distinct retained data, including bytes beyond each sample's used data. */
+     for (i = 0; i < sizeof nor; i++)
+@@ -167,9 +176,11 @@ static void fixture(const char *name)
+     }
+     memcpy(protected_flash, nor, sizeof nor);
+     erases = programs = saves = 0;
++    cut_before_object = -1;
+     memset(stored_known, 0, sizeof stored_known);
+     memset(stored_hash, 0, sizeof stored_hash);
+     project_incompatible = 0; /* a new simulated boot, not an accepted old project */
++    settings_read_failed = settings_load_failed = device_bt_pending = 0;
+     memset(&proj, 0, sizeof proj);
+     proj.set.bt = PROJ_DEVICE_BT | PROJ_BT_CLK_IN;
+     project_defaults();
+@@ -453,7 +464,10 @@ static void test_storage_rejection(void)
+         seq.bpm = 231.0f;
+         packed_len = 4321u;
+         snapshot();
+-        CHECK(project_load_stage() < 0);
++        if (objects[k] == OBJ_PAT0) {
++            CHECK(project_load_stage() == 0);
++            CHECK(project_stage.pat[NPAT - 1].bass[1].step[63].note != 19);
++        } else CHECK(project_load_stage() < 0);
+         check_live_unchanged();
+     }
+     fixture("corrupt stream payload leaves live project and samples intact");
+@@ -466,7 +480,8 @@ static void test_storage_rejection(void)
+         REQUIRE(st_save(OBJ_PAT0, payload, (uint32_t)n) == 0);
+     }
+     snapshot();
+-    CHECK(project_load_stage() < 0);
++    CHECK(project_load_stage() == 0); /* intact older A/B copy */
++    CHECK(!memcmp(project_stage.pat, proj.pat, sizeof proj.pat));
+     check_live_unchanged();
+     fixture("empty storage leaves live project intact");
+     musical_fixture();
+@@ -574,6 +589,227 @@ static void test_capacity_rejection(void)
+ }
+ 
+ 
++/* A read error must never turn stored settings into first-boot defaults.
++ * Real A/B NOR, project load/save and the independent Bluetooth flush share
++ * this test; removing either write guard destroys the saved payload. */
++static void test_settings_read_retry(void)
++{
++    for (int fault = 0; fault < 4; ++fault) {
++        fixture("settings I/O failure retains bytes until controlled retry");
++        REQUIRE(project_save() == 0);
++        proj.set.palette = 4;
++        proj.set.ck_x2 = 17;
++        seq.part_off = PROJ_PART_OFF_ALL; /* exercise the extended M7a settings tail */
++        REQUIRE(project_save() == 0);
++        settings_t original = proj.set, loaded, sentinel;
++        st_hdr_t h;
++        int cur = st_current(OBJ_SET, &h);
++        REQUIRE(cur >= 0);
++        project_device_bt_set(!(original.bt & 1u));
++        uint8_t requested_bt = proj.set.bt;
++        const int address[] = {-2, (int)st_sector(OBJ_SET, 0),
++            (int)st_sector(OBJ_SET, 1),
++            (int)(st_sector(OBJ_SET, (uint32_t)cur) + ST_PAYLOAD_OFF)};
++        snapshot();
++        settings_read_failure = address[fault];
++        memset(&loaded, 0xA5, sizeof loaded);
++        sentinel = loaded;
++        CHECK(load_settings(&loaded) == -2);
++        CHECK(!memcmp(&loaded, &sentinel, sizeof loaded));
++        CHECK(project_device_bt_save() == -2);
++        CHECK(project_device_bt_pending());
++        CHECK(project_load() < 0);
++        CHECK(project_save() == -8);
++        check_no_writes();
++        /* Only this explicit test action restores I/O. The queued flush must
++         * re-read the saved object, patch bit 0 and retain every other byte. */
++        settings_read_failure = -1;
++        CHECK(project_device_bt_save() == 0);
++        CHECK(!project_device_bt_pending());
++        CHECK(project_save() == -8); /* live fallback defaults still need a validated LOAD */
++        original.bt = (uint8_t)((original.bt & ~1u) | (requested_bt & 1u));
++        CHECK(load_settings(&loaded) == 0);
++        CHECK(!memcmp(&loaded, &original, sizeof loaded));
++        CHECK(io_buf[4u + sizeof loaded] == PROJ_PART_OFF_ALL);
++        CHECK(project_load() == 0);
++        CHECK(part_off_live == PROJ_PART_OFF_ALL);
++        CHECK(project_load_stage() == 0);
++        CHECK(part_off_staged == PROJ_PART_OFF_ALL);
++        uint8_t header[32];
++        project_file_header(header);
++        CHECK(get32(header + 28) == PROJ_FILE_OFF_WORD(PROJ_PART_OFF_ALL));
++        CHECK(!memcmp(&proj.set, &original, sizeof original));
++        CHECK(project_save() == 0);
++        check_protected_flash();
++    }
++    fixture("confirmed empty settings allow first-boot Bluetooth save");
++    CHECK(project_load() < 0);
++    project_device_bt_set(!(proj.set.bt & 1u));
++    CHECK(project_device_bt_save() == 0);
++    CHECK(!project_device_bt_pending());
++    settings_t loaded;
++    CHECK(load_settings(&loaded) == 0);
++    CHECK((loaded.bt & 1u) == (proj.set.bt & 1u));
++}
++
++static void test_settings_damaged_and_busy(void)
++{
++    for (int damage = 0; damage < 2; ++damage) {
++        fixture("readable damaged settings cannot authorize defaults writes");
++        REQUIRE(project_save() == 0);
++        proj.set.palette = 4;
++        REQUIRE(project_save() == 0); /* both A/B payloads must exist */
++        for (unsigned copy = 0; copy < 2; ++copy) {
++            uint32_t base = st_sector(OBJ_SET, copy);
++            if (damage) nor[base + ST_PAYLOAD_OFF] ^= 1u;
++            else memset(nor + base, 0, sizeof(st_hdr_t));
++        }
++        project_device_bt_set(!(proj.set.bt & 1u));
++        snapshot();
++        settings_t loaded;
++        /* Integration #790+#810: readable damage is -3 (not retryable I/O -2)
++         * and is held as damaged storage (#810), so writes refuse with -9. */
++        CHECK(load_settings(&loaded) == -3);
++        CHECK(project_device_bt_save() == -3);
++        CHECK(project_device_bt_pending());
++        CHECK(project_load() == -3);
++        CHECK(project_storage_unsupported() == 2);
++        CHECK(project_save() == -9);
++        CHECK(project_device_bt_save() == -9);
++        CHECK(project_device_bt_pending());
++        check_no_writes();
++        /* Permanent damage needs explicit validated adoption, not a retry
++         * that silently replaces the damaged bytes with boot defaults. */
++        project_reset_stage();
++        REQUIRE(project_validate_stage() == 0);
++        project_commit_stage();
++        CHECK(project_save() == 0);
++    }
++    fixture("busy settings read retains pending intent until unlock");
++    REQUIRE(project_save() == 0);
++    settings_t original = proj.set, loaded;
++    project_device_bt_set(!(original.bt & 1u));
++    original.bt ^= 1u;
++    uint32_t cap;
++    REQUIRE(store_stage_lock(&cap) != 0);
++    snapshot();
++    CHECK(load_settings(&loaded) == -8);
++    CHECK(project_device_bt_save() == -8);
++    CHECK(project_device_bt_pending());
++    CHECK(project_save() == -8);
++    check_no_writes();
++    store_stage_unlock();
++    CHECK(project_device_bt_save() == 0);
++    CHECK(!project_device_bt_pending());
++    CHECK(load_settings(&loaded) == 0);
++    CHECK(!memcmp(&loaded, &original, sizeof loaded));
++    CHECK(project_save() == 0);
++}
++
++static void test_settings_survive_sound_read_failure(void)
++{
++    fixture("sound read failure cannot overwrite successfully read settings");
++    proj.set.palette = 4;
++    REQUIRE(project_save() == 0);
++    settings_t original = proj.set;
++    snapshot();
++    /* The current sound copy is readable; failure to inspect the other
++     * header must not lead to persisting a whole-project fallback. */
++    settings_read_failure = (int)st_sector(OBJ_SOUND, 1);
++    CHECK(project_load() < 0);
++    CHECK(project_save() == -8);
++    settings_read_failure = -1;
++    CHECK(project_load_stage() == 0);
++    CHECK(project_save() == -8); /* staging alone does not adopt the project */
++    check_no_writes();
++    CHECK(project_load() == 0);
++    CHECK(!memcmp(&proj.set, &original, sizeof original));
++    CHECK(project_save() == 0);
++}
++
++/* A complete older stream must survive a cut after PAT0 commits, before PAT1.
++ * Removing fallback or the damaged-data save latch breaks these assertions. */
++static void test_interobject_power_cut(void)
++{
++    fixture("power cut between stream objects 1 and 2");
++    musical_fixture();
++    for (unsigned k = 0; k < NPAT; ++k) {
++        for (unsigned b = 0; b < NKIT; ++b)
++            for (unsigned v = 0; v < NDRUM; ++v)
++                for (unsigned i = 0; i < NSW; ++i)
++                    proj.pat[k].drum[b].hit[v][i] = next_random();
++        for (unsigned b = 0; b < NBASS; ++b)
++            for (unsigned i = 0; i < NSTEPS; ++i)
++                proj.pat[k].bass[b].step[i] =
++                    (bstep_t){next_random()%128u, G_NOTE, next_random()%128u};
++        REQUIRE(measure_project(&proj, &packed_len) == 0);
++        if (packed_len > 3u * (PLAT_STORE_MAX - 4u) - (STREAM_HDR - 4u)) break;
++    }
++    proj.pat[0].bass[0].step[0] = (bstep_t){48, G_NOTE, 110};
++    REQUIRE(project_save() == 0);
++    REQUIRE(packed_len > 3u * (PLAT_STORE_MAX - 4u) - (STREAM_HDR - 4u));
++    /* Leave genuinely different A/B history; recovery must choose per object,
++     * rather than blindly taking the older copy of every object. */
++    proj.pat[0].bass[0].step[0] = (bstep_t){60, G_NOTE, 100};
++    REQUIRE(project_save() == 0);
++    memcpy(&saved_project, &proj, sizeof proj);
++    proj.pat[0].bass[0].step[0].note = 72;
++    proj.pat[7].bass[0].step[0] = (bstep_t){67, G_NOTE, 90};
++    cut_before_object = OBJ_PAT1;
++    REQUIRE(project_save() == -3);
++    cut_before_object = -1;
++    memset(stored_known, 0, sizeof stored_known); /* cold-boot cache */
++    snapshot();
++    CHECK(project_load() == 0);
++    CHECK(!memcmp(&proj, &saved_project, sizeof proj));
++    CHECK(!project_storage_unsupported());
++    check_no_writes();
++    /* Saving recovered data must not skip the differing newest object due
++     * to a hash cached from the selected older copy. */
++    uint32_t torn_seq, repaired_seq;
++    REQUIRE(st_pick(OBJ_PAT0, &torn_seq) >= 0);
++    CHECK(project_save() == 0);
++    REQUIRE(st_pick(OBJ_PAT0, &repaired_seq) >= 0);
++    CHECK(repaired_seq == torn_seq + 1u);
++    memset(stored_known, 0, sizeof stored_known);
++    CHECK(project_load() == 0);
++    CHECK(!memcmp(&proj, &saved_project, sizeof proj));
++    /* Destroy both copies of a required segment: defaults must never erase
++     * the remaining good A/B bytes, even after edits or project_defaults(). */
++    memset(nor + st_sector(OBJ_PAT1, 0), 0, 2u * ST_SECTOR);
++    memset(stored_known, 0, sizeof stored_known);
++    CHECK(project_load() < 0);
++    CHECK(project_storage_unsupported());
++    snapshot();
++    project_defaults();
++    proj.pat[0].bass[0].step[0] = (bstep_t){55, G_NOTE, 100};
++    CHECK(project_save() == -9);
++    check_no_writes();
++    /* Only explicit validated adoption authorizes replacing damaged storage. */
++    project_reset_stage();
++    REQUIRE(project_validate_stage() == 0);
++    project_commit_stage();
++    CHECK(project_save() == 0);
++    CHECK(!project_storage_unsupported());
++}
++
++static void test_damaged_single_object(void)
++{
++    const unsigned objects[] = {OBJ_SET, OBJ_SOUND};
++    for (unsigned i=0;i<2;i++) {
++        fixture("damaged settings/sound alone is not an erased first boot");
++        unsigned obj=objects[i];
++        if(obj==OBJ_SET) REQUIRE(save_obj(obj,&proj.set,sizeof proj.set)==0);
++        else REQUIRE(save_obj(obj,&proj.sound,sizeof proj.sound)==0);
++        memset(nor+st_sector(obj,0),0,2u*ST_SECTOR);
++        CHECK(project_load()<0);CHECK(project_storage_unsupported()==2);
++        snapshot();project_defaults();CHECK(project_save()==-9);check_no_writes();
++    }
++    fixture("truly erased first boot can save defaults");
++    CHECK(project_load()<0);CHECK(!project_storage_unsupported());
++    CHECK(project_save()==0);
++}
++
+ int main(void)
+ {
+     test_defaults();
+@@ -583,6 +819,11 @@ int main(void)
+     test_storage_rejection();
+     test_capacity_rejection();
+     test_old_revision_rejection();
++    test_settings_read_retry();
++    test_settings_damaged_and_busy();
++    test_settings_survive_sound_read_failure();
++    test_interobject_power_cut();
++    test_damaged_single_object();
+     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);
+     return failures ? 1 : 0;
+ }
+diff --git a/tests/host/test_smc_boot_saved_roles.py b/tests/host/test_smc_boot_saved_roles.py
+index 29644480..3195fadd 100644
+--- a/tests/host/test_smc_boot_saved_roles.py
++++ b/tests/host/test_smc_boot_saved_roles.py
+@@ -34,7 +34,7 @@ assert '#if' not in boot_body and '#endif' not in boot_body
+ original = unique(r'static int read_project\(project_t \*pr\)\s*\{\s*\n', PROJECT, 'revision-13 loader')
+ section = PROJECT[original.end():PROJECT.index('\nunsupported:', original.end())]
+ assert 'uint8_t device_bt = proj.set.bt;' in section
+-start = section.index('    int bad = 0, rc = load_settings(&set);')
++start = unique(r'^    int bad = 0,[^\n]*rc = load_settings\(&set\);$', section, 'settings read').start()
+ end = section.index('    rc = load_sound(&pr->sound);', start)
+ settings_body = section[start:end]
+ assert 'goto unsupported;' in settings_body
+@@ -65,9 +65,10 @@ static project_t proj;
+  * expectations still come from the production assignment and branch slice. */
+ static uint8_t io_buf[128], off_mask;
+ static uint8_t *part_off_of(project_t *pr) { (void)pr; return &off_mask; }
+-static int settings_result, checks;
++static int settings_result, checks, settings_read_failed, settings_load_failed;
+ static settings_t saved;
+ static int load_settings(settings_t *out) {
++    settings_read_failed = settings_result < -1;
+     if (settings_result == 0) *out = saved;
+     return settings_result;
+ }
+@@ -86,8 +87,12 @@ static int choose_saved_role(void) {
+     project_defaults_for(&proj, device_bt);
+     settings_t set = proj.set;
+ ''' + settings_body + r'''
++    (void)present; (void)transient; (void)settings_present;
+     if (bad) project_defaults_for(&proj, device_bt);
+     return bad ? -1 : 0;
++failed:
++    project_defaults_for(&proj, device_bt);
++    return rc;
+ unsupported:
+     return -9;
+ }

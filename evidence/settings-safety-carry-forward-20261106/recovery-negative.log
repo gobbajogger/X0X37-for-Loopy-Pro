@@ -1,0 +1,11 @@
+tests/host/project_stage_test.c:468: truncated store leaves live project/settings/gauge intact: project_load_stage() == 0
+tests/host/project_stage_test.c:483: corrupt stream payload leaves live project and samples intact: project_load_stage() == 0
+tests/host/project_stage_test.c:484: corrupt stream payload leaves live project and samples intact: !memcmp(project_stage.pat, proj.pat, sizeof proj.pat)
+tests/host/project_stage_test.c:763: power cut between stream objects 1 and 2: project_load() == 0
+tests/host/project_stage_test.c:764: power cut between stream objects 1 and 2: !memcmp(&proj, &saved_project, sizeof proj)
+tests/host/project_stage_test.c:765: power cut between stream objects 1 and 2: !project_storage_unsupported()
+tests/host/project_stage_test.c:771: power cut between stream objects 1 and 2: project_save() == 0
+tests/host/project_stage_test.c:773: power cut between stream objects 1 and 2: repaired_seq == torn_seq + 1u
+tests/host/project_stage_test.c:775: power cut between stream objects 1 and 2: project_load() == 0
+tests/host/project_stage_test.c:776: power cut between stream objects 1 and 2: !memcmp(&proj, &saved_project, sizeof proj)
+project staging: 26506 checks, 10 failures; real storage, defaults and sample metadata

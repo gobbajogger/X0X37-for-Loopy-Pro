@@ -1,0 +1,56 @@
+tests/host/project_303_stream_test.c: In function ‘main’:
+tests/host/project_303_stream_test.c:10:5: error: unknown type name ‘pattern2_t’; did you mean ‘pattern_t’?
+   10 |     pattern2_t old;
+      |     ^~~~~~~~~~
+      |     pattern_t
+tests/host/project_303_stream_test.c:22:12: error: request for member ‘drum’ in something not a structure or union
+   22 |         old.drum[0].hit[0][0] = (uint32_t)p + 1u;
+      |            ^
+tests/host/project_303_stream_test.c:23:12: error: request for member ‘bass’ in something not a structure or union
+   23 |         old.bass[0].step[0].note = (uint8_t)(36 + p);
+      |            ^
+tests/host/project_303_stream_test.c:24:12: error: request for member ‘bass’ in something not a structure or union
+   24 |         old.bass[0].step[0].flags = G_NOTE | BS_SLIDE;
+      |            ^
+tests/host/project_303_stream_test.c:25:12: error: request for member ‘bass’ in something not a structure or union
+   25 |         old.bass[0].step[1].note = 99; /* A TIE's stored pitch must survive migration too. */
+      |            ^
+tests/host/project_303_stream_test.c:26:12: error: request for member ‘bass’ in something not a structure or union
+   26 |         old.bass[0].step[1].flags = G_TIE;
+      |            ^
+tests/host/project_303_stream_test.c:27:12: error: request for member ‘bass’ in something not a structure or union
+   27 |         old.bass[0].step[15].note = 12;
+      |            ^
+tests/host/project_303_stream_test.c:28:12: error: request for member ‘bass’ in something not a structure or union
+   28 |         old.bass[0].step[15].flags = G_TIE | BS_SLIDE | BS_ACCENT;
+      |            ^
+tests/host/project_303_stream_test.c:29:12: error: request for member ‘bass’ in something not a structure or union
+   29 |         old.bass[0].len = 16;
+      |            ^
+tests/host/project_303_stream_test.c:30:12: error: request for member ‘bass’ in something not a structure or union
+   30 |         old.bass[0].gen.seed = (uint32_t)(9000 + p);
+      |            ^
+tests/host/project_303_stream_test.c:31:12: error: request for member ‘brk’ in something not a structure or union
+   31 |         old.brk.slice_mode = p & 1; old.brk.rsv = (uint8_t)(128 + p);
+      |            ^
+tests/host/project_303_stream_test.c:31:40: error: request for member ‘brk’ in something not a structure or union
+   31 |         old.brk.slice_mode = p & 1; old.brk.rsv = (uint8_t)(128 + p);
+      |                                        ^
+tests/host/project_303_stream_test.c:32:12: error: request for member ‘brk’ in something not a structure or union
+   32 |         old.brk.slice[15] = 8;
+      |            ^
+tests/host/project_303_stream_test.c:33:12: error: request for member ‘swing’ in something not a structure or union
+   33 |         old.swing = (uint8_t)p;
+      |            ^
+tests/host/project_303_stream_test.c:36:32: error: ‘pattern2_t’ undeclared (first use in this function); did you mean ‘pattern_t’?
+   36 |     memcpy(raw + NPAT * sizeof(pattern2_t), &arr, sizeof arr);
+      |                                ^~~~~~~~~~
+      |                                pattern_t
+tests/host/project_303_stream_test.c:36:32: note: each undeclared identifier is reported only once for each function it appears in
+tests/host/project_303_stream_test.c:37:5: error: implicit declaration of function ‘stream_from2’; did you mean ‘stream_known’? [-Wimplicit-function-declaration]
+   37 |     stream_from2(&proj);
+      |     ^~~~~~~~~~~~
+      |     stream_known
+tests/host/project_303_stream_test.c:38:5: error: implicit declaration of function ‘migrate_break_counts’ [-Wimplicit-function-declaration]
+   38 |     migrate_break_counts(&proj, 2);
+      |     ^~~~~~~~~~~~~~~~~~~~

@@ -1,0 +1,19 @@
+{
+  "state": "ISOLATED_EVIDENCE_PACKET",
+  "proposal_tree": "2e38c67d3dbf1b905085580229e395433aefd92d",
+  "candidate_tree": "d93c60a7b21bb2cfa92ac40bc43cfbe470b5073d",
+  "patch_sha256": "3a1e8ad0b135277561e4096df03bb7d2879d90a556e4ec0b2dd64eb1addf8ce8",
+  "donor_pr810": "45a7285e536d8c24e0c57bf512393c804a6aad5c",
+  "donor_pr790": "314614c011c3b8bb119f6d298c558288f99aed11",
+  "settings_fix": "16ba9e239d116f99c5ed9428058ce9264fc45c69",
+  "paths": [
+    "firmware/src/app/plat.h",
+    "firmware/src/app/plat_fm1.c",
+    "firmware/src/app/project.c",
+    "firmware/src/storage.c",
+    "host/x0x_host.c",
+    "tests/host/project_save_preflight_test.c",
+    "tests/host/project_stage_test.c",
+    "tests/host/test_smc_boot_saved_roles.py"
+  ]
+}

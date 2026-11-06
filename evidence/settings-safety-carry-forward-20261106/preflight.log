@@ -1,0 +1,3 @@
+memory-full preflight: no writes; prior project survives reboot
+settings guards: short object -9, exact size loads, ck_x2=255 rejected
+sound collision: different bytes persisted and read back; identical save skipped

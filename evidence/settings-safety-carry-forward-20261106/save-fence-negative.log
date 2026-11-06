@@ -1,0 +1,32 @@
+tests/host/project_stage_test.c:622: settings I/O failure retains bytes until controlled retry: project_save() == -8
+tests/host/project_stage_test.c:120: settings I/O failure retains bytes until controlled retry: erases == before_erases && programs == before_programs && saves == before_saves
+tests/host/project_stage_test.c:121: settings I/O failure retains bytes until controlled retry: !memcmp(nor, before_flash, sizeof nor)
+tests/host/project_stage_test.c:629: settings I/O failure retains bytes until controlled retry: project_save() == -8
+tests/host/project_stage_test.c:632: settings I/O failure retains bytes until controlled retry: !memcmp(&loaded, &original, sizeof loaded)
+tests/host/project_stage_test.c:641: settings I/O failure retains bytes until controlled retry: !memcmp(&proj.set, &original, sizeof original)
+tests/host/project_stage_test.c:622: settings I/O failure retains bytes until controlled retry: project_save() == -8
+tests/host/project_stage_test.c:120: settings I/O failure retains bytes until controlled retry: erases == before_erases && programs == before_programs && saves == before_saves
+tests/host/project_stage_test.c:121: settings I/O failure retains bytes until controlled retry: !memcmp(nor, before_flash, sizeof nor)
+tests/host/project_stage_test.c:629: settings I/O failure retains bytes until controlled retry: project_save() == -8
+tests/host/project_stage_test.c:632: settings I/O failure retains bytes until controlled retry: !memcmp(&loaded, &original, sizeof loaded)
+tests/host/project_stage_test.c:641: settings I/O failure retains bytes until controlled retry: !memcmp(&proj.set, &original, sizeof original)
+tests/host/project_stage_test.c:622: settings I/O failure retains bytes until controlled retry: project_save() == -8
+tests/host/project_stage_test.c:120: settings I/O failure retains bytes until controlled retry: erases == before_erases && programs == before_programs && saves == before_saves
+tests/host/project_stage_test.c:121: settings I/O failure retains bytes until controlled retry: !memcmp(nor, before_flash, sizeof nor)
+tests/host/project_stage_test.c:629: settings I/O failure retains bytes until controlled retry: project_save() == -8
+tests/host/project_stage_test.c:632: settings I/O failure retains bytes until controlled retry: !memcmp(&loaded, &original, sizeof loaded)
+tests/host/project_stage_test.c:641: settings I/O failure retains bytes until controlled retry: !memcmp(&proj.set, &original, sizeof original)
+tests/host/project_stage_test.c:622: settings I/O failure retains bytes until controlled retry: project_save() == -8
+tests/host/project_stage_test.c:120: settings I/O failure retains bytes until controlled retry: erases == before_erases && programs == before_programs && saves == before_saves
+tests/host/project_stage_test.c:121: settings I/O failure retains bytes until controlled retry: !memcmp(nor, before_flash, sizeof nor)
+tests/host/project_stage_test.c:629: settings I/O failure retains bytes until controlled retry: project_save() == -8
+tests/host/project_stage_test.c:632: settings I/O failure retains bytes until controlled retry: !memcmp(&loaded, &original, sizeof loaded)
+tests/host/project_stage_test.c:641: settings I/O failure retains bytes until controlled retry: !memcmp(&proj.set, &original, sizeof original)
+tests/host/project_stage_test.c:699: busy settings read retains pending intent until unlock: project_save() == -8
+tests/host/project_stage_test.c:120: busy settings read retains pending intent until unlock: erases == before_erases && programs == before_programs && saves == before_saves
+tests/host/project_stage_test.c:720: sound read failure cannot overwrite successfully read settings: project_save() == -8
+tests/host/project_stage_test.c:723: sound read failure cannot overwrite successfully read settings: project_save() == -8
+tests/host/project_stage_test.c:120: sound read failure cannot overwrite successfully read settings: erases == before_erases && programs == before_programs && saves == before_saves
+tests/host/project_stage_test.c:121: sound read failure cannot overwrite successfully read settings: !memcmp(nor, before_flash, sizeof nor)
+tests/host/project_stage_test.c:726: sound read failure cannot overwrite successfully read settings: !memcmp(&proj.set, &original, sizeof original)
+project staging: 26625 checks, 31 failures; real storage, defaults and sample metadata
