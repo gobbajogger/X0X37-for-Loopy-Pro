@@ -1,0 +1,645 @@
+diff --git a/tests/host/part_order_test.c b/tests/host/part_order_test.c
+index 2b2b2896..2051f603 100644
+--- a/tests/host/part_order_test.c
++++ b/tests/host/part_order_test.c
+@@ -66,7 +66,11 @@ static void panel_maps(void)
+     setup(V_SONG,PART_909);
+     CHECK(pg.r[0][1].a==PART_909 && pg.r[0][2].a==PART_808 && pg.r[0][3].a==PART_BRK);
+     CHECK(pg.r[1][1].a==PART_303B && pg.r[1][2].a==PART_303A);
+-    open_global();int n=0;
++    open_global();int section=-1;
++    for(int i=0;i<ui.list_n;i++)
++        if(list_rows[i].kind==R_SECTION && !strcmp(pref_name(list_rows[i]),"MIDI + CLOCK"))section=i;
++    CHECK(section>=0);ui.list_sel=(uint8_t)section;list_enter();
++    CHECK(ui.overlay==O_LIST && !strcmp(list_title,"MIDI + CLOCK"));int n=0;
+     for(int i=0;i<ui.list_n;i++)if(list_rows[i].kind==R_MIDICH)CHECK(list_rows[i].a==expected[n++]);
+     CHECK(n==NPARTS);
+ }
+diff --git a/tests/host/project_runtime_test.c b/tests/host/project_runtime_test.c
+index 3f2cce37..37934643 100644
+--- a/tests/host/project_runtime_test.c
++++ b/tests/host/project_runtime_test.c
+@@ -39,6 +39,14 @@ static void open_action(int action)
+ {
+     set_view(V_GLO);
+     open_global();
++    int section = -1;
++    for (int i = 0; i < ui.list_n; i++)
++        if (list_rows[i].kind == R_SECTION && !strcmp(pref_name(list_rows[i]), "PROJECT"))
++            section = i;
++    assert(section >= 0);
++    ui.list_sel = (uint8_t)section;
++    list_enter();
++    assert(ui.overlay == O_LIST && !strcmp(list_title, "PROJECT"));
+     int row = action_row(action);
+     assert(row >= 0);
+     ui.list_sel = (uint8_t)row;
+diff --git a/tests/host/song_actions_test.c b/tests/host/song_actions_test.c
+index 498c63d4..28b812f8 100644
+--- a/tests/host/song_actions_test.c
++++ b/tests/host/song_actions_test.c
+@@ -100,8 +100,18 @@ int main(void)
+ 
+     set_view(V_GLO);
+     open_global();
++    int section = -1;
++    for (int i = 0; i < ui.list_n; i++)
++        if (list_rows[i].kind == R_SECTION && !strcmp(pref_name(list_rows[i]), "PROJECT"))
++            section = i;
++    CHECK(section >= 0, "Global menu must contain PROJECT");
++    if (section < 0) return 1;
++    ui.list_sel = (uint8_t)section;
++    list_enter();
++    CHECK(ui.overlay == O_LIST && !strcmp(list_title, "PROJECT"), "PROJECT must open its action list");
+     row = action_row(ACT_CLEAR_PAT);
+     CHECK(row >= 0, "Global menu must contain CLEAR PATTERN");
++    if (row < 0) return 1;
+     ui.list_sel = (uint8_t)row;
+     ui.list_top = (uint8_t)(row > 2 ? row - 2 : 0);
+     sel = ui.list_sel;
+diff --git a/tests/scenarios/arrows.x0x b/tests/scenarios/arrows.x0x
+index 5f2ee51f..17c56132 100644
+--- a/tests/scenarios/arrows.x0x
++++ b/tests/scenarios/arrows.x0x
+@@ -1,5 +1,5 @@
+ # a77: the SMK-37 "<" and ">" (smk_arrows.h, as main_fm1.c smk_arrows does after each frame).
+-# In a menu list (GLO, the list of a page) they step the value of the selected row, as ALGORITHM.
++# In settings, > edits a value and < returns to the section index. Page-list arrows edit both ways.
+ # A held arrow repeats: the first repeat after 400 ms, then one step each 80 ms. The value stops at its ends.
+ # Action rows do not run. With no menu, the arrows move SELECT one detent for each press (GEN-29).
+ wait 300
+@@ -20,35 +20,43 @@ expect page 1
+ arrow L tap
+ expect page 0
+ expect arrowsteps 4
+-# GLO: the first row is CLOCK SOURCE. The row does not move
++# GLO opens categories; explicitly enter MIDI + CLOCK.
+ tap GLO
++tap SEL
+ expect view 5
+ expect overlay 1
+-expect listsel 1
++expect listsel 0
+ expect clksrc 0
+ arrow R tap
+ expect clksrc 1
+-expect listsel 1
++expect listsel 0
+ arrow R tap
+ expect clksrc 2
+ arrow R tap
+ expect clksrc 2
+ expect setbyte27 12
++turn ALGO -1
+ arrow L tap
++tap SEL
+ expect clksrc 1
++turn ALGO -1
+ arrow L tap
++tap SEL
+ arrow L tap
++tap SEL
+ expect clksrc 0
+-expect listsel 1
++expect listsel 0
+ expect setbyte27 8
+ # the same steps as ALGORITHM
+ turn ALGO 1
+ expect clksrc 1
++turn ALGO -1
+ arrow L tap
++tap SEL
+ expect clksrc 0
+ # hold repeat on MIDI CH 909 (10, range OFF 0 .. 16)
+ turn SELECT 3
+-expect listsel 4
++expect listsel 3
+ expect rowval 10
+ arrow R down
+ wait 20
+@@ -65,23 +73,33 @@ arrow R up
+ expect rowval 16
+ arrow R tap
+ expect rowval 16
++# A held < goes back once without changing MIDI channel; re-entry preserves the row.
+ arrow L down
+ wait 3000
+ arrow L up
++tap SEL
++expect rowval 16
++turn ALGO -16
+ expect rowval 0
+ arrow L tap
++tap SEL
+ expect rowval 0
+ arrow R tap
+ expect rowval 1
+ turn ALGO 9
+ expect rowval 10
+-expect listsel 4
++expect listsel 3
+ # Action rows do not run: SAVE, CLEAR PATTERN, RESET PROJECT, PERFORMANCE.
+-turn SELECT 10
+-expect listsel 17
++# PROJECT precedes SYSTEM on either board; remember each section-local position.
++tap HOME
++turn SELECT 99
++turn SELECT -1
++tap SEL
++expect listsel 0
+ expect store_writes 0
+ arrow R tap
+ arrow L tap
++tap SEL
+ arrow R down
+ wait 1000
+ arrow R up
+@@ -89,45 +107,58 @@ expect store_writes 0
+ expect overlay 1
+ # Skip LOAD SAVED and AUTOSAVE to reach CLEAR PATTERN.
+ turn SELECT 3
+-expect listsel 20
++expect listsel 3
+ arrow R tap
+ arrow L tap
++tap SEL
+ arrow R down
+ wait 1000
+ arrow R up
+ expect overlay 1
+ turn SELECT 1
+-expect listsel 21
++expect listsel 4
+ arrow R tap
+ arrow L down
+ wait 1000
+ arrow L up
++tap SEL
+ expect overlay 1
++# SYSTEM > PERFORMANCE is its first row.
++tap HOME
+ turn SELECT 1
+-expect listsel 23
++tap SEL
++expect listsel 0
+ arrow R tap
+ arrow L tap
++tap SEL
+ expect overlay 1
+ expect view 5
+-expect listsel 23
+-# Back to CLOCK SOURCE: PERFORMANCE is selectable offset 18.
+-turn SELECT -18
+-expect listsel 1
++expect listsel 0
++# Reopen GLOBAL to reset navigation, then enter MIDI + CLOCK.
++tap GLO
++tap GLO
++tap SEL
++expect listsel 0
+ expect clksrc 0
+ # clip mode, GLO open: one press gives one step (only smk_arrows reads the arrows), and a hold repeats
+ clipmode 1
+-expect arrowsteps 110
++# Left section exits consume their held repeats; the new navigation totals 70 events.
++expect arrowsteps 70
+ arrow R tap
+ expect clksrc 1
+-expect arrowsteps 111
++expect arrowsteps 71
+ arrow R down
+ wait 450
+ arrow R up
+ expect clksrc 2
+-expect arrowsteps 113
++expect arrowsteps 73
++turn ALGO -1
+ arrow L tap
++tap SEL
+ expect clksrc 1
++turn ALGO -1
+ arrow L tap
++tap SEL
+ expect clksrc 0
+ # clip mode, no menu: smk_arrows gives no step (the clip keys page takes < and >, CLP-76; not in the host)
+ tap GLO
+@@ -138,12 +169,13 @@ arrow L down
+ wait 1000
+ arrow L up
+ expect page 0
+-expect arrowsteps 115
++expect arrowsteps 75
+ clipmode 0
+ # HOME held: the arrows do nothing (SELECT is the tempo)
+ tap GLO
++tap SEL
+ expect overlay 1
+-expect listsel 1
++expect listsel 0
+ expect tempo 125
+ press HOME
+ arrow R tap
+@@ -152,7 +184,7 @@ wait 1000
+ arrow R up
+ expect clksrc 0
+ expect tempo 125
+-expect arrowsteps 115
++expect arrowsteps 75
+ release HOME
+ expect setsize 40
+ expect setbyte27 8
+diff --git a/tests/scenarios/autosave.x0x b/tests/scenarios/autosave.x0x
+index cf4e5709..8311b85f 100644
+--- a/tests/scenarios/autosave.x0x
++++ b/tests/scenarios/autosave.x0x
+@@ -30,11 +30,15 @@ expect store_writes 7
+ wait 8000
+ expect store_writes 8
+ expect hit0.0.12 1
+-# GLO > AUTOSAVE OFF (+15 selectable rows from CLOCK SOURCE): save the setting once, then edits wait for SAVE.
++# GLO > PROJECT > AUTOSAVE OFF: save the setting once, then edits wait for SAVE.
++# PROJECT precedes the final SYSTEM category, with or without BLUETOOTH.
+ wait 21000
+ tap GLO
+-turn SELECT 15
+-expect listsel 19
++turn SELECT 6
++turn SELECT -1
++tap SEL
++turn SELECT 2
++expect listsel 2
+ expect rowval 1
+ turn ALGO -1
+ expect rowval 0
+diff --git a/tests/scenarios/clip-arrow-menu.x0x b/tests/scenarios/clip-arrow-menu.x0x
+index fa62dc72..b8bd7fb3 100644
+--- a/tests/scenarios/clip-arrow-menu.x0x
++++ b/tests/scenarios/clip-arrow-menu.x0x
+@@ -12,15 +12,18 @@ wait 600
+ tap GLO
+ expect view 5
+ expect overlay 1
+-expect listsel 1
++expect listsel 0
+ wait 1500
+ expect clksrc 0
+ arrow R up
+ wait 50
+ expect clksrc 0
+-# a new press steps the value, as GEN-56; the repeat still works in the new list
++# A fresh > enters MIDI; its held press is consumed, then a new press edits.
++arrow R tap
++expect clksrc 0
+ arrow R tap
+ expect clksrc 1
++turn ALGO -1
+ arrow L down
+ wait 1000
+ arrow L up
+@@ -37,7 +40,7 @@ arrow L up
+ wait 50
+ expect clksrc 0
+ # QA (PR #719): the arrow is up, the list changes (a page list to GLO) and a NEW press of ">" comes in
+-# the same frame. The fresh press must step the value of the new list (it is not swallowed).
++# the same frame. The fresh press enters the category (it is not swallowed); only a new press edits.
+ expect overlay 1
+ expect view 1
+ press GLO
+@@ -47,11 +50,15 @@ arrow R down
+ wait 30
+ expect view 5
+ expect overlay 1
+-expect listsel 1
+-expect clksrc 1
++expect listsel 0
++expect clksrc 0
+ arrow R up
++wait 50 # a frame must observe release before the next physical press
++arrow R tap
++expect clksrc 1
+ wait 50
+ expect clksrc 1
++turn ALGO -1
+ arrow L tap
+ expect clksrc 0
+ # repeated switches with ">" held all the time (pressed with no menu open, where the clip keys page
+@@ -86,8 +93,12 @@ release GLO
+ arrow R down
+ wait 30
+ expect view 5
+-expect clksrc 1
++expect clksrc 0
+ arrow R up
++wait 50 # a frame must observe release before the next physical press
++arrow R tap
++expect clksrc 1
+ wait 50
++turn ALGO -1
+ arrow L tap
+ expect clksrc 0
+diff --git a/tests/scenarios/clklock.x0x b/tests/scenarios/clklock.x0x
+index 6746a66d..6767ffc1 100644
+--- a/tests/scenarios/clklock.x0x
++++ b/tests/scenarios/clklock.x0x
+@@ -1038,9 +1038,11 @@ wait 30
+ expect playing 0
+ # INTERNAL: X0X ignores Start and clock from both inputs
+ tap GLO
++tap SEL # enter MIDI + CLOCK
+ turn ALGO 1
+ expect clksrc 1
+-tap HOME
++tap HOME # return to the section index
++tap HOME # close GLOBAL
+ wait 100
+ midi FA 00 00 0
+ midi FA 00 00 1
+@@ -1144,9 +1146,11 @@ expect playing 0
+ expect clkext 0
+ # AUTO again: the first input gets the clock
+ tap GLO
++tap SEL # enter MIDI + CLOCK
+ turn ALGO -1
+ expect clksrc 0
+-tap HOME
++tap HOME # return to the section index
++tap HOME # close GLOBAL
+ wait 100
+ midi FA 00 00 0
+ midi FC 00 00 1
+diff --git a/tests/scenarios/clkmove.x0x b/tests/scenarios/clkmove.x0x
+index c2d8b3ce..e926060a 100644
+--- a/tests/scenarios/clkmove.x0x
++++ b/tests/scenarios/clkmove.x0x
+@@ -6,8 +6,10 @@ expect clksrc 0
+ expect setbyte27 8
+ expect setbyte38 0
+ tap GLO
++tap SEL # enter MIDI + CLOCK
+ turn ALGO 2
+-tap HOME
++tap HOME # return to the section index
++tap HOME # close GLOBAL
+ expect clksrc 2
+ wait 6000
+ expect storeset23 13
+@@ -30,8 +32,10 @@ expect setbyte38 11
+ expect setbyte39 18
+ expect clkext 0
+ tap GLO
++tap SEL # enter MIDI + CLOCK
+ turn ALGO -1
+-tap HOME
++tap HOME # return to the section index
++tap HOME # close GLOBAL
+ expect clksrc 0
+ tap SAVE
+ wait 100
+diff --git a/tests/scenarios/clocksrc.x0x b/tests/scenarios/clocksrc.x0x
+index 4ed7cbe0..edd165a7 100644
+--- a/tests/scenarios/clocksrc.x0x
++++ b/tests/scenarios/clocksrc.x0x
+@@ -2,11 +2,13 @@
+ wait 300
+ expect clksrc 0
+ tap GLO
++tap SEL # enter MIDI + CLOCK
+ shot 01_glo_clock_source.png
+ turn ALGO 2
+ expect clksrc 2
+ shot 02_glo_external.png
+-tap HOME
++tap HOME # return to the section index
++tap HOME # close GLOBAL
+ wait 100
+ expect clkext 1
+ # EXTERNAL: PLAY with no clock waits; the play arrow and the PLAY light blink, the top line says so
+@@ -88,8 +90,10 @@ expect playing 0
+ expect transport_out 0
+ # INTERNAL: Start, Clock and Stop in are ignored; PLAY runs on the internal clock with clock out
+ tap GLO
++tap SEL # enter MIDI + CLOCK
+ turn ALGO -1
+-tap HOME
++tap HOME # return to the section index
++tap HOME # close GLOBAL
+ expect clksrc 1
+ midi FA 00 00
+ wait 100
+diff --git a/tests/scenarios/guard.x0x b/tests/scenarios/guard.x0x
+index 20ec77a6..f7a173d9 100644
+--- a/tests/scenarios/guard.x0x
++++ b/tests/scenarios/guard.x0x
+@@ -46,10 +46,11 @@ expect guard 1
+ # the PERF test measures the full cost: no guard while it runs, back after
+ load 95
+ tap PLAY
+-# GLO > PERFORMANCE (+18 selectable rows from CLOCK SOURCE).
++# GLO > SYSTEM > PERFORMANCE (SYSTEM is last with or without BLUETOOTH).
+ tap GLO
+-turn SELECT 18
+-expect listsel 23
++turn SELECT 6
++tap SEL
++expect listsel 0
+ tap SEL
+ expect view 7
+ tap SEL
+diff --git a/tests/scenarios/migrate.x0x b/tests/scenarios/migrate.x0x
+index c006cc1e..9e45fba7 100644
+--- a/tests/scenarios/migrate.x0x
++++ b/tests/scenarios/migrate.x0x
+@@ -29,9 +29,13 @@ expect songlen 0
+ expect hit0.0.0 0
+ expect store_writes 0
+ # Explicit RESET PROJECT is the supported adoption boundary (SET-07).
++# PROJECT precedes the final SYSTEM category, with or without BLUETOOTH.
+ tap GLO
+-turn SELECT 17
+-expect listsel 21
++turn SELECT 6
++turn SELECT -1
++tap SEL
++turn SELECT 4
++expect listsel 4
+ tap SEL
+ expect overlay 2
+ tap SEL
+diff --git a/tests/scenarios/migrate0102.x0x b/tests/scenarios/migrate0102.x0x
+index 9a9d8bb0..c1e9ec1f 100644
+--- a/tests/scenarios/migrate0102.x0x
++++ b/tests/scenarios/migrate0102.x0x
+@@ -29,9 +29,13 @@ expect songlen 0
+ expect hit0.0.0 0
+ expect store_writes 0
+ # Explicit RESET PROJECT is the supported adoption boundary (SET-07).
++# PROJECT precedes the final SYSTEM category, with or without BLUETOOTH.
+ tap GLO
+-turn SELECT 17
+-expect listsel 21
++turn SELECT 6
++turn SELECT -1
++tap SEL
++turn SELECT 4
++expect listsel 4
+ tap SEL
+ expect overlay 2
+ tap SEL
+diff --git a/tests/scenarios/perf.x0x b/tests/scenarios/perf.x0x
+index 5cd20afc..f247d54e 100644
+--- a/tests/scenarios/perf.x0x
++++ b/tests/scenarios/perf.x0x
+@@ -11,10 +11,11 @@ expect tempo 120
+ tap HOME
+ tapkey b4
+ expect mute 4194304
+-# GLO > PERFORMANCE (+18 selectable rows from CLOCK SOURCE).
++# GLO > SYSTEM > PERFORMANCE (SYSTEM is last with or without BLUETOOTH).
+ tap GLO
+-turn SELECT 18
+-expect listsel 23
++turn SELECT 6
++tap SEL
++expect listsel 0
+ tap SEL
+ expect view 7
+ tap PLAY
+diff --git a/tests/scenarios/perfsave.x0x b/tests/scenarios/perfsave.x0x
+index 9ef76465..4be8e6e7 100644
+--- a/tests/scenarios/perfsave.x0x
++++ b/tests/scenarios/perfsave.x0x
+@@ -8,10 +8,11 @@ expect store_writes 0
+ tap SAVE
+ wait 300
+ expect store_writes 0
+-# GLO > PERFORMANCE (+18 selectable rows from CLOCK SOURCE).
++# GLO > SYSTEM > PERFORMANCE (SYSTEM is last with or without BLUETOOTH).
+ tap GLO
+-turn SELECT 18
+-expect listsel 23
++turn SELECT 6
++tap SEL
++expect listsel 0
+ tap SEL
+ expect view 7
+ # SEL > RUN PERF TEST: it stops the sequencer, the save runs, then the test plays
+diff --git a/tests/scenarios/probcond.x0x b/tests/scenarios/probcond.x0x
+index ee550090..872ee26e 100644
+--- a/tests/scenarios/probcond.x0x
++++ b/tests/scenarios/probcond.x0x
+@@ -28,9 +28,11 @@ expect laneval7.0.0.12 255
+ expect hit0.0.0 1
+ expect hit0.0.8 1
+ tap GLO
++tap SEL # enter MIDI + CLOCK; NOTES OUT is section row 2
+ turn SELECT 2
+ turn ALGO 1
+-tap HOME
++tap HOME # return to the section index
++tap HOME # close GLOBAL
+ tap EDIT
+ expect noteons 0
+ tap PLAY
+diff --git a/tests/scenarios/probreset.x0x b/tests/scenarios/probreset.x0x
+index 00e76874..9dc263dd 100644
+--- a/tests/scenarios/probreset.x0x
++++ b/tests/scenarios/probreset.x0x
+@@ -12,9 +12,11 @@ press SAVE
+ tapkey w1
+ release SAVE
+ tap GLO
++tap SEL # enter MIDI + CLOCK; NOTES OUT is section row 2
+ turn SELECT 2
+ turn ALGO 1
+-tap HOME
++tap HOME # return to the section index
++tap HOME # close GLOBAL
+ tap HOME
+ expect view 0
+ tap PLAY
+diff --git a/tests/scenarios/tour.x0x b/tests/scenarios/tour.x0x
+index f8d0c189..077d1c94 100644
+--- a/tests/scenarios/tour.x0x
++++ b/tests/scenarios/tour.x0x
+@@ -94,16 +94,19 @@ shot t16_list_edit.png
+ tap HOME
+ tap GLO
+ shot t17_global.png
+-# GLO > RESET PROJECT (+17 selectable rows from CLOCK SOURCE); inspect and cancel its confirmation.
+-turn SELECT 17
+-expect listsel 21
++# GLOBAL > PROJECT > RESET PROJECT; PROJECT precedes SYSTEM on either board.
++turn SELECT 99
++turn SELECT -1
++tap SEL
++turn SELECT 4
++expect listsel 4
+ shot t18_global_reset.png
+ tap SEL
+ expect overlay 2
+ shot t19_ask.png
+ tap HOME
+ expect overlay 1
+-expect listsel 21
++expect listsel 4
+ wait 300
+ shot t20_cancelled.png
+ tap GLO
+diff --git a/tests/scenarios/undo.x0x b/tests/scenarios/undo.x0x
+index 8de36b73..c4d04cab 100644
+--- a/tests/scenarios/undo.x0x
++++ b/tests/scenarios/undo.x0x
+@@ -66,10 +66,14 @@ press HOME
+ turn SELECT 5
+ release HOME
+ expect tempo 130
+-# GLO > RESET PROJECT (+17 selectable rows from CLOCK SOURCE), then confirm.
++# GLO > PROJECT > RESET PROJECT, then confirm.
++# PROJECT precedes the final SYSTEM category, with or without BLUETOOTH.
+ tap GLO
+-turn SELECT 17
+-expect listsel 21
++turn SELECT 6
++turn SELECT -1
++tap SEL
++turn SELECT 4
++expect listsel 4
+ tap SEL
+ expect overlay 2
+ tap SEL
+diff --git a/tests/smk_arrows_owner_test.py b/tests/smk_arrows_owner_test.py
+index 8b4fda05..5040d0f0 100644
+--- a/tests/smk_arrows_owner_test.py
++++ b/tests/smk_arrows_owner_test.py
+@@ -33,7 +33,8 @@ assert "ui.overlay == O_NONE" in own, own
+ assert "ui.overlay == O_LIST" in body(ui, "static int ui_menu_open(void)")
+ sa = body(main, "static void smk_arrows(void)")
+ assert "arw_route((uint32_t)ui_menu_open(), clip_grid_mode" in sa, sa
+-assert re.search(r"if \(route == ARW_MENU\) \{\s*ui_menu_arrow\(d\);", sa), sa
++assert re.search(r"if \(route == ARW_MENU\) \{\s*if \(ui_menu_arrow\(d\)\)\s*"
++                 r"arw_rearm\(&arw,\s*now\);", sa), sa
+ assert "return home ? ARW_NONE : menu ? ARW_MENU : clip ? ARW_NONE : ARW_SELECT;" in arw
+ # the clip keys: the arrow presses are masked when they do not own the controls
+ ck = body(main, "CK_FN static void ck_controls(void)")
+diff --git a/tests/smk_padcal_wiring_test.py b/tests/smk_padcal_wiring_test.py
+index 9d017394..5f6c7a11 100644
+--- a/tests/smk_padcal_wiring_test.py
++++ b/tests/smk_padcal_wiring_test.py
+@@ -28,8 +28,15 @@ def body(text, head):
+ 
+ # The menu row: GLOBAL > SYSTEM > PAD COLOURS, SMK only, not in clip mode.
+ glob = body(ui, "static void open_global(void)")
+-sysi, bti = glob.index("GR_SYSTEM"), glob.index("GR_BT")
+-check(sysi < glob.index("ACT_PADCAL") < bti and "if (!smk_clip_mode_on())" in glob,
++sections = re.search(r"GLOBAL_SECTIONS\[\d+\]\s*=\s*\{([^}]+)\}", ui)
++names = re.findall(r'"([^"]+)"', sections.group(1)) if sections else []
++system_id = names.index("SYSTEM") if "SYSTEM" in names else -1
++section_body = body(ui, "static void global_section(int g)")
++system = re.search(rf"case\s+{system_id}\s*:(.*?)(?=\n\s*case\b|\Z)", section_body, re.S)
++system = system.group(1) if system else ""
++check("global_index()" in glob and "R_SECTION" in body(ui, "static void global_index(void)")
++      and re.search(r"#if\s+BOARD_SMK37\s*&&\s*X0X_DEV_PADCAL", system)
++      and re.search(r"if\s*\(!smk_clip_mode_on\(\)\)\s*list_add\(PR\(R_ACT,\s*ACT_PADCAL,", system),
+       "menu: PAD COLOURS is in GLOBAL > SYSTEM, not in clip mode")
+ check('{"PAD COLOURS", 0, 0, 0}' in ui and re.search(r"case ACT_PADCAL: \{[^}]*ui\.overlay = O_NONE;\s*smk_padcal_enter\(\);", ui),
+       "menu: the row closes the list and starts the mode")

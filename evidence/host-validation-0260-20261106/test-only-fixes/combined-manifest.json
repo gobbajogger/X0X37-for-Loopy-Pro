@@ -1,0 +1,230 @@
+{
+  "base_tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+  "candidate_tree": "e3bd02f7a4aece4ce96aa0602fb41b990275b629",
+  "scope": "test-only; 20 files; production, host and runner byte-identical",
+  "patch_sha256": "3d276f1ff923d9595b79a709c0e4565793ab301fc7ee020d4ac5d9ab7d35fb5f",
+  "file_sha256": {
+    "tests/host/part_order_test.c": "129d3b82621166c447f99d522bc05e7ea1bc528998aa8e1fec360175e679c061",
+    "tests/host/project_runtime_test.c": "e56a556bda89e6823444431fb8128658aa386e03212cc2f66a070bbf1bb61d9a",
+    "tests/host/song_actions_test.c": "97b85d5a5f87241ee6291e643d40aa83bb837f9ffac72667302751033b690ea3",
+    "tests/scenarios/arrows.x0x": "a25ae90a8a3c279a8595f6ad8918a581f0aca5b292f3d025e2d22af371021c5d",
+    "tests/scenarios/autosave.x0x": "567ec1f0f0467e39bd0f789b838a886e68d5ec6a60845923d01bbf7a6bf0c9ba",
+    "tests/scenarios/clip-arrow-menu.x0x": "732ddb51da2744cd3a998a772883d38ab32b68b2c93d131ef746e138f40e0dc8",
+    "tests/scenarios/clklock.x0x": "285c779832f6109f29a78630139fd53e1df7a534b9302c2b675969d265fc7767",
+    "tests/scenarios/clkmove.x0x": "44abf23f88a18a5af306f185807f2963c458a6885b8e148bc20ba3e59db89f84",
+    "tests/scenarios/clocksrc.x0x": "c1418cd492f1e56fea7ef80091e2e40ca3918610a3a210dbe38918f251ff1a1c",
+    "tests/scenarios/guard.x0x": "cbe289388691ef2dcaf78167b007d9b7df7cd31a26e9883b1e5c3c0d2c81fc59",
+    "tests/scenarios/migrate.x0x": "8fd370bc07b7aad9c200268c0dcf8b5b285a04414679f19d48734d13231e185a",
+    "tests/scenarios/migrate0102.x0x": "524f35983f2d6f03686f9a834017c7b983968ba1447ca614794e66d6a9389eb3",
+    "tests/scenarios/perf.x0x": "9e669e8eb6adca5ee5a0233585c826cf2df3acd86887769c2ba2b7082cdb61b6",
+    "tests/scenarios/perfsave.x0x": "2adf91268b76d087dc78f060e88498b79b0ed5dd0e8fd5cee2ca8d2f47df47c0",
+    "tests/scenarios/probcond.x0x": "ebde10482df7f6f0fe427f1c4d12715f5709cbe019651ff0264e565bad4e0533",
+    "tests/scenarios/probreset.x0x": "6f022f3f92fbd78e8b9cc3824197bcda1e6b9b1c550e487f9aae0bb24cd66138",
+    "tests/scenarios/tour.x0x": "34fe3bfe97ca1656dc5af6867bddb3b4b5f56ab07d2b34daad7982eb9bbf9655",
+    "tests/scenarios/undo.x0x": "67ad285e342fb70f4ac29316541c660ba7a0006f91a217ff99c04190835ead7b",
+    "tests/smk_arrows_owner_test.py": "833c33de1a06383c9c1225eb8de2e36dba4c298c394cb4c70a5fc0c48b80b2d4",
+    "tests/smk_padcal_wiring_test.py": "dfe64edc0195a9b9a05c019fcef54dde682e3884d759759f028b4907f1c96b91"
+  },
+  "all_scenario_functional_assertions_preserved": true,
+  "validation": {
+    "menu": {
+      "changed_files": [
+        "tests/host/part_order_test.c",
+        "tests/host/project_runtime_test.c",
+        "tests/host/song_actions_test.c",
+        "tests/smk_arrows_owner_test.py",
+        "tests/smk_padcal_wiring_test.py"
+      ],
+      "combined_bytes_match_tested_files": true,
+      "results": {
+        "source_tree_before_test_changes": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+        "baseline_commit": "c295af1554f9e80a29864cd013995eccad66cd2c",
+        "baseline_receipts_reused": [
+          "evidence/baseline-initial-failures.log",
+          "evidence/baseline-second-failures.log",
+          "evidence/baseline-failures.log"
+        ],
+        "command": "sh tests/run_tests.sh project-runtime part-order song-actions smk-padcal-wiring smk-arrows-owner",
+        "before_exit": 1,
+        "after_exit": 0,
+        "before": "5 FAIL",
+        "after": "5 PASS",
+        "modified_files": [
+          "tests/host/part_order_test.c",
+          "tests/host/project_runtime_test.c",
+          "tests/host/song_actions_test.c",
+          "tests/smk_arrows_owner_test.py",
+          "tests/smk_padcal_wiring_test.py"
+        ],
+        "patch_sha256": "4a93f8e11d48f4810af30e87fb05fed91d0f15633f61d3b296053979d7c9a43c",
+        "no_production_changes": true,
+        "no_staging_or_commits": true
+      }
+    },
+    "midi": {
+      "changed_files": [
+        "tests/scenarios/arrows.x0x",
+        "tests/scenarios/clip-arrow-menu.x0x",
+        "tests/scenarios/clklock.x0x",
+        "tests/scenarios/clkmove.x0x",
+        "tests/scenarios/clocksrc.x0x",
+        "tests/scenarios/probcond.x0x",
+        "tests/scenarios/probreset.x0x",
+        "tests/scenarios/tour.x0x"
+      ],
+      "combined_bytes_match_tested_files": true,
+      "results": {
+        "source_tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+        "patch_sha256": "38b31a9a610ba7626f1287d5aa6077a6e95b70610a0a3389f4af6816ea1c421f",
+        "before": {
+          "command": "sh tests/run_tests.sh scenario-arrows scenario-clip-arrow-menu scenario-clklock scenario-clkmove scenario-clocksrc scenario-tour scenario-probcond scenario-probreset",
+          "exit": 1,
+          "fail": [
+            "arrows",
+            "clip-arrow-menu",
+            "clklock",
+            "clkmove",
+            "clocksrc",
+            "tour",
+            "probcond",
+            "probreset"
+          ]
+        },
+        "after1": {
+          "same_8_selectors": true,
+          "exit": 1,
+          "pass": [
+            "clklock",
+            "clkmove",
+            "clocksrc",
+            "tour",
+            "probcond",
+            "probreset"
+          ],
+          "fail": [
+            "arrows",
+            "clip-arrow-menu"
+          ]
+        },
+        "after2": {
+          "command": "sh tests/run_tests.sh scenario-arrows scenario-clip-arrow-menu",
+          "exit": 0
+        },
+        "after3": {
+          "command": "sh tests/run_tests.sh scenario-clip-arrow-menu",
+          "exit": 0,
+          "reason": "Restored immediate clock-value assertion as well as its later stability assertion; assertion-only change."
+        },
+        "all_eight_latest_status": "PASS",
+        "full_suite": "NOT_RUN",
+        "production_changes": false,
+        "staged_changes_added": false,
+        "changed_files": [
+          "arrows",
+          "clip-arrow-menu",
+          "clklock",
+          "clkmove",
+          "clocksrc",
+          "tour",
+          "probcond",
+          "probreset"
+        ]
+      }
+    },
+    "storage": {
+      "changed_files": [
+        "tests/scenarios/autosave.x0x",
+        "tests/scenarios/guard.x0x",
+        "tests/scenarios/migrate.x0x",
+        "tests/scenarios/migrate0102.x0x",
+        "tests/scenarios/perf.x0x",
+        "tests/scenarios/perfsave.x0x",
+        "tests/scenarios/undo.x0x"
+      ],
+      "combined_bytes_match_tested_files": true,
+      "results": {
+        "source_tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+        "baseline_commit": "c295af1554f9e80a29864cd013995eccad66cd2c",
+        "command": [
+          "sh",
+          "tests/run_tests.sh",
+          "scenario-autosave",
+          "scenario-guard",
+          "scenario-migrate",
+          "scenario-migrate0102",
+          "scenario-perf",
+          "scenario-perfsave",
+          "scenario-undo",
+          "perf-scratch"
+        ],
+        "before_exit": 1,
+        "after_exit": 0,
+        "results": [
+          {
+            "name": "scenario-autosave",
+            "before": "FAIL",
+            "after": "PASS",
+            "baseline": "PASS"
+          },
+          {
+            "name": "scenario-guard",
+            "before": "FAIL",
+            "after": "PASS",
+            "baseline": "PASS"
+          },
+          {
+            "name": "scenario-migrate",
+            "before": "FAIL",
+            "after": "PASS",
+            "baseline": "PASS"
+          },
+          {
+            "name": "scenario-migrate0102",
+            "before": "FAIL",
+            "after": "PASS",
+            "baseline": "PASS"
+          },
+          {
+            "name": "scenario-perf",
+            "before": "FAIL",
+            "after": "PASS",
+            "baseline": "PASS"
+          },
+          {
+            "name": "scenario-perfsave",
+            "before": "FAIL",
+            "after": "PASS",
+            "baseline": "PASS"
+          },
+          {
+            "name": "scenario-undo",
+            "before": "FAIL",
+            "after": "PASS",
+            "baseline": "PASS"
+          },
+          {
+            "name": "perf-scratch",
+            "before": "FAIL",
+            "after": "PASS",
+            "baseline": "PASS"
+          }
+        ],
+        "patch_sha256": "e2128c1aeffd3df7472bc8f2a503af4f38d17ec57ee22191667d411c65128f24",
+        "changed_files": [
+          "tests/scenarios/autosave.x0x",
+          "tests/scenarios/guard.x0x",
+          "tests/scenarios/migrate.x0x",
+          "tests/scenarios/migrate0102.x0x",
+          "tests/scenarios/perf.x0x",
+          "tests/scenarios/perfsave.x0x",
+          "tests/scenarios/undo.x0x"
+        ],
+        "production_modified": false,
+        "staged": false,
+        "scope": "TEST_ONLY; no full-suite/native/device claim"
+      }
+    }
+  },
+  "independent_review": "PENDING",
+  "full_suite": "NOT_RERUN; three inherited/dependency failing selectors and two external-reference NOT_RUN remain separate"
+}

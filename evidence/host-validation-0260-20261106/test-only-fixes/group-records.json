@@ -1,0 +1,215 @@
+{
+  "menu": {
+    "REPORT.md": "# Menu test-only fixes\n\nExact source index: 0260cd3f78a1b3717ef988d54aca767d65b6a2bb (preserved; nothing staged or committed).\n\nCommand before and after: `sh tests/run_tests.sh project-runtime part-order song-actions smk-padcal-wiring smk-arrows-owner`.\nBefore: all 5 FAIL, exit 1. After: all 5 PASS, exit 0. Existing exact c295af1554f9e80a29864cd013995eccad66cd2c baseline receipts show PASS for all five and were reused without rerunning.\n\nChanges are limited to the five files listed in results.json. Project runtime and song actions find the visible PROJECT section and enter through list_enter before locating their actions. Part order finds and enters MIDI + CLOCK before preserving its channel-count/order assertions. Arrow ownership checks the actual guarded call and held-arrow rearm. Pad calibration derives SYSTEM from the section names and checks its guarded row, preserving all subsequent mode/IO/display assertions.\n\nAll original behavioral assertions are retained. Added section-presence assertions fail closed. Song-action missing-row guards prevent indexing an invalid selection when setup fails. Successful part-order now reports 263 checks. Project-runtime includes the subsequent project_smc_runtime reset/queued-route/lock/abort/solo/pickup checks. These are targeted host passes, not a full-suite, native, device, or release claim. Inherited failures and missing compiler qualification are outside this five-selector patch.\n\nIncremental working-tree versus exact index patch: ../menu.patch. No production files or tests/run_tests.sh modified. Commands, exits, original and repaired logs, and hashes accompany this report.\n",
+    "after.exit": "0\n",
+    "before.exit": "1\n",
+    "results.json": {
+      "source_tree_before_test_changes": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+      "baseline_commit": "c295af1554f9e80a29864cd013995eccad66cd2c",
+      "baseline_receipts_reused": [
+        "evidence/baseline-initial-failures.log",
+        "evidence/baseline-second-failures.log",
+        "evidence/baseline-failures.log"
+      ],
+      "command": "sh tests/run_tests.sh project-runtime part-order song-actions smk-padcal-wiring smk-arrows-owner",
+      "before_exit": 1,
+      "after_exit": 0,
+      "before": "5 FAIL",
+      "after": "5 PASS",
+      "modified_files": [
+        "tests/host/part_order_test.c",
+        "tests/host/project_runtime_test.c",
+        "tests/host/song_actions_test.c",
+        "tests/smk_arrows_owner_test.py",
+        "tests/smk_padcal_wiring_test.py"
+      ],
+      "patch_sha256": "4a93f8e11d48f4810af30e87fb05fed91d0f15633f61d3b296053979d7c9a43c",
+      "no_production_changes": true,
+      "no_staging_or_commits": true
+    }
+  },
+  "midi": {
+    "REPORT.md": "# MIDI and menu scenario fixture correction\n\nExact starting index tree: `0260cd3f78a1b3717ef988d54aca767d65b6a2bb` (unchanged index). Only eight scenario files changed, unstaged; no production or runner edits.\n\nAll eight selectors reproduced FAIL before edits (runner exit 1), matching the saved candidate receipts; all eight passed on exact base c295af1554f9e80a29864cd013995eccad66cd2c. This task reused the baseline receipts and did not rerun the baseline.\n\nThe GLOBAL category index now needs explicit SEL entry into MIDI + CLOCK; HOME returns to the category index before closing GLOBAL. Clock setup, stored bytes, transport, probability and note-count expectations were retained. PROJECT is located before SYSTEM by saturating SELECT then moving back one, so the tour does not depend on whether the BLUETOOTH category exists. RESET is PROJECT row 4.\n\nArrows: > enters a category and consumes the held press; < returns to the category index. The fixtures now explicitly exercise those transitions and re-enter the remembered section row. ALGO decrements values in GLOBAL, while existing page-list two-way arrow edit checks are retained. The shorter navigation event total is 70/71/73/75 rather than 110/111/113/115 because held < section exits no longer repeatedly edit values; the +1 tap/+2 hold/no-route increments remain asserted. Clip-mode same-frame category entry remains covered, followed by a frame-observed release (50 ms) and a new value-edit press. The original immediate and later clock-value assertions are retained.\n\nAssertion audit confirms every original functional `expect` remains with at least its original multiplicity, excluding only genuinely changed `listsel` and `arrowsteps` navigation assertions. No assertions were weakened to inequalities and no clock, note, probability, storage, tempo or value endpoint expectation changed.\n\nRun results: before eight FAIL, exit 1. First correction: six PASS; only arrows and clip-arrow-menu remained FAIL, exit 1. After fixing navigation counters and release observation, those two PASS, exit 0. One final assertion-only change restored the immediate clip clock assertion, then only clip-arrow-menu reran and PASS, exit 0. Six passing selectors were not rerun. `results.json` has exact commands/exits; before/after logs are preserved.\n\nLatest combined scoped result: all eight assigned selectors PASS. Full suite/native/device qualification NOT_RUN. Patch is incremental `git diff` against the exact starting index; no staging or commit was performed.\n",
+    "after1.exit": "1\n",
+    "after2.exit": "0\n",
+    "after3.exit": "0\n",
+    "assertion-audit.json": {
+      "arrows": {
+        "removed_functional_assertions": {},
+        "sha256": "a25ae90a8a3c279a8595f6ad8918a581f0aca5b292f3d025e2d22af371021c5d"
+      },
+      "clip-arrow-menu": {
+        "removed_functional_assertions": {},
+        "sha256": "732ddb51da2744cd3a998a772883d38ab32b68b2c93d131ef746e138f40e0dc8"
+      },
+      "clklock": {
+        "removed_functional_assertions": {},
+        "sha256": "285c779832f6109f29a78630139fd53e1df7a534b9302c2b675969d265fc7767"
+      },
+      "clkmove": {
+        "removed_functional_assertions": {},
+        "sha256": "44abf23f88a18a5af306f185807f2963c458a6885b8e148bc20ba3e59db89f84"
+      },
+      "clocksrc": {
+        "removed_functional_assertions": {},
+        "sha256": "c1418cd492f1e56fea7ef80091e2e40ca3918610a3a210dbe38918f251ff1a1c"
+      },
+      "tour": {
+        "removed_functional_assertions": {},
+        "sha256": "34fe3bfe97ca1656dc5af6867bddb3b4b5f56ab07d2b34daad7982eb9bbf9655"
+      },
+      "probcond": {
+        "removed_functional_assertions": {},
+        "sha256": "ebde10482df7f6f0fe427f1c4d12715f5709cbe019651ff0264e565bad4e0533"
+      },
+      "probreset": {
+        "removed_functional_assertions": {},
+        "sha256": "6f022f3f92fbd78e8b9cc3824197bcda1e6b9b1c550e487f9aae0bb24cd66138"
+      }
+    },
+    "before.exit": "1\n",
+    "results.json": {
+      "source_tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+      "patch_sha256": "38b31a9a610ba7626f1287d5aa6077a6e95b70610a0a3389f4af6816ea1c421f",
+      "before": {
+        "command": "sh tests/run_tests.sh scenario-arrows scenario-clip-arrow-menu scenario-clklock scenario-clkmove scenario-clocksrc scenario-tour scenario-probcond scenario-probreset",
+        "exit": 1,
+        "fail": [
+          "arrows",
+          "clip-arrow-menu",
+          "clklock",
+          "clkmove",
+          "clocksrc",
+          "tour",
+          "probcond",
+          "probreset"
+        ]
+      },
+      "after1": {
+        "same_8_selectors": true,
+        "exit": 1,
+        "pass": [
+          "clklock",
+          "clkmove",
+          "clocksrc",
+          "tour",
+          "probcond",
+          "probreset"
+        ],
+        "fail": [
+          "arrows",
+          "clip-arrow-menu"
+        ]
+      },
+      "after2": {
+        "command": "sh tests/run_tests.sh scenario-arrows scenario-clip-arrow-menu",
+        "exit": 0
+      },
+      "after3": {
+        "command": "sh tests/run_tests.sh scenario-clip-arrow-menu",
+        "exit": 0,
+        "reason": "Restored immediate clock-value assertion as well as its later stability assertion; assertion-only change."
+      },
+      "all_eight_latest_status": "PASS",
+      "full_suite": "NOT_RUN",
+      "production_changes": false,
+      "staged_changes_added": false,
+      "changed_files": [
+        "arrows",
+        "clip-arrow-menu",
+        "clklock",
+        "clkmove",
+        "clocksrc",
+        "tour",
+        "probcond",
+        "probreset"
+      ]
+    }
+  },
+  "storage": {
+    "REPORT.md": "# Storage/performance scenario fixture fix\n\nExact starting index tree: `0260cd3f78a1b3717ef988d54aca767d65b6a2bb` (still unchanged). Source base: `c295af1554f9e80a29864cd013995eccad66cd2c`.\n\nSeven test scenario files only. No production files, runner changes, staging or commit. Incremental patch is `../storage.patch`, SHA-256 `e2128c1aeffd3df7472bc8f2a503af4f38d17ec57ee22191667d411c65128f24`.\n\nBefore: all eight assigned selectors reproduced FAIL, runner exit 1. After: all eight PASS, runner exit 0. Existing matching c295af baseline receipts show all eight PASS; reused without rerunning baseline. Both runs used:\n\n```sh\nsh tests/run_tests.sh scenario-autosave scenario-guard scenario-migrate scenario-migrate0102 scenario-perf scenario-perfsave scenario-undo perf-scratch\n```\n\nRoot cause: stale flat-GLOBAL navigation never entered the new PROJECT/SYSTEM sections. The edits select the final SYSTEM category or preceding PROJECT category, enter it, and select the original target row. `turn SELECT 6` saturates the current five- or six-category list; this avoids a board-dependent category index. PROJECT AUTOSAVE is row 2, RESET is row 4; SYSTEM PERFORMANCE is row 0. Semantic section positions are verified from ui.c:1549\u20131601. Actual execution here uses the default host configuration; an additional SMK variant was not run.\n\nAll existing reset confirmation, unsupported-store rejection, autosave persistence, undo, performance, guard, save and audio comparison assertions remain. Only obsolete menu-row assertions were replaced with current section-row assertions. Migration fixtures continue to reject old revisions; no migration behavior was added. `perf-scratch` now reaches its existing scratch compilation and WAV byte comparison and passes; no runner edits were needed.\n\nThe runner's package note remains skipped (missing native app/loader/SDK). No full unfiltered suite, native, package or device claim. See before/after logs, per-selector logs, exact exits and results.json. Parent owns integration/review of the incremental test patch.\n",
+    "after.exit": "0\n",
+    "before.exit": "1\n",
+    "results.json": {
+      "source_tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+      "baseline_commit": "c295af1554f9e80a29864cd013995eccad66cd2c",
+      "command": [
+        "sh",
+        "tests/run_tests.sh",
+        "scenario-autosave",
+        "scenario-guard",
+        "scenario-migrate",
+        "scenario-migrate0102",
+        "scenario-perf",
+        "scenario-perfsave",
+        "scenario-undo",
+        "perf-scratch"
+      ],
+      "before_exit": 1,
+      "after_exit": 0,
+      "results": [
+        {
+          "name": "scenario-autosave",
+          "before": "FAIL",
+          "after": "PASS",
+          "baseline": "PASS"
+        },
+        {
+          "name": "scenario-guard",
+          "before": "FAIL",
+          "after": "PASS",
+          "baseline": "PASS"
+        },
+        {
+          "name": "scenario-migrate",
+          "before": "FAIL",
+          "after": "PASS",
+          "baseline": "PASS"
+        },
+        {
+          "name": "scenario-migrate0102",
+          "before": "FAIL",
+          "after": "PASS",
+          "baseline": "PASS"
+        },
+        {
+          "name": "scenario-perf",
+          "before": "FAIL",
+          "after": "PASS",
+          "baseline": "PASS"
+        },
+        {
+          "name": "scenario-perfsave",
+          "before": "FAIL",
+          "after": "PASS",
+          "baseline": "PASS"
+        },
+        {
+          "name": "scenario-undo",
+          "before": "FAIL",
+          "after": "PASS",
+          "baseline": "PASS"
+        },
+        {
+          "name": "perf-scratch",
+          "before": "FAIL",
+          "after": "PASS",
+          "baseline": "PASS"
+        }
+      ],
+      "patch_sha256": "e2128c1aeffd3df7472bc8f2a503af4f38d17ec57ee22191667d411c65128f24",
+      "changed_files": [
+        "tests/scenarios/autosave.x0x",
+        "tests/scenarios/guard.x0x",
+        "tests/scenarios/migrate.x0x",
+        "tests/scenarios/migrate0102.x0x",
+        "tests/scenarios/perf.x0x",
+        "tests/scenarios/perfsave.x0x",
+        "tests/scenarios/undo.x0x"
+      ],
+      "production_modified": false,
+      "staged": false,
+      "scope": "TEST_ONLY; no full-suite/native/device claim"
+    }
+  }
+}

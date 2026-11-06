@@ -1,0 +1,2919 @@
+===== menu/after-part-order.log =====
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8,
+                 from tests/host/part_order_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/part_order_test.c: In function ‘order_navigation’:
+tests/host/part_order_test.c:26:5: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+   26 |     for(int i=0;i<NPARTS;i++)CHECK(midi[i]==seq.ch[i]); free(before);
+      |     ^~~
+tests/host/part_order_test.c:26:57: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+   26 |     for(int i=0;i<NPARTS;i++)CHECK(midi[i]==seq.ch[i]); free(before);
+      |                                                         ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+part_order: PASS (263 checks)
+
+===== menu/after-project-runtime.log =====
+project_update_guard: held restart, BEGIN/COMMIT update discard and idle updates ok
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/project_runtime_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘x0x_host_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+project_runtime: reset, load, cancel, invalid, transfer, save and sample preservation ok
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/project_smc_runtime_test.c:6:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘x0x_host_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+project_smc_runtime: reset drops all queued routes; lock/abort/solo/pickup state ok
+
+===== menu/after-smk-arrows-owner.log =====
+smk_arrows_owner: ok
+
+===== menu/after-smk-padcal-wiring.log =====
+PASS menu: PAD COLOURS is in GLOBAL > SYSTEM, not in clip mode
+PASS menu: the row closes the list and starts the mode
+PASS enter: not in clip mode; start values from the LCD table; held buttons and pads give no edge
+PASS UI: no buttons in the mode
+PASS UI: no knobs in the mode
+PASS UI: no keys in the mode
+PASS LCD: the page draws before the clip grid
+PASS frame: a project hold returns before pad calibration dispatch
+PASS frame: pad calibration runs before normal arrows, faders and clip mode
+PASS keys: PATCH or GLOBE ends the mode on the release
+PASS keys: PLAY marks ok
+PASS keys: OCT- / OCT+ change the page
+PASS pads: a press selects the pad
+PASS knobs: K2 / K3 / K4 nudge R / G / B, the other knob turns are dropped
+PASS pads: each pad shows its entry at half level (as a lit clip pad), on the corrected pad
+PASS orientation: only reading position 0 lit white; a pad press goes through the correction
+PASS orientation: K2 moves the light, SEQ PLAY confirms (no mark)
+PASS orientation: the LCD asks 'pad 1 top-left?'
+PASS LCD: the ok dot has the contrast colour of its square as drawn (smk_padcal_dot565, boost included)
+PASS LCD: the target colours, the ok dots and the entry number
+PASS RAM only: no settings byte, no flash save
+PASS export: INLOG args 2-5 give 32 entries each (tests/smk_padcal_export_test.py decodes them)
+smk_padcal_wiring_test: ok
+
+===== menu/after-song-actions.log =====
+song_actions: ok
+
+===== menu/after.log =====
+  ok   project-runtime
+  ok   part-order
+  ok   smk-arrows-owner
+  ok   smk-padcal-wiring
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   song-actions
+all tests passed
+
+===== menu/before-part-order.log =====
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8,
+                 from tests/host/part_order_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/part_order_test.c: In function ‘order_navigation’:
+tests/host/part_order_test.c:26:5: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+   26 |     for(int i=0;i<NPARTS;i++)CHECK(midi[i]==seq.ch[i]); free(before);
+      |     ^~~
+tests/host/part_order_test.c:26:57: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+   26 |     for(int i=0;i<NPARTS;i++)CHECK(midi[i]==seq.ch[i]); free(before);
+      |                                                         ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "X0X_DEV_WOBBLE" redefined
+<command-line>: note: this is the location of the previous definition
+FAIL tests/host/part_order_test.c:71: n==NPARTS
+
+===== menu/before-project-runtime.log =====
+project_update_guard: held restart, BEGIN/COMMIT update discard and idle updates ok
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/project_runtime_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘x0x_host_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+project_runtime: tests/host/project_runtime_test.c:43: open_action: Assertion `row >= 0' failed.
+Aborted
+
+===== menu/before-smk-arrows-owner.log =====
+Traceback (most recent call last):
+  File "/workspace/host-validation-0260/fix-menu/tests/smk_arrows_owner_test.py", line 36, in <module>
+    assert re.search(r"if \(route == ARW_MENU\) \{\s*ui_menu_arrow\(d\);", sa), sa
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: static void smk_arrows(void)
+{
+    static arw_t arw;
+    static uint32_t menu_id;
+    uint32_t now = fm1_in.buttons >> SMK_BTN_LEFT & 3u, i, route;
+    int32_t d;
+    if (ui_project_busy()) {
+        (void)arw_frame(&arw, now, ARW_NONE, fm1_ms);
+        return;
+    }
+    for (i = 0; i < NB; i++)
+        if (panel.btn[i] == SMK_BTN_LEFT || panel.btn[i] == SMK_BTN_RIGHT)
+            now &= ~(1u << (panel.btn[i] - SMK_BTN_LEFT));
+    route = arw_route((uint32_t)ui_menu_open(), clip_grid_mode, (plat_buttons() >> B_HOME) & 1u);
+    i = arw_menu_id(ui.view, (uint32_t)cur_page());
+    if (clip_grid_mode && route == ARW_MENU && i != menu_id)
+        arw_rearm(&arw, now);                     /* CLP-82: a held arrow does not edit the new list */
+    menu_id = i;
+    d = arw_frame(&arw, now, route, fm1_ms);
+    if (!d)
+        return;
+    if (route == ARW_MENU) {
+        if (ui_menu_arrow(d))
+            arw_rearm(&arw, now);                 /* a held > that entered a GLOBAL section does not edit it */
+    } else {
+        uint32_t l = fm1__lock();
+        fm1_in.enc_steps[panel.enc[EN_SELECT]] += (int16_t)(d * panel.dir[EN_SELECT]);
+        fm1__unlock(l);
+    }
+
+===== menu/before-smk-padcal-wiring.log =====
+Traceback (most recent call last):
+  File "/workspace/host-validation-0260/fix-menu/tests/smk_padcal_wiring_test.py", line 31, in <module>
+    sysi, bti = glob.index("GR_SYSTEM"), glob.index("GR_BT")
+                ^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: substring not found
+
+===== menu/before-song-actions.log =====
+FAIL: Global menu must contain CLEAR PATTERN
+FAIL: Global cancellation must return to its list
+song_actions: FAIL
+
+===== menu/before.log =====
+  FAIL project-runtime (see build/host/project-runtime.log)
+        1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+             |                                            ^~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+       tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+        1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+             |                       ~~^~~~~~~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+        1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+             |     ^~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       project_runtime: tests/host/project_runtime_test.c:43: open_action: Assertion `row >= 0' failed.
+       Aborted
+  FAIL part-order (see build/host/part-order.log)
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       FAIL tests/host/part_order_test.c:71: n==NPARTS
+  FAIL smk-arrows-owner (see build/host/smk-arrows-owner.log)
+           i = arw_menu_id(ui.view, (uint32_t)cur_page());
+           if (clip_grid_mode && route == ARW_MENU && i != menu_id)
+               arw_rearm(&arw, now);                     /* CLP-82: a held arrow does not edit the new list */
+           menu_id = i;
+           d = arw_frame(&arw, now, route, fm1_ms);
+           if (!d)
+               return;
+           if (route == ARW_MENU) {
+               if (ui_menu_arrow(d))
+                   arw_rearm(&arw, now);                 /* a held > that entered a GLOBAL section does not edit it */
+           } else {
+               uint32_t l = fm1__lock();
+               fm1_in.enc_steps[panel.enc[EN_SELECT]] += (int16_t)(d * panel.dir[EN_SELECT]);
+               fm1__unlock(l);
+           }
+  FAIL smk-padcal-wiring (see build/host/smk-padcal-wiring.log)
+       Traceback (most recent call last):
+         File "/workspace/host-validation-0260/fix-menu/tests/smk_padcal_wiring_test.py", line 31, in <module>
+           sysi, bti = glob.index("GR_SYSTEM"), glob.index("GR_BT")
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+       ValueError: substring not found
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  FAIL song-actions (see build/host/song-actions.log)
+       FAIL: Global menu must contain CLEAR PATTERN
+       FAIL: Global cancellation must return to its list
+       song_actions: FAIL
+TESTS FAILED
+
+===== midi/after1-logs/scenario-arrows.log =====
+  ok setsize == 40
+  ok setbyte27 == 8
+  ok overlay == 0
+  ok page == 0
+  ok page == 1
+  ok page == 2
+  ok page == 1
+  ok page == 0
+  ok arrowsteps == 4
+  ok view == 5
+  ok overlay == 1
+  ok listsel == 0
+  ok clksrc == 0
+  ok clksrc == 1
+  ok listsel == 0
+  ok clksrc == 2
+  ok clksrc == 2
+  ok setbyte27 == 12
+  ok clksrc == 1
+  ok clksrc == 0
+  ok listsel == 0
+  ok setbyte27 == 8
+  ok clksrc == 1
+  ok clksrc == 0
+  ok listsel == 3
+  ok rowval == 10
+  ok rowval == 11
+  ok rowval == 11
+  ok rowval == 12
+  ok rowval == 15
+  ok rowval == 16
+  ok rowval == 16
+  ok rowval == 16
+  ok rowval == 16
+  ok rowval == 0
+  ok rowval == 0
+  ok rowval == 1
+  ok rowval == 10
+  ok listsel == 3
+  ok listsel == 0
+  ok store_writes == 0
+  ok store_writes == 0
+  ok overlay == 1
+  ok listsel == 3
+  ok overlay == 1
+  ok listsel == 4
+  ok overlay == 1
+  ok listsel == 0
+  ok overlay == 1
+  ok view == 5
+  ok listsel == 0
+  ok listsel == 0
+  ok clksrc == 0
+FAIL expect arrowsteps == 110, got 70
+  ok clksrc == 1
+FAIL expect arrowsteps == 111, got 71
+  ok clksrc == 2
+FAIL expect arrowsteps == 113, got 73
+  ok clksrc == 1
+  ok clksrc == 0
+  ok overlay == 0
+  ok page == 0
+  ok page == 0
+FAIL expect arrowsteps == 115, got 75
+  ok overlay == 1
+  ok listsel == 0
+  ok tempo == 125
+  ok clksrc == 0
+  ok tempo == 125
+FAIL expect arrowsteps == 115, got 75
+  ok setsize == 40
+  ok setbyte27 == 8
+  ok overlay == 0
+  ok view == 1
+  ok overlay == 1
+  ok listsel == 1
+  ok rowval == 34
+  ok rowval == 35
+  ok listsel == 1
+  ok rowval == 37
+  ok rowval == 34
+  ok listsel == 1
+host: 29024 ms simulated, 2406 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== midi/after1-logs/scenario-clip-arrow-menu.log =====
+  ok overlay == 1
+  ok view == 5
+  ok overlay == 1
+  ok listsel == 0
+  ok clksrc == 0
+  ok clksrc == 0
+  ok clksrc == 0
+  ok clksrc == 1
+  ok clksrc == 0
+  ok overlay == 0
+  ok overlay == 1
+  ok clksrc == 0
+  ok overlay == 1
+  ok view == 1
+  ok view == 5
+  ok overlay == 1
+  ok listsel == 0
+  ok clksrc == 0
+FAIL expect clksrc == 1, got 0
+  ok clksrc == 0
+  ok overlay == 0
+  ok overlay == 1
+  ok view == 5
+  ok overlay == 0
+  ok overlay == 1
+  ok view == 5
+  ok clksrc == 0
+  ok overlay == 0
+  ok view == 5
+  ok clksrc == 0
+FAIL expect clksrc == 1, got 0
+  ok clksrc == 0
+host: 10262 ms simulated, 1346 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== midi/after1-logs/scenario-clklock.log =====
+  ok clksrc == 0
+  ok playing == 1
+  ok playing == 1
+  ok clkext == 1
+  ok exttempo == 119 (>116)
+  ok exttempo == 119 (<122)
+  ok playing == 1
+  ok playing == 1
+  ok clkext == 1
+  ok playing == 1
+  ok clkext == 1
+  ok playing == 1
+  ok clkext == 1
+  ok exttempo == 119 (>116)
+  ok exttempo == 119 (<122)
+  ok playing == 1
+  ok playing == 0
+  ok playing == 0
+  ok playing == 1
+  ok playing == 1
+  ok playing == 0
+  ok tempo == 119 (>116)
+  ok tempo == 119 (<122)
+  ok playing == 1
+  ok playing == 0
+  ok playing == 1
+  ok playing == 0
+  ok clksrc == 1
+  ok playing == 0
+  ok clkext == 0
+  ok clksrc == 0
+  ok playing == 1
+  ok playing == 0
+  ok setsize == 40
+host: 9830 ms simulated, 1025 blits, render 0.4% of real time (host CPU)
+
+===== midi/after1-logs/scenario-clkmove.log =====
+  ok clksrc == 0
+  ok setbyte27 == 8
+  ok setbyte38 == 0
+  ok clksrc == 2
+  ok storeset23 == 13
+  ok storeset31 == 12
+  ok storeset42 == 0
+  ok storeset43 == 0
+  ok clksrc == 2
+  ok clkext == 1
+  ok clksrc == 1
+  ok setbyte27 == 11
+  ok setbyte38 == 11
+  ok setbyte39 == 18
+  ok clkext == 0
+  ok clksrc == 0
+  ok storeset31 == 9
+  ok storeset42 == 11
+  ok storeset43 == 18
+  ok clksrc == 0
+  ok setbyte27 == 9
+  ok setbyte38 == 11
+  ok setbyte39 == 18
+  ok clksrc == 0
+  ok setbyte27 == 9
+  ok setbyte38 == 0
+  ok setbyte39 == 0
+  ok clksrc == 0
+  ok setbyte27 == 9
+  ok setbyte38 == 0
+host: 8860 ms simulated, 967 blits, render 0.2% of real time (host CPU)
+
+===== midi/after1-logs/scenario-clocksrc.log =====
+  ok clksrc == 0
+  ok clksrc == 2
+  ok clkext == 1
+  ok playing == 1
+  ok waiting == 1
+  ok msgwait == 1
+  leds: buttons SEQ | white....#...#...#... black#..........
+  ok clocks_out == 0
+  ok transport_out == 0
+  ok waiting == 0
+  ok playing == 1
+  ok clocks_out == 0
+  ok transport_out == 0
+  ok playing == 1
+  ok waiting == 1
+  ok tempo == 141 (>130)
+  ok playing == 0
+  ok transport_out == 0
+  ok clksrc == 1
+  ok playing == 0
+  ok clkext == 0
+  ok playing == 1
+  ok clkext == 0
+  ok clocks_out == 86 (>60)
+  ok transport_out == 1
+  ok playing == 0
+  ok transport_out == 2
+  ok clksrc == 1
+  ok storeset31 == 10
+  ok clksrc == 0
+  ok clksrc == 2
+  ok clksrc == 0
+  ok clksrc == 0
+host: 13130 ms simulated, 1177 blits, render 0.3% of real time (host CPU)
+
+===== midi/after1-logs/scenario-probcond.log =====
+  ok laneval7.0.0.0 == 106
+  ok laneval7.0.0.8 == 102
+  ok laneval7.0.0.12 == 135
+  ok laneval7.0.0.12 == 255
+  ok hit0.0.0 == 1
+  ok hit0.0.8 == 1
+  ok noteons == 0
+  ok noteons == 22
+host: 29846 ms simulated, 3181 blits, render 0.4% of real time (host CPU)
+
+===== midi/after1-logs/scenario-probreset.log =====
+  ok laneval7.0.0.0 == 106
+  ok view == 0
+  ok ppat0 == 2
+  ok noteons == 3
+host: 18468 ms simulated, 2988 blits, render 0.3% of real time (host CPU)
+
+===== midi/after1-logs/scenario-tour.log =====
+  ok listsel == 4
+  ok overlay == 2
+  ok overlay == 1
+  ok listsel == 4
+host: 27434 ms simulated, 6142 blits, render 1.6% of real time (host CPU)
+
+===== midi/after1.log =====
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  FAIL scenario-arrows (see build/host/scenario-arrows.log)
+         ok tempo == 125
+       FAIL expect arrowsteps == 115, got 75
+         ok setsize == 40
+         ok setbyte27 == 8
+         ok overlay == 0
+         ok view == 1
+         ok overlay == 1
+         ok listsel == 1
+         ok rowval == 34
+         ok rowval == 35
+         ok listsel == 1
+         ok rowval == 37
+         ok rowval == 34
+         ok listsel == 1
+       host: 29024 ms simulated, 2406 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-clip-arrow-menu (see build/host/scenario-clip-arrow-menu.log)
+       FAIL expect clksrc == 1, got 0
+         ok clksrc == 0
+         ok overlay == 0
+         ok overlay == 1
+         ok view == 5
+         ok overlay == 0
+         ok overlay == 1
+         ok view == 5
+         ok clksrc == 0
+         ok overlay == 0
+         ok view == 5
+         ok clksrc == 0
+       FAIL expect clksrc == 1, got 0
+         ok clksrc == 0
+       host: 10262 ms simulated, 1346 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-clklock
+  ok   scenario-clkmove
+  ok   scenario-clocksrc
+  ok   scenario-probcond
+  ok   scenario-probreset
+  ok   scenario-tour
+TESTS FAILED
+
+===== midi/after2-logs/scenario-arrows.log =====
+  ok setsize == 40
+  ok setbyte27 == 8
+  ok overlay == 0
+  ok page == 0
+  ok page == 1
+  ok page == 2
+  ok page == 1
+  ok page == 0
+  ok arrowsteps == 4
+  ok view == 5
+  ok overlay == 1
+  ok listsel == 0
+  ok clksrc == 0
+  ok clksrc == 1
+  ok listsel == 0
+  ok clksrc == 2
+  ok clksrc == 2
+  ok setbyte27 == 12
+  ok clksrc == 1
+  ok clksrc == 0
+  ok listsel == 0
+  ok setbyte27 == 8
+  ok clksrc == 1
+  ok clksrc == 0
+  ok listsel == 3
+  ok rowval == 10
+  ok rowval == 11
+  ok rowval == 11
+  ok rowval == 12
+  ok rowval == 15
+  ok rowval == 16
+  ok rowval == 16
+  ok rowval == 16
+  ok rowval == 16
+  ok rowval == 0
+  ok rowval == 0
+  ok rowval == 1
+  ok rowval == 10
+  ok listsel == 3
+  ok listsel == 0
+  ok store_writes == 0
+  ok store_writes == 0
+  ok overlay == 1
+  ok listsel == 3
+  ok overlay == 1
+  ok listsel == 4
+  ok overlay == 1
+  ok listsel == 0
+  ok overlay == 1
+  ok view == 5
+  ok listsel == 0
+  ok listsel == 0
+  ok clksrc == 0
+  ok arrowsteps == 70
+  ok clksrc == 1
+  ok arrowsteps == 71
+  ok clksrc == 2
+  ok arrowsteps == 73
+  ok clksrc == 1
+  ok clksrc == 0
+  ok overlay == 0
+  ok page == 0
+  ok page == 0
+  ok arrowsteps == 75
+  ok overlay == 1
+  ok listsel == 0
+  ok tempo == 125
+  ok clksrc == 0
+  ok tempo == 125
+  ok arrowsteps == 75
+  ok setsize == 40
+  ok setbyte27 == 8
+  ok overlay == 0
+  ok view == 1
+  ok overlay == 1
+  ok listsel == 1
+  ok rowval == 34
+  ok rowval == 35
+  ok listsel == 1
+  ok rowval == 37
+  ok rowval == 34
+  ok listsel == 1
+host: 29024 ms simulated, 2406 blits, render 0.3% of real time (host CPU)
+
+===== midi/after2-logs/scenario-clip-arrow-menu.log =====
+  ok overlay == 1
+  ok view == 5
+  ok overlay == 1
+  ok listsel == 0
+  ok clksrc == 0
+  ok clksrc == 0
+  ok clksrc == 0
+  ok clksrc == 1
+  ok clksrc == 0
+  ok overlay == 0
+  ok overlay == 1
+  ok clksrc == 0
+  ok overlay == 1
+  ok view == 1
+  ok view == 5
+  ok overlay == 1
+  ok listsel == 0
+  ok clksrc == 0
+  ok clksrc == 1
+  ok clksrc == 0
+  ok overlay == 0
+  ok overlay == 1
+  ok view == 5
+  ok overlay == 0
+  ok overlay == 1
+  ok view == 5
+  ok clksrc == 0
+  ok overlay == 0
+  ok view == 5
+  ok clksrc == 0
+  ok clksrc == 1
+  ok clksrc == 0
+host: 10442 ms simulated, 1354 blits, render 0.3% of real time (host CPU)
+
+===== midi/after2.log =====
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   scenario-arrows
+  ok   scenario-clip-arrow-menu
+all tests passed
+
+===== midi/after3-clip-arrow-menu.log =====
+  ok overlay == 1
+  ok view == 5
+  ok overlay == 1
+  ok listsel == 0
+  ok clksrc == 0
+  ok clksrc == 0
+  ok clksrc == 0
+  ok clksrc == 1
+  ok clksrc == 0
+  ok overlay == 0
+  ok overlay == 1
+  ok clksrc == 0
+  ok overlay == 1
+  ok view == 1
+  ok view == 5
+  ok overlay == 1
+  ok listsel == 0
+  ok clksrc == 0
+  ok clksrc == 1
+  ok clksrc == 1
+  ok clksrc == 0
+  ok overlay == 0
+  ok overlay == 1
+  ok view == 5
+  ok overlay == 0
+  ok overlay == 1
+  ok view == 5
+  ok clksrc == 0
+  ok overlay == 0
+  ok view == 5
+  ok clksrc == 0
+  ok clksrc == 1
+  ok clksrc == 0
+host: 10442 ms simulated, 1354 blits, render 0.2% of real time (host CPU)
+
+===== midi/after3.log =====
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   scenario-clip-arrow-menu
+all tests passed
+
+===== midi/before.log =====
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  FAIL scenario-arrows (see build/host/scenario-arrows.log)
+         ok tempo == 125
+       FAIL expect arrowsteps == 115, got 29
+         ok setsize == 40
+       FAIL expect setbyte27 == 8, got 12
+         ok overlay == 0
+         ok view == 1
+         ok overlay == 1
+         ok listsel == 1
+         ok rowval == 34
+         ok rowval == 35
+         ok listsel == 1
+         ok rowval == 37
+         ok rowval == 34
+         ok listsel == 1
+       host: 19904 ms simulated, 1533 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-clip-arrow-menu (see build/host/scenario-clip-arrow-menu.log)
+       FAIL expect clksrc == 1, got 0
+       FAIL expect clksrc == 1, got 0
+         ok clksrc == 0
+         ok overlay == 0
+         ok overlay == 1
+         ok view == 5
+         ok overlay == 0
+         ok overlay == 1
+         ok view == 5
+         ok clksrc == 0
+         ok overlay == 0
+         ok view == 5
+       FAIL expect clksrc == 1, got 0
+         ok clksrc == 0
+       host: 9862 ms simulated, 1342 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-clklock (see build/host/scenario-clklock.log)
+         ok playing == 0
+         ok tempo == 119 (>116)
+         ok tempo == 119 (<122)
+         ok playing == 1
+         ok playing == 0
+         ok playing == 1
+         ok playing == 0
+       FAIL expect clksrc == 1, got 0
+       FAIL expect playing == 0, got 1
+       FAIL expect clkext == 0, got 1
+         ok clksrc == 0
+         ok playing == 1
+         ok playing == 0
+         ok setsize == 40
+       host: 9510 ms simulated, 913 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-clkmove (see build/host/scenario-clkmove.log)
+       storepoke: no byte 31 in object 0
+         ok clksrc == 0
+         ok setbyte27 == 8
+         ok setbyte38 == 0
+       FAIL expect clksrc == 2, got 0
+       FAIL unknown expect storeset23
+       FAIL unknown expect storeset31
+       FAIL unknown expect storeset42
+       FAIL unknown expect storeset43
+       FAIL expect clksrc == 2, got 0
+       FAIL expect clkext == 1, got 0
+  FAIL scenario-clocksrc (see build/host/scenario-clocksrc.log)
+       FAIL expect waiting == 1, got 0
+         ok tempo == 136 (>130)
+         ok playing == 0
+       FAIL expect transport_out == 0, got 2
+       FAIL expect clksrc == 1, got 0
+       FAIL expect playing == 0, got 1
+       FAIL expect clkext == 0, got 1
+       FAIL expect playing == 1, got 0
+         ok clkext == 0
+       FAIL expect clocks_out >60, got 57
+       FAIL expect transport_out == 1, got 3
+       FAIL expect playing == 0, got 1
+       FAIL expect transport_out == 2, got 4
+       FAIL expect clksrc == 1, got 0
+       FAIL unknown expect storeset31
+  FAIL scenario-probcond (see build/host/scenario-probcond.log)
+         ok laneval7.0.0.0 == 106
+         ok laneval7.0.0.8 == 102
+         ok laneval7.0.0.12 == 135
+         ok laneval7.0.0.12 == 255
+         ok hit0.0.0 == 1
+         ok hit0.0.8 == 1
+         ok noteons == 0
+       FAIL expect noteons == 22, got 0
+       host: 29686 ms simulated, 3130 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-probreset (see build/host/scenario-probreset.log)
+         ok laneval7.0.0.0 == 106
+         ok view == 0
+         ok ppat0 == 2
+       FAIL expect noteons == 3, got 0
+       host: 18308 ms simulated, 2894 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-tour (see build/host/scenario-tour.log)
+       FAIL expect listsel == 21, got 4
+       FAIL expect overlay == 2, got 1
+         ok overlay == 1
+       FAIL expect listsel == 21, got 4
+       host: 20394 ms simulated, 5162 blits, render 1.7% of real time (host CPU), EXPECTATIONS FAILED
+TESTS FAILED
+
+===== midi/scenario-arrows.log =====
+In file included from host/x0x_host.c:309:
+host/../firmware/src/app/ui.c: In function ‘pref_set’:
+host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+host/../firmware/src/app/ui.c: In function ‘draw_home’:
+host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+host/../firmware/src/app/ui.c: In function ‘og_wave’:
+host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+host/x0x_host.c: In function ‘main’:
+host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+host/../firmware/src/app/ui.c: In function ‘unit_value’:
+host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+host/../firmware/src/app/ui.c: At top level:
+host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+host: build/host/x0x_host
+  ok setsize == 40
+  ok setbyte27 == 8
+  ok overlay == 0
+  ok page == 0
+  ok page == 1
+  ok page == 2
+  ok page == 1
+  ok page == 0
+  ok arrowsteps == 4
+  ok view == 5
+  ok overlay == 1
+FAIL expect listsel == 1, got 0
+  ok clksrc == 0
+FAIL expect clksrc == 1, got 0
+FAIL expect listsel == 1, got 0
+FAIL expect clksrc == 2, got 1
+  ok clksrc == 2
+  ok setbyte27 == 12
+FAIL expect clksrc == 1, got 2
+FAIL expect clksrc == 0, got 2
+FAIL expect listsel == 1, got 0
+FAIL expect setbyte27 == 8, got 12
+FAIL expect clksrc == 1, got 2
+FAIL expect clksrc == 0, got 2
+FAIL expect listsel == 4, got 3
+FAIL expect rowval == 10, got 0
+FAIL expect rowval == 11, got 0
+FAIL expect rowval == 11, got 0
+FAIL expect rowval == 12, got 0
+FAIL expect rowval == 15, got 0
+FAIL expect rowval == 16, got 0
+FAIL expect rowval == 16, got 0
+FAIL expect rowval == 16, got 0
+  ok rowval == 0
+  ok rowval == 0
+FAIL expect rowval == 1, got 0
+FAIL expect rowval == 10, got 0
+FAIL expect listsel == 4, got 0
+FAIL expect listsel == 17, got 4
+FAIL expect store_writes == 0, got 6
+FAIL expect store_writes == 0, got 6
+  ok overlay == 1
+FAIL expect listsel == 20, got 4
+  ok overlay == 1
+FAIL expect listsel == 21, got 4
+  ok overlay == 1
+FAIL expect listsel == 23, got 4
+  ok overlay == 1
+  ok view == 5
+FAIL expect listsel == 23, got 4
+FAIL expect listsel == 1, got 0
+FAIL expect clksrc == 0, got 2
+FAIL expect arrowsteps == 110, got 24
+FAIL expect clksrc == 1, got 2
+FAIL expect arrowsteps == 111, got 25
+  ok clksrc == 2
+FAIL expect arrowsteps == 113, got 27
+FAIL expect clksrc == 1, got 2
+FAIL expect clksrc == 0, got 2
+  ok overlay == 0
+  ok page == 0
+  ok page == 0
+FAIL expect arrowsteps == 115, got 29
+  ok overlay == 1
+FAIL expect listsel == 1, got 0
+  ok tempo == 125
+FAIL expect clksrc == 0, got 2
+  ok tempo == 125
+FAIL expect arrowsteps == 115, got 29
+  ok setsize == 40
+FAIL expect setbyte27 == 8, got 12
+  ok overlay == 0
+  ok view == 1
+  ok overlay == 1
+  ok listsel == 1
+  ok rowval == 34
+  ok rowval == 35
+  ok listsel == 1
+  ok rowval == 37
+  ok rowval == 34
+  ok listsel == 1
+host: 19904 ms simulated, 1533 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== midi/scenario-clip-arrow-menu.log =====
+  ok overlay == 1
+  ok view == 5
+  ok overlay == 1
+FAIL expect listsel == 1, got 0
+  ok clksrc == 0
+  ok clksrc == 0
+FAIL expect clksrc == 1, got 0
+  ok clksrc == 0
+  ok overlay == 0
+  ok overlay == 1
+  ok clksrc == 0
+  ok overlay == 1
+  ok view == 1
+  ok view == 5
+  ok overlay == 1
+FAIL expect listsel == 1, got 0
+FAIL expect clksrc == 1, got 0
+FAIL expect clksrc == 1, got 0
+  ok clksrc == 0
+  ok overlay == 0
+  ok overlay == 1
+  ok view == 5
+  ok overlay == 0
+  ok overlay == 1
+  ok view == 5
+  ok clksrc == 0
+  ok overlay == 0
+  ok view == 5
+FAIL expect clksrc == 1, got 0
+  ok clksrc == 0
+host: 9862 ms simulated, 1342 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+
+===== midi/scenario-clklock.log =====
+  ok clksrc == 0
+  ok playing == 1
+  ok playing == 1
+  ok clkext == 1
+  ok exttempo == 119 (>116)
+  ok exttempo == 119 (<122)
+  ok playing == 1
+  ok playing == 1
+  ok clkext == 1
+  ok playing == 1
+  ok clkext == 1
+  ok playing == 1
+  ok clkext == 1
+  ok exttempo == 119 (>116)
+  ok exttempo == 119 (<122)
+  ok playing == 1
+  ok playing == 0
+  ok playing == 0
+  ok playing == 1
+  ok playing == 1
+  ok playing == 0
+  ok tempo == 119 (>116)
+  ok tempo == 119 (<122)
+  ok playing == 1
+  ok playing == 0
+  ok playing == 1
+  ok playing == 0
+FAIL expect clksrc == 1, got 0
+FAIL expect playing == 0, got 1
+FAIL expect clkext == 0, got 1
+  ok clksrc == 0
+  ok playing == 1
+  ok playing == 0
+  ok setsize == 40
+host: 9510 ms simulated, 913 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+
+===== midi/scenario-clkmove.log =====
+storepoke: no byte 31 in object 0
+  ok clksrc == 0
+  ok setbyte27 == 8
+  ok setbyte38 == 0
+FAIL expect clksrc == 2, got 0
+FAIL unknown expect storeset23
+FAIL unknown expect storeset31
+FAIL unknown expect storeset42
+FAIL unknown expect storeset43
+FAIL expect clksrc == 2, got 0
+FAIL expect clkext == 1, got 0
+
+===== midi/scenario-clocksrc.log =====
+storepoke: no byte 31 in object 0
+  ok clksrc == 0
+FAIL expect clksrc == 2, got 0
+FAIL expect clkext == 1, got 0
+  ok playing == 1
+FAIL expect waiting == 1, got 0
+FAIL expect msgwait == 1, got 0
+  leds: buttons SAVE SEQ | white#...#.#.#...#... black#..........
+FAIL expect clocks_out == 0, got 39
+FAIL expect transport_out == 0, got 1
+  ok waiting == 0
+  ok playing == 1
+FAIL expect clocks_out == 0, got 39
+FAIL expect transport_out == 0, got 1
+  ok playing == 1
+FAIL expect waiting == 1, got 0
+  ok tempo == 136 (>130)
+  ok playing == 0
+FAIL expect transport_out == 0, got 2
+FAIL expect clksrc == 1, got 0
+FAIL expect playing == 0, got 1
+FAIL expect clkext == 0, got 1
+FAIL expect playing == 1, got 0
+  ok clkext == 0
+FAIL expect clocks_out >60, got 57
+FAIL expect transport_out == 1, got 3
+FAIL expect playing == 0, got 1
+FAIL expect transport_out == 2, got 4
+FAIL expect clksrc == 1, got 0
+FAIL unknown expect storeset31
+
+===== midi/scenario-probcond.log =====
+  ok laneval7.0.0.0 == 106
+  ok laneval7.0.0.8 == 102
+  ok laneval7.0.0.12 == 135
+  ok laneval7.0.0.12 == 255
+  ok hit0.0.0 == 1
+  ok hit0.0.8 == 1
+  ok noteons == 0
+FAIL expect noteons == 22, got 0
+host: 29686 ms simulated, 3130 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+
+===== midi/scenario-probreset.log =====
+  ok laneval7.0.0.0 == 106
+  ok view == 0
+  ok ppat0 == 2
+FAIL expect noteons == 3, got 0
+host: 18308 ms simulated, 2894 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+
+===== midi/scenario-tour.log =====
+FAIL expect listsel == 21, got 4
+FAIL expect overlay == 2, got 1
+  ok overlay == 1
+FAIL expect listsel == 21, got 4
+host: 20394 ms simulated, 5162 blits, render 1.7% of real time (host CPU), EXPECTATIONS FAILED
+
+===== storage/after-logs/perf-scratch.log =====
+  ok store_writes == 0
+  ok store_writes == 0
+  ok listsel == 0
+  ok view == 7
+  ok store_writes == 6 (>0)
+  ok perftest == 0
+  ok patptr == 0
+  ok perftest == 3
+  ok perfres0 == 9 (>0)
+  ok perfres1 == 16 (>0)
+  ok perfres2 == 29 (>0)
+  ok patptr == 1
+  ok playing == 0
+  ok hit0.0.0 == 1
+  ok peak -7.9 dBFS
+  ok peak -7.9 dBFS
+host: 18610 ms simulated, 753 blits, render 1.3% of real time (host CPU)
+host: build/host/x0x_host
+  ok tempo == 120
+  ok mute == 4194304
+  ok listsel == 0
+  ok view == 7
+  ok perftest == 0
+  ok patptr == 0
+  ok perftest == 3
+  ok perfres0 == 12 (>0)
+  ok perfres1 == 20 (>0)
+  ok perfres2 == 31 (>0)
+  ok patptr == 1
+  ok playing == 0
+  ok tempo == 120
+  ok mute == 4194304
+  ok hit0.0.8 == 1
+  ok sound2.0.0 == 127
+  ok view == 7
+  ok perftest == 0
+  ok patptr == 0
+  ok perftest == -1
+  ok patptr == 1
+  ok playing == 0
+  ok tempo == 120
+  ok mute == 4194304
+host: 27984 ms simulated, 950 blits, render 1.5% of real time (host CPU)
+  ok store_writes == 0
+  ok store_writes == 0
+  ok listsel == 0
+  ok view == 7
+  ok store_writes == 6 (>0)
+  ok perftest == 0
+  ok patptr == 0
+  ok perftest == 3
+  ok perfres0 == 11 (>0)
+  ok perfres1 == 21 (>0)
+  ok perfres2 == 30 (>0)
+  ok patptr == 1
+  ok playing == 0
+  ok hit0.0.0 == 1
+  ok peak -7.9 dBFS
+  ok peak -7.9 dBFS
+host: 18610 ms simulated, 752 blits, render 1.5% of real time (host CPU)
+
+===== storage/after-logs/scenario-autosave.log =====
+  ok store_writes == 0
+  ok store_writes == 0
+  ok store_writes == 6
+  ok hit0.0.0 == 1
+  ok hit0.0.8 == 1
+  ok store_writes == 7
+  ok store_writes == 7
+  ok store_writes == 7
+  ok store_writes == 8
+  ok hit0.0.12 == 1
+  ok listsel == 2
+  ok rowval == 1
+  ok rowval == 0
+  ok store_writes == 9
+  ok store_writes == 9
+  ok hit0.0.2 == 0
+  ok store_writes == 9
+host: 128630 ms simulated, 1228 blits, render 0.2% of real time (host CPU)
+
+===== storage/after-logs/scenario-guard.log =====
+  ok guard == 0
+  ok guard == 1
+  ok guardcount == 1
+  ok peak -8.2 dBFS
+  ok guard == 1
+  ok guard == 0
+  ok guard == 0
+  ok guard == 1
+  ok guardcount == 2
+  ok guard == 1
+  ok listsel == 0
+  ok view == 7
+  ok perftest == 0
+  ok guard == 0
+  ok perftest == -1
+  ok guard == 1
+host: 20110 ms simulated, 1822 blits, render 0.8% of real time (host CPU)
+
+===== storage/after-logs/scenario-migrate.log =====
+  ok pattern == 1
+  ok tempo == 125
+  ok hit0.0.0 == 0
+  ok hit0.0.31 == 0
+  ok hit0.0.63 == 0
+  ok gate0.0 == 0
+  ok lanes == 0
+  ok songlen == 0
+  ok clksrc == 0
+  ok sound0.1.3 == 41
+  ok sound0.1.4 == 58
+  ok store_writes == 0
+  ok store_writes == 0
+  ok savestate == 3
+  ok store_writes == 0
+  ok tempo == 125
+  ok lanes == 0
+  ok songlen == 0
+  ok hit0.0.0 == 0
+  ok store_writes == 0
+  ok listsel == 4
+  ok overlay == 2
+  ok overlay == 0
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 1
+  ok tempo == 120
+  ok view == 6
+  ok songlen == 2
+  ok songbar2.0 == 16
+  ok savestate == 0
+  ok store_writes == 6
+  ok storeset23 == 13
+  ok tempo == 120
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 1
+  ok hit0.0.31 == 0
+  ok lanes == 0
+  ok songlen == 2
+  ok songbar2.0 == 16
+  ok store_writes == 6
+host: 29354 ms simulated, 963 blits, render 0.2% of real time (host CPU)
+
+===== storage/after-logs/scenario-migrate0102.log =====
+  ok pattern == 1
+  ok tempo == 125
+  ok hit0.0.0 == 0
+  ok hit0.0.31 == 0
+  ok hit0.0.63 == 0
+  ok gate0.0 == 0
+  ok lanes == 0
+  ok songlen == 0
+  ok clksrc == 0
+  ok sound0.1.3 == 41
+  ok sound0.1.4 == 58
+  ok store_writes == 0
+  ok store_writes == 0
+  ok savestate == 3
+  ok store_writes == 0
+  ok tempo == 125
+  ok lanes == 0
+  ok songlen == 0
+  ok hit0.0.0 == 0
+  ok store_writes == 0
+  ok listsel == 4
+  ok overlay == 2
+  ok overlay == 0
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 1
+  ok tempo == 120
+  ok view == 6
+  ok songlen == 2
+  ok songbar2.0 == 16
+  ok savestate == 0
+  ok store_writes == 6
+  ok storeset23 == 13
+  ok tempo == 120
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 1
+  ok hit0.0.31 == 0
+  ok lanes == 0
+  ok songlen == 2
+  ok songbar2.0 == 16
+  ok store_writes == 6
+host: 29354 ms simulated, 963 blits, render 0.2% of real time (host CPU)
+
+===== storage/after-logs/scenario-perf.log =====
+  ok tempo == 120
+  ok mute == 4194304
+  ok listsel == 0
+  ok view == 7
+  ok perftest == 0
+  ok patptr == 0
+  ok perftest == 3
+  ok perfres0 == 9 (>0)
+  ok perfres1 == 17 (>0)
+  ok perfres2 == 23 (>0)
+  ok patptr == 1
+  ok playing == 0
+  ok tempo == 120
+  ok mute == 4194304
+  ok hit0.0.8 == 1
+  ok sound2.0.0 == 127
+  ok view == 7
+  ok perftest == 0
+  ok patptr == 0
+  ok perftest == -1
+  ok patptr == 1
+  ok playing == 0
+  ok tempo == 120
+  ok mute == 4194304
+host: 27984 ms simulated, 940 blits, render 1.1% of real time (host CPU)
+
+===== storage/after-logs/scenario-perfsave.log =====
+  ok store_writes == 0
+  ok store_writes == 0
+  ok listsel == 0
+  ok view == 7
+  ok store_writes == 6 (>0)
+  ok perftest == 0
+  ok patptr == 0
+  ok perftest == 3
+  ok perfres0 == 10 (>0)
+  ok perfres1 == 18 (>0)
+  ok perfres2 == 28 (>0)
+  ok patptr == 1
+  ok playing == 0
+  ok hit0.0.0 == 1
+  ok peak -7.9 dBFS
+  ok peak -7.9 dBFS
+host: 18610 ms simulated, 753 blits, render 1.4% of real time (host CPU)
+
+===== storage/after-logs/scenario-undo.log =====
+  ok sound0.0.0 == 34
+  ok hit0.0.8 == 1
+  ok sound0.0.0 == 39
+  ok sound0.0.0 == 34
+  ok hit0.0.8 == 0
+  ok hit0.0.4 == 1
+  ok hit0.0.0 == 0
+  ok hit0.0.4 == 0
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.8 == 1
+  ok sound0.0.0 == 34
+  ok playing == 0
+  ok hit0.0.8 == 0
+  ok hit0.0.8 == 0
+  ok hit0.0.12 == 1
+  ok sound0.0.0 == 41
+  ok tempo == 130
+  ok listsel == 4
+  ok overlay == 2
+  ok overlay == 0
+  ok hit0.0.0 == 0
+  ok hit0.0.12 == 0
+  ok sound0.0.0 == 34
+  ok tempo == 125
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 0
+  ok hit0.0.12 == 0
+  ok sound0.0.0 == 34
+  ok tempo == 125
+  ok hit0.0.0 == 0
+  ok hit0.0.12 == 0
+  ok playing == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.0 == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 0
+  ok sound0.0.0 == 34
+  ok tempo == 125
+host: 8938 ms simulated, 940 blits, render 0.2% of real time (host CPU)
+
+===== storage/after.log =====
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   scenario-autosave
+  ok   scenario-guard
+  ok   scenario-migrate
+  ok   scenario-migrate0102
+  ok   scenario-perf
+  ok   scenario-perfsave
+  ok   scenario-undo
+  ok   perf-scratch
+all tests passed
+
+===== storage/before-logs/perf-scratch.log =====
+  ok store_writes == 0
+  ok store_writes == 0
+FAIL expect listsel == 23, got 4
+FAIL expect view == 7, got 5
+FAIL expect store_writes >0, got 0
+FAIL expect perftest == 0, got -1
+FAIL expect patptr == 0, got 1
+FAIL expect perftest == 3, got -1
+FAIL expect perfres0 >0, got 0
+FAIL expect perfres1 >0, got 0
+FAIL expect perfres2 >0, got 0
+  ok patptr == 1
+FAIL expect playing == 0, got 1
+  ok hit0.0.0 == 1
+  ok peak -12.7 dBFS
+  ok peak -12.7 dBFS
+host: 19490 ms simulated, 742 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+
+===== storage/before-logs/scenario-autosave.log =====
+In file included from host/x0x_host.c:309:
+host/../firmware/src/app/ui.c: In function ‘pref_set’:
+host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+host/../firmware/src/app/ui.c: In function ‘draw_home’:
+host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+host/../firmware/src/app/ui.c: In function ‘og_wave’:
+host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+host/x0x_host.c: In function ‘main’:
+host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+host/../firmware/src/app/ui.c: In function ‘unit_value’:
+host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+host/../firmware/src/app/ui.c: At top level:
+host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+host: build/host/x0x_host
+  ok store_writes == 0
+  ok store_writes == 0
+  ok store_writes == 6
+  ok hit0.0.0 == 1
+  ok hit0.0.8 == 1
+  ok store_writes == 7
+  ok store_writes == 7
+  ok store_writes == 7
+  ok store_writes == 8
+  ok hit0.0.12 == 1
+FAIL expect listsel == 19, got 4
+FAIL expect rowval == 1, got 0
+  ok rowval == 0
+FAIL expect store_writes == 9, got 8
+  ok store_writes == 9
+FAIL expect hit0.0.2 == 0, got 1
+FAIL expect store_writes == 9, got 10
+host: 129030 ms simulated, 1199 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+
+===== storage/before-logs/scenario-guard.log =====
+  ok guard == 0
+  ok guard == 1
+  ok guardcount == 1
+  ok peak -8.2 dBFS
+  ok guard == 1
+  ok guard == 0
+  ok guard == 0
+  ok guard == 1
+  ok guardcount == 2
+  ok guard == 1
+FAIL expect listsel == 23, got 4
+FAIL expect view == 7, got 5
+FAIL expect perftest == 0, got -1
+FAIL expect guard == 0, got 1
+  ok perftest == -1
+  ok guard == 1
+host: 20990 ms simulated, 1770 blits, render 0.9% of real time (host CPU), EXPECTATIONS FAILED
+
+===== storage/before-logs/scenario-migrate.log =====
+  ok pattern == 1
+  ok tempo == 125
+  ok hit0.0.0 == 0
+  ok hit0.0.31 == 0
+  ok hit0.0.63 == 0
+  ok gate0.0 == 0
+  ok lanes == 0
+  ok songlen == 0
+  ok clksrc == 0
+  ok sound0.1.3 == 41
+  ok sound0.1.4 == 58
+  ok store_writes == 0
+  ok store_writes == 0
+  ok savestate == 3
+  ok store_writes == 0
+  ok tempo == 125
+  ok lanes == 0
+  ok songlen == 0
+  ok hit0.0.0 == 0
+  ok store_writes == 0
+FAIL expect listsel == 21, got 4
+FAIL expect overlay == 2, got 1
+  ok overlay == 0
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 1
+  ok tempo == 120
+  ok view == 6
+  ok songlen == 2
+  ok songbar2.0 == 16
+FAIL expect savestate == 0, got 3
+FAIL expect store_writes == 6, got 0
+FAIL expect storeset23 == 13, got 0
+FAIL expect tempo == 120, got 125
+FAIL expect hit0.0.0 == 1, got 0
+FAIL expect hit0.0.12 == 1, got 0
+  ok hit0.0.31 == 0
+  ok lanes == 0
+FAIL expect songlen == 2, got 0
+FAIL expect songbar2.0 == 16, got 1
+FAIL expect store_writes == 6, got 0
+host: 29754 ms simulated, 901 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== storage/before-logs/scenario-migrate0102.log =====
+  ok pattern == 1
+  ok tempo == 125
+  ok hit0.0.0 == 0
+  ok hit0.0.31 == 0
+  ok hit0.0.63 == 0
+  ok gate0.0 == 0
+  ok lanes == 0
+  ok songlen == 0
+  ok clksrc == 0
+  ok sound0.1.3 == 41
+  ok sound0.1.4 == 58
+  ok store_writes == 0
+  ok store_writes == 0
+  ok savestate == 3
+  ok store_writes == 0
+  ok tempo == 125
+  ok lanes == 0
+  ok songlen == 0
+  ok hit0.0.0 == 0
+  ok store_writes == 0
+FAIL expect listsel == 21, got 4
+FAIL expect overlay == 2, got 1
+  ok overlay == 0
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 1
+  ok tempo == 120
+  ok view == 6
+  ok songlen == 2
+  ok songbar2.0 == 16
+FAIL expect savestate == 0, got 3
+FAIL expect store_writes == 6, got 0
+FAIL expect storeset23 == 13, got 0
+FAIL expect tempo == 120, got 125
+FAIL expect hit0.0.0 == 1, got 0
+FAIL expect hit0.0.12 == 1, got 0
+  ok hit0.0.31 == 0
+  ok lanes == 0
+FAIL expect songlen == 2, got 0
+FAIL expect songbar2.0 == 16, got 1
+FAIL expect store_writes == 6, got 0
+host: 29754 ms simulated, 901 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== storage/before-logs/scenario-perf.log =====
+  ok tempo == 120
+  ok mute == 4194304
+FAIL expect listsel == 23, got 4
+FAIL expect view == 7, got 5
+FAIL expect perftest == 0, got -1
+FAIL expect patptr == 0, got 1
+FAIL expect perftest == 3, got -1
+FAIL expect perfres0 >0, got 0
+FAIL expect perfres1 >0, got 0
+FAIL expect perfres2 >0, got 0
+  ok patptr == 1
+  ok playing == 0
+  ok tempo == 120
+  ok mute == 4194304
+  ok hit0.0.8 == 1
+  ok sound2.0.0 == 127
+  ok view == 7
+  ok perftest == 0
+  ok patptr == 0
+  ok perftest == -1
+  ok patptr == 1
+  ok playing == 0
+  ok tempo == 120
+  ok mute == 4194304
+host: 28864 ms simulated, 988 blits, render 0.5% of real time (host CPU), EXPECTATIONS FAILED
+
+===== storage/before-logs/scenario-perfsave.log =====
+  ok store_writes == 0
+  ok store_writes == 0
+FAIL expect listsel == 23, got 4
+FAIL expect view == 7, got 5
+FAIL expect store_writes >0, got 0
+FAIL expect perftest == 0, got -1
+FAIL expect patptr == 0, got 1
+FAIL expect perftest == 3, got -1
+FAIL expect perfres0 >0, got 0
+FAIL expect perfres1 >0, got 0
+FAIL expect perfres2 >0, got 0
+  ok patptr == 1
+FAIL expect playing == 0, got 1
+  ok hit0.0.0 == 1
+  ok peak -12.7 dBFS
+  ok peak -12.7 dBFS
+host: 19490 ms simulated, 742 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+
+===== storage/before-logs/scenario-undo.log =====
+  ok sound0.0.0 == 34
+  ok hit0.0.8 == 1
+  ok sound0.0.0 == 39
+  ok sound0.0.0 == 34
+  ok hit0.0.8 == 0
+  ok hit0.0.4 == 1
+  ok hit0.0.0 == 0
+  ok hit0.0.4 == 0
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.8 == 1
+  ok sound0.0.0 == 34
+  ok playing == 0
+  ok hit0.0.8 == 0
+  ok hit0.0.8 == 0
+  ok hit0.0.12 == 1
+  ok sound0.0.0 == 41
+  ok tempo == 130
+FAIL expect listsel == 21, got 4
+FAIL expect overlay == 2, got 1
+  ok overlay == 0
+FAIL expect hit0.0.0 == 0, got 1
+FAIL expect hit0.0.12 == 0, got 1
+FAIL expect sound0.0.0 == 34, got 41
+FAIL expect tempo == 125, got 130
+  ok playing == 0
+  ok rec == 0
+FAIL expect hit0.0.0 == 0, got 1
+FAIL expect hit0.0.12 == 0, got 1
+  ok sound0.0.0 == 34
+FAIL expect tempo == 125, got 130
+FAIL expect hit0.0.0 == 0, got 1
+FAIL expect hit0.0.12 == 0, got 1
+  ok playing == 0
+  ok hit0.0.0 == 1
+FAIL expect hit0.0.0 == 0, got 1
+  ok hit0.0.0 == 1
+FAIL expect hit0.0.12 == 0, got 1
+FAIL expect sound0.0.0 == 34, got 41
+FAIL expect tempo == 125, got 130
+host: 9338 ms simulated, 800 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+
+===== storage/before.log =====
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  FAIL scenario-autosave (see build/host/scenario-autosave.log)
+         ok hit0.0.0 == 1
+         ok hit0.0.8 == 1
+         ok store_writes == 7
+         ok store_writes == 7
+         ok store_writes == 7
+         ok store_writes == 8
+         ok hit0.0.12 == 1
+       FAIL expect listsel == 19, got 4
+       FAIL expect rowval == 1, got 0
+         ok rowval == 0
+       FAIL expect store_writes == 9, got 8
+         ok store_writes == 9
+       FAIL expect hit0.0.2 == 0, got 1
+       FAIL expect store_writes == 9, got 10
+       host: 129030 ms simulated, 1199 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-guard (see build/host/scenario-guard.log)
+         ok guardcount == 1
+         ok peak -8.2 dBFS
+         ok guard == 1
+         ok guard == 0
+         ok guard == 0
+         ok guard == 1
+         ok guardcount == 2
+         ok guard == 1
+       FAIL expect listsel == 23, got 4
+       FAIL expect view == 7, got 5
+       FAIL expect perftest == 0, got -1
+       FAIL expect guard == 0, got 1
+         ok perftest == -1
+         ok guard == 1
+       host: 20990 ms simulated, 1770 blits, render 0.9% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-migrate (see build/host/scenario-migrate.log)
+         ok view == 6
+         ok songlen == 2
+         ok songbar2.0 == 16
+       FAIL expect savestate == 0, got 3
+       FAIL expect store_writes == 6, got 0
+       FAIL expect storeset23 == 13, got 0
+       FAIL expect tempo == 120, got 125
+       FAIL expect hit0.0.0 == 1, got 0
+       FAIL expect hit0.0.12 == 1, got 0
+         ok hit0.0.31 == 0
+         ok lanes == 0
+       FAIL expect songlen == 2, got 0
+       FAIL expect songbar2.0 == 16, got 1
+       FAIL expect store_writes == 6, got 0
+       host: 29754 ms simulated, 901 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-migrate0102 (see build/host/scenario-migrate0102.log)
+         ok view == 6
+         ok songlen == 2
+         ok songbar2.0 == 16
+       FAIL expect savestate == 0, got 3
+       FAIL expect store_writes == 6, got 0
+       FAIL expect storeset23 == 13, got 0
+       FAIL expect tempo == 120, got 125
+       FAIL expect hit0.0.0 == 1, got 0
+       FAIL expect hit0.0.12 == 1, got 0
+         ok hit0.0.31 == 0
+         ok lanes == 0
+       FAIL expect songlen == 2, got 0
+       FAIL expect songbar2.0 == 16, got 1
+       FAIL expect store_writes == 6, got 0
+       host: 29754 ms simulated, 901 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-perf (see build/host/scenario-perf.log)
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+         ok hit0.0.8 == 1
+         ok sound2.0.0 == 127
+         ok view == 7
+         ok perftest == 0
+         ok patptr == 0
+         ok perftest == -1
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+       host: 28864 ms simulated, 988 blits, render 0.5% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-perfsave (see build/host/scenario-perfsave.log)
+       FAIL expect listsel == 23, got 4
+       FAIL expect view == 7, got 5
+       FAIL expect store_writes >0, got 0
+       FAIL expect perftest == 0, got -1
+       FAIL expect patptr == 0, got 1
+       FAIL expect perftest == 3, got -1
+       FAIL expect perfres0 >0, got 0
+       FAIL expect perfres1 >0, got 0
+       FAIL expect perfres2 >0, got 0
+         ok patptr == 1
+       FAIL expect playing == 0, got 1
+         ok hit0.0.0 == 1
+         ok peak -12.7 dBFS
+         ok peak -12.7 dBFS
+       host: 19490 ms simulated, 742 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-undo (see build/host/scenario-undo.log)
+         ok rec == 0
+       FAIL expect hit0.0.0 == 0, got 1
+       FAIL expect hit0.0.12 == 0, got 1
+         ok sound0.0.0 == 34
+       FAIL expect tempo == 125, got 130
+       FAIL expect hit0.0.0 == 0, got 1
+       FAIL expect hit0.0.12 == 0, got 1
+         ok playing == 0
+         ok hit0.0.0 == 1
+       FAIL expect hit0.0.0 == 0, got 1
+         ok hit0.0.0 == 1
+       FAIL expect hit0.0.12 == 0, got 1
+       FAIL expect sound0.0.0 == 34, got 41
+       FAIL expect tempo == 125, got 130
+       host: 9338 ms simulated, 800 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL perf-scratch (see build/host/perf-scratch.log)
+       FAIL expect listsel == 23, got 4
+       FAIL expect view == 7, got 5
+       FAIL expect store_writes >0, got 0
+       FAIL expect perftest == 0, got -1
+       FAIL expect patptr == 0, got 1
+       FAIL expect perftest == 3, got -1
+       FAIL expect perfres0 >0, got 0
+       FAIL expect perfres1 >0, got 0
+       FAIL expect perfres2 >0, got 0
+         ok patptr == 1
+       FAIL expect playing == 0, got 1
+         ok hit0.0.0 == 1
+         ok peak -12.7 dBFS
+         ok peak -12.7 dBFS
+       host: 19490 ms simulated, 742 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+TESTS FAILED
+
