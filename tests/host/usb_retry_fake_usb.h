@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Host stand-in for fm1_usb.h. Counts reset and attach. SIE writes complete. */
+/* Host stand-in for fm1_usb.h. Counts reset and attach. The SIE stays off so
+ * a completed write cannot clear usb.timeouts. */
 #pragma once
 #include <stdint.h>
 #define FM1_INLINE static inline
@@ -10,7 +11,9 @@ static unsigned fake_resets, fake_attaches;
 FM1_INLINE void fm1_usb_reset(void) { fake_resets++; }
 FM1_INLINE void fm1_usb_attach(void *ep0) { (void)ep0; fake_attaches++; }
 FM1_INLINE void fm1_usb_off(void) {}
-FM1_INLINE uint32_t fm1_usb_sie_on(void) { return 1u; }
+/* SIE off: a completed write in sie_wr would zero usb.timeouts and hide a
+ * retry that forgot to clear a dead-SIE count. Attach then uses that count. */
+FM1_INLINE uint32_t fm1_usb_sie_on(void) { return 0u; }
 FM1_INLINE void fm1_usb_sie_wr_start(uint32_t r, uint32_t v) { (void)r; (void)v; }
 FM1_INLINE void fm1_usb_sie_rd_start(uint32_t r) { (void)r; }
 FM1_INLINE uint32_t fm1_usb_sie_done(void) { return 1u; }

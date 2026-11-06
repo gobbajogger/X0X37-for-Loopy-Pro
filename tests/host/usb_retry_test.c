@@ -35,8 +35,8 @@ static int fails;
 static void expect(int cond, const char *what)
 {
     if (!cond) {
-        printf("RED usb-retry: %s (resets %u attaches %u up %u detached %u ticks %u)\n",
-               what, fake_resets, fake_attaches, usb.up, usb.detached, fake_ticks);
+        printf("RED usb-retry: %s (resets %u attaches %u up %u detached %u ticks %u timeouts %u)\n",
+               what, fake_resets, fake_attaches, usb.up, usb.detached, fake_ticks, usb.timeouts);
         fails++;
     }
 }
@@ -131,8 +131,25 @@ int main(void)
     usb_retry_old(9000u);
     expect(fake_resets == r0 && fake_attaches == a0, "old retry stays idle while detached");
 
+    /* Attach turns USB on only when timeouts < 3. A count already at 3 must
+     * be cleared on the reset that opens the window, or the later attach
+     * leaves the link down. */
+    clear_link();
+    usb.timeouts = 3;
+    fake_ticks = 0;
+    r0 = fake_resets;
+    a0 = fake_attaches;
+    usb_retry(6000u);
+    expect(fake_resets == r0 + 1u && fake_attaches == a0 && usb.up == 0u,
+           "dead-SIE count resets without attaching");
+    fake_ticks = SPAN;
+    usb_retry(6000u);
+    expect(fake_resets == r0 + 1u && fake_attaches == a0 + 1u
+           && usb.up == 1u && usb.timeouts == 0u,
+           "attach after 25 ms is up with the timeout count cleared");
+
     if (fails)
         return 1;
-    puts("GREEN usb-retry: reset, no attach before 25 ms, one attach after, no re-entry; idle if up or detached");
+    puts("GREEN usb-retry: reset, no attach before 25 ms, one attach after, no re-entry; idle if up or detached; dead-SIE count cleared");
     return 0;
 }
