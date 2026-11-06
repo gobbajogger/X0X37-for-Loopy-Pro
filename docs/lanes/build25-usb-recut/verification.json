@@ -1,0 +1,304 @@
+{
+  "base": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "original_lane": "74bd41b7477f5dcb8b882a0ab36f92724e654368",
+  "executor": "root Codex; all builds/tests executed directly",
+  "configuration": {
+    "board": "smk37",
+    "models": [
+      "elite",
+      "pro"
+    ],
+    "X0X_DEV_PADCAL": 1,
+    "CC": "cc",
+    "toolchain": "JieLi Clang 4.0.1",
+    "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+    "sdk_tag": "AC79NN_SDK_V1.2.1_2023-12-13"
+  },
+  "sdk_pins": [
+    {
+      "path": "cpu/wl82/tools/uboot.boot",
+      "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4"
+    },
+    {
+      "path": "cpu/wl82/tools/cfg_tool.bin",
+      "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b"
+    },
+    {
+      "path": "cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+      "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+    },
+    {
+      "path": "cpu/wl82/liba/btctrler.a",
+      "sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de"
+    },
+    {
+      "path": "cpu/wl82/liba/wl_rf_common.a",
+      "sha256": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2"
+    },
+    {
+      "path": "cpu/wl82/liba/crypto_toolbox_Osize.a",
+      "sha256": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e"
+    },
+    {
+      "path": "cpu/wl82/liba/lib_ccm_aes.a",
+      "sha256": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c"
+    },
+    {
+      "path": "include_lib/newlib/pi32v2-lib/libc.a",
+      "sha256": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4"
+    },
+    {
+      "path": "include_lib/newlib/pi32v2-lib/libcompiler_rt.a",
+      "sha256": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009"
+    },
+    {
+      "path": "apps/common/net/wifi_conf.c",
+      "sha256": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    }
+  ],
+  "reference_pins": [
+    {
+      "repository": "michaelmenesescs/schwung-9W9",
+      "sha": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c"
+    },
+    {
+      "repository": "michaelmenesescs/schwung-8W8",
+      "sha": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997"
+    },
+    {
+      "repository": "charlesvestal/schwung-tb3po",
+      "sha": "f49d81d05d1e29ae37728a08e30f193892be3bc9"
+    }
+  ],
+  "changed_source_files": [
+    {
+      "path": "firmware/src/dsp/drum909_dsp.h",
+      "git_blob": "380fe5c6a98fbe3e877453b698304a8d67092129",
+      "sha256": "43dd75fae722827a45e68cf8f3f336728bae3e492cd8f247d1979721eca824f4"
+    },
+    {
+      "path": "firmware/src/usb.c",
+      "git_blob": "b22a79215072ee178351e42f35ed2678dde9f360",
+      "sha256": "e609157ed5c1174d22f7cacb94771e2ad9e3456c57c0e630eed1d9489fd0c583"
+    },
+    {
+      "path": "tests/host/drum909_tanh_pair_test.c",
+      "git_blob": "3b2d17a0defbf8f6c94e9e619ce811f3f5fa5935",
+      "sha256": "fac6fa4e16cf01eb6a56c1f1e17539ff742730466c6f208a62437514392bd8bb"
+    },
+    {
+      "path": "tests/host/run_drum909_struct_equivalence.sh",
+      "git_blob": "dbc10ce0b2442e9fb221db8b7477f9d68ce6743c",
+      "sha256": "9b88d05a40d2a1adde83d6df72fd84bda5741f76592d3f98da7e3dfd1ebf186c"
+    },
+    {
+      "path": "tests/host/run_usb_retry.sh",
+      "git_blob": "72c4011cd6d6fc1cfa86e65f2cc392b1cb64f66b",
+      "sha256": "4f507dcd6e3c60fbd63c509c3214766616a919f7115cd065700e26472bb6a075"
+    },
+    {
+      "path": "tests/host/smk_clip_knob_fake_usb.h",
+      "git_blob": "a04918e0934b325c80b734e95eac0f6feb8d9a78",
+      "sha256": "2c8be52634a1851ae2784bba1c6eceb3a60d26f37d95f9cf159bc4d6292e8698"
+    },
+    {
+      "path": "tests/host/smk_clip_usb_clear_fake_usb.h",
+      "git_blob": "6a4cdb1c7a1689119f5acebea2207633fc2d4252",
+      "sha256": "be102452bc47ad90deeb0f2ff4894269e61ceffeab492d4db82284f1d79aa7f0"
+    },
+    {
+      "path": "tests/host/trs_test.c",
+      "git_blob": "37baaf5231f2c8543267fd1ce04119b8948fbbc0",
+      "sha256": "4d10c2013a64fd9283def9791420d16e1d665ab82b20e35b3c5a15274417d09e"
+    },
+    {
+      "path": "tests/host/uac_test.c",
+      "git_blob": "f413a3ed3026fe239ce8cbb4842cedd9dffc37a5",
+      "sha256": "d88562ca13775d1e729fd5494cbb071c222c1e3cc18dfcc4f27c9db63a54e109"
+    },
+    {
+      "path": "tests/host/usb_retry_fake_usb.h",
+      "git_blob": "a6bc4f9196e98babcee322d3d89d88b309e56fa5",
+      "sha256": "4157716859b5a233fec7fe195c0dc970c231a61719fdd42941bec9ac0e6373fa"
+    },
+    {
+      "path": "tests/host/usb_retry_test.c",
+      "git_blob": "cc7d3fabd2d270d5767f1339bf230a1dfea9b857",
+      "sha256": "17f80e7e7631bbc66587adf0bc3159013db68ca88d7e262ff0a34f31cf9f1c44"
+    },
+    {
+      "path": "tests/run_tests.sh",
+      "git_blob": "1f4878940d49bf9cac7848d96cf5b34043cf3401",
+      "sha256": "99bc7468f36ea3f19b76e96acba29b9c747adbe9dd4bcd1f8011003975e8ce67"
+    }
+  ],
+  "artifacts_local_only": [
+    {
+      "path": "build/smk37-elite/x0x.bin",
+      "bytes": 480824,
+      "sha256": "1e3fd76b6d3f690dc43d5d67379cddfbaaf7312503d7bc80bbd556f7986f05c6",
+      "file_crc32": "d142835c"
+    },
+    {
+      "path": "build/smk37-elite/loader/ota.bin",
+      "bytes": 7475,
+      "sha256": "799b217d715057d2effdfb00390cdfd065ff977b82855833b20fbf8102d68bdc",
+      "file_crc32": "9a840485"
+    },
+    {
+      "path": "build/x0x-smk37-elite.fwsc",
+      "bytes": 651591,
+      "sha256": "54e6b931ffd9c16537ac4072c6e2f1f12a11ab2b34f569d632982973149b3ab0",
+      "file_crc32": "8e363ba7"
+    },
+    {
+      "path": "build/smk37/x0x.bin",
+      "bytes": 480824,
+      "sha256": "368fe2fc5b595c5abacca23d146ac378ea129c9104998fe99d16544e2567015b",
+      "file_crc32": "5d06bfa1"
+    },
+    {
+      "path": "build/smk37/loader/ota.bin",
+      "bytes": 7471,
+      "sha256": "4afc686289f1f66b3159f10e8dfabd3c54cc7f659d873217f23bef0240da82aa",
+      "file_crc32": "3f0d4f45"
+    },
+    {
+      "path": "build/x0x-smk37.fwsc",
+      "bytes": 651587,
+      "sha256": "91fb63df0cb6974d9ca467335cbefc2903bd611e29be9e0e90d9a495156d7fc3",
+      "file_crc32": "d9661326"
+    },
+    {
+      "path": "ble/ctl/out/ctl.img",
+      "bytes": 61088,
+      "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+      "file_crc32": "8738d71f"
+    }
+  ],
+  "build_metrics": {
+    "app_image_bytes": 480824,
+    "app_code_max_bytes": 552672,
+    "app_code_free_bytes": 71848,
+    "app_ram_occupied_bytes": 95780,
+    "app_ram_budget_bytes": 98304,
+    "ram_text_bytes": 2712,
+    "pool_used_bytes": 335464,
+    "pool_free_bytes": 8600,
+    "pool_min_free_bytes": 8192,
+    "controller_bytes": 61088,
+    "controller_ram_bytes": 26336,
+    "controller_ram_budget_bytes": 26368
+  },
+  "completed_checks": [
+    {
+      "name": "elite-build",
+      "exit": 0,
+      "log_sha256": "d0356db5031d88762fab03251369b73e5f1e1631f78629f15fbe9261562792d1"
+    },
+    {
+      "name": "pro-build",
+      "exit": 0,
+      "log_sha256": "dea7560eea5f14f3409304071a6f30aa31b01b5d5176fbefff1e4653ff2d6d5a"
+    },
+    {
+      "name": "controller-build",
+      "exit": 0,
+      "log_sha256": "9eb50b6b8aab4ae1ff244e8cdecf7142c6d0f9770c5d7f1c8f259fb6c7730368"
+    },
+    {
+      "name": "909-equivalence",
+      "exit": 0,
+      "log_sha256": "213cda676520fabf0caba53c8f9e441b24b85796b45d2ecca0e4f1b18ecd6f5b"
+    }
+  ],
+  "host_suite": {
+    "command": "X0X_STRICT_PREFLIGHT=1 X0X_TEST_JOBS=8 sh tests/run_tests.sh",
+    "filter": null,
+    "executor": "root Codex; personally executed",
+    "tested_source_commit": "bb3c93a3319efdc35e57f1fe5c9e2522d981d81c",
+    "tested_source_tree": "33f9fda8e872f3f1dfd95bf5bb736da89f8957dc",
+    "exit": 0,
+    "pass": 337,
+    "fail": 0,
+    "skip": 0,
+    "not_run": 0,
+    "strict_preflight_pass": 16,
+    "suite_log_sha256": "f5586d004540caef17193a23a85865489d734b1af26172d8f043bd04d0e5c931"
+  },
+  "device_result": "NOT_RUN",
+  "target_cycles": "NOT_MEASURED",
+  "initial_setup_failures": [
+    "Default generator cache was read-only; final builds used an explicit workspace X0X_GEN_CACHE.",
+    "Default sandbox LeakSanitizer probe failed under ptrace; GCC and Clang optimized/sanitizer checks passed with supported additional network permission."
+  ],
+  "source_review": {
+    "initial_reviewed_head": "4fc50b0ca87e14b14f000717ee0d95ba85b3883f",
+    "final_reviewed_head": "bb3c93a3319efdc35e57f1fe5c9e2522d981d81c",
+    "reviewer": "independent read-only Codex subagent /root/review_recut",
+    "findings": "No functional defects. Simulated-clock evidence wording corrected. Separate 909 coverage executed by root."
+  },
+  "environment": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14",
+    "node": "v24.19.0",
+    "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+    "host_clang": "Debian clang 19.1.7 (3+b1)",
+    "tool_bytes": {
+      "gcc": {
+        "sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+        "bytes": 1162264
+      },
+      "clang": {
+        "sha256": "0a3c55936ac43954fbe4914e6e73b577ca9e35e75d89ef13d3e28c187f41ca1a",
+        "bytes": 132352
+      },
+      "jieli_clang": {
+        "sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+        "bytes": 46784720
+      }
+    }
+  },
+  "commands": {
+    "elite": "MODEL=elite X0X_DEV_PADCAL=1 ./build.sh --board smk37",
+    "pro": "MODEL=pro X0X_DEV_PADCAL=1 ./build.sh --board smk37",
+    "controller": "CTL_NATIVE=1 CTL_NO_CACHE=1 SDK_LOCAL=$AC79_SDK sh ble/ctl/build_ctl.sh",
+    "host_suite": "X0X_STRICT_PREFLIGHT=1 X0X_TEST_JOBS=8 sh tests/run_tests.sh",
+    "909_equivalence": "BASE=48e92b76c2f476cf40771e00a04e1838136bb55d sh tests/host/run_drum909_struct_equivalence.sh",
+    "extra_ima": "bash tests/host/run_ima_delta_lut.sh"
+  },
+  "source_delivery": {
+    "branch": "lane/build-25-all-opt-usb-20261106",
+    "pr": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/861",
+    "method": "connected GitHub Git-data API; nonforced update",
+    "ordered_parents": [
+      "74bd41b7477f5dcb8b882a0ab36f92724e654368",
+      "48e92b76c2f476cf40771e00a04e1838136bb55d"
+    ],
+    "new_distributed_binary_files": 0,
+    "github_path_delta": 0,
+    "main_nightly_updates": 0
+  },
+  "local_tested_source_commit": "bb3c93a3319efdc35e57f1fe5c9e2522d981d81c",
+  "tested_source_tree": "33f9fda8e872f3f1dfd95bf5bb736da89f8957dc",
+  "extra_ima_check": {
+    "status": "PASS",
+    "exit": 0,
+    "compilers": [
+      "GCC 14.2.0",
+      "Clang 19.1.7"
+    ],
+    "modes": [
+      "optimized",
+      "ASan+UBSan"
+    ],
+    "comparisons_per_mode": 3193789,
+    "invalid_command_exit": 2
+  },
+  "delivery_equivalence": "The delivery adds only sanitized documentation/evidence to the tested tree. All production and test path blobs match the tested source tree; build.py does not consume Git commit metadata."
+}
