@@ -1,0 +1,36 @@
+{
+  "base_tree": "e3bd02f7a4aece4ce96aa0602fb41b990275b629",
+  "original_candidate_tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+  "final_tree": "d01ce34282e755aa7f332a0ed70f7241a0ad45b5",
+  "files": [
+    "tests/host/smc_fx_peer_view_test.c",
+    "tests/host/smc_ui_negative_test.py"
+  ],
+  "all_test_files": [
+    "tests/host/part_order_test.c",
+    "tests/host/project_runtime_test.c",
+    "tests/host/smc_fx_peer_view_test.c",
+    "tests/host/smc_ui_negative_test.py",
+    "tests/host/song_actions_test.c",
+    "tests/scenarios/arrows.x0x",
+    "tests/scenarios/autosave.x0x",
+    "tests/scenarios/clip-arrow-menu.x0x",
+    "tests/scenarios/clklock.x0x",
+    "tests/scenarios/clkmove.x0x",
+    "tests/scenarios/clocksrc.x0x",
+    "tests/scenarios/guard.x0x",
+    "tests/scenarios/migrate.x0x",
+    "tests/scenarios/migrate0102.x0x",
+    "tests/scenarios/perf.x0x",
+    "tests/scenarios/perfsave.x0x",
+    "tests/scenarios/probcond.x0x",
+    "tests/scenarios/probreset.x0x",
+    "tests/scenarios/tour.x0x",
+    "tests/scenarios/undo.x0x",
+    "tests/smk_arrows_owner_test.py",
+    "tests/smk_padcal_wiring_test.py"
+  ],
+  "patch_sha256": "52ec9fbc80f20fe5c62128fc39a64d961de355e1e7205a19ba14df66fb881019",
+  "all_patch_sha256": "fd9d2c74448fc1810a77a2aa12c171a33ef04ebf165e3b489c7832abe1108107",
+  "firmware_unchanged": true
+}

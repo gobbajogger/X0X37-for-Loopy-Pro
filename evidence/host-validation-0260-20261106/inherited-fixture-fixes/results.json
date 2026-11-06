@@ -1,0 +1,69 @@
+{
+  "peer": {
+    "index_tree": "e3bd02f7a4aece4ce96aa0602fb41b990275b629",
+    "owned_modified_file": "tests/host/smc_fx_peer_view_test.c",
+    "command": "python3 tests/host/smc_fx_peer_view_test.py",
+    "before_exit": 1,
+    "after_exit": 0,
+    "after_checks": 19,
+    "previous_assertions_preserved": 17,
+    "new_checks": "Nonzero cache sentinel clears on popup begin and on timeout/off.",
+    "mutation_results": [
+      {
+        "mutant": "begin-cache-reset-removed",
+        "command": [
+          "python3",
+          "tests/host/smc_fx_peer_view_test.py"
+        ],
+        "SMC_PEER_UI_SOURCE": "/workspace/host-validation-0260/inherited-fix-evidence/peer/begin-cache-reset-removed/smc_mixer.c",
+        "SMC_PEER_UI_OUT": "/workspace/host-validation-0260/inherited-fix-evidence/peer/begin-cache-reset-removed/build",
+        "exit": 1,
+        "killed_by_assertion": true
+      },
+      {
+        "mutant": "off-cache-reset-removed",
+        "command": [
+          "python3",
+          "tests/host/smc_fx_peer_view_test.py"
+        ],
+        "SMC_PEER_UI_SOURCE": "/workspace/host-validation-0260/inherited-fix-evidence/peer/off-cache-reset-removed/smc_mixer.c",
+        "SMC_PEER_UI_OUT": "/workspace/host-validation-0260/inherited-fix-evidence/peer/off-cache-reset-removed/build",
+        "exit": 1,
+        "killed_by_assertion": true
+      }
+    ],
+    "patch_sha256": "661294a1ead9899aa74bc58de4933dc996b5db47d79dbcfea08462d2081cd7e5",
+    "production_source_sha256": "7002e91fc731115e0a93d9d6c4617273b148c6218c57d81c3fde90bbf09f55f2"
+  },
+  "negative": {
+    "before_tree": "e3bd02f7a4aece4ce96aa0602fb41b990275b629",
+    "after_tree": "d01ce34282e755aa7f332a0ed70f7241a0ad45b5",
+    "command": "python3 tests/host/smc_ui_negative_test.py",
+    "cwd": "/workspace/host-validation-0260/fix-combined",
+    "before_exit": 1,
+    "before_failure": "cryptic-footer-returned: expected one production anchor, found 0",
+    "after_exit": 0,
+    "runtime_failures_detected": 14,
+    "guards_unchanged": true,
+    "only_change": "Two stale cv_commit(3, 0, KNOB_Y) literals replaced by cv_commit_popup_knobs in cryptic-footer mutant old/new strings.",
+    "footer_failure": "FAIL tests/host/smc_ui_test.c:665: !footer_pixels",
+    "runtime_failure_lines": [
+      "PASS negative drum-seq-numbered: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)",
+      "PASS negative drum-seq-wrong-kit: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)",
+      "PASS negative drum-seq-ignores-captured-view: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)",
+      "PASS negative filter-shows-false-solo: FAIL tests/host/smc_ui_test.c:602: !strcmp(smc_button_caption(15), \"PART\")",
+      "PASS negative static-knob-arc: FAIL tests/host/smc_ui_test.c:645: pixels > 0",
+      "PASS negative cryptic-footer-returned: FAIL tests/host/smc_ui_test.c:665: !footer_pixels",
+      "PASS negative selection-follows-touch: FAIL tests/host/smc_ui_test.c:523: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)",
+      "PASS negative visible-kit-requires-part: FAIL tests/host/smc_ui_test.c:523: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)",
+      "PASS negative main-mix-ignores-channel: FAIL tests/host/smc_ui_test.c:523: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)",
+      "PASS negative duplicate-opens-overlay: FAIL tests/host/smc_ui_test.c:288: smc_ui.until == until",
+      "PASS negative timeout-disabled: FAIL tests/host/smc_ui_test.c:131: !smc_ui_active()",
+      "PASS negative cancel-disabled: FAIL tests/host/smc_ui_test.c:290: !smc_ui_active()",
+      "PASS negative clip-redraw-disabled: FAIL tests/host/smc_ui_test.c:243: !memcmp(before_fb, fb, sizeof fb)",
+      "PASS negative yellow-notice-returned: FAIL tests/host/smc_ui_test.c:96: !memcmp(&before, &after, sizeof before)"
+    ],
+    "patch_sha256": "2b565304a6c9e541aa9f9913c4d7acd0e99b7be80b1a7f4389ee87094483e0ff",
+    "note": "Parent staged reviewed changes during execution. This worker made no stage/commit or production changes. Final source/test bytes consumed by this check were unchanged by staging."
+  }
+}

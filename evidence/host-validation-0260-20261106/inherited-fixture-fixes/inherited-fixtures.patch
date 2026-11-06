@@ -1,0 +1,53 @@
+diff --git a/tests/host/smc_fx_peer_view_test.c b/tests/host/smc_fx_peer_view_test.c
+index 723187e6..b26dd1ad 100644
+--- a/tests/host/smc_fx_peer_view_test.c
++++ b/tests/host/smc_fx_peer_view_test.c
+@@ -23,6 +23,7 @@ static struct {
+ static unsigned project_revision = 13;
+ static uint32_t clock_ms;
+ static uint32_t blit_hash[4] = {1,2,3,4};
++static uint32_t popup_knob_full_hash;
+ static int busy,clip;
+ static int smk_clip_mode_on(void) { return clip; }
+ static uint32_t plat_ms(void) { return clock_ms; }
+@@ -41,6 +42,7 @@ static void reset_all(void)
+     memset(smc_states,0,sizeof smc_states);
+     memset(&ui,0,sizeof ui);
+     memset(smc_ui_raw,0,sizeof smc_ui_raw);
++    popup_knob_full_hash = 0x13579BDFu;
+     smc_slot=0; clock_ms=0; busy=clip=0;
+ }
+ int main(void)
+@@ -51,14 +53,17 @@ int main(void)
+     clock_ms=123u;
+     smc_slot=1; smc_ui_begin(3,1);
+     CHECK(smc_ui.on && smc_ui.peer == 1);
++    CHECK(popup_knob_full_hash == 0); /* opening invalidates the old popup raster */
+     smc_slot=0; /* same as production smc_poll() restoring saved peer */
+     CHECK(smc_ui_active() == 1); /* must use originating peer state */
+     CHECK(smc_slot == 0);
+     CHECK(smc_ui_active() == 1);
+     smc_states[0].knob_bank=3; /* other peer changes bank: no cancellation */
+     CHECK(smc_ui_active() == 1);
++    popup_knob_full_hash = 0x2468ACE0u; /* simulate the active popup being cached */
+     clock_ms+=1201;
+     CHECK(smc_ui_active() == 0); /* timeout */
++    CHECK(popup_knob_full_hash == 0); /* expiry invalidates its cached raster */
+     CHECK(!blit_hash[0] && !blit_hash[3]);
+ 
+     reset_all(); smc_states[0].knob_bank=1; smc_states[1].knob_bank=2;
+diff --git a/tests/host/smc_ui_negative_test.py b/tests/host/smc_ui_negative_test.py
+index e2f42fd6..24f7842d 100644
+--- a/tests/host/smc_ui_negative_test.py
++++ b/tests/host/smc_ui_negative_test.py
+@@ -33,8 +33,8 @@ MUTANTS = {
+         '(float)smc_scaled(k) / 127.0f', '0.5f',
+     ),
+     "cryptic-footer-returned": (
+-        '    cv_commit(3, 0, KNOB_Y);',
+-        '    cv_text(5, 69, &FONT_T, "> R << >> [< >] ^ v < >", C_GRAY);\n    cv_commit(3, 0, KNOB_Y);',
++        '    cv_commit_popup_knobs();',
++        '    cv_text(5, 69, &FONT_T, "> R << >> [< >] ^ v < >", C_GRAY);\n    cv_commit_popup_knobs();',
+     ),
+     "selection-follows-touch": (
+         "if (n == selected) cv_rect(x + 1, 0, 28, 13, C_WHITE);",

@@ -1,0 +1,2413 @@
+
+===== negative/after-mutants/cancel-disabled.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:290: !smc_ui_active()
+
+===== negative/after-mutants/clip-redraw-disabled.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:243: !memcmp(before_fb, fb, sizeof fb)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/live-locked; knob arc extremes and bipolar center
+PASS restore: eight views preserve complete navigation state and exact framebuffer
+PASS activity: pickup, live values, repeated controls, exact boundary and wrap
+PASS feedback: existing header message and local knob readout survive temporary UI
+PASS navigation: physical buttons, encoder, key and SMC navigation cancel
+PASS overlays: confirmation blocks input; menu/help state survives activity and timeout
+
+===== negative/after-mutants/cryptic-footer-returned.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:665: !footer_pixels
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+
+===== negative/after-mutants/drum-seq-ignores-captured-view.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+
+===== negative/after-mutants/drum-seq-numbered.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+
+===== negative/after-mutants/drum-seq-wrong-kit.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+
+===== negative/after-mutants/duplicate-opens-overlay.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:288: smc_ui.until == until
+
+===== negative/after-mutants/filter-shows-false-solo.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:602: !strcmp(smc_button_caption(15), "PART")
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+
+===== negative/after-mutants/main-mix-ignores-channel.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:523: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+
+===== negative/after-mutants/selection-follows-touch.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:523: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+
+===== negative/after-mutants/static-knob-arc.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:645: pixels > 0
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+
+===== negative/after-mutants/timeout-disabled.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:131: !smc_ui_active()
+
+===== negative/after-mutants/visible-kit-requires-part.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:523: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+
+===== negative/after-mutants/yellow-notice-returned.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+state byte 72: 0 -> 252
+state byte 73: 0 -> 8
+state byte 80: 67 -> 79
+state byte 81: 79 -> 76
+state byte 82: 78 -> 68
+state byte 83: 78 -> 32
+state byte 84: 69 -> 66
+state byte 85: 67 -> 65
+state byte 86: 84 -> 82
+state byte 87: 69 -> 0
+FAIL tests/host/smc_ui_test.c:96: !memcmp(&before, &after, sizeof before)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/live-locked; knob arc extremes and bipolar center
+
+===== negative/after.exit =====
+0
+
+===== negative/after.log =====
+PASS negative drum-seq-numbered: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS negative drum-seq-wrong-kit: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS negative drum-seq-ignores-captured-view: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS negative filter-shows-false-solo: FAIL tests/host/smc_ui_test.c:602: !strcmp(smc_button_caption(15), "PART")
+PASS negative static-knob-arc: FAIL tests/host/smc_ui_test.c:645: pixels > 0
+PASS negative cryptic-footer-returned: FAIL tests/host/smc_ui_test.c:665: !footer_pixels
+PASS negative selection-follows-touch: FAIL tests/host/smc_ui_test.c:523: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)
+PASS negative visible-kit-requires-part: FAIL tests/host/smc_ui_test.c:523: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)
+PASS negative main-mix-ignores-channel: FAIL tests/host/smc_ui_test.c:523: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)
+PASS negative duplicate-opens-overlay: FAIL tests/host/smc_ui_test.c:288: smc_ui.until == until
+PASS negative timeout-disabled: FAIL tests/host/smc_ui_test.c:131: !smc_ui_active()
+PASS negative cancel-disabled: FAIL tests/host/smc_ui_test.c:290: !smc_ui_active()
+PASS negative clip-redraw-disabled: FAIL tests/host/smc_ui_test.c:243: !memcmp(before_fb, fb, sizeof fb)
+PASS negative yellow-notice-returned: FAIL tests/host/smc_ui_test.c:96: !memcmp(&before, &after, sizeof before)
+smc_ui_negative: PASS (14 runtime failures detected; compile failures excluded)
+
+===== negative/before-mutants/drum-seq-ignores-captured-view.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+
+===== negative/before-mutants/drum-seq-numbered.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+
+===== negative/before-mutants/drum-seq-wrong-kit.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+
+===== negative/before-mutants/filter-shows-false-solo.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:602: !strcmp(smc_button_caption(15), "PART")
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+
+===== negative/before-mutants/static-knob-arc.log =====
+In file included from tests/host/../../host/x0x_host.c:309,
+                 from tests/host/smc_ui_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:744:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  744 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2865:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2865 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5670:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5670:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5670 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_adsr_inline’:
+tests/host/../../host/../firmware/src/app/ui.c:7055:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7055:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7055 |             if(level<0)level=0; if(level>1)level=1;
+      |                                 ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_wave’:
+tests/host/../../host/../firmware/src/app/ui.c:7338:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7338:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7338 |         if(v>1)v=1; if(v<-1)v=-1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘og_gnaw’:
+tests/host/../../host/../firmware/src/app/ui.c:7349:5: warning: this ‘while’ clause does not guard... [-Wmisleading-indentation]
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |     ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c:7349:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘while’
+ 7349 |     while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+      |                                      ^~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘orig_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7366:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7366:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7366 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7369:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7369 |     if(amp<0)amp=0; if(amp>1)amp=1;
+      |                     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:9: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |         ^~
+tests/host/../../host/../firmware/src/app/ui.c:7387:23: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7387 |         if(eg<0)eg=0; if(eg>1)eg=1;
+      |                       ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7448:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7448 |             if(mod<0)mod=0; if(mod>1)mod=1;
+      |                             ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘dg_tail’:
+tests/host/../../host/../firmware/src/app/ui.c:7509:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7509:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7509 |     if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+      |                   ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘drum_strip_glyph’:
+tests/host/../../host/../firmware/src/app/ui.c:7553:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |     ^~
+tests/host/../../host/../firmware/src/app/ui.c:7553:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7553 |     if(q<0)q=0; if(q>1)q=1;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |             ^~
+tests/host/../../host/../firmware/src/app/ui.c:7608:25: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 7608 |             if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+      |                         ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘ui_frame’:
+tests/host/../../host/../firmware/src/app/ui.c:8306:26: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+ 8306 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:8308:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+ 8308 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1043:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1043 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/smc_ui_test.c: At top level:
+tests/host/smc_ui_test.c:11:9: warning: "CK_FN" redefined
+   11 | #define CK_FN __attribute__((unused))
+      |         ^~~~~
+In file included from tests/host/../../host/../firmware/src/app/smk_clip_arp_share.c:5,
+                 from tests/host/../../host/x0x_host.c:306:
+tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: this is the location of the previous definition
+   16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+      |         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+tests/host/../../host/../firmware/src/app/ui.c:1035:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1035 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+      |                       ~~^~~~~~~~~~~~~~~~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c:1036:5: note: here
+ 1036 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+      |     ^~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3266:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3266 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+FAIL tests/host/smc_ui_test.c:645: pixels > 0
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+
+===== negative/before.exit =====
+1
+
+===== negative/before.log =====
+PASS negative drum-seq-numbered: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS negative drum-seq-wrong-kit: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS negative drum-seq-ignores-captured-view: FAIL tests/host/smc_ui_test.c:579: !memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb)
+PASS negative filter-shows-false-solo: FAIL tests/host/smc_ui_test.c:602: !strcmp(smc_button_caption(15), "PART")
+PASS negative static-knob-arc: FAIL tests/host/smc_ui_test.c:645: pixels > 0
+Traceback (most recent call last):
+  File "/workspace/host-validation-0260/fix-combined/tests/host/smc_ui_negative_test.py", line 76, in <module>
+    raise RuntimeError(f"{name}: expected one production anchor, found {text.count(old)}")
+RuntimeError: cryptic-footer-returned: expected one production anchor, found 0
+
+===== peer/after.exit =====
+0
+
+===== peer/after.log =====
+COMPILING cc -std=c99 -O1 -g -Wall -Wextra -Werror -pedantic -Ifirmware/src -I/workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui tests/host/smc_fx_peer_view_test.c -o /workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui/test
+PASS: 19 exact-source SMC peer UI assertions
+
+===== peer/before.exit =====
+1
+
+===== peer/before.log =====
+COMPILING cc -std=c99 -O1 -g -Wall -Wextra -Werror -pedantic -Ifirmware/src -I/workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui tests/host/smc_fx_peer_view_test.c -o /workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui/test
+In file included from tests/host/smc_fx_peer_view_test.c:33:
+/workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc: In function ‘smc_ui_off’:
+/workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:39:5: error: ‘popup_knob_full_hash’ undeclared (first use in this function)
+   39 |     popup_knob_full_hash = 0;
+      |     ^~~~~~~~~~~~~~~~~~~~
+/workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:39:5: note: each undeclared identifier is reported only once for each function it appears in
+/workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc: In function ‘smc_ui_begin’:
+/workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui/smc_fx_ui_extract.inc:81:21: error: ‘popup_knob_full_hash’ undeclared (first use in this function)
+   81 |     if (!smc_ui.on) popup_knob_full_hash = 0;
+      |                     ^~~~~~~~~~~~~~~~~~~~
+Traceback (most recent call last):
+  File "/workspace/host-validation-0260/fix-combined/tests/host/smc_fx_peer_view_test.py", line 56, in <module>
+    subprocess.run(cmd,cwd=ROOT,check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-pedantic', '-Ifirmware/src', '-I/workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui', 'tests/host/smc_fx_peer_view_test.c', '-o', '/workspace/host-validation-0260/fix-combined/build/host/smc-fx-peer-ui/test']' returned non-zero exit status 1.
+
+===== peer/begin-cache-reset-removed/run.exit =====
+1
+
+===== peer/begin-cache-reset-removed/run.log =====
+COMPILING cc -std=c99 -O1 -g -Wall -Wextra -Werror -pedantic -Ifirmware/src -I/workspace/host-validation-0260/inherited-fix-evidence/peer/begin-cache-reset-removed/build tests/host/smc_fx_peer_view_test.c -o /workspace/host-validation-0260/inherited-fix-evidence/peer/begin-cache-reset-removed/build/test
+FAIL check 2 tests/host/smc_fx_peer_view_test.c:56: popup_knob_full_hash == 0
+Traceback (most recent call last):
+  File "/workspace/host-validation-0260/fix-combined/tests/host/smc_fx_peer_view_test.py", line 57, in <module>
+    subprocess.run([str(OUT/'test')],cwd=ROOT,check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/workspace/host-validation-0260/inherited-fix-evidence/peer/begin-cache-reset-removed/build/test']' returned non-zero exit status 1.
+
+===== peer/off-cache-reset-removed/run.exit =====
+1
+
+===== peer/off-cache-reset-removed/run.log =====
+COMPILING cc -std=c99 -O1 -g -Wall -Wextra -Werror -pedantic -Ifirmware/src -I/workspace/host-validation-0260/inherited-fix-evidence/peer/off-cache-reset-removed/build tests/host/smc_fx_peer_view_test.c -o /workspace/host-validation-0260/inherited-fix-evidence/peer/off-cache-reset-removed/build/test
+FAIL check 8 tests/host/smc_fx_peer_view_test.c:66: popup_knob_full_hash == 0
+Traceback (most recent call last):
+  File "/workspace/host-validation-0260/fix-combined/tests/host/smc_fx_peer_view_test.py", line 57, in <module>
+    subprocess.run([str(OUT/'test')],cwd=ROOT,check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/workspace/host-validation-0260/inherited-fix-evidence/peer/off-cache-reset-removed/build/test']' returned non-zero exit status 1.
