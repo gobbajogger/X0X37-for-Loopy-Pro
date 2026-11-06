@@ -1,0 +1,18 @@
+{
+  "base_tree": "2e38c67d3dbf1b905085580229e395433aefd92d",
+  "candidate_tree": "90b7b2f79196a8840fb174adff39ad0e5edd9a0f",
+  "reconstruction": "PASS",
+  "changed_paths": [
+    "tests/install_f02_loader_bind_test.py",
+    "tests/install_test.py",
+    "tools/fm1_install.py"
+  ],
+  "installer_blob": "f57d8e2e8a844b4278efa44aabe5b647d5d5e1c4",
+  "installer_byte_identical_to_PR806": true,
+  "patch_sha256": "aabf8717bbe77352a6e87795e054175616cf0903734d60b273cfe33b9b22c8e7",
+  "nightly_version_revision2": "unchanged: all paths except listed three byte-identical to base proposal",
+  "branch": "wip/cli-installer-safety-20261106",
+  "head": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "state": "NOT COMMITTED / NOT PUSHED; candidate staged on reconstructed proposal",
+  "pr": "none"
+}

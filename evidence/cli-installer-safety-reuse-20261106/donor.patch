@@ -1,0 +1,105 @@
+diff --git a/tests/install_f02_loader_bind_test.py b/tests/install_f02_loader_bind_test.py
+index 88f75b75..c147dca7 100644
+--- a/tests/install_f02_loader_bind_test.py
++++ b/tests/install_f02_loader_bind_test.py
+@@ -107,7 +107,7 @@ def main():
+         got.link.close()
+     ok(up.returned_port == "Selected SMK", "returned_port records the accepted transition port")
+ 
+-    # Two newly appeared loaders: refuse to choose (names must match PORT_RE).
++    # Two newly appeared loaders: refuse to choose (port names are never a gate).
+     backend2 = Backend({
+         "Other OTA": "ota-FM-1_906",
+         "Felucca New A": "ota-SMK-37 Pro_900",
+diff --git a/tests/install_test.py b/tests/install_test.py
+index 7b5acd97..3b94756f 100755
+--- a/tests/install_test.py
++++ b/tests/install_test.py
+@@ -253,7 +253,7 @@ def errors():
+     p = pkgfile("ok.fwsc", raw)
+ 
+     rc, out, err = cli([p, "--yes"], FakeSMK(image, name="IAC Driver Bus 1"))
+-    ok(rc == 3 and "not found" in err and "IAC Driver" in err, "no SMK-37 Pro port -> exit 3, lists the MIDI inputs")
++    ok(rc == 0, "a unit on a port named 'IAC Driver Bus 1' is found: the handshake model decides, not the port name")
+     dev = FakeSMK(image)
+     rc, out, err = cli([p, "--yes", "--port", "Felucca"], dev)
+     ok(rc == 3 and dev.upgrades == 0, "--port that matches nothing -> exit 3")
+@@ -281,6 +281,18 @@ def errors():
+     dev = FakeSMK(image, identity="ota-FM-1_900", name="Felucca Update")
+     rc, out, err = cli([p, "--yes", "--no-slots"], dev)
+     ok(rc == 6 and dev.upgrades == 0, "SMK package on an FM-1 in update mode -> exit 6 (wrong model), nothing sent")
++    # USB names never decide: a renamed Pro/Elite is found, and identity comes only from the handshake model
++    for name, ident in (("DnBOX 0.0.14 37PRO", "SMK-37 Pro_900"), ("Any Name", "SMK-37 Pro_900")):
++        dev = FakeSMK(image, identity=ident, name=name)
++        rc, out, err = cli([p, "--yes"], dev)
++        ok(rc == 0 and dev.bad == 0 and dev.upgrades == 2, f"install: {ident} named {name!r} is discovered and updated")
++    # Strict model gate: a Pro package is never written to a keyboard that reports Elite.
++    dev = FakeSMK(image, identity="SMK-37 Elite_900", name="DnBOX 0.0.14 37ELITE")
++    rc, out, err = cli([p, "--yes"], dev)
++    ok(rc == 6 and dev.upgrades == 0, "Pro package on a keyboard reporting SMK-37 Elite -> exit 6, nothing sent")
++    dev = FakeSMK(image, identity="FM-1_900", name="DnBOX 0.0.14 37PRO")
++    rc, out, err = cli([p, "--yes"], dev)
++    ok(rc == 6 and dev.upgrades == 0, "a '37PRO' USB name never overrides the reported model (FM-1 -> exit 6)")
+ 
+     class Stuck(FakeSMK):          # the loader never shows up
+         def boot(self, identity, name):
+@@ -330,8 +342,8 @@ if __name__ == "__main__":
+        and not I.same_keyboard("FM-1_015", "SMK-37 Pro_900") and not I.same_keyboard("SMK-37 Elite_016", "FM-1_900")
+        and not I.same_keyboard("XY-9_001", "SMK-37 Pro_900"),
+        "models: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another")
+-    ok(all(I.PORT_RE.search(n) for n in ("SMK-37 Elite", "MKE-P37", "STARRYKEY-37 PLAY", "Snoop37", "Vox37", "Felucca",
+-                                         "X0X FM-1", "FoMni SMK-37", "Makkuro37 Update")),
+-       "port names: every SMK model and every port firmware probed")
++    ok(not hasattr(I, "PORT_RE"), "port names never gate discovery (no PORT_RE)")
++    for f, gate in (("web/fm1ota.js", "test(input.name"), ("web/x0x_breaks.html", "test(input.name")):
++        ok(gate not in (ROOT / f).read_text(), f"{f}: no USB-name discovery gate")
+     print(f"INSTALL TESTS FAILED ({failed})" if failed else "install tests passed")
+     sys.exit(1 if failed else 0)
+diff --git a/tools/fm1_install.py b/tools/fm1_install.py
+index 68c7cf93..f57d8e2e 100755
+--- a/tools/fm1_install.py
++++ b/tools/fm1_install.py
+@@ -95,7 +95,8 @@ BLOCKS, BLK, KEEP = 20, 0x30, 0x2F         # BLOCKS: the identity blocks (more m
+ MAX_BLOCKS = 64
+ LOADER_MARK = b"FELUCCA-LOADER-1"
+ HEAD_END = 0x4000                          # the bootloader end: flash [0, 0x4000) = header, JLFS, SPL, isd_config
+-PORT_RE = re.compile(r"fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi", re.I)   # never probe other gear
++# Port names never gate discovery: every port is a candidate, and only the handshake identity
++# (model such as "SMK-37 Pro_900" / "SMK-37 Elite_900") decides. USB names change (e.g. "DnBOX <ver> 37PRO").
+ 
+ # seconds; the tests shorten them
+ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0, "retry": 1.0,
+@@ -281,6 +282,13 @@ def same_keyboard(a, b):
+     return ma == mb or bool(SMK_FAMILY.fullmatch(ma) and SMK_FAMILY.fullmatch(mb))
+ 
+ 
++def same_model(a, b):
++    """flash gate: the package model must equal the model the keyboard reports (case-insensitive,
++    "ota-" ignored). A family match is not enough, and an FM-1 is never flashed."""
++    ma, mb = model_of(a).lower(), model_of(b).lower()
++    return ma == mb and ma != "fm-1"
++
++
+ # ------------------------------------------------------------------ MIDI ---
+ 
+ class MidoLink:
+@@ -394,8 +402,8 @@ class Updater:
+             mine = [n for n in names if self.port.lower() in n.lower()]
+             if only_port:
+                 return mine
+-            return mine + [n for n in names if n not in mine and PORT_RE.search(n)]
+-        return [n for n in names if PORT_RE.search(n)]
++            return mine + [n for n in names if n not in mine]
++        return list(names)
+ 
+     def find(self, want=None, only_port=True):
+         """the first matching port that answers the handshake (and want(identity))"""
+@@ -574,7 +582,7 @@ class Updater:
+     def install(self, dev, image, product, step=lambda *a: None):
+         """running firmware -> loader -> new firmware; dev from find(). A device already in
+         update mode only needs the write."""
+-        if not same_keyboard(dev.id.text, product):
++        if not same_model(dev.id.text, product):
+             dev.link.close()
+             raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")
+         ota = dev if dev.id.loader else self.check(dev, image, step)
