@@ -1,0 +1,103 @@
+## baseline-smc-peer.log
+tests/host/../../host/x0x_host.c:268:13: error: redefinition of ‘plat_ble_name’
+tests/host/smc_peer_names_test.c:29:5: error: implicit declaration of function ‘bt_peer_text’ [-Wimplicit-function-declaration]
+## baseline-smc.log
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/live-locked; knob arc extremes and bipolar center
+PASS restore: eight views preserve complete navigation state and exact framebuffer
+PASS activity: pickup, live values, repeated controls, exact boundary and wrap
+PASS feedback: existing header message and local knob readout survive temporary UI
+PASS navigation: physical buttons, encoder, key and SMC navigation cancel
+PASS overlays: confirmation blocks input; menu/help state survives activity and timeout
+PASS clip: grid/waiting framebuffer restores; actual extracted CK turn shows full field UI
+PASS actions/reset: mute+Solo, inactive strips, init/project lock/reset
+smc_ui: PASS (8934 checks)
+## extra-exits.log
+peer-san exit=0
+smc-peer exit=1
+extra exit=0
+## extra.log
+  ok   lcd-dispatch-reuse
+  ok   ui-waveform-truth
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+all tests passed
+## focused.log
+  ok   play-question-ui
+  ok   sound-reset-ui
+  ok   ui-perf-identity
+  ok   ui-settings-sections
+  ok   ui-peer-names
+  FAIL original-release-ui (see build/host/original-release-ui.log)
+  ok   smc-multi-peer
+  ok   lcd-bounded
+  ok   smc-ui
+  ok   smc-ui-bounds
+  ok   smc-record-feedback
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+TESTS FAILED
+## logs/normal.log
+PASS original_release_ui checks=23176 captures=40 cache=76 view=14 ui=584 pages=472 freeplay=656
+## logs/play-question-ui.log
+play-question-ui: PASS (55 checks)
+## logs/sanitized.log
+PASS original_release_ui checks=23176 captures=40 cache=76 view=14 ui=584 pages=472 freeplay=656
+## logs/smc-multi-peer.log
+SMC two-peer production integration PASS: 5769 checks
+## logs/smc-record-feedback.log
+PASS actual recording: panel REC on 303A writes 303A step=1 note=41; other bass unchanged
+PASS actual recording: SMC SELECT changes active recorder to 303B writes 303B step=1 note=43; other bass unchanged
+PASS actual recording: SMC strip REC on 303A writes 303A step=1 note=45; other bass unchanged
+PASS actual recording: panel selection changes active recorder to 303B writes 303B step=2 note=46; other bass unchanged
+PASS REC boundary: SMC global REC old=0 fresh=1 off=0
+PASS REC boundary: SMC strip REC old=0 fresh=1 off=0
+PASS: 4 real pattern writes, 9 emitted Record projections, 0 failures
+## logs/smc-ui-bounds.log
+smc_ui_bounds: PASS (287 checks; three physical rows; no mapping or UI redesign)
+## logs/smc-ui.log
+PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/live-locked; knob arc extremes and bipolar center
+PASS restore: eight views preserve complete navigation state and exact framebuffer
+PASS activity: pickup, live values, repeated controls, exact boundary and wrap
+PASS feedback: existing header message and local knob readout survive temporary UI
+PASS navigation: physical buttons, encoder, key and SMC navigation cancel
+PASS overlays: confirmation blocks input; menu/help state survives activity and timeout
+PASS clip: grid/waiting framebuffer restores; actual extracted CK turn shows full field UI
+PASS actions/reset: mute+Solo, inactive strips, init/project lock/reset
+smc_ui: PASS (8934 checks)
+## logs/sound-reset-ui.log
+sound-reset-ui: PASS (126 checks)
+## logs/ui-peer-names.log
+peer names PASS 61 checks
+## logs/ui-perf-identity.log
+PASS pattern badges: fixed saved/queued content columns, dark/light, stopped stability, read-only
+PASS arc: 4680 states, exact canvas bytes; radius 8 removes 361 square roots, generic fallback identical
+PASS header: 14400 independent old/new states, byte equality, live cache input/owner/expiry transitions
+PASS WAVE: 240 states, exact canvas/latch cadence; silent plot collapses 187 line calls to one
+ui-perf-identity: PASS (25876 checks)
+## logs/ui-settings-sections.log
+settings sections PASS 490 checks
+## original-recheck.log
+PASS original_release_ui checks=23176 captures=40 cache=76 view=14 ui=584 pages=472 freeplay=656
+## peer-final.log
+peer names PASS 61 checks
+## peer-san.log
+peer names PASS 61 checks
+## peer-snapshot.log
+PASS BLE peer-name bounds and maximum-length join
+## settings-final.log
+settings sections PASS 494 checks
+## settings.log
+settings sections PASS 490 checks
+## smc-peer.log
+tests/host/../../host/x0x_host.c:277:13: error: redefinition of ‘plat_ble_name’
+tests/host/smc_peer_names_test.c:29:5: error: implicit declaration of function ‘bt_peer_text’ [-Wimplicit-function-declaration]
