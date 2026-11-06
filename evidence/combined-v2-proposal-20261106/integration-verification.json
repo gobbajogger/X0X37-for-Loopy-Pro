@@ -1,0 +1,18 @@
+{
+  "combined_tree": "4ebbabf6e6c13a51555c616935b80ec29d4ccab6",
+  "runner_blob": "aa61919719073fc8265e2f98224efad0edb2695e",
+  "registration_count": 245,
+  "preserved_prior_registrations": 243,
+  "new_selectors": [
+    "nightly-package",
+    "nightly-version"
+  ],
+  "scheduler_bytes_identical": true,
+  "scheduler_sha256": "1e5ad257cd94b8cd9578f62c3fda80066f2581fd953230eeaad3066cf785daaf",
+  "prior_11_checks_and_two_mutants": "REUSED_EXACT_FUNCTION_INPUTS",
+  "allocator_ledger_dev_schema": "BYTE_IDENTICAL_TO_BASE",
+  "complete_tracked_source_verified": true,
+  "patch_clean_fresh_index_replay": true,
+  "patch_sha256": "7a8d2240a356836d1990230edbe7be067502ce7908cfa361c294bfbb44921a16",
+  "patch_bytes": 571487
+}

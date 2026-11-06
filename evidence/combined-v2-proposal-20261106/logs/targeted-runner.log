@@ -1,0 +1,6 @@
+  ok   dev-validate-composed
+  ok   nightly-version
+  ok   nightly-package
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   roadmap-evidence-check-selftest
+all tests passed

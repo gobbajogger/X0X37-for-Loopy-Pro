@@ -1,0 +1,21 @@
+{
+  "exit_codes": {
+    "targeted-runner": 0,
+    "roadmap-report": 0,
+    "roadmap-strict": 1,
+    "roadmap-default-strict": 2
+  },
+  "selected_checks_pass": 4,
+  "composed_tests_pass": 13,
+  "version_tests_pass": 6,
+  "package_models_pass": [
+    "elite",
+    "pro"
+  ],
+  "roadmap_selftests_pass": 67,
+  "roadmap_unproven": 201,
+  "roadmap_strict_status": "FAIL",
+  "native": "NOT_RUN",
+  "device": "NOT_RUN",
+  "runner_native_pro_skip_notice": true
+}
