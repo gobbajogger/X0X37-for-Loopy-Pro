@@ -13,8 +13,10 @@
  * Five parts, each with its own step counter (lengths and rates may differ):
  * 909, 808, 303 A, 303 B, BREAK (always 16ths, 16 to the bar). Each part plays its own
  * pattern (ppat[part]); track t is part t. The 909 part's length defines the bar: cued
- * patterns (or the next one of a chain, or the song's next bar) start when it wraps, and a
- * part whose pattern changed restarts on step 1 while the others keep running.
+ * patterns and the song's next bar start when it wraps. A chain holds each of its
+ * patterns until the longest 909 length in the chain has played; a shorter pattern
+ * loops inside that window. A part whose pattern changed restarts on step 1 while the
+ * others keep running.
  *
  * Song: one entry per bar, each part's pattern and the part mutes. song_on plays it (and
  * loops); song_on + song_rec writes the live state (cues, mutes) into it from song_start on.
@@ -51,6 +53,11 @@ static inline uint32_t seq_part_mask(int p)
 
 #define NSONG 192
 #define SEQ_CH_OFF 0xFFu
+#ifdef PART_OFF_MUTANT                /* host test only: the gates removed */
+#define SEQ_PART_OFF(s, t) ((void)(s), (void)(t), 0)
+#else
+#define SEQ_PART_OFF(s, t) (((s)->part_off >> (t)) & 1u)
+#endif
 /* a step's chance (the T_PROB lanes): 1-100 = that percentage, PROB_COND + k = the cycle k in the order
  * 1:2 2:2 1:3 2:3 3:3 1:4 ... 8:8 (A:B: on the A-th of every B passes of the part's pattern) */
 #define PROB_COND 101
@@ -145,6 +152,7 @@ typedef struct {
     volatile uint8_t send_clock;      /* 1 = emit MIDI clock + transport when internal */
     volatile uint8_t send_notes;      /* 1 = echo the sequence on MIDI, on each part's channel */
     volatile uint8_t ch[NTRACKS];     /* each part's MIDI channel, 0-15 (in and out); SEQ_CH_OFF = none */
+    volatile uint8_t part_off;        /* M7: bit t = part t OFF (no new notes); apart from the mutes */
     uint8_t song_rep;                 /* the song bar playing: its passes still to play (SONG_REP) */
     volatile uint32_t mute;           /* MUTE_* bits */
     volatile uint32_t vmute;          /* drum tracks muted on their own (bit k * NDRUM + v): kept apart from
@@ -194,12 +202,15 @@ typedef struct {
     uint8_t ext_skip;                 /* 1: the next block of ticks gives no tick period (the first ticks of a new input) */
     uint32_t clk_lock_at;             /* ext_now at its last Clock, Start or Continue */
     uint32_t clk_stop_at;             /* ext_now at its last Stop */
+    uint8_t chain_win;                /* latched chain slot in 909 steps; 0 = none. Not saved. */
+    uint8_t chain_at;                 /* 909 steps already played in that slot */
 } seq_t;
 
 void seq_init(seq_t *s, pattern_t *patterns);
 uint32_t seq_until_event(seq_t *s, uint32_t n);
 void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o);
 void seq_midi_flush(seq_t *s, const seq_sink_t *o); /* end tracked output without stopping local voices */
+void seq_notes_off(seq_t *s, const seq_sink_t *o); /* sounding notes off; transport, clock and playheads stay */
 
 /* main loop / MIDI side (all are flag writes picked up at the next block) */
 void seq_start(seq_t *s);             /* from step 1 of the current (or cued) pattern */
@@ -213,6 +224,10 @@ int seq_clock_waiting(const seq_t *s);  /* EXTERNAL: playing, but no clock for 0
 void seq_cue(seq_t *s, int pattern);  /* every part, at the end of the bar (now, if stopped) */
 void seq_cue_part(seq_t *s, int part, int pattern);
 void seq_chain(seq_t *s, int a, int b);
+/* Longest 909 length in the inclusive range, in steps (1..64). Length 0 counts
+ * as 1. A pattern with no hits still counts. Out-of-range endpoints return 1.
+ * Derived from pattern lengths: nothing is stored in the project. */
+int seq_chain_window(const pattern_t *pat, int a, int b);
 int seq_cue_of(const seq_t *s, int part);   /* the part's cued pattern, or -1 */
 int seq_part_muted(const seq_t *s, int part);
 

@@ -140,7 +140,8 @@ class FakeSMK:
             if self.stall_after and self.served >= self.stall_after:
                 return
             if addr == I.FINISH_CHECK:
-                threading.Timer(0.05, self.boot, ("ota-SMK-37 Pro_900", "Felucca Update")).start()
+                # The normal mock loader keeps the running model; adversarial tests override boot().
+                threading.Timer(0.05, self.boot, ("ota-" + I.model_of(self.identity) + "_900", "Felucca Update")).start()
             elif addr == I.FINISH_WRITE:
                 threading.Timer(0.05, self.boot, (self.after_write, "Felucca")).start()
             else:
@@ -253,7 +254,7 @@ def errors():
     p = pkgfile("ok.fwsc", raw)
 
     rc, out, err = cli([p, "--yes"], FakeSMK(image, name="IAC Driver Bus 1"))
-    ok(rc == 3 and "not found" in err and "IAC Driver" in err, "no SMK-37 Pro port -> exit 3, lists the MIDI inputs")
+    ok(rc == 0, "a unit on a port named 'IAC Driver Bus 1' is found: the handshake model decides, not the port name")
     dev = FakeSMK(image)
     rc, out, err = cli([p, "--yes", "--port", "Felucca"], dev)
     ok(rc == 3 and dev.upgrades == 0, "--port that matches nothing -> exit 3")
@@ -281,6 +282,18 @@ def errors():
     dev = FakeSMK(image, identity="ota-FM-1_900", name="Felucca Update")
     rc, out, err = cli([p, "--yes", "--no-slots"], dev)
     ok(rc == 6 and dev.upgrades == 0, "SMK package on an FM-1 in update mode -> exit 6 (wrong model), nothing sent")
+    # USB names never decide: a renamed Pro/Elite is found, and identity comes only from the handshake model
+    for name, ident in (("DnBOX 0.0.14 37PRO", "SMK-37 Pro_900"), ("Any Name", "SMK-37 Pro_900")):
+        dev = FakeSMK(image, identity=ident, name=name)
+        rc, out, err = cli([p, "--yes"], dev)
+        ok(rc == 0 and dev.bad == 0 and dev.upgrades == 2, f"install: {ident} named {name!r} is discovered and updated")
+    # Strict model gate: a Pro package is never written to a keyboard that reports Elite.
+    dev = FakeSMK(image, identity="SMK-37 Elite_900", name="DnBOX 0.0.14 37ELITE")
+    rc, out, err = cli([p, "--yes"], dev)
+    ok(rc == 6 and dev.upgrades == 0, "Pro package on a keyboard reporting SMK-37 Elite -> exit 6, nothing sent")
+    dev = FakeSMK(image, identity="FM-1_900", name="DnBOX 0.0.14 37PRO")
+    rc, out, err = cli([p, "--yes"], dev)
+    ok(rc == 6 and dev.upgrades == 0, "a '37PRO' USB name never overrides the reported model (FM-1 -> exit 6)")
 
     class Stuck(FakeSMK):          # the loader never shows up
         def boot(self, identity, name):
@@ -303,6 +316,55 @@ def errors():
     ok(rc == 2, "missing file -> exit 2")
 
 
+def exact_models():
+    # Exercise the real CLI refusal path in both directions, including already-running loaders.
+    for target, other in (("SMK-37 Pro", "SMK-37 Elite"), ("SMK-37 Elite", "SMK-37 Pro")):
+        raw = package(product=target + "_900")
+        image = I.logical_image(raw)
+        path = pkgfile(target.replace(" ", "-") + ".fwsc", raw)
+        for prefix in ("", "ota-"):
+            dev = FakeSMK(image, identity=prefix + other + "_900", name="SMK renamed unit")
+            rc, out, err = cli([path, "--yes", "--no-slots"], dev)
+            ok(rc == 6 and dev.upgrades == 0 and dev.served == 0,
+               f"{prefix + other} refuses {target} before serving package bytes")
+
+
+
+def loader_models():
+    class TransitionSMK(FakeSMK):
+        def __init__(self, image, target, loader):
+            self.loader_identity = loader
+            self.loader_packets = []
+            super().__init__(image, identity=target + "_016", after_write=target + "_900")
+
+        def boot(self, identity, name):
+            if identity.startswith("ota-"):
+                identity, name = self.loader_identity, "Renamed loader"
+            super().boot(identity, name)
+
+        def rx(self, packet):
+            if self.identity.startswith("ota-"):
+                self.loader_packets.append(bytes(packet))
+            super().rx(packet)
+
+    for target, other in (("SMK-37 Pro", "SMK-37 Elite"), ("SMK-37 Elite", "SMK-37 Pro")):
+        raw = package(product=target + "_900")
+        image = I.logical_image(raw)
+        path = pkgfile("transition-" + target.replace(" ", "-") + ".fwsc", raw)
+        for model in (other, "FM-1", target):
+            dev = TransitionSMK(image, target, "ota-" + model + "_900")
+            rc, out, err = cli([path, "--yes", "--no-slots"], dev)
+            if model == target:
+                ok(rc == 0 and dev.upgrades == 2 and dev.bad == 0,
+                   f"transition {target}: matching renamed loader installs")
+            else:
+                ok(rc == I.EXIT["model"] and dev.upgrades == 1 and dev.served == 4
+                   and dev.loader_packets and all(p == I.HS_QUERY for p in dev.loader_packets)
+                   and all(link.closed for link in dev.links),
+                   f"transition {target} -> {model}: refusal, loader handshake only, links closed")
+
+
+
 def against_js():
     clean = ROOT / "build/x0x-smk37.fwsc"
     if not shutil.which("node") or not clean.exists():
@@ -322,16 +384,16 @@ if __name__ == "__main__":
     wire()
     installs()
     errors()
+    exact_models()
+    loader_models()
     against_js()
     shutil.rmtree(TMP, ignore_errors=True)
-    # the SMK-37 Pro, Elite and MKE-P37 are one keyboard: packages install across them, never across FM-1 / SMK
+    # Family recognition remains for slot planning; it does not authorize cross-model installation.
     ok(I.same_keyboard("SMK-37 Elite_016", "SMK-37 Pro_900") and I.same_keyboard("ota-MKE-P37_900", "SMK-37 Elite_900")
        and I.same_keyboard("STARRYKEY-37 PLAY_01", "SMK-37 Pro_900") and I.same_keyboard("FM-1_015", "FM-1_900")
        and not I.same_keyboard("FM-1_015", "SMK-37 Pro_900") and not I.same_keyboard("SMK-37 Elite_016", "FM-1_900")
        and not I.same_keyboard("XY-9_001", "SMK-37 Pro_900"),
        "models: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another")
-    ok(all(I.PORT_RE.search(n) for n in ("SMK-37 Elite", "MKE-P37", "STARRYKEY-37 PLAY", "Snoop37", "Vox37", "Felucca",
-                                         "X0X FM-1", "FoMni SMK-37", "Makkuro37 Update")),
-       "port names: every SMK model and every port firmware probed")
+    ok(not hasattr(I, "PORT_RE"), "port names never gate discovery (no PORT_RE)")
     print(f"INSTALL TESTS FAILED ({failed})" if failed else "install tests passed")
     sys.exit(1 if failed else 0)

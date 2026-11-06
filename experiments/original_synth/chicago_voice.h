@@ -47,6 +47,11 @@ typedef struct {
  * Outer ARP/FX/master endpoints remain explicit in routing; they are not
  * silently applied per voice. No getters/conversions in the audio sample path. */
 int original_chicago_voice_compile(original_chicago_voice_controls *out,const original_chicago_program *program);
+/* Incremental bend/cutoff edit of an initialized corresponding snapshot.
+ * Program must differ only by the named program_set edit. Other edits, an
+ * unready snapshot or a revision gap use full compilation. Failure is atomic. */
+int original_chicago_voice_recompile(original_chicago_voice_controls *out,
+ const original_chicago_program *program,unsigned macro);
 typedef struct {float phase,unipolar,bipolar,hold;uint32_t noise;uint8_t wrapped;} original_chicago_voice_mg;
 typedef struct {
  uint32_t oscillator_phase[4],noise;
@@ -60,6 +65,29 @@ typedef struct {
  float tuned_pitch,last_pitch,unison_coordinate;
  original_chicago_voice_mg mg[2];
 } original_chicago_voice_note;
+/* Derived runtime-only coefficients. The Chicago snapshot field schema
+ * deliberately omits these fields; state_codec decode zeroes omitted fields,
+ * clearing all valid flags after restore without changing the wire format. */
+typedef struct {
+ uint32_t attack_bits,decay_bits,release_bits,release_duration;
+ float attack_den,decay_den,release_den,release_ratio;
+ uint8_t attack_valid,decay_valid,release_valid,release_ratio_valid;
+} original_chicago_voice_vcf_coefficients;
+typedef struct {
+ uint32_t base_bits,times_bits,frequency_bits,bpm_bits,duration;
+ float tempo_den,free_f,delta;
+ uint8_t mode,tempo_valid,free_valid,delta_valid;
+} original_chicago_voice_mg_coefficients;
+typedef struct {
+ uint32_t portamento_bits,duration;
+ float alpha;
+ uint8_t valid;
+} original_chicago_voice_glide_coefficients;
+typedef struct {
+ original_chicago_voice_vcf_coefficients vcf;
+ original_chicago_voice_mg_coefficients mg[2];
+ original_chicago_voice_glide_coefficients glide;
+} original_chicago_voice_coefficients;
 typedef struct {
  original_miami_pitch pitch;
  original_voice_gain gain;
@@ -74,6 +102,7 @@ typedef struct {
  float previous_vcf,previous_vca,previous_mg[2],mod_cutoff,mod_gain,mod_slave,filter_postgain;
  uint32_t pending_tail_duration;
  uint8_t pending_tail_kick,awaiting_restart,unison_flag,key_down,damper_deferred,active,ready;
+ original_chicago_voice_coefficients coefficients;
 } original_chicago_voice;
 /* Explicit cold producer input avoids inventing native phase/Analog history.
  * All phase bits/noise/MG/anchor come from caller; filter/EG/gain init is owned
@@ -110,6 +139,8 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
  * returns2 with action2 and untouched outputs when restart resolution is
  * required; otherwise returns1. It returns0 for invalid call preconditions. */
 int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right);
+/* render_frame for n>=1 frames, bit patterns out; caller proves no control tick is due inside. */
+int original_chicago_voice_render_span(original_chicago_voice *s,const original_chicago_voice_controls *c,uint32_t *left,uint32_t *right,uint32_t n);
 /* Internal serial block owner: admit stable resources once, then preserve
  * every original control tick. No external edits or restored-state writes
  * may interleave admitted calls. Checked public entries remain unchanged. */

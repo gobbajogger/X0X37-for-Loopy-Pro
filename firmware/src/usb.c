@@ -1303,11 +1303,8 @@ static void usb_poll(void)                              /* TIMER5 ISR, 2 kHz */
 #endif
 }
 
-static void usb_start(void)                             /* boot, or main-loop retry while usb.up == 0 */
+static void usb_attach_ready(void)                      /* reset has settled for at least 25 ms */
 {
-    usb.timeouts = 0;
-    fm1_usb_reset();                                    /* reset whatever the ROM left */
-    fm1_delay_ms(25);
     fm1_usb_attach(ep0buf);
     sie_wr(S_POWER, 0x60);
     sie_wr(S_INTRUSBE, 0x07);                           /* suspend, resume, reset (polled) */
@@ -1319,17 +1316,48 @@ static void usb_start(void)                             /* boot, or main-loop re
     usb.up = usb.timeouts < 3u;                         /* a dead SIE leaves USB off */
 }
 
+static void usb_start(void)                             /* blocking bring-up at boot */
+{
+    usb.timeouts = 0;
+    fm1_usb_reset();                                    /* reset whatever the ROM left */
+    fm1_delay_ms(25);
+    usb_attach_ready();
+}
+
 /* Powered on without a cable, the SIE does not answer and usb_start leaves
  * USB off: retry once a second from the main loop so a cable plugged in
  * later still enumerates. */
 static void usb_retry(uint32_t now_ms)
 {
-    static uint32_t t;
-    if (usb.up || usb.detached || now_ms - t < 1000u)
+    static uint32_t t, reset_at;
+    static uint8_t settling;
+    if (usb.up || usb.detached) {
+        settling = 0;
+        return;
+    }
+    if (settling) {
+        /* Attach on the first usb_retry() after 25 ms, so D+ pull-up is that
+         * 25 ms plus the rest of the main-loop turn that makes the call
+         * (fm1_main calls usb_retry once per turn). The old in-call wait
+         * attached after the in-call 25 ms wait. The 25000 us settle is modeled
+         * by usb_retry_test as 600000 ticks at 24 ticks/us. No maximum remainder is
+         * derivable: the 16 ms test in fm1_main only spaces UI frames, and
+         * fm1_lcd_wait stops after 4000000 spins, which is not a measured time
+         * and is not once per turn. */
+        if ((uint32_t)(fm1_ticks() - reset_at) < 25000u * FM1_TICKS_PER_US)
+            return;
+        settling = 0;
+        usb_attach_ready();
+        return;
+    }
+    if (now_ms - t < 1000u)
         return;
     t = now_ms;
     usb.retries++;
-    usb_start();
+    usb.timeouts = 0;
+    fm1_usb_reset();
+    reset_at = fm1_ticks();
+    settling = 1;                                      /* foreground input runs while reset settles */
 }
 
 static void usb_detach(void)

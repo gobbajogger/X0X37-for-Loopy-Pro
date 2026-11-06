@@ -36,7 +36,9 @@ typedef char raw_contiguous[(__builtin_offsetof(project_t, arr) == RAW_OFF + siz
 
 static void arrange_defaults(project_t *pr);
 static int project_validate_for(const project_t *pr);
-static uint8_t project_incompatible; /* retain unsupported stored bytes until explicit staged adoption */
+/* 1: unsupported, 2: damaged. Retain flash until validated staged adoption. */
+static uint8_t project_incompatible;
+static uint8_t stream_previous; /* per-object older-copy selection during recovery */
 static uint32_t packed_len;             /* the last save's (or load's) packed stream, bytes */
 
 /* SMK-37 clip mode keybed settings (main_fm1.c), ck_ch .. ck_x2: channel 2, C MAJOR NEAR, MAJ root position,
@@ -45,26 +47,41 @@ static uint32_t packed_len;             /* the last save's (or load's) packed st
  * zeros there: the defaults. */
 static const uint8_t CK_DEF[12] = {2, 0, 0, 0, 0, 0, 9, 0, 4, 0, 0, 0},
                      CK_MAX[12] = {15, 11, 23, 1, 29, 5, 12, 3, 9, 3, 63, 127};
+_Static_assert(__builtin_offsetof(settings_t, ck_x2) - __builtin_offsetof(settings_t, ck_ch) == 11,
+               "clock settings must remain twelve adjacent bytes");
+_Static_assert(sizeof CK_MAX == 12, "clock settings bounds must cover twelve fields");
 typedef char ck_set_size[sizeof(settings_t) == 40u ? 1 : -1];   /* the new bytes use the old padding */
+
+static void project_settings_defaults(settings_t *s, uint8_t device_bt)
+{
+    __builtin_memset(s, 0, sizeof *s);
+    s->magic = PROJ_MAGIC;
+    s->format = PROJ_FORMAT;
+    s->palette = 1;                /* amber */
+    s->keyled = 1;
+    s->keysound = 0;
+    s->autosave_off = 0;
+    s->clk_out = 1;
+    s->bt = (uint8_t)((device_bt & PROJ_DEVICE_BT) | PROJ_BT_CLK_IN);   /* CLOCK SOURCE AUTO */
+    s->notes_out = 0;
+    s->bpm_x10 = 1250;
+    s->accent_q7 = 88;
+    s->stereo = PROJ_STEREO;
+    s->snd_rev = PROJ_SND_REV;
+    __builtin_memcpy(&s->ck_ch, CK_DEF, sizeof CK_DEF);
+}
+
+static uint8_t device_bt_pending, settings_read_failed;
+static uint8_t settings_load_failed; /* Bluetooth retry cannot adopt fallback defaults */
+static uint8_t part_off_live, part_off_staged;
+static uint8_t *part_off_of(const project_t *pr) { return pr == &project_stage ? &part_off_staged : &part_off_live; }
 
 static void project_defaults_for(project_t *pr, uint8_t device_bt)
 {
     int i;
     __builtin_memset(pr, 0, sizeof *pr);
-    pr->set.magic = PROJ_MAGIC;
-    pr->set.format = PROJ_FORMAT;
-    pr->set.palette = 1;                /* amber */
-    pr->set.keyled = 1;
-    pr->set.keysound = 0;
-    pr->set.autosave_off = 0;
-    pr->set.clk_out = 1;
-    pr->set.bt = (uint8_t)((device_bt & PROJ_DEVICE_BT) | PROJ_BT_CLK_IN);   /* CLOCK SOURCE AUTO */
-    pr->set.notes_out = 0;
-    pr->set.bpm_x10 = 1250;
-    pr->set.accent_q7 = 88;
-    pr->set.stereo = PROJ_STEREO;
-    pr->set.snd_rev = PROJ_SND_REV;
-    __builtin_memcpy(&pr->set.ck_ch, CK_DEF, sizeof CK_DEF);
+    *part_off_of(pr) = 0;
+    project_settings_defaults(&pr->set, device_bt);
     engine_sound_defaults(&pr->sound);
     arrange_defaults(pr);
     /* the 303 lines start empty, like the drums: OCT+ on TB-3PO (or keyboard mode) writes one */
@@ -122,21 +139,27 @@ static int save_buf(uint32_t obj, uint32_t n)
     return rc;
 }
 
-/* the settings may have grown since they were saved: a shorter payload of this format loads into
- * the front of dst, and the rest keeps what dst held (zeros: the new settings' defaults) */
-static int load_settings(settings_t *dst)
+/* Read failures invalidate cached equality; only confirmed empty is first boot. */
+static int read_settings_payload(void)
 {
     int n = plat_store_load(OBJ_SET, io_buf, sizeof io_buf);
-    if (n < 0) return -1;
-    if ((uint32_t)n != sizeof *dst + 4u || get32(io_buf) != PROJ_FORMAT ||
+    settings_read_failed = (uint8_t)(n < -1);
+    if (n < 0) stored_known[OBJ_SET] = 0;
+    return n;
+}
+
+static int load_settings(settings_t *dst)
+{
+    int n = read_settings_payload();
+    if (n < 0) return n;
+    if (!PROJ_SET_LEN_OK((uint32_t)n) || get32(io_buf) != PROJ_FORMAT ||
         io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV) return -9;
-    if (n < 20 || (uint32_t)n > sizeof *dst + 4u || io_buf[0] != (uint8_t)PROJ_FORMAT || io_buf[1] || io_buf[2] || io_buf[3])
-        return -1;
-    __builtin_memcpy(dst, io_buf + 4u, (uint32_t)n - 4u);
-    if ((uint32_t)n == sizeof *dst + 4u) {           /* exactly what a save of these settings writes */
-        stored_known[OBJ_SET] = 1;
-        stored_hash[OBJ_SET] = hash_of(io_buf, (uint32_t)n);
-    }
+    if ((uint32_t)n == 4u + sizeof *dst)
+        __builtin_memset(io_buf + 4u + sizeof *dst, 0, PROJ_SET_TAIL);
+    else if (PROJ_SET_TAIL_BAD(io_buf + 4u + sizeof *dst)) return -9;
+    __builtin_memcpy(dst, io_buf + 4u, sizeof *dst);
+    stored_known[OBJ_SET] = 1;
+    stored_hash[OBJ_SET] = hash_of(io_buf, (uint32_t)n);
     return 0;
 }
 
@@ -147,6 +170,55 @@ static int save_obj(uint32_t obj, const void *src, uint32_t len)
     put32(io_buf, PROJ_FORMAT);
     __builtin_memcpy(io_buf + 4u, src, len);
     return save_buf(obj, len + 4u);
+}
+
+static int save_settings(const settings_t *set, uint8_t part_off)
+{
+    uint32_t n = 4u + sizeof *set;
+    put32(io_buf, PROJ_FORMAT);
+    __builtin_memcpy(io_buf + 4u, set, sizeof *set);
+    part_off &= PROJ_PART_OFF_ALL;
+    if (part_off) {
+        io_buf[n] = part_off;
+        io_buf[n+1u] = io_buf[n+2u] = io_buf[n+3u] = 0;
+        n += PROJ_SET_TAIL;
+    }
+    return save_buf(OBJ_SET, n);
+}
+
+void project_device_bt_set(int on)
+{
+    uint8_t next = (uint8_t)((proj.set.bt & ~1u) | (on ? 1u : 0u));
+    if (next != proj.set.bt) {
+        proj.set.bt = next;
+        device_bt_pending = 1;
+    }
+}
+int project_device_bt_pending(void) { return device_bt_pending; }
+int project_device_bt_save(void)
+{
+    int n, rc;
+    if (!device_bt_pending) return 0;
+    if (project_incompatible) return -9;
+    n = read_settings_payload();
+    if (n < -1) return n;                /* pending stays set: UI retries after I/O recovers */
+    if (n == -1) {
+        settings_t defaults;                /* no settings object yet: write the defaults with this bit */
+        project_settings_defaults(&defaults, proj.set.bt & 1u);
+        rc = save_obj(OBJ_SET, &defaults, sizeof defaults);
+    } else {
+        /* Do not normalize or migrate a payload as a side effect of a toggle:
+         * only the exact layout load_settings accepts is patched. */
+        if (!PROJ_SET_LEN_OK((uint32_t)n) || get32(io_buf) != PROJ_FORMAT ||
+            io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV ||
+            ((uint32_t)n > 4u + sizeof(settings_t) && PROJ_SET_TAIL_BAD(io_buf + 4u + sizeof(settings_t))))
+            return -9;
+        io_buf[4u + __builtin_offsetof(settings_t, bt)] =
+            (uint8_t)((io_buf[4u + __builtin_offsetof(settings_t, bt)] & ~1u) | (proj.set.bt & 1u));
+        rc = save_buf(OBJ_SET, (uint32_t)n);
+    }
+    if (!rc) device_bt_pending = 0;
+    return rc;
 }
 
 typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
@@ -161,7 +233,7 @@ typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
 static int load_sound(sound_t *dst)
 {
     int n = plat_store_load(OBJ_SOUND, io_buf, sizeof io_buf);
-    if (n < 0) return -1;
+    if (n < 0) return n;
     if ((uint32_t)n != sizeof *dst + 4u || get32(io_buf) != PROJ_FORMAT) return -9;
     __builtin_memcpy(dst, io_buf + 4u, sizeof *dst);
     if (engine_bass_sound_validate(dst)) return -9;
@@ -258,6 +330,12 @@ typedef struct {
     uint8_t unsupported; /* a consumed segment must retain its format classification */
 } st_in_t;
 
+static int load_stream_object(int k)
+{
+    return plat_store_load(STREAM_OBJ[k] |
+        ((stream_previous & (1u << k)) ? PLAT_STORE_PREVIOUS : 0u), io_buf, sizeof io_buf);
+}
+
 static int st_get(void *ctx)
 {
     st_in_t *s = ctx;
@@ -266,7 +344,7 @@ static int st_get(void *ctx)
     while (s->pos >= (uint32_t)s->n) {
         if (++s->k >= NSTREAM)
             return -1;
-        s->n = plat_store_load(STREAM_OBJ[s->k], io_buf, sizeof io_buf);
+        s->n = load_stream_object(s->k);
         if (s->n < 4)
             return -1;
         uint32_t format = get32(io_buf);
@@ -354,6 +432,8 @@ static int load_stream(project_t *pr, int n, uint32_t format)
      * and allow the boot-default autosave path to overwrite it. */
     if (s.unsupported)
         return -9;
+    if (s.n == -2 || s.n == -8)
+        return s.n; /* preserve continuation I/O/busy classification */
     if (decode_rc || s.left || crc32_of(raw, raw_len) != crc)
         return -1;
     if (!stream_layout_ok(pr, format))
@@ -384,12 +464,21 @@ static int read_project(project_t *pr)
     project_defaults_for(pr, device_bt);
     packed_len = 0;
     settings_t set = pr->set;
-    int bad = 0, rc = load_settings(&set);
+    int bad = 0, present = 0, transient = 0, rc = load_settings(&set);
+    uint8_t part_off = rc ? 0u : io_buf[4u + sizeof set];
+    present |= rc != -1;
+    transient |= rc == -2 || rc == -8;
+    int settings_present = rc == 0;
+    if (settings_read_failed) {
+        settings_load_failed = 1;
+        goto failed;
+    }
     if (rc == -9) goto unsupported;
     if (!rc) {
         if (set.magic != PROJ_MAGIC || set.format != PROJ_FORMAT ||
             set.snd_rev != PROJ_SND_REV || set.stereo != PROJ_STEREO) goto unsupported;
         pr->set = set;
+        *part_off_of(pr) = part_off;
         device_bt = set.bt;                       /* retain saved Bluetooth role on partial-load fallback */
     } else {
         bad = 1;
@@ -401,39 +490,77 @@ static int read_project(project_t *pr)
 #endif
     }
     rc = load_sound(&pr->sound);
+    present |= rc != -1;
+    transient |= rc == -2 || rc == -8;
     if (rc == -9) goto unsupported;
     if (rc) bad = 1;
-    int n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
+    stream_previous = 0;
+    int n = load_stream_object(0);
+    present |= n != -1;
+    transient |= n == -2 || n == -8;
     if (n >= 0 && (n < 4 || !stream_known(get32(io_buf)))) goto unsupported;
     if (n >= 4) {
         rc = load_stream(pr, n, get32(io_buf));
+        if (rc == -2 || rc == -8) { transient = 1; goto failed; }
         if (rc == -9) goto unsupported;
+        /* At most 16 A/B combinations, no second stream buffer. A cut can
+         * leave only some newest objects changed (unchanged objects are not
+         * written), so taking all older copies is not sufficient. */
+        for (unsigned mask = 1; rc && mask < (1u << NSTREAM); ++mask) {
+            stream_previous = (uint8_t)mask;
+            n = load_stream_object(0);
+            if (n == -2 || n == -8) { rc = n; transient = 1; goto failed; }
+            if (n < (int)STREAM_HDR || !stream_known(get32(io_buf))) continue;
+            rc = load_stream(pr, n, get32(io_buf));
+            if (rc == -2 || rc == -8) { transient = 1; goto failed; }
+            if (!rc) rc = project_validate_for(pr);
+        }
+        if (!rc && stream_previous)
+            for (int k = 0; k < NSTREAM; ++k) stored_known[STREAM_OBJ[k]] = 0;
+        stream_previous = 0;
         if (rc) {
             patterns_defaults(pr);
             arrange_defaults(pr);
             bad = 1;
         }
-    } else bad = 1;
+    } else {
+        bad = 1;
+        /* PAT0 may itself be missing while later committed segments remain. */
+        for (int k = 1; k < NSTREAM; ++k)
+        {
+            int m = load_stream_object(k);
+            present |= m != -1;
+            transient |= m == -2 || m == -8;
+        }
+    }
     rc = bad ? -1 : project_validate_for(pr);
     if (!rc) return 0;
     goto failed;
 unsupported:
     rc = -9;
 failed:
+    /* A later sound/stream failure also discards the loaded settings from pr.
+     * Do not let those fallback defaults replace the original settings. */
+    if (settings_present) settings_load_failed = 1;
     project_defaults_for(pr, device_bt);
     packed_len = 0;
+    stream_previous = 0;
+    if (rc != -9 && present && !transient) project_incompatible = 2;
+    if (transient) settings_load_failed = 1;
     return rc;
 }
 
 void project_defaults(void) { project_defaults_for(&proj, proj.set.bt); }
 int project_load(void)
 {
+    project_incompatible = 0;
     int rc = read_project(&proj);
-    project_incompatible = (uint8_t)(rc == -9
+    if (!rc) settings_load_failed = 0;
+    if (rc == -9
 #if X0X_BASS_TAGGED_SOUND
         || (!rc && engine_bass_sound_validate(&proj.sound))
 #endif
-        );
+        ) project_incompatible = 1;
     return rc;
 }
 int project_storage_unsupported(void) { return project_incompatible; }
@@ -577,7 +704,10 @@ void project_commit_stage(void)
      * Bluetooth connection or opt-in control surface mode. */
     project_stage.set.bt = (uint8_t)((project_stage.set.bt & ~PROJ_DEVICE_BT) | (proj.set.bt & PROJ_DEVICE_BT));
     __builtin_memcpy(&proj, &project_stage, sizeof proj);
+    part_off_live = part_off_staged;
     project_incompatible = 0; /* explicitly validated import/reset is the recovery boundary */
+    settings_load_failed = 0;
+    settings_read_failed = 0;
     (void)measure_project(&proj, &packed_len);
 }
 
@@ -592,7 +722,7 @@ void project_file_header(uint8_t *h)
     put32(h + 16, PROJ_FORMAT);
     put32(h + 20, PROJ_STREAM);
     put32(h + 24, PROJ_SND_REV);
-    put32(h + 28, 0);
+    put32(h + 28, PROJ_FILE_OFF_WORD(part_off_staged & PROJ_PART_OFF_ALL));   /* 0: all ON, the older file */
 }
 
 
@@ -601,11 +731,12 @@ int project_file_validate(const uint8_t *h)
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
         get32(h + 16) != PROJ_FORMAT ||
         get32(h + 20) != PROJ_STREAM ||
-        get32(h + 24) != PROJ_SND_REV || get32(h + 28))
+        get32(h + 24) != PROJ_SND_REV || !PROJ_FILE_OFF_OK(get32(h + 28)))
         return -1;
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
     if(!stream_layout_ok(&project_stage,get32(h+20)))return -9;
+    part_off_staged = (uint8_t)(get32(h + 28) & PROJ_PART_OFF_ALL);   /* header word 28: the OFF mask, 0 all ON */
 #if !X0X_ORIGINAL_SYNTH
     migrate_break_counts(&project_stage, get32(h+20));
 #endif
@@ -622,15 +753,17 @@ void project_apply_io(void)
         int v = proj.set.midi_ch[p];
         seq.ch[p] = (uint8_t)(!v ? SEQ_CH_DEFAULT[p] : v > 16 ? (int)SEQ_CH_OFF : v - 1);
     }
+    seq.part_off = (uint8_t)(part_off_live & PROJ_PART_OFF_ALL);
     engine_out_loud(proj.set.out_loud);
     engine_usb_full(proj.set.usb_full);
 }
 
-static void capture_settings(settings_t *set)
+static void capture_settings(settings_t *set, uint8_t *part_off)
 {
     int p;
     for (p = 0; p < 5; p++)
         set->midi_ch[p] = (uint8_t)(seq.ch[p] == SEQ_CH_OFF ? 17 : seq.ch[p] + 1);
+    *part_off = (uint8_t)(seq.part_off & PROJ_PART_OFF_ALL);
     set->bpm_x10 = (uint16_t)(seq.bpm * 10.0f + 0.5f);
     set->accent_q7 = seq.accent_q7;
     set->clk_out = seq.send_clock;
@@ -642,7 +775,7 @@ static void capture_settings(settings_t *set)
 void project_capture_stage(void)
 {
     __builtin_memcpy(&project_stage, &proj, sizeof proj);
-    capture_settings(&project_stage.set);
+    capture_settings(&project_stage.set, &part_off_staged);
 }
 
 /* 0 = saved and verified; -7 = the patterns, song and motion do not fit (nothing was written) */
@@ -656,15 +789,16 @@ int project_save(void)
 #endif
     if (project_incompatible || !stream_layout_ok(&proj, PROJ_STREAM))
         return -9; /* not one settings/sound/pattern object may be rewritten */
+    if (settings_read_failed || settings_load_failed) return -8; /* retry load before saving fallback defaults */
 #ifndef X0X_HOST
     extern int store_stage_held(void);
     if (store_stage_held())                          /* boot upload is using the store buffer */
         return -8;
 #endif
-    capture_settings(&proj.set);
+    capture_settings(&proj.set, &part_off_live);
     if (measure_project(&proj, &packed_len))
         return -7;
-    if (save_obj(OBJ_SET, &proj.set, sizeof proj.set))
+    if (save_settings(&proj.set, part_off_live))
         return -1;
     if (save_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound))
         return -2;

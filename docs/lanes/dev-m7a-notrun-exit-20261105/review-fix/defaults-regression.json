@@ -1,0 +1,13 @@
+{
+  "source_before": "de871c51fd3fdef0876e6a9d94d8ead4a13fd875",
+  "source_after": "14413a784ff0eab30e55d4d8744f1f501d1e5a9f",
+  "original_apply": {
+    "exit": 1,
+    "error": "mutant store_defaults_keep_mask: pattern not found once in firmware/src/app/project.c"
+  },
+  "fixed_apply": {
+    "exit": 0,
+    "assertion": "Exact unique defaults-reset assignment is replaced; no other source bytes change."
+  },
+  "compiled_mutants": "mutation-verification.json; all 31 killed, including store_defaults_keep_mask and mute_reads_as_off"
+}

@@ -107,11 +107,11 @@ def main():
         got.link.close()
     ok(up.returned_port == "Selected SMK", "returned_port records the accepted transition port")
 
-    # Two newly appeared loaders: refuse to choose (names must match PORT_RE).
+    # Two newly appeared loaders: refuse to choose (port names are never a gate).
     backend2 = Backend({
         "Other OTA": "ota-FM-1_906",
-        "Felucca New A": "ota-SMK-37 Pro_900",
-        "Felucca New B": "ota-SMK-37 Elite_900",
+        "Renamed A": "ota-SMK-37 Pro_900",
+        "Renamed B": "ota-SMK-37 Elite_900",
     })
     up2 = fi.Updater(backend2)
     try:

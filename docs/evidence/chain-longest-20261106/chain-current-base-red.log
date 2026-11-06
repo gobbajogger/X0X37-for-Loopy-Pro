@@ -1,0 +1,38 @@
+  FAIL tests/host/chain_longest_test.c:178: short-holds: does not advance at the first pattern's end
+  FAIL tests/host/chain_longest_test.c:181: short-holds: 12 then a partial 0..3 inside the window of 16
+  FAIL tests/host/chain_longest_test.c:184: short-holds: every part advances together when the longest finishes
+  FAIL tests/host/chain_longest_test.c:200: odd-3: five loops and a one-step partial, not a phase skip
+  FAIL tests/host/chain_longest_test.c:203: odd-3: the next pattern starts at step 0
+  FAIL tests/host/chain_longest_test.c:217: lengths: the 8-step pattern loops to fill 32
+  FAIL tests/host/chain_longest_test.c:219: lengths: pattern 1 starts at 0
+  FAIL tests/host/chain_longest_test.c:221: lengths: pattern 1 (16) also fills 32
+  FAIL tests/host/chain_longest_test.c:223: lengths: the 32-step pattern starts
+  FAIL tests/host/chain_longest_test.c:227: chain-wrap: last returns to first at step 0
+  FAIL tests/host/chain_longest_test.c:241: revisit: still on the second slot
+  FAIL tests/host/chain_longest_test.c:243: revisit: the same pattern starts at step 0, not at the old partial
+  FAIL tests/host/chain_longest_test.c:283: empty: length 0 still occupies the window, it is not skipped
+  FAIL tests/host/chain_longest_test.c:285: empty: clamped length 1 repeats step 0 (step 2)
+  FAIL tests/host/chain_longest_test.c:285: empty: clamped length 1 repeats step 0 (step 3)
+  FAIL tests/host/chain_longest_test.c:285: empty: clamped length 1 repeats step 0 (step 4)
+  FAIL tests/host/chain_longest_test.c:285: empty: clamped length 1 repeats step 0 (step 5)
+  FAIL tests/host/chain_longest_test.c:285: empty: clamped length 1 repeats step 0 (step 6)
+  FAIL tests/host/chain_longest_test.c:285: empty: clamped length 1 repeats step 0 (step 7)
+  FAIL tests/host/chain_longest_test.c:296: silent-counts: a pattern with no events still counts by its length
+  FAIL tests/host/chain_longest_test.c:299: silent-counts: advance after that length
+  FAIL tests/host/chain_longest_test.c:313: part-len: the window is the 909 length, not the 808's 64
+  FAIL tests/host/chain_longest_test.c:344: polymeter: the 303 does not restart when the short 909 loops (2)
+  FAIL tests/host/chain_longest_test.c:364: lead-in: the first chain slot uses the longest window
+  FAIL tests/host/chain_longest_test.c:383: cue-waits: the cue waits for the chain window
+  FAIL tests/host/chain_longest_test.c:385: cue-waits: still inside the latched window
+  FAIL tests/host/chain_longest_test.c:401: latch: a longer edit does not stretch the open slot
+  FAIL tests/host/chain_longest_test.c:403: latch: the slot still ends at 16
+  FAIL tests/host/chain_longest_test.c:405: latch: the next slot uses the edited longest length
+  FAIL tests/host/chain_longest_test.c:424: continue-holds: the original window is not restarted
+  FAIL tests/host/chain_longest_test.c:442: tempo-steps: a tempo edit does not change the step count
+  FAIL tests/host/chain_longest_test.c:457: swing-steps: swing does not shorten the window
+  FAIL tests/host/chain_longest_test.c:481: midi-clock: clock out does not change the window
+  FAIL tests/host/chain_longest_test.c:505: midi-sync: external clock waits for the longest window
+  FAIL tests/host/chain_longest_test.c:511: midi-sync: the next external step advances the chain
+  FAIL tests/host/chain_longest_test.c:570: song-rec-holds: recording waits for the chain window
+  FAIL tests/host/chain_longest_test.c:573: song-rec: still one bar at the end of the window
+chain-longest: 37 failures

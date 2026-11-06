@@ -1,0 +1,139 @@
+{
+  "state": "PASS",
+  "candidate": "14413a784ff0eab30e55d4d8744f1f501d1e5a9f",
+  "candidate_tree": "967871135f3e2edcd27ee0637cf1c6b903348695",
+  "command": "PART_OFF_REQUIRE_BASE=1 PART_OFF_BASE_REF=a06e20189141ff5fb8766e2c6152be460f4356c3 PART_OFF_MUTANTS=1 X0X_TEST_JOBS=1 sh tests/host/run_part_off.sh",
+  "exit": 0,
+  "killed": 31,
+  "survived": 0,
+  "build_failures": 0,
+  "runner_skips": 0,
+  "log_sha256": "55dbad7adc374eee8afdfeb18f2aca77674fc6c411de0abad5a2f4d301f6d724",
+  "results": [
+    {
+      "mutant": "brk_release_gated",
+      "killed_by": "brk_pad_release_not_gated"
+    },
+    {
+      "mutant": "midi_off_gated_brk",
+      "killed_by": "midi_note_off_not_gated_break"
+    },
+    {
+      "mutant": "midi_off_gated_bass",
+      "killed_by": "midi_note_off_not_gated_chicago"
+    },
+    {
+      "mutant": "bass_off_note_gated",
+      "killed_by": "bass_off_note_not_gated_chicago"
+    },
+    {
+      "mutant": "bass_off_gated",
+      "killed_by": "live_303_held_off_release_chicago"
+    },
+    {
+      "mutant": "seq_bass_skip_release",
+      "killed_by": "seq_bass_tie_released_after_off_chicago"
+    },
+    {
+      "mutant": "off_writes_mute",
+      "killed_by": "independent_of_mute_solo"
+    },
+    {
+      "mutant": "mute_reads_as_off",
+      "killed_by": "independent_of_mute_solo"
+    },
+    {
+      "mutant": "store_always_long",
+      "killed_by": "store_all_on_is_legacy_40"
+    },
+    {
+      "mutant": "store_ignore_reserved",
+      "killed_by": "store_rejects_reserved"
+    },
+    {
+      "mutant": "store_accept_gt31",
+      "killed_by": "store_rejects_mask_gt31"
+    },
+    {
+      "mutant": "store_reject_40",
+      "killed_by": "store_40_loads_all_on"
+    },
+    {
+      "mutant": "store_drop_mask_on_load",
+      "killed_by": "store_roundtrip_all_masks"
+    },
+    {
+      "mutant": "store_bt_toggle_strict",
+      "killed_by": "store_bt_toggle_keeps_tail"
+    },
+    {
+      "mutant": "file_header_drops_mask",
+      "killed_by": "file_roundtrip_all_masks"
+    },
+    {
+      "mutant": "file_import_drops_mask",
+      "killed_by": "file_roundtrip_all_masks"
+    },
+    {
+      "mutant": "file_accepts_any_word28",
+      "killed_by": "file_rejects_bad_word28"
+    },
+    {
+      "mutant": "file_tag_ignored",
+      "killed_by": "file_rejects_bad_word28"
+    },
+    {
+      "mutant": "file_chk_ignored",
+      "killed_by": "file_word28_bit_errors_refused"
+    },
+    {
+      "mutant": "file_chk_not_written",
+      "killed_by": "file_roundtrip_all_masks"
+    },
+    {
+      "mutant": "file_chk_poly07",
+      "killed_by": "file_check_byte_known_answer"
+    },
+    {
+      "mutant": "file_chk_init_xor",
+      "killed_by": "file_check_byte_known_answer"
+    },
+    {
+      "mutant": "file_chk_weak",
+      "killed_by": "file_word28_bit_errors_refused"
+    },
+    {
+      "mutant": "file_tag_mask_zero",
+      "killed_by": "file_rejects_bad_word28"
+    },
+    {
+      "mutant": "file_accept_gt31",
+      "killed_by": "file_rejects_bad_word28"
+    },
+    {
+      "mutant": "file_all_on_tagged",
+      "killed_by": "file_all_on_is_older_header"
+    },
+    {
+      "mutant": "file_staged_before_crc",
+      "killed_by": "file_validate_crc_fail_keeps_staged"
+    },
+    {
+      "mutant": "file_header_from_live",
+      "killed_by": "file_double_validate_keeps_imported_mask"
+    },
+    {
+      "mutant": "store_defaults_keep_mask",
+      "killed_by": "store_fresh_device_all_on"
+    },
+    {
+      "mutant": "store_stale_tail_44",
+      "killed_by": "store_stale_iobuf_44_all_on"
+    },
+    {
+      "mutant": "store_bt_save_accepts_bad_tail",
+      "killed_by": "store_bt_save_refuses_bad_tail"
+    }
+  ],
+  "regression": "The diagnostic run on the one-line search repair exposed mute_reads_as_off surviving. The added live-note acquisition/release check kills it; all 31 named mutants then pass detection."
+}

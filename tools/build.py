@@ -44,6 +44,7 @@ import gen_cache  # noqa: E402
 import lz4blk  # noqa: E402
 import rom_guard  # noqa: E402
 import check_original_inputs  # noqa: E402
+from firmware_build_labels import canonical_version  # noqa: E402
 
 APP_XIP = 0x02000120                # app.bin offset 0 in the XIP map; the SPL jumps here
 APP_SLOT = fm1pkg_make.APP_SLOT
@@ -142,6 +143,8 @@ BOARD_PREFIX = {"fm1": "FM-1_9", "smk37": "SMK-37 Pro_9"}   # identity of a rele
 BOARD_DEFS = {"fm1": [], "smk37": ["-DBOARD_SMK37=1"]}       # the FM-1 build gets no new flag (byte-identical)
 # smk37: the keyboard's model name (MODEL env or --model); one hardware, three names. pro adds no flag
 MODELS = {"pro": "SMK-37 Pro", "elite": "SMK-37 Elite", "mke": "MKE-P37"}
+MODEL = "pro"
+GIT_SHA = None
 VERSION = None                      # numeric X.Y.Z passed to the firmware as X0X_VERSION
 RELEASE_LABEL = None                # display only, e.g. 0.1.3_openbeta; not part of the package identity
 
@@ -422,10 +425,7 @@ def build_app():
             if not re.fullmatch(r"[0-8]", baud):
                 raise SystemExit("X0X_SMK_LCD_BAUD: 0..8 (SPI clock = 60 MHz / (n + 1))")
             flags.append(f"-DLCD_BAUD={baud}u")
-    if VERSION:
-        flags.append(f'-DX0X_VERSION="{VERSION}"')
-    if RELEASE_LABEL:
-        flags.append(f'-DX0X_RELEASE_LABEL="{RELEASE_LABEL}"')
+    flags += version_defines(VERSION, RELEASE_LABEL, GIT_SHA)
     units, objs = app_compile_commands(flags, original_synth, wobble)
     for directory in {o.parent for o in objs}:
         directory.mkdir(parents=True, exist_ok=True)
@@ -580,16 +580,54 @@ def release_identity(text):
             "release_label": None, "filename": text}
 
 
+def nightly_identity(text, git_sha):
+    """Display version and diagnostic SHA; never a loader/product identity."""
+    version = canonical_version(text)
+    if not isinstance(git_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", git_sha):
+        raise ValueError("Git SHA must be 40 lowercase hexadecimal characters")
+    return {"version_macro": version, "git_sha": git_sha[:8]}
+
+
+def version_defines(version, release_label, git_sha):
+    """Application-only version and diagnostic defines; loader identity is unchanged."""
+    flags = []
+    if version:
+        flags.append(f'-DX0X_VERSION="{version}"')
+    if release_label:
+        flags.append(f'-DX0X_RELEASE_LABEL="{release_label}"')
+    if git_sha:
+        flags.append(f'-DX0X_GIT_SHA="{git_sha}"')
+    return flags
+
+
 def main():
-    global PRODUCT, VERSION, RELEASE_LABEL, BOARD, APP_SLOT, APP_CODE_MAX, OUT, LDR
+    global PRODUCT, VERSION, GIT_SHA, RELEASE_LABEL, BOARD, MODEL, APP_SLOT, APP_CODE_MAX, OUT, LDR
     ap = argparse.ArgumentParser()
-    ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_9XXYYZZ, version string X.Y[.Z]")
+    versions = ap.add_mutually_exclusive_group()
+    versions.add_argument("--release", metavar="X.Y[.Z]", help="release build: numeric package identity and version string")
+    versions.add_argument("--nightly-version", metavar="X.Y.Z",
+                          help="nightly display version; keep the model_900 loader/package identity")
+    ap.add_argument("--git-sha", help="nightly source commit (40 lowercase hex; default: git rev-parse HEAD)")
     ap.add_argument("--board", choices=sorted(BOARD_PREFIX), default=None,
                     help="target board: fm1 (default) or smk37 (default: $BOARD, else fm1)")
     ap.add_argument("--model", choices=sorted(MODELS), default=None,
                     help="smk37: the model name, pro (default), elite or mke (default: $MODEL, else pro)")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     a = ap.parse_args()
+    nightly = None
+    if a.git_sha is not None and a.nightly_version is None:
+        ap.error("--git-sha requires --nightly-version")
+    if a.nightly_version is not None:
+        sha = a.git_sha
+        if sha is None:
+            try:
+                sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=SRC, text=True).strip()
+            except (OSError, subprocess.CalledProcessError) as exc:
+                ap.error(f"cannot read source commit; supply --git-sha: {exc}")
+        try:
+            nightly = nightly_identity(a.nightly_version, sha)
+        except ValueError as exc:
+            ap.error(str(exc))
     original_synth, _ = synth_build_config()
     if original_synth:
         require_original_synth_sources()
@@ -602,6 +640,7 @@ def main():
     model = (a.model or (os.environ.get("MODEL") if BOARD == "smk37" else None) or "pro").lower()
     if model not in MODELS or (model != "pro" and BOARD != "smk37"):
         raise SystemExit(f"MODEL={model}: pro, elite or mke, with BOARD=smk37")
+    MODEL = model
     fm1pkg_make.set_board(BOARD)
     APP_SLOT = fm1pkg_make.APP_SLOT
     APP_CODE_MAX = fm1pkg_make.APP_CODE_MAX
@@ -619,7 +658,13 @@ def main():
         OUT = OUT.parent / f"{BOARD}-{model}"     # its own objects: the Pro build's stay as they are
         LDR = OUT / "loader"
     name = f"{stem}.fwsc"
+    VERSION = GIT_SHA = None
     RELEASE_LABEL = None
+    if nightly:
+        if BOARD != "smk37" or MODEL not in ("elite", "pro"):
+            ap.error("--nightly-version supports SMK-37 Elite/Pro only")
+        VERSION = nightly["version_macro"]
+        GIT_SHA = nightly["git_sha"]
     if a.release:
         # identity FM-1_9 + major, minor, patch as two digits each (0.10 -> FM-1_9001000). FM-1 is the
         # model the update tools match on; the number is ours (X0X 0.3..0.9 were FM-1_9XY, one digit

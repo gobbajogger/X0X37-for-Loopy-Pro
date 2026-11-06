@@ -1,0 +1,26 @@
+[
+  {
+    "repository": "synthfr/schwung-9W9",
+    "requested_pin": "10cbe5c",
+    "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+    "tree": "2a32b748456d4f162010932771f2ca26fc5d34d6"
+  },
+  {
+    "repository": "charlesvestal/schwung-8W8",
+    "requested_pin": "94aa271",
+    "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+    "tree": "a042961b65cb420bd1555de3cd93cbb7c807652f"
+  },
+  {
+    "repository": "charlesvestal/schwung-303",
+    "requested_pin": "7680578",
+    "commit": "7680578cdecd91e512cfddb9c9eb07b287fb64f4",
+    "tree": "5ca9b1d6504fde78c7ddc89944f0b99aa40a0cd4"
+  },
+  {
+    "repository": "charlesvestal/schwung-tb3po",
+    "requested_pin": "f49d81d",
+    "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+    "tree": "2d87c9ef8a0fe1fca4b0af524e8939fbdf6fb904"
+  }
+]

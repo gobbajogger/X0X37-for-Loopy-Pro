@@ -65,6 +65,39 @@ int seq_part_len(const seq_t *s, int t)
     return n < 1 ? 1 : n > NSTEPS ? NSTEPS : n;
 }
 
+/* noinline: one scan (else -O2 copies it into the step and the slot open). */
+__attribute__((noinline)) int seq_chain_window(const pattern_t *pat, int a, int b)
+{
+    int lo, hi, i, w, n;
+    if (!pat || a < 0 || b < 0 || a >= NPAT || b >= NPAT)
+        return 1;
+    lo = a < b ? a : b;
+    hi = a < b ? b : a;
+#ifdef SEQ_CHAIN_WINDOW_SHORTEST
+    w = NSTEPS;
+#else
+    w = 1;
+#endif
+#if defined(__clang__)
+#pragma clang loop unroll(disable) vectorize(disable) interleave(disable)
+#endif
+    for (i = lo; i <= hi; i++) {
+        n = pat[i].drum[0].len;               /* the 909 is the bar, as seq_part_len */
+        if (n < 1)
+            n = 1;
+        else if (n > NSTEPS)
+            n = NSTEPS;
+#ifdef SEQ_CHAIN_WINDOW_SHORTEST
+        if (n < w)
+            w = n;
+#else
+        if (n > w)
+            w = n;
+#endif
+    }
+    return w;
+}
+
 /* noinline: rate lookup shared by swing/advance/fire (else -O2 triples the ternary). */
 __attribute__((noinline)) static int part_rate(const seq_t *s, int t)
 {
@@ -191,6 +224,8 @@ __attribute__((noinline)) static void fire_drum(seq_t *s, int k, int p, uint32_t
     int w = p >> 5;
     float accent_vel = (d->accent[w] & bit) ? 1.0f : (float)s->accent_q7 / 127.0f;
     int v;
+    if (SEQ_PART_OFF(s, k))
+        return;
     for (v = 0; v < NDRUM; v++) {
         uint8_t sv;
         float vel;
@@ -269,7 +304,7 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
     if (s->mute & (1u << (MUTE_BASS0 + b)))
         gate = G_REST;
     /* A TIE continues an audible note; an orphan TIE is a rest, never an onset. */
-    if (gate == G_REST || (gate == G_TIE && !tr->sounding)) {
+    if (gate == G_REST || (gate == G_TIE && !tr->sounding) || SEQ_PART_OFF(s, TRK_BASS0 + b)) {
         bass_release(s, b, o);
         tr->held_note = 0;
         return;
@@ -366,6 +401,45 @@ static void song_write(seq_t *s, int k, const uint8_t *next)
 
 static int song_plays(const seq_t *s) { return s->song_on && s->song && (s->song_rec || s->song->len); }
 
+/* Open a chain slot, or clear it. Song playback keeps the 909 bar. A pattern
+ * outside the range keeps its own length until the next wrap enters the chain.
+ * SEQ_CHAIN_WINDOW_FIRST_END (host mutant): never latch, so the chain still
+ * advances when the playing pattern's own 909 wraps. */
+__attribute__((noinline)) static void chain_slot_open(seq_t *s)
+{
+#ifdef SEQ_CHAIN_WINDOW_FIRST_END
+    s->chain_win = 0;
+    s->chain_at = 0;
+#else
+    int ca = s->chain_a, cb = s->chain_b;
+    int lo, hi, c, w;
+    s->chain_win = 0;
+    s->chain_at = 0;
+    if ((song_plays(s) && !s->song_rec) || !s->pat || ca == cb || ca >= NPAT || cb >= NPAT)
+        return;
+    lo = ca < cb ? ca : cb;
+    hi = ca < cb ? cb : ca;
+    c = (int)s->ppat[TRK_DRUM];
+    if (c < lo || c > hi)
+        return;
+    w = seq_chain_window(s->pat, ca, cb);
+    if (w < 1)
+        w = 1;
+    if (w > NSTEPS)
+        w = NSTEPS;
+    s->chain_win = (uint8_t)w;
+#endif
+}
+
+/* 1 = this 909 step ends the bar. A latched slot ignores the pattern wrap
+ * until chain_at reaches the window, then ends even in the middle of a loop. */
+static int drum_boundary(const seq_t *s, int wrapped)
+{
+    if (!s->chain_win || (song_plays(s) && !s->song_rec))
+        return wrapped;
+    return s->chain_at >= s->chain_win;
+}
+
 /* the bar's end (the 909 wrapping), or the start: cues, the chain or the song decide each
  * part's next pattern. Returns the parts whose pattern changed (bit t). */
 static uint32_t bar_end(seq_t *s, int start)
@@ -454,10 +528,15 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
             (bpart(s, t - TRK_BASS0)->dir == DIR_REV ? p == seq_part_len(s, t) - 1 :
              bpart(s, t - TRK_BASS0)->dir != DIR_RANDOM && p == 0);
     }
-    if (wrapped && t == TRK_DRUM && (changed = bar_end(s, 0)) != 0) {
-        rate = part_rate(s, t);                       /* the 909's new pattern */
-        L = seq_step_q8(s, rate);
-        p = 0;
+    {
+        int bar = t == TRK_DRUM && drum_boundary(s, wrapped);
+        if (bar && ((changed = bar_end(s, 0)) & (1u << TRK_DRUM)) != 0) {
+            rate = part_rate(s, t);                   /* the 909's new pattern */
+            L = seq_step_q8(s, rate);
+            p = 0;
+        }
+        if (bar)
+            chain_slot_open(s);                       /* next slot, after the chain has moved */
     }
     if (bass) {
         if (bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM) {
@@ -491,7 +570,8 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
     else if (t == TRK_BRK) {
         if (o->brk)
             o->brk(o->ctx, p, tr->bars, (float)L / 256.0f,
-                   (s->pat[s->ppat[TRK_BRK]].brk.steps >> p & 1u) && !(s->mute & (1u << MUTE_BRK)));
+                   (s->pat[s->ppat[TRK_BRK]].brk.steps >> p & 1u) && !(s->mute & (1u << MUTE_BRK)) &&
+                   !SEQ_PART_OFF(s, TRK_BRK));
     } else
         fire_bass(s, t - TRK_BASS0, p, L, carry, skip, o);
     if (s->ext) {
@@ -512,6 +592,8 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
                 tr->to_next = carry + L;
         }
     }
+    if (t == TRK_DRUM && s->chain_win)
+        s->chain_at++;
     return changed;
 }
 
@@ -558,6 +640,17 @@ __attribute__((noinline)) static void bass_and_brk_stop(seq_t *s, const seq_sink
         o->brk_stop(o->ctx);
 }
 
+/* Global panic: release notes the sequencer owns. Do not stop, rewind or send Stop. */
+void seq_notes_off(seq_t *s, const seq_sink_t *o)
+{
+    /* Finalize live captures before releasing gates, so silent held notes cannot
+     * keep overwriting future cells or retain ownership after panic. */
+    for (int b = 0; b < NBASS; b++)
+        seq_rec_cancel(s, b);
+    /* PANIC_NOTE_OFF */
+    bass_and_brk_stop(s, o);
+}
+
 __attribute__((noinline)) static void seq_send_rt(seq_t *s, const seq_sink_t *o, uint8_t remote, uint8_t st)
 {
     if (!s->ext && s->send_clock && (!s->midi_req || !remote))
@@ -568,8 +661,10 @@ __attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq
 {
     int t;
     bass_release_all(s, o);                /* Start/Continue reinitialises timers: release old notes first */
-    if (from_top)
+    if (from_top) {
         bar_end(s, 1);                                /* cues, or the song's start bar */
+        chain_slot_open(s);                           /* latch the chain window for this slot */
+    }
     for (t = 0; t < NTRACKS; t++)
         track_arm(s, t, from_top, 1);
     if (from_top || !s->metro_period) {

@@ -37,6 +37,11 @@ static struct { int n; const char *title[MAXPAGES]; } pg;
 static uint8_t page;
 static const char *const PART_N[] = {"909","808","A","B","BREAK"};
 static int last_view,last_page,fx,moved,edited,tap,knob_bank,home_held;
+static int project_busy, reset_part = -1;
+/* This extracted fixture covers routing; the production UI regressions cover
+ * question policy, reset data, audio ownership and undo. */
+static int play_answer_question(int home) { return home; }
+static void ask_sound_reset(int part) { reset_part = part; }
 static int smc_home_held(void) { return home_held; }
 /* Locked PAGE previews the captured page (#737 peek); count the calls. */
 static int peek_locked;
@@ -97,6 +102,10 @@ int main(void) {
         assert(note<0x62 ? moved==d && edited==0 : moved==0 && edited==d);
         assert(knob_bank==0);
     }
+    ui.view=V_HOME; ui.overlay=O_NONE; home_held=1;
+    reset_part=-1; smc_button(24,0); assert(reset_part==PART_909);
+    project_busy=1; reset_part=-1; smc_button(24,0); assert(reset_part==-1);
+    project_busy=0; smc.locked=1; reset_part=-1; smc_button(24,0); assert(reset_part==-1);
     return 0;
 }
 '''

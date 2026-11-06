@@ -91,10 +91,13 @@ test_class() {
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
-    rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
+    rec-live-smk|panic-mutants) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    play-question-ui|sound-reset-ui|held-step-release|ui-perf-identity) TEST_CLASS=G ;;
+    part-off|part-off-web-e2e) TEST_CLASS=G ;;
+    panic-clear|panic-route) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -133,7 +136,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in save-note-quiet|optimization-equivalence) return 0 ;; esac
+    case "$1" in save-note-quiet|optimization-equivalence|part-off|part-off-web-e2e|panic-clear|panic-route) return 0 ;; esac
     case "$1" in dsp-host-linkage|bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
@@ -305,8 +308,15 @@ seq_test() {
     fi
     $OUT/seq_test
 }
+run play-question sh tests/host/play_question_test.sh
+run play-question-ui sh tests/host/play_question_ui_test.sh
+run sound-reset sh tests/host/sound_reset_test.sh
+run sound-reset-ui sh tests/host/sound_reset_ui_test.sh
+run held-step-release sh tests/host/held_step_release_test.sh
+run ui-perf-identity sh tests/host/ui_perf_identity_test.sh
 run home-tie-semantics sh tests/host/home_tie_semantics_test.sh
 run sequencer seq_test
+run chain-longest sh tests/host/chain_longest_test.sh
 run bass-prob-midi sh -c "$CC -O2 -Wall -Wextra -Werror -o $OUT/bass_probability_midi_test tests/host/bass_probability_midi_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/bass_probability_midi_test"
 run seq-tb3po-bars sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_tb3po_bar_test tests/host/seq_tb3po_bar_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_tb3po_bar_test"
 run seq-random-swing sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_swing_test tests/host/seq_random_swing_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_random_swing_test"
@@ -319,6 +329,7 @@ run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/enc
 run bass-midi-pending-native python3 tests/host/bass_midi_pending_native_test.py
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
+run usb-retry sh tests/host/run_usb_retry.sh
 run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tests/host/undo_test.c && $OUT/undo_test"
 run undo-capacity sh tests/host/run_undo_capacity.sh
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
@@ -397,10 +408,20 @@ run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
 run miami-table-interpolation sh tests/host/run_miami_table_interpolation.sh
+run lcd-bounded sh tests/host/lcd_bounded_test.sh
+run lcd-dispatch-reuse python3 tests/host/lcd_dispatch_reuse_test.py
+run chicago-coef-cache sh tests/host/chicago_coef_cache_test.sh
+run chicago-packed-cache sh tests/host/chicago_packed_cache_test.sh
+run miami-coef-cache sh tests/host/run_miami_coef_cache.sh
+run control-recompile env X0X_RECOMPILE_EXACT=1 sh tests/host/control_recompile_test.sh
 run legacy-303-project sh tests/host/legacy_303_project_test.sh   # old bass303 projects load as the Chicago default, no crash, no save
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
 run part-order sh tests/host/part_order_test.sh
+run part-off env PART_OFF_REQUIRE_BASE=1 PART_OFF_BASE_REF=a06e20189141ff5fb8766e2c6152be460f4356c3 sh tests/host/run_part_off.sh
+run part-off-web-e2e sh tests/host/run_part_off_web_e2e.sh
+run part-off-web-e2e-node-gate sh tests/host/run_part_off_web_e2e_node_gate_test.sh
+run part-off-web-e2e-not-run-exit sh tests/host/run_part_off_web_e2e_not_run_exit_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
 run smc-ui-popup sh tests/host/smc_ui_popup_test.sh
 run smc-mode-page sh tests/host/smc_mode_page_test.sh
@@ -426,6 +447,7 @@ run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/ma
 run drum-kit-identity sh tests/host/drum_kit_identity_test.sh   # independent 909 and 808 voices
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
 run optimization-equivalence sh tests/host/run_optimization_equivalence.sh
+run bass-preset-descriptor-range sh tests/host/bass_preset_descriptor_range_test.sh
 for t in drum909 drum808 breaks; do
     [ -f "tests/host/run_$t.sh" ] || continue
     if miss=$(optional_ref "$t"); then not_run "$t" "$miss"
@@ -467,6 +489,8 @@ run validation-inputs python3 tests/host/test_validation_inputs.py
 run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
 run dev-validate-composed python3 tests/host/test_dev_validate_composed.py ComposedValidation
+run nightly-version python3 tests/host/test_nightly_version.py
+run nightly-package python3 tests/nightly_package_test.py
 run nightly-publish python3 tests/host/test_publish_nightly.py
 run gen-cache python3 tests/host/test_gen_cache.py
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
@@ -578,6 +602,11 @@ run installer-backup-snapshot python3 tests/fm1_install_backup_snapshot_test.py 
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
 run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
+run panic-chord sh tests/host/panic_chord_test.sh
+run panic-notes sh tests/host/panic_notes_test.sh
+run panic-clear sh tests/host/panic_clear_test.sh
+run panic-route sh tests/host/panic_route_test.sh
+run panic-mutants sh tests/host/panic_mutants.sh
 run rec-held-duration sh tests/host/rec_held_duration_test.sh
 run original-stale-release python3 tests/host/test_original_runtime_lost_off.py
 run rec-endpoint-lifecycle sh tests/host/rec_endpoint_lifecycle_test.sh

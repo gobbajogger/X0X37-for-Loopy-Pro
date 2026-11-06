@@ -3,9 +3,13 @@
  * DAW messages match Mackie Control; the stock User preset uses CC and MMC SysEx.
  * TIMER5 only copies complete messages. All project, sequencer and display work is in the main loop. */
 #include "smc_protocol.h"
+#include "panic_chord.h"
 #include "smc_fx_map.h"
 #include "smc_mixer_edges.h"
 #include "smc_fx_caption.h"
+
+#define SMC_PANIC_HOOKS 1
+static void smc_panic_reset(void);
 
 #define SMC_Q 32u
 /* Preserve the decoding preset in the spare event-length bits. */
@@ -310,6 +314,9 @@ X0X_COLD void smc_project_reset(void)
      * peer zero can transiently re-arm peer one's old-project effect. */
     memset(smc_states, 0, sizeof smc_states);
     for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) {
+#ifdef SMC_PANIC_HOOKS
+        smc_panic_reset();
+#endif
         smc.up = smc.fresh = up[smc_slot];
         smc.preset_user_seen = !!(proj.set.bt & PROJ_BT_SMC_USER);
         smc.pending = 0xFFu;
@@ -775,6 +782,7 @@ static void smc_ui_off(void)
     if (!smc_ui.on)
         return;
     smc_ui.on = 0;
+    popup_knob_full_hash = 0;
     for (int i = 0; i < 4; i++) blit_hash[i] = 0;
 #if BOARD_SMK37
     { extern void smk_clip_lcd_force(void); smk_clip_lcd_force(); }
@@ -816,6 +824,7 @@ static void smc_ui_begin(int n, int kind)
         smc_ui_cancel();
         return;                         /* Help keeps its card; confirmation keeps ownership. */
     }
+    if (!smc_ui.on) popup_knob_full_hash = 0;
     smc_ui.on = 1;
     smc_ui.peer = smc_slot;
     smc_ui.strip = (uint8_t)n;
@@ -1053,7 +1062,7 @@ static void smc_ui_draw_peer(void)
     cv_text(5, vc(&FONT_XS, 0, HDR_H), &FONT_XS, caps_of(tag), C_GRAY);
     put_i(put_s(tag, smc_ui.kind == 3 ? "KEY " : smc_ui.kind == 1 || smc_ui.kind == 2 ? "KNOB " : "FADER "), smc_ui.strip + 1);
     text_r(235, vc(&FONT_S, 0, HDR_H), &FONT_S, tag, C_HI);
-    cv_commit(0, 0, 0);
+    cv_commit_header();
     cv_begin(240, 2 * BAND_H, C_BLACK);
     cv_band(0, 2 * BAND_H);
     smc_ui_grid();
@@ -1102,7 +1111,7 @@ static void smc_ui_draw_peer(void)
       if (unit[0]) cv_text(x + 2, base_y(font, 22, &FONT_XS), &FONT_XS, unit, C_GRAY);
     }
     text_c(120, 49, &FONT_XS, status, C_HI);
-    cv_commit(3, 0, KNOB_Y);
+    cv_commit_popup_knobs();
 }
 /* Page-peek is a distinct presentation mode. Keep the full SMC overlay
  * for every other view, but let the real page paint its live meters while a
@@ -1142,7 +1151,7 @@ void smc_ui_draw(void)
             cv_rect(0, 0, 240, HDR_H, C_BLACK);
             text_c(120, vc(&FONT_XS, 0, 10), &FONT_XS, caps_of(banner), C_HI);
             text_c(120, vc(&FONT_T, 10, 10), &FONT_T, status, sc);
-            cv_commit(0, 0, 0);
+            cv_commit_header();
         }
     } else smc_ui_draw_peer();
     smc_slot = saved;
@@ -1669,9 +1678,13 @@ static void smc_button_apply(uint8_t note, int mmc)
         return;
     }
     if (ui.overlay == O_ASK) {
-        if (note == 5 || note == 6)
-            button_tap(note == 5 ? B_SEL : B_HOME);
-        return;
+        if (note == 0x5E) {
+            if (play_answer_question(smc_home_held())) return;
+        } else {
+            if (note == 5 || note == 6)
+                button_tap(note == 5 ? B_SEL : B_HOME);
+            return;
+        }
     }
     /* Button navigation stays live while Pause holds fader/knob targets. */
     if (smc_lock_blocks(note)) {
@@ -1748,6 +1761,11 @@ static void smc_button_apply(uint8_t note, int mmc)
             } else if (row == 2)       /* MUTE */
                 mute_part(part);
             else {                     /* SELECT */
+                if (smc_home_held() && !smc.locked && ui.overlay == O_NONE && !ui.help &&
+                    !smk_clip_mode_on() && !project_busy) {
+                    ask_sound_reset(part);
+                    return;
+                }
                 int repeat_drum = part < NKIT && ui.part == part && ui.overlay == O_NONE;
                 smc_select_part(part);
                 smc_view(repeat_drum ? V_MIX : V_PART, repeat_drum ? part + 1 : -1);
@@ -1814,8 +1832,77 @@ static void smc_button_apply(uint8_t note, int mmc)
     }
 }
 
+/* Physical holds belong to one controller; two peers cannot form a chord. */
+typedef struct {
+    x0x_panic_chord_t chord;
+    uint8_t held;
+    int8_t mode_seen;
+} smc_panic_peer_t;
+static smc_panic_peer_t smc_panic_peers[SMC_PEERS] = {
+    {{0, 0}, 0, -1}, {{0, 0}, 0, -1}
+};
+#define smc_panic (smc_panic_peers[smc_slot].chord)
+#define smc_panic_held (smc_panic_peers[smc_slot].held)
+#define smc_panic_mode_seen (smc_panic_peers[smc_slot].mode_seen)
+
+static int smc_panic_mode_now(void)
+{
+    int user = (proj.set.bt & PROJ_BT_SMC_USER) != 0;
+    return user ? X0X_PANIC_SMC_USER : X0X_PANIC_SMC_DAW;
+}
+
+static void smc_panic_reset(void)
+{
+    smc_panic_held = 0;
+    smc_panic.active = 0;
+    smc_panic.inhibited = 0;
+    smc_panic_mode_seen = -1;
+}
+
+static void smc_panic_sync_mode(void)
+{
+    int mode = smc_panic_mode_now();
+    if (mode == smc_panic_mode_seen)
+        return;
+    smc_panic_mode_seen = mode;
+    (void)x0x_panic_chord_update(&smc_panic, smc_panic_held, mode);
+}
+
+/* Bank L is 0x2E and bank R is 0x2F. Channel arrows are not part of the chord.
+ * Returns 1 when the press must not run its normal action. */
+static int smc_panic_bank(uint8_t note, int down, int mmc)
+{
+    unsigned bit = note == 0x2Eu ? X0X_PANIC_FIRST : note == 0x2Fu ? X0X_PANIC_SECOND : 0u;
+    unsigned result;
+    int mode;
+    if (!bit)
+        return 0;
+    if (mmc) {
+        mode = smc_panic_mode_now();
+        (void)x0x_panic_chord_update(&smc_panic, smc_panic_held | bit, X0X_PANIC_SMC_MMC);
+        (void)x0x_panic_chord_update(&smc_panic, smc_panic_held, mode);
+        smc_panic_mode_seen = mode;
+        return 0;
+    }
+    if (down)
+        smc_panic_held |= bit;
+    else
+        smc_panic_held &= ~bit;
+    /* PANIC_DAW_ONLY */
+    mode = (proj.set.bt & PROJ_BT_SMC_USER) ? X0X_PANIC_SMC_USER : X0X_PANIC_SMC_DAW;
+    smc_panic_mode_seen = mode;
+    result = x0x_panic_chord_update(&smc_panic, smc_panic_held, mode);
+    if (result & X0X_PANIC_FIRE)
+        engine_request_notes_off();
+    return (result & X0X_PANIC_CONSUME) != 0;
+}
+
 static void smc_button(uint8_t note, int mmc)
 {
+#ifdef SMC_PANIC_HOOKS
+    if ((note == 0x2Eu || note == 0x2Fu) && smc_panic_bank(note, 1, mmc))
+        return;
+#endif
     /* A second NoteOn without its NoteOff is a repeat, not another toggle.
      * Each peer retains its own physical key owner across UI navigation. */
     if (!mmc && !smc_hold_press(smc.held, note)) return;
@@ -1837,7 +1924,8 @@ static void smc_button(uint8_t note, int mmc)
     char saved[sizeof ui.msg];
     uint32_t until = ui.msg_until;
     int kit = smc_drum_mix();
-    int action = !smc_lock_blocks(note) && (note == 0x5Du || note == 0x5Eu || note == 0x5Fu ||
+    int answering_play = ui.overlay == O_ASK && note == 0x5Eu;
+    int action = !answering_play && !smc_lock_blocks(note) && (note == 0x5Du || note == 0x5Eu || note == 0x5Fu ||
         (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :
             (((note & 7u) < NPARTS && note != 14u) || note >= 16u))));
     memcpy(saved, ui.msg, sizeof saved);
@@ -1857,6 +1945,9 @@ static void smc_button(uint8_t note, int mmc)
 
 static void smc_release(uint8_t note)
 {
+#ifdef SMC_PANIC_HOOKS
+    if (note == 0x2Eu || note == 0x2Fu) smc_panic_bank(note, 0, 0);
+#endif
     int was_held = smc_hold_release(smc.held, note);
     if (was_held && smc_ui.on && smc_ui.peer == smc_slot &&
         !smc_hold_any(smc.held))
@@ -1904,6 +1995,12 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     b = m[2] & 0x7Fu;
     if (user && ch != 0u && ch != 15u) return 4;
     if (!allow || perf_testing()) {
+#ifdef SMC_PANIC_HOOKS
+        /* Releases retire physical panic ownership even while actions are blocked. */
+        if ((!ch || user) && (a == 0x2Eu || a == 0x2Fu) &&
+            (type == 0x80u || (type == 0x90u && !b)))
+            (void)smc_panic_bank(a, 0, 0);
+#endif
         if (type == 0x90u && b && (!ch || user))
             smc_guarded_button(a, 0, 0);
         return 1;                     /* restoration still owns every other queued input */
@@ -1999,6 +2096,9 @@ static void smc_poll_peer(void)
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
         smc_peek_cancel();
+#ifdef SMC_PANIC_HOOKS
+        smc_panic_reset();
+#endif
         return;
     }
     if (link != smc_link_seen) {
@@ -2033,6 +2133,9 @@ static void smc_poll_peer(void)
         smc.pending = 0xFFu;
         for (int i = 0; i < 128; i++) smc.known[i] = 0;
         smc_solo_clear();              /* also covers a down/up pair coalesced before this poll */
+#ifdef SMC_PANIC_HOOKS
+        smc_panic_reset();
+#endif
         if (!smc.up) {
             smc_peek_cancel();
             ui_say("SMC LOST", 0);
@@ -2051,16 +2154,32 @@ static void smc_poll_peer(void)
         smc.pending = 0xFFu;
         memset(smc.known, 0, sizeof smc.known);
     }
+
+#ifdef SMC_PANIC_HOOKS
+    smc_panic_sync_mode();
+#endif
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
-        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
-        memset(smc.held, 0, sizeof smc.held);
+        smc.lock_down = 0; /* a question cancels a pending hold-to-unlock */
+        /* A question parks edits, not physical PLAY/HOME ownership. Retain
+         * press edges so HOME+PLAY stays redo and held PLAY cannot retoggle. */
+        if (!allow) {
+            smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+            memset(smc.held, 0, sizeof smc.held);
+        }
+#ifdef SMC_PANIC_HOOKS
+        /* Retire swallowed bank edges without rearming a mode-change hold. */
+        if (!smc_panic.inhibited)
+            smc_panic_held = 0;
+        smc_panic.active = 0;
+#endif
         smc_fx_clear();
         smc.picked = smc.seen = 0;
         smc.knob_i = 0;
         smc_peek_cancel();            /* blocked controls keep the current page */
         if (smc_project_active()) smc_solo_clear();
     }
+
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
         __asm__ volatile("" ::: "memory");
@@ -2137,6 +2256,9 @@ static void smc_poll_peer(void)
             else smc.lock_down = 0;
         }
     if (missed_solo) {
+#ifdef SMC_PANIC_HOOKS
+        smc_panic_reset(); /* A lost key-up must not leave a phantom chord member. */
+#endif
         if (smc_project_active()) smc_solo_clear();
         /* The shared release-loss epoch also rearms edge-sensitive buttons.
          * Losing a key-up must never park PLAY, SELECT, or HOME until reconnect. */

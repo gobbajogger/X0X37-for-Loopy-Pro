@@ -1,0 +1,12 @@
+{
+  "row_id": "#104",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "queued": true,
+  "reason": "QUEUED: no source proof yet",
+  "proof_source": "docs/ROADMAP.md:228 (pinned Master tracker inventory only; no source proof)",
+  "notes": "QUEUED: no source proof yet",
+  "code_paths": [],
+  "test_refs": []
+}

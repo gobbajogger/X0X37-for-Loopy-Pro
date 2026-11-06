@@ -151,6 +151,7 @@ void engine_live_key_cancel(int voice)
 int engine_live_key(int voice,uint32_t generation,int token,int pitch,int velocity,int accent,int slide)
 {
     if((unsigned)voice>=NBASS || token<1 || token>37 || pitch<1 || pitch>127 || velocity<0 || velocity>127)return 0;
+    if (velocity && SEQ_PART_OFF(&seq, TRK_BASS0 + voice)) return 0;
     uint32_t flags=plat_cq_lock();
     if(live_key_owner[voice].blocked){plat_cq_unlock(flags);return 0;}
     unsigned w=live_key_w,next=(w+1u)%LIVE_KEY_Q;
@@ -772,6 +773,7 @@ X0X_COLD void engine_apply_sound(const sound_t *s)
 
 void engine_drum(int kit, int voice, float vel)
 {
+    if ((unsigned)kit < NKIT && SEQ_PART_OFF(&seq, kit)) return;
     cq_put(C_DRUM, (uint32_t)kit, (uint32_t)voice, (uint32_t)(vel * 4095.0f));
 }
 void engine_bass_on(int part, int note, int accent, int slide)
@@ -780,6 +782,7 @@ void engine_bass_on(int part, int note, int accent, int slide)
 }
 void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity)
 {
+    if ((unsigned)part < NBASS && SEQ_PART_OFF(&seq, TRK_BASS0 + part)) return;
     if (velocity < 1) velocity = 1;
     if (velocity > 127) velocity = 127;
     cq_put(C_BON, (uint32_t)part, (uint32_t)note,
@@ -787,12 +790,26 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
 }
 void engine_bass_record(int part, int note, int velocity, int flags)
 {
+    if ((unsigned)part < NBASS && SEQ_PART_OFF(&seq, TRK_BASS0 + part)) return;
     if (velocity < 1) velocity = 1;
     if (velocity > 127) velocity = 127;
     cq_put(C_REC, (uint32_t)(part | ((seq.rec_epoch & 127u) << 1)), (uint32_t)note,
            (uint32_t)((flags & BS_ACCENT ? 1 : 0) | (velocity << 2) | (flags & BS_SLIDE ? 512 : 0)));
 }
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
+static volatile uint8_t notes_off_req;
+static volatile uint32_t notes_off_requested_cutoff;
+static uint32_t notes_off_cutoff;
+static uint8_t notes_off_discard;
+void engine_request_notes_off(void)
+{
+    uint32_t flags = plat_cq_lock();
+    notes_off_requested_cutoff = cq_w;
+    __asm__ volatile("" ::: "memory");
+    notes_off_req = 1;
+    plat_cq_unlock(flags);
+    __asm__ volatile("" ::: "memory");
+}
 void engine_bass_off_note(int part, int note)
 {
     if (note <= 0)
@@ -800,7 +817,11 @@ void engine_bass_off_note(int part, int note)
     else
         cq_put(C_BOFF, (uint32_t)part, (uint32_t)(note & 127), 1u);
 }
-void engine_brk_live(int key, int down) { cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
+void engine_brk_live(int key, int down)
+{
+    if (down && SEQ_PART_OFF(&seq, TRK_BRK)) return;   /* a release always passes */
+    cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0);
+}
 
 /* ------------------------------------------------------- sequencer sink --- */
 /* probability: each part's (and drum track's) chance on the step playing now, set by its T_PROB lane
@@ -879,7 +900,7 @@ static void s_brk(void *x, int s16, int bar, float spb, int en)
     if (en && prob_skip(PART_BRK, 0))
         en = 0;
     (void)x;
-    breaks_set_quiet(&brk, bp->steps == 0 || (seq.mute & (1u << MUTE_BRK)));   /* unheard: stop decoding */
+    breaks_set_quiet(&brk, bp->steps == 0 || (seq.mute & (1u << MUTE_BRK)) || SEQ_PART_OFF(&seq, TRK_BRK));
     for (i = 0; i < BRK_NSET; i++)       /* follow the playing pattern's settings (12 compares) */
         if (bp->set[i] != brk_applied[i]) {
             brk_applied[i] = bp->set[i];
@@ -1145,6 +1166,7 @@ void smk_apc_clock_tick(void);
 void smk_apc_clock_start(void);
 void smk_apc_clock_position(uint32_t sixteenths);
 void smk_ck_midi_stop(void);
+__attribute__((weak)) void smk_ck_midi_stop(void) {}
 #endif
 
 X0X_COLD int engine_project_notes(void)
@@ -1398,8 +1420,10 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
         return;
     }
     if ((ty == 0x90 || ty == 0x80) && seq.ch[TRK_BRK] == ch) {
-        /* The break's channel owns the note. Drums and the 303s do not also play it. */
-        brk_midi_wrap(src, ty == 0x90, d1);
+        /* The break's channel owns the note. Drums and the 303s do not also play it.
+         * OFF: a Note On is swallowed here; a Note Off still releases. */
+        if (!(ty == 0x90 && SEQ_PART_OFF(&seq, TRK_BRK)))
+            brk_midi_wrap(src, ty == 0x90, d1);
         return;
     }
     /* Kit MIDI channel owns the note (GLO remap). Same consume rule as BREAK:
@@ -1410,7 +1434,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
             if (seq.ch[k] != ch)
                 continue;
             kit_own = 1;
-            if (ty == 0x90) {                            /* machines on GM drum notes (GM_DRUM) */
+            if (ty == 0x90 && !SEQ_PART_OFF(&seq, k)) {  /* machines on GM drum notes (GM_DRUM) */
                 for (v = 0; v < NDRUM; v++)
                     if (GM_DRUM[k][v] == d1) {
                         s_drum(0, k, v, (float)d2 / 127.0f);
@@ -1423,6 +1447,8 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
     }
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
+            if (ty == 0x90 && SEQ_PART_OFF(&seq, TRK_BASS0 + k))
+                continue;                              /* OFF: swallowed; its Note Off still releases */
             if (ty == 0x90 || ty == 0x80) {
                 unsigned velocity = ty == 0x90 ? d2 : 0;
                 /* External MIDI recording: accepted physical edges, as the pads do. */
@@ -1475,6 +1501,14 @@ int engine_bass_keys_held(void) /* host test: bit k when 303 k holds any key (MI
                 if (original_bass[k].keys[input][key]) { r |= 1 << k; break; }
     return r;
 }
+/* Host oracle: bit 0 a 909 voice is inside its mute window; bit 1/2 bass A/B gates. */
+int engine_part_sounding(void)
+{
+    int k, on = drum909_active(&d909) ? 1 : 0;
+    for (k = 0; k < NBASS; k++)
+        on |= original_runtime_active(&original_bass[k]) ? (2 << k) : 0;
+    return on;
+}
 int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
 {
     int k, r = (int)((brk.keys | brk.slices) << 8 & 0xFF00u);   /* held slices 0..7 (adaptive slicing keeps them in brk.slices) */
@@ -1487,6 +1521,37 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
 #include "original_presets.inc"
 
 /* ---------------------------------------------------------------- render --- */
+static void engine_notes_off_apply(void)
+{
+    int v, src, s;
+    /* PANIC_APPLY */
+    seq_notes_off(&seq, &SINK);
+    for (v = 0; v < NBASS; v++) {
+        live_key_context_retire(v, 0); /* invalidate physical presses already queued */
+        (void)original_runtime_all_off(&original_bass[v]);
+        s_boff(0, v);
+        live_key_owner[v].gate = live_key_owner[v].token = 0;
+        live_key_owner[v].pitch = live_key_owner[v].arp = 0;
+        __builtin_memset(original_key_pitch[v], 0, sizeof original_key_pitch[v]);
+        bass_held[v] = 0;
+        bass_held_count[v] = 0;
+    }
+    for (src = 0; src < MIDI_NSRC; src++) {
+        src_held[src] = 0;
+        for (s = 0; s < 16; s++)
+            brk_down[src][s] = 0;
+    }
+    brk_local = 0;
+    for (s = 0; s < 32; s++) breaks_slice_hold(&brk, s, 0);
+    brk.keys = 0;
+    brk.restart = 0;
+    drum909_all_off(&d909);
+    drum808_all_off(&d808);
+#if BOARD_SMK37
+    smk_ck_midi_stop();
+#endif
+}
+
 static void drain(void)
 {
     original_midi_context();
@@ -1495,6 +1560,14 @@ static void drain(void)
     if (seq.req_stop) seq_advance(&seq, 0, &SINK);
     uint32_t r = cq_r, pkt;
     int guard = 64;
+    int panic_cycle = 0;
+    __asm__ volatile("" ::: "memory");
+    if (notes_off_req) {
+        notes_off_req = 0;
+        panic_cycle = 1;
+        notes_off_cutoff = notes_off_requested_cutoff;
+        notes_off_discard = (uint8_t)(cq_r != notes_off_cutoff);
+    }
     brk_channel_reconcile();
     /* Finish old contexts before a queued new press can acquire note ownership. */
     for (int k = 0; k < NBASS; k++) {
@@ -1509,7 +1582,13 @@ static void drain(void)
     unsigned budget = 128; /* bound parameter floods to this audio boundary */
     while (r != cq_w && budget--) {
         uint32_t c = cq[r % CQ], type = c >> 28, a = (c >> 20) & 0xFFu, b = (c >> 12) & 0xFFu, v = c & 0xFFFu;
+        int discard = notes_off_discard;
         r++;
+        if (notes_off_discard && r == notes_off_cutoff) notes_off_discard = 0;
+        /* PANIC_DROP_QUEUED */
+        if (discard && (type == C_DRUM || type == C_BON || type == C_REC ||
+                        (type == C_BRK && b != 0u)))
+            continue;
         uint32_t rec_epoch = a >> 1;
         if (type == C_REC) a &= 1u;
         if (type < 8u)
@@ -1568,6 +1647,8 @@ static void drain(void)
     while (guard-- > 0 && plat_midi_in(&pkt))
         if (!project_midi_drop) midi_in(pkt);
     if (guard >= 0) project_midi_drop = 0;
+    if (panic_cycle)
+        engine_notes_off_apply();
 }
 
 static void live_key_drain(void)
@@ -1586,6 +1667,7 @@ static void live_key_drain(void)
         unsigned velocity=(c.word>>14)&127u,accent=(c.word>>21)&1u,slide=(c.word>>22)&1u;
         live_key_owner_t *o=&live_key_owner[v];
         if(o->blocked || c.generation!=o->generation)continue;
+        if (velocity && SEQ_PART_OFF(&seq, TRK_BASS0 + v)) continue;
         (void)accent; (void)slide;
         uint8_t previous = original_key_pitch[v][token];
         if (velocity) {
@@ -1603,8 +1685,7 @@ static void live_key_drain(void)
             o->gate = held != 0;
             if (!held) bass_held[v] = bass_held_count[v] = 0;
         }
-    }
-}
+    }}
 
 static float part_peak[NPARTS];
 __attribute__((noinline)) static void meter(int p, const float *x, float g, uint32_t n)
@@ -2247,6 +2328,8 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 #endif
     int p, g;
     cq_w = cq_r = 0;
+    notes_off_req = notes_off_discard = 0;
+    notes_off_requested_cutoff = notes_off_cutoff = 0;
     rec_w = rec_r = 0;
     brk_local = 0;
     brk_midi_count = 0;

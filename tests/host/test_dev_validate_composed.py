@@ -13,6 +13,7 @@ from test_dev_validate import DevelopmentValidation, ROOT, GUARD
 sys.path.insert(0, str(ROOT/'tools'))
 import validation_inputs as vi
 from fm1pkg_make import ufw
+import dev_validate_composed as composed
 
 RUNNER = ROOT/'tools/dev_validate_composed.py'
 
@@ -54,7 +55,7 @@ print('fixture composition checked')
         h = lambda b: hashlib.sha256(b).hexdigest()
         self.data = {'base':self.commit,'scope':'composed orchestration fixture',
                      'checks':[{'reason':'fixture test','argv':[sys.executable,'test.py']}],
-                     'composition':{'app_sha256':h(b'app'),'raw_package_sha256':h(raw),
+                     'composition':{'nightly_version':'0.0.25','app_sha256':h(b'app'),'raw_package_sha256':h(raw),
                          'controller_sha256':h(b'controller'),'controller_bytes':10,
                          'bundled_package_sha256':h(raw),'package_sha256':h(raw),
                          'composer':str(self.composer),'dependency_pins':{
@@ -81,6 +82,8 @@ print('fixture composition checked')
         self.ready()
         record=json.loads((self.out/'record.json').read_text())
         self.assertEqual(set(record['logs']),{'build','controller','check-0','check-1','check-2','check-3'})
+        self.assertEqual(record['logs']['build']['argv'][-4:],
+                         ['--nightly-version', '0.0.25', '--git-sha', self.commit])
         self.assertEqual(self.guard().returncode,0)
         self.assertEqual(self.guard('--config','rel').returncode,3)
         self.queue.write_text('- [ ] missing pending\n')
@@ -90,6 +93,49 @@ print('fixture composition checked')
             p=self.out/name;old=p.read_bytes();p.write_bytes(old+b'tampered')
             self.assertEqual(self.guard().returncode,3,name);p.write_bytes(old)
         self.assertEqual(self.guard().returncode,0)
+
+    def test_missing_or_invalid_nightly_version_refused_before_build(self):
+        for value in (None, "DEV", "0.0.25_openbeta", "00.0.25"):
+            with self.subTest(version=value):
+                self.data['composition']['nightly_version'] = value
+                with self.assertRaises(ValueError):
+                    composed.prepare_plan(self.data, 'elite')
+
+    def test_generated_package_commands_use_real_cli(self):
+        # Real packer/checker, synthetic non-executable bytes; no fake package tool.
+        sys.path.insert(0, str(ROOT/'tests'))
+        import nightly_package_test as fixtures
+        work = self.root/'real-package-cli'
+        work.mkdir()
+        (work/'tools').symlink_to(ROOT/'tools', target_is_directory=True)
+        (work/'build').mkdir()
+        (work/'ble/ctl/out').mkdir(parents=True)
+        ctl = fixtures.make_controller()
+        (work/'ble/ctl/out/ctl.img').write_bytes(ctl)
+        self.data['composition']['controller_sha256'] = hashlib.sha256(ctl).hexdigest()
+        self.data['composition']['controller_bytes'] = len(ctl)
+        for model in ('elite', 'pro'):
+            plan, start, raw = composed.prepare_plan(self.data, model)
+            (work/raw).write_bytes(fixtures.make_package(model, version='0.0.25'))
+            commands = [plan['checks'][start]['argv'], plan['checks'][start+2]['argv']]
+            for command in commands:
+                self.assertEqual(command[command.index('--firmware-version')+1], '0.0.25')
+                missing = list(command)
+                index = missing.index('--firmware-version')
+                del missing[index:index+2]
+                refusal = subprocess.run(missing, cwd=work, capture_output=True, text=True)
+                self.assertEqual(refusal.returncode, 2, refusal.stdout+refusal.stderr)
+                self.assertIn('--firmware-version', refusal.stderr)
+                result = subprocess.run(command, cwd=work, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+                if '-o' in command:
+                    shutil.copyfile(work/'composed-bundled.fwsc', work/'composed-final.fwsc')
+            bad = list(commands[1])
+            bad[bad.index('--firmware-version')+1] = '0.0.24'
+            result = subprocess.run(bad, cwd=work, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+            self.assertIn('does not match', result.stderr)
+            (work/'composed-bundled.fwsc').unlink()
 
     def test_each_output_pin_refuses_instead_of_substituting(self):
         for key in ('app_sha256','raw_package_sha256','controller_sha256','bundled_package_sha256','package_sha256'):

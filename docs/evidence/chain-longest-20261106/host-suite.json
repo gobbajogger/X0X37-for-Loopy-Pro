@@ -1,0 +1,1738 @@
+{
+  "status": "PASS_AFTER_CORRECTIVE_RERUN",
+  "request": "t656u",
+  "base": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "original_lane_head": "3d470e158683af0fe7a5b2d8185af51e3209d371",
+  "counts": {
+    "pass": 337,
+    "fail": 0,
+    "skip": 0
+  },
+  "full_attempt": {
+    "argv": [
+      "sh",
+      "tests/run_tests.sh"
+    ],
+    "environment": {
+      "X0X_STRICT_PREFLIGHT": "1",
+      "X0X_TEST_JOBS": "8",
+      "CC": "cc"
+    },
+    "exit_code": 1,
+    "pass": 336,
+    "fail": [
+      "optimization-equivalence"
+    ],
+    "skip": 0,
+    "cause": "Host clang was absent; GCC equivalence comparisons passed before the required clang check failed."
+  },
+  "corrective_rerun": {
+    "argv": [
+      "sh",
+      "tests/run_tests.sh",
+      "optimization-equivalence"
+    ],
+    "environment": {
+      "X0X_STRICT_PREFLIGHT": "1",
+      "X0X_TEST_JOBS": "1",
+      "CC": "cc",
+      "host_clang": "Debian clang 19.1.7"
+    },
+    "exit_code": 0,
+    "pass": [
+      "optimization-equivalence"
+    ],
+    "fail": [],
+    "skip": 0
+  },
+  "results": [
+    {
+      "name": "adaptive-break-controls",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "adaptive-break-dsp",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "adaptive-break-midi-pair",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "adaptive-break-storage",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "apc-palette",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "apc40-lcd565-csv",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "apc40-pad-owner",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "apc40-tables",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "au-compare-align",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "au-compare-battery",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "bass-midi-pending-native",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "bass-prob-midi",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-acl-start-flags",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-acl-zero-credit",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-active-peer-contract",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-capture-replay",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-central-diag",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-central-first-notification",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-command-credit",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-controller-heap",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-disconnect-status",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-dual-peer",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-hci-completed",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-link-epoch-reset",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-midi-receive",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-one-peer-command",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-out-noteoff-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-out-rt-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-package",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-role-switch",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-smc-outbound-slots",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ble-sysex-bounds",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "boot-screen",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "break-pack",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "break-pack-web",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "break-performance",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "break-suite-registration",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "breaks",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "breaks-page",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "breaks-web",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "brk-loops-seamless",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "brk-outline",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "brk-outline-gate",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "builtin-break-output",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "chain-longest",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "chicago-fx-bridge",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "chicago-presentation",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "chicago-readout",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "clk-lock",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "copy-semantics",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "corner-coverage",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ctl-compile",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ctl-publish-atomic",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ctl-read-framing",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "dev-validate",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "dev-validate-composed",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "diag-size",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "drum-kit-identity",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "drum-pan",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "drum808",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "drum909",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "drum909-adpcm",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "dsp-host-linkage",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "editor-ota-dispatch",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "encoder",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "engine-cq-boff-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "engine-cq-bon-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "engine-cq-brk-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "engine-cq-drum-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "engine-cq-isr-preemption",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "engine-cq-rec-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ext-midi-rec-smk",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "fastmath",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "fastmath-ubsan",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "font-pack",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "freeplay-rate-pads",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "gate-configs",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "gate-reason",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "gate-trap",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "gen-cache",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "gen-nonfont-tables",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "gen-order",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "home-overview",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "home-pattern-glyph",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "home-tie-semantics",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "host-build",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "host-failure-summary",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "host-setup",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "inlog-tool",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "install-gate-guard",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "install-guards",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "install-head",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "install-slots-web",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer-backup-selection",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer-backup-snapshot",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer-ctl",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer-f02-bind",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer-f02-bind-web",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer-ota-finish-ack",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer-project-handoff",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer-restore-status",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer-slots",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "installer-targets",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "legacy-303-project",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "locked-settings",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "loop-bars",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "lz",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "lz-max-match",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "master",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "matrix-knob-caption",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "miami-table-interpolation",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "midi-mq-noteoff-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "midi-mq-rt-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "midi-out-mq-noteoff-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "midi-overflow-order",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "motion",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "nightly-publish",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "optimization-equivalence",
+      "status": "PASS",
+      "proof": "corrective_rerun"
+    },
+    {
+      "name": "original-build",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "original-release-integration",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "original-release-ui",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "original-stale-release",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "pad-placement-doc",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "padcal-flag",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "padcal-view",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "part-order",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "perf-scratch",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "perf-wheel-motion",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "prepush-allow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "prepush-trim",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "preset-navigation-noop",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "project-adoption-identities",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "project-protocol",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "project-runtime",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "project-save-preflight",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "project-stage",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "projects-page",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "projects-web",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "queue-guard",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "quickcheck-devbug",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "quickcheck-plan",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "rec-endpoint-lifecycle",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "rec-endpoint-storage",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "rec-held-duration",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "rec-live-smk",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "rec-nonforward-guard",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "release-tree",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "remaining-feature-proof-selftest",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "roadmap-evidence-check",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "roadmap-evidence-check-selftest",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "runner-admission",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "save-note-quiet",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-arrows",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-autosave",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-bleclock",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-blenotes",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-brkslice",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-brkslice_mode_toggle",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-brkslice_trs_overlap",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-clip-arrow-menu",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-clklock",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-clkmove",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-clocksrc",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-drum_bass_ch_consume",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-edit_midi_rec_guard",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-edit_oct_no_hidden",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-extclock",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-freeplay",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-getting_started",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-groove",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-guard",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-help",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-jam",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-keysound",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-knobs",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-midiowner",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-migrate",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-migrate0102",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-patterns",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-perf",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-perfsave",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-plock",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-prob",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-probcond",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-probreset",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-roll_continuation",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-roll_short_tie",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-savefeedback",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-savewait",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-showcase",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-slices",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-song",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-song_live_mute_save",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-songrep",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-sound_matrix_chicago",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-sound_matrix_chicago_idle",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-sound_matrix_drum",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-sound_matrix_lock",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-sound_matrix_miami",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-sound_page_split",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-step303",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-steps64",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-stereo",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-tb3po",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-tour",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-trackmute",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-undo",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-upload",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-upload44",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "scenario-usbnotes",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "seq-long-notes",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "seq-pingpong-resize",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "seq-random-clock-handoff",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "seq-random-swing",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "seq-random-tie-preview",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "seq-tb3po-bars",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "sequencer",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-ack-integrity",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-archive-zone",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-backup",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-backup-durable",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-begin-cancel",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-break-menu-migration",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-build-safe",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-echo-7bit",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-migration-matching",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-read-reply",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "slot-verify-order",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-action-source",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-ble-payload",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-boot-saved-roles",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-buttons",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-clip-visibility",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-drum-mutes",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-drum-rs",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-fader",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-feedback",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-filter",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-fx",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-fx-caption",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-fx-page-port",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-fx-peer-view",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-fx-preset-preserve",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-host-data7",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-host-overflow-data7",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-interaction-negative",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-link",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-lock",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-lock-beat",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-mapping",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-mixer-edges",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-mixer-page",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-mode-page",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-multi-peer",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-multi-peer-negative",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-part-select",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-pause-loss",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-performance-abort",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-pickup-acceptance",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-protocol",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-queue",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-reachability",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-reconnect-epoch",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-record-feedback",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-select-mode",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-sender-isolation",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-solo-overflow",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-ui",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-ui-bounds",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-ui-negative",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smc-ui-popup",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-apc40",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-apc40-map",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-apc40-violet",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-arrows",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-arrows-owner",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-build-package",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-build-package-elite",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-chord-recognize",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-ck-page-layout",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-ble-clear",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-ble-notify",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-chord-display",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-dark",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-idle",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-idle-pad",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-isolation",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-keys",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-knob",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-usb-clear",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-clip-wait",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-fader-pickup",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-flash",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-inlog",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-ota-entry",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-ota-entry-model1",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-ota-entry-model2",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-package",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-pad-inputs",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-padcal",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-padcal-export",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-padcal-wiring",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-storage",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-update-contract",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-update-loader",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smk-wheel-mode",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "smp-begin-cancel",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "song-actions",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "sound-layout",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "sound-matrix",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "stage-handoff",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "status-isolation",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "status-lanes",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "stereo",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "stereo-alone-gen",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "storage-scratch",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "trs",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "uac",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ui-303-entry",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ui-chicago-env-motion",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ui-drum-glyph",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ui-drum-mix-material",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ui-feedback",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ui-glyph-polish",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ui-shared-glyph",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ui-theme",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "ui-waveform-truth",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "undo",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "undo-capacity",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "update-names",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "upload-images",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "upload-tools",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "usb-sxq-sticky-apc",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "validation-inputs",
+      "status": "PASS",
+      "proof": "full_attempt"
+    },
+    {
+      "name": "wav-import-integrity",
+      "status": "PASS",
+      "proof": "full_attempt"
+    }
+  ],
+  "sequencer_blob": "c54cb0e0588600ab83604c44446234ff1fa942ec",
+  "test_blob": "00ff236ad7feb444133104b86d0c122d777a0eba",
+  "proof_scope": "Root personally executed full host suite, corrective rerun and native builds. Reviewer inspected source only. No device or release qualification."
+}

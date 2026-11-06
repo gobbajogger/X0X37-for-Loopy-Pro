@@ -73,18 +73,51 @@ int original_oscillator_sample_gains(original_oscillators *s,const original_prep
 int original_oscillator_sample(original_oscillators *s,const original_osc_controls *c,unsigned sync,float *output){
  original_prepared_oscillators p;if(!original_oscillator_prepare(&p,c))return 0;return original_oscillator_sample_prepared(s,&p,sync,output);
 }
-int original_mg_tempo(float *p,unsigned rate,float bpm,float fs,uint32_t D,unsigned *wrapped){
+/* Public checked reference stays stateless; the Miami caller passes an
+ * owned cache. All original validations still run before every phase update. */
+static int mg_tempo_step(original_mg_tempo_cache *cache,float *p,unsigned rate,float bpm,float fs,uint32_t D,unsigned *wrapped){
  static const float base[8]={3,3,3,3,4,4,4,4},times[8]={16,8,4,2,8,4,2,1};
  if(!p||!wrapped||rate>7||!original_binary32_isfinite(*p)||*p< -1||*p>1||!original_binary32_isfinite(bpm)||bpm<20||bpm>400||!original_binary32_isfinite(fs)||fs<8000||fs>2147482880.0f||!D||D>(uint32_t)original_binary32_ceil_finite(fs/690.0f))return 0;
- float numerator=(bpm*fl(0x3f4ccccd))*(float)D;float denominator=(fs*base[rate])*times[rate];
- float delta=original_binary32_min_one_finite(numerator/denominator);float next=*p+delta;unsigned wrap=next>=1;if(wrap)next=next-2;
+ uint32_t bb=bits(base[rate]),tb=bits(times[rate]),fb=bits(fs),bp=bits(bpm);
+ float delta;
+ if(cache&&cache->valid&&cache->base_bits==bb&&cache->times_bits==tb&&cache->fs_bits==fb&&cache->bpm_bits==bp&&cache->duration==D)
+  delta=cache->delta;
+ else {
+  float numerator=(bpm*fl(0x3f4ccccd))*(float)D;float denominator=(fs*base[rate])*times[rate];
+  delta=original_binary32_min_one_finite(numerator/denominator);
+  if(cache){cache->base_bits=bb;cache->times_bits=tb;cache->fs_bits=fb;cache->bpm_bits=bp;cache->duration=D;cache->denominator=denominator;cache->delta=delta;cache->valid=1;}
+ }
+ float next=*p+delta;unsigned wrap=next>=1;if(wrap)next=next-2;
  *p=next;*wrapped=wrap;return 1;
 }
-int original_glide(float current[4],const float target[4],float port,float mod,float fs,uint32_t D){
+int original_mg_tempo(float *p,unsigned rate,float bpm,float fs,uint32_t D,unsigned *wrapped){
+ return mg_tempo_step(NULL,p,rate,bpm,fs,D,wrapped);
+}
+int original_mg_tempo_cached(original_mg_tempo_cache *cache,float *p,unsigned rate,float bpm,float fs,uint32_t D,unsigned *wrapped){
+ return cache&&mg_tempo_step(cache,p,rate,bpm,fs,D,wrapped);
+}
+/* Keep original_glide's signature and uncached behaviour for non-Miami users.
+ * Only the coefficient is memoized; checked target/current and the four FMAs
+ * are evaluated on every call, including cache hits. */
+static int glide_step(original_glide_cache *cache,float current[4],const float target[4],float port,float mod,float fs,uint32_t D){
  if(!current||!target||!original_binary32_isfinite(port)||!original_binary32_isfinite(mod)||!original_binary32_isfinite(fs)||fs<8000||fs>2147482880.0f||!D||D>(uint32_t)original_binary32_ceil_finite(fs/690.0f))return 0;
  for(unsigned i=0;i<4;i++)if(!original_binary32_isfinite(current[i])||current[i]<0||current[i]>127||!original_binary32_isfinite(target[i])||target[i]<0||target[i]>127)return 0;
- float sum=port+mod;if(!original_binary32_isfinite(sum))return 0;float t=clamp(sum,0,1),a=t*t;a=ref_fma(a,fl(0x49f42400),fl(0x3a83126f));a=fs*a;a=(float)D/a;a=a*fl(0x4a8ab75d);a=original_binary32_min_one_finite(a);
+ float sum=port+mod;if(!original_binary32_isfinite(sum))return 0;
+ uint32_t pb=bits(port),mb=bits(mod),fb=bits(fs);
+ float a;
+ if(cache&&cache->duration!=0&&cache->port_bits==pb&&cache->mod_bits==mb&&cache->fs_bits==fb&&cache->duration==D)
+  a=cache->a;
+ else {
+  float t=clamp(sum,0,1);a=t*t;a=ref_fma(a,fl(0x49f42400),fl(0x3a83126f));a=fs*a;a=(float)D/a;a=a*fl(0x4a8ab75d);a=original_binary32_min_one_finite(a);
+  if(cache){cache->port_bits=pb;cache->mod_bits=mb;cache->fs_bits=fb;cache->duration=D;cache->a=a;}
+ }
  float next[4];for(unsigned i=0;i<4;i++)next[i]=ref_fma(target[i]-current[i],a,current[i]);memcpy(current,next,sizeof next);return 1;
+}
+int original_glide(float current[4],const float target[4],float port,float mod,float fs,uint32_t D){
+ return glide_step(NULL,current,target,port,mod,fs,D);
+}
+int original_glide_cached(original_glide_cache *cache,float current[4],const float target[4],float port,float mod,float fs,uint32_t D){
+ return cache&&glide_step(cache,current,target,port,mod,fs,D);
 }
 int original_pitch_increment(float pitch,const int32_t table[128],uint32_t *out){
  if(!table||!out||!original_binary32_isfinite(pitch))return 0;

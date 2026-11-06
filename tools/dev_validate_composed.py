@@ -5,6 +5,8 @@
 Uses the unchanged schema-2 DEV verifier. Builds, checks and composition are real
 synchronous commands. Existing artifacts/receipts are never relabeled. Every
 output must match the supplied expected hash or no record is emitted.
+The composition plan must name a canonical nightly_version for the app. The
+model_900 transport identity and schema-2 DEV record semantics remain unchanged.
 """
 import argparse
 import copy
@@ -37,6 +39,8 @@ def prepare_plan(plan, model):
     plan = copy.deepcopy(plan)
     dv.check_plan(plan)
     c = plan['composition']
+    # Explicit app identity; never infer a version from filenames or allocate one.
+    c['nightly_version'] = dv.canonical_version(c.get('nightly_version'))
     for k in ('app_sha256', 'raw_package_sha256', 'controller_sha256',
               'bundled_package_sha256', 'package_sha256'):
         if not isinstance(c.get(k), str) or not SHA.fullmatch(c[k]):
@@ -60,17 +64,18 @@ def prepare_plan(plan, model):
     raw = 'build/' + stem + '.fwsc'
     common = ['--model', model, '--controller-sha256', c['controller_sha256'],
               '--controller-size', str(c['controller_bytes'])]
+    version = ['--firmware-version', c['nightly_version']]
     post = [
         {'reason': 'Bundle exact freshly rebuilt controller; authenticate model and image.',
          'argv': ['python3', 'tools/package_nightly.py', raw, 'ble/ctl/out/ctl.img',
-                  *common, '-o', 'composed-bundled.fwsc']},
+                  *common, *version, '-o', 'composed-bundled.fwsc']},
         {'reason': 'Compose pinned stock bank without changing app/controller/other regions.',
          'argv': ['python3', str(composer), 'composed-bundled.fwsc', *common,
                   '--package-sha256', c['bundled_package_sha256'],
                   '--output', 'composed-final.fwsc', '--receipt', 'composition.json']},
         {'reason': 'Reinspect final composed model, CRC, controller and layout.',
          'argv': ['python3', 'tools/package_nightly.py', 'composed-final.fwsc',
-                  '--check', *common]},
+                  '--check', *common, *version]},
     ]
     pre_count = len(plan.get('checks', []))
     plan['checks'] = plan.get('checks', []) + post
@@ -160,7 +165,8 @@ def run(a):
         for i, check in enumerate(plan['checks'][:pre_count]):
             command('check-' + str(i), check['argv'])
         unchanged(work, manifest)
-        command('build', ['sh', 'build.sh', '--board', 'smk37'])
+        command('build', ['sh', 'build.sh', '--board', 'smk37',
+                          '--nightly-version', c['nightly_version'], '--git-sha', commit])
         limits = dv.budgets((out / 'build.log').read_text())
         app = work / 'build' / ('smk37-elite' if a.model == 'elite' else 'smk37') / 'x0x.bin'
         require_hash(app, c['app_sha256'])
@@ -183,6 +189,8 @@ def run(a):
                 raise ValueError('composition dependency changed: ' + p)
         vi.validate(inputs, identity())
         firmware = dv.inspect_package(final, a.model, commit)
+        # Schema-2 firmware_version describes the transport identity. The app's
+        # NIGHTLY version is bound by the plan and both real package checks.
         if firmware['firmware_version'] is not None:
             raise ValueError('this composed DEV path supports unversioned candidates only')
         artifacts = {}

@@ -144,6 +144,78 @@ printf '{not-json\n' > "$R4/docs/roadmap-evidence/#1.json"
 expect_nonzero RED_malformed_json sh "$CHECK" "$R4" "$R4/docs/roadmap-evidence"
 note "MUTANT RED_malformed_json: wrap json.load in a bare except that continues as UNPROVEN/OK -> RED would exit 0; this case catches it."
 
+
+# Reject malformed UNPROVEN metadata while retaining its classification/count.
+# Dropping the schema-error branch must make these cases fail.
+for kind in row_id roadmap_pin_commit roadmap_blob proof_source filename_mismatch; do
+  fixture=$TMP/unproven_$kind
+  write_good_present "$fixture" "$fixture/docs/roadmap-evidence"
+  python3 - "$fixture" "$kind" <<'PYFIXTURE'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+p = root / "docs/roadmap-evidence/#1.json"
+d = json.loads(p.read_text())
+d["status"] = "UNPROVEN"
+if sys.argv[2] == "filename_mismatch":
+    d["row_id"] = "#wrong"
+else:
+    del d[sys.argv[2]]
+p.write_text(json.dumps(d))
+# A second valid row supplies the shared pin, isolating metadata validation.
+d["row_id"] = "#2"
+d["roadmap_pin_commit"] = "5f578fc0642a1200a5163802bcd69277c511bfc7"
+d["roadmap_blob"] = "a204a54c989d6f323d619e70f799427603756541"
+d["proof_source"] = "fixture"
+(p.parent / "#2.json").write_text(json.dumps(d))
+PYFIXTURE
+  expect_nonzero "RED_UNPROVEN_$kind" sh "$CHECK" "$fixture" "$fixture/docs/roadmap-evidence"
+  out=$(sh "$CHECK" "$fixture" "$fixture/docs/roadmap-evidence" 2>&1) || :
+  case "$kind" in
+    filename_mismatch) reason=row_id_filename_mismatch ;;
+    *) reason=missing_$kind ;;
+  esac
+  if ! printf '%s\n' "$out" | grep -F '#1: UNPROVEN' | grep -Fq "$reason" ||
+     ! printf '%s\n' "$out" | grep -q 'UNPROVEN=2 MISSING=2 rows=2'; then
+    note "FAIL UNPROVEN metadata diagnostics/count: $out"
+    fail=$((fail + 1))
+  fi
+done
+
+# Existing host files outside the supplied tree never count as implementation.
+# Removing the real-path containment check must make each negative fail.
+for kind in absolute parent symlink; do
+  fixture=$TMP/outside_$kind
+  write_good_present "$fixture" "$fixture/docs/roadmap-evidence"
+  printf 'outside fixture\n' > "$TMP/outside.c"
+  ln -s "$TMP/outside.c" "$fixture/outside-link.c"
+  python3 - "$fixture" "$kind" "$TMP/outside.c" <<'PYFIXTURE'
+import json, pathlib, sys
+p = pathlib.Path(sys.argv[1]) / "docs/roadmap-evidence/#1.json"
+d = json.loads(p.read_text())
+d["code_paths"] = [{"absolute": sys.argv[3], "parent": "../outside.c",
+                    "symlink": "outside-link.c"}[sys.argv[2]]]
+p.write_text(json.dumps(d))
+PYFIXTURE
+  expect_nonzero "RED_outside_path_$kind" sh "$CHECK" "$fixture" "$fixture/docs/roadmap-evidence"
+done
+
+# A small roadmap pins the synthetic fixture. Only a temporary checker COPY is
+# repinned: --roadmap-pin and X0X_ROADMAP_PIN must never replace its constant.
+REAL_CHECK=$CHECK
+printf '## Master tracker\n| Item | Status |\n|---|---|\n| #1 fixture | pending |\n### More Master rows\n| Item | Status |\n|---|---|\n| M1 fixture | pending |\n| L1 fixture | pending |\n## Other section\n| #99 outside Master | ignored |\n' > "$TMP/ROADMAP.md"
+python3 - "$CHECK" "$TMP/check.sh" "$TMP/ROADMAP.md" <<'PYFIX'
+import hashlib, pathlib, sys
+source, target, roadmap = map(pathlib.Path, sys.argv[1:])
+b = roadmap.read_bytes()
+pin = hashlib.sha1(b"blob " + str(len(b)).encode() + b"\0" + b).hexdigest()
+s = source.read_text().replace(
+    'ROADMAP_PIN = "a204a54c989d6f323d619e70f799427603756541"',
+    'ROADMAP_PIN = "' + pin + '"')
+target.write_text(s)
+PYFIX
+CHECK=$TMP/check.sh
+unset X0X_ROADMAP_PIN
+
 # --- Strict fixtures: synthetic files and run entries only; nothing is executed. ---
 CANDIDATE=ce27812951555ff7ed9694bf99d20a65dd5f410b
 
@@ -152,7 +224,24 @@ write_strict_present() {
   mkdir -p "$1/tests/host"
   printf 'fixture\n' > "$1/tests/host/example_test.c"
   printf '#!/bin/sh\nif [ 1 = 0 ]; then :; else run engines_selectable true; fi\n' > "$1/tests/run_tests.sh"
-  printf '#1\n' > "$1/docs/roadmap-evidence/REQUIRED_ROWS.txt"
+  cp "$TMP/ROADMAP.md" "$1/docs/ROADMAP.md"
+  python3 - "$1" <<'PYFIX'
+import hashlib, json, pathlib
+import sys
+root = pathlib.Path(sys.argv[1])
+evid = root / "docs/roadmap-evidence"
+# Independently enumerated legacy extras must remain required even if deleted
+# from BOTH the manifest and JSON. They are not Master tracker rows.
+extras = ['DONE-001', 'DONE-002', 'DONE-003', 'DONE-004', 'DONE-005', 'DONE-006', 'DONE-007', 'DONE-008', 'DONE-009', 'DONE-010', 'DONE-011', 'DONE-012', 'DONE-013', 'DONE-014', 'DONE-015', 'DONE-016', 'DONE-017', 'DONE-018', 'DONE-019', 'DONE-020', 'DONE-021', 'FIX-809-REVERT', 'FIX-INSTALLER-BACKUP', 'FIX-SMC-ALIGN', 'FIX-UI-TILES', 'PR-789', 'PR-790', 'PR-791', 'PR-792', 'PR-793', 'PR-794', 'PR-795', 'PR-796', 'PR-797', 'PR-798', 'PR-799', 'PR-800', 'PR-801', 'PR-802', 'PR-803', 'PR-804', 'PR-805', 'PR-806', 'PR-807', 'PR-808', 'PR-809', 'PR-810', 'PR-811', 'PR-820', 'PR-821', 'ROW-80982d592fa7', 'ROW-938cc69314d2', 'ROW-e7ebadf91a40', 'ROW-fcf14c2de61c']
+d = json.loads((evid / "#1.json").read_text())
+b = (root / "docs/ROADMAP.md").read_bytes()
+d["roadmap_blob"] = hashlib.sha1(b"blob " + str(len(b)).encode() + b"\0" + b).hexdigest()
+(evid / "#1.json").write_text(json.dumps(d))
+for row in extras + ["M1", "L1"]:
+    d["row_id"] = row
+    (evid / (row + ".json")).write_text(json.dumps(d))
+(evid / "REQUIRED_ROWS.txt").write_text("\n".join(["#1", "M1", "L1"] + extras) + "\n")
+PYFIX
 }
 
 expect_strict_failure() {
@@ -179,7 +268,8 @@ expect_strict_failure() {
 SG=$TMP/strict_green
 write_strict_present "$SG"
 expect_zero STRICT_GREEN sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$SG" "$SG/docs/roadmap-evidence"
-if [ "$LAST_OUT" != 'STRICT_RESULT PASS rows=1 required=1' ]; then
+if ! printf '%s\n' "$LAST_OUT" | grep -q '^STRICT_RESULT PASS rows=57 required=57$' ||
+   ! printf '%s\n' "$LAST_OUT" | grep -q '^STRICT_INFO master_rows=3$'; then
   note "FAIL STRICT_GREEN summary: $LAST_OUT"
   fail=$((fail + 1))
 fi
@@ -197,6 +287,7 @@ d = json.loads(p.read_text())
 if kind in ("FAIL", "NOT_RUN"):
     d["test_refs"][0]["result"] = kind
 elif kind == "UNPROVEN":
+    # Paths and refs stay filled. The empty stub shape is STRICT_EMPTY_UNPROVEN.
     d["status"] = "UNPROVEN"
 else:
     d["test_refs"][0]["file"] = "tests/host/does_not_exist.c"
@@ -212,7 +303,7 @@ PY
 done
 
 # Additional contract probes isolate checks (a)-(e) for real mutant detection.
-for kind in missing_row extra_row wrong_sha missing_refs forged_test missing_code_path \
+for kind in missing_row extra_row wrong_sha prefix_sha empty_sha SKIP missing_refs forged_test missing_code_path \
             bad_status bad_pin malformed_json; do
   fixture=$TMP/contract_$kind
   write_strict_present "$fixture"
@@ -233,6 +324,12 @@ elif kind in ("extra_row", "bad_pin"):
     (evid / "#2.json").write_text(json.dumps(d))
 elif kind == "wrong_sha":
     d["test_refs"][0]["source_sha"] = "a" * 40
+elif kind == "prefix_sha":
+    d["test_refs"][0]["source_sha"] = d["test_refs"][0]["source_sha"][:12]
+elif kind == "empty_sha":
+    d["test_refs"][0]["source_sha"] = ""
+elif kind == "SKIP":
+    d["test_refs"][0]["result"] = "SKIP"
 elif kind == "missing_refs":
     del d["test_refs"]
 elif kind == "forged_test":
@@ -254,7 +351,8 @@ PY
   case "$kind" in
     missing_row) reason=missing_required_json; row='#2' ;;
     extra_row) reason=unexpected_json; row='#2' ;;
-    wrong_sha) reason=source_sha_mismatch ;;
+    wrong_sha|prefix_sha|empty_sha) reason=source_sha_mismatch ;;
+    SKIP) reason=result_not_PASS ;;
     missing_refs) reason=missing_test_refs ;;
     forged_test) reason=unknown_run_test ;;
     missing_code_path) reason=missing_or_outside_code_path ;;
@@ -308,6 +406,197 @@ for value in '' not-a-sha; do
     fail=$((fail + 1))
   fi
 done
+
+
+# Exact exit checks also require a diagnostic, so a broken invocation cannot
+# masquerade as a successful negative test.
+expect_exit() {
+  label=$1; want=$2; diagnostic=$3; shift 3
+  set +e
+  out=$("$@" 2>&1)
+  rc=$?
+  set -e
+  if [ "$rc" -eq "$want" ] && printf '%s\n' "$out" | grep -Fq "$diagnostic"; then
+    note "PASS $label (exit=$rc; $diagnostic)"
+    pass=$((pass + 1))
+  else
+    note "FAIL $label (expected exit=$want; $diagnostic; got $rc): $out"
+    fail=$((fail + 1))
+  fi
+}
+
+for kind in delete_both shrink_manifest delete_extra_both unknown_manifest; do
+  fixture=$TMP/inventory_$kind
+  write_strict_present "$fixture"
+  python3 - "$fixture" "$kind" <<'PYFIX'
+import pathlib, sys
+root = pathlib.Path(sys.argv[1]); kind = sys.argv[2]
+evid = root / "docs/roadmap-evidence"
+manifest = evid / "REQUIRED_ROWS.txt"
+row = "DONE-001" if kind == "delete_extra_both" else "#1"
+if kind == "unknown_manifest":
+    manifest.write_text(manifest.read_text() + "FORGED-1\n")
+else:
+    manifest.write_text("\n".join(x for x in manifest.read_text().splitlines() if x != row) + "\n")
+    if kind != "shrink_manifest":
+        (evid / (row + ".json")).unlink()
+PYFIX
+  case "$kind" in
+    delete_both) reason='master row has no evidence json'; row='#1' ;;
+    shrink_manifest) reason=master_row_missing_from_manifest; row='#1' ;;
+    delete_extra_both) reason=extra_row_missing_from_manifest; row=DONE-001 ;;
+    unknown_manifest) reason=manifest_id_not_in_master_or_extras; row=FORGED-1 ;;
+  esac
+  expect_strict_failure "STRICT_INVENTORY_$kind" "$fixture" "$reason" "$row"
+done
+
+# The differing bytes are never allowed to borrow the JSON's claimed pin.
+sub=$TMP/substituted
+write_strict_present "$sub"
+python3 - "$sub/docs/ROADMAP.md" <<'PYFIX'
+import pathlib, sys
+p = pathlib.Path(sys.argv[1])
+p.write_text(p.read_text().replace("| #1 fixture | pending |\n", ""))
+PYFIX
+expect_exit STRICT_substituted_roadmap 2 'roadmap file missing or not the pinned blob' \
+  sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$sub"
+# Alter a byte without changing any tracker id: hashing must still reject it.
+bytes_only=$TMP/changed_bytes
+write_strict_present "$bytes_only"
+printf '\nchanged bytes\n' >> "$bytes_only/docs/ROADMAP.md"
+expect_exit STRICT_changed_bytes 2 'roadmap file missing or not the pinned blob' \
+  sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$bytes_only"
+expect_exit STRICT_explicit_substituted_roadmap 2 'roadmap file missing or not the pinned blob' \
+  sh "$CHECK" "$SG" --strict --roadmap "$sub/docs/ROADMAP.md" --candidate-sha "$CANDIDATE"
+expect_exit STRICT_nonfirst_flag 1 'STRICT_RESULT FAIL' \
+  sh "$CHECK" "$TMP/inventory_delete_both" "$TMP/inventory_delete_both/docs/roadmap-evidence" \
+  --strict --candidate-sha "$CANDIDATE"
+expect_exit STRICT_flags_after_operands 0 'STRICT_RESULT PASS' sh "$CHECK" "$SG" "$SG/docs/roadmap-evidence" \
+  --candidate-sha "$CANDIDATE" --roadmap "$SG/docs/ROADMAP.md" --strict
+expect_exit STRICT_extra_operand 2 'ERROR: unexpected strict argument' \
+  sh "$CHECK" "$SG" --strict --candidate-sha "$CANDIDATE" "$SG/docs/roadmap-evidence" extra
+expect_exit STRICT_unknown_flag 2 'ERROR: unexpected strict argument' \
+  sh "$CHECK" "$SG" --strict --candidate-sha "$CANDIDATE" --bogus
+expect_exit STRICT_pin_cannot_replace_constant 2 'ERROR: requested roadmap pin differs from checker pin' \
+  sh "$CHECK" --strict --candidate-sha "$CANDIDATE" --roadmap-pin "$PIN_B" "$SG"
+expect_exit STRICT_env_pin_cannot_replace_constant 2 'ERROR: requested roadmap pin differs from checker pin' \
+  env X0X_ROADMAP_PIN="$PIN_B" sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$SG"
+# Both caller assertions are checked, even if a CLI pin is also provided.
+SYNTH_PIN=$(python3 - "$TMP/ROADMAP.md" <<'PYFIX'
+import hashlib, pathlib, sys
+b = pathlib.Path(sys.argv[1]).read_bytes()
+print(hashlib.sha1(b"blob " + str(len(b)).encode() + b"\0" + b).hexdigest())
+PYFIX
+)
+expect_zero STRICT_matching_pin sh "$CHECK" --strict --candidate-sha "$CANDIDATE" \
+  --roadmap-pin "$SYNTH_PIN" "$SG"
+expect_exit STRICT_conflicting_env_pin 2 'ERROR: requested roadmap pin differs from checker pin' \
+  env X0X_ROADMAP_PIN="$PIN_B" sh "$CHECK" --strict --candidate-sha "$CANDIDATE" \
+  --roadmap-pin "$SYNTH_PIN" "$SG"
+for flag in --candidate-sha --roadmap --roadmap-pin; do
+  expect_exit "STRICT_missing_value_$flag" 2 'ERROR:' sh "$CHECK" "$SG" --strict "$flag"
+done
+missing=$TMP/missing_roadmap
+write_strict_present "$missing"
+rm "$missing/docs/ROADMAP.md"
+expect_exit STRICT_missing_roadmap 2 'roadmap file missing or not the pinned blob' \
+  sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$missing"
+
+# This separate invocation uses the UNMODIFIED production pin. These generated
+# PRESENT objects are synthetic checker fixtures, never firmware proof.
+REAL_ROADMAP=$HERE/../../ROADMAP.pinned.md
+if [ ! -f "$REAL_ROADMAP" ] && [ -f ./work/ROADMAP.pinned.md ]; then
+  REAL_ROADMAP=./work/ROADMAP.pinned.md
+fi
+if [ -f "$REAL_ROADMAP" ]; then
+  real=$TMP/real_pin
+  write_strict_present "$real"
+  python3 - "$real" "$REAL_ROADMAP" <<'PYFIX'
+import json, pathlib, re, shutil, sys
+root = pathlib.Path(sys.argv[1]); roadmap = pathlib.Path(sys.argv[2])
+evid = root / "docs/roadmap-evidence"
+d = json.loads((evid / "#1.json").read_text())
+master = False; ids = []
+for line in roadmap.read_text().splitlines():
+    if line.startswith("## "):
+        master = line.startswith("## Master tracker")
+    if master and line.startswith("|"):
+        m = re.match(r"(#\d+|[LM]\d+)(?=\s|$)", line.split("|")[1].strip())
+        if m:
+            ids.append(m[1])
+assert len(ids) == len(set(ids)) == 149, ids
+d["roadmap_blob"] = "a204a54c989d6f323d619e70f799427603756541"
+for row in set(ids) | {p.stem for p in evid.glob("*.json")}:
+    d["row_id"] = row
+    (evid / (row + ".json")).write_text(json.dumps(d))
+rows = set((evid / "REQUIRED_ROWS.txt").read_text().splitlines()) | set(ids)
+(evid / "REQUIRED_ROWS.txt").write_text("\n".join(sorted(rows)) + "\n")
+shutil.copyfile(roadmap, root / "docs/ROADMAP.md")
+PYFIX
+  expect_zero STRICT_REAL_PIN sh "$REAL_CHECK" "$real" --strict --candidate-sha "$CANDIDATE" \
+    --roadmap "$REAL_ROADMAP" --roadmap-pin "$PIN_B"
+  if ! printf '%s\n' "$LAST_OUT" | grep -q '^STRICT_INFO master_rows=149$' ||
+     ! printf '%s\n' "$LAST_OUT" | grep -q '^STRICT_RESULT PASS rows=203 required=203$'; then
+    note "FAIL STRICT_REAL_PIN inventory: $LAST_OUT"
+    fail=$((fail + 1))
+  fi
+  # Removing both the #8 manifest entry and JSON must not shrink the trusted set.
+  omitted=$TMP/real_omit8
+  cp -a "$real" "$omitted"
+  python3 - "$omitted" <<'PYOMIT'
+import pathlib, sys
+evid = pathlib.Path(sys.argv[1]) / "docs/roadmap-evidence"
+(evid / "#8.json").unlink()
+p = evid / "REQUIRED_ROWS.txt"
+p.write_text("\n".join(row for row in p.read_text().splitlines() if row != "#8") + "\n")
+PYOMIT
+  expect_exit STRICT_REAL_DELETE8_BOTH 1 'master_row_missing_from_manifest' \
+    sh "$REAL_CHECK" "$omitted" --strict --candidate-sha "$CANDIDATE" --roadmap "$REAL_ROADMAP"
+  if ! printf '%s\n' "$out" | grep -F 'STRICT_FAIL #8:' | grep -Fq 'missing_required_json' ||
+     ! printf '%s\n' "$out" | grep -qx 'STRICT_RESULT FAIL rows=202 required=203' ||
+     [ "$(printf '%s\n' "$out" | grep -c '^STRICT_FAIL ')" -ne 1 ]; then
+    note "FAIL STRICT_REAL_DELETE8_BOTH diagnostics: $out"
+    fail=$((fail + 1))
+  fi
+  # One required row matches the queued stubs: UNPROVEN and both lists empty.
+  # The other 202 rows stay PRESENT, so only status_not_PRESENT can fail.
+  empty=$TMP/real_empty_unproven
+  cp -a "$real" "$empty"
+  row='#1'
+  python3 - "$empty" "$row" <<'PY'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+row = sys.argv[2]
+p = root / "docs/roadmap-evidence" / (row + ".json")
+d = json.loads(p.read_text())
+d["status"] = "UNPROVEN"
+d["code_paths"] = []
+d["test_refs"] = []
+p.write_text(json.dumps(d))
+PY
+  set +e
+  out=$(sh "$REAL_CHECK" --strict --candidate-sha "$CANDIDATE" \
+    "$empty" "$empty/docs/roadmap-evidence" 2>&1)
+  rc=$?
+  set -e
+  fail_line="STRICT_FAIL $row: status_not_PRESENT:'UNPROVEN'"
+  if [ "$rc" -eq 1 ] &&
+     printf '%s\n' "$out" | grep -Fxq "$fail_line" &&
+     printf '%s\n' "$out" | grep -qx 'STRICT_RESULT FAIL rows=203 required=203' &&
+     [ "$(printf '%s\n' "$out" | grep -c '^STRICT_FAIL ')" -eq 1 ]; then
+    note "PASS STRICT_EMPTY_UNPROVEN (strict exit=1; status_not_PRESENT)"
+    pass=$((pass + 1))
+  else
+    note "FAIL STRICT_EMPTY_UNPROVEN (expected exit=1, one $fail_line, rows=203; got $rc)"
+    note "  output: $out"
+    fail=$((fail + 1))
+  fi
+  note "MUTANT STRICT_EMPTY_UNPROVEN: skip status_not_PRESENT when code_paths and test_refs are both empty -> this fixture and today's stubs strict-PASS."
+else
+  note "SKIP STRICT_REAL_PIN: $REAL_ROADMAP not present (synthetic checks still run)"
+  note "SKIP STRICT_REAL_DELETE8_BOTH: $REAL_ROADMAP not present"
+  note "SKIP STRICT_EMPTY_UNPROVEN: $REAL_ROADMAP not present"
+fi
 
 note "----"
 note "SELFTEST pass=$pass fail=$fail"

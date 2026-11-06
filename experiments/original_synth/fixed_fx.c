@@ -36,6 +36,12 @@ int original_fixed_fx_process(original_fixed_fx *s,const int32_t *dryL,const int
  if(s->dirty){s->active_enable=s->pending_enable;s->target=s->active_enable?32767:0;s->dirty=0;}
  for(uint32_t i=0;i<n;i++){scratchL[i]=miami_fx_low16(dryL[i]);scratchR[i]=miami_fx_low16(dryR[i]);}
  effect(context,scratchL,scratchR,n);
+ if(asr15(s->gain_state)==s->target){
+  /* Settled: g stays the target for the whole block. */
+  int32_t g=s->target;
+  for(uint32_t i=0;i<n;i++){outL[i]=mix(dryL[i],scratchL[i],g);outR[i]=mix(dryR[i],scratchR[i],g);}
+  return 1;
+ }
  for(uint32_t i=0;i<n;i++) {
   int32_t g=asr15(s->gain_state);
   if(g!=s->target){s->gain_state=signed32((uint32_t)s->gain_state+(uint32_t)(s->target-g)*32511u);g=asr15(s->gain_state);}

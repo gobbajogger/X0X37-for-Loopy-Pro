@@ -95,7 +95,8 @@ BLOCKS, BLK, KEEP = 20, 0x30, 0x2F         # BLOCKS: the identity blocks (more m
 MAX_BLOCKS = 64
 LOADER_MARK = b"FELUCCA-LOADER-1"
 HEAD_END = 0x4000                          # the bootloader end: flash [0, 0x4000) = header, JLFS, SPL, isd_config
-PORT_RE = re.compile(r"fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi", re.I)   # never probe other gear
+# Port names never gate discovery: every port is a candidate, and only the handshake identity
+# (model such as "SMK-37 Pro_900" / "SMK-37 Elite_900") decides. USB names change (e.g. "DnBOX <ver> 37PRO").
 
 # seconds; the tests shorten them
 DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0, "retry": 1.0,
@@ -281,6 +282,13 @@ def same_keyboard(a, b):
     return ma == mb or bool(SMK_FAMILY.fullmatch(ma) and SMK_FAMILY.fullmatch(mb))
 
 
+def same_model(a, b):
+    """flash gate: the package model must equal the model the keyboard reports (case-insensitive,
+    "ota-" ignored). A family match is not enough, and an FM-1 is never flashed."""
+    ma, mb = model_of(a).lower(), model_of(b).lower()
+    return ma == mb and ma != "fm-1"
+
+
 # ------------------------------------------------------------------ MIDI ---
 
 class MidoLink:
@@ -394,8 +402,8 @@ class Updater:
             mine = [n for n in names if self.port.lower() in n.lower()]
             if only_port:
                 return mine
-            return mine + [n for n in names if n not in mine and PORT_RE.search(n)]
-        return [n for n in names if PORT_RE.search(n)]
+            return mine + [n for n in names if n not in mine]
+        return list(names)
 
     def find(self, want=None, only_port=True):
         """the first matching port that answers the handshake (and want(identity))"""
@@ -574,10 +582,14 @@ class Updater:
     def install(self, dev, image, product, step=lambda *a: None):
         """running firmware -> loader -> new firmware; dev from find(). A device already in
         update mode only needs the write."""
-        if not same_keyboard(dev.id.text, product):
+        if not same_model(dev.id.text, product):
             dev.link.close()
             raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")
         ota = dev if dev.id.loader else self.check(dev, image, step)
+        # Discovery binds the newly appeared port, but does not authorize its model.
+        if not same_model(ota.id.text, product):
+            ota.link.close()
+            raise InstallError("model", f"the loader is {ota.id.text}, the package is for {product}")
         self.write(ota, image, step)
         return self.verify(product, step)
 

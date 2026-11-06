@@ -34,14 +34,14 @@ assert '#if' not in boot_body and '#endif' not in boot_body
 original = unique(r'static int read_project\(project_t \*pr\)\s*\{\s*\n', PROJECT, 'revision-13 loader')
 section = PROJECT[original.end():PROJECT.index('\nunsupported:', original.end())]
 assert 'uint8_t device_bt = proj.set.bt;' in section
-start = section.index('    int bad = 0, rc = load_settings(&set);')
+start = unique(r'^    int bad = 0,[^\n]*rc = load_settings\(&set\);$', section, 'settings read').start()
 end = section.index('    rc = load_sound(&pr->sound);', start)
 settings_body = section[start:end]
 assert 'goto unsupported;' in settings_body
 # Preserve the real bitmasks and exact default assignment.
 bt_macros = '\n'.join(unique(r'^#define\s+' + key + r'\s+[^\n]+$', HEADER, key).group(0)
                      for key in ('PROJ_BT_CLK_IN', 'PROJ_BT_SMC_CENTRAL', 'PROJ_BT_SMC_USER', 'PROJ_DEVICE_BT'))
-default_bt = unique(r'^\s*pr->set\.bt\s*=\s*\(uint8_t\)\([^\n]*\);', PROJECT, 'production default Bluetooth assignment').group(0)
+default_bt = unique(r'^\s*(?:pr->set\.bt|s->bt)\s*=\s*\(uint8_t\)\([^\n]*\);', PROJECT, 'production default Bluetooth assignment').group(0).replace('s->bt', 'pr->set.bt')
 
 c_source = r'''
 #include <assert.h>
@@ -61,9 +61,14 @@ typedef struct {
 } settings_t;
 typedef struct { settings_t set; } project_t;
 static project_t proj;
-static int settings_result, checks;
+/* Unrelated OFF-tail state used by the extracted loader block. Bluetooth
+ * expectations still come from the production assignment and branch slice. */
+static uint8_t io_buf[128], off_mask;
+static uint8_t *part_off_of(project_t *pr) { (void)pr; return &off_mask; }
+static int settings_result, checks, settings_read_failed, settings_load_failed;
 static settings_t saved;
 static int load_settings(settings_t *out) {
+    settings_read_failed = settings_result < -1;
     if (settings_result == 0) *out = saved;
     return settings_result;
 }
@@ -82,8 +87,12 @@ static int choose_saved_role(void) {
     project_defaults_for(&proj, device_bt);
     settings_t set = proj.set;
 ''' + settings_body + r'''
+    (void)present; (void)transient; (void)settings_present;
     if (bad) project_defaults_for(&proj, device_bt);
     return bad ? -1 : 0;
+failed:
+    project_defaults_for(&proj, device_bt);
+    return rc;
 unsupported:
     return -9;
 }
