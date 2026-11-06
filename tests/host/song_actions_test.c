@@ -100,8 +100,18 @@ int main(void)
 
     set_view(V_GLO);
     open_global();
+    int section = -1;
+    for (int i = 0; i < ui.list_n; i++)
+        if (list_rows[i].kind == R_SECTION && !strcmp(pref_name(list_rows[i]), "PROJECT"))
+            section = i;
+    CHECK(section >= 0, "Global menu must contain PROJECT");
+    if (section < 0) return 1;
+    ui.list_sel = (uint8_t)section;
+    list_enter();
+    CHECK(ui.overlay == O_LIST && !strcmp(list_title, "PROJECT"), "PROJECT must open its action list");
     row = action_row(ACT_CLEAR_PAT);
     CHECK(row >= 0, "Global menu must contain CLEAR PATTERN");
+    if (row < 0) return 1;
     ui.list_sel = (uint8_t)row;
     ui.list_top = (uint8_t)(row > 2 ? row - 2 : 0);
     sel = ui.list_sel;

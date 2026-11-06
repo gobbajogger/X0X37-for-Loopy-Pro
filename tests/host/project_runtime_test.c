@@ -39,6 +39,14 @@ static void open_action(int action)
 {
     set_view(V_GLO);
     open_global();
+    int section = -1;
+    for (int i = 0; i < ui.list_n; i++)
+        if (list_rows[i].kind == R_SECTION && !strcmp(pref_name(list_rows[i]), "PROJECT"))
+            section = i;
+    assert(section >= 0);
+    ui.list_sel = (uint8_t)section;
+    list_enter();
+    assert(ui.overlay == O_LIST && !strcmp(list_title, "PROJECT"));
     int row = action_row(action);
     assert(row >= 0);
     ui.list_sel = (uint8_t)row;

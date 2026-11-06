@@ -218,13 +218,76 @@ static void image_cases(void)
     uint8_t saved[32]; memcpy(saved,proj.sound.v[T_303][1],32); button_tap(B_EDIT); block();
     CHECK(!engine_bass_preset_pending(1) && !memcmp(saved,proj.sound.v[T_303][1],32)); engine_bass_off(1);
 }
+/* Waveform cases ported from 9e237cce; cache/preview checks prevent stale
+ * factory, voice and held-step projections without editing the sound. */
+static void restored_wave_cases(void)
+{
+    unsigned waves=0;
+    for(unsigned kind=0;kind<2;kind++){
+        unsigned voice=kind?0:1; choose(voice,kind,0);
+        screen(V_PART,PART_303A+voice,0);
+        uint8_t saved[ORIGINAL_SOUND_BYTES];
+        memcpy(saved,proj.sound.v[T_303][voice],sizeof saved);
+        for(int id=0;id<32;id++){
+            int slot=original_wave_slot(kind,id),want=id==0?0:kind&&id==6?1:kind&&id==11?2:-1;
+            CHECK(slot==want); waves+=slot>=0;
+            if(slot>=0){
+                pref_t r=PR(R_ENG,T_303,voice,id);
+                const ui_original_wave_cache *v=original_wave_view(r,pref_get(r));
+                CHECK(v && v->valid && v->voice==voice && v->kind==kind);
+                for(int i=0;i<UI_ORIGINAL_WAVE_W;i++) CHECK(v->wave[slot][i]<UI_ORIGINAL_WAVE_H);
+            }
+        }
+        CHECK(!memcmp(saved,proj.sound.v[T_303][voice],sizeof saved));
+        pref_t r=PR(R_ENG,T_303,voice,kind?11:0);
+        ui_original_wave_cache low=*original_wave_view(r,0);
+        const ui_original_wave_cache *high=original_wave_view(r,127);
+        CHECK(high && memcmp(low.wave[ kind?2:0 ],high->wave[ kind?2:0 ],UI_ORIGINAL_WAVE_W));
+        CHECK(!memcmp(saved,proj.sound.v[T_303][voice],sizeof saved));
+        /* A held step must supply the same explicit preview as its readout. */
+        ui.held_step=0; ui.held_step_part=PART_303A+voice;
+        ui.held_step_pat=seq.ppat[PART_303A+voice];
+        lock_turn(r,1,EN_K1); block();
+        int locked=lock_of(r,0); CHECK(locked>=0);
+        const ui_original_wave_cache *locked_wave=original_wave_view(r,original_display_value(r));
+        CHECK(locked_wave && (locked_wave->preview_mask&(1u<<r.c)) && locked_wave->preview[r.c]==locked);
+        CHECK(!memcmp(saved,proj.sound.v[T_303][voice],sizeof saved));
+        lock_release(); ui.held_step=-1;
+        int lane=motion_find(proj.arr.lane,seq.ppat[PART_303A+voice],PART_303A+voice,T_303,voice,r.c);
+        CHECK(lane>=0); engine_motion_clear(lane); block();
+        const ui_original_wave_cache *base=original_wave_view(r,pref_get(r));
+        CHECK(base && !(base->preview_mask&(1u<<r.c)));
+    }
+    CHECK(waves==4);
+    /* Literal geometry from the original modulation laws: DOWN falls on the
+     * display, UP rises, and TRI returns to its starting level. */
+    ui_original_wave_cache v={0};
+    ui_original_curve(&v,2,1,0,1);
+    CHECK(v.wave[2][0]==1 && v.wave[2][14]==9 && v.wave[2][28]==17);
+    ui_original_curve(&v,2,2,0,1);
+    CHECK(v.wave[2][0]==17 && v.wave[2][14]==9 && v.wave[2][28]==1);
+    ui_original_curve(&v,2,0,0,1);
+    CHECK(v.wave[2][0]==17 && v.wave[2][14]==1 && v.wave[2][28]==17);
+    uint8_t cell[ORIGINAL_SOUND_BYTES],preview[22]={0};
+    CHECK(original_sound_init(cell,ORIGINAL_SOUND_MIAMI,0));
+    CHECK(ui_original_wave_update(&v,0,cell,preview,0));
+    CHECK(ui_original_wave_update(&v,1,cell,preview,0) && v.voice==1);
+    CHECK(!ui_original_wave_update(&v,2,cell,preview,0) && !v.valid);
+    CHECK(!ui_original_wave_project(&v,cell,preview,1u<<31));
+    preview[0]=128; CHECK(!ui_original_wave_project(&v,cell,preview,1u)); preview[0]=0;
+    cell[29]=255; CHECK(!ui_original_wave_update(&v,0,cell,preview,0) && !v.valid);
+    choose(1,0,0); capture("restored-chicago-wave",V_PART,PART_303B,0);
+    choose(0,1,0); capture("restored-miami-wave",V_PART,PART_303A,0);
+    capture("restored-miami-xmod-wave",V_PART,PART_303A,1);
+    capture("restored-miami-wobble-wave",V_PART,PART_303A,3);
+}
 #ifndef ORIGINAL_UI_MAIN
 #define ORIGINAL_UI_MAIN main
 #endif
 int ORIGINAL_UI_MAIN(int argc,char **argv)
 {
     image_dir=argc==2?argv[1]:0; projection_cases(); load_force=0; boot(); settle();
-    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases();
+    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases(); restored_wave_cases();
     printf("PASS original_release_ui checks=%u captures=%u cache=%zu view=%zu ui=%zu pages=%zu freeplay=%zu\n",
            checks,captures,sizeof original_controls,sizeof original_controls.view,sizeof ui,sizeof pg,sizeof live_keys+sizeof live_outer);
     return 0;

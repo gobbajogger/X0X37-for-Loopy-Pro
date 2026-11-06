@@ -182,20 +182,20 @@ static void t_independent(void)
     set_byte(0);
     snd = sounding_run(0);
     CHECK(snd > 0 && ons[ch] == on_ons);
-    /* The pinned base releases muted bass gates (fire_bass uses G_REST).
-     * Keep that contract: MIDI and voice silent, but mute is not saved as OFF. */
+    /* Carried donor mute gates the bus, retaining internal progression.
+     * MIDI stays silent; mute is still not saved as OFF. */
     seq.mute = seq_part_mask(PART_303A);
     snd = sounding_run(0);
-    CHECK(snd == 0 && ons[ch] == 0);
+    CHECK(snd > 0 && ons[ch] == 0);
     CHECK(captured() == 0);
-    /* Mute silences the sequencer, but an ON part still accepts live notes. */
+    /* Mute silences the bus, but an ON part still accepts live notes. */
     engine_bass_on_velocity(0, 48, 0, 0, 100); audio(); audio();
     CHECK(engine_bass_keys_held() & 1);
     engine_bass_off(0); audio(); audio();
     CHECK(!(engine_bass_keys_held() & 1));
     seq.mute = 0;
-    /* Muted and OFF stay independent. Restoring ON retains the base mute's
-     * silent gate; unmuting then restores the original notes. */
+    /* Muted and OFF stay independent. Restoring ON resumes internal notes
+     * behind the mute; unmuting restores the original MIDI notes. */
     seq.mute = seq_part_mask(PART_303A);
     set_off(1u << PART_303A);
     snd = sounding_run(0);
@@ -204,7 +204,7 @@ static void t_independent(void)
     set_byte(0);
     CHECK(seq.mute == seq_part_mask(PART_303A) && captured() == 0);
     snd = sounding_run(0);
-    CHECK(snd == 0 && ons[ch] == 0);
+    CHECK(snd > 0 && ons[ch] == 0);
     seq.mute = 0;
     snd = sounding_run(0);
     CHECK(snd > 0 && ons[ch] == on_ons);

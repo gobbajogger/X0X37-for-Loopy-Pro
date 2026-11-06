@@ -91,11 +91,11 @@ test_class() {
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
-    rec-live-smk|panic-mutants) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
+    rec-live-smk|panic-mutants|mute-carry-mutants) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
+    save-note-quiet|synth-bus-mute|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
-    play-question-ui|sound-reset-ui|held-step-release|ui-perf-identity) TEST_CLASS=G ;;
+    play-question-ui|sound-reset-ui|held-step-release|ui-perf-identity|ui-settings-sections|ui-peer-names) TEST_CLASS=G ;;
     part-off|part-off-web-e2e) TEST_CLASS=G ;;
     panic-clear|panic-route) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
@@ -314,6 +314,9 @@ run sound-reset sh tests/host/sound_reset_test.sh
 run sound-reset-ui sh tests/host/sound_reset_ui_test.sh
 run held-step-release sh tests/host/held_step_release_test.sh
 run ui-perf-identity sh tests/host/ui_perf_identity_test.sh
+run ui-settings-sections sh tests/host/ui_settings_sections_test.sh
+run ui-peer-names sh tests/host/ui_peer_names_test.sh
+run ble-peer-name-bounds sh tests/host/ble_peer_name_bounds_test.sh
 run home-tie-semantics sh tests/host/home_tie_semantics_test.sh
 run sequencer seq_test
 run chain-longest sh tests/host/chain_longest_test.sh
@@ -603,6 +606,10 @@ run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the 
 run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
 run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
 run panic-chord sh tests/host/panic_chord_test.sh
+run seq-mute-carry sh tests/host/seq_mute_carry_test.sh
+run synth-bus-mute sh tests/host/synth_bus_mute_test.sh
+run engine-brk-mute python3 -B tests/host/engine_brk_mute_test.py
+run mute-carry-mutants python3 -B tests/host/mute_carry_mutants.py
 run panic-notes sh tests/host/panic_notes_test.sh
 run panic-clear sh tests/host/panic_clear_test.sh
 run panic-route sh tests/host/panic_route_test.sh

@@ -18,6 +18,7 @@
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
 #include "ui_original_controls.h"
+#include "ui_original_wave.h"
 #include "../dsp/bass_param_ids.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
 #include "chicago_fx.h"                        /* CHI_FX_* SEND FX + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert */
@@ -188,6 +189,8 @@ typedef struct {
     uint32_t touch_until;
     uint8_t overlay;
     uint8_t list_sel, list_top, list_n;
+    int8_t glo_section; /* -1: section index; local navigation, never project state */
+    uint8_t glo_index, glo_sel[6], glo_top[6];
     uint8_t ask_act;
     uint8_t ask_overlay;
     uint16_t ask_arg;
@@ -371,11 +374,14 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
+
+static const char *const GLOBAL_SECTIONS[6] = {"MIDI + CLOCK", "BLUETOOTH", "AUDIO", "KEYS + SCREEN", "PROJECT", "SYSTEM"};
 static ui_original_control_cache original_controls X0X_POOL;
+static ui_original_wave_cache original_wave X0X_POOL;   /* engine waveform cue (ca8299b6 / 9e237cce) */
 static uint8_t original_page_bank, original_list_bank;
 static int original_display_value(pref_t r);
 static const ui_original_control_view *original_text_view(pref_t r, int value);
@@ -531,10 +537,8 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_CKCH: return &CKCH_P;
     case R_CLKSRC: return &CLKSRC_P;
     case R_BTSTAT: return &BTSTAT_P;
-    case R_BTNAME: {                                   /* read only: the name it advertises */
-        static const char *nm[1];
-        static const x0x_param_t d = {"NAME", 0, 0, nm};
-        nm[0] = plat_ble_name()[0] ? plat_ble_name() : "-";
+    case R_BTNAME: {                                   /* read only: formatted into the caller's value buffer */
+        static const x0x_param_t d = {"NAME", 0, 0, 0};
         return &d;
     }
     case R_SLEN: return &SONG_P[5];
@@ -838,6 +842,7 @@ static int in_pattern(pref_t r)
 /* a knob's label: mixer refs name their part */
 static const char *pref_name(pref_t r)
 {
+    if(r.kind==R_SECTION)return GLOBAL_SECTIONS[r.a<6?r.a:0];
     static const char *const MIXN[NPARTS][MX_NPARAMS] = {{"909", "909 RV", "909 DL", "909 PAN", "909 CUT"},
                                                          {"808", "808 RV", "808 DL", "808 PAN", "808 CUT"},
                                                          {"303 A", "A REV", "A DLY", "A PAN", "A CUT"},
@@ -1044,6 +1049,13 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
         engine_bass_edit_hold(1);
         (void)original_value_text(r,v,num,unit);
         engine_bass_edit_hold(0);
+        return;
+    }
+    if (r.kind == R_BTNAME) {
+        if (v != 0) { put_s(num, "INVALID"); return; }
+        const char *name = plat_ble_name(num);
+        if (name != num) put_s(num, name);
+        if (!*num) put_s(num, "-");
         return;
     }
     if (d->names) {
@@ -1534,55 +1546,59 @@ static void open_list_of_pages(void)
     ui.overlay = ui.list_n ? O_LIST : O_NONE;
 }
 
+static void global_index(void)
+{
+    ui.glo_section=-1;ui.list_n=0;
+    for(int g=0;g<6;g++) {
+#if !BOARD_SMK37
+        if(g==1)continue;
+#endif
+        list_add(PR(R_SECTION,g,0,0));
+    }
+    put_s(list_title,"GLOBAL");ui.list_sel=ui.glo_index<ui.list_n?ui.glo_index:0;ui.list_top=0;ui.overlay=O_LIST;
+}
+static void global_section(int g)
+{
+    if(g<0||g>=6)return;
+    ui.glo_index=ui.list_sel;ui.glo_section=(int8_t)g;ui.list_n=0;
+    switch(g) {
+    case 0:
+        list_add(PR(R_CLKSRC,0,0,0));list_add(PR(R_CLKOUT,0,0,0));list_add(PR(R_NOTEOUT,0,0,0));
+        for(int p=0;p<NPARTS;p++)list_add(PR(R_MIDICH,part_at(p),0,0));
+#if BOARD_SMK37
+        list_add(PR(R_CKCH,0,0,0));
+#endif
+        break;
+    case 1:
+#if BOARD_SMK37
+        list_add(PR(R_BT,0,0,0));list_add(PR(R_SMC_ROLE,0,0,0));list_add(PR(R_SMC_MAP,0,0,0));
+        list_add(PR(R_BTSTAT,0,0,0));list_add(PR(R_BTNAME,0,0,0));
+#endif
+        break;
+    case 2:list_add(PR(R_OUTLOUD,0,0,0));list_add(PR(R_USBFULL,0,0,0));break;
+    case 3:list_add(PR(R_KEYLED,0,0,0));list_add(PR(R_KEYSOUND,0,0,0));list_add(PR(R_PALETTE,0,0,0));break;
+    case 4:
+        list_add(PR(R_ACT,ACT_SAVE,0,0));list_add(PR(R_ACT,ACT_LOAD,0,0));list_add(PR(R_AUTOSAVE,0,0,0));
+        list_add(PR(R_ACT,ACT_CLEAR_PAT,0,0));list_add(PR(R_ACT,ACT_RESET,0,0));break;
+    case 5:
+        list_add(PR(R_ACT,ACT_PERF,0,0));list_add(PR(R_ACT,ACT_ABOUT,0,0));list_add(PR(R_BATT,0,0,0));
+#if BOARD_SMK37 && X0X_DEV_PADCAL
+        {extern uint8_t smk_clip_mode_on(void);if(!smk_clip_mode_on())list_add(PR(R_ACT,ACT_PADCAL,0,0));}
+#endif
+        break;
+    }
+    put_s(list_title,GLOBAL_SECTIONS[g]);ui.list_sel=ui.glo_sel[g]<ui.list_n?ui.glo_sel[g]:0;
+    ui.list_top=ui.glo_top[g]<=ui.list_sel?ui.glo_top[g]:0;ui.overlay=O_LIST;
+}
+static void global_back(void)
+{
+    int g=ui.glo_section;
+    if(g>=0&&g<6){ui.glo_sel[g]=ui.list_sel;ui.glo_top[g]=ui.list_top;}
+    global_index();
+}
 static void open_global(void)
 {
-    ui.list_n = 0;
-    list_rows[ui.list_n++] = PR(R_HDR, GR_MIDI, 0, 0);
-    list_add(PR(R_CLKSRC, 0, 0, 0));
-    list_add(PR(R_CLKOUT, 0, 0, 0));
-    list_add(PR(R_NOTEOUT, 0, 0, 0));
-    for (int p = 0; p < NPARTS; p++)
-        list_add(PR(R_MIDICH, part_at(p), 0, 0));
-#if BOARD_SMK37
-    list_add(PR(R_CKCH, 0, 0, 0));
-#endif
-    list_rows[ui.list_n++] = PR(R_HDR, GR_AUDIO, 0, 0);
-    list_add(PR(R_OUTLOUD, 0, 0, 0));
-    list_add(PR(R_USBFULL, 0, 0, 0));
-    list_rows[ui.list_n++] = PR(R_HDR, GR_KEYS, 0, 0);
-    list_add(PR(R_KEYLED, 0, 0, 0));
-    list_add(PR(R_KEYSOUND, 0, 0, 0));
-    list_add(PR(R_PALETTE, 0, 0, 0));
-    list_rows[ui.list_n++] = PR(R_HDR, GR_PROJECT, 0, 0);
-    list_add(PR(R_ACT, ACT_SAVE, 0, 0));
-    list_add(PR(R_ACT, ACT_LOAD, 0, 0));
-    list_add(PR(R_AUTOSAVE, 0, 0, 0));
-    list_add(PR(R_ACT, ACT_CLEAR_PAT, 0, 0));
-    list_add(PR(R_ACT, ACT_RESET, 0, 0));
-    list_rows[ui.list_n++] = PR(R_HDR, GR_SYSTEM, 0, 0);
-    list_add(PR(R_ACT, ACT_PERF, 0, 0));
-    list_add(PR(R_ACT, ACT_ABOUT, 0, 0));
-    list_add(PR(R_BATT, 0, 0, 0));
-#if BOARD_SMK37
-#if X0X_DEV_PADCAL
-    {
-        extern uint8_t smk_clip_mode_on(void);
-        if (!smk_clip_mode_on())                  /* the pad calibration (main_fm1.c, CLP-79), not in clip mode */
-            list_add(PR(R_ACT, ACT_PADCAL, 0, 0));
-    }
-#endif
-    list_rows[ui.list_n++] = PR(R_HDR, GR_BT, 0, 0);
-    list_add(PR(R_BT, 0, 0, 0));
-    list_add(PR(R_SMC_ROLE, 0, 0, 0));
-    list_add(PR(R_SMC_MAP, 0, 0, 0));
-    list_add(PR(R_BTSTAT, 0, 0, 0));
-    list_add(PR(R_BTNAME, 0, 0, 0));
-#endif
-    put_s(list_title, "GLOBAL");
-    ui.list_sel = ui.list_top = 0;
-    while (list_skip(ui.list_sel))
-        ui.list_sel++;
-    ui.overlay = O_LIST;
+    memset(ui.glo_sel,0,sizeof ui.glo_sel);memset(ui.glo_top,0,sizeof ui.glo_top);ui.glo_index=0;global_index();
 }
 
 /* ================================================================ questions === */
@@ -2693,6 +2709,23 @@ static const ui_original_control_view *original_text_view(pref_t r, int value)
     return ui_original_controls_update(&original_controls,r.b,cell,preview,mask) ? &original_controls.view : 0;
 }
 
+/* The engine waveform of an oscillator control, with the same lock/motion
+ * preview as the text readout. 0 when the slot has no waveform. */
+static const ui_original_wave_cache *original_wave_view(pref_t r, int value)
+{
+    const uint8_t *cell = proj.sound.v[T_303][r.b];
+    unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);
+    uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_WAVE_MASK : UI_ORIGINAL_MIAMI_WAVE_MASK;
+    uint8_t preview[22] = {0}; uint32_t mask = 0;
+    for (unsigned id = 0; id < original_sound_count(kind); id++) if (relevant & (1u<<id)) {
+        pref_t ref = PR(R_ENG,T_303,r.b,id);
+        int q = lock_step() >= 0 ? lock_of(ref,lock_step()) : motion_now(ref);
+        if (q >= 0) { preview[id] = (uint8_t)q; mask |= 1u<<id; }
+    }
+    if ((relevant & (1u<<r.c)) && value != cell[r.c]) { preview[r.c]=(uint8_t)value; mask |= 1u<<r.c; }
+    return ui_original_wave_update(&original_wave,r.b,cell,preview,mask) ? &original_wave : 0;
+}
+
 static void lock_turn(pref_t r, int e, int role)
 {
     int s = lock_step(), part = ui.part, k, cur, nv;
@@ -3587,6 +3620,7 @@ static void list_move(int d)
 static void list_enter(void)
 {
     pref_t r = list_rows[ui.list_sel];
+    if (r.kind == R_SECTION) {global_section(r.a);return;}
     if (r.kind != R_ACT)
         return;
     if (r.a == ACT_CLEAR_PAT)
@@ -3608,23 +3642,28 @@ static int ui_menu_open(void) { return ui.overlay == O_LIST && !perf_testing(); 
  * submenu, "<" goes back. This lane has no submenu rows. */
 static int list_sub_arrow(pref_t r, int d)
 {
-    (void)r;
-    (void)d;
-    return 0;
+    if(r.kind!=R_SECTION)return 0;
+    if(d>0)global_section(r.a);
+    return 1;
 }
 /* "<" (d = -1) or ">" (d = +1) in a menu: the value of the selected row one step down or up, as ALGORITHM
  * does (turn_ref). The value stops at its ends. An action row and a section header do nothing. The knob
  * acceleration does not start: the presses and the repeats are 60 ms or more apart (accel). */
-static void ui_menu_arrow(int d)
+static int ui_menu_arrow(int d)
 {
 #if BOARD_SMK37
     smc_ui_cancel();
 #endif
     pref_t r = list_rows[ui.list_sel];
+    if (d < 0 && ui.view == V_GLO && ui.glo_section >= 0) {
+        global_back();                                /* "<" leaves a settings section, as HOME */
+        return 1;                                     /* the held "<" must not edit the section index */
+    }
     if (list_sub_arrow(r, d))
-        return;
+        return d > 0;                                 /* the caller consumes this held category-entry arrow */
     turn_ref(r, d, EN_ALGO);
     ui.act_t = plat_ms();                             /* (the autosave waits for quiet) */
+    return 0;
 }
 #endif
 
@@ -3745,6 +3784,7 @@ X0X_COLD static void button_tap(int b)
         say(ui.rec ? "RECORD ON: KEYS + KNOBS" : "RECORD OFF", 0);
         break;
     case B_HOME:                                      /* the pattern; again: the song (a list: back) */
+        if(ui.view==V_GLO && ui.overlay==O_LIST && ui.glo_section>=0) {global_back();break;}
         if (ui.overlay != O_NONE || ui.view == V_GLO)
             close_overlay();
 #if X0X_BASS_PRESET_PREVIEW
@@ -6108,6 +6148,40 @@ static int release_label_box(const char *label, int selected, int32_t *x, int32_
     return 1;
 }
 
+/* BT NAME row (restored from 0e58b960): the connected peers joined with ", ",
+ * held 700 ms at each end and moved at 24 px/s when wider than the row. */
+#define PEER_TEXT_CAP (PLAT_BLE_PEER_CAP*(PLAT_BLE_PEER_NAME_MAX+2u)-1u)
+static struct { char text[PEER_TEXT_CAP]; unsigned count; int state, central, active, travel; uint32_t start; } peer_scroll;
+static void peer_join(char out[PEER_TEXT_CAP], const plat_ble_peers_t *peers)
+{
+    unsigned k=0,count=peers->count<PLAT_BLE_PEER_CAP?peers->count:PLAT_BLE_PEER_CAP;
+    for(unsigned i=0;i<count;i++) {
+        if(i){out[k++]=',';out[k++]=' ';}
+        unsigned n=0;while(n<PLAT_BLE_PEER_NAME_MAX && peers->name[i][n]) {
+            unsigned char ch=(unsigned char)peers->name[i][n++];out[k++]=(char)(ch>=32&&ch<=126?ch:'?');
+        }
+    }
+    if(!k)out[k++]='-';
+    out[k]=0;
+}
+static int peer_offset(const char *text,const plat_ble_peers_t *peers,int travel,uint32_t now)
+{
+    if(!peer_scroll.active || strcmp_s(text,peer_scroll.text) || peers->count!=peer_scroll.count ||
+       peers->state!=peer_scroll.state || peers->central!=peer_scroll.central || travel!=peer_scroll.travel) {
+        put_s(peer_scroll.text,text);peer_scroll.count=peers->count;peer_scroll.state=peers->state;
+        peer_scroll.central=peers->central;peer_scroll.travel=travel;peer_scroll.start=now;peer_scroll.active=1;
+    }
+    if(travel<=0)return 0;
+    uint32_t move=((uint32_t)travel*1000u+23u)/24u, phase=(now-peer_scroll.start)%(2u*(700u+move));
+    if(phase<700u)return 0;
+    phase-=700u;
+    if(phase<move)return (int)(phase*24u/1000u);
+    phase-=move;
+    if(phase<700u)return travel;
+    phase-=700u;
+    return travel-(int)(phase*24u/1000u);
+}
+
 /* a list over the main area: six rows of 24 px */
 static UI_DRAW void draw_list(int band)
 {
@@ -6131,6 +6205,9 @@ static UI_DRAW void draw_list(int band)
         surface_panel(3,y+1,229,21,sel,sel?dim(part_col(),6):SOUND_FACE,
                       sel?part_col():SOUND_EDGE,SOUND_SIDE);
         cv_text(8, vc(sel ? &FONT_B : &FONT_S, y + 1, 18), sel ? &FONT_B : &FONT_S, caps_of(pref_name(r)), sel ? C_WHITE : C_GRAY);
+        if (r.kind == R_SECTION) {                     /* a GLOBAL category: its chevron */
+            cv_line(221,y+8,225,y+11,sel?C_AMB:C_DIM);cv_line(225,y+11,221,y+14,sel?C_AMB:C_DIM);continue;
+        }
         if (r.kind == R_ACT) {                         /* an action: the return arrow */
             uint16_t ac = sel ? C_WHITE : C_DIM;
             if (r.a == ACT_ABOUT) {
@@ -6143,6 +6220,13 @@ static UI_DRAW void draw_list(int band)
             cv_line(212, y + 13, 216, y + 9, ac);
             cv_line(212, y + 13, 216, y + 17, ac);
             continue;
+        }
+        if(r.kind==R_BTNAME) {                       /* connected peers: one line, scrolls when long */
+            plat_ble_peers_t peers;char shown[PEER_TEXT_CAP];const felucca_font_t *nf=sel?&FONT_B:&FONT_S;
+            plat_ble_peers(&peers);peer_join(shown,&peers);
+            int left=8+tw(nf,"NAME")+8, width=226-left, travel=tw(nf,shown)-width;
+            int offset=peer_offset(shown,&peers,travel,plat_ms());
+            cv_text_clip(left-offset,vc(nf,y+1,18),nf,shown,sel?C_WHITE:C_HI,left,226);continue;
         }
         pref_value(r, num, unit);
         if (r.kind == R_BPRESET) {
@@ -6271,7 +6355,7 @@ static uint16_t footer_text(const char **a, const char **b, const char **c)
         *b = UI_CAP_HOME ": NO";
     } else if (ui.overlay == O_LIST) {
         *a = UI_CAP_SELECT ": MOVE";
-        *b = UI_CAP_ALGO ": CHANGE";
+        *b = ui.view==V_GLO&&ui.glo_section<0?">: ENTER":UI_CAP_ALGO ": CHANGE";
         *c = UI_CAP_HOME ": BACK";
     } else if (ui.view == V_HOME) {
 #if BOARD_SMK37
@@ -6457,6 +6541,21 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
     }
     if (q == 1) { *mix = 0; return 1; }                      /* SAW */
     *mix = q == 0 ? 0 : 127; return q == 3 ? 3 : 2;          /* TRI, SQR, PUL */
+}
+
+/* Engine waveform cue (restored from ca8299b6): slot 0 is the Chicago
+ * oscillator mix or the Miami carrier, 1 the Miami modulator, 2 the wobble. */
+static int original_wave_slot(unsigned kind,int p)
+{
+    if(p==0)return 0;
+    if(kind==ORIGINAL_SOUND_MIAMI)return p==6?1:p==11?2:-1;
+    return -1;
+}
+static UI_DRAW void draw_original_wave(int cx,int y,const ui_original_wave_cache *v,int slot,uint16_t ink,uint16_t face)
+{
+    cv_rect(cx-14,y+v->zero[slot],UI_ORIGINAL_WAVE_W,1,blend(face,ink,3));
+    for(int i=1;i<UI_ORIGINAL_WAVE_W;i++)
+        cv_line(cx-15+i,y+v->wave[slot][i-1],cx-14+i,y+v->wave[slot][i],ink);
 }
 
 enum { MIAMI_WAVE_HEIGHT=19, MIAMI_WAVE_ZERO=9, MIAMI_WAVE_GAIN=8 };
@@ -6780,7 +6879,11 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         else strip_value(x+45,y+28,num,unit,ink);     /* starts >= x+32: 3 px clear of the glyph */
     } else
     if(shape) {
-        draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
+        int slot=original_wave_slot((unsigned)engine_bass_sound_bank(&proj.sound,r.b),r.c);
+        const ui_original_wave_cache *wave=slot>=0?original_wave_view(r,val):0;
+        uint16_t face=night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE);
+        if(wave) draw_original_wave(cx-10,y+25,wave,slot,ink,face);
+        else draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,face);
         pref_value_of(r,val,num,unit);           /* original readout text */
         strip_value(cx+17,y+28,num,unit,ink);
     } else {
@@ -7980,6 +8083,7 @@ X0X_COLD void ui_init(void)
     memset(&ui, 0, sizeof ui);
     (void)plat_division_pad(0);
     original_controls.valid = 0;
+    original_wave.valid = 0;
     memset(kbd_held_note, 0, sizeof kbd_held_note);
     memset(kbd_held_key, 0, sizeof kbd_held_key);
     memset(kbd_arp_n, 0, sizeof kbd_arp_n);
@@ -8198,6 +8302,10 @@ void ui_frame(void)
         else do_undo(direction);
     }
 #endif
+    if(ui.overlay!=O_LIST || ui.help) peer_scroll.active=0;
+    else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+        if(list_rows[row].kind==R_BTNAME)visible=1;
+        if(!visible)peer_scroll.active=0; }
     undo_tick();
     autosave();
     if (!project_busy)

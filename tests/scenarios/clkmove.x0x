@@ -6,8 +6,10 @@ expect clksrc 0
 expect setbyte27 8
 expect setbyte38 0
 tap GLO
+tap SEL # enter MIDI + CLOCK
 turn ALGO 2
-tap HOME
+tap HOME # return to the section index
+tap HOME # close GLOBAL
 expect clksrc 2
 wait 6000
 expect storeset23 13
@@ -30,8 +32,10 @@ expect setbyte38 11
 expect setbyte39 18
 expect clkext 0
 tap GLO
+tap SEL # enter MIDI + CLOCK
 turn ALGO -1
-tap HOME
+tap HOME # return to the section index
+tap HOME # close GLOBAL
 expect clksrc 0
 tap SAVE
 wait 100

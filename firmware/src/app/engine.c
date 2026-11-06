@@ -893,6 +893,21 @@ static void s_boff(void *x, int p)
     original_seq_note[p] = -1;
 }
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
+/* Audio-owned control boundary, independent of the bounded CQ drain. Quiet
+ * alone only saves decoding after the gate closes; retire the old step too so
+ * the existing 88-sample gate ramp can close before this buffer ends. Held
+ * slices keep their established live-audition override. Unmute waits for the
+ * next real step, including its enable/probability decision. No new state or
+ * per-sample work; this adds a mute read and bounded control stores per stretch. */
+static void brk_mute_boundary(void)
+{
+    if (seq.mute & (1u << MUTE_BRK)) {
+        breaks_set_quiet(&brk, 1);
+        brk.step_on = 0;
+        brk.gate_to = brk.perf.count ? 1.0f : 0.0f;
+    }
+}
+
 static void s_brk(void *x, int s16, int bar, float spb, int en)
 {
     const brkpart_t *bp = &seq.pat[seq.ppat[TRK_BRK]].brk;
@@ -1738,6 +1753,10 @@ static glide_t mix_glide[NPARTS][GL_N] = {
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}};
 __attribute__((noinline)) static void mix_targets(int p, float g, uint8_t solo)        /* g: the part level */
 {
+    /* Synth mute gates only this bus's dry/send gains. MIDI, allocator, ARP,
+     * envelopes and insert histories keep advancing, so unmute needs no note. */
+    if ((p == PART_303A || p == PART_303B) && seq_part_muted(&seq, p))
+        g = 0.0f;
     if (solo && !(solo & (1u << p)))
         g = 0.0f;
     glide_set(&mix_glide[p][GL_L], g * mix_pl[p]);
@@ -2057,6 +2076,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
     }
     while (done < n) {
         uint32_t k = seq_until_event(&seq, n - done);
+        brk_mute_boundary(); /* also follows song mutes at an in-buffer event */
         render_sub(out_l + done, out_r + done, k, 0);
         {
             PROF_T(pt);

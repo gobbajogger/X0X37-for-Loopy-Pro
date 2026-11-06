@@ -28,8 +28,15 @@ def body(text, head):
 
 # The menu row: GLOBAL > SYSTEM > PAD COLOURS, SMK only, not in clip mode.
 glob = body(ui, "static void open_global(void)")
-sysi, bti = glob.index("GR_SYSTEM"), glob.index("GR_BT")
-check(sysi < glob.index("ACT_PADCAL") < bti and "if (!smk_clip_mode_on())" in glob,
+sections = re.search(r"GLOBAL_SECTIONS\[\d+\]\s*=\s*\{([^}]+)\}", ui)
+names = re.findall(r'"([^"]+)"', sections.group(1)) if sections else []
+system_id = names.index("SYSTEM") if "SYSTEM" in names else -1
+section_body = body(ui, "static void global_section(int g)")
+system = re.search(rf"case\s+{system_id}\s*:(.*?)(?=\n\s*case\b|\Z)", section_body, re.S)
+system = system.group(1) if system else ""
+check("global_index()" in glob and "R_SECTION" in body(ui, "static void global_index(void)")
+      and re.search(r"#if\s+BOARD_SMK37\s*&&\s*X0X_DEV_PADCAL", system)
+      and re.search(r"if\s*\(!smk_clip_mode_on\(\)\)\s*list_add\(PR\(R_ACT,\s*ACT_PADCAL,", system),
       "menu: PAD COLOURS is in GLOBAL > SYSTEM, not in clip mode")
 check('{"PAD COLOURS", 0, 0, 0}' in ui and re.search(r"case ACT_PADCAL: \{[^}]*ui\.overlay = O_NONE;\s*smk_padcal_enter\(\);", ui),
       "menu: the row closes the list and starts the mode")

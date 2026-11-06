@@ -66,10 +66,14 @@ press HOME
 turn SELECT 5
 release HOME
 expect tempo 130
-# GLO > RESET PROJECT (+17 selectable rows from CLOCK SOURCE), then confirm.
+# GLO > PROJECT > RESET PROJECT, then confirm.
+# PROJECT precedes the final SYSTEM category, with or without BLUETOOTH.
 tap GLO
-turn SELECT 17
-expect listsel 21
+turn SELECT 6
+turn SELECT -1
+tap SEL
+turn SELECT 4
+expect listsel 4
 tap SEL
 expect overlay 2
 tap SEL

@@ -12,15 +12,18 @@ wait 600
 tap GLO
 expect view 5
 expect overlay 1
-expect listsel 1
+expect listsel 0
 wait 1500
 expect clksrc 0
 arrow R up
 wait 50
 expect clksrc 0
-# a new press steps the value, as GEN-56; the repeat still works in the new list
+# A fresh > enters MIDI; its held press is consumed, then a new press edits.
+arrow R tap
+expect clksrc 0
 arrow R tap
 expect clksrc 1
+turn ALGO -1
 arrow L down
 wait 1000
 arrow L up
@@ -37,7 +40,7 @@ arrow L up
 wait 50
 expect clksrc 0
 # QA (PR #719): the arrow is up, the list changes (a page list to GLO) and a NEW press of ">" comes in
-# the same frame. The fresh press must step the value of the new list (it is not swallowed).
+# the same frame. The fresh press enters the category (it is not swallowed); only a new press edits.
 expect overlay 1
 expect view 1
 press GLO
@@ -47,11 +50,15 @@ arrow R down
 wait 30
 expect view 5
 expect overlay 1
-expect listsel 1
-expect clksrc 1
+expect listsel 0
+expect clksrc 0
 arrow R up
+wait 50 # a frame must observe release before the next physical press
+arrow R tap
+expect clksrc 1
 wait 50
 expect clksrc 1
+turn ALGO -1
 arrow L tap
 expect clksrc 0
 # repeated switches with ">" held all the time (pressed with no menu open, where the clip keys page
@@ -86,8 +93,12 @@ release GLO
 arrow R down
 wait 30
 expect view 5
-expect clksrc 1
+expect clksrc 0
 arrow R up
+wait 50 # a frame must observe release before the next physical press
+arrow R tap
+expect clksrc 1
 wait 50
+turn ALGO -1
 arrow L tap
 expect clksrc 0

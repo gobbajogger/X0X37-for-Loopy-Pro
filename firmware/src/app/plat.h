@@ -115,7 +115,13 @@ uint32_t plat_xruns(void);
 enum { PLAT_BLE_NOIMG, PLAT_BLE_OFF, PLAT_BLE_RESTART, PLAT_BLE_STARTING, PLAT_BLE_READY, PLAT_BLE_CONNECTED,
        PLAT_BLE_FAILED, PLAT_BLE_BADIMG };
 int plat_ble_state(void);
-const char *plat_ble_name(void);
+/* Caller supplies at least 43 bytes for two 20-byte names, separator and NUL.
+ * The returned string may instead be the peripheral advertising name. */
+const char *plat_ble_name(char *names);
+#define PLAT_BLE_PEER_CAP 2u
+#define PLAT_BLE_PEER_NAME_MAX 20u
+typedef struct { unsigned count; int state, central; char name[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX+1u]; } plat_ble_peers_t;
+void plat_ble_peers(plat_ble_peers_t *out);   /* connected SMC peer names, one snapshot */
 void plat_ble_set(int on);
 /* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len);

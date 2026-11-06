@@ -1,5 +1,5 @@
 # a77: the SMK-37 "<" and ">" (smk_arrows.h, as main_fm1.c smk_arrows does after each frame).
-# In a menu list (GLO, the list of a page) they step the value of the selected row, as ALGORITHM.
+# In settings, > edits a value and < returns to the section index. Page-list arrows edit both ways.
 # A held arrow repeats: the first repeat after 400 ms, then one step each 80 ms. The value stops at its ends.
 # Action rows do not run. With no menu, the arrows move SELECT one detent for each press (GEN-29).
 wait 300
@@ -20,35 +20,43 @@ expect page 1
 arrow L tap
 expect page 0
 expect arrowsteps 4
-# GLO: the first row is CLOCK SOURCE. The row does not move
+# GLO opens categories; explicitly enter MIDI + CLOCK.
 tap GLO
+tap SEL
 expect view 5
 expect overlay 1
-expect listsel 1
+expect listsel 0
 expect clksrc 0
 arrow R tap
 expect clksrc 1
-expect listsel 1
+expect listsel 0
 arrow R tap
 expect clksrc 2
 arrow R tap
 expect clksrc 2
 expect setbyte27 12
+turn ALGO -1
 arrow L tap
+tap SEL
 expect clksrc 1
+turn ALGO -1
 arrow L tap
+tap SEL
 arrow L tap
+tap SEL
 expect clksrc 0
-expect listsel 1
+expect listsel 0
 expect setbyte27 8
 # the same steps as ALGORITHM
 turn ALGO 1
 expect clksrc 1
+turn ALGO -1
 arrow L tap
+tap SEL
 expect clksrc 0
 # hold repeat on MIDI CH 909 (10, range OFF 0 .. 16)
 turn SELECT 3
-expect listsel 4
+expect listsel 3
 expect rowval 10
 arrow R down
 wait 20
@@ -65,23 +73,33 @@ arrow R up
 expect rowval 16
 arrow R tap
 expect rowval 16
+# A held < goes back once without changing MIDI channel; re-entry preserves the row.
 arrow L down
 wait 3000
 arrow L up
+tap SEL
+expect rowval 16
+turn ALGO -16
 expect rowval 0
 arrow L tap
+tap SEL
 expect rowval 0
 arrow R tap
 expect rowval 1
 turn ALGO 9
 expect rowval 10
-expect listsel 4
+expect listsel 3
 # Action rows do not run: SAVE, CLEAR PATTERN, RESET PROJECT, PERFORMANCE.
-turn SELECT 10
-expect listsel 17
+# PROJECT precedes SYSTEM on either board; remember each section-local position.
+tap HOME
+turn SELECT 99
+turn SELECT -1
+tap SEL
+expect listsel 0
 expect store_writes 0
 arrow R tap
 arrow L tap
+tap SEL
 arrow R down
 wait 1000
 arrow R up
@@ -89,45 +107,58 @@ expect store_writes 0
 expect overlay 1
 # Skip LOAD SAVED and AUTOSAVE to reach CLEAR PATTERN.
 turn SELECT 3
-expect listsel 20
+expect listsel 3
 arrow R tap
 arrow L tap
+tap SEL
 arrow R down
 wait 1000
 arrow R up
 expect overlay 1
 turn SELECT 1
-expect listsel 21
+expect listsel 4
 arrow R tap
 arrow L down
 wait 1000
 arrow L up
+tap SEL
 expect overlay 1
+# SYSTEM > PERFORMANCE is its first row.
+tap HOME
 turn SELECT 1
-expect listsel 23
+tap SEL
+expect listsel 0
 arrow R tap
 arrow L tap
+tap SEL
 expect overlay 1
 expect view 5
-expect listsel 23
-# Back to CLOCK SOURCE: PERFORMANCE is selectable offset 18.
-turn SELECT -18
-expect listsel 1
+expect listsel 0
+# Reopen GLOBAL to reset navigation, then enter MIDI + CLOCK.
+tap GLO
+tap GLO
+tap SEL
+expect listsel 0
 expect clksrc 0
 # clip mode, GLO open: one press gives one step (only smk_arrows reads the arrows), and a hold repeats
 clipmode 1
-expect arrowsteps 110
+# Left section exits consume their held repeats; the new navigation totals 70 events.
+expect arrowsteps 70
 arrow R tap
 expect clksrc 1
-expect arrowsteps 111
+expect arrowsteps 71
 arrow R down
 wait 450
 arrow R up
 expect clksrc 2
-expect arrowsteps 113
+expect arrowsteps 73
+turn ALGO -1
 arrow L tap
+tap SEL
 expect clksrc 1
+turn ALGO -1
 arrow L tap
+tap SEL
 expect clksrc 0
 # clip mode, no menu: smk_arrows gives no step (the clip keys page takes < and >, CLP-76; not in the host)
 tap GLO
@@ -138,12 +169,13 @@ arrow L down
 wait 1000
 arrow L up
 expect page 0
-expect arrowsteps 115
+expect arrowsteps 75
 clipmode 0
 # HOME held: the arrows do nothing (SELECT is the tempo)
 tap GLO
+tap SEL
 expect overlay 1
-expect listsel 1
+expect listsel 0
 expect tempo 125
 press HOME
 arrow R tap
@@ -152,7 +184,7 @@ wait 1000
 arrow R up
 expect clksrc 0
 expect tempo 125
-expect arrowsteps 115
+expect arrowsteps 75
 release HOME
 expect setsize 40
 expect setbyte27 8

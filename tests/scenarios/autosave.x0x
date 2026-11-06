@@ -30,11 +30,15 @@ expect store_writes 7
 wait 8000
 expect store_writes 8
 expect hit0.0.12 1
-# GLO > AUTOSAVE OFF (+15 selectable rows from CLOCK SOURCE): save the setting once, then edits wait for SAVE.
+# GLO > PROJECT > AUTOSAVE OFF: save the setting once, then edits wait for SAVE.
+# PROJECT precedes the final SYSTEM category, with or without BLUETOOTH.
 wait 21000
 tap GLO
-turn SELECT 15
-expect listsel 19
+turn SELECT 6
+turn SELECT -1
+tap SEL
+turn SELECT 2
+expect listsel 2
 expect rowval 1
 turn ALGO -1
 expect rowval 0

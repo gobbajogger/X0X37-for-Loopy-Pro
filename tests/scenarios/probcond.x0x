@@ -28,9 +28,11 @@ expect laneval7.0.0.12 255
 expect hit0.0.0 1
 expect hit0.0.8 1
 tap GLO
+tap SEL # enter MIDI + CLOCK; NOTES OUT is section row 2
 turn SELECT 2
 turn ALGO 1
-tap HOME
+tap HOME # return to the section index
+tap HOME # close GLOBAL
 tap EDIT
 expect noteons 0
 tap PLAY
