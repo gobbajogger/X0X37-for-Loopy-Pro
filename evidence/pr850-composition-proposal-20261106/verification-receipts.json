@@ -1,0 +1,100 @@
+[
+  {
+    "label": "combined-selftest",
+    "command": [
+      "sh",
+      "<selected-tree>/tests/host/roadmap_evidence_check_test.sh"
+    ],
+    "exit": 0,
+    "summary": "67 PASS / 0 FAIL / no SKIP"
+  },
+  {
+    "label": "shell-syntax",
+    "command": [
+      "sh",
+      "-n",
+      "<selected-tree>/tests/host/roadmap_evidence_check.sh",
+      "<selected-tree>/tests/host/roadmap_evidence_check_test.sh"
+    ],
+    "cwd": null,
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "label": "report",
+    "command": [
+      "sh",
+      "<selected-tree>/tests/host/roadmap_evidence_check.sh",
+      "<selected-tree>"
+    ],
+    "cwd": null,
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "label": "strict-default",
+    "command": [
+      "sh",
+      "<selected-tree>/tests/host/roadmap_evidence_check.sh",
+      "--strict",
+      "--candidate-sha",
+      "c055f15c350aa259a24e63db6df4bc0bc063415b",
+      "<selected-tree>"
+    ],
+    "cwd": null,
+    "exit": 2,
+    "expected_exit": 2
+  },
+  {
+    "label": "strict-pinned",
+    "command": [
+      "sh",
+      "<selected-tree>/tests/host/roadmap_evidence_check.sh",
+      "--strict",
+      "--candidate-sha",
+      "c055f15c350aa259a24e63db6df4bc0bc063415b",
+      "<selected-tree>",
+      "--roadmap",
+      "<input-packet>/pinned-ROADMAP.md"
+    ],
+    "cwd": null,
+    "exit": 1,
+    "expected_exit": 1
+  },
+  {
+    "label": "patch-check",
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "<evidence-packet>/composition.patch"
+    ],
+    "cwd": "<isolated-patch-replay>",
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "label": "patch-replay",
+    "command": [
+      "git",
+      "apply",
+      "<evidence-packet>/composition.patch"
+    ],
+    "cwd": "<isolated-patch-replay>",
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "label": "patch-whitespace",
+    "command": [
+      "git",
+      "-C",
+      "<base-tree>",
+      "apply",
+      "--check",
+      "--whitespace=error",
+      "<evidence-packet>/composition.patch"
+    ],
+    "exit": 0
+  }
+]

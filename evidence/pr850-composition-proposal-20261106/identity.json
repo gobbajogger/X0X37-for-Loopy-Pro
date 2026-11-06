@@ -1,0 +1,376 @@
+{
+  "state": "UNSELECTED_NOT_PUSHED",
+  "base_commit": "c055f15c350aa259a24e63db6df4bc0bc063415b",
+  "base_tree": "d97b972a1b4141dd02fac2b6ccb5d3456250129f",
+  "donor_commit": "727e5c0dabae218f728966705a792e990b5efc00",
+  "proposed_tree": "0020995601b23b6631c23f98b78496bd3df6fbbf",
+  "changed_paths": [
+    {
+      "path": "docs/roadmap-evidence/#101.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "c1743dce5341f6c26e13cf64f38478dfaa7fa152"
+    },
+    {
+      "path": "docs/roadmap-evidence/#104.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "dd87f960f6383867476b297918833510988f7853"
+    },
+    {
+      "path": "docs/roadmap-evidence/#105.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "188640b5c821dba17c8f9dab2ae9971c454f7ab0"
+    },
+    {
+      "path": "docs/roadmap-evidence/#106.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "34097da3584cf6a7426519d22ddab0c6cc3857f3"
+    },
+    {
+      "path": "docs/roadmap-evidence/#107.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "1036901e27904de6648692788ba0b284188d1eb2"
+    },
+    {
+      "path": "docs/roadmap-evidence/#110.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "7b05de96ffdb486ba3377548cb7ad56f48fcf3ee"
+    },
+    {
+      "path": "docs/roadmap-evidence/#111.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "172c60b15582c369603f44526a1abc5ad82bb686"
+    },
+    {
+      "path": "docs/roadmap-evidence/#112.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "13ab9620bdd9ba5cf6d3409e7f9c2aa715df8d12"
+    },
+    {
+      "path": "docs/roadmap-evidence/#113.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "8c2482e97c1a63fb767d9da74e43b187c4246e6f"
+    },
+    {
+      "path": "docs/roadmap-evidence/#117.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "e67ccfe254c746f87a4bd6a3bcbb3e35fce5d04e"
+    },
+    {
+      "path": "docs/roadmap-evidence/#119.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "cc8684464ba58d856875b50bf653361002703ccb"
+    },
+    {
+      "path": "docs/roadmap-evidence/#120.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "7ca4f5d646f687ae4f56292136517d50c16fc1b1"
+    },
+    {
+      "path": "docs/roadmap-evidence/#122.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "61ee620bc810be9d9da1673627f0dfb48b72b78a"
+    },
+    {
+      "path": "docs/roadmap-evidence/#15.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "7370bb92c36f68e394f048734efe1a19945de5c1"
+    },
+    {
+      "path": "docs/roadmap-evidence/#16.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "effefebf69d43adf33869ddf1ceecfc52a9f6a62"
+    },
+    {
+      "path": "docs/roadmap-evidence/#29.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "f7a74cbbfb307dbd4de8d4285bb8a4e5088931e2"
+    },
+    {
+      "path": "docs/roadmap-evidence/#31.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "aae55f91cc73605b7913042805202e85e38159ff"
+    },
+    {
+      "path": "docs/roadmap-evidence/#33.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "eaedf2e1e744c6ffaa89113f115bb4a8765a33d0"
+    },
+    {
+      "path": "docs/roadmap-evidence/#37.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "5dd5ca6b02053fe73bf30459953372ed49105c07"
+    },
+    {
+      "path": "docs/roadmap-evidence/#40.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "d57b702b70ee55a892ded35a460d30e98db1f149"
+    },
+    {
+      "path": "docs/roadmap-evidence/#41.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "c7ceb1eac652f97e50bd077c92ac628001268d0f"
+    },
+    {
+      "path": "docs/roadmap-evidence/#45.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "802256506ab785edb86d3356405a8b0907578180"
+    },
+    {
+      "path": "docs/roadmap-evidence/#46.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "821b402ae48bd949c8883c0f4074c9315ef325c5"
+    },
+    {
+      "path": "docs/roadmap-evidence/#50.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "8ee0eae00ba0aa9942dc7d38e0e44eb4469c6a76"
+    },
+    {
+      "path": "docs/roadmap-evidence/#52.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "42e2bfd996e3f3349e2814f2ea0ed512afd1c23f"
+    },
+    {
+      "path": "docs/roadmap-evidence/#54.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "8fc50d2e71ce131dc568d6c6e37b70e2662701a5"
+    },
+    {
+      "path": "docs/roadmap-evidence/#55.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "236950ae41a9aa1b6f5bca9ea4f7f9d964b08589"
+    },
+    {
+      "path": "docs/roadmap-evidence/#56.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "aeb5973f21e89946aeccc92aed8c4b254c725428"
+    },
+    {
+      "path": "docs/roadmap-evidence/#59.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "9da2961411ce2205f0b08a575cf8ab7b9ae14b02"
+    },
+    {
+      "path": "docs/roadmap-evidence/#67.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "29c54ff710de41c446c97226a4039f9e8cea2251"
+    },
+    {
+      "path": "docs/roadmap-evidence/#73.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "8d3d896874ae1a6d4f3faa7381cc700dc278632f"
+    },
+    {
+      "path": "docs/roadmap-evidence/#8.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "a838c4b55e36bef85d2db325215e8bfab3abbe8b"
+    },
+    {
+      "path": "docs/roadmap-evidence/#83.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "1dd716cd0d46357563cb4fcde24b71d08eb0d94e"
+    },
+    {
+      "path": "docs/roadmap-evidence/#86.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "469765252bebbbab04849ec60f04b38448f94cee"
+    },
+    {
+      "path": "docs/roadmap-evidence/#88.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "3bbafdf5842559f849555955f1053365dfb72406"
+    },
+    {
+      "path": "docs/roadmap-evidence/#97.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "9c360412ecff6a9c0ce6451be53a9890c68c1f92"
+    },
+    {
+      "path": "docs/roadmap-evidence/#98.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "639e7d6502009ccf00bfa4a046c9a34f5ee036bf"
+    },
+    {
+      "path": "docs/roadmap-evidence/L10.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "4712bb9d60273ea430e35379f4ec87a8458676e3"
+    },
+    {
+      "path": "docs/roadmap-evidence/L12.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "6f50e8fcd788af317f12745d29f3b4e45ac4d544"
+    },
+    {
+      "path": "docs/roadmap-evidence/L13.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "713513ab44cc7b0617cdea30ea20d267583263c3"
+    },
+    {
+      "path": "docs/roadmap-evidence/L14.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "e55b257ec089c5195022415d40a7ae9218b3493f"
+    },
+    {
+      "path": "docs/roadmap-evidence/L4.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "9869ce937740dfa5571a80f1030a8fc6c7315ebc"
+    },
+    {
+      "path": "docs/roadmap-evidence/L5.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "7bfb57d1f8662c964b43b5e25680886e9f31dec6"
+    },
+    {
+      "path": "docs/roadmap-evidence/L6.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "3a91514900bcca63e6c23b946e971b41ef5cd256"
+    },
+    {
+      "path": "docs/roadmap-evidence/L7.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "657f6420c94f960cf6a6ae2423e1d6d50c162dec"
+    },
+    {
+      "path": "docs/roadmap-evidence/L9.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "7324ec8da0d410deaafcee9c42978ab527a1aedf"
+    },
+    {
+      "path": "docs/roadmap-evidence/M1.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "4ecfbceaab7ee056956488bb9fbee7fdb257ca65"
+    },
+    {
+      "path": "docs/roadmap-evidence/M10.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "41b1bae886f4c79f533e44944368c80b50ffb87c"
+    },
+    {
+      "path": "docs/roadmap-evidence/M11.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "42afc06152f1483ff1ca8504232d002685524231"
+    },
+    {
+      "path": "docs/roadmap-evidence/M12.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "9ef306edd48906e131d01fb3c1939cc3585f3b18"
+    },
+    {
+      "path": "docs/roadmap-evidence/M13.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "a5e8238f50aa6d4b60c785b6d35d473aec4e4769"
+    },
+    {
+      "path": "docs/roadmap-evidence/M4.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "52b1a584274806e401cb7bef54c8f934ed0eb8af"
+    },
+    {
+      "path": "docs/roadmap-evidence/M5.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "e90957bc3e76d967943a5cb08d3119d3f4ef9031"
+    },
+    {
+      "path": "docs/roadmap-evidence/M6.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "cf80cd86d2c75e85fb2f36f22a65516f66480b40"
+    },
+    {
+      "path": "docs/roadmap-evidence/M7.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "308b3353f31e832d03b03319ab3ad7d074078154"
+    },
+    {
+      "path": "docs/roadmap-evidence/M8.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "b704d47358f055f58bf20caf1f3845dcbf03e97f"
+    },
+    {
+      "path": "docs/roadmap-evidence/M9.json",
+      "mode": "100644",
+      "base_blob": null,
+      "proposed_blob": "456b51bf086c4afa1c2309de6b808a51dc56d90c"
+    },
+    {
+      "path": "docs/roadmap-evidence/REQUIRED_ROWS.txt",
+      "mode": "100644",
+      "base_blob": "b8424d934ff7705660b5eaa491c0b70f01641302",
+      "proposed_blob": "f34ac92dff393db688aed7a7600b8f840856aa83"
+    },
+    {
+      "path": "docs/roadmap-evidence/SCHEMA.md",
+      "mode": "100644",
+      "base_blob": "4ded118cfd0b3950bca3e5582e9ec69935ae87a4",
+      "proposed_blob": "232db3c1ddbf6cc9e4742981cb8f6a5c3939d4ca"
+    },
+    {
+      "path": "tests/host/roadmap_evidence_check.sh",
+      "mode": "100755",
+      "base_blob": "bea158aafefc28961ba20ff9403b754735143cad",
+      "proposed_blob": "dec20324cc48fa87f926ab50af266a03f51f991f"
+    },
+    {
+      "path": "tests/host/roadmap_evidence_check_test.sh",
+      "mode": "100755",
+      "base_blob": "35ca4b89591e8843a5d9f96d0d2d2a69613e9df3",
+      "proposed_blob": "1ff118212ba04d1671a2642f43a5118e20a0645a"
+    }
+  ],
+  "scope": "Full tree identity from authenticated base metadata plus local override blobs; scoped checkout, no full firmware build claim."
+}

@@ -1,0 +1,1929 @@
+diff --git a/docs/roadmap-evidence/#101.json b/docs/roadmap-evidence/#101.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..c1743dce5341f6c26e13cf64f38478dfaa7fa152 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#101.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#101",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:225 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#104.json b/docs/roadmap-evidence/#104.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..dd87f960f6383867476b297918833510988f7853 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#104.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#104",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:228 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#105.json b/docs/roadmap-evidence/#105.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..188640b5c821dba17c8f9dab2ae9971c454f7ab0 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#105.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#105",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:229 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#106.json b/docs/roadmap-evidence/#106.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..34097da3584cf6a7426519d22ddab0c6cc3857f3 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#106.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#106",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:230 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#107.json b/docs/roadmap-evidence/#107.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..1036901e27904de6648692788ba0b284188d1eb2 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#107.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#107",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:231 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#110.json b/docs/roadmap-evidence/#110.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7b05de96ffdb486ba3377548cb7ad56f48fcf3ee 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#110.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#110",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:234 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#111.json b/docs/roadmap-evidence/#111.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..172c60b15582c369603f44526a1abc5ad82bb686 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#111.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#111",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:235 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#112.json b/docs/roadmap-evidence/#112.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..13ab9620bdd9ba5cf6d3409e7f9c2aa715df8d12 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#112.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#112",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:236 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#113.json b/docs/roadmap-evidence/#113.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c2482e97c1a63fb767d9da74e43b187c4246e6f 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#113.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#113",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:237 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#117.json b/docs/roadmap-evidence/#117.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..e67ccfe254c746f87a4bd6a3bcbb3e35fce5d04e 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#117.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#117",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:241 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#119.json b/docs/roadmap-evidence/#119.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cc8684464ba58d856875b50bf653361002703ccb 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#119.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#119",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:243 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#120.json b/docs/roadmap-evidence/#120.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7ca4f5d646f687ae4f56292136517d50c16fc1b1 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#120.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#120",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:244 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#122.json b/docs/roadmap-evidence/#122.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..61ee620bc810be9d9da1673627f0dfb48b72b78a 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#122.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#122",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:246 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#15.json b/docs/roadmap-evidence/#15.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7370bb92c36f68e394f048734efe1a19945de5c1 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#15.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#15",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:139 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#16.json b/docs/roadmap-evidence/#16.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..effefebf69d43adf33869ddf1ceecfc52a9f6a62 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#16.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#16",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:140 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#29.json b/docs/roadmap-evidence/#29.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..f7a74cbbfb307dbd4de8d4285bb8a4e5088931e2 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#29.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#29",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:153 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#31.json b/docs/roadmap-evidence/#31.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..aae55f91cc73605b7913042805202e85e38159ff 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#31.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#31",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:155 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#33.json b/docs/roadmap-evidence/#33.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..eaedf2e1e744c6ffaa89113f115bb4a8765a33d0 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#33.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#33",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:157 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#37.json b/docs/roadmap-evidence/#37.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..5dd5ca6b02053fe73bf30459953372ed49105c07 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#37.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#37",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:161 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#40.json b/docs/roadmap-evidence/#40.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..d57b702b70ee55a892ded35a460d30e98db1f149 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#40.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#40",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:164 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#41.json b/docs/roadmap-evidence/#41.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..c7ceb1eac652f97e50bd077c92ac628001268d0f 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#41.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#41",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:165 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#45.json b/docs/roadmap-evidence/#45.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..802256506ab785edb86d3356405a8b0907578180 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#45.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#45",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:169 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#46.json b/docs/roadmap-evidence/#46.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..821b402ae48bd949c8883c0f4074c9315ef325c5 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#46.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#46",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:170 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#50.json b/docs/roadmap-evidence/#50.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ee0eae00ba0aa9942dc7d38e0e44eb4469c6a76 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#50.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#50",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:174 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#52.json b/docs/roadmap-evidence/#52.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..42e2bfd996e3f3349e2814f2ea0ed512afd1c23f 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#52.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#52",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:176 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#54.json b/docs/roadmap-evidence/#54.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8fc50d2e71ce131dc568d6c6e37b70e2662701a5 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#54.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#54",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:178 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#55.json b/docs/roadmap-evidence/#55.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..236950ae41a9aa1b6f5bca9ea4f7f9d964b08589 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#55.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#55",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:179 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#56.json b/docs/roadmap-evidence/#56.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..aeb5973f21e89946aeccc92aed8c4b254c725428 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#56.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#56",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:180 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#59.json b/docs/roadmap-evidence/#59.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9da2961411ce2205f0b08a575cf8ab7b9ae14b02 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#59.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#59",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:183 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#67.json b/docs/roadmap-evidence/#67.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..29c54ff710de41c446c97226a4039f9e8cea2251 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#67.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#67",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:191 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#73.json b/docs/roadmap-evidence/#73.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8d3d896874ae1a6d4f3faa7381cc700dc278632f 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#73.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#73",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:197 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#8.json b/docs/roadmap-evidence/#8.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..a838c4b55e36bef85d2db325215e8bfab3abbe8b 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#8.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#8",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:132 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#83.json b/docs/roadmap-evidence/#83.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..1dd716cd0d46357563cb4fcde24b71d08eb0d94e 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#83.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#83",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:207 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#86.json b/docs/roadmap-evidence/#86.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..469765252bebbbab04849ec60f04b38448f94cee 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#86.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#86",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:210 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#88.json b/docs/roadmap-evidence/#88.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..3bbafdf5842559f849555955f1053365dfb72406 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#88.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#88",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:212 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#97.json b/docs/roadmap-evidence/#97.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9c360412ecff6a9c0ce6451be53a9890c68c1f92 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#97.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#97",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:221 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/#98.json b/docs/roadmap-evidence/#98.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..639e7d6502009ccf00bfa4a046c9a34f5ee036bf 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/#98.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "#98",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:222 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/L10.json b/docs/roadmap-evidence/L10.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4712bb9d60273ea430e35379f4ec87a8458676e3 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/L10.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "L10",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:282 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/L12.json b/docs/roadmap-evidence/L12.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..6f50e8fcd788af317f12745d29f3b4e45ac4d544 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/L12.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "L12",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:284 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/L13.json b/docs/roadmap-evidence/L13.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..713513ab44cc7b0617cdea30ea20d267583263c3 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/L13.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "L13",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:285 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/L14.json b/docs/roadmap-evidence/L14.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..e55b257ec089c5195022415d40a7ae9218b3493f 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/L14.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "L14",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:306 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/L4.json b/docs/roadmap-evidence/L4.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9869ce937740dfa5571a80f1030a8fc6c7315ebc 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/L4.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "L4",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:276 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/L5.json b/docs/roadmap-evidence/L5.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7bfb57d1f8662c964b43b5e25680886e9f31dec6 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/L5.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "L5",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:277 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/L6.json b/docs/roadmap-evidence/L6.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..3a91514900bcca63e6c23b946e971b41ef5cd256 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/L6.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "L6",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:278 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/L7.json b/docs/roadmap-evidence/L7.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..657f6420c94f960cf6a6ae2423e1d6d50c162dec 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/L7.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "L7",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:279 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/L9.json b/docs/roadmap-evidence/L9.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7324ec8da0d410deaafcee9c42978ab527a1aedf 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/L9.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "L9",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:281 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M1.json b/docs/roadmap-evidence/M1.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4ecfbceaab7ee056956488bb9fbee7fdb257ca65 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M1.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M1",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:286 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M10.json b/docs/roadmap-evidence/M10.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..41b1bae886f4c79f533e44944368c80b50ffb87c 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M10.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M10",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:295 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M11.json b/docs/roadmap-evidence/M11.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..42afc06152f1483ff1ca8504232d002685524231 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M11.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M11",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:296 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M12.json b/docs/roadmap-evidence/M12.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9ef306edd48906e131d01fb3c1939cc3585f3b18 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M12.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M12",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:297 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M13.json b/docs/roadmap-evidence/M13.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..a5e8238f50aa6d4b60c785b6d35d473aec4e4769 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M13.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M13",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:298 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M4.json b/docs/roadmap-evidence/M4.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..52b1a584274806e401cb7bef54c8f934ed0eb8af 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M4.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M4",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:289 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M5.json b/docs/roadmap-evidence/M5.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..e90957bc3e76d967943a5cb08d3119d3f4ef9031 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M5.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M5",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:290 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M6.json b/docs/roadmap-evidence/M6.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf80cd86d2c75e85fb2f36f22a65516f66480b40 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M6.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M6",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:291 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M7.json b/docs/roadmap-evidence/M7.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..308b3353f31e832d03b03319ab3ad7d074078154 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M7.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M7",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:292 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M8.json b/docs/roadmap-evidence/M8.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..b704d47358f055f58bf20caf1f3845dcbf03e97f 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M8.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M8",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:293 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/M9.json b/docs/roadmap-evidence/M9.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..456b51bf086c4afa1c2309de6b808a51dc56d90c 100644
+--- /dev/null
++++ b/docs/roadmap-evidence/M9.json
+@@ -0,0 +1,12 @@
++{
++  "row_id": "M9",
++  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
++  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
++  "status": "UNPROVEN",
++  "queued": true,
++  "reason": "QUEUED: no source proof yet",
++  "proof_source": "docs/ROADMAP.md:294 (pinned Master tracker inventory only; no source proof)",
++  "notes": "QUEUED: no source proof yet",
++  "code_paths": [],
++  "test_refs": []
++}
+diff --git a/docs/roadmap-evidence/REQUIRED_ROWS.txt b/docs/roadmap-evidence/REQUIRED_ROWS.txt
+index b8424d934ff7705660b5eaa491c0b70f01641302..f34ac92dff393db688aed7a7600b8f840856aa83 100644
+--- a/docs/roadmap-evidence/REQUIRED_ROWS.txt
++++ b/docs/roadmap-evidence/REQUIRED_ROWS.txt
+@@ -1,19 +1,34 @@
+ #1
+ #10
+ #100
++#101
+ #102
+ #103
++#104
++#105
++#106
++#107
+ #108
+ #109
+ #11
++#110
++#111
++#112
++#113
+ #114
+ #115
+ #116
++#117
+ #118
++#119
+ #12
++#120
+ #121
++#122
+ #13
+ #14
++#15
++#16
+ #17
+ #18
+ #19
+@@ -27,26 +42,40 @@
+ #26
+ #27
+ #28
++#29
+ #3
+ #30
++#31
+ #32
++#33
+ #34
+ #35
+ #36
++#37
+ #38
+ #39
+ #4
++#40
++#41
+ #42
+ #43
+ #44
++#45
++#46
+ #47
+ #48
+ #49
+ #5
++#50
+ #51
++#52
+ #53
++#54
++#55
++#56
+ #57
+ #58
++#59
+ #6
+ #60
+ #61
+@@ -55,24 +84,30 @@
+ #64
+ #65
+ #66
++#67
+ #68
+ #69
+ #7
+ #70
+ #71
+ #72
++#73
+ #74
+ #75
+ #76
+ #77
+ #78
+ #79
++#8
+ #80
+ #81
+ #82
++#83
+ #84
+ #85
++#86
+ #87
++#88
+ #89
+ #9
+ #90
+@@ -82,6 +117,8 @@
+ #94
+ #95
+ #96
++#97
++#98
+ #99
+ DONE-001
+ DONE-002
+@@ -109,12 +146,32 @@
+ FIX-SMC-ALIGN
+ FIX-UI-TILES
+ L1
++L10
+ L11
++L12
++L13
++L14
+ L2
+ L3
++L4
++L5
++L6
++L7
+ L8
++L9
++M1
++M10
++M11
++M12
++M13
+ M2
+ M3
++M4
++M5
++M6
++M7
++M8
++M9
+ PR-789
+ PR-790
+ PR-791
+diff --git a/docs/roadmap-evidence/SCHEMA.md b/docs/roadmap-evidence/SCHEMA.md
+index 4ded118cfd0b3950bca3e5582e9ec69935ae87a4..232db3c1ddbf6cc9e4742981cb8f6a5c3939d4ca 100644
+--- a/docs/roadmap-evidence/SCHEMA.md
++++ b/docs/roadmap-evidence/SCHEMA.md
+@@ -16,6 +16,8 @@
+ | `test_refs` | PRESENT | List of `{file, test, result, source_sha}` |
+ | `proof_source` | yes | Citation: where the proof was recorded (status line, #832 comment id, blob SHA, …) |
+ | `notes` | no | Free text |
++| `queued` | stubs | `true` for evidence queued without source proof |
++| `reason` | stubs | Explicit `QUEUED: no source proof yet` |
+ 
+ `test_refs[].result` is exactly `PASS`, `FAIL`, or `NOT_RUN` (never empty).
+ `test_refs[].source_sha` is the commit/run the result was recorded against.
+@@ -42,48 +44,106 @@
+ 
+ ## Strict final gate (opt in)
+ 
+-```
+-sh tests/host/roadmap_evidence_check.sh --strict --candidate-sha ce27812951555ff7ed9694bf99d20a65dd5f410b tree docs/roadmap-evidence
+-X0X_CANDIDATE_SHA=ce27812951555ff7ed9694bf99d20a65dd5f410b sh tests/host/roadmap_evidence_check.sh --strict tree docs/roadmap-evidence
++```sh
++sh tests/host/roadmap_evidence_check.sh --strict --candidate-sha ce27812951555ff7ed9694bf99d20a65dd5f410b --roadmap /path/to/ROADMAP.pinned.md tree tree/docs/roadmap-evidence
++X0X_CANDIDATE_SHA=ce27812951555ff7ed9694bf99d20a65dd5f410b sh tests/host/roadmap_evidence_check.sh tree tree/docs/roadmap-evidence --strict --roadmap /path/to/ROADMAP.pinned.md
+ ```
+ 
+-`--strict` must be first; optional `--candidate-sha <40hex>` precedes the paths
+-and overrides `X0X_CANDIDATE_SHA`. A missing or invalid candidate SHA is a setup
+-error (exit 2). The candidate is the tested source revision, separate from the
+-ROADMAP pin. SHA comparison accepts either hexadecimal letter case.
++Strict flags may occur anywhere among the arguments. The two optional operands
++are tree root and evidence directory, in that order, with the reporting defaults.
++Unknown flags, extra operands, and missing option values exit 2. Without a
++`--strict` argument the legacy reporting behavior and argument handling stay
++unchanged. `--candidate-sha <40hex>` overrides `X0X_CANDIDATE_SHA`; a missing or
++invalid candidate exits 2. SHA comparison accepts either hexadecimal letter case.
+ 
+-`REQUIRED_ROWS.txt` is the inventory for the pinned ROADMAP above: one row id per
+-line, no blank lines or comments. Its 146 ids were generated from the current
+-JSON filename stems. Keep this manifest under review with the pin; do not shrink
+-it to make a partial evidence set pass. Synthetic self-test fixtures use their
+-own one-row manifests.
++`--roadmap <file>` supplies the actual pinned ROADMAP bytes. Its default is
++`<tree_root>/docs/ROADMAP.md`. If that file has changed since the pinned
++revision, supply a separately retrieved copy of the pinned bytes with
++`--roadmap`; the default must fail rather than accept a newer ROADMAP.
++The checker computes the Git blob SHA-1 of
++`b"blob " + ASCII(byte_length) + b"\0" + file_bytes`, without git or network.
++It must equal the in-script constant
++`a204a54c989d6f323d619e70f799427603756541`. Missing files and different bytes
++exit 2 with `roadmap file missing or not the pinned blob`; JSON pin claims cannot
++substitute for this check. Optional `--roadmap-pin <40hex>` and
++`X0X_ROADMAP_PIN` assert the caller's expected pin. Each supplied assertion must
++match the constant, including when both are supplied; neither replaces it.
++A repeated `--roadmap-pin` or a differing/invalid assertion exits 2.
++Every evidence object's `roadmap_blob` must also match the checker constant.
++Both JSON pin fields must be valid SHA values and agree across evidence objects.
++
++### Mandatory inventory and file naming
++
++Within the `## Master tracker` section, including its subordinate headings and
++all its tables, take the first cell of each table row. Extract a leading id
++matching `(#\d+|[LM]\d+)(?=\s|$)` after stripping surrounding cell whitespace.
++Stop at the next level-two heading. The real pinned file has 149 unique ids:
++`#1`–`#122`, `L1`–`L14`, and `M1`–`M13`. Alias descriptions such as L6 still
++require their own id. Auxiliary provenance text, `PR #...` source labels,
++`FX41-REC`, and `QA1`/`QA2` baseline-audit labels do not belong to these three
++canonical tracker id families. The count is derived, never hardcoded by the
++checker. The original file is the authority; the earlier parsed hint is unused.
++
++An id is used verbatim as the JSON filename stem: `#66` maps to `#66.json`,
++`L14` to `L14.json`, and `M1` to `M1.json`. No title, hash alias, or numbering
++conversion is applied.
++
++`REQUIRED_ROWS.txt` is an additional reviewed inventory, one id per line with
++no blank lines or comments. It must cover every Master id and all 54 legacy
++DONE/PR/FIX/ROW ids enumerated in the checker's `REQUIRED_EXTRAS` constant.
++Those 54 ids preserve the original manifest's rows with their own sources;
++they remain mandatory even if deleted from both the manifest and JSON. An id
++outside Master plus these extras is a manifest error. The required set is the
++union of Master, extras, and manifest; unknown manifest ids fail validation.
++The updated manifest has 203 ids (149 Master + 54 extras). Shrinking the editable
++manifest cannot reduce the trusted set.
+ 
+ Strict requires:
+ 
+-- A readable, nonempty manifest with unique ids, every required JSON file, and
+-  no additional `*.json` files (including hidden and underscore-prefixed names).
+-- Valid JSON objects, required fields, ids matching filename stems, valid pin
+-  SHAs, and agreement on both ROADMAP pin SHAs.
+-- Every required row status exactly `PRESENT`; UNPROVEN fails even when it is
+-  the only missing proof.
+-- Nonempty `code_paths` and `test_refs` for PRESENT rows. Every recorded test
+-  result must be exactly `PASS`, and every source SHA must match the candidate.
+-- Every supplied code path and test file must resolve to a regular file under
+-  the tree root. Absolute paths, parent escapes and symlinks outside it fail.
+-- Every test name must match a literal `run <test>` entry in
+-  `<tree_root>/tests/run_tests.sh`. Inline `else run <test> ...` entries count; comments and quoted command text
+-  do not register tests. The checker
+-  reads this file; it never executes the runner or any tests. Quoting and line
+-  continuations retain their shell context. Here-documents and unquoted backticks
+-  are unsupported and fail closed for the whole registry.
++- A readable, nonempty manifest with unique ids and the coverage above.
++- Every Master id has an evidence JSON file, independent of the manifest.
++  Its absence emits `STRICT_FAIL <id>: master row has no evidence json`
++  (other reasons may be combined on that line).
++- Every required id has a JSON file, with no additional `*.json` files,
++  including hidden and underscore-prefixed names.
++- Valid JSON objects, required fields, ids matching filename stems, and pin
++  validation as described above.
++- Every required row has status exactly `PRESENT`. UNPROVEN fails even when
++  it is the only missing proof.
++- Nonempty `code_paths` and `test_refs` for PRESENT rows. Every recorded result
++  is exactly `PASS`, and its full source SHA matches the candidate. Prefix
++  SHAs, empty SHAs, FAIL, NOT_RUN, and SKIP all fail strict.
++- Every supplied code path and test file resolves to a regular file under the
++  tree root. Absolute paths, parent escapes and symlinks outside it fail.
++- Every test name matches a literal `run <test>` entry in
++  `<tree_root>/tests/run_tests.sh`. Inline `else run <test> ...` entries count;
++  comments and quoted command text do not register tests. The checker reads
++  the runner and never executes it or any recorded tests. Quoting and line
++  continuations retain shell context. Here-documents and unquoted backticks
++  fail closed for the whole registry.
+ 
+-Strict emits one `STRICT_FAIL <row>: <reason>` line per offending row, combining
+-multiple reasons on that line. Manifest errors use `REQUIRED_ROWS` as the row.
+-The final line is `STRICT_RESULT FAIL|PASS rows=N required=M`, where N counts
+-JSON files found and M counts distinct required ids. Evidence failures exit 1;
+-complete strict evidence exits 0. Missing evidence directories remain setup
+-errors (exit 2). Empty or missing required evidence fails strict with exit 1.
++Strict prints `STRICT_INFO master_rows=N`, the actual manifest bytes' SHA-256
++as `STRICT_INFO manifest_sha256=...`, and failure row/reason counts. It emits
++one `STRICT_FAIL <row>: <reasons>` line per offending row. Manifest-wide errors
++use `REQUIRED_ROWS` as the row. The final line remains
++`STRICT_RESULT FAIL|PASS rows=N required=M`, where N counts JSON files found
++and M counts distinct required ids. Evidence failures exit 1; complete strict
++evidence exits 0. Missing evidence directories and roadmap/pin/argument setup
++errors exit 2. Empty or missing required evidence fails strict with exit 1.
+ 
+-Today's pinned evidence is expected to fail strict: 144 of 146 rows are
+-UNPROVEN. This tooling change does not upgrade their evidence status.
+-The check script does not invent proofs; Dev writes them at admission.
++The original 146 files report 2 PRESENT_OK and 144 UNPROVEN. The 57 newly queued
++Master stubs all remain UNPROVEN, with `queued=true` and
++`reason="QUEUED: no source proof yet"`. The expected updated report is 2
++PRESENT_OK, 0 PRESENT_BAD, 201 UNPROVEN/MISSING, 203 rows. This inventory increase
++is the only intended reporting output delta. No proof status is upgraded.
++
++The self-test uses small synthetic ROADMAP tables and a disposable checker
++copy with only its pin constant changed to those fixture bytes. It never adds
++a production pin override. The 54 extras are retained in these fixtures.
++If `../../ROADMAP.pinned.md` relative to the self-test directory or
++`./work/ROADMAP.pinned.md` relative to the caller exists, a separate invocation tests that real blob against the unmodified checker pin;
++otherwise it explicitly skips the real-pin, delete-#8-from-both, and empty
++UNPROVEN cases. The real-pin deletion case must reject a fixture that removes
++`#8` from both the manifest and evidence JSON. All generated
++PRESENT objects are synthetic checker fixtures, not firmware proof. Temporary
++trees are removed by the self-test trap; use TMPDIR to select their parent.
+diff --git a/tests/host/roadmap_evidence_check.sh b/tests/host/roadmap_evidence_check.sh
+index bea158aafefc28961ba20ff9403b754735143cad..dec20324cc48fa87f926ab50af266a03f51f991f 100755
+--- a/tests/host/roadmap_evidence_check.sh
++++ b/tests/host/roadmap_evidence_check.sh
+@@ -2,42 +2,138 @@
+ # ROADMAP evidence check: PRESENT paths + recorded test_refs; pin agreement.
+ # Usage: roadmap_evidence_check.sh [tree_root] [evidence_dir]
+ # Strict final gate: roadmap_evidence_check.sh --strict [--candidate-sha <40hex>] [tree_root] [evidence_dir]
+-# Strict requires --candidate-sha (before paths) or X0X_CANDIDATE_SHA.
++# Strict flags may appear anywhere; --roadmap supplies the pinned file.
++# Strict requires --candidate-sha or X0X_CANDIDATE_SHA.
+ # Default tree_root=.; default evidence_dir=<tree_root>/docs/roadmap-evidence
+ # Reporting (default): structural checks only; FAIL/NOT_RUN and UNPROVEN are allowed.
+-# Strict: REQUIRED_ROWS.txt coverage, all PRESENT/PASS, candidate SHA and tree checks.
++# Strict: pinned Master + legacy extras + manifest, PRESENT/PASS, exact SHA and paths.
+ # Exit 0=accepted, 1=evidence failure, 2=usage/setup error.
+ set -eu
+ 
+ STRICT=0
++# Detect strict anywhere before parsing; legacy reporting argv stays untouched.
++for arg do
++  if [ "$arg" = --strict ]; then STRICT=1; fi
++done
+ CANDIDATE_SHA=${X0X_CANDIDATE_SHA:-}
+-if [ "${1:-}" = --strict ]; then
+-  STRICT=1
+-  shift
+-  if [ "${1:-}" = --candidate-sha ]; then
+-    if [ "$#" -lt 2 ]; then
+-      echo "ERROR: --candidate-sha requires a 40hex SHA" >&2
+-      exit 2
+-    fi
+-    CANDIDATE_SHA=$2
+-    shift 2
+-  fi
++ROADMAP=
++ROADMAP_CLI_PIN=
++ROADMAP_CLI_PIN_SET=0
++if [ "$STRICT" -eq 1 ]; then
++  operands=0
++  ROOT=.
++  EVID=
++  while [ "$#" -gt 0 ]; do
++    case "$1" in
++      --strict) shift ;;
++      --candidate-sha|--roadmap|--roadmap-pin)
++        option=$1
++        if [ "$#" -lt 2 ] || [ -z "$2" ]; then
++          echo "ERROR: $option requires a value" >&2
++          exit 2
++        fi
++        case "$2" in --*) echo "ERROR: $option requires a value" >&2; exit 2 ;; esac
++        case "$option" in
++          --candidate-sha) CANDIDATE_SHA=$2 ;;
++          --roadmap) ROADMAP=$2 ;;
++          --roadmap-pin)
++            if [ "$ROADMAP_CLI_PIN_SET" -eq 1 ]; then
++              echo "ERROR: duplicate --roadmap-pin" >&2
++              exit 2
++            fi
++            ROADMAP_CLI_PIN=$2
++            ROADMAP_CLI_PIN_SET=1 ;;
++        esac
++        shift 2 ;;
++      -*) echo "ERROR: unexpected strict argument: $1" >&2; exit 2 ;;
++      *)
++        operands=$((operands + 1))
++        case "$operands" in
++          1) ROOT=$1 ;;
++          2) EVID=$1 ;;
++          *) echo "ERROR: unexpected strict argument: $1" >&2; exit 2 ;;
++        esac
++        shift ;;
++    esac
++  done
++  EVID=${EVID:-"$ROOT/docs/roadmap-evidence"}
++  ROADMAP=${ROADMAP:-"$ROOT/docs/ROADMAP.md"}
++else
++  ROOT=${1:-.}
++  EVID=${2:-"$ROOT/docs/roadmap-evidence"}
+ fi
+-
+-ROOT=${1:-.}
+-EVID=${2:-"$ROOT/docs/roadmap-evidence"}
+ 
+ if [ ! -d "$EVID" ]; then
+   echo "ERROR: evidence dir missing: $EVID" >&2
+   exit 2
+ fi
+ 
+-export ROOT EVID STRICT CANDIDATE_SHA
++export ROOT EVID STRICT CANDIDATE_SHA ROADMAP ROADMAP_CLI_PIN ROADMAP_CLI_PIN_SET
+ python3 - <<'PY'
+ import json, os, sys, glob
+ 
+ root = os.environ["ROOT"]
+ evid = os.environ["EVID"]
++
++# These constants are reviewed with the pinned roadmap. Caller pins are only
++# assertions; neither JSON, environment nor CLI may select a different blob.
++ROADMAP_PIN = "a204a54c989d6f323d619e70f799427603756541"
++REQUIRED_EXTRAS = frozenset("""
++DONE-001
++DONE-002
++DONE-003
++DONE-004
++DONE-005
++DONE-006
++DONE-007
++DONE-008
++DONE-009
++DONE-010
++DONE-011
++DONE-012
++DONE-013
++DONE-014
++DONE-015
++DONE-016
++DONE-017
++DONE-018
++DONE-019
++DONE-020
++DONE-021
++FIX-809-REVERT
++FIX-INSTALLER-BACKUP
++FIX-SMC-ALIGN
++FIX-UI-TILES
++PR-789
++PR-790
++PR-791
++PR-792
++PR-793
++PR-794
++PR-795
++PR-796
++PR-797
++PR-798
++PR-799
++PR-800
++PR-801
++PR-802
++PR-803
++PR-804
++PR-805
++PR-806
++PR-807
++PR-808
++PR-809
++PR-810
++PR-811
++PR-820
++PR-821
++ROW-80982d592fa7
++ROW-938cc69314d2
++ROW-e7ebadf91a40
++ROW-fcf14c2de61c
++""".split())
+ 
+ tree_root = os.path.realpath(root)
+ 
+@@ -52,6 +148,7 @@
+ 
+ def strict_main():
+     import re
++    import hashlib
+     from collections import defaultdict
+ 
+     candidate = os.environ["CANDIDATE_SHA"]
+@@ -60,33 +157,85 @@
+               "X0X_CANDIDATE_SHA=<40hex>", file=sys.stderr)
+         return 2
+ 
++    for expected in (os.environ.get("X0X_ROADMAP_PIN", ""),
++                     os.environ["ROADMAP_CLI_PIN"]):
++        if expected and (not re.fullmatch(r"[0-9a-fA-F]{40}", expected)
++                         or expected.lower() != ROADMAP_PIN):
++            print("ERROR: requested roadmap pin differs from checker pin", file=sys.stderr)
++            return 2
++
++    roadmap = os.environ["ROADMAP"]
++    try:
++        with open(roadmap, "rb") as f:
++            roadmap_bytes = f.read()
++        blob = hashlib.sha1(b"blob " + str(len(roadmap_bytes)).encode("ascii") +
++                            b"\0" + roadmap_bytes).hexdigest()
++        # STRICT_CHECK_ROADMAP_BLOB: hash actual bytes, never a JSON claim.
++        if blob != ROADMAP_PIN:
++            raise ValueError(f"blob={blob} expected={ROADMAP_PIN}")
++        roadmap_text = roadmap_bytes.decode("utf-8")
++    except (OSError, ValueError, UnicodeError) as e:
++        print(f"ERROR: roadmap file missing or not the pinned blob: {roadmap}: {e}",
++              file=sys.stderr)
++        return 2
++
++    # Only canonical numbered, legacy L and owner M tracker ids. Auxiliary
++    # provenance/PR/QA prose rows are not canonical ids (see SCHEMA.md).
++    master = set()
++    in_master = False
++    for line in roadmap_text.splitlines():
++        if line.startswith("## "):
++            in_master = bool(re.fullmatch(r"## Master tracker(?:\s.*)?", line))
++        if in_master and line.startswith("|"):
++            cell = line.split("|", 2)[1].strip()
++            match = re.match(r"(#\d+|[LM]\d+)(?=\s|$)", cell)
++            if match:
++                master.add(match[1])
++    if not master:
++        print("ERROR: pinned roadmap has no Master tracker ids", file=sys.stderr)
++        return 2
++    print(f"STRICT_INFO master_rows={len(master)}")
++
+     failures = defaultdict(list)
+ 
+     def bad(row, reason):
+         failures[row].append(reason)
+ 
+-    required = set()
++    manifest_rows = set()
+     manifest = os.path.join(evid, "REQUIRED_ROWS.txt")
+     try:
+-        with open(manifest, encoding="utf-8") as f:
+-            for number, line in enumerate(f, 1):
+-                row = line.strip()
+-                if not row or "/" in row or "\\" in row or row in (".", ".."):
+-                    bad("REQUIRED_ROWS", f"invalid_id:line_{number}")
+-                elif row in required:
+-                    bad(row, "duplicate_required_id")
+-                else:
+-                    required.add(row)
++        with open(manifest, "rb") as f:
++            manifest_bytes = f.read()
++        print("STRICT_INFO manifest_sha256=" + hashlib.sha256(manifest_bytes).hexdigest())
++        for number, line in enumerate(manifest_bytes.decode("utf-8").splitlines(), 1):
++            row = line.strip()
++            if not row or "/" in row or "\\" in row or row in (".", ".."):
++                bad("REQUIRED_ROWS", f"invalid_id:line_{number}")
++            elif row in manifest_rows:
++                bad(row, "duplicate_required_id")
++            else:
++                manifest_rows.add(row)
+     except (OSError, UnicodeError) as e:
+         bad("REQUIRED_ROWS", f"manifest_unreadable:{e}")
+-    if not required:
++    if not manifest_rows:
+         bad("REQUIRED_ROWS", "empty_manifest")
++    # STRICT_CHECK_MANIFEST: the editable manifest must cover the trusted set.
++    for row in sorted(master - manifest_rows):
++        bad(row, "master_row_missing_from_manifest")
++    for row in sorted(REQUIRED_EXTRAS - manifest_rows):
++        bad(row, "extra_row_missing_from_manifest")
++    for row in sorted(manifest_rows - master - REQUIRED_EXTRAS):
++        bad(row, "manifest_id_not_in_master_or_extras")
++    required = master | REQUIRED_EXTRAS | manifest_rows
+ 
+     # Include hidden and underscore-prefixed JSON: reject every extra file.
+     strict_files = sorted(
+         entry.path for entry in os.scandir(evid) if entry.name.endswith(".json")
+     )
+     actual = {os.path.basename(p)[:-5] for p in strict_files if os.path.isfile(p)}
++    # STRICT_CHECK_MASTER_JSON: independent of manifest membership.
++    for row in sorted(master - actual):
++        bad(row, "master row has no evidence json")
+     # STRICT_CHECK_A: required inventory, including unexpected JSON files.
+     for row in sorted(required - actual):
+         bad(row, "missing_required_json")
+@@ -194,6 +343,8 @@
+                 bad(row, f"missing_{field}")
+         if data.get("row_id") != row:
+             bad(row, "row_id_filename_mismatch")
++        if isinstance(data.get("roadmap_blob"), str) and data["roadmap_blob"].lower() != ROADMAP_PIN:
++            bad(row, "roadmap_blob_not_checker_pin")
+         row_pin = (data.get("roadmap_pin_commit"), data.get("roadmap_blob"))
+         if all(isinstance(v, str) and re.fullmatch(r"[0-9a-fA-F]{40}", v) for v in row_pin):
+             if pin is None:
+@@ -247,6 +398,8 @@
+ 
+     for row, reasons in sorted(failures.items()):
+         print(f"STRICT_FAIL {row}: " + ",".join(reasons))
++    print(f"STRICT_INFO failure_rows={len(failures)} "
++          f"failure_reasons={sum(map(len, failures.values()))}")
+     result = "FAIL" if failures else "PASS"
+     print(f"STRICT_RESULT {result} rows={len(actual)} required={len(required)}")
+     return 1 if failures else 0
+diff --git a/tests/host/roadmap_evidence_check_test.sh b/tests/host/roadmap_evidence_check_test.sh
+index 35ca4b89591e8843a5d9f96d0d2d2a69613e9df3..1ff118212ba04d1671a2642f43a5118e20a0645a 100755
+--- a/tests/host/roadmap_evidence_check_test.sh
++++ b/tests/host/roadmap_evidence_check_test.sh
+@@ -143,6 +143,7 @@
+ printf '{not-json\n' > "$R4/docs/roadmap-evidence/#1.json"
+ expect_nonzero RED_malformed_json sh "$CHECK" "$R4" "$R4/docs/roadmap-evidence"
+ note "MUTANT RED_malformed_json: wrap json.load in a bare except that continues as UNPROVEN/OK -> RED would exit 0; this case catches it."
++
+ 
+ # Reject malformed UNPROVEN metadata while retaining its classification/count.
+ # Dropping the schema-error branch must make these cases fail.
+@@ -198,6 +199,23 @@
+   expect_nonzero "RED_outside_path_$kind" sh "$CHECK" "$fixture" "$fixture/docs/roadmap-evidence"
+ done
+ 
++# A small roadmap pins the synthetic fixture. Only a temporary checker COPY is
++# repinned: --roadmap-pin and X0X_ROADMAP_PIN must never replace its constant.
++REAL_CHECK=$CHECK
++printf '## Master tracker\n| Item | Status |\n|---|---|\n| #1 fixture | pending |\n### More Master rows\n| Item | Status |\n|---|---|\n| M1 fixture | pending |\n| L1 fixture | pending |\n## Other section\n| #99 outside Master | ignored |\n' > "$TMP/ROADMAP.md"
++python3 - "$CHECK" "$TMP/check.sh" "$TMP/ROADMAP.md" <<'PYFIX'
++import hashlib, pathlib, sys
++source, target, roadmap = map(pathlib.Path, sys.argv[1:])
++b = roadmap.read_bytes()
++pin = hashlib.sha1(b"blob " + str(len(b)).encode() + b"\0" + b).hexdigest()
++s = source.read_text().replace(
++    'ROADMAP_PIN = "a204a54c989d6f323d619e70f799427603756541"',
++    'ROADMAP_PIN = "' + pin + '"')
++target.write_text(s)
++PYFIX
++CHECK=$TMP/check.sh
++unset X0X_ROADMAP_PIN
++
+ # --- Strict fixtures: synthetic files and run entries only; nothing is executed. ---
+ CANDIDATE=ce27812951555ff7ed9694bf99d20a65dd5f410b
+ 
+@@ -206,7 +224,24 @@
+   mkdir -p "$1/tests/host"
+   printf 'fixture\n' > "$1/tests/host/example_test.c"
+   printf '#!/bin/sh\nif [ 1 = 0 ]; then :; else run engines_selectable true; fi\n' > "$1/tests/run_tests.sh"
+-  printf '#1\n' > "$1/docs/roadmap-evidence/REQUIRED_ROWS.txt"
++  cp "$TMP/ROADMAP.md" "$1/docs/ROADMAP.md"
++  python3 - "$1" <<'PYFIX'
++import hashlib, json, pathlib
++import sys
++root = pathlib.Path(sys.argv[1])
++evid = root / "docs/roadmap-evidence"
++# Independently enumerated legacy extras must remain required even if deleted
++# from BOTH the manifest and JSON. They are not Master tracker rows.
++extras = ['DONE-001', 'DONE-002', 'DONE-003', 'DONE-004', 'DONE-005', 'DONE-006', 'DONE-007', 'DONE-008', 'DONE-009', 'DONE-010', 'DONE-011', 'DONE-012', 'DONE-013', 'DONE-014', 'DONE-015', 'DONE-016', 'DONE-017', 'DONE-018', 'DONE-019', 'DONE-020', 'DONE-021', 'FIX-809-REVERT', 'FIX-INSTALLER-BACKUP', 'FIX-SMC-ALIGN', 'FIX-UI-TILES', 'PR-789', 'PR-790', 'PR-791', 'PR-792', 'PR-793', 'PR-794', 'PR-795', 'PR-796', 'PR-797', 'PR-798', 'PR-799', 'PR-800', 'PR-801', 'PR-802', 'PR-803', 'PR-804', 'PR-805', 'PR-806', 'PR-807', 'PR-808', 'PR-809', 'PR-810', 'PR-811', 'PR-820', 'PR-821', 'ROW-80982d592fa7', 'ROW-938cc69314d2', 'ROW-e7ebadf91a40', 'ROW-fcf14c2de61c']
++d = json.loads((evid / "#1.json").read_text())
++b = (root / "docs/ROADMAP.md").read_bytes()
++d["roadmap_blob"] = hashlib.sha1(b"blob " + str(len(b)).encode() + b"\0" + b).hexdigest()
++(evid / "#1.json").write_text(json.dumps(d))
++for row in extras + ["M1", "L1"]:
++    d["row_id"] = row
++    (evid / (row + ".json")).write_text(json.dumps(d))
++(evid / "REQUIRED_ROWS.txt").write_text("\n".join(["#1", "M1", "L1"] + extras) + "\n")
++PYFIX
+ }
+ 
+ expect_strict_failure() {
+@@ -233,7 +268,8 @@
+ SG=$TMP/strict_green
+ write_strict_present "$SG"
+ expect_zero STRICT_GREEN sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$SG" "$SG/docs/roadmap-evidence"
+-if [ "$LAST_OUT" != 'STRICT_RESULT PASS rows=1 required=1' ]; then
++if ! printf '%s\n' "$LAST_OUT" | grep -q '^STRICT_RESULT PASS rows=57 required=57$' ||
++   ! printf '%s\n' "$LAST_OUT" | grep -q '^STRICT_INFO master_rows=3$'; then
+   note "FAIL STRICT_GREEN summary: $LAST_OUT"
+   fail=$((fail + 1))
+ fi
+@@ -251,6 +287,7 @@
+ if kind in ("FAIL", "NOT_RUN"):
+     d["test_refs"][0]["result"] = kind
+ elif kind == "UNPROVEN":
++    # Paths and refs stay filled. The empty stub shape is STRICT_EMPTY_UNPROVEN.
+     d["status"] = "UNPROVEN"
+ else:
+     d["test_refs"][0]["file"] = "tests/host/does_not_exist.c"
+@@ -266,7 +303,7 @@
+ done
+ 
+ # Additional contract probes isolate checks (a)-(e) for real mutant detection.
+-for kind in missing_row extra_row wrong_sha missing_refs forged_test missing_code_path \
++for kind in missing_row extra_row wrong_sha prefix_sha empty_sha SKIP missing_refs forged_test missing_code_path \
+             bad_status bad_pin malformed_json; do
+   fixture=$TMP/contract_$kind
+   write_strict_present "$fixture"
+@@ -287,6 +324,12 @@
+     (evid / "#2.json").write_text(json.dumps(d))
+ elif kind == "wrong_sha":
+     d["test_refs"][0]["source_sha"] = "a" * 40
++elif kind == "prefix_sha":
++    d["test_refs"][0]["source_sha"] = d["test_refs"][0]["source_sha"][:12]
++elif kind == "empty_sha":
++    d["test_refs"][0]["source_sha"] = ""
++elif kind == "SKIP":
++    d["test_refs"][0]["result"] = "SKIP"
+ elif kind == "missing_refs":
+     del d["test_refs"]
+ elif kind == "forged_test":
+@@ -308,7 +351,8 @@
+   case "$kind" in
+     missing_row) reason=missing_required_json; row='#2' ;;
+     extra_row) reason=unexpected_json; row='#2' ;;
+-    wrong_sha) reason=source_sha_mismatch ;;
++    wrong_sha|prefix_sha|empty_sha) reason=source_sha_mismatch ;;
++    SKIP) reason=result_not_PASS ;;
+     missing_refs) reason=missing_test_refs ;;
+     forged_test) reason=unknown_run_test ;;
+     missing_code_path) reason=missing_or_outside_code_path ;;
+@@ -363,6 +407,197 @@
+   fi
+ done
+ 
++
++# Exact exit checks also require a diagnostic, so a broken invocation cannot
++# masquerade as a successful negative test.
++expect_exit() {
++  label=$1; want=$2; diagnostic=$3; shift 3
++  set +e
++  out=$("$@" 2>&1)
++  rc=$?
++  set -e
++  if [ "$rc" -eq "$want" ] && printf '%s\n' "$out" | grep -Fq "$diagnostic"; then
++    note "PASS $label (exit=$rc; $diagnostic)"
++    pass=$((pass + 1))
++  else
++    note "FAIL $label (expected exit=$want; $diagnostic; got $rc): $out"
++    fail=$((fail + 1))
++  fi
++}
++
++for kind in delete_both shrink_manifest delete_extra_both unknown_manifest; do
++  fixture=$TMP/inventory_$kind
++  write_strict_present "$fixture"
++  python3 - "$fixture" "$kind" <<'PYFIX'
++import pathlib, sys
++root = pathlib.Path(sys.argv[1]); kind = sys.argv[2]
++evid = root / "docs/roadmap-evidence"
++manifest = evid / "REQUIRED_ROWS.txt"
++row = "DONE-001" if kind == "delete_extra_both" else "#1"
++if kind == "unknown_manifest":
++    manifest.write_text(manifest.read_text() + "FORGED-1\n")
++else:
++    manifest.write_text("\n".join(x for x in manifest.read_text().splitlines() if x != row) + "\n")
++    if kind != "shrink_manifest":
++        (evid / (row + ".json")).unlink()
++PYFIX
++  case "$kind" in
++    delete_both) reason='master row has no evidence json'; row='#1' ;;
++    shrink_manifest) reason=master_row_missing_from_manifest; row='#1' ;;
++    delete_extra_both) reason=extra_row_missing_from_manifest; row=DONE-001 ;;
++    unknown_manifest) reason=manifest_id_not_in_master_or_extras; row=FORGED-1 ;;
++  esac
++  expect_strict_failure "STRICT_INVENTORY_$kind" "$fixture" "$reason" "$row"
++done
++
++# The differing bytes are never allowed to borrow the JSON's claimed pin.
++sub=$TMP/substituted
++write_strict_present "$sub"
++python3 - "$sub/docs/ROADMAP.md" <<'PYFIX'
++import pathlib, sys
++p = pathlib.Path(sys.argv[1])
++p.write_text(p.read_text().replace("| #1 fixture | pending |\n", ""))
++PYFIX
++expect_exit STRICT_substituted_roadmap 2 'roadmap file missing or not the pinned blob' \
++  sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$sub"
++# Alter a byte without changing any tracker id: hashing must still reject it.
++bytes_only=$TMP/changed_bytes
++write_strict_present "$bytes_only"
++printf '\nchanged bytes\n' >> "$bytes_only/docs/ROADMAP.md"
++expect_exit STRICT_changed_bytes 2 'roadmap file missing or not the pinned blob' \
++  sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$bytes_only"
++expect_exit STRICT_explicit_substituted_roadmap 2 'roadmap file missing or not the pinned blob' \
++  sh "$CHECK" "$SG" --strict --roadmap "$sub/docs/ROADMAP.md" --candidate-sha "$CANDIDATE"
++expect_exit STRICT_nonfirst_flag 1 'STRICT_RESULT FAIL' \
++  sh "$CHECK" "$TMP/inventory_delete_both" "$TMP/inventory_delete_both/docs/roadmap-evidence" \
++  --strict --candidate-sha "$CANDIDATE"
++expect_exit STRICT_flags_after_operands 0 'STRICT_RESULT PASS' sh "$CHECK" "$SG" "$SG/docs/roadmap-evidence" \
++  --candidate-sha "$CANDIDATE" --roadmap "$SG/docs/ROADMAP.md" --strict
++expect_exit STRICT_extra_operand 2 'ERROR: unexpected strict argument' \
++  sh "$CHECK" "$SG" --strict --candidate-sha "$CANDIDATE" "$SG/docs/roadmap-evidence" extra
++expect_exit STRICT_unknown_flag 2 'ERROR: unexpected strict argument' \
++  sh "$CHECK" "$SG" --strict --candidate-sha "$CANDIDATE" --bogus
++expect_exit STRICT_pin_cannot_replace_constant 2 'ERROR: requested roadmap pin differs from checker pin' \
++  sh "$CHECK" --strict --candidate-sha "$CANDIDATE" --roadmap-pin "$PIN_B" "$SG"
++expect_exit STRICT_env_pin_cannot_replace_constant 2 'ERROR: requested roadmap pin differs from checker pin' \
++  env X0X_ROADMAP_PIN="$PIN_B" sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$SG"
++# Both caller assertions are checked, even if a CLI pin is also provided.
++SYNTH_PIN=$(python3 - "$TMP/ROADMAP.md" <<'PYFIX'
++import hashlib, pathlib, sys
++b = pathlib.Path(sys.argv[1]).read_bytes()
++print(hashlib.sha1(b"blob " + str(len(b)).encode() + b"\0" + b).hexdigest())
++PYFIX
++)
++expect_zero STRICT_matching_pin sh "$CHECK" --strict --candidate-sha "$CANDIDATE" \
++  --roadmap-pin "$SYNTH_PIN" "$SG"
++expect_exit STRICT_conflicting_env_pin 2 'ERROR: requested roadmap pin differs from checker pin' \
++  env X0X_ROADMAP_PIN="$PIN_B" sh "$CHECK" --strict --candidate-sha "$CANDIDATE" \
++  --roadmap-pin "$SYNTH_PIN" "$SG"
++for flag in --candidate-sha --roadmap --roadmap-pin; do
++  expect_exit "STRICT_missing_value_$flag" 2 'ERROR:' sh "$CHECK" "$SG" --strict "$flag"
++done
++missing=$TMP/missing_roadmap
++write_strict_present "$missing"
++rm "$missing/docs/ROADMAP.md"
++expect_exit STRICT_missing_roadmap 2 'roadmap file missing or not the pinned blob' \
++  sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$missing"
++
++# This separate invocation uses the UNMODIFIED production pin. These generated
++# PRESENT objects are synthetic checker fixtures, never firmware proof.
++REAL_ROADMAP=$HERE/../../ROADMAP.pinned.md
++if [ ! -f "$REAL_ROADMAP" ] && [ -f ./work/ROADMAP.pinned.md ]; then
++  REAL_ROADMAP=./work/ROADMAP.pinned.md
++fi
++if [ -f "$REAL_ROADMAP" ]; then
++  real=$TMP/real_pin
++  write_strict_present "$real"
++  python3 - "$real" "$REAL_ROADMAP" <<'PYFIX'
++import json, pathlib, re, shutil, sys
++root = pathlib.Path(sys.argv[1]); roadmap = pathlib.Path(sys.argv[2])
++evid = root / "docs/roadmap-evidence"
++d = json.loads((evid / "#1.json").read_text())
++master = False; ids = []
++for line in roadmap.read_text().splitlines():
++    if line.startswith("## "):
++        master = line.startswith("## Master tracker")
++    if master and line.startswith("|"):
++        m = re.match(r"(#\d+|[LM]\d+)(?=\s|$)", line.split("|")[1].strip())
++        if m:
++            ids.append(m[1])
++assert len(ids) == len(set(ids)) == 149, ids
++d["roadmap_blob"] = "a204a54c989d6f323d619e70f799427603756541"
++for row in set(ids) | {p.stem for p in evid.glob("*.json")}:
++    d["row_id"] = row
++    (evid / (row + ".json")).write_text(json.dumps(d))
++rows = set((evid / "REQUIRED_ROWS.txt").read_text().splitlines()) | set(ids)
++(evid / "REQUIRED_ROWS.txt").write_text("\n".join(sorted(rows)) + "\n")
++shutil.copyfile(roadmap, root / "docs/ROADMAP.md")
++PYFIX
++  expect_zero STRICT_REAL_PIN sh "$REAL_CHECK" "$real" --strict --candidate-sha "$CANDIDATE" \
++    --roadmap "$REAL_ROADMAP" --roadmap-pin "$PIN_B"
++  if ! printf '%s\n' "$LAST_OUT" | grep -q '^STRICT_INFO master_rows=149$' ||
++     ! printf '%s\n' "$LAST_OUT" | grep -q '^STRICT_RESULT PASS rows=203 required=203$'; then
++    note "FAIL STRICT_REAL_PIN inventory: $LAST_OUT"
++    fail=$((fail + 1))
++  fi
++  # Removing both the #8 manifest entry and JSON must not shrink the trusted set.
++  omitted=$TMP/real_omit8
++  cp -a "$real" "$omitted"
++  python3 - "$omitted" <<'PYOMIT'
++import pathlib, sys
++evid = pathlib.Path(sys.argv[1]) / "docs/roadmap-evidence"
++(evid / "#8.json").unlink()
++p = evid / "REQUIRED_ROWS.txt"
++p.write_text("\n".join(row for row in p.read_text().splitlines() if row != "#8") + "\n")
++PYOMIT
++  expect_exit STRICT_REAL_DELETE8_BOTH 1 'master_row_missing_from_manifest' \
++    sh "$REAL_CHECK" "$omitted" --strict --candidate-sha "$CANDIDATE" --roadmap "$REAL_ROADMAP"
++  if ! printf '%s\n' "$out" | grep -F 'STRICT_FAIL #8:' | grep -Fq 'missing_required_json' ||
++     ! printf '%s\n' "$out" | grep -qx 'STRICT_RESULT FAIL rows=202 required=203' ||
++     [ "$(printf '%s\n' "$out" | grep -c '^STRICT_FAIL ')" -ne 1 ]; then
++    note "FAIL STRICT_REAL_DELETE8_BOTH diagnostics: $out"
++    fail=$((fail + 1))
++  fi
++  # One required row matches the queued stubs: UNPROVEN and both lists empty.
++  # The other 202 rows stay PRESENT, so only status_not_PRESENT can fail.
++  empty=$TMP/real_empty_unproven
++  cp -a "$real" "$empty"
++  row='#1'
++  python3 - "$empty" "$row" <<'PY'
++import json, pathlib, sys
++root = pathlib.Path(sys.argv[1])
++row = sys.argv[2]
++p = root / "docs/roadmap-evidence" / (row + ".json")
++d = json.loads(p.read_text())
++d["status"] = "UNPROVEN"
++d["code_paths"] = []
++d["test_refs"] = []
++p.write_text(json.dumps(d))
++PY
++  set +e
++  out=$(sh "$REAL_CHECK" --strict --candidate-sha "$CANDIDATE" \
++    "$empty" "$empty/docs/roadmap-evidence" 2>&1)
++  rc=$?
++  set -e
++  fail_line="STRICT_FAIL $row: status_not_PRESENT:'UNPROVEN'"
++  if [ "$rc" -eq 1 ] &&
++     printf '%s\n' "$out" | grep -Fxq "$fail_line" &&
++     printf '%s\n' "$out" | grep -qx 'STRICT_RESULT FAIL rows=203 required=203' &&
++     [ "$(printf '%s\n' "$out" | grep -c '^STRICT_FAIL ')" -eq 1 ]; then
++    note "PASS STRICT_EMPTY_UNPROVEN (strict exit=1; status_not_PRESENT)"
++    pass=$((pass + 1))
++  else
++    note "FAIL STRICT_EMPTY_UNPROVEN (expected exit=1, one $fail_line, rows=203; got $rc)"
++    note "  output: $out"
++    fail=$((fail + 1))
++  fi
++  note "MUTANT STRICT_EMPTY_UNPROVEN: skip status_not_PRESENT when code_paths and test_refs are both empty -> this fixture and today's stubs strict-PASS."
++else
++  note "SKIP STRICT_REAL_PIN: $REAL_ROADMAP not present (synthetic checks still run)"
++  note "SKIP STRICT_REAL_DELETE8_BOTH: $REAL_ROADMAP not present"
++  note "SKIP STRICT_EMPTY_UNPROVEN: $REAL_ROADMAP not present"
++fi
++
+ note "----"
+ note "SELFTEST pass=$pass fail=$fail"
+ [ "$fail" -eq 0 ]
