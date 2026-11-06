@@ -1,0 +1,231 @@
+{
+  "source_tree": "e3bd02f7a4aece4ce96aa0602fb41b990275b629",
+  "original_tree": "0260cd3f78a1b3717ef988d54aca767d65b6a2bb",
+  "production_and_three_selector_sources_unchanged_from_original": true,
+  "commands": [
+    {
+      "name": "generate-only",
+      "command": [
+        "sh",
+        "host/build_host.sh",
+        "--generate-only"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "blocked-selectors",
+      "command": [
+        "sh",
+        "tests/run_tests.sh",
+        "optimization-equivalence",
+        "drum909",
+        "drum808"
+      ],
+      "exit": 0
+    }
+  ],
+  "command_environment": {
+    "PATH_prepend": "/workspace/host-validation-0260/dependency-inputs/clang19/root/usr/lib/llvm-19/bin",
+    "LD_LIBRARY_PATH_prepend": "/workspace/host-validation-0260/dependency-inputs/clang19/root/usr/lib/x86_64-linux-gnu",
+    "NINEW9_DIR": "/workspace/host-validation-0260/dependency-inputs/schwung-9W9",
+    "EIGHTW8_DIR": "/workspace/host-validation-0260/dependency-inputs/schwung-8W8",
+    "X0X_TEST_JOBS": "1"
+  },
+  "selectors": {
+    "optimization-equivalence": {
+      "status": "PASS",
+      "exit": 0
+    },
+    "drum909": {
+      "status": "PASS",
+      "exit": 0
+    },
+    "drum808": {
+      "status": "PASS",
+      "exit": 0,
+      "cases": 436
+    }
+  },
+  "compiler": {
+    "version": "Debian clang version 19.1.7 (3+b1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /workspace/host-validation-0260/dependency-inputs/clang19/root/usr/lib/llvm-19/bin\n",
+    "verified_hashes": {
+      "/workspace/host-validation-0260/dependency-inputs/clang19/root/usr/lib/llvm-19/bin/clang": "0a3c55936ac43954fbe4914e6e73b577ca9e35e75d89ef13d3e28c187f41ca1a",
+      "/workspace/host-validation-0260/dependency-inputs/clang19/root/usr/lib/x86_64-linux-gnu/libclang-cpp.so.19.1": "0108c687d2f500d77687984c46c9fad663782603f5c623e3c14224c155b4fd21",
+      "/usr/lib/x86_64-linux-gnu/libLLVM.so.19.1": "3523f50f635d2a1ea47518a392451f2854b92823ceaf1345fb806099dd1a3b8a",
+      "/workspace/host-validation-0260/dependency-inputs/clang19/root/usr/lib/llvm-19/lib/clang/19/lib/linux/libclang_rt.asan-x86_64.a": "655e54e7030965354bf55fe8ebf8d3f21957a8b6b80676b77e2e6c25b4507e4f",
+      "/workspace/host-validation-0260/dependency-inputs/clang19/root/usr/lib/llvm-19/lib/clang/19/lib/linux/libclang_rt.ubsan_standalone-x86_64.a": "cd4664d997a561b97f625052ff12640cfccc9dad612a7efa2fd017a096e27754"
+    }
+  },
+  "compiler_packages": [
+    {
+      "package": "libclang-common-19-dev.deb",
+      "url": "https://deb.debian.org/debian/pool/main/l/llvm-toolchain-19/libclang-common-19-dev_19.1.7-3+b1_amd64.deb",
+      "sha256": "4018e40e2d4144fe38c45822e68cca63c1bf6c7872c3073ebb262ad4b2f9b8bc"
+    },
+    {
+      "package": "libclang-cpp19.deb",
+      "url": "https://deb.debian.org/debian/pool/main/l/llvm-toolchain-19/libclang-cpp19_19.1.7-3+b1_amd64.deb",
+      "sha256": "a7d2b6df51050834f6ea5c0d5e34869c2298b0bcdaa91eff17ba3db2cd545c47"
+    },
+    {
+      "package": "clang-19.deb",
+      "url": "https://deb.debian.org/debian/pool/main/l/llvm-toolchain-19/clang-19_19.1.7-3+b1_amd64.deb",
+      "sha256": "bbb74458d782b7792b61b0eed92746df5e6d033778c045cf8c2b3835b7c4efc4"
+    },
+    {
+      "package": "libclang-rt-19-dev.deb",
+      "url": "https://deb.debian.org/debian/pool/main/l/llvm-toolchain-19/libclang-rt-19-dev_19.1.7-3+b1_amd64.deb",
+      "sha256": "0c03a0a8fa37228e2de6c36d02ff0806643885c515a8137d1bcd22e248497cd6"
+    }
+  ],
+  "references": [
+    {
+      "repository": "synthfr/schwung-9W9",
+      "requested_pin": "10cbe5c",
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "tree": "2a32b748456d4f162010932771f2ca26fc5d34d6",
+      "local_path": "/workspace/host-validation-0260/dependency-inputs/schwung-9W9",
+      "transport": "native git HTTPS",
+      "file_sha256": {
+        ".github/workflows/release.yml": "c4e031924e706b156efe27b6f2fe35e72e8c9ce0b2dde6a73f0eeeb66e2140f8",
+        ".gitignore": "9f934da49e01c64b0c26b7fe7d94beb7bca8d10611e4f01275772fa5f5561920",
+        "CMakeLists.txt": "d719772aa38a8958eea3623756dd5cc7548fd2c8475112405ae9345bbe6d0762",
+        "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+        "README.md": "b7d6d1452650390f1d0460c69a8052fd9981e78845946c6d44d986fa329ece05",
+        "cmake/aarch64-toolchain.cmake": "99f12f54a00b183476561c589dd750ebfa3dace76d560240ee751f5888c69cd5",
+        "docs/README.txt": "2d0cd83a48d876f83949f66d39ba9c84122ae0124db15e61a601a9d79a41f937",
+        "docs/device-ui1.png": "840b2cfe12bf105ff82542803a121b2e071729a646c20bfaab114e4d33d71ad6",
+        "docs/device-ui2.png": "ca16b0bd7fb51c544886410ca76bdb203453e614e66f7858ecdab3bfc7ed2aa2",
+        "docs/device-ui3.png": "74cf9c872b2ab64bfb72f078e9fde0d2f0e10f3ba2769eea2ee4592ba86c2ba4",
+        "docs/device-ui4.png": "d780d96e44e3c80a6f6d7e370b61f17a1a0001f5ba0ddf5c5451383288e78c16",
+        "docs/porting-to-6w6-8w8.md": "8889bd64e33fd8c1d7798384eab38c0861228e99bd5ef17b97c9c8be8ca9f7b1",
+        "docs/remote-ui.png": "cf92738ef649ef83081a90b852093258852f80bc5813fbf0364df2a9b3f828e3",
+        "release.json": "b04764f11b23fefe7846cd745474d613b454abbff39a5d7993d1706d8f05c85b",
+        "scripts/Dockerfile": "1a09cb5fe424ef1604033e939cda22bd7a9cb8fc95ff82cfd1125c92ab9dcdc1",
+        "scripts/build.sh": "0a8b1bef9312f2f8271491b514182083e913655b060f4c8d77c1cffe72da6744",
+        "scripts/deploy.sh": "95d628507d8863ce854ab05299a931003595dc03f5392f6dc3716e747af4ea14",
+        "scripts/gen_params.py": "61e4386a986c674e042ab413d736cb1990be139b2b67a37d81c9e51c8f6173db",
+        "scripts/patch_shadow_ui.py": "1b84178a2cd5a38312e9ed79ad1a8d7af1453bf11dce22afb68b4bd7dd49d8d1",
+        "src/dsp/er99_circuit.h": "4a64a1836582c143630c100c384665ad4323b1e2d420d09c88ff4126e7dd5db9",
+        "src/dsp/er99_engine.c": "8013b3df3385f6551a007a5359f9e6fc1e7eb9391443f3959e0ab912aa7568db",
+        "src/dsp/er99_engine.h": "04f25799c91d3b5987646f74d61415f5e35f0242e95017d841e4c06a325fb574",
+        "src/dsp/er99_params.h": "948cf045fc78db695ba70fcadaca3ef08fea961ac069ee3645a2a936dfe49b4e",
+        "src/dsp/er99_perc909.h": "5d3fbbbc4af297a7c8dcd712faa5ec2ca5664adf9daaf4319e8d960d2d16537d",
+        "src/dsp/er99_plugin.c": "c833e19aa836c4b641c4e7e7f99f96ccf5e1d0503637238d14ffee8f54e16de6",
+        "src/dsp/er99_pots.h": "3536808283c010bb2feb2e1ce30f66848b61798b91c545c9518e1cbba50591c5",
+        "src/dsp/er99_tom909.h": "29515e11a06f1bd18fe7fcf9565a5bac085d42203ff169b2986bdbec30e2d04d",
+        "src/dsp/webaudio.h": "3ba3d5be5238022d7dde7013dd7975125af6f3dbb24ae5390773247b3fb7d18b",
+        "src/help.json": "2563c9e80f824b4652927a48254749de57a38f2cfef2a2f3f8ae1c8ac8bccf1c",
+        "src/host/plugin_api_v1.h": "2c410cbc65202239d35dc0e6cd0cfa451be11d7693bf620ec6337c635358c646",
+        "src/module.json": "182a7992133c97b2230ef57ad56741f0285afeab4d5711bf7d6a6577e0ef4535",
+        "src/patches/9W9.json": "265f98b055ae5a4793a2d7bb374c3d3a2796fa4c08e59d445215435bc5630705",
+        "src/samples/crash.wav": "4a1b8d8828f9e530e9ae7f1a3cdffbcb1466e633a2b0607b3aac914699bc8400",
+        "src/samples/hh.wav": "8ae963e80b8604bf23733545117d3b115767aa48ecd3013ad5d91506337d289a",
+        "src/samples/ride.wav": "f1d1cee24a7c91bb2ca9c6eb97badad3841226897ad0daabfc35801371d78182",
+        "src/tools/loadtest.c": "a3446cdaa36d4cb18286f4a9d2cce65980954cf2d43925b754d6779ebed68ec0",
+        "src/tools/render.c": "a21fd26ba75d392c7bbe388f0b1ac3ccc9d8ba8454c772dd40a9981c2d54fd31",
+        "src/ui_chain.js": "e2f0ee5e2675dc89b374b30878171cf45ee099093d933e9de999f2d5fb7d8f53",
+        "src/web_ui.html": "a93581efa6b6cdc763d8c97723c5a93dea8c3434c6580078fdb78ad149e252b1",
+        "tests/test_screen_reader_ui.mjs": "ec937fff30012dd11102a266be1ef1c993b4a1468fe66143338a96611f5e701f",
+        "tools/render_reference.mjs": "f22e93d16eb99c6dd758fea6a3f759717db2d1664ad9ce10d01bb2f731d0f1ed"
+      }
+    },
+    {
+      "repository": "charlesvestal/schwung-8W8",
+      "requested_pin": "94aa271",
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "tree": "a042961b65cb420bd1555de3cd93cbb7c807652f",
+      "local_path": "/workspace/host-validation-0260/dependency-inputs/schwung-8W8",
+      "transport": "native git HTTPS",
+      "file_sha256": {
+        ".github/workflows/release.yml": "37395c96a40c11c6b189e6c594b384f0ebc2ae1c92e083767fd6ea3d3541d004",
+        ".gitignore": "1fb8099fce1a9277dfe76bdc55d9125e74c09d65d214f6f8e9bcb6d6265a39a0",
+        "CMakeLists.txt": "2649b82a373b92efc4baf0ea39f204b0e115b648b6955334aaaec4c3c60079a7",
+        "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+        "README.md": "e2ef5660d904d17fe5c1d643846059cfbbf1bffe5c07a326ae38eedf6789ee51",
+        "THIRD_PARTY.md": "d39228e0153281eeeb9a5184da2da7e1100a63fd1dea334c3ae65105e5ce444e",
+        "cmake/aarch64-toolchain.cmake": "99f12f54a00b183476561c589dd750ebfa3dace76d560240ee751f5888c69cd5",
+        "docs/DESIGN.md": "8361fc2f4aa7d10cb6b32ebc418709d17cc474268bebea05f1199a45e378ea28",
+        "docs/PUNCHLIST.md": "ceded4400a6fc5db05c89fd8420bd0779aca195ff81743e3d6a3d56fc864f07d",
+        "docs/catalog-entry.json": "d8bf568c8b45f78c81cc4f37b773e8a56bb29dd1985c79af208abd37403b3c26",
+        "docs/img/device-bd.png": "f6391f2458b15ca05b1e6b5b834585c53c1eb7af7811cced34be3fe7fe2cd03d",
+        "docs/img/device-ht.png": "87e16ed4fb2de163c027a863242c156f85e827a282a7e7ca3c5e84b442d5a676",
+        "docs/img/device-ma.png": "bea7087b2d1b38382ae79602b36038058de3d17a13dbbdaf5d852ebcfbab4876",
+        "docs/img/remote-ui.png": "732f819aa330a23feff09fb29af975420cc584983864f7e017f9e78d15b2036f",
+        "release.json": "d897b70513ef78230a040c1a141df9e8a55d1a6cd657ea6ff39f9b3b1bfd3ca7",
+        "scripts/Dockerfile": "59a256719f33aee0754588803f9cc8cc36f339697e4edd9dc97f569c9ab02719",
+        "scripts/Dockerfile.sc": "c09f1fc4d1979bf736fa8b0a9b057b756f437c73023f8705b13f802a15721fa7",
+        "scripts/build.sh": "359675416713f2244e264ffabd6574208ade1ce795435658d06971b5d14fbcc0",
+        "scripts/deploy.sh": "48726fae0eb597e47764d711fc3d294e58ae002b85151f73c4ce37a99b06bbcb",
+        "scripts/gen_params.py": "37f927591eb015210f1ec98c0ff0d5c073e5f962eff07844543ae1f89f12216f",
+        "scripts/reload_slot.py": "3ea90d29703023b732c526d6c1b9eb605cd5c356c8a9ac953088cd8165de2dc3",
+        "src/dsp/sc808_bd_circuit.h": "ba4be526d507c734814754d04775bb248e7e0590f20a76825cb092c1d4e262aa",
+        "src/dsp/sc808_circuit_common.h": "a35d63dea29c4e7f5e8864d95b26dfab0ca6567d2fd6e0209bac742cb41c4814",
+        "src/dsp/sc808_cp_circuit.h": "14c68a032cd008d5cec7086f70355eac3c897679e521adb4d57928266174307d",
+        "src/dsp/sc808_engine.cpp": "81a926b7fbde0b8eb777c53909613afb6396b4fd5eabd773cf30214e1e085f53",
+        "src/dsp/sc808_engine.h": "85d142a2ab0f1eb01beac74f25059cc44be3122e3b8a5a271161a061856bff06",
+        "src/dsp/sc808_fx.h": "b160446c1ca9c00caf6ca4ccc752ce24885dbe73ff09efd85bb35303cfe1ad6d",
+        "src/dsp/sc808_mt_circuit.h": "3bdbf5f389100063cbc6287a5bb83160c4db0d1e6075c6398b9ec3ba67a1ba0a",
+        "src/dsp/sc808_params.h": "693a2b775ac6d5f32d514a2d32ed5f4b2b5f74a37aa30f850c1bbd760b802965",
+        "src/dsp/sc808_plugin.cpp": "eac0fcc6a0d48f0ef14673ddd5b22530e5ce046a264ce05bca3690ec6542697f",
+        "src/dsp/sc808_rs_circuit.h": "40ea48128de7770bf082adb1a4724398d43868d5769350cf22691251df441a9d",
+        "src/dsp/sc808_sd_circuit.h": "116c6dd803740026470a1a5848c82cd7609cb853dee41d526266010d8485cca5",
+        "src/dsp/sc808_shape.h": "34a19fd7ea6d2071ef46df2d32224921a922440414dc8e9ed5cff14d2f0f2417",
+        "src/dsp/sc808_tom_circuit.h": "d35b90513893fad2498ff539b28138195d63e9802a0f09b095d305672b6845b1",
+        "src/dsp/sc808_voices.h": "58969682be9f3d0feb704a8552427ca9953dc4dd4f66d2ecbae0b135743805a2",
+        "src/dsp/sc_ugens.h": "af9d55df75d2d2a3587c1eda8a6b3679fffdd7e0ef99da1f6c70e7f05aa01bdd",
+        "src/help.json": "c4bc4036c10a5aaf1d5d6890e686bdd1f45dec0c91ed6f66b2ef8b2ddd1942c9",
+        "src/host/plugin_api_v1.h": "2c410cbc65202239d35dc0e6cd0cfa451be11d7693bf620ec6337c635358c646",
+        "src/module.json": "f06291f3cdd71a361beace6f045c92944eb33781aaa38243f038bb25ed30d523",
+        "src/patches/8W8.json": "8c2b10fc6d0788f85516eae165e8d950e0cfbf8a7dd1979ffc035242acd69c6c",
+        "src/tools/bench.cpp": "213e50d9edb5af67d41a759ee5064c5cade2cb57f6839e5ff458bdd3489c55d5",
+        "src/tools/demo_pattern.h": "22cd7c82b2440dd69787914bded29e7b66aaa4b3dc23d681976e5ed5d5bb774c",
+        "src/tools/loadtest.c": "fa1be7456358d6e6462186c5f63af506c34b915a702b68f4395e0fc0720a381c",
+        "src/tools/nullref.cpp": "3809d1b9447cf766bba9eebe1b3c113924b420de63a7905cfb726ed068593cbd",
+        "src/tools/probes.cpp": "0c1cb3a852226569e44ac2ec81e8391fad870b33021604ab5e87c67a5e97fe10",
+        "src/tools/render.cpp": "df6d2ee1b6e4d410d77620916490bbfa2c030e1659d126920acf5c1849cb5da2",
+        "src/ui_chain.js": "82bc68d7c7d1f33c48a6d5b06eea8ffa053bf47888ce534809f63e533b3be883",
+        "src/vendor/sc808/sc808.scd": "1d5d381bfeab976ac611c83922257de9a1cbcc437f0b30a5c5d739f26bab4aa4",
+        "src/web_ui.html": "8ab49dce7b2743ff6d98c2b08ae05e7c428bbae9ecd39723493beb18bb4a6200",
+        "test/all.sh": "f51b57a8db740bfd0e150e6a5ccd584ced21fa4a3966b5135c23e7761048360d",
+        "test/nrt_render.scd": "49643ce2ff5806034c4357b2c350c23c9794999174048f28d18a82efa9ce8485",
+        "test/nulltest.py": "437227420ef874be20c685812c9fa96ce2187e1a15ace716539482bbe6e279a6",
+        "test/nulltest.sh": "4918c6f26b6f1ac3b5d78d70790e7d47896c195881516380e8484ee2a7875585",
+        "test/probes.scd": "f8f1df1e3d009429604e7ce2f8e5fbccb018944adf737fd3e9f7c0f0da9724ae",
+        "test/ui_chain.test.mjs": "97e9fba3061a6b2d02929466aac06b5657738a1a7b46a6b0ce5583c0a744d36a",
+        "tests/test_screen_reader_ui.mjs": "f7e3e26c74efc023de4f832c3a8f5429e5a3c42c4fef994205faff773d53d7fe",
+        "tools/bd_check.cpp": "8501b6c42aeddfc9c5afd2e3c492197bd1d79f2f251bb387d4ca80af750728a1",
+        "tools/cp_check.cpp": "498c31607a444afa4ae8fc2ea0da87ec598961f9473e563c01e81cef92e1b8e8",
+        "tools/fit_trim.py": "4aa07701507e113c1252310078f0ff85e942c8e3a3074bc9ee0d11966a68a4a7",
+        "tools/fx_probe.cpp": "dd4d2884f345b9fc7e13d5aacf3c948711d4bac54889efa404fe8ee541cca418",
+        "tools/golden.txt": "bfb9e6a7682723c0c2a96ada84c621c0db97327c3f11191fa91c1f0f143b50eb",
+        "tools/golden_check.cpp": "5cdc36d3c4f7de3ddbf59106c8e6430763a23ae5da47751b18b98c9f7d6d6047",
+        "tools/kit_check.cpp": "9ac2bf1e2c82cf94b9717547e9ac820c510bbf63346f6097ba7f3c1ef017a137",
+        "tools/knob_check.cpp": "6affd18b9815cfce6d855d801a67d38f59040c57c1f113091a64589cd9b9ae99",
+        "tools/sd_check.cpp": "e5aeefffbad34fa6a80b8c320a1bfee2ad5005325378e98d56adc3f12cad5342",
+        "tools/tom_check.cpp": "eff1a311a64d0a1282160cd55c7c7d7fc43a7888219c6993866b82cecf440c52",
+        "tools/vel_check.cpp": "9ccae1b62255924037d3fa3d87fbda561d3e86fa9f150c8d48d6c9203691bcd2",
+        "tools/voices_check.py": "a6ee426c10a065c5dc0899400656d7bb596d9822c0cef6620321b9481c90c3d7"
+      }
+    }
+  ],
+  "sanitizer_probe": "compile and execute exit0",
+  "no_bypass": "Same selected environment; HTTPS public pinned inputs; no denial occurred or was bypassed. No Library helper/materialization needed.",
+  "reused": "21 corrected fixture results; unrelated tests not rerun. Historical dependency receipts used only for input pins, not current PASS.",
+  "inherited_fixtures": "smc-fx-peer-view and smc-ui-negative remain FAIL; minimal test-only repairs diagnosed but not applied in this task.",
+  "remaining_skips": "TB-3PO external subcheck and native/package artifact checks unchanged",
+  "full_suite": "NOT_RERUN; no all-green/full qualification claim",
+  "evidence_hashes": {
+    "results.json": "d3bff3de51af6240dbb6439deb6ac8189e02c33b52952b184e7e4e96e574e661",
+    "optimization-equivalence.log": "02c97882e001b1805d884d2c5daf6c3ae48367da745d7f311cccbf5e9c9e414b",
+    "clang-packages.json": "9996610bc2d22193864498b5dcb77df58abef03199fd9a2b87789a0fbc4bc51a",
+    "run_checks.py": "cea10b1eadff048cfddb09fd0249c99be63bb4c66ee94b6710d1f37487a5df8b",
+    "INHERITED-FIXTURE-DIAGNOSIS.md": "a7c83e819907ac83202b63668fe9c49bc7de7c98dc54c3b11d0b29a7c8b0e468",
+    "drum909.log": "95f1a0fca87b316e8ebfcfb2c7a11e4a36f6ae54c1ba7f07da48d46652f5d9d6",
+    "generate-only.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference-inputs.json": "f01ff24083bc7a5dde0e97354257be0eccbd3ad0d2495c0a72786fd4e4911dd8",
+    "blocked-selectors.log": "61f019b62ed8999b5227bad72242e6c87e2df904aeb3c7c4763077484876cedb",
+    "clang-identity.json": "4fbc1e906c183273b7fa172b1a0b8c95d9f0c8e00125e410b564c3e5b6a0decd",
+    "drum808.log": "f786066cb55e75e7dde3a6ab072319dfadf73bda18fff1a806f6d7bd6c5e6945"
+  }
+}

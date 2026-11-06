@@ -1,0 +1,9 @@
+# Dependency checks completed in the same environment
+
+PASS: optimization-equivalence, drum909 and drum808. Selected runner exit0; no selected failure or missing reference remains. Source tree e3bd02f7a4aece4ce96aa0602fb41b990275b629 remains exact. Production and the three selectors' inputs are unchanged from original0260. The21 corrected fixture outcomes were reused; unrelated tests were not rerun.
+
+Clang19.1.7 packages match repository receipt hashes, as do compiler/shared-library/sanitizer binaries. Pinned909 commit10cbe5c1e1c9e65b0818bb34644ab1a13092082c/tree2a32b748456d4f162010932771f2ca26fc5d34d6; pinned808 commit94aa2716d4c2e5851fc7c5dbb4c17adfd133c997/treea042961b65cb420bd1555de3cd93cbb7c807652f. Full file hashes, package URLs/hashes, exact commands and outcomes are in dependency-receipt.json. No proprietary SDK, native toolchain, alternate environment or denied route was used.
+
+Optimization now passes GCC and Clang optimized/sanitizer IMA checks (3193789 comparisons per variant) and two909 emit checks (23280 blocks each). Drum909 ends PASS0failures; drum808 reports436cases,0over1e-3,worstrel6.135e-4. These are the existing reference tests' actual metrics, not a new claim of universal bit-exact upstream audio.
+
+Two inherited fixtures remain FAIL. Read-only diagnosis confirms minimal test-only repairs are appropriate: missing popup_knob_full_hash fixture declaration with sentinel-reset assertions, and stale cryptic-footer mutation anchor replaced with current cv_commit_popup_knobs. Exact locations and retained negative assertions are in INHERITED-FIXTURE-DIAGNOSIS.md. No fixture change was made in this continuation. The separate legacy peer fixture remains unchanged. TB-3PO external and native/package skips remain distinct. No fresh full-suite green, firmware change, native/device/merge/release claim.
