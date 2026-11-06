@@ -1,0 +1,6 @@
+b'0.0.24_openbeta' old ACCEPTED / fixed REFUSED
+b'0.0.24-nightly' old ACCEPTED / fixed REFUSED
+b'' old ACCEPTED / fixed REFUSED
+b'0.0.24\xff' old ACCEPTED / fixed REFUSED
+b'0.0.24\n' old ACCEPTED / fixed REFUSED
+single valid ABOUT: PASS

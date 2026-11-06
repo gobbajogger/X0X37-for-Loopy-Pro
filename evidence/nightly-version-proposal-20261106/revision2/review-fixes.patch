@@ -1,0 +1,178 @@
+diff --git a/tests/host/test_dev_validate_composed.py b/tests/host/test_dev_validate_composed.py
+index 84ec8c6..1ca2c7c 100644
+--- a/tests/host/test_dev_validate_composed.py
++++ b/tests/host/test_dev_validate_composed.py
+@@ -13,6 +13,7 @@ from test_dev_validate import DevelopmentValidation, ROOT, GUARD
+ sys.path.insert(0, str(ROOT/'tools'))
+ import validation_inputs as vi
+ from fm1pkg_make import ufw
++import dev_validate_composed as composed
+ 
+ RUNNER = ROOT/'tools/dev_validate_composed.py'
+ 
+@@ -54,7 +55,7 @@ print('fixture composition checked')
+         h = lambda b: hashlib.sha256(b).hexdigest()
+         self.data = {'base':self.commit,'scope':'composed orchestration fixture',
+                      'checks':[{'reason':'fixture test','argv':[sys.executable,'test.py']}],
+-                     'composition':{'app_sha256':h(b'app'),'raw_package_sha256':h(raw),
++                     'composition':{'nightly_version':'0.0.25','app_sha256':h(b'app'),'raw_package_sha256':h(raw),
+                          'controller_sha256':h(b'controller'),'controller_bytes':10,
+                          'bundled_package_sha256':h(raw),'package_sha256':h(raw),
+                          'composer':str(self.composer),'dependency_pins':{
+@@ -81,6 +82,8 @@ print('fixture composition checked')
+         self.ready()
+         record=json.loads((self.out/'record.json').read_text())
+         self.assertEqual(set(record['logs']),{'build','controller','check-0','check-1','check-2','check-3'})
++        self.assertEqual(record['logs']['build']['argv'][-4:],
++                         ['--nightly-version', '0.0.25', '--git-sha', self.commit])
+         self.assertEqual(self.guard().returncode,0)
+         self.assertEqual(self.guard('--config','rel').returncode,3)
+         self.queue.write_text('- [ ] missing pending\n')
+@@ -91,6 +94,49 @@ print('fixture composition checked')
+             self.assertEqual(self.guard().returncode,3,name);p.write_bytes(old)
+         self.assertEqual(self.guard().returncode,0)
+ 
++    def test_missing_or_invalid_nightly_version_refused_before_build(self):
++        for value in (None, "DEV", "0.0.25_openbeta", "00.0.25"):
++            with self.subTest(version=value):
++                self.data['composition']['nightly_version'] = value
++                with self.assertRaises(ValueError):
++                    composed.prepare_plan(self.data, 'elite')
++
++    def test_generated_package_commands_use_real_cli(self):
++        # Real packer/checker, synthetic non-executable bytes; no fake package tool.
++        sys.path.insert(0, str(ROOT/'tests'))
++        import nightly_package_test as fixtures
++        work = self.root/'real-package-cli'
++        work.mkdir()
++        (work/'tools').symlink_to(ROOT/'tools', target_is_directory=True)
++        (work/'build').mkdir()
++        (work/'ble/ctl/out').mkdir(parents=True)
++        ctl = fixtures.make_controller()
++        (work/'ble/ctl/out/ctl.img').write_bytes(ctl)
++        self.data['composition']['controller_sha256'] = hashlib.sha256(ctl).hexdigest()
++        self.data['composition']['controller_bytes'] = len(ctl)
++        for model in ('elite', 'pro'):
++            plan, start, raw = composed.prepare_plan(self.data, model)
++            (work/raw).write_bytes(fixtures.make_package(model, version='0.0.25'))
++            commands = [plan['checks'][start]['argv'], plan['checks'][start+2]['argv']]
++            for command in commands:
++                self.assertEqual(command[command.index('--firmware-version')+1], '0.0.25')
++                missing = list(command)
++                index = missing.index('--firmware-version')
++                del missing[index:index+2]
++                refusal = subprocess.run(missing, cwd=work, capture_output=True, text=True)
++                self.assertEqual(refusal.returncode, 2, refusal.stdout+refusal.stderr)
++                self.assertIn('--firmware-version', refusal.stderr)
++                result = subprocess.run(command, cwd=work, capture_output=True, text=True)
++                self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
++                if '-o' in command:
++                    shutil.copyfile(work/'composed-bundled.fwsc', work/'composed-final.fwsc')
++            bad = list(commands[1])
++            bad[bad.index('--firmware-version')+1] = '0.0.24'
++            result = subprocess.run(bad, cwd=work, capture_output=True, text=True)
++            self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
++            self.assertIn('does not match', result.stderr)
++            (work/'composed-bundled.fwsc').unlink()
++
+     def test_each_output_pin_refuses_instead_of_substituting(self):
+         for key in ('app_sha256','raw_package_sha256','controller_sha256','bundled_package_sha256','package_sha256'):
+             with self.subTest(key=key):
+diff --git a/tests/nightly_package_test.py b/tests/nightly_package_test.py
+index e3aa6cf..4736b73 100644
+--- a/tests/nightly_package_test.py
++++ b/tests/nightly_package_test.py
+@@ -221,6 +221,12 @@ def main(argv=None):
+             refused(lambda: nightly.inspect(stale, model, digest, size, "0.1.3"), "DnBOX DEV")
+         ambiguous = add_ctl.add(make_package(model, extra=b"DnBOX 0.0.23  MEM \0"), ctl)
+         refused(lambda: nightly.inspect(ambiguous, model, digest, size), "firmware version")
++        # Never ignore a malformed second ABOUT token next to a valid version.
++        for token in (b"0.0.24_openbeta", b"0.0.24-nightly", b"", b"0.0.24\xff", b"0.0.24\n"):
++            conflict = add_ctl.add(make_package(model, version="0.0.25",
++                extra=b"DnBOX " + token + b"  MEM \0"), ctl)
++            refused(lambda: nightly.inspect(conflict, model, digest, size, "0.0.25"),
++                    "firmware version")
+         # A USB display string alone is not firmware identity or version evidence.
+         usb_only = add_ctl.add(make_package(model, version=None,
+                                             extra="DnBOX 0.0.23 37PRO".encode("utf-16-le")), ctl)
+diff --git a/tools/dev_validate_composed.py b/tools/dev_validate_composed.py
+index 0e96700..c3bccfe 100644
+--- a/tools/dev_validate_composed.py
++++ b/tools/dev_validate_composed.py
+@@ -5,6 +5,8 @@
+ Uses the unchanged schema-2 DEV verifier. Builds, checks and composition are real
+ synchronous commands. Existing artifacts/receipts are never relabeled. Every
+ output must match the supplied expected hash or no record is emitted.
++The composition plan must name a canonical nightly_version for the app. The
++model_900 transport identity and schema-2 DEV record semantics remain unchanged.
+ """
+ import argparse
+ import copy
+@@ -37,6 +39,8 @@ def prepare_plan(plan, model):
+     plan = copy.deepcopy(plan)
+     dv.check_plan(plan)
+     c = plan['composition']
++    # Explicit app identity; never infer a version from filenames or allocate one.
++    c['nightly_version'] = dv.canonical_version(c.get('nightly_version'))
+     for k in ('app_sha256', 'raw_package_sha256', 'controller_sha256',
+               'bundled_package_sha256', 'package_sha256'):
+         if not isinstance(c.get(k), str) or not SHA.fullmatch(c[k]):
+@@ -60,17 +64,18 @@ def prepare_plan(plan, model):
+     raw = 'build/' + stem + '.fwsc'
+     common = ['--model', model, '--controller-sha256', c['controller_sha256'],
+               '--controller-size', str(c['controller_bytes'])]
++    version = ['--firmware-version', c['nightly_version']]
+     post = [
+         {'reason': 'Bundle exact freshly rebuilt controller; authenticate model and image.',
+          'argv': ['python3', 'tools/package_nightly.py', raw, 'ble/ctl/out/ctl.img',
+-                  *common, '-o', 'composed-bundled.fwsc']},
++                  *common, *version, '-o', 'composed-bundled.fwsc']},
+         {'reason': 'Compose pinned stock bank without changing app/controller/other regions.',
+          'argv': ['python3', str(composer), 'composed-bundled.fwsc', *common,
+                   '--package-sha256', c['bundled_package_sha256'],
+                   '--output', 'composed-final.fwsc', '--receipt', 'composition.json']},
+         {'reason': 'Reinspect final composed model, CRC, controller and layout.',
+          'argv': ['python3', 'tools/package_nightly.py', 'composed-final.fwsc',
+-                  '--check', *common]},
++                  '--check', *common, *version]},
+     ]
+     pre_count = len(plan.get('checks', []))
+     plan['checks'] = plan.get('checks', []) + post
+@@ -160,7 +165,8 @@ def run(a):
+         for i, check in enumerate(plan['checks'][:pre_count]):
+             command('check-' + str(i), check['argv'])
+         unchanged(work, manifest)
+-        command('build', ['sh', 'build.sh', '--board', 'smk37'])
++        command('build', ['sh', 'build.sh', '--board', 'smk37',
++                          '--nightly-version', c['nightly_version'], '--git-sha', commit])
+         limits = dv.budgets((out / 'build.log').read_text())
+         app = work / 'build' / ('smk37-elite' if a.model == 'elite' else 'smk37') / 'x0x.bin'
+         require_hash(app, c['app_sha256'])
+@@ -183,6 +189,8 @@ def run(a):
+                 raise ValueError('composition dependency changed: ' + p)
+         vi.validate(inputs, identity())
+         firmware = dv.inspect_package(final, a.model, commit)
++        # Schema-2 firmware_version describes the transport identity. The app's
++        # NIGHTLY version is bound by the plan and both real package checks.
+         if firmware['firmware_version'] is not None:
+             raise ValueError('this composed DEV path supports unversioned candidates only')
+         artifacts = {}
+diff --git a/tools/package_nightly.py b/tools/package_nightly.py
+index 32df436..82386ad 100644
+--- a/tools/package_nightly.py
++++ b/tools/package_nightly.py
+@@ -78,11 +78,11 @@ def _app_version(st):
+            for image in images for enc in ("ascii", "utf-16-le", "utf-16-be")):
+         raise add_ctl.PkgError("NIGHTLY image contains DnBOX DEV")
+     found = set()
+-    for value in re.findall(rb"DnBOX ([0-9.]+)  MEM ", app):
++    for value in re.findall(rb"DnBOX ([^\x00]*?)  MEM ", app):
+         try:
+             found.add(canonical_version(value.decode("ascii")))
+-        except ValueError as exc:
+-            raise add_ctl.PkgError(str(exc)) from exc
++        except (ValueError, UnicodeDecodeError) as exc:
++            raise add_ctl.PkgError("invalid app firmware version: " + str(exc)) from exc
+     if len(found) != 1:
+         raise add_ctl.PkgError("NIGHTLY firmware version is missing or ambiguous in the app ABOUT line")
+     return found.pop()

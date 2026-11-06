@@ -1,0 +1,13 @@
+.....................REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+..........Preparing worktree (detached HEAD 02a8042)
+HEAD is now at 02a8042 fixture
+.Preparing worktree (detached HEAD 02a8042)
+HEAD is now at 02a8042 fixture
+.
+----------------------------------------------------------------------
+Ran 33 tests in 31.885s
+
+OK
+DEV CHECKED dec1c47d0877125104dd2c06d6da5e59baf22ead
+DEV OK dec1c47 /tmp/tmpg4nzbg3n/result/record.json (config dev; queue: 0 open lines in dec1c47)

@@ -1,0 +1,21 @@
+{
+  "base_commit": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "base_tree": "00370c8cf385577395f616e9df3cbc45a0d23041",
+  "donor_commit": "c32c54ac8ec68aaca53adccf7af66f155590f2dc",
+  "donor_tree": "ac490f7fae9198748aa54bd914d42f99d45444f9",
+  "proposed_tree": "9fa2d0f8129f8b330d53e903799af67c23ea5e9f",
+  "selected": false,
+  "committed": false,
+  "pushed": false,
+  "paths": [
+    "tests/host/test_dev_validate_composed.py",
+    "tests/host/test_nightly_version.py",
+    "tests/nightly_package_test.py",
+    "tests/run_tests.sh",
+    "tools/build.py",
+    "tools/dev_validate_composed.py",
+    "tools/package_nightly.py"
+  ],
+  "patch_sha256": "1286508156b215598fbd3cdfac51fc0cc528d9a1ab65eea0e7054265d191a249",
+  "previous_proposed_tree": "1f02d81a8862166302ff673b3278be1a0fb7beb4"
+}

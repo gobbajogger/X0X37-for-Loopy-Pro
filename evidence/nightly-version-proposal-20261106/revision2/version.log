@@ -1,0 +1,9 @@
+..usage: build.py [-h] [--release X.Y[.Z] | --nightly-version X.Y.Z]
+                [--git-sha GIT_SHA] [--board {fm1,smk37}]
+                [--model {elite,mke,pro}] [--sdk SDK]
+build.py: error: firmware version must be canonical X.Y.Z (components 0..99)
+....
+----------------------------------------------------------------------
+Ran 6 tests in 0.004s
+
+OK
