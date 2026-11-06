@@ -1,0 +1,9 @@
+FAIL tests/host/panic_route_test.c:362: smc_panic_held == 0
+FAIL tests/host/panic_route_test.c:363: smc_panic.inhibited == 0
+FAIL tests/host/panic_route_test.c:370: smc_panic.active == 1
+FAIL tests/host/panic_route_test.c:371: clip_stops == stops + 1
+FAIL tests/host/panic_route_test.c:362: smc_panic_held == 0
+FAIL tests/host/panic_route_test.c:363: smc_panic.inhibited == 0
+FAIL tests/host/panic_route_test.c:370: smc_panic.active == 1
+FAIL tests/host/panic_route_test.c:371: clip_stops == stops + 1
+panic route: 8 failures

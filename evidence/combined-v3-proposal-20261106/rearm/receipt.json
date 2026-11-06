@@ -1,0 +1,19 @@
+{
+  "finding_id": "V3-PANIC-REARM-01",
+  "base_tree": "4ae2dbf21cc85da975cfed750c807e10ad591a06",
+  "candidate_tree": "2e38c67d3dbf1b905085580229e395433aefd92d",
+  "patch_sha256": "43da7f25746944fe90d574709a4ebb47b9c953ae3877fa7c88c8e8e1addccd81",
+  "reconstruction": "PASS",
+  "red": {
+    "exit": 1,
+    "assertion_failures": 8,
+    "sanitizers": "ASan+UBSan"
+  },
+  "green": {
+    "exit": 0,
+    "failures": 0,
+    "sanitizers": "ASan+UBSan"
+  },
+  "scope": "Full panic_route fixture including prior two repairs, mode-hold inhibition and new NoteOff/zero-velocity NoteOn release/rearm cases; no full host/native qualification",
+  "independent_qa": "Return to original external finding reviewer; not yet closed by that reviewer"
+}

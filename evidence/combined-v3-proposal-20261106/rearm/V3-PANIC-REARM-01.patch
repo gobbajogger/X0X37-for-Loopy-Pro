@@ -1,0 +1,67 @@
+diff --git a/firmware/src/app/smc_mixer.c b/firmware/src/app/smc_mixer.c
+index 6e4ded235a6a3ec7ecd6b8125d7adcecc85665c7..b9155e5baa4c35839f356b0da0059fe3c8cd3b73 100644
+--- a/firmware/src/app/smc_mixer.c
++++ b/firmware/src/app/smc_mixer.c
+@@ -1993,6 +1993,12 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
+     b = m[2] & 0x7Fu;
+     if (user && ch != 0u && ch != 15u) return 4;
+     if (!allow || perf_testing()) {
++#ifdef SMC_PANIC_HOOKS
++        /* Releases retire physical panic ownership even while actions are blocked. */
++        if ((!ch || user) && (a == 0x2Eu || a == 0x2Fu) &&
++            (type == 0x80u || (type == 0x90u && !b)))
++            (void)smc_panic_bank(a, 0, 0);
++#endif
+         if (type == 0x90u && b && (!ch || user))
+             smc_guarded_button(a, 0, 0);
+         return 1;                     /* restoration still owns every other queued input */
+diff --git a/tests/host/panic_route_test.c b/tests/host/panic_route_test.c
+index 87059fd0d02142f007c4784072deb07db75fec4f..a9b1fb860d0d9a05792961fdaaf7e35cbd680715 100644
+--- a/tests/host/panic_route_test.c
++++ b/tests/host/panic_route_test.c
+@@ -345,6 +345,37 @@ static void smc_blocked_mode_hold_panic(void)
+     smc_ble_link(0); smc_poll();
+ }
+ 
++/* V3-PANIC-REARM-01: blocked releases still retire mode-inhibited ownership. */
++static void smc_blocked_mode_release_rearm(void)
++{
++    for (int zero_on = 0; zero_on < 2; zero_on++) {
++        boot(); prepare_line(); play_gate(); set_view(V_HOME); connect_smc(0);
++        int stops = clip_stops;
++        note3(0x90, 0x2E, 127);
++        proj.set.bt |= PROJ_BT_SMC_USER;
++        smc_poll();
++        CHECK(smc_panic.inhibited == 1);
++        int saved_test = perf.test, saved_phase = perf.phase;
++        perf.test = 0; perf.phase = 0;
++        const uint8_t release[3] = {zero_on ? 0x90 : 0x80, 0x2E, 0};
++        smc_ble_midi(release, 3); smc_poll();
++        CHECK(smc_panic_held == 0);
++        CHECK(smc_panic.inhibited == 0);
++        CHECK(clip_stops == stops);
++        perf.test = saved_test; perf.phase = saved_phase;
++        proj.set.bt &= ~PROJ_BT_SMC_USER;
++        smc_poll();
++        note3(0x90, 0x2E, 127);
++        note3(0x90, 0x2F, 127);
++        CHECK(smc_panic.active == 1);
++        CHECK(clip_stops == stops + 1);
++        CHECK(seq.playing == 1);
++        note3(0x80, 0x2E, 0);
++        note3(0x80, 0x2F, 0);
++        smc_ble_link(0); smc_poll();
++    }
++}
++
+ int main(void)
+ {
+     keyboard_route();
+@@ -354,6 +385,7 @@ int main(void)
+     smc_project_reset_panic();
+     smc_blocked_release_panic();
+     smc_blocked_mode_hold_panic();
++    smc_blocked_mode_release_rearm();
+     if (fails) {
+         fprintf(stderr, "panic route: %d failures\n", fails);
+         return 1;

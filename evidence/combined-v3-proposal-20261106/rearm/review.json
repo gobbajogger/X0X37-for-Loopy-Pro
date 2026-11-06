@@ -1,0 +1,10 @@
+{
+  "reviewer": "/root/review_combined",
+  "finding": "V3-PANIC-REARM-01",
+  "authored_this_fix": false,
+  "outcome": "No additional issue found in scoped six-line production change and regression",
+  "source_blob": "b9155e5baa4c35839f356b0da0059fe3c8cd3b73",
+  "test_blob": "a9b1fb860d0d9a05792961fdaaf7e35cbd680715",
+  "external_qa_closure": "PENDING original external finding reviewer",
+  "runner": "byte-identical;252 registrations retained"
+}
