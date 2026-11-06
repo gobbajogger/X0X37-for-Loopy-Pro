@@ -1,0 +1,46 @@
+mask  0 word28 00000000 staged 00
+mask  1 word28 4f461701 staged 01
+mask  2 word28 4f462e02 staged 02
+mask  3 word28 4f463903 staged 03
+mask  4 word28 4f465c04 staged 04
+mask  5 word28 4f464b05 staged 05
+mask  6 word28 4f467206 staged 06
+mask  7 word28 4f466507 staged 07
+mask  8 word28 4f46b808 staged 08
+mask  9 word28 4f46af09 staged 09
+mask 10 word28 4f46960a staged 0a
+mask 11 word28 4f46810b staged 0b
+mask 12 word28 4f46e40c staged 0c
+mask 13 word28 4f46f30d staged 0d
+mask 14 word28 4f46ca0e staged 0e
+mask 15 word28 4f46dd0f staged 0f
+mask 16 word28 4f466710 staged 10
+mask 17 word28 4f467011 staged 11
+mask 18 word28 4f464912 staged 12
+mask 19 word28 4f465e13 staged 13
+mask 20 word28 4f463b14 staged 14
+mask 21 word28 4f462c15 staged 15
+mask 22 word28 4f461516 staged 16
+mask 23 word28 4f460217 staged 17
+mask 24 word28 4f46df18 staged 18
+mask 25 word28 4f46c819 staged 19
+mask 26 word28 4f46f11a staged 1a
+mask 27 word28 4f46e61b staged 1b
+mask 28 word28 4f46831c staged 1c
+mask 29 word28 4f46941d staged 1d
+mask 30 word28 4f46ad1e staged 1e
+mask 31 word28 4f46ba1f staged 1f
+  PASS fw_export_project_file_validate
+  PASS web_built_word28_project_file_validate
+  PASS fw_validate_rejects_bad_word28_corpus
+part_off_web_e2e_fw: ok (0 failing cases)
+  PASS fw_all_on_word28_zero_accepted_mask0
+  PASS fw_all_31_off_masks_accepted_exact_mask
+  PASS fw_word28_wrong_check_byte_rejected_version
+  PASS fw_word28_flipped_mask_bit_rejected
+  PASS fw_mask5_word28_zeroed_accepted_mask0
+  PASS fw_legacy_tag_mask_rejected_version
+  PASS fw_mask_byte_above_31_rejected_version
+  PASS fw_word28_1bit_flips_rejected_version
+  PASS web_parse_agrees_project_file_validate
+part_off_web_e2e: ok (0 failing cases)

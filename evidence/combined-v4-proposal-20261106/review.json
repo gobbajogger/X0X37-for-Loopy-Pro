@@ -1,0 +1,13 @@
+{
+  "reviewer": "/root/review_combined",
+  "tree": "f333f4f0491f45324794f8a04cdf085b77eda1f5",
+  "scope": "composition only",
+  "outcome": "No integration issue found",
+  "all_donor_paths_exact": true,
+  "disjoint_paths": true,
+  "runner_unchanged": true,
+  "registrations": 252,
+  "existing_affected_tests_registered": 5,
+  "M7a_preserved": true,
+  "engine_LCD_additions": "excluded pendingreview"
+}

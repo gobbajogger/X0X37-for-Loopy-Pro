@@ -1,0 +1,112 @@
+{
+  "tree": "f333f4f0491f45324794f8a04cdf085b77eda1f5",
+  "cli": [
+    {
+      "test": "install_test",
+      "exit": 0
+    },
+    {
+      "test": "install_ctl_test",
+      "exit": 0
+    },
+    {
+      "test": "install_slots_test",
+      "exit": 0
+    },
+    {
+      "test": "install_f02_loader_bind_test",
+      "exit": 0
+    },
+    {
+      "test": "fm1_install_identity_integrity_test",
+      "exit": 0
+    },
+    {
+      "test": "fm1_install_backup_snapshot_test",
+      "exit": 0
+    },
+    {
+      "test": "fm1_install_finish_ack_test",
+      "exit": 0
+    },
+    {
+      "test": "fm1_install_restore_status_test",
+      "exit": 0
+    }
+  ],
+  "settings": [
+    {
+      "test": "stage",
+      "command": [
+        "sh",
+        "tests/host/run_project_stage.sh"
+      ],
+      "extra_env": {},
+      "exit": 0
+    },
+    {
+      "test": "stage-sanitizers",
+      "command": [
+        "sh",
+        "tests/host/run_project_stage.sh"
+      ],
+      "extra_env": {
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer"
+      },
+      "exit": 0
+    },
+    {
+      "test": "preflight",
+      "command": [
+        "sh",
+        "tests/host/run_project_save_preflight.sh"
+      ],
+      "extra_env": {},
+      "exit": 0
+    },
+    {
+      "test": "boot-roles",
+      "command": [
+        "python3",
+        "tests/host/test_smc_boot_saved_roles.py"
+      ],
+      "extra_env": {},
+      "exit": 0
+    },
+    {
+      "test": "runtime",
+      "command": [
+        "sh",
+        "tests/host/project_runtime_test.sh"
+      ],
+      "extra_env": {},
+      "exit": 0
+    },
+    {
+      "test": "panic-route",
+      "command": [
+        "sh",
+        "tests/host/panic_route_test.sh"
+      ],
+      "extra_env": {},
+      "exit": 0
+    },
+    {
+      "test": "part-off-web",
+      "command": [
+        "sh",
+        "tests/host/run_part_off_web_e2e.sh"
+      ],
+      "extra_env": {},
+      "exit": 0
+    }
+  ],
+  "part_off_runtime_only": {
+    "exit": 0,
+    "baseline_equality": "NOT_RUN",
+    "cross_firmware_store": "NOT_RUN"
+  },
+  "cli_package_image_comparison": "SKIPPED missing built package fixture",
+  "full_host_native_device": "NOT_RUN",
+  "selected": false
+}
