@@ -1,0 +1,3 @@
+Working directory: /workspace/ui-evidence-859
+CC=gcc SAN_FLAGS='-I/workspace/ui-evidence-859/tests/host' SMC_UI_TEST_FILE=/workspace/ui-render-evidence/capture.c SMC_UI_OUT=/workspace/ui-render-evidence/859 sh tests/host/smc_ui_test.sh
+Observed exit code: 0

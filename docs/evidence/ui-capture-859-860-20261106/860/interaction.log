@@ -1,0 +1,18 @@
+FRAME 01-badges-dark view=0 overlay=0 playing=0 start=0 stop=0 undo=0/0 msg=SMC CONNECTED
+PASS badge actual framebuffer: current {0,8}, queued {2}, project unchanged
+FRAME 02-badges-light view=0 overlay=0 playing=0 start=0 stop=0 undo=0/0 msg=SMC CONNECTED
+PASS badge actual framebuffer: current {0,8}, queued {2}, project unchanged
+FRAME 03-panel-question view=0 overlay=2 playing=0 start=0 stop=0 undo=0/0 msg=SMC CONNECTED
+FRAME 04-panel-play-cancelled view=0 overlay=0 playing=0 start=1 stop=0 undo=0/0 msg=CANCELLED
+PASS question PLAY: cancel, one start request, project unchanged
+FRAME 05-smc-question view=0 overlay=2 playing=0 start=0 stop=0 undo=0/0 msg=SMC CONNECTED
+FRAME 06-smc-play-cancelled view=0 overlay=0 playing=0 start=1 stop=0 undo=0/0 msg=CANCELLED
+PASS question PLAY: cancel, one start request, project unchanged
+FRAME 07-before-reset view=0 overlay=0 playing=0 start=0 stop=0 undo=0/0 msg=SMC CONNECTED
+FRAME 08-reset-confirmation view=6 overlay=2 playing=0 start=0 stop=0 undo=0/0 msg=SMC CONNECTED
+FRAME 09-reset-cancelled view=6 overlay=0 playing=0 start=0 stop=0 undo=0/0 msg=CANCELLED
+FRAME 10-reset-applied view=0 overlay=0 playing=0 start=0 stop=0 undo=2/2 msg=RESET SOUND 909
+FRAME 11-reset-undo view=0 overlay=0 playing=0 start=0 stop=0 undo=1/2 msg=UNDO SOUND
+FRAME 12-reset-redo view=0 overlay=0 playing=0 start=0 stop=0 undo=2/2 msg=REDO SOUND
+PASS reset: cancel preserves project; confirm changes only selected sound; undo/redo exact; mixer preserved
+CAPTURE PASS checks=115

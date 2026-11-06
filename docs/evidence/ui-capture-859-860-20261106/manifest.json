@@ -1,0 +1,127 @@
+{
+  "scope": "Independent evidence-only capture; no candidate selected, no firmware source edits, no hardware/native/release qualification",
+  "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+  "harness_sha256": "f688b77a68e46097abe72740c07e2fd43b31c0c401d2da50d6c02ec0277b0774",
+  "candidates": {
+    "859": {
+      "commit": "eea971c05ac35e91f7ba9449638221d985446f13",
+      "tree": "1a0c828e174db2ebba3534474cd82ec3d6a3219c",
+      "tracked_changes": "",
+      "command": "CC=gcc SAN_FLAGS='-I/workspace/ui-evidence-859/tests/host' SMC_UI_TEST_FILE=/workspace/ui-render-evidence/capture.c SMC_UI_OUT=/workspace/ui-render-evidence/859 sh tests/host/smc_ui_test.sh",
+      "exit_code": 0,
+      "checks": 115,
+      "raw_build_log_sha256": "39a0ea38c05fa7340cae2da93daa43acd7b467c1e505b394041a33edf7523e34",
+      "generated_inputs": {
+        "build/gen/felucca_font.h": "a634b63c7d74266867741bff9c0d1c6077dea7f1903ab7e424cb3f912368f3b8",
+        "build/gen/x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+        "build/gen/x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "build/gen/x0x_drum_tables.h": "6711a6708aca2b4253f039747970a3ff5c451a10e043ff02c79d095b7104c187"
+      },
+      "images": {
+        "01-badges-dark.png": "5eb89a8591b03b52121044a73917b75d5be36b29f433f3edd1cea4f496fd280b",
+        "02-badges-light.png": "780f420c57d89afba2ed09d6d73e9ae2b28234035c21e5284a55abc9241b7aaa",
+        "03-panel-question.png": "a0c3111bfb7b4fec160556da6e0cf5e68c7ca356e7123a4a48ac5f4c80659b3a",
+        "04-panel-play-cancelled.png": "bfccd272df172893a84108aece93465c2188ede00ba878f20cd8d844e92db47f",
+        "05-smc-question.png": "a0c3111bfb7b4fec160556da6e0cf5e68c7ca356e7123a4a48ac5f4c80659b3a",
+        "06-smc-play-cancelled.png": "bfccd272df172893a84108aece93465c2188ede00ba878f20cd8d844e92db47f",
+        "07-before-reset.png": "d4680c715730d7d7b02f6085317b2f947a603c404ee7e400cdf545a830657439",
+        "08-reset-confirmation.png": "bb864827f940daa6a39229777df5851fee8c22f60c346a12e0ed96e65738a6cf",
+        "09-reset-cancelled.png": "6c70b05b2ddf1dfe2b129473fca269dbf3a470087c8a7f2d2cc693ab9feff1af",
+        "10-reset-applied.png": "dca6218b717f48fabcb77fc16afbf261380a72be91e46f4691104981f0cbdfa0",
+        "11-reset-undo.png": "0d7d024e3a739e890f44a5106ffe4666c47060ce6d48dcce2dcda56e05690392",
+        "12-reset-redo.png": "2822261240bb847fc209ac3bfe1e1df2817bed6dc180191def50290790da3c69"
+      }
+    },
+    "860": {
+      "commit": "c97587c8cea40a8f6e534ec13d9690feb555486d",
+      "tree": "ccf31b6fa52217f79350041f3db8643e12b81166",
+      "tracked_changes": "",
+      "command": "CC=gcc SAN_FLAGS='-I/workspace/ui-evidence-860/tests/host' SMC_UI_TEST_FILE=/workspace/ui-render-evidence/capture.c SMC_UI_OUT=/workspace/ui-render-evidence/860 sh tests/host/smc_ui_test.sh",
+      "exit_code": 0,
+      "checks": 115,
+      "raw_build_log_sha256": "9eb03c5e20575b1d4f5eee99964fe3eec3517ecd53245691a42c186c0b7cca9a",
+      "generated_inputs": {
+        "build/gen/felucca_font.h": "a634b63c7d74266867741bff9c0d1c6077dea7f1903ab7e424cb3f912368f3b8",
+        "build/gen/x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+        "build/gen/x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "build/gen/x0x_drum_tables.h": "6711a6708aca2b4253f039747970a3ff5c451a10e043ff02c79d095b7104c187"
+      },
+      "images": {
+        "01-badges-dark.png": "5eb89a8591b03b52121044a73917b75d5be36b29f433f3edd1cea4f496fd280b",
+        "02-badges-light.png": "780f420c57d89afba2ed09d6d73e9ae2b28234035c21e5284a55abc9241b7aaa",
+        "03-panel-question.png": "a0c3111bfb7b4fec160556da6e0cf5e68c7ca356e7123a4a48ac5f4c80659b3a",
+        "04-panel-play-cancelled.png": "bfccd272df172893a84108aece93465c2188ede00ba878f20cd8d844e92db47f",
+        "05-smc-question.png": "a0c3111bfb7b4fec160556da6e0cf5e68c7ca356e7123a4a48ac5f4c80659b3a",
+        "06-smc-play-cancelled.png": "bfccd272df172893a84108aece93465c2188ede00ba878f20cd8d844e92db47f",
+        "07-before-reset.png": "d4680c715730d7d7b02f6085317b2f947a603c404ee7e400cdf545a830657439",
+        "08-reset-confirmation.png": "bb864827f940daa6a39229777df5851fee8c22f60c346a12e0ed96e65738a6cf",
+        "09-reset-cancelled.png": "6c70b05b2ddf1dfe2b129473fca269dbf3a470087c8a7f2d2cc693ab9feff1af",
+        "10-reset-applied.png": "dca6218b717f48fabcb77fc16afbf261380a72be91e46f4691104981f0cbdfa0",
+        "11-reset-undo.png": "0d7d024e3a739e890f44a5106ffe4666c47060ce6d48dcce2dcda56e05690392",
+        "12-reset-redo.png": "2822261240bb847fc209ac3bfe1e1df2817bed6dc180191def50290790da3c69"
+      }
+    }
+  },
+  "comparisons": [
+    {
+      "frame": "01-badges-dark.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "02-badges-light.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "03-panel-question.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "04-panel-play-cancelled.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "05-smc-question.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "06-smc-play-cancelled.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "07-before-reset.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "08-reset-confirmation.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "09-reset-cancelled.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "10-reset-applied.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "11-reset-undo.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    },
+    {
+      "frame": "12-reset-redo.png",
+      "different_pixels": 0,
+      "total_pixels": 57600
+    }
+  ]
+}
