@@ -1,0 +1,415 @@
+diff --git a/tests/host/test_nightly_version.py b/tests/host/test_nightly_version.py
+new file mode 100644
+index 0000000..c685ecb
+--- /dev/null
++++ b/tests/host/test_nightly_version.py
+@@ -0,0 +1,99 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: GPL-3.0-only
++"""Version flags only: importing the build recipe never executes a build."""
++import sys
++import os
++from pathlib import Path
++import unittest
++from unittest.mock import patch, Mock
++
++ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0, str(ROOT / 'tools'))
++import build
++
++
++class NightlyVersionTest(unittest.TestCase):
++    def test_nightly_cli_keeps_model_900_for_loader_and_package(self):
++        class StopBeforeSDK(Exception):
++            pass
++        for model, product in (('pro', 'SMK-37 Pro_900'), ('elite', 'SMK-37 Elite_900')):
++            with self.subTest(model=model), \
++                 patch.multiple(build, BOARD='fm1', MODEL='pro', VERSION=None, GIT_SHA=None,
++                                PRODUCT='', RELEASE_LABEL=None, OUT=ROOT / 'build', LDR=ROOT / 'build/loader',
++                                APP_SLOT=build.APP_SLOT, APP_CODE_MAX=build.APP_CODE_MAX,
++                                BOARD_DEFS={k: list(v) for k, v in build.BOARD_DEFS.items()},
++                                BOARD_PREFIX=dict(build.BOARD_PREFIX)), \
++                 patch.object(build, 'synth_build_config', return_value=(False, 0)), \
++                 patch.object(build.subprocess, 'run', return_value=Mock(returncode=0)), \
++                 patch.object(build.fm1pkg_make, 'sdk_file', side_effect=StopBeforeSDK), \
++                 patch.object(build.fm1pkg_make, 'SDK', None), \
++                 patch.object(build.sys, 'argv', ['build.py', '--board', 'smk37', '--model', model,
++                                                '--nightly-version', '0.0.25', '--git-sha', 'a' * 40]):
++                previous_board = build.fm1pkg_make.BOARD
++                try:
++                    with self.assertRaises(StopBeforeSDK):
++                        build.main()
++                    self.assertEqual(build.PRODUCT, product)
++                    self.assertEqual(build.VERSION, '0.0.25')
++                    self.assertEqual(build.GIT_SHA, 'aaaaaaaa')
++                    self.assertIsNone(build.RELEASE_LABEL)
++                    self.assertFalse(any('X0X_GIT_SHA' in flag or 'X0X_VERSION' in flag
++                                         for flag in build.BOARD_DEFS['smk37']))
++                finally:
++                    build.fm1pkg_make.set_board(previous_board)
++
++    def test_nightly_is_numeric_without_a_release_identity(self):
++        self.assertEqual(build.nightly_identity('0.0.25', 'a' * 40),
++                         {'version_macro': '0.0.25', 'git_sha': 'aaaaaaaa'})
++
++    def test_empty_cli_version_refuses_before_build_work(self):
++        with patch.object(build.sys, 'argv', ['build.py', '--nightly-version', '',
++                                             '--git-sha', 'a' * 40]), \
++             patch.object(build, 'synth_build_config', side_effect=AssertionError('build work started')):
++            with self.assertRaises(SystemExit) as exc:
++                build.main()
++            self.assertEqual(exc.exception.code, 2)
++
++    def test_invalid_version_or_sha_cannot_enter_c_defines(self):
++        for version in ('DEV', '', '00.0.25', '0.0.25_openbeta', '0.0.25-nightly', '100.0.0'):
++            with self.subTest(version=version), self.assertRaises(ValueError):
++                build.nightly_identity(version, 'a' * 40)
++        for sha in ('', 'abc1234', 'g' * 40, 'A' * 40, 'a"\\n' + '0' * 37):
++            with self.subTest(sha=sha), self.assertRaises(ValueError):
++                build.nightly_identity('0.0.25', sha)
++
++    def test_app_defines_keep_sha_separate_from_display_version(self):
++        self.assertEqual(build.version_defines('0.0.25', None, 'bb190749'),
++                         ['-DX0X_VERSION="0.0.25"', '-DX0X_GIT_SHA="bb190749"'])
++        self.assertEqual(build.version_defines(None, None, None), [])
++        self.assertEqual(build.version_defines('0.1.3', '0.1.3_openbeta', None),
++                         ['-DX0X_VERSION="0.1.3"', '-DX0X_RELEASE_LABEL="0.1.3_openbeta"'])
++
++    def test_app_compiler_receives_version_and_sha_without_changing_identity(self):
++        class StopBeforeCompile(Exception):
++            pass
++
++        for model, product in (('pro', 'SMK-37 Pro_900'),
++                               ('elite', 'SMK-37 Elite_900')):
++            captured = []
++
++            def capture(flags, original_synth, wobble):
++                captured.extend(flags)
++                raise StopBeforeCompile
++
++            with self.subTest(model=model), patch.dict(os.environ, {}, clear=True), \
++                 patch.multiple(build, BOARD='smk37', MODEL=model, PRODUCT=product,
++                                VERSION='0.0.25', GIT_SHA='bb190749', RELEASE_LABEL=None), \
++                 patch.object(build, 'synth_build_config', return_value=(False, 0)), \
++                 patch.object(build, 'clang_std_inc', return_value=[]), \
++                 patch.object(build, 'app_compile_commands', side_effect=capture):
++                with self.assertRaises(StopBeforeCompile):
++                    build.build_app()
++            self.assertIn('-DX0X_VERSION="0.0.25"', captured)
++            self.assertIn('-DX0X_GIT_SHA="bb190749"', captured)
++            self.assertIn('-DFELUCCA_ID="' + product + '"', captured)
++            self.assertFalse(any(flag.startswith('-DX0X_RELEASE_LABEL=') for flag in captured))
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/tests/nightly_package_test.py b/tests/nightly_package_test.py
+index 505a5c9..e3aa6cf 100644
+--- a/tests/nightly_package_test.py
++++ b/tests/nightly_package_test.py
+@@ -35,7 +35,7 @@ def make_controller(size=4096, **overrides):
+     return bytes(data)
+ 
+ 
+-def make_package(model, loader=True):
++def make_package(model, loader=True, version="0.1.3", extra=b""):
+     """Real packer/layout/CRCs; synthetic SDK placeholders and non-executable application bytes."""
+     fake_sdk = {"uboot.boot": b"SYNTHETIC-BOOT-NOT-FIRMWARE" * 4,
+                 "cfg_tool.bin": b"SYNTHETIC-CFG" * 4,
+@@ -44,7 +44,8 @@ def make_package(model, loader=True):
+     try:
+         pm.set_board("smk37")
+         with patch.object(pm, "sdk_file", side_effect=lambda name: fake_sdk[name]):
+-            flash = pm.flash_image(b"SYNTHETIC-APPLICATION-NOT-FIRMWARE" * 16, pm.KEY)
++            about = b"" if version is None else ("DnBOX " + version + "  MEM ").encode("ascii") + b"\0"
++            flash = pm.flash_image(b"SYNTHETIC-APPLICATION-NOT-FIRMWARE" * 16 + about + extra, pm.KEY)
+         ota = b"SYNTHETIC-LOADER-NOT-FIRMWARE " + (b"FELUCCA-LOADER-1" if loader else b"NO-UPDATE-LOADER")
+         return pm.ufw(flash, ota, nightly.MODELS[model] + "_900")
+     finally:
+@@ -194,7 +195,36 @@ def main(argv=None):
+         assert receipt_v["product"].endswith("_9000103") and "_openbeta" not in receipt_v["product"]
+         refused(lambda raw=stamped, m=model: nightly.inspect(raw, m, digest, size, "0.1.4"), "does not match")
+         refused(lambda raw=stamped, m=model: nightly.inspect(raw, m, digest, size, "0.1.3_openbeta"), "not a firmware version")
+-        assert nightly.inspect(complete, model, digest, size)["firmware_version"] is None
++        assert nightly.inspect(complete, model, digest, size)["firmware_version"] == "0.1.3"
++        assert receipt["product"] == nightly.MODELS[model] + "_900"
++        # Requested NIGHTLY display identity keeps the loader product unchanged.
++        v25 = add_ctl.add(make_package(model, version="0.0.25"), ctl)
++        v25_receipt = nightly.inspect(v25, model, digest, size, "0.0.25")
++        assert v25_receipt["product"] == nightly.MODELS[model] + "_900"
++        assert v25_receipt["firmware_version"] == "0.0.25"
++        refused(lambda: nightly.inspect(v25, model, digest, size, "0.0.24"), "does not match")
++        for invalid in ("00.0.25", "100.0.0", "0.0.25_openbeta"):
++            bad = add_ctl.add(make_package(model, version=invalid), ctl)
++            refused(lambda: nightly.inspect(bad, model, digest, size), "firmware version")
++        # A numeric package identity must agree with ABOUT even with a valid allocation.
++        _, v25_logical = add_ctl.logical_of(v25)
++        mismatch = add_ctl.fwsc_of(v25_logical, nightly.MODELS[model] + "_9000103")
++        refused(lambda: nightly.inspect(mismatch, model, digest, size, "0.1.3", granted),
++                "identity does not match")
++        for absent in (None, "DEV"):
++            refused(lambda: nightly.inspect(add_ctl.add(make_package(model, version=absent), ctl),
++                                           model, digest, size), "firmware version" if absent is None else "DnBOX DEV")
++        refused(lambda: nightly.inspect(complete, model, digest, size, "0.0.23"), "does not match")
++        # A valid numeric ABOUT string must not conceal a stale USB or other DEV string.
++        for encoding in ("ascii", "utf-16-le", "utf-16-be"):
++            stale = add_ctl.add(make_package(model, extra="DnBOX DEV".encode(encoding)), ctl)
++            refused(lambda: nightly.inspect(stale, model, digest, size, "0.1.3"), "DnBOX DEV")
++        ambiguous = add_ctl.add(make_package(model, extra=b"DnBOX 0.0.23  MEM \0"), ctl)
++        refused(lambda: nightly.inspect(ambiguous, model, digest, size), "firmware version")
++        # A USB display string alone is not firmware identity or version evidence.
++        usb_only = add_ctl.add(make_package(model, version=None,
++                                            extra="DnBOX 0.0.23 37PRO".encode("utf-16-le")), ctl)
++        refused(lambda: nightly.inspect(usb_only, model, digest, size), "firmware version")
+         refused(lambda: nightly.inspect(complete, model, "0" * 64, size), "reviewed pin")
+         refused(lambda: nightly.inspect(complete, model, digest, size - 1), "reviewed pin")
+         refused(lambda: nightly.inspect(fixtures[model + "-outer-crc.fwsc"], model, digest, size), "package integrity")
+@@ -224,11 +254,28 @@ def main(argv=None):
+             pkg.write_bytes(raw)
+             control.write_bytes(ctl)
+             command = [str(pkg), str(control), "--model", model, "--controller-sha256", digest,
+-                       "--controller-size", str(size), "-o", str(out)]
++                       "--controller-size", str(size), "--firmware-version", "0.1.3", "-o", str(out)]
+             stdout = io.StringIO()
+             with contextlib.redirect_stdout(stdout):
+                 assert nightly.main(command) == 0
+             assert out.read_bytes() == complete and json.loads(stdout.getvalue()) == receipt
++            check = [str(out), "--check", "--model", model, "--controller-sha256", digest,
++                     "--controller-size", str(size), "--firmware-version", "0.1.3"]
++            with contextlib.redirect_stdout(io.StringIO()):
++                assert nightly.main(check) == 0
++            with contextlib.redirect_stderr(io.StringIO()):
++                try:
++                    nightly.main(check[:-2])
++                except SystemExit as exc:
++                    assert exc.code == 2, "--firmware-version is mandatory"
++                else:
++                    raise AssertionError("missing --firmware-version accepted")
++            for version, extra in ((None, b""), ("0.1.3", b"DnBOX DEV"),
++                                   ("0.1.3", "DnBOX DEV".encode("utf-16-le")),
++                                   ("0.1.3", "DnBOX DEV".encode("utf-16-be"))):
++                out.write_bytes(add_ctl.add(make_package(model, version=version, extra=extra), ctl))
++                with contextlib.redirect_stderr(io.StringIO()):
++                    assert nightly.main(check) == 1
+             out.write_bytes(b"KEEP-EXISTING")
+             control.write_bytes(ctl[:-1])
+             with contextlib.redirect_stderr(io.StringIO()):
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index 683837c..8cae50d 100755
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -467,6 +467,8 @@ run validation-inputs python3 tests/host/test_validation_inputs.py
+ run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
+ run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
+ run dev-validate-composed python3 tests/host/test_dev_validate_composed.py ComposedValidation
++run nightly-version python3 tests/host/test_nightly_version.py
++run nightly-package python3 tests/nightly_package_test.py
+ run nightly-publish python3 tests/host/test_publish_nightly.py
+ run gen-cache python3 tests/host/test_gen_cache.py
+ run smk-update-contract python3 tests/host/test_smk_update_contract.py
+diff --git a/tools/build.py b/tools/build.py
+index 550adf5..ae6d8e1 100644
+--- a/tools/build.py
++++ b/tools/build.py
+@@ -44,6 +44,7 @@ import gen_cache  # noqa: E402
+ import lz4blk  # noqa: E402
+ import rom_guard  # noqa: E402
+ import check_original_inputs  # noqa: E402
++from firmware_build_labels import canonical_version  # noqa: E402
+ 
+ APP_XIP = 0x02000120                # app.bin offset 0 in the XIP map; the SPL jumps here
+ APP_SLOT = fm1pkg_make.APP_SLOT
+@@ -142,6 +143,8 @@ BOARD_PREFIX = {"fm1": "FM-1_9", "smk37": "SMK-37 Pro_9"}   # identity of a rele
+ BOARD_DEFS = {"fm1": [], "smk37": ["-DBOARD_SMK37=1"]}       # the FM-1 build gets no new flag (byte-identical)
+ # smk37: the keyboard's model name (MODEL env or --model); one hardware, three names. pro adds no flag
+ MODELS = {"pro": "SMK-37 Pro", "elite": "SMK-37 Elite", "mke": "MKE-P37"}
++MODEL = "pro"
++GIT_SHA = None
+ VERSION = None                      # numeric X.Y.Z passed to the firmware as X0X_VERSION
+ RELEASE_LABEL = None                # display only, e.g. 0.1.3_openbeta; not part of the package identity
+ 
+@@ -422,10 +425,7 @@ def build_app():
+             if not re.fullmatch(r"[0-8]", baud):
+                 raise SystemExit("X0X_SMK_LCD_BAUD: 0..8 (SPI clock = 60 MHz / (n + 1))")
+             flags.append(f"-DLCD_BAUD={baud}u")
+-    if VERSION:
+-        flags.append(f'-DX0X_VERSION="{VERSION}"')
+-    if RELEASE_LABEL:
+-        flags.append(f'-DX0X_RELEASE_LABEL="{RELEASE_LABEL}"')
++    flags += version_defines(VERSION, RELEASE_LABEL, GIT_SHA)
+     units, objs = app_compile_commands(flags, original_synth, wobble)
+     for directory in {o.parent for o in objs}:
+         directory.mkdir(parents=True, exist_ok=True)
+@@ -580,16 +580,54 @@ def release_identity(text):
+             "release_label": None, "filename": text}
+ 
+ 
++def nightly_identity(text, git_sha):
++    """Display version and diagnostic SHA; never a loader/product identity."""
++    version = canonical_version(text)
++    if not isinstance(git_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", git_sha):
++        raise ValueError("Git SHA must be 40 lowercase hexadecimal characters")
++    return {"version_macro": version, "git_sha": git_sha[:8]}
++
++
++def version_defines(version, release_label, git_sha):
++    """Application-only version and diagnostic defines; loader identity is unchanged."""
++    flags = []
++    if version:
++        flags.append(f'-DX0X_VERSION="{version}"')
++    if release_label:
++        flags.append(f'-DX0X_RELEASE_LABEL="{release_label}"')
++    if git_sha:
++        flags.append(f'-DX0X_GIT_SHA="{git_sha}"')
++    return flags
++
++
+ def main():
+-    global PRODUCT, VERSION, RELEASE_LABEL, BOARD, APP_SLOT, APP_CODE_MAX, OUT, LDR
++    global PRODUCT, VERSION, GIT_SHA, RELEASE_LABEL, BOARD, MODEL, APP_SLOT, APP_CODE_MAX, OUT, LDR
+     ap = argparse.ArgumentParser()
+-    ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_9XXYYZZ, version string X.Y[.Z]")
++    versions = ap.add_mutually_exclusive_group()
++    versions.add_argument("--release", metavar="X.Y[.Z]", help="release build: numeric package identity and version string")
++    versions.add_argument("--nightly-version", metavar="X.Y.Z",
++                          help="nightly display version; keep the model_900 loader/package identity")
++    ap.add_argument("--git-sha", help="nightly source commit (40 lowercase hex; default: git rev-parse HEAD)")
+     ap.add_argument("--board", choices=sorted(BOARD_PREFIX), default=None,
+                     help="target board: fm1 (default) or smk37 (default: $BOARD, else fm1)")
+     ap.add_argument("--model", choices=sorted(MODELS), default=None,
+                     help="smk37: the model name, pro (default), elite or mke (default: $MODEL, else pro)")
+     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
+     a = ap.parse_args()
++    nightly = None
++    if a.git_sha is not None and a.nightly_version is None:
++        ap.error("--git-sha requires --nightly-version")
++    if a.nightly_version is not None:
++        sha = a.git_sha
++        if sha is None:
++            try:
++                sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=SRC, text=True).strip()
++            except (OSError, subprocess.CalledProcessError) as exc:
++                ap.error(f"cannot read source commit; supply --git-sha: {exc}")
++        try:
++            nightly = nightly_identity(a.nightly_version, sha)
++        except ValueError as exc:
++            ap.error(str(exc))
+     original_synth, _ = synth_build_config()
+     if original_synth:
+         require_original_synth_sources()
+@@ -602,6 +640,7 @@ def main():
+     model = (a.model or (os.environ.get("MODEL") if BOARD == "smk37" else None) or "pro").lower()
+     if model not in MODELS or (model != "pro" and BOARD != "smk37"):
+         raise SystemExit(f"MODEL={model}: pro, elite or mke, with BOARD=smk37")
++    MODEL = model
+     fm1pkg_make.set_board(BOARD)
+     APP_SLOT = fm1pkg_make.APP_SLOT
+     APP_CODE_MAX = fm1pkg_make.APP_CODE_MAX
+@@ -619,7 +658,13 @@ def main():
+         OUT = OUT.parent / f"{BOARD}-{model}"     # its own objects: the Pro build's stay as they are
+         LDR = OUT / "loader"
+     name = f"{stem}.fwsc"
++    VERSION = GIT_SHA = None
+     RELEASE_LABEL = None
++    if nightly:
++        if BOARD != "smk37" or MODEL not in ("elite", "pro"):
++            ap.error("--nightly-version supports SMK-37 Elite/Pro only")
++        VERSION = nightly["version_macro"]
++        GIT_SHA = nightly["git_sha"]
+     if a.release:
+         # identity FM-1_9 + major, minor, patch as two digits each (0.10 -> FM-1_9001000). FM-1 is the
+         # model the update tools match on; the number is ours (X0X 0.3..0.9 were FM-1_9XY, one digit
+diff --git a/tools/package_nightly.py b/tools/package_nightly.py
+index 83c24dc..32df436 100644
+--- a/tools/package_nightly.py
++++ b/tools/package_nightly.py
+@@ -2,8 +2,8 @@
+ # SPDX-License-Identifier: GPL-3.0-only
+ """Compose or inspect a model-specific NIGHTLY package with its matching controller.
+ 
+-  package_nightly.py APP.fwsc ctl.img --model elite --controller-sha256 HASH --controller-size SIZE -o COMPLETE.fwsc
+-  package_nightly.py COMPLETE.fwsc --check --model elite --controller-sha256 HASH --controller-size SIZE
++  package_nightly.py APP.fwsc ctl.img --model elite --controller-sha256 HASH --controller-size SIZE --firmware-version X.Y.Z -o COMPLETE.fwsc
++  package_nightly.py COMPLETE.fwsc --check --model elite --controller-sha256 HASH --controller-size SIZE --firmware-version X.Y.Z
+ 
+ The reviewed controller pin must be supplied explicitly. No cached image, empty-controller
+ fallback, hardware access, license approval or publication is implied. JSON on stdout records
+@@ -66,6 +66,28 @@ def _require_allocated_version(version, ledger):
+         raise add_ctl.PkgError("firmware version is not allocated")
+ 
+ 
++def _app_version(st):
++    """Read the compiled ABOUT version from decrypted app code, never USB identity.
++
++    The raw .fwsc app is encrypted. Scanning transport bytes alone can miss DEV.
++    USB text is checked for stale DEV too, but is not evidence of model/version.
++    """
++    app = bytes(st["area"][0x120:0x120 + add_ctl.CODE_MAX])
++    images = (bytes(st["area"]), bytes(st["flash"]), bytes(st["lg"]))
++    if any("DnBOX DEV".encode(enc) in image
++           for image in images for enc in ("ascii", "utf-16-le", "utf-16-be")):
++        raise add_ctl.PkgError("NIGHTLY image contains DnBOX DEV")
++    found = set()
++    for value in re.findall(rb"DnBOX ([0-9.]+)  MEM ", app):
++        try:
++            found.add(canonical_version(value.decode("ascii")))
++        except ValueError as exc:
++            raise add_ctl.PkgError(str(exc)) from exc
++    if len(found) != 1:
++        raise add_ctl.PkgError("NIGHTLY firmware version is missing or ambiguous in the app ABOUT line")
++    return found.pop()
++
++
+ def _package(raw, model, expected_version=None, ledger=None):
+     """Strict current NIGHTLY structure, without weakening the legacy composition path."""
+     if model not in MODELS:
+@@ -77,7 +99,7 @@ def _package(raw, model, expected_version=None, ledger=None):
+             expected_version = canonical_version(expected_version)
+         except ValueError as exc:
+             raise add_ctl.PkgError(str(exc)) from exc
+-        if version != expected_version:
++        if version is not None and version != expected_version:
+             raise add_ctl.PkgError(
+                 f"package model {product!r} does not match firmware version {expected_version}")
+     _require_allocated_version(version, ledger)
+@@ -135,14 +157,20 @@ def _package(raw, model, expected_version=None, ledger=None):
+     expected_map = pm.slotmap_blob(pm.SLOTMAP["smk37"])
+     if st["flash"][pm.SLOTMAP_OFF:pm.SLOTMAP_OFF + len(expected_map)] != expected_map:
+         raise add_ctl.PkgError("NIGHTLY package has no matching current SMK-37 sample slot map")
++    app_version = _app_version(st)
++    if version is not None and version != app_version:
++        raise add_ctl.PkgError("package identity does not match app firmware version")
++    if expected_version is not None and expected_version != app_version:
++        raise add_ctl.PkgError(f"app firmware version {app_version} does not match {expected_version}")
++    st["firmware_version"] = app_version
+     return product, logical, st
+ 
+ 
+ def inspect(raw, model, expected_sha256, expected_size, expected_version=None, ledger=None):
+     """Return byte-derived metadata only after the embedded controller matches its review pin."""
+     _pin(expected_sha256, expected_size)
+-    product, logical, _ = _package(raw, model, expected_version, ledger)
+-    version = _embedded_version(product, model)
++    product, logical, st = _package(raw, model, expected_version, ledger)
++    version = st["firmware_version"]
+     ctl = add_ctl.controller_of(logical)
+     if ctl is None:
+         raise add_ctl.PkgError("NIGHTLY package is missing its bundled Bluetooth controller")
+@@ -154,7 +182,7 @@ def inspect(raw, model, expected_sha256, expected_size, expected_version=None, l
+         "model": model,
+         "product": product,
+         "firmware_version": version,
+-        "release_display": None if version is None else release_display(version),
++        "release_display": release_display(version),
+         "size": len(raw),
+         "sha256": sha256(raw),
+         "controller_strategy": "bundled",
+@@ -198,7 +226,7 @@ def main(argv=None):
+     ap.add_argument("--model", choices=MODELS, required=True)
+     ap.add_argument("--controller-sha256", required=True)
+     ap.add_argument("--controller-size", type=int, required=True)
+-    ap.add_argument("--firmware-version", help="require this canonical X.Y.Z machine identity")
++    ap.add_argument("--firmware-version", required=True, help="require this canonical X.Y.Z app version")
+     ap.add_argument("--ledger", type=Path, help="open-beta ledger; default releases/openbeta/ledger.json")
+     ap.add_argument("--check", action="store_true", help="inspect an already complete package; write no package")
+     ap.add_argument("-o", "--out", type=Path)

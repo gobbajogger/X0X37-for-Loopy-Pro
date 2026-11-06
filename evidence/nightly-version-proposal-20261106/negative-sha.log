@@ -1,0 +1,20 @@
+..usage: build.py [-h] [--release X.Y[.Z] | --nightly-version X.Y.Z]
+                [--git-sha GIT_SHA] [--board {fm1,smk37}]
+                [--model {elite,mke,pro}] [--sdk SDK]
+build.py: error: firmware version must be canonical X.Y.Z (components 0..99)
+.F..
+======================================================================
+FAIL: test_invalid_version_or_sha_cannot_enter_c_defines (__main__.NightlyVersionTest.test_invalid_version_or_sha_cannot_enter_c_defines) (sha='abc1234')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/nightly-version-lane/candidate/tests/host/test_nightly_version.py", line 62, in test_invalid_version_or_sha_cannot_enter_c_defines
+    with self.subTest(sha=sha), self.assertRaises(ValueError):
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.004s
+
+FAILED (failures=1)
+
+exit=1

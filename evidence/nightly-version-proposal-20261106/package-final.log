@@ -1,0 +1,3 @@
+PASS elite: composition, embedded admission, exact pin, model, CRCs, padding, ABI, output preservation
+PASS pro: composition, embedded admission, exact pin, model, CRCs, padding, ABI, output preservation
+nightly_package_test: PASS (synthetic data; no SDK, native build, hardware or distribution claim)

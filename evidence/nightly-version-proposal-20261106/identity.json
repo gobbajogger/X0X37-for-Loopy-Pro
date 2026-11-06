@@ -1,0 +1,18 @@
+{
+  "base_commit": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "base_tree": "00370c8cf385577395f616e9df3cbc45a0d23041",
+  "donor_commit": "c32c54ac8ec68aaca53adccf7af66f155590f2dc",
+  "donor_tree": "ac490f7fae9198748aa54bd914d42f99d45444f9",
+  "proposed_tree": "1f02d81a8862166302ff673b3278be1a0fb7beb4",
+  "selected": false,
+  "committed": false,
+  "pushed": false,
+  "paths": [
+    "tools/build.py",
+    "tools/package_nightly.py",
+    "tests/nightly_package_test.py",
+    "tests/host/test_nightly_version.py",
+    "tests/run_tests.sh"
+  ],
+  "patch_sha256": "0b319e6f334d4fab52dd9f2947ad67bf0b4b00e68d8e51101e850f36a82fd733"
+}
