@@ -263,6 +263,43 @@ static void smc_cross_peer_panic(void)
     smc_ble_link_slot(0, 0); smc_ble_link_slot(1, 0); smc_poll();
 }
 
+/* DAW mode stays DAW. BANK L is pressed, then physically released while
+ * performance-test input is blocked. BANK R alone must not complete a stale
+ * two-bank chord. A fresh L+R chord after that retirement still silences. */
+static void smc_daw_stale_release(void)
+{
+    boot(); prepare_line(); play_gate(); set_view(V_HOME); connect_smc(0);
+    CHECK((proj.set.bt & PROJ_BT_SMC_USER) == 0);
+    int stops = clip_stops;
+    note3(0x90, 0x2E, 127);
+    CHECK(smc_panic_held != 0);
+    int saved_test = perf.test, saved_phase = perf.phase;
+    perf.test = 0; perf.phase = 0;
+    CHECK(perf_testing());
+    const uint8_t release[3] = {0x80, 0x2E, 0};
+    smc_ble_midi(release, 3); smc_poll();
+    CHECK(smc_panic_held == 0);
+    CHECK(smc_panic.inhibited == 0);
+    CHECK(smc_panic.active == 0);
+    CHECK(clip_stops == stops);
+    CHECK((proj.set.bt & PROJ_BT_SMC_USER) == 0);
+    perf.test = saved_test; perf.phase = saved_phase;
+    note3(0x90, 0x2F, 127);
+    CHECK(smc_panic.active == 0);
+    CHECK(clip_stops == stops);
+    CHECK(seq.playing == 1);
+    CHECK(engine_part_sounding() & 2);
+    note3(0x80, 0x2F, 0);
+    note3(0x90, 0x2E, 127);
+    note3(0x90, 0x2F, 127);
+    CHECK(smc_panic.active == 1);
+    CHECK(clip_stops == stops + 1);
+    CHECK(seq.playing == 1);
+    note3(0x80, 0x2E, 0);
+    note3(0x80, 0x2F, 0);
+    smc_ble_link(0); smc_poll();
+}
+
 static void smc_lost_release_panic(void)
 {
     boot(); prepare_line(); play_gate(); set_view(V_HOME); connect_smc(0);
@@ -279,12 +316,48 @@ static void smc_lost_release_panic(void)
     smc_ble_link(0); smc_poll();
 }
 
+/* V3-PANIC-REARM-01: blocked releases still retire mode-inhibited ownership.
+ * Covers blocked NoteOff, zero-velocity NoteOn, User to DAW rearm, and a
+ * fresh BANK L+R chord after that retirement. */
+static void smc_blocked_mode_release_rearm(void)
+{
+    for (int zero_on = 0; zero_on < 2; zero_on++) {
+        boot(); prepare_line(); play_gate(); set_view(V_HOME); connect_smc(0);
+        int stops = clip_stops;
+        note3(0x90, 0x2E, 127);
+        proj.set.bt |= PROJ_BT_SMC_USER;
+        smc_poll();
+        CHECK(smc_panic.inhibited == 1);
+        int saved_test = perf.test, saved_phase = perf.phase;
+        perf.test = 0; perf.phase = 0;
+        CHECK(perf_testing());
+        const uint8_t release[3] = {zero_on ? 0x90 : 0x80, 0x2E, 0};
+        smc_ble_midi(release, 3); smc_poll();
+        CHECK(smc_panic_held == 0);
+        CHECK(smc_panic.inhibited == 0);
+        CHECK(clip_stops == stops);
+        perf.test = saved_test; perf.phase = saved_phase;
+        proj.set.bt &= ~PROJ_BT_SMC_USER;
+        smc_poll();
+        note3(0x90, 0x2E, 127);
+        note3(0x90, 0x2F, 127);
+        CHECK(smc_panic.active == 1);
+        CHECK(clip_stops == stops + 1);
+        CHECK(seq.playing == 1);
+        note3(0x80, 0x2E, 0);
+        note3(0x80, 0x2F, 0);
+        smc_ble_link(0); smc_poll();
+    }
+}
+
 int main(void)
 {
     keyboard_route();
     smc_route();
     smc_cross_peer_panic();
+    smc_daw_stale_release();
     smc_lost_release_panic();
+    smc_blocked_mode_release_rearm();
     if (fails) {
         fprintf(stderr, "panic route: %d failures\n", fails);
         return 1;
