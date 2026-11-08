@@ -40,6 +40,10 @@ static void question_redo(int controller)
     if (controller) message(0x90, 6, 127); /* HOME held before the question opens. */
     ask(ACT_CLEAR_PAT, 0, "CLEAR THIS PATTERN?", 0);
     if (controller) {
+        CHECK(!(ui.btn & (1u << B_HOME))); /* keyboard HOME would mask dropped controller state */
+        CHECK(smc.home_down);
+        smc_poll(); /* idle frame during O_ASK must not drop controller HOME */
+        CHECK(smc.home_down);
         message(0x90, 0x5E, 127);
     } else {
         ui.btn = 1u << B_HOME;
