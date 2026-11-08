@@ -2133,8 +2133,13 @@ static void smc_poll_peer(void)
     }
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
-        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
-        memset(smc.held, 0, sizeof smc.held);
+        smc.lock_down = 0; /* a question cancels a pending hold-to-unlock */
+        /* A question parks edits, not physical PLAY/HOME ownership. Retain
+         * press edges so HOME+PLAY stays redo and held PLAY cannot retoggle. */
+        if (!allow) {
+            smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+            memset(smc.held, 0, sizeof smc.held);
+        }
         smc_fx_clear();
         smc.picked = smc.seen = 0;
         smc.knob_i = 0;
