@@ -70,6 +70,7 @@ key w2 up
 expect laneval2.0.1.2 95
 expect sound2.0.1 115
 tap SEQ
+expect view 8
 key w2 down
 turn K1 2
 key w2 up
