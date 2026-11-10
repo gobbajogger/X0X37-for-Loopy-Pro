@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-29T06:47:57Z",
+  "updated_at": "2026-11-11T00:00:00Z",
   "merge_ownership": {
     "owner": "dot existing sole PR monitor",
     "scope": "qualified source integration only",
@@ -271,16 +271,16 @@
     }
   ],
   "states": {
-    "firmware_nightly": "1e421386c055f11ae4c23f695e5431904fdb0f05",
+    "firmware_nightly": "66073c68dd80d51a7053432c2c161a8b720a1341",
     "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
     "current_public_installable_delivery": "NOT_DONE",
     "hardware": "UNRUN",
     "site_main": "a8205aff483dce09414093defdc19cf79d57b719",
     "private_owner_delivery": "The exact 5f58 application with designated stock loops, matching Elite/Pro controller packages and accompanying source is owner-available with hash readback. It is not publicly published and does not include later Settings 2385 or all-glyph 26f923 changes.",
     "website_main_observed": "a8205aff483dce09414093defdc19cf79d57b719",
-    "website_pages": "821aa12e6625dd6e7b3c5202d7d0838a420d0bdc",
+    "website_pages": "c6cdb94e4e9be8654fed399943b63c2593a2c195",
     "website_publication": "VERIFIED_SCOPED_EXISTING_PUBLISHER_RECEIPTS",
-    "observed_refs_at": "2026-10-29T06:47:57Z"
+    "observed_refs_at": "2026-11-11T00:00:00Z"
   },
   "evidence_policy": "Use each public PR's pinned independent-review receipt and current exact source; historical JSON/CSV rows are not current completion proof. One existing writer/reviewer per overlapping package; source merge is not package delivery.",
   "pending_workflow_proposal": {
@@ -606,6 +606,26 @@
             "target": "main"
           },
           "publisher_consumption": "PENDING; public pointer readback is not receiver execution."
+        }
+      }
+    },
+    {
+      "observed_at": "2026-11-11T00:00:00Z",
+      "previous_ref": "4a35a6cdaa0f112db6b3f577542138afd170c20d",
+      "change_reason": "Refresh observed current refs. firmware_nightly is the firmware repository nightly branch, not the nightly website repository commit and not the published package source. site_main was re-read and is unchanged. The 2026-10-29 CATALOG-R48 publication receipt stays as history. No request completion, package acceptance, or owner transfer.",
+      "previous": {
+        "updated_at": "2026-10-29T06:47:57Z",
+        "states": {
+          "firmware_nightly": "1e421386c055f11ae4c23f695e5431904fdb0f05",
+          "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
+          "current_public_installable_delivery": "NOT_DONE",
+          "hardware": "UNRUN",
+          "site_main": "a8205aff483dce09414093defdc19cf79d57b719",
+          "private_owner_delivery": "The exact 5f58 application with designated stock loops, matching Elite/Pro controller packages and accompanying source is owner-available with hash readback. It is not publicly published and does not include later Settings 2385 or all-glyph 26f923 changes.",
+          "website_main_observed": "a8205aff483dce09414093defdc19cf79d57b719",
+          "website_pages": "821aa12e6625dd6e7b3c5202d7d0838a420d0bdc",
+          "website_publication": "VERIFIED_SCOPED_EXISTING_PUBLISHER_RECEIPTS",
+          "observed_refs_at": "2026-10-29T06:47:57Z"
         }
       }
     }

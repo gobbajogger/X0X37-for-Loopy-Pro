@@ -6435,14 +6435,43 @@
           "merge_commit": null,
           "current_base": "lane/opt-reviewed-composition-20261027",
           "snapshot_note": "Live metadata only; source merge is not complete request acceptance."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 698,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698",
+          "head": "337a02fa2a7bbb03a6996bdc10e91a2d7f737b42",
+          "observed_at": "2026-11-11T00:00:00.000Z",
+          "current_state": "open",
+          "draft": true,
+          "merged_at": null,
+          "merge_commit": null,
+          "current_base": "nightly",
+          "snapshot_note": "Live metadata only; source merge is not complete request acceptance. Head ref is wip/one-build."
+        },
+        {
+          "type": "issue",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 832,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/832",
+          "state": "open",
+          "observed_at": "2026-11-11T00:00:00.000Z",
+          "snapshot_note": "November 2026 inputs are comments on this issue, not request completion. D6-N evidence comment 6763881254 records gobbajogger/x0x37-for-Loopy-Pro_nightly evidence/d6n-42de2893-20261110 at fc42a402f01e90338bf86d9f560875002139d6db. Publication receipts are comments 6764666385 and 6766320231."
         }
       ],
       "evidence": {
         "source": {
           "state": "CURRENT_CANDIDATE_SELECTION_AND_QUALIFICATION_PENDING",
-          "summary": "Current parent PR638 is 5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134; child PR650 and PR651 have separate heads and closures. Source selection and proof reuse must be explicit; this metadata refresh ran no firmware builds.",
-          "provenance": "Live exact PR metadata and the linked existing public receipts; no product tests rerun.",
-          "observed_at": "2026-10-27T22:17:33.283Z"
+          "summary": "October 2026 parent PR638 is 5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134; child PR650 and PR651 have separate heads. November 2026 inputs: wip/one-build PR698 head 337a02fa2a7bbb03a6996bdc10e91a2d7f737b42; source candidate lane/build-025-candidate-20261110 42de289338e3fb718423b4eafbefd567115b81bf tree cd0e967f410dd5e11c97f2c6c0743baf3c03679f; D6-N evidence gobbajogger/x0x37-for-Loopy-Pro_nightly evidence/d6n-42de2893-20261110 fc42a402f01e90338bf86d9f560875002139d6db recorded in issue 832 comment 6763881254. These pins are inputs. They do not complete the request.",
+          "provenance": "Live PR698 metadata, firmware commit 42de2893 tree readback, nightly evidence branch fc42a402, and issue 832 comment 6763881254. This refresh ran no firmware builds.",
+          "observed_at": "2026-11-11T00:00:00.000Z",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/42de289338e3fb718423b4eafbefd567115b81bf",
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/commit/fc42a402f01e90338bf86d9f560875002139d6db",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/832#issuecomment-6763881254"
+          ]
         },
         "test": {
           "state": "SCOPED_INDEPENDENT_PASS_REPORTED_SANITIZER_LIMITS",
@@ -6453,13 +6482,22 @@
           "summary": "PR188 exact supplied head; 2132 B code / 412 B RAM headroom; 8324 B pool."
         },
         "deployed": {
-          "state": "NOT_MERGED_NOT_PUBLISHED"
+          "state": "NIGHTLY_UNREVIEWED_DEV_PUBLISHED_NOT_REQUEST_COMPLETION",
+          "observed_at": "2026-11-11T00:00:00.000Z",
+          "source_main": "a8205aff483dce09414093defdc19cf79d57b719",
+          "pages": "c6cdb94e4e9be8654fed399943b63c2593a2c195",
+          "summary": "NIGHTLY published nightly-42de2893-dev from firmware source 42de289338e3fb718423b4eafbefd567115b81bf. gh-pages Push A 47e4d7476d05cdb6cebdb44cf0d1d045c7aa8e24, Push B versions.json 20c22644cf8a25383ff7442fcea62dd0ff8ba181, Push C installer c6cdb94e4e9be8654fed399943b63c2593a2c195. Live versions.json latest is nightly-42de2893-dev, status unreviewed, hardware_tested false. Receipts are issue 832 comments 6764666385 and 6766320231. This publication does not complete LX-REQ-016.",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/832#issuecomment-6764666385",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/832#issuecomment-6766320231",
+            "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/versions.json"
+          ]
         },
         "hardware": {
           "state": "NOT_FLASHED_NOT_HARDWARE_PROVEN"
         }
       },
-      "updated_at": "2026-10-27T22:17:33.283Z",
+      "updated_at": "2026-11-11T00:00:00.000Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Move requested source through qualified exact-root tests/builds into owner-installable bytes.",
       "history": [
@@ -6735,6 +6773,26 @@
             "metadata_reconciliation",
             "status_as_of"
           ]
+        },
+        {
+          "observed_at": "2026-11-11T00:00:00.000Z",
+          "change_reason": "Add November 2026 candidate, D6-N evidence and NIGHTLY publication inputs. Keep the existing status. This is not request completion.",
+          "previous": {
+            "status": "CURRENT_CANDIDATE_SELECTION_AND_QUALIFICATION_PENDING",
+            "updated_at": "2026-10-27T22:17:33.283Z",
+            "status_as_of": "2026-10-27T22:17:33.283Z",
+            "evidence": {
+              "source": {
+                "state": "CURRENT_CANDIDATE_SELECTION_AND_QUALIFICATION_PENDING",
+                "summary": "Current parent PR638 is 5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134; child PR650 and PR651 have separate heads and closures. Source selection and proof reuse must be explicit; this metadata refresh ran no firmware builds.",
+                "provenance": "Live exact PR metadata and the linked existing public receipts; no product tests rerun.",
+                "observed_at": "2026-10-27T22:17:33.283Z"
+              },
+              "deployed": {
+                "state": "NOT_MERGED_NOT_PUBLISHED"
+              }
+            }
+          }
         }
       ],
       "priority_assessment": {
@@ -6753,7 +6811,7 @@
           "requests.json#LX-REQ-016.completion_criterion"
         ]
       },
-      "status_as_of": "2026-10-27T22:17:33.283Z",
+      "status_as_of": "2026-11-11T00:00:00.000Z",
       "metadata_reconciliation": {
         "observed_at": "2026-10-27T22:17:33.283Z",
         "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
