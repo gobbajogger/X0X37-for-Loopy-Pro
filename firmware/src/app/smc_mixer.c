@@ -1170,13 +1170,14 @@ void smc_ui_draw(void)
 {
     uint8_t saved = smc_slot;
     struct smc_paint snap;
-    pages_t pre_pg;
     smc_paint_take(&snap);
-    memcpy(&pre_pg, &pg, sizeof pre_pg);
     smc_slot = snap.peer;
     if (smc_peek->on) {
+        pages_t pre_pg;
+        uint8_t peek_page = (uint8_t)cur_page();
         char label[24], value[32], unit[12], banner[96], *q;
         pref_t r = snap.target;
+        memcpy(&pre_pg, &pg, sizeof pre_pg);
         draw_header();
         /* PEEK_SNAPSHOT_HOLD */
         {
@@ -1190,6 +1191,9 @@ void smc_ui_draw(void)
             ui.mixsel = snap.mixsel;
             memcpy(ui.sel, snap.sel, sizeof ui.sel);
             pg = pre_pg;
+            *page_of(ui.view) = peek_page; /* PEEK_PAGE_INDEX */
+            if (ui_paint_between_polls)
+                ui_paint_between_polls();
             draw_main();
             draw_knobs();
             ui_paint_body_end();

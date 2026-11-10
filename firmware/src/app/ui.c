@@ -4422,6 +4422,8 @@ void x0x_lcd_poll_hook(void (*fn)(void)) { cv_lcd_poll_hook = fn; }
 /* Set only while a peek body is drawing from its snapshot. NULL for every
  * other commit, including the isolated dispatch test. */
 void (*ui_paint_around_input)(void);
+/* Host only: runs after the snapshot is installed and before the next poll. */
+void (*ui_paint_between_polls)(void);
 
 static void cv_lcd_maybe_input(void)
 {
@@ -4430,14 +4432,14 @@ static void cv_lcd_maybe_input(void)
     if (last_ms != now) {
         last_ms = now;
         if (ui_paint_around_input)
-            ui_paint_around_input();   /* show the live page to this poll */
+            ui_paint_around_input(); /* SWAP_TO_LIVE */
 #ifdef X0X_HOST
         if (cv_lcd_poll_hook)
             cv_lcd_poll_hook();
 #endif
         cv_lcd_input();                 /* foreground MIDI/SMC; do not skip this to hide a paint race */
         if (ui_paint_around_input)
-            ui_paint_around_input();   /* drawing continues from the snapshot */
+            ui_paint_around_input(); /* SWAP_TO_SNAPSHOT */
     }
 }
 typedef struct { uint32_t x, y; } cv_lcd_pos_t;

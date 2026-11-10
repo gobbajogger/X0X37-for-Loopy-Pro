@@ -11,6 +11,7 @@
 
 static unsigned hooks, fails, chunks;
 static int inject_armed, inject_grid, chunk_polls, chunk_buttons;
+static int watch_body_view, poll_saw_view, body_rebuild, expire_peek;
 static uint16_t frame_a[240 * 240], frame_b[240 * 240], frame_now[240 * 240];
 
 struct guard {
@@ -36,12 +37,34 @@ static void inject_b(void)
         now_ms++;
         chunks++;
         held_btn = 0;
+        if (inject_armed && chunks == 1) {
+            inject_armed = 0;
+            hooks++;
+            saved = smc_slot;
+            smc_slot = 1;
+            if (inject_grid) {
+                ui.view = V_SEQ;
+                ui.part = PART_909;
+                ui.sel[PART_909] = 5;
+            }
+            smc_ui_begin(7, 0);
+            smc_slot = saved;
+        }
         if (chunk_buttons && chunks == 12) {
             held_btn = 1u << B_SEQ;          /* press: HOME -> SEQ, records prev_view */
             ui.part = PART_909;
             ui.sel[PART_909] = 5;
         } else if (chunk_buttons && chunks == 70)
             held_btn = 1u << B_FX;           /* press inside the knob commit */
+        if (watch_body_view && chunks == 12)
+            poll_saw_view = ui.view;
+        if (body_rebuild && chunks == 12)
+            set_view(V_SEQ);                 /* build_pages runs inside the live side */
+        return;
+    }
+    if (expire_peek) {
+        expire_peek = 0;
+        smc_peek->until = 0;             /* header poll: the peek times out after the header is drawn */
         return;
     }
     if (!inject_armed)
@@ -415,17 +438,20 @@ static void paint_retake(int dirty, uint16_t *dst)
 static void paint_peek_inject(int dirty, uint16_t *dst, unsigned *fired)
 {
     unsigned before;
+    struct guard before_guard, after_guard;
     prepare();
     set_peek(1);
     arm_state();
     settle_identity(0, 0, 1);
     inject_grid = 1;
+    before_guard = take_guard();
     if (dirty) {
         inject_armed = 0;
         paint();
         paint_keep();
         arm_dirty_header();
         before = hooks;
+        before_guard = take_guard();
         inject_armed = 1;
         paint_keep();
     } else {
@@ -437,6 +463,11 @@ static void paint_peek_inject(int dirty, uint16_t *dst, unsigned *fired)
     memcpy(dst, fb, sizeof frame_a);
     inject_armed = 0;
     inject_grid = 0;
+    paint();                                 /* following frame, same session */
+    after_guard = take_guard();
+    paint_fail(!memcmp(&before_guard, &after_guard, sizeof before_guard),
+               dirty ? "dirty peek inject_grid following frame keeps MIDI REC PANIC"
+                     : "cold peek inject_grid following frame keeps MIDI REC PANIC");
 }
 
 /* Header, main and knobs must be the pre-poll page. A live body matches the
@@ -552,6 +583,136 @@ static void run_body_input(int dirty)
     paint_fail(!rows_eq(fb, frame_a, HDR_H, KNOB_Y), msg);
 }
 
+static void irq_playing(void)
+{
+    seq.playing = 1;                         /* do_start's store, from outside the poll */
+}
+
+static void run_irq_between_polls(void)
+{
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    seq.playing = 0;
+    ui_paint_between_polls = irq_playing;
+    paint();
+    ui_paint_between_polls = 0;
+    paint_fail(seq.playing == 1, "audio start during the snapshot is kept");
+}
+
+static void run_body_pg_rebuild(void)
+{
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    chunk_polls = 1;
+    chunks = 0;
+    paint();
+    memcpy(frame_a, fb, sizeof frame_a);
+    chunk_polls = 0;
+
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    chunk_polls = 1;
+    chunks = 0;
+    body_rebuild = 1;
+    paint();
+    body_rebuild = 0;
+    chunk_polls = 0;
+    paint_fail(rows_eq(fb, frame_a, HDR_H, KNOB_Y),
+               "body poll rebuilds pg without changing the drawn page");
+    paint_fail(ui.view == V_SEQ, "body poll rebuild stays on the live page");
+}
+
+static void run_swap_sees_live(void)
+{
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    chunk_polls = 1;
+    chunks = 0;
+    paint();
+    memcpy(frame_a, fb, sizeof frame_a);
+    chunk_polls = 0;
+
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    inject_grid = 1;
+    inject_armed = 1;
+    chunk_polls = 1;
+    chunks = 0;
+    watch_body_view = 1;
+    poll_saw_view = -1;
+    paint();
+    watch_body_view = 0;
+    chunk_polls = 0;
+    inject_grid = 0;
+    paint_fail(poll_saw_view == V_SEQ, "body poll sees the live page, not the snapshot");
+    paint_fail(rows_eq(fb, frame_a, HDR_H, KNOB_Y), "body keeps the snapshot after the live poll");
+}
+
+static void run_peek_timeout(void)
+{
+    struct guard before, after;
+    prepare();
+    set_view(V_FX);
+    build_pages();
+    *page_of(V_FX) = 0;                  /* the cursor the timeout will restore */
+    set_view(V_HOME);
+    build_pages();
+    smc_peek_page(V_FX, 1, ui.mixsel, ui.part);
+    if (pg.n < 2 || cur_page() != 1) {
+        paint_fail(0, "peek timeout has a second FX page");
+        return;
+    }
+    arm_state();
+    settle_identity(0, 0, 1);
+    smc_peek->until = now_ms + 100000u;
+    paint();
+    memcpy(frame_a, fb, sizeof frame_a);
+
+    prepare();
+    set_view(V_HOME);
+    build_pages();
+    arm_state();
+    settle_identity(0, 0, 1);
+    paint();
+    memcpy(frame_b, fb, sizeof frame_b);
+    paint_fail(!rows_eq(frame_a, frame_b, HDR_H, KNOB_Y), "peek page and restored home differ");
+
+    prepare();
+    set_view(V_FX);
+    build_pages();
+    *page_of(V_FX) = 0;
+    set_view(V_HOME);
+    build_pages();
+    smc_peek_page(V_FX, 1, ui.mixsel, ui.part);
+    arm_state();
+    settle_identity(0, 0, 1);
+    before = take_guard();
+    smc_peek->until = now_ms + 100000u;
+    expire_peek = 1;
+    paint();
+    memcpy(frame_now, fb, sizeof frame_now);
+    paint_fail(rows_eq(frame_now, frame_a, HDR_H, 240),
+               "peek timeout body stays on the peeked page");
+    paint_fail(!rows_eq(frame_now, frame_b, HDR_H, 240),
+               "peek timeout body is not the restored page");
+    paint();
+    after = take_guard();
+    paint_fail(rows_eq(fb, frame_b, HDR_H, KNOB_Y),
+               "peek timeout following frame shows the restored page");
+    paint_fail(!memcmp(&before, &after, sizeof before),
+               "peek timeout following frame keeps MIDI REC PANIC");
+}
+
 int main(void)
 {
     run_mode("overlay", 0);
@@ -560,6 +721,10 @@ int main(void)
     run_peek_live_context();
     run_body_input(0);
     run_body_input(1);
+    run_irq_between_polls();
+    run_body_pg_rebuild();
+    run_swap_sees_live();
+    run_peek_timeout();
     if (fails) {
         fprintf(stderr, "FAIL smc lcd paint: %u assertion(s)\n", fails);
         return 1;

@@ -5,16 +5,22 @@
 set -eu
 cd "$(dirname "$0")/../.."
 file=firmware/src/app/smc_mixer.c
+uifile=firmware/src/app/ui.c
 bak=$(mktemp)
+uibak=$(mktemp)
 cp "$file" "$bak"
-restore() { cp "$bak" "$file"; }
+cp "$uifile" "$uibak"
+restore() { cp "$bak" "$file"; cp "$uibak" "$uifile"; }
 trap restore EXIT HUP INT TERM
 
 mutate() {
     name=$1
     old=$2
     new=$3
-    python3 - "$file" "$old" "$new" <<'PY'
+    target=${4:-$file}
+    work=$(mktemp)
+    cp "$target" "$work"
+    python3 - "$target" "$old" "$new" <<'PY'
 import pathlib, sys
 path, old, new = sys.argv[1:]
 file = pathlib.Path(path)
@@ -25,19 +31,19 @@ if count != 1:
 file.write_text(text.replace(old, new, 1))
 PY
     set +e
-    sh tests/host/smc_lcd_paint_test.sh > "$bak.$name.log" 2>&1
+    sh tests/host/smc_lcd_paint_test.sh > "$work.$name.log" 2>&1
     code=$?
     set -e
-    restore
+    cp "$work" "$target"
     if [ "$code" -eq 0 ]; then
         echo "MUTANT SURVIVED: $name"
-        tail -20 "$bak.$name.log" >&2
+        tail -20 "$work.$name.log" >&2
         exit 1
     fi
-    killed=$(grep '^FAIL ' "$bak.$name.log" | tr '\n' '; ' || true)
+    killed=$(grep '^FAIL ' "$work.$name.log" | tr '\n' '; ' || true)
     if [ -z "$killed" ]; then
         echo "MUTANT SURVIVED: $name (no assertion failure)"
-        tail -20 "$bak.$name.log" >&2
+        tail -20 "$work.$name.log" >&2
         exit 1
     fi
     echo "MUTANT KILLED: $name by $killed"
@@ -94,4 +100,18 @@ mutate strip-target-live-peer \
             smc_slot = saved_peer;
         }'
 
-echo "smc lcd paint mutants: 7 killed"
+mutate drop-page-index \
+    '*page_of(ui.view) = peek_page; /* PEEK_PAGE_INDEX */' \
+    '/* PEEK_PAGE_INDEX */'
+
+mutate drop-swap-to-live \
+    'ui_paint_around_input(); /* SWAP_TO_LIVE */' \
+    '(void)0; /* SWAP_TO_LIVE */' \
+    firmware/src/app/ui.c
+
+mutate drop-swap-to-snapshot \
+    'ui_paint_around_input(); /* SWAP_TO_SNAPSHOT */' \
+    '(void)0; /* SWAP_TO_SNAPSHOT */' \
+    firmware/src/app/ui.c
+
+echo "smc lcd paint mutants: 10 killed"
