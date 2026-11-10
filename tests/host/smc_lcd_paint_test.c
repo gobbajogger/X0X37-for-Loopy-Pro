@@ -108,6 +108,81 @@ static void paint(void)
     ui_frame();
 }
 
+/* A later paint that does not clear the header tiles, so a changed header
+ * takes the dirty-tile DMA instead of force_lcd's cold full transfer. */
+static void paint_keep(void)
+{
+    now_ms++;
+    ui_frame();
+}
+
+static void arm_dirty_header(void)
+{
+    memcpy(ui.msg, "DIRTY", 6);
+    ui.msg_until = now_ms + 50000u;
+}
+
+/* Home faders and knobs are per peer. A locked peer keeps its own row.
+ * Peer A stays on the live home row (levels, CUT bank). Peer B is locked
+ * to a different row (sends / pan) with the opposite end of each value.
+ * A paint that reads the live peer's strip targets then cannot match A's snapshot. */
+static void split_peer_homes(void)
+{
+    int n;
+    smc_states[0].locked = 0;
+    smc_states[0].knob_bank = 0;
+    smc_states[1].locked = 1;
+    smc_states[1].lock_view = V_HOME;
+    smc_states[1].lock_part = (uint8_t)PART_303A;
+    smc_states[1].lock_page = 0;
+    smc_states[1].lock_pages = 1;
+    smc_states[1].knob_bank = 1;
+    for (n = 0; n < 8; n++) {
+        pref_t home = smc_home_target(n);
+        pref_t fader = home;
+        pref_t knob;
+        if (n < NPARTS) {
+            fader.c = MX_REV;
+            knob = PR(R_ENG, T_MIX, home.b, MX_PAN);
+            pref_set(PR(R_ENG, T_MIX, home.b, MX_CUT), 0);
+        } else if (n == 5) {
+            fader.c = FX_RV_TONE;
+            knob = PR(R_ENG, T_FX, 0, FX_RV_HPF);
+        } else if (n == 6) {
+            fader.c = FX_DL_TIME;
+            knob = PR(R_ENG, T_FX, 0, FX_DL_TONE);
+        } else {
+            fader.c = MST_CUTOFF;
+            knob = PR(R_ENG, T_MST, 0, MST_LIMIT);
+        }
+        pref_set(home, 0);
+        pref_set(fader, 127);
+        pref_set(knob, 127);
+        smc_states[1].lock_fader[n] = fader;
+        smc_states[1].lock_knob[n] = knob;
+    }
+}
+
+static void require_distinct_homes(void)
+{
+    int n;
+    uint8_t saved = smc_slot;
+    for (n = 0; n < 8; n++) {
+        pref_t af, ak, bf, bk;
+        smc_slot = 0;
+        af = smc_target(n);
+        ak = smc_knob_target(n);
+        smc_slot = 1;
+        bf = smc_target(n);
+        bk = smc_knob_target(n);
+        paint_fail(!smc_same(af, bf) && smc_scaled(af) != smc_scaled(bf),
+                   "peer A and B home fader targets differ");
+        paint_fail(!smc_same(ak, bk) && smc_scaled(ak) != smc_scaled(bk),
+                   "peer A and B home knob targets differ");
+    }
+    smc_slot = saved;
+}
+
 static void prepare(void)
 {
     setup(V_HOME, PART_303A);
@@ -116,6 +191,8 @@ static void prepare(void)
     arm_state();
     inject_grid = 0;
     x0x_lcd_poll_hook(inject_b);
+    split_peer_homes();
+    require_distinct_homes();
 }
 
 static void set_peek(int on)
@@ -252,11 +329,143 @@ static void run_grid(void)
     paint_fail(!memcmp(&before, &after, sizeof before), "grid recovery keeps held notes, REC and PANIC");
 }
 
+static uint16_t frame_retake[240 * 240];
+
+static unsigned pix_diff(const uint16_t *a, const uint16_t *b, int y0, int y1)
+{
+    unsigned n = 0;
+    int y, x;
+    for (y = y0; y < y1; y++)
+        for (x = 0; x < 240; x++)
+            n += a[y * 240 + x] != b[y * 240 + x];
+    return n;
+}
+
+static void paint_seq(int dirty, uint16_t *dst)
+{
+    prepare();
+    ui.view = V_SEQ;
+    ui.part = PART_909;
+    ui.sel[PART_909] = 5;
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    inject_armed = 0;
+    inject_grid = 0;
+    if (dirty) {
+        paint();
+        paint_keep();
+        arm_dirty_header();
+        paint_keep();
+    } else paint();
+    memcpy(dst, fb, sizeof frame_a);
+}
+
+static void paint_home(int dirty, uint16_t *dst)
+{
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    inject_armed = 0;
+    inject_grid = 0;
+    if (dirty) {
+        paint();
+        paint_keep();
+        arm_dirty_header();
+        paint_keep();
+    } else paint();
+    memcpy(dst, fb, sizeof frame_a);
+}
+
+/* A frame snapshotted after the poll: peer B, fader 8, on the injected page. */
+static void paint_retake(int dirty, uint16_t *dst)
+{
+    prepare();
+    ui.view = V_SEQ;
+    ui.part = PART_909;
+    ui.sel[PART_909] = 5;
+    set_peek(1);
+    arm_state();
+    settle_identity(1, 7, 0);
+    inject_armed = 0;
+    inject_grid = 0;
+    if (dirty) {
+        paint();
+        paint_keep();
+        arm_dirty_header();
+        paint_keep();
+    } else paint();
+    memcpy(dst, fb, sizeof frame_a);
+}
+
+static void paint_peek_inject(int dirty, uint16_t *dst, unsigned *fired)
+{
+    unsigned before;
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    inject_grid = 1;
+    if (dirty) {
+        inject_armed = 0;
+        paint();
+        paint_keep();
+        arm_dirty_header();
+        before = hooks;
+        inject_armed = 1;
+        paint_keep();
+    } else {
+        before = hooks;
+        inject_armed = 1;
+        paint();
+    }
+    *fired = hooks - before;
+    memcpy(dst, fb, sizeof frame_a);
+    inject_armed = 0;
+    inject_grid = 0;
+}
+
+/* Header, main and knobs must be the pre-poll page. A live body matches the
+ * sequencer page instead, so the three regions are not one state. */
+static void report_one_state(const char *tag, const uint16_t *got,
+                             const uint16_t *home, const uint16_t *seq,
+                             const uint16_t *retake, unsigned fired)
+{
+    unsigned hh = pix_diff(got, home, 0, HDR_H);
+    unsigned hm = pix_diff(got, home, HDR_H, KNOB_Y);
+    unsigned hk = pix_diff(got, home, KNOB_Y, 240);
+    unsigned sm = pix_diff(got, seq, HDR_H, KNOB_Y);
+    unsigned sk = pix_diff(got, seq, KNOB_Y, 240);
+    unsigned rh = pix_diff(got, retake, 0, HDR_H);
+    char msg[120];
+    snprintf(msg, sizeof msg, "%s header DMA fired once", tag);
+    paint_fail(fired == 1, msg);
+    snprintf(msg, sizeof msg, "%s header, main and knobs are one state", tag);
+    paint_fail(hh == 0 && rh != 0 && hm == 0 && hk == 0 && sm != 0 && sk != 0, msg);
+}
+
+static void run_peek_live_context(void)
+{
+    unsigned fired = 0;
+    paint_home(0, frame_a);
+    paint_seq(0, frame_b);
+    paint_retake(0, frame_retake);
+    paint_peek_inject(0, frame_now, &fired);
+    report_one_state("cold-full peek inject_grid=1", frame_now, frame_a, frame_b, frame_retake, fired);
+    paint_home(1, frame_a);
+    paint_seq(1, frame_b);
+    paint_retake(1, frame_retake);
+    paint_peek_inject(1, frame_now, &fired);
+    report_one_state("dirty-header peek inject_grid=1", frame_now, frame_a, frame_b, frame_retake, fired);
+}
+
 int main(void)
 {
     run_mode("overlay", 0);
     run_mode("peek", 1);
     run_grid();
+    run_peek_live_context();
     if (fails) {
         fprintf(stderr, "FAIL smc lcd paint: %u assertion(s)\n", fails);
         return 1;

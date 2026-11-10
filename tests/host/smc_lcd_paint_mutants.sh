@@ -55,6 +55,17 @@ mutate peek-skip-snapshot \
     '/* PEEK_SNAPSHOT_HOLD */' \
     'smc_paint_take(&snap); /* PEEK_SNAPSHOT_HOLD */'
 
+mutate peek-body-live \
+    '            ui.view = snap.view; /* PEEK_BODY_FROM_SNAPSHOT */
+            ui.part = snap.part;
+            ui.mixsel = snap.mixsel;
+            memcpy(ui.sel, snap.sel, sizeof ui.sel);
+            if (pages_changed)
+                build_pages();' \
+    '            /* PEEK_BODY_FROM_SNAPSHOT */
+            (void)snap;
+            (void)pages_changed;'
+
 mutate overlay-retake-after-dma \
     '/* OVERLAY_SNAPSHOT_HOLD */' \
     'smc_paint_take(paint); /* OVERLAY_SNAPSHOT_HOLD */'
@@ -67,4 +78,16 @@ mutate grid-live-view \
     '    /* GRID_VIEW_FROM_SNAPSHOT */
     (void)paint;'
 
-echo "smc lcd paint mutants: 4 killed"
+mutate strip-target-live-peer \
+    '        pref_t f = paint->fader[n], k = paint->knob[n]; /* GRID_TARGETS_FROM_SNAPSHOT */' \
+    '        pref_t f, k; /* GRID_TARGETS_FROM_SNAPSHOT */
+        {
+            uint8_t live_peer = smc_ui.peer < SMC_PEERS ? smc_ui.peer : 0;
+            uint8_t saved_peer = smc_slot;
+            smc_slot = live_peer;
+            f = smc_target(n);
+            k = smc_knob_target(n);
+            smc_slot = saved_peer;
+        }'
+
+echo "smc lcd paint mutants: 6 killed"

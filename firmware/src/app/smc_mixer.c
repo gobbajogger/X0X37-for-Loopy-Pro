@@ -1170,15 +1170,38 @@ void smc_ui_draw(void)
 {
     uint8_t saved = smc_slot;
     struct smc_paint snap;
+    pages_t pre_pg;
     smc_paint_take(&snap);
+    memcpy(&pre_pg, &pg, sizeof pre_pg);
     smc_slot = snap.peer;
     if (smc_peek->on) {
         char label[24], value[32], unit[12], banner[96], *q;
         pref_t r = snap.target;
         draw_header();
         /* PEEK_SNAPSHOT_HOLD */
-        draw_main();
-        draw_knobs();
+        {
+            /* The header poll can change the live page and rebuild pg.
+             * The body stays on this paint's snapshot. The live page returns
+             * afterwards, and its page table is rebuilt only if the poll changed it. */
+            uint8_t live_view = ui.view, live_part = ui.part, live_mix = ui.mixsel;
+            uint8_t live_sel[NKIT];
+            int pages_changed = memcmp(&pg, &pre_pg, sizeof pre_pg) != 0;
+            memcpy(live_sel, ui.sel, sizeof live_sel);
+            ui.view = snap.view; /* PEEK_BODY_FROM_SNAPSHOT */
+            ui.part = snap.part;
+            ui.mixsel = snap.mixsel;
+            memcpy(ui.sel, snap.sel, sizeof ui.sel);
+            if (pages_changed)
+                build_pages();
+            draw_main();
+            draw_knobs();
+            memcpy(ui.sel, live_sel, sizeof ui.sel);
+            ui.view = live_view;
+            ui.part = live_part;
+            ui.mixsel = live_mix;
+            if (pages_changed)
+                build_pages();
+        }
         smc_ui_label(r, label);
         q = put_i(put_s(banner, smc_paint_kind(&snap) == 1 ? "SMC K" : "SMC F"),
                   smc_paint_strip(&snap) + 1);
