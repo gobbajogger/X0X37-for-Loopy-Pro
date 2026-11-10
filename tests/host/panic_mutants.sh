@@ -5,7 +5,7 @@
 set -eu
 cd "$(dirname "$0")/../.."
 bak=$(mktemp -d "${TMPDIR:-/tmp}/x0x-panic-mut.XXXXXX")
-files="firmware/src/seq/sequencer.c firmware/src/app/engine.c firmware/src/app/ui.c firmware/src/app/smc_mixer.c firmware/src/usb.c"
+files="firmware/src/seq/sequencer.c firmware/src/app/engine.c firmware/src/app/ui.c firmware/src/app/smc_mixer.c firmware/src/usb.c host/x0x_host.c"
 restore() {
     for f in $files; do
         cp "$bak/$(basename "$f")" "$f"
@@ -203,4 +203,14 @@ mutate cq-inplace-replace firmware/src/app/engine.c \
     '                i = r;' \
     tests/host/cq_reclaim_test.sh
 
-echo "panic mutants: 22 killed"
+mutate host-midi-skip0 host/x0x_host.c \
+    '    mi_seq_next = n ? n : 1u;' \
+    '    mi_seq_next = n;' \
+    tests/host/midi_seq_skip0_test.sh
+
+mutate usb-midi-skip0 firmware/src/usb.c \
+    '    midi_seq_next = n ? n : 1u;' \
+    '    midi_seq_next = n;' \
+    tests/host/midi_seq_take_test.sh
+
+echo "panic mutants: 24 killed"
