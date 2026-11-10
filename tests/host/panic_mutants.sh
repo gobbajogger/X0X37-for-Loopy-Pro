@@ -145,4 +145,62 @@ mutate no-shift firmware/src/app/engine.c \
                 publish = 1;' \
     tests/host/panic_order_test.sh
 
-echo "panic mutants: 14 killed"
+mutate cq-tail-boundary firmware/src/app/engine.c \
+    '            } else if (i + 1u == w) {
+                if (notes_off_cq_live && (int32_t)(i - notes_off_cq) < 0)
+                    notes_off_cq--;
+                publish = 1;' \
+    '            } else if (i + 1u == w) {
+                if (notes_off_cq_live && (int32_t)(i - notes_off_cq) < 0)
+                    ;
+                publish = 1;' \
+    tests/host/panic_order_test.sh
+
+mutate cq-shift-boundary firmware/src/app/engine.c \
+    '                if (notes_off_cq_live && (src == notes_off_cq || src + 1u == notes_off_cq))
+                    notes_off_cq--;' \
+    '                if (notes_off_cq_live && (src == notes_off_cq || src + 1u == notes_off_cq))
+                    ;' \
+    tests/host/panic_order_test.sh
+
+mutate cq-pick-hole firmware/src/app/engine.c \
+    '    if (cq_hole_on && *cursor == cq_hole_at)
+        *cursor = *cursor + 1u;' \
+    '    /* hole slot is returned */' \
+    tests/host/cq_shift_preempt_test.sh
+
+mutate live-empty-rebase firmware/src/app/engine.c \
+    '    if (live_key_r == live_key_w)
+        live_key_at = live_key_pos;
+    live_key_pos++;' \
+    '    live_key_pos++;' \
+    tests/host/panic_order_test.sh
+
+mutate live-unsigned-drop firmware/src/app/engine.c \
+    '        if(!post && notes_off_drop && (int32_t)(ord - notes_off_live) < 0)continue;' \
+    '        if(!post && notes_off_drop && ord < notes_off_live)continue;' \
+    tests/host/live_key_wrap_test.sh
+
+mutate live-unsigned-post firmware/src/app/engine.c \
+    '        int post = live_panic_pass && (int32_t)(ord - notes_off_live) >= 0;' \
+    '        int post = live_panic_pass && ord >= notes_off_live;' \
+    tests/host/live_key_wrap_test.sh
+
+mutate cq-head-no-advance firmware/src/app/engine.c \
+    '            if (i == r) {
+                cq_r = r + 1u;
+                i = w;
+                cq_w = w + 1u;' \
+    '            if (i == r) {
+                i = w;
+                cq_w = w + 1u;' \
+    tests/host/cq_reclaim_test.sh
+
+mutate cq-inplace-replace firmware/src/app/engine.c \
+    '                cq_r = r + 1u;
+                i = w;
+                cq_w = w + 1u;' \
+    '                i = r;' \
+    tests/host/cq_reclaim_test.sh
+
+echo "panic mutants: 22 killed"

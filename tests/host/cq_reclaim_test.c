@@ -9,6 +9,7 @@
 void engine_host_cq_sync(void);
 void engine_host_cq_at(uint32_t cursor);
 int engine_part_sounding(void);
+int engine_bass_keys_held(void);
 
 static int fails;
 static const char *cq_case;
@@ -43,6 +44,28 @@ static void drain_rest(void)
     int i;
     for (i = 0; i < 16; i++)
         render_block();
+}
+
+static int bass_held(int part)
+{
+    return (engine_part_sounding() & (2 << part)) && (engine_bass_keys_held() & (1 << part));
+}
+
+/* The kept note is published at the tail. One block drains 128 commands and
+ * must not reach it. Replacing the head in place, or appending without
+ * advancing the read cursor, plays that note inside the block. */
+static void note_stays_past_budget(const char *name, int wrap)
+{
+    cq_case = name;
+    reset_audio();
+    if (wrap)
+        engine_host_cq_at(0xFFFFFC00u);
+    fill_params(1024);
+    engine_bass_on(0, 40, 1, 0);
+    render_block();
+    CHECK(!bass_held(0));
+    drain_rest();
+    CHECK(bass_held(0));
 }
 
 static void fresh_after_replace(const char *name, int wrap)
@@ -80,6 +103,8 @@ int main(void)
     engine_set(T_303, 0, mp, 77);
     engine_render(blk, 256);
     CHECK(engine_bass_perf(0, 2, 0) == 77);
+    note_stays_past_budget("head replace stays queued", 0);
+    note_stays_past_budget("head replace stays queued wrap", 1);
     fresh_after_replace("full then drain", 0);
     fresh_after_replace("wrapped cursors", 1);
     if (fails) {

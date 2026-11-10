@@ -195,6 +195,65 @@ static void midi_seq_wrap_across(void)
     expect_held(1);
 }
 
+static void push_offs(unsigned n, int part)
+{
+    while (n--)
+        engine_bass_off(part);
+}
+
+/* The last queued slot is overwritten in place. That slot is before the
+ * panic boundary, so the boundary must move back with it. The kept note is
+ * then on the boundary and plays. */
+static void cq_tail_boundary(void)
+{
+    order_case = "cq tail boundary";
+    reset_audio();
+    push_offs(1023, 1);
+    push_harmless_cq(1);
+    engine_request_notes_off();
+    engine_bass_on(0, 52, 1, 0);
+    settle();
+    expect_held(0);
+}
+
+/* A note accepted after the request sits on the boundary. The next kept
+ * command shifts that note one slot earlier, and the boundary moves with it. */
+static void cq_shift_boundary(void)
+{
+    order_case = "cq shift boundary";
+    reset_audio();
+    push_offs(1022, 1);
+    push_harmless_cq(1);
+    engine_request_notes_off();
+    engine_bass_on(0, 52, 1, 0);
+    engine_bass_on(1, 64, 1, 0);
+    settle();
+    expect_held(0);
+    expect_held(1);
+}
+
+/* An empty live-key FIFO rebases the accept position onto the free-running
+ * counter. A note taken after panic then stays after the panic position. */
+static void live_key_rebased(void)
+{
+    uint32_t generation, context;
+    int arp;
+
+    order_case = "live empty rebase";
+    reset_audio();
+    engine_live_key_state(0, &generation, &arp, &context);
+    CHECK(engine_live_key(0, generation, 1, 48, 100, 0, 0));
+    settle();
+    expect_held(0);
+    engine_request_notes_off();
+    settle();
+    expect_silent(0);
+    engine_live_key_state(0, &generation, &arp, &context);
+    CHECK(engine_live_key(0, generation, 1, 52, 100, 0, 0));
+    settle();
+    expect_held(0);
+}
+
 static void midi_pre_tail(void)
 {
     unsigned i;
@@ -241,6 +300,9 @@ int main(void)
     midi_prefix("midi seq wrap compact", 64, 0, 1, 0, 0xFFF0u, 1);
     cq_seq_wrap_across();
     midi_seq_wrap_across();
+    cq_tail_boundary();
+    cq_shift_boundary();
+    live_key_rebased();
     midi_pre_tail();
     if (fails) {
         fprintf(stderr, "panic order: %d failures\n", fails);
