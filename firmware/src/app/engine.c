@@ -797,6 +797,10 @@ static volatile uint8_t notes_off_req;
 static volatile uint32_t notes_off_requested_cutoff;
 static uint32_t notes_off_cutoff;
 static uint8_t notes_off_discard;
+/* 1 while this drain will apply a pending panic. An onset accepted here is
+ * silenced before it can sound, so the pattern cell must stay as it was.
+ * A command or MIDI packet left queued for the next drain may still record. */
+static uint8_t notes_off_suppress_rec;
 void engine_request_notes_off(void)
 {
     uint32_t flags = plat_cq_lock();
@@ -1446,7 +1450,8 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
 #ifdef X0X_HOST
                     bass_attacked[k] = (uint8_t)!slide;
 #endif
-                    seq_rec_bass(&seq, k, d1, d2, 1, src, (d2 >= 100 ? BS_ACCENT : 0) | (slide ? SEQ_REC_LEGATO : 0));
+                    if (!notes_off_suppress_rec)
+                        seq_rec_bass(&seq, k, d1, d2, 1, src, (d2 >= 100 ? BS_ACCENT : 0) | (slide ? SEQ_REC_LEGATO : 0));
                     bass_held[k] = d1; bass_held_src[k] = (uint8_t)src;
                     bass_held_count[k] = original_bass[k].keys[src][d1];
                     live_rec_accept(k, src, d1);
@@ -1556,6 +1561,7 @@ static void drain(void)
         notes_off_cutoff = notes_off_requested_cutoff;
         notes_off_discard = (uint8_t)(cq_r != notes_off_cutoff);
     }
+    notes_off_suppress_rec = (uint8_t)panic_cycle;
     brk_channel_reconcile();
     /* Finish old contexts before a queued new press can acquire note ownership. */
     for (int k = 0; k < NBASS; k++) {
@@ -1593,7 +1599,7 @@ static void drain(void)
 #ifdef X0X_HOST
             bass_attacked[a] = (uint8_t)!slide;
 #endif
-            if (type == C_REC && rec_epoch == (seq.rec_epoch & 127u))
+            if (type == C_REC && rec_epoch == (seq.rec_epoch & 127u) && !notes_off_suppress_rec)
                 seq_rec_bass(&seq, (int)a, (int)b, (int)((v >> 2) & 127u), 1, 3,
                     ((v & 1u) ? BS_ACCENT : 0) | ((v & 512u) ? BS_SLIDE : 0) | (slide ? SEQ_REC_LEGATO : 0));
             v &= 511u; /* the outgoing manual-slide flag is recorder metadata only */
@@ -1637,6 +1643,7 @@ static void drain(void)
     if (guard >= 0) project_midi_drop = 0;
     if (panic_cycle)
         engine_notes_off_apply();
+    notes_off_suppress_rec = 0;
 }
 
 static void live_key_drain(void)
@@ -2315,7 +2322,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 #endif
     int p, g;
     cq_w = cq_r = 0;
-    notes_off_req = notes_off_discard = 0;
+    notes_off_req = notes_off_discard = notes_off_suppress_rec = 0;
     notes_off_requested_cutoff = notes_off_cutoff = 0;
     rec_w = rec_r = 0;
     brk_local = 0;

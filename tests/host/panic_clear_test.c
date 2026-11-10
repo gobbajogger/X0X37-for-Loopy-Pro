@@ -5,12 +5,20 @@
 #include "../../host/x0x_host.c"
 #undef main
 #include <stdio.h>
+#include <string.h>
 int engine_bass_attacked(int part);
 int engine_part_sounding(void);
 
 static int fails;
+static const char *rec_case;
 #define CHECK(c) do { \
-    if (!(c)) { fails++; fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, #c); } \
+    if (!(c)) { \
+        fails++; \
+        if (rec_case) \
+            fprintf(stderr, "FAIL %s:%d: %s [%s]\n", __FILE__, __LINE__, #c, rec_case); \
+        else \
+            fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, #c); \
+    } \
 } while (0)
 
 static int control(const char *name)
@@ -220,6 +228,205 @@ static void transport_and_future_note(void)
     CHECK(seq.req_stop == 0);
 }
 
+/* A no-op command word. Type NTARGETS is not a sound target: drain hands it to
+ * apply_param, which ignores it. The word only occupies CQ budget. */
+static void push_harmless_cq(unsigned n)
+{
+    while (n--)
+        engine_set(NTARGETS, 0, 0, 0);
+}
+
+static void push_midi(uint8_t status, uint8_t d1, uint8_t d2, uint8_t src)
+{
+    uint32_t cin = status >= 0xF0u ? 0x0Fu : (uint32_t)(status >> 4);
+    min_q[mi_w++ % MQ] = cin | ((uint32_t)src << 4) | ((uint32_t)status << 8) |
+        ((uint32_t)d1 << 16) | ((uint32_t)d2 << 24);
+}
+
+static int spare_midi_channel(void)
+{
+    int used[16] = {0}, ch, t;
+    for (t = 0; t < NTRACKS; t++)
+        if (seq.ch[t] < 16)
+            used[seq.ch[t]] = 1;
+    for (ch = 0; ch < 16; ch++)
+        if (!used[ch])
+            return ch;
+    return -1;
+}
+
+static void render_block(void)
+{
+    int32_t blk[512];
+    engine_render(blk, 256);
+}
+
+static void check_original_bass(const bpart_t *before)
+{
+    CHECK(memcmp(before, &proj.pat[0].bass[0], sizeof *before) == 0);
+    CHECK(before->step[0].note == 36 && before->step[0].flags == G_NOTE && before->step[0].velocity == 110);
+    CHECK(before->step[4].note == 48 && before->step[4].flags == G_NOTE && before->step[4].velocity == 110);
+    CHECK(before->step[1].note == 99 && before->step[1].flags == G_TIE);
+    CHECK(before->dir == DIR_FWD);
+}
+
+static void check_other_steps(const bpart_t *before)
+{
+    const bpart_t *now = &proj.pat[0].bass[0];
+    int i;
+    CHECK(now->len == before->len && now->rate == before->rate && now->dir == before->dir);
+    for (i = 1; i < 8; i++)
+        CHECK(memcmp(&before->step[i], &now->step[i], sizeof now->step[i]) == 0);
+}
+
+static void check_cancelled(uint8_t gen)
+{
+    CHECK(!seq.rec_bass[0].active);
+    CHECK(!seq.rec_bass[0].own_ok);
+    CHECK(seq.rec_bass[0].gen == (uint8_t)(gen + 1u));
+    CHECK(!seq.rec_bass[1].active);
+    CHECK(seq.rec_mask == 1);
+    CHECK(seq.rec_ext_mask == 0);
+    CHECK(seq.playing == 1);
+    CHECK(seq.req_stop == 0);
+    CHECK(seq.t[TRK_BASS0].pos == 0);
+    CHECK((engine_part_sounding() & 2) == 0);
+    CHECK((engine_bass_keys_held() & 1) == 0);
+}
+
+static void check_recorded(int src)
+{
+    const bstep_t *st = &proj.pat[0].bass[0].step[0];
+    CHECK(st->note == 42);
+    CHECK(st->velocity == 80);
+    CHECK(st->flags == (uint8_t)(G_NOTE | 0xF0u));
+    CHECK(seq.rec_bass[0].active);
+    CHECK(seq.rec_bass[0].note == 42);
+    CHECK(seq.rec_bass[0].src == (uint8_t)src);
+    CHECK(seq.rec_bass[0].own_ok);
+    CHECK(seq.rec_bass[0].own_gen == seq.rec_bass[0].gen);
+    CHECK(seq.rec_bass[0].own_src == (uint8_t)src);
+    CHECK(seq.rec_bass[0].own_note == 42);
+    CHECK(!seq.rec_bass[1].active);
+    CHECK(seq.rec_mask == 1);
+    CHECK(seq.rec_ext_mask == 0);
+    CHECK(seq.playing == 1);
+    CHECK(seq.req_stop == 0);
+    CHECK(seq.t[TRK_BASS0].pos == 0);
+    CHECK(engine_part_sounding() & 2);
+    CHECK(engine_bass_keys_held() & 1);
+}
+
+/* Forward bass, REC armed. One 256-frame render at a time.
+ * prefix 0: the onset is in the panic drain and must not keep the cell.
+ * prefix 128 CQ / 64 MIDI: that drain is full, so the onset is the next press. */
+static void rec_panic_window(int midi, unsigned prefix)
+{
+    pattern_t *pat;
+    bpart_t bass_before, other_before;
+    uint8_t gen;
+    unsigned queued = prefix;
+    char name[64];
+
+    snprintf(name, sizeof name, "%s prefix %u", midi ? "midi" : "cq", prefix);
+    rec_case = name;
+    boot();
+    mi_r = mi_w = 0;
+    pat = &proj.pat[0];
+    silence_drums_and_break(pat);
+    hold_bass(pat);
+    seq.ppat[PART_303A] = 0;
+    seq.ppat[PART_303B] = 0;
+    play_until_gate();
+    render_block(); /* empty the CQ so the prefix is this drain's whole budget */
+    seq.rec_mask = 1;
+    CHECK(seq.t[TRK_BASS0].pos == 0);
+    CHECK(seq_rec_step(&seq, TRK_BASS0) == 0);
+    bass_before = pat->bass[0];
+    other_before = pat->bass[1];
+    gen = seq.rec_bass[0].gen;
+    check_original_bass(&bass_before);
+    CHECK(!seq.rec_bass[0].active && !seq.rec_bass[0].own_ok);
+    CHECK(engine_part_sounding() & 2);
+
+    engine_request_notes_off();
+    if (midi) {
+        int ch = spare_midi_channel();
+        CHECK(ch >= 0);
+        while (prefix--)
+            push_midi((uint8_t)(0x90u | (uint8_t)ch), 1, 10, 0);
+        push_midi((uint8_t)(0x90u | seq.ch[TRK_BASS0]), 42, 80, 0);
+    } else {
+        push_harmless_cq(prefix);
+        engine_bass_record(0, 42, 80, 0);
+    }
+    check_original_bass(&bass_before);
+    CHECK(memcmp(&other_before, &pat->bass[1], sizeof other_before) == 0);
+    CHECK(!seq.rec_bass[0].active && !seq.rec_bass[0].own_ok);
+    CHECK(seq.rec_bass[0].gen == gen);
+    CHECK(engine_part_sounding() & 2);
+    CHECK(seq.rec_mask == 1 && seq.playing == 1);
+
+    render_block();
+    check_original_bass(&bass_before);
+    CHECK(memcmp(&other_before, &pat->bass[1], sizeof other_before) == 0);
+    check_cancelled(gen);
+    if (queued == 0) {
+        render_block();
+        check_original_bass(&bass_before);
+        CHECK(memcmp(&other_before, &pat->bass[1], sizeof other_before) == 0);
+        check_cancelled(gen);
+        return;
+    }
+    if (midi)
+        CHECK(plat_midi_pending());
+    render_block();
+    check_other_steps(&bass_before);
+    CHECK(memcmp(&other_before, &pat->bass[1], sizeof other_before) == 0);
+    check_recorded(midi ? 0 : 3);
+}
+
+static void rec_after_panic_still_records(void)
+{
+    pattern_t *pat;
+    bpart_t bass_before, other_before;
+    uint8_t gen;
+
+    rec_case = "after cleanup";
+    boot();
+    mi_r = mi_w = 0;
+    pat = &proj.pat[0];
+    silence_drums_and_break(pat);
+    hold_bass(pat);
+    seq.ppat[PART_303A] = 0;
+    seq.ppat[PART_303B] = 0;
+    play_until_gate();
+    render_block();
+    seq.rec_mask = 1;
+    CHECK(seq.t[TRK_BASS0].pos == 0);
+    CHECK(seq_rec_step(&seq, TRK_BASS0) == 0);
+    bass_before = pat->bass[0];
+    other_before = pat->bass[1];
+    gen = seq.rec_bass[0].gen;
+    engine_request_notes_off();
+    render_block();
+    check_original_bass(&bass_before);
+    CHECK(memcmp(&other_before, &pat->bass[1], sizeof other_before) == 0);
+    check_cancelled(gen);
+    push_midi((uint8_t)(0x90u | seq.ch[TRK_BASS0]), 42, 80, 0);
+    check_original_bass(&bass_before);
+    CHECK(!seq.rec_bass[0].active);
+    CHECK(seq.rec_bass[0].gen == (uint8_t)(gen + 1u));
+    render_block();
+    check_other_steps(&bass_before);
+    CHECK(memcmp(&other_before, &pat->bass[1], sizeof other_before) == 0);
+    check_recorded(0);
+    render_block();
+    check_other_steps(&bass_before);
+    CHECK(memcmp(&other_before, &pat->bass[1], sizeof other_before) == 0);
+    check_recorded(0);
+}
+
 int main(void)
 {
     queued_note_does_not_sound();
@@ -228,6 +435,12 @@ int main(void)
     arp_run_stops();
     drums_and_break_clear();
     transport_and_future_note();
+    rec_panic_window(0, 0);
+    rec_panic_window(0, 128);
+    rec_panic_window(1, 0);
+    rec_panic_window(1, 64);
+    rec_after_panic_still_records();
+    rec_case = 0;
     if (fails) {
         fprintf(stderr, "panic clear: %d failures\n", fails);
         return 1;

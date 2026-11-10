@@ -1978,6 +1978,12 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     b = m[2] & 0x7Fu;
     if (user && ch != 0u && ch != 15u) return 4;
     if (!allow || perf_testing()) {
+#ifdef SMC_PANIC_HOOKS
+        /* Releases retire physical panic ownership even while actions are blocked. */
+        if ((!ch || user) && (a == 0x2Eu || a == 0x2Fu) &&
+            (type == 0x80u || (type == 0x90u && !b)))
+            (void)smc_panic_bank(a, 0, 0);
+#endif
         if (type == 0x90u && b && (!ch || user))
             smc_guarded_button(a, 0, 0);
         return 1;                     /* restoration still owns every other queued input */
