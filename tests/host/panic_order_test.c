@@ -153,6 +153,48 @@ static void midi_prefix(const char *name, unsigned prefix, int before, int compa
         expect_silent(0);
 }
 
+/* 128 earlier accepts fill the panic drain. The next accept is 0xFFFFFFFE,
+ * then take_seq skips 0xFFFFFFFF, so the request limit is 1 and the following
+ * note is post-request. Unsigned ord < limit keeps the old note. */
+static void cq_seq_wrap_across(void)
+{
+    order_case = "cq seq across ffffffff";
+    reset_audio();
+    engine_host_note_seq(0xFFFFFF7Eu);
+    push_harmless_cq(128);
+    engine_bass_on(0, 40, 1, 0);
+    engine_request_notes_off();
+    engine_bass_on(1, 52, 1, 0);
+    settle();
+    expect_silent(0);
+    expect_held(1);
+}
+
+/* 64 earlier packets fill the panic drain. The next accept is 0xFFFFFFFF,
+ * midi_seq_take then skips 0, and the request limit is 1. The following note
+ * is post-request. Unsigned seq < limit keeps the old note. */
+static void midi_seq_wrap_across(void)
+{
+    unsigned i;
+    int t;
+    order_case = "midi seq across ffffffff";
+    reset_audio();
+    for (t = 0; t < NTRACKS; t++)
+        if (seq.ch[t] == 0 || seq.ch[t] == 1)
+            seq.ch[t] = SEQ_CH_OFF;
+    seq.ch[TRK_BASS0] = 0;
+    seq.ch[TRK_BASS0 + 1] = 1;
+    mi_seq_next = 0xFFFFFFFFu - 64u;
+    for (i = 0; i < 64u; i++)
+        host_midi_put(note_pkt(0xB0, 1, 10));
+    host_midi_put(note_pkt(0x90, 40, 100));
+    engine_request_notes_off();
+    host_midi_put(note_pkt(0x91, 52, 100));
+    settle();
+    expect_silent(0);
+    expect_held(1);
+}
+
 static void midi_pre_tail(void)
 {
     unsigned i;
@@ -189,6 +231,8 @@ int main(void)
     midi_prefix("midi wrap 65", 65, 1, 0, 1, 0, 1);
     midi_prefix("midi wrap compact", 64, 0, 1, 1, 0, 1);
     midi_prefix("midi seq wrap compact", 64, 0, 1, 0, 0xFFFFFFF0u, 1);
+    cq_seq_wrap_across();
+    midi_seq_wrap_across();
     midi_pre_tail();
     if (fails) {
         fprintf(stderr, "panic order: %d failures\n", fails);

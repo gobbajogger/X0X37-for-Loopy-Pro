@@ -351,16 +351,37 @@ static uint32_t take_seq(void)
     return s;
 }
 
+/* Shift the commands after the victim down one slot and return the tail index.
+ * The caller publishes the newest command there. Audio is masked for the shift
+ * so the consumer cannot read a half-moved ring. */
+static uint32_t cq_open_tail(uint32_t i, uint32_t *seq)
+{
+    uint32_t w = cq_w;
+    uint32_t k;
+    *seq = take_seq();
+    for (k = i; k + 1u != w; k++) {
+        cq[k % CQ] = cq[(k + 1u) % CQ];
+        cq_seq[k % CQ] = cq_seq[(k + 1u) % CQ];
+    }
+    return w - 1u;
+}
+
 static int cq_replace(uint32_t i, uint32_t w, uint32_t word)
 {
     uint32_t state = plat_cq_lock();
     uint32_t r = cq_r;
     int live = (i - r < w - r);
     if (live) {
-        cq_seq[i % CQ] = take_seq();
-        cq[i % CQ] = word;
+        uint32_t seq;
         /* PANIC_REORDER */
         cq_reordered = 1;
+        if (cq_reordered) {
+            i = cq_open_tail(i, &seq);
+            cq_reordered = 0;
+        } else
+            seq = take_seq();
+        cq_seq[i % CQ] = seq;
+        cq[i % CQ] = word;
     }
     plat_cq_unlock(state);
     return live;
