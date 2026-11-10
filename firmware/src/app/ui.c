@@ -4385,8 +4385,14 @@ _Static_assert(HDR_H <= CV_ROWS, "header taller than the screen strip");
 _Static_assert(HDR_H + 2u * BAND_H + KNOB_H == 240u, "the three strips must tile the 240-row panel");
 #endif
 
+#include "lcd_tiles.h"
+/* Dirty-tile DMA uses a dedicated, bounded .bss buffer. Full-row DMA
+ * reads the untouched canvas until lcd_sync. Recheck target BSS and pool budgets.
+ * 48 x 16 x RGB565 = 1536 bytes, 1.024 ms at the SMK-37's 12 MHz SPI. */
+static uint16_t cv_lcd_txbuf[X0X_LCD_MAX_DMA_BYTES / 2u];
 static uint32_t blit_hash[4];
 static uint8_t part_header_snapshot_valid;
+static uint8_t cv_tile_valid[4];
 static uint32_t cv_hash(void)
 {
     uint32_t i, h = 2166136261u, n = cv_w * cv_h;
@@ -4394,78 +4400,154 @@ static uint32_t cv_hash(void)
         h = (h ^ cv_px[i]) * 16777619u;
     return h ^ (cv_w << 16) ^ cv_h;
 }
+#if BOARD_SMK37 && !defined(X0X_HOST)
+void smk_ck_poll(void);                     /* clip keybed's MIDI note/arp service in main_fm1.c */
+#endif
+static void cv_lcd_input(void)
+{
+    input();                                /* exact normal key/MIDI input path, preserving queue order */
+    division_pad_input();
+#if BOARD_SMK37 && !defined(X0X_HOST)
+    smk_ck_poll();                          /* clip-mode notes must not wait for the screen */
+#endif
+}
+/* At most one normal foreground dispatch per hardware millisecond.
+ * The timer interrupt continues changing plat_ms during each bounded DMA. */
+#ifdef X0X_HOST
+/* Host event injection at the same poll the header DMA already runs.
+ * Device builds omit the pointer. Polling itself stays. */
+static void (*cv_lcd_poll_hook)(void);
+void x0x_lcd_poll_hook(void (*fn)(void)) { cv_lcd_poll_hook = fn; }
+#endif
+static void cv_lcd_maybe_input(void)
+{
+    static uint32_t last_ms = UINT32_MAX;
+    const uint32_t now = plat_ms();
+    if (last_ms != now) {
+        last_ms = now;
+#ifdef X0X_HOST
+        if (cv_lcd_poll_hook)
+            cv_lcd_poll_hook();
+#endif
+        cv_lcd_input();                 /* foreground MIDI/SMC; do not skip this to hide a paint race */
+    }
+}
+typedef struct { uint32_t x, y; } cv_lcd_pos_t;
+static void cv_lcd_emit(void *context, const uint16_t *px, uint32_t stride,
+                         uint32_t x, uint32_t y, uint32_t w, uint32_t h)
+{
+    const cv_lcd_pos_t *pos = (const cv_lcd_pos_t *)context;
+    /* The previous DMA can still read cv_lcd_txbuf: never overwrite it early.
+     * This wait is bounded by the previous <=1536-byte pixel transfer. */
+    lcd_sync();
+    x0x_lcd_tile_pack(cv_lcd_txbuf, px, stride, x, y, w, h);
+    lcd_blit(pos->x + x, pos->y + y, w, h, cv_lcd_txbuf);
+    cv_lcd_maybe_input();
+}
+/* A whole-strip repaint already has contiguous full-width rows in cv_px.
+ * DMA can read directly from that canvas without packing or an extra copy:
+ * the next cv_begin() calls lcd_sync() before it writes to the canvas. */
+static void cv_lcd_full(uint32_t x, uint32_t y)
+{
+    if (!cv_w) return;
+    const uint32_t rows_per_dma = X0X_LCD_MAX_DMA_BYTES / (2u * cv_w);
+    for (uint32_t row = 0; row < cv_h; row += rows_per_dma) {
+        const uint32_t h = cv_h - row < rows_per_dma ? cv_h - row : rows_per_dma;
+        lcd_blit(x, y + row, cv_w, h, cv_px + row * cv_w);
+        cv_lcd_maybe_input();
+    }
+}
 static void cv_commit(int region, uint32_t x, uint32_t y)
 {
     if (region == 0) part_header_snapshot_valid = 0;
     uint32_t h = cv_hash();
     if (h != blit_hash[region]) {
         blit_hash[region] = h;
-        cv_blit(x, y);
+        cv_tile_valid[region] = 0;          /* next tiled owner must repaint after a whole-strip owner */
+        cv_lcd_full(x, y);
     }
 }
 
-/* the main area sends only the rectangle that changed: the panel has no tearing-effect line the
- * FM-1 can see, so a transfer the panel's refresh overtakes shows half old, half new. The whole
- * area is 69 KB, 18 ms at 30 MHz, longer than a refresh, so every playhead step sheared; the two
- * columns a step changes are ~3 ms. Rows and 8-pixel column blocks are hashed against the last
- * frame sent; the changed rectangle is packed to the front of the canvas (it is rebuilt every
- * frame) and sent as one transfer. blit_hash[region] == 0 (a reset) sends it all. */
+/* Hash 16x16 tiles, not the cross product of all changed rows and columns.
+ * Adjacent changed tiles are grouped up to 48 pixels wide. Scattered playheads
+ * stay separate, and no single display operation blocks input for a whole strip. */
 #define MAIN_ROWS (2 * BAND_H)
-#define MAIN_COLB (240 / 8)
-static uint32_t main_rowh[MAIN_ROWS], main_colh[MAIN_COLB];
+#define KNOB_ROWS KNOB_H
+#define LCD_TILE_ROWS(n) (((n) + X0X_LCD_TILE_H - 1u) / X0X_LCD_TILE_H)
+static uint32_t main_tileh[LCD_TILE_ROWS(MAIN_ROWS) * X0X_LCD_TILE_COLS];
+static uint32_t knob_tileh[LCD_TILE_ROWS(KNOB_ROWS) * X0X_LCD_TILE_COLS];
+static uint32_t header_tileh[LCD_TILE_ROWS(HDR_H) * X0X_LCD_TILE_COLS];
+#define X0X_LCD_POPUP_HASH 1
+static uint32_t header_full_hash, popup_knob_full_hash;
+static void cv_commit_rows(int region, uint32_t x, uint32_t y,
+                           uint32_t rows, uint32_t *hashes)
+{
+    cv_lcd_pos_t pos = {x, y};
+    int force = !blit_hash[region] || !cv_tile_valid[region];
+    blit_hash[region] = 1u;
+    cv_tile_valid[region] = 1u;
+    x0x_lcd_tile_commit(cv_px, rows, hashes, force, cv_lcd_emit, &pos);
+}
 static void cv_commit_rect(int region, uint32_t x, uint32_t y)
 {
-    uint32_t rowh[MAIN_ROWS], colh[MAIN_COLB], r, c, r0 = MAIN_ROWS, r1 = 0, c0 = MAIN_COLB, c1 = 0, w, h, k;
-    for (c = 0; c < MAIN_COLB; c++)
-        colh[c] = 2166136261u;
-    for (r = 0; r < MAIN_ROWS; r++) {
-        const uint16_t *q = cv_px + r * 240u;
-        uint32_t hr = 2166136261u;
-        for (c = 0; c < MAIN_COLB; c++) {
-            uint32_t hc = colh[c];
-            for (k = 0; k < 8u; k++) {
-                hr = (hr ^ q[k]) * 16777619u;
-                hc = (hc ^ q[k]) * 16777619u;
-            }
-            colh[c] = hc;
-            q += 8;
-        }
-        rowh[r] = hr;
+    cv_commit_rows(region, x, y, MAIN_ROWS, main_tileh);
+}
+static void cv_commit_knobs(int region)
+{
+    cv_commit_rows(region, 0, KNOB_Y, KNOB_ROWS, knob_tileh);
+}
+
+/* Full-band changes need no per-tile pixel packing. Send the same pixels
+ * via 0.0.24.3's <=1,536-byte full-row DMA chunks and initialize the tile
+ * hashes so the very next small change stays a dirty-tile update. */
+static void cv_commit_full_with_tiles(int region, uint32_t x, uint32_t y,
+                                      uint32_t rows, uint32_t *hashes)
+{
+    for (uint32_t row = 0; row < rows; row += X0X_LCD_TILE_H) {
+        uint32_t h = rows - row < X0X_LCD_TILE_H ? rows - row : X0X_LCD_TILE_H;
+        for (uint32_t col = 0; col < X0X_LCD_TILE_COLS; ++col)
+            hashes[(row / X0X_LCD_TILE_H) * X0X_LCD_TILE_COLS + col] =
+                x0x_lcd_tile_hash(cv_px, X0X_LCD_WIDTH,
+                                  col * X0X_LCD_TILE_W, row, h);
     }
-    if (!blit_hash[region]) {                         /* after a reset: all of it */
-        r0 = c0 = 0;
-        r1 = MAIN_ROWS - 1;
-        c1 = MAIN_COLB - 1;
-    } else {
-        for (r = 0; r < MAIN_ROWS; r++)
-            if (rowh[r] != main_rowh[r]) {
-                if (r0 == MAIN_ROWS)
-                    r0 = r;
-                r1 = r;
-            }
-        for (c = 0; c < MAIN_COLB; c++)
-            if (colh[c] != main_colh[c]) {
-                if (c0 == MAIN_COLB)
-                    c0 = c;
-                c1 = c;
-            }
-        if (r0 == MAIN_ROWS || c0 == MAIN_COLB)
-            return;                                     /* nothing changed */
+    blit_hash[region] = 1u;
+    cv_tile_valid[region] = 1u;
+    cv_lcd_full(x, y);
+}
+
+/* Tiny beat, cue and status changes use dirty header tiles. Unchanged frames
+ * pay only the same single whole-band hash as 0.0.24.3. */
+static void cv_commit_header(void)
+{
+    part_header_snapshot_valid = 0;
+    if (!blit_hash[0] || !cv_tile_valid[0]) {
+        /* Cold full-band transfer already computes all tile hashes. Avoid
+         * hashing the full canvas twice; learn its full hash next frame. */
+        cv_commit_full_with_tiles(0, 0, 0, HDR_H, header_tileh);
+        header_full_hash = 0;
+        return;
     }
-    blit_hash[region] = 1;
-    for (r = 0; r < MAIN_ROWS; r++)
-        main_rowh[r] = rowh[r];
-    for (c = 0; c < MAIN_COLB; c++)
-        main_colh[c] = colh[c];
-    w = (c1 - c0 + 1u) * 8u;
-    h = r1 - r0 + 1u;
-    for (r = 0; r < h; r++) {                         /* pack: the destination never passes the source */
-        const uint16_t *src = cv_px + (r0 + r) * 240u + c0 * 8u;
-        uint16_t *dst = cv_px + r * w;
-        for (k = 0; k < w; k++)
-            dst[k] = src[k];
+    uint32_t h = cv_hash();
+    if (h == header_full_hash) return;
+    cv_commit_rows(0, 0, 0, HDR_H, header_tileh);
+    header_full_hash = h;
+}
+
+/* SMC details use small dirty tiles after a full redraw; the separate popup
+ * full hash avoids repeated descriptor-band work in a stable frame. */
+static void cv_commit_popup_knobs(void)
+{
+    if (!blit_hash[3] || !cv_tile_valid[3]) {
+        /* First popup redraw uses the established tile hashes for the whole
+         * strip. Defer its duplicate full-canvas hash until the next frame. */
+        cv_commit_full_with_tiles(3, 0, KNOB_Y, KNOB_ROWS, knob_tileh);
+        popup_knob_full_hash = 0;
+        return;
     }
-    lcd_blit(x + c0 * 8u, y + r0, w, h, cv_px);
+    uint32_t h = cv_hash();
+    if (h == popup_knob_full_hash) return;
+    cv_commit_knobs(3);
+    popup_knob_full_hash = h;
 }
 
 static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
@@ -4916,7 +4998,7 @@ static UI_DRAW void draw_header(void)
     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
         box(0, 0, 240, HDR_H - 1, part_col());
         text_c(120, vc(&FONT_B, 0, HDR_H - 1), &FONT_B, ui.msg, C_BLACK);
-        cv_commit(0, 0, 0);
+        cv_commit_header();
         return;
     }
     if (!pickup || (int32_t)(ui.msg_until - plat_ms()) <= 0)
@@ -4949,7 +5031,7 @@ static UI_DRAW void draw_header(void)
         if(seq.playing) play_icon(175,4,C_HI);
         if(ui.rec) dot(190,9,3,RGB(255,50,50));
         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
-        cv_commit(0,0,0);
+        cv_commit_header();
         if (cacheable) { part_header_snapshot = snapshot; part_header_snapshot_valid = 1; }
         return;
     }
@@ -5051,7 +5133,7 @@ static UI_DRAW void draw_header(void)
         dot(231, 9, 4, RGB(255, 50, 50));
     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
         dot(237, 3, 2, ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB);
-    cv_commit(0, 0, 0);
+    cv_commit_header();
 }
 
 /* -------------------------------------------------------------- the views --- */
@@ -7656,7 +7738,7 @@ static UI_DRAW void draw_knobs(void)
         /* Continuation of the same 4x4 matrix, not a duplicate knob row. */
         cv_begin(240, KNOB_H, C_BLACK);
         if (ui.overlay==O_NONE && !ui.help) draw_part_sound(2);
-        cv_commit(3, 0, KNOB_Y);
+        cv_commit_knobs(3);
         last_sig = 0;
         return;
     }
@@ -7704,7 +7786,7 @@ static UI_DRAW void draw_knobs(void)
             text_c(cx, vc(&FONT_XS, 13, 10), &FONT_XS, SN[i], C_GRAY);
             text_c(cx, vc(&FONT_M, 30, 34), &FONT_M, v, C_WHITE);
         }
-        cv_commit(3, 0, KNOB_Y);
+        cv_commit_knobs(3);
         return;
     }
     for (i = 0; i < 4; i++) {
@@ -7753,7 +7835,7 @@ static UI_DRAW void draw_knobs(void)
         cell_value(cx-(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP),
                    vc(&FONT_B,53,13),num,unit,touched?C_WHITE:C_HI);
     }
-    cv_commit(3, 0, KNOB_Y);
+    cv_commit_knobs(3);
 }
 
 /* ===================================================================== LEDs === */
@@ -7930,8 +8012,11 @@ X0X_COLD void ui_init(void)
     ui.save_failed = 0;
     save_wait = 0;
     palette_set(proj.set.palette);
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++) {
         blit_hash[i] = 0;
+        cv_tile_valid[i] = 0;
+    }
+    header_full_hash = popup_knob_full_hash = 0;
     build_pages();
     undo_start();                                   /* the project as loaded is where undo stops */
     if (project_storage_unsupported()) {

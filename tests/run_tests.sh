@@ -91,10 +91,10 @@ test_class() {
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
-    rec-live-smk|panic-mutants) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
+    rec-live-smk|panic-mutants|smc-lcd-paint-mutants) TEST_CLASS=S ;;   # panic and paint mutants edit source; they run alone
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|smc-lcd-paint|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     panic-clear|panic-route|panic-order|cq-reclaim) TEST_CLASS=G ;;
     play-question-ui|sound-reset-ui|held-step-release|ui-perf-identity) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
@@ -412,6 +412,9 @@ run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
 run part-order sh tests/host/part_order_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
+run smc-lcd-paint sh tests/host/smc_lcd_paint_test.sh
+run lcd-bounded sh tests/host/lcd_bounded_test.sh
+run lcd-dispatch python3 tests/host/lcd_dispatch_reuse_test.py
 run smc-ui-popup sh tests/host/smc_ui_popup_test.sh
 run smc-mode-page sh tests/host/smc_mode_page_test.sh
 run smc-mixer-page sh tests/host/smc_mixer_page_test.sh
@@ -595,6 +598,7 @@ run panic-order sh tests/host/panic_order_test.sh
 run cq-reclaim sh tests/host/cq_reclaim_test.sh
 run panic-route sh tests/host/panic_route_test.sh
 run panic-mutants sh tests/host/panic_mutants.sh
+run smc-lcd-paint-mutants sh tests/host/smc_lcd_paint_mutants.sh
 run rec-held-duration sh tests/host/rec_held_duration_test.sh
 run original-stale-release python3 tests/host/test_original_runtime_lost_off.py
 run rec-endpoint-lifecycle sh tests/host/rec_endpoint_lifecycle_test.sh

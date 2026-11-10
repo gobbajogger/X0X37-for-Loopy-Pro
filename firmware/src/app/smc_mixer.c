@@ -776,6 +776,9 @@ static void smc_ui_off(void)
     if (!smc_ui.on)
         return;
     smc_ui.on = 0;
+#ifdef X0X_LCD_POPUP_HASH
+    popup_knob_full_hash = 0;
+#endif
     for (int i = 0; i < 4; i++) blit_hash[i] = 0;
 #if BOARD_SMK37
     { extern void smk_clip_lcd_force(void); smk_clip_lcd_force(); }
@@ -817,6 +820,9 @@ static void smc_ui_begin(int n, int kind)
         smc_ui_cancel();
         return;                         /* Help keeps its card; confirmation keeps ownership. */
     }
+#ifdef X0X_LCD_POPUP_HASH
+    if (!smc_ui.on) popup_knob_full_hash = 0;
+#endif
     smc_ui.on = 1;
     smc_ui.peer = smc_slot;
     smc_ui.strip = (uint8_t)n;
@@ -928,27 +934,74 @@ static UI_DRAW void smc_ui_strip_value(pref_t r, int x, int y, uint16_t color)
     text_c(x, y, &FONT_T, value, color);
 }
 
+/* One paint's identity. Header DMA polls MIDI/SMC and may retarget smc_ui,
+ * the grid's view, and its strip targets before the popup. Later regions
+ * read this copy. */
+struct smc_paint {
+    uint8_t peer, strip, kind, action;
+    uint8_t view, part, mixsel;
+    uint8_t sel[NKIT];
+    pref_t target;
+    pref_t fader[8], knob[8];
+    char name[24], value[24];
+};
+static void smc_paint_take(struct smc_paint *p)
+{
+    uint8_t saved = smc_slot;
+    int i;
+    p->peer = smc_ui.peer < SMC_PEERS ? smc_ui.peer : 0;
+    p->strip = smc_ui.strip;
+    p->kind = smc_ui.kind;
+    p->action = smc_ui.action;
+    memcpy(p->name, smc_ui.name, sizeof p->name);
+    memcpy(p->value, smc_ui.value, sizeof p->value);
+    p->name[sizeof p->name - 1] = 0;
+    p->value[sizeof p->value - 1] = 0;
+    p->view = ui.view;
+    p->part = ui.part;
+    p->mixsel = ui.mixsel;
+    memcpy(p->sel, ui.sel, sizeof p->sel);
+    smc_slot = p->peer;
+    for (i = 0; i < 8; i++) {
+        p->fader[i] = smc_target(i);
+        p->knob[i] = smc_knob_target(i);
+    }
+    p->target = p->kind == 1 ? p->knob[p->strip] : p->fader[p->strip];
+    smc_slot = saved;
+}
+static uint8_t smc_paint_kind(const struct smc_paint *p) { return p->kind; } /* PAINT_READ_KIND */
+static uint8_t smc_paint_strip(const struct smc_paint *p) { return p->strip; } /* PAINT_READ_STRIP */
+static uint8_t smc_paint_action(const struct smc_paint *p) { return p->action; } /* PAINT_READ_ACTION */
+
 /* Eight physical strips, left to right: encoder above, fader left of M/S/R.
  * Keep this geometry even when a target is inactive; position is the user's map. */
-static UI_DRAW void smc_ui_grid(void)
+static UI_DRAW void smc_ui_grid(const struct smc_paint *paint)
 {
     static const uint8_t NOTES[3] = {16, 8, 0};
     /* Strips 0..4 = part_s (PART_N / BRK); 5..7 = send/master FX. */
     static const char *const MAIN_FX[3] = {"RVB", "DLY", "FLT"};
-    int kit = smc_drum_mix();
-    int view = smc.locked ? smc.lock_view : ui.view;
+    uint8_t saved_view = ui.view, saved_part = ui.part, saved_mixsel = ui.mixsel;
+    uint8_t saved_sel[NKIT];
+    int kit, view, selected;
+    memcpy(saved_sel, ui.sel, sizeof saved_sel);
+    ui.view = paint->view; /* GRID_VIEW_FROM_SNAPSHOT */
+    ui.part = paint->part;
+    ui.mixsel = paint->mixsel;
+    memcpy(ui.sel, paint->sel, sizeof ui.sel);
+    kit = smc_drum_mix();
+    view = smc.locked ? smc.lock_view : ui.view;
     /* Selection follows the keyboard UI, independently of the touched control.
      * A locked bank can differ: no lane is selected if it is outside this bank.
      * LOCK in the header describes captured targets, never the title highlight. */
-    int selected = kit >= 0 ? ui.sel[kit] - smc_drum_track(kit, 0) :
+    selected = kit >= 0 ? ui.sel[kit] - smc_drum_track(kit, 0) :
         view == V_FX ? 5 + smc_page_now() :
         view == V_MIX ? (smc_page_now() == 3 ? 7 : part_position(ui.mixsel)) : part_position(smc.locked ? smc.lock_part : ui.part);
     for (int n = 0; n < 8; n++) {
-        pref_t f = smc_target(n), k = smc_knob_target(n);
+        pref_t f = paint->fader[n], k = paint->knob[n]; /* GRID_TARGETS_FROM_SNAPSHOT */
         char name[24];
-        int x = n * 30, active = smc_ui.kind < 2 && n == smc_ui.strip;
-        uint16_t fc = active && smc_ui.kind == 0 ? C_HI : C_GRAY;
-        uint16_t kc = active && smc_ui.kind == 1 ? C_HI : C_GRAY;
+        int x = n * 30, active = smc_paint_kind(paint) < 2 && n == smc_paint_strip(paint);
+        uint16_t fc = active && smc_paint_kind(paint) == 0 ? C_HI : C_GRAY;
+        uint16_t kc = active && smc_paint_kind(paint) == 1 ? C_HI : C_GRAY;
         if (n) cv_rect(x, 0, 1, 138, C_LINE);
         if (kit >= 0) {
             int track = smc_drum_track(kit, n);
@@ -1002,13 +1055,17 @@ static UI_DRAW void smc_ui_grid(void)
         }
         smc_ui_strip_value(f, x + 15, 122, fc);
     }
+    memcpy(ui.sel, saved_sel, sizeof ui.sel);
+    ui.view = saved_view;
+    ui.part = saved_part;
+    ui.mixsel = saved_mixsel;
 }
 
-static void smc_ui_draw_peer(void)
+static void smc_ui_draw_peer(struct smc_paint *paint)
 {
     char name[24], num[32], unit[12], tag[80];
     const char *status = "ACTIVE";
-    pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) : smc_target(smc_ui.strip);
+    pref_t r = paint->target;
     int kit = smc_drum_mix();
     cv_begin(240, HDR_H, C_BLACK);
     if (kit >= 0)
@@ -1052,20 +1109,21 @@ static void smc_ui_draw_peer(void)
       while (tw(&FONT_XS, tag) > 165) *--end = 0;
     }
     cv_text(5, vc(&FONT_XS, 0, HDR_H), &FONT_XS, caps_of(tag), C_GRAY);
-    put_i(put_s(tag, smc_ui.kind == 3 ? "KEY " : smc_ui.kind == 1 || smc_ui.kind == 2 ? "KNOB " : "FADER "), smc_ui.strip + 1);
+    put_i(put_s(tag, smc_paint_kind(paint) == 3 ? "KEY " : smc_paint_kind(paint) == 1 || smc_paint_kind(paint) == 2 ? "KNOB " : "FADER "), smc_paint_strip(paint) + 1);
     text_r(235, vc(&FONT_S, 0, HDR_H), &FONT_S, tag, C_HI);
-    cv_commit(0, 0, 0);
+    cv_commit_header();
+    /* OVERLAY_SNAPSHOT_HOLD */
     cv_begin(240, 2 * BAND_H, C_BLACK);
     cv_band(0, 2 * BAND_H);
-    smc_ui_grid();
+    smc_ui_grid(paint);
     cv_commit_rect(1, 0, MAIN_Y);
     cv_begin(240, KNOB_H, C_BLACK);
     cv_rect(0, 0, 240, 1, C_LINE);
-    if (smc_ui.kind == 2) {
-        put_s(name, smc_ui.name);
-        put_s(num, smc_ui.value); unit[0] = 0;
-    } else if (smc_ui.kind == 3) {
-        int note = smc_ui.action;
+    if (smc_paint_kind(paint) == 2) {
+        put_s(name, paint->name);
+        put_s(num, paint->value); unit[0] = 0;
+    } else if (smc_paint_kind(paint) == 3) {
+        int note = smc_paint_action(paint);
         int bus = smc_fx_bus_now((uint8_t)note);
         if (bus >= 0) {
             smc_fx_publish();
@@ -1076,7 +1134,7 @@ static void smc_ui_draw_peer(void)
         } else {
             const char *action = note >= 0x5D ? "TRANSPORT" : note < 8 ? "RECORD" : note < 16 ? "SOLO" : "MUTE";
             if (note < 24) {
-                if (kit < 0 && smc_ui.strip == 7) r = PR(R_ENG, T_FX, 0, FX_VOLUME);
+                if (kit < 0 && smc_paint_strip(paint) == 7) r = PR(R_ENG, T_FX, 0, FX_VOLUME);
                 smc_ui_label(r, name);
             } else put_s(name, "TRANSPORT");
             put_s(put_s(put_s(num, action), " "), note >= 0x5D ?
@@ -1084,15 +1142,15 @@ static void smc_ui_draw_peer(void)
                   (note < 8 ? ui.rec : smc_led(note)) ? "ON" : "OFF");
         }
         unit[0] = 0;
-    } else if (smc_ui.kind == 1 && r.kind == R_NONE) {
-        smc_ui_label(smc_page_target(smc_ui.strip), name);
-        put_i(put_s(num, "ON FADER "), smc_fader_of(smc_page_target(smc_ui.strip)));
+    } else if (smc_paint_kind(paint) == 1 && r.kind == R_NONE) {
+        smc_ui_label(smc_page_target(smc_paint_strip(paint)), name);
+        put_i(put_s(num, "ON FADER "), smc_fader_of(smc_page_target(smc_paint_strip(paint))));
         unit[0] = 0; status = "USE FADER";
     } else {
         smc_ui_label(r, name);
         pref_value_of(r, pref_get(r), num, unit);
-        if (smc_ui.kind == 0 && !(smc.picked & (1u << smc_ui.strip)))
-            status = smc.last[smc_ui.strip] < smc_scaled(r) ? "PICKUP: MOVE UP TO TARGET" : "PICKUP: MOVE DOWN TO TARGET";
+        if (smc_paint_kind(paint) == 0 && !(smc.picked & (1u << smc_paint_strip(paint))))
+            status = smc.last[smc_paint_strip(paint)] < smc_scaled(r) ? "PICKUP: MOVE UP TO TARGET" : "PICKUP: MOVE DOWN TO TARGET";
     }
     text_c(120, 4, tw(&FONT_S, name) > 232 ? &FONT_XS : &FONT_S, caps_of(name), C_WHITE);
     { const felucca_font_t *font = &FONT_M;
@@ -1111,17 +1169,19 @@ static void smc_ui_draw_peer(void)
 void smc_ui_draw(void)
 {
     uint8_t saved = smc_slot;
-    smc_slot = smc_ui.peer < SMC_PEERS ? smc_ui.peer : 0;
+    struct smc_paint snap;
+    smc_paint_take(&snap);
+    smc_slot = snap.peer;
     if (smc_peek->on) {
         char label[24], value[32], unit[12], banner[96], *q;
-        pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) :
-                   smc_target(smc_ui.strip);
+        pref_t r = snap.target;
         draw_header();
+        /* PEEK_SNAPSHOT_HOLD */
         draw_main();
         draw_knobs();
         smc_ui_label(r, label);
-        q = put_i(put_s(banner, smc_ui.kind == 1 ? "SMC K" : "SMC F"),
-                  smc_ui.strip + 1);
+        q = put_i(put_s(banner, smc_paint_kind(&snap) == 1 ? "SMC K" : "SMC F"),
+                  smc_paint_strip(&snap) + 1);
         q = put_s(put_s(q, " "), label);
         if (r.kind != R_NONE) {
             pref_value_of(r, pref_get(r), value, unit);
@@ -1133,9 +1193,9 @@ void smc_ui_draw(void)
         {
             const char *status = "ACTIVE";
             uint16_t sc = C_GRAY;
-            if (smc_ui.kind == 0 && r.kind != R_NONE &&
-                !(smc.picked & (1u << smc_ui.strip))) {
-                status = smc.last[smc_ui.strip] < smc_scaled(r) ?
+            if (smc_paint_kind(&snap) == 0 && r.kind != R_NONE &&
+                !(smc.picked & (1u << smc_paint_strip(&snap)))) {
+                status = smc.last[smc_paint_strip(&snap)] < smc_scaled(r) ?
                          "PICKUP: MOVE UP TO TARGET" : "PICKUP: MOVE DOWN TO TARGET";
                 sc = C_HI;
             }
@@ -1143,9 +1203,9 @@ void smc_ui_draw(void)
             cv_rect(0, 0, 240, HDR_H, C_BLACK);
             text_c(120, vc(&FONT_XS, 0, 10), &FONT_XS, caps_of(banner), C_HI);
             text_c(120, vc(&FONT_T, 10, 10), &FONT_T, status, sc);
-            cv_commit(0, 0, 0);
+            cv_commit_header();
         }
-    } else smc_ui_draw_peer();
+    } else smc_ui_draw_peer(&snap);
     smc_slot = saved;
 }
 
