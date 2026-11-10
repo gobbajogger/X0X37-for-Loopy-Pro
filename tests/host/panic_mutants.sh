@@ -88,4 +88,16 @@ mutate user-mode-fires firmware/src/app/smc_mixer.c \
     mode = X0X_PANIC_SMC_DAW;' \
     tests/host/panic_route_test.sh
 
-echo "panic mutants: 6 killed"
+mutate overflow-keeps-slot firmware/src/app/engine.c \
+    '        /* PANIC_REORDER */
+        cq_reordered = 1;' \
+    '        /* PANIC_REORDER */
+        cq_reordered = 0;' \
+    tests/host/panic_order_test.sh
+
+mutate midi-defer-ignored firmware/src/app/engine.c \
+    '        if (!legacy && panic_cycle && !pre && (int32_t)(seq - notes_off_midi_head) >= 64)' \
+    '        if (0 && panic_cycle && !pre && (int32_t)(seq - notes_off_midi_head) >= 64)' \
+    tests/host/panic_order_test.sh
+
+echo "panic mutants: 8 killed"

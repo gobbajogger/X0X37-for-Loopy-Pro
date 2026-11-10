@@ -95,7 +95,7 @@ test_class() {
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
-    panic-clear|panic-route) TEST_CLASS=G ;;
+    panic-clear|panic-route|panic-order) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -134,7 +134,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in save-note-quiet|optimization-equivalence|panic-clear|panic-route) return 0 ;; esac
+    case "$1" in save-note-quiet|optimization-equivalence|panic-clear|panic-route|panic-order) return 0 ;; esac
     case "$1" in dsp-host-linkage|bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
@@ -582,6 +582,7 @@ run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controlle
 run panic-chord sh tests/host/panic_chord_test.sh
 run panic-notes sh tests/host/panic_notes_test.sh
 run panic-clear sh tests/host/panic_clear_test.sh
+run panic-order sh tests/host/panic_order_test.sh
 run panic-route sh tests/host/panic_route_test.sh
 run panic-mutants sh tests/host/panic_mutants.sh
 run rec-held-duration sh tests/host/rec_held_duration_test.sh

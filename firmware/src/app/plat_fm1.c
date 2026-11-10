@@ -214,6 +214,32 @@ int plat_midi_pending(void)
     __asm__ volatile("" ::: "memory");
     return mi_r != mi_w;
 }
+int plat_midi_peek(uint32_t *pkt, uint32_t *seq)
+{
+    uint32_t irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);
+    int found = mi_r != mi_w;
+    if (found) {
+        if (pkt)
+            *pkt = midi_in_q[mi_r % MQ];
+        if (seq)
+            *seq = midi_in_seq[mi_r % MQ];
+    }
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, irq);
+    return found;
+}
+void plat_midi_panic_sample(uint32_t *head_seq, uint32_t *next_seq)
+{
+    uint32_t irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);
+    uint32_t next = midi_seq_next ? midi_seq_next : 1u;
+    uint32_t head = next;
+    if (mi_r != mi_w && midi_in_seq[mi_r % MQ])
+        head = midi_in_seq[mi_r % MQ];
+    if (head_seq)
+        *head_seq = head;
+    if (next_seq)
+        *next_seq = next;
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, irq);
+}
 int plat_midi_in(uint32_t *pkt)
 {
     /* Ingress overflow can compact the live ring in TIMER5. Keep its slot

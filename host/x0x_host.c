@@ -108,7 +108,7 @@ void plat_play_red(int red) { (void)red; }
 void plat_keys_dim(uint32_t k) { dim_keys = k; }      /* dim keys: "o" in the leds print */      /* the device's PLAY colour: green, red while recording */
 
 #define MQ 256
-static uint32_t min_q[MQ], mi_w, mi_r;
+static uint32_t min_q[MQ], min_seq[MQ], mi_w, mi_r, mi_seq_next = 1;
 int engine_midi_held(void);              /* engine.c (X0X_HOST): the notes held from MIDI in */
 int engine_bass_perf(int v, int which, int live); /* engine.c (X0X_HOST): 0 bend 1 damper 2 mod */
 int engine_bass_keys_held(void);         /* engine.c (X0X_HOST): bit k when 303 k holds a key, not the release tail */
@@ -128,11 +128,81 @@ int plat_midi_pending(void)
     __asm__ volatile("" ::: "memory");
     return mi_r != mi_w;
 }
-int plat_midi_in(uint32_t *pkt)
+int plat_midi_peek(uint32_t *pkt, uint32_t *seq)
 {
     if (mi_r == mi_w)
         return 0;
-    *pkt = min_q[mi_r++ % MQ];
+    if (pkt)
+        *pkt = min_q[mi_r % MQ];
+    if (seq)
+        *seq = min_seq[mi_r % MQ];
+    return 1;
+}
+void plat_midi_panic_sample(uint32_t *head_seq, uint32_t *next_seq)
+{
+    uint32_t next = mi_seq_next ? mi_seq_next : 1u;
+    uint32_t head = next;
+    if (mi_r != mi_w && min_seq[mi_r % MQ])
+        head = min_seq[mi_r % MQ];
+    if (head_seq)
+        *head_seq = head;
+    if (next_seq)
+        *next_seq = next;
+}
+static uint32_t host_midi_take_seq(void)
+{
+    uint32_t s = mi_seq_next ? mi_seq_next : 1u;
+    mi_seq_next = s + 1u;
+    if (mi_seq_next == 0)
+        mi_seq_next = 1u;
+    return s;
+}
+static void host_midi_put(uint32_t pkt)
+{
+    min_seq[mi_w % MQ] = host_midi_take_seq();
+    min_q[mi_w % MQ] = pkt;
+    mi_w++;
+}
+/* Same overflow rule as usb.c: a full 64-deep ingress keeps Note Off by
+ * shifting the tail down one. The accept sequence moves with the packet. */
+static int host_midi_compact(uint32_t pkt)
+{
+    uint32_t i, pass, ww = mi_w, rr = mi_r;
+    int keep = ((pkt & 0xFu) == 8u) || ((pkt & 0xFu) == 9u && ((pkt >> 24) & 0x7Fu) == 0u) ||
+        ((pkt & 0xFu) == 0xFu && (((pkt >> 8) & 0xFFu) == 0xFAu ||
+                                  ((pkt >> 8) & 0xFFu) == 0xFBu || ((pkt >> 8) & 0xFFu) == 0xFCu));
+    if (ww - rr < 64u) {
+        host_midi_put(pkt);
+        return 1;
+    }
+    if (!keep)
+        return 0;
+    for (pass = 0; pass < 2u; pass++) {
+        for (i = rr; i != ww; i++) {
+            uint32_t p = min_q[i % MQ];
+            int pkeep = ((p & 0xFu) == 8u) || ((p & 0xFu) == 9u && ((p >> 24) & 0x7Fu) == 0u) ||
+                ((p & 0xFu) == 0xFu && (((p >> 8) & 0xFFu) == 0xFAu ||
+                                        ((p >> 8) & 0xFFu) == 0xFBu || ((p >> 8) & 0xFFu) == 0xFCu));
+            if (pkeep)
+                continue;
+            if (pass == 0u && (p & 0xFu) != 0xBu)
+                continue;
+            for (; i + 1u != ww; i++) {
+                min_q[i % MQ] = min_q[(i + 1u) % MQ];
+                min_seq[i % MQ] = min_seq[(i + 1u) % MQ];
+            }
+            min_seq[i % MQ] = host_midi_take_seq();
+            min_q[i % MQ] = pkt;
+            return 1;
+        }
+    }
+    return 0;
+}
+int plat_midi_in(uint32_t *pkt)
+{
+    if (!plat_midi_peek(pkt, 0))
+        return 0;
+    mi_r++;
     return 1;
 }
 static uint32_t midi_out_count, clock_out_count, note_ons, transport_out_count;
@@ -1032,9 +1102,9 @@ int main(int argc, char **argv)
         } else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4, src = (uint32_t)atoi(line_d) & 3u;   /* midi S D1 D2 [SRC] */
-            min_q[mi_w++ % MQ] = cin | src << 4 | s << 8 | d1 << 16 | d2 << 24;   /* SRC: 0 USB, 1 BLE, 2 TRS */
+            host_midi_put(cin | src << 4 | s << 8 | d1 << 16 | d2 << 24);   /* SRC: 0 USB, 1 BLE, 2 TRS */
         } else if (!strcmp(cmd, "blelinkend") || !strcmp(cmd, "usblinkend")) {   /* a link ends (usb.c midi_link_check) */
-            min_q[mi_w++ % MQ] = PLAT_MIDI_LINK_END(cmd[0] == 'b' ? 1u : 0u);
+            host_midi_put(PLAT_MIDI_LINK_END(cmd[0] == 'b' ? 1u : 0u));
         } else if (!strcmp(cmd, "wav")) {
             snprintf(out, sizeof out, "%s/%s", dir, a);
             wav_open(out);

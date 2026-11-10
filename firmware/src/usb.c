@@ -136,8 +136,18 @@ static volatile uint32_t so_w, so_r;
 
 /* MIDI rings: 4-byte USB-MIDI event packets */
 #define MQ 64u
-static uint32_t midi_in_q[MQ], midi_out_q[MQ];
+static uint32_t midi_in_q[MQ], midi_out_q[MQ], midi_in_seq[MQ];
 static volatile uint32_t mi_w, mi_r, mo_w, mo_r;
+static uint32_t midi_seq_next = 1;
+
+static uint32_t midi_seq_take(void)
+{
+    uint32_t s = midi_seq_next ? midi_seq_next : 1u;
+    midi_seq_next = s + 1u;
+    if (midi_seq_next == 0)
+        midi_seq_next = 1u;
+    return s;
+}
 
 /* CIN 8, or CIN 9 with velocity 0 — a release that must not stick a live Note On. */
 static int midi_pkt_is_note_off(uint32_t pkt)
@@ -170,7 +180,7 @@ static int midi_pkt_is_keep(uint32_t pkt)
  * TIMER5 owns ingress and drains egress; exclude it while moving live slots.
  * The loader polls USB with IRQs off and has no concurrent consumer. */
 static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile uint32_t *r,
-                                  uint32_t pkt)
+                                  uint32_t *seq, uint32_t pkt)
 {
 #ifndef FELUCCA_LOADER
     uint32_t irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);
@@ -178,6 +188,8 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
     uint32_t i, pass, ww = *w, rr = *r;
     int accepted = 0;
     if (ww - rr < MQ) {
+        if (seq)
+            seq[ww % MQ] = midi_seq_take();
         q[ww % MQ] = pkt;
         RING_PUBLISH();
         *w = ww + 1u;
@@ -193,8 +205,13 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
                 continue;
             if (pass == 0u && (p & 0xFu) != 0xBu)
                 continue;
-            for (; i + 1u != ww; i++)
+            for (; i + 1u != ww; i++) {
                 q[i % MQ] = q[(i + 1u) % MQ];
+                if (seq)
+                    seq[i % MQ] = seq[(i + 1u) % MQ];
+            }
+            if (seq)
+                seq[i % MQ] = midi_seq_take();
             q[i % MQ] = pkt;
             RING_PUBLISH();
             accepted = 1;
@@ -211,7 +228,7 @@ done:
 /* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off or Start/Continue/Stop. */
 static int midi_in_put(uint32_t pkt)
 {
-    return midi_ring_put_note_off(midi_in_q, &mi_w, &mi_r, pkt);
+    return midi_ring_put_note_off(midi_in_q, &mi_w, &mi_r, midi_in_seq, pkt);
 }
 
 static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
@@ -219,7 +236,7 @@ static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
     if (!usb.config)
         return;
     /* Outbound mirror of midi_in_put: a full MQ must not strand a Note Off on USB/DAW. */
-    (void)midi_ring_put_note_off(midi_out_q, &mo_w, &mo_r, pkt);
+    (void)midi_ring_put_note_off(midi_out_q, &mo_w, &mo_r, 0, pkt);
 }
 void midi_send_note(uint32_t note, uint32_t vel)
 {
@@ -849,6 +866,7 @@ static __attribute__((noinline)) void midi_link_check(uint8_t *st, uint32_t up, 
 {
     uint8_t v = (uint8_t)((*st & 2u) | ((*st & 1u) && !up ? 2u : 0u));
     if ((v & 2u) && mi_w - mi_r < MQ) {
+        midi_in_seq[mi_w % MQ] = midi_seq_take();
         midi_in_q[mi_w % MQ] = src << 4;              /* PLAT_MIDI_LINK_END(src) */
         RING_PUBLISH();
         mi_w++;

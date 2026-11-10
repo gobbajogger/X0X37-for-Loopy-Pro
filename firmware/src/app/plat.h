@@ -71,6 +71,8 @@ uint32_t plat_midi_mark(void);        /* accepted input producer watermark, non-
 int plat_midi_passed(uint32_t mark);  /* consumer reached/passed mark; <2^31 outstanding */
 int plat_midi_pending(void);          /* non-consuming shared USB/BLE/TRS input ring query */
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the audio ISR) */
+int plat_midi_peek(uint32_t *pkt, uint32_t *seq); /* head packet and its accept sequence; 0 = empty */
+void plat_midi_panic_sample(uint32_t *head_seq, uint32_t *next_seq);
 #define PLAT_MIDI_SRC(pkt) (((pkt) >> 4) & 3u)   /* the input of a MIDI in packet: 0 USB, 1 Bluetooth, 2 TRS */
 #define PLAT_MIDI_LINK_END(src) ((uint32_t)(src) << 4)   /* CIN 0, no message: the link of input src ended (MID-15, BLE-16) */
 int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity); /* CPU0 only: atomic matched pair or drop both */
