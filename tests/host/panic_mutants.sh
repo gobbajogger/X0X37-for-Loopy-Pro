@@ -213,4 +213,14 @@ mutate usb-midi-skip0 firmware/src/usb.c \
     '    midi_seq_next = n;' \
     tests/host/midi_seq_take_test.sh
 
-echo "panic mutants: 24 killed"
+mutate host-midi-plus2 host/x0x_host.c \
+    '    uint16_t n = (uint16_t)(s + 1u);' \
+    '    uint16_t n = (uint16_t)(s + 2u);' \
+    tests/host/midi_seq_skip0_test.sh
+
+mutate usb-midi-plus2 firmware/src/usb.c \
+    '    uint16_t n = (uint16_t)(s + 1u);' \
+    '    uint16_t n = (uint16_t)(s + 2u);' \
+    tests/host/midi_seq_take_test.sh
+
+echo "panic mutants: 26 killed"
