@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -18,10 +19,19 @@ import subprocess
 import sys
 import time
 
+
+def _sdk_sha256_from_build() -> dict:
+    """Read tools/build.py SDK_SHA256. Do not keep a second copy of the hashes."""
+    spec = importlib.util.spec_from_file_location(
+        'x0x_build_pins', Path(__file__).resolve().parent / 'build.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.SDK_SHA256
+
+
+# build.py names these files relative to cpu/wl82/tools/ (fm1pkg_make.sdk_file).
 SDK_PINS = {
-    'cpu/wl82/tools/uboot.boot': '4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4',
-    'cpu/wl82/tools/cfg_tool.bin': '276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b',
-    'cpu/wl82/tools/cfg/eq_cfg_hw.bin': '41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d',
+    'cpu/wl82/tools/' + rel: digest for rel, digest in _sdk_sha256_from_build().items()
 }
 # SHA-256 of the independently verified native JieLi pi32v2 Clang 4.0.1 ELF
 # from owner-pinned jieli-linux-toolchains-20260730.1.zip. A spoofed
@@ -74,7 +84,7 @@ def verify_inputs(toolchain: Path, sdk: Path) -> dict:
     for relative, want in SDK_PINS.items():
         file = sdk / relative
         if not file.is_file() or sha256(file) != want:
-            raise ValueError(f'SDK V1.2.1 pin mismatch: {relative}')
+            raise ValueError(f'SDK V1.2.14 pin mismatch: {relative}')
         sdk_files[relative] = want
     return {'compiler_sha256': compiler_sha256, 'compiler_version': check.stdout.splitlines()[0],
             'sdk_pins_sha256': sdk_files}

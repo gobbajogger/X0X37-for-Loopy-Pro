@@ -17,6 +17,10 @@ SCRIPT = Path(__file__).resolve().parents[2] / 'tools' / 'native_nightly_build_p
 SPEC = importlib.util.spec_from_file_location('native_nightly_build_probe', SCRIPT)
 PROBE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PROBE)
+BUILD_SPEC = importlib.util.spec_from_file_location(
+    'x0x_build_pins_for_test', SCRIPT.parent / 'build.py')
+BUILD = importlib.util.module_from_spec(BUILD_SPEC)
+BUILD_SPEC.loader.exec_module(BUILD)
 
 
 def call(repo, *args):
@@ -211,6 +215,30 @@ class NativeProbeTests(unittest.TestCase):
         self.assertEqual(found['compiler_sha256'], PROBE.JIELI_COMPILER_SHA256)
         self.assertNotEqual(actual_hash, PROBE.JIELI_COMPILER_SHA256)
         self.assertEqual(found['sdk_pins_sha256'], PROBE.SDK_PINS)
+
+    def test_sdk_pins_equal_build_py(self):
+        expected = {
+            'cpu/wl82/tools/' + rel: digest
+            for rel, digest in BUILD.SDK_SHA256.items()
+        }
+        self.assertEqual(PROBE.SDK_PINS, expected)
+        fake_toolchain = Path(self.dir.name) / 'v1214-toolchain'
+        bin_dir = fake_toolchain / 'pi32v2' / 'bin'
+        bin_dir.mkdir(parents=True)
+        compiler = bin_dir / 'clang'
+        compiler.write_text('#!/bin/sh\necho "clang version 4.0.1 (UNIT MOCK)"\n')
+        compiler.chmod(0o755)
+        sdk = Path(self.dir.name) / 'v1214-sdk'
+        sdk.mkdir()
+
+        def mock_pin(path):
+            if Path(path) == compiler:
+                return PROBE.JIELI_COMPILER_SHA256
+            raise AssertionError(path)
+
+        with mock.patch.object(PROBE, 'sha256', side_effect=mock_pin):
+            with self.assertRaisesRegex(ValueError, r'SDK V1\.2\.14 pin mismatch:'):
+                PROBE.verify_inputs(fake_toolchain, sdk)
 
     def test_sdk_pin_absence_refused_before_tool_execution(self):
         with self.assertRaisesRegex(ValueError, 'Missing runnable JieLi'):
