@@ -89,15 +89,15 @@ mutate user-mode-fires firmware/src/app/smc_mixer.c \
     tests/host/panic_route_test.sh
 
 mutate overflow-keeps-slot firmware/src/app/engine.c \
-    '        /* PANIC_REORDER */
-        cq_reordered = 1;' \
-    '        /* PANIC_REORDER */
-        cq_reordered = 0;' \
+    '                cq_r = r + 1u;
+                i = w;
+                cq_w = w + 1u;' \
+    '                i = r;' \
     tests/host/panic_order_test.sh
 
 mutate midi-defer-ignored firmware/src/app/engine.c \
-    '        if (!legacy && panic_cycle && !pre && (int32_t)(seq - notes_off_midi_head) >= 64)' \
-    '        if (0 && panic_cycle && !pre && (int32_t)(seq - notes_off_midi_head) >= 64)' \
+    '            (int16_t)((uint16_t)seq - (uint16_t)notes_off_midi_head) >= 64)' \
+    '            0 && (int16_t)((uint16_t)seq - (uint16_t)notes_off_midi_head) >= 64)' \
     tests/host/panic_order_test.sh
 
 mutate seq-carry-dropped firmware/src/usb.c \
@@ -108,19 +108,41 @@ mutate seq-carry-dropped firmware/src/usb.c \
     tests/host/midi_seq_carry_test.sh
 
 mutate cq-unsigned-order firmware/src/app/engine.c \
-    '        pre_cmd = notes_off_drop && (int32_t)(ord - notes_off_limit) < 0;' \
-    '        pre_cmd = notes_off_drop && ord < notes_off_limit;' \
+    '        pre_cmd = notes_off_drop && notes_off_cq_live && (int32_t)(ord - notes_off_cq) < 0;' \
+    '        pre_cmd = notes_off_drop && notes_off_cq_live && ord < notes_off_cq;' \
     tests/host/panic_order_test.sh
 
 mutate midi-unsigned-order firmware/src/app/engine.c \
-    '        pre = !legacy && notes_off_midi_drop && (int32_t)(seq - notes_off_midi_limit) < 0;' \
-    '        pre = !legacy && notes_off_midi_drop && seq < notes_off_midi_limit;' \
+    '            (int16_t)((uint16_t)seq - (uint16_t)notes_off_midi_limit) < 0;' \
+    '            seq < notes_off_midi_limit;' \
     tests/host/panic_order_test.sh
 
 mutate cq-no-reclaim firmware/src/app/engine.c \
-    '            i = cq_open_tail(i, &seq);
-            cq_reordered = 0;' \
-    '            seq = take_seq();' \
+    '    (*cursor)++;' \
+    '    /* cursor stays: consumed slots do not free capacity */' \
     tests/host/cq_reclaim_test.sh
 
-echo "panic mutants: 12 killed"
+mutate shift-outside-lock firmware/src/app/engine.c \
+    '                /* SHIFT */
+                cq[i % CQ] = cq[src % CQ];
+                cq_hole_at = src;
+                cq_hole_on = 1;' \
+    '                /* SHIFT */
+                plat_cq_unlock(state);
+                cq[i % CQ] = cq[src % CQ];
+                cq_hole_at = src;
+                cq_hole_on = 1;
+                state = plat_cq_lock();' \
+    tests/host/cq_shift_preempt_test.sh
+
+mutate no-shift firmware/src/app/engine.c \
+    '                /* SHIFT */
+                cq[i % CQ] = cq[src % CQ];
+                cq_hole_at = src;
+                cq_hole_on = 1;
+                i = src;' \
+    '                /* SHIFT */
+                publish = 1;' \
+    tests/host/panic_order_test.sh
+
+echo "panic mutants: 14 killed"

@@ -10,7 +10,6 @@ int engine_part_sounding(void);
 int engine_bass_keys_held(void);
 void engine_host_cq_sync(void);
 void engine_host_cq_at(uint32_t cursor);
-void engine_host_note_seq(uint32_t seq);
 
 static int fails;
 static const char *order_case;
@@ -85,8 +84,8 @@ static void cq_note(const char *name, unsigned prefix, int part, int wrap, uint3
     reset_audio();
     if (wrap)
         engine_host_cq_at(0xFFFFFC00u);
-    if (seq)
-        engine_host_note_seq(seq);
+    else if (seq)
+        engine_host_cq_at(seq);
     push_harmless_cq(prefix);
     engine_request_notes_off();
     engine_bass_on(part, 52, 1, 0);
@@ -153,16 +152,17 @@ static void midi_prefix(const char *name, unsigned prefix, int before, int compa
         expect_silent(0);
 }
 
-/* 128 earlier accepts fill the panic drain. The next accept is 0xFFFFFFFE,
- * then take_seq skips 0xFFFFFFFF, so the request limit is 1 and the following
- * note is post-request. Unsigned ord < limit keeps the old note. */
+/* The free-running cursor crosses 0xFFFFFFFF between the pre-request note
+ * and the request. The limit is just after the wrap. Unsigned ord < limit
+ * keeps the old note. */
 static void cq_seq_wrap_across(void)
 {
     order_case = "cq seq across ffffffff";
     reset_audio();
-    engine_host_note_seq(0xFFFFFF7Eu);
+    engine_host_cq_at(0xFFFFFF00u);
     push_harmless_cq(128);
     engine_bass_on(0, 40, 1, 0);
+    push_harmless_cq(128);
     engine_request_notes_off();
     engine_bass_on(1, 52, 1, 0);
     settle();
@@ -170,9 +170,9 @@ static void cq_seq_wrap_across(void)
     expect_held(1);
 }
 
-/* 64 earlier packets fill the panic drain. The next accept is 0xFFFFFFFF,
- * midi_seq_take then skips 0, and the request limit is 1. The following note
- * is post-request. Unsigned seq < limit keeps the old note. */
+/* 16-bit stamps. 64 earlier packets fill the panic drain. The next accept
+ * is 0xFFFF, midi_seq_take then skips 0, and the request limit is 1.
+ * Unsigned seq < limit keeps the old note. */
 static void midi_seq_wrap_across(void)
 {
     unsigned i;
@@ -184,7 +184,7 @@ static void midi_seq_wrap_across(void)
             seq.ch[t] = SEQ_CH_OFF;
     seq.ch[TRK_BASS0] = 0;
     seq.ch[TRK_BASS0 + 1] = 1;
-    mi_seq_next = 0xFFFFFFFFu - 64u;
+    mi_seq_next = 0xFFFFu - 64u;
     for (i = 0; i < 64u; i++)
         host_midi_put(note_pkt(0xB0, 1, 10));
     host_midi_put(note_pkt(0x90, 40, 100));
@@ -216,10 +216,18 @@ int main(void)
     cq_note("cq post 128", 128, 0, 0, 0, 1);
     cq_note("cq post 1023", 1023, 0, 0, 0, 1);
     cq_note("cq post 1024", 1024, 0, 0, 0, 1);
+    order_case = "cq post behind keep";
+    reset_audio();
+    engine_bass_off(0);
+    push_harmless_cq(1023);
+    engine_request_notes_off();
+    engine_bass_on(1, 52, 1, 0);
+    settle();
+    expect_held(1);
     cq_note("cq post 1024 part B", 1024, 1, 0, 0, 1);
     cq_note("cq wrap 1024", 1024, 0, 1, 0, 1);
     cq_note("cq wrap append", 8, 0, 1, 0, 0);
-    cq_note("cq seq wrap 1024", 1024, 0, 0, 0xFFFFFFF0u, 1);
+    cq_note("cq seq wrap 1024", 1024, 0, 0, 0xFFFFFC00u, 1);
     live_key("live pre", 0);
     live_key("live post", 1);
     midi_prefix("midi 0", 0, 1, 0, 0, 0, 0);
@@ -230,7 +238,7 @@ int main(void)
     midi_prefix("midi 70 compact", 70, 0, 1, 0, 0, 1);
     midi_prefix("midi wrap 65", 65, 1, 0, 1, 0, 1);
     midi_prefix("midi wrap compact", 64, 0, 1, 1, 0, 1);
-    midi_prefix("midi seq wrap compact", 64, 0, 1, 0, 0xFFFFFFF0u, 1);
+    midi_prefix("midi seq wrap compact", 64, 0, 1, 0, 0xFFF0u, 1);
     cq_seq_wrap_across();
     midi_seq_wrap_across();
     midi_pre_tail();
