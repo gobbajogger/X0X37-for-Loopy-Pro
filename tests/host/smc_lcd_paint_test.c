@@ -6,12 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #define SMC_UI_MAIN smc_ui_baseline_main
 #include "smc_ui_test.c"
 
 static unsigned hooks, fails, chunks;
 static int inject_armed, inject_grid, chunk_polls, chunk_buttons;
 static int watch_body_view, poll_saw_view, body_rebuild, expire_peek;
+static int live_case, live_repeat;
 static uint16_t frame_a[240 * 240], frame_b[240 * 240], frame_now[240 * 240];
 
 struct guard {
@@ -26,6 +28,60 @@ static void paint_fail(int cond, const char *msg)
     if (!cond) {
         fprintf(stderr, "FAIL %s\n", msg);
         fails++;
+    }
+}
+
+static void live_fire(void)
+{
+    uint8_t msg[3];
+    if (!live_case)
+        return;
+    if (live_repeat && live_case != 17)
+        return;
+    live_repeat = 1;
+    switch (live_case) {
+    case 1: smc_page_set(1); break;
+    case 2: pref_set(smc_target(0), 90); break;
+    case 3: ui.rec = 0; break;
+    case 4: seq.playing = 1; break;
+    case 5: open_list_of_pages(); break;
+    case 6: ui.view = V_FX; break;
+    case 7: smc_knob_bank(1); break;
+    case 8: ui.sel[PART_909] = 4; break;
+    case 9:
+        proj.set.bt = (uint8_t)(proj.set.bt | PROJ_BT_SMC_USER);
+        msg[0] = 0xB0; msg[1] = 40; msg[2] = 100;
+        smc_message(msg, 3, 1);
+        smc_peek_cancel();
+        smc_ui_begin(0, 1);
+        break;
+    case 10:
+        msg[0] = 0xE0; msg[1] = 0x7F; msg[2] = 0x7F;
+        smc_message(msg, 3, 1);
+        smc_peek_cancel();
+        smc_ui_begin(0, 1);
+        break;
+    case 11:
+        msg[0] = 0xB0; msg[1] = 16; msg[2] = 1;
+        smc_message(msg, 3, 1);
+        smc_peek_cancel();
+        break;
+    case 12: turn_ref(smc_target(0), 4, EN_K1); break;
+    case 13: seq.bpm += 12.0f; break;
+    case 14: mute_part(0); break;
+    case 15: smc_solo_press(0, 1, 1); break;
+    case 16:
+        smc.fx_ready = 1;
+        smc.fx_effect[SMCFX_909] ^= 1u;
+        break;
+    case 18: ui.mixsel ^= 1u; break;
+    case 19: smc.locked ^= 1u; break;
+    case 17:
+        pref_set(smc_target(0), (chunks & 63) + 1);
+        if (chunks == 20)
+            smc_ui_cancel();
+        break;
+    default: break;
     }
 }
 
@@ -60,8 +116,13 @@ static void inject_b(void)
             poll_saw_view = ui.view;
         if (body_rebuild && chunks == 12)
             set_view(V_SEQ);                 /* build_pages runs inside the live side */
+        if (live_case && (!live_repeat || live_case == 17) &&
+            (live_case == 17 || chunks == 12))
+            live_fire();
         return;
     }
+    if (live_case)
+        live_fire();
     if (expire_peek) {
         expire_peek = 0;
         smc_peek->until = 0;             /* header poll: the peek times out after the header is drawn */
@@ -713,6 +774,253 @@ static void run_peek_timeout(void)
                "peek timeout following frame keeps MIDI REC PANIC");
 }
 
+static void live_clear(void)
+{
+    live_case = 0;
+    live_repeat = 0;
+    chunk_polls = 0;
+    chunks = 0;
+}
+
+static int arm_live(int which, int changed)
+{
+    prepare();
+    set_peek(0);
+    arm_state();
+    seq.playing = 0;
+    switch (which) {
+    case 1:
+        set_view(V_FX);
+        build_pages();
+        if (pg.n < 2) {
+            paint_fail(0, "fx view has two pages");
+            return 0;
+        }
+        if (changed)
+            smc_page_set(1);
+        break;
+    case 2:
+    case 17:
+        if (changed)
+            pref_set(smc_target(0), 90);
+        break;
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+        if (changed) {
+            int saved = live_case;
+            live_case = which;
+            live_repeat = 0;
+            live_fire();
+            live_case = saved;
+            live_repeat = 0;
+        }
+        break;
+    case 3:
+        ui.rec = (uint8_t)(changed ? 0 : 1);
+        break;
+    case 4:
+        seq.playing = (uint8_t)(changed ? 1 : 0);
+        break;
+    case 5:
+        if (changed)
+            open_list_of_pages();
+        break;
+    case 6:
+        if (changed)
+            ui.view = V_FX;
+        break;
+    case 7:
+        if (changed)
+            smc_knob_bank(1);
+        break;
+    case 8:
+        set_view(V_SEQ);
+        ui.part = PART_909;
+        build_pages();
+        ui.sel[PART_909] = (uint8_t)(changed ? 4 : 0);
+        break;
+    case 13:
+        if (changed)
+            seq.bpm += 12.0f;
+        break;
+    case 14:
+        if (changed)
+            mute_part(0);
+        break;
+    case 15:
+        if (changed)
+            smc_solo_press(0, 1, 1);
+        break;
+    case 16:
+        set_view(V_FX);
+        build_pages();
+        smc.fx_ready = 1;
+        if (changed)
+            smc.fx_effect[SMCFX_909] ^= 1u;
+        break;
+    case 18:
+        set_view(V_MIX);
+        build_pages();
+        if (changed)
+            ui.mixsel ^= 1u;
+        break;
+    case 19:
+        if (changed)
+            smc.locked ^= 1u;
+        break;
+    default:
+        break;
+    }
+    settle_identity(0, 0, which == 4 || which == 6 || which == 16 ? 3 : 1);
+    if (which == 4)
+        smc_ui.action = 0x5E;
+    if (which == 6)
+        smc_ui.action = 0;
+    if (which == 16)
+        smc_ui.action = SMCFX_NOTE[SMCFX_909];
+    return 1;
+}
+
+static int which_allows_same(const char *tag);
+
+static void expect_live(const char *tag, const uint16_t *got,
+                        const uint16_t *oldf, const uint16_t *newf)
+{
+    char msg[140];
+    int same = rows_eq(got, newf, 0, 240);
+    int moved = !rows_eq(oldf, newf, 0, 240);
+    snprintf(msg, sizeof msg, "%s is one consistent state", tag);
+    paint_fail(same && (moved || which_allows_same(tag)), msg);
+}
+
+static int which_allows_same(const char *tag)
+{
+    /* Tempo is compared, and it is not drawn on the overlay. */
+    return strstr(tag, "bpm") != 0;
+}
+
+static void run_live_window(int which, int grid, const char *name)
+{
+    char tag[96];
+    if (!arm_live(which, 0))
+        return;
+    live_clear();
+    chunk_polls = grid;
+    paint();
+    memcpy(frame_a, fb, sizeof frame_a);
+    if (!arm_live(which, 1))
+        return;
+    live_clear();
+    chunk_polls = grid;
+    paint();
+    memcpy(frame_b, fb, sizeof frame_b);
+    if (!arm_live(which, 0))
+        return;
+    live_case = which;
+    live_repeat = 0;
+    chunks = 0;
+    chunk_polls = grid;
+    smc_paint_repaints = 0;
+    paint();
+    snprintf(tag, sizeof tag, "%s %s", name, grid ? "grid" : "header");
+    paint_fail(smc_paint_repaints > 0, tag);
+    expect_live(tag, fb, frame_a, frame_b);
+    live_clear();
+}
+
+static void run_kept_dirty(void)
+{
+    int level;
+    if (!arm_live(17, 0))
+        return;
+    live_case = 17;
+    live_repeat = 0;
+    chunks = 0;
+    chunk_polls = 1;
+    paint();
+    paint_fail(blit_hash[0] == 0 && cv_tile_valid[0] == 0 && header_full_hash == 0 &&
+               part_header_snapshot_valid == 0,
+               "kept-dirty cap leaves a full repaint");
+    level = (chunks & 63) + 1;
+    live_clear();
+    paint_keep();
+    memcpy(frame_now, fb, sizeof frame_now);
+    pref_set(smc_target(0), level);
+    smc_ui_cancel();
+    paint();
+    paint_fail(rows_eq(frame_now, fb, 0, 240),
+               "kept-dirty next frame repaints after the overlay closes");
+}
+
+static void run_peek_no_retry(void)
+{
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    chunk_polls = 1;
+    chunks = 0;
+    paint();
+    memcpy(frame_a, fb, sizeof frame_a);
+    chunk_polls = 0;
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    smc_paint_repaints = 0;
+    chunk_polls = 1;
+    chunks = 0;
+    body_rebuild = 1;
+    paint();
+    body_rebuild = 0;
+    chunk_polls = 0;
+    paint_fail(smc_paint_repaints == 0, "peek does not retry the overlay");
+    paint_fail(rows_eq(fb, frame_a, HDR_H, KNOB_Y), "peek body keeps its page");
+}
+
+static void run_live_cases(void)
+{
+    static const struct { int id; const char *name; } cases[] = {
+        {1, "page"}, {2, "param"}, {3, "rec"}, {4, "play"}, {5, "overlay"},
+        {6, "kind3"}, {7, "bank"}, {8, "voice"}, {9, "cc40"}, {10, "pitchbend"},
+        {11, "cc16"}, {12, "encoder"}, {13, "bpm"}, {14, "mute"}, {15, "solo"},
+        {16, "fx"}, {18, "select"}, {19, "lock"}
+    };
+    unsigned i;
+    for (i = 0; i < sizeof cases / sizeof cases[0]; i++) {
+        run_live_window(cases[i].id, 0, cases[i].name);
+        run_live_window(cases[i].id, 1, cases[i].name);
+    }
+    run_kept_dirty();
+    run_peek_no_retry();
+    {
+        struct smc_paint snap;
+        struct smc_paint_live a, b;
+        struct timespec t0, t1;
+        int i;
+        const int n = 200000;
+        prepare();
+        arm_state();
+        settle_identity(0, 0, 1);
+        smc_paint_take(&snap);
+        smc_paint_live_read(&a, &snap);
+        clock_gettime(CLOCK_MONOTONIC, &t0);
+        for (i = 0; i < n; i++) {
+            smc_paint_live_read(&b, &snap);
+            if (memcmp(&a, &b, sizeof a))
+                break;
+        }
+        clock_gettime(CLOCK_MONOTONIC, &t1);
+        printf("compare %u bytes, %.3f us each, %.3f us per overlay frame (two checks), stack %u bytes\n",
+               (unsigned)sizeof a,
+               ((t1.tv_sec - t0.tv_sec) * 1e6 + (t1.tv_nsec - t0.tv_nsec) / 1e3) / n,
+               2.0 * ((t1.tv_sec - t0.tv_sec) * 1e6 + (t1.tv_nsec - t0.tv_nsec) / 1e3) / n,
+               (unsigned)(2 * sizeof a));
+    }
+}
+
 int main(void)
 {
     run_mode("overlay", 0);
@@ -725,6 +1033,7 @@ int main(void)
     run_body_pg_rebuild();
     run_swap_sees_live();
     run_peek_timeout();
+    run_live_cases();
     if (fails) {
         fprintf(stderr, "FAIL smc lcd paint: %u assertion(s)\n", fails);
         return 1;

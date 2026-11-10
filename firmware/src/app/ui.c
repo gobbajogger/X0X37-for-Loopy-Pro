@@ -4567,6 +4567,19 @@ static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
     return (uint16_t)((r << 11) | (g << 5) | bl);
 }
 
+/* The next frame redraws every strip, including after the overlay has closed. */
+void ui_lcd_mark_dirty(void)
+{
+    int i;
+    for (i = 0; i < 4; i++) {
+        blit_hash[i] = 0;
+        cv_tile_valid[i] = 0;
+    }
+    header_full_hash = 0;
+    popup_knob_full_hash = 0;
+    part_header_snapshot_valid = 0;
+}
+
 /* Fields a peek body must keep frozen while input still mutates the live page. */
 typedef struct {
     uint8_t view, part, prev_view, mixsel;

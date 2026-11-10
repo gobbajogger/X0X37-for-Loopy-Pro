@@ -114,4 +114,81 @@ mutate drop-swap-to-snapshot \
     '(void)0; /* SWAP_TO_SNAPSHOT */' \
     firmware/src/app/ui.c
 
-echo "smc lcd paint mutants: 10 killed"
+mutate drop-cmp-page \
+    's->page = (uint8_t)page; /* CMP_PAGE */' \
+    '/* CMP_PAGE */'
+
+mutate drop-cmp-select \
+    's->mixsel = ui.mixsel; /* CMP_SELECT */' \
+    '/* CMP_SELECT */'
+
+mutate drop-cmp-param \
+    '    for (i = 0; i < 8; i++) {
+        s->param[i] = smc_scaled(paint->fader[i]);
+        s->param[8 + i] = smc_scaled(paint->knob[i]);
+    } /* CMP_PARAM */' \
+    '    /* CMP_PARAM */'
+
+mutate drop-cmp-rec \
+    '        s->led[i] = (uint8_t)(smc_led(i) ? 1 : 0); /* CMP_REC */' \
+    '        s->led[i] = 0; /* CMP_REC */'
+
+mutate drop-cmp-play \
+    '    s->playing = (uint8_t)(seq.playing != 0);
+    s->bpm_l = (uint8_t)bpm;
+    s->bpm_h = (uint8_t)(bpm >> 8); /* CMP_PLAY */' \
+    '    /* CMP_PLAY */'
+
+mutate drop-cmp-overlay \
+    '    s->overlay = ui.overlay;
+    memcpy(s->list, list_title, sizeof s->list); /* CMP_OVERLAY */' \
+    '    /* CMP_OVERLAY */'
+
+mutate drop-cmp-lock \
+    '    s->locked = smc.locked;
+    s->lock_view = smc.lock_view;
+    s->lock_page = smc.lock_page;
+    s->lock_bank = smc.lock_bank;
+    s->lock_part = smc.lock_part; /* CMP_LOCK */' \
+    '    /* CMP_LOCK */'
+
+mutate drop-cmp-pickup \
+    '    s->picked = smc.picked;
+    memcpy(s->last, smc.last, sizeof s->last); /* CMP_PICKUP */' \
+    '    /* CMP_PICKUP */'
+
+mutate drop-cmp-fx \
+    '    s->fx_page = smc.fx_page;
+    s->fx_down = smc.fx_down;
+    memcpy(s->fx_effect, smc.fx_effect, sizeof s->fx_effect); /* CMP_FX */' \
+    '    /* CMP_FX */'
+
+mutate drop-cmp-bank \
+    's->knob_bank = smc.knob_bank; /* CMP_BANK */' \
+    '/* CMP_BANK */'
+
+mutate drop-cmp-voice \
+    '        const char *name = engine_voice_name(kit ? T_808 : T_909, ui.sel[kit]);
+        int n = 0;
+        s->sel0 = ui.sel[kit];
+        while (name && name[n] && n < 11) {
+            s->voice[n] = name[n];
+            n++;
+        }' \
+    '        (void)kit; /* CMP_VOICE */'
+
+mutate drop-cmp-kind3 \
+    '        s->kind3 = 1;
+        s->view = ui.view;
+        s->fx_bus = (uint8_t)(bus < 0 ? 0 : bus + 1);' \
+    '        (void)bus; /* CMP_KIND3 */'
+
+mutate drop-cmp-repaint \
+    'smc_paint_take(paint); /* CMP_REPAINT */' \
+    '(void)paint; /* CMP_REPAINT */'
+
+mutate drop-cmp-dirty \
+    'ui_lcd_mark_dirty(); /* CMP_DIRTY */' \
+    '(void)0; /* CMP_DIRTY */'
+
+echo "smc lcd paint mutants: 24 killed"

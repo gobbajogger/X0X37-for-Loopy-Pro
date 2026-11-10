@@ -1061,12 +1061,121 @@ static UI_DRAW void smc_ui_grid(const struct smc_paint *paint)
     ui.mixsel = saved_mixsel;
 }
 
+/* Live fields the overlay body still reads after the snapshot is taken.
+ * Padding is zeroed so a memcmp is the compare. Not stored in the 125-byte snapshot. */
+struct smc_paint_live {
+    uint8_t page;
+    char title[12];
+    uint8_t mixsel;
+    uint8_t param[16];
+    uint8_t rec, playing, bpm_l, bpm_h;
+    uint8_t led[24];
+    uint8_t overlay;
+    char list[16];
+    uint8_t locked, lock_view, lock_page, lock_bank, lock_part;
+    uint8_t picked, last[8];
+    uint8_t fx_page, fx_down, fx_effect[SMCFX_N];
+    uint8_t knob_bank;
+    char voice[12];
+    uint8_t sel0;
+    uint8_t view, fx_bus, kind3;
+};
+static int smc_paint_repaints;
+
+static void smc_paint_live_read(struct smc_paint_live *s, const struct smc_paint *paint)
+{
+    int i, page, kit;
+    uint8_t saved_view = ui.view, saved_part = ui.part, saved_mix = ui.mixsel;
+    uint8_t saved_sel[NKIT];
+    uint16_t bpm = (uint16_t)(seq.bpm * 10.0f);
+    memset(s, 0, sizeof *s);
+    memcpy(saved_sel, ui.sel, sizeof saved_sel);
+    ui.view = paint->view;
+    ui.part = paint->part;
+    ui.mixsel = paint->mixsel;
+    memcpy(ui.sel, paint->sel, sizeof ui.sel);
+    kit = smc_drum_mix();
+    {
+        uint8_t saved_locked = smc.locked;
+        uint8_t saved_overlay = ui.overlay;
+        smc.locked = 0;
+        ui.overlay = O_NONE;
+        page = smc_page_now();
+        s->page = (uint8_t)page; /* CMP_PAGE */
+        for (i = 0; i < 24; i++)
+            s->led[i] = (uint8_t)(smc_led(i) ? 1 : 0); /* CMP_REC */
+        smc.locked = saved_locked;
+        ui.overlay = saved_overlay;
+    }
+    ui.view = saved_view;
+    ui.part = saved_part;
+    ui.mixsel = saved_mix;
+    memcpy(ui.sel, saved_sel, sizeof ui.sel);
+    s->mixsel = ui.mixsel; /* CMP_SELECT */
+    for (i = 0; i < 8; i++) {
+        s->param[i] = smc_scaled(paint->fader[i]);
+        s->param[8 + i] = smc_scaled(paint->knob[i]);
+    } /* CMP_PARAM */
+    s->rec = ui.rec;
+    s->playing = (uint8_t)(seq.playing != 0);
+    s->bpm_l = (uint8_t)bpm;
+    s->bpm_h = (uint8_t)(bpm >> 8); /* CMP_PLAY */
+    s->overlay = ui.overlay;
+    memcpy(s->list, list_title, sizeof s->list); /* CMP_OVERLAY */
+    s->locked = smc.locked;
+    s->lock_view = smc.lock_view;
+    s->lock_page = smc.lock_page;
+    s->lock_bank = smc.lock_bank;
+    s->lock_part = smc.lock_part; /* CMP_LOCK */
+    s->picked = smc.picked;
+    memcpy(s->last, smc.last, sizeof s->last); /* CMP_PICKUP */
+    s->fx_page = smc.fx_page;
+    s->fx_down = smc.fx_down;
+    memcpy(s->fx_effect, smc.fx_effect, sizeof s->fx_effect); /* CMP_FX */
+    s->knob_bank = smc.knob_bank; /* CMP_BANK */
+    if (kit >= 0 && kit < NKIT) {
+        const char *name = engine_voice_name(kit ? T_808 : T_909, ui.sel[kit]);
+        int n = 0;
+        s->sel0 = ui.sel[kit];
+        while (name && name[n] && n < 11) {
+            s->voice[n] = name[n];
+            n++;
+        }
+    } /* CMP_VOICE */
+    if (paint->kind == 3) {
+        int bus = smc_fx_bus_now(paint->action);
+        s->kind3 = 1;
+        s->view = ui.view;
+        s->fx_bus = (uint8_t)(bus < 0 ? 0 : bus + 1);
+    } /* CMP_KIND3 */
+}
+
+static int smc_paint_catch(struct smc_paint *paint, const struct smc_paint_live *base, int attempt)
+{
+    struct smc_paint_live now;
+    smc_paint_live_read(&now, paint);
+    if (memcmp(&now, base, sizeof now) == 0)
+        return 0;
+    if (attempt == 0) {
+        smc_paint_take(paint); /* CMP_REPAINT */
+        smc_paint_repaints++;
+        return 1;
+    }
+    ui_lcd_mark_dirty(); /* CMP_DIRTY */
+    return 2;
+}
+
 static void smc_ui_draw_peer(struct smc_paint *paint)
 {
+    int attempt;
+    for (attempt = 0; attempt < 2; attempt++) {
+    struct smc_paint_live base;
     char name[24], num[32], unit[12], tag[80];
     const char *status = "ACTIVE";
     pref_t r = paint->target;
-    int kit = smc_drum_mix();
+    int kit;
+    smc_paint_live_read(&base, paint);
+    kit = smc_drum_mix();
     cv_begin(240, HDR_H, C_BLACK);
     if (kit >= 0)
         put_i(put_s(put_s(put_s(tag, PART_N[kit]), (smc.locked ? smc.lock_view : ui.view) == V_SEQ ? " SEQ" : " MIX"), smc.locked ? " LOCK B" : " BANK "), (smc.locked ? smc.lock_bank / 8 : ui.sel[kit] / 8) + 1);
@@ -1113,10 +1222,24 @@ static void smc_ui_draw_peer(struct smc_paint *paint)
     text_r(235, vc(&FONT_S, 0, HDR_H), &FONT_S, tag, C_HI);
     cv_commit_header();
     /* OVERLAY_SNAPSHOT_HOLD */
+    {
+        int catchup = smc_paint_catch(paint, &base, attempt);
+        if (catchup == 1)
+            continue;
+        if (catchup == 2)
+            return;
+    }
     cv_begin(240, 2 * BAND_H, C_BLACK);
     cv_band(0, 2 * BAND_H);
     smc_ui_grid(paint);
     cv_commit_rect(1, 0, MAIN_Y);
+    {
+        int catchup = smc_paint_catch(paint, &base, attempt);
+        if (catchup == 1)
+            continue;
+        if (catchup == 2)
+            return;
+    }
     cv_begin(240, KNOB_H, C_BLACK);
     cv_rect(0, 0, 240, 1, C_LINE);
     if (smc_paint_kind(paint) == 2) {
@@ -1162,6 +1285,8 @@ static void smc_ui_draw_peer(struct smc_paint *paint)
     }
     text_c(120, 49, &FONT_XS, status, C_HI);
     cv_commit(3, 0, KNOB_Y);
+    return;
+    }
 }
 /* Page-peek is a distinct presentation mode. Keep the full SMC overlay
  * for every other view, but let the real page paint its live meters while a
