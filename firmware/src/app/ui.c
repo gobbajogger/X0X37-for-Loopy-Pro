@@ -4419,17 +4419,25 @@ static void cv_lcd_input(void)
 static void (*cv_lcd_poll_hook)(void);
 void x0x_lcd_poll_hook(void (*fn)(void)) { cv_lcd_poll_hook = fn; }
 #endif
+/* Set only while a peek body is drawing from its snapshot. NULL for every
+ * other commit, including the isolated dispatch test. */
+void (*ui_paint_around_input)(void);
+
 static void cv_lcd_maybe_input(void)
 {
     static uint32_t last_ms = UINT32_MAX;
     const uint32_t now = plat_ms();
     if (last_ms != now) {
         last_ms = now;
+        if (ui_paint_around_input)
+            ui_paint_around_input();   /* show the live page to this poll */
 #ifdef X0X_HOST
         if (cv_lcd_poll_hook)
             cv_lcd_poll_hook();
 #endif
         cv_lcd_input();                 /* foreground MIDI/SMC; do not skip this to hide a paint race */
+        if (ui_paint_around_input)
+            ui_paint_around_input();   /* drawing continues from the snapshot */
     }
 }
 typedef struct { uint32_t x, y; } cv_lcd_pos_t;
@@ -4555,6 +4563,81 @@ static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
     int r = ((a >> 11) * (16 - t) + (b >> 11) * t) >> 4, g = (((a >> 5) & 63) * (16 - t) + ((b >> 5) & 63) * t) >> 4,
         bl = ((a & 31) * (16 - t) + (b & 31) * t) >> 4;
     return (uint16_t)((r << 11) | (g << 5) | bl);
+}
+
+/* Fields a peek body must keep frozen while input still mutates the live page. */
+typedef struct {
+    uint8_t view, part, prev_view, mixsel;
+    uint8_t sel[NKIT];
+    uint8_t page[NVIEWS][NPARTS];
+    uint8_t spage, pbank;
+    pages_t pg;
+} ui_paint_hold_t;
+static ui_paint_hold_t *ui_paint_live;
+
+static void ui_paint_read(ui_paint_hold_t *d)
+{
+    d->view = ui.view;
+    d->part = ui.part;
+    d->prev_view = ui.prev_view;
+    d->mixsel = ui.mixsel;
+    memcpy(d->sel, ui.sel, sizeof d->sel);
+    memcpy(d->page, ui.page, sizeof d->page);
+    d->spage = ui.spage;
+    d->pbank = ui.pbank;
+    d->pg = pg;
+}
+
+static void ui_paint_write(const ui_paint_hold_t *d)
+{
+    ui.view = d->view;
+    ui.part = d->part;
+    ui.prev_view = d->prev_view;
+    ui.mixsel = d->mixsel;
+    memcpy(ui.sel, d->sel, sizeof ui.sel);
+    memcpy(ui.page, d->page, sizeof ui.page);
+    ui.spage = d->spage;
+    ui.pbank = d->pbank;
+    pg = d->pg;
+}
+
+static void ui_paint_exchange(void)
+{
+    ui_paint_hold_t tmp;
+    ui_paint_read(&tmp);
+    ui_paint_write(ui_paint_live);
+    *ui_paint_live = tmp;
+}
+
+static void ui_paint_around(void)
+{
+    ui_paint_exchange();
+}
+
+/* slot receives the live page. The caller then installs the snapshot into ui/pg. */
+void ui_paint_body_begin(ui_paint_hold_t *slot)
+{
+    ui_paint_read(slot);
+    ui_paint_live = slot;
+    ui_paint_around_input = ui_paint_around;
+}
+
+/* Put the live page back, except selection: the caller restores that from slot. */
+void ui_paint_body_end(void)
+{
+    ui_paint_hold_t *slot = ui_paint_live;
+    ui_paint_around_input = 0;
+    ui_paint_live = 0;
+    if (!slot)
+        return;
+    ui.view = slot->view;
+    ui.part = slot->part;
+    ui.prev_view = slot->prev_view;
+    ui.mixsel = slot->mixsel;
+    memcpy(ui.page, slot->page, sizeof ui.page);
+    ui.spage = slot->spage;
+    ui.pbank = slot->pbank;
+    pg = slot->pg;
 }
 static uint16_t part_col(void) { return PART_COL[ui.part]; }
 static uint16_t matrix_col(void)

@@ -1180,27 +1180,20 @@ void smc_ui_draw(void)
         draw_header();
         /* PEEK_SNAPSHOT_HOLD */
         {
-            /* The header poll can change the live page and rebuild pg.
-             * The body stays on this paint's snapshot. The live page returns
-             * afterwards, and its page table is rebuilt only if the poll changed it. */
-            uint8_t live_view = ui.view, live_part = ui.part, live_mix = ui.mixsel;
-            uint8_t live_sel[NKIT];
-            int pages_changed = memcmp(&pg, &pre_pg, sizeof pre_pg) != 0;
-            memcpy(live_sel, ui.sel, sizeof live_sel);
+            /* Body DMA polls too. Input must land on the live page, while
+             * draw_main/draw_knobs keep reading the snapshot, including a
+             * page table rebuilt during the body. */
+            ui_paint_hold_t live;
+            ui_paint_body_begin(&live);
             ui.view = snap.view; /* PEEK_BODY_FROM_SNAPSHOT */
             ui.part = snap.part;
             ui.mixsel = snap.mixsel;
             memcpy(ui.sel, snap.sel, sizeof ui.sel);
-            if (pages_changed)
-                build_pages();
+            pg = pre_pg;
             draw_main();
             draw_knobs();
-            memcpy(ui.sel, live_sel, sizeof ui.sel);
-            ui.view = live_view;
-            ui.part = live_part;
-            ui.mixsel = live_mix;
-            if (pages_changed)
-                build_pages();
+            ui_paint_body_end();
+            memcpy(ui.sel, live.sel, sizeof ui.sel); /* LIVE_SEL_RESTORE */
         }
         smc_ui_label(r, label);
         q = put_i(put_s(banner, smc_paint_kind(&snap) == 1 ? "SMC K" : "SMC F"),

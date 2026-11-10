@@ -9,8 +9,8 @@
 #define SMC_UI_MAIN smc_ui_baseline_main
 #include "smc_ui_test.c"
 
-static unsigned hooks, fails;
-static int inject_armed, inject_grid;
+static unsigned hooks, fails, chunks;
+static int inject_armed, inject_grid, chunk_polls, chunk_buttons;
 static uint16_t frame_a[240 * 240], frame_b[240 * 240], frame_now[240 * 240];
 
 struct guard {
@@ -31,6 +31,19 @@ static void paint_fail(int cond, const char *msg)
 static void inject_b(void)
 {
     uint8_t saved;
+    if (chunk_polls) {
+        /* One poll per DMA chunk, so a press and its release both land. */
+        now_ms++;
+        chunks++;
+        held_btn = 0;
+        if (chunk_buttons && chunks == 12) {
+            held_btn = 1u << B_SEQ;          /* press: HOME -> SEQ, records prev_view */
+            ui.part = PART_909;
+            ui.sel[PART_909] = 5;
+        } else if (chunk_buttons && chunks == 70)
+            held_btn = 1u << B_FX;           /* press inside the knob commit */
+        return;
+    }
     if (!inject_armed)
         return;
     inject_armed = 0;
@@ -460,12 +473,93 @@ static void run_peek_live_context(void)
     report_one_state("dirty-header peek inject_grid=1", frame_now, frame_a, frame_b, frame_retake, fired);
 }
 
+/* Press+release inside the main DMA and again inside the knob DMA.
+ * This frame stays on the pre-poll page. The presses survive on the live page. */
+static void run_body_input(int dirty)
+{
+    const char *tag = dirty ? "dirty-header body" : "cold-full body";
+    char msg[120];
+    prepare();
+    ui.prev_view = V_MIX;
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    inject_armed = 0;
+    chunk_buttons = 0;
+    chunk_polls = 1;
+    chunks = 0;
+    held_btn = 0;
+    if (dirty) {
+        paint();
+        paint_keep();
+        arm_dirty_header();
+        blit_hash[1] = cv_tile_valid[1] = 0;
+        blit_hash[2] = cv_tile_valid[2] = 0;
+        blit_hash[3] = cv_tile_valid[3] = 0;
+        chunks = 0;
+        paint_keep();
+    } else
+        paint();
+    chunk_polls = 0;
+    memcpy(frame_a, fb, sizeof frame_a);
+
+    prepare();
+    ui.view = V_SEQ;
+    ui.part = PART_909;
+    ui.sel[PART_909] = 5;
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    paint();
+    memcpy(frame_b, fb, sizeof frame_b);
+    paint_fail(!rows_eq(frame_a, frame_b, HDR_H, KNOB_Y), "body home and SEQ pages differ");
+
+    prepare();
+    ui.prev_view = V_MIX;
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    held_btn = 0;
+    if (dirty) {
+        paint();
+        paint_keep();
+        arm_dirty_header();
+        blit_hash[1] = cv_tile_valid[1] = 0;
+        blit_hash[2] = cv_tile_valid[2] = 0;
+        blit_hash[3] = cv_tile_valid[3] = 0;
+    }
+    chunk_polls = 1;
+    chunk_buttons = 1;
+    chunks = 0;
+    if (dirty)
+        paint_keep();
+    else
+        paint();
+    snprintf(msg, sizeof msg, "%s main and knobs stay on one page", tag);
+    /* The bottom footer notes that a button was pressed. The page cells above it stay. */
+    paint_fail(pix_diff(fb, frame_a, 0, HDR_H) == 0 &&
+               pix_diff(fb, frame_a, HDR_H, KNOB_Y) == 0 &&
+               pix_diff(fb, frame_a, KNOB_Y, 228) == 0 &&
+               pix_diff(fb, frame_b, HDR_H, KNOB_Y) != 0, msg);
+    snprintf(msg, sizeof msg, "%s view part sel and prev_view survive", tag);
+    paint_fail(ui.view == V_FX && ui.prev_view == V_SEQ && ui.part == PART_909 &&
+               ui.sel[PART_909] == 5 && held_btn == 0, msg);
+    chunk_polls = 0;
+    chunk_buttons = 0;
+    held_btn = 0;
+    paint();
+    snprintf(msg, sizeof msg, "%s next frame shows the arrived page", tag);
+    paint_fail(!rows_eq(fb, frame_a, HDR_H, KNOB_Y), msg);
+}
+
 int main(void)
 {
     run_mode("overlay", 0);
     run_mode("peek", 1);
     run_grid();
     run_peek_live_context();
+    run_body_input(0);
+    run_body_input(1);
     if (fails) {
         fprintf(stderr, "FAIL smc lcd paint: %u assertion(s)\n", fails);
         return 1;

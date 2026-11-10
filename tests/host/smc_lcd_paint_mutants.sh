@@ -60,11 +60,15 @@ mutate peek-body-live \
             ui.part = snap.part;
             ui.mixsel = snap.mixsel;
             memcpy(ui.sel, snap.sel, sizeof ui.sel);
-            if (pages_changed)
-                build_pages();' \
+            pg = pre_pg;' \
     '            /* PEEK_BODY_FROM_SNAPSHOT */
             (void)snap;
-            (void)pages_changed;'
+            (void)pre_pg;'
+
+mutate drop-ui.sel-restore \
+    '            memcpy(ui.sel, live.sel, sizeof ui.sel); /* LIVE_SEL_RESTORE */' \
+    '            /* LIVE_SEL_RESTORE */
+            (void)live;'
 
 mutate overlay-retake-after-dma \
     '/* OVERLAY_SNAPSHOT_HOLD */' \
@@ -90,4 +94,4 @@ mutate strip-target-live-peer \
             smc_slot = saved_peer;
         }'
 
-echo "smc lcd paint mutants: 6 killed"
+echo "smc lcd paint mutants: 7 killed"
