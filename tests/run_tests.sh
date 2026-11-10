@@ -24,8 +24,9 @@
 #     succeeds. A generation failure fails the suite and does not publish .gen-done: a waiter stops on
 #     build/host/iso/.gen-fail, records FAIL, takes no job slot, and does not use a stale header.
 #     When host-build itself ran, it still publishes .gen-done after the test (also on FAIL) so waiters report.
-#     gen-nonfont-tables mutates shared build/gen: class G so it cannot race stereo/drum-pan/project-* /
-#     wave-motion-migrate / project-save-preflight / smp-begin-cancel compiles.
+#     gen-nonfont-tables probes a private tree copy. It does not delete the shared
+#     build/gen/x0x_drum_tables.h. needs_gen tests regenerate that header with
+#     tools/gen_drum_samples.py when it is missing (ensure_needs_gen).
 #   A missing optional input prints "  not-run <name> (<reason>)". It does not write a .fail file and does not set FAIL.
 #     Pillow: python3 cannot import PIL. ASan runtime: ${CC:-cc} -fsanitize=address,undefined does not link.
 #     Parallel tests use a private HOME. Python's user site follows HOME, so the Pillow check and those tests
@@ -84,7 +85,7 @@ test_class() {
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    drum-tables-include|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
@@ -122,8 +123,17 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
+    # x0x_drum_tables.h is one of those headers (firmware/src/dsp/drum909_dsp.h).
+    # ensure_needs_gen regenerates it with tools/gen_drum_samples.py when it is missing.
     case "$1" in save-note-quiet) return 0 ;; esac
-    case "$1" in bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
+    case "$1" in drum-tables-include|bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
+}
+ensure_needs_gen() {    # missing x0x_drum_tables.h: same generator as host-build and gen_nonfont
+    [ -f build/gen/x0x_drum_tables.h ] && return 0
+    # The runner-admission fixture has no generator. A real tree does.
+    [ -f tools/gen_drum_samples.py ] || return 0
+    mkdir -p build/gen || return 1
+    python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -223,6 +233,11 @@ run() {
         return
     fi
     if [ "$JOBS" -le 1 ]; then
+        if needs_gen "$name" && ! ensure_needs_gen; then
+            echo "  FAIL $name (x0x_drum_tables.h was not regenerated)"
+            FAIL=1
+            return
+        fi
         if run_test "$name" "$@" > "$OUT/$name.log" 2>&1; then
             echo "  ok   $name"
         else
@@ -237,6 +252,12 @@ run() {
     case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
     key=$(printf '%04d' "$T_SEQ")
     if [ "$cls" = S ] || [ "$cls" = C ]; then
+        if needs_gen "$name" && ! ensure_needs_gen; then
+            echo "  FAIL $name (x0x_drum_tables.h was not regenerated)" > "$RES/$key"
+            : > "$RES/$key.fail"
+            echo "0 s $name" > "$RES/$key.time"
+            return
+        fi
         run_one "$key" "$name" "$@"
         return
     fi
@@ -257,6 +278,14 @@ run() {
             [ "$cls" = W ] || read -r _ <&3
         fi
         [ "$cls" = G ] && gen_lock
+        if needs_gen "$name" && ! ensure_needs_gen; then
+            echo "  FAIL $name (x0x_drum_tables.h was not regenerated)" > "$RES/$key"
+            : > "$RES/$key.fail"
+            echo "0 s $name" > "$RES/$key.time"
+            [ "$cls" = G ] && gen_unlock
+            [ "$cls" = W ] || echo >&3
+            exit 0
+        fi
         run_one "$key" "$name" "$@"
         [ "$cls" = G ] && gen_unlock
         [ "$name" = host-build ] && : > "$OUT/iso/.gen-done"   # also after a FAIL: the waiting tests then start and report
@@ -388,6 +417,7 @@ if [ "$PIL_SKIP" = 1 ]; then not_run smc-record-feedback Pillow; else run smc-re
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
 # Cold / filtered-alone trees: fill drum tables before compile (host-build may be filtered out).
+run drum-tables-include sh -c "$CC -c -Ifirmware/src/dsp -Ibuild/gen -o $OUT/drum_tables_include.o tests/host/drum_tables_include.c"   # needs_gen fills x0x_drum_tables.h; this file does not
 run drum-pan sh -c "mkdir -p build/gen && ([ -f build/gen/x0x_drum_tables.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null) && $CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c -lm && $OUT/drum_pan_test"
 run stereo sh -c "mkdir -p build/gen && ([ -f build/gen/x0x_drum_tables.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null) && $CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
@@ -440,7 +470,8 @@ run gate-trap bash tests/host/test_gate_trap.sh   # tools/gate.sh (checks 5, 13)
 run quickcheck-plan python3 tests/host/test_quickcheck_plan.py
 run ctl-compile python3 tests/host/test_ctl_compile.py
 run host-setup python3 tests/host/test_host_setup.py
-run gen-nonfont-tables sh tests/host/test_gen_nonfont_tables.sh   # Pillow skip + X0X_BREAK_BANK still fills x0x_drum_tables.h
+run gen-nonfont-tables sh tests/host/test_gen_nonfont_tables.sh   # Pillow skip + X0X_BREAK_BANK still fills x0x_drum_tables.h, in a private tree
+run drum-tables-regen sh tests/host/test_drum_tables_regen.sh   # missing x0x_drum_tables.h is regenerated; the shared header stays
 run stereo-alone-gen sh tests/host/test_stereo_alone_gen.sh   # filtered stereo/drum-pan alone fills tables without host-build
 run runner-admission python3 tests/host/test_runner_admission.py
 run update-names bash tests/host/test_update_names.sh   # tools/update.hook parts 1c, 1d (checks 9, 8): new branch names, integration needs -o by=merge-integrator
