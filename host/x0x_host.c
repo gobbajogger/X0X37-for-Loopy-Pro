@@ -108,7 +108,8 @@ void plat_play_red(int red) { (void)red; }
 void plat_keys_dim(uint32_t k) { dim_keys = k; }      /* dim keys: "o" in the leds print */      /* the device's PLAY colour: green, red while recording */
 
 #define MQ 256
-static uint32_t min_q[MQ], min_seq[MQ], mi_w, mi_r, mi_seq_next = 1;
+static uint32_t min_q[MQ], mi_w, mi_r;
+static uint16_t min_seq[MQ], mi_seq_next = 1;
 int engine_midi_held(void);              /* engine.c (X0X_HOST): the notes held from MIDI in */
 int engine_bass_perf(int v, int which, int live); /* engine.c (X0X_HOST): 0 bend 1 damper 2 mod */
 int engine_bass_keys_held(void);         /* engine.c (X0X_HOST): bit k when 303 k holds a key, not the release tail */
@@ -149,12 +150,11 @@ void plat_midi_panic_sample(uint32_t *head_seq, uint32_t *next_seq)
     if (next_seq)
         *next_seq = next;
 }
-static uint32_t host_midi_take_seq(void)
+static uint16_t host_midi_take_seq(void)
 {
-    uint32_t s = mi_seq_next ? mi_seq_next : 1u;
-    mi_seq_next = s + 1u;
-    if (mi_seq_next == 0)
-        mi_seq_next = 1u;
+    uint16_t s = mi_seq_next ? mi_seq_next : 1u;
+    uint16_t n = (uint16_t)(s + 1u);
+    mi_seq_next = n ? n : 1u;
     return s;
 }
 static void host_midi_put(uint32_t pkt)

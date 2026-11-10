@@ -140,7 +140,7 @@ static volatile uint32_t so_w, so_r;
  * then compile the slice. The ingress sequence array is not part of that pair. */
 static uint32_t midi_in_q[MQ], midi_out_q[MQ];
 static volatile uint32_t mi_w, mi_r, mo_w, mo_r;
-static uint32_t midi_in_seq[MQ];
+static uint16_t midi_in_seq[MQ];
 
 /* CIN 8, or CIN 9 with velocity 0 — a release that must not stick a live Note On. */
 static int midi_pkt_is_note_off(uint32_t pkt)
@@ -170,14 +170,13 @@ static int midi_pkt_is_keep(uint32_t pkt)
 /* Next accept sequence. Zero is skipped so an empty slot is not a real accept.
  * The outbound overflow extract starts at the CIN 8 comment and must contain
  * this helper, because the shared ring put calls it. */
-static uint32_t midi_seq_next = 1;
+static uint16_t midi_seq_next = 1;
 
-static uint32_t midi_seq_take(void)
+static uint16_t midi_seq_take(void)
 {
-    uint32_t s = midi_seq_next ? midi_seq_next : 1u;
-    midi_seq_next = s + 1u;
-    if (midi_seq_next == 0)
-        midi_seq_next = 1u;
+    uint16_t s = midi_seq_next ? midi_seq_next : 1u;
+    uint16_t n = (uint16_t)(s + 1u);
+    midi_seq_next = n ? n : 1u;
     return s;
 }
 
@@ -187,7 +186,7 @@ static uint32_t midi_seq_take(void)
  * TIMER5 owns ingress and drains egress; exclude it while moving live slots.
  * The loader polls USB with IRQs off and has no concurrent consumer. */
 static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile uint32_t *r,
-                                  uint32_t *seq, uint32_t pkt)
+                                  uint16_t *seq, uint32_t pkt)
 {
 #ifndef FELUCCA_LOADER
     uint32_t irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);

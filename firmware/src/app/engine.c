@@ -122,12 +122,13 @@ static uint8_t bass_held[NBASS], bass_held_count[NBASS], bass_held_src[NBASS];
 /* Eligible physical Free Play has its own bounded FIFO. Epoch validation is
  * audio-side: a queued old release cannot affect a newer gate or ARP mode. */
 #define LIVE_KEY_Q 32u
-typedef struct { uint32_t generation, word, seq; } live_key_command_t;
+typedef struct { uint32_t generation, word; } live_key_command_t;
 typedef struct { uint32_t generation, context; uint8_t gate, token, pitch, arp, blocked; } live_key_owner_t;
 static live_key_command_t live_key_q[LIVE_KEY_Q] POOL;
 static live_key_owner_t live_key_owner[NBASS] POOL;
 static volatile uint8_t live_key_w, live_key_r, live_key_cancel;
-static uint32_t take_seq(void);
+/* Free-running accept position of the command at live_key_r, and the next one. */
+static uint32_t live_key_at, live_key_pos;
 static void live_key_retire(int voice,int release);
 static void live_key_context_retire(int voice,int release);
 static void live_key_drain(void);
@@ -158,8 +159,10 @@ int engine_live_key(int voice,uint32_t generation,int token,int pitch,int veloci
     if(next==live_key_r) {
         live_key_cancel|=(uint8_t)(1u<<voice);plat_cq_unlock(flags);return 0;
     }
+    if (live_key_r == live_key_w)
+        live_key_at = live_key_pos;
+    live_key_pos++;
     live_key_q[w].generation=generation;
-    live_key_q[w].seq=take_seq();
     live_key_q[w].word=(uint32_t)voice|((uint32_t)token<<1)|((uint32_t)pitch<<7)|
         ((uint32_t)velocity<<14)|((uint32_t)!!accent<<21)|((uint32_t)!!slide<<22);
     __asm__ volatile("" ::: "memory");live_key_w=(uint8_t)next;
@@ -331,60 +334,57 @@ enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC, C_BASE, C
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
-/* Accept order for every command. Overflow replacement keeps this with the
- * event, so a note accepted after panic is not judged by the slot it lands in. */
-static uint32_t cq_seq[CQ];
-static uint8_t cq_reordered;
-static uint32_t evt_seq = 1;
+/* Panic boundary is the free-running write cursor. The ring stays in accept
+ * order, so a command's cursor value is its accept position. */
+static uint32_t notes_off_cq;
+static uint8_t notes_off_cq_live;
+/* One slot already copied toward the head. Pick skips it. The copy and this
+ * index are published together, while the audio source is masked. */
+static uint32_t cq_hole_at;
+static uint8_t cq_hole_on;
 
-/* The scan may be preempted after choosing a victim. Revalidate the slot only
- * while the consumer source is masked, then publish exactly one aligned word.
- * Scanning the 1024-entry queue never runs with the audio source masked. */
-static uint32_t take_seq(void)
-{
-    uint32_t s = evt_seq;
-    if (s == 0 || s == UINT32_MAX)
-        s = 1u;
-    evt_seq = s + 1u;
-    if (evt_seq == 0 || evt_seq == UINT32_MAX)
-        evt_seq = 1u;
-    return s;
-}
-
-/* Shift the commands after the victim down one slot and return the tail index.
- * The caller publishes the newest command there. Audio is masked for the shift
- * so the consumer cannot read a half-moved ring. */
-static uint32_t cq_open_tail(uint32_t i, uint32_t *seq)
-{
-    uint32_t w = cq_w;
-    uint32_t k;
-    *seq = take_seq();
-    for (k = i; k + 1u != w; k++) {
-        cq[k % CQ] = cq[(k + 1u) % CQ];
-        cq_seq[k % CQ] = cq_seq[(k + 1u) % CQ];
-    }
-    return w - 1u;
-}
-
+/* The scan may be preempted after choosing a victim. Revalidate under the
+ * audio mask, then either publish the new command or copy one later command
+ * into the victim. A full queue walks at most CQ-2 steps, and each step masks
+ * one copy. Audio runs between steps and never sees that command twice. */
 static int cq_replace(uint32_t i, uint32_t w, uint32_t word)
 {
-    uint32_t state = plat_cq_lock();
-    uint32_t r = cq_r;
-    int live = (i - r < w - r);
-    if (live) {
-        uint32_t seq;
-        /* PANIC_REORDER */
-        cq_reordered = 1;
-        if (cq_reordered) {
-            i = cq_open_tail(i, &seq);
-            cq_reordered = 0;
-        } else
-            seq = take_seq();
-        cq_seq[i % CQ] = seq;
-        cq[i % CQ] = word;
+    for (;;) {
+        uint32_t state = plat_cq_lock();
+        uint32_t r = cq_r;
+        int live = (i - r < w - r);
+        int publish = 0;
+        if (cq_hole_on && (cq_hole_at - r >= w - r))
+            cq_hole_on = 0;
+        if (live) {
+            if (i == r) {
+                cq_r = r + 1u;
+                i = w;
+                cq_w = w + 1u;
+                publish = 1;
+            } else if (i + 1u == w) {
+                if (notes_off_cq_live && (int32_t)(i - notes_off_cq) < 0)
+                    notes_off_cq--;
+                publish = 1;
+            } else {
+                uint32_t src = i + 1u;
+                if (notes_off_cq_live && (src == notes_off_cq || src + 1u == notes_off_cq))
+                    notes_off_cq--;
+                /* SHIFT */
+                cq[i % CQ] = cq[src % CQ];
+                cq_hole_at = src;
+                cq_hole_on = 1;
+                i = src;
+            }
+            if (publish) {
+                cq[i % CQ] = word;
+                cq_hole_on = 0;
+            }
+        }
+        plat_cq_unlock(state);
+        if (!live || publish)
+            return live;
     }
-    plat_cq_unlock(state);
-    return live;
 }
 
 __attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t b, uint32_t c)
@@ -418,7 +418,6 @@ retry:
         if (cq_r != r) goto retry; /* consumer freed room during the scan */
         return;
     }
-    cq_seq[w % CQ] = take_seq();
     cq[w % CQ] = word;
     __asm__ volatile("" ::: "memory");
     cq_w = w + 1;
@@ -838,7 +837,7 @@ void engine_bass_record(int part, int note, int velocity, int flags)
 }
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
 static volatile uint8_t notes_off_req;
-static uint32_t notes_off_limit;
+static uint32_t notes_off_live;
 static uint32_t notes_off_midi_head, notes_off_midi_limit;
 static uint8_t notes_off_drop, notes_off_midi_drop, live_panic_pass;
 /* 1 while this drain will apply a pending panic. An onset accepted here is
@@ -848,7 +847,9 @@ static uint8_t notes_off_suppress_rec;
 void engine_request_notes_off(void)
 {
     uint32_t flags = plat_cq_lock();
-    notes_off_limit = evt_seq;
+    notes_off_cq = cq_w;
+    notes_off_cq_live = 1;
+    notes_off_live = live_key_pos;
     plat_midi_panic_sample(&notes_off_midi_head, &notes_off_midi_limit);
     __asm__ volatile("" ::: "memory");
     notes_off_req = 1;
@@ -1591,46 +1592,16 @@ static void engine_notes_off_apply(void)
 #endif
 }
 
-/* Next command in accept order. After an overflow replacement the newest
- * note can sit in an older slot; the read cursor alone would call it pre-panic. */
+/* The ring is in accept order, so the free-running cursor is the position. */
 static int cq_pick(uint32_t *cursor, uint32_t *ord, uint32_t *word)
 {
-    uint32_t i, best, bseq, found;
-    if (!cq_reordered) {
-        if (*cursor == cq_w)
-            return 0;
-        *ord = cq_seq[*cursor % CQ];
-        *word = cq[*cursor % CQ];
-        (*cursor)++;
-        return 1;
-    }
-    found = 0;
-    best = bseq = 0;
-    for (i = *cursor; i != cq_w; i++) {
-        uint32_t s = cq_seq[i % CQ];
-        if (s == UINT32_MAX)
-            continue;
-        if (!found || (int32_t)(s - bseq) < 0) {
-            best = i;
-            bseq = s;
-            found = 1;
-        }
-    }
-    if (!found) {
-        *cursor = cq_w;
-        cq_reordered = 0;
+    if (cq_hole_on && *cursor == cq_hole_at)
+        *cursor = *cursor + 1u;
+    if (*cursor == cq_w)
         return 0;
-    }
-    *ord = bseq;
-    *word = cq[best % CQ];
-    cq_seq[best % CQ] = UINT32_MAX;
-    if (best == *cursor) {
-        (*cursor)++;
-        while (*cursor != cq_w && cq_seq[*cursor % CQ] == UINT32_MAX)
-            (*cursor)++;
-        if (*cursor == cq_w)
-            cq_reordered = 0;
-    }
+    *ord = *cursor;
+    *word = cq[*cursor % CQ];
+    (*cursor)++;
     return 1;
 }
 
@@ -1678,9 +1649,11 @@ static void drain(void)
         a = (c >> 20) & 0xFFu;
         b = (c >> 12) & 0xFFu;
         v = c & 0xFFFu;
-        pre_cmd = notes_off_drop && (int32_t)(ord - notes_off_limit) < 0;
-        if (notes_off_drop && !pre_cmd)
+        pre_cmd = notes_off_drop && notes_off_cq_live && (int32_t)(ord - notes_off_cq) < 0;
+        if (notes_off_drop && !pre_cmd) {
             notes_off_drop = 0;
+            notes_off_cq_live = 0;
+        }
         discard = pre_cmd;
         /* PANIC_DROP_QUEUED */
         if (discard && (type == C_DRUM || type == C_BON || type == C_REC ||
@@ -1750,10 +1723,13 @@ static void drain(void)
             break;
         }
         legacy = (seq == 0u);
-        pre = !legacy && notes_off_midi_drop && (int32_t)(seq - notes_off_midi_limit) < 0;
+        /* Stamps are 16-bit. The live ring spans far fewer than 32768 accepts. */
+        pre = !legacy && notes_off_midi_drop &&
+            (int16_t)((uint16_t)seq - (uint16_t)notes_off_midi_limit) < 0;
         /* PANIC_MIDI_DEFER: a note accepted beyond this drain stays in order
          * when compaction slides it into the first 64 slots. */
-        if (!legacy && panic_cycle && !pre && (int32_t)(seq - notes_off_midi_head) >= 64)
+        if (!legacy && panic_cycle && !pre &&
+            (int16_t)((uint16_t)seq - (uint16_t)notes_off_midi_head) >= 64)
             break;
         plat_midi_in(&pkt);
         if (pre && midi_pkt_note_on(pkt))
@@ -1763,7 +1739,8 @@ static void drain(void)
     }
     if (notes_off_midi_drop) {
         uint32_t seq = 0;
-        if (!plat_midi_peek(&pkt, &seq) || (seq != 0u && (int32_t)(seq - notes_off_midi_limit) >= 0))
+        if (!plat_midi_peek(&pkt, &seq) ||
+            (seq != 0u && (int16_t)((uint16_t)seq - (uint16_t)notes_off_midi_limit) >= 0))
             notes_off_midi_drop = 0;
     }
     if (midi_empty) project_midi_drop = 0;
@@ -1782,14 +1759,17 @@ static void live_key_drain(void)
         if(live_key_r==live_key_w)break;
         __asm__ volatile("" ::: "memory");
         live_key_command_t c=live_key_q[live_key_r];
+        uint32_t ord=live_key_at;
         __asm__ volatile("" ::: "memory");
         live_key_r=(uint8_t)((live_key_r+1u)%LIVE_KEY_Q);
+        if (live_key_r != live_key_w)
+            live_key_at++;
         unsigned v=c.word&1u,token=(c.word>>1)&63u,pitch=(c.word>>7)&127u;
         unsigned velocity=(c.word>>14)&127u,accent=(c.word>>21)&1u,slide=(c.word>>22)&1u;
-        int post = live_panic_pass && (int32_t)(c.seq - notes_off_limit) >= 0;
+        int post = live_panic_pass && (int32_t)(ord - notes_off_live) >= 0;
         live_key_owner_t *o=&live_key_owner[v];
         if(o->blocked || (!post && c.generation!=o->generation))continue;
-        if(!post && notes_off_drop && (int32_t)(c.seq - notes_off_limit) < 0)continue;
+        if(!post && notes_off_drop && (int32_t)(ord - notes_off_live) < 0)continue;
         (void)accent; (void)slide;
         uint8_t previous = original_key_pitch[v][token];
         if (velocity) {
@@ -2452,11 +2432,12 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 #endif
     int p, g;
     cq_w = cq_r = 0;
-    cq_reordered = 0;
-    evt_seq = 1;
-    __builtin_memset(cq_seq, 0xFF, sizeof cq_seq);
+    cq_hole_on = 0;
+    notes_off_cq = 0;
+    notes_off_cq_live = 0;
+    live_key_at = live_key_pos = 0;
     notes_off_req = notes_off_drop = notes_off_midi_drop = notes_off_suppress_rec = live_panic_pass = 0;
-    notes_off_limit = notes_off_midi_head = notes_off_midi_limit = 0;
+    notes_off_live = notes_off_midi_head = notes_off_midi_limit = 0;
     rec_w = rec_r = 0;
     brk_local = 0;
     brk_midi_count = 0;
@@ -2545,7 +2526,6 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 #ifdef X0X_HOST
 void engine_host_cq_sync(void) { cq_r = cq_w; }
 void engine_host_cq_at(uint32_t cursor) { cq_r = cq_w = cursor; }
-void engine_host_note_seq(uint32_t seq) { evt_seq = seq ? seq : 1u; }
 #endif
 
 #if defined(X0X_HOST) && defined(X0X_LIVE_KEY_TEST)
