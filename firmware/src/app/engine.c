@@ -2348,22 +2348,39 @@ static void c1_take_over(uint32_t s)
 }
 
 #define ENG_C1_LAT (24u * 10u)                         /* ticks: a hand-over and its wait, about */
-/* the stretch's cost (ticks) of a split m (bit j: job j on core 1), in the stage order */
+/* the stretch's cost (ticks) of a split m (bit j: job j on core 1), in the stage order.
+ * A job renders as soon as its core is free; only its mix (about 1/16 of it) waits for the
+ * part before it (run_job: render, stage_wait, mix). Counting the whole job as waiting made
+ * every split with the 303s apart cost the same as one core, so 909-only won the tie. */
 static uint32_t plan_cost(uint32_t m, const uint32_t *c)
 {
-    uint32_t t[2] = {0u, m ? ENG_C1_LAT : 0u}, s;
-    int k;
+    uint32_t t[2] = {0u, m ? ENG_C1_LAT : 0u}, s, x;
+    int k, j;
     k = (int)(m & 1u); t[k] += c[JB_909]; s = t[k];
-    k = (int)(m >> 1 & 1u); t[k] += c[JB_808]; if (t[k] < s) t[k] = s; s = t[k];
-    k = (int)(m >> 2 & 1u); t[k] += c[JB_A]; if (t[k] < s) t[k] = s; s = t[k];
-    k = (int)(m >> 3 & 1u); t[k] += c[JB_B]; if (t[k] < s) t[k] = s;
-    k = (int)(m >> 4 & 1u); t[k] += c[JB_BRK];
+    for (j = JB_808; j <= JB_B; j++) {
+        k = (int)(m >> j & 1u);
+        x = c[j] >> 4;
+        t[k] += c[j] - x;                               /* render */
+        if (t[k] < s) t[k] = s;                         /* the part before it mixed */
+        t[k] += x; s = t[k];                            /* its mix */
+    }
+    k = (int)(m >> 4 & 1u); t[k] += c[JB_BRK];          /* mixed by core 0 after both */
     return t[0] > t[1] ? t[0] : t[1];
+}
+/* jobs core 1 may take: a Chicago part stays on core 0. Its note start (voice resume, the
+ * full note mask) goes about 3 KB deep, more than core 1's 2,816-byte stack (fm1-emu stack
+ * mark: 2,988 B with Chicago there; static path 2,384 B plus indirect calls). */
+static uint32_t c1_allowed(void)
+{
+    uint32_t m = (1u << JB_909) | (1u << JB_808) | (1u << JB_BRK);
+    if (original_bass[0].kind == ORIGINAL_SOUND_MIAMI) m |= 1u << JB_A;
+    if (original_bass[1].kind == ORIGINAL_SOUND_MIAMI) m |= 1u << JB_B;
+    return m;
 }
 /* before a stretch of n frames: the split to use (sticky; idle jobs stay on core 0) */
 static uint32_t plan_pick(uint32_t n)
 {
-    uint32_t c[JB_N], act = 0, best = eng_plan, cost, bc, m, nn = n < 64u ? 64u : n;
+    uint32_t c[JB_N], act = 0, best = eng_plan, cost, bc, m, nn = n < 64u ? 64u : n, ok = c1_allowed();
     int j;
 #ifdef X0X_CORE_PLAN                                  /* development: one fixed split, for A/B trials */
     (void)c; (void)best; (void)cost; (void)bc; (void)m; (void)nn; (void)j;
@@ -2371,7 +2388,7 @@ static uint32_t plan_pick(uint32_t n)
     if (drum808_active(&d808)) act |= 1u << JB_808;
     act |= 1u << JB_A | 1u << JB_B;
     if (!breaks_silent(&brk)) act |= 1u << JB_BRK;
-    return (uint32_t)(X0X_CORE_PLAN) & act;
+    return (uint32_t)(X0X_CORE_PLAN) & act & ok;
 #endif
     if (drum909_active(&d909)) act |= 1u << JB_909;
     if (drum808_active(&d808)) act |= 1u << JB_808;
@@ -2379,19 +2396,19 @@ static uint32_t plan_pick(uint32_t n)
     if (!breaks_silent(&brk)) act |= 1u << JB_BRK;
     for (j = 0; j < JB_N; j++)                         /* a short stretch still pays a call's set-up */
         c[j] = (act >> j & 1u) ? eng_job_cost[j] * nn / 256u : 0u;
-    best &= act;
+    best &= act & ok;
     bc = plan_cost(best, c);
     cost = bc;
     for (m = 0; m < (1u << JB_N); m++) {
         uint32_t k;
-        if (m & ~act)
+        if (m & ~(act & ok))
             continue;
         k = plan_cost(m, c);
         if (k < bc) { bc = k; best = m; }
     }
-    if (bc * 8u < cost * 7u || (eng_plan & ~act))      /* 1/8 better, or a job of it went idle */
+    if (bc * 8u < cost * 7u || (eng_plan & ~(act & ok)))   /* 1/8 better, or a job of it went idle */
         eng_plan = (uint8_t)best;
-    return eng_plan & act;
+    return eng_plan & act & ok;
 }
 
 /* one stretch: the jobs split between the cores by plan_pick (see above), each mixed in the
