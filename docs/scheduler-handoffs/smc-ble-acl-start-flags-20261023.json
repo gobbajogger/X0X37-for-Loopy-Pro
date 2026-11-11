@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T14:06:00Z",
+  "role": "LoopyX0X37 SMC Transport",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/smc-ble-sysex-length-guard-20261023-1310",
+    "tested_commit": "ca777a056e7de0075aac30927a4f6b158d55c465",
+    "tested_tree": "83bfff30c28ce641884c5d1d9b13330ced3aaa79",
+    "pr": 89
+  },
+  "summary": "BLE HCI peripheral silently discarded valid PB=0 non-flushable first and PB=3 complete ACL packets; complete and fragmented MIDI Note Off was lost. Accept correct ACL start types with exact PB3 full-PDU bound; preserve PB=1 continuation, PB2 behavior and source safety.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/ble/ble_midi_host.c",
+      "description": "BLE ACL packet boundary interpretation: accept first PB0, PB2 and complete PB3; reject incomplete PB3"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/ble_acl_start_flags_test.c",
+      "description": "80 native assertions on Note Off, PB type, link identity, fragment boundaries and malformed input"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023.md",
+      "description": "Reproducer, source and dependency identities, executed checks, native build and independent QA handoff"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log",
+      "description": "Concise actual native process and log SHA-256 evidence, baseline FAIL and twelve patched PASS"
+    }
+  ],
+  "checks": [
+    {
+      "name": "original HCI PB0/PB3 negative reproduced",
+      "status": "FAIL",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I firmware/src/ble tests/host/ble_acl_start_flags_test.c <parent-PR89 exact ble_midi_host.c> -o binaries/baseline_acl && ./binaries/baseline_acl",
+      "exit_code": 1,
+      "evidence": "Baseline compiled exit 0; real process exited 1 with 8/60 assertion failures. PB=0/3 valid Note Off messages and PB=0 fragment state were lost; command uses exact parent source blob 692c213e..., not an invented source.",
+      "log_sha256": "e8f93b5d4d60ca37ed0888653625ae7178eacd9afe5e1aace1f068ffe8756934",
+      "coverage": "Positive PB0/PB2/PB3 packets, fragmented packets, wrong link, orphan continuation, malformed oversized CID/length, resync"
+    },
+    {
+      "name": "gcc-plain-acl native",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I firmware/src/ble tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c -o binaries/gcc-plain-acl && binaries/gcc-plain-acl",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. gcc-plain-acl logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47",
+      "coverage": "80 checks, 0 failures for ACL PB 0/2/3, fragments, malformed input"
+    },
+    {
+      "name": "gcc-plain-sysex native",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I firmware/src/ble tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c -o binaries/gcc-plain-sysex && binaries/gcc-plain-sysex",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. gcc-plain-sysex logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2",
+      "coverage": "Existing PR #89 SysEx length/null/busy/MAX and Note Off tests"
+    },
+    {
+      "name": "gcc-ubsan-acl native",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-omit-frame-pointer -I firmware/src/ble tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c -o binaries/gcc-ubsan-acl && binaries/gcc-ubsan-acl",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. gcc-ubsan-acl logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47",
+      "coverage": "80 checks, 0 failures for ACL PB 0/2/3, fragments, malformed input"
+    },
+    {
+      "name": "gcc-ubsan-sysex native",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-omit-frame-pointer -I firmware/src/ble tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c -o binaries/gcc-ubsan-sysex && binaries/gcc-ubsan-sysex",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. gcc-ubsan-sysex logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2",
+      "coverage": "Existing PR #89 SysEx length/null/busy/MAX and Note Off tests"
+    },
+    {
+      "name": "gcc-asan-ubsan-acl native",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -I firmware/src/ble tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c -o binaries/gcc-asan-ubsan-acl && binaries/gcc-asan-ubsan-acl",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. gcc-asan-ubsan-acl logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47",
+      "coverage": "80 checks, 0 failures for ACL PB 0/2/3, fragments, malformed input"
+    },
+    {
+      "name": "gcc-asan-ubsan-sysex native",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -I firmware/src/ble tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c -o binaries/gcc-asan-ubsan-sysex && binaries/gcc-asan-ubsan-sysex",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. gcc-asan-ubsan-sysex logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2",
+      "coverage": "Existing PR #89 SysEx length/null/busy/MAX and Note Off tests"
+    },
+    {
+      "name": "clang-plain-acl native",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I firmware/src/ble tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c -o binaries/clang-plain-acl && binaries/clang-plain-acl",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. clang-plain-acl logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47",
+      "coverage": "80 checks, 0 failures for ACL PB 0/2/3, fragments, malformed input"
+    },
+    {
+      "name": "clang-plain-sysex native",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I firmware/src/ble tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c -o binaries/clang-plain-sysex && binaries/clang-plain-sysex",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. clang-plain-sysex logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2",
+      "coverage": "Existing PR #89 SysEx length/null/busy/MAX and Note Off tests"
+    },
+    {
+      "name": "clang-ubsan-acl native",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-omit-frame-pointer -I firmware/src/ble tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c -o binaries/clang-ubsan-acl && binaries/clang-ubsan-acl",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. clang-ubsan-acl logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47",
+      "coverage": "80 checks, 0 failures for ACL PB 0/2/3, fragments, malformed input"
+    },
+    {
+      "name": "clang-ubsan-sysex native",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-omit-frame-pointer -I firmware/src/ble tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c -o binaries/clang-ubsan-sysex && binaries/clang-ubsan-sysex",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. clang-ubsan-sysex logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2",
+      "coverage": "Existing PR #89 SysEx length/null/busy/MAX and Note Off tests"
+    },
+    {
+      "name": "clang-asan-ubsan-acl native",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -I firmware/src/ble tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c -o binaries/clang-asan-ubsan-acl && binaries/clang-asan-ubsan-acl",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. clang-asan-ubsan-acl logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47",
+      "coverage": "80 checks, 0 failures for ACL PB 0/2/3, fragments, malformed input"
+    },
+    {
+      "name": "clang-asan-ubsan-sysex native",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -I firmware/src/ble tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c -o binaries/clang-asan-ubsan-sysex && binaries/clang-asan-ubsan-sysex",
+      "exit_code": 0,
+      "evidence": "Actual native compile exit 0; run exit 0. clang-asan-ubsan-sysex logged in docs/scheduler-handoffs/smc-ble-acl-start-flags-20261023-native.log; source and test blobs checked.",
+      "log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2",
+      "coverage": "Existing PR #89 SysEx length/null/busy/MAX and Note Off tests"
+    },
+    {
+      "name": "complete exact merged firmware tree host suite",
+      "status": "NOT_RUN",
+      "command": "X0X_TEST_JOBS=1 sh tests/run_tests.sh ble-sysex-bounds ble ble-midi-receive (from merged exact full PR tree)",
+      "evidence": "Exact host and header Git blobs were locally compiled; complete 1705-entry Git root not cloned due native Git DNS; no complete repository or concurrency/ISR integration claim."
+    },
+    {
+      "name": "native Elite/Pro and Bluetooth controller build",
+      "status": "NOT_RUN",
+      "command": "pinned compiler/SDK: model-identity native dev build for Elite, Pro and ctl.img on exact pushed PR SHA",
+      "evidence": "Firmware build belongs immediately to Hourly Build, independently of this draft PR QA or merge, and is not performed by SMC Transport source specialist."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "SMC source-only; exact changed input SHA handed to Hourly Build immediately"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "SMC source-only; exact changed input SHA handed to Hourly Build immediately"
+    }
+  ],
+  "next": {
+    "owner": "Hourly Build immediately, Independent QA in parallel, sole firmware Safe Merge later",
+    "action": "Attempt pinned native Elite/Pro + controller BUILD_ONLY from exact new pushed stacked PR head; separately run complete current-tree host/packet tests and review #50 overlap before independent integration",
+    "gate": "BUILD_ONLY requires pinned exact source and native inputs, not QA or merger. Integrating to firmware nightly requires independent QA, overlap resolution and sole Safe Merge."
+  },
+  "dependencies": [
+    "PR #89 ca777a056e7de0075aac30927a4f6b158d55c465: SysEx memory guard; stacked base, unmerged",
+    "PR #50 4aa93f62b5f08eb5df9663747ada84fef590a014: BLE mailbox backpressure changes same C source, must reconcile",
+    "Firmware NIGHTLY at 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e; do not assume PR #89 or #50 merged"
+  ],
+  "publication": "SOURCE_ONLY"
+}

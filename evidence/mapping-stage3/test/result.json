@@ -1,0 +1,228 @@
+{
+  "candidate": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "tree": "56a78830c67477684e1ec114274ae204acb81296",
+  "environment": {
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "CC": "cc",
+    "CXX": "c++",
+    "X0X_HOST_DEFS": "-D_DARWIN_C_SOURCE"
+  },
+  "checks": [
+    {
+      "name": "mapping",
+      "reason": "Shared drum helpers can change page and knob destinations.",
+      "argv": [
+        "python3",
+        "tests/host/smc_mapping_test.py"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021",
+      "returncode": 0,
+      "duration_seconds": 1.175,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/mapping.log",
+      "result": "PASS"
+    },
+    {
+      "name": "fader",
+      "reason": "Drum destinations must retain fader pickup and writes.",
+      "argv": [
+        "python3",
+        "tests/host/smc_fader_test.py"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021",
+      "returncode": 0,
+      "duration_seconds": 0.365,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/fader.log",
+      "result": "PASS"
+    },
+    {
+      "name": "buttons",
+      "reason": "M actions must preserve other buttons and navigation.",
+      "argv": [
+        "python3",
+        "tests/host/smc_buttons_test.py"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021",
+      "returncode": 0,
+      "duration_seconds": 0.368,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/buttons.log",
+      "result": "PASS"
+    },
+    {
+      "name": "filter",
+      "reason": "M feedback must preserve main filter and mute feedback.",
+      "argv": [
+        "python3",
+        "tests/host/smc_filter_test.py"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021",
+      "returncode": 0,
+      "duration_seconds": 0.367,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/filter.log",
+      "result": "PASS"
+    },
+    {
+      "name": "part-select",
+      "reason": "Shared drum helpers must preserve part selection.",
+      "argv": [
+        "sh",
+        "tests/host/smc_part_select_test.sh"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021",
+      "returncode": 0,
+      "duration_seconds": 0.41,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/part-select.log",
+      "result": "PASS"
+    },
+    {
+      "name": "reachability",
+      "reason": "Production routing must retain three mixer modes and context reachability.",
+      "argv": [
+        "sh",
+        "tests/host/smc_reachability_test.sh"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021",
+      "returncode": 0,
+      "duration_seconds": 5.611,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/reachability.log",
+      "result": "PASS"
+    },
+    {
+      "name": "clip-visibility",
+      "reason": "The performance guard must preserve clip ownership and queued knob visibility.",
+      "argv": [
+        "sh",
+        "tests/host/smc_clip_visibility_test.sh"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021",
+      "returncode": 0,
+      "duration_seconds": 0.404,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/clip-visibility.log",
+      "result": "PASS"
+    },
+    {
+      "name": "drum-mutes",
+      "reason": "Drum M actions and lights must match active kit tracks.",
+      "argv": [
+        "sh",
+        "tests/host/smc_drum_mutes_test.sh"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021",
+      "returncode": 0,
+      "duration_seconds": 5.655,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/drum-mutes.log",
+      "result": "PASS"
+    },
+    {
+      "name": "performance-abort",
+      "reason": "SMC abort paths must restore the performance state and resume normal input.",
+      "argv": [
+        "sh",
+        "tests/host/smc_performance_abort_test.sh"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021",
+      "returncode": 0,
+      "duration_seconds": 5.774,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/performance-abort.log",
+      "result": "PASS"
+    },
+    {
+      "name": "protocol",
+      "reason": "Protocol notes and MMC mapping must remain valid.",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-o",
+        "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/smc_protocol_test",
+        "tests/host/smc_protocol_test.c"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021",
+      "returncode": 0,
+      "duration_seconds": 0.041,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/protocol.log",
+      "run_argv": [
+        "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/smc_protocol_test"
+      ],
+      "run_returncode": 0,
+      "result": "PASS"
+    }
+  ],
+  "failures": [],
+  "limits": [
+    "These are host checks. Physical-device behavior is NOT TESTED.",
+    "No target build or install ran in this scope."
+  ],
+  "source_sha256": "ad29f71abe1411ebb2666e481deeca13c9a0a835b50b9f454963aa9fdb64205a",
+  "tracked_changes_after": [],
+  "negative_controls": [
+    {
+      "name": "drum-mutes-base",
+      "argv": [
+        "sh",
+        "tests/host/smc_drum_mutes_test.sh"
+      ],
+      "env": {
+        "SMC_SOURCE": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/base-smc_mixer.c"
+      },
+      "returncode": 134,
+      "duration_seconds": 5.151,
+      "expected_failure": "seq.vmute == expected",
+      "result": "EXPECTED FAIL",
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/drum-mutes-base.log"
+    },
+    {
+      "name": "performance-abort-base",
+      "argv": [
+        "sh",
+        "tests/host/smc_performance_abort_test.sh"
+      ],
+      "env": {
+        "SMC_SOURCE_FILE": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/base-smc_mixer.c"
+      },
+      "returncode": 1,
+      "duration_seconds": 5.034,
+      "expected_failure": "DAW key 5D phase 0 did not abort",
+      "result": "EXPECTED FAIL",
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/performance-abort-base.log"
+    }
+  ],
+  "negative_control_source": {
+    "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+    "saved_copy_matches_git": true,
+    "sha256": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+    "path": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/base-smc_mixer.c"
+  },
+  "selected_dispatch": {
+    "argv": [
+      "sh",
+      "tests/run_tests.sh",
+      "smc-reachability",
+      "smc-drum-mutes",
+      "smc-performance-abort"
+    ],
+    "env": {
+      "X0X_TEST_JOBS": "1"
+    },
+    "reason": "The candidate changed test dispatch. The registered production checks must run through the dispatcher.",
+    "returncode": 0,
+    "duration_seconds": 15.793,
+    "result": "PASS",
+    "log": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/selected-dispatch.log"
+  },
+  "result": "PASS",
+  "registration_record": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/registration.json",
+  "input_identity_record": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/input-identity.json",
+  "coverage": [
+    "The drum regression covered 22 active mute/light destinations and 10 inactive positions.",
+    "The drum regression covered 30 knob/fader writes and main mute/FX behavior.",
+    "The drum regression covered SELECT, bank changes, and menu/help/confirmation/clip ownership.",
+    "The performance regression covered STOP, PLAY, and back in phases 0\u20132.",
+    "The performance regression covered DAW, direct User MMC, host User note, and both host User MMC queues.",
+    "The performance regression covered deferred restoration, queued edits, and normal input after restoration."
+  ],
+  "negative_control_disposition": "Both base regressions failed at their expected behavior checks. These failures are required negative-control results.",
+  "firmware_edits": false
+}

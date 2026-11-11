@@ -1,0 +1,51 @@
+{
+  "row_id": "#63",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:187; /workspace/docs-audit/roadmap-status.md:104; No explicit ok for ui-page-wrap / ui_page_wrap_test.py at ce278129 in the searched receipts; aggregate totals and absence from FAIL lists are insufficient.",
+  "notes": "matched_5f578fc0_master id=#63 status=in 0.0.24\nPASS1: [UNCLEAR] Named suite entries have no explicit result in supplied transcript: ui-page-wrap. Named files: tests/host/ui_page_wrap_test.py\nPASS2: [UNCLEAR] No explicit ok for ui-page-wrap / ui_page_wrap_test.py at ce278129 in the searched receipts; aggregate totals and absence from FAIL lists are insufficient.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#63 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:104 (reconciled; gate result=MISSING)"
+    },
+    "category": "UNCLEAR",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:187",
+      "/workspace/docs-audit/roadmap-status.md:104",
+      "out/docs/roadmap-evidence/#63.json:original notes"
+    ],
+    "named_tests": [
+      [
+        "/workspace/docs-audit/_ROADMAP-5f578fc0.md:187",
+        "tests/host/ui_page_wrap_test.py"
+      ]
+    ],
+    "bindings": {
+      "ui-page-wrap": [
+        {
+          "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:187",
+          "named": "tests/host/ui_page_wrap_test.py",
+          "file": "tests/host/ui_page_wrap_test.py",
+          "mapping": "tests/run_tests.sh:459"
+        }
+      ]
+    },
+    "missing_results": [
+      "ui-page-wrap"
+    ]
+  },
+  "pass2": {
+    "status": "UNPROVEN",
+    "category": "UNCLEAR",
+    "reason": "No explicit ok for ui-page-wrap / ui_page_wrap_test.py at ce278129 in the searched receipts; aggregate totals and absence from FAIL lists are insufficient.",
+    "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:187; /workspace/docs-audit/roadmap-status.md:104; No explicit ok for ui-page-wrap / ui_page_wrap_test.py at ce278129 in the searched receipts; aggregate totals and absence from FAIL lists are insufficient.",
+    "quote": "",
+    "quote_source": "",
+    "code_paths": [],
+    "test_refs": []
+  }
+}

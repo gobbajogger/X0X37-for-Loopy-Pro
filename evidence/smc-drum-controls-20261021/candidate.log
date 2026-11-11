@@ -1,0 +1,13 @@
+In file included from /workspace/scratch/efe94e5f6f65/smc-drum-buttons/host/x0x_host.c:259,
+                 from /workspace/scratch/efe94e5f6f65/drum-rs-tests/tests/host/smc_drum_rs_test.c:9:
+/workspace/scratch/efe94e5f6f65/smc-drum-buttons/host/../firmware/src/app/ui.c: In function ‘pref_set’:
+/workspace/scratch/efe94e5f6f65/smc-drum-buttons/host/../firmware/src/app/ui.c:513:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  513 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+/workspace/scratch/efe94e5f6f65/smc-drum-buttons/host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+/workspace/scratch/efe94e5f6f65/smc-drum-buttons/host/../firmware/src/app/ui.c:2059:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2059 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+Simulated DAW/MMC, production SMC/UI/SMK pad mapping/engine; no physical-device result.
+Normal stereo audio fingerprints: 909=2b1a2725 808=a0999a81
+PASS: 44 active drum destinations, 20 inactive positions, 88 pad writes, 88 audio cases; 124962 checks, 0 failures

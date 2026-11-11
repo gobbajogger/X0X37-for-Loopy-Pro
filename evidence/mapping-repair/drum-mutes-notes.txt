@@ -1,0 +1,25 @@
+Scope: drum MIX M buttons and matching lights use the same active kit and eight-strip bank as faders and knobs.
+Active positions call production mute_track. Bank 2 positions M4-M8 are inert and their lights are off.
+Main part/FX mutes, existing SELECT feedback, reserved buttons and input ownership remain intact.
+R/S per-track policy is deferred. R2/S2 retain their whole-part behavior.
+
+Checks on candidate working tree:
+X0X_HOST_DEFS=-D_DARWIN_C_SOURCE sh tests/host/smc_drum_mutes_test.sh
+PASS. Log: drum-mutes.log.
+Coverage: 22 active drum action/light destinations; 10 inactive positions; 30 production knob/fader writes; main mute/FX toggle and restore; keyboard mute feedback; SELECT; bank light refresh; help/confirmation/menu/clip ownership; existing R2/S2 scope.
+python3 tests/host/smc_mapping_test.py
+python3 tests/host/smc_buttons_test.py
+python3 tests/host/smc_filter_test.py
+All PASS. The extracted-function fixtures now include the shared drum helpers when present.
+SMC_SOURCE override for the buttons and filter fixtures also passes on the old production source.
+
+Negative control:
+git show 1313e0f:firmware/src/app/smc_mixer.c > /tmp/smc_mapping_1313e0f.c
+X0X_HOST_DEFS=-D_DARWIN_C_SOURCE SMC_SOURCE=/tmp/smc_mapping_1313e0f.c sh tests/host/smc_drum_mutes_test.sh
+Expected FAIL (exit 134), assertion seq.vmute == expected in mute_regression.
+Log: drum-mutes-base.log. The old main mapping and continuous writes pass before the first drum action fails.
+An initial negative-control run failed to find smc_protocol.h from the temporary source directory. The runner now includes firmware/src/app explicitly; this setup error was corrected before the negative control above.
+
+Evidence type: simulated raw DAW MIDI through production queues/UI/engine and feedback with hardware and unused clip substitutes. No HCI/radio or physical-device PASS is claimed.
+The complete physical input-silence cause remains unresolved. This repair does not establish its cause.
+No target builds were run by the drum helper. The stage owner runs both affected DEV targets and records their margins.

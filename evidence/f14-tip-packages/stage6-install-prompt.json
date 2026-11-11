@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "stage": 6,
+  "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+  "validated_commit": "b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a",
+  "content_tree": "4eef581e267c582897df5910196671be2a04ac24a1d0a11acd6086fe583f3e60",
+  "config": "dev",
+  "X0X_DEV_PADCAL": "1",
+  "refuse_packages_from_commit": "656d70e9f0dbcffb346c59112d6ae582f2d93fe7",
+  "prerelease_tag": "f14-tip-b48cd800-dev",
+  "elite": {
+    "record": "evidence/f14-tip-packages/elite/record.json",
+    "package": "x0x-smk37-elite.fwsc",
+    "package_sha256": "4dc49bad6e8b555aefaf3a70f0ccb1579638d2b0e35c30a5f5fee043124f7376",
+    "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "pool_free": 8308,
+    "identity": "SMK-37 Elite_900"
+  },
+  "pro": {
+    "record": "evidence/f14-tip-packages/pro/record.json",
+    "package": "x0x-smk37.fwsc",
+    "package_sha256": "3f3b5c00148347d2dec8fdaf5933e606cd1755c6c55f80f550d5ef915f5a2980",
+    "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "pool_free": 8308,
+    "identity": "SMK-37 Pro_900"
+  }
+}

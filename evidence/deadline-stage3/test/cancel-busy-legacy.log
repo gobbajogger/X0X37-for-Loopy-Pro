@@ -1,0 +1,4 @@
+Accepted Create status: state=4 step=8 waiting=0 conn=0
+After Cancel: refused=1 accepted=0 state=0 waiting=0 conn=0 deadline=3030
+After successful legacy connection: state=0 waiting=0 conn=0 disconnects=0
+Assertion failed: (c.conn == 0x50 && c.state == BLEC_STOPPING && disconnects == 1), function main, file cancel-realistic-probe.c, line 52.

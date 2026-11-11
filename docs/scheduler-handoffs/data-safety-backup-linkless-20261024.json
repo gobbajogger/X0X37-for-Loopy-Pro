@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "evidence_revision": "2026-10-24-r2-linkless-native",
+  "role": "Data Safety",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "producer_source_base": "057009814e63dbb34b8f7f3de03aa9391bd00306",
+  "original_root_tree": "2eeff330c66d3e3f8da0473eef026bc0fdcfe5d3",
+  "consumed_qa": {
+    "pr": 81,
+    "comment": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/81#issuecomment-6368640414",
+    "finding": "unsupported hard links prevent new sample backup",
+    "status": "REPAIRED_SCOPED_PRODUCER_CHECK"
+  },
+  "source": {
+    "path": "tools/x0x_slots.py",
+    "original_blob": "fea90b39c93283bdeb31f238e3a9af5dc1e5f280",
+    "new_blob": "c51c948394cf97c83a6237a467764a7822f098a0",
+    "original_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "firmware_subtree_changed": false,
+    "full_root_retrieved": false
+  },
+  "regression": {
+    "path": "tests/x0x_slots_backup_portable_test.py",
+    "blob": "390db7782e2b262d51a7fd4dbb0a3491ca374818",
+    "pass_log_path": "docs/scheduler-handoffs/data-safety-backup-linkless-20261024-pass.log",
+    "pass_log_blob": "0189166dd90bb8afc62aaf49bbf298da87e35edb",
+    "pass_log_sha256": "26112e68ef88fa82e2ddb602d86c64fae10866396ae964f0c154bdf3b0a64b6f"
+  },
+  "local_checks": [
+    {
+      "cmd": "X0X_SLOTS_SOURCE=pr81_x0x_slots.py python3 -m unittest test_portable_backup -v",
+      "exit": 1,
+      "summary": "RED 9 tests 6 errors incl unsupported hard link; full file not identical to remote",
+      "log_sha256": "8190cd941ad5d1b38388eac8eea9a99ddec920ebb9d26a9ce2cfa2c7dfa2177a"
+    },
+    {
+      "cmd": "X0X_SLOTS_SOURCE=candidate_pr81_x0x_slots.py python3 -m unittest test_portable_backup -v",
+      "exit": 0,
+      "summary": "9/9 PASS; actual native Linux renameat2 fallback"
+    },
+    {
+      "cmd": "python3 -m py_compile candidate_pr81_x0x_slots.py test_portable_backup.py",
+      "exit": 0,
+      "summary": "PASS"
+    },
+    {
+      "cmd": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+      "exit": 128,
+      "summary": "DNS failure; cannot claim full exact-source native tests"
+    }
+  ],
+  "boundaries": [
+    "hardlink yes",
+    "hardlink EOPNOTSUPP fallback native Linux",
+    "destination already exists",
+    "concurrent creator",
+    "symlink collision",
+    "EACCES/EPERM not retried",
+    "no exclusive rename -> SlotError and clean temp",
+    "CRC corrupt archive",
+    "forced replacement unchanged"
+  ],
+  "pending": [
+    "Independent exact full-root QA",
+    "original atomic test suite combined with stack #91/#96",
+    "actual macOS/exFAT behavior",
+    "device backup/readback/restore interruption negatives",
+    "target package/controller, model, CRC and SHA",
+    "legal immutable hosted artifact and HTTP verification"
+  ],
+  "handoff": {
+    "qa": "REVIEW_NEXT_NEW_HEAD",
+    "safe_merge": "#81 prerequisite of #91 then #96; do not flatten",
+    "hourly_build": "BUILD_ONLY_IMMEDIATE_FROM_NEW_SOURCE_HEAD",
+    "publisher": "NO_PUBLIC_INSTALLABLE_YET"
+  },
+  "models": {
+    "elite": "DEVICE_NOT_TESTED",
+    "pro": "DEVICE_NOT_TESTED"
+  },
+  "publication": "SOURCE_ONLY"
+}
