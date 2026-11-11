@@ -92,6 +92,40 @@ static inline void bass_303_accent_decay(int accent, float *decay)
         *decay = BASS_303_ACCENT_DECAY;
 }
 
+/* Accent sweep (TB-303 C13). On accented notes the main envelope, through the
+ * Accent pot and a diode, charges a 1 uF capacitor via 47 k (charge time
+ * constant ~47 ms); the capacitor always drains (~150 ms), and its voltage,
+ * through the Resonance pot's second gang, raises the filter frequency. A run
+ * of close accents starts each one from the charge the last one left, so the
+ * cutoff peaks climb ("the machine gets worked up"), then settle between
+ * accents. Sources: R. Whittle, https://www.firstpr.com.au/rwi/dfish/303-unique.html
+ * and the Devil Fish manual (Sweep Speed Normal = stock TB-303);
+ * component-derived model and 2-octave span, T. Place,
+ * http://timothy.place/TapTools/machine/tb303.html . Driven only by the accent
+ * flag and the envelope, never by velocity. Block rate: a sub-block (<= 256
+ * samples, 5.8 ms) is short against 47 ms, and the cutoff is a control-rate
+ * input of the Chicago filter. At rest (charge 0) nothing changes. */
+#define BASS_303_SWEEP_CHARGE_S 0.047f      /* 47 k x 1 uF */
+#define BASS_303_SWEEP_DRAIN_S 0.150f
+#define BASS_303_SWEEP_SPAN (24.0f / 128.0f) /* 2 octaves of Chicago cutoff (128 per semitone of 16384) */
+#define BASS_303_SWEEP_FLOOR 1e-4f
+static inline float bass_303_sweep_step(float c13, float drive, unsigned n)
+{
+    float t = (float)n * (1.0f / 44100.0f);
+    if (!n)
+        return c13;
+    if (drive > c13)                        /* the diode conducts */
+        c13 += (drive - c13) * (1.0f - fm_expf(-t * (1.0f / BASS_303_SWEEP_CHARGE_S)));
+    c13 *= fm_expf(-t * (1.0f / BASS_303_SWEEP_DRAIN_S));
+    return c13 < BASS_303_SWEEP_FLOOR ? 0.0f : c13;
+}
+/* The cutoff the charge adds. The pot that feeds it is ganged with Resonance:
+ * more of the swept charge at high resonance (0.3 + 0.7 * resonance). */
+static inline float bass_303_sweep_cutoff(float c13, float resonance)
+{
+    return BASS_303_SWEEP_SPAN * (0.3f + 0.7f * fm_clampf(resonance, 0.0f, 1.0f)) * c13;
+}
+
 static inline float bass_303_tune_semitones(int8_t steps)
 {
     if (!steps)

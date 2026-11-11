@@ -78,6 +78,27 @@ int main(void)
         CHECK(d == 0.1f);
     }
 
+    {   /* accent sweep: charges on accents, builds over a run, drains to exactly 0 */
+        float c = 0.0f, peak[4];
+        unsigned a, k;
+        CHECK(bass_303_sweep_step(0.0f, 0.0f, 256) == 0.0f);   /* at rest: no change */
+        CHECK(bass_303_sweep_cutoff(0.0f, 1.0f) == 0.0f);
+        for (a = 0; a < 4; ++a) {          /* 4 accents, 16ths at 120 BPM (125 ms) */
+            float m = 1.0f;
+            peak[a] = 0.0f;
+            for (k = 0; k < 22; ++k) {     /* 22 x 256 samples ~ 128 ms; MEG 200 ms decay */
+                c = bass_303_sweep_step(c, BASS_303_ACCENT_AMT * m, 256);
+                if (c > peak[a]) peak[a] = c;
+                m *= 0.9714f;              /* exp(-5.8 ms / 200 ms) per sub-block */
+            }
+        }
+        CHECK(peak[0] > 0.0f && peak[1] > peak[0] && peak[2] > peak[1] && peak[3] > peak[2]);
+        CHECK(peak[3] < BASS_303_ACCENT_AMT);
+        for (k = 0; k < 2000 && c != 0.0f; ++k) c = bass_303_sweep_step(c, 0.0f, 256);
+        CHECK(c == 0.0f && k < 400);      /* drains to exactly 0 (bit-exact again) */
+        CHECK(bass_303_sweep_cutoff(0.25f, 0.0f) < bass_303_sweep_cutoff(0.25f, 1.0f));
+    }
+
     CHECK(bass_303_tune_semitones(z) == 0.0f);
     CHECK(bass_303_tune_semitones(16) > 0.0f);
     CHECK(bass_303_tune_semitones(-16) < 0.0f);
