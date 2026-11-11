@@ -1,0 +1,70 @@
+# Break MIDI (adaptive slices, docs/usage/adaptive-break-slices.md): every note on the
+# break channel (default 4, status 0x93) wraps around C0 = MIDI 12: slice = (note - 12) mod A count.
+# The default A count is 8. A note on the break channel must not also open a 303. midiheld bit 0 is the 303A gate.
+wait 300
+expect midiheld 0
+expect noteons 0
+
+# notes 36, 12 and 44 are all slice 0 at 8 slices. Releasing one leaves the others holding it.
+midi 93 24 64 0
+wait 20
+expect midiheld 0x100
+midi 93 0C 64 0
+wait 20
+expect midiheld 0x100
+midi 83 0C 00 0
+midi 93 2C 64 0
+wait 20
+expect midiheld 0x100
+midi 83 2C 00 0
+midi 83 24 00 0
+wait 20
+expect midiheld 0
+
+# 303A moved onto channel 4. Break notes are consumed there and do not open the 303.
+partch 2 4
+midi 93 24 64 0
+wait 20
+expect midiheld 0x100
+midi 83 24 00 0
+wait 20
+expect midiheld 0
+midi 93 30 64 0
+wait 20
+expect midiheld 0x1000
+midi 83 30 00 0
+wait 20
+expect midiheld 0
+partch 2 2
+
+# 303A on its own channel still plays. A drum-channel note 36 is not a break slice.
+midi 91 30 64 0
+wait 20
+expect midiheld 1
+midi 81 30 00 0
+wait 20
+expect midiheld 0
+midi 99 24 64 0
+wait 20
+expect midiheld 0
+midi 89 24 00 0
+
+# notes 0 and 8 are slice 4 ((0 - 12) mod 8 and (8 - 12) mod 8). Releasing one leaves the other holding it.
+midi 93 00 64 0
+wait 20
+expect midiheld 0x1000
+midi 93 08 64 0
+wait 20
+expect midiheld 0x1000
+midi 83 00 00 0
+wait 20
+expect midiheld 0x1000
+midi 83 08 00 0
+wait 20
+expect midiheld 0
+
+# a note off for a note that is not held changes nothing
+midi 83 25 00 0
+wait 20
+expect midiheld 0
+expect noteons 0

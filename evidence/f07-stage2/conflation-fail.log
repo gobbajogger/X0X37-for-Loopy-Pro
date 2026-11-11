@@ -1,0 +1,3 @@
+exit 1
+FAIL: installer_sha256 alone conflates the nightly source fingerprint with served HTML; record installer_source_fingerprint and served_install_html_sha256 separately (installer_sha256 may remain as an alias of the source fingerprint)
+CONFLATION_REJECTED_OK

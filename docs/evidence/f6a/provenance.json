@@ -1,0 +1,218 @@
+{
+  "base": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
+  "base_tree": "e340d89d180879b8d8a2fea07c56800a2feaac5c",
+  "source_pr": 690,
+  "source_head": "bc9a8b98a694f2efc6abfa3fe2bdfbc94924ecef",
+  "source_commits": [
+    {
+      "sha": "5b7e7b7ab76df1b7a2ca7ea27b94690dd915743b",
+      "title": "wip(web-site): lane snapshot (#684 engines + web-site work, private headers excluded) from codex/web-site 540330dc"
+    },
+    {
+      "sha": "3671acacc64a5ad3036b6581ef489a907cd2d0ab",
+      "title": "fix(web): route generated index.html to published Samples and Projects pages"
+    },
+    {
+      "sha": "57951dd34ae6f388174e7612c6f8853fbc52f766",
+      "title": "test(web): prevent generated workspace navigation regression"
+    },
+    {
+      "sha": "20e1a12a85c9298770e13605bb77c7527a38ab26",
+      "title": "test(web): guard exclusive MIDI writer and disconnected port reuse"
+    },
+    {
+      "sha": "f264fac9aa86e949c47a091f5ce3dd5006128e5d",
+      "title": "fix(site): order release history by numeric version components"
+    },
+    {
+      "sha": "ef91738a6c2407bd036064e2be6c0e0d311e5f32",
+      "title": "test(site): retain correct 0.0.10 release history order"
+    },
+    {
+      "sha": "4076d6bcdff5bb3b98ba6d7a41871ca83dfb801b",
+      "title": "fix(site): keep newer default when older model package is added"
+    },
+    {
+      "sha": "46437887bcf39fe015ae545c7ba64a2522373c22",
+      "title": "test(site): prevent default downgrade and repair stale latest pointers"
+    },
+    {
+      "sha": "9fe416a39506ad8d408fa5bf84603b696fd005a4",
+      "title": "test(site): run catalog retention regression without build-directory setup"
+    },
+    {
+      "sha": "620294d653ad21f993fcb2139a9f6d29c260698e",
+      "title": "Bring the website onto the latest combined build"
+    },
+    {
+      "sha": "d2018155a4da6a96f980f782840a9b345d2a6224",
+      "title": "Keep the website current with the combined build"
+    },
+    {
+      "sha": "bc9a8b98a694f2efc6abfa3fe2bdfbc94924ecef",
+      "title": "Refresh the website against the latest combined build"
+    }
+  ],
+  "comparison": {
+    "status": "diverged",
+    "ahead_by": 774,
+    "behind_by": 12,
+    "merge_base": "d4498d0983ce6b42414e7533a393c1c3350988e4"
+  },
+  "paths": [
+    {
+      "path": "tools/make_pages.py",
+      "base_blob": "7e97e3e120b712a77222af237a313369c9360554",
+      "source_blob": "7e97e3e120b712a77222af237a313369c9360554"
+    },
+    {
+      "path": "web/MANUAL.md",
+      "base_blob": "6b95ac6bf469c6a2a74477916cf1c376342d1358",
+      "source_blob": "6b95ac6bf469c6a2a74477916cf1c376342d1358"
+    },
+    {
+      "path": "web/NEW.md",
+      "base_blob": "58ae779ef1c8fd2dc1201d7c7719c6643b4e72dd",
+      "source_blob": "58ae779ef1c8fd2dc1201d7c7719c6643b4e72dd"
+    },
+    {
+      "path": "web/assets/GolosText-OFL.txt",
+      "base_blob": "4db2dc99dd31ec2dd9655d3b71565a9959394ab1",
+      "source_blob": "4db2dc99dd31ec2dd9655d3b71565a9959394ab1"
+    },
+    {
+      "path": "web/device_session.js",
+      "base_blob": "ea8d945fb16aae6ba9f67986cabf93aedd0e84cc",
+      "source_blob": "ea8d945fb16aae6ba9f67986cabf93aedd0e84cc"
+    },
+    {
+      "path": "web/fm1ota.js",
+      "base_blob": "4d88189f7f452f3826224b5a07235fddef192e9d",
+      "source_blob": "5972ac4868232c70b569e758d681b1caecb89730"
+    },
+    {
+      "path": "web/site.css",
+      "base_blob": "2c1cca8549fa424b2c5c8f1ed2da06499b05b881",
+      "source_blob": "2c1cca8549fa424b2c5c8f1ed2da06499b05b881"
+    },
+    {
+      "path": "web/test_breaks_page.mjs",
+      "base_blob": "c2350a580aedc6eb5b845534f69b59e996a83b7d",
+      "source_blob": "c2350a580aedc6eb5b845534f69b59e996a83b7d"
+    },
+    {
+      "path": "web/test_device_session_target.mjs",
+      "base_blob": "f92a6b24bef618624e3a38cdd043dd7eae2256dd",
+      "source_blob": "f92a6b24bef618624e3a38cdd043dd7eae2256dd"
+    },
+    {
+      "path": "web/test_install_nightly_controller_selection.mjs",
+      "base_blob": "f6b86faac74159826c883d0660fe7074d7a37a1a",
+      "source_blob": "f6b86faac74159826c883d0660fe7074d7a37a1a"
+    },
+    {
+      "path": "web/test_install_nightly_download_guard.mjs",
+      "base_blob": "d29fb24f11e61b28ff6c585170ccb49e4612ef19",
+      "source_blob": "d29fb24f11e61b28ff6c585170ccb49e4612ef19"
+    },
+    {
+      "path": "web/test_install_nightly_ota_model.mjs",
+      "base_blob": "12992b4fb6f89ad4003a46274c587eb03da4461c",
+      "source_blob": "12992b4fb6f89ad4003a46274c587eb03da4461c"
+    },
+    {
+      "path": "web/test_install_nightly_reconnect.mjs",
+      "base_blob": "40bd609415ddb5cddf2da22eb6f8e17e79dc6bb7",
+      "source_blob": "40bd609415ddb5cddf2da22eb6f8e17e79dc6bb7"
+    },
+    {
+      "path": "web/test_install_nightly_scan_order.mjs",
+      "base_blob": "8719a96da29e9a32bfaafcb8142ec056ad2dd96a",
+      "source_blob": "8719a96da29e9a32bfaafcb8142ec056ad2dd96a"
+    },
+    {
+      "path": "web/test_install_nightly_slot_prewrite.mjs",
+      "base_blob": "b6f90a156ec6eab73d8bc6b97926eaa4d8fb6d9b",
+      "source_blob": "b6f90a156ec6eab73d8bc6b97926eaa4d8fb6d9b"
+    },
+    {
+      "path": "web/test_install_slots.mjs",
+      "base_blob": "a01df97a383f0671fdb5d0ec071306eac6efa699",
+      "source_blob": "24750d9d6ab52c55555a4e83a4898c0f6c93fd5f"
+    },
+    {
+      "path": "web/test_install_stock_model_preflight.mjs",
+      "base_blob": "99edc558d5cbe78fa519944ac66aa785664e69d1",
+      "source_blob": "99edc558d5cbe78fa519944ac66aa785664e69d1"
+    },
+    {
+      "path": "web/test_projects_page.mjs",
+      "base_blob": "d0c82b156a49ff03470dade569fca6a9295fdbcb",
+      "source_blob": "d0c82b156a49ff03470dade569fca6a9295fdbcb"
+    },
+    {
+      "path": "web/test_site_generation.py",
+      "base_blob": "34379d688763067374d9c5eda69933c251d004f8",
+      "source_blob": "34379d688763067374d9c5eda69933c251d004f8"
+    },
+    {
+      "path": "web/test_workspace_browser.mjs",
+      "base_blob": "aa720b8be5a84014b0597c301a3da34948c3d200",
+      "source_blob": "aa720b8be5a84014b0597c301a3da34948c3d200"
+    },
+    {
+      "path": "web/test_workspace_entrypoints.mjs",
+      "base_blob": "6aa72ecd4e3f120eea3d504d7721a5e8425a6b65",
+      "source_blob": "6aa72ecd4e3f120eea3d504d7721a5e8425a6b65"
+    },
+    {
+      "path": "web/test_workspace_safety.mjs",
+      "base_blob": "18cd0fcc1b0d8bb32112f850a28b7a9281200559",
+      "source_blob": "18cd0fcc1b0d8bb32112f850a28b7a9281200559"
+    },
+    {
+      "path": "web/workspace-proposal.html",
+      "base_blob": "40ea458f4efa91b27d9ae69f87c8220df1924e58",
+      "source_blob": "40ea458f4efa91b27d9ae69f87c8220df1924e58"
+    },
+    {
+      "path": "web/workspace.js",
+      "base_blob": "e3733980597e92c59220b1f2b0c68d71f7d997f3",
+      "source_blob": "e3733980597e92c59220b1f2b0c68d71f7d997f3"
+    },
+    {
+      "path": "web/x0x_breaks.html",
+      "base_blob": "42964ab891e2104fa318a260d8bb54e176530bb6",
+      "source_blob": "42964ab891e2104fa318a260d8bb54e176530bb6"
+    },
+    {
+      "path": "web/x0x_breaks.js",
+      "base_blob": "19257d458914894d1d3b15b9ea703e8116409256",
+      "source_blob": "19257d458914894d1d3b15b9ea703e8116409256"
+    },
+    {
+      "path": "web/x0x_installer.html",
+      "base_blob": "57e67fb43143a9addb9337b6121d27eb7aa5e24e",
+      "source_blob": "c777150653609c4bf256549ac501092b736c9516"
+    },
+    {
+      "path": "web/x0x_projects.html",
+      "base_blob": "0f92ab7f43d4954ffc2226649a92adc7fc282d7d",
+      "source_blob": "0f92ab7f43d4954ffc2226649a92adc7fc282d7d"
+    },
+    {
+      "path": "web/x0x_projects.js",
+      "base_blob": "1e045985241e4953e0d466ce38d3a8be267a7f08",
+      "source_blob": "1e045985241e4953e0d466ce38d3a8be267a7f08"
+    }
+  ],
+  "font_port": {
+    "commit": "5b7e7b7ab76df1b7a2ca7ea27b94690dd915743b",
+    "path": "web/assets/GolosText.ttf",
+    "blob": "05ee5ecc570b97818e24e58693662cd8294fdfc9",
+    "bytes": 184292,
+    "license": "SIL OFL 1.1",
+    "css_adjustment": "Use actual variable weight range 400–900; inherit shared font in documentation headings."
+  },
+  "integration": "No wholesale cherry-pick of mixed engine/site snapshot. 26/29 source paths already match. Three newer B1 files retained unchanged. Original licensed font blob ported exactly; no engine/editor/installer-sequence port."
+}

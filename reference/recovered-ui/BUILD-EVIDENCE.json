@@ -1,0 +1,54 @@
+{
+  "combined": {
+    "source": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+    "tree": "aa9273145360c1e9583ec293240a1ecb4f58e65c",
+    "state": "BUILD_SUCCEEDED_UNREVIEWED",
+    "hardware": "DEVICE_NOT_TESTED",
+    "publication": "PACKAGE_NOT_PUBLISHED",
+    "receipt_origin_sha256": "2775b2174fac56ab78625bce1e6154bedfc8e6d83c8717dbf19b351417b8a436",
+    "classification": "Historical producer-native evidence; not execution in this recovery task, not hardware acceptance.",
+    "models": {
+      "elite": {
+        "native_exit": 0,
+        "app_bytes": 416088,
+        "package_sha256": "3ac9b34221d2eabbde1d61bb98d443d9ef4ab395e5d222633d5d92def40ffd28",
+        "package_bytes": 651455
+      },
+      "pro": {
+        "native_exit": 0,
+        "app_bytes": 416088,
+        "package_sha256": "0db87c11d5e8cd0833032813fde86248f2324deb46a345ff232a29c57ff90c55",
+        "package_bytes": 651455
+      }
+    },
+    "exclusions": [
+      "Known SMC-B connectivity failure retained, no fix claim",
+      "No originalport/runtime32d0/staticboot/video integration",
+      "No force-rooted experimental exports",
+      "Host buffer parity inherited from exact optimized engine bytes; no full suite or hardware acceptance",
+      "No public binary publication"
+    ]
+  },
+  "tape": {
+    "source": "2c8b1572b013180725d7302e9337e7376bbf97b7",
+    "tree": "3bd51de04cbf9774ef7635e57eb5a4a6b5c20da1",
+    "receipt_origin_sha256": "1498b3240d5cc722777e19bac8cfb6f322cb013fc9def3f28c5bd0d9a6962dd0",
+    "classification": "Historical producer-native evidence; not execution in this recovery task, not hardware acceptance."
+  },
+  "compiled_input_equivalence": {
+    "candidate": "e2f881b0b0d5fbde8b4e352ab03c8ae2adc46058",
+    "tree": "0dcdd4dc5abca2506b361090140ce84fb141ed38",
+    "compiled_source": "2c8b1572b013180725d7302e9337e7376bbf97b7",
+    "only_changed_paths": [
+      "tests/host/ui_tape_signal_test.c"
+    ],
+    "compiled_inputs": "IDENTICAL; one test-only stale-variable repair, no firmware/header/generator/build changes",
+    "limit": "No native rebuild or unchanged audio parity rerun"
+  },
+  "approval": {
+    "settings": "Independent design round3 approved; original per-screen human approval not established",
+    "glyphs": "Independent design round2 approved; initial proposal receipt predates approval",
+    "e2": "Scoped independent source review round5 approved; hardware NOT_RUN",
+    "combined": "Native producer BUILD_SUCCEEDED_UNREVIEWED; not broad independent approval"
+  }
+}

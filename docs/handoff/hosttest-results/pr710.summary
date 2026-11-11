@@ -1,0 +1,1 @@
+label=pr710 base=cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21 head=7383a6d27d968cb9b7bd1e3133cf3ce66c2cc383 clean=yes rc=1 pass=429 fail=154 notrun=6 first_fail=  FAIL bass-tagged-storage (see build/host/bass-tagged-storage.log)

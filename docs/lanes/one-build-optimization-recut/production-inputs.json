@@ -1,0 +1,107 @@
+{
+  "base": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+  "scope": "Complete authenticated base plus these production deltas; no other production files changed.",
+  "files": [
+    {
+      "path": "experiments/original_synth/chicago_dynamics.c",
+      "sha256": "62ab4c07d0705cb01e4048382ca4b3dea425ab7ce6389cb7abb4c1e6b1686213",
+      "git_blob": "76234e83fe37d6354da476bd0a7e0cb65655852b"
+    },
+    {
+      "path": "experiments/original_synth/chicago_modulation.c",
+      "sha256": "8c8cdc42b6e4e0ad32a8ca08386ac367b85f4d8497ad6d4c029fb7302fc3427e",
+      "git_blob": "db181b138630019d4297c778cad5e81bf35675a9"
+    },
+    {
+      "path": "experiments/original_synth/control_math.c",
+      "sha256": "2790832b8ce5c6395710b98f977942ea35566fe32b24270e472b88804d3b0686",
+      "git_blob": "44030196da85756e1675402f893bda88a4f03b8d"
+    },
+    {
+      "path": "experiments/original_synth/voice_gain.c",
+      "sha256": "efd9fd0594b6ea1b90850859ff37833dfc9f9e82eac1432e46538fe96f52aaac",
+      "git_blob": "ce25e9dad82675a8bd059cdd5d9f1d9fa41c3a90"
+    },
+    {
+      "path": "firmware/src/app/chicago_ens.h",
+      "sha256": "e39433f1d7dfc74c49360e08a34b86d6884797371395e00cad84cd9439c45699",
+      "git_blob": "236ad7d3defd5ed155ba8554c0ad2928c2c678ca"
+    },
+    {
+      "path": "firmware/src/app/engine.c",
+      "sha256": "c158afd9092e8e4729c37593f87e273b376bcdab1bd5ca350ed5c7feaae77e84",
+      "git_blob": "9f41f25c51d793f5bf9ce7fb5d4305dfd40f62ea"
+    },
+    {
+      "path": "firmware/src/app/lz.c",
+      "sha256": "9a0c238ffc7e346bf33f5a741c3d95072aca40b5baf76932a67fbfb71aa04e0f",
+      "git_blob": "a22f7528b201b6e23fe5ca72a27ae8eda65a1703"
+    },
+    {
+      "path": "firmware/src/app/main_fm1.c",
+      "sha256": "342217038d7dcab201c71cc406c465b19cff80f49220dc3aa4cbaf96849a3f7d",
+      "git_blob": "5219827620103964f3ff7f351168bb5adfc78cd9"
+    },
+    {
+      "path": "firmware/src/app/original_sound.c",
+      "sha256": "5d83c725fed7646c04b46b64a0f5351c7ed79319ebe47bb2746f8cc4567376da",
+      "git_blob": "a673c60ae48a375ba5e2efefcf6e3ed76b4b097a"
+    },
+    {
+      "path": "firmware/src/app/project.c",
+      "sha256": "2ce1b9361cf7d1b9238cbb1e5331fcf5ef08ff17c7f6162db5bfa088b8900d9c",
+      "git_blob": "d38381867db3c5f4f889e61b23df0b4c5fed33f6"
+    },
+    {
+      "path": "firmware/src/app/undo.c",
+      "sha256": "660103a918be7b65eb97eec0346f72a3cc448322fa8a990c2ccf14852b05f88f",
+      "git_blob": "1809a6b0f987f17a2b2a556f61affd75d0353ae0"
+    },
+    {
+      "path": "firmware/src/dsp/break_retrigger_lut.h",
+      "sha256": "0dd63b1bc0b07a2307e68f60049703a6652a128d1da64e3a61e8445b22e56ad1",
+      "git_blob": "17df8ef4fa0b39ed94c30812cbabf7f2747046a7"
+    },
+    {
+      "path": "firmware/src/dsp/breaks.c",
+      "sha256": "6761f258d8b85a8e93fdfa6a0bc0f8be008947fc280298a4f3495186055782c8",
+      "git_blob": "07def669f8b2016aa07aaa0c531aaa5f114464b0"
+    },
+    {
+      "path": "firmware/src/dsp/busfx.h",
+      "sha256": "e943b3bda335cdb4edd16eca86c0a90b3b27d86c9b6bd6faf1d467cf3191dc71",
+      "git_blob": "fcc2e6be747b1fe1a24771ec62304403a98db534"
+    },
+    {
+      "path": "firmware/src/dsp/drum808.c",
+      "sha256": "eed39c008a86ff29297290b620fbf97584d1c7e87d16ffc16bef26b33b20654f",
+      "git_blob": "b8ed31537c6c375c849e075094da5f7d190a67f8"
+    },
+    {
+      "path": "firmware/src/dsp/drum909.c",
+      "sha256": "2c07ee32706d7151addeef24b7dc93eeb2261fe4562cccefc693900d5985efc7",
+      "git_blob": "d5a19f6b3616441d8920d74ca156c6d889c8b279"
+    },
+    {
+      "path": "firmware/src/dsp/fxbus.c",
+      "sha256": "5f2f123d0a7adc882bbe4f19fa3467574f7a3aaaeba2977e66ac85f80a33e3d1",
+      "git_blob": "9cdb08a1d3cbf1b9607e2c647a2fbb51d95426a9"
+    },
+    {
+      "path": "firmware/src/dsp/fxbus.h",
+      "sha256": "57941ec8d5d740a78d31ec2398499a274c0814349f131391fb4ce49856c64731",
+      "git_blob": "51b9f0781453d533a6bec3375617e06eea45a6b9"
+    },
+    {
+      "path": "firmware/src/dsp/ima_adpcm.h",
+      "sha256": "3969de613a331e1e84ea742d0f63e560f774d5e3be3712fad3c02b03e085bbed",
+      "git_blob": "fc18829657fabedb85420f1b333817d805f081cf"
+    },
+    {
+      "path": "firmware/src/dsp/master.c",
+      "sha256": "4a33345d2f2922caab102aafae3172ba7913c7641ecd886d22bffe48c236297d",
+      "git_blob": "955586fff38a930c04a6f48e99c10ad50b6b026d"
+    }
+  ],
+  "native_build_equivalence": "All production bytes still match the measured Elite/Pro candidate; subsequent repairs changed only two test fixtures."
+}

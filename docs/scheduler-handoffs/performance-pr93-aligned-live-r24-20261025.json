@@ -1,0 +1,79 @@
+{
+  "schema": "performance-pr93-aligned-live-real-renderer-r24-20261025",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "Performance Engineering",
+  "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+  "tested_parent_commit": "173b8a5c713a57976926932047591dd8d2565e4d",
+  "tested_complete_root_tree": "1a80736d85f5fd72264049b59b73a2cc2c6f43c2",
+  "tested_compiled_firmware_tree": "75723d43185b1b7aeeaf4c50615e4381ce623a6c",
+  "source_blobs": {
+    "R22_before": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+    "R23_after": "01e0e759d2b8be3b028e0e25d4f93348a36aeb46",
+    "r22_runner": "4a285e80482c266abc4ac818b4b0ff0910a4930c",
+    "r24_runner": "895bd44140eec46336fb65738d59907d85b55144"
+  },
+  "source_consumers": "pinned production breaks.c, breaks.h, ADPCM and fastmath headers, x0x param and pattern headers, C fixture and R22 real-path runner; throwaway compiler-copy instrumentation only",
+  "test_stimulus": {
+    "samples": [
+      705600,
+      1411200,
+      2116800
+    ],
+    "rates": [
+      2,
+      4,
+      8,
+      12
+    ],
+    "directions": [
+      "reverse",
+      "forward"
+    ],
+    "trials": [
+      "steady",
+      "live_pad_crossfade"
+    ],
+    "cases_per_executable": 48,
+    "callbacks_per_executable": 3840,
+    "frames_per_callback": 64
+  },
+  "observed": {
+    "gcc_optimized_before_after": "exit 0 / exit 0",
+    "clang_optimized_before_after": "exit 0 / exit 0",
+    "pcm_before_after": "bit-identical",
+    "pcm_sha256": "b176bc84b11fad61010d715bc30d0ec5235953e0bc916290ba49630e95497cf7",
+    "real_path_checkpoint_exit_hits_per_compiler": 147,
+    "reverse_cases_with_exit_hits": 24,
+    "reverse_live_overlap_cases_with_exit_hits": 12,
+    "forward_exit_hits": 0,
+    "steady_reverse_exit_hits": 24,
+    "live_pad_switch_exit_hits": 123,
+    "decoder_counts_per_callback": "unchanged",
+    "stop_silence": "PASS",
+    "invalid_command_negative": "all 4 exits 2",
+    "mutated_source_negative": "exit 1 before evidence directory"
+  },
+  "unrun": [
+    "independent QA",
+    "actual original-source UBSan PASS",
+    "target compiler Elite/Pro/controller against R23 tree",
+    "MCU cycles or XRUN",
+    "device",
+    "installer OTA backup and restore"
+  ],
+  "inherited_sanitizer_failure_owner": "PR #28",
+  "next_owner_actions": [
+    "Independent QA: independently review exact new PR93 root and native test",
+    "Hourly Build: qualify R23 compiled firmware tree with Elite+Pro/controller and memory budgets",
+    "Safe Merge: exclusively integrate after required checks"
+  ],
+  "no_changes_to": [
+    "compiled firmware inputs",
+    "protected refs",
+    "public hosting",
+    "firmware packages",
+    "user data",
+    "physical hardware",
+    "recurring schedulers"
+  ]
+}

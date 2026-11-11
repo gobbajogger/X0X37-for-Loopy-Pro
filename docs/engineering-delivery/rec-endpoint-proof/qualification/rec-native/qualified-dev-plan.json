@@ -1,0 +1,36 @@
+{
+  "base": "d633833ac369f8466bc2563791614206070e87d1",
+  "scope": "Frozen REC endpoint-only stream6 and mixed-continuation preservation follow-up at1d2418a2. Receipt-bound reuse of independent17registeredselectors(including4newsuites),4ASan/UBSan suites,96case/288check timing matrix and12024key ownership checks. Only storage follow-up changed after reviewed recorder source; exact current1314ASan/UBSan + zero-write reproduction cleared preservation HOLD. No full PINGPONG/RANDOM or whole-snapshot/voice-identity claim. Both DEV models and matchingcontroller build from exact pin.",
+  "checks": [
+    {
+      "reason": "Qualify actual compiler Clang4.0.1 and pinned current controller SDK input bytes before build, record application SDK file digests.",
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import subprocess, pathlib, hashlib, json, re, os\nclang=pathlib.Path(os.environ['JIELI_TOOLCHAIN'])/'pi32v2/bin/clang'\ns=subprocess.check_output([str(clang),'--version'],text=True); print(s); assert 'clang version 4.0.1' in s\nsdk=pathlib.Path(os.environ['AC79_SDK'])\nprint('SDK_HEAD_FILE', (sdk/'.git/HEAD').read_text().strip())\nrows=re.findall(r'^([0-9a-f]{64}) (.+)$',pathlib.Path('ble/ctl/fetch_sdk.sh').read_text(),re.M)\nfor expected,rel in rows:\n actual=hashlib.sha256((sdk/rel).read_bytes()).hexdigest(); print(actual,rel); assert actual==expected\nfor rel in ['cpu/wl82/tools/uboot.boot','cpu/wl82/tools/cfg_tool.bin','cpu/wl82/tools/cfg/eq_cfg_hw.bin']:\n print(hashlib.sha256((sdk/rel).read_bytes()).hexdigest(),rel)\n"
+      ]
+    },
+    {
+      "reason": "Verify exact-source authentic independent REC musical/ownership/storage proof and the bounded current storage-HOLD clearance without repeating unchanged checked closures.",
+      "argv": [
+        "python3",
+        "-B",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py"
+      ]
+    }
+  ],
+  "dependencies": [
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/rec-proof-map.json",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/input-reuse.json",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/receipt.json",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-receipt.json",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/core-sanitized.log",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/adjacent-regression.log",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/production-probe.log",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/matrix.log",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-storage-asan.log",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-independent-reproduction.log"
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "schema": "x0x37.integration-handoff/1",
+  "evidence_revision": "safe-merge-pr103-smc58-early-snapshot-20261024-r14",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "receiver": "Independent QA and Hourly Build in parallel",
+  "target_branch": "nightly",
+  "owned_branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+  "exact_consumed": {
+    "integration_parent_root_commit": "8e8338792ca20508163a2b42b17ae542825da10a",
+    "integration_parent_root_tree": "3609692ed833c5660028d2ed514e255877ca187a",
+    "integration_parent_firmware_tree": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+    "smc_producer_pr": 58,
+    "smc_producer_commit": "e0c39288853ae3002caa153ad4a361e6c743755a",
+    "smc_producer_evidence_revision": "smc-pr58-solo-early-snapshot-20261024-r1",
+    "independent_qa_producer_review": "independent-qa-pr58-early-snapshot-differential-20261024-r2",
+    "independent_qa_source_scope": "source windows only; full source/root QA still pending"
+  },
+  "repair": {
+    "method": "reconcile PR58 early snapshots and lost release seen cursor into PR103 only; preserve integrated MMC STOP FIFO helper, BLE reconnect and unrelated 303/backup/OTA changes",
+    "source_path": "firmware/src/app/smc_mixer.c",
+    "old_blob": "91552e4d7a47b43d548cfd1e2df97f7add9b8837",
+    "new_blob": "deb1fd13416bbbdb6e73ac05d382ef5880664903",
+    "test_path": "tests/host/smc_solo_overflow_test.py",
+    "old_test_blob": "0c5c4d97c1f8f582a1fa95ea669de8d8ed6ac762",
+    "new_test_blob": "fd973599147d9d591476a7131e0cecf6c6f7d1e2",
+    "preexisting_runner": "tests/run_tests.sh",
+    "preexisting_runner_blob": "c13f8a29ed4b0c4de0966580a2394705817c8dd4",
+    "test_cases": 20
+  },
+  "actual_native_commands": [
+    {
+      "command": "CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py",
+      "compiler_exit": 0,
+      "corrected_test_exit": 0,
+      "result": "20/20 PASS"
+    },
+    {
+      "command": "CC=gcc SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' python3 -B tests/host/smc_solo_overflow_test.py",
+      "compiler_exit": 0,
+      "corrected_test_exit": 0,
+      "result": "20/20 PASS"
+    },
+    {
+      "command": "CC=clang SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py",
+      "compiler_exit": 0,
+      "corrected_test_exit": 0,
+      "result": "20/20 PASS"
+    },
+    {
+      "command": "CC=clang SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' python3 -B tests/host/smc_solo_overflow_test.py",
+      "compiler_exit": 0,
+      "corrected_test_exit": 0,
+      "result": "20/20 PASS"
+    },
+    {
+      "command": "python3 -B -m py_compile tests/host/smc_solo_overflow_test.py",
+      "exit": 0
+    }
+  ],
+  "negative_control": "Same test on unchanged R12 exact smc_mixer.c blob 91552e4d... compiles GCC UBSan exit 0 and fails expected ISR refill safety assertion (executable SIGABRT; runner exit 1). Additionally 4 GCC/Clang ASan/UBSan native source-extracted race differentials: old C exit 1; repaired C exit 0; 3/3 scenarios corrected.",
+  "qualification": {
+    "scoped_host": "PASS",
+    "independent_combined_full_root_qa": "PENDING",
+    "firmware_elite_new_revision": "NOT BUILT",
+    "firmware_pro_new_revision": "NOT BUILT",
+    "controller_new_revision": "NOT COMPILED",
+    "public_nightly": "NO-GO",
+    "owner_device": "UNKNOWN",
+    "production": "UNCHANGED"
+  },
+  "further_known_issue": {
+    "source": "Data Safety #110",
+    "head": "9e412020739ded51e0bfba4cabe32cd0fcd91a88",
+    "independent_qa": "independent-qa-pr110-controller-header-7bit-alias-no-go-20261024-r1",
+    "disposition": "unresolved ED_CTL_READ address echo high-bit alias; do not consume this producer yet; Data Safety owns repair"
+  },
+  "next_actions": [
+    {
+      "owner": "Independent QA",
+      "action": "Review exact new integration root and firmware subtree; run full combined native BLE/SMC/303/slot/backup/OTA and adversarial regressions; post SHA-linked review."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "BUILD_ONLY Elite and Pro DEV from exact new firmware subtree and root with pinned SDK/toolchain/reference, compare budgets and model/ctl/package hashes; no QA/merge prerequisite."
+    },
+    {
+      "owner": "Data Safety",
+      "action": "Repair #110 controller address high-bit echo alias on own branch, native fail-before/pass-after; independent QA review before integrator considers addition."
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "Keep PR103 DRAFT until combined critical checks and independent QA pass; merge reviewed exact eligible PR only through protected route; verify remote nightly new SHA."
+    },
+    {
+      "owner": "NIGHTLY Publisher",
+      "action": "No packages public until full prehardware source/license/controller/backup/model/integrity/immutable HTTP gates; prior device PASS not required."
+    }
+  ],
+  "exclusions": [
+    "NO Codex/Work/hosted CI",
+    "NO production/main or protected nightly direct write",
+    "NO firmware distribution, binary/controller/vendor leak or device flash",
+    "No complete-root build/QA claim from these scoped tests"
+  ]
+}

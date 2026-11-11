@@ -1,0 +1,34 @@
+{
+  "candidate": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+  "command": "python3 -B evidence/session-stage3/replay-run.py",
+  "result": "PASS",
+  "reason": "CID5 replies can affect startup, callback, mailbox, UI and feedback delivery.",
+  "tracked_tree": "562b14c7ad8a7c7413b9f34fc42cc751683f3e8c",
+  "hashes": {
+    "firmware/src/ble/ble_midi_central.c": "601a29d9f5ad94518a21ac2e4279b6cd4b20fa35da628874a065a6d35f863ef5",
+    "firmware/src/ble/ble_midi_central.h": "858be9c6246329884deaa18eb82f61f3695af61e56c864c50146bdbd1d73d7b6",
+    "firmware/src/ble.c": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+    "host/x0x_host.c": "6a88517d1b63c1a7a608de5a00a07c85676c3fa8313e02ebac5ba49c311422c7",
+    "firmware/src/app/smc_mixer.c": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+    "firmware/src/app/ui.c": "22f58e87d1f77baac72ca68c84a71eadd02bcb1968929b730af2074a3d9e230f",
+    "evidence/session-stage3/replay-run.py": "438d2d720955e60c11c6170de2a5748939e8386fec2dd88d98d5cb6a0bd80bf5",
+    "evidence/session-stage3/replay.c": "1f126a64aa914873c9f21bcfe82dc9fc20d5fdb3a6dc66a62114e4e0acfb14f5",
+    "build/session-stage3/payloads.bin": "085499b9c2d9ad749c0dd9d6c753f32971bec3ee4ec3014a41bc338aadc1e4db",
+    "build/session-stage3/store.bin": "402fe3c9f70c5b550ded0b85ab54b3a4413cf1135dd6cb15d365aeb8c7738283",
+    "build/session-stage3/replay": "c9ef49bc4c8d6442d1a05957976f89c8537a2ff04fdac54ed63fa72c48ca3eee"
+  },
+  "external_hashes": {
+    "/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/compare_startup.py": "23afbe7f10cf894ce9e07f5ee0db7c7ce3d79959bd5ccb4017c56f4948b1a274",
+    "/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/working-source-store.bin": "402fe3c9f70c5b550ded0b85ab54b3a4413cf1135dd6cb15d365aeb8c7738283"
+  },
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "generated_inputs": "replay-generated-inputs.json",
+  "details": "replay.json",
+  "limits": [
+    "The HCI framing, peer and scheduling are simulated.",
+    "Three ATT packets above 64 bytes are excluded.",
+    "The saved project is synthetic.",
+    "This test does not establish target interrupt or radio behaviour.",
+    "The physical input failure remains unresolved."
+  ]
+}

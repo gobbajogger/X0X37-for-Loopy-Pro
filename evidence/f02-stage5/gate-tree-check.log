@@ -1,0 +1,6 @@
+DEV TREE OK 4ee8f37 7ad3a50da8abac890215dae3c28197a2fa90041b8615e828b6b3c6e18060fb83
+REFUSED evidence tip fbf0bd4 development evidence is for another source tree
+elite record commit 4ee8f37714b0892f2c70d157fda9328da393e987
+pro record commit 4ee8f37714b0892f2c70d157fda9328da393e987
+package bytes absent on this merge pod; full require_gate_pass --dev-record needs local fwsc/ctl matching record hashes
+install commit for stage-6 must be the validated source SHA above, not an evidence-only tip
