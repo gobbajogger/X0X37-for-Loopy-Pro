@@ -1,3 +1,6 @@
+#include <stdint.h>
+extern uint32_t plat_ticks24(void);
+extern volatile uint32_t zdq_cur[48];
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "original_miami_backend.h"
 #include "../../../experiments/original_synth/binary32_classify.h"
@@ -465,7 +468,7 @@ static int render_event_free_block(original_miami_backend *s,
             s->note_context.helper_entries += k;
             rest -= k;
         }
-        if (!render_span(s, left + offset, right + offset, span)) return 0;
+        { uint32_t t0_ = plat_ticks24(); int ok_ = render_span(s, left + offset, right + offset, span); zdq_cur[38] += plat_ticks24() - t0_; if (!ok_) return 0; }
         offset += span;
     }
     return 1;
@@ -515,8 +518,10 @@ static int render_event_words_validated(original_miami_backend *s, original_miam
             if (!render_voice_frame(s, left + frame, right + frame)) return 0;
         }
     }
+    uint32_t t1_ = plat_ticks24();
     int result = completed(s, original_miami_output_process(&s->output, &s->program, w,
         left, right, left, right, frames, 0, NULL, 0));
+    zdq_cur[45] += plat_ticks24() - t1_;
     s->block_prepared = 0;
     return result;
 }
@@ -548,7 +553,9 @@ int original_miami_backend_render_events(original_miami_backend *s, original_mia
         if (overlap(left, bytes, p[i], n) || overlap(right, bytes, p[i], n) ||
             overlap(p[i], n, w, sizeof *w)) return 0;
     }
+    uint32_t t2_ = plat_ticks24();
     int result = render_event_words_validated(s, &w->fx, w->left, w->right, frames, events, count);
+    zdq_cur[47] += plat_ticks24() - t2_;
     if (!result) return 0;
     if (result == 2) {
         original_miami_zero_floats(left, frames);
