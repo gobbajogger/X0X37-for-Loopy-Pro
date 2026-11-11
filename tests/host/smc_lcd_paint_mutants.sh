@@ -114,4 +114,24 @@ mutate drop-swap-to-snapshot \
     '(void)0; /* SWAP_TO_SNAPSHOT */' \
     firmware/src/app/ui.c
 
-echo "smc lcd paint mutants: 10 killed"
+mutate skip-pg-copy-always \
+    'if (ui_paint_live->pg_gen != tmp.pg_gen) { /* PG_COPY_IF_GEN */' \
+    'if (0) { /* PG_COPY_IF_GEN */' \
+    firmware/src/app/ui.c
+
+mutate drop-any-button \
+    'any_button = d->any_button; /* ANY_BUTTON_HOLD */' \
+    '(void)d; /* ANY_BUTTON_HOLD */' \
+    firmware/src/app/ui.c
+
+mutate heavy-action-inline \
+    'return; /* HEAVY_ACTION_DEFER */' \
+    '/* HEAVY_ACTION_DEFER */' \
+    firmware/src/app/ui.c
+
+mutate scratch-use-during-paint \
+    'if (!ui_scratch_claim()) /* SCRATCH_HELD */' \
+    'if (0) /* SCRATCH_HELD */' \
+    firmware/src/app/ui.c
+
+echo "smc lcd paint mutants: 14 killed"

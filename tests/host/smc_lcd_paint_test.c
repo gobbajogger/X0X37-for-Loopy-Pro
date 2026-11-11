@@ -12,6 +12,7 @@
 static unsigned hooks, fails, chunks;
 static int inject_armed, inject_grid, chunk_polls, chunk_buttons;
 static int watch_body_view, poll_saw_view, body_rebuild, expire_peek;
+static uint8_t footer_press, load_press, load_mid_empty, scratch_probe, scratch_blocks;
 static uint16_t frame_a[240 * 240], frame_b[240 * 240], frame_now[240 * 240];
 
 struct guard {
@@ -50,6 +51,19 @@ static void inject_b(void)
             smc_ui_begin(7, 0);
             smc_slot = saved;
         }
+        if (footer_press && chunks >= 12)
+            held_btn = 1u << B_FX;           /* stays down so the release does not change view */
+        if (scratch_probe && ui_paint_around_input && !scratch_blocks) {
+            ui_scratch_probe = 1;
+            ui_scratch_blocks = 0;
+            perf_build();
+            scratch_blocks = ui_scratch_blocks;
+            ui_scratch_probe = 0;
+        }
+        if (load_press && chunks == 2)
+            held_btn = 1u << B_SEL;          /* confirm LOAD while the frame is still transferring */
+        if (load_press && chunks == 8)
+            load_mid_empty = (uint8_t)(ui.msg[0] == 0);
         if (chunk_buttons && chunks == 12) {
             held_btn = 1u << B_SEQ;          /* press: HOME -> SEQ, records prev_view */
             ui.part = PART_909;
@@ -575,6 +589,9 @@ static void run_body_input(int dirty)
     snprintf(msg, sizeof msg, "%s view part sel and prev_view survive", tag);
     paint_fail(ui.view == V_FX && ui.prev_view == V_SEQ && ui.part == PART_909 &&
                ui.sel[PART_909] == 5 && held_btn == 0, msg);
+    /* A view press is not a project action. It lands during the paint. */
+    snprintf(msg, sizeof msg, "%s non-heavy press applies during the paint", tag);
+    paint_fail(ui.view == V_FX && ui.prev_view == V_SEQ, msg);
     chunk_polls = 0;
     chunk_buttons = 0;
     held_btn = 0;
@@ -626,6 +643,97 @@ static void run_body_pg_rebuild(void)
     paint_fail(rows_eq(fb, frame_a, HDR_H, KNOB_Y),
                "body poll rebuilds pg without changing the drawn page");
     paint_fail(ui.view == V_SEQ, "body poll rebuild stays on the live page");
+    paint_fail(pg.n >= 2 && !strcmp(pg.title[0], "SEQUENCE") && !strcmp(pg.title[1], "KEYS"),
+               "body poll rebuild keeps the live page table");
+}
+
+/* Cold full frame, any_button still clear. A press during the main transfer
+ * must not replace "HOLD ANY BUTTON" in this frame. The press stays live. */
+static void run_hold_footer(void)
+{
+    unsigned diff;
+    any_button = 0;
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    paint();
+    memcpy(frame_a, fb, sizeof frame_a);
+
+    any_button = 1;
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    paint();
+    memcpy(frame_b, fb, sizeof frame_b);
+    diff = pix_diff(frame_a, frame_b, 220, 240);
+    paint_fail(diff > 0, "hold-any footer differs from the used footer");
+
+    any_button = 0;
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    footer_press = 1;
+    chunk_polls = 1;
+    chunks = 0;
+    paint();
+    footer_press = 0;
+    chunk_polls = 0;
+    held_btn = 1u << B_FX;               /* still down, so the next frame does not take the release */
+    paint_fail(pix_diff(fb, frame_a, 220, 240) == 0,
+               "cold-full footer stays on the hold-any snapshot");
+    paint_fail(pix_diff(fb, frame_b, 220, 240) != 0,
+               "cold-full footer is not the used-button line");
+    paint_fail(any_button == 1, "hold-any press stays on the live page");
+    paint();
+    paint_fail(any_button == 1 && pix_diff(fb, frame_b, 220, 240) == 0,
+               "next frame shows the used-button footer");
+}
+
+/* SEL confirms LOAD during a peek transfer. The load runs after ui_frame
+ * returns, and the message is still empty while chunks are in flight. */
+/* A perf-pattern build during the body must be refused: that build writes
+ * the same scratch the peek is using as its other page table. */
+static void run_scratch_guard(void)
+{
+    prepare();
+    set_peek(1);
+    settle_identity(0, 0, 1);
+    scratch_probe = 1;
+    scratch_blocks = 0;
+    chunk_polls = 1;
+    chunks = 0;
+    paint();
+    scratch_probe = 0;
+    chunk_polls = 0;
+    paint_fail(scratch_blocks > 0, "scratch use during the paint is refused");
+}
+
+static void run_load_after_paint(void)
+{
+    prepare();
+    set_peek(1);
+    ui.rec = 1;
+    ui.overlay = O_ASK;
+    ui.ask_act = ACT_LOAD;
+    ui.ask_arg = 0;
+    ui.msg[0] = 0;
+    ui.msg_until = 0;
+    load_mid_empty = 0;
+    load_press = 1;
+    chunk_polls = 1;
+    chunks = 0;
+    held_btn = 0;
+    paint();
+    load_press = 0;
+    chunk_polls = 0;
+    held_btn = 0;
+    paint_fail(load_mid_empty,
+               "project load does not run during the paint");
+    paint_fail(!strcmp(ui.msg, "STOP PLAYING TO LOAD"),
+               "project load runs after the paint");
 }
 
 static void run_swap_sees_live(void)
@@ -725,6 +833,9 @@ int main(void)
     run_body_pg_rebuild();
     run_swap_sees_live();
     run_peek_timeout();
+    run_hold_footer();
+    run_load_after_paint();
+    run_scratch_guard();
     if (fails) {
         fprintf(stderr, "FAIL smc lcd paint: %u assertion(s)\n", fails);
         return 1;

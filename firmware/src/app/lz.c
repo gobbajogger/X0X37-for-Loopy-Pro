@@ -35,6 +35,8 @@ typedef struct {
 #else
 static uint16_t lz_head[1u << LZ_HBITS];
 #endif
+static uint8_t lz_scratch_held;         /* set while a peek body keeps a page table in this scratch */
+void ui_lz_scratch_hold(int on) { lz_scratch_held = on ? 1u : 0u; }
 
 static uint32_t lz_hash(const uint8_t *p)
 {
@@ -66,6 +68,8 @@ static int lz_literals(lz_sink_t *o, const uint8_t *p, uint32_t n)
 static int lz_compress(const uint8_t *in, uint32_t n, lz_sink_t *o)
 {
     uint32_t i = 0, lit = 0, k;
+    if (lz_scratch_held)
+        return -1;
     if (n >= LZ_NONE)
         return -1;
     for (k = 0; k < (1u << LZ_HBITS); k++)

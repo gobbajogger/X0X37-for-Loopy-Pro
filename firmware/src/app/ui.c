@@ -1169,6 +1169,8 @@ typedef struct {
     int nmore;
 } pages_t;
 static pages_t pg X0X_POOL;
+static uint32_t pg_gen;                /* bumps only when the page table bytes change */
+static uint32_t pg_sig, pg_sig_gen;    /* hash of the inputs that built that table */
 static uint8_t pg_grp;                 /* the group pages added now belong to */
 static void more(pref_t r)
 {
@@ -1303,9 +1305,39 @@ X0X_COLD __attribute__((noinline)) static void more_refs(const pref_t *refs, uns
     }
 }
 
+/* The table is a pure function of the view, part, mix row, drum selection
+ * and bass bank. A paint poll calls this every chunk. Skip the rewrite when
+ * those inputs still match the table in pg, so the poll can leave pg uncopied. */
+static uint32_t pg_input_sig(void)
+{
+    uint32_t h = 2166136261u;
+    h = (h ^ ui.view) * 16777619u;
+    h = (h ^ ui.part) * 16777619u;
+    h = (h ^ ui.mixsel) * 16777619u;
+    h = (h ^ ui.sel[0]) * 16777619u;
+    h = (h ^ ui.sel[1]) * 16777619u;
+    h = (h ^ (uint32_t)engine_bass_bank(0)) * 16777619u;
+    h = (h ^ (uint32_t)engine_bass_bank(1)) * 16777619u;
+    return h;
+}
+static int pg_inputs_same(void)
+{
+    return pg_sig_gen != 0 && pg_sig_gen == pg_gen && pg_sig == pg_input_sig();
+}
+static void pg_sig_store(void)
+{
+    pg_sig = pg_input_sig();
+    pg_sig_gen = pg_gen;
+}
 static void build_pages(void)
 {
     int p = ui.part, b = bidx();
+    if (pg_inputs_same()) {
+        if (*page_of(ui.view) >= pg.n)
+            *page_of(ui.view) = 0;
+        return;
+    }
+    pg_gen++;
 #if X0X_BASS_PRESET_PREVIEW
     int oldpage=*page_of(ui.view);
     int keep_sound=ui.view==V_PART && is_303() && oldpage<pg.n &&
@@ -1425,6 +1457,7 @@ static void build_pages(void)
 #endif
     if (*page_of(ui.view) >= pg.n)
         *page_of(ui.view) = 0;
+    pg_sig_store();
 }
 
 static int cur_page(void) { return *page_of(ui.view); }
@@ -2138,8 +2171,29 @@ static void perf_window(int force)
 
 /* the test's patterns: 0 the factory loop (909 kick, clap, open hats; 303 A; the break), 1 all five,
  * 2 everything dense */
+static uint8_t pg_scratch_held;          /* 1 while a peek body keeps its other page table in the scratch */
+void ui_lz_scratch_hold(int on);
+#ifdef X0X_HOST
+uint8_t ui_scratch_blocks;
+uint8_t ui_scratch_probe;
+extern void abort(void);
+#endif
+/* 1: the caller may use the main scratch. 0: a peek body still holds it. */
+int ui_scratch_claim(void)
+{
+    if (!pg_scratch_held)
+        return 1;
+#ifdef X0X_HOST
+    ui_scratch_blocks++;
+    if (!ui_scratch_probe)
+        abort();
+#endif
+    return 0;
+}
 static void perf_build(void)
 {
+    if (!ui_scratch_claim()) /* SCRATCH_HELD */
+        return;
     /* the tracks in key order (pattern.h): 909 BD SD LT MT HT RS CP CH OH CR RD, 808 ... CB CY OH CH */
     enum { DR_BD, DR_SD, DR_LT, DR_MT, DR_HT, DR_RS, DR_CP, DR_CH, DR_OH, DR_CR, DR_RD };
     enum { D8_BD, D8_SD, D8_LT, D8_MT, D8_HT, D8_RS, D8_CP, D8_CB, D8_CY, D8_OH, D8_CH };
@@ -2202,6 +2256,9 @@ static void perf_test_start(void)
     int p;
     if (perf.test >= 0 && perf.phase != 4)
         return;
+#if BOARD_SMK37
+    smc_ui_cancel();                               /* the test owns the main scratch; drop a peek first */
+#endif
     perf.pat = seq.pat;
     for (p = 0; p < NPARTS; p++)
         perf.ppat[p] = seq.ppat[p];
@@ -2379,7 +2436,48 @@ X0X_COLD static void reset_sound(int part)
 
 static void set_view(int v);
 
-X0X_COLD static void run_action(int act, int arg)
+/* Actions that rewrite the project, the song, or a whole pattern. A press
+ * during an LCD chunk must not run them under the half-drawn frame. */
+static int ui_heavy_action(int act)
+{
+    switch (act) {
+    case ACT_RESET_SOUND:             /* reset_sound, ui.c */
+    case ACT_SAVE:                     /* save_project */
+    case ACT_LOAD:                     /* ui_project_load */
+    case ACT_CLEAR_PART:
+    case ACT_CLEAR_PAT:
+    case ACT_COPY:
+    case ACT_SONG_INS:
+    case ACT_SONG_DEL:
+    case ACT_SONG_CLR:
+    case ACT_RESET:                    /* ui_project_reset */
+    case ACT_PERF_TEST:                /* borrows the main scratch for its patterns */
+        return 1;
+    default:
+        return 0;                      /* a view change or the about line */
+    }
+}
+static uint8_t ui_lcd_poll_depth;
+static uint8_t ui_heavy_act;           /* 0: nothing queued. Heavy acts are never 0. */
+static uint16_t ui_heavy_arg;
+static void run_action(int act, int arg);
+static void ui_heavy_push(int act, int arg)
+{
+    if (ui_heavy_act)
+        return;
+    ui_heavy_act = (uint8_t)act;
+    ui_heavy_arg = (uint16_t)arg;
+}
+static void ui_heavy_flush(void)
+{
+    uint8_t act = ui_heavy_act;
+    uint16_t arg = ui_heavy_arg;
+    if (!act)
+        return;
+    ui_heavy_act = 0;
+    run_action(act, arg);
+}
+static void __attribute__((noinline)) run_action_now(int act, int arg)
 {
     char t[28];
     if (act == ACT_CLEAR_PART || act == ACT_CLEAR_PAT || act == ACT_COPY) record_finish();
@@ -2496,6 +2594,14 @@ X0X_COLD static void run_action(int act, int arg)
     }
     default: break;
     }
+}
+X0X_COLD static void run_action(int act, int arg)
+{
+    if (ui_lcd_poll_depth && ui_heavy_action(act)) {
+        ui_heavy_push(act, arg);
+        return; /* HEAVY_ACTION_DEFER */
+    }
+    run_action_now(act, arg);
 }
 
 /* ===================================================================== input === */
@@ -4403,13 +4509,16 @@ static uint32_t cv_hash(void)
 #if BOARD_SMK37 && !defined(X0X_HOST)
 void smk_ck_poll(void);                     /* clip keybed's MIDI note/arp service in main_fm1.c */
 #endif
+static uint8_t ui_lcd_poll_depth;       /* also declared above; one object */
 static void cv_lcd_input(void)
 {
+    ui_lcd_poll_depth++;
     input();                                /* exact normal key/MIDI input path, preserving queue order */
     division_pad_input();
 #if BOARD_SMK37 && !defined(X0X_HOST)
     smk_ck_poll();                          /* clip-mode notes must not wait for the screen */
 #endif
+    ui_lcd_poll_depth--;
 }
 /* At most one normal foreground dispatch per hardware millisecond.
  * The timer interrupt continues changing plat_ms during each bounded DMA. */
@@ -4567,17 +4676,27 @@ static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
     return (uint16_t)((r << 11) | (g << 5) | bl);
 }
 
-/* Fields a peek body must keep frozen while input still mutates the live page. */
+/* The other page table shares the main-loop scratch (device) or the perf-test
+ * pattern that scratch stands in for (host). It is not a second permanent pool. */
+#ifdef PERF_SCRATCH
+#define pg_held (*(pages_t *)(void *)PERF_SCRATCH)
+#else
+#define pg_held (*(pages_t *)(void *)&perf_bench[0])
+#endif
+_Static_assert(sizeof(pages_t) <= 0xD00u, "paint hold stays out of the editor/ota tail");
+_Static_assert(sizeof(pattern_t) >= sizeof(pages_t), "paint hold fits one perf pattern");
+/* Fields a peek body must keep frozen while input still mutates the live page.
+ * any_button is the one-time footer. pg is copied only when a poll rewrote it. */
 typedef struct {
     uint8_t view, part, prev_view, mixsel;
     uint8_t sel[NKIT];
     uint8_t page[NVIEWS][NPARTS];
-    uint8_t spage, pbank;
-    pages_t pg;
+    uint8_t spage, pbank, any_button;
+    uint32_t pg_gen;
 } ui_paint_hold_t;
 static ui_paint_hold_t *ui_paint_live;
 
-static void ui_paint_read(ui_paint_hold_t *d)
+static void ui_paint_read_scalars(ui_paint_hold_t *d)
 {
     d->view = ui.view;
     d->part = ui.part;
@@ -4587,10 +4706,11 @@ static void ui_paint_read(ui_paint_hold_t *d)
     memcpy(d->page, ui.page, sizeof d->page);
     d->spage = ui.spage;
     d->pbank = ui.pbank;
-    d->pg = pg;
+    d->any_button = any_button;
+    d->pg_gen = pg_gen;
 }
 
-static void ui_paint_write(const ui_paint_hold_t *d)
+static void ui_paint_write_scalars(const ui_paint_hold_t *d)
 {
     ui.view = d->view;
     ui.part = d->part;
@@ -4600,15 +4720,43 @@ static void ui_paint_write(const ui_paint_hold_t *d)
     memcpy(ui.page, d->page, sizeof ui.page);
     ui.spage = d->spage;
     ui.pbank = d->pbank;
-    pg = d->pg;
+    any_button = d->any_button; /* ANY_BUTTON_HOLD */
+}
+
+static void ui_paint_store_scalars(ui_paint_hold_t *d, const ui_paint_hold_t *s)
+{
+    d->view = s->view;
+    d->part = s->part;
+    d->prev_view = s->prev_view;
+    d->mixsel = s->mixsel;
+    memcpy(d->sel, s->sel, sizeof d->sel);
+    memcpy(d->page, s->page, sizeof d->page);
+    d->spage = s->spage;
+    d->pbank = s->pbank;
+    d->any_button = s->any_button;
+}
+
+/* Three copies of the 472-byte table. Called only when this poll rebuilt pg.
+ * The temporary lives in this frame, not in smc_ui_draw. */
+static void __attribute__((noinline)) ui_paint_pg_swap(uint32_t *held_gen)
+{
+    pages_t tmp = pg_held;
+    uint32_t gen = pg_gen;
+    pg_held = pg;
+    pg = tmp;
+    pg_gen = *held_gen;
+    *held_gen = gen;
 }
 
 static void ui_paint_exchange(void)
 {
     ui_paint_hold_t tmp;
-    ui_paint_read(&tmp);
-    ui_paint_write(ui_paint_live);
-    *ui_paint_live = tmp;
+    ui_paint_read_scalars(&tmp);
+    ui_paint_write_scalars(ui_paint_live);
+    if (ui_paint_live->pg_gen != tmp.pg_gen) { /* PG_COPY_IF_GEN */
+        ui_paint_pg_swap(&ui_paint_live->pg_gen);
+    }
+    ui_paint_store_scalars(ui_paint_live, &tmp);
 }
 
 static void ui_paint_around(void)
@@ -4619,7 +4767,10 @@ static void ui_paint_around(void)
 /* slot receives the live page. The caller then installs the snapshot into ui/pg. */
 void ui_paint_body_begin(ui_paint_hold_t *slot)
 {
-    ui_paint_read(slot);
+    ui_paint_read_scalars(slot);
+    pg_scratch_held = 1;                       /* released in ui_paint_body_end, before ui_heavy_flush */
+    ui_lz_scratch_hold(1);
+    pg_held = pg;
     ui_paint_live = slot;
     ui_paint_around_input = ui_paint_around;
 }
@@ -4639,7 +4790,13 @@ void ui_paint_body_end(void)
     memcpy(ui.page, slot->page, sizeof ui.page);
     ui.spage = slot->spage;
     ui.pbank = slot->pbank;
-    pg = slot->pg;
+    any_button = slot->any_button;
+    if (slot->pg_gen != pg_gen) {
+        pg = pg_held;
+        pg_gen = slot->pg_gen;
+    }
+    pg_scratch_held = 0;
+    ui_lz_scratch_hold(0);
 }
 static uint16_t part_col(void) { return PART_COL[ui.part]; }
 static uint16_t matrix_col(void)
@@ -8265,6 +8422,7 @@ void ui_frame(void)
         smc_ui_cancel();
 #endif
         draw_header();                             /* keep transfer status visible; samples and runtime stay untouched */
+        ui_heavy_flush();
         return;
     }
 #if BOARD_SMK37
@@ -8316,6 +8474,7 @@ void ui_frame(void)
         draw_main();
         draw_knobs();
     }
+    ui_heavy_flush();                          /* queued load/save/reset, after the frame is drawn */
     leds();
     ui.frame++;
 }

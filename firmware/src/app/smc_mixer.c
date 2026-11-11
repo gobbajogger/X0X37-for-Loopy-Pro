@@ -1175,6 +1175,7 @@ void smc_ui_draw(void)
     if (smc_peek->on) {
         pages_t pre_pg;
         uint8_t peek_page = (uint8_t)cur_page();
+        uint32_t pre_gen = pg_gen;
         char label[24], value[32], unit[12], banner[96], *q;
         pref_t r = snap.target;
         memcpy(&pre_pg, &pg, sizeof pre_pg);
@@ -1191,6 +1192,7 @@ void smc_ui_draw(void)
             ui.mixsel = snap.mixsel;
             memcpy(ui.sel, snap.sel, sizeof ui.sel);
             pg = pre_pg;
+            pg_gen = pre_gen;
             *page_of(ui.view) = peek_page; /* PEEK_PAGE_INDEX */
             if (ui_paint_between_polls)
                 ui_paint_between_polls();
