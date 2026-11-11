@@ -1,0 +1,13 @@
+{
+  "tool_count": 302,
+  "matching_names": [
+    "mcp__codex_apps__cloud_environment_environment_status",
+    "mcp__codex_apps__github_list_pull_request_review_threads",
+    "mcp__codex_apps__github_resolve_review_thread",
+    "mcp__codex_apps__github_unresolve_review_thread",
+    "mcp__codex_apps__linear_get_diff_threads",
+    "mcp__codex_apps__linear_resolve_diff_thread"
+  ],
+  "finding": "No exposed callable tool for cloud chat activity, create_thread, fork_thread or tool_search was found in ALL_TOOLS. This does not establish absence of a cloud UI or other interface capability.",
+  "successor_thread_id": null
+}

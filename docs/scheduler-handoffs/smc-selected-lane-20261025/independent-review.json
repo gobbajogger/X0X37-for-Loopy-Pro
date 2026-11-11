@@ -1,0 +1,62 @@
+{
+  "reviewer": "independent_ui_review child agent",
+  "reviewed_utc": "2026-10-25T09:04:15.047212+00:00",
+  "disposition": "ACCEPT_SCOPED_UI_SOURCE_AND_NATIVE_RENDER",
+  "base": "5c3d9f2fbd86030dc2f7e6d6d54a44414465b090",
+  "inputs_sha256": {
+    "firmware/src/app/smc_mixer.c": "61970b1b73d39637b323ff45c10c7131f59076e24da112b323bb428be1ed36d5",
+    "firmware/src/app/ui.c": "1de1f375b08f3e26b3e11c59c9eef3a036664dbc79b91673b407e65753b76657",
+    "tests/host/smc_ui_test.c": "b47cb7334e7d03e4e7c05179b95f0afeedd7755a517cd5e8ec9f1cf9e17ee3b6",
+    "tests/host/smc_lock_test.c": "c3b9f51224cc71173f5cea98b7b1910b4cd82a220973e4abbbcca250e12351f0",
+    "BEHAVIOR.md": "04f5c51a80de1e6cbddd13ee9035ca65cf8ea7c4b4f654997f7f91a5ca502f0b",
+    "docs/SMC_MIXER.md": "4b440228ecdcbdba00103d974c3797e503b0b7f2aa871eb4b76993a456ffe9e5"
+  },
+  "checks": [
+    {
+      "command": "SAN_FLAGS=\"-fsanitize=address -fno-omit-frame-pointer\" SMC_UI_OUT=../qa/final-ui sh tests/host/smc_ui_test.sh",
+      "exit": 0,
+      "checks": 5717,
+      "log": "qa/final-ui.log"
+    },
+    {
+      "command": "SAN_FLAGS=\"-fsanitize=address -fno-omit-frame-pointer\" SMC_LOCK_OUT=../qa/final-lock sh tests/host/smc_lock_test.sh",
+      "exit": 0,
+      "checks": 527,
+      "log": "qa/final-lock.log"
+    },
+    {
+      "command": "SMC_UI_TEST_FILE=../qa/visible-kit-test.c SMC_UI_OUT=../qa/visible-kit-fixed sh tests/host/smc_ui_test.sh",
+      "exit": 0,
+      "checks": 209,
+      "log": "qa/visible-kit-fixed.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "runtime_negative": {
+    "mutation": "force selected lane to touched strip",
+    "result": "runtime framebuffer assertion rejects mutation",
+    "log": "qa/negative-touch.log"
+  },
+  "finding_repaired": {
+    "problem": "drum MIX visible kit may differ from ui.part; title incorrectly disappeared",
+    "source_evidence": "ui.c 2484-2492 selects ui.sel[drum_mix_page()] without changing ui.part; preexisting smc_led SELECT uses ui.sel[kit]",
+    "reproducer": "qa/visible-kit-test.c; initial qa/visible-kit.log fails selected title assertion; final qa/visible-kit-fixed.log passes",
+    "related_refinement": "main MIX page0 selection correctly follows ui.mixsel; regression added"
+  },
+  "render_inspected": "Library preview contact sheet",
+  "render_observations": [
+    "Solid white title highlight visibly distinct from amber touched encoder outline/value",
+    "LOCK B2 labels captured bank while selected drum11 and touched drum9 differ",
+    "No lane title highlighted when selected drum outside locked bank",
+    "All eight strips retain positions and M/S/R; no fake Select depiction"
+  ],
+  "scope_proof": "Production diff confined to smc_ui_grid renderer; physical Select, repeated-press toggle, lock capture, and knob/fader target mappings unchanged",
+  "limits": [
+    "No device/GUI/hardware/flash/merge/publication accessed",
+    "Native firmware build and budget validation owned by parent; not assessed in this source/render review",
+    "Host framebuffer proves rendering only, not physical LCD"
+  ]
+}

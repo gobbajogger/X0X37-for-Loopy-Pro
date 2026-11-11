@@ -1,0 +1,2 @@
+Stop at cutoff: state=1 stored_now=3099 actual_tick=3100 deadline=3100 attempts=3 accepted=1 conn=80
+Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.

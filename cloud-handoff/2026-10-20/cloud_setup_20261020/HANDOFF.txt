@@ -1,0 +1,77 @@
+Cloud firmware setup remains BLOCKED, 2026-10-20.
+Receiving owner: the cloud environment owner through the delivery coordinator,
+chat 01a1593e-18e0-7651-ad7d-32b59e3c3a63.
+
+This task owns only cloud development setup. It made no firmware source edits,
+hardware accesses, commits, external pushes, or publications.
+
+Prior evidence:
+The old cloud chat, 01a1590b-0b6c-730e-a482-dc9428a4f046 on host durable,
+ran repository commit 5d7997da2082b528924716643c607b276e71b9c1.
+Host simulator/groove, ten PNGs, stereo 44100 Hz WAV, APC40 Python checks,
+loop-bar and ADPCM tests, make-pages and web installer slot tests passed.
+The strict GCC mapping test failed on signedness in smk_apc40.h:281-282.
+Neither JieLi toolchain retrieval nor SDK cloning succeeded: the proxy returned
+403 for pkgman.jieliapp.com and gitee.com. Firmware setup/build did not pass.
+
+Saved files here:
+prior-draft.json reproduces the old chat's exact combined draft settings.
+It is evidence of a draft, not evidence of applied or published cloud settings.
+environment-values.env lists proposed persistent environment variables.
+firmware-setup-check.sh is a prepared Linux-only setup and Elite build check.
+It requires an explicit full commit and a clean checkout. It downloads dependencies
+from the original vendor sources, checks the SDK tag and three pinned binary
+hashes, records toolchain identity, and retains build and package-hash evidence.
+It has not run in a cloud environment. Bash syntax checks are local checks only.
+The repository toolchain download endpoint selects a vendor version dynamically;
+the script records the downloaded compiler hash but does not claim an independently
+pinned or authenticated toolchain archive digest.
+
+Capabilities checked:
+No cloud_environment_onboarding, environment-config, cloud executor, or
+repository-bound cloud creation tool is exposed in this local session.
+Plugin discovery for cloud environment onboarding Codex found no relevant
+settings/provisioning connector. The search is not an exhaustive plugin directory.
+The available create-thread tool supports local projects and ChatGPT Work Cloud,
+but has no selector for the old repository-bound Codex cloud environment.
+The project list contains local LoopyX0X37 and ChatGPT MusicCoding only.
+Computer Use denied access to com.openai.codex for safety reasons.
+No alternate UI mechanism or hidden endpoint was used to bypass that denial.
+The old task was read only and was not resumed for execution.
+
+Required external action:
+Open the repository's cloud environment settings. Review and save its existing
+setup/startup draft, add pkgman.jieliapp.com and gitee.com to the existing
+allowed-domain list without replacing other allowed domains, and set the persistent
+values in environment-values.env. Keep TLS and the managed proxy enabled.
+The existing draft installs/tests host development only; it does not install
+firmware dependencies. Its startup text describes the deferred firmware steps.
+Use firmware-setup-check.sh for those steps once a fresh repository-bound cloud
+environment is available. Capture any new redirect-domain denial before requesting
+an additional domain. Do not bypass policy with a different download route.
+
+Reproducible execution in that fresh environment:
+  bash firmware-setup-check.sh /workspace/X0X37-for-Loopy-Pro FULL_APPROVED_COMMIT
+The script must be made available outside the repository checkout so its
+clean-checkout guard remains meaningful. Its location does not need to be public.
+Use the delivery coordinator's verified pushed commit. Do not label the old
+5d7997d checkout as current: the local maintained branch was already de8f2d6
+with further dirty work during this task, and final delivery is still in progress.
+After setup, preserve build/cloud-setup/dependency-identity.txt, elite-build.log,
+and package.sha256. A failed build is a failure, not a completed environment.
+Persist environment variables through the cloud settings; setup exports alone
+do not establish the later agent shell environment.
+
+Remaining validation:
+Run the existing host install_script in the fresh environment, then the firmware
+check above. Run the strict APC40 mapping test separately on the selected source;
+do not suppress its warning to make setup pass. DSP reference-comparison tests,
+optional Bluetooth controller setup, WASM, formal gates, installation, and device
+behavior are outside this prepared setup check. No current firmware or cloud
+completion claim is supported until the actual run succeeds.
+
+Official reference:
+https://learn.chatgpt.com/docs/environments/cloud-environment
+Use the current cloud environment guide linked there for the current product;
+that URL documents legacy cloud settings and must not be assumed to describe
+every control exposed in the desktop app.

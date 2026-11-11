@@ -1,0 +1,128 @@
+{
+  "schema": "loopyx0x37.safe-merge.nightly.source-intake.v1",
+  "evidence_revision": "safe-merge-pr103-ota-loader-source-intake-20261024-r3",
+  "date_owner_local": "2026-10-24",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "LoopyX0X37 Safe Merge, sole firmware NIGHTLY PR integrator",
+  "role": "own isolated integration PR #103; no protected writes",
+  "consumed": {
+    "integrator": {
+      "pr": 103,
+      "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "head": "bc9bebc7b505a936c16134cf1be112e05fcb6fb3",
+      "full_root": "5807287b882bf2d58e8221ccb898c50b3078642d",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e"
+    },
+    "source_producer": {
+      "pr": 104,
+      "branch": "lane/data-safety-ota-loader-resume-20261024-0614",
+      "head": "0482ca12a008eb69b278512979e48f1af47d2da9",
+      "full_root": "283d5031f1746b9ff12cac9e1a40c753b2f1c9ce",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "evidence_revision": "docs/scheduler-handoffs/data-safety-ota-loader-resume-20261024.json@da06d21d684a0551feb7d384b206386429fff3d6",
+      "parent_source": "bc9bebc7b505a936c16134cf1be112e05fcb6fb3"
+    },
+    "protected_nightly": {
+      "branch": "nightly",
+      "head": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+    }
+  },
+  "source_change": {
+    "scope": "Data Safety CLI default loader-mode resume now refuses update before writing if sample preservation is unknown unless explicit --no-slots; preserves backups/recovery diagnostics, tests, all prior 303/Data Safety integrations.",
+    "source_changed_paths": [
+      "tools/fm1_install.py",
+      "tests/fm1_install_restore_status_test.py",
+      "tests/install_test.py",
+      "docs/scheduler-handoffs/data-safety-ota-loader-resume-20261024.json"
+    ],
+    "intended_integration": "Merge producer source into existing draft PR #103 by two-parent nonforce history-preserving commit with same compiler source inputs; add this evidence manifest only.",
+    "producer_installer_blob": "5b60164f056352f763b53053fa5635fb036821fc",
+    "producer_regression_blob": "e4705dd52623b43614ed34e910890cae589abed6",
+    "producer_integration_test_blob": "f67b5923e4f676b3221c89ed994b2c613565a22c",
+    "unchanged_compiler_firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e"
+  },
+  "checks_executed_this_safe_merge_run": [
+    {
+      "tool": "GitHub get_pr_info + Git data commit/tree GET + compare_commits + fetch_file",
+      "scope": "exact PR103 and PR104 heads, dependency lineage, Git blobs, branch safety, 4 changed paths",
+      "result": "RETURNED_OK",
+      "status": "read-only API, no native CLI exit code"
+    },
+    {
+      "tool": "functions.exec JavaScript assert() source/identity audit",
+      "scope": "21 independently evaluated predicates, including compiler subtree matching and loader guard before up.install",
+      "result": "PASS",
+      "count": 21,
+      "failures": 0,
+      "execution_exit": "completed without exception; not a shell process"
+    },
+    {
+      "tool": "container.exec git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+      "result": "FAILED",
+      "exit": 128,
+      "reason": "Could not resolve host github.com; cannot obtain exact full checkout via this runtime"
+    }
+  ],
+  "producer_historical_checks_not_rerun": [
+    {
+      "command": "python3 fm1_install_restore_status_test_updated.py -v (source-window, source=before)",
+      "result": "EXPECTED_FAIL_BEFORE",
+      "passes": 13,
+      "total": 15,
+      "exit": 1,
+      "log_sha256": "33fe4437cd6f135b4538ed005f181d098cea1891b90ea3eeae5c22083486ed2a"
+    },
+    {
+      "command": "python3 fm1_install_restore_status_test_updated.py -v (source-window, source=after)",
+      "result": "PRODUCER_PASS",
+      "passes": 15,
+      "total": 15,
+      "exit": 0,
+      "log_sha256": "288dfa953d60baf1f91c95a745de03503ea2cc56f0f0691dde436093a195e2b9"
+    },
+    {
+      "command": "python3 -O fm1_install_restore_status_test_updated.py -v (source-window, source=after)",
+      "result": "PRODUCER_PASS",
+      "passes": 15,
+      "total": 15,
+      "exit": 0,
+      "log_sha256": "288dfa953d60baf1f91c95a745de03503ea2cc56f0f0691dde436093a195e2b9"
+    }
+  ],
+  "not_executed_this_run": [
+    "Complete-root Python/native regression suite",
+    "independent QA review on new combined exact root",
+    "new exact-root firmware build; preexisting matching compiler-input binaries require independent attestation",
+    "public installer model/hash/controller/backup/CRC/immutable HTTP eligibility",
+    "physical Elite/Pro device test",
+    "any protected merge, production, Pages or hardware update"
+  ],
+  "disposition": {
+    "integration_source": "STAGED_FOR_INDEPENDENT_FULL_ROOT_REVIEW_NOT_APPROVED",
+    "pr_103": "DRAFT_KEEP",
+    "elite": "BUILD_ONLY_REUSE_CANDIDATE_NOT_INSTALLABLE",
+    "pro": "BUILD_ONLY_REUSE_CANDIDATE_NOT_INSTALLABLE",
+    "nightly": "UNCHANGED",
+    "production": "UNCHANGED",
+    "physical": "UNKNOWN",
+    "public_nightly": "NO_GO"
+  },
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Fetch exact post-integration PR #103 full head/root; run full combined installer/slots/loader-mode/OTA/interruption/CRC/wrong-model/controller and both 303 regressions with commands/exits and formal exact-head findings; unresolved safety = NEEDS_CHANGES."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "ACK this exact integrated commit through Git evidence; compare ALL compiler inputs against private checked #103 packages; verify actual Elite and Pro and controller bytes or compile BUILD_ONLY without waiting for QA/merge/publication."
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "After successful independent exact-head QA and branch protections, optionally mark own source-complete draft ready for independent review then request protected PR merge; verify actual new NIGHTLY SHA; otherwise keep DRAFT/NO-GO."
+    },
+    {
+      "owner": "Catalog/sole NIGHTLY Publisher",
+      "action": "Preserve known live builds; DO NOT expose new download until independent model/header/backup/restore/controller/package SHA+CRC/provenance/source-license and immutable HTTP gates PASS; prior owner hardware PASS unnecessary for NIGHTLY."
+    }
+  ]
+}

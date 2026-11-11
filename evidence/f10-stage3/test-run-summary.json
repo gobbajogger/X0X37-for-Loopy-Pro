@@ -1,0 +1,42 @@
+{
+  "stage": 3,
+  "cycle": "F10",
+  "defect": "BF-006",
+  "branch": "cursor/f10-bf006-stage3-fb90",
+  "head": "af4947846df7233c68a6be72c4d0c634052a2752",
+  "drum808_blob": "90f463295fb1a642bad81700d73fc22eb8ec7a38",
+  "checks": [
+    {
+      "name": "bf006-ubsan",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "result": "PASS",
+      "nine_numeric_exp2_controls": true,
+      "left_shift_of_negative_value_string": false,
+      "logs": [
+        "evidence/f10-stage3/bf006-ubsan-compile.log",
+        "evidence/f10-stage3/bf006-ubsan.log"
+      ]
+    },
+    {
+      "name": "host-unit-drum808-exp2-drum-pan",
+      "exit": 0,
+      "result": "PASS",
+      "tests": {
+        "drum808-exp2": "ok",
+        "drum-pan": "ok"
+      },
+      "log": "evidence/f10-stage3/host-unit.log"
+    },
+    {
+      "name": "d8-exp2-cr-review",
+      "result": "PASS",
+      "blob_match": true,
+      "defined_shift_form": true,
+      "clamping_and_series_unchanged": true,
+      "log": "evidence/f10-stage3/d8-exp2-cr-review.txt"
+    }
+  ],
+  "overall": "ALL_PASS",
+  "failures": []
+}

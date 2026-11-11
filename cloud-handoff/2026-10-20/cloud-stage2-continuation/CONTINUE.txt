@@ -1,0 +1,83 @@
+Cloud stage 2 continuation — 2026-10-20
+
+STATUS: INCOMPLETE, blocked only for target-dependent work by the official
+JieLi toolchain redirect being denied by the cloud HTTP proxy. Do not advance
+to stage 3 yet. Continue stage 2 in this cloud environment; local is install-only.
+Implementation commit daa7794; reviewed rule rollout a9b1b42. The enclosing
+checkpoint commit adds only this evidence. Nothing is installed or released.
+
+Completed:
+- Verified all 25 transferred evidence files against transfer-sha256.json.
+- Integrated SMC checkpoint once, preserving the installed runner and safety
+  tools. Removed duplicate reconnect block. All five real UI reachability routes
+  pass (direct DAW/User, USB User, simulated HCI DAW/User), including first input
+  after interrupted SysEx/disconnect. Parser sanitizer regression passes.
+- Malformed first-fragment overflow probe fails assertion on base 2592a00 and
+  passes on repaired source. This is source/host evidence, not a device result.
+- Exact recorded payloads with simulated HCI: 1271 payloads, 2616 MIDI, three
+  size rejections (95 MIDI in the rejected payloads). Same accepted MIDI with
+  simulated ACL tails 1-8. No claim that synthetic HCI is recorded wire traffic.
+- Explicit MTU-23 resegmentation: 1347 payloads, all 2711 MIDI, no rejection.
+  Capture hash and original metadata stay unchanged. Exact CCCD write is checked
+  with the synthetic discovery fixture; capture metadata does not identify CCCD.
+- Reconciled net FM-1 patch changes: SMK-only gate models, build/budget/CRC loops,
+  schema-2 identity and scratch update contract. Installer/controller safeguards
+  remain byte-for-byte unchanged. Model/package/slot/controller mock checks pass.
+- Fixed stale gate-config fixture to match current purpose/reason result cell.
+  Initial regressions.log retains the failure; gate-configs-repaired.log and
+  gate-configs-detail.log show repair proof. No production guard was relaxed.
+- Rule capture reuse is independently reviewed and rolled into this candidate.
+  Rule audit: docs/audit/controller-capture-reuse-2026-10-20.md.
+- Inspected dirty onboarding checkout read-only. Its proposed APC40 signedness
+  repair is unnecessary here: candidate already casts the nonnegative spans to
+  unsigned and its strict APC40 host tests pass. Original dirty work preserved.
+
+Commands and evidence:
+Saved HTTP header text uses normalized LF line endings and trimmed whitespace.
+Environment for runner: CC=cc CXX=c++ X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L
+X0X_GATE_LOCK=/workspace/x0x-cloud-stage2/build/test.lock X0X_TEST_JOBS=1
+1. sh tests/run_tests.sh ble-midi-central ble-midi-receive smc-reachability
+   ble-central-diag diag-size smk-inlog inlog-tool smk-apc40-map smk-apc40
+   validation-inputs smk-update-contract installer installer-slots installer-ctl
+   dev-validate install-gate-guard gate-reason
+   focused.log: all 15 actual named checks pass. ble-midi-central is covered
+   inside ble-midi-receive; dev-validate is not a runner name and was run directly
+   below. Package-dependent checks are explicitly skipped without target builds.
+2. sh tests/run_tests.sh ble-midi-receive ble-capture-replay gate-configs
+   smc-protocol smc-fader smc-buttons smc-mapping smc-filter smc-lastgood
+   install-guards install-head
+   regressions.log: all actual checks except stale gate-configs fixture pass.
+   smc-lastgood is not a runner name and is not claimed as a check.
+3. sh tests/run_tests.sh gate-configs
+   gate-configs-repaired.log: PASS after fixture repair.
+4. python3 tests/host/test_dev_validate.py
+   dev-validation.log: 12/12 scratch tests pass. Printed DEV CHECKED belongs to
+   synthetic scratch fixture only, not this firmware candidate.
+5. python3 tests/host/ble_capture_replay_test.py
+   capture-replay.log: all three replay cases pass with ASan/UBSan.
+6. X0X_QUICK_ONLY=ste X0X_QC_BASE=2592a00 bash tools/quickcheck.sh "$PWD"
+   docs-check.log: PASS, advisory grammar findings include exact owner quotes.
+
+Dependencies / next action:
+SDK: /workspace/x0x-deps/fw-AC79_AIoT_SDK, approved gitee source and exact tag
+AC79NN_SDK_V1.2.1_2023-12-13. Commit d179b4484759423312073f5fbb232501aa491047;
+three packaging input hashes match tools/build.py pins (input-identity.json).
+Toolchain is absent. Official URL https://pkgman.jieliapp.com/s/linux-toolchain
+redirects to https://jl-update.oss-cn-shenzhen.aliyuncs.com/jieli-linux-toolchains-20260730.1.tar.xz.
+The redirect domain is absent from the applied policy; CONNECT returns HTTP 403.
+Owner replied "yeah" to adding the host. No environment-edit tool is exposed.
+Environment/settings owner must add jl-update.oss-cn-shenzhen.aliyuncs.com to
+allowed domains and apply. Retry the approved original download normally;
+do not use a mirror or bypass the proxy. Preserve any partially populated
+/workspace/x0x-deps/jieli on retry; it was empty when the download failed.
+
+Once available, finish stage-2 Elite and Pro builds with pinned SDK, static RAM
+free >=0 and pool headroom >=8192 B. Record code/RAM/pool margins and package
+identities. No build margins from the old installed firmware qualify here.
+Then create exactly ONE fresh cloud stage-3 successor, passing exact source and
+this evidence, with separate scoped test/investigation helpers. Subsequent
+stage4 full gate/package, sole stage5 integrator, local stage6 guarded install
+and verified slot backup/readback, stage7 normal fast-forward private-main push
+remain pending. The transfer branch may hold checkpoints; main is untouched.
+No target build, controller build, full gate, package validation, installation,
+or physical-device PASS is claimed. No proprietary SDK/toolchain is in Git.

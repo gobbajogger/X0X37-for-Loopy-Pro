@@ -1,0 +1,330 @@
+{
+  "schema": 1,
+  "sampleRate": 48000,
+  "scenarios": [
+    {
+      "id": "acid_lab_1",
+      "manifest": "chicago_au_acid_lab_1.json"
+    },
+    {
+      "id": "acid_lab_2",
+      "manifest": "chicago_au_acid_lab_2.json"
+    },
+    {
+      "id": "alkaline_bass",
+      "manifest": "chicago_au_alkaline_bass.json"
+    },
+    {
+      "id": "arp_delay",
+      "manifest": "chicago_au_arp_delay.json"
+    },
+    {
+      "id": "bass_simple",
+      "manifest": "chicago_au_bass_simple.json"
+    },
+    {
+      "id": "bearhug",
+      "manifest": "chicago_au_bearhug.json"
+    },
+    {
+      "id": "bite_bass",
+      "manifest": "chicago_au_bite_bass.json"
+    },
+    {
+      "id": "bite_me",
+      "manifest": "chicago_au_bite_me.json"
+    },
+    {
+      "id": "bloghaus",
+      "manifest": "chicago_au_bloghaus.json"
+    },
+    {
+      "id": "broken_system_fx",
+      "manifest": "chicago_au_broken_system_fx.json"
+    },
+    {
+      "id": "chicago_init",
+      "manifest": "chicago_au_chicago_init.json"
+    },
+    {
+      "id": "chomper",
+      "manifest": "chicago_au_chomper.json"
+    },
+    {
+      "id": "chop_bass",
+      "manifest": "chicago_au_chop_bass.json"
+    },
+    {
+      "id": "choplay_bass",
+      "manifest": "chicago_au_choplay_bass.json"
+    },
+    {
+      "id": "choprev_bass",
+      "manifest": "chicago_au_choprev_bass.json"
+    },
+    {
+      "id": "dly_bss",
+      "manifest": "chicago_au_dly_bss.json"
+    },
+    {
+      "id": "deci_bass",
+      "manifest": "chicago_au_deci_bass.json"
+    },
+    {
+      "id": "detuned_square",
+      "manifest": "chicago_au_detuned_square.json"
+    },
+    {
+      "id": "digi_vox",
+      "manifest": "chicago_au_digi_vox.json"
+    },
+    {
+      "id": "digi_drop_fx",
+      "manifest": "chicago_au_digi_drop_fx.json"
+    },
+    {
+      "id": "dist_sq_line",
+      "manifest": "chicago_au_dist_sq_line.json"
+    },
+    {
+      "id": "downer_arp",
+      "manifest": "chicago_au_downer_arp.json"
+    },
+    {
+      "id": "duck_arcade",
+      "manifest": "chicago_au_duck_arcade.json"
+    },
+    {
+      "id": "feedback_fx",
+      "manifest": "chicago_au_feedback_fx.json"
+    },
+    {
+      "id": "future_bass",
+      "manifest": "chicago_au_future_bass.json"
+    },
+    {
+      "id": "grime",
+      "manifest": "chicago_au_grime.json"
+    },
+    {
+      "id": "gnaw_bass",
+      "manifest": "chicago_au_gnaw_bass.json"
+    },
+    {
+      "id": "grower_bass",
+      "manifest": "chicago_au_grower_bass.json"
+    },
+    {
+      "id": "growler",
+      "manifest": "chicago_au_growler.json"
+    },
+    {
+      "id": "heli_bass",
+      "manifest": "chicago_au_heli_bass.json"
+    },
+    {
+      "id": "hi_arp",
+      "manifest": "chicago_au_hi_arp.json"
+    },
+    {
+      "id": "highwire",
+      "manifest": "chicago_au_highwire.json"
+    },
+    {
+      "id": "hightone_fx",
+      "manifest": "chicago_au_hightone_fx.json"
+    },
+    {
+      "id": "hot_tube",
+      "manifest": "chicago_au_hot_tube.json"
+    },
+    {
+      "id": "industrial_perc",
+      "manifest": "chicago_au_industrial_perc.json"
+    },
+    {
+      "id": "iron_cat",
+      "manifest": "chicago_au_iron_cat.json"
+    },
+    {
+      "id": "italo_bass",
+      "manifest": "chicago_au_italo_bass.json"
+    },
+    {
+      "id": "jack_d",
+      "manifest": "chicago_au_jack_d.json"
+    },
+    {
+      "id": "jackin_bass",
+      "manifest": "chicago_au_jackin_bass.json"
+    },
+    {
+      "id": "landglide_fx",
+      "manifest": "chicago_au_landglide_fx.json"
+    },
+    {
+      "id": "leadlush",
+      "manifest": "chicago_au_leadlush.json"
+    },
+    {
+      "id": "leaked_battery",
+      "manifest": "chicago_au_leaked_battery.json"
+    },
+    {
+      "id": "live_wire",
+      "manifest": "chicago_au_live_wire.json"
+    },
+    {
+      "id": "loop_me_1",
+      "manifest": "chicago_au_loop_me_1.json"
+    },
+    {
+      "id": "loop_me_2",
+      "manifest": "chicago_au_loop_me_2.json"
+    },
+    {
+      "id": "moon_base",
+      "manifest": "chicago_au_moon_base.json"
+    },
+    {
+      "id": "network_gone_bad_fx",
+      "manifest": "chicago_au_network_gone_bad_fx.json"
+    },
+    {
+      "id": "one_hit_wonder",
+      "manifest": "chicago_au_one_hit_wonder.json"
+    },
+    {
+      "id": "palm_bass",
+      "manifest": "chicago_au_palm_bass.json"
+    },
+    {
+      "id": "perris",
+      "manifest": "chicago_au_perris.json"
+    },
+    {
+      "id": "phase_line",
+      "manifest": "chicago_au_phase_line.json"
+    },
+    {
+      "id": "phaze_craze",
+      "manifest": "chicago_au_phaze_craze.json"
+    },
+    {
+      "id": "planet_ride",
+      "manifest": "chicago_au_planet_ride.json"
+    },
+    {
+      "id": "plated_lead",
+      "manifest": "chicago_au_plated_lead.json"
+    },
+    {
+      "id": "press_bass",
+      "manifest": "chicago_au_press_bass.json"
+    },
+    {
+      "id": "quantum_leap",
+      "manifest": "chicago_au_quantum_leap.json"
+    },
+    {
+      "id": "razr_fx",
+      "manifest": "chicago_au_razr_fx.json"
+    },
+    {
+      "id": "random_draw",
+      "manifest": "chicago_au_random_draw.json"
+    },
+    {
+      "id": "robo_arp",
+      "manifest": "chicago_au_robo_arp.json"
+    },
+    {
+      "id": "robot_talk",
+      "manifest": "chicago_au_robot_talk.json"
+    },
+    {
+      "id": "sabertooth",
+      "manifest": "chicago_au_sabertooth.json"
+    },
+    {
+      "id": "scandium",
+      "manifest": "chicago_au_scandium.json"
+    },
+    {
+      "id": "skware_base",
+      "manifest": "chicago_au_skware_base.json"
+    },
+    {
+      "id": "snail",
+      "manifest": "chicago_au_snail.json"
+    },
+    {
+      "id": "strome_fx",
+      "manifest": "chicago_au_strome_fx.json"
+    },
+    {
+      "id": "subby_dubby",
+      "manifest": "chicago_au_subby_dubby.json"
+    },
+    {
+      "id": "summer_bass",
+      "manifest": "chicago_au_summer_bass.json"
+    },
+    {
+      "id": "talkie_walkie_fx",
+      "manifest": "chicago_au_talkie_walkie_fx.json"
+    },
+    {
+      "id": "talking_arp",
+      "manifest": "chicago_au_talking_arp.json"
+    },
+    {
+      "id": "tapdance",
+      "manifest": "chicago_au_tapdance.json"
+    },
+    {
+      "id": "tesla",
+      "manifest": "chicago_au_tesla.json"
+    },
+    {
+      "id": "the_visitor",
+      "manifest": "chicago_au_the_visitor.json"
+    },
+    {
+      "id": "tin_cans",
+      "manifest": "chicago_au_tin_cans.json"
+    },
+    {
+      "id": "trax_bass",
+      "manifest": "chicago_au_trax_bass.json"
+    },
+    {
+      "id": "trip_arp_bass",
+      "manifest": "chicago_au_trip_arp_bass.json"
+    },
+    {
+      "id": "upper_arp",
+      "manifest": "chicago_au_upper_arp.json"
+    },
+    {
+      "id": "wahlead",
+      "manifest": "chicago_au_wahlead.json"
+    },
+    {
+      "id": "whale_talk",
+      "manifest": "chicago_au_whale_talk.json"
+    },
+    {
+      "id": "whisk",
+      "manifest": "chicago_au_whisk.json"
+    },
+    {
+      "id": "winds_wood",
+      "manifest": "chicago_au_winds_wood.json"
+    },
+    {
+      "id": "yigh_yigh",
+      "manifest": "chicago_au_yigh_yigh.json"
+    }
+  ]
+}

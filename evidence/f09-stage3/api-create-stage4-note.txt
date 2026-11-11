@@ -1,0 +1,2 @@
+
+NO_CURSOR_API_KEY; unauthenticated POST expected 401; Stage 3 retains ownership until coordinator CreateAgent returns owner-visible Stage 4 id.

@@ -1,0 +1,18 @@
+LoopyX0X37 BF-005 producer host replay — Linux x86_64
+Git source PR #35 @32364a9524dd1ac6857d46b409af66029805d4ce tree 26277feee8efeb0acabe2836b1e6b53b35f69a33
+Exact patched sequencer.c Git blob 7345cab17c29ba3c26f58d1b2c042b05c1b55ef4
+Exact strengthened test Git blob 19f7663c8ba37550f39b1049c0ddfc2a6644e187
+Compiler versions: gcc (Debian 14.2.0-19) 14.2.0; clang 17.0.0
+Baseline GCC -std=c11 -O1 -g -Wall -Wextra -Werror: compile exit 0; run exit 1 (EXPECTED BUG)
+PASS old_pending=0: step 2 followed the 7th fresh Bluetooth clock
+FAIL old_pending=3 fresh_ble_tick=4 expected_909_steps=1 observed=2 ext_ticks=0
+FAIL owner disconnect retained queued clocks: lock=0 pending=3
+Patched GCC plain, UBSan, ASan+UBSan: compile/run exit 0 for each
+Patched Clang plain, UBSan, ASan+UBSan: compile/run exit 0 for each
+PASS old_pending=0: step 2 followed the 7th fresh Bluetooth clock
+PASS old_pending=3: step 2 followed the 7th fresh Bluetooth clock
+PASS non-owner and repeated disconnect preserve new owner clocks
+Existing gcc seq_test / clk_lock_test compile/run exit 0/0
+Existing clang (UBSan) seq_test / clk_lock_test compile/run exit 0/0
+Host coverage is exact affected production blobs + matched test sources, NOT exact complete Git root checkout.
+Not run: complete root integration, real Elite/Pro/ctl builds, physical hardware, hosted HTTP.

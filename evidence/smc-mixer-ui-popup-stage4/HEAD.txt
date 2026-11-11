@@ -1,0 +1,15 @@
+stage4_branch=cursor/smc-mixer-ui-popup-stage4-5686
+stage4_owner=bc-03fb7159-af1e-5d80-837b-f4bec84f0cb4
+stage3_tip_at_checkout=fa377e3490805e25571bd6b0d5a775fcd41b3f68
+tested_code_tip=5109ef613d212ce8a261ddf75ee1f0e844b0bbbc
+implementation=ad4f311
+host_tests_start=d91a489
+base_main=e00741e2c1e8a018e7a7229dfd279e26aec34126
+verdict=FAIL
+elite_overflow_bytes=248
+pro_overflow_bytes=232
+elite_baseline_free_bytes=488
+pro_baseline_free_bytes=504
+recorded_utc=2026-10-22T15:42:25Z
+successor=stage2-repair (NOT stage5)
+stage4_evidence_tip=4f896067328225fe94bd5c6e9267c78ad272aa15

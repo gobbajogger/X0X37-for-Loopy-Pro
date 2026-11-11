@@ -1,0 +1,24 @@
+lite=0 adsr=0 accent=0 differing=0/88200 diff_rms=0 envelope=1
+lite=0 adsr=0 accent=1 differing=0/88200 diff_rms=0 envelope=1
+lite=0 adsr=1 accent=0 differing=88200/88200 diff_rms=0.0308310776 envelope=0.950393677
+FAIL live Decay at sustain preserves every output sample
+FAIL sustain remains selected level
+FAIL live Sustain follows selected level
+FAIL release leaves sustain
+lite=0 adsr=1 accent=1 differing=88200/88200 diff_rms=0.0310433197 envelope=0.950393677
+FAIL live Decay at sustain preserves every output sample
+FAIL sustain remains selected level
+FAIL live Sustain follows selected level
+FAIL release leaves sustain
+lite=1 adsr=0 accent=0 differing=0/88200 diff_rms=0 envelope=1
+lite=1 adsr=0 accent=1 differing=0/88200 diff_rms=0 envelope=1
+lite=1 adsr=1 accent=0 differing=88200/88200 diff_rms=0.0305823527 envelope=0.950393677
+FAIL live Decay at sustain preserves every output sample
+FAIL sustain remains selected level
+FAIL live Sustain follows selected level
+FAIL release leaves sustain
+lite=1 adsr=1 accent=1 differing=88200/88200 diff_rms=0.0307920701 envelope=0.950393677
+FAIL live Decay at sustain preserves every output sample
+FAIL sustain remains selected level
+FAIL live Sustain follows selected level
+FAIL release leaves sustain

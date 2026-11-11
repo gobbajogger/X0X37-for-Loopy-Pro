@@ -1,0 +1,40 @@
+{
+  "row_id": "#109",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:233; /workspace/docs-audit/roadmap-status.md:150; No explicit ok for tests/host/preflight_full_suite.py at ce278129. It is conditional on X0X_STRICT_PREFLIGHT=1 (tests/run_tests.sh:51-58), outside a named run entry; full-suite totals do not prove it ran.",
+  "notes": "matched_5f578fc0_master id=#109 status=in 0.0.24\nPASS1: [UNCLEAR] Named test file has no literal run entry or wrapper execution mapping in the frozen runner. Named files: tests/host/preflight_full_suite.py The file runs only under X0X_STRICT_PREFLIGHT=1 at tests/run_tests.sh:51-58, outside any named run entry; no recorded preflight result.\nPASS2: [UNCLEAR] No explicit ok for tests/host/preflight_full_suite.py at ce278129. It is conditional on X0X_STRICT_PREFLIGHT=1 (tests/run_tests.sh:51-58), outside a named run entry; full-suite totals do not prove it ran.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#109 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:150 (reconciled; gate result=MISSING)"
+    },
+    "category": "UNCLEAR",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:233",
+      "/workspace/docs-audit/roadmap-status.md:150",
+      "out/docs/roadmap-evidence/#109.json:original notes"
+    ],
+    "named_tests": [
+      [
+        "/workspace/docs-audit/_ROADMAP-5f578fc0.md:233",
+        "tests/host/preflight_full_suite.py"
+      ]
+    ],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2": {
+    "status": "UNPROVEN",
+    "category": "UNCLEAR",
+    "reason": "No explicit ok for tests/host/preflight_full_suite.py at ce278129. It is conditional on X0X_STRICT_PREFLIGHT=1 (tests/run_tests.sh:51-58), outside a named run entry; full-suite totals do not prove it ran.",
+    "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:233; /workspace/docs-audit/roadmap-status.md:150; No explicit ok for tests/host/preflight_full_suite.py at ce278129. It is conditional on X0X_STRICT_PREFLIGHT=1 (tests/run_tests.sh:51-58), outside a named run entry; full-suite totals do not prove it ran.",
+    "quote": "",
+    "quote_source": "",
+    "code_paths": [],
+    "test_refs": []
+  }
+}

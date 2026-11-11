@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "installer-nightly-publisher-release-origin-20261024-r1",
+  "role": "X0X37 Installer Improvements",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/installer-nightly-download-guard-20261024",
+  "consumed_parent_sha": "bfbe80117f65a1d5e86de769801e08b24c75f2df",
+  "consumed_root_tree": "9bb7609a6ba99fb45868c3cd9a42d500d42d5753",
+  "compiled_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+  "owned_pr": 102,
+  "previous_installer_blob": "e52c9a05241d44d5862ca11b4feebadedd478321",
+  "previous_test_blob": "2c6c2bf871913f577b73bbebb12d8af87425f58f",
+  "new_predicate_excerpt_chars": 1988,
+  "new_predicate_excerpt_fnv32": "94c646cf",
+  "finding": "Publisher proof fromRelease origin marker true or nonboolean previously admissible; fail closed consistently",
+  "checks": [
+    {
+      "command": "node --check approved-nightly-exact-proposed.js",
+      "exit_code": 0
+    },
+    {
+      "command": "node --check test-revocation-exact-excerpt.cjs",
+      "exit_code": 0
+    },
+    {
+      "command": "node test-revocation-exact-excerpt.cjs",
+      "exit_code": 0,
+      "scenarios_pass": 14,
+      "extra_expected_fail_before": 2
+    },
+    {
+      "command": "python3 browser-revocation-excerpt.py",
+      "exit_code": 0,
+      "scenarios_pass": 60
+    },
+    {
+      "command": "python3 browser_release_approval.py",
+      "exit_code": 0,
+      "scenarios_pass": 24
+    },
+    {
+      "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+      "exit_code": 128,
+      "reason": "GitHub hostname DNS unavailable in native container"
+    }
+  ],
+  "unrun": [
+    "full native Node branch suites",
+    "whole generated-site Chromium",
+    "WebMIDI hardware",
+    "backup/OTA integration",
+    "independent QA/review",
+    "immutable hosted HTTP",
+    "hardware"
+  ],
+  "disposition": "SOURCE_COMPLETE_PRODUCER_CHECKED_SCOPED_READY_FOR_INDEPENDENT_QA",
+  "next_owner": "Independent Firmware QA",
+  "next_action": "Replay current exact PR #102 new SHA complete Node/browser/backup/OTA and issue attributable QA verdict before sole Safe Merge; NIGHTLY website producer separately ports source before website QA/publisher."
+}

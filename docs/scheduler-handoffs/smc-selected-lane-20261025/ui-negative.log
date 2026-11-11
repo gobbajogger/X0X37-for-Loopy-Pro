@@ -1,0 +1,9 @@
+PASS negative selection-follows-touch: FAIL tests/host/smc_ui_test.c:389: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)
+PASS negative visible-kit-requires-part: FAIL tests/host/smc_ui_test.c:389: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)
+PASS negative main-mix-ignores-channel: FAIL tests/host/smc_ui_test.c:389: fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK)
+PASS negative duplicate-opens-overlay: FAIL tests/host/smc_ui_test.c:276: smc_ui.until == until
+PASS negative timeout-disabled: FAIL tests/host/smc_ui_test.c:120: !smc_ui_active()
+PASS negative cancel-disabled: FAIL tests/host/smc_ui_test.c:278: !smc_ui_active()
+PASS negative clip-redraw-disabled: FAIL tests/host/smc_ui_test.c:232: !memcmp(before_fb, fb, sizeof fb)
+PASS negative yellow-notice-returned: FAIL tests/host/smc_ui_test.c:87: !memcmp(&before, &after, sizeof before)
+smc_ui_negative: PASS (8 runtime failures detected; compile failures excluded)
