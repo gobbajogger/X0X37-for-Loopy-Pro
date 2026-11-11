@@ -59,18 +59,7 @@ int miami_fx_scaled_rne(uint32_t u, unsigned fz, uint32_t *out) {
     if (fz && (result&0x7fffffffu)<0x00800000u) result&=0x80000000u;
     *out=result; return 1;
 }
-int32_t miami_fx_fcvtzs(uint32_t u) {
-    uint32_t mag=u&0x7fffffffu, negative=u>>31;
-    if (mag>0x7f800000u) return 0;
-    if (mag>=0x4f000000u) return negative?INT32_MIN:INT32_MAX;
-    if (mag<0x3f800000u) return 0;
-    unsigned exponent=(mag>>23)-127u;
-    uint32_t significand=(mag&0x007fffffu)|0x00800000u;
-    uint32_t value=exponent>=23 ? significand<<(exponent-23) :
-                                               significand>>(23-exponent);
-    /* Above guards ensure value<=INT32_MAX before this conversion. */
-    return negative?-(int32_t)value:(int32_t)value;
-}
+/* miami_fx_fcvtzs is inline in the header */
 int16_t miami_fx_low16(int32_t input) {
     uint32_t low=(uint32_t)input&65535u;
     int32_t signed_low=low<32768u?(int32_t)low:(int32_t)low-65536;

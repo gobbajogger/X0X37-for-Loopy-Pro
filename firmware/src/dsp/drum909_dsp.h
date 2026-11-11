@@ -233,7 +233,9 @@ static inline void d9_tanh_pair(unsigned i, float *t0, float *t1)
     *t0 = x0x_tanh_value(i); *t1 = x0x_tanh_value(i + 1u);
 }
 
-D9_ONE float d9_tanh(float u)
+/* The body, always inlined: drum909.c's per-sample voice loops call it with no call
+ * overhead. d9_tanh below is the same body for every other caller. */
+D9_INLINE float d9_tanh_inline(float u)
 {
     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
     float t;
@@ -248,6 +250,8 @@ D9_ONE float d9_tanh(float u)
     }
     return u < 0.0f ? -t : t;
 }
+
+D9_ONE float d9_tanh(float u) { return d9_tanh_inline(u); }
 
 /* ===================================================================== */
 /* The voice / master distortion stage (er99_shape_st), 7 types           */
