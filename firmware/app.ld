@@ -8,6 +8,8 @@
  * 0x01C07F00.. holds crt0's status words.
  * RAM  : .data/.bss (96 KiB)
  * POOL : big zero-initialised buffers (FX lines, canvases), section .pool
+ * C1STK: core 1's user and exception stacks (fm1_cpu1.S), below core 0's stack guard: not in
+ *        RAM (.bss) any more, and an overflow runs into the unused pool tail, not into .data.
  * STACKS with 256-byte guard bands; NOINIT survives resets and UBOOT entry.
  * BLERAM: the Bluetooth mailbox and the app's BLE host (section .ble_ram, not cleared).
  * 0x01C7FD50.. is reserved: boot_info, boot-state mailbox, vector table. */
@@ -17,6 +19,7 @@ MEMORY
     RAMTEXT (rwx): ORIGIN = 0x01C00000, LENGTH = 0x1800
     RAM    (rwx) : ORIGIN = 0x01C08000, LENGTH = 96K
     POOL   (rw)  : ORIGIN = 0x01C20000, LENGTH = 0x54000
+    C1STK  (rw)  : ORIGIN = 0x01C74000, LENGTH = 0xC00
     NOINIT (rw)  : ORIGIN = 0x01C7C000, LENGTH = 0x400
     BLERAM (rw)  : ORIGIN = 0x01C7C400, LENGTH = 0x1000
 }
@@ -33,12 +36,15 @@ SECTIONS
     _rt_end = _c1_end;                  /* the guard's RAM code window covers both */
     .data : { . = ALIGN(4); _data_start = .; *(.data*) *(.sdata*) . = ALIGN(4); _data_end = .; } > RAM AT > XIP
     _data_load = LOADADDR(.data);
+    .c1stack (NOLOAD) : { *(.bss.c1stack) } > C1STK
     .bss (NOLOAD) : { _bss_start = .; *(.bss*) *(.sbss*) *(COMMON) . = ALIGN(4); _bss_end = .; } > RAM
     .pool (NOLOAD) : { _pool_start = .; *(.pool*) . = ALIGN(4); _pool_end = .; } > POOL
     .noinit (NOLOAD) : { *(.noinit*) } > NOINIT
     .ble_ram (NOLOAD) : { . = ALIGN(64); *(.ble_ram*) } > BLERAM
     ASSERT(_c1_end <= 0x01C01800, "RAM code reaches the Bluetooth controller RAM")
-    _guard0 = 0x01C74000; _ustack_lo = 0x01C74100; _ustack_top = 0x01C7A000;
+    /* main user stack 21,248 B (was 24,320; 3,072 B went to C1STK; fm1-emu PERF TEST peak 4,520 B) */
+    _guard0 = 0x01C74C00; _ustack_lo = 0x01C74D00; _ustack_top = 0x01C7A000;
+    ASSERT(_c1_sstack_top <= _guard0, "core 1's stacks reach core 0's stack guard")
     _guard1 = 0x01C7A000; _sstack_lo = 0x01C7A100; _sstack_top = 0x01C7C000;
     /DISCARD/ : { *(.comment) *(.note*) }
 }
