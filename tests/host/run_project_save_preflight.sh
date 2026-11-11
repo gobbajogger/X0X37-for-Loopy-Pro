@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
-# BF-021 memory-full save preflight + FNV32 sound-hash collision.
+# BF-021 memory-full save preflight + layout reject + FNV32 sound-hash collision.
 # After Chicago amp/ADSR/arp/FX/aux land, read_project pulls bass303_param and
 # CHI_*_PARAMS; link those units (same pattern as project-stage post-#482).
 set -e
@@ -11,10 +11,17 @@ case "$(uname -s)" in
 esac
 mkdir -p build/host build/gen
 [ -f build/gen/x0x_drum_tables.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null
-${CC:-cc} -std=c99 -O2 -Wall -Wextra -Werror -ffunction-sections -fdata-sections \
-    -DX0X_HOST -Ibuild/gen -Ifirmware/src -Ifirmware/src/dsp -Ifirmware/src/app \
-    tests/host/project_save_preflight_test.c \
-    firmware/src/app/chicago_param_tables.c \
-    firmware/src/dsp/bass303.c \
-    "$GC" -lm -o build/host/project_save_preflight_test
+compile() {
+    src=$1
+    out=$2
+    ${CC:-cc} -std=c99 -O2 -Wall -Wextra -Werror -ffunction-sections -fdata-sections \
+        -DX0X_HOST -Ibuild/gen -Ifirmware/src -Ifirmware/src/dsp -Ifirmware/src/app \
+        "$src" \
+        firmware/src/app/chicago_param_tables.c \
+        firmware/src/dsp/bass303.c \
+        "$GC" -lm -o "$out"
+}
+compile tests/host/project_save_preflight_test.c build/host/project_save_preflight_test
 build/host/project_save_preflight_test
+compile tests/host/project_save_layout_reject_test.c build/host/project_save_layout_reject_test
+build/host/project_save_layout_reject_test

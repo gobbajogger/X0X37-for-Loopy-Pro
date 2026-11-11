@@ -92,11 +92,48 @@ static int test_sound_hash_collision(void)
     return 0;
 }
 
-int main(void)
+/* Overwrite the packed stream with a deterministic incompressible payload, then
+ * repair only what stream_layout_ok() inspects: bass gate nibbles and used-lane
+ * types 0xfe/0xfd. A raw xorshift fill is rejected as -9 (layout) before the
+ * capacity measure; the repaired fixture must still exceed STREAM_CAP. */
+static void fill_incompressible_raw(void)
 {
     uint8_t *raw = (uint8_t *)&proj + RAW_OFF;
     uint32_t rng = 1;
     int i;
+
+    for (i = 0; i < (int)RAW_LEN; i++) {
+        rng ^= rng << 13;
+        rng ^= rng >> 17;
+        rng ^= rng << 5;
+        raw[i] = (uint8_t)rng;
+    }
+}
+
+static void make_raw_layout_valid(void)
+{
+    int p, b, k;
+
+    for (p = 0; p < NPAT; p++)
+        for (b = 0; b < NBASS; b++)
+            for (k = 0; k < NSTEPS; k++) {
+                uint8_t f = proj.pat[p].bass[b].step[k].flags;
+                /* Force a non-rest gate so leftover end bits stay legal. */
+                proj.pat[p].bass[b].step[k].flags = (uint8_t)((f & ~BS_GATE_MASK) | G_NOTE);
+            }
+    for (k = 0; k < NLANE; k++) {
+        lane_t *l = &proj.arr.lane[k];
+        if (!l->used)
+            continue;
+        if (l->t == 0xfeu || l->t == 0xfdu)
+            l->t = 0;
+    }
+}
+
+int main(void)
+{
+    uint32_t meas_len = 0;
+    int rc, meas_rc;
 
     project_defaults();
     proj.set.palette = 1;
@@ -110,19 +147,28 @@ int main(void)
     }
     memcpy(&saved_project, &proj, sizeof proj);
 
-    /* Deterministic incompressible content exceeds the four stream objects. */
-    for (i = 0; i < (int)RAW_LEN; i++) {
-        rng ^= rng << 13;
-        rng ^= rng >> 17;
-        rng ^= rng << 5;
-        raw[i] = (uint8_t)rng;
-    }
+    fill_incompressible_raw();
+    make_raw_layout_valid();
     proj.set.palette = 2;
     proj.sound.v[T_303][0][0] = 99;
     seq.bpm = 140.0f;
+
+    if (!stream_layout_ok(&proj, PROJ_STREAM)) {
+        puts("memory-full fixture failed stream_layout_ok");
+        return 1;
+    }
+    meas_rc = measure_project(&proj, &meas_len);
+    if (meas_rc != -7) {
+        printf("memory-full fixture measure_project rc=%d len=%u (expected -7)\n",
+               meas_rc, (unsigned)meas_len);
+        return 1;
+    }
+
     writes = 0;
-    if (project_save() != -7 || writes) {
-        printf("memory-full save changed %u objects\n", (unsigned)writes);
+    rc = project_save();
+    if (rc != -7 || writes) {
+        printf("memory-full save rc=%d writes=%u (expected -7 and 0)\n",
+               rc, (unsigned)writes);
         return 1;
     }
 
