@@ -16,24 +16,26 @@ typedef struct {
 #if BOARD_SMK37 || defined(X0X_HOST)
 /* SMK-37 Pro (fm1_flash_map.h; the host simulator, host/x0x_host.c, uses this map too). Slots 1 and 2 keep the flash offsets of the earlier layouts, so
  * their data stays valid: slot 1 0xC2000-0xD5FFF (80 KiB), slot 2 0xD6000-0xF3FFF (120 KiB), both in FL_SMP.
- * The 44 KiB window at 0xB0000-0xBAFFF (FL_SMPV) is not a sample slot. It is not added to these two:
- * protected BTIF / USRTRIM sits between that window and FL_SMP. */
-#define SMP_USER_SLOTS 2
-#define SMP_USER_OFF(k) ((k) == 0u ? 0xC2000u : 0xD6000u)
-#define SMP_USER_SIZE(k) ((k) == 0u ? 0x14000u : 0x1E000u)
+ * Slot 3 is back in the VM spare (FL_SMPV), restored from bb32802e (cut in e758e195 / #351 without an
+ * owner reason): 0xB3000-0xBAFFF (32 KiB). The first 12 KiB of FL_SMPV, 0xB0000-0xB2FFF, hold the
+ * per-slot sector-0 shadows (one 4 KiB sector per slot), so slot 3 is 32 KiB and not bb32802e's 44 KiB. */
+#define SMP_USER_SLOTS 3
+#define SMP_USER_OFF(k) ((k) == 0u ? 0xC2000u : (k) == 1u ? 0xD6000u : 0xB3000u)
+#define SMP_USER_SIZE(k) ((k) == 0u ? 0x14000u : (k) == 1u ? 0x1E000u : 0x8000u)
 #define SMP_USER_MAX 0x1E000u                       /* the largest slot */
-/* First 8 KiB of FL_SMPV: per-slot 4 KiB shadow of sector 0 so a mid-WRITE
+/* First 12 KiB of FL_SMPV: per-slot 4 KiB shadow of sector 0 so a mid-WRITE
  * cancel / failed END / power loss can put the last-good header+data back. */
 #define SMP_SEC0_BACKUP 1
 #define SMP_SEC0_BACKUP_OFF(k) (0xB0000u + (uint32_t)(k) * 0x1000u)
 #ifdef FL_SMP_LO
-_Static_assert(SMP_USER_SLOTS == 2u, "SMK: two user sample slots");
+_Static_assert(SMP_USER_SLOTS == 3u, "SMK: three user sample slots");
 _Static_assert(SMP_USER_OFF(0u) == FL_SMP_LO && SMP_USER_OFF(0u) + SMP_USER_SIZE(0u) == SMP_USER_OFF(1u) &&
                SMP_USER_OFF(1u) + SMP_USER_SIZE(1u) == FL_SMP_HI, "SMK: slots 1 and 2 must fill FL_SMP");
-_Static_assert(SMP_USER_OFF(0u) >= FL_SMPV_HI, "SMK: the sample slots must not use the VM spare");
+_Static_assert(SMP_USER_OFF(0u) >= FL_SMPV_HI, "SMK: slots 1 and 2 must not use the VM spare");
 _Static_assert(SMP_SEC0_BACKUP_OFF(0u) >= FL_SMPV_LO &&
-               SMP_SEC0_BACKUP_OFF(SMP_USER_SLOTS - 1u) + 0x1000u <= FL_SMPV_HI,
-               "SMK: sector-0 backup fits in FL_SMPV");
+               SMP_SEC0_BACKUP_OFF(SMP_USER_SLOTS - 1u) + 0x1000u == SMP_USER_OFF(2u),
+               "SMK: the sector-0 shadows sit in FL_SMPV just below slot 3");
+_Static_assert(SMP_USER_OFF(2u) + SMP_USER_SIZE(2u) == FL_SMPV_HI, "SMK: slot 3 fills the rest of FL_SMPV");
 #endif
 #else
 /* FM-1: two slots of 80 KiB at 0xA0000 and 0xB4000. The old third slot at 0xC8000 is not offered,
