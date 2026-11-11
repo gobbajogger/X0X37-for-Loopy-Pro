@@ -1161,6 +1161,8 @@ static void smc_ui_draw_peer(void)
             end = put_i(put_s(put_s(end, PART_N[kit]), " B"),
                         (smc.locked ? smc.lock_bank / 8 : smc.sel[kit] / 8) + 1);
             put_s(put_s(end, " "), drum_bank[smc.knob_bank % 3u]);
+        } else if (!smc.locked && smk_clip_mode_on()) {
+            put_s(end, "CLIP KEYS");   /* 42de2893: clip-mode tag on the SMC header */
         } else if (context.view == V_HOME || (context.view == V_MIX && smc_page_now() == 0)) {
             put_s(end, main_bank[smc.knob_bank % 4u]);
         } else {
