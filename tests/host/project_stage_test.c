@@ -389,7 +389,22 @@ static void test_semantic_rejection(void)
         for (b = 0; b < invalid[k].bytes; b++)
             ((uint8_t *)&project_stage)[invalid[k].offset + b] = (uint8_t)(invalid[k].value >> (b * 8u));
         project_file_header(h);       /* correct CRC: this must be semantic rejection */
-        if (project_file_validate(h) != -1) {
+        /* Cases 28/29 poke illegal bass step flags (3 and 16). Since 279df014,
+         * stream_layout_ok rejects them first and project_file_validate returns
+         * -9; project_validate_stage still returns -1 on the same data. */
+        if (k == 28 || k == 29) {
+            int file_rc = project_file_validate(h);
+            int stage_rc = project_validate_stage();
+            if (file_rc != -9 || stage_rc != -1) {
+                if (file_rc == 0)
+                    fprintf(stderr, "unsafe case %u (offset %zu) was accepted (file_validate=%d, validate_stage=%d, expected file=-9 stage=-1)\n",
+                            k, invalid[k].offset, file_rc, stage_rc);
+                else
+                    fprintf(stderr, "unsafe case %u (offset %zu) rejected (%d layout) (file_validate=%d, validate_stage=%d, expected file=-9 stage=-1)\n",
+                            k, invalid[k].offset, file_rc, file_rc, stage_rc);
+            }
+            CHECK(file_rc == -9 && stage_rc == -1);
+        } else if (project_file_validate(h) != -1) {
             fprintf(stderr, "unsafe case %u (offset %zu) was accepted\n", k, invalid[k].offset);
             CHECK(0);
         }
