@@ -47,16 +47,15 @@ int original_fma_finite_bits_reference(uint32_t a,uint32_t b,uint32_t c,uint32_t
 
 /* Compact exact alignment domain. Each aligned magnitude is <2^62, so
  * addition is <2^63. Outside that domain retain the complete18-limb oracle. */
+/* pi32v2 has a hardware clz (and host gcc/clang match). The previous
+ * software scans were inlined four times and made this function 1,294
+ * bytes / 446 instructions on device. clzll(0) is undefined; width of
+ * 0 is 0, same as the old loop. trailing64 is only called for x != 0. */
 static unsigned width64(uint64_t x){
- unsigned n=0;if(x>>32){x>>=32;n+=32;}if(x>>16){x>>=16;n+=16;}
- if(x>>8){x>>=8;n+=8;}if(x>>4){x>>=4;n+=4;}if(x>>2){x>>=2;n+=2;}
- if(x>>1){x>>=1;n++;}return n+(x!=0);
+ return x?64u-(unsigned)__builtin_clzll(x):0u;
 }
 static unsigned trailing64(uint64_t x){
- unsigned n=0;if(!(uint32_t)x){x>>=32;n+=32;}if(!(x&65535u)){x>>=16;n+=16;}
- if(!(x&255u)){x>>=8;n+=8;}if(!(x&15u)){x>>=4;n+=4;}if(!(x&3u)){x>>=2;n+=2;}
- if(!(x&1u))n++;
- return n;
+ return (unsigned)__builtin_ctzll(x);
 }
 int original_fma_compact_bits(uint32_t a,uint32_t b,uint32_t c,uint32_t *out){
  if(!out||(a&0x7f800000u)==0x7f800000u||(b&0x7f800000u)==0x7f800000u||(c&0x7f800000u)==0x7f800000u)return 0;

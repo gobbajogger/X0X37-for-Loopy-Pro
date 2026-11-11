@@ -12,11 +12,18 @@
  * is the single rounding of p+c, which is the float add. Else the exact
  * software FMA. Same bits as original_rne_fmaf for all finite inputs. */
 static inline uint32_t cv_bits(float x){uint32_t u;memcpy(&u,&x,4);return u;}
+static inline float cv_float(uint32_t u){float x;memcpy(&x,&u,4);return x;}
 static inline float cv_fma(float a,float b,float c){
  uint32_t ua=cv_bits(a),ub=cv_bits(b),uc=cv_bits(c);
- uint32_t ea=(ua>>23)&255u,eb=(ub>>23)&255u;
- if(((uc>>23)&255u)!=255u&&ea!=255u&&eb!=255u){
+ uint32_t ea=(ua>>23)&255u,eb=(ub>>23)&255u,ec=(uc>>23)&255u;
+ if(ec!=255u&&ea!=255u&&eb!=255u){
   if(!(ua<<1)||!(ub<<1))return a*b+c;
+  /* Encoded-exp addend-dominates: product < 2^{ea+eb-252}. Quarter ULP
+   * of nonzero finite c is 2^{ec-152} (normal) or 2^{-151} (subnormal).
+   * ea+eb <= ec+100 implies product < quarter ULP, so RNE is c. Zero c
+   * is excluded: a tiny nonzero product underflows to a signed zero that
+   * may not match c's sign. Proven against the 18-limb oracle. */
+  if((uc&0x7fffffffu)&&(int)ea+(int)eb<=(int)ec+100)return c;
   if(ea&&eb){
    uint32_t ma=(ua&0x7fffffu)|0x800000u,mb=(ub&0x7fffffu)|0x800000u;
    if((24u-(unsigned)__builtin_ctz(ma))+(24u-(unsigned)__builtin_ctz(mb))<=24u){
@@ -24,6 +31,9 @@ static inline float cv_fma(float a,float b,float c){
     if(ep&&ep!=255u)return p+c;
    }
   }
+  uint32_t out;
+  if(original_fma_compact_bits(ua,ub,uc,&out))return cv_float(out);
+  if(original_fma_finite_bits_reference(ua,ub,uc,&out))return cv_float(out);
  }
  return original_rne_fmaf(a,b,c);
 }
