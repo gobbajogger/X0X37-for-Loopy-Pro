@@ -1,0 +1,125 @@
+{
+  "schema": "loopyx0x37.performance.producer-evidence.r21",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "Performance Engineering",
+  "stage": "SOURCE TEST + HOST EVIDENCE ONLY",
+  "source_parent": "60db12d6d76b8e6707d61df8deeee01296edf393",
+  "source_root_tree": "c0f35777e0eb8f4d46e8fb2216a2700f9d11dc37",
+  "candidate_compiler_tree": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+  "accepted_nightly_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "nightly_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "runner": "tests/host/run_breaks_pr93_low_rate_compare.py",
+  "runner_git_blob": "9a6c263e577f3b3f0670972754ee72e651816573",
+  "original_c_fixture_blob": "5e77b152253422d36ab7218669187d02318d21cb",
+  "pr93_breaks_c_blob": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+  "pr93_breaks_h_blob": "6cb71d336c2c90fdc60a9594c2356f3a4379c264",
+  "nightly_breaks_c_blob": "1d3d692b6788d9d1f13901cd7ab13df506cdb72f",
+  "nightly_breaks_h_blob": "094af6650333e844311a8806145a6177a0318225",
+  "common_blob_pins": {
+    "ima_adpcm": "9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+    "fastmath": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+    "x0x_param": "f7c9bf22b0606946905790dc20497a2e4b2cb4a6",
+    "pattern": "9a0703418aae95b14f1b70905cfac916da38d7dd"
+  },
+  "scratch_only": {
+    "loop_lengths": [
+      64,
+      65,
+      255,
+      4097,
+      176400,
+      705600,
+      1411200
+    ],
+    "source_advance_rates": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      8,
+      12
+    ],
+    "ima_instrumentation": true,
+    "firmware_changed": false
+  },
+  "actual_command": "python3 -B tests/host/run_breaks_pr93_low_rate_compare.py --nightly-root nightly_proj --pr93-root r20-sparse-evidence/src --output-dir r21-matched-output",
+  "compilers": [
+    "GCC 14.2 C11 -O2 -Wall -Wextra -Werror -pedantic -ffp-contract=off",
+    "Clang 17 C11 -O2 -Wall -Wextra -Werror -pedantic -ffp-contract=off"
+  ],
+  "cases_per_executable": 196,
+  "frames_per_case": 512,
+  "trace_bytes": 401408,
+  "pcm_sha256": "b9accd14e9d2d397b198dd4c6c9122afffb7b4b5fc8af18ab75bbfb5355c04f4",
+  "actual_exits": {
+    "compiler_builds": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "renderer_runs": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "binary_invalid_cli": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "runner_missing_cli": 2,
+    "runner_existing_output": 2,
+    "runner_corrupt_fixture": 1
+  },
+  "negative_side_effects": {
+    "sentinel_preserved": true,
+    "invalid_blob_output_absent": true
+  },
+  "decoder_calls": {
+    "reverse_all": {
+      "nightly": 364814,
+      "pr93": 289038,
+      "reduction_percent": 20.7711
+    },
+    "reverse_1_to_4": {
+      "nightly": 132751,
+      "pr93": 109199,
+      "reduction_percent": 17.7415
+    },
+    "forward_all": {
+      "nightly": 182466,
+      "pr93": 182466
+    },
+    "reverse_max_64_frames": {
+      "nightly": 7377,
+      "pr93": 4881
+    },
+    "reverse_by_rate_reduction_percent": {
+      "1": 0,
+      "2": 17.2228,
+      "3": 21.32,
+      "4": 21.7175,
+      "6": 23.7166,
+      "8": 21.7244,
+      "12": 22.3244
+    }
+  },
+  "gates": {
+    "original_source_sanitizer": "NOT_RUN (inherited UBSan defect PR28)",
+    "fresh_Elite_Pro_controller_BUILD_ONLY": "NOT_RUN",
+    "independent_current_root_QA": "NOT_RUN",
+    "device": "NOT_RUN",
+    "publication": "NOT_RUN"
+  },
+  "next_owners": [
+    "Existing Independent QA",
+    "Existing Hourly Build"
+  ],
+  "sole_merge_owner": "Safe Merge",
+  "decision": "KEEP unchanged source; host-only performance evidence",
+  "test_effectiveness": "CRC/blob negative reject, missing CLI and output overwrite guards, complete PCM parity vs protected NIGHTLY"
+}

@@ -1,0 +1,207 @@
+{
+  "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+  "checks_not_run": [
+    "pi32v2 timing/XRUN",
+    "model-specific SMK37 Elite+Pro SDK native build",
+    "model/controller package CRC/hash/memory/flash validation for current compiler tree",
+    "full PR93 independent QA",
+    "firmware integration",
+    "public hosting/HTTPS",
+    "device testing"
+  ],
+  "compiled_firmware_tree_unchanged": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+  "host_compilers": [
+    "gcc 14.2.0",
+    "clang 17.0.0"
+  ],
+  "labels": [
+    "PRODUCER_HOST_PASS",
+    "ORIGINAL_SOURCE_UBSAN_FAIL_KNOWN_PR28",
+    "TARGET_BUILD_PENDING",
+    "QA_PENDING",
+    "DEVICE_NOT_TESTED",
+    "NOT_INSTALLABLE"
+  ],
+  "negatives": {
+    "invalid_compiler_exit": 2,
+    "missing_projection_header_exit": 2,
+    "mutated_pcm_digest_rejected": true,
+    "output_overwrite_refused_exit": 2,
+    "wrong_pr28_header_blob_exit": 1,
+    "wrong_production_blob_exit": 1
+  },
+  "new_files": {
+    "docs/audit/performance-pr93-seeded-live-property-20261025.md": {
+      "git_blob": "2006388fddb6e7660683ade9d3fe18fa3488e5d1",
+      "sha256": "7c82241256617e9340eaa042b6fc35a6f79f1c5235e275c184229511e1d408f3"
+    },
+    "tests/host/breaks_randomized_live_property_test.c": {
+      "git_blob": "c93c73bf2e6ba6a07aada1a64e8b6d2f6ecc7c6c",
+      "sha256": "f043a3f5be6dddf0a49e8f6acbb90dbb7af90443e3824927e4970465fbc34921"
+    },
+    "tests/host/run_breaks_randomized_live_property.py": {
+      "git_blob": "5f6670ddcd8d673e5ec34c5e6e57904f132c9e5c",
+      "sha256": "fcfa05f9436618347e766ae746b8a1797c34f8b12a3d7947b20202c5ae0b6646"
+    }
+  },
+  "next_owner": [
+    {
+      "role": "existing Independent QA",
+      "scope": "new seeded live property plus current PR93 root/known PR28 UB",
+      "stop": "independent exact-head review or specific needs-changes finding"
+    },
+    {
+      "role": "existing Hourly Build",
+      "scope": "only current compiler tree ee863f... for Elite+Pro+controller",
+      "stop": "pinned actual native build receipts/hashes or concrete unavailable input"
+    },
+    {
+      "role": "sole Safe Merge",
+      "scope": "optional performance integration only after independent QA and model budget",
+      "stop": "never self-approval or first candidate graft"
+    }
+  ],
+  "normal_runner": {
+    "case_count_per_executable": 28,
+    "checks": [
+      {
+        "compile_exit": 0,
+        "compile_log_sha256": "538086333a4db46bfb6a24cc352619b7c53f1619ed4d468198df34f1ebab7ddb",
+        "execute_exit": 0,
+        "missing_argument_exit": 2,
+        "name": "gcc-legacy",
+        "pcm_sha256": "24dd87f608ddbc0bcc72b2685cb3569e64adfd8aaa992d7eeabd8ac7db6462ec",
+        "run_log_sha256": "36ddd732f420e77880c7862b63cefda98a1cb3b3ea4d174e1de1b6a4131787be"
+      },
+      {
+        "compile_exit": 0,
+        "compile_log_sha256": "b69194a595a434da8d2be9e19afb7182735037eb410b15d74f19bba1e09a5acd",
+        "execute_exit": 0,
+        "missing_argument_exit": 2,
+        "name": "gcc-fast",
+        "pcm_sha256": "24dd87f608ddbc0bcc72b2685cb3569e64adfd8aaa992d7eeabd8ac7db6462ec",
+        "run_log_sha256": "4dde4c6f43ddef2cf97ed8af954be6e5290351178542c1af2cccce4ebec8a8a7"
+      },
+      {
+        "compile_exit": 0,
+        "compile_log_sha256": "a36f90bac8a76222ccf40455206bffde23e5f1776a8e13221743ce3d25e3fd21",
+        "execute_exit": 0,
+        "missing_argument_exit": 2,
+        "name": "clang-legacy",
+        "pcm_sha256": "24dd87f608ddbc0bcc72b2685cb3569e64adfd8aaa992d7eeabd8ac7db6462ec",
+        "run_log_sha256": "5b1880b0f4835ed9c25e8fc2c30f8e420250aa27169d4135003d278622107778"
+      },
+      {
+        "compile_exit": 0,
+        "compile_log_sha256": "d5fd04cd46bca969317173d0ba1cac238595298e6b11cd7834de935d3cd1e9b9",
+        "execute_exit": 0,
+        "missing_argument_exit": 2,
+        "name": "clang-fast",
+        "pcm_sha256": "24dd87f608ddbc0bcc72b2685cb3569e64adfd8aaa992d7eeabd8ac7db6462ec",
+        "run_log_sha256": "b9001d42e8ebe6d6e55b21e50ecc792e38f8e5ddf952ea06bfca9577855ecfb9"
+      }
+    ],
+    "compiled_firmware_tree": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+    "consumed_source_sha": "7dfcf9b2e4b9925628a569dd18cf873385f22618",
+    "expected_pcm_bytes_per_executable": 1261568,
+    "hardware": "NOT_RUN",
+    "independent_qa": "NOT_RUN",
+    "original_source_ubsan": "KNOWN_FAIL: fastmath.h:57 negative signed shift, owned by PR28",
+    "outcome": "PASS producer scoped PCM/STOP only; original sanitizer still FAIL",
+    "pcm_sha256": "24dd87f608ddbc0bcc72b2685cb3569e64adfd8aaa992d7eeabd8ac7db6462ec",
+    "role": "Performance Engineering producer (never Independent QA)",
+    "sanitizer_peer_projection_blob": null,
+    "scope": "seeded two-bank replacement, overlapping live NoteOn/NoteOff, reverse/half/stutter, pitched fractional tempo, retrigger, slice pin, 64-frame callback canaries and STOP",
+    "source_git_blobs": {
+      "firmware/src/dsp/breaks.c": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+      "firmware/src/dsp/breaks.h": "6cb71d336c2c90fdc60a9594c2356f3a4379c264",
+      "firmware/src/dsp/fastmath.h": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+      "firmware/src/dsp/ima_adpcm.h": "9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+      "firmware/src/dsp/x0x_param.h": "f7c9bf22b0606946905790dc20497a2e4b2cb4a6",
+      "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+      "tests/host/breaks_randomized_live_property_test.c": "c93c73bf2e6ba6a07aada1a64e8b6d2f6ecc7c6c"
+    },
+    "source_pr": 93,
+    "target_build": "NOT_RUN"
+  },
+  "original_source_sanitizer_failures": {
+    "clang_fast_exit": 134,
+    "diagnostic": "fastmath.h:57: left shift of negative value -1",
+    "existing_owner": "PR #28",
+    "gcc_fast_exit": 1
+  },
+  "owner": "Performance Engineering",
+  "parent_head": "7dfcf9b2e4b9925628a569dd18cf873385f22618",
+  "parent_root_tree": "72e2a52f5e1234b2cd9e42a7e31c646ba04ac174",
+  "pr": 93,
+  "pr28_peer_projection_sanitizer_runner": {
+    "case_count_per_executable": 28,
+    "checks": [
+      {
+        "compile_exit": 0,
+        "compile_log_sha256": "d4d603092368484a6577d0355ce3ffa2f2cd54abd27f4e55b1f4d1d5ac7fed2d",
+        "execute_exit": 0,
+        "missing_argument_exit": 2,
+        "name": "gcc-legacy",
+        "pcm_sha256": "24dd87f608ddbc0bcc72b2685cb3569e64adfd8aaa992d7eeabd8ac7db6462ec",
+        "run_log_sha256": "80961fd3ac4c4cb7d00b90ce4b0e14092ba68e96cef3c6b5d7bfba3d9b2d78c8"
+      },
+      {
+        "compile_exit": 0,
+        "compile_log_sha256": "d900ba73f325697645276f44132d0aed78b11725b72d1f620fa4793ad7ef955c",
+        "execute_exit": 0,
+        "missing_argument_exit": 2,
+        "name": "gcc-fast",
+        "pcm_sha256": "24dd87f608ddbc0bcc72b2685cb3569e64adfd8aaa992d7eeabd8ac7db6462ec",
+        "run_log_sha256": "c5a67c2927d363872901610892ade3149bf06bd2674ae84b4c38695fa1ff3d95"
+      },
+      {
+        "compile_exit": 0,
+        "compile_log_sha256": "6fba276d882e1aa0111f20b8e165e96d112a28e151545fc2ee8a6180e61372ce",
+        "execute_exit": 0,
+        "missing_argument_exit": 2,
+        "name": "clang-legacy",
+        "pcm_sha256": "24dd87f608ddbc0bcc72b2685cb3569e64adfd8aaa992d7eeabd8ac7db6462ec",
+        "run_log_sha256": "fe045208ee500cd1328be843a1bc68c79ae0158242af90f95abfaa3309472550"
+      },
+      {
+        "compile_exit": 0,
+        "compile_log_sha256": "390c62405b399c05a1b3e262e2ee0c963ddc3be3ca833df36e62e9875df41a0d",
+        "execute_exit": 0,
+        "missing_argument_exit": 2,
+        "name": "clang-fast",
+        "pcm_sha256": "24dd87f608ddbc0bcc72b2685cb3569e64adfd8aaa992d7eeabd8ac7db6462ec",
+        "run_log_sha256": "f79ac1870338a9239f3c3f44ee1cc5ef93373436345e88bee59a07f8a683d6fc"
+      }
+    ],
+    "compiled_firmware_tree": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+    "consumed_source_sha": "7dfcf9b2e4b9925628a569dd18cf873385f22618",
+    "expected_pcm_bytes_per_executable": 1261568,
+    "hardware": "NOT_RUN",
+    "independent_qa": "NOT_RUN",
+    "original_source_ubsan": "KNOWN_FAIL: fastmath.h:57 negative signed shift, owned by PR28",
+    "outcome": "PASS producer scoped PCM/STOP only; original sanitizer still FAIL",
+    "pcm_sha256": "24dd87f608ddbc0bcc72b2685cb3569e64adfd8aaa992d7eeabd8ac7db6462ec",
+    "role": "Performance Engineering producer (never Independent QA)",
+    "sanitizer_peer_projection_blob": "a5c26c95cad0d91a548a8db073f59777e36d4e86",
+    "scope": "seeded two-bank replacement, overlapping live NoteOn/NoteOff, reverse/half/stutter, pitched fractional tempo, retrigger, slice pin, 64-frame callback canaries and STOP",
+    "source_git_blobs": {
+      "firmware/src/dsp/breaks.c": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+      "firmware/src/dsp/breaks.h": "6cb71d336c2c90fdc60a9594c2356f3a4379c264",
+      "firmware/src/dsp/fastmath.h": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+      "firmware/src/dsp/ima_adpcm.h": "9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+      "firmware/src/dsp/x0x_param.h": "f7c9bf22b0606946905790dc20497a2e4b2cb4a6",
+      "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+      "tests/host/breaks_randomized_live_property_test.c": "c93c73bf2e6ba6a07aada1a64e8b6d2f6ecc7c6c"
+    },
+    "source_pr": 93,
+    "target_build": "NOT_RUN"
+  },
+  "production_breaks_blob_unchanged": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+  "receiving_roles": [
+    "existing Independent QA",
+    "existing Hourly Build"
+  ],
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "revision": "performance-pr93-r17-seeded-live-property-20261025-r1"
+}

@@ -1,0 +1,21 @@
+  ok   quickcheck-plan
+  FAIL ctl-compile (see build/host/ctl-compile.log)
+       Traceback (most recent call last):
+         File "/Users/mac/Documents/x0x37/build_speed_combination/tests/host/test_ctl_compile.py", line 249, in test_signal_after_successful_batch_stops_children
+           stdout, stderr = p.communicate(timeout=5)
+         File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 1134, in communicate
+           stdout, stderr = self._communicate(input, endtime, timeout)
+         File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 1980, in _communicate
+           self._check_timeout(endtime, orig_timeout, stdout, stderr)
+         File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 1178, in _check_timeout
+           raise TimeoutExpired(
+       subprocess.TimeoutExpired: Command '['sh', '/Users/mac/Documents/x0x37/build_speed_combination/ble/ctl/build_in_container.sh']' timed out after 5 seconds
+
+       ----------------------------------------------------------------------
+       Ran 7 tests in 19.537s
+
+       FAILED (errors=2)
+  ok   host-setup
+  ok   runner-admission
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+TESTS FAILED

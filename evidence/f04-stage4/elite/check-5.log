@@ -1,0 +1,5 @@
+fixture package loads                                                    ok
+model: pre-repair mute probe still installs (silent skip)                ok
+installKeepingSlots: mute probe -> slots error, nothing written          ok
+installKeepingSlots: successful empty layout installs without backup     ok
+installKeepingSlots: bad layout parse -> slots error, nothing written    ok

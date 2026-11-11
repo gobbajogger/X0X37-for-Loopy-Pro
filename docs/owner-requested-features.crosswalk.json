@@ -1,0 +1,1505 @@
+{
+  "schema": "owner-feature-register-v1",
+  "pins": {
+    "pr699": "445b91b60b6d97eb56ab4c673aaf56c2186ee967",
+    "pr706": "07bb15e3deab9942531712100b7358e6750f6e5d",
+    "one_build": "094bb1a55c159aefb0e2bfa39790a1b4b74cee40"
+  },
+  "baseline": [
+    {
+      "id": 1,
+      "heading": "Два полноценных выбираемых движка Chicago и Miami",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/engine.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/engine.c) at `094bb1a55c15`",
+      "acceptance_limit": "Original Chicago/Miami engine-selection code and backends are present; actual target render remains unchecked. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 2,
+      "heading": "Достоверный звук оригинальных движков",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #691](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/691) (`chat/miami-opt@b8fc366a1f017890151230912beeb4e5c9e9fcf1`, owner/lead, not proof)",
+      "acceptance_limit": "Audible original-engine equality and bit-exact golden captures are not available for this candidate; Miami's sound-level history is not proof."
+    },
+    {
+      "id": 3,
+      "heading": "Полное и правильное управление Chicago и Miami",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #691](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/691) (`chat/miami-opt@b8fc366a1f017890151230912beeb4e5c9e9fcf1`, owner/lead, not proof); current source: [`firmware/src/app/original_sound.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/original_sound.c)",
+      "acceptance_limit": "Original parameter descriptors are source-present, but full 22 Chicago/18 Miami control exposure and live UI ranges are unqualified."
+    },
+    {
+      "id": 4,
+      "heading": "Pitch Bend и педаль на своих физических органах",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Wheel and damper source paths exist; physical-to-original-engine full behaviour is not independently qualified."
+    },
+    {
+      "id": 5,
+      "heading": "Все согласованные эффекты без скрытого урезания",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/chicago_bpmdly.h`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6ea8e572f0dffcf8e2c828afe69c71ef0541c3af/firmware/src/app/chicago_bpmdly.h); `chat/pr-conflicts@6ea8e572f0dffcf8e2c828afe69c71ef0541c3af`; [PR #695](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/695)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Chicago FX-tail and clocked-delay candidate; all agreed FX and audio parity unverified."
+    },
+    {
+      "id": 6,
+      "heading": "Заводские пресеты и удобный выбор звука",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/original_sound.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/original_sound.c) at `094bb1a55c15`",
+      "acceptance_limit": "The compact 55 Chicago/30 Miami factory programme selector is present; UI and sound quality are not signed off. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 7,
+      "heading": "Привязка звука и движка к паттерну",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Pattern-bound engine and preset recall must be tested after revision-13 save/load."
+    },
+    {
+      "id": 8,
+      "heading": "Полный sound lock на отдельной ноте",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Complete per-note sound locks and safe morph are not proved in final source."
+    },
+    {
+      "id": 9,
+      "heading": "Честная замена старых движков",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/engine.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/engine.c) at `094bb1a55c15`",
+      "acceptance_limit": "Original-engine configuration guards are in the engine; do not restore retired standalone engines. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 10,
+      "heading": "Реальные имена пресетов и переключение без щелчков",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #691](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/691) (`chat/miami-opt@b8fc366a1f017890151230912beeb4e5c9e9fcf1`, owner/lead, not proof); current source: [`firmware/src/app/original_sound.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/original_sound.c)",
+      "acceptance_limit": "Original factory names exist in source, but switching without clicks requires an audible envelope/adoption test."
+    },
+    {
+      "id": 11,
+      "heading": "Ноты длиннее одного шага",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Long notes exist historically; no exact complete one-build gate/slide test receipt."
+    },
+    {
+      "id": 12,
+      "heading": "Запись фактической длительности удержания",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Held-note recording/release must be proved on original-engine input and MIDI paths."
+    },
+    {
+      "id": 13,
+      "heading": "Музыкально корректная вероятность",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Probability source exists, but drum-step selectable mapping and skipped-note MIDI output are unverified."
+    },
+    {
+      "id": 14,
+      "heading": "RANDOM без расхождения с предпросмотром",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "RANDOM preview and playback equivalence is not qualified on current source."
+    },
+    {
+      "id": 15,
+      "heading": "Сохранение cutoff locks при навигации",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Cutoff-lock preservation on navigation is not independently verified."
+    },
+    {
+      "id": 16,
+      "heading": "Жест принадлежит исходной партии до отпускания",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Part/gesture ownership repair candidate; full shared-input validation pending."
+    },
+    {
+      "id": 17,
+      "heading": "Безопасный жизненный цикл motion и записи",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Motion/recording release and transport ownership must be tested on final composition."
+    },
+    {
+      "id": 18,
+      "heading": "Единые внутренние и внешние часы",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Clock handover/phase continuity has no exact-current accepted test receipt."
+    },
+    {
+      "id": 19,
+      "heading": "Правильные Start Stop Continue и очереди MIDI",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/ble.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6ea8e572f0dffcf8e2c828afe69c71ef0541c3af/firmware/src/ble.c); `chat/pr-conflicts@6ea8e572f0dffcf8e2c828afe69c71ef0541c3af`; [PR #695](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/695)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. MIDI FIFO/transport-order repair candidate; exact combined regression unverified."
+    },
+    {
+      "id": 20,
+      "heading": "Визуальный метроном от настоящих часов",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/smc_mixer.c) at `094bb1a55c15`",
+      "acceptance_limit": "The SMC visual beat observer reads a sampled clock; exact framebuffer/stop-resume behaviour is not re-tested here. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 21,
+      "heading": "Синхронные доли Miami и удобный выбор на пэдах",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof); current source: [`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/ui.c)",
+      "acceptance_limit": "Eight Miami RATE-pad choices are in one-build (ui.c division_pad_*). The separate four SHAPE-pad choices are expressly absent; overall pad UX is not accepted."
+    },
+    {
+      "id": 22,
+      "heading": "Legato при записи превращается в slide",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Original-engine recorded legato-to-slide behaviour has no accepted end-to-end proof."
+    },
+    {
+      "id": 23,
+      "heading": "Сохранить отдельные модели 909 и 808",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/engine.h`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/engine.h) at `094bb1a55c15`",
+      "acceptance_limit": "909 and 808 have separate target/part identities; #694 adds a separate host regression not integrated here. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 24,
+      "heading": "Независимая адаптивная нарезка двух лупов",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/dsp/breaks.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/dsp/breaks.c) at `094bb1a55c15`",
+      "acceptance_limit": "Dual-loop BREAK DSP and independent slice generation are present; exact integrated audio proof is outstanding. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 25,
+      "heading": "Понятная клавиатурная навигация по срезам",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/ui.c) at `094bb1a55c15`",
+      "acceptance_limit": "BREAK physical slice-navigation route is source-present; full keyboard interaction is still unchecked. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 26,
+      "heading": "Правильный MIDI выход BREAKS",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/engine.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/engine.c) at `094bb1a55c15`",
+      "acceptance_limit": "BREAK accepted-hit MIDI event path is present; output correctness and device interoperability are not proven. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 27,
+      "heading": "Pitch Bend для BREAKS",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/engine.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/engine.c) at `094bb1a55c15`",
+      "acceptance_limit": "The physical BREAK bend mailbox and DSP route are present; device acceptance is not proven. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 28,
+      "heading": "Jungle stretch вместо HALFTIME",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/dsp/breaks.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/dsp/breaks.c) at `094bb1a55c15`",
+      "acceptance_limit": "BREAK jungle grain/stretch implementation exists; audition and exact source parity remain unchecked. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 29,
+      "heading": "Три выбранных владельцем штатных брейка",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #699](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/699) (`wip/missing-features-plan@a422853e8a99c4be9bb3bd1fc842b10eb3f49551`, owner/lead, not proof)",
+      "acceptance_limit": "Owner-selected private break samples are only a provenance lead; designated local stock bank and permission cannot be verified remotely."
+    },
+    {
+      "id": 30,
+      "heading": "Читаемый восьмиполосный микшер",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/smc_mixer.c) at `094bb1a55c15`",
+      "acceptance_limit": "The existing eight-strip SMC mixer renderer is in this tree; current UX acceptance is pending. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 31,
+      "heading": "Осознанный выбор полосы и режима",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Read existing SMC display, pattern cue and pickup behavior before fixing gaps. FX caption repair is not full FX-page acceptance."
+    },
+    {
+      "id": 32,
+      "heading": "Физический Pause как context lock с LED",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/smc_mixer.c) at `094bb1a55c15`",
+      "acceptance_limit": "Pause-captured fader/knob target lock is in the SMC implementation; LED and hardware qualification are pending. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 33,
+      "heading": "Два независимых SMC по Bluetooth",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #687](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/687) (`wip/smc-port@7840c0394967f0e731d905e5832fb6cf7c2127d7`, owner/lead, not proof); current source: [`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/smc_mixer.c)",
+      "acceptance_limit": "Two peer data structures are present, but prior real dual-SMC connection failed; latest controller/firmware pairing is not device-proven."
+    },
+    {
+      "id": 34,
+      "heading": "Безопасные отключение и возврат SMC",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/ble/ble_midi_central.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/ble/ble_midi_central.c) at `094bb1a55c15`",
+      "acceptance_limit": "The dual-peer BLE reconnection implementation is in the tree; it has not passed two-device hardware validation. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 35,
+      "heading": "Разведение SMC и других контроллеров",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #687](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/687) (`wip/smc-port@7840c0394967f0e731d905e5832fb6cf7c2127d7`, owner/lead, not proof); current source: [`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/smc_mixer.c)",
+      "acceptance_limit": "Per-peer input ownership exists, but absence of cross-controller interference has not passed exact-current testing."
+    },
+    {
+      "id": 36,
+      "heading": "Названия peer и сведения о подключении",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #687](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/687) (`wip/smc-port@7840c0394967f0e731d905e5832fb6cf7c2127d7`, owner/lead, not proof); current source: [`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/smc_mixer.c)",
+      "acceptance_limit": "Peer naming/status controls are present, but correct two-device naming and status are not validated."
+    },
+    {
+      "id": 37,
+      "heading": "Страницы восьмой полосой, банки ручек только Up/Down",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Read existing SMC display, pattern cue and pickup behavior before fixing gaps. FX caption repair is not full FX-page acceptance."
+    },
+    {
+      "id": 38,
+      "heading": "Индивидуальный drum mixer вторым нажатием Select",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/smc_mixer.c) at `094bb1a55c15`",
+      "acceptance_limit": "SMC selected-drum strip and repeat-Select handling exist; exact device navigation acceptance is pending. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 39,
+      "heading": "Ручки не дублируют фейдеры",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Read existing SMC display, pattern cue and pickup behavior before fixing gaps. FX caption repair is not full FX-page acceptance."
+    },
+    {
+      "id": 40,
+      "heading": "Контекст Select и исключение User mode",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Read existing SMC display, pattern cue and pickup behavior before fixing gaps. FX caption repair is not full FX-page acceptance."
+    },
+    {
+      "id": 41,
+      "heading": "Отдельная страница эффектов на микшере",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "The mixer owner has only partial FX caption and Select mapping. The agreed full effects page/control assignment is not delivered."
+    },
+    {
+      "id": 42,
+      "heading": "Полноценный временный SMC экран вместо жёлтой полосы",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. SMC temporary overlay candidate; final visual/interaction review pending."
+    },
+    {
+      "id": 43,
+      "heading": "Тихая смена связанного SMC контекста с прибора",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Silent linked-SMC updates are planned in PR #693; the exact present/no-overlay behaviour is not proved."
+    },
+    {
+      "id": 44,
+      "heading": "Накопление и отмена ожидаемой смены паттерна",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Read existing SMC display, pattern cue and pickup behavior before fixing gaps. FX caption repair is not full FX-page acceptance."
+    },
+    {
+      "id": 45,
+      "heading": "Единый pickup и правильный уровень после Unmute",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Read existing SMC display, pattern cue and pickup behavior before fixing gaps. FX caption repair is not full FX-page acceptance."
+    },
+    {
+      "id": 46,
+      "heading": "Pickup и lock feedback в музыкальном времени",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Read existing SMC display, pattern cue and pickup behavior before fixing gaps. FX caption repair is not full FX-page acceptance."
+    },
+    {
+      "id": 47,
+      "heading": "Явное надёжное Save Project",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/ui.c) at `094bb1a55c15`",
+      "acceptance_limit": "SAVE PROJECT UI and project_save() are present; reliability of an entire rev13 project remains unproven. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 48,
+      "heading": "Явное безопасное Load Project",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/project.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/project.c) at `094bb1a55c15`",
+      "acceptance_limit": "Load UI and project_load() are present; invalid-file and user-data safety require exact-candidate proof. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 49,
+      "heading": "Раздельные Clear Song и Reset Project",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/ui.c) at `094bb1a55c15`",
+      "acceptance_limit": "Separate CLEAR SONG and RESET PROJECT actions are present; sample-preservation must be retested. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 50,
+      "heading": "Полный переносимый экспорт и импорт проекта",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`web/x0x_projects.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/web/x0x_projects.js)",
+      "acceptance_limit": "The rev13 portable round-trip is broken across the current web/firmware boundary: the one-build browser parser still rejects rev13."
+    },
+    {
+      "id": 51,
+      "heading": "Надёжный backup и restore сэмплов",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Backup/restore safety source only; no complete sample integrity and device receipt."
+    },
+    {
+      "id": 52,
+      "heading": "Атомарные операции при нескольких клиентах",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Project transactions exist in code, but atomicity between concurrent clients is not qualified."
+    },
+    {
+      "id": 53,
+      "heading": "Не терять данные при смене соединения",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Connection/data continuity source only; exact reconnect verification missing."
+    },
+    {
+      "id": 54,
+      "heading": "Явно решить совместимость старого формата проекта",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`web/x0x_projects.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/web/x0x_projects.js)",
+      "acceptance_limit": "Original firmware requires stream 13, but current web/x0x_projects.js still admits older layouts and has no rev13 parser case."
+    },
+    {
+      "id": 55,
+      "heading": "Полнота восстановления всех прежних сэмплов",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #699](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/699) (`wip/missing-features-plan@a422853e8a99c4be9bb3bd1fc842b10eb3f49551`, owner/lead, not proof)",
+      "acceptance_limit": "Complete restoration of owner-private historical sample slots cannot be verified from public Git; not equivalent to backup of two slots."
+    },
+    {
+      "id": 56,
+      "heading": "Довести именно новый согласованный UI",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/dece81aba08fc606ba279b9cf777563ad4575e5e/firmware/src/app/ui.c); `chat/ui-theme@dece81aba08fc606ba279b9cf777563ad4575e5e`; [PR #696](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/696)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Reviewed glyph/drum-mix material only; the entire approved new UI is NOT accepted."
+    },
+    {
+      "id": 57,
+      "heading": "Обзор реального содержимого всех паттернов",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/home_pattern_glyph.h`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/530046e176a0d1c74c0c8cddf9db3f346e026ec0/firmware/src/app/home_pattern_glyph.h); `chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`; [PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Strongest-step 8-column HOME overview: scoped host evidence exists, final framebuffer not checked."
+    },
+    {
+      "id": 58,
+      "heading": "Показывать velocity без потери сильных шагов",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/home_pattern_glyph.h`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/530046e176a0d1c74c0c8cddf9db3f346e026ec0/firmware/src/app/home_pattern_glyph.h); `chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`; [PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Strongest event velocity glyph: scoped host evidence exists, final framebuffer not checked."
+    },
+    {
+      "id": 59,
+      "heading": "Больше места музыкальным шагам",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694) (`chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`, owner/lead, not proof)",
+      "acceptance_limit": "The requested extra space for musical steps needs final framebuffer evidence, not a plan."
+    },
+    {
+      "id": 60,
+      "heading": "Осмысленные waveform и morph glyphs",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`tests/host/ui_shared_glyph_test.sh`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/dece81aba08fc606ba279b9cf777563ad4575e5e/tests/host/ui_shared_glyph_test.sh); `chat/ui-theme@dece81aba08fc606ba279b9cf777563ad4575e5e`; [PR #696](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/696)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Shared semantic glyph tests; full waveform/morph callers still need inspection."
+    },
+    {
+      "id": 61,
+      "heading": "Правдивые глифы огибающих и эффектов",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`tests/host/ui_shared_glyph_test.sh`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/dece81aba08fc606ba279b9cf777563ad4575e5e/tests/host/ui_shared_glyph_test.sh); `chat/ui-theme@dece81aba08fc606ba279b9cf777563ad4575e5e`; [PR #696](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/696)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Shared glyph tests; complete truthful envelope/FX representation is not shown."
+    },
+    {
+      "id": 62,
+      "heading": "Правильные подсказки физических ручек и ROW",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694) (`chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`, owner/lead, not proof)",
+      "acceptance_limit": "Physical knob and ROW captions require current runtime mapping and screenshot confirmation."
+    },
+    {
+      "id": 63,
+      "heading": "Безопасный wrap навигации",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`tests/host/ui_page_wrap_test.py`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/tests/host/ui_page_wrap_test.py) at `094bb1a55c15`",
+      "acceptance_limit": "SELECT-page safe-wrap host regression and handler are present; unrelated destructive/numeric bounds remain protected. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 64,
+      "heading": "Структурированные настройки вместо плоского списка",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694) (`chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`, owner/lead, not proof)",
+      "acceptance_limit": "Grouped settings are planned, but an accepted full settings screen is not verified."
+    },
+    {
+      "id": 65,
+      "heading": "Анимация только по настоящей активности",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/ui.c) at `094bb1a55c15`",
+      "acceptance_limit": "The activity-gated tape glyph tick and signal observer are present; full activity/animation validation remains open. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 66,
+      "heading": "Полная ADSR кривая при редактировании",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694) (`chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`, owner/lead, not proof)",
+      "acceptance_limit": "Full ADSR edit curve must be checked against real envelope state and framebuffer."
+    },
+    {
+      "id": 67,
+      "heading": "Экран остаётся пока продолжается взаимодействие",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/smc_mixer.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/7b2d1726f3515b319d5edcab34529007d33ab3a8/firmware/src/app/smc_mixer.c); `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8`; [PR #688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Read existing SMC display, pattern cue and pickup behavior before fixing gaps. FX caption repair is not full FX-page acceptance."
+    },
+    {
+      "id": 68,
+      "heading": "Матрица контролов с выделенной активной строкой",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #696](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/696) (`chat/ui-theme@dece81aba08fc606ba279b9cf777563ad4575e5e`, owner/lead, not proof); current source: [`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/ui.c)",
+      "acceptance_limit": "Control matrix is source-present, but highlighted-row, sparse-column and scroll acceptance is not documented for this exact head."
+    },
+    {
+      "id": 69,
+      "heading": "Раздельные экраны секвенсора и звуковых контролов",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694) (`chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`, owner/lead, not proof); current source: [`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/ui.c)",
+      "acceptance_limit": "Separate sequencer/sound navigation paths need complete screen acceptance."
+    },
+    {
+      "id": 70,
+      "heading": "Настраиваемые цветовые темы, включая светлую",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/ui.c) at `094bb1a55c15`",
+      "acceptance_limit": "The palette selector includes LIGHT as its sixth choice; rendered contrast and stored-theme validation remain open. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 71,
+      "heading": "Единое написание DnBOX и качественный визуальный стиль",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #696](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/696) (`chat/ui-theme@dece81aba08fc606ba279b9cf777563ad4575e5e`, owner/lead, not proof); current source: [`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/ui.c)",
+      "acceptance_limit": "DnBOX startup wordmark exists, but agreed multilingual font/visual coherence and every page remain unverified."
+    },
+    {
+      "id": 72,
+      "heading": "Статическая загрузка без нежелательного видео",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/boot_screen.h`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/boot_screen.h) at `094bb1a55c15`",
+      "acceptance_limit": "The static DnBOX startup caption is source-present; confirm no separate player in the final composed device. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 73,
+      "heading": "Независимый recovery bootloader",
+      "source_coverage": "MISSING",
+      "source_evidence": "[PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694)",
+      "acceptance_limit": "No independent recovery bootloader delivered. This item is read-only/owner-restricted; no protected bootloader work is authorized."
+    },
+    {
+      "id": 74,
+      "heading": "Диагностика неработающих пэдов SMK37",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`firmware/src/app/main_fm1.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/main_fm1.c) at `094bb1a55c15`",
+      "acceptance_limit": "Read-only INLOG pad raw/base/peak/scan/mux capture is present; the physical pad fault remains undiagnosed. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 75,
+      "heading": "Одна понятная страница установки и управления данными",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Reuse existing installer, backup guards, DnBOX typography, site UX, version catalog and sample workflow. Site branch is not deployed proof."
+    },
+    {
+      "id": 76,
+      "heading": "Импорт и экспорт song через сайт",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/530046e176a0d1c74c0c8cddf9db3f346e026ec0/web/x0x_installer.html); `chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`; [PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Site now links to project transfers. The current one-build browser parser still fails rev13; transfer is not end-to-end working."
+    },
+    {
+      "id": 77,
+      "heading": "Новый DnBOX сайт и общий шрифт",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Reuse existing installer, backup guards, DnBOX typography, site UX, version catalog and sample workflow. Site branch is not deployed proof."
+    },
+    {
+      "id": 78,
+      "heading": "Настоящие Manual What’s New и History",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Reuse existing installer, backup guards, DnBOX typography, site UX, version catalog and sample workflow. Site branch is not deployed proof."
+    },
+    {
+      "id": 79,
+      "heading": "Понятные шаги и состояния подключения",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Reuse existing installer, backup guards, DnBOX typography, site UX, version catalog and sample workflow. Site branch is not deployed proof."
+    },
+    {
+      "id": 80,
+      "heading": "Заметный локальный файл прошивки и ошибки рядом с ним",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Reuse existing installer, backup guards, DnBOX typography, site UX, version catalog and sample workflow. Site branch is not deployed proof."
+    },
+    {
+      "id": 81,
+      "heading": "Заранее сообщать о неподдержанном браузере",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Reuse existing installer, backup guards, DnBOX typography, site UX, version catalog and sample workflow. Site branch is not deployed proof."
+    },
+    {
+      "id": 82,
+      "heading": "Доступность на телефоне и компьютере",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Reuse existing installer, backup guards, DnBOX typography, site UX, version catalog and sample workflow. Site branch is not deployed proof."
+    },
+    {
+      "id": 83,
+      "heading": "Правильный Bluetooth controller внутри пакета",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694) (`chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`, owner/lead, not proof); current source: [`docs/lanes/one-build.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/docs/lanes/one-build.md)",
+      "acceptance_limit": "No checked exact-controller image is paired with a current full-feature package."
+    },
+    {
+      "id": 84,
+      "heading": "Сохранять устанавливаемые версии и честную историю",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Historical catalogue numbering is reported; live installable version preservation not revalidated."
+    },
+    {
+      "id": 85,
+      "heading": "Устойчивое обновление и перенос данных",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_installer.html`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_installer.html); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Reuse existing installer, backup guards, DnBOX typography, site UX, version catalog and sample workflow. Site branch is not deployed proof."
+    },
+    {
+      "id": 86,
+      "heading": "Показывать возможности настоящими изображениями UI",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694) (`chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`, owner/lead, not proof)",
+      "acceptance_limit": "Real screenshots of accepted UI, rather than mockups, are not verified for the current website lane."
+    },
+    {
+      "id": 87,
+      "heading": "Превью и подготовка сэмплов под установщиком",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_breaks.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_breaks.js); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Installer sample preparation branch is unpublished; placement and preservation unverified."
+    },
+    {
+      "id": 88,
+      "heading": "Несколько визуальных вариантов сайта и качественный 3D акцент",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694) (`chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`, owner/lead, not proof)",
+      "acceptance_limit": "Website 3D accents and multiple real validated visual variants have no confirmed source-to-render proof."
+    },
+    {
+      "id": 89,
+      "heading": "Экономия памяти ускорением сэмплов при импорте",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/x0x_breaks.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9fe416a39506ad8d408fa5bf84603b696fd005a4/web/x0x_breaks.js); `wip/web-site@9fe416a39506ad8d408fa5bf84603b696fd005a4`; [PR #690](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/690)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Sample pre-speed source needs playback quality and storage comparisons."
+    },
+    {
+      "id": 90,
+      "heading": "Полноценное редактирование паттернов снаружи",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/editor.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/editor.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Offline pattern editor source only; live firmware connection is absent."
+    },
+    {
+      "id": 91,
+      "heading": "Piano roll для двух синтезаторных партий",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/editor.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/editor.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Offline two-synth piano-roll code; device sync absent."
+    },
+    {
+      "id": 92,
+      "heading": "Отдельные редакторы 909 808 и BREAKS",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/model.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/model.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Offline 909/808/BREAK draft editing; no device-backed data round-trip."
+    },
+    {
+      "id": 93,
+      "heading": "Импорт MIDI файлов с явным предпросмотром",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/smf.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/smf.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Local MIDI import with review, but final browser/device tests missing."
+    },
+    {
+      "id": 94,
+      "heading": "Никакой тихой потери музыкальных данных при импорте",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/import-worker.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/import-worker.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Explicit import-loss checks; cannot assert every input case safe without exact browser test."
+    },
+    {
+      "id": 95,
+      "heading": "Локальные draft save load и Undo",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/draft-guards.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/draft-guards.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Local Web Locks and last-good draft; not a hardware backup."
+    },
+    {
+      "id": 96,
+      "heading": "Генераторы New и Mutate",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/generator.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/generator.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. New/Mutate local draft generation; no device DSP parity."
+    },
+    {
+      "id": 97,
+      "heading": "Удобный iPhone интерфейс по мотивам FunkyBeats",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`web/offline-sequencer/README.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/README.md); [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "The offline editor explicitly lacks a complete real-iPhone rich layout; phone emulation alone does not deliver it."
+    },
+    {
+      "id": 98,
+      "heading": "Выделение и групповые операции",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`web/offline-sequencer/README.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/README.md); [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "Whole-part clipboard actions exist, but the requested note selection/marquee and atomic group editing are not implemented."
+    },
+    {
+      "id": 99,
+      "heading": "Полные операции над part и достижимые команды",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/part-operations.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/part-operations.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Part-level clipboard commands exist; sound drafts/global engine assignment excluded."
+    },
+    {
+      "id": 100,
+      "heading": "Redo и предсказуемая история редактирования",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/editing.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/editing.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Bounded Redo implementation; current browser acceptance not run."
+    },
+    {
+      "id": 101,
+      "heading": "Grid scale snap ghost и touch keyboard",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`web/offline-sequencer/README.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/README.md); [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "The complete scale/snap/ghost-note/touch-keyboard editing set is not present in the qualified editor candidate."
+    },
+    {
+      "id": 102,
+      "heading": "Корректные жесты и отмена на телефоне",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/editor.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/editor.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Touch/multitouch cancel source tested in emulation, not on real iPhone."
+    },
+    {
+      "id": 103,
+      "heading": "Sound controls в редакторе соответствуют настоящему движку",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`web/offline-sequencer/control-schema.js`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/control-schema.js); `codex/web-editor@ea6b3bebf2564844b3e6b384a71581fc85149851`; [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Schema for 22 Chicago /18 Miami parameters in offline draft only; device round-trip absent."
+    },
+    {
+      "id": 104,
+      "heading": "Двусторонний протокол синхронизации с прибором",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`web/offline-sequencer/README.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/README.md); [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "The offline editor explicitly has no device transport or bidirectional synchronisation protocol."
+    },
+    {
+      "id": 105,
+      "heading": "Отдельный используемый TouchOSC проект",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`web/offline-sequencer/README.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ea6b3bebf2564844b3e6b384a71581fc85149851/web/offline-sequencer/README.md); [PR #685](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685)",
+      "acceptance_limit": "No qualified standalone DnBOX TouchOSC project with its runtime and handoff exists in the checked sources."
+    },
+    {
+      "id": 106,
+      "heading": "Реальная нагрузка в idle не выше 20 процентов",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #691](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/691) (`chat/miami-opt@b8fc366a1f017890151230912beeb4e5c9e9fcf1`, owner/lead, not proof); current source: [`firmware/src/app/ui.c`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/firmware/src/app/ui.c)",
+      "acceptance_limit": "Idle CPU at or under 20 percent requires real-device measurements; #691/#692 source optimisations do not establish it."
+    },
+    {
+      "id": 107,
+      "heading": "Надёжность под совместной нагрузкой",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`firmware/src/app/chicago_bpmdly.h`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6ea8e572f0dffcf8e2c828afe69c71ef0541c3af/firmware/src/app/chicago_bpmdly.h); `chat/pr-conflicts@6ea8e572f0dffcf8e2c828afe69c71ef0541c3af`; [PR #695](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/695)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Combined MIDI/audio stress repair tests are candidates, not full memory/deadline hardware proof."
+    },
+    {
+      "id": 108,
+      "heading": "Не потерять старые полезные исправления",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #698](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698) (`wip/one-build@094bb1a55c159aefb0e2bfa39790a1b4b74cee40`, owner/lead, not proof)",
+      "acceptance_limit": "The integrator has not produced an exhaustive retained-fix vs source-tree proof."
+    },
+    {
+      "id": 109,
+      "heading": "Проверки не должны выдавать ложный успех",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #698](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698) (`wip/one-build@094bb1a55c159aefb0e2bfa39790a1b4b74cee40`, owner/lead, not proof)",
+      "acceptance_limit": "Historical fail-closed test repairs exist; no complete current candidate false-PASS audit."
+    },
+    {
+      "id": 110,
+      "heading": "Проверка повседневного удобства без новых разрывов",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #693](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693) (`wip/orchestrator@4f039829352d7dc805ebd2865b073d34f397cb6e`, owner/lead, not proof)",
+      "acceptance_limit": "Daily user-flow checks and real-device UX acceptance are not completed."
+    },
+    {
+      "id": 111,
+      "heading": "Одна полная обновлённая NIGHTLY версия",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`docs/lanes/one-build.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/docs/lanes/one-build.md)",
+      "acceptance_limit": "No single complete full-feature NIGHTLY build has been validated or published from this candidate."
+    },
+    {
+      "id": 112,
+      "heading": "Настоящие пакеты обеих моделей",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`docs/lanes/one-build.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/docs/lanes/one-build.md)",
+      "acceptance_limit": "No current-candidate Elite and Pro development packages with matching controllers and integrity receipts were produced."
+    },
+    {
+      "id": 113,
+      "heading": "Доставить через существующий установщик",
+      "source_coverage": "MISSING",
+      "source_evidence": "[`docs/lanes/one-build.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/docs/lanes/one-build.md)",
+      "acceptance_limit": "The combined candidate has not been delivered through the existing installer; publication is a separate protected step."
+    },
+    {
+      "id": 114,
+      "heading": "Не смешивать состояния готовности",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`docs/lanes/one-build.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/docs/lanes/one-build.md) at `094bb1a55c15`",
+      "acceptance_limit": "One-build explicitly separates WIP source from DEV CHECKED, installable and device-proven states. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 115,
+      "heading": "Независимая проверка именно итоговых inputs",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`tools/remaining_feature_proof.py`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/530046e176a0d1c74c0c8cddf9db3f346e026ec0/tools/remaining_feature_proof.py); `chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`; [PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694)",
+      "acceptance_limit": "**Proven:** NO, not end-to-end/one-build accepted. Exact-input proof tool and scoped receipts exist; no independent proof of final integrated firmware."
+    },
+    {
+      "id": 116,
+      "heading": "Не забывать ни один запрос",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #698](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698) (`wip/one-build@094bb1a55c159aefb0e2bfa39790a1b4b74cee40`, owner/lead, not proof)",
+      "acceptance_limit": "Traceability and owner handoff are tracked but not an audited zero-omission result."
+    },
+    {
+      "id": 117,
+      "heading": "Сократить путь от просьбы до доступной функции",
+      "source_coverage": "UNVERIFIED",
+      "source_evidence": "[PR #698](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698) (`wip/one-build@094bb1a55c159aefb0e2bfa39790a1b4b74cee40`, owner/lead, not proof)",
+      "acceptance_limit": "No measured end-to-end delivery latency or complete integration cadence was proven."
+    },
+    {
+      "id": 118,
+      "heading": "Production отдельно от NIGHTLY",
+      "source_coverage": "IN ONE-BUILD",
+      "source_evidence": "[`docs/rules/firmware-nightly-promotion.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/docs/rules/firmware-nightly-promotion.md) at `094bb1a55c15`",
+      "acceptance_limit": "The maintained workflow keeps NIGHTLY separate from production and requires distinct proof gates. Source coverage only; current complete-tree host/native/device acceptance is NOT_RUN."
+    },
+    {
+      "id": 119,
+      "heading": "Библиотека песен сообщества",
+      "source_coverage": "MISSING",
+      "source_evidence": "[PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694)",
+      "acceptance_limit": "The community song library is explicitly deferred and is not implemented."
+    },
+    {
+      "id": 120,
+      "heading": "Автоматический inbox предложений и голос владельца",
+      "source_coverage": "MISSING",
+      "source_evidence": "[PR #699](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/699)",
+      "acceptance_limit": "Historical intake/forms work is partial; the automatic owner-voting inbox and review flow are not delivered."
+    },
+    {
+      "id": 121,
+      "heading": "Польза официальной M VAVE прошивки и симулятора",
+      "source_coverage": "ON ANOTHER BRANCH OR PR",
+      "source_evidence": "[`docs/remaining-features-20261030.md`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/530046e176a0d1c74c0c8cddf9db3f346e026ec0/docs/remaining-features-20261030.md); `chat/remaining-features@530046e176a0d1c74c0c8cddf9db3f346e026ec0`; [PR #694](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/694)",
+      "acceptance_limit": "**Proven:** YES, narrowly (research document only). The official M-VAVE source/licence/workbench assessment is complete in its narrow research scope; no code adoption or simulator-device proof."
+    },
+    {
+      "id": 122,
+      "heading": "Проверка вклада Cursor и полноты ревью",
+      "source_coverage": "MISSING",
+      "source_evidence": "[PR #699](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/699)",
+      "acceptance_limit": "Only partial historical Cursor/review audit exists; an end-to-end contribution and successor-review map is missing."
+    }
+  ],
+  "smc_facets": [
+    {
+      "id": "SMC-01",
+      "requested_behavior": "Reliable direct BLE connection/reconnect",
+      "pr699_items": [
+        33,
+        34
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "OWNER_REPORTED_SINGLE_SMC_SUCCESS; installed SHA unknown; dual-peer acceptance remains unverified"
+    },
+    {
+      "id": "SMC-02",
+      "requested_behavior": "Two simultaneous independent SMC mixers",
+      "pr699_items": [
+        33
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-03",
+      "requested_behavior": "Connected names truthfully show actual peer(s), readable long names",
+      "pr699_items": [
+        36
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-04",
+      "requested_behavior": "Bluetooth enable/disable acts live without reboot",
+      "pr699_items": [],
+      "pr699_coverage": "ABSENT_EXPLICIT_REQUIREMENT",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-05",
+      "requested_behavior": "Setting automatically persists without Save Project/autosave/reboot",
+      "pr699_items": [],
+      "pr699_coverage": "ABSENT_EXPLICIT_REQUIREMENT",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-06",
+      "requested_behavior": "Readable full temporary SMC UI instead of yellow bar",
+      "pr699_items": [
+        42
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-07",
+      "requested_behavior": "Eight spatial strips, encoder above fader, truthful button captions/selected lane",
+      "pr699_items": [
+        30,
+        31
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-08",
+      "requested_behavior": "Overlay remains while holding/using controls; timeout begins after interaction ends",
+      "pr699_items": [
+        67
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-09",
+      "requested_behavior": "Keyboard page navigation must not briefly open SMC UI; restore real underlying page",
+      "pr699_items": [
+        43
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-10",
+      "requested_behavior": "Knobs control distinct useful parameters, not duplicate faders",
+      "pr699_items": [
+        39
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-11",
+      "requested_behavior": "Up/Down changes knob mapping bank ONLY, no page/view change",
+      "pr699_items": [
+        37
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-12",
+      "requested_behavior": "Repeated REC/SELECT/SOLO near strip8 cycle pages in their own mode",
+      "pr699_items": [
+        37
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-13",
+      "requested_behavior": "Pause locks captured target; keyboard navigation must not redirect controls",
+      "pr699_items": [
+        32
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-14",
+      "requested_behavior": "Unlock only deliberate separate Pause hold; no accidental repeat unlock",
+      "pr699_items": [
+        32
+      ],
+      "pr699_coverage": "DETAIL_MISSING_UNDER_BROAD_ITEM",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-15",
+      "requested_behavior": "Lock must keep strip REC, selection/navigation/drum paging usable for chosen target",
+      "pr699_items": [
+        32
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-16",
+      "requested_behavior": "Pause LED steady locked, blinking following; pickup/lock feedback clock-synced",
+      "pr699_items": [
+        32,
+        46
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-17",
+      "requested_behavior": "PLAY toggles play/pause; global REC, Mute and pattern controls remain usable locked",
+      "pr699_items": [
+        32,
+        19
+      ],
+      "pr699_coverage": "DETAIL_MISSING_UNDER_BROAD_ITEM",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-18",
+      "requested_behavior": "SELECT stays selection outside FX; effects only in FX context",
+      "pr699_items": [
+        40
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-19",
+      "requested_behavior": "Actual FX assignments on all agreed strips: reverb, delay, LPF, HPF; truthful captions/pages",
+      "pr699_items": [
+        41
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-20",
+      "requested_behavior": "Main return SELECT tap navigation versus hold FX, tails and effect release/peer ownership",
+      "pr699_items": [
+        41,
+        16
+      ],
+      "pr699_coverage": "DETAIL_MISSING_UNDER_BROAD_ITEM",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-21",
+      "requested_behavior": "Drum SELECT repeat switches main ↔ individual-sound mixer; banks/REC/Solo/Mute follow selected kit",
+      "pr699_items": [
+        38
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-22",
+      "requested_behavior": "Drum names BD/SD/etc, not bare numbers; selected strip and connected NAME truthful",
+      "pr699_items": [
+        30,
+        31,
+        36
+      ],
+      "pr699_coverage": "DETAIL_MISSING_UNDER_BROAD_ITEM",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-23",
+      "requested_behavior": "Fader pickup single crossing; no double-pickup/old state; physical position on unmute",
+      "pr699_items": [
+        45
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-24",
+      "requested_behavior": "Repeated pattern step presses accumulate; opposite press cancels pending change",
+      "pr699_items": [
+        44
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-25",
+      "requested_behavior": "Safe disconnect/overload/foreign sender handling; no stuck Solo/FX/notes or cross-peer controls",
+      "pr699_items": [
+        34,
+        35,
+        16
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-26",
+      "requested_behavior": "DAW-only device route, preserve Loopy/APC separation; no Ableton-memory scope creep",
+      "pr699_items": [
+        35,
+        40
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-27",
+      "requested_behavior": "Adaptive knob-bank label uses “knobs”, not static “k5-8”, and describes current assignments.",
+      "pr699_items": [
+        37,
+        62
+      ],
+      "pr699_coverage": "DETAIL_MISSING_UNDER_BROAD_ITEM",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-28",
+      "requested_behavior": "Replace confusing FX “Edit Sends Mix/Parts” text with intelligible contextual labels between reverb/delay and sends.",
+      "pr699_items": [
+        41,
+        56
+      ],
+      "pr699_coverage": "DETAIL_MISSING_UNDER_BROAD_ITEM",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-29",
+      "requested_behavior": "Use consistent knob visuals and meaningful glyphs; make BREAK and FX layouts understandable.",
+      "pr699_items": [
+        56,
+        61,
+        71
+      ],
+      "pr699_coverage": "BROAD_PRESENT_DETAIL_NOT_FULLY_ENUMERATED",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-30",
+      "requested_behavior": "Main/HOME SMC fader 8 controls the master DJ/filter, matching the keyboard filter fader; master mute indication remains independent.",
+      "pr699_items": [],
+      "pr699_coverage": "ABSENT_EXPLICIT_REQUIREMENT",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-31",
+      "requested_behavior": "Individual drum Record chooses the visible kit/drum and toggles recording, rather than recording the whole-part shortcut.",
+      "pr699_items": [
+        38
+      ],
+      "pr699_coverage": "DETAIL_MISSING_UNDER_BROAD_ITEM",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-32",
+      "requested_behavior": "Individual drum Solo isolates the selected visible sound while held, releasing its original target without rewriting saved mutes or destroying tails.",
+      "pr699_items": [
+        38,
+        16
+      ],
+      "pr699_coverage": "DETAIL_MISSING_UNDER_BROAD_ITEM",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-33",
+      "requested_behavior": "SMC drum selection drives actual SMK pad step sequencing in both SEQ and individual 909/808 MIX, not just visual selection.",
+      "pr699_items": [
+        38
+      ],
+      "pr699_coverage": "DETAIL_MISSING_UNDER_BROAD_ITEM",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    },
+    {
+      "id": "SMC-34",
+      "requested_behavior": "Navigation LEDs follow the newly agreed actions and current workspace rather than stale Start/Stop or prior layout feedback.",
+      "pr699_items": [
+        31,
+        32
+      ],
+      "pr699_coverage": "DETAIL_MISSING_UNDER_BROAD_ITEM",
+      "acceptance": "NOT_ACCEPTED_AS_COMPLETE; source-present or historical evidence requires exact-candidate closure"
+    }
+  ],
+  "supplementary_non_smc": [
+    {
+      "id": "NS001",
+      "title": "Interactive firmware-feature simulator with faithful physical SMK-37 Elite, SMC-Mixer and Loopy Pro control anatomy",
+      "pr699_ids": [],
+      "pr699_coverage": "absent",
+      "state": "HISTORICAL_REQUEST_NOT_CANCELLED",
+      "note": "Original owner asks interactive surface to simulate features, one-to-one anatomy, then clarifies firmware anatomy; detailed simulator packet is delegated evidence. Not the same as #121 official-source reuse research; no current implementation claim or new implementation ownership."
+    },
+    {
+      "id": "NS002",
+      "title": "SMK-only public product support description: never imply FM-1 support or testing",
+      "pr699_ids": [
+        71,
+        78
+      ],
+      "pr699_coverage": "absent_detail",
+      "state": "ACTIVE",
+      "note": "Unsupported/not tested disclaimer is permitted; no FM-1 adaptation requested."
+    },
+    {
+      "id": "NS003",
+      "title": "Replace stale repository presentation and placeholder docs with useful accurate musician-facing feature/workflow descriptions",
+      "pr699_ids": [
+        78,
+        108
+      ],
+      "pr699_coverage": "absent_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS004",
+      "title": "Keep familiar original UI typography; consistent lower-case glyphs and exact DnBOX case without renaming saved names",
+      "pr699_ids": [
+        56,
+        61,
+        71
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS005",
+      "title": "Use readable physical SCALE/SEL action cues, preserve clip-mode masking and action protections",
+      "pr699_ids": [
+        56,
+        62,
+        64
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS006",
+      "title": "Fit full engine and FREE PLAY header without collision with pattern/tempo; compact existing font only when needed",
+      "pr699_ids": [
+        56,
+        68
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS007",
+      "title": "All settings retain the existing 28 refs in six sections, not new settings or a flat scroll list",
+      "pr699_ids": [
+        64
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": "Rich original122 inventory already contains six groups/28 refs although #699 row omits them."
+    },
+    {
+      "id": "NS008",
+      "title": "Settings category entry remains usable in clip mode; held entry arrow cannot accidentally edit first value",
+      "pr699_ids": [
+        64
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS009",
+      "title": "Settings PATCH back restores category focus, GLOBE escapes, modal cancellation restores same row",
+      "pr699_ids": [
+        63,
+        64
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS010",
+      "title": "Settings value arrows keep bounded editing semantics, category navigation never invokes actions",
+      "pr699_ids": [
+        63,
+        64
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS011",
+      "title": "Preserve all conditional settings and existing save/load/reset confirmations and quiet/stop guards",
+      "pr699_ids": [
+        47,
+        48,
+        49,
+        64
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS012",
+      "title": "Drive icon progresses from fixed-phase sine toward square with amount, not triangle or fake signal animation",
+      "pr699_ids": [
+        60,
+        61
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS013",
+      "title": "FILTER OFF baseline aligns with active pass baseline; show understandable filter response and resonance",
+      "pr699_ids": [
+        60,
+        61
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS014",
+      "title": "Glyphs are understandable parameter schematics, not falsely claimed measured audio; numbers/units authoritative",
+      "pr699_ids": [
+        60,
+        61
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS015",
+      "title": "Retain agreed unchanged reverb Tone/Decay rather than apply superseded redesign",
+      "pr699_ids": [
+        61
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS016",
+      "title": "TAPE animation follows actual input/wet signal, freezes on silence/mute, resumes same phase without idle catchup",
+      "pr699_ids": [
+        65
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": "Rich original122 already says real input/wet not occupancy; explicit freeze/resume requirements preserved. Old occupancy proxy failed and is superseded."
+    },
+    {
+      "id": "NS017",
+      "title": "TAPE activity includes live input while stopped and real tails, not transport-playing flag",
+      "pr699_ids": [
+        65
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS018",
+      "title": "Chicago idle optimization target roughly1–3k instructions/block with golden and idle-then-note identity",
+      "pr699_ids": [
+        2,
+        106
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": "Host instruction target distinct from device <=20percent criterion."
+    },
+    {
+      "id": "NS019",
+      "title": "Reuse selected 80-entry preset list and approved glyph/animated UI pieces while retaining newer themes/static boot",
+      "pr699_ids": [
+        6,
+        10,
+        56
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": "Explicit source-selection request, not proof final count differs from source55Chicago/30Miami; must reconcile not synthesize presets."
+    },
+    {
+      "id": "NS020",
+      "title": "Free Play rate pads must reuse existing route and coexist with notes, releases and unused pads",
+      "pr699_ids": [
+        21
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS021",
+      "title": "Keep final display part order 909,808,BREAK,Chicago,Miami and group drums/synths",
+      "pr699_ids": [
+        56
+      ],
+      "pr699_coverage": "absent_detail",
+      "state": "ACTIVE",
+      "note": "Owner transcript has608 speech typo; source122/firmware identity808 remains correct. This is display order, not storage ID remap."
+    },
+    {
+      "id": "NS022",
+      "title": "Website local-only sample preview before connecting device and before upload",
+      "pr699_ids": [
+        87
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    },
+    {
+      "id": "NS026",
+      "title": "Preserve original-engine presets until held notes release to avoid switching clicks/dropouts",
+      "pr699_ids": [
+        10
+      ],
+      "pr699_coverage": "partial_detail",
+      "state": "ACTIVE",
+      "note": ""
+    }
+  ],
+  "cancelled": [
+    {
+      "id": "NS023",
+      "title": "Historical custom boot still-image import",
+      "pr699_ids": [
+        72
+      ],
+      "pr699_coverage": "historical_detail",
+      "state": "SUPERSEDED_OR_REQUIRES_RECONCILIATION",
+      "note": "Latest direction static boot does not automatically authorize restoring old media-upload workflow."
+    },
+    {
+      "id": "NS024",
+      "title": "Historical custom boot video import and adjustable playback duration",
+      "pr699_ids": [
+        72
+      ],
+      "pr699_coverage": "historical_detail",
+      "state": "SUPERSEDED",
+      "note": "Boot-animation player was expressly removed by a later owner instruction; do not implement."
+    },
+    {
+      "id": "NS025",
+      "title": "Historical DnBOX3D box entrance/exit with beat-synced assembly and accepted B intro audio",
+      "pr699_ids": [
+        72,
+        88
+      ],
+      "pr699_coverage": "historical_detail",
+      "state": "SUPERSEDED_FOR_FIRMWARE_BOOT",
+      "note": "Keep separate website3D request active under88; do not reactivate heldPR662."
+    },
+    {
+      "id": "NS027",
+      "title": "Historical triangle DRIVE proposal",
+      "pr699_ids": [
+        61
+      ],
+      "pr699_coverage": "historical_detail",
+      "state": "SUPERSEDED",
+      "note": "Explicitly superseded by sine-to-square owner input."
+    },
+    {
+      "id": "NS028",
+      "title": "Historical TAPE ring-occupancy activity proxy",
+      "pr699_ids": [
+        65
+      ],
+      "pr699_coverage": "historical_detail",
+      "state": "REJECTED",
+      "note": "Proxy spun about1.72s after last wet sample; must not be restored."
+    }
+  ],
+  "coverage_complete": false,
+  "counts": {
+    "preserved_baseline": 122,
+    "confirmed_absent_top_level_smc": 3,
+    "confirmed_absent_top_level_non_smc": 1,
+    "distinct_top_level_requests": 126,
+    "smc_facets_total": 34,
+    "non_smc_records_total": 28,
+    "additional_detail_facets_not_additive": 53,
+    "historical_inactive_outside_active_total": 5
+  },
+  "corpus_coverage": {
+    "local_first": true,
+    "dnbox_search_pages": 4,
+    "dnbox_search_terminal": true,
+    "visible_cloud_threads": 270,
+    "visible_thread_first_pages_read": 270,
+    "relevant_parent_history_pages": 318,
+    "relevant_parent_histories_terminal": 2,
+    "all_visible_threads_fully_read": false,
+    "archived_history_fully_enumerated": false
+  }
+}

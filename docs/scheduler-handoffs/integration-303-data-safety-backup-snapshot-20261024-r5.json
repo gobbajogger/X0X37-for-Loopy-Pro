@@ -1,0 +1,102 @@
+{
+  "schema": "loopyx0x37.safe-merge.integration.v1",
+  "evidence_revision": "safe-merge-pr103-data-safety-pr106-intake-20261024-r5",
+  "owner": "LoopyX0X37 Safe Merge (sole firmware nightly integrator)",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+  "stage": "SOURCE_COMPLETE_READY_FOR_INDEPENDENT_REVIEW_BUILD_ONLY_POSSIBLE",
+  "hardware": "DEVICE_NOT_TESTED",
+  "installable": {
+    "elite": false,
+    "pro": false
+  },
+  "consumed": {
+    "integration": {
+      "pr": 103,
+      "head": "5493044eb663b931fddd13f847c370b6971df623",
+      "full_root": "1ca400ea04a7369c5e056ec80d35dc42c4a42855",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "evidence_revision": "safe-merge-pr103-data-safety-pr105-intake-20261024-r4"
+    },
+    "producer": {
+      "pr": 106,
+      "branch": "lane/data-safety-prewrite-snapshot-reconcile-20261024-0819",
+      "head": "bfda1394d9642bef9a9224e7f0d6cb6d5b85f64f",
+      "full_root": "098e3fdd1a7a385395ba3776100b5a01d7b3a829",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "evidence_revision": "data-safety-prewrite-backup-snapshot-20261024-0819-v1"
+    }
+  },
+  "integrated_paths": [
+    "tools/fm1_install.py",
+    "tests/fm1_install_backup_snapshot_test.py",
+    "tests/run_tests.sh",
+    "docs/scheduler-handoffs/data-safety-backup-snapshot-20261024.{md,json}",
+    "docs/scheduler-handoffs/integration-303-data-safety-backup-snapshot-20261024-r5.json"
+  ],
+  "exact_blobs": {
+    "installer": "b4f25704524f018cb2e1dfdd78cadb43503ac6ab",
+    "test": "c61d5d28a05caed86fbb46337f828e8ebb800275",
+    "runner": "be749c63d261ff197e2909aee9cf18fef717c496"
+  },
+  "integration_specific_repair": {
+    "finding": "Producer #106 inadvertently dropped executable file mode on tools/fm1_install.py (100755 -> 100644). Restore existing 100755 WITHOUT modifying producer content/blob or producer branch.",
+    "new_mode": "100755",
+    "producer_mode": "100644",
+    "preserved_blob": "b4f25704524f018cb2e1dfdd78cadb43503ac6ab"
+  },
+  "evidence": [
+    {
+      "command": "GitHub connector GET /git/commits/<SHA>, /git/trees/<SHA>, compare exact PR #103 and #106",
+      "exit": 0,
+      "status": "PASS",
+      "finding": "#106 is exactly 2 commits ahead of #103 and modifies five known paths; contains unchanged firmware subtree."
+    },
+    {
+      "command": "GitHub fetch_file at immutable PR #106/#103 SHA + JavaScript exact-source ordered and test registry assertions",
+      "exit": 0,
+      "status": "PASS",
+      "assertions": 23,
+      "failures": 0,
+      "scope": "Static checks on authenticated Git blob reads; not whole-root native execution"
+    },
+    {
+      "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+      "exit": 128,
+      "status": "ENVIRONMENT_UNAVAILABLE",
+      "finding": "container DNS could not resolve github.com; authenticated GitHub connector works; not a source failure"
+    },
+    {
+      "command": "Producer #106: python3 source-matched snapshot regression 7/7; python3 -O 7/7; original negative 4/7; py_compile 0",
+      "exit": 0,
+      "status": "PRODUCER_REPORTED_NOT_RERUN",
+      "scope": "Source-window mocks; not independent full root QA"
+    }
+  ],
+  "untouched": "production main, protected firmware nightly, website main/gh-pages, firmware binary publishing, hardware, producers' branches",
+  "outstanding": [
+    "Independent exact combined-root native tests and Git review for 303, sample backup/migration/restore, OTA/loader interruptions, wrong-model/controller/CRC/readback negatives",
+    "Independent BLE source negative from SMC #50/#89/#94 unresolved in #103 firmware source; sole Safe Merge must separately reconcile qualified minimal repair or document safe disposition before publicly selectable candidate",
+    "Exact full compiler-input Elite/Pro/controller BUILD_ONLY acknowledgement or current target compilation by Hourly Build; unchanged firmware subtree alone is insufficient",
+    "Protected PR merge prerequisites; current nightly not moved",
+    "Lawful corresponding source/license and immutable firmware/controller hosting, catalog/site QA and sole publisher HTTP SHA verification"
+  ],
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Review/test this exact resulting integration full root with producer #106 snapshot regression and negative paths; record attributable Git verdict"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Immediately attest or compile matching Elite/Pro/controller exact compiler inputs BUILD_ONLY without waiting for merge or QA"
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "After independent QA and scoped host negatives, authorize only protected PR merge; separately triage BLE #50 dependency before safe public selectability"
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "Retain old qualified builds; no new selectable models until full safety/source/license/immutable HTTP gates"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+The central-session source repair passes its selected checks.
+The original physical input failure remains unresolved.
+
+The repair handles CID 5 signaling through the existing ACL assembly path.
+It sends a parameter-update refusal with the request identifier.
+It rejects unknown commands and reports a 64-byte signaling MTU for oversized commands.
+It discards unsolicited identified responses and malformed command lengths.
+The ATT receive limit remains 64 bytes.
+The parser retains at most 64 bytes when it drains oversized signaling.
+
+Four pending replies fit in a fixed queue.
+Unavailable credits and a busy mailbox retain each pending reply.
+Signaling replies have priority over discovery and MIDI light feedback.
+Queue overflow or a 3-second stall increments errors and disconnects the link.
+The lifecycle reset clears pending replies and partial fragments.
+
+A successful disconnect now restores credits for the sole link.
+This prevents discovery starvation after a disconnect with unacknowledged ACL data.
+A failed disconnect event does not clear the connection.
+Completion counts saturate before conversion to uint8_t.
+
+The public regressions fail on base 1313e0f and pass on the candidate.
+ASan and UBSan report no failure in the selected receive tests.
+The replay uses 1268 unchanged notification payloads and decodes 2616 messages.
+It uses production callback, mailbox service, UI, queue and feedback code.
+A simulated parameter request occurs during discovery, before CONNECTED.
+The replay ends with 513 feedback messages and an empty input queue.
+The performance test is idle. Help and overlay are inactive.
+Three oversized ATT packets remain outside this bounded replay.
+The synthetic saved project is not a device project dump.
+These results do not test target interrupt timing or radio execution.
+
+Both Elite and Pro DEV targets pass their code, RAM and pool checks.
+Code margins are 1640 bytes for Elite and 1656 bytes for Pro.
+Static RAM margin is 524 bytes. Pool margin is 8364 bytes.
+The required pool margin is 8192 bytes.
+No feature, sample, loop, note, pad colour, model guard or budget was removed.
+No controller source change or device write occurred.
+The packages are stage-2 outputs, not validated install artifacts.
+
+Continued investigation
+
+The source investigation checked disconnect credits and signaling response state.
+The new credit regression reproduces discovery starvation after a legal disconnect.
+The working reference also lacks credit reclamation and signaling responses.
+These defects can affect a session but do not prove a changed regression cause.
+The current idle trace reports CONNECTED and five credits.
+That observation does not match discovery starvation.
+The rejected header identifies CID 5 but contains no command or identifier.
+The retained data cannot establish which signaling response the physical peer needed.
+The recorded MIDI payloads have no session-negotiation trace.
+No recorded input transmission is correlated with the failed physical receive path.
+No source evidence justifies another target execution repair at this stage.
+The owner-reported input failure remains valid evidence.
+Zero idle counters do not prove input loss.
+
+The separate mapping chat owns smc_mixer.c and UI performance-abort changes.
+This commit does not change those files.
+Stage 3 must independently test this candidate and investigate the unresolved cause.
+A test failure that requires source changes needs a fresh stage-2 owner.
+No physical PASS, complete cure, release, fallback or external push is claimed.
+
+Primary specifications
+
+L2CAP sections 4, 4.1 and 4.21 define CID 5, identifiers and parameter responses.
+An accepted parameter request also requires a controller update.
+https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-62/out/en/host/logical-link-control-and-adaptation-protocol-specification.html
+
+HCI section 4.3 defines buffer reclamation after successful disconnection.
+The controller need not send completion counts before that event.
+https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/host-controller-interface/host-controller-interface-functional-specification.html
+
+Exact commands, hashes, limits and logs are in checks.json and replay.json.
+The audit, original owner instructions and stage-2 input are in ../session-audit/.

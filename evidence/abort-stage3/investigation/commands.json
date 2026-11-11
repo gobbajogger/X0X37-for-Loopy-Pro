@@ -1,0 +1,186 @@
+[
+  {
+    "name": "broken-saved-investigation-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/investigation-abort-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/broken/saved-investigation"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/broken",
+    "returncode": 0,
+    "expected": 0,
+    "log": "broken-saved-investigation-compile.log"
+  },
+  {
+    "name": "broken-saved-investigation-overflow",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/broken/saved-investigation",
+      "overflow"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/broken",
+    "returncode": -6,
+    "expected": -6,
+    "log": "broken-saved-investigation-overflow.log"
+  },
+  {
+    "name": "broken-saved-investigation-timeout",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/broken/saved-investigation",
+      "timeout"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/broken",
+    "returncode": -6,
+    "expected": -6,
+    "log": "broken-saved-investigation-timeout.log"
+  },
+  {
+    "name": "broken-saved-test-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/test-busy-disconnect.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/broken/saved-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/broken",
+    "returncode": 0,
+    "expected": 0,
+    "log": "broken-saved-test-compile.log"
+  },
+  {
+    "name": "broken-saved-test-both",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/broken/saved-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/broken",
+    "returncode": 1,
+    "expected": 1,
+    "log": "broken-saved-test-both.log"
+  },
+  {
+    "name": "candidate-saved-investigation-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/investigation-abort-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/candidate/saved-investigation"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-saved-investigation-compile.log"
+  },
+  {
+    "name": "candidate-saved-investigation-overflow",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/candidate/saved-investigation",
+      "overflow"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-saved-investigation-overflow.log"
+  },
+  {
+    "name": "candidate-saved-investigation-timeout",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/candidate/saved-investigation",
+      "timeout"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-saved-investigation-timeout.log"
+  },
+  {
+    "name": "candidate-saved-test-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/test-busy-disconnect.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/candidate/saved-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-saved-test-compile.log"
+  },
+  {
+    "name": "candidate-saved-test-both",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/candidate/saved-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-saved-test-both.log"
+  },
+  {
+    "name": "edge-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021/evidence/abort-stage3/investigation/edge-probe.c",
+      "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021/firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/edge-probe"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "edge-compile.log"
+  },
+  {
+    "name": "edge-run",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-investigation-jlafmfbd/edge-probe"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "edge-run.log"
+  }
+]

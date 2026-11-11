@@ -1,0 +1,88 @@
+{
+  "workflow": "build-speed-combination-20261021",
+  "status": "PASS checked local non-cache tooling combination",
+  "scope_complete": true,
+  "production_candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+  "candidate_tree": "de94ec06bb3b411850104dade643492d22e4606c",
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "branch": "lane/opt-build-speed-combination",
+  "lane": "/Users/mac/Documents/x0x37/build_speed_combination",
+  "execution_owner": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "receiving_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "firmware_integration_owner": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "independent_test": {
+    "result": "PASS",
+    "path": "independent-test/result.json",
+    "sha256": "57dff834dc7282d659874a3d18c8abe6bf5e7388f197281a5743773d607f5626"
+  },
+  "independent_investigation": {
+    "result": "PASS both findings resolved",
+    "path": "independent-investigation/result.json",
+    "sha256": "d01c502f58ae8650545d22c14942143a83bd0f9e067ec25ea58f83fccadc4068"
+  },
+  "changes": [
+    "Four production host probes use generate-only setup and avoid unused whole-simulator compilation.",
+    "Selected runner setup occurs after selection/phase admission; class/key/basename work is reduced; display extracts shared knob harness without compiling/running the knob probe again.",
+    "Quickcheck plans scope before builds and requires runnable selected checks, preserving conservative unknown scopes and parent negative controls.",
+    "Controller compilation is bounded and stops owned successful-driver groups before dropping ownership; flags/linking and exact existing image evidence are retained.",
+    "Native orchestration uses one pinned Linux worker with checked installed-package bytes, equivalent direct dependency walker, explicit extra-input declarations and unchanged consumer guard behavior.",
+    "Retired browser app/tests/site references and stable validator compiler/backend/settings/forwarding removed; current Web MIDI installer/uploader preserved.",
+    "Five present direct fixtures have literal registrations. Controller fixture explicitly restores child SIGINT for asynchronous callers; scheduler class/lock functions exactly match accepted runner."
+  ],
+  "validation": [
+    "Complete 40-path source/deletion scope reviewed independently; final source/firmware/guard/header identities in final-identity.json.",
+    "Combined registered fixtures PASS: Quickcheck12, host7, runner13; controller7 passes through actual parallel runner under gate-like async outer shell after repair.",
+    "Combined native input13 and DEV15 scratch tests plus focused active-runtime/worker-forwarding/dependency-mutation proof PASS. One actual pinned-worker provenance/authentication fixture PASS.",
+    "Independent metadata rules guard initially failed missing/invalid fields, then private-clone rules-only PASS after message-only repair. Owner preference pointer lint PASS21 entries.",
+    "Native browser-removal preprocessing is byte equivalent; four scratch site identities retain installer/uploader. Final maintained semantic scan has no retired references.",
+    "Retained original four generated headers match saved1165396 package-generation hashes; no new generation or package acceptance claimed."
+  ],
+  "evidence_reuse": "Exact accepted host/browser/runner/Quickcheck/controller/native sources and recorded dependency/check scopes reused where unchanged. Both independent helpers verified bounded source deltas and committed log identities; affected registration/metadata/signal/forwarding checks were run. No unrelated passing suite or real controller/baseline build repeated.",
+  "measurements": {
+    "verified_work_counts": "Four unused whole-simulator invocations removed; knob+display probe compile/execution count3 to2; skipped runner fixture setup/forks removed under recorded cases.",
+    "timing_limit": "No final end-to-end build speed or new target/controller artifact equality was measured. Walker/generator samples remain operation-only evidence; old9a1d6fc firmware differs from1165396.",
+    "controller_reused": "Existing image SHA256956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a, original28.513924458s single build; no comparative speed claim."
+  },
+  "cache": {
+    "state": "WITHHELD failed independent review",
+    "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+    "independent_failure_evidence": "cb71961c9645b8231c0b8272d257db74ee9370a4",
+    "reason": "Alias-loaded native library loses actual $ORIGIN search directory; warm stale bytes differ from original generation.",
+    "source_or_new_consumer_routing_applied": false,
+    "repaired_cache_speedup_accepted": false,
+    "proof": "cache-exclusion.json",
+    "classic_repair_prompt": "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/repair-handoff.txt",
+    "local_context": "classic-cache-repair-handoff.txt"
+  },
+  "failure_dispositions": [
+    "Initial registered controller SIGINT timeouts: first serial-only workaround was incomplete; outer-launch failure independently reproduced. Final fixture child reset passed all seven methods in final parallel async context; old assertions preserved.",
+    "Native cleanup evidence harness initially omitted root import path; fixed evidence-only harness and reran to PASS. Real worker PASS reused.",
+    "Rule/preference commit metadata fixed without changing tree; final rules-only proof PASS.",
+    "Two space-only lines in initial captured failure output normalized with raw/saved hashes retained; no assertion/outcome altered.",
+    "Independent helper initial evidence bind included concurrent uncommitted root log; corrected scope to candidate-tracked evidence, identity assertions rerun."
+  ],
+  "preserved_foreign_changes": [
+    "Primary checkout and active owner lanes untouched.",
+    "Shared rollout AGENTS.md/docs/SKILLS.md and untracked discovery links in this lane remain preserved outside our commits."
+  ],
+  "limits": [
+    "Host-tooling/source acceptance only; no new real target/application/controller build, package/artifact equality, installation, device result, full/release gate, external push or proprietary bundle.",
+    "Original host fixture runs do not all have complete inherited environment/installed-byte snapshots; exact recorded source/log/tool scopes and limits are retained.",
+    "Native arbitrary external worker inputs still require declared plan.dependencies.",
+    "Asset reuse/remaining cache consumers remain deferred, not completed or accepted."
+  ],
+  "handoff": {
+    "successor_created": false,
+    "routing": "Current owner classic-project routing supersedes old automatic stage chain. Required review and scoped validation completed in this existing bounded task.",
+    "classic_prompt": "classic-completion-handoff.txt",
+    "classic_project": "https://chatgpt.com/g/g-p-ad9d6d4ab04c8191af6aa22fd752707e/project",
+    "status": "Execution complete; saved prompts ready, no classic chat startup claimed.",
+    "next": "Existing coordinator receives exact commit/evidence and any external push task completion. No new execution assignment or push by this tooling task."
+  },
+  "indexes": {
+    "commands": "final-checks.json",
+    "source": "final-identity.json",
+    "history": "checkpoint.json",
+    "signal_repair": "signal-fixture-repair.json"
+  }
+}

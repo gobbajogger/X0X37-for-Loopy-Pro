@@ -1,0 +1,8 @@
+{
+  "attempt": 1,
+  "endpoint": "https://api.cursor.com/v1/agents",
+  "startingRef": "cursor/f09-bf005-stage7-fb90",
+  "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+  "result": "NO_CURSOR_API_KEY",
+  "note": "Pod has no CURSOR_API_KEY; coordinator CreateAgent required for owner-visible Stage 1."
+}
