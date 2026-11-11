@@ -1,0 +1,27 @@
+{
+  "host": "macOS supported host for simple C receive/replay checks; Linux full UI handled separately",
+  "candidate": "3d7b1999a245e84d6d9faf1241dd1078ef335d31",
+  "observed_head": "3fc770dcde261a23556f6c3749ebd4bc5911f1c3",
+  "checks": [
+    {
+      "argv": [
+        "sh",
+        "tests/host/ble_midi_receive_test.sh"
+      ],
+      "exit_code": 0,
+      "log": "host-receive.log",
+      "result": "PASS"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/host/ble_capture_replay_test.py"
+      ],
+      "exit_code": 0,
+      "log": "host-capture.log",
+      "result": "PASS"
+    }
+  ],
+  "source_tree_same": true,
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n"
+}

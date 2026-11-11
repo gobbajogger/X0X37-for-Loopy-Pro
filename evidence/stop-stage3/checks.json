@@ -1,0 +1,188 @@
+{
+  "stage": 3,
+  "marker": "smc-central-stop-backpressure-20261021-stage3-after-checked-repair",
+  "owner_thread": "01a15ab0-ebcf-7083-a3ec-7bbb353a7535",
+  "source_owner": "01a15aa8-2a86-78e3-93b9-258e3d8371d8",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "candidate_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "lane_base": "40899e1a47ca704b0d3f63bbd0372ed27b7a5e45",
+  "result": "PASS",
+  "source_repair_required": false,
+  "next_stage": 4,
+  "helpers": {
+    "test": {
+      "result": "PASS",
+      "report": "test/report.json"
+    },
+    "investigation": {
+      "result": "PASS",
+      "report": "investigation/report.json"
+    }
+  },
+  "reuse": {
+    "result": "PASS",
+    "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+    "records": [
+      {
+        "manifest": "source-inputs.json",
+        "count": 415,
+        "failures": []
+      },
+      {
+        "manifest": "helper-inputs.json",
+        "count": 224,
+        "failures": []
+      },
+      {
+        "manifest": "stop-inputs.json",
+        "count": 6,
+        "failures": []
+      },
+      {
+        "manifest": "replay-inputs.json",
+        "count": 7,
+        "failures": []
+      },
+      {
+        "manifest": "checks.json logs",
+        "count": 81,
+        "failures": []
+      },
+      {
+        "manifest": "artifacts.json",
+        "count": 3,
+        "failures": []
+      },
+      {
+        "manifest": "environment.json",
+        "count": 4,
+        "failures": []
+      },
+      {
+        "manifest": "candidate checked paths",
+        "count": 1,
+        "failures": []
+      }
+    ],
+    "command": "python3 -B evidence/stop-stage3/verify-reuse.py",
+    "test_rerun": false,
+    "target_build_rerun": false,
+    "scope": "The saved inputs, logs, artifacts and available environment match. Stage4 validation remains required."
+  },
+  "retained_commands": {
+    "host": 56,
+    "stop": 14,
+    "saved_probes": 7,
+    "expected_nonzero": 30,
+    "final_public": "../stop-stage2/final-public.log",
+    "diag": "../stop-stage2/diag.log"
+  },
+  "new_probe": {
+    "reason": "The saved stop cases duplicate the same successful connection handle. They do not combine a different successful handle with STOPPING or FAILED.",
+    "source": "different-handle-probe.c",
+    "runner": "run-different-handle.py",
+    "command": "python3 -B evidence/stop-stage3/investigation/run-different-handle.py",
+    "commands": "probe-commands.json",
+    "inputs": "probe-inputs.json",
+    "service_hash": "service-sha256.txt",
+    "log": "probe.log",
+    "cases": 16,
+    "result": "PASS",
+    "sanitizers": [
+      "ASan",
+      "UBSan"
+    ],
+    "sanitizer_errors": false,
+    "coverage": "Legacy and enhanced connection events, timer wrap, accepted and refused Disconnect, STOPPING and FAILED, a different handle, wrong disconnection, Bluetooth on and fresh startup.",
+    "observation": "The host retains handle 0x50 after a successful event for handle 0x51. Stop intent and the original cutoff survive. Accepted Disconnect does not repeat.",
+    "completion": "The matching successful disconnection permits a fresh Reset. A different handle and direct start cannot erase the unresolved stop.",
+    "limits": "The probe uses public startup helpers and the exact extracted production service. The mailbox, peer, clock and schedule are simulated.",
+    "failures": []
+  },
+  "target": {
+    "result": "RETAINED ELITE DEV PASS",
+    "code_margin": 1128,
+    "static_ram_margin": 524,
+    "pool_margin": 8364,
+    "required_pool_margin": 8192,
+    "artifacts": "../stop-stage2/artifacts.json",
+    "stage4_validated": false,
+    "pro_artifact_claimed": false
+  },
+  "replay": {
+    "files_read_complete": [
+      "evidence/stop-stage2/replay-run.py",
+      "evidence/stop-stage2/replay.c",
+      "evidence/stop-stage2/replay.json",
+      "evidence/stop-stage2/replay-inputs.json",
+      "evidence/stop-stage2/replay.log"
+    ],
+    "result": "PASS",
+    "packets": 1268,
+    "decoded": 2616,
+    "feedback": 513,
+    "queue_empty": true,
+    "perf_test": -1,
+    "perf_phase": 0,
+    "help": 0,
+    "overlay": 0,
+    "capture_sha256": "a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a",
+    "limits": [
+      "The recorded payloads are unchanged. The peer, HCI framing, mailbox, clock and schedule are simulated.",
+      "Three ATT packets above 64 bytes remain excluded. No payload resegmentation occurs.",
+      "The store is synthetic. Target interrupts and physical radio execution remain untested."
+    ],
+    "new_run": false
+  },
+  "source_review": [
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:69-105,227-244,425-467,546-551",
+      "result": "The stop helper keeps refused Cancel and Scan Disable pending. D_CONTROL records acceptance. Accepted commands do not repeat.",
+      "detail": "Pending original responses remain distinct from stop acceptance. Successful Command Status cannot complete a synchronous command. Failed responses set FAILED."
+    },
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:69-98,214-244,425-467",
+      "result": "Each Disconnect entry uses the original cutoff. Repeated stop and direct start cannot erase an unresolved stop.",
+      "detail": "A late successful connection retains its handle. At or after the cutoff, Disconnect is not submitted. A duplicate event cannot replace an active handle."
+    },
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:430-467,512-529",
+      "result": "Command acceptance and status do not release the link. A matching successful Disconnection Complete restores the sole-link credits.",
+      "detail": "Wrong handles and failed disconnection events do not release the retained handle. Credit arithmetic saturates before uint8_t conversion."
+    },
+    {
+      "locations": "firmware/src/ble.c:100-104,208-219,378-423; firmware/src/app/main_fm1.c:150-172",
+      "result": "The actual service supplies fm1_ms before stop, receive and poll. TIMER5 owns this service and its clock update.",
+      "detail": "The service drains old events before a fresh Reset. It continues the bounded stop when Bluetooth is off. A failed unresolved stop does not restart."
+    },
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:21-25,124-160,352-399,546-581; firmware/src/ble/ble_midi_central.h:17-33",
+      "result": "The four-entry signaling queue preserves identifiers and reply priority. ACL storage remains bounded at 64 bytes.",
+      "detail": "Oversized signaling uses bounded storage and uint16_t drain counters. Lifecycle resets clear replies, fragments, running status and SysEx state."
+    },
+    {
+      "locations": "firmware/src/ble.c:100-104,208-219,511-516; firmware/src/app/smc_mixer.c:35-49; firmware/hal/x0x_ble_abi.h:118-143",
+      "result": "The send callback retains mailbox acceptance semantics. The receive callback still queues complete MIDI messages for the main loop.",
+      "detail": "No mapping or controller source changed in this stage. Notes, pad colours, controls and the normal MIDI path retain their existing source."
+    }
+  ],
+  "production_edits": false,
+  "public_test_edits": false,
+  "target_build": false,
+  "device_write": false,
+  "controller_write": false,
+  "release_build": false,
+  "full_gate": false,
+  "external_push": false,
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "mapping_stage4": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "mapping_result": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
+  "integration": "Mapping stage4 retains selection of the sole stage5 integrator for both contributions.",
+  "model_policy": "Elite covers shared development target checks. Pro-specific inputs and actual Pro install or distribution packages retain applicable checks. Reuse matching evidence.",
+  "authorization": "Owner request Now read rules and fix; workflow17 independent stage3; workflow18 automatic successors, recovery, startup checks and completion notices; owner-decisions14 complete validated DEV install with notice.",
+  "setup_notes": [
+    "The first read-only container identity check lacked sandbox access to the Docker socket. The approved retry passed. No build or device action occurred.",
+    "The historical short enhanced-event deadline fixture is covered by the complete current stop and realistic Cancel event layouts."
+  ]
+}

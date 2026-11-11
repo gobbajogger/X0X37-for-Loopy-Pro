@@ -1,0 +1,707 @@
+# a72: MIDI clock at 120 BPM as Bluetooth MIDI gives it: the ticks of one 15 ms connection event come together.
+# Start with the first tick, Stop and Start in one event, Stop, then the link ends: the tempo stays 120.
+wait 300
+tapkey b0
+tapkey w0
+tapkey w4
+tapkey w8
+tapkey w12
+midi FA 00 00
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+expect playing 1
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi FC 00 00
+midi FA 00 00
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+expect playing 1
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+midi F8 00 00
+wait 15
+wait 15
+midi F8 00 00
+wait 15
+expect playing 1
+midi FC 00 00
+wait 30
+expect playing 0
+wait 1000
+expect tempo 120

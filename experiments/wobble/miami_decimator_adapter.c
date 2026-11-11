@@ -1,0 +1,62 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+#include "miami_decimator_adapter.h"
+#include "miami_decimator_tables_private.h"
+int miami_decimator_adapter_init(miami_decimator_adapter_t *s)
+{
+    if (!s) return 0;
+    miami_decimator_adapter_t next = {
+        .kernel = {.phase = 0, .step = 0, .pending_step = 0, .held_left = 0, .held_right = 0, .pending = 0},
+        .wet_gain = 0, .frequency_integer = 0, .wet_integer = 0, .bit_integer = 0
+    };
+    (void)miami_decimator_seed(&next.kernel,0,0,0,0);
+    next.frequency_integer = 64;
+    next.wet_integer = 127;
+    next.wet_gain = miami_decimator_wet[127];
+    (void)miami_decimator_stage_step(&next.kernel,miami_decimator_frequency[63]);
+    *s = next;
+    return 1;
+}
+int miami_decimator_adapter_reset(miami_decimator_adapter_t *s)
+{
+    if (!s) return 0;
+    s->kernel.phase = 0;
+    s->kernel.held_left = s->kernel.held_right = 0;
+    return 1;
+}
+int miami_decimator_adapter_set(miami_decimator_adapter_t *s, unsigned parameter, int32_t value)
+{
+    if (!s || parameter < 1 || parameter > 3) return 0;
+    uint8_t p = (uint8_t)((uint32_t)value & UINT32_C(127));
+    if (parameter == 2) {
+        s->wet_integer = p;
+        s->wet_gain = miami_decimator_wet[p];
+    } else {
+        if (parameter == 1) s->frequency_integer = p;
+        else s->bit_integer = p;
+        (void)miami_decimator_stage_step(&s->kernel,miami_decimator_frequency[127-s->frequency_integer]);
+    }
+    return 1;
+}
+int miami_decimator_adapter_process(miami_decimator_adapter_t *s, int16_t *left,
+                                    int16_t *right, uint32_t frames,
+                                    const uint32_t *reset_frames, uint32_t reset_count)
+{
+    if (!s || s->wet_gain < 0 || (frames && (!left || !right || left == right)) ||
+        (reset_count && !reset_frames)) return 0;
+    for (uint32_t i=0;i<reset_count;++i)
+        if (reset_frames[i]>=frames || (i && reset_frames[i]<reset_frames[i-1])) return 0;
+    /* A constructor's pending state must survive an empty invocation. */
+    if (!frames) return 1;
+    /* Run the frames between resets as blocks; same order as per frame. */
+    uint32_t event=0, i=0;
+    while (i<frames) {
+        while (event<reset_count && reset_frames[event]==i) {
+            (void)miami_decimator_adapter_reset(s);
+            ++event;
+        }
+        uint32_t end = event<reset_count ? reset_frames[event] : frames;
+        (void)miami_decimator_block(&s->kernel,i,left+i,right+i,end-i,s->wet_gain);
+        i = end;
+    }
+    return 1;
+}

@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "stage": 6,
+  "kind": "local-install-prompt",
+  "cloud_thread": false,
+  "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+  "validated_source_sha": "092589b84fd455355216cb0de93c4782236f7524",
+  "package_validation_commit": "d16cdb678c2328406473a82494e91d8bd23e450e",
+  "content_tree": "be4039c0887a4e49e9baac55e216edf458c1815c9f4108f2af4986a8c4447c67",
+  "firmware_tree": "a5ba08046700be5cdf2751b7afc1197411b24121",
+  "bf034_repair": "7fb4b71d",
+  "safe_merge": "ALREADY_ON_NIGHTLY",
+  "config": "dev",
+  "X0X_DEV_PADCAL": "1",
+  "packages": {
+    "elite": {
+      "record": "evidence/f15-stage4/elite/record.json",
+      "package": "x0x-smk37-elite.fwsc",
+      "package_sha256": "9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5",
+      "controller": "ctl.img",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "pool_free": 8308,
+      "code_free": 292,
+      "identity": "SMK-37 Elite_900"
+    },
+    "pro": {
+      "record": "evidence/f15-stage4/pro/record.json",
+      "package": "x0x-smk37.fwsc",
+      "package_sha256": "3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07",
+      "controller": "ctl.img",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "pool_free": 8308,
+      "code_free": 292,
+      "identity": "SMK-37 Pro_900"
+    }
+  },
+  "merge_evidence": "evidence/f15-stage5/CHECKS.md",
+  "attested_bytes": {
+    "release_tag": "lx73-092589b8-dev",
+    "release_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/lx73-092589b8-dev",
+    "note": "Fetch these exact bytes on Mac; do not flash a local rebuild. Harness-only BF-034; hashes match LX-73 blank packages.",
+    "elite_fwsc_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/x0x-smk37-elite.fwsc",
+    "pro_fwsc_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/x0x-smk37.fwsc",
+    "ctl_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/ctl.img",
+    "sha256sums_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/SHA256SUMS.txt"
+  }
+}

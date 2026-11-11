@@ -1,0 +1,51 @@
+{
+  "row_id": "#94",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:218; /workspace/docs-audit/roadmap-status.md:135; No explicit ok for offline-sequencer at ce278129. QA2 receipt m7a-final:73 names offline-sequencer-browser and offline-touchosc-lua as ok; neither is the offline-sequencer entry named by this row.",
+  "notes": "matched_5f578fc0_master id=#94 status=in 0.0.24\nPASS1: [UNCLEAR] Named suite entries have no explicit result in supplied transcript: offline-sequencer. Named files: review-regression.test.mjs\nPASS2: [UNCLEAR] No explicit ok for offline-sequencer at ce278129. QA2 receipt m7a-final:73 names offline-sequencer-browser and offline-touchosc-lua as ok; neither is the offline-sequencer entry named by this row.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#94 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:135 (reconciled; gate result=MISSING)"
+    },
+    "category": "UNCLEAR",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:218",
+      "/workspace/docs-audit/roadmap-status.md:135",
+      "out/docs/roadmap-evidence/#94.json:original notes"
+    ],
+    "named_tests": [
+      [
+        "/workspace/docs-audit/_ROADMAP-5f578fc0.md:218",
+        "review-regression.test.mjs"
+      ]
+    ],
+    "bindings": {
+      "offline-sequencer": [
+        {
+          "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:218",
+          "named": "review-regression.test.mjs",
+          "file": "web/offline-sequencer/review-regression.test.mjs",
+          "mapping": "tests/run_tests.sh:611"
+        }
+      ]
+    },
+    "missing_results": [
+      "offline-sequencer"
+    ]
+  },
+  "pass2": {
+    "status": "UNPROVEN",
+    "category": "UNCLEAR",
+    "reason": "No explicit ok for offline-sequencer at ce278129. QA2 receipt m7a-final:73 names offline-sequencer-browser and offline-touchosc-lua as ok; neither is the offline-sequencer entry named by this row.",
+    "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:218; /workspace/docs-audit/roadmap-status.md:135; No explicit ok for offline-sequencer at ce278129. QA2 receipt m7a-final:73 names offline-sequencer-browser and offline-touchosc-lua as ok; neither is the offline-sequencer entry named by this row.",
+    "quote": "",
+    "quote_source": "",
+    "code_paths": [],
+    "test_refs": []
+  }
+}

@@ -1,0 +1,593 @@
+{
+  "request_id": "LX-REQ-016",
+  "stage": "bounded PR861 source-input QA closure; original source delivery remains completed",
+  "coordination_commit": "4a35a6cdaa0f112db6b3f577542138afd170c20d",
+  "input_pr861_head": "eb2a81deb8247d2387b4e8edd0691163877d523c",
+  "input_pr861_tree": "aeeb1505141a36d9baba22894fb6dffa639c7488",
+  "pr698_head": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+  "original_local_tested_source_commit": "bb3c93a3319efdc35e57f1fe5c9e2522d981d81c",
+  "original_tested_source_tree": "33f9fda8e872f3f1dfd95bf5bb736da89f8957dc",
+  "original_receipts_preserved": [
+    {
+      "path": "docs/lanes/build25-usb-recut/host-suite.json",
+      "sha256": "6f6e6c31731a0bb76bddbdcd2bf48786e3ecd92b1be75eed6c6ad5394a7ef5b3",
+      "git_blob": "49a518840b033a8451e7e334688121630d314b52"
+    },
+    {
+      "path": "docs/lanes/build25-usb-recut/verification.json",
+      "sha256": "2f23f0c668a711229a94b9dc035c284c3d614145139f7b11adffef42a6538c4c",
+      "git_blob": "f03702e876945a311d4e1b4083817070a0573598"
+    },
+    {
+      "path": "docs/lanes/build25-usb-recut/README.md",
+      "sha256": "7fd2bb1a602e1fff8a4486c0ee1b91f92d05b31272a847ab11627c8f16617bf8",
+      "git_blob": "e9b6523f9ccc72af2c235beceed10899cfe03bb7"
+    }
+  ],
+  "log_access": {
+    "actual_local_access": true,
+    "bytes": 29664,
+    "sha256": "513cab4751610821e42cf4e6da9611338eac06fa9ff6a64fe8fd03c3371fb052",
+    "public_copy": "optimization-equivalence-original.log",
+    "read_completed_original_exit_receipts": {
+      "host-suite": 0,
+      "elite-build": 0,
+      "pro-build": 0,
+      "controller-build": 0,
+      "909-equivalence": 0
+    }
+  },
+  "nested_groups": [
+    {
+      "group": "clip-latency",
+      "command": "CHECK sh tests/host/clip_latency_equivalence_test.sh",
+      "first_line": 18,
+      "last_line": 20,
+      "observed_pass_output": [
+        {
+          "line": 19,
+          "text": "PASS: 20459520 key cases; counts and all output bytes equal; raw path calls no helpers"
+        },
+        {
+          "line": 20,
+          "text": "PASS: 414720 arp cases; list/event/state bytes equal; max 4 expansions saved"
+        }
+      ],
+      "evidence_level": "RETAINED_PRODUCER_STDOUT; not independent QA execution"
+    },
+    {
+      "group": "master-a3",
+      "command": "CHECK python3 tests/host/run_a3_dsp_equivalence.py master",
+      "first_line": 23,
+      "last_line": 35,
+      "observed_pass_output": [
+        {
+          "line": 28,
+          "text": "master state/audio silence-tail-restart equivalence: PASS"
+        },
+        {
+          "line": 29,
+          "text": "master -O0: PASS"
+        },
+        {
+          "line": 34,
+          "text": "master state/audio silence-tail-restart equivalence: PASS"
+        },
+        {
+          "line": 35,
+          "text": "master -O2: PASS"
+        }
+      ],
+      "evidence_level": "RETAINED_PRODUCER_STDOUT; not independent QA execution"
+    },
+    {
+      "group": "drum808-a3",
+      "command": "CHECK python3 tests/host/run_a3_dsp_equivalence.py drum808",
+      "first_line": 36,
+      "last_line": 48,
+      "observed_pass_output": [
+        {
+          "line": 41,
+          "text": "808 threshold/state/audio silence-tail-restart equivalence: PASS"
+        },
+        {
+          "line": 42,
+          "text": "drum808 -O0: PASS"
+        },
+        {
+          "line": 47,
+          "text": "808 threshold/state/audio silence-tail-restart equivalence: PASS"
+        },
+        {
+          "line": 48,
+          "text": "drum808 -O2: PASS"
+        }
+      ],
+      "evidence_level": "RETAINED_PRODUCER_STDOUT; not independent QA execution"
+    },
+    {
+      "group": "fxbus-a3",
+      "command": "CHECK python3 tests/host/run_a3_dsp_equivalence.py fxbus",
+      "first_line": 49,
+      "last_line": 63,
+      "observed_pass_output": [
+        {
+          "line": 56,
+          "text": "FX bus state/line/audio silence-tail-restart equivalence: PASS"
+        },
+        {
+          "line": 57,
+          "text": "fxbus -O0: PASS"
+        },
+        {
+          "line": 62,
+          "text": "FX bus state/line/audio silence-tail-restart equivalence: PASS"
+        },
+        {
+          "line": 63,
+          "text": "fxbus -O2: PASS"
+        }
+      ],
+      "evidence_level": "RETAINED_PRODUCER_STDOUT; not independent QA execution"
+    },
+    {
+      "group": "master-idle",
+      "command": "CHECK sh tests/host/master_idle_identity_test.sh build/optimization-equivalence/master-idle",
+      "first_line": 64,
+      "last_line": 66,
+      "observed_pass_output": [
+        {
+          "line": 65,
+          "text": "Master idle identity PASS: silence, tail, volume slew, filter/comp/pump, limiter, restart; all state/audio bytes equal"
+        },
+        {
+          "line": 66,
+          "text": "Master idle identity PASS: silence, tail, volume slew, filter/comp/pump, limiter, restart; all state/audio bytes equal"
+        }
+      ],
+      "evidence_level": "RETAINED_PRODUCER_STDOUT; not independent QA execution"
+    },
+    {
+      "group": "fxbus-idle",
+      "command": "CHECK sh tests/host/fxbus_idle_identity_test.sh build/optimization-equivalence/fxbus-idle",
+      "first_line": 67,
+      "last_line": 75,
+      "observed_pass_output": [
+        {
+          "line": 71,
+          "text": "FX bus idle identity PASS: mono/stereo, all distortion modes, DIGI/TAPE, tails, retime, restart; state/ring/audio bytes equal"
+        },
+        {
+          "line": 75,
+          "text": "FX bus idle identity PASS: mono/stereo, all distortion modes, DIGI/TAPE, tails, retime, restart; state/ring/audio bytes equal"
+        }
+      ],
+      "evidence_level": "RETAINED_PRODUCER_STDOUT; not independent QA execution"
+    }
+  ],
+  "unchanged_scoped_source_inputs": [
+    {
+      "path": "tests/run_tests.sh",
+      "git_blob": "1f4878940d49bf9cac7848d96cf5b34043cf3401",
+      "sha256": "99bc7468f36ea3f19b76e96acba29b9c747adbe9dd4bcd1f8011003975e8ce67",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/run_optimization_equivalence.sh",
+      "git_blob": "f8e9a76722b0ef774b86a376c8ec82da8fedb922",
+      "sha256": "c78ad300d51fe17111c56d2555256823ad94c75527476fda1593e90f2260a3b3",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/clip_latency_equivalence_test.sh",
+      "git_blob": "4fb684878641393bf07e258810937049f9157280",
+      "sha256": "96855aff1c20136e9778e8cfa758e6fee553993e6f13d0d00abef1734e076193",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/clip_latency_equivalence_test.c",
+      "git_blob": "853b9678cca5b64ccc30a1d56aa1b3cd96a8467c",
+      "sha256": "17e884e7b66440494d61f956f7f85c9f976e5643d87ffeb741c44c4d410f69d0",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/run_a3_dsp_equivalence.py",
+      "git_blob": "d2315b41d7015e8715a98d3de7dc957bd0668795",
+      "sha256": "4ee9e78c7a9b2825dcfb111f3c0bbc6a43854ce95b3ad39f14a5ebd001b8f813",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/a3_master_equivalence_test.c",
+      "git_blob": "153251faea33a5ff287bb92506515eba3453725b",
+      "sha256": "5eeae38d226b50aed36d0f1c2617e8fe73e0f7147c11d2f122be45ffc8150cfd",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/a3_drum808_equivalence_test.c",
+      "git_blob": "dc18d03a22f7fdda923cf0c2560a5444faeced38",
+      "sha256": "a57e1f90d6656f02371b336b935e23f9fbf92925d4277468c790128e97974fe0",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/a3_fxbus_equivalence_test.c",
+      "git_blob": "e4752d0d36c2218737ce1d623be06784aa3c4be9",
+      "sha256": "4f03f96373207be1c681ca6ea01fdd75ee892f7298bab95a90b17faf9027fd90",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/master_idle_identity_test.sh",
+      "git_blob": "b5756dabde862fec67199bc447db2b0c8f631767",
+      "sha256": "9c809365cd220ead0c1add7670cf1f6ac71b385e2d268f13fdb3f8306df881d2",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/master_idle_identity_test.c",
+      "git_blob": "00f54d87a98a508d59fc90528fbd5dc2aaac4e50",
+      "sha256": "a44846d0711f025b05b0faebbb94c53ffcc72e05f18a44ceee2b3363c2b36a67",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/fxbus_idle_identity_test.sh",
+      "git_blob": "8c14b2b1f8090b8ea33586dd31f84dc49839aa07",
+      "sha256": "e2b931a1182d7dd0d797032e5d1ce9ced575eb8751f5e5d5224556ec033c85bf",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tests/host/fxbus_idle_identity_test.c",
+      "git_blob": "5e991078697b0b211195543180df724881190434",
+      "sha256": "90ad65370c14dafa894feee563b1a13490b717a47937f54fe2392191dfc40c17",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "firmware/src/app/main_fm1.c",
+      "git_blob": "5219827620103964f3ff7f351168bb5adfc78cd9",
+      "sha256": "342217038d7dcab201c71cc406c465b19cff80f49220dc3aa4cbaf96849a3f7d",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "firmware/src/dsp/master.c",
+      "git_blob": "955586fff38a930c04a6f48e99c10ad50b6b026d",
+      "sha256": "4a33345d2f2922caab102aafae3172ba7913c7641ecd886d22bffe48c236297d",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "firmware/src/dsp/drum808.c",
+      "git_blob": "b8ed31537c6c375c849e075094da5f7d190a67f8",
+      "sha256": "eed39c008a86ff29297290b620fbf97584d1c7e87d16ffc16bef26b33b20654f",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "firmware/src/dsp/fxbus.c",
+      "git_blob": "9cdb08a1d3cbf1b9607e2c647a2fbb51d95426a9",
+      "sha256": "5f2f123d0a7adc882bbe4f19fa3467574f7a3aaaeba2977e66ac85f80a33e3d1",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "firmware/src/dsp/drum909.c",
+      "git_blob": "d5a19f6b3616441d8920d74ca156c6d889c8b279",
+      "sha256": "2c07ee32706d7151addeef24b7dc93eeb2261fe4562cccefc693900d5985efc7",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "firmware/src/dsp/x0x_param.c",
+      "git_blob": "b84beeda87fa4d3eb8fda1c572b96d38cd8bb17f",
+      "sha256": "2b64d6929fa0fbe79772365a0436fbd2d838e5a9d3ad1e254b93f890ad340058",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "tools/gen_drum_samples.py",
+      "git_blob": "d340e6b2742755cab24e75b8d83cad5fb9fc4b52",
+      "sha256": "afd92c62f5f8da18f3e1bcbc6242ed9972aa37356df36f2a0ff496990d1d9a22",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "experiments/original_synth/CHICAGO-COMPACT-POLICY.md",
+      "git_blob": "b7ac9cbf5463f5c08747127d3cc8795ccc5d0b29",
+      "sha256": "9d33c69d7187fa8b819fd70fc858229d32261f28ef0af19b6c515c16d2ca1eb5",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "experiments/original_synth/chicago_fx2_compact.c",
+      "git_blob": "30fc39a45ec66a5745e9ace863a0a89b6ccc4fd5",
+      "sha256": "cb84d6546516e1cb4a7d63144ed7a201f93735bc001471be2587b846807f3058",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "experiments/original_synth/chicago_program.c",
+      "git_blob": "a6fd3ae523069b8357ac6a6fb30d11cf23723740",
+      "sha256": "685938fc3362e0e2f6d1194b75814b0eef24c6b284411f6c0a33d144c719e430",
+      "unchanged_from_delivered_root": true
+    },
+    {
+      "path": "docs/lanes/one-build-optimization-recut/recut-manifest.json",
+      "git_blob": "dfb9fafae03ba2f6e99a85cf9b48e2a1ceb1eae0",
+      "sha256": "50c9c2c15d01696fcfbf6264dcce1a84f3208095952bf274073bfa3733aba81e",
+      "unchanged_from_delivered_root": true
+    }
+  ],
+  "original_tools_and_inputs": {
+    "environment": {
+      "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+      "python": "3.12.14",
+      "node": "v24.19.0",
+      "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+      "host_clang": "Debian clang 19.1.7 (3+b1)",
+      "tool_bytes": {
+        "gcc": {
+          "sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+          "bytes": 1162264
+        },
+        "clang": {
+          "sha256": "0a3c55936ac43954fbe4914e6e73b577ca9e35e75d89ef13d3e28c187f41ca1a",
+          "bytes": 132352
+        },
+        "jieli_clang": {
+          "sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+          "bytes": 46784720
+        }
+      }
+    },
+    "configuration": {
+      "board": "smk37",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "X0X_DEV_PADCAL": 1,
+      "CC": "cc",
+      "toolchain": "JieLi Clang 4.0.1",
+      "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+      "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+      "sdk_tag": "AC79NN_SDK_V1.2.1_2023-12-13"
+    },
+    "sdk_pins": [
+      {
+        "path": "cpu/wl82/tools/uboot.boot",
+        "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4"
+      },
+      {
+        "path": "cpu/wl82/tools/cfg_tool.bin",
+        "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b"
+      },
+      {
+        "path": "cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+        "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+      },
+      {
+        "path": "cpu/wl82/liba/btctrler.a",
+        "sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de"
+      },
+      {
+        "path": "cpu/wl82/liba/wl_rf_common.a",
+        "sha256": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2"
+      },
+      {
+        "path": "cpu/wl82/liba/crypto_toolbox_Osize.a",
+        "sha256": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e"
+      },
+      {
+        "path": "cpu/wl82/liba/lib_ccm_aes.a",
+        "sha256": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c"
+      },
+      {
+        "path": "include_lib/newlib/pi32v2-lib/libc.a",
+        "sha256": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4"
+      },
+      {
+        "path": "include_lib/newlib/pi32v2-lib/libcompiler_rt.a",
+        "sha256": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009"
+      },
+      {
+        "path": "apps/common/net/wifi_conf.c",
+        "sha256": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb"
+      },
+      {
+        "path": "LICENSE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      }
+    ],
+    "reference_pins": [
+      {
+        "repository": "michaelmenesescs/schwung-9W9",
+        "sha": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c"
+      },
+      {
+        "repository": "michaelmenesescs/schwung-8W8",
+        "sha": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997"
+      },
+      {
+        "repository": "charlesvestal/schwung-tb3po",
+        "sha": "f49d81d05d1e29ae37728a08e30f193892be3bc9"
+      }
+    ],
+    "retention_verification": "GCC/Clang/JieLi executable hashes, 11 SDK pins, all 7 original artifact hashes and original host log digest reverified locally; no suite or native rerun",
+    "original_artifact_receipt": "../verification.json#artifacts_local_only"
+  },
+  "chicago_scope": {
+    "producer_disposition": "INAPPLICABLE_TO_UNCHANGED_SELECTED_COMPACT_POLICY; concrete exclusion delivered for sole integrator disposition, not a gate waiver",
+    "selected_types": [
+      0,
+      4,
+      5,
+      10,
+      18,
+      22,
+      24
+    ],
+    "donor_fixture_types": [
+      3,
+      12,
+      13,
+      15,
+      16
+    ],
+    "excluded_factory_routings": 26,
+    "donor_commit": "74bd41b7477f5dcb8b882a0ab36f92724e654368",
+    "donor_sh_blob": "cc60b76d61e5ecbe7d780e98de4c50429eebb75f",
+    "donor_c_blob": "337a6a65d7b37069c07919a5b08b3b0f5c8bf89c",
+    "required_absent_header": "experiments/original_synth/chicago_fx2_inserts.h",
+    "existing_policy_excluded_commits": [
+      "3a6c9cc0650e5db912bbe383c60f47a243e54bf8",
+      "2e31632b7863b524f86ace4bb133c1c684291a00",
+      "4c249f787260a7eb7ab194e7527dad505bd536f7"
+    ],
+    "production_defect_observed": false,
+    "fixture_execution": "NOT_RUN; restored architecture absent, no 7/7 claim",
+    "integrator_handoff": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698#issuecomment-6675682814",
+    "resume_condition": "If sole integrator selects restored insert architecture, preserve/register donor fixture pair on that selected root and obtain affected proof from current owners."
+  },
+  "usb_v2": {
+    "production_git_blob": "b22a79215072ee178351e42f35ed2678dde9f360",
+    "production_unchanged": true,
+    "test_only_delta": [
+      {
+        "path": "tests/host/usb_retry_test.c",
+        "original_git_blob": "cc7d3fabd2d270d5767f1339bf230a1dfea9b857",
+        "new_git_blob": "b1cfc300976baf6de4a3d935bf7da6162f23a148",
+        "sha256": "a6b17cbc09dd6a985d88f2d1753939a63ee48b7b3d11e619c1158b795363e3cc",
+        "donor_commit": "d010d7dd5e3ddb027d9589ab3cef71ab4b007386"
+      },
+      {
+        "path": "tests/host/usb_retry_fake_usb.h",
+        "original_git_blob": "a6bc4f9196e98babcee322d3d89d88b309e56fa5",
+        "new_git_blob": "1b89280702a5e8bfdb0b5ef0444c8cdabdd9bbea",
+        "sha256": "204a6ce938dcad75f473c06161eb84753ecf1942e505aff6043b1104f7e84578",
+        "donor_commit": "d010d7dd5e3ddb027d9589ab3cef71ab4b007386"
+      }
+    ],
+    "results": [
+      {
+        "check": "usb-v2-baseline",
+        "command": "CC=cc sh tests/host/run_usb_retry.sh",
+        "exit": 0,
+        "log": "usb-v2-baseline.log",
+        "log_sha256": "ff1cc9cc457b5fa014b10368c4b53bd6dafb5b414b7926e2e698c04b8de1f8a8"
+      },
+      {
+        "check": "usb-v2-after-mutant",
+        "command": "CC=cc sh tests/host/run_usb_retry.sh",
+        "exit": 0,
+        "log": "usb-v2-after-mutant.log",
+        "log_sha256": "ff1cc9cc457b5fa014b10368c4b53bd6dafb5b414b7926e2e698c04b8de1f8a8"
+      }
+    ],
+    "mutant_results": {
+      "production_git_blob": "b22a79215072ee178351e42f35ed2678dde9f360",
+      "production_sha256": "e609157ed5c1174d22f7cacb94771e2ad9e3456c57c0e630eed1d9489fd0c583",
+      "production_unchanged": true,
+      "mutants": [
+        {
+          "name": "old-fixture-mutant",
+          "expected_exit": 0,
+          "actual_exit": 0,
+          "compile_exit": 0,
+          "fixture_inputs": {
+            "tests/host/usb_retry_test.c": {
+              "git_blob": "cc7d3fabd2d270d5767f1339bf230a1dfea9b857",
+              "sha256": "17f80e7e7631bbc66587adf0bc3159013db68ca88d7e262ff0a34f31cf9f1c44"
+            },
+            "tests/host/usb_retry_fake_usb.h": {
+              "git_blob": "a6bc4f9196e98babcee322d3d89d88b309e56fa5",
+              "sha256": "4157716859b5a233fec7fe195c0dc970c231a61719fdd42941bec9ac0e6373fa"
+            }
+          },
+          "mutant_source_git_blob": "d687d2615694734a6bae743e998dcdba1d617779",
+          "mutant_source_sha256": "824e6403e7ff2c70b358c9398e45b1ce922c614957562a6fdbff45992a7f0888",
+          "log_sha256": "21cbdb6687392b2cc3676dd550581543c4a989475ca49f55d3dd2202b50a3e29",
+          "compile_argv": [
+            "cc",
+            "-std=c99",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-Wno-unused-function",
+            "-I$OUTPUT/old-fixture-mutant",
+            "-I$SOURCE_ROOT/firmware/src",
+            "-I$SOURCE_ROOT/firmware/hal",
+            "-o",
+            "$OUTPUT/old-fixture-mutant/test",
+            "$OUTPUT/old-fixture-mutant/test.c"
+          ]
+        },
+        {
+          "name": "v2-fixture-mutant",
+          "expected_exit": 1,
+          "actual_exit": 1,
+          "compile_exit": 0,
+          "fixture_inputs": {
+            "tests/host/usb_retry_test.c": {
+              "git_blob": "b1cfc300976baf6de4a3d935bf7da6162f23a148",
+              "sha256": "a6b17cbc09dd6a985d88f2d1753939a63ee48b7b3d11e619c1158b795363e3cc"
+            },
+            "tests/host/usb_retry_fake_usb.h": {
+              "git_blob": "1b89280702a5e8bfdb0b5ef0444c8cdabdd9bbea",
+              "sha256": "204a6ce938dcad75f473c06161eb84753ecf1942e505aff6043b1104f7e84578"
+            }
+          },
+          "mutant_source_git_blob": "d687d2615694734a6bae743e998dcdba1d617779",
+          "mutant_source_sha256": "824e6403e7ff2c70b358c9398e45b1ce922c614957562a6fdbff45992a7f0888",
+          "log_sha256": "b1ce75a6868b76c904749f165c7e8c0fb13e2a700c287924a901e6760ff48642",
+          "compile_argv": [
+            "cc",
+            "-std=c99",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-Wno-unused-function",
+            "-I$OUTPUT/v2-fixture-mutant",
+            "-I$SOURCE_ROOT/firmware/src",
+            "-I$SOURCE_ROOT/firmware/hal",
+            "-o",
+            "$OUTPUT/v2-fixture-mutant/test",
+            "$OUTPUT/v2-fixture-mutant/test.c"
+          ]
+        }
+      ]
+    },
+    "production_files_edited_by_mutation": false,
+    "registration": "Existing usb-retry selector and original run_usb_retry.sh unchanged; no foreign runner copied."
+  },
+  "proof_reuse_limits": {
+    "original_full_suite": {
+      "pass": 337,
+      "fail": 0,
+      "skip": 0,
+      "not_run": 0,
+      "scope": "original exact eb2a input with pre-v2 USB fixture; preserved, not rerun or relabelled"
+    },
+    "native": "Original BUILD_ONLY receipts retained; no new native/package qualification claimed. Existing native_build owns selected downstream closure.",
+    "independent_execution": "NOT_CLAIMED; all new execution here is producer-owned."
+  },
+  "open_owned_findings": [
+    {
+      "scope": "Strict ROADMAP trusted inventory 57-row omission",
+      "owner": "existing strict-gate producer and sole PR698 integrator",
+      "state": "PENDING; not repaired or waived in this producer follow-up",
+      "references": [
+        "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698#issuecomment-6667799903",
+        "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698#issuecomment-6673664447"
+      ]
+    },
+    {
+      "scope": "Strict-v2 cross-root runner/checker union and pinned-invocation findings",
+      "owner": "existing strict-gate producer and sole PR698 integrator; same assigned QA",
+      "state": "PENDING; current runner preserved, no foreign runner copied",
+      "reference": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698#issuecomment-6669232528"
+    }
+  ],
+  "handoff": {
+    "same_assigned_qa": {
+      "role_id": "independent_qa",
+      "automation_id": "6adafbbf54088191a86715d49e7dc6b0",
+      "prior_result": "QA-LX016-PR861-EB2A-EXACT-BLOBS-USB909-20261106",
+      "budget": "UNKNOWN/UNCHANGED"
+    },
+    "next_integrator_action": "Adopt owner acceptance update in existing LX-REQ-016 flow; disposition Chicago exclusion; accept/reject this exact test-only closure; select complete immutable combined input root for existing Build and same QA.",
+    "receiver_execution": "PENDING/NOT_INFERRED_FROM_COMMENT_READBACK",
+    "supervisor_thread": "01a1aec5-bca3-73ec-aa8c-f31a738f5029",
+    "successors_created": 0,
+    "publication_integration": "HOLD; downstream roles unchanged"
+  }
+}

@@ -1,0 +1,2 @@
+queue timeout: disconnect retry=1 sent=1 state=8 waiting=0 conn=80 errors=1
+queue overflow: disconnect retry=1 sent=1 state=8 waiting=0 conn=80 errors=1

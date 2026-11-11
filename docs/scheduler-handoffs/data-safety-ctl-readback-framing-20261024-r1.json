@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "data-safety-ed-ctl-read-framing-20261024-r1",
+  "run_date_utc": "2026-10-24",
+  "role": "LoopyX0X37 Data Safety",
+  "outcome": "SOURCE_COMPLETE_PRODUCER_SCOPED_PASS_QA_PENDING",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-ctl-read-framing-20261024-1456",
+  "base": {
+    "pr": 103,
+    "commit_sha": "8e8338792ca20508163a2b42b17ae542825da10a",
+    "root_tree_sha": "3609692ed833c5660028d2ed514e255877ca187a",
+    "firmware_subtree_sha": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+    "baseline_host_source_blob": "b4f25704524f018cb2e1dfdd78cadb43503ac6ab",
+    "baseline_host_read_ctl_function_FNV1a32": "97c89af2",
+    "firmware_editor_blob": "bcf3f7329d4bc55b3ea9cfcc21d70dc4fe40f10e"
+  },
+  "changes": [
+    "tools/fm1_install.py: ED_CTL_READ now rejects a noncanonical pack7 reply and surplus decoded bytes beyond one legitimate odd-byte roundup; TimeoutError becomes controller CRC/identity gate InstallError ctlcrc, exit 8.",
+    "tests/ctl_read_framing_test.py: 14 fake-USB-MIDI source-window tests, actual check_ctl 64 KiB CRC path, reject overlong/orphan-mask/unused-bit/nonsevenbit/truncated frames.",
+    "tests/run_tests.sh: register ctl-read-framing serial-controller negative test."
+  ],
+  "exact_source": {
+    "new_host_source_blob": "0e89d767697dafd02a12d0e9ce23d85097f0914e",
+    "corrected_read_ctl_function_FNV1a32": "5263d7fd",
+    "new_regression_blob": "e1179ad7e11411b248eec641741804003095a202",
+    "runner_blob": "715f9e1f2cebd57df65a6e2380c5cd30057e91cc",
+    "compiled_firmware_subtree_unchanged": true,
+    "source_function_only_tested": true
+  },
+  "problem": "Before correction, ED_CTL_READ discarded canonical surplus and accepted malformed pack7 payload bytes. Even when the full 64 KiB controller image readback contained authentic requested bytes, an overlong reply let check_ctl report matching CRC, hiding protocol corruption.",
+  "commands": [
+    {
+      "cmd": "python3 -B tests/ctl_read_framing_test.py (baseline exact-function old wrapper)",
+      "exit": 1,
+      "result": "8/14 pass, six deliberate negative failures",
+      "log_sha256": "3bbdb32dcf78900dce4603e7c07362f32ff9a78d0b571f05fbf79c7ca238e136"
+    },
+    {
+      "cmd": "python3 -B tests/ctl_read_framing_test.py (corrected source-function on older wrapper)",
+      "exit": 0,
+      "result": "14/14 PASS",
+      "log_sha256": "d95bc9958d6dc0b825434be6c4f6e7fd1b4ed1af9e0edc37b4e9d9b803e819cb"
+    },
+    {
+      "cmd": "python3 -O -B tests/ctl_read_framing_test.py (corrected source-function on older wrapper)",
+      "exit": 0,
+      "result": "14/14 PASS",
+      "log_sha256": "6e370ae7944780a23852331781778194ef76f19932c4d60148b10645dfb11554"
+    },
+    {
+      "cmd": "python3 -B tests/install_ctl_test.py (existing mocked installer test in historical checkout with corrected function)",
+      "exit": 0,
+      "result": "mocked controller readback positive/negative and install exit-8 gates PASS",
+      "log_sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+    },
+    {
+      "cmd": "python3 -B -m py_compile tests/ctl_read_framing_test.py tools/fm1_install.py (corrected fixture)",
+      "exit": 0,
+      "result": "PASS"
+    }
+  ],
+  "limitations": [
+    "Full current PR103 R12 checkout and complete native test suite NOT RUN",
+    "Exact integrated source+model Elite/Pro/controller build NOT RUN in this producer stage",
+    "Physical device USB-MIDI/controller readback NOT TESTED",
+    "Independent QA and flash/backup/OTA model/CRC/license/HTTP checks PENDING",
+    "Source function window matches current live Git; fixture's surrounding historical module is not a complete current-root QA claim."
+  ],
+  "main_library": {
+    "path": "/LoopyX0X37-DataSafety-CTL-Readback-Framing-20261024.zip",
+    "library_file_id": "libfile_6e0b579f6ba48191877ad2bb98410946",
+    "file_id": "file_000000002bf881f4b0fc55ad5fa7635b",
+    "bytes": 83984,
+    "sha256": "ffc8c5c2c3d4c5730fb2b1c1f1e7359a4a95323ad357219c411c4a7794bb6d58",
+    "integrity": "ZIP CRC and SHA256 independently rematerialized PASS",
+    "contents": "source-window baseline/patched regressions, actual Python logs, machine-readable evidence; no vendor or firmware binaries"
+  },
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Rerun ctl-read-framing and existing install_ctl on complete current source, review malformed/overlong/wrong-address/wrong-model/controller/CRC OTA negatives independently",
+      "status": "PENDING"
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Review and reconcile Data Safety host fix into first NIGHTLY candidate, preserve existing BLE/SMC/slot/clock guards, expose new exact full Git root",
+      "status": "PENDING"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Build or verify exact compiler-input identity for Elite/Pro and private matching controller BUILD_ONLY independently of PR draft/QA/merge/site",
+      "status": "ALLOWED_NOT_REEXECUTED"
+    }
+  ],
+  "gates": {
+    "producer_scoped": "PASS",
+    "independent_qa": "PENDING",
+    "full_root": "PENDING",
+    "target_build": "NOT_RUN_THIS_LANE",
+    "public_nightly": "NO_GO",
+    "hardware": "UNKNOWN",
+    "production": "NOT_APPROVED"
+  }
+}

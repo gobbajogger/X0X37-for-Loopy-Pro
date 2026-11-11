@@ -1,0 +1,57 @@
+{
+  "helper": "independent-test",
+  "result": "SOURCE REPAIR REQUIRED",
+  "source_repair_required": true,
+  "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+  "title": "A refused Cancel changes the host to OFF before connection creation ends.",
+  "locations": [
+    "firmware/src/ble/ble_midi_central.c:224",
+    "firmware/src/ble/ble_midi_central.c:409"
+  ],
+  "probe": "cancel-realistic-probe.c",
+  "commands": "cancel-commands.json",
+  "realistic_sequence": [
+    "The probe uses blec_init and blec_start. Successful command events complete Reset, masks, buffers, random address and scan setup.",
+    "An SMC advertising report starts scan disable. Its successful completion submits LE Create Connection.",
+    "Successful Create Command Status leaves the host in CONNECTING with step 8, waiting 0 and no connection handle.",
+    "The transport then refuses LE Create Connection Cancel when blec_stop runs.",
+    "The transport recovers. A successful LE Connection Complete event arrives before the stop deadline.",
+    "The probe checks legacy and enhanced connection events. Their parameter lengths are 19 and 31 bytes.",
+    "The event connection interval is 24. The supervision timeout is 400."
+  ],
+  "expected": "A refused Cancel must retain the pending creation and stop intent. A successful connection must retain its handle for Disconnect.",
+  "observed": {
+    "accepted_cancel_control": "Both event variants retain handle 0x50 and submit one Disconnect. Both controls pass.",
+    "refused_cancel": "Cancel has one refusal and no acceptance. The host changes to OFF with waiting 0 and no connection handle.",
+    "later_success": "Both event variants leave the host OFF with handle 0 and no Disconnect submission.",
+    "functional_result": "Both no-loss assertions fail with return code -6. No sanitizer error precedes either assertion."
+  },
+  "cause": "blec_command sets waiting only after transport acceptance. blec_stop interprets waiting 0 and conn 0 as completed stop. blec_event ignores all events in OFF.",
+  "consequence": "The simulated controller reports a successful link. The host discards that handle and submits no Disconnect. Stop reports OFF before it ends creation.",
+  "production_consumer": "ble_central_service calls blec_stop before it drains incoming HCI events. With ble_want 0, its later poll cannot recover an OFF state.",
+  "scope": "The complete candidate includes stop, cancel and transport-refusal behaviour. This is a source defect. The probe does not establish a physical regression cause.",
+  "coverage_gap": "The public cancel tests assume transport acceptance of Cancel. They cover the successful-connection race after that acceptance.",
+  "disposition": "Use a fresh stage2 for the source repair. Then use a fresh stage3. Do not advance this candidate to stage4.",
+  "sanitizers": [
+    "ASan",
+    "UBSan"
+  ],
+  "sanitizer_errors": false,
+  "production_source_changed": false,
+  "public_suite_repeated": false,
+  "device_write": false,
+  "controller_write": false,
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "source_sha256": {
+    "firmware/src/ble/ble_midi_central.c": "0f400b3e9d88b95599eac7d3ce21f7fd71b990cb6530589dba08e6fcf235eb77",
+    "firmware/src/ble/ble_midi_central.h": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+    "firmware/src/ble.c": "3fe5f16f4e06a39290277bd51c21dbfc11a502cadba98ef777e43413a32d1bba"
+  },
+  "limits": [
+    "HCI events, transport refusal and time are simulated.",
+    "The probe executes the public central API. The investigation helper owns the separate production-service probe.",
+    "No physical-device test occurred."
+  ],
+  "finding_id": "CENTRAL-STOP-01"
+}
