@@ -1,0 +1,44 @@
+[
+  {
+    "command": [
+      "python3",
+      "tests/host/test_prefs_lint.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "python3",
+      "tests/host/test_rules_rollout.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "python3",
+      "tests/host/test_quickcheck_plan.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "python3",
+      "tests/host/test_portable_rules.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "bash",
+      "tests/host/test_quickcheck_rules.sh"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "bash",
+      "tests/host/test_rules_guard_hook.sh"
+    ],
+    "returncode": 0
+  }
+]

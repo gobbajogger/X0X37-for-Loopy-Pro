@@ -1,0 +1,15 @@
+{
+  "state": "excluded_failed_input",
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "independent_review": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
+  "proof": "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/investigation/origin-earlier.log",
+  "proof_sha256": "b293c585bbc04286149817024ec9e866f484c21f33a55c6c3a3fa1118dd4ee19",
+  "reason": "$ORIGIN RUNPATH dependency identity loses dlopen symlink alias directory; an earlier alias dependency can change original output while cache returns stale hit.",
+  "exclusion_checks": "PASS no asset_cache.py or test_asset_cache.py added; tools/build.py and both drum909 consumers exactly match1165396; all host-builder and clip-display generation command lines match1165396. Accepted generate-only/extraction changes remain.",
+  "no_accepted_cache_speedup": true,
+  "deferred": [
+    "Repair aliased loader origin identity or conservatively disable unsupported reuse; require stale-hit negative proof and affected independent checks.",
+    "Only then measure remaining individual host/drum/font caller paths and route where supported measured gain exists."
+  ],
+  "handoff": "classic-cache-repair-handoff.txt"
+}

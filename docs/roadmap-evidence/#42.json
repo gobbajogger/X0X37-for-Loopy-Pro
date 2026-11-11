@@ -1,0 +1,93 @@
+{
+  "row_id": "#42",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:166; /workspace/docs-audit/roadmap-status.md:83; out/docs/roadmap-evidence/#42.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#42 status=in 0.0.24 (historical baseline; selected fixes pending verification)\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#42 status=in 0.0.24 (historical baseline; selected fixes pending verification)",
+      "proof_source": "roadmap-status.md:83 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:166",
+      "/workspace/docs-audit/roadmap-status.md:83",
+      "out/docs/roadmap-evidence/#42.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "smc-multi-peer",
+      "smc-pickup-acceptance",
+      "smc-remainder"
+    ],
+    "evidence": "tests/host/smc_multi_peer_test.c:79: smc_ui_draw(); CHECK(smc_slot==0); CHECK(smc_ui.peer==1);; tests/host/smc_pickup_acceptance_test.c:172: smc_ui_begin(strip, 0); status_is(\"ACTIVE\");; tests/host/smc_remainder_test.c:483: smc.picked=0; pref_set(smc_target(0),0); smc_ui_begin(0,0);",
+    "identifiers": [
+      {
+        "identifier": "smc_ui_begin",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:166"
+      },
+      {
+        "identifier": "smc_ui_draw",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:166"
+      }
+    ],
+    "matches": [
+      {
+        "test": "smc-multi-peer",
+        "symbol_from_row": "smc_ui_draw",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:166",
+        "file": "tests/host/smc_multi_peer_test.c",
+        "line": 79,
+        "quote": "smc_ui_draw(); CHECK(smc_slot==0); CHECK(smc_ui.peer==1);",
+        "identifier": "smc_ui_draw"
+      },
+      {
+        "test": "smc-pickup-acceptance",
+        "symbol_from_row": "smc_ui_begin",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:166",
+        "file": "tests/host/smc_pickup_acceptance_test.c",
+        "line": 172,
+        "quote": "smc_ui_begin(strip, 0); status_is(\"ACTIVE\");",
+        "identifier": "smc_ui_begin"
+      },
+      {
+        "test": "smc-remainder",
+        "symbol_from_row": "smc_ui_begin",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:166",
+        "file": "tests/host/smc_remainder_test.c",
+        "line": 483,
+        "quote": "smc.picked=0; pref_set(smc_target(0),0); smc_ui_begin(0,0);",
+        "identifier": "smc_ui_begin"
+      }
+    ],
+    "recorded_results": {
+      "smc-multi-peer": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-pickup-acceptance": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-remainder": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [],
+    "firmware_references": []
+  }
+}

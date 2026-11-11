@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "installer-nightly-revocation-20261024-r1",
+  "run_utc": "2026-10-24T07:32:00.252Z",
+  "role": "X0X37 Installer Improvements — firmware repository browser-source sole producer",
+  "outcome": "SOURCE_COMPLETE_PRODUCER_SCOPED_CHECKED__INDEPENDENT_QA_PENDING",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/installer-nightly-download-guard-20261024",
+    "consumed_producer_sha": "e507b09f820db3eb77bc373222b51663467c5d71",
+    "consumed_complete_root_tree": "5b862e7960bc6a64bc7b575802d81b0e13e6e86a",
+    "unchanged_compiled_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "base": "nightly",
+    "base_full_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "source_html_previous_blob": "0843cf0121752d81aaa641fd8a7babbdb018c9c8",
+    "regression_previous_blob": "424f0c32dd59ad5cabcd568b13f95eab81fd84ac",
+    "source_excerpt_length": 1921,
+    "source_excerpt_fnv32": "fd535469"
+  },
+  "changed": [
+    "web/x0x_installer.html",
+    "web/test_install_nightly_download_guard.mjs",
+    "docs/installer-nightly-revocation-20261024.md",
+    "docs/scheduler-handoffs/installer-nightly-revocation-20261024.json"
+  ],
+  "findings": [
+    "per-model revoked true/string was admitted by approvedNightlyModels",
+    "publisher approval revoked was admitted",
+    "catalog revoked string and implicit imported Release markers were admitted",
+    "explicit true/invalid flags now rejected, literal false or absent preserved"
+  ],
+  "checks": [
+    {
+      "command": "connected GitHub V8 exact source approvedNightlyModels synthetic comparison",
+      "exit_code": 0,
+      "baseline_bad_cases": 6,
+      "after_pass": 12,
+      "total": 12,
+      "scope": "source-exact predicate, no real hosting or device"
+    },
+    {
+      "command": "node --check /mnt/data/x0x37-installer-r11/approved-nightly-exact-proposed.js",
+      "exit_code": 0,
+      "scope": "native excerpt syntax"
+    },
+    {
+      "command": "node --check /mnt/data/x0x37-installer-r11/test-revocation-exact-excerpt.cjs",
+      "exit_code": 0,
+      "scope": "native excerpt test syntax"
+    },
+    {
+      "command": "node /mnt/data/x0x37-installer-r11/test-revocation-exact-excerpt.cjs",
+      "exit_code": 0,
+      "pass": 12,
+      "total": 12,
+      "scope": "native exact proposed 1921-byte predicate excerpt, six baseline unsafe"
+    },
+    {
+      "command": "python3 /mnt/data/x0x37-installer-r11/browser-revocation-excerpt.py",
+      "exit_code": 0,
+      "pass": 60,
+      "total": 60,
+      "scope": "Chromium minimal DOM 320/390/1280 EN/JA, hidden/href/keyboard, not full installer"
+    },
+    {
+      "command": "connected V8 async parser of changed registered .mjs",
+      "exit_code": 0,
+      "scope": "syntax-only"
+    }
+  ],
+  "not_run": [
+    "native complete PR Node suites (no exact full checkout in native shell)",
+    "complete generated-site Chromium, WebMIDI/backup/OTA/confirmation end-to-end",
+    "real hosted HTTP, firmware package/controller/hardware checks"
+  ],
+  "next": {
+    "owner": "Independent Firmware QA",
+    "action": "run exact new head registered Node and full browser/OTA/local-selection tests; independent review then sole Safe Merge",
+    "website_owner": "Separate NIGHTLY website source PR #1",
+    "website_action": "port identical fail-closed revocation predicate via own branch/independent website QA/main merger, no publisher bypass"
+  },
+  "device_status": "DEVICE NOT TESTED",
+  "site_status": "NOT PUBLISHED",
+  "production_status": "NOT APPROVED"
+}

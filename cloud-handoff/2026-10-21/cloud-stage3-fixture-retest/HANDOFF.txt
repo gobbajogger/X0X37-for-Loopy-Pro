@@ -1,0 +1,77 @@
+Cloud stage-3 fixture retest -- 2026-10-21 (Asia/Vladivostok)
+
+RESULT: stage-3 test acceptance PASS. All three affected checks independently
+pass on 1c6847412b8a380858d2eaace50e8dfe36b7495a with separately scoped helpers.
+Stage-4 validation is pending; no successor launch is claimed.
+
+This fresh user-assigned chat performs stage 3. Fixture implementation:
+ffabcaae4a3fc9a03510f74de5f1eb4f4c9a39a2. Input was fetched only from
+lane/mb-cloud-transfer-20261020 at the authorized repository
+https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git. Initial /workspace
+checkout was clean on unrelated work at 5d7997d and was preserved. Testing
+used an isolated worktree, /workspace/x0x-stage3-20261021. Copied negative-probe log trims its final blank line; raw logs remain outside Git.
+Evidence lane:
+lane/mb-cloud-stage3-retest-20261021. The enclosing checkpoint adds evidence
+only and preserves the tested source tree outside cloud-handoff/.
+
+Independent helper scopes and evidence (relative to this directory):
+- receive/: strict ASan/UBSan supported runner passes central and receive
+  fixtures, exit 0. Disposable tree restored only baseline 6e0da0b central
+  fixture; repaired runner fails, exit 1 with null-pointer UBSan diagnostic,
+  despite UBSAN_OPTIONS=halt_on_error=0. Assertions and null/zero calls remain.
+  results.json records command, tool and source identities; review.txt records
+  review findings. Empty successful per-check log is expected for silent tests.
+- extraction/: supported runner passes SMC visibility and SMK isolation.
+  Both direct fixtures also pass strict ASan/UBSan, exit 0. SMC covers BLE
+  DAW/USER and host USER, overlay handling and fallback with zero failures.
+  SMK covers BLE=0 and BLE=1, pad velocity, IRQ ownership, entry/exit MIDI
+  flush and UI dispatch. Behavioral assertions remain intact. results.json,
+  REVIEW.txt and logs hold commands and findings. cc-strict adds compile-time
+  fail-fast sanitizers; set CC to its restored absolute path when reproducing.
+
+Both helpers used CC=cc CXX=c++ X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L,
+X0X_TEST_JOBS=1, private locks, strict sanitizer runtime options and Debian
+cc 14.2.0 on Linux x86_64. Neither changed source. Supported-runner package
+skip notes are outside the selected scope, not missing affected test coverage.
+
+root/reuse-and-integrity.json verifies both prior evidence manifests, 52 and
+17 entries, with zero mismatches. Compared with e50df9a, the only changed
+non-evidence paths are the four repaired host fixture files. Production
+firmware, host, tools, build.sh, unaffected tests and configuration match.
+Reuse prior unaffected passing host evidence only for its recorded matching
+source/configuration/tools/dependencies. The prior recovery-mode receive PASS
+and two fixture compilation failures are superseded by this independent run.
+Prior target/package evidence remains historical for its recorded identities;
+dependencies and artifacts were not restored or validated in this stage.
+Exact saved payload replay with synthetic HCI and MTU-23 resegmentation
+simulation remain distinct. No new hands-on capture was needed or performed.
+
+No source repair, target build, package, full gate, controller build, merge,
+installation, physical-device PASS, public release or main push occurred.
+Stage 4 owns candidate/configuration/package/controller/full-gate validation,
+four pinned DSP references, exact artifacts, CRCs, budgets and validation key.
+The uploaded toolchain and pinned SDK restoration instructions and identities
+are in stage4-prompt.txt and the prior input/artifact records.
+
+Successor and activity facts:
+- /workspace/shared/x0x-stage3-start.json and x0x-stage4-start.json were absent
+  at inspection and immediately before checkpoint preparation.
+- No live cross-chat activity result was obtained. Workspace process listing
+  is not a cross-chat activity check and absence of a start record does not
+  prove absence of another owner. No competing shared source was modified.
+- Exposed tool metadata was rechecked. No cloud chat activity, create_thread,
+  fork_thread or tool_search callable was found among 302 tools. This says
+  only what this chat exposes; it does not prove platform-wide unavailability
+  or a network blocker. root/thread-capability.json records that narrow fact.
+- The user's challenge to the earlier broad capability claim was accepted;
+  this record corrects it. No CLI or helper substitutes for a fresh cloud chat.
+- No stage-4 successor ID exists in this evidence. Exactly one fresh stage-4
+  owner is the pending receiving owner; stage4-prompt.txt is prepared.
+
+Next action: resolve the supported cloud successor route, recheck live project
+activity and start/successor records, then create/start exactly one fresh
+stage-4 chat with the enclosing checkpoint and prepared prompt. Rule 18's
+successor requirement remains unfulfilled; stage-3 test PASS does not claim
+end-to-end workflow completion. Stages 5 sole integration, 6 local install
+and 7 verified normal fast-forward private-main push remain separate. New
+source repairs return through fresh stage 2 then affected fresh stage 3.

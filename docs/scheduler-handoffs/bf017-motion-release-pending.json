@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "evidenceId": "BF-017",
+  "evidenceRevision": "BF-017/2026-10-24/v1",
+  "role": "LoopyX0X37 Hourly Bugfinder",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "targetBaseBranch": "nightly",
+  "baseCommit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "baseRootTree": "71b759dd206d844cceed9e40ae68966142720e9c",
+  "baseFirmwareTree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+  "sourceBlobsBefore": {
+    "firmware/src/seq/motion.c": "f94c93428153eaf6f42f25aee4c21cfb1e7cdd96",
+    "firmware/src/seq/motion.h": "aca33934b0006fe2db2abe0a3048312ac79991f1",
+    "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "tests/host/motion_test.c": "e147123792ef8da15c964412010258ffbbf549a7"
+  },
+  "sourceBlobsAfter": {
+    "firmware/src/seq/motion.c": "305132e4a5a47b441e370e3ade15dced51279e6b",
+    "tests/host/motion_test.c": "6c28ecc4e55671f27bcd2c0822b991aed2dcfeea"
+  },
+  "validation": {
+    "platform": "Linux x86_64",
+    "compilers": {
+      "gcc": "14.2.0",
+      "clang": "17.0.0"
+    },
+    "commonFlags": [
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-g"
+    ],
+    "compileCommandTemplate": "{gcc|clang} -std=c99 -O{0|2} -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -g -o motion_test tests/host/motion_test.c firmware/src/seq/motion.c",
+    "runCommand": "ASAN_OPTIONS=detect_leaks=0 ./motion_test",
+    "results": [
+      {
+        "mode": "gcc-O0",
+        "baselineCompileExit": 0,
+        "baselineTestExit": 1,
+        "baselineExpectedFailures": 3,
+        "patchedCompileExit": 0,
+        "patchedTestExit": 0,
+        "patchedFinalLine": "motion: ok",
+        "sanitizerErrorsObserved": false
+      },
+      {
+        "mode": "gcc-O2",
+        "baselineCompileExit": 0,
+        "baselineTestExit": 1,
+        "baselineExpectedFailures": 3,
+        "patchedCompileExit": 0,
+        "patchedTestExit": 0,
+        "patchedFinalLine": "motion: ok",
+        "sanitizerErrorsObserved": false
+      },
+      {
+        "mode": "clang-O0",
+        "baselineCompileExit": 0,
+        "baselineTestExit": 1,
+        "baselineExpectedFailures": 3,
+        "patchedCompileExit": 0,
+        "patchedTestExit": 0,
+        "patchedFinalLine": "motion: ok",
+        "sanitizerErrorsObserved": false
+      },
+      {
+        "mode": "clang-O2",
+        "baselineCompileExit": 0,
+        "baselineTestExit": 1,
+        "baselineExpectedFailures": 3,
+        "patchedCompileExit": 0,
+        "patchedTestExit": 0,
+        "patchedFinalLine": "motion: ok",
+        "sanitizerErrorsObserved": false
+      }
+    ],
+    "baseRunLogSha256": "6e69a590462957c131f2d4607ed76f5582ab4ef7b0d5a9894ad7a4aae48091e9",
+    "patchedRunLogSha256": "4d91e54dfc9a91a2628759cd5edde76cc8e11e1d9e9ce2c811cac7fd4827a7bb",
+    "compileLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "exact motion.c/motion.h/pattern.h host unit plus modified existing motion_test.c; historical full root NOT verified"
+  },
+  "gate": {
+    "producerSourceComplete": true,
+    "producerHostChecked": true,
+    "fullRepoQuickcheck": "NOT_RUN",
+    "independentQA": "PENDING",
+    "firmwareEliteBuild": "NOT_RUN",
+    "firmwareProBuild": "NOT_RUN",
+    "controllerBuild": "NOT_RUN",
+    "packageModelHashCrc": "NOT_RUN",
+    "prehardwareSafety": "PENDING",
+    "physicalOwnerTest": "UNKNOWN",
+    "nightlyInstallable": false,
+    "productionApproved": false
+  },
+  "hardwareFeedback": {
+    "candidateIdentity": "NONE LIVE",
+    "ownerObservation": "UNKNOWN",
+    "basis": "NIGHTLY preview-catalog.json main 1a176e156b049f476074b77d7e6d54be03e8c9ad had empty versions and history"
+  },
+  "ownerTransfers": [
+    "Hourly Build: exact producer commit Elite/Pro/ctl BUILT_ONLY",
+    "Independent QA: exact producer commit regression and stop/load ordering",
+    "Safe Merge: sole firmware nightly integrator after review",
+    "Catalog/Publisher: separate safety/hosting gates"
+  ]
+}

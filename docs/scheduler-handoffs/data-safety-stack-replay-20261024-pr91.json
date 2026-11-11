@@ -1,0 +1,39 @@
+{
+  "schema": "loopyx0x37-data-safety-stack-ack/v1",
+  "recorded_date": "2026-10-24",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "producer": "Data Safety",
+  "lane": "PR #91",
+  "consumed": {
+    "pr81_head": "93e6254082cd487bd76c3ffbe7505dede4d6cfff",
+    "pr81_root_tree": "e5b27176cd21a94bed446d5ba6475fb26c900f6e",
+    "pr81_slots_blob": "c51c948394cf97c83a6237a467764a7822f098a0",
+    "pr91_prior_head": "595fe8748c808d9f20671b6be35cfac6560a4a1f",
+    "pr91_prior_tree": "388c71a372359f8c5f8ea2eb72598d2351c7090a"
+  },
+  "change": "Merge latest PR81 linkless-fallback sources, tests, and handoff with PR91 preinstall no-clobber backup by preserving all 5 PR91-specific file blobs. Preserve CLI POSIX mode 100755. No firmware subtree edits.",
+  "source_tests": {
+    "scope": "offline source-window reconstruction, not exact full-root checkout",
+    "commands": [
+      {
+        "argv": "X0X_SLOTS_SOURCE=combined_x0x_slots.py python3 -m unittest test_portable_backup -v",
+        "exit": 0,
+        "tests": "9/9 PASS"
+      },
+      {
+        "argv": "python3 -m py_compile combined_x0x_slots.py",
+        "exit": 0
+      }
+    ],
+    "negative_cases": [
+      "link unavailable",
+      "concurrent backup creator",
+      "symlink conflict",
+      "readback CRC corruption",
+      "unsupported rename fail closed",
+      "permission error no fallback"
+    ]
+  },
+  "state": "SOURCE MERGE CHECKED / FULL ROOT QA PENDING / BUILD_PENDING / DEVICE NOT TESTED / NOT INSTALLABLE",
+  "next_owner": "Independent QA and sole Safe Merge; Hourly Build may build any draft immutable SHA BUILD_ONLY"
+}

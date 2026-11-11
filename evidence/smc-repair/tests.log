@@ -1,0 +1,10 @@
+  ok   smc-protocol
+  ok   smc-fader
+  ok   smc-buttons
+  ok   smc-reachability
+  ok   smc-mapping
+  ok   smc-filter
+  ok   smc-part-select
+  ok   smc-clip-visibility
+  skip SMK-37 Pro package tests (needs build/x0x-smk37.fwsc and AC79_SDK)
+all tests passed

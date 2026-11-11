@@ -1,0 +1,39 @@
+{
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "candidate_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "source": {
+    "firmware/src/ble/ble_midi_central.c": {
+      "sha256": "4fbc29db6f9fb97f5598bdd3eb960f097c08567e63bba6b000a12fe0a24c3b27",
+      "matches_candidate": true
+    },
+    "firmware/src/ble/ble_midi_central.h": {
+      "sha256": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+      "matches_candidate": true
+    },
+    "firmware/src/ble.c": {
+      "sha256": "3fe5f16f4e06a39290277bd51c21dbfc11a502cadba98ef777e43413a32d1bba",
+      "matches_candidate": true
+    },
+    "firmware/src/app/main_fm1.c": {
+      "sha256": "74de15cd0ee2e9456420fae16d8eaf4d5b11c1ae9badc3e2b07e6d1b94fa22e2",
+      "matches_candidate": true
+    },
+    "firmware/src/app/smc_mixer.c": {
+      "sha256": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+      "matches_candidate": true
+    },
+    "firmware/hal/x0x_ble_abi.h": {
+      "sha256": "be763aee1add23690d5d42d27bf9a37615ae90b53c86ed99100e6b7ceb669867",
+      "matches_candidate": true
+    },
+    "firmware/hal/fm1_ble.h": {
+      "sha256": "adab8838fd5666c6529d71ad6d88dee8a60a244c2dd700daa00013fdb2b2b73c",
+      "matches_candidate": true
+    },
+    "firmware/src/ble/ble_glue.h": {
+      "sha256": "cd9db64d80c469446b5d24c284f8e3bc5618c0e1ede79e4de73e9e98398b0c57",
+      "matches_candidate": true
+    }
+  },
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n"
+}
