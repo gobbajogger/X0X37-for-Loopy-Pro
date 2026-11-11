@@ -1,0 +1,7 @@
+CURSOR_API_KEY unset in this Stage-5 pod.
+POST https://api.cursor.com/v1/agents was not attempted with a pod token (forbidden).
+Handoff incomplete. ASK_COORDINATOR to CreateAgent Stage 7 with:
+  repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+  startingRef: cursor/f15-bf034-stage5-9e97
+  prompt: full text of evidence/f15-stage5/SUCCESSOR-STAGE7.txt on that tip
+Do not claim Stage 7 started until an owner-visible agent id is on the remote handoff.

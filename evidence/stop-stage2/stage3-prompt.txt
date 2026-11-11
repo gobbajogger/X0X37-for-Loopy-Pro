@@ -1,0 +1,211 @@
+Begin stage3 NOW in this one fresh LOCAL chat.
+Do not create another copy of stage3.
+Marker: smc-central-stop-backpressure-20261021-stage3-after-checked-repair.
+Source owner: 01a15aa8-2a86-78e3-93b9-258e3d8371d8.
+Previous stage3 owner: 01a15aa1-3015-75c0-b331-15e212d9b5ec.
+
+Current instructions and authorization
+
+Read /Users/mac/Documents/x0x37/AGENTS.md and agent-rules.md.
+Initialize CURRENT workspace x0x37-task, x0x37-workflow and x0x37-writing.
+Initialize x0x37-check, x0x37-device-bug, x0x37-shared-work and x0x37-owner-decisions.
+Read x0x37-integrate before target validation.
+Each current skill is /Users/mac/Documents/x0x37/.agents/skills/NAME/SKILL.md.
+Read the strict writing references. Do not load old rule files.
+Current owner instructions override old checkout text and saved handoffs.
+
+The owner repair request is "Now read rules and fix".
+The standing owner request is "Make sure that they automatically allow to do that without my intervention".
+Workflow17 requires this independent stage3 after the checked source repair.
+Workflow18 permits automatic launch, recovery, actual startup checks and completion notices.
+Owner-decisions14 permits the complete validated DEV install with a notice.
+Carry these permissions through successors. Do not ask again for a stage or artifact change.
+No device/controller write, hands-on request, release build, full gate, trial, fallback, external push or publication is authorized here.
+No unrelated feature or FM-1 target work is authorized.
+
+Inputs and isolated ownership
+
+Checked complete candidate: cce6ac5ccd45ebb2809afd973671af96b138748a.
+Candidate tree: cdc6752b931e8bdb49df7c4f44222b1dfd222797.
+Source repair base: 1c5e8f8953658689434b4b3e8687ccd630afeff0.
+Failed previous candidate: f080d1a5f31073dde600238f780acf37c12b2738.
+Source lane: /Users/mac/Documents/x0x37/smc_central_stop_repair_20261021.
+Source branch: lane/mb-smc-central-stop-repair-20261021.
+Repository administration: /Users/mac/Documents/x0x37/local_install_stage6_20261021.
+Shared Git: /Users/mac/Documents/x0x37/x0x37/.git.
+Use the evidence commit in sibling successor.json as your isolated lane base.
+Its production source matches the checked candidate.
+Suggested lane: /Users/mac/Documents/x0x37/smc_central_stop_stage3_20261021.
+Suggested branch: lane/mb-smc-central-stop-stage3-20261021.
+Author: genkigenki <3080081+genkigenki@users.noreply.github.com>.
+Preserve other lanes and separate rules work. Do not add rules commits to firmware integration.
+Do not change mapping or controller source without a concrete scoped dependency.
+
+Required independent scopes
+
+Use two separate independent subagents under workflow17.
+Give each helper the current skill entry, exact candidate, owned evidence folder and completion criteria.
+The test helper owns public tests, fail-before/pass-after controls, evidence identity and regression coverage.
+The investigation helper owns source review, independent edge probes, event order, service time and physical-result limits.
+Keep their evidence folders separate. Neither helper may edit production source.
+The task agent owns the combined conclusion and successor.
+Use matching completed evidence. Do not repeat a model-independent check solely because the stage or commit ID changed.
+Independent review and any necessary independent edge investigation remain required.
+If a helper requires a new run to resolve a concrete concern, record that reason and exact inputs.
+
+Read these complete records
+
+Read evidence/stop-stage2/RESULT.txt, checks.json, coverage.json, environment.json and input-review.json.
+Read source-inputs.json, stop-inputs.json, helper-inputs.json, host-checks.json, stop-checks.json and saved-probes.json.
+Read run-checks.py, run-stop-checks.py, run-saved-probes.py and their referenced logs.
+Read final-public.log, diag.log and all negative-control logs.
+Read replay-run.py, replay.c, replay.json, replay-inputs.json and replay.log.
+Read run-build.sh, build-elite.log, artifacts.json and stage4-dev-plan.json.
+Read tests/host/ble_midi_stop_test.c and ble_midi_stop_test.py.
+Read the complete public central, receive, signaling, abort and deadline tests and runner.
+Read firmware/src/ble/ble_midi_central.c and .h, firmware/src/ble.c and their direct consumers.
+
+Read the previous independent failure evidence/deadline-stage3/RESULT.txt and checks.json.
+Read evidence/deadline-stage3/test/report.json, cancel-report.json and the referenced realistic Cancel probes and logs.
+Read evidence/deadline-stage3/investigation/report.json, service-stop-probe.c, run-service-stop.py and event-edge-probe.c.
+The service-stop-record.json has 18 commands on exact candidate, 05eff60 and pre-session 1313e0f source.
+The service-stop-inputs.json has exact source and service hashes.
+The old candidate-cancel-refused.log, candidate-scan-refused.log and candidate-scan-failed-status.log retain the confirmed failures.
+The matching accepted-command controls pass.
+Read the complete previous handoff evidence/deadline-stage3/stage2-prompt.txt for the original repair requirements and physical limits.
+Read evidence/deadline-stage2/stage3-prompt.txt for retained signaling, credits, abort, deadline and replay context.
+Retain evidence/abort-stage3, evidence/session-stage3, evidence/session-stage2 and evidence/session-audit evidence.
+
+Confirmed defects and repair
+
+CENTRAL-STOP-01 is inherited. It reproduces on f080d1a5, 05eff60 and pre-session 1313e0f.
+A refused no-handle Cancel previously reported OFF and discarded a later successful connection handle.
+The actual production service also reported OFF after refused Scan Disable and failed Scan Disable Command Complete status.
+These are source defects. They do not establish the cause of the original physical input failure.
+
+The repair changes one production file, firmware/src/ble/ble_midi_central.c.
+blec_stop_progress retains an unaccepted Cancel or Scan Disable until acceptance or the original cutoff.
+D_CONTROL records accepted stop control commands separately from D_SENT for Disconnect and D_STOP for intent.
+Pending original command responses remain distinct from stop command acceptance.
+Successful Command Status does not complete a synchronous command.
+Failed stop responses give FAILED. Missing completion at the cutoff also gives FAILED.
+A repeated stop does not renew the cutoff. An automatic Cancel retains its cutoff and accepted command.
+A late successful Create completion retains its handle in STOPPING or FAILED.
+A duplicate successful connection does not submit another Disconnect or replace an active handle.
+Every Disconnect entry retains the original cutoff and the actual service clock.
+At or after that cutoff, no late Disconnect is submitted.
+Only the matching successful Disconnection Complete releases the handle and restores the sole-link credits.
+A direct start cannot erase an unresolved stop. Actual successful completion permits fresh startup.
+An unrelated failed connection event cannot prove that scanning stopped.
+The production service time update remains unchanged.
+
+Examine acceptance, status/complete and actual operation completion separately.
+Examine failed responses, absent responses, wrong handles, duplicate and late events, both connection event types and timer wrap.
+Examine stop during pending Create and Scan Enable, stop after accepted automatic Cancel, repeated stop, start and reconnect.
+Do not restart scanning after stop. Do not renew a failed stop cutoff.
+Preserve signaling identifiers, bounded queues, reply priority, fragment/size limits, lifecycle resets and normal MIDI delivery.
+Investigate any actionable gap. A source repair requires a fresh stage2, then a fresh affected stage3.
+Do not repair production source in stage3. Do not advance a failed candidate to stage4.
+
+Passing evidence and negative-control distinctions
+
+The public central, receive, signaling, abort, deadline and stop tests pass with ASan and UBSan.
+The old and extended DIAG tests pass.
+The new public cancel, scan, failed-status and edge controls fail functionally on f080d1a5 and pass after repair.
+The saved realistic Cancel probes pass with accepted/refused transport and correctly sized legacy/enhanced connection events.
+All five saved service-stop probes pass after repair. The saved 12 event-order cases pass.
+The original CENTRAL-ABORT-01 controls fail on 28d0fc230f60bc823c1e5e73d3aed61e68a8e32f and pass after repair.
+The original CENTRAL-ABORT-02 controls fail on 05eff604cb3f136db71727a2aeeea785cab73b99.
+The four saved stale-service simulations remain expected negative examples.
+They retain the old caller order and do not execute the repaired production service.
+The repaired helper with the old production caller fails its mutation control as expected.
+Do not treat those expected negative examples as current candidate failures.
+No sanitizer failure precedes the expected functional assertions.
+Of 413 previous selected source/test/tool/controller inputs, 411 match.
+Only the repaired central source and expanded runner changed. Two public stop test files are new.
+
+The affected replay ran again with 1268 unchanged payloads, 2616 decoded messages and 513 feedback messages.
+The queue is empty. The performance test is idle. Help and overlay are inactive.
+Capture: cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json.
+Capture SHA256: a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+External harness/store: /Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021.
+The peer, HCI framing, mailbox, clock and schedule are simulated.
+Three oversized ATT packets remain excluded. No payload resegmentation occurs.
+The store is synthetic. Target interrupts and physical radio execution remain untested.
+Reuse the matching replay after its inputs match. Do not claim a physical PASS.
+
+The Elite DEV build passes with X0X_DEV_PADCAL=1.
+Code margin: 1128 bytes. Static RAM margin: 524 bytes.
+Pool margin: 8364 bytes. Required pool margin: 8192 bytes.
+Exact app, loader and package hashes are in artifacts.json.
+This stage2 build is not a stage4 validated install record.
+Read BUILDING.md and script headers before commands.
+Use Linux x86-64 or x0x37-validation:local for JieLi tools.
+Toolchain: /Users/mac/.jieli/toolchain. SDK: /Users/mac/fw-AC79_AIoT_SDK.
+Mount proprietary inputs read-only. Keep them out of commits and bundles. Never change HOME.
+
+Current owner model policy
+
+Use Elite for shared development target checks. Do not repeat duplicate Pro shared-source or memory checks after Elite PASS.
+Pro-specific changes and actual Pro install/distribution packages retain applicable checks.
+Do model-independent checks once for matching inputs. A stage or commit ID change alone does not invalidate evidence.
+Source: chat 01a15a99-75d7-7921-9d65-f4b120566904, completed turn 01a15a99-78a0-7092-a321-a7cca4e3e073.
+Owner quote: "I don't think we need to check pro targets if elite passes cause they are consistently smaller than Ellie".
+Use CURRENT x0x37-check rule9. Do not claim an unbuilt Pro artifact or a Pro device PASS.
+No Pro-specific source changed in this repair. Stage2 therefore ran only Elite.
+
+Physical limits and preservation
+
+Physical result: NOT TESTED. Original all-input failure: UNRESOLVED.
+The owner reports that all SMC controls failed while light feedback operated.
+Working reference: 53d5654c9bbaec10b64c55fb60d0e7d857ba8156.
+Owner quotes: "Controls now work" and "and smc drives them too".
+The owner states that the messages did not change.
+Working source also lacks signaling replies and disconnect-credit reclamation.
+Neither omission establishes the cause of the later physical failure.
+The idle trace has CONNECTED, handles 114/115, five credits and continued polling.
+It has no pending ATT or mailbox drops. Zero idle counters do not prove input loss.
+The rejected header 50 20 10 00 0c 00 05 00 contains no signaling command or identifier.
+Credit starvation reproduces discovery failure, which differs from the CONNECTED observation.
+Do not request control movement, mode repetition, setup checks or another capture.
+Preserve controls, notes, pad colours, loops, all loop slots, menus, navigation, pickup, sample quality, licensing, model guards and budgets.
+Preserve keyboard-equivalent, individual 909 and individual 808 mixer modes.
+Do not restore withdrawn generic screen-following mappings.
+Controller SHA256: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a.
+Full 64 KiB controller CRC32: 4a400899. Flash margin: 44 bytes. RAM margin: 544 bytes.
+
+Mapping and sole integration
+
+Mapping candidate: 4ff0cd468e8afa746deca5840afb7f2890eedb9c.
+Mapping tree: 56a78830c67477684e1ec114274ae204acb81296.
+Mapping stage4 owner: 01a15a87-298e-7d21-b004-b78d5beafd89.
+Mapping result: /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json.
+That contribution has STAGE4 VALIDATION PASS for both complete DEV package/controller sets.
+Its separate artifacts do not qualify as the combined install.
+Mapping stage4 retains selection of the sole stage5 integrator for both contributions.
+Carry its chat ID/result and completion notices through all successors.
+Send permitted candidate and successor completion notices to that chat.
+Check its saved records and current project activity before any stage5 selection.
+Do not create a competing integrator or install independently.
+
+Completion and next stage
+
+Record exact inputs, commands, logs, failures, causes and dispositions.
+Only a passing repaired stage3 may start exactly one fresh LOCAL scoped DEV stage4.
+Stage4 must use dev_validate for each actual complete package/controller set.
+Use evidence/stop-stage2/stage4-dev-plan.json as a reviewed starting plan.
+Apply the current model policy to actual selected artifacts. Reuse matching evidence.
+The sole stage5 integrator must receive both validated contributions before merge.
+The complete validated DEV-install permission carries forward with a notice.
+No external push is authorized.
+
+Apply workflow18 before completion.
+Save the complete next prompt and successor record before creation.
+Check records and project activity for duplicates, including idle and setup chats.
+Use list_projects and create_thread with local execution and default model settings.
+Record returned host/chat IDs immediately.
+Verify actual new assistant or tool activity that acknowledges the assignment or reads inputs.
+Save the observed turn ID and startup evidence before status becomes started.
+Creation, title, queued input and an active flag alone do not establish startup.
+Recover an existing failed launch under workflow18 without another copy.
+End this stage after verified successor startup. Do not wait for its completion.

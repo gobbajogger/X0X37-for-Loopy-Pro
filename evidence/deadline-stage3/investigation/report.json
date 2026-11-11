@@ -1,0 +1,121 @@
+{
+  "schema": 1,
+  "owner": "/root/investigation",
+  "scope": "Independent stage3 source investigation and edge probes.",
+  "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+  "candidate_tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e",
+  "lane_head": "767de3dea05ac7a38b17f7a4380b063d364f8a84",
+  "result": "FAIL",
+  "source_repair_required": true,
+  "next_stage": 2,
+  "findings": [
+    {
+      "id": "CENTRAL-STOP-01",
+      "priority": 2,
+      "status": "CONFIRMED",
+      "title": "No-handle stop can report OFF after a refused or failed control command.",
+      "locations": [
+        "firmware/src/ble/ble_midi_central.c:206",
+        "firmware/src/ble/ble_midi_central.c:218",
+        "firmware/src/ble/ble_midi_central.c:224",
+        "firmware/src/ble/ble_midi_central.c:409",
+        "firmware/src/ble/ble_midi_central.c:421",
+        "firmware/src/ble.c:397"
+      ],
+      "trigger": "The host stops an active Create or active scan after its command result clears waiting. The mailbox refuses Cancel or Scan Disable.",
+      "cause": "blec_command sets waiting only after transport acceptance. blec_stop treats no waiting and no handle as OFF, even after transport refusal.",
+      "cancel_observed": "At tick 100, Cancel has one refused attempt and zero accepted commands. The host changes from CONNECTING to OFF. At tick 101, the service reads successful connection handle 0x50 but ignores it. No Disconnect command reaches transport.",
+      "scan_observed": "At tick 100, Scan Disable has one refused attempt and zero accepted commands. The host reports OFF. No successful disable result exists.",
+      "failed_status_observed": "An accepted Scan Disable receives Command Complete with status 0x0c. The host changes from STOPPING to OFF because this branch does not inspect status.",
+      "impact": "The host can report OFF while the controller operation remains active. A later successful connection can lose its handle in host state.",
+      "provenance": "All three failures reproduce on exact candidate f080d1a5, previous candidate 05eff604 and pre-session source 1313e0f. This is an inherited dependency of the reviewed stop and cancel paths.",
+      "evidence": [
+        "service-stop-record.json",
+        "service-stop-inputs.json",
+        "candidate-cancel-refused.log",
+        "candidate-scan-refused.log",
+        "candidate-scan-failed-status.log"
+      ],
+      "controls": "Accepted Cancel and successful Scan Disable controls pass on all three exact revisions.",
+      "sanitizers": "Each compilation passes with ASan and UBSan. Each negative case fails a functional assertion. No sanitizer diagnostic precedes those assertions.",
+      "repair_requirements": [
+        "Keep a refused Cancel or Scan Disable pending until one accepted command or the original cutoff.",
+        "Do not renew the cutoff after refusal or repeated stop.",
+        "Keep command transport acceptance, command status and operation completion distinct.",
+        "Do not report a successful stop after transport refusal or failed status.",
+        "Retain stop intent through failure and late events.",
+        "If Create succeeds during stop, retain the handle and apply the existing Disconnect cutoff.",
+        "At or after that cutoff, do not submit a late Disconnect. Retain the handle for its applicable successful completion.",
+        "Add regression coverage through the actual production service body.",
+        "Preserve the existing signaling, credits, bounded Disconnect retry and deadline repairs."
+      ],
+      "disposition": "Use one fresh stage2 for this scoped repair. Then use one fresh stage3. Do not advance this candidate to stage4.",
+      "physical_limit": "The simulated failures do not establish the cause of the original physical input failure."
+    }
+  ],
+  "checks": [
+    {
+      "command": "python3 -B evidence/deadline-stage3/investigation/run-service-stop.py",
+      "records": "service-stop-record.json",
+      "result": "EXPECTED FUNCTIONAL FAILURES",
+      "scope": "18 commands compile three exact source revisions and run Cancel and Scan Disable refusal, accepted controls and failed Scan Disable status."
+    },
+    {
+      "command": "python3 -B evidence/deadline-stage3/investigation/run-event-edge.py",
+      "records": "event-edge-record.json",
+      "result": "PASS",
+      "scope": "12 independent cases cover status event forms, timer wrap, repeated stop, failed commands, timeout, wrong handles, late successful completion and clean restart."
+    },
+    {
+      "records": "cancel-busy-record.json",
+      "result": "EXPECTED FUNCTIONAL FAILURE",
+      "scope": "The first public API probe isolates the refused Cancel and ignored successful connection."
+    }
+  ],
+  "passing_source_review": [
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:69,83,206,430,514",
+      "observation": "One Disconnect helper checks the cutoff for fail, stop, poll and successful connection during cancel. Refused Disconnect remains pending. Accepted Disconnect does not repeat."
+    },
+    {
+      "locations": "firmware/src/ble.c:395; firmware/src/app/main_fm1.c:150-172",
+      "observation": "The production service supplies fm1_ms before stop. The same TIMER5 context advances fm1_ms after this service."
+    },
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:412,479",
+      "observation": "Disconnect command acceptance and status do not release the handle. Only a successful matching Disconnection Complete restores sole-link credits."
+    },
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:107-143,338-378,514-550",
+      "observation": "The four-entry reply queue retains identifiers. Replies precede ATT and feedback. ACL storage remains 64 bytes. Larger signaling uses bounded storage and uint16_t drain counters."
+    },
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:21,195,471,487",
+      "observation": "Lifecycle paths clear pending replies and fragments. Completed-packet arithmetic saturates before uint8_t conversion. The new fields remain in TIMER5 context."
+    },
+    {
+      "locations": "firmware/src/ble.c:99,208-213,514; firmware/src/app/smc_mixer.c",
+      "observation": "Production send returns the mailbox API result. The production receive callback still queues MIDI for the main loop. Controller and mapping source remain unchanged."
+    }
+  ],
+  "prior_probe_interpretation": "The four saved stale-service simulations retain the old caller order. They do not execute the repaired caller. They remain expected negative examples. The test helper owns their current regression checks.",
+  "setup_notes": [
+    {
+      "log": "event-edge-fixture-first-run.log",
+      "cause": "The first new event fixture left transport busy before its clean-start Reset assertion.",
+      "disposition": "The fixture makes transport available before the Reset check. Production source did not change. The final 12 cases pass with exact commands in event-edge-record.json."
+    }
+  ],
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "cause_of_physical_failure": "UNKNOWN",
+  "source_identity": "source-identity.json",
+  "production_edits": false,
+  "device_write": false,
+  "controller_write": false,
+  "target_build": false,
+  "full_gate": false,
+  "release_build": false,
+  "external_push": false,
+  "successor_created": false
+}

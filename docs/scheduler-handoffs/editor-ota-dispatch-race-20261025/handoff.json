@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-25T04:56:27Z",
+  "role": "Editor/OTA packet dispatch source producer",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/editor-ota-dispatch-race-20261025",
+    "tested_commit": "a8113c2a0036be76069fb6431454650ee84f6e73",
+    "tested_tree": "3c09d2698059657b3a0005bac944284970b56a1e",
+    "pr": 141
+  },
+  "summary": "Preserve late editor frames by polling OTA only when the editor check left that same non-editor frame pending. Independent review accepts scoped source/host handoff. Historical hardware timeout causation is not established.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/app/editor.c",
+      "description": "Return pending non-editor eligibility using existing header/ownership decisions."
+    },
+    {
+      "kind": "source",
+      "location": "firmware/src/app/main_fm1.c",
+      "description": "Gate only normal-loop OTA polling with editor eligibility and existing hold."
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/editor_ota_dispatch_test.py",
+      "description": "Registered actual-source dispatch regression with unchanged OTA fixture; C companion contains sentinels."
+    },
+    {
+      "kind": "review",
+      "location": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/independent-review.md",
+      "description": "Independent immutable source review, red/green reruns and safety/qualification limits."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/README.md",
+      "description": "Source handoff, provenance, constraints and downstream gates."
+    }
+  ],
+  "checks": [
+    {
+      "name": "Original source routing",
+      "status": "FAIL",
+      "command": "python3 -B tests/host/editor_ota_dispatch_test.py",
+      "exit_code": 1,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/producer-dispatch-red.log",
+      "log_sha256": "cc8d3c69eb0aa15bc6c6c4a140eeffcf81dcf922f5ca45dd4582ec1104b45e69",
+      "coverage": "Baseline production files, same regression: 22/34 pass; 12 expected failures."
+    },
+    {
+      "name": "Corrected routing",
+      "status": "PASS",
+      "command": "python3 -B tests/host/editor_ota_dispatch_test.py",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/producer-dispatch-green.log",
+      "log_sha256": "f0c85d62ced49a72fb641ef5f62020b63ddc62d877c9f54e1cd62356db95b5cb",
+      "coverage": "34/34 pass, actual editor service and main dispatch; editor handler sentinel."
+    },
+    {
+      "name": "Corrected routing sanitized",
+      "status": "PASS",
+      "command": "SAN_FLAGS='-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer' python3 -B tests/host/editor_ota_dispatch_test.py",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/producer-dispatch-sanitized.log",
+      "log_sha256": "f0c85d62ced49a72fb641ef5f62020b63ddc62d877c9f54e1cd62356db95b5cb",
+      "coverage": "34/34 pass; no sanitizer report."
+    },
+    {
+      "name": "Initial broader runner",
+      "status": "FAIL",
+      "command": "X0X_TEST_JOBS=1 sh tests/run_tests.sh editor-ota-dispatch project-protocol project-runtime",
+      "exit_code": 1,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/producer-focused-suites.log",
+      "log_sha256": "1102f3b27c06c2af60fca08e61d361eaa1642dff7e3c7071527f594db4b19f2a",
+      "coverage": "First two suites pass; runtime existing macOS libproc declarations fail compilation."
+    },
+    {
+      "name": "Focused suites macOS feature flag",
+      "status": "PASS",
+      "command": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE=1 X0X_TEST_JOBS=1 sh tests/run_tests.sh editor-ota-dispatch project-protocol project-runtime",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/producer-focused-suites-darwin.log",
+      "log_sha256": "622795a2b80a4ae7004e944e4de3563d31587b0d0e0cc58bcdfb5c6c3be2456d",
+      "coverage": "All 3 selected suites pass. No runtime source workaround."
+    },
+    {
+      "name": "Independent baseline-regression",
+      "status": "FAIL",
+      "command": "SRC=/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/editor-ota-independent-zeb77ofp/baseline/firmware/src python3 -B tests/host/editor_ota_dispatch_test.py",
+      "exit_code": 1,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/baseline-regression.log",
+      "log_sha256": "1cc982e5c9a2fa31618faafed6d9d4bdb0faa047428b4dca3a899a698870178a",
+      "coverage": "See independent-review.md and independent-runs.json. Baseline dispatch failures are expected RED; broader runtime sanitizer fails on both source versions at pre-existing fastmath.h:57."
+    },
+    {
+      "name": "Independent candidate-regression",
+      "status": "PASS",
+      "command": " python3 -B tests/host/editor_ota_dispatch_test.py",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/candidate-regression.log",
+      "log_sha256": "f0c85d62ced49a72fb641ef5f62020b63ddc62d877c9f54e1cd62356db95b5cb",
+      "coverage": "See independent-review.md and independent-runs.json. Baseline dispatch failures are expected RED; broader runtime sanitizer fails on both source versions at pre-existing fastmath.h:57."
+    },
+    {
+      "name": "Independent candidate-sanitized",
+      "status": "PASS",
+      "command": "SAN_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 python3 -B tests/host/editor_ota_dispatch_test.py",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/candidate-sanitized.log",
+      "log_sha256": "f0c85d62ced49a72fb641ef5f62020b63ddc62d877c9f54e1cd62356db95b5cb",
+      "coverage": "See independent-review.md and independent-runs.json. Baseline dispatch failures are expected RED; broader runtime sanitizer fails on both source versions at pre-existing fastmath.h:57."
+    },
+    {
+      "name": "Independent aggregate-normal",
+      "status": "PASS",
+      "command": "X0X_TEST_JOBS=1 X0X_HOST_DEFS=-D_DARWIN_C_SOURCE=1 sh tests/run_tests.sh editor-ota-dispatch project-protocol project-runtime",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/aggregate-normal.log",
+      "log_sha256": "622795a2b80a4ae7004e944e4de3563d31587b0d0e0cc58bcdfb5c6c3be2456d",
+      "coverage": "See independent-review.md and independent-runs.json. Baseline dispatch failures are expected RED; broader runtime sanitizer fails on both source versions at pre-existing fastmath.h:57."
+    },
+    {
+      "name": "Independent project-protocol-sanitized",
+      "status": "PASS",
+      "command": "SAN_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 sh tests/host/run_project_protocol.sh",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/project-protocol-sanitized.log",
+      "log_sha256": "1a9773fc5a168928c7a4fecbd6111a80335e6b6ba03ff75e1fc1d143142b779e",
+      "coverage": "See independent-review.md and independent-runs.json. Baseline dispatch failures are expected RED; broader runtime sanitizer fails on both source versions at pre-existing fastmath.h:57."
+    },
+    {
+      "name": "Independent project-runtime-sanitized",
+      "status": "FAIL",
+      "command": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE=1 SAN_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 sh tests/host/project_runtime_test.sh",
+      "exit_code": 134,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/project-runtime-sanitized.log",
+      "log_sha256": "75f93babebd979022cedbe335d38b18f401c5e347f2d6e949e5074b4c3bec11d",
+      "coverage": "See independent-review.md and independent-runs.json. Baseline dispatch failures are expected RED; broader runtime sanitizer fails on both source versions at pre-existing fastmath.h:57."
+    },
+    {
+      "name": "Independent baseline-project-runtime-sanitized",
+      "status": "FAIL",
+      "command": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE=1 SAN_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 sh tests/host/project_runtime_test.sh",
+      "exit_code": 134,
+      "evidence": "docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/baseline-project-runtime-sanitized.log",
+      "log_sha256": "c2f3590330a919d9c80f4eda9f2e5f277e77a4c142b081d2755b733c996090f4",
+      "coverage": "See independent-review.md and independent-runs.json. Baseline dispatch failures are expected RED; broader runtime sanitizer fails on both source versions at pre-existing fastmath.h:57."
+    },
+    {
+      "name": "Target builds and hardware",
+      "status": "NOT_RUN",
+      "command": "No target build or hardware operation authorized in this task",
+      "evidence": "User explicitly required host-only source handoff, avoiding competing SMC firmware builds. New Elite/Pro compilation, budgets, package/controller compatibility and physical qualification remain downstream."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Changed firmware subtree b7a004e4d37b95b4efc8def3842c9f41589cda06; prior firmware bytes cannot qualify this source."
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Changed firmware subtree b7a004e4d37b95b4efc8def3842c9f41589cda06; prior firmware bytes cannot qualify this source."
+    }
+  ],
+  "next": {
+    "owner": "Parent coordinator / sole firmware integrator and designated build owner",
+    "action": "Consume exact PR141 source after independent scoped acceptance, reconcile concurrent SMC changes, then schedule serialized new Elite/Pro builds and combined-source QA before any eligible integration or testing.",
+    "gate": "Draft source-only handoff; no merge, installation, publication or production approval. Complete target/model/budget/package/controller qualification, broader QA and owner-specific hardware testing remain separate."
+  },
+  "dependencies": [
+    "Baseline nightly 54f2ffbc3124f7449a69067dc8215a2d91a2e675 / root 3b5cadafba33f4c1b116660bc9d19a27a892337c.",
+    "Open PR title/body search found no competing editor/OTA pending-frame fix; related OTA PR114/116/125 concern installer/native identity. PR103 is already merged.",
+    "No repository AGENTS.md or .agents/skills files exist on current nightly or inspected main. Read the available classic-thread-build-to-git skill and current docs/rules/firmware-nightly-promotion.md.",
+    "Concurrent owner task01a17160-6b30-7630-be51-a5c215062036 owns SMC screens; task01a17161-4fec-735f-b03b-ba67f1fb6003 owns packaging/installer. No edits to those worktrees.",
+    "Schema pinned from PR78 commit67df140182b08394c10e5edc6f37de43cc5a48d2, docs/scheduler-evidence.schema.json blob244263f1d5f6f38b957fa55a5f745ff13e49eac8; absent on baseline."
+  ],
+  "publication": "SOURCE_ONLY"
+}

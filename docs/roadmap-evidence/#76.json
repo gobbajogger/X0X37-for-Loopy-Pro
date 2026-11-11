@@ -1,0 +1,91 @@
+{
+  "row_id": "#76",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:200; /workspace/docs-audit/roadmap-status.md:117; out/docs/roadmap-evidence/#76.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#76 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint ONLY: green part-off-web-e2e (/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 123, tool_result.value.output line 23) checks firmware/web project word 28; narrow project-format lead. The row does not name it; this is not a binding and does not justify PRESENT.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#76 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:117 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:200",
+      "/workspace/docs-audit/roadmap-status.md:117",
+      "out/docs/roadmap-evidence/#76.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "part-off-web-e2e",
+      "part-off-web-e2e-node-gate",
+      "projects-web"
+    ],
+    "evidence": "tests/host/part_off_web_e2e.mjs:17: const parse = b => { try { return { ok: true, r: parseProject(b) }; } catch (e) { return { ok: false, code: e.code, msg: e.message }; } };; tests/host/part_off_web_e2e.mjs:17: const parse = b => { try { return { ok: true, r: parseProject(b) }; } catch (e) { return { ok: false, code: e.code, msg: e.message }; } };; web/test_projects.mjs:197: assert.throws(() => parseProject(raw), /incompatible/);",
+    "identifiers": [
+      {
+        "identifier": "parseProject",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:200"
+      }
+    ],
+    "matches": [
+      {
+        "test": "part-off-web-e2e",
+        "symbol_from_row": "parseProject",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:200",
+        "file": "tests/host/part_off_web_e2e.mjs",
+        "line": 17,
+        "quote": "const parse = b => { try { return { ok: true, r: parseProject(b) }; } catch (e) { return { ok: false, code: e.code, msg: e.message }; } };",
+        "identifier": "parseProject"
+      },
+      {
+        "test": "part-off-web-e2e-node-gate",
+        "symbol_from_row": "parseProject",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:200",
+        "file": "tests/host/part_off_web_e2e.mjs",
+        "line": 17,
+        "quote": "const parse = b => { try { return { ok: true, r: parseProject(b) }; } catch (e) { return { ok: false, code: e.code, msg: e.message }; } };",
+        "identifier": "parseProject"
+      },
+      {
+        "test": "projects-web",
+        "symbol_from_row": "parseProject",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:200",
+        "file": "web/test_projects.mjs",
+        "line": 197,
+        "quote": "assert.throws(() => parseProject(raw), /incompatible/);",
+        "identifier": "parseProject"
+      }
+    ],
+    "recorded_results": {
+      "part-off-web-e2e": {
+        "result": "ok",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 123, tool_result.value.output line 23",
+        "raw": "  ok   part-off-web-e2e"
+      },
+      "part-off-web-e2e-node-gate": {
+        "result": "ok",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 123, tool_result.value.output line 25",
+        "raw": "  ok   part-off-web-e2e-node-gate"
+      },
+      "projects-web": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "web/x0x_projects.js"
+    ],
+    "firmware_references": []
+  }
+}

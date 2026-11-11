@@ -1,0 +1,69 @@
+{
+  "schema": "loopyx0x37.smc-producer-check.v1",
+  "date_utc": "2026-10-23",
+  "role": "SMC Transport source producer",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "parent_branch": "lane/smc-ble-mailbox-backpressure-20261023-run3",
+  "consumed": {
+    "commit": "5f61392253bd5d7bd0dd2586df5d0f6659b05ddd",
+    "full_root_tree": "9f1ef910872e043001cbb19537098f2ac86c8b38",
+    "compiled_firmware_tree": "d3c8b2db8ad898daa7cfcf3ac554248162cda584",
+    "source_blob": "a5f6a96ac1b6c0f111cadd67a2da1d3225a5850a",
+    "tests_runner_blob": "f682eaa5fd8ef24b8a7688319e6ce12fb9e003d9",
+    "stacked_dependencies": [
+      {
+        "pr": 89,
+        "sha": "ca777a056e7de0075aac30927a4f6b158d55c465"
+      },
+      {
+        "pr": 94,
+        "sha": "9083dc35a5e270930323b44dde7bdc5916f826f1"
+      }
+    ]
+  },
+  "finding": "HCI 0x13 Number Of Completed Packets entries are interleaved handle,count pairs, but prior code treats them as two arrays. Single-handle events mask the error; multi-handle completions can stall or miscredit the BLE MIDI outgoing path.",
+  "specification": "https://kernel.googlesource.com/pub/scm/bluetooth/bluez.git/+/8ad12fe7b4b93abf37b11e62b2e548cb245c2199/monitor/bt.h",
+  "scope": "source-matched evt_in() HCI event 0x13 fragment; actual full ble_midi_host.c and exact combined nightly root were NOT compiled locally",
+  "host_execution": {
+    "machine": "Linux x86_64",
+    "toolchains": [
+      "gcc",
+      "clang"
+    ],
+    "modes": [
+      "plain",
+      "-fsanitize=undefined",
+      "-fsanitize=address,undefined -fno-omit-frame-pointer"
+    ],
+    "command": "$CC -std=c99 -O1 -g -Wall -Wextra -Werror $SANITIZER -I/mnt/data/smc_hci_20261024 ble_hci_completed_packets_test.c event_reproducer.c|event_fixed.c -o TEST; ./TEST",
+    "before": {
+      "compile_exit": 0,
+      "run_exit": 1,
+      "failed_assertions": 4,
+      "assertions": 15,
+      "executions": 6
+    },
+    "after": {
+      "compile_exit": 0,
+      "run_exit": 0,
+      "failed_assertions": 0,
+      "assertions": 15,
+      "executions": 6
+    },
+    "local_test_file_sha256": "47f317d2cb5d9379885340cc2c19ff89fbc5cf278ba1fa74de0722d4b47e42e4"
+  },
+  "disposition": "SOURCE_CHECKED_FRAGMENT_ONLY; FULL_SOURCE_COMPILE_QA_PENDING; BUILD_ONLY_PENDING; NO_DEVICE_PASS; NOT_INSTALLABLE",
+  "next_owners": {
+    "builder": "Compile exact new own PR HEAD in Elite/Pro/controller BUILD_ONLY, without waiting for review, integration or hosting",
+    "qa": "Independently rerun new regression compiled with full production source; check BLE credit flow, mixed handle/event positives and negatives",
+    "safe_merge": "Integrate exact combined #50/#89/#94 and rerun complete transport regressions, no direct protected update"
+  },
+  "remaining_gates": [
+    "full-source native link and regressions",
+    "independent QA",
+    "exact compiled Elite/Pro/ctl builds",
+    "Safe Merge integration",
+    "model,backup,OTA and legal/immutable HTTP publication checks",
+    "physical behavior unknown"
+  ]
+}

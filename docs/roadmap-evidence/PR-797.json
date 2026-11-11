@@ -1,0 +1,89 @@
+{
+  "row_id": "PR-797",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:257; /workspace/docs-audit/roadmap-status.md:174; out/docs/roadmap-evidence/PR-797.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=PR-797 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=PR-797 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:174 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:257",
+      "/workspace/docs-audit/roadmap-status.md:174",
+      "out/docs/roadmap-evidence/PR-797.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "usb-audio-descriptors",
+      "usb-product-names",
+      "usb-sxq-sticky-apc"
+    ],
+    "evidence": "tests/host/usb_audio_descriptors_test.py:158: check(u16(link, 4) == 0x0101, P + \"linked to a USB streaming terminal\"); tests/host/usb_product_names_test.py:73: assert result.returncode != 0 and \"USB product name exceeds\" in result.stderr, result.stderr; tests/host/usb_sxq_sticky_apc_test.py:12: start = usb.index(\"/* Send a complete SysEx message through the same USB-MIDI event queue\")",
+    "identifiers": [
+      {
+        "identifier": "USB",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:257"
+      }
+    ],
+    "matches": [
+      {
+        "test": "usb-audio-descriptors",
+        "symbol_from_row": "USB",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:257",
+        "file": "tests/host/usb_audio_descriptors_test.py",
+        "line": 158,
+        "quote": "check(u16(link, 4) == 0x0101, P + \"linked to a USB streaming terminal\")",
+        "identifier": "USB"
+      },
+      {
+        "test": "usb-product-names",
+        "symbol_from_row": "USB",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:257",
+        "file": "tests/host/usb_product_names_test.py",
+        "line": 73,
+        "quote": "assert result.returncode != 0 and \"USB product name exceeds\" in result.stderr, result.stderr",
+        "identifier": "USB"
+      },
+      {
+        "test": "usb-sxq-sticky-apc",
+        "symbol_from_row": "USB",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:257",
+        "file": "tests/host/usb_sxq_sticky_apc_test.py",
+        "line": 12,
+        "quote": "start = usb.index(\"/* Send a complete SysEx message through the same USB-MIDI event queue\")",
+        "identifier": "USB"
+      }
+    ],
+    "recorded_results": {
+      "usb-audio-descriptors": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "usb-product-names": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "usb-sxq-sticky-apc": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [],
+    "firmware_references": []
+  }
+}

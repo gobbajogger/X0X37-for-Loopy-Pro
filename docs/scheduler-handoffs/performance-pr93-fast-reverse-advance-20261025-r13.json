@@ -1,0 +1,71 @@
+{
+  "revision": "performance-pr93-fast-reverse-advance-host-r13-20261025",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+  "role": "Performance Engineering",
+  "stage": "SOURCE_TESTED_BUILD_AND_INDEPENDENT_QA_PENDING",
+  "parent_head": "871619502884af1ed67dc07face6e7041b2a27cf",
+  "parent_root": "470c82fb033d95266fc55bb55c71dc17bb192599",
+  "previous_firmware_tree": "a87a83e15116422eed84528d95f52ddef5029927",
+  "compiled_input_changed": true,
+  "previous_build_reuse_allowed": false,
+  "code_blob": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+  "test_blobs": {
+    "tests/host/breaks_reverse_fast_advance_test.c": "5e77b152253422d36ab7218669187d02318d21cb",
+    "tests/host/run_breaks_reverse_fast_advance.py": "eec018339f607283dddc651c74b8d8eb5bfdd948"
+  },
+  "positive": {
+    "cases_per_profile": 140,
+    "profiles": [
+      "gcc_O2",
+      "clang_O2",
+      "gcc_ASan_UBSan",
+      "clang_ASan_UBSan"
+    ],
+    "compile_exit": 0,
+    "render_exit": 0,
+    "pcm_all_identical": true,
+    "pcm_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508",
+    "pcm_bytes": 286720,
+    "stop_silence": true,
+    "live_note_off": true
+  },
+  "negative": {
+    "invalid_cli_expected_exit": 2,
+    "corrupt_trace_rejected": true,
+    "sanitizer_error": false
+  },
+  "bench_host_proxy": {
+    "gcc_baseline_sec": 0.254430962,
+    "gcc_fast_sec": 0.208021128,
+    "gcc_reduction_percent": 18.24,
+    "clang_baseline_sec": 0.395976766,
+    "clang_fast_sec": 0.363994731,
+    "clang_reduction_percent": 8.08,
+    "alternating_trials_each": 11
+  },
+  "target": {
+    "elite": "BUILD_NOT_RUN_FOR_NEW_SOURCE",
+    "pro": "BUILD_NOT_RUN_FOR_NEW_SOURCE",
+    "controller": "NOT_REQUALIFIED",
+    "old_pool_free_bytes": 8308,
+    "min_required_pool_free_bytes": 8192,
+    "device": "DEVICE_NOT_TESTED"
+  },
+  "next": [
+    {
+      "role": "Hourly Build",
+      "action": "compile exact new committed source Elite+Pro DEV with verified SDK/toolchain and controller input closure; verify model hashes/CRC/memory budgets"
+    },
+    {
+      "role": "Independent QA",
+      "action": "independently replay source-exact rendered PCM/negative tests and review boundary cases"
+    },
+    {
+      "role": "Safe Merge",
+      "action": "consider optional reviewed PR separately; never blend with first NIGHTLY champion"
+    }
+  ],
+  "tests_log_private": "LoopyX0X37-PR93-HighRate-Reverse-FastAdvance-R13-20261025.zip",
+  "code_distribution": "GPL-3.0-only source/tests; no firmware/controller/SDK/DSP/sample bytes"
+}

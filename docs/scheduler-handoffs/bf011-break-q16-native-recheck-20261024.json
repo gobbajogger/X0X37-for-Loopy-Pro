@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T20:26:22Z",
+  "role": "LoopyX0X37 Hourly Bugfinder / BF-011 producer",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/bugfinder-break-slot-q16-rate-20261023",
+    "tested_commit": "3939510f044bf211cfb27245ecbf960d8c9b5c5d",
+    "tested_tree": "15459891e9d31a4814351125b2dbc09017967d82",
+    "pr": 45
+  },
+  "summary": "BF-011 SOURCE COMPLETE and scoped native host-rechecked; baseline 4/4 expected FAIL, corrected 4/4 PASS. Current nightly has original overflowing conversion. Firmware full root and subtree differ, native target, independent QA and public installation remain pending. This is a supplementary isolated source-window check, not a whole-tree test or owner physical observation.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/app/plat_fm1.c@30c56fc152cfca37d3bfca60bbd5a8d7cc724ca9",
+      "description": "Git-verified BF-011 corrected Q16-to-Hz conversion."
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/plat_slot_rate_test.py@5495ae99f8b7b8c90075aaf0c8df8d5587793142",
+      "description": "Existing complete production-function and slot-validator producer regression, not rerun this invocation."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/bf011-break-q16-native-recheck-20261024.json",
+      "description": "New exact-SHA native source-window checks and truthful negative/positive evidence."
+    }
+  ],
+  "checks": [
+    {
+      "name": "BF-011 baseline gcc -O0",
+      "status": "FAIL",
+      "command": "gcc -std=c11 -O0 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all <BF-011 production-function window harness> -o <native executable>; execute",
+      "exit_code": 1,
+      "evidence": "Expected red: 164757 aggregate mismatches over 262144 Q16 sweep + five examples + five invalid-index controls; isolated C source-window harness; no target build.",
+      "log_sha256": "89e432d13ca1c469fff3742718498659c6305386b5092a3032c6408fcfab4767",
+      "coverage": "Native host GCC/Clang with source-window (not full production app); executable C harness SHA256 baseline f56883d39ebae8152342a31d93ed497d191567797fca837ce4b2c169024f36c6, fixed 157e35ff254474167389bac3ec737aca81994ea4ecec761cad522ae3c9fd25eb"
+    },
+    {
+      "name": "BF-011 baseline gcc -O2",
+      "status": "FAIL",
+      "command": "gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all <BF-011 production-function window harness> -o <native executable>; execute",
+      "exit_code": 1,
+      "evidence": "Expected red: 164757 aggregate mismatches over 262144 Q16 sweep + five examples + five invalid-index controls; isolated C source-window harness; no target build.",
+      "log_sha256": "3fdd62b4e55ffd2c0b8e754154e92862829f174ae6e73801bdca0caa45200b99",
+      "coverage": "Native host GCC/Clang with source-window (not full production app); executable C harness SHA256 baseline f56883d39ebae8152342a31d93ed497d191567797fca837ce4b2c169024f36c6, fixed 157e35ff254474167389bac3ec737aca81994ea4ecec761cad522ae3c9fd25eb"
+    },
+    {
+      "name": "BF-011 baseline clang -O0",
+      "status": "FAIL",
+      "command": "clang -std=c11 -O0 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all <BF-011 production-function window harness> -o <native executable>; execute",
+      "exit_code": 1,
+      "evidence": "Expected red: 164757 aggregate mismatches over 262144 Q16 sweep + five examples + five invalid-index controls; isolated C source-window harness; no target build.",
+      "log_sha256": "a25102ae6e2ca08b9185cd772df0331d97c30043e85b6ef078c7b5d3d5475828",
+      "coverage": "Native host GCC/Clang with source-window (not full production app); executable C harness SHA256 baseline f56883d39ebae8152342a31d93ed497d191567797fca837ce4b2c169024f36c6, fixed 157e35ff254474167389bac3ec737aca81994ea4ecec761cad522ae3c9fd25eb"
+    },
+    {
+      "name": "BF-011 baseline clang -O2",
+      "status": "FAIL",
+      "command": "clang -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all <BF-011 production-function window harness> -o <native executable>; execute",
+      "exit_code": 1,
+      "evidence": "Expected red: 164757 aggregate mismatches over 262144 Q16 sweep + five examples + five invalid-index controls; isolated C source-window harness; no target build.",
+      "log_sha256": "f7acef8e94e7933c6b27914834ee0378e89ee9363bdc3ae315ccd308cdc66adf",
+      "coverage": "Native host GCC/Clang with source-window (not full production app); executable C harness SHA256 baseline f56883d39ebae8152342a31d93ed497d191567797fca837ce4b2c169024f36c6, fixed 157e35ff254474167389bac3ec737aca81994ea4ecec761cad522ae3c9fd25eb"
+    },
+    {
+      "name": "BF-011 fixed gcc -O0",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O0 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all <BF-011 production-function window harness> -o <native executable>; execute",
+      "exit_code": 0,
+      "evidence": "Expected green: 262144 Q16 sweep, five concrete examples, five invalid-index controls, zero errors. Isolated C production-function window, not full slots.c or source root.",
+      "log_sha256": "ac6175e62a2fa39970ef32ec21f9a7aaa73422962bc339caaec0da72150a9805",
+      "coverage": "Native host GCC/Clang with source-window (not full production app); executable C harness SHA256 baseline f56883d39ebae8152342a31d93ed497d191567797fca837ce4b2c169024f36c6, fixed 157e35ff254474167389bac3ec737aca81994ea4ecec761cad522ae3c9fd25eb"
+    },
+    {
+      "name": "BF-011 fixed gcc -O2",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all <BF-011 production-function window harness> -o <native executable>; execute",
+      "exit_code": 0,
+      "evidence": "Expected green: 262144 Q16 sweep, five concrete examples, five invalid-index controls, zero errors. Isolated C production-function window, not full slots.c or source root.",
+      "log_sha256": "16a69e1c875ab5b76868caebc12edf86502e31e81f4789c5eb99e0f70ea16cbf",
+      "coverage": "Native host GCC/Clang with source-window (not full production app); executable C harness SHA256 baseline f56883d39ebae8152342a31d93ed497d191567797fca837ce4b2c169024f36c6, fixed 157e35ff254474167389bac3ec737aca81994ea4ecec761cad522ae3c9fd25eb"
+    },
+    {
+      "name": "BF-011 fixed clang -O0",
+      "status": "PASS",
+      "command": "clang -std=c11 -O0 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all <BF-011 production-function window harness> -o <native executable>; execute",
+      "exit_code": 0,
+      "evidence": "Expected green: 262144 Q16 sweep, five concrete examples, five invalid-index controls, zero errors. Isolated C production-function window, not full slots.c or source root.",
+      "log_sha256": "6f74543ed46f302da0b24846aebf7b06ce3716a293ac25f419530412070efaed",
+      "coverage": "Native host GCC/Clang with source-window (not full production app); executable C harness SHA256 baseline f56883d39ebae8152342a31d93ed497d191567797fca837ce4b2c169024f36c6, fixed 157e35ff254474167389bac3ec737aca81994ea4ecec761cad522ae3c9fd25eb"
+    },
+    {
+      "name": "BF-011 fixed clang -O2",
+      "status": "PASS",
+      "command": "clang -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all <BF-011 production-function window harness> -o <native executable>; execute",
+      "exit_code": 0,
+      "evidence": "Expected green: 262144 Q16 sweep, five concrete examples, five invalid-index controls, zero errors. Isolated C production-function window, not full slots.c or source root.",
+      "log_sha256": "3bfe42384b85b576aee3c7d57f472740412496cf6115c32fd7141419b9a47039",
+      "coverage": "Native host GCC/Clang with source-window (not full production app); executable C harness SHA256 baseline f56883d39ebae8152342a31d93ed497d191567797fca837ce4b2c169024f36c6, fixed 157e35ff254474167389bac3ec737aca81994ea4ecec761cad522ae3c9fd25eb"
+    },
+    {
+      "name": "Exact Git source-identity readback",
+      "status": "PASS",
+      "command": "GitHub fetch_file: firmware/src/app/plat_fm1.c at PR #45 SHA and firmware nightly SHA",
+      "exit_code": 0,
+      "evidence": "PR HEAD full root 15459891e9d31a4814351125b2dbc09017967d82; firmware subtree c4826e1ed9eb1408b704d2c898458cc44bf93c2b; PR fixed plat_fm1.c blob 30c56fc152cfca37d3bfca60bbd5a8d7cc724ca9. NIGHTLY@58b5b45a2dd90581de7a674c331ca5cbe8a67c7e full root 71b759dd206d844cceed9e40ae68966142720e9c, distinct firmware subtree 19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf; baseline original blob 03ddded6653d0931a71e95444c29d701a31bad18."
+    },
+    {
+      "name": "Full repository / target build",
+      "status": "NOT_RUN",
+      "command": "X0X_TEST_JOBS=1 tests/run_tests.sh plat-slot-rate; dev_validate Elite and Pro + controller",
+      "evidence": "No checkout in runner; native shell DNS to github.com returned curl exit 6; source ZIP Library materialization explicitly denied. Did not bypass. Only isolated source-window C was compiled. Independent QA/Hourly Build own combined-root/full target checks."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "No per-model target build or flash. No attributable hardware feedback."
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "No per-model target build or flash. No attributable hardware feedback."
+    }
+  ],
+  "dependencies": [
+    "Current first NIGHTLY integration PR #103 at bc9bebc7b505a936c16134cf1be112e05fcb6fb3 is a separately owned, not-installable DRAFT; do not alter or relabel it.",
+    "BF-011 producer branch is based on historical source and not part of #103. QA and Safe Merge must reconcile if applicable."
+  ],
+  "publication": "NOT_PUBLISHED",
+  "next": {
+    "owner": "Independent QA",
+    "action": "Fetch PR #45 exact remote full root, run original tests/host/plat_slot_rate_test.py GCC and Clang plus affected BREAK suite, independently inspect overflow boundaries, then record exact-SHA Git review; Hourly Build may compile Elite/Pro/controller BUILD_ONLY without QA or merge.",
+    "gate": "Independent full-root QA and sole reviewed firmware NIGHTLY integration; per-model target/controller/backup/CRC/source/license/immutable HTTP before public install; device feedback UNKNOWN."
+  }
+}

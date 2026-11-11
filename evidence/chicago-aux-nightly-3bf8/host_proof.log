@@ -1,0 +1,10 @@
+Chicago on nightly integration (LX-153) @ cursor/chicago-aux-nightly-3bf8
+Host (X0X_DEV_PADCAL=1 BOARD=smk37):
+  chicago-aux OK
+  smk-wheel-mode OK (all cases)
+  chicago-arp PASS
+  chicago-fx-bridge PASS
+  bass303-ampmode OK
+  bass303-wave-gnaw OK
+  bass303-amp-adsr PASS
+Linker (smk37 build.sh): RAM .bss overflow ~748 B after widening sound_t to NPARAMS_MAX 32 (Chicago rev 5–10). Host proofs do not require the pi32 link.
