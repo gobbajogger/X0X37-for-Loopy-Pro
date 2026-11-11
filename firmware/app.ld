@@ -19,7 +19,7 @@ MEMORY
     RAMTEXT (rwx): ORIGIN = 0x01C00000, LENGTH = 0x1800
     RAM    (rwx) : ORIGIN = 0x01C08000, LENGTH = 96K
     POOL   (rw)  : ORIGIN = 0x01C20000, LENGTH = 0x54000
-    C1STK  (rw)  : ORIGIN = 0x01C74000, LENGTH = 0xC00
+    C1STK  (rw)  : ORIGIN = 0x01C74000, LENGTH = 0x1200
     NOINIT (rw)  : ORIGIN = 0x01C7C000, LENGTH = 0x400
     BLERAM (rw)  : ORIGIN = 0x01C7C400, LENGTH = 0x1000
 }
@@ -42,8 +42,8 @@ SECTIONS
     .noinit (NOLOAD) : { *(.noinit*) } > NOINIT
     .ble_ram (NOLOAD) : { . = ALIGN(64); *(.ble_ram*) } > BLERAM
     ASSERT(_c1_end <= 0x01C01800, "RAM code reaches the Bluetooth controller RAM")
-    /* main user stack 21,248 B (was 24,320; 3,072 B went to C1STK; fm1-emu PERF TEST peak 4,520 B) */
-    _guard0 = 0x01C74C00; _ustack_lo = 0x01C74D00; _ustack_top = 0x01C7A000;
+    /* main user stack 19,712 B (was 24,320; 4,608 B went to C1STK; fm1-emu PERF TEST peak 4,520 B) */
+    _guard0 = 0x01C75200; _ustack_lo = 0x01C75300; _ustack_top = 0x01C7A000;
     ASSERT(_c1_sstack_top <= _guard0, "core 1's stacks reach core 0's stack guard")
     _guard1 = 0x01C7A000; _sstack_lo = 0x01C7A100; _sstack_top = 0x01C7C000;
     /DISCARD/ : { *(.comment) *(.note*) }
