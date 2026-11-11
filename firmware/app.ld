@@ -8,6 +8,8 @@
  * 0x01C07F00.. holds crt0's status words.
  * RAM  : .data/.bss (96 KiB)
  * POOL : big zero-initialised buffers (FX lines, canvases), section .pool
+ * XPOOL: 9 KiB of the old main stack top: the audio jobs' buffers either core writes
+ *        (section .xpool, zeroed at boot). Core 1 may not write core 0's stacks (fm1_guard.h).
  * STACKS with 256-byte guard bands; NOINIT survives resets and UBOOT entry.
  * BLERAM: the Bluetooth mailbox and the app's BLE host (section .ble_ram, not cleared).
  * 0x01C7FD50.. is reserved: boot_info, boot-state mailbox, vector table. */
@@ -17,6 +19,7 @@ MEMORY
     RAMTEXT (rwx): ORIGIN = 0x01C00000, LENGTH = 0x1800
     RAM    (rwx) : ORIGIN = 0x01C08000, LENGTH = 96K
     POOL   (rw)  : ORIGIN = 0x01C20000, LENGTH = 0x54000
+    XPOOL  (rw)  : ORIGIN = 0x01C74000, LENGTH = 0x2400
     NOINIT (rw)  : ORIGIN = 0x01C7C000, LENGTH = 0x400
     BLERAM (rw)  : ORIGIN = 0x01C7C400, LENGTH = 0x1000
 }
@@ -35,10 +38,12 @@ SECTIONS
     _data_load = LOADADDR(.data);
     .bss (NOLOAD) : { _bss_start = .; *(.bss*) *(.sbss*) *(COMMON) . = ALIGN(4); _bss_end = .; } > RAM
     .pool (NOLOAD) : { _pool_start = .; *(.pool*) . = ALIGN(4); _pool_end = .; } > POOL
+    .xpool (NOLOAD) : { _xpool_start = .; *(.xpool*) . = ALIGN(4); _xpool_end = .; } > XPOOL
     .noinit (NOLOAD) : { *(.noinit*) } > NOINIT
     .ble_ram (NOLOAD) : { . = ALIGN(64); *(.ble_ram*) } > BLERAM
     ASSERT(_c1_end <= 0x01C01800, "RAM code reaches the Bluetooth controller RAM")
-    _guard0 = 0x01C74000; _ustack_lo = 0x01C74100; _ustack_top = 0x01C7A000;
+    /* main user stack 15,104 B (was 24,320; fm1-emu boot + menus + PERF TEST peak ~4.5 KB) */
+    _guard0 = 0x01C76400; _ustack_lo = 0x01C76500; _ustack_top = 0x01C7A000;
     _guard1 = 0x01C7A000; _sstack_lo = 0x01C7A100; _sstack_top = 0x01C7C000;
     /DISCARD/ : { *(.comment) *(.note*) }
 }

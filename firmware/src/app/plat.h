@@ -15,6 +15,12 @@
 #else
 #define X0X_POOL __attribute__((section(".pool")))
 #endif
+/* buffers both cores' audio jobs write (app.ld XPOOL, zeroed at boot) */
+#ifdef X0X_HOST
+#define X0X_XPOOL
+#else
+#define X0X_XPOOL __attribute__((section(".xpool")))
+#endif
 
 /* CQ replacement: exclude only its audio-ISR consumer, preserving an already
  * disabled source. Host app simulation is single-threaded; interleaving tests
