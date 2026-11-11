@@ -1,0 +1,10 @@
+Project PR merge (dry-run=2)
+Owner policy: automatic merge of properly tested work is pre-approved.
+Only --pr / --head proven heads are merged. Never ask for a per-PR APPROVE.
+
+#264 dry-run: would retarget base cursor/f11-bf007-stage3-fb90 → main after parent merge :: pr edit 264 --repo gobbajogger/X0X37-for-Loopy-Pro --base main
+  F11 Stage 4: BF-007 Elite/Pro DEV CHECKED
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/264
+#264 dry-run: pre-approved after local proof (stack base cursor/f11-bf007-stage3-fb90); would try: gh pr merge 264 --repo gobbajogger/X0X37-for-Loopy-Pro --merge then gh pr merge 264 --repo gobbajogger/X0X37-for-Loopy-Pro --merge --admin then gh pr merge 264 --repo gobbajogger/X0X37-for-Loopy-Pro --merge --auto :: pr merge 264 --repo gobbajogger/X0X37-for-Loopy-Pro --merge
+  F11 Stage 4: BF-007 Elite/Pro DEV CHECKED
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/264

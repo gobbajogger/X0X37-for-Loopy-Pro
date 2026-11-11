@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+"""Exercise production SMC strip shortcuts and the four navigation arrows."""
+import os
+from pathlib import Path
+import re
+import subprocess
+import tempfile
+root = Path(__file__).resolve().parents[2]
+s = Path(os.environ.get('SMC_SOURCE', Path(os.environ.get('SMC_SOURCE_ROOT', root)) / 'firmware/src/app/smc_mixer.c')).read_text()
+# Mapping remains in apply(); the full UI regression exercises its presentation wrapper.
+f = re.search(r'^static void smc_button(?:_apply)?\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)[0]
+f = f.replace('smc_button_apply(', 'smc_button(', 1)
+helpers = [re.search(r'^static const (?:uint8_t|int8_t) '+name+r'\[4\]\[3\] = \{.*?^\};', s, re.M | re.S)[0]
+           for name in ('SMC_VIEW', 'SMC_PAGE')]
+for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks', 'smc_nav_key', 'smc_clip_stage_key'):
+    match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)
+    if match:
+        helpers.append(match[0])
+# The strip-8 MIX cycle asks the shared page-count cache (#789); the count is
+# owned by smc-ui tests, so a one-page stub keeps this mapping harness focused.
+if 'smc_query(&context' in f:
+    helpers.append('static struct { uint8_t count; } smc_page_cache = {1};\n'
+                   'static void *smc_query(const void *context, int page) { (void)context; (void)page; return 0; }')
+# Resolve production drum context helpers with the same explicit context type.
+context_helpers = re.search(r'typedef struct \{\n    uint8_t view, part, page, mixsel, sel\[NKIT\];\n\} smc_context_t;', s)[0] + '\n'
+for name in ('smc_page_part', 'smc_drum_mix_context', 'smc_context'):
+    context_helpers += re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M|re.S)[0] + '\n'
+ui_source = (root / 'firmware/src/app/ui.c').read_text()
+order_helpers = 'enum { PART_909=0, PART_808=1, PART_303A=2, PART_303B=3, PART_BRK=4 };\n'
+order_helpers += re.search(r'^static const uint8_t PART_ORDER.*?;', ui_source, re.M)[0] + '\n'
+order_helpers += re.search(r'^static int part_at\(.*', ui_source, re.M)[0] + '\n'
+order_helpers += re.search(r'^static int part_is_303\(.*', ui_source, re.M)[0] + '\n'
+for helper in ('part_position', 'part_neighbor'):
+    order_helpers += re.search(r'^static int '+helper+r'\([^\n]*\)\n\{.*?^\}', ui_source, re.M|re.S)[0] + '\n'
+# Cue notifications use the production text writers too.
+ui_source = (root / 'firmware/src/app/ui.c').read_text()
+for name in ('put_s', 'put_i'):
+    helpers.append(re.search(r'^static char \*'+name+r'\([^\n]*\)\n\{.*?^\}', ui_source, re.M | re.S)[0])
+harness = r'''
+#include <assert.h>
+#include <stdint.h>
+#include <string.h>
+#include "app/smc_mixer_edges.h"
+#include "smc_fx_harness_stubs.h"
+#define NKIT 2
+enum { NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
+static struct { int part, overlay, view, song_sel, help, sel[2]; uint32_t msg_until; } ui;
+static uint32_t plat_ms(void) { return 1000u; }
+static struct { int solo,locked,lock_kit,lock_bank,lock_part,lock_view,lock_page,lock_pages,lock_mixsel; uint8_t lock_sel[2],mixer_page[40][5]; uint8_t lock_page_kit[MAXPAGES]; uint16_t drum_solo[2]; uint8_t solo_target[8]; uint8_t view,part,mixsel,sel[2],song_sel; } smc;
+static struct { int ppat[NPARTS], pcue[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
+static struct { int len; } song_data;
+static struct { int n; const char *title[MAXPAGES]; } pg;
+static uint8_t page;
+static const char *const PART_N[] = {"909","808","A","B","BREAK"};
+static int last_view,last_page,fx,moved,edited,tap,knob_bank,home_held;
+static int smc_home_held(void) { return home_held; }
+/* Mapping-only callbacks. Actual question/reset implementation is exercised by
+ * composed_features_test.c and composed_smc_panic_test.c. */
+static uint8_t project_busy;
+static int reset_target = -1, question_redo;
+static void ask_sound_reset(int part) { reset_target = part; }
+static int play_answer_question(int home) {
+    if (home) { question_redo++; return 1; }
+    ui.overlay = O_NONE;
+    return 0;
+}
+/* Locked PAGE previews the captured page (#737 peek); count the calls. */
+static int peek_locked;
+static __attribute__((unused)) void smc_peek_locked_page(void) { peek_locked++; }
+static __attribute__((unused)) void smc_ui_off(void) {}
+static void smc_knob_bank(int d) { knob_bank+=d; }
+static int smc_page_now(void) { return page; }
+static int smc_page_count(void) { return pg.n; }
+static void smc_page_set(int p) { page=(uint8_t)p; }
+static void button_tap(int b) { tap=b; }
+static int smk_ck_smc_nav(uint8_t note) { (void)note; return 0; }
+static int smk_clip_mode_on(void) { return 0; }
+static int is_drum(void) { return 0; }
+static int is_303(void) { return 1; }
+static void build_pages(void) {}
+#define song() (&song_data)
+static void smc_select_part(int p) { smc.part=p; }
+static void smc_record_toggle(void) {}
+#define engine_smc_solo(s) ((void)(s))
+#define smc_solo_press(s,t,m) ((void)(s),(void)(t),(void)(m))
+#define smc_select_drum(k,t) ((void)(k),(void)(t),build_pages())
+#define engine_voice_name(k,t) ((void)(k),(void)(t),"drum")
+static void say(const char *a,const char *b) { (void)a;(void)b; }
+static const char *part_name(int p) { (void)p; return ""; }
+static char notice[32];
+static void ui_say(const char *a,const char *b) { strcpy(notice,a);if(b)strcat(notice,b);ui.msg_until=plat_ms()+1300u; }
+static void mute_part(int p) { (void)p; }
+#define mute_track(k,t) ((void)(k),(void)(t))
+static void smc_toggle_fx(int n) { fx=n; }
+static int smc_fx_try(uint8_t note, int mmc) { (void)note; (void)mmc; return 0; }
+static void smc_view(int v,int p) { last_view=v; last_page=p; }
+static int smc_bank(uint8_t n) { (void)n; return 0; } /* bank logic has its own routing test */
+#define seq_cue_part(s,p,n) ((s)->pcue[p]=(n))
+#define seq_cue_of(s,p) ((s)->pcue[p]>=0 && (s)->pcue[p]<NPAT ? (s)->pcue[p] : -1)
+#define seq_stop(s) ((s)->playing=0)
+#define seq_start(s) ((s)->playing=1)
+static void list_move(int d) { moved+=d; }
+static void ui_menu_arrow(int d) { edited+=d; }
+'''+ order_helpers + context_helpers + '\n'.join(helpers) + f + r'''
+int main(void) {
+    /* R6 opens own MIX, R7 HOME, S7 GLOBAL; R8 toggles HOME/SONG,
+     * S8 PART/SEQ, SELECT6/7 effects and SELECT8 MASTER. */
+    const int views[4][3]={{-1,-1,V_HOME},{V_MIX,-1,V_PART},{-1,-1,-1},{V_FX,V_FX,V_MIX}};
+    /* F4: strip-8 MIX cycles the stored mixer page and opens V_MIX with page -1. */
+    const int pages[4][3]={{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{0,1,-1}};
+    pg.n=4;
+    for(int row=0;row<4;row++) for(int strip=5;strip<8;strip++) {
+        last_view=last_page=fx=-1; smc.view=0;
+        int note=row*8+strip; tap=-1; smc_button(note,0);
+        if(note==5 || note==6 || note==14) {
+            assert(tap==-1 && last_view==(note==14?V_GLO:note==5?V_MIX:V_HOME)); continue;
+        }
+        if(row==2) assert(fx==strip-5 && last_view==-1);
+        else assert(last_view==views[row][strip-5] && last_page==pages[row][strip-5] && fx==-1);
+    }
+    for(int note=0x60;note<=0x63;note++) {
+        int d=(note&1)?1:-1;
+        ui.overlay=O_NONE; smc.view=V_PART; page=1; knob_bank=0; smc_button(note,0);
+        if(note<0x62) assert(knob_bank==d && page==1);
+        else assert(knob_bank==0 && page==1+d);
+        ui.overlay=O_LIST; moved=edited=0; knob_bank=0; page=1; smc_button(note,0);
+        assert(moved==0 && edited==0);
+        assert(note<0x62 ? knob_bank==d && page==1 : knob_bank==0 && page==1+d);
+    }
+    ui.overlay=O_ASK; tap=-1; smc_button(5,0); assert(tap==B_SEL);
+    tap=-1; smc_button(6,0); assert(tap==B_HOME);
+    ui.overlay=O_ASK; home_held=1; seq.playing=0; smc_button(0x5e,0);
+    assert(question_redo==1 && seq.playing==0 && ui.overlay==O_ASK);
+    home_held=0; smc_button(0x5e,0);
+    assert(ui.overlay==O_NONE && seq.playing==1);
+    home_held=1; reset_target=-1; smc_button(24,0);
+    assert(reset_target==PART_909);
+    project_busy=1; reset_target=-1; smc_button(25,0);
+    assert(reset_target==-1);
+    project_busy=0; home_held=0;
+    ui.overlay=O_NONE; ui.help=1; smc_button(6,0); assert(!ui.help);
+    smc.part=0; seq.ppat[0]=3; seq.pcue[0]=0xff;
+    smc_button(0x5c,0); assert(seq_cue_of(&seq,0)==4 && !strcmp(notice,"NEXT: PAT 5"));
+    assert(ui.msg_until==plat_ms()+1000u);
+    smc_button(0x5b,0); assert(seq_cue_of(&seq,0)==-1 && !strcmp(notice,"NEXT: PAT --"));
+    assert(ui.msg_until==plat_ms()+1000u);
+    return 0;
+}
+'''
+with tempfile.TemporaryDirectory() as tmp:
+    c=Path(tmp)/'test.c'; exe=Path(tmp)/'test'; c.write_text(harness)
+    subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-variable',
+                    '-I'+str(root/'firmware'/'src'), '-I'+str(root/'tests'/'host'),
+                    str(c),'-o',str(exe)],check=True)
+    subprocess.run([str(exe)],check=True)
+print('PASS: strip shortcuts, knob-bank arrows and page/menu arrows use explicit view/page/menu mappings')

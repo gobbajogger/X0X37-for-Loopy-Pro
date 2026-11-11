@@ -1,0 +1,58 @@
+The central abort source repair passes its affected stage2 checks.
+The physical all-input failure remains unresolved.
+
+The repair keeps a refused Disconnect command until transport acceptance or the original deadline.
+After transport recovery, exactly one accepted command reaches the active handle.
+A successful Command Status or Command Complete does not release the connection or its credits.
+Failed command events keep the connection in FAILED.
+A permanently busy transport and an absent completion event remain bounded.
+Only the applicable successful Disconnection Complete releases the link and restores credits.
+
+Stop keeps an active abort deadline and does not repeat an accepted command.
+Repeated stop calls after failure cannot renew that deadline.
+A late successful disconnect respects stop intent.
+Start and successful connection reset acceptance state.
+The stop/cancel connection race uses the same bounded send path.
+The full signaling and reconnect-credit repair remains present.
+No mapping or controller source changes occur in this repair.
+
+The new public overflow and timeout regressions fail on broken source 28d0fc2.
+Both saved independent helper probes also fail on that source.
+All of these checks pass after the repair.
+The expected failures are functional assertions, not sanitizer setup failures.
+The complete public central, receive, signaling and abort tests pass with ASan and UBSan.
+The old and extended DIAG decoder tests pass.
+Exact commands, return codes and logs are in host-checks.json.
+Coverage and limits are in coverage.json.
+
+The replay passes with 1268 unchanged payloads, 2616 decoded messages and 513 feedback messages.
+The input queue is empty. The performance test is idle. Help and overlay are inactive.
+The peer, HCI framing and schedule are simulated.
+Three ATT packets above 64 bytes remain excluded. No payload resegmentation occurs.
+The project store is synthetic.
+The replay does not test target interrupts or radio execution.
+
+Both Elite and Pro DEV targets pass code, RAM and pool checks.
+The code margins are 1416 bytes for Elite and 1432 bytes for Pro.
+The static RAM margin is 524 bytes. The pool margin is 8364 bytes.
+The required pool margin is 8192 bytes.
+No feature or sample quality was removed for these results.
+The exact build identities and app/package hashes are in checks.json and environment.json.
+These are stage2 builds, not stage4 validated install records.
+
+CENTRAL-ABORT-01 is a confirmed source defect within the authorized repair.
+Its repair does not establish the cause of the physical all-input failure.
+The known working source also lacks signaling replies and credit reclamation.
+The old idle CONNECTED observation has five credits and no pending ATT.
+It differs from the reproduced reconnect discovery starvation.
+Zero idle counters do not establish input loss.
+No complete cure or physical PASS is established.
+Physical result: NOT TESTED.
+
+No device write, controller write, release build, full gate, fallback or external push occurred.
+The next required stage is one fresh LOCAL stage3 with separate test and investigation helpers.
+A passing stage3 continues to scoped DEV stage4 for both complete controller/package sets.
+Mapping stage4 01a15a87-298e-7d21-b004-b78d5beafd89 retains selection of the sole stage5 integrator.
+Both validated contributions are required before merge.
+The complete validated DEV-install permission carries forward with its notice requirement.
+The saved stage3-prompt.txt and successor.json record the next owner and actual startup.

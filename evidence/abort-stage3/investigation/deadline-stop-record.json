@@ -1,0 +1,174 @@
+[
+  {
+    "name": "deadline-stop-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021/evidence/abort-stage3/investigation/deadline-stop-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "deadline-stop-compile.log"
+  },
+  {
+    "name": "deadline-stop-exact",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "stop",
+      "exact"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-stop-exact.log"
+  },
+  {
+    "name": "deadline-stop-exact-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "stop",
+      "exact",
+      "wrap"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-stop-exact-wrap.log"
+  },
+  {
+    "name": "deadline-stop-after",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "stop",
+      "after"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-stop-after.log"
+  },
+  {
+    "name": "deadline-stop-after-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "stop",
+      "after",
+      "wrap"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-stop-after-wrap.log"
+  },
+  {
+    "name": "deadline-service-exact",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "service",
+      "exact"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-service-exact.log"
+  },
+  {
+    "name": "deadline-service-exact-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "service",
+      "exact",
+      "wrap"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-service-exact-wrap.log"
+  },
+  {
+    "name": "deadline-service-after",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "service",
+      "after"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-service-after.log"
+  },
+  {
+    "name": "deadline-service-after-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "service",
+      "after",
+      "wrap"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-service-after-wrap.log"
+  },
+  {
+    "name": "deadline-cancel-exact",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "cancel",
+      "exact"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-cancel-exact.log"
+  },
+  {
+    "name": "deadline-cancel-exact-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "cancel",
+      "exact",
+      "wrap"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-cancel-exact-wrap.log"
+  },
+  {
+    "name": "deadline-cancel-after",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "cancel",
+      "after"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-cancel-after.log"
+  },
+  {
+    "name": "deadline-cancel-after-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-deadline-stop-vighwqeh/deadline-stop",
+      "cancel",
+      "after",
+      "wrap"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "log": "deadline-cancel-after-wrap.log"
+  }
+]

@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T12:27:48Z",
+  "role": "Sequencer Clock firmware source specialist",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/seq-clock-reserved-source-tag-20261023-1226",
+    "tested_commit": "c9718ae833eb64a5191c350922593df8a36017c9",
+    "tested_tree": "715fbd98d427c8ddd6b64d1b923e9d1fb8ae64ea"
+  },
+  "summary": "Fail closed on reserved/colliding external MIDI clock origin tags. Synthetic origin 3 otherwise acquires sole clock lock and 256 aliases USB after uint8 narrowing; valid USB/BLE/TRS and nontransport MIDI are unchanged.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/seq/sequencer.c",
+      "description": "Reject reserved source tags before uint8 owner narrowing"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/clk_source_tag_test.c",
+      "description": "137 source-origin, ownership, stop/start, Note-Off and boundary assertions"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/run_tests.sh",
+      "description": "Register new clk-src-tag native host suite"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/seq-clock-source-tag.md",
+      "description": "Reproduction, checks, SHA identity and QA handoff"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/seq-clock-source-tag-test.log",
+      "description": "Local command exits and SHA-256 identities of native test logs"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Original extracted source regression",
+      "status": "FAIL",
+      "command": "gcc -std=c11 -O2 -Wall -Wextra -Werror -DPATCH_GUARD=0 repo/tests/host/clk_source_tag_test.c repo/firmware/src/seq/sequencer.c -o ./repo-baseline && ./repo-baseline",
+      "exit_code": 1,
+      "evidence": "docs/scheduler-handoffs/seq-clock-source-tag-test.log#BASELINE",
+      "log_sha256": "95a5acbc774c8f9777000eaefc50056598aef935692e2d2f186c13180c78066a",
+      "coverage": "Expected before-fix red, 82/137 assertions fail"
+    },
+    {
+      "name": "Patched extracted source GCC",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O2 -Wall -Wextra -Werror -DPATCH_GUARD=1 repo/tests/host/clk_source_tag_test.c repo/firmware/src/seq/sequencer.c -o ./repo-gcc && ./repo-gcc",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/seq-clock-source-tag-test.log#PATCHED-GCC",
+      "log_sha256": "afaaec56df030745ad9e404de1ee0a84d679f67cb089b2e808605d2191f2778b",
+      "coverage": "137/137 positive/negative/boundary owner and Note-Off assertions"
+    },
+    {
+      "name": "Patched extracted source Clang ASan UBSan",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -DPATCH_GUARD=1 repo/tests/host/clk_source_tag_test.c repo/firmware/src/seq/sequencer.c -o ./repo-clang_san && ./repo-clang_san",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/seq-clock-source-tag-test.log#PATCHED-CLANG",
+      "log_sha256": "618e56ef04d1b43a55471d590686f12a32ec1149cf9e388e3d895706f2d72b19",
+      "coverage": "137/137 assertions, address/undefined sanitizers"
+    },
+    {
+      "name": "Patched extracted source GCC UBSan",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -DPATCH_GUARD=1 repo/tests/host/clk_source_tag_test.c repo/firmware/src/seq/sequencer.c -o ./repo-gcc_ubsan && ./repo-gcc_ubsan",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/seq-clock-source-tag-test.log#PATCHED-GCC-UBSAN",
+      "log_sha256": "0bb46edfacd21e2aec3d993adac101faf492e91621d32652b8fc0e83c3c65274",
+      "coverage": "137/137 assertions, undefined sanitizer"
+    },
+    {
+      "name": "Exact-tree clock regression",
+      "status": "NOT_RUN",
+      "command": "bash tests/run_tests.sh clk-src-tag clk-lock sequencer",
+      "evidence": "Exact complete firmware checkout unavailable; local git ls-remote exit 128 on shell DNS. Connected GitHub fetches exact blobs.",
+      "coverage": "Source/test integration pending independent QA"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Source-only producer, no target package"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Source-only producer, no target package"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA",
+    "action": "Fetch exact isolated HEAD and execute clk-src-tag, clk-lock, sequencer against full tree, then hand to Safe Merge on pass",
+    "gate": "Exact-source native regression and cross-PR compatibility"
+  },
+  "dependencies": [
+    "Firmware nightly base c9718ae833eb64a5191c350922593df8a36017c9",
+    "clock PRs #35 #41 #48 #55 #65 #72 (unmerged)",
+    "Safe Merge PR #70 and QA PR #71 (unmerged)"
+  ],
+  "publication": "SOURCE_ONLY"
+}
