@@ -161,7 +161,8 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
  *s=n;return 1;
 }
 int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right){
- if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;if(!s->active){*left=0;*right=0;return 1;}
+ if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
+ if(!s->active){*left=0;*right=0;return 1;}
  float mix,filtered;if(!original_voice_gain_oscillator(&s->gain,&s->pitch.oscillator,&s->prepared,1,&mix))return 0;
  float ng=advance(&s->noise_gain);unsigned choose=(s->noise&0x40000000u)==0;s->noise=(s->noise+s->noise)^(choose?8393u:0);float input=ng*(choose?.5f:-.5f)+mix;input=c->vco_gain*input;
  if(!original_chicago_mp4_sample(&s->filter,input,&filtered))return 0;
@@ -169,7 +170,8 @@ int original_chicago_voice_render_frame(original_chicago_voice *s,const original
 }
 int original_chicago_voice_sample(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm,float *left,float *right,unsigned *action){
  if(!left||!right||left==right||!action||!valid(s,c,t,bpm)||s->awaiting_restart)return 0;
- if(!original_chicago_voice_control(s,c,t,bpm,0,action))return 0;if(*action==2)return 2;
+ if(!original_chicago_voice_control(s,c,t,bpm,0,action))return 0;
+ if(*action==2)return 2;
  return original_chicago_voice_render_frame(s,c,left,right);
 }
 static int source_note_valid(const original_chicago_voice_note *n){return n&&n->raw_note>=0&&n->raw_note<=187&&n->velocity<=127&&n->unison_flag<=2&&original_binary32_isfinite(n->unison_coordinate);}
