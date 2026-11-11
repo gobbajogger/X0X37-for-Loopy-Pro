@@ -858,33 +858,54 @@ static inline __attribute__((always_inline)) float blep_fix(uint32_t t, uint32_t
     return 0.0f;
 }
 
-D8_TICK float bank_tick(d8_bank_t *b)
+/* The shared square bank for a run of m samples, the same bits as the former per-sample
+ * bank_tick. A square's step dt depends only on drift (new every 256 samples), jm1 (new at its
+ * wrap) and inc (control rate), so it stays in a local and is recomputed only when one of those
+ * changes. The two band-limit corrections are tested before the call: the skipped v + 0.0f and
+ * v - 0.0f were no-ops (v is +-1 at the first; x - (+0) == x always). No new struct state. */
+static inline __attribute__((always_inline)) uint32_t bank_dt1(const d8_bank_t *b, int i)
 {
-    float sum = 0.0f;
-    int i;
-    if (--b->drift_cnt <= 0) {
-        b->drift_cnt = 256;
+    float fm1 = b->drift[i] + b->jm1[i] + b->drift[i] * b->jm1[i];
+    float p = (float)b->inc[i] * fm1;
+    return b->inc[i] + (uint32_t)(int32_t)(p + (p >= 0.0f ? 0.5f : -0.5f));
+}
+__attribute__((noinline)) static void bank_block(d8_bank_t *b, float *bus, float *pair, int m, int cb_on)
+{
+    uint32_t dt[6];
+    int i, n;
+    for (i = 0; i < 6; i++)
+        dt[i] = bank_dt1(b, i);
+    for (n = 0; n < m; n++) {
+        float sum = 0.0f;
+        if (D8_UNLIKELY(--b->drift_cnt <= 0)) {
+            b->drift_cnt = 256;
+            for (i = 0; i < 6; i++) {
+                b->drift[i] += 2.5e-4f * rng_frand2(&b->rng);
+                b->drift[i] *= 0.98f;
+            }
+            for (i = 0; i < 6; i++)
+                dt[i] = bank_dt1(b, i);
+        }
         for (i = 0; i < 6; i++) {
-            b->drift[i] += 2.5e-4f * rng_frand2(&b->rng);
-            b->drift[i] *= 0.98f;
+            const uint32_t d = dt[i], old = b->ph[i], t = old + d, u = t - BANK_DUTY;
+            float v;
+            b->ph[i] = t;
+            if (D8_UNLIKELY(t < old || (b->pend_wrap & (1u << i)))) {
+                b->pend_wrap &= (uint8_t)~(1u << i);
+                b->jm1[i] = 0.0052f * rng_frand2(&b->rng);
+                dt[i] = bank_dt1(b, i);           /* (this sample used the old jm1, as before) */
+            }
+            v = t < BANK_DUTY ? 1.0f : -1.0f;
+            if (D8_UNLIKELY(t + d - 1u < d + d - 1u))
+                v += blep_fix(t, d);
+            if (D8_UNLIKELY(u + d - 1u < d + d - 1u))
+                v -= blep_fix(u, d);
+            sum += v * 2.5f;
         }
+        bus[n] = sum * (1.0f / 21.0f);
+        if (cb_on)
+            pair[n] = ((b->ph[4] < BANK_DUTY ? 2.5f : -2.5f) + (b->ph[5] < BANK_DUTY ? 2.5f : -2.5f)) * 0.5f;
     }
-    for (i = 0; i < 6; i++) {
-        float fm1 = b->drift[i] + b->jm1[i] + b->drift[i] * b->jm1[i];
-        float p = (float)b->inc[i] * fm1, v;
-        uint32_t dt = b->inc[i] + (uint32_t)(int32_t)(p + (p >= 0.0f ? 0.5f : -0.5f));
-        uint32_t old = b->ph[i];
-        b->ph[i] = old + dt;
-        if (__builtin_expect(b->ph[i] < old || (b->pend_wrap & (1u << i)), 0)) {
-            b->pend_wrap &= (uint8_t)~(1u << i);
-            b->jm1[i] = 0.0052f * rng_frand2(&b->rng);
-        }
-        v = b->ph[i] < BANK_DUTY ? 1.0f : -1.0f;
-        v += blep_fix(b->ph[i], dt);
-        v -= blep_fix(b->ph[i] - BANK_DUTY, dt);
-        sum += v * 2.5f;
-    }
-    return sum * (1.0f / 21.0f);
 }
 
 /* ---- metal envelope ---- */
@@ -1983,12 +2004,7 @@ static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n, u
             }
         /* the shared bank runs only while a metal voice sounds */
         if (cb_on || lane_on(d, L_CH) || lane_on(d, L_OH) || lane_on(d, L_CY)) {
-            d8_bank_t *b = &d->bank;
-            for (i = 0; i < m; i++) {
-                bus[i] = bank_tick(b);
-                if (cb_on)
-                    pair[i] = ((b->ph[4] < BANK_DUTY ? 2.5f : -2.5f) + (b->ph[5] < BANK_DUTY ? 2.5f : -2.5f)) * 0.5f;
-            }
+            bank_block(&d->bank, bus, pair, m, cb_on);
         }
         for (l = 0; l < L_NUM; l++) {
             d8_lane_t *ln = &d->lane[l];
