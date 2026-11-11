@@ -13,7 +13,7 @@ int main(void){
   ui_frame();char name[40];snprintf(name,sizeof name,"group-%d",g);shot(name);
   button_tap(B_HOME);CHECK(ui.glo_section==-1&&ui.list_sel==g);
  }
- CHECK(count==34);CHECK(!memcmp(keep,&proj,sizeof proj));
+ CHECK(count==36);CHECK(!memcmp(keep,&proj,sizeof proj));
  enter_group(0);for(int i=0;i<5;i++)CHECK(list_rows[3+i].a==part_at(i));list_move(8);CHECK(ui.list_sel==8&&ui.list_top==3);ui_frame();shot("midi-scroll");button_tap(B_HOME);list_enter();CHECK(ui.list_sel==8&&ui.list_top==3);
  button_tap(B_GLO);CHECK(ui.view!=V_GLO);button_tap(B_GLO);CHECK(ui.glo_section==-1&&ui.list_sel==0);
  /* Physical > entry consumes the held repeat until release, including clip mode. */
