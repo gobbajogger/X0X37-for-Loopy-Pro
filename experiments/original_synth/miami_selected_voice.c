@@ -1,3 +1,6 @@
+#include <stdint.h>
+extern uint32_t plat_ticks24(void);
+extern volatile uint32_t zn_cur[16];
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "miami_selected_voice.h"
 #include "binary32_classify.h"
@@ -155,9 +158,11 @@ int original_miami_selected_voice_pedal(original_miami_selected_voice *s,const o
 }
 static int preparation_tail(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,uint32_t D){
  s->vcf_bipolar=s->vcf.level-1.0f;s->vca_bipolar=s->vca.level-1.0f;
+ uint32_t b0_=plat_ticks24();
  original_miami_pitch_controls pc=c->pitch;pc.unison_coordinate=s->unison_coordinate;pc.bend=bipolar(c->bend_normalized);pc.mod_slave_pitch=s->mod_slave;
  original_osc_controls oc;memset(&oc,0,sizeof oc);
  if(!original_miami_pitch_prepare(&s->pitch,&pc,t->pitch,44100,D,oc.increment))return 0;
+ uint32_t b1_=plat_ticks24(); zn_cur[11]+=b1_-b0_;
  for(unsigned i=0;i<4;i++){
   oc.shape[i]=c->shape[i];
   oc.width[i]=c->wave_width[i];
@@ -167,9 +172,12 @@ static int preparation_tail(original_miami_selected_voice *s,const original_miam
   if(!original_oscillator_prepare(&s->prepared,&oc))return 0;
   s->wave_preparations++;
  }
+ uint32_t b2_=plat_ticks24(); zn_cur[12]+=b2_-b1_;
  original_voice_gain_controls gc=c->gain;gc.envelope=s->vca.level;gc.mod_gain=s->mod_gain;gc.velocity=s->velocity;gc.unison_flag=s->unison_flag;
  if(!original_voice_gain_prepare(&s->gain,&gc,s->activation,D))return 0;
+ uint32_t b3_=plat_ticks24(); zn_cur[13]+=b3_-b2_;
  ms20_prepare(&s->filter,t,c,s->vcf.level,s->mod_cutoff,D);
+ zn_cur[14]+=plat_ticks24()-b3_; zn_cur[15]++;
  for(unsigned i=0;i<4;i++)if(s->activation[i]>0)s->activation[i]--;
  s->last_duration=D;s->control_updates++;return 1;
 }
@@ -207,15 +215,17 @@ int original_miami_selected_voice_control(original_miami_selected_voice *s,const
 }
 static int note_values(unsigned key,unsigned velocity,float pitch){return key<=127&&velocity>=1&&velocity<=127&&original_binary32_isfinite(pitch)&&pitch>=0&&pitch<=127;}
 static int full_mask(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_voice_note *note,unsigned mask,float bpm){
- original_miami_selected_voice n=*s;
+ uint32_t a0_=plat_ticks24(); original_miami_selected_voice n=*s; zn_cur[8]+=plat_ticks24()-a0_;
  for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.pitch.current[i]=(float)note->last_note;n.activation[i]=-1;}
  n.note_key=(uint8_t)note->note_key;n.raw_velocity=note->velocity;n.velocity=(float)note->velocity/127.0f;n.unison_coordinate=note->unison_coordinate;n.unison_flag=(uint8_t)note->unison_flag;
  for(unsigned i=0;i<2;i++){n.mg[i]=note->mg[i];if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;}
  if(!original_miami_ms20_note_reset(&n.filter,t->filter.a[0]))return 0;
  original_voice_gain_miami_full_note(&n.gain);n.vca=(original_vca){0,0};n.vcf=(original_vca){0,0};n.vca_bipolar=n.vcf_bipolar=0;
  n.key_down=1;n.damper_deferred=0;n.active=1;n.counter=44100;
+ uint32_t a1_=plat_ticks24();
  unsigned action;if(!original_miami_selected_voice_control(&n,c,t,bpm,&action))return 0;
- *s=n;return 1;
+ uint32_t a2_=plat_ticks24(); zn_cur[9]+=a2_-a1_;
+ *s=n; zn_cur[10]+=plat_ticks24()-a2_; return 1;
 }
 int original_miami_selected_voice_full_note(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_voice_note *note,float bpm){
  if(!valid(s,c,t,bpm)||!note||s->active||s->vca.state!=6||s->awaiting_restart||!note_values(note->note_key,note->velocity,note->tuned_pitch)||note->last_note>127||!original_binary32_isfinite(note->unison_coordinate)||(note->unison_flag!=0&&note->unison_flag!=2))return 0;

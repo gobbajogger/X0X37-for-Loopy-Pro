@@ -1,3 +1,6 @@
+#include <stdint.h>
+extern uint32_t plat_ticks24(void);
+extern volatile uint32_t zn_cur[16];
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "miami_voice_owner.h"
 #include "binary32_classify.h"
@@ -44,12 +47,19 @@ static int action(original_miami_voice_owner *s,unsigned id,unsigned result){
 }
 static void note(void *p,unsigned id,const original_voice_record *r,unsigned full,unsigned mask,int32_t anchor){
  original_miami_voice_owner *s=p;if(!s->status)return;if(id>=s->count||!mask||mask>15){s->status=0;return;}
+ zn_cur[6]++; uint32_t t0_=plat_ticks24();
  unsigned kind=original_miami_selected_voice_request_kind(s->voices+id,full);
+ uint32_t t1_=plat_ticks24(); zn_cur[1]+=t1_-t0_;
  if(kind==ORIGINAL_MIAMI_REQUEST_STAGE){original_chicago_allocator_stage_pending(s->pending+id,r,mask,s->voices[id].vca.state);s->status=original_miami_selected_voice_stage_raw(s->voices+id);return;}
  original_miami_voice_note n;if(!kind||!inputs(s,id,r,full,mask,anchor,&n)){s->status=0;return;}
+ uint32_t t2_=plat_ticks24(); zn_cur[2]+=t2_-t1_;
  unsigned result;
- if(!original_miami_selected_voice_immediate_raw(s->voices+id,s->controls,s->tables,&n,full,mask,s->bpm,&result)||!action(s,id,result)){s->status=0;return;}
+ int ok_=original_miami_selected_voice_immediate_raw(s->voices+id,s->controls,s->tables,&n,full,mask,s->bpm,&result);
+ uint32_t t3_=plat_ticks24(); zn_cur[3]+=t3_-t2_;
+ if(!ok_||!action(s,id,result)){s->status=0;return;}
+ uint32_t t4_=plat_ticks24(); zn_cur[4]+=t4_-t3_;
  s->status=s->producers.helper_exit(s->producers.context);
+ zn_cur[5]+=plat_ticks24()-t4_;
 }
 static const original_allocator_callbacks callbacks={enabled,vca,state,note};
 const original_allocator_callbacks *original_miami_voice_owner_callbacks(void){return &callbacks;}

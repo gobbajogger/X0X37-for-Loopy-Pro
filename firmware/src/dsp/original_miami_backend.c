@@ -1,3 +1,7 @@
+#include <stdint.h>
+extern uint32_t plat_ticks24(void);
+volatile uint32_t zn_cur[16] __attribute__((section(".pool")));
+volatile uint32_t zn_at[16] __attribute__((section(".pool"),used));
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "original_miami_backend.h"
 #include "../../../experiments/original_synth/binary32_classify.h"
@@ -120,7 +124,12 @@ int original_miami_backend_set_tempo(original_miami_backend *s, float bpm)
 int original_miami_backend_note_on(original_miami_backend *s, unsigned key, unsigned velocity)
 {
     if (!original_miami_backend_status(s) || key > 127 || !velocity || velocity > 127) return 0;
-    return completed(s, original_chicago_scheduler_note(&s->scheduler, (int32_t)key, (int32_t)velocity));
+    for (int q_ = 0; q_ < 16; q_++) zn_cur[q_] = 0;
+    uint32_t t_ = plat_ticks24();
+    int r_ = completed(s, original_chicago_scheduler_note(&s->scheduler, (int32_t)key, (int32_t)velocity));
+    zn_cur[0] = plat_ticks24() - t_; zn_cur[7] = key;
+    if (zn_cur[0] > zn_at[0]) for (int q_ = 0; q_ < 16; q_++) zn_at[q_] = zn_cur[q_];
+    return r_;
 }
 
 int original_miami_backend_note_off(original_miami_backend *s, unsigned key)
