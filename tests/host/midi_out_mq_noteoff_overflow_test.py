@@ -47,7 +47,8 @@ src = (
     "static uint32_t fm1_irq_mask_save(unsigned n) { (void)n; return 0; }\n"
     "static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }\n"
     "#define MQ 64u\n"
-    "static uint32_t midi_out_q[MQ];\n"
+    "static uint32_t midi_in_q[MQ], midi_out_q[MQ];\n"
+    "static uint8_t mi_fresh[MQ];\n"
     "static volatile uint32_t mo_w, mo_r;\n"
     "static struct { int config; } usb;\n"
     + chunk

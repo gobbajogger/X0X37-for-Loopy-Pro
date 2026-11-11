@@ -49,7 +49,7 @@ if os.environ.get('AFTER_SUCCESS') == source:
         time.sleep(.01)
 hang = os.environ.get('HANG') or os.environ.get('HANG_SOURCE') == source
 if hang or os.environ.get('SPAWN_CHILD') == source:
-    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])
+    child = subprocess.Popen([sys.executable, '-S', '-c', 'import time; time.sleep(60)'])
     with open(os.environ['CHILDREN'], 'a') as f: f.write(str(child.pid) + '\n')
     if hang: time.sleep(60)
 else:
@@ -70,7 +70,7 @@ emit = '--plugin-opt=emit-llvm' in args
 Path(os.environ['OUT'], 'lto-link.json' if emit else 'link.json').write_text(json.dumps(args))
 Path(args[args.index('-Map') + 1]).write_text('map')
 if os.environ.get('LINK_HANG') == ('emit' if emit else 'final'):
-    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])
+    child = subprocess.Popen([sys.executable, '-S', '-c', 'import time; time.sleep(60)'])
     with open(os.environ['CHILDREN'], 'a') as f: f.write(str(child.pid) + '\n')
     time.sleep(60)
 if os.environ.get('LINK_FAIL') == ('emit' if emit else 'final'):
@@ -116,7 +116,7 @@ class ControllerCompile(unittest.TestCase):
         self.tc.mkdir(parents=True)
         for name, src in [('clang', COMPILER), ('ld', LINKER), ('objdump', 'print("section")')]:
             f = self.tc / name
-            f.write_text('#!' + sys.executable + '\n' + src)
+            f.write_text('#!' + sys.executable + ' -S\n' + src)
             f.chmod(0o755)
         self.out = self.root / 'out'
         self.out.mkdir()
@@ -128,7 +128,7 @@ class ControllerCompile(unittest.TestCase):
         if not shutil.which('setsid'):
             launcher = self.root / 'bin/setsid'
             launcher.parent.mkdir()
-            launcher.write_text('#!' + sys.executable + '\nimport os, sys\nos.setsid()\nos.execv(sys.argv[1], sys.argv[1:])\n')
+            launcher.write_text('#!' + sys.executable + ' -S\nimport os, sys\nos.setsid()\nos.execv(sys.argv[1], sys.argv[1:])\n')
             launcher.chmod(0o755)
             self.env['PATH'] = str(launcher.parent) + ':' + self.env['PATH']
         self.env.pop('FAIL', None)
@@ -139,7 +139,7 @@ class ControllerCompile(unittest.TestCase):
         self.addCleanup(self.stop_fixture_children)
         monitor = self.root / 'monitor/rm'
         monitor.parent.mkdir()
-        monitor.write_text('#!' + sys.executable + '\n' + CLEANUP_MONITOR)
+        monitor.write_text('#!' + sys.executable + ' -S\n' + CLEANUP_MONITOR)
         monitor.chmod(0o755)
         self.env.update(REAL_RM=shutil.which('rm'), CLEANUP_STATES=str(self.root / 'cleanup-states'),
                         PATH=str(monitor.parent) + ':' + self.env['PATH'])

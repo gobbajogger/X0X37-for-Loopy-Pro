@@ -55,6 +55,11 @@ static void fxbus_set_bpm(int *owner, float bpm) {}
 static void master_process_st(int *owner, float *l, float *r, int n, float volume) {}
 uint32_t plat_master(void) { return 4096; }
 int plat_midi_in(uint32_t *packet) { return 0; }
+/* No MIDI or PANIC is issued by this BREAK-mute fixture. Keep the live
+ * production queue and fail loudly if the unrelated PANIC path is entered. */
+int plat_midi_in_epoch(uint32_t *packet, uint32_t *epoch) { (void)packet; (void)epoch; return 0; }
+static void engine_notes_off_apply(void) { assert(!"unexpected PANIC in BREAK-mute fixture"); }
+
 static void midi_in(uint32_t packet) {}
 static void apply_param(int type, int a, int b, int value)
 {

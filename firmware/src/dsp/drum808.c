@@ -1810,7 +1810,7 @@ __attribute__((noinline)) static void voice_stop(drum808_t *d, int l)
 __attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float *buf, int m)
 {
     d8_lane_t *ln = &d->lane[l];
-    float pk = ln->pk;
+    float pk = ln->pk, threshold = pk * D8_TAIL_K;
     int32_t qn = ln->qn;
     float now = 0.0f;
     int i;
@@ -1818,9 +1818,8 @@ __attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float
         float a = buf[i] < 0.0f ? -buf[i] : buf[i];
         if (a > now)
             now = a;
-        if (a > pk)
-            pk = a;
-        if (a > pk * D8_TAIL_K)
+        if (a > pk) { pk = a; threshold = pk * D8_TAIL_K; }
+        if (a > threshold)
             qn = 0;
         else
             qn++;
@@ -2026,4 +2025,14 @@ void drum808_render_st_masked(drum808_t *d, float *dry_l, float *dry_r, float *r
 void drum808_render_st(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly, int n)
 {
     drum808_render_st_masked(d, dry_l, dry_r, rev, dly, n, 0x7FFu);
+}
+
+void drum808_all_off(drum808_t *d)
+{
+    int i;
+    d->bd.active = d->sd.active = d->rs.active = d->cl.active = 0;
+    d->ma.active = d->cp.active = d->cb.active = 0;
+    d->ch.active = d->oh.active = d->cy.active = 0;
+    for (i = 0; i < 3; i++)
+        d->tom[i].active = 0;
 }

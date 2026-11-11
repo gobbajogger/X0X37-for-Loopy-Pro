@@ -98,9 +98,9 @@ static inline uint32_t busfx_sp8(float bpm)
     return busfx_sp16(bpm) * 2u;
 }
 
-static inline float busfx_rhythm_target(int effect, float bpm, uint32_t abs_s)
+static inline float busfx_rhythm_target_periods(int effect, uint32_t sp16, uint32_t sp8, uint32_t abs_s)
 {
-    uint32_t sp16 = busfx_sp16(bpm), sp8 = busfx_sp8(bpm), period, pos, sixteenth;
+    uint32_t period, pos, sixteenth;
     float ph, duty = 0.5f;
     if (sp16 < 32u)
         sp16 = 32u;
@@ -128,6 +128,9 @@ static inline float busfx_rhythm_target(int effect, float bpm, uint32_t abs_s)
     ph = (float)pos / (float)period;
     return ph < duty ? 1.0f : 0.0f;
 }
+
+static inline float busfx_rhythm_target(int effect, float bpm, uint32_t abs_s)
+{ return busfx_rhythm_target_periods(effect, busfx_sp16(bpm), busfx_sp8(bpm), abs_s); }
 
 static inline void busfx_ring_write(busfx_stut_t *st, int ch, float x)
 {
@@ -188,21 +191,24 @@ static __attribute__((noinline)) void busfx_apply(busfx_t *s, busfx_stut_t *stut
     if (release_at < 0)
         release_at = n;
     bpm = busfx_bpm_clamp(bpm);
+    if (n <= 0) return;
+    float target;
+    if (cut >= 126.5f)
+        target = 1.0f;
+    else {
+        float fc = 40.0f * fm_exp2f(cut * (8.2f / 127.0f));
+        target = 1.0f - fm_expf(-2.0f * FM_PI * fc / 44100.0f);
+        if (target > 1.0f)
+            target = 1.0f;
+    }
+    uint32_t sp16 = busfx_is_rhythm(effect) ? busfx_sp16(bpm) : 0u;
     for (i = 0; i < n; i++) {
-        float target, want_hp, want_lp, peak = 0.0f, rg_tgt = 1.0f;
+        float want_hp, want_lp, peak = 0.0f, rg_tgt = 1.0f;
         uint32_t abs_s = sample0 + (uint32_t)i;
         if (i == press_at)
             held = 1;
         if (i == release_at)
             held = 0;
-        if (cut >= 126.5f)
-            target = 1.0f;
-        else {
-            float fc = 40.0f * fm_exp2f(cut * (8.2f / 127.0f));
-            target = 1.0f - fm_expf(-2.0f * FM_PI * fc / 44100.0f);
-            if (target > 1.0f)
-                target = 1.0f;
-        }
         s->a += (target - s->a) * slew;
         if (fm_fabsf(target - s->a) < 1.0e-4f)
             s->a = target;
@@ -215,7 +221,7 @@ static __attribute__((noinline)) void busfx_apply(busfx_t *s, busfx_stut_t *stut
         if (fm_fabsf(want_lp - s->lp_mix) < 1.0e-4f)
             s->lp_mix = want_lp;
         if (held && busfx_is_rhythm(effect))
-            rg_tgt = busfx_rhythm_target(effect, bpm, abs_s);
+            rg_tgt = busfx_rhythm_target_periods(effect, sp16, sp16 * 2u, abs_s);
         if (!(held && (busfx_is_decay_gate(effect) || busfx_is_rhythm(effect)))) {
             s->gate += (1.0f - s->gate) * 0.02f;
             if (s->gate > 0.999f)
@@ -242,7 +248,6 @@ static __attribute__((noinline)) void busfx_apply(busfx_t *s, busfx_stut_t *stut
                 peak = ax;
             if (held && effect == BFX_STUT && stut) {
                 int ring_ch = stut_base + k;
-                uint32_t sp16 = busfx_sp16(bpm);
                 uint32_t pos = abs_s % sp16;
                 uint32_t chunk = sp16 / 4u;
                 if (chunk < 8u)

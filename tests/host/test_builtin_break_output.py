@@ -57,13 +57,18 @@ class BuiltinBreakOutput(unittest.TestCase):
     def test_current_factory_set_is_preserved(self):
         directory = self.root / "stock-identity"
         directory.mkdir()
+        # Generated 909 fallback and owner-designated web stock are distinct.
+        # Running this generator must not overwrite the designated web pack.
+        web_pack = ROOT / "web/factory_break_pack.js"
+        web_before = web_pack.read_bytes()
         result = self.invoke(directory / "bank.h", directory)
         self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(web_pack.read_bytes(), web_before)
         header = (directory / "bank.h").read_text()
         self.assertIn("#define X0X_NBREAKS 2", header)
         for name in ["909 GR", "909 FL"]:
             self.assertIn('"' + name + '"', header)
-            self.assertIn(name, (ROOT / "web/factory_break_pack.js").read_text().splitlines()[1])
+            self.assertIn(name.replace(" ", "") + ".adpcm", (directory / "pack.txt").read_text())
         self.assertEqual(len([line for line in (directory / "pack.txt").read_text().splitlines()
                              if line and not line.startswith("#")]), 2)
 

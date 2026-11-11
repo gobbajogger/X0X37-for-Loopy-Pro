@@ -65,11 +65,11 @@ else:
     end = usb.index('/* Enqueue into midi_in_q.', start)
     production = usb[start:end]
     if mode == 'in':
-        declarations += 'static uint32_t midi_in_q[MQ];\nstatic volatile uint32_t mi_w, mi_r;\n'
+        declarations += 'static uint32_t midi_in_q[MQ];\nstatic uint8_t mi_fresh[MQ];\nstatic volatile uint32_t mi_w, mi_r;\n'
         production += function(usb, 'midi_in_put')
         adapter = '#define Q midi_in_q\n#define W mi_w\n#define R mi_r\n#define CAP MQ\n#define HAS_RESULT 1\n#define SUPPORT_LINK_END 1\nstatic int send(uint32_t p) { return midi_in_put(p); }\n'
     else:
-        declarations += 'static uint32_t midi_out_q[MQ];\nstatic volatile uint32_t mo_w, mo_r;\nstatic struct { int config; } usb = {1};\n'
+        declarations += 'static uint32_t midi_in_q[MQ], midi_out_q[MQ];\nstatic uint8_t mi_fresh[MQ];\nstatic volatile uint32_t mo_w, mo_r;\nstatic struct { int config; } usb = {1};\n'
         production += function(usb, 'midi_out_event')
         adapter = '#define Q midi_out_q\n#define W mo_w\n#define R mo_r\n#define CAP MQ\n#define SUPPORT_LINK_END 1\nstatic int send(uint32_t p) { midi_out_event(p); return 1; }\n'
 

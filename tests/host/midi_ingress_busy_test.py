@@ -24,6 +24,8 @@ ring = usb[start:end].replace(
     "static volatile uint32_t mi_w, mi_r, mo_w, mo_r;",
     "static uint32_t midi_in_q[MQ];\nstatic volatile uint32_t mi_w, mi_r;",
 )
+# This narrow queue harness does not extract cut/dequeue epoch consumers.
+ring = ring.replace("static uint32_t mi_epoch = 1u;\n", "")
 production = ring + function(usb, "static void ep1_rx(void)")
 production += function(uart, "static int um_put(uint32_t pkt)")
 with tempfile.TemporaryDirectory(prefix="qb-midi-ingress-") as temp:

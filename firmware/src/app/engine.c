@@ -155,6 +155,7 @@ void engine_live_key_cancel(int voice)
 int engine_live_key(int voice,uint32_t generation,int token,int pitch,int velocity,int accent,int slide)
 {
     if((unsigned)voice>=NBASS || token<1 || token>37 || pitch<1 || pitch>127 || velocity<0 || velocity>127)return 0;
+    if (velocity && SEQ_PART_OFF(&seq, TRK_BASS0 + voice)) return 0;
     uint32_t flags=plat_cq_lock();
     if(live_key_owner[voice].blocked){plat_cq_unlock(flags);return 0;}
     unsigned w=live_key_w,next=(w+1u)%LIVE_KEY_Q;
@@ -333,6 +334,16 @@ enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC, C_BASE, C
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
+/* Only active across a PANIC boundary. One bit follows each accepted payload,
+ * including overflow replacement in an older queue position. Main is the sole
+ * producer and request caller; ALNK0 is the consumer. No per-sample work. */
+static uint32_t cq_panic_fresh[CQ / 32u];
+static volatile uint8_t cq_panic_active;
+static void cq_mark_fresh(uint32_t position)
+{
+    if (cq_panic_active)
+        cq_panic_fresh[(position % CQ) / 32u] |= 1u << (position & 31u);
+}
 
 /* The scan may be preempted after choosing a victim. Revalidate the slot only
  * while the consumer source is masked, then publish exactly one aligned word.
@@ -342,8 +353,10 @@ static int cq_replace(uint32_t i, uint32_t w, uint32_t word)
     uint32_t state = plat_cq_lock();
     uint32_t r = cq_r;
     int live = (i - r < w - r);
-    if (live)
+    if (live) {
         cq[i % CQ] = word;
+        cq_mark_fresh(i);
+    }
     plat_cq_unlock(state);
     return live;
 }
@@ -380,6 +393,7 @@ retry:
         return;
     }
     cq[w % CQ] = word;
+    cq_mark_fresh(w);
     __asm__ volatile("" ::: "memory");
     cq_w = w + 1;
 }
@@ -505,6 +519,78 @@ static int16_t mod_ctl[NBASS] = {-1, -1};
 static volatile uint8_t ext_touch[NBASS];           /* ISR -> UI: bit0 bend, bit1 mod moved by ext MIDI */
 static int mod_param(int v)
 { return original_bass[v].kind == ORIGINAL_SOUND_MIAMI ? ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF; }
+static const float mix_level_values[128] = {
+    0x0p+0f,     0x1.a36e2ep-14f,     0x1.a36e2ep-12f,     0x1.d7dbf4p-11f,
+    0x1.a36e2ep-10f,     0x1.47ae14p-9f,     0x1.d7dbf4p-9f,     0x1.41205cp-8f,
+    0x1.a36e2ep-8f,     0x1.096bbap-7f,     0x1.47ae14p-7f,     0x1.8c7e28p-7f,
+    0x1.d7dbf4p-7f,     0x1.14e3bcp-6f,     0x1.41205cp-6f,     0x1.70a3d8p-6f,
+    0x1.a36e2ep-6f,     0x1.d97f62p-6f,     0x1.096bbap-5f,     0x1.27bb3p-5f,
+    0x1.47ae14p-5f,     0x1.694468p-5f,     0x1.8c7e28p-5f,     0x1.b15b58p-5f,
+    0x1.d7dbf4p-5f,     0x1p-4f,     0x1.14e3bcp-4f,     0x1.2a993p-4f,
+    0x1.41205cp-4f,     0x1.58793ep-4f,     0x1.70a3d8p-4f,     0x1.89a028p-4f,
+    0x1.a36e2ep-4f,     0x1.be0deep-4f,     0x1.d97f62p-4f,     0x1.f5c29p-4f,
+    0x1.096bbap-3f,     0x1.185f06p-3f,     0x1.27bb3p-3f,     0x1.378034p-3f,
+    0x1.47ae14p-3f,     0x1.5844dp-3f,     0x1.694468p-3f,     0x1.7aacdap-3f,
+    0x1.8c7e28p-3f,     0x1.9eb852p-3f,     0x1.b15b58p-3f,     0x1.c46738p-3f,
+    0x1.d7dbf4p-3f,     0x1.ebb98cp-3f,     0x1p-2f,     0x1.0a57a8p-2f,
+    0x1.14e3bcp-2f,     0x1.1fa44p-2f,     0x1.2a993p-2f,     0x1.35c29p-2f,
+    0x1.41205cp-2f,     0x1.4cb296p-2f,     0x1.58793ep-2f,     0x1.647454p-2f,
+    0x1.70a3d8p-2f,     0x1.7d07c8p-2f,     0x1.89a028p-2f,     0x1.966cf4p-2f,
+    0x1.a36e2ep-2f,     0x1.b0a3d8p-2f,     0x1.be0deep-2f,     0x1.cbac72p-2f,
+    0x1.d97f62p-2f,     0x1.e786c2p-2f,     0x1.f5c29p-2f,     0x1.021966p-1f,
+    0x1.096bbap-1f,     0x1.10d844p-1f,     0x1.185f06p-1f,     0x1.2p-1f,
+    0x1.27bb3p-1f,     0x1.2f9096p-1f,     0x1.378034p-1f,     0x1.3f8a0ap-1f,
+    0x1.47ae14p-1f,     0x1.4fec56p-1f,     0x1.5844dp-1f,     0x1.60b78p-1f,
+    0x1.694468p-1f,     0x1.71eb86p-1f,     0x1.7aacdap-1f,     0x1.838866p-1f,
+    0x1.8c7e28p-1f,     0x1.958e22p-1f,     0x1.9eb852p-1f,     0x1.a7fcbap-1f,
+    0x1.b15b58p-1f,     0x1.bad42cp-1f,     0x1.c46738p-1f,     0x1.ce147ap-1f,
+    0x1.d7dbf4p-1f,     0x1.e1bda6p-1f,     0x1.ebb98cp-1f,     0x1.f5cfaap-1f,
+    0x1p+0f,     0x1.052546p+0f,     0x1.0a57a8p+0f,     0x1.0f9724p+0f,
+    0x1.14e3bcp+0f,     0x1.1a3d7p+0f,     0x1.1fa44p+0f,     0x1.25182ap+0f,
+    0x1.2a993p+0f,     0x1.302752p+0f,     0x1.35c29p+0f,     0x1.3b6ae8p+0f,
+    0x1.41205cp+0f,     0x1.46e2ecp+0f,     0x1.4cb296p+0f,     0x1.528f5cp+0f,
+    0x1.58793ep+0f,     0x1.5e703ap+0f,     0x1.647454p+0f,     0x1.6a8588p+0f,
+    0x1.70a3d8p+0f,     0x1.76cf42p+0f,     0x1.7d07c8p+0f,     0x1.834d6ap+0f,
+    0x1.89a028p+0f,     0x1.9p+0f,     0x1.966cf4p+0f,     0x1.9ce704p+0f,
+
+};
+static const float mix_send_values[128] = {
+    0x0p+0f,     0x1.020408p-7f,     0x1.020408p-6f,     0x1.83060cp-6f,
+    0x1.020408p-5f,     0x1.42850ap-5f,     0x1.83060cp-5f,     0x1.c3870ep-5f,
+    0x1.020408p-4f,     0x1.22448ap-4f,     0x1.42850ap-4f,     0x1.62c58cp-4f,
+    0x1.83060cp-4f,     0x1.a3468ep-4f,     0x1.c3870ep-4f,     0x1.e3c79p-4f,
+    0x1.020408p-3f,     0x1.122448p-3f,     0x1.22448ap-3f,     0x1.3264cap-3f,
+    0x1.42850ap-3f,     0x1.52a54ap-3f,     0x1.62c58cp-3f,     0x1.72e5ccp-3f,
+    0x1.83060cp-3f,     0x1.93264cp-3f,     0x1.a3468ep-3f,     0x1.b366cep-3f,
+    0x1.c3870ep-3f,     0x1.d3a74ep-3f,     0x1.e3c79p-3f,     0x1.f3e7dp-3f,
+    0x1.020408p-2f,     0x1.0a1428p-2f,     0x1.122448p-2f,     0x1.1a3468p-2f,
+    0x1.22448ap-2f,     0x1.2a54aap-2f,     0x1.3264cap-2f,     0x1.3a74eap-2f,
+    0x1.42850ap-2f,     0x1.4a952ap-2f,     0x1.52a54ap-2f,     0x1.5ab56ap-2f,
+    0x1.62c58cp-2f,     0x1.6ad5acp-2f,     0x1.72e5ccp-2f,     0x1.7af5ecp-2f,
+    0x1.83060cp-2f,     0x1.8b162cp-2f,     0x1.93264cp-2f,     0x1.9b366cp-2f,
+    0x1.a3468ep-2f,     0x1.ab56aep-2f,     0x1.b366cep-2f,     0x1.bb76eep-2f,
+    0x1.c3870ep-2f,     0x1.cb972ep-2f,     0x1.d3a74ep-2f,     0x1.dbb76ep-2f,
+    0x1.e3c79p-2f,     0x1.ebd7bp-2f,     0x1.f3e7dp-2f,     0x1.fbf7fp-2f,
+    0x1.020408p-1f,     0x1.060c18p-1f,     0x1.0a1428p-1f,     0x1.0e1c38p-1f,
+    0x1.122448p-1f,     0x1.162c58p-1f,     0x1.1a3468p-1f,     0x1.1e3c78p-1f,
+    0x1.22448ap-1f,     0x1.264c9ap-1f,     0x1.2a54aap-1f,     0x1.2e5cbap-1f,
+    0x1.3264cap-1f,     0x1.366cdap-1f,     0x1.3a74eap-1f,     0x1.3e7cfap-1f,
+    0x1.42850ap-1f,     0x1.468d1ap-1f,     0x1.4a952ap-1f,     0x1.4e9d3ap-1f,
+    0x1.52a54ap-1f,     0x1.56ad5ap-1f,     0x1.5ab56ap-1f,     0x1.5ebd7ap-1f,
+    0x1.62c58cp-1f,     0x1.66cd9cp-1f,     0x1.6ad5acp-1f,     0x1.6eddbcp-1f,
+    0x1.72e5ccp-1f,     0x1.76eddcp-1f,     0x1.7af5ecp-1f,     0x1.7efdfcp-1f,
+    0x1.83060cp-1f,     0x1.870e1cp-1f,     0x1.8b162cp-1f,     0x1.8f1e3cp-1f,
+    0x1.93264cp-1f,     0x1.972e5cp-1f,     0x1.9b366cp-1f,     0x1.9f3e7cp-1f,
+    0x1.a3468ep-1f,     0x1.a74e9ep-1f,     0x1.ab56aep-1f,     0x1.af5ebep-1f,
+    0x1.b366cep-1f,     0x1.b76edep-1f,     0x1.bb76eep-1f,     0x1.bf7efep-1f,
+    0x1.c3870ep-1f,     0x1.c78f1ep-1f,     0x1.cb972ep-1f,     0x1.cf9f3ep-1f,
+    0x1.d3a74ep-1f,     0x1.d7af5ep-1f,     0x1.dbb76ep-1f,     0x1.dfbf7ep-1f,
+    0x1.e3c79p-1f,     0x1.e7cfap-1f,     0x1.ebd7bp-1f,     0x1.efdfcp-1f,
+    0x1.f3e7dp-1f,     0x1.f7efep-1f,     0x1.fbf7fp-1f,     0x1p+0f,
+
+};
+static float mix_level_from_pot(int v) { return (unsigned)v < 128u ? mix_level_values[v] : (float)v * (float)v / (100.0f * 100.0f); }
+static float mix_send_from_pot(int v) { return (unsigned)v < 128u ? mix_send_values[v] : (float)v / 127.0f; }
 static void apply_param(int t, int v, int i, int val)    /* ISR */
 {
     switch (t) {
@@ -532,11 +618,11 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
         if (v < 0 || v >= NPARTS)
             break;
         if (i == MX_LEVEL)
-            mix_level[v] = (float)val * (float)val / (100.0f * 100.0f);     /* 100 = unity, square law */
+            mix_level[v] = mix_level_from_pot(val);     /* 100 = unity, square law */
         else if (i == MX_REV)
-            mix_rev[v] = (float)val / 127.0f;
+            mix_rev[v] = mix_send_from_pot(val);
         else if (i == MX_DLY)
-            mix_dly[v] = (float)val / 127.0f;
+            mix_dly[v] = mix_send_from_pot(val);
         else if (i == MX_PAN)
             x0x_pan_gains(val, &mix_pl[v], &mix_pr[v]);
         else if (i == MX_CUT)
@@ -698,6 +784,7 @@ X0X_COLD void engine_apply_sound(const sound_t *s)
 
 void engine_drum(int kit, int voice, float vel)
 {
+    if ((unsigned)kit < NKIT && SEQ_PART_OFF(&seq, kit)) return;
     cq_put(C_DRUM, (uint32_t)kit, (uint32_t)voice, (uint32_t)(vel * 4095.0f));
 }
 void engine_bass_on(int part, int note, int accent, int slide)
@@ -706,6 +793,7 @@ void engine_bass_on(int part, int note, int accent, int slide)
 }
 void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity)
 {
+    if ((unsigned)part < NBASS && SEQ_PART_OFF(&seq, TRK_BASS0 + part)) return;
     if (velocity < 1) velocity = 1;
     if (velocity > 127) velocity = 127;
     cq_put(C_BON, (uint32_t)part, (uint32_t)note,
@@ -713,12 +801,45 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
 }
 void engine_bass_record(int part, int note, int velocity, int flags)
 {
+    if ((unsigned)part < NBASS && SEQ_PART_OFF(&seq, TRK_BASS0 + part)) return;
     if (velocity < 1) velocity = 1;
     if (velocity > 127) velocity = 127;
     cq_put(C_REC, (uint32_t)(part | ((seq.rec_epoch & 127u) << 1)), (uint32_t)note,
            (uint32_t)((flags & BS_ACCENT ? 1 : 0) | (velocity << 2) | (flags & BS_SLIDE ? 512 : 0)));
 }
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
+static volatile uint8_t notes_off_req;
+static volatile uint32_t notes_off_requested_cutoff;
+static uint32_t notes_off_cutoff;
+static uint8_t notes_off_discard;
+static uint32_t notes_off_midi_epoch;
+static uint8_t notes_off_midi_valid;
+void engine_request_notes_off(void)
+{
+    /* Keyboard and SMC request from the CPU0 main loop. Publish the three
+     * queue boundaries together while audio is excluded; the MIDI primitive
+     * also excludes TIMER5 while capturing packet identity. */
+    uint32_t flags = plat_cq_lock();
+    __builtin_memset(cq_panic_fresh, 0, sizeof cq_panic_fresh);
+    cq_panic_active = 1;
+    notes_off_requested_cutoff = cq_w;
+    notes_off_midi_epoch = plat_midi_cut();
+    notes_off_midi_valid = 1;
+    /* Retire capabilities now, not on the later audio consume: a fresh key
+     * pressed after this return must acquire the new generation and survive.
+     * Only metadata/FIFO cursors change here; audio alone clears DSP owners. */
+    live_key_r = live_key_w;
+    live_key_cancel = 0;
+    for (int v = 0; v < NBASS; ++v) {
+        live_key_owner_t *o = &live_key_owner[v];
+        if (o->generation == UINT32_MAX || o->context == UINT32_MAX)
+            o->blocked = 1;
+        else { ++o->generation; ++o->context; }
+    }
+    __asm__ volatile("" ::: "memory");
+    notes_off_req = 1;
+    plat_cq_unlock(flags);
+}
 void engine_bass_off_note(int part, int note)
 {
     if (note <= 0)
@@ -726,7 +847,7 @@ void engine_bass_off_note(int part, int note)
     else
         cq_put(C_BOFF, (uint32_t)part, (uint32_t)(note & 127), 1u);
 }
-void engine_brk_live(int key, int down) { cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
+void engine_brk_live(int key, int down) { if (down && SEQ_PART_OFF(&seq, TRK_BRK)) return; cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
 
 /* ------------------------------------------------------- sequencer sink --- */
 /* probability: each part's (and drum track's) chance on the step playing now, set by its T_PROB lane
@@ -1089,6 +1210,7 @@ void smk_apc_clock_tick(void);
 void smk_apc_clock_start(void);
 void smk_apc_clock_position(uint32_t sixteenths);
 void smk_ck_midi_stop(void);
+__attribute__((weak)) void smk_ck_midi_stop(void) {}
 #endif
 
 X0X_COLD int engine_project_notes(void)
@@ -1342,7 +1464,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
     }
     if ((ty == 0x90 || ty == 0x80) && seq.ch[TRK_BRK] == ch) {
         /* The break's channel owns the note. Drums and the 303s do not also play it. */
-        brk_midi_wrap(src, ty == 0x90, d1);
+        if (!(ty == 0x90 && SEQ_PART_OFF(&seq, TRK_BRK))) brk_midi_wrap(src, ty == 0x90, d1);
         return;
     }
     /* Kit MIDI channel owns the note (GLO remap). Same consume rule as BREAK:
@@ -1353,7 +1475,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
             if (seq.ch[k] != ch)
                 continue;
             kit_own = 1;
-            if (ty == 0x90) {                            /* machines on GM drum notes (GM_DRUM) */
+            if (ty == 0x90 && !SEQ_PART_OFF(&seq, k)) { /* machines on GM drum notes (GM_DRUM) */
                 for (v = 0; v < NDRUM; v++)
                     if (GM_DRUM[k][v] == d1) {
                         s_drum(0, k, v, (float)d2 / 127.0f);
@@ -1366,6 +1488,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
     }
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
+            if (ty == 0x90 && SEQ_PART_OFF(&seq, TRK_BASS0 + k)) continue;
             if (ty == 0x90 || ty == 0x80) {
                 unsigned velocity = ty == 0x90 ? d2 : 0;
                 /* External MIDI recording: accepted physical edges, as the pads do. */
@@ -1422,6 +1545,14 @@ int engine_bass_keys_held(void) /* host test: bit k when 303 k holds any key (MI
                 if (original_bass[k].keys[input][key]) { r |= 1 << k; break; }
     return r;
 }
+/* Host oracle: bit 0 a 909 voice is inside its mute window; bit 1/2 bass A/B gates. */
+int engine_part_sounding(void)
+{
+    int k, on = drum909_active(&d909) ? 1 : 0;
+    for (k = 0; k < NBASS; k++)
+        on |= original_runtime_active(&original_bass[k]) ? (2 << k) : 0;
+    return on;
+}
 int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
 {
     int k, r = (int)((brk.keys | brk.slices) << 8 & 0xFF00u);   /* held slices 0..7 (adaptive slicing keeps them in brk.slices) */
@@ -1434,6 +1565,36 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
 #include "original_presets.inc"
 
 /* ---------------------------------------------------------------- render --- */
+static void engine_notes_off_apply(void)
+{
+    int v, src, s;
+    /* PANIC_APPLY */
+    seq_notes_off(&seq, &SINK);
+    for (v = 0; v < NBASS; v++) {
+        (void)original_runtime_all_off(&original_bass[v]);
+        s_boff(0, v);
+        live_key_owner[v].gate = live_key_owner[v].token = 0;
+        live_key_owner[v].pitch = live_key_owner[v].arp = 0;
+        __builtin_memset(original_key_pitch[v], 0, sizeof original_key_pitch[v]);
+        bass_held[v] = 0;
+        bass_held_count[v] = 0;
+    }
+    for (src = 0; src < MIDI_NSRC; src++) {
+        src_held[src] = 0;
+        for (s = 0; s < 16; s++)
+            brk_down[src][s] = 0;
+    }
+    brk_local = 0;
+    for (s = 0; s < 32; s++) breaks_slice_hold(&brk, s, 0);
+    brk.keys = 0;
+    brk.restart = 0;
+    drum909_all_off(&d909);
+    drum808_all_off(&d808);
+#if BOARD_SMK37
+    smk_ck_midi_stop();
+#endif
+}
+
 static void drain(void)
 {
     original_midi_context();
@@ -1442,6 +1603,15 @@ static void drain(void)
     if (seq.req_stop) seq_advance(&seq, 0, &SINK);
     uint32_t r = cq_r, pkt;
     int guard = 64;
+    __asm__ volatile("" ::: "memory");
+    if (notes_off_req) {
+        notes_off_req = 0;
+        notes_off_cutoff = notes_off_requested_cutoff;
+        notes_off_discard = (uint8_t)(cq_r != notes_off_cutoff);
+        cq_panic_active = notes_off_discard;
+        /* Retire the old audible/recording owners before any fresh onset. */
+        engine_notes_off_apply();
+    }
     brk_channel_reconcile();
     /* Finish old contexts before a queued new press can acquire note ownership. */
     for (int k = 0; k < NBASS; k++) {
@@ -1456,7 +1626,16 @@ static void drain(void)
     unsigned budget = 128; /* bound parameter floods to this audio boundary */
     while (r != cq_w && budget--) {
         uint32_t c = cq[r % CQ], type = c >> 28, a = (c >> 20) & 0xFFu, b = (c >> 12) & 0xFFu, v = c & 0xFFFu;
+        int discard = notes_off_discard &&
+            !(cq_panic_fresh[(r % CQ) / 32u] & (1u << (r & 31u)));
         r++;
+        if (notes_off_discard && r == notes_off_cutoff)
+            notes_off_discard = cq_panic_active = 0;
+        /* PANIC_DROP_QUEUED: old releases cannot silence a fresh replacement
+         * admitted into an earlier full-queue slot. Controls still execute. */
+        if (discard && (type == C_DRUM || type == C_BON || type == C_REC ||
+                        type == C_BOFF || type == C_BRK))
+            continue;
         uint32_t rec_epoch = a >> 1;
         if (type == C_REC) a &= 1u;
         if (type < 8u)
@@ -1512,9 +1691,14 @@ static void drain(void)
         brk_bend_owner = wheel ? 3 : -1;
         brk_wheel_seen = wheel;
     }
-    while (guard-- > 0 && plat_midi_in(&pkt))
-        if (!project_midi_drop) midi_in(pkt);
-    if (guard >= 0) project_midi_drop = 0;
+    uint32_t epoch;
+    while (guard-- > 0 && plat_midi_in_epoch(&pkt, &epoch)) {
+        unsigned type = (pkt >> 8) & 0xF0u, cc = (pkt >> 16) & 127u;
+        int old_note = notes_off_midi_valid && epoch != notes_off_midi_epoch &&
+            (type == 0x80u || type == 0x90u || (type == 0xB0u && (cc == 120u || cc == 123u)));
+        if (!project_midi_drop && !old_note) midi_in(pkt);
+    }
+    if (guard >= 0) { project_midi_drop = 0; notes_off_midi_valid = 0; }
 }
 
 static void live_key_drain(void)
@@ -1533,6 +1717,7 @@ static void live_key_drain(void)
         unsigned velocity=(c.word>>14)&127u,accent=(c.word>>21)&1u,slide=(c.word>>22)&1u;
         live_key_owner_t *o=&live_key_owner[v];
         if(o->blocked || c.generation!=o->generation)continue;
+        if (velocity && SEQ_PART_OFF(&seq, TRK_BASS0 + v)) continue;
         (void)accent; (void)slide;
         uint8_t previous = original_key_pitch[v][token];
         if (velocity) {
@@ -1550,8 +1735,7 @@ static void live_key_drain(void)
             o->gate = held != 0;
             if (!held) bass_held[v] = bass_held_count[v] = 0;
         }
-    }
-}
+    }}
 
 static float part_peak[NPARTS];
 __attribute__((noinline)) static void meter(int p, const float *x, float g, uint32_t n)
@@ -2228,6 +2412,9 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 #endif
     int p, g;
     cq_w = cq_r = 0;
+    notes_off_req = notes_off_discard = cq_panic_active = notes_off_midi_valid = 0;
+    notes_off_requested_cutoff = notes_off_cutoff = notes_off_midi_epoch = 0;
+    __builtin_memset(cq_panic_fresh, 0, sizeof cq_panic_fresh);
     rec_w = rec_r = 0;
     brk_local = 0;
     brk_midi_count = 0;

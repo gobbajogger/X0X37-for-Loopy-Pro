@@ -688,7 +688,7 @@ test("revision 13 round-trips every project payload byte and original sample thr
     } });
     const raw = rawProject(2), prepared = await prepareProjectImport(device, await bundle(raw, snapshot(), false));
     assert.deepEqual(parseProject(raw), { length: 36452, payloadLength: 36420, fileVersion: 1,
-      projectVersion: 1, patternVersion: 13, soundRevision: 13 });
+      projectVersion: 1, patternVersion: 13, soundRevision: 13, partOffMask: 0 });
     await applyProjectImport(device, prepared, { confirmed: true });
     assert.deepEqual((await readProjectSnapshot(device)).project, raw);
     assert.deepEqual(keyboard.images, snapshot().images); assert.equal(keyboard.sampleWrites().length, 0);
@@ -706,5 +706,21 @@ test("adaptive BREAK stream 8/9 project schemas keep exact bytes and CRC checks"
     v.setUint32(12,crc32(b.subarray(32)),true);
     assert.equal(parseProject(b).patternVersion,stream);
     b[100] ^= 1; assert.throws(() => parseProject(b), /CRC/);
+  }
+});
+
+// M7a uses the reserved file-header word, not payload/padding mutation.
+test("part-off masks round-trip and every one-bit header corruption is rejected", () => {
+  const check = m => (m&1?0x17:0)^(m&2?0x2E:0)^(m&4?0x5C:0)^(m&8?0xB8:0)^(m&16?0x67:0);
+  for(let mask=0;mask<32;mask++) {
+    const raw=rawProject(), before=raw.slice(32), v=new DataView(raw.buffer);
+    const word=mask ? (0x4F460000 | check(mask)<<8 | mask)>>>0 : 0;
+    v.setUint32(28,word,true);
+    assert.equal(parseProject(raw).partOffMask,mask);
+    assert.deepEqual(raw.subarray(32),before);
+    for(let bit=0;bit<32;bit++) {
+      v.setUint32(28,(word ^ 2**bit)>>>0,true);
+      assert.throws(()=>parseProject(raw),/incompatible/);
+    }
   }
 });

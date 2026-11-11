@@ -51,6 +51,7 @@ static inline uint32_t seq_part_mask(int p)
 
 #define NSONG 192
 #define SEQ_CH_OFF 0xFFu
+#define SEQ_PART_OFF(s, t) (((s)->part_off >> (t)) & 1u)
 /* a step's chance (the T_PROB lanes): 1-100 = that percentage, PROB_COND + k = the cycle k in the order
  * 1:2 2:2 1:3 2:3 3:3 1:4 ... 8:8 (A:B: on the A-th of every B passes of the part's pattern) */
 #define PROB_COND 101
@@ -152,6 +153,7 @@ typedef struct {
     volatile uint16_t song_start;     /* bar PLAY starts at */
     volatile uint8_t ext;             /* 1 = following an external clock */
     volatile uint8_t send_clock;      /* 1 = emit MIDI clock + transport when internal */
+    volatile uint8_t part_off; /* M7: suppress new notes independently of mute */
     volatile uint8_t send_notes;      /* 1 = echo the sequence on MIDI, on each part's channel */
     volatile uint8_t ch[NTRACKS];     /* each part's MIDI channel, 0-15 (in and out); SEQ_CH_OFF = none */
     uint8_t song_rep;                 /* the song bar playing: its passes still to play (SONG_REP) */
@@ -203,6 +205,7 @@ typedef struct {
     uint8_t ext_skip;                 /* 1: the next block of ticks gives no tick period (the first ticks of a new input) */
     uint32_t clk_lock_at;             /* ext_now at its last Clock, Start or Continue */
     uint32_t clk_stop_at;             /* ext_now at its last Stop */
+    uint8_t chain_win, chain_at; /* runtime chain slot; never serialized */
 } seq_t;
 
 void seq_init(seq_t *s, pattern_t *patterns);
@@ -222,6 +225,7 @@ int seq_clock_waiting(const seq_t *s);  /* EXTERNAL: playing, but no clock for 0
 void seq_cue(seq_t *s, int pattern);  /* every part, at the end of the bar (now, if stopped) */
 void seq_cue_part(seq_t *s, int part, int pattern);
 void seq_chain(seq_t *s, int a, int b);
+int seq_chain_window(const pattern_t *pat, int a, int b);
 int seq_cue_of(const seq_t *s, int part);   /* the part's cued pattern, or -1 */
 int seq_part_muted(const seq_t *s, int part);
 
@@ -253,3 +257,5 @@ void seq_rec_cancel(seq_t *s, int b);
 int seq_bass_sound_prepare(seq_t *s,int voice,int pat,int step);
 void seq_bass_sound_clear(seq_t *s,int voice,int pat,int step);
 #endif
+
+void seq_notes_off(seq_t *s, const seq_sink_t *o);

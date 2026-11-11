@@ -350,34 +350,44 @@ static void picture_rule_cases(void)
     project_t *saved=malloc(sizeof proj); CHECK(saved); *saved=proj;
     seq_t before=seq;
     for(int theme=0;theme<=5;theme+=5){
-        palette_set(theme); ui.msg_until=0; draw_header();
-        /* Eight columns cover all saved steps: current {0,8} -> 0x11;
-         * queued {2} -> 0x02. Header badges must show content, not assignment. */
-        for(int i=0;i<8;i++)for(int y=8;y<=10;y++){
-            uint16_t current=(0x11u&(1u<<i))?dim(PART_COL[PART_909],16):SOUND_FACE;
-            uint16_t queued=(0x02u&(1u<<i))?dim(PART_COL[PART_909],9):SOUND_FACE;
-            CHECK(fb[y*240+133+i]==swap16(current));
-            CHECK(fb[y*240+165+i]==swap16(queued));
+        palette_set(theme); ui.msg_until=0;
+        /* Preserve 8be's complete position badge. Actual HOME plates show the
+         * saved content; the actual PART header shows the queued content. */
+        ui.view=V_HOME; ui.pbank=(NPAT-1)/16; build_pages(); draw_main();
+        int pos=0; while(pos<NPARTS && part_at(pos)!=PART_909)pos++;
+        CHECK(pos<NPARTS);
+        for(int slot=14;slot<16;slot++)for(int i=0;i<8;i++)for(int row=0;row<3;row++){
+            unsigned mask=slot==15?0x11u:0x02u;
+            uint16_t ink=(mask&(1u<<i))?dim(PART_COL[PART_909],slot==15?16:9):UI_N_SIDE;
+            CHECK(fb[(MAIN_Y+4+pos*4+row)*240+9+slot*14+4+i]==swap16(ink));
         }
-        uint32_t idle=picture_pixels(fb,132,0,108,HDR_H);
+        ui.view=V_PART; build_pages(); draw_header();
+        for(int i=0;i<8;i++)for(int y=8;y<=10;y++){
+            uint16_t queued=(0x02u&(1u<<i))?dim(PART_COL[PART_909],9):SOUND_FACE;
+            CHECK(fb[y*240+141+i]==swap16(queued));
+        }
+        uint32_t idle=picture_pixels(fb,132,0,40,HDR_H);
         now_ms+=1000; ui.frame+=32; draw_header();
-        CHECK(picture_pixels(fb,132,0,108,HDR_H)==idle);
-        seq.pcue[PART_909]=0xff; draw_header(); uint32_t no_cue=picture_pixels(fb,156,0,30,HDR_H);
+        CHECK(picture_pixels(fb,132,0,40,HDR_H)==idle);
+        seq.pcue[PART_909]=0xff; draw_header(); uint32_t no_cue=picture_pixels(fb,132,0,40,HDR_H);
         seq.pcue[PART_909]=NPAT-1; draw_header();
-        CHECK(picture_pixels(fb,156,0,30,HDR_H)==no_cue);
+        CHECK(picture_pixels(fb,132,0,40,HDR_H)==no_cue);
         seq.pcue[PART_909]=NPAT-2;
-        seq.playing=1; eng_step[TRK_DRUM]=0; draw_header(); uint32_t step=picture_pixels(fb,156,6,6,7);
+        seq.playing=1; eng_step[TRK_DRUM]=0; draw_header(); uint32_t step=picture_pixels(fb,132,6,6,7);
         eng_step[TRK_DRUM]=1; draw_header();
-        CHECK(picture_pixels(fb,156,6,6,7)!=step);
+        CHECK(picture_pixels(fb,132,6,6,7)!=step);
         seq.playing=0;
     }
     CHECK(!memcmp(saved,&proj,sizeof proj)); CHECK(!memcmp(&before,&seq,sizeof seq)); free(saved);
     palette_set(proj.set.palette);
-    /* A stop square and a play triangle are distinct, bounded status pictures. */
-    cv_begin(240,HDR_H,C_BLACK); header_transport(10,0); uint32_t stopped=picture_pixels(cv_px,10,4,9,11);
+    /* The current header uses the same bounded triangle, lit by the actual
+     * clock phase rather than replacing it with an old stop-square helper. */
+    cv_begin(240,HDR_H,C_BLACK); play_icon(10,4,C_DIM);
     for(int y=0;y<HDR_H;y++)for(int x=0;x<240;x++)if(cv_px[y*240+x]!=swap16(C_BLACK))CHECK(x>=10&&x<19&&y>=4&&y<15);
-    seq.playing=1; cv_begin(240,HDR_H,C_BLACK); header_transport(10,0);
-    CHECK(picture_pixels(cv_px,10,4,9,11)!=stopped); seq.playing=0;
+    screen(V_HOME,PART_909,0); ui.msg_until=0; seq.metro_view=0; draw_header();
+    uint32_t stopped=picture_pixels(fb,217,4,9,11);
+    seq.metro_view=1; draw_header();
+    CHECK(picture_pixels(fb,217,4,9,11)!=stopped); seq.metro_view=0;
     for(int p=PART_303A;p<=PART_303B;p++){
         screen(V_PART,p,0); uint8_t page=cur_page(),view=ui.view,part=ui.part;
         cv_begin(240,KNOB_H,C_BLACK); int end=matrix_row_hint(7,50,C_HI);

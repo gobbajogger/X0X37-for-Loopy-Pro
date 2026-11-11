@@ -62,6 +62,10 @@ static struct { uint8_t overlay, help; } ui;
 static int locked, interrupt_at, interrupt_up;
 static unsigned dispatched, notices, solo;
 static uint8_t observed[3][3];
+/* Link-generation fixture records UI behavior; actual PANIC peer retirement
+ * and rearming are covered by composed_smc_panic_test.c. */
+static void smc_panic_reset(void) {}
+static void smc_panic_sync_mode(void) {}
 static int perf_testing(void);
 static int ui_project_busy(void);
 static void engine_smc_solo(int n) { solo = (unsigned)n; }

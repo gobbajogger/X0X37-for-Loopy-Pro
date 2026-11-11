@@ -113,12 +113,12 @@ X0X_COLD static void fx_apply(fxbus_t *f, int i, float v)
     case FX_DRIVE: f->drive = v; break;
     case FX_COMP: f->comp = v < 0.0f ? 0.0f : (v > 1.0f ? 1.0f : v); fx_comp_prep(f); break;
     case FX_RV_DECAY: f->rv_decay = v; break;
-    case FX_RV_TONE: f->rv_tone = v; break;
+    case FX_RV_TONE: f->rv_damp = 0.75f - v * 0.55f; break;
     case FX_RV_HPF: d9_biquad_set(&f->rv_hp, D9_HP, v, 0.7071f); break;
     case FX_RV_LEVEL: f->rv_level = v; break;
     case FX_DL_TIME: f->dl_div = (int32_t)v; fx_retime(f); break;
     case FX_DL_FDBK: f->dl_fdbk = v; break;
-    case FX_DL_TONE: f->dl_tone = v; break;
+    case FX_DL_TONE: f->dl_tc = 0.06f + v * 0.6f; break;
     case FX_DL_LEVEL: f->dl_level = v; break;
     case FX_DL_HPF: d9_biquad_set(&f->dl_hp, D9_HP, v, 0.7071f); break;
     case FX_DL_TYPE: f->dl_type = (int32_t)v; break;
@@ -138,6 +138,11 @@ X0X_COLD void fxbus_set(fxbus_t *f, int i, int value)
     const fx_pspec_t *s = &fx_p[i];
     if (value < 0) value = 0;
     if (value > s->ui.max) value = s->ui.max;
+    /* First default-pot writes still replace the exact unrounded boot values. */
+    if (i == FX_RV_TONE && f->pots[i] == value &&
+        (value != fx_p[FX_RV_TONE].ui.def || f->rv_damp != 0.75f - 0.45f * 0.55f)) return;
+    if (i == FX_DL_TONE && f->pots[i] == value &&
+        (value != fx_p[FX_DL_TONE].ui.def || f->dl_tc != 0.06f + 0.4f * 0.6f)) return;
     f->pots[i] = (uint8_t)value;
     float v;
     if (s->curve == CV_EXP)
@@ -168,13 +173,13 @@ X0X_COLD void fxbus_init(fxbus_t *f, int16_t *dly_buf, int dly_len)
     f->dbuf = dly_buf;
     f->dlen = dly_len;
 
-    f->rv_decay = 0.62f; f->rv_tone = 0.45f; f->rv_level = 0.8f;
+    f->rv_decay = 0.62f; f->rv_damp = 0.75f - 0.45f * 0.55f; f->rv_level = 0.8f;
     d9_biquad_set(&f->rv_hp, D9_HP, 150.0f, 0.7071f);
     f->rv_quiet = FX_RV_QUIET;
 
     f->dl_div = 7;
     f->bpm = 120.0f;
-    f->dl_fdbk = 0.35f; f->dl_tone = 0.4f; f->dl_level = 0.8f;
+    f->dl_fdbk = 0.35f; f->dl_tc = 0.06f + 0.4f * 0.6f; f->dl_level = 0.8f;
     fx_retime(f);
     f->dcur = f->dl_time_ms * 0.001f * D9_SR;
     d9_biquad_set(&f->dl_hp, D9_HP, 150.0f, 0.7071f);
@@ -242,11 +247,11 @@ static void fx_reverb(fxbus_t *f, const float *in, float *out, float *out_r, int
     if (f->rv_quiet >= FX_RV_QUIET) {
         int any = 0;
         for (int i = 0; i < n; ++i)
-            any |= in[i] != 0.0f;
+            if (in[i] != 0.0f) { any = 1; break; }
         if (!any)
             return;                         /* silent in, silent lines: 0 out */
     }
-    const float damp = 0.75f - f->rv_tone * 0.55f;
+    const float damp = f->rv_damp;
     const float fb = f->rv_decay;
     const float lvl = f->muted & 1u ? 0.0f : f->rv_level;
     int16_t *cb[4];
@@ -317,7 +322,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     if (f->dl_quiet >= len) {
         int any = 0;
         for (int i = 0; i < n; ++i)
-            any |= in[i] != 0.0f;
+            if (in[i] != 0.0f) { any = 1; break; }
         if (!any) {
             /* the line is all zeros: nothing to read, but time moves on */
             f->w = (f->w + n) % len;
@@ -355,7 +360,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     uint32_t wow_i = 0, flut_i = 0, wp = 0, fp = 0;
     if (!tape) {
         fdbk = f->dl_fdbk;
-        tc = 0.06f + f->dl_tone * 0.6f;
+        tc = f->dl_tc;
     } else {
         /* TAPE: wow (0.5 Hz) and flutter (6.1 Hz) on the read, a darker loop,
          * saturation and a 30 Hz DC block inside it, feedback up to 1.15 */
@@ -366,7 +371,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
         wow_i = d9_inc(0.5f);
         flut_i = d9_inc(6.1f);
         fdbk = f->dl_fdbk * (1.15f / 0.85f);
-        tc = (0.06f + f->dl_tone * 0.6f) * (0.6f - 0.3f * wear);
+        tc = f->dl_tc * (0.6f - 0.3f * wear);
         g = 1.0f + 1.5f * wear;
         inv_g = 1.0f / g;
         wp = f->wow_ph;
@@ -441,6 +446,21 @@ static inline __attribute__((always_inline)) float fx_comp_gain(float mag, float
 /* ===================================================================== */
 /* Master: distortion, glue (master_glue), volume                         */
 /* ===================================================================== */
+/* Skip only a settled positive-zero detector/envelope; sends and tails still run. */
+static int fx_comp_zero_bytes(const void *p, unsigned n)
+{
+    const unsigned char *b = p;
+    for (unsigned i = 0; i < n; ++i) if (b[i]) return 0;
+    return 1;
+}
+static int fx_comp_settled_zero(const fxbus_t *f, const float *l, const float *r, int n)
+{
+    return n >= 32 && fx_comp_zero_bytes(&f->comp_det, sizeof f->comp_det) &&
+        fx_comp_zero_bytes(&f->comp_env_db, sizeof f->comp_env_db) &&
+        fx_comp_zero_bytes(l, (unsigned)n * sizeof *l) &&
+        (!r || fx_comp_zero_bytes(r, (unsigned)n * sizeof *r));
+}
+
 void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *dly, float *out, int n)
 {
     if (n > 256)
@@ -454,7 +474,7 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
         for (int i = 0; i < n; ++i)
             out[i] = dist_one(&f->shape, out[i], k, f->crush_st);
     }
-    if (f->comp > 0.001f) {
+    if (f->comp > 0.001f && !fx_comp_settled_zero(f, out, 0, n)) {
         const float thr = f->c_thr, slope = f->c_slope, makeup = f->c_makeup;
         const float drel = f->c_drel, atk = f->c_atk, rel = f->c_rel;
         float det = f->comp_det, env = f->comp_env_db;
@@ -488,7 +508,7 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
             out_r[i] = dist_one(&f->shape, out_r[i], k, f->crush_str);
         }
     }
-    if (f->comp > 0.001f) {
+    if (f->comp > 0.001f && !fx_comp_settled_zero(f, out_l, out_r, n)) {
         const float thr = f->c_thr, slope = f->c_slope, makeup = f->c_makeup;
         const float drel = f->c_drel, atk = f->c_atk, rel = f->c_rel;
         float det = f->comp_det, env = f->comp_env_db;

@@ -61,6 +61,16 @@
 #define PROJ_DEVICE_BT (1u | PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER)
 #define PROJ_CLK_SRC(bt) ((uint8_t)((bt) >> 1 & 3u))
 #define PROJ_A74_CLK_OFF 38u
+/* M7a: all-ON retains the exact legacy settings/file bytes. Nonzero OFF
+ * masks use the owned PR854 optional tail and tagged header word. */
+#define PROJ_SET_TAIL 4u
+#define PROJ_PART_OFF_ALL 31u
+#define PROJ_SET_LEN_OK(n) ((n) == 4u + sizeof(settings_t) || (n) == 4u + sizeof(settings_t) + PROJ_SET_TAIL)
+#define PROJ_SET_TAIL_BAD(t) ((t)[0] > PROJ_PART_OFF_ALL || (t)[1] || (t)[2] || (t)[3])
+#define PROJ_FILE_OFF_TAG 0x4F460000u
+#define PROJ_FILE_OFF_CHK(m) ((((m) & 1u) ? 0x17u : 0u) ^ (((m) & 2u) ? 0x2Eu : 0u) ^ (((m) & 4u) ? 0x5Cu : 0u) ^ (((m) & 8u) ? 0xB8u : 0u) ^ (((m) & 16u) ? 0x67u : 0u))
+#define PROJ_FILE_OFF_WORD(m) ((m) ? PROJ_FILE_OFF_TAG | PROJ_FILE_OFF_CHK(m) << 8 | (uint32_t)(m) : 0u)
+#define PROJ_FILE_OFF_OK(w) ((w) == 0u || (((w) & 0xFFFF0000u) == PROJ_FILE_OFF_TAG && ((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL && ((w) >> 8 & 0xFFu) == PROJ_FILE_OFF_CHK((w) & 0xFFu)))
 
 typedef struct {
     uint32_t magic, format;

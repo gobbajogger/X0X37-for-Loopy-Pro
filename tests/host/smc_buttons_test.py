@@ -54,6 +54,16 @@ static uint8_t page;
 static const char *const PART_N[] = {"909","808","A","B","BREAK"};
 static int last_view,last_page,fx,moved,edited,tap,knob_bank,home_held;
 static int smc_home_held(void) { return home_held; }
+/* Mapping-only callbacks. Actual question/reset implementation is exercised by
+ * composed_features_test.c and composed_smc_panic_test.c. */
+static uint8_t project_busy;
+static int reset_target = -1, question_redo;
+static void ask_sound_reset(int part) { reset_target = part; }
+static int play_answer_question(int home) {
+    if (home) { question_redo++; return 1; }
+    ui.overlay = O_NONE;
+    return 0;
+}
 /* Locked PAGE previews the captured page (#737 peek); count the calls. */
 static int peek_locked;
 static __attribute__((unused)) void smc_peek_locked_page(void) { peek_locked++; }
@@ -118,6 +128,15 @@ int main(void) {
     }
     ui.overlay=O_ASK; tap=-1; smc_button(5,0); assert(tap==B_SEL);
     tap=-1; smc_button(6,0); assert(tap==B_HOME);
+    ui.overlay=O_ASK; home_held=1; seq.playing=0; smc_button(0x5e,0);
+    assert(question_redo==1 && seq.playing==0 && ui.overlay==O_ASK);
+    home_held=0; smc_button(0x5e,0);
+    assert(ui.overlay==O_NONE && seq.playing==1);
+    home_held=1; reset_target=-1; smc_button(24,0);
+    assert(reset_target==PART_909);
+    project_busy=1; reset_target=-1; smc_button(25,0);
+    assert(reset_target==-1);
+    project_busy=0; home_held=0;
     ui.overlay=O_NONE; ui.help=1; smc_button(6,0); assert(!ui.help);
     smc.part=0; seq.ppat[0]=3; seq.pcue[0]=0xff;
     smc_button(0x5c,0); assert(seq_cue_of(&seq,0)==4 && !strcmp(notice,"NEXT: PAT 5"));

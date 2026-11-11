@@ -163,6 +163,12 @@ static volatile uint32_t so_w, so_r;
 #define MQ 64u
 static uint32_t midi_in_q[MQ], midi_out_q[MQ];
 static volatile uint32_t mi_w, mi_r, mo_w, mo_r;
+/* Latest-request input epoch: cuts retire every queued tag; accepted payload
+ * writes become fresh. This follows packets through compaction, not cursors. */
+#ifndef FELUCCA_LOADER
+static uint8_t mi_fresh[MQ];
+static uint32_t mi_epoch = 1u;
+#endif
 
 /* CIN 8, or CIN 9 with velocity 0 — a release that must not stick a live Note On. */
 static int midi_pkt_is_note_off(uint32_t pkt)
@@ -213,11 +219,16 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
 {
 #ifndef FELUCCA_LOADER
     uint32_t irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);
+    uint8_t *fresh = q == midi_in_q ? mi_fresh : 0;
+#else
+    uint8_t *fresh = 0;
 #endif
     uint32_t i, pass, ww = *w, rr = *r;
     int accepted = 0;
     if (ww - rr < MQ) {
         q[ww % MQ] = pkt;
+        if (fresh)
+            fresh[ww % MQ] = 1u;
         RING_PUBLISH();
         *w = ww + 1u;
         accepted = 1;
@@ -230,6 +241,8 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
             uint32_t p = q[(--i) % MQ];
             if (midi_pkt_is_pitch_bend(p) && !((p ^ pkt) & 0xFF0u)) {
                 q[i % MQ] = pkt;
+                if (fresh)
+                    fresh[i % MQ] = 1u;
                 RING_PUBLISH();
                 accepted = 1;
                 goto done;
@@ -238,6 +251,8 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
         for (i = rr; i != ww; i++) {
             if ((q[i % MQ] & 0xFu) == 0xBu) {
                 q[i % MQ] = pkt;
+                if (fresh)
+                    fresh[i % MQ] = 1u;
                 RING_PUBLISH();
                 accepted = 1;
                 goto done;
@@ -254,9 +269,14 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
                 continue;
             if (pass == 0u && (p & 0xFu) != 0xBu)
                 continue;
-            for (; i + 1u != ww; i++)
+            for (; i + 1u != ww; i++) {
                 q[i % MQ] = q[(i + 1u) % MQ];
+                if (fresh)
+                    fresh[i % MQ] = fresh[(i + 1u) % MQ];
+            }
             q[i % MQ] = pkt;
+            if (fresh)
+                fresh[i % MQ] = 1u;
             RING_PUBLISH();
             accepted = 1;
             goto done;
@@ -1004,6 +1024,7 @@ static __attribute__((noinline)) void midi_link_check(uint8_t *st, uint32_t up, 
     uint8_t v = (uint8_t)((*st & 2u) | ((*st & 1u) && !up ? 2u : 0u));
     if ((v & 2u) && mi_w - mi_r < MQ) {
         midi_in_q[mi_w % MQ] = src << 4;              /* PLAT_MIDI_LINK_END(src) */
+        mi_fresh[mi_w % MQ] = 1u;
         RING_PUBLISH();
         mi_w++;
         v = 0;
@@ -1577,11 +1598,8 @@ static void usb_poll(void)                              /* TIMER5 ISR, 2 kHz */
 #endif
 }
 
-static void usb_start(void)                             /* boot, or main-loop retry while usb.up == 0 */
+static void usb_attach_ready(void)                      /* reset has settled for at least 25 ms */
 {
-    usb.timeouts = 0;
-    fm1_usb_reset();                                    /* reset whatever the ROM left */
-    fm1_delay_ms(25);
     fm1_usb_attach(ep0buf);
     sie_wr(S_POWER, 0x60);
     sie_wr(S_INTRUSBE, 0x07);                           /* suspend, resume, reset (polled) */
@@ -1593,17 +1611,34 @@ static void usb_start(void)                             /* boot, or main-loop re
     usb.up = usb.timeouts < 3u;                         /* a dead SIE leaves USB off */
 }
 
-/* Powered on without a cable, the SIE does not answer and usb_start leaves
- * USB off: retry once a second from the main loop so a cable plugged in
- * later still enumerates. */
+static void usb_start(void)                             /* blocking bring-up at boot */
+{
+    usb.timeouts = 0;
+    fm1_usb_reset();
+    fm1_delay_ms(25);
+    usb_attach_ready();
+}
+
+/* Retry without parking foreground controls while the hardware settles. */
 static void usb_retry(uint32_t now_ms)
 {
-    static uint32_t t;
-    if (usb.up || usb.detached || now_ms - t < 1000u)
+    static uint32_t t, reset_at;
+    static uint8_t settling;
+    if (usb.up || usb.detached) { settling = 0; return; }
+    if (settling) {
+        if ((uint32_t)(fm1_ticks() - reset_at) < 25000u * FM1_TICKS_PER_US)
+            return;
+        settling = 0;
+        usb_attach_ready();
         return;
+    }
+    if (now_ms - t < 1000u) return;
     t = now_ms;
     usb.retries++;
-    usb_start();
+    usb.timeouts = 0;
+    fm1_usb_reset();
+    reset_at = fm1_ticks();
+    settling = 1;
 }
 
 static void usb_detach(void)

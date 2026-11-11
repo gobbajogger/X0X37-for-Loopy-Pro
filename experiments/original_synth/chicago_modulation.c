@@ -46,10 +46,11 @@ int original_chicago_ring_set(original_chicago_ring *s,unsigned p,unsigned v){
 int original_chicago_ring_process(original_chicago_ring *s,int16_t *l,int16_t *r,uint32_t n){
  if(!s||(n&&(!l||!r||l==r)))return 0;
  if(!n)return 1;
+ const int32_t k=s->activity?32767:102;
  for(uint32_t i=0;i<n;i++){
   while(s->queue.cursor<s->queue.count&&s->queue.events[s->queue.cursor].offset<=i){if(s->queue.events[s->queue.cursor].type==4)original_chicago_ring_reset(s);s->queue.cursor++;}
   if(!(i&63u)&&s->dirty){s->frequency=s->pending_frequency;s->wet=s->pending_wet;s->dirty=0;}
-  int32_t k=s->activity?32767:102;s->wet_acc=smooth(s->wet_acc,s->wet,k);s->frequency_acc=smooth(s->frequency_acc,s->frequency,k);
+  s->wet_acc=smooth(s->wet_acc,s->wet,k);s->frequency_acc=smooth(s->frequency_acc,s->frequency,k);
   int32_t wet=asr(s->wet_acc,15),dry=asr(sub(1073741823,s->wet_acc),15);s->dry_gain=dry;s->wet_gain=wet;
   s->phase=add(s->phase,s->frequency_acc);
   int32_t t=asr(s->phase,16),a=asr(s->phase,15);a=a<0?-a:a;t=add(t,asr(mul(32767-a,t),15));
@@ -85,10 +86,11 @@ static int32_t feedback_twice(int32_t y){int32_t a=sub(shl(y,1),shl(y,15));for(u
 int original_chicago_chorus_process(original_chicago_chorus *s,int16_t *l,int16_t *r,uint32_t n){
  if(!s||(n&&(!l||!r||l==r||!s->left||!s->right)))return 0;
  if(!n)return 1;
+ const int32_t k=s->activity?32767:102;
  for(uint32_t i=0;i<n;i++){
   while(s->queue.cursor<s->queue.count&&s->queue.events[s->queue.cursor].offset<=i){if(s->queue.events[s->queue.cursor].type==4)original_chicago_chorus_reset(s);s->queue.cursor++;}
   if(!(i&63u)&&s->dirty){s->speed=s->pending_speed;s->feedback=s->pending_feedback;s->wet=s->pending_wet;s->dirty=0;}
-  int32_t k=s->activity?32767:102;s->feedback_acc=smooth(s->feedback_acc,s->feedback,k);s->wet_acc=smooth(s->wet_acc,s->wet,k);s->phase=add(s->phase,s->speed);
+  s->feedback_acc=smooth(s->feedback_acc,s->feedback,k);s->wet_acc=smooth(s->wet_acc,s->wet,k);s->phase=add(s->phase,s->speed);
   int16_t input[2]={l[i],r[i]},output[2];
   for(unsigned c=0;c<2;c++){
    uint32_t mag=magnitude(c?add(s->phase,208732160):s->phase);int32_t z=add(mul(s->modulator[c],8160),(int32_t)(mag>>11));
@@ -128,9 +130,10 @@ int original_chicago_phaser_set(original_chicago_phaser *s,unsigned p,unsigned v
 int original_chicago_phaser_process(original_chicago_phaser *s,int16_t *l,int16_t *r,uint32_t n){
  if(!s||(n&&(!l||!r||l==r)))return 0;
  if(!n)return 1;
+ const int32_t k=s->activity?32767:102;
  for(uint32_t i=0;i<n;i++){
   while(s->queue.cursor<s->queue.count&&s->queue.events[s->queue.cursor].offset<=i){if(s->queue.events[s->queue.cursor].type==4)original_chicago_phaser_reset(s);s->queue.cursor++;}
-  int32_t k=s->activity?32767:102;s->depth_acc=smooth(s->depth_acc,s->depth,k);s->modulation_acc=smooth(s->modulation_acc,s->modulation,k);s->feedback_acc=smooth(s->feedback_acc,s->feedback,k);s->wet_acc=smooth(s->wet_acc,s->wet,k);s->phase=add(s->phase,s->speed);
+  s->depth_acc=smooth(s->depth_acc,s->depth,k);s->modulation_acc=smooth(s->modulation_acc,s->modulation,k);s->feedback_acc=smooth(s->feedback_acc,s->feedback,k);s->wet_acc=smooth(s->wet_acc,s->wet,k);s->phase=add(s->phase,s->speed);
   int32_t wet=asr(s->wet_acc,15),mono=asr((int32_t)l[i]+r[i],1),dry=asr(mul(32767-(int32_t)magnitude(wet),mono),15),feedback=asr(sub(0,s->feedback_acc),15);int16_t out[2];
   for(unsigned c=0;c<2;c++){
    int32_t p=c?add(s->phase,208732160):s->phase;int32_t triangle=clip(asr(si(magnitude(p)),16),0,32767);int32_t coefficient=sub(asr(s->depth_acc,15),asr(mul(triangle,asr(s->modulation_acc,15)),15));

@@ -76,6 +76,22 @@ uint32_t plat_midi_mark(void);        /* accepted input producer watermark, non-
 int plat_midi_passed(uint32_t mark);  /* consumer reached/passed mark; <2^31 outstanding */
 int plat_midi_pending(void);          /* non-consuming shared USB/BLE/TRS input ring query */
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the audio ISR) */
+/* CPU0 main/TIMER5 request boundary, captured inside this call. Only the newest
+ * cut is valid: a later cut makes all still-queued packets old, including those
+ * accepted after an earlier cut. Tags survive overflow moves; accepted payload
+ * replacements are fresh. No packets, controls or positional marks are changed.
+ * The caller must serialize capture AND request publication against other cut
+ * callers and audio, e.g. an outer ALNK0-then-TIMER5 source guard on CPU0. An IRQ
+ * can capture a newer cut as this function restores its guards; an unguarded
+ * returned token may therefore already be superseded. This call captures MIDI
+ * only. It does not implement PANIC or flush any engine queue. */
+uint32_t plat_midi_cut(void);          /* nonzero opaque token; supersedes prior cuts */
+/* Audio consumer: packet and tag are one atomic consume. Tag 0 = accepted before
+ * latest cut; tag equal to latest cut = accepted after it. Outputs are untouched
+ * on empty. Compare for equality, never order/subtract tokens. Consume returned
+ * tags against the current cut, before another cut supersedes them; do not keep
+ * old tokens/returned tags across a later cut, including token wrap. */
+int plat_midi_in_epoch(uint32_t *pkt, uint32_t *epoch);
 #define PLAT_MIDI_SRC(pkt) (((pkt) >> 4) & 3u)   /* the input of a MIDI in packet: 0 USB, 1 Bluetooth, 2 TRS */
 #define PLAT_MIDI_LINK_END(src) ((uint32_t)(src) << 4)   /* CIN 0, no message: the link of input src ended (MID-15, BLE-16) */
 int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity); /* CPU0 only: atomic matched pair or drop both */

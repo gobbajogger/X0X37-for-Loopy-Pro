@@ -12,6 +12,8 @@
 #define BOARD_SMK37 1
 static uint32_t fm1_irq_mask_save(unsigned n) { (void)n; return 0; }
 static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
+#define FM1_TICKS_PER_US 24u
+static uint32_t fm1_ticks(void) { return 0; }
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 static void uac_out_test_tick(void);
 #include "src/usb.c"

@@ -217,3 +217,5 @@ int drum808_get(const drum808_t *d, int track, int i);
 
 /* true while any voice is still sounding */
 int drum808_active(const drum808_t *d);
+
+void drum808_all_off(drum808_t *d);

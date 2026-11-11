@@ -226,7 +226,24 @@ int plat_midi_pending(void)
     __asm__ volatile("" ::: "memory");
     return mi_r != mi_w;
 }
-int plat_midi_in(uint32_t *pkt)
+uint32_t plat_midi_cut(void)
+{
+    /* Requests may come from main or TIMER5; exclude the audio consumer too.
+     * Clear all slot tags at each cut, so even token wrap cannot revive an old
+     * queued packet. This cut supersedes every previous cut. */
+    uint32_t audio = fm1_irq_mask_save(FM1_IRQ_ALNK0);
+    uint32_t transport = fm1_irq_mask_save(FM1_IRQ_TIMER5);
+    uint32_t i, epoch = mi_epoch + 1u;
+    if (!epoch)
+        epoch = 1u;
+    for (i = 0; i < MQ; i++)
+        mi_fresh[i] = 0u;
+    mi_epoch = epoch;                 /* request capture, both sources excluded */
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, transport);
+    fm1_irq_mask_restore(FM1_IRQ_ALNK0, audio);
+    return epoch;
+}
+int plat_midi_in_epoch(uint32_t *pkt, uint32_t *epoch)
 {
     /* Ingress overflow can compact the live ring in TIMER5. Keep its slot
      * read and consume together so an interrupted read cannot skip a note. */
@@ -234,10 +251,16 @@ int plat_midi_in(uint32_t *pkt)
     int found = mi_r != mi_w;
     if (found) {
         *pkt = midi_in_q[mi_r % MQ];
+        *epoch = mi_fresh[mi_r % MQ] ? mi_epoch : 0u;
         mi_r++;
     }
     fm1_irq_mask_restore(FM1_IRQ_TIMER5, irq);
     return found;
+}
+int plat_midi_in(uint32_t *pkt)
+{
+    uint32_t epoch;
+    return plat_midi_in_epoch(pkt, &epoch);
 }
 void plat_midi_out(uint32_t pkt)
 {

@@ -281,7 +281,12 @@ static void test_actions_and_reset(void)
     setup(V_PART, PART_303A); fader(0, 0); CHECK(smc_ui_active());
     ui_init(); CHECK(!smc_ui_active());
     fader(0, 1); CHECK(smc_ui_active());
-    input(); /* The popup revokes the keyboard's live-key owner. */
+    input(); /* The popup has retired its keyboard context. */
+    /* A real queued physical release, not a no-note popup, owns work that
+     * must finish at the audio boundary before project transfer. */
+    uint32_t generation, context; int arp;
+    engine_live_key_state(0, &generation, &arp, &context);
+    CHECK(engine_live_key(0, generation, 1, 48, 0, 0, 0));
     CHECK(engine_project_notes());
     CHECK(ui_project_begin() == UI_PROJECT_BUSY); CHECK(!ui_project_busy());
     audio_block(); CHECK(!engine_project_notes());

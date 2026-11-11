@@ -62,6 +62,10 @@ static struct { uint8_t overlay; } ui;
 static uint8_t observed[64];
 static unsigned nobs, mmc_count;
 static int busy;
+/* This link-epoch fixture records UI dispatch only. Real PANIC lifetime and
+ * blocked-release behavior are exercised by composed_smc_panic_test.c. */
+static void smc_panic_reset(void) {}
+static void smc_panic_sync_mode(void) {}
 static int perf_testing(void) { return 0; }
 static int ui_project_busy(void) { return busy; }
 static void engine_smc_solo(int mask) { (void)mask; }

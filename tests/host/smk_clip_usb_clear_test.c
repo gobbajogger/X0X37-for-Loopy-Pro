@@ -23,6 +23,8 @@ static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 #define BOARD_SMK37 1
 #define X0X_BLE 0
 #define SMK_BIG
+#define FM1_TICKS_PER_US 24u
+static uint32_t fm1_ticks(void) { return 0; }
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
 #include "src/usb.c"

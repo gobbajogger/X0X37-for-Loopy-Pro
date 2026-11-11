@@ -131,3 +131,5 @@ int drum909_get(const drum909_t *d, int voice, int i);
 
 /* true while any voice is still sounding (for a caller that wants to skip work) */
 int drum909_active(const drum909_t *d);
+
+void drum909_all_off(drum909_t *d);

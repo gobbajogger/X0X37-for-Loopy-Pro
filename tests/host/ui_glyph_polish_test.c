@@ -77,11 +77,11 @@ static void test_synth_level_meter(void){
  }
  puts("PASS original LEVEL/OUTPUT is a live segmented amplitude meter");
 }
-static uint32_t adsr_frame(void){cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(0,49,0);return pixels(cv_px,10,14,220,34);}
+static uint32_t adsr_frame(void){cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(cur_page(),1,0,49,0);return pixels(cv_px,10,14,220,34);}
 static void test_adsr_motion(void){
  chicago();pref_set(PR(R_ENG,T_303,1,11),0);for(int c=7;c<=10;c++)pref_set(PR(R_ENG,T_303,1,c),c==7?80:c==8?40:c==9?80:40);drain_ms(30);
  int p=0;for(;p<pg.n;p++)if(!strcmp(pg.title[p],"ENVELOPE"))break;CHECK(p<pg.n);*page_of(V_PART)=p;build_pages();ui_frame();
- ui_adsr_t env;adsr_values(&env);CHECK(env.attack>.1f && env.attack<.25f);
+ ui_adsr_t env;adsr_values(&env,cur_page());CHECK(env.attack>.1f && env.attack<.25f);
  float a,m;unsigned state,key;CHECK(engine_bass_voice_view(1,&a,&m,&state,&key));CHECK(state==6);uint32_t idle=adsr_frame();
  for(int y=8;y<22;y++)for(int x=10;x<230;x++)CHECK(cv_px[y*240+x]!=swap16(matrix_col())); /* Plot clears knob labels. */
  engine_bass_on_velocity(1,48,0,0,120);drain_ms(12);CHECK(engine_bass_voice_view(1,&a,&m,&state,&key));CHECK(state==0 && key);uint32_t attack=adsr_frame();CHECK(attack!=idle);test_read_only();
@@ -119,14 +119,14 @@ static void test_adsr_idle_values_and_touch(void)
   CHECK(pg.r[p][k].kind==R_ENG && pg.r[p][k].c==7+k);
  }
  ui.touched=-1;ui.touch_until=0;
- cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(0,49,0);
+ cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(cur_page(),1,0,49,0);
  adsr_expected_header_and_labels(-1); /* All four native percentages at idle. */
  for(int k=0;k<4;k++) {
   ui.touched=(int8_t)k;ui.touch_until=plat_ms()+900u;
-  cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(0,49,0);
+  cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(cur_page(),1,0,49,0);
   adsr_expected_header_and_labels(k); /* K5, K6, K7, K8 highlighted. */
   now_ms+=901;
-  cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(0,49,0);
+  cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(cur_page(),1,0,49,0);
   adsr_expected_header_and_labels(-1); /* All four return after timeout. */
  }
  ui.touched=-1;ui.touch_until=0;
@@ -138,6 +138,11 @@ static void test_values_and_bounds(void){
    pref_t r=pg.r[p][k];if(!orig_strip_slot(r))continue;const x0x_param_t *d=pref_desc(r);
    const int pots[5]={0,32,64,96,127};uint32_t previous=0;
    int kind=engine_bass_sound_bank(&proj.sound,r.b);
+   /* ENV motion needs cutoff headroom; the preceding cutoff sweep ends at
+    * its upper bound, where different depths can legitimately clip alike. */
+   if(kind==ORIGINAL_SOUND_CHICAGO && r.c==4){
+    pref_set(PR(R_ENG,T_303,r.b,2),64);pref_set(PR(R_ENG,T_303,r.b,3),110);drain_ms(30);
+   }
    for(int v=0;v<5;v++){
     int value=pots[v]*d->max/127;pref_set(r,value);drain_ms(15);
     int x,y;uint32_t h=polish_glyph(r,value,&x,&y);

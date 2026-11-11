@@ -186,12 +186,16 @@ static void priority_regression(void)
         smc_frame();
         for (int strip = 0; strip < 8; strip++) assert(smc.lit[16 + strip] == 1);
         message(0x90, 0x2F, 127);
+        assert(smc.sel[kit] == 0); /* a pending BANK chord cannot navigate */
+        message(0x80, 0x2F, 0);    /* an uncombined BANK tap commits on release */
         assert(smc.sel[kit] == 8);
         for (int strip = 0; strip < 8; strip++) {
             assert(smc.lit[16 + strip] == (strip < 3));
             assert(smc.lit[24 + strip] == (strip == 0));
         }
         message(0x90, 0x2E, 127);
+        assert(smc.sel[kit] == 8);
+        message(0x80, 0x2E, 0);
         for (int strip = 0; strip < 8; strip++) assert(smc.lit[16 + strip] == 1);
         /* The owner-selected drum R/S layout follows the same visible bank. */
         setup(kit + 1, 1);

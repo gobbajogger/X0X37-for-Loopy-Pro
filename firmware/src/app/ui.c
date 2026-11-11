@@ -11,6 +11,8 @@
  * Keys: F3..G5; the 16 white keys are steps (HOME: patterns), the 11 black keys a drum
  * machine's tracks or the break's slice pads (HOME: part mutes). */
 #include "x0x.h"
+#include "panic_chord.h"
+#include "play_question.h"
 #include "home_pattern_glyph.h" /* HOME complete patterns, per-hit velocity */
 #include "ui_pictograms.h"
 #include "../x0x_cold.h"                       /* X0X_COLD: input and menu code of the main loop, built for size */
@@ -25,6 +27,7 @@
 #include "../dsp/fxbus.h"                      /* FX_* indices for SEND FX commit */
 #include "note_names.h"                        /* X0X_NOTE_N: one C…B table with clip/chord */
 #include "undo.c"
+#include "sound_reset.c"
 
 /* Printed SMK-37 Pro/Elite legends: panel.c + smk_input.h (unit-confirmed).
  * Simulator commands and logical button/encoder roles do not change. */
@@ -147,6 +150,7 @@ enum { ACT_NONE, ACT_SAVE, ACT_LOAD, ACT_CLEAR_PART, ACT_CLEAR_PAT, ACT_COPY, AC
 #if BOARD_SMK37 && X0X_DEV_PADCAL
        ACT_PADCAL,
 #endif
+       ACT_RESET_SOUND,
 };
 
 typedef struct {
@@ -231,6 +235,7 @@ static void mark_dirty(void) { ui.dirty = 1; }
 
 static uint8_t save_wait;
 static void live_boundary(int entry);
+static void keyboard_panic_reset(uint32_t btn);
 static uint8_t project_busy, project_revision;
 static uint32_t song_structure_revision; /* runtime identity epoch for frozen song-bar controls */
 int ui_project_busy(void) { return project_busy != 0; }
@@ -238,6 +243,7 @@ X0X_COLD static void project_input_sync(void)
 {
     int i;
     ui.btn = ui.btn_used = plat_buttons();
+    keyboard_panic_reset(ui.btn);
     ui.keys = plat_keys();
     for (i = 0; i < NE; i++) {
         (void)plat_enc(i);
@@ -2400,6 +2406,76 @@ static void perf_test_tick(void)
     }
 }
 
+static int saved_sound_present(int part)
+{
+    int target, voice, nvoice, tag;
+    return !sound_reset_span(part, &target, &voice, &nvoice, &tag) &&
+        !sound_reset_empty(&proj.sound, target, voice, nvoice, tag);
+}
+
+static void ask_sound_reset(int part)
+{
+    engine_bass_edit_hold(1);
+    if (saved_sound_present(part)) ask(ACT_RESET_SOUND, part, "RESET SOUND", PART_N[part]);
+    else say("NO SAVED SOUND ", PART_N[part]);
+    engine_bass_edit_hold(0);
+}
+
+/* Foreground only. Stack factory image avoids persistent RAM and never borrows
+ * project_stage: that object holds the undo baseline. Reset is one gesture. */
+X0X_COLD static void reset_sound(int part)
+{
+    sound_t factory;
+    int target, voice, nvoice, tag;
+    uint8_t mute_proxy = (uint8_t)seq.mute; /* data helper only checks this pointer for null */
+    if (project_busy || sound_reset_span(part, &target, &voice, &nvoice, &tag)) return;
+    engine_bass_edit_hold(1);
+    if (!saved_sound_present(part)) {
+        say("NO SAVED SOUND", 0);
+        engine_bass_edit_hold(0);
+        return;
+    }
+    record_finish(); /* finalize audio-owned recording before the undo snapshot */
+    engine_sound_defaults(&factory);
+#if X0X_BASS_TAGGED_SOUND
+    unsigned mask = tag >= 0 ? 1u << tag : 0;
+    if (mask) {
+        bass_base_state_t next;
+        memcpy(next.cell, factory.v[T_303], sizeof next.cell);
+        memcpy(next.tag, factory.bass, sizeof next.tag);
+        engine_project_hold(1);
+        int ready = engine_bass_base_ready(mask, &next);
+        if (ready) {
+            engine_project_hold(0);
+            ui.overlay = O_ASK; /* retry after notes/input or sound locks are released */
+            say(ready > 0 ? "UNDO WAIT NOTE / INPUT" :
+                ready == -4 ? "UNDO SOUND LOCKS" : "UNDO ENGINE UNAVAILABLE", 0);
+            engine_bass_edit_hold(0);
+            return;
+        }
+    }
+#endif
+    /* Keep preceding mixer/part edits out of the reset's undo entry. */
+    undo_commit_stable();
+    int result = sound_reset_part(&proj.sound, &factory, part, &mute_proxy, &undo);
+    if (result == SOUND_RESET_OK) {
+#if X0X_BASS_TAGGED_SOUND
+        if (mask) engine_bass_base_restore(mask);
+        else
+#endif
+        for (int v = 0; v < nvoice; ++v)
+            for (int i = 0; i < engine_nparams(target, voice + v) && i < NPARAMS_MAX; ++i)
+                ui_restore_base(target, voice + v, i);
+        mark_dirty();
+        build_pages();
+        say("RESET SOUND ", PART_N[part]);
+    } else say(result == SOUND_RESET_NO_SAVED ? "NO SAVED SOUND" : "UNDO UNAVAILABLE", 0);
+#if X0X_BASS_TAGGED_SOUND
+    if (mask) engine_project_hold(0);
+#endif
+    engine_bass_edit_hold(0);
+}
+
 static void set_view(int v);
 
 X0X_COLD static void run_action(int act, int arg)
@@ -2407,6 +2483,7 @@ X0X_COLD static void run_action(int act, int arg)
     char t[28];
     if (act == ACT_CLEAR_PART || act == ACT_CLEAR_PAT || act == ACT_COPY) record_finish();
     switch (act) {
+    case ACT_RESET_SOUND: reset_sound(arg); break;
     case ACT_SAVE: save_project(); break;
     case ACT_LOAD: (void)ui_project_load(); break;
     case ACT_CLEAR_PART:
@@ -3383,7 +3460,7 @@ static void key_event(int k, int down)
 {
     /* End the press-time BREAK owner before modal/view/clip dispatch can hide it.
      * Paging is blocked while held, so its slice identity remains stable. */
-    int oldbl = KEY_BLACK[k];
+    int oldbl = KEY_BLACK[k], w = KEY_WHITE[k];
     if (!down && oldbl >= 0 && ((ui.brk_localkeys | ui.brk_pinkeys) & (1u << oldbl))) {
         if (ui.brk_localkeys & (1u << oldbl))
             engine_brk_live(oldbl < 8 ? 32 + ui.brk_page * 8 + oldbl : oldbl, 0);
@@ -3391,6 +3468,18 @@ static void key_event(int k, int down)
         ui.brk_pinkeys &= (uint16_t)~(1u << oldbl);
         engine_brk_edit_hold((ui.brk_localkeys & 255u) || ui.brk_pinkeys);
         return;
+    }
+    /* SEQ's held step can remain down while EDIT shows its sound knobs. Its
+     * release finishes that same gesture; EDIT never starts an unseen step. */
+    if (!down && w >= 0 && ui.view == V_PART) {
+        if (is_drum() && ui.hold_step >= 0 && (ui.hold_step & 15) == w) {
+            drum_step(ui.part, w, 0);
+            return;
+        }
+        if (is_303() && ui.held_step >= 0 && (ui.held_step & 15) == w) {
+            bass_step_key(w, 0);
+            return;
+        }
     }
     if (live_central_event(k,down)) return;
     if (!down) {
@@ -3435,19 +3524,7 @@ static void key_event(int k, int down)
 #endif
         return;   /* clip mode: the pads launch clips, the keybed plays MIDI to Loopy (main_fm1.c clip keys) */
 #endif
-    int w = KEY_WHITE[k], bl = KEY_BLACK[k], wp = w >= 0 ? ui.pbank * 16 + w : -1;   /* wp: a white key's pattern */
-    /* SEQ's held step can remain down while EDIT shows its sound knobs. Its
-     * release finishes that same gesture; EDIT never starts an unseen step. */
-    if (!down && w >= 0 && ui.view == V_PART) {
-        if (is_drum() && ui.hold_step >= 0 && (ui.hold_step & 15) == w) {
-            drum_step(ui.part, w, 0);
-            return;
-        }
-        if (is_303() && ui.held_step >= 0 && (ui.held_step & 15) == w) {
-            bass_step_key(w, 0);
-            return;
-        }
-    }
+    int bl = KEY_BLACK[k], wp = w >= 0 ? ui.pbank * 16 + w : -1;   /* wp: a white key's pattern */
     if (ui.overlay == O_ASK || ui.view == V_PERF || perf_testing())
         return;
     if (down && w >= 0 && (ui.btn & (1u << B_SAVE))) {     /* SAVE held + white key: paste the pattern here */
@@ -3710,6 +3787,30 @@ static int cancel_sound_request(void)
 }
 #endif
 
+/* Shared NO behavior: restore the question's caller, including Global's list. */
+static void answer_no(void)
+{
+    ui.overlay = ui.ask_overlay;
+    say("CANCELLED", 0);
+    if (ui.view == V_GLO) ui.overlay = O_LIST;
+}
+
+/* Return 1 when HOME+PLAY has already performed redo. Otherwise the caller
+ * continues its normal PLAY path, after answering NO when a question is open. */
+static int play_answer_question(int home_held)
+{
+    x0x_play_question_t policy = x0x_play_question_resolve(ui.overlay == O_ASK, 1, home_held);
+    for (unsigned i = 0; i < policy.n; ++i) {
+        if (policy.act[i] == X0X_PQ_ANSWER_NO) answer_no();
+        else if (policy.act[i] == X0X_PQ_REDO) {
+            ui.btn_used |= ui.btn & (1u << B_HOME);
+            do_undo(1);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 X0X_COLD static void button_tap(int b)
 {
     if (perf_testing()) {                             /* the test owns the transport: HOME or PLAY stop it */
@@ -3717,13 +3818,14 @@ X0X_COLD static void button_tap(int b)
             perf_test_abort();
         return;
     }
-    if (ui.overlay == O_ASK) {                        /* a question takes SEL or HOME only */
+    if (ui.overlay == O_ASK && b == B_PLAY &&
+        play_answer_question(ui.btn & (1u << B_HOME))) return;
+    if (ui.overlay == O_ASK) {                        /* SEL confirms; HOME answers NO */
         if (b == B_SEL) {
             ui.overlay = O_NONE;
             run_action(ui.ask_act, ui.ask_arg);
         } else if (b == B_HOME) {
-            ui.overlay = ui.ask_overlay;
-            say("CANCELLED", 0);
+            answer_no();
         } else
             return;
         if (ui.view == V_GLO)
@@ -3892,6 +3994,30 @@ X0X_COLD static void button_tap(int b)
     }
     default: break;
     }
+}
+
+static x0x_panic_chord_t kbd_panic;
+
+/* Controls held across a project transfer cannot start a new panic chord. */
+static void keyboard_panic_reset(uint32_t btn)
+{
+    kbd_panic.active = 0;
+    kbd_panic.inhibited = (uint8_t)((btn & ((1u << B_FX) | (1u << B_SEQ))) != 0u);
+}
+
+static unsigned keyboard_panic(uint32_t btn, uint32_t changed)
+{
+    unsigned held = 0, result;
+    if (!(changed & ((1u << B_FX) | (1u << B_SEQ))))
+        return 0;
+    if (btn & (1u << B_FX))
+        held |= X0X_PANIC_FIRST;
+    if (btn & (1u << B_SEQ))
+        held |= X0X_PANIC_SECOND;
+    result = x0x_panic_chord_update(&kbd_panic, held, X0X_PANIC_KEYBOARD);
+    if (result & X0X_PANIC_FIRE)
+        engine_request_notes_off();
+    return (result & X0X_PANIC_CONSUME) ? 1u : 0u;
 }
 
 /* Physical Free Play rate pads, ported from 6ae0928's division_pad_* route.
@@ -4128,6 +4254,7 @@ static int live_central_event(int key,int down)
 X0X_COLD static void input_body(void)
 {
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
+    unsigned panic_consume;
     if(btn!=ui.btn || keys!=ui.keys)bass_layout_accept();
 #if X0X_BASS_PRESET_PREVIEW
     static int observed_bank[NBASS]={-1,-1};
@@ -4172,6 +4299,7 @@ X0X_COLD static void input_body(void)
     extern void smk_play_note_button(uint8_t pressed, uint8_t home_held);
 #endif
     ch = btn ^ ui.btn;
+    panic_consume = keyboard_panic(btn, ch);
 #if BOARD_SMK37
     if (ch || keys != ui.keys)
         smc_ui_cancel();
@@ -4180,6 +4308,18 @@ X0X_COLD static void input_body(void)
         uint32_t m = 1u << i;
         if (!(ch & m))
             continue;
+        /* PANIC_CONSUME */
+        if ((i == B_FX || i == B_SEQ) && panic_consume) {
+            if (btn & m) {
+                any_button = 1;
+                ui.down_t[i] = plat_ms();
+                ui.btn_used |= m;
+            } else
+                ui.btn_used &= ~m;
+            if (revision != project_revision)
+                return;
+            continue;
+        }
 #if BOARD_SMK37
         if ((i == B_PLAY || i == B_REC) &&
             smk_clip_history_button((uint8_t)i, (uint8_t)((btn & m) != 0u), (uint8_t)((btn >> B_HOME) & 1u))) {
@@ -4396,6 +4536,7 @@ _Static_assert(HDR_H + 2u * BAND_H + KNOB_H == 240u, "the three strips must tile
  * 48 x 16 x RGB565 = 1536 bytes, 1.024 ms at the SMK-37's 12 MHz SPI. */
 static uint16_t cv_lcd_txbuf[X0X_LCD_MAX_DMA_BYTES / 2u];
 static uint32_t blit_hash[4];
+static uint8_t part_header_snapshot_valid;
 static uint8_t cv_tile_valid[4];
 static uint32_t cv_hash(void)
 {
@@ -4456,6 +4597,7 @@ static void cv_lcd_full(uint32_t x, uint32_t y)
 }
 static void cv_commit(int region, uint32_t x, uint32_t y)
 {
+    if (region == 0) part_header_snapshot_valid = 0;
     uint32_t h = cv_hash();
     if (h != blit_hash[region]) {
         blit_hash[region] = h;
@@ -4514,6 +4656,7 @@ static void cv_commit_full_with_tiles(int region, uint32_t x, uint32_t y,
  * pay only the same single whole-band hash as 0.0.24.3. */
 static void cv_commit_header(void)
 {
+    part_header_snapshot_valid = 0;
     if (!blit_hash[0] || !cv_tile_valid[0]) {
         /* Cold full-band transfer already computes all tile hashes. Avoid
          * hashing the full canvas twice; learn its full hash next frame. */
@@ -4791,6 +4934,7 @@ static float turns(float y, float x)
 
 /* a knob: a 270-degree track from 7:30 to 4:30, thickness th, anti-aliased, round ends; the
  * value filled from the start (or from the top, for a bipolar value) and a round handle */
+#include "ui_arc8_geometry.h"
 static void arc(int32_t cx, int32_t cy, int32_t r, float v, uint16_t track, uint16_t fill, int bipolar)
 {
     const float th = 3.4f, a0 = 0.375f, sweep = 0.75f;  /* start at 135 degrees, in turns */
@@ -4798,7 +4942,16 @@ static void arc(int32_t cx, int32_t cy, int32_t r, float v, uint16_t track, uint
     float lo = bipolar ? (v < 0.5f ? v : 0.5f) : 0.0f, hi = bipolar ? (v < 0.5f ? 0.5f : v) : v;
     int32_t x, y;
     v = fm_clampf(v, 0.0f, 1.0f);
-    for (y = -r - 1; y <= r + 1; y++)
+    if (r == 8) {
+        /* Keep original y/x order, exact float t bits and rounded coverage.
+         * Caps/handle below and every other radius retain the original path. */
+        for (unsigned i = 0; i < sizeof arc8_geometry / sizeof *arc8_geometry; ++i) {
+            float t;
+            memcpy(&t, &arc8_geometry[i].turns_bits, sizeof t);
+            px_blend(cx + arc8_geometry[i].x, cy + arc8_geometry[i].y,
+                     (t >= lo && t <= hi) ? fill : track, arc8_geometry[i].coverage);
+        }
+    } else for (y = -r - 1; y <= r + 1; y++)
         for (x = -r - 1; x <= r + 1; x++) {
             float dx = (float)x + 0.5f - 0.5f, dy = (float)y + 0.5f - 0.5f, d = fm_sqrtf(dx * dx + dy * dy), t, a;
             a = fm_clampf(ro + 0.5f - d, 0.0f, 1.0f) * fm_clampf(d - ri + 0.5f, 0.0f, 1.0f);
@@ -4973,6 +5126,15 @@ static UI_DRAW void header_pattern_cue(int x,int part)
     nav_arrow(x,6,1,ink);header_pattern_badge(x+8,part,cue,0,C_GRAY);
 }
 
+/* Exact inputs of the static PART header; keep the newer audio-owned
+ * metro phase and tiled display owner from 8be16486. */
+typedef struct {
+    const char *name;
+    uint16_t colours[5], col;
+    uint8_t light, part, page, pages, phase, rec, save, night;
+} part_header_snapshot_t;
+static part_header_snapshot_t part_header_snapshot;
+
 static UI_DRAW void draw_header(void)
 {
 #if BOARD_SMK37
@@ -4983,6 +5145,27 @@ static UI_DRAW void draw_header(void)
     int ss = save_state();
     int pickup = ui.msg[0] == 'P' && ui.msg[1] == 'I' && ui.msg[2] == 'C' &&
                  ui.msg[3] == 'K' && ui.msg[4] == ' ';
+    part_header_snapshot_t snapshot = {0};
+    int cacheable = !ui.msg_until && ui.view == V_PART && (is_drum() || is_303()) &&
+        ui.overlay == O_NONE && !ui.help && !division_pad_owner() &&
+        seq_cue_of(&seq, ui.part) < 0
+#if BOARD_SMK37
+        && !smk_clip_mode_on()
+#endif
+        ;
+    if (cacheable) {
+        snapshot.name = part_display(ui.part);
+        if (is_303()) snapshot.name = engine_bass_bank(bidx()) == ORIGINAL_SOUND_MIAMI ?
+            (bidx() ? "MIAMI B" : "MIAMI A") : (bidx() ? "CHICAGO B" : "CHICAGO A");
+        memcpy(snapshot.colours, pal, sizeof pal);
+        snapshot.col = matrix_col(); snapshot.light = ui_theme_light;
+        snapshot.part = ui.part; snapshot.page = (uint8_t)cur_page(); snapshot.pages = pg.n;
+        snapshot.phase = seq.metro_view; snapshot.rec = ui.rec; snapshot.save = (uint8_t)ss;
+        snapshot.night = (uint8_t)(matrix_three_rows() || X0X_ORIGINAL_SYNTH);
+        if (part_header_snapshot_valid && blit_hash[0] && cv_tile_valid[0] &&
+            !memcmp(&snapshot, &part_header_snapshot, sizeof snapshot)) return;
+    }
+    part_header_snapshot_valid = 0;
     cv_begin(240, HDR_H, C_BLACK);
     night_panel(0,0,240,HDR_H,0);
     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
@@ -5045,6 +5228,7 @@ static UI_DRAW void draw_header(void)
         if(ui.rec) dot(190,9,3,RGB(255,50,50));
         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
         cv_commit_header();
+        if (cacheable) { part_header_snapshot = snapshot; part_header_snapshot_valid = 1; }
         return;
     }
     if (pickup) {                         /* fader pickup hint in the left chip; song/pattern and tempo stay visible */
@@ -5807,7 +5991,7 @@ static UI_DRAW void draw_master_wave(void)
     enum { X0=8,W=188,MID=34,AMP=26 };
     static int16_t latched[SCOPE_N];
     static uint32_t last_ms, last_w, last_hash;
-    static uint8_t have;
+    static uint8_t have, flat;
     uint32_t now = plat_ms(), w = eng_scope_w, h, base;
     int i, x, y0, y1;
     if (!have || (int32_t)(now - last_ms) >= 100) {
@@ -5816,8 +6000,11 @@ static UI_DRAW void draw_master_wave(void)
         for (i = 0; i < (int)SCOPE_N; i++)
             h = (h ^ (uint32_t)(uint16_t)eng_scope[(base + (uint32_t)i) & (SCOPE_N - 1u)]) * 16777619u;
         if (!have || h != last_hash || w != last_w) {
-            for (i = 0; i < (int)SCOPE_N; i++)
+            flat = 1;
+            for (i = 0; i < (int)SCOPE_N; i++) {
                 latched[i] = eng_scope[(base + (uint32_t)i) & (SCOPE_N - 1u)];
+                if (latched[i]) flat = 0;
+            }
             last_hash = h;
             last_w = w;
             have = 1;
@@ -5826,6 +6013,11 @@ static UI_DRAW void draw_master_wave(void)
     }
     night_panel(3,1,198,66,0);
     cv_rect(X0,MID,W,1,C_LINE);
+    if (flat) {
+        /* Same inclusive horizontal pixels as 187 adjacent one-pixel spans. */
+        cv_line(X0, MID, X0 + W - 1, MID, part_col());
+        return;
+    }
     y0 = MID - (int)latched[0] * AMP / 32768;
     if (y0 < 2)
         y0 = 2;
@@ -8205,6 +8397,7 @@ static void leds(void)
 /* ===================================================================== frame === */
 X0X_COLD void ui_init(void)
 {
+    part_header_snapshot_valid = 0;
 #if BOARD_SMK37
     smc_ui_cancel();
 #endif

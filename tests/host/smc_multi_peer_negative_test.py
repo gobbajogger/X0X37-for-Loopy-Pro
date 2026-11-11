@@ -13,8 +13,8 @@ mutants = {
     'lost-solo-union': ('engine_smc_solo_targets(parts, drums[0], drums[1]);',
                         'engine_smc_solo_targets(smc.solo, smc.drum_solo[0], smc.drum_solo[1]);'),
      'reset-rearms-other-fx': (
-        'memset(smc_states, 0, sizeof smc_states);\n    for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) {',
-        'for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) {\n        memset(&smc, 0, sizeof smc);'),
+        'memset(smc_states, 0, sizeof smc_states);\n    /* Retire every old-project chord before any peer publishes new state. */\n    for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) smc_panic_reset();\n    for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) {',
+        'for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) smc_panic_reset();\n    for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) {\n        memset(&smc, 0, sizeof smc);'),
     'wrong-feedback-peer': ('plat_ble_smc_send_slot(smc_slot, msg, 3)', 'plat_ble_smc_send_slot(0, msg, 3)'),
 }
 selected = sys.argv[1:] or list(mutants)

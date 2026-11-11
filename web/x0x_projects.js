@@ -37,6 +37,8 @@ export async function sha256(b) {
 // The inner file is firmware's canonical persistent project schema, not a sample archive.
 export function parseProject(b, expectedLength = null) {
   b = bytes(b);
+  const offChk=m=>(m&1?0x17:0)^(m&2?0x2E:0)^(m&4?0x5C:0)^(m&8?0xB8:0)^(m&16?0x67:0);
+  const offWordOk=(w,p,s)=>w===0 || (p===13 && s===13 && (w&0xFFFF0000)>>>0===0x4F460000 && (w&0xFF)>=1 && (w&0xFF)<=31 && (w>>>8&0xFF)===offChk(w&0xFF));
   if (b.length < PROJECT_HEADER || b.length > 0x1FFFFF) throw fail("Invalid project file size.");
   const v = view(b);
   if (v.getUint32(0, true) !== 0x50583058) throw fail("The project header is missing.");
@@ -44,7 +46,7 @@ export function parseProject(b, expectedLength = null) {
   const knownSchema=(patternVersion===3 && (soundRevision===4 || soundRevision===10)) ||
     ([6,8].includes(patternVersion) && (soundRevision===10 || soundRevision===11)) ||
     ([7,9].includes(patternVersion) && soundRevision===11) || (patternVersion===13 && soundRevision===13);
-  if(v.getUint32(4,true)!==1 || v.getUint32(16,true)!==1 || !knownSchema || v.getUint32(28,true)!==0)
+  if(v.getUint32(4,true)!==1 || v.getUint32(16,true)!==1 || !knownSchema || !offWordOk(v.getUint32(28,true),patternVersion,soundRevision))
     throw fail("This project uses an incompatible file, project, pattern or sound version.","version");
   if((soundRevision===13 || [6,7,8,9].includes(patternVersion) && soundRevision===11) && b.length!==36452)
     throw fail("This tagged project has an unsupported structural layout.","version");
@@ -52,7 +54,7 @@ export function parseProject(b, expectedLength = null) {
   if (expectedLength !== null && b.length !== expectedLength) throw fail("The project size does not match this firmware.", "version");
   if (v.getUint32(12, true) !== crc32(b.subarray(PROJECT_HEADER))) throw fail("The project payload is damaged (CRC).");
   return { length: b.length, payloadLength: b.length - PROJECT_HEADER, fileVersion: 1, projectVersion: 1,
-    patternVersion, soundRevision };
+    patternVersion, soundRevision, partOffMask: v.getUint32(28,true)&0xFF };
 }
 
 // Historical schemas stay readable for inspection and byte-exact backups. Device

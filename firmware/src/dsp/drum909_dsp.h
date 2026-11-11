@@ -205,6 +205,34 @@ static inline float d9_tri(uint32_t ph)
 /* ===================================================================== */
 /* tanh from the table                                                    */
 /* ===================================================================== */
+/* PR861: decode adjacent table entries with one packed-run search. */
+static inline void d9_tanh_pair(unsigned i, float *t0, float *t1)
+{
+#if defined(__GNUC__) && defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    unsigned r = X0X_TANH_RUNS - 1u, start = x0x_tanh_run_end[X0X_TANH_RUNS - 2];
+    if (i < start) {
+        r = 0; start = 0;
+        while (i >= x0x_tanh_run_end[r]) { start = x0x_tanh_run_end[r]; ++r; }
+    }
+    const x0x_tanh_run_t *run = &x0x_tanh_runs[r];
+    if (i + 1u < x0x_tanh_run_end[r] && 2u * run->width <= 57u) {
+        union { uint32_t u; float f; } a, b;
+        a.u = b.u = run->base;
+        if (run->width) {
+            const unsigned bit = (i - start) * (unsigned)run->width;
+            uint64_t w;
+            __builtin_memcpy(&w, (const unsigned char *)&x0x_tanh_words[run->offset] + (bit >> 3), sizeof w);
+            w >>= bit & 7u;
+            const uint32_t mask = (1u << run->width) - 1u;
+            a.u |= (uint32_t)w & mask;
+            b.u |= (uint32_t)(w >> run->width) & mask;
+        }
+        *t0 = a.f; *t1 = b.f; return;
+    }
+#endif
+    *t0 = x0x_tanh_value(i); *t1 = x0x_tanh_value(i + 1u);
+}
+
 D9_ONE float d9_tanh(float u)
 {
     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
@@ -214,8 +242,8 @@ D9_ONE float d9_tanh(float u)
     } else {
         const int32_t i = (int32_t)a;
         const float fr = a - (float)i;
-        const float t0 = x0x_tanh_value((unsigned)i);
-        const float t1 = x0x_tanh_value((unsigned)i + 1u);
+        float t0, t1;
+        d9_tanh_pair((unsigned)i, &t0, &t1);
         t = t0 + (t1 - t0) * fr;
     }
     return u < 0.0f ? -t : t;

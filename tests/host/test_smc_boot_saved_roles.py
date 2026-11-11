@@ -34,7 +34,7 @@ assert '#if' not in boot_body and '#endif' not in boot_body
 original = unique(r'static int read_project\(project_t \*pr\)\s*\{\s*\n', PROJECT, 'revision-13 loader')
 section = PROJECT[original.end():PROJECT.index('\nunsupported:', original.end())]
 assert 'uint8_t device_bt = proj.set.bt;' in section
-start = section.index('    int bad = 0, rc = load_settings(&set);')
+start = unique(r'^    int bad = 0[^;]*rc = load_settings\(&set\);', section, 'settings result declaration').start()
 end = section.index('    rc = load_sound(&pr->sound);', start)
 settings_body = section[start:end]
 assert 'goto unsupported;' in settings_body
@@ -63,7 +63,11 @@ typedef struct { settings_t set; } project_t;
 static project_t proj;
 static int settings_result, checks;
 static settings_t saved;
+static uint8_t io_buf[64], off_mask, settings_read_failed, settings_load_failed;
+static uint8_t *part_off_of(project_t *pr) { (void)pr; return &off_mask; }
 static int load_settings(settings_t *out) {
+    settings_read_failed = (uint8_t)(settings_result == -2);
+    settings_load_failed = 0;
     if (settings_result == 0) *out = saved;
     return settings_result;
 }
@@ -83,8 +87,12 @@ static int choose_saved_role(void) {
     project_defaults_for(&proj, device_bt);
     settings_t set = proj.set;
 ''' + settings_body + r'''
+    (void)present; (void)transient; (void)settings_present;
     if (bad) project_defaults_for(&proj, device_bt);
     return bad ? -1 : 0;
+failed:
+    project_defaults_for(&proj, device_bt);
+    return rc;
 unsupported:
     return -9;
 }

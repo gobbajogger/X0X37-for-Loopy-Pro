@@ -39,7 +39,12 @@ def main():
     cq_start = source.index("enum { C_PARAM_T0")
     cq_end = source.index("static volatile uint32_t cq_w, cq_r;", cq_start)
     cq_end += len("static volatile uint32_t cq_w, cq_r;")
+    if "static void cq_mark_fresh(" in source:
+        cq_end = source.index("static int cq_replace(", cq_start)
     declarations = source[cq_start:cq_end]
+    if "static volatile uint8_t notes_off_req;" in source:
+        start = source.index("static volatile uint8_t notes_off_req;")
+        declarations += "\n" + source[start:source.index("void engine_request_notes_off(", start)]
     for first in ("enum { T_909,", "enum { PART_909,"):
         start = api.index(first)
         declarations += "\n" + api[start:api.index(";", start) + 1]

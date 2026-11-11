@@ -37,7 +37,10 @@ mq = int(re.search(r"^#define MQ (\d+)u", usb, re.M).group(1))
 boq = int(re.search(r"^#define BLE_OQ (\d+)u", ble, re.M).group(1))
 ring = usb[usb.index("/* MIDI rings: 4-byte USB-MIDI event packets */"):
            usb.index("static void midi_out_event(uint32_t pkt)")]
-ring += function(usb, "midi_out_event") + "\n" + function(plat, "plat_midi_in")
+ring += function(usb, "midi_out_event") + "\n"
+if "int plat_midi_in_epoch(" in plat:
+    ring += function(plat, "plat_midi_in_epoch") + "\n"
+ring += function(plat, "plat_midi_in")
 ble_helpers = ["ble_out_is_note_off", "ble_out_is_rt_transport", "ble_out_pkt_is_keep"]
 # --source-root also runs this unchanged regression on the pre-Pitch-Bend base.
 if "static int ble_out_is_pitch_bend(" in ble:
