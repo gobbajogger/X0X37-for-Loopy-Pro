@@ -1,0 +1,30 @@
+[
+  {
+    "name": "stop-deadline-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/abort-stage3/test/stop-deadline.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-stop-deadline-qkjv142j/stop-deadline"
+    ],
+    "returncode": 0,
+    "log": "stop-deadline-compile.log"
+  },
+  {
+    "name": "stop-deadline",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/abort-stop-deadline-qkjv142j/stop-deadline"
+    ],
+    "returncode": -6,
+    "log": "stop-deadline.log"
+  }
+]

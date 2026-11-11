@@ -1,0 +1,3 @@
+After production stop: path=cancel refused=1 state=0 waiting=0 handle=0 attempts=1 accepted=0 deadline=3100
+After successful connection: state=0 handle=0 attempts=1 accepted=0 Disconnects=0
+Assertion failed: (c->conn == 0x50 && disconnects == 1 && c->state == BLEC_STOPPING && !linked), function main, file service-stop-probe.c, line 84.

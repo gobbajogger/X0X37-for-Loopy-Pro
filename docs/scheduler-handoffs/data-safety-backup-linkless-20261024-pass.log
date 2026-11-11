@@ -1,0 +1,14 @@
+test_concurrent_creator_wins_on_linkless_filesystem (test_portable_backup.PortableBackupTest.test_concurrent_creator_wins_on_linkless_filesystem) ... ok
+test_corrupted_archive_rejected_before_stage_or_link (test_portable_backup.PortableBackupTest.test_corrupted_archive_rejected_before_stage_or_link) ... ok
+test_existing_destination_not_modified_by_linkless_path (test_portable_backup.PortableBackupTest.test_existing_destination_not_modified_by_linkless_path) ... ok
+test_hardlink_path_unchanged (test_portable_backup.PortableBackupTest.test_hardlink_path_unchanged) ... ok
+test_linkless_atomic_publish_creates_readable_backup (test_portable_backup.PortableBackupTest.test_linkless_atomic_publish_creates_readable_backup) ... ok
+test_permission_error_never_falls_back (test_portable_backup.PortableBackupTest.test_permission_error_never_falls_back) ... ok
+test_replace_path_does_not_depend_on_link (test_portable_backup.PortableBackupTest.test_replace_path_does_not_depend_on_link) ... ok
+test_symlink_conflict_is_not_followed (test_portable_backup.PortableBackupTest.test_symlink_conflict_is_not_followed) ... ok
+test_unsupported_atomic_rename_explains_remediation_and_cleans_stage (test_portable_backup.PortableBackupTest.test_unsupported_atomic_rename_explains_remediation_and_cleans_stage) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.019s
+
+OK

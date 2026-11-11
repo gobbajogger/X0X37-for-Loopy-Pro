@@ -1,0 +1,55 @@
+Stage3 PASS. No actionable source defect remains in the reviewed contribution.
+The original physical input failure remains unresolved.
+
+Candidate: cce6ac5ccd45ebb2809afd973671af96b138748a.
+Candidate tree: cdc6752b931e8bdb49df7c4f44222b1dfd222797.
+Stage3 owner: 01a15ab0-ebcf-7083-a3ec-7bbb353a7535.
+Lane base: 40899e1a47ca704b0d3f63bbd0372ed27b7a5e45.
+
+Separate independent test and investigation reviews pass.
+All 415 selected source inputs, 224 helper inputs, 6 stop inputs and 7 replay inputs match.
+All 81 saved log hashes and three Elite build artifacts match.
+The host compiler, target compiler, SDK and local container image match.
+The 56 retained host commands, 14 stop commands and 7 saved probe commands have their expected results.
+These records include 30 expected nonzero negative controls.
+The final public suite and DIAG tests pass with their recorded sanitizer coverage.
+The four public stop controls fail exact f080d1a5 and pass after repair.
+All five saved production-service probes and 12 saved event-order cases pass.
+Four stale-service examples and the old-caller mutation remain expected negative controls.
+No sanitizer failure precedes their expected functional assertions.
+The matching suites did not run again solely for this stage.
+
+The independent investigation adds one probe for an uncovered event-order combination.
+Its 16 cases pass with ASan and UBSan.
+They cover a different successful handle, both event types, timer wrap, accepted/refused Disconnect, STOPPING and FAILED.
+The probe also checks Bluetooth-on, direct start, matching disconnection and clean restart.
+The retained handle, stop intent and original cutoff survive.
+No accepted Disconnect repeats. Only matching successful disconnection releases the retained link.
+The complete signaling, reconnect, credit, retry, deadline and stop source review has no actionable finding.
+No production or public test source changed in stage3.
+
+The matching replay retains 1268 unchanged payloads, 2616 decoded messages and 513 feedback messages.
+The queue is empty. The performance test is idle. Help and overlay are inactive.
+The peer, HCI framing, mailbox, clock and schedule are simulated.
+Three oversized ATT packets remain excluded. No payload resegmentation occurs.
+The store is synthetic. Target interrupts and physical radio execution remain untested.
+The matching replay did not run again.
+
+The retained Elite DEV build has 1128 bytes of code margin and 524 bytes of static RAM margin.
+Its pool margin is 8364 bytes. The required pool margin is 8192 bytes.
+No new target build ran. No unbuilt Pro artifact is claimed.
+The stage2 package is not a stage4 validated install record.
+Stage4 must use dev_validate for each actual complete package/controller set.
+Use Elite for shared target checks. Pro-specific inputs and actual Pro packages retain applicable checks.
+
+Physical result: NOT TESTED. Original all-input failure: UNRESOLVED.
+No device/controller write, release, full gate, fallback or external push occurred.
+The complete validated DEV-install permission carries forward with its notice requirement.
+No external push is authorized.
+
+Next: one fresh LOCAL scoped DEV stage4.
+Mapping stage4 owner: 01a15a87-298e-7d21-b004-b78d5beafd89.
+Mapping result: /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json.
+That chat retains selection of the sole stage5 integrator for both contributions.
+The saved stage4-prompt.txt carries the complete scope, evidence, permissions and limits.
+The successor record must contain verified actual startup before this stage ends.

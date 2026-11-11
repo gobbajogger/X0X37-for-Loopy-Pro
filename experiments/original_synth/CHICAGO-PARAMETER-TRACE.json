@@ -1,0 +1,285 @@
+{
+  "request": "LX-REQ-032",
+  "scope": "Exact22 public Chicago controls,81 original contexts; not every alternate/native/unselected PCM/filter/global mode",
+  "inventory_sha256": "1b57d7550e3738ef43746cea34e31185092609d1a0983ddbf7ff70bd2f287b23",
+  "controls": [
+    {
+      "id": 0,
+      "name": "OSC Waveform",
+      "targets": [
+        {
+          "native_id": 3,
+          "consumer": "voice_compile.gain.level[0] -> oscillator gain/ramp/render"
+        },
+        {
+          "native_id": 11,
+          "consumer": "voice_compile.gain.level[2] -> oscillator gain/ramp/render"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Glide",
+      "targets": [
+        {
+          "native_id": 16,
+          "consumer": "voice_compile.pitch.portamento -> original ordered glide/current pitch"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "VCF Cutoff",
+      "targets": [
+        {
+          "native_id": 24,
+          "consumer": "voice_compile.cutoff -> MP4 coefficient preparation/filter"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "VCF Peak",
+      "targets": [
+        {
+          "native_id": 25,
+          "consumer": "voice_compile.resonance -> MP4 resonance stage"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "VCF Env Amt",
+      "targets": [
+        {
+          "native_id": 26,
+          "consumer": "voice_compile.env_depth -> VCF envelope modulation/filter"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "VCF Bite",
+      "targets": [
+        {
+          "native_id": 111,
+          "consumer": "engine_output_apply -> fixed Drive canonical Edit1 -> actual Drive"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "VCF Gnaw",
+      "targets": [
+        {
+          "native_id": 7,
+          "consumer": "voice_compile.gain.level[1] -> oscillator gain/ramp/render"
+        },
+        {
+          "native_id": 39,
+          "consumer": "voice_compile.xmod -> prepared exact oscillator coefficients"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Env Attack",
+      "targets": [
+        {
+          "native_id": 28,
+          "consumer": "voice_compile.vcf[0] -> actual VCF EG state/control/filter"
+        },
+        {
+          "native_id": 32,
+          "consumer": "voice_compile.vca[0] -> actual VCA EG state/control/gain"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Env Decay",
+      "targets": [
+        {
+          "native_id": 29,
+          "consumer": "voice_compile.vcf[1] -> actual VCF EG state/control/filter"
+        },
+        {
+          "native_id": 33,
+          "consumer": "voice_compile.vca[1] -> actual VCA EG state/control/gain"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Env Sustain",
+      "targets": [
+        {
+          "native_id": 30,
+          "consumer": "voice_compile.vcf[2] -> actual VCF EG state/control/filter"
+        },
+        {
+          "native_id": 34,
+          "consumer": "voice_compile.vca[2] -> actual VCA EG state/control/gain"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Env Release",
+      "targets": [
+        {
+          "native_id": 31,
+          "consumer": "voice_compile.vcf[3] -> actual VCF EG state/control/filter"
+        },
+        {
+          "native_id": 35,
+          "consumer": "voice_compile.vca[3] -> actual VCA EG state/control/gain"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Amp Mode",
+      "targets": [
+        {
+          "native_id": 107,
+          "consumer": "voice_compile.routing.vca_eg_mode -> actual ADSR/GATE tick"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Amp Level",
+      "targets": [
+        {
+          "native_id": 96,
+          "consumer": "routing.master_squared -> Drive/FX2 output -> original master once"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Arp Switch",
+      "targets": [
+        {
+          "native_id": 62,
+          "consumer": "control_owner control_input.enable -> actual54d94 -> allocator/ARP; no invented immediate prepare"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Arp Mode",
+      "targets": [
+        {
+          "native_id": 61,
+          "consumer": "control_owner allocator.arp_mode -> actual8ff4 selection"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Arp Range",
+      "targets": [
+        {
+          "native_id": 60,
+          "consumer": "control_owner allocator.arp_range -> actual8ff4 selection"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Arp Speed",
+      "targets": [
+        {
+          "native_id": 54,
+          "consumer": "routing.arp_times + pervoiceMG2 times -> original block clock threshold/helper"
+        },
+        {
+          "native_id": 53,
+          "consumer": "routing.arp_base_note + pervoiceMG2 base -> original block clock threshold/helper"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "name": "FX Type",
+      "targets": [
+        {
+          "native_id": 133,
+          "consumer": "ORIGINAL_NO_OP_IN_CMP4_DISPATCH"
+        },
+        {
+          "native_id": 113,
+          "consumer": "engine_output_apply -> actual FX2 pending type/old-new transition"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "name": "FX Edit 1",
+      "targets": [
+        {
+          "native_id": 131,
+          "consumer": "ORIGINAL_NO_OP_IN_CMP4_DISPATCH"
+        },
+        {
+          "native_id": 132,
+          "consumer": "ORIGINAL_NO_OP_IN_CMP4_DISPATCH"
+        },
+        {
+          "native_id": 115,
+          "consumer": "engine_output_apply -> actual selected FX2 Edit1"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "name": "FX Edit 2",
+      "targets": [
+        {
+          "native_id": 128,
+          "consumer": "ORIGINAL_NO_OP_IN_CMP4_DISPATCH"
+        },
+        {
+          "native_id": 129,
+          "consumer": "ORIGINAL_NO_OP_IN_CMP4_DISPATCH"
+        },
+        {
+          "native_id": 116,
+          "consumer": "engine_output_apply -> actual selected FX2 Edit2"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "name": "Pitch Bend",
+      "targets": [
+        {
+          "native_id": 105,
+          "consumer": "routing.bend_bipolar -> held/new voice pitch at actual helper; no duplicate raw wheel sum"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "name": "Damper",
+      "targets": [
+        {
+          "native_id": 108,
+          "consumer": "control_owner -> scheduler_damper immediately -> native cleanup and54d94 on repeated writes"
+        }
+      ]
+    }
+  ],
+  "source_chain": [
+    "chicago_control_owner",
+    "chicago_scheduler/chicago_selector/chicago_allocator",
+    "chicago_note_context/chicago_tuning/chicago_full_mg",
+    "chicago_voice_owner/chicago_voice/chicago_global_mg/chicago_global_stage",
+    "chicago_engine_output/chicago_fx2_wrapper/chicago_fx2_bank"
+  ],
+  "host": "Actual110484frame all81/all22 endpoint composition passes4FMA/sanitizer variants; explicit snapshots and dedicated-history/public-reset projection. Does not qualify original shared arena behavior.",
+  "readiness": "PRODUCER_TESTED_PENDING_REVIEW_NO_ACTIVATION",
+  "Miami": "Retained R2 selected18-control/two-voice graph; guard successor matches184320frame stream in all4configs. Original Analog/secondary selected pitch +0 closure is separate bounded successor evidence. Miami full outer allocator/global-startup/persistence is not newly claimed."
+}

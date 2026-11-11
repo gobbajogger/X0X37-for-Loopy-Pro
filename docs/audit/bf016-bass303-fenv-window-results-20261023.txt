@@ -1,0 +1,19 @@
+BF-016 isolated source-window native evidence only — no full engine linked
+Base commit: 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e
+Original setter blob: 379981bfc39c1bb368d14b5614e258145192224a
+Runner: Linux x86_64, GCC 14.2.0, Clang 17.0.0, UBSan, -Wall -Wextra -Werror
+Test: /mnt/data/loopy-bugfinder-fenv-20261024/fenv_source_window_regression.c
+Baseline intentionally EXPECTS exit 1; candidate projected fix expects 0.
+gcc -O0 baseline: compile exit 0; run exit 1; log_sha256 0ab8c0ca19ff58e2159a67cd0d1c8e5f69bd13d7ea6f5c768920a9404e97fabd
+gcc -O0 fixed: compile exit 0; run exit 0; log_sha256 9548de312edd162f73f62a0ca79f122e0c31d75d3d296f0190e9e7b5221b9366
+gcc -O2 baseline: compile exit 0; run exit 1; log_sha256 4e2c3dd13f6a46a2f6b57b582536da02156ce62196d94ff2338a4fef269c7293
+gcc -O2 fixed: compile exit 0; run exit 0; log_sha256 5e28861c8e3375e985b357d0d0111af0c19b396e441638ec509de7e5a192a3fd
+clang -O0 baseline: compile exit 0; run exit 1; log_sha256 fe783bca5bf891bd8545bfb4a2953e78fab403a2026b409326ada5f0275bcd8e
+clang -O0 fixed: compile exit 0; run exit 0; log_sha256 b38dd5039cf290e76cc81c86e2228984c5083292177963d71508616d4529262c
+clang -O2 baseline: compile exit 0; run exit 1; log_sha256 03d6445943bf477978d08cbf378f7a5c3711a73026e315982ef8154254b6ffe1
+clang -O2 fixed: compile exit 0; run exit 0; log_sha256 9364cce1c69d5e329b4678d96279ac234713f8f2167265781d1e8f5faa7b57f4
+Five local assertions in fixed projection per execution:
+  initial mode change restarts; repeated held mode preserves state;
+  clamped duplicate preserves; actual mode change resets;
+  repeated off-mode preserves release state.
+FULL ENGINE: NOT_RUN. Elite/Pro target builds: NOT_RUN. Hardware: NOT_TESTED.

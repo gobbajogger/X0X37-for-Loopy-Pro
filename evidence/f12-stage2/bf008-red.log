@@ -1,0 +1,1 @@
+tests/host/../../firmware/src/dsp/fastmath.h:57:14: runtime error: left shift of negative value -126
