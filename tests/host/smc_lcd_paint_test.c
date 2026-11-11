@@ -16,6 +16,9 @@ static uint8_t footer_press, load_press, load_mid_empty, scratch_probe, scratch_
 static uint8_t save_press, save_body_polls, pair_press, pair_body_polls;
 static uint8_t overflow_press, overflow_done, overflow_mid;
 static uint8_t once_press, once_done, save_header, header_polls, header_mid_dirty;
+static uint8_t gap_save, gap_save_done, gap_copy, gap_copy_done, adj_save, adj_save_done;
+static uint32_t gap_saves0, adj_saves0;
+static uint16_t gap_mid_hit, gap_copy_mid;
 static uint16_t once_mid;
 static uint32_t header_writes0, header_mid_writes, header_saves0, header_mid_saves;
 static char header_mid_msg[28];
@@ -140,7 +143,6 @@ static void inject_b(void)
                 run_action(ACT_SONG_INS, 0);
             run_action(ACT_SONG_CLR, 0);
             ui_lcd_poll_depth--;
-            overflow_mid = (uint8_t)(strcmp(ui.msg, "TOO MANY ACTIONS") == 0);
         }
         if (once_press && ui_paint_around_input && !once_done) {
             once_done = 1;
@@ -151,6 +153,50 @@ static void inject_b(void)
             run_action(ACT_SONG_INS, 0);
             ui_lcd_poll_depth--;
             once_mid = song()->len;
+        }
+        if (gap_save && ui_paint_around_input && !gap_save_done) {
+            gap_save_done = 1;
+            ui.rec = 0;
+            seq.playing = 0;
+            proj.pat[seq.ppat[0]].drum[0].hit[0][0] = 0x2222u;
+            ui.dirty = 1;
+            ui.msg[0] = 0;
+            gap_saves0 = ui_save_count;
+            ui_lcd_poll_depth++;
+            run_action(ACT_SAVE, 0);
+            run_action(ACT_CLEAR_PAT, 0);
+            run_action(ACT_SAVE, 0);
+            ui_lcd_poll_depth--;
+            gap_mid_hit = proj.pat[seq.ppat[0]].drum[0].hit[0][0];
+        }
+        if (gap_copy && ui_paint_around_input && !gap_copy_done) {
+            int p;
+            gap_copy_done = 1;
+            for (p = 0; p < NPARTS; p++) {
+                seq.ppat[p] = 1;
+                ui.paste_src[p] = 0;
+            }
+            proj.pat[0].drum[0].hit[0][0] = 0x1111u;
+            proj.pat[1].drum[0].hit[0][0] = 0;
+            ui.msg[0] = 0;
+            ui_lcd_poll_depth++;
+            run_action(ACT_COPY, 1);
+            run_action(ACT_CLEAR_PAT, 0);
+            run_action(ACT_COPY, 1);
+            ui_lcd_poll_depth--;
+            gap_copy_mid = proj.pat[1].drum[0].hit[0][0];
+        }
+        if (adj_save && ui_paint_around_input && !adj_save_done) {
+            adj_save_done = 1;
+            ui.rec = 0;
+            seq.playing = 0;
+            ui.dirty = 1;
+            ui.msg[0] = 0;
+            adj_saves0 = ui_save_count;
+            ui_lcd_poll_depth++;
+            run_action(ACT_SAVE, 0);
+            run_action(ACT_SAVE, 0);
+            ui_lcd_poll_depth--;
         }
         return;
     }
@@ -920,18 +966,90 @@ static void run_heavy_overflow(void)
     ui.msg[0] = 0;
     overflow_press = 1;
     overflow_done = 0;
-    overflow_mid = 0;
     chunk_polls = 1;
     chunks = 0;
     paint();
     overflow_press = 0;
     chunk_polls = 0;
+    if (strcmp(ui.msg, "TOO MANY ACTIONS"))
+        fprintf(stderr, "overflow after paint msg [%s]\n", ui.msg);
     paint_fail(overflow_done, "overflow press happened during the peek body");
-    paint_fail(overflow_mid, "queue overflow is visible");
+    paint_fail(!strcmp(ui.msg, "TOO MANY ACTIONS"),
+               "queue overflow is the message after the paint");
+    paint_fail(ui.msg_until > now_ms, "queue overflow stays up for the next header");
     paint_fail(song()->len == 5, "overflow press does not run");
 }
 
 /* Two deferred inserts must each run once after the frame. */
+/* SAVE, clear the pattern, SAVE. The second save must survive the clear. */
+static void run_save_clear_save(void)
+{
+    prepare();
+    set_peek(1);
+    settle_identity(0, 0, 1);
+    ui.rec = 0;
+    seq.rec_ext_mask = 0;
+    seq.playing = 0;
+    gap_save = 1;
+    gap_save_done = 0;
+    gap_mid_hit = 0;
+    chunk_polls = 1;
+    chunks = 0;
+    paint();
+    gap_save = 0;
+    chunk_polls = 0;
+    paint_fail(gap_save_done, "save clear save was queued during the paint");
+    paint_fail(gap_mid_hit == 0x2222u, "save clear save does not run during the paint");
+    paint_fail(proj.pat[seq.ppat[0]].drum[0].hit[0][0] == 0,
+               "clear runs between the two saves");
+    paint_fail(ui_save_count == gap_saves0 + 2u, "both saves run");
+    paint_fail(!strcmp(ui.msg, "SAVED"), "final save runs last");
+    paint_fail(ui.dirty == 0, "final save leaves the project clean");
+}
+
+/* Paste, clear that pattern, paste it again. The second paste must land. */
+static void run_copy_clear_copy(void)
+{
+    prepare();
+    set_peek(1);
+    settle_identity(0, 0, 1);
+    gap_copy = 1;
+    gap_copy_done = 0;
+    gap_copy_mid = 0xFFFFu;
+    chunk_polls = 1;
+    chunks = 0;
+    paint();
+    gap_copy = 0;
+    chunk_polls = 0;
+    paint_fail(gap_copy_done, "copy clear copy was queued during the paint");
+    paint_fail(gap_copy_mid == 0, "copy clear copy does not run during the paint");
+    paint_fail(proj.pat[0].drum[0].hit[0][0] == 0x1111u, "copy source survives the clear");
+    paint_fail(proj.pat[1].drum[0].hit[0][0] == 0x1111u, "paste after the clear is on the pattern");
+    paint_fail(!strcmp(ui.msg, "PARTS PASTED TO P2"), "second paste runs last");
+}
+
+/* Two SAVEs with nothing between them are one save. */
+static void run_adjacent_saves(void)
+{
+    prepare();
+    set_peek(1);
+    settle_identity(0, 0, 1);
+    ui.rec = 0;
+    seq.rec_ext_mask = 0;
+    seq.playing = 0;
+    adj_save = 1;
+    adj_save_done = 0;
+    chunk_polls = 1;
+    chunks = 0;
+    paint();
+    adj_save = 0;
+    chunk_polls = 0;
+    paint_fail(adj_save_done, "adjacent saves were queued during the paint");
+    paint_fail(ui_save_count == adj_saves0 + 1u, "adjacent saves run exactly once");
+    paint_fail(!strcmp(ui.msg, "SAVED"), "adjacent save runs after the paint");
+    paint_fail(ui.dirty == 0, "adjacent save leaves the project clean");
+}
+
 static void run_heavy_once(void)
 {
     prepare();
@@ -1082,6 +1200,9 @@ int main(void)
     run_two_heavy();
     run_heavy_overflow();
     run_heavy_once();
+    run_save_clear_save();
+    run_copy_clear_copy();
+    run_adjacent_saves();
     if (fails) {
         fprintf(stderr, "FAIL smc lcd paint: %u assertion(s)\n", fails);
         return 1;

@@ -160,8 +160,14 @@ mutate queue-reorder \
     firmware/src/app/ui.c
 
 mutate silent-overflow \
-    'say("TOO MANY ACTIONS", 0); /* HEAVY_QUEUE_FULL */' \
-    '(void)0; /* HEAVY_QUEUE_FULL */' \
+    'ui_heavy_overflow = 1;
+        say("TOO MANY ACTIONS", 0); /* HEAVY_QUEUE_FULL */' \
+    '/* HEAVY_QUEUE_FULL */' \
+    firmware/src/app/ui.c
+
+mutate overflow-after-drop \
+    'say("TOO MANY ACTIONS", 0); /* HEAVY_OVERFLOW_AFTER */' \
+    '/* HEAVY_OVERFLOW_AFTER */' \
     firmware/src/app/ui.c
 
 mutate lz-scratch-refuse \
@@ -179,4 +185,23 @@ mutate header-save-body-only \
     'if (ui_lcd_poll_depth && ui_heavy_action(act) && (act != ACT_SAVE || ui_paint_around_input)) { /* HEAVY_DEFER_ANY_POLL */' \
     firmware/src/app/ui.c
 
-echo "smc lcd paint mutants: 21 killed"
+mutate coalesce-any-pending \
+    'uint8_t tail = (uint8_t)((ui_heavy_r + ui_heavy_n - 1u) % UI_HEAVY_Q); /* HEAVY_QUEUE_TAIL */
+        if (ui_heavy_act[tail] == (uint8_t)act && ui_heavy_arg[tail] == (uint16_t)arg)
+            return; /* HEAVY_QUEUE_COALESCE */' \
+    'uint8_t k, at; /* HEAVY_QUEUE_TAIL */
+        for (k = 0; k < ui_heavy_n; k++) {
+            at = (uint8_t)((ui_heavy_r + k) % UI_HEAVY_Q);
+            if (ui_heavy_act[at] == (uint8_t)act && ui_heavy_arg[at] == (uint16_t)arg)
+                return; /* HEAVY_QUEUE_COALESCE */
+        }' \
+    firmware/src/app/ui.c
+
+mutate coalesce-never \
+    'if (ui_heavy_act[tail] == (uint8_t)act && ui_heavy_arg[tail] == (uint16_t)arg)
+            return; /* HEAVY_QUEUE_COALESCE */' \
+    'if (0) /* HEAVY_QUEUE_COALESCE */
+            return;' \
+    firmware/src/app/ui.c
+
+echo "smc lcd paint mutants: 24 killed"

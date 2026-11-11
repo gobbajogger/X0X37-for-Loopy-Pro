@@ -2469,15 +2469,18 @@ static uint8_t ui_lcd_poll_depth;
  * 2 + 9 + 6 tile rows (ui.c HDR_H / MAIN_ROWS / KNOB_ROWS, lcd_tiles.h).
  * Each wait is 1.024 ms, and input runs at most once per millisecond, so
  * the paint accepts about 140 polls. A SMK button needs 2 press frames and
- * 4 release frames, 9.6 ms, before it can tap again (smk_input.h). The
- * distinct heavy presses that fit are 32 pattern pastes (16 white keys in
- * KEY_WHITE, two pattern banks) plus 3 list actions (the menu arrows repeat
- * at 60 ms). Identical saves, pastes and clears collapse to one pending
- * slot. Insert and delete do not: each press changes the song. */
+ * 4 release frames, 9.6 ms, before it can tap again (smk_input.h
+ * SMK_DEB_PRESS / SMK_DEB_RELEASE, one frame is 1.6 ms). A repeat collapses
+ * only when it matches the action and argument at the tail. SAVE, clear,
+ * SAVE is three slots. The 35 slots still hold one wave of 32 pastes
+ * (16 white keys in KEY_WHITE, two pattern banks) plus 3 list actions
+ * (menu arrows repeat at 60 ms). A non-adjacent repeat takes another slot.
+ * Past 35, the press says TOO MANY ACTIONS. Adjacent inserts and deletes
+ * are not collapsed: each one changes the song. */
 #define UI_HEAVY_Q 35
 static uint8_t ui_heavy_act[UI_HEAVY_Q];
 static uint16_t ui_heavy_arg[UI_HEAVY_Q];
-static uint8_t ui_heavy_n, ui_heavy_r;
+static uint8_t ui_heavy_n, ui_heavy_r, ui_heavy_overflow;
 static void run_action(int act, int arg);
 static int ui_heavy_repeat(int act)
 {
@@ -2485,15 +2488,13 @@ static int ui_heavy_repeat(int act)
 }
 static void ui_heavy_push(int act, int arg)
 {
-    uint8_t k;
-    if (!ui_heavy_repeat(act)) {
-        for (k = 0; k < ui_heavy_n; k++) {
-            uint8_t at = (uint8_t)((ui_heavy_r + k) % UI_HEAVY_Q);
-            if (ui_heavy_act[at] == (uint8_t)act && ui_heavy_arg[at] == (uint16_t)arg)
-                return; /* HEAVY_QUEUE_COALESCE */
-        }
+    if (!ui_heavy_repeat(act) && ui_heavy_n) {
+        uint8_t tail = (uint8_t)((ui_heavy_r + ui_heavy_n - 1u) % UI_HEAVY_Q); /* HEAVY_QUEUE_TAIL */
+        if (ui_heavy_act[tail] == (uint8_t)act && ui_heavy_arg[tail] == (uint16_t)arg)
+            return; /* HEAVY_QUEUE_COALESCE */
     }
     if (ui_heavy_n >= UI_HEAVY_Q) { /* HEAVY_QUEUE_BOUND */
+        ui_heavy_overflow = 1;
         say("TOO MANY ACTIONS", 0); /* HEAVY_QUEUE_FULL */
         return;
     }
@@ -2506,6 +2507,8 @@ static void ui_heavy_push(int act, int arg)
 }
 static void ui_heavy_flush(void)
 {
+    if (ui_lcd_poll_depth)
+        return; /* a poll must not drain the queue; the same press would be queued again */
     while (ui_heavy_n) {
         uint8_t at = ui_heavy_r; /* HEAVY_QUEUE_FIFO */
         uint8_t act = ui_heavy_act[at];
@@ -2513,6 +2516,10 @@ static void ui_heavy_flush(void)
         ui_heavy_r = (uint8_t)((ui_heavy_r + 1u) % UI_HEAVY_Q);
         ui_heavy_n--; /* HEAVY_SLOT_CLEAR */
         run_action(act, arg); /* HEAVY_RUN_ONCE */
+    }
+    if (ui_heavy_overflow) {
+        ui_heavy_overflow = 0;
+        say("TOO MANY ACTIONS", 0); /* HEAVY_OVERFLOW_AFTER */
     }
 }
 static void __attribute__((noinline)) run_action_now(int act, int arg)
