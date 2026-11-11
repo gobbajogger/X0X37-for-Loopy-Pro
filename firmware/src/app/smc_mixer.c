@@ -427,6 +427,21 @@ static int smc_same(pref_t a, pref_t b)
     return x.word == y.word;
 }
 
+/* Physical holds belong to one controller; two peers cannot form a chord.
+ * Declared here, above the peek body, so a body-window check can name these bytes.
+ * Input slices stop at smc_project_active / smc_same and do not include this table. */
+typedef struct {
+    x0x_panic_chord_t chord;
+    uint8_t held;
+    int8_t mode_seen;
+} smc_panic_peer_t;
+static smc_panic_peer_t smc_panic_peers[SMC_PEERS] = {
+    {{0, 0}, 0, -1}, {{0, 0}, 0, -1}
+};
+#define smc_panic (smc_panic_peers[smc_slot].chord)
+#define smc_panic_held (smc_panic_peers[smc_slot].held)
+#define smc_panic_mode_seen (smc_panic_peers[smc_slot].mode_seen)
+
 static __attribute__((noinline)) pref_t smc_home_target(int n)
 {
     static const pref_t targets[8] = {
@@ -1065,22 +1080,26 @@ static UI_DRAW void smc_ui_grid(const struct smc_paint *paint)
  * Padding is zeroed so a memcmp is the compare. Not stored in the 125-byte snapshot. */
 struct smc_paint_live {
     uint8_t page;
-    char title[12];
     uint8_t mixsel;
     uint8_t param[16];
     uint8_t rec, playing, bpm_l, bpm_h;
     uint8_t led[24];
     uint8_t overlay;
     char list[16];
+    uint8_t list_top;
+    uint8_t clip;
     uint8_t locked, lock_view, lock_page, lock_bank, lock_part;
+    uint8_t drum_solo[4];
+    uint8_t vmute[4];
     uint8_t picked, last[8];
-    uint8_t fx_page, fx_down, fx_effect[SMCFX_N];
+    uint8_t fx_page, fx_down, fx_lp_hold, fx_effect[SMCFX_N];
     uint8_t knob_bank;
     char voice[12];
     uint8_t sel0;
     uint8_t view, fx_bus, kind3;
 };
 static int smc_paint_repaints;
+static int smc_paint_cmp_sign;
 
 static void smc_paint_live_read(struct smc_paint_live *s, const struct smc_paint *paint)
 {
@@ -1102,8 +1121,13 @@ static void smc_paint_live_read(struct smc_paint_live *s, const struct smc_paint
         ui.overlay = O_NONE;
         page = smc_page_now();
         s->page = (uint8_t)page; /* CMP_PAGE */
-        for (i = 0; i < 24; i++)
-            s->led[i] = (uint8_t)(smc_led(i) ? 1 : 0); /* CMP_REC */
+        {
+            uint8_t saved_rec = ui.rec;
+            ui.rec = 0;
+            for (i = 0; i < 24; i++)
+                s->led[i] = (uint8_t)(smc_led(i) ? 1 : 0); /* CMP_REC */
+            ui.rec = saved_rec;
+        }
         smc.locked = saved_locked;
         ui.overlay = saved_overlay;
     }
@@ -1116,21 +1140,26 @@ static void smc_paint_live_read(struct smc_paint_live *s, const struct smc_paint
         s->param[i] = smc_scaled(paint->fader[i]);
         s->param[8 + i] = smc_scaled(paint->knob[i]);
     } /* CMP_PARAM */
-    s->rec = ui.rec;
+    s->rec = ui.rec; /* CMP_REC_BYTE */
     s->playing = (uint8_t)(seq.playing != 0);
-    s->bpm_l = (uint8_t)bpm;
-    s->bpm_h = (uint8_t)(bpm >> 8); /* CMP_PLAY */
+    s->bpm_l = (uint8_t)bpm; /* CMP_PLAY */
+    s->bpm_h = (uint8_t)(bpm >> 8); /* CMP_BPMH */
     s->overlay = ui.overlay;
     memcpy(s->list, list_title, sizeof s->list); /* CMP_OVERLAY */
+    s->list_top = ui.list_top; /* CMP_LISTTOP */
+    s->clip = (uint8_t)(smk_clip_mode_on() ? 1 : 0); /* CMP_CLIP */
     s->locked = smc.locked;
     s->lock_view = smc.lock_view;
-    s->lock_page = smc.lock_page;
+    s->lock_page = smc.lock_page; /* CMP_LOCKPAGE */
     s->lock_bank = smc.lock_bank;
     s->lock_part = smc.lock_part; /* CMP_LOCK */
+    memcpy(s->drum_solo, smc.drum_solo, sizeof s->drum_solo);
+    memcpy(s->vmute, &seq.vmute, sizeof s->vmute); /* CMP_LOCKDRUM */
     s->picked = smc.picked;
     memcpy(s->last, smc.last, sizeof s->last); /* CMP_PICKUP */
-    s->fx_page = smc.fx_page;
+    s->fx_page = smc.fx_page; /* CMP_FXPAGE */
     s->fx_down = smc.fx_down;
+    s->fx_lp_hold = smc.fx_lp_hold; /* CMP_FXLP */
     memcpy(s->fx_effect, smc.fx_effect, sizeof s->fx_effect); /* CMP_FX */
     s->knob_bank = smc.knob_bank; /* CMP_BANK */
     if (kit >= 0 && kit < NKIT) {
@@ -1140,7 +1169,7 @@ static void smc_paint_live_read(struct smc_paint_live *s, const struct smc_paint
         while (name && name[n] && n < 11) {
             s->voice[n] = name[n];
             n++;
-        }
+        } /* CMP_VOICECHARS */
     } /* CMP_VOICE */
     if (paint->kind == 3) {
         int bus = smc_fx_bus_now(paint->action);
@@ -1153,8 +1182,12 @@ static void smc_paint_live_read(struct smc_paint_live *s, const struct smc_paint
 static int smc_paint_catch(struct smc_paint *paint, const struct smc_paint_live *base, int attempt)
 {
     struct smc_paint_live now;
+    int cmp;
     smc_paint_live_read(&now, paint);
-    if (memcmp(&now, base, sizeof now) == 0)
+    cmp = memcmp(&now, base, sizeof now); /* CMP_ORDER */
+    if (cmp != 0)
+        smc_paint_cmp_sign = cmp;
+    if (cmp == 0)
         return 0;
     if (attempt == 0) {
         smc_paint_take(paint); /* CMP_REPAINT */
@@ -2030,19 +2063,6 @@ static void smc_button_apply(uint8_t note, int mmc)
 }
 
 #define SMC_PANIC_HOOKS 1
-/* Physical holds belong to one controller; two peers cannot form a chord. */
-typedef struct {
-    x0x_panic_chord_t chord;
-    uint8_t held;
-    int8_t mode_seen;
-} smc_panic_peer_t;
-static smc_panic_peer_t smc_panic_peers[SMC_PEERS] = {
-    {{0, 0}, 0, -1}, {{0, 0}, 0, -1}
-};
-#define smc_panic (smc_panic_peers[smc_slot].chord)
-#define smc_panic_held (smc_panic_peers[smc_slot].held)
-#define smc_panic_mode_seen (smc_panic_peers[smc_slot].mode_seen)
-
 static int smc_panic_mode_now(void)
 {
     int user = (proj.set.bt & PROJ_BT_SMC_USER) != 0;

@@ -135,9 +135,13 @@ mutate drop-cmp-rec \
 
 mutate drop-cmp-play \
     '    s->playing = (uint8_t)(seq.playing != 0);
-    s->bpm_l = (uint8_t)bpm;
-    s->bpm_h = (uint8_t)(bpm >> 8); /* CMP_PLAY */' \
+    s->bpm_l = (uint8_t)bpm; /* CMP_PLAY */
+    s->bpm_h = (uint8_t)(bpm >> 8); /* CMP_BPMH */' \
     '    /* CMP_PLAY */'
+
+mutate drop-cmp-bpmh \
+    '    s->bpm_h = (uint8_t)(bpm >> 8); /* CMP_BPMH */' \
+    '    /* CMP_BPMH */'
 
 mutate drop-cmp-overlay \
     '    s->overlay = ui.overlay;
@@ -147,10 +151,14 @@ mutate drop-cmp-overlay \
 mutate drop-cmp-lock \
     '    s->locked = smc.locked;
     s->lock_view = smc.lock_view;
-    s->lock_page = smc.lock_page;
+    s->lock_page = smc.lock_page; /* CMP_LOCKPAGE */
     s->lock_bank = smc.lock_bank;
     s->lock_part = smc.lock_part; /* CMP_LOCK */' \
     '    /* CMP_LOCK */'
+
+mutate drop-cmp-lockpage \
+    '    s->lock_page = smc.lock_page; /* CMP_LOCKPAGE */' \
+    '    /* CMP_LOCKPAGE */'
 
 mutate drop-cmp-pickup \
     '    s->picked = smc.picked;
@@ -158,10 +166,33 @@ mutate drop-cmp-pickup \
     '    /* CMP_PICKUP */'
 
 mutate drop-cmp-fx \
-    '    s->fx_page = smc.fx_page;
+    '    s->fx_page = smc.fx_page; /* CMP_FXPAGE */
     s->fx_down = smc.fx_down;
+    s->fx_lp_hold = smc.fx_lp_hold; /* CMP_FXLP */
     memcpy(s->fx_effect, smc.fx_effect, sizeof s->fx_effect); /* CMP_FX */' \
     '    /* CMP_FX */'
+
+mutate drop-cmp-fxpage \
+    '    s->fx_page = smc.fx_page; /* CMP_FXPAGE */' \
+    '    /* CMP_FXPAGE */'
+
+mutate drop-cmp-fxlp \
+    '    s->fx_lp_hold = smc.fx_lp_hold; /* CMP_FXLP */' \
+    '    /* CMP_FXLP */'
+
+mutate drop-cmp-rec-byte \
+    '    s->rec = ui.rec; /* CMP_REC_BYTE */' \
+    '    /* CMP_REC_BYTE */'
+
+mutate flip-body-guard \
+    '            draw_main();
+            draw_knobs();' \
+    '            smc_states[0].held[0] ^= 1u;
+            smc_panic_peers[0].held ^= 1u;
+            draw_main();
+            draw_knobs();
+            smc_states[0].held[0] ^= 1u;
+            smc_panic_peers[0].held ^= 1u;'
 
 mutate drop-cmp-bank \
     's->knob_bank = smc.knob_bank; /* CMP_BANK */' \
@@ -174,8 +205,32 @@ mutate drop-cmp-voice \
         while (name && name[n] && n < 11) {
             s->voice[n] = name[n];
             n++;
-        }' \
+        } /* CMP_VOICECHARS */' \
     '        (void)kit; /* CMP_VOICE */'
+
+mutate drop-cmp-voicechars \
+    '        while (name && name[n] && n < 11) {
+            s->voice[n] = name[n];
+            n++;
+        } /* CMP_VOICECHARS */' \
+    '        (void)name; (void)n; /* CMP_VOICECHARS */'
+
+mutate swap-memcmp \
+    'cmp = memcmp(&now, base, sizeof now); /* CMP_ORDER */' \
+    'cmp = memcmp(base, &now, sizeof now); /* CMP_ORDER */'
+
+mutate drop-cmp-listtop \
+    '    s->list_top = ui.list_top; /* CMP_LISTTOP */' \
+    '    /* CMP_LISTTOP */'
+
+mutate drop-cmp-clip \
+    '    s->clip = (uint8_t)(smk_clip_mode_on() ? 1 : 0); /* CMP_CLIP */' \
+    '    /* CMP_CLIP */'
+
+mutate drop-cmp-lockdrum \
+    '    memcpy(s->drum_solo, smc.drum_solo, sizeof s->drum_solo);
+    memcpy(s->vmute, &seq.vmute, sizeof s->vmute); /* CMP_LOCKDRUM */' \
+    '    /* CMP_LOCKDRUM */'
 
 mutate drop-cmp-kind3 \
     '        s->kind3 = 1;
@@ -191,4 +246,4 @@ mutate drop-cmp-dirty \
     'ui_lcd_mark_dirty(); /* CMP_DIRTY */' \
     '(void)0; /* CMP_DIRTY */'
 
-echo "smc lcd paint mutants: 24 killed"
+echo "smc lcd paint mutants: 35 killed"

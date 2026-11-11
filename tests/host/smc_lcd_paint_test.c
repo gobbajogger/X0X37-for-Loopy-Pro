@@ -13,7 +13,9 @@
 static unsigned hooks, fails, chunks;
 static int inject_armed, inject_grid, chunk_polls, chunk_buttons;
 static int watch_body_view, poll_saw_view, body_rebuild, expire_peek;
-static int live_case, live_repeat;
+static int live_case, live_repeat, guard_note, guard_expect_held, body_primed;
+static int parked_strip, parked_top;
+static void (*between_extra)(void);
 static uint16_t frame_a[240 * 240], frame_b[240 * 240], frame_now[240 * 240];
 
 struct guard {
@@ -22,6 +24,8 @@ struct guard {
     smc_panic_peer_t panic[SMC_PEERS];
     int midi_held;
 };
+
+static struct guard body_base, body_at_poll;
 
 static void paint_fail(int cond, const char *msg)
 {
@@ -74,6 +78,31 @@ static void live_fire(void)
         smc.fx_ready = 1;
         smc.fx_effect[SMCFX_909] ^= 1u;
         break;
+    case 20:
+        /* Bus bit stays down. Only the LP-hold bit moves, which is what
+         * the kind-3 card reads when it picks SMCFX_LP. */
+        smc.fx_ready = 1;
+        smc.fx_lp_hold ^= (uint8_t)(1u << SMCFX_909);
+        break;
+    case 21:
+        seq.vmute ^= 1u;
+        break;
+    case 22:
+        ui.list_top = (uint8_t)parked_top;
+        break;
+    case 23:
+        clip_grid_mode = 1;
+        break;
+    case 24:
+        smc.fx_ready = 1;
+        smc.fx_page = 1;
+        break;
+    case 25:
+        seq.bpm = 256.0f / 10.0f;
+        break;
+    case 26:
+        smc.lock_page = 1;
+        break;
     case 18: ui.mixsel ^= 1u; break;
     case 19: smc.locked ^= 1u; break;
     case 17:
@@ -116,6 +145,10 @@ static void inject_b(void)
             poll_saw_view = ui.view;
         if (body_rebuild && chunks == 12)
             set_view(V_SEQ);                 /* build_pages runs inside the live side */
+        if (guard_note && chunks == 12) {
+            smc_states[0].held[0] = 0x44;    /* arrives after the before-poll sample */
+            guard_expect_held = 0x44;
+        }
         if (live_case && (!live_repeat || live_case == 17) &&
             (live_case == 17 || chunks == 12))
             live_fire();
@@ -280,6 +313,44 @@ static void require_distinct_homes(void)
     smc_slot = saved;
 }
 
+static int guard_core_eq(const struct guard *a, const struct guard *b)
+{
+    return memcmp(a->held, b->held, sizeof a->held) == 0
+        && a->rec == b->rec
+        && memcmp(a->panic, b->panic, sizeof a->panic) == 0;
+}
+
+static void body_guard_hook(int after)
+{
+    struct guard now = take_guard();
+    if (!after) {
+        if (body_primed && !guard_core_eq(&body_base, &now))
+            paint_fail(0, "peek body guard changed before the poll");
+        body_at_poll = now;
+        return;
+    }
+    if (guard_expect_held) {
+        struct guard expect = body_at_poll;
+        expect.held[0][0] = (uint8_t)guard_expect_held;
+        if (!guard_core_eq(&expect, &now))
+            paint_fail(0, "peek body input did not land in held notes");
+        else
+            body_base = now;
+        guard_expect_held = 0;
+        return;
+    }
+    if (!guard_core_eq(&body_at_poll, &now))
+        paint_fail(0, "peek body guard changed across the poll");
+}
+
+static void between_guard(void)
+{
+    body_base = take_guard();
+    body_primed = 1;
+    if (between_extra)
+        between_extra();
+}
+
 static void prepare(void)
 {
     setup(V_HOME, PART_303A);
@@ -287,6 +358,12 @@ static void prepare(void)
     smc_poll();
     arm_state();
     inject_grid = 0;
+    body_primed = 0;
+    guard_expect_held = 0;
+    guard_note = 0;
+    between_extra = 0;
+    ui_paint_between_polls = between_guard;
+    ui_paint_body_guard = body_guard_hook;
     x0x_lcd_poll_hook(inject_b);
     split_peer_homes();
     require_distinct_homes();
@@ -656,9 +733,9 @@ static void run_irq_between_polls(void)
     arm_state();
     settle_identity(0, 0, 1);
     seq.playing = 0;
-    ui_paint_between_polls = irq_playing;
+    between_extra = irq_playing;
     paint();
-    ui_paint_between_polls = 0;
+    between_extra = 0;
     paint_fail(seq.playing == 1, "audio start during the snapshot is kept");
 }
 
@@ -782,6 +859,44 @@ static void live_clear(void)
     chunks = 0;
 }
 
+static int arm_parked_list(int changed)
+{
+    int top, n;
+    set_view(V_HOME);
+    build_pages();
+    open_list_of_pages();
+    smc.knob_bank = 0;
+    parked_strip = -1;
+    for (n = 0; n < 8; n++) {
+        if (smc_knob_target(n).kind == R_NONE) {
+            parked_strip = n;
+            break;
+        }
+    }
+    if (parked_strip < 0) {
+        paint_fail(0, "a list knob is parked");
+        return 0;
+    }
+    parked_top = 0;
+    for (top = 1; top < ui.list_n; top++) {
+        pref_t hi, lo;
+        ui.list_top = 0;
+        hi = smc_page_target(parked_strip);
+        ui.list_top = (uint8_t)top;
+        lo = smc_page_target(parked_strip);
+        if (!smc_same(hi, lo)) {
+            parked_top = top;
+            break;
+        }
+    }
+    if (!parked_top) {
+        paint_fail(0, "scrolling the list changes the parked knob");
+        return 0;
+    }
+    ui.list_top = (uint8_t)(changed ? parked_top : 0);
+    return 1;
+}
+
 static int arm_live(int which, int changed)
 {
     prepare();
@@ -860,6 +975,64 @@ static int arm_live(int which, int changed)
         if (changed)
             smc.fx_effect[SMCFX_909] ^= 1u;
         break;
+    case 20:
+        set_view(V_FX);
+        build_pages();
+        smc.fx_ready = 1;
+        smc.fx_effect[SMCFX_909] = SMCFX_REV;
+        smc.fx_down = (uint8_t)(1u << SMCFX_909);
+        smc.fx_lp_hold = (uint8_t)(changed ? (1u << SMCFX_909) : 0);
+        break;
+    case 21:
+        set_view(V_SEQ);
+        ui.part = PART_909;
+        build_pages();
+        smc.locked = 1;
+        smc.lock_view = V_SEQ;
+        smc.lock_part = PART_909;
+        smc.lock_bank = 0;
+        ui.view = V_HOME;
+        ui.part = PART_303A;
+        seq.vmute = changed ? 1u : 0u;
+        break;
+    case 22:
+        if (!arm_parked_list(changed))
+            return 0;
+        break;
+    case 23:
+        set_view(V_HOME);
+        build_pages();
+        clip_grid_mode = (uint8_t)(changed ? 1 : 0);
+        break;
+    case 24:
+        set_view(V_FX);
+        build_pages();
+        smc.fx_ready = 1;
+        smc.fx_down = 0;
+        smc.fx_lp_hold = 0;
+        smc.fx_effect[SMCFX_909] = SMCFX_REV;
+        smc.fx_page = (uint8_t)(changed ? 1 : 0);
+        break;
+    case 25: {
+        uint16_t enc, want;
+        seq.bpm = changed ? (256.0f / 10.0f) : 0.0f;
+        enc = (uint16_t)(seq.bpm * 10.0f);
+        want = (uint16_t)(changed ? 256 : 0);
+        if (enc != want || (uint8_t)enc != 0) {
+            paint_fail(0, "bpm high encoding");
+            return 0;
+        }
+        break;
+    }
+    case 26:
+        set_view(V_HOME);
+        build_pages();
+        smc.locked = 1;
+        smc.lock_view = V_HOME;
+        smc.lock_page = (uint8_t)(changed ? 1 : 0);
+        smc.lock_bank = 0;
+        smc.lock_part = 0;
+        break;
     case 18:
         set_view(V_MIX);
         build_pages();
@@ -873,13 +1046,18 @@ static int arm_live(int which, int changed)
     default:
         break;
     }
-    settle_identity(0, 0, which == 4 || which == 6 || which == 16 ? 3 : 1);
+    if (which == 22)
+        settle_identity(0, parked_strip, 1);
+    else
+        settle_identity(0, 0, which == 4 || which == 6 || which == 16 || which == 20 || which == 21 || which == 24 ? 3 : 1);
     if (which == 4)
         smc_ui.action = 0x5E;
     if (which == 6)
         smc_ui.action = 0;
-    if (which == 16)
+    if (which == 16 || which == 20 || which == 24)
         smc_ui.action = SMCFX_NOTE[SMCFX_909];
+    if (which == 21)
+        smc_ui.action = 16;
     return 1;
 }
 
@@ -923,10 +1101,20 @@ static void run_live_window(int which, int grid, const char *name)
     chunks = 0;
     chunk_polls = grid;
     smc_paint_repaints = 0;
+    if (which == 1)
+        smc_paint_cmp_sign = 0;
     paint();
     snprintf(tag, sizeof tag, "%s %s", name, grid ? "grid" : "header");
     paint_fail(smc_paint_repaints > 0, tag);
+    if (which == 1)
+        paint_fail(smc_paint_cmp_sign > 0, "compare reads the new bytes first");
     expect_live(tag, fb, frame_a, frame_b);
+    if (which == 20) {
+        paint_fail((smc.fx_down & (uint8_t)(1u << SMCFX_909)) != 0 &&
+                   smc.fx_effect[SMCFX_909] == SMCFX_REV &&
+                   (smc.fx_lp_hold & (uint8_t)(1u << SMCFX_909)) != 0,
+                   "fx-hold keeps the bus bit and changes only LP-hold");
+    }
     live_clear();
 }
 
@@ -980,21 +1168,64 @@ static void run_peek_no_retry(void)
     paint_fail(rows_eq(fb, frame_a, HDR_H, KNOB_Y), "peek body keeps its page");
 }
 
+static void run_body_guard_input(void)
+{
+    struct guard before, after;
+    prepare();
+    set_peek(1);
+    arm_state();
+    settle_identity(0, 0, 1);
+    before = take_guard();
+    chunk_polls = 1;
+    chunks = 0;
+    guard_note = 1;
+    paint();
+    guard_note = 0;
+    chunk_polls = 0;
+    after = take_guard();
+    paint_fail(before.held[0][0] == 0x11 && after.held[0][0] == 0x44,
+               "mid-window held note stays after the poll");
+    paint_fail(after.rec == before.rec &&
+               memcmp(after.panic, before.panic, sizeof after.panic) == 0,
+               "mid-window input leaves REC and PANIC");
+}
+
+static void run_voice_chars(void)
+{
+    struct smc_paint snap;
+    struct smc_paint_live live;
+    prepare();
+    set_view(V_SEQ);
+    ui.part = PART_909;
+    build_pages();
+    ui.sel[PART_909] = 7;
+    settle_identity(0, 0, 1);
+    smc_paint_take(&snap);
+    smc_paint_live_read(&live, &snap);
+    paint_fail(live.sel0 == 7 && live.voice[0] == 'C' && live.voice[1] == 'H',
+               "voice sample keeps every character");
+}
+
 static void run_live_cases(void)
 {
     static const struct { int id; const char *name; } cases[] = {
         {1, "page"}, {2, "param"}, {3, "rec"}, {4, "play"}, {5, "overlay"},
         {6, "kind3"}, {7, "bank"}, {8, "voice"}, {9, "cc40"}, {10, "pitchbend"},
         {11, "cc16"}, {12, "encoder"}, {13, "bpm"}, {14, "mute"}, {15, "solo"},
-        {16, "fx"}, {18, "select"}, {19, "lock"}
+        {16, "fx"}, {18, "select"}, {19, "lock"}, {20, "fx-hold"},
+        {21, "lock-drum"}, {22, "list-top"}, {23, "clip"}, {24, "fx-page"},
+        {25, "bpm-high"}, {26, "lock-page"}
     };
     unsigned i;
     for (i = 0; i < sizeof cases / sizeof cases[0]; i++) {
         run_live_window(cases[i].id, 0, cases[i].name);
-        run_live_window(cases[i].id, 1, cases[i].name);
+        if (cases[i].id != 23)
+            run_live_window(cases[i].id, 1, cases[i].name);
     }
     run_kept_dirty();
     run_peek_no_retry();
+    run_body_guard_input();
+    run_voice_chars();
     {
         struct smc_paint snap;
         struct smc_paint_live a, b;

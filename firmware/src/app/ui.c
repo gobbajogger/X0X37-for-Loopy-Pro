@@ -4424,6 +4424,8 @@ void x0x_lcd_poll_hook(void (*fn)(void)) { cv_lcd_poll_hook = fn; }
 void (*ui_paint_around_input)(void);
 /* Host only: runs after the snapshot is installed and before the next poll. */
 void (*ui_paint_between_polls)(void);
+/* Host only: 0 before the body poll's input, 1 immediately after. NULL on device. */
+void (*ui_paint_body_guard)(int after);
 
 static void cv_lcd_maybe_input(void)
 {
@@ -4433,11 +4435,15 @@ static void cv_lcd_maybe_input(void)
         last_ms = now;
         if (ui_paint_around_input)
             ui_paint_around_input(); /* SWAP_TO_LIVE */
+        if (ui_paint_around_input && ui_paint_body_guard)
+            ui_paint_body_guard(0); /* BODY_GUARD_BEFORE */
 #ifdef X0X_HOST
         if (cv_lcd_poll_hook)
             cv_lcd_poll_hook();
 #endif
         cv_lcd_input();                 /* foreground MIDI/SMC; do not skip this to hide a paint race */
+        if (ui_paint_around_input && ui_paint_body_guard)
+            ui_paint_body_guard(1); /* BODY_GUARD_AFTER */
         if (ui_paint_around_input)
             ui_paint_around_input(); /* SWAP_TO_SNAPSHOT */
     }
