@@ -830,6 +830,7 @@ __attribute__((noinline)) static void bank_ratio(d8_bank_t *b, float r)
     r = r < 0.25f ? 0.25f : (r > 4.0f ? 4.0f : r);
     for (i = 0; i < 6; i++)
         b->inc[i] = ff_to_u32(ff_mulf(k_bank_inc[i], r));
+    b->dt_ok = 0;
 }
 
 /* the two-sample polyBLEP edge correction, on fixed-point phases */
@@ -859,16 +860,26 @@ D8_TICK float bank_tick(d8_bank_t *b)
             b->drift[i] += 2.5e-4f * rng_frand2(&b->rng);
             b->drift[i] *= 0.98f;
         }
+        b->dt_ok = 0;
     }
     for (i = 0; i < 6; i++) {
-        float fm1 = b->drift[i] + b->jm1[i] + b->drift[i] * b->jm1[i];
-        float p = (float)b->inc[i] * fm1, v;
-        uint32_t dt = b->inc[i] + (uint32_t)(int32_t)(p + (p >= 0.0f ? 0.5f : -0.5f));
+        float v;
+        uint32_t dt;
+        /* the step moves only with inc, drift (every 256 samples) and jm1 (at a wrap):
+         * worked out then, the same value, not every sample */
+        if (!(b->dt_ok & (1u << i))) {
+            float fm1 = b->drift[i] + b->jm1[i] + b->drift[i] * b->jm1[i];
+            float p = (float)b->inc[i] * fm1;
+            b->dt[i] = b->inc[i] + (uint32_t)(int32_t)(p + (p >= 0.0f ? 0.5f : -0.5f));
+            b->dt_ok |= (uint8_t)(1u << i);
+        }
+        dt = b->dt[i];
         uint32_t old = b->ph[i];
         b->ph[i] = old + dt;
         if (b->ph[i] < old || (b->pend_wrap & (1u << i))) {
             b->pend_wrap &= (uint8_t)~(1u << i);
             b->jm1[i] = 0.0052f * rng_frand2(&b->rng);
+            b->dt_ok &= (uint8_t)~(1u << i);
         }
         v = b->ph[i] < BANK_DUTY ? 1.0f : -1.0f;
         v += blep_fix(b->ph[i], dt);
