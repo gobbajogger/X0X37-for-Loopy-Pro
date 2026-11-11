@@ -78,7 +78,9 @@ typedef struct {
     uint16_t bpm_x10;
     uint8_t accent_q7, keysound;         /* black drum keys sound: 0 = only when stopped or recording, 1 = always */
     uint8_t autosave_off;                /* 0: save by itself while stopped and idle (ui.c autosave) */
-    uint8_t rsv_bright;                  /* was the screen's brightness (removed: always full); unused */
+    uint8_t rsv_bright;                  /* global bass Tune: signed steps, 0 = concert pitch (bit-exact);
+                                          * A4 += steps * 0.625 Hz, same law as bass303 Tune, one setting for
+                                          * Chicago and Miami. Was screen brightness (removed: always full). */
     uint8_t stereo;                      /* the pans the sound has: 0 none (saved mono), 1 the parts', 2 the
                                           * drum voices' too (PROJ_STEREO); a load centres what is missing */
     uint8_t snd_rev;                     /* the sound's layout (PROJ_SND_REV): 0 = before the 909 SD's DECAY */

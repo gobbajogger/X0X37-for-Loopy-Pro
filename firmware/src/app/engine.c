@@ -6,6 +6,7 @@
 #include "../dsp/drum909.h"
 #include "../dsp/drum808.h"
 #include "original_runtime.h"
+#include "bass_303_adapt.h"
 #include "../../../experiments/original_synth/chicago_fx2_compact.h"
 #include "../dsp/breaks.h"
 #include "../dsp/fxbus.h"
@@ -60,6 +61,8 @@ static uint8_t original_fx_ready;
 static uint8_t original_key_pitch[NBASS][38]; /* token -> pitch+1; zero is released */
 static uint8_t original_midi_channel[NBASS];
 static int16_t original_seq_note[NBASS];
+static uint8_t bass_accent[NBASS], bass_slide[NBASS];
+static int8_t bass_tune_steps;          /* 0 = concert pitch; set from settings.rsv_bright */
 int engine_bass_status(int v) { return (unsigned)v < NBASS ? original_bass[v].status : 0; }
 /* UI glyph motion: ms since the track's last hit and its live amplitude envelope
  * (909: the voice's EG; 808: lane output over the hit peak), 0..1 of that hit's
@@ -944,14 +947,97 @@ __attribute__((noinline)) static void s_drum(void *x, int kit, int v, float vel)
     else                                 /* the 808's unaccented hit sits at D8_VEL_NORMAL, not at our 909 level */
         drum808_trigger(&d808, v, vel >= 0.999f ? 1.0f : vel * (D8_VEL_NORMAL / (88.0f / 127.0f)));
 }
+
+static void bass_adapt_flags(int p, int acc, int sl)
+{
+    if ((unsigned)p >= NBASS) return;
+    if (original_bass[p].kind == ORIGINAL_SOUND_CHICAGO) {
+        bass_accent[p] = (uint8_t)!!acc;
+        bass_slide[p] = (uint8_t)!!sl;
+    } else {
+        bass_accent[p] = 0;
+        bass_slide[p] = 0;
+    }
+}
+
+typedef struct {
+    uint8_t used, chicago;
+    float master_tune, cutoff, env_depth, portamento, output;
+} bass_adapt_saved_t;
+static bass_adapt_saved_t bass_adapt_saved[NBASS];
+
+void engine_bass_tune(int steps)
+{
+    if (steps > 63) steps = 63;
+    if (steps < -64) steps = -64;
+    bass_tune_steps = (int8_t)steps;
+}
+
+static float bass_adapt_tune_semitones(void)
+{
+    return bass_303_tune_semitones(bass_tune_steps);
+}
+
+static void bass_adapt_pre(int b)
+{
+    float semis;
+    bass_adapt_saved[b].used = 0;
+    if ((unsigned)b >= NBASS) return;
+    semis = bass_adapt_tune_semitones();
+    if (original_bass[b].kind == ORIGINAL_SOUND_CHICAGO) {
+        original_chicago_voice_controls *c = &original_bass[b].dsp.chicago.controls;
+        int accent = bass_accent[b], slide = bass_slide[b];
+        if (semis == 0.0f && !accent && !slide) return;
+        bass_adapt_saved[b].used = 1;
+        bass_adapt_saved[b].chicago = 1;
+        bass_adapt_saved[b].master_tune = c->pitch.master_tune;
+        bass_adapt_saved[b].cutoff = c->cutoff;
+        bass_adapt_saved[b].env_depth = c->env_depth;
+        bass_adapt_saved[b].portamento = c->pitch.portamento;
+        bass_adapt_saved[b].output = c->gain.output;
+        if (semis != 0.0f) c->pitch.master_tune += semis;
+        bass_303_accent_controls(accent, &c->cutoff, &c->env_depth);
+        bass_303_accent_output(accent, &c->gain.output);
+        bass_303_slide_porta(slide, &c->pitch.portamento);
+    } else if (semis != 0.0f) {
+        original_miami_voice_controls *c = &original_bass[b].dsp.miami.controls;
+        bass_adapt_saved[b].used = 1;
+        bass_adapt_saved[b].chicago = 0;
+        bass_adapt_saved[b].master_tune = c->pitch.master_tune;
+        c->pitch.master_tune += semis;
+    }
+}
+
+static void bass_adapt_post(int b, float *left, float *right, unsigned n)
+{
+    (void)left; (void)right; (void)n;
+    if ((unsigned)b >= NBASS || !bass_adapt_saved[b].used) return;
+    if (bass_adapt_saved[b].chicago) {
+        original_chicago_voice_controls *c = &original_bass[b].dsp.chicago.controls;
+        c->pitch.master_tune = bass_adapt_saved[b].master_tune;
+        c->cutoff = bass_adapt_saved[b].cutoff;
+        c->env_depth = bass_adapt_saved[b].env_depth;
+        c->pitch.portamento = bass_adapt_saved[b].portamento;
+        c->gain.output = bass_adapt_saved[b].output;
+    } else
+        original_bass[b].dsp.miami.controls.pitch.master_tune = bass_adapt_saved[b].master_tune;
+    bass_adapt_saved[b].used = 0;
+}
+
+#ifdef X0X_HOST
+int engine_bass_accent(int p) { return (unsigned)p < NBASS ? bass_accent[p] : 0; }
+int engine_bass_slide(int p) { return (unsigned)p < NBASS ? bass_slide[p] : 0; }
+#endif
+
 static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
     if ((unsigned)p >= NBASS) return 0;
     (void)x;
-    (void)acc;
+    bass_adapt_flags(p, acc, sl);
     if (prob_skip(PART_303A + p, 0)) {
         (void)original_runtime_release_source(&original_bass[p], ORIGINAL_INPUT_SEQUENCE);
         original_seq_note[p] = -1;
+        bass_accent[p] = bass_slide[p] = 0;
         return 0;
     }
     int previous = original_seq_note[p];
@@ -969,6 +1055,7 @@ static void s_boff(void *x, int p)
     if ((unsigned)p >= NBASS) return;
     (void)original_runtime_release_source(&original_bass[p], ORIGINAL_INPUT_SEQUENCE);
     original_seq_note[p] = -1;
+    bass_slide[p] = 0;
 }
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
 /* Audio-owned control boundary, independent of the bounded CQ drain. Quiet
@@ -1714,6 +1801,7 @@ static void drain(void)
                 seq_rec_bass(&seq, (int)a, (int)b, (int)((v >> 2) & 127u), 1, 3,
                     ((v & 1u) ? BS_ACCENT : 0) | ((v & 512u) ? BS_SLIDE : 0) | (slide ? SEQ_REC_LEGATO : 0));
             v &= 511u; /* the outgoing manual-slide flag is recorder metadata only */
+            bass_adapt_flags((int)a, (int)(v & 1u), slide);
             (void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, v >> 2);
             bass_held[a] = (uint8_t)b;
             bass_held_count[a] = 1; bass_held_src[a] = 3;
@@ -1730,7 +1818,7 @@ static void drain(void)
                 (void)original_runtime_release_source(&original_bass[a], ORIGINAL_INPUT_KEYS);
                 __builtin_memset(original_key_pitch[a], 0, sizeof original_key_pitch[a]);
             }
-            if (!v || b == bass_held[a]) bass_held[a] = bass_held_count[a] = 0;
+            if (!v || b == bass_held[a]) { bass_held[a] = bass_held_count[a] = 0; bass_slide[a] = 0; }
         } else if (type == C_BOFF && a < NBASS) {
             /* another input owns the voice: still drop the keyboard's own keys,
              * which never ends the owner's note (counts are per source) */
@@ -1776,15 +1864,17 @@ static void live_key_drain(void)
         live_key_owner_t *o=&live_key_owner[v];
         if(o->blocked || c.generation!=o->generation)continue;
         if (velocity && SEQ_PART_OFF(&seq, TRK_BASS0 + v)) continue;
-        (void)accent; (void)slide;
+        if (velocity) bass_adapt_flags((int)v, (int)accent, (int)slide);
         uint8_t previous = original_key_pitch[v][token];
         if (velocity) {
-            if (previous) (void)original_runtime_key(&original_bass[v], ORIGINAL_INPUT_KEYS, previous - 1u, 0);
+            if (previous && !slide) (void)original_runtime_key(&original_bass[v], ORIGINAL_INPUT_KEYS, previous - 1u, 0);
             if (original_runtime_key(&original_bass[v], ORIGINAL_INPUT_KEYS, pitch, velocity) != ORIGINAL_RUNTIME_OK) continue;
+            if (previous && slide) (void)original_runtime_key(&original_bass[v], ORIGINAL_INPUT_KEYS, previous - 1u, 0);
             original_key_pitch[v][token] = (uint8_t)(pitch + 1u);
             o->token = (uint8_t)token; o->pitch = (uint8_t)pitch; o->gate = 1;
             bass_held[v] = (uint8_t)pitch; bass_held_count[v] = 1; bass_held_src[v] = 3;
         } else if (previous == pitch + 1u) {
+            bass_slide[v] = 0;
             (void)original_runtime_key(&original_bass[v], ORIGINAL_INPUT_KEYS, pitch, 0);
             original_key_pitch[v][token] = 0;
             if (o->token == token) o->token = o->pitch = 0;
@@ -2076,7 +2166,9 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         int p = PART_303A + b;
         PROF_T(pb);
         (void)original_runtime_prepare(&original_bass[b], seq_tempo(&seq));
+        bass_adapt_pre(b);
         int status = original_runtime_render(&original_bass[b], &original_workspace, bb[b], bb[1-b], n);
+        bass_adapt_post(b, bb[b], bb[1-b], (unsigned)n);
         PROF_ADD(2 + b, pb);
         if (status == ORIGINAL_RUNTIME_OK) original_rec_recover_off(b);
         /* Failed/unadmitted DSP is visible through engine_bass_status. No

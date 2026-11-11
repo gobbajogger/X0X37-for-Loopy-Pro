@@ -7,13 +7,13 @@ static void enter_group(int g){ui.msg_until=0;global_index();ui.list_sel=(uint8_
 int main(void){
  setup(V_HOME,PART_909);pref_set(PR(R_ENG,T_MST,0,MST_PUMP),0);audio_due_ms=now_ms;run_ms(20);button_tap(B_GLO);CHECK(ui.glo_section==-1&&ui.list_n==6);ui_frame();shot("01-global-sections");
  project_t *keep=malloc(sizeof proj);CHECK(keep);memcpy(keep,&proj,sizeof proj);turn_ref(list_rows[0],1,EN_ALGO);CHECK(!memcmp(keep,&proj,sizeof proj));
- pref_t seen[40];int count=0;const int counts[]={9,5,7,3,5,4};   /* AUDIO: + five M7 part ON/OFF rows */
+ pref_t seen[40];int count=0;const int counts[]={9,5,8,3,5,4};   /* AUDIO: Tune + five M7 part ON/OFF rows */
  for(int g=0;g<6;g++){
   enter_group(g);CHECK(ui.list_n==counts[g]);for(int i=0;i<ui.list_n;i++){pref_t r=list_rows[i];CHECK(r.kind!=R_HDR&&r.kind!=R_SECTION);for(int j=0;j<count;j++)CHECK(memcmp(&r,&seen[j],sizeof r));seen[count++]=r;}
   ui_frame();char name[40];snprintf(name,sizeof name,"group-%d",g);shot(name);
   button_tap(B_HOME);CHECK(ui.glo_section==-1&&ui.list_sel==g);
  }
- CHECK(count==33);CHECK(!memcmp(keep,&proj,sizeof proj));
+ CHECK(count==34);CHECK(!memcmp(keep,&proj,sizeof proj));
  enter_group(0);for(int i=0;i<5;i++)CHECK(list_rows[3+i].a==part_at(i));list_move(8);CHECK(ui.list_sel==8&&ui.list_top==3);ui_frame();shot("midi-scroll");button_tap(B_HOME);list_enter();CHECK(ui.list_sel==8&&ui.list_top==3);
  button_tap(B_GLO);CHECK(ui.view!=V_GLO);button_tap(B_GLO);CHECK(ui.glo_section==-1&&ui.list_sel==0);
  /* Physical > entry consumes the held repeat until release, including clip mode. */
@@ -27,5 +27,13 @@ int main(void){
  enter_group(4);ui.list_sel=4;list_enter();CHECK(ui.overlay==O_ASK&&ui.ask_act==ACT_RESET);ui_frame();shot("reset-confirmation");button_tap(B_HOME);CHECK(ui.overlay==O_LIST&&ui.glo_section==4&&ui.list_sel==4);
  /* Connected-name bounds and marquee are covered by ui_peer_names_test.c. */
  enter_group(2);ui.list_sel=1;pref_set(PR(R_USBFULL,0,0,0),0);ui_frame();shot("audio-long-enum");
+ CHECK(list_rows[2].kind==R_FINETUNE);
+ CHECK(pref_get(PR(R_FINETUNE,0,0,0))==64 && proj.set.rsv_bright==0);
+ pref_set(PR(R_FINETUNE,0,0,0),64);
+ CHECK(proj.set.rsv_bright==0 && pref_get(PR(R_FINETUNE,0,0,0))==64);
+ pref_set(PR(R_FINETUNE,0,0,0),80);
+ CHECK((int8_t)proj.set.rsv_bright==16 && pref_get(PR(R_FINETUNE,0,0,0))==80);
+ pref_set(PR(R_FINETUNE,0,0,0),64);
+ CHECK(proj.set.rsv_bright==0);
  free(keep);printf("settings sections PASS %u checks\n",checks);return 0;
 }

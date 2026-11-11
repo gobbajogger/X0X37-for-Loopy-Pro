@@ -231,10 +231,13 @@ void engine_set_base(int target, int voice, int i);         /* exact patch value
 #ifdef X0X_HOST
 unsigned engine_original_keys(int voice, int latched);
 uint32_t engine_original_value_bits(int voice, unsigned parameter);
+int engine_bass_accent(int p);
+int engine_bass_slide(int p);
 #endif
 #endif
 void engine_out_loud(int on);          /* 1: the output at the codec's full scale (6 dB hotter than Felucca's) */
 void engine_usb_full(int on);          /* 1: engine_render at full level, engine_volume the MASTER knob after */
+void engine_bass_tune(int steps);      /* global Tune, signed steps (0 = concert, bit-exact); Chicago and Miami */
 void engine_volume(int32_t *out_lr, uint32_t n);   /* ISR, after engine_render (and the USB tap) */
 void engine_apply_sound(const sound_t *s);                  /* queue every value (load, init) */
 void engine_sound_defaults(sound_t *s);                     /* each engine's power-on values */

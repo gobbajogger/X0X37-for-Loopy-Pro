@@ -403,7 +403,7 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION, R_PARTON };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION, R_PARTON, R_FINETUNE };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -463,6 +463,7 @@ static const char *const OUT_N[] = {"NORMAL", "LOUD"};
 static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
 static const char *const USBA_N[] = {"FOLLOWS KNOB", "FULL"};
 static const x0x_param_t USBA_P = {"USB AUDIO", 1, 0, USBA_N};
+static const x0x_param_t TUNE_P = {"TUNE", 127, 64, 0};  /* global, both bass engines; stored as signed 0-center */
 static const x0x_param_t FREEPLAY_P = {"FREE PLAY", 1, 0, ONOFF_N};
 static const char *const BRKSLICE_N[] = {"4", "8", "16", "32"};
 static const x0x_param_t BRKSLICE_P[2] = {
@@ -562,6 +563,7 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_PARTON: return &PARTON_P[r.a % NPARTS];
     case R_OUTLOUD: return &OUT_P;
     case R_USBFULL: return &USBA_P;
+    case R_FINETUNE: return &TUNE_P;
     case R_FREEPLAY: return &FREEPLAY_P;
     case R_SREP: return &SREP_P;
     case R_BATT: return &BATT_P;
@@ -647,6 +649,7 @@ static int pref_get(pref_t r)
     case R_PARTON: return !SEQ_PART_OFF(&seq, r.a % NPARTS);
     case R_OUTLOUD: return proj.set.out_loud;
     case R_USBFULL: return proj.set.usb_full;
+    case R_FINETUNE: return (int)(int8_t)proj.set.rsv_bright + 64;
     case R_FREEPLAY: return ui.freeplay[r.a];
     case R_SREP: {
         unsigned bar = r.b ? r.b - 1u : ui.song_sel;
@@ -786,6 +789,7 @@ X0X_COLD static void pref_set_impl(pref_t r, int v, int from_keyboard)
     case R_PARTON: seq.part_off = (uint8_t)(v ? seq.part_off & ~(1u << (r.a % NPARTS)) : seq.part_off | 1u << (r.a % NPARTS)); break;
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
+    case R_FINETUNE: proj.set.rsv_bright = (uint8_t)(int8_t)(v - 64); engine_bass_tune(v - 64); break;
     case R_CKCH: proj.set.ck_ch = (uint8_t)(v + 2); break;   /* sounding notes end on their own channel */
     case R_CLKSRC:                                            /* (ui_frame gives it to the sequencer) */
         proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_CLK_MASK) | (uint8_t)v << 1 | PROJ_BT_CLK_IN);
@@ -1198,6 +1202,18 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
         return;
     case R_BRKSET: put_i(num, v); put_s(unit, "%"); return;
     case R_TEMPO: put_i(num, v + 20); put_s(unit, "bpm"); return;
+    case R_FINETUNE: {
+        int tsteps = v - 64, milli = tsteps * 625;
+        char *e = num;
+        if (milli > 0) *e++ = '+';
+        if (milli < 0) { *e++ = '-'; milli = -milli; }
+        e = put_i(e, milli / 1000);
+        *e++ = '.';
+        *e++ = (char)('0' + (milli / 100) % 10);
+        *e = 0;
+        put_s(unit, "Hz");
+        return;
+    }
     case R_SBAR: put_i(num, v + 1); return;
     case R_SPAT: num[0] = 'P'; put_i(num + 1, v + 1); return;
     case R_MIDICH: if (v) put_i(num, v); else put_s(num, "OFF"); return;
@@ -1683,7 +1699,7 @@ static void global_section(int g)
         list_add(PR(R_BTSTAT,0,0,0));list_add(PR(R_BTNAME,0,0,0));
 #endif
         break;
-    case 2:list_add(PR(R_OUTLOUD,0,0,0));list_add(PR(R_USBFULL,0,0,0));
+    case 2:list_add(PR(R_OUTLOUD,0,0,0));list_add(PR(R_USBFULL,0,0,0));list_add(PR(R_FINETUNE,0,0,0));
         for(int p=0;p<NPARTS;p++)list_add(PR(R_PARTON,part_at(p),0,0));break;
     case 3:list_add(PR(R_KEYLED,0,0,0));list_add(PR(R_KEYSOUND,0,0,0));list_add(PR(R_PALETTE,0,0,0));break;
     case 4:
