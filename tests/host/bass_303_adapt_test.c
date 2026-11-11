@@ -22,7 +22,10 @@ int main(void)
         bass_303_accent_output(0, &out);
         CHECK(out == 0.5f);
         bass_303_accent_output(1, &out);
-        CHECK(out > 1.5f && out < 2.0f);
+        CHECK(out == 1.0f);                      /* the Chicago gain stage takes 0..1 */
+        out = 0.2f;
+        bass_303_accent_output(1, &out);
+        CHECK(out > 0.6f && out < 0.8f);
     }
 
     cut = 0.25f; env = 0.10f;

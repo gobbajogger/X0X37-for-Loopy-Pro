@@ -24,7 +24,9 @@ static inline void bass_303_accent_output(int accent, float *output)
 {
     if (!accent || !output)
         return;
-    *output *= bass_303_accent_gain(1);
+    /* The Chicago voice gain stage rejects output > 1 (voice_gain.c), and a
+     * rejected render faults the part: keep the accent inside 0..1. */
+    *output = fm_clampf(*output * bass_303_accent_gain(1), 0.0f, 1.0f);
 }
 
 static inline void bass_303_accent_controls(int accent, float *cutoff, float *env_depth)
