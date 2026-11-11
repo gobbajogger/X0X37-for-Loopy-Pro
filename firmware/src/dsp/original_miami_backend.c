@@ -391,13 +391,12 @@ static int render_voice_frame(original_miami_backend *s, uint32_t *left, uint32_
 
 int original_miami_voice_render_add(original_miami_ms20 *f, original_voice_gain *vg, original_oscillators *ph,
     const original_prepared_oscillators *p, float vco_gain, float *L, float *R, uint32_t n);
-static int render_span(original_miami_backend *s, uint32_t *left, uint32_t *right, uint32_t n)
+/* one control span (<= 64 frames). The accumulators are on the caller's stack, not static:
+ * bass A and bass B may render at once on the two cores (engine.c), and two Miami parts
+ * must not share them. Same arithmetic, same order. */
+__attribute__((noinline)) static int render_span64(original_miami_backend *s, uint32_t *left, uint32_t *right, uint32_t n)
 {
-    while (n > 64) {   /* control spans are at most 64 frames (44100 / 690) */
-        if (!render_span(s, left, right, 64)) return 0;
-        left += 64; right += 64; n -= 64;
-    }
-    static float accL[64], accR[64];
+    float accL[64], accR[64];
     for (uint32_t j = 0; j < n; ++j) { accL[j] = 0.0f; accR[j] = 0.0f; }
     for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id) {
         original_miami_selected_voice *v = &s->voices[id];
@@ -411,6 +410,14 @@ static int render_span(original_miami_backend *s, uint32_t *left, uint32_t *righ
         right[j] = original_math_bits(accR[j]);
     }
     return 1;
+}
+static int render_span(original_miami_backend *s, uint32_t *left, uint32_t *right, uint32_t n)
+{
+    while (n > 64) {   /* control spans are at most 64 frames (44100 / 690) */
+        if (!render_span64(s, left, right, 64)) return 0;
+        left += 64; right += 64; n -= 64;
+    }
+    return render_span64(s, left, right, n);
 }
 
 /* No queued events and ARP off means scheduler clock notifications cannot
