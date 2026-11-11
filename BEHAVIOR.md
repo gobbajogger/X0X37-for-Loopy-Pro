@@ -588,6 +588,8 @@ SMC-11A. Unlock is a plain 900 ms hold of Pause while locked (snapshot 574f5329)
 
 SMC-11B. A held SMC FX SELECT plays the bus's assigned effect (ROOM, TIGHT, ECHO or the HOME+SELECT choice), not a forced low-pass (snapshot 574f5329, PR #741). Its caption and status text are unchanged here; the caption change waits for an approved mockup. [USER 2026-10-30] [CODE firmware/src/app/smc_mixer.c smc_fx_publish] [TEST tests/host/smc_fx_preset_preserve_test.py]
 
+SMC-11C. HOME+Left/Right on the FX page cycles three SELECT maps: ROOM, TIGHT and ECHO (SMCFX_NPAGE 3), ported from 7b2d1726 (#688). ECHO is DLY/REV/REV/REV/DLY/STUT/SHUF/GATE8. The tip ROOM map is kept (it was the later approved 0.0.25 layout; the source ROOM was REV/DLY/HP/LP/GATE/REV/DLY/GATE16; both stay suited after the shared 909/808/BREAK suit). TIGHT is unchanged. ECHO's four-button strip is SELECT-only by default; REC, SOLO and MUTE start empty and can be remapped. 909, 808 and BREAK keep REV DLY STUT SHUF GATE HP. [USER 2026-11-12] [CODE firmware/src/app/smc_fx_map.h firmware/src/app/smc_fx_map_tables.c firmware/src/app/smc_fx_strip.h] [TEST tests/host/smc_fx_echo_page_test.sh]
+
 ## 18. Open questions
 
 These are disagreements between the code and a source document, or behavior that needs an owner decision. Do not report them as defects. Do not fix them without an owner decision.

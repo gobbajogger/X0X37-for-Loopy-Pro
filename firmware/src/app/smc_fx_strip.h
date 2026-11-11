@@ -1,10 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Two FX pages, four independent momentary button assignments per SMC strip.
+/* Three FX pages (ROOM, TIGHT, ECHO), four independent momentary button
+ * assignments per SMC strip. Page 3 (ECHO) is SELECT-only by default.
  * The physical note's button is REC, SOLO, MUTE, SELECT in groups of eight. */
 #pragma once
 #include "smc_fx_map.h"
 
-enum { SMCFX_BUTTONS = 4, SMCFX_STRIP_PAGES = 2, SMCFX_EMPTY = 0xFF };
+enum { SMCFX_BUTTONS = 4, SMCFX_STRIP_PAGES = 3, SMCFX_EMPTY = 0xFF };
 enum { SMCFX_REC = 0, SMCFX_SOLO = 1, SMCFX_MUTE = 2, SMCFX_SELECT = 3 };
 
 typedef struct {
@@ -13,12 +14,18 @@ typedef struct {
     uint8_t held_fx[SMCFX_N][SMCFX_BUTTONS];
     uint8_t order[SMCFX_N][SMCFX_BUTTONS]; /* Latest held key wins on a bus. */
     uint8_t count[SMCFX_N];
-    uint32_t page2; /* One bit per physical key: preserve its original mapping page. */
+    uint8_t key_page[32]; /* Pressed mapping page (0..2), survives the 1-bit page2 flag. */
+    uint32_t page2; /* One bit per physical key: pages 1 and 2 set the bit. */
 } smcfx_strip_t;
 
 static inline int smcfx_button(unsigned note)
 {
     return note < 32u ? (int)(note >> 3) : -1;
+}
+
+static inline int smcfx_strip_key_page(const smcfx_strip_t *s, unsigned note)
+{
+    return note < 32u ? (int)s->key_page[note] : 0;
 }
 
 static inline uint8_t smcfx_strip_get(const smcfx_strip_t *s, int page, int bus, int button)
@@ -37,7 +44,13 @@ static inline void smcfx_strip_init(smcfx_strip_t *s)
                 s->map[page][bus][button] = slot < SMCFX_SUIT_N[bus] ?
                     SMCFX_SUIT[bus][slot] : SMCFX_EMPTY;
             }
-    for (int note = 0; note < 32; note++) s->key_bus[note] = SMCFX_EMPTY;
+    for (int bus = 0; bus < SMCFX_N; bus++)
+        s->map[2][bus][SMCFX_SELECT] = smcfx_suit_ok(bus, SMCFX_PAGE[2][bus]) ?
+            SMCFX_PAGE[2][bus] : SMCFX_EMPTY;
+    for (int note = 0; note < 32; note++) {
+        s->key_bus[note] = SMCFX_EMPTY;
+        s->key_page[note] = 0;
+    }
     for (int bus = 0; bus < SMCFX_N; bus++) s->count[bus] = 0;
     s->page2 = 0;
 }
@@ -60,6 +73,7 @@ static inline int smcfx_strip_press(smcfx_strip_t *s, unsigned note, int bus, in
         s->key_bus[note] != SMCFX_EMPTY || s->count[bus] >= SMCFX_BUTTONS)
         return 0;
     s->key_bus[note] = (uint8_t)bus;
+    s->key_page[note] = (uint8_t)page;
     if (page) s->page2 |= (uint32_t)1u << note;
     else s->page2 &= ~((uint32_t)1u << note);
     s->held_fx[bus][button] = fx; /* Pin the effect selected at key-down. */
@@ -93,7 +107,10 @@ static inline uint8_t smcfx_strip_live_fx(const smcfx_strip_t *s, int bus)
 
 static inline void smcfx_strip_clear_holds(smcfx_strip_t *s)
 {
-    for (int note = 0; note < 32; note++) s->key_bus[note] = SMCFX_EMPTY;
+    for (int note = 0; note < 32; note++) {
+        s->key_bus[note] = SMCFX_EMPTY;
+        s->key_page[note] = 0;
+    }
     for (int bus = 0; bus < SMCFX_N; bus++) s->count[bus] = 0;
     s->page2 = 0;
 }
