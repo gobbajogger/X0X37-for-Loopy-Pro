@@ -160,7 +160,7 @@ are in the NIGHTLY catalog entry for this source commit.
 | M6 drum-bus FX suit | Owner decisions 2026-11-12 02:33 UTC+10: "Let drums have similar fxs" and "It doesn't sound right that 808 and 909 have different fxs from break". 909, 808 and BREAK share one suit: REV, DLY, STUT, SHUF, GATE, HP (page 1: REV DLY STUT SHUF; page 2: GATE HP). Supersedes the #370 split (no GATE on 909/808). BREAK stutter is real: one mono ring channel (13 in total). | this commit |
 | M7 part ON/OFF | DONE: core + saved state (#854 via `4e036296`); GLOBAL > AUDIO toggles per part (#815 item 7). | `4e036296`, `336eaa4f` |
 | M8 PLAY answers question, HOME+PLAY redo | DONE | #860 via `4e036296` |
-| M9 integration | DONE for built items. Not merged: L14 SMC snapshot (`9ffe5d6d`, `13b43154`, `fb6b5827`): it is built on the keyboard page peek that the owner withdrew in 3f7baf16 and needs +1,888 B .bss against 716 B RAM headroom. The default build has one SMC peer. | this merge |
+| M9 integration | DONE for built items on lane/025-small-b: the owner-approved #737 SMC mixer page peek (PICKUP hint and knob ACTIVE, plus a short locked Pause peek) is ported from `08e8d8573`. Peek state is a small byte buffer (no L14 paint cache). The heavy L14 snapshot (`9ffe5d6d`, `13b43154`, `fb6b5827`, +1,888 B .bss) is still not merged. The default build has one SMC peer. | this branch |
 | M10 pool >= 8,192 B | DONE: 8,328 B free on Elite and on Pro | build |
 | M11 NIGHTLY | DONE: see the catalog entry for this source commit | publish |
 | M12 completeness gate | PARTIAL: #822 not adopted. It needs a pinned proof for every required ROADMAP row (2 PRESENT / 144 MISSING at its last audit) and an independently accepted release selection; not populated. | #822 |

@@ -4,8 +4,16 @@
 #include "smc_ui_test.c"
 #undef SMC_UI_MAIN
 
+static void expire_peek(void)
+{
+    /* Force the peek timeout without ageing the overlay. */
+    if (!smc_peek->on) return;
+    smc_peek->until = plat_ms() - 1u;
+    smc_poll();
+}
 static void keyboard_unchanged(screen_state_t before)
 {
+    expire_peek();
     screen_state_t after = screen_state();
     CHECK(before.view == after.view && before.part == after.part);
     CHECK(before.mixsel == after.mixsel && before.prev_view == after.prev_view);
@@ -228,18 +236,18 @@ int main(void)
         screen_state_t saved=screen_state();
         pref_t target=smc_target(0);
         for(int n=0;n<8;n++) {
-            fader(n,0);keyboard_unchanged(saved);
-            knob(n,1);keyboard_unchanged(saved);
+            fader(n,0);expire_peek();keyboard_unchanged(saved);
+            knob(n,1);expire_peek();keyboard_unchanged(saved);
         }
         for(unsigned n=0;n<sizeof nav;n++) {
-            message(0x90,nav[n],127);keyboard_unchanged(saved);
-            message(0x80,nav[n],0);keyboard_unchanged(saved);
+            message(0x90,nav[n],127);expire_peek();keyboard_unchanged(saved);
+            message(0x80,nav[n],0);expire_peek();keyboard_unchanged(saved);
         }
-        smc_lock_toggle();keyboard_unchanged(saved);
-        message(0x90,0x63,127);message(0x80,0x63,0);keyboard_unchanged(saved);
-        smc_lock_toggle();keyboard_unchanged(saved);
+        smc_lock_toggle();expire_peek();keyboard_unchanged(saved);
+        message(0x90,0x63,127);message(0x80,0x63,0);expire_peek();keyboard_unchanged(saved);
+        smc_lock_toggle();expire_peek();keyboard_unchanged(saved);
         (void)target;
-        now_ms+=1300;ui_frame();keyboard_unchanged(saved);CHECK(!smc_ui_active());
+        now_ms+=1300;smc_poll();ui_frame();keyboard_unchanged(saved);CHECK(!smc_ui_active());
     }
     setup(V_SEQ,PART_303A);shot("before-keyboard");
     screen_state_t saved=screen_state();
@@ -251,7 +259,7 @@ int main(void)
     keyboard_unchanged(saved);shot("after-dismiss-keyboard");
     /* A panel page change must survive popup expiry rather than be restored. */
     fader(0,1);set_view(V_FX);*page_of(V_FX)=1;build_pages();
-    saved=screen_state();now_ms+=1300;ui_frame();keyboard_unchanged(saved);
+    saved=screen_state();now_ms+=1300;smc_poll();ui_frame();keyboard_unchanged(saved);
     /* Modal answers remain explicit keyboard-owned actions; ordinary SMC input
      * leaves the dialog and its remembered navigation alone. */
     ask(ACT_SONG_CLR,0,"TEST",0);saved=screen_state();
