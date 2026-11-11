@@ -59,7 +59,7 @@ export function parseSMF(input) {
 export function makeImportPlan(parsed,doc,revision,settings) {
   validateDraft(doc);
   const {pattern,part,track,channel,rate,startBeat,beats}=settings;
-  if(!integer(pattern,0,31)||!integer(part,0,3)||!integer(track,0,parsed.tracks.length-1)||!integer(channel,0,15)||!integer(rate,0,3)||!integer(startBeat,1,1e6)||!integer(beats,1,64))throw new Error('Invalid import mapping/window.');
+  if(!integer(pattern,0,31)||!integer(part,0,3)||!integer(track,0,parsed.tracks.length-1)||!integer(channel,0,15)||!integer(rate,0,STEPS_PER_BEAT.length-1)||!integer(startBeat,1,1e6)||!integer(beats,1,64))throw new Error('Invalid import mapping/window.');
   const length=beats*STEPS_PER_BEAT[rate];if(length>64)throw new Error('This window maps beyond 64 steps. Choose a smaller window or rate.');
   // The first preserved TIE can depend on a NOTE inside the replacement window.
   // Reject before mapping; never extend the imported note or clear outside cells.

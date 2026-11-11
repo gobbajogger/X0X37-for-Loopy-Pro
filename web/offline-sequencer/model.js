@@ -6,8 +6,8 @@ export const KITS = [
   [['Kick',36],['Snare',38],['Low tom',41],['Mid tom',45],['High tom',50],['Rim',37],['Clap',39],['Cowbell',56],['Cymbal',49],['Open hat',46],['Closed hat',42]]
 ];
 export const PARTS = ['Synth 1','Synth 2','909','808','BREAKS'];
-export const RATES = ['1/16','1/16T','1/32','1/8T'];
-export const STEPS_PER_BEAT = [4,6,8,3];
+export const RATES = ['1/16','1/16T','1/32','1/8T','1/8','1/4'];
+export const STEPS_PER_BEAT = [4,6,8,3,2,1];
 export const copy = x => structuredClone(x);
 export const integer = (x,a,b) => Number.isInteger(x) && x>=a && x<=b;
 export const gate = s => s.flags & 3;
@@ -28,14 +28,14 @@ export function validateDraft(d) {
   for(const p of d.patterns) {
     require(keys(p,['bass','drum','breaks'])&&Array.isArray(p.bass)&&p.bass.length===2&&Array.isArray(p.drum)&&p.drum.length===2,'Invalid pattern parts.');
     for(const b of p.bass) {
-      require(keys(b,['length','rate','direction','transpose','steps','generator'])&&integer(b.length,1,64)&&integer(b.rate,0,3)&&integer(b.direction,0,3)&&integer(b.transpose,-24,24),'Invalid melodic settings.');
+      require(keys(b,['length','rate','direction','transpose','steps','generator'])&&integer(b.length,1,64)&&integer(b.rate,0,RATES.length-1)&&integer(b.direction,0,3)&&integer(b.transpose,-24,24),'Invalid melodic settings.');
       const g=b.generator;require(keys(g,['density','accent','slide','octaves','root','scale','baseOctave','autoBars','seed','rng'])&&['density','accent','slide'].every(k=>integer(g[k],0,100))&&integer(g.octaves,1,3)&&integer(g.root,0,11)&&integer(g.scale,0,5)&&integer(g.baseOctave,0,4)&&integer(g.autoBars,0,16)&&integer(g.seed,0,0xffffffff)&&integer(g.rng,0,0xffffffff),'Invalid generator settings.');
       require(Array.isArray(b.steps)&&b.steps.length===64,'A melodic part needs all 64 stored steps.');
       for(const s of b.steps) require(keys(s,['note','flags','velocity'])&&integer(s.note,0,127)&&integer(s.flags,0,255)&&gate(s)<3&&integer(s.velocity,0,127)&&!(gate(s)===0&&(s.flags>>4)),'Invalid melodic note, gate, release or velocity.');
     }
     const q=p.breaks;require(keys(q,['length','rate','gates','slices','loopA','loopB','sliceMode','settings'])&&q.length===16&&q.rate===0&&integer(q.gates,0,65535)&&Array.isArray(q.slices)&&q.slices.length===16&&q.slices.every(x=>integer(x,0,8))&&[q.loopA,q.loopB].every(x=>x===null||integer(x,0,65534))&&integer(q.sliceMode,0,1)&&Array.isArray(q.settings)&&q.settings.length===12&&q.settings.every((x,i)=>integer(x,0,i===8?4:i>=10?5:100)),'Invalid BREAKS data.');
     for(const k of p.drum) {
-      require(keys(k,['length','rate','hits','accent'])&&integer(k.length,1,64)&&integer(k.rate,0,3)&&Array.isArray(k.hits)&&k.hits.length===11,'Invalid drum part.');
+      require(keys(k,['length','rate','hits','accent'])&&integer(k.length,1,64)&&integer(k.rate,0,RATES.length-1)&&Array.isArray(k.hits)&&k.hits.length===11,'Invalid drum part.');
       for(const m of [...k.hits,k.accent]) require(Array.isArray(m)&&m.length===2&&m.every(x=>integer(x,0,0xffffffff)),'Invalid 64-step drum mask.');
     }
   }

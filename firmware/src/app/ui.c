@@ -388,7 +388,7 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION, R_PARTON };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -405,7 +405,7 @@ static const x0x_param_t BENGINE_P = {"ENGINE",1,0,BENGINE_N};
 static x0x_param_t BPRESET_P = {"PRESET",54,0,0};
 static const x0x_param_t BSTATUS_P = {"STATUS",0,0,0};
 
-static const char *const RATE_N[] = {"1/16", "1/16T", "1/32", "1/8T"};
+static const char *const RATE_N[] = {"1/16", "1/16T", "1/32", "1/8T", "1/8", "1/4"};   /* M13: index = pattern.h RATE_* */
 static const char *const DIR_N[] = {"FWD", "REV", "PING", "RND"};
 static const char *const ONOFF_N[] = {"OFF", "ON"};
 #define ROOT_N NOTE_N                       /* same twelve names as put_note */
@@ -421,8 +421,8 @@ enum { SQ_SWING, SQ_DLEN, SQ_DRATE, SQ_BLEN, SQ_BRATE, SQ_BDIR, SQ_BTRANS, SQ_TE
 static const char *const KEYSOUND_N[] = {"STOPPED", "ALWAYS"};
 static const char *const LIGHTS_N[] = {"OFF", "ON", "KEYS"};   /* ON: the keys, and the unlit buttons glow */
 static const x0x_param_t SEQ_P[NSQ] = {
-    {"SWING", 100, 0, 0}, {"LENGTH", NSTEPS - 1, 15, 0}, {"RATE", 3, 0, RATE_N}, {"LENGTH", NSTEPS - 1, 15, 0},
-    {"RATE", 3, 0, RATE_N}, {"DIR", 3, 0, DIR_N}, {"TRANSP", 48, 24, 0}, {"TEMPO", 255, 105, 0},
+    {"SWING", 100, 0, 0}, {"LENGTH", NSTEPS - 1, 15, 0}, {"RATE", NRATES - 1, 0, RATE_N}, {"LENGTH", NSTEPS - 1, 15, 0},
+    {"RATE", NRATES - 1, 0, RATE_N}, {"DIR", 3, 0, DIR_N}, {"TRANSP", 48, 24, 0}, {"TEMPO", 255, 105, 0},
     {"ACCENT", 127, 88, 0}, {"CLOCK OUT", 1, 1, ONOFF_N}, {"NOTES OUT", 1, 0, ONOFF_N}, {"THEME", 5, 1, THEME_N},
     {"LIGHTS", 2, 1, LIGHTS_N}, {"KEY SOUND", 1, 0, KEYSOUND_N},
     {"AUTOSAVE", 1, 1, ONOFF_N},
@@ -440,6 +440,10 @@ static const x0x_param_t STALLS_P = {"STALLS", 1, 0, ONOFF_N};
 static const x0x_param_t MIDICH_P[NPARTS] = {   /* 0 = OFF (no notes in or out), 1-16 */
     {"909 MIDI CH", 16, 10, 0}, {"808 MIDI CH", 16, 11, 0}, {"303A MIDI CH", 16, 2, 0}, {"303B MIDI CH", 16, 3, 0},
     {"BREAK MIDI CH", 16, 4, 0}};
+/* M7: per-part ON/OFF (seq.part_off). OFF stops new notes, independent of mute and level. */
+static const x0x_param_t PARTON_P[NPARTS] = {
+    {"909", 1, 1, ONOFF_N}, {"808", 1, 1, ONOFF_N}, {"CHICAGO", 1, 1, ONOFF_N}, {"MIAMI", 1, 1, ONOFF_N},
+    {"BREAK", 1, 1, ONOFF_N}};
 static const char *const OUT_N[] = {"NORMAL", "LOUD"};
 static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
 static const char *const USBA_N[] = {"FOLLOWS KNOB", "FULL"};
@@ -540,6 +544,7 @@ static const x0x_param_t *pref_desc(pref_t r)
     }
     case R_SPAT: return &SONG_P[r.a % NPARTS];
     case R_MIDICH: return &MIDICH_P[r.a % NPARTS];
+    case R_PARTON: return &PARTON_P[r.a % NPARTS];
     case R_OUTLOUD: return &OUT_P;
     case R_USBFULL: return &USBA_P;
     case R_FREEPLAY: return &FREEPLAY_P;
@@ -624,6 +629,7 @@ static int pref_get(pref_t r)
         return k >= 0 ? sg->bar[k].pat[r.a] : seq.ppat[r.a];
     }
     case R_MIDICH: return seq.ch[r.a % NPARTS] == SEQ_CH_OFF ? 0 : seq.ch[r.a % NPARTS] + 1;
+    case R_PARTON: return !SEQ_PART_OFF(&seq, r.a % NPARTS);
     case R_OUTLOUD: return proj.set.out_loud;
     case R_USBFULL: return proj.set.usb_full;
     case R_FREEPLAY: return ui.freeplay[r.a];
@@ -762,6 +768,7 @@ X0X_COLD static void pref_set_impl(pref_t r, int v, int from_keyboard)
         break;
     }
     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+    case R_PARTON: seq.part_off = (uint8_t)(v ? seq.part_off & ~(1u << (r.a % NPARTS)) : seq.part_off | 1u << (r.a % NPARTS)); break;
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
     case R_CKCH: proj.set.ck_ch = (uint8_t)(v + 2); break;   /* sounding notes end on their own channel */
@@ -1652,7 +1659,8 @@ static void global_section(int g)
         list_add(PR(R_BTSTAT,0,0,0));list_add(PR(R_BTNAME,0,0,0));
 #endif
         break;
-    case 2:list_add(PR(R_OUTLOUD,0,0,0));list_add(PR(R_USBFULL,0,0,0));break;
+    case 2:list_add(PR(R_OUTLOUD,0,0,0));list_add(PR(R_USBFULL,0,0,0));
+        for(int p=0;p<NPARTS;p++)list_add(PR(R_PARTON,part_at(p),0,0));break;
     case 3:list_add(PR(R_KEYLED,0,0,0));list_add(PR(R_KEYSOUND,0,0,0));list_add(PR(R_PALETTE,0,0,0));break;
     case 4:
         list_add(PR(R_ACT,ACT_SAVE,0,0));list_add(PR(R_ACT,ACT_LOAD,0,0));list_add(PR(R_AUTOSAVE,0,0,0));
@@ -6430,6 +6438,14 @@ static UI_DRAW void draw_list(int band)
             int left=8+tw(nf,"NAME")+8, width=226-left, travel=tw(nf,shown)-width;
             int offset=peer_offset(shown,&peers,travel,plat_ms());
             cv_text_clip(left-offset,vc(nf,y+1,18),nf,shown,sel?C_WHITE:C_HI,left,226);continue;
+        }
+        if (r.kind == R_PARTON) {                      /* M7 (#815 item 7): part stripe, switch, no words */
+            int on = pref_get(r);
+            uint16_t ink = PART_COL[r.a % NPARTS];
+            cv_rect(3, y + 1, 2, 21, ink);
+            ui_pictogram(168, y + 6, on ? UI_G_CHECK : UI_G_MUTE, 1, on ? ink : C_DIM);
+            ui_state_toggle(190, y + 6, on, on ? ink : C_GRAY);
+            continue;
         }
         pref_value(r, num, unit);
         if (r.kind == R_BPRESET) {
