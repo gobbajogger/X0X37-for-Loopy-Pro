@@ -1,0 +1,89 @@
+{
+  "schema": "loopyx0x37.safe-merge.integration-handoff.v1",
+  "evidence_revision": "safe-merge-pr103-smc79-63-73-prehardware-critical-repair-20261024-r9",
+  "run_date_utc": "2026-10-24",
+  "owner": "Sole firmware Safe Merge",
+  "disposition": "SOURCE_COMPLETE_COMBINED_UNREVIEWED",
+  "consumed": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "head": "b7b472fd5cae89ca8af3473a19de8e6594692878",
+    "complete_root": "2a2972589f360c064c7fd9ad51d420128ba56744",
+    "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "evidence": "safe-merge-pr103-durable-backup-pr107-20261024-r8",
+    "producers": [
+      {
+        "pr": 79,
+        "head": "e99dacbb5e7ee8d5e22426f01a226276dc451efd",
+        "evidence": "smc-pr79-initial-ble-session-notification-order-20261024-r3"
+      },
+      {
+        "pr": 63,
+        "head": "71761953e149f9f718dceda0f9cac8aaa31b6179",
+        "evidence": "smc-pr63-direct-ble-payload-source-review-20261024-r1"
+      },
+      {
+        "pr": 73,
+        "head": "64d55323192cd40dd269a475e63523164a0e0169",
+        "evidence": "smc-pr73-mmc-stop-boundary-review-fix-20261024-r2"
+      }
+    ]
+  },
+  "changes": [
+    "BLE link epoch before first notification",
+    "direct SMC input 7-bit data rejection",
+    "saturated MMC STOP FIFO ordering with ISR concurrent refill",
+    "registered producer negative tests and existing SMC queue expansion"
+  ],
+  "execution": [
+    {
+      "command": "GitHub read exact current/producer blobs and PR #73/#63/#79 patches",
+      "exit": 0
+    },
+    {
+      "command": "JavaScript exact unique-hunk producer source merges + byte-equality BLE source",
+      "exit": 0
+    },
+    {
+      "command": "JavaScript static source and registered test assertions",
+      "exit": 0,
+      "passed": 45
+    },
+    {
+      "command": "GCC/Clang combined-root native regression/sanitizer suite",
+      "exit": null,
+      "status": "NOT_RUN",
+      "reason": "independent exact-root QA required; not executable in Git connector"
+    },
+    {
+      "command": "JieLi Elite/Pro/controller target build",
+      "exit": null,
+      "status": "NOT_RUN",
+      "reason": "Hourly Build owns target compiler; changed firmware subtree requires fresh build"
+    }
+  ],
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "run exact-combined-root native positive and negative tests: SMC BLE new session, direct data7, overflow STOP ISR refill, reconnect, 303, sample archive/backups/OTA; submit Git review",
+      "gate": "independent QA + real combined-root tests before protected merge"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "compile new Elite and Pro plus matching private controller BUILD_ONLY from new firmware subtree immediately",
+      "gate": "fresh source-matched model package/budget checks"
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "after independent QA and scoped native checks, authorized reviewed protected PR merge; verify new NIGHTLY SHA",
+      "gate": "protected rules, not Pages/hardware"
+    }
+  ],
+  "publisher": {
+    "status": "NO_GO_PUBLIC",
+    "device": "UNKNOWN",
+    "production": "UNTOUCHED",
+    "required": "QA, package/model/controller backup/restore, source/license, immutable host URL HTTP hash",
+    "retain_previous_safe": true
+  }
+}

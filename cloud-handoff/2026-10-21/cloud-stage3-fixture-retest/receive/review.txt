@@ -1,0 +1,9 @@
+Receive scope PASS on 1c6847412b8a380858d2eaace50e8dfe36b7495a.
+
+Independent strict ASan/UBSan runner returned 0 for ble-midi-receive. The runner compiles and executes both ble_midi_central_test.c and ble_midi_receive_test.c; the per-check log is empty because both binaries are silent on success. Package skip is outside the selected scope.
+
+Disposable negative probe restored only baseline tests/host/ble_midi_central_test.c from 6e0da0bc97f04ed6b11cbd5b5c03c432eb9061c2. Repaired runner returned 1 with the expected null-pointer UBSan diagnostic despite UBSAN_OPTIONS=halt_on_error=0. This verifies compile-time fail-fast enforcement independently of strict runtime options.
+
+Source review: central fixture change only guards memcpy when n is nonzero; null/zero callers remain. Receive runner change adds -fno-sanitize-recover=all to the common compiler invocation for both fixtures. Existing behavioral assertions are preserved. No source edits were made. The central fixture explicitly describes synthetic CCCD discovery; these tests do not establish a new hands-on capture or an exact captured HCI replay.
+
+See results.json for commands, exact source hashes and tool identity; focused.log, ble-midi-receive.log and failfast-original-fixture.log hold execution evidence.

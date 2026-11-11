@@ -1,0 +1,207 @@
+{
+  "base_sha": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
+  "configuration": {
+    "X0X_DEV_PADCAL": "0",
+    "board": "smk37",
+    "sdk": "V1.2.1",
+    "sdk_commit": "d179b4484759423312073f5fbb232501aa491047"
+  },
+  "native_models": {
+    "elite": {
+      "standard_exit": 0,
+      "extra_warning_exit": 0,
+      "base_ram_free": 2352,
+      "candidate_ram_free": 2352,
+      "static_ram_used": 95952,
+      "pool_free": 8536,
+      "standard_warnings": {
+        "base": 1,
+        "candidate": 1
+      },
+      "extra_warnings": {
+        "base": 22,
+        "candidate": 22
+      },
+      "native_summary": [
+        "  ok    app code area 552672 B, 53412 B free (Bluetooth block at app.bin 0x86ee0)",
+        "  ok    image 499260 B; RAM .data+.bss 95952 B of 98304; pool 335528 B of 344064"
+      ]
+    },
+    "pro": {
+      "standard_exit": 0,
+      "extra_warning_exit": 0,
+      "base_ram_free": 2352,
+      "candidate_ram_free": 2352,
+      "static_ram_used": 95952,
+      "pool_free": 8536,
+      "standard_warnings": {
+        "base": 1,
+        "candidate": 1
+      },
+      "extra_warnings": {
+        "base": 22,
+        "candidate": 22
+      },
+      "native_summary": [
+        "  ok    app code area 552672 B, 53428 B free (Bluetooth block at app.bin 0x86ee0)",
+        "  ok    image 499244 B; RAM .data+.bss 95952 B of 98304; pool 335528 B of 344064"
+      ]
+    }
+  },
+  "source_sha256": {
+    "firmware/hal/fm1_flash.h": "732b9abf5b871271ca8e95c02418c785a4683d4abfef1d82af9ee0af56f958b6",
+    "firmware/hal/smk_input.h": "f1c75db0df527e52e5ca4be00b3fe21076b2c3400307ddabb0a7c9f96b2ebfad",
+    "firmware/src/app/plat.h": "05346c09cf0c8de541d840a40a9a5c747f24a6874b14553d49dea1adfc1930bf",
+    "firmware/src/app/plat_fm1.c": "9fa4356625f0073b4ab8597ca29f0d9dd6dfde7572fce944015fddc9937b9ec3",
+    "firmware/src/usb.c": "612b4ce9c12a2008f62debf9fd2cbe39b37d7afa0a2f73d250a16100e196c656",
+    "firmware/src/ble.c": "79a9ab82166e06ec252dff95ce60171f25220aa4a9896d4978597232bc21b7e7"
+  },
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_files": [
+    {
+      "path": "cpu/wl82/tools/uboot.boot",
+      "bytes": 14536,
+      "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+      "status": "PASS"
+    },
+    {
+      "path": "cpu/wl82/tools/cfg_tool.bin",
+      "bytes": 383,
+      "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "status": "PASS"
+    },
+    {
+      "path": "cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+      "bytes": 655,
+      "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+      "status": "PASS"
+    },
+    {
+      "path": "cpu/wl82/liba/btctrler.a",
+      "bytes": 5157416,
+      "sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de",
+      "status": "PASS"
+    },
+    {
+      "path": "cpu/wl82/liba/wl_rf_common.a",
+      "bytes": 321802,
+      "sha256": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2",
+      "status": "PASS"
+    },
+    {
+      "path": "cpu/wl82/liba/crypto_toolbox_Osize.a",
+      "bytes": 421662,
+      "sha256": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e",
+      "status": "PASS"
+    },
+    {
+      "path": "cpu/wl82/liba/lib_ccm_aes.a",
+      "bytes": 33128,
+      "sha256": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c",
+      "status": "PASS"
+    },
+    {
+      "path": "include_lib/newlib/pi32v2-lib/libc.a",
+      "bytes": 188988,
+      "sha256": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4",
+      "status": "PASS"
+    },
+    {
+      "path": "include_lib/newlib/pi32v2-lib/libcompiler_rt.a",
+      "bytes": 111588,
+      "sha256": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009",
+      "status": "PASS"
+    },
+    {
+      "path": "apps/common/net/wifi_conf.c",
+      "bytes": 52960,
+      "sha256": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb",
+      "status": "PASS"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "status": "PASS"
+    }
+  ],
+  "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "compiler_version_observed": "clang version 4.0.1",
+  "review": {
+    "status": "complete",
+    "run_id": "qb-independent-source-review",
+    "method": "Independent native review after reading ce-code-review and its scope/intent/output references; inspected all tracked product changes and all eight new tests, then final IRQ/cap delta. Incremental independent review of N2/N3/N4 source/test delta, existing assertion-preserving extraction changes, and restored exact-space test; original QB review was not repeated unnecessarily.",
+    "actionable_findings": [],
+    "resolved_findings": [
+      {
+        "severity": "P2",
+        "file": "firmware/hal/fm1_flash.h",
+        "line": 208,
+        "title": "IRQ guards depended on app-only ICFG helpers absent from loader composition",
+        "evidence": "Initial candidate Elite build emitted two new implicit-function-declaration warnings for fm1_icfg and fm1_icfg_set. loader.c includes fm1_flash.h without fm1_irq.h. Unused inline code happened to be eliminated, avoiding current link failure.",
+        "resolution": "Parent replaced helpers with self-contained SDK-equivalent ICFG read/write assembly and strengthened host harness to expose missing helper references. Reviewer inspected final delta and independently reran the production-guard host test successfully. Final native warning comparison remains parent-owned."
+      },
+      {
+        "severity": "P2",
+        "file": "tests/host/usb_sxq_sticky_apc_test.c",
+        "line": 129,
+        "title": "Expanded EP1 integration initially dropped the original exact-twelve-slot identity enqueue boundary",
+        "evidence": "Old test released exactly 12 slots for a 35-byte identity response; initial integration replacement released 16 through EP1. A 13-slot admission regression could escape.",
+        "resolution": "Parent added exact_space_retry for identity12/introduction6, one-slot-short refusal, exact-space whole enqueue, ordinary and uint32-wrapped indices, both OTA modes and actual EP1 wire drain. Reviewer inspected and independently ran both modes PASS. Parent additionally reports a one-extra-slot mutation rejected by a runtime assertion."
+      }
+    ],
+    "full_ce_multi_persona_pipeline": false
+  },
+  "device": {
+    "BLE_timing": "NOT_RUN",
+    "TIMER5_watch": "NOT_RUN",
+    "ten_minute_play_USB_MIDI_soak": "NOT_RUN",
+    "flashing": "NOT_PERFORMED"
+  },
+  "host_suite": {
+    "raw": {
+      "pass": 333,
+      "fail": 23,
+      "not_run": 2,
+      "exit": 1
+    },
+    "followups": {
+      "midi-overflow-order": "PASS normal/sanitized/base, 264909 checks",
+      "drum909": "PASS 0 failures",
+      "drum808": "PASS 436 cases",
+      "sequencer_reference": "PASS 31920/31920 steps"
+    },
+    "final_disposition": {
+      "pass": 336,
+      "fail": 22,
+      "not_run": 0
+    },
+    "remaining_failures": [
+      "original-release-ui",
+      "original-build",
+      "ui-theme",
+      "editor-ota-dispatch",
+      "smc-select-mode",
+      "smc-action-source",
+      "smc-fx-preset-preserve",
+      "smc-queue",
+      "smc-solo-overflow",
+      "smc-link",
+      "smc-reconnect-epoch",
+      "smc-boot-saved-roles",
+      "smc-lock",
+      "smc-multi-peer",
+      "ui-peer-names",
+      "smc-ui",
+      "smc-clip-visibility",
+      "builtin-break-output",
+      "sound-matrix",
+      "chicago-presentation",
+      "ui-glyph-polish",
+      "scenario-plock"
+    ],
+    "remaining_failures_reproduced_on_base": true,
+    "single_green_full_run": false
+  }
+}

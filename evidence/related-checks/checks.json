@@ -1,0 +1,61 @@
+{
+  "scope": "Reviewed four-file rule and decision correction plus existing rollout discovery outputs. No code or checker implementation changed.",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/rollout_rules.py",
+        "--workspace",
+        "/Users/mac/Documents/x0x37",
+        "--apply"
+      ],
+      "exit_code": 0,
+      "log": "rollout-apply.json"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/rollout_rules.py",
+        "--workspace",
+        "/Users/mac/Documents/x0x37",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "rollout-check.json"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/check_project_skills.py"
+      ],
+      "exit_code": 0,
+      "log": "project-skills.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/prefs_lint.py",
+        "docs/USER_PREFERENCES.md"
+      ],
+      "exit_code": 0,
+      "log": "preferences.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "diff-check.log"
+    }
+  ],
+  "primary_unrelated_dirty_files_unchanged": true,
+  "maintained_sources_match_reviewed_draft": true,
+  "remote_main_before_commit": "b6d65160f5d7384510e53f12f07d7b06225db1f5",
+  "not_run": "Firmware builds, broad checker regression suites, full gate and device operations are unrelated to this prose correction."
+}

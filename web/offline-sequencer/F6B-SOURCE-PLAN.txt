@@ -1,0 +1,38 @@
+F6b source delivery, 2026-11-01
+Base: build/0.0.23@bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2.
+Reuse: all 22 PR685 editor files are already identical in the base; no re-port.
+Owner: code and regression sources here; no tests/builds/checks executed in Codex.
+Orchestrator owns suite, real browser screenshots, Elite/Pro and RAM on the box.
+
+Extend the existing vanilla ES-module editor. Preserve its draft schema, exclusive
+Web Locks, import-loss previews, hidden tails, one-transaction history and disabled
+device actions when capability is absent. No F6a/B1 file changes or firmware edits.
+
+Visual proposal: keep the five part tabs and piano roll. Add a compact musical-grid
+row (root/scale/snap/read-only other-synth ghost/touch keyboard), an explicit Group
+tool with rectangle selection and accessible note checklist, and a group-actions
+dialog. Group move, transpose, velocity, cut/paste and delete operate on cloned
+candidate documents; all selected raw cells and endpoints survive. Reject any
+collision or bounds error without changing a single stored cell.
+On phones use a sticky editor/sound view switch, safe-area spacing and horizontal
+toolbar scrolling. In landscape preserve grid height; sound remains reachable.
+The touch keyboard edits the cursor/inserts only local notes; no audio/MIDI claim.
+Ghost notes are display-only and never receive edit hit targets or pointer events.
+
+Source modules: note-groups, musical-grid, project-adapter, device-sync,
+song-library/library-ui, and TouchOSC companion source. Root owns integration.
+One bounded writer per module; independent source review before PR.
+
+Protocol gate: active PROJECT transport has no transaction owner/CAS token or
+atomic export-to-import operation. Do not fake atomic live sync using read/compare/
+write. Keep the missing firmware capability explicit; support lossless local
+revision13 projection and verified read snapshots where representable.
+
+Regression scenarios: metadata-preserving multi-note edits, collision/boundary and
+stale-preview rejection, single Undo/Redo, malicious library metadata/path/hash,
+late file/network responses, lossless project byte preservation and reconnect
+without replacing dirty drafts. Browser sources exercise actual controls, gestures,
+phone view switching, keyboard/ghost and unchanged device-call count.
+Register new tests in host suite. Record every execution and RAM/screenshot result
+as NOT_RUN/NOT_MEASURED until the Orchestrator supplies exact-head evidence.
+Deliver one PR into build/0.0.23 with verified remote full SHA; do not merge.

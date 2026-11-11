@@ -1,0 +1,27 @@
+You are the new stage-5 merge thread in the X0X37 full-cycle loop. Do not resume the stage-4 thread bc-e7569c05-bb32-5aee-afea-aa6c66592515, the stage-3 thread bc-0d6b70b5-59b9-5d51-b9e2-c97ea486934b, the stage-2 thread bc-37feb056-46e1-5377-8388-5fe9e46d3ca6, or any earlier F02 thread. Do not continue any internal probe; this desktop agent is the only Stage 5 owner.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Audited SHA (source under audit): 13d32e1dee37b6fb5a1e339aff499a75eecb97b5
+Validated tip: start from the remote tip of cursor/f02-stage4-fb90 that contains evidence/f02-stage4/SUCCESSOR-STAGE5.txt, HANDOFF.md, CHECKS.md, Elite and Pro DEV CHECKED records, and the F02 repair (765695f) plus stage-3 test and stage-4 package evidence. Do not switch to an older nightly commit.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f02-stage4/HANDOFF.md and CHECKS.md. You are stage 5 only.
+
+Scope: one integrator. Fast-forward firmware nightly when the host checks passed and the affected development packages are DEV CHECKED for this exact validated tip. Save the local stage-6 install prompt (including package and controller hashes). Do not flash a device. Stage 6 starts no cloud thread. Do not implement deferred items in evidence/f02-stage2/DEFERRED.md. Do not merge production main or publish production GitHub Pages from this stage. If the remote refuses the nightly update, record the refusal and do not force-push; stage 7 and the next audit still use the validated SHA.
+
+Validated commit under merge: the stage-4 tip that records DEV CHECKED for:
+- Elite: x0x-smk37-elite.fwsc sha256 d3b4cac3d7b7be7a72732d4dd00c3120c053dbffc9137ffb7c151a5fd5355f2b; ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a; pool_free 8324
+- Pro: x0x-smk37.fwsc sha256 0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9; ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a; pool_free 8324
+Content tree: 7ad3a50da8abac890215dae3c28197a2fa90041b8615e828b6b3c6e18060fb83
+Evidence: evidence/f02-stage4/CHECKS.md, elite/record.json, pro/record.json; stage-3 ALL_PASS in evidence/f02-stage3/CHECKS.md.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Branch from the pushed validate tip as cursor/<slug>-stage5-fb90 (required prefix cursor/ and suffix -fb90). No force-push. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not use a local helper as the successor.
+
+When nightly matches the validated SHA (or the refusal is recorded) and the stage-6 local install prompt is saved, hand off before you stop. Push the SUCCESSOR-STAGE7.txt prompt first. Create exactly one owner-visible stage-7 Cloud Agent. Prefer coordinator CreateAgent / owner-visible desktop launch over POST api.cursor.com if the pod has no CURSOR_API_KEY — but the handoff must still be an owner-visible https://cursor.com/agents/<id> agent, not an internal Task. If POST https://api.cursor.com/v1/agents works with the owner's key, use that with this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and URL only when its source is owner-visible, then commit and push that record. Then stop. Do not wait for the next agent to finish.
+
+If create fails twice: write SUCCESSOR-STAGE7.txt and ask the Project coordinator (parent) to launch Stage 7 the same way Stage 5 was launched for you. Keep ownership until the Stage 7 URL is on the remote.
+
+Completion condition: firmware nightly matches the validated SHA (or refusal recorded without force-push), stage-6 local install prompt saved with package/controller hashes, and one owner-visible stage-7 successor id pushed on the handoff.
+
+Project store: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/

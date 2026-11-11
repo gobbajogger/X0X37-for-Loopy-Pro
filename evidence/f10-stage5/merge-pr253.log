@@ -1,0 +1,8 @@
+Project PR merge (failed=1)
+Owner policy: automatic merge of properly tested work is pre-approved.
+Only --pr / --head proven heads are merged. Never ask for a per-PR APPROVE.
+
+#253 failed: retarget to main failed: GraphQL: Resource not accessible by integration (updatePullRequest) :: pr edit 253 --repo gobbajogger/X0X37-for-Loopy-Pro --base main
+  F10 Stage 4: BF-006 Elite/Pro DEV CHECKED
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/253
+{"baseRefName":"cursor/f10-bf006-stage3-fb90","headRefOid":"b3356e96d70a31f531359d4ce8229540423cefa1","mergeable":"MERGEABLE","mergedAt":null,"state":"OPEN","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/253"}

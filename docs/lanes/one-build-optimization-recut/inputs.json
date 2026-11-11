@@ -1,0 +1,26 @@
+{
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+  "app_inputs": [
+    {
+      "path": "cpu/wl82/tools/uboot.boot",
+      "expected_sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+      "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+      "pass": true
+    },
+    {
+      "path": "cpu/wl82/tools/cfg_tool.bin",
+      "expected_sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "pass": true
+    },
+    {
+      "path": "cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+      "expected_sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+      "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+      "pass": true
+    }
+  ],
+  "controller_inputs": "8/8 verified by ble/ctl/fetch_sdk.sh against same local SDK",
+  "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd"
+}

@@ -1,0 +1,92 @@
+{
+  "candidate": "3d7b1999a245e84d6d9faf1241dd1078ef335d31",
+  "base": "3d7c29bdd4cec0450cfb3a8f319ffa1e1a1611f9",
+  "functions": {
+    "smc_home_target": {
+      "candidate_sha256": "21be1179187195c26eb6a0d75a98132f6e2c2f4b48532aed0c28f776f49cc5d2",
+      "recorded_sha256": "21be1179187195c26eb6a0d75a98132f6e2c2f4b48532aed0c28f776f49cc5d2",
+      "same_as_base": true,
+      "matches_recorded_hash": true
+    },
+    "smc_page_target": {
+      "candidate_sha256": "d84dff4f49d2aff7d968e45ce16e0717fd0610ae6b30be821492fd56ace8fa29",
+      "recorded_sha256": "d84dff4f49d2aff7d968e45ce16e0717fd0610ae6b30be821492fd56ace8fa29",
+      "same_as_base": true,
+      "matches_recorded_hash": true
+    },
+    "smc_target": {
+      "candidate_sha256": "49af585aca9d7c684eb24fe8f1c0cf9129550dc3344b45603b29abf5b1616576",
+      "recorded_sha256": "49af585aca9d7c684eb24fe8f1c0cf9129550dc3344b45603b29abf5b1616576",
+      "same_as_base": true,
+      "matches_recorded_hash": true
+    },
+    "smc_fader": {
+      "candidate_sha256": "333005f4de44d5ed1ffdd0de94cc393127aa2cf25ad311b78c32b462be74593f",
+      "recorded_sha256": "333005f4de44d5ed1ffdd0de94cc393127aa2cf25ad311b78c32b462be74593f",
+      "same_as_base": true,
+      "matches_recorded_hash": true
+    },
+    "smc_notice": {
+      "candidate_sha256": "c5878fa6e9a0ac74ad768c5c10568ab5a8665adfe1b042d76eb3ac5440fd0c96",
+      "recorded_sha256": "c5878fa6e9a0ac74ad768c5c10568ab5a8665adfe1b042d76eb3ac5440fd0c96",
+      "same_as_base": true,
+      "matches_recorded_hash": true
+    },
+    "smc_bank": {
+      "candidate_sha256": "6126d6c0fb037ac09abf9e983151ec50b258a3a0e7b7ab94b790cdaabd1e03d1",
+      "recorded_sha256": "6126d6c0fb037ac09abf9e983151ec50b258a3a0e7b7ab94b790cdaabd1e03d1",
+      "same_as_base": true,
+      "matches_recorded_hash": true
+    },
+    "smc_button": {
+      "candidate_sha256": "970173f4d2fb124dee8ebe797183f3ee78b2ba0322709d171017e8568b486d74",
+      "recorded_sha256": "970173f4d2fb124dee8ebe797183f3ee78b2ba0322709d171017e8568b486d74",
+      "same_as_base": true,
+      "matches_recorded_hash": true
+    },
+    "smc_poll": {
+      "candidate_sha256": "6a03fa9453b79ae945bcb0abe6ef3bf444aecca7cfe7c9941c0ac835e155065a",
+      "recorded_sha256": "6a03fa9453b79ae945bcb0abe6ef3bf444aecca7cfe7c9941c0ac835e155065a",
+      "same_as_base": true,
+      "matches_recorded_hash": true
+    },
+    "smc_frame": {
+      "candidate_sha256": "6b186bd7b6c882aabfa01e0dd74da858b689033fc7216beff45f4fca4270c556",
+      "recorded_sha256": "6b186bd7b6c882aabfa01e0dd74da858b689033fc7216beff45f4fca4270c556",
+      "same_as_base": true,
+      "matches_recorded_hash": true
+    }
+  },
+  "source_files": {
+    "firmware/src/app/smc_mixer.c": {
+      "actual": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+      "expected": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+      "match": true
+    },
+    "firmware/src/app/editor.c": {
+      "actual": "76f0daa83254f43cea6a484856289d1b2c2e8e2bf234e7ec6b7ac64dcc1d372f",
+      "expected": "76f0daa83254f43cea6a484856289d1b2c2e8e2bf234e7ec6b7ac64dcc1d372f",
+      "match": true
+    },
+    "tests/host/smc_mapping_test.py": {
+      "actual": "cd21282afe246d06d813fa2802a8b6ec9de67a98128cf87e32ae6340d2265e54",
+      "expected": "cd21282afe246d06d813fa2802a8b6ec9de67a98128cf87e32ae6340d2265e54",
+      "match": true
+    },
+    "tests/host/smc_reachability_test.c": {
+      "actual": "837c8401a931b3c149ad29cab8da78df487ea09c7ebf06428b3d2f3a7d5941e4",
+      "expected": "837c8401a931b3c149ad29cab8da78df487ea09c7ebf06428b3d2f3a7d5941e4",
+      "match": true
+    },
+    "docs/SMC_MIXER.md": {
+      "actual": "8e77bf38714c851fe1ad1ba9b4b766e60d228cae2ce5f710c748bc6d85826137",
+      "expected": "8e77bf38714c851fe1ad1ba9b4b766e60d228cae2ce5f710c748bc6d85826137",
+      "match": true
+    },
+    "docs/USER_PREFERENCES.md": {
+      "actual": "59c045d8bf51089305061966ecc0273b4fe93398a5757bb9e31c8bab41b775a1",
+      "expected": "59c045d8bf51089305061966ecc0273b4fe93398a5757bb9e31c8bab41b775a1",
+      "match": true
+    }
+  }
+}

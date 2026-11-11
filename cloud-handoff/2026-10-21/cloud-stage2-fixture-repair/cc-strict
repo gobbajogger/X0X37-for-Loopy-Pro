@@ -1,0 +1,3 @@
+#!/usr/bin/env python3
+import os,sys
+os.execvp("cc", ["cc", "-g", "-O1", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", *sys.argv[1:]])

@@ -1,0 +1,26 @@
+[
+  {
+    "case": "b303_numeric-opt",
+    "compile_exit": 0,
+    "run_exit": 0,
+    "stdout": "fail=0 global_peak=50.5575"
+  },
+  {
+    "case": "b303_numeric-san",
+    "compile_exit": 0,
+    "run_exit": 0,
+    "stdout": "fail=0 global_peak=50.5575"
+  },
+  {
+    "case": "b303_live-opt",
+    "compile_exit": 0,
+    "run_exit": 0,
+    "stdout": "live blocks=200000 finite=PASS peak=1.10785"
+  },
+  {
+    "case": "b303_live-san",
+    "compile_exit": 0,
+    "run_exit": 0,
+    "stdout": "live blocks=200000 finite=PASS peak=1.10785"
+  }
+]

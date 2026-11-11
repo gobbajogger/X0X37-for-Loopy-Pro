@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "task": "DSP-ADSR-SUSTAIN-20261025",
+  "state": "SOURCE_HOST_QA_COMPLETE_TARGET_BUILD_PENDING",
+  "related_requests": [
+    "LX-REQ-008",
+    "LX-REQ-009",
+    "LX-REQ-023"
+  ],
+  "source_patch_sha": "650d632dfdb4756e7e75b8f334b6ad27e4245862",
+  "source_root_tree": "b4ac4475d3629bbc2a39284845ade722b493516f",
+  "firmware_tree": "1564ea6433c4d9ae30b0356e23e5977a399d3c1f",
+  "baseline_nightly": "08d3164a265123cb4c84e5104642fd93257d63d7",
+  "observed_main": "c2ca0c1384390aa985b7df83b73dfe9bef40d7c9",
+  "ledger_pin": "ce8bfd4a40179590485ecf35e6bb0be2d652e602",
+  "contract_pin": "e2482a5039527195e346925c751ac3e3a333ada9",
+  "contract_sha256": "2dd8889e0843b4bbd9686cb42d3936921d7e23a4dde688bfea9107e1b8a556b3",
+  "environment": {
+    "os": "macOS-27.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "requested_helper_effort": "medium",
+    "requested_helper_service": "standard",
+    "service_selector": "unavailable"
+  },
+  "baseline_regression": {
+    "compile_command": [
+      "cc",
+      "-std=c99",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Wdouble-promotion",
+      "-Werror",
+      "-Ifirmware/src/dsp",
+      "tests/host/bass303_sustain_test.c",
+      "build/dsp-audit/bass303_baseline.c",
+      "-lm",
+      "-o",
+      "build/dsp-audit/sustain-baseline-final"
+    ],
+    "compile_exit": 0,
+    "run_exit": 1,
+    "expected_failure": true
+  },
+  "regressions": {
+    "registered_selector": "X0X_TEST_JOBS=1 sh tests/run_tests.sh bass303-sustain bass303_lite",
+    "exit": 0,
+    "matrix": "sustain-matrix.json",
+    "independent_qa": {
+      "reviewer": "separate read-only sustain_qa agent",
+      "result": "PASS scoped host",
+      "transition_checks": 180,
+      "asan_ubsan": "PASS",
+      "script": "independent-qa.c"
+    }
+  },
+  "performance": {
+    "probe": "tests/host/bass303_render_probe.c",
+    "pairs": 5,
+    "frames_per_run": 3175200,
+    "bytes_per_run": 12700800,
+    "baseline_cpu_seconds_median": 0.107997,
+    "fixed_cpu_seconds_median": 0.102839,
+    "output_sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70",
+    "interpretation": "Identical control audio; overlapping host timing ranges, no speedup or device workload claim. Includes float output file I/O."
+  },
+  "not_run": [
+    "full-root suite",
+    "Open303 reference comparison (reference checkout absent)",
+    "Elite/Pro native packages and model budgets",
+    "controller builds",
+    "hardware",
+    "merge",
+    "binary publication"
+  ],
+  "host_setup": {
+    "initial_build": "failed on Darwin BSD integer typedefs",
+    "supported_retry": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE sh host/build_host.sh",
+    "retry_exit": 0
+  },
+  "next": {
+    "owner": "parent coordinator and sole firmware integrator",
+    "action": "Reconcile current candidate with PR99/139/140/152/159 and duration worker without duplicate writers; independent combined QA and native Elite/Pro development build budgets before protected integration."
+  },
+  "file_hashes": {
+    "firmware/src/dsp/bass303.c": "321bcc141e6f234d098eb5180f47eae1afc3b6195fd08ecb5dbe54ccb8cd0a1f",
+    "tests/host/bass303_sustain_test.c": "bbab5dde25bc4578f5f2da04439e6236dce227a06af14627be946efd55abcfb6",
+    "tests/host/bass303_render_probe.c": "a0240390141e781328188451f17e2ae1a3d748e6cdff8d735ada2a27e785d0fc",
+    "tests/run_tests.sh": "0e46bc3b5f361375c2eda62e46b388a2ebc77e489a1cec1582d02e364d10aeb9",
+    "evidence/dsp-reliability-20261025/host-scenarios.json": "15e55c7d2d7051fb1ead48c32d969e61715fc98f434bc1603fd8e480caf5ba92",
+    "evidence/dsp-reliability-20261025/b303_live.c": "f8c0bf2de84bb0354ad079c040164a77096a8186ff649000cd4cdf323c1e38fd",
+    "evidence/dsp-reliability-20261025/b303_numeric.c": "bee5092e8d1de7febe171ab43b1a113cf78dacf6745163053db6e4eb4e42a214",
+    "evidence/dsp-reliability-20261025/sustain-matrix.json": "31279ee735ea204d8dcf8b8690b4fa065dc642ba0527c6ee3c2861ec2c4b06d7",
+    "evidence/dsp-reliability-20261025/independent-qa.c": "53647aad969fe90fea4e43159384ebc3804db2c0a08c7b5021f74a97e48e23c8",
+    "evidence/dsp-reliability-20261025/numeric-results.json": "fbcf1cb0117ecdcdd00c6b409a0b04b1c7f9ce2bb79ce7039b3828a5ca8caa89",
+    "evidence/dsp-reliability-20261025/baseline-failure.log": "b76b0d1f3534d66fe1a2f3f8bfb73eb6e5e113eb32962175f9e6a7628f110777",
+    "evidence/dsp-reliability-20261025/paired-render.json": "dcc6a85945a106b33836f5e4940f0b70d50e3af4e618556427eee976ed8f1367"
+  }
+}

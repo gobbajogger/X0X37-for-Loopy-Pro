@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T18:28:16Z",
+  "role": "LoopyX0X37 Hourly Bugfinder",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/bugfinder-fx-delay-min-tempo-20261023-2115",
+    "tested_commit": "31dd638897eadb555ac82cd6a8fdd6cfa17f53ea",
+    "tested_tree": "bc4b36888c4f67165e37c7f3b197bd41fa6b0f51",
+    "pr": 74
+  },
+  "summary": "BF-013 complete GCC/Clang native stereo regression: exact PR source and test Git blobs with 4 expected failing full-baseline stereo binaries and 4 full corrected stereo binaries PASS. Root source remains historical/scoped; complete current-root independent QA and Elite/Pro targets remain unrun. Firmware subtree c4888bafd52587ac5f47dcae9937ae55b9dfa171.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/dsp/fxbus.c",
+      "description": "Existing corrected source Git blob 49a89483e1c777a46758ed370973afb85f15274d, baseline 4c7485391d3a462ebe9f4907abfaf4867ce80b54"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/stereo_test.c",
+      "description": "Exact tested PR regression Git blob c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; before/after same identical test"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/bf013-full-stereo-native-20261024.json",
+      "description": "Detailed current-run negative and positive native log hashes, compiler commands/exits, scope and next stage"
+    }
+  ],
+  "checks": [
+    {
+      "name": "full stereo before gcc plain",
+      "status": "FAIL",
+      "exit_code": 1,
+      "command": "gcc -std=c11 -O1 -g -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o /mnt/data/bugfinder_20261024/logs74/exec-before-gcc-plain tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && ASAN_OPTIONS=detect_leaks=0 /mnt/data/bugfinder_20261024/logs74/exec-before-gcc-plain",
+      "evidence": "Expected 4 failing tempo assertions; compiler exit 0 and process exit 1; other native stereo checks pass.",
+      "log_sha256": "2b78e6dbe89b2fc23531e19d51b979580bfa9ddfedb336855a04701697cdb4c9",
+      "coverage": "Exact PR code/test blobs; 20/19/120/275 BPM, bounded delay retiming, stereo FX processing"
+    },
+    {
+      "name": "full stereo before gcc sanitized",
+      "status": "FAIL",
+      "exit_code": 1,
+      "command": "gcc -std=c11 -O1 -g -ffp-contract=off -w -fsanitize=address,undefined -fno-sanitize=shift -fno-sanitize-recover=all -fno-omit-frame-pointer -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o /mnt/data/bugfinder_20261024/logs74/exec-before-gcc-sanitize tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && ASAN_OPTIONS=detect_leaks=0 /mnt/data/bugfinder_20261024/logs74/exec-before-gcc-sanitize",
+      "evidence": "Expected 4 failing tempo assertions; compiler exit 0 and process exit 1; other native stereo checks pass.",
+      "log_sha256": "5ef536f757351351106df143b47863b2075ceb57258cd20434a24ba603fcb76b",
+      "coverage": "Exact PR code/test blobs; 20/19/120/275 BPM, bounded delay retiming, stereo FX processing"
+    },
+    {
+      "name": "full stereo before clang plain",
+      "status": "FAIL",
+      "exit_code": 1,
+      "command": "clang -std=c11 -O1 -g -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o /mnt/data/bugfinder_20261024/logs74/exec-before-clang-plain tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && ASAN_OPTIONS=detect_leaks=0 /mnt/data/bugfinder_20261024/logs74/exec-before-clang-plain",
+      "evidence": "Expected 4 failing tempo assertions; compiler exit 0 and process exit 1; other native stereo checks pass.",
+      "log_sha256": "75f92fdd98dcf14ebb3b37751b0ef8e95b371eeacd3e0821f87a9134af1bd1e9",
+      "coverage": "Exact PR code/test blobs; 20/19/120/275 BPM, bounded delay retiming, stereo FX processing"
+    },
+    {
+      "name": "full stereo before clang sanitized",
+      "status": "FAIL",
+      "exit_code": 1,
+      "command": "clang -std=c11 -O1 -g -ffp-contract=off -w -fsanitize=address,undefined -fno-sanitize=shift -fno-sanitize-recover=all -fno-omit-frame-pointer -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o /mnt/data/bugfinder_20261024/logs74/exec-before-clang-sanitize tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && ASAN_OPTIONS=detect_leaks=0 /mnt/data/bugfinder_20261024/logs74/exec-before-clang-sanitize",
+      "evidence": "Expected 4 failing tempo assertions; compiler exit 0 and process exit 1; other native stereo checks pass.",
+      "log_sha256": "cb6aa1c5a9ef723e3dc60e17353991cb6e7f3f9fa9458c34797656dc9ad5b4ee",
+      "coverage": "Exact PR code/test blobs; 20/19/120/275 BPM, bounded delay retiming, stereo FX processing"
+    },
+    {
+      "name": "full stereo after gcc plain",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "gcc -std=c11 -O1 -g -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o /mnt/data/bugfinder_20261024/logs74/exec-after-gcc-plain tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && ASAN_OPTIONS=detect_leaks=0 /mnt/data/bugfinder_20261024/logs74/exec-after-gcc-plain",
+      "evidence": "All old stereo checks and six new timing assertions pass; compiler and process exit 0.",
+      "log_sha256": "7fdb2230c0fe38529f0ad8519121a5e0670aee4c9ce3b1e9c355fec8ebd7a141",
+      "coverage": "Exact PR code/test blobs; 20/19/120/275 BPM, bounded delay retiming, stereo FX processing"
+    },
+    {
+      "name": "full stereo after gcc sanitized",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "gcc -std=c11 -O1 -g -ffp-contract=off -w -fsanitize=address,undefined -fno-sanitize=shift -fno-sanitize-recover=all -fno-omit-frame-pointer -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o /mnt/data/bugfinder_20261024/logs74/exec-after-gcc-sanitize tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && ASAN_OPTIONS=detect_leaks=0 /mnt/data/bugfinder_20261024/logs74/exec-after-gcc-sanitize",
+      "evidence": "All old stereo checks and six new timing assertions pass; compiler and process exit 0.",
+      "log_sha256": "22253c2170d9ee25a71d95242b44498557c5ae9da889dbcedce1346e3f722deb",
+      "coverage": "Exact PR code/test blobs; 20/19/120/275 BPM, bounded delay retiming, stereo FX processing"
+    },
+    {
+      "name": "full stereo after clang plain",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "clang -std=c11 -O1 -g -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o /mnt/data/bugfinder_20261024/logs74/exec-after-clang-plain tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && ASAN_OPTIONS=detect_leaks=0 /mnt/data/bugfinder_20261024/logs74/exec-after-clang-plain",
+      "evidence": "All old stereo checks and six new timing assertions pass; compiler and process exit 0.",
+      "log_sha256": "0a37ea8fb8be821cf7df40cc9998f3271c9ab1e7c3656c2f75e2c1f62c80f74a",
+      "coverage": "Exact PR code/test blobs; 20/19/120/275 BPM, bounded delay retiming, stereo FX processing"
+    },
+    {
+      "name": "full stereo after clang sanitized",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "clang -std=c11 -O1 -g -ffp-contract=off -w -fsanitize=address,undefined -fno-sanitize=shift -fno-sanitize-recover=all -fno-omit-frame-pointer -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o /mnt/data/bugfinder_20261024/logs74/exec-after-clang-sanitize tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && ASAN_OPTIONS=detect_leaks=0 /mnt/data/bugfinder_20261024/logs74/exec-after-clang-sanitize",
+      "evidence": "All old stereo checks and six new timing assertions pass; compiler and process exit 0.",
+      "log_sha256": "93d1f9a2adf62f1796564e7b3f754546256c4a49986380661045032313ba308a",
+      "coverage": "Exact PR code/test blobs; 20/19/120/275 BPM, bounded delay retiming, stereo FX processing"
+    },
+    {
+      "name": "generated drum tables",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h (both local baseline and fixed trees)",
+      "evidence": "Both commands exit 0; remote generator Git blob dd669ee780590ec27578515ec0ee0c4db5d88535 identical to local."
+    },
+    {
+      "name": "historical registered stereo selector",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "X0X_TEST_JOBS=1 CC=gcc bash tests/run_tests.sh stereo",
+      "evidence": "Registered selector actually dispatched stereo; `ok stereo` and exit 0; local historical runner blob dc92692bfaa332d5483406f096e55dd02d38402c differs from current PR runner f682eaa5fd8ef24b8a7688319e6ce12fb9e003d9.",
+      "log_sha256": "a53b62c64d68095d6686ac53992ec10613d45462f4e524a353077a7339b0fb47"
+    },
+    {
+      "name": "complete current root checkout",
+      "status": "NOT_RUN",
+      "command": "Independent exact-PR74 full checkout test",
+      "evidence": "Historical 7537a46 root was used only for blob-matched files, not falsely claimed exact complete root."
+    },
+    {
+      "name": "strict shift sanitizer",
+      "status": "NOT_RUN",
+      "command": "Enable full -fsanitize=undefined including shift",
+      "evidence": "Separate pre-existing fastmath.h issue on PR #28; full strict sanitizer coverage unrun."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    }
+  ],
+  "dependencies": [
+    "current protected firmware nightly 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "First nightly candidate PR #103 9ed3cce9ed420c46b1ebab86101f7145a8da5995 has higher-priority Data Safety #96 gate"
+  ],
+  "next": {
+    "owner": "Independent QA; Hourly Build in parallel; sole Safe Merge later",
+    "action": "Review PR #74 exact source/test and run independent complete root regression. Hourly Build can build this exact source Elite+Pro/controller BUILD_ONLY; do not delay priority #103 Data Safety qualification.",
+    "gate": "Complete exact-root QA and target/model/controller/backup/OTA/license/immutable HTTP gates before NIGHTLY; no physical evidence."
+  },
+  "publication": "NOT_PUBLISHED"
+}

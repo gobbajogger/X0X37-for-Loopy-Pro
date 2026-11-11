@@ -1,0 +1,15 @@
+{
+  "observed_utc": "2026-10-25T07:44:54.434851+00:00",
+  "built_source": "4e9d06f542058413a34472ff0e84d88c1360af6c",
+  "reviewed_base": "93449136baae02c9715ba20edc5c43176786b635",
+  "later_observed_nightly": "fbc23a4a7f0c9486a84f013ec54cf0aec4d22dfe",
+  "later_changes": "PR138 native workflow documentation/test sources and PR111 read-only wire-negative test/evidence; no firmware/assets/ble/tools/host/build.sh changes",
+  "compiled_input_comparison_exit": 0,
+  "merge_tree_check": {
+    "command": "git merge-tree --write-tree HEAD origin/nightly",
+    "exit": 0,
+    "tree_at_candidate_0084987": "d19d57a11733b694f3e87c6b2cbb4b2ddf53f6ed"
+  },
+  "branch_not_rebased": true,
+  "reason": "Preserve exact built/reviewed candidate; later base changes do not alter compiler inputs. Integrator owns fresh combined-tree/protection checks; no merge performed."
+}
