@@ -735,7 +735,7 @@ project back exactly as it was and shows the results. HOME or PLAY stops the tes
 
 X0X uses both of the FM-1's processor cores: the 808 and the break run on the second, so the 808's
 share on the performance page is the time the first core waits for them, and the whole load is lower: on
-one FM-1 the test's three patterns went from 43%, 83% and 115% on one core to 39%, 54% and 68%,
+one SMK-37 the test's three patterns went from 43%, 83% and 115% on one core to 39%, 54% and 68%,
 and the busiest moment of the worst case from over the limit to 84%.
 
 The top right of the performance page says 2 CORES. On some FM-1s the second core reads its work

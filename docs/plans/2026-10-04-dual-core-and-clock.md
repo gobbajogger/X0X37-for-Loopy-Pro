@@ -19,7 +19,8 @@ github.com/keremimo/melodee, GPL-3.0):
   (it was missing at first: core 1 ran into erased flash, 0xFFFFFFFF).
 - Hold before a reset: C1_CON bit 1 set, then bit 3 cleared.
 
-Measured (PERF TEST, one FM-1), core 1 = 909 + 808: factory loop 43 -> 32 %, all five 83 -> 53 %,
+Measured (PERF TEST, one SMK-37; owner, 2026-11-12: these Oct 2026 readings were taken on
+the SMK-37 and mislabeled FM-1), core 1 = 909 + 808: factory loop 43 -> 32 %, all five 83 -> 53 %,
 worst case 115 -> 81 % (peak 100 %). Core 1's stack: 828 of 2816 bytes at the deepest.
 
 The worst block, taken apart (X0X_DEBUG's x0x_worst, read over USB): 11 639 us of an 11 609 us
@@ -32,8 +33,8 @@ has little to do there. A split chosen per block by what sounds would recover it
 
 Research for using the AC79's second core, from JieLi's AC79 SDK
 ([gitee: Jieli-Tech/fw-AC79_AIoT_SDK](https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK), Apache-2.0): its
-headers, its sources, and its precompiled libraries disassembled with the JieLi toolchain. Nothing
-here has run on an FM-1.
+headers, its sources, and its precompiled libraries disassembled with the JieLi toolchain. The
+device timings in this document were taken on the owner's SMK-37, not an FM-1 (owner, 2026-11-12).
 
 ## Starting core 1: the sequence is known
 
@@ -100,7 +101,9 @@ report in.
 
 ## The clock: MEASURED 360 MHz (2026-10-05) -- no headroom
 
-Read off a real FM-1 with a development build (X0X_DEBUG=1, tools/fm1_debug.py): reference 24 MHz
+Read off the owner's SMK-37 with a development build (X0X_DEBUG=1, tools/fm1_debug.py). This
+measurement was mislabeled as a real FM-1 until 2026-11-12 (owner: he does not own an FM-1; the
+readings were taken on the SMK-37). Reference 24 MHz
 (0x119A0 & 0xC000000 != 0x8000000), PLL = 24 / (((0x119A8 >> 2) & 31) + 2) * ((0x119AC & 0xFFF) + 2)
 = 24 / 12 * 270 = 540 MHz; system source 0x10014 & 0xF = 6 = 2/3 of the PLL = **360 MHz**; HSB /2
 = 180, LSB /3 = 60 (0x10008 bits 16-17 and 8-10, minus one), which is the 60 MHz the LCD assumes.
@@ -110,6 +113,8 @@ C0_TL_CKCNT does not count (DBG_CON 0). M-VAVE already runs the chip above the S
 was written before the measurement.
 
 ### Before the measurement: probably 240 MHz, and 320 is supported
+
+(This section was written before the SMK-37 clock read above; it is kept as the reasoning at the time.)
 
 `sys_clock_table` (apps/common/system/system_vdd_clock.c) gives the bus clocks for each CPU clock.
 X0X's LCD driver (Felucca's) assumes a 60 MHz peripheral (lsb) clock; that occurs only at **120 MHz
