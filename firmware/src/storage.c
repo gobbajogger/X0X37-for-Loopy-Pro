@@ -45,7 +45,7 @@ static int st_prog(uint32_t off, const void *src, uint32_t n);
  * panel 0xA5000, song 0xA7000, motion 0xA9000 (..0xAAFFF); boot screen A/B at 0xAB000 and
  * 0xAC000 (app/boot_screen.h). A foreign-store clear erases those two with the
  * rest of the store. 0xAD000..0xAEFFF stays spare. The owner tag is at
- * 0xAF000 (st_owner_check). 0xB0000..0xBAFFF is not a sample slot and not the store: the
+ * 0xAF000 (st_owner_check). 0xB0000..0xBAFFF holds the slot shadows and sample slot 3 (app/slots.c), not the store: the
  * owner check never clears it. Never near BTIF / USRTRIM (0xC0000..0xC1FFF) or key_mac (0xFF000). */
 #define ST_SMK_BASE 0x9D000u
 _Static_assert(ST_SMK_BASE + 2u * OBJ_NOBJ * ST_SECTOR <= 0xAF000u, "SMK store: objects past the owner tag");

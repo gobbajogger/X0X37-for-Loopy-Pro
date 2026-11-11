@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import x0x_slots as xs  # noqa: E402
-from slot_mock import SMK_MAP, SMK_NOW  # noqa: E402
+from slot_mock import SMK_MAP, SMK_TWO  # noqa: E402
 
 
 def lay3():
@@ -44,7 +44,7 @@ def main():
     old_lay = lay3()
     images = [None, img(1), img(2)]
     old_map = SMK_MAP
-    new_map = SMK_NOW
+    new_map = SMK_TWO                    # the two-slot X0X (0.0.24.x)
     new_lay = lay2_empty()
     risk = [2]
     todo, skipped = xs.plan_migration(images, risk, old_map, new_lay, new_map)

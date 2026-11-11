@@ -111,8 +111,8 @@ enum { OBJ_SET, OBJ_SOUND, OBJ_PAT0, OBJ_PAT1, OBJ_PANEL, OBJ_SONG, OBJ_MOTION, 
  * OBJ_MOTION 0xDE000 (all inside Felucca's data area, 0x97000..0xDFFFF) */
 
 /* user sample slots (break loops), read in place; 0 = empty slot.
- * Two slots. slots.c SMP_USER_SLOTS is the same count. */
-#define PLAT_NSLOTS 2
+ * Three slots on the SMK-37 (slots.c SMP_USER_SLOTS). The FM-1 map keeps two; its third index reads empty. */
+#define PLAT_NSLOTS 3
 /* every zone of a slot is one loop (tools/upload_breaks.py packs several bars per slot) */
 #define PLAT_SLOT_ZONES 16
 int plat_slot_zones(int k);            /* loops in slot k, 0 = empty */
