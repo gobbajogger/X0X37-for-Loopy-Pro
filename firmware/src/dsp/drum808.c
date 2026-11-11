@@ -1870,23 +1870,29 @@ int drum808_active(const drum808_t *d)
 static __attribute__((noinline)) int voice_run(drum808_t *d, int l, float *buf, int m, const float *bus, const float *pair)
 {
     int i;
+    /* Each voice runs on a local copy of its state, copied back after the loop: buf (float *)
+     * cannot alias a local, so the state need not be reloaded and stored every sample.
+     * The same float operations in the same order: the same samples. */
+#define D8_RUN(T, src, tick)                                    \
+    do {                                                        \
+        T s_ = (src);                                           \
+        for (i = 0; i < m && s_.active; i++) buf[i] = (tick);   \
+        (src) = s_;                                             \
+    } while (0)
     switch (l) {
-    case L_BD: for (i = 0; i < m && d->bd.active; i++) buf[i] = bd_tick(&d->bd); break;
-    case L_SD: for (i = 0; i < m && d->sd.active; i++) buf[i] = sd_tick(&d->sd); break;
-    case L_T0: case L_T1: case L_T2: {
-        d8_tom_t *t = &d->tom[l - L_T0];
-        for (i = 0; i < m && t->active; i++) buf[i] = tom_tick(t);
-        break;
+    case L_BD: D8_RUN(d8_bd_t, d->bd, bd_tick(&s_)); break;
+    case L_SD: D8_RUN(d8_sd_t, d->sd, sd_tick(&s_)); break;
+    case L_T0: case L_T1: case L_T2: D8_RUN(d8_tom_t, d->tom[l - L_T0], tom_tick(&s_)); break;
+    case L_RS: D8_RUN(d8_rim_t, d->rs, rs_tick(&s_)); break;
+    case L_CL: D8_RUN(d8_clave_t, d->cl, cl_tick(&s_)); break;
+    case L_MA: D8_RUN(d8_ma_t, d->ma, ma_tick(&s_)); break;
+    case L_CP: D8_RUN(d8_cp_t, d->cp, cp_tick(&s_)); break;
+    case L_CB: D8_RUN(d8_cb_t, d->cb, cb_tick(&s_, pair[i])); break;
+    case L_CH: D8_RUN(d8_hat_t, d->ch, hat_tick(&s_, bus[i])); break;
+    case L_OH: D8_RUN(d8_hat_t, d->oh, hat_tick(&s_, bus[i])); break;
+    default: D8_RUN(d8_cy_t, d->cy, cy_tick(&s_, bus[i])); break;
     }
-    case L_RS: for (i = 0; i < m && d->rs.active; i++) buf[i] = rs_tick(&d->rs); break;
-    case L_CL: for (i = 0; i < m && d->cl.active; i++) buf[i] = cl_tick(&d->cl); break;
-    case L_MA: for (i = 0; i < m && d->ma.active; i++) buf[i] = ma_tick(&d->ma); break;
-    case L_CP: for (i = 0; i < m && d->cp.active; i++) buf[i] = cp_tick(&d->cp); break;
-    case L_CB: for (i = 0; i < m && d->cb.active; i++) buf[i] = cb_tick(&d->cb, pair[i]); break;
-    case L_CH: for (i = 0; i < m && d->ch.active; i++) buf[i] = hat_tick(&d->ch, bus[i]); break;
-    case L_OH: for (i = 0; i < m && d->oh.active; i++) buf[i] = hat_tick(&d->oh, bus[i]); break;
-    default: for (i = 0; i < m && d->cy.active; i++) buf[i] = cy_tick(&d->cy, bus[i]); break;
-    }
+#undef D8_RUN
     return i;
 }
 
