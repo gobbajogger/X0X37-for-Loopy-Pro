@@ -391,23 +391,21 @@ static int render_voice_frame(original_miami_backend *s, uint32_t *left, uint32_
 
 int original_miami_voice_render_add(original_miami_ms20 *f, original_voice_gain *vg, original_oscillators *ph,
     const original_prepared_oscillators *p, float vco_gain, float *L, float *R, uint32_t n);
-/* one control span (<= 64 frames). The accumulators are on the caller's stack, not static:
- * bass A and bass B may render at once on the two cores (engine.c), and two Miami parts
- * must not share them. Same arithmetic, same order. */
+/* one control span (<= 64 frames). The voices add into the span's own output words, as
+ * floats (original_math_bits is a bit copy, so the words end up the same): no static
+ * accumulators (bass A and bass B may render at once on the two cores, engine.c), no
+ * stack copy (core 1's stack is small), no copy pass. Same arithmetic, same order. */
+typedef float __attribute__((may_alias)) miami_acc_float;
 __attribute__((noinline)) static int render_span64(original_miami_backend *s, uint32_t *left, uint32_t *right, uint32_t n)
 {
-    float accL[64], accR[64];
+    miami_acc_float *accL = (miami_acc_float *)(void *)left, *accR = (miami_acc_float *)(void *)right;
     for (uint32_t j = 0; j < n; ++j) { accL[j] = 0.0f; accR[j] = 0.0f; }
     for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id) {
         original_miami_selected_voice *v = &s->voices[id];
         if (v->awaiting_restart) return completed(s, 0);
         if (!v->active) continue;
         if (!completed(s, original_miami_voice_render_add(&v->filter, &v->gain, &v->pitch.oscillator,
-            &v->prepared, s->controls.vco_gain, accL, accR, n))) return 0;
-    }
-    for (uint32_t j = 0; j < n; ++j) {
-        left[j] = original_math_bits(accL[j]);
-        right[j] = original_math_bits(accR[j]);
+            &v->prepared, s->controls.vco_gain, (float *)accL, (float *)accR, n))) return 0;
     }
     return 1;
 }
