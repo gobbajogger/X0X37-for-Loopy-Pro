@@ -255,10 +255,11 @@ void seq_rec_bass_end(seq_t *s, int b);
  * generation and finish the open capture. Press membership stays with the engine. */
 void seq_rec_cancel(seq_t *s, int b);
 
-#if X0X_BASS_NOTE_SOUND
-/* Audio recorder storage transaction supplied by the product engine. */
-int seq_bass_sound_prepare(seq_t *s,int voice,int pat,int step);
+/* Audio recorder storage transaction supplied by the product engine (per-note
+ * sound lock, engine.h X0X_BASS_NOTE_SOUND). sequencer.c holds weak defaults
+ * (prepare 1: nothing stored, clear: nothing) for builds without the engine. */
+#define SEQ_BASS_NOTE_SOUND 1
+int seq_bass_sound_prepare(seq_t *s,int voice,int pat,int step); /* 0 stored, 1 lock off, <0 refused */
 void seq_bass_sound_clear(seq_t *s,int voice,int pat,int step);
-#endif
 
 void seq_notes_off(seq_t *s, const seq_sink_t *o);

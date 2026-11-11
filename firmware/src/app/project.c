@@ -22,7 +22,24 @@ project_t proj;
 project_t project_stage X0X_POOL;
 
 #define PROJ_STREAM 13u                 /* compact Chicago schema2; current raw patterns/arrangement */
-static int stream_known(uint32_t format) { return format == PROJ_STREAM; }
+#define PROJ_STREAM_14 14u              /* 13 + per-pattern bass presets (pattern_t.rsv[0..1]) and note locks */
+static int stream_known(uint32_t format) { return format == PROJ_STREAM || format == PROJ_STREAM_14; }
+/* Revision 14 only when the project uses what 13 cannot hold, so a project without
+ * pattern presets or note locks stays byte-identical and loads on 0.0.24.x. */
+static uint32_t stream_format_of(const project_t *pr)
+{
+    for (int p = 0; p < NPAT; p++)
+        if (pr->pat[p].rsv[0] | pr->pat[p].rsv[1]) return PROJ_STREAM_14;
+    for (int k = 0; k < NLANE; k++)
+        if (pr->arr.lane[k].used && pr->arr.lane[k].t == 0xfdu) return PROJ_STREAM_14;
+    return PROJ_STREAM;
+}
+/* Revision 13 never stored these bytes: they load as 0 (no pattern preset). */
+static void stream_13_upgrade(project_t *pr, uint32_t format)
+{
+    if (format == PROJ_STREAM)
+        for (int p = 0; p < NPAT; p++) pr->pat[p].rsv[0] = pr->pat[p].rsv[1] = 0;
+}
 #define PROJ_STREAM_PREV 3u             /* velocity steps, legacy gates */
 #define PROJ_STREAM_OLD 2u
 static const uint8_t STREAM_OBJ[] = {OBJ_PAT0, OBJ_PAT1, OBJ_SONG, OBJ_MOTION};
@@ -262,7 +279,7 @@ __attribute__((noinline)) static void arrange_defaults(project_t *pr)
 /* the writer: fills io_buf after the object's header and writes it when full (measure: counts only) */
 typedef struct {
     int measure, k, err;
-    uint32_t fill, total;
+    uint32_t fill, total, format;
 } st_out_t;
 
 static int st_flush(st_out_t *o)
@@ -270,7 +287,7 @@ static int st_flush(st_out_t *o)
     int rc = save_buf(STREAM_OBJ[o->k], o->fill);
     o->k++;
     o->fill = 4u;
-    put32(io_buf, PROJ_STREAM);
+    put32(io_buf, o->format);
     return rc;
 }
 
@@ -299,7 +316,7 @@ static int st_put(void *ctx, const uint8_t *p, uint32_t n)
 static int measure_project(const project_t *pr, uint32_t *length)
 {
     const uint8_t *raw = (const uint8_t *)pr + RAW_OFF;
-    st_out_t o = {1, 0, 0, 0, 0};
+    st_out_t o = {1, 0, 0, 0, 0, PROJ_STREAM};
     lz_sink_t sink = {st_put, &o};
     if (lz_compress(raw, RAW_LEN, &sink))
         return -7;
@@ -311,10 +328,10 @@ static int save_stream(void)
 {
     const uint8_t *raw = (const uint8_t *)&proj + RAW_OFF;
     uint32_t crc = crc32_of(raw, RAW_LEN);
-    st_out_t o = {0, 0, 0, 0, 0};
+    st_out_t o = {0, 0, 0, 0, 0, stream_format_of(&proj)};
     lz_sink_t sink = {st_put, &o};
     o.fill = STREAM_HDR;
-    put32(io_buf, PROJ_STREAM);
+    put32(io_buf, o.format);
     put32(io_buf + 4, RAW_LEN);
     put32(io_buf + 8, crc);
     put32(io_buf + 12, packed_len);
@@ -395,8 +412,8 @@ static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t fo
         if(l->t==0xfeu)return 0; /* frozen historical contract remains unsupported */
         if(l->t==0xfdu) {
 #if X0X_BASS_NOTE_SOUND
-            if((format!=7u && format!=9u) || engine_bass_note_validate(l) ||
-               bstep_gate(&pat[l->pat].bass[l->part-PART_303A].step[l->v])!=G_NOTE)return 0;
+            /* A lock on a step that is no longer a note is kept and never plays. */
+            if(format!=PROJ_STREAM_14 || engine_bass_note_validate(l))return 0;
             for(int j=0;j<k;j++)if(arr->lane[j].used && arr->lane[j].t==l->t &&
                 arr->lane[j].pat==l->pat && arr->lane[j].part==l->part && arr->lane[j].v==l->v)return 0;
 #else
@@ -440,10 +457,11 @@ static int load_stream(project_t *pr, int n, uint32_t format)
         return -1;
     if (!stream_layout_ok(pr, format))
         return -9;
+    stream_13_upgrade(pr, format);
 #if !X0X_ORIGINAL_SYNTH
     migrate_break_counts(pr, format);
 #endif
-    if (format != PROJ_STREAM)
+    if (format != stream_format_of(pr))
         for (int k = 0; k < NSTREAM; k++) stored_known[STREAM_OBJ[k]] = 0;
     packed_len = plen;
     return 0;
@@ -608,6 +626,11 @@ static int project_validate_for(const project_t *p)
         const pattern_t *pat = &p->pat[k];
         if (pat->swing > 100)
             return -1;
+        for (b = 0; b < NBASS; b++) {           /* pattern preset: 0 none, else bank << 7 | preset + 1 */
+            unsigned ps = pat->rsv[b];
+            if (ps && (!(ps & 127u) || (ps & 127u) > original_sound_factories(ps >> 7)))
+                return -1;
+        }
         for (b = 0; b < NKIT; b++)
             if (!pat->drum[b].len || pat->drum[b].len > NSTEPS || pat->drum[b].rate >= NRATES)
                 return -1;
@@ -649,7 +672,6 @@ static int project_validate_for(const project_t *p)
 #if X0X_BASS_NOTE_SOUND
         if(l->t==BASS_NOTE_TARGET) {
             if(engine_bass_note_validate(l))return -1;
-            if(bstep_gate(&p->pat[l->pat].bass[l->part-PART_303A].step[l->v])!=G_NOTE)return -1;
             for(int j=0;j<k;j++)if(p->arr.lane[j].used && p->arr.lane[j].t==l->t &&
                 p->arr.lane[j].pat==l->pat && p->arr.lane[j].part==l->part && p->arr.lane[j].v==l->v)return -1;
             continue;
@@ -721,7 +743,7 @@ void project_file_header(uint8_t *h)
     put32(h + 8, sizeof project_stage);
     put32(h + 12, crc32_of((const uint8_t *)&project_stage, sizeof project_stage));
     put32(h + 16, PROJ_FORMAT);
-    put32(h + 20, PROJ_STREAM);
+    put32(h + 20, stream_format_of(&project_stage));
     put32(h + 24, PROJ_SND_REV);
     put32(h + 28, PROJ_FILE_OFF_WORD(part_off_staged & PROJ_PART_OFF_ALL));
 }
@@ -731,12 +753,13 @@ int project_file_validate(const uint8_t *h)
 {
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
         get32(h + 16) != PROJ_FORMAT ||
-        get32(h + 20) != PROJ_STREAM ||
+        !stream_known(get32(h + 20)) ||
         get32(h + 24) != PROJ_SND_REV || !PROJ_FILE_OFF_OK(get32(h + 28)))
         return -1;
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
     if(!stream_layout_ok(&project_stage,get32(h+20)))return -9;
+    stream_13_upgrade(&project_stage, get32(h+20));
     part_off_staged = (uint8_t)(get32(h + 28) & PROJ_PART_OFF_ALL);
 #if !X0X_ORIGINAL_SYNTH
     migrate_break_counts(&project_stage, get32(h+20));
@@ -788,7 +811,7 @@ int project_save(void)
 #elif X0X_BASS_PRESET_PREVIEW
     if(engine_bass_preview_changed()) return -9; /* no untagged preview writes */
 #endif
-    if (project_incompatible || !stream_layout_ok(&proj, PROJ_STREAM))
+    if (project_incompatible || !stream_layout_ok(&proj, stream_format_of(&proj)))
         return -9; /* not one settings/sound/pattern object may be rewritten */
     if (settings_read_failed || settings_load_failed) return -8; /* retry load before saving fallback defaults */
 #ifndef X0X_HOST

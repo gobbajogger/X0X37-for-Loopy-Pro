@@ -403,7 +403,7 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION, R_PARTON };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION, R_PARTON, R_BPATSND, R_NOTELOCK };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -419,6 +419,9 @@ static const char *const BENGINE_N[] = {"CHICAGO", "MIAMI"};
 static const x0x_param_t BENGINE_P = {"ENGINE",1,0,BENGINE_N};
 static x0x_param_t BPRESET_P = {"PRESET",54,0,0};
 static const x0x_param_t BSTATUS_P = {"STATUS",0,0,0};
+/* per-pattern preset recall (owner 2026-11-12 02:42): 0 OFF, else the preset number in the
+ * part's current engine; stored as pattern_t.rsv[part] = bank << 7 | preset + 1 */
+static x0x_param_t PATSND_P = {"PAT SOUND",54,0,0};
 
 static const char *const RATE_N[] = {"1/16", "1/16T", "1/32", "1/8T", "1/8", "1/4"};   /* M13: index = pattern.h RATE_* */
 static const char *const DIR_N[] = {"FWD", "REV", "PING", "RND"};
@@ -456,6 +459,7 @@ static const x0x_param_t MIDICH_P[NPARTS] = {   /* 0 = OFF (no notes in or out),
     {"909 MIDI CH", 16, 10, 0}, {"808 MIDI CH", 16, 11, 0}, {"BASS A MIDI CH", 16, 2, 0}, {"BASS B MIDI CH", 16, 3, 0},
     {"BREAK MIDI CH", 16, 4, 0}};
 /* M7: per-part ON/OFF (seq.part_off). OFF stops new notes, independent of mute and level. */
+static const x0x_param_t NOTELOCK_P = {"NOTE LOCK", 1, 0, ONOFF_N};   /* runtime; capture only */
 static const x0x_param_t PARTON_P[NPARTS] = {
     {"909", 1, 1, ONOFF_N}, {"808", 1, 1, ONOFF_N}, {"BASS A", 1, 1, ONOFF_N}, {"BASS B", 1, 1, ONOFF_N},
     {"BREAK", 1, 1, ONOFF_N}};
@@ -524,6 +528,10 @@ static const x0x_param_t *pref_desc(pref_t r)
         BPRESET_P.max = (uint8_t)(original_sound_factories((unsigned)engine_bass_requested_bank(r.b))-1);
         return &BPRESET_P;
     case R_BSTATUS: return &BSTATUS_P;
+    case R_BPATSND:
+        PATSND_P.max = (uint8_t)original_sound_factories((unsigned)engine_bass_requested_bank(r.b));
+        return &PATSND_P;
+    case R_NOTELOCK: return &NOTELOCK_P;
     case R_ENG: return engine_param(r.a, r.b, r.c);
     case R_GEN: return &GEN_P[r.c % NGEN];
     case R_BRKSET: return breaks_param(r.c);
@@ -645,6 +653,8 @@ static int pref_get(pref_t r)
     }
     case R_MIDICH: return seq.ch[r.a % NPARTS] == SEQ_CH_OFF ? 0 : seq.ch[r.a % NPARTS] + 1;
     case R_PARTON: return !SEQ_PART_OFF(&seq, r.a % NPARTS);
+    case R_BPATSND: return pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1] & 127;
+    case R_NOTELOCK: return engine_note_lock_capture_on();
     case R_OUTLOUD: return proj.set.out_loud;
     case R_USBFULL: return proj.set.usb_full;
     case R_FREEPLAY: return ui.freeplay[r.a];
@@ -784,6 +794,11 @@ X0X_COLD static void pref_set_impl(pref_t r, int v, int from_keyboard)
     }
     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
     case R_PARTON: seq.part_off = (uint8_t)(v ? seq.part_off & ~(1u << (r.a % NPARTS)) : seq.part_off | 1u << (r.a % NPARTS)); break;
+    case R_BPATSND:
+        pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1] =
+            (uint8_t)(v ? (unsigned)engine_bass_requested_bank(r.b) << 7 | (unsigned)v : 0u);
+        break;
+    case R_NOTELOCK: engine_note_lock_capture(v); break;
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
     case R_CKCH: proj.set.ck_ch = (uint8_t)(v + 2); break;   /* sounding notes end on their own channel */
@@ -877,7 +892,7 @@ static int in_pattern(pref_t r)
 {
     switch (r.kind) {
     case R_SWING: case R_DLEN: case R_DRATE: case R_BLEN: case R_BRATE: case R_BDIR: case R_BTRANS: case R_GEN:
-    case R_BRKSET: case R_BRKSLOT: case R_BRKSLICE:
+    case R_BRKSET: case R_BRKSLOT: case R_BRKSLICE: case R_BPATSND:
         return 1;
     default:
         return 0;
@@ -1198,6 +1213,13 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
         return;
     case R_BRKSET: put_i(num, v); put_s(unit, "%"); return;
     case R_TEMPO: put_i(num, v + 20); put_s(unit, "bpm"); return;
+    case R_BPATSND: {
+        unsigned ps = pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1];
+        if (!ps) { put_s(num, "OFF"); return; }
+        num[0] = (ps >> 7) == ORIGINAL_SOUND_MIAMI ? 'M' : 'C';
+        put_i(num + 1, (int)(ps & 127u));
+        return;
+    }
     case R_SBAR: put_i(num, v + 1); return;
     case R_SPAT: num[0] = 'P'; put_i(num + 1, v + 1); return;
     case R_MIDICH: if (v) put_i(num, v); else put_s(num, "OFF"); return;
@@ -1443,7 +1465,7 @@ static void describe_pages(pages_t *out, page_query_t *query, int view, int p, i
                 for (int col = 0; col < 4; col++) refs[col] = rows[row][col] < 0 ? NONE : PR(R_ENG,T_303,b,rows[row][col]);
                 add_page_refs(emit, titles[row],refs,0,0);
             }
-            add_page(emit, "SOUND",PR(R_BENGINE,0,b,0),PR(R_BPRESET,0,b,0),PR(R_BSTATUS,0,b,0),NONE);
+            add_page(emit, "SOUND",PR(R_BENGINE,0,b,0),PR(R_BPRESET,0,b,0),PR(R_BSTATUS,0,b,0),PR(R_BPATSND,0,b,0));
         } else {
             emit->group = GR_PAT;                           /* (its groove and retrigs: SEQ) */
             do { static const pref_t refs[4] = {PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE), PR(R_ENG, T_BRK, 0, 1)};
@@ -1684,7 +1706,8 @@ static void global_section(int g)
 #endif
         break;
     case 2:list_add(PR(R_OUTLOUD,0,0,0));list_add(PR(R_USBFULL,0,0,0));
-        for(int p=0;p<NPARTS;p++)list_add(PR(R_PARTON,part_at(p),0,0));break;
+        for(int p=0;p<NPARTS;p++)list_add(PR(R_PARTON,part_at(p),0,0));
+        list_add(PR(R_NOTELOCK,0,0,0));break;
     case 3:list_add(PR(R_KEYLED,0,0,0));list_add(PR(R_KEYSOUND,0,0,0));list_add(PR(R_PALETTE,0,0,0));break;
     case 4:
         list_add(PR(R_ACT,ACT_SAVE,0,0));list_add(PR(R_ACT,ACT_LOAD,0,0));list_add(PR(R_AUTOSAVE,0,0,0));
@@ -3039,7 +3062,7 @@ static void turn_ref(pref_t r, int e, int knob)
     {
     if (d->names || d->max < 24
 #if X0X_BASS_PRESET_PREVIEW
-        || r.kind == R_BPRESET
+        || r.kind == R_BPRESET || r.kind == R_BPATSND
 #endif
        )
         e = e > 0 ? 1 : -1;                          /* a switch: one detent, one position */
@@ -3236,7 +3259,7 @@ static void bass_write(int b, int note, int gate)
     uint8_t f = (uint8_t)gate;
     if (gate == G_NOTE) {
 #if X0X_BASS_NOTE_SOUND
-        if(engine_bass_note_capture(proj.arr.lane,seq.ppat[ui.part],b,w,&proj.sound)) {
+        if(engine_bass_note_capture(proj.arr.lane,seq.ppat[ui.part],b,w,&proj.sound)<0) {
             say("NOTE SOUND NOT SAVED",0);return;
         }
 #endif
@@ -3315,7 +3338,7 @@ static void bass_step_key(int white, int down)
         ui.step_created = bstep_gate(&bp->step[s]) == G_REST;
         if (ui.step_created) {
 #if X0X_BASS_NOTE_SOUND
-            if(engine_bass_note_capture(proj.arr.lane,seq.ppat[ui.part],b,s,&proj.sound)) {
+            if(engine_bass_note_capture(proj.arr.lane,seq.ppat[ui.part],b,s,&proj.sound)<0) {
                 bass_step_cancel();say("NOTE SOUND NOT SAVED",0);return;
             }
 #endif
@@ -3366,7 +3389,7 @@ static void held_note_by(int by)
     int n = held_note_of(bp, ui.held_step) + by;
 #if X0X_BASS_NOTE_SOUND
     if(bstep_gate(st)!=G_NOTE && engine_bass_note_capture(proj.arr.lane,
-       seq.ppat[ui.part],bidx(),ui.held_step,&proj.sound)) {
+       seq.ppat[ui.part],bidx(),ui.held_step,&proj.sound)<0) {
         say("NOTE SOUND NOT SAVED",0);return;
     }
 #endif
@@ -8647,6 +8670,28 @@ static void autosave(void)
     }
 }
 
+/* Per-pattern preset recall: the pattern a bass part plays next (its cue, else the playing
+ * one) asks for its preset once, gated to that pattern; the engine switches when that pattern
+ * plays and the voice is quiet (engine_bass_select_preset). Unset: nothing is requested. */
+static void pattern_sound_tick(void)
+{
+    static uint8_t seen_pat[NBASS] = {0xFF, 0xFF}, seen_val[NBASS];
+    for (int b = 0; b < NBASS; b++) {
+        int t = TRK_BASS0 + b, cue = seq_cue_of(&seq, t), pat = cue >= 0 ? cue : seq.ppat[t];
+        int gate = engine_bass_preset_gate(b);
+        unsigned ps = proj.pat[pat].rsv[b];
+        if (gate >= 0 && gate != pat && gate != seq.ppat[t] && engine_bass_preset_pending(b))
+            engine_bass_cancel_preset(b);                /* its cue was taken back */
+        if (seen_pat[b] == pat && seen_val[b] == ps) continue;
+        seen_pat[b] = (uint8_t)pat; seen_val[b] = (uint8_t)ps;
+        if (!ps) continue;
+        int bank = (int)(ps >> 7), preset = (int)(ps & 127u) - 1;
+        if (engine_bass_requested_bank(b) == bank && engine_bass_requested_preset(b) == preset &&
+            !engine_bass_preset_edited(b) && !engine_bass_preset_pending(b)) continue;
+        (void)engine_bass_select_preset_at(b, bank, preset, &proj.sound, pat);
+    }
+}
+
 void ui_frame(void)
 {
     uint32_t i;
@@ -8692,6 +8737,8 @@ void ui_frame(void)
         if(list_rows[row].kind==R_BTNAME)visible=1;
         if(!visible)peer_scroll.active=0; }
     undo_tick();
+    pattern_sound_tick();
+    engine_note_lock_refresh();
     device_bt_save();
     autosave();
     if (!project_busy)
