@@ -84,7 +84,7 @@ static int st_put_mutant(void *ctx, const uint8_t *p, uint32_t n)
 static int measure_ref(const project_t *pr, uint32_t *length)
 {
     const uint8_t *raw = (const uint8_t *)pr + RAW_OFF;
-    st_out_t o = {1, 0, 0, 0, 0, PROJ_STREAM};
+    st_out_t o = {1, 0, 0, 0, 0, stream_format_of(pr)};
     lz_sink_t sink = {st_put_ref, &o};
     if (lz_compress(raw, RAW_LEN, &sink))
         return -7;
@@ -96,10 +96,10 @@ static int save_stream_ref(void)
 {
     const uint8_t *raw = (const uint8_t *)&proj + RAW_OFF;
     uint32_t crc = crc32_of(raw, RAW_LEN);
-    st_out_t o = {0, 0, 0, 0, 0, PROJ_STREAM};
+    st_out_t o = {0, 0, 0, 0, 0, stream_format_of(&proj)};
     lz_sink_t sink = {st_put_ref, &o};
     o.fill = STREAM_HDR;
-    put32(io_buf, PROJ_STREAM);
+    put32(io_buf, o.format);   /* 13, or 14 when a pattern preset / note lock is stored */
     put32(io_buf + 4, RAW_LEN);
     put32(io_buf + 8, crc);
     put32(io_buf + 12, packed_len);
@@ -208,6 +208,7 @@ static int run_put(put_fn put, uint32_t fill0, int k0, int measure,
     clear_store();
     prep_buf(fill0);
     memset(&o, 0, sizeof o);
+    o.format = PROJ_STREAM;
     o.measure = measure;
     o.k = k0;
     o.fill = fill0;

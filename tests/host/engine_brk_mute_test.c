@@ -29,6 +29,10 @@ static uint8_t bass_held[NBASS], bass_held_count[NBASS], bass_held_src[NBASS];
 static uint8_t original_key_pitch[NBASS][38], bass_attacked[NBASS];
 static uint16_t src_held[3];
 static int original_bass[NBASS], brk_bend_owner, project_midi_drop;
+/* 0.0.25 Chicago accent/slide flags (bass_adapt_flags): BREAK paths only clear them here. */
+static uint8_t bass_accent[NBASS], bass_slide[NBASS];
+static void bass_adapt_flags(int p, int acc, int sl)
+{ if ((unsigned)p < NBASS) { bass_accent[p] = (uint8_t)!!acc; bass_slide[p] = (uint8_t)!!sl; } }
 static int16_t brk_wheel, brk_wheel_seen;
 static uint8_t project_hold, tape_signal_seen, usb_full = 1;
 static uint8_t mot_was_on, mot_on, mot_release_req, mot_playing;

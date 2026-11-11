@@ -7,6 +7,21 @@
 /* The BASE_REF engine predates PANIC (M1); the shared UI calls it. The new engine defines it. */
 #pragma weak engine_request_notes_off
 void engine_request_notes_off(void) {}
+/* 0.0.25 additions the shared UI calls; the BASE_REF engine has none of them. */
+#pragma weak engine_bass_tune
+void engine_bass_tune(int steps) { (void)steps; }
+#pragma weak engine_bass_select_preset_at
+int engine_bass_select_preset_at(int v, int bank, int preset, sound_t *s, int pat) { (void)pat; return engine_bass_select_preset(v, bank, preset, s); }
+#pragma weak engine_bass_preset_gate
+int engine_bass_preset_gate(int v) { (void)v; return -1; }
+#pragma weak engine_note_lock_capture
+void engine_note_lock_capture(int on) { (void)on; }
+#pragma weak engine_note_lock_capture_on
+int engine_note_lock_capture_on(void) { return 0; }
+#pragma weak engine_note_lock_refresh
+void engine_note_lock_refresh(void) {}
+#pragma weak engine_bass_note_validate
+int engine_bass_note_validate(const lane_t *lane) { (void)lane; return 0; }
 static unsigned split_index, split_mode, cpu_mode, jobs, joins, deferred;
 static void (*pending_job)(uint32_t);
 static uint32_t pending_arg;
