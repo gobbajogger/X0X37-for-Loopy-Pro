@@ -1,0 +1,52 @@
+{
+  "schema": "loopyx0x37-bugfinder-evidence/v1",
+  "finding": "BF-031",
+  "evidence_revision": "bugfinder-bf031-tb3po-logical-bar-reverse-random-20261025-r1",
+  "role": "existing LoopyX0X37 Hourly Bugfinder",
+  "stage": "SOURCE_PR_PRODUCER_NATIVE_CHECKED_NOT_APPROVED",
+  "source_base": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "nightly",
+    "commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+    "root_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+    "source_blobs": {
+      "firmware/src/seq/sequencer.c": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+      "firmware/src/seq/sequencer.h": "9bbddbf55438247469816625bd0b07a865aa0dcb"
+    }
+  },
+  "user_outcome": "TB-3PO AUTO MUTATE every N bars and conditional chance cycles must advance exactly once per full logical 303 pass in REVERSE or RANDOM, not twice per reverse traversal or unpredictably on random step-zero visits.",
+  "preserved": "FORWARD/PINGPONG cycles, playback timing, sound/MIDI event code paths, transport reset, live direction and length edits, persistent project layout, runtime seq_track_t size.",
+  "source_changes": [
+    "firmware/src/seq/sequencer.c",
+    "firmware/src/seq/sequencer.h"
+  ],
+  "registered_regression": "tests/host/seq_tb3po_bar_test.c",
+  "native_observations": {
+    "method": "Source-blob-pinned full production sequencer.c + pattern.c + tb3po.c linked with sink callbacks; deterministic forced-due step events through seq_start/seq_advance/seq_stop; tests cover forward, reverse, pingpong, random lengths 1/4/64, mutation event, restarts, shortened live length, direction switch, host struct size.",
+    "baselines": "GCC and Clang × optimized / UBSan / ASan+UBSan each compile exit0; unchanged base original regression 761/878 assertions exit1 (117 behavioral mismatches); ASan/UBSan no diagnostic.",
+    "repaired": "GCC and Clang × optimized / UBSan / ASan+UBSan each compile exit0 and run exit0, 878/878 assertions, no sanitizer findings.",
+    "stress": "GCC and Clang × optimized and ASan+UBSan each compile/run exit0, preexisting deterministic 35,000-control-event stress (0 MIDI imbalances) reexecuted against repaired production sequencer.",
+    "limits": "Host linked sequencer is production source, not complete firmware engine, full root, Independent QA, JieLi target compilation, browser, firmware binary or physical device."
+  },
+  "source_blob_sha_git_expected": {
+    "firmware/src/seq/sequencer.c": "51d5e51f7e1da2393b53983f25c241c7d35ca2a3",
+    "firmware/src/seq/sequencer.h": "ea84763d057c96675806e767f3b4a41bb8f87234",
+    "tests/host/seq_tb3po_bar_test.c": "931871eca84c9f4dfe0450ac5690e8ba66432075"
+  },
+  "tested_host_versions": {
+    "gcc": "14.x",
+    "clang": "17.x"
+  },
+  "next_stage_receivers": {
+    "Hourly Build": "Consume final remotely read back PR HEAD + new firmware compiler-input subtree; run actual fresh Elite and Pro and controller BUILD_ONLY; preserve rights/budget/bytes.",
+    "Independent QA": "Independently review exact source and run positive/negative production sequencer and live random/reverse probability/auto-mutate cycle checks.",
+    "Sole firmware Safe Merge": "Only integrate through guarded nightly after independent acceptance; do not self-approve."
+  },
+  "pending": [
+    "Complete current-root regression runner invocation",
+    "Independent QA",
+    "Actual model Elite/Pro/compiler/controller native BUILD_ONLY",
+    "Full source package, installer/browser prehardware qualification, HTTP hosting, hardware validation and separate production promotion"
+  ],
+  "rights": "Public text GPL-3.0-only source/test/manifest only; no firmware binary, controller, SDK, DSP vendor payload, key or samples."
+}

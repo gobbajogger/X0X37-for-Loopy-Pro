@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "bugfinder-bf030-motion-external-clock-wait-20261025-r1",
+  "date_utc": "2026-10-24",
+  "owner": "existing LoopyX0X37 Hourly Bugfinder, producer-only",
+  "intended_owner_behavior": "With MIDI clock source EXTERNAL and no incoming ticks for more than 0.5 s, sequencer pauses, retains current step, and motion automation must not advance or alter a saved p-lock during WAIT; when ticks resume, only actual running samples contribute. Normal internal/AUTO movement, STOP, and disabled motion remain unchanged.",
+  "behavior_contract": [
+    "BEHAVIOR.md MID-13",
+    "BEHAVIOR.md MOT-01"
+  ],
+  "receiving_roles": [
+    "existing Hourly Build: new compiler tree Elite+Pro DEV BUILD_ONLY",
+    "existing Independent QA: independently exercise actual clock-loss/resume real sequencer+engine path",
+    "sole firmware Safe Merge: integration decision only after independent QA"
+  ],
+  "git_inputs": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/bugfinder-bf027-motion-idle-transport-20261025",
+    "parent": "1d9793fd1b67260c9cabc87790582f367e94e9e1",
+    "base_git_root": "4480d9c87da955b9853fb90ad9a8f8949ef69332",
+    "base_compiler_tree": "804a006bf17109a04947623c00e7ac9ae00ac4c4",
+    "staged_git_root": "a2054ad1911187bcdc883fc838e69aaa6571d456",
+    "new_compiler_tree": "21849778b17644a11c63b01c1526edaf03fd5e55"
+  },
+  "source_git_blobs": {
+    "before_engine": "2051d27e69e69f3d472671712f3389c92f74217e",
+    "after_engine": "90f37792d2d1e448da0a665c48b00281a6a5ca96",
+    "sequencer_unchanged": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+    "sequencer_header_unchanged": "9bbddbf55438247469816625bd0b07a865aa0dcb",
+    "motion_unchanged": "f94c93428153eaf6f42f25aee4c21cfb1e7cdd96",
+    "motion_header_unchanged": "aca33934b0006fe2db2abe0a3048312ac79991f1",
+    "pattern_header_unchanged": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "registered_new_test": "4f099840f1bad71c1dbb8f5f1dd113c430518aa7",
+    "updated_previous_idle_test": "33a07825b0f29bd653235c6ddd0e20f4920fcace",
+    "updated_runner": "8b40e84d3bb6e376f28a31b4b3b44590e0886b44"
+  },
+  "regression": {
+    "command": "CC=<gcc or clang> CFLAGS='<variant flags>' python3 -B tests/host/motion_external_clock_wait_test.py <source projection root>",
+    "source_projection_limitation": "The harness links unchanged Git-blob-matched production motion.c and uses the exact engine_render motion guard plus exact sequencer.c seq_clock_waiting source function extracted/transcribed from the named Git commit. Nonmotion engine code and sequencer event processing are projected, not linked. This is NOT a full firmware-root, engine_render or audio-path execution.",
+    "stimuli": [
+      "INTERNAL active 50-sample 30->100 ramp computes 65",
+      "EXTERNAL WAIT after 0.5-second input clock dropout for 50 then 150 silent samples holds 30 and age=0",
+      "next step does not record paused time as its prior interval",
+      "resume after 256 WAIT samples counts only 50 active samples",
+      "EXTERNAL precise 0.5-second threshold remains grace, before WAIT",
+      "AUTO fallback remains active",
+      "STOP and motion disabled do not tick"
+    ],
+    "baseline": [
+      {
+        "name": "gcc-o2",
+        "flags": "-O2 -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "assertions": "8/12",
+        "expected_behavioral_failures": 4,
+        "log_sha256": "daa06cee15807d28f55ff5fb5ca674335786bb10e9a61d8f3acdd9a9921118d5"
+      },
+      {
+        "name": "gcc-ubsan",
+        "flags": "-O1 -g -fsanitize=undefined -fno-sanitize-recover=all -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "assertions": "8/12",
+        "expected_behavioral_failures": 4,
+        "log_sha256": "daa06cee15807d28f55ff5fb5ca674335786bb10e9a61d8f3acdd9a9921118d5"
+      },
+      {
+        "name": "gcc-asanubsan",
+        "flags": "-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "assertions": "8/12",
+        "expected_behavioral_failures": 4,
+        "log_sha256": "daa06cee15807d28f55ff5fb5ca674335786bb10e9a61d8f3acdd9a9921118d5"
+      },
+      {
+        "name": "clang-o2",
+        "flags": "-O2 -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "assertions": "8/12",
+        "expected_behavioral_failures": 4,
+        "log_sha256": "daa06cee15807d28f55ff5fb5ca674335786bb10e9a61d8f3acdd9a9921118d5"
+      },
+      {
+        "name": "clang-ubsan",
+        "flags": "-O1 -g -fsanitize=undefined -fno-sanitize-recover=all -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "assertions": "8/12",
+        "expected_behavioral_failures": 4,
+        "log_sha256": "daa06cee15807d28f55ff5fb5ca674335786bb10e9a61d8f3acdd9a9921118d5"
+      },
+      {
+        "name": "clang-asanubsan",
+        "flags": "-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "assertions": "8/12",
+        "expected_behavioral_failures": 4,
+        "log_sha256": "daa06cee15807d28f55ff5fb5ca674335786bb10e9a61d8f3acdd9a9921118d5"
+      }
+    ],
+    "corrected": [
+      {
+        "name": "gcc-o2",
+        "flags": "-O2 -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 0,
+        "assertions": "12/12",
+        "sanitizer_diagnostics_observed": false,
+        "log_sha256": "fbe5164694e02cdcba9a1e97190673037d44c2ab5576720dcbd10e585de76f28"
+      },
+      {
+        "name": "gcc-ubsan",
+        "flags": "-O1 -g -fsanitize=undefined -fno-sanitize-recover=all -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 0,
+        "assertions": "12/12",
+        "sanitizer_diagnostics_observed": false,
+        "log_sha256": "fbe5164694e02cdcba9a1e97190673037d44c2ab5576720dcbd10e585de76f28"
+      },
+      {
+        "name": "gcc-asanubsan",
+        "flags": "-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 0,
+        "assertions": "12/12",
+        "sanitizer_diagnostics_observed": false,
+        "log_sha256": "fbe5164694e02cdcba9a1e97190673037d44c2ab5576720dcbd10e585de76f28"
+      },
+      {
+        "name": "clang-o2",
+        "flags": "-O2 -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 0,
+        "assertions": "12/12",
+        "sanitizer_diagnostics_observed": false,
+        "log_sha256": "fbe5164694e02cdcba9a1e97190673037d44c2ab5576720dcbd10e585de76f28"
+      },
+      {
+        "name": "clang-ubsan",
+        "flags": "-O1 -g -fsanitize=undefined -fno-sanitize-recover=all -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 0,
+        "assertions": "12/12",
+        "sanitizer_diagnostics_observed": false,
+        "log_sha256": "fbe5164694e02cdcba9a1e97190673037d44c2ab5576720dcbd10e585de76f28"
+      },
+      {
+        "name": "clang-asanubsan",
+        "flags": "-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -Wall -Wextra -Werror",
+        "compile_exit": 0,
+        "execution_exit": 0,
+        "assertions": "12/12",
+        "sanitizer_diagnostics_observed": false,
+        "log_sha256": "fbe5164694e02cdcba9a1e97190673037d44c2ab5576720dcbd10e585de76f28"
+      }
+    ],
+    "neighbor": "Previous BF027 idle fixture adapted to new guard compiled and ran with GCC/Clang O2, UBSan, ASan+UBSan, 6/6 EXIT0 on source-callsite projection; this prior fixture was Library-sourced, not a separately reconstructed exact PR-root native runner.",
+    "python_version": "3.13.5",
+    "compilers": [
+      "GCC 14.2.0",
+      "Clang 17.0.0"
+    ],
+    "leak_sanitizer": "ASAN_OPTIONS=detect_leaks=0:halt_on_error=1"
+  },
+  "unrun": [
+    "Complete exact-current-root registered test suite",
+    "Authentic full engine_render + sequencer EXTERNAL clock drop/resumption host trace",
+    "Current new-compiler-tree Elite DEV native build, package and model checks",
+    "Current new-compiler-tree Pro DEV native build, package and model checks",
+    "Independent QA acceptance",
+    "Physical matched-model performance and USB/BLE clock testing",
+    "NIGHTLY browser/package hosting and release/production gates"
+  ],
+  "ownership_exclusions": "No OTA, Data Safety, SMC, sequencer clock source implementation, protected nightly/main, Pages, public firmware, vendor SDK/DSP, controller, hardware flash, or self-approval changed."
+}

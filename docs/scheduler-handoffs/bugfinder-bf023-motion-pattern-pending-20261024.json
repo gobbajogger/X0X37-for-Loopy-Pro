@@ -1,0 +1,237 @@
+{
+  "actual_host_platform": "Linux x86_64, GCC 14.2.0, Clang 17.0.0",
+  "consumers": {
+    "Hourly Build": "fresh independent Elite/Pro BUILD_ONLY pin on new firmware/ Git tree after source commit; exact toolchain/SDK/config/controller hashes, size/CRC/pool budgets",
+    "Independent QA": "review exact source/runner and run current-root registered motion test, existing motion_test, sanitizer and pattern/STOP/delete cross-negative tests; not producer self-review",
+    "Safe Merge": "optional separately reviewed patch only; sole integrator controls source integration and NIGHTLY, no immediate protected merge or publication"
+  },
+  "defect": {
+    "previous": "motion_step mismatching pat reset active ramp/hold counters but retained rec_req and hold_req, causing a stale knob event to change saved p-lock or suppress playback on much later pattern re-entry",
+    "repair": "Clear only rec_req and hold_req in existing pattern mismatch branch, before to_base; do not modify other part, saved lane, serialization, audio sample clock or live matching-pattern rec/hold behavior",
+    "reproduction": "Genuine motion.c function and motion.h/pattern.h source compiled and executed against synthetic two-pattern lanes; 6 specific failures with old source, no failures with patched source",
+    "trigger": "UI records a per-lane motion REC or HOLD request near part-pattern change; audio ISR runs that part with a different pattern before servicing request, then later re-enters original pattern"
+  },
+  "evidence_revision": "bugfinder-bf023-motion-pattern-pending-20261024-r1",
+  "exact_work_base": {
+    "commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "firmware_tree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "protected_ref": "nightly",
+    "root_tree": "71b759dd206d844cceed9e40ae68966142720e9c"
+  },
+  "native_matrix": {
+    "after_passes": 8,
+    "before_expected_failures": 8,
+    "build_only_not_waiting_for_other_gates": true,
+    "changed_production_functions_compiled": "complete Git-authenticated motion.c; exact Git motion.h/pattern.h, no mocked motion functions",
+    "expected_baseline_assertion_failures_per_run": 6,
+    "leak_detector": "disabled for ASan+UBSan; no leak claim",
+    "runs": [
+      {
+        "actual_command": "gcc -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O0 tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "log_sha256": "310ca6bfdb861c09e254902c24f6cdf89df569623fed8d37e70ca493a7441cb9",
+        "runtime_exit": 1,
+        "stage": "base",
+        "variant": "o0"
+      },
+      {
+        "actual_command": "gcc -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O0 tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "log_sha256": "ed0403dc99d96a1e6d45409d5be0dfd5192e2a6566d202d45c6f70deb99973d9",
+        "runtime_exit": 0,
+        "stage": "after",
+        "variant": "o0"
+      },
+      {
+        "actual_command": "gcc -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O2 tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "log_sha256": "05cd25e60dd264e93cae2c6fc3b337ef500e04131c35ae251f1714bc81dd4d3b",
+        "runtime_exit": 1,
+        "stage": "base",
+        "variant": "o2"
+      },
+      {
+        "actual_command": "gcc -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O2 tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "log_sha256": "fdc0e64e355409b2d7cef1f178f84efd4f81b9eaea5f133543ff8301f0dae88d",
+        "runtime_exit": 0,
+        "stage": "after",
+        "variant": "o2"
+      },
+      {
+        "actual_command": "gcc -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O1 -fsanitize=undefined -fno-sanitize-recover=all tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "log_sha256": "7c5db8e6adedc3d31da83f808e61d19de0ff5ba200e22e942f48b25dfab72c55",
+        "runtime_exit": 1,
+        "stage": "base",
+        "variant": "ubsan"
+      },
+      {
+        "actual_command": "gcc -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O1 -fsanitize=undefined -fno-sanitize-recover=all tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "log_sha256": "5793f81265348f7231e70a7def1fd7ebc685dc04e8fa4105e0bc6aa909b95ae2",
+        "runtime_exit": 0,
+        "stage": "after",
+        "variant": "ubsan"
+      },
+      {
+        "actual_command": "gcc -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O1 -fsanitize=address,undefined -fno-sanitize-recover=all tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "log_sha256": "29dba462317c83ff96ba9d7f5fee2ead346871c8e6b2ae3a93d0bfc35b351393",
+        "runtime_exit": 1,
+        "stage": "base",
+        "variant": "asan-ubsan"
+      },
+      {
+        "actual_command": "gcc -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O1 -fsanitize=address,undefined -fno-sanitize-recover=all tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "log_sha256": "97c808fc747ea8519883459fbaa819969f3db5b19c5716de2bd096a55d665951",
+        "runtime_exit": 0,
+        "stage": "after",
+        "variant": "asan-ubsan"
+      },
+      {
+        "actual_command": "clang -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O0 tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "log_sha256": "561a3385b049fe27a5f1c8b28f996fe3da9aefcdf7dcc57ed95f8f951608dc04",
+        "runtime_exit": 1,
+        "stage": "base",
+        "variant": "o0"
+      },
+      {
+        "actual_command": "clang -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O0 tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "log_sha256": "abcea5061e590024dbbe54f8ee823b34c720384ce63516383d2252f85ba68d5e",
+        "runtime_exit": 0,
+        "stage": "after",
+        "variant": "o0"
+      },
+      {
+        "actual_command": "clang -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O2 tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "log_sha256": "9e05c1f11f7f8f098a6e58c90f9141065251162537c707f9ebfbd25058c70448",
+        "runtime_exit": 1,
+        "stage": "base",
+        "variant": "o2"
+      },
+      {
+        "actual_command": "clang -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O2 tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "log_sha256": "5b1d62b4cc00bba4425f661ea19b3ef1c42c4de0f3bf204a80136774f81017b4",
+        "runtime_exit": 0,
+        "stage": "after",
+        "variant": "o2"
+      },
+      {
+        "actual_command": "clang -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O1 -fsanitize=undefined -fno-sanitize-recover=all tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "log_sha256": "217de25b7ebfb8981b9e36a8d3425be84afe712463e2de1fe220e3547f337245",
+        "runtime_exit": 1,
+        "stage": "base",
+        "variant": "ubsan"
+      },
+      {
+        "actual_command": "clang -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O1 -fsanitize=undefined -fno-sanitize-recover=all tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "log_sha256": "6c8e248cebf4d3d106727d3517aefc578f13362333c8b8eb3907e516d29e3053",
+        "runtime_exit": 0,
+        "stage": "after",
+        "variant": "ubsan"
+      },
+      {
+        "actual_command": "clang -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O1 -fsanitize=address,undefined -fno-sanitize-recover=all tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "log_sha256": "09441f8be02b1168eecec7d53f5f1d200b9c0157005bf5ebd5997ae901b9281c",
+        "runtime_exit": 1,
+        "stage": "base",
+        "variant": "asan-ubsan"
+      },
+      {
+        "actual_command": "clang -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O1 -fsanitize=address,undefined -fno-sanitize-recover=all tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c -o <host-binary>",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "log_sha256": "03b92bd6971279928640a7290500dd992a0e8632be7278c530eb3713f6cc7ace",
+        "runtime_exit": 0,
+        "stage": "after",
+        "variant": "asan-ubsan"
+      }
+    ]
+  },
+  "observed_first_nightly_candidate": {
+    "compiler_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "head_at_last_review": "7e89df2b71b2b8e4409cc6a489f4939bbe0b71f7",
+    "pr": 103,
+    "root_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+    "state": "DRAFT / browser-prehardware-scoped QA PASS, not published/device-tested; QA disposition route-specific; unrelated physical native OTA no-go remains owned"
+  },
+  "registered_runner_command": "sh -c \"$CC -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror -o build/host/motion_pattern_pending_test tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c && build/host/motion_pattern_pending_test\"",
+  "registered_runner_positive_negative": {
+    "after-clang": {
+      "compile_exit": 0,
+      "log_sha256": "75b3a35c8bdb6d1418c5e942bd828ae446bf5b53f17c6a5ab3609190d7640782",
+      "runtime_exit": 0
+    },
+    "after-gcc": {
+      "compile_exit": 0,
+      "log_sha256": "75b3a35c8bdb6d1418c5e942bd828ae446bf5b53f17c6a5ab3609190d7640782",
+      "runtime_exit": 0
+    },
+    "base-clang": {
+      "compile_exit": 0,
+      "log_sha256": "7d62aa712ab7536745364687f2a86bc97ef42684335f6de363667aeae1fc6853",
+      "runtime_exit": 1
+    },
+    "base-gcc": {
+      "compile_exit": 0,
+      "log_sha256": "7d62aa712ab7536745364687f2a86bc97ef42684335f6de363667aeae1fc6853",
+      "runtime_exit": 1
+    }
+  },
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "role": "Hourly Bugfinder: independent unowned firmware defect reproduction and minimal source patch; not QA/merge/publisher",
+  "schema": "loopyx0x37.bugfinder.scoped_host_receipt.v1",
+  "scope_dedup": {
+    "SMC_lost_noteoff": "PR #58 already fixed; no overlap",
+    "motion_lane_reuse_queue": "BF-018 PR #120 owns lane clear queue fix; no overlap",
+    "motion_stop_queue": "BF-017 PR #101 owns STOP release queue fix; no overlap",
+    "native_physical_OTA": "Data Safety PR #114 stacked #116 owns and Independent QA reviewed; no overlap"
+  },
+  "scope_exclusions": [
+    "complete current-root tests/run_tests.sh aggregate NOT EXECUTED; targeted runner shell command validated only",
+    "existing motion_test.c NOT EXECUTED because full current checkout absent",
+    "Elite/Pro target-toolchain build and controller join NOT EXECUTED for this new firmware subtree",
+    "firmware memory/flash/controller budgets NOT EXECUTED",
+    "independent QA, hardware/physical device and browser-selected NIGHTLY publication NOT EXECUTED",
+    "no SDK, DSP, vendor/controller binaries, samples or bootloader touched"
+  ],
+  "source_git_blobs": {
+    "baseline_motion_c": "f94c93428153eaf6f42f25aee4c21cfb1e7cdd96",
+    "new_host_regression_c": "210c2a2aed697050c89988d3b29032bfa7888ff8",
+    "old_tests_runner_sh": "f682eaa5fd8ef24b8a7688319e6ce12fb9e003d9",
+    "patched_motion_c": "e4c45f54cb5f38ae2b96795c324cb11438dcb26a",
+    "registered_tests_runner_sh": "32abc9e11d28301dcc1b944d5246762778819384",
+    "unchanged_motion_h": "aca33934b0006fe2db2abe0a3048312ac79991f1",
+    "unchanged_pattern_h": "9a0703418aae95b14f1b70905cfac916da38d7dd"
+  },
+  "source_sha256": {
+    "new_host_regression_c": "9a40ba3495b831a3f2d59f35fdf69f2bbe8905cda0a2e41bdd0f2030fb424386",
+    "patched_motion_c": "7e4b3189d94eb5f5a0a6ef566e2c5b77ac7d56f3a158c0d696a106dae6e569d2",
+    "test_matrix": "c79f40180fb52318180d4efeacbd391ebfbbf4f6ae28488590882f8fc4554927"
+  },
+  "status": "SOURCE COMPLETE / PRODUCER SCOPED GCC+CLANG RED-GREEN PASS / QA AND TARGET BUILDS UNRUN / DEVICE NOT TESTED / NOT INSTALLABLE"
+}

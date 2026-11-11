@@ -1,0 +1,120 @@
+{
+  "row_id": "#35",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:159; /workspace/docs-audit/roadmap-status.md:76; out/docs/roadmap-evidence/#35.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#35 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#35 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:76 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:159",
+      "/workspace/docs-audit/roadmap-status.md:76",
+      "out/docs/roadmap-evidence/#35.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "audio-stress",
+      "smc-mode-page",
+      "smc-multi-peer"
+    ],
+    "evidence": "tests/host/audio_stress_test.c:86: CHECK((uint8_t)(smc_inputs[0].enqueued-enqueued)==8);; tests/host/smc_mode_page_test.c:108: CHECK(smc_inputs[0].dropped == 0);; tests/host/smc_multi_peer_test.c:107: CHECK(smc_inputs[0].qr==smc_inputs[0].qw && smc_inputs[1].qr==smc_inputs[1].qw);",
+    "identifiers": [
+      {
+        "identifier": "smc_inputs",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:159"
+      },
+      {
+        "identifier": "SMC_PEERS",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:159"
+      }
+    ],
+    "matches": [
+      {
+        "test": "audio-stress",
+        "symbol_from_row": "smc_inputs",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:159",
+        "file": "tests/host/audio_stress_test.c",
+        "line": 86,
+        "quote": "CHECK((uint8_t)(smc_inputs[0].enqueued-enqueued)==8);",
+        "identifier": "smc_inputs"
+      },
+      {
+        "test": "smc-mode-page",
+        "symbol_from_row": "smc_inputs",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:159",
+        "file": "tests/host/smc_mode_page_test.c",
+        "line": 108,
+        "quote": "CHECK(smc_inputs[0].dropped == 0);",
+        "identifier": "smc_inputs"
+      },
+      {
+        "test": "smc-multi-peer",
+        "symbol_from_row": "smc_inputs",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:159",
+        "file": "tests/host/smc_multi_peer_test.c",
+        "line": 107,
+        "quote": "CHECK(smc_inputs[0].qr==smc_inputs[0].qw && smc_inputs[1].qr==smc_inputs[1].qw);",
+        "identifier": "smc_inputs"
+      }
+    ],
+    "recorded_results": {
+      "audio-stress": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-mode-page": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smc-multi-peer": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/smc_mixer.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 22,
+        "identifier": "SMC_PEERS",
+        "quote": "#define SMC_PEERS 2u"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 24,
+        "identifier": "SMC_PEERS",
+        "quote": "#define SMC_PEERS 1u"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 114,
+        "identifier": "smc_inputs",
+        "quote": "static smc_input_t smc_inputs[SMC_PEERS];"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 115,
+        "identifier": "smc_inputs",
+        "quote": "#define smc_peer_input (smc_inputs[smc_slot])"
+      }
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+Begin the authorized SMC repair NOW in this fresh LOCAL stage-2 chat. Do not create another copy of stage 2. You own this implementation stage.
+
+Workflow marker: smc-central-session-20261021-stage2-after-investigation.
+Source chat: 01a15a73-c90c-7862-a6a4-2caa85154e41 (Investigate SMC-to-SMK MIDI response).
+Current rules entry: /Users/mac/Documents/x0x37/AGENTS.md, then /Users/mac/Documents/x0x37/agent-rules.md. Read current matching rules and writing skills. Current owner instructions supersede old checkout text.
+
+OWNER AUTHORIZATION
+The owner first asked: "Don't read rules. Investigate why could SMC and smk clearly establish midi connection but firmware on smk wouldn't react to any SMC messages".
+The latest instruction is: "Now read rules and fix".
+This latest instruction restores the normal rules for the repair. It authorizes the necessary reversible source repairs and checks. Current rule 14 carries standing permission for the complete validated DEV install with a notice. Do not ask again because the stage or artifact changes. Rules 17 and 18 require automatic fresh successor stages with verified startup. Their standing owner authorization includes automatic launch and recovery. No external push, public release, release build, fallback, or unrelated feature is authorized by this handoff.
+
+SOURCE AND OWNERSHIP
+Repository administration: /Users/mac/Documents/x0x37/local_install_stage6_20261021. Shared Git: /Users/mac/Documents/x0x37/x0x37/.git.
+Your precreated isolated lane is /Users/mac/Documents/x0x37/smc_central_session_repair_20261021.
+Branch: lane/mb-smc-central-session-repair-20261021.
+Exact base: 1313e0fe384ef5df1f2f5f5ef699902c4543bc0d.
+The only new lane files are evidence/session-audit/. No production source changed. Do not reset or modify another lane.
+The confirmed working source is 53d5654c9bbaec10b64c55fb60d0e7d857ba8156. The owner previously confirmed "Controls now work" and "and smc drives them too". The owner says the SMC messages did not change. Do not question the owner setup or request movement, mode repetition, or another hands-on capture.
+
+PARALLEL WORK
+Read current project activity before edits and before shared changes.
+Chat 01a15a69-9907-72a3-a5de-c1514a97b836, title "Fix SMC mapping controls", owns separate drum mute/light and performance STOP repairs. Its verified active successor is 01a15a7a-1348-7f10-b837-43a8ca22d62a, title "Fix SMC drum mappings and performance…". That chat owns smc_mixer.c and UI abort changes. Its current helper scopes match those fixes. Do not duplicate those changes. You own central receive/session handling, not those mapping fixes. Keep both contributions for one sole stage-5 integrator. Do not merge or install independently over an active integrator. Request only permitted context/completion notices if coordination is needed.
+Rules migration is separate. Preserve its files. Do not add unrelated rules to the firmware candidate.
+
+READ SAVED AUDIT
+1. Your evidence/session-audit/audit.json.
+2. Your evidence/session-audit/session_probe.c and probe-results.json.
+3. /Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/COMPARISON.txt and CHECKS.json. These contain the prior complete source comparison and its limits.
+4. /Users/mac/Documents/x0x37/smc_input_functional_repair_evidence_20261021/investigation-state.json and live-diag.log.
+5. /Users/mac/Documents/x0x37/smc_stage6_evidence_20261021/install-record.json for installed identity and preservation data when needed.
+6. /Users/mac/Documents/x0x37/smc_input_repair_restart_20261021/HANDOFF.txt for prior owner scope and corrections. Its missing-approval statements do not override current rule 14.
+
+CONFIRMED DEFECT AND LIMIT
+ble_midi_central.c accepts only ATT CID 4. It discards all CID 5 signaling without a reply.
+A valid simulated Connection Parameter Update Request receives no response. The central remains CONNECTED even after 600 seconds. A following valid MIDI notification still decodes.
+The audit probe reproduced this omission on both current 1313e0f and working 53d5654 with ASan/UBSan. Thus the omission is a real protocol defect. It is NOT a proved cause of the later regression.
+The official Bluetooth L2CAP specification defines CID 5 and the request/response rules:
+https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-62/out/en/host/logical-link-control-and-adaptation-protocol-specification.html
+Check the applicable primary specification before selecting a response policy. Do not blindly accept parameters without the matching controller update. Preserve identifiers and handle no-credit conditions without silently losing required replies.
+The initial implementation scope includes repairing this confirmed central signaling defect. Add meaningful regressions that fail the broken base. Test fragmentation, length bounds, valid and invalid commands, response identifiers, credits, reconnect cleanup, and normal MIDI delivery. Select only tests required by the actual diff and direct consumers.
+Continue the owner-requested source investigation. Do not label the original all-input silence fixed merely because the signaling response test passes. If additional evidence supports another functional repair in the central path, complete that repair. Do not use a diagnostic-only image as the final repair.
+
+LIVE OBSERVATION IS LIMITED
+Native read-only ED_DIAG and INLOG under the default hardware lock showed CONNECTED, handles 114/115, last ATT 0x13, no pending ATT, 5 credits, no mailbox drops, and continuing polls. Modulo-256 counts were ACL 8, notify 0, MIDI 0, rejects 2. Queue counters and INLOG were zero.
+The last rejected ACL header was 50 20 10 00 0c 00 05 00, total size 20. This proves that CID 5 traffic was rejected. The retained bytes do not include its signaling command or parameters.
+The read was IDLE. Do not use zero idle counters to claim that the peer sent input or that the radio lost it. This corrects the overstrong wording in the source chat's first final response. The owner-reported failure remains evidence regardless of this idle observation.
+
+EXISTING CHECKS AND INPUTS
+The public central/receive tests passed with ASan and UBSan in the source chat.
+The current startup replay was rebuilt natively on macOS with -D_DARWIN_C_SOURCE and passed: 1268 recorded notification payloads, 2616 decoded messages, 513 feedback messages, queue empty, perf.test=-1, no help/overlay.
+The replay uses exact recorded BLE payloads with simulated HCI framing and peer discovery. It excludes three oversized ATT packets. It does not emulate controller radio execution or target interrupt timing. It is not a device PASS.
+Raw capture path under the source tree: cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json.
+Capture SHA256: a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+Previous expanded fixtures are in smc_working_source_regression_evidence_20261021. Its comparison.c uses production callback, mailbox service, UI and feedback code. Its synthetic saved project is not the device project.
+Do not simply rerun those passes and stop. Inspect omitted session-dependent paths and target/shared state.
+Keep exact replay, simulated framing, MTU resegmentation, target builds and physical tests distinct.
+
+PRESERVATION AND BUILD
+Preserve the valid short-fragment, bounds and lifecycle repairs. Do not undo them without a reproduced regression.
+Preserve controls, menus, navigation, pickup, notes, pad colours, all loop slots and loops, sample quality, licensing, model guards and budgets.
+The intentional three mixer modes are keyboard-equivalent, individual 909, individual 808. Do not restore the withdrawn generic screen-following assignments.
+Current controller image SHA256: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a. Full 64 KiB CRC32: 4a400899. Do not change it blindly. Proprietary SDK or toolchain files must remain outside commits and bundles.
+Current approximate margins: Elite code 2104 B, Pro code 2120 B, static RAM 524 B, pool 8364 B. Required pool margin is 8192 B. Controller flash margin is 44 B and RAM margin is 544 B. Do not cut features or quality to fit.
+Read BUILDING.md and script headers before checks. DEV X0X_DEV_PADCAL=1 is the default. JieLi tools require Linux x86-64. A local container is available. Prior builds used x0x37-validation:local with /Users/mac/.jieli/toolchain and /Users/mac/fw-AC79_AIoT_SDK mounted read-only. Never change HOME.
+Stage 2 has no firmware/controller write. Read-only DIAG is permitted under the default lock if it adds evidence. Do not take the SMC connection from the SMK or change settings.
+
+COMPLETION
+Deliver a coherent local repair commit with author genkigenki <3080081+genkigenki@users.noreply.github.com>, relevant tests, exact inputs and logs, and explicit remaining uncertainty. Do not claim a physical PASS or complete functional cure without evidence.
+After checked source changes, apply rules 17-18. Save the complete prompt and successor record first. Create exactly one fresh LOCAL stage-3 chat. Stage 3 must use separate test and investigation subagents under rule 17. Verify actual assistant/tool startup and preserve returned IDs before finishing. Stage 3 must handle failures and required repair-stage loops truthfully.
+Continue through scoped DEV build/package validation, a sole integration stage with all current contributions, and the authorized DEV install. Do not create all stages in advance. Do not repeat checks whose exact inputs still match. Do not advance unresolved original input failure as a proved success.
+The current task does not authorize a new external Git destination or publication.

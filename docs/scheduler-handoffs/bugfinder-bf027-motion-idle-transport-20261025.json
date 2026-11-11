@@ -1,0 +1,65 @@
+{
+  "schema": "x0x37.bugfinder.source.v1",
+  "evidence_revision": "bugfinder-bf027-motion-idle-transport-20261025-r1",
+  "role": "Hourly Bugfinder (producer only)",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/bugfinder-bf027-motion-idle-transport-20261025",
+  "intended_behavior": "While sequencer transport is stopped, audio blocks must not age motion steps. First pattern step after PLAY stays at its saved parameter until a running step duration has actually been measured; subsequent running ramps remain functional.",
+  "baseline": {
+    "commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+    "root_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+    "motion_source_blob": "f94c93428153eaf6f42f25aee4c21cfb1e7cdd96",
+    "engine_source_blob": "fd11e81d77a0aec1afb395a2ea5b070483d87ec4"
+  },
+  "producer_source_before_manifest": {
+    "commit": "026e73de73581a4186f20c770b43795dac27a836",
+    "root_tree": "a138242a7feb108aa724cecc659af25c65d6e702",
+    "firmware_tree": "1b718e63e484f03697e697dbe283c498dea8c93c",
+    "engine_blob": "6d178adbc4984a501e2f38ab3243bcb120f8f6e2",
+    "native_test_blob": "22072bc2a82c0b4dacba260923ee045c411a4c4a",
+    "runner_blob": "e31027b20972f8c70d135e401c79746d1472bbc6"
+  },
+  "changes": [
+    "firmware/src/app/engine.c: guard motion_tick with seq.playing as well as mot_on",
+    "tests/host/motion_idle_transport_test.py: source-callsite + real motion.c regression",
+    "tests/run_tests.sh: register motion-idle-transport"
+  ],
+  "native_producer_tests": {
+    "platform": "Linux x86_64",
+    "gcc": "14.2.0",
+    "clang": "17.0.0",
+    "python": "3.13.5",
+    "method": "Extract matching real engine.c callsite from Git-matched source-window and compile authentic firmware/src/seq/motion.c with mocked motion callbacks; not a full engine or target build.",
+    "stimuli": [
+      "500 samples of idle audio before first PLAY",
+      "motion pattern step0 p-lock30 and step1 p-lock100",
+      "200 running samples, then step transition",
+      "STOP release then 1000 more idle audio samples"
+    ],
+    "observations": {
+      "before": "gcc and clang x plain, UBSan, ASan+UBSan; each original compile exit 0, runtime exit 1 with 4 expected failures",
+      "after": "same six configurations compile exit 0, runtime exit 0, 10/10 assertions; no sanitizer diagnostics",
+      "matrix_sha256": "563418153cb99d5e067a0e8123c102c72bfa5a7b403230fb3764337331ee6916",
+      "baseline_log_sha256": "fbdff9868f855b3cfd2ff467f1f1f51b5cb4a2bed7b0f026b33888150e848550",
+      "fixed_log_sha256": "9a07b37638f7ed71663853d3c63ca04b301b6cc217662b7d516945f0f2276c2e",
+      "leaks": "LeakSanitizer off deliberately (ASAN_OPTIONS=detect_leaks=0)",
+      "python_syntax": "python3 -m py_compile exit 0"
+    }
+  },
+  "excluded": [
+    "not complete-root QA",
+    "not target Elite/Pro compilation",
+    "not independent review",
+    "not hardware verification",
+    "not browser/installability or published firmware"
+  ],
+  "handoff": {
+    "receivers": [
+      "existing Hourly Build for pinned Elite+Pro+controller BUILD_ONLY",
+      "existing Independent QA for new full-root and stop/start timing integration checks",
+      "sole Safe Merge for any later authorized integration"
+    ],
+    "authorization": "producer branch+PR only; independent review and integration reserved",
+    "source_status": "SOURCE COMPLETE / PRODUCER SCOPED TESTED"
+  }
+}

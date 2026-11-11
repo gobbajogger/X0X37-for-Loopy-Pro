@@ -1,0 +1,89 @@
+{
+  "stage": 3,
+  "marker": "smc-central-abort-20261021-stage3-after-checked-repair",
+  "owner_thread": "01a15a92-6343-7f30-8495-f968228e2d2c",
+  "source_owner": "01a15a8a-6061-7a83-9716-5766833e15a5",
+  "candidate": "05eff604cb3f136db71727a2aeeea785cab73b99",
+  "candidate_tree": "a00e1710ab67f800dea2bf4b97fbb9bd34fde384",
+  "result": "SOURCE REPAIR REQUIRED",
+  "source_repair_required": true,
+  "next_stage": 2,
+  "helpers": {
+    "test": {
+      "owner": "/root/test",
+      "result": "FAIL",
+      "report": "test/report.json"
+    },
+    "investigation": {
+      "owner": "/root/investigation",
+      "result": "FAIL",
+      "report": "investigation/report.json"
+    }
+  },
+  "passing_checks": [
+    "Public ASan/UBSan central, receive, signaling and abort tests.",
+    "Old and extended DIAG decoder tests.",
+    "Public overflow/timeout and both saved independent probes pass on the candidate. The matching 28d0fc2 controls fail functionally.",
+    "Additional event-order and lifecycle checks."
+  ],
+  "new_failure": {
+    "id": "CENTRAL-ABORT-02",
+    "priority": 2,
+    "status": "CONFIRMED",
+    "title": "Disconnect submission can occur after the original deadline.",
+    "locations": [
+      "firmware/src/ble/ble_midi_central.c:69",
+      "firmware/src/ble/ble_midi_central.c:201",
+      "firmware/src/ble/ble_midi_central.c:425",
+      "firmware/src/ble.c:395"
+    ],
+    "cause": "blec_poll checks the deadline. The direct stop and successful connection-event paths call blec_disconnect without that check.",
+    "service_timing": "ble_central_service calls blec_stop before HCI reads and blec_poll. At the next tick, c.now_ms can still contain the previous tick.",
+    "observed_api": "At now_ms=deadline=3100, stop submits one accepted Disconnect after an earlier refusal.",
+    "observed_service_order": "The previous poll is at 3099. The next tick is 3100. Stop submits one accepted Disconnect before poll detects expiry.",
+    "observed_cancel_race": "A successful connection event at or after the original stop deadline submits Disconnect before the next poll detects expiry.",
+    "coverage": [
+      "Stop after an HCI event updates now_ms.",
+      "Stop with the production stop-before-poll order.",
+      "Successful connection event during stop.",
+      "Exact deadline and deadline plus 1 ms.",
+      "Normal time and uint32_t timer wrap."
+    ],
+    "impact": "The promised original cutoff does not apply to all command-submission paths.",
+    "guard_limit": "A deadline check that uses stale c.now_ms alone does not repair the production stop-before-poll path.",
+    "disposition": "Use one fresh stage2 for the source repair. Then use one fresh stage3. Do not advance this candidate to stage4.",
+    "repair_requirements": [
+      "Use the actual current tick before any possible submission.",
+      "Apply the original cutoff to every Disconnect submission path.",
+      "Do not renew an active abort deadline.",
+      "Retain acceptance state and stop intent.",
+      "Retain the connection and credits until the applicable successful Disconnection Complete event.",
+      "Preserve a bounded failure when the transport stays busy or completion is absent."
+    ],
+    "limits": "The service-order probe reproduces the relevant public API call order. It does not execute the complete TIMER5 service or target interrupts."
+  },
+  "negative_control_limit": "The original expected 28d0fc2 failures are separate from the unexpected deadline failures on 05eff60.",
+  "reuse": {
+    "record": "input-review.json",
+    "source_inputs": 412,
+    "replay": "The exact stage2 replay inputs match. Stage3 does not repeat that replay.",
+    "builds": "The saved stage2 artifacts match. Stage3 runs no target build. Stage4 validated install records do not exist for this contribution."
+  },
+  "setup_notes": [
+    "The first input review stopped because the stage2 owner added a handoff-only commit. The source comparison then passed.",
+    "The investigation extra probe first failed to compile because the nested public test redefined main. The owned include resolves that setup error."
+  ],
+  "production_edits": false,
+  "tracked_test_edits": false,
+  "device_write": false,
+  "controller_write": false,
+  "target_build": false,
+  "release_build": false,
+  "full_gate": false,
+  "external_push": false,
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "mapping_stage4": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "integration": "Mapping stage4 retains selection of the sole stage5 integrator for both validated contributions.",
+  "authorization": "Owner request Now read rules and fix; workflow17 source-repair loop; workflow18 automatic launch, recovery, startup checks and completion notices; owner-decisions14 complete validated DEV install with notice."
+}

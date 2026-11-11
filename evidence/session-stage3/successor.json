@@ -1,0 +1,15 @@
+{
+  "marker": "smc-central-abort-20261021-stage2-after-28d0fc2-stage3",
+  "source_thread": "01a15a85-2fb6-7683-a11e-72faeecd3a8e",
+  "failed_source_candidate": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+  "evidence_commit": null,
+  "next_stage": 2,
+  "prompt": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/stage2-prompt.txt",
+  "receiving_owner": "one fresh LOCAL central abort repair stage2 chat",
+  "thread_id": null,
+  "host_id": null,
+  "status": "pending",
+  "attempts": [],
+  "authorization": "Owner request Now read rules and fix; workflow rules 17-18 source-repair loop and automatic successor permission; owner-decisions14 standing complete DEV install permission.",
+  "integration_dependency": "01a15a87-298e-7d21-b004-b78d5beafd89"
+}

@@ -1,0 +1,17 @@
+{
+  "status": "COMPLETE_HOST_SCOPE",
+  "owner_decision_date": "2026-11-01",
+  "owner_instruction": "No device route. No device commands, no fm1_install.py at all. Host evidence is enough for now; HW timing I check later on box with owner. Mark it done.",
+  "accepted_evidence": "Recorded M4 host stress, exact PCM comparisons, source review and Elite/Pro native build receipts",
+  "hardware": {
+    "disposition": "DEFERRED_TO_OWNER_BOX",
+    "measurement_status": "NOT_RUN",
+    "responsible": "owner / later box check",
+    "device_commands_authorized": false,
+    "zero_dropouts_verified": false
+  },
+  "discovery_request": "WITHDRAWN_BY_OWNER; no approval is requested",
+  "source_or_measurement_change": false,
+  "recorded_linux_failures": "preserved; not relabeled PASS",
+  "merge_or_install_authorization": false
+}
