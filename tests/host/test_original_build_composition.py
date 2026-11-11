@@ -2,7 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Check replacement/legacy source and flag selection without invoking a compiler."""
 import importlib.util
+<<<<<<< HEAD
 import re
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 import os
 from pathlib import Path
 import sys
@@ -18,9 +21,14 @@ SPEC.loader.exec_module(build)
 
 def compile_plan(env):
     original, wobble = build.synth_build_config(env)
+<<<<<<< HEAD
     dev_wobble = env.get("X0X_DEV_WOBBLE", "1" if original else wobble)
     flags = [*build.CFLAGS, *build.FPU, "-DBOARD_SMK37=1", "-DSMK_MODEL=1",
              f"-DX0X_WOBBLE={wobble}", f"-DX0X_DEV_WOBBLE={dev_wobble}"]
+=======
+    flags = [*build.CFLAGS, *build.FPU, "-DBOARD_SMK37=1", "-DSMK_MODEL=1",
+             f"-DX0X_WOBBLE={wobble}", f"-DX0X_DEV_WOBBLE={wobble}"]
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
     commands, objects = build.app_compile_commands(flags, original, wobble)
     sources = {}
     for command in commands:
@@ -77,7 +85,11 @@ class OriginalBuildCompositionTests(unittest.TestCase):
             self.assertIn("-DSMK_MODEL=1", command)
             self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
             self.assertIn("-DX0X_WOBBLE=0", command)
+<<<<<<< HEAD
             self.assertIn("-DX0X_DEV_WOBBLE=1", command)
+=======
+            self.assertIn("-DX0X_DEV_WOBBLE=0", command)
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
             self.assertIn("-ffp-contract=off", command)
             self.assertNotIn("-ffast-math", command)
             if path.startswith("experiments/") or path.endswith("_backend.c"):
@@ -91,18 +103,27 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("-Oz", sources["firmware/src/x0x.c"])
 
     def test_conflicting_or_invalid_selectors_fail(self):
+<<<<<<< HEAD
         for value in ("1", "invalid"):
             with self.subTest(flag="X0X_WOBBLE", value=value):
                 with self.assertRaisesRegex(SystemExit, "X0X_WOBBLE"):
                     compile_plan({"X0X_ORIGINAL_SYNTH": "1", "X0X_WOBBLE": value})
         with self.assertRaisesRegex(SystemExit, "X0X_DEV_WOBBLE"):
             compile_plan({"X0X_ORIGINAL_SYNTH": "1", "X0X_DEV_WOBBLE": "invalid"})
+=======
+        for flag in ("X0X_WOBBLE", "X0X_DEV_WOBBLE"):
+            for value in ("1", "invalid"):
+                with self.subTest(flag=flag, value=value):
+                    with self.assertRaisesRegex(SystemExit, flag):
+                        compile_plan({"X0X_ORIGINAL_SYNTH": "1", flag: value})
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         with self.assertRaisesRegex(SystemExit, "X0X_ORIGINAL_SYNTH: 0 or 1"):
             compile_plan({"X0X_ORIGINAL_SYNTH": "invalid"})
         self.assertEqual(build.synth_build_config({"X0X_ORIGINAL_SYNTH": "1",
                                                   "X0X_WOBBLE": "0",
                                                   "X0X_DEV_WOBBLE": "0"}), (True, "0"))
 
+<<<<<<< HEAD
     def test_original_rate_pads_do_not_compile_legacy_wobble(self):
         commands, objects, sources = compile_plan({
             "X0X_ORIGINAL_SYNTH": "1", "X0X_DEV_WOBBLE": "1"})
@@ -195,6 +216,8 @@ class OriginalBuildCompositionTests(unittest.TestCase):
                     self.assertIn("-DX0X_WOBBLE=0", command)
                     self.assertIn(f"-DX0X_DEV_WOBBLE={enabled}", command)
 
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
     def test_legacy_wobble_disable_still_works(self):
         for env in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):
             _, _, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "0", **env})
