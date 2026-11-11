@@ -99,36 +99,75 @@ static inline float k_phase(uint32_t u){return (float)(int32_t)u*0x1p-31f;}
 static inline float k_gain_advance(original_ramp *r){
  float n=r->current+r->delta;if((r->delta>0)!=(r->target>n))n=r->target;r->current=n;return n;
 }
+/* The kernel runs in passes over the span (n <= 64), each with only its own state live:
+ * oscillator 0, 1, 2, 3 (each pass specialised on its constant shape), then the MS-20,
+ * then the stereo gain. Per sample the same float operations in the same order as the
+ * one-pass loop (the mix sums term 0, 1, 2, 3 in turn; each oscillator's gain ramp only
+ * feeds that oscillator; osc 1 / 3 read the phase step osc 0 / 2 left in step[]): the
+ * same samples and state. Fewer live values: far fewer stack spills a sample. */
+#define K_SPAN 64
+static inline __attribute__((always_inline)) float k_wave_c(unsigned shape,float p,float width,float correction,float triangle){
+ if(shape==0){float t=2.0f*(.5f-original_binary32_abs(p));float t2=t*t,t3=t*t2;return t+triangle*t3;}
+ float value=k_saw(p,correction);
+ if(shape>=2){float q=p+(width+width);if(q>1)q=q-2;value=value-k_saw(q,correction);}
+ return value;
+}
+/* even oscillator i: its wave (or 0), the phase step for osc i+1, the first mix term (i==0) or add (i==2) */
+static inline __attribute__((always_inline)) void k_osc_even(unsigned shape,unsigned first,uint32_t *phase_p,original_ramp *og_p,
+ uint32_t inc,float width,float correction,float triangle,float xmod,float b,int32_t pstep,float *mix,int32_t *step,uint32_t n){
+ uint32_t phase=*phase_p;original_ramp og=*og_p;
+ for(uint32_t j=0;j<n;j++){
+  float gain=og.current,w;int32_t step_i;
+  phase-=inc;
+  if(gain!=0.0f||xmod!=0.0f){
+   w=k_wave_c(shape,k_phase(phase),width,correction,triangle);
+   float a=w*xmod;float st=clamp(a+b,-1,1)*0x1p31f;step_i=st>=0x1p31f?INT32_MAX:(int32_t)st;
+  }else{w=0.0f;step_i=pstep;}
+  step[j]=step_i;
+  if(first)mix[j]=gain!=0.0f?w*(gain*.5f):0.0f;
+  else if(gain!=0.0f)mix[j]=mix[j]+w*(gain*.5f);
+  (void)k_gain_advance(&og);
+ }
+ *phase_p=phase;*og_p=og;
+}
+/* odd oscillator: steps by step[], adds its mix term */
+static inline __attribute__((always_inline)) void k_osc_odd(unsigned shape,uint32_t *phase_p,original_ramp *og_p,
+ float width,float correction,float triangle,float *mix,const int32_t *step,uint32_t n){
+ uint32_t phase=*phase_p;original_ramp og=*og_p;
+ for(uint32_t j=0;j<n;j++){
+  float gain=og.current;
+  phase-=(uint32_t)step[j];
+  if(gain!=0.0f){float w=k_wave_c(shape,k_phase(phase),width,correction,triangle);mix[j]=mix[j]+w*(gain*.5f);}
+  (void)k_gain_advance(&og);
+ }
+ *phase_p=phase;*og_p=og;
+}
+#define K_SHAPES(sh,CALL) do{ if((sh)==0){enum{K_S=0};CALL;} else if((sh)==1){enum{K_S=1};CALL;} else {enum{K_S=2};CALL;} }while(0)
 int original_miami_voice_render_add(original_miami_ms20 *f,original_voice_gain *vg,original_oscillators *ph,
  const original_prepared_oscillators *p,float vco_gain,float *L,float *R,uint32_t n){
  if(!f->prepared||!p->ready||!original_binary32_isfinite(vco_gain))return 0;
  const original_osc_controls *c=&p->controls;
  original_ramp og[4],st[2];memcpy(og,vg->oscillator,sizeof og);memcpy(st,vg->stereo,sizeof st);
  uint32_t phase[4];memcpy(phase,ph->phase,sizeof phase);
+ const float xmod=c->xmod;
+ const float b1=(float)c->increment[1]*0x1p-31f,b3=(float)c->increment[3]*0x1p-31f;
+ const float st1=clamp(b1,-1,1)*0x1p31f,st3=clamp(b3,-1,1)*0x1p31f;
+ const int32_t pstep1=st1>=0x1p31f?INT32_MAX:(int32_t)st1,pstep3=st3>=0x1p31f?INT32_MAX:(int32_t)st3;
  original_ramp ra=f->a,rr=f->resonance,rn=f->noise_gain;
- float h0=f->history[0],h1=f->history[1],h2=f->history[2],h3=f->history[3],h4=f->history[4],fb=f->b;
- uint32_t noise=f->noise;float xmod=c->xmod;
- float b1=(float)c->increment[1]*0x1p-31f,b3=(float)c->increment[3]*0x1p-31f;
- float st1=clamp(b1,-1,1)*0x1p31f,st3=clamp(b3,-1,1)*0x1p31f;
- int32_t pstep1=st1>=0x1p31f?INT32_MAX:(int32_t)st1,pstep3=st3>=0x1p31f?INT32_MAX:(int32_t)st3;
- for(uint32_t j=0;j<n;j++){
-  float gain[4]={og[0].current,og[1].current,og[2].current,og[3].current},w[4];
-  for(unsigned i=0;i<4;i+=2){
-   float b=i?b3:b1;int32_t step_i;
-   phase[i]-=c->increment[i];
-   if(gain[i]!=0.0f||xmod!=0.0f){
-    w[i]=k_wave(c->shape[i],k_phase(phase[i]),c->width[i],p->correction[i],p->triangle[i]);
-    float a=w[i]*xmod;float step=clamp(a+b,-1,1)*0x1p31f;step_i=step>=0x1p31f?INT32_MAX:(int32_t)step;
-   }else{w[i]=0.0f;step_i=i?pstep3:pstep1;}
-   phase[i+1]-=(uint32_t)step_i;
-   w[i+1]=gain[i+1]!=0.0f?k_wave(c->shape[i+1],k_phase(phase[i+1]),c->width[i+1],p->correction[i+1],p->triangle[i+1]):0.0f;
-  }
-  float mix=gain[0]!=0.0f?w[0]*(gain[0]*.5f):0.0f;for(unsigned i=1;i<4;i++)if(gain[i]!=0.0f)mix=mix+w[i]*(gain[i]*.5f);
-  for(unsigned i=0;i<4;i++)(void)k_gain_advance(&og[i]);
-  /* MS-20 */
+ float h0=f->history[0],h1=f->history[1],h2=f->history[2],h3=f->history[3],h4=f->history[4];
+ const float fb=f->b;uint32_t noise=f->noise;
+ float mix[K_SPAN];int32_t step[K_SPAN];
+ while(n){   /* callers pass control spans of <= 64 frames (render_span): one pass */
+ const uint32_t m=n<K_SPAN?n:K_SPAN;
+ K_SHAPES(c->shape[0],k_osc_even(K_S,1,&phase[0],&og[0],c->increment[0],c->width[0],p->correction[0],p->triangle[0],xmod,b1,pstep1,mix,step,m));
+ K_SHAPES(c->shape[1],k_osc_odd(K_S,&phase[1],&og[1],c->width[1],p->correction[1],p->triangle[1],mix,step,m));
+ K_SHAPES(c->shape[2],k_osc_even(K_S,0,&phase[2],&og[2],c->increment[2],c->width[2],p->correction[2],p->triangle[2],xmod,b3,pstep3,mix,step,m));
+ K_SHAPES(c->shape[3],k_osc_odd(K_S,&phase[3],&og[3],c->width[3],p->correction[3],p->triangle[3],mix,step,m));
+ /* MS-20: mix[] -> the nonlinear output, in place */
+ for(uint32_t j=0;j<m;j++){
   float g=advance(&ra),r=advance(&rr),ng=advance(&rn);ra.current=g;rr.current=r;rn.current=ng;
   unsigned choose=(noise&0x40000000u)==0;noise=(noise+noise)^(choose?8393u:0);
-  float nz=choose?.5f:-.5f;float v=ng*nz+mix;v=vco_gain*v;
+  float nz=choose?.5f:-.5f;float v=ng*nz+mix[j];v=vco_gain*v;
   float x=v*fl(0x3fa47678);x=x*fl(0x3dcccccd);
   float a=x+g*(h0-x);float b=a+g*(h1-a);
   float in=h2+b,u=512.0f*original_binary32_abs(in),nl;
@@ -137,8 +176,14 @@ int original_miami_voice_render_add(original_miami_ms20 *f,original_voice_gain *
   float feedback=r*nl,difference=feedback-h4;
   float d=difference+fb*(h3+difference);float cc=d+fb*(h2-d);
   h0=a;h1=b;h2=cc;h3=d;h4=feedback;
+  mix[j]=nl;
+ }
+ /* stereo gain */
+ for(uint32_t j=0;j<m;j++){
   float l=k_gain_advance(&st[0]),rg=k_gain_advance(&st[1]);
-  L[j]=L[j]+nl*l;R[j]=R[j]+nl*rg;
+  L[j]=L[j]+mix[j]*l;R[j]=R[j]+mix[j]*rg;
+ }
+ L+=m;R+=m;n-=m;
  }
  if(!original_binary32_isfinite(h0)||!original_binary32_isfinite(h1)||!original_binary32_isfinite(h2)||
     !original_binary32_isfinite(h3)||!original_binary32_isfinite(h4))return 0;
