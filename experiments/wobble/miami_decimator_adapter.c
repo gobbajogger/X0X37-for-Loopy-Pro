@@ -4,7 +4,10 @@
 int miami_decimator_adapter_init(miami_decimator_adapter_t *s)
 {
     if (!s) return 0;
-    miami_decimator_adapter_t next = {0};
+    miami_decimator_adapter_t next = {
+        .kernel = {.phase = 0, .step = 0, .pending_step = 0, .held_left = 0, .held_right = 0, .pending = 0},
+        .wet_gain = 0, .frequency_integer = 0, .wet_integer = 0, .bit_integer = 0
+    };
     (void)miami_decimator_seed(&next.kernel,0,0,0,0);
     next.frequency_integer = 64;
     next.wet_integer = 127;
@@ -44,15 +47,16 @@ int miami_decimator_adapter_process(miami_decimator_adapter_t *s, int16_t *left,
         if (reset_frames[i]>=frames || (i && reset_frames[i]<reset_frames[i-1])) return 0;
     /* A constructor's pending state must survive an empty invocation. */
     if (!frames) return 1;
-    uint32_t event=0;
-    for (uint32_t i=0;i<frames;++i) {
+    /* Run the frames between resets as blocks; same order as per frame. */
+    uint32_t event=0, i=0;
+    while (i<frames) {
         while (event<reset_count && reset_frames[event]==i) {
             (void)miami_decimator_adapter_reset(s);
             ++event;
         }
-        int16_t out[2];
-        (void)miami_decimator_frame(&s->kernel,i,left[i],right[i],s->wet_gain,out);
-        left[i]=out[0];right[i]=out[1];
+        uint32_t end = event<reset_count ? reset_frames[event] : frames;
+        (void)miami_decimator_block(&s->kernel,i,left+i,right+i,end-i,s->wet_gain);
+        i = end;
     }
     return 1;
 }

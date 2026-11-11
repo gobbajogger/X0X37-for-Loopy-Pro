@@ -29,7 +29,7 @@ enum { SMCFX_N = 8 };
 enum { SMCFX_NFX = 10 };
 enum { SMCFX_SUIT_MAX = 8 };
 enum { SMCFX_SRC_N = 5 };
-#define SMCFX_NPAGE 3
+#define SMCFX_NPAGE 2
 
 /* Tables live in smc_fx_map_tables.c (one copy for engine.o + x0x/smc_mixer). */
 extern const uint8_t SMCFX_PART[SMCFX_SRC_N];
@@ -67,7 +67,8 @@ static inline int smcfx_bus(unsigned note)
     return -1;
 }
 
-static inline uint8_t smcfx_cycle(int bus, uint8_t cur)
+/* Unknown/empty assignments start at the first (Right) or last (Left) suited FX. */
+static inline uint8_t smcfx_step(int bus, uint8_t cur, int d)
 {
     int n, k;
     if (bus < 0 || bus >= SMCFX_N)
@@ -79,8 +80,13 @@ static inline uint8_t smcfx_cycle(int bus, uint8_t cur)
         if (SMCFX_SUIT[bus][k] == cur)
             break;
     if (k >= n)
-        k = 0;
+        k = d < 0 ? n - 1 : 0;
     else
-        k = (k + 1) % n;
+        k = (k + (d < 0 ? n - 1 : 1)) % n;
     return SMCFX_SUIT[bus][k];
+}
+
+static inline uint8_t smcfx_cycle(int bus, uint8_t cur)
+{
+    return smcfx_step(bus, cur, 1);
 }

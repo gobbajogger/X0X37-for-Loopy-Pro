@@ -47,4 +47,12 @@ with tempfile.TemporaryDirectory(prefix='site-retention-') as td:
     (retained/'firmware/old.fwsc').write_bytes(b'damaged')
     refuses(lambda:write_site(root/'fresh',first,{},retained))
     assert not (root/'fresh').exists()
+    # A real shell build must carry the original licensed Cyrillic/Latin font.
+    shell = root/'shell'
+    write_site(shell, {'versions': [], 'latest': None}, {}, None)
+    font = shell/'assets/GolosText.ttf'
+    assert font.is_file(), 'The shared typeface must be bundled for offline use.'
+    data = font.read_bytes()
+    assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest() == '05ee5ecc570b97818e24e58693662cd8294fdfc9'
+    assert (shell/'assets/GolosText-OFL.txt').is_file()
 print('PASS immutable version/model identities, numeric history/default order, additive models, overlap and missing/changed retained package guards')

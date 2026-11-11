@@ -86,7 +86,7 @@ static void chain(int b, int length, int reverse)
 static void long_chains(void)
 {
     const unsigned lengths[] = {2, 4, 16, 64};
-    const unsigned samples[] = {4410, 2940, 2205, 5880}; /* independent musical rates */
+    const unsigned samples[] = {4410, 2940, 2205, 5880, 8820, 17640}; /* independent musical rates */
     for (int rev = 0; rev < 2; rev++) for (int rate = 0; rate < NRATES; rate++)
         for (unsigned l = 0; l < sizeof lengths / sizeof lengths[0]; l++) {
             setup();

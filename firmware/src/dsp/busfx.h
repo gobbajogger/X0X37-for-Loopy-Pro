@@ -130,9 +130,7 @@ static inline float busfx_rhythm_target_periods(int effect, uint32_t sp16, uint3
 }
 
 static inline float busfx_rhythm_target(int effect, float bpm, uint32_t abs_s)
-{
-    return busfx_rhythm_target_periods(effect, busfx_sp16(bpm), busfx_sp8(bpm), abs_s);
-}
+{ return busfx_rhythm_target_periods(effect, busfx_sp16(bpm), busfx_sp8(bpm), abs_s); }
 
 static inline void busfx_ring_write(busfx_stut_t *st, int ch, float x)
 {
@@ -193,9 +191,7 @@ static __attribute__((noinline)) void busfx_apply(busfx_t *s, busfx_stut_t *stut
     if (release_at < 0)
         release_at = n;
     bpm = busfx_bpm_clamp(bpm);
-    if (n <= 0)
-        return;
-    /* Arguments are fixed for this call; keep every sample recurrence below. */
+    if (n <= 0) return;
     float target;
     if (cut >= 126.5f)
         target = 1.0f;

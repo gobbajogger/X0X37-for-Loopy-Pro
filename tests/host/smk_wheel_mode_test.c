@@ -74,7 +74,7 @@ int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
 
 #include SMC_MIXER_SOURCE
 
-static struct { uint32_t frames; int32_t wheel[2]; } fm1_in;
+static struct { uint32_t frames; int32_t wheel[2]; uint16_t wheel_mod_seq; } fm1_in;
 static int clamp(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
 #include "smk_wheels.inc"
 
@@ -125,9 +125,15 @@ static void select_part(int part, int smc_path)
     if (smc_path) {
         /* SELECT notes 24..28 are FX holds, not navigation. The SMC's real
          * part selector is still used by REC and the bank/channel route. */
+        /* #789: SMC part selection is its own context and leaves the keyboard
+         * part (which owns the wheels) alone. Select on the SMC, check that,
+         * then select the keyboard part the wheels follow. */
+        uint8_t keyboard = ui.part;
         smc_select_part(part);
         smc_poll(); smc_frame();
-        assert(ui.part == part);
+        assert(smc.part == part && ui.part == keyboard);
+        bass_step_cancel(); drum_step_cancel(); ui.part = (uint8_t)part;
+        build_pages();
     } else {
         bass_step_cancel(); drum_step_cancel(); ui.part = (uint8_t)part;
         build_pages();

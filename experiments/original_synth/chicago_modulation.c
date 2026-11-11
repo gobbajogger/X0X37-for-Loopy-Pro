@@ -46,7 +46,6 @@ int original_chicago_ring_set(original_chicago_ring *s,unsigned p,unsigned v){
 int original_chicago_ring_process(original_chicago_ring *s,int16_t *l,int16_t *r,uint32_t n){
  if(!s||(n&&(!l||!r||l==r)))return 0;
  if(!n)return 1;
- /* Activity is call-owned; queued resets preserve it. */
  const int32_t k=s->activity?32767:102;
  for(uint32_t i=0;i<n;i++){
   while(s->queue.cursor<s->queue.count&&s->queue.events[s->queue.cursor].offset<=i){if(s->queue.events[s->queue.cursor].type==4)original_chicago_ring_reset(s);s->queue.cursor++;}

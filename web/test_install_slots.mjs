@@ -15,6 +15,7 @@ import "./test_install_nightly_ota_model.mjs";
 import "./test_install_nightly_local_selection.mjs";
 import "./test_install_nightly_controller_selection.mjs";
 import "./test_install_nightly_slot_prewrite.mjs";
+import "./test_install_connection_retry.mjs";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";
@@ -149,7 +150,7 @@ class FakeX0X {
     if (!r) return;
     this.waiting = r;
     const [addr, len] = r;
-    const u = [0, 0x59, 0x30, 0, 0, 0, 0, addr & 0xFF, (addr >>> 8) & 0xFF, (addr >>> 16) & 0xFF, (addr >>> 24) & 0xFF, len & 0xFF, len >> 8, 0];
+    const u = [0, 0x59, 0x30, 8, 0, 0, 0, addr & 0xFF, (addr >>> 8) & 0xFF, (addr >>> 16) & 0xFF, (addr >>> 24) & 0xFF, len & 0xFF, len >> 8, 0];
     let s = 0;
     for (let i = 6; i < 14; i++) s += u[i];
     u.push(~s & 0xFF);
@@ -448,6 +449,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   if (!ids.go.handlers.click) throw new Error("installer page has no Install click handler");
   // Status is only created when say()/applyLang touch it; seed before click.
   const before = (ids.status ||= el()).textContent;
+  ids.stockconfirm.checked = true; // Post-write discovery must clear existing local consent.
   const clicked = ids.go.handlers.click();
   for (let i = 0; i < 3000; i++) {
     if (ids.status.textContent && ids.status.textContent !== before && ids.go.disabled === false) break;
@@ -461,12 +463,16 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     files.push({ name: d.name, b: new Uint8Array(await blobs.get(key).arrayBuffer()) });
   }
   dump("page", flash, files.map((x) => x.b));
-  return { status: ids.status.textContent, files, flash };
+  return { status: ids.status.textContent, files, flash,
+    connected: ids.conn.textContent === "Connected", consentChecked: ids.stockconfirm.checked,
+    completedBar: ids.bar.value };
 }
 {
   const fw = { [NOW]: NEW, [NEW_PKG]: MOVED };
   const r = await page(packageOf(NEW_PKG, { map: MOVED.map }), NEW_PKG, fw, NOW, [[0, IMG[0]], [1, IMG[1]]]);
-  ok(/slots were written back and checked/.test(r.status) && r.files.length === 1 && same(slotImages(r.flash, MOVED)[1], IMG[1]),
+  ok(/slots were written back and checked/.test(r.status) && r.connected && !r.consentChecked &&
+    r.completedBar === 100 && r.files.length === 1 && same(slotImages(r.flash, MOVED)[1], IMG[1]) &&
+    same(readArchive(r.files[0].b).images[1], IMG[1]),
     `installer page: download, install, slots back ("${r.status}")`);
 }
 {
@@ -479,3 +485,4 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
 
 console.log(bad ? `INSTALL SLOT WEB TESTS FAILED (${bad})` : "install slot web tests passed");
 process.exit(bad ? 1 : 0);
+

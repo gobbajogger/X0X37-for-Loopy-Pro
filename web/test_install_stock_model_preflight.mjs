@@ -115,12 +115,20 @@ const promptContext=createContext({
   window:{confirm:s=>{modelPrompt=s;return false;}}
 });
 new Script(html.slice(promptStart,promptEnd)+"\nglobalThis.verifyModel=confirmNightlyModel;").runInContext(promptContext);
-assert.equal(promptContext.verifyModel("ota-SMK-37 Pro","SMK-37 Elite_9001100"),false);
-assert.match(modelPrompt,/SMK-37 Pro/);
+{ // Strict: a Pro-reporting keyboard never gets an Elite package; no prompt is shown.
+  let code=null; modelPrompt="";
+  try{promptContext.verifyModel("ota-SMK-37 Pro","SMK-37 Elite_9001100");}catch(e){code=e.code;}
+  assert.equal(code,"model"); assert.equal(modelPrompt,"");
+}
+assert.equal(promptContext.verifyModel("ota-SMK-37 Elite","SMK-37 Elite_9001100"),false);
+assert.match(modelPrompt,/SMK-37 Elite/);
 assert.match(modelPrompt,/SMK-37 Elite_9001100/);
 prewritePass++;
 let badCode=null;
 try{promptContext.verifyModel("FM-1","SMK-37 Elite_9001100");}catch(e){badCode=e.code;}
 assert.equal(badCode,"model");
+badCode=null;
+try{promptContext.verifyModel("FM-1","FM-1_900");}catch(e){badCode=e.code;}
+assert.equal(badCode,"model");   /* FM-1 is never flashed */
 prewritePass++;
 console.log("PASS "+prewritePass+"/9 NIGHTLY physical-model prewrite mocked source cases");

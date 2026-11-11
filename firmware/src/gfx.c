@@ -66,9 +66,13 @@ static void palette_set(uint32_t i)
 
 static inline uint16_t swap16(uint32_t c) { return (uint16_t)(((c >> 8) & 0xFFu) | ((c & 0xFFu) << 8)); }
 
+/* Exact for every RGB565 blend numerator (0..63*15). */
+static inline uint32_t cv_div15(uint32_t x) { return (x * 0x8889u) >> 19; }
+
 static void cv_begin(uint32_t w, uint32_t h, uint16_t bg)
 {
     uint32_t i, n;
+    uint32_t fill = swap16(bg);
     if (w * h > CV_MAX)
         h = CV_MAX / w;
     lcd_sync();                     /* the last blit may still read cv_px */
@@ -77,8 +81,15 @@ static void cv_begin(uint32_t w, uint32_t h, uint16_t bg)
     cv_oy = cv_y0 = 0;
     cv_y1 = (int32_t)h;
     n = w * h;
-    for (i = 0; i < n; i++)
-        cv_px[i] = swap16(bg);
+    i = 0;
+    if (n && ((uintptr_t)cv_px & 3u))
+        cv_px[i++] = (uint16_t)fill;
+    fill |= fill << 16;
+    /* Copy object bytes: the host unity build strips type attributes. */
+    for (; i + 1u < n; i += 2u)
+        __builtin_memcpy(__builtin_assume_aligned(cv_px + i, 4), &fill, sizeof fill);
+    if (i < n)
+        cv_px[i] = (uint16_t)fill;
 }
 
 /* X0X: draw the next things as if the canvas were rows y0 .. y0+h-1 alone (one band of a
@@ -157,9 +168,10 @@ static uint32_t glyph(const felucca_font_t *f, uint32_t ch)
 
 /* text in colour c, each pixel's coverage blended over what is already on the canvas (an
  * anti-aliased face on a coloured box gets no dark fringe); returns the end x */
-static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
+static int32_t cv_text_clip(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c, int32_t clip_left, int32_t clip_right)
 {
     uint32_t r = c >> 11, g = (c >> 5) & 63u, b = c & 31u;
+    uint16_t sc = swap16(c);
     for (; *s; s++) {
         uint32_t gi = glyph(f, (uint8_t)*s), gx, gy, w;
 #ifdef FONT_PACKBITS
@@ -197,15 +209,15 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
 #endif
                 int32_t px = x - f->pad + (int32_t)gx, py = y + (int32_t)gy + cv_oy;
                 a = (gx & 1u) ? (a & 15u) : (a >> 4);
-                if (!a || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)
+                if (!a || px < clip_left || px >= clip_right || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)
                     continue;
                 if (a == 15u) {
-                    cv_px[(uint32_t)py * cv_w + (uint32_t)px] = swap16(c);
+                    cv_px[(uint32_t)py * cv_w + (uint32_t)px] = sc;
                 } else {
                     uint32_t bg = swap16(cv_px[(uint32_t)py * cv_w + (uint32_t)px]);
                     uint32_t br = bg >> 11, bgg = (bg >> 5) & 63u, bb = bg & 31u;
-                    uint32_t nr = (r * a + br * (15u - a)) / 15u, ng = (g * a + bgg * (15u - a)) / 15u,
-                             nb = (b * a + bb * (15u - a)) / 15u;
+                    uint32_t nr = cv_div15(r * a + br * (15u - a)), ng = cv_div15(g * a + bgg * (15u - a)),
+                             nb = cv_div15(b * a + bb * (15u - a));
                     cv_px[(uint32_t)py * cv_w + (uint32_t)px] = swap16((nr << 11) | (ng << 5) | nb);
                 }
             }
@@ -213,6 +225,9 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
     }
     return x;
 }
+
+static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
+{ return cv_text_clip(x,y,f,s,c,0,(int32_t)cv_w); }
 
 static int32_t text_w(const felucca_font_t *f, const char *s)
 {

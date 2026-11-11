@@ -4,6 +4,9 @@
 #include "../../../host/x0x_host.c"
 #undef main
 #include <assert.h>
+/* The BASE_REF engine predates PANIC (M1); the shared UI calls it. The new engine defines it. */
+#pragma weak engine_request_notes_off
+void engine_request_notes_off(void) {}
 static unsigned split_index, split_mode, cpu_mode, jobs, joins, deferred;
 static void (*pending_job)(uint32_t);
 static uint32_t pending_arg;

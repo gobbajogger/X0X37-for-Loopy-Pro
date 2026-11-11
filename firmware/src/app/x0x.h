@@ -19,9 +19,7 @@
 #include "../dsp/fxbus.h"            /* FX_* param indices (the send pages) */
 #include "factory_banks.h"           /* Chicago / Miami factory metadata */
 
-#ifndef X0X_VERSION                     /* a release build passes its numeric X.Y.Z (tools/build.py --release) */
-#define X0X_VERSION "DEV"
-#endif
+#include "version.h"                    /* shared DEV or numeric firmware version */
 #ifndef X0X_RELEASE_LABEL              /* display only, e.g. 0.1.3_openbeta; not the package identity */
 #define X0X_RELEASE_LABEL ""
 #endif
@@ -63,6 +61,16 @@
 #define PROJ_DEVICE_BT (1u | PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER)
 #define PROJ_CLK_SRC(bt) ((uint8_t)((bt) >> 1 & 3u))
 #define PROJ_A74_CLK_OFF 38u
+/* M7a: all-ON retains the exact legacy settings/file bytes. Nonzero OFF
+ * masks use the owned PR854 optional tail and tagged header word. */
+#define PROJ_SET_TAIL 4u
+#define PROJ_PART_OFF_ALL 31u
+#define PROJ_SET_LEN_OK(n) ((n) == 4u + sizeof(settings_t) || (n) == 4u + sizeof(settings_t) + PROJ_SET_TAIL)
+#define PROJ_SET_TAIL_BAD(t) ((t)[0] > PROJ_PART_OFF_ALL || (t)[1] || (t)[2] || (t)[3])
+#define PROJ_FILE_OFF_TAG 0x4F460000u
+#define PROJ_FILE_OFF_CHK(m) ((((m) & 1u) ? 0x17u : 0u) ^ (((m) & 2u) ? 0x2Eu : 0u) ^ (((m) & 4u) ? 0x5Cu : 0u) ^ (((m) & 8u) ? 0xB8u : 0u) ^ (((m) & 16u) ? 0x67u : 0u))
+#define PROJ_FILE_OFF_WORD(m) ((m) ? PROJ_FILE_OFF_TAG | PROJ_FILE_OFF_CHK(m) << 8 | (uint32_t)(m) : 0u)
+#define PROJ_FILE_OFF_OK(w) ((w) == 0u || (((w) & 0xFFFF0000u) == PROJ_FILE_OFF_TAG && ((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL && ((w) >> 8 & 0xFFu) == PROJ_FILE_OFF_CHK((w) & 0xFFu)))
 
 typedef struct {
     uint32_t magic, format;
@@ -107,7 +115,10 @@ extern project_t proj;
 extern project_t project_stage;          /* exclusive staging, otherwise the UI undo shadow */
 
 void project_defaults(void);
-int project_storage_unsupported(void); /* stored format retained; explicit validated adoption required */
+void project_device_bt_set(int on);     /* live now; saved by project_device_bt_save */
+int project_device_bt_pending(void);
+int project_device_bt_save(void);          /* caller must hold engine and admit safe flash */
+int project_storage_unsupported(void); /* 1 unsupported, 2 damaged; validated adoption required to save */
 int project_load(void);                  /* 0 = loaded; else defaults are in place */
 int project_save(void);                  /* 0 = verified; -7 = memory full; -9 = unsupported data retained (nothing written) */
 void project_apply_io(void);             /* the settings into the sequencer and the engine: MIDI, the output */

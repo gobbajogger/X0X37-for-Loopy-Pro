@@ -138,14 +138,11 @@ X0X_COLD void fxbus_set(fxbus_t *f, int i, int value)
     const fx_pspec_t *s = &fx_p[i];
     if (value < 0) value = 0;
     if (value > s->ui.max) value = s->ui.max;
-    /* Boot uses exact engine defaults, which differ from the rounded pot
-     * defaults. The first write must still apply the pot mapping. */
+    /* First default-pot writes still replace the exact unrounded boot values. */
     if (i == FX_RV_TONE && f->pots[i] == value &&
-        (value != fx_p[FX_RV_TONE].ui.def || f->rv_damp != 0.75f - 0.45f * 0.55f))
-        return;
+        (value != fx_p[FX_RV_TONE].ui.def || f->rv_damp != 0.75f - 0.45f * 0.55f)) return;
     if (i == FX_DL_TONE && f->pots[i] == value &&
-        (value != fx_p[FX_DL_TONE].ui.def || f->dl_tc != 0.06f + 0.4f * 0.6f))
-        return;
+        (value != fx_p[FX_DL_TONE].ui.def || f->dl_tc != 0.06f + 0.4f * 0.6f)) return;
     f->pots[i] = (uint8_t)value;
     float v;
     if (s->curve == CV_EXP)
@@ -216,7 +213,7 @@ __attribute__((noinline)) static int32_t sat12_store(int16_t *cell, float v)
 }
 
 /* Distortion sample — one body; stereo process_st calls this for L and R. */
-__attribute__((noinline)) static float dist_one(const d9_shape_t *sh, float x, float k, float *crush)
+static inline __attribute__((always_inline)) float dist_one(const d9_shape_t *sh, float x, float k, float *crush)
 {
     return d9_shape(sh, x * k, crush) * 0.7f;
 }
@@ -250,10 +247,7 @@ static void fx_reverb(fxbus_t *f, const float *in, float *out, float *out_r, int
     if (f->rv_quiet >= FX_RV_QUIET) {
         int any = 0;
         for (int i = 0; i < n; ++i)
-            if (in[i] != 0.0f) {
-                any = 1;
-                break;                      /* one nonzero sample rules out idle */
-            }
+            if (in[i] != 0.0f) { any = 1; break; }
         if (!any)
             return;                         /* silent in, silent lines: 0 out */
     }
@@ -328,10 +322,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     if (f->dl_quiet >= len) {
         int any = 0;
         for (int i = 0; i < n; ++i)
-            if (in[i] != 0.0f) {
-                any = 1;
-                break;                      /* one nonzero sample rules out idle */
-            }
+            if (in[i] != 0.0f) { any = 1; break; }
         if (!any) {
             /* the line is all zeros: nothing to read, but time moves on */
             f->w = (f->w + n) % len;
@@ -441,7 +432,7 @@ __attribute__((noinline)) static float fx_comp_gr(float over, float slope)
 }
 
 /* One glue sample: update det/env, return linear gain (mono + stereo). */
-__attribute__((noinline)) static float fx_comp_gain(float mag, float thr, float slope, float drel,
+static inline __attribute__((always_inline)) float fx_comp_gain(float mag, float thr, float slope, float drel,
                                                     float atk, float rel, float makeup,
                                                     float *det, float *env)
 {
@@ -452,9 +443,10 @@ __attribute__((noinline)) static float fx_comp_gain(float mag, float thr, float 
     return fm_db2lin(*env + makeup);
 }
 
-/* A settled glue detector/envelope maps positive zero to positive zero for
- * every legal compressor setting. Keep all send, distortion and volume work;
- * only the redundant per-sample detector/envelope/gain work is omitted. */
+/* ===================================================================== */
+/* Master: distortion, glue (master_glue), volume                         */
+/* ===================================================================== */
+/* Skip only a settled positive-zero detector/envelope; sends and tails still run. */
 static int fx_comp_zero_bytes(const void *p, unsigned n)
 {
     const unsigned char *b = p;
@@ -469,9 +461,6 @@ static int fx_comp_settled_zero(const fxbus_t *f, const float *l, const float *r
         (!r || fx_comp_zero_bytes(r, (unsigned)n * sizeof *r));
 }
 
-/* ===================================================================== */
-/* Master: distortion, glue (master_glue), volume                         */
-/* ===================================================================== */
 void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *dly, float *out, int n)
 {
     if (n > 256)
@@ -497,9 +486,8 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
         f->comp_env_db = env;
     }
     const float vol = f->muted & 4u ? 0.0f : f->volume;
-    if (vol != 1.0f)                                  /* unity needs no output pass, as in stereo */
-        for (int i = 0; i < n; ++i)
-            out[i] *= vol;
+    for (int i = 0; i < n; ++i)
+        out[i] *= vol;
 }
 
 /* X0X stereo: 9W9's chain on L and R. The distortion runs on each side; the glue compressor reads
@@ -534,8 +522,9 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
         f->comp_env_db = env;
     }
     const float vol = f->muted & 4u ? 0.0f : f->volume;
-    for (int i = 0; i < n; ++i) {
-        out_l[i] *= vol;
-        out_r[i] *= vol;
-    }
+    if (vol != 1.0f)                                  /* x * 1 == x: unity skips the pass */
+        for (int i = 0; i < n; ++i) {
+            out_l[i] *= vol;
+            out_r[i] *= vol;
+        }
 }

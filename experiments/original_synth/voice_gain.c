@@ -10,29 +10,26 @@
 #else
 #define ref_fma fmaf
 #endif
-/* Integer control-span durations 1..64: exact old 1.0f/(float)D results.
- * 256 bytes in rodata; larger durations retain the original division. */
-static const float control_span_inverse[64]={
- 0x1.0000000000000p+0f, 0x1.0000000000000p-1f, 0x1.5555560000000p-2f, 0x1.0000000000000p-2f,
- 0x1.99999a0000000p-3f, 0x1.5555560000000p-3f, 0x1.24924a0000000p-3f, 0x1.0000000000000p-3f,
- 0x1.c71c720000000p-4f, 0x1.99999a0000000p-4f, 0x1.745d180000000p-4f, 0x1.5555560000000p-4f,
- 0x1.3b13b20000000p-4f, 0x1.24924a0000000p-4f, 0x1.1111120000000p-4f, 0x1.0000000000000p-4f,
- 0x1.e1e1e20000000p-5f, 0x1.c71c720000000p-5f, 0x1.af286c0000000p-5f, 0x1.99999a0000000p-5f,
- 0x1.8618620000000p-5f, 0x1.745d180000000p-5f, 0x1.642c860000000p-5f, 0x1.5555560000000p-5f,
- 0x1.47ae140000000p-5f, 0x1.3b13b20000000p-5f, 0x1.2f684c0000000p-5f, 0x1.24924a0000000p-5f,
- 0x1.1a7b960000000p-5f, 0x1.1111120000000p-5f, 0x1.0842100000000p-5f, 0x1.0000000000000p-5f,
- 0x1.f07c200000000p-6f, 0x1.e1e1e20000000p-6f, 0x1.d41d420000000p-6f, 0x1.c71c720000000p-6f,
- 0x1.bacf920000000p-6f, 0x1.af286c0000000p-6f, 0x1.a41a420000000p-6f, 0x1.99999a0000000p-6f,
- 0x1.8f9c180000000p-6f, 0x1.8618620000000p-6f, 0x1.7d05f40000000p-6f, 0x1.745d180000000p-6f,
- 0x1.6c16c20000000p-6f, 0x1.642c860000000p-6f, 0x1.5c98820000000p-6f, 0x1.5555560000000p-6f,
- 0x1.4e5e0a0000000p-6f, 0x1.47ae140000000p-6f, 0x1.4141420000000p-6f, 0x1.3b13b20000000p-6f,
- 0x1.3521d00000000p-6f, 0x1.2f684c0000000p-6f, 0x1.29e4120000000p-6f, 0x1.24924a0000000p-6f,
- 0x1.1f70480000000p-6f, 0x1.1a7b960000000p-6f, 0x1.15b1e60000000p-6f, 0x1.1111120000000p-6f,
- 0x1.0c97140000000p-6f, 0x1.0842100000000p-6f, 0x1.0410420000000p-6f, 0x1.0000000000000p-6f,
+static const float control_span_inverse[64] = {
+    0x1p+0f,     0x1p-1f,     0x1.555556p-2f,     0x1p-2f,
+    0x1.99999ap-3f,     0x1.555556p-3f,     0x1.24924ap-3f,     0x1p-3f,
+    0x1.c71c72p-4f,     0x1.99999ap-4f,     0x1.745d18p-4f,     0x1.555556p-4f,
+    0x1.3b13b2p-4f,     0x1.24924ap-4f,     0x1.111112p-4f,     0x1p-4f,
+    0x1.e1e1e2p-5f,     0x1.c71c72p-5f,     0x1.af286cp-5f,     0x1.99999ap-5f,
+    0x1.861862p-5f,     0x1.745d18p-5f,     0x1.642c86p-5f,     0x1.555556p-5f,
+    0x1.47ae14p-5f,     0x1.3b13b2p-5f,     0x1.2f684cp-5f,     0x1.24924ap-5f,
+    0x1.1a7b96p-5f,     0x1.111112p-5f,     0x1.08421p-5f,     0x1p-5f,
+    0x1.f07c2p-6f,     0x1.e1e1e2p-6f,     0x1.d41d42p-6f,     0x1.c71c72p-6f,
+    0x1.bacf92p-6f,     0x1.af286cp-6f,     0x1.a41a42p-6f,     0x1.99999ap-6f,
+    0x1.8f9c18p-6f,     0x1.861862p-6f,     0x1.7d05f4p-6f,     0x1.745d18p-6f,
+    0x1.6c16c2p-6f,     0x1.642c86p-6f,     0x1.5c9882p-6f,     0x1.555556p-6f,
+    0x1.4e5e0ap-6f,     0x1.47ae14p-6f,     0x1.414142p-6f,     0x1.3b13b2p-6f,
+    0x1.3521dp-6f,     0x1.2f684cp-6f,     0x1.29e412p-6f,     0x1.24924ap-6f,
+    0x1.1f7048p-6f,     0x1.1a7b96p-6f,     0x1.15b1e6p-6f,     0x1.111112p-6f,
+    0x1.0c9714p-6f,     0x1.08421p-6f,     0x1.041042p-6f,     0x1p-6f,
+
 };
-static float duration_inverse(uint32_t D){
- return D>=1u&&D<=64u?control_span_inverse[D-1u]:1.0f/(float)D;
-}
+static float duration_inverse(uint32_t D){return D>=1u&&D<=64u?control_span_inverse[D-1u]:1.0f/(float)D;}
 static float clamp(float x,float lo,float hi){return x<lo?lo:x>hi?hi:x;}
 static void target(original_ramp *r,float t,float inverse){r->target=t;r->delta=inverse*(t-r->current);}
 static float advance(original_ramp *r){

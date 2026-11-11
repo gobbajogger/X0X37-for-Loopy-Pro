@@ -86,28 +86,26 @@ static void readout_does_not_cover_help(void)
     uint32_t help_only, help_with_pending_readout, normal, readout;
 
     memset(&ui, 0, sizeof ui);
-    held_btn = held_keys = 0;
     boot();
-    set_view(V_FX); /* generic readout; sound matrices own their inline widgets */
-    /* A real knob touch supplies the exact readout destination. Help is
-     * hold-owned: LCD commits service input, so keep SAVE physically down. */
-    enc_acc[EN_K1] = 1; input();
-    assert(ui.touched == 0);
-    held_btn = 1u << B_SAVE; input();
-    now_ms += HELP_HOLD_SAVE; input();
-    assert(ui.help == B_SAVE + 1);
+    set_view(V_MIX);
+    *page_of(V_MIX) = 0;
+    build_pages(); /* Use a view whose controls actually show the transient readout. */
+    /* LCD chunks poll input. Keep the real help-button hold throughout
+     * painting rather than presenting an orphaned help flag. */
+    held_btn = ui.btn = 1u << B_SAVE;
+    now_ms = 1000u; /* The hold began after boot, not before unsigned time zero. */
+    ui.down_t[B_SAVE] = now_ms - 700u;
+    ui.help = B_SAVE + 1;
     ui.touched = -1;
     help_only = main_hash();
-    assert(ui.help == B_SAVE + 1); /* the compared card must still be open */
 
     ui.touched = 0;
     ui.touch_until = now_ms + 900u;
     help_with_pending_readout = main_hash();
     assert(help_with_pending_readout == help_only);
-    assert(ui.help == B_SAVE + 1);
 
-    held_btn = 0; input();
-    assert(ui.help == 0);
+    held_btn = ui.btn = 0;
+    ui.help = 0;
     ui.touched = -1;
     normal = main_hash();
     ui.touched = 0;

@@ -33,12 +33,15 @@ expect hit0.0.12 1
 # GLO > AUTOSAVE OFF (+15 selectable rows from CLOCK SOURCE): save the setting once, then edits wait for SAVE.
 wait 21000
 tap GLO
-turn SELECT 15
-expect listsel 19
+# GLOBAL > PROJECT (section 3) > AUTOSAVE (row 2)
+turn SELECT 3
+tap SEL
+turn SELECT 2
+expect listsel 2
 expect rowval 1
 turn ALGO -1
 expect rowval 0
-tap HOME
+tap GLO
 wait 5000
 expect store_writes 9
 tapkey w2

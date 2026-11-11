@@ -41,7 +41,7 @@ int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
 #include "../../firmware/src/app/smc_mixer.c"
 
 
-static struct { uint32_t frames; int32_t wheel[2]; } fm1_in;
+static struct { uint32_t frames; int32_t wheel[2]; uint16_t wheel_mod_seq; } fm1_in;
 static int clamp(int v,int lo,int hi) { return v<lo?lo:v>hi?hi:v; }
 #include "smk_wheels.inc"
 static int race_voice=-1, publication_voice=-1, race_count, publication_count, unstable;
@@ -80,7 +80,26 @@ static int expected_row_hint(int x,int y,uint16_t c)
         cv_line(xx+2,y+1,xx+2,y+9,c);
         cv_line(xx,base,xx+2,tip,c);cv_line(xx+4,base,xx+2,tip,c);
     }
-    cv_text(x+14,y,&FONT_T,"ROW",c);return x+14+tw(&FONT_T,"ROW");
+    /* F5 (#807): three bars instead of the "ROW" word. */
+    for(int row=0;row<3;row++)cv_rect(x+14,y+1+row*3,10,row==1?2:1,c);
+    return x+24;
+}
+/* F5 (#807) independent arrow, page and HOME-back pictures. */
+static void expected_arrow(int x,int y,int d,uint16_t c)
+{
+    int tip=x+(d>0?5:0),tail=x+(d>0?0:5),back=tip-d*3;
+    cv_line(tail,y+3,tip,y+3,c);cv_line(back,y,tip,y+3,c);cv_line(tip,y+3,back,y+6,c);
+}
+static int expected_edit_next(int x,int y,uint16_t c)
+{
+    x=cv_text(x,y,&FONT_T,UI_CAP_EDIT,c)+4;
+    cv_rect(x,y,8,1,c);cv_rect(x,y+9,8,1,c);cv_rect(x,y,1,10,c);cv_rect(x+7,y,1,10,c);
+    expected_arrow(x+11,y+1,1,c);return x+16;
+}
+static void expected_home_back(int y,uint16_t c)
+{
+    int x=234-tw(&FONT_T,UI_CAP_HOME)-10;
+    x=cv_text(x,y,&FONT_T,UI_CAP_HOME,c);expected_arrow(x+4,y+2,-1,c);
 }
 /* Independent expected palette/geometry for the accepted Chicago second screen. */
 static int night_fixture(void)

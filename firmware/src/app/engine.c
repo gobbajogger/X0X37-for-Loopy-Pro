@@ -97,6 +97,10 @@ int engine_bass_voice_view(int v, float *level, float *modulation, unsigned *sta
 { return (unsigned)v < NBASS && original_runtime_voice_view(&original_bass[v],level,modulation,state,key_down); }
 int engine_bass_adsr_view(int v, float values[4], unsigned *gate)
 { return (unsigned)v < NBASS && original_runtime_adsr_view(&original_bass[v],values,gate); }
+int engine_bass_motion_view(int v, float *phase, float *bipolar, float *current, float *target, int *active)
+{ return (unsigned)v < NBASS && original_runtime_motion_view(&original_bass[v], phase, bipolar, current, target, active); }
+int engine_bass_env_view(int v, float adsr[4], float *level, int *state)
+{ return (unsigned)v < NBASS && original_runtime_env_view(&original_bass[v], adsr, level, state); }
 static void original_prepare_all(void)
 {
     for (int v = 0; v < NBASS; ++v) (void)original_runtime_prepare(&original_bass[v], seq_tempo(&seq));
@@ -127,8 +131,6 @@ typedef struct { uint32_t generation, context; uint8_t gate, token, pitch, arp, 
 static live_key_command_t live_key_q[LIVE_KEY_Q] POOL;
 static live_key_owner_t live_key_owner[NBASS] POOL;
 static volatile uint8_t live_key_w, live_key_r, live_key_cancel;
-/* Free-running accept position of the command at live_key_r, and the next one. */
-static uint32_t live_key_at, live_key_pos;
 static void live_key_retire(int voice,int release);
 static void live_key_context_retire(int voice,int release);
 static void live_key_drain(void);
@@ -153,15 +155,13 @@ void engine_live_key_cancel(int voice)
 int engine_live_key(int voice,uint32_t generation,int token,int pitch,int velocity,int accent,int slide)
 {
     if((unsigned)voice>=NBASS || token<1 || token>37 || pitch<1 || pitch>127 || velocity<0 || velocity>127)return 0;
+    if (velocity && SEQ_PART_OFF(&seq, TRK_BASS0 + voice)) return 0;
     uint32_t flags=plat_cq_lock();
     if(live_key_owner[voice].blocked){plat_cq_unlock(flags);return 0;}
     unsigned w=live_key_w,next=(w+1u)%LIVE_KEY_Q;
     if(next==live_key_r) {
         live_key_cancel|=(uint8_t)(1u<<voice);plat_cq_unlock(flags);return 0;
     }
-    if (live_key_r == live_key_w)
-        live_key_at = live_key_pos;
-    live_key_pos++;
     live_key_q[w].generation=generation;
     live_key_q[w].word=(uint32_t)voice|((uint32_t)token<<1)|((uint32_t)pitch<<7)|
         ((uint32_t)velocity<<14)|((uint32_t)!!accent<<21)|((uint32_t)!!slide<<22);
@@ -334,19 +334,40 @@ enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC, C_BASE, C
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
-/* Panic boundary is the free-running write cursor. The ring stays in accept
- * order, so a command's cursor value is its accept position. */
-static uint32_t notes_off_cq;
-static uint8_t notes_off_cq_live;
-/* One slot already copied toward the head. Pick skips it. The copy and this
- * index are published together, while the audio source is masked. */
+/* Only active across a PANIC boundary. One bit follows each accepted payload,
+ * including overflow replacement in an older queue position. Main is the sole
+ * producer and request caller; ALNK0 is the consumer. No per-sample work. */
+static uint32_t cq_panic_fresh[CQ / 32u];
+static volatile uint8_t cq_panic_active;
+static void cq_mark_fresh(uint32_t position)
+{
+    if (cq_panic_active)
+        cq_panic_fresh[(position % CQ) / 32u] |= 1u << (position & 31u);
+}
+
+/* One slot already copied toward the head (42de2893 accept-order repair). The
+ * drain skips it. The copy and this index are published together, while the
+ * audio source is masked. */
 static uint32_t cq_hole_at;
 static uint8_t cq_hole_on;
+static void cq_move_fresh(uint32_t to, uint32_t from)
+{
+    if (!cq_panic_active)
+        return;
+    uint32_t bit = 1u << (to & 31u);
+    if (cq_panic_fresh[(from % CQ) / 32u] & (1u << (from & 31u)))
+        cq_panic_fresh[(to % CQ) / 32u] |= bit;
+    else
+        cq_panic_fresh[(to % CQ) / 32u] &= ~bit;
+}
 
 /* The scan may be preempted after choosing a victim. Revalidate under the
  * audio mask, then either publish the new command or copy one later command
- * into the victim. A full queue walks at most CQ-2 steps, and each step masks
- * one copy. Audio runs between steps and never sees that command twice. */
+ * into the victim. The ring stays in accept order: the victim leaves, later
+ * commands move one slot toward the head and the new command goes last. A full
+ * queue walks at most CQ-2 steps, and each step masks one copy. Audio runs
+ * between steps and never sees that command twice. A command's PANIC freshness
+ * bit moves with it. */
 static int cq_replace(uint32_t i, uint32_t w, uint32_t word)
 {
     for (;;) {
@@ -363,21 +384,23 @@ static int cq_replace(uint32_t i, uint32_t w, uint32_t word)
                 cq_w = w + 1u;
                 publish = 1;
             } else if (i + 1u == w) {
-                if (notes_off_cq_live && (int32_t)(i - notes_off_cq) < 0)
-                    notes_off_cq--;
                 publish = 1;
             } else {
                 uint32_t src = i + 1u;
-                if (notes_off_cq_live && (src == notes_off_cq || src + 1u == notes_off_cq))
-                    notes_off_cq--;
                 /* SHIFT */
                 cq[i % CQ] = cq[src % CQ];
                 cq_hole_at = src;
+                cq_move_fresh(i, src);
                 cq_hole_on = 1;
                 i = src;
             }
             if (publish) {
                 cq[i % CQ] = word;
+                if (cq_panic_active) {
+                    uint32_t bit = 1u << (i & 31u);
+                    cq_panic_fresh[(i % CQ) / 32u] &= ~bit;
+                }
+                cq_mark_fresh(i);
                 cq_hole_on = 0;
             }
         }
@@ -419,6 +442,7 @@ retry:
         return;
     }
     cq[w % CQ] = word;
+    cq_mark_fresh(w);
     __asm__ volatile("" ::: "memory");
     cq_w = w + 1;
 }
@@ -544,91 +568,78 @@ static int16_t mod_ctl[NBASS] = {-1, -1};
 static volatile uint8_t ext_touch[NBASS];           /* ISR -> UI: bit0 bend, bit1 mod moved by ext MIDI */
 static int mod_param(int v)
 { return original_bass[v].kind == ORIGINAL_SOUND_MIAMI ? ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF; }
-/* Exact binary32 values of the original square-law expression, pots 0..127.
- * Const storage only: motion ramps can update this in every audio block. */
-static float mix_level_from_pot(int val)
-{
-    static const float table[128] = {
-        0x0p+0f, 0x1.a36e2ep-14f, 0x1.a36e2ep-12f, 0x1.d7dbf4p-11f,
-        0x1.a36e2ep-10f, 0x1.47ae14p-9f, 0x1.d7dbf4p-9f, 0x1.41205cp-8f,
-        0x1.a36e2ep-8f, 0x1.096bbap-7f, 0x1.47ae14p-7f, 0x1.8c7e28p-7f,
-        0x1.d7dbf4p-7f, 0x1.14e3bcp-6f, 0x1.41205cp-6f, 0x1.70a3d8p-6f,
-        0x1.a36e2ep-6f, 0x1.d97f62p-6f, 0x1.096bbap-5f, 0x1.27bb3p-5f,
-        0x1.47ae14p-5f, 0x1.694468p-5f, 0x1.8c7e28p-5f, 0x1.b15b58p-5f,
-        0x1.d7dbf4p-5f, 0x1p-4f, 0x1.14e3bcp-4f, 0x1.2a993p-4f,
-        0x1.41205cp-4f, 0x1.58793ep-4f, 0x1.70a3d8p-4f, 0x1.89a028p-4f,
-        0x1.a36e2ep-4f, 0x1.be0deep-4f, 0x1.d97f62p-4f, 0x1.f5c29p-4f,
-        0x1.096bbap-3f, 0x1.185f06p-3f, 0x1.27bb3p-3f, 0x1.378034p-3f,
-        0x1.47ae14p-3f, 0x1.5844dp-3f, 0x1.694468p-3f, 0x1.7aacdap-3f,
-        0x1.8c7e28p-3f, 0x1.9eb852p-3f, 0x1.b15b58p-3f, 0x1.c46738p-3f,
-        0x1.d7dbf4p-3f, 0x1.ebb98cp-3f, 0x1p-2f, 0x1.0a57a8p-2f,
-        0x1.14e3bcp-2f, 0x1.1fa44p-2f, 0x1.2a993p-2f, 0x1.35c29p-2f,
-        0x1.41205cp-2f, 0x1.4cb296p-2f, 0x1.58793ep-2f, 0x1.647454p-2f,
-        0x1.70a3d8p-2f, 0x1.7d07c8p-2f, 0x1.89a028p-2f, 0x1.966cf4p-2f,
-        0x1.a36e2ep-2f, 0x1.b0a3d8p-2f, 0x1.be0deep-2f, 0x1.cbac72p-2f,
-        0x1.d97f62p-2f, 0x1.e786c2p-2f, 0x1.f5c29p-2f, 0x1.021966p-1f,
-        0x1.096bbap-1f, 0x1.10d844p-1f, 0x1.185f06p-1f, 0x1.2p-1f,
-        0x1.27bb3p-1f, 0x1.2f9096p-1f, 0x1.378034p-1f, 0x1.3f8a0ap-1f,
-        0x1.47ae14p-1f, 0x1.4fec56p-1f, 0x1.5844dp-1f, 0x1.60b78p-1f,
-        0x1.694468p-1f, 0x1.71eb86p-1f, 0x1.7aacdap-1f, 0x1.838866p-1f,
-        0x1.8c7e28p-1f, 0x1.958e22p-1f, 0x1.9eb852p-1f, 0x1.a7fcbap-1f,
-        0x1.b15b58p-1f, 0x1.bad42cp-1f, 0x1.c46738p-1f, 0x1.ce147ap-1f,
-        0x1.d7dbf4p-1f, 0x1.e1bda6p-1f, 0x1.ebb98cp-1f, 0x1.f5cfaap-1f,
-        0x1p+0f, 0x1.052546p+0f, 0x1.0a57a8p+0f, 0x1.0f9724p+0f,
-        0x1.14e3bcp+0f, 0x1.1a3d7p+0f, 0x1.1fa44p+0f, 0x1.25182ap+0f,
-        0x1.2a993p+0f, 0x1.302752p+0f, 0x1.35c29p+0f, 0x1.3b6ae8p+0f,
-        0x1.41205cp+0f, 0x1.46e2ecp+0f, 0x1.4cb296p+0f, 0x1.528f5cp+0f,
-        0x1.58793ep+0f, 0x1.5e703ap+0f, 0x1.647454p+0f, 0x1.6a8588p+0f,
-        0x1.70a3d8p+0f, 0x1.76cf42p+0f, 0x1.7d07c8p+0f, 0x1.834d6ap+0f,
-        0x1.89a028p+0f, 0x1.9p+0f, 0x1.966cf4p+0f, 0x1.9ce704p+0f,
-    };
-    if ((unsigned)val < 128u)
-        return table[val];
-    return (float)val * (float)val / (100.0f * 100.0f); /* Preserve non-pot callers. */
-}
+static const float mix_level_values[128] = {
+    0x0p+0f,     0x1.a36e2ep-14f,     0x1.a36e2ep-12f,     0x1.d7dbf4p-11f,
+    0x1.a36e2ep-10f,     0x1.47ae14p-9f,     0x1.d7dbf4p-9f,     0x1.41205cp-8f,
+    0x1.a36e2ep-8f,     0x1.096bbap-7f,     0x1.47ae14p-7f,     0x1.8c7e28p-7f,
+    0x1.d7dbf4p-7f,     0x1.14e3bcp-6f,     0x1.41205cp-6f,     0x1.70a3d8p-6f,
+    0x1.a36e2ep-6f,     0x1.d97f62p-6f,     0x1.096bbap-5f,     0x1.27bb3p-5f,
+    0x1.47ae14p-5f,     0x1.694468p-5f,     0x1.8c7e28p-5f,     0x1.b15b58p-5f,
+    0x1.d7dbf4p-5f,     0x1p-4f,     0x1.14e3bcp-4f,     0x1.2a993p-4f,
+    0x1.41205cp-4f,     0x1.58793ep-4f,     0x1.70a3d8p-4f,     0x1.89a028p-4f,
+    0x1.a36e2ep-4f,     0x1.be0deep-4f,     0x1.d97f62p-4f,     0x1.f5c29p-4f,
+    0x1.096bbap-3f,     0x1.185f06p-3f,     0x1.27bb3p-3f,     0x1.378034p-3f,
+    0x1.47ae14p-3f,     0x1.5844dp-3f,     0x1.694468p-3f,     0x1.7aacdap-3f,
+    0x1.8c7e28p-3f,     0x1.9eb852p-3f,     0x1.b15b58p-3f,     0x1.c46738p-3f,
+    0x1.d7dbf4p-3f,     0x1.ebb98cp-3f,     0x1p-2f,     0x1.0a57a8p-2f,
+    0x1.14e3bcp-2f,     0x1.1fa44p-2f,     0x1.2a993p-2f,     0x1.35c29p-2f,
+    0x1.41205cp-2f,     0x1.4cb296p-2f,     0x1.58793ep-2f,     0x1.647454p-2f,
+    0x1.70a3d8p-2f,     0x1.7d07c8p-2f,     0x1.89a028p-2f,     0x1.966cf4p-2f,
+    0x1.a36e2ep-2f,     0x1.b0a3d8p-2f,     0x1.be0deep-2f,     0x1.cbac72p-2f,
+    0x1.d97f62p-2f,     0x1.e786c2p-2f,     0x1.f5c29p-2f,     0x1.021966p-1f,
+    0x1.096bbap-1f,     0x1.10d844p-1f,     0x1.185f06p-1f,     0x1.2p-1f,
+    0x1.27bb3p-1f,     0x1.2f9096p-1f,     0x1.378034p-1f,     0x1.3f8a0ap-1f,
+    0x1.47ae14p-1f,     0x1.4fec56p-1f,     0x1.5844dp-1f,     0x1.60b78p-1f,
+    0x1.694468p-1f,     0x1.71eb86p-1f,     0x1.7aacdap-1f,     0x1.838866p-1f,
+    0x1.8c7e28p-1f,     0x1.958e22p-1f,     0x1.9eb852p-1f,     0x1.a7fcbap-1f,
+    0x1.b15b58p-1f,     0x1.bad42cp-1f,     0x1.c46738p-1f,     0x1.ce147ap-1f,
+    0x1.d7dbf4p-1f,     0x1.e1bda6p-1f,     0x1.ebb98cp-1f,     0x1.f5cfaap-1f,
+    0x1p+0f,     0x1.052546p+0f,     0x1.0a57a8p+0f,     0x1.0f9724p+0f,
+    0x1.14e3bcp+0f,     0x1.1a3d7p+0f,     0x1.1fa44p+0f,     0x1.25182ap+0f,
+    0x1.2a993p+0f,     0x1.302752p+0f,     0x1.35c29p+0f,     0x1.3b6ae8p+0f,
+    0x1.41205cp+0f,     0x1.46e2ecp+0f,     0x1.4cb296p+0f,     0x1.528f5cp+0f,
+    0x1.58793ep+0f,     0x1.5e703ap+0f,     0x1.647454p+0f,     0x1.6a8588p+0f,
+    0x1.70a3d8p+0f,     0x1.76cf42p+0f,     0x1.7d07c8p+0f,     0x1.834d6ap+0f,
+    0x1.89a028p+0f,     0x1.9p+0f,     0x1.966cf4p+0f,     0x1.9ce704p+0f,
 
-/* Exact original /127 send values; shared by both 7-bit send controls. */
-static float mix_send_from_pot(int val)
-{
-    static const float table[128] = {
-        0x0p+0f, 0x1.020408p-7f, 0x1.020408p-6f, 0x1.83060cp-6f,
-        0x1.020408p-5f, 0x1.42850ap-5f, 0x1.83060cp-5f, 0x1.c3870ep-5f,
-        0x1.020408p-4f, 0x1.22448ap-4f, 0x1.42850ap-4f, 0x1.62c58cp-4f,
-        0x1.83060cp-4f, 0x1.a3468ep-4f, 0x1.c3870ep-4f, 0x1.e3c79p-4f,
-        0x1.020408p-3f, 0x1.122448p-3f, 0x1.22448ap-3f, 0x1.3264cap-3f,
-        0x1.42850ap-3f, 0x1.52a54ap-3f, 0x1.62c58cp-3f, 0x1.72e5ccp-3f,
-        0x1.83060cp-3f, 0x1.93264cp-3f, 0x1.a3468ep-3f, 0x1.b366cep-3f,
-        0x1.c3870ep-3f, 0x1.d3a74ep-3f, 0x1.e3c79p-3f, 0x1.f3e7dp-3f,
-        0x1.020408p-2f, 0x1.0a1428p-2f, 0x1.122448p-2f, 0x1.1a3468p-2f,
-        0x1.22448ap-2f, 0x1.2a54aap-2f, 0x1.3264cap-2f, 0x1.3a74eap-2f,
-        0x1.42850ap-2f, 0x1.4a952ap-2f, 0x1.52a54ap-2f, 0x1.5ab56ap-2f,
-        0x1.62c58cp-2f, 0x1.6ad5acp-2f, 0x1.72e5ccp-2f, 0x1.7af5ecp-2f,
-        0x1.83060cp-2f, 0x1.8b162cp-2f, 0x1.93264cp-2f, 0x1.9b366cp-2f,
-        0x1.a3468ep-2f, 0x1.ab56aep-2f, 0x1.b366cep-2f, 0x1.bb76eep-2f,
-        0x1.c3870ep-2f, 0x1.cb972ep-2f, 0x1.d3a74ep-2f, 0x1.dbb76ep-2f,
-        0x1.e3c79p-2f, 0x1.ebd7bp-2f, 0x1.f3e7dp-2f, 0x1.fbf7fp-2f,
-        0x1.020408p-1f, 0x1.060c18p-1f, 0x1.0a1428p-1f, 0x1.0e1c38p-1f,
-        0x1.122448p-1f, 0x1.162c58p-1f, 0x1.1a3468p-1f, 0x1.1e3c78p-1f,
-        0x1.22448ap-1f, 0x1.264c9ap-1f, 0x1.2a54aap-1f, 0x1.2e5cbap-1f,
-        0x1.3264cap-1f, 0x1.366cdap-1f, 0x1.3a74eap-1f, 0x1.3e7cfap-1f,
-        0x1.42850ap-1f, 0x1.468d1ap-1f, 0x1.4a952ap-1f, 0x1.4e9d3ap-1f,
-        0x1.52a54ap-1f, 0x1.56ad5ap-1f, 0x1.5ab56ap-1f, 0x1.5ebd7ap-1f,
-        0x1.62c58cp-1f, 0x1.66cd9cp-1f, 0x1.6ad5acp-1f, 0x1.6eddbcp-1f,
-        0x1.72e5ccp-1f, 0x1.76eddcp-1f, 0x1.7af5ecp-1f, 0x1.7efdfcp-1f,
-        0x1.83060cp-1f, 0x1.870e1cp-1f, 0x1.8b162cp-1f, 0x1.8f1e3cp-1f,
-        0x1.93264cp-1f, 0x1.972e5cp-1f, 0x1.9b366cp-1f, 0x1.9f3e7cp-1f,
-        0x1.a3468ep-1f, 0x1.a74e9ep-1f, 0x1.ab56aep-1f, 0x1.af5ebep-1f,
-        0x1.b366cep-1f, 0x1.b76edep-1f, 0x1.bb76eep-1f, 0x1.bf7efep-1f,
-        0x1.c3870ep-1f, 0x1.c78f1ep-1f, 0x1.cb972ep-1f, 0x1.cf9f3ep-1f,
-        0x1.d3a74ep-1f, 0x1.d7af5ep-1f, 0x1.dbb76ep-1f, 0x1.dfbf7ep-1f,
-        0x1.e3c79p-1f, 0x1.e7cfap-1f, 0x1.ebd7bp-1f, 0x1.efdfcp-1f,
-        0x1.f3e7dp-1f, 0x1.f7efep-1f, 0x1.fbf7fp-1f, 0x1p+0f,
-    };
-    if ((unsigned)val < 128u)
-        return table[val];
-    return (float)val / 127.0f; /* Preserve non-pot callers. */
-}
+};
+static const float mix_send_values[128] = {
+    0x0p+0f,     0x1.020408p-7f,     0x1.020408p-6f,     0x1.83060cp-6f,
+    0x1.020408p-5f,     0x1.42850ap-5f,     0x1.83060cp-5f,     0x1.c3870ep-5f,
+    0x1.020408p-4f,     0x1.22448ap-4f,     0x1.42850ap-4f,     0x1.62c58cp-4f,
+    0x1.83060cp-4f,     0x1.a3468ep-4f,     0x1.c3870ep-4f,     0x1.e3c79p-4f,
+    0x1.020408p-3f,     0x1.122448p-3f,     0x1.22448ap-3f,     0x1.3264cap-3f,
+    0x1.42850ap-3f,     0x1.52a54ap-3f,     0x1.62c58cp-3f,     0x1.72e5ccp-3f,
+    0x1.83060cp-3f,     0x1.93264cp-3f,     0x1.a3468ep-3f,     0x1.b366cep-3f,
+    0x1.c3870ep-3f,     0x1.d3a74ep-3f,     0x1.e3c79p-3f,     0x1.f3e7dp-3f,
+    0x1.020408p-2f,     0x1.0a1428p-2f,     0x1.122448p-2f,     0x1.1a3468p-2f,
+    0x1.22448ap-2f,     0x1.2a54aap-2f,     0x1.3264cap-2f,     0x1.3a74eap-2f,
+    0x1.42850ap-2f,     0x1.4a952ap-2f,     0x1.52a54ap-2f,     0x1.5ab56ap-2f,
+    0x1.62c58cp-2f,     0x1.6ad5acp-2f,     0x1.72e5ccp-2f,     0x1.7af5ecp-2f,
+    0x1.83060cp-2f,     0x1.8b162cp-2f,     0x1.93264cp-2f,     0x1.9b366cp-2f,
+    0x1.a3468ep-2f,     0x1.ab56aep-2f,     0x1.b366cep-2f,     0x1.bb76eep-2f,
+    0x1.c3870ep-2f,     0x1.cb972ep-2f,     0x1.d3a74ep-2f,     0x1.dbb76ep-2f,
+    0x1.e3c79p-2f,     0x1.ebd7bp-2f,     0x1.f3e7dp-2f,     0x1.fbf7fp-2f,
+    0x1.020408p-1f,     0x1.060c18p-1f,     0x1.0a1428p-1f,     0x1.0e1c38p-1f,
+    0x1.122448p-1f,     0x1.162c58p-1f,     0x1.1a3468p-1f,     0x1.1e3c78p-1f,
+    0x1.22448ap-1f,     0x1.264c9ap-1f,     0x1.2a54aap-1f,     0x1.2e5cbap-1f,
+    0x1.3264cap-1f,     0x1.366cdap-1f,     0x1.3a74eap-1f,     0x1.3e7cfap-1f,
+    0x1.42850ap-1f,     0x1.468d1ap-1f,     0x1.4a952ap-1f,     0x1.4e9d3ap-1f,
+    0x1.52a54ap-1f,     0x1.56ad5ap-1f,     0x1.5ab56ap-1f,     0x1.5ebd7ap-1f,
+    0x1.62c58cp-1f,     0x1.66cd9cp-1f,     0x1.6ad5acp-1f,     0x1.6eddbcp-1f,
+    0x1.72e5ccp-1f,     0x1.76eddcp-1f,     0x1.7af5ecp-1f,     0x1.7efdfcp-1f,
+    0x1.83060cp-1f,     0x1.870e1cp-1f,     0x1.8b162cp-1f,     0x1.8f1e3cp-1f,
+    0x1.93264cp-1f,     0x1.972e5cp-1f,     0x1.9b366cp-1f,     0x1.9f3e7cp-1f,
+    0x1.a3468ep-1f,     0x1.a74e9ep-1f,     0x1.ab56aep-1f,     0x1.af5ebep-1f,
+    0x1.b366cep-1f,     0x1.b76edep-1f,     0x1.bb76eep-1f,     0x1.bf7efep-1f,
+    0x1.c3870ep-1f,     0x1.c78f1ep-1f,     0x1.cb972ep-1f,     0x1.cf9f3ep-1f,
+    0x1.d3a74ep-1f,     0x1.d7af5ep-1f,     0x1.dbb76ep-1f,     0x1.dfbf7ep-1f,
+    0x1.e3c79p-1f,     0x1.e7cfap-1f,     0x1.ebd7bp-1f,     0x1.efdfcp-1f,
+    0x1.f3e7dp-1f,     0x1.f7efep-1f,     0x1.fbf7fp-1f,     0x1p+0f,
 
+};
+static float mix_level_from_pot(int v) { return (unsigned)v < 128u ? mix_level_values[v] : (float)v * (float)v / (100.0f * 100.0f); }
+static float mix_send_from_pot(int v) { return (unsigned)v < 128u ? mix_send_values[v] : (float)v / 127.0f; }
 static void apply_param(int t, int v, int i, int val)    /* ISR */
 {
     switch (t) {
@@ -713,14 +724,21 @@ void engine_volume(int32_t *out_lr, uint32_t n)
         vol_after = -1.0f;
         return;
     }
-    for (i = 0; i < n; i++) {
-        if (v != vol) {
-            v += (vol - v) * 0.0022651f;
-            if (fm_fabsf(vol - v) < 1e-5f)
-                v = vol;
+    if (v == vol) {
+        for (i = 0; i < n; i++) {
+            out_lr[2u * i] = (int32_t)((float)out_lr[2u * i] * v);
+            out_lr[2u * i + 1u] = (int32_t)((float)out_lr[2u * i + 1u] * v);
         }
-        out_lr[2u * i] = (int32_t)((float)out_lr[2u * i] * v);
-        out_lr[2u * i + 1u] = (int32_t)((float)out_lr[2u * i + 1u] * v);
+    } else {
+        for (i = 0; i < n; i++) {
+            if (v != vol) {
+                v += (vol - v) * 0.0022651f;
+                if (fm_fabsf(vol - v) < 1e-5f)
+                    v = vol;
+            }
+            out_lr[2u * i] = (int32_t)((float)out_lr[2u * i] * v);
+            out_lr[2u * i + 1u] = (int32_t)((float)out_lr[2u * i + 1u] * v);
+        }
     }
     vol_after = v;
 }
@@ -815,6 +833,7 @@ X0X_COLD void engine_apply_sound(const sound_t *s)
 
 void engine_drum(int kit, int voice, float vel)
 {
+    if ((unsigned)kit < NKIT && SEQ_PART_OFF(&seq, kit)) return;
     cq_put(C_DRUM, (uint32_t)kit, (uint32_t)voice, (uint32_t)(vel * 4095.0f));
 }
 void engine_bass_on(int part, int note, int accent, int slide)
@@ -823,6 +842,7 @@ void engine_bass_on(int part, int note, int accent, int slide)
 }
 void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity)
 {
+    if ((unsigned)part < NBASS && SEQ_PART_OFF(&seq, TRK_BASS0 + part)) return;
     if (velocity < 1) velocity = 1;
     if (velocity > 127) velocity = 127;
     cq_put(C_BON, (uint32_t)part, (uint32_t)note,
@@ -830,6 +850,7 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
 }
 void engine_bass_record(int part, int note, int velocity, int flags)
 {
+    if ((unsigned)part < NBASS && SEQ_PART_OFF(&seq, TRK_BASS0 + part)) return;
     if (velocity < 1) velocity = 1;
     if (velocity > 127) velocity = 127;
     cq_put(C_REC, (uint32_t)(part | ((seq.rec_epoch & 127u) << 1)), (uint32_t)note,
@@ -837,24 +858,36 @@ void engine_bass_record(int part, int note, int velocity, int flags)
 }
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
 static volatile uint8_t notes_off_req;
-static uint32_t notes_off_live;
-static uint32_t notes_off_midi_head, notes_off_midi_limit;
-static uint8_t notes_off_drop, notes_off_midi_drop, live_panic_pass;
-/* 1 while this drain will apply a pending panic. An onset accepted here is
- * silenced before it can sound, so the pattern cell must stay as it was.
- * A command or MIDI packet left queued for the next drain may still record. */
-static uint8_t notes_off_suppress_rec;
+static volatile uint32_t notes_off_requested_cutoff;
+static uint32_t notes_off_cutoff;
+static uint8_t notes_off_discard;
+static uint32_t notes_off_midi_epoch;
+static uint8_t notes_off_midi_valid;
 void engine_request_notes_off(void)
 {
+    /* Keyboard and SMC request from the CPU0 main loop. Publish the three
+     * queue boundaries together while audio is excluded; the MIDI primitive
+     * also excludes TIMER5 while capturing packet identity. */
     uint32_t flags = plat_cq_lock();
-    notes_off_cq = cq_w;
-    notes_off_cq_live = 1;
-    notes_off_live = live_key_pos;
-    plat_midi_panic_sample(&notes_off_midi_head, &notes_off_midi_limit);
+    __builtin_memset(cq_panic_fresh, 0, sizeof cq_panic_fresh);
+    cq_panic_active = 1;
+    notes_off_requested_cutoff = cq_w;
+    notes_off_midi_epoch = plat_midi_cut();
+    notes_off_midi_valid = 1;
+    /* Retire capabilities now, not on the later audio consume: a fresh key
+     * pressed after this return must acquire the new generation and survive.
+     * Only metadata/FIFO cursors change here; audio alone clears DSP owners. */
+    live_key_r = live_key_w;
+    live_key_cancel = 0;
+    for (int v = 0; v < NBASS; ++v) {
+        live_key_owner_t *o = &live_key_owner[v];
+        if (o->generation == UINT32_MAX || o->context == UINT32_MAX)
+            o->blocked = 1;
+        else { ++o->generation; ++o->context; }
+    }
     __asm__ volatile("" ::: "memory");
     notes_off_req = 1;
     plat_cq_unlock(flags);
-    __asm__ volatile("" ::: "memory");
 }
 void engine_bass_off_note(int part, int note)
 {
@@ -863,7 +896,7 @@ void engine_bass_off_note(int part, int note)
     else
         cq_put(C_BOFF, (uint32_t)part, (uint32_t)(note & 127), 1u);
 }
-void engine_brk_live(int key, int down) { cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
+void engine_brk_live(int key, int down) { if (down && SEQ_PART_OFF(&seq, TRK_BRK)) return; cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
 
 /* ------------------------------------------------------- sequencer sink --- */
 /* probability: each part's (and drum track's) chance on the step playing now, set by its T_PROB lane
@@ -935,6 +968,21 @@ static void s_boff(void *x, int p)
     original_seq_note[p] = -1;
 }
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
+/* Audio-owned control boundary, independent of the bounded CQ drain. Quiet
+ * alone only saves decoding after the gate closes; retire the old step too so
+ * the existing 88-sample gate ramp can close before this buffer ends. Held
+ * slices keep their established live-audition override. Unmute waits for the
+ * next real step, including its enable/probability decision. No new state or
+ * per-sample work; this adds a mute read and bounded control stores per stretch. */
+static void brk_mute_boundary(void)
+{
+    if (seq.mute & (1u << MUTE_BRK)) {
+        breaks_set_quiet(&brk, 1);
+        brk.step_on = 0;
+        brk.gate_to = brk.perf.count ? 1.0f : 0.0f;
+    }
+}
+
 static void s_brk(void *x, int s16, int bar, float spb, int en)
 {
     const brkpart_t *bp = &seq.pat[seq.ppat[TRK_BRK]].brk;
@@ -1060,6 +1108,7 @@ static int mot_base(void *x, int t, int v, int i)
 static void mot_apply(void *x, int t, int v, int i, int val)
 {
     (void)x;
+    PARAM_TRACE(PARAM_MOTION, t, v, i, val);
     if (original_motion_performance(t, v, i)) { perf_apply(v, i, val, 0); return; }
     if (t == T_PROB) {
         if ((v >> 4) < NPARTS && (v & 15) < NDRUM)
@@ -1073,6 +1122,8 @@ static void mot_apply(void *x, int t, int v, int i, int val)
 }
 static void mot_restore(void *x, int t, int v, int i)
 {
+    /* -1 means restore the exact base, which need not be a rounded pot. */
+    PARAM_TRACE(PARAM_MOTION_RESTORE, t, v, i, -1);
     if (original_motion_performance(t, v, i)) { perf_apply(v, i, mot_base(x, t, v, i), 0); return; }
     if (t < NTARGETS) apply_base(t, v, i);
     else mot_apply(x, t, v, i, mot_base(x, t, v, i));
@@ -1255,7 +1306,8 @@ static void brk_note_set(int src, int note, int on)
     else
         brk_down[src][note >> 3] &= (uint8_t)~m;
 }
-/* The applied snapshot, not the requested count, owns the held MIDI identity. */
+/* Held MIDI notes map through bank 0's current live slice count.
+ * TODO(F3 row 24): review held-note identity for the second slicer. */
 static int brk_note_slice(int note)
 {
     int count = breaks_count(&brk, 0);
@@ -1382,8 +1434,6 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
     if (src < 0 || src >= MIDI_NSRC) return; /* source 3 is internal keyboard ownership only */
     if (!(pkt & ~0x30u)) {                      /* CIN 0, no message: the link of an input ended (usb.c midi_link_check) */
         seq_clk_drop(&seq, (uint32_t)src);      /* MID-15: another input can get the clock at once */
-        if (src < 0 || src >= MIDI_NSRC)
-            return;
         v = src_held[src];
         for (k = 0; k < NBASS; ++k) {
             (void)original_runtime_release_source(&original_bass[k], (unsigned)src);
@@ -1463,7 +1513,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
     }
     if ((ty == 0x90 || ty == 0x80) && seq.ch[TRK_BRK] == ch) {
         /* The break's channel owns the note. Drums and the 303s do not also play it. */
-        brk_midi_wrap(src, ty == 0x90, d1);
+        if (!(ty == 0x90 && SEQ_PART_OFF(&seq, TRK_BRK))) brk_midi_wrap(src, ty == 0x90, d1);
         return;
     }
     /* Kit MIDI channel owns the note (GLO remap). Same consume rule as BREAK:
@@ -1474,7 +1524,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
             if (seq.ch[k] != ch)
                 continue;
             kit_own = 1;
-            if (ty == 0x90) {                            /* machines on GM drum notes (GM_DRUM) */
+            if (ty == 0x90 && !SEQ_PART_OFF(&seq, k)) { /* machines on GM drum notes (GM_DRUM) */
                 for (v = 0; v < NDRUM; v++)
                     if (GM_DRUM[k][v] == d1) {
                         s_drum(0, k, v, (float)d2 / 127.0f);
@@ -1487,6 +1537,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
     }
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
+            if (ty == 0x90 && SEQ_PART_OFF(&seq, TRK_BASS0 + k)) continue;
             if (ty == 0x90 || ty == 0x80) {
                 unsigned velocity = ty == 0x90 ? d2 : 0;
                 /* External MIDI recording: accepted physical edges, as the pads do. */
@@ -1496,8 +1547,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
 #ifdef X0X_HOST
                     bass_attacked[k] = (uint8_t)!slide;
 #endif
-                    if (!notes_off_suppress_rec)
-                        seq_rec_bass(&seq, k, d1, d2, 1, src, (d2 >= 100 ? BS_ACCENT : 0) | (slide ? SEQ_REC_LEGATO : 0));
+                    seq_rec_bass(&seq, k, d1, d2, 1, src, (d2 >= 100 ? BS_ACCENT : 0) | (slide ? SEQ_REC_LEGATO : 0));
                     bass_held[k] = d1; bass_held_src[k] = (uint8_t)src;
                     bass_held_count[k] = original_bass[k].keys[src][d1];
                     live_rec_accept(k, src, d1);
@@ -1514,15 +1564,19 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
                 if (held) src_held[src] |= (uint16_t)(1u << k);
                 else src_held[src] &= (uint16_t)~(1u << k);
             } else if (ty == 0xb0 && d1 == 1) {
+                PARAM_TRACE(PARAM_MIDI, T_303, k, mod_param(k), d2);
                 mod_apply(k, d2);                      /* mod wheel CC1: cutoff / wobble depth */
                 ext_touch[k] |= 2u;
             } else if (ty == 0xb0 && d1 == 64) {
                 /* damper: sustain pedal CC64 (no wheel mapping) */
+                PARAM_TRACE(PARAM_MIDI, T_303, k,
+                            (int)original_sound_count(original_bass[k].kind) - 1, d2);
                 perf_apply(k, (int)original_sound_count(original_bass[k].kind) - 1, d2, 1);
             } else if (ty == 0xe0) {
                 unsigned bend = (unsigned)d1 | (unsigned)d2 << 7;
                 float value = bend < 8192 ? (float)bend / 16384.0f : 0.5f + (float)(bend - 8192) / 16382.0f;
                 unsigned parameter = original_sound_count(original_bass[k].kind) - 2;
+                PARAM_TRACE(PARAM_MIDI, T_303, k, (int)parameter, (int)(bend >> 7));
                 perf_ctl[k][0] = (uint8_t)(bend >> 7);
                 ext_touch[k] |= 1u;
                 (void)original_runtime_param(&original_bass[k], parameter, value);
@@ -1563,11 +1617,9 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
 static void engine_notes_off_apply(void)
 {
     int v, src, s;
-    live_panic_pass = 1;
     /* PANIC_APPLY */
     seq_notes_off(&seq, &SINK);
     for (v = 0; v < NBASS; v++) {
-        live_key_context_retire(v, 0); /* invalidate physical presses already queued */
         (void)original_runtime_all_off(&original_bass[v]);
         s_boff(0, v);
         live_key_owner[v].gate = live_key_owner[v].token = 0;
@@ -1592,24 +1644,6 @@ static void engine_notes_off_apply(void)
 #endif
 }
 
-/* The ring is in accept order, so the free-running cursor is the position. */
-static int cq_pick(uint32_t *cursor, uint32_t *ord, uint32_t *word)
-{
-    if (cq_hole_on && *cursor == cq_hole_at)
-        *cursor = *cursor + 1u;
-    if (*cursor == cq_w)
-        return 0;
-    *ord = *cursor;
-    *word = cq[*cursor % CQ];
-    (*cursor)++;
-    return 1;
-}
-
-static int midi_pkt_note_on(uint32_t pkt)
-{
-    return (pkt & 0xFu) == 9u && ((pkt >> 24) & 0x7Fu) != 0u;
-}
-
 static void drain(void)
 {
     original_midi_context();
@@ -1618,15 +1652,15 @@ static void drain(void)
     if (seq.req_stop) seq_advance(&seq, 0, &SINK);
     uint32_t r = cq_r, pkt;
     int guard = 64;
-    int panic_cycle = 0;
     __asm__ volatile("" ::: "memory");
     if (notes_off_req) {
         notes_off_req = 0;
-        panic_cycle = 1;
-        notes_off_drop = 1;
-        notes_off_midi_drop = 1;
+        notes_off_cutoff = notes_off_requested_cutoff;
+        notes_off_discard = (uint8_t)((int32_t)(notes_off_cutoff - cq_r) > 0);
+        cq_panic_active = notes_off_discard;
+        /* Retire the old audible/recording owners before any fresh onset. */
+        engine_notes_off_apply();
     }
-    notes_off_suppress_rec = (uint8_t)panic_cycle;
     brk_channel_reconcile();
     /* Finish old contexts before a queued new press can acquire note ownership. */
     for (int k = 0; k < NBASS; k++) {
@@ -1639,25 +1673,23 @@ static void drain(void)
         }
     }
     unsigned budget = 128; /* bound parameter floods to this audio boundary */
-    while (budget) {
-        uint32_t ord, c, type, a, b, v;
-        int pre_cmd, discard;
-        if (!cq_pick(&r, &ord, &c))
-            break;
-        budget--;
-        type = c >> 28;
-        a = (c >> 20) & 0xFFu;
-        b = (c >> 12) & 0xFFu;
-        v = c & 0xFFFu;
-        pre_cmd = notes_off_drop && notes_off_cq_live && (int32_t)(ord - notes_off_cq) < 0;
-        if (notes_off_drop && !pre_cmd) {
-            notes_off_drop = 0;
-            notes_off_cq_live = 0;
+    while (r != cq_w && budget--) {
+        if (cq_hole_on && r == cq_hole_at) {   /* already copied toward the head */
+            r++;
+            if (notes_off_discard && r == notes_off_cutoff)
+                notes_off_discard = cq_panic_active = 0;
+            continue;
         }
-        discard = pre_cmd;
-        /* PANIC_DROP_QUEUED */
+        uint32_t c = cq[r % CQ], type = c >> 28, a = (c >> 20) & 0xFFu, b = (c >> 12) & 0xFFu, v = c & 0xFFFu;
+        int discard = notes_off_discard &&
+            !(cq_panic_fresh[(r % CQ) / 32u] & (1u << (r & 31u)));
+        r++;
+        if (notes_off_discard && r == notes_off_cutoff)
+            notes_off_discard = cq_panic_active = 0;
+        /* PANIC_DROP_QUEUED: old releases cannot silence a fresh replacement
+         * admitted into an earlier full-queue slot. Controls still execute. */
         if (discard && (type == C_DRUM || type == C_BON || type == C_REC ||
-                        (type == C_BRK && b != 0u)))
+                        type == C_BOFF || type == C_BRK))
             continue;
         uint32_t rec_epoch = a >> 1;
         if (type == C_REC) a &= 1u;
@@ -1675,7 +1707,7 @@ static void drain(void)
 #ifdef X0X_HOST
             bass_attacked[a] = (uint8_t)!slide;
 #endif
-            if (type == C_REC && rec_epoch == (seq.rec_epoch & 127u) && !notes_off_suppress_rec)
+            if (type == C_REC && rec_epoch == (seq.rec_epoch & 127u))
                 seq_rec_bass(&seq, (int)a, (int)b, (int)((v >> 2) & 127u), 1, 3,
                     ((v & 1u) ? BS_ACCENT : 0) | ((v & 512u) ? BS_SLIDE : 0) | (slide ? SEQ_REC_LEGATO : 0));
             v &= 511u; /* the outgoing manual-slide flag is recorder metadata only */
@@ -1714,39 +1746,14 @@ static void drain(void)
         brk_bend_owner = wheel ? 3 : -1;
         brk_wheel_seen = wheel;
     }
-    int midi_empty = 0;
-    while (guard-- > 0) {
-        uint32_t seq = 0;
-        int legacy, pre;
-        if (!plat_midi_peek(&pkt, &seq)) {
-            midi_empty = 1;
-            break;
-        }
-        legacy = (seq == 0u);
-        /* Stamps are 16-bit. The live ring spans far fewer than 32768 accepts. */
-        pre = !legacy && notes_off_midi_drop &&
-            (int16_t)((uint16_t)seq - (uint16_t)notes_off_midi_limit) < 0;
-        /* PANIC_MIDI_DEFER: a note accepted beyond this drain stays in order
-         * when compaction slides it into the first 64 slots. */
-        if (!legacy && panic_cycle && !pre &&
-            (int16_t)((uint16_t)seq - (uint16_t)notes_off_midi_head) >= 64)
-            break;
-        plat_midi_in(&pkt);
-        if (pre && midi_pkt_note_on(pkt))
-            continue;
-        if (!project_midi_drop)
-            midi_in(pkt);
+    uint32_t epoch;
+    while (guard-- > 0 && plat_midi_in_epoch(&pkt, &epoch)) {
+        unsigned type = (pkt >> 8) & 0xF0u, cc = (pkt >> 16) & 127u;
+        int old_note = notes_off_midi_valid && epoch != notes_off_midi_epoch &&
+            (type == 0x80u || type == 0x90u || (type == 0xB0u && (cc == 120u || cc == 123u)));
+        if (!project_midi_drop && !old_note) midi_in(pkt);
     }
-    if (notes_off_midi_drop) {
-        uint32_t seq = 0;
-        if (!plat_midi_peek(&pkt, &seq) ||
-            (seq != 0u && (int16_t)((uint16_t)seq - (uint16_t)notes_off_midi_limit) >= 0))
-            notes_off_midi_drop = 0;
-    }
-    if (midi_empty) project_midi_drop = 0;
-    if (panic_cycle)
-        engine_notes_off_apply();
-    notes_off_suppress_rec = 0;
+    if (guard >= 0) { project_midi_drop = 0; notes_off_midi_valid = 0; }
 }
 
 static void live_key_drain(void)
@@ -1759,17 +1766,13 @@ static void live_key_drain(void)
         if(live_key_r==live_key_w)break;
         __asm__ volatile("" ::: "memory");
         live_key_command_t c=live_key_q[live_key_r];
-        uint32_t ord=live_key_at;
         __asm__ volatile("" ::: "memory");
         live_key_r=(uint8_t)((live_key_r+1u)%LIVE_KEY_Q);
-        if (live_key_r != live_key_w)
-            live_key_at++;
         unsigned v=c.word&1u,token=(c.word>>1)&63u,pitch=(c.word>>7)&127u;
         unsigned velocity=(c.word>>14)&127u,accent=(c.word>>21)&1u,slide=(c.word>>22)&1u;
-        int post = live_panic_pass && (int32_t)(ord - notes_off_live) >= 0;
         live_key_owner_t *o=&live_key_owner[v];
-        if(o->blocked || (!post && c.generation!=o->generation))continue;
-        if(!post && notes_off_drop && (int32_t)(ord - notes_off_live) < 0)continue;
+        if(o->blocked || c.generation!=o->generation)continue;
+        if (velocity && SEQ_PART_OFF(&seq, TRK_BASS0 + v)) continue;
         (void)accent; (void)slide;
         uint8_t previous = original_key_pitch[v][token];
         if (velocity) {
@@ -1787,9 +1790,7 @@ static void live_key_drain(void)
             o->gate = held != 0;
             if (!held) bass_held[v] = bass_held_count[v] = 0;
         }
-    }
-    live_panic_pass = 0;
-}
+    }}
 
 static float part_peak[NPARTS];
 __attribute__((noinline)) static void meter(int p, const float *x, float g, uint32_t n)
@@ -1842,6 +1843,10 @@ static glide_t mix_glide[NPARTS][GL_N] = {
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}};
 __attribute__((noinline)) static void mix_targets(int p, float g, uint8_t solo)        /* g: the part level */
 {
+    /* Synth mute gates only this bus's dry/send gains. MIDI, allocator, ARP,
+     * envelopes and insert histories keep advancing, so unmute needs no note. */
+    if ((p == PART_303A || p == PART_303B) && seq_part_muted(&seq, p))
+        g = 0.0f;
     if (solo && !(solo & (1u << p)))
         g = 0.0f;
     glide_set(&mix_glide[p][GL_L], g * mix_pl[p]);
@@ -1860,7 +1865,12 @@ volatile uint32_t eng_dbg_wait, eng_dbg_nsub;  /* 24 MHz ticks waiting for core 
 
 /* the mix of one stretch between two events: dry left and right, the reverb and delay sends;
  * t0..tr the 808's scratch, kbuf the break's, mono the 909's kit send */
-static float dry_l[256], dry_r[256], rev[256], dly[256], t0[256], t1[256], t2[256], tr[256], kbuf[256], mono[256];
+static float dry_l[256], dry_r[256], rev[256], dly[256], t1[256], t2[256], kbuf[256], mono[256];
+/* The 808's L/R scratch is the stretch's own out_l/out_r window (saves 2 KiB).
+ * Lifetime: core 2 writes it while core 1 only touches dry_l..mono; core 1
+ * reads it after plat_cpu2_wait and before the 303s overwrite that window;
+ * fxbus_process_st then writes the final mix there. A failed core 2 is held. */
+static float *t0, *tr;
 
 /* a glide applied in place to a buffer that started at zero: buf * c is 0 + buf * c exactly, so this
  * is add_glide(zeros, buf) to the bit (the same steps of c) */
@@ -1974,13 +1984,9 @@ static void core2_job(uint32_t arg)
         pt = plat_cycles();
     }
     brk_silent_now = breaks_silent(&brk);                 /* the render writes zeros: nothing to mix */
-    if (!brk_silent_now) {
-        /* A silent render changes no BRK state and only clears kbuf. This
-         * stretch never reads kbuf in that case; the next audible render
-         * writes all of its samples before they are mixed. */
-        breaks_render(&brk, kbuf, (int)n);
+    breaks_render(&brk, kbuf, (int)n);
+    if (!brk_silent_now)
         bfx_shape(PART_BRK, kbuf, 0, 0, 0, 1, (int)n);
-    }
     if (timed)
         PROF_ADD(PR_BRK, pt);
 }
@@ -2000,22 +2006,25 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
 {
     float *bb[NBASS] = {out_l, out_r};
     int b;
-    float *left808 = t0 + offset, *right808 = tr + offset;
+    float *left808, *right808;
     uint32_t solo = smc_solo_state;
     uint32_t arg = (n & 0xFFu) | (uint32_t)smc_audible_drums(solo, PART_808) << 9 |
                    (offset << 20), i, pt;
     uint8_t solo_parts = (uint8_t)(solo & 0x1Fu);
     if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
     if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
+    t0 = out_l; tr = out_r;                           /* before the second core reads them */
+    left808 = t0 + offset; right808 = tr + offset;
     bfx_snapshot();                                   /* before the second core reads the holds */
     uint8_t brk_event_mark = brk_midi_count;
-    int on2 = plat_cpu2_run(core2_job, arg | 0x100u);
+    /* BRK still runs in the local fallback when no 808 voice needs core 2. */
+    int on2 = drum808_active(&d808) && plat_cpu2_run(core2_job, arg | 0x100u);
     for (i = 0; i < n; i++)
         dry_l[i] = dry_r[i] = rev[i] = dly[i] = 0.0f;
     {   /* the 909, straight into the mix: L, R and its voices' sends, then scaled in place */
         PROF_T(p9);
         if (!drum909_active(&d909)) {
-            drum909_render(&d909, mono, mono, mono, (int)n);   /* writes nothing; advances the noise */
+            drum909_advance_noise(&d909, (int)n);       /* retain the exact restart noise/history */
             drum909_pan_settle(&d909);                    /* silent: pans move at once, no glide */
         } else {
             drum909_render_st_masked(&d909, dry_l, dry_r, rev, dly, (int)n, smc_audible_drums(solo, PART_909));
@@ -2077,7 +2086,16 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         /* A part that was silent when Solo excluded it must not leak a new
          * note through the 10 ms mix glide-out: start its glides at zero. */
         int solo_out = solo_parts && !(solo_parts & (1u << p)) && original_quiet_samples[b] >= 512u;
-        for (i = 0; i < n; ++i) {
+        if (!fade && original_switch_gain[b] == 512u) {
+            /* Settled gain 1.0: x * 1.0f == x for every float, so only the
+             * quiet count runs (the same per-sample result). */
+            uint32_t q = original_quiet_samples[b];
+            for (i = 0; i < n; ++i) {
+                if (fm_fabsf(bb[b][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-b][i]) > 1.0f/65536.0f) q = 0;
+                else if (q < 512u) ++q;
+            }
+            original_quiet_samples[b] = q;
+        } else for (i = 0; i < n; ++i) {
             if (fade) { if (original_switch_gain[b]) --original_switch_gain[b]; }
             else if (original_switch_gain[b] < 512u) ++original_switch_gain[b];
             float gain = (float)original_switch_gain[b] * (1.0f/512.0f);
@@ -2091,9 +2109,18 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         if (solo_out) for (i = 0; i < GL_N; ++i) mix_glide[p][i].cur = 0.0f;
         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
         add_glide(dry_r, bb[1-b], &mix_glide[p][GL_R], n);
-        meter(p, bb[b], mix_level[p], n);
-        meter(p, bb[1-b], mix_level[p], n);
-        for (i = 0; i < n; ++i) bb[b][i] = .5f * (bb[b][i] + bb[1-b][i]);
+        {
+            float pk = part_peak[p], g = mix_level[p];
+            for (i = 0; i < n; ++i) {
+                float l = bb[b][i], r = bb[1-b][i];
+                float a = fm_fabsf(l) * g;
+                if (a > pk) pk = a;
+                a = fm_fabsf(r) * g;
+                if (a > pk) pk = a;
+                bb[b][i] = .5f * (l + r);
+            }
+            part_peak[p] = pk;
+        }
         add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
     }
@@ -2161,6 +2188,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
     }
     while (done < n) {
         uint32_t k = seq_until_event(&seq, n - done);
+        brk_mute_boundary(); /* also follows song mutes at an in-buffer event */
         render_sub(out_l + done, out_r + done, k, 0);
         {
             PROF_T(pt);
@@ -2179,14 +2207,21 @@ void engine_render(int32_t *out_lr, uint32_t n)
         master_process_st(&mst, out_l, out_r, (int)n, vol);
         PROF_ADD(6, pt);
     }
-    for (i = 0; i < n; i++) {
-        float l = out_l[i], r = out_r[i];            /* (out_scale: NORMAL 2^22, Felucca's; LOUD 2^23) */
-        l = l > out_lim ? out_lim : l < -out_lim ? -out_lim : l;
-        r = r > out_lim ? out_lim : r < -out_lim ? -out_lim : r;
-        out_lr[2u * i] = (int32_t)(l * out_scale);
-        out_lr[2u * i + 1u] = (int32_t)(r * out_scale);
-        if (i & 1u)
-            eng_scope[eng_scope_w++ & (SCOPE_N - 1u)] = (int16_t)((out_l[i] + out_r[i]) * 16383.5f);
+    {   /* globals in registers: the stores below cannot reload them per sample */
+        const float lim = out_lim, scale = out_scale;
+        for (i = 0; i < n; i++) {
+            float l = out_l[i], r = out_r[i];        /* (out_scale: NORMAL 2^22, Felucca's; LOUD 2^23) */
+            l = l > lim ? lim : l < -lim ? -lim : l;
+            r = r > lim ? lim : r < -lim ? -lim : r;
+            out_lr[2u * i] = (int32_t)(l * scale);
+            out_lr[2u * i + 1u] = (int32_t)(r * scale);
+        }
+    }
+    {
+        uint32_t w = eng_scope_w;
+        for (i = 1; i < n; i += 2u)
+            eng_scope[w++ & (SCOPE_N - 1u)] = (int16_t)((out_l[i] + out_r[i]) * 16383.5f);
+        eng_scope_w = w;
     }
     for (p = 0; p < NPARTS; p++) {                      /* meters: peak hold, ~300 ms decay at the UI */
         uint32_t q = (uint32_t)(fm_minf(part_peak[p], 1.0f) * 32767.0f);
@@ -2405,7 +2440,7 @@ X0X_COLD void engine_brk_loops(void)
         } else {
             const brk_loop_t *builtin = brk_builtin(slot < nb ? slot : 0);
             if (builtin) L[w] = *builtin;
-            else L[w] = (brk_loop_t){0};
+            else __builtin_memset(&L[w], 0, sizeof L[w]);
         }
         L[w].slices = (uint8_t)brk_slice_count(bp, (unsigned)w);
         breaks_set_loop(&brk, w, &L[w]);
@@ -2433,11 +2468,10 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     int p, g;
     cq_w = cq_r = 0;
     cq_hole_on = 0;
-    notes_off_cq = 0;
-    notes_off_cq_live = 0;
-    live_key_at = live_key_pos = 0;
-    notes_off_req = notes_off_drop = notes_off_midi_drop = notes_off_suppress_rec = live_panic_pass = 0;
-    notes_off_live = notes_off_midi_head = notes_off_midi_limit = 0;
+    cq_hole_at = 0;
+    notes_off_req = notes_off_discard = cq_panic_active = notes_off_midi_valid = 0;
+    notes_off_requested_cutoff = notes_off_cutoff = notes_off_midi_epoch = 0;
+    __builtin_memset(cq_panic_fresh, 0, sizeof cq_panic_fresh);
     rec_w = rec_r = 0;
     brk_local = 0;
     brk_midi_count = 0;
@@ -2524,8 +2558,8 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 }
 
 #ifdef X0X_HOST
-void engine_host_cq_sync(void) { cq_r = cq_w; }
-void engine_host_cq_at(uint32_t cursor) { cq_r = cq_w = cursor; }
+void engine_host_cq_sync(void) { cq_r = cq_w; cq_hole_on = 0; }
+void engine_host_cq_at(uint32_t cursor) { cq_r = cq_w = cursor; cq_hole_on = 0; }
 #endif
 
 #if defined(X0X_HOST) && defined(X0X_LIVE_KEY_TEST)

@@ -12,4 +12,8 @@ void original_master_mute(original_master *s,uint8_t byte);
  * cross-channel/state/buffer overlap is unsupported. Core-only reset preserves
  * this object. State is exclusively owned by the render/control executor. */
 int original_master_process(original_master *s,float converted_volume,const uint32_t *in_left,const uint32_t *in_right,uint32_t *out_left,uint32_t *out_right,uint32_t frames);
+/* The same as writing miami_fx_output_rne((int16_t)in[i]) to out, then
+ * original_master_process in place: one pass. i32: the low 16 bits of each word. */
+int original_master_process_i16(original_master *s,float converted_volume,const int16_t *in_left,const int16_t *in_right,uint32_t *out_left,uint32_t *out_right,uint32_t frames);
+int original_master_process_i32(original_master *s,float converted_volume,const int32_t *in_left,const int32_t *in_right,uint32_t *out_left,uint32_t *out_right,uint32_t frames);
 #endif

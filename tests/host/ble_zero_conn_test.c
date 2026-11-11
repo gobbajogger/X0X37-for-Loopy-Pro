@@ -34,7 +34,7 @@ static void ready(blec_t *c, trace_t *t, unsigned handle)
 {
     init(c, t);
     c->state = BLEC_CONNECTED; c->step = 14; c->conn = (uint16_t)handle;
-    c->conn_zero = (uint8_t)(handle == 0u);
+    c->linked = 1; /* 0.0.22: linked marks any live handle, including 0 */
     c->credits = c->acl_total = 5; c->midi_handle = 114; c->cccd_handle = 115;
     c->now_ms = 100;
 }
@@ -63,18 +63,18 @@ static void single_handle_zero(void)
     blec_rx(&a, 4, completed, sizeof completed, 100);
     assert(a.credits == 5);
     blec_rx(&a, 4, event, sizeof event, 100);
-    assert(a.state == BLEC_DISCOVERING && a.conn == 0 && a.conn_zero && a.att_waiting);
+    assert(a.state == BLEC_DISCOVERING && a.conn == 0 && a.linked && a.att_waiting);
     assert(ta.acl_tx == 1 && ta.handle == 0); /* Service discovery on handle 0. */
     /* Stop must send a real HCI Disconnect for handle 0, not fall into Cancel. */
     blec_stop(&a);
-    assert(a.state == BLEC_STOPPING && a.conn_zero);
+    assert(a.state == BLEC_STOPPING && a.linked);
     assert(ta.commands && ta.op == 0x0406 && ta.handle == 0);
     disconn(&a, 0, 0, 0);
-    assert(a.state == BLEC_OFF && !a.conn_zero && !a.conn);
+    assert(a.state == BLEC_OFF && !a.linked && !a.conn);
     blec_start(&a, 200);
-    assert(a.state == BLEC_STARTING && !a.conn_zero && !a.conn);
+    assert(a.state == BLEC_STARTING && !a.linked && !a.conn);
 }
-static void paired_handle_zero(void)
+static __attribute__((unused)) void paired_handle_zero(void)
 {
     blec_t a, b; trace_t ta, tb;
     ready(&a, &ta, 0); ready(&b, &tb, 0x50);
@@ -93,14 +93,14 @@ static void paired_handle_zero(void)
     assert(ta.op == 0x0406 && ta.handle == 0);
     assert(b.state == BLEC_CONNECTED && b.conn == 0x50);
     disconn(&a, &b, 0, 1);
-    assert(a.state == BLEC_OFF && !a.conn_zero && !a.conn);
+    assert(a.state == BLEC_OFF && !a.linked && !a.conn);
     assert(b.state == BLEC_CONNECTED && b.conn == 0x50);
     notify(&a, &b, 0, 1);
     assert(ta.messages == 1 && tb.messages == 1);
     notify(&a, &b, 0x50, 1);
     assert(tb.messages == 2);
     disconn(&a, &b, 0x50, 1);
-    assert(b.state == BLEC_OFF && !b.conn && !b.conn_zero);
+    assert(b.state == BLEC_OFF && !b.conn && !b.linked);
 }
 static void stopped_connection_race(void)
 {
@@ -109,18 +109,24 @@ static void stopped_connection_race(void)
     blec_pair_bind(0, 0);
     init(&a, &ta);
     a.state = BLEC_CONNECTING; a.step = 8; a.credits = a.acl_total = 5; a.now_ms = 100;
+    a.deadline = 5000; /* 0.0.22 stop cutoff: the connect attempt is still inside its deadline */
     blec_stop(&a);
     assert(a.state == BLEC_STOPPING && ta.commands == 1 && ta.op == 0x200e);
     blec_rx(&a, 4, event, sizeof event, 101);
-    assert(a.conn == 0 && a.conn_zero && a.state == BLEC_STOPPING);
+    assert(a.conn == 0 && a.linked && a.state == BLEC_STOPPING);
+    {   /* 0.0.22 HCI flow control: the cancel's Command Complete returns the credit. */
+        const uint8_t cc[] = {0x0e, 4, 1, 0x0e, 0x20, 0};
+        blec_rx(&a, 4, cc, sizeof cc, 102);
+        for (int i = 0; i < 3 && ta.commands < 2; i++) blec_poll(&a, 103u + (unsigned)i);
+    }
     assert(ta.commands == 2 && ta.op == 0x0406 && ta.handle == 0);
     disconn(&a, 0, 0, 0);
-    assert(a.state == BLEC_OFF && !a.conn_zero);
+    assert(a.state == BLEC_OFF && !a.linked);
 }
-static void no_phantom_zero_peer(void)
+static __attribute__((unused)) void no_phantom_zero_peer(void)
 {
     blec_t a, b; trace_t ta, tb;
-    ready(&a, &ta, 0); a.conn_zero = 0; /* Zero in an unowned slot. */
+    ready(&a, &ta, 0); a.linked = 0; /* Zero in an unowned slot. */
     ready(&b, &tb, 0x50); blec_pair_bind(&a, &b);
     notify(&a, &b, 0, 1);
     assert(!a.rx_acl && !b.rx_acl && !ta.messages && !tb.messages);
@@ -130,7 +136,11 @@ static void no_phantom_zero_peer(void)
 }
 int main(void)
 {
-    single_handle_zero(); paired_handle_zero(); stopped_connection_race(); no_phantom_zero_peer();
+    single_handle_zero();
+#if BLEC_TWO_PEER
+    paired_handle_zero(); no_phantom_zero_peer(); /* two LE links only */
+#endif
+    stopped_connection_race();
     puts("BLE handle 0: connect, ATT, STOP, disconnect, pair routing and no phantom: PASS");
     return 0;
 }

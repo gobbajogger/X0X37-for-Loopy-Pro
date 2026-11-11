@@ -101,3 +101,55 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 - Ship JieLi Bluetooth files with the firmware.
 
 Last update: 2026-10-19.
+
+
+## 0.0.25 Classic continuation (owner request, 2026-11-08; checkpoint 2026-11-10)
+
+The October 19 narrative above is retained as history, not the current delivery status.
+This section reconciles the existing M1–M13 identifiers in this sole ROADMAP;
+it does not create a second backlog or change existing feature/review owners.
+Scope pin: `5f578fc0642a1200a5163802bcd69277c511bfc7:docs/ROADMAP.md`, lines 286–298,
+PR #812. Owner requests at 2026-11-08 21:09 UTC+10 (integrate/test selected built
+0.0.25 features, fixes and optimizations) and 21:16 UTC+10 (continue/help Dot)
+authorize this continuation. Later owner messages select SDK V1.2.14 and ask for
+actual Elite/Pro files, with the owner handling the push. These are source/build
+instructions, not a waiver of the release gates or permission to flash devices.
+
+Local composition retains the verified `8be16486` UI/PARA/LCD delta and ports
+bounded donor changes rather than replacing production files wholesale. Remote
+PR #698 remains at `48e92b76`; this local branch is a candidate, not a claim that
+those remote PRs were merged. SHA-256 manifests and the actual final local Git
+commit identify the exported packages. Existing acceptance is not transferred
+from donor trees to the combination.
+
+| Existing row | Selected source / disposition | Current local status and remaining gate |
+|---|---|---|
+| M1 Global PANIC: keyboard FX+SEQ; same-peer SMC BANK L+R in DAW only; none in MMC | #853 `fc0669cc`; actual engine/MIDI cutover and physical-chord repairs | Implemented locally. The engine regression reproduced 42 failures before repair; final focused checks cover fresh note admission, recording, full queues and real SMC ownership. An uncombined DAW BANK action commits on release, so a chord has no earlier navigation side effect. Device validation and independent final review remain pending. |
+| M2 Muted fader takes its level on unmute | Existing production behavior | Preserved; no replacement feature. |
+| M3 Instant tempo | Existing `R_TEMPO` behavior | Preserved; no replacement feature. |
+| M4 Reset selected part saved sound using SMC HOME+SELECT | #860 `c97587c8` | Sound-only reset, existing undo, part/RESET SOUND/NO SAVED SOUND feedback included. Mixer level/pan/sends/mute retained. |
+| M5 Unknown item | No recorded definition | QUEUED. Nothing invented or implemented. |
+| M6 SMC FX effect selection/throw and proposed drum fill | Approved effect presentation; existing source ownership retained | Unbuilt final effect-presentation work remains QUEUED under M9. Drum-fill proposal is not admitted. Existing FX behavior is retained. |
+| M7 Per-part settings ON/OFF | #854 `8a382001`, M7a core | Core note admission and checked saved-state/header support included; all-ON legacy bytes preserved. Full settings UI remains QUEUED, not claimed delivered. |
+| M8 PLAY during a question answers NO then normal PLAY; HOME+PLAY redo | #860 (overlaps #845; not applied twice) | Included. Question polling preserves physical HOME/PLAY ownership. Real-path tests cover redo priority, one ordinary toggle and held edges. |
+| M9 Approved integration of every selected already-built feature and selected fixes | #853, #860, #861 `ae42441a`, #857 `9435f07b`, #855 `d6b34361`, #854 and current optimization stack | Combined locally: PANIC, reset/PLAY, USB retry/909 lookup, presets, longest chain and part-off core. All 20 production optimization deltas from `a49605bc` are retained/ported, including the exact LZ optimization once. #850/#856/#858 are evidence, not duplicate production patches. Unaccepted engine revision-2 `ca165812` is not silently admitted; independent acceptance remains required. |
+| M10 Both-model free pool at least 8,192 B | Exact current native builds, SDK V1.2.14, PADCAL=0 | Both current integrated builds measure 8,328 B free. Rebuild after any firmware-input change; artifact receipts carry exact final hashes and measurements. |
+| M11 Automatic passing NIGHTLY; no agent install/flash | Owner now handles push | No publication performed. Model/controller/package checks do not waive M12, performance, full qualification or owner-only device operation. |
+| M12 Pinned candidate/ROADMAP completeness and uploader enforcement | Existing #822 owner and scoped acceptance retained | NOT QUALIFIED on this composition. No new independent reviewer or review-budget reset. No source-only acceptance is promoted to final release approval. |
+| M13 Straight 1/8 and 1/4 SEQ rates | #824 scoped timing core only | QUEUED beyond existing core; no additional UI/BREAK/editor/storage/protocol stages or downgrade claims admitted. |
+
+### Preserved packaging requirements
+
+Models `SMK-37 Elite_900` and `SMK-37 Pro_900`; `X0X_DEV_PADCAL=0`.
+Owner-selected SDK: V1.2.14; build inputs are hash checked, not accepted on archive
+filename alone. Controller remains 61,552 bytes, SHA-256
+`a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984`, embedded CRC32
+`564a8f55`. No `BTIF`, `USRTRIM`, efuse, key_mac or bootloader operation is
+performed. No `main`, `.github`, nightly catalog or iPhone path is changed.
+
+Full host results are reported with baseline failures and explicit focused
+reruns; old receipts never qualify this new tree. Optimizer audio validation
+compares 17 scenarios / 50 audio-state files before versus after the optimization
+port. Host ABBA15/A-A measurements are separate from native/device timing and
+must report noise or slowdown honestly. Device tests remain NOT_RUN. Exported
+BUILD_ONLY candidates are not a passing NIGHTLY release or a safe-install claim.

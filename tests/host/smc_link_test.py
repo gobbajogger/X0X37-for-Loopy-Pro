@@ -4,7 +4,9 @@
 The real edge notifier, link producer, queue producer, project reset and poller
 are compiled together. UI/platform calls schedule an interrupt after the poller
 has sampled the link. MIDI actions are recorded at the dispatch boundary.
-SMC_SOURCE selects the unchanged source for the negative control.
+Connection status is checked for every peer-state and central-role combination
+in both one-peer and two-peer configurations. SMC_SOURCE selects the unchanged
+source for the negative control.
 """
 import os
 from pathlib import Path
@@ -60,6 +62,10 @@ static struct { uint8_t overlay, help; } ui;
 static int locked, interrupt_at, interrupt_up;
 static unsigned dispatched, notices, solo;
 static uint8_t observed[3][3];
+/* Link-generation fixture records UI behavior; actual PANIC peer retirement
+ * and rearming are covered by composed_smc_panic_test.c. */
+static void smc_panic_reset(void) {}
+static void smc_panic_sync_mode(void) {}
 static int perf_testing(void);
 static int ui_project_busy(void);
 static void engine_smc_solo(int n) { solo = (unsigned)n; }
@@ -68,7 +74,8 @@ static void ui_say(const char *a, const char *b) { (void)a; (void)b; notices++; 
 #define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
 ''' + prefix + "\n" + "\n".join(function(source, name) for name in
     (name for name in ("smc_solo_union", "smc_peer_drop", "smc_ble_midi_slot", "smc_ble_link_slot", "smc_project_active", "smc_solo_clear") if re.search(r"\b" + name + r"\(", source))) + "\n" + "\n".join(function(source, name) for name in (
-    "smc_project_drop", "smc_project_reset", "smc_ble_midi", "smc_ble_link")) + r'''
+    "smc_project_drop", "smc_project_reset", "smc_ble_midi", "smc_ble_link",
+    "smc_ble_role_get", "smc_connected")) + r'''
 static uint8_t ble_central_link_seen[2];
 ''' + function(transport, "ble_central_link_notify_slot") + r'''
 
@@ -113,6 +120,22 @@ int main(int argc, char **argv)
 {
     if (argc != 3) return 2;
     int mode = atoi(argv[1]), site = atoi(argv[2]);
+    if (mode == 8) {
+        for (unsigned central = 0; central < 2; central++) {
+            proj.set.bt = central ? PROJ_BT_SMC_CENTRAL : 0;
+            for (unsigned up = 0; up < (1u << SMC_PEERS); up++) {
+                for (unsigned peer = 0; peer < SMC_PEERS; peer++)
+                    smc_states[peer].up = (uint8_t)((up >> peer) & 1u);
+                int connected = smc_connected();
+                if (connected != (central && up)) {
+                    fprintf(stderr, "FAIL: peers=%u central=%u up=%u connected=%d\n",
+                            SMC_PEERS, central, up, connected);
+                    return 9;
+                }
+            }
+        }
+        return 0;
+    }
     proj.set.bt = PROJ_BT_SMC_CENTRAL;
     if (mode <= 1) {
         /* A newer reconnect/disconnect arrives after the old state was read. */
@@ -171,7 +194,8 @@ int main(int argc, char **argv)
 }
 '''
 
-cases = [("reconnect", 0, 1), ("reconnect-late", 0, 2),
+cases = [("connected-peer-bounds", 8, 0),
+         ("reconnect", 0, 1), ("reconnect-late", 0, 2),
          ("disconnect", 1, 1), ("disconnect-late", 1, 2),
          ("stable-pickup", 2, 0), ("coalesced-edges", 3, 0),
          ("project-reset", 4, 0), ("disconnect-clears-solo", 5, 0)]
@@ -185,17 +209,21 @@ with tempfile.TemporaryDirectory(prefix="smc-link-") as tmp:
     flags = shlex.split(os.environ.get("SAN_FLAGS", ""))
     if has_generation:
         flags.append("-DLINK_GENERATION")
-    subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-g",
-                    "-Wall", "-Wextra", "-Werror", *flags,
-                    "-I" + str(ROOT / "firmware/src"),
-                    "-I" + str(ROOT / "tests/host"),
-                    str(c), "-o", str(executable)], check=True)
     failures = []
-    for label, mode, site in cases:
-        result = subprocess.run([str(executable), str(mode), str(site)], check=False)
-        print(f'{"PASS" if result.returncode == 0 else "FAIL"} {label}', flush=True)
-        if result.returncode:
-            failures.append((label, result.returncode))
+    for two_peer in (0, 1):
+        peer_flags = ["-DBLEC_TWO_PEER=1"] if two_peer else []
+        subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-g",
+                        "-Wall", "-Wextra", "-Werror", *flags,
+                        *peer_flags,
+                        "-I" + str(ROOT / "firmware/src"),
+                        "-I" + str(ROOT / "tests/host"),
+                        str(c), "-o", str(executable)], check=True)
+        for label, mode, site in cases:
+            result = subprocess.run([str(executable), str(mode), str(site)], check=False)
+            label = f"peers={two_peer + 1} {label}"
+            print(f'{"PASS" if result.returncode == 0 else "FAIL"} {label}', flush=True)
+            if result.returncode:
+                failures.append((label, result.returncode))
     if failures:
-        raise SystemExit(f"FAIL: {len(failures)}/{len(cases)} SMC link cases: {failures}")
-print(f"PASS: {len(cases)} SMC link cases preserve reconnect, disconnect, pickup, reset and wrap")
+        raise SystemExit(f"FAIL: {len(failures)}/{len(cases) * 2} SMC link cases: {failures}")
+print(f"PASS: {len(cases) * 2} SMC link cases preserve connection bounds, reconnect, disconnect, pickup, reset and wrap")

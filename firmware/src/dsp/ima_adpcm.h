@@ -27,14 +27,10 @@ extern const int8_t IMA_IDX_T[8];
 
 /* decode nibble i of d; updates the decoder state and returns the new sample */
 static const uint8_t IMA_ROUND_CORR[64] = {
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 1, 0, 1, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 1, 1, 0, 0, 1, 1,
-    0, 1, 0, 1, 0, 1, 0, 1,
-    0, 1, 1, 2, 0, 1, 1, 2,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,1,0,1,0,1,0,1,
+    0,0,0,0,0,0,0,0, 0,0,1,1,0,0,1,1,
+    0,1,0,1,0,1,0,1, 0,1,1,2,0,1,1,2
 };
 static inline int32_t ima_decode(const uint8_t *d, uint32_t i, int32_t *pred, int32_t *idx)
 {

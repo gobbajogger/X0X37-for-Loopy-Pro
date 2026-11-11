@@ -452,11 +452,7 @@ class WorkerValidation(DevelopmentValidation):
         plan = json.loads(self.plan.read_text())
         plan['checks'][0]['argv'] = ['python3', '-B', '-c',
             'from pathlib import Path; import '+module+' as p; '
-            # Replacing the inode keeps an imported extension's mapped image intact.
-            # Truncating that loaded .so can crash Python before the fingerprint check.
-            'f=Path(p.__file__); replacement=f.with_name(f.name+".mutation"); '
-            'replacement.write_bytes(f.read_bytes()+b"\\n# mutation\\n"); '
-            'replacement.replace(f); print(f)']
+            'f=Path(p.__file__); f.write_bytes(f.read_bytes()+b"\\n# mutation\\n"); print(f)']
         self.plan.write_text(json.dumps(plan))
         actual = self.run_validation()
         self.assertEqual(actual.returncode, 3, actual.stdout+actual.stderr)

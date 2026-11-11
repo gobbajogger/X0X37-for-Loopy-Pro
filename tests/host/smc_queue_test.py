@@ -66,6 +66,10 @@ static int locked, testing, inject, route, mmc_src, reset_on_first;
 static unsigned count;
 static uint8_t observed[64][7];
 static int perf_testing(void) { return testing; }
+/* This isolated fixture tests ISR queue ordering, not chord semantics. The
+ * real chord hooks are covered by composed_smc_panic_test.c. */
+static void smc_panic_reset(void) {}
+static void smc_panic_sync_mode(void) {}
 static int ui_project_busy(void) { return locked; }
 static void engine_smc_solo(int n) { (void)n; }
 static void engine_smc_solo_targets(uint8_t p,uint16_t a,uint16_t b) { (void)a; (void)b; engine_smc_solo(p); }

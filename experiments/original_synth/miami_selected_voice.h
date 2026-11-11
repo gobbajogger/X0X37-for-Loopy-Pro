@@ -39,6 +39,10 @@ typedef struct {
  original_miami_pitch_controls pitch;
  original_voice_gain_controls gain;
  float cutoff,resonance,env_depth,noise,pw_intensity,pw_width,xmod,vco_gain;
+ /* Source/MI/MW are zero in this selected profile: widths change only with
+  * the program. Compile once instead of repeating four checked conversions
+  * at every voice start and 690 Hz control tick. */
+ float wave_width[4];
  float patch_slave,patch_cutoff,patch_gain;
  float mg_base[2],mg_times[2];
  float bend_normalized;
@@ -53,6 +57,11 @@ typedef struct {
  * All18 macros have explicit voice/outer endpoints in this immutable view. */
 int original_miami_voice_compile(original_miami_voice_controls *out,
  const original_miami_program *program);
+/* Incremental bend/cutoff edit of an initialized corresponding snapshot.
+ * Program must differ only by the named program_set edit. Other edits, an
+ * unready snapshot or a revision gap use full compilation. Failure is atomic. */
+int original_miami_voice_recompile(original_miami_voice_controls *out,
+ const original_miami_program *program,unsigned macro);
 
 typedef struct {
  float phase,unipolar,bipolar,hold;

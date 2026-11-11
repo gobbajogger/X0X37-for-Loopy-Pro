@@ -36,7 +36,7 @@ enum { FX_VOLUME, FX_DIST, FX_DRIVE, FX_COMP,
 
 struct fxbus {
     /* reverb */
-    float rv_decay, rv_damp, rv_level; /* rv_damp caches 0.75 - tone*0.55 */
+    float rv_decay, rv_damp, rv_level;
     d9_biquad_t rv_hp;
     int16_t comb[FX_RV_COMB_TOTAL];
     volatile uint8_t muted;          /* uses alignment padding: reverb/delay/master output gates, not pots */
@@ -49,7 +49,7 @@ struct fxbus {
                                        * signs through its own allpasses (the left is 9W9's) */
     int32_t aposr[2];
     /* delay */
-    float dl_time_ms, dl_fdbk, dl_tc, dl_level, bpm, wear; /* dl_tc caches 0.06 + tone*0.6 */
+    float dl_time_ms, dl_fdbk, dl_tc, dl_level, bpm, wear;
     int32_t dl_div, dl_type;
     d9_biquad_t dl_hp;
     int16_t *dbuf;

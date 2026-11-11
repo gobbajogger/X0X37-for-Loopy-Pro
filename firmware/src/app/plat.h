@@ -47,6 +47,11 @@ int plat_division_pad(unsigned owner);
 /* Outer physical events retain their publication epoch and strike pitch.
  * Snapshot/cutoff includes the complete physical bitmap under an IRQ guard. */
 typedef struct { uint32_t generation, word; } plat_outer_event_t;
+#define PLAT_OUTER_PACK(key, vel, pitch) \
+    ((uint32_t)(key) | ((uint32_t)(vel) << 7) | ((uint32_t)(pitch) << 14))
+#define PLAT_OUTER_KEY(word) ((uint32_t)(word) & 127u)
+#define PLAT_OUTER_VEL(word) (((uint32_t)(word) >> 7) & 127u)
+#define PLAT_OUTER_PITCH(word) ((uint32_t)(word) >> 14)
 #if defined(X0X_HOST) && !defined(X0X_LIVE_KEY_TEST)
 static inline uint64_t plat_physical_keys(void) { return (uint64_t)plat_keys()<<5; }
 static inline int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
@@ -71,15 +76,34 @@ uint32_t plat_midi_mark(void);        /* accepted input producer watermark, non-
 int plat_midi_passed(uint32_t mark);  /* consumer reached/passed mark; <2^31 outstanding */
 int plat_midi_pending(void);          /* non-consuming shared USB/BLE/TRS input ring query */
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the audio ISR) */
-int plat_midi_peek(uint32_t *pkt, uint32_t *seq); /* head packet and its accept sequence; 0 = empty */
-void plat_midi_panic_sample(uint32_t *head_seq, uint32_t *next_seq);
+/* CPU0 main/TIMER5 request boundary, captured inside this call. Only the newest
+ * cut is valid: a later cut makes all still-queued packets old, including those
+ * accepted after an earlier cut. Tags survive overflow moves; accepted payload
+ * replacements are fresh. No packets, controls or positional marks are changed.
+ * The caller must serialize capture AND request publication against other cut
+ * callers and audio, e.g. an outer ALNK0-then-TIMER5 source guard on CPU0. An IRQ
+ * can capture a newer cut as this function restores its guards; an unguarded
+ * returned token may therefore already be superseded. This call captures MIDI
+ * only. It does not implement PANIC or flush any engine queue. */
+uint32_t plat_midi_cut(void);          /* nonzero opaque token; supersedes prior cuts */
+/* Audio consumer: packet and tag are one atomic consume. Tag 0 = accepted before
+ * latest cut; tag equal to latest cut = accepted after it. Outputs are untouched
+ * on empty. Compare for equality, never order/subtract tokens. Consume returned
+ * tags against the current cut, before another cut supersedes them; do not keep
+ * old tokens/returned tags across a later cut, including token wrap. */
+int plat_midi_in_epoch(uint32_t *pkt, uint32_t *epoch);
 #define PLAT_MIDI_SRC(pkt) (((pkt) >> 4) & 3u)   /* the input of a MIDI in packet: 0 USB, 1 Bluetooth, 2 TRS */
 #define PLAT_MIDI_LINK_END(src) ((uint32_t)(src) << 4)   /* CIN 0, no message: the link of input src ended (MID-15, BLE-16) */
 int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity); /* CPU0 only: atomic matched pair or drop both */
 void plat_midi_out(uint32_t pkt);      /* queue one (audio ISR or main loop) */
 
 /* persistent storage (Felucca storage.c objects: A/B sectors, CRC, torn-write safe) */
-int plat_store_load(uint32_t obj, void *dst, uint32_t max);   /* bytes loaded, < 0 = none / bad */
+/* Bytes loaded; -1 = confirmed empty, -2 = read failure (retry), -3 = damaged
+ * committed data (validated adoption only), -8 = busy.
+ * Only -1 permits first-boot defaults to be persisted. */
+/* OR into obj to read its older valid A/B copy without modifying flash. */
+#define PLAT_STORE_PREVIOUS 0x80000000u
+int plat_store_load(uint32_t obj, void *dst, uint32_t max);
 int plat_store_save(uint32_t obj, const void *src, uint32_t len);   /* 0 = ok */
 #define PLAT_STORE_MAX 3840u           /* bytes per object */
 enum { OBJ_SET, OBJ_SOUND, OBJ_PAT0, OBJ_PAT1, OBJ_PANEL, OBJ_SONG, OBJ_MOTION, OBJ_NOBJ };
@@ -113,6 +137,10 @@ enum { PLAT_BLE_NOIMG, PLAT_BLE_OFF, PLAT_BLE_RESTART, PLAT_BLE_STARTING, PLAT_B
        PLAT_BLE_FAILED, PLAT_BLE_BADIMG };
 int plat_ble_state(void);
 const char *plat_ble_name(void);
+#define PLAT_BLE_PEER_CAP 2u
+#define PLAT_BLE_PEER_NAME_MAX 20u
+typedef struct { unsigned count; int state, central; char name[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX+1u]; } plat_ble_peers_t;
+void plat_ble_peers(plat_ble_peers_t *out);   /* connected SMC peer names, one snapshot */
 void plat_ble_set(int on);
 /* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len);

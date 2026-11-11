@@ -22,6 +22,8 @@ ring = ring.replace(
     "static uint32_t midi_in_q[MQ];\n"
     "static volatile uint32_t mi_w, mi_r;",
 )
+# This narrow queue harness does not extract cut/dequeue epoch consumers.
+ring = ring.replace("static uint32_t mi_epoch = 1u;\n", "")
 src = (
     "#include <stdint.h>\n#include <stdio.h>\n"
     "#define RING_PUBLISH() ((void)0)\n"

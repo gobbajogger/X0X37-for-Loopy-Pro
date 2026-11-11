@@ -38,10 +38,14 @@ int original_miami_voice_tables_init(original_miami_voice_tables *out,original_m
  memcpy(storage->a,in->a,sizeof storage->a);memcpy(storage->b,in->b,sizeof storage->b);memcpy(storage->r,in->r,sizeof storage->r);memcpy(storage->cap,in->cap,sizeof storage->cap);memcpy(storage->pitch,pitch,sizeof storage->pitch);
  original_miami_voice_tables t;memset(&t,0,sizeof t);t.filter=(original_ms20_tables){storage->a,storage->b,storage->r,storage->cap};t.pitch=storage->pitch;t.ready=TABLE_READY;*out=t;return 1;
 }
-int original_miami_voice_compile(original_miami_voice_controls *out,const original_miami_program *p){
- if(!out||!p)return 0;
+static int program_valid(const original_miami_program *p){
  for(unsigned i=0;i<18;i++)if(!original_binary32_isfinite(p->macro[i])||p->macro[i]<0||p->macro[i]>1)return 0;
  for(unsigned i=0;i<24;i++)if(!original_binary32_isfinite(p->target[i])||p->target[i]<0||p->target[i]>1)return 0;
+ return 1;
+}
+int original_miami_voice_compile(original_miami_voice_controls *out,const original_miami_program *p){
+ if(!out||!p)return 0;
+ if(!program_valid(p))return 0;
  original_miami_voice_controls c;memset(&c,0,sizeof c);
  c.pitch.master_tune=bipolar(native(p,0));
  c.pitch.unison_detune=native(p,90);c.pitch.bend_range=24.0f*native(p,55);
@@ -59,6 +63,8 @@ int original_miami_voice_compile(original_miami_voice_controls *out,const origin
  c.gain.curve=0;c.gain.ms20=1;c.gain.filter_gain=1;
  c.cutoff=native(p,24);c.resonance=native(p,25);c.env_depth=bipolar(native(p,26));c.noise=native(p,23);
  c.pw_intensity=native(p,21);c.pw_width=native(p,22);
+ for(unsigned i=0;i<4;i++)
+  if(!original_pw_width(c.shape[i],c.pw_intensity,0,c.pw_width,0,0,&c.wave_width[i]))return 0;
  if(!original_xmod_coefficient(native(p,39),0,&c.xmod))return 0;
  c.vco_gain=ref_fma(native(p,102),3,1);
  c.patch_slave=bipolar(native(p,80));c.patch_cutoff=bipolar(native(p,81));c.patch_gain=bipolar(native(p,87));
@@ -72,6 +78,21 @@ int original_miami_voice_compile(original_miami_voice_controls *out,const origin
  c.master_volume=native(p,96);c.master_volume=c.master_volume*c.master_volume;
  c.decimator_normalized[0]=native(p,110);c.decimator_normalized[1]=native(p,111);
  c.revision=p->revision;c.ready=CONTROL_READY;*out=c;return 1;
+}
+/* The serial control owner supplies a corresponding preceding snapshot and
+ * exactly one mapped edit. Keep validation; reuse only unaffected conversions.
+ * Any other macro or uncertain cache takes the complete compiler above. */
+int original_miami_voice_recompile(original_miami_voice_controls *out,const original_miami_program *p,unsigned macro){
+ if(!out||!p)return 0;
+ if((macro!=16&&macro!=12)||out->ready!=CONTROL_READY||p->revision!=out->revision+UINT32_C(1))
+  return original_miami_voice_compile(out,p);
+ if(!program_valid(p))return 0;
+ /* Full compilation also rejects PCM and unsupported MG shapes. */
+ for(unsigned i=0;i<4;i++)if(quantize(native(p,1+4*i),5)>3)return 0;
+ if(quantize(native(p,43),5)>3||quantize(native(p,49),5)>3)return 0;
+ if(macro==16)out->bend_normalized=native(p,105);
+ else out->patch_cutoff=bipolar(native(p,81));
+ out->revision=p->revision;return 1;
 }
 static int mg_output(original_miami_voice_mg *m,unsigned shape){
  if(!original_miami_mg_shape(shape,m->phase,&m->bipolar,&m->unipolar))return 0;
@@ -139,7 +160,7 @@ static int preparation_tail(original_miami_selected_voice *s,const original_miam
  if(!original_miami_pitch_prepare(&s->pitch,&pc,t->pitch,44100,D,oc.increment))return 0;
  for(unsigned i=0;i<4;i++){
   oc.shape[i]=c->shape[i];
-  if(!original_pw_width(oc.shape[i],c->pw_intensity,0,c->pw_width,0,0,&oc.width[i]))return 0;
+  oc.width[i]=c->wave_width[i];
  }
  oc.xmod=c->xmod;
  if(!s->prepared.ready||memcmp(&s->prepared.controls,&oc,sizeof oc)){

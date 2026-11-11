@@ -17,6 +17,8 @@ static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 #define BOARD_SMK37 1
 #define X0X_BLE 0
 #define SMK_BIG
+#define FM1_TICKS_PER_US 24u
+static uint32_t fm1_ticks(void) { return 0; }
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 #include "src/usb.c"
 void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
@@ -28,7 +30,8 @@ typedef struct {                    /* the clip keys fields of settings_t (app/x
     uint8_t autosave_off;
 } settings_t;
 static struct { settings_t set; } proj;
-static struct { uint16_t bpm; uint8_t playing, req_start, req_cont, req_stop; } seq;
+seq_t seq;                          /* usb.c (LIVE-A update guard) sees the real seq_t through app/engine.h */
+int engine_project_notes(void) { return 0; }   /* no live notes in this fixture */
 static uint8_t project_busy;
 static int ui_project_busy(void) { return project_busy; }
 /* This clip/MIDI fixture has no active boot capture or maintenance lease. */
@@ -110,6 +113,7 @@ static int project_save(void) { save_calls++; return 0; }
 static void say(const char *s, uint32_t t) { (void)s; (void)t; }
 static void save_project(void) { save_wait = 0u; project_save(); }
 #define BOARD_SMK37 1
+int project_storage_unsupported(void) { return 0; }   /* #810 autosave guard: supported storage here */
 #include "autosave.inc"
 #undef BOARD_SMK37
 

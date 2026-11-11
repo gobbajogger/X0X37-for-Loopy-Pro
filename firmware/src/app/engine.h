@@ -20,6 +20,7 @@
 #include "../dsp/x0x_param.h"
 #include "../seq/sequencer.h"
 #include "../seq/motion.h"
+#include "param_trace.h"
 
 enum { T_909, T_808, T_303, T_BRK, T_FX, T_MIX, T_MST, NTARGETS };
 #define T_PROB NTARGETS                /* a lane's pseudo-target: a step's chance, 5..100 % (not in sound_t);
@@ -88,6 +89,10 @@ int engine_bass_voice_view(int voice, float *level, float *modulation, unsigned 
 int engine_drum_view(int kit, int voice, uint32_t *age_ms, float *env);
 /* UI: the 909 kick's pitch t ms after a hit for these engine values (drum909_bd_hz) */
 float engine_bd909_hz(float tau, float depth, float pitch, float t_ms);
+/* UI: live MG1 phase/output (Miami) and osc pitch glide (both); 0 when not available */
+int engine_bass_motion_view(int voice, float *phase, float *bipolar, float *current, float *target, int *active);
+/* Chicago only, UI: amp EG controls A/D/S/R (0..1), live level and state (0 A, 1 D/S, 3 R, 6 idle) */
+int engine_bass_env_view(int voice, float adsr[4], float *level, int *state);
 int engine_bass_requested_bank(int voice);
 int engine_bass_requested_preset(int voice);
 /* 0 applied; 1 next audio boundary; 2 held/release tail; 3 wheel; 4 sound locks; 5 old input; 6 publication. */
@@ -284,5 +289,8 @@ void engine_live_key_state(int voice,uint32_t *generation,int *arp,uint32_t *con
 void engine_live_key_cancel(int voice);
 int engine_live_key(int voice,uint32_t generation,int token,int pitch,int velocity,int accent,int slide);
 
-#ifdef X0X_HOST
+#if defined(X0X_HOST) && defined(X0X_LIVE_KEY_TEST)
+/* Host fixture controls; not part of the firmware API. Match engine.c guards. */
+void engine_live_key_force_serial(int voice,uint32_t generation,uint32_t context);
+unsigned engine_live_key_probe(int voice,int field);
 #endif

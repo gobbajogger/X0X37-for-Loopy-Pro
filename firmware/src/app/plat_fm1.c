@@ -64,24 +64,36 @@ uint64_t plat_physical_keys(void)
     return (uint64_t)plat_keys()<<5;
 #endif
 }
-int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
-                    uint32_t epoch,int enabled,int octave,int publish)
+int plat_outer_keys(plat_outer_event_t *events, uint64_t *keys, int *overflow,
+                    uint32_t epoch, int enabled, int octave, int publish)
 {
-    int n=0;
+    int n = 0;
 #if BOARD_SMK37
-    uint32_t flags=irq_save();
-    *keys=fm1_in.keys;*overflow=smk_extq_overflow;
-    if(publish || *overflow)smk_extq_r=smk_extq_w;
-    else while(smk_extq_r!=smk_extq_w && n<31) {
-        events[n].generation=smk_extq[smk_extq_r][0];events[n++].word=smk_extq[smk_extq_r][1];
-        smk_extq_r=(uint8_t)((smk_extq_r+1u)%SMK_EXTQ);
+    uint32_t flags = irq_save();
+    *keys = fm1_in.keys;
+    *overflow = smk_extq_overflow;
+    if (publish || *overflow)
+        smk_extq_r = smk_extq_w;
+    else while (smk_extq_r != smk_extq_w && (unsigned)n < SMK_EXTQ - 1u) {
+        events[n].generation = smk_extq[smk_extq_r][0];
+        events[n++].word = smk_extq[smk_extq_r][1];
+        smk_extq_r = (uint8_t)((smk_extq_r + 1u) % SMK_EXTQ);
     }
-    smk_extq_overflow=0;
-    if(publish){smk_ext_epoch=epoch;smk_ext_enabled=(uint8_t)!!enabled;smk_ext_oct=(int8_t)octave;}
+    smk_extq_overflow = 0;
+    if (publish) {
+        smk_ext_epoch = epoch;
+        smk_ext_enabled = (uint8_t)!!enabled;
+        smk_ext_oct = (int8_t)octave;
+    }
     irq_restore(flags);
 #else
-    (void)events;(void)epoch;(void)enabled;(void)octave;(void)publish;
-    *keys=plat_physical_keys();*overflow=0;
+    (void)events;
+    (void)epoch;
+    (void)enabled;
+    (void)octave;
+    (void)publish;
+    *keys = plat_physical_keys();
+    *overflow = 0;
 #endif
     return n;
 }
@@ -214,33 +226,24 @@ int plat_midi_pending(void)
     __asm__ volatile("" ::: "memory");
     return mi_r != mi_w;
 }
-int plat_midi_peek(uint32_t *pkt, uint32_t *seq)
+uint32_t plat_midi_cut(void)
 {
-    uint32_t irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);
-    int found = mi_r != mi_w;
-    if (found) {
-        if (pkt)
-            *pkt = midi_in_q[mi_r % MQ];
-        if (seq)
-            *seq = midi_in_seq[mi_r % MQ];
-    }
-    fm1_irq_mask_restore(FM1_IRQ_TIMER5, irq);
-    return found;
+    /* Requests may come from main or TIMER5; exclude the audio consumer too.
+     * Clear all slot tags at each cut, so even token wrap cannot revive an old
+     * queued packet. This cut supersedes every previous cut. */
+    uint32_t audio = fm1_irq_mask_save(FM1_IRQ_ALNK0);
+    uint32_t transport = fm1_irq_mask_save(FM1_IRQ_TIMER5);
+    uint32_t i, epoch = mi_epoch + 1u;
+    if (!epoch)
+        epoch = 1u;
+    for (i = 0; i < MQ; i++)
+        mi_fresh[i] = 0u;
+    mi_epoch = epoch;                 /* request capture, both sources excluded */
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, transport);
+    fm1_irq_mask_restore(FM1_IRQ_ALNK0, audio);
+    return epoch;
 }
-void plat_midi_panic_sample(uint32_t *head_seq, uint32_t *next_seq)
-{
-    uint32_t irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);
-    uint32_t next = midi_seq_next ? midi_seq_next : 1u;
-    uint32_t head = next;
-    if (mi_r != mi_w && midi_in_seq[mi_r % MQ])
-        head = midi_in_seq[mi_r % MQ];
-    if (head_seq)
-        *head_seq = head;
-    if (next_seq)
-        *next_seq = next;
-    fm1_irq_mask_restore(FM1_IRQ_TIMER5, irq);
-}
-int plat_midi_in(uint32_t *pkt)
+int plat_midi_in_epoch(uint32_t *pkt, uint32_t *epoch)
 {
     /* Ingress overflow can compact the live ring in TIMER5. Keep its slot
      * read and consume together so an interrupted read cannot skip a note. */
@@ -248,10 +251,16 @@ int plat_midi_in(uint32_t *pkt)
     int found = mi_r != mi_w;
     if (found) {
         *pkt = midi_in_q[mi_r % MQ];
+        *epoch = mi_fresh[mi_r % MQ] ? mi_epoch : 0u;
         mi_r++;
     }
     fm1_irq_mask_restore(FM1_IRQ_TIMER5, irq);
     return found;
+}
+int plat_midi_in(uint32_t *pkt)
+{
+    uint32_t epoch;
+    return plat_midi_in_epoch(pkt, &epoch);
 }
 void plat_midi_out(uint32_t pkt)
 {
@@ -305,12 +314,13 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity)
 #if !X0X_BLE
 int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
 const char *plat_ble_name(void) { return ""; }
+void plat_ble_peers(plat_ble_peers_t *out) { __builtin_memset(out,0,sizeof *out); out->state=PLAT_BLE_NOIMG; }
 void plat_ble_set(int on) { (void)on; }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 0; }
 int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len) { (void)slot; (void)msg; (void)len; return 0; }
 #endif
 
-int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -1; }
+int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -2; }
 int plat_store_save(uint32_t obj, const void *src, uint32_t len) { return flash_ok ? st_save(obj, src, len) : -9; }
 
 int plat_slot_zones(int k) { return (k >= 0 && k < SMP_USER_SLOTS) ? usr_nz[k] : 0; }
@@ -321,7 +331,7 @@ const uint8_t *plat_slot(int k, int z, uint32_t *nsamples, uint32_t *rate, char 
     uint32_t i, rate_q16;
     if (k < 0 || k >= SMP_USER_SLOTS || z < 0 || z >= usr_nz[k])
         return 0;
-    h = (const smp_user_hdr_t *)smp_user_xip((uint32_t)k);
+    h = smp_hdr(smp_user_xip((uint32_t)k));
     for (i = 0; i < 8u; i++)
         name[i] = h->name[i] >= 32 && h->name[i] < 127 ? h->name[i] : 0;
     name[8] = 0;

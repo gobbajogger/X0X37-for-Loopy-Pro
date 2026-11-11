@@ -60,11 +60,7 @@ static inline void chi_ens_process(chi_ens_t *e, float *buf, int n) {
     wet = e->wet;
     if (wet <= 0.0f) return;
     dry_g = 1.0f - wet; depth = e->depth; inc = e->inc; w = e->w;
-    for (v = 0; v < CHI_ENS_VOICES; v++) {
-        base[v] = e->base[v]; ph[v] = e->phase[v];
-        /* The voice rate is constant for this call. Keep the float order. */
-        step[v] = inc * (1.0f + 0.17f * (float)v);
-    }
+    for (v = 0; v < CHI_ENS_VOICES; v++) { base[v] = e->base[v]; ph[v] = e->phase[v]; step[v] = inc * (1.0f + 0.17f * (float)v); }
     for (k = 0; k < n; k++) {
         float x = buf[k], sum = 0.0f, y;
         e->buf[w] = chi_ens_q15(x);

@@ -716,19 +716,11 @@ static void d9_render_bd(d9_bt_t *v, const float *nz, const d9_bus_t *bus, int n
         d9_warm(&v->click_lp, nz);
         v->click_warm = 0;
     }
-    /* bd_df is unchanged during pitch hold. Reuse the same rounded increment;
-     * on the first decay sample, still read the frequency before decaying it. */
-    const uint32_t hold_inc = v->bd_phold > 0 && m > 0
-        ? d9_inc(v->bd_base + v->bd_df) : 0;
+    const uint32_t hold_inc = v->bd_phold > 0 && m > 0 ? d9_inc(v->bd_base + v->bd_df) : 0;
     for (int i = 0; i < m; ++i) {
         uint32_t inc;
-        if (v->bd_phold > 0) {
-            inc = hold_inc;
-            --v->bd_phold;
-        } else {
-            inc = d9_inc(v->bd_base + v->bd_df);
-            v->bd_df *= v->bd_mult;
-        }
+        if (v->bd_phold > 0) { inc = hold_inc; --v->bd_phold; }
+        else { inc = d9_inc(v->bd_base + v->bd_df); v->bd_df *= v->bd_mult; }
         if (v->amp_hold_left > 0 && --v->amp_hold_left == 0)
             d9_env_exp(&v->amp, 0.00001f, v->decay * 0.001f * D9_SR);
         const float amp = d9_env_tick(&v->amp);
@@ -843,15 +835,10 @@ static void d9_render_tom(d9_tom_t *t, const d9_bt_t *p, const float *nz, const 
     }
 }
 
-/* Rim band-pass ringing after two +0 inputs: b0*0 + b1*0 + b2*0
- * is exactly +0 for these finite BP coefficients. Keep that leading +0 to
- * preserve the original subtraction order and signed-zero behavior. The
- * caller has already flushed x1/x2, which therefore need no further writes. */
 static inline float d9_rim_ring(d9_biquad_t *f)
 {
     const float y = 0.0f - f->a1 * f->y1 - f->a2 * f->y2;
-    f->y2 = f->y1;
-    f->y1 = y;
+    f->y2 = f->y1; f->y1 = y;
     return y;
 }
 
@@ -863,7 +850,6 @@ static void d9_render_rim(d9_rim_t *v, const float *nz, const d9_bus_t *bus, int
     d9_env_anchor(&v->amp);
     const float g = v->level, accent = v->accent, noise_mix = v->noise_mix;
     const d9_shape_t shape = v->shape;
-    /* Keep the impulse and the next two zero inputs on the general path. */
     const int warm = v->impulse < m - 2 ? v->impulse + 2 : m;
     int i = 0;
     for (; i < warm; ++i) {
@@ -896,10 +882,8 @@ __attribute__((noinline)) static void d9_render_clap(d9_clap_t *v, const float *
     d9_env_anchor(&v->burst);
     d9_env_anchor(&v->tail);
     const float g = v->level, accent = v->accent;
-    const float burst_samples = v->burst_decay * D9_MS;
-    const float tail_samples = v->tail_decay * D9_MS;
-    const float spread_samples = v->spread * D9_MS;
-    const float tail_level = v->tail_level;
+    const float burst_samples = v->burst_decay * D9_MS, tail_samples = v->tail_decay * D9_MS;
+    const float spread_samples = v->spread * D9_MS, tail_level = v->tail_level;
     const d9_shape_t shape = v->shape;
     for (int i = 0; i < m; ++i) {
         if (v->pulse_index < 4) {
@@ -974,7 +958,6 @@ __attribute__((noinline)) static void d9_bus(d9_bus_t *b, drum909_t *d, int voic
     b->dpl = d->pan_dl[voice];
     b->dpr = d->pan_dr[voice];
     if (b->dpl == 0.0f && b->dpr == 0.0f) {
-        /* Match the glide expression's signed zero once for the whole block. */
         b->pl += b->dpl * 0.0f;
         b->pr += b->dpr * 0.0f;
     }
@@ -984,11 +967,9 @@ __attribute__((noinline)) static void d9_bus(d9_bus_t *b, drum909_t *d, int voic
     b->dly = b->sdly != 0.0f ? dly : 0;
 }
 
-static void d9_render(drum909_t *d, float *dry, float *rev, float *dly, int n, uint16_t audible_tracks)
+/* Identical noise/history transition for an active or silent span. */
+static float *d9_noise_span(drum909_t *d, int n)
 {
-    d9_bus_t bus;
-    if (n > 256)
-        n = 256;
     /* the shared noise, written on after the previous block so nz[-DR_NZ_HIST
      * .. -1] is the noise before this block; the tail is moved to the front
      * only when the buffer runs out (every other 256-frame block) */
@@ -1001,6 +982,21 @@ static void d9_render(drum909_t *d, float *dry, float *rev, float *dly, int n, u
     d->nz_pos += n;
     for (int i = 0; i < n; ++i)
         nz[i] = d9_noise(&d->noise);
+    return nz;
+}
+
+void drum909_advance_noise(drum909_t *d, int n)
+{
+    if (n > 256) n = 256;
+    if (n > 0) (void)d9_noise_span(d, n);
+}
+
+static void d9_render(drum909_t *d, float *dry, float *rev, float *dly, int n, uint16_t audible_tracks)
+{
+    d9_bus_t bus;
+    if (n > 256)
+        n = 256;
+    float *const nz = d9_noise_span(d, n);
 
     /* 9W9's summing order: BD SD LT MT HT RS CP OH RD CR CH */
     if (d->bt[DR_BD].mute > 0) {

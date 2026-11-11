@@ -47,6 +47,11 @@ typedef struct {
  * Outer ARP/FX/master endpoints remain explicit in routing; they are not
  * silently applied per voice. No getters/conversions in the audio sample path. */
 int original_chicago_voice_compile(original_chicago_voice_controls *out,const original_chicago_program *program);
+/* Incremental bend/cutoff edit of an initialized corresponding snapshot.
+ * Program must differ only by the named program_set edit. Other edits, an
+ * unready snapshot or a revision gap use full compilation. Failure is atomic. */
+int original_chicago_voice_recompile(original_chicago_voice_controls *out,
+ const original_chicago_program *program,unsigned macro);
 typedef struct {float phase,unipolar,bipolar,hold;uint32_t noise;uint8_t wrapped;} original_chicago_voice_mg;
 typedef struct {
  uint32_t oscillator_phase[4],noise;
@@ -110,6 +115,8 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
  * returns2 with action2 and untouched outputs when restart resolution is
  * required; otherwise returns1. It returns0 for invalid call preconditions. */
 int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right);
+/* render_frame for n>=1 frames, bit patterns out; caller proves no control tick is due inside. */
+int original_chicago_voice_render_span(original_chicago_voice *s,const original_chicago_voice_controls *c,uint32_t *left,uint32_t *right,uint32_t n);
 /* Internal serial block owner: admit stable resources once, then preserve
  * every original control tick. No external edits or restored-state writes
  * may interleave admitted calls. Checked public entries remain unchanged. */

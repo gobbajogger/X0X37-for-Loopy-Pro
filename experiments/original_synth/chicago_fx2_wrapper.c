@@ -86,7 +86,16 @@ int original_chicago_fx2_wrapper_process(original_chicago_fx2_wrapper *s,origina
   }else if(s->active)s->active->process(s->active->context,w->new_left+offset,w->new_right+offset,chunk);
   offset+=chunk;
  }
- for(uint32_t i=0;i<n;i++){
+ int32_t settled=asr15(s->wet_accumulator);
+ if(settled==s->wet_target&&(settled==0||settled==32767)){
+  /* Settled weight 0 or 32767: one product in blend() is x*0 == 0, so
+   * only the other one is formed. The same result for every sample. */
+  const int16_t *src_l=settled?w->new_left:left,*src_r=settled?w->new_right:right;
+  for(uint32_t i=0;i<n;i++){
+   int32_t a=asr15(si((uint32_t)(int32_t)src_l[i]*32767u)),b=asr15(si((uint32_t)(int32_t)src_r[i]*32767u));
+   left[i]=(int16_t)(a< -32767?-32767:a);right[i]=(int16_t)(b< -32767?-32767:b);
+  }
+ }else for(uint32_t i=0;i<n;i++){
   int32_t g=asr15(s->wet_accumulator);
   if(g!=s->wet_target){s->wet_accumulator=si((uint32_t)s->wet_accumulator+(uint32_t)(s->wet_target-g)*102u);g=asr15(s->wet_accumulator);}
   left[i]=blend(left[i],w->new_left[i],g);right[i]=blend(right[i],w->new_right[i],g);

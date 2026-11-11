@@ -79,18 +79,14 @@ static int undo_commit(undo_t *u)
     /* first pass: the runs and the entry's size */
     while (i < u->len) {
         uint32_t s, end, q;
-        /* Skip equal words without alignment or aliasing assumptions. On a
-         * mismatch the byte path still finds the exact first changed byte. */
         while (u->len - i >= sizeof(uint32_t)) {
             uint32_t current, previous;
             __builtin_memcpy(&current, u->region + i, sizeof current);
             __builtin_memcpy(&previous, u->shadow + i, sizeof previous);
-            if (current != previous)
-                break;
+            if (current != previous) break;
             i += sizeof current;
         }
-        if (i == u->len)
-            break;
+        if (i == u->len) break;
         if (u->region[i] == u->shadow[i]) {
             i++;
             continue;

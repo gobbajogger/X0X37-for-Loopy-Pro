@@ -49,9 +49,15 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
             uac_tap(o + 2u * k, REND_FRAMES);       /* the USB audio input: the same master output */
 #endif
             engine_volume(o + 2u * k, REND_FRAMES);     /* USB AUDIO FULL: the MASTER knob after the tap */
+#if FELUCCA_UAC
+            uac_out_mix(o + 2u * k, REND_FRAMES);   /* USB audio from the host, after the tap and MASTER */
+#endif
         }
     }
     us = (fm1_ticks() - t0) / FM1_TICKS_PER_US;
+#if X0X_LCD_TRACE
+    lcd_trace_record(LCD_T_AUDIO, us);
+#endif
 #if X0X_DEBUG
     x0x_worst.magic = 0x57525354u;                  /* "WRST" */
     x0x_worst.blocks++;
@@ -120,6 +126,9 @@ static uint8_t usb_due;
 void fm1_timer5_irq(void)
 {
     static uint32_t sub;
+#if X0X_LCD_TRACE
+    uint32_t lcd_t5_started = fm1_ticks();
+#endif
 #if X0X_DEBUG
     uint32_t tt0 = fm1_ticks();
 #endif
@@ -131,6 +140,9 @@ void fm1_timer5_irq(void)
     if (x0x_dbg.in_audio)
         x0x_dbg.nested++;
     fm1_input_tick();
+#if X0X_LCD_TRACE && BOARD_SMK37
+    lcd_trace_input_tick(fm1_in.keys, fm1_in.notes, mi_w);
+#endif
 #if X0X_BLE
     fm1_t5w_check(1u, fm1_ms);
 #endif
@@ -178,6 +190,9 @@ void fm1_timer5_irq(void)
 #if X0X_DEBUG
     if (x0x_dbg.in_audio)
         dbg_tmr += fm1_ticks() - tt0;
+#endif
+#if X0X_LCD_TRACE
+    lcd_trace_record(LCD_T_TIMER5, (fm1_ticks() - lcd_t5_started) / FM1_TICKS_PER_US);
 #endif
 }
 extern void isr_timer5(void);
@@ -971,9 +986,14 @@ static void smk_faders(void)
 static void smk_wheels(void)
 {
     enum { DEAD = 12, SPAN0 = 80, MOD_LO = 485, MOD_HI = 615 };
-    static int32_t pc, plo, phi, mlo, mhi, rest;
+    /* ADC endpoints stay in -80..1103, rest reaches at most 201. Narrow the
+     * bounded fields to pay for the ADC-publication history without more RAM. */
+    static int16_t pc, plo, phi, mlo, mhi;
+    static int16_t rest, mod_prev;
+    static uint16_t mod_seen;
     static int8_t bend_part = -1, cut_part = -1;
     static int16_t bend_now, mw_now;
+    uint16_t mod_seq = fm1_in.wheel_mod_seq;
     int32_t p = fm1_in.wheel[0], m = fm1_in.wheel[1], d, bend, mw, want;
     if (ui_project_busy())
         return;
@@ -991,15 +1011,25 @@ static void smk_wheels(void)
         phi = p + SPAN0;
         mlo = m < MOD_LO ? m : MOD_LO;
         mhi = m > MOD_HI ? m : MOD_HI;
+        mod_prev = (int16_t)m;
+        mod_seen = mod_seq;
     }
-    if (p < plo)
-        plo = p;
-    if (p > phi)
-        phi = p;
-    if (m < mlo)
-        mlo = m;
-    if (m > mhi)
-        mhi = m;
+    /* The range grows one count a call: an ADC spike (a pad or mux edge) cannot widen it at
+     * once and move the rest point out of the dead zone. A real sweep holds and still reaches it. */
+    plo -= p < plo;
+    phi += p > phi;
+    /* Confirm a stable endpoint on two adjacent ADC publications. Foreground
+     * polls may read the same sample many times; they must not teach a range.
+     * The IIR tail after one raw spike changes on each publication until it is
+     * within three ADC counts of rest. It cannot teach that transient extreme.
+     * A conversion between the snapshot reads defers learning to the next poll. */
+    if (mod_seq != mod_seen && mod_seq == fm1_in.wheel_mod_seq) {
+        int adjacent = (uint16_t)(mod_seq - mod_seen) == 1u;
+        mlo -= adjacent && m < mlo && m == mod_prev;
+        mhi += adjacent && m > mhi && m == mod_prev;
+        mod_prev = (int16_t)m;
+        mod_seen = mod_seq;
+    }
     d = p - pc;
     if (d > -DEAD && d < DEAD) {
         bend = 0;
@@ -1015,6 +1045,12 @@ static void smk_wheels(void)
     }
     mw = mhi - m <= DEAD ? 0 : (mhi - m - DEAD) * 127 / (mhi - mlo - DEAD > 1 ? mhi - mlo - DEAD : 1);
     mw = clamp(mw, 0, 127);
+    /* Hysteresis: a one-step change is ADC jitter, not a move (rest and the ends always pass).
+     * Without it a resting wheel wrote cutoff / wobble depth and REC lanes by itself. */
+    if (mw && mw != 127 && mw - mw_now < 2 && mw_now - mw < 2)
+        mw = mw_now;
+    if (bend && bend != 63 && bend != -63 && bend - bend_now < 2 && bend_now - bend < 2)
+        bend = bend_now;
     /* Only physical wheel changes own sound writes. Keep each gesture's target until
      * release, so changing the visible part neither restores nor retargets a held wheel.
      * In particular, a stationary wheel must not overwrite a knob or sequencer lock. */
@@ -1029,6 +1065,8 @@ static void smk_wheels(void)
         } else if (bend_part >= 0) {
             int param = engine_bass_is_wobble(bend_part) ?
                 ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND;
+            PARAM_TRACE(PARAM_WHEEL_PITCH, T_303, bend_part, param,
+                        bend ? ((bend + 63) * 127 + 63) / 126 : 64);
             if (bend)
                 engine_set(T_303, bend_part, param, ((bend + 63) * 127 + 63) / 126);
             else
@@ -1045,6 +1083,8 @@ static void smk_wheels(void)
         if (cut_part >= 0) {
             /* mw 0 is down (closed / min depth). mw 127 is up (open / max depth). */
             want = mw;
+            PARAM_TRACE(PARAM_WHEEL_MOD, T_303, cut_part,
+                        engine_bass_mod_param(cut_part), (int)want);
             engine_bass_mod(cut_part, (int)want);
             motion_touch(PR(R_ENG, T_303, cut_part, engine_bass_mod_param(cut_part)));
             if (!mw)
@@ -1097,7 +1137,8 @@ static void smk_arrows(void)
     if (!d)
         return;
     if (route == ARW_MENU) {
-        ui_menu_arrow(d);
+        if (ui_menu_arrow(d))
+            arw_rearm(&arw, now);                 /* a held > or < that changed the GLOBAL section does not edit it */
     } else {
         uint32_t l = fm1__lock();
         fm1_in.enc_steps[panel.enc[EN_SELECT]] += (int16_t)(d * panel.dir[EN_SELECT]);
@@ -1169,7 +1210,6 @@ CK_FN static uint32_t ck_key_notes(uint32_t k, uint8_t *out)
     CK_BASE;
     CK_SET;
     uint32_t c = cp->on & CK_M_CHORD;
-    /* With both pitch stages off, no scale or chord work can affect the key. */
     if (!(cp->on & (CK_M_SCALE | CK_M_CHORD))) {
         out[0] = (uint8_t)(CK_BASE_NOTE + k);
         return 1u;
@@ -1393,7 +1433,6 @@ CK_FN static void ck_arp_step(uint32_t rate, uint32_t pos)
     uint8_t list[CK_ARPN], out[CK_MAXN];
     uint32_t n = 0, i, j, c;
     int note;
-    /* Later keys cannot contribute once the bounded list is full. */
     for (i = 0; i < cp->nk && n < CK_ARPN; i++)
         for (j = 0, c = ck_key_notes(cp->korder[i], out); j < c && n < CK_ARPN; j++) {
             uint32_t x = out[j], p = n++;
@@ -2518,12 +2557,19 @@ static void fm1_main(void)
         if (fm1_ms - last_frame >= 16u) {           /* ~60 frames/s at most; input in between */
             last_frame = fm1_ms;
             x0x_dbg.ui_frames++;
+#if X0X_LCD_TRACE
+            lcd_trace_frame();
+            lcd_trace_dispatch();
+#endif
             ui_frame();
 #if BOARD_SMK37
             smk_frame();                            /* faders, wheels, pads */
             smk_ck_poll();                          /* clip mode keybed */
 #endif
         } else {
+#if X0X_LCD_TRACE
+            lcd_trace_dispatch();
+#endif
             ui_input_only();
 #if BOARD_SMK37
             smk_wheels();                           /* (the wheels follow the hand, not the screen) */

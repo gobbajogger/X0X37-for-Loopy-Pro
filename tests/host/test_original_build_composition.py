@@ -88,11 +88,15 @@ class OriginalBuildCompositionTests(unittest.TestCase):
             self.assertIn("-ffp-contract=off", command)
             self.assertNotIn("-ffast-math", command)
             if path.startswith("experiments/") or path.endswith("_backend.c"):
-                for flag in ("-Os", "-fno-fast-math", "-DNDEBUG", "-DORIGINAL_USE_SOFT_FMA",
+                # The admitted per-sample units use -O2; the remaining
+                # original units retain -Os to fit the flash budget.
+                optimized = Path(path).stem in build.ORIGINAL_SYNTH_O2_UNITS
+                self.assertIn("-O2" if optimized else "-Os", command)
+                self.assertNotIn("-Os" if optimized else "-O2", command)
+                for flag in ("-fno-fast-math", "-DNDEBUG", "-DORIGINAL_USE_SOFT_FMA",
                              "-DMIAMI_FX_NO_HOST_FENV", "-Iexperiments/original_synth",
                              "-Iexperiments/wobble"):
                     self.assertIn(flag, command)
-                self.assertNotIn("-O2", command)
                 self.assertNotIn("-Oz", command)
         self.assertIn("-O2", sources["firmware/src/dsp/drum909.c"])
         self.assertIn("-Oz", sources["firmware/src/x0x.c"])
@@ -160,8 +164,11 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
         self.assertIn("smk_div_held & owned", hal)
         self.assertIn("if (!vel) smk_div_held &= (uint16_t)~owned", hal)
-        self.assertIn("if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad])", hal)
-        self.assertIn("if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u)", hal)
+        # Physical capture covers all existing Free Play pads. The UI rate
+        # consumer above remains limited to eight; other captured pads retain
+        # the committed baseline's shape/empty routing, never a second note.
+        self.assertIn("if (vel && pad < SMK_NPAD && smk_div_owner && !smk_pad_note[pad])", hal)
+        self.assertIn("smk_div_pending = (uint8_t)(pad + 1u);", hal)
         self.assertIn("smk_div_pending = 0;", hal)
         self.assertIn("smk_div_owner = (uint8_t)owner;", hal)
         self.assertRegex(plat, r"(?s)uint32_t flags = irq_save\(\);"

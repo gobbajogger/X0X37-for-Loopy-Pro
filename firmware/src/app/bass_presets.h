@@ -26,7 +26,7 @@ static inline int bass_preset_decode(int bank, int index, bass_preset_param_fn p
     if (param(bank, (int)count)) return BASS_PRESET_INVALID;
     for (unsigned i = 0; i < count; ++i) {
         const x0x_param_t *d = param(bank, (int)i);
-        if (!d || !d->name || d->max != 127 || d->def > d->max) return BASS_PRESET_INVALID;
+        if (!d || !d->name || d->max != original_sound_param((unsigned)bank, i)->max || d->def > d->max) return BASS_PRESET_INVALID;
     }
     return original_sound_init(out, (unsigned)bank, (unsigned)index) ? BASS_PRESET_OK : BASS_PRESET_INVALID;
 }
