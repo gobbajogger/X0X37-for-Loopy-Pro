@@ -329,7 +329,6 @@ run seq-random-swing sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_swing_t
 run seq-random-clock-handoff sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_clock_handoff_test tests/host/seq_random_clock_handoff_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_random_clock_handoff_test"
 run seq-eighth-quarter sh tests/host/seq_eighth_quarter_test.sh
 run queued-mutes sh tests/host/queued_mutes_test.sh
-run break-rate sh tests/host/break_rate_test.sh
 run seq-long-notes sh -c "$CC $W -o $OUT/seq_long_note_test tests/host/seq_long_note_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_long_note_test"
 run seq-pingpong-resize python3 tests/host/seq_pingpong_resize_test.py   # 303 live-length shrink never emits disabled steps
 run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_lock_test"   # MID-15: one clock input

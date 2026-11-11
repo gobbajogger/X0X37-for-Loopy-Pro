@@ -9,7 +9,7 @@ static void legacy_header(uint8_t *header,unsigned mode,unsigned stream) {
  project_stage=proj;
  for(unsigned p=0;p<NPAT;p++) {
   project_stage.pat[p].brk.slice_mode=(uint8_t)mode;
-  project_stage.pat[p].brk.rate=(uint8_t)(0x80+p);
+  project_stage.pat[p].brk.rsv=(uint8_t)(0x80+p);
   for(unsigned i=0;i<16;i++)project_stage.pat[p].brk.slice[i]=(uint8_t)(i%9);
  }
  project_file_header(header);put32(header+20,stream);
@@ -28,12 +28,12 @@ int main(void) {
  CHECK(!stream_known(4) && !stream_known(5) && !stream_known(10));
 #endif
  for(unsigned code=0;code<16;code++) {
-  proj.pat[0].brk.slice_mode=(uint8_t)code;proj.pat[0].brk.rate=0xA5;
+  proj.pat[0].brk.slice_mode=(uint8_t)code;proj.pat[0].brk.rsv=0xA5;
   for(unsigned s=0;s<16;s++)proj.pat[0].brk.slice[s]=(uint8_t)(s+17);
   REQUIRE(project_save()==0);snapshot();
   CHECK(project_load_stage()==0);check_live_unchanged();
   CHECK(project_stage.pat[0].brk.slice_mode==code);
-  CHECK(project_stage.pat[0].brk.rate==0xA5);
+  CHECK(project_stage.pat[0].brk.rsv==0xA5);
   CHECK(!memcmp(project_stage.pat[0].brk.slice,proj.pat[0].brk.slice,16));
   project_file_header(h);CHECK(get32(h+20)==PROJ_STREAM);CHECK(project_file_validate(h)==0);
  }
@@ -47,7 +47,7 @@ int main(void) {
   CHECK(project_file_validate(h)==0);
   for(unsigned p=0;p<NPAT;p++) {
    CHECK(project_stage.pat[p].brk.slice_mode==0);
-   CHECK(project_stage.pat[p].brk.rate==original.pat[p].brk.rate);
+   CHECK(project_stage.pat[p].brk.rsv==original.pat[p].brk.rsv);
    CHECK(!memcmp(project_stage.pat[p].brk.slice,original.pat[p].brk.slice,16));
   }
   legacy_header(h,mode,stream);h[12]^=1;original=project_stage;
@@ -62,14 +62,14 @@ int main(void) {
  project_stage=proj;project_stage.pat[0].brk.slice[0]=33;project_file_header(h);
  CHECK(project_file_validate(h)==-9);
  /* A legacy compressed stream validates CRC before converting its mode byte. */
- fresh_counts();proj.pat[0].brk.slice_mode=1;proj.pat[0].brk.rate=0xB7;
+ fresh_counts();proj.pat[0].brk.slice_mode=1;proj.pat[0].brk.rsv=0xB7;
  REQUIRE(project_save()==0);
  for(int k=0;k<NSTREAM;k++) {
   int n=plat_store_load(STREAM_OBJ[k],io_buf,sizeof io_buf);REQUIRE(n>=4);
   put32(io_buf,6);REQUIRE(plat_store_save(STREAM_OBJ[k],io_buf,(unsigned)n)==0);
  }
  snapshot();CHECK(project_load_stage()==0);check_live_unchanged();
- CHECK(project_stage.pat[0].brk.slice_mode==0);CHECK(project_stage.pat[0].brk.rate==0xB7);
+ CHECK(project_stage.pat[0].brk.slice_mode==0);CHECK(project_stage.pat[0].brk.rsv==0xB7);
 #endif
  project_stage=proj;project_stage.pat[0].brk.slice_mode=16;project_file_header(h);
  CHECK(project_file_validate(h)==-9);

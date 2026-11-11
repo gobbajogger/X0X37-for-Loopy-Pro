@@ -403,7 +403,7 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION, R_PARTON, R_QUEUEMUTE, R_BRKRATE };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION, R_PARTON, R_QUEUEMUTE };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -421,7 +421,6 @@ static x0x_param_t BPRESET_P = {"PRESET",54,0,0};
 static const x0x_param_t BSTATUS_P = {"STATUS",0,0,0};
 
 static const char *const RATE_N[] = {"1/16", "1/16T", "1/32", "1/8T", "1/8", "1/4"};   /* M13: index = pattern.h RATE_* */
-static const char *const BRK_RATE_N[] = {"1/16", "1/8", "1/4"};   /* M13: BREAK groups 16ths; stored as RATE_16/8/4 */
 static const char *const DIR_N[] = {"FWD", "REV", "PING", "RND"};
 static const char *const ONOFF_N[] = {"OFF", "ON"};
 #define ROOT_N NOTE_N                       /* same twelve names as put_note */
@@ -461,7 +460,6 @@ static const x0x_param_t PARTON_P[NPARTS] = {
     {"909", 1, 1, ONOFF_N}, {"808", 1, 1, ONOFF_N}, {"BASS A", 1, 1, ONOFF_N}, {"BASS B", 1, 1, ONOFF_N},
     {"BREAK", 1, 1, ONOFF_N}};
 static const x0x_param_t QUEUEMUTE_P = {"QUEUE MUTES", 1, 0, ONOFF_N};
-static const x0x_param_t BRKRATE_P = {"RATE", 2, 0, BRK_RATE_N};
 static const char *const OUT_N[] = {"NORMAL", "LOUD"};
 static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
 static const char *const USBA_N[] = {"FOLLOWS KNOB", "FULL"};
@@ -564,7 +562,6 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_MIDICH: return &MIDICH_P[r.a % NPARTS];
     case R_PARTON: return &PARTON_P[r.a % NPARTS];
     case R_QUEUEMUTE: return &QUEUEMUTE_P;
-    case R_BRKRATE: return &BRKRATE_P;
     case R_OUTLOUD: return &OUT_P;
     case R_USBFULL: return &USBA_P;
     case R_FREEPLAY: return &FREEPLAY_P;
@@ -596,7 +593,6 @@ static const x0x_param_t *pref_desc(pref_t r)
  * exact pattern (index + 1). Ordinary panel refs keep b=0 and follow playback. */
 static pattern_t *pref_pattern(pref_t r)
 {
-    if (r.kind == R_BRKRATE) return r.b ? &proj.pat[r.b - 1u] : cur_pat();
     if (r.kind < R_SWING || r.kind > R_BRKSLOT) return cur_pat();
     if (r.b) return &proj.pat[r.b - 1u];
     if (r.kind >= R_GEN) return cur_pat();
@@ -616,7 +612,6 @@ static int pref_get(pref_t r)
     case R_DRATE: return p->drum[r.a].rate;
     case R_BLEN: return p->bass[r.a].len - 1;
     case R_BRATE: return p->bass[r.a].rate;
-    case R_BRKRATE: return p->brk.rate == RATE_8 ? 1 : p->brk.rate == RATE_4 ? 2 : 0;
     case R_BDIR: return p->bass[r.a].dir;
     case R_BTRANS: return p->bass[r.a].transpose;
     case R_GEN: {
@@ -739,7 +734,6 @@ X0X_COLD static void pref_set_impl(pref_t r, int v, int from_keyboard)
     case R_DRATE: p->drum[r.a].rate = (uint8_t)v; break;
     case R_BLEN: p->bass[r.a].len = (uint8_t)(v + 1); break;
     case R_BRATE: p->bass[r.a].rate = (uint8_t)v; break;
-    case R_BRKRATE: p->brk.rate = (uint8_t)(v == 1 ? RATE_8 : v == 2 ? RATE_4 : RATE_16); break;
     case R_BDIR: p->bass[r.a].dir = (uint8_t)v; break;
     case R_BTRANS: p->bass[r.a].transpose = (uint8_t)v; break;
     case R_GEN: {
@@ -890,7 +884,7 @@ static int in_pattern(pref_t r)
 {
     switch (r.kind) {
     case R_SWING: case R_DLEN: case R_DRATE: case R_BLEN: case R_BRATE: case R_BDIR: case R_BTRANS: case R_GEN:
-    case R_BRKSET: case R_BRKSLOT: case R_BRKSLICE: case R_BRKRATE:
+    case R_BRKSET: case R_BRKSLOT: case R_BRKSLICE:
         return 1;
     default:
         return 0;
@@ -1425,8 +1419,6 @@ static void describe_pages(pages_t *out, page_query_t *query, int view, int p, i
             add_page_refs(emit, "KEYS", refs, 1, b); } while (0);
         }
         else {
-            do { static const pref_t refs[4] = {PR(R_BRKRATE, 0, 0, 0), NONE, NONE, NONE};
-            add_page_refs(emit, "SEQUENCE", refs, 0, 0); } while (0);
             do { static const pref_t refs[4] = {PR(R_BRKSET, 0, 0, BRK_COMPLEX), PR(R_BRKSET, 0, 0, BRK_ANCHOR), PR(R_BRKSET, 0, 0, BRK_ROLL), PR(R_BRKSET, 0, 0, BRK_FILL)};
             add_page_refs(emit, "GROOVE", refs, 0, 0); } while (0);
             do { static const pref_t refs[4] = {PR(R_BRKSET, 0, 0, BRK_R2), PR(R_BRKSET, 0, 0, BRK_R3), PR(R_BRKSET, 0, 0, BRK_R4), PR(R_BRKSET, 0, 0, BRK_R8)};
