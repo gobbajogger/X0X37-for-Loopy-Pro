@@ -1,0 +1,47 @@
+{
+  "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "result": "PASS",
+  "firmware_tree": "878d5c734bf6d567db8a2120e9aeec873b85eaa7",
+  "unchanged_generators_guards_and_web_tools": {
+    "tools/build.py": "2e45945065f0302b293053280ec6e46c017679c0c31386b34b4e3fe317e378e1",
+    "tools/gen_font.py": "091d0152de0feafb57d4082c252232e613e8e79f6e91178032c514b5d816166f",
+    "tools/gen_drum_samples.py": "abe25b64fa0356136ded1f9a01229b2031e20e87704a6076cf1aea08e2a8ebc8",
+    "tools/gen_break_bank.py": "722d68b1ea6a289d583d39b1f00275317bdb265057db49013d0015e69ce3b6fe",
+    "tools/gen_builtin_break.sh": "e36f6056d63cb572f5829d9e536d36af22da63540d21aeb593c14cf588582537",
+    "tools/gen_builtin_break.c": "e9a360e31ae872587907916a3e153056866fae7103291d8d653272689a3accc1",
+    "tools/fm1_install.py": "2ede8eb2ced566b9916ea7aec403c3bbc70c2063f96efa94625ba737a5a87c6b",
+    "tools/require_gate_pass.sh": "cc347a41bdee02f272e7e94db03a37933980515fd36769337efd9046668f8bbf",
+    "web/fm1pkg.js": "f8014ab630379de0f8b41b75802e09f9b2904f3df897ce46e1599d18637e919f",
+    "web/fm1ota.js": "ae920053acdd827f4123e2bb33609153bb28ba37bf6a6093a9f86f3577d674d4",
+    "web/x0x_breaks.js": "ef1040dd3a7814f480afbbf2fc16623411fc9a4cb1aa313a304f2c333bfe73b3",
+    "web/x0x_installer.html": "e5b4c1e823846a2c47e9b80c2a46c9df9ef52523a86fe96c22996ad0e6685e48",
+    "web/x0x_breaks.html": "2039fa83721fd98bd98bd4ab18165e75b3e5bf1d5ac270fb545f75caaa90998c",
+    "tools/upload_breaks.py": "57d224568139143415b66e1b3e5b7928dd768584dc717b519fac0670a68ce5c7",
+    "tools/sampleio.py": "e1092e3687022231f597b751809f7ecbc057c3789356754f79cc62fd5a6df75a"
+  },
+  "all_host_accepted_source_hashes_match": true,
+  "Quickcheck_controller_source": "Eight files exactly match acceptedc4cec67; fixture AST differs only by the verified child SIGINT reset. All assertions and production compiler source match.",
+  "three_runner_extraction_fixture_sources_match": true,
+  "maintained_semantic_scan": {
+    "files": 677,
+    "findings": [],
+    "excluded": "Historical evidence and docs/audit, retired docs/rules, and symlink pointers. No history rewritten."
+  },
+  "retained_generated_outputs": {
+    "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+    "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+    "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+    "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44"
+  },
+  "output_scope": "Existing saved original generation matches1165396 package-generation hashes; no new generation or target artifact validation claimed.",
+  "source_worktree_changes": [
+    "AGENTS.md",
+    "docs/SKILLS.md"
+  ],
+  "limits": [
+    "No target/controller/application build, full gate, install, device or external push.",
+    "No cache source/routing or repaired-cache speedup accepted.",
+    "Native target artifact equality and end-to-end build speed remain unmeasured; old9a1d6fc cannot prove combined1165396 artifacts."
+  ]
+}

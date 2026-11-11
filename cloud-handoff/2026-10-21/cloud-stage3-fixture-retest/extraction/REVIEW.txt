@@ -1,0 +1,10 @@
+Stage-3 extraction-fixture scope: PASS.
+Input: 1c6847412b8a380858d2eaace50e8dfe36b7495a.
+Independent normal supported runner and strict ASan/UBSan direct fixture checks all exit 0; exact commands, environment, tool identity and source hashes are in results.json. The runner package skip is outside the two selected checks.
+
+Risks checked:
+- SMC extractor signature mismatch can omit production smc_message and prevent real dispatch assertions executing. Repaired uint8_t signature matches production. Existing fixture C is byte-identical to 6e0da0b (git diff --exit-code). Normal and strict tests exercise three routes (BLE DAW, BLE USER, host USER), all three stage pages, menu/help/confirmation coverage, queue draining, resume after overlays and X0X fallback. Both finish with zero failures.
+- SMK extracted annotated functions need CK_FN in host-only preamble. Diff adds only that definition; no behavioral assertion changed. Both BLE=0 and BLE=1 execute normal and strict, verify pad velocity independently of keybed velocity, IRQ ownership, clip output isolation, entry/exit MIDI flush and no replay of held pads. Sequencer flush and UI dispatch assertions pass.
+- git diff --exit-code e50df9a HEAD -- firmware host tools build.sh exits 0. No production annotation or build input changed.
+
+No source edits, target builds, packaging, installation, device test or remote mutation performed. Evidence directory is /workspace/x0x-stage3-evidence/extraction. Strict wrapper is cc-strict and adds -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=all. Sanitizer runtime requests halt/abort. Successful git comparison and clean git status observed after checks.

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "bash",
+    "-c",
+    "\"$@\" & owned=$!; wait \"$owned\"",
+    "background-signal-fixture",
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.host.test_ctl_compile.ControllerCompile.test_signal_after_successful_batch_stops_children"
+  ],
+  "returncode": 1,
+  "seconds": 12.565784041999999,
+  "scope": "One existing fake-compiler signal method behind the same async Bash process launch used for both gate test configurations. No gate or target compiler."
+}

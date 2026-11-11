@@ -1,0 +1,1 @@
+PASS non-owning drop keeps pending; owning drop clears

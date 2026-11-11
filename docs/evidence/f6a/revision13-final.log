@@ -1,0 +1,48 @@
+✔ legacy adoption requires two explicit dense identities, never an omitted engine (74.788875ms)
+✔ portable and project-only containers preserve raw project, all slots and full header bytes (720.947938ms)
+✔ inner project rejects corrupt, truncated, oversized and incompatible schemas (4.988977ms)
+✔ outer CRC, version, flags, metadata size and raw unmanifested files are rejected (4.230548ms)
+✔ strict metadata rejects duplicated entries, overlapping ranges and unreferenced bytes (17.285924ms)
+✔ sample metadata must match the original header even when both JSON copies and CRCs agree (66.552498ms)
+✔ sample image rejects data CRC, impossible zone boundaries and rate corruption (11.728759ms)
+✔ project-only matching checks every occupied and empty slot and never remaps (6.960717ms)
+✔ portable plans fills, identical skips and backed-up clear/replacement collisions (11.337956ms)
+✔ non-X0X identity is rejected before any project command (10.642805ms)
+✔ unsupported or malformed query replies are explained clearly (3.732466ms)
+✔ export snapshots project plus every original sample and always aborts; no sample writes (413.511845ms)
+✔ export aborts interrupted reads and uncertain BEGIN without blind BEGIN retry (2.475175ms)
+✔ READ/WRITE replies correlate operation and offset and validate exact byte lengths (42.27085ms)
+✔ sample reads correlate slot and offset and reject a short reply (49.075266ms)
+✔ project chunk replay recovers a lost WRITE acknowledgement exactly once (12.016767ms)
+✔ complete project-only import preserves every sample byte with zero sample write commands (459.543173ms)
+✔ confirmation or missing verified recovery acknowledgement refuses all sample mutations (37.735449ms)
+✔ firmware semantic validation fails before sample writes and keeps the previous live project (199.208214ms)
+✔ portable import fills and clears exact positions, skips identical images and preserves 512-byte headers (684.055077ms)
+✔ a changed keyboard invalidates the preview before any sample writes (69.707464ms)
+✔ sample readback mismatch rolls back exact original bytes before aborting adoption (58.311794ms)
+✔ lost sample-write acknowledgement is not blindly retried and rollback uses its backup (85.354395ms)
+✔ failed rollback reports recovery failure concretely and does not claim restoration (71.131125ms)
+✔ lost COMMIT reply restores the previous project as well as samples without repeating adoption (164.670942ms)
+✔ QUERY detects retained recovery mode after expiry and rollback restages without releasing its hold (116.916167ms)
+✔ failed recovery retains mode3; reconnect restores a portable backup without reading partial sample images (76.884454ms)
+✔ mode3 refuses project-only recovery and keeps the hold on a failed portable recovery (27.225842ms)
+✔ save/load/reset use confirmation tokens, do not touch samples and never retry SAVE blindly (1.863834ms)
+✔ MIDI adapter ignores normal playing traffic and bounds idle SysEx buffering (1.01327ms)
+✔ only explicit pattern/sound revision pairs are accepted (3.671328ms)
+✔ historical firmware export retains its 3/10 header and every payload byte for inspection (17.029156ms)
+✔ historical firmware exports remain exact read-only snapshots but cannot prepare an import (58.623594ms)
+✔ current import refuses a historical live snapshot before any mutation while preserving read-only export (38.993934ms)
+✔ current import rejects a historical replacement recovery backup before staging or sample writes (26.614006ms)
+✔ direct stage and preparation reject same-length old headers and protocol2 migration before mutation (24.868552ms)
+✔ retained-recovery preparation refuses legacy bundles without releasing its hold (6.351788ms)
+✔ normal and retained-recovery APIs recheck tampered prepared bytes before any mutation (45.941844ms)
+✔ revision 13 round-trips every project payload byte and original sample through both protocol versions (156.09466ms)
+✔ adaptive BREAK stream 8/9 project schemas keep exact bytes and CRC checks (2.610336ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4108.865063

@@ -1,0 +1,20 @@
+{
+  "CENTRAL-STOP-01": "Public cancel, scan, failed-status and edge probes fail on exact f080d1a5 and pass on the repair.",
+  "stop_commands": "Refusal retries preserve the original cutoff. Acceptance blocks resubmission. Status, Complete and operation completion remain distinct.",
+  "event_order": "Actual production service, both connection event types, late/duplicate events, wrong handles, pending original commands, failed responses, absent completion, start and reconnect.",
+  "cutoff": "Exact cutoff and later connection completion retain the handle without a late Disconnect. Tests include timer wrap.",
+  "credits": "Matching successful Disconnection Complete alone releases the retained link and restores its outstanding credits.",
+  "retained": "Central startup, discovery, MIDI, fragments, signaling identifiers, reply priority, bounded queues, lifecycle resets, Disconnect retries and original service-time cutoff.",
+  "negative_controls": "CENTRAL-ABORT-01 and CENTRAL-ABORT-02 retain exact broken-source failures. The four old stale-service examples and old-caller mutation remain expected failures.",
+  "implementation_policy": {
+    "source": "The saved stage2 assignment requires stop intent and truthful failure through the bounded attempt and late events.",
+    "decision": "An unresolved stop remains FAILED. A direct start cannot erase its pending operation or handle. Actual successful completion permits a fresh Reset.",
+    "owner_decision_required": false
+  },
+  "target": "Elite DEV covers this shared production change. No Pro-specific source changed.",
+  "limits": [
+    "Peer, mailbox, clock and schedule are simulated.",
+    "No physical radio or target interrupt result exists.",
+    "The stage2 package is not a stage4 validated install set."
+  ]
+}

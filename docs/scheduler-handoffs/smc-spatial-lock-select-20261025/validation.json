@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "base": "58e2c5205a02836df678083eaa8db9994b6192e8",
+  "scope": "SOURCE_HOST_QA_NATIVE_RENDER_ELITE_DEV_BUILD_ONLY",
+  "source_sha256": {
+    "firmware/src/app/smc_mixer.c": "0f4c8f6fd4ec721d958d5627cd7a1c61d7eda3b07142d556997059acd7afdbef",
+    "firmware/src/app/ui.c": "1de1f375b08f3e26b3e11c59c9eef3a036664dbc79b91673b407e65753b76657",
+    "tests/host/smc_lock_test.c": "c3b9f51224cc71173f5cea98b7b1910b4cd82a220973e4abbbcca250e12351f0",
+    "tests/host/smc_ui_test.c": "935e72c38d518051b32b4de60f1e0db576cd7bf13df9d0fd9cbd4b4b37c7146f",
+    "tests/host/smc_interaction_negative_test.py": "346fb1ed72c8694b5ae650b92e3c1dacd84e23e3ba320b2d0cc689eb7205c3c3"
+  },
+  "host_results": {
+    "production_ui_asan_checks": 4866,
+    "production_lock_plain_and_asan_ubsan_checks": 527,
+    "interaction_runtime_mutants_detected": 4,
+    "ui_runtime_mutants_detected": 5,
+    "independent_runtime_mutants_detected": 4,
+    "independent_lost_release_checks": 78,
+    "feedback_checks": 1838,
+    "drum_rs_checks": 124992,
+    "drum_rs_audio_cases": 88,
+    "reachability_routes": 5
+  },
+  "passing_affected_suites": [
+    "smc_ui",
+    "smc_lock",
+    "smc_interaction_negative",
+    "smc_ui_negative",
+    "smc_mapping",
+    "smc_buttons",
+    "smc_filter",
+    "smc_feedback",
+    "smc_solo_overflow",
+    "smc_part_select",
+    "smc_reachability",
+    "smc_drum_mutes",
+    "smc_drum_rs",
+    "smc_clip_visibility",
+    "smc_performance_abort",
+    "smc_record_feedback"
+  ],
+  "native_render": {
+    "size": [
+      240,
+      240
+    ],
+    "frame_sha256": {
+      "01-main-pickup.png": "d76c80ffb52e1a673e69a27e51a2efe22c462c7223c9827ce32c2c6e4a985d1d",
+      "09-part-pan.png": "b5efd5109cea5d1e1176c454ad4249a5dcae321294cae9f452b68b120c1dcec1",
+      "10-808-seq-bank2-pan.png": "756d14541b92aeb20dc2ca9765e89a91bd3dd658040cb485dbfe30b0d78379b7"
+    }
+  },
+  "initial_failures": [
+    "Darwin shell fixtures required _DARWIN_C_SOURCE; successful reruns used a private cc wrapper. Initial failures retained privately."
+  ],
+  "limits": [
+    "No physical Pause input or LED mapping; lock neutral API remains unbound.",
+    "No device validation; no Pro build for this shared source change.",
+    "No GUI, Actions tests, flashing, protected merge, or public artifact deployment."
+  ]
+}

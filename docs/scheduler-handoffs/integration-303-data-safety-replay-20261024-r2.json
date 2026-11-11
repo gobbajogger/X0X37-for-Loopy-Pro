@@ -1,0 +1,72 @@
+{
+  "schema": "loopyx0x37-safe-merge-source-candidate-v1",
+  "evidence_revision": "safe-merge-pr103-pr96-combined-20261024-r2",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "SOLE firmware nightly PR integrator",
+  "target": {
+    "branch": "nightly",
+    "sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "not_written": true
+  },
+  "integration": {
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "old_sha": "9ed3cce9ed420c46b1ebab86101f7145a8da5995",
+    "old_full_root": "f724088d91a340057a21e1b64e1a82d4d183ad07",
+    "compiled_firmware_tree": "d3b67bf127121acdbb2d056890b8c6987ffb363e"
+  },
+  "source": {
+    "pr": 96,
+    "branch": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+    "sha": "74f18fe19a95cb885280a373cb0dd9d53500c193",
+    "actual_git_root": "e251041a97b1e1cd2fd5174c20b2723d641ad157",
+    "prior_derived_root": "7a2816c1f648ba243fd195c6cc2ac00582162baa",
+    "firmware_tree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "stack": [
+      {
+        "pr": 81,
+        "sha": "411e510cee1dc3fa63b9e51a1d4bf10803eb3843"
+      },
+      {
+        "pr": 91,
+        "sha": "981b5829a46c09f1a6382754dbd988173ca6d092"
+      },
+      {
+        "pr": 96,
+        "sha": "74f18fe19a95cb885280a373cb0dd9d53500c193"
+      }
+    ],
+    "copied_blob_count": 36
+  },
+  "merge_method": "two-parent commit, existing integrator PR #103, preserving producer dependencies and producer branches, manual union of runner registrations",
+  "runner": {
+    "path": "tests/run_tests.sh",
+    "old_103_blob": "b8258c5cd43ec7149243763edbab91aef075b027",
+    "source_96_blob": "24e0a84944afa22389dfea5c37282bbd57307307",
+    "old_nightly_blob": "f682eaa5fd8ef24b8a7688319e6ce12fb9e003d9",
+    "required": [
+      "seq-pingpong-resize",
+      "installer-restore-status"
+    ],
+    "checks": "three exact source blobs read; the two additive run_tests.sh changes normalized exactly to NIGHTLY; union normalized exactly to PR103"
+  },
+  "actual_executions": [
+    "GitHub exact compare/git tree/blob reads success",
+    "JavaScript 17/17 identity assertions success, exit 0; runner additive union success",
+    "No combined native tests executed; separate Builder and Independent QA own actual run"
+  ],
+  "blocked_gates": [
+    "exact merged-source host negative/regression tests and independent QA",
+    "fresh Elite/Pro+private controller native compile against new source HEAD",
+    "model/header/CRC/RAM/flash/pool/backup/readback/restore/OTA failure negatives",
+    "source/asset licensing review and immutable hosted HTTP byte parity"
+  ],
+  "status": "DRAFT SOURCE CANDIDATE / BUILD_ONLY ELIGIBLE / NOT INSTALLABLE / DEVICE NOT TESTED",
+  "next": {
+    "build_owner": "Hourly Build compile Elite+Pro+locally built controller from exact combined SHA immediately BUILD_ONLY; do not wait for QA/merge/hosting/device",
+    "qa_owner": "Independent QA exact new root: 303 sequencer and TB3PO negatives; SMP_INFO timeout, malformed, backup/restore/partial slot, OTA rollback/CRC and runner",
+    "integrator": "Source merge only after fresh exact-root native and independent QA/protection checks. NIGHTLY remains protected.",
+    "publisher": "No public download unless all prehardware safety/model/license/immutable HTTP gates independently PASS.",
+    "production": "separate approval and owner same-byte model hardware PASS"
+  }
+}
