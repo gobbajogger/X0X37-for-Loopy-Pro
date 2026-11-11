@@ -14,6 +14,10 @@ void *memset(void *d, int c, unsigned n)
         unsigned *q = (unsigned *)(void *)p;
         w |= w << 8;
         w |= w << 16;
+        for (; n >= 16u; n -= 16u) {   /* 4 words a loop pass: fewer taken branches */
+            q[0] = w; q[1] = w; q[2] = w; q[3] = w;
+            q += 4;
+        }
         for (; n >= 4u; n -= 4u)
             *q++ = w;
         p = (unsigned char *)q;
@@ -30,6 +34,12 @@ void *memcpy(void *d, const void *s, unsigned n)
     if (n >= 8u && !(((unsigned)p | (unsigned)q) & 3u)) {
         unsigned *pw = (unsigned *)(void *)p;
         const unsigned *qw = (const unsigned *)(const void *)q;
+        /* 4 words a loop pass, each word still read just before it is written
+         * (same access order as one word a pass) */
+        for (; n >= 16u; n -= 16u) {
+            pw[0] = qw[0]; pw[1] = qw[1]; pw[2] = qw[2]; pw[3] = qw[3];
+            pw += 4; qw += 4;
+        }
         for (; n >= 4u; n -= 4u)
             *pw++ = *qw++;
         p = (unsigned char *)pw;
