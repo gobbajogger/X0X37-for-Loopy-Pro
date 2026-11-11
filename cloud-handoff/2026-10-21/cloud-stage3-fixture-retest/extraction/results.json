@@ -1,0 +1,63 @@
+{
+  "input_commit": "1c6847412b8a380858d2eaace50e8dfe36b7495a",
+  "utc": "2026-10-20T14:17:49.453185+00:00",
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "compiler_sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+  "python": "Python 3.12.14",
+  "kernel": "Linux x86_64",
+  "environment": {
+    "CXX": "c++",
+    "X0X_HOST_DEFS": "-D_POSIX_C_SOURCE=200809L",
+    "X0X_TEST_JOBS": "1",
+    "X0X_GATE_LOCK": "/workspace/x0x-stage3-evidence/extraction/test.lock",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "ASAN_OPTIONS": "halt_on_error=1:abort_on_error=1"
+  },
+  "checks": [
+    {
+      "name": "normal",
+      "argv": [
+        "sh",
+        "tests/run_tests.sh",
+        "smc-clip-visibility",
+        "smk-clip-isolation"
+      ],
+      "CC": "cc",
+      "exit_code": 0,
+      "log": "normal.log"
+    },
+    {
+      "name": "visibility-strict",
+      "argv": [
+        "sh",
+        "tests/host/smc_clip_visibility_test.sh"
+      ],
+      "CC": "/workspace/x0x-stage3-evidence/extraction/cc-strict",
+      "exit_code": 0,
+      "log": "visibility-strict.log"
+    },
+    {
+      "name": "isolation-strict",
+      "argv": [
+        "python3",
+        "tests/host/smk_clip_isolation_test.py"
+      ],
+      "CC": "/workspace/x0x-stage3-evidence/extraction/cc-strict",
+      "exit_code": 0,
+      "log": "isolation-strict.log"
+    }
+  ],
+  "sha256": {
+    "tests/host/smc_clip_visibility_test.sh": "88d7194bef77d02665c5547fc7e3b05e5fd9a702b1b00bfa93f640350378db4a",
+    "tests/host/smc_clip_visibility_test.c": "5533268559c9d66ddb71077c569eea82630fd77a6c40095d204984e68fe070c4",
+    "tests/host/smk_clip_isolation_test.py": "bffafbb88864357330b64a314c3a9817b2cf2e2a0be26b7ad905cf0f0a816452",
+    "firmware/src/app/main_fm1.c": "74de15cd0ee2e9456420fae16d8eaf4d5b11c1ae9badc3e2b07e6d1b94fa22e2",
+    "firmware/src/app/plat_fm1.c": "967d96dd43f5247ba679701eba8654c5a6caa3963b5391dc7544db54d882d583",
+    "firmware/src/app/smc_mixer.c": "b956da58327f3b7a79014d8a4f277d274ea08a423a410e86de91b88cfc37ba94",
+    "firmware/hal/smk_input.h": "0f7eee09e8c27a1e422d1f26e846d7b8eae767d6d4a1646a77d545decd1c79bd",
+    "firmware/src/seq/sequencer.c": "55a844496819e577c7dc15da0c3969334410af388c4db29155b2c15a9ab3b8a9",
+    "firmware/src/app/smk_apc40.h": "5bd1df1652c4638a6019f22821b62ee150d90300fb19cb504f81136863962d47",
+    "firmware/src/app/smk_clip_keys.h": "34b10b336f81644b7b77b7051aae7db6389ee4ebd6cb7d56ed2ee98dbb733025",
+    "firmware/src/app/smc_protocol.h": "51211b7778da8cc6700204df88bbe30288e606ea91acc6bec232646b363a530e"
+  }
+}

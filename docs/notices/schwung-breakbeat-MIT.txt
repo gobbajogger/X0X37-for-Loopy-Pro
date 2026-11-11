@@ -1,0 +1,30 @@
+schwung-breakbeat (BB Gen) — by mestela
+
+Upstream identifies its author as "mestela" and its licence as "MIT":
+https://github.com/mestela/schwung-breakbeat/blob/c3ea85da9025a3694c167e096cb09d0efb60420c/src/module.json#L7-L8
+
+This attribution preserves the upstream metadata. No copyright year or additional
+copyright-holder assertion is supplied here. See LICENSING.md for the inherited
+GPL-3.0-only port, source history and distribution requirements. This notice covers
+the adapted generator code; it grants no additional rights to external samples.
+
+The MIT License
+Terms checked against https://opensource.org/license/mit
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

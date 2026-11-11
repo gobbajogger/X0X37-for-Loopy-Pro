@@ -1,0 +1,31 @@
+{
+  "abort01-broken": {
+    "revision": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+    "files": {
+      "firmware/src/ble/ble_midi_central.c": "601a29d9f5ad94518a21ac2e4279b6cd4b20fa35da628874a065a6d35f863ef5",
+      "firmware/src/ble/ble_midi_central.h": "858be9c6246329884deaa18eb82f61f3695af61e56c864c50146bdbd1d73d7b6",
+      "firmware/src/ble.c": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44"
+    }
+  },
+  "deadline-broken": {
+    "revision": "05eff604cb3f136db71727a2aeeea785cab73b99",
+    "files": {
+      "firmware/src/ble/ble_midi_central.c": "246252a8defe2a6accd92926d5d08cda87dd693dd252ebce5f055d32bfb423d4",
+      "firmware/src/ble/ble_midi_central.h": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+      "firmware/src/ble.c": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44"
+    }
+  },
+  "repaired": {
+    "revision": "f080d1a5f31073dde600238f780acf37c12b2738",
+    "files": {
+      "firmware/src/ble/ble_midi_central.c": "0f400b3e9d88b95599eac7d3ce21f7fd71b990cb6530589dba08e6fcf235eb77",
+      "firmware/src/ble/ble_midi_central.h": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+      "firmware/src/ble.c": "3fe5f16f4e06a39290277bd51c21dbfc11a502cadba98ef777e43413a32d1bba"
+    }
+  },
+  "guard-only": {
+    "central": "0f400b3e9d88b95599eac7d3ce21f7fd71b990cb6530589dba08e6fcf235eb77",
+    "caller": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+    "cause": "The caller supplies stale time before stop. The helper alone does not repair this path."
+  }
+}

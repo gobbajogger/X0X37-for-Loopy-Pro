@@ -1,0 +1,213 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "6a9e225caf5deff783b492acdae30b817e120cc3d66e233d9c0768262726d678",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "4eef581e267c582897df5910196671be2a04ac24a1d0a11acd6086fe583f3e60",
+      "configuration": {
+        "model": "elite",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "a40e978cc55a2435bc131425148735bd7fcb11df",
+          "scope": "F14 tip package validate (DEV CHECK) on current nightly tip b48cd800 after Safe Merge #325 evidence-only land. BF-013 exact 20 BPM delay sync already on nightly via historical #74 (fxbus.c blob 032d289580d33df6a2d7cfe0e8a3d9b6fa5cbd2d; stereo_test.c blob c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; gates bpm >= 20.0f). Do NOT use diverged Stage-4 tip 656d70e9 packages from #322. Host stereo PASS required. Builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers; pool free >= 8192 B. Companion logs check-0.log, controller.log, build.log required beside each record.json. No Arp/Fx steal. No production main/Pages.",
+          "checks": [
+            {
+              "reason": "BF-013 tip gates present: fxbus bpm >= 20.0f and stereo_test BF-013 block; tip blobs match nightly.",
+              "argv": [
+                "bash",
+                "-c",
+                "set -euo pipefail; git(){ command git -c safe.directory=\"$PWD\" -c safe.directory='*' \"$@\"; }; want_fxbus=032d289580d33df6a2d7cfe0e8a3d9b6fa5cbd2d; want_test=c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; got_fxbus=$(git rev-parse HEAD:firmware/src/dsp/fxbus.c); got_test=$(git rev-parse HEAD:tests/host/stereo_test.c); echo HEAD=$(git rev-parse HEAD); echo fxbus.c=$got_fxbus; echo stereo_test.c=$got_test; test \"$got_fxbus\" = \"$want_fxbus\"; test \"$got_test\" = \"$want_test\"; grep -E -q 'bpm >= 20\\.0f' firmware/src/dsp/fxbus.c; grep -E -q 'BF-013' tests/host/stereo_test.c; echo PASS bf013 tip gates"
+              ]
+            },
+            {
+              "reason": "BF-013 host regressions: stereo suite must PASS with X0X_DEV_PADCAL=1.",
+              "argv": [
+                "bash",
+                "-c",
+                "export X0X_TESTS=stereo X0X_DEV_PADCAL=1 X0X_TEST_JOBS=8; mkdir -p build/gen build/host; python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null; sh tools/gen_builtin_break.sh build/gen >/dev/null; exec sh tests/run_tests.sh"
+              ]
+            }
+          ],
+          "dependencies": []
+        },
+        "dependencies": []
+      },
+      "environment": {
+        "CXX": "c++",
+        "CC": "cc",
+        "MODEL": "elite",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.12.94+"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "88771086fc5daeae12b9fe56617eed458f83c3e5a12d3f3825361d5ddc493b9d",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "0c618c6238d871609647467e8f4a1026a7d927cf57ce0ad118978edc09d24eca",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+          "executable": true
+        },
+        "git": {
+          "sha256": "eb54b535467e0975c1284d4c4d08eea779aeb248a5d34b02e2ee171382e22201",
+          "executable": true
+        },
+        "make": {
+          "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+          "executable": true
+        },
+        "node": {
+          "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "6452af2eea333b8c65e1adb92964fc8f97863ab003fa13f9d12bff5345cd7dbe",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "9276e918e3c26d3aa7ef9dd2232cd8ac692f03d3c1f270bfa5144a2b5492b713",
+          "executable": true
+        },
+        "python": {
+          "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": {
+          "version": "1.26.4",
+          "sha256": "7dd34308cae1f97de5c2648c01086aa1e3d0b248880adf91a114d868237953f8"
+        },
+        "pillow": {
+          "version": "13.0.0",
+          "sha256": "232fc8e16099bee7e0e7755ccdd70edfff3869685d5aafcf305aa55274b168da"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "elite",
+  "commit": "b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a",
+  "tree": "4eef581e267c582897df5910196671be2a04ac24a1d0a11acd6086fe583f3e60",
+  "plan": {
+    "base": "a40e978cc55a2435bc131425148735bd7fcb11df",
+    "scope": "F14 tip package validate (DEV CHECK) on current nightly tip b48cd800 after Safe Merge #325 evidence-only land. BF-013 exact 20 BPM delay sync already on nightly via historical #74 (fxbus.c blob 032d289580d33df6a2d7cfe0e8a3d9b6fa5cbd2d; stereo_test.c blob c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; gates bpm >= 20.0f). Do NOT use diverged Stage-4 tip 656d70e9 packages from #322. Host stereo PASS required. Builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers; pool free >= 8192 B. Companion logs check-0.log, controller.log, build.log required beside each record.json. No Arp/Fx steal. No production main/Pages.",
+    "checks": [
+      {
+        "reason": "BF-013 tip gates present: fxbus bpm >= 20.0f and stereo_test BF-013 block; tip blobs match nightly.",
+        "argv": [
+          "bash",
+          "-c",
+          "set -euo pipefail; git(){ command git -c safe.directory=\"$PWD\" -c safe.directory='*' \"$@\"; }; want_fxbus=032d289580d33df6a2d7cfe0e8a3d9b6fa5cbd2d; want_test=c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; got_fxbus=$(git rev-parse HEAD:firmware/src/dsp/fxbus.c); got_test=$(git rev-parse HEAD:tests/host/stereo_test.c); echo HEAD=$(git rev-parse HEAD); echo fxbus.c=$got_fxbus; echo stereo_test.c=$got_test; test \"$got_fxbus\" = \"$want_fxbus\"; test \"$got_test\" = \"$want_test\"; grep -E -q 'bpm >= 20\\.0f' firmware/src/dsp/fxbus.c; grep -E -q 'BF-013' tests/host/stereo_test.c; echo PASS bf013 tip gates"
+        ]
+      },
+      {
+        "reason": "BF-013 host regressions: stereo suite must PASS with X0X_DEV_PADCAL=1.",
+        "argv": [
+          "bash",
+          "-c",
+          "export X0X_TESTS=stereo X0X_DEV_PADCAL=1 X0X_TEST_JOBS=8; mkdir -p build/gen build/host; python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null; sh tools/gen_builtin_break.sh build/gen >/dev/null; exec sh tests/run_tests.sh"
+        ]
+      }
+    ],
+    "dependencies": []
+  },
+  "changed_files": [],
+  "controller": true,
+  "budgets": {
+    "code_free": 2756,
+    "ram_free": 244,
+    "pool_free": 8308
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "bash",
+        "-c",
+        "set -euo pipefail; git(){ command git -c safe.directory=\"$PWD\" -c safe.directory='*' \"$@\"; }; want_fxbus=032d289580d33df6a2d7cfe0e8a3d9b6fa5cbd2d; want_test=c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; got_fxbus=$(git rev-parse HEAD:firmware/src/dsp/fxbus.c); got_test=$(git rev-parse HEAD:tests/host/stereo_test.c); echo HEAD=$(git rev-parse HEAD); echo fxbus.c=$got_fxbus; echo stereo_test.c=$got_test; test \"$got_fxbus\" = \"$want_fxbus\"; test \"$got_test\" = \"$want_test\"; grep -E -q 'bpm >= 20\\.0f' firmware/src/dsp/fxbus.c; grep -E -q 'BF-013' tests/host/stereo_test.c; echo PASS bf013 tip gates"
+      ],
+      "returncode": 0,
+      "sha256": "f21920314a0a19736406ea8accd8bf59e634d49e105a9dd55bcb1e7cafbbfb67"
+    },
+    "check-1": {
+      "argv": [
+        "bash",
+        "-c",
+        "export X0X_TESTS=stereo X0X_DEV_PADCAL=1 X0X_TEST_JOBS=8; mkdir -p build/gen build/host; python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null; sh tools/gen_builtin_break.sh build/gen >/dev/null; exec sh tests/run_tests.sh"
+      ],
+      "returncode": 0,
+      "sha256": "a53b62c64d68095d6686ac53992ec10613d45462f4e524a353077a7339b0fb47"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "8d124c34fd50aeab392ec037f46f00baa8a03cc3e63d54f2cd84e1b5bec2b9c0"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "2cdedf1bc3c747aa49342b817f516ba69fa986e63408bd164c5d78bf7391ea69"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37-elite.fwsc",
+      "sha256": "4dc49bad6e8b555aefaf3a70f0ccb1579638d2b0e35c30a5f5fee043124f7376"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}

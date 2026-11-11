@@ -1,0 +1,16 @@
+{
+  "attempted_at": "2026-10-25T14:26:49Z",
+  "endpoint": "https://api.cursor.com/v1/agents",
+  "method": "POST",
+  "auth": "CURSOR_API_KEY",
+  "CURSOR_API_KEY_present": false,
+  "result": "NO_CURSOR_API_KEY",
+  "http_status": null,
+  "note": "Pod identity token is not the owner key; not sent. Coordinator CreateAgent required for owner-visible Stage 7.",
+  "intended_body": {
+    "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+    "startingRef": "cursor/f09-bf005-stage5-fb90",
+    "prompt_path": "evidence/f09-stage5/SUCCESSOR-STAGE7.txt"
+  },
+  "attempt": 2
+}

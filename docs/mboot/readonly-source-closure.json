@@ -1,0 +1,19 @@
+{
+  "firmware": {
+    "commit": "8c0d2a98f24267ddf0d1664c86bd5e3d38dd5a59",
+    "files": {
+      "firmware/hal/fm1_flash.h": "d4d2e911334f2144289a62eb2613aa3610c5a393",
+      "firmware/hal/fm1_cpu1.h": "cc12ec832ba83cc1141b95f106cda81496f38441",
+      "firmware/src/storage.c": "40b536bbf6635d97131631f2ad2287841e4acc03",
+      "firmware/src/app/editor.c": "5b38c36ccf9d7a60b3b69b10b0b1e1efd165d6fd"
+    }
+  },
+  "upstream": {
+    "commit": "64b74d009e6d21fe85ca60754b7c01d438214804",
+    "files": {
+      "src/platform.c": "fb339aa1207b7f6b3638ef79fa3503bf63fd57d4",
+      "include/platform.h": "8932fad862233308e64408165b131d3e6ed857a1",
+      "LICENSE": "f887cce0d4623c4056db0e9927066085e51fc0a5"
+    }
+  }
+}
