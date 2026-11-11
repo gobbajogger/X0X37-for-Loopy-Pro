@@ -20,7 +20,7 @@ enum {
 };
 
 #define BFX_RING 2u
-#define BFX_STUT_CH 12u
+#define BFX_STUT_CH 13u   /* sends 2, 909 4, 808 4, filter 2, BREAK 1 (mono) */
 #define BFX_SEND_NOM 0.4f
 #define BFX_STUT_SCALE 32767.0f
 

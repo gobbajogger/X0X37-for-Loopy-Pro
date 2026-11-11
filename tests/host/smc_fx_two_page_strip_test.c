@@ -4,11 +4,11 @@
 static unsigned checks;
 #define C(x) do { checks++; if (!(x)) { fprintf(stderr, "FAIL line %d: %s\n", __LINE__, #x); return 1; } } while(0)
 static const uint8_t expected[8][2][4] = {
- {{SMCFX_REV,SMCFX_DLY,SMCFX_STUT,SMCFX_SHUF}, {255,255,255,255}},
- {{SMCFX_DLY,SMCFX_REV,SMCFX_STUT,SMCFX_SHUF}, {255,255,255,255}},
+ {{SMCFX_REV,SMCFX_DLY,SMCFX_STUT,SMCFX_SHUF}, {SMCFX_GATE,SMCFX_HP,255,255}},
+ {{SMCFX_REV,SMCFX_DLY,SMCFX_STUT,SMCFX_SHUF}, {SMCFX_GATE,SMCFX_HP,255,255}},
  {{SMCFX_HP,SMCFX_DLY,SMCFX_REV,SMCFX_LP}, {SMCFX_GATE8,SMCFX_GATE16,SMCFX_TRANCE,255}},
  {{SMCFX_HP,SMCFX_LP,SMCFX_DLY,SMCFX_REV}, {SMCFX_GATE16,SMCFX_GATE8,255,255}},
- {{SMCFX_GATE,SMCFX_REV,SMCFX_DLY,SMCFX_HP}, {255,255,255,255}},
+ {{SMCFX_REV,SMCFX_DLY,SMCFX_STUT,SMCFX_SHUF}, {SMCFX_GATE,SMCFX_HP,255,255}},
  {{SMCFX_REV,SMCFX_GATE8,SMCFX_GATE16,SMCFX_TRANCE}, {SMCFX_GATE,SMCFX_STUT,SMCFX_SHUF,255}},
  {{SMCFX_DLY,SMCFX_STUT,SMCFX_SHUF,SMCFX_GATE16}, {SMCFX_GATE8,255,255,255}},
  {{SMCFX_GATE16,SMCFX_GATE8,SMCFX_TRANCE,SMCFX_STUT}, {SMCFX_SHUF,SMCFX_HP,SMCFX_LP,255}}
@@ -22,7 +22,7 @@ int main(void) {
  }
  for(int note=0;note<32;note++)C(smcfx_button(note)==note/8);
  C(smcfx_button(32)==-1);C(smcfx_button(0x60)==-1);
- C(!smcfx_strip_press(&s,8,0,1));C(smcfx_strip_live_fx(&s,0)==255);
+ C(!smcfx_strip_press(&s,16,0,1));C(smcfx_strip_live_fx(&s,0)==255);
  C(smcfx_strip_press(&s,24+2,SMCFX_303A,0));
  C(smcfx_strip_live_fx(&s,SMCFX_303A)==SMCFX_LP);
  C(!smcfx_strip_press(&s,24+2,SMCFX_303A,0));

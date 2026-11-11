@@ -280,7 +280,8 @@ enum {
     BFX_STUT_SEND_DLY = 1,
     BFX_STUT_909 = 2,
     BFX_STUT_808 = 6,
-    BFX_STUT_FLT = 10
+    BFX_STUT_FLT = 10,
+    BFX_STUT_BRK = 12
 };
 
 static int bfx_part_stut_base(int part)
@@ -289,6 +290,8 @@ static int bfx_part_stut_base(int part)
         return BFX_STUT_909;
     if (part == PART_808)
         return BFX_STUT_808;
+    if (part == PART_BRK)
+        return BFX_STUT_BRK;   /* mono: one ring channel */
     return -1;
 }
 static float bfx_bpm_snap;

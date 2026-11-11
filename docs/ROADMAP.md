@@ -154,6 +154,7 @@ are in the NIGHTLY catalog entry for this source commit.
 | M4 sound-only reset | DONE | #860 via `4e036296` |
 | M5 | QUEUED: no definition in ROADMAP history (only "unknown item", 94af36cd). Nothing invented. | - |
 | M6 SMC FX effect selection/throw | DONE for the approved effect mockup: held FX key + < > steps that key's effect (existing), approved footer panel (#815 item6-after-effect). Drum fill APPROVED by the owner 2026-11-12 02:29 UTC+10 ("Yes, build the drum fill per the #815 mockup in 0.0.25"): BRK strip REC (SMC note 2) on the FX page, per `item6-after-fill.png`. In progress. | `311897d7` |
+| M6 drum-bus FX suit | Owner decisions 2026-11-12 02:33 UTC+10: "Let drums have similar fxs" and "It doesn't sound right that 808 and 909 have different fxs from break". 909, 808 and BREAK share one suit: REV, DLY, STUT, SHUF, GATE, HP (page 1: REV DLY STUT SHUF; page 2: GATE HP). Supersedes the #370 split (no GATE on 909/808). BREAK stutter is real: one mono ring channel (13 in total). | this commit |
 | M7 part ON/OFF | DONE: core + saved state (#854 via `4e036296`); GLOBAL > AUDIO toggles per part (#815 item 7). | `4e036296`, `336eaa4f` |
 | M8 PLAY answers question, HOME+PLAY redo | DONE | #860 via `4e036296` |
 | M9 integration | DONE for built items. Not merged: L14 SMC snapshot (`9ffe5d6d`, `13b43154`, `fb6b5827`): it is built on the keyboard page peek that the owner withdrew in 3f7baf16 and needs +1,888 B .bss against 716 B RAM headroom. The default build has one SMC peer. | this merge |

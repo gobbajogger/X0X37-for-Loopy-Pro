@@ -140,8 +140,36 @@ static void test_map(void)
     expect(smcfx_bus(27) == SMCFX_303B && smcfx_bus(31) == SMCFX_FLT, "all eight SELECT notes map");
 }
 
+/* Owner 2026-11-12 02:33 UTC+10: 909, 808 and BREAK share one suit; BREAK
+ * stutters on its own mono ring channel (12), after the 12 earlier ones. */
+static void test_kit_suit(void)
+{
+    static const uint8_t want[6] = {SMCFX_REV, SMCFX_DLY, SMCFX_STUT, SMCFX_SHUF, SMCFX_GATE, SMCFX_HP};
+    static const int kits[3] = {0, 1, 4};
+    busfx_t s;
+    busfx_stut_t stut;
+    float x[2048], dry[2048];
+    int i, k, moved = 0;
+    for (k = 0; k < 3; k++) {
+        expect(SMCFX_SUIT_N[kits[k]] == 6, "kit buses list six effects");
+        expect(memcmp(SMCFX_SUIT[kits[k]], want, sizeof want) == 0, "909, 808, BREAK: REV DLY STUT SHUF GATE HP");
+    }
+    expect(BFX_STUT_CH == 13u, "13 stutter ring channels (BREAK mono added)");
+    busfx_init(&s);
+    busfx_stut_init(&stut);
+    for (i = 0; i < 2048; i++)
+        x[i] = dry[i] = (float)((i * 37) % 200 - 100) / 200.0f;
+    busfx_apply(&s, &stut, 12, x, 0, 0, 0, 1, 2048, 127.0f, 1, BFX_STUT, 2048, 2048, BPM, 0u);
+    for (i = 0; i < 2048; i++)
+        moved += fabsf(x[i] - dry[i]) > 1e-4f;
+    expect(moved > 100, "BREAK stutter on ring channel 12 changes the bus");
+    expect(stut.ring_w[12] != 0 || stut.ring[12][0] != 0 || stut.ring[12][1] != 0, "ring channel 12 written");
+    expect(stut.ring_w[11] == 0 && stut.ring[11][0] == 0 && stut.ring[11][1] == 0, "the filter channels stay untouched");
+}
+
 int main(void)
 {
+    test_kit_suit();
     test_wire();
     test_bpm_range();
     test_main_throw();
