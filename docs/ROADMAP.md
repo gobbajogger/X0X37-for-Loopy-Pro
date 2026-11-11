@@ -138,6 +138,30 @@ from donor trees to the combination.
 | M12 Pinned candidate/ROADMAP completeness and uploader enforcement | Existing #822 owner and scoped acceptance retained | NOT QUALIFIED on this composition. No new independent reviewer or review-budget reset. No source-only acceptance is promoted to final release approval. |
 | M13 Straight 1/8 and 1/4 SEQ rates | #824 scoped timing core only | QUEUED beyond existing core; no additional UI/BREAK/editor/storage/protocol stages or downgrade claims admitted. |
 
+### 0.0.25 real build status (2026-11-12 UTC+10, branch `lane/build-025-real-20261112`)
+
+Owner 2026-11-11 19:31-19:37 UTC+10: "need to produce a real combined 25 build that is
+installable through nightly. and it must be up to roadmap and be a real update",
+"without any regressions", "newer sdk is better". Source = recovered 0.0.25 (`8984a297`,
+superset of 0.0.24.5 `8be16486`) merged onto `42de2893`, with the items below. Gate numbers
+are in the NIGHTLY catalog entry for this source commit.
+
+| Row | Status in this build | Source |
+|---|---|---|
+| M1 PANIC | DONE in source. One implementation (recovered `4e036296`); a Note On accepted after the request plays in the same drain (panic-cutover test). 42de queue accept order on overflow ported. | `4e036296`, merge `a08cbeda` |
+| M2 muted fader | DONE (unchanged) | 0.0.24.5 |
+| M3 instant tempo | DONE (unchanged) | 0.0.24.5 |
+| M4 sound-only reset | DONE | #860 via `4e036296` |
+| M5 | QUEUED: no definition in ROADMAP history (only "unknown item"). Nothing invented. | - |
+| M6 SMC FX presentation/throw | PARTIAL: existing FX behavior kept; approved presentation not built. QUEUED. | - |
+| M7 part ON/OFF | PARTIAL: core + saved state (#854 via `4e036296`); settings UI QUEUED. | `4e036296` |
+| M8 PLAY answers question, HOME+PLAY redo | DONE | #860 via `4e036296` |
+| M9 integration | DONE for built items; L14 SMC-snapshot lanes (`9ffe5d6d`, `13b43154`) NOT merged: 16 conflict hunks in ui.c/smc_mixer.c and open COPY/SONG/CLEAR review blocker. | this merge |
+| M10 pool >= 8,192 B | see catalog entry (Elite and Pro measured) | build |
+| M11 NIGHTLY | see catalog entry | publish |
+| M12 completeness gate | PARTIAL: #822 not adopted (its audit is 2 PRESENT / 144 MISSING / 62 QUEUED and would block every package). | #822 |
+| M13 1/8, 1/4 rates | PARTIAL: #824 timing core in (`2a81b7ff`); UI/BREAK/editor/storage QUEUED. | `2a81b7ff` |
+
 ### Preserved packaging requirements
 
 Models `SMK-37 Elite_900` and `SMK-37 Pro_900`; `X0X_DEV_PADCAL=0`.
