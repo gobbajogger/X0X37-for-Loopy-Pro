@@ -103,6 +103,10 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 Last update: 2026-10-19.
 
 
+## Rules
+
+- **Removals need the owner's own words (owner rule, 2026-11-12 03:17 UTC+10).** Every removal or disabling of a feature must carry a written reason sourced from the owner's own words (his chat or his own comment, quoted with date and time). An agent commit message, PR body or audit note that only says "per the owner" is not a reason. A merge never removes or disables a feature: if a conflict seems to need it, keep both versions and report it.
+
 ## 0.0.25 Classic continuation (owner request, 2026-11-08; checkpoint 2026-11-10)
 
 The October 19 narrative above is retained as history, not the current delivery status.
