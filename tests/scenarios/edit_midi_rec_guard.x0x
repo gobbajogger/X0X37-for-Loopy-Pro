@@ -1,4 +1,4 @@
-# EDIT may finish an onset started on SEQ; new MIDI onsets cannot write hidden steps.
+# REC-07B: external MIDI records through EDIT; keyboard onsets still need SEQ.
 wait 300
 turn ALGO 4
 tap EDIT
@@ -9,7 +9,8 @@ midi 91 30 64
 wait 300
 midi 81 30 00
 expect gate0.0 0
-expect gate0.1 0
+expect gate0.1 1
+expect note0.1 48
 tap SEQ
 expect view 8
 midi 91 30 64
@@ -24,5 +25,22 @@ expect gate0.7 2
 midi 91 32 64
 wait 230
 midi 81 32 00
-expect gate0.9 0
+expect gate0.8 1
+expect note0.8 50
+expect gate0.9 2
 expect gate0.10 0
+# REC off: later external onsets and the EDIT keyboard cannot write steps.
+tap REC
+expect rec 0
+midi 91 34 64
+wait 250
+midi 81 34 00
+expect gate0.12 0
+expect gate0.13 0
+tap REC
+expect rec 1
+key w0 down
+wait 200
+key w0 up
+expect gate0.14 0
+expect gate0.15 0

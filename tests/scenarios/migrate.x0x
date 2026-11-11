@@ -1,44 +1,74 @@
-# A project saved by X0X 0.10 (tests/fixtures/v1_store.bin: 16 patterns of 32 steps, 32-step lanes,
-# the 909 SD before its DECAY) loads into 64 steps and 32 patterns as it was, and saves packed.
+# Revision 13 deliberately rejects v1_store.bin; it never migrates or overwrites it.
+wait 300
 storeload tests/fixtures/v1_store.bin
-wait 100
-# pattern 1: BD on steps 1 and 32, the 303's note on step 1, nothing past 32
+wait 300
 expect pattern 1
-expect hit0.0.0 1
-expect hit0.0.31 1
-expect hit0.0.32 0
+expect tempo 125
+expect hit0.0.0 0
+expect hit0.0.31 0
 expect hit0.0.63 0
-expect gate0.0 1
-expect gate0.32 0
-# the SD's pots moved up one for DECAY (its default, 41): LEVEL (100, turned to 105 recording), PAN 30
+expect gate0.0 0
+expect lanes 0
+expect songlen 0
+expect clksrc 0
 expect sound0.1.3 41
-expect sound0.1.4 105
-expect sound0.1.9 30
-# the lane on the SD's LEVEL followed it, its 32 steps kept, the new ones empty
-expect lanes 1
-expect laneval0.1.4.3 102
-expect laneval0.1.4.5 105
-expect laneval0.1.4.40 255
-# the song
+expect sound0.1.4 58
+expect store_writes 0
+# Neither idle autosave nor explicit SAVE may replace the unsupported store.
+wait 25000
+expect store_writes 0
+tap SAVE
+wait 300
+expect savestate 3
+expect store_writes 0
+reboot
+wait 300
+expect tempo 125
+expect lanes 0
+expect songlen 0
+expect hit0.0.0 0
+expect store_writes 0
+# Explicit RESET PROJECT is the supported adoption boundary (SET-07).
+tap GLO
+turn SELECT 17
+expect listsel 21
+tap SEL
+expect overlay 2
+tap SEL
+wait 100
+expect overlay 0
+expect playing 0
+expect rec 0
+# Author a current project from panel controls and check its save/reload.
+tap SEQ
+tapkey b0
+tapkey w0
+tapkey w12
+expect hit0.0.0 1
+expect hit0.0.12 1
+press HOME
+turn SELECT -5
+release HOME
+expect tempo 120
+tap HOME
+tap HOME
+expect view 6
+tapkey w0
+tapkey w15
 expect songlen 2
 expect songbar2.0 16
-# pattern 16
-tap HOME
-tapkey w15
-wait 50
-expect pattern 16
-expect hit0.0.1 1
-# saved in the new format and booted again: all the same
 tap SAVE
+wait 300
+expect savestate 0
+expect store_writes 6
+expect storeset23 13
 reboot
-wait 100
-expect pattern 1
-expect hit0.0.31 1
-expect hit0.0.1 0
-expect laneval0.1.4.5 105
-tap HOME
-tapkey w15
-wait 50
-expect hit0.0.1 1
-expect sound0.1.4 105
+wait 300
+expect tempo 120
+expect hit0.0.0 1
+expect hit0.0.12 1
+expect hit0.0.31 0
+expect lanes 0
+expect songlen 2
 expect songbar2.0 16
+expect store_writes 6
