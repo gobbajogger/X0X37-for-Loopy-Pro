@@ -945,31 +945,45 @@ static void d9_render_smp(d9_smp_t *s, const d9_bus_t *bus, int n)
     const float pre = 1.0f + s->drive * 0.5f;
     const uint8_t *adpcm = s->adpcm;
     const uint32_t len = s->len;
-    for (int i = 0; i < m; ++i) {
-        float v = 0.0f;
-        if (s->pos < len) {
-            /* decode forward to sample pos + 1 (to the last sample at the end): the same values as
-             * a fully decoded buffer. pos only goes up, so each sample is decoded once (up to 4 a
-             * sample at pitch x4) */
-            const uint32_t need = s->pos + 2 < len ? s->pos + 2 : len;
-            while (s->dk < need) {
-                s->h0 = s->h1;
-                s->h1 = ima_decode(adpcm, s->dk++, &s->pred, &s->idx);
-            }
-            const int last = s->pos + 1 >= len;
-            const float a = (float)(last ? s->h1 : s->h0) * (1.0f / 32768.0f);
-            const float b = last ? 0.0f : (float)s->h1 * (1.0f / 32768.0f);
-            const float fr = (float)s->frac * (1.0f / 4294967296.0f);
-            v = a + (b - a) * fr;
-            const uint32_t f2 = s->frac + s->incf;
-            s->pos += s->inc + (f2 < s->frac);
-            s->frac = f2;
-        }
+    /* Decode forward to sample pos+1 (to the last sample at the end): the same
+     * values as a fully decoded buffer. pos only goes up, so each sample is
+     * decoded once (up to 4 a sample at pitch x4). Drive and the shape type
+     * are constant for the block: one loop each, no per-sample branch. */
+#define D9_SMP_CORE \
+        float v = 0.0f; \
+        if (s->pos < len) { \
+            const uint32_t need = s->pos + 2 < len ? s->pos + 2 : len; \
+            while (s->dk < need) { \
+                s->h0 = s->h1; \
+                s->h1 = ima_decode(adpcm, s->dk++, &s->pred, &s->idx); \
+            } \
+            const int last = s->pos + 1 >= len; \
+            const float a = (float)(last ? s->h1 : s->h0) * (1.0f / 32768.0f); \
+            const float b = last ? 0.0f : (float)s->h1 * (1.0f / 32768.0f); \
+            const float fr = (float)s->frac * (1.0f / 4294967296.0f); \
+            v = a + (b - a) * fr; \
+            const uint32_t f2 = s->frac + s->incf; \
+            s->pos += s->inc + (f2 < s->frac); \
+            s->frac = f2; \
+        } \
         v *= d9_env_tick(&s->out);
-        if (drive)
-            v = d9_shape_v(&s->shape, v * pre, s->crush_st);
-        bus->y[i] = v;
+    if (!drive) {
+        for (int i = 0; i < m; ++i) { D9_SMP_CORE; bus->y[i] = v; }
+    } else if (s->shape.type == 0) {
+        const float k = s->shape.k, g = s->shape.g;
+        for (int i = 0; i < m; ++i) {
+            D9_SMP_CORE;
+            v = d9_tanh_inline(k * (v * pre)) * g;
+            bus->y[i] = v;
+        }
+    } else {
+        for (int i = 0; i < m; ++i) {
+            D9_SMP_CORE;
+            v = d9_shape_other(&s->shape, v * pre, s->crush_st);
+            bus->y[i] = v;
+        }
     }
+#undef D9_SMP_CORE
     d9_emit_block(bus, m);
 }
 
