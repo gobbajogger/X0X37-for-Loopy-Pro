@@ -209,7 +209,7 @@ static void test_defaults(void)
     CHECK(project_stage.set.bt == (PROJ_DEVICE_BT | PROJ_BT_CLK_IN));
     CHECK(project_stage.set.stereo == PROJ_STEREO && project_stage.set.snd_rev == PROJ_SND_REV);
     CHECK(!project_stage.set.keysound && !project_stage.set.autosave_off &&
-          !project_stage.set.out_loud && !project_stage.set.usb_full && !project_stage.set.rsv_bright);
+          !project_stage.set.out_loud && !project_stage.set.usb_full && !project_stage.set.queued_mutes);
     CHECK(!memcmp(&project_stage.set.ck_ch, clip, sizeof clip));
     for (p = 0; p < NPARTS; p++)
         CHECK(!project_stage.set.midi_ch[p]);

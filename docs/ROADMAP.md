@@ -166,7 +166,7 @@ are in the NIGHTLY catalog entry for this source commit.
 | M12 completeness gate | PARTIAL: #822 not adopted. It needs a pinned proof for every required ROADMAP row (2 PRESENT / 144 MISSING at its last audit) and an independently accepted release selection; not populated. | #822 |
 | M13 1/8, 1/4 rates | PARTIAL: timing core (`2a81b7ff`), RATE selectors for drum and bass parts and offline editor/import (`336eaa4f`). QUEUED: BREAK rate (fixed 1/16), downgrade policy (0.0.24.5 reads rate & 3, so 1/8 and 1/4 load as 1/16 and 1/16T there). | `2a81b7ff`, `336eaa4f` |
 | SMC CLIP KEYS tag | DONE: ported from 42de2893 | `03c8f007` |
-| Queued-mutes toggle | QUEUED: no definition or code on any branch | - |
+| Queued-mutes toggle | DONE on lane/025-small-b: GLO > AUDIO > QUEUE MUTES (default off, bit-exact). On, mute/unmute waits for the next 909 bar; a second press cancels; Stop applies a pending change; stopped presses are immediate. Saved in the global settings brightness byte (1 = on, any other value = off). | this branch |
 
 ### Preserved packaging requirements
 

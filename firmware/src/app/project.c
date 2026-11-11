@@ -150,6 +150,13 @@ static int read_settings_payload(void)
     return n;
 }
 
+/* Legacy brightness leftovers in this byte are not a mute queue. */
+static void settings_clamp_queued_mutes(settings_t *s)
+{
+    if (s->queued_mutes > 1u)
+        s->queued_mutes = 0;
+}
+
 /* Exact size only; an older settings object is unsupported (-9). */
 static int load_settings(settings_t *dst)
 {
@@ -161,6 +168,7 @@ static int load_settings(settings_t *dst)
         __builtin_memset(io_buf + 4u + sizeof *dst, 0, PROJ_SET_TAIL);
     else if (PROJ_SET_TAIL_BAD(io_buf + 4u + sizeof *dst)) return -9;
     __builtin_memcpy(dst, io_buf + 4u, sizeof *dst);
+    settings_clamp_queued_mutes(dst);
     stored_known[OBJ_SET] = 1;
     stored_hash[OBJ_SET] = hash_of(io_buf, (uint32_t)n);
     return 0;
@@ -482,6 +490,7 @@ static int read_project(project_t *pr)
         if (set.magic != PROJ_MAGIC || set.format != PROJ_FORMAT ||
             set.snd_rev != PROJ_SND_REV || set.stereo != PROJ_STEREO) goto unsupported;
         pr->set = set;
+        settings_clamp_queued_mutes(&pr->set);
         *part_off_of(pr) = part_off;
         device_bt = set.bt;                       /* retain saved Bluetooth role on partial-load fallback */
     } else {
@@ -749,6 +758,7 @@ void project_apply_io(void)
     int p;
     seq.send_clock = proj.set.clk_out;
     seq.send_notes = proj.set.notes_out;
+    seq.queued_mutes = proj.set.queued_mutes == 1u;
     seq.clk_src = PROJ_CLK_SRC(proj.set.bt);
     for (p = 0; p < 5; p++) {
         int v = proj.set.midi_ch[p];

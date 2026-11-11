@@ -403,7 +403,7 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION, R_PARTON };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION, R_PARTON, R_QUEUEMUTE };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -459,6 +459,7 @@ static const x0x_param_t MIDICH_P[NPARTS] = {   /* 0 = OFF (no notes in or out),
 static const x0x_param_t PARTON_P[NPARTS] = {
     {"909", 1, 1, ONOFF_N}, {"808", 1, 1, ONOFF_N}, {"BASS A", 1, 1, ONOFF_N}, {"BASS B", 1, 1, ONOFF_N},
     {"BREAK", 1, 1, ONOFF_N}};
+static const x0x_param_t QUEUEMUTE_P = {"QUEUE MUTES", 1, 0, ONOFF_N};
 static const char *const OUT_N[] = {"NORMAL", "LOUD"};
 static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
 static const char *const USBA_N[] = {"FOLLOWS KNOB", "FULL"};
@@ -560,6 +561,7 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_SPAT: return &SONG_P[r.a % NPARTS];
     case R_MIDICH: return &MIDICH_P[r.a % NPARTS];
     case R_PARTON: return &PARTON_P[r.a % NPARTS];
+    case R_QUEUEMUTE: return &QUEUEMUTE_P;
     case R_OUTLOUD: return &OUT_P;
     case R_USBFULL: return &USBA_P;
     case R_FREEPLAY: return &FREEPLAY_P;
@@ -645,6 +647,7 @@ static int pref_get(pref_t r)
     }
     case R_MIDICH: return seq.ch[r.a % NPARTS] == SEQ_CH_OFF ? 0 : seq.ch[r.a % NPARTS] + 1;
     case R_PARTON: return !SEQ_PART_OFF(&seq, r.a % NPARTS);
+    case R_QUEUEMUTE: return seq.queued_mutes;
     case R_OUTLOUD: return proj.set.out_loud;
     case R_USBFULL: return proj.set.usb_full;
     case R_FREEPLAY: return ui.freeplay[r.a];
@@ -784,6 +787,10 @@ X0X_COLD static void pref_set_impl(pref_t r, int v, int from_keyboard)
     }
     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
     case R_PARTON: seq.part_off = (uint8_t)(v ? seq.part_off & ~(1u << (r.a % NPARTS)) : seq.part_off | 1u << (r.a % NPARTS)); break;
+    case R_QUEUEMUTE:
+        proj.set.queued_mutes = (uint8_t)(v ? 1 : 0);
+        seq.queued_mutes = proj.set.queued_mutes;
+        break;
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
     case R_CKCH: proj.set.ck_ch = (uint8_t)(v + 2); break;   /* sounding notes end on their own channel */
@@ -1684,7 +1691,8 @@ static void global_section(int g)
 #endif
         break;
     case 2:list_add(PR(R_OUTLOUD,0,0,0));list_add(PR(R_USBFULL,0,0,0));
-        for(int p=0;p<NPARTS;p++)list_add(PR(R_PARTON,part_at(p),0,0));break;
+        for(int p=0;p<NPARTS;p++)list_add(PR(R_PARTON,part_at(p),0,0));
+        list_add(PR(R_QUEUEMUTE,0,0,0));break;
     case 3:list_add(PR(R_KEYLED,0,0,0));list_add(PR(R_KEYSOUND,0,0,0));list_add(PR(R_PALETTE,0,0,0));break;
     case 4:
         list_add(PR(R_ACT,ACT_SAVE,0,0));list_add(PR(R_ACT,ACT_LOAD,0,0));list_add(PR(R_AUTOSAVE,0,0,0));
@@ -3399,7 +3407,16 @@ static void smk_mute_edge(int target, int silent)
 
 static void mute_part(int p)                         /* a whole part on / off (HOME, MIX's PARTS) */
 {
-    seq.mute = part_muted(p) ? seq.mute & ~MUTE_MASK[p] : seq.mute | MUTE_MASK[p];
+    uint32_t mask = MUTE_MASK[p];
+    if (seq.queued_mutes && seq.playing) {
+        seq.mute_q ^= mask;
+        if (seq.mute_q & mask)
+            say(part_muted(p) ? "UNMUTE AT BAR " : "MUTE AT BAR ", part_name(p));
+        else
+            say("CANCELED ", part_name(p));
+        return;
+    }
+    seq.mute = part_muted(p) ? seq.mute & ~mask : seq.mute | mask;
     if (seq.song_rec && seq.playing && seq.song_pos < song()->len) {   /* song recording: this bar too */
         song_bar_t *b = &song()->bar[seq.song_pos];
         b->mute = (uint8_t)(part_muted(p) ? b->mute | 1u << p : b->mute & ~(1u << p));
@@ -3427,7 +3444,16 @@ static int volume_muted(pref_t r)
 
 static void mute_track(int km, int v)                /* one drum track on / off */
 {
-    seq.vmute ^= 1u << (km * NDRUM + v);
+    uint32_t bit = 1u << (km * NDRUM + v);
+    if (seq.queued_mutes && seq.playing) {
+        seq.vmute_q ^= bit;
+        if (seq.vmute_q & bit)
+            say(track_muted(km, v) ? "UNMUTE AT BAR " : "MUTE AT BAR ", engine_voice_name(km ? T_808 : T_909, v));
+        else
+            say("CANCELED ", engine_voice_name(km ? T_808 : T_909, v));
+        return;
+    }
+    seq.vmute ^= bit;
     say(track_muted(km, v) ? "MUTED " : "UNMUTED ", engine_voice_name(km ? T_808 : T_909, v));
 }
 

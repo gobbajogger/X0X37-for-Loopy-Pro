@@ -161,8 +161,11 @@ typedef struct {
     volatile uint8_t ch[NTRACKS];     /* each part's MIDI channel, 0-15 (in and out); SEQ_CH_OFF = none */
     uint8_t song_rep;                 /* the song bar playing: its passes still to play (SONG_REP) */
     volatile uint32_t mute;           /* MUTE_* bits */
+    volatile uint32_t mute_q;         /* part-mute bits waiting for the next 909 bar (xor) */
     volatile uint32_t vmute;          /* drum tracks muted on their own (bit k * NDRUM + v): kept apart from
                                        * the part mutes, which the song and HOME set as a whole */
+    volatile uint32_t vmute_q;        /* track-mute bits waiting for the next 909 bar (xor) */
+    volatile uint8_t queued_mutes;    /* 1: mute/unmute presses wait for the next 909 bar */
     volatile uint8_t accent_q7;       /* drum velocity of a non-accented hit, of 127 */
     volatile uint8_t drum_vel[NKIT][NDRUM]; /* per-voice step velocity from a T_VEL lane (engine); 0 = accent law */
     float bpm;                        /* internal tempo (UI writes; read per step) */
