@@ -1,0 +1,573 @@
+From 31157d25caf7284080cdb5d86ab7e8e438120fd9 Mon Sep 17 00:00:00 2001
+From: gobbajogger <255244738+gobbajogger@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 06:52:34 +1000
+Subject: [PATCH 2/2] fix: express strict cycle costs as 360 MHz sixteenths
+
+The cost table was in eighths of a 240 MHz cycle, so --mhz 360 finished
+work 1.5x sooner than the SMK-37. Odd eighths are not integers times 1.5,
+so costs are now sixteenths of a 360 MHz cycle (cost16 = cost8 * 3),
+XIP misses are 300*24 ticks, and FM1_STRICT uses 16 ticks per cycle.
+TIMER4 stays 24 MHz of emulated time. Default clock is 360, including
+the plugin (v0.2.0 240/320/400 indices are unchanged).
+---
+ README.md                       |   6 +-
+ crates/fm1-core/src/lib.rs      | 116 ++++++++++++++++++--------------
+ crates/fm1-live/src/main.rs     |  14 ++--
+ crates/fm1-plugin/src/editor.rs |   2 +-
+ crates/fm1-plugin/src/lib.rs    |  21 +++---
+ crates/fm1-soc/src/lib.rs       |  23 ++++---
+ crates/fm1-soc/src/machine.rs   |   3 +-
+ crates/fm1-soc/src/periph.rs    |   8 +--
+ docs/paper/fm1-paper.tex        |   2 +-
+ docs/releases/v0.2.0.md         |   4 +-
+ tools/bench_ab.sh               |   2 +-
+ tools/bench_all.sh              |   2 +-
+ tools/bench_wasm_ab.mjs         |   2 +-
+ tools/catalog_check.py          |   2 +-
+ web/bench.mjs                   |   4 +-
+ web/main.js                     |   2 +-
+ 16 files changed, 120 insertions(+), 93 deletions(-)
+
+diff --git a/README.md b/README.md
+index d2410c1..34a5d65 100644
+--- a/README.md
++++ b/README.md
+@@ -277,7 +277,7 @@ cargo run --release -p fm1-live -- --fwsc FM-1.fwsc     # M-VAVE's own, from its
+ ```
+ 
+ `fm1-live` compiles the firmware to native code on Macs (Apple silicon and Intel), on Linux (ARM64
+-and x86-64) and on Windows (x86-64), and runs the real 240 MHz clock with it; elsewhere it interprets
++and x86-64) and on Windows (x86-64), and runs the real 360 MHz clock with it; elsewhere it interprets
+ (`--mhz` lowers the clock if that can't keep up). It plays every MIDI input of the computer (`--midi NAME`, `--midi none`,
+ `--midi-ch N`) and loads a DX7 bank into M-VAVE's firmware with `--syx bank.syx`.
+ `fm1-emu` is the batch runner for tests and debugging (WAV and screen output, breakpoints,
+@@ -335,8 +335,8 @@ other synth:
+   page's, played with the mouse: keys, buttons, knobs, and on the SMK-37 the pads, faders and
+   wheels.
+ - **Automation:** *Master* (the MASTER pot) is a parameter the DAW can automate.
+-- **CPU clock:** the emulated clock, 240 MHz as on the chip by default. 120 or 160 let a heavy
+-  firmware keep up on a slower computer; 320 or 400 give a firmware that runs out of time more,
++- **CPU clock:** the emulated clock, 360 MHz as on the chip by default. 120 or 160 let a heavy
++  firmware keep up on a slower computer; 400 gives a firmware that runs out of time more,
+   at the cost of more of the computer's CPU.
+ - **Share setups with the browser or another DAW.** “Load firmware / save…” opens a `.fwsc`
+   package or `.fm1save` setup. “Export save…” writes the firmware and its latest saved patches
+diff --git a/crates/fm1-core/src/lib.rs b/crates/fm1-core/src/lib.rs
+index 01482b9..ff20dd6 100644
+--- a/crates/fm1-core/src/lib.rs
++++ b/crates/fm1-core/src/lib.rs
+@@ -329,9 +329,9 @@ pub struct Cpu {
+     pub pc_trip: bool,
+     /// the block running is outside the PC limits (tripped already)
+     pc_out: bool,
+-    /// The FM-1's cycle costs (`op_cost8`) on top of the one tick an instruction takes, for a
+-    /// clock in eighths of a cycle (fm1-live's FM1_STRICT: the interpreter only; compiled code
+-    /// still counts one tick an instruction)
++    /// The chip's cycle costs (`op_cost16`) on top of the one tick an instruction takes, for a
++    /// clock in sixteenths of a 360 MHz cycle (fm1-live's FM1_STRICT: the interpreter only; compiled
++    /// code still counts one tick an instruction)
+     pub cost_model: bool,
+     /// Executed instructions by ISA form (`IsaEntry::syntax`), counted by `step` (fm1-live's
+     /// FM1_ISA_HIST, with FM1_NO_BLOCKS: what a firmware runs, not only what its image holds)
+@@ -717,7 +717,11 @@ impl Cpu {
+                         // (a stretch: as far as compiled code runs before the room check at a
+                         // block's entry stops it, `STRETCH_ROOM` short of the budget)
+                         let cap = if stretch { (budget - n).saturating_sub(STRETCH_ROOM) } else { budget - n };
+-                        let room = (bus.tick_room() + 1).saturating_sub(extra).min(cap as u64);
++                        let mut room = (bus.tick_room() + 1).saturating_sub(extra).min(cap as u64);
++                        if COST {
++                            let take = op_cost16(&op.fast, op.len, true, true) as u64;
++                            room /= take.max(1);
++                        }
+                         let r0 = self.regs[(r & 15) as usize];
+                         // iterations until the decremented register equals v (2^32 when it does now)
+                         let total = match r0.wrapping_sub(v) as u64 { 0 => 1 << 32, t => t };
+@@ -728,7 +732,16 @@ impl Cpu {
+                                 pc += op.len as u32; // fell through
+                             }
+                             n += k as u32;
+-                            bus.add_ticks(k - 1 + extra);
++                            if COST {
++                                // taken backward DecBr (target == pc); the last iter may fall through
++                                let take = op_cost16(&op.fast, op.len, true, true) as u64;
++                                let fall = op_cost16(&op.fast, op.len, false, true) as u64;
++                                let (taken_n, fall_n) = if k == total { (k - 1, 1u64) } else { (k, 0) };
++                                let ticks = taken_n * take + fall_n * fall;
++                                bus.add_ticks(ticks.saturating_sub(1).saturating_add(extra));
++                            } else {
++                                bus.add_ticks(k - 1 + extra);
++                            }
+                             if stretch {
+                                 // the runner's call was this block: it ends here (and the runner
+                                 // looks, as after a block run interpreted)
+@@ -949,7 +962,7 @@ impl Cpu {
+                     n += 1;
+                     if COST {
+                         let at = next_pc - op.len as u32;
+-                        bus.add_ticks((op_cost8(&op.fast, op.len, pc != next_pc, pc < at) - 1) as u64);
++                        bus.add_ticks((op_cost16(&op.fast, op.len, pc != next_pc, pc < at) - 1) as u64);
+                     }
+                 } else {
+                     sync!();
+@@ -972,12 +985,12 @@ impl Cpu {
+                                 let mid = at + hlen as u32;
+                                 if k >= 2 {
+                                     bus.fetch_cost(mid);
+-                                    op_cost8(&head, hlen, false, false) + op_cost8(&tail, op.len - hlen, pc != next_pc, pc < mid)
++                                    op_cost16(&head, hlen, false, false) + op_cost16(&tail, op.len - hlen, pc != next_pc, pc < mid)
+                                 } else {
+-                                    op_cost8(&head, hlen, pc != mid, pc < at)
++                                    op_cost16(&head, hlen, pc != mid, pc < at)
+                                 }
+                             }
+-                            f => op_cost8(&f, op.len, pc != next_pc, pc < at),
++                            f => op_cost16(&f, op.len, pc != next_pc, pc < at),
+                         };
+                         bus.add_ticks(c.saturating_sub(k) as u64);
+                     }
+@@ -1475,9 +1488,9 @@ impl Cpu {
+         self.step_one(bus)?;
+         let taken = self.pc != pc + len as u32;
+         let c = match (fast, named) {
+-            (Some(f), _) => op_cost8(&f, len, taken, self.pc < pc),
+-            (None, Some((name, raw))) => named_cost8(name, raw, taken),
+-            (None, None) => if taken { 42 } else { 8 },
++            (Some(f), _) => op_cost16(&f, len, taken, self.pc < pc),
++            (None, Some((name, raw))) => named_cost16(name, raw, taken),
++            (None, None) => if taken { 126 } else { 24 },
+         };
+         bus.add_ticks(c.saturating_sub(1) as u64);
+         Ok(())
+@@ -6810,61 +6823,64 @@ impl Cond {
+     }
+ }
+ 
+-/// What an op costs on an FM-1, in eighths of a 240 MHz cycle (`Cpu::cost_model`), from harbor's
+-/// cycles probe on a real FM-1 (2026-10-24, probes/cycles.c: one instruction a statement, run from
+-/// RAM): plain ALU ops ~0.6 (two a cycle), a 6-byte constant 1.08, a multiply 1.9, a divide 6.75,
+-/// loads 1.25, stores 1.4, a push or pop ~1.25 + 1 a register, a goto 5.2, a conditional branch
+-/// taken 6.5 forward and ~4.75 backward (a loop's branch: the core predicts it), not taken 0.85, a
+-/// call or a return ~5; (probes/cycles2.c) FPU add / subtract / multiply 1.375, divide 2.66, a 64-bit
+-/// multiply(-accumulate) ~3.2. `taken`: it left its fall-through; `back`: to a lower address. Not in
+-/// it: XIP's cache (fm1_soc's `XipCache`) and load-use stalls.
+-fn op_cost8(f: &Fast, len: u8, taken: bool, back: bool) -> u32 {
+-    let br = if back { 38 } else { 52 };
++/// What an op costs on the chip, in sixteenths of a 360 MHz cycle (`Cpu::cost_model`), from harbor's
++/// cycles probe (2026-10-24, probes/cycles.c: one instruction a statement, run from RAM). The probe
++/// times are unchanged; they were first stored as eighths of a 240 MHz cycle (cost8). Odd cost8
++/// values are not integers times 1.5, so the unit is three times finer: cost16 = cost8 * 3.
++/// Wall time at --mhz 360 after this change equals wall time at --mhz 240 before it.
++/// Plain ALU ops ~0.6 of a 240 MHz cycle (two a cycle), a 6-byte constant 1.08, a multiply 1.9, a
++/// divide 6.75, loads 1.25, stores 1.4, a push or pop ~1.25 + 1 a register, a goto 5.2, a conditional
++/// branch taken 6.5 forward and ~4.75 backward (a loop's branch: the core predicts it), not taken
++/// 0.85, a call or a return ~5; (probes/cycles2.c) FPU add / subtract / multiply 1.375, divide 2.66,
++/// a 64-bit multiply(-accumulate) ~3.2. `taken`: it left its fall-through; `back`: to a lower
++/// address. Not in it: XIP's cache (fm1_soc's `XipCache`) and load-use stalls.
++fn op_cost16(f: &Fast, len: u8, taken: bool, back: bool) -> u32 {
++    let br = if back { 114 } else { 156 };
+     let mask = |m: u16| m.count_ones();
+     let range = |n: u8| (n as u32).saturating_sub(3);       // {rN-r4}: N - 3 registers
+     match *f {
+-        Fast::MovI { .. } if len >= 6 => 9,
++        Fast::MovI { .. } if len >= 6 => 27,
+         Fast::Alu3 { op: Op::Mul, .. } | Fast::Alu3I { op: Op::Mul, .. } | Fast::Alu2 { op: Op::Mul, .. }
+-        | Fast::Alu2I { op: Op::Mul, .. } => 15,
+-        Fast::Div { .. } => 54,
++        | Fast::Alu2I { op: Op::Mul, .. } => 45,
++        Fast::Div { .. } => 162,
+         Fast::Ld { .. } | Fast::LdW { .. } | Fast::LdWSp { .. } | Fast::LdBu { .. } | Fast::LdIdx { .. }
+-        | Fast::LdPost { .. } | Fast::LdPre { .. } | Fast::LdPostR { .. } => 10,
++        | Fast::LdPost { .. } | Fast::LdPre { .. } | Fast::LdPostR { .. } => 30,
+         Fast::St { .. } | Fast::StW { .. } | Fast::StWSp { .. } | Fast::StIdx { .. } | Fast::StPost { .. }
+-        | Fast::StPre { .. } | Fast::StPostR { .. } => 11,
+-        Fast::LdPair { .. } => 20,
+-        Fast::StPair { .. } => 22,
+-        Fast::Rmw { .. } => 21,
+-        Fast::PushMask { mask: m } | Fast::PopMask { mask: m } => 10 + 8 * mask(m),
+-        Fast::BlockMove { mask: m, .. } => 10 + 9 * mask(m),
+-        Fast::PushRets { n } => 18 + 8 * range(n),
+-        Fast::PopPc { n } => 50 + 8 * range(n),
+-        Fast::PushRet | Fast::PopRets => 18,
+-        Fast::PopRet => 50,
+-        Fast::Call { .. } | Fast::CallR { .. } | Fast::Rts => 40,
+-        Fast::Goto { .. } | Fast::GotoR { .. } | Fast::Tb { .. } => if back { 38 } else { 42 },
++        | Fast::StPre { .. } | Fast::StPostR { .. } => 33,
++        Fast::LdPair { .. } => 60,
++        Fast::StPair { .. } => 66,
++        Fast::Rmw { .. } => 63,
++        Fast::PushMask { mask: m } | Fast::PopMask { mask: m } => 30 + 24 * mask(m),
++        Fast::BlockMove { mask: m, .. } => 30 + 27 * mask(m),
++        Fast::PushRets { n } => 54 + 24 * range(n),
++        Fast::PopPc { n } => 150 + 24 * range(n),
++        Fast::PushRet | Fast::PopRets => 54,
++        Fast::PopRet => 150,
++        Fast::Call { .. } | Fast::CallR { .. } | Fast::Rts => 120,
++        Fast::Goto { .. } | Fast::GotoR { .. } | Fast::Tb { .. } => if back { 114 } else { 126 },
+         Fast::BrI { .. } | Fast::BrR { .. } | Fast::BrIEq { .. } | Fast::BrINe { .. } | Fast::BitBr { .. }
+-        | Fast::DecBr { .. } => if taken { br } else { 7 },
+-        Fast::FOp { op: 0..=2, .. } => 11,
+-        Fast::FOp { op: 3, .. } => 21,
+-        Fast::FOp { .. } => 9,
++        | Fast::DecBr { .. } => if taken { br } else { 21 },
++        Fast::FOp { op: 0..=2, .. } => 33,
++        Fast::FOp { op: 3, .. } => 63,
++        Fast::FOp { .. } => 27,
+         // the 64-bit products and multiply-accumulates (`f8 e1` rP = rA * rB, `fc e1` +=, `fe e1` -=)
+-        Fast::Raw { raw, .. } if raw & 0xff00 == 0xe100 && matches!(raw & 0xfe, 0xf8 | 0xfc | 0xfe) => 25,
+-        _ => if taken { if back { 38 } else { 42 } } else { 5 },
++        Fast::Raw { raw, .. } if raw & 0xff00 == 0xe100 && matches!(raw & 0xfe, 0xf8 | 0xfc | 0xfe) => 75,
++        _ => if taken { if back { 114 } else { 126 } } else { 15 },
+     }
+ }
+ 
+-/// `op_cost8` for an instruction with no micro-op (`fast_of` None), by its ISA entry's name: the
++/// `op_cost16` for an instruction with no micro-op (`fast_of` None), by its ISA entry's name: the
+ /// 2-byte push / pop forms (`[--sp] = {rets, rN-r4}`, `{pc, rN-r4} = [sp++]`: N - 3 registers, and
+-/// rets or pc) as the 4-byte masks, a pop into pc a return too; anything else one cycle, or a
+-/// taken branch's when it left its fall-through.
+-fn named_cost8(name: &str, raw: u64, taken: bool) -> u32 {
++/// rets or pc) as the 4-byte masks, a pop into pc a return too; anything else one 240 MHz cycle
++/// (24 sixteenths of a 360 MHz cycle), or a taken branch's when it left its fall-through.
++fn named_cost16(name: &str, raw: u64, taken: bool) -> u32 {
+     let push = name.starts_with("sp_mov_");
+     let pop = name.contains("_mov_sp");
+     if push || pop {
+         let regs = ((raw & 0xf) as u32).saturating_sub(3) + (name.contains("rets") || name.starts_with("pc_")) as u32;
+-        return 10 + 8 * regs + if taken { 40 } else { 0 };
++        return 30 + 24 * regs + if taken { 120 } else { 0 };
+     }
+-    if taken { 42 } else { 8 }
++    if taken { 126 } else { 24 }
+ }
+ 
+ #[derive(Clone, Copy, Debug)]
+diff --git a/crates/fm1-live/src/main.rs b/crates/fm1-live/src/main.rs
+index a3e9f5d..1235ef9 100644
+--- a/crates/fm1-live/src/main.rs
++++ b/crates/fm1-live/src/main.rs
+@@ -1,6 +1,6 @@
+ //! Play the emulated FM-1 live.
+ //!
+-//!   fm1-live [--bin work/felucca_xip.bin] [--entry 0x02000120] [--mhz 240]
++//!   fm1-live [--bin work/felucca_xip.bin] [--entry 0x02000120] [--mhz 360]
+ //!   fm1-live --bench 3000          # headless: how fast does it run?
+ //!   fm1-live --fwsc FM-1.fwsc [--syx bank.syx]   # M-VAVE's stock firmware, from its package
+ //!   fm1-live ... --flash unit.bin  # the flash chip from this file (if it is there), back to it at the end
+@@ -144,7 +144,7 @@ fn check_opts(o: &Opts) -> Result<(), String> {
+ }
+ 
+ fn parse_args(a: Vec<String>) -> Option<Opts> {
+-    let mut o = Opts { bin: "work/felucca_xip.bin".into(), entry: 0x0200_0120, mhz: 240, bench: None, shot: None,
++    let mut o = Opts { bin: "work/felucca_xip.bin".into(), entry: 0x0200_0120, mhz: 360, bench: None, shot: None,
+                        record: None, lcd_only: false, name: "Felucca".into(), fwsc: None, syx: None, midi: "all".into(), midi_ch: 0,
+                        flaky_core1: None, cpu1_survives: false, seed: None, flash: None, usb: false };
+     let mut i = 1;
+@@ -240,10 +240,10 @@ impl Machine {
+         let mut soc = Soc::new(RAM_SIZE, image);
+         let strict = std::env::var_os("FM1_STRICT").is_some();
+         // FM1_STRICT: as an FM-1 is (misaligned RAM accesses fault, the LCD's transfers take their
+-        // time) and as it is timed: each instruction its measured cost (fm1_core's op_cost8) on a
+-        // clock in eighths of a cycle (the HW units' jobs too); the interpreter only, and no loop
+-        // skip (it counts instructions)
+-        soc.periph.cycle_ticks = if strict { 8 } else { 1 };
++        // time) and as it is timed: each instruction its measured cost (fm1_core's op_cost16) on a
++        // clock in sixteenths of a 360 MHz cycle (the HW units' jobs keep their measured wall time);
++        // the interpreter only, and no loop skip (it counts instructions)
++        soc.periph.cycle_ticks = if strict { 16 } else { 1 };
+         soc.periph.hz = o.mhz * 1_000_000 * soc.periph.cycle_ticks;
+         soc.strict_align = strict;
+         // (FM1_STRICT or FM1_LCD_TIMED; FM1_LCD_INSTANT turns it off again)
+@@ -1201,7 +1201,7 @@ const DRAG_PER_CLICK: f32 = 12.0;
+ const USAGE: &str = "usage: fm1-live --fwsc FIRMWARE.fwsc   (a firmware package: a community firmware, or M-VAVE's own)
+        fm1-live --fw ID | --fw list    (the page's list, in a checkout: node tools/fetch_firmwares.mjs)
+        fm1-live --bin XIP.bin [--entry 0x02000120]
+-options: [--mhz 240] [--syx BANK.syx] [--midi all|none|NAME] [--midi-ch N] [--flash FILE] [--usb]
++options: [--mhz 360] [--syx BANK.syx] [--midi all|none|NAME] [--midi-ch N] [--flash FILE] [--usb]
+          [--flaky-core1 RATE [--seed N]] [--cpu1-survives] [--version] [--help]
+ headless: --bench MS   run MS emulated ms as fast as it goes, report the speed
+           --shot MS    run MS ms, then write the panel to work/panel.ppm
+diff --git a/crates/fm1-plugin/src/editor.rs b/crates/fm1-plugin/src/editor.rs
+index 396661c..2c3f995 100644
+--- a/crates/fm1-plugin/src/editor.rs
++++ b/crates/fm1-plugin/src/editor.rs
+@@ -120,7 +120,7 @@ pub fn create(params: Arc<Fm1Params>, link: Arc<Link>) -> Option<Box<dyn Editor>
+                 bar.separator();
+                 bar.label("MIDI channel");
+                 bar.add(widgets::ParamSlider::for_param(&params.channel, setter).with_width(90.0));
+-                bar.label("CPU clock").on_hover_text("The emulated FM-1's clock, 240 MHz as on the chip. Lower it if this computer can't keep up with a heavy firmware (\"frames late\"); raise it if a firmware runs out of time. Changing it restarts the firmware");
++                bar.label("CPU clock").on_hover_text("The emulated clock, 360 MHz as on the chip. Lower it if this computer can't keep up with a heavy firmware (\"frames late\"); raise it if a firmware runs out of time. Changing it restarts the firmware");
+                 // a menu in the clocks' order (the parameter's own order keeps v0.2.0's projects)
+                 enum_menu(bar, setter, "clock", &params.clock, &Clock::ALL, 90.0, Clock::name);
+                 bar.label("Lead").on_hover_text("How far ahead of the host the firmware runs, beyond one host block: a note you play waits this long, plus the host's own buffers, before it sounds. 23 ms is room for any firmware; try less, and go back up if \"frames late\" appear in the status bar. An AU host learns the new latency when the plugin is loaded again");
+diff --git a/crates/fm1-plugin/src/lib.rs b/crates/fm1-plugin/src/lib.rs
+index 08b5b19..c7abcc1 100644
+--- a/crates/fm1-plugin/src/lib.rs
++++ b/crates/fm1-plugin/src/lib.rs
+@@ -66,15 +66,14 @@ pub struct Fm1Params {
+     pub lead: EnumParam<Lead>,
+ }
+ 
+-/// The emulated clock. The emulator runs one instruction a cycle at the chip's nominal 240 MHz,
+-/// while the AC791N runs some instructions in dual-issue pairs, so a firmware that runs out of
+-/// time can be given more. A firmware that idles in loops the emulator cannot skip costs host
+-/// CPU in proportion to the clock, so a lower one lets a heavy firmware keep up on a slower
+-/// computer (CS-1 and FM-106 run about 1.3x as fast at 160 MHz as at 240, 1.5x at 120), as long
+-/// as the firmware still has the time it needs.
++/// The emulated clock. The chip (SMK-37 / AC79) runs at 360 MHz. The emulator's default matches
++/// that. A firmware that idles in loops the emulator cannot skip costs host CPU in proportion to
++/// the clock, so a lower one lets a heavy firmware keep up on a slower computer, as long as the
++/// firmware still has the time it needs. A higher one (400) is only for experiments.
+ ///
+ /// v0.2.0 saved the clock as its variant's index, so 240, 320 and 400 keep theirs (0, 1, 2) and
+-/// the lower clocks come after them; each now saves its id. [`Clock::ALL`] is the menu's order.
++/// the later clocks come after them; each now saves its id. [`Clock::ALL`] is the menu's order.
++/// 360 is appended so those indices do not move.
+ #[derive(Enum, Clone, Copy, PartialEq, Eq, Debug)]
+ pub enum Clock {
+     #[id = "240"]
+@@ -92,10 +91,13 @@ pub enum Clock {
+     #[id = "160"]
+     #[name = "160 MHz"]
+     Mhz160,
++    #[id = "360"]
++    #[name = "360 MHz"]
++    Mhz360,
+ }
+ 
+ impl Clock {
+-    pub const ALL: [Clock; 5] = [Clock::Mhz120, Clock::Mhz160, Clock::Mhz240, Clock::Mhz320, Clock::Mhz400];
++    pub const ALL: [Clock; 6] = [Clock::Mhz120, Clock::Mhz160, Clock::Mhz240, Clock::Mhz320, Clock::Mhz360, Clock::Mhz400];
+ 
+     pub fn mhz(self) -> u64 {
+         match self {
+@@ -103,6 +105,7 @@ impl Clock {
+             Clock::Mhz160 => 160,
+             Clock::Mhz240 => 240,
+             Clock::Mhz320 => 320,
++            Clock::Mhz360 => 360,
+             Clock::Mhz400 => 400,
+         }
+     }
+@@ -158,7 +161,7 @@ impl Default for Fm1Params {
+                 .with_string_to_value(formatters::s2v_f32_percentage()),
+             channel: IntParam::new("MIDI channel", 0, IntRange::Linear { min: 0, max: 16 })
+                 .with_value_to_string(Arc::new(|v| if v == 0 { "as sent".into() } else { v.to_string() })),
+-            clock: EnumParam::new("CPU clock", Clock::Mhz240).non_automatable(),
++            clock: EnumParam::new("CPU clock", Clock::Mhz360).non_automatable(),
+             lead: EnumParam::new("Lead", Lead::Safe).non_automatable(),
+         }
+     }
+diff --git a/crates/fm1-soc/src/lib.rs b/crates/fm1-soc/src/lib.rs
+index e7df9da..4803a0a 100644
+--- a/crates/fm1-soc/src/lib.rs
++++ b/crates/fm1-soc/src/lib.rs
+@@ -116,7 +116,7 @@ const SFR_LO: u32 = 0x10000;
+ /// probes/cache.c): 32 KB (a 32 KB footprint hits, 64 KB misses), 64-byte lines (the cost doubles
+ /// with the stride up to 64), ~300 cycles a miss (1.29 us a load at a 64-byte stride). 4-way with LRU
+ /// is assumed (not measured). Shared by data reads from XIP and code fetched from XIP. Its costs
+-/// are in the strict clock's eighths of a cycle.
++/// are in the strict clock's sixteenths of a 360 MHz cycle.
+ #[derive(Clone)]
+ pub struct XipCache {
+     tags: [[u32; 4]; 128],
+@@ -131,8 +131,9 @@ impl Default for XipCache {
+ }
+ 
+ impl XipCache {
+-    /// a miss, in the strict clock's ticks (eighths of a 240 MHz cycle): ~300 cycles
+-    pub const MISS_TICKS: u64 = 300 * 8;
++    /// a miss, in the strict clock's ticks (sixteenths of a 360 MHz cycle): ~300 cycles
++    /// at the old 240 MHz unit, i.e. 450 cycles at 360 MHz, the same 1.25 µs (300*24 ticks)
++    pub const MISS_TICKS: u64 = 300 * 24;
+ 
+     /// The line of addr is used: true when it was not in the cache (it is now, in the way least
+     /// recently used)
+@@ -909,11 +910,15 @@ impl Soc {
+         }
+     }
+ 
+-    /// The HW DSP / EQ / SRC units' clock: CPU cycles (their jobs' costs are), the clock's ticks
+-    /// over `Periph::cycle_ticks`
++    /// The HW DSP / EQ / SRC units' clock, in 240 MHz cycles (their jobs were measured as
++    /// TIMER4 ticks × 10). `fm1-live` sets `hz = mhz * 1e6 * cycle_ticks`, so one 240 MHz
++    /// cycle of wall time is `hz / 240e6` ticks. When `hz` was not raised with `cycle_ticks`
++    /// (some unit tests), this falls back to dividing by `cycle_ticks`, as before.
+     #[inline]
+     fn unit_clock(&self) -> u64 {
+-        self.periph.cycles / self.periph.cycle_ticks.max(1)
++        let t240 = self.periph.hz / 240_000_000;
++        let div = if t240 > 1 { t240 } else { self.periph.cycle_ticks.max(1) };
++        self.periph.cycles / div.max(1)
+     }
+ 
+     /// A misaligned 16- / 32-bit RAM access (`strict_align`): EMU_MSG bit 0 and the exception
+@@ -1886,11 +1891,13 @@ mod tests {
+ 
+     #[test]
+     fn hw_unit_jobs_take_their_cycles_on_the_strict_clock() {
+-        // FM1_STRICT's clock counts eighths of a cycle (`Periph::cycle_ticks`): a HW DSP job takes
+-        // its cycles there too, 8 x the ticks
++        // FM1_STRICT's clock counts sixteenths of a 360 MHz cycle (`Periph::cycle_ticks`): a HW DSP job
++        // keeps its measured wall time (TIMER4 × 10 = 240 MHz cycles). The test sets hz = CPU_HZ * scale
++        // so unit_clock advances once per `scale` ticks, as fm1-live does
+         let done_after = |scale: u64| {
+             let mut soc = Soc::new(1 << 16, vec![0; 0x1000]);
+             soc.periph.cycle_ticks = scale;
++            soc.periph.hz = crate::periph::CPU_HZ * scale;
+             let d = RAM_BASE + 0x100;
+             soc.write32(d, (64 << 16) | 2); // a 64-point real FFT
+             soc.write32(d + 4, RAM_BASE + 0x1000);
+diff --git a/crates/fm1-soc/src/machine.rs b/crates/fm1-soc/src/machine.rs
+index 5961e73..89ed71c 100644
+--- a/crates/fm1-soc/src/machine.rs
++++ b/crates/fm1-soc/src/machine.rs
+@@ -1723,7 +1723,8 @@ mod tests {
+         let end = XIP_BASE + code.len() as u32 - 2;
+         let (mut cpu, mut soc) = machine(&code, &[], false);
+         cpu.cost_model = true;
+-        soc.periph.cycle_ticks = 8;
++        soc.periph.cycle_ticks = 16;
++        soc.periph.hz = crate::periph::CPU_HZ * 16;
+         soc.xip_cache = Some(crate::XipCache::default());
+         let mut t = false;
+         if !on_core1 {
+diff --git a/crates/fm1-soc/src/periph.rs b/crates/fm1-soc/src/periph.rs
+index c5d8b63..717850b 100644
+--- a/crates/fm1-soc/src/periph.rs
++++ b/crates/fm1-soc/src/periph.rs
+@@ -156,9 +156,9 @@ pub struct Periph {
+     pub cycles: u64,
+     /// Emulated CPU clock (cycles per second of firmware time).
+     pub hz: u64,
+-    /// The clock's ticks per CPU cycle: 1, or 8 for fm1-live's FM1_STRICT, whose clock counts
+-    /// eighths of a cycle (`hz` is then 8 x the CPU's). What is costed in CPU cycles (the HW
+-    /// DSP / EQ / SRC units' jobs) takes this many ticks a cycle.
++    /// The clock's ticks per CPU cycle: 1, or 16 for fm1-live's FM1_STRICT, whose clock counts
++    /// sixteenths of a 360 MHz cycle (`hz` is then 16 x the CPU's). Hardware DSP / EQ / SRC job
++    /// costs stay in 240 MHz cycles (TIMER4 × 10); `Soc::unit_clock` converts them.
+     pub cycle_ticks: u64,
+     /// Jump over TIMER4 polling loops (see the module notes).
+     pub skip_idle: bool,
+@@ -275,7 +275,7 @@ pub struct Periph {
+     pub board: crate::Board,
+     pub smk: crate::smk::Panel,
+     /// SMK-37: microseconds between a key's first and second contact (its velocity; less is
+-    /// harder), in clock ticks as a key goes down (`hz`: FM1_STRICT's eighths too).
++    /// harder), in clock ticks as a key goes down (`hz`: FM1_STRICT's sixteenths of a 360 MHz cycle too).
+     pub smk_vel_us: u32,
+     /// SMK-37: the ADC's last conversion (taken when it starts, from the mux then latched).
+     adc_sample: u16,
+diff --git a/docs/paper/fm1-paper.tex b/docs/paper/fm1-paper.tex
+index bae2a39..1f98822 100644
+--- a/docs/paper/fm1-paper.tex
++++ b/docs/paper/fm1-paper.tex
+@@ -562,7 +562,7 @@ fast at straight-line arithmetic, which it issues two at a time, and slow at con
+ branch costs five to six cycles, a call and return ten. A second probe swept the footprint and stride
+ of flash reads: a footprint up to 32\,KB hits, 64\,KB misses; the cost doubles with the stride up to
+ 64 bytes; a miss costs about 1.3\,\textmu s. These numbers became a \emph{strict} mode
+-(\code{FM1\_STRICT=1}): the interpreter only, a clock in eighths of a cycle, each instruction its
++(\code{FM1\_STRICT=1}): the interpreter only, a clock in sixteenths of a 360~MHz cycle, each instruction its
+ measured cost (taken and not-taken branches apart), a 32\,KB, 64-byte-line cache in front of flash
+ for data and code, and misaligned accesses faulting. In strict mode FM-1 SID's load meter reads
+ 21\,\% (device 24\,\%, fast mode 13\,\%), every class of Table~\ref{tab:cyc} but the load-use stall
+diff --git a/docs/releases/v0.2.0.md b/docs/releases/v0.2.0.md
+index ded205a..24fe918 100644
+--- a/docs/releases/v0.2.0.md
++++ b/docs/releases/v0.2.0.md
+@@ -32,8 +32,8 @@ and for fm1-live, in its folder: `xattr -d com.apple.quarantine fm1-live fm1-emu
+ 
+ ## What's new since the plugin's 0.1.0
+ 
+-- **The plugin:** a CPU clock setting (240 MHz by default; 120 to 400), and firmware saves that
+-  move between the plugin and the page (export one, load it in the other).
++- **The plugin:** a CPU clock setting (240 MHz by default then; 120 to 400), and firmware saves that
++  move between the plugin and the page (export one, load it in the other). The current default is 360 MHz.
+ - **The page:** it keeps your firmware and its flash between visits, with portable save backups;
+   a new layout.
+ - **Sound fixes:** FM-106's and DUELL's sound was wrong under the JIT (a carry bug; now the same as
+diff --git a/tools/bench_ab.sh b/tools/bench_ab.sh
+index 48e421b..d35f282 100755
+--- a/tools/bench_ab.sh
++++ b/tools/bench_ab.sh
+@@ -2,7 +2,7 @@
+ # Interleaved A/B speed comparison of two fm1-live builds (A, B, A, B, ...: machine drift
+ # between back-to-back runs fakes 6-8% differences). Prints the median real-time factor of each.
+ #   tools/bench_ab.sh OLD_BIN NEW_BIN [rounds=3] [firmware ids...]   (default: felucca x0x ghoulbox)
+-#   MS=6000 MHZ=240 ENV="FM1_NO_JIT=1" tools/bench_ab.sh ...
++#   MS=6000 MHZ=360 ENV="FM1_NO_JIT=1" tools/bench_ab.sh ...
+ #   CPU=1 tools/bench_ab.sh ...   compare CPU seconds (user + sys) per run instead of the real-time
+ #                                 factor: on a loaded machine wall time swings 2x, CPU time a few %
+ set -euo pipefail
+diff --git a/tools/bench_all.sh b/tools/bench_all.sh
+index 3f9b4c1..dab2601 100755
+--- a/tools/bench_all.sh
++++ b/tools/bench_all.sh
+@@ -7,7 +7,7 @@
+ #   WASM=1 tools/bench_all.sh                 # + the wasm build at 240 MHz (web/build.sh first)
+ #   WAV=dir tools/bench_all.sh                # keep the audio as dir/<id>.raw
+ #   WAV=new REF=old tools/bench_all.sh        # ... and compare it with old/<id>.raw
+-#   BIN=path/to/fm1-live MS=6000 MHZ=240 FW="felucca x0x" tools/bench_all.sh
++#   BIN=path/to/fm1-live MS=6000 MHZ=360 FW="felucca x0x" tools/bench_all.sh
+ #   ENV="FM1_NO_JIT=1" tools/bench_all.sh     # extra environment for the native runs
+ #
+ # "stock" is M-VAVE's V13 package (reference/FM-1-RE), dual core.
+diff --git a/tools/bench_wasm_ab.mjs b/tools/bench_wasm_ab.mjs
+index 8749bea..0bb66ae 100644
+--- a/tools/bench_wasm_ab.mjs
++++ b/tools/bench_wasm_ab.mjs
+@@ -1,6 +1,6 @@
+ // Interleaved WASM A/B comparison with identical scheduled input.
+ // node tools/bench_wasm_ab.mjs A.wasm B.wasm [rounds=3] [firmware ids...]
+-// MS=6000 MHZ=240 FM1_BENCH_KEYS='...' customize the workload.
++// MS=6000 MHZ=360 FM1_BENCH_KEYS='...' customize the workload.
+ import { spawnSync } from 'node:child_process';
+ import { fileURLToPath } from 'node:url';
+ import { resolve } from 'node:path';
+diff --git a/tools/catalog_check.py b/tools/catalog_check.py
+index e13b1db..d40aa5a 100755
+--- a/tools/catalog_check.py
++++ b/tools/catalog_check.py
+@@ -50,7 +50,7 @@ def play(pkg, jit, tmp):
+     env.pop("FM1_NO_JIT", None)
+     if not jit:
+         env["FM1_NO_JIT"] = "1"
+-    r = subprocess.run([live, "--fwsc", pkg, "--mhz", "240", "--bench", str(MS)], env=env,
++    r = subprocess.run([live, "--fwsc", pkg, "--mhz", "360", "--bench", str(MS)], env=env,
+                        capture_output=True, text=True, timeout=600)
+     speed = next((w[:-1] for line in r.stdout.splitlines() if "ms emulated" in line
+                   for w in line.split() if w.endswith("x")), "?")
+diff --git a/web/bench.mjs b/web/bench.mjs
+index 9feb126..c4cdb64 100644
+--- a/web/bench.mjs
++++ b/web/bench.mjs
+@@ -1,4 +1,4 @@
+-// FM1_FWSC=package.fwsc node web/bench.mjs [mhz=240] [seconds=6] [out.raw]
++// FM1_FWSC=package.fwsc node web/bench.mjs [mhz=360] [seconds=6] [out.raw]
+ // FM1_BENCH_KEYS uses the native timestamped key/encoder/MIDI script syntax.
+ // FM1_BENCH_NOKEYS=1 disables the default chord; FM1_WARMUP_MS=1000 separates warm-up.
+ // FM1_WASM selects an A/B build. FM1_BENCH_JSON writes machine-readable results.
+@@ -9,7 +9,7 @@
+ // than the 2.9 ms they stand for: at 1x those are where a device of this speed drops out.
+ import { readFileSync, writeFileSync } from "node:fs";
+ import { jitImports } from "./jit.js";
+-const mhz = +(process.argv[2] || 240), secs = +(process.argv[3] || 6);
++const mhz = +(process.argv[2] || 360), secs = +(process.argv[3] || 6);
+ const warmup = +(process.env.FM1_WARMUP_MS || 1000);
+ if (![mhz, secs].every(v => Number.isFinite(v) && v > 0) || !Number.isFinite(warmup) || warmup < 0 || warmup >= secs * 1000) {
+   throw new Error("positive MHz/seconds required; warm-up must be within the run");
+diff --git a/web/main.js b/web/main.js
+index 94f313a..aaeefd9 100644
+--- a/web/main.js
++++ b/web/main.js
+@@ -7,7 +7,7 @@ import { fetchPackage, hubNewcomers, hubCardUrl } from "./fwsc.js";
+ import { SaveStore, packageHash, changedSectors, packSectors, exportSave, importSave } from "./persistence.js";
+ import { tryOutOf, loadTryOut } from "./tryout.js";
+ 
+-const CLOCKS = [60, 80, 100, 120, 160, 200, 240];
++const CLOCKS = [60, 80, 100, 120, 160, 200, 240, 360];
+ // The device this page is for: the FM-1 (index.html) or the SMK-37 (smk37/index.html, <html
+ // data-device="smk37">): its catalog, words and panel. A package says which board it runs on, and
+ // the panel follows it (an SMK-37 package opened on the FM-1 page gets the SMK-37's).
+-- 
+2.47.3
+

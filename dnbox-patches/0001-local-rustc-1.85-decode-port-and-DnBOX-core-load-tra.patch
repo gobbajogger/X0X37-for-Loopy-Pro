@@ -1,0 +1,126 @@
+From 1096c328a6d8484d69a0a384bf904eca9fcd983c Mon Sep 17 00:00:00 2001
+From: gobbajogger <255244738+gobbajogger@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 06:49:34 +1000
+Subject: [PATCH 1/2] local: rustc 1.85 decode port and DnBOX core-load tracing
+
+Keep the box's existing tracked edits so they are not lost: rewrite two
+if-let guards in decode_any for rustc 1.85, and add optional FM1_CORE_LOAD
+slice tracing (read-only, no timing change) with a CSV dump at shot end.
+---
+ crates/fm1-core/src/lib.rs    | 10 ++++---
+ crates/fm1-live/src/main.rs   |  1 +
+ crates/fm1-soc/src/machine.rs | 53 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 60 insertions(+), 4 deletions(-)
+
+diff --git a/crates/fm1-core/src/lib.rs b/crates/fm1-core/src/lib.rs
+index 566ac7c..01482b9 100644
+--- a/crates/fm1-core/src/lib.rs
++++ b/crates/fm1-core/src/lib.rs
+@@ -3671,10 +3671,12 @@ fn decode_any(win: u64, pc: u32) -> Result<fm1_isa::Instruction, fm1_isa::Decode
+         // `64 e0 00|80 XY`, the special-register moves, before the table too: its `sp = R` class,
+         // fitted on r0, r1, r6 and r7, swapped bits 1 and 2 of the register (`sp = r5` set sp from
+         // r3: M-VAVE's FM1 Open moved its stack up over its own frame) and knew no r8..r15
+-        None if let Some(entry) = sreg_move_raw(win) => Ok(fm1_isa::Instruction { addr: pc, raw: win & 0xffff_ffff, entry }),
+-        // the DSP forms (see pre_table_raw), before the table too
+-        None if let Some(entry) = pre_table_raw(win & 0xffff_ffff) => Ok(fm1_isa::Instruction { addr: pc, raw: win & 0xffff_ffff, entry }),
+-        None => fm1_isa::decode_win_cached(win, pc),
++        None => match (sreg_move_raw(win), pre_table_raw(win & 0xffff_ffff)) {
++            // (rustc 1.85 port of two `if let` guards: same order, same result)
++            (Some(entry), _) => Ok(fm1_isa::Instruction { addr: pc, raw: win & 0xffff_ffff, entry }),
++            (None, Some(entry)) => Ok(fm1_isa::Instruction { addr: pc, raw: win & 0xffff_ffff, entry }),
++            (None, None) => fm1_isa::decode_win_cached(win, pc),
++        },
+     };
+     let raw = |entry| Ok(fm1_isa::Instruction { addr: pc, raw: win & 0xffff_ffff, entry });
+     match decoded {
+diff --git a/crates/fm1-live/src/main.rs b/crates/fm1-live/src/main.rs
+index f2a9a89..a3e9f5d 100644
+--- a/crates/fm1-live/src/main.rs
++++ b/crates/fm1-live/src/main.rs
+@@ -922,6 +922,7 @@ fn shot(o: &Opts, ms: u64) {
+             Err(e) => { eprintln!("audio.raw: {e}"); std::process::exit(1); },
+         }
+     }
++    if let Ok(path) = std::env::var("FM1_CORE_LOAD_CSV") { fm1_soc::machine::core_load::dump(&path); }
+     save_flash(&m, o.flash.as_ref());
+ }
+ 
+diff --git a/crates/fm1-soc/src/machine.rs b/crates/fm1-soc/src/machine.rs
+index 26f0dcd..5961e73 100644
+--- a/crates/fm1-soc/src/machine.rs
++++ b/crates/fm1-soc/src/machine.rs
+@@ -886,6 +886,7 @@ fn run_dual_from(
+             k -= ran;
+             let dt = soc.periph.cycles - c0;
+             run_cpu1_on(c1, soc, dt, None)?;
++            core_load::note(soc, c1.pc, c0, soc.periph.cycles);
+             // (a denial at the slice's last instruction: taken, and the next slice's try sets it again or not)
+             let wait = soc.waits[0].take();
+             if k == 0 {
+@@ -902,7 +903,9 @@ fn run_dual_from(
+                 spun = k as u64; // core 1 stopped still holding it (asleep, polling, a lock of its own): the rest of the slice would spin too
+             }
+             if spun > 0 {
++                let t0 = soc.periph.cycles;
+                 soc.advance(spun);
++                core_load::note(soc, c1.pc, t0, soc.periph.cycles);
+                 done += spun as u32;
+                 k -= spun as u32;
+                 if soc.reset_due() {
+@@ -2065,3 +2068,53 @@ mod tests {
+         }
+     }
+ }
++
++
++/// DnBOX gate instrumentation (local, read-only: it never changes timing or state).
++/// FM1_CORE_LOAD=LO-HI (hex, core 1's waiting-loop range, e.g. the ELF's .c1_text): after each of
++/// cpu1's slices, its pc says busy (outside LO..HI) or waiting; the slice's clock ticks go into
++/// bins of one audio half (512 frames at 44.1 kHz). `core_load::dump(path)` writes them as CSV.
++pub mod core_load {
++    use crate::Soc;
++    use std::sync::Mutex;
++    struct St { lo: u32, hi: u32, bin: u64, busy: Vec<u64>, tot: Vec<u64> }
++    static ST: Mutex<Option<St>> = Mutex::new(None);
++    static INIT: std::sync::Once = std::sync::Once::new();
++    fn init(soc: &Soc) {
++        INIT.call_once(|| {
++            if let Ok(v) = std::env::var("FM1_CORE_LOAD") {
++                if let Some((a, b)) = v.split_once('-') {
++                    let p = |x: &str| u32::from_str_radix(x.trim().trim_start_matches("0x"), 16).ok();
++                    if let (Some(lo), Some(hi)) = (p(a), p(b)) {
++                        let bin = soc.periph.hz * 512 / 44100;
++                        *ST.lock().unwrap() = Some(St { lo, hi, bin, busy: Vec::new(), tot: Vec::new() });
++                    }
++                }
++            }
++        });
++    }
++    pub fn note(soc: &Soc, pc: u32, from: u64, to: u64) {
++        init(soc);
++        let mut g = ST.lock().unwrap();
++        let Some(st) = g.as_mut() else { return };
++        let busy = !(st.lo..st.hi).contains(&pc);
++        let mut t = from;
++        while t < to {
++            let b = (t / st.bin) as usize;
++            let end = ((b as u64 + 1) * st.bin).min(to);
++            if st.tot.len() <= b { st.tot.resize(b + 1, 0); st.busy.resize(b + 1, 0); }
++            st.tot[b] += end - t;
++            if busy { st.busy[b] += end - t; }
++            t = end;
++        }
++    }
++    pub fn dump(path: &str) {
++        let g = ST.lock().unwrap();
++        let Some(st) = g.as_ref() else { return };
++        let mut out = String::from("bin,ms_start,core1_busy_ticks,core1_ticks\n");
++        for (i, (b, t)) in st.busy.iter().zip(&st.tot).enumerate() {
++            out += &format!("{i},{:.3},{b},{t}\n", i as f64 * 512.0 * 1000.0 / 44100.0);
++        }
++        let _ = std::fs::write(path, out);
++    }
++}
+-- 
+2.47.3
+
