@@ -1,0 +1,84 @@
+{
+  "candidate": "3d7b1999a245e84d6d9faf1241dd1078ef335d31",
+  "source_hashes": [
+    {
+      "path": "BEHAVIOR.md",
+      "expected": "1396f5ec093cb643ab48720ac8fbdb9112ad903102db832aa4fa76b9f16cca35",
+      "actual": "1396f5ec093cb643ab48720ac8fbdb9112ad903102db832aa4fa76b9f16cca35",
+      "match": true
+    },
+    {
+      "path": "docs/SMC_MIXER.md",
+      "expected": "8e77bf38714c851fe1ad1ba9b4b766e60d228cae2ce5f710c748bc6d85826137",
+      "actual": "8e77bf38714c851fe1ad1ba9b4b766e60d228cae2ce5f710c748bc6d85826137",
+      "match": true
+    },
+    {
+      "path": "docs/USER_PREFERENCES.md",
+      "expected": "59c045d8bf51089305061966ecc0273b4fe93398a5757bb9e31c8bab41b775a1",
+      "actual": "59c045d8bf51089305061966ecc0273b4fe93398a5757bb9e31c8bab41b775a1",
+      "match": true
+    },
+    {
+      "path": "firmware/src/app/editor.c",
+      "expected": "76f0daa83254f43cea6a484856289d1b2c2e8e2bf234e7ec6b7ac64dcc1d372f",
+      "actual": "76f0daa83254f43cea6a484856289d1b2c2e8e2bf234e7ec6b7ac64dcc1d372f",
+      "match": true
+    },
+    {
+      "path": "firmware/src/app/smc_mixer.c",
+      "expected": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+      "actual": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+      "match": true
+    },
+    {
+      "path": "firmware/src/ble.c",
+      "expected": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+      "actual": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+      "match": true
+    },
+    {
+      "path": "firmware/src/ble/ble_midi_central.c",
+      "expected": "ca8eb6f5d7b8c6b603a19e53f8410e02ab2be075744964128dea488c823afe62",
+      "actual": "ca8eb6f5d7b8c6b603a19e53f8410e02ab2be075744964128dea488c823afe62",
+      "match": true
+    },
+    {
+      "path": "firmware/src/ble/ble_midi_central.h",
+      "expected": "78fbd13f3524fee86dfdb2222dbc934d6fad3eadcfb4c2bc4e4b967c732aad6c",
+      "actual": "78fbd13f3524fee86dfdb2222dbc934d6fad3eadcfb4c2bc4e4b967c732aad6c",
+      "match": true
+    },
+    {
+      "path": "tests/ble_central_diag_test.py",
+      "expected": "259c501482f87a077cb1193502e31b5fb14b5108b47e076a8f9e223a3e864839",
+      "actual": "259c501482f87a077cb1193502e31b5fb14b5108b47e076a8f9e223a3e864839",
+      "match": true
+    },
+    {
+      "path": "tests/host/ble_midi_receive_test.c",
+      "expected": "8961e866d224327510fe8b7883f25da7fb60b3e7aad3082cd8c4dd69ebe67a30",
+      "actual": "8961e866d224327510fe8b7883f25da7fb60b3e7aad3082cd8c4dd69ebe67a30",
+      "match": true
+    },
+    {
+      "path": "tests/host/smc_mapping_test.py",
+      "expected": "cd21282afe246d06d813fa2802a8b6ec9de67a98128cf87e32ae6340d2265e54",
+      "actual": "cd21282afe246d06d813fa2802a8b6ec9de67a98128cf87e32ae6340d2265e54",
+      "match": true
+    },
+    {
+      "path": "tests/host/smc_reachability_test.c",
+      "expected": "837c8401a931b3c149ad29cab8da78df487ea09c7ebf06428b3d2f3a7d5941e4",
+      "actual": "837c8401a931b3c149ad29cab8da78df487ea09c7ebf06428b3d2f3a7d5941e4",
+      "match": true
+    },
+    {
+      "path": "tools/ble_autotest.py",
+      "expected": "77219c2dc187d39dbdaa1b263261d8d78c2a2ddde6090f63c231a0e75161642c",
+      "actual": "77219c2dc187d39dbdaa1b263261d8d78c2a2ddde6090f63c231a0e75161642c",
+      "match": true
+    }
+  ],
+  "all_match": true
+}

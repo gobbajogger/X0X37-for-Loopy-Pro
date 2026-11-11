@@ -1,0 +1,96 @@
+{
+  "identity": "SMK-37 Elite_900",
+  "port": "X0X FM-1",
+  "layout": {
+    "count": 3,
+    "size": 45056,
+    "ext": true,
+    "slots": [
+      {
+        "nz": 3,
+        "name": "BR1",
+        "kb": 59,
+        "size": 81920,
+        "off": 794624,
+        "used": 59
+      },
+      {
+        "nz": 2,
+        "name": "BR2",
+        "kb": 49,
+        "size": 122880,
+        "off": 876544,
+        "used": 49
+      },
+      {
+        "nz": 0,
+        "name": "",
+        "kb": 0,
+        "size": 45056,
+        "off": 720896,
+        "used": 0
+      }
+    ]
+  },
+  "slots": [
+    {
+      "slot": 1,
+      "path": "/Users/mac/Documents/x0x37/latest_install_20261021/evidence/latest-install/after/slot1-full.bin",
+      "flash": 794624,
+      "zones": 3,
+      "complete_slot": {
+        "bytes": 81920,
+        "sha256": "34b686e6a29f15f18754d6907e8e83528c56feeac78c866bbae3f4a4759ca783",
+        "crc32": "ee599248"
+      },
+      "loop_image": {
+        "bytes": 60237,
+        "sha256": "46292ed04a201deae83eaa55d7711ba4e5491a62a100bf1f0ab815d0e9ca6e3a",
+        "crc32": "961626d5"
+      }
+    },
+    {
+      "slot": 2,
+      "path": "/Users/mac/Documents/x0x37/latest_install_20261021/evidence/latest-install/after/slot2-full.bin",
+      "flash": 876544,
+      "zones": 2,
+      "complete_slot": {
+        "bytes": 122880,
+        "sha256": "fae7bf5f098a6706f9b11591050340335b4625e6fa8686a3c368591606ea1133",
+        "crc32": "8a124cb7"
+      },
+      "loop_image": {
+        "bytes": 50061,
+        "sha256": "550c9035eedd403e117d054f21eb042370bbeec414a8f246b7aec9f9239100fe",
+        "crc32": "9a09fdb9"
+      }
+    },
+    {
+      "slot": 3,
+      "path": "/Users/mac/Documents/x0x37/latest_install_20261021/evidence/latest-install/after/slot3-full.bin",
+      "flash": 720896,
+      "zones": 0,
+      "complete_slot": {
+        "bytes": 45056,
+        "sha256": "e841c5bf9673b6afc9bb66304e9cb7cbd5a4780caa5a6471c57b79fa0465fba5",
+        "crc32": "7e7f9415"
+      },
+      "loop_image": null
+    }
+  ],
+  "archive": "/Users/mac/Documents/x0x37/latest_install_20261021/evidence/latest-install/after/loops.x0xslots",
+  "archive_fingerprint": {
+    "bytes": 110905,
+    "sha256": "22e45be5cc0c66e482edf97095020cc36726e80d0d56d14606bf6d5d57373624",
+    "crc32": "2144df1c"
+  },
+  "controller": {
+    "bytes": 65536,
+    "sha256": "7f560b3bd709d45a920e80e24aed27a2d2852700cab2678dc4cffd2bd4e0c210",
+    "crc32": "4a400899"
+  },
+  "controller_byte_equal": true,
+  "time": "2026-10-21T08:40:22.016052+11:00",
+  "commands": "identity handshake, SMP_INFO15, SMP_READ16, CTL_READ37 only",
+  "device_writes": false
+}

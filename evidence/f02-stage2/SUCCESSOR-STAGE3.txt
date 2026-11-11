@@ -1,0 +1,29 @@
+You are the new stage-3 test thread in the X0X37 full-cycle loop. Do not resume the stage-2 thread bc-37feb056-46e1-5377-8388-5fe9e46d3ca6 or any earlier F02 thread. Do not continue any internal probe; this desktop agent is the only Stage 3 owner.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Audited SHA (source under audit): 13d32e1dee37b6fb5a1e339aff499a75eecb97b5
+Implement tip: start from the remote tip of cursor/f02-stage2-fb90 that contains evidence/f02-stage2/SUCCESSOR-STAGE3.txt, HANDOFF.md, CHECKS.md, and the F02 repair commits. Do not switch to an older nightly commit.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f02-stage2/HANDOFF.md and CHECKS.md. You are stage 3 only.
+
+Scope: test the F02 fail-closed installer attach repair only. After the installer commands the selected keyboard into its update loader, the next search must not attach to a different keyboard. Repair lives in tools/fm1_install.py and web/fm1ota.js, with callers web/x0x_breaks.js installKeepingSlots (reconnectAfter) and library-owned transition waits. HTML resume find(IS_OTA) paths were intentionally left as initial already-in-loader scans (see DEFERRED.md).
+
+Required regressions (no real MIDI, no device write):
+- python3 tests/install_f02_loader_bind_test.py
+- node web/test_f02_loader_bind.mjs
+
+Also run the existing installer checks affected by this diff (installer, installer-slots, installer-ctl, install-slots-web, install-guards, install-head as applicable). Give the test run and any failure investigation to separate subagents. A source repair found here returns to a new stage 2; do not patch the failure forward.
+
+Do not implement F03, BF-001, BF-002, BF-003, the withheld asset cache, or unmerged data-safety identity lanes. Do not change firmware, controller, or package bytes unless a failing check proves the F02 repair broke them (then return to stage 2).
+
+State Reason / Purpose / End user on every commit and PR.
+
+Branch from the pushed implement tip as cursor/<slug>-stage3-fb90 (required prefix cursor/ and suffix -fb90). No force-push. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not flash a device. Stage 6 install stays off this thread. Do not use a local helper as the successor.
+
+When the checked test record is on the remote, hand off before you stop. Push the successor prompt first. Create exactly one owner-visible stage-4 Cloud Agent. Prefer coordinator CreateAgent / owner-visible desktop launch over POST api.cursor.com if the pod has no CURSOR_API_KEY — but the handoff must still be an owner-visible https://cursor.com/agents/<id> agent, not an internal Task. If POST https://api.cursor.com/v1/agents works with the owner's key, use that with this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and URL only when its source is owner-visible, then commit and push that record. Then stop. Do not wait for the next agent to finish.
+
+If create is unauthenticated or returns only an internal subagent, you still own stage 3. Do not claim the next thread started. Retry once; a second failure: write SUCCESSOR-STAGE4.txt and ask the Project coordinator (parent) to launch Stage 4 the same way Stage 3 was launched for you. Keep ownership until the Stage 4 URL is on the remote.
+
+Completion condition: checked F02 test record on the remote stage-3 branch, each failure has a cause and disposition, and one owner-visible stage-4 successor id pushed on the handoff.
+
+Project store: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/

@@ -1,0 +1,46 @@
+[
+  {
+    "reviewer": "correctness",
+    "findings": [],
+    "residual_risks": [
+      "Static review only. Full host execution, optional two-peer execution, Elite/Pro builds, RAM/flash qualification and real UI verification remain NOT_RUN here under the owner and AGENTS rules."
+    ],
+    "testing_gaps": []
+  },
+  {
+    "reviewer": "project-standards",
+    "findings": [],
+    "residual_risks": [],
+    "testing_gaps": []
+  },
+  {
+    "reviewer": "testing",
+    "findings": [
+      {
+        "title": "Cover controller arrows with only another peer holding FX",
+        "severity": "P2",
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 1669,
+        "autofix_class": "gated_auto",
+        "owner": "downstream-resolver",
+        "requires_verification": true,
+        "suggested_fix": "In held_fx_peer_arrows, after releasing peer zero and before the keyboard edit of peer one, send a controller arrow from peer zero and assert neither peer map changes and smc_slot is restored. Then retain the keyboard-arrow assertion proving the same sole remote key can be edited globally.",
+        "confidence": 75,
+        "pre_existing": false,
+        "first_evidence": "firmware/src/app/smc_mixer.c:1669 --     if (!count || (count == 1 && !keyboard && owner != saved)) {"
+      }
+    ],
+    "residual_risks": [
+      "Static inspection only: no tests, builds, compilers, lint or framebuffer execution were performed, per owner restriction. Runtime success is unverified."
+    ],
+    "testing_gaps": []
+  },
+  {
+    "reviewer": "adversarial",
+    "findings": [],
+    "residual_risks": [
+      "Source-only review: no builds, tests, compilers, lint or framebuffer execution ran. Exact-head host, Elite/Pro and RAM verification remains with the Orchestrator's qualified box."
+    ],
+    "testing_gaps": []
+  }
+]
