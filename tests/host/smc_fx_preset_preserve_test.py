@@ -98,6 +98,8 @@ static void say(const char *left, const char *right) { (void)left; (void)right; 
 #define NPARTS 5
 #endif
 static const char *part_name(int part) { (void)part; return ""; }
+static struct { volatile uint8_t fill_req; } seq;   /* M6 drum fill: covered by drum-fill */
+#define SMC_FILL_NOTE 4u   /* this harness maps note & 7 straight to the bus: BREAK REC */
 static void smc_fx_save_preset(void) { saves++; }
 static void smc_fx_reset_cuts(void) { resets++; }
 static void smc_fx_show(uint8_t note) { (void)note; shows++; }
@@ -213,6 +215,17 @@ int main(void)
                 uint8_t fx = smcfx_strip_get(&smc.fx_strip, pg, bus, button);
                 uint8_t note = (uint8_t)(button * 8 + bus);
                 uint8_t bit = (uint8_t)(1u << bus);
+                if (note == SMC_FILL_NOTE) {   /* M6: BRK REC is the momentary drum fill, not an FX */
+                    uint8_t before = published_down;
+                    CHECK(smc_fx_try(note, 0) == 1);
+                    CHECK(seq.fill_req == 1 && published_down == before);
+                    smc_fx_release_note(note);
+                    CHECK(seq.fill_req == 0);
+                    seq.fill_req = 1;
+                    smc_fx_clear();            /* leaving the FX page ends a held fill */
+                    CHECK(seq.fill_req == 0);
+                    continue;
+                }
                 CHECK(smc_fx_try(note, 0) == 1);
                 CHECK(!!(published_down & bit) == (fx != SMCFX_EMPTY));
                 if (fx != SMCFX_EMPTY) CHECK(published_fx[bus] == fx);

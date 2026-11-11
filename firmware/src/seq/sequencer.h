@@ -52,6 +52,7 @@ static inline uint32_t seq_part_mask(int p)
 #define NSONG 192
 #define SEQ_CH_OFF 0xFFu
 #define SEQ_PART_OFF(s, t) (((s)->part_off >> (t)) & 1u)
+#define SEQ_FILL_VOICE 1u                /* M6 drum fill: the 909 snare (DR_SD) */
 /* a step's chance (the T_PROB lanes): 1-100 = that percentage, PROB_COND + k = the cycle k in the order
  * 1:2 2:2 1:3 2:3 3:3 1:4 ... 8:8 (A:B: on the A-th of every B passes of the part's pattern) */
 #define PROB_COND 101
@@ -154,6 +155,8 @@ typedef struct {
     volatile uint8_t ext;             /* 1 = following an external clock */
     volatile uint8_t send_clock;      /* 1 = emit MIDI clock + transport when internal */
     volatile uint8_t part_off; /* M7: suppress new notes independently of mute */
+    volatile uint8_t fill_req;        /* M6 drum fill: 1 while the SMC fill key is held (UI writes) */
+    uint8_t fill_on;                  /* the fill plays: latched at the 909's bar, cleared on release */
     volatile uint8_t send_notes;      /* 1 = echo the sequence on MIDI, on each part's channel */
     volatile uint8_t ch[NTRACKS];     /* each part's MIDI channel, 0-15 (in and out); SEQ_CH_OFF = none */
     uint8_t song_rep;                 /* the song bar playing: its passes still to play (SONG_REP) */

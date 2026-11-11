@@ -360,6 +360,7 @@ run held-step-release sh tests/host/held_step_release_test.sh
 run lz-max-match sh -c "$CC $W -o $OUT/lz_max_match_test tests/host/lz_max_match_test.c && $OUT/lz_max_match_test"
 run panic-chord sh tests/host/panic_chord_test.sh
 run panic-notes sh tests/host/panic_notes_test.sh
+run drum-fill sh tests/host/drum_fill_test.sh
 run cq-reclaim sh tests/host/cq_reclaim_test.sh   # 42de2893 accept-order queue repair
 run cq-shift-preempt python3 tests/host/cq_shift_preempt_test.py   # one masked copy; a mid-shift pick sees no tear
 run optimization-equivalence sh tests/host/run_optimization_equivalence.sh

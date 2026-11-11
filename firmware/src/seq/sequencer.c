@@ -239,6 +239,16 @@ __attribute__((noinline)) static void fire_drum(seq_t *s, int k, int p, uint32_t
             continue;                                /* its chance said no: no MIDI either */
         drum_midi_hit(s, o, k, v, mv);
     }
+    /* M6 drum fill (#815 item 6, owner 2026-11-12): while held from the 909's bar,
+     * a 909 snare on every step, rising 50%..100% over the bar. A step the pattern
+     * already hits keeps its own hit. Mute, solo and part-off still apply. */
+    if (k == TRK_DRUM && s->fill_on && s->fill_req &&
+        !(d->hit[SEQ_FILL_VOICE][w] & bit) && !((s->mute | s->vmute) & (1u << SEQ_FILL_VOICE))) {
+        int len = seq_part_len(s, k);
+        float vel = 0.5f + 0.5f * (float)p / (float)(len > 1 ? len - 1 : 1);
+        if (o->drum(o->ctx, k, SEQ_FILL_VOICE, vel))
+            drum_midi_hit(s, o, k, SEQ_FILL_VOICE, (uint8_t)(vel * 127.0f));
+    }
 }
 
 static uint32_t bass_slot_q8(const seq_t *s, int b, int p)
@@ -504,6 +514,7 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
             rate = part_rate(s, t); L = seq_step_q8(s, rate); p = 0;
         }
         if (bar) chain_slot_open(s);
+        if (bar || !s->fill_req) s->fill_on = s->fill_req;   /* fill: starts on a bar, stops on release */
     }
     if (bass) {
         if (bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM) {
@@ -613,6 +624,7 @@ void seq_notes_off(seq_t *s, const seq_sink_t *o)
     for (int b = 0; b < NBASS; b++)
         seq_rec_cancel(s, b);
     /* PANIC_NOTE_OFF */
+    s->fill_on = 0;                  /* a held fill waits for the next bar again */
     bass_and_brk_stop(s, o);
 }
 
@@ -648,6 +660,7 @@ __attribute__((noinline)) static void do_stop(seq_t *s, const seq_sink_t *o, uin
     int t;
     s->playing = 0;
     s->rec_ev_gen++;
+    s->fill_on = 0;
     bass_and_brk_stop(s, o);
     if (o->transport) o->transport(o->ctx, 0);
     for (t = 0; t < NTRACKS; t++) {

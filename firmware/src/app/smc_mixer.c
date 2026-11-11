@@ -945,6 +945,7 @@ static int smc_clip_stage_key(int note)
     return !smc.locked && ui.overlay == O_NONE && smk_clip_mode_on() &&
            (note == 7 || note == 15 || note == 31);
 }
+#define SMC_FILL_NOTE 2u                /* BRK strip REC on the FX page */
 static const char *smc_button_caption(int note)
 {
     int kit = smc_drum_mix(), strip = note & 7, row = note >> 3;
@@ -957,6 +958,7 @@ static const char *smc_button_caption(int note)
      * bus-suited, page-specific caption; -- is an unassigned button. */
     if (kit < 0 && row < SMCFX_BUTTONS) {
         int bus = smc_fx_bus_now((uint8_t)note);
+        if (bus >= 0 && note == SMC_FILL_NOTE) return "FILL";
         if (bus >= 0) {
             if (!smc.fx_ready) smc_fx_publish();
             uint8_t fx = smcfx_strip_get(&smc.fx_strip, smc.fx_page, bus, row);
@@ -993,6 +995,7 @@ static int smc_button_symbol(int note, const char *s)
 {
     /* Reuse the button caption already resolved for this grid cell. */
     if (!s[0] || s[0]=='-' || s[0]=='X') return UI_G_NONE;
+    if (smc_fx_bus_now((uint8_t)note)>=0 && !strcmp_s(s,"FILL")) return UI_G_FX_STUTTER;
     if (smc_fx_bus_now((uint8_t)note)>=0 && strcmp_s(s,"CYC")) return UI_G_NONE;
     if (!s[1]) return s[0]=='R'?UI_G_RECORD:s[0]=='M'?UI_G_MUTE:s[0]=='S'?UI_G_SOLO:UI_G_NONE;
     if (!strcmp_s(s,"NEXT")) return UI_G_NEXT;
@@ -1143,6 +1146,39 @@ static int smc_fx_symbol(uint8_t fx)
     return fx < SMCFX_NFX ? symbols[fx] : UI_G_FX_EMPTY;
 }
 
+/* #815 item6-after-fill: left, the fill (pattern, roll, play and eight step
+ * bars that light as the bar passes; amber = waiting for the bar); right, the
+ * effect this key no longer throws, greyed, between the arrows. */
+static void smc_fill_panel(int bus)
+{
+    const uint16_t amber=RGB(255,190,77), bright=RGB(145,239,246);
+    const uint16_t green=RGB(152,247,160), dim_ink=RGB(45,70,72);
+    int on = seq.fill_on && seq.fill_req, len = seq_part_len(&seq, TRK_DRUM);
+    int lit = on && len > 0 ? (seq.t[TRK_DRUM].pos * 8) / len : -1;
+    uint8_t under = smcfx_strip_get(&smc.fx_strip, smc.fx_page, bus, smcfx_button(SMC_FILL_NOTE));
+    cv_rect(5,7,108,67,RGB(14,27,32));
+    cv_rect(5,7,108,1,seq.fill_req?C_WHITE:dim_ink);
+    cv_rect(5,73,108,1,RGB(68,76,64));
+    cv_rect(125,7,110,67,RGB(15,32,37));
+    cv_rect(125,7,110,1,bright);
+    cv_rect(125,73,110,1,dim_ink);
+    ui_pictogram(15,15,UI_G_PATTERN,2,amber);
+    ui_pictogram(49,14,UI_G_FX_STUTTER,2,seq.fill_req?C_WHITE:C_GRAY);
+    ui_pictogram(84,19,on?UI_G_PLAY:UI_G_HOLD,1,on?green:amber);
+    for(int k=0;k<8;k++) {
+        int h=(k%3==0?12:k%3==1?7:16), x=12+k*12;
+        uint16_t c=on?(k<=lit?green:dim_ink):(seq.fill_req?amber:dim_ink);
+        cv_rect(x,64-h,7,h,c);
+        cv_rect(x,65,7,2,dim_ink);
+    }
+    ui_pictogram(137,25,UI_G_PREV,2,bright);
+    ui_pictogram(166,21,under==SMCFX_EMPTY?UI_G_FX_EMPTY:smc_fx_symbol(under),3,C_GRAY);
+    ui_pictogram(207,25,UI_G_NEXT,2,bright);
+    ui_pictogram(175,54,UI_G_HOLD,1,C_GRAY);
+    cv_rect(157,65,55,2,dim_ink);
+    cv_rect(173,65,24,2,amber);
+}
+
 static void smc_ui_draw_peer(void)
 {
     char name[24], num[32], unit[12], tag[80];
@@ -1219,6 +1255,10 @@ static void smc_ui_draw_peer(void)
     } else if (smc_ui.kind == 3) {
         int note = smc_ui.action;
         int bus = smc_fx_bus_now((uint8_t)note);
+        if (bus >= 0 && note == SMC_FILL_NOTE) {
+            smc_fill_panel(bus);       /* #815 item6-after-fill */
+            goto commit;
+        }
         if (bus >= 0) {
             smc_fx_publish();
             int owned = note < 32 && smc.fx_strip.key_bus[note] < SMCFX_N;
@@ -1746,6 +1786,13 @@ static int smc_fx_try(uint8_t note, int mmc)
     }
     bus = smc_fx_bus_now(note);
     if (bus < 0) return 0;
+    if (note == SMC_FILL_NOTE && !mmc) {
+        /* M6 drum fill (#815 item 6, owner 2026-11-12): BRK REC is momentary fill,
+         * from the 909's next bar until release. It replaces this one FX throw. */
+        seq.fill_req = 1;
+        smc_fx_show(note);
+        return 1;
+    }
     button = smcfx_button(note);
     uint8_t bit = (uint8_t)(1u << bus);
     if (button == SMCFX_SELECT && !mmc) smc.fx_owned |= bit;
@@ -1775,6 +1822,10 @@ static int smc_fx_try(uint8_t note, int mmc)
 
 static void smc_fx_release_note(uint8_t note)
 {
+    if (note == SMC_FILL_NOTE && seq.fill_req) {
+        seq.fill_req = 0;              /* the fill stops; the next step plays the pattern */
+        return;
+    }
     int original = note < 32u ? smc.fx_strip.key_bus[note] : SMCFX_EMPTY;
     int bus = original < SMCFX_N ? original : smc_fx_bus(note);
     int button = smcfx_button(note);
@@ -1810,6 +1861,7 @@ static void smc_fx_release_note(uint8_t note)
 
 static void smc_fx_clear(void)
 {
+    seq.fill_req = 0;                  /* leaving the FX page also ends a held fill */
     if (!smc.fx_ready) return;
     int owned = 0;
     for (int note = 0; note < 32; note++) owned |= smc.fx_strip.key_bus[note] < SMCFX_N;
