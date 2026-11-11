@@ -1990,23 +1990,41 @@ __attribute__((noinline)) static void lane_mix(drum808_t *d, d8_lane_t *l, const
     }
 }
 
-static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n, uint16_t audible_tracks)
+static void d8_pan_lanes(drum808_t *d, uint32_t lanes, int m)
+{
+    uint16_t seen = 0;
+    int l;
+    for (l = 0; l < L_NUM; l++) {
+        int tr;
+        if (!(lanes & (1u << l)))
+            continue;
+        tr = k_lane_track[l];
+        if (seen & (1u << tr))
+            continue;
+        seen |= (uint16_t)(1u << tr);
+        d->pan_dl[tr] = x0x_glide_block(&d->pan_lc[tr], d->pan_l[tr], m);
+        d->pan_dr[tr] = x0x_glide_block(&d->pan_rc[tr], d->pan_r[tr], m);
+    }
+}
+
+static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n, uint16_t audible_tracks,
+                      uint32_t lanes)
 {
     float buf[CHUNK], bus[CHUNK], pair[CHUNK];
     int off, l, i;
     for (off = 0; off < n; off += CHUNK) {
         int m = n - off < CHUNK ? n - off : CHUNK;
-        int cb_on = lane_on(d, L_CB);
-        if (d8_dry_r)                                 /* the tracks' pans glide over this chunk */
-            for (l = 0; l < D8_NUM; l++) {
-                d->pan_dl[l] = x0x_glide_block(&d->pan_lc[l], d->pan_l[l], m);
-                d->pan_dr[l] = x0x_glide_block(&d->pan_rc[l], d->pan_r[l], m);
-            }
-        /* the shared bank runs only while a metal voice sounds */
-        if (cb_on || lane_on(d, L_CH) || lane_on(d, L_OH) || lane_on(d, L_CY)) {
+        int cb_on = (lanes & (1u << L_CB)) && lane_on(d, L_CB);
+        if (d8_dry_r)                                 /* only the tracks this call owns (a split: each once) */
+            d8_pan_lanes(d, lanes, m);
+        /* the shared bank runs only while a metal voice of this call sounds */
+        if ((lanes & D8_LANES_METAL) &&
+            (cb_on || lane_on(d, L_CH) || lane_on(d, L_OH) || lane_on(d, L_CY))) {
             bank_block(&d->bank, bus, pair, m, cb_on);
         }
         for (l = 0; l < L_NUM; l++) {
+            if (!(lanes & (1u << l)))
+                continue;
             d8_lane_t *ln = &d->lane[l];
             int mm = m, got;
             if (!lane_on(d, l))
@@ -2038,7 +2056,7 @@ static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n, u
 void drum808_render(drum808_t *d, float *dry, float *rev, float *dly, int n)
 {
     d8_dry_r = 0;
-    d8_render(d, dry, rev, dly, n, 0x7FFu);
+    d8_render(d, dry, rev, dly, n, 0x7FFu, D8_LANES_ALL);
 }
 
 void drum808_pan_settle(drum808_t *d)
@@ -2054,9 +2072,133 @@ void drum808_render_st_masked(drum808_t *d, float *dry_l, float *dry_r, float *r
                              int n, uint16_t audible_tracks)
 {
     d8_dry_r = dry_r;
-    d8_render(d, dry_l, rev, dly, n, audible_tracks);
+    d8_render(d, dry_l, rev, dly, n, audible_tracks, D8_LANES_ALL);
     d8_dry_r = 0;
 }
+
+void drum808_render_st_lanes(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly,
+                             int n, uint16_t audible_tracks, uint32_t lanes)
+{
+    d8_dry_r = dry_r;
+    d8_render(d, dry_l, rev, dly, n, audible_tracks, lanes);
+    d8_dry_r = 0;
+}
+
+/* Snapshots so metal voices can run before the body is in the buses, then
+ * lane_mix in order with the same pans and choke the original loop used. */
+#define D8_NCH (256 / CHUNK)
+#define D8_MN  4
+static struct {
+    float pl[D8_NCH][D8_MN], pr[D8_NCH][D8_MN], dpl[D8_NCH][D8_MN], dpr[D8_NCH][D8_MN];
+    float cg[D8_NCH][D8_MN], cstep[D8_NCH][D8_MN];
+    int got[D8_NCH][D8_MN];
+    int nch, n;
+} d8_msnap;
+
+void drum808_metal_prepare(drum808_t *d, float raw[4][256], int n, uint16_t audible_tracks)
+{
+    float buf[CHUNK], bus[CHUNK], pair[CHUNK];
+    int off, l, i, ch;
+    (void)audible_tracks;
+    d8_msnap.n = n;
+    d8_msnap.nch = 0;
+    for (off = 0, ch = 0; off < n; off += CHUNK, ch++) {
+        int m = n - off < CHUNK ? n - off : CHUNK;
+        int cb_on = lane_on(d, L_CB);
+        d8_pan_lanes(d, D8_LANES_METAL, m);
+        if (cb_on || lane_on(d, L_CH) || lane_on(d, L_OH) || lane_on(d, L_CY))
+            bank_block(&d->bank, bus, pair, m, cb_on);
+        for (l = L_CB; l <= L_CY; l++) {
+            d8_lane_t *ln = &d->lane[l];
+            int mm = m, got, k = l - L_CB;
+            d8_msnap.pl[ch][k] = d->pan_lc[k_lane_track[l]];
+            d8_msnap.pr[ch][k] = d->pan_rc[k_lane_track[l]];
+            d8_msnap.dpl[ch][k] = d->pan_dl[k_lane_track[l]];
+            d8_msnap.dpr[ch][k] = d->pan_dr[k_lane_track[l]];
+            d8_msnap.cg[ch][k] = ln->cg;
+            d8_msnap.cstep[ch][k] = ln->cstep;
+            if (!lane_on(d, l)) {
+                d8_msnap.got[ch][k] = 0;
+                continue;
+            }
+            if (ln->cstep < 0.0f) {
+                float c = ln->cg;
+                for (i = 0; i < m; i++) {
+                    c += ln->cstep;
+                    if (c <= 0.0f) {
+                        mm = i + 1;
+                        break;
+                    }
+                }
+            }
+            got = voice_run(d, l, buf, mm, bus, pair);
+            for (i = 0; i < got; i++)
+                raw[k][off + i] = buf[i];
+            d8_msnap.got[ch][k] = got;
+#if D8_TAIL_DB
+            lane_tail(d, l, buf, got);
+#endif
+            /* the same choke lane_mix will apply: keep voice state in step, restore at mix */
+            for (i = 0; i < got; i++) {
+                if (ln->cstep < 0.0f) {
+                    ln->cg += ln->cstep;
+                    if (ln->cg <= 0.0f) {
+                        ln->cg = 0.0f;
+                        ln->cstep = 0.0f;
+                    }
+                }
+                if (ln->cg <= 0.0f)
+                    break;
+            }
+        }
+        d8_msnap.nch = ch + 1;
+    }
+}
+
+void drum808_finish_rest(drum808_t *d, const float raw[4][256],
+                         float *dry_l, float *dry_r, float *rev, float *dly,
+                         int n, uint16_t audible_tracks)
+{
+    int off, l, ch;
+    /* mid lanes (toms .. CP) sit between BODY and METAL in the original order */
+    drum808_render_st_lanes(d, dry_l, dry_r, rev, dly, n, audible_tracks, D8_LANES_MID);
+    d8_dry_r = dry_r;
+    for (off = 0, ch = 0; off < n; off += CHUNK, ch++) {
+        for (l = L_CB; l <= L_CY; l++) {
+            d8_lane_t *ln = &d->lane[l];
+            int k = l - L_CB, got = d8_msnap.got[ch][k];
+            float *dr;
+            if (!got)
+                continue;
+            d->pan_lc[k_lane_track[l]] = d8_msnap.pl[ch][k];
+            d->pan_rc[k_lane_track[l]] = d8_msnap.pr[ch][k];
+            d->pan_dl[k_lane_track[l]] = d8_msnap.dpl[ch][k];
+            d->pan_dr[k_lane_track[l]] = d8_msnap.dpr[ch][k];
+            ln->cg = d8_msnap.cg[ch][k];
+            ln->cstep = d8_msnap.cstep[ch][k];
+            dr = d8_dry_r;
+            d8_dry_r = dr ? dr + off : 0;
+            lane_mix(d, ln, raw[k] + off, got, dry_l + off, rev + off, dly + off, audible_tracks);
+            d8_dry_r = dr;
+        }
+    }
+    /* a silent last chunk skips the restore above and would leave pan_lc at an
+     * earlier chunk's post-glide. The last snapshot is the post-glide of the
+     * last chunk, the same end state the one-call render leaves. */
+    if (d8_msnap.nch) {
+        int last = d8_msnap.nch - 1;
+        for (l = L_CB; l <= L_CY; l++) {
+            int k = l - L_CB;
+            d->pan_lc[k_lane_track[l]] = d8_msnap.pl[last][k];
+            d->pan_rc[k_lane_track[l]] = d8_msnap.pr[last][k];
+            d->pan_dl[k_lane_track[l]] = d8_msnap.dpl[last][k];
+            d->pan_dr[k_lane_track[l]] = d8_msnap.dpr[last][k];
+        }
+    }
+    d8_dry_r = 0;
+    (void)n;
+}
+
 
 void drum808_render_st(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly, int n)
 {

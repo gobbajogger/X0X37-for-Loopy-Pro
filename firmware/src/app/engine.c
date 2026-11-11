@@ -54,6 +54,8 @@ unsigned engine_original_tail_state(int v)
 }
 #endif
 static original_runtime_workspace original_workspace POOL;
+_Static_assert(sizeof(original_runtime_workspace) >= 4 * 256 * sizeof(float),
+               "808 metal raw fits in the Chicago workspace");
 static original_chicago_tuning original_tuning POOL;
 static original_chicago_fx2_compact original_fx[NBASS] POOL;
 static original_chicago_fx2_cold_owner original_fx_owner[NBASS];
@@ -2118,7 +2120,14 @@ static uint32_t eng_job_arg;                           /* this stretch's n, 808 
 static uint8_t eng_job_solo;
 static uint8_t eng_c1_waited;                          /* core 0 has called plat_cpu2_wait this stretch */
 static uint8_t eng_brk_mark;                           /* brk_midi_count before core 1 could add any */
+/* same-block 808 split: BD+SD (a prefix of the mix, about 1.2 ms) on core 1,
+ * metals' voices on core 0 in parallel, mid lanes and metal mix after the body
+ * is visible. No added audio latency; the sums are the same bits. */
+static uint8_t eng_808_split;
+static volatile uint8_t eng_808_body;                  /* 1: BD+SD is in left808/right808 */
+static volatile uint8_t eng_808_metal_done;            /* 1: core 0 is done with the metal raw (Chicago workspace) */
 static void c1_take_over(uint32_t s);
+static void d808_body_run(void);
 
 /* the second core still working: 1, done: 0, it failed: -1 (fm1: plat_fm1.c). One core: done. */
 __attribute__((weak)) int plat_cpu2_busy(void) { return 0; }
@@ -2178,6 +2187,54 @@ static int stage_wait(uint32_t s, int core)
     }
 }
 
+/* BD+SD into zeroed buses. Core 1 runs this at the start of the stretch; core 0
+ * only if core 1 did not (it failed, or one core). */
+static void d808_body_run(void)
+{
+    uint32_t arg = eng_job_arg, n = arg & 0xFFu ? arg & 0xFFu : 256u, i;
+    uint32_t offset = (arg >> 20) & 0xFFu;
+    float *left808 = t0 + offset, *right808 = tr + offset;
+    for (i = 0; i < n; i++)
+        left808[i] = right808[i] = t1[i] = t2[i] = 0.0f;
+    drum808_render_st_lanes(&d808, left808, right808, t1, t2, (int)n,
+                            (uint16_t)(arg >> 9 & 0x7FFu), D8_LANES_BODY);
+    eng_sync();
+    eng_808_body = 1;
+    eng_sync();
+}
+
+/* 0 = body visible, 1 = it will not be (caller must not mix mid/metals onto it). */
+static int body_wait(int core)
+{
+    uint32_t t0;
+    if (eng_808_body)
+        return 0;
+    if (core) {
+#ifdef X0X_HOST
+        return 1;
+#else
+        while (!eng_808_body)
+            eng_sync();
+        return 0;
+#endif
+    }
+    t0 = plat_ticks24();
+    for (;;) {
+        eng_sync();
+        if (eng_808_body)
+            return 0;
+        if (plat_cpu2_busy() <= 0 || plat_ticks24() - t0 > 24000u * 24u) {
+            if (!eng_c1_waited) {
+                eng_c1_waited = 1;
+                (void)plat_cpu2_wait();
+            }
+            if (!eng_808_body)
+                d808_body_run();
+            return eng_808_body ? 0 : 1;
+        }
+    }
+}
+
 /* one job, render and mix; core 1: not timed by the cycle counter (core 0's) */
 static int run_job(int j, int core)
 {
@@ -2215,10 +2272,31 @@ static int run_job(int j, int core)
         PROF_T(p8);
         d808_was_active = (uint8_t)drum808_active(&d808);
         if (d808_was_active) {                            /* silent, it does nothing (and is not mixed) */
-            for (i = 0; i < n; i++)
-                left808[i] = t1[i] = t2[i] = right808[i] = 0.0f;
-            drum808_render_st_masked(&d808, left808, right808, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
-            bfx_shape(PART_808, left808, right808, t1, t2, 4, (int)n);
+            if (eng_808_split) {
+                /* metal voices (and the bank) while core 1 mixes BD+SD into the buses.
+                 * raw sits in Chicago's workspace: Miami A on core 1 waits on
+                 * eng_808_metal_done before it uses the same union. */
+                float (*raw)[256] = (float (*)[256])(void *)&original_workspace;
+                uint16_t aud = (uint16_t)(arg >> 9 & 0x7FFu);
+                drum808_metal_prepare(&d808, raw, (int)n, aud);
+                if (body_wait(core)) {
+                    eng_sync();
+                    eng_808_metal_done = 1;
+                    eng_sync();
+                    return 0;
+                }
+                drum808_finish_rest(&d808, (const float (*)[256])raw, left808, right808, t1, t2,
+                                    (int)n, aud);
+                bfx_shape(PART_808, left808, right808, t1, t2, 4, (int)n);
+                eng_sync();
+                eng_808_metal_done = 1;
+                eng_sync();
+            } else {
+                for (i = 0; i < n; i++)
+                    left808[i] = t1[i] = t2[i] = right808[i] = 0.0f;
+                drum808_render_st_masked(&d808, left808, right808, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
+                bfx_shape(PART_808, left808, right808, t1, t2, 4, (int)n);
+            }
         } else {
             active = 0;
             drum808_pan_settle(&d808);
@@ -2235,6 +2313,17 @@ static int run_job(int j, int core)
     } else if (j == JB_A || j == JB_B) {
         /* one bass: its own workspace and L/R, so A and B may run at once on the two cores */
         int bv = j - JB_A, p = PART_303A + bv;
+        /* bass A uses original_workspace; the 808 split parks metal raw there.
+         * Core 1 waits only when 909 was short (the heavy 909 case is already past). */
+        if (core && j == JB_A) {
+#ifdef X0X_HOST
+            if (!eng_808_metal_done)
+                return 0;                             /* host: core 0 finishes 808, then takes A */
+#else
+            while (!eng_808_metal_done)
+                eng_sync();
+#endif
+        }
         float *bl = eng_bass_buf[2 * bv], *br = eng_bass_buf[2 * bv + 1];
         float *bb[NBASS];
         bb[bv] = bl; bb[1 - bv] = br;                     /* bass B renders right-left, as always */
@@ -2329,6 +2418,8 @@ static void core2_jobs(uint32_t arg)
 {
     int j;
     (void)arg;
+    if (eng_808_split && !eng_808_body)
+        d808_body_run();
     for (j = eng_c1_next; j < JB_N; j++) {
         if (!(eng_c1_mask & (1u << j)))
             continue;
@@ -2456,9 +2547,17 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     original_rec_cancel_cut();                        /* both basses' recorder state: here, before the jobs */
     m = plan_pick(n);
     eng_c1_mask = (uint8_t)m;
+    /* 808 stays on core 0 and core 1 has other work: move the BD+SD prefix */
+    eng_808_split = (uint8_t)(!(m & (1u << JB_808)) && m && drum808_active(&d808));
+    eng_808_body = (uint8_t)!eng_808_split;
+    eng_808_metal_done = (uint8_t)!eng_808_split;
     eng_sync();
-    if (m && !plat_cpu2_run(core2_jobs, 0u))
+    if (m && !plat_cpu2_run(core2_jobs, 0u)) {
         eng_c1_mask = 0;                              /* one core: all of it here */
+        eng_808_split = 0;
+        eng_808_body = 1;
+        eng_808_metal_done = 1;
+    }
 #if X0X_DEBUG
     eng_dbg_nsub++;
     uint32_t w0 = plat_ticks24();

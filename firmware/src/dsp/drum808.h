@@ -205,6 +205,25 @@ void drum808_render_st(drum808_t *d, float *dry_l, float *dry_r, float *rev, flo
 /* Only selected tracks reach dry/send buses; every voice still advances normally. */
 void drum808_render_st_masked(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly,
                              int n, uint16_t audible_tracks);
+/* Same-block two-core split (no added latency). BODY is BD+SD, a prefix of the
+ * lane order (~1.2 ms): core 1 mixes it first into the buses. METAL is CB, CH,
+ * OH, CY and the shared bank: core 0 runs those voices in parallel, then mixes
+ * them in order after BODY (and the mid lanes) so the sums are the same bits.
+ * Lanes: L_BD=0 .. L_CY=12. */
+enum {
+    D8_LANES_BODY  = 0x0003u,              /* L_BD | L_SD */
+    D8_LANES_METAL = 0x1e00u,              /* L_CB | L_CH | L_OH | L_CY */
+    D8_LANES_MID   = 0x01fcu,              /* toms, RS, CL, MA, CP */
+    D8_LANES_ALL   = 0x1fffu
+};
+void drum808_render_st_lanes(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly,
+                             int n, uint16_t audible_tracks, uint32_t lanes);
+/* Metal voices (and the bank) into raw[4][256] in CB, CH, OH, CY order. */
+void drum808_metal_prepare(drum808_t *d, float raw[4][256], int n, uint16_t audible_tracks);
+/* Mid lanes live, then metal lane_mix from raw, in the original lane order. */
+void drum808_finish_rest(drum808_t *d, const float raw[4][256],
+                         float *dry_l, float *dry_r, float *rev, float *dly,
+                         int n, uint16_t audible_tracks);
 void drum808_pan_settle(drum808_t *d);   /* every pan to its target at once (the kit is silent: no zipper) */
      /* ADDS this block (mono, n <= 256) into the dry bus and the reverb / delay send buses */
 int drum808_nparams(int track);                           /* D8_KIT = kit-wide */
