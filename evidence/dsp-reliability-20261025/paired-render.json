@@ -1,0 +1,122 @@
+[
+  {
+    "run": 0,
+    "source": "baseline",
+    "command": [
+      "build/dsp-audit/probe-baseline",
+      "build/dsp-audit/baseline.f32"
+    ],
+    "exit": 0,
+    "stdout": "cases=24 frames=3175200 cpu_seconds=0.107997 finite=PASS",
+    "bytes": 12700800,
+    "sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70"
+  },
+  {
+    "run": 0,
+    "source": "fixed",
+    "command": [
+      "build/dsp-audit/probe-fixed",
+      "build/dsp-audit/fixed.f32"
+    ],
+    "exit": 0,
+    "stdout": "cases=24 frames=3175200 cpu_seconds=0.111405 finite=PASS",
+    "bytes": 12700800,
+    "sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70"
+  },
+  {
+    "run": 1,
+    "source": "fixed",
+    "command": [
+      "build/dsp-audit/probe-fixed",
+      "build/dsp-audit/fixed.f32"
+    ],
+    "exit": 0,
+    "stdout": "cases=24 frames=3175200 cpu_seconds=0.102558 finite=PASS",
+    "bytes": 12700800,
+    "sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70"
+  },
+  {
+    "run": 1,
+    "source": "baseline",
+    "command": [
+      "build/dsp-audit/probe-baseline",
+      "build/dsp-audit/baseline.f32"
+    ],
+    "exit": 0,
+    "stdout": "cases=24 frames=3175200 cpu_seconds=0.116437 finite=PASS",
+    "bytes": 12700800,
+    "sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70"
+  },
+  {
+    "run": 2,
+    "source": "baseline",
+    "command": [
+      "build/dsp-audit/probe-baseline",
+      "build/dsp-audit/baseline.f32"
+    ],
+    "exit": 0,
+    "stdout": "cases=24 frames=3175200 cpu_seconds=0.106787 finite=PASS",
+    "bytes": 12700800,
+    "sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70"
+  },
+  {
+    "run": 2,
+    "source": "fixed",
+    "command": [
+      "build/dsp-audit/probe-fixed",
+      "build/dsp-audit/fixed.f32"
+    ],
+    "exit": 0,
+    "stdout": "cases=24 frames=3175200 cpu_seconds=0.103474 finite=PASS",
+    "bytes": 12700800,
+    "sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70"
+  },
+  {
+    "run": 3,
+    "source": "fixed",
+    "command": [
+      "build/dsp-audit/probe-fixed",
+      "build/dsp-audit/fixed.f32"
+    ],
+    "exit": 0,
+    "stdout": "cases=24 frames=3175200 cpu_seconds=0.102839 finite=PASS",
+    "bytes": 12700800,
+    "sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70"
+  },
+  {
+    "run": 3,
+    "source": "baseline",
+    "command": [
+      "build/dsp-audit/probe-baseline",
+      "build/dsp-audit/baseline.f32"
+    ],
+    "exit": 0,
+    "stdout": "cases=24 frames=3175200 cpu_seconds=0.118741 finite=PASS",
+    "bytes": 12700800,
+    "sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70"
+  },
+  {
+    "run": 4,
+    "source": "baseline",
+    "command": [
+      "build/dsp-audit/probe-baseline",
+      "build/dsp-audit/baseline.f32"
+    ],
+    "exit": 0,
+    "stdout": "cases=24 frames=3175200 cpu_seconds=0.098772 finite=PASS",
+    "bytes": 12700800,
+    "sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70"
+  },
+  {
+    "run": 4,
+    "source": "fixed",
+    "command": [
+      "build/dsp-audit/probe-fixed",
+      "build/dsp-audit/fixed.f32"
+    ],
+    "exit": 0,
+    "stdout": "cases=24 frames=3175200 cpu_seconds=0.097989 finite=PASS",
+    "bytes": 12700800,
+    "sha256": "4703fa9949705a7c24dc8958c3d1b71157b632523bef2495833289cc4e4f3f70"
+  }
+]

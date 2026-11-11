@@ -1,0 +1,20 @@
+{
+  "HANDOFF.txt": "c7e4082333fa393b76926ab44759eecb8dabaca8d39ce4d0d5eaca96547dba0b",
+  "extraction/REVIEW.txt": "bfab47659e1575c3a0ae3af9f347e72268a247d217a97703fadb0d1062a0d9d2",
+  "extraction/cc-strict": "5eeab9e01803e31d970601e23e91464ce8026373be51359e7bb127cd67af4970",
+  "extraction/isolation-strict.log": "d5b069b9d5ac8ddf244c45d7a5a56f7b930931438ca524f9e552903e8cc6f920",
+  "extraction/normal.log": "77afba2049dad837d7612b280f8ab574bc584f4e8cc56608c2eb83314ffaaf08",
+  "extraction/results.json": "35f8d783a0baa7c168a9d3f1102a88bba6cc00e746e8c490306281f6b733bfe0",
+  "extraction/smc-clip-visibility.log": "a157bc8c280e98fdc03c6ce54c62518aca15caff50c818eee260272b00792c3c",
+  "extraction/smk-clip-isolation.log": "d5b069b9d5ac8ddf244c45d7a5a56f7b930931438ca524f9e552903e8cc6f920",
+  "extraction/visibility-strict.log": "a157bc8c280e98fdc03c6ce54c62518aca15caff50c818eee260272b00792c3c",
+  "receive/ble-midi-receive.log": "eacf60c02d85856f57eaba1de4208619214419c6ecbb7abd08bfdc2bb4a9b456",
+  "receive/failfast-original-fixture.log": "c1e62d46379f1bd755f241e6ad51ac599001c0d5ae975f06ca54d4cc6cf88946",
+  "receive/focused.log": "c53122b22a06c0073ad5f481fa2e9d1aa466a2b03bba7754e4ab65c10c91185d",
+  "receive/results.json": "9275a951c5b775d608035a0e29c3ec29c5a003a948bdec885fc042ec619a8816",
+  "receive/review.txt": "d96eed1fa6fbef04395e53226d2284e9e2cf93ba6c7555c416ecc7bba5122da8",
+  "root/docs-check.log": "c39a4a55f2130e86bbc73d89ae93b9c6d62e2ade138d3dd2fa843e16b0f7345b",
+  "root/reuse-and-integrity.json": "f39f03a8badf5a0f89b3d932d3ed32071496191eded7d519b6d9aca8640c4819",
+  "root/thread-capability.json": "4d726113e05fac05251028915beb69617869d10fd86384da6f95cd6eb00eb52f",
+  "stage4-prompt.txt": "6b25b2f4e7a21d771a353bd337adbbb708cfac59981dcf2143c8e17adc733201"
+}

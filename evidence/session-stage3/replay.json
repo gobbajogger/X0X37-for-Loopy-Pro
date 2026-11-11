@@ -1,0 +1,53 @@
+{
+  "compile": [
+    "cc",
+    "-O1",
+    "-g",
+    "-ffp-contract=off",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Wno-unused-function",
+    "-Wno-unused-parameter",
+    "-DX0X_HOST",
+    "-D_DARWIN_C_SOURCE",
+    "-Ifirmware/src",
+    "-Ifirmware/src/dsp",
+    "-Ifirmware/hal",
+    "-Ibuild/gen",
+    "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/replay.c",
+    "firmware/src/dsp/drum909.c",
+    "firmware/src/dsp/drum808.c",
+    "firmware/src/dsp/bass303.c",
+    "firmware/src/dsp/breaks.c",
+    "firmware/src/dsp/fxbus.c",
+    "firmware/src/dsp/master.c",
+    "firmware/src/seq/sequencer.c",
+    "firmware/src/seq/tb3po.c",
+    "firmware/src/seq/pattern.c",
+    "firmware/src/seq/motion.c",
+    "firmware/src/app/engine.c",
+    "-lm",
+    "-o",
+    "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/build/session-stage3/replay"
+  ],
+  "capture_sha256": "a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a",
+  "harness_sha256": "23afbe7f10cf894ce9e07f5ee0db7c7ce3d79959bd5ccb4017c56f4948b1a274",
+  "store_sha256": "402fe3c9f70c5b550ded0b85ab54b3a4413cf1135dd6cb15d365aeb8c7738283",
+  "result": {
+    "packets": 1268,
+    "decoded": 2616,
+    "feedback": 513,
+    "link": 1,
+    "queue_empty": true,
+    "perf_test": -1,
+    "perf_phase": 0,
+    "help": 0,
+    "overlay": 0
+  },
+  "limits": [
+    "Simulated peer, HCI framing and scheduling.",
+    "1268 exact payloads. Three ATT packets above 64 bytes are excluded.",
+    "The saved project is synthetic. No target interrupt timing or physical radio test."
+  ]
+}

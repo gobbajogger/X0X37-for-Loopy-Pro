@@ -1,0 +1,33 @@
+{
+  "result": "REVIEWED",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "validation_revision": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "repair_base": "1c5e8f8953658689434b4b3e8687ccd630afeff0",
+  "contribution_base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "production_contribution": [
+    "firmware/src/ble.c",
+    "firmware/src/ble/ble_midi_central.c",
+    "firmware/src/ble/ble_midi_central.h"
+  ],
+  "scope": [
+    "The complete central contribution includes signaling replies, bounded receive state, reconnect credits, transport acceptance, Disconnect retries, service time, cutoff and stop intent.",
+    "The saved central, receive, signaling, abort, deadline, stop and DIAG suites cover these consumers. The saved replay covers unchanged payloads through the simulated main loop and feedback.",
+    "The separate stage3 investigation adds 16 different-handle event-order cases. Both independent helper reports have PASS and no actionable source finding.",
+    "All selected source, helper, stop and replay inputs, saved logs, stage2 artifacts and available environment identities match. The host compiler identity was checked on macOS.",
+    "The stage4 plan checks this matching evidence inside the validator. The validator must build the actual complete package and controller to issue its DEV CHECKED record.",
+    "The source has no Pro-specific change. The selected central lane artifact is Elite. Applicable Pro checks remain required for any later selected Pro package."
+  ],
+  "host_suites_repeated": false,
+  "replay_repeated": false,
+  "new_required_coverage": [
+    "The exact Elite DEV package and controller.",
+    "The final validation-input identity, selected checks and budgets.",
+    "The model, package CRCs, region table, slot map, exact controller insertion and removal."
+  ],
+  "limits": [
+    "The separate central package does not contain the mapping contribution. The combined source needs matching validation before installation.",
+    "Physical radio execution and target interrupts are not tested. The original input failure is unresolved.",
+    "No Pro package or Pro device PASS is claimed."
+  ],
+  "plan_sha256": "c1eeff1a78481616b722a5fe248808a2f51d5f406e69ac6c2fde94a84d0fbf3d"
+}

@@ -1,0 +1,46 @@
+{
+  "current": {
+    "compile_command": [
+      "cc",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I",
+      "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021/firmware/src/ble",
+      "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021/evidence/session-audit/session_probe.c",
+      "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021/firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/tmp/smc-session-investigation-20261021/audit_current"
+    ],
+    "result": {
+      "signaling_responses": 0,
+      "still_connected_after_600_seconds": true,
+      "MIDI_after_rejection": 1
+    }
+  },
+  "working": {
+    "compile_command": [
+      "cc",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I",
+      "/tmp/smc-session-investigation-20261021",
+      "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021/evidence/session-audit/session_probe.c",
+      "/tmp/smc-session-investigation-20261021/old_central.c",
+      "-o",
+      "/tmp/smc-session-investigation-20261021/audit_working"
+    ],
+    "result": {
+      "signaling_responses": 0,
+      "still_connected_after_600_seconds": true,
+      "MIDI_after_rejection": 1
+    }
+  }
+}

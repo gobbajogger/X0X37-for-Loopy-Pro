@@ -1,0 +1,61 @@
+{
+  "schema": "x0x37-sequencer-source-producer-evidence-v1",
+  "revision": "R39",
+  "date_utc": "2026-10-25",
+  "purpose": "Maintain the musician-visible MID-06 transport order and MID-15 one-source clock when USB or BLE disconnects after its Start/Continue was accepted but before the sequencer callback, without an extra step or stuck 303 note.",
+  "expectation": "Already accepted Start resets to step 1; accepted Continue preserves step position. Old pending F8 is excluded; the new owner's F8 is counted once. Next step occurs after six new-owner clocks. MIDI NoteOff remains paired.",
+  "verified": "Linked native C observed both directions USB→BLE and BLE→USB for Start/Continue, buffers 1/64/1024; output and internal step counters checked. Physical output not measured.",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "own_pr": 90,
+  "parent_pr": 86,
+  "branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "base_commit": "c920015523b63eab8270835f48db552b4985dee2",
+  "base_root_tree": "55bbf0266355769925a539d0881c04c3b44a2686",
+  "production_firmware_tree_unchanged": "82e9514a6f025737985485f7d9c6a8bb96f1253b",
+  "compiled_sequencer_c_blob_unchanged": "0a239d1faba079bec6c85efbbf31883af0a59ce8",
+  "test_path": "tests/host/seq_clock_disconnect_handoff_test.c",
+  "tested_new_git_blob": "564ee50567201575dd866c64bf8cd1afc8d96a32",
+  "test_source_sha256": "133b8cfc627b1349e6d2dd6220afc8d046b1b43761705a7c054d262d71c137db",
+  "producer_environment": "Linux x86_64, GCC and Clang, -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror; modes plain, -fsanitize=undefined, -fsanitize=address,undefined; ASAN_OPTIONS=detect_leaks=0:halt_on_error=1; UBSAN_OPTIONS=halt_on_error=1.",
+  "observed_results": {
+    "linked_patched": {
+      "expected_runs": 6,
+      "passes": 6,
+      "checks_each": 2262,
+      "compile_exit": 0,
+      "run_exit": 0
+    },
+    "mutant_discards_accepted_remote_start_continue": {
+      "expected_runs": 6,
+      "expected_failures_observed": 6,
+      "checks_reported_each": "2130/2262",
+      "run_exit": 1
+    },
+    "mutant_does_not_reset_clock_epoch": {
+      "expected_runs": 6,
+      "expected_failures_observed": 6,
+      "checks_reported_each": "2130/2262",
+      "run_exit": 1
+    },
+    "adjacent_production_linked": {
+      "expected_runs": 8,
+      "passes": 8,
+      "tests": [
+        "AUTO idle counter rollover",
+        "USB/BLE clock owner lease",
+        "32-bit clock time rollover",
+        "MIDI NoteOff lifetime: 1472 matched on/off"
+      ]
+    }
+  },
+  "artifact": {
+    "filename": "LoopyX0X37-SeqClock-PR90-AcceptedPlay-R39-20261025.zip",
+    "sha256": "e17df5530b57697078482c2bb954387ff5bd3a9d74c9a70fffefff7c15177408",
+    "size_bytes": 51855,
+    "contents": "Git blob pinned source/test, deterministic replay Python, 26 compile/run log pairs, machine-readable complete producer manifest",
+    "manifest_sha256": "7cffe6b76e9c1f3074dbd3ae12f0addc486fc8df03dfd639e4940f2ba78cb46b",
+    "replay": "python3 run-r39.py"
+  },
+  "qualification": "SOURCE-ONLY PRODUCER NATIVE TESTS PASSED; COMPILER FIRMWARE TREE UNCHANGED; INDEPENDENT COMPLETE-ROOT QA AND TARGET/CONTROLLER IDENTITY CHECKS PENDING; DEVICE NOT TESTED; NOT PUBLISHED",
+  "next_owner": "Existing Independent QA independently validates exact source PR #90 stacked on #86. Hourly Build reuses prior R37 target evidence only after proving unchanged full compiler/controller input closures and artifact bytes. Sole Safe Merge integrates only after its checks and authority."
+}

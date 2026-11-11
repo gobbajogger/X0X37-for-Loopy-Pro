@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/smc_stage3_20261021/tests/ble_central_diag_test.py", line 10, in <module>
+    import ble_autotest as b
+  File "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpe_lnm67p/tools/ble_autotest.py", line 32, in <module>
+    import inlog_fmt  # noqa: E402  (a76: editor command 38 INLOG)
+ModuleNotFoundError: No module named 'inlog_fmt'

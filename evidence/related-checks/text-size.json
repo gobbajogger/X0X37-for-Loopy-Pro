@@ -1,0 +1,14 @@
+{
+  "before": {
+    "skills/x0x37-check/SKILL.md": 271,
+    "skills/x0x37-install/SKILL.md": 182,
+    "skills/x0x37-install/references/artifacts.md": 132
+  },
+  "after": {
+    "skills/x0x37-check/SKILL.md": 279,
+    "skills/x0x37-install/SKILL.md": 182,
+    "skills/x0x37-install/references/artifacts.md": 226
+  },
+  "total_before": 585,
+  "total_after": 687
+}

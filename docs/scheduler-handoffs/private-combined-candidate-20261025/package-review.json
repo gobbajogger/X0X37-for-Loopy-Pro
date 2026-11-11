@@ -1,0 +1,350 @@
+{
+  "scope": "Independent bounded combined packaging/parser/native-updater admission review. No device, GUI, HTTP, catalog write, publication or license determination.",
+  "status": "ACCEPT_SCOPED_PRIVATE_PACKAGE_COMPATIBILITY_NATIVE_BINDING_PENDING",
+  "reviewer": "/root/package_installer_review",
+  "timestamp_utc": "2026-10-25T05:07:14.053950+00:00",
+  "candidate": {
+    "head": "0e3e4d572e2466872e1ddd1986ff34b9e77dddd3",
+    "root": "441970c541c8c7abad0030d6f70c2c2fb484a080",
+    "original_review_head": "c8895c3ac32cb627228617cd7a2f87a368b3ced3",
+    "unchanged_root_reuse": true,
+    "base": "54f2ffbc3124f7449a69067dc8215a2d91a2e675"
+  },
+  "installer": {
+    "head": "cc7e7e8e68717acda8c774d4da8ca7d5cc401ff8",
+    "root": "7600043f26378ff575e22bc8a8ee245e4a044d35",
+    "prior_review_blobs_exact": {
+      "web/x0x_installer.html": "ec789eb37603218f698dd7f8d2dcdc2a71c1e8ae",
+      "web/fm1pkg.js": "4b3152e695512c288a0244b0474fd140392ad4f5",
+      "web/fm1ota.js": "485a54187e78822847f5cb51088204983caffa71",
+      "web/x0x_breaks.js": "cf00dbc1d2654fe3fa47bee40f99fc99472d0b4e",
+      "scripts/render-qualified-nightly.mjs": "b8f0a0532f97152dc144d9df4359b6d0906d0456",
+      "scripts/legacy-controller-packages.json": "2bbedb8adf9885b2823f89beb3d6251b8ccade28",
+      "tests/bundled-browser.py": "ff5a99c56da5e0ee3177187716fd0b6c459dc14b",
+      "tests/bundled-controller.test.mjs": "15b3d5cabdc809b00a06938fd85fe658c2d57a36",
+      "tests/fixtures/bundled-synthetic.mjs": "84c12879e3b3be2f10f8df971e732c8f5b3978d4",
+      "docs/install/index.html": "a0eb3e9c9c1ee268deb2a51826b0481d93ad585d",
+      "SOURCE_PROVENANCE.json": "d3b5249b4ae6e337383781a0a48348ec6673f7a6"
+    }
+  },
+  "checks": [
+    {
+      "command": "python3 tests/nightly_package_test.py",
+      "cwd": "/Users/mac/Documents/Codex/2026-10-25/task-17/review-package/firmware",
+      "exit": 0,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/nightly-package.log",
+      "log_sha256": "9552935f49cf3e76442b2bd2237da6bf672c2805f2bcd4e38dd136ffcc775a59",
+      "proves": "Elite/Pro synthetic real-format positive/negative composition and admission; exact controller hash/size/model/CRC/ABI/padding/ranges/slotmap and atomic output preservation"
+    },
+    {
+      "command": "node tests/bundled-controller.test.mjs",
+      "cwd": "/Users/mac/Documents/Codex/2026-10-25/task-17/review-package/installer",
+      "exit": 0,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/bundled-controller.log",
+      "log_sha256": "77126b7dd2e9a998cea2c46ed20bd94f8dad8f8f070e57435102d2ac08419bb3",
+      "proves": "62 parser/composition/renderer/qualification assertions"
+    },
+    {
+      "command": "node tests/installer-download-admission.test.mjs",
+      "cwd": "/Users/mac/Documents/Codex/2026-10-25/task-17/review-package/installer",
+      "exit": 0,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/download-admission.log",
+      "log_sha256": "42a53bc8bf62e86cc094caa6bf6318edae2c72cd9ac38d034b8718811c2d8f12",
+      "proves": "58 admission cases"
+    },
+    {
+      "command": "node tests/qualified-catalog.test.mjs",
+      "cwd": "/Users/mac/Documents/Codex/2026-10-25/task-17/review-package/installer",
+      "exit": 0,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/qualified-catalog.log",
+      "log_sha256": "7c7acfac975877f5955131a7db527ab015e3117e603526035801e2aaf97f814d",
+      "proves": "336 rejection cases plus byte verifier and output-boundary checks"
+    },
+    {
+      "command": "node tests/installer-write-boundaries.test.mjs",
+      "cwd": "/Users/mac/Documents/Codex/2026-10-25/task-17/review-package/installer",
+      "exit": 0,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/write-boundaries.log",
+      "log_sha256": "48c571ba7071425f9db773574e9cea3c5b12b5f443e8097d3baf7769ebfa596a",
+      "proves": "41 write/backup/restore/reconnect boundaries, 0 failures; simulated IO"
+    },
+    {
+      "command": "node scripts/build-preview.mjs --check",
+      "cwd": "/Users/mac/Documents/Codex/2026-10-25/task-17/review-package/installer",
+      "exit": 0,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/build-parity.log",
+      "log_sha256": "adfba10adedf0342c3caef34dd2023eb7ba1b6462a2b49f27b153a35638506c4",
+      "proves": "generated self-contained installer parity"
+    },
+    {
+      "command": "python3 evidence/package/inspect-real.py evidence/package/real-inputs.json evidence/package/real-python.json",
+      "cwd": "/Users/mac/Documents/Codex/2026-10-25/task-17",
+      "exit": 0,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/real-python.log",
+      "log_sha256": "7c8f7f613d5aceb72a430a04a711ce651342d146a2a9b32da70428afefc3635d",
+      "result": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/real-python.json"
+    },
+    {
+      "command": "node evidence/package/inspect-real.mjs evidence/package/real-inputs.json evidence/package/real-js.json",
+      "cwd": "/Users/mac/Documents/Codex/2026-10-25/task-17",
+      "exit": 0,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/real-js.log",
+      "log_sha256": "0e6d19b9c086dd1ae809628a567b6681529323a68e13fffcadd5832aa3f5c833",
+      "result": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/real-js.json"
+    },
+    {
+      "command": "python3 -B evidence/package/real-binding.py (identical executed body used a shell heredoc on first run)",
+      "cwd": "/Users/mac/Documents/Codex/2026-10-25/task-17",
+      "exit": 0,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/real-binding.log",
+      "log_sha256": "05fdde1102a9fb00c914639ef762a5ef4f2b360c1866cf316e0de0acfb925d84",
+      "result": "/Users/mac/Documents/Codex/2026-10-25/task-17/evidence/package/real-binding.json"
+    }
+  ],
+  "reused_evidence": [
+    {
+      "source": "task15 installer PR16 independent-review.json",
+      "identity": "all recorded shipping/parser/renderer/generated source blobs matched exact current head",
+      "scope": "prior 61 browser checks, not rerun; UI source unchanged, no GUI used"
+    },
+    {
+      "source": "candidate tools/fm1_install.py, tools/add_ctl.py vs nightly baseline",
+      "scope": "native with_ctl/run/check_ctl readback and device/sample backup safeguards unchanged except add_ctl docstring; supported-code review only, real-byte admission pending"
+    },
+    {
+      "source": "task8/native-prep/HANDOFF.md, tools/accepted_build_mapping.py, flash-handoff.py; task9/execution-receipt.json",
+      "scope": "proven native mapping/transport method. Historical success and independent acceptance remain tied to old bytes and do not qualify this candidate."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "handoff dependency",
+      "detail": "The historical adapter and app-only head guard intentionally pin old exact bytes. Its expected refusal of the new plain logical image is verified. New binding is bounded preparation work, not firmware compile/parser failure, generic inability, or permission to bypass."
+    }
+  ],
+  "limitations": [
+    "The proven private task8 native-prep route supports distinct x0x37.accepted-build-map.v1 verification, without synthetic schema2 records. It is hardcoded to old accepted source/build/receipt/review/updater/artifact pins. New candidate mapping and known_app_only_head exact logical pin need narrow adaptation and independent boundary review; this is record/source adaptation, not a rebuild or general transport capability blocker.",
+    "Candidate repository legacy native updater permits SMK family aliases. The proven task8 private updater instead binds sole observable port and exact running/reboot model; preserve that route for later authorized hardware preparation.",
+    "No hardware timeout resolution proven; no real device or HTTP request made."
+  ],
+  "pending": [
+    "Next separately authorized native hardware preparation must bind the fresh candidate receipt/review/artifact pins through the proven narrow accepted-build-map adapter and adapt/review the exact plain logical head pin. No current native execution acceptance is claimed."
+  ],
+  "real_artifacts": {
+    "python": {
+      "scope": "offline native installer admission; no install, MIDI, hardware or gate qualification",
+      "models": {
+        "elite": {
+          "schema": "x0x37-bundled-controller-v1",
+          "model": "elite",
+          "product": "SMK-37 Elite_900",
+          "size": 651396,
+          "sha256": "812c1565e2bcf9182a6c2a97115cfbb0b95514f523bc35bc38a8f0a45bda2b66",
+          "controller_strategy": "bundled",
+          "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "controller_size": 65492,
+          "controller": {
+            "strategy": "bundled",
+            "bundled": true,
+            "size": 65492,
+            "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+            "crc32": "77b7a496",
+            "block_size": 65536,
+            "block_crc32": "4a400899",
+            "flash_offset": 569344,
+            "header_version": 2,
+            "abi": 2
+          },
+          "target_chip": "AC791N",
+          "native_with_ctl_embedded_bytes_unchanged": true,
+          "native_controller_readback_input_exact": true,
+          "native_admission_log": "Bluetooth controller image: 65492 B already embedded in the package",
+          "negative_cases": 3
+        },
+        "pro": {
+          "schema": "x0x37-bundled-controller-v1",
+          "model": "pro",
+          "product": "SMK-37 Pro_900",
+          "size": 651392,
+          "sha256": "f7d947fce392a2ee179e277940ce43e343e79d5d099954f543d9f0c95019ae97",
+          "controller_strategy": "bundled",
+          "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "controller_size": 65492,
+          "controller": {
+            "strategy": "bundled",
+            "bundled": true,
+            "size": 65492,
+            "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+            "crc32": "77b7a496",
+            "block_size": 65536,
+            "block_crc32": "4a400899",
+            "flash_offset": 569344,
+            "header_version": 2,
+            "abi": 2
+          },
+          "target_chip": "AC791N",
+          "native_with_ctl_embedded_bytes_unchanged": true,
+          "native_controller_readback_input_exact": true,
+          "native_admission_log": "Bluetooth controller image: 65492 B already embedded in the package",
+          "negative_cases": 3
+        }
+      }
+    },
+    "js": {
+      "scope": "offline source parser/byte-verifier; no catalog admission, hardware or HTTP claim",
+      "controller": {
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "size": 65492
+      },
+      "models": {
+        "elite": {
+          "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/x0x-smk37-elite-bundled.fwsc",
+          "product": "SMK-37 Elite_900",
+          "size": 651396,
+          "sha256": "812c1565e2bcf9182a6c2a97115cfbb0b95514f523bc35bc38a8f0a45bda2b66",
+          "embedded_controller_exact": true,
+          "insertion_idempotent": true,
+          "offline_download_byte_verifier": true,
+          "negative_cases": 6
+        },
+        "pro": {
+          "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/x0x-smk37-pro-bundled.fwsc",
+          "product": "SMK-37 Pro_900",
+          "size": 651392,
+          "sha256": "f7d947fce392a2ee179e277940ce43e343e79d5d099954f543d9f0c95019ae97",
+          "embedded_controller_exact": true,
+          "insertion_idempotent": true,
+          "offline_download_byte_verifier": true,
+          "negative_cases": 6
+        }
+      }
+    },
+    "binding": {
+      "scope": "Independent private actual package/controller byte binding; offline only",
+      "models": {
+        "elite": {
+          "plain_sha256": "786237ee08f7e03ec5799d8bd020aab05d5404b138a0a355920e97de88e5ff99",
+          "plain_logical_sha256": "8ba2cda62f3216d0ea515639e2966e11b36c45aeda7377b14332278b476fa2a6",
+          "bundled_sha256": "812c1565e2bcf9182a6c2a97115cfbb0b95514f523bc35bc38a8f0a45bda2b66",
+          "bundled_logical_sha256": "f1ae562fbf517bfee522cfe0bd3a0ee5688bde2a96c7e3ae80375c5b88c63476",
+          "plain_plus_exact_controller_equals_bundled": true,
+          "remove_controller_restores_plain_bytes": true,
+          "loader_sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e"
+        },
+        "pro": {
+          "plain_sha256": "453f8bd8a597b8321a50d32beeb2b7ced10dcd28337830808871ab7b1ea94d72",
+          "plain_logical_sha256": "d749283ce05acc5a5a2c738ba5e243bcf0a683af8312df311538377f6504e982",
+          "bundled_sha256": "f7d947fce392a2ee179e277940ce43e343e79d5d099954f543d9f0c95019ae97",
+          "bundled_logical_sha256": "477c6e5e5ceed516809db1277a0391565af86bb5a9254b7e62e9d7c000ebc88b",
+          "plain_plus_exact_controller_equals_bundled": true,
+          "remove_controller_restores_plain_bytes": true,
+          "loader_sha256": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf"
+        }
+      },
+      "controller": {
+        "elf": {
+          "bytes": 819740,
+          "sha256": "a53173f0b45a88b6395160ff4317c2b5dc4c92645f9ef79511aa24b8da8a9b16"
+        },
+        "map": {
+          "bytes": 38135,
+          "sha256": "0e681ad89a50b243644488742b8105660e0a6510fbe978dc463e8e16e9e4b36f"
+        },
+        "image": {
+          "bytes": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+        },
+        "elf_to_mkimage_exact": true,
+        "private_out_copies_match": true
+      },
+      "historical_native_pin": {
+        "function": "task8 known_app_only_head",
+        "outcome": "EXPECTED_REFUSAL_NEW_BYTES",
+        "new_plain_logical_sha256": "8ba2cda62f3216d0ea515639e2966e11b36c45aeda7377b14332278b476fa2a6",
+        "old_plain_logical_sha256": "0e75ea99d2fa7baaa08dbf97da84fd72d85b40da3ded8f45aa2e6fd9a02a5ca1",
+        "loader_unchanged": true,
+        "reason": "strict exact-candidate pin preserved; new descriptor/head binding awaits separately reviewed adaptation, not a general package compatibility failure"
+      }
+    }
+  },
+  "byte_crcs": {
+    "elite": {
+      "bytes": 651396,
+      "sha256": "812c1565e2bcf9182a6c2a97115cfbb0b95514f523bc35bc38a8f0a45bda2b66",
+      "crc32": "85318616"
+    },
+    "pro": {
+      "bytes": 651392,
+      "sha256": "f7d947fce392a2ee179e277940ce43e343e79d5d099954f543d9f0c95019ae97",
+      "crc32": "d993904c"
+    }
+  },
+  "review_checkouts_clean": {
+    "firmware": true,
+    "installer": true
+  },
+  "proven_native_updater": {
+    "source": "/Users/mac/Documents/Codex/2026-10-25/task-8/native-prep/tools/fm1_install.py",
+    "sha256": "7e5056036aeae47cf2ce2175de4eef7c255b897349eff8153ef7753c8f775dfa",
+    "historical_review": "/Users/mac/Documents/Codex/2026-10-25/task-8/native-prep/review/head-guard-review.json",
+    "historical_review_sha256": "59356c8b8f8c7f3645b2ded3d01b15f7a2e92f0eb4259a39bed61cfce652a79d",
+    "transport_contract": "sole observable compatible port and exact model bound across running app, loader, reboot, controller/sample readback; mandatory fresh verified backup and exclusive foreground hardware lock",
+    "current_candidate_acceptance": false,
+    "next_action": "Bounded exact candidate receipt/artifact/review adapter and head-pin mapping, independently reviewed before separately authorized hardware."
+  },
+  "native_adapter_analysis": {
+    "scope": "Read-only inspection of proven adapter and exact adaptation boundary; no new acceptance, code changes, guard bypass, hardware or compiler rerun",
+    "historical_paths": {
+      "tools/accepted_build_mapping.py": "172fc656d59bfb5da42abd7e88ee807fee3ddb63ad5790ddfdf95faea5cc9e61",
+      "tools/dev_validate.py": "c4ad9f53b697b0999f15d20e9ee08f4b6dfaee4c1d7da8afa6222863f93b5e45",
+      "tools/fm1_install.py": "7e5056036aeae47cf2ce2175de4eef7c255b897349eff8153ef7753c8f775dfa",
+      "tools/require_gate_pass.sh": "cc347a41bdee02f272e7e94db03a37933980515fd36769337efd9046668f8bbf",
+      "flash-handoff.py": "9289ca850ba71448d89f34c7878bd03b15bf2982c20396d4973759ec49643179",
+      "prep-evidence/accepted-build-map.json": "3d91198d7a0d503100d1ed8e962dfacdf4a1692d24c1b36ac2c2ace837f47aed",
+      "review/head-guard-review.json": "59356c8b8f8c7f3645b2ded3d01b15f7a2e92f0eb4259a39bed61cfce652a79d",
+      "review/handoff-build-mapping-results.json": "50f3ca6eec56f007a1146344cfab15b00c9a852c2be21a4ed55d85b9cd881b97"
+    },
+    "historical_execution": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-9/execution-receipt.json",
+      "status": "FLASH_TRANSFER_REBOOT_CONTROLLER_AND_READ_ONLY_SMOKE_PASSED",
+      "accepted_source": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "qualification": "old exact bytes only"
+    },
+    "descriptor_fields": [
+      "schema=x0x37.accepted-build-map.v1",
+      "config=dev",
+      "model=elite (old implementation is Elite-only)",
+      "controller=true",
+      "accepted_commit",
+      "built_commit",
+      "build_logs",
+      "accepted_review"
+    ],
+    "adapter_checks": [
+      "Exact requested/accepted/built commit and root tree",
+      "Compiler-input scope equality: firmware, tools, ble, assets, build.sh, host, web",
+      "Pinned original receipt raw bytes from immutable Git object",
+      "Original source/config/status and numeric budgets unchanged and truthful",
+      "Original raw elite/pro/controller log length/SHA256 matches receipt",
+      "Independent source QA identity/body pinned to actual review",
+      "Exact reviewed private native updater and head-boundary test/review/log hashes",
+      "Raw package and controller lengths/hashes exact; missing files/unsupported models/configs fail closed"
+    ],
+    "current_adaptation": [
+      "Pin new built source/root and final candidate source/root; compare actual build input closure, no unrelated recompile for docs-only changes",
+      "Consume fresh task17 receipt and original raw successful build logs using their actual schema and stage; preserve BUILD_ONLY status",
+      "Bind exact new independent candidate source/package review plus separate adapted native head-boundary evidence",
+      "Pin actual plain Elite package SHA/logical SHA, exact bundled output SHA and ctl SHA/size; deterministically compose via established add_ctl and compare to checked bundled bytes",
+      "Retain verified Elite loader parser/header/CRC/attribute/entry/length/bounds checks and pin actual loader hash; if loader unchanged record equality",
+      "Adapt known_app_only_head exact logical image pin to fresh verified plain package only, then re-exercise head boundary positives/negatives against unchanged owner-local reference",
+      "Pin adapted updater/helpers/descriptor/receipt/review hashes in offline-default launcher; preserve foreground-only execution, exclusive hardware lock, exact model/sole port, fresh verified backup, no force/no-slots/ROM, post-reboot sample/controller readback",
+      "Pro requires corresponding exact Pro loader/package/head reference/model-specific adaptation before claiming native hardware readiness; Elite historical success does not qualify Pro"
+    ],
+    "state": "ADAPTATION_SPEC_PREPARED; FRESH_ARTIFACT_PATHS_PENDING; NOT_CURRENT_NATIVE_ACCEPTANCE"
+  },
+  "readme_package_claim_review": {
+    "path": "docs/scheduler-handoffs/private-combined-candidate-20261025/README.md",
+    "outcome": "PASS_PACKAGE_SCOPE",
+    "notes": "Byte hashes, size/CRC, exact controller/ELF/map, isolated installer source, scoped evidence and separate native binding gap are accurately stated. Other source-test counts belong to source reviewer."
+  }
+}

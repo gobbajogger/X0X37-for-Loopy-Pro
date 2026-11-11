@@ -1,0 +1,41 @@
+PING before editor: exactly once, ownership intact   ok
+PING between consumers: retained unchanged           FAIL
+PING next loop: exactly once, ownership intact       FAIL
+PING after services: exactly once                    ok
+CTL offset63392/count224 before editor: exactly once, ownership intact ok
+CTL offset63392/count224 between consumers: retained unchanged FAIL
+CTL offset63392/count224 next loop: exactly once, ownership intact FAIL
+CTL offset63392/count224 after services: exactly once ok
+PROJECT before editor: exactly once, ownership intact ok
+PROJECT between consumers: retained unchanged        FAIL
+PROJECT next loop: exactly once, ownership intact    FAIL
+PROJECT after services: exactly once                 ok
+SMP_WRITE before editor: exactly once, ownership intact ok
+SMP_WRITE between consumers: retained unchanged      FAIL
+SMP_WRITE next loop: exactly once, ownership intact  FAIL
+SMP_WRITE after services: exactly once               ok
+unknown editor command before editor: exactly once, ownership intact ok
+unknown editor command between consumers: retained unchanged FAIL
+unknown editor command next loop: exactly once, ownership intact FAIL
+unknown editor command after services: exactly once  ok
+late CTL after PING release remains pending          FAIL
+PING then late CTL each dispatch once                FAIL
+OTA identity routed once with exact model            ok
+late OTA identity progresses next loop               ok
+short editor prefix drains as before                 ok
+bad OTA checksum drains without reply                ok
+unknown traffic drains; subsequent identity works    ok
+project hold discards OTA without polling scratch    ok
+editor PING still dispatches under project hold      ok
+recovery hold keeps OTA blocked                      ok
+safe-mode OTA drains editor and answers next identity ok
+session consumer still drains unrelated editor frame ok
+session consumer accepts next valid OTA frame        ok
+no session/flash/reset/platform operation invoked    ok
+EDITOR/OTA DISPATCH FAILED
+Traceback (most recent call last):
+  File "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/editor-ota-independent-zeb77ofp/candidate/tests/host/editor_ota_dispatch_test.py", line 51, in <module>
+    subprocess.run([str(out / "test")], check=True)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/editor-ota-dispatch-n47hvckr/test']' returned non-zero exit status 1.
