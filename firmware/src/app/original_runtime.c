@@ -126,6 +126,7 @@ int original_runtime_all_off(original_runtime_part *p)
     return runtime_result(p, ok);
 }
 
+<<<<<<< HEAD
 int original_runtime_owned(const original_runtime_part *p)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return 0;
@@ -133,6 +134,8 @@ int original_runtime_owned(const original_runtime_part *p)
         original_chicago_backend_active(&p->dsp.chicago);
 }
 
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 int original_runtime_active(const original_runtime_part *p)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return 0;
