@@ -1,0 +1,77 @@
+/tmp/tmpy5lyvr80/elite-join.fwsc: with /tmp/f11-stage7-packages/ctl.img
+/tmp/tmpwfznzrom/pro-join.fwsc: with /tmp/f11-stage7-packages/ctl.img
+digest blank-elite size=651396 sha256=829bb6da6eb0042af0731a236d6238e50cc13581ce059ebbe02882534a94b056 MATCH
+digest blank-pro size=651392 sha256=d2186cb0f3fe74376651cb2804973c8255780532a8cd54c33d2bac09aeda60ec MATCH
+digest ctl size=65492 sha256=956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a MATCH
+digest page-elite size=651396 sha256=4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a MATCH
+digest page-pro size=651392 sha256=b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720 MATCH
+join elite blank+ctl -> 4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a MATCH page
+join pro blank+ctl -> b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720 MATCH page
+--- host backup/restore/interruption suites ---
+package slot map: the map record, else the old 2 x 80 KiB (Felucca loader), else none (stock) ok
+old X0X -> this X0X: the slots stay, no backup, no slot command but SMP_INFO ok
+explicit --backup: every slot saved and verified with zero at-risk slots ok
+explicit --backup: reads finish before the first update command  ok
+downgrade: every slot saved to --backup FILE before the install  ok
+downgrade: the backup sends SMP_INFO / SMP_READ only, and before the install ok
+downgrade: the warning names the slots at risk                   ok
+downgrade: slot 1 kept, slot 3 written back to the free slot 2, slot 2 (too large) reported ok
+moved slot: default backup file, slot 2 written back at its new offset, slot 1 kept ok
+failure mid-restore: exit 7, the backup file stays and reads back ok
+failure mid-restore: the message gives the Restore button and the x0x_slots.py command ok
+failure mid-restore: the firmware install itself completed       ok
+failure mid-restore: a later restore from the backup completes   ok
+backup fails: exit 7, nothing installed                          ok
+stock package: all slots saved, no write back, the restore steps printed ok
+--no-slots: no slot command, no backup                           ok
+answer no: warning shown, nothing saved or sent                  ok
+old package transport: no controller is selected implicitly      ok
+install slot tests passed
+PASS installer-slots
+  ok   SMP_INFO: 2 slots of 80 KiB
+  ok   backup sends only SMP_INFO and SMP_READ (read-only)
+  ok   backup leaves the flash unchanged
+  ok   backup images: slot 1 exact, slot 2 empty
+  ok   archive header: count, sizes, names, rates, samples, CRC
+  ok   archive round trip
+  ok   a damaged archive is refused
+  ok   restore: slot 1 rewritten, slot 2 erased
+  ok   restore: SMP_INFO after restore lists the archive's zones
+  ok   restore uses SMP_ERASE / SMP_BEGIN, SMP_WRITE, SMP_END
+  ok   restore --slots 2 only
+  ok   3 x 120 KiB layout: backup, 100 KB in one slot, lost frames retried
+  ok   3 x 120 KiB layout: restore, verified
+  ok   3-slot archive on 2 slots: slot 3 skipped
+  ok   an image larger than the slot is skipped
+1 slot image(s) in /workspace/build/host/x0x_slots_extract
+  ok   extract: slot1.hdr / .bin equal the uploaded header and data
+x0x slots: all ok
+PASS slot-backup
+model: pre-repair plan treats probe failure as None (silent skip)        ok
+slot_probe: timeout raises                                               ok
+plan_slots: probe failure raises (fail closed)                           ok
+plan_slots: successful empty layout -> None (no backup)                  ok
+run: probe failure -> exit 7, no install write                           ok
+run: --no-slots skips the probe and still installs                       ok
+run: successful empty layout installs without --no-slots                 ok
+run: --backup with probe failure -> exit 7, nothing written              ok
+f03 slot probe tests passed
+PASS installer-f03-probe
+--- candidate blank+ctl identity / slot map ---
+PASS pro blank load+slotmap+ctl (d2186cb0f3fe…)
+PASS elite blank load+slotmap+ctl (829bb6da6eb0…)
+--- candidate blank+ctl backup+install and mid-restore interrupt ---
+PASS pro backup-restore-readback page=b35d587557d9… backup_bytes=25595 ctl_reads=293
+PASS pro interruption-recovery fail-closed page=b35d587557d9… exit=7
+PASS elite backup-restore-readback page=4841110a274e… backup_bytes=25595 ctl_reads=293
+PASS elite interruption-recovery fail-closed page=4841110a274e… exit=7
+--- ota-target-binding (blank + page package product identity) ---
+PASS pro ota-target-binding blank+page product=SMK-37 Pro_900 page=b35d587557d9…
+PASS elite ota-target-binding blank+page product=SMK-37 Elite_900 page=4841110a274e…
+ALL_PASS
+source_commit 4f96b0d9f5f11f700ea3fc935800b8714e11f35d
+page_elite 4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a
+page_pro b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720
+blank_elite 829bb6da6eb0042af0731a236d6238e50cc13581ce059ebbe02882534a94b056
+blank_pro d2186cb0f3fe74376651cb2804973c8255780532a8cd54c33d2bac09aeda60ec
+ctl 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a

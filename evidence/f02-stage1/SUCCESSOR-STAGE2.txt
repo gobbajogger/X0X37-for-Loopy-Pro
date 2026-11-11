@@ -1,0 +1,27 @@
+You are the new stage-2 implementation thread in the X0X37 full-cycle loop. Do not resume the stage-1 thread bc-93d068c9-df43-525d-b826-6e57a67efb90 or any earlier F02 audit thread.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Audited SHA: 13d32e1dee37b6fb5a1e339aff499a75eecb97b5
+Start from the remote tip of cursor/f02-stage1-fb90 that contains evidence/f02-stage1/SUCCESSOR-STAGE2.txt and evidence/f02-stage1/AUDIT.md. That tip is the pushed audit. The source under audit is 13d32e1. Do not switch to an older nightly commit.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f02-stage1/HANDOFF.md and AUDIT.md. You are stage 2 only.
+
+Approved repair: F02 only. After the installer commands the selected keyboard into its update loader, the next search must not attach to a different keyboard. Do this in tools/fm1_install.py and web/fm1ota.js, and in the callers that reuse that unbound wait (web/x0x_breaks.js installKeepingSlots, and the loader scans in web/x0x_installer.html and web/index_pkg.html only where they continue a transition already started).
+
+Required behavior: snapshot loader ports before the transition; accept exactly one newly appeared loader; otherwise fail closed and do not write. Use the same rule for the post-write wait that finds the restarted keyboard, including the slot-restore wait. Do not change the initial "first running keyboard" scan into a device picker. Do not import the unmerged data-safety identity lanes.
+
+Add a regression that fails on the current first-match behavior and passes after the repair, for both the native wait_for path and the web waitFor path. The model must not open real MIDI and must not write a device. Run the existing installer checks affected by this diff.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Use the development configuration X0X_DEV_PADCAL=1 if any firmware build is required. This repair should not change firmware, the controller, or package bytes. Branch from the pushed audit tip as cursor/<slug>-stage2-fb90 (required prefix cursor/ and suffix -fb90). Commit the checked repair. No force-push. No GitHub Actions as tests.
+
+Do not implement F03, BF-001, BF-002, BF-003, the withheld asset cache, or any other deferred item. Record anything you defer.
+
+Leave production main and production GitHub Pages unchanged. Do not flash a device. Stage 6 install stays off this thread. Do not use a local helper as the successor.
+
+When the checked commits are on the remote, hand off before you stop. Push the successor prompt first. Create exactly one owner-visible stage-3 Cloud Agent with POST https://api.cursor.com/v1/agents, using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Then stop. Do not wait for the next agent to finish.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 2. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you.
+
+Completion condition: checked F02 commits on the remote stage-2 branch, deferred items recorded if any, and one owner-visible stage-3 successor id pushed on the handoff.

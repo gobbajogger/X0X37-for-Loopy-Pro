@@ -1,0 +1,139 @@
+{
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "base": "cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21",
+  "candidate": "1249cc0f07ee405a7c6f847438046b83bedf8498",
+  "profile": "source-extracted transport and five exact-Git-blob host fixtures; not complete current checkout",
+  "environment": "Linux x86_64",
+  "scoped_tests": {
+    "gcc_fifo": {
+      "assertions": 1320,
+      "failures": 0,
+      "exit": 0,
+      "log_sha256": "76b613a27dfea2ee6114e28052cd77bf3cc5d56d6e2827e80893cb0749b9ae57"
+    },
+    "clang_asan_ubsan_fifo": {
+      "assertions": 1320,
+      "failures": 0,
+      "exit": 0,
+      "log_sha256": "dad34d628adae286cb0e2eb8b76bc5ee4b85940d43cc31556033b1acdc20b3e8"
+    },
+    "five_python_overflow": {
+      "passed": 5,
+      "failed": 0,
+      "exit": 0,
+      "tests": [
+        "ble_out_noteoff_overflow_test.py",
+        "ble_out_rt_overflow_test.py",
+        "midi_mq_noteoff_overflow_test.py",
+        "midi_mq_rt_overflow_test.py",
+        "midi_out_mq_noteoff_overflow_test.py"
+      ]
+    }
+  },
+  "sdk_input_subset": {
+    "pinned_v1_2_1_files_verified": 11,
+    "total": 11,
+    "status": "PASS"
+  },
+  "vendor_toolchain": {
+    "clang_version": "4.0.1",
+    "status": "AVAILABLE"
+  },
+  "full_host_exact_candidate": "NOT_RUN: complete source tree unavailable",
+  "elite_exact_candidate": "NOT_RUN: complete source tree unavailable",
+  "pro_exact_candidate": "NOT_RUN: complete source tree unavailable",
+  "historical_incomplete_archive": {
+    "source": "f550-SMC-source-closure.zip + source-at-7537a46.tar assets",
+    "original_synth_source_files": 0,
+    "elite_dev": {
+      "exit": 1,
+      "missing": "experiments/wobble/wobble.c, wobble.h"
+    },
+    "pro_dev": {
+      "exit": 1,
+      "missing": "experiments/wobble/wobble.c, wobble.h"
+    },
+    "full_host": {
+      "status": "INCOMPLETE; 90-second process limit, final output absent",
+      "partial_results": 139,
+      "failed_test_markers": 58
+    }
+  },
+  "excluded": [
+    "SDK files",
+    "private headers",
+    "compiled firmware binaries",
+    "controller images"
+  ],
+  "disposition": "DRAFT: do not merge or publish; full current-head tests and both native builds still require exact source closure",
+  "latest_takeover_20261030": {
+    "assessed_head": "92ec7f62b7cb1c020dd49542d845491755d7e281",
+    "base": "cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21",
+    "source_profile": "GitHub-verified complete USB file and matching BLE/platform function bodies, not an authenticated complete current-head checkout",
+    "midi_source_extracted": {
+      "gcc": {
+        "checks": 205971,
+        "failures": 0,
+        "exit": 0,
+        "log_sha256": "d19f40facfb71940ca1d4adb88075d8a5dca5623cf633284b9fee7f808e2b161"
+      },
+      "clang_ubsan": {
+        "checks": 205971,
+        "failures": 0,
+        "exit": 0,
+        "log_sha256": "d19f40facfb71940ca1d4adb88075d8a5dca5623cf633284b9fee7f808e2b161"
+      },
+      "base_gcc": {
+        "checks": 193267,
+        "failures": 139090,
+        "exit": 1,
+        "log_sha256": "cfcf16242b3941e8e467e76fc535b24e65f7660a3fbf500df21073dac2acbaaf"
+      },
+      "note": "Checks cover FIFO retention, note/transport ordering, uint32 rollover, and simulated TIMER5 boundaries. Counts differ because BLE queue capacity changes from 56 to 64."
+    },
+    "scoped_exact_blob_python_tests": {
+      "passed": 5,
+      "failed": 0,
+      "all_exit_zero": true
+    },
+    "sdk_v1_2_1": {
+      "verified_inputs": 11,
+      "total_inputs": 11,
+      "verifier_exit": 0,
+      "log_sha256": "acca17584d226851f7f8b4e90e5988569ffb023781641f505d79edf609b2cabe"
+    },
+    "historical_full_host": {
+      "source_commit": "a7082231e4b134c24384bc159864a813b93a17ea",
+      "pass": 236,
+      "fail": 77,
+      "not_run": 5,
+      "skip": 1,
+      "exit": 1,
+      "log_sha256": "5c78b96602b80ca1b611e4209855a1648b63a8f0e303df6862cac17641b722fc",
+      "current_pr_or_base": false
+    },
+    "pinned_sdk_v1_2_1_mixed_source_builds": {
+      "source_profile": "Recovered historical runtime with exact PR-head MIDI transport code; not current PR HEAD, not installable",
+      "elite": {
+        "exit": 0,
+        "app_bytes": 365204,
+        "package_bytes": 651496,
+        "package_sha256": "cee5ca53c23950c79cb2d8a6beb50a886b8bc14b94bd5ac9422015f96f326c0c",
+        "log_sha256": "88263cc3d873df78c1747383c66970cec4b73ed3fe044338adfccc2b7fefc52e"
+      },
+      "pro": {
+        "exit": 0,
+        "app_bytes": 365204,
+        "package_bytes": 651497,
+        "package_sha256": "ebfd79c84c5935e32afde5042731e4d0e7e95db9e9ed86416f543b1f41f2e604",
+        "log_sha256": "3073460e5a5da3e180e308a1702cc3c89f3891f158e47bc8bccf9a5895931dfb"
+      },
+      "flash_ram_pool_checks": "PASS on mixed historical source only"
+    },
+    "current_head_full_host": "NOT_RUN: GitHub API tree metadata present; byte-exact 4588-entry tree not materialized",
+    "current_base_full_host": "NOT_RUN: byte-exact current base tree not materialized",
+    "current_head_elite": "NOT_RUN: full current HEAD checkout not available",
+    "current_head_pro": "NOT_RUN: full current HEAD checkout not available",
+    "disposition": "DRAFT. No new failure isolated to MIDI queue change; keep current PR and do not merge, distribute binaries, or install."
+  }
+}

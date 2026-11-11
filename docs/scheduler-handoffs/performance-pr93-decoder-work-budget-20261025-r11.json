@@ -1,0 +1,626 @@
+{
+  "accepted_nightly_baseline_head": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "accepted_nightly_baseline_root_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+  "baseline_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+  "checks": [
+    {
+      "compile_exits": [
+        0,
+        0
+      ],
+      "compiler": "gcc",
+      "compiles": 2,
+      "configuration": "optimized",
+      "full_binary_PCM_trace": {
+        "sha256": "74ce8b7b436275142a998f4a911340f4157168728448371c1daf722168fee7c1",
+        "size": 1474560
+      },
+      "matched_pair_cases": 60,
+      "render_runs": 2,
+      "run_exits": [
+        0,
+        0
+      ]
+    },
+    {
+      "compile_exits": [
+        0,
+        0
+      ],
+      "compiler": "clang",
+      "compiles": 2,
+      "configuration": "optimized",
+      "full_binary_PCM_trace": {
+        "sha256": "74ce8b7b436275142a998f4a911340f4157168728448371c1daf722168fee7c1",
+        "size": 1474560
+      },
+      "matched_pair_cases": 60,
+      "render_runs": 2,
+      "run_exits": [
+        0,
+        0
+      ]
+    },
+    {
+      "compile_exits": [
+        0,
+        0
+      ],
+      "compiler": "gcc",
+      "compiles": 2,
+      "configuration": "ASan_UBSan",
+      "full_binary_PCM_trace": {
+        "sha256": "74ce8b7b436275142a998f4a911340f4157168728448371c1daf722168fee7c1",
+        "size": 1474560
+      },
+      "matched_pair_cases": 60,
+      "render_runs": 2,
+      "run_exits": [
+        0,
+        0
+      ]
+    },
+    {
+      "compile_exits": [
+        0,
+        0
+      ],
+      "compiler": "clang",
+      "compiles": 2,
+      "configuration": "ASan_UBSan",
+      "full_binary_PCM_trace": {
+        "sha256": "74ce8b7b436275142a998f4a911340f4157168728448371c1daf722168fee7c1",
+        "size": 1474560
+      },
+      "matched_pair_cases": 60,
+      "render_runs": 2,
+      "run_exits": [
+        0,
+        0
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "baseline_decode_calls": 12378,
+      "baseline_max_per_64_frames": 130,
+      "baseline_p99_per_64_frames": 88,
+      "candidate_decode_calls": 12378,
+      "candidate_max_per_64_frames": 130,
+      "candidate_p99_per_64_frames": 88,
+      "direction": "F",
+      "n": 65535,
+      "rate": 1,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 49506,
+      "baseline_max_per_64_frames": 514,
+      "baseline_p99_per_64_frames": 352,
+      "candidate_decode_calls": 49506,
+      "candidate_max_per_64_frames": 514,
+      "candidate_p99_per_64_frames": 352,
+      "direction": "F",
+      "n": 65535,
+      "rate": 4,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 198018,
+      "baseline_max_per_64_frames": 2050,
+      "baseline_p99_per_64_frames": 1408,
+      "candidate_decode_calls": 198018,
+      "candidate_max_per_64_frames": 2050,
+      "candidate_p99_per_64_frames": 1408,
+      "direction": "F",
+      "n": 65535,
+      "rate": 16,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 792066,
+      "baseline_max_per_64_frames": 8194,
+      "baseline_p99_per_64_frames": 5632,
+      "candidate_decode_calls": 792066,
+      "candidate_max_per_64_frames": 8194,
+      "candidate_p99_per_64_frames": 5632,
+      "direction": "F",
+      "n": 65535,
+      "rate": 64,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 3168258,
+      "baseline_max_per_64_frames": 32770,
+      "baseline_p99_per_64_frames": 22528,
+      "candidate_decode_calls": 3168258,
+      "candidate_max_per_64_frames": 32770,
+      "candidate_p99_per_64_frames": 22528,
+      "direction": "F",
+      "n": 65535,
+      "rate": 256,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 12544,
+      "baseline_max_per_64_frames": 512,
+      "baseline_p99_per_64_frames": 512,
+      "candidate_decode_calls": 12544,
+      "candidate_max_per_64_frames": 512,
+      "candidate_p99_per_64_frames": 512,
+      "direction": "R",
+      "n": 65535,
+      "rate": 1,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 49407,
+      "baseline_max_per_64_frames": 512,
+      "baseline_p99_per_64_frames": 512,
+      "candidate_decode_calls": 49407,
+      "candidate_max_per_64_frames": 512,
+      "candidate_p99_per_64_frames": 512,
+      "direction": "R",
+      "n": 65535,
+      "rate": 4,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 197882,
+      "baseline_max_per_64_frames": 2298,
+      "baseline_p99_per_64_frames": 1024,
+      "candidate_decode_calls": 197882,
+      "candidate_max_per_64_frames": 2298,
+      "candidate_p99_per_64_frames": 1024,
+      "direction": "R",
+      "n": 65535,
+      "rate": 16,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 792296,
+      "baseline_max_per_64_frames": 8424,
+      "baseline_p99_per_64_frames": 5632,
+      "candidate_decode_calls": 792296,
+      "candidate_max_per_64_frames": 8424,
+      "candidate_p99_per_64_frames": 5632,
+      "direction": "R",
+      "n": 65535,
+      "rate": 64,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 3168416,
+      "baseline_max_per_64_frames": 32928,
+      "baseline_p99_per_64_frames": 22528,
+      "candidate_decode_calls": 3168416,
+      "candidate_max_per_64_frames": 32928,
+      "candidate_p99_per_64_frames": 22528,
+      "direction": "R",
+      "n": 65535,
+      "rate": 256,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 12378,
+      "baseline_max_per_64_frames": 130,
+      "baseline_p99_per_64_frames": 88,
+      "candidate_decode_calls": 12378,
+      "candidate_max_per_64_frames": 130,
+      "candidate_p99_per_64_frames": 88,
+      "direction": "F",
+      "n": 176400,
+      "rate": 1,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 49506,
+      "baseline_max_per_64_frames": 514,
+      "baseline_p99_per_64_frames": 352,
+      "candidate_decode_calls": 49506,
+      "candidate_max_per_64_frames": 514,
+      "candidate_p99_per_64_frames": 352,
+      "direction": "F",
+      "n": 176400,
+      "rate": 4,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 198018,
+      "baseline_max_per_64_frames": 2050,
+      "baseline_p99_per_64_frames": 1408,
+      "candidate_decode_calls": 198018,
+      "candidate_max_per_64_frames": 2050,
+      "candidate_p99_per_64_frames": 1408,
+      "direction": "F",
+      "n": 176400,
+      "rate": 16,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 792066,
+      "baseline_max_per_64_frames": 8194,
+      "baseline_p99_per_64_frames": 5632,
+      "candidate_decode_calls": 792066,
+      "candidate_max_per_64_frames": 8194,
+      "candidate_p99_per_64_frames": 5632,
+      "direction": "F",
+      "n": 176400,
+      "rate": 64,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 3168258,
+      "baseline_max_per_64_frames": 32770,
+      "baseline_p99_per_64_frames": 22528,
+      "candidate_decode_calls": 3168258,
+      "candidate_max_per_64_frames": 32770,
+      "candidate_p99_per_64_frames": 22528,
+      "direction": "F",
+      "n": 176400,
+      "rate": 256,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 12835,
+      "baseline_max_per_64_frames": 611,
+      "baseline_p99_per_64_frames": 512,
+      "candidate_decode_calls": 12835,
+      "candidate_max_per_64_frames": 611,
+      "candidate_p99_per_64_frames": 512,
+      "direction": "R",
+      "n": 176400,
+      "rate": 1,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 50211,
+      "baseline_max_per_64_frames": 1024,
+      "baseline_p99_per_64_frames": 512,
+      "candidate_decode_calls": 50211,
+      "candidate_max_per_64_frames": 1024,
+      "candidate_p99_per_64_frames": 512,
+      "direction": "R",
+      "n": 176400,
+      "rate": 4,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 201319,
+      "baseline_max_per_64_frames": 2151,
+      "baseline_p99_per_64_frames": 1536,
+      "candidate_decode_calls": 201319,
+      "candidate_max_per_64_frames": 2151,
+      "candidate_p99_per_64_frames": 1536,
+      "direction": "R",
+      "n": 176400,
+      "rate": 16,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 805171,
+      "baseline_max_per_64_frames": 9011,
+      "baseline_p99_per_64_frames": 5632,
+      "candidate_decode_calls": 805171,
+      "candidate_max_per_64_frames": 9011,
+      "candidate_p99_per_64_frames": 5632,
+      "direction": "R",
+      "n": 176400,
+      "rate": 64,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 3220169,
+      "baseline_max_per_64_frames": 33481,
+      "baseline_p99_per_64_frames": 22528,
+      "candidate_decode_calls": 3220169,
+      "candidate_max_per_64_frames": 33481,
+      "candidate_p99_per_64_frames": 22528,
+      "direction": "R",
+      "n": 176400,
+      "rate": 256,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 12378,
+      "baseline_max_per_64_frames": 130,
+      "baseline_p99_per_64_frames": 88,
+      "candidate_decode_calls": 12378,
+      "candidate_max_per_64_frames": 130,
+      "candidate_p99_per_64_frames": 88,
+      "direction": "F",
+      "n": 2116800,
+      "rate": 1,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 49506,
+      "baseline_max_per_64_frames": 514,
+      "baseline_p99_per_64_frames": 352,
+      "candidate_decode_calls": 49506,
+      "candidate_max_per_64_frames": 514,
+      "candidate_p99_per_64_frames": 352,
+      "direction": "F",
+      "n": 2116800,
+      "rate": 4,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 198018,
+      "baseline_max_per_64_frames": 2050,
+      "baseline_p99_per_64_frames": 1408,
+      "candidate_decode_calls": 198018,
+      "candidate_max_per_64_frames": 2050,
+      "candidate_p99_per_64_frames": 1408,
+      "direction": "F",
+      "n": 2116800,
+      "rate": 16,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 792066,
+      "baseline_max_per_64_frames": 8194,
+      "baseline_p99_per_64_frames": 5632,
+      "candidate_decode_calls": 792066,
+      "candidate_max_per_64_frames": 8194,
+      "candidate_p99_per_64_frames": 5632,
+      "direction": "F",
+      "n": 2116800,
+      "rate": 64,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 3168258,
+      "baseline_max_per_64_frames": 32770,
+      "baseline_p99_per_64_frames": 22528,
+      "candidate_decode_calls": 3168258,
+      "candidate_max_per_64_frames": 32770,
+      "candidate_p99_per_64_frames": 22528,
+      "direction": "F",
+      "n": 2116800,
+      "rate": 256,
+      "saved_percent": 0.0
+    },
+    {
+      "baseline_decode_calls": 87961,
+      "baseline_max_per_64_frames": 8192,
+      "baseline_p99_per_64_frames": 7680,
+      "candidate_decode_calls": 54169,
+      "candidate_max_per_64_frames": 8192,
+      "candidate_p99_per_64_frames": 7641,
+      "direction": "R",
+      "n": 2116800,
+      "rate": 1,
+      "saved_percent": 38.417
+    },
+    {
+      "baseline_decode_calls": 332185,
+      "baseline_max_per_64_frames": 8192,
+      "baseline_p99_per_64_frames": 8192,
+      "candidate_decode_calls": 201113,
+      "candidate_max_per_64_frames": 8192,
+      "candidate_p99_per_64_frames": 8192,
+      "direction": "R",
+      "n": 2116800,
+      "rate": 4,
+      "saved_percent": 39.4575
+    },
+    {
+      "baseline_decode_calls": 1308569,
+      "baseline_max_per_64_frames": 15872,
+      "baseline_p99_per_64_frames": 15872,
+      "candidate_decode_calls": 789401,
+      "candidate_max_per_64_frames": 8704,
+      "candidate_p99_per_64_frames": 8704,
+      "direction": "R",
+      "n": 2116800,
+      "rate": 16,
+      "saved_percent": 39.6745
+    },
+    {
+      "baseline_decode_calls": 5254041,
+      "baseline_max_per_64_frames": 47104,
+      "baseline_p99_per_64_frames": 47104,
+      "candidate_decode_calls": 3175321,
+      "candidate_max_per_64_frames": 28672,
+      "candidate_p99_per_64_frames": 28672,
+      "direction": "R",
+      "n": 2116800,
+      "rate": 64,
+      "saved_percent": 39.5642
+    },
+    {
+      "baseline_decode_calls": 20934857,
+      "baseline_max_per_64_frames": 151753,
+      "baseline_p99_per_64_frames": 139264,
+      "candidate_decode_calls": 12649673,
+      "candidate_max_per_64_frames": 100553,
+      "candidate_p99_per_64_frames": 81920,
+      "direction": "R",
+      "n": 2116800,
+      "rate": 256,
+      "saved_percent": 39.576
+    }
+  ],
+  "consumed_pr_head": "947e5bba8fb42f13ea72aedee94276cde40e3acc",
+  "consumed_root_tree": "3891fef6e75a9690d5802c2fd5569fa66d837081",
+  "device_verdict": "NOT_TESTED",
+  "end_user_goal": "Avoid reverse-break audio crackle at cache boundaries while preserving precise output, live NoteOff, stop silence and avoiding unproved MCU-real-time speed claims.",
+  "evidence_revision": "performance-pr93-deterministic-decode-work-20261025-r11",
+  "files_sha256": {
+    "tests/host/breaks_decoder_work_audit.c": "728e3d4312d16b24b66527ba135544a431441f6641a6b512cac4d44d427c8bec",
+    "tests/host/run_breaks_decoder_work_audit.py": "c235741072d4a005784e877765ddc2e35b00ee0a8b1ab7ced9d576c7d27ebe21"
+  },
+  "independent_qa": "PENDING",
+  "limitations": [
+    "x86-64 instrumented host workload only",
+    "bounded six-source Git blob projection, not complete native Git checkout",
+    "volatile counter adds overhead and counts but does not measure MCU CPU cycles",
+    "extreme 256x rate is adversarial and not a measured owner workload",
+    "no changed firmware source, no newly compiled Elite/Pro",
+    "no device ISR/XRUN measurement"
+  ],
+  "model_builds_executed_this_run": {
+    "controller": false,
+    "elite": false,
+    "pro": false
+  },
+  "negative_checks": {
+    "altered_FNV_pcm_rejected": true,
+    "altered_raw_PCM_sha256_rejected": true,
+    "existing_output_path_exit": 2,
+    "live_NoteOff_and_reverse_release_stimulated": true,
+    "same_source_root_exit": 2,
+    "stop_silence_pass": true,
+    "unsupported_C_selector_exit": 2,
+    "unsupported_runner_selector_exit": 2
+  },
+  "next_action": "review PR93 exact new head, reproduce deterministic count tests with complete real root and validate NoteOff/phase under actual MCU, distinguish host decoder work from ISR deadlines",
+  "next_consumer": "existing Independent QA",
+  "prior_scoped_build_only_pool_bytes_free": 8308,
+  "private_logs_sha256": [
+    {
+      "bytes": 0,
+      "file": "r11_optimized_trace/clang-baseline-nightly-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 62,
+      "file": "r11_optimized_trace/clang-baseline-nightly-invalid.log",
+      "sha256": "5b3ef380d2b2a0b18dc6c0a7694bf01ce306055419b21e5e7e1c4a1fbd441ddb"
+    },
+    {
+      "bytes": 7893,
+      "file": "r11_optimized_trace/clang-baseline-nightly-run.log",
+      "sha256": "61fe8c1ac23836616e197a29793365080e64a223e32557ae73dd2c996af3372d"
+    },
+    {
+      "bytes": 0,
+      "file": "r11_optimized_trace/clang-candidate-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 62,
+      "file": "r11_optimized_trace/clang-candidate-invalid.log",
+      "sha256": "5b3ef380d2b2a0b18dc6c0a7694bf01ce306055419b21e5e7e1c4a1fbd441ddb"
+    },
+    {
+      "bytes": 7878,
+      "file": "r11_optimized_trace/clang-candidate-run.log",
+      "sha256": "d60c6539abea4f261848f685a37938d035740fbade9b57b2626a68b5a39bf2c2"
+    },
+    {
+      "bytes": 0,
+      "file": "r11_optimized_trace/gcc-baseline-nightly-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 62,
+      "file": "r11_optimized_trace/gcc-baseline-nightly-invalid.log",
+      "sha256": "5b3ef380d2b2a0b18dc6c0a7694bf01ce306055419b21e5e7e1c4a1fbd441ddb"
+    },
+    {
+      "bytes": 7893,
+      "file": "r11_optimized_trace/gcc-baseline-nightly-run.log",
+      "sha256": "61fe8c1ac23836616e197a29793365080e64a223e32557ae73dd2c996af3372d"
+    },
+    {
+      "bytes": 0,
+      "file": "r11_optimized_trace/gcc-candidate-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 62,
+      "file": "r11_optimized_trace/gcc-candidate-invalid.log",
+      "sha256": "5b3ef380d2b2a0b18dc6c0a7694bf01ce306055419b21e5e7e1c4a1fbd441ddb"
+    },
+    {
+      "bytes": 7878,
+      "file": "r11_optimized_trace/gcc-candidate-run.log",
+      "sha256": "d60c6539abea4f261848f685a37938d035740fbade9b57b2626a68b5a39bf2c2"
+    },
+    {
+      "bytes": 29185,
+      "file": "r11_optimized_trace/result.json",
+      "sha256": "845e39e8450be68bdf0d07e99b8b7e9f07eecbd579515353e227e7826df23d06"
+    },
+    {
+      "bytes": 0,
+      "file": "r11_sanitizer_trace/clang-baseline-nightly-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 62,
+      "file": "r11_sanitizer_trace/clang-baseline-nightly-invalid.log",
+      "sha256": "5b3ef380d2b2a0b18dc6c0a7694bf01ce306055419b21e5e7e1c4a1fbd441ddb"
+    },
+    {
+      "bytes": 7893,
+      "file": "r11_sanitizer_trace/clang-baseline-nightly-run.log",
+      "sha256": "61fe8c1ac23836616e197a29793365080e64a223e32557ae73dd2c996af3372d"
+    },
+    {
+      "bytes": 0,
+      "file": "r11_sanitizer_trace/clang-candidate-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 62,
+      "file": "r11_sanitizer_trace/clang-candidate-invalid.log",
+      "sha256": "5b3ef380d2b2a0b18dc6c0a7694bf01ce306055419b21e5e7e1c4a1fbd441ddb"
+    },
+    {
+      "bytes": 7878,
+      "file": "r11_sanitizer_trace/clang-candidate-run.log",
+      "sha256": "d60c6539abea4f261848f685a37938d035740fbade9b57b2626a68b5a39bf2c2"
+    },
+    {
+      "bytes": 0,
+      "file": "r11_sanitizer_trace/gcc-baseline-nightly-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 62,
+      "file": "r11_sanitizer_trace/gcc-baseline-nightly-invalid.log",
+      "sha256": "5b3ef380d2b2a0b18dc6c0a7694bf01ce306055419b21e5e7e1c4a1fbd441ddb"
+    },
+    {
+      "bytes": 7893,
+      "file": "r11_sanitizer_trace/gcc-baseline-nightly-run.log",
+      "sha256": "61fe8c1ac23836616e197a29793365080e64a223e32557ae73dd2c996af3372d"
+    },
+    {
+      "bytes": 0,
+      "file": "r11_sanitizer_trace/gcc-candidate-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 62,
+      "file": "r11_sanitizer_trace/gcc-candidate-invalid.log",
+      "sha256": "5b3ef380d2b2a0b18dc6c0a7694bf01ce306055419b21e5e7e1c4a1fbd441ddb"
+    },
+    {
+      "bytes": 7878,
+      "file": "r11_sanitizer_trace/gcc-candidate-run.log",
+      "sha256": "d60c6539abea4f261848f685a37938d035740fbade9b57b2626a68b5a39bf2c2"
+    },
+    {
+      "bytes": 29540,
+      "file": "r11_sanitizer_trace/result.json",
+      "sha256": "6b2043dbbd734c1095eed003a2421a1d2f798222308150ecb71f973f40083a71"
+    }
+  ],
+  "production_binary_publication": false,
+  "qualification_stop_condition": "independent exact-head affected-source acceptance or a specifically reproduced regression returned to Performance Engineering",
+  "raw_trace": {
+    "sha256": "74ce8b7b436275142a998f4a911340f4157168728448371c1daf722168fee7c1",
+    "size": 1474560
+  },
+  "record_type": "producer_native_host_test_only",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "required_pool_reserve_bytes": 8192,
+  "scope": "deterministic native per-64-frame IMA decoder work; temporary function-entry instrumentation of exact Git-matched sources, no firmware code changes",
+  "target_verdict": "NOT_RUN_UNCHANGED_COMPILER_INPUTS",
+  "unchanged_firmware_subtree": "a87a83e15116422eed84528d95f52ddef5029927"
+}

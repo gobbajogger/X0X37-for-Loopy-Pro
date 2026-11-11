@@ -1,0 +1,17 @@
+{
+  "compiler": "/Users/mac/.jieli/toolchain/pi32v2/bin/clang",
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "sdk": "/Users/mac/fw-AC79_AIoT_SDK",
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_status_porcelain": "",
+  "stage2_builds": {
+    "configuration": "DEV X0X_DEV_PADCAL=1",
+    "elite": "evidence/smc-stage2/build-elite-knobs-dev.log",
+    "pro": "evidence/smc-stage2/build-pro-knobs-dev.log",
+    "code_headroom_elite": 2104,
+    "code_headroom_pro": 2120,
+    "ram_headroom": 524,
+    "pool_headroom": 8364,
+    "disposition": "Matching preliminary stage2 source-build evidence; stage4 still owns exact committed artifacts and packages."
+  }
+}

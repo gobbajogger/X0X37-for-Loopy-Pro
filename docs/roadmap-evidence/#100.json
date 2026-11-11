@@ -1,0 +1,66 @@
+{
+  "row_id": "#100",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:224; /workspace/docs-audit/roadmap-status.md:141; out/docs/roadmap-evidence/#100.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#100 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#100 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:141 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:224",
+      "/workspace/docs-audit/roadmap-status.md:141",
+      "out/docs/roadmap-evidence/#100.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "offline-sequencer"
+    ],
+    "evidence": "web/offline-sequencer/model.test.mjs:13: test('atomic move/resize collisions, finitebounds, stale plan and oneUndo preserve otherparts',()=>{const s=new DraftStore();s.edit(d=>putNote(d,0,0,{start:2,pitch:60,slots:3,velocity:95}));s.edit(d=>putNote(d,0,0,{start:8,pitch:65,slots:2,velocity:90}));const before=copy(s.doc),other=copy(s.doc.patterns[0].bass[1]),rev=s.revision;assert.throws(()=>s.edit(d=>putNote(d,0,0,{start:7,pitch:64,slots:3,velocity:100},2)),/overlap/);assert.deepEqual(s.doc,before);assert.equal(s.revision,rev);assert.throws(()=>s.edit(d=>durationEdit(d,0,0,2,8,0)),/overlap/);s.edit(d=>putNote(d,0,0,{start:3,pitch:62,slots:4,velocity:110},2));assert.deepEqual(s.doc.patterns[0].bass[1],other);assert.equal(notesOf(getPart(s.doc,0,0))[0].slots,4);s.undo();assert.deepEqual(s.doc,before);const plan=noteEditPlan(s,0,0,{start:20,pitch:70,slots:1,velocity:100});s.edit(d=>d.patterns[1].bass[1].length=32);assert.throws(()=>applyPlan(s,plan),/changed/);assert.throws(()=>putNote(copy(s.doc),0,0,{start:63,pitch:60,slots:2,velocity:100}),/bounds/);});",
+    "identifiers": [
+      {
+        "identifier": "undo",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:224"
+      },
+      {
+        "identifier": "redo",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:224"
+      }
+    ],
+    "matches": [
+      {
+        "test": "offline-sequencer",
+        "symbol_from_row": "undo",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:224",
+        "file": "web/offline-sequencer/model.test.mjs",
+        "line": 13,
+        "quote": "test('atomic move/resize collisions, finitebounds, stale plan and oneUndo preserve otherparts',()=>{const s=new DraftStore();s.edit(d=>putNote(d,0,0,{start:2,pitch:60,slots:3,velocity:95}));s.edit(d=>putNote(d,0,0,{start:8,pitch:65,slots:2,velocity:90}));const before=copy(s.doc),other=copy(s.doc.patterns[0].bass[1]),rev=s.revision;assert.throws(()=>s.edit(d=>putNote(d,0,0,{start:7,pitch:64,slots:3,velocity:100},2)),/overlap/);assert.deepEqual(s.doc,before);assert.equal(s.revision,rev);assert.throws(()=>s.edit(d=>durationEdit(d,0,0,2,8,0)),/overlap/);s.edit(d=>putNote(d,0,0,{start:3,pitch:62,slots:4,velocity:110},2));assert.deepEqual(s.doc.patterns[0].bass[1],other);assert.equal(notesOf(getPart(s.doc,0,0))[0].slots,4);s.undo();assert.deepEqual(s.doc,before);const plan=noteEditPlan(s,0,0,{start:20,pitch:70,slots:1,velocity:100});s.edit(d=>d.patterns[1].bass[1].length=32);assert.throws(()=>applyPlan(s,plan),/changed/);assert.throws(()=>putNote(copy(s.doc),0,0,{start:63,pitch:60,slots:2,velocity:100}),/bounds/);});",
+        "identifier": "undo"
+      }
+    ],
+    "recorded_results": {
+      "offline-sequencer": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "web/offline-sequencer/editor.js",
+      "web/offline-sequencer/model.js"
+    ],
+    "firmware_references": []
+  }
+}

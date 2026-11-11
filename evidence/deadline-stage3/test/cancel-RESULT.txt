@@ -1,0 +1,14 @@
+The complete candidate requires a source repair.
+
+An independent public API sequence confirms the Cancel refusal defect.
+Successful Create Command Status leaves CONNECTING with waiting 0.
+If the transport refuses Cancel, blec_stop changes the host to OFF.
+A later successful connection event loses its handle. The host submits no Disconnect.
+Both legacy and full-length enhanced events reproduce this failure with ASan and UBSan.
+The accepted-Cancel controls pass. No sanitizer failure occurred.
+The previous public tests still pass. Their cancel cases assume Cancel acceptance.
+No production source changed.
+
+Physical result: NOT TESTED.
+Original input failure: UNRESOLVED.
+A fresh stage2 and stage3 are required before stage4.

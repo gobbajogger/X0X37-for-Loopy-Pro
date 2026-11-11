@@ -1,0 +1,74 @@
+{
+  "row_id": "PR-791",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:251; /workspace/docs-audit/roadmap-status.md:168; out/docs/roadmap-evidence/PR-791.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=PR-791 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=PR-791 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:168 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:251",
+      "/workspace/docs-audit/roadmap-status.md:168",
+      "out/docs/roadmap-evidence/PR-791.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "rec-endpoint-lifecycle",
+      "rec-held-duration"
+    ],
+    "evidence": "tests/host/rec_endpoint_lifecycle_test.c:245: CHECK(!seq.rec_bass[0].active && !(engine_bass_keys_held() & 1), \"stop while held finalizes recording and live gate\");; tests/host/rec_held_duration_test.c:81: EXPECT(guard<10000,\"real sequencer reaches requested recording cell\");",
+    "identifiers": [
+      {
+        "identifier": "recording",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:251"
+      }
+    ],
+    "matches": [
+      {
+        "test": "rec-endpoint-lifecycle",
+        "symbol_from_row": "recording",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:251",
+        "file": "tests/host/rec_endpoint_lifecycle_test.c",
+        "line": 245,
+        "quote": "CHECK(!seq.rec_bass[0].active && !(engine_bass_keys_held() & 1), \"stop while held finalizes recording and live gate\");",
+        "identifier": "recording"
+      },
+      {
+        "test": "rec-held-duration",
+        "symbol_from_row": "recording",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:251",
+        "file": "tests/host/rec_held_duration_test.c",
+        "line": 81,
+        "quote": "EXPECT(guard<10000,\"real sequencer reaches requested recording cell\");",
+        "identifier": "recording"
+      }
+    ],
+    "recorded_results": {
+      "rec-endpoint-lifecycle": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "rec-held-duration": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [],
+    "firmware_references": []
+  }
+}

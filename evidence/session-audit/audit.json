@@ -1,0 +1,62 @@
+{
+  "source_thread": "01a15a73-c90c-7862-a6a4-2caa85154e41",
+  "source": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "working_reference": "53d5654c9bbaec10b64c55fb60d0e7d857ba8156",
+  "owner_request": "Now read rules and fix",
+  "stage": 1,
+  "next_stage": 2,
+  "confirmed_defect": "The central drops CID 0x0005 signaling without a response. A simulated Connection Parameter Update Request receives no reply. CONNECTED remains set. A following valid MIDI notification still decodes.",
+  "regression_limit": "This omission also exists in the confirmed working source. It does not establish the cause of the present input failure.",
+  "live_observation": {
+    "kind": "Idle ED_DIAG and INLOG. No control movement was requested.",
+    "state": "CONNECTED",
+    "midi_handle": 114,
+    "cccd_handle": 115,
+    "acl_mod256": 8,
+    "notifications_mod256": 0,
+    "MIDI_mod256": 0,
+    "rejections_mod256": 2,
+    "queue_diag": 0,
+    "last_ATT_opcode": 19,
+    "last_rejected_header": "50 20 10 00 0c 00 05 00",
+    "last_rejected_size": 20,
+    "last_rejected_CID": 5,
+    "INLOG_entries": 0,
+    "mailbox_drops": 0,
+    "first_alive_ms": 3506564,
+    "second_alive_ms": 3511225,
+    "first_polls": 1145594174,
+    "second_polls": 1147117065,
+    "limit": "Idle zero values do not prove loss of owner input. Only the eight-byte rejected header is available. Its signaling command and payload are unknown."
+  },
+  "host_checks": {
+    "receive_sanitizers": "PASS. Existing central and receive tests passed.",
+    "native_current_startup_replay": {
+      "packets": 1268,
+      "decoded": 2616,
+      "feedback": 513,
+      "queue_empty": true,
+      "perf_test": -1,
+      "limit": "1268 exact recorded payloads use simulated HCI framing and peer discovery. Three oversized ATT packets are excluded. This is not a physical-device PASS."
+    }
+  },
+  "preservation": [
+    "Existing bounds, short-fragment and lifecycle repairs.",
+    "All controls, notes, pad colours, loop slots, sample quality, model guards and budgets."
+  ],
+  "production_changes": false,
+  "firmware_written": false,
+  "repair_complete": false,
+  "parallel_scope": {
+    "thread": "01a15a69-9907-72a3-a5de-c1514a97b836",
+    "title": "Fix SMC mapping controls",
+    "work": "Separate drum mute/light and performance-test STOP repairs. Do not duplicate these edits."
+  },
+  "proposed_work": [
+    "Repair proven central session protocol omissions with bounded responses and regressions.",
+    "Continue the original input-failure comparison under the same recorded input bytes. Do not call signaling repair alone a confirmed cure.",
+    "Use credit-safe pending responses, bounded reassembly and negative tests.",
+    "Do not use diagnostic-only firmware as the final repair."
+  ],
+  "missing_decisions": []
+}

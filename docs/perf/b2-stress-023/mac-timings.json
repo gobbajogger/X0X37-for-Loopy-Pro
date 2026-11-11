@@ -1,0 +1,1528 @@
+{
+  "measurement": "Apple M4 host application; NOT target ISR",
+  "host": "macOS-27.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "compiler": "Apple clang 21.0.0 (clang-2100.3.34.2)",
+  "python": "3.12.15",
+  "base_source_commit": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
+  "candidate_source_commit": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+  "rounds": 3,
+  "blocks_per_round": 4096,
+  "total_halves_per_side": 36864,
+  "pcm_equal_all_rounds_and_sides": true,
+  "driver_sha256": {
+    "tests/host/audio_stress_test.c": "f2d43c0d0713e3b8811e9f738c62e8ed364ff9b69d16e43aac1e259f75ccab23",
+    "tests/host/audio_stress_test.sh": "15da424c4047f8db1560c2d964bcb191382ca3f3c13062b7b12aef9b045a1a72",
+    "tests/host/audio_stress_report_test.py": "9f8889bd75addb9fceaf4c761ec41ccfc8edeb373a00c93bae3de748f5c72e2b",
+    "tools/audio_stress_report.py": "a36d14b8a775f64149c44c2dab1f38a01b08e00e13fffa1883ffb8b13fda974d"
+  },
+  "candidate_source_sha256": {
+    "experiments/original_synth/chicago_control_owner.c": "75a9e30c026609a9bf449025490db4184e367cf27c24977e7d32f153ab0d7765",
+    "experiments/original_synth/chicago_voice.c": "bb539c7446b8a57823e6114b392ed62c6f7ff28155ff8d29dbb428229be5593e",
+    "experiments/original_synth/chicago_voice.h": "c72035c8586d58e97ea34e68ac448ffe71b50bc0dfc6b3dedc2e78eb261aab8b",
+    "experiments/original_synth/miami_control_owner.c": "d8c6945a689d4e651eaf7c8c13c5b6c8587dee55420cb1e4ec3c13c3f8365c57",
+    "experiments/original_synth/miami_selected_voice.c": "b27cf89ad5357b79a566fcd86f891f2f8702a3c788f4d755a8d898dec647f70b",
+    "experiments/original_synth/miami_selected_voice.h": "97894801e53a3ce807356446b8539332e078cbe6e86a8365b2f2a61e85c8cd72"
+  },
+  "archive_sha256": {
+    "before": "cbb212e127fcd86e2a15b6f589475d03401450ca1610aeae06d4e70131fbd525",
+    "after": "f616e193be45c4119e221e6c7ff6dd77c05b30ac6088a25e27a3c2b82408a768"
+  },
+  "aggregate": {
+    "before": {
+      "plain": {
+        "measurement": "host; instrumented application, not a hardware ISR",
+        "frames_per_half": 512,
+        "sample_rate": 44100,
+        "deadline_ns": 11609977.324263038,
+        "owner_budget_ns": 11600000,
+        "blocks": 12288,
+        "render_cpu": {
+          "peak_ns": 1101875,
+          "worst_block": 8194,
+          "average_ns": 330633.9504394531,
+          "peak_deadline_percent": 9.49075927734375,
+          "margin_ns": 10508102.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 5858125,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "render_wall": {
+          "peak_ns": 1119000,
+          "worst_block": 8193,
+          "average_ns": 330837.8092447917,
+          "peak_deadline_percent": 9.63826171875,
+          "margin_ns": 10490977.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 5841000,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "chicago_cpu": {
+          "peak_ns": 105499,
+          "worst_block": 8209,
+          "average_ns": 22677.777262369793,
+          "peak_deadline_percent": 0.9086925585937501,
+          "margin_ns": 11504478.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1634501,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "miami_cpu": {
+          "peak_ns": 89667,
+          "worst_block": 8193,
+          "average_ns": 24941.809244791668,
+          "peak_deadline_percent": 0.7723270898437501,
+          "margin_ns": 11520310.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1650333,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "ui_cpu": {
+          "peak_ns": 394042,
+          "worst_block": 1,
+          "average_ns": 122891.9395345052,
+          "peak_deadline_percent": 3.3939945703125,
+          "margin_ns": 11215935.324263038,
+          "limit_fraction": 1,
+          "limit_ns": 11600000,
+          "limit_margin_ns": 11205958,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "hardware_dropouts": null,
+        "target_acceptance": "NOT_RUN",
+        "limits": [
+          "CPU0 and CPU1 work is serialized by the host platform substitute.",
+          "USB/BLE messages use production consumers but no radio/USB driver or interrupts.",
+          "UI runs between audio halves; IRQ nesting, SPI/XIP contention and DMA are absent.",
+          "UI CPU is reported separately and is outside the timed audio half.",
+          "Observed host deadline overruns are not measured hardware dropouts.",
+          "Observed maxima are workload samples, not a worst-case execution-time proof."
+        ],
+        "host_timing_within_requested_limits": true
+      },
+      "chorus": {
+        "measurement": "host; instrumented application, not a hardware ISR",
+        "frames_per_half": 512,
+        "sample_rate": 44100,
+        "deadline_ns": 11609977.324263038,
+        "owner_budget_ns": 11600000,
+        "blocks": 12288,
+        "render_cpu": {
+          "peak_ns": 991792,
+          "worst_block": 4102,
+          "average_ns": 332352.1014811198,
+          "peak_deadline_percent": 8.542583437500001,
+          "margin_ns": 10618185.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 5968208,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "render_wall": {
+          "peak_ns": 992000,
+          "worst_block": 4102,
+          "average_ns": 332800.048828125,
+          "peak_deadline_percent": 8.544375,
+          "margin_ns": 10617977.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 5968000,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "chicago_cpu": {
+          "peak_ns": 88209,
+          "worst_block": 4096,
+          "average_ns": 22922.488932291668,
+          "peak_deadline_percent": 0.75976892578125,
+          "margin_ns": 11521768.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1651791,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "miami_cpu": {
+          "peak_ns": 75749,
+          "worst_block": 4096,
+          "average_ns": 25154.846354166668,
+          "peak_deadline_percent": 0.65244744140625,
+          "margin_ns": 11534228.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1664251,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "ui_cpu": {
+          "peak_ns": 358708,
+          "worst_block": 4101,
+          "average_ns": 123566.80297851562,
+          "peak_deadline_percent": 3.089652890625,
+          "margin_ns": 11251269.324263038,
+          "limit_fraction": 1,
+          "limit_ns": 11600000,
+          "limit_margin_ns": 11241292,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "hardware_dropouts": null,
+        "target_acceptance": "NOT_RUN",
+        "limits": [
+          "CPU0 and CPU1 work is serialized by the host platform substitute.",
+          "USB/BLE messages use production consumers but no radio/USB driver or interrupts.",
+          "UI runs between audio halves; IRQ nesting, SPI/XIP contention and DMA are absent.",
+          "UI CPU is reported separately and is outside the timed audio half.",
+          "Observed host deadline overruns are not measured hardware dropouts.",
+          "Observed maxima are workload samples, not a worst-case execution-time proof."
+        ],
+        "host_timing_within_requested_limits": true
+      },
+      "peaking": {
+        "measurement": "host; instrumented application, not a hardware ISR",
+        "frames_per_half": 512,
+        "sample_rate": 44100,
+        "deadline_ns": 11609977.324263038,
+        "owner_budget_ns": 11600000,
+        "blocks": 12288,
+        "render_cpu": {
+          "peak_ns": 1139833,
+          "worst_block": 8192,
+          "average_ns": 329831.57307942706,
+          "peak_deadline_percent": 9.817702207031251,
+          "margin_ns": 10470144.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 5820167,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "render_wall": {
+          "peak_ns": 1156000,
+          "worst_block": 8192,
+          "average_ns": 330017.1712239583,
+          "peak_deadline_percent": 9.956953125000002,
+          "margin_ns": 10453977.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 5804000,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "chicago_cpu": {
+          "peak_ns": 89417,
+          "worst_block": 8192,
+          "average_ns": 22746.097249348957,
+          "peak_deadline_percent": 0.77017376953125,
+          "margin_ns": 11520560.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1650583,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "miami_cpu": {
+          "peak_ns": 86081,
+          "worst_block": 8192,
+          "average_ns": 24989.016031901043,
+          "peak_deadline_percent": 0.74143986328125,
+          "margin_ns": 11523896.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1653919,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "ui_cpu": {
+          "peak_ns": 429792,
+          "worst_block": 8192,
+          "average_ns": 122733.4354654948,
+          "peak_deadline_percent": 3.7019193749999997,
+          "margin_ns": 11180185.324263038,
+          "limit_fraction": 1,
+          "limit_ns": 11600000,
+          "limit_margin_ns": 11170208,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "hardware_dropouts": null,
+        "target_acceptance": "NOT_RUN",
+        "limits": [
+          "CPU0 and CPU1 work is serialized by the host platform substitute.",
+          "USB/BLE messages use production consumers but no radio/USB driver or interrupts.",
+          "UI runs between audio halves; IRQ nesting, SPI/XIP contention and DMA are absent.",
+          "UI CPU is reported separately and is outside the timed audio half.",
+          "Observed host deadline overruns are not measured hardware dropouts.",
+          "Observed maxima are workload samples, not a worst-case execution-time proof."
+        ],
+        "host_timing_within_requested_limits": true
+      }
+    },
+    "after": {
+      "plain": {
+        "measurement": "host; instrumented application, not a hardware ISR",
+        "frames_per_half": 512,
+        "sample_rate": 44100,
+        "deadline_ns": 11609977.324263038,
+        "owner_budget_ns": 11600000,
+        "blocks": 12288,
+        "render_cpu": {
+          "peak_ns": 605500,
+          "worst_block": 10324,
+          "average_ns": 325112.5456542969,
+          "peak_deadline_percent": 5.215341796875,
+          "margin_ns": 11004477.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 6354500,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "render_wall": {
+          "peak_ns": 669000,
+          "worst_block": 10792,
+          "average_ns": 325319.580078125,
+          "peak_deadline_percent": 5.76228515625,
+          "margin_ns": 10940977.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 6291000,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "chicago_cpu": {
+          "peak_ns": 61752,
+          "worst_block": 8675,
+          "average_ns": 21796.741536458332,
+          "peak_deadline_percent": 0.53188734375,
+          "margin_ns": 11548225.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1678248,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "miami_cpu": {
+          "peak_ns": 61669,
+          "worst_block": 8675,
+          "average_ns": 24461.315836588543,
+          "peak_deadline_percent": 0.53117244140625,
+          "margin_ns": 11548308.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1678331,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "ui_cpu": {
+          "peak_ns": 248167,
+          "worst_block": 7910,
+          "average_ns": 121666.37931315105,
+          "peak_deadline_percent": 2.13753216796875,
+          "margin_ns": 11361810.324263038,
+          "limit_fraction": 1,
+          "limit_ns": 11600000,
+          "limit_margin_ns": 11351833,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "hardware_dropouts": null,
+        "target_acceptance": "NOT_RUN",
+        "limits": [
+          "CPU0 and CPU1 work is serialized by the host platform substitute.",
+          "USB/BLE messages use production consumers but no radio/USB driver or interrupts.",
+          "UI runs between audio halves; IRQ nesting, SPI/XIP contention and DMA are absent.",
+          "UI CPU is reported separately and is outside the timed audio half.",
+          "Observed host deadline overruns are not measured hardware dropouts.",
+          "Observed maxima are workload samples, not a worst-case execution-time proof."
+        ],
+        "host_timing_within_requested_limits": true
+      },
+      "chorus": {
+        "measurement": "host; instrumented application, not a hardware ISR",
+        "frames_per_half": 512,
+        "sample_rate": 44100,
+        "deadline_ns": 11609977.324263038,
+        "owner_budget_ns": 11600000,
+        "blocks": 12288,
+        "render_cpu": {
+          "peak_ns": 1006708,
+          "worst_block": 11729,
+          "average_ns": 326502.6035970052,
+          "peak_deadline_percent": 8.671059140625001,
+          "margin_ns": 10603269.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 5953292,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "render_wall": {
+          "peak_ns": 1029000,
+          "worst_block": 11729,
+          "average_ns": 326791.3411458333,
+          "peak_deadline_percent": 8.86306640625,
+          "margin_ns": 10580977.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 5931000,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "chicago_cpu": {
+          "peak_ns": 70540,
+          "worst_block": 11729,
+          "average_ns": 21865.945149739582,
+          "peak_deadline_percent": 0.607580859375,
+          "margin_ns": 11539437.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1669460,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "miami_cpu": {
+          "peak_ns": 95249,
+          "worst_block": 11729,
+          "average_ns": 24555.1884765625,
+          "peak_deadline_percent": 0.8204064257812501,
+          "margin_ns": 11514728.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1644751,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "ui_cpu": {
+          "peak_ns": 296917,
+          "worst_block": 11729,
+          "average_ns": 121870.77685546875,
+          "peak_deadline_percent": 2.55742962890625,
+          "margin_ns": 11313060.324263038,
+          "limit_fraction": 1,
+          "limit_ns": 11600000,
+          "limit_margin_ns": 11303083,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "hardware_dropouts": null,
+        "target_acceptance": "NOT_RUN",
+        "limits": [
+          "CPU0 and CPU1 work is serialized by the host platform substitute.",
+          "USB/BLE messages use production consumers but no radio/USB driver or interrupts.",
+          "UI runs between audio halves; IRQ nesting, SPI/XIP contention and DMA are absent.",
+          "UI CPU is reported separately and is outside the timed audio half.",
+          "Observed host deadline overruns are not measured hardware dropouts.",
+          "Observed maxima are workload samples, not a worst-case execution-time proof."
+        ],
+        "host_timing_within_requested_limits": true
+      },
+      "peaking": {
+        "measurement": "host; instrumented application, not a hardware ISR",
+        "frames_per_half": 512,
+        "sample_rate": 44100,
+        "deadline_ns": 11609977.324263038,
+        "owner_budget_ns": 11600000,
+        "blocks": 12288,
+        "render_cpu": {
+          "peak_ns": 557375,
+          "worst_block": 11473,
+          "average_ns": 325860.30094401044,
+          "peak_deadline_percent": 4.800827636718751,
+          "margin_ns": 11052602.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 6402625,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "render_wall": {
+          "peak_ns": 605000,
+          "worst_block": 193,
+          "average_ns": 325958.9029947917,
+          "peak_deadline_percent": 5.21103515625,
+          "margin_ns": 11004977.324263038,
+          "limit_fraction": 0.6,
+          "limit_ns": 6960000,
+          "limit_margin_ns": 6355000,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "chicago_cpu": {
+          "peak_ns": 50998,
+          "worst_block": 8979,
+          "average_ns": 21784.984293619793,
+          "peak_deadline_percent": 0.43926011718749997,
+          "margin_ns": 11558979.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1689002,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "miami_cpu": {
+          "peak_ns": 89375,
+          "worst_block": 2209,
+          "average_ns": 24523.90673828125,
+          "peak_deadline_percent": 0.76981201171875,
+          "margin_ns": 11520602.324263038,
+          "limit_fraction": 0.15,
+          "limit_ns": 1740000,
+          "limit_margin_ns": 1650625,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "ui_cpu": {
+          "peak_ns": 254333,
+          "worst_block": 9184,
+          "average_ns": 121813.07373046875,
+          "peak_deadline_percent": 2.19064166015625,
+          "margin_ns": 11355644.324263038,
+          "limit_fraction": 1,
+          "limit_ns": 11600000,
+          "limit_margin_ns": 11345667,
+          "over_limit_blocks": 0,
+          "over_deadline_blocks": 0
+        },
+        "hardware_dropouts": null,
+        "target_acceptance": "NOT_RUN",
+        "limits": [
+          "CPU0 and CPU1 work is serialized by the host platform substitute.",
+          "USB/BLE messages use production consumers but no radio/USB driver or interrupts.",
+          "UI runs between audio halves; IRQ nesting, SPI/XIP contention and DMA are absent.",
+          "UI CPU is reported separately and is outside the timed audio half.",
+          "Observed host deadline overruns are not measured hardware dropouts.",
+          "Observed maxima are workload samples, not a worst-case execution-time proof."
+        ],
+        "host_timing_within_requested_limits": true
+      }
+    }
+  },
+  "rounds_evidence": {
+    "before/plain/1": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "7382a96c192a9a20d7d5667423de4f843eb6274fe13be9923635e7024f2a009c",
+      "pcm_sha256": "a78f0921cc4a24d77eeb3adba426646d0517f19c47cd4fe021c3a6f6e2563b9b"
+    },
+    "after/plain/1": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "b28e6e60eeddc7df3fc7b71de7f7529582d851a502bcb23743a05907b750d196",
+      "pcm_sha256": "a78f0921cc4a24d77eeb3adba426646d0517f19c47cd4fe021c3a6f6e2563b9b"
+    },
+    "before/chorus/1": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "d4b1174b6adbab5fafd3f01a546f985848dd68135c1c19d7cbd5c48b749558f7",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "after/chorus/1": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "392c09366b8f81d4c20a6df74fdc3637ddeadfc2915784d9e58f36e2c3fcd627",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "before/peaking/1": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "ce6faf2899d18e98ddd1d4914a4d0bd43910558c3f2f9f3a02a9517d217b9b2d",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "after/peaking/1": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "6ad104d03a52b0b958e02f970b558f3732525c8c2162b83799ae3a4998e3f1d2",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "after/plain/2": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "a658a29e8e738ef637bd4580eb45472c9d74500379bcebd7e5ff70222797a84e",
+      "pcm_sha256": "a78f0921cc4a24d77eeb3adba426646d0517f19c47cd4fe021c3a6f6e2563b9b"
+    },
+    "before/plain/2": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "d234da805c47361a78b040ac0433cf9fe46e790d4767602c762984b695ed06e0",
+      "pcm_sha256": "a78f0921cc4a24d77eeb3adba426646d0517f19c47cd4fe021c3a6f6e2563b9b"
+    },
+    "after/chorus/2": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "eb853e8971ec2a6b8372b63731d84c5548ab7d7d6f0d0af048051f0b62c29c05",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "before/chorus/2": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "c218582fbb055441ca54ee0fb95ffc04137810289570cf12e36d7a0720af5419",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "after/peaking/2": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "5e99f6c493ac4b69efe5397b5594992ac19b090c9a8b07a9caaa8b4035601698",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "before/peaking/2": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "f543082033325487c29adcd1bd054949d872d2ac6b4238d402e33abe4ab255f6",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "before/plain/3": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "ed72dace8151d1806e08d6367be5cbbc06a513903428d330fcc9afe27631f583",
+      "pcm_sha256": "a78f0921cc4a24d77eeb3adba426646d0517f19c47cd4fe021c3a6f6e2563b9b"
+    },
+    "after/plain/3": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "fb948066cdb4f3a4f23a5bf41a8fa08375fa8a41ec427df0b2255e9376fe2865",
+      "pcm_sha256": "a78f0921cc4a24d77eeb3adba426646d0517f19c47cd4fe021c3a6f6e2563b9b"
+    },
+    "before/chorus/3": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "7042951194c1a0a601473feb77384b1f0f8d8dd2b6599f9ff391679fef3419a4",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "after/chorus/3": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "616a3e3e5090f16e09a7c762e1c11fc792b188b7b30ac46f9aca61a5e62c692b",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "before/peaking/3": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "0a16fd266786ed289af315a6da3cd3bd53a73b57d780e5cb5814aa00771fe983",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    },
+    "after/peaking/3": {
+      "blocks": 4096,
+      "host_timing_within_requested_limits": true,
+      "csv_sha256": "f458319e4ae2451d4b0d8b4bdaa3343b3085f58977b9d58b1fce7c108d1e7b4b",
+      "pcm_sha256": "e48585b7ce9bb0697121aab489ed62f248484d331c98103b8a10a98e5efc7fe0"
+    }
+  },
+  "per_round_metrics": {
+    "before/plain/1": {
+      "render_cpu": {
+        "peak_ns": 1097125,
+        "worst_block": 2,
+        "average_ns": 331029.2370605469,
+        "peak_deadline_percent": 9.44984619140625,
+        "margin_ns": 10512852.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5862875,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 1117000,
+        "worst_block": 0,
+        "average_ns": 331431.396484375,
+        "peak_deadline_percent": 9.62103515625,
+        "margin_ns": 10492977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5843000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 90788,
+        "worst_block": 0,
+        "average_ns": 22644.937255859375,
+        "peak_deadline_percent": 0.7819825781249999,
+        "margin_ns": 11519189.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1649212,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 88001,
+        "worst_block": 0,
+        "average_ns": 24903.87744140625,
+        "peak_deadline_percent": 0.75797736328125,
+        "margin_ns": 11521976.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1651999,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "after/plain/1": {
+      "render_cpu": {
+        "peak_ns": 493584,
+        "worst_block": 3087,
+        "average_ns": 325653.5241699219,
+        "peak_deadline_percent": 4.2513778124999995,
+        "margin_ns": 11116393.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6466416,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 591000,
+        "worst_block": 3087,
+        "average_ns": 325820.80078125,
+        "peak_deadline_percent": 5.090449218750001,
+        "margin_ns": 11018977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6369000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 52625,
+        "worst_block": 3087,
+        "average_ns": 21701.24365234375,
+        "peak_deadline_percent": 0.45327392578125003,
+        "margin_ns": 11557352.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1687375,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 39416,
+        "worst_block": 2831,
+        "average_ns": 24336.21142578125,
+        "peak_deadline_percent": 0.33950109375000004,
+        "margin_ns": 11570561.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1700584,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "before/chorus/1": {
+      "render_cpu": {
+        "peak_ns": 966167,
+        "worst_block": 0,
+        "average_ns": 331286.28076171875,
+        "peak_deadline_percent": 8.32186810546875,
+        "margin_ns": 10643810.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5993833,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 974000,
+        "worst_block": 0,
+        "average_ns": 331739.013671875,
+        "peak_deadline_percent": 8.3893359375,
+        "margin_ns": 10635977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5986000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 77248,
+        "worst_block": 0,
+        "average_ns": 22747.239990234375,
+        "peak_deadline_percent": 0.66535875,
+        "margin_ns": 11532729.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1662752,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 75375,
+        "worst_block": 0,
+        "average_ns": 24985.793212890625,
+        "peak_deadline_percent": 0.64922607421875,
+        "margin_ns": 11534602.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1664625,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "after/chorus/1": {
+      "render_cpu": {
+        "peak_ns": 622208,
+        "worst_block": 2,
+        "average_ns": 324560.2548828125,
+        "peak_deadline_percent": 5.3592525,
+        "margin_ns": 10987769.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6337792,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 941000,
+        "worst_block": 468,
+        "average_ns": 324985.595703125,
+        "peak_deadline_percent": 8.10509765625,
+        "margin_ns": 10668977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6019000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 68376,
+        "worst_block": 2,
+        "average_ns": 21769.677734375,
+        "peak_deadline_percent": 0.58894171875,
+        "margin_ns": 11541601.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1671624,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 60126,
+        "worst_block": 468,
+        "average_ns": 24394.186279296875,
+        "peak_deadline_percent": 0.5178821484375,
+        "margin_ns": 11549851.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1679874,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "before/peaking/1": {
+      "render_cpu": {
+        "peak_ns": 888917,
+        "worst_block": 0,
+        "average_ns": 328821.8498535156,
+        "peak_deadline_percent": 7.65649212890625,
+        "margin_ns": 10721060.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6071083,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 889000,
+        "worst_block": 0,
+        "average_ns": 328973.876953125,
+        "peak_deadline_percent": 7.6572070312500005,
+        "margin_ns": 10720977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6071000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 63954,
+        "worst_block": 3,
+        "average_ns": 22599.140869140625,
+        "peak_deadline_percent": 0.5508537890625,
+        "margin_ns": 11546023.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1676046,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 59082,
+        "worst_block": 3,
+        "average_ns": 24841.292724609375,
+        "peak_deadline_percent": 0.5088898828125,
+        "margin_ns": 11550895.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1680918,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "after/peaking/1": {
+      "render_cpu": {
+        "peak_ns": 532042,
+        "worst_block": 193,
+        "average_ns": 323025.09765625,
+        "peak_deadline_percent": 4.5826273828125,
+        "margin_ns": 11077935.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6427958,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 605000,
+        "worst_block": 193,
+        "average_ns": 323149.169921875,
+        "peak_deadline_percent": 5.21103515625,
+        "margin_ns": 11004977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6355000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 36708,
+        "worst_block": 275,
+        "average_ns": 21614.176025390625,
+        "peak_deadline_percent": 0.316176328125,
+        "margin_ns": 11573269.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1703292,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 89375,
+        "worst_block": 2209,
+        "average_ns": 24390.616943359375,
+        "peak_deadline_percent": 0.76981201171875,
+        "margin_ns": 11520602.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1650625,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "after/plain/2": {
+      "render_cpu": {
+        "peak_ns": 522250,
+        "worst_block": 358,
+        "average_ns": 323411.1101074219,
+        "peak_deadline_percent": 4.4982861328125,
+        "margin_ns": 11087727.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6437750,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 554000,
+        "worst_block": 358,
+        "average_ns": 323560.302734375,
+        "peak_deadline_percent": 4.7717578125,
+        "margin_ns": 11055977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6406000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 44207,
+        "worst_block": 358,
+        "average_ns": 21667.204345703125,
+        "peak_deadline_percent": 0.38076732421875004,
+        "margin_ns": 11565770.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1695793,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 54251,
+        "worst_block": 358,
+        "average_ns": 24416.9287109375,
+        "peak_deadline_percent": 0.46727912109375,
+        "margin_ns": 11555726.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1685749,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "before/plain/2": {
+      "render_cpu": {
+        "peak_ns": 1021458,
+        "worst_block": 0,
+        "average_ns": 329841.4206542969,
+        "peak_deadline_percent": 8.7981050390625,
+        "margin_ns": 10588519.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5938542,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 1021000,
+        "worst_block": 0,
+        "average_ns": 329904.296875,
+        "peak_deadline_percent": 8.79416015625,
+        "margin_ns": 10588977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5939000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 81543,
+        "worst_block": 0,
+        "average_ns": 22726.058837890625,
+        "peak_deadline_percent": 0.7023527929687501,
+        "margin_ns": 11528434.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1658457,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 88419,
+        "worst_block": 0,
+        "average_ns": 24911.26708984375,
+        "peak_deadline_percent": 0.76157771484375,
+        "margin_ns": 11521558.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1651581,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "after/chorus/2": {
+      "render_cpu": {
+        "peak_ns": 472959,
+        "worst_block": 3016,
+        "average_ns": 325119.86767578125,
+        "peak_deadline_percent": 4.07372888671875,
+        "margin_ns": 11137018.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6487041,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 591000,
+        "worst_block": 3267,
+        "average_ns": 325248.779296875,
+        "peak_deadline_percent": 5.090449218750001,
+        "margin_ns": 11018977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6369000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 41958,
+        "worst_block": 3268,
+        "average_ns": 21737.094970703125,
+        "peak_deadline_percent": 0.3613960546875,
+        "margin_ns": 11568019.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1698042,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 38169,
+        "worst_block": 3899,
+        "average_ns": 24463.008056640625,
+        "peak_deadline_percent": 0.32876033203125,
+        "margin_ns": 11571808.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1701831,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "before/chorus/2": {
+      "render_cpu": {
+        "peak_ns": 991792,
+        "worst_block": 6,
+        "average_ns": 331286.3161621094,
+        "peak_deadline_percent": 8.542583437500001,
+        "margin_ns": 10618185.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5968208,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 992000,
+        "worst_block": 6,
+        "average_ns": 331496.826171875,
+        "peak_deadline_percent": 8.544375,
+        "margin_ns": 10617977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5968000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 88209,
+        "worst_block": 0,
+        "average_ns": 22786.84423828125,
+        "peak_deadline_percent": 0.75976892578125,
+        "margin_ns": 11521768.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1651791,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 75749,
+        "worst_block": 0,
+        "average_ns": 25041.130126953125,
+        "peak_deadline_percent": 0.65244744140625,
+        "margin_ns": 11534228.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1664251,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "after/peaking/2": {
+      "render_cpu": {
+        "peak_ns": 513833,
+        "worst_block": 452,
+        "average_ns": 326630.1169433594,
+        "peak_deadline_percent": 4.42578814453125,
+        "margin_ns": 11096144.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6446167,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 576000,
+        "worst_block": 452,
+        "average_ns": 326715.8203125,
+        "peak_deadline_percent": 4.961250000000001,
+        "margin_ns": 11033977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6384000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 37583,
+        "worst_block": 3949,
+        "average_ns": 21799.030517578125,
+        "peak_deadline_percent": 0.32371294921875,
+        "margin_ns": 11572394.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1702417,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 42665,
+        "worst_block": 452,
+        "average_ns": 24566.350830078125,
+        "peak_deadline_percent": 0.36748564453125004,
+        "margin_ns": 11567312.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1697335,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "before/peaking/2": {
+      "render_cpu": {
+        "peak_ns": 836375,
+        "worst_block": 3,
+        "average_ns": 329733.14892578125,
+        "peak_deadline_percent": 7.20393310546875,
+        "margin_ns": 10773602.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6123625,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 836000,
+        "worst_block": 3,
+        "average_ns": 329973.14453125,
+        "peak_deadline_percent": 7.200703125,
+        "margin_ns": 10773977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6124000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 62206,
+        "worst_block": 3,
+        "average_ns": 22743.230224609375,
+        "peak_deadline_percent": 0.5357977734375,
+        "margin_ns": 11547771.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1677794,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 58793,
+        "worst_block": 3,
+        "average_ns": 24971.851318359375,
+        "peak_deadline_percent": 0.50640064453125,
+        "margin_ns": 11551184.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1681207,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "before/plain/3": {
+      "render_cpu": {
+        "peak_ns": 1101875,
+        "worst_block": 2,
+        "average_ns": 331031.1936035156,
+        "peak_deadline_percent": 9.49075927734375,
+        "margin_ns": 10508102.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5858125,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 1119000,
+        "worst_block": 1,
+        "average_ns": 331177.734375,
+        "peak_deadline_percent": 9.63826171875,
+        "margin_ns": 10490977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5841000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 105499,
+        "worst_block": 17,
+        "average_ns": 22662.335693359375,
+        "peak_deadline_percent": 0.9086925585937501,
+        "margin_ns": 11504478.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1634501,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 89667,
+        "worst_block": 1,
+        "average_ns": 25010.283203125,
+        "peak_deadline_percent": 0.7723270898437501,
+        "margin_ns": 11520310.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1650333,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "after/plain/3": {
+      "render_cpu": {
+        "peak_ns": 605500,
+        "worst_block": 2132,
+        "average_ns": 326273.0026855469,
+        "peak_deadline_percent": 5.215341796875,
+        "margin_ns": 11004477.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6354500,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 669000,
+        "worst_block": 2600,
+        "average_ns": 326577.63671875,
+        "peak_deadline_percent": 5.76228515625,
+        "margin_ns": 10940977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6291000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 61752,
+        "worst_block": 483,
+        "average_ns": 22021.776611328125,
+        "peak_deadline_percent": 0.53188734375,
+        "margin_ns": 11548225.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1678248,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 61669,
+        "worst_block": 483,
+        "average_ns": 24630.807373046875,
+        "peak_deadline_percent": 0.53117244140625,
+        "margin_ns": 11548308.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1678331,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "before/chorus/3": {
+      "render_cpu": {
+        "peak_ns": 744417,
+        "worst_block": 15,
+        "average_ns": 334483.70751953125,
+        "peak_deadline_percent": 6.41187298828125,
+        "margin_ns": 10865560.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6215583,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 744000,
+        "worst_block": 15,
+        "average_ns": 335164.306640625,
+        "peak_deadline_percent": 6.40828125,
+        "margin_ns": 10865977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6216000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 54042,
+        "worst_block": 0,
+        "average_ns": 23233.382568359375,
+        "peak_deadline_percent": 0.46547894531250006,
+        "margin_ns": 11555935.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1685958,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 57204,
+        "worst_block": 1386,
+        "average_ns": 25437.61572265625,
+        "peak_deadline_percent": 0.492714140625,
+        "margin_ns": 11552773.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1682796,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "after/chorus/3": {
+      "render_cpu": {
+        "peak_ns": 1006708,
+        "worst_block": 3537,
+        "average_ns": 329827.6882324219,
+        "peak_deadline_percent": 8.671059140625001,
+        "margin_ns": 10603269.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5953292,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 1029000,
+        "worst_block": 3537,
+        "average_ns": 330139.6484375,
+        "peak_deadline_percent": 8.86306640625,
+        "margin_ns": 10580977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5931000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 70540,
+        "worst_block": 3537,
+        "average_ns": 22091.062744140625,
+        "peak_deadline_percent": 0.607580859375,
+        "margin_ns": 11539437.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1669460,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 95249,
+        "worst_block": 3537,
+        "average_ns": 24808.37109375,
+        "peak_deadline_percent": 0.8204064257812501,
+        "margin_ns": 11514728.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1644751,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "before/peaking/3": {
+      "render_cpu": {
+        "peak_ns": 1139833,
+        "worst_block": 0,
+        "average_ns": 330939.7204589844,
+        "peak_deadline_percent": 9.817702207031251,
+        "margin_ns": 10470144.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5820167,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 1156000,
+        "worst_block": 0,
+        "average_ns": 331104.4921875,
+        "peak_deadline_percent": 9.956953125000002,
+        "margin_ns": 10453977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 5804000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 89417,
+        "worst_block": 0,
+        "average_ns": 22895.920654296875,
+        "peak_deadline_percent": 0.77017376953125,
+        "margin_ns": 11520560.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1650583,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 86081,
+        "worst_block": 0,
+        "average_ns": 25153.904052734375,
+        "peak_deadline_percent": 0.74143986328125,
+        "margin_ns": 11523896.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1653919,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    },
+    "after/peaking/3": {
+      "render_cpu": {
+        "peak_ns": 557375,
+        "worst_block": 3281,
+        "average_ns": 327925.6882324219,
+        "peak_deadline_percent": 4.800827636718751,
+        "margin_ns": 11052602.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6402625,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "render_wall": {
+        "peak_ns": 599000,
+        "worst_block": 3281,
+        "average_ns": 328011.71875,
+        "peak_deadline_percent": 5.15935546875,
+        "margin_ns": 11010977.324263038,
+        "limit_fraction": 0.6,
+        "limit_ns": 6960000,
+        "limit_margin_ns": 6361000,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "chicago_cpu": {
+        "peak_ns": 50998,
+        "worst_block": 787,
+        "average_ns": 21941.746337890625,
+        "peak_deadline_percent": 0.43926011718749997,
+        "margin_ns": 11558979.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1689002,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      },
+      "miami_cpu": {
+        "peak_ns": 54081,
+        "worst_block": 993,
+        "average_ns": 24614.75244140625,
+        "peak_deadline_percent": 0.46581486328125005,
+        "margin_ns": 11555896.324263038,
+        "limit_fraction": 0.15,
+        "limit_ns": 1740000,
+        "limit_margin_ns": 1685919,
+        "over_limit_blocks": 0,
+        "over_deadline_blocks": 0
+      }
+    }
+  },
+  "target_acceptance": "NOT_RUN",
+  "warnings": [
+    "Both base and candidate emit a pre-existing smc_states[1] array-bounds compiler warning when SMC_PEERS=1; no source change for that unrelated warning."
+  ],
+  "candidate_all_host_limits_met": true
+}

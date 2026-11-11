@@ -1,0 +1,72 @@
+{
+  "base": "d633833ac369f8466bc2563791614206070e87d1",
+  "branch": "codex/smc-select-mode-20261026",
+  "committed": false,
+  "pushed": false,
+  "source_files": [
+    "firmware/src/app/smc_mixer.c"
+  ],
+  "native_build": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "independent_review": "PENDING",
+  "files": {
+    "firmware/src/app/smc_mixer.c": {
+      "git_blob": "5995318c34222d5909db90348552ea58484d6a66",
+      "sha256": "c9e3f4e8432b17628e30101b2c9e0e60dfa9b446d962be16efaf9dbd4c08edd6"
+    },
+    "tests/host/smc_buttons_test.py": {
+      "git_blob": "4e482f90119e846cd10cc2f00f39c5098459ce3a",
+      "sha256": "cb7748dffeed83d932c5ea91824564e67208583ec517320868db6c6c71e68aeb"
+    },
+    "tests/host/smc_lock_test.c": {
+      "git_blob": "d5013269a6ab7b90672ff283f5859b14c23825da",
+      "sha256": "7efc1cc2a0ed19551d0d2f860765c2c1afd911b97bc30a4a02f23f7e73d405f9"
+    },
+    "tests/run_tests.sh": {
+      "git_blob": "1e26eb6aec231ed0965a80e1dda2e43fca0fd61f",
+      "sha256": "e1e48854e0ee9aa35998d5f5f617786857b36ced2e7273304c3d663680d62613"
+    },
+    "tests/host/smc_select_mode_test.c": {
+      "git_blob": "d0b7201e0c0e723424b286fe95909e40ed98e4c3",
+      "sha256": "d0476d151fdacae4099e76d3679a283f5ff6dff15b680be8c9413894cbc7f8b1"
+    },
+    "tests/host/smc_select_mode_test.sh": {
+      "git_blob": "2865a3cc4de22adc4c8b94421de13371445cdcd6",
+      "sha256": "8bdd92dd2c7acfd850856fa67ee780dcc7ce85ce5007b6fadfa799a2932d3585"
+    }
+  },
+  "results": {
+    "baseline_new_test": {
+      "exit": 1,
+      "assertion": "!smc.fx_down && !smc.fx_main_wait"
+    },
+    "new_test": {
+      "exit": 0,
+      "checks": 842
+    },
+    "smc_lock": {
+      "exit": 0,
+      "checks": 701
+    },
+    "smc_ui": {
+      "exit": 0,
+      "checks": 6521
+    },
+    "smc_interaction_negative": {
+      "exit": 0,
+      "mutants_rejected": 8
+    },
+    "smc_buttons": {
+      "exit": 0
+    },
+    "smc_filter": {
+      "exit": 0
+    },
+    "smc_part_select": {
+      "exit": 0
+    },
+    "smc_mapping": {
+      "exit": 0
+    }
+  }
+}

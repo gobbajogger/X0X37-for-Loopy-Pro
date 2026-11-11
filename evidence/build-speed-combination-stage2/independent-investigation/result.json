@@ -1,0 +1,59 @@
+{
+  "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+  "candidate_tree": "de94ec06bb3b411850104dade643492d22e4606c",
+  "status": "PASS independent complete-candidate investigation; both findings resolved",
+  "source_review": "Complete40-path non-cache production diff reviewed; exact contributors, compiler flags/link source, firmware/installer/uploader/cache exclusion and narrow combination assertions PASS in source-audit.json.",
+  "findings": [
+    {
+      "id": "COMB-RULE-METADATA",
+      "state": "resolved",
+      "trigger": "Combined native commit modifies docs/USER_PREFERENCES.md but had missing or invalid Trigger/Check body lines.",
+      "evidence": [
+        "rules-proof.json",
+        "rules-final.json",
+        "rules-accepted.json"
+      ],
+      "disposition": "Parent amended metadata only. Complete Git tree unchanged and final rules-only private-clone check PASS for c0d2ab2."
+    },
+    {
+      "id": "COMB-OUTER-SIGINT",
+      "state": "resolved",
+      "priority": 2,
+      "file": "tests/host/test_ctl_compile.py",
+      "line": 240,
+      "consumer": "tools/gate.sh:375",
+      "trigger": "Both gate configurations run the whole runner from an asynchronous Bash subshell. Controller fixture inherits SIGINT ignored, so its sh child cannot install the INT trap even when ctl-compile is classS inside the runner.",
+      "proof": "outer-background-signal.json and .log reproduce existing signal method under the same async launch without invoking gate/build. Two SIGINT subcases time out; four HUP/TERM cases pass.",
+      "next_check": "Normalize only fixture subprocess SIGINT disposition, then affected positive/old-source negative and same outer-launch proof; preserve production controller flags/source and other accepted evidence.",
+      "disposition": "Exact fixture delta resets SIGINT only in the tested child before shell exec. Five literal registrations remain; accepted runner scheduler/classification/install-lock functions restored exactly. All fixture assertions preserved. Root final actual general-runner jobs4 classP under the same outer async Bash launcher passed all seven methods; checked log hashes match signal-fixture-repair.json. Existing old compiler negative controls retain the same assertions and are unaffected by signal normalization.",
+      "final_evidence": [
+        "../signal-fixture-repair.json",
+        "../registered-ctl-outer-final.log",
+        "../registered-ctl-outer-methods.log"
+      ]
+    }
+  ],
+  "limits": [
+    "Source review and identity assertions, not target/package/device validation.",
+    "No target/controller/application build, full suite/gate, install or push.",
+    "No repaired-cache speedup accepted; original generators and cache exclusion verified.",
+    "Existing initial behavior/guard/worker evidence reused where exact input scope matches; no passing unrelated suite repeated.",
+    "Outer-launch positive behavior was executed by root and independently checked by exact bounded source delta and retained log hashes; this investigator did not repeat the passing suite."
+  ],
+  "evidence_sha256": {
+    "rules-proof.log": "676293590b80e75801732e7c9ef3304683adf2913ed1f9f80c1479b67434bc84",
+    "source-audit.py": "ae8b31420eaeb2c9cb827683bc0a635db4aded59e3ace3ae1d77f015a205a199",
+    "source-audit.json": "3b90b801172766fc4a6b60f20d6b95199d2604d9a5dd79cb92cf656a56413b66",
+    "rules-final.py": "817f6cae5c41d7385382abbf497709b883881137d80688be3871e96a3e8c865f",
+    "rules-final.json": "526c85cec9881cd29e881b97c23322546de0b7519258dfab60926bbfb965bb92",
+    "rules-accepted.json": "a9327f948de5cc41a4ae42b96fa6f3a2ba7e0b6e9657c89c78507c29740853b9",
+    "rules-accepted.log": "6b5d0b7078efe32acf5280b2eb7bc446ae7bc37abc32aae55ac6cafd1ba7f243",
+    "rules-proof.json": "cd27684cecc833929e6763dd25634e861e93c6f9e65c872747f2d666a75a26d2",
+    "rules-accepted.py": "29b9ad335d078bd2ff6127dd3943677d07c622de53c59c3153abffcd88ad0fde",
+    "rules-proof.py": "e96b74cae862aabfa790e87c887fcec545a6ac2c3088a9e7887e90e60b5a313c",
+    "rules-final.log": "6f20ef515c502539c2017a5effce201ad0985c007094c50116ecba559fdbfd65",
+    "outer-background-signal.json": "df0bcaa02088846341fa412cf7bfd6fbc64743a9475e2b49daef16ef4bfb9800",
+    "outer-background-signal.log": "a50416ebaf07561e27037468d27c6d238b8e629c649c50e2badf80b8c63ef5c3"
+  },
+  "metadata_final": "Private-clone rules-only PASS c0d2ab2 remains valid: e7e63bd changes only fixture/runner source and dedicated evidence, adds no rule/preference change, and its earlier rule-commit ancestry is unchanged."
+}

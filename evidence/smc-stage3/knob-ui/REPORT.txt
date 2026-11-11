@@ -1,0 +1,33 @@
+PASS: independent SMC knob/UI/guard checks at exact source tree 854b4d97bdac0a6941ab1dd83ae26b9c1535cdec.
+
+Original candidate: 3d7b1999a245e84d6d9faf1241dd1078ef335d31.
+Root metadata-corrected candidate: 3fc770dcde261a23556f6c3749ebd4bc5911f1c3.
+The two commit trees match exactly. No source/test/docs changes occurred.
+
+All seven planned checks passed: three-mode knob mapping, fader pickup,
+strip/navigation buttons, master filter/independent mute feedback, clip/menu/help/
+confirmation visibility, part selection and complete production UI reachability.
+The complete UI runner passed injected BLE DAW, BLE USER, host USER and simulated
+fragmented HCI DAW/USER routes. It covers both kits/all eleven drum tracks,
+ordinary sound fields, menu rows, navigation, pickup/frame/motion and modal guards.
+
+An additional evidence-only temporary UI harness assertion passed on all five
+routes: moving a knob sharing a picked fader target clears that fader's pickup
+and crossing history; reaching its new target reacquires pickup. Production
+source and checked tests were not edited for this experiment.
+
+Nine preserved routing, fader, notice, bank, button, poll and feedback function
+hashes are identical to the base and preserved-contracts.json. Six relevant
+candidate source hashes match stage-2 CHECKS.json. Source review found no new
+knob/UI defect and requires no source repair.
+
+Startup failures were environmental and occurred before checks: Docker API
+sandbox denial (resolved by required escalation) and Git dubious ownership
+(resolved by a per-process safe.directory for the owned candidate checkout).
+Two pre-existing ui.c signedness warnings remain in the passing UI compilation;
+that file is unchanged. See environment-startup.txt, environment.json and logs.
+
+Physical-device input is NOT TESTED. The forced/injected connection states,
+simulated HCI and substituted hardware I/O do not prove physical input delivery.
+The owner's all-input silence remains unresolved. No install, source fix, target
+build, release/full gate, FM1 target work or external push was performed.
