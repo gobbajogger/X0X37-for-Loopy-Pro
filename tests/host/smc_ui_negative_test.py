@@ -66,8 +66,8 @@ MUTANTS = {
         "{ /* negative control: retain clip painter cache */ }",
     ),
     "yellow-notice-returned": (
-        "        smc_ui_begin(n, 0);",
-        '        smc_ui_begin(n, 0); say("SMC OLD BAR", 0);',
+        "        smc_show(n, 0, r);",   # #737 peek: the fader shows through smc_show
+        '        smc_show(n, 0, r); say("SMC OLD BAR", 0);',
     ),
 }
 OUT = Path(os.environ.get("SMC_UI_NEGATIVE_OUT", ROOT / "build/host/smc-ui-negative"))

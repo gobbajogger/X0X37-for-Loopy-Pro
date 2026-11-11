@@ -440,7 +440,8 @@ static void pictogram_rendering(void)
     CHECK(ui_position_badge(UI_G_SONG,192,0,C_AMB,C_GRAY)<=185);
     cv_commit(0,0,0);
     screen_state_t keyboard=screen_state();
-    fader(0,0); smc_ui_draw_peer(); keyboard_unchanged(keyboard);
+    fader(0,0); smc_ui_draw_peer();
+    now_ms+=1200; smc_poll(); keyboard_unchanged(keyboard);   /* #737 peek (owner 0.0.25): the HOME fader peeks MIX, then restores */
     CHECK(smc_same(smc_target(0),PR(R_ENG,T_MIX,PART_909,MX_LEVEL)));
 }
 #endif

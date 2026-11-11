@@ -25,19 +25,20 @@ static __attribute__((unused)) void smc_peek_begin(int n) { (void)n; }
 '''
 
 
+def no_display(text: str) -> str:
+    # Isolated input tests omit display: drop the overlay forward declarations
+    # (-Werror=unused-function) and give smc_ui_cancel() an empty body.
+    text = text.replace("static void smc_ui_begin(int n, int kind);", "")
+    text = text.replace(OFF_DECL, "")
+    return text + "\n#ifndef smc_ui_cancel\nstatic __attribute__((unused)) void smc_ui_cancel(void) {}\n#endif\n"
+
+
 def strip(text: str) -> str:
     a = text.find(START)
     if a < 0:
-        # Wiring-only source has no page peek; isolated input tests omit display.
-        text = text.replace("static void smc_ui_begin(int n, int kind);", "")
-        text = text.replace("static void smc_ui_off(void);", "")
-        return text + "\n#ifndef smc_ui_cancel\nstatic __attribute__((unused)) void smc_ui_cancel(void) {}\n#endif\n"
+        return no_display(text)   # wiring-only source has no page peek
     b = text.index(END, a) + len(END)
-    rest = text[b:]
-    # Drop the forward declaration of smc_ui_off(): a harness that does not
-    # copy its definition would fail -Werror=unused-function.
-    rest = rest.replace(OFF_DECL, "", 1) if rest.lstrip().startswith(OFF_DECL) else rest
-    return text[:a] + STUBS + rest
+    return no_display(text[:a] + STUBS + text[b:])
 
 
 if __name__ == "__main__":

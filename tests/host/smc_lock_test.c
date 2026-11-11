@@ -144,6 +144,7 @@ static void test_pattern_lock(void)
     knob(0, 1); CHECK(proj.pat[8].bass[1].gen.density > 70);
 
     setup(V_SEQ, PART_BRK); seq.ppat[PART_BRK] = 3; build_pages();
+    *page_of(V_SEQ) = 1; build_pages(); smc_page_set(1);   /* GROOVE: page 0 is SEQUENCE (BREAK RATE) since 0.0.25 */
     proj.pat[3].brk.set[BRK_COMPLEX] = 30;
     proj.pat[5].brk.set[BRK_COMPLEX] = 80;
     CHECK(smc_lock_toggle()); seq.ppat[PART_BRK] = 5;
