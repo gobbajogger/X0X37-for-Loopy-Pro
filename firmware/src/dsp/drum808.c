@@ -1044,7 +1044,8 @@ __attribute__((noinline)) static void hat_choke(d8_hat_t *v)
     v->lin_n = 0;
 }
 
-D8_TICK float hat_tick(d8_hat_t *v, float bus)
+/* called from two lanes, so the compiler kept it a function: a call per sample. Always inlined. */
+static inline __attribute__((always_inline)) float hat_tick(d8_hat_t *v, float bus)
 {
     float t1 = bus - v->d1, hp, e, sv;
     int k, np;
@@ -1823,11 +1824,11 @@ __attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float
     float now = 0.0f;
     int i;
     for (i = 0; i < m; i++) {
-        float a = buf[i] < 0.0f ? -buf[i] : buf[i];
+        float a = fm_fabsf(buf[i]);               /* (+0 for -0: compares the same, never stored) */
         if (a > now)
             now = a;
-        if (a > pk) { pk = a; threshold = pk * D8_TAIL_K; }
-        if (a > threshold)
+        if (D8_UNLIKELY(a > pk)) { pk = a; threshold = pk * D8_TAIL_K; }
+        if (__builtin_expect(a > threshold, 1))
             qn = 0;
         else
             qn++;
@@ -1840,7 +1841,7 @@ __attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float
 }
 #endif
 
-__attribute__((noinline)) static int lane_on(const drum808_t *d, int l) { return d->lane[l].cg > 0.0f && voice_active(d, l); }
+static inline __attribute__((always_inline)) int lane_on(const drum808_t *d, int l) { return d->lane[l].cg > 0.0f && voice_active(d, l); }
 
 X0X_COLD float drum808_env(const drum808_t *d, int track)
 {
