@@ -837,6 +837,11 @@ static inline __attribute__((always_inline)) float blep_fix(uint32_t t, uint32_t
 {
     float x;
     uint32_t r;
+    /* Common case first, one compare: t is neither in [0, dt) nor in (2^32 - dt, 2^32).
+     * (t + dt - 1) wraps into [0, 2 dt - 1) exactly for those t (dt >= 1, 2 dt < 2^31:
+     * bank_ratio caps inc at 4 x 7.8e7). Otherwise the full test below, unchanged. */
+    if (__builtin_expect(t + dt - 1u >= dt + dt - 1u, 1))
+        return 0.0f;
     if (t < dt) {
         x = (float)t / (float)dt;
         return x + x - x * x - 1.0f;
@@ -866,7 +871,7 @@ D8_TICK float bank_tick(d8_bank_t *b)
         uint32_t dt = b->inc[i] + (uint32_t)(int32_t)(p + (p >= 0.0f ? 0.5f : -0.5f));
         uint32_t old = b->ph[i];
         b->ph[i] = old + dt;
-        if (b->ph[i] < old || (b->pend_wrap & (1u << i))) {
+        if (__builtin_expect(b->ph[i] < old || (b->pend_wrap & (1u << i)), 0)) {
             b->pend_wrap &= (uint8_t)~(1u << i);
             b->jm1[i] = 0.0052f * rng_frand2(&b->rng);
         }
