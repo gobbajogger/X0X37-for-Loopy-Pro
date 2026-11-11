@@ -63,8 +63,10 @@ static uint32_t play_adpcm(d9_smp_t *s, float *out, uint32_t max, uint32_t *deco
 {
     static float dry[32];
     d9_bus_t bus;
+    static float y[256];                /* the voice's block before d9_emit_block */
     memset(&bus, 0, sizeof bus);
     bus.dry = dry;
+    bus.y = y;
     uint32_t k = 0;
     while (s->pos < s->len && k < max) {
         memset(dry, 0, sizeof dry);
@@ -143,8 +145,10 @@ int main(int argc, char **argv)
             trig(&s);
             static float dry[32];
             d9_bus_t bus;
+            static float y[256];
             memset(&bus, 0, sizeof bus);
             bus.dry = dry;
+            bus.y = y;
             for (int k = 0; k < 40; k++)
                 d9_render_smp(&s, &bus, 32);
             trig(&s);
