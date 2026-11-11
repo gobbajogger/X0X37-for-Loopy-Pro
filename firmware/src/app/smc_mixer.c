@@ -1148,6 +1148,7 @@ static void smc_ui_draw_peer(void)
     char name[24], num[32], unit[12], tag[80];
     const char *status = 0;
     int status_symbol=UI_G_CHECK, value_symbol=UI_G_NONE, action_state=-1, target_number=0;
+    int held_fx=-1;   /* M6: a held FX key's effect, drawn as the approved #815 item-6 footer */
     pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) : smc_target(smc_ui.strip);
     int kit = smc_drum_mix();
     int fx_note = smc_fx_header_note();
@@ -1230,6 +1231,7 @@ static void smc_ui_draw_peer(void)
             else put_s(num, SMCFX_LONG[fx]);
             status = SMCFX_PAGE_NAME[page];
             status_symbol=(smc.fx_down & (uint8_t)(1u<<bus))?UI_G_HOLD:UI_G_PATTERN;
+            if (owned && (smc.held[note >> 3] & (1u << (note & 7)))) held_fx = fx;
         } else {
             if (note < 24) {
                 if (kit < 0 && smc_ui.strip == 7) r = PR(R_ENG, T_FX, 0, FX_VOLUME);
@@ -1259,6 +1261,23 @@ static void smc_ui_draw_peer(void)
         if (smc_ui.kind == 0 && !(smc.picked & (1u << smc_ui.strip)))
             status_symbol=smc.last[smc_ui.strip]<smc_scaled(r)?UI_G_UP:UI_G_DOWN;
     }
+    if (held_fx >= 0) {
+        /* #815 item 6 (approved): one panel; HOLD + effect glyph, FX + < >, the effect name large. */
+        const uint16_t bright=RGB(145,239,246), dim_ink=RGB(45,70,72), amber=RGB(255,190,77);
+        int symbol = held_fx == SMCFX_EMPTY ? UI_G_FX_EMPTY : smc_fx_symbol((uint8_t)held_fx);
+        cv_rect(5,5,230,72,RGB(13,31,36));
+        cv_rect(5,5,230,1,bright); cv_rect(5,76,230,1,dim_ink);
+        cv_rect(5,5,1,72,dim_ink); cv_rect(234,5,1,72,dim_ink);
+        cv_rect(11,9,51,18,RGB(22,61,64));
+        ui_pictogram(15,10,UI_G_HOLD,1,amber);
+        ui_pictogram(33,10,symbol,1,bright);
+        text_c(146,10,&FONT_B,"FX + < >",C_WHITE);
+        cv_rect(12,30,216,1,dim_ink);
+        ui_pictogram(16,42,UI_G_PREV,2,bright);
+        ui_pictogram(206,42,UI_G_NEXT,2,bright);
+        text_c(120,34,tw(&FONT_M,num) > 174 ? &FONT_B : &FONT_M,num,C_WHITE);
+        goto commit;
+    }
     text_c(120, 4, tw(&FONT_S, name) > 232 ? &FONT_XS : &FONT_S, caps_of(name), C_WHITE);
     if (action_state>=0) {
         ui_pictogram(96,23,value_symbol,2,C_HI);
@@ -1283,6 +1302,7 @@ static void smc_ui_draw_peer(void)
         ui_pictogram(target_number?108:116,49,status_symbol,1,C_HI);
         if (target_number) {put_i(tag,target_number);cv_text(121,49,&FONT_XS,tag,C_HI);}
     }
+commit:
     cv_commit_popup_knobs();
 }
 void smc_ui_draw(void)
