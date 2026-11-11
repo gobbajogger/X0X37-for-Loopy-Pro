@@ -5,8 +5,20 @@
 static int32_t signed32(uint32_t x) {
  return x<=INT32_MAX?(int32_t)x:-1-(int32_t)(UINT32_MAX-x);
 }
-static int32_t asr15(int32_t x) {
- return x>=0?x/32768:-1-(int32_t)((uint32_t)(-(int64_t)x)-1)/32768;
+/* floor(x/32768) for every int32: an arithmetic shift (GCC and Clang shift signed
+ * values arithmetically). The old form compiled to a hardware divide for negative x.
+ * Checked equal for all 2^32 inputs. */
+#if (-1 >> 1) != -1
+#error "asr15 needs an arithmetic right shift"
+#endif
+static inline int32_t asr15(int32_t x) {
+ return x>>15;
+}
+/* miami_fx_low16, inline here (it was one out-of-line call per sample and channel) */
+static inline int16_t low16(int32_t input) {
+ uint32_t low=(uint32_t)input&65535u;
+ int32_t signed_low=low<32768u?(int32_t)low:(int32_t)low-65536;
+ return (int16_t)signed_low;
 }
 static int32_t product_shift(int32_t a,int32_t b) {
  return asr15(signed32((uint32_t)a*(uint32_t)b));
@@ -34,7 +46,7 @@ int original_fixed_fx_process(original_fixed_fx *s,const int32_t *dryL,const int
  if(!s||!effect||n>ORIGINAL_FX_CAPACITY)return 0;
  if(n&&(!dryL||!dryR||!scratchL||!scratchR||!outL||!outR))return 0;
  if(s->dirty){s->active_enable=s->pending_enable;s->target=s->active_enable?32767:0;s->dirty=0;}
- for(uint32_t i=0;i<n;i++){scratchL[i]=miami_fx_low16(dryL[i]);scratchR[i]=miami_fx_low16(dryR[i]);}
+ for(uint32_t i=0;i<n;i++){scratchL[i]=low16(dryL[i]);scratchR[i]=low16(dryR[i]);}
  effect(context,scratchL,scratchR,n);
  if(asr15(s->gain_state)==s->target){
   /* Settled: g stays the target for the whole block. */
