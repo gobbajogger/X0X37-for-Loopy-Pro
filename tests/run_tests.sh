@@ -361,6 +361,7 @@ run panic-chord sh tests/host/panic_chord_test.sh
 run panic-notes sh tests/host/panic_notes_test.sh
 run cq-reclaim sh tests/host/cq_reclaim_test.sh   # 42de2893 accept-order queue repair
 run cq-shift-preempt python3 tests/host/cq_shift_preempt_test.py   # one masked copy; a mid-shift pick sees no tear
+run optimization-equivalence sh tests/host/run_optimization_equivalence.sh
 run sdk-pin python3 tests/sdk_pin_test.py   # SDK V1.2.14 pins; a wrong SDK stops the build
 run native-nightly-probe python3 tests/host/test_native_nightly_build_probe.py
 run freeplay-rate-pads python3 tests/host/test_freeplay_rate_pad_port.py
