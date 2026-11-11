@@ -126,6 +126,8 @@ int plat_cpu2_set(int on);             /* main loop: 0 = done; -1 = it did not s
 int plat_cpu2_on(void);
 int plat_cpu2_run(void (*fn)(uint32_t), uint32_t arg);   /* ISR: 1 = the second core has it */
 int plat_cpu2_wait(void);              /* ISR: 0 = done; -1 = it failed (and is off): do the job here */
+int plat_cpu2_busy(void);              /* ISR, no wait: 1 = still on its job, 0 = done, -1 = it read a wrong job (call plat_cpu2_wait) */
+void plat_cpu2_sync(void);             /* ISR, either core: a barrier both cores' caches see */
 int plat_cpu2_gave_up(void);           /* why it is off: 0 no, 1 it read a wrong job (fm1-x0x#10), 2 one did not finish */
 uint32_t plat_cpu2_bad(void);          /* wrong jobs it saw (0 on a unit that runs both cores) */
 uint32_t plat_xruns(void);

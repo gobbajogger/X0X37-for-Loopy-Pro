@@ -346,12 +346,25 @@ static inline int fm1_cpu1_wait(void)
         }
         if (fm1_c1_mb.done == fm1_c1_mb.job)
             return 0;
-        if (FM1_C1_T4 - t0 > 24000u * 8u) {     /* 8 ms: far past any stretch (or it faulted) */
+        if (FM1_C1_T4 - t0 > 24000u * 24u) {    /* 24 ms, two blocks: far past any job (or it faulted);
+                                                 * core 1 may now carry the larger share of a block */
             fm1_cpu1_hold();
             fm1_c1_gave_up = 2;
             return -1;
         }
     }
+}
+
+/* a barrier for data shared by the two cores' audio jobs (either core) */
+static inline void fm1_cpu1_sync(void) { FM1_C1_SYNC(); }
+
+/* no wait: 1 = core 1 is still on the job, 0 = done, -1 = it read a wrong job (fm1_cpu1_wait holds it) */
+static inline int fm1_cpu1_busy(void)
+{
+    FM1_C1_SYNC();
+    if (fm1_c1_mb.bad)
+        return -1;
+    return fm1_c1_mb.done != fm1_c1_mb.job;
 }
 
 /* Park core 1 before the flash goes off (main loop only, core 0's interrupts still on): 1 = parked,

@@ -368,6 +368,8 @@ int plat_cpu2_set(int on)
 int plat_cpu2_on(void) { return fm1_c1_on; }
 int plat_cpu2_run(void (*fn)(uint32_t), uint32_t arg) { return fm1_cpu1_run(fn, arg); }
 int plat_cpu2_wait(void) { return fm1_cpu1_wait(); }
+int plat_cpu2_busy(void) { return fm1_cpu1_busy(); }
+void plat_cpu2_sync(void) { fm1_cpu1_sync(); }
 int plat_cpu2_gave_up(void) { return fm1_c1_gave_up; }
 uint32_t plat_cpu2_bad(void) { return fm1_c1_mb.bad; }
 uint32_t plat_xruns(void) { return audio_xruns; }
