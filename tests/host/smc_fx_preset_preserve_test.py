@@ -94,6 +94,10 @@ static int smc_fx_nav_index(uint8_t note) { (void)note; return -1; }
 static uint32_t plat_ms(void) { return now; }
 static uint32_t plat_buttons(void) { return 0; }
 static void say(const char *left, const char *right) { (void)left; (void)right; }
+#ifndef NPARTS
+#define NPARTS 5
+#endif
+static const char *part_name(int part) { (void)part; return ""; }
 static void smc_fx_save_preset(void) { saves++; }
 static void smc_fx_reset_cuts(void) { resets++; }
 static void smc_fx_show(uint8_t note) { (void)note; shows++; }
