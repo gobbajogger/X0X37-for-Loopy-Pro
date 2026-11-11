@@ -352,6 +352,8 @@ run chicago-fx2-inserts sh tests/host/chicago_fx2_inserts_test.sh build/chicago_
 run original-sound-cell sh tests/host/original_sound_cell_test.sh build/original-sound-cell
 run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
 run original-build python3 tests/host/test_original_build_composition.py
+run sdk-pin python3 tests/sdk_pin_test.py   # SDK V1.2.14 pins; a wrong SDK stops the build
+run native-nightly-probe python3 tests/host/test_native_nightly_build_probe.py
 run freeplay-rate-pads python3 tests/host/test_freeplay_rate_pad_port.py
 run freeplay-live-keys sh tests/host/freeplay_live_keys_test.sh
 run synth-bus-mute sh tests/host/synth_bus_mute_test.sh

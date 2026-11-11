@@ -144,12 +144,22 @@ ORIGINAL_SYNTH_FLAGS = ["-fno-fast-math", "-ffp-contract=off", "-DNDEBUG",
                         "-DX0X_FAST_FMA"]   # device: mul+add for the soft FMA (docs/perf/engine-load-20261031.md)
 LINE = re.compile(r"^\s*([0-9a-f]+):\s+((?:[0-9a-f]{2} )+)\s*\t(.*)$")
 
-# SDK files of AC79NN_SDK_V1.2.14_2026-10-13 (owner-selected 2026-11-08)
+# SDK files of AC79NN_SDK_V1.2.14_2026-10-13 (owner-selected SDK for 0.0.25 and new NIGHTLY builds)
+SDK_TAG = "AC79NN_SDK_V1.2.14_2026-10-13"
 SDK_SHA256 = {
     "uboot.boot": "64ccc63e4df3238046fadb200f1b134311d8fe6ec6e3ccb8c8b81379231b867e",
     "cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
     "cfg/eq_cfg_hw.bin": "179ac9f4501d2cf8c3bdbc06fcda1e46228b7ace7e339342c767bb6568de57d8",
 }
+
+
+def check_sdk(read=None):
+    """Stop the build before anything is compiled unless every pinned SDK file matches."""
+    read = read or fm1pkg_make.sdk_file
+    for rel, sha in SDK_SHA256.items():
+        got = hashlib.sha256(read(rel)).hexdigest()
+        if got != sha:
+            raise SystemExit(f"build: SDK {rel} sha256 {got} does not match pinned {SDK_TAG} ({sha})")
 
 PRODUCT = "FM-1_900"                # package identity; release builds are FM-1_9XXYYZZ (see main)
 BOARD = "fm1"                       # fm1 (default) or smk37: BOARD env or --board
@@ -706,9 +716,7 @@ def main():
         RELEASE_LABEL = ident["release_label"]
         name = f"{stem}-{ident['filename']}.fwsc"
     fm1pkg_make.SDK = a.sdk
-    for rel, sha in SDK_SHA256.items():          # fail early without the SDK
-        if hashlib.sha256(fm1pkg_make.sdk_file(rel)).hexdigest() != sha:
-            raise SystemExit(f"build: SDK {rel} does not match pinned AC79NN_SDK_V1.2.14_2026-10-13")
+    check_sdk()                                  # fail early without the pinned SDK
     OUT.mkdir(parents=True, exist_ok=True)
     with ThreadPoolExecutor(2) as ex:
         gen, ldr = ex.submit(generate), ex.submit(build_loader)
