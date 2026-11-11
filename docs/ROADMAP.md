@@ -148,7 +148,7 @@ are in the NIGHTLY catalog entry for this source commit.
 
 | Row | Status in this build | Source |
 |---|---|---|
-| M1 PANIC | DONE in source. One implementation (recovered `4e036296`): notes-off runs before fresh onsets, so a Note On accepted after the request plays and records; presses queued before it are dropped before they can record. 42de `notes_off_suppress_rec` (d3510b82) and `midi_seq_take`/`cq_pick` not ported: they fix a same-drain silence this design does not have. 42de queue accept order on overflow ported. | `4e036296`, merge `a08cbeda` |
+| M1 PANIC | DONE in source. One implementation (recovered `4e036296`): notes-off runs before fresh onsets, so a Note On accepted after the request plays and records; presses queued before it are dropped before they can record. 42de `notes_off_suppress_rec` (d3510b82) and `midi_seq_take`/`cq_pick` not ported: they fix a same-drain silence this design does not have. Confirmed by `panic-clear` (d3510b82 test, ported; prefix-0 case now expects the same-drain press to sound and record, MIDI pushed through the epoch-stamping host queue): 0 failures, both Chicago and Miami builds. 42de queue accept order on overflow ported. | `4e036296`, merge `a08cbeda` |
 | M2 muted fader | DONE (unchanged) | 0.0.24.5 |
 | M3 instant tempo | DONE (unchanged) | 0.0.24.5 |
 | M4 sound-only reset | DONE | #860 via `4e036296` |
