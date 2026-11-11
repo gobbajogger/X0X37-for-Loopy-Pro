@@ -358,3 +358,5 @@ but marked not applicable to the one-peer controller. The active one-peer native
 host tests cover unaccepted HCI writes, delayed command credits, STOP/cancel
 cutoffs and saved Bluetooth setup. No firmware, controller or device PASS is
 claimed here; Elite/Pro SDK V1.2.1 and physical connection checks remain pending.
+
+Slot map (owner, 2026-11-12, not a Bluetooth change, not installed): user sample slots go from 2 back to 3. The 2026-10-26 cut had no reason in the owner's own words, and the owner asked for the slot back. Locked settings `slot_offsets`, `slot_sizes` and `pkg_slotmap` move with the source. Slots 1 and 2 stay at 0xC2000 (80 KiB) and 0xD6000 (120 KiB). Slot 3 is 0xB3000-0xBAFFF (32 KiB) in the VM spare FL_SMPV, after the three 4 KiB sector-0 shadows at 0xB0000-0xB2FFF. The flash map windows do not change.
