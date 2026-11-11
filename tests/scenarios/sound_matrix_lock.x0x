@@ -1,0 +1,26 @@
+# Chicago ENVELOPE attack is control 7; the graph and held-step lock agree.
+wait 300
+turn ALGO 4
+tap EDIT
+turn SELECT 5
+spin K1 -1
+wait 30
+expect page 7
+expect sound2.0.29 0
+turn SELECT -7
+param 2 0 7 51
+tap SEQ
+key w0 down
+tap EDIT
+tap EDIT
+tap EDIT
+tap EDIT
+expect page 3
+wait 1000
+spin K1 10
+wait 30
+shot locked_adsr.png
+expect lanes 1
+expect sound2.0.7 51
+expect laneval2.0.7.0 61
+key w0 up

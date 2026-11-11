@@ -1,0 +1,32 @@
+{
+  "base": "d633833ac369f8466bc2563791614206070e87d1",
+  "scope": "SMC SELECT LED read-only row3 predicate/source-bus bitindex fix at final2ed626fc with corrected feedback harness. Five registered current Linux selectors plus new LED runtime mutation and1919 corrected feedback assertions passed; source5a7->2ed feedback-only delta verified. Prior unaffected input/mutation/control proof mapped by byte-identical production outside pure smc_led. Fresh affected model app/package builds required. No29rerunritual, oldartifactrelabelling, hardware or release claim.",
+  "checks": [
+    {
+      "reason": "Qualify actual compiler Clang4.0.1 and pinned current controller SDK input bytes before build, record application SDK file digests.",
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import subprocess, pathlib, hashlib, json, re, os\nclang=pathlib.Path(os.environ['JIELI_TOOLCHAIN'])/'pi32v2/bin/clang'\ns=subprocess.check_output([str(clang),'--version'],text=True); print(s); assert 'clang version 4.0.1' in s\nsdk=pathlib.Path(os.environ['AC79_SDK'])\nprint('SDK_HEAD_FILE', (sdk/'.git/HEAD').read_text().strip())\nrows=re.findall(r'^([0-9a-f]{64}) (.+)$',pathlib.Path('ble/ctl/fetch_sdk.sh').read_text(),re.M)\nfor expected,rel in rows:\n actual=hashlib.sha256((sdk/rel).read_bytes()).hexdigest(); print(actual,rel); assert actual==expected\nfor rel in ['cpu/wl82/tools/uboot.boot','cpu/wl82/tools/cfg_tool.bin','cpu/wl82/tools/cfg/eq_cfg_hw.bin']:\n print(hashlib.sha256((sdk/rel).read_bytes()).hexdigest(),rel)\n"
+      ]
+    },
+    {
+      "reason": "Verify exact LED-scope receipts/current fixture blobs and read-only function closure mapping, preserving original feedback failure.",
+      "argv": [
+        "python3",
+        "-B",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py"
+      ]
+    }
+  ],
+  "dependencies": [
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/function-closure-map.json",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/input-reuse.json",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/receipt.json",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/checks.log",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/receipt.json",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/feedback.log"
+  ]
+}

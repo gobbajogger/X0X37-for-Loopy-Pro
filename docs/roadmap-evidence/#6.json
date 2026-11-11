@@ -1,0 +1,83 @@
+{
+  "row_id": "#6",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:130; /workspace/docs-audit/roadmap-status.md:47; out/docs/roadmap-evidence/#6.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#6 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint ONLY: green scenario-sound_matrix_miami (/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 34) visits the Miami preset page; possible selector/display lead. The row does not name it; this is not a binding and does not justify PRESENT.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#6 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:47 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:130",
+      "/workspace/docs-audit/roadmap-status.md:47",
+      "out/docs/roadmap-evidence/#6.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "original-release-integration",
+      "original-sound-cell"
+    ],
+    "evidence": "tests/host/original_release_integration_test.c:144: CHECK(engine_bass_preset_index(1)==54 && !strcmp(original_sound_name(0,54),\"Strome FX\"));; tests/host/original_sound_cell_test.c:29: assert(original_sound_name(kind,factory) && original_sound_engine_id(kind));",
+    "identifiers": [
+      {
+        "identifier": "original_sound_name",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:130"
+      }
+    ],
+    "matches": [
+      {
+        "test": "original-release-integration",
+        "symbol_from_row": "original_sound_name",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:130",
+        "file": "tests/host/original_release_integration_test.c",
+        "line": 144,
+        "quote": "CHECK(engine_bass_preset_index(1)==54 && !strcmp(original_sound_name(0,54),\"Strome FX\"));",
+        "identifier": "original_sound_name"
+      },
+      {
+        "test": "original-sound-cell",
+        "symbol_from_row": "original_sound_name",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:130",
+        "file": "tests/host/original_sound_cell_test.c",
+        "line": 29,
+        "quote": "assert(original_sound_name(kind,factory) && original_sound_engine_id(kind));",
+        "identifier": "original_sound_name"
+      }
+    ],
+    "recorded_results": {
+      "original-release-integration": {
+        "result": "FAIL",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 6",
+        "raw": "  FAIL original-release-integration"
+      },
+      "original-sound-cell": {
+        "result": "FAIL",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 8",
+        "raw": "  FAIL original-sound-cell"
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/original_sound.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/original_sound.c",
+        "line": 81,
+        "identifier": "original_sound_name",
+        "quote": "const char *original_sound_name(unsigned kind, unsigned factory)"
+      }
+    ]
+  }
+}

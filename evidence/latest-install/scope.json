@@ -1,0 +1,19 @@
+{
+  "source": "a5cb24dd08b40b80e802e03ff0d9c848315a9751",
+  "github_verified_main": true,
+  "previous_validated_revision": "1165396199210889fa460d26cbdd0b66183267e1",
+  "authorization": "Current owner request: Finish all stages and install the firmware that addresses all the commits. Latest GitHub lookup requested.",
+  "owner": "01a15b38-73dd-7363-9646-99f95a8f770c",
+  "mode": "development",
+  "reused_evidence": "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/final-result.json",
+  "deferred": "Failed asset cache is excluded from GitHub main; no new cache repair requested.",
+  "stages": {
+    "audit": "Current GitHub main and local histories inspected; accepted/deferred changes identified.",
+    "implement": "Requested committed firmware is already merged in main. No new firmware repair needed.",
+    "test": "Matching combined independent firmware/host evidence retained; explicit source comparison in source-comparison.json and validation check-0.",
+    "validate": "PASS: current exact Elite DEV application and controller built, input identity stable, package guards and budgets passed.",
+    "merge": "Existing a5cb24d merge selected; no duplicate merge.",
+    "install": "PASS: native guarded install and full controller readback, every complete loop slot byte-identical, five imported loops preserved.",
+    "push": "Main already includes requested code; completion evidence will use the previously approved private main destination after installation."
+  }
+}

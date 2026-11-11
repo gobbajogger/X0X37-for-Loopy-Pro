@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1220 660" role="img" aria-label="Proposed Bluetooth MIDI status comparison: single SMC peer before, two SMC peers after">
+<title>Proposed SMC peer status: before and after</title>
+<rect width="1220" height="660" fill="#0b0e13"/>
+<text x="610" y="53" fill="#eaf0f9" font-family="Arial,sans-serif" font-size="30" font-weight="700" text-anchor="middle">SMC BLE CENTRAL · SOURCE PORT ACTIVATION</text>
+<text x="610" y="85" fill="#9daabc" font-family="Arial,sans-serif" font-size="17" text-anchor="middle">Conceptual status presentation, not an instrument capture or implemented screen render</text>
+<g font-family="Arial,sans-serif">
+<rect x="40" y="115" width="550" height="475" rx="23" fill="#1b2533" stroke="#5a6576" stroke-width="2"/>
+<rect x="630" y="115" width="550" height="475" rx="23" fill="#1b2533" stroke="#5a6576" stroke-width="2"/>
+<text x="315" y="160" text-anchor="middle" font-size="24" fill="#e7eef6" font-weight="700">BEFORE · SINGLE PEER</text>
+<text x="905" y="160" text-anchor="middle" font-size="24" fill="#e7eef6" font-weight="700">AFTER · TWO PEERS</text>
+<rect x="93" y="184" width="444" height="338" rx="13" fill="#090d16" stroke="#677489" stroke-width="4"/>
+<rect x="683" y="184" width="444" height="338" rx="13" fill="#090d16" stroke="#677489" stroke-width="4"/>
+<text x="122" y="228" fill="#f4f7ff" font-size="24" font-weight="700">BLUETOOTH MIDI</text>
+<text x="712" y="228" fill="#f4f7ff" font-size="24" font-weight="700">BLUETOOTH MIDI</text>
+<text x="122" y="262" fill="#a1b6d8" font-size="18">BT ROLE</text>
+<text x="410" y="262" text-anchor="end" fill="#fff" font-size="18">SMC HOST</text>
+<text x="712" y="262" fill="#a1b6d8" font-size="18">BT ROLE</text>
+<text x="1000" y="262" text-anchor="end" fill="#fff" font-size="18">SMC HOST</text>
+<rect x="118" y="283" width="394" height="75" rx="7" fill="#142b36"/>
+<rect x="708" y="283" width="394" height="75" rx="7" fill="#142b36"/>
+<circle cx="149" cy="320" r="10" fill="#36cf87"/>
+<circle cx="739" cy="320" r="10" fill="#36cf87"/>
+<text x="177" y="312" fill="#f0f8ff" font-size="19" font-weight="700">SMC-Mixer 1</text>
+<text x="767" y="312" fill="#f0f8ff" font-size="19" font-weight="700">SMC-Mixer 1</text>
+<text x="177" y="338" fill="#67e3ad" font-size="15">CONNECTED · SLOT 1</text>
+<text x="767" y="338" fill="#67e3ad" font-size="15">CONNECTED · SLOT 1</text>
+<rect x="118" y="371" width="394" height="76" rx="7" fill="#191e29"/>
+<rect x="708" y="371" width="394" height="76" rx="7" fill="#142b36"/>
+<circle cx="149" cy="408" r="10" fill="#536074"/>
+<circle cx="739" cy="408" r="10" fill="#36cf87"/>
+<text x="177" y="402" fill="#9ba5b4" font-size="19" font-weight="700">SECOND SMC</text>
+<text x="767" y="402" fill="#f0f8ff" font-size="19" font-weight="700">SMC-Mixer 2</text>
+<text x="177" y="428" fill="#8491a3" font-size="15">UNAVAILABLE · SINGLE LINK</text>
+<text x="767" y="428" fill="#67e3ad" font-size="15">CONNECTED · SLOT 2</text>
+<text x="122" y="485" fill="#7c8b9e" font-size="15">Controller 1 link · outbound slot 2 rejected</text>
+<text x="712" y="485" fill="#7c8b9e" font-size="15">Controller 2 links · per-peer MIDI routing</text>
+<text x="315" y="556" text-anchor="middle" fill="#b5bfd0" font-size="16">Current firmware settings at c54d9f9b</text>
+<text x="905" y="556" text-anchor="middle" fill="#b5bfd0" font-size="16">Proposed behavior after port completion</text>
+<text x="610" y="633" text-anchor="middle" fill="#8e9aad" font-size="16">Illustrative names and layout. Actual LCD labels, orientation, radio behavior and hardware validation remain independent.</text>
+</g></svg>

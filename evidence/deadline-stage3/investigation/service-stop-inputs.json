@@ -1,0 +1,29 @@
+{
+  "candidate": {
+    "revision": "f080d1a5f31073dde600238f780acf37c12b2738",
+    "source_sha256": {
+      "firmware/src/ble/ble_midi_central.c": "0f400b3e9d88b95599eac7d3ce21f7fd71b990cb6530589dba08e6fcf235eb77",
+      "firmware/src/ble/ble_midi_central.h": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+      "firmware/src/ble.c": "3fe5f16f4e06a39290277bd51c21dbfc11a502cadba98ef777e43413a32d1bba"
+    },
+    "service_sha256": "f8e2b8b39526a6316dc06644d8c1ab6bfa3e14d7887d252f83c04b5f0347ff6f"
+  },
+  "before-deadline": {
+    "revision": "05eff604cb3f136db71727a2aeeea785cab73b99",
+    "source_sha256": {
+      "firmware/src/ble/ble_midi_central.c": "246252a8defe2a6accd92926d5d08cda87dd693dd252ebce5f055d32bfb423d4",
+      "firmware/src/ble/ble_midi_central.h": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+      "firmware/src/ble.c": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44"
+    },
+    "service_sha256": "c0982f10ea0590a8d01c8bae7a615013327134a472273fdeae36b8aab4e64bc7"
+  },
+  "before-session": {
+    "revision": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+    "source_sha256": {
+      "firmware/src/ble/ble_midi_central.c": "ca8eb6f5d7b8c6b603a19e53f8410e02ab2be075744964128dea488c823afe62",
+      "firmware/src/ble/ble_midi_central.h": "78fbd13f3524fee86dfdb2222dbc934d6fad3eadcfb4c2bc4e4b967c732aad6c",
+      "firmware/src/ble.c": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44"
+    },
+    "service_sha256": "c0982f10ea0590a8d01c8bae7a615013327134a472273fdeae36b8aab4e64bc7"
+  }
+}

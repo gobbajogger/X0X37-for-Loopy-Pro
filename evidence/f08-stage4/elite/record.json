@@ -1,0 +1,379 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "f67ea1e77b88ef1b08136fb33c1fc2a140d043911ebac27244789330213257e3",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "1a1e7a22d136fef6e30702c9d3207d22798a6dd382717acc5ab0f40d2f235acf",
+      "configuration": {
+        "model": "elite",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "6df0f81fbbe0adc3207f67d912d2fe0ab676be04",
+          "scope": "F08 BF-004 ownership-gated 303/BREAK Note Off only (firmware/src/app/engine.c blob ab6d9667e9cd40ae12cc8c8ece8d7bb12be29216 + tests/scenarios/midiowner.x0x; implement commit ce690772). Firmware tree changed vs audited tip 6df0f81f / content tree 69ccb3d7\u2026 (firmware tree 19840d87\u2026 \u2192 581d1cb2\u2026). Stage 3 ALL_PASS for required BF-004 host regressions (build_host, midiowner.x0x, usbnotes.x0x, blenotes.x0x, engine Note Off src_held gate for src<2 with TRS src>=2 release preserved). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-004-affected host checks. A host pass is not a package pass. Do not reopen BF-001, BF-002, BF-003, or FP-001. Do not implement deferred items. Do not take BF-005\u2013BF-007.",
+          "checks": [
+            {
+              "reason": "BF-004 host binary must build before scenario regressions.",
+              "argv": [
+                "sh",
+                "host/build_host.sh"
+              ]
+            },
+            {
+              "reason": "BF-004 midiowner must keep stale non-owner Off from clearing hold and allow owner/TRS release.",
+              "argv": [
+                "build/host/x0x_host",
+                "tests/scenarios/midiowner.x0x",
+                "build/scenarios/midiowner"
+              ]
+            },
+            {
+              "reason": "BF-004 must not regress USB note ownership (usbnotes).",
+              "argv": [
+                "build/host/x0x_host",
+                "tests/scenarios/usbnotes.x0x",
+                "build/scenarios/usbnotes"
+              ]
+            },
+            {
+              "reason": "BF-004 must not regress Bluetooth note ownership (blenotes).",
+              "argv": [
+                "build/host/x0x_host",
+                "tests/scenarios/blenotes.x0x",
+                "build/scenarios/blenotes"
+              ]
+            },
+            {
+              "reason": "BF-004 engine Note Off must gate USB/BT on src_held and keep TRS release.",
+              "argv": [
+                "bash",
+                "/workspace/evidence/f08-stage4/check-engine-noteoff-gate.sh"
+              ]
+            }
+          ],
+          "dependencies": [
+            "/workspace/evidence/f08-stage4/check-engine-noteoff-gate.sh"
+          ]
+        },
+        "dependencies": [
+          "/workspace/evidence/f08-stage4/check-engine-noteoff-gate.sh"
+        ]
+      },
+      "environment": {
+        "CXX": "c++",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1",
+        "CC": "cc",
+        "MODEL": "elite",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.12.94+"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "88771086fc5daeae12b9fe56617eed458f83c3e5a12d3f3825361d5ddc493b9d",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "0c618c6238d871609647467e8f4a1026a7d927cf57ce0ad118978edc09d24eca",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+          "executable": true
+        },
+        "git": {
+          "sha256": "eb54b535467e0975c1284d4c4d08eea779aeb248a5d34b02e2ee171382e22201",
+          "executable": true
+        },
+        "make": {
+          "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+          "executable": true
+        },
+        "node": {
+          "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "6452af2eea333b8c65e1adb92964fc8f97863ab003fa13f9d12bff5345cd7dbe",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "9276e918e3c26d3aa7ef9dd2232cd8ac692f03d3c1f270bfa5144a2b5492b713",
+          "executable": true
+        },
+        "python": {
+          "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+          "executable": true
+        },
+        "build/host/x0x_host": null
+      },
+      "python_packages": {
+        "numpy": {
+          "version": "1.26.4",
+          "sha256": "7dd34308cae1f97de5c2648c01086aa1e3d0b248880adf91a114d868237953f8"
+        },
+        "pillow": {
+          "version": "13.0.0",
+          "sha256": "232fc8e16099bee7e0e7755ccdd70edfff3869685d5aafcf305aa55274b168da"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        },
+        "/workspace/evidence/f08-stage4/check-engine-noteoff-gate.sh": {
+          "sha256": "13af2315e145785a67d539d336c39fa064718a49bc70c9fd2f4ffee643af9071",
+          "executable": true
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "elite",
+  "commit": "8a74ff52cba842c3f2d8365600286f94e6bccdf0",
+  "tree": "1a1e7a22d136fef6e30702c9d3207d22798a6dd382717acc5ab0f40d2f235acf",
+  "plan": {
+    "base": "6df0f81fbbe0adc3207f67d912d2fe0ab676be04",
+    "scope": "F08 BF-004 ownership-gated 303/BREAK Note Off only (firmware/src/app/engine.c blob ab6d9667e9cd40ae12cc8c8ece8d7bb12be29216 + tests/scenarios/midiowner.x0x; implement commit ce690772). Firmware tree changed vs audited tip 6df0f81f / content tree 69ccb3d7\u2026 (firmware tree 19840d87\u2026 \u2192 581d1cb2\u2026). Stage 3 ALL_PASS for required BF-004 host regressions (build_host, midiowner.x0x, usbnotes.x0x, blenotes.x0x, engine Note Off src_held gate for src<2 with TRS src>=2 release preserved). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-004-affected host checks. A host pass is not a package pass. Do not reopen BF-001, BF-002, BF-003, or FP-001. Do not implement deferred items. Do not take BF-005\u2013BF-007.",
+    "checks": [
+      {
+        "reason": "BF-004 host binary must build before scenario regressions.",
+        "argv": [
+          "sh",
+          "host/build_host.sh"
+        ]
+      },
+      {
+        "reason": "BF-004 midiowner must keep stale non-owner Off from clearing hold and allow owner/TRS release.",
+        "argv": [
+          "build/host/x0x_host",
+          "tests/scenarios/midiowner.x0x",
+          "build/scenarios/midiowner"
+        ]
+      },
+      {
+        "reason": "BF-004 must not regress USB note ownership (usbnotes).",
+        "argv": [
+          "build/host/x0x_host",
+          "tests/scenarios/usbnotes.x0x",
+          "build/scenarios/usbnotes"
+        ]
+      },
+      {
+        "reason": "BF-004 must not regress Bluetooth note ownership (blenotes).",
+        "argv": [
+          "build/host/x0x_host",
+          "tests/scenarios/blenotes.x0x",
+          "build/scenarios/blenotes"
+        ]
+      },
+      {
+        "reason": "BF-004 engine Note Off must gate USB/BT on src_held and keep TRS release.",
+        "argv": [
+          "bash",
+          "/workspace/evidence/f08-stage4/check-engine-noteoff-gate.sh"
+        ]
+      }
+    ],
+    "dependencies": [
+      "/workspace/evidence/f08-stage4/check-engine-noteoff-gate.sh"
+    ]
+  },
+  "changed_files": [
+    "evidence/f07-stage2/HANDOFF.md",
+    "evidence/f07-stage2/SUCCESSOR-STAGE3.txt",
+    "evidence/f07-stage2/api-create-stage3-skip.json",
+    "evidence/f07-stage3/CHECKS.md",
+    "evidence/f07-stage3/HANDOFF.md",
+    "evidence/f07-stage3/SUCCESSOR-STAGE4.txt",
+    "evidence/f07-stage3/api-create-stage4-skip.json",
+    "evidence/f07-stage3/conflation-alone.json",
+    "evidence/f07-stage3/conflation-fail.log",
+    "evidence/f07-stage3/host-unit.log",
+    "evidence/f07-stage3/live-fetch-check-result.json",
+    "evidence/f07-stage3/live-fetch-check.log",
+    "evidence/f07-stage3/planner-host.log",
+    "evidence/f07-stage3/product-paths-unchanged.log",
+    "evidence/f07-stage3/test-run-summary.json",
+    "evidence/f07-stage4/CHECKS.md",
+    "evidence/f07-stage4/HANDOFF.md",
+    "evidence/f07-stage4/SUCCESSOR-STAGE5.txt",
+    "evidence/f07-stage4/api-create-stage5-attempt1.json",
+    "evidence/f07-stage4/api-create-stage5-attempt2.json",
+    "evidence/f07-stage4/check-conflation-alone.sh",
+    "evidence/f07-stage4/dev-plan.json",
+    "evidence/f07-stage4/elite/build.log",
+    "evidence/f07-stage4/elite/check-0.log",
+    "evidence/f07-stage4/elite/check-1.log",
+    "evidence/f07-stage4/elite/check-2.log",
+    "evidence/f07-stage4/elite/check-3.log",
+    "evidence/f07-stage4/elite/controller.log",
+    "evidence/f07-stage4/elite/record.json",
+    "evidence/f07-stage4/pro/build.log",
+    "evidence/f07-stage4/pro/check-0.log",
+    "evidence/f07-stage4/pro/check-1.log",
+    "evidence/f07-stage4/pro/check-2.log",
+    "evidence/f07-stage4/pro/check-3.log",
+    "evidence/f07-stage4/pro/controller.log",
+    "evidence/f07-stage4/pro/record.json",
+    "evidence/f07-stage5/CHECKS.md",
+    "evidence/f07-stage5/HANDOFF.md",
+    "evidence/f07-stage5/SUCCESSOR-STAGE6.txt",
+    "evidence/f07-stage5/SUCCESSOR-STAGE7.txt",
+    "evidence/f07-stage5/api-create-stage7-attempt1.json",
+    "evidence/f07-stage5/api-create-stage7-attempt2.json",
+    "evidence/f07-stage5/gate-tree-check.log",
+    "evidence/f07-stage5/nightly-ff-refusal.log",
+    "evidence/f07-stage5/nightly-ff-summary.txt",
+    "evidence/f07-stage5/stage6-install-prompt.json",
+    "evidence/f07-stage7/CHECKS.md",
+    "evidence/f07-stage7/HANDOFF.md",
+    "evidence/f07-stage7/MAC-PAGES-PUSH.md",
+    "evidence/f07-stage7/SUCCESSOR-STAGE1.txt",
+    "evidence/f07-stage7/api-create-stage1-attempt1.json",
+    "evidence/f07-stage7/api-create-stage1-attempt2.json",
+    "evidence/f07-stage7/catalog.json",
+    "evidence/f07-stage7/cloud-gh-pages-403.log",
+    "evidence/f07-stage7/fp001-digest-fetch.log",
+    "evidence/f07-stage7/fp001-unit.log",
+    "evidence/f07-stage7/gh-pages-parent.txt",
+    "evidence/f07-stage7/gh-pages-prepared-commit.txt",
+    "evidence/f07-stage7/independent-qa-local-review.md",
+    "evidence/f07-stage7/live-verify.log",
+    "evidence/f07-stage7/nightly-npm-test.log",
+    "evidence/f07-stage7/package-manifest.txt",
+    "evidence/f07-stage7/prepare-candidate.log",
+    "evidence/f07-stage7/qualification.json",
+    "evidence/f07-stage7/versions.prepared.json",
+    "evidence/f08-stage1/AUDIT.md",
+    "evidence/f08-stage1/CHECKS.md",
+    "evidence/f08-stage1/HANDOFF.md",
+    "evidence/f08-stage1/SUCCESSOR-STAGE2.txt",
+    "evidence/f08-stage1/api-create-stage2-attempt1.json",
+    "evidence/f08-stage1/api-create-stage2-attempt2.json",
+    "evidence/f08-stage1/bf004-definition.md",
+    "evidence/f08-stage1/live-verify.log",
+    "evidence/f08-stage2/CHECKS.md",
+    "evidence/f08-stage2/DEFERRED.md",
+    "evidence/f08-stage2/HANDOFF.md",
+    "evidence/f08-stage2/SUCCESSOR-STAGE3.txt",
+    "evidence/f08-stage2/api-create-stage3-attempt1.json",
+    "evidence/f08-stage2/api-create-stage3-attempt2.json",
+    "evidence/f08-stage2/blenotes.log",
+    "evidence/f08-stage2/midiowner-green.log",
+    "evidence/f08-stage2/midiowner-red.log",
+    "evidence/f08-stage2/usbnotes.log",
+    "firmware/src/app/engine.c",
+    "tests/scenarios/midiowner.x0x"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 6612,
+    "ram_free": 492,
+    "pool_free": 8324
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "sh",
+        "host/build_host.sh"
+      ],
+      "returncode": 0,
+      "sha256": "c9971299dca5c0d9484ea93516d232862c522bd2d1f7b02434b953d06f7be11a"
+    },
+    "check-1": {
+      "argv": [
+        "build/host/x0x_host",
+        "tests/scenarios/midiowner.x0x",
+        "build/scenarios/midiowner"
+      ],
+      "returncode": 0,
+      "sha256": "0a577dc08ac1f41c3a47cba00337413bc36afb3b00b8ff89326ac4d7bca516b9"
+    },
+    "check-2": {
+      "argv": [
+        "build/host/x0x_host",
+        "tests/scenarios/usbnotes.x0x",
+        "build/scenarios/usbnotes"
+      ],
+      "returncode": 0,
+      "sha256": "2925e36cd8210a17647eb7e6fd83e6939fd7f0116e20c3d12aa58492b3489d27"
+    },
+    "check-3": {
+      "argv": [
+        "build/host/x0x_host",
+        "tests/scenarios/blenotes.x0x",
+        "build/scenarios/blenotes"
+      ],
+      "returncode": 0,
+      "sha256": "4600d0c8b55597f086702ac09d690db81ceaae2900c5445f509c0d466802c48d"
+    },
+    "check-4": {
+      "argv": [
+        "bash",
+        "/workspace/evidence/f08-stage4/check-engine-noteoff-gate.sh"
+      ],
+      "returncode": 0,
+      "sha256": "01a322907c2d9f3b8d384bc599c4d83d2d18ddde689648af69b76283f3f2faf7"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "92ec2c60a2e5f5cfea6191c63c126b56e35cb0951d7cde11d08dd75d66d737af"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "23aee3835209c4f8fe6e723b81a662ba74ff1abae015c98ef399b2bd4f335845"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37-elite.fwsc",
+      "sha256": "aab3cd8e245dedaf561cd973b3ce05aac33eb84ba0077b9b81cb1d9aa3b260b4"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}

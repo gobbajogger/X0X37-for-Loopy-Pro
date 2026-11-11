@@ -1,0 +1,37 @@
+{
+  "image": "x0x37-validation:local",
+  "image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "platform": "linux/amd64",
+  "network": "none",
+  "user": "501:20",
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "references": {
+    "schwung-9W9": {
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "status": ""
+    },
+    "schwung-8W8": {
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "status": ""
+    },
+    "schwung-303": {
+      "commit": "7680578cdecd91e512cfddb9c9eb07b287fb64f4",
+      "status": ""
+    },
+    "schwung-tb3po": {
+      "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "status": ""
+    }
+  },
+  "configuration": {
+    "X0X_DEV_PADCAL": 1,
+    "board": "smk37",
+    "models": [
+      "elite",
+      "pro"
+    ],
+    "controller": true
+  },
+  "command": "docker run --rm --platform linux/amd64 --network none --user 501:20 -v /Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37 -v /Users/mac/.jieli/toolchain:/Users/mac/.jieli/toolchain:ro -v /Users/mac/fw-AC79_AIoT_SDK:/sdk:ro -w /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021 x0x37-validation:local sh evidence/mapping-stage4/run-validation.sh"
+}

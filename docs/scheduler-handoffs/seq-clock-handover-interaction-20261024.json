@@ -1,0 +1,100 @@
+{
+  "evidence_revision": "seq-clock-pr35-pr48-two-paths-interaction-20261024-r1",
+  "role": "Sequencer Clock",
+  "stage": "SOURCE-SCOPED INTERACTION VALIDATION; INTEGRATION_PENDING",
+  "outcome": "DELIVERED",
+  "source_repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "source_pr": 35,
+  "source_head_before": "42c00bc772d76970b9044a2d75b76992b592e68a",
+  "source_root_before": "f96df076d231121daa0ff2e76c6cec846fc822fd",
+  "consumed_candidates": [
+    {
+      "pr": 103,
+      "head": "b7b472fd5cae89ca8af3473a19de8e6594692878",
+      "root": "2a2972589f360c064c7fd9ad51d420128ba56744",
+      "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+      "sequencer_blob": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+      "evidence_revision": "safe-merge-pr103-durable-backup-pr107-20261024-r8"
+    },
+    {
+      "pr": 35,
+      "head": "42c00bc772d76970b9044a2d75b76992b592e68a",
+      "sequencer_blob": "7345cab17c29ba3c26f58d1b2c042b05c1b55ef4"
+    },
+    {
+      "pr": 48,
+      "head": "3e75a5690a9dc0a085c2d4221f4d64b7e3d4a4b8",
+      "sequencer_blob": "b02cf26e938fbc58dddcab455b119998e96ce744"
+    }
+  ],
+  "code_scope": "Extracted/projection exact Git function windows seq_clk_take and seq_clk_drop; toggles exact #35 and #48 one-line amendments. Not linked unit/full root.",
+  "native_environment": "Linux x86_64 GCC/Clang UBSan",
+  "executed": [
+    {
+      "command": "sh run.sh",
+      "exit_code": 0,
+      "log": "logs/summary.txt",
+      "log_sha256": "d463e7f3aceb491d0da34fad06210f1e7eb75ab51147923499906c047fc74058"
+    },
+    {
+      "compiler": "gcc",
+      "compile_exit": 0,
+      "cases": {
+        "CANDIDATE": {
+          "exit": 1,
+          "pass": "68/92",
+          "expected_negative": true
+        },
+        "DROP_ONLY": {
+          "exit": 1,
+          "pass": "80/92",
+          "expected_negative": true
+        },
+        "TAKEOVER_ONLY": {
+          "exit": 1,
+          "pass": "88/92",
+          "expected_negative": true
+        },
+        "COMBINED": {
+          "exit": 0,
+          "pass": "92/92"
+        }
+      }
+    },
+    {
+      "compiler": "clang",
+      "compile_exit": 0,
+      "cases": {
+        "CANDIDATE": {
+          "exit": 1,
+          "pass": "68/92",
+          "expected_negative": true
+        },
+        "DROP_ONLY": {
+          "exit": 1,
+          "pass": "80/92",
+          "expected_negative": true
+        },
+        "TAKEOVER_ONLY": {
+          "exit": 1,
+          "pass": "88/92",
+          "expected_negative": true
+        },
+        "COMBINED": {
+          "exit": 0,
+          "pass": "92/92"
+        }
+      }
+    }
+  ],
+  "source_sha256": "5b9444ba86337d0384f23a7f889f576d91b587b5dfc10919f932e31d94312f41",
+  "runner_sha256": "ac58ae3b9a125bcec50e12f5877aa57b215b51742e092d9ca1139c3f975a1538",
+  "staged_firmware_input_change": false,
+  "qa": "PENDING",
+  "build": "NOT RUN FOR THIS EVIDENCE; firmwares not modified",
+  "device": "UNKNOWN/NOT TESTED",
+  "website": "NOT MODIFIED",
+  "next_owner": "Sole Safe Merge",
+  "next_action": "Consume ready source PRs #35 and #48 as two separate yet complementary clock fixes into PR #103; preserve existing seq changes; Independent QA run actual combined root and MIDI clock/NoteOff/Stop negative tests. Hourly Build may compile BUILD_ONLY in parallel.",
+  "remaining_gate": "INTEGRATED TWO-LINE SOURCE AND INDEPENDENT LINKED FULL-ROOT QA; before any public install selection model/controller/backup/OTA/source-license/immutable HTTP gates."
+}

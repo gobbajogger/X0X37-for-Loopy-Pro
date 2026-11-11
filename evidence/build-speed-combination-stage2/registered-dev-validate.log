@@ -1,0 +1,13 @@
+.......REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+......Preparing worktree (detached HEAD cdf7b07)
+HEAD is now at cdf7b07 fixture
+.Preparing worktree (detached HEAD cdf7b07)
+HEAD is now at cdf7b07 fixture
+.
+----------------------------------------------------------------------
+Ran 15 tests in 10.580s
+
+OK
+DEV CHECKED f4729b04bcc47945ed83eb39c39787e3e3a55141
+DEV OK f4729b0 /Users/mac/Documents/x0x37/build_speed_combination/build/host/iso/dev-validate/tmp/tmp7vaz5k86/result/record.json (config dev; queue: 0 open lines in f4729b0)

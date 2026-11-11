@@ -1,0 +1,74 @@
+[
+  {
+    "scenario": "step303",
+    "command": [
+      "build/host/x0x_host",
+      "tests/scenarios/step303.x0x",
+      "build/dsp-audit/step303"
+    ],
+    "exit": 0
+  },
+  {
+    "scenario": "usbnotes",
+    "command": [
+      "build/host/x0x_host",
+      "tests/scenarios/usbnotes.x0x",
+      "build/dsp-audit/usbnotes"
+    ],
+    "exit": 0
+  },
+  {
+    "scenario": "blenotes",
+    "command": [
+      "build/host/x0x_host",
+      "tests/scenarios/blenotes.x0x",
+      "build/dsp-audit/blenotes"
+    ],
+    "exit": 0
+  },
+  {
+    "scenario": "extclock",
+    "command": [
+      "build/host/x0x_host",
+      "tests/scenarios/extclock.x0x",
+      "build/dsp-audit/extclock"
+    ],
+    "exit": 0
+  },
+  {
+    "scenario": "tb3po",
+    "command": [
+      "build/host/x0x_host",
+      "tests/scenarios/tb3po.x0x",
+      "build/dsp-audit/tb3po"
+    ],
+    "exit": 0
+  },
+  {
+    "scenario": "probcond",
+    "command": [
+      "build/host/x0x_host",
+      "tests/scenarios/probcond.x0x",
+      "build/dsp-audit/probcond"
+    ],
+    "exit": 0
+  },
+  {
+    "scenario": "clkmove",
+    "command": [
+      "build/host/x0x_host",
+      "tests/scenarios/clkmove.x0x",
+      "build/dsp-audit/clkmove"
+    ],
+    "exit": 0
+  },
+  {
+    "scenario": "song",
+    "command": [
+      "build/host/x0x_host",
+      "tests/scenarios/song.x0x",
+      "build/dsp-audit/song"
+    ],
+    "exit": 0
+  }
+]

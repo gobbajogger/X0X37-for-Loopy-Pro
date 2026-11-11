@@ -1,0 +1,72 @@
+Cloud continuation handoff — 2026-10-20
+
+This branch transports incomplete work. It is not a tested release, a final
+integration, or evidence of device behavior. Firmware source at this branch's
+parent is unchanged from candidate 7983a0a6768f008b06696a0b3fdfb6d74a9092b4.
+The new commit adds only existing checkpoints, evidence, and this handoff.
+The original local lanes and dirty maintained checkout remain preserved.
+
+Owner instruction: finish the tasks, push to the private Git repository, and
+continue in the cloud; use local execution only for installation.
+On 2026-10-20 the owner confirmed publishing the cloud environment. Earlier
+handoffs describing an unpublished environment are historical. Publication
+does not establish that vendor downloads or firmware builds now pass.
+
+Read AGENTS.md and docs/agent-rules.md. This is one fresh stage-2 cloud
+implementation continuation. The former convergence owner has stopped and
+assigned the transition coordinator 01a15942-eadc-75b2-8836-077e7bbd94fb to
+launch exactly one cloud successor. Do not resume old chats for execution.
+No other local implementation, merge, or push owner remains active.
+
+All paths below are relative to this handoff folder. Original absolute Mac
+paths inside copied evidence identify historical sources, not cloud paths.
+transfer-sha256.json verifies the exact copied files.
+
+1. Read delivery_convergence_20261020/HANDOFF.txt, checkpoint-manifest.json,
+   and merge-resolutions.json. Source candidate 7983a0a includes the installed
+   a3680ca history, current de8f2d6 rules, and 649c5bc validation identity.
+   Finish FM-1 gate reconciliation; preserve current installer safety.
+
+2. Read smc_receive_repair_20261020/cloud-transition.txt. The SMC checkpoint
+   b9d4024ff12704f417c07a69ee55f372a07141c1 is preserved as the exact portable
+   delivery_convergence_20261020/smc-stage2-checkpoint.patch, based on a3680ca.
+   Integrate its net changes once, preserving candidate runner additions.
+   Fix the documented duplicated test block and complete HCI-to-real-UI
+   reachability checks and Elite/Pro target builds with memory margins.
+
+3. FM-1's eight-file unfinished patch is
+   delivery_convergence_20261020/fm1-stage2-checkpoint.patch, based on 649c5bc.
+   Its manifest/logs are in fm1_reference_stage2_20261020/build/fm1-reference-stage2.
+   Reconcile net identity/regression/gate changes with candidate source.
+   Do not downgrade installed tools or weaken the failing installer guards.
+
+4. Apply the owner's requested maintained rule with independent review:
+   reuse recorded captures and simulated sends for controller-input diagnosis
+   and regression; do not request another hands-on capture. Prior zero-packet
+   capture was idle, so it proves no receive failure. Existing BLE payload
+   capture and metadata are in smc_filter_fix/evidence. Distinguish exact
+   recorded payload replay, simulated HCI framing, resegmented supported-MTU
+   inputs, and physical-device evidence.
+
+5. Check the published environment's actual dependencies and vendor access.
+   cloud_setup_20261020 contains the prepared setup script and historical
+   settings. Keep SDK/toolchain outside Git and use original approved sources.
+   The script's Elite-only setup build is not full stage-4 validation.
+   Recent old onboarding thread 01a1590b-0b6c-730e-a482-dc9428a4f046 reported a
+   strict APC40 signedness fix plus host passes. Inspect its actual diff
+   read-only if available before reusing it; this transfer does not contain
+   that unverified onboarding delta.
+
+At stage-2 completion create exactly one fresh cloud stage-3 successor with
+separate scoped test/investigation subagents. Then use one stage-4 full
+candidate/package validation, one assigned stage-5 integrator, a local
+stage-6 installation with validated artifacts/controller and verified slot
+backup, and stage-7 normal fast-forward push to private repository main.
+Each completed stage creates one successor, with exact source and evidence.
+Do not claim or skip blocked stages. Do not run local builds or development.
+
+Approved destination: https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git
+This transfer uses an isolated checkpoint branch; main remains incomplete.
+Preserve disabled upstream push configuration. Never push refs-oscuro or
+proprietary SDK/toolchain data. Cancelled ed494755 browser UX and unrelated
+44c0f12 web-controller changes remain excluded. No public release authorized.

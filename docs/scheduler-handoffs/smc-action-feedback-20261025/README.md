@@ -1,0 +1,7 @@
+# Actual SMC actions and value feedback
+
+Buttons retain their physical positions and behavior while captions describe their current dispatch. Filter S/R show PART/HOME. The reused shortcut tables and key resolver are shared by input and renderer. Context-sensitive keyboard keys show LIST/OK, SONG/HOME/BACK, GLOB (Global) or GRID. Drum buttons keep M/S/R. X denotes a lock-blocked action; -- denotes an unused drum position. Captions fit the 22-pixel cells. Independent tests exposed and verified fixes for context-sensitive Home/Global/list behavior.
+
+Knobs reuse the keyboard’s 270-degree value arc and parameter formatting, with live mapped values and bipolar center references. Highlighted lane titles, amber touched controls, captured LOCK context and fader pickup remain distinct. The large lower name/value/unit/pickup readout is preserved. The static bottom transport/navigation glyph legend is removed; it was an orientation guide, not runtime feedback.
+
+ASan UI5781, lock527, independent caption/dispatch/width checks, 14 independent knob/pickup framebuffer checks and eleven runtime negative mutations pass. Independent source acceptance covers the exact final source hash; the final UI replay additionally asserts the removed footer stays empty. Native Elite DEV passes with 340 B code, 316 B RAM and 8324 B pool free. BUILD_ONLY only; no hardware, physical Pause binding, remapping or rollout.

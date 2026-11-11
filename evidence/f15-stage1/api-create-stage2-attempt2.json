@@ -1,0 +1,6 @@
+{
+  "attempt": 2,
+  "result": "NO_CURSOR_API_KEY",
+  "action": "skipped_POST_/v1/agents",
+  "note": "Second failure still Stage-1 ownership; coordinator CreateAgent required"
+}

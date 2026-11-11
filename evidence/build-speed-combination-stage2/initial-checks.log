@@ -1,0 +1,36 @@
+site: /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/x0x-combination-site-f_hmlb_c/site: index.html, install/ (FM-1_9001000), manual/, firmware/x0x-combination-check.fwsc (976 B)
+site: /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/x0x-combination-site-f_hmlb_c/site: index.html, install/ (SMK-37 Pro_9001000), manual/, firmware/x0x-combination-check.fwsc (976 B)
+site: /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/x0x-combination-site-f_hmlb_c/site: index.html, install/ (SMK-37 Elite_9001000), manual/, firmware/x0x-combination-check.fwsc (976 B)
+site: /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/x0x-combination-site-f_hmlb_c/site: index.html, install/ (MKE-P37_9001000), manual/, firmware/x0x-combination-check.fwsc (976 B)
+{
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "checked_head": "df2ae7948353b4cbc1ba3f620a6c06118f44d4f7",
+  "scope": "Initial accepted host/browser patches only; prerequisites remain pending.",
+  "firmware_tree": "878d5c734bf6d567db8a2120e9aeec873b85eaa7",
+  "firmware_unchanged": true,
+  "host_accepted_source_hashes": {
+    "host/build_host.sh": "0b0644ceb4706ed4f328081ac9699ce3e66cc2f8d4226d8666c57d4a39a27acd",
+    "tests/host/smc_drum_mutes_test.sh": "bb24f80cef63ca74b95697c72e89c12c6106b1024a2ab367d8629ec1b48d994f",
+    "tests/host/smc_performance_abort_test.sh": "a7563087ffbf02a2bbb52e3293866c733263166cfb55b3cc44492fdd158924dd",
+    "tests/host/smc_reachability_test.sh": "da6f2a5eb2ae64d594c4aa531ed4875baed4c74f50c4f8cd62b72fc5666a9c58",
+    "tests/host/test_host_setup.py": "72fb6713a228057dbc1885c262b4bdeda287304199a7c07fe6643896d48f5069",
+    "tests/host/ui_feedback_test.sh": "7016e5b56345fbb31e9b7d6174999d0204a715e4d91aa12d7fa9e07c594fddbf"
+  },
+  "native_preprocessor": {
+    "result": "PASS",
+    "sha256": "57851fb59deae5a7fbaf31de74857dc12066068224aca3b850b664e0380124d8",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n"
+  },
+  "site_identities": [
+    "FM-1_9001000",
+    "SMK-37 Pro_9001000",
+    "SMK-37 Elite_9001000",
+    "MKE-P37_9001000"
+  ],
+  "checks": "PASS firmware/source identity, native preprocessing equality, four site identities and diff whitespace.",
+  "limits": [
+    "No host/target/controller build or install. Marker packages check site generation only.",
+    "Runner class cleanup and stable validator cleanup remain pending checked prerequisites.",
+    "Host fixtures and production probes reuse accepted evidence until a consumer path changes."
+  ]
+}
