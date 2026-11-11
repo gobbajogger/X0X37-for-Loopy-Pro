@@ -16,7 +16,17 @@ uint32_t miami_fx_cleanup_rne(uint32_t input_bits);
  * Returns0 on invalid fz/null output, without modifying output. */
 int miami_fx_scaled_rne(uint32_t cleaned_bits, unsigned fz, uint32_t *out_bits);
 /* Instruction-result emulation, all binary32 bit patterns, no undefined cast. */
-int32_t miami_fx_fcvtzs(uint32_t scaled_bits);
+static inline int32_t miami_fx_fcvtzs(uint32_t u){
+    uint32_t mag=u&0x7fffffffu, negative=u>>31;
+    if (mag>0x7f800000u) return 0;
+    if (mag>=0x4f000000u) return negative?INT32_MIN:INT32_MAX;
+    if (mag<0x3f800000u) return 0;
+    unsigned exponent=(mag>>23)-127u;
+    uint32_t significand=(mag&0x007fffffu)|0x00800000u;
+    uint32_t value=exponent>=23 ? significand<<(exponent-23) :
+                                               significand>>(23-exponent);
+    return negative?-(int32_t)value:(int32_t)value;
+}
 int16_t miami_fx_low16(int32_t input);
 int miami_fx_input_rne(uint32_t input_bits, unsigned fz, int16_t *out);
 /* Exact signed16 domain, includes -32768. FDIV32767, NOT reciprocal FMUL. */
