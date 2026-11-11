@@ -123,8 +123,6 @@ typedef struct {                    /* six Schmitt squares, 0.32 fixed-point pha
     d8_rng_t rng;
     int32_t drift_cnt;
     uint8_t pend_wrap;              /* phases that start at >= 1.0 in 8W8 */
-    uint8_t dt_ok;                  /* bit i: dt[i] holds inc, drift and jm1's step (bank_tick) */
-    uint32_t dt[6];
 } d8_bank_t;
 
 typedef struct { float v, target, up, down; } d8_menv_t;
