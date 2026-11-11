@@ -86,6 +86,7 @@ static void smc_record_toggle(void) {}
 #define smc_select_drum(k,t) ((void)(k),(void)(t),build_pages())
 #define engine_voice_name(k,t) ((void)(k),(void)(t),"drum")
 static void say(const char *a,const char *b) { (void)a;(void)b; }
+static const char *part_name(int p) { (void)p; return ""; }
 static char notice[32];
 static void ui_say(const char *a,const char *b) { strcpy(notice,a);if(b)strcat(notice,b);ui.msg_until=plat_ms()+1300u; }
 static void mute_part(int p) { (void)p; }

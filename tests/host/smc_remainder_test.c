@@ -227,7 +227,7 @@ static void held_fx_arrows(void)
     CHECK(smc_page_now()==page && smc.knob_bank==bank);
     for(unsigned i=1;i<sizeof original;i++) CHECK(((uint8_t*)smc.fx_strip.map)[i]==original[i]);
     tap(0x62); CHECK(smc.fx_strip.map[0][0][0]==SMCFX_REV);
-    tap(0x62); CHECK(smc.fx_strip.map[0][0][0]==SMCFX_SHUF); /* backwards wrap */
+    tap(0x62); CHECK(smc.fx_strip.map[0][0][0]==SMCFX_HP); /* backwards wrap (909 suit ends with HP since owner 02:33) */
     arw_t arrows={0};
     CHECK(arw_frame(&arrows,2,ARW_SELECT,now_ms)==0); /* no generated SELECT detent */
     CHECK(smc.fx_strip.map[0][0][0]==SMCFX_REV); /* forward wrap */
@@ -238,17 +238,18 @@ static void held_fx_arrows(void)
     CHECK(arw_frame(&arrows,0,ARW_SELECT,now_ms)==0);
     CHECK(arw_frame(&arrows,2,ARW_SELECT,now_ms)==1); /* ordinary arrows restored */
 
-    /* An empty page-two slot owns its original page and stays silent until edited. */
+    /* An empty page-two slot owns its original page and stays silent until edited.
+     * Since owner 02:33 the 909 page two holds GATE, HP on REC/SOLO; MUTE is empty. */
     setup(V_FX,PART_303B); smc_fx_load_page(1);
-    message(0x90,0,127); CHECK(!smc.fx_down);
-    CHECK(smc.fx_strip.key_bus[0]==0);
+    message(0x90,16,127); CHECK(!smc.fx_down);
+    CHECK(smc.fx_strip.key_bus[16]==0);
     smc_fx_load_page(0); /* a separate page change cannot redirect the held edit */
-    tap(0x62); CHECK(smc.fx_strip.map[1][0][0]==SMCFX_SHUF);
-    CHECK(smc.fx_strip.map[0][0][0]==SMCFX_REV && smc.fx_down==1u);
-    message(0x80,0,0); CHECK(!smc.fx_down);
+    tap(0x62); CHECK(smc.fx_strip.map[1][0][2]==SMCFX_HP);
+    CHECK(smc.fx_strip.map[0][0][2]==SMCFX_STUT && smc.fx_down==1u);
+    message(0x80,16,0); CHECK(!smc.fx_down);
     setup(V_FX,PART_303B); smc_fx_load_page(1);
-    message(0x90,0,127); tap(0x63);
-    CHECK(smc.fx_strip.map[1][0][0]==SMCFX_REV); message(0x80,0,0);
+    message(0x90,16,127); tap(0x63);
+    CHECK(smc.fx_strip.map[1][0][2]==SMCFX_REV); message(0x80,16,0);
 
     /* HOME no longer assigns FX. Multiple held keys consume arrows without editing. */
     setup(V_FX,PART_303B); held_btn=1u<<B_HOME;
