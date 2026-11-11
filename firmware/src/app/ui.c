@@ -1458,6 +1458,7 @@ static void describe_pages(pages_t *out, page_query_t *query, int view, int p, i
             int b = p - PART_303A;
             do { static const pref_t refs[4] = {PR(R_BLEN, 0, 0, 0), PR(R_BRATE, 0, 0, 0), PR(R_BDIR, 0, 0, 0), PR(R_BTRANS, 0, 0, 0)};
             add_page_refs(emit, "SEQUENCE", refs, 1, b); } while (0);
+            add_page(emit, "PRESET", PR(R_BPATSND, 0, b, 0), NONE, NONE, NONE);   /* 0.0.25: this pattern's bass preset */
             emit->group = GR_NONE;                          /* (not the pattern's: no P1 in its name) */
             do { static const pref_t refs[4] = {PR(R_FREEPLAY, 0, 0, 0), NONE, NONE, NONE};
             add_page_refs(emit, "KEYS", refs, 1, b); } while (0);
@@ -1496,7 +1497,7 @@ static void describe_pages(pages_t *out, page_query_t *query, int view, int p, i
                 for (int col = 0; col < 4; col++) refs[col] = rows[row][col] < 0 ? NONE : PR(R_ENG,T_303,b,rows[row][col]);
                 add_page_refs(emit, titles[row],refs,0,0);
             }
-            add_page(emit, "SOUND",PR(R_BENGINE,0,b,0),PR(R_BPRESET,0,b,0),PR(R_BSTATUS,0,b,0),PR(R_BPATSND,0,b,0));
+            add_page(emit, "SOUND",PR(R_BENGINE,0,b,0),PR(R_BPRESET,0,b,0),PR(R_BSTATUS,0,b,0),NONE);
         } else {
             emit->group = GR_PAT;                           /* (its groove and retrigs: SEQ) */
             do { static const pref_t refs[4] = {PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE), PR(R_ENG, T_BRK, 0, 1)};
@@ -8669,6 +8670,28 @@ static void device_bt_save(void)
     say(rc ? "BT SAVE FAILED: RETRYING" : "BLUETOOTH SAVED", 0);
 }
 
+/* Per-pattern preset recall: the pattern a bass part plays next (its cue, else the playing
+ * one) asks for its preset once, gated to that pattern; the engine switches when that pattern
+ * plays and the voice is quiet (engine_bass_select_preset). Unset: nothing is requested. */
+static void pattern_sound_tick(void)
+{
+    static uint8_t seen_pat[NBASS] = {0xFF, 0xFF}, seen_val[NBASS];
+    for (int b = 0; b < NBASS; b++) {
+        int t = TRK_BASS0 + b, cue = seq_cue_of(&seq, t), pat = cue >= 0 ? cue : seq.ppat[t];
+        int gate = engine_bass_preset_gate(b);
+        unsigned ps = proj.pat[pat].rsv[b];
+        if (gate >= 0 && gate != pat && gate != seq.ppat[t] && engine_bass_preset_pending(b))
+            engine_bass_cancel_preset(b);                /* its cue was taken back */
+        if (seen_pat[b] == pat && seen_val[b] == ps) continue;
+        seen_pat[b] = (uint8_t)pat; seen_val[b] = (uint8_t)ps;
+        if (!ps) continue;
+        int bank = (int)(ps >> 7), preset = (int)(ps & 127u) - 1;
+        if (engine_bass_requested_bank(b) == bank && engine_bass_requested_preset(b) == preset &&
+            !engine_bass_preset_edited(b) && !engine_bass_preset_pending(b)) continue;
+        (void)engine_bass_select_preset_at(b, bank, preset, &proj.sound, pat);
+    }
+}
+
 /* AUTOSAVE: changes are saved by themselves while the pattern is stopped and nothing has been touched
  * for AUTOSAVE_QUIET ms, at most every AUTOSAVE_GAP ms. Stopped only: a flash erase silences the
  * audio. Only the objects that changed are written (project.c), usually one or two sectors. */
@@ -8716,28 +8739,6 @@ static void autosave(void)
         ui.save_failed = 1;
         say("SAVE FAILED", 0);
         break;
-    }
-}
-
-/* Per-pattern preset recall: the pattern a bass part plays next (its cue, else the playing
- * one) asks for its preset once, gated to that pattern; the engine switches when that pattern
- * plays and the voice is quiet (engine_bass_select_preset). Unset: nothing is requested. */
-static void pattern_sound_tick(void)
-{
-    static uint8_t seen_pat[NBASS] = {0xFF, 0xFF}, seen_val[NBASS];
-    for (int b = 0; b < NBASS; b++) {
-        int t = TRK_BASS0 + b, cue = seq_cue_of(&seq, t), pat = cue >= 0 ? cue : seq.ppat[t];
-        int gate = engine_bass_preset_gate(b);
-        unsigned ps = proj.pat[pat].rsv[b];
-        if (gate >= 0 && gate != pat && gate != seq.ppat[t] && engine_bass_preset_pending(b))
-            engine_bass_cancel_preset(b);                /* its cue was taken back */
-        if (seen_pat[b] == pat && seen_val[b] == ps) continue;
-        seen_pat[b] = (uint8_t)pat; seen_val[b] = (uint8_t)ps;
-        if (!ps) continue;
-        int bank = (int)(ps >> 7), preset = (int)(ps & 127u) - 1;
-        if (engine_bass_requested_bank(b) == bank && engine_bass_requested_preset(b) == preset &&
-            !engine_bass_preset_edited(b) && !engine_bass_preset_pending(b)) continue;
-        (void)engine_bass_select_preset_at(b, bank, preset, &proj.sound, pat);
     }
 }
 

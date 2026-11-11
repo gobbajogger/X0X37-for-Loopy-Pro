@@ -84,7 +84,7 @@ static int st_put_mutant(void *ctx, const uint8_t *p, uint32_t n)
 static int measure_ref(const project_t *pr, uint32_t *length)
 {
     const uint8_t *raw = (const uint8_t *)pr + RAW_OFF;
-    st_out_t o = {1, 0, 0, 0, 0};
+    st_out_t o = {1, 0, 0, 0, 0, PROJ_STREAM};
     lz_sink_t sink = {st_put_ref, &o};
     if (lz_compress(raw, RAW_LEN, &sink))
         return -7;
@@ -96,7 +96,7 @@ static int save_stream_ref(void)
 {
     const uint8_t *raw = (const uint8_t *)&proj + RAW_OFF;
     uint32_t crc = crc32_of(raw, RAW_LEN);
-    st_out_t o = {0, 0, 0, 0, 0};
+    st_out_t o = {0, 0, 0, 0, 0, PROJ_STREAM};
     lz_sink_t sink = {st_put_ref, &o};
     o.fill = STREAM_HDR;
     put32(io_buf, PROJ_STREAM);
@@ -353,7 +353,7 @@ static int measure_both(uint32_t *plen)
 
 static int save_both(const char *what)
 {
-    st_out_t dummy = {0, 0, 0, 0, 0};
+    st_out_t dummy = {0, 0, 0, 0, 0, PROJ_STREAM};
     int ra, rb;
     clear_store();
     memset(io_buf, 0x5A, sizeof io_buf);

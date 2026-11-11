@@ -35,6 +35,9 @@ int engine_nvoices(int t) { (void)t; return 0; }
 int engine_bass_sound_bank(const sound_t *s, int voice) { (void)s; (void)voice; return 0; }
 int engine_bass_sound_validate(const sound_t *s) { (void)s; return 0; }
 int engine_bass_preset_pending(int voice) { (void)voice; return 0; }
+/* 0.0.25 stream 14: pattern preset bounds and note-lock records */
+unsigned original_sound_factories(unsigned kind) { return kind ? 30u : 81u; }
+int engine_bass_note_validate(const lane_t *lane) { (void)lane; return 0; }
 const x0x_param_t *engine_bass_bank_param(int bank, int param)
 {
     static const x0x_param_t unused;

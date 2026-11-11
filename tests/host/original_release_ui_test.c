@@ -130,7 +130,7 @@ static void pages_and_edits(void)
             for (unsigned p=0;p<original_sound_count(kind);p++) if (p!=(unsigned)id) CHECK(proj.sound.v[T_303][voice][p]==saved[p]);
         }
         CHECK(seen==((1u<<(kind?16:20))-1)); CHECK(pg.r[n][0].kind==R_BENGINE && pg.r[n][1].kind==R_BPRESET);
-        CHECK(pg.r[n][2].kind==R_BSTATUS && pg.r[n][3].kind==R_BPATSND && pg.r[n][3].b==voice);   /* 0.0.25: PAT SOUND, per-pattern preset recall */
+        CHECK(pg.r[n][2].kind==R_BSTATUS && pg.r[n][3].kind==R_NONE);
         for (unsigned id=kind?16:20;id<original_sound_count(kind);id++) {
             pref_t r=PR(R_ENG,T_303,voice,id); uint8_t saved[32]; memcpy(saved,proj.sound.v[T_303][voice],32);
             CHECK(pref_read_only(r) && !lockable(r)); turn_ref(r,1,EN_K1); CHECK(!memcmp(saved,proj.sound.v[T_303][voice],32));
