@@ -148,19 +148,21 @@ are in the NIGHTLY catalog entry for this source commit.
 
 | Row | Status in this build | Source |
 |---|---|---|
-| M1 PANIC | DONE in source. One implementation (recovered `4e036296`); a Note On accepted after the request plays in the same drain (panic-cutover test). 42de queue accept order on overflow ported. | `4e036296`, merge `a08cbeda` |
+| M1 PANIC | DONE in source. One implementation (recovered `4e036296`): notes-off runs before fresh onsets, so a Note On accepted after the request plays and records; presses queued before it are dropped before they can record. 42de `notes_off_suppress_rec` (d3510b82) and `midi_seq_take`/`cq_pick` not ported: they fix a same-drain silence this design does not have. 42de queue accept order on overflow ported. | `4e036296`, merge `a08cbeda` |
 | M2 muted fader | DONE (unchanged) | 0.0.24.5 |
 | M3 instant tempo | DONE (unchanged) | 0.0.24.5 |
 | M4 sound-only reset | DONE | #860 via `4e036296` |
-| M5 | QUEUED: no definition in ROADMAP history (only "unknown item"). Nothing invented. | - |
-| M6 SMC FX presentation/throw | PARTIAL: existing FX behavior kept; approved presentation not built. QUEUED. | - |
-| M7 part ON/OFF | PARTIAL: core + saved state (#854 via `4e036296`); settings UI QUEUED. | `4e036296` |
+| M5 | QUEUED: no definition in ROADMAP history (only "unknown item", 94af36cd). Nothing invented. | - |
+| M6 SMC FX effect selection/throw | DONE for the approved effect mockup: held FX key + < > steps that key's effect (existing), approved footer panel (#815 item6-after-effect). Drum fill not approved, not built. | `311897d7` |
+| M7 part ON/OFF | DONE: core + saved state (#854 via `4e036296`); GLOBAL > AUDIO toggles per part (#815 item 7). | `4e036296`, `336eaa4f` |
 | M8 PLAY answers question, HOME+PLAY redo | DONE | #860 via `4e036296` |
-| M9 integration | DONE for built items; L14 SMC-snapshot lanes (`9ffe5d6d`, `13b43154`) NOT merged: 16 conflict hunks in ui.c/smc_mixer.c and open COPY/SONG/CLEAR review blocker. | this merge |
-| M10 pool >= 8,192 B | see catalog entry (Elite and Pro measured) | build |
-| M11 NIGHTLY | see catalog entry | publish |
-| M12 completeness gate | PARTIAL: #822 not adopted (its audit is 2 PRESENT / 144 MISSING / 62 QUEUED and would block every package). | #822 |
-| M13 1/8, 1/4 rates | PARTIAL: #824 timing core in (`2a81b7ff`); UI/BREAK/editor/storage QUEUED. | `2a81b7ff` |
+| M9 integration | DONE for built items. Not merged: L14 SMC snapshot (`9ffe5d6d`, `13b43154`, `fb6b5827`): it is built on the keyboard page peek that the owner withdrew in 3f7baf16 and needs +1,888 B .bss against 716 B RAM headroom. The default build has one SMC peer. | this merge |
+| M10 pool >= 8,192 B | DONE: 8,328 B free on Elite and on Pro | build |
+| M11 NIGHTLY | DONE: see the catalog entry for this source commit | publish |
+| M12 completeness gate | PARTIAL: #822 not adopted. It needs a pinned proof for every required ROADMAP row (2 PRESENT / 144 MISSING at its last audit) and an independently accepted release selection; not populated. | #822 |
+| M13 1/8, 1/4 rates | PARTIAL: timing core (`2a81b7ff`), RATE selectors for drum and bass parts and offline editor/import (`336eaa4f`). QUEUED: BREAK rate (fixed 1/16), downgrade policy (0.0.24.5 reads rate & 3, so 1/8 and 1/4 load as 1/16 and 1/16T there). | `2a81b7ff`, `336eaa4f` |
+| SMC CLIP KEYS tag | DONE: ported from 42de2893 | `03c8f007` |
+| Queued-mutes toggle | QUEUED: no definition or code on any branch | - |
 
 ### Preserved packaging requirements
 
