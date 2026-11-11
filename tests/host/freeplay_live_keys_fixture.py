@@ -18,5 +18,5 @@ s+='''\nstatic unsigned irq_depth;
 static uint32_t irq_save(void){return irq_depth++;}
 static void irq_restore(uint32_t f){irq_depth=f;}
 '''+fn(p,'uint64_t plat_physical_keys(')+'\n'+fn(p,'int plat_outer_keys(')
-s+='\n'+(root/'tests/host/freeplay_live_keys_cases.inc').read_text()
+s+='\n'+(root/os.environ.get('X0X_LIVE_CASES','tests/host/freeplay_live_keys_cases.inc')).read_text()
 (out/'probe.c').write_text(s)
