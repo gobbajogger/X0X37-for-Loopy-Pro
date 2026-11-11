@@ -195,7 +195,7 @@ static void test_all_parts(const char *bank)
     printf("  %s: every part records its own channel at once (909, 808, BREAK, A, B): checked\n", bank);
 }
 
-/* QA #734 (a8d9019f): an onset queued in rec_q keeps the REC context it came in.
+/* QA #734: an onset queued in rec_q keeps the REC context it came in.
  * Audio runs alone here (no UI frame), so the onset waits in the queue while
  * the context changes; the next UI frame must not write it. */
 static void audio_only(void)
@@ -203,35 +203,194 @@ static void audio_only(void)
     static int32_t b[512];
     engine_render(b, 256);
 }
-static void test_stale_onsets(void)
+/* Keep audio and UI scheduling separate at each recorder boundary. */
+static int queued_part_hits(int part)
 {
-    int k = 0, v = 2, note = GM_DRUM[k][v], ch = seq.ch[TRK_DRUM + k], old, other;
-    /* 1. REC off at the event, REC on before the drain */
-    select_part(k); clear_drum(k);
+    return part < NKIT ? drum_hits(part, 2) :
+        __builtin_popcount(proj.pat[seq.ppat[PART_BRK]].brk.steps & 0xffffu);
+}
+static void queued_part_clear(int part)
+{
+    if (part < NKIT) clear_drum(part);
+    else memset(&proj.pat[seq.ppat[PART_BRK]].brk, 0, sizeof proj.pat[0].brk);
+}
+static void queue_part_voice(int part, int voice)
+{
+    int ch = seq.ch[part], note = part < NKIT ? GM_DRUM[part][voice] : 12 + voice;
+    midi3(0x90 | ch, note, 90); audio_only();
+    midi3(0x80 | ch, note, 0); audio_only();
+}
+static void queue_part_onset(int part) { queue_part_voice(part, 2); }
+static int queued_voice_hits(int part, int voice)
+{
+    if (part < NKIT) return drum_hits(part, voice);
+    const brkpart_t *bp = &proj.pat[seq.ppat[part]].brk;
+    int n = 0;
+    for (int st = 0; st < 16; st++)
+        n += ((bp->steps >> st) & 1u) && bp->slice[st] == voice + 1;
+    return n;
+}
+/* Exercise the real audio-owned cue/bar-boundary path without waiting a bar. */
+static void cue_part_now(int part, int pattern)
+{
+    seq_cue_part(&seq, part, pattern);
+    seq.t[TRK_DRUM].pos = (uint8_t)(seq_part_len(&seq, TRK_DRUM) - 1);
+    seq.t[TRK_DRUM].started = 1;
+    seq.t[TRK_DRUM].to_next = 0;
+    audio_only();
+    CHECK(seq.ppat[part] == pattern, "part %d: queued pattern takes effect", part);
+}
+static void queued_part_control(int part, const char *name)
+{
+    queue_part_onset(part); tick(20);
+    CHECK(queued_part_hits(part) == 1, "%s: current-context onset writes one step (got %d)", name, queued_part_hits(part));
+    queued_part_clear(part);
+}
+static void test_part_boundaries(int part, const char *name)
+{
+    int old, other;
+    select_part(part); queued_part_clear(part);
     set_play(1); tick(100);
-    midi3(0x90 | ch, note, 90); audio_only(); midi3(0x80 | ch, note, 0);
+    queue_part_onset(part);
     set_rec(1); tick(20);
-    CHECK(drum_hits(k, v) == 0, "stale: onset before REC on is not written (steps %d)", drum_hits(k, v));
-    /* control: the same onset with REC on is written */
-    midi3(0x90 | ch, note, 90); tick(5); midi3(0x80 | ch, note, 0); tick(20);
-    CHECK(drum_hits(k, v) == 1, "stale control: REC on onset writes one step (steps %d)", drum_hits(k, v));
-    /* 2. pattern change before the drain */
-    old = seq.ppat[k]; other = (old + 1) % NPAT;
-    memset(proj.pat[other].drum[k].hit, 0, sizeof proj.pat[0].drum[0].hit);
-    midi3(0x90 | ch, note, 90); audio_only(); midi3(0x80 | ch, note, 0);
-    seq.ppat[k] = (uint8_t)other;
-    tick(20);
-    CHECK(drum_hits(k, v) == 0, "stale: onset of P%d not written to P%d (steps %d)", old + 1, other + 1, drum_hits(k, v));
-    seq.ppat[k] = (uint8_t)old; tick(20);
-    /* 3. STOP then START before the drain */
-    clear_drum(k);
-    midi3(0x90 | ch, note, 90); audio_only(); midi3(0x80 | ch, note, 0);
-    seq.req_stop = 1; audio_only(); seq.req_start = 1; audio_only();
-    tick(20);
-    CHECK(seq.playing, "stale: playing again after STOP and START");
-    CHECK(drum_hits(k, v) == 0, "stale: onset of the old run not written in the new run (steps %d)", drum_hits(k, v));
+    CHECK(queued_part_hits(part) == 0, "%s: REC-off onset does not carry into REC-on", name);
+    queued_part_control(part, name);
+
+    queue_part_onset(part);
+    set_rec(0); set_rec(1); tick(20);
+    CHECK(queued_part_hits(part) == 0, "%s: disarming REC discards the pending onset", name);
+    queued_part_control(part, name);
+
+    set_play(0); queue_part_onset(part); set_play(1);
+    CHECK(queued_part_hits(part) == 0, "%s: stopped onset does not carry into START", name);
+    queued_part_control(part, name);
+
+    old = seq.ppat[part]; other = (old + 1) % NPAT;
+    cue_part_now(part, other); queued_part_clear(part);
+    cue_part_now(part, old);
+    queue_part_onset(part);
+    cue_part_now(part, other); tick(20);
+    CHECK(queued_part_hits(part) == 0, "%s: old-pattern onset does not write to new pattern", name);
+    queued_part_control(part, name);
+    cue_part_now(part, old); tick(20);
+    CHECK(queued_part_hits(part) == 0, "%s: old-pattern onset did not write to old pattern either", name);
+
+
+    queue_part_onset(part);
+    cue_part_now(part, other); cue_part_now(part, old); tick(20);
+    CHECK(queued_part_hits(part) == 0, "%s: pattern away/back before UI drain discards the old onset", name);
+    queued_part_clear(part);
+    queued_part_control(part, name);
+
+    queue_part_onset(part);
+    seq.req_stop = 1; audio_only(); tick(20);
+    CHECK(!seq.playing && queued_part_hits(part) == 0, "%s: STOP discards pending onset", name);
+    seq.req_cont = 1; audio_only(); tick(20);
+    CHECK(seq.playing && queued_part_hits(part) == 0, "%s: stopped onset stays discarded after CONTINUE", name);
+    queued_part_control(part, name);
+
+    queue_part_onset(part);
+    seq.req_stop = 1; audio_only(); seq.req_cont = 1; audio_only(); tick(20);
+    CHECK(seq.playing && queued_part_hits(part) == 0, "%s: STOP/CONTINUE before UI drain discards old-run onset", name);
+    queued_part_control(part, name);
+
+    queue_part_onset(part);
+    seq.req_stop = 1; audio_only(); seq.req_start = 1; audio_only(); tick(20);
+    CHECK(seq.playing && queued_part_hits(part) == 0, "%s: STOP/START before UI drain discards old-run onset", name);
+    queued_part_control(part, name);
+
+    queue_part_onset(part);
+    seq.req_start = 1; audio_only(); tick(20);
+    CHECK(seq.playing && queued_part_hits(part) == 0, "%s: START while playing discards old-run onset", name);
+    queued_part_control(part, name);
     set_rec(0); set_play(0);
-    printf("  external MIDI REC queue: REC on, pattern change and STOP/START drop stale onsets: checked\n");
+    printf("  %s REC boundaries: disarm, stopped input, pattern, STOP, START and CONTINUE: checked\n", name);
+}
+
+/* A boundary must discard the old onset and retain the first new onset even
+ * when both are processed before the next 16-ms UI drain. */
+static void test_fresh_boundary_onsets(int part, const char *name)
+{
+    int old, other;
+    select_part(part); queued_part_clear(part);
+    set_rec(1); set_play(1); tick(100);
+    for (int cont = 0; cont < 2; cont++) {
+        queue_part_voice(part, 2);
+        seq.req_stop = 1; audio_only();
+        if (cont) seq.req_cont = 1; else seq.req_start = 1;
+        audio_only(); queue_part_voice(part, 3); tick(20);
+        CHECK(queued_voice_hits(part, 2) == 0, "%s: %s discards old-run onset", name, cont ? "CONTINUE" : "START");
+        CHECK(queued_voice_hits(part, 3) == 1, "%s: first %s onset survives before UI drain (got %d)", name,
+              cont ? "CONTINUE" : "START", queued_voice_hits(part, 3));
+        queued_part_clear(part);
+    }
+    old = seq.ppat[part]; other = (old + 1) % NPAT;
+    cue_part_now(part, other); queued_part_clear(part);
+    cue_part_now(part, old); tick(20);
+    queue_part_voice(part, 2);
+    cue_part_now(part, other); queue_part_voice(part, 3); tick(20);
+    CHECK(queued_voice_hits(part, 2) == 0, "%s: pattern boundary discards old onset", name);
+    CHECK(queued_voice_hits(part, 3) == 1, "%s: first new-pattern onset survives before UI drain (got %d)", name, queued_voice_hits(part, 3));
+    queued_part_clear(part);
+    cue_part_now(part, old); tick(20);
+    CHECK(queued_part_hits(part) == 0, "%s: old-pattern onset was discarded", name);
+
+    queue_part_voice(part, 2);
+    set_rec(0); set_rec(1); queue_part_voice(part, 3); tick(20);
+    CHECK(queued_voice_hits(part, 2) == 0, "%s: REC off/on discards old onset", name);
+    CHECK(queued_voice_hits(part, 3) == 1, "%s: first rearmed REC onset survives before UI drain (got %d)", name, queued_voice_hits(part, 3));
+    queued_part_clear(part);
+    set_rec(0); set_play(0);
+    printf("  %s first new REC/START/CONTINUE/pattern onsets before UI drain: checked\n", name);
+}
+
+
+static void test_transport_generation_alias(void)
+{
+    select_part(PART_909); clear_drum(0);
+    set_rec(1); set_play(1); tick(100);
+    for (int count = 128; count <= 256; count *= 2) {
+        queue_part_voice(PART_909, 2);
+        for (int i = 0; i < count; i++) { seq.req_start = 1; audio_only(); }
+        queue_part_voice(PART_909, 3); tick(20);
+        CHECK(drum_hits(0, 2) == 0, "generation: old onset stays discarded after %d restarts before UI drain", count);
+        CHECK(drum_hits(0, 3) == 1, "generation: fresh onset survives %d restarts before UI drain", count);
+        clear_drum(0);
+    }
+    set_rec(0); set_play(0);
+}
+
+
+/* Reinitializing the engine resets the generation. Its old queue must reset
+ * too, even when a queued event has the same generation as the new engine. */
+static void test_transport_packet_then_onset(void)
+{
+    for (int part = 0; part < NPARTS; part++) for (int cont = 0; cont < 2; cont++) {
+        if (part >= NKIT && part != PART_BRK) continue;
+        select_part(part); queued_part_clear(part); set_rec(1);
+        int note = part < NKIT ? GM_DRUM[part][2] : 14;
+        seq.clk_src = SEQ_CLK_AUTO;
+        midi3(cont ? 0xFB : 0xFA, 0, 0);
+        midi3(0x90 | seq.ch[part], note, 90);
+        audio_only();
+        midi3(0x80 | seq.ch[part], note, 0); audio_only(); tick(20);
+        CHECK(queued_part_hits(part) == 1, "MIDI packet order: part %d first onset after %s in same input batch survives (got %d)",
+              part, cont ? "CONTINUE" : "START", queued_part_hits(part));
+        set_rec(0); set_play(0);
+    }
+}
+
+static void test_queue_reset(void)
+{
+    uint32_t ev;
+    engine_init(proj.pat, &proj.arr.song, proj.arr.lane, &proj.sound);
+    seq.playing = 1;
+    seq.rec_ext_mask = (uint8_t)((1u << NBASS) - 1u);
+    queue_part_onset(PART_909);
+    CHECK(engine_rec_ev_get(&ev), "reset: an onset can be queued before engine reinitialization");
+    queue_part_onset(PART_909);
+    engine_init(proj.pat, &proj.arr.song, proj.arr.lane, &proj.sound);
+    CHECK(!engine_rec_ev_get(&ev), "reset: no queued onset survives engine reinitialization");
 }
 
 int main(void)
@@ -242,13 +401,21 @@ int main(void)
     test_drum(0, "909");
     test_drum(1, "808");
     test_break();
-    test_stale_onsets();
+    for (int part = 0; part < NPARTS; part++) {
+        if (part >= NKIT && part != PART_BRK) continue;
+        const char *name = part == PART_909 ? "909" : part == PART_808 ? "808" : "BREAK";
+        test_part_boundaries(part, name);
+        test_fresh_boundary_onsets(part, name);
+    }
+    test_transport_generation_alias();
     for (int bank = 0; bank < 2; bank++) {   /* Chicago A + B, then Chicago A + Miami B */
         CHECK(!engine_bass_select_preset(0, 0, 0, &proj.sound), "Chicago on A");
         CHECK(!engine_bass_select_preset(1, bank, 0, &proj.sound), "bank on B");
         tick(100);
         test_all_parts(bank ? "Chicago+Miami" : "Chicago+Chicago");
     }
+    test_transport_packet_then_onset();
+    test_queue_reset();
     printf("ext_midi_rec: %s\n", fails ? "FAIL" : "ok");
     return fails != 0;
 }
