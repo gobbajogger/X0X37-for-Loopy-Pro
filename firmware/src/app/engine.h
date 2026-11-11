@@ -48,7 +48,7 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #undef X0X_BASS_TAGGED_SOUND
 #define X0X_BASS_TAGGED_SOUND 1
 #undef X0X_BASS_NOTE_SOUND
-#define X0X_BASS_NOTE_SOUND 0
+#define X0X_BASS_NOTE_SOUND 1          /* per-note sound lock (owner 2026-11-12); capture is opt-in */
 #endif
 /* Separate optional storage features for the legacy build profile. */
 #ifndef X0X_BASS_PRESET_PREVIEW
@@ -165,11 +165,17 @@ void engine_bass_sound_refresh(sound_t *sound,int voice);
 #if X0X_BASS_NOTE_SOUND
 #include "bass_note_sound.h"
 int engine_bass_note_validate(const lane_t *lane);
-int engine_bass_note_capture(lane_t *lanes,int pat,int voice,int step,const sound_t *sound);
+int engine_bass_note_capture(lane_t *lanes,int pat,int voice,int step,const sound_t *sound); /* 1: NOTE LOCK off */
+void engine_note_lock_capture(int on);   /* runtime NOTE LOCK switch (not saved) */
+int engine_note_lock_capture_on(void);
+void engine_note_lock_refresh(void);      /* main loop: lock records exist */
 #endif
 #endif
 #if X0X_BASS_PRESET_PREVIEW
 int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound);
+/* The same request, applied only while pattern pat plays (per-pattern preset recall). */
+int engine_bass_select_preset_at(int voice, int bank, int preset, sound_t *sound, int pat);
+int engine_bass_preset_gate(int voice);   /* the request's pattern, -1 none */
 #endif
 
 extern seq_t seq;                      /* the sequencer (its pattern pointer is the project's) */

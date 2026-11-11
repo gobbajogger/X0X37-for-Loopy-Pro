@@ -3,6 +3,11 @@
 #include "sequencer.h"
 #include "tb3po.h"
 #include "../x0x_cold.h"              /* X0X_COLD: boot/UI cue/chain — not advance/fire/clock/MIDI */
+/* Weak defaults: the engine (original_presets.inc) defines the real note-lock hooks. */
+__attribute__((weak)) int seq_bass_sound_prepare(seq_t *s, int voice, int pat, int step)
+{ (void)s; (void)voice; (void)pat; (void)step; return 1; }
+__attribute__((weak)) void seq_bass_sound_clear(seq_t *s, int voice, int pat, int step)
+{ (void)s; (void)voice; (void)pat; (void)step; }
 
 #ifndef SEQ_CHAIN_STORE_HOOK
 #define SEQ_CHAIN_STORE_HOOK(s) ((void)0)
@@ -285,7 +290,7 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
                 bp->step[p].note = r->note;
                 bp->step[p].velocity = bp->step[r->first].velocity;
                 bp->step[p].flags = G_TIE | 0xF0u;
-#if X0X_BASS_NOTE_SOUND
+#if SEQ_BASS_NOTE_SOUND
                 seq_bass_sound_clear(s,b,s->ppat[TRK_BASS0+b],p);
 #endif
             }
@@ -1203,7 +1208,7 @@ void seq_rec_bass_end(seq_t *s, int b)
                    (unsigned)(((elapsed << 8) * 15u + L / 2u) / L);
     if (!end && r->last != r->first) {
         bp->step[r->last].flags = G_REST;
-#if X0X_BASS_NOTE_SOUND
+#if SEQ_BASS_NOTE_SOUND
         seq_bass_sound_clear(s,b,r->pat,r->last);
 #endif
         r->last = r->prev;
@@ -1240,8 +1245,9 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
     int overlap = (flags & SEQ_REC_LEGATO) && owned && r->active && r->src == src;
     int t = TRK_BASS0 + b, p = seq_rec_step(s, t);
     int old = r->last == p ? r->prev : r->last, oldpat = r->pat;
-#if X0X_BASS_NOTE_SOUND
-    if(seq_bass_sound_prepare(s,b,s->ppat[t],p)) {
+#if SEQ_BASS_NOTE_SOUND
+    int sound_rc = seq_bass_sound_prepare(s,b,s->ppat[t],p);   /* 1: NOTE LOCK off, nothing stored */
+    if(sound_rc < 0) {
         s->rec_refused=2; /* sound pool full or sound identity unavailable */
         return;
     }
@@ -1249,7 +1255,7 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
      * A just-entered provisional tail can round back to the previous slot on
      * release. That tail is now the new onset: finalize the previous slot at
      * its full length without clearing the sound we just admitted. */
-    if (r->active && r->pat == s->ppat[t] && r->last == p &&
+    if (sound_rc == 0 && r->active && r->pat == s->ppat[t] && r->last == p &&
         r->last != r->first && r->entered == 1) {
         uint32_t elapsed = s->ext_now - r->at, L = r->slot;
         if (elapsed < (L >> 8) && ((elapsed << 8) * 15u + L / 2u) / L == 0) {

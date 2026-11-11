@@ -1029,6 +1029,7 @@ int engine_bass_accent(int p) { return (unsigned)p < NBASS ? bass_accent[p] : 0;
 int engine_bass_slide(int p) { return (unsigned)p < NBASS ? bass_slide[p] : 0; }
 #endif
 
+static void bass_onset(int v);          /* original_presets.inc: pattern preset, note lock */
 static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
     if ((unsigned)p >= NBASS) return 0;
@@ -1040,6 +1041,7 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
         bass_accent[p] = bass_slide[p] = 0;
         return 0;
     }
+    bass_onset(p);
     int previous = original_seq_note[p];
     if (!sl && previous >= 0)
         (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
@@ -2294,8 +2296,12 @@ void engine_render(int32_t *out_lr, uint32_t n)
         }
         done += k;
     }
-    if (mot_playing && !seq.playing)                     /* stopped: every knob back to its own value */
+    if (mot_playing && !seq.playing) {                   /* stopped: every knob back to its own value */
         motion_release(&mot);
+#if X0X_BASS_NOTE_SOUND
+        note_lock_stop();
+#endif
+    }
     mot_playing = seq.playing;
     {
         PROF_T(pt);
