@@ -1,0 +1,83 @@
+{
+  "candidate": "3d7b1999a245e84d6d9faf1241dd1078ef335d31",
+  "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.36",
+  "checks": [
+    {
+      "name": "knob-mapping",
+      "argv": [
+        "python3",
+        "tests/host/smc_mapping_test.py"
+      ],
+      "reason": "three intended knob modes, eleven tracks, bank bounds, unique fields and menu priority",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "knob-mapping.log"
+    },
+    {
+      "name": "pickup",
+      "argv": [
+        "python3",
+        "tests/host/smc_fader_test.py"
+      ],
+      "reason": "fader pickup, crossing, motion and inactive input preservation",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "pickup.log"
+    },
+    {
+      "name": "buttons",
+      "argv": [
+        "python3",
+        "tests/host/smc_buttons_test.py"
+      ],
+      "reason": "strip shortcuts and menu/page navigation preservation",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "buttons.log"
+    },
+    {
+      "name": "filter",
+      "argv": [
+        "python3",
+        "tests/host/smc_filter_test.py"
+      ],
+      "reason": "master filter destination and independent master mute feedback",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "filter.log"
+    },
+    {
+      "name": "clip-visibility",
+      "argv": [
+        "sh",
+        "tests/host/smc_clip_visibility_test.sh"
+      ],
+      "reason": "clip/menu/help/confirmation priority and ordinary field suppression",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "clip-visibility.log"
+    },
+    {
+      "name": "part-selection",
+      "argv": [
+        "sh",
+        "tests/host/smc_part_select_test.sh"
+      ],
+      "reason": "part selection/navigation preservation",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "part-selection.log"
+    },
+    {
+      "name": "reachability",
+      "argv": [
+        "sh",
+        "tests/host/smc_reachability_test.sh"
+      ],
+      "reason": "complete production UI/engine/queue/pickup with five injected or synthetic routes",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "reachability.log"
+    }
+  ]
+}

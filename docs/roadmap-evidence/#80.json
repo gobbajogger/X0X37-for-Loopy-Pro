@@ -1,0 +1,40 @@
+{
+  "row_id": "#80",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:204; /workspace/docs-audit/roadmap-status.md:121; The exact named test has a recorded failure at ce278129: web/test_install_local_file.mjs, ReferenceError t is not defined (test line 47). No explicit pinned ok supersedes it; it has no named suite-entry mapping.; /workspace/qa-receipt-m7a-final-ce278129.md:113: `timeout 180 node web/test_*.mjs` exits 0 and only executes the first expanded file. `timeout 180 node --test web/test_*.mjs` on both trees: exit 1, **101 pass / 2 fail**. Failures: `web/test_install_local_file.mjs` (`t is not defined` at `selectStockFile`, test file line 47) and `web/test_workspace_browser.mjs` (playwright missing). No new name versus `43de100c`.",
+  "notes": "matched_5f578fc0_master id=#80 status=in 0.0.24\nPASS1: [UNCLEAR] Named test file has no literal run entry or wrapper execution mapping in the frozen runner. Named files: web/test_install_local_file.mjs The named file exists, but tests/run_tests.sh contains no execution reference to it.\nPASS2: [TEST_FAILS] The exact named test has a recorded failure at ce278129: web/test_install_local_file.mjs, ReferenceError t is not defined (test line 47). No explicit pinned ok supersedes it; it has no named suite-entry mapping.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#80 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:121 (reconciled; gate result=MISSING)"
+    },
+    "category": "UNCLEAR",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:204",
+      "/workspace/docs-audit/roadmap-status.md:121",
+      "out/docs/roadmap-evidence/#80.json:original notes"
+    ],
+    "named_tests": [
+      [
+        "/workspace/docs-audit/_ROADMAP-5f578fc0.md:204",
+        "web/test_install_local_file.mjs"
+      ]
+    ],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2": {
+    "status": "UNPROVEN",
+    "category": "TEST_FAILS",
+    "reason": "The exact named test has a recorded failure at ce278129: web/test_install_local_file.mjs, ReferenceError t is not defined (test line 47). No explicit pinned ok supersedes it; it has no named suite-entry mapping.",
+    "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:204; /workspace/docs-audit/roadmap-status.md:121; The exact named test has a recorded failure at ce278129: web/test_install_local_file.mjs, ReferenceError t is not defined (test line 47). No explicit pinned ok supersedes it; it has no named suite-entry mapping.; /workspace/qa-receipt-m7a-final-ce278129.md:113: `timeout 180 node web/test_*.mjs` exits 0 and only executes the first expanded file. `timeout 180 node --test web/test_*.mjs` on both trees: exit 1, **101 pass / 2 fail**. Failures: `web/test_install_local_file.mjs` (`t is not defined` at `selectStockFile`, test file line 47) and `web/test_workspace_browser.mjs` (playwright missing). No new name versus `43de100c`.",
+    "quote": "`timeout 180 node web/test_*.mjs` exits 0 and only executes the first expanded file. `timeout 180 node --test web/test_*.mjs` on both trees: exit 1, **101 pass / 2 fail**. Failures: `web/test_install_local_file.mjs` (`t is not defined` at `selectStockFile`, test file line 47) and `web/test_workspace_browser.mjs` (playwright missing). No new name versus `43de100c`.",
+    "quote_source": "/workspace/qa-receipt-m7a-final-ce278129.md:113",
+    "code_paths": [],
+    "test_refs": []
+  }
+}

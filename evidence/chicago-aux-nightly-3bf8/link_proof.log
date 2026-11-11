@@ -1,0 +1,12 @@
+# LX-157 link proof @ 6ce6a33d
+# X0X_DEV_PADCAL=1 BOARD=smk37 MODEL=elite|pro
+
+Before (f701ae34):
+  RAM overflow 748 B (.bss/.pool overlap)
+
+After:
+  Elite/Pro image 549472 B; RAM .data+.bss 97772/98304 (532 B free)
+  pool 335780/344064 (8284 B free, >= 8192)
+
+Host: chicago_aux, chicago_arp, chicago_fx_bridge, smk_wheel_mode,
+      bass303_ampmode, bass303_wave_gnaw, bass303_amp_adsr — PASS

@@ -1,0 +1,1 @@
+Assertion failed: (c.state == BLEC_SCANNING && c.credits == 5), function lifecycle, file ble_midi_signal_test.c, line 84.

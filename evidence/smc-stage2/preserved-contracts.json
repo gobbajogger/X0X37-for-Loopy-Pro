@@ -1,0 +1,15 @@
+{
+  "base": "3d7c29bdd4cec0450cfb3a8f319ffa1e1a1611f9",
+  "unchanged_functions_sha256": {
+    "smc_home_target": "21be1179187195c26eb6a0d75a98132f6e2c2f4b48532aed0c28f776f49cc5d2",
+    "smc_page_target": "d84dff4f49d2aff7d968e45ce16e0717fd0610ae6b30be821492fd56ace8fa29",
+    "smc_target": "49af585aca9d7c684eb24fe8f1c0cf9129550dc3344b45603b29abf5b1616576",
+    "smc_fader": "333005f4de44d5ed1ffdd0de94cc393127aa2cf25ad311b78c32b462be74593f",
+    "smc_notice": "c5878fa6e9a0ac74ad768c5c10568ab5a8665adfe1b042d76eb3ac5440fd0c96",
+    "smc_bank": "6126d6c0fb037ac09abf9e983151ec50b258a3a0e7b7ab94b790cdaabd1e03d1",
+    "smc_button": "970173f4d2fb124dee8ebe797183f3ee78b2ba0322709d171017e8568b486d74",
+    "smc_poll": "6a03fa9453b79ae945bcb0abe6ef3bf444aecca7cfe7c9941c0ac835e155065a",
+    "smc_frame": "6b186bd7b6c882aabfa01e0dd74da858b689033fc7216beff45f4fca4270c556"
+  },
+  "controller_source_and_radio_setup_unchanged": true
+}

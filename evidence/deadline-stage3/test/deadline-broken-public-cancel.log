@@ -1,0 +1,7 @@
+Assertion failed: (c->state == BLEC_FAILED && !c->waiting && c->conn == 0x50 && !c->credits), function stopped, file ble_midi_deadline_test.c, line 51.
+Traceback (most recent call last):
+  File "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-o9s8c91w/deadline-broken/tests/host/ble_midi_deadline_test.py", line 30, in <module>
+    subprocess.run([str(binary)] + ([args.case] if args.case else []), check=True)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/ble-deadline-mpsiu6g_/deadline', 'cancel']' died with <Signals.SIGABRT: 6>.

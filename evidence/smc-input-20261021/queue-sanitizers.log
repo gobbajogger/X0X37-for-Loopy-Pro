@@ -1,0 +1,97 @@
+==13==Can't open /proc/12/task for reading.
+==12==LeakSanitizer has encountered a fatal error.
+==12==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==12==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==15==Can't open /proc/14/task for reading.
+==14==LeakSanitizer has encountered a fatal error.
+==14==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==14==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==17==Can't open /proc/16/task for reading.
+==16==LeakSanitizer has encountered a fatal error.
+==16==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==16==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==19==Can't open /proc/18/task for reading.
+==18==LeakSanitizer has encountered a fatal error.
+==18==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==18==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==21==Can't open /proc/20/task for reading.
+==20==LeakSanitizer has encountered a fatal error.
+==20==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==20==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==23==Can't open /proc/22/task for reading.
+==22==LeakSanitizer has encountered a fatal error.
+==22==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==22==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==25==Can't open /proc/24/task for reading.
+==24==LeakSanitizer has encountered a fatal error.
+==24==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==24==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==27==Can't open /proc/26/task for reading.
+==26==LeakSanitizer has encountered a fatal error.
+==26==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==26==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==29==Can't open /proc/28/task for reading.
+==28==LeakSanitizer has encountered a fatal error.
+==28==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==28==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==31==Can't open /proc/30/task for reading.
+==30==LeakSanitizer has encountered a fatal error.
+==30==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==30==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==33==Can't open /proc/32/task for reading.
+==32==LeakSanitizer has encountered a fatal error.
+==32==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==32==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==35==Can't open /proc/34/task for reading.
+==34==LeakSanitizer has encountered a fatal error.
+==34==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==34==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==37==Can't open /proc/36/task for reading.
+==36==LeakSanitizer has encountered a fatal error.
+==36==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==36==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==39==Can't open /proc/38/task for reading.
+==38==LeakSanitizer has encountered a fatal error.
+==38==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==38==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==41==Can't open /proc/40/task for reading.
+==40==LeakSanitizer has encountered a fatal error.
+==40==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==40==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==43==Can't open /proc/42/task for reading.
+==42==LeakSanitizer has encountered a fatal error.
+==42==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==42==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==45==Can't open /proc/44/task for reading.
+==44==LeakSanitizer has encountered a fatal error.
+==44==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==44==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==47==Can't open /proc/46/task for reading.
+==46==LeakSanitizer has encountered a fatal error.
+==46==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==46==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==49==Can't open /proc/48/task for reading.
+==48==LeakSanitizer has encountered a fatal error.
+==48==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==48==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==51==Can't open /proc/50/task for reading.
+==50==LeakSanitizer has encountered a fatal error.
+==50==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==50==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==53==Can't open /proc/52/task for reading.
+==52==LeakSanitizer has encountered a fatal error.
+==52==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==52==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==55==Can't open /proc/54/task for reading.
+==54==LeakSanitizer has encountered a fatal error.
+==54==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==54==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==57==Can't open /proc/56/task for reading.
+==56==LeakSanitizer has encountered a fatal error.
+==56==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==56==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+==59==Can't open /proc/58/task for reading.
+==58==LeakSanitizer has encountered a fatal error.
+==58==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+==58==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+FAIL: 24/24 SMC queue interleavings: [(['0', '0', '0', '0'], 1), (['0', '0', '0', '1'], 1), (['0', '0', '240', '0'], 1), (['0', '0', '240', '1'], 1), (['0', '0', '255', '0'], 1), (['0', '0', '255', '1'], 1), (['1', '0', '0', '0'], 1), (['1', '0', '0', '1'], 1), (['1', '0', '240', '0'], 1), (['1', '0', '240', '1'], 1), (['1', '0', '255', '0'], 1), (['1', '0', '255', '1'], 1), (['2', '0', '0', '0'], 1), (['2', '0', '0', '1'], 1), (['2', '0', '240', '0'], 1), (['2', '0', '240', '1'], 1), (['2', '0', '255', '0'], 1), (['2', '0', '255', '1'], 1), (['2', '1', '0', '0'], 1), (['2', '1', '0', '1'], 1), (['2', '1', '240', '0'], 1), (['2', '1', '240', '1'], 1), (['2', '1', '255', '0'], 1), (['2', '1', '255', '1'], 1)]

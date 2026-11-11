@@ -1,0 +1,89 @@
+{
+  "schema": "x0x37-sequencer-source-producer-evidence-v1",
+  "revision": "R38",
+  "date_utc": "2026-10-25",
+  "intended_owner_experience": "When Loopy Pro switches USB/Bluetooth MIDI clock owner at a cable disconnect, abandoned F8 must not advance twice, while an accepted Stop before disconnect must still release a sounding 303 note. A new-source Start or local PLAY in the same render then starts exactly one fresh step.",
+  "maintained_spec": [
+    "BEHAVIOR.md MID-06: Stop then Start retains arrival order",
+    "BEHAVIOR.md MID-14: local PLAY echo/phase",
+    "BEHAVIOR.md MID-15: a disconnected input relinquishes clock ownership immediately"
+  ],
+  "design_choice": "Regression-only extension to previously registered linked C clock-disconnect test; NO change to sequencer implementation or observed instrument behavior claimed.",
+  "input": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 90,
+    "owned_branch": "lane/seq-transport-origin-20261023-run3-1317",
+    "old_head": "d0b826053a71abc21addcd8becfd9c6357a478fe",
+    "old_root_tree": "0c426203843caa409acd912b4831262b5636ed37",
+    "parent_pr": 86,
+    "parent_head": "191e9c11e3461dde51a8c0361e6e93be7a8db592",
+    "compiled_firmware_subtree": "82e9514a6f025737985485f7d9c6a8bb96f1253b",
+    "production_sequencer_blob": "0a239d1faba079bec6c85efbbf31883af0a59ce8",
+    "prior_regression_blob": "cc5b5fd0510ed0466de1daf7332b835efb6be86c"
+  },
+  "changed": {
+    "regression_path": "tests/host/seq_clock_disconnect_handoff_test.c",
+    "regression_blob": "e560f7b0eaacff48e52b141004ceca425a884cd0",
+    "source_compiler_inputs_changed": false,
+    "added_scenarios": "USB->BLE and BLE->USB, accepted prior Stop then new F8 only/new Start/local PLAY in same render; first new F8 excludes abandoned old F8; NoteOff before NoteOn exactly once; reject later foreign Stop; render partitions 1/64/1024"
+  },
+  "executed": {
+    "method": "producer Linux x86_64 actual production-linked sequencer.c + pattern.c + tb3po.c native; separate GCC and Clang, plain/UBSan/ASan+UBSan, no hosted CI",
+    "positive": {
+      "runs": 6,
+      "expected_exit": 0,
+      "observed_exit": 0,
+      "assertions_each": "1398/1398"
+    },
+    "negative_pre_r37": {
+      "runs": 6,
+      "expected_exit": 1,
+      "observed_exit": 1,
+      "assertions_each": "1362/1398",
+      "detected_each": 36,
+      "reason": "abandoned old F8 included in new owner clock tick"
+    },
+    "negative_deliberately_invalid_stop_cancel": {
+      "runs": 6,
+      "expected_exit": 1,
+      "observed_exit": 1,
+      "assertions_each": "1362/1398",
+      "detected_each": 36,
+      "reason": "old accepted Stop wrongly canceled at new owner handover"
+    },
+    "adjacent": {
+      "runs": 8,
+      "expected_exit": 0,
+      "observed_exit": 0,
+      "tests": [
+        "auto-idle rollover",
+        "MIDI clock-owner handover",
+        "timer rollover",
+        "303 MIDI note lifetime: 1472 NoteOns=1472 NoteOffs per compiler"
+      ]
+    },
+    "outcomes": "26/26 expected control/configuration outcomes",
+    "leak_sanitizer": "NOT RUN; ASAN_OPTIONS=detect_leaks=0",
+    "complete_root_qa": "NOT RUN",
+    "target_build": "NOT RUN this run"
+  },
+  "private_evidence": {
+    "archive": "LoopyX0X37-SeqClock-PR90-TransportOrder-R38-20261025.zip",
+    "library_path": "/LoopyX0X37-SeqClock-PR90-TransportOrder-R38-20261025.zip",
+    "bytes": 90842,
+    "sha256": "9862369d57c65b87f3fc10e9009315b4411ea4288d6da0be2016e61c69696ecc",
+    "library_byte_readback": "verified identical",
+    "replay": "python3 run-r38.py",
+    "logs": "r38_logs/; individual compile/run SHA-256 and exit codes in R38-LOCAL-EVIDENCE.json"
+  },
+  "remaining": {
+    "independent_qa": "PENDING; independently review exact new Git root, parent #86 and affected transport ordering",
+    "hourly_build": "No new build required solely for R38 test-only delta; reusing R37 target evidence requires actual verification of complete compiler/controller closure, model, config and output hashes",
+    "safe_merge": "Existing sole integrator; no producer merge authority",
+    "device": "NOT TESTED",
+    "site": "NOT PUBLISHED",
+    "controller": "UNCHANGED",
+    "rights": "GPL test only; no firmware/controller/vendor binaries in Git"
+  },
+  "stage": "SOURCE TEST DELIVERED PENDING COMMIT/REMOTE READBACK; PRODUCER SCOPED HOST PASSED; INDEPENDENT QA PENDING"
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "x0x37-bugfinder-evidence-v1",
+  "evidence_revision": "bugfinder-bf025-clip-strum-ownership-20261025-r3",
+  "producer_role": "same existing Hourly Bugfinder; same OWN PR #132; no competing task",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "parent_full_sha": "8d68b5842c9ceec7c57b7cced1dc18dedf4b9c68",
+  "parent_root_tree": "901ccb9115ee6ce9e167d878ae6efaf85fcc5d73",
+  "source_input_blob_before": "4a6fab9bcf96b2993a425f5e68ef4f02efcb8ae5",
+  "intended_user_behavior": "When overlapping chord keys are strummed at different times, each sounding MIDI pitch gets exactly one NoteOn and one final NoteOff, even if a prior held key releases while the later strum remains pending. STRUM timing for new unique notes remains intact.",
+  "actual_qa_lead": "PR132 Codex inline review PRRT_kwDOVQzWEM6v6cUZ, actionable initial strum NoteOn duplicates relative to bulk NoteOff ownership; separate runner permission review thread PRRT_kwDOVQzWEM6v6cUd already addressed in r2.",
+  "defect_before": "ck_strum emitted every shared tone while BF025 bulk ck_voice NoteOff deduplicated. Consecutive held chords produce duplicate NoteOn but one NoteOff per pitch; can leave Loopy or MIDI voice stuck.",
+  "repair": "Finish outgoing strum before registering next key; snapshot existing held pitches once; skip inherited shared delayed tones through releases. Cancel remaining non-ARP strum when a bulk settings revoice/panic supersedes it. Preserve ordinary non-strum/direct and ARP paths, existing clip note output and test runner 100755.",
+  "changed_files": [
+    "firmware/src/app/main_fm1.c",
+    "tests/run_tests.sh",
+    "tests/host/clip_key_strum_overlap_test.py",
+    "docs/scheduler-handoffs/bugfinder-bf025-clip-strum-ownership-r3-20261025.json"
+  ],
+  "native_tests": {
+    "source_window": "Function-equivalent fixture of PR132 R2 vs proposed source, not a full firmware checkout (container network DNS unavailable); committed Python script extracts actual production function windows on any checked-out tree.",
+    "compilers": [
+      "GCC 14.2.0",
+      "Clang 17.0.0"
+    ],
+    "configs": [
+      "-O2 -Wall -Wextra -Werror",
+      "-O1 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all",
+      "-O1 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all"
+    ],
+    "baseline_observations": {
+      "checks": 25,
+      "failures_per_config": 16,
+      "exit": 1
+    },
+    "repaired_observations": {
+      "checks": 25,
+      "failures_per_config": 0,
+      "exit": 0
+    },
+    "matrix_log_sha256": "d804728063d06b4bac6e0f819f46a9b45d497af0f9959e08cb60833ee425c301",
+    "actual_remote_source_window_replay": "NOT_RUN",
+    "full_root": "NOT_RUN",
+    "target_build": "NOT_RUN",
+    "device": "NOT_TESTED"
+  },
+  "executable_runner": {
+    "git_mode": "100755",
+    "preexisting_r2_blob": "383715c15d78389aece5dc07ca940da88622b194",
+    "direct_exec_negative_and_positive_native_r2": true
+  },
+  "review_and_build_handoff": "Existing Hourly Build should generate fresh pinned Elite and Pro BUILD_ONLY against new firmware subtree, independent QA reviews source/strum/human queue cases, sole Safe Merge alone approves integration. No website/main/pages/device or OTA promotion.",
+  "restrictions": "No public firmware/controller/vendor SDK/DSP/user samples; no protected branch changes; no self-approval."
+}

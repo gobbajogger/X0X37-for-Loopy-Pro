@@ -1,0 +1,30 @@
+{
+  "skill": "compound-engineering:ce-code-review",
+  "mode": "agent",
+  "run_id": "ui-glyph-rule-20261031",
+  "status": "complete",
+  "source_head": "97282d7fed8859f337d606d4880cb095b1ce2591",
+  "reviewed_sha256": {
+    "firmware/src/app/ui.c": "fe5ba38271066a818cdc5c59152edcc3e766e1f53bacbfeaf945abfea7fa9c28",
+    "firmware/src/app/smc_mixer.c": "1869224c99baf25df4b9a741b9713b2914cdc140b78a812f17acb602c77c1745",
+    "firmware/src/app/ui_pictograms.h": "c45acd93bc7a150e2ddef2b99b10d1c82da72d4d58bac206608a078798dea553",
+    "tests/host/smc_remainder_test.c": "b7f6104022783a5e205d5dcdf1832fce32ca442d39767b066e13ea4b06f69c30"
+  },
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "adversarial"
+  ],
+  "findings": 0,
+  "tests": "NOT_RUN",
+  "builds": "NOT_RUN",
+  "framebuffer": "NOT_RUN",
+  "cross_model": "NOT_RUN: no different-provider route",
+  "product_changes": false,
+  "git_changes": false,
+  "remote_writes": false,
+  "report": "report.md",
+  "agent_output": "review.json"
+}

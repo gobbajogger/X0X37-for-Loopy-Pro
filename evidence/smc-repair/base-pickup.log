@@ -1,0 +1,3 @@
+Assertion failed: (!(smc.picked&1) && !strncmp(ui.msg,"PICK F1",7)), function scenario, file smc_reachability_test.c, line 115.
+Route 0
+tests/host/smc_reachability_test.sh: line 19: 25975 Abort trap: 6           "$OUT/test"
