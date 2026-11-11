@@ -16,7 +16,7 @@
 #define NKIT 2                       /* 0 = 909 (drum909.h order), 1 = 808 (drum808.h order) */
 #define NBASS 2                      /* 303 A, 303 B */
 
-enum { RATE_16, RATE_16T, RATE_32, RATE_8T, NRATES };      /* step length */
+enum { RATE_16, RATE_16T, RATE_32, RATE_8T, RATE_8, RATE_4, NRATES };      /* step length */
 enum { DIR_FWD, DIR_REV, DIR_PINGPONG, DIR_RANDOM, NDIRS };  /* 303 playback direction */
 enum { G_REST, G_NOTE, G_TIE };                             /* 303 step gate */
 
