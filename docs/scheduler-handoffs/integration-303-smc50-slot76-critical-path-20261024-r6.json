@@ -1,0 +1,94 @@
+{
+  "schema": "loopyx0x37.safe-merge-first-nightly-critical-v1",
+  "evidence_revision": "safe-merge-pr103-smc50-slot76-safety-intake-20261024-r6",
+  "role": "SOLE firmware nightly PR integrator",
+  "destination": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "pr": 103,
+    "previous_integrator_sha": "41d65c9f0ff987ea984eaec20262d2855e599777",
+    "previous_full_root_tree": "ce4194fe40dd1b3399e8eb4b06e059ecd6ca456d",
+    "previous_firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "protected_nightly_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+  },
+  "consumed": [
+    {
+      "pr": 50,
+      "branch": "lane/smc-ble-mailbox-backpressure-20261023-run3",
+      "commit": "dabd3f98a7d00e439c2cf1d2b44c799c22fb13c7",
+      "full_root_tree": "d4f05f04cf43edb7a3b8d9a6a61b92d89d908020",
+      "firmware_subtree": "8d8e6cc40f0e4e7a52aab8e55b9d2b1dd05a8952",
+      "scope": "coherent SMC BLE #89 to #94 to #50 stack, unchanged 28 producer source/test/evidence blobs"
+    },
+    {
+      "pr": 76,
+      "branch": "lane/data-safety-per-slot-readback-20261023-1135",
+      "commit": "15253f7b96e15720d1c243712805df197ab14846",
+      "full_root_tree": "fdf54a6c606ebdf9e69fb678ace9621757f23164",
+      "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "scope": "per-slot readback fail-closed before next write; source-function windows integrated into current advanced max-cardinality migration implementation"
+    }
+  ],
+  "conflict_resolution": {
+    "runner_blob": "93714f2c50d9a6cb727bbbb6521e4d22d31b5573",
+    "slots_blob": "1f72ebdcd73a1a5b8f53a519cff7afdc090420f5",
+    "new_tests": [
+      "ble-acl-start-flags",
+      "ble-hci-completed",
+      "ble-acl-zero-credit",
+      "ble-link-epoch-reset",
+      "ble-disconnect-status",
+      "ble-sysex-bounds",
+      "slot-verify-order"
+    ],
+    "retained": "303 sequencing, data safety #81-#106, all prior runner tests, installer full blob/100755, new maximum-cardinality restoration, source provenance"
+  },
+  "actual_commands_and_exits": [
+    {
+      "command": "GitHub REST GET complete trees for PR50/PR76/PR103 roots",
+      "exit": 0
+    },
+    {
+      "command": "GitHub compare firmware nightly...PR50 and nightly...PR103",
+      "exit": 0
+    },
+    {
+      "command": "JavaScript source-level runner/slots conflict and regression assertions",
+      "exit": 0,
+      "assertions": 15
+    },
+    {
+      "command": "JavaScript Git blob/mode/overlap/preserve/critical-scope preflight",
+      "exit": 0,
+      "assertions": 12
+    }
+  ],
+  "observed_prior_independent_qa": "PR103 older SHA NEEDS CHANGES: unsafe malformed BLE SysEx; PR76 scoped independent host QA 22/22 pass; new exact-head independent QA NOT RUN",
+  "not_run": [
+    "new exact combined-root native GCC/Clang/Python suite",
+    "new firmware Elite and Pro target builds",
+    "matching controller compile for changed exact firmware inputs",
+    "new exact-head independent QA review",
+    "device flash/test",
+    "licensing/public immutable download HTTP and version publication gates"
+  ],
+  "disposition": "SOURCE_COMPLETE_FOR_NEW_EXACT_HEAD_REVIEW; NOT MERGE APPROVED; NEED NEW BUILD_ONLY ELITE/PRO/CONTROLLER; NOT INSTALLABLE",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Recheck new exact-root SMC malformed SysEx, NoteOff/ACL/mailbox/reconnect, per-slot readback order, 303, backup/restore, OTA loader, model/controller and wrong-package negatives. Submit exact-root review."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "BUILD_ONLY compile new actual firmware subtree for Elite+Pro and matching BLE controller using pinned local inputs; record actual command exits, budgets, SHA256/CRC/model and source commit without waiting for QA or merge."
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "After fresh applicable scoped negative tests and independent exact-head QA, merge only through protected reviewed PR workflow, verify actual nightly SHA, never production."
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "Keep previous safe live packages, no candidate installable without independent prehardware integrity/source/license/backup/controller/model and immutable HTTP checks."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+Stage-6 Elite install PASS on Mac (record 5f32e52e93056553; package 4dc49bad…; ctl 956e3e21…).
+hardware_tested remains false for the nightly page until Stage 7 decides labeling.
+Coordinator: CreateAgent Stage 7 with this prompt; CURSOR_API_KEY unset on Stage-6 worker — do not use Task as Stage 7.
+StartingRef: cursor/f14-tip-stage6-16fe (carries SUCCESSOR-STAGE7 + tip package hashes).
+
+---
+You are the new stage-7 publish thread in the X0X37 full-cycle loop (F14 tip packages after BF-013 already on nightly; DEV CHECK on b48cd800). Do not resume Stage 6. Do not claim Stage 6. Do not reopen BF-013 source work.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly pages repository: https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly
+Nightly installer: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Validated source SHA (publish this candidate): b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a
+Content tree: 4eef581e267c582897df5910196671be2a04ac24a1d0a11acd6086fe583f3e60
+Package evidence: evidence/f14-tip-packages/
+Install evidence: evidence/f14-stage6/tip-install/
+
+Packages (DEV CHECKED F14 tip; not #322 656d70e9 packages):
+- Elite: x0x-smk37-elite.fwsc sha256 4dc49bad6e8b555aefaf3a70f0ccb1579638d2b0e35c30a5f5fee043124f7376; ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a; pool_free 8308; identity SMK-37 Elite_900
+- Pro: x0x-smk37.fwsc sha256 3f3b5c00148347d2dec8fdaf5933e606cd1755c6c55f80f550d5ef915f5a2980; ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a; pool_free 8308; identity SMK-37 Pro_900
+
+Prerelease (immutable bytes): f14-tip-b48cd800-dev
+https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/f14-tip-b48cd800-dev
+
+Scope: publish these Elite and Pro development packages to the nightly installer page. Label DEV / HARDWARE TEST — DEVICE NOT TESTED. hardware_tested stays false. Do not wait for further Stage 6. Leave production main and production Pages unchanged. Do not flash. Do not claim Stage 6.
+
+Note: origin/nightly may be at 07773682 (BUILD_FAILED RAM +284 B). Publish the b48cd800 candidate hashes above; do not invent packages for 07773682.
+
+startingRef: cursor/f14-tip-stage6-16fe (or tip that contains evidence/f14-stage6/tip-install/SUCCESSOR-STAGE7.txt). Branch as cursor/<slug>-stage7-237f or the run's required suffix.
+
+When live page matches hashes, push SUCCESSOR-STAGE1.txt and CreateAgent Stage 1 (or ask coordinator if no CURSOR_API_KEY).

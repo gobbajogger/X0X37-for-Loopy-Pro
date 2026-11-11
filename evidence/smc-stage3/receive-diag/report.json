@@ -1,0 +1,101 @@
+{
+  "status": "PASS for scoped source/host checks; hardware NOT TESTED",
+  "candidate_commit": "3d7b1999a245e84d6d9faf1241dd1078ef335d31",
+  "checked_metadata_successor": "3fc770dcde261a23556f6c3749ebd4bc5911f1c3",
+  "candidate_tree": "854b4d97bdac0a6941ab1dd83ae26b9c1535cdec",
+  "current_tree": "854b4d97bdac0a6941ab1dd83ae26b9c1535cdec",
+  "production_source_edits": false,
+  "image": "x0x37-validation:local",
+  "image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "environment": {
+    "container_network": "none",
+    "workspace_mount": "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37",
+    "sdk_mount": "/Users/mac/fw-AC79_AIoT_SDK:/sdk:ro",
+    "CC": "cc",
+    "CXX": "c++",
+    "X0X_HOST_DEFS": "-D_POSIX_C_SOURCE=200809L",
+    "AC79_SDK": "/sdk",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "passing_checks": [
+    {
+      "check": "diagnostic compatibility",
+      "evidence": "diag-decoder.log",
+      "scope": "old live fields, central/peripheral summary and six-word versioned trace"
+    },
+    {
+      "check": "diagnostic bounds",
+      "evidence": "diag-bounds.log",
+      "scope": "77 total DIAG words exactly fit w[77]; INLOG732 bytes exactly fit ed_out732"
+    },
+    {
+      "check": "sanitized receive lifecycle",
+      "evidence": "host-receive.log",
+      "environment": "supported macOS Apple clang 21.0.0",
+      "scope": "both public central and receive harnesses under ASAN+UBSAN; fragments1-8, malformed lengths/CID/link/handles, queue sentinels and lifecycle reset"
+    },
+    {
+      "check": "sanitized replay",
+      "evidence": "host-capture.log",
+      "environment": "supported macOS Apple clang 21.0.0",
+      "scope": "exact1271 recorded payloads yield2616 supported MIDI events and3 oversized ATT rejections with simulated whole and fragmented HCI; resegmented1347 MTU23 payloads yield2711 events and0 rejections"
+    },
+    {
+      "check": "fail-on-base decoder regression",
+      "evidence": "base-diag.json",
+      "scope": "expected h_step assertion failure against exact3d7c29b decoder with appended trace"
+    },
+    {
+      "check": "source identity",
+      "evidence": "checks.json",
+      "scope": "all7 relevant stage2 SHA256 identities match"
+    }
+  ],
+  "failures_and_dispositions": [
+    {
+      "failure": "Nested Docker launches from sandboxed host Python could not access Colima socket",
+      "evidence": "sandbox-*.log",
+      "disposition": "Setup failure. Direct approved Docker launch succeeded; no production action attempted."
+    },
+    {
+      "failure": "Container Git rejected root ownership",
+      "disposition": "Evidence wrapper now uses per-command safe.directory for its exact lane. No Git global config changed."
+    },
+    {
+      "failure": "Initial and one bounded Linux retry sanitized binaries SIGSEGV with AddressSanitizer:DEADLYSIGNAL; no source report",
+      "evidence": [
+        "initial-linux-receive.log",
+        "initial-linux-capture.log",
+        "receive.log",
+        "capture.log",
+        "runtime-investigation.json"
+      ],
+      "cause": "Same signature reproduces in trivial sanitized main returning0:1/10 fails,9/10 pass. This supports a container sanitizer startup/runtime problem; its deeper host cause remains unproven.",
+      "disposition": "Moved only affected checks to supported macOS host with same address+undefined sanitizer coverage; both pass. No source repair indicated."
+    },
+    {
+      "failure": "First baseline scratch omitted inlog_fmt.py",
+      "evidence": "base-diag-incomplete-scratch.json",
+      "disposition": "Invalid fixture retained separately. Corrected scratch uses exact two base tool files; expected field-shift assertion then reproduced."
+    }
+  ],
+  "source_review": [
+    "blec_acl_reject reads at most min(n,8), zero-pads remainder, and n is public ingress uint16_t; no allocation or unbounded ring added.",
+    "ATT opcode is read only after n>0; notification handle only after n>=3 and opcode1b. Existing handle-validation short-circuit retains bounds.",
+    "Trace exports current discovered handles and pending flag without connection/subscription policy changes. All six words have a preceding capacity check.",
+    "Reject header and ATT state persist until replacement or initialization; snapshot fields can describe different moments. Only start packets of >=8 bytes have an interpretable CID.",
+    "CONNECTED follows synthetic write-response completion in tests. That proves source state transitions, not physical peer subscription or input delivery."
+  ],
+  "capture_sha256": "a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a",
+  "live_limit": "No new candidate installed. Actual rejected packet shape/CID, discovered handles and missing physical receive boundary remain UNKNOWN. Owner report of all controls silent while lights work remains unresolved. An idle zero-packet snapshot establishes no absent input.",
+  "unrun": [
+    "target builds and exact package validation owned by stage4",
+    "physical radio/input test",
+    "install",
+    "full gate",
+    "FM1 target",
+    "release",
+    "push"
+  ],
+  "host_compiler_exact": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n"
+}

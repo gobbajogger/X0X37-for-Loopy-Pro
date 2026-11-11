@@ -1,0 +1,67 @@
+# Revision 13 keeps CLOCK SOURCE in bt (settings offset 27, payload 31),
+# independent of clip-key swing/human and rhythm/strum (offsets 38/39).
+# Earlier unmarked clock layouts are deliberately no longer migrated.
+wait 300
+expect clksrc 0
+expect setbyte27 8
+expect setbyte38 0
+tap GLO
+# GLOBAL opens its sections; SEL enters MIDI + CLOCK (CLOCK SOURCE is row 0)
+tap SEL
+turn ALGO 2
+tap GLO
+expect clksrc 2
+wait 6000
+expect storeset23 13
+expect storeset31 12
+expect storeset42 0
+expect storeset43 0
+reboot
+wait 300
+expect clksrc 2
+expect clkext 1
+# Valid marked INTERNAL + BLUETOOTH; clip settings survive independently.
+storepoke 0 31 0B
+storepoke 0 42 0B
+storepoke 0 43 12
+reboot
+wait 300
+expect clksrc 1
+expect setbyte27 11
+expect setbyte38 11
+expect setbyte39 18
+expect clkext 0
+tap GLO
+# GLOBAL opens its sections; SEL enters MIDI + CLOCK (CLOCK SOURCE is row 0)
+tap SEL
+turn ALGO -1
+tap GLO
+expect clksrc 0
+tap SAVE
+wait 100
+expect storeset31 9
+expect storeset42 11
+expect storeset43 18
+reboot
+wait 300
+expect clksrc 0
+expect setbyte27 9
+expect setbyte38 11
+expect setbyte39 18
+# Missing clock mark is invalid revision-13 data: safe defaults, no a74 migration.
+storepoke 0 31 01
+storepoke 0 42 02
+storepoke 0 43 00
+reboot
+wait 300
+expect clksrc 0
+expect setbyte27 9
+expect setbyte38 0
+expect setbyte39 0
+# Reserved clock source 3 is invalid too, not a usable runtime source.
+storepoke 0 31 0F
+reboot
+wait 300
+expect clksrc 0
+expect setbyte27 9
+expect setbyte38 0

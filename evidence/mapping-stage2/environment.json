@@ -1,0 +1,45 @@
+{
+  "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "toolchain": {
+    "path": "/Users/mac/.jieli/toolchain",
+    "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f"
+  },
+  "sdk": {
+    "host_path": "/Users/mac/fw-AC79_AIoT_SDK",
+    "container_path": "/sdk",
+    "commit": "d179b4484759423312073f5fbb232501aa491047",
+    "status": ""
+  },
+  "container": {
+    "image": "x0x37-validation:local",
+    "platform": "linux/amd64",
+    "network": "none",
+    "user": "501:20"
+  },
+  "configuration": {
+    "board": "smk37",
+    "models": [
+      "elite",
+      "pro"
+    ],
+    "X0X_DEV_PADCAL": "1"
+  },
+  "references": {
+    "schwung-9W9": {
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "status": ""
+    },
+    "schwung-8W8": {
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "status": ""
+    },
+    "schwung-303": {
+      "commit": "7680578cdecd91e512cfddb9c9eb07b287fb64f4",
+      "status": ""
+    },
+    "schwung-tb3po": {
+      "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "status": ""
+    }
+  }
+}

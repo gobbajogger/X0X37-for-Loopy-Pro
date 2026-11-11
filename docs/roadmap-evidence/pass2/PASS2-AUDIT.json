@@ -1,0 +1,158 @@
+{
+  "source_sha": "ce27812951555ff7ed9694bf99d20a65dd5f410b",
+  "tree": "a917fb6a2c738bb410601bd784278bf35c142f1c",
+  "receipts": [
+    {
+      "file": "/workspace/build-ce278129-ce278129.md",
+      "sha256": "66b2feedd2e8f0707b42fcaf30f4d2f9c2d8aad6472bdd53a5487c3f9f3a7f68"
+    },
+    {
+      "file": "/workspace/build-ce278129-rebuild-inputs.md",
+      "sha256": "aec8dc40f38486be63f764325f27588b11ab91e71fbd65655961047d9353c942"
+    },
+    {
+      "file": "/workspace/dnbox/candidate-notes-ce278129.md",
+      "sha256": "5cb2f058740a132d3ed49fff6ec4d05fab775e379b5a160cbf1b079d7eb92e97"
+    },
+    {
+      "file": "/workspace/integrator-auth-ce278129.md",
+      "sha256": "0e3953b6a69ac1eaa9a25dc2fb93ec11c2ce0bede49eface5e3b1cbc3b5ae593"
+    },
+    {
+      "file": "/workspace/qa-receipt-chicago-strict-c038cc17.md",
+      "sha256": "2fd676fc207fa63e39b5d553d670f23a962870d6240832e011fef71806896311"
+    },
+    {
+      "file": "/workspace/qa-receipt-docs-v8.md",
+      "sha256": "0fe659dff03035d16277a4dacefcce03c4c9cf15050abf41fbda2948827d2365"
+    },
+    {
+      "file": "/workspace/qa-receipt-docs-v81.md",
+      "sha256": "ccce9143cba1c7352af0027e5372f555ef836ecbcbd3f9bde362ab8e9de59631"
+    },
+    {
+      "file": "/workspace/qa-receipt-docs-v82.md",
+      "sha256": "410a5a6cff333912ab79d2278db4a384e6c5d97ec54cd5983b6cf86e4d47d5c2"
+    },
+    {
+      "file": "/workspace/qa-receipt-evidence-build-43de100c-601fdb44.md",
+      "sha256": "f032246d7c4c142ff5fbedf6b099a7387b7ad72fdd0ab6bd1db8cdaf485df448"
+    },
+    {
+      "file": "/workspace/qa-receipt-lightweight-rules-pack-v2.md",
+      "sha256": "ee2fede4f4374b3d46536f1f1c133274d3748f438f3d8a0fcd88feb25600e59a"
+    },
+    {
+      "file": "/workspace/qa-receipt-lightweight-rules-pack.md",
+      "sha256": "383bd39a68388eaf1c2e8854a7012d7b522dad779a3849bd9d35eb6b91bdce30"
+    },
+    {
+      "file": "/workspace/qa-receipt-m1-size-evidence-8af0d17b.md",
+      "sha256": "e9cf980496f8f4ebd49fb51e8d140d9ae52ffd235b72910bec4323288f2d7475"
+    },
+    {
+      "file": "/workspace/qa-receipt-m4-sound-reset-9427a680.md",
+      "sha256": "33904fe6b3d894cd35b8a5febb164bb4fca00d5a6d92962a349f4585abc3a807"
+    },
+    {
+      "file": "/workspace/qa-receipt-m7a-490e656c.md",
+      "sha256": "8b441f4626b52440fba58316553a0ab587d42238d2e492da27b7fc9f11a50a85"
+    },
+    {
+      "file": "/workspace/qa-receipt-m7a-final-ce278129.md",
+      "sha256": "46d82fea54f4eeb1d51276fa01b2c4a55f1d7a332b6a6b741d4ea82d10055d28"
+    },
+    {
+      "file": "/workspace/qa-receipt-m7a-v4-35b72991.md",
+      "sha256": "9af04ed117689bb4177486353ae74b7259c786f29e0464ec24c0f60e906e6ffa"
+    },
+    {
+      "file": "/workspace/qa-receipt-m7a-v4fix-43de100c.md",
+      "sha256": "fef2d7c4831c487cd87427adce3a2b0be9f3e0c956364b49c970def7b68fbc71"
+    },
+    {
+      "file": "/workspace/qa-receipt-roadmap-gate-inputs-d960101d.md",
+      "sha256": "0102009ad5196df76c8864e7b6fd79b99a358c29614d93b5815604b137f8ec78"
+    },
+    {
+      "file": "/workspace/qa-receipt-roadmap-plan-v3-7666f20e.md",
+      "sha256": "5f1d73a18e29e42046c79b823878c301c95c2b3c73abc6b3ff58884fa66ac495"
+    },
+    {
+      "file": "/workspace/qa-receipt-roadmap-plan-v4-a15af3a8.md",
+      "sha256": "1a49b6a84084ee26b2a2fc4ed4abb16b10e715774a3619187c577dce2e6fb564"
+    },
+    {
+      "file": "/workspace/qa2-receipt-dev-attribution.md",
+      "sha256": "9fad0ba6350e38727ab450e8cf499e9b995ff9a97730b0887682bfb896da4142"
+    },
+    {
+      "file": "/workspace/qa2-receipt-evidence-8be16486.md",
+      "sha256": "491d488cad7adc9d01e07ce5cb6c6867dbaf63679628f4df56ea1e22d1313d81"
+    },
+    {
+      "file": "/workspace/qa2-receipt-fail-list-compare.md",
+      "sha256": "8bbc0b30fbb1280de30cf1b2e1e3d0b385ce4021051f0e6556efa71ba1515322"
+    },
+    {
+      "file": "/workspace/qa2-receipt-m1-panic.md",
+      "sha256": "db7e20deb3d14a4e8b0f626f14c197b9f09ff16613fe1a9761c854a1c1a8978e"
+    },
+    {
+      "file": "/workspace/qa2-receipt-m7a-final.md",
+      "sha256": "88727322dbceab34eabc15f200c05973feb62416b1031122c9b0d932242cb1db"
+    },
+    {
+      "file": "/workspace/qa2-receipt-m8-play-question.md",
+      "sha256": "7d0f911f214974701dcfaa69e89ba693b37469538d01117a0ad5ed6b7540fe93"
+    },
+    {
+      "file": "/workspace/qa2-receipt-misc.md",
+      "sha256": "0f3f8ec70fc582a278c1b46af240cba751f3dcc32bbe0f80578d4afde355aceb"
+    },
+    {
+      "file": "/workspace/qa2-receipt-nightly-prep.md",
+      "sha256": "dcc678504e986ce89524b8197e2cf4a8e4e253becd41b7fef8e068f930ec0e2b"
+    },
+    {
+      "file": "/workspace/qa2-receipt-part-off-baseline.md",
+      "sha256": "60446f4c38d84a7593bdc82eebbaee923bd27171be4f528f1bda34960532ea45"
+    },
+    {
+      "file": "/workspace/qa2-receipt-part-off-fix-update.md",
+      "sha256": "00f8862c52879c1928448093011acbea3dd4d64aa08658af7c98bc9300708aeb"
+    },
+    {
+      "file": "/workspace/qa2-receipt-real-fails-triage.md",
+      "sha256": "7f5c86fd6467d8393b833fba248cffbe9addb3cae9be48e915389ecb7f6ff63e"
+    },
+    {
+      "file": "/workspace/qa2-receipt-v4-comparison.md",
+      "sha256": "390e7c9c183d8d9ceb9a18733ce547c2fc79a14f72407106b1eb3b1b2c2f102d"
+    }
+  ],
+  "categories": {
+    "NEEDS_NAMED_TEST": 132,
+    "UNCLEAR": 4,
+    "DEVICE_BLOCKED": 7,
+    "PRESENT": 2,
+    "TEST_FAILS": 1
+  },
+  "coverage": {
+    "COVERED_CANDIDATE": 64,
+    "NOT_COVERED": 68
+  },
+  "measurement_start": "2026-11-05T13:36:58.779332793Z",
+  "measurement_end": "2026-11-05T13:47:44.652942+00:00",
+  "elapsed_nanoseconds": 645873609207,
+  "wall_minutes": 10.76456015345,
+  "checker_exit": 0,
+  "selftest_exit": 0,
+  "preserved_file_sha256": {
+    "/workspace/dnbox/pass1/out/PASS1-REPORT.md": "e370d4abcb5f2ff86f4eac7d4b2063b266be0220320c896f77a7a56d5c931bf8",
+    "/workspace/dnbox/pass1/out/docs/roadmap-evidence/SCHEMA.md": "009f4e464a8c9f81e6f4c39e6f5efe9367539586ff000de869e87c918fbfbbdd",
+    "/workspace/dnbox/pass1/out/tests/host/roadmap_evidence_check.sh": "5bafa3a5e3a7b6027fbc1a2df74d8ff37df70c2a96c7d409051aba9e96290f90",
+    "/workspace/dnbox/pass1/out/tests/host/roadmap_evidence_check_test.sh": "1a72775663b190331a6085e704f447f87f287041464b67f64a2718944cd22d5d"
+  },
+  "totals": "TOTALS PRESENT=2 UNPROVEN=144 NEEDS_NAMED_TEST=132 DEVICE_BLOCKED=7 TEST_FAILS=1 NOT_RUN=0 UNCLEAR=4 COVERED_CANDIDATE=64 NOT_COVERED=68 checker_exit=0 selftest_exit=0 wall_minutes=10.764560153"
+}

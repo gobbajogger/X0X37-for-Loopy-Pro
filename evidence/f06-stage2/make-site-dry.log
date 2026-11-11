@@ -1,0 +1,8 @@
+site: /tmp/bf003-make-site-out: webapp/installer (29332 B), firmware/felucca-0.0-bf003.fwsc (1024 B, FM-1_900)
+
+
+exit: 0
+installer: True
+editor_after: False
+copies_editor_html: False
+web_editor_html_present: False

@@ -1,0 +1,2 @@
+COMPILE gcc -std=c99 -O1 -g -Wall -Wextra -Werror -I<stage>/repo/firmware/src /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-r10-combined-mno1h6k1/test.c -o /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-r10-combined-mno1h6k1/test
+SMC combined source-window Solo overflow: 20/20 PASS

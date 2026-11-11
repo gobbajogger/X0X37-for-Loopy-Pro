@@ -1,0 +1,6 @@
+tests/host/ble_midi_central_test.c:23:31: runtime error: null pointer passed as argument 2, which is declared to never be null
+    #0 0x55f1dd10f85d in cc tests/host/ble_midi_central_test.c:23
+    #1 0x55f1dd10fe5c in main tests/host/ble_midi_central_test.c:51
+    #2 0x7f3e82e37ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: 5e5b51f4c39af9ac589408c1dc432ba390a273cc)
+    #3 0x7f3e82e37d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: 5e5b51f4c39af9ac589408c1dc432ba390a273cc)
+    #4 0x55f1dd10f1f0 in _start (/workspace/x0x-stage3-evidence/receive/central-baseline+0xf1f0) (BuildId: 01b68f4b30be49767bcbfa550fc4ee26891e8940)
