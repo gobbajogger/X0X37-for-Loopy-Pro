@@ -68,7 +68,7 @@ static int lz_literals(lz_sink_t *o, const uint8_t *p, uint32_t n)
 static int lz_compress(const uint8_t *in, uint32_t n, lz_sink_t *o)
 {
     uint32_t i = 0, lit = 0, k;
-    if (lz_scratch_held)
+    if (lz_scratch_held) /* LZ_SCRATCH_REFUSE */
         return -1;
     if (n >= LZ_NONE)
         return -1;

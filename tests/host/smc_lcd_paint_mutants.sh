@@ -8,9 +8,12 @@ file=firmware/src/app/smc_mixer.c
 uifile=firmware/src/app/ui.c
 bak=$(mktemp)
 uibak=$(mktemp)
+lzfile=firmware/src/app/lz.c
+lzbak=$(mktemp)
 cp "$file" "$bak"
 cp "$uifile" "$uibak"
-restore() { cp "$bak" "$file"; cp "$uibak" "$uifile"; }
+cp "$lzfile" "$lzbak"
+restore() { cp "$bak" "$file"; cp "$uibak" "$uifile"; cp "$lzbak" "$lzfile"; }
 trap restore EXIT HUP INT TERM
 
 mutate() {
@@ -134,4 +137,46 @@ mutate scratch-use-during-paint \
     'if (0) /* SCRATCH_HELD */' \
     firmware/src/app/ui.c
 
-echo "smc lcd paint mutants: 14 killed"
+mutate save-direct-call \
+    'run_action(ACT_SAVE, 0); /* SAVE_THROUGH_DEFER */' \
+    'save_project(); /* SAVE_THROUGH_DEFER */' \
+    firmware/src/app/ui.c
+
+mutate queue-drop-second \
+    'if (ui_heavy_n >= UI_HEAVY_Q) { /* HEAVY_QUEUE_BOUND */' \
+    'if (ui_heavy_n >= 1) { /* HEAVY_QUEUE_BOUND */' \
+    firmware/src/app/ui.c
+
+mutate queue-reorder \
+    'uint8_t at = ui_heavy_r; /* HEAVY_QUEUE_FIFO */
+        uint8_t act = ui_heavy_act[at];
+        uint16_t arg = ui_heavy_arg[at];
+        ui_heavy_r = (uint8_t)((ui_heavy_r + 1u) % UI_HEAVY_Q);
+        ui_heavy_n--;' \
+    'uint8_t at = (uint8_t)((ui_heavy_r + ui_heavy_n - 1u) % UI_HEAVY_Q); /* HEAVY_QUEUE_FIFO */
+        uint8_t act = ui_heavy_act[at];
+        uint16_t arg = ui_heavy_arg[at];
+        ui_heavy_n--;' \
+    firmware/src/app/ui.c
+
+mutate silent-overflow \
+    'say("TOO MANY ACTIONS", 0); /* HEAVY_QUEUE_FULL */' \
+    '(void)0; /* HEAVY_QUEUE_FULL */' \
+    firmware/src/app/ui.c
+
+mutate lz-scratch-refuse \
+    'if (lz_scratch_held) /* LZ_SCRATCH_REFUSE */' \
+    'if (0) /* LZ_SCRATCH_REFUSE */' \
+    firmware/src/app/lz.c
+
+mutate double-run-deferred \
+    'run_action(act, arg); /* HEAVY_RUN_ONCE */' \
+    'run_action(act, arg); run_action(act, arg); /* HEAVY_RUN_ONCE */' \
+    firmware/src/app/ui.c
+
+mutate header-save-body-only \
+    'if (ui_lcd_poll_depth && ui_heavy_action(act)) { /* HEAVY_DEFER_ANY_POLL */' \
+    'if (ui_lcd_poll_depth && ui_heavy_action(act) && (act != ACT_SAVE || ui_paint_around_input)) { /* HEAVY_DEFER_ANY_POLL */' \
+    firmware/src/app/ui.c
+
+echo "smc lcd paint mutants: 21 killed"

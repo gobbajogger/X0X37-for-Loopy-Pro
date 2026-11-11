@@ -13,6 +13,14 @@ static unsigned hooks, fails, chunks;
 static int inject_armed, inject_grid, chunk_polls, chunk_buttons;
 static int watch_body_view, poll_saw_view, body_rebuild, expire_peek;
 static uint8_t footer_press, load_press, load_mid_empty, scratch_probe, scratch_blocks;
+static uint8_t save_press, save_body_polls, pair_press, pair_body_polls;
+static uint8_t overflow_press, overflow_done, overflow_mid;
+static uint8_t once_press, once_done, save_header, header_polls, header_mid_dirty;
+static uint16_t once_mid;
+static uint32_t header_writes0, header_mid_writes, header_saves0, header_mid_saves;
+static char header_mid_msg[28];
+static int save_guard_rc;
+static char save_mid_msg[28];
 static uint16_t frame_a[240 * 240], frame_b[240 * 240], frame_now[240 * 240];
 
 struct guard {
@@ -74,6 +82,76 @@ static void inject_b(void)
             poll_saw_view = ui.view;
         if (body_rebuild && chunks == 12)
             set_view(V_SEQ);                 /* build_pages runs inside the live side */
+        if (save_press && ui_paint_around_input) {
+            save_body_polls++;
+            if (save_body_polls == 1 || save_body_polls == 2)
+                held_btn = 1u << B_SAVE;     /* release on the next body poll */
+            if (save_body_polls == 4) {
+                memcpy(save_mid_msg, ui.msg, sizeof save_mid_msg);
+                save_guard_rc = project_save();
+                ui_scratch_probe = 1;
+                ui_scratch_blocks = 0;
+                perf_build();
+                scratch_blocks = ui_scratch_blocks;
+                ui_scratch_probe = 0;
+            }
+        }
+        if (pair_press && ui_paint_around_input) {
+            pair_body_polls++;
+            /* Ask is armed here, after the peek body has started. Arming it
+             * before the frame makes the mixer drop the peek. LOAD, then
+             * CLEAR THE SONG, on two separate SEL releases. */
+            if (pair_body_polls == 1) {
+                ui.overlay = O_ASK;
+                ui.ask_act = ACT_LOAD;
+                ui.ask_arg = 0;
+                ui.rec = 1;
+                held_btn = 1u << B_SEL;
+            } else if (pair_body_polls == 2)
+                held_btn = 1u << B_SEL;
+            else if (pair_body_polls == 4) {
+                ui.overlay = O_ASK;
+                ui.ask_act = ACT_SONG_CLR;
+                ui.ask_arg = 0;
+                held_btn = 1u << B_SEL;
+            } else if (pair_body_polls == 5)
+                held_btn = 1u << B_SEL;
+        }
+        if (save_header && !ui_paint_around_input) {
+            header_polls++;
+            if (header_polls == 1 || header_polls == 2)
+                held_btn = 1u << B_SAVE;          /* release on the next header poll */
+            if (header_polls == 4) {
+                memcpy(header_mid_msg, ui.msg, sizeof header_mid_msg);
+                header_mid_dirty = ui.dirty;
+                header_mid_writes = store_writes;
+                header_mid_saves = ui_save_count;
+            }
+        }
+        if (overflow_press && ui_paint_around_input && !overflow_done) {
+            int i;
+            overflow_done = 1;
+            ui.song_sel = 255;
+            song()->len = 5;
+            ui.msg[0] = 0;
+            /* The hook runs before cv_lcd_input raises the poll depth. */
+            ui_lcd_poll_depth++;
+            for (i = 0; i < 35; i++)
+                run_action(ACT_SONG_INS, 0);
+            run_action(ACT_SONG_CLR, 0);
+            ui_lcd_poll_depth--;
+            overflow_mid = (uint8_t)(strcmp(ui.msg, "TOO MANY ACTIONS") == 0);
+        }
+        if (once_press && ui_paint_around_input && !once_done) {
+            once_done = 1;
+            ui.song_sel = 0;
+            song()->len = 1;
+            ui_lcd_poll_depth++;
+            run_action(ACT_SONG_INS, 0);
+            run_action(ACT_SONG_INS, 0);
+            ui_lcd_poll_depth--;
+            once_mid = song()->len;
+        }
         return;
     }
     if (expire_peek) {
@@ -711,6 +789,169 @@ static void run_scratch_guard(void)
     paint_fail(scratch_blocks > 0, "scratch use during the paint is refused");
 }
 
+/* Physical SAVE release while the peek body holds the scratch. The save
+ * runs after ui_frame, with no false memory-full line, and a direct save
+ * during the hold is still refused. */
+static void run_save_after_paint(void)
+{
+    prepare();
+    set_peek(1);
+    settle_identity(0, 0, 1);
+    ui.rec = 0;
+    seq.rec_ext_mask = 0;
+    seq.playing = 0;
+    ui.dirty = 1;
+    ui.msg[0] = 0;
+    ui.msg_until = 0;
+    ui.save_failed = 0;
+    save_press = 1;
+    save_body_polls = 0;
+    save_guard_rc = 0;
+    save_mid_msg[0] = 0;
+    scratch_blocks = 0;
+    chunk_polls = 1;
+    chunks = 0;
+    held_btn = 0;
+    paint();
+    save_press = 0;
+    chunk_polls = 0;
+    held_btn = 0;
+    paint_fail(save_body_polls >= 4, "save release happened during the peek body");
+    paint_fail(save_mid_msg[0] == 0, "save does not run during the paint");
+    paint_fail(strcmp(save_mid_msg, "MEMORY FULL: NOT SAVED") != 0,
+               "save does not report memory full during the paint");
+    paint_fail(save_guard_rc == -7, "scratch save during the paint is refused");
+    paint_fail(scratch_blocks > 0, "scratch use during the save paint is refused");
+    paint_fail(!strcmp(ui.msg, "SAVED"), "save runs after the paint");
+    paint_fail(strcmp(ui.msg, "MEMORY FULL: NOT SAVED") != 0,
+               "save after the paint is not memory full");
+    paint_fail(ui.dirty == 0, "save after the paint clears the dirty project");
+}
+
+/* SAVE release during the header DMA, before the peek body holds the scratch.
+ * The poll depth is already set, so the save waits for the frame. */
+static void run_save_during_header(void)
+{
+    uint32_t after_writes, after_saves;
+    prepare();
+    set_peek(1);
+    settle_identity(0, 0, 1);
+    ui.rec = 0;
+    seq.rec_ext_mask = 0;
+    seq.playing = 0;
+    ui.dirty = 1;
+    proj.pat[0].swing ^= 0x5A;             /* the deferred save has to write this */
+    ui.msg[0] = 0;
+    ui.msg_until = 0;
+    ui.save_failed = 0;
+    save_header = 1;
+    header_polls = 0;
+    header_mid_dirty = 0;
+    header_mid_msg[0] = 0;
+    header_writes0 = store_writes;
+    header_mid_writes = store_writes;
+    header_saves0 = ui_save_count;
+    header_mid_saves = ui_save_count;
+    chunk_polls = 1;
+    chunks = 0;
+    held_btn = 0;
+    paint();
+    save_header = 0;
+    chunk_polls = 0;
+    held_btn = 0;
+    after_writes = store_writes;
+    after_saves = ui_save_count;
+    if (header_mid_msg[0] || header_mid_dirty == 0 || header_mid_saves != header_saves0) {
+        fprintf(stderr, "header mid dirty %u saves %u writes %u msg [%s]\n",
+                header_mid_dirty, header_mid_saves - header_saves0,
+                header_mid_writes - header_writes0, header_mid_msg);
+    }
+    paint_fail(header_polls >= 4, "save release happened during the header");
+    paint_fail(header_mid_dirty == 1 && header_mid_msg[0] == 0,
+               "header save does not run during the paint");
+    paint_fail(strcmp(header_mid_msg, "MEMORY FULL: NOT SAVED") != 0,
+               "header save does not report memory full during the paint");
+    paint_fail(header_mid_writes == header_writes0 && header_mid_saves == header_saves0,
+               "header save has not started before the frame ends");
+    paint_fail(!strcmp(ui.msg, "SAVED"), "header save runs after the paint");
+    paint_fail(strcmp(ui.msg, "MEMORY FULL: NOT SAVED") != 0,
+               "header save after the paint is not memory full");
+    paint_fail(ui.dirty == 0, "header save after the paint clears the dirty project");
+    paint_fail(after_saves == header_saves0 + 1u, "header save runs exactly once");
+    paint_fail(after_writes > header_writes0, "header save writes the project once");
+}
+
+/* SEL confirms LOAD, then SEL confirms CLEAR THE SONG, both in one paint.
+ * Recording blocks the load, so the clear is the line left on screen. */
+static void run_two_heavy(void)
+{
+    prepare();
+    set_peek(1);
+    settle_identity(0, 0, 1);
+    ui.rec = 1;
+    ui.song_sel = 0;
+    song()->len = 4;
+    ui.msg[0] = 0;
+    ui.msg_until = 0;
+    pair_press = 1;
+    pair_body_polls = 0;
+    chunk_polls = 1;
+    chunks = 0;
+    held_btn = 0;
+    held_keys = 0;
+    paint();
+    pair_press = 0;
+    chunk_polls = 0;
+    held_btn = 0;
+    held_keys = 0;
+    paint_fail(pair_body_polls >= 6, "both heavy presses happened during the peek body");
+    paint_fail(song()->len == 0, "song clear runs after the paint");
+    paint_fail(!strcmp(ui.msg, "SONG CLEARED"), "load then song clear run in press order");
+}
+
+/* One more heavy press than the queue holds must say so, and must not run. */
+static void run_heavy_overflow(void)
+{
+    prepare();
+    set_peek(1);
+    settle_identity(0, 0, 1);
+    ui.song_sel = 255;
+    song()->len = 5;
+    ui.msg[0] = 0;
+    overflow_press = 1;
+    overflow_done = 0;
+    overflow_mid = 0;
+    chunk_polls = 1;
+    chunks = 0;
+    paint();
+    overflow_press = 0;
+    chunk_polls = 0;
+    paint_fail(overflow_done, "overflow press happened during the peek body");
+    paint_fail(overflow_mid, "queue overflow is visible");
+    paint_fail(song()->len == 5, "overflow press does not run");
+}
+
+/* Two deferred inserts must each run once after the frame. */
+static void run_heavy_once(void)
+{
+    prepare();
+    set_peek(1);
+    settle_identity(0, 0, 1);
+    ui.song_sel = 0;
+    song()->len = 1;
+    once_press = 1;
+    once_done = 0;
+    once_mid = 0;
+    chunk_polls = 1;
+    chunks = 0;
+    paint();
+    once_press = 0;
+    chunk_polls = 0;
+    paint_fail(once_done, "deferred actions were queued during the peek body");
+    paint_fail(once_mid == 1, "deferred actions do not run during the paint");
+    paint_fail(song()->len == 3, "each deferred action runs exactly once");
+}
+
 static void run_load_after_paint(void)
 {
     prepare();
@@ -836,6 +1077,11 @@ int main(void)
     run_hold_footer();
     run_load_after_paint();
     run_scratch_guard();
+    run_save_after_paint();
+    run_save_during_header();
+    run_two_heavy();
+    run_heavy_overflow();
+    run_heavy_once();
     if (fails) {
         fprintf(stderr, "FAIL smc lcd paint: %u assertion(s)\n", fails);
         return 1;

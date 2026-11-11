@@ -2094,8 +2094,14 @@ X0X_COLD int ui_project_save(void)
     return rc;
 }
 
+#ifdef X0X_HOST
+uint8_t ui_save_count; /* host fixture: how many times a save actually started */
+#endif
 static void save_project(void)
 {
+#ifdef X0X_HOST
+    ui_save_count++;
+#endif
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
 #endif
@@ -2458,24 +2464,56 @@ static int ui_heavy_action(int act)
     }
 }
 static uint8_t ui_lcd_poll_depth;
-static uint8_t ui_heavy_act;           /* 0: nothing queued. Heavy acts are never 0. */
-static uint16_t ui_heavy_arg;
+/* One full dirty paint is at most 136 DMA waits: a 15-column tile row can
+ * split into 8 isolated transfers, and the header, main and knobs are
+ * 2 + 9 + 6 tile rows (ui.c HDR_H / MAIN_ROWS / KNOB_ROWS, lcd_tiles.h).
+ * Each wait is 1.024 ms, and input runs at most once per millisecond, so
+ * the paint accepts about 140 polls. A SMK button needs 2 press frames and
+ * 4 release frames, 9.6 ms, before it can tap again (smk_input.h). The
+ * distinct heavy presses that fit are 32 pattern pastes (16 white keys in
+ * KEY_WHITE, two pattern banks) plus 3 list actions (the menu arrows repeat
+ * at 60 ms). Identical saves, pastes and clears collapse to one pending
+ * slot. Insert and delete do not: each press changes the song. */
+#define UI_HEAVY_Q 35
+static uint8_t ui_heavy_act[UI_HEAVY_Q];
+static uint16_t ui_heavy_arg[UI_HEAVY_Q];
+static uint8_t ui_heavy_n, ui_heavy_r;
 static void run_action(int act, int arg);
+static int ui_heavy_repeat(int act)
+{
+    return act == ACT_SONG_INS || act == ACT_SONG_DEL;
+}
 static void ui_heavy_push(int act, int arg)
 {
-    if (ui_heavy_act)
+    uint8_t k;
+    if (!ui_heavy_repeat(act)) {
+        for (k = 0; k < ui_heavy_n; k++) {
+            uint8_t at = (uint8_t)((ui_heavy_r + k) % UI_HEAVY_Q);
+            if (ui_heavy_act[at] == (uint8_t)act && ui_heavy_arg[at] == (uint16_t)arg)
+                return; /* HEAVY_QUEUE_COALESCE */
+        }
+    }
+    if (ui_heavy_n >= UI_HEAVY_Q) { /* HEAVY_QUEUE_BOUND */
+        say("TOO MANY ACTIONS", 0); /* HEAVY_QUEUE_FULL */
         return;
-    ui_heavy_act = (uint8_t)act;
-    ui_heavy_arg = (uint16_t)arg;
+    }
+    {
+        uint8_t at = (uint8_t)((ui_heavy_r + ui_heavy_n) % UI_HEAVY_Q);
+        ui_heavy_act[at] = (uint8_t)act;
+        ui_heavy_arg[at] = (uint16_t)arg;
+        ui_heavy_n++;
+    }
 }
 static void ui_heavy_flush(void)
 {
-    uint8_t act = ui_heavy_act;
-    uint16_t arg = ui_heavy_arg;
-    if (!act)
-        return;
-    ui_heavy_act = 0;
-    run_action(act, arg);
+    while (ui_heavy_n) {
+        uint8_t at = ui_heavy_r; /* HEAVY_QUEUE_FIFO */
+        uint8_t act = ui_heavy_act[at];
+        uint16_t arg = ui_heavy_arg[at];
+        ui_heavy_r = (uint8_t)((ui_heavy_r + 1u) % UI_HEAVY_Q);
+        ui_heavy_n--; /* HEAVY_SLOT_CLEAR */
+        run_action(act, arg); /* HEAVY_RUN_ONCE */
+    }
 }
 static void __attribute__((noinline)) run_action_now(int act, int arg)
 {
@@ -2595,9 +2633,11 @@ static void __attribute__((noinline)) run_action_now(int act, int arg)
     default: break;
     }
 }
+/* NULL except while a peek body is drawing. Also declared beside the paint swap. */
+void (*ui_paint_around_input)(void);
 X0X_COLD static void run_action(int act, int arg)
 {
-    if (ui_lcd_poll_depth && ui_heavy_action(act)) {
+    if (ui_lcd_poll_depth && ui_heavy_action(act)) { /* HEAVY_DEFER_ANY_POLL */
         ui_heavy_push(act, arg);
         return; /* HEAVY_ACTION_DEFER */
     }
@@ -3912,7 +3952,7 @@ X0X_COLD static void button_tap(int b)
         else
             set_view(V_SEQ);
         break;
-    case B_SAVE: save_project(); break;
+    case B_SAVE: run_action(ACT_SAVE, 0); /* SAVE_THROUGH_DEFER */ break;
     case B_OCTUP:
     case B_OCTDN: {
         int up = b == B_OCTUP;
