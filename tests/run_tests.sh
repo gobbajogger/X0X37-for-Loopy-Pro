@@ -8,7 +8,8 @@
 #   X0X_TEST_JOBS=8 tests/run_tests.sh    opt-in: host-only tests run 8 at a time (default 1: serial).
 #     See test_class below. Install, update, package, BLE and mocked-device tests always run serially,
 #     one at a time. Each parallel test gets its own HOME and TMPDIR (build/host/iso/<test>/).
-#     The result lines come in the serial order, after all tests end.
+#     The scenarios run serially after them. The result lines come in the serial order, after all tests end.
+#     build/host/.results/*.time gives the time of each test.
 # Reference sources (read-only): NINEW9_DIR, EIGHTW8_DIR, SCHWUNG303, TB3PO_REF (see tests/host/run_*.sh).
 set -u
 cd "$(dirname "$0")/.."
@@ -18,11 +19,12 @@ OUT=build/host
 mkdir -p "$OUT" build/scenarios
 JOBS="${X0X_TEST_JOBS:-1}"
 case "$JOBS" in ''|*[!0-9]*) JOBS=1 ;; esac
-PHASE=0                 # parallel mode: 1 = class P and G, 2 = class S, 3 = class C
+PHASE=0                 # parallel mode: 1 = class P and G (parallel), 2 = class S (serial), 3 = class C (serial)
 T_SEQ=0
 RES="$OUT/.results"
 # The class of a test. S: serial and alone (install, update, package, BLE, mocked device).
-# G: host-only, shares build/gen (one at a time). C: scenario (needs host-build). P: host-only, parallel.
+# G: host-only, shares build/gen (one at a time). C: scenario (needs host-build; serial, because the
+# simulator's CPU guard uses the host time, so a busy host changes the result). P: host-only, parallel.
 test_class() {
     case "$1" in
     ota-entry|update-loader|installer|installer-targets|installer-slots|install-slots-web|slot-backup|upload-tools|\
@@ -34,12 +36,14 @@ test_class() {
 }
 run_one() {             # key name command...: the result goes to $RES/key (and $RES/key.fail)
     k="$1"; n="$2"; shift 2
+    t0=$(date +%s)
     if "$@" > "$OUT/$n.log" 2>&1; then
         echo "  ok   $n" > "$RES/$k"
     else
         { echo "  FAIL $n (see $OUT/$n.log)"; tail -15 "$OUT/$n.log" | sed 's/^/       /'; } > "$RES/$k"
         : > "$RES/$k.fail"
     fi
+    echo "$(( $(date +%s) - t0 )) s $n" > "$RES/$k.time"
 }
 gen_lock() { until mkdir "$OUT/iso/.lock-gen" 2>/dev/null; do sleep 0.1; done; }
 gen_unlock() { rmdir "$OUT/iso/.lock-gen"; }
@@ -59,7 +63,7 @@ run() {
     key=$(printf '%04d' "$T_SEQ")
     cls=$(test_class "$name")
     case "$PHASE$cls" in 1P|1G|2S|3C) ;; *) return ;; esac
-    if [ "$cls" = S ]; then
+    if [ "$cls" = S ] || [ "$cls" = C ]; then
         run_one "$key" "$name" "$@"
         return
     fi
@@ -192,7 +196,7 @@ else
         wait
     done
     exec 3>&-
-    for f in $(ls "$RES" | grep -v '\.fail$' | sort); do cat "$RES/$f"; done
+    for f in $(ls "$RES" | grep -v -e '\.fail$' -e '\.time$' | sort); do cat "$RES/$f"; done
     ls "$RES" | grep -q '\.fail$' && FAIL=1
 fi
 [ $FAIL -eq 0 ] && echo "all tests passed" || echo "TESTS FAILED"
