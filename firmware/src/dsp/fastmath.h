@@ -20,12 +20,15 @@
 #pragma once
 #include <stdint.h>
 
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__clang__) && !defined(X0X_HOST)
 /* Outlined helpers (floor, sin, cos, wrap) were emitted once per unit.
  * The body stays visible so a hot call can still be inlined. A unit that
  * does not inline emits a weak copy, and the link keeps one of them. */
 #define FM_ONE extern inline __attribute__((gnu_inline, weak, unused))
 #else
+/* GCC drops weak on an inline function ("declared weak", -Wattributes, an
+ * error under -Werror), and a gnu_inline body that is not inlined is never
+ * emitted. Host builds (GCC, or X0X_HOST) use unit-local bodies instead. */
 #define FM_ONE static inline
 #endif
 

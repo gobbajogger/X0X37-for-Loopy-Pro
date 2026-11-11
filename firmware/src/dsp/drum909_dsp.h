@@ -26,9 +26,15 @@
 #if defined(__GNUC__) || defined(__clang__)
 #define D9_INLINE static inline __attribute__((always_inline))
 #define D9_NOINLINE static __attribute__((noinline, unused))   /* not every includer uses every helper */
+#if defined(__clang__) && !defined(X0X_HOST)
 /* One link-wide body. The text stays here so a call can still be inlined.
  * Each unit may emit a weak copy; the link keeps a single one. */
 #define D9_ONE extern inline __attribute__((gnu_inline, weak, unused))
+#else
+/* Match fastmath.h: GCC rejects a weak inline body, so host builds use
+ * unit-local bodies. */
+#define D9_ONE static inline
+#endif
 #define D9_ONE_OUT __attribute__((weak, noinline, unused))
 #else
 #define D9_INLINE static inline
