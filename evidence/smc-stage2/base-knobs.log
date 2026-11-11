@@ -1,0 +1,7 @@
+Assertion failed: (smc_same(smc_knob_target(n),smc_home_target(n))), function main, file test.c, line 112.
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/smc_regression_repair_20261021/tests/host/smc_mapping_test.py", line 108, in <module>
+    subprocess.run([str(exe)],check=True)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpm3gur5r7/test']' died with <Signals.SIGABRT: 6>.

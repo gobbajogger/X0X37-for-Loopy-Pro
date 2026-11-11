@@ -1,0 +1,113 @@
+{
+  "stage": 2,
+  "marker": "smc-central-abort-deadline-20261021-stage2-after-05eff60-stage3",
+  "owner_thread": "01a15a98-8224-7cb0-8740-c2fe113077b3",
+  "source_owner": "01a15a92-6343-7f30-8495-f968228e2d2c",
+  "start": "5d66ffd49d0dbe9d6bab639c59353089d1a524d8",
+  "failed_candidate": "05eff604cb3f136db71727a2aeeea785cab73b99",
+  "result": "PASS",
+  "defect": "CENTRAL-ABORT-02",
+  "source_identity": "source-inputs.json",
+  "input_review": "input-review.json",
+  "environment": "environment.json",
+  "checks": [
+    {
+      "command": "python3 -B evidence/deadline-stage2/run-checks.py",
+      "reason": "Disconnect cutoff, actual service time, stop/cancel lifecycle, original retries, receive/signaling and diagnostic consumers can change.",
+      "result": "PASS",
+      "record": "host-checks.json",
+      "commands": 56
+    },
+    {
+      "command": "python3 -B evidence/deadline-stage2/replay-run.py",
+      "reason": "The changed central helper and production service affect startup, callback, mailbox, UI and light feedback.",
+      "result": "PASS",
+      "record": "replay.json"
+    },
+    {
+      "command": "docker run; exact argv is in environment.json",
+      "reason": "The shared central source affects both supported targets and their budgets.",
+      "result": "PASS",
+      "record": "environment.json"
+    }
+  ],
+  "builds": {
+    "elite": {
+      "result": "PASS",
+      "log": "build-elite.log",
+      "config": "DEV X0X_DEV_PADCAL=1",
+      "code_margin_bytes": 1400,
+      "static_ram_margin_bytes": 524,
+      "pool_margin_bytes": 8364,
+      "required_pool_margin_bytes": 8192,
+      "artifacts": {
+        "app": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021/build/smk37-elite/x0x.bin",
+          "size": 551272,
+          "sha256": "74a577ac477cdea8e6c1fe28f9ee41f31e9545092238997a75537eefb4fad3da"
+        },
+        "loader": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021/build/smk37-elite/loader/ota.bin",
+          "size": 7280,
+          "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e"
+        },
+        "package": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021/build/x0x-smk37-elite.fwsc",
+          "size": 651396,
+          "sha256": "cbda7e8894ddfc51bfa34a2f27b27020744c34cc316f90704af04500edd014cd"
+        }
+      },
+      "limit": "Stage2 build evidence. This is not a stage4 validated install record."
+    },
+    "pro": {
+      "result": "PASS",
+      "log": "build-pro.log",
+      "config": "DEV X0X_DEV_PADCAL=1",
+      "code_margin_bytes": 1416,
+      "static_ram_margin_bytes": 524,
+      "pool_margin_bytes": 8364,
+      "required_pool_margin_bytes": 8192,
+      "artifacts": {
+        "app": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021/build/smk37/x0x.bin",
+          "size": 551256,
+          "sha256": "34eb437f3a5dc856474cc4a2917b25fbdbce8162c78b1a5951a3e7cae1edbd7c"
+        },
+        "loader": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021/build/smk37/loader/ota.bin",
+          "size": 7276,
+          "sha256": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf"
+        },
+        "package": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021/build/x0x-smk37.fwsc",
+          "size": 651392,
+          "sha256": "79fb9ac90ec6d6c5474db85558e748a58c2f493014bdcb1a6cb162663f0a7c63"
+        }
+      },
+      "limit": "Stage2 build evidence. This is not a stage4 validated install record."
+    }
+  },
+  "coverage": "coverage.json",
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "controller_source_changed": false,
+  "mapping_source_changed": false,
+  "device_write": false,
+  "controller_write": false,
+  "release_build": false,
+  "full_gate": false,
+  "external_push": false,
+  "mapping_stage4": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "mapping_result": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
+  "next_stage": 3,
+  "authorization": "Owner request Now read rules and fix; workflow17 repair loop; workflow18 automatic successors, recovery, startup checks and notices; owner-decisions14 complete validated DEV install with notice.",
+  "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+  "candidate_tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e",
+  "current_model_policy": {
+    "source_thread": "01a15a99-75d7-7921-9d65-f4b120566904",
+    "source_turn": "01a15a99-78a0-7092-a321-a7cca4e3e073",
+    "rule": "Current workspace x0x37-check rule9.",
+    "scope": "Elite is sufficient for shared development checks and budgets. Pro-specific changes and actual Pro packages retain their checks. Model-independent host checks run once for matching inputs.",
+    "timing": "Both stage2 builds completed before this update was read. Their results remain valid."
+  }
+}

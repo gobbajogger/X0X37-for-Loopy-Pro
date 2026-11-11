@@ -1,0 +1,186 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "efa3b6c0955a5a0b362abc7d5afac03ddd30aa4c0d13f294e4af8604aa2d1a11",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "a24876fa33ca44eb610faf80077d41178a30970f2fba359385e153e602fb8660",
+      "configuration": {
+        "model": "elite",
+        "config": "dev",
+        "controller": false,
+        "plan": {
+          "base": "cb3c0502ae405af0a76325727d92ba1667d2982d",
+          "scope": "Align SMC navigation LED feedback with existing shortcut destinations in smc_led only. Preserve drum mute/selection precedence, part recording/solo/mute status, transport feedback, pickup, input dispatch and controller firmware. Test fixture enum gains V_PART to compile the changed production function. No new Record/Solo per-drum policy or persistent mode is introduced.",
+          "checks": [
+            {
+              "reason": "Changed navigation LED semantics, their emitted MIDI transitions and existing mode/ownership boundaries; affected filter fixture; existing full production UI and drum mute/selection feedback consumer.",
+              "argv": [
+                "sh",
+                "tests/run_tests.sh",
+                "smc-feedback",
+                "smc-filter",
+                "smc-drum-mutes"
+              ]
+            }
+          ]
+        },
+        "dependencies": []
+      },
+      "environment": {
+        "NODE_PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules",
+        "CC": "cc",
+        "CXX": "c++",
+        "MODEL": "elite",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.18.55"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "3341b5f29aa352adecc8b7e6002f9966c8a2fa3c3767640076ab28c937253dc1",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "618310cee42f469d7136bc3cd65e1993bb63b6e810c1927c36b5ea8d11cd9fc0",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+          "executable": true
+        },
+        "git": {
+          "sha256": "2dae8066ef4d6a926561b4b0eaca7b458d4f5b56bb83760656e6baa7fc3e974f",
+          "executable": true
+        },
+        "make": {
+          "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+          "executable": true
+        },
+        "node": {
+          "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "52f1ddb33fe78b9441e0f42e9cd22c571f1101938e046c8a26582494e041cc73",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "5b674ea1d7017c2929f3c52c43487478bb240ecdd7197a25cce3813a70329a5c",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "ab3ec9fd1f53ec6b0ebc927ac253750c0a9f6738c3b7c6826dd4b455d6c3d57c",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "5dc8fbfabcd338efd14bf29f7e13c5d558bd029725f21632c56bfd53e1330100",
+          "executable": true
+        },
+        "python": {
+          "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": {
+          "version": "2.3.5",
+          "sha256": "33899bddedcc34ed6dff45f16493b38af2d4a2dd7f768d209a3bd6b31d4e855a"
+        },
+        "pillow": {
+          "version": "12.3.0",
+          "sha256": "2e0581398ad83af176995b57b45112bd7fe22579e326e58e7c8420eb009cd220"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "d086a489a1f4677597e085c93d08f8f7b329f9bbad0f9d0fc56ac512626b3697"
+        },
+        "sdk": {
+          "sha256": "751354e4ce79a3c3a77986cc6aa5cc14d177d02cf4eef6efc525c4ef682e2609"
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "elite",
+  "commit": "513574131879ff1f26a2f9ca44a2d11a68de3afc",
+  "tree": "a24876fa33ca44eb610faf80077d41178a30970f2fba359385e153e602fb8660",
+  "plan": {
+    "base": "cb3c0502ae405af0a76325727d92ba1667d2982d",
+    "scope": "Align SMC navigation LED feedback with existing shortcut destinations in smc_led only. Preserve drum mute/selection precedence, part recording/solo/mute status, transport feedback, pickup, input dispatch and controller firmware. Test fixture enum gains V_PART to compile the changed production function. No new Record/Solo per-drum policy or persistent mode is introduced.",
+    "checks": [
+      {
+        "reason": "Changed navigation LED semantics, their emitted MIDI transitions and existing mode/ownership boundaries; affected filter fixture; existing full production UI and drum mute/selection feedback consumer.",
+        "argv": [
+          "sh",
+          "tests/run_tests.sh",
+          "smc-feedback",
+          "smc-filter",
+          "smc-drum-mutes"
+        ]
+      }
+    ]
+  },
+  "changed_files": [
+    "firmware/src/app/smc_mixer.c",
+    "tests/host/smc_feedback_test.py",
+    "tests/host/smc_filter_test.py",
+    "tests/run_tests.sh"
+  ],
+  "controller": false,
+  "budgets": {
+    "code_free": 8288,
+    "ram_free": 508,
+    "pool_free": 8324
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "sh",
+        "tests/run_tests.sh",
+        "smc-feedback",
+        "smc-filter",
+        "smc-drum-mutes"
+      ],
+      "returncode": 0,
+      "sha256": "4ab5b30a67a0103e4452f645dea1f75dd03b358bdac6e6a1bc1a43b23678beec"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "28d7a854c69a182f57d923e2bacc010e6337cbc892c477d5d0eaed78e9a063bf"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37-elite.fwsc",
+      "sha256": "1468bf0045dfebbfd5d99527b39d1c547627752eb0e149f0284e57b0d756d6cc"
+    }
+  }
+}

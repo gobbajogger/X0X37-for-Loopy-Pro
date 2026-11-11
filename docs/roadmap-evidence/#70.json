@@ -1,0 +1,72 @@
+{
+  "row_id": "#70",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:194; /workspace/docs-audit/roadmap-status.md:111; out/docs/roadmap-evidence/#70.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#70 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#70 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:111 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:194",
+      "/workspace/docs-audit/roadmap-status.md:111",
+      "out/docs/roadmap-evidence/#70.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "NOT_COVERED",
+    "tests": [],
+    "evidence": "No qualifying literal identifier reference found in runner-mapped test source.",
+    "identifiers": [
+      {
+        "identifier": "THEME_N",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:194"
+      },
+      {
+        "identifier": "SQ_THEME",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:194"
+      }
+    ],
+    "matches": [],
+    "recorded_results": {},
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 406,
+        "identifier": "THEME_N",
+        "quote": "static const char *const THEME_N[] = {\"GREEN\", \"AMBER\", \"CYAN\", \"RED\", \"MONO\", \"LIGHT\"};"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 414,
+        "identifier": "SQ_THEME",
+        "quote": "SQ_THEME, SQ_KEYLED, SQ_KEYSOUND, SQ_AUTOSAVE, NSQ };"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 420,
+        "identifier": "THEME_N",
+        "quote": "{\"ACCENT\", 127, 88, 0}, {\"CLOCK OUT\", 1, 1, ONOFF_N}, {\"NOTES OUT\", 1, 0, ONOFF_N}, {\"THEME\", 5, 1, THEME_N},"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 525,
+        "identifier": "SQ_THEME",
+        "quote": "case R_PALETTE: return &SEQ_P[SQ_THEME];"
+      }
+    ]
+  }
+}

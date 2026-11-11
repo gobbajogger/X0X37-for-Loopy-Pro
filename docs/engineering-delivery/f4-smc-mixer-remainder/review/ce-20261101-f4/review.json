@@ -1,0 +1,245 @@
+{
+  "status": "complete",
+  "verdict": "Not ready",
+  "scope": {
+    "base": "02c5224d12c7a96c0061fea71f13de04de58741b",
+    "branch": "chat/f4-smc-mixer-remainder-023",
+    "head_sha": "02c5224d12c7a96c0061fea71f13de04de58741b",
+    "pr_url": null,
+    "files_changed": 9,
+    "scope_mode": "local-aligned explicit-base working tree",
+    "tracked_changed_files": 4,
+    "explicit_untracked_files": 5
+  },
+  "intent": "Port only remaining F4 SMC mixer behaviour from #688/#788 onto #789: clock-phase feedback, clip strip-8 stage navigation and SELECT8 MIX cycling. Preserve keyboard independence, captured lock targets, drum/FX ownership and HOME modifiers. Keep qualification gates separate from source review.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "adversarial"
+  ],
+  "findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "file": "firmware/src/app/smc_mixer.c",
+      "first_evidence": "firmware/src/app/smc_mixer.c:1668 -- smk_ck_smc_nav(note == 15u ? 0x60u : 0x61u);",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 1668,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Exclude the exact unlocked clip-stage navigation predicate from smc_button() action classification. Add a drum MIX/SEQ clip-mode case asserting stage movement without a RECORD/SOLO popup; execute only on the authorized box.",
+      "title": "Clip navigation reopens a false drum action popup",
+      "why_it_matters": "With unlocked drum MIX/SEQ on bank 1, REC8 or SOLO8 in clip mode changes the clip stage, then reopens a RECORD or SOLO popup. The action classifier runs before navigation and restores the popup after the clip helper cancels it. The performer sees feedback for an action that did not occur, covering the selected stage.",
+      "evidence": [
+        "firmware/src/app/smc_mixer.c:1668 -- smk_ck_smc_nav(note == 15u ? 0x60u : 0x61u);",
+        "firmware/src/app/smc_mixer.c:1854 -- (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :",
+        "Construct state: unlocked, overlay O_NONE, smc.view V_MIX with mixer page 1 (or V_SEQ with a drum part), selected drum bank 0, clip mode active, then note 7 or 15. smc_drum_mix() remains a drum kit because it has no clip-mode exclusion, so action is true for populated strip 8.",
+        "/workspace/work/f4/reference/main_fm1.c:1573 -- smc_ui_cancel(); (exact unchanged smk_ck_smc_nav callee, verified base blob 977767258fb6ef2d9cfa77ebbcdbe107691c8eb2)",
+        "firmware/src/app/smc_mixer.c:1867 -- smc_ui_begin(note < 32u ? note & 7u : 0, 3);",
+        "firmware/src/app/smc_mixer.c:1138 -- const char *action = note >= 0x5D ? \"TRANSPORT\" : note < 8 ? \"RECORD\" : note < 16 ? \"SOLO\" : \"MUTE\";"
+      ]
+    },
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "file": "tests/host/smc_remainder_test.c",
+      "first_evidence": "tests/host/smc_remainder_test.c:114 --     unsigned phase=seq.metro_view; seq_stop(&seq); render_audio(1); CHECK(!seq.metro_view);",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 114,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Render and assert icon pixels for V_HOME and V_PART after real STOP, external WAIT, Start, Continue and clock timeout. Check WAIT at two ui.frame blink phases.",
+      "title": "Assert header rendering through real transport transitions",
+      "why_it_matters": "A regression that hides the icon while stopped or waiting can pass the written tests. Pixel assertions force seq.playing=1; real STOP, WAIT, Start, Continue and timeout checks assert metro_view without rendering either header. Assert both header paths after those transitions, including two WAIT blink phases.",
+      "evidence": [
+        "tests/host/smc_remainder_test.c:114 --     unsigned phase=seq.metro_view; seq_stop(&seq); render_audio(1); CHECK(!seq.metro_view);",
+        "tests/host/smc_remainder_test.c:97 --         setup(part_header?V_PART:V_HOME,PART_303B); seq.playing=1;",
+        "tests/host/smc_remainder_test.c:115-119 check phase values after Continue, external Start, clock receipt and timeout without draw_header/ui_frame or framebuffer assertions.",
+        "firmware/src/app/ui.c:4871 and :4970 now render phase-zero icons unconditionally in both header paths, replacing playing/wait guards."
+      ]
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "file": "firmware/src/app/smc_mixer.c",
+      "first_evidence": "firmware/src/app/smc_mixer.c:1668 -- smk_ck_smc_nav(note == 15u ? 0x60u : 0x61u);",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 1668,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Exclude the exact unlocked clip-stage navigation predicate from smc_button() action classification. Add a drum MIX/SEQ clip-mode case asserting stage movement without a RECORD/SOLO popup; execute only on the authorized box.",
+      "title": "Clip navigation reopens a false drum action popup",
+      "why_it_matters": "With unlocked drum MIX/SEQ on bank 1, REC8 or SOLO8 in clip mode changes the clip stage, then reopens a RECORD or SOLO popup. The action classifier runs before navigation and restores the popup after the clip helper cancels it. The performer sees feedback for an action that did not occur, covering the selected stage.",
+      "evidence": [
+        "firmware/src/app/smc_mixer.c:1668 -- smk_ck_smc_nav(note == 15u ? 0x60u : 0x61u);",
+        "firmware/src/app/smc_mixer.c:1854 -- (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :",
+        "Construct state: unlocked, overlay O_NONE, smc.view V_MIX with mixer page 1 (or V_SEQ with a drum part), selected drum bank 0, clip mode active, then note 7 or 15. smc_drum_mix() remains a drum kit because it has no clip-mode exclusion, so action is true for populated strip 8.",
+        "/workspace/work/f4/reference/main_fm1.c:1573 -- smc_ui_cancel(); (exact unchanged smk_ck_smc_nav callee, verified base blob 977767258fb6ef2d9cfa77ebbcdbe107691c8eb2)",
+        "firmware/src/app/smc_mixer.c:1867 -- smc_ui_begin(note < 32u ? note & 7u : 0, 3);",
+        "firmware/src/app/smc_mixer.c:1138 -- const char *action = note >= 0x5D ? \"TRANSPORT\" : note < 8 ? \"RECORD\" : note < 16 ? \"SOLO\" : \"MUTE\";"
+      ]
+    },
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "file": "tests/host/smc_remainder_test.c",
+      "first_evidence": "tests/host/smc_remainder_test.c:114 --     unsigned phase=seq.metro_view; seq_stop(&seq); render_audio(1); CHECK(!seq.metro_view);",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 114,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Render and assert icon pixels for V_HOME and V_PART after real STOP, external WAIT, Start, Continue and clock timeout. Check WAIT at two ui.frame blink phases.",
+      "title": "Assert header rendering through real transport transitions",
+      "why_it_matters": "A regression that hides the icon while stopped or waiting can pass the written tests. Pixel assertions force seq.playing=1; real STOP, WAIT, Start, Continue and timeout checks assert metro_view without rendering either header. Assert both header paths after those transitions, including two WAIT blink phases.",
+      "evidence": [
+        "tests/host/smc_remainder_test.c:114 --     unsigned phase=seq.metro_view; seq_stop(&seq); render_audio(1); CHECK(!seq.metro_view);",
+        "tests/host/smc_remainder_test.c:97 --         setup(part_header?V_PART:V_HOME,PART_303B); seq.playing=1;",
+        "tests/host/smc_remainder_test.c:115-119 check phase values after Continue, external Start, clock receipt and timeout without draw_header/ui_frame or framebuffer assertions.",
+        "firmware/src/app/ui.c:4871 and :4970 now render phase-zero icons unconditionally in both header paths, replacing playing/wait guards."
+      ]
+    }
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan": "docs/superpowers/plans/2026-11-01-f4-smc-mixer-remainder.md",
+    "plan_source": "explicit",
+    "readiness": "legacy",
+    "items": [
+      {
+        "requirement": "Task 1: overlap audit and regression evidence",
+        "status": "partially addressed",
+        "detail": "Provenance, tests, selector and capture driver present; #2 concerns header lifecycle assertions. Execution and captures intentionally NOT_RUN."
+      },
+      {
+        "requirement": "Task 2: scoped source port",
+        "status": "partially addressed",
+        "detail": "Scoped source present; #1 exposes false action feedback after clip-stage navigation."
+      },
+      {
+        "requirement": "Task 3: review and draft delivery",
+        "status": "partially addressed",
+        "detail": "Static review complete. Draft PR and remote evidence belong to caller after this handoff."
+      },
+      {
+        "requirement": "Verification contract",
+        "status": "intentionally deferred",
+        "detail": "RED/GREEN, full suite, Elite/Pro builds, RAM and framebuffer validation NOT_RUN under owner/AGENTS constraint. Owner visual approval required before merge."
+      }
+    ]
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Static review does not establish runtime, visual, hardware or packaging correctness. Full host suite and both model builds with 0 fail / 0 skip remain required.",
+    "Sparse exact-base checkout limits whole-repository/history inspection. Changed clip callee reviewed from blob-verified unchanged main_fm1.c reference."
+  ],
+  "testing_gaps": [
+    "RED/GREEN, selector/full-suite execution, Elite/Pro builds, RAM and real base/candidate framebuffer validation are NOT_RUN. Owner visual and physical LED validation remain pending."
+  ],
+  "coverage": {
+    "review_type": "static source review only",
+    "conditional_lenses": {
+      "project-standards": "Root AGENTS.md instruction fallback governs all nine files; no CODING_STANDARDS.md or CLAUDE.md in reviewed tree.",
+      "testing": "New regression/capture fixtures and test registration.",
+      "adversarial": "Clip/lock/drum/FX ordering and harness fidelity."
+    },
+    "scope_helper": {
+      "status": "complete",
+      "exec_lines": 37,
+      "uncounted_files": 2,
+      "lite_eligible": false,
+      "declared_packs": null,
+      "declared_packs_resolution": "Exact base tree has no .compound-engineering config.",
+      "has_learnings_corpus": false
+    },
+    "untracked_handling": "Five new paths included by explicit caller scope; review scratch excluded.",
+    "cross_model": {
+      "status": "not_run",
+      "reason": "Only Codex CLI installed; no attested different-provider route. Local adversarial fallback covered lens.",
+      "independence_verified": false
+    },
+    "validators": {
+      "batches": 1,
+      "selected": [
+        1,
+        2
+      ],
+      "cross_model_shortcuts": 0,
+      "verdicts": [
+        {
+          "#": 1,
+          "validated": true,
+          "reason": "In unlocked drum MIX/SEQ clip mode, populated strip-8 notes 7/15 satisfy the action predicate before navigation, then smc_ui_begin(...,3) reopens false RECORD/SOLO feedback."
+        },
+        {
+          "#": 2,
+          "validated": true,
+          "reason": "The explicit plan requires both headers through STOP/WAIT and Start/Continue, but lifecycle assertions check metro_view without rendering the headers."
+        }
+      ],
+      "drops": 0,
+      "infrastructure_failures": 0,
+      "degraded_blockers": 0
+    },
+    "suppressed_by_confidence": {},
+    "mode_aware_demotions": 0,
+    "quote_gate_demotions": 0,
+    "malformed_findings": 0,
+    "malformed_returns": 0,
+    "failed_reviewers": [],
+    "all_reviewers_collected": true,
+    "settlement_suppression": "No session-settled annotations in supplied plan.",
+    "runtime_checks": "NOT_RUN; no tests, builds, compilers, linters, mutation tests or framebuffer captures executed.",
+    "static_work_performed": [
+      "Source/diff inspection",
+      "Official scope and findings-mechanics helpers",
+      "Fresh static validation of both findings",
+      "SHA-256 confirmation of nine unchanged reviewed files"
+    ],
+    "source_manifest": "source-manifest.json",
+    "source_bytes_unchanged": true,
+    "artifact_policy": "Caller limited writes to this review directory; scratch assets excluded from source delivery.",
+    "applied_changes": 0,
+    "verdict_reason": "Fix #1 and #2 before source sign-off. Runtime/build/framebuffer evidence and owner approval remain pending."
+  },
+  "artifact_path": "/workspace/work/f4/source/docs/engineering-delivery/f4-smc-mixer-remainder/review/ce-20261101-f4",
+  "run_id": "ce-20261101-f4"
+}

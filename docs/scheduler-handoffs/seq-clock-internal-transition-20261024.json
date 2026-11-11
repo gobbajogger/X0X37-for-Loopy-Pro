@@ -1,0 +1,69 @@
+{
+  "schema": "x0x37.scheduler-evidence.v1",
+  "revision": "seqclock-internal-queued-transport-20261024-r1",
+  "role": "Sequencer Clock",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "consumed_sha": "a76c0738443a0f5c5b77aebdd210f9ca38f849cb",
+  "consumed_full_root": "bf7fc6bd6620ec3be20e5b3243cb682c38f5e20b",
+  "consumed_firmware_subtree": "de34d8f0d8c681d889829c4ad0e1f80123a7d8f0",
+  "consumed_source_blob": "2cbd26a1caf0c4bbe6b6972efe976d5363869d20",
+  "behavior": "MID-13 INTERNAL ignores queued remote MIDI transport; preserves later local requests",
+  "changes": [
+    "firmware/src/seq/sequencer.c",
+    "firmware/src/seq/sequencer.h",
+    "tests/host/seq_transport_coalesce_test.c",
+    "docs/findings/seq-clock-internal-transition-20261024.md",
+    "docs/scheduler-handoffs/seq-clock-internal-transition-20261024.json"
+  ],
+  "executed": [
+    {
+      "command": "gcc/clang -std=c11 -Wall -Wextra -Werror -O1 [-fsanitize=undefined -fno-sanitize-recover=all] mode_boundary.c",
+      "versions": [
+        "GCC",
+        "Clang"
+      ],
+      "configurations": [
+        "plain",
+        "UBSan"
+      ],
+      "compile_exit": 0,
+      "baseline_exits": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseline": "8/13 checks; 5 expected failures",
+      "patched_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "patched": "13/13 checks"
+    },
+    {
+      "command": "python3 seq_clock_mode_switch_test.py --source mode_boundary.c --cc gcc|clang --flags='-fsanitize=undefined -fno-sanitize-recover=all [-DPATCHED]'",
+      "compile_exit": 0,
+      "baseline_exit": 1,
+      "patched_exit": 0
+    },
+    {
+      "command": "python3 -m py_compile seq_clock_mode_switch_test.py",
+      "exit": 0
+    }
+  ],
+  "limitations": [
+    "producer tests use source-window functions and modeled sinks; complete linked production tests not executed",
+    "commit-linked host regression added but linked execution pending",
+    "firmware target Elite/Pro/controller builds pending",
+    "hardware not tested; public nightly selection pending independent safety/package/legal/immutable HTTP gates"
+  ],
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_PASS_READY_FOR_QA",
+  "next_owner": [
+    "Independent QA: linked complete-root MID-13 and clock negative replay",
+    "Hourly Build: Elite/Pro/controller BUILD_ONLY at new exact SHA",
+    "Sole Safe Merge: later clock integration decision after independent review; preserve candidate #103"
+  ]
+}

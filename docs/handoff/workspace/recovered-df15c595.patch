@@ -1,0 +1,33 @@
+From df15c5958c78a14d161d047ebc4cb53dee4179d3 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Mon, 26 Oct 2026 08:02:27 +0000
+Subject: [PATCH] =?UTF-8?q?Size:=20noinline=20808=20voice=5Frun=20(?=
+ =?UTF-8?q?=E2=88=9218=20B=20pi32)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Keep one outlined body for the per-voice render slice under -O2 so the
+compiler does not inflate d8_render. Behavior unchanged.
+
+Co-authored-by: rdh5yk9n42 <rdh5yk9n42@privaterelay.appleid.com>
+---
+ firmware/src/dsp/drum808.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/firmware/src/dsp/drum808.c b/firmware/src/dsp/drum808.c
+index a2519154..68460ccb 100644
+--- a/firmware/src/dsp/drum808.c
++++ b/firmware/src/dsp/drum808.c
+@@ -1811,7 +1811,7 @@ int drum808_active(const drum808_t *d)
+ 
+ /* Run one voice for up to m samples into buf; stops where 8W8 would stop calling
+  * it (the voice went inactive). Returns the samples written. */
+-static int voice_run(drum808_t *d, int l, float *buf, int m, const float *bus, const float *pair)
++static __attribute__((noinline)) int voice_run(drum808_t *d, int l, float *buf, int m, const float *bus, const float *pair)
+ {
+     int i;
+     switch (l) {
+-- 
+2.47.3
+

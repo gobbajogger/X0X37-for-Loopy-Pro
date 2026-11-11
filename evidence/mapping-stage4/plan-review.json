@@ -1,0 +1,19 @@
+{
+  "candidate": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "plan": "dev-plan.json",
+  "decision": "The two production regressions cover the changed actions and performance lifecycle. Complete target and controller builds cover both model packages.",
+  "reused_stage3_evidence": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/result.json",
+  "reuse_limits": "Stage3 host results cover compatible source behavior. Stage4 does not reuse them as Linux build or physical-device evidence.",
+  "mandatory_new_checks": [
+    "Elite and Pro dev_validate records with controller=true.",
+    "Exact package and controller verification.",
+    "Package model, CRC, region and slot-map checks.",
+    "Controller insertion and removal with exact artifacts."
+  ],
+  "deferred": [
+    "R/S per-track policy remains deferred.",
+    "docs/SMC_MIXER.md:47 requires a later documentation correction.",
+    "The physical input-silence cause remains unresolved."
+  ],
+  "integration_contract": "Both validated lanes must reach the sole stage5 integrator. A combined source tree needs matching validation before installation. Individual packages cannot represent the combined source."
+}

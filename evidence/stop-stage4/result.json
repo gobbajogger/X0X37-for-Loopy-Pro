@@ -1,0 +1,187 @@
+{
+  "stage": 4,
+  "marker": "smc-central-stop-backpressure-20261021-stage4-after-independent-pass",
+  "validation_result": "STAGE4 VALIDATION PASS",
+  "workflow_status": "PENDING VERIFIED SOLE STAGE5 STARTUP",
+  "owner_chat": "01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3",
+  "source_owner": "01a15ab0-ebcf-7083-a3ec-7bbb353a7535",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "candidate_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "validated_revision": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "validated_git_tree": "4b6f8f3a64010208386cf856742b607a89065c15",
+  "validation_source_fingerprint": "e1c4b02e77e5d1d43be28a7b868b7f5cfa114b74e76ec2970eb2e7391a4a80fe",
+  "production_diff_from_candidate": "",
+  "configuration": {
+    "board": "smk37",
+    "model": "elite",
+    "config": "dev",
+    "X0X_DEV_PADCAL": 1,
+    "controller": true
+  },
+  "models": {
+    "elite": {
+      "result": "PASS",
+      "record": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/elite/record.json",
+      "validation_input_sha256": "69a610942727173b0a3ebcf63584187f93efae2d00b20ca71ca39c8f072f4cf5",
+      "budgets": {
+        "code_free": 1128,
+        "ram_free": 524,
+        "pool_free": 8364
+      },
+      "package": {
+        "bytes": 651396,
+        "sha256": "1ee6d2fcf20b39b625924ee15c6788c908ad9adc2933b4408b986c45cab745d4",
+        "crc32": "f2479a6b"
+      },
+      "controller": {
+        "bytes": 65492,
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "crc32": "9c07ae67"
+      },
+      "controller_full_64k": {
+        "bytes": 65536,
+        "sha256": "7f560b3bd709d45a920e80e24aed27a2d2852700cab2678dc4cffd2bd4e0c210",
+        "crc32": "4a400899"
+      },
+      "app": {
+        "bytes": 551544,
+        "sha256": "3204d8cd391a735f82af41b652b030b5e412da5575ac002250c913cf4ad16a98",
+        "crc32": "4ea217ae"
+      },
+      "entries": {
+        "flash.bin": {
+          "bytes": 643072,
+          "sha256": "47809cf10fce5a8781db609777390d5227fecc66990c75c2b61edaff00398c47",
+          "crc32": "2275d871"
+        },
+        "ota.bin": {
+          "bytes": 7280,
+          "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+          "crc32": "efce9076"
+        }
+      },
+      "slot_map": [
+        [
+          794624,
+          81920
+        ],
+        [
+          876544,
+          122880
+        ],
+        [
+          720896,
+          45056
+        ]
+      ],
+      "assembled_install_image": {
+        "bytes": 651396,
+        "sha256": "4806958847cae141dcd3bfc0a889f5f3df791ebf9d2a028beedeb5df5676ba93",
+        "crc32": "bb811c4c"
+      },
+      "checks": [
+        "The DEV record matches the candidate, logs, package and exact controller.",
+        "The package model, CRCs, region table and slot map pass.",
+        "The exact controller passes its CRC, ABI, RAM, entry and IRQ checks.",
+        "Controller insertion preserves app bytes, the bootloader head and slot map.",
+        "Controller removal restores the original package byte for byte."
+      ],
+      "limits": [
+        "The assembled image remains in memory. No device write occurs.",
+        "No physical-device PASS is established."
+      ]
+    }
+  },
+  "dev_record": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/elite/record.json",
+  "validation_input_sha256": "69a610942727173b0a3ebcf63584187f93efae2d00b20ca71ca39c8f072f4cf5",
+  "checks": [
+    {
+      "command": "python3 -B evidence/stop-stage3/verify-reuse.py",
+      "result": "PASS",
+      "record": "reuse-host.json",
+      "scope": "The saved source, helper, stop and replay inputs, 81 log hashes, three stage2 artifacts, compiler, SDK and container image agree."
+    },
+    {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--network",
+        "none",
+        "--user",
+        "501:20",
+        "-v",
+        "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37",
+        "-v",
+        "/Users/mac/.jieli/toolchain:/Users/mac/.jieli/toolchain:ro",
+        "-v",
+        "/Users/mac/fw-AC79_AIoT_SDK:/sdk:ro",
+        "-w",
+        "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021",
+        "x0x37-validation:local",
+        "sh",
+        "evidence/stop-stage4/run-validation.sh"
+      ],
+      "returncode": 0,
+      "result": "DEV CHECKED",
+      "record": "elite/record.json",
+      "scope": "The exact complete Elite DEV package and controller, selected evidence checks, budgets and final input identity."
+    },
+    {
+      "command": "python3 -B evidence/stop-stage4/verify-artifacts.py elite",
+      "returncode": 0,
+      "result": "PASS",
+      "record": "artifact-verification.json",
+      "scope": "The DEV record, model, package CRCs, region table, loop-slot map and controller insertion/removal."
+    }
+  ],
+  "reused_host_evidence": {
+    "source_inputs": 415,
+    "helper_inputs": 224,
+    "stop_inputs": 6,
+    "replay_inputs": 7,
+    "logs": 81,
+    "host_commands": 56,
+    "stop_commands": 14,
+    "saved_probe_commands": 7,
+    "expected_nonzero": 30,
+    "independent_probe_cases": 16,
+    "host_suites_repeated": false,
+    "replay_repeated": false
+  },
+  "source_review": "The two separate stage3 helpers have PASS and no actionable source finding.",
+  "stage2_artifact_match": "stage2-artifact-match.json",
+  "plan_review": "plan-review.json",
+  "source_identity": "source-identity.json",
+  "environment": "environment.json",
+  "failed_validation_attempts": [],
+  "firmware_edits": false,
+  "public_test_edits": false,
+  "pro_package_selected": false,
+  "pro_artifact_claimed": false,
+  "model_policy": "Elite covers shared development target checks. Pro-specific inputs and each actual selected Pro package retain applicable checks.",
+  "device_write": false,
+  "controller_write": false,
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "release_build": false,
+  "full_gate": false,
+  "trial": false,
+  "fallback": false,
+  "external_push": false,
+  "publication": false,
+  "mapping_stage4": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "mapping_result": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
+  "sole_stage5_selection_owner": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "successor": "successor.json",
+  "authorization": "The owner request and current workflow17-18 permit the next required stage, automatic launch, recovery, startup checks and notices. Owner-decisions14 permits the complete validated DEV install with notice. No external push is authorized.",
+  "limits": [
+    "This separate central package does not contain the mapping contribution. The combined source requires matching validation before installation.",
+    "The saved replay uses a simulated peer, HCI framing, mailbox, clock and schedule. Three oversized ATT packets stay excluded. Payloads are unchanged.",
+    "The store is synthetic. Target interrupts and physical radio execution are not tested.",
+    "The raw package and controller stay local. They are excluded from the evidence commit."
+  ],
+  "next_action": "Mapping stage4 selects and starts one sole stage5 for both validated contributions. Record verified actual startup before this stage ends."
+}

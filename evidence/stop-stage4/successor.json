@@ -1,0 +1,23 @@
+{
+  "marker": "smc-complete-20261021-stage5-after-mapping-and-central",
+  "source_chat": "01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3",
+  "stage": 5,
+  "status": "pending_mapping_stage5_selection",
+  "selection_owner": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "receiving_owner": null,
+  "attempts": [],
+  "coordination_record": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage5-successor.json",
+  "mapping_result": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "candidate_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "validated_revision": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "permission": "Workflow18 permits automatic successor launch, recovery, actual startup checks and completion notices. Owner-decisions14 permits the complete validated DEV install with notice.",
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "external_push_authorized": false,
+  "next_action": "After central validation passes, send the exact result to mapping stage4. That chat selects one sole stage5 for both contributions. Verify its actual startup before stage4 completion.",
+  "central_result": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/result.json",
+  "dev_record": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/elite/record.json",
+  "prompt": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/stage5-contribution.txt",
+  "prompt_sha256": "0afe0cad8e5395ec03c4593a0eb67dff6c2b39f05f7170c9d8ecc939554c4749"
+}

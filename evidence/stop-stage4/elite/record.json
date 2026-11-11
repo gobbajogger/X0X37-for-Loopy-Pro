@@ -1,0 +1,334 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "69a610942727173b0a3ebcf63584187f93efae2d00b20ca71ca39c8f072f4cf5",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "e1c4b02e77e5d1d43be28a7b868b7f5cfa114b74e76ec2970eb2e7391a4a80fe",
+      "configuration": {
+        "model": "elite",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "1c5e8f8953658689434b4b3e8687ccd630afeff0",
+          "scope": "The tested shared central stop repair retains pending commands, the original cutoff, late handles and stop intent. Startup, signaling, receive, credits, MIDI and diagnostics retain matching passing host evidence. Stage4 checks the actual Elite DEV package and controller. No Pro-specific input changed.",
+          "checks": [
+            {
+              "reason": "The source, saved negative controls, independent probe and logs must match before reuse. The complete host suites already pass on the recorded compiler. This command checks their identity and expected results without another suite run.",
+              "argv": [
+                "python3",
+                "-B",
+                "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-checked.py"
+              ]
+            }
+          ],
+          "dependencies": [
+            "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-host.json"
+          ],
+          "model_policy": "Elite covers shared development target checks. No Pro artifact is selected or claimed. Actual Pro packages retain applicable checks."
+        },
+        "dependencies": [
+          "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-host.json"
+        ]
+      },
+      "environment": {
+        "CXX": "c++",
+        "CC": "cc",
+        "MODEL": "elite",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.8.0-117-generic"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "b1cf53a3c087944763b5baa310a27a5f9dd7dad452f6862ee730f6951e9228ec",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "7eb3705069a1b9583f1c96a83c9ec89df33539c508982fb532d54cab956513d5",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+          "executable": true
+        },
+        "git": {
+          "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+          "executable": true
+        },
+        "make": {
+          "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+          "executable": true
+        },
+        "node": {
+          "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+          "executable": true
+        },
+        "emcc": null,
+        "cc": {
+          "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+          "executable": true
+        },
+        "python": {
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+          "executable": true
+        },
+        "python3": {
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": null,
+        "pillow": {
+          "version": "9.4.0",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        },
+        "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-host.json": {
+          "sha256": "04f58b15d260926abc2a4e722e7c47b9997f557e0ed3832a8b4f76d01cefa7d7",
+          "executable": false
+        },
+        "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-checked.py": {
+          "sha256": "c8dd5df34968672f6548f4c264d2b58f56ac9bb9bd108b1d8aeb4436812da631",
+          "executable": false
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "elite",
+  "commit": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "tree": "e1c4b02e77e5d1d43be28a7b868b7f5cfa114b74e76ec2970eb2e7391a4a80fe",
+  "plan": {
+    "base": "1c5e8f8953658689434b4b3e8687ccd630afeff0",
+    "scope": "The tested shared central stop repair retains pending commands, the original cutoff, late handles and stop intent. Startup, signaling, receive, credits, MIDI and diagnostics retain matching passing host evidence. Stage4 checks the actual Elite DEV package and controller. No Pro-specific input changed.",
+    "checks": [
+      {
+        "reason": "The source, saved negative controls, independent probe and logs must match before reuse. The complete host suites already pass on the recorded compiler. This command checks their identity and expected results without another suite run.",
+        "argv": [
+          "python3",
+          "-B",
+          "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-checked.py"
+        ]
+      }
+    ],
+    "dependencies": [
+      "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-host.json"
+    ],
+    "model_policy": "Elite covers shared development target checks. No Pro artifact is selected or claimed. Actual Pro packages retain applicable checks."
+  },
+  "changed_files": [
+    "evidence/stop-stage2/RESULT.txt",
+    "evidence/stop-stage2/abort01-broken-public-abort-compile.log",
+    "evidence/stop-stage2/abort01-broken-public-abort-overflow.log",
+    "evidence/stop-stage2/abort01-broken-public-abort-timeout.log",
+    "evidence/stop-stage2/abort01-broken-saved-investigation-compile.log",
+    "evidence/stop-stage2/abort01-broken-saved-investigation-overflow.log",
+    "evidence/stop-stage2/abort01-broken-saved-investigation-timeout.log",
+    "evidence/stop-stage2/abort01-broken-saved-test-None.log",
+    "evidence/stop-stage2/abort01-broken-saved-test-compile.log",
+    "evidence/stop-stage2/artifacts.json",
+    "evidence/stop-stage2/broken-stop-cancel.log",
+    "evidence/stop-stage2/broken-stop-edges.log",
+    "evidence/stop-stage2/broken-stop-failed-status.log",
+    "evidence/stop-stage2/broken-stop-scan.log",
+    "evidence/stop-stage2/build-elite.log",
+    "evidence/stop-stage2/checks.json",
+    "evidence/stop-stage2/coverage.json",
+    "evidence/stop-stage2/deadline-broken-public-cancel.log",
+    "evidence/stop-stage2/deadline-broken-public-service.log",
+    "evidence/stop-stage2/deadline-broken-public-stop.log",
+    "evidence/stop-stage2/deadline-broken-saved-cancel-after-wrap.log",
+    "evidence/stop-stage2/deadline-broken-saved-cancel-after.log",
+    "evidence/stop-stage2/deadline-broken-saved-cancel-exact-wrap.log",
+    "evidence/stop-stage2/deadline-broken-saved-cancel-exact.log",
+    "evidence/stop-stage2/deadline-broken-saved-deadline-compile.log",
+    "evidence/stop-stage2/deadline-broken-saved-service-after-wrap.log",
+    "evidence/stop-stage2/deadline-broken-saved-service-after.log",
+    "evidence/stop-stage2/deadline-broken-saved-service-exact-wrap.log",
+    "evidence/stop-stage2/deadline-broken-saved-service-exact.log",
+    "evidence/stop-stage2/deadline-broken-saved-stop-after-wrap.log",
+    "evidence/stop-stage2/deadline-broken-saved-stop-after.log",
+    "evidence/stop-stage2/deadline-broken-saved-stop-compile.log",
+    "evidence/stop-stage2/deadline-broken-saved-stop-exact-wrap.log",
+    "evidence/stop-stage2/deadline-broken-saved-stop-exact.log",
+    "evidence/stop-stage2/deadline-broken-saved-stop.log",
+    "evidence/stop-stage2/diag.log",
+    "evidence/stop-stage2/diff.log",
+    "evidence/stop-stage2/environment.json",
+    "evidence/stop-stage2/event-edge-0.log",
+    "evidence/stop-stage2/event-edge-compile.log",
+    "evidence/stop-stage2/evidence-sha256.json",
+    "evidence/stop-stage2/final-public.log",
+    "evidence/stop-stage2/guard-only-service-negative.log",
+    "evidence/stop-stage2/helper-inputs.json",
+    "evidence/stop-stage2/host-checks.json",
+    "evidence/stop-stage2/input-review.json",
+    "evidence/stop-stage2/realistic-cancel-0.log",
+    "evidence/stop-stage2/realistic-cancel-1.log",
+    "evidence/stop-stage2/realistic-cancel-2.log",
+    "evidence/stop-stage2/realistic-cancel-3.log",
+    "evidence/stop-stage2/realistic-cancel-compile.log",
+    "evidence/stop-stage2/receive.log",
+    "evidence/stop-stage2/repaired-public-abort-compile.log",
+    "evidence/stop-stage2/repaired-public-abort-overflow.log",
+    "evidence/stop-stage2/repaired-public-abort-timeout.log",
+    "evidence/stop-stage2/repaired-public-cancel.log",
+    "evidence/stop-stage2/repaired-public-service.log",
+    "evidence/stop-stage2/repaired-public-stop.log",
+    "evidence/stop-stage2/repaired-saved-cancel-after-wrap.log",
+    "evidence/stop-stage2/repaired-saved-cancel-after.log",
+    "evidence/stop-stage2/repaired-saved-cancel-exact-wrap.log",
+    "evidence/stop-stage2/repaired-saved-cancel-exact.log",
+    "evidence/stop-stage2/repaired-saved-deadline-compile.log",
+    "evidence/stop-stage2/repaired-saved-investigation-compile.log",
+    "evidence/stop-stage2/repaired-saved-investigation-overflow.log",
+    "evidence/stop-stage2/repaired-saved-investigation-timeout.log",
+    "evidence/stop-stage2/repaired-saved-service-after-wrap.log",
+    "evidence/stop-stage2/repaired-saved-service-after.log",
+    "evidence/stop-stage2/repaired-saved-service-exact-wrap.log",
+    "evidence/stop-stage2/repaired-saved-service-exact.log",
+    "evidence/stop-stage2/repaired-saved-stop-after-wrap.log",
+    "evidence/stop-stage2/repaired-saved-stop-after.log",
+    "evidence/stop-stage2/repaired-saved-stop-compile.log",
+    "evidence/stop-stage2/repaired-saved-stop-exact-wrap.log",
+    "evidence/stop-stage2/repaired-saved-stop-exact.log",
+    "evidence/stop-stage2/repaired-saved-stop.log",
+    "evidence/stop-stage2/repaired-saved-test-None.log",
+    "evidence/stop-stage2/repaired-saved-test-compile.log",
+    "evidence/stop-stage2/repaired-stop-cancel.log",
+    "evidence/stop-stage2/repaired-stop-edges.log",
+    "evidence/stop-stage2/repaired-stop-failed-status.log",
+    "evidence/stop-stage2/repaired-stop-scan.log",
+    "evidence/stop-stage2/replay-compile.log",
+    "evidence/stop-stage2/replay-inputs.json",
+    "evidence/stop-stage2/replay-run.py",
+    "evidence/stop-stage2/replay.c",
+    "evidence/stop-stage2/replay.json",
+    "evidence/stop-stage2/replay.log",
+    "evidence/stop-stage2/run-build.sh",
+    "evidence/stop-stage2/run-checks.py",
+    "evidence/stop-stage2/run-saved-probes.py",
+    "evidence/stop-stage2/run-stop-checks.py",
+    "evidence/stop-stage2/saved-probes.json",
+    "evidence/stop-stage2/saved-service-cancel-accepted.log",
+    "evidence/stop-stage2/saved-service-cancel-refused.log",
+    "evidence/stop-stage2/saved-service-compile.log",
+    "evidence/stop-stage2/saved-service-scan-accepted.log",
+    "evidence/stop-stage2/saved-service-scan-failed-status.log",
+    "evidence/stop-stage2/saved-service-scan-refused.log",
+    "evidence/stop-stage2/source-inputs.json",
+    "evidence/stop-stage2/stage3-prompt.txt",
+    "evidence/stop-stage2/stage4-dev-plan.json",
+    "evidence/stop-stage2/stop-checks.json",
+    "evidence/stop-stage2/stop-inputs.json",
+    "evidence/stop-stage2/successor.json",
+    "evidence/stop-stage3/RESULT.txt",
+    "evidence/stop-stage3/checks.json",
+    "evidence/stop-stage3/evidence-sha256.json",
+    "evidence/stop-stage3/investigation/different-handle-probe.c",
+    "evidence/stop-stage3/investigation/probe-commands.json",
+    "evidence/stop-stage3/investigation/probe-compile.log",
+    "evidence/stop-stage3/investigation/probe-inputs.json",
+    "evidence/stop-stage3/investigation/probe.log",
+    "evidence/stop-stage3/investigation/report.json",
+    "evidence/stop-stage3/investigation/run-different-handle.py",
+    "evidence/stop-stage3/investigation/service-sha256.txt",
+    "evidence/stop-stage3/investigation/source-identity.json",
+    "evidence/stop-stage3/reuse.json",
+    "evidence/stop-stage3/stage4-prompt.txt",
+    "evidence/stop-stage3/successor.json",
+    "evidence/stop-stage3/test/identity-review.json",
+    "evidence/stop-stage3/test/report.json",
+    "evidence/stop-stage3/verify-reuse.py",
+    "firmware/src/ble/ble_midi_central.c",
+    "tests/host/ble_midi_receive_test.sh",
+    "tests/host/ble_midi_stop_test.c",
+    "tests/host/ble_midi_stop_test.py"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 1128,
+    "ram_free": 524,
+    "pool_free": 8364
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "python3",
+        "-B",
+        "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-checked.py"
+      ],
+      "returncode": 0,
+      "sha256": "cf8d8befa6804565eefb947e7cfc93b49abff2b5a39eb99827b9c8d5ae27b5be"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "f6e5f276631472814ddd12a712acb9241126ad8838de65a2e27f5e89653ad8d0"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "60240b780d3ba479cf2d937b32f77cae7ffd45af71e30d57e4280cb9d990a191"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37-elite.fwsc",
+      "sha256": "1ee6d2fcf20b39b625924ee15c6788c908ad9adc2933b4408b986c45cab745d4"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}
