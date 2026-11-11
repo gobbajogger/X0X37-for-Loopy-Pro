@@ -560,7 +560,7 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
     else if (t == TRK_BRK) {
         if (o->brk)
             o->brk(o->ctx, p, tr->bars, (float)L / 256.0f,
-                   (s->pat[s->ppat[TRK_BRK]].brk.steps >> p & 1u) && !(s->mute & (1u << MUTE_BRK)) && !SEQ_PART_OFF(s, TRK_BRK));
+                   brk_step_on(&s->pat[s->ppat[TRK_BRK]].brk, p) && !(s->mute & (1u << MUTE_BRK)) && !SEQ_PART_OFF(s, TRK_BRK));
     } else
         fire_bass(s, t - TRK_BASS0, p, L, carry, skip, o);
     if (s->ext) {

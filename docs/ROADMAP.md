@@ -164,7 +164,7 @@ are in the NIGHTLY catalog entry for this source commit.
 | M10 pool >= 8,192 B | DONE: 8,328 B free on Elite and on Pro | build |
 | M11 NIGHTLY | DONE: see the catalog entry for this source commit | publish |
 | M12 completeness gate | PARTIAL: #822 not adopted. It needs a pinned proof for every required ROADMAP row (2 PRESENT / 144 MISSING at its last audit) and an independently accepted release selection; not populated. | #822 |
-| M13 1/8, 1/4 rates | PARTIAL: timing core (`2a81b7ff`), RATE selectors for drum and bass parts and offline editor/import (`336eaa4f`). QUEUED: BREAK rate (fixed 1/16), downgrade policy (0.0.24.5 reads rate & 3, so 1/8 and 1/4 load as 1/16 and 1/16T there). | `2a81b7ff`, `336eaa4f` |
+| M13 1/8, 1/4 rates | DONE on lane/025-small-b: timing core and drum/bass selectors retained. BREAK SEQ RATE is 1/16 (default), 1/8 or 1/4; the generator stays on a 16th clock and groups those 16ths. Downgrade policy: a project file that uses RATE_8 or RATE_4 is format 2, so 0.0.24.5 refuses it instead of playing 1/8 as 1/16 and 1/4 as 1/16T (`rate & 3`). Files that only use rates 0-3 stay format 1. Device settings stay format 1. | `2a81b7ff`, `336eaa4f`, this branch |
 | SMC CLIP KEYS tag | DONE: ported from 42de2893 | `03c8f007` |
 | Queued-mutes toggle | DONE on lane/025-small-b: GLO > AUDIO > QUEUE MUTES (default off, bit-exact). On, mute/unmute waits for the next 909 bar; a second press cancels; Stop applies a pending change; stopped presses are immediate. Saved in the global settings brightness byte (1 = on, any other value = off). | this branch |
 

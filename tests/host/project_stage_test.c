@@ -236,7 +236,7 @@ static void test_defaults(void)
                 CHECK(bp->step[s].flags == G_REST && !bp->step[s].velocity);
             }
         }
-        CHECK(!pat->brk.steps && !pat->brk.slot_a && pat->brk.slot_b == 1);
+        CHECK(!pat->brk.steps && !pat->brk.rate && !pat->brk.slot_a && pat->brk.slot_b == 1);
         for (k = 0; k < BRK_NSET; k++)
             CHECK(pat->brk.set[k] == break_defaults[k]);
         for (s = 0; s < 16; s++)
@@ -801,9 +801,38 @@ static void test_damaged_single_object(void)
     CHECK(project_save()==0);
 }
 
+static void test_rates_format(void)
+{
+    uint8_t h[32];
+    fixture("M13 downgrade format");
+    project_reset_stage();
+    CHECK(project_rates_format(&project_stage) == PROJ_FORMAT);
+    project_file_header(h);
+    CHECK(get32(h + 16) == PROJ_FORMAT);
+    CHECK(project_file_validate(h) == 0);
+    project_stage.pat[0].drum[0].rate = RATE_8;
+    CHECK(project_rates_format(&project_stage) == PROJ_FORMAT_RATES);
+    project_file_header(h);
+    CHECK(get32(h + 16) == PROJ_FORMAT_RATES);
+    CHECK(project_file_validate(h) == 0);
+    project_stage.pat[0].drum[0].rate = RATE_16;
+    project_stage.pat[3].bass[1].rate = RATE_4;
+    CHECK(project_rates_format(&project_stage) == PROJ_FORMAT_RATES);
+    project_stage.pat[3].bass[1].rate = RATE_16;
+    project_stage.pat[2].brk.rate = RATE_8;
+    CHECK(project_rates_format(&project_stage) == PROJ_FORMAT_RATES);
+    project_file_header(h);
+    CHECK(get32(h + 16) == PROJ_FORMAT_RATES);
+    project_stage.pat[2].brk.rate = 0xA5; /* legacy reserved garbage plays as 1/16, stays format 1 */
+    CHECK(project_rates_format(&project_stage) == PROJ_FORMAT);
+    project_file_header(h);
+    CHECK(get32(h + 16) == PROJ_FORMAT);
+}
+
 int main(void)
 {
     test_defaults();
+    test_rates_format();
     test_save_export_load();
     test_file_rejection();
     test_semantic_rejection();

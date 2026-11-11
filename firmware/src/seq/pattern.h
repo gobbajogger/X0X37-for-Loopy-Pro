@@ -73,7 +73,8 @@ typedef struct {
     uint8_t set[BRK_NSET];            /* breaks.h param values, in BRK_* order */
     uint8_t slot_a, slot_b;           /* loop A / B: the built-in bank, then the user slots (engine_brk_slot_names) */
     uint8_t slice_mode;               /* packed A/B count codes (2 bits each): 0=8,1=4,2=16,3=32 */
-    uint8_t rsv;
+    uint8_t rate;                     /* RATE_16 / RATE_8 / RATE_4. Other values, including a
+                                       * legacy reserved byte, play as 1/16 and stay stored. */
     uint8_t slice[16];                /* per 16th: 0 = the generator chooses, 1..32 = loop A's stored slice intent (resolved modulo count) */
 } brkpart_t;
 
@@ -84,6 +85,20 @@ static inline unsigned brk_slice_code_count(unsigned code)
 static inline unsigned brk_slice_count(const brkpart_t *p, unsigned which)
 {
     return brk_slice_code_count((p->slice_mode >> (2u * which)) & 3u);
+}
+
+/* BREAK keeps a 16th-note generator clock (breaks_step / slice[16]).
+ * RATE_8 and RATE_4 group those 16ths: one user step covers 2 or 4 sixteenths.
+ * The step bits 0-7 (1/8) or 0-3 (1/4) enable the group. Other rate bytes play as 1/16. */
+static inline int brk_rate_of(const brkpart_t *p)
+{
+    return (p->rate == RATE_8 || p->rate == RATE_4) ? (int)p->rate : RATE_16;
+}
+static inline int brk_step_on(const brkpart_t *p, int s16)
+{
+    unsigned rate = (unsigned)brk_rate_of(p);
+    unsigned bit = rate == RATE_8 ? (unsigned)s16 >> 1 : rate == RATE_4 ? (unsigned)s16 >> 2 : (unsigned)s16;
+    return (int)((p->steps >> (bit & 31u)) & 1u);
 }
 
 typedef struct {

@@ -28,6 +28,8 @@
 #endif
 #define PROJ_MAGIC 0x50305830u           /* "0X0P" */
 #define PROJ_FORMAT 1u
+#define PROJ_FORMAT_RATES 2u          /* project uses RATE_8 or RATE_4 (0.0.24.5 would mask those with & 3) */
+#define PROJ_FORMAT_OK(f) ((f) == PROJ_FORMAT || (f) == PROJ_FORMAT_RATES)
 #define PROJ_STEREO 2u
 #if X0X_ORIGINAL_SYNTH
 #define PROJ_SND_REV 13u
@@ -134,6 +136,7 @@ int project_validate_stage(void);         /* 0 good, -1 invalid, -7 storage capa
 void project_commit_stage(void);          /* adopt with the audio engine held */
 #define PROJECT_FILE_HDR 32u
 #define PROJECT_FILE_SIZE (PROJECT_FILE_HDR + sizeof(project_t))
+uint32_t project_rates_format(const project_t *p); /* 1, or 2 if a part uses RATE_8 or RATE_4 */
 void project_file_header(uint8_t *header);
 int project_file_validate(const uint8_t *header); /* also -4 for a payload CRC mismatch */
 
