@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T13:09:41Z",
+  "role": "LoopyX0X37 SMC Transport",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "nightly",
+    "tested_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "tested_tree": "71b759dd206d844cceed9e40ae68966142720e9c"
+  },
+  "summary": "Reject oversized/null BLE peripheral SysEx buffers before dereferencing the reported packet tail; reproduce ASan crash and preserve valid Note Off and bounded data semantics.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/ble/ble_midi_host.c",
+      "description": "Length/pointer preflight before SysEx tail access"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/ble_sysex_bounds_test.c",
+      "description": "Full-source BLE MIDI SysEx safety and Note Off tests"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/run_tests.sh",
+      "description": "Register serial native ble-sysex-bounds selector"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/smc-ble-sysex-length-preflight-20261023.md",
+      "description": "Baseline ASan and six patched sanitizer matrix results"
+    }
+  ],
+  "checks": [
+    {
+      "name": "baseline-asan",
+      "status": "FAIL",
+      "command": "clang -std=c11 -O0 -g -fsanitize=address,undefined -fno-omit-frame-pointer -I firmware/src tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c -o evidence/baseline_probe && ASAN_OPTIONS=detect_leaks=0:abort_on_error=1 evidence/baseline_probe",
+      "exit_code": 134,
+      "evidence": "Original Git blob ece7f0... dereferenced tail at ble_midi_host.c:506 after UINT32_MAX SysEx length; independently retained local baseline-fail.log",
+      "log_sha256": "c36fe5c6ab15b4d456cc0548cca1c838a84f78b07de045bc948c37c0e59543ad",
+      "coverage": "Negative: oversized caller length with 2-byte actual buffer"
+    },
+    {
+      "name": "clang-asan-ubsan",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -I firmware/src tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c -o evidence/patched_clang_asan_ubsan && ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 evidence/patched_clang_asan_ubsan",
+      "exit_code": 0,
+      "evidence": "Executed patch against exactly-matching peripheral source, PASS oversized/null/busy/invalid/max and Note Off",
+      "log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2",
+      "coverage": "Adversarial 67-byte/UINT32_MAX reports, null, busy, minimum/maximum, invalid data, MIDI Note Off"
+    },
+    {
+      "name": "gcc-asan-ubsan",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -I firmware/src tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c -o evidence/patched_gcc_asan_ubsan && ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 evidence/patched_gcc_asan_ubsan",
+      "exit_code": 0,
+      "evidence": "Executed patched GCC ASan+UBSan targeted regression",
+      "log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2"
+    },
+    {
+      "name": "four-other-matrix-runs",
+      "status": "PASS",
+      "command": "clang/gcc -std=c11 -O2/-O1 -Wall -Wextra -Werror [plain or -fsanitize=undefined] -I firmware/src tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c -o evidence/patched_${cc}_${san} && evidence/patched_${cc}_${san}",
+      "exit_code": 0,
+      "evidence": "Executed clang/gcc, each plain and UBSan, four compile/run pairs exit 0",
+      "log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2"
+    },
+    {
+      "name": "registered-ble-runner",
+      "status": "PASS",
+      "command": "X0X_TEST_JOBS=1 sh tests/run_tests.sh ble-sysex-bounds ble",
+      "exit_code": 0,
+      "evidence": "Historical runner with same selected registration, two OK; exact remote full test-runner bytes not mounted",
+      "log_sha256": "44eb17ee5d41a75e8911913a4eb167e0236faff9bc907d74e157bad128736382"
+    },
+    {
+      "name": "exact-tree-qa",
+      "status": "NOT_RUN",
+      "command": "X0X_TEST_JOBS=1 sh tests/run_tests.sh ble-sysex-bounds ble (from exact full remote PR tree)",
+      "evidence": "Native historical source host file matched remote, but complete exact-tree test runner and independent QA missing"
+    },
+    {
+      "name": "elite-pro-controller",
+      "status": "NOT_RUN",
+      "command": "Pinned native JieLi Elite/Pro DEV, ctl.img and safety qualification",
+      "evidence": "Source-only specialist; no target firmware build, controller, device, or installable candidate produced"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA",
+    "action": "Reproduce against exact remote PR tree and review overlap with BLE mailbox PR #50, then hand off to sole Safe Merge",
+    "gate": "Exact-tree host PASS and conflict-safe reviewer disposition"
+  },
+  "dependencies": [
+    "PR #50 BLE host send mailbox backpressure changes this same source file; do not assume merged"
+  ],
+  "publication": "SOURCE_ONLY"
+}

@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "channel": "openbeta",
+  "display_suffix": "_openbeta",
+  "note": "Numeric identity is X.Y.Z encoded as model_9XXYYZZ. The _openbeta suffix is display only. No number has been allocated yet. The preserved source stays unversioned.",
+  "preserved_unversioned": [
+    "892bf60d912eca93597dcf03be25a9756540c949"
+  ],
+  "allocations": []
+}

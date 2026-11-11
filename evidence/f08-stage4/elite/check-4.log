@@ -1,0 +1,22 @@
+615:                if (src < 2)
+621:                if (src < 2 && !(src_held[src] & (uint16_t)v))
+631:        if (ty == 0x80 && src < 2 && !(src_held[src] & (uint16_t)v))
+636:        if (ty == 0x90 && src < 2)
+492:static uint16_t src_held[2];           /* BLE-16: notes from USB [0] and Bluetooth [1]: bit k the 303 k, bit 8 + s the slice s */
+508:    if (brk.keys || src_held[0] || src_held[1])
+541:        v = src_held[src];
+548:        src_held[src] = 0;
+613:                src_held[0] &= (uint16_t)~v;
+614:                src_held[1] &= (uint16_t)~v;
+616:                    src_held[src] |= (uint16_t)v;
+619:                 * (mirror link-drop). TRS (src >= 2) is not tracked in src_held and still releases. */
+621:                if (src < 2 && !(src_held[src] & (uint16_t)v))
+625:                src_held[0] &= (uint16_t)~v;
+626:                src_held[1] &= (uint16_t)~v;
+631:        if (ty == 0x80 && src < 2 && !(src_held[src] & (uint16_t)v))
+634:        src_held[0] &= (uint16_t)~v;
+635:        src_held[1] &= (uint16_t)~v;
+637:            src_held[src] |= (uint16_t)v;
+1124:    src_held[0] = src_held[1] = 0;
+engine_blob_ok ab6d9667e9cd40ae12cc8c8ece8d7bb12be29216
+noteoff_gate_ok

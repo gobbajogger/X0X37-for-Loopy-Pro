@@ -1,0 +1,9 @@
+{
+  "evidence/deadline-stage2/replay.c": "c700c40d99197b1d11a947ec78daa4ccd52035e147bd5fe3e46047d61668677b",
+  "evidence/deadline-stage2/replay-run.py": "c47422fefe35d5ce5d04b586e8cbbc93e840004b8ff24d84074948afe86551eb",
+  "build/deadline-stage2/payloads.bin": "085499b9c2d9ad749c0dd9d6c753f32971bec3ee4ec3014a41bc338aadc1e4db",
+  "build/deadline-stage2/store.bin": "402fe3c9f70c5b550ded0b85ab54b3a4413cf1135dd6cb15d365aeb8c7738283",
+  "cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json": "a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a",
+  "external/compare_startup.py": "23afbe7f10cf894ce9e07f5ee0db7c7ce3d79959bd5ccb4017c56f4948b1a274",
+  "external/working-source-store.bin": "402fe3c9f70c5b550ded0b85ab54b3a4413cf1135dd6cb15d365aeb8c7738283"
+}

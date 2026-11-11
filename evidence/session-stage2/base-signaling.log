@@ -1,0 +1,1 @@
+Assertion failed: (sent == 1), function main, file ble_midi_signal_test.c, line 103.

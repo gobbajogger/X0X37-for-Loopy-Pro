@@ -1,0 +1,61 @@
+{
+  "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+  "platform_now": "macOS-27.2-arm64-arm-64bit",
+  "python_now": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "python_executable_now": "/Library/Developer/CommandLineTools/usr/bin/python3",
+  "cc_now": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "recorded_command_scopes": [
+    {
+      "scope": "initial accepted combination",
+      "command": "check-initial.py",
+      "result": "PASS",
+      "evidence": "initial-checks.json",
+      "sha256": "56743ce09207d2ca156d0e86f9b57389dbb59e866b8c3ee08ae5967e0c8b1867"
+    },
+    {
+      "scope": "native registered combined fixtures",
+      "command": "X0X_TEST_JOBS=4 sh tests/run_tests.sh validation-inputs dev-validate",
+      "result": "PASS",
+      "evidence": "registered-native-fixtures.log",
+      "sha256": "197343b73b3df8068c317735abb6d573a2e6305d82b0692d80f4d87f9fc359aa"
+    },
+    {
+      "scope": "runtime/worker cleanup",
+      "command": "python3 -B evidence/build-speed-combination-stage2/check-native-cleanup.py",
+      "result": "PASS",
+      "evidence": "native-cleanup.json",
+      "sha256": "c45f39169243f1fe39c4bd101c41bd606da0a9712caebf04bfea5ce235c9e797"
+    },
+    {
+      "scope": "actual pinned worker provenance",
+      "command": "X0X_TEST_WORKER_IMAGE=sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1 CC=cc CXX=c++ PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest tests.host.test_dev_validate.WorkerValidation.test_worker_provenance_and_consumer_authentication",
+      "result": "PASS",
+      "evidence": "native-worker.log",
+      "sha256": "43eb12ea523e3e99adafa98f83b48d85dda320b144a9457fd7ab72dd35f8a57e"
+    },
+    {
+      "scope": "gate-like outer signal fixture",
+      "command": "X0X_TEST_JOBS=4 bash -c '\"$@\" & owned=$!; wait \"$owned\"' fixture sh tests/run_tests.sh ctl-compile",
+      "result": "PASS",
+      "evidence": "registered-ctl-outer-final.log",
+      "sha256": "2020c1fbea88396864015daad083e6457b5a8ce6cae3c2bc441fb0e4569f9496"
+    },
+    {
+      "scope": "changed owner record",
+      "command": "python3 tools/prefs_lint.py docs/USER_PREFERENCES.md",
+      "result": "PASS",
+      "evidence": "preferences-lint.log",
+      "sha256": "1d9ccdc1c953674dc4290ece5d4261ce152d2dbe575b2449a8302d0186d888b7"
+    },
+    {
+      "scope": "final source/input identity",
+      "command": "python3 -B evidence/build-speed-combination-stage2/verify-final.py",
+      "result": "PASS",
+      "evidence": "final-identity.json",
+      "sha256": "02068798a1e0f5ac7f881995778ce5d7d53ff6801f3335d95ce1d16f4767d4c9"
+    }
+  ],
+  "environment_identity_limit": "Current host versions are a final snapshot. Original combined command overrides and fixture scripts are recorded; a complete inherited environment and full installed dependency-byte snapshot was not recorded for every host fixture. No stronger identity is claimed.",
+  "new_execution_scope": "Only combined fixture registration/dispatch/provenance cleanup risks and meaningful failure probes. No full suite, target/controller/application build or gate."
+}

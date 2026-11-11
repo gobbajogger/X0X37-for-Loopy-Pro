@@ -1,0 +1,22 @@
+{
+  "base": "6ddea31d6040d6735989e64adbe11630fc1ee7ec",
+  "scope": "Consumed continuation format classification only; no engine/UI or schema changes",
+  "before": "Same added real NOR regression on base source: 1314 checks, 21 failures; test main returns nonzero. Shell tail wrapper itself returned zero.",
+  "after_command": "SAN_FLAGS='-g -fsanitize=address,undefined' sh tests/run_tests.sh rec-endpoint-storage project-stage project-303-stream",
+  "after_exit": 0,
+  "detailed_storage_checks": 1314,
+  "detailed_storage_failures": 0,
+  "independent_probe": "packed_len6679 / OBJ_PAT1 payload2859; load=-9 unsupported=1; fallback save=-9 erases/programs/saves deltas all0",
+  "cases": [
+    "Consumed continuation tags4/5/7: staged load leaves live project unchanged, -9 write block, boot-default save zero NOR writes; explicit validated recovery works",
+    "Ordinary corrupt used continuation tag0: -1 fallback retained and defaults save permitted",
+    "Unused stale format5 continuation tails: valid short stream loads/stages/saves normally"
+  ],
+  "logs": {
+    "mixed-storage-before.log": "af1ee7d546c39c159604e3a9fa010fa8f0885b23e4f4697470d5e479550d9934",
+    "mixed-storage-after.log": "90c9e488ca6ef09e4a9296b52a6fd8e4b3b4a4c0f2cd2ee99e237ac819cfbc78",
+    "mixed-storage-independent-after.log": "f22981671f16925c95b354a681e5552d5ea0c0d500188210e04ddd1e836d9c30",
+    "mixed-storage-detailed-after.log": "20b5f8e20fba925d8c962f5c2fa5496856b39b445186bdecc87d3808866726d5"
+  },
+  "qualification": "Implementation host evidence only; independent recheck and exact native qualification pending"
+}

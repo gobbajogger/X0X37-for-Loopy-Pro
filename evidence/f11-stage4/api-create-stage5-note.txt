@@ -1,0 +1,4 @@
+Stage 4 CreateAgent for Stage 5: pod has no CURSOR_API_KEY.
+Both attempt JSON files record NO_CURSOR_API_KEY (no authenticated POST performed).
+Handoff remains incomplete until Project coordinator CreateAgent returns an owner-visible Stage 5 id.
+Do not treat an internal Task subagent as the Stage 5 successor.

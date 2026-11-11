@@ -1,0 +1,74 @@
+{
+  "schema": "x0x37-specialist-test-evidence-v1",
+  "role": "Sequencer Clock",
+  "revision": "seqclock-pr90-external-echo-phase-r23-20261024",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 90,
+  "branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "parent_sha": "3d59e50c67da49159d58f1066777334417bf2f25",
+  "parent_tree": "2437e349dfd11349a5589f9b2a7941bfb12a0e01",
+  "stack_base_pr": 86,
+  "base_head": "191e9c11e3461dde51a8c0361e6e93be7a8db592",
+  "files": [
+    {
+      "path": "tests/host/seq_transport_epoch_output_linked_test.c",
+      "old_blob": "25bda45f05a6d378e312c32679e03086a49998ad",
+      "new_blob": "09bb27a426173fe947ecdb3496e9636d15caad58",
+      "sha256": "c81e496af457bba7d185e37dd559cd6474c168908dfa12fede0a769031ece433"
+    }
+  ],
+  "compiler_firmware_subtree": "978e4c3008f886d53d02767133b30b5637a3e8a0",
+  "sequencer_blob_unchanged": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+  "behavior": "BEHAVIOR MID-14 and LIM-11; local PLAY followed by echoed Loopy MIDI Start OR Continue with first external F8 must retain phase, avoid first-step double trigger, move to next step on seventh tick; MIDI Stop releases held 303 NoteOff exactly once and produces no echo",
+  "positive": {
+    "linked_real_source_units": [
+      "seq/sequencer.c",
+      "seq/pattern.c",
+      "seq/tb3po.c"
+    ],
+    "blocks": [
+      1,
+      64,
+      1024
+    ],
+    "variants": [
+      "gcc plain",
+      "gcc UBSan",
+      "gcc ASan+UBSan",
+      "clang plain",
+      "clang UBSan",
+      "clang ASan+UBSan"
+    ],
+    "compilation_exit": 0,
+    "execution_exit": 0,
+    "per_run": "405/405 checks PASSED",
+    "runs": 6,
+    "log_sha256": "a65aeefc2c73bb4fb05201ff5611c8704c7297b5f56686ddadd195c56a3fafe3",
+    "lsan": "disabled"
+  },
+  "negative": {
+    "local_only_mutation": "rephase ext_ticks=0xFFu -> 0u; not committed",
+    "compilation_exit": 0,
+    "execution_exit": 1,
+    "per_run": "399/405 checks FAILED",
+    "caught_failures_per_run": 6,
+    "runs": 6,
+    "log_sha256": "4c67ae0c24c228a0e7859e93c37fdfb8b10a55f0957dc2400f91fc408a8d1634"
+  },
+  "command": "<gcc|clang> -std=c11 -O1 -g -Wall -Wextra -Werror -fno-omit-frame-pointer [plain|UBSan|ASan+UBSan flags] -I firmware/src/seq tests/host/seq_transport_epoch_output_linked_test.c firmware/src/seq/{sequencer.c,pattern.c,tb3po.c} -lm -o /tmp/seq_test; ASAN_OPTIONS=detect_leaks=0 /tmp/seq_test",
+  "gates": {
+    "producer_scoped_host": "PASS",
+    "independent_full_root_QA": "UNRUN",
+    "target_Elite_Pro_controller_build": "UNRUN (firmware inputs unchanged)",
+    "hardware": "NOT TESTED",
+    "firmware_installer": "NOT APPROVED",
+    "release": "NO"
+  },
+  "first_candidate": {
+    "safe_merge_pr": 103,
+    "observed_head": "56c180450393f26859419ce13b479e45cb0c242d",
+    "compiled_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "state": "DRAFT, OTA physical-target and combined-root QA unresolved"
+  },
+  "next_owner": "Existing Independent QA: check exact PR90 producer SHA/tree, rerun full-root selector transport-epoch-output-linked plus transport-noteoff-linked transport-origin clock-epoch clock-internal-queued-linked transport-coalesce sequencer clk-lock; check note/gesture boundary and first-candidate applicability. Sole Safe Merge retains integration authority; no publish or self-approval."
+}
