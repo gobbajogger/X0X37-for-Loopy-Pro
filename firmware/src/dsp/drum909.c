@@ -14,8 +14,8 @@
 #define D9_VCA_VT 0.0002f
 #define D9_VCA_NORM (1.0f / (1.0f - D9_VCA_VT))
 
-/* Soft VCA floor — one body for snare amp + noise env gates. */
-__attribute__((noinline)) static float d9_vca(float x)
+/* Soft VCA floor (snare amp + noise env gates); inline in the sample loop */
+D9_INLINE float d9_vca(float x)
 {
     return x > D9_VCA_VT ? (x - D9_VCA_VT) * D9_VCA_NORM : 0.0f;
 }
@@ -29,8 +29,16 @@ __attribute__((noinline)) static float d9_vca(float x)
 #define D9_PH_QUARTER 0x40000000u              /* 9W9 starts every hit at phase 0.25 */
 
 /* 9W9's back-to-back diode rounding at the two fixed drives the circuits use */
-static inline float d9_diode16(float x) { return d9_tanh(1.6f * x) * D9_INV_TANH_1_6; }
-__attribute__((noinline)) static float d9_diode20(float x) { return d9_tanh(2.0f * x) * D9_INV_TANH_2_0; }
+/* inline with their tanh: they run per sample in the voice loops (no call) */
+D9_INLINE float d9_diode16(float x) { return d9_tanh_inline(1.6f * x) * D9_INV_TANH_1_6; }
+D9_INLINE float d9_diode20(float x) { return d9_tanh_inline(2.0f * x) * D9_INV_TANH_2_0; }
+/* d9_shape with the diode (every voice's default type) inline, tanh included */
+D9_INLINE float d9_shape_v(const d9_shape_t *s, float x, float *st)
+{
+    if (s->type == 0)
+        return d9_tanh_inline(s->k * x) * s->g;
+    return d9_shape_other(s, x, st);
+}
 
 /* ===================================================================== */
 /* Parameters                                                             */
@@ -742,7 +750,7 @@ static void d9_render_bd(d9_bt_t *v, const float *nz, const d9_bus_t *bus, int n
         float o = d9_diode16(d9_tri(v->ph));
         o += 0.05f * o * o;
         o = d9_biquad_tick(&v->dc_block, o);
-        const float body = d9_shape(&v->shape, o, v->crush_st) * amp;
+        const float body = d9_shape_v(&v->shape, o, v->crush_st) * amp;
 
         /* the beater click; once its 3 ms envelope has run out it sits at -100 dB
          * for the rest of the note, and is skipped */
@@ -784,7 +792,7 @@ static void d9_render_sd(d9_bt_t *v, const float *nz, const d9_bus_t *bus, int n
         float o = d9_diode20(d9_tri(v->ph));
         o += d9_diode20(d9_tri(v->ph2)) * mix2;
         o *= inv_mix;
-        float y = d9_shape(&v->shape, o, v->crush_st) * amp;
+        float y = d9_shape_v(&v->shape, o, v->crush_st) * amp;
 
         if (v->snappy > 0.0f && !v->noise_gated) {
             if (v->noise_hold > 0 && --v->noise_hold == 0)
@@ -838,7 +846,7 @@ static void d9_render_tom(d9_tom_t *t, const d9_bt_t *p, const float *nz, const 
         float stick = 0.0f;
         if (t->noise_env.left)
             stick = d9_biquad_tick(&t->noise_bp, nz[i]) * d9_env_tick(&t->noise_env) * stick_g;
-        float y = d9_shape(&p->shape, o + stick, t->crush_st);
+        float y = d9_shape_v(&p->shape, o + stick, t->crush_st);
         y = d9_biquad_tick(&t->dc_block, y);
         bus->y[i] = y * t->out_gain;
     }
@@ -876,14 +884,14 @@ static void d9_render_rim(d9_rim_t *v, const float *nz, const d9_bus_t *bus, int
         }
         const float a = d9_env_tick(&v->amp);
         float y = d9_biquad_tick(&v->bp1, exc) * 60.0f + d9_biquad_tick(&v->bp2, exc) * 32.0f;
-        y = d9_shape(&shape, y * a, v->crush_st);
+        y = d9_shape_v(&shape, y * a, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
         bus->y[i] = y * g * accent;
     }
     for (; i < m; ++i) {
         const float a = d9_env_tick(&v->amp);
         float y = d9_rim_ring(&v->bp1) * 60.0f + d9_rim_ring(&v->bp2) * 32.0f;
-        y = d9_shape(&shape, y * a, v->crush_st);
+        y = d9_shape_v(&shape, y * a, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
         bus->y[i] = y * g * accent;
     }
@@ -918,7 +926,7 @@ __attribute__((noinline)) static void d9_render_clap(d9_clap_t *v, const float *
         }
         const float env = d9_env_tick(&v->burst) + d9_env_tick(&v->tail);
         float y = d9_biquad_tick(&v->bp, nz[i]) * env;
-        y = d9_shape(&shape, y, v->crush_st);
+        y = d9_shape_v(&shape, y, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
         bus->y[i] = y * g * accent;
     }
@@ -968,7 +976,7 @@ static void d9_render_smp(d9_smp_t *s, const d9_bus_t *bus, int n)
         }
         v *= d9_env_tick(&s->out);
         if (drive)
-            v = d9_shape(&s->shape, v * pre, s->crush_st);
+            v = d9_shape_v(&s->shape, v * pre, s->crush_st);
         bus->y[i] = v;
     }
     d9_emit_block(bus, m);
