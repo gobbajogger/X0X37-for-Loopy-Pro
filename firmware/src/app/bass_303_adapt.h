@@ -78,6 +78,20 @@ static inline void bass_303_accent_controls(int accent, float *cutoff, float *en
     *cutoff = fm_clampf(*cutoff + BASS_303_ACCENT_AMT * 0.08f, 0.0f, 1.0f);
 }
 
+/* Accent decay. TB-303: the main (filter) envelope decays in 200 ms..2 s by the
+ * DECAY pot on unaccented notes; on accented notes it is fixed at 200 ms, the
+ * short end (Devil Fish manual, R. Whittle,
+ * https://www.firstpr.com.au/rwi/dfish/Devil-Fish-Manual.pdf). Chicago's filter
+ * EG decay d gives a time constant of 25*d^4 + 0.001 s (chicago_voice.c
+ * vcf_tick); d = 0.29873 is 0.200 s. A preset whose decay is already shorter
+ * keeps it. Unaccented notes: untouched. */
+#define BASS_303_ACCENT_DECAY 0.29873f
+static inline void bass_303_accent_decay(int accent, float *decay)
+{
+    if (accent && decay && *decay > BASS_303_ACCENT_DECAY)
+        *decay = BASS_303_ACCENT_DECAY;
+}
+
 static inline float bass_303_tune_semitones(int8_t steps)
 {
     if (!steps)

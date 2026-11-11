@@ -65,6 +65,19 @@ int main(void)
     bass_303_accent_controls(1, &cut, &env);
     CHECK(cut > 0.25f && env > 0.10f);
 
+    {   /* accent decay: 200 ms on accents, shorter presets kept, unaccented untouched */
+        float d = 0.8f, t;
+        bass_303_accent_decay(0, &d);
+        CHECK(d == 0.8f);
+        bass_303_accent_decay(1, &d);
+        CHECK(d == BASS_303_ACCENT_DECAY);
+        t = 25.0f * d * d * d * d + 0.001f;
+        CHECK(t > 0.199f && t < 0.201f);
+        d = 0.1f;
+        bass_303_accent_decay(1, &d);
+        CHECK(d == 0.1f);
+    }
+
     CHECK(bass_303_tune_semitones(z) == 0.0f);
     CHECK(bass_303_tune_semitones(16) > 0.0f);
     CHECK(bass_303_tune_semitones(-16) < 0.0f);

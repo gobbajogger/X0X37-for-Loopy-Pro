@@ -962,7 +962,7 @@ static void bass_adapt_flags(int p, int acc, int sl)
 
 typedef struct {
     uint8_t used, chicago;
-    float master_tune, cutoff, env_depth, portamento, output;
+    float master_tune, cutoff, env_depth, portamento, output, vcf_decay;
 } bass_adapt_saved_t;
 static bass_adapt_saved_t bass_adapt_saved[NBASS];
 /* Accent make-up after the voice (render_sub's quiet scan): current, target. */
@@ -998,8 +998,10 @@ static void bass_adapt_pre(int b)
         bass_adapt_saved[b].env_depth = c->env_depth;
         bass_adapt_saved[b].portamento = c->pitch.portamento;
         bass_adapt_saved[b].output = c->gain.output;
+        bass_adapt_saved[b].vcf_decay = c->vcf[1];
         if (semis != 0.0f) c->pitch.master_tune += semis;
         bass_303_accent_controls(accent, &c->cutoff, &c->env_depth);
+        bass_303_accent_decay(accent, &c->vcf[1]);
         bass_accent_mk_to[b] = bass_303_accent_output(accent, &c->gain.output);
         bass_303_slide_porta(slide, &c->pitch.portamento);
     } else if (semis != 0.0f) {
@@ -1022,6 +1024,7 @@ static void bass_adapt_post(int b, float *left, float *right, unsigned n)
         c->env_depth = bass_adapt_saved[b].env_depth;
         c->pitch.portamento = bass_adapt_saved[b].portamento;
         c->gain.output = bass_adapt_saved[b].output;
+        c->vcf[1] = bass_adapt_saved[b].vcf_decay;
     } else
         original_bass[b].dsp.miami.controls.pitch.master_tune = bass_adapt_saved[b].master_tune;
     bass_adapt_saved[b].used = 0;
