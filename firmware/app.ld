@@ -6,7 +6,8 @@
  * is busy: the flash driver) and .c1_text (the second core's loop).
  * 0x01C01800..0x01C07F00 is the SMK-37's Bluetooth controller image RAM (hal/x0x_ble_abi.h);
  * 0x01C07F00.. holds crt0's status words.
- * RAM  : .data/.bss (96 KiB)
+ * RAM  : .data/.bss (96 KiB). Core 1's mailbox (fm1_c1_mb, 64-byte aligned) opens .data at the RAM
+ *        start (a zero image copied at boot like the rest of .data): in .bss its alignment left a 60-byte hole.
  * POOL : big zero-initialised buffers (FX lines, canvases), section .pool
  * C1STK: core 1's user and exception stacks (fm1_cpu1.S), below core 0's stack guard: not in
  *        RAM (.bss) any more, and an overflow runs into the unused pool tail, not into .data.
@@ -34,7 +35,7 @@ SECTIONS
     .c1_text : { _c1_start = .; KEEP(*(.c1_text*)) . = ALIGN(4); _c1_end = .; } > RAMTEXT AT > XIP
     _c1_load = LOADADDR(.c1_text);
     _rt_end = _c1_end;                  /* the guard's RAM code window covers both */
-    .data : { . = ALIGN(4); _data_start = .; *(.data*) *(.sdata*) . = ALIGN(4); _data_end = .; } > RAM AT > XIP
+    .data : { . = ALIGN(4); _data_start = .; KEEP(*(.bss.fm1_c1_mb)) *(.data*) *(.sdata*) . = ALIGN(4); _data_end = .; } > RAM AT > XIP
     _data_load = LOADADDR(.data);
     .c1stack (NOLOAD) : { *(.bss.c1stack) } > C1STK
     .bss (NOLOAD) : { _bss_start = .; *(.bss*) *(.sbss*) *(COMMON) . = ALIGN(4); _bss_end = .; } > RAM
