@@ -262,7 +262,7 @@ static void guard_apply(void)
 /* mixer: per part Level, Rev send, Dly send (a drum machine's add to its voices' own sends) */
 static const x0x_param_t MIX_P[MX_NPARAMS] = {{"LEVEL", 127, 100, 0}, {"REV", 127, 0, 0}, {"DLY", 127, 0, 0},
                                                {"PAN", 127, 64, 0}, {"CUT", 127, 127, 0}};
-static const char *const PART_NAMES[NPARTS] = {"909", "808", "303 A", "303 B", "BREAK"};
+static const char *const PART_NAMES[NPARTS] = {"909", "808", "BASS A", "BASS B", "BREAK"};
 static float mix_level[NPARTS], mix_rev[NPARTS], mix_dly[NPARTS], mix_cut[NPARTS];
 /* Momentary bus FX, snapshotted once per stretch so both cores see the same hold. */
 static volatile uint8_t bfx_down_pub;
@@ -511,7 +511,7 @@ const char *engine_voice_name(int t, int v)
     switch (t) {
     case T_909: return (v >= 0 && v <= DR_NUM) ? N909[v] : "";
     case T_808: return (v >= 0 && v <= D8_NUM) ? N808[v] : "";
-    case T_303: return v ? "303 B" : "303 A";
+    case T_303: return v ? "BASS B" : "BASS A";
     case T_MIX: return (v >= 0 && v < NPARTS) ? PART_NAMES[v] : "";
     case T_BRK: return "BREAK";
     case T_FX: return "FX";

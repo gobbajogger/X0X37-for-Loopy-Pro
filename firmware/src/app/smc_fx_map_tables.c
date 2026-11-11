@@ -9,7 +9,7 @@ const uint8_t SMCFX_PART[SMCFX_SRC_N] = {0, 1, 2, 3, 4};
 const uint8_t SMCFX_NOTE[SMCFX_N] = {24, 25, 26, 27, 28, 29, 30, 31};
 
 const char *const SMCFX_BUS_NAME[SMCFX_N] = {
-    "909", "808", "303A", "303B", "BREAK", "REVERB", "DELAY", "MASTER"};
+    "909", "808", "BASS A", "BASS B", "BREAK", "REVERB", "DELAY", "MASTER"};
 
 const uint8_t SMCFX_SUIT[SMCFX_N][SMCFX_SUIT_MAX] = {
     {SMCFX_REV, SMCFX_DLY, SMCFX_STUT, SMCFX_SHUF},

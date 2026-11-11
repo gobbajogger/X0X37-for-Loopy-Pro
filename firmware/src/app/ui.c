@@ -89,7 +89,8 @@ static const uint16_t PART_COLOURS[2][NPARTS] = {
     {RGB(139,69,0),RGB(172,35,29),RGB(40,104,30),RGB(0,96,132),RGB(117,49,148)}
 };
 #define PART_COL PART_COLOURS[ui_theme_light]
-static const char *const PART_N[NPARTS] = {"909", "808", "303A", "303B", "BREAK"};
+/* Bass slots are not named 303: Chicago is the 303 engine, Miami is not. Shown names follow the engine (part_name). */
+static const char *const PART_N[NPARTS] = {"909", "808", "BASS A", "BASS B", "BREAK"};
 /* Presentation only: drums together, then the default Chicago B / Miami A.
  * Project lanes, MIDI channels, engine buses and all saved arrays keep their IDs.
  * Engine changes never move a physical strip or a held gesture's destination. */
@@ -122,6 +123,20 @@ static const char *part_display(int part)
         int voice=part-PART_303A;
 #if X0X_BASS_TAGGED_SOUND
         if(engine_bass_sound_bank(&proj.sound,voice)<0)return "CHOOSE ENGINE";
+#endif
+        return bass_display_name(engine_bass_bank(voice),engine_bass_bank(1-voice),voice);
+    }
+#endif
+    return PART_N[part];
+}
+/* A part's shown name: the bass slots name their engine (CHICAGO / MIAMI). */
+static const char *part_name(int part)
+{
+#if X0X_BASS_PRESET_PREVIEW
+    if (part_is_303(part)) {
+        int voice=part-PART_303A;
+#if X0X_BASS_TAGGED_SOUND
+        if(engine_bass_sound_bank(&proj.sound,voice)<0)return PART_N[part];
 #endif
         return bass_display_name(engine_bass_bank(voice),engine_bass_bank(1-voice),voice);
     }
@@ -438,11 +453,11 @@ static const x0x_param_t ACT_P[] = {
 };
 static const x0x_param_t STALLS_P = {"STALLS", 1, 0, ONOFF_N};
 static const x0x_param_t MIDICH_P[NPARTS] = {   /* 0 = OFF (no notes in or out), 1-16 */
-    {"909 MIDI CH", 16, 10, 0}, {"808 MIDI CH", 16, 11, 0}, {"303A MIDI CH", 16, 2, 0}, {"303B MIDI CH", 16, 3, 0},
+    {"909 MIDI CH", 16, 10, 0}, {"808 MIDI CH", 16, 11, 0}, {"BASS A MIDI CH", 16, 2, 0}, {"BASS B MIDI CH", 16, 3, 0},
     {"BREAK MIDI CH", 16, 4, 0}};
 /* M7: per-part ON/OFF (seq.part_off). OFF stops new notes, independent of mute and level. */
 static const x0x_param_t PARTON_P[NPARTS] = {
-    {"909", 1, 1, ONOFF_N}, {"808", 1, 1, ONOFF_N}, {"CHICAGO", 1, 1, ONOFF_N}, {"MIAMI", 1, 1, ONOFF_N},
+    {"909", 1, 1, ONOFF_N}, {"808", 1, 1, ONOFF_N}, {"BASS A", 1, 1, ONOFF_N}, {"BASS B", 1, 1, ONOFF_N},
     {"BREAK", 1, 1, ONOFF_N}};
 static const char *const OUT_N[] = {"NORMAL", "LOUD"};
 static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
@@ -469,7 +484,7 @@ static const char *const BTSTAT_N[] = {"NO IMAGE", "OFF", "RESTART", "STARTING",
                                        "FAILED", "BAD IMAGE"};   /* PLAT_BLE_* order */
 static const x0x_param_t BTSTAT_P = {"STATUS", 7, 0, BTSTAT_N};   /* read only (plat_ble_state) */
 static const x0x_param_t SONG_P[] = {
-    {"909", NPAT - 1, 0, 0}, {"808", NPAT - 1, 0, 0}, {"303A", NPAT - 1, 0, 0}, {"303B", NPAT - 1, 0, 0},
+    {"909", NPAT - 1, 0, 0}, {"808", NPAT - 1, 0, 0}, {"BASS A", NPAT - 1, 0, 0}, {"BASS B", NPAT - 1, 0, 0},
     {"BREAK", NPAT - 1, 0, 0},
     {"LENGTH", NSONG, 0, 0},
 };
@@ -873,10 +888,17 @@ static int in_pattern(pref_t r)
 static const char *pref_name(pref_t r)
 {
     if(r.kind==R_SECTION)return GLOBAL_SECTIONS[r.a<6?r.a:0];
+    if ((r.kind == R_PARTON || r.kind == R_SPAT) && part_is_303(r.a % NPARTS))
+        return part_name(r.a % NPARTS);                /* the engine, never "303" for Miami */
+    if (r.kind == R_MIDICH && part_is_303(r.a % NPARTS)) {
+        static char t[24];
+        put_s(put_s(t, part_name(r.a % NPARTS)), " MIDI CH");
+        return t;
+    }
     static const char *const MIXN[NPARTS][MX_NPARAMS] = {{"909", "909 RV", "909 DL", "909 PAN", "909 CUT"},
                                                          {"808", "808 RV", "808 DL", "808 PAN", "808 CUT"},
-                                                         {"303 A", "A REV", "A DLY", "A PAN", "A CUT"},
-                                                         {"303 B", "B REV", "B DLY", "B PAN", "B CUT"},
+                                                         {"BASS A", "A REV", "A DLY", "A PAN", "A CUT"},
+                                                         {"BASS B", "B REV", "B DLY", "B PAN", "B CUT"},
                                                          {"BREAK", "BRK RV", "BRK DL", "BRK PAN", "BRK CUT"}};
     static const char *const PATN[6][2] = {{"909 LEN", "808 LEN"}, {"909 RATE", "808 RATE"}, {"A LEN", "B LEN"},
                                            {"A RATE", "B RATE"}, {"A DIR", "B DIR"}, {"A TRANSP", "B TRANSP"}};
@@ -891,6 +913,8 @@ static const char *pref_name(pref_t r)
         return CHN[r.c];                               /* MIX's PARTS: the picked part's */
     if (r.kind == R_ENG && (r.a == T_909 || r.a == T_808) && r.b == NDRUM && r.c == 1)
         return "ACCENT";                               /* the kits' depth of accents */
+    if (r.kind == R_ENG && r.a == T_MIX && r.b < NPARTS && r.c == 0 && part_is_303(r.b))
+        return part_name(r.b);
     if (r.kind == R_ENG && r.a == T_MIX && r.b < NPARTS && r.c < MX_NPARAMS)
         return MIXN[r.b][r.c];
     if (r.kind == R_ENG && r.a == T_FX) {               /* the page says which effect: the knob, what */
@@ -1574,11 +1598,11 @@ static void list_add(pref_t r)
 /* a list section's name: whose values follow */
 static void hdr_name(int g, char *t)
 {
-    const char *who = is_drum() ? engine_voice_name(ui.part == PART_909 ? T_909 : T_808, ui.sel[ui.part]) : PART_N[ui.part];
+    const char *who = is_drum() ? engine_voice_name(ui.part == PART_909 ? T_909 : T_808, ui.sel[ui.part]) : part_name(ui.part);
     switch (g) {
     case GR_TRACK: put_s(put_s(t, who), ": THIS TRACK"); break;
     case GR_TMIX: put_s(put_s(t, who), ": TRACK MIX"); break;
-    case GR_KIT: put_s(put_s(t, PART_N[ui.part]), ": ALL TRACKS"); break;
+    case GR_KIT: put_s(put_s(t, part_name(ui.part)), ": ALL TRACKS"); break;
     case GR_PAT: put_s(put_i(put_s(t, "P"), seq.ppat[ui.part] + 1), ": THE PATTERN"); break;
     case GR_MORE: put_s(t, "MORE"); break;
     case GR_MIDI: put_s(t, "MIDI"); break;
@@ -1587,7 +1611,7 @@ static void hdr_name(int g, char *t)
     case GR_PROJECT: put_s(t, "PROJECT"); break;
     case GR_SYSTEM: put_s(t, "SYSTEM"); break;
     case GR_BT: put_s(t, "BLUETOOTH MIDI"); break;
-    default: put_s(put_s(t, PART_N[ui.part]), ": THE SOUND"); break;
+    default: put_s(put_s(t, part_name(ui.part)), ": THE SOUND"); break;
     }
 }
 
@@ -1621,7 +1645,7 @@ static void open_list_of_pages(void)
         list_add(PR(R_ACT, ACT_SONG_CLR, 0, 0));
     }
     if (ui.view == V_SEQ)
-        put_s(put_s(list_title, PART_N[ui.part]), " SEQ");
+        put_s(put_s(list_title, part_name(ui.part)), " SEQ");
     else
         put_s(list_title, ui.view == V_PART ? part_display(ui.part) : VIEW_N[ui.view]);
     ui.list_sel = ui.list_top = 0;
@@ -1855,7 +1879,7 @@ static int help_lines(int b, const char *l[HELP_LINES])
     case B_SAVE: {                                   /* the pattern a copy takes */
         static char cp[40], cl[32], st[40];
         put_s(cp, "+ WHITE KEY: COPY LIVE PARTS");
-        put_s(put_s(cl, "+ " UI_CAP_REC ": CLEAR "), PART_N[ui.part]);
+        put_s(put_s(cl, "+ " UI_CAP_REC ": CLEAR "), part_name(ui.part));
         if (ui.rec && !proj.set.autosave_off && save_state() == SAVE_UNSAVED)
             put_s(st, UI_CAP_REC " OFF FOR AUTOSAVE");
         else
@@ -1867,7 +1891,7 @@ static int help_lines(int b, const char *l[HELP_LINES])
         break;
     }
     case B_ARP:
-        L("TB-3PO: THE 303 LINE"); L("GENERATOR (303A, 303B)");
+        L("TB-3PO: THE 303 LINE"); L("GENERATOR (CHICAGO, MIAMI)");
         if (gen) { L(UI_CAP_OCT "+: A NEW LINE"); L(UI_CAP_OCT "-: MUTATE IT"); }
         L("AGAIN: THE NEXT PAGE");
         break;
@@ -2018,7 +2042,7 @@ static void undo_name(uint32_t lo, uint32_t hi, char *t)
         int pb = (int)(y < __builtin_offsetof(pattern_t, bass) ? y / sizeof(dpart_t)
                        : y < __builtin_offsetof(pattern_t, brk) ? NKIT + (y - __builtin_offsetof(pattern_t, bass)) / sizeof(bpart_t)
                        : PART_BRK);
-        char *q = put_s(t, pa == pb ? PART_N[pa] : "PATTERN");
+        char *q = put_s(t, pa == pb ? part_name(pa) : "PATTERN");
         put_i(put_s(q, " P"), (int)pi + 1);
     } else if (a >= p0 && b < a0) {
         put_s(t, "PATTERNS");
@@ -2424,8 +2448,8 @@ static int saved_sound_present(int part)
 static void ask_sound_reset(int part)
 {
     engine_bass_edit_hold(1);
-    if (saved_sound_present(part)) ask(ACT_RESET_SOUND, part, "RESET SOUND", PART_N[part]);
-    else say("NO SAVED SOUND ", PART_N[part]);
+    if (saved_sound_present(part)) ask(ACT_RESET_SOUND, part, "RESET SOUND", part_name(part));
+    else say("NO SAVED SOUND ", part_name(part));
     engine_bass_edit_hold(0);
 }
 
@@ -2476,7 +2500,7 @@ X0X_COLD static void reset_sound(int part)
                 ui_restore_base(target, voice + v, i);
         mark_dirty();
         build_pages();
-        say("RESET SOUND ", PART_N[part]);
+        say("RESET SOUND ", part_name(part));
     } else say(result == SOUND_RESET_NO_SAVED ? "NO SAVED SOUND" : "UNDO UNAVAILABLE", 0);
 #if X0X_BASS_TAGGED_SOUND
     if (mask) engine_project_hold(0);
@@ -2498,7 +2522,7 @@ X0X_COLD static void run_action(int act, int arg)
         clear_part(pat_of(arg), arg);
         clear_lanes(seq.ppat[arg], arg);
         mark_dirty();
-        say("CLEARED ", PART_N[arg]);
+        say("CLEARED ", part_name(arg));
         break;
     case ACT_CLEAR_PAT: {
         int i;
@@ -3382,7 +3406,7 @@ static void mute_part(int p)                         /* a whole part on / off (H
         mark_dirty();
     }
     smk_mute_edge(p, part_muted(p));
-    say(part_muted(p) ? "MUTED " : "UNMUTED ", PART_N[p]);
+    say(part_muted(p) ? "MUTED " : "UNMUTED ", part_name(p));
 }
 static int track_muted(int km, int v) { return (int)(seq.vmute >> (km * NDRUM + v) & 1u); }
 /* Only actual level destinations participate. FILTER and navigation never do.
@@ -3864,7 +3888,7 @@ X0X_COLD static void button_tap(int b)
         if (ui.btn & (1u << B_SAVE)) {               /* SAVE + REC: clear this part (asks) */
             char t[24];
             ui.btn_used |= 1u << B_SAVE;
-            put_s(put_s(t, "CLEAR "), PART_N[ui.part]);
+            put_s(put_s(t, "CLEAR "), part_name(ui.part));
             ask(ACT_CLEAR_PART, ui.part, t, "IN THIS PATTERN?");
             break;
         }
@@ -3905,7 +3929,7 @@ X0X_COLD static void button_tap(int b)
         break;
     case B_ARP:
         if (!is_303()) {
-            say("TB-3PO: PICK 303A OR 303B", 0);
+            say("TB-3PO: PICK CHICAGO OR MIAMI", 0);
             break;
         }
         if (ui.view == V_GEN && ui.overlay == O_NONE)  /* the generator; again: its next page */
@@ -5253,7 +5277,7 @@ static UI_DRAW void draw_header(void)
         if ((ui.view == V_SEQ || ui.view == V_PART) && is_303()) {
 #if X0X_BASS_TAGGED_SOUND
             if (engine_bass_sound_bank(&proj.sound, bidx()) < 0)
-                part_label = bidx() ? "303 B" : "303 A";
+                part_label = bidx() ? "BASS B" : "BASS A";
             else
 #endif
             {
@@ -8112,9 +8136,9 @@ static void knob_tag(char *t)
     const char *ti = pg.title[cur_page()];
     if (lock_step() >= 0) {
         put_i(put_s(put_s(t, is_drum() ? engine_voice_name(ui.part == PART_909 ? T_909 : T_808, ui.sel[ui.part])
-                                        : PART_N[ui.part]), " P-LOCK STEP "), lock_step() + 1);
+                                        : part_name(ui.part)), " P-LOCK STEP "), lock_step() + 1);
     } else if (ui.view == V_SEQ && is_303() && ui.held_step >= 0) {
-        put_i(put_s(put_s(t, PART_N[ui.part]), " STEP "), ui.held_step + 1);
+        put_i(put_s(put_s(t, part_name(ui.part)), " STEP "), ui.held_step + 1);
     } else if (dm >= 0)
         put_s(put_s(put_s(t, ti), ": "), engine_voice_name(dm ? T_808 : T_909, ui.sel[dm]));
     else if (ui.view == V_MIX && cur_page() == 0)

@@ -899,7 +899,7 @@ static void smc_ui_label(pref_t r, char *text)
     const char *name = pref_name(r);
     char *q = text;
     if (r.kind == R_ENG && r.a == T_MIX && r.b < NPARTS) {
-        q = put_s(q, PART_N[r.b]);
+        q = put_s(q, part_name(r.b));
         name = r.c == MX_LEVEL ? "LEVEL" : r.c == MX_PAN ? "PAN" : r.c == MX_CUT ? "CUTOFF" : pref_name(r);
         *q++ = ' ';
     } else if (r.kind == R_ENG && (r.a == T_909 || r.a == T_808) && r.b < NDRUM) {
@@ -1159,7 +1159,7 @@ static void smc_ui_draw_peer(void)
         smc_context_t context = smc_context();
         char *end = put_s(tag, "");
         if (kit >= 0) {
-            end = put_i(put_s(put_s(end, PART_N[kit]), " B"),
+            end = put_i(put_s(put_s(end, part_name(kit)), " B"),
                         (smc.locked ? smc.lock_bank / 8 : smc.sel[kit] / 8) + 1);
             put_s(put_s(end, " "), drum_bank[smc.knob_bank % 3u]);
         } else if (!smc.locked && smk_clip_mode_on()) {
@@ -1224,7 +1224,7 @@ static void smc_ui_draw_peer(void)
             int owned = note < 32 && smc.fx_strip.key_bus[note] < SMCFX_N;
             if (owned) bus = smc.fx_strip.key_bus[note];
             int page = owned ? (int)(smc.fx_strip.page2 >> note & 1u) : smc.fx_page;
-            put_s(name, SMCFX_BUS_NAME[bus]);
+            put_s(name, bus < NPARTS ? part_name(bus) : SMCFX_BUS_NAME[bus]);
             uint8_t fx = owned ? smc.fx_strip.held_fx[bus][note >> 3] :
                 smcfx_strip_get(&smc.fx_strip, page, bus, smcfx_button((uint8_t)note));
             if (fx == SMCFX_EMPTY) put_s(num, "--");
@@ -1479,7 +1479,7 @@ static void smc_record_toggle(void)
     if (ui.rec && part_is_303(smc.part))
         ui.wpos[(smc.part-PART_303A)] = 0;
     smc.rec_part = smc.part;
-    say(ui.rec ? "RECORD ON" : "RECORD OFF", PART_N[smc.part]);
+    say(ui.rec ? "RECORD ON" : "RECORD OFF", part_name(smc.part));
 }
 
 static void smc_select_part(int part)
@@ -1768,7 +1768,7 @@ static int smc_fx_try(uint8_t note, int mmc)
         else smc.fx_lp_hold &= (uint8_t)~bit;
     }
     smc_fx_publish();
-    if (active != SMCFX_EMPTY) say(SMCFX_LONG[active], SMCFX_BUS_NAME[bus]);
+    if (active != SMCFX_EMPTY) say(SMCFX_LONG[active], bus < NPARTS ? part_name(bus) : SMCFX_BUS_NAME[bus]);
     smc_fx_show(note); /* Empty buttons also need a visible held mapping target. */
     return 1;
 }
@@ -1922,7 +1922,7 @@ static void smc_button_apply(uint8_t note, int mmc)
                 smc_record_toggle();
             } else if (row == 1) {      /* SOLO */
                 smc_solo_press(strip, part + 1, mmc);
-                say((smc.solo & (1u << part)) ? "SOLO" : "UNSOLO", PART_N[part]);
+                say((smc.solo & (1u << part)) ? "SOLO" : "UNSOLO", part_name(part));
             } else if (row == 2)       /* MUTE */
                 mute_part(part);
             else {                     /* SELECT */
