@@ -35,6 +35,7 @@
 /* a branch that is rarely taken (a voice's first 44 samples, a fault, every 16th sample):
  * laid out off the straight path, where a taken branch costs ~10 cycles on the AC79 */
 #define D8_UNLIKELY(c) __builtin_expect(!!(c), 0)
+#define D8_LIKELY(c) __builtin_expect(!!(c), 1)
 #ifndef D8_TICK
 #define D8_TICK static inline
 #endif
@@ -1920,10 +1921,20 @@ __attribute__((noinline)) static void lane_mix(drum808_t *d, d8_lane_t *l, const
     if (l->cstep == 0.0f && bypass) {             /* the common case */
         float k = trim * g * l->cg;
         if (dry_r) {
-            for (i = 0; i < m; i++) {
-                dry[i] += buf[i] * (k * (pl + dpl * (float)i));
-                dry_r[i] += buf[i] * (k * (pr + dpr * (float)i));
-            }
+            if (D8_LIKELY(dpl == 0.0f && dpr == 0.0f)) {
+                /* settled pan: dpl * (float)i is a zero of dpl's sign for every i (dpl * 0.0f), so
+                 * one gain per side gives the same bits as the glide expression below */
+                const float kl = k * (pl + dpl * 0.0f), kr = k * (pr + dpr * 0.0f);
+                for (i = 0; i < m; i++) {
+                    const float b = buf[i];
+                    dry[i] += b * kl;
+                    dry_r[i] += b * kr;
+                }
+            } else
+                for (i = 0; i < m; i++) {
+                    dry[i] += buf[i] * (k * (pl + dpl * (float)i));
+                    dry_r[i] += buf[i] * (k * (pr + dpr * (float)i));
+                }
         } else
             for (i = 0; i < m; i++)
                 dry[i] += buf[i] * k;
