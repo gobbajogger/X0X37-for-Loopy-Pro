@@ -1,0 +1,1 @@
+FAIL tests/host/smc_ui_test.c:277: !smc_ui_active()

@@ -1,0 +1,731 @@
+From b9d4024ff12704f417c07a69ee55f372a07141c1 Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Tue, 20 Oct 2026 22:26:18 +1000
+Subject: [PATCH] Checkpoint SMC receive repairs for cloud continuation
+
+WIP: parser regressions pass; expanded UI path and Elite/Pro builds remain unverified. Local checks stopped for owner-requested cloud transition. See smc_receive_repair_20261020/cloud-transition.txt outside checkout. Not a merge/install candidate.
+---
+ firmware/src/app/smc_mixer.c        | 34 +++++++++---
+ firmware/src/app/smk_inlog.h        |  8 +--
+ firmware/src/ble.c                  | 14 ++++-
+ firmware/src/ble/ble_midi_central.c | 85 +++++++++++++++++++++--------
+ firmware/src/ble/ble_midi_central.h |  6 ++
+ tests/ble_central_diag_test.py      | 23 ++++++++
+ tests/host/ble_midi_receive_test.c  | 74 +++++++++++++++++++++++++
+ tests/host/ble_midi_receive_test.sh | 11 ++++
+ tests/host/smc_reachability_test.c  | 74 ++++++++++++++++++++++---
+ tests/inlog_tool_test.py            |  3 +
+ tests/run_tests.sh                  |  2 +
+ tests/smk_inlog_test.c              |  3 +
+ tools/ble_autotest.py               |  6 +-
+ tools/inlog_fmt.py                  |  6 +-
+ 14 files changed, 300 insertions(+), 49 deletions(-)
+ create mode 100644 tests/ble_central_diag_test.py
+ create mode 100644 tests/host/ble_midi_receive_test.c
+ create mode 100644 tests/host/ble_midi_receive_test.sh
+
+diff --git a/firmware/src/app/smc_mixer.c b/firmware/src/app/smc_mixer.c
+index 26264a9..e4c3de0 100644
+--- a/firmware/src/app/smc_mixer.c
++++ b/firmware/src/app/smc_mixer.c
+@@ -13,6 +13,13 @@ static struct {
+     uint8_t n, b[6];
+ } smc_q[SMC_Q];
+ static volatile uint8_t smc_qw, smc_qr, smc_link_pending;
++/* ISR owns enqueued/dropped; main loop owns dispatched/reason. Modulo 256. */
++static volatile uint8_t smc_enqueued, smc_dropped, smc_dispatched, smc_reason;
++uint32_t smc_rx_diag(void)
++{
++    return (uint32_t)smc_enqueued | (uint32_t)smc_dropped << 8 |
++           (uint32_t)smc_dispatched << 16 | (uint32_t)smc_reason << 24;
++}
+ static uint8_t smc_host_q[SMC_Q][3];
+ static volatile uint8_t smc_host_w, smc_host_r;
+ static uint8_t smc_mmc_q[2][16];
+@@ -28,13 +35,15 @@ static struct {
+ void smc_ble_midi(const uint8_t *msg, uint8_t len)
+ {
+     uint8_t w = smc_qw, i;
+-    if (!msg || !len || len > 6u || (uint8_t)(w - smc_qr) >= SMC_Q)
+-        return;
++    if (!msg || !len || len > 6u || (uint8_t)(w - smc_qr) >= SMC_Q) {
++        smc_dropped++; return;
++    }
+     smc_q[w % SMC_Q].n = len;
+     for (i = 0; i < len; i++)
+         smc_q[w % SMC_Q].b[i] = msg[i];
+     __asm__ volatile("" ::: "memory");
+     smc_qw = (uint8_t)(w + 1u);
++    smc_enqueued++;
+ }
+ 
+ void smc_ble_link(int up) { smc_link_pending = (uint8_t)(up ? 1u : 2u); }
+@@ -399,17 +408,18 @@ static void smc_release(uint8_t note)
+ }
+ 
+ /* Stock User preset commands 1..32 run M/S/R/SELECT in strip order. */
+-static void smc_message(const uint8_t *m, uint8_t len)
++static uint8_t smc_message(const uint8_t *m, uint8_t len)
+ {
+     uint8_t type, ch, a, b, user = !!(proj.set.bt & PROJ_BT_SMC_USER);
+     if (len == 6 && user && m[0] == 0xF0 && m[1] == 0x7F && m[2] == 0x7F &&
+         m[3] == 0x06 && m[5] == 0xF7) {
+         a = smc_mmc_note(m[4]);
+-        if (a != 0xFFu) smc_button(a, 1);
+-        return;
++        if (a == 0xFFu) return 4;
++        smc_button(a, 1);
++        return 0;
+     }
+     if (len < 3)
+-        return;
++        return 4;
+     type = m[0] & 0xF0u;
+     ch = m[0] & 0x0Fu;
+     a = m[1] & 0x7Fu;
+@@ -424,7 +434,8 @@ static void smc_message(const uint8_t *m, uint8_t len)
+     else if ((type == 0x90u || type == 0x80u) && (!ch || user)) {
+         if (type == 0x90u && b) smc_button(a, 0);
+         else smc_release(a);
+-    }
++    } else return 4; /* message is outside the selected preset's input format */
++    return 0;
+ }
+ 
+ void smc_poll(void)
+@@ -454,8 +465,13 @@ void smc_poll(void)
+     }
+     while (smc_qr != smc_qw && count++ < SMC_Q) {
+         r = smc_qr;
+-        if (allow && !perf_testing() && smc.up && (proj.set.bt & PROJ_BT_SMC_CENTRAL))
+-            smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n);
++        if (!allow || perf_testing()) smc_reason = 1;
++        else if (!smc.up) smc_reason = 2;
++        else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
++        else {
++            smc_dispatched++;
++            smc_reason = smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n);
++        }
+         smc_qr = (uint8_t)(r + 1u);
+     }
+     count = 0;
+diff --git a/firmware/src/app/smk_inlog.h b/firmware/src/app/smk_inlog.h
+index ac91051..92d2460 100644
+--- a/firmware/src/app/smk_inlog.h
++++ b/firmware/src/app/smk_inlog.h
+@@ -1,6 +1,6 @@
+ /* SPDX-License-Identifier: GPL-3.0-only
+  * The inbound recorder (a76): the last SMK_INLOG_N APC40 LED messages that came in on USB or
+- * Bluetooth, and the Bluetooth link and notify edges. The editor command 38 INLOG (read only)
++ * Bluetooth, the Bluetooth link and notify edges, and decoded SMC input. The editor command 38 INLOG (read only)
+  * returns it, and tools/ble_autotest.py --diag-only prints it. One writer context: usb.c and
+  * ble.c run in the same timer interrupt. ble.c gives the link state after each event poll; only a
+  * change of it goes into the ring. Each entry has 2 words: fm1_ms, and
+@@ -10,7 +10,7 @@
+ 
+ #define SMK_INLOG_N 64u       /* at most 127: INLOG sends the count as one 7-bit byte */
+ #define SMK_INLOG_CELLS 40u     /* the clip cells that INLOG returns (SMK_APC40_CLIP_COUNT) */
+-enum { SMK_INLOG_USB = 0, SMK_INLOG_BLE = 1, SMK_INLOG_EDGE = 2, SMK_INLOG_NOCELL = 3 };
++enum { SMK_INLOG_USB = 0, SMK_INLOG_BLE = 1, SMK_INLOG_EDGE = 2, SMK_INLOG_NOCELL = 3, SMK_INLOG_SMC = 4 };
+ /* SMK_INLOG_EDGE: d2 = the link state, bit 0 the link is up, bit 1 notify is on. */
+ typedef struct {
+     uint32_t w[SMK_INLOG_N * 2u];
+@@ -26,11 +26,11 @@ static inline uint32_t smk_inlog_word(uint32_t src, uint32_t pkt)
+ }
+ 
+ /* Keep note on and note off for the APC40 LED notes 0-98 (clip, scene, track and transport LEDs),
+- * and all edges. Other messages (clock, knob ring CCs, notes 99-127) do not go into the ring. */
++ * all edges, and SMC input (source 4, MMC command in d1). Other APC messages (clock, knob ring CCs, notes 99-127) do not go into the ring. */
+ static inline uint8_t smk_inlog_wanted(uint32_t src, uint32_t pkt)
+ {
+     uint32_t st = (pkt >> 8) & 0xFFu;
+-    return (uint8_t)(src == SMK_INLOG_EDGE || ((st & 0xE0u) == 0x80u && ((pkt >> 16) & 0x7Fu) <= 98u));
++    return (uint8_t)(src == SMK_INLOG_EDGE || src == SMK_INLOG_SMC || ((st & 0xE0u) == 0x80u && ((pkt >> 16) & 0x7Fu) <= 98u));
+ }
+ 
+ static inline void smk_inlog_put(smk_inlog_t *g, uint32_t ms, uint32_t src, uint32_t pkt)
+diff --git a/firmware/src/ble.c b/firmware/src/ble.c
+index 3058039..104cabc 100644
+--- a/firmware/src/ble.c
++++ b/firmware/src/ble.c
+@@ -44,14 +44,16 @@ static uint8_t ble_central_role;                 /* settings bit 4 at boot; one
+ /* attempt 34 (DIAG): interval | end reason << 16 | pairing refusals << 24;
+  * MIDI in drops | asked MTU << 8 (10 bits) | request sent << 18 | result << 19 | latency << 21 (3) | L2CAP requests << 24 */
+ static uint32_t ble_sat(uint32_t v, uint32_t m) { return v > m ? m : v; }
++extern uint32_t smc_rx_diag(void);
+ static uint32_t ble_h_link0(void)
+ {
+-    if (ble_central_role) return 0; /* these fields describe the peripheral link */
++    if (ble_central_role) return (uint32_t)ble_r.host.c.rx_acl | (uint32_t)ble_r.host.c.rx_notify << 8 |
++                                 (uint32_t)ble_r.host.c.rx_midi << 16 | (uint32_t)ble_r.host.c.rx_reject << 24;
+     return ble_r.host.h.conn_int | (uint32_t)ble_r.host.h.disc_reason << 16 | ble_sat(ble_r.host.h.smp_rejects, 255u) << 24;
+ }
+ static uint32_t ble_h_link1(void)
+ {
+-    if (ble_central_role) return 0;
++    if (ble_central_role) return smc_rx_diag();
+     return ble_sat(ble_r.host.h.drops_in, 255u) | ble_sat(ble_r.host.h.mtu_req, 1023u) << 8 | (uint32_t)(ble_r.host.h.cpu_state & 1u) << 18 |
+            (uint32_t)(ble_r.host.h.cpu_result & 3u) << 19 | ble_sat(ble_r.host.h.conn_lat, 7u) << 21 | (uint32_t)ble_r.host.h.sig_reqs << 24;
+ }
+@@ -203,6 +205,11 @@ static uint8_t ble_c0_ready;
+ static void ble_central_midi(const uint8_t *p, uint8_t n, void *ctx)
+ {
+     (void)ctx;
++    /* Reuse the bounded ISR-owned INLOG ring; MMC records command in d1. */
++    if (n == 3u)
++        smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 24);
++    else if (n == 6u)
++        smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[4] << 16);
+     smc_ble_midi(p, n);                       /* TIMER5: SMC queues for the UI main loop */
+ }
+ static void ble_start(void)
+@@ -544,7 +551,8 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
+     w[n++] = ble_r.mb.c2h.head | ble_r.mb.c2h.tail << 16;
+     w[n++] = ble_r.mb.c2h_drops;
+     w[n++] = ble_central_role ? (uint32_t)ble_r.host.c.step | (uint32_t)ble_r.host.c.waiting << 8 |
+-                                 (uint32_t)ble_r.host.c.credits << 16 :
++                                 (uint32_t)ble_r.host.c.credits << 16 |
++                                 (uint32_t)ble_r.host.c.rx_reason << 24 | 0x80000000u :
+                                  (uint32_t)ble_r.host.h.step | (uint32_t)ble_r.host.h.cmd_wait << 8 |
+                                  (uint32_t)ble_r.host.h.credits << 16;
+     w[n++] = ble_r.mb.dbg[XB_DBG_INIT_MS];     /* frames the controller took */
+diff --git a/firmware/src/ble/ble_midi_central.c b/firmware/src/ble/ble_midi_central.c
+index 7440ed5..ae2a67b 100644
+--- a/firmware/src/ble/ble_midi_central.c
++++ b/firmware/src/ble/ble_midi_central.c
+@@ -17,6 +17,20 @@ static void blec_wr16(uint8_t *p, unsigned v) { p[0] = (uint8_t)v; p[1] = (uint8
+ static int blec_eq(const uint8_t *a, const uint8_t *b, unsigned n)
+ { unsigned i; for (i = 0; i < n; i++) if (a[i] != b[i]) return 0; return 1; }
+ 
++static void blec_rx_reset(blec_t *c)
++{
++    c->running = c->in_sysex = c->sx_len = c->rx_have = c->rx_need = 0;
++}
++static void blec_reject(blec_t *c, uint8_t reason)
++{
++    c->rx_reject++; c->rx_reason = reason;
++}
++static void blec_emit(blec_t *c, const uint8_t *p, uint8_t n)
++{
++    c->rx_midi++;
++    if (c->midi) c->midi(p, n, c->ctx);
++}
++
+ static void blec_command(blec_t *c, unsigned op, const uint8_t *p, unsigned n)
+ {
+     uint8_t b[32];
+@@ -44,6 +58,7 @@ static void blec_fail(blec_t *c)
+ {
+     uint8_t b[3];
+     c->errors++;
++    blec_rx_reset(c);
+     c->qr = c->qw;
+     c->att_waiting = 0;
+     if (c->conn) {
+@@ -118,6 +133,9 @@ void blec_init(blec_t *c, blec_send_fn send, blec_midi_fn midi, void *ctx, const
+ }
+ void blec_start(blec_t *c, uint32_t now)
+ {
++    blec_rx_reset(c);
++    c->midi_handle = c->cccd_handle = c->svc_end = 0;
++    c->now_ms = now;
+     c->waiting = c->att_waiting = c->conn = c->credits = 0;
+     c->qr = c->qw = 0;
+     c->state = BLEC_STARTING; c->step = S_RESET; c->query_start = 1;
+@@ -128,6 +146,7 @@ void blec_stop(blec_t *c)
+     uint8_t b[3];
+     if (c->state == BLEC_OFF || c->state == BLEC_STOPPING) return;
+     c->deadline = c->now_ms + 3000u;
++    blec_rx_reset(c);
+     c->state = BLEC_STOPPING;
+     c->qr = c->qw;
+     if (c->conn) {
+@@ -144,7 +163,7 @@ void blec_stop(blec_t *c)
+ static void blec_midi_packet(blec_t *c, const uint8_t *p, unsigned n)
+ {
+     unsigned i = 1;
+-    if (n < 3 || (p[0] & 0xc0u) != 0x80u) return;
++    if (n < 3 || (p[0] & 0xc0u) != 0x80u) { blec_reject(c, BLEC_RX_MIDI); return; }
+     while (i < n) {
+         uint8_t st, m[3], len;
+         if (c->in_sysex) {
+@@ -153,13 +172,13 @@ static void blec_midi_packet(blec_t *c, const uint8_t *p, unsigned n)
+                 continue; /* timestamp low 127 before more SysEx data or EOX */
+             if (b == 0xf7u) {
+                 if (c->sx_len < sizeof c->sx) c->sx[c->sx_len++] = b;
+-                if (c->sx_len == 6u && c->midi) c->midi(c->sx, 6u, c->ctx);
++                if (c->sx_len == 6u) blec_emit(c, c->sx, 6u);
+                 c->in_sysex = c->sx_len = 0;
+             } else if (!(b & 0x80u)) {
+                 if (c->sx_len < sizeof c->sx) c->sx[c->sx_len++] = b;
+                 else { c->in_sysex = c->sx_len = 0; c->errors++; }
+             } else if (b >= 0xf8u) {
+-                if (c->midi) c->midi(&b, 1u, c->ctx);
++                blec_emit(c, &b, 1u);
+             } /* timestamp bytes inside SysEx are skipped */
+             continue;
+         }
+@@ -170,7 +189,7 @@ static void blec_midi_packet(blec_t *c, const uint8_t *p, unsigned n)
+             i++; if (st < 0xf0u) c->running = st;
+             else if (st < 0xf8u) c->running = 0;
+         } else {
+-            if (!c->running) { i++; continue; }
++            if (!c->running) { blec_reject(c, BLEC_RX_MIDI); i++; continue; }
+             st = c->running;
+         }
+         if (st == 0xf0u) {
+@@ -181,17 +200,21 @@ static void blec_midi_packet(blec_t *c, const uint8_t *p, unsigned n)
+               (st & 0xe0u) == 0xc0u ? 2u : 3u;
+         if (!len) continue;                 /* control surface has no SysEx input */
+         m[0] = st; m[1] = m[2] = 0;
+-        if (i + len - 1u > n) break;
++        if (i + len - 1u > n) { blec_reject(c, BLEC_RX_MIDI); break; }
+         if (len > 1u) m[1] = p[i++];
+         if (len > 2u) m[2] = p[i++];
+-        if (c->midi) c->midi(m, len, c->ctx);
++        blec_emit(c, m, len);
+     }
+ }
+ static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
+ {
+     unsigned i, es;
+     if (!n) return;
+-    if (p[0] == 0x1b && n >= 4u && blec_rd16(p + 1) == c->midi_handle) {
++    if (p[0] == 0x1b) {
++        if (n < 4u || !c->midi_handle || blec_rd16(p + 1) != c->midi_handle) {
++            blec_reject(c, BLEC_RX_HANDLE); return;
++        }
++        c->rx_notify++;
+         blec_midi_packet(c, p + 3, n - 3u);
+         return;
+     }
+@@ -249,31 +272,42 @@ static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
+ }
+ static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
+ {
+-    unsigned hd, pb, len, cid;
+-    if (n < 8u) return;
++    unsigned hd, pb, len, need, have, i;
++    uint8_t reason;
++    c->rx_acl++;
++    if (n < 4u) { blec_reject(c, BLEC_RX_HEADER); return; }
+     hd = blec_rd16(p); pb = hd >> 12 & 3u;
+-    if ((hd & 0xfffu) != c->conn) return;
++    if ((c->state != BLEC_DISCOVERING && c->state != BLEC_CONNECTED) ||
++        (hd & 0xfffu) != c->conn) { blec_reject(c, BLEC_RX_LINK); return; }
+     len = blec_rd16(p + 2);
+-    if (len > n - 4u) return;
++    reason = BLEC_RX_LENGTH;
++    if (len != n - 4u) goto reject;
++    reason = BLEC_RX_FRAGMENT;
+     if (pb == 1u) {
+-        unsigned i;
+-        if (!c->rx_need || c->rx_have + len > sizeof c->rx) { c->rx_need = 0; return; }
++        if (!len || !c->rx_need || len > (unsigned)(c->rx_need - c->rx_have)) goto reject;
+         for (i = 0; i < len; i++) c->rx[c->rx_have + i] = p[4 + i];
+         c->rx_have = (uint8_t)(c->rx_have + len);
+     } else {
+-        unsigned i;
+-        c->rx_need = 0;
+-        if (len < 4u) return;
+-        cid = blec_rd16(p + 6);
+-        if (cid != 4u || blec_rd16(p + 4) > sizeof c->rx) return;
+-        c->rx_need = (uint8_t)blec_rd16(p + 4);
+-        c->rx_have = (uint8_t)(len - 4u);
+-        for (i = 0; i < c->rx_have; i++) c->rx[i] = p[8 + i];
++        c->rx_have = c->rx_need = 0;
++        if (pb == 3u || len < 4u) goto reject;
++        reason = BLEC_RX_CID;
++        if (blec_rd16(p + 6) != 4u) goto reject;
++        need = blec_rd16(p + 4); have = len - 4u;
++        reason = BLEC_RX_SIZE;
++        if (!need || need > sizeof c->rx || have > need) goto reject;
++        c->rx_need = (uint8_t)need;
++        c->rx_have = (uint8_t)have;
++        for (i = 0; i < have; i++) c->rx[i] = p[8 + i];
+     }
+-    if (c->rx_need && c->rx_have >= c->rx_need) {
+-        blec_att_in(c, c->rx, c->rx_need);
+-        c->rx_need = 0;
++    if (c->rx_have == c->rx_need) {
++        unsigned complete = c->rx_need;
++        c->rx_have = c->rx_need = 0;
++        blec_att_in(c, c->rx, complete);
+     }
++    return;
++reject:
++    c->rx_have = c->rx_need = 0;
++    blec_reject(c, reason);
+ }
+ static void blec_adv_report(blec_t *c, const uint8_t *p, unsigned n)
+ {
+@@ -357,12 +391,15 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
+                 if (c->step != S_CANCEL) { blec_scan_again(c, now); blec_progress(c); }
+                 return;
+             }
++            blec_rx_reset(c);
++            c->midi_handle = c->cccd_handle = c->svc_end = 0;
+             c->conn = (uint16_t)(blec_rd16(p + 2) & 0x0fffu);
+             if (c->step == S_CANCEL) c->waiting = 0; /* connection won the cancel race */
+             c->state = BLEC_DISCOVERING; c->step = S_SERVICE; c->query_start = 1; c->att_waiting = 0;
+             c->deadline = now + 5000u; blec_progress(c);
+         }
+     } else if (code == 0x05 && pl >= 4u && c->state != BLEC_OFF && blec_rd16(p + 1) == c->conn) {
++        blec_rx_reset(c);
+         c->conn = 0; c->qr = c->qw; c->att_waiting = 0; blec_scan_again(c, now); blec_progress(c);
+     } else if (code == 0x13 && pl >= 5u) {
+         unsigned i;
+diff --git a/firmware/src/ble/ble_midi_central.h b/firmware/src/ble/ble_midi_central.h
+index 050294e..30a15b1 100644
+--- a/firmware/src/ble/ble_midi_central.h
++++ b/firmware/src/ble/ble_midi_central.h
+@@ -5,6 +5,10 @@
+ 
+ enum { BLEC_OFF, BLEC_STOPPING, BLEC_STARTING, BLEC_SCANNING, BLEC_CONNECTING,
+        BLEC_DISCOVERING, BLEC_CONNECTED, BLEC_DISCONNECTING, BLEC_FAILED };
++/* No MTU exchange is initiated: ATT uses the default 23-byte MTU. The 64-byte
++ * assembly buffer tolerates larger peer PDUs without advertising a larger MTU. */
++enum { BLEC_RX_OK, BLEC_RX_HEADER, BLEC_RX_LINK, BLEC_RX_LENGTH,
++       BLEC_RX_FRAGMENT, BLEC_RX_CID, BLEC_RX_SIZE, BLEC_RX_HANDLE, BLEC_RX_MIDI };
+ typedef int (*blec_send_fn)(uint8_t h4, const uint8_t *p, uint16_t n, void *ctx);
+ typedef void (*blec_midi_fn)(const uint8_t *p, uint8_t n, void *ctx);
+ 
+@@ -14,6 +18,8 @@ typedef struct {
+     void *ctx;
+     uint8_t state, step, waiting, att_waiting, credits, acl_total, addr_type, link_name[21];
+     uint8_t addr[6], target[6], target_type, found, running, sx[8], sx_len, in_sysex, rx[64], rx_have, rx_need;
++    /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
++    uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;
+     uint8_t q[32][3], qlen[32];
+     volatile uint8_t qr, qw; /* main-loop producer, TIMER5 consumer */
+     uint16_t conn, cmd_op, svc_end, query_start, midi_handle, cccd_handle, ts;
+diff --git a/tests/ble_central_diag_test.py b/tests/ble_central_diag_test.py
+new file mode 100644
+index 0000000..16370be
+--- /dev/null
++++ b/tests/ble_central_diag_test.py
+@@ -0,0 +1,23 @@
++#!/usr/bin/env python3
++"""Central receive words must never be printed as peripheral interval/MTU."""
++import sys
++import types
++from pathlib import Path
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
++# No device/API operations: only exercise the production text decoder.
++sys.modules['mido'] = types.ModuleType('mido')
++import ble_autotest as b
++from collections import defaultdict
++d = defaultdict(int)
++d.update(h_step=0x8605000e, rx0=0x04030201, rx1=0x04070605)
++s = b.summary(d, None)['link']
++assert 'ACL 1, notifications 2, MIDI 3, rejected 4' in s
++assert 'last receive rejection 6' in s
++assert 'queue enqueued 5, dropped 6, dispatched 7, dispatch reason 4' in s
++assert 'interval' not in s
++d['h_step'] = 0
++d['rx0'] = 24
++d['rx1'] = 23 << 8
++s = b.summary(d, None)['link']
++assert 'interval 30 ms' in s and 'asked MTU 23' in s
++print('PASS: central receive and unchanged peripheral diagnostic formats')
+diff --git a/tests/host/ble_midi_receive_test.c b/tests/host/ble_midi_receive_test.c
+new file mode 100644
+index 0000000..7e23033
+--- /dev/null
++++ b/tests/host/ble_midi_receive_test.c
+@@ -0,0 +1,74 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Public HCI ingress regression: fragments, invalid lengths, session boundaries.
++ * SMC queue/UI consumers are covered by smc_reachability_test.c. */
++#include <assert.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include "../../firmware/src/ble/ble_midi_central.h"
++static unsigned count;
++static uint8_t last[8];
++static int send_h4(uint8_t t,const uint8_t *p,uint16_t n,void *x)
++{ (void)t;(void)p;(void)n;(void)x;return 0; }
++static void got(const uint8_t *p,uint8_t n,void *x)
++{ (void)x;assert(n<=sizeof last);memcpy(last,p,n);count++; }
++static void ready(blec_t *c)
++{ c->state=BLEC_CONNECTED;c->conn=1;c->midi_handle=6; }
++static const uint8_t note[]={1,0,12,0,8,0,4,0,0x1b,6,0,0x80,0x81,0x90,24,127};
++static void feed(blec_t *c,const uint8_t *p,unsigned n)
++{ blec_rx(c,2,p,(uint16_t)n,1); }
++static void fragment(blec_t *c,unsigned tail)
++{
++ uint8_t first[sizeof note],end[16]={1,0x10,0,0};
++ memcpy(first,note,sizeof note);first[2]-=tail;end[2]=tail;
++ memcpy(end+4,note+sizeof note-tail,tail);
++ unsigned before=count;
++ feed(c,first,sizeof note-tail);assert(count==before);
++ feed(c,end,tail+4);assert(count==before+1 && !c->rx_need && !c->rx_have);
++}
++int main(void)
++{
++ blec_t c;const uint8_t addr[6]={0};blec_init(&c,send_h4,got,0,addr);ready(&c);
++ for(unsigned tail=1;tail<=8;tail++) fragment(&c,tail);
++ /* First payload overflows the old buffer into assembly state and transmit queue.
++  * ASan does not detect intra-struct overwrites, so retain explicit sentinels. */
++ uint8_t big[108]={1,0,104,0,8,0,4,0};big[72]=100;
++ memset(c.q,0xa5,sizeof c.q);unsigned before=count;
++ feed(&c,big,sizeof big);assert(count==before && c.q[0][0]==0xa5 && !c.rx_need);
++ assert(c.rx_reason==BLEC_RX_SIZE);
++ uint8_t bad[sizeof note+1];memcpy(bad,note,sizeof note);bad[sizeof note]=0;
++ feed(&c,bad,sizeof bad);assert(count==before && c.rx_reason==BLEC_RX_LENGTH);
++ bad[2]++;feed(&c,bad,sizeof bad);assert(count==before && c.rx_reason==BLEC_RX_SIZE);
++ bad[1]=0x30;feed(&c,bad,sizeof bad);assert(c.rx_reason==BLEC_RX_FRAGMENT);
++ /* Oversized ATT cannot be silently truncated. Existing 64-byte tolerance stays bounded. */
++ uint8_t large[73]={1,0,69,0,65,0,4,0};feed(&c,large,sizeof large);
++ assert(c.rx_reason==BLEC_RX_SIZE && !c.rx_need);
++ /* Short first, stray/overshooting continuation, wrong CID and wrong link. */
++ uint8_t first[sizeof note];memcpy(first,note,sizeof note);first[2]=11;
++ uint8_t end[]={1,0x10,2,0,127,0};
++ feed(&c,first,sizeof note-1);feed(&c,end,sizeof end);
++ assert(c.rx_reason==BLEC_RX_FRAGMENT && !c.rx_need && count==before);
++ end[2]=1;feed(&c,end,5);assert(c.rx_reason==BLEC_RX_FRAGMENT);
++ memcpy(first,note,sizeof note);first[6]=5;feed(&c,first,sizeof first);
++ assert(c.rx_reason==BLEC_RX_CID);
++ first[6]=4;first[0]=2;feed(&c,first,sizeof first);assert(c.rx_reason==BLEC_RX_LINK);
++ first[0]=1;first[9]=7;feed(&c,first,sizeof first);assert(c.rx_reason==BLEC_RX_HANDLE && c.state==BLEC_CONNECTED);
++ feed(&c,note,sizeof note);assert(count==before+1);
++ /* Partial SysEx AND partial ACL must not survive any link lifetime boundary. */
++ const uint8_t sx[]={1,0,12,0,8,0,4,0,0x1b,6,0,0x80,0x81,0xf0,0x7f,0x7f};
++ const uint8_t down[]={5,4,0,1,0,0x13};
++ for(unsigned how=0;how<3;how++) {
++  ready(&c);feed(&c,sx,sizeof sx);assert(c.in_sysex);
++  memcpy(first,note,sizeof note);first[2]=11;feed(&c,first,sizeof note-1);
++  assert(c.rx_need);
++  if(how==0) blec_start(&c,2);
++  else if(how==1) blec_stop(&c);
++  else blec_rx(&c,4,down,sizeof down,2);
++  assert(!c.in_sysex && !c.sx_len && !c.running && !c.rx_need && !c.rx_have);
++  before=count;feed(&c,note,sizeof note);assert(count==before); /* no input while disconnected */
++  ready(&c);feed(&c,note,sizeof note);assert(count==before+1 && last[0]==0x90);
++ }
++ assert(c.rx_acl && c.rx_notify && c.rx_midi && c.rx_reject);
++ puts("PASS: HCI fragments 1-8, malformed assembly, bounds, rejection and lifecycle");
++ return 0;
++}
+diff --git a/tests/host/ble_midi_receive_test.sh b/tests/host/ble_midi_receive_test.sh
+new file mode 100644
+index 0000000..b1b308d
+--- /dev/null
++++ b/tests/host/ble_midi_receive_test.sh
+@@ -0,0 +1,11 @@
++#!/bin/sh
++# Public receive tests with address/undefined sanitizers, scratch binaries only.
++set -eu
++cd "$(dirname "$0")/../.."
++OUT=$(mktemp -d)
++trap 'rm -rf "$OUT"' EXIT HUP INT TERM
++for test in ble_midi_central ble_midi_receive; do
++    ${CC:-cc} -std=c99 -g -O1 -Wall -Wextra -Werror -fsanitize=address,undefined \
++        "tests/host/${test}_test.c" firmware/src/ble/ble_midi_central.c -o "$OUT/$test"
++    "$OUT/$test"
++done
+diff --git a/tests/host/smc_reachability_test.c b/tests/host/smc_reachability_test.c
+index cc725c0..3903b6a 100644
+--- a/tests/host/smc_reachability_test.c
++++ b/tests/host/smc_reachability_test.c
+@@ -18,21 +18,47 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; r
+ #define SMC_SOURCE_FILE "app/smc_mixer.c"
+ #endif
+ #include SMC_SOURCE_FILE
++#include "ble/ble_midi_central.c"
++static blec_t receiver;
+ static int route;
++static int user_route(void) { return route==1 || route==2 || route==4; }
++static int hci_send(uint8_t t,const uint8_t *p,uint16_t n,void *ctx)
++{ (void)t;(void)p;(void)n;(void)ctx;return 0; }
++static void hci_midi(const uint8_t *p,uint8_t n,void *ctx)
++{ (void)ctx;smc_ble_midi(p,n); }
++static void receive_ready(void)
++{ receiver.conn=1;receiver.midi_handle=6;receiver.state=BLEC_CONNECTED; }
++static void hci_input(const uint8_t *m,unsigned n,unsigned tail)
++{
++    uint8_t b[32]={1,0,0,0,0,0,4,0,0x1b,6,0,0x80,0x81};
++    b[2]=n+9-tail;b[4]=n+5;memcpy(b+13,m,n);
++    blec_rx(&receiver,2,b,n+13-tail,now_ms);
++    if(tail) {
++        uint8_t end[16]={1,0x10,0,0};end[2]=tail;
++        memcpy(end+4,b+n+13-tail,tail);
++        blec_rx(&receiver,2,end,tail+4,now_ms);
++    }
++}
++static void smc_input(const uint8_t *m,unsigned n)
++{
++    static unsigned fragments;
++    if(route>=3) hci_input(m,n,(fragments++)%5);
++    else smc_ble_midi(m,n);
++}
+ static void message(int st, int a, int b) {
+     uint8_t msg[3] = {st,a,b};
+     now_ms += 100;
+-    if(route && (st & 0xF0)==0xE0) { msg[0]=0xBF; msg[1]=40+(st&7); }
+-    if(route && (st & 0xF0)==0xB0) msg[0]=0xBF;
+-    if(route && (st==0x90 || st==0x80)) {
++    if(user_route() && (st & 0xF0)==0xE0) { msg[0]=0xBF; msg[1]=40+(st&7); }
++    if(user_route() && (st & 0xF0)==0xB0) msg[0]=0xBF;
++    if(user_route() && (st==0x90 || st==0x80)) {
+         if(st==0x80) return;            /* stock MMC buttons have no release */
+         int cmd; for(cmd=1;cmd<=43 && smc_mmc_note(cmd)!=a;cmd++);
+         assert(cmd<=43);
+         if(route==2) smc_mmc_host(cmd,0);
+-        else { uint8_t mmc[6]={0xF0,0x7F,0x7F,6,cmd,0xF7}; smc_ble_midi(mmc,6); }
++        else { uint8_t mmc[6]={0xF0,0x7F,0x7F,6,cmd,0xF7}; smc_input(mmc,6); }
+     } else if(route==2)
+         assert(smc_midi_host(0x0B | (uint32_t)msg[0]<<8 | (uint32_t)msg[1]<<16 | (uint32_t)msg[2]<<24));
+-    else smc_ble_midi(msg,3);
++    else smc_input(msg,3);
+     smc_poll(); smc_frame();
+ }
+ static void press(int note) { message(0x90,note,127); message(0x80,note,0); }
+@@ -49,7 +75,19 @@ static void edit(pref_t r, int n) {
+ }
+ static void scenario(void) {
+     clip_grid_mode=0; ck.pg=0; memset(fields,0,sizeof fields); memset(&smc,0,sizeof smc);
+-    memset(&ui,0,sizeof ui); boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (route?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
++    memset(&ui,0,sizeof ui); boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
++    if(route>=3) {
++        uint8_t addr[6]={0};blec_init(&receiver,hci_send,hci_midi,0,addr);receive_ready();
++        const uint8_t partial[]={0xF0,0x7F,0x7F};hci_input(partial,3,0);
++        assert(receiver.in_sysex);
++        const uint8_t down[]={5,4,0,1,0,0x13};
++        blec_rx(&receiver,4,down,sizeof down,now_ms);smc_ble_link(0);smc_poll();
++        receive_ready();smc_ble_link(1);smc_poll();
++        /* The first fader, knob and SELECT after an interrupted SysEx reach UI. */
++        fader(0,0);assert(!strncmp(ui.msg,"PICK F1",7) || !strncmp(ui.msg,"SMC F1",6));
++        press(24);assert(ui.view==V_PART && ui.part==0);
++        edit(smc_knob_target(0),0);smc_view(V_HOME,0);
++    }
+     if(getenv("SMC_PICKUP_ONLY")) goto pickup;
+     /* Starting at HOME, SELECT must expose each part's sound. */
+     for(int part=0;part<NPARTS;part++) {
+@@ -129,6 +167,18 @@ pickup: ;
+     seq.playing=0; ui.rec=0;
+     smc_ble_link(0); smc_poll(); assert(!smc.picked && !smc.seen && !smc.solo);
+     smc_ble_link(1); smc_poll(); assert(!smc.picked && !smc.seen);
++    if(route>=3) {
++        uint8_t addr[6]={0};blec_init(&receiver,hci_send,hci_midi,0,addr);receive_ready();
++        const uint8_t partial[]={0xF0,0x7F,0x7F};hci_input(partial,3,0);
++        assert(receiver.in_sysex);
++        const uint8_t down[]={5,4,0,1,0,0x13};
++        blec_rx(&receiver,4,down,sizeof down,now_ms);smc_ble_link(0);smc_poll();
++        receive_ready();smc_ble_link(1);smc_poll();
++        /* The first fader, knob and SELECT after an interrupted SysEx reach UI. */
++        fader(0,0);assert(!strncmp(ui.msg,"PICK F1",7) || !strncmp(ui.msg,"SMC F1",6));
++        press(24);assert(ui.view==V_PART && ui.part==0);
++        edit(smc_knob_target(0),0);smc_view(V_HOME,0);
++    }
+     if(getenv("SMC_PICKUP_ONLY")) return;
+     /* View navigation reaches all ordinary views and Global's actions. */
+     press(26); view(V_SEQ); view(V_GEN); view(V_FX); view(V_MIX); view(V_SONG); view(V_HOME);
+@@ -165,6 +215,16 @@ pickup: ;
+     puts("PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths");
+ }
+ int main(void) {
+-    for(route=0;route<3;route++) { printf("Route %d\n",route); scenario(); }
++    for(route=0;route<5;route++) { printf("Route %d\n",route); scenario(); }
++    /* Rejection observability without rewriting input presets or dispatch rules. */
++    const uint8_t m[3]={0xE0,0,100};
++    proj.set.bt=PROJ_BT_SMC_CENTRAL|PROJ_BT_SMC_USER;
++    smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==4);
++    smc_ble_link(0);smc_poll();smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==2);
++    smc_ble_link(1);smc_poll();proj.set.bt=0;
++    smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==3);
++    unsigned drops=(smc_rx_diag()>>8)&255;
++    for(unsigned i=0;i<SMC_Q+1;i++) smc_ble_midi(m,3);
++    assert(((smc_rx_diag()>>8)&255)==((drops+1)&255));smc_poll();
+     return 0;
+ }
+diff --git a/tests/inlog_tool_test.py b/tests/inlog_tool_test.py
+index 7903acc..b461ea3 100644
+--- a/tests/inlog_tool_test.py
++++ b/tests/inlog_tool_test.py
+@@ -63,3 +63,6 @@ assert "MISMATCH" in t2[6] and "sent 127,  0,  0 (red)" in t2[6]
+ assert "WARNING: all clip cells are off, but 2 pads show a colour" in t2[-1]
+ assert f.parse_pads([1, 0, 1]) is None and f.pads_text(None)[0].startswith("PADS: no reply")
+ print("PASS INLOG reply decode and text")
++
++assert "SMC          MIDI BF 28 64" in f.entry_text(100, 100, 0x04BF2864, None)
++assert "SMC          MMC command 24" in f.entry_text(100, 100, 0x04F01800, None)
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index a563c4d..46a8ea5 100755
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -165,6 +165,7 @@ run project-303-stream sh tests/host/run_project_303_stream.sh
+ run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
+ run smc-fader python3 tests/host/smc_fader_test.py
+ run smc-buttons python3 tests/host/smc_buttons_test.py
++run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
+ run smc-reachability sh tests/host/smc_reachability_test.sh
+ run smc-mapping python3 tests/host/smc_mapping_test.py
+ run smc-filter python3 tests/host/smc_filter_test.py
+@@ -232,6 +233,7 @@ run apc-palette python3 tests/apc_palette_test.py   # one source, hue order, dis
+ run installer-targets python3 tests/make_pages_test.py
+ run diag-size python3 tests/diag_size_test.py           # a76: ED_DIAG stays in its buffers
+ run smk-inlog sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_inlog_test tests/smk_inlog_test.c && $OUT/smk_inlog_test"   # a76: inbound recorder ring
++run ble-central-diag python3 -B tests/ble_central_diag_test.py
+ run inlog-tool python3 tests/inlog_tool_test.py      # a76: ED_INLOG dump text
+ run smk-clip-ble-notify sh -c "$CC -std=c99 -O2 -Wall -Wextra -Wno-unused-function -Werror -Ifirmware/src -Ifirmware/hal -Ifirmware/src/ble -o $OUT/smk_clip_ble_notify_test tests/smk_clip_ble_notify_test.c && $OUT/smk_clip_ble_notify_test"   # a76: no pad colour while notify is off
+ run smk-clip-dark sh tests/smk_clip_dark_test.sh   # a76: real clip and pad LED code: dark 10 s after Loopy goes away
+diff --git a/tests/smk_inlog_test.c b/tests/smk_inlog_test.c
+index 066497b..10dbd2a 100644
+--- a/tests/smk_inlog_test.c
++++ b/tests/smk_inlog_test.c
+@@ -35,6 +35,9 @@ int main(void)
+     assert(smk_inlog_wanted(SMK_INLOG_NOCELL, pkt(0x90, 0x20, 0x31)));
+     smk_inlog_put(&g, 5u, SMK_INLOG_BLE, pkt(0xB0, 0x10, 5));
+     assert(g.n == 0u && g.next == 0u && smk_inlog_copy(&g, w) == 0u);
++    assert(smk_inlog_wanted(SMK_INLOG_SMC, pkt(0xE0, 0, 100)));
++    assert(smk_inlog_wanted(SMK_INLOG_SMC, pkt(0xBF, 40, 100)));
++    assert(smk_inlog_word(SMK_INLOG_SMC, pkt(0xBF, 40, 100)) == 0x04BF2864u);
+     printf("PASS filter\n");
+ 
+     /* an edge goes in only when the link state changes */
+diff --git a/tools/ble_autotest.py b/tools/ble_autotest.py
+index f4664e9..6ed7cfe 100755
+--- a/tools/ble_autotest.py
++++ b/tools/ble_autotest.py
+@@ -213,7 +213,11 @@ def summary(d, before):
+                f"credits {d['h_step'] >> 16 & 0xFF}; h2c head/tail {d['h2c'] & 0xFFFF}/{d['h2c'] >> 16} "
+                f"c2h {d['c2h'] & 0xFFFF}/{d['c2h'] >> 16} drops {d['c2h_drops']}; controller took "
+                f"{d['ctl_took']}, gave {d['ctl_gave']}; polls {d['polls']}",
+-        "link": (f"interval {(d['rx0'] & 0xFFFF) * 1.25:g} ms, latency {d['rx1'] >> 21 & 7}; last end reason 0x{d['rx0'] >> 16 & 0xFF:02X}; "
++        "link": (f"SMC receive (counters modulo 256): ACL {d['rx0'] & 255}, notifications {d['rx0'] >> 8 & 255}, "
++                 f"MIDI {d['rx0'] >> 16 & 255}, rejected {d['rx0'] >> 24}; last receive rejection "
++                 f"{d['h_step'] >> 24 & 127}; queue enqueued {d['rx1'] & 255}, dropped {d['rx1'] >> 8 & 255}, "
++                 f"dispatched {d['rx1'] >> 16 & 255}, dispatch reason {d['rx1'] >> 24}"
++                 if d['h_step'] & 0x80000000 else f"interval {(d['rx0'] & 0xFFFF) * 1.25:g} ms, latency {d['rx1'] >> 21 & 7}; last end reason 0x{d['rx0'] >> 16 & 0xFF:02X}; "
+                  f"pairing refused {d['rx0'] >> 24}; asked MTU {d['rx1'] >> 8 & 0x3FF}; L2CAP requests {d['rx1'] >> 24}; MIDI in drops {d['rx1'] & 0xFF}; "
+                  f"parameter request {['not sent', 'sent'][d['rx1'] >> 18 & 1]}, {['no answer', 'accepted', 'rejected', '?'][d['rx1'] >> 19 & 3]}"),
+         "alive": f"core 0 last Bluetooth tick at {d['alive_ms']} ms after boot, core 1 polls then {d['alive_polls']}, now {d['polls']}",
+diff --git a/tools/inlog_fmt.py b/tools/inlog_fmt.py
+index 6f1a609..cd42aa3 100644
+--- a/tools/inlog_fmt.py
++++ b/tools/inlog_fmt.py
+@@ -5,7 +5,7 @@
+ The reply: the entry count, fm1_ms now, then 2 words for each entry (the oldest first), each word
+ 5 x 7 bits, low bits first. Then the 40 stored clip velocities and the 40 stored clip channels.
+ Entry word 1 is fm1_ms. Entry word 2 is src << 24 | status << 16 | d1 << 8 | d2.
+-src: 0 USB, 1 Bluetooth, 2 Bluetooth link edge (d2 bit 0 link up, bit 1 notify on), 3 Bluetooth pad colour note-on while notify is off (the cell did not change).
++src: 4 decoded SMC input (MMC command in d1), 0 USB, 1 Bluetooth, 2 Bluetooth link edge (d2 bit 0 link up, bit 1 notify on), 3 Bluetooth pad colour note-on while notify is off (the cell did not change).
+ tools/ble_autotest.py --diag-only uses this module.
+ """
+ import colorsys
+@@ -92,6 +92,10 @@ def entry_text(now, ms, w, pal):
+     t = f"{d / 1000:+9.3f} s"
+     if src == 2:
+         return f"{t}  EDGE         link {'up' if d2 & 1 else 'down'}, notify {'on' if d2 & 2 else 'off'}"
++    if src == 4:
++        if st == 0xF0:
++            return f"{t}  SMC          MMC command {d1}"
++        return f"{t}  SMC          MIDI {st:02X} {d1:02X} {d2:02X}"
+     kind = "note on " if st & 0xF0 == 0x90 and d2 else "note off"
+     ch = st & 0x0F
+     where = f"cell row {d1 // 8} col {d1 % 8}" if d1 < CELLS else "LED note"
+-- 
+2.54.0 (Apple Git-157)
+

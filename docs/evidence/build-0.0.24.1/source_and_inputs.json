@@ -1,0 +1,55 @@
+{
+  "X0X_DEV_PADCAL": 0,
+  "author": {
+    "email": "255244738+gobbajogger@users.noreply.github.com",
+    "name": "gobbajogger"
+  },
+  "branch": "build/0.0.24.1",
+  "committer": {
+    "email": "255244738+gobbajogger@users.noreply.github.com",
+    "name": "gobbajogger"
+  },
+  "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+  "controller_size": 61552,
+  "device_installs_or_flashes": 0,
+  "expected_first_parent_tree": "85030022e17d816ea18219523321375975b92640",
+  "full_git_tree_source_check": {
+    "matched": 4997,
+    "mismatches": [],
+    "missing": [],
+    "pass": true,
+    "source_commit": "3d8131f744b9c740ffa19de5518d1759e6b52142",
+    "source_tree_sha": "85030022e17d816ea18219523321375975b92640",
+    "tracked_blobs": 4997,
+    "verified_symlinks": 9
+  },
+  "model_target_names": [
+    "SMK-37 Elite_900",
+    "SMK-37 Pro_900"
+  ],
+  "native_model_exact_input_tree_checks": {
+    "native-elite": {
+      "expected": 4997,
+      "matched": 4997,
+      "mismatch": [],
+      "missing": []
+    },
+    "native-pro": {
+      "expected": 4997,
+      "matched": 4997,
+      "mismatch": [],
+      "missing": []
+    }
+  },
+  "new_branch_protected_original": "build/0.0.24 unchanged",
+  "padded_controller": false,
+  "published_to_nightly": false,
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "revert_commit": "3d8131f744b9c740ffa19de5518d1759e6b52142",
+  "reverted_commit_tree": "85030022e17d816ea18219523321375975b92640",
+  "reverted_first_parent": "e3e82141593e57b284e7a120da47c6c285925c87",
+  "reverted_merge": "d8086cc09203945919c70d3c805f8ca3e6acbe5a",
+  "sdk_baseline": "AC79NN_SDK_V1.2.1, uboot.boot SHA-256 matched pinned byte hash",
+  "sdk_uboot_sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+  "source_tree_equality": true
+}

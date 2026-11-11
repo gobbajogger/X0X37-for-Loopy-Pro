@@ -1,0 +1,20 @@
+{
+  "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "scope": "SMC drum M actions/lights share visible kit/bank resolution with faders and knobs. Guarded performance input permits STOP/PLAY/back through the existing restoration lifecycle. Shared SMK application affects Elite and Pro. Existing affected compatibility checks passed in stage2; these production regressions cover final package candidate behavior. Stage4 must review this plan against its complete candidate.",
+  "checks": [
+    {
+      "reason": "Production drum actions/lights, both banks, inactive positions, main ownership and actual continuous writes.",
+      "argv": [
+        "sh",
+        "tests/host/smc_drum_mutes_test.sh"
+      ]
+    },
+    {
+      "reason": "Production performance abort across all supported SMC routes with queued input guard and actual deferred restoration.",
+      "argv": [
+        "sh",
+        "tests/host/smc_performance_abort_test.sh"
+      ]
+    }
+  ]
+}

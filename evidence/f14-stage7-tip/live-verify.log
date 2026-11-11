@@ -1,0 +1,14 @@
+=== LIVE VERIFY F14 tip Stage 7 ===
+time=2026-10-25T20:06:59Z
+attempt 1 http=200
+latest nightly-092589b8-dev
+attempt 2 http=200
+latest nightly-b48cd800-dev
+LIVE latest nightly-b48cd800-dev
+catalog MATCH label='DEV / HARDWARE TEST — DEVICE NOT TESTED' hardware_tested=False
+fetch elite https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/646631f5a8b534a483f2fe484054440ea03c8228/artifacts/nightly/dev-20261025-b48cd800/81aaf361cb11717ad0bcee325453e361064506e4d6720781e8eb8ffcc1dadae2/x0x37-elite-dev.fwsc
+elite size=651396 sha256=81aaf361cb11717ad0bcee325453e361064506e4d6720781e8eb8ffcc1dadae2 MATCH
+fetch pro https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/646631f5a8b534a483f2fe484054440ea03c8228/artifacts/nightly/dev-20261025-b48cd800/e0ac6b68e117ac42eac97944430d1a7ed2cacfba38336676096fa8a09f57319a/x0x37-pro-dev.fwsc
+pro size=651392 sha256=e0ac6b68e117ac42eac97944430d1a7ed2cacfba38336676096fa8a09f57319a MATCH
+LIVE_PAGE_MATCH yes
+pages_tip a338960ca3eef0bf42f308ded09c02c9415e18e4

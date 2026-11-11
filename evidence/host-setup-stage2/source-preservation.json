@@ -1,0 +1,18 @@
+{
+  "asset_setup_unchanged": true,
+  "simulator_compile_section_unchanged": true,
+  "callers": {
+    "tests/host/smc_reachability_test.sh": {
+      "only_setup_mode_and_comment_changed": true
+    },
+    "tests/host/smc_drum_mutes_test.sh": {
+      "only_setup_mode_and_comment_changed": true
+    },
+    "tests/host/smc_performance_abort_test.sh": {
+      "only_setup_mode_and_comment_changed": true
+    },
+    "tests/host/ui_feedback_test.sh": {
+      "only_setup_mode_and_comment_changed": true
+    }
+  }
+}

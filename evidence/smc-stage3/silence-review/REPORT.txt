@@ -1,0 +1,139 @@
+Independent stage-3 source and live-silence evidence review
+
+Result: no new production defect identified in 3d7c29b..3d7b199. The requested
+knob addition and diagnostic trace are suitable for further scoped DEV validation,
+subject to the stage owner resolving the commit metadata check and receiving the
+other scoped test reports. ALL-input silence remains unresolved. Device input
+behavior is NOT TESTED; this report does not establish a transport repair.
+
+Input: 3d7b1999a245e84d6d9faf1241dd1078ef335d31, isolated stage-3 lane
+/Users/mac/Documents/x0x37/smc_stage3_20261021. Read workspace entry/rules,
+candidate corrected device-bug rule, complete stage-2 handoff/correction/checks,
+preserved contracts, audit evidence and contemporary device investigation.
+Production diff reviewed: editor.c, smc_mixer.c, ble.c, ble_midi_central.c/.h,
+tools/ble_autotest.py. All 13 source hashes in stage-2 CHECKS.json match.
+source-review.json records exact tree, hashes, commands and inputs.
+
+Owner correction and mapping disposition
+
+The latest three-mode owner decision and subsequent "Map knobs too" supersede
+audit finding 1 and its proposed generic fader page-following repair. That old
+audit interpretation is withdrawn. Stage 2 preserves fader/button routing,
+navigation, pickup and feedback. The new knob target code selects matching
+HOME/main-MIX strips and 909/808 MIX banks, with menu and clip-editor priority
+retained. Other sound pages retain visible-field access. This changes downstream
+target choice and cannot establish why no input arrives from a live peer.
+
+Last-good evidence and earlier failures
+
+1. docs/smc-device-investigation-2026-10-20.md records initial complete silence
+   and later owner-confirmed "Controls now work" / "and smc drives them too"
+   on the same installed firmware, without a transport code change. Its source
+   reference is 53d5654c9bbaec10b64c55fb60d0e7d857ba8156. Exact pre-remap package
+   or readback is missing. A later disconnect was observed; cause and sustained
+   link health were not established. Disposition: retain it as source evidence,
+   never invent a working-package CRC or deterministic code-only explanation.
+
+2. The historical remap 91356e7 changes no ble.c, ble_midi_central.c, controller
+   source or radio setup relative to 53d5654. Current controller source and
+   firmware/hal/fm1_ble.h still have an empty diff against 53d5654. The actual
+   retained ctl.img independently hashes to
+   956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a,
+   matching the explicit old/current ledgers. This excludes a change to those
+   recorded bytes, not a session/peer fault. Preserve them through stage 4.
+
+3. Earlier short-HCI-fragment loss was a real, separate defect. Historical
+   differential evidence shows whole simulated HCI emits 2616 exact supported
+   events on 53d5654, 91356e7 and 39db004; tails 1-8 emit 1673 on the older two
+   sources and 2616 on 39db004. The complete prior fragment/bounds/reconnect
+   state repair remains intact. Disposition: retain the repair and its bounded
+   regression evidence; do not relabel it as the cause of total live silence.
+
+4. Capture evidence distinguishes exact notification payloads, simulated HCI
+   headers and link/handle state, and resegmentation for MTU23. The raw payload
+   capture has 1271 packets and SHA
+   a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+   Whole/fragment comparisons reject three ATT packets larger than the 64-byte
+   receiver equally, covering 2616 supported events; supported-MTU resegmentation
+   covers all 2711. These historical checks are reused here; the receive agent
+   owns current replay reruns. Disposition: useful downstream coverage, never
+   evidence that the current physical keyboard receives notifications.
+
+5. The earlier idle zero-packet observation cannot establish receive failure.
+   audit/current-device-diag.txt reports CONNECTED/state6/step14, no mailbox
+   drops, ACL8/notify0/MIDI0/reject2, last reason BLEC_RX_CID and queue0/0/0.
+   Counters are modulo 256 and no control movement is asserted. It omits rejected
+   bytes/CID and discovered handles. Non-ATT CID rejection may be normal.
+   Disposition: trust the owner's all-controls-fail report but leave its missing
+   receive boundary UNKNOWN. Do not infer a setup error or request new movement.
+
+6. Prior navigation/pickup repairs solve parameter reachability and truthful
+   pickup feedback. Forced CONNECTED state, injected notifications and synthetic
+   CCCD response tests cover downstream handling only. The production transition
+   to step14 follows a subscribe Write Response, but this does not prove later
+   physical MIDI delivery. Disposition: preserve those repairs and their limits.
+
+7. Earlier capture scanner/run-loop failures were host capture failures; a later
+   Mac BLE capture succeeded. Captured custom User absolute knobs differ from
+   the supported stock User preset, but the current owner report is matched
+   DAW/DAW. Disposition: neither fact proves the current silence cause or grants
+   a new preset change.
+
+Diagnostic contract and limits
+
+The new receive changes add bounded observational writes only: up to eight ACL
+bytes with zero padding, total count/reason, last ATT opcode and notification
+handle. Existing acceptance/rejection, assembly, connection, MTU, subscription,
+SMP, reconnect and radio policies are unchanged. No allocation or ring is added.
+Initialization zeroes the fields. Trace values may persist across reconnects
+until replaced or reinitialized; handles are current discovery state.
+
+The six-word versioned DIAG tail is guarded by remaining capacity and the editor
+word array grows 71 to 77. The decoder strips that tail before decoding legacy
+fields. Its old-tool failure is expected when extension words shift a formerly
+fixed tail; candidate tools must accompany new artifacts. Current bounds and
+sanitizer results belong to the receive agent, with stage-2 matching evidence
+already retained. No live candidate with these fields has been installed.
+
+Trace is a best-effort snapshot, not an event sequence or synchronized sample.
+Only a start packet with at least eight bytes contains an interpretable CID;
+continuation bytes are not an L2CAP header. ATT response-pending also covers
+discovery. Last ATT opcode/notify handle may be newer than rejected ACL fields.
+The dispatch counter counts a smc_message call; modal guards, unsupported preset
+messages and pickup can still prevent an edit. Zero counters alone are not
+physical-delivery evidence. No speculative transport change is justified.
+
+New stage-3 metadata failure and disposition
+
+Independent X0X_QUICK_ONLY=ste X0X_QC_BASE=3d7c29b quickcheck on the exact
+committed candidate fails because 3d7b199 changes docs/USER_PREFERENCES.md but
+has no Trigger: or Check: body lines. Stage-2 docs-check.log says QUICK PASS
+3d7c29b, so it covered the pre-commit worktree and missed this commit-message
+requirement. This is a metadata failure, not a production-source failure.
+
+The stage owner can reword only its isolated copy of the tip, retaining the
+exact parent/tree/author and old lane unchanged, then prove tree identity and
+rerun the scoped docs check. A new source/code repair requires fresh stage 2;
+this metadata-only correction changes no checked file or runtime behavior and
+does not require that loop. Record the original failure and the actual corrected
+check result. This reviewer made no source or metadata mutation.
+
+Next action and boundaries
+
+After the stage owner resolves metadata and all current scoped tests pass, stage
+4 validates exact Elite/Pro DEV artifacts with X0X_DEV_PADCAL=1 and preserves
+the current controller. Preliminary final stage-2 build logs are the *-knobs-dev
+logs; earlier diagnostic-only builds are superseded. Stage 4 must not treat
+matching source checks as package identity or device PASS. No FM-1 target work,
+release/full gate, install, fallback or external push was performed here.
+Installation needs concrete checked artifacts and a separate scope decision.
+
+Resolution independently verified after stage-owner correction
+
+Candidate 3fc770dcde261a23556f6c3749ebd4bc5911f1c3 has the same tree
+854b4d97bdac0a6941ab1dd83ae26b9c1535cdec, same parent and author as
+3d7b199. git diff between those candidates is empty. The added Trigger:/Check:
+body lines meet the failed contract. docs-check-corrected.log records actual
+QUICK PASS 3fc770d. This reviewer approves the metadata-only disposition:
+no source repair occurred and no fresh stage-2 repair loop is required.
+The physical live-silence limitation above remains unchanged.

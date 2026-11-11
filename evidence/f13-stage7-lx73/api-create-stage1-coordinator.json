@@ -1,0 +1,15 @@
+{
+  "status": "coordinator_createagent",
+  "cursor_api_key_on_stage7_pod": false,
+  "pod_attempts": ["NO_CURSOR_API_KEY", "NO_CURSOR_API_KEY"],
+  "successor": {
+    "id": "bc-6c51c5fd-d995-54b7-baf7-b5033919009d",
+    "url": "https://cursor.com/agents/bc-6c51c5fd-d995-54b7-baf7-b5033919009d",
+    "name": "F15 Stage 1 audit",
+    "source": "desktop",
+    "visibility": "user",
+    "startingRef": "cursor/f13-lx73-stage7-237f",
+    "prompt": "evidence/f13-stage7-lx73/SUCCESSOR-STAGE1.txt"
+  },
+  "relaunch": false
+}

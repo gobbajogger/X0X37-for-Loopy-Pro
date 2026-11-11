@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "stages": [
+    "Audit",
+    "Implement",
+    "Test",
+    "Validate",
+    "Merge",
+    "Publish"
+  ],
+  "current": null,
+  "transitions": [],
+  "helpers": []
+}

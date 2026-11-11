@@ -1,0 +1,269 @@
+Q3 editor/slots warning and RAM evidence
+Base: bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2
+SDK: AC79NN_SDK_V1.2.1_2023-12-13; all three consumed SDK_SHA256 inputs verified
+Compiler: JieLi pi32v2 clang 4.0.1, jieli-linux-toolchains-20260730.1
+Downloaded tar.xz SHA256: a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd
+Models: Elite, Pro. X0X_DEV_PADCAL=0. No release or device operation.
+
+elite before native: 1 warnings; package build completed: True
+  ok    image 499004 B; RAM .data+.bss 95952 B of 98304; pool 335528 B of 344064
+experiments/wobble/miami_decimator_adapter.c:7:39: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+
+elite before extra: 22 warnings; package build completed: True
+  ok    image 499004 B; RAM .data+.bss 95952 B of 98304; pool 335528 B of 344064
+firmware/src/app/engine.c:2161:39: warning: missing field 'nsamples' initializer [-Wmissing-field-initializers]
+experiments/wobble/miami_decimator_adapter.c:7:40: warning: missing field 'step' initializer [-Wmissing-field-initializers]
+experiments/wobble/miami_decimator_adapter.c:7:39: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+experiments/wobble/miami_decimator_adapter.c:7:40: warning: missing field 'wet_gain' initializer [-Wmissing-field-initializers]
+experiments/wobble/miami_decimator_component.c:24:42: warning: missing field 'step' initializer [-Wmissing-field-initializers]
+firmware/src/dsp/original_chicago_backend.c:105:39: warning: missing field 'find' initializer [-Wmissing-field-initializers]
+firmware/src/dsp/original_chicago_backend.c:106:49: warning: missing field 'supports' initializer [-Wmissing-field-initializers]
+firmware/src/app/slots.c:74:31: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/plat_fm1.c:299:9: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/ui.c:3360:13: warning: declaration shadows a local variable [-Wshadow]
+firmware/src/app/smc_mixer.c:2122:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/editor.c:167:31: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/editor.c:384:31: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/editor.c:499:31: warning: cast from 'uint8_t *' (aka 'unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/editor.c:949:23: warning: declaration shadows a local variable [-Wshadow]
+firmware/src/app/editor.c:979:39: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/editor.c:992:39: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/editor.c:1016:28: warning: declaration shadows a local variable [-Wshadow]
+firmware/src/app/editor.c:1043:23: warning: declaration shadows a local variable [-Wshadow]
+firmware/src/app/main_fm1.c:1542:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/main_fm1.c:1568:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/main_fm1.c:1863:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+
+elite before: nm --size-sort -S x0x.elf | tail -25
+02056c7c 000012ff t FONT_M_DATA
+01c70aa8 00001400 b original_workspace
+0202d240 000016e4 t d9_render
+02023384 00001704 T fm1_timer5_irq
+0200f732 000017d4 t input
+01c0d7d8 00001800 b ua_ring
+0202980a 000018ae T fm1_cstart
+0202615e 00001954 t ed_handle
+01c45ff0 00001a68 b brk
+01c3eb28 00001dbc b d909
+02030f68 00001e74 t voice_run
+0205c318 00001fa4 t x0x_exp_words
+01c0a2dc 00002000 b abuf
+01c6e980 00002128 b original_fx
+0206dbc8 000023c4 t original_chicago_packed_a_data
+0206945a 0000278d t x0x_smp_hh
+01c3c318 00002810 b original_bass
+01c41864 0000478c b fx
+0207038e 00004898 t original_chicago_packed_e_data
+0205e3fc 00005492 t x0x_smp_crash
+0206388e 00005bcc t x0x_smp_ride
+01c16694 00008e44 B proj
+01c20100 00008e44 B project_stage
+01c2a8c4 000102c0 b cv_px
+01c47eb4 00026ac0 b dly_buf
+
+elite after native: 0 warnings; package build completed: True
+  ok    image 498940 B; RAM .data+.bss 95952 B of 98304; pool 335528 B of 344064
+
+elite after extra: 6 warnings; package build completed: True
+  ok    image 498940 B; RAM .data+.bss 95952 B of 98304; pool 335528 B of 344064
+firmware/src/app/engine.c:2161:39: warning: missing field 'nsamples' initializer [-Wmissing-field-initializers]
+firmware/src/app/ui.c:3360:13: warning: declaration shadows a local variable [-Wshadow]
+firmware/src/app/smc_mixer.c:2122:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/main_fm1.c:1542:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/main_fm1.c:1568:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/main_fm1.c:1863:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+
+elite after: nm --size-sort -S x0x.elf | tail -25
+02056c44 000012ff t FONT_M_DATA
+01c70aa8 00001400 b original_workspace
+0202d20a 000016e4 t d9_render
+02023384 00001704 T fm1_timer5_irq
+0200f732 000017d4 t input
+01c0d7d8 00001800 b ua_ring
+020297d4 000018ae T fm1_cstart
+020261a8 000018d4 t ed_handle
+01c45ff0 00001a68 b brk
+01c3eb28 00001dbc b d909
+02030f32 00001e74 t voice_run
+0205c2d8 00001fa4 t x0x_exp_words
+01c0a2dc 00002000 b abuf
+01c6e980 00002128 b original_fx
+0206db88 000023c4 t original_chicago_packed_a_data
+0206941a 0000278d t x0x_smp_hh
+01c3c318 00002810 b original_bass
+01c41864 0000478c b fx
+0207034e 00004898 t original_chicago_packed_e_data
+0205e3bc 00005492 t x0x_smp_crash
+0206384e 00005bcc t x0x_smp_ride
+01c16694 00008e44 B proj
+01c20100 00008e44 B project_stage
+01c2a8c4 000102c0 b cv_px
+01c47eb4 00026ac0 b dly_buf
+
+pro before native: 1 warnings; package build completed: True
+  ok    image 498988 B; RAM .data+.bss 95952 B of 98304; pool 335528 B of 344064
+experiments/wobble/miami_decimator_adapter.c:7:39: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+
+pro before extra: 22 warnings; package build completed: True
+  ok    image 498988 B; RAM .data+.bss 95952 B of 98304; pool 335528 B of 344064
+firmware/src/app/engine.c:2161:39: warning: missing field 'nsamples' initializer [-Wmissing-field-initializers]
+experiments/wobble/miami_decimator_adapter.c:7:40: warning: missing field 'step' initializer [-Wmissing-field-initializers]
+experiments/wobble/miami_decimator_adapter.c:7:39: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+experiments/wobble/miami_decimator_adapter.c:7:40: warning: missing field 'wet_gain' initializer [-Wmissing-field-initializers]
+experiments/wobble/miami_decimator_component.c:24:42: warning: missing field 'step' initializer [-Wmissing-field-initializers]
+firmware/src/dsp/original_chicago_backend.c:105:39: warning: missing field 'find' initializer [-Wmissing-field-initializers]
+firmware/src/dsp/original_chicago_backend.c:106:49: warning: missing field 'supports' initializer [-Wmissing-field-initializers]
+firmware/src/app/slots.c:74:31: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/plat_fm1.c:299:9: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/ui.c:3360:13: warning: declaration shadows a local variable [-Wshadow]
+firmware/src/app/smc_mixer.c:2122:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/editor.c:167:31: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/editor.c:384:31: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/editor.c:499:31: warning: cast from 'uint8_t *' (aka 'unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/editor.c:949:23: warning: declaration shadows a local variable [-Wshadow]
+firmware/src/app/editor.c:979:39: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/editor.c:992:39: warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const smp_user_hdr_t *' increases required alignment from 1 to 4 [-Wcast-align]
+firmware/src/app/editor.c:1016:28: warning: declaration shadows a local variable [-Wshadow]
+firmware/src/app/editor.c:1043:23: warning: declaration shadows a local variable [-Wshadow]
+firmware/src/app/main_fm1.c:1542:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/main_fm1.c:1568:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/main_fm1.c:1863:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+
+pro before: nm --size-sort -S x0x.elf | tail -25
+02056c78 000012ff t FONT_M_DATA
+01c70aa8 00001400 b original_workspace
+0202d240 000016e4 t d9_render
+02023384 00001704 T fm1_timer5_irq
+0200f732 000017d4 t input
+01c0d7d8 00001800 b ua_ring
+0202980a 000018ae T fm1_cstart
+0202615e 00001954 t ed_handle
+01c45ff0 00001a68 b brk
+01c3eb28 00001dbc b d909
+02030f68 00001e74 t voice_run
+0205c308 00001fa4 t x0x_exp_words
+01c0a2dc 00002000 b abuf
+01c6e980 00002128 b original_fx
+0206dbb8 000023c4 t original_chicago_packed_a_data
+0206944a 0000278d t x0x_smp_hh
+01c3c318 00002810 b original_bass
+01c41864 0000478c b fx
+0207037e 00004898 t original_chicago_packed_e_data
+0205e3ec 00005492 t x0x_smp_crash
+0206387e 00005bcc t x0x_smp_ride
+01c16694 00008e44 B proj
+01c20100 00008e44 B project_stage
+01c2a8c4 000102c0 b cv_px
+01c47eb4 00026ac0 b dly_buf
+
+pro after native: 0 warnings; package build completed: True
+  ok    image 498940 B; RAM .data+.bss 95952 B of 98304; pool 335528 B of 344064
+
+pro after extra: 6 warnings; package build completed: True
+  ok    image 498940 B; RAM .data+.bss 95952 B of 98304; pool 335528 B of 344064
+firmware/src/app/engine.c:2161:39: warning: missing field 'nsamples' initializer [-Wmissing-field-initializers]
+firmware/src/app/ui.c:3360:13: warning: declaration shadows a local variable [-Wshadow]
+firmware/src/app/smc_mixer.c:2122:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/main_fm1.c:1542:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/main_fm1.c:1568:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+firmware/src/app/main_fm1.c:1863:14: warning: declaration shadows a variable in the global scope [-Wshadow]
+
+pro after: nm --size-sort -S x0x.elf | tail -25
+02056c40 000012ff t FONT_M_DATA
+01c70aa8 00001400 b original_workspace
+0202d20a 000016e4 t d9_render
+02023384 00001704 T fm1_timer5_irq
+0200f732 000017d4 t input
+01c0d7d8 00001800 b ua_ring
+020297d4 000018ae T fm1_cstart
+020261a8 000018d4 t ed_handle
+01c45ff0 00001a68 b brk
+01c3eb28 00001dbc b d909
+02030f32 00001e74 t voice_run
+0205c2d8 00001fa4 t x0x_exp_words
+01c0a2dc 00002000 b abuf
+01c6e980 00002128 b original_fx
+0206db88 000023c4 t original_chicago_packed_a_data
+0206941a 0000278d t x0x_smp_hh
+01c3c318 00002810 b original_bass
+01c41864 0000478c b fx
+0207034e 00004898 t original_chicago_packed_e_data
+0205e3bc 00005492 t x0x_smp_crash
+0206384e 00005bcc t x0x_smp_ride
+01c16694 00008e44 B proj
+01c20100 00008e44 B project_stage
+01c2a8c4 000102c0 b cv_px
+01c47eb4 00026ac0 b dly_buf
+
+Extra flags were added only to an imported build.CFLAGS in the invocation wrapper:
+build.CFLAGS += ['-Wextra', '-Wshadow', '-Wcast-align']
+Repository default flags were not modified.
+All six remaining extra-flag warnings are in excluded engine.c, ui.c, smc_mixer.c and main_fm1.c.
+The normal -Wall build is warning-free for both candidate models.
+RAM .data+.bss: 95952 / 98304; free 2352 B before and after for both models.
+Pool: 335528 / 344064; free 8536 B before and after for both models.
+Q3.6 owner tracking is PENDING: correct PERF lifetime hooks require the excluded ui.c. No partial guard is claimed.
+Full-suite result: FAIL (runner exit status 1); baseline comparisons are separate from native build proof.
+
+Additional scoped evidence:
+- All eight native invocation jobs returned exit status 0 with X0X_DEV_PADCAL=0 (caller launch receipts).
+- Independent source review: no retained actionable findings.
+- Independent native evidence review: accepted the limited log/hash/symbol claims; no device/publication acceptance.
+- All three initializer-only Elite DSP objects are byte-identical before/after.
+- Three new tests pass: 285 read replies, header alignment/trap, diagnostic word-count boundaries.
+- Existing project-protocol, sample begin/cancel, storage-scratch and perf-scratch checks pass.
+- Full host sweep exited 1. No zero-failure or zero-skip qualification is claimed.
+
+Final host qualification (negative):
+The final runner report contains 312 ok, 32 FAIL, 2 not-run and one skipped package group.
+Native packages appeared during the multi-phase sweep, changing conditional numeric result IDs.
+The early install-slots-web result was consequently overwritten in numeric aggregation.
+A separate rerun on the restored exact source fails with spawnSync python3 EPERM;
+the unchanged base reproduces that same environment failure. Treat aggregate counts
+as reported, not a complete qualification receipt. No checks or expected values were weakened.
+Every named FAIL retained in the final report was also executed and failed on the unchanged base.
+The two not-run reference tests need ../schwung-9W9 and ../schwung-8W8 sources.
+The full runner skipped its SDK package group because AC79_SDK was unset in that invocation.
+Separate tests/smk_pkg_test.py checks of the actual Pro and Elite packages PASS.
+Separate mocked ota_test.c checks compiled for Pro and Elite PASS with the verified V1.2.1 inputs.
+No physical device, flash, install, release, upload of binaries or publication occurred.
+
+Named failures reproduced at unchanged base:
+ble-capture-replay
+ble-device-setting-flow
+ble-midi-receive
+ble-role-switch
+ble-toggle-persistence-gate
+break-pack-web
+breaks-page
+breaks-web
+builtin-break-output
+chicago-presentation
+editor-ota-dispatch
+engine-808-scratch-alias
+install-slots-web
+original-build
+original-release-integration
+original-release-ui
+scenario-plock
+smc-action-source
+smc-boot-saved-roles
+smc-clip-visibility
+smc-fx-preset-preserve
+smc-link
+smc-lock
+smc-multi-peer
+smc-queue
+smc-reconnect-epoch
+smc-select-mode
+smc-solo-overflow
+smc-ui
+sound-matrix
+ui-glyph-polish
+ui-peer-names
+ui-theme
+
+Q3.6 remains PENDING under the explicit ui.c exclusion. The optional scope question
+was not answered during this run; no exception or approval was inferred.
+PR is not merge-ready. Native budgets/warnings pass; the requested complete green
+host suite and full debug scratch ownership guard have not been delivered.

@@ -1,0 +1,47 @@
+SMC stage 2 INCOMPLETE checkpoint — cloud transition 2026-10-20
+Owner: 01a1593b-4839-70d1-8f3a-d02bfa0d3b26
+Single delivery coordinator: 01a1593e-18e0-7651-ad7d-32b59e3c3a63
+Transition coordinator: 01a15942-eadc-75b2-8836-077e7bbd94fb
+
+Latest owner direction supersedes local stage successor: finish tasks/push, continue work in cloud, local only for installation. No local stage 3 successor created. Local container 0c8ab8d110a6 was verified against this lane and stopped. All implementation/check execution stopped; only checkpoint/handoff preparation followed.
+
+OWNER CLARIFICATION NOW RESOLVED:
+The owner DID NOT move controls in the earlier zero-packet capture. Thus idle no-new-frames is NOT evidence of broken subscription/controller forwarding. Do not infer that complete silence occurs upstream of parser from that sample.
+Exact owner message: "No I did not. And there's no need in that. We have previous captures that can be reused and we can stimulate sends without ever needing them"
+Owner then: "Make it a rule too"
+Required maintained-rule update IN CLOUD: reuse existing captures and simulated sends for controller-input diagnosis and regression testing; do not ask owner to move controls for another capture. Distinguish simulated/replay checks from physical-device PASS. This is a new owner instruction requiring canonical rules update, not merely an optional handoff note. Coordinator must include it in single cloud continuation, with applicable independent review for a rule repair.
+
+Lane /Users/mac/Documents/x0x37/firmware_smc_receive_20261020
+Branch lane/btr-smc-receive-20261020; baseline a3680ca940b27d18edd24b2df4a4e44419fc9145 (installed source).
+Current firmware patch is a WIP checkpoint, NOT checked stage 2 completion. AGENTS.md/docs/SKILLS.md changes belong to coordinated maintained pointer rollout; excluded from firmware checkpoint.
+
+Implemented WIP:
+- Accept HCI continuation bodies 1-3 bytes; exact HCI and L2CAP assembly bounds, no first-fragment overwrite, no continuation beyond declared PDU; require active discovery/connected session.
+- Clear running MIDI, partial SysEx and ACL state on start/stop/fail/disconnect/new connection; reset discovered handles on start/new connection.
+- Leave 64-byte buffer unchanged. No central MTU exchange is initiated; default ATT MTU is 23. >64 ATT PDUs rejected with explicit reason. Historical Mac oversized capture is not current keyboard negotiated-MTU evidence.
+- Central diagnostic words expose modulo-256 ACL/notification/MIDI/rejected counts, queue enqueued/drop/dispatch counts, last parser rejection and last dispatch reason. h_step bit31 identifies central format. Peripheral format unchanged. SMC INLOG source4 records decoded MIDI or MMC command from same TIMER5 context; no extra ring/main-loop writer.
+- Wrong notification handles are counted/discarded instead of affecting ATT discovery state.
+- Mapping behavior preserved; smc_message returns classification solely for diagnostics.
+
+Checks completed before transition:
+1. Original ble_midi_central_test public discovery/subscription test passed on current parser.
+2. sh tests/host/ble_midi_receive_test.sh PASS with ASan/UBSan: fragments1-8, malformed first/continuation lengths, size/cid/link/handle rejection, start/stop/disconnect parser reset. Evidence receive-sanitizers.txt.
+3. tests/smk_inlog_test.c compiled with -std=c99 -O2 -Wall -Wextra -Werror and passed ring/filter/encoding tests including SMC pitch/CC.
+4. python3 tests/inlog_tool_test.py PASS (inlog-tool.txt).
+5. python3 -B tests/ble_central_diag_test.py PASS: central counters and unchanged peripheral format.
+6. python3 tests/diag_size_test.py PASS: same 71 words, INLOG732 bytes fits existing ed_out.
+7. Baseline malformed first-fragment probe failed q sentinel under ASan, showing intra-struct overwrite (ASan alone cannot detect intra-struct writes). baseline-overflow.txt/probe source retained. Existing audit short-fragment and stale-session reproductions remain in ../smc_receive_audit_20261020.
+
+NOT complete:
+- Expanded HCI->BLE-MIDI->SMC queue->real UI reachability runner. macOS failed existing host SDK u_short/libproc headers (reachability.txt); switched to Linux. First Linux attempt found test helper name collision 'input'; renamed smc_input. Second Linux attempt stopped during compile for cloud transition (reachability-linux.txt), so NO end-to-end PASS claimed.
+- Inspect test harness before continuing: automated insertion duplicated the partial-SysEx reconnect block at ~line170 as well as intended ~line79 in tests/host/smc_reachability_test.c. Remove the duplicate when resuming implementation IN CLOUD. Review route3 DAW/route4 User test setup and first-fader assertions. No local fix after transition.
+- Elite/Pro target builds never began because queued after reachability; NO target/budget evidence. Need both builds in cloud and memory margins checked (baseline Elite code free2840, RAM540, pool8364).
+- No physical-device PASS, installation, device write/reboot, push, full gate, or stage 2 completion.
+- Reuse historical /Users/mac/Documents/x0x37/smc_filter_fix/evidence/smc-raw-ble-retry.json and raw-ble-retry.log (SMC MIDI handle113, notify/write properties) for simulated full HCI replay; 1271 packets/2711 expected MIDI, historical >64 ATT packets had95 messages beyond supported cap. Capture can be resegmented to default ATT-MTU23 valid running-status payloads for supported transport regression; never silently label modified payloads as exact-wire replay. Keep exact original replay and explicit rejected-size counts too.
+- Subscription source test should check exact CCCD handle/value; real capture metadata only lists characteristic handle113, not CCCD. No evidence justifies speculative periodic resets/subscription retries or remapping.
+
+Next: coordinator transports checkpoint+evidence to ONE cloud continuation. Continue incomplete implementation there, then fresh stage3 with separately scoped test/investigation subagents; reconcile FM-1/tool identity and current rules before unified stage4. One final integrator/install/push chain, coordinated by delivery owner. Do not create another local implementation/test thread.
+
+Checkpoint committed: b9d4024ff12704f417c07a69ee55f372a07141c1.
+Portable one-commit patch: checkpoint.patch in this evidence directory.
+Delivery coordinator received the exact checkpoint, full handoff, clarified idle capture, and new owner rule request. No local successor created: latest owner cloud-only direction overrides prior local stage3 creation requirement.

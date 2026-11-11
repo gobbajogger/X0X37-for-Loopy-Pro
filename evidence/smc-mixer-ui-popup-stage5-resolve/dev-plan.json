@@ -1,0 +1,14 @@
+{
+  "base": "4a219ff423a5a158434e39d7872772ae7c9df20c",
+  "scope": "SMC mixer UI popup merge-resolve onto main (#9+#8). Peek as SMC-07 on main-mixer; help is a card (#8); drum SEQ banks from #9. Tip e894804dfdb0bb66c7247eb1846313a215422c9f. Re-validate Elite/Pro DEV after smc_mixer.c changed vs 828298d9. No page-lock/multi-SMC.",
+  "checks": [
+    {
+      "reason": "SMC-07 peek map, hold refresh, restore without set_view, and clip/help/overlay/perf_testing guards (synth SEQ).",
+      "argv": ["sh", "tests/host/smc_ui_popup_test.sh"]
+    },
+    {
+      "reason": "Existing SMC destination reachability remains intact after peek hooks on main drum-SEQ mixer.",
+      "argv": ["sh", "tests/host/smc_reachability_test.sh"]
+    }
+  ]
+}

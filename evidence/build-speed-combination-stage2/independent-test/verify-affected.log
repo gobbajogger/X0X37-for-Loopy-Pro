@@ -1,0 +1,26 @@
+{
+  "result": "PASS",
+  "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+  "superseded_candidate": "c0d2ab2f3248ce86a1e6421be926ce5297768272",
+  "tree": "de94ec06bb3b411850104dade643492d22e4606c",
+  "source_tree_identity_sha256": "0f9416f8363a28eb4cc3db4b51c8f664f3446ddba2139e2847affdfd8484ba46",
+  "source_entries": 760,
+  "production_delta": [
+    "tests/host/test_ctl_compile.py",
+    "tests/run_tests.sh"
+  ],
+  "assertion_preservation": "Whole controller fixture AST equals previous checked module after removing only the new preexec_fn keyword. All old-source negative controls and signal/cleanup/status assertions are unchanged.",
+  "signal_reset": "Exactly one tested controller-shell Popen resets SIGINT to SIG_DFL before exec. It does not reset the suite process or production compiler.",
+  "runner": "Exactly accepted fe7f040 runner plus five literal declarations; classification/lock/scheduler functions fully restored, ctl-compile defaults to parallelP with no installer lock.",
+  "affected_execution": "Root actual seven-method fake compiler suite PASS through general runner jobs4/classP under asynchronous Bash; exact committed logs/hash records verified.",
+  "reused": "All other native/source/generator/suite evidence from prior Test remains valid; old-source compiler negatives still fail before signal delivery at unchanged child-state assertions. No unrelated suite or build repeated.",
+  "logs_sha256": {
+    "registered-ctl-outer-final.log": "2020c1fbea88396864015daad083e6457b5a8ce6cae3c2bc441fb0e4569f9496",
+    "registered-ctl-outer-methods.log": "260ce4ea2972fddc69d584113f8809fe7bb9ef323756317392a8a83acae0ec48"
+  },
+  "limits": [
+    "New source changed fixture normalization, not production controller behavior.",
+    "Outer-background full seven-method execution is macOS host fake-compiler coverage; no new pinned-Linux suite or target build is claimed.",
+    "Prior source/timing/dependency/environment limitations remain. Cache source and consumer routing remain excluded."
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "result": "PASS",
+  "candidate": "f53309ce43c7624a83291b1773ae1f86ec9db484",
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "source_manifest_entries": 760,
+  "source_tree_identity_sha256": "c2a28d635214a9af598679fcafeb0bb7f28a46ec1b07d50ad32d7613d6085f2c",
+  "checkpoint_source_hashes": 40,
+  "firmware_tree": "878d5c734bf6d567db8a2120e9aeec873b85eaa7",
+  "quickcheck_selection": {
+    "quickcheck-plan": [
+      "locked-settings",
+      "quickcheck-plan",
+      "smk-flash"
+    ],
+    "ctl-compile": [
+      "ctl-compile",
+      "locked-settings",
+      "smk-flash"
+    ],
+    "host-setup": [
+      "host-setup",
+      "locked-settings",
+      "smk-flash"
+    ],
+    "runner-admission": [
+      "locked-settings",
+      "runner-admission",
+      "smk-flash"
+    ],
+    "dev-validate": [
+      "dev-validate",
+      "locked-settings",
+      "smk-flash"
+    ]
+  },
+  "registration_boundary_probes": [
+    {
+      "label": "serial",
+      "jobs": 1,
+      "status": 0,
+      "expected_negative": false,
+      "installer_lock_invocations": 0,
+      "stdout": "  ok   ctl-compile\nall tests passed\n",
+      "fixture_log": "SIGINT usable\n"
+    },
+    {
+      "label": "parallel",
+      "jobs": 4,
+      "status": 0,
+      "expected_negative": false,
+      "installer_lock_invocations": 0,
+      "stdout": "  ok   ctl-compile\nall tests passed\n",
+      "fixture_log": "SIGINT usable\n"
+    },
+    {
+      "label": "original-parallel-class",
+      "jobs": 4,
+      "status": 1,
+      "expected_negative": true,
+      "installer_lock_invocations": 0,
+      "stdout": "  FAIL ctl-compile (see build/host/ctl-compile.log)\n       Traceback (most recent call last):\n         File \"/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/combined-registration-012y70uq/signal-fixture.py\", line 2, in <module>\n           assert signal.getsignal(signal.SIGINT) != signal.SIG_IGN, \"inherited ignored SIGINT\"\n       AssertionError: inherited ignored SIGINT\nTESTS FAILED\n",
+      "fixture_log": "Traceback (most recent call last):\n  File \"/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/combined-registration-012y70uq/signal-fixture.py\", line 2, in <module>\n    assert signal.getsignal(signal.SIGINT) != signal.SIG_IGN, \"inherited ignored SIGINT\"\nAssertionError: inherited ignored SIGINT\n"
+    }
+  ],
+  "controller_image_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "recorded_evidence_reused": [
+    "Combined Quickcheck12, controller7, host7, runner13, native-input13 and native-DEV15 fixtures; final real worker1 fixture.",
+    "Contributor independent/acceptance source hashes, controller successful image/input/flags/link proof and accepted native package/walker/consumer scopes."
+  ],
+  "limits": [
+    "No behavior suites repeated; new scratch checks cover only newly registered controller foreground signal and installer-lock bypass.",
+    "Historical recorded environment/tool identity and current source/log hashes support reuse; no complete original inherited environment snapshot or installed-byte snapshot was recorded for all host fixture runs.",
+    "SDK/toolchain byte identities are retained evidence; no full dependency rehash or target build.",
+    "No target artifact equality, whole-build timing, gate, install, device or push claim. Cache and new cache consumer routing remain excluded."
+  ]
+}

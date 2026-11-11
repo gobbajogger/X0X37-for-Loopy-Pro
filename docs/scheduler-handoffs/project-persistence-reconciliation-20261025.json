@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "stage": "BOUNDED_SOURCE_REVIEWED_HOST_CHECKED",
+  "date_utc": "2026-10-25",
+  "base_commit": "58e2c5205a02836df678083eaa8db9994b6192e8",
+  "base_tree": "753647346913a5d3d6e874f7e26857bda3910307",
+  "tracker_pin": "ce8bfd4a40179590485ecf35e6bb0be2d652e602",
+  "workflow_pin": "e2482a5039527195e346925c751ac3e3a333ada9",
+  "owner": "Project persistence reconciliation",
+  "scope": "Reject readable malformed/incomplete legacy arrangement pairs during staged Load; retain both-unavailable compatibility. Reconcile implemented reset/save/load/export/import without duplication.",
+  "source_files": {
+    "firmware/src/app/project.c": {
+      "git_blob": "1e4273636f70a89efbcde76ddd6884d00b217ad3",
+      "sha256": "d3c6f1ce6d6f0f3a027efd1ac56e57733cb9f9532b5ba09964828924b2b16a3e"
+    },
+    "tests/host/project_stage_test.c": {
+      "git_blob": "653383945a0d238ce860bd7cdc783487b14c3e8b",
+      "sha256": "05fbc0c7ae59dca4fd15f3a98eccf733d6359d59e3f85aba643fca2615be5bd8"
+    }
+  },
+  "environment": "macOS arm64, Apple Clang 21.0.0, complete checkout, native host tests",
+  "checks": [
+    {
+      "name": "legacy baseline",
+      "command": "sh tests/host/run_project_stage.sh",
+      "exit": 1,
+      "log_sha256": "1a937e498a2387b029240deb3a41f457424423ae29d3d690526d8be1705c63f6",
+      "result": "Expected RED: new missing/truncated/wrong-format legacy fixtures accepted by original source"
+    },
+    {
+      "name": "legacy repaired",
+      "command": "sh tests/host/run_project_stage.sh",
+      "exit": 0,
+      "log_sha256": "b82523b30720e0899fa9fcdf49628318e81b05400671e17d4cd5d13783c554b6",
+      "result": "Valid widening and pre-arrangement compatibility; malformed/incomplete pairs refused; live/seq/gauge/flash unchanged"
+    },
+    {
+      "name": "independent staging",
+      "command": "ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 SAN_FLAGS=\"-fsanitize=address,undefined -fno-sanitize-recover=all -g\" sh tests/host/run_project_stage.sh",
+      "exit": 0,
+      "log_sha256": "b82523b30720e0899fa9fcdf49628318e81b05400671e17d4cd5d13783c554b6",
+      "result": "Independent read-only reviewer accepted exact bounded repair, no sanitizer diagnostics; no leak claim"
+    },
+    {
+      "name": "runtime default",
+      "command": "sh tests/host/project_runtime_test.sh",
+      "exit": 1,
+      "log_sha256": "80ba7dd39273fbdcc2b5b75be0307fa7fd869cdaa50621ddce6bcb5a1f111d27",
+      "result": "macOS SDK feature exposure compile failure"
+    },
+    {
+      "name": "runtime macOS",
+      "command": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE sh tests/host/project_runtime_test.sh",
+      "exit": 0,
+      "log_sha256": "d9a185bba122be2c4c546993e9eb2b89c36cc0127f254df569e630aaa0bcb493",
+      "result": "Runtime reset/load/cancel/invalid/transfer/save/sample preservation and SMC reset state"
+    },
+    {
+      "name": "protocol",
+      "command": "sh tests/host/run_project_protocol.sh",
+      "exit": 0,
+      "log_sha256": "1a9773fc5a168928c7a4fecbd6111a80335e6b6ba03ff75e1fc1d143142b779e",
+      "result": "Chunk/CRC/capacity/confirmation/timeout/full sample headers"
+    },
+    {
+      "name": "save default",
+      "command": "sh tests/host/run_project_save_preflight.sh",
+      "exit": 1,
+      "log_sha256": "a80874019adcaa616d2abde3866d1b5699a1fd1c50745b1dfed04857efb68e7e",
+      "result": "Runner omits X0X_HOST; target .pool section invalid on macOS"
+    },
+    {
+      "name": "legacy stream default",
+      "command": "sh tests/host/run_project_303_stream.sh",
+      "exit": 1,
+      "log_sha256": "9086ade5d47f261394159c75b1b4429b8828e457fac6b0f29b67b37c4efcfdd9",
+      "result": "Runner omits X0X_HOST; target .pool section invalid on macOS"
+    },
+    {
+      "name": "save macOS",
+      "command": "cc -DX0X_HOST -std=c99 -O2 -Wall -Wextra -Werror -ffunction-sections -fdata-sections -Ibuild/gen tests/host/project_save_preflight_test.c -Wl,-dead_strip -lm -o build/host/project_save_preflight_test && build/host/project_save_preflight_test",
+      "exit": 0,
+      "log_sha256": "70276980a426a496480d72db3fbf69f6ce17490624fe96e3f8e6495425e0bd96",
+      "result": "Memory-full no writes, previous project survives simulated reboot"
+    },
+    {
+      "name": "legacy stream macOS",
+      "command": "cc -DX0X_HOST -std=c99 -O2 -Wall -Wextra -Werror -ffunction-sections -fdata-sections -Ibuild/gen tests/host/project_303_stream_test.c -Wl,-dead_strip -lm -o build/host/project_303_stream_test && build/host/project_303_stream_test",
+      "exit": 0,
+      "log_sha256": "6438a58c1e586ac5225c7849626e8ff11f00f6e2e2c4875896d9edcd28ff6f36",
+      "result": "Format-2 overlapping widening preserves arrangement"
+    },
+    {
+      "name": "companion",
+      "command": "node web/test_projects.mjs",
+      "exit": 0,
+      "log_sha256": "f868852ebbe0f95f2d16e0915951cd4d5d287eed11f1f11f8149c7bb6a4b1d8c",
+      "result": "Portable format/sample identities/rollback/recovery negatives"
+    },
+    {
+      "name": "companion page",
+      "command": "node web/test_projects_page.mjs",
+      "exit": 0,
+      "log_sha256": "2aa525f7be96607e34682ed51b902e5a56fc5c543886bf8631b437571294416f",
+      "result": "Confirmation/download/recovery controls; controlled DOM, no GUI"
+    }
+  ],
+  "independent_review": {
+    "disposition": "ACCEPT bounded legacy repair",
+    "source_sha256": "d3c6f1ce6d6f0f3a027efd1ac56e57733cb9f9532b5ba09964828924b2b16a3e",
+    "test_sha256": "05fbc0c7ae59dca4fd15f3a98eccf733d6359d59e3f85aba643fca2615be5bd8",
+    "documentation_finding": "Corrected menu save queue vs direct ui_project_save busy wording"
+  },
+  "limits": [
+    "Storage API cannot distinguish both absent from both unreadable/corrupt legacy arrangement objects",
+    "Existing PR123/128 legacy PAN/HP and PR127 cache repairs remain separate unintegrated work",
+    "Multi-object save and sample replacement are not power-failure atomic",
+    "Original local 7537a46 object not recovered; PR9 consolidated-successor provenance found; 66fb5c7 remains unresolved",
+    "Historical package/DEV evidence not authenticated or reused as current acceptance"
+  ],
+  "not_run": [
+    "Target Elite/Pro/controller builds and budgets",
+    "Physical device/sample flash/reboot/power loss",
+    "GUI or live site checks",
+    "Source integration and binary publication"
+  ],
+  "next": {
+    "owner": "Sole firmware integrator",
+    "action": "Reconcile project.c with PR123/128/127 on one selected current candidate; exact combined independent host validation and Elite/Pro builds before protected integration; tracker writer consumes this receipt without deleting prior history"
+  }
+}

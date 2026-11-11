@@ -1,0 +1,39 @@
+  ok   engine-cq-rec-overflow
+  ok   engine-cq-boff-overflow
+  ok   engine-cq-brk-overflow
+  ok   engine-cq-bon-overflow
+  ok   engine-cq-drum-overflow
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  FAIL rec-live (see build/host/rec-live.log)
+         421 |     struct rusage_info_v4 ri;
+             |                           ^
+       tests/host/../../host/x0x_host.c:421:12: note: forward declaration of 'struct rusage_info_v4'
+         421 |     struct rusage_info_v4 ri;
+             |            ^
+       tests/host/../../host/x0x_host.c:422:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         422 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:422:53: error: use of undeclared identifier 'rusage_info_t'
+         422 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:422:68: error: expected expression
+         422 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+  FAIL rec-live-smk (see build/host/rec-live-smk.log)
+         421 |     struct rusage_info_v4 ri;
+             |                           ^
+       tests/host/../../host/x0x_host.c:421:12: note: forward declaration of 'struct rusage_info_v4'
+         421 |     struct rusage_info_v4 ri;
+             |            ^
+       tests/host/../../host/x0x_host.c:422:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         422 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:422:53: error: use of undeclared identifier 'rusage_info_t'
+         422 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:422:68: error: expected expression
+         422 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+TESTS FAILED
