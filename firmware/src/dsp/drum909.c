@@ -672,23 +672,36 @@ typedef struct {
     float srev, sdly;
     float *dry_r, pl, pr;     /* X0X stereo: dry_r 0 = mono (dry gets y as 9W9's) */
     float dpl, dpr;           /* the pans' glide per sample this block (0 settled) */
+    float *y;                 /* the voice's samples this block, mixed after its loop (d9_emit_block) */
 } d9_bus_t;
 
-__attribute__((noinline)) static void d9_emit(const d9_bus_t *b, int i, float y)
+/* a voice's block into the buses, after its sample loop: per sample the same products and
+ * sums as one call a sample did (each bus element gets this voice's one addition, the voices
+ * in the same order), the bus tests once a block instead of per sample */
+__attribute__((noinline)) static void d9_emit_block(const d9_bus_t *b, int m)
 {
-    if (!b->dry) return;              /* runtime solo suppresses the voice, including an already-playing tail */
+    const float *y = b->y;
+    float *dry = b->dry;
+    if (!dry) return;                 /* runtime solo suppresses the voice, including an already-playing tail */
     if (b->dry_r) {
-        if (b->dpl == 0.0f && b->dpr == 0.0f) {
-            b->dry[i] += y * b->pl;
-            b->dry_r[i] += y * b->pr;
+        float *dry_r = b->dry_r;
+        const float pl = b->pl, pr = b->pr, dpl = b->dpl, dpr = b->dpr;
+        if (dpl == 0.0f && dpr == 0.0f) {
+            for (int i = 0; i < m; ++i) {
+                dry[i] += y[i] * pl;
+                dry_r[i] += y[i] * pr;
+            }
         } else {
-            b->dry[i] += y * (b->pl + b->dpl * (float)i);
-            b->dry_r[i] += y * (b->pr + b->dpr * (float)i);
+            for (int i = 0; i < m; ++i) {
+                dry[i] += y[i] * (pl + dpl * (float)i);
+                dry_r[i] += y[i] * (pr + dpr * (float)i);
+            }
         }
     } else
-        b->dry[i] += y;
-    if (b->rev) b->rev[i] += y * b->srev;
-    if (b->dly) b->dly[i] += y * b->sdly;
+        for (int i = 0; i < m; ++i)
+            dry[i] += y[i];
+    if (b->rev) { float *rev = b->rev; const float k = b->srev; for (int i = 0; i < m; ++i) rev[i] += y[i] * k; }
+    if (b->dly) { float *dly = b->dly; const float k = b->sdly; for (int i = 0; i < m; ++i) dly[i] += y[i] * k; }
 }
 
 /* A filter on the shared noise that a voice stopped running (its envelope had
@@ -739,8 +752,9 @@ static void d9_render_bd(d9_bt_t *v, const float *nz, const d9_bus_t *bus, int n
             click += d9_biquad_tick(&v->click_lp, nz[i]);
             click *= d9_env_tick(&v->click_env) * attack;
         }
-        d9_emit(bus, i, (body + click) * v->out_gain);
+        bus->y[i] = (body + click) * v->out_gain;
     }
+    d9_emit_block(bus, m);
     if (!(v->impulse > 0 || v->click_env.left))
         v->click_stale = 1;
     if (v->click_stale && v->mute == 0) {  /* note over: freeze where 9W9's froze */
@@ -785,8 +799,9 @@ static void d9_render_sd(d9_bt_t *v, const float *nz, const d9_bus_t *bus, int n
             y += d9_biquad_tick(&v->noise_lpf, d9_biquad_tick(&v->noise_hpf, nz[i])) * env * v->snappy
                * D9_SNAPPY_MIX;
         }
-        d9_emit(bus, i, y * v->out_gain);
+        bus->y[i] = y * v->out_gain;
     }
+    d9_emit_block(bus, m);
 }
 
 /* Toms (er99_tom909_render): three VCOs on their own envelopes + stick noise.
@@ -825,8 +840,9 @@ static void d9_render_tom(d9_tom_t *t, const d9_bt_t *p, const float *nz, const 
             stick = d9_biquad_tick(&t->noise_bp, nz[i]) * d9_env_tick(&t->noise_env) * stick_g;
         float y = d9_shape(&p->shape, o + stick, t->crush_st);
         y = d9_biquad_tick(&t->dc_block, y);
-        d9_emit(bus, i, y * t->out_gain);
+        bus->y[i] = y * t->out_gain;
     }
+    d9_emit_block(bus, m);
     if (!t->noise_env.left)
         t->stick_stale = 1;
     if (t->stick_stale && t->mute == 0) {
@@ -862,15 +878,16 @@ static void d9_render_rim(d9_rim_t *v, const float *nz, const d9_bus_t *bus, int
         float y = d9_biquad_tick(&v->bp1, exc) * 60.0f + d9_biquad_tick(&v->bp2, exc) * 32.0f;
         y = d9_shape(&shape, y * a, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
-        d9_emit(bus, i, y * g * accent);
+        bus->y[i] = y * g * accent;
     }
     for (; i < m; ++i) {
         const float a = d9_env_tick(&v->amp);
         float y = d9_rim_ring(&v->bp1) * 60.0f + d9_rim_ring(&v->bp2) * 32.0f;
         y = d9_shape(&shape, y * a, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
-        d9_emit(bus, i, y * g * accent);
+        bus->y[i] = y * g * accent;
     }
+    d9_emit_block(bus, m);
 }
 
 /* Hand clap (er99_clap909_render) */
@@ -903,8 +920,9 @@ __attribute__((noinline)) static void d9_render_clap(d9_clap_t *v, const float *
         float y = d9_biquad_tick(&v->bp, nz[i]) * env;
         y = d9_shape(&shape, y, v->crush_st);
         y = d9_biquad_tick(&v->hp, y);
-        d9_emit(bus, i, y * g * accent);
+        bus->y[i] = y * g * accent;
     }
+    d9_emit_block(bus, m);
 }
 
 /* Hats, ride, crash (render_sampler) */
@@ -942,8 +960,9 @@ static void d9_render_smp(d9_smp_t *s, const d9_bus_t *bus, int n)
         v *= d9_env_tick(&s->out);
         if (drive)
             v = d9_shape(&s->shape, v * pre, s->crush_st);
-        d9_emit(bus, i, v);
+        bus->y[i] = v;
     }
+    d9_emit_block(bus, m);
 }
 
 static float *d9_dry_r;         /* the render in progress: its right side (0: mono) */
@@ -994,6 +1013,8 @@ void drum909_advance_noise(drum909_t *d, int n)
 static void d9_render(drum909_t *d, float *dry, float *rev, float *dly, int n, uint16_t audible_tracks)
 {
     d9_bus_t bus;
+    float y[256];
+    bus.y = y;
     if (n > 256)
         n = 256;
     float *const nz = d9_noise_span(d, n);
