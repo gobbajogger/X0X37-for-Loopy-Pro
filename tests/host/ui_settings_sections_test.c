@@ -7,7 +7,7 @@ static void enter_group(int g){ui.msg_until=0;global_index();ui.list_sel=(uint8_
 int main(void){
  setup(V_HOME,PART_909);pref_set(PR(R_ENG,T_MST,0,MST_PUMP),0);audio_due_ms=now_ms;run_ms(20);button_tap(B_GLO);CHECK(ui.glo_section==-1&&ui.list_n==6);ui_frame();shot("01-global-sections");
  project_t *keep=malloc(sizeof proj);CHECK(keep);memcpy(keep,&proj,sizeof proj);turn_ref(list_rows[0],1,EN_ALGO);CHECK(!memcmp(keep,&proj,sizeof proj));
- pref_t seen[40];int count=0;const int counts[]={9,5,8,3,5,4};   /* AUDIO: Tune + five M7 part ON/OFF rows */
+ pref_t seen[40];int count=0;const int counts[]={9,5,9,3,5,4};   /* AUDIO: Tune + five M7 part ON/OFF rows + QUEUE MUTES */
  for(int g=0;g<6;g++){
   enter_group(g);CHECK(ui.list_n==counts[g]);for(int i=0;i<ui.list_n;i++){pref_t r=list_rows[i];CHECK(r.kind!=R_HDR&&r.kind!=R_SECTION);for(int j=0;j<count;j++)CHECK(memcmp(&r,&seen[j],sizeof r));seen[count++]=r;}
   ui_frame();char name[40];snprintf(name,sizeof name,"group-%d",g);shot(name);
@@ -35,5 +35,14 @@ int main(void){
  CHECK((int8_t)proj.set.rsv_bright==16 && pref_get(PR(R_FINETUNE,0,0,0))==80);
  pref_set(PR(R_FINETUNE,0,0,0),64);
  CHECK(proj.set.rsv_bright==0);
+ /* Tune and QUEUE MUTES share the old brightness byte: each keeps the other */
+ CHECK(pref_get(PR(R_QUEUEMUTE,0,0,0))==0 && !seq.queued_mutes);           /* default off */
+ pref_set(PR(R_FINETUNE,0,0,0),0);  CHECK(PROJ_TUNE_OF(&proj.set)==-64 && !PROJ_QMUTE_OF(&proj.set));
+ pref_set(PR(R_QUEUEMUTE,0,0,0),1); CHECK(PROJ_TUNE_OF(&proj.set)==-64 && PROJ_QMUTE_OF(&proj.set) && seq.queued_mutes);
+ CHECK(pref_get(PR(R_FINETUNE,0,0,0))==0 && pref_get(PR(R_QUEUEMUTE,0,0,0))==1);
+ pref_set(PR(R_FINETUNE,0,0,0),127); CHECK(PROJ_TUNE_OF(&proj.set)==63 && PROJ_QMUTE_OF(&proj.set));
+ pref_set(PR(R_FINETUNE,0,0,0),44);  CHECK(PROJ_TUNE_OF(&proj.set)==-20 && pref_get(PR(R_FINETUNE,0,0,0))==44);
+ pref_set(PR(R_QUEUEMUTE,0,0,0),0); CHECK(PROJ_TUNE_OF(&proj.set)==-20 && !PROJ_QMUTE_OF(&proj.set) && !seq.queued_mutes);
+ pref_set(PR(R_FINETUNE,0,0,0),64);  CHECK(proj.set.rsv_bright==0);
  free(keep);printf("settings sections PASS %u checks\n",checks);return 0;
 }

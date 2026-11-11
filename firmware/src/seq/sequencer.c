@@ -418,6 +418,16 @@ static int drum_boundary(const seq_t *s, int wrapped)
     return s->chain_at >= s->chain_win;
 }
 
+/* Queued mute bits take effect here: the 909 bar, Start, or Stop. */
+static void apply_mute_q(seq_t *s)
+{
+    uint32_t mq = s->mute_q, vq = s->vmute_q;
+    s->mute_q = 0;
+    s->vmute_q = 0;
+    s->mute ^= mq;
+    s->vmute ^= vq;
+}
+
 /* the bar's end (the 909 wrapping), or the start: cues, the chain or the song decide each
  * part's next pattern. Returns the parts whose pattern changed (bit t). */
 static uint32_t bar_end(seq_t *s, int start)
@@ -439,6 +449,7 @@ static uint32_t bar_end(seq_t *s, int start)
         }
         s->song_pos = (uint16_t)k;
         song_read(s, k, next);
+        apply_mute_q(s);
         for (t = 0; t < NTRACKS; t++)
             s->pcue[t] = 0xFF;
     } else {
@@ -457,6 +468,7 @@ static uint32_t bar_end(seq_t *s, int start)
             for (t = 0; t < NTRACKS; t++)
                 next[t] = (uint8_t)c;
         }
+        apply_mute_q(s);
         if (song_plays(s)) {                           /* recording: what plays is the song */
             int k = start ? s->song_start : s->song_pos + 1;
             if (k >= NSONG) {
@@ -548,7 +560,7 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
     else if (t == TRK_BRK) {
         if (o->brk)
             o->brk(o->ctx, p, tr->bars, (float)L / 256.0f,
-                   (s->pat[s->ppat[TRK_BRK]].brk.steps >> p & 1u) && !(s->mute & (1u << MUTE_BRK)) && !SEQ_PART_OFF(s, TRK_BRK));
+                   brk_step_on(&s->pat[s->ppat[TRK_BRK]].brk, p) && !(s->mute & (1u << MUTE_BRK)) && !SEQ_PART_OFF(s, TRK_BRK));
     } else
         fire_bass(s, t - TRK_BASS0, p, L, carry, skip, o);
     if (s->ext) {
@@ -659,6 +671,7 @@ __attribute__((noinline)) static void do_stop(seq_t *s, const seq_sink_t *o, uin
 {
     int t;
     s->playing = 0;
+    apply_mute_q(s);
     s->rec_ev_gen++;
     s->fill_on = 0;
     bass_and_brk_stop(s, o);

@@ -28,6 +28,8 @@
 #endif
 #define PROJ_MAGIC 0x50305830u           /* "0X0P" */
 #define PROJ_FORMAT 1u
+#define PROJ_FORMAT_RATES 2u          /* project uses RATE_8 or RATE_4 (0.0.24.5 would mask those with & 3) */
+#define PROJ_FORMAT_OK(f) ((f) == PROJ_FORMAT || (f) == PROJ_FORMAT_RATES)
 #define PROJ_STEREO 2u
 #if X0X_ORIGINAL_SYNTH
 #define PROJ_SND_REV 13u
@@ -63,6 +65,10 @@
 #define PROJ_A74_CLK_OFF 38u
 /* M7a: all-ON retains the exact legacy settings/file bytes. Nonzero OFF
  * masks use the owned PR854 optional tail and tagged header word. */
+#define PROJ_TUNE_OF(s) ((int)(((s)->rsv_bright & 0x7Fu) ^ 0x40u) - 0x40)
+#define PROJ_QMUTE_OF(s) ((s)->rsv_bright >> 7)
+#define PROJ_SET_TUNE(s, t) ((s)->rsv_bright = (uint8_t)(((s)->rsv_bright & 0x80u) | ((unsigned)(t) & 0x7Fu)))
+#define PROJ_SET_QMUTE(s, q) ((s)->rsv_bright = (uint8_t)(((s)->rsv_bright & 0x7Fu) | ((q) ? 0x80u : 0u)))
 #define PROJ_SET_TAIL 4u
 #define PROJ_PART_OFF_ALL 31u
 #define PROJ_SET_LEN_OK(n) ((n) == 4u + sizeof(settings_t) || (n) == 4u + sizeof(settings_t) + PROJ_SET_TAIL)
@@ -78,9 +84,12 @@ typedef struct {
     uint16_t bpm_x10;
     uint8_t accent_q7, keysound;         /* black drum keys sound: 0 = only when stopped or recording, 1 = always */
     uint8_t autosave_off;                /* 0: save by itself while stopped and idle (ui.c autosave) */
-    uint8_t rsv_bright;                  /* global bass Tune: signed steps, 0 = concert pitch (bit-exact);
-                                          * A4 += steps * 0.625 Hz, same law as bass303 Tune, one setting for
-                                          * Chicago and Miami. Was screen brightness (removed: always full). */
+    uint8_t rsv_bright;                  /* (was the screen's brightness; removed: always full.) Two settings in
+                                          * one byte, settings_t stays 40 B: bits 0-6 global bass Tune, signed
+                                          * steps -64..63, 0 = concert pitch (bit-exact), A4 += steps * 0.625 Hz,
+                                          * one setting for Chicago and Miami; bit 7 QUEUE MUTES (GLO > AUDIO:
+                                          * mute/unmute waits for the next 909 bar), 0 = off. PROJ_TUNE_OF /
+                                          * PROJ_QMUTE_OF read them. */
     uint8_t stereo;                      /* the pans the sound has: 0 none (saved mono), 1 the parts', 2 the
                                           * drum voices' too (PROJ_STEREO); a load centres what is missing */
     uint8_t snd_rev;                     /* the sound's layout (PROJ_SND_REV): 0 = before the 909 SD's DECAY */
@@ -134,6 +143,7 @@ int project_validate_stage(void);         /* 0 good, -1 invalid, -7 storage capa
 void project_commit_stage(void);          /* adopt with the audio engine held */
 #define PROJECT_FILE_HDR 32u
 #define PROJECT_FILE_SIZE (PROJECT_FILE_HDR + sizeof(project_t))
+uint32_t project_rates_format(const project_t *p); /* 1, or 2 if a part uses RATE_8 or RATE_4 */
 void project_file_header(uint8_t *header);
 int project_file_validate(const uint8_t *header); /* also -4 for a payload CRC mismatch */
 

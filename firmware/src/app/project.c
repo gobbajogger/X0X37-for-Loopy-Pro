@@ -712,6 +712,27 @@ void project_commit_stage(void)
     (void)measure_project(&proj, &packed_len);
 }
 
+/* 0.0.24.5 plays rate 4 as 1/16 and rate 5 as 1/16T (rate & 3). Files that
+ * use those rates get format 2 so 0.0.24.5 refuses them instead of mangling
+ * the timing. Files that only use rates 0-3 stay format 1 and still load there.
+ * The live settings object and the settings sector stay format 1. */
+uint32_t project_rates_format(const project_t *p)
+{
+    int k, b;
+    for (k = 0; k < NPAT; k++) {
+        const pattern_t *pat = &p->pat[k];
+        for (b = 0; b < NKIT; b++)
+            if (pat->drum[b].rate >= RATE_8 && pat->drum[b].rate < NRATES)
+                return PROJ_FORMAT_RATES;
+        for (b = 0; b < NBASS; b++)
+            if (pat->bass[b].rate >= RATE_8 && pat->bass[b].rate < NRATES)
+                return PROJ_FORMAT_RATES;
+        if (pat->brk.rate == RATE_8 || pat->brk.rate == RATE_4)
+            return PROJ_FORMAT_RATES;
+    }
+    return PROJ_FORMAT;
+}
+
 /* Portable inner file, LE u32 words. The version fixes the pointer-free project_t
  * layout; no sample bytes or device calibration are stored in this payload. */
 void project_file_header(uint8_t *h)
@@ -720,7 +741,7 @@ void project_file_header(uint8_t *h)
     put32(h + 4, 1);
     put32(h + 8, sizeof project_stage);
     put32(h + 12, crc32_of((const uint8_t *)&project_stage, sizeof project_stage));
-    put32(h + 16, PROJ_FORMAT);
+    put32(h + 16, project_rates_format(&project_stage));
     put32(h + 20, PROJ_STREAM);
     put32(h + 24, PROJ_SND_REV);
     put32(h + 28, PROJ_FILE_OFF_WORD(part_off_staged & PROJ_PART_OFF_ALL));
@@ -730,7 +751,7 @@ void project_file_header(uint8_t *h)
 int project_file_validate(const uint8_t *h)
 {
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
-        get32(h + 16) != PROJ_FORMAT ||
+        !PROJ_FORMAT_OK(get32(h + 16)) ||
         get32(h + 20) != PROJ_STREAM ||
         get32(h + 24) != PROJ_SND_REV || !PROJ_FILE_OFF_OK(get32(h + 28)))
         return -1;
@@ -749,6 +770,7 @@ void project_apply_io(void)
     int p;
     seq.send_clock = proj.set.clk_out;
     seq.send_notes = proj.set.notes_out;
+    seq.queued_mutes = (uint8_t)PROJ_QMUTE_OF(&proj.set);
     seq.clk_src = PROJ_CLK_SRC(proj.set.bt);
     for (p = 0; p < 5; p++) {
         int v = proj.set.midi_ch[p];
@@ -757,7 +779,7 @@ void project_apply_io(void)
     seq.part_off = (uint8_t)(part_off_live & PROJ_PART_OFF_ALL);
     engine_out_loud(proj.set.out_loud);
     engine_usb_full(proj.set.usb_full);
-    engine_bass_tune((int8_t)proj.set.rsv_bright);
+    engine_bass_tune(PROJ_TUNE_OF(&proj.set));
 }
 
 static void capture_settings(settings_t *set, uint8_t *part_off)
