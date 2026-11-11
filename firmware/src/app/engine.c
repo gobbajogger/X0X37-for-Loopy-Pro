@@ -2053,39 +2053,6 @@ static void bfx_flt_shape(float *l, float *r, int n)
                 n, bfx_bpm_snap, bfx_phase_snap);
 }
 
-/* the second core's job (or the first's, after its own part, with one core): the 808 into t0..tr
- * and the break into kbuf; arg bit 8: not timed (the cycle counter is the first core's). Nothing
- * here is mixed: the first core does that afterwards, in one core's order.
- * Bits 9..19 carry this stretch's audible 808 tracks; bits 20..27 carry
- * its output window offset. Under WBL1, completed windows in t0/tr remain
- * live until the full-block master pass; only this job's window is writable. */
-static int brk_silent_now = 1;
-static uint8_t d808_was_active;
-static void core2_job(uint32_t arg)
-{
-    uint32_t n = arg & 0xFFu ? arg & 0xFFu : 256u, i, timed = !(arg & 0x100u), pt = timed ? plat_cycles() : 0;
-    uint32_t offset = (arg >> 20) & 0xFFu;
-    float *left = t0 + offset, *right = tr + offset;
-    d808_was_active = (uint8_t)drum808_active(&d808);
-    if (d808_was_active) {                                /* silent, it does nothing (and is not mixed) */
-        for (i = 0; i < n; i++)
-            left[i] = t1[i] = t2[i] = right[i] = 0.0f;
-        drum808_render_st_masked(&d808, left, right, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
-        bfx_shape(PART_808, left, right, t1, t2, 4, (int)n);
-    } else
-        drum808_pan_settle(&d808);
-    if (timed) {
-        PROF_ADD(PR_808, pt);
-        pt = plat_cycles();
-    }
-    brk_silent_now = breaks_silent(&brk);                 /* the render writes zeros: nothing to mix */
-    breaks_render(&brk, kbuf, (int)n);
-    if (!brk_silent_now)
-        bfx_shape(PART_BRK, kbuf, 0, 0, 0, 1, (int)n);
-    if (timed)
-        PROF_ADD(PR_BRK, pt);
-}
-
 /* a drum machine's mix, from its render (L, R, voice sends; mono, its kit send) */
 __attribute__((noinline)) static void kit_sends(int b, const float *m, uint32_t n)
 {
@@ -2094,31 +2061,114 @@ __attribute__((noinline)) static void kit_sends(int b, const float *m, uint32_t 
     meter(b, m, mix_level[b], n);
 }
 
-/* one stretch: the 909 (into the mix, in place) and the 303s here while the second core renders the
- * 808 and the break; then those are mixed in, in the order one core always used (909, 808, 303 A,
- * 303 B, break): the same sums either way */
-__attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n, uint32_t offset)
+/* ---- the two cores' jobs, balanced per stretch ----
+ * Five jobs: the 909 (renders straight into dry_l..dly, the mix's first term), the 808
+ * (its L/R in the stretch's out_l/out_r window, its sends in t1/t2), bass A and bass B
+ * (each its own workspace and L/R in XPOOL) and the break (kbuf). Recorder state shared
+ * with the sequencer stays on core 0 (before and after the jobs).
+ * Each job mixes itself on the core that rendered it, in the one-core order (909, 808,
+ * bass A, bass B, then the break by core 0), so every sum is the one the single core
+ * made: the same bits wherever a job runs. eng_stage counts the mixes done; a job waits
+ * only for lower stages, and each core runs its jobs in that order, so no core waits
+ * for the other's later work. A job and its state belong to one core for a whole
+ * stretch: the plan changes only between stretches, while core 1 is idle.
+ * The plan: each job's cost per 256 frames is measured where it runs (24 MHz timer,
+ * fast rise, slow fall); before a stretch every split is costed against the stage
+ * order, and the cheapest is taken only when it beats the current one by 1/8
+ * (sticky: no flip-flop, and a job stays in one core's cache). */
+enum { JB_909, JB_808, JB_A, JB_B, JB_BRK, JB_N };
+static int brk_silent_now = 1;
+static uint8_t d808_was_active;
+/* each bass's L/R, and bass B's own workspace (A keeps original_workspace): XPOOL, which
+ * either core may write (core 0's stacks are closed to core 1's writes, fm1_guard.h) */
+static float eng_bass_buf[2 * NBASS][256] X0X_XPOOL;
+static original_runtime_workspace original_workspace_b X0X_XPOOL;
+static uint32_t bass_quiet_next[NBASS];               /* the quiet count after this stretch's render */
+static uint8_t bass_render_ok[NBASS];
+static volatile uint32_t eng_stage;                    /* mixes done this stretch: 1 909, 2 808, 3 basses */
+static volatile uint8_t eng_c1_next;                   /* core 1: the next of its jobs to start */
+static uint8_t eng_c1_mask;                            /* jobs on core 1 this stretch (bit per JB_*) */
+static uint8_t eng_plan;                               /* the plan in force (the same bits) */
+static uint32_t eng_job_cost[JB_N];                    /* ticks per 256 frames when active */
+static uint32_t eng_job_arg;                           /* this stretch's n, 808 mask and window offset */
+static uint8_t eng_job_solo;
+static uint8_t eng_c1_waited;                          /* core 0 has called plat_cpu2_wait this stretch */
+static uint8_t eng_brk_mark;                           /* brk_midi_count before core 1 could add any */
+static void c1_take_over(uint32_t s);
+
+/* the second core still working: 1, done: 0, it failed: -1 (fm1: plat_fm1.c). One core: done. */
+__attribute__((weak)) int plat_cpu2_busy(void) { return 0; }
+/* both cores see each other's writes (fm1: csync; one core: the call is the barrier) */
+__attribute__((weak)) void plat_cpu2_sync(void) {}
+#define eng_sync() plat_cpu2_sync()
+
+static void job_cost(int j, uint32_t ticks, uint32_t n)
 {
-    float *bb[NBASS] = {out_l, out_r};
-    int b;
-    float *left808, *right808;
-    uint32_t solo = smc_solo_state;
-    uint32_t arg = (n & 0xFFu) | (uint32_t)smc_audible_drums(solo, PART_808) << 9 |
-                   (offset << 20), i, pt;
-    uint8_t solo_parts = (uint8_t)(solo & 0x1Fu);
-    if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
-    if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
-    t0 = out_l; tr = out_r;                           /* before the second core reads them */
-    left808 = t0 + offset; right808 = tr + offset;
-    bfx_snapshot();                                   /* before the second core reads the holds */
-    uint8_t brk_event_mark = brk_midi_count;
-    /* BRK still runs in the local fallback when no 808 voice needs core 2. */
-    int on2 = drum808_active(&d808) && plat_cpu2_run(core2_job, arg | 0x100u);
+    uint32_t c, e = eng_job_cost[j];
+    if (n < 64u)
+        return;                                         /* a short stretch is mostly set-up */
+    c = ticks * 256u / n;
+    eng_job_cost[j] = c > e ? c : e - ((e - c) >> 4);   /* rise at once, fall over ~16 stretches */
+}
+
+static void mix_808(float *left808, float *right808, uint32_t n, uint8_t solo_parts)
+{
+    uint32_t i;
+    if (!d808_was_active)
+        return;
+    mix_targets(PART_808, mix_level[PART_808], solo_parts);
+    add_glide(dry_l, left808, &mix_glide[PART_808][GL_L], n);
+    add_glide(dry_r, right808, &mix_glide[PART_808][GL_R], n);
+    add_glide(rev, t1, &mix_glide[PART_808][GL_VREV], n);
+    add_glide(dly, t2, &mix_glide[PART_808][GL_VDLY], n);
     for (i = 0; i < n; i++)
-        dry_l[i] = dry_r[i] = rev[i] = dly[i] = 0.0f;
-    {   /* the 909, straight into the mix: L, R and its voices' sends, then scaled in place */
+        left808[i] = (left808[i] + right808[i]) * 0.5f;
+    kit_sends(PART_808, left808, n);
+}
+
+/* wait for a stage. Core 1 spins (core 0 never stops). Core 0: 0 = reached, 1 = core 1
+ * will not reach it (it failed, or on the host it runs lazily): run its jobs here. */
+static int stage_wait(uint32_t s, int core)
+{
+    uint32_t t0;
+    if (eng_stage >= s)
+        return 0;
+    if (core) {
+#ifdef X0X_HOST
+        return 1;                                        /* host: core 0 resumes it in order */
+#else
+        while (eng_stage < s)
+            eng_sync();
+        return 0;
+#endif
+    }
+    t0 = plat_ticks24();
+    for (;;) {
+        eng_sync();
+        if (eng_stage >= s)
+            return 0;
+        if (plat_cpu2_busy() <= 0 || plat_ticks24() - t0 > 24000u * 24u) {
+            c1_take_over(s);                             /* failed, or the host: run its jobs here */
+            return eng_stage >= s ? 0 : 1;
+        }
+    }
+}
+
+/* one job, render and mix; core 1: not timed by the cycle counter (core 0's) */
+static int run_job(int j, int core)
+{
+    uint32_t arg = eng_job_arg, n = arg & 0xFFu ? arg & 0xFFu : 256u, i;
+    uint32_t offset = (arg >> 20) & 0xFFu, tk = plat_ticks24(), wt = 0, w0;
+    uint8_t solo_parts = eng_job_solo;
+    uint32_t solo = smc_solo_state;
+    int active = 1;
+    float *left808 = t0 + offset, *right808 = tr + offset;
+    if (j == JB_909) {
         PROF_T(p9);
+        for (i = 0; i < n; i++)
+            dry_l[i] = dry_r[i] = rev[i] = dly[i] = 0.0f;
         if (!drum909_active(&d909)) {
+            active = 0;
             drum909_advance_noise(&d909, (int)n);       /* retain the exact restart noise/history */
             drum909_pan_settle(&d909);                    /* silent: pans move at once, no glide */
         } else {
@@ -2133,94 +2183,264 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
             scale_glide(dly, &mix_glide[PART_909][GL_VDLY], n);
             kit_sends(PART_909, mono, n);
         }
-        PROF_ADD(PR_909, p9);
+        if (!core)
+            PROF_ADD(PR_909, p9);
+        eng_sync();
+        eng_stage = 1;
+    } else if (j == JB_808) {
+        PROF_T(p8);
+        d808_was_active = (uint8_t)drum808_active(&d808);
+        if (d808_was_active) {                            /* silent, it does nothing (and is not mixed) */
+            for (i = 0; i < n; i++)
+                left808[i] = t1[i] = t2[i] = right808[i] = 0.0f;
+            drum808_render_st_masked(&d808, left808, right808, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
+            bfx_shape(PART_808, left808, right808, t1, t2, 4, (int)n);
+        } else {
+            active = 0;
+            drum808_pan_settle(&d808);
+        }
+        w0 = plat_ticks24();
+        if (stage_wait(1, core))
+            return 0;
+        wt = plat_ticks24() - w0;
+        mix_808(left808, right808, n, solo_parts);
+        if (!core)
+            PROF_ADD(PR_808, p8);
+        eng_sync();
+        eng_stage = 2;
+    } else if (j == JB_A || j == JB_B) {
+        /* one bass: its own workspace and L/R, so A and B may run at once on the two cores */
+        int bv = j - JB_A, p = PART_303A + bv;
+        float *bl = eng_bass_buf[2 * bv], *br = eng_bass_buf[2 * bv + 1];
+        float *bb[NBASS];
+        bb[bv] = bl; bb[1 - bv] = br;                     /* bass B renders right-left, as always */
+        PROF_T(pb);
+        (void)original_runtime_prepare(&original_bass[bv], seq_tempo(&seq));
+        bass_adapt_pre(bv);
+        int status = original_runtime_render(&original_bass[bv], bv ? &original_workspace_b : &original_workspace,
+                                             bb[bv], bb[1-bv], n);
+        bass_adapt_post(bv, bb[bv], bb[1-bv], (unsigned)n);
+        if (!core)
+            PROF_ADD(2 + bv, pb);
+        bass_render_ok[bv] = (uint8_t)(status == ORIGINAL_RUNTIME_OK);   /* recorder: core 0, after */
+        if (status == ORIGINAL_RUNTIME_OK) {
+            /* One coherent request decision per sub-block. Once note ownership is
+             * gone, fade residual insert output over 512 samples. Cancellation or
+             * a fresh owner ramps back smoothly; DSP histories keep advancing. */
+            int fade = engine_bass_preset_pending(bv) == 2 && !original_runtime_owned(&original_bass[bv]);
+            if (!fade && original_switch_gain[bv] == 512u) {
+                /* Settled gain 1.0: x * 1.0f == x for every float, so only the
+                 * quiet count runs (the same per-sample result). */
+                uint32_t q = original_quiet_samples[bv];
+                for (i = 0; i < n; ++i) {
+                    if (fm_fabsf(bb[bv][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-bv][i]) > 1.0f/65536.0f) q = 0;
+                    else if (q < 512u) ++q;
+                }
+                bass_quiet_next[bv] = q;
+            } else {
+                uint32_t q = original_quiet_samples[bv];
+                for (i = 0; i < n; ++i) {
+                    if (fade) { if (original_switch_gain[bv]) --original_switch_gain[bv]; }
+                    else if (original_switch_gain[bv] < 512u) ++original_switch_gain[bv];
+                    float gain = (float)original_switch_gain[bv] * (1.0f/512.0f);
+                    bb[bv][i] *= gain; bb[1-bv][i] *= gain;
+                    if (fm_fabsf(bb[bv][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-bv][i]) > 1.0f/65536.0f)
+                        q = 0;
+                    else if (q < 512u) ++q;
+                }
+                bass_quiet_next[bv] = q;
+            }
+            bfx_shape(p, bb[bv], bb[1-bv], 0, 0, 2, (int)n);
+        }
+        w0 = plat_ticks24();
+        if (stage_wait((uint32_t)(2 + bv), core))         /* A mixes after the 808, B after A */
+            return 0;
+        wt = plat_ticks24() - w0;
+        if (status == ORIGINAL_RUNTIME_OK) {
+            /* A part that was silent when Solo excluded it must not leak a new
+             * note through the 10 ms mix glide-out: start its glides at zero.
+             * (The quiet count from before this stretch, as the one-core order read it.) */
+            int solo_out = solo_parts && !(solo_parts & (1u << p)) && original_quiet_samples[bv] >= 512u;
+            original_quiet_samples[bv] = bass_quiet_next[bv];
+            mix_targets(p, mix_level[p], solo_parts);
+            if (solo_out) for (i = 0; i < GL_N; ++i) mix_glide[p][i].cur = 0.0f;
+            add_glide(dry_l, bb[bv], &mix_glide[p][GL_L], n);
+            add_glide(dry_r, bb[1-bv], &mix_glide[p][GL_R], n);
+            {
+                float pk = part_peak[p], g = mix_level[p];
+                for (i = 0; i < n; ++i) {
+                    float l = bb[bv][i], r = bb[1-bv][i];
+                    float a = fm_fabsf(l) * g;
+                    if (a > pk) pk = a;
+                    a = fm_fabsf(r) * g;
+                    if (a > pk) pk = a;
+                    bb[bv][i] = .5f * (l + r);
+                }
+                part_peak[p] = pk;
+            }
+            add_glide(rev, bb[bv], &mix_glide[p][GL_REV], n);
+            add_glide(dly, bb[bv], &mix_glide[p][GL_DLY], n);
+        }
+        eng_sync();
+        eng_stage = (uint32_t)(3 + bv);
+    } else {
+        PROF_T(pk);
+        brk_silent_now = breaks_silent(&brk);             /* the render writes zeros: nothing to mix */
+        breaks_render(&brk, kbuf, (int)n);
+        if (!brk_silent_now)
+            bfx_shape(PART_BRK, kbuf, 0, 0, 0, 1, (int)n);
+        else
+            active = 0;
+        if (!core)
+            PROF_ADD(PR_BRK, pk);
     }
-    pt = plat_cycles();
-    int failed;
+    if (active)
+        job_cost(j, plat_ticks24() - tk - wt, n);
+    return 1;
+}
+
+/* core 1's share: its jobs in stage order (arg: unused, the plan is in eng_*).
+ * eng_c1_next: the job it is on, then the one after it once that is done */
+static void core2_jobs(uint32_t arg)
+{
+    int j;
+    (void)arg;
+    for (j = eng_c1_next; j < JB_N; j++) {
+        if (!(eng_c1_mask & (1u << j)))
+            continue;
+        eng_c1_next = (uint8_t)j;
+        eng_sync();
+#ifdef X0X_HOST
+        /* the host runs this at once, inside plat_cpu2_run: a job whose mix needs core 0's
+         * stages is left whole for core 0 to run in order (the same sums) */
+        if (eng_stage < (j == JB_808 ? 1u : j == JB_A ? 2u : j == JB_B ? 3u : 0u))
+            return;
+#endif
+        if (!run_job(j, 1))
+            return;
+        eng_c1_next = (uint8_t)(j + 1);
+        eng_sync();
+    }
+    eng_c1_next = JB_N;
+    eng_sync();
+}
+
+/* core 0 runs what core 1 did not finish, in order, up to stage s (JB_N + 1: all of it).
+ * The device: core 1 failed (plat_cpu2_wait holds it; a job it was inside runs again, as
+ * the one-job fallback always did). The host: core 1 runs lazily, and here is where. */
+static void c1_take_over(uint32_t s)
+{
+    int j;
+    if (!eng_c1_waited) {
+        eng_c1_waited = 1;
+        (void)plat_cpu2_wait();
+    }
+    eng_sync();
+    for (j = eng_c1_next; j < JB_N && eng_stage < s; j++) {
+        if (!(eng_c1_mask & (1u << j)))
+            continue;
+        eng_c1_next = (uint8_t)j;
+        if (j == JB_BRK)
+            brk_midi_count = eng_brk_mark;               /* drop a failed remote job's descriptors */
+        (void)run_job(j, 0);
+        eng_c1_next = (uint8_t)(j + 1);
+    }
+}
+
+#define ENG_C1_LAT (24u * 10u)                         /* ticks: a hand-over and its wait, about */
+/* the stretch's cost (ticks) of a split m (bit j: job j on core 1), in the stage order */
+static uint32_t plan_cost(uint32_t m, const uint32_t *c)
+{
+    uint32_t t[2] = {0u, m ? ENG_C1_LAT : 0u}, s;
+    int k;
+    k = (int)(m & 1u); t[k] += c[JB_909]; s = t[k];
+    k = (int)(m >> 1 & 1u); t[k] += c[JB_808]; if (t[k] < s) t[k] = s; s = t[k];
+    k = (int)(m >> 2 & 1u); t[k] += c[JB_A]; if (t[k] < s) t[k] = s; s = t[k];
+    k = (int)(m >> 3 & 1u); t[k] += c[JB_B]; if (t[k] < s) t[k] = s;
+    k = (int)(m >> 4 & 1u); t[k] += c[JB_BRK];
+    return t[0] > t[1] ? t[0] : t[1];
+}
+/* before a stretch of n frames: the split to use (sticky; idle jobs stay on core 0) */
+static uint32_t plan_pick(uint32_t n)
+{
+    uint32_t c[JB_N], act = 0, best = eng_plan, cost, bc, m, nn = n < 64u ? 64u : n;
+    int j;
+#ifdef X0X_CORE_PLAN                                  /* development: one fixed split, for A/B trials */
+    (void)c; (void)best; (void)cost; (void)bc; (void)m; (void)nn; (void)j;
+    if (drum909_active(&d909)) act |= 1u << JB_909;
+    if (drum808_active(&d808)) act |= 1u << JB_808;
+    act |= 1u << JB_A | 1u << JB_B;
+    if (!breaks_silent(&brk)) act |= 1u << JB_BRK;
+    return (uint32_t)(X0X_CORE_PLAN) & act;
+#endif
+    if (drum909_active(&d909)) act |= 1u << JB_909;
+    if (drum808_active(&d808)) act |= 1u << JB_808;
+    act |= 1u << JB_A | 1u << JB_B;
+    if (!breaks_silent(&brk)) act |= 1u << JB_BRK;
+    for (j = 0; j < JB_N; j++)                         /* a short stretch still pays a call's set-up */
+        c[j] = (act >> j & 1u) ? eng_job_cost[j] * nn / 256u : 0u;
+    best &= act;
+    bc = plan_cost(best, c);
+    cost = bc;
+    for (m = 0; m < (1u << JB_N); m++) {
+        uint32_t k;
+        if (m & ~act)
+            continue;
+        k = plan_cost(m, c);
+        if (k < bc) { bc = k; best = m; }
+    }
+    if (bc * 8u < cost * 7u || (eng_plan & ~act))      /* 1/8 better, or a job of it went idle */
+        eng_plan = (uint8_t)best;
+    return eng_plan & act;
+}
+
+/* one stretch: the jobs split between the cores by plan_pick (see above), each mixed in the
+ * order one core always used (909, 808, bass A, bass B, break): the same sums either way */
+__attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n, uint32_t offset)
+{
+    uint32_t solo = smc_solo_state, m;
+    uint8_t solo_parts = (uint8_t)(solo & 0x1Fu);
+    int j;
+    if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
+    if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
+    t0 = out_l; tr = out_r;                           /* before the second core reads them */
+    bfx_snapshot();                                   /* before the second core reads the holds */
+    eng_job_arg = (n & 0xFFu) | (uint32_t)smc_audible_drums(solo, PART_808) << 9 | (offset << 20);
+    eng_job_solo = solo_parts;
+    eng_brk_mark = brk_midi_count;
+    eng_stage = 0;
+    eng_c1_next = 0;
+    eng_c1_waited = 0;
+    bass_render_ok[0] = bass_render_ok[1] = 0;
+    original_rec_cancel_cut();                        /* both basses' recorder state: here, before the jobs */
+    m = plan_pick(n);
+    eng_c1_mask = (uint8_t)m;
+    eng_sync();
+    if (m && !plat_cpu2_run(core2_jobs, 0u))
+        eng_c1_mask = 0;                              /* one core: all of it here */
 #if X0X_DEBUG
     eng_dbg_nsub++;
     uint32_t w0 = plat_ticks24();
 #endif
-    failed = on2 && plat_cpu2_wait();
+    for (j = 0; j < JB_N; j++)
+        if (!(eng_c1_mask & (1u << j)))
+            (void)run_job(j, 0);
+    if (eng_c1_mask) {
+        uint32_t pt = plat_cycles();
+        if (!eng_c1_waited) {
+            eng_c1_waited = 1;
+            if (plat_cpu2_wait())
+                eng_c1_waited = 2;
+        }
+        c1_take_over(JB_N + 1u);                      /* failed, or the host: the rest here */
+        PROF_ADD(PR_808, pt);                         /* core 0's wait for core 1 (as before) */
+    }
 #if X0X_DEBUG
-    eng_dbg_wait += plat_ticks24() - w0;
+    eng_dbg_wait += plat_ticks24() - w0;              /* now: core 0's whole job span */
 #endif
-    if (!on2 || failed) {
-        /* Discard descriptors from a failed/partial remote job before fallback.
-         * CPU0 step events queued before dispatch remain valid. */
-        brk_midi_count = brk_event_mark;
-        core2_job(arg);
-    } else
-        PROF_ADD(PR_808, pt);
     brk_midi_drain();
-    if (d808_was_active) {
-        mix_targets(PART_808, mix_level[PART_808], solo_parts);
-        add_glide(dry_l, left808, &mix_glide[PART_808][GL_L], n);
-        add_glide(dry_r, right808, &mix_glide[PART_808][GL_R], n);
-        add_glide(rev, t1, &mix_glide[PART_808][GL_VREV], n);
-        add_glide(dly, t2, &mix_glide[PART_808][GL_VDLY], n);
-        for (i = 0; i < n; i++)
-            left808[i] = (left808[i] + right808[i]) * 0.5f;
-        kit_sends(PART_808, left808, n);
-    }
-    original_rec_cancel_cut();
-    for (b = 0; b < NBASS; b++) {
-        int p = PART_303A + b;
-        PROF_T(pb);
-        (void)original_runtime_prepare(&original_bass[b], seq_tempo(&seq));
-        bass_adapt_pre(b);
-        int status = original_runtime_render(&original_bass[b], &original_workspace, bb[b], bb[1-b], n);
-        bass_adapt_post(b, bb[b], bb[1-b], (unsigned)n);
-        PROF_ADD(2 + b, pb);
-        if (status == ORIGINAL_RUNTIME_OK) original_rec_recover_off(b);
-        /* Failed/unadmitted DSP is visible through engine_bass_status. No
-         * fallback renderer, guessed silence-success or idle clock skipping. */
-        if (status != ORIGINAL_RUNTIME_OK) continue;
-        /* One coherent request decision per sub-block. Once note ownership is
-         * gone, fade residual insert output over 512 samples. Cancellation or
-         * a fresh owner ramps back smoothly; DSP histories keep advancing. */
-        int fade = engine_bass_preset_pending(b) == 2 && !original_runtime_owned(&original_bass[b]);
-        /* A part that was silent when Solo excluded it must not leak a new
-         * note through the 10 ms mix glide-out: start its glides at zero. */
-        int solo_out = solo_parts && !(solo_parts & (1u << p)) && original_quiet_samples[b] >= 512u;
-        if (!fade && original_switch_gain[b] == 512u) {
-            /* Settled gain 1.0: x * 1.0f == x for every float, so only the
-             * quiet count runs (the same per-sample result). */
-            uint32_t q = original_quiet_samples[b];
-            for (i = 0; i < n; ++i) {
-                if (fm_fabsf(bb[b][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-b][i]) > 1.0f/65536.0f) q = 0;
-                else if (q < 512u) ++q;
-            }
-            original_quiet_samples[b] = q;
-        } else for (i = 0; i < n; ++i) {
-            if (fade) { if (original_switch_gain[b]) --original_switch_gain[b]; }
-            else if (original_switch_gain[b] < 512u) ++original_switch_gain[b];
-            float gain = (float)original_switch_gain[b] * (1.0f/512.0f);
-            bb[b][i] *= gain; bb[1-b][i] *= gain;
-            if (fm_fabsf(bb[b][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-b][i]) > 1.0f/65536.0f)
-                original_quiet_samples[b] = 0;
-            else if (original_quiet_samples[b] < 512u) ++original_quiet_samples[b];
-        }
-        bfx_shape(p, bb[b], bb[1-b], 0, 0, 2, (int)n);
-        mix_targets(p, mix_level[p], solo_parts);
-        if (solo_out) for (i = 0; i < GL_N; ++i) mix_glide[p][i].cur = 0.0f;
-        add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
-        add_glide(dry_r, bb[1-b], &mix_glide[p][GL_R], n);
-        {
-            float pk = part_peak[p], g = mix_level[p];
-            for (i = 0; i < n; ++i) {
-                float l = bb[b][i], r = bb[1-b][i];
-                float a = fm_fabsf(l) * g;
-                if (a > pk) pk = a;
-                a = fm_fabsf(r) * g;
-                if (a > pk) pk = a;
-                bb[b][i] = .5f * (l + r);
-            }
-            part_peak[p] = pk;
-        }
-        add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
-        add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
-    }
+    for (j = 0; j < NBASS; j++)                       /* the recorder (shared with the sequencer): core 0 */
+        if (bass_render_ok[j]) original_rec_recover_off(j);
     if (!brk_silent_now) {
         float g = mix_level[PART_BRK];
         mix_targets(PART_BRK, g, solo_parts);

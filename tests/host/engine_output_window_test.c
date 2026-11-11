@@ -22,6 +22,14 @@ int engine_note_lock_capture_on(void) { return 0; }
 void engine_note_lock_refresh(void) {}
 #pragma weak engine_bass_note_validate
 int engine_bass_note_validate(const lane_t *lane) { (void)lane; return 0; }
+/* CPU2 modes run: 0 none, 1 deferred, 2 failed with no progress, 3 failed after a partial
+ * job. The script compares 0..2 with BASE_REF, and 3 with this engine's own clean mode 1. */
+#ifndef OW_LO
+#define OW_LO 0
+#endif
+#ifndef OW_HI
+#define OW_HI 4
+#endif
 static unsigned split_index, split_mode, cpu_mode, jobs, joins, deferred;
 static void (*pending_job)(uint32_t);
 static uint32_t pending_arg;
@@ -57,7 +65,7 @@ int main(int argc,char **argv)
     boot();engine_guard_enable(0);seq.playing=0;
     unsigned nonzero=0,blocks=0;
     const unsigned lens[]={256,1,255,3,129,17,300,0,64,251};
-    for(cpu_mode=0;cpu_mode<4;cpu_mode++)for(split_mode=0;split_mode<2;split_mode++){
+    for(cpu_mode=OW_LO;cpu_mode<OW_HI;cpu_mode++)for(split_mode=0;split_mode<2;split_mode++){
         split_index=0;
         for(unsigned b=0;b<100;b++){
             unsigned n=lens[b%10],written=n>256?256:n;
