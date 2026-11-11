@@ -54,11 +54,13 @@ def _control_text(scen: dict, wobble: dict[int, float]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _render_preset(scen: dict, wobble: dict[int, float], out_f32: Path) -> None:
-    if not RENDER_BIN.is_file():
+def _render_preset(
+    scen: dict, wobble: dict[int, float], out_f32: Path, render_bin: Path = RENDER_BIN
+) -> None:
+    if render_bin == RENDER_BIN and not RENDER_BIN.is_file():
         subprocess.check_call(["sh", "tests/host/run_miami_au_render.sh"], cwd=ROOT)
     proc = subprocess.run(
-        [str(RENDER_BIN)],
+        [str(render_bin)],
         input=_control_text(scen, wobble).encode("utf-8"),
         capture_output=True,
         check=False,

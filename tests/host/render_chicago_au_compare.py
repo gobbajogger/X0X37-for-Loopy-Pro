@@ -62,11 +62,11 @@ def _control_text(scen: dict, pots: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _render_scenario(scen: dict, pots: dict, out_f32: Path) -> None:
-    if not RENDER_BIN.is_file():
-        raise FileNotFoundError(f"missing renderer (run tests/host/run_chicago_au_render.sh): {RENDER_BIN}")
+def _render_scenario(scen: dict, pots: dict, out_f32: Path, render_bin: Path = RENDER_BIN) -> None:
+    if not render_bin.is_file():
+        raise FileNotFoundError(f"missing renderer (run tests/host/run_chicago_au_render.sh): {render_bin}")
     proc = subprocess.run(
-        [str(RENDER_BIN)],
+        [str(render_bin)],
         input=_control_text(scen, pots).encode("utf-8"),
         capture_output=True,
         check=False,

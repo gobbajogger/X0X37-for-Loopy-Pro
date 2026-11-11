@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -22,7 +23,6 @@ import chicago_au_score  # noqa: E402
 import miami_au_map  # noqa: E402
 from render_miami_au_compare import (  # noqa: E402
     BANK_JSON,
-    RENDER_BIN,
     SCENARIO_DIR,
     _control_text,
     _render_preset,
@@ -41,16 +41,17 @@ def _write_float_wav(path: Path, stereo: np.ndarray, sr: int) -> None:
 
 
 def main() -> int:
-    if not RENDER_BIN.is_file():
-        subprocess.check_call(["sh", "tests/host/run_miami_au_render.sh"], cwd=ROOT)
     scen_path = SCENARIO_DIR / "miami_au_init_miami.json"
     scen = au_compare_battery.apply_timing_to_scenario(json.loads(scen_path.read_text()))
     presets = json.loads(BANK_JSON.read_text())["presets"]
     mapped = miami_au_map.preset_from_factory_bank(presets, scen["factoryPresetIndex"])
     with tempfile.TemporaryDirectory() as td:
         tdp = Path(td)
+        # Private renderer: miami-au-render relinks build/miami_au/wobble_au_render in parallel.
+        env = dict(os.environ, MIAMI_AU_RENDER_OUT=str(tdp))
+        subprocess.check_call(["sh", "tests/host/run_miami_au_render.sh"], cwd=ROOT, env=env)
         cand_f32 = tdp / "cand.f32"
-        _render_preset(scen, mapped["wobble"], cand_f32)
+        _render_preset(scen, mapped["wobble"], cand_f32, render_bin=tdp / "wobble_au_render")
         cand = chicago_au_score.load_render_f32(cand_f32)
         ref_wav = tdp / "ref.wav"
         _write_float_wav(ref_wav, cand, int(scen["sampleRate"]))
