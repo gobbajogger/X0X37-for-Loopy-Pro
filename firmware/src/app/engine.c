@@ -1405,11 +1405,32 @@ static int brk_note_slice(int note)
     int count = breaks_count(&brk, 0);
     return (note + 128 - 12) % count;
 }
+/* Same answer as testing all 128 notes in order: a byte with no held note
+ * has no note that can match, so it is skipped (16 byte tests when idle). */
 __attribute__((noinline)) static int brk_src_slice(int src, int slice)
 {
-    for (int n = 0; n < 128; n++)
-        if (brk_note_down(src, n) && brk_note_slice(n) == slice) return 1;
+    for (int j = 0; j < 16; j++) {
+        unsigned d = brk_down[src][j];
+        for (int n = j * 8; d; n++, d >>= 1)
+            if ((d & 1u) && brk_note_slice(n) == slice) return 1;
+    }
     return 0;
+}
+/* Bit s (s < 32) set when brk_any_slice(s) would return 1. One pass over
+ * the held notes instead of one 3 x 128 scan per slice. */
+static uint32_t brk_held_slices(void)
+{
+    uint32_t m = brk_local;
+    for (int src = 0; src < MIDI_NSRC; src++)
+        for (int j = 0; j < 16; j++) {
+            unsigned d = brk_down[src][j];
+            for (int n = j * 8; d; n++, d >>= 1)
+                if (d & 1u) {
+                    unsigned sl = (unsigned)brk_note_slice(n);
+                    if (sl < 32u) m |= 1u << sl;
+                }
+        }
+    return m;
 }
 static int brk_any_slice(int slice)
 {
@@ -1451,8 +1472,11 @@ __attribute__((noinline)) static void brk_link_end(int src, uint16_t owned)
 {
     (void)owned;
     for (int n = 0; n < 16; n++) brk_down[src][n] = 0;
+    /* breaks_slice_hold changes only brk.slices, never brk_local, brk_down or
+     * the slice count, so the held set is the same for every sl in the loop. */
+    uint32_t held = brk_held_slices();
     for (int sl = 0; sl < 32; sl++)
-        if (!brk_any_slice(sl)) breaks_slice_hold(&brk, sl, 0);
+        if (!(held & (1u << sl))) breaks_slice_hold(&brk, sl, 0);
 }
 
 static void brk_channel_reconcile(void)
