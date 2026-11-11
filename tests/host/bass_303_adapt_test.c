@@ -15,8 +15,8 @@ int main(void)
 
     g = bass_303_accent_gain(0);
     CHECK(g == 1.0f);
-    CHECK(bass_303_accent_gain(1) > 3.0f);
-    CHECK(bass_303_accent_gain(1) < 4.0f);
+    CHECK(bass_303_accent_gain(1) == BASS_303_ACCENT_GAIN);
+    CHECK(BASS_303_ACCENT_GAIN == 2.0f);             /* about +6 dB (owner 07:31) */
     {
         const float A = bass_303_accent_gain(1);
         float out = 0.5f, mk;
@@ -25,7 +25,7 @@ int main(void)
         mk = bass_303_accent_output(1, &out);        /* full-level preset: no room */
         CHECK(out == 1.0f);                          /* the Chicago gain stage takes 0..1 */
         CHECK(mk == 0.5f * A);                       /* the rest after the voice */
-        CHECK(out * mk > 1.5f);                      /* still the whole accent */
+        CHECK(out * mk == 0.5f * A);                 /* still the whole accent */
         out = 1.0f;
         mk = bass_303_accent_output(1, &out);
         CHECK(out == 1.0f && mk == A);
@@ -37,13 +37,14 @@ int main(void)
         CHECK(out == 0.0f && mk == 1.0f);
     }
     {   /* make-up: settled 1 is a no-op; slews without a step; holds; returns */
+        const float A = bass_303_accent_gain(1);
         float l[300], r[300], g = 1.0f;
         unsigned i, n;
         for (i = 0; i < 300; ++i) l[i] = r[i] = 0.25f;
         bass_303_accent_makeup(l, r, 300, &g, 1.0f);
         for (i = 0; i < 300; ++i) CHECK(l[i] == 0.25f && r[i] == 0.25f);
-        bass_303_accent_makeup(l, r, 300, &g, 3.0f);
-        CHECK(g == 3.0f && l[299] == 0.75f && r[299] == 0.75f);
+        bass_303_accent_makeup(l, r, 300, &g, A);
+        CHECK(g == A && l[299] == 0.25f * A && r[299] == 0.25f * A);
         for (i = 1; i < 300; ++i)
             CHECK(l[i] - l[i - 1] <= 0.25f * BASS_303_MAKEUP_SLEW * 1.001f && l[i] >= l[i - 1]);
         for (n = 0; n < 200; ++n) {                  /* 1-sample sub-blocks: same slew */

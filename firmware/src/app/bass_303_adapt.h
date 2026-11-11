@@ -12,12 +12,18 @@ enum { BASS_303_ACCENT_POT = 64 };
  * typical 64-sample span. Only applied when the step's slide flag is set. */
 #define BASS_303_SLIDE_PORTA 0.22f
 
-/* Fixed VCA/output scale, adapted from bass303 env add 0.45+4*acc. */
+/* Fixed VCA/output scale. Owner 2026-11-12 07:31 UTC+10: "Tone accent
+ * down to about +6 dB". 2.0 is +6.02 dB over the unaccented note. The
+ * bass303 scale (1.0 + 0.45 + 4 * pot/127 at pot 64) was x3.47, about
+ * +10.8 dB; the master limiter then pulled an accented solo note down
+ * by as much as 10.6 dB. Cutoff, env-depth, decay and sweep still use
+ * BASS_303_ACCENT_AMT and are unchanged. */
+#define BASS_303_ACCENT_GAIN 2.0f
 static inline float bass_303_accent_gain(int accent)
 {
     if (!accent)
         return 1.0f;
-    return 1.0f + 0.45f + 4.0f * BASS_303_ACCENT_AMT;
+    return BASS_303_ACCENT_GAIN;
 }
 
 /* Accent works like a velocity layer: an accented note is always
