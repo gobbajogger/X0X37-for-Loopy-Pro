@@ -15,8 +15,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import x0x_slots as xs  # noqa: E402
 
-SMK_MAP = [(0xC2000, 0x14000), (0xD6000, 0x1E000), (0xB0000, 0xB000)]    # the 3-slot layout this firmware replaced
-SMK_NOW = [(0xC2000, 0x14000), (0xD6000, 0x1E000)]                        # slots.c, BOARD_SMK37: two slots
+SMK_MAP = [(0xC2000, 0x14000), (0xD6000, 0x1E000), (0xB0000, 0xB000)]    # the first 3-slot layout (until e758e195)
+SMK_TWO = [(0xC2000, 0x14000), (0xD6000, 0x1E000)]                        # the two-slot X0X (e758e195 .. 0.0.24.x)
+SMK_NOW = SMK_TWO + [(0xB3000, 0x8000)]                                   # slots.c, BOARD_SMK37: slot 3 back after the shadows
 SMK_OLD_MAP = [(0xC2000, 0x14000), (0xD6000, 0x14000)]                    # X0X before the layout change
 
 

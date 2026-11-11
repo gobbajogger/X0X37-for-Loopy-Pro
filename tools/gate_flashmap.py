@@ -5,7 +5,7 @@
 The check finds overlaps between the regions of the BOARD_SMK37 map.
 It also compares the map with the layout that the owner approved (a65 and later):
 one Bluetooth block of 64 KiB at 0x8B000, the store at 0x9D000-0xAFFFF (with the owner tag at 0xAF000),
-the 44 KiB VM spare at 0xB0000-0xBAFFF (not a sample slot), no piece 2 (FL_CTL2) and no FL_BOND.
+the 44 KiB VM spare at 0xB0000-0xBAFFF (sector-0 shadows, then sample slot 3 from 0xB3000), no piece 2 (FL_CTL2) and no FL_BOND.
 The owner tag (ST_OWNER_SECTOR in firmware/src/storage.c) must be at 0xAF000, in the last sector of the store.
   tools/gate_flashmap.py firmware/hal/fm1_flash_map.h [firmware/src/storage.c]
 The last line is "flashmap: PASS" or "flashmap: FAIL <reason>". The exit code is 0 or 1."""

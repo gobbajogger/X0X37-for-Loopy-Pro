@@ -102,13 +102,19 @@ int main(void)
             slots_ok &= k == k2 || SMP_USER_OFF(k) + SMP_USER_SIZE(k) <= SMP_USER_OFF(k2) ||
                         SMP_USER_OFF(k2) + SMP_USER_SIZE(k2) <= SMP_USER_OFF(k);
     }
-    check("slots.c: 2 slots, 0xC2000 80 KiB, 0xD6000 120 KiB: allowed, apart, outside the store",
-          SMP_USER_SLOTS == 2 && SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_SIZE(0u) == 0x14000u &&
-          SMP_USER_OFF(1u) == 0xD6000u && SMP_USER_SIZE(1u) == 0x1E000u && slots_ok);
+    check("slots.c: 3 slots, 0xC2000 80 KiB, 0xD6000 120 KiB, 0xB3000 32 KiB: allowed, apart, outside the store",
+          SMP_USER_SLOTS == 3 && SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_SIZE(0u) == 0x14000u &&
+          SMP_USER_OFF(1u) == 0xD6000u && SMP_USER_SIZE(1u) == 0x1E000u &&
+          SMP_USER_OFF(2u) == 0xB3000u && SMP_USER_SIZE(2u) == 0x8000u && slots_ok);
     check("slots 1 and 2 keep the offsets of the 2 x 80 KiB layout (their data stays valid)",
           SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_OFF(1u) == 0xC2000u + 0x14000u);
-    check("no slot in the install range [0x4000, 0x9D000) or in the VM spare 0xB0000-0xBAFFF",
-          SMP_USER_OFF(0u) >= 0x9D000u && SMP_USER_OFF(0u) >= 0xBB000u && SMP_USER_OFF(1u) >= 0xBB000u);
+    check("no slot in the install range [0x4000, 0x9D000); slots 1 and 2 past the VM spare",
+          SMP_USER_OFF(0u) >= 0x9D000u && SMP_USER_OFF(0u) >= 0xBB000u && SMP_USER_OFF(1u) >= 0xBB000u &&
+          SMP_USER_OFF(2u) >= 0x9D000u);
+    check("slot 3 fills FL_SMPV after the three sector-0 shadows 0xB0000-0xB2FFF, no overlap",
+          SMP_USER_OFF(2u) == FL_SMPV_LO + 3u * 0x1000u && SMP_USER_OFF(2u) + SMP_USER_SIZE(2u) == FL_SMPV_HI &&
+          SMP_SEC0_BACKUP_OFF(0u) == 0xB0000u && SMP_SEC0_BACKUP_OFF(2u) + 0x1000u == SMP_USER_OFF(2u) &&
+          FL_GUARD(SMP_SEC0_BACKUP_OFF(2u), 0x1000u));
     check("FL_PLAIN_LO = the VM start 0x9D000", FL_PLAIN_LO == 0x9D000u);
     check("FL_JEDEC_OK: the SMK part 0xEB6014 and 0x856014 only", FL_JEDEC_OK(0xEB6014u) && FL_JEDEC_OK(0x856014u) &&
           !FL_JEDEC_OK(0u) && !FL_JEDEC_OK(0xFFFFFFu) && !FL_JEDEC_OK(0xEB6015u));
