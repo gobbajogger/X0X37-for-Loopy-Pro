@@ -1,0 +1,69 @@
+# EDIT shows and auditions the chosen sound; SEQ owns visible step edits.
+wait 300
+expect view 8
+expect part 0
+tap EDIT
+expect view 1
+expect hit0.0.0 0
+tapkey w0
+expect hit0.0.0 0
+tapkey b1
+expect sel 1
+shot split_909_sd_sound.png
+tap REC
+tap PLAY
+expect playing 1
+tapkey b1
+tapkey w4
+expect hit0.1.0 0
+expect hit0.1.4 0
+tap SEQ
+expect view 8
+tap REC
+tap PLAY
+expect playing 0
+tapkey w4
+expect hit0.1.4 1
+key w8 down
+tap EDIT
+expect view 1
+spin K1 2
+expect lanes 1
+expect laneval0.1.0.8 >0
+tap SEQ
+expect view 1
+key w8 up
+tap SEQ
+expect view 8
+tap EDIT
+expect view 1
+expect sel 1
+expect hit0.1.4 1
+shot split_909_sd_sound_after_seq.png
+# A bass key on EDIT auditions without writing a hidden note, even with REC on.
+turn ALGO 4
+expect part 2
+expect gate0.0 0
+tap REC
+tap PLAY
+tapkey w0
+expect gate0.0 0
+tap REC
+tap PLAY
+expect playing 0
+peakreset
+wav split_bass_switch.wav
+key w0 down
+wait 200
+tap SEQ
+expect view 8
+wait 200
+key w0 up
+wait 100
+wavstop
+expect gate0.0 0
+expect peak_db_min -80
+shot split_303_roll.png
+tap EDIT
+expect view 1
+shot split_303_sound.png

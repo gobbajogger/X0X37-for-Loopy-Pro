@@ -1,0 +1,18 @@
+Preflight before DEV package validation (2026-10-22 UTC).
+
+PASS present:
+- Linux x86_64 host (no Docker worker required)
+- JIELI_TOOLCHAIN=$HOME/.jieli/toolchain (clang SHA256 c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f)
+- AC79_SDK=$HOME/fw-AC79_AIoT_SDK at d179b4484759423312073f5fbb232501aa491047
+- DSP refs under /opt/x0x-refs at pinned HEADs (see environment.json)
+
+Workarounds required for this cloud image (recorded, not skipped):
+1. tools/dev_validate.py creates scratch under repo.parent. /workspace parent is /,
+   so validation uses git worktree /home/ubuntu/x0x37-smc-popup-stage4.
+2. Debian python3-numpy 1.26.4 dist-info lacked top_level.txt (and RECORD), which made
+   validation_inputs.package_files refuse capture. Added
+   /usr/lib/python3/dist-packages/numpy-1.26.4.dist-info/top_level.txt containing "numpy".
+   This is host metadata only; it is not a firmware/source change.
+
+First refused attempt: Permission denied '/dev-check-...' (scratch under /).
+Second refused attempt: cannot enumerate Python package: missing or unsafe top_level.txt.

@@ -1,0 +1,50 @@
+{
+  "result": "PASS",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "records": [
+    {
+      "manifest": "source-inputs.json",
+      "count": 415,
+      "failures": []
+    },
+    {
+      "manifest": "helper-inputs.json",
+      "count": 224,
+      "failures": []
+    },
+    {
+      "manifest": "stop-inputs.json",
+      "count": 6,
+      "failures": []
+    },
+    {
+      "manifest": "replay-inputs.json",
+      "count": 7,
+      "failures": []
+    },
+    {
+      "manifest": "checks.json logs",
+      "count": 81,
+      "failures": []
+    },
+    {
+      "manifest": "artifacts.json",
+      "count": 3,
+      "failures": []
+    },
+    {
+      "manifest": "environment.json",
+      "count": 4,
+      "failures": []
+    },
+    {
+      "manifest": "candidate checked paths",
+      "count": 1,
+      "failures": []
+    }
+  ],
+  "command": "python3 -B evidence/stop-stage3/verify-reuse.py",
+  "test_rerun": false,
+  "target_build_rerun": false,
+  "scope": "The saved inputs, logs, artifacts and available environment match. Stage4 validation remains required."
+}

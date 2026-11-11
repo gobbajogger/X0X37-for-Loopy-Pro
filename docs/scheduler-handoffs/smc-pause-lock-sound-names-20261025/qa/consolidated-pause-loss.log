@@ -1,0 +1,3 @@
+PASS independent LED backpressure: rejected write retries; cache tracks accepted bytes; lock/unlock phases
+PASS independent Pause release ownership: BLE/host, NoteOff/zero, unrelated Solo/Select/Play losses, actual Pause loss and epoch wrap
+smc_pause_loss: PASS (397 independent production checks)

@@ -1,0 +1,76 @@
+{
+  "schema": "x0x37-bugfinder-native-receipt-v1",
+  "evidence_revision": "bugfinder-bf028-human-reset-note-ownership-20261025-r1",
+  "owner": "existing Hourly Bugfinder specialist; no self-approval",
+  "intent": "Loading a project discards HUMAN-delayed CLIP KEYS/ARP NoteOns without sending unmatched NoteOffs that could silence an unrelated Loopy voice; already audible notes receive normal NoteOff.",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 132,
+  "parent_source_sha": "5ad7610798ff4df2256cd61b7f395522125bdfbe",
+  "parent_root_tree": "0b7d30153d9c17f1da740c1062ae25df391566fe",
+  "baseline_firmware_subtree": "3ef4d2bf6ce664096be4e6afaa3c18ff0fa1b21f",
+  "source_file": "firmware/src/app/main_fm1.c",
+  "before_source_blob": "0572b932f58daa8a1a8d4945f9d63b3af6c50c74",
+  "new_source_blob": "68584ce9190f6969d3ee543f43852f6aeba3f993",
+  "new_registered_test_blob": "1bb314b41bcb7fa62ce5efe2c24aca2bac40f075",
+  "new_runner_blob": "e2fbd1b2def5c79027f7ed7a6aa4d71f26235c8f",
+  "production_function_windows": {
+    "count": 10,
+    "baseline_fnvs": {
+      "ck_send": "2cfca7c8",
+      "ck_q_run": "02907b26",
+      "ck_arp_stop_note": "e1b41691",
+      "ck_on": "680005e0",
+      "ck_clip_on": "d9a2f1b5",
+      "ck_clip_off": "bf2283a8",
+      "ck_key_send": "1b903185",
+      "ck_voice": "d9ee0982",
+      "ck_all_off": "060467f5",
+      "smk_project_reset": "3f746586"
+    },
+    "patched_smk_project_reset_fnv": "51293658",
+    "verification": "Source projection windows matched exact Git strings byte-for-byte by length and FNV-1a32; patched reset window also matched Git-transformed source."
+  },
+  "host_execution": {
+    "systems": "Linux x86_64 GCC 14.2.0; Clang 17.0.0",
+    "stimulus": "Actual copied production function bodies with deterministic MIDI sink, generated MIDI NoteOn/NoteOff chronology, held chord shared pitch, HUMAN delayed queue, project reset, ARP, panic, after-reset replay.",
+    "gcc_clang_modes": [
+      "-O2 -Wall -Wextra -Werror",
+      "-O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all",
+      "-O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all"
+    ],
+    "host_adaptation": "-Wno-attributes for unrecognized target-only JieLi minsize attribute, without altering function source text.",
+    "before": {
+      "configurations": 6,
+      "compile_exit": 0,
+      "test_exit": 1,
+      "assertions": 17,
+      "failures": 4
+    },
+    "after": {
+      "configurations": 6,
+      "compile_exit": 0,
+      "test_exit": 0,
+      "assertions": 17,
+      "failures": 0
+    },
+    "sanitizer_diagnostics": "none in all captured logs",
+    "after_log_sha256": {
+      "gcc-O2": "06d0c1e9b5cd77ecf607d7f576859f16f40fc537774cf7228417ccda3e62967c",
+      "gcc-UBSan": "6e00cd0c7ac57dd1ec7d62edf24014f2394e463ed08e9e68083dbe1dfde816dc",
+      "gcc-ASanUBSan": "8d4efbc7c50ce0c79d09bf07c3373951cba70912dd3fb37ee3ca8c024178c437",
+      "clang-O2": "26bc2163734ad8708d3bfa9aebcd11ce1b669f868cc02480354dbce9a58f7d73",
+      "clang-UBSan": "fd92054ccd8b04b2c9a24f405c20f65be63686b9c35c357987f646e0ada6a4cb",
+      "clang-ASanUBSan": "a2ad3b0d461c93edc5b98623895b17e5bbbc3f7833395b43f7133093263f1560"
+    },
+    "unrun": [
+      "full actual compiled main loop",
+      "entire current-root host test suite",
+      "Elite+Pro fresh target firmware/controller build",
+      "independent QA",
+      "hardware note trace",
+      "browser installer/OTA and public distribution"
+    ]
+  },
+  "ownership_handoff": "Existing Hourly Build compiles NEW firmware tree as BUILD_ONLY without downstream waiting; existing Independent QA independently reproduces real-path MIDI queue and reset and reviews exact source; sole firmware Safe Merge alone approves integration.",
+  "safety": "No protected branches, no publishing/Pages, no device flashing, no third-party SDK or DSP binaries or samples."
+}

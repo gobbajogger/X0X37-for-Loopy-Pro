@@ -1,0 +1,166 @@
+  ok   fastmath
+  ok   sequencer
+  ok   encoder
+  ok   bass303_lite
+  ok   uac
+  ok   trs
+  ok   undo
+  ok   lz
+  ok   motion
+  ok   drum-pan
+  ok   stereo
+  ok   master
+  ok   drum909-adpcm
+  FAIL drum909 (see build/host/drum909.log)
+       9W9 sources not found in ../schwung-9W9 (set NINEW9_DIR)
+  FAIL drum808 (see build/host/drum808.log)
+       8W8 sources not found in ../schwung-8W8 (set EIGHTW8_DIR)
+  FAIL bass303 (see build/host/bass303.log)
+       schwung-303 not found at ../schwung-303/src/dsp (set SCHWUNG303)
+  ok   breaks
+  ok   loop-bars
+  ok   storage
+  skip update-path tests (no build/x0x.fwsc: run ./build.sh)
+  FAIL smk-flash (see build/host/smk-flash.log)
+       smk flash: straddling ranges refused: 0xBF000+0x2000, 0xF3000+0x2000, 0x3000+0x2000       ok
+       smk flash: wrapping ranges refused (off + n past 4 GiB)                                   ok
+       smk flash: app windows: FL_DATA 0x9D000-0xAFFFF, FL_SMPV 0xB0000-0xBAFFF, FL_OTA 0xBB000-0xBFFFF, FL_SMP 0xC2000-0xF3FFF FAIL
+       smk flash: FL_DATA (the store) and FL_SMPV (slot 3) do not overlap: no store sector in 0xB0000-0xBAFFF FAIL
+       smk flash: Bluetooth block 0x8B000-0x9AFFF: 64 KiB, one piece, sector aligned, in FL_APP below the app slot end ok
+       smk flash: loader: app area 0x4000-0x9CFFF, records 0x9D000-0xBFFFF only                  ok
+       smk flash: storage.c: every object (A/B) in FL_DATA below the owner tag, no two share a sector ok
+       smk flash: storage.c: settings 0x9D000/0x9E000, motion up to 0xAAFFF                      ok
+       smk flash: store owner tag 0xAF000: in FL_DATA, the convention of every SMK port          ok
+       smk flash: slots.c: 3 slots, 0xC2000 80 KiB, 0xD6000 120 KiB, 0xB0000 44 KiB: allowed, apart, outside the store FAIL
+       smk flash: slots 1 and 2 keep the offsets of the 2 x 80 KiB layout (their data stays valid) ok
+       smk flash: no slot in the install range [0x4000, 0x9D000); slot 3 ends below the OTA area 0xBB000 ok
+       smk flash: FL_PLAIN_LO = the VM start 0x9D000                                             ok
+       smk flash: FL_JEDEC_OK: the SMK part 0xEB6014 and 0x856014 only                           ok
+       SMK FLASH TEST FAILED
+  FAIL smk-storage (see build/host/smk-storage.log)
+       tests/../firmware/src/storage.c:79:25: error: ‘FL_OWNER_LO’ undeclared here (not in a function)
+          79 | #define ST_OWNER_SECTOR FL_OWNER_LO           /* 0xAF000 */
+             |                         ^~~~~~~~~~~
+       tests/../firmware/src/storage.c:83:16: note: in expansion of macro ‘ST_OWNER_SECTOR’
+          83 | _Static_assert(ST_OWNER_SECTOR + ST_SECTOR <= FL_OWNER_HI, "SMK store owner: past FL_OWNER (piece 2 follows)");
+             |                ^~~~~~~~~~~~~~~
+       tests/../firmware/src/storage.c:83:47: error: ‘FL_OWNER_HI’ undeclared here (not in a function)
+          83 | _Static_assert(ST_OWNER_SECTOR + ST_SECTOR <= FL_OWNER_HI, "SMK store owner: past FL_OWNER (piece 2 follows)");
+             |                                               ^~~~~~~~~~~
+       tests/../firmware/src/storage.c:79:25: error: expression in static assertion is not an integer
+          79 | #define ST_OWNER_SECTOR FL_OWNER_LO           /* 0xAF000 */
+             |                         ^~~~~~~~~~~
+       tests/../firmware/src/storage.c:83:16: note: in expansion of macro ‘ST_OWNER_SECTOR’
+          83 | _Static_assert(ST_OWNER_SECTOR + ST_SECTOR <= FL_OWNER_HI, "SMK store owner: past FL_OWNER (piece 2 follows)");
+             |                ^~~~~~~~~~~~~~~
+  FAIL smk-apc40-map (see build/host/smk-apc40-map.log)
+       In file included from tests/smk_apc40_map_test.c:4:
+       firmware/src/app/smk_apc40.h: In function ‘smk_apc40_build_layout’:
+       firmware/src/app/smk_apc40.h:281:44: error: comparison of integer expressions of different signedness: ‘int’ and ‘unsigned int’ [-Werror=sign-compare]
+         281 |     *columns = (uint8_t)(max_col - min_col <= 3u && max_row - min_row >= 2u &&
+             |                                            ^~
+       firmware/src/app/smk_apc40.h:281:71: error: comparison of integer expressions of different signedness: ‘int’ and ‘unsigned int’ [-Werror=sign-compare]
+         281 |     *columns = (uint8_t)(max_col - min_col <= 3u && max_row - min_row >= 2u &&
+             |                                                                       ^~
+       firmware/src/app/smk_apc40.h:282:52: error: comparison of integer expressions of different signedness: ‘int’ and ‘unsigned int’ [-Werror=sign-compare]
+         282 |                                  max_row - min_row <= 3u
+             |                                                    ^~
+       cc1: all warnings being treated as errors
+  ok   smk-apc40
+  ok   smk-clip-keys
+  ok   installer-targets
+  skip SMK-37 Pro package tests (needs build/x0x.fwsc and AC79_SDK)
+  FAIL ble (see build/host/ble.log)
+       In file included from tests/ble_test.c:14:
+       firmware/src/ble/ble_glue.h:54:12: error: ‘ble_img2_check’ defined but not used [-Werror=unused-function]
+          54 | static int ble_img2_check(const xb_header_t *h, const uint8_t *p2)
+             |            ^~~~~~~~~~~~~~
+       cc1: all warnings being treated as errors
+  ok   upload-images
+  ok   upload-tools
+  ok   breaks-web
+  ok   breaks-page
+  ok   install-slots-web
+  ok   slot-backup
+  ok   installer-slots
+  FAIL host-build (see build/host/host-build.log)
+             |                     ^
+       host/x0x_host.c:391:19: error: ‘CLOCK_MONOTONIC’ undeclared (first use in this function)
+         391 |     clock_gettime(CLOCK_MONOTONIC, &t);
+             |                   ^~~~~~~~~~~~~~~
+       host/x0x_host.c:390:21: warning: unused variable ‘t’ [-Wunused-variable]
+         390 |     struct timespec t;
+             |                     ^
+       host/x0x_host.c: In function ‘host_ns’:
+       host/x0x_host.c:224:1: warning: control reaches end of non-void function [-Wreturn-type]
+         224 | }
+             | ^
+       host/x0x_host.c: In function ‘now_ns’:
+       host/x0x_host.c:393:1: warning: control reaches end of non-void function [-Wreturn-type]
+         393 | }
+             | ^
+  FAIL scenario-autosave (see build/host/scenario-autosave.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-extclock (see build/host/scenario-extclock.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-freeplay (see build/host/scenario-freeplay.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-getting_started (see build/host/scenario-getting_started.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-groove (see build/host/scenario-groove.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-guard (see build/host/scenario-guard.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-help (see build/host/scenario-help.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-jam (see build/host/scenario-jam.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-keysound (see build/host/scenario-keysound.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-knobs (see build/host/scenario-knobs.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-migrate (see build/host/scenario-migrate.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-migrate0102 (see build/host/scenario-migrate0102.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-patterns (see build/host/scenario-patterns.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-perf (see build/host/scenario-perf.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-plock (see build/host/scenario-plock.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-prob (see build/host/scenario-prob.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-probcond (see build/host/scenario-probcond.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-probreset (see build/host/scenario-probreset.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-savewait (see build/host/scenario-savewait.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-showcase (see build/host/scenario-showcase.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-slices (see build/host/scenario-slices.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-song (see build/host/scenario-song.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-songrep (see build/host/scenario-songrep.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-step303 (see build/host/scenario-step303.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-steps64 (see build/host/scenario-steps64.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-stereo (see build/host/scenario-stereo.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-tb3po (see build/host/scenario-tb3po.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-tour (see build/host/scenario-tour.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-trackmute (see build/host/scenario-trackmute.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-undo (see build/host/scenario-undo.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-upload (see build/host/scenario-upload.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+  FAIL scenario-upload44 (see build/host/scenario-upload44.log)
+       tests/run_tests.sh: 16: build/host/x0x_host: not found
+TESTS FAILED

@@ -1,0 +1,7 @@
+STE WARN 173 issues
+STE  commit 2815062: [passive] Check: manual: independent main port review, source match, and zero firmware diff are recorded in docs/audit/main-port-2026-10-19.md.
+STE  BUILDING.md: [long_desc] A full release gate, exact model/package checks, flash and RAM budgets, slot backup and readback, and device evidence still apply at their i
+STE  BUILDING.md: [semicolon] The approved project image is CODE; its availability is local setup evidence, not a gate PASS.
+STE  BUILDING.md: [semicolon] A lane commit needs CODE; its result does not permit install or release.
+STE  BUILDING.md: [semicolon] CODE needs the Linux tools; its old roster and STALL labels are diagnostic hints, not task completion gates.
+QUICK PASS 2815062 1 s (STE step only; STE WARN 173 issues)

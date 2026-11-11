@@ -1,0 +1,272 @@
+{
+  "apply": true,
+  "files": 45,
+  "backup": "/Users/mac/Documents/x0x37/repo-bak/rules-rollout-20261020T214500152319Z",
+  "changes": [
+    {
+      "path": "USER_PREFERENCES.md",
+      "before_sha256": "36ab9b90bed4dc429cbae689880820888d9e7bb5a04c3ca2e5a8ddbc58b32d15",
+      "after_sha256": "6d678d9c41adfd6dbaf71889b9020911ee28ec877e5fc26364a60d29970ef485"
+    },
+    {
+      "path": "commit_latest_20261021/.agents/skills/x0x37-task",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-task",
+      "after_target": "../../../x0x37/skills/x0x37-task"
+    },
+    {
+      "path": "commit_latest_20261021/.agents/skills/x0x37-workflow",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-workflow",
+      "after_target": "../../../x0x37/skills/x0x37-workflow"
+    },
+    {
+      "path": "commit_latest_20261021/.agents/skills/x0x37-shared-work",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-shared-work",
+      "after_target": "../../../x0x37/skills/x0x37-shared-work"
+    },
+    {
+      "path": "commit_latest_20261021/.agents/skills/x0x37-check",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-check",
+      "after_target": "../../../x0x37/skills/x0x37-check"
+    },
+    {
+      "path": "commit_latest_20261021/.agents/skills/x0x37-device-bug",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-device-bug",
+      "after_target": "../../../x0x37/skills/x0x37-device-bug"
+    },
+    {
+      "path": "commit_latest_20261021/.agents/skills/x0x37-integrate",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-integrate",
+      "after_target": "../../../x0x37/skills/x0x37-integrate"
+    },
+    {
+      "path": "commit_latest_20261021/.agents/skills/x0x37-install",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-install",
+      "after_target": "../../../x0x37/skills/x0x37-install"
+    },
+    {
+      "path": "commit_latest_20261021/.agents/skills/x0x37-docs",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-docs",
+      "after_target": "../../../x0x37/skills/x0x37-docs"
+    },
+    {
+      "path": "commit_latest_20261021/.agents/skills/x0x37-owner-decisions",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-owner-decisions",
+      "after_target": "../../../x0x37/skills/x0x37-owner-decisions"
+    },
+    {
+      "path": "commit_latest_20261021/.agents/skills/x0x37-writing",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-writing",
+      "after_target": "../../../x0x37/skills/x0x37-writing"
+    },
+    {
+      "path": "commit_latest_20261021/docs/SKILLS.md",
+      "before_sha256": "ea5e818a8ab0b0ba8a8cb40e98746968b85e2b2f6e5256278a51372897ca3bc2",
+      "after_sha256": "3148e67ed9dcff76d0367b7d14c801aceb5462e0f3eca230c50d6ef8ce976528"
+    },
+    {
+      "path": "latest_install_20261021/.agents/skills/x0x37-task",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-task",
+      "after_target": "../../../x0x37/skills/x0x37-task"
+    },
+    {
+      "path": "latest_install_20261021/.agents/skills/x0x37-workflow",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-workflow",
+      "after_target": "../../../x0x37/skills/x0x37-workflow"
+    },
+    {
+      "path": "latest_install_20261021/.agents/skills/x0x37-shared-work",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-shared-work",
+      "after_target": "../../../x0x37/skills/x0x37-shared-work"
+    },
+    {
+      "path": "latest_install_20261021/.agents/skills/x0x37-check",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-check",
+      "after_target": "../../../x0x37/skills/x0x37-check"
+    },
+    {
+      "path": "latest_install_20261021/.agents/skills/x0x37-device-bug",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-device-bug",
+      "after_target": "../../../x0x37/skills/x0x37-device-bug"
+    },
+    {
+      "path": "latest_install_20261021/.agents/skills/x0x37-integrate",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-integrate",
+      "after_target": "../../../x0x37/skills/x0x37-integrate"
+    },
+    {
+      "path": "latest_install_20261021/.agents/skills/x0x37-install",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-install",
+      "after_target": "../../../x0x37/skills/x0x37-install"
+    },
+    {
+      "path": "latest_install_20261021/.agents/skills/x0x37-docs",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-docs",
+      "after_target": "../../../x0x37/skills/x0x37-docs"
+    },
+    {
+      "path": "latest_install_20261021/.agents/skills/x0x37-owner-decisions",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-owner-decisions",
+      "after_target": "../../../x0x37/skills/x0x37-owner-decisions"
+    },
+    {
+      "path": "latest_install_20261021/.agents/skills/x0x37-writing",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-writing",
+      "after_target": "../../../x0x37/skills/x0x37-writing"
+    },
+    {
+      "path": "latest_install_20261021/docs/SKILLS.md",
+      "before_sha256": "ea5e818a8ab0b0ba8a8cb40e98746968b85e2b2f6e5256278a51372897ca3bc2",
+      "after_sha256": "3148e67ed9dcff76d0367b7d14c801aceb5462e0f3eca230c50d6ef8ce976528"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/.agents/skills/x0x37-task",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-task",
+      "after_target": "../../../x0x37/skills/x0x37-task"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/.agents/skills/x0x37-workflow",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-workflow",
+      "after_target": "../../../x0x37/skills/x0x37-workflow"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/.agents/skills/x0x37-shared-work",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-shared-work",
+      "after_target": "../../../x0x37/skills/x0x37-shared-work"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/.agents/skills/x0x37-check",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-check",
+      "after_target": "../../../x0x37/skills/x0x37-check"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/.agents/skills/x0x37-device-bug",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-device-bug",
+      "after_target": "../../../x0x37/skills/x0x37-device-bug"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/.agents/skills/x0x37-integrate",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-integrate",
+      "after_target": "../../../x0x37/skills/x0x37-integrate"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/.agents/skills/x0x37-install",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-install",
+      "after_target": "../../../x0x37/skills/x0x37-install"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/.agents/skills/x0x37-docs",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-docs",
+      "after_target": "../../../x0x37/skills/x0x37-docs"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/.agents/skills/x0x37-owner-decisions",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-owner-decisions",
+      "after_target": "../../../x0x37/skills/x0x37-owner-decisions"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/.agents/skills/x0x37-writing",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-writing",
+      "after_target": "../../../x0x37/skills/x0x37-writing"
+    },
+    {
+      "path": "native_worker_git_repair_20261021/docs/SKILLS.md",
+      "before_sha256": "ea5e818a8ab0b0ba8a8cb40e98746968b85e2b2f6e5256278a51372897ca3bc2",
+      "after_sha256": "3148e67ed9dcff76d0367b7d14c801aceb5462e0f3eca230c50d6ef8ce976528"
+    },
+    {
+      "path": "rules_related_checks/.agents/skills/x0x37-task",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-task",
+      "after_target": "../../../x0x37/skills/x0x37-task"
+    },
+    {
+      "path": "rules_related_checks/.agents/skills/x0x37-workflow",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-workflow",
+      "after_target": "../../../x0x37/skills/x0x37-workflow"
+    },
+    {
+      "path": "rules_related_checks/.agents/skills/x0x37-shared-work",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-shared-work",
+      "after_target": "../../../x0x37/skills/x0x37-shared-work"
+    },
+    {
+      "path": "rules_related_checks/.agents/skills/x0x37-check",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-check",
+      "after_target": "../../../x0x37/skills/x0x37-check"
+    },
+    {
+      "path": "rules_related_checks/.agents/skills/x0x37-device-bug",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-device-bug",
+      "after_target": "../../../x0x37/skills/x0x37-device-bug"
+    },
+    {
+      "path": "rules_related_checks/.agents/skills/x0x37-integrate",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-integrate",
+      "after_target": "../../../x0x37/skills/x0x37-integrate"
+    },
+    {
+      "path": "rules_related_checks/.agents/skills/x0x37-install",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-install",
+      "after_target": "../../../x0x37/skills/x0x37-install"
+    },
+    {
+      "path": "rules_related_checks/.agents/skills/x0x37-docs",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-docs",
+      "after_target": "../../../x0x37/skills/x0x37-docs"
+    },
+    {
+      "path": "rules_related_checks/.agents/skills/x0x37-owner-decisions",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-owner-decisions",
+      "after_target": "../../../x0x37/skills/x0x37-owner-decisions"
+    },
+    {
+      "path": "rules_related_checks/.agents/skills/x0x37-writing",
+      "kind": "symlink",
+      "before_target": "../../skills/x0x37-writing",
+      "after_target": "../../../x0x37/skills/x0x37-writing"
+    },
+    {
+      "path": "rules_related_checks/docs/SKILLS.md",
+      "before_sha256": "ea5e818a8ab0b0ba8a8cb40e98746968b85e2b2f6e5256278a51372897ca3bc2",
+      "after_sha256": "3148e67ed9dcff76d0367b7d14c801aceb5462e0f3eca230c50d6ef8ce976528"
+    }
+  ]
+}

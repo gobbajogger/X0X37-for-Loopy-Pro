@@ -1,0 +1,25 @@
+test_extended_used_size_exceeded (__main__.Guard.test_extended_used_size_exceeded) ... ok
+test_identical_flash_ranges (__main__.Guard.test_identical_flash_ranges) ... ok
+test_legacy_timeout_retained (__main__.Guard.test_legacy_timeout_retained) ... ok
+test_legacy_used_size_exceeded (__main__.Guard.test_legacy_used_size_exceeded) ... ok
+test_missing_slot_name_nul (__main__.Guard.test_missing_slot_name_nul) ... ok
+test_overlapping_flash_ranges (__main__.Guard.test_overlapping_flash_ranges) ... ok
+test_oversized_slot_name (__main__.Guard.test_oversized_slot_name) ... ok
+test_slot_zero_count (__main__.Guard.test_slot_zero_count) ... ok
+test_truncated_flash_descriptor (__main__.Guard.test_truncated_flash_descriptor) ... ok
+test_truncated_flash_marker (__main__.Guard.test_truncated_flash_marker) ... ok
+test_truncated_slot_descriptor (__main__.Guard.test_truncated_slot_descriptor) ... ok
+test_unknown_extension_marker (__main__.Guard.test_unknown_extension_marker) ... ok
+test_unknown_flash_ext_version (__main__.Guard.test_unknown_flash_ext_version) ... ok
+test_valid_extended_offsets (__main__.Guard.test_valid_extended_offsets) ... ok
+test_valid_extension_larger_than_legacy_base (__main__.Guard.test_valid_extension_larger_than_legacy_base) ... ok
+test_valid_legacy (__main__.Guard.test_valid_legacy) ... ok
+test_zero_extended_size (__main__.Guard.test_zero_extended_size) ... ok
+test_zero_slot_base_size (__main__.Guard.test_zero_slot_base_size) ... ok
+test_zone_count_beyond_header (__main__.Guard.test_zone_count_beyond_header) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.001s
+
+OK
+ASSERTIONS=19 FAILURES=0 ERRORS=0

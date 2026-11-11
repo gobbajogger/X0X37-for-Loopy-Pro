@@ -1,0 +1,15 @@
+{
+  "stage": 2,
+  "branch": "cursor/smc-mixer-ui-popup-stage2-5686",
+  "tip": "00d6ea0a6ff625bd7cdda754355c2c36509fb21b",
+  "pushed": true,
+  "remote": "origin/cursor/smc-mixer-ui-popup-stage2-5686",
+  "draft_pr_create": "403 Resource not accessible by integration (gh pr create / REST pulls)",
+  "existing_audit_pr": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/7",
+  "stage3_prompt": "evidence/smc-mixer-ui-popup-stage2/stage3-prompt.txt",
+  "stage3_successor_text": "evidence/smc-mixer-ui-popup-stage2/SUCCESSOR-STAGE3.txt",
+  "create_thread_callable": false,
+  "cloud_agents_api": "POST /v0|/v1/agents rejected OIDC pod token as Invalid User API Key; no CURSOR_API_KEY in environment",
+  "agent_source": "AS_SUBAGENT_FROM_CLOUD",
+  "parent_action_required": "Launch exactly one fresh Stage 3 Test cloud agent with SUCCESSOR-STAGE3.txt / stage3-prompt.txt on tip c02768c of cursor/smc-mixer-ui-popup-stage2-5686. Prefer opening/updating a draft PR from that branch against main (token here cannot)."
+}

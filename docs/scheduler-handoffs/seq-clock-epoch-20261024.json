@@ -1,0 +1,58 @@
+{
+  "schema": "x0x37.scheduler-evidence.v1",
+  "revision": "seqclock-clock-epoch-20261024-r1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "consumed_parent": "04cce762dda5fa473f44fb2463cb47b14f236fd5",
+  "consumed_full_root": "9073285b1b3203a13a2d0553e84db6686eb4cc5a",
+  "consumed_firmware_subtree": "117f773b11db7db9671329d7d12f30ed859f2e7b",
+  "consumed_source_blob": "22ee1c6b135545f2b7ca576c10cf48eca42e857d",
+  "source_blob": "2cbd26a1caf0c4bbe6b6972efe976d5363869d20",
+  "header_blob": "be25ff1a3f2e95af663caf969432147111f973ea",
+  "runner_blob": "ca54153370f13b8863ab56ed28c3ce9844a439bf",
+  "regression_blob": "fd3f9996d5c55c20e11741137baadcc40cebfd1f",
+  "finding": "Pre-Start F8 queued in one MIDI batch was replayed after Start/Continue, advancing the new transport prematurely; hold pre-request count and trim it only for accepted requests, never ignored PLAY echoes.",
+  "scope": "producer source-window GCC/Clang UBSan using modeled sinks (NOT full firmware)",
+  "executed": [
+    {
+      "command": "python3 seq_clock_epoch_test.py --source clock_epoch_window.c --cc gcc --flags '-fsanitize=undefined -fno-sanitize-recover=all'",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "checks": "9/15 baseline negative"
+    },
+    {
+      "command": "python3 seq_clock_epoch_test.py --source clock_epoch_window.c --cc gcc --flags '-fsanitize=undefined -fno-sanitize-recover=all -DPATCHED'",
+      "compile_exit": 0,
+      "test_exit": 0,
+      "checks": "15/15 patched"
+    },
+    {
+      "command": "python3 seq_clock_epoch_test.py --source clock_epoch_window.c --cc clang --flags '-fsanitize=undefined -fno-sanitize-recover=all'",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "checks": "9/15 baseline negative"
+    },
+    {
+      "command": "python3 seq_clock_epoch_test.py --source clock_epoch_window.c --cc clang --flags '-fsanitize=undefined -fno-sanitize-recover=all -DPATCHED'",
+      "compile_exit": 0,
+      "test_exit": 0,
+      "checks": "15/15 patched"
+    },
+    {
+      "command": "python3 -m py_compile seq_clock_epoch_test.py",
+      "exit": 0
+    }
+  ],
+  "disposition": "SOURCE WINDOW CHECKED; FULL ROOT/BUILD/QA/DEVICE PENDING",
+  "next": [
+    "Hourly Build may compile exact pushed SHA BUILD_ONLY immediately",
+    "Independent QA validate real combined tree source linked tests/clock phase/echo",
+    "Safe Merge reconcile stacked #86 -> #90 after QA; preserve first candidate and safety gates"
+  ],
+  "gates": [
+    "target Elite/Pro/ctl builds at new compiled subtree",
+    "independent full source QA",
+    "backup/OTA/CRC/integrity/source/license/immutable HTTP for public NIGHTLY",
+    "device not tested"
+  ]
+}

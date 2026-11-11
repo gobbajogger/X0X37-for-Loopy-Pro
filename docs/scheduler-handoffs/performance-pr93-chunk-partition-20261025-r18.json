@@ -1,0 +1,195 @@
+{
+  "compiled_firmware_tree_unchanged": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+  "consumed_parent_PR93_HEAD": "069010864d15ad7a784d0ad5393d1ecd48e456ae",
+  "consumed_parent_full_root_tree": "50aaa44b5a9e5cc0e83fefe9cbe1d0755b3d4c7c",
+  "evidence_scope": {
+    "audio_callback_invocations_per_executable": 86080,
+    "audio_frames_per_executable": 81920,
+    "cases_per_executable": 10,
+    "event_epoch_frames": 256,
+    "event_epochs_per_case": 32,
+    "loop_lengths": [
+      65,
+      513,
+      4097,
+      176400,
+      2116800
+    ],
+    "negative": [
+      "bad source rejects with exit 1",
+      "existing evidence overwrite rejects with exit 2",
+      "missing argument rejects with exit 2 for each config"
+    ],
+    "partition_patterns": 5,
+    "pcm_bytes_per_executable": 327680,
+    "seeds": 2
+  },
+  "handoff": {
+    "other_owner": "existing Hourly Build for prior R13 changed compiled subtree; no new build required solely from this test",
+    "receiving_role": "existing Independent QA",
+    "scope": "independent cross-chunk parity/canary/NoteOff/STOP review of R18 test at exact PR HEAD; preserve PR28 original sanitizer failure"
+  },
+  "host_versions": {
+    "clang": "clang version 17.0.0 (https://github.com/swiftlang/llvm-project.git 10999b6d034fe318f3d56c83bddb6572593a8bb0)",
+    "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]"
+  },
+  "intended_user_behavior": "Consistent rhythmic phase, reverse slices, tempo, NoteOff and STOP regardless of 1-, 64-, 128- or 256-frame callback fragmentation.",
+  "negative_run_rejected": {
+    "overwriting_result_exit": 2,
+    "tampered_source_result_exit": 1
+  },
+  "optimized": {
+    "configuration": "Linux host GCC+Clang O2 legacy/fast each real production breaks.c",
+    "manifest": {
+      "checks": [
+        {
+          "compile_exit": 0,
+          "compile_log_sha256": "f9c33ba57880ce978c771b58c8ebc55cfa3d26427e248bd6f72836f111aeefdd",
+          "invalid_arg_exit": 2,
+          "label": "gcc-legacy",
+          "pcm_sha256": "cae980aaff3491f4a0e26c1bbb8c6bdb40706cce9f767ea2c6aa67d173ab8232",
+          "run_exit": 0,
+          "run_log_sha256": "71750e7104902cc0c41adbd05152d50e2ae18c6afaf666f7cfe008baff1e2efa"
+        },
+        {
+          "compile_exit": 0,
+          "compile_log_sha256": "56845f9e533cabedd23f244b24ba510177f67f635947a2023ff601e0d9672a58",
+          "invalid_arg_exit": 2,
+          "label": "gcc-fast",
+          "pcm_sha256": "cae980aaff3491f4a0e26c1bbb8c6bdb40706cce9f767ea2c6aa67d173ab8232",
+          "run_exit": 0,
+          "run_log_sha256": "b34ab4b136f6eafa15f016f1d800821acd506ad9c8ac37119977e3d0d6d569df"
+        },
+        {
+          "compile_exit": 0,
+          "compile_log_sha256": "e30b7a3a4bb32ca19c2ef46dad67d57b23f47d7eab29481a1e53cb1b15e47905",
+          "invalid_arg_exit": 2,
+          "label": "clang-legacy",
+          "pcm_sha256": "cae980aaff3491f4a0e26c1bbb8c6bdb40706cce9f767ea2c6aa67d173ab8232",
+          "run_exit": 0,
+          "run_log_sha256": "887bcca83b9a94c1f01263a5372ee9205a39413dbe904f55c748f43ce134d606"
+        },
+        {
+          "compile_exit": 0,
+          "compile_log_sha256": "378e1e5dda82e084466ba986ca542ed7591fcec5c9615663f2a1d2048531e9c0",
+          "invalid_arg_exit": 2,
+          "label": "clang-fast",
+          "pcm_sha256": "cae980aaff3491f4a0e26c1bbb8c6bdb40706cce9f767ea2c6aa67d173ab8232",
+          "run_exit": 0,
+          "run_log_sha256": "53be244f62bd4fd9256f4046e425eebd675742caa4fde6bc67984c90f87b3738"
+        }
+      ],
+      "consumed_firmware_subtree": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+      "consumed_pr": 93,
+      "device": "NOT_RUN",
+      "disposition": "PASS: producer host PCM parity after zero-sign canonicalization; original-source sanitizer FAIL; target and QA NOT RUN",
+      "original_source_ubsan": "KNOWN_FAIL fastmath.h:57; independent PR28 owns repair",
+      "pcm_sha256": "cae980aaff3491f4a0e26c1bbb8c6bdb40706cce9f767ea2c6aa67d173ab8232",
+      "role": "Performance Engineering producer, not independent QA",
+      "sanitizer_peer_projection": null,
+      "scope": "real BREAK C render chunk invariance, 10 scenarios, five chunkings (1 to 256), live NoteOff, reverse, pitch, tempo, two-bank replacement, STOP; signed zeros canonicalized only",
+      "source_git_blobs": {
+        "firmware/src/dsp/breaks.c": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+        "firmware/src/dsp/breaks.h": "6cb71d336c2c90fdc60a9594c2356f3a4379c264",
+        "firmware/src/dsp/fastmath.h": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+        "firmware/src/dsp/ima_adpcm.h": "9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+        "firmware/src/dsp/x0x_param.h": "f7c9bf22b0606946905790dc20497a2e4b2cb4a6",
+        "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+        "tests/host/breaks_chunk_partition_property_test.c": "88ae253ca2d00c8e55cfb8426654591817082b15"
+      },
+      "target_build": "NOT_RUN"
+    },
+    "result": "PASS producer only"
+  },
+  "original_signed_zero_note": "Initial raw-bit comparison produced -0 versus +0 for 2116800 samples, seed 1, 64-frame partitions, sample offset 6275. The old/legacy code also reproduces it; signed zero has no audible difference. Test canonicalizes only sign of exactly zero; all nonzero PCM must remain bit-identical.",
+  "original_source_sanitizer": {
+    "command": "clang -std=c11 -O1 -g -fsanitize=undefined -Wall -Wextra -Werror -pedantic -ffp-contract=off -Isource -DBRK_FAST_REV_SKIP=1 source/tests/host/breaks_chunk_partition_property_test.c source/firmware/src/dsp/breaks.c -lm -o original-ubsan-R18; UBSAN_OPTIONS=halt_on_error=1 ./original-ubsan-R18 ubsan-original-R18.pcm",
+    "compile_exit": 0,
+    "diagnostic": "fastmath.h:57:14 left shift of negative value -1; owned by PR28",
+    "result": "FAIL",
+    "run_exit": 1
+  },
+  "producer_role": "Performance Engineering; independent QA not self-approved",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "revision": "performance-pr93-audio-chunk-partition-invariance-20261025-r18",
+  "sanitizer_projection": {
+    "configuration": "Linux host GCC+Clang ASan+UBSan legacy/fast each, only peer PR28 header temporarily substituted",
+    "manifest": {
+      "checks": [
+        {
+          "compile_exit": 0,
+          "compile_log_sha256": "131534cb622e088cee853c126131020504486e8cdeb5632ceaa841a26d0c14f7",
+          "invalid_arg_exit": 2,
+          "label": "gcc-legacy",
+          "pcm_sha256": "cae980aaff3491f4a0e26c1bbb8c6bdb40706cce9f767ea2c6aa67d173ab8232",
+          "run_exit": 0,
+          "run_log_sha256": "db9672688045333253f716947d885abe3264e9ea86e038ff1897d26e4f1a7968"
+        },
+        {
+          "compile_exit": 0,
+          "compile_log_sha256": "98ecb80f3dd76a6a99d7181a8a3570b785415cde8be53c8947b3fa2954360f9b",
+          "invalid_arg_exit": 2,
+          "label": "gcc-fast",
+          "pcm_sha256": "cae980aaff3491f4a0e26c1bbb8c6bdb40706cce9f767ea2c6aa67d173ab8232",
+          "run_exit": 0,
+          "run_log_sha256": "ba729c9aa4d0f2d495f8b22942825d64e26bde399d683f4406f4a5e3804b4260"
+        },
+        {
+          "compile_exit": 0,
+          "compile_log_sha256": "87f9fa2565a876b93511dbe731b0a352d97d16b6f0aea24360e7f242f5841f05",
+          "invalid_arg_exit": 2,
+          "label": "clang-legacy",
+          "pcm_sha256": "cae980aaff3491f4a0e26c1bbb8c6bdb40706cce9f767ea2c6aa67d173ab8232",
+          "run_exit": 0,
+          "run_log_sha256": "597f54c67fc8f0495df8d5ed2d4cd0cf3d64b46356aed9a741034867c5551515"
+        },
+        {
+          "compile_exit": 0,
+          "compile_log_sha256": "8ff1bd1a32d408fca85a8ca23210d44a15709ef39bd401d891171b2daae73ddb",
+          "invalid_arg_exit": 2,
+          "label": "clang-fast",
+          "pcm_sha256": "cae980aaff3491f4a0e26c1bbb8c6bdb40706cce9f767ea2c6aa67d173ab8232",
+          "run_exit": 0,
+          "run_log_sha256": "8521a969d3b53d4f3b5f08e1cb93a8223d7fd40f30923204afbad3aa483147a5"
+        }
+      ],
+      "consumed_firmware_subtree": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+      "consumed_pr": 93,
+      "device": "NOT_RUN",
+      "disposition": "PASS: producer host PCM parity after zero-sign canonicalization; original-source sanitizer FAIL; target and QA NOT RUN",
+      "original_source_ubsan": "KNOWN_FAIL fastmath.h:57; independent PR28 owns repair",
+      "pcm_sha256": "cae980aaff3491f4a0e26c1bbb8c6bdb40706cce9f767ea2c6aa67d173ab8232",
+      "role": "Performance Engineering producer, not independent QA",
+      "sanitizer_peer_projection": "a5c26c95cad0d91a548a8db073f59777e36d4e86",
+      "scope": "real BREAK C render chunk invariance, 10 scenarios, five chunkings (1 to 256), live NoteOff, reverse, pitch, tempo, two-bank replacement, STOP; signed zeros canonicalized only",
+      "source_git_blobs": {
+        "firmware/src/dsp/breaks.c": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+        "firmware/src/dsp/breaks.h": "6cb71d336c2c90fdc60a9594c2356f3a4379c264",
+        "firmware/src/dsp/fastmath.h": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+        "firmware/src/dsp/ima_adpcm.h": "9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+        "firmware/src/dsp/x0x_param.h": "f7c9bf22b0606946905790dc20497a2e4b2cb4a6",
+        "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+        "tests/host/breaks_chunk_partition_property_test.c": "88ae253ca2d00c8e55cfb8426654591817082b15"
+      },
+      "target_build": "NOT_RUN"
+    },
+    "pr28_peer_header_blob": "a5c26c95cad0d91a548a8db073f59777e36d4e86",
+    "result": "PASS projected only"
+  },
+  "stage_gates": {
+    "Elite_BUILD_ONLY_for_compiled_subtree": "NOT_VERIFIED_CURRENT",
+    "Pages": "NOT_RUN",
+    "Pro_BUILD_ONLY_for_compiled_subtree": "NOT_VERIFIED_CURRENT",
+    "hardware": "NOT_RUN",
+    "independent_qa": "NOT_RUN",
+    "matching_controller": "NOT_VERIFIED_CURRENT",
+    "native_host_producer": "PASS after canonical zero sign",
+    "promotion": "NOT_ALLOWED"
+  },
+  "test_github_blob_sha_after_commit_expected": {
+    "tests/host/breaks_chunk_partition_property_test.c": "88ae253ca2d00c8e55cfb8426654591817082b15",
+    "tests/host/run_breaks_chunk_partition_property.py": "6a939ba57548b41a9d64ebe0eb449e3c69885520"
+  },
+  "unchanged_compiled_production_breaks_c_blob": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5"
+}
