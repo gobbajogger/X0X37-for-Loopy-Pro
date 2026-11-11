@@ -1,0 +1,34 @@
+# A break input-channel edit must release MIDI-held break slices (LX-151 / #355 follow-up).
+# The old 8 SLICES toggle is gone (adaptive slices); the channel edit now retires external owners.
+wait 300
+expect midiheld 0
+
+# note 36 holds slice 0.
+midi 93 24 64 0
+wait 20
+expect midiheld 0x100
+
+# Move BREAK to channel 5 without a matching Note Off: the stale hold must clear.
+partch 4 5
+midi 94 7F 00 0
+wait 20
+expect midiheld 0
+
+# The new channel works: note 37 holds slice 1.
+midi 94 25 64 0
+wait 20
+expect midiheld 0x200
+
+# Back to channel 4: the channel-5 hold clears.
+partch 4 4
+midi 93 7F 00 0
+wait 20
+expect midiheld 0
+
+# The map still works after the edits.
+midi 93 24 64 0
+wait 20
+expect midiheld 0x100
+midi 83 24 00 0
+wait 20
+expect midiheld 0

@@ -1,0 +1,41 @@
+{
+  "normalisation": "Trailing spaces in captured log lines only; results and assertions unchanged. Original stream hash retained; raw stream not committed.",
+  "logs": [
+    {
+      "path": "test_portable_rules.log",
+      "raw_sha256": "b0428cda7d2e826a873e5fb1d9e71130e0b0d84471a1a59027ef5e8c460dafc5",
+      "saved_sha256": "b0428cda7d2e826a873e5fb1d9e71130e0b0d84471a1a59027ef5e8c460dafc5",
+      "trailing_whitespace_removed": false
+    },
+    {
+      "path": "test_prefs_lint.log",
+      "raw_sha256": "fb83a7a257d9a0892acb6a3cc9d71a2f04d3e3dedad3d1df13956d76b298a76b",
+      "saved_sha256": "fb83a7a257d9a0892acb6a3cc9d71a2f04d3e3dedad3d1df13956d76b298a76b",
+      "trailing_whitespace_removed": false
+    },
+    {
+      "path": "test_quickcheck_plan.log",
+      "raw_sha256": "8a128888e4e4e15368ed7121d4e00d650149ee21617391a87431cd680b455c8a",
+      "saved_sha256": "8a128888e4e4e15368ed7121d4e00d650149ee21617391a87431cd680b455c8a",
+      "trailing_whitespace_removed": false
+    },
+    {
+      "path": "test_quickcheck_rules.log",
+      "raw_sha256": "3680f75ffae63e3ad38f30f8281c383fbec2e6d8efdf0aa79ef7d7f173f01d8b",
+      "saved_sha256": "3680f75ffae63e3ad38f30f8281c383fbec2e6d8efdf0aa79ef7d7f173f01d8b",
+      "trailing_whitespace_removed": false
+    },
+    {
+      "path": "test_rules_guard_hook.log",
+      "raw_sha256": "238d9f88d2785dbe53b56ca2b2c1a2b053db309d877ddd83193b153580ceb7ba",
+      "saved_sha256": "268f393e8fb95efb1b880a006db551a1979cd4c02271632791051e6a41a2bbdc",
+      "trailing_whitespace_removed": true
+    },
+    {
+      "path": "test_rules_rollout.log",
+      "raw_sha256": "541623672346f709744ac2a699260426ea26bf1eb50f43e2ef145280e22e38d8",
+      "saved_sha256": "541623672346f709744ac2a699260426ea26bf1eb50f43e2ef145280e22e38d8",
+      "trailing_whitespace_removed": false
+    }
+  ]
+}

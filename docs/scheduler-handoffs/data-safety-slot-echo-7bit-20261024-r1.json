@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "data-safety-slot-echo-7bit-20261024-r1",
+  "role": "LoopyX0X37 Data Safety",
+  "outcome": "SOURCE_COMPLETE_PRODUCER_SCOPED_PASS_QA_PENDING",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-ctl-read-framing-20261024-1456",
+  "pr": 110,
+  "consumed": {
+    "source_commit": "51c4ba609d151bbf4e9cd3e1ba9ea52fcad6a7c6",
+    "complete_root_tree": "445f174103eee6fb731c39d11cc4c91157b5002b",
+    "firmware_subtree": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+    "x0x_slots_blob": "a055dee0da48c9f5c5f9f8a46fd367bb8e2c5223",
+    "test_runner_blob": "715f9e1f2cebd57df65a6e2380c5cd30057e91cc",
+    "base_integration_pr": 103,
+    "base_integration_sha": "8e8338792ca20508163a2b42b17ae542825da10a"
+  },
+  "issue": "Corrupt non-7-bit SMP_READ and sample-slot write ACK address echoes could alias a correct 21-bit address via bitwise OR and be accepted, despite violating canonical 7-bit SysEx framing. Host-only injected malformed responses; physical corruption not observed.",
+  "changes": [
+    "tools/x0x_slots.py: reject any outside-range (0..127) echoed slot/21-bit address bytes in SMP_READ before using data; preserve canonical frame and fragment handling.",
+    "tools/x0x_slots.py: reject non-7-bit echoed address/status bytes in _slot_ack before considering WRITE/BEGIN/END/ERASE acknowledged.",
+    "tests/x0x_slots_echo_7bit_test.py: eleven positive and negative host tests covering aliased low/middle address encoding, negative echo, invalid ACK, canonical high addresses, odd pair roundup, legitimate fragments, wrong slot/address.",
+    "tests/run_tests.sh: register new serial slot-echo-7bit test."
+  ],
+  "source_windows": {
+    "read_bytes": {
+      "before": {
+        "bytes": 1376,
+        "fnv1a32": "1d304aaa"
+      },
+      "after": {
+        "fnv1a32": "190f9deb"
+      }
+    },
+    "_slot_ack": {
+      "before": {
+        "bytes": 644,
+        "fnv1a32": "232a34b0"
+      },
+      "after": {
+        "fnv1a32": "9de636b5"
+      }
+    }
+  },
+  "checks": [
+    {
+      "command": "python3 -B /mnt/data/data_safety_run/echo_7bit_test.py /mnt/data/data_safety_run/echo_harness/base103",
+      "exit": 1,
+      "result": "11 tests, 5 deliberate prepatch safety-negative failures",
+      "log_sha256": "488ba931a33722d7df7790bdc521beab6dc604d43035d3cd0e9a48807dc4dd3c"
+    },
+    {
+      "command": "python3 -B /mnt/data/data_safety_run/echo_7bit_test.py /mnt/data/data_safety_run/echo_harness/patched103",
+      "exit": 0,
+      "result": "11/11 PASS",
+      "log_sha256": "009ebb48843c0126779d10d608c5c33a1e939cbcb4aba8a4125ae0e37cc13e97"
+    },
+    {
+      "command": "python3 -O -B /mnt/data/data_safety_run/echo_7bit_test.py /mnt/data/data_safety_run/echo_harness/patched103",
+      "exit": 0,
+      "result": "11/11 PASS",
+      "log_sha256": "009ebb48843c0126779d10d608c5c33a1e939cbcb4aba8a4125ae0e37cc13e97"
+    },
+    {
+      "command": "python3 -B -m py_compile /mnt/data/data_safety_run/echo_7bit_test.py /mnt/data/data_safety_run/echo_harness/patched103/tools/x0x_slots.py",
+      "exit": 0,
+      "result": "PASS"
+    }
+  ],
+  "test_local_sha256": "92e0d5196d8afaf62a4d0cddb1215144abc788693b462475950de6574c191459",
+  "host_evidence": {
+    "private_library_root_path": "/LoopyX0X37-DataSafety-Echo7-HostNegatives-20261024.zip",
+    "private_library_file_id": "libfile_bed1385ebe1081919298093c183f1586",
+    "zip_bytes": 5766,
+    "zip_sha256": "c076730c435406170687c2aefcc58edf3fff896fb3c80764a0da92fb2474491a",
+    "crc": "PASS"
+  },
+  "limits": [
+    "Only actual PR103/PR110 source function windows were reconstructed exactly into historical surrounding host module, byte identity confirmed by FNV1a32; complete Git root and full current linked tests NOT RUN.",
+    "No native Elite/Pro/controller target builds performed by this source specialist.",
+    "No real MIDI/flash/physical-device preservation tested.",
+    "Firmware subtree compiler inputs unchanged by this host-only correction, subject to Hourly Build exact-input verification.",
+    "No independent QA or lawfully hosted/HTTP-hash-verified package yet."
+  ],
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Inspect exact new source SHA and run complete-root slot-echo-7bit alongside slot-read-reply, slot-ack-integrity, ctl-read-framing, archive/restore/OTA/wrong-model/interruption negatives."
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "Reconcile this complete Data Safety host guard with first combined NIGHTLY source #103 after appropriate independent review without overwriting backup/restore/SMC protections."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Build/reuse checked Elite+Pro+matching controller BUILD_ONLY from exact source independently of QA/merge/Pages, recording complete-root vs firmware-subtree identity."
+    }
+  ],
+  "gates": {
+    "producer_scoped": "PASS",
+    "independent_qa": "PENDING",
+    "complete_root": "PENDING",
+    "target_build": "NOT_RUN_THIS_LANE",
+    "public_nightly": "NO_GO",
+    "device": "UNKNOWN",
+    "production": "NOT_APPROVED"
+  }
+}

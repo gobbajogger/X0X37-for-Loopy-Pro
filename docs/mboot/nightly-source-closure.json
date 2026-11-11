@@ -1,0 +1,25 @@
+{
+  "firmware": {
+    "commit": "21ce25dac3fef015dfd95f6b3b7371272c3fc5bd",
+    "files": {
+      "AGENTS.md": "8a5b9eab7aa6717370a40f7fa7dac85b7cb6e5c0",
+      "skills/x0x37-workflow/SKILL.md": "47292928c4e89f8404f8e26ff66b59584aad4b17",
+      "firmware/src/ota.c": "7d1c48c7dc4ca4a6cb62925bb723a84cc1b146ad",
+      "firmware/loader/ldr_core.c": "6a36ae8a0ad6fb804c8f0cae88446dcfeb0a9aeb",
+      "firmware/src/app/editor.c": "5b38c36ccf9d7a60b3b69b10b0b1e1efd165d6fd",
+      "firmware/src/app/boot_screen.h": "9219766c96d36838b528e590346d56502f90aa9f",
+      "tools/mboot/adoption.c": "bdbafa118756bd5ef69c17bf34fab09b599ce94e",
+      "tools/mboot/prepare.py": "14cbee54d206ec55368a37a132da5a9ebd650b51",
+      "tools/mboot/README.md": "e69cd1c5fafc2c363a20d969ed0a58977c5e16ed",
+      "tools/fm1_install.py": "68c7cf93f469a89cbd0f1f692eef41634991fab3"
+    }
+  },
+  "website": {
+    "commit": "909bb37c5afffd91fbb251d0dbd0a54293e413de",
+    "files": {
+      "web/x0x_installer.html": "ba6f0c17952677420f75ad2c6ea57f5eb5b5e552",
+      "web/fm1ota.js": "cddeab7ed223efdccf5451dd0accccebf7f70454",
+      "web/x0x_breaks.js": "88870f31d354e3e9e2f61f827e07bae22e5da1ad"
+    }
+  }
+}

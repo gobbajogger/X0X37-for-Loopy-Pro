@@ -1,0 +1,111 @@
+{
+  "elite": {
+    "base_commit": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+    "app": {
+      "bytes": 480568,
+      "sha256": "c3fe751c4880977463cd147d57577dfde456638aff95d95a77317fd085e734a3"
+    },
+    "package": {
+      "bytes": 651457,
+      "sha256": "b489a201d37295ae1e826e032ecd5128878c3805ba839e16fd17da9cc7395621"
+    },
+    "loader": {
+      "bytes": 7341,
+      "sha256": "7f7b107048194dc2f2e62936c365589bb87f9c1409eb67d120cc4c4e69dc2a21"
+    },
+    "sections": {
+      ".text": 476816,
+      ".ram_sink": 1024,
+      ".ram_text": 2712,
+      ".c1_text": 608,
+      ".data": 428,
+      ".bss": 95332,
+      ".pool": 335464,
+      ".noinit": 308,
+      ".ble_ram": 3880,
+      ".shstrtab": 96,
+      ".symtab": 44320,
+      ".strtab": 42087
+    },
+    "section_deltas": {
+      ".text": 5728,
+      ".ram_sink": 0,
+      ".ram_text": 0,
+      ".c1_text": 0,
+      ".data": 0,
+      ".bss": 0,
+      ".pool": 0,
+      ".noinit": 0,
+      ".ble_ram": 0,
+      ".shstrtab": 0,
+      ".symtab": 160,
+      ".strtab": 183
+    },
+    "app_delta_bytes": 5728,
+    "app_ram_occupied_bytes": 95780,
+    "app_ram_budget_bytes": 98304,
+    "app_ram_free_bytes": 2524,
+    "pool_free_bytes": 8600,
+    "ram_text_sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c",
+    "configuration": "DEV; X0X_DEV_PADCAL=1; SDK V1.2.1; native Linux x86_64; default original Chicago/Miami profile",
+    "result": "BUILD_ONLY PASS"
+  },
+  "pro": {
+    "base_commit": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+    "app": {
+      "bytes": 480568,
+      "sha256": "91ebab680d92bf5d666bc8a73d58c245c753fa17dc43a638af428e5bdd8e39a8"
+    },
+    "package": {
+      "bytes": 651457,
+      "sha256": "124d757660b79cca2e98778a17dab75662b2d28d1100742f973ba30d2777e300"
+    },
+    "loader": {
+      "bytes": 7341,
+      "sha256": "9047d7ab8946f73260525d2c03197e5f1b2101af3941b3f2702d843ee9e75229"
+    },
+    "sections": {
+      ".text": 476816,
+      ".ram_sink": 1024,
+      ".ram_text": 2712,
+      ".c1_text": 608,
+      ".data": 428,
+      ".bss": 95332,
+      ".pool": 335464,
+      ".noinit": 308,
+      ".ble_ram": 3880,
+      ".shstrtab": 96,
+      ".symtab": 44320,
+      ".strtab": 42081
+    },
+    "section_deltas": {
+      ".text": 5728,
+      ".ram_sink": 0,
+      ".ram_text": 0,
+      ".c1_text": 0,
+      ".data": 0,
+      ".bss": 0,
+      ".pool": 0,
+      ".noinit": 0,
+      ".ble_ram": 0,
+      ".shstrtab": 0,
+      ".symtab": 160,
+      ".strtab": 177
+    },
+    "app_delta_bytes": 5728,
+    "app_ram_occupied_bytes": 95780,
+    "app_ram_budget_bytes": 98304,
+    "app_ram_free_bytes": 2524,
+    "pool_free_bytes": 8600,
+    "ram_text_sha256": "52705d9683efd8ba671487161c9f1d73a5305bfe5a66d3dd0570b9432f33a00c",
+    "configuration": "DEV; X0X_DEV_PADCAL=1; SDK V1.2.1; native Linux x86_64; default original Chicago/Miami profile",
+    "result": "BUILD_ONLY PASS"
+  },
+  "controller": {
+    "bytes": 61088,
+    "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+    "result": "BUILD_ONLY PASS",
+    "ram_used_bytes": 26336,
+    "ram_budget_bytes": 26368
+  }
+}

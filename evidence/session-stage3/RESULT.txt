@@ -1,0 +1,57 @@
+Stage 3 requires a source repair before stage 4.
+The physical input failure remains unresolved.
+
+Candidate: 28d0fc230f60bc823c1e5e73d3aed61e68a8e32f.
+Owner chat: 01a15a85-2fb6-7683-a11e-72faeecd3a8e.
+Lane: /Users/mac/Documents/x0x37/smc_central_session_stage3_20261021.
+
+Both independent helpers reproduced the same failure.
+If the transport is busy, the signaling abort can lose its Disconnect command.
+Queue overflow and the reply timeout both reach blec_fail().
+The send callback refuses COP_DISCONNECT while the mailbox is full.
+After the transport becomes available, blec_poll() does not retry the command.
+At the next deadline, the state becomes BLEC_FAILED.
+The connection handle remains 0x50. No Disconnect command reached the transport.
+This fails the required abort behaviour of this repair.
+
+The investigation probe fails for both overflow and timeout with ASan and UBSan enabled.
+The separate test helper also reproduces both failures.
+The compiler reports no error. The probe assertions identify the functional failure.
+These probes simulate HCI traffic and mailbox backpressure.
+They do not establish a cause for the owner's physical input failure.
+
+The existing public HCI tests and DIAG decoder pass.
+The added scratch checks pass for fragments, lifecycle cleanup and credit saturation.
+The stage-2 input hashes match the candidate files.
+Its expected base failures remain regression evidence for signaling and reconnect credits.
+Those passes do not cover a Disconnect command that the mailbox refuses.
+
+The startup replay also passes on this candidate.
+It uses 1268 unchanged recorded payloads, 2616 decoded messages and 513 feedback messages.
+The input queue is empty. The performance test is idle.
+Help and overlay are inactive.
+The peer, HCI framing and scheduling are simulated.
+Three oversized ATT packets remain excluded.
+The saved project is synthetic.
+The capture, harness, generated input and tool identities are recorded in replay-check.json.
+The replay does not test target interrupt timing or physical radio execution.
+
+No production source or tracked test changed in this stage.
+No target build, full gate, device write, release, fallback or external push occurred.
+The physical result is NOT TESTED.
+
+Disposition
+
+One fresh stage-2 owner must repair the confirmed abort failure.
+Its regression must fail on this candidate and pass on the repaired source.
+The owner must preserve queued reply behaviour, identifiers, bounds, priority and reconnect credits.
+The repaired source then requires one fresh stage 3 with independent test and investigation helpers.
+Only a passing repaired contribution can advance to scoped DEV stage 4.
+
+Mapping stage 4 is 01a15a87-298e-7d21-b004-b78d5beafd89.
+That workflow retains selection of the sole stage-5 integrator for both validated contributions.
+The central contribution remains pending until its repair and validation pass.
+No lane can install independently over that integrator.
+
+The saved stage2-prompt.txt contains the complete repair handoff.
+The successor record must contain the returned chat ID and actual startup evidence.

@@ -1,0 +1,164 @@
+{
+  "elite": {
+    "result": "PASS",
+    "record": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/elite/record.json",
+    "validation_input_sha256": "61b55058081c83e7a54ac903fa42eaf64c7d128ddeb143d35a55b2094f6ad8a6",
+    "budgets": {
+      "code_free": 1912,
+      "ram_free": 524,
+      "pool_free": 8364
+    },
+    "package": {
+      "bytes": 651396,
+      "sha256": "0759c0312eb22f39805d5a60039cbfdc71fb98e1edee37355f39ac88e0629c86",
+      "crc32": "35da8db9"
+    },
+    "controller": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "9c07ae67"
+    },
+    "app": {
+      "bytes": 550760,
+      "sha256": "21268e95f3bbfd1f29de1f6bd313f2470e5b3d5bf7fe7794663012a2b236f3b2",
+      "crc32": "a64099a0"
+    },
+    "entries": {
+      "flash.bin": {
+        "bytes": 643072,
+        "sha256": "7ee0f8136950e96b189aff335dd17ac7f6c9aad13a3c3cbfbd13eff69eea26d5",
+        "crc32": "28baffbe"
+      },
+      "ota.bin": {
+        "bytes": 7280,
+        "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+        "crc32": "efce9076"
+      }
+    },
+    "slot_map": [
+      [
+        794624,
+        81920
+      ],
+      [
+        876544,
+        122880
+      ],
+      [
+        720896,
+        45056
+      ]
+    ],
+    "assembled_install_image": {
+      "bytes": 651396,
+      "sha256": "e1adac0d9ef4f1d6643ec1dd0e02c2b2e253892e080b63cd44b6c1eaa8d99387",
+      "crc32": "7c1c0b9e"
+    },
+    "checks": [
+      "The DEV record matches the candidate, logs, package and exact controller.",
+      "The package model, CRCs, region table and slot map pass.",
+      "The exact controller passes its CRC, ABI, RAM, entry and IRQ checks.",
+      "Controller insertion preserves app bytes, the bootloader head and slot map.",
+      "Controller removal restores the original package byte for byte."
+    ],
+    "limits": [
+      "The assembled image remains in memory. No device write occurs.",
+      "No physical-device PASS is established."
+    ],
+    "controller_header_crc32": "77b7a496",
+    "controller_block": {
+      "bytes": 65536,
+      "sha256": "7f560b3bd709d45a920e80e24aed27a2d2852700cab2678dc4cffd2bd4e0c210",
+      "crc32": "4a400899"
+    },
+    "package_layout_log_sha256": "8e7ffb6b973257e15e2c05331715507d2ce866dfe9d87f414d506f235856653b",
+    "verification_command": "python3 -B evidence/mapping-stage4/verify-artifacts.py elite",
+    "package_layout_command": [
+      "python3",
+      "tests/smk_pkg_test.py",
+      "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/elite/x0x-smk37-elite.fwsc",
+      "SMK-37 Elite_900"
+    ]
+  },
+  "pro": {
+    "result": "PASS",
+    "record": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/pro/record.json",
+    "validation_input_sha256": "2ffb0b0cf077f583c05b12fd6a250d5ff2cf84ffc0c12946a79402c2ce740bda",
+    "budgets": {
+      "code_free": 1928,
+      "ram_free": 524,
+      "pool_free": 8364
+    },
+    "package": {
+      "bytes": 651392,
+      "sha256": "d4f16a8ddb2070c12fe2dc0e10c560616f0498fc2f89741e33faf61c746773e3",
+      "crc32": "27d2ce21"
+    },
+    "controller": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "9c07ae67"
+    },
+    "app": {
+      "bytes": 550744,
+      "sha256": "b4be8c5c8a61c3c2bc7bdaad3abd382d7c2055feb3d92b4412ac05770e206804",
+      "crc32": "03565785"
+    },
+    "entries": {
+      "flash.bin": {
+        "bytes": 643072,
+        "sha256": "9ebb2f0b582b25addf9806e983047cd625c6e569d2d1f1c94487590e17953736",
+        "crc32": "3a56f77c"
+      },
+      "ota.bin": {
+        "bytes": 7276,
+        "sha256": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf",
+        "crc32": "a0f8bca9"
+      }
+    },
+    "slot_map": [
+      [
+        794624,
+        81920
+      ],
+      [
+        876544,
+        122880
+      ],
+      [
+        720896,
+        45056
+      ]
+    ],
+    "assembled_install_image": {
+      "bytes": 651392,
+      "sha256": "c286adb4dd361d2053e421d303b5f23ecf35779bec9fd8106f0b4b069cdb356a",
+      "crc32": "e48d24bb"
+    },
+    "checks": [
+      "The DEV record matches the candidate, logs, package and exact controller.",
+      "The package model, CRCs, region table and slot map pass.",
+      "The exact controller passes its CRC, ABI, RAM, entry and IRQ checks.",
+      "Controller insertion preserves app bytes, the bootloader head and slot map.",
+      "Controller removal restores the original package byte for byte."
+    ],
+    "limits": [
+      "The assembled image remains in memory. No device write occurs.",
+      "No physical-device PASS is established."
+    ],
+    "controller_header_crc32": "77b7a496",
+    "controller_block": {
+      "bytes": 65536,
+      "sha256": "7f560b3bd709d45a920e80e24aed27a2d2852700cab2678dc4cffd2bd4e0c210",
+      "crc32": "4a400899"
+    },
+    "package_layout_log_sha256": "a704dd6928ea926bd6a7681aa11831a2acc4959c8a5345a4a02809f98dc96418",
+    "verification_command": "python3 -B evidence/mapping-stage4/verify-artifacts.py pro",
+    "package_layout_command": [
+      "python3",
+      "tests/smk_pkg_test.py",
+      "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/pro/x0x-smk37.fwsc",
+      "SMK-37 Pro_900"
+    ]
+  }
+}

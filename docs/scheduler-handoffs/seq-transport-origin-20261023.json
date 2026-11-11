@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T13:19:41Z",
+  "role": "Sequencer Clock",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/seq-transport-origin-20261023-run3-1317",
+    "tested_commit": "b680720d4031f73fe22143edaf1c6c55208f886e",
+    "tested_tree": "7e518dc174ac2146cf6643189334e0818be033e6"
+  },
+  "summary": "Queued MIDI Start/Continue stale origin could misclassify last local PLAY and defeat MID-14 echo dedup; source-extracted native regression verifies origin/phase fix stacked on PR #86.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/seq/sequencer.c",
+      "description": "Local-versus-remote transport origin, queue publication ordering and STOP cancellation guard"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/seq_transport_origin_test.py",
+      "description": "Native C production-function extraction, 16 positive and negative timing checks"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/seq-transport-origin-20261023.md",
+      "description": "Reproducer, scope, SHA identities, limits and next owner"
+    },
+    {
+      "kind": "regression",
+      "location": "docs/scheduler-handoffs/seq-transport-origin-20261023-before.log",
+      "description": "Reproduced baseline 7 failures"
+    },
+    {
+      "kind": "regression",
+      "location": "docs/scheduler-handoffs/seq-transport-origin-20261023-gcc.log",
+      "description": "Patched GCC native 16/16"
+    },
+    {
+      "kind": "regression",
+      "location": "docs/scheduler-handoffs/seq-transport-origin-20261023-gcc-ubsan.log",
+      "description": "Patched GCC UBSan 16/16"
+    },
+    {
+      "kind": "regression",
+      "location": "docs/scheduler-handoffs/seq-transport-origin-20261023-clang-san.log",
+      "description": "Patched Clang ASan+UBSan 16/16"
+    }
+  ],
+  "checks": [
+    {
+      "name": "source-original-gcc-repro",
+      "status": "FAIL",
+      "command": "python3 tests/host/seq_transport_origin_test.py --source fixtures/seq_transport_excerpt_before.c --cc gcc",
+      "exit_code": 1,
+      "evidence": "docs/scheduler-handoffs/seq-transport-origin-20261023-before.log; 7/16 expected failures",
+      "log_sha256": "fa37be6fa6e9f902fd4d1481f8fb1c5d17b188f2ac14a1899b01248b0dcea98c",
+      "coverage": "last local transport request, echo double-start, STOP cancellation"
+    },
+    {
+      "name": "patched-gcc",
+      "status": "PASS",
+      "command": "python3 tests/host/seq_transport_origin_test.py --source fixtures/seq_transport_excerpt_after.c --cc gcc",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/seq-transport-origin-20261023-gcc.log",
+      "log_sha256": "463ddb17b0e45eafd92a5714ac76d76425defbdd0077c3600b8271bedd8480b8",
+      "coverage": "16/16 native extraction positive/boundary/negative checks"
+    },
+    {
+      "name": "patched-gcc-ubsan",
+      "status": "PASS",
+      "command": "python3 tests/host/seq_transport_origin_test.py --source fixtures/seq_transport_excerpt_after.c --cc gcc --flags '-fsanitize=undefined -fno-sanitize-recover=all'",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/seq-transport-origin-20261023-gcc-ubsan.log",
+      "log_sha256": "ae081e415465ceb8b9a952c65f8a1288981de1cecf0ba138308ed59225794853",
+      "coverage": "16/16 UBSan"
+    },
+    {
+      "name": "patched-clang-asan-ubsan",
+      "status": "PASS",
+      "command": "python3 tests/host/seq_transport_origin_test.py --source fixtures/seq_transport_excerpt_after.c --cc clang --flags '-fsanitize=address,undefined -fno-sanitize-recover=all'",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/seq-transport-origin-20261023-clang-san.log",
+      "log_sha256": "034bc23a41b14f370a6d6c87ca163a54dc8dd75e15d83fd9778400956affcf82",
+      "coverage": "16/16 Clang ASan+UBSan"
+    },
+    {
+      "name": "complete-exact-PR-tree",
+      "status": "NOT_RUN",
+      "command": "X0X_TEST_JOBS=1 sh tests/run_tests.sh sequencer clk-lock transport-coalesce transport-origin",
+      "evidence": "Shell git ls-remote exit 128: DNS could not resolve github.com; complete source not mounted"
+    },
+    {
+      "name": "firmware-targets-elite-pro",
+      "status": "NOT_RUN",
+      "command": "python3 tools/dev_validate.py run --commit <exact-integrated-head> --model elite/pro",
+      "evidence": "Source-only specialist, target builds and controller belong to Hourly Build"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "SOURCE-ONLY; not installable"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "SOURCE-ONLY; not installable"
+    }
+  ],
+  "dependencies": [
+    "PR #86 b680720d4031f73fe22143edaf1c6c55208f886e"
+  ],
+  "next": {
+    "owner": "Independent QA, then sole Safe Merge",
+    "action": "Rerun exact-tree native regression and compare other sequencer PRs, then hand integration to sole merger",
+    "gate": "No source integration without independent exact-head review and full-tree host tests"
+  },
+  "publication": "SOURCE_ONLY"
+}
