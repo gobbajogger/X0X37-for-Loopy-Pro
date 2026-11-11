@@ -1,0 +1,71 @@
+{
+  "marker": "smc-mapping-20261021-confirmed-defects-stage3",
+  "result": "STAGE3 PASS",
+  "owner_chat": "01a15a82-82cb-75a1-9aff-9bbc76a3d482",
+  "candidate": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "tree": "56a78830c67477684e1ec114274ae204acb81296",
+  "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "source_blob": "fa885dad6c721f413da64ab78a2f7439b51d29d7",
+  "source_sha256": "ad29f71abe1411ebb2666e481deeca13c9a0a835b50b9f454963aa9fdb64205a",
+  "test_report": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/result.json",
+  "investigation_report": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/investigation/result.json",
+  "dependency_review": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/dependency-review.json",
+  "host_checks": {
+    "passed": 10,
+    "failed": 0
+  },
+  "negative_controls": "Both exact-base regressions failed at the intended assertions. Drum mute assertion returned134. DAW STOP phase0 returned1.",
+  "dispatcher": "Selected reachability, drum-mutes and performance-abort checks passed through tests/run_tests.sh. Class G registration passed.",
+  "independent_probe": {
+    "cases": 4400,
+    "result": "PASS"
+  },
+  "source_review": "No actionable firmware defect was found.",
+  "failures_and_disposition": [
+    "Expected base failures confirm that the new regressions detect the defects.",
+    "Investigation source queries used two incorrect paths. The review then used the exact source paths. No test failed.",
+    "The selected dispatcher prints a package-test skip. This lane has no target app, loader or SDK. Stage4 owns complete package validation."
+  ],
+  "documentation_findings": [
+    {
+      "file": "docs/SMC_MIXER.md",
+      "line": 47,
+      "blocking": false,
+      "finding": "The map still states whole-part and FX M behavior without the drum MIX exception. It also omits the new performance abort controls.",
+      "disposition": "Non-blocking and deferred. Stage4 receives this documentation discrepancy. Stage3 does not edit documentation or firmware.",
+      "stale_statements": [
+        "For strips 1\u20135, **M** toggles the part's mute",
+        "On strips 6\u20138, **M** toggles reverb, delay or master output.",
+        "Performance tests own the controls and drain SMC input without editing."
+      ],
+      "production_evidence": [
+        "firmware/src/app/smc_mixer.c:319-329",
+        "firmware/src/app/smc_mixer.c:436-463",
+        "firmware/src/app/smc_mixer.c:538-545"
+      ]
+    }
+  ],
+  "tracked_source_edits": false,
+  "target_builds": "No new target build ran in stage3. Matching final stage2 DEV logs are retained. Stage4 must issue fresh dev_validate records.",
+  "device_tests": "NOT TESTED",
+  "limits": [
+    "R/S per-track policy remains deferred.",
+    "The physical input-silence cause remains unresolved.",
+    "The central-session repair is separate and absent from this candidate.",
+    "No release gate, merge, install or external push occurred."
+  ],
+  "next_stage": "Exactly one fresh LOCAL stage4 must validate both DEV targets and the exact controller set.",
+  "permissions": [
+    "Automatic successor launch and startup verification: workflow18 and owner statement Make sure that they automatically allow to do that without my intervention.",
+    "The complete validated DEV install has standing owner permission. The installer sends a notice and applies native guards and data backup/readback. No new approval is required solely for a stage change."
+  ],
+  "successor": {
+    "stage": "stage4",
+    "threadId": "01a15a87-298e-7d21-b004-b78d5beafd89",
+    "hostId": "local",
+    "status": "started",
+    "turnId": "01a15a87-2a71-7480-be61-c466cba2a4cf",
+    "record": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/stage4-successor.json"
+  },
+  "completion": "Stage3 checks passed. Exactly one fresh LOCAL stage4 has verified actual startup. Stage3 is complete."
+}

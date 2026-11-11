@@ -1,0 +1,6 @@
+{
+  "attempt": 2,
+  "result": "NO_CURSOR_API_KEY",
+  "endpoint": "POST https://api.cursor.com/v1/agents",
+  "note": "Pod has no CURSOR_API_KEY; coordinator CreateAgent required for owner-visible Stage 1."
+}

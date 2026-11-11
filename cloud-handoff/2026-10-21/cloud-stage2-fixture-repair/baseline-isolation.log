@@ -1,0 +1,10 @@
+/tmp/smk-clip-isolation-y99yhgjj/test.c:150:6: error: expected ‘;’ before ‘static’
+  150 | CK_FN static void smk_frame(void)
+      |      ^~~~~~~
+      |      ;
+Traceback (most recent call last):
+  File "/workspace/X0X37-for-Loopy-Pro/tests/host/smk_clip_isolation_test.py", line 186, in <module>
+    subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-Wall", "-Wextra", "-Wno-unused-function",
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['cc', '-std=c99', '-Wall', '-Wextra', '-Wno-unused-function', '-DX0X_BLE=0', '-I', '/workspace/X0X37-for-Loopy-Pro/firmware/src', '/tmp/smk-clip-isolation-y99yhgjj/test.c', '-o', '/tmp/smk-clip-isolation-y99yhgjj/test-0']' returned non-zero exit status 1.

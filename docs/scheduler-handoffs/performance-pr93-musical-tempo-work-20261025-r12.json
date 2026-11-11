@@ -1,0 +1,325 @@
+{
+  "context": {
+    "accepted_nightly_baseline": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+    "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+    "firmware_subtree": "a87a83e15116422eed84528d95f52ddef5029927",
+    "parent_head": "f5b066cc08b6564bd264a28d58abb1d241c47365",
+    "parent_root": "c595c6cb1f01e0a64b7211974737bc8f34cc56a8",
+    "pr": 93,
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro"
+  },
+  "current_build": {
+    "compiled_inputs_changed": false,
+    "historical_pool_free_bytes": 8308,
+    "minimum_pool_free_bytes": 8192,
+    "new_controller_build": "NOT_RUN",
+    "new_target_build": "NOT_RUN",
+    "previous_untouched_compiler_subtree": "a87a83e15116422eed84528d95f52ddef5029927",
+    "status": "UNCHANGED_COMPILER_INPUTS_HISTORICAL_BUILD_ONLY_NOT_NEW_BUILD"
+  },
+  "evidence_revision": "performance-pr93-musical-tempo-work-20261025-r12",
+  "gates": {
+    "device_observed": false,
+    "independent_full_root_QA": "PENDING",
+    "nightly_selectable": false,
+    "public_legal_host_http_hash": "NOT_RUN",
+    "target_compiled_for_this_commit": false
+  },
+  "goal": "Keep audible BREAK reverse sample interpolation and stop/NoteOff behavior identical across tempo/loop-bar/pitch stress while characterizing decoder work per 64-frame callback.",
+  "host_coverage": {
+    "configs": [
+      {
+        "compiler": "gcc",
+        "high_work": {
+          "bars": 1,
+          "baseline_decodes": 4167680,
+          "baseline_max_per_64_frames": 69120,
+          "bpm_equivalent": 300,
+          "candidate_decodes": 2453504,
+          "candidate_max_per_64_frames": 40448,
+          "direction": "R",
+          "n": 2116800,
+          "pcm_FNV64": "65b48684f7e57b4c",
+          "pitch_semitones": 12,
+          "trial": 0
+        },
+        "mode": "optimized",
+        "scenarios": 144,
+        "test_exits": [
+          {
+            "command": "gcc -std=c11 -Wall -Wextra -Werror -pedantic -ffp-contract=off -I/tmp/x0x-musical-tempo-aicek_y_/baseline-nightly -O2 /mnt/data/perf_r12_work/publish/tests/host/breaks_musical_tempo_work_audit.c /tmp/x0x-musical-tempo-aicek_y_/baseline-nightly/firmware/src/dsp/breaks.c -o /tmp/x0x-musical-tempo-aicek_y_/gcc-baseline-nightly",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-gcc/gcc-baseline-nightly-compile.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-aicek_y_/gcc-baseline-nightly --trace /mnt/data/perf_r12_work/run-gcc/gcc-baseline-nightly-pcm.bin",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-gcc/gcc-baseline-nightly-run.log",
+            "sha256": "debbd0c5a1b1874434e15255ae38e7ee69d0bf14df6982f90d067cdb8d408488"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-aicek_y_/gcc-baseline-nightly --invalid",
+            "exit": 2,
+            "expected_exit": 2,
+            "log": "run-gcc/gcc-baseline-nightly-invalid.log",
+            "sha256": "3c510035071bbe26380870851e2880306760288b68e7ad6f4be080b7b7174722"
+          },
+          {
+            "command": "gcc -std=c11 -Wall -Wextra -Werror -pedantic -ffp-contract=off -I/tmp/x0x-musical-tempo-aicek_y_/candidate -O2 /mnt/data/perf_r12_work/publish/tests/host/breaks_musical_tempo_work_audit.c /tmp/x0x-musical-tempo-aicek_y_/candidate/firmware/src/dsp/breaks.c -o /tmp/x0x-musical-tempo-aicek_y_/gcc-candidate",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-gcc/gcc-candidate-compile.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-aicek_y_/gcc-candidate --trace /mnt/data/perf_r12_work/run-gcc/gcc-candidate-pcm.bin",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-gcc/gcc-candidate-run.log",
+            "sha256": "fe34fd4832d5fd5f7d07f501a3a3015865cfcb7009c0700dbbdfc4cd9bb8278a"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-aicek_y_/gcc-candidate --invalid",
+            "exit": 2,
+            "expected_exit": 2,
+            "log": "run-gcc/gcc-candidate-invalid.log",
+            "sha256": "3c510035071bbe26380870851e2880306760288b68e7ad6f4be080b7b7174722"
+          }
+        ],
+        "trace_bytes": 2359296,
+        "trace_sha256": "b748439320050b3efe24d912b3d58862c8a5783d482c95d46e94654bf134f629"
+      },
+      {
+        "compiler": "clang",
+        "high_work": {
+          "bars": 1,
+          "baseline_decodes": 4167680,
+          "baseline_max_per_64_frames": 69120,
+          "bpm_equivalent": 300,
+          "candidate_decodes": 2453504,
+          "candidate_max_per_64_frames": 40448,
+          "direction": "R",
+          "n": 2116800,
+          "pcm_FNV64": "65b48684f7e57b4c",
+          "pitch_semitones": 12,
+          "trial": 0
+        },
+        "mode": "optimized",
+        "scenarios": 144,
+        "test_exits": [
+          {
+            "command": "clang -std=c11 -Wall -Wextra -Werror -pedantic -ffp-contract=off -I/tmp/x0x-musical-tempo-mrvxkplp/baseline-nightly -O2 /mnt/data/perf_r12_work/publish/tests/host/breaks_musical_tempo_work_audit.c /tmp/x0x-musical-tempo-mrvxkplp/baseline-nightly/firmware/src/dsp/breaks.c -o /tmp/x0x-musical-tempo-mrvxkplp/clang-baseline-nightly",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-clang/clang-baseline-nightly-compile.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-mrvxkplp/clang-baseline-nightly --trace /mnt/data/perf_r12_work/run-clang/clang-baseline-nightly-pcm.bin",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-clang/clang-baseline-nightly-run.log",
+            "sha256": "debbd0c5a1b1874434e15255ae38e7ee69d0bf14df6982f90d067cdb8d408488"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-mrvxkplp/clang-baseline-nightly --invalid",
+            "exit": 2,
+            "expected_exit": 2,
+            "log": "run-clang/clang-baseline-nightly-invalid.log",
+            "sha256": "3c510035071bbe26380870851e2880306760288b68e7ad6f4be080b7b7174722"
+          },
+          {
+            "command": "clang -std=c11 -Wall -Wextra -Werror -pedantic -ffp-contract=off -I/tmp/x0x-musical-tempo-mrvxkplp/candidate -O2 /mnt/data/perf_r12_work/publish/tests/host/breaks_musical_tempo_work_audit.c /tmp/x0x-musical-tempo-mrvxkplp/candidate/firmware/src/dsp/breaks.c -o /tmp/x0x-musical-tempo-mrvxkplp/clang-candidate",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-clang/clang-candidate-compile.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-mrvxkplp/clang-candidate --trace /mnt/data/perf_r12_work/run-clang/clang-candidate-pcm.bin",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-clang/clang-candidate-run.log",
+            "sha256": "fe34fd4832d5fd5f7d07f501a3a3015865cfcb7009c0700dbbdfc4cd9bb8278a"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-mrvxkplp/clang-candidate --invalid",
+            "exit": 2,
+            "expected_exit": 2,
+            "log": "run-clang/clang-candidate-invalid.log",
+            "sha256": "3c510035071bbe26380870851e2880306760288b68e7ad6f4be080b7b7174722"
+          }
+        ],
+        "trace_bytes": 2359296,
+        "trace_sha256": "b748439320050b3efe24d912b3d58862c8a5783d482c95d46e94654bf134f629"
+      },
+      {
+        "compiler": "gcc",
+        "high_work": {
+          "bars": 1,
+          "baseline_decodes": 4167680,
+          "baseline_max_per_64_frames": 69120,
+          "bpm_equivalent": 300,
+          "candidate_decodes": 2453504,
+          "candidate_max_per_64_frames": 40448,
+          "direction": "R",
+          "n": 2116800,
+          "pcm_FNV64": "65b48684f7e57b4c",
+          "pitch_semitones": 12,
+          "trial": 0
+        },
+        "mode": "sanitizer",
+        "scenarios": 144,
+        "test_exits": [
+          {
+            "command": "gcc -std=c11 -Wall -Wextra -Werror -pedantic -ffp-contract=off -I/tmp/x0x-musical-tempo-liaroezp/baseline-nightly -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined /mnt/data/perf_r12_work/publish/tests/host/breaks_musical_tempo_work_audit.c /tmp/x0x-musical-tempo-liaroezp/baseline-nightly/firmware/src/dsp/breaks.c -o /tmp/x0x-musical-tempo-liaroezp/gcc-baseline-nightly",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-gcc-san/gcc-baseline-nightly-compile.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-liaroezp/gcc-baseline-nightly --trace /mnt/data/perf_r12_work/run-gcc-san/gcc-baseline-nightly-pcm.bin",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-gcc-san/gcc-baseline-nightly-run.log",
+            "sha256": "debbd0c5a1b1874434e15255ae38e7ee69d0bf14df6982f90d067cdb8d408488"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-liaroezp/gcc-baseline-nightly --invalid",
+            "exit": 2,
+            "expected_exit": 2,
+            "log": "run-gcc-san/gcc-baseline-nightly-invalid.log",
+            "sha256": "3c510035071bbe26380870851e2880306760288b68e7ad6f4be080b7b7174722"
+          },
+          {
+            "command": "gcc -std=c11 -Wall -Wextra -Werror -pedantic -ffp-contract=off -I/tmp/x0x-musical-tempo-liaroezp/candidate -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined /mnt/data/perf_r12_work/publish/tests/host/breaks_musical_tempo_work_audit.c /tmp/x0x-musical-tempo-liaroezp/candidate/firmware/src/dsp/breaks.c -o /tmp/x0x-musical-tempo-liaroezp/gcc-candidate",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-gcc-san/gcc-candidate-compile.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-liaroezp/gcc-candidate --trace /mnt/data/perf_r12_work/run-gcc-san/gcc-candidate-pcm.bin",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-gcc-san/gcc-candidate-run.log",
+            "sha256": "fe34fd4832d5fd5f7d07f501a3a3015865cfcb7009c0700dbbdfc4cd9bb8278a"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-liaroezp/gcc-candidate --invalid",
+            "exit": 2,
+            "expected_exit": 2,
+            "log": "run-gcc-san/gcc-candidate-invalid.log",
+            "sha256": "3c510035071bbe26380870851e2880306760288b68e7ad6f4be080b7b7174722"
+          }
+        ],
+        "trace_bytes": 2359296,
+        "trace_sha256": "b748439320050b3efe24d912b3d58862c8a5783d482c95d46e94654bf134f629"
+      },
+      {
+        "compiler": "clang",
+        "high_work": {
+          "bars": 1,
+          "baseline_decodes": 4167680,
+          "baseline_max_per_64_frames": 69120,
+          "bpm_equivalent": 300,
+          "candidate_decodes": 2453504,
+          "candidate_max_per_64_frames": 40448,
+          "direction": "R",
+          "n": 2116800,
+          "pcm_FNV64": "65b48684f7e57b4c",
+          "pitch_semitones": 12,
+          "trial": 0
+        },
+        "mode": "sanitizer",
+        "scenarios": 144,
+        "test_exits": [
+          {
+            "command": "clang -std=c11 -Wall -Wextra -Werror -pedantic -ffp-contract=off -I/tmp/x0x-musical-tempo-7p4gc_wd/baseline-nightly -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined /mnt/data/perf_r12_work/publish/tests/host/breaks_musical_tempo_work_audit.c /tmp/x0x-musical-tempo-7p4gc_wd/baseline-nightly/firmware/src/dsp/breaks.c -o /tmp/x0x-musical-tempo-7p4gc_wd/clang-baseline-nightly",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-clang-san/clang-baseline-nightly-compile.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-7p4gc_wd/clang-baseline-nightly --trace /mnt/data/perf_r12_work/run-clang-san/clang-baseline-nightly-pcm.bin",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-clang-san/clang-baseline-nightly-run.log",
+            "sha256": "debbd0c5a1b1874434e15255ae38e7ee69d0bf14df6982f90d067cdb8d408488"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-7p4gc_wd/clang-baseline-nightly --invalid",
+            "exit": 2,
+            "expected_exit": 2,
+            "log": "run-clang-san/clang-baseline-nightly-invalid.log",
+            "sha256": "3c510035071bbe26380870851e2880306760288b68e7ad6f4be080b7b7174722"
+          },
+          {
+            "command": "clang -std=c11 -Wall -Wextra -Werror -pedantic -ffp-contract=off -I/tmp/x0x-musical-tempo-7p4gc_wd/candidate -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined /mnt/data/perf_r12_work/publish/tests/host/breaks_musical_tempo_work_audit.c /tmp/x0x-musical-tempo-7p4gc_wd/candidate/firmware/src/dsp/breaks.c -o /tmp/x0x-musical-tempo-7p4gc_wd/clang-candidate",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-clang-san/clang-candidate-compile.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-7p4gc_wd/clang-candidate --trace /mnt/data/perf_r12_work/run-clang-san/clang-candidate-pcm.bin",
+            "exit": 0,
+            "expected_exit": 0,
+            "log": "run-clang-san/clang-candidate-run.log",
+            "sha256": "fe34fd4832d5fd5f7d07f501a3a3015865cfcb7009c0700dbbdfc4cd9bb8278a"
+          },
+          {
+            "command": "/tmp/x0x-musical-tempo-7p4gc_wd/clang-candidate --invalid",
+            "exit": 2,
+            "expected_exit": 2,
+            "log": "run-clang-san/clang-candidate-invalid.log",
+            "sha256": "3c510035071bbe26380870851e2880306760288b68e7ad6f4be080b7b7174722"
+          }
+        ],
+        "trace_bytes": 2359296,
+        "trace_sha256": "b748439320050b3efe24d912b3d58862c8a5783d482c95d46e94654bf134f629"
+      }
+    ],
+    "configs_count": 4,
+    "incomplete_replay_note": "A later optional combined four-config rerun timed out during sanitizer; the four already completed original runner configurations are the claimed checks, not the timed-out combined parent.",
+    "negative_tests": [
+      "each executable rejects --invalid with expected exit 2",
+      "mutated PCM FNV comparator rejected from archived row comparison"
+    ],
+    "paired_pcm_cases": 576,
+    "pcm_trace_sha256": "b748439320050b3efe24d912b3d58862c8a5783d482c95d46e94654bf134f629",
+    "peak_example": {
+      "bars": 1,
+      "baseline_decodes": 4167680,
+      "baseline_max_per_64_frames": 69120,
+      "bpm_equivalent": 300,
+      "candidate_decodes": 2453504,
+      "candidate_max_per_64_frames": 40448,
+      "direction": "R",
+      "n": 2116800,
+      "pitch_semitones": 12,
+      "trial": 0
+    },
+    "per_config_scenarios": 144,
+    "per_config_trace_bytes": 2359296
+  },
+  "next": {
+    "action": "Review exact new PR93 head/ROOT and independently rerun live source tempo-derived host negative/phase/NoteOff test; examine worst-case ISR and then leave SHA-bound disposition.",
+    "role": "existing Independent QA",
+    "stop": "Independent exact-head QA acceptance or a reproducible negative requiring producer repair."
+  },
+  "outcome": "DELIVERED_HOST_TEST_AND_FINDINGS_SOURCE_ONLY",
+  "output_files": [
+    "tests/host/breaks_musical_tempo_work_audit.c",
+    "tests/host/run_breaks_musical_tempo_audit.py",
+    "docs/audit/performance-pr93-musical-tempo-work-20261025.md",
+    "docs/scheduler-handoffs/performance-pr93-musical-tempo-work-20261025-r12.json"
+  ],
+  "privacy": "Only GPL-3.0-only source/tests/json + hashes in public Git; private logs/synthetic PCM not publicly published.",
+  "role": "LoopyX0X37 Performance Engineering"
+}

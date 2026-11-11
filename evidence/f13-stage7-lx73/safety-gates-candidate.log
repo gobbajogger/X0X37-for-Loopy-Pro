@@ -1,0 +1,98 @@
+/tmp/tmpopztakq1/elite-join.fwsc: with /tmp/f13-lx73-stage7-packages/ctl.img
+/tmp/tmpd3p1qvx_/pro-join.fwsc: with /tmp/f13-lx73-stage7-packages/ctl.img
+digest blank-elite size=651396 sha256=9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5 MATCH
+digest blank-pro size=651392 sha256=3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07 MATCH
+digest ctl size=65492 sha256=956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a MATCH
+digest page-elite size=651396 sha256=3d107710cde229d7faf3e007ae14e324d7ea5ce209a802642dacf40608b2895e MATCH
+digest page-pro size=651392 sha256=60dc7fda13fdaa3ee456736588e18b2d9e7e50cc34a800504bde678e14ba12d3 MATCH
+join elite blank+ctl -> 3d107710cde229d7faf3e007ae14e324d7ea5ce209a802642dacf40608b2895e MATCH page
+join pro blank+ctl -> 60dc7fda13fdaa3ee456736588e18b2d9e7e50cc34a800504bde678e14ba12d3 MATCH page
+--- host backup/restore/interruption suites ---
+package slot map: the map record, else the old 2 x 80 KiB (Felucca loader), else none (stock) ok
+old X0X -> this X0X: the slots stay, no backup, no slot command but SMP_INFO ok
+explicit --backup: every slot saved and verified with zero at-risk slots ok
+explicit --backup: reads finish before the first update command  ok
+downgrade: every slot saved before install; incomplete restoration returns exit 7 ok
+downgrade: the backup sends SMP_INFO / SMP_READ only, and before the install ok
+downgrade: the warning names the slots at risk                   ok
+downgrade: slot 1 kept, slot 3 restored, oversized slot 2 reported ok
+downgrade: exit 7 exposes retained archive recovery instructions ok
+moved slot: default backup file, slot 2 written back at its new offset, slot 1 kept ok
+failure mid-restore: exit 7, the backup file stays and reads back ok
+failure mid-restore: the message gives the Restore button and the x0x_slots.py command ok
+failure mid-restore: the firmware install itself completed       ok
+failure mid-restore: a later restore from the backup completes   ok
+backup fails: exit 7, nothing installed                          ok
+stock package: archived samples retained, no slot destination, incomplete exit 7 with restore steps ok
+--no-slots: no slot command, no backup                           ok
+answer no: warning shown, nothing saved or sent                  ok
+old package transport: no controller is selected implicitly      ok
+install slot tests passed
+PASS installer-slots
+  ok   SMP_INFO: 2 slots of 80 KiB
+  ok   backup sends only SMP_INFO and SMP_READ (read-only)
+  ok   backup leaves the flash unchanged
+  ok   backup images: slot 1 exact, slot 2 empty
+  ok   archive header: count, sizes, names, rates, samples, CRC
+  ok   archive round trip
+  ok   archive refuses swapped slot identities even with a valid outer CRC
+  ok   archive refuses duplicate slot identities even with a valid outer CRC
+  ok   archive refuses skipped slot identity even with a valid outer CRC
+  ok   archive refuses inconsistent slot count even with a valid outer CRC
+  ok   CRC-valid archive refuses string false silently erases a populated slot
+  ok   CRC-valid archive refuses numeric empty flag erases a populated slot
+  ok   CRC-valid archive refuses empty entry carrying hidden image pointers
+  ok   CRC-valid archive refuses aliased image regions copy slot one's bytes into slot two
+  ok   CRC-valid archive refuses orphan payload bytes after referenced images
+  ok   false-string empty flag cannot erase samples or send flash-write commands
+  ok   a damaged archive is refused
+  ok   restore: slot 1 rewritten, slot 2 erased
+  ok   restore: SMP_INFO after restore lists the archive's zones
+  ok   restore uses SMP_ERASE / SMP_BEGIN, SMP_WRITE, SMP_END
+  ok   restore --slots 2 only
+  ok   3 x 120 KiB layout: backup, 100 KB in one slot, lost frames retried
+  ok   3 x 120 KiB layout: restore, verified
+  ok   3-slot archive on 2 slots: slot 3 skipped
+  ok   an image larger than the slot is skipped
+1 slot image(s) in /agent/repos/x0x37-for-loopy-pro/build/host/x0x_slots_extract
+  ok   extract: slot1.hdr / .bin equal the uploaded header and data
+x0x slots: all ok
+PASS slot-backup
+model: pre-repair plan treats probe failure as None (silent skip)        ok
+slot_probe: timeout raises                                               FAIL
+plan_slots: probe failure raises (fail closed)                           FAIL
+Traceback (most recent call last):
+  File "/agent/repos/x0x37-for-loopy-pro/tests/install_f03_slot_probe_test.py", line 138, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/agent/repos/x0x37-for-loopy-pro/tests/install_f03_slot_probe_test.py", line 103, in main
+    move = fi.plan_slots(d3, image, product)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/agent/repos/x0x37-for-loopy-pro/tools/fm1_install.py", line 683, in plan_slots
+    lay = slot_probe(dev.link)
+          ^^^^^^^^^^^^^^^^^^^^
+  File "/agent/repos/x0x37-for-loopy-pro/tools/fm1_install.py", line 625, in slot_probe
+    return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/agent/repos/x0x37-for-loopy-pro/tools/x0x_slots.py", line 87, in parse_info
+    raise SlotError("invalid SMP_INFO slot count or size")
+x0x_slots.SlotError: invalid SMP_INFO slot count or size
+SUPPORTING_FAIL installer-f03-probe (FAIL tests/install_f03_slot_probe_test.py exit=1); continue candidate gates
+--- candidate blank+ctl identity / slot map ---
+PASS pro blank load+slotmap+ctl (3a29723eb620…)
+PASS elite blank load+slotmap+ctl (9c1168cf83d2…)
+--- candidate blank+ctl backup+install and mid-restore interrupt ---
+PASS pro backup-restore-readback page=60dc7fda13fd… backup_bytes=25595 ctl_reads=293
+PASS pro interruption-recovery fail-closed page=60dc7fda13fd… exit=7
+PASS elite backup-restore-readback page=3d107710cde2… backup_bytes=25595 ctl_reads=293
+PASS elite interruption-recovery fail-closed page=3d107710cde2… exit=7
+--- ota-target-binding (blank + page package product identity) ---
+PASS pro ota-target-binding blank+page product=SMK-37 Pro_900 page=60dc7fda13fd…
+PASS elite ota-target-binding blank+page product=SMK-37 Elite_900 page=3d107710cde2…
+ALL_PASS
+source_commit 092589b84fd455355216cb0de93c4782236f7524
+page_elite 3d107710cde229d7faf3e007ae14e324d7ea5ce209a802642dacf40608b2895e
+page_pro 60dc7fda13fdaa3ee456736588e18b2d9e7e50cc34a800504bde678e14ba12d3
+blank_elite 9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5
+blank_pro 3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07
+ctl 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a

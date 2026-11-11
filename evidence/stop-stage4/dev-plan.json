@@ -1,0 +1,18 @@
+{
+  "base": "1c5e8f8953658689434b4b3e8687ccd630afeff0",
+  "scope": "The tested shared central stop repair retains pending commands, the original cutoff, late handles and stop intent. Startup, signaling, receive, credits, MIDI and diagnostics retain matching passing host evidence. Stage4 checks the actual Elite DEV package and controller. No Pro-specific input changed.",
+  "checks": [
+    {
+      "reason": "The source, saved negative controls, independent probe and logs must match before reuse. The complete host suites already pass on the recorded compiler. This command checks their identity and expected results without another suite run.",
+      "argv": [
+        "python3",
+        "-B",
+        "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-checked.py"
+      ]
+    }
+  ],
+  "dependencies": [
+    "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-host.json"
+  ],
+  "model_policy": "Elite covers shared development target checks. No Pro artifact is selected or claimed. Actual Pro packages retain applicable checks."
+}

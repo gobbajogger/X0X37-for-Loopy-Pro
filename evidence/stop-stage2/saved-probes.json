@@ -1,0 +1,102 @@
+[
+  {
+    "name": "realistic-cancel-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/deadline-stage3/test/cancel-realistic-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/realistic-cancel"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "realistic-cancel-compile.log"
+  },
+  {
+    "name": "realistic-cancel-0",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/realistic-cancel",
+      "clear"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "realistic-cancel-0.log"
+  },
+  {
+    "name": "realistic-cancel-1",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/realistic-cancel",
+      "clear",
+      "enhanced"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "realistic-cancel-1.log"
+  },
+  {
+    "name": "realistic-cancel-2",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/realistic-cancel",
+      "busy"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "realistic-cancel-2.log"
+  },
+  {
+    "name": "realistic-cancel-3",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/realistic-cancel",
+      "busy",
+      "enhanced"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "realistic-cancel-3.log"
+  },
+  {
+    "name": "event-edge-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/deadline-stage3/investigation/event-edge-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/event-edge"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "event-edge-compile.log"
+  },
+  {
+    "name": "event-edge-0",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/event-edge"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "event-edge-0.log"
+  }
+]

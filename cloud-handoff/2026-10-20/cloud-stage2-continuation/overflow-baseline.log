@@ -1,0 +1,3 @@
+baseline exit -6
+/tmp/tmptdyqygtq/baseline/ble_midi_central.c:271:47: runtime error: index 64 out of bounds for type 'uint8_t [64]'
+probe: /tmp/tmptdyqygtq/baseline/probe.c:10: main: Assertion `c->q[0][0]==0xa5' failed.

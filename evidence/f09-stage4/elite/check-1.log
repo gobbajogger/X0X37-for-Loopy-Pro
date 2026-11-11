@@ -1,0 +1,11 @@
+467:    uint32_t n = s->ext_pending, k = n;
+468:    s->ext_pending = 0;
+608:        s->ext_pending = 0;
+638:        s->ext_pending = 0;
+639:    if (s->ext_pending) {
+681:    if (s->ext_pending)
+744:void seq_ext_clock(seq_t *s) { s->ext_pending++; }
+796:        s->ext_pending = 0;                           /* BF-005: drop queued clocks of that input too */
+PASS seq_clk_drop owner-matching clears ext_pending; blob /workspace
+blob_ok 'seq_clk_drop(seq_t *s, uint32_t src)\n{\n    if (s->clk_lock == src + 1u) {\n      '...
+PASS seq_clk_drop review blob=fd3f65306df166494d10facf8ddae058287cc17b
