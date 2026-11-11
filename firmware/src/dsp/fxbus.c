@@ -203,7 +203,7 @@ X0X_COLD void fxbus_init(fxbus_t *f, int16_t *dly_buf, int dly_len)
 
 
 /* 12-bit sat store (toward zero). Shared by reverb combs + delay DIGI/TAPE writes. */
-__attribute__((noinline)) static int32_t sat12_store(int16_t *cell, float v)
+static inline __attribute__((always_inline)) int32_t sat12_store_i(int16_t *cell, float v)
 {
     int32_t k = (int32_t)(v * 2048.0f);
     if (k > 32767) k = 32767;
@@ -211,6 +211,7 @@ __attribute__((noinline)) static int32_t sat12_store(int16_t *cell, float v)
     *cell = (int16_t)k;
     return k;
 }
+__attribute__((noinline)) static int32_t sat12_store(int16_t *cell, float v) { return sat12_store_i(cell, v); }
 
 /* Distortion sample — one body; stereo process_st calls this for L and R. */
 static inline __attribute__((always_inline)) float dist_one(const d9_shape_t *sh, float x, float k, float *crush)
@@ -218,8 +219,9 @@ static inline __attribute__((always_inline)) float dist_one(const d9_shape_t *sh
     return d9_shape(sh, x * k, crush) * 0.7f;
 }
 
-/* One Schroeder allpass step — shared by L/R reverb (mono 2×, stereo 4×). */
-__attribute__((noinline)) static float rv_ap(float *ab, int32_t *pos, int32_t alen, float y)
+/* One Schroeder allpass step — shared by L/R reverb (mono 2×, stereo 4×). Inlined: per sample,
+ * a call and its register saves cost more than the step (fm1-emu cost table, TPROF 2026-11-12). */
+static inline __attribute__((always_inline)) float rv_ap(float *ab, int32_t *pos, int32_t alen, float y)
 {
     const int32_t p = *pos;
     const float bo = ab[p];
@@ -228,13 +230,13 @@ __attribute__((noinline)) static float rv_ap(float *ab, int32_t *pos, int32_t al
     return bo - y * 0.5f;
 }
 
-/* One Schroeder comb step — shared across 4 combs (pi32: beats unrolled copies). */
-__attribute__((noinline)) static float rv_comb(fxbus_t *f, int16_t *b, int c, float x, float damp, float fb, int32_t *wr)
+/* One Schroeder comb step — 4 combs a sample; inlined (see rv_ap). */
+static inline __attribute__((always_inline)) float rv_comb(fxbus_t *f, int16_t *b, int c, float x, float damp, float fb, int32_t *wr)
 {
     const int32_t p = f->cpos[c];
     const float y = (float)b[p] * (1.0f / 2048.0f);
     f->cdmp[c] = y + (f->cdmp[c] - y) * damp;
-    *wr |= sat12_store(&b[p], x + f->cdmp[c] * fb);
+    *wr |= sat12_store_i(&b[p], x + f->cdmp[c] * fb);
     f->cpos[c] = p + 1 >= fx_cl[c] ? 0 : p + 1;
     return y;
 }
