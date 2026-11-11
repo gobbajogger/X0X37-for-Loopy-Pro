@@ -20,13 +20,54 @@ static inline float bass_303_accent_gain(int accent)
     return 1.0f + 0.45f + 4.0f * BASS_303_ACCENT_AMT;
 }
 
-static inline void bass_303_accent_output(int accent, float *output)
+/* Accent works like a velocity layer: an accented note is always
+ * bass_303_accent_gain(1) louder than the same note unaccented, on every
+ * preset. The Chicago voice gain stage takes output 0..1 only (voice_gain.c;
+ * more faults the part), so the part of the accent that fits stays in output
+ * (bit-exact with the plain multiply) and the rest is returned as make-up gain
+ * for after the voice. Unaccented notes: output unchanged, make-up 1. */
+static inline float bass_303_accent_output(int accent, float *output)
 {
+    float want;
     if (!accent || !output)
+        return 1.0f;
+    want = *output * bass_303_accent_gain(1);
+    if (want <= 1.0f) {
+        *output = want;
+        return 1.0f;
+    }
+    *output = 1.0f;
+    return want;            /* want / 1.0f */
+}
+
+/* Apply make-up gain after the voice. *gain slews linearly to target by at
+ * most BASS_303_MAKEUP_SLEW per sample (the full accent range in about 64
+ * samples, ~1.5 ms; no step at a sub-block edge of any length), then holds.
+ * Settled at 1: no work, output bit-exact. */
+#define BASS_303_MAKEUP_SLEW ((bass_303_accent_gain(1) - 1.0f) * (1.0f / 64.0f))
+static inline void bass_303_accent_makeup(float *left, float *right, unsigned n,
+                                          float *gain, float target)
+{
+    unsigned i = 0;
+    float g;
+    if (!left || !right || !gain)
         return;
-    /* The Chicago voice gain stage rejects output > 1 (voice_gain.c), and a
-     * rejected render faults the part: keep the accent inside 0..1. */
-    *output = fm_clampf(*output * bass_303_accent_gain(1), 0.0f, 1.0f);
+    g = *gain;
+    if (g == 1.0f && target == 1.0f)
+        return;
+    for (; i < n && g != target; ++i) {
+        float d = target - g;
+        g = d > BASS_303_MAKEUP_SLEW ? g + BASS_303_MAKEUP_SLEW
+          : d < -BASS_303_MAKEUP_SLEW ? g - BASS_303_MAKEUP_SLEW : target;
+        left[i] *= g;
+        right[i] *= g;
+    }
+    if (g != 1.0f)
+        for (; i < n; ++i) {
+            left[i] *= g;
+            right[i] *= g;
+        }
+    *gain = g;
 }
 
 static inline void bass_303_accent_controls(int accent, float *cutoff, float *env_depth)
