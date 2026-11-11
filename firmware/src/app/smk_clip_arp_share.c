@@ -6,8 +6,13 @@
 
 const uint8_t CK_RATE_T[CK_NRATE] = {48, 36, 32, 24, 18, 16, 12, 9, 8, 6, 4, 3, 2};
 
-__attribute__((minsize, noinline)) int ck_arp_pick(const uint8_t *s, uint32_t n, uint32_t order,
-                                                    uint32_t oct, uint32_t step, uint32_t rnd)
+#ifdef __clang__
+__attribute__((minsize, noinline))
+#else
+__attribute__((noinline))   /* minsize is clang-only */
+#endif
+int ck_arp_pick(const uint8_t *s, uint32_t n, uint32_t order,
+                uint32_t oct, uint32_t step, uint32_t rnd)
 {
     uint32_t len = n * oct, i = step % len, j;
     if (order == CK_ORD_UPDN || order == CK_ORD_DNUP) {

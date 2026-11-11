@@ -7,9 +7,14 @@
 #include "chicago_fx.h"
 #include "chicago_aux.h"
 
-__attribute__((minsize, noinline)) void chi_arp_run_set(chi_arp_run_t *r, const uint8_t *notes,
-                                                        uint32_t n, uint8_t mode, uint8_t range,
-                                                        uint8_t speed)
+#ifdef __clang__
+__attribute__((minsize, noinline))
+#else
+__attribute__((noinline))   /* minsize is clang-only */
+#endif
+void chi_arp_run_set(chi_arp_run_t *r, const uint8_t *notes,
+                     uint32_t n, uint8_t mode, uint8_t range,
+                     uint8_t speed)
 {
     uint32_t i, j;
     if (!r)
