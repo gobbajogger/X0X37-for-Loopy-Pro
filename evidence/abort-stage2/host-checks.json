@@ -1,0 +1,265 @@
+[
+  {
+    "name": "receive",
+    "argv": [
+      "sh",
+      "tests/host/ble_midi_receive_test.sh"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "receive.log"
+  },
+  {
+    "name": "diag",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/ble_central_diag_test.py"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "diag.log"
+  },
+  {
+    "name": "base-public-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "tests/host/ble_midi_abort_test.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base/public"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base",
+    "returncode": 0,
+    "expected": 0,
+    "log": "base-public-compile.log"
+  },
+  {
+    "name": "base-public-overflow",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base/public",
+      "overflow"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base",
+    "returncode": -6,
+    "expected": -6,
+    "log": "base-public-overflow.log"
+  },
+  {
+    "name": "base-public-timeout",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base/public",
+      "timeout"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base",
+    "returncode": -6,
+    "expected": -6,
+    "log": "base-public-timeout.log"
+  },
+  {
+    "name": "base-investigation-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/investigation-abort-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base/investigation"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base",
+    "returncode": 0,
+    "expected": 0,
+    "log": "base-investigation-compile.log"
+  },
+  {
+    "name": "base-investigation-overflow",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base/investigation",
+      "overflow"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base",
+    "returncode": -6,
+    "expected": -6,
+    "log": "base-investigation-overflow.log"
+  },
+  {
+    "name": "base-investigation-timeout",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base/investigation",
+      "timeout"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base",
+    "returncode": -6,
+    "expected": -6,
+    "log": "base-investigation-timeout.log"
+  },
+  {
+    "name": "base-independent-test-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/test-busy-disconnect.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base/independent-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base",
+    "returncode": 0,
+    "expected": 0,
+    "log": "base-independent-test-compile.log"
+  },
+  {
+    "name": "base-independent-test-both",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base/independent-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/base",
+    "returncode": 1,
+    "expected": 1,
+    "log": "base-independent-test-both.log"
+  },
+  {
+    "name": "candidate-public-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "tests/host/ble_midi_abort_test.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate/public"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-public-compile.log"
+  },
+  {
+    "name": "candidate-public-overflow",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate/public",
+      "overflow"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-public-overflow.log"
+  },
+  {
+    "name": "candidate-public-timeout",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate/public",
+      "timeout"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-public-timeout.log"
+  },
+  {
+    "name": "candidate-investigation-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/investigation-abort-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate/investigation"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-investigation-compile.log"
+  },
+  {
+    "name": "candidate-investigation-overflow",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate/investigation",
+      "overflow"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-investigation-overflow.log"
+  },
+  {
+    "name": "candidate-investigation-timeout",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate/investigation",
+      "timeout"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-investigation-timeout.log"
+  },
+  {
+    "name": "candidate-independent-test-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/test-busy-disconnect.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate/independent-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-independent-test-compile.log"
+  },
+  {
+    "name": "candidate-independent-test-both",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate/independent-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-abort-3bex9aka/candidate",
+    "returncode": 0,
+    "expected": 0,
+    "log": "candidate-independent-test-both.log"
+  }
+]

@@ -1,0 +1,289 @@
+{
+  "evidence_revision": "seqclock-pr90-engine-event-partition-linked-20261024-r26",
+  "known_dependency": "PR41 clock-owner reset still unmerged; PR90 source does not contain that one-line change. Sole integrator and independent QA must reconcile independently rather than assuming coverage.",
+  "limitations": {
+    "complete_exact_root_qa": "NOT_RUN: complete checkout unavailable to native git due DNS; linked pinned six source inputs verified byte identity",
+    "hardware": "DEVICE NOT TESTED",
+    "independent_qa": "PENDING: producer cannot self-approve",
+    "public_installation": "NOT QUALIFIED",
+    "target_elite_pro_firmware": "NOT_RUN: this is source regression only; unchanged compiled subtree; BUILD_ONLY remains independent"
+  },
+  "negative_mutations": "Local-only uncommitted mutations: seq_until_event returns n instead of deadline; bass_midi_flush omits active NoteOff. All six compilers/sanitizer variants detect both errors; mutations NOT in Git.",
+  "new_test": {
+    "bytes": 6163,
+    "git_blob": "4ff8a6fa27c8e0922233833664338f31eabb92a3",
+    "path": "tests/host/seq_sample_event_partition_linked_test.c",
+    "sha256": "734ab1b2f2d66cf5012002a6b067847853daae1675fb8c423767ed375ea3c9eb"
+  },
+  "next_owner": "Existing Independent QA specialist: verify remote final PR90 head and test file, run complete exact-root registered transport-sample-scheduling and other clock/NoteOff tests; independent disposition. Existing Hourly Build may compile immutable compiler subtree BUILD_ONLY without waiting.",
+  "outcome": "SOURCE_TEST_DELIVERED_PRODUCER_SCOPED",
+  "owned_ref": "lane/seq-transport-origin-20261023-run3-1317",
+  "owner": "LoopyX0X37 Sequencer Clock (:06 UTC) producer",
+  "producer_pr": 90,
+  "regression_purpose": "Verify production seq_until_event+seq_advance render-loop invariance under 1-1024 frame partitions, MIDI F8 exact 882-sample spacing, 303 NoteOff exactly once at local STOP, Continue phase, and fixed 44.1k/125BPM timestamps.",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "results": [
+    {
+      "assertion_summary": "seq sample scheduling: 24630/24630 checks PASSED; 24 events",
+      "case": "source",
+      "compile_exit": 0,
+      "compiler": "gcc",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "plain",
+      "log_path": "r26_logs/gcc-plain-source.run.log",
+      "log_sha256": "bde3a949a7a7edb6137fec7ceaafe0800979ef962bed8def343f012e743777ad",
+      "run_exit": 0,
+      "status": "PASS"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24409/24549 checks FAILED; 24 events",
+      "case": "mutant_sched",
+      "compile_exit": 0,
+      "compiler": "gcc",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "plain",
+      "log_path": "r26_logs/gcc-plain-mutant_sched.run.log",
+      "log_sha256": "bdf53715a79fee65b7b2970f62aadc25a544d72149f5d3ef841b4cf0db8b2e20",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24486/24534 checks FAILED; 22 events",
+      "case": "mutant_noteoff",
+      "compile_exit": 0,
+      "compiler": "gcc",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "plain",
+      "log_path": "r26_logs/gcc-plain-mutant_noteoff.run.log",
+      "log_sha256": "1ef956fef4b054ac803e3d98efc4b7f479a45536f66c820ee9fc63c65bdc0442",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24630/24630 checks PASSED; 24 events",
+      "case": "source",
+      "compile_exit": 0,
+      "compiler": "gcc",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "ubsan",
+      "log_path": "r26_logs/gcc-ubsan-source.run.log",
+      "log_sha256": "bde3a949a7a7edb6137fec7ceaafe0800979ef962bed8def343f012e743777ad",
+      "run_exit": 0,
+      "status": "PASS"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24409/24549 checks FAILED; 24 events",
+      "case": "mutant_sched",
+      "compile_exit": 0,
+      "compiler": "gcc",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "ubsan",
+      "log_path": "r26_logs/gcc-ubsan-mutant_sched.run.log",
+      "log_sha256": "bdf53715a79fee65b7b2970f62aadc25a544d72149f5d3ef841b4cf0db8b2e20",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24486/24534 checks FAILED; 22 events",
+      "case": "mutant_noteoff",
+      "compile_exit": 0,
+      "compiler": "gcc",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "ubsan",
+      "log_path": "r26_logs/gcc-ubsan-mutant_noteoff.run.log",
+      "log_sha256": "1ef956fef4b054ac803e3d98efc4b7f479a45536f66c820ee9fc63c65bdc0442",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24630/24630 checks PASSED; 24 events",
+      "case": "source",
+      "compile_exit": 0,
+      "compiler": "gcc",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "asan-ubsan",
+      "log_path": "r26_logs/gcc-asan-ubsan-source.run.log",
+      "log_sha256": "bde3a949a7a7edb6137fec7ceaafe0800979ef962bed8def343f012e743777ad",
+      "run_exit": 0,
+      "status": "PASS"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24409/24549 checks FAILED; 24 events",
+      "case": "mutant_sched",
+      "compile_exit": 0,
+      "compiler": "gcc",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "asan-ubsan",
+      "log_path": "r26_logs/gcc-asan-ubsan-mutant_sched.run.log",
+      "log_sha256": "bdf53715a79fee65b7b2970f62aadc25a544d72149f5d3ef841b4cf0db8b2e20",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24486/24534 checks FAILED; 22 events",
+      "case": "mutant_noteoff",
+      "compile_exit": 0,
+      "compiler": "gcc",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "asan-ubsan",
+      "log_path": "r26_logs/gcc-asan-ubsan-mutant_noteoff.run.log",
+      "log_sha256": "1ef956fef4b054ac803e3d98efc4b7f479a45536f66c820ee9fc63c65bdc0442",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24630/24630 checks PASSED; 24 events",
+      "case": "source",
+      "compile_exit": 0,
+      "compiler": "clang",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "plain",
+      "log_path": "r26_logs/clang-plain-source.run.log",
+      "log_sha256": "bde3a949a7a7edb6137fec7ceaafe0800979ef962bed8def343f012e743777ad",
+      "run_exit": 0,
+      "status": "PASS"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24409/24549 checks FAILED; 24 events",
+      "case": "mutant_sched",
+      "compile_exit": 0,
+      "compiler": "clang",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "plain",
+      "log_path": "r26_logs/clang-plain-mutant_sched.run.log",
+      "log_sha256": "bdf53715a79fee65b7b2970f62aadc25a544d72149f5d3ef841b4cf0db8b2e20",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24486/24534 checks FAILED; 22 events",
+      "case": "mutant_noteoff",
+      "compile_exit": 0,
+      "compiler": "clang",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "plain",
+      "log_path": "r26_logs/clang-plain-mutant_noteoff.run.log",
+      "log_sha256": "1ef956fef4b054ac803e3d98efc4b7f479a45536f66c820ee9fc63c65bdc0442",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24630/24630 checks PASSED; 24 events",
+      "case": "source",
+      "compile_exit": 0,
+      "compiler": "clang",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "ubsan",
+      "log_path": "r26_logs/clang-ubsan-source.run.log",
+      "log_sha256": "bde3a949a7a7edb6137fec7ceaafe0800979ef962bed8def343f012e743777ad",
+      "run_exit": 0,
+      "status": "PASS"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24409/24549 checks FAILED; 24 events",
+      "case": "mutant_sched",
+      "compile_exit": 0,
+      "compiler": "clang",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "ubsan",
+      "log_path": "r26_logs/clang-ubsan-mutant_sched.run.log",
+      "log_sha256": "bdf53715a79fee65b7b2970f62aadc25a544d72149f5d3ef841b4cf0db8b2e20",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24486/24534 checks FAILED; 22 events",
+      "case": "mutant_noteoff",
+      "compile_exit": 0,
+      "compiler": "clang",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "ubsan",
+      "log_path": "r26_logs/clang-ubsan-mutant_noteoff.run.log",
+      "log_sha256": "1ef956fef4b054ac803e3d98efc4b7f479a45536f66c820ee9fc63c65bdc0442",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24630/24630 checks PASSED; 24 events",
+      "case": "source",
+      "compile_exit": 0,
+      "compiler": "clang",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "asan-ubsan",
+      "log_path": "r26_logs/clang-asan-ubsan-source.run.log",
+      "log_sha256": "bde3a949a7a7edb6137fec7ceaafe0800979ef962bed8def343f012e743777ad",
+      "run_exit": 0,
+      "status": "PASS"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24409/24549 checks FAILED; 24 events",
+      "case": "mutant_sched",
+      "compile_exit": 0,
+      "compiler": "clang",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "asan-ubsan",
+      "log_path": "r26_logs/clang-asan-ubsan-mutant_sched.run.log",
+      "log_sha256": "bdf53715a79fee65b7b2970f62aadc25a544d72149f5d3ef841b4cf0db8b2e20",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    },
+    {
+      "assertion_summary": "seq sample scheduling: 24486/24534 checks FAILED; 22 events",
+      "case": "mutant_noteoff",
+      "compile_exit": 0,
+      "compiler": "clang",
+      "compiler_diagnostics_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "asan-ubsan",
+      "log_path": "r26_logs/clang-asan-ubsan-mutant_noteoff.run.log",
+      "log_sha256": "1ef956fef4b054ac803e3d98efc4b7f479a45536f66c820ee9fc63c65bdc0442",
+      "run_exit": 1,
+      "status": "EXPECTED_FAIL"
+    }
+  ],
+  "run_utc": "2026-10-24T17:17:11.049956+00:00",
+  "safety": "No private SDK/DSP, controller, firmware binaries, user samples, backup data, hardware flash, production, guarded NIGHTLY, gh-pages or public artifacts.",
+  "schema_version": 1,
+  "source_assertions": "6/6 positive runs 24630/24630; 6/6 scheduler-skip mutants exit1; 6/6 NoteOff-suppression mutants exit1. R25 predecessor replay 6/6 28278/28278 with its six expected negative controls.",
+  "source_commands": [
+    "bash reproduce-native-r26.sh",
+    "bash reproduce-native-r25.sh"
+  ],
+  "source_git_blobs": {
+    "pattern.c": {
+      "bytes": 1478,
+      "git_blob": "b6b667d023a912b13de8539168c61928182ffa23",
+      "sha256": "0d9b36c4ab979533df2974e0adc962d521c9bf587403eaecca4109042eaddf2a"
+    },
+    "pattern.h": {
+      "bytes": 4448,
+      "git_blob": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+      "sha256": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba"
+    },
+    "sequencer.c": {
+      "bytes": 34500,
+      "git_blob": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+      "sha256": "a7de20c255cc94aa50acf9fa4dcac89dc172b521702e83dc8ea103d309ae6892"
+    },
+    "sequencer.h": {
+      "bytes": 12526,
+      "git_blob": "6ff366ed1b36faafab6676498483921d46e1b746",
+      "sha256": "767c9d36df0e7f30ed0bd87bb36588bd47cbe47e7764a070b2fe9ae9bc9e2f78"
+    },
+    "tb3po.c": {
+      "bytes": 5173,
+      "git_blob": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+      "sha256": "7c238132753aff9f16acd6af3235845f95e13a5e5ae51dca544e142ee77e166b"
+    },
+    "tb3po.h": {
+      "bytes": 923,
+      "git_blob": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c",
+      "sha256": "7dd646a572129fc8df5628f6111f68fef6b54476446f75cc5f583b6f110f0073"
+    }
+  },
+  "stacked_parent_pr": 86,
+  "tested_compiler_input_firmware_subtree": "978e4c3008f886d53d02767133b30b5637a3e8a0",
+  "tested_input_behavior": "Actual Git-matched sequencer.c, pattern.c and tb3po.c/h from PR90 parent; actual sequencing and clock scheduling code linked. No application/engine.c, target firmware or controller compiled.",
+  "tested_parent_commit": "d5f6f78d856d7bbe113a3c7ace4680b4ef460644",
+  "tested_parent_root_tree": "82b70ba5528b3ff0a2387cf4d53a692bd9e35435",
+  "toolchain": "Linux x86-64 GCC and Clang installed host compilers; -std=c11 -O1 -g -Wall -Wextra -Werror; UBSan and ASan+UBSan with ASAN_OPTIONS=detect_leaks=0 (no LSan coverage)."
+}

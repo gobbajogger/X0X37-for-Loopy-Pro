@@ -1,0 +1,33 @@
+Local stage-6 install prompt for F07 FP-001 (no cloud thread). LaunchAgent com.x0x37.unattended-install may run this for a validated development package. Cloud agents do not flash.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Procedure: AGENTS.md and docs/rules/workflow.md
+Audited firmware reference SHA: 1325f5d34340ea877e65ab86f3663f5dea052c0d
+Validated source SHA (install commit for require_gate_pass / fm1_install --commit): 6df0f81fbbe0adc3207f67d912d2fe0ab676be04
+Content tree: 69ccb3d77a718d32191cf17a75bce6454dad807ef9bb76f6050e6532a0bff3ad
+Audited firmware content tree (unchanged package bytes): b02108f768a1d6cea2bb78f534f224bbace3c9dfce9697e1dfd00fe69ddd5190
+Evidence-bearing tip (do NOT pass as --commit): the stage-5 / stage-4 evidence tip that only adds records/logs/handoff. Those commits change tools/dev_validate.py::tree and return REFUSED: development evidence is for another source tree.
+Config: X0X_DEV_PADCAL=1 (development only). Refuse production main / release config.
+FP-001 repair: 6df0f81f (Reconcile FP-001 installer source vs served HTML digests). BF-003 already in tip: 1325f5d3. BF-002 already in tip: ab90f47c. BF-001 already in tip: d11b74fc. F03 already in tip: 4f18983a. Firmware application paths unchanged vs audited tip; package/controller SHA-256 match F06/F05/F04 attested bytes.
+
+Elite (attached SMK-37 Elite_900 when present):
+- DEV CHECKED record: evidence/f07-stage4/elite/record.json
+- package: x0x-smk37-elite.fwsc sha256 d3b4cac3d7b7be7a72732d4dd00c3120c053dbffc9137ffb7c151a5fd5355f2b
+- controller: ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- pool_free: 8324
+- identity: SMK-37 Elite_900
+
+Pro (same source tree; install only when that model is attached):
+- DEV CHECKED record: evidence/f07-stage4/pro/record.json
+- package: x0x-smk37.fwsc sha256 0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9
+- controller: ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- pool_free: 8324
+- identity: SMK-37 Pro_900
+
+Gate: tools/require_gate_pass.sh <validated-source-SHA> --config dev --fwsc <package> --ctl <ctl.img> --dev-record <matching record.json> must print DEV OK before write. Rebuild or retrieve package bytes to match the hashes; bytes are not in Git.
+Installer: tools/fm1_install.py with --commit 6df0f81fbbe0adc3207f67d912d2fe0ab676be04 --dev-record … --config dev --ctl … --backup … --yes only after DEV OK, in the watched install session.
+Missing device: INSTALL BLOCKED; leave pending. Do not publish. Do not start a cloud successor. Do not push main or nightly.
+Stage-5 merge note: firmware nightly FF to 6df0f81f was REFUSED (non-fast-forward vs 08d3164a); no force-push. Stage 7 publishes from this validated source SHA regardless.
+Merge evidence: evidence/f07-stage5/CHECKS.md
+JSON twin: evidence/f07-stage5/stage6-install-prompt.json
+Deferred (do not implement here): evidence/f07-stage2/DEFERRED.md

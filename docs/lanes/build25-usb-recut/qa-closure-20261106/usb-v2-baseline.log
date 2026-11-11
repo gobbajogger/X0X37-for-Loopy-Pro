@@ -1,0 +1,1 @@
+GREEN usb-retry: reset, no attach before 25 ms, one attach after, no re-entry; idle if up or detached; dead-SIE count cleared

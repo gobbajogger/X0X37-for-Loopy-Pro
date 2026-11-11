@@ -1,0 +1,23 @@
+# Recording a live part mute into an existing song bar is a project edit by itself.
+wait 300
+tap HOME
+tap HOME
+expect view 6
+tapkey w0
+expect songlen 1
+tap SAVE
+expect store_writes 6
+tap REC
+tap PLAY
+wait 100
+expect songpos 1
+tap HOME
+tapkey b0
+expect songbar1.5 1
+tap PLAY
+tap REC
+wait 4500
+expect store_writes 7
+reboot
+expect songlen 1
+expect songbar1.5 1

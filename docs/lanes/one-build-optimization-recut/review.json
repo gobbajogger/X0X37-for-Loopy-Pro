@@ -1,0 +1,112 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {
+    "base": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+    "branch": "wip/one-build",
+    "head_sha": "a06e20189141ff5fb8766e2c6152be460f4356c3",
+    "pr_url": null,
+    "files_changed": 57,
+    "tracked_files": 20,
+    "explicitly_included_untracked_source_files": 37
+  },
+  "intent": "Recut the applicable tip optimization stack from lane 61252430 starting c67eb834 onto exact a06, preserving seven-effect Chicago policy and exact DSP PCM/state. Exclude restored-insert dependent patches, unrelated features and stale historical evidence.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "performance",
+    "adversarial"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan": "/workspace/work/plan.md",
+    "plan_source": "explicit",
+    "format": "legacy workflow plan without R-IDs or U-IDs",
+    "source_scope": "Applicable optimization recut and registered regressions are addressed; base seven-effect policy is preserved.",
+    "caller_owned_checks": "Native SDK V1.2.1 metrics were read as parent evidence. Full host execution, final closure and publication remain parent-owned workflow steps, not source omissions."
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [],
+  "testing_gaps": [
+    "Target cycles remain NOT_MEASURED. Source review, differential regressions and native size/RAM results do not establish the approximately 7256 cycles/sample target. No target cycle improvement or regression is claimed."
+  ],
+  "coverage": {
+    "verdict_scope": "Source review complete with no actionable findings; the skill verdict is a source-review classification only and grants no merge or shipping authorization. Parent owns authoritative test results and final delivery checks.",
+    "reviewer_outcomes": "All six selected reviewers reached terminal valid JSON outcomes; no failed or timed-out reviewers.",
+    "selection": {
+      "correctness": "Always-on logic/state review.",
+      "project_standards": "Root AGENTS.md fallback governs all changed paths; no CODING_STANDARDS.md found.",
+      "testing": "New differential/characterization harnesses and suite registration.",
+      "maintainability": "468 executable changed lines and structural hot-path refactors.",
+      "performance": "Audio hot loops, coefficient hoists, table storage and zero scans.",
+      "adversarial": "Large runtime change plus silent-pass verification mechanisms."
+    },
+    "cross_model": {
+      "status": "not run",
+      "reason": "Only same-family Codex CLI installed; claude, grok, cursor-agent and opencode routes absent.",
+      "adversarial_lens": "Completed in-process fallback.",
+      "independence_verified": false,
+      "egress": "none"
+    },
+    "scope_helper": {
+      "exec_lines": 468,
+      "uncounted_files": 5,
+      "lite_eligible": false,
+      "conservative_full_roster": true
+    },
+    "untracked_policy": "Caller explicitly required new optimization tests and break_retrigger_lut.h; these 37 source files were included despite default untracked exclusion.",
+    "excluded_untracked": [
+      "docs/lanes/one-build-optimization-recut/inputs.json",
+      "docs/lanes/one-build-optimization-recut/native-metrics.json",
+      "docs/lanes/one-build-optimization-recut/recut-manifest.json"
+    ],
+    "source_snapshot": "reviewed-source-sha256.json now covers the two reviewed test repairs; all other 55 file hashes are unchanged.",
+    "fast_pass": "Completed with no candidates; no independent-promotion credit.",
+    "mechanics": {
+      "status": "complete",
+      "findings": 0,
+      "malformed_returns": 0,
+      "malformed_findings": 0,
+      "suppressed_by_confidence": {},
+      "mode_aware_demotions": 0
+    },
+    "validators": {
+      "selected": 0,
+      "outcome": "No retained findings require a validator batch.",
+      "cross_model_shortcuts": 0,
+      "degraded_blockers": 0
+    },
+    "execution": "No tests or builds executed by review orchestrator or reviewers; parent owns all authoritative executable proof.",
+    "native_metrics_read": {
+      "elite_and_pro_app_delta_bytes": 5728,
+      "app_ram_bytes": 95780,
+      "app_ram_delta_bytes": 0,
+      "app_ram_free_bytes": 2524,
+      "pool_free_bytes": 8600,
+      "ram_text_bytes": 2712,
+      "ram_text_delta_bytes": 0
+    },
+    "scope_highlights": [
+      "Frozen a06 FX header and exactly two derived coefficient normalizations plus pointer ownership.",
+      "Real BREAK active audio, release tail, 32 poisoned-scratch skipped idle blocks, and audible restart.",
+      "Mandatory GCC/Clang IMA modes; optimization harness registration and generator serialization.",
+      "Signed-zero identity guards, retrigger/control LUT bounds, bulk project/undo/LZ bounds.",
+      "Modulation harness links existing original_rne_fmaf implementation for pinned and candidate objects.",
+      "909 emit reset lifecycle uses the real a06 init API and normalizes only immutable sample pointer ownership after reset."
+    ],
+    "mutations": "Review artifacts only; no production/test edits or repository/ref/device changes.",
+    "settlement_suppression": "No session-settled KTD annotations in explicit plan.",
+    "post_review_addendum": "post-review-test-repairs.json; targeted read-only source review by formal-review orchestrator, preserving the six completed reviewers on unchanged source."
+  },
+  "artifact_path": "/workspace/work/formal-review",
+  "run_id": "dnbox-a06-formal-20261105",
+  "merge_authorization": false
+}

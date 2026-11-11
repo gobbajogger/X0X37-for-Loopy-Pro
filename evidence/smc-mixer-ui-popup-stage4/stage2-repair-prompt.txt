@@ -1,0 +1,30 @@
+You are a fresh Stage 2 REPAIR thread for X0X37 SMC mixer UI popup (seven-stage workflow).
+
+## Why
+Stage 4 Validate (bc-03fb7159-af1e-5d80-837b-f4bec84f0cb4) FAIL: Elite DEV XIP overflow
+by 248 B and Pro by 232 B on candidate 5109ef6 / implementation ad4f311. Host suite still
+PASS. Baseline main e00741e links (Elite 488 B free, Pro 504 B free). See
+evidence/smc-mixer-ui-popup-stage4/DEFECT.txt and RESULT.txt.
+
+## Read first
+- docs/audit/smc-mixer-ui-popup-2026-10-22.md
+- evidence/smc-mixer-ui-popup-stage4/DEFECT.txt
+- evidence/smc-mixer-ui-popup-stage4/RESULT.txt
+- evidence/smc-mixer-ui-popup-stage2/HANDOFF.md
+- tests/host/smc_ui_popup_test.c
+
+## Job
+1. Fetch/checkout a branch from the failed candidate (ad4f311 / stage-2 tip 5109ef6) or
+   create cursor/smc-mixer-ui-popup-stage2-repair-5686 from that tip.
+2. Shrink peek/hold/restore (or reclaim XIP elsewhere with clear justification) so
+   MODEL=elite and MODEL=pro DEV builds (X0X_DEV_PADCAL=1) link with budgets OK.
+3. Keep SMC-05 behavior: strips 1–5 MIX PARTS mixsel; 6 FX REVERB; 7 FX DELAY; 8 MIX MASTER;
+   1200 ms hold/refresh; peek on PICK/SMC; restore without set_view; no peek in
+   clip/help/overlay/perf_testing/drum-mix.
+4. Re-run focused SMC host suite (same commands as stage-2/3 handoff).
+5. Record Elite/Pro build size logs under evidence/smc-mixer-ui-popup-stage2-repair/ (or
+   continue stage2 evidence). Commit, push, draft PR update if tools allow.
+6. Start exactly one fresh Stage 3 test thread on the repaired tip. Do NOT install. Do NOT
+   merge to main. Do NOT implement page-lock/multi-SMC.
+
+Toolchain on cloud Linux is available (JIELI + AC79 SDK + refs); use it for link proof.
