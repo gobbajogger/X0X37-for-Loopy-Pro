@@ -32,6 +32,9 @@
 
 /* per-sample voice code; tools/target_obj_check.sh ... -DD8_TICK='static __attribute__((noinline))'
  * keeps each one a function of its own, so its instruction count can be read */
+/* a branch that is rarely taken (a voice's first 44 samples, a fault, every 16th sample):
+ * laid out off the straight path, where a taken branch costs ~10 cycles on the AC79 */
+#define D8_UNLIKELY(c) __builtin_expect(!!(c), 0)
 #ifndef D8_TICK
 #define D8_TICK static inline
 #endif
@@ -386,7 +389,7 @@ static inline __attribute__((always_inline)) float env_step(d8_env_t *e)
 D8_TICK float env_next(d8_env_t *e)
 {
     float t;
-    if (e->phase >= 64) {
+    if (D8_UNLIKELY(e->phase >= 64)) {
         e->phase = 0;
         e->prev = e->cur;
         e->cur = env_step(e);
@@ -408,7 +411,7 @@ D8_TICK float env_next(d8_env_t *e)
 float drum808_quiet = D8_QUIET_INIT;
 #define QUIET(v, o, n)                                                    \
     do {                                                                  \
-        if ((o) > drum808_quiet || (o) < -drum808_quiet) (v)->quiet = 0;  \
+        if (__builtin_expect((o) > drum808_quiet || (o) < -drum808_quiet, 1)) (v)->quiet = 0; \
         else if (++(v)->quiet > (n)) (v)->active = 0;                     \
     } while (0)
 
@@ -457,7 +460,7 @@ static void bd_trigger(d8_bd_t *v, float hz, float decay_k, float tone, float at
 D8_TICK float bd_tick(d8_bd_t *v)
 {
     float gate = 0.0f, vplus, mag, x, y, click, out;
-    if (v->gate > 0) {
+    if (D8_UNLIKELY(v->gate > 0)) {
         gate = v->accent_v;
         v->gate--;
     }
@@ -467,7 +470,7 @@ D8_TICK float bd_tick(d8_bd_t *v)
         v->atk_env = 0.0f;
     mag = fm_fabsf(v->fb) * (1.0f / 1.35f);
     v->sigh_env += (mag - v->sigh_env) * 0.0016f;
-    if (--v->coef_age <= 0) {
+    if (D8_UNLIKELY(--v->coef_age <= 0)) {
         float sigh = 1.0f + 0.16f * (v->sigh_env < 1.0f ? v->sigh_env : 1.0f);
         float lift = 1.0f + 2.0f * v->atk_amt * v->atk_env;
         v->coef_age = 16;
@@ -480,7 +483,7 @@ D8_TICK float bd_tick(d8_bd_t *v)
     v->tone_z += ((y + click) - v->tone_z) * v->tone_c;
     v->dc_z += (v->tone_z - v->dc_z) * 0.0009f;
     out = v->tone_z - v->dc_z;
-    if (!(out > -50.0f && out < 50.0f)) {
+    if (D8_UNLIKELY(!(out > -50.0f && out < 50.0f))) {
         bd_reset(v);
         return 0.0f;
     }
@@ -533,7 +536,7 @@ static void sd_trigger(d8_sd_t *v, float ratio, float decay01, float tone01, flo
 D8_TICK float sd_tick(d8_sd_t *v)
 {
     float gate = 0.0f, vplus, s1, s2, shells, n, vca, noise, out;
-    if (v->gate > 0) {
+    if (D8_UNLIKELY(v->gate > 0)) {
         gate = v->accent_v;
         v->gate--;
     }
@@ -547,7 +550,7 @@ D8_TICK float sd_tick(d8_sd_t *v)
     noise = bq_run(&v->noise_hp, vca);
     out = shells * 0.1491f + noise * 1.4908f;
     out = bq_run(&v->out_hp, out);
-    if (!(out > -50.0f && out < 50.0f)) {
+    if (D8_UNLIKELY(!(out > -50.0f && out < 50.0f))) {
         sd_reset(v);
         return 0.0f;
     }
@@ -595,7 +598,7 @@ __attribute__((noinline)) static void tom_trigger(d8_tom_t *v, int mode, float h
 D8_TICK float tom_tick(d8_tom_t *v)
 {
     float gate = 0.0f, strike, skin = 0.0f, x, y, out;
-    if (v->gate > 0) {
+    if (D8_UNLIKELY(v->gate > 0)) {
         gate = v->accent_v;
         v->gate--;
     }
@@ -611,7 +614,7 @@ D8_TICK float tom_tick(d8_tom_t *v)
     v->pitch_env *= D8_TOM_PITCH_C;
     if (v->pitch_env < 1e-5f)
         v->pitch_env = 0.0f;
-    if (--v->coef_age <= 0) {
+    if (D8_UNLIKELY(--v->coef_age <= 0)) {
         v->coef_age = 16;
         bp_set(&v->bt, v->f0 * (1.0f + (v->mode == 0 ? 0.085f : 0.03f) * v->pitch_env), TOM_Q);
     }
@@ -621,7 +624,7 @@ D8_TICK float tom_tick(d8_tom_t *v)
     out = y * v->fwd;
     v->dc_z += (out - v->dc_z) * 0.0009f;
     out -= v->dc_z;
-    if (!(out > -50.0f && out < 50.0f)) {
+    if (D8_UNLIKELY(!(out > -50.0f && out < 50.0f))) {
         tom_reset(v);
         return 0.0f;
     }
@@ -651,14 +654,14 @@ __attribute__((noinline)) static void cl_trigger(d8_clave_t *v, float ratio, flo
 D8_TICK float cl_tick(d8_clave_t *v)
 {
     float gate = 0.0f, y0, y;
-    if (v->gate > 0) {
+    if (D8_UNLIKELY(v->gate > 0)) {
         gate = v->accent_v;
         v->gate--;
     }
     y0 = bp_run(&v->bt, shaper(&v->shp, gate) + v->g * opamp_clip(v->fb, 12.0f, 1.0f / 12.0f));
     v->fb = y0;
     y = y0 * 0.55f;
-    if (!(y > -50.0f && y < 50.0f)) {
+    if (D8_UNLIKELY(!(y > -50.0f && y < 50.0f))) {
         v->bt.z1 = v->bt.z2 = 0.0f;
         v->fb = 0.0f;
         v->gate = 0;
@@ -948,12 +951,12 @@ D8_TICK float cy_tick(d8_cy_t *v, float bus)
     float b1, b2, g1, g2, g3, sus, body_pre, body_dk, body, top_in, top, c1, y;
     b1 = opamp_clip(bq3_run(&v->bp1, k_cy_bp1, bus), 14.0f, 1.0f / 14.0f);
     b2 = opamp_clip(bq3_run(&v->bp2, k_cy_bp2, bus), 14.0f, 1.0f / 14.0f);
-    if (v->e1t > 0.0f) {
+    if (D8_UNLIKELY(v->e1t > 0.0f)) {
         v->e1 += (v->e1t - v->e1) * v->atk_c;
         if (v->e1 > v->e1t * 0.99f)
             v->e1t = 0.0f;
     } else {                                      /* linear discharge, as start - n step */
-        if (!v->e1_ramp) {
+        if (D8_UNLIKELY(!v->e1_ramp)) {
             v->e1_ramp = 1;
             v->e1_base = v->e1;
             v->e1_n = 0;
@@ -1050,14 +1053,14 @@ D8_TICK float hat_tick(d8_hat_t *v, float bus)
     v->d2 = t1;
     if (v->linear) {
         e = v->lin_level;
-        if (v->lin_target > 0.0f) {
+        if (D8_UNLIKELY(v->lin_target > 0.0f)) {
             v->lin_level += (v->lin_target - v->lin_level) * v->lin_atk_c;
             if (v->lin_level > v->lin_target * 0.99f)
                 v->lin_target = 0.0f;
         } else if (v->lin_hold > 0)
             v->lin_hold--;
         else {                                    /* C62's discharge, as start - n step */
-            if (!v->ramp) {
+            if (D8_UNLIKELY(!v->ramp)) {
                 v->ramp = 1;
                 v->lin_base = v->lin_level;
                 v->lin_n = 0;
