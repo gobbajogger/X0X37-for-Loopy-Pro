@@ -26,11 +26,17 @@ const uint8_t SMCFX_SUIT_N[SMCFX_N] = {6, 6, 7, 6, 6, 7, 5, 7};
 
 /* The SELECT fallback stays suited when a page-two SELECT cell is empty.
  * Audible effects and displayed captions use each independent button mapping. */
+/* ROOM/TIGHT/ECHO SELECT maps. ECHO is the third page from 7b2d1726 (#688).
+ * ROOM comparison: the source ROOM was REV/DLY/HP/LP/GATE/REV/DLY/GATE16.
+ * The tip ROOM (SHUF/SHUF/LP/REV/HP/TRANCE/GATE16/STUT) is later and was
+ * the approved 0.0.25 layout (7e26c97). Both are fully suited after the
+ * shared drum suit (470c94c). Keep the tip ROOM; add the source ECHO. */
 const uint8_t SMCFX_PAGE[SMCFX_NPAGE][SMCFX_N] = {
     {SMCFX_SHUF, SMCFX_SHUF, SMCFX_LP, SMCFX_REV, SMCFX_HP, SMCFX_TRANCE, SMCFX_GATE16, SMCFX_STUT},
     {SMCFX_DLY, SMCFX_REV, SMCFX_HP, SMCFX_DLY, SMCFX_HP, SMCFX_GATE16, SMCFX_STUT, SMCFX_TRANCE},
+    {SMCFX_DLY, SMCFX_REV, SMCFX_REV, SMCFX_REV, SMCFX_DLY, SMCFX_STUT, SMCFX_SHUF, SMCFX_GATE8},
 };
-const char *const SMCFX_PAGE_NAME[SMCFX_NPAGE] = {"ROOM", "TIGHT"};
+const char *const SMCFX_PAGE_NAME[SMCFX_NPAGE] = {"ROOM", "TIGHT", "ECHO"};
 const char *const SMCFX_SHORT[SMCFX_NFX] = {
     "GATE", "REV", "HPF", "DLY", "LPF", "G8", "G16", "TRNC", "STUT", "SHUF"};
 const char *const SMCFX_LONG[SMCFX_NFX] = {"DECAY GATE", "REV THROW", "HIGH-PASS", "DLY THROW", "LOW-PASS",

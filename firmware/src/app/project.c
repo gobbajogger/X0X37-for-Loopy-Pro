@@ -757,6 +757,7 @@ void project_apply_io(void)
     seq.part_off = (uint8_t)(part_off_live & PROJ_PART_OFF_ALL);
     engine_out_loud(proj.set.out_loud);
     engine_usb_full(proj.set.usb_full);
+    engine_bass_tune((int8_t)proj.set.rsv_bright);
 }
 
 static void capture_settings(settings_t *set, uint8_t *part_off)

@@ -1263,7 +1263,7 @@ static void smc_ui_draw_peer(void)
             smc_fx_publish();
             int owned = note < 32 && smc.fx_strip.key_bus[note] < SMCFX_N;
             if (owned) bus = smc.fx_strip.key_bus[note];
-            int page = owned ? (int)(smc.fx_strip.page2 >> note & 1u) : smc.fx_page;
+            int page = owned ? smcfx_strip_key_page(&smc.fx_strip, (unsigned)note) : smc.fx_page;
             put_s(name, bus < NPARTS ? part_name(bus) : SMCFX_BUS_NAME[bus]);
             uint8_t fx = owned ? smc.fx_strip.held_fx[bus][note >> 3] :
                 smcfx_strip_get(&smc.fx_strip, page, bus, smcfx_button((uint8_t)note));
@@ -1701,7 +1701,7 @@ static void smc_fx_step_note(uint8_t note, int d)
 {
     if (note >= 32u || !d || smc.fx_strip.key_bus[note] >= SMCFX_N) return;
     int bus = smc.fx_strip.key_bus[note], button = smcfx_button(note);
-    int page = (int)(smc.fx_strip.page2 >> note & 1u);
+    int page = smcfx_strip_key_page(&smc.fx_strip, note);
     uint8_t next = smcfx_step(bus, smcfx_strip_get(&smc.fx_strip, page, bus, button), d);
     smc.fx_strip.map[page][bus][button] = next;
     if (button == SMCFX_SELECT && page == smc.fx_page) smc.fx_effect[bus] = next;
