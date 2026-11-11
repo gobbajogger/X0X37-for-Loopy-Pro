@@ -1017,6 +1017,162 @@ D8_TICK float cy_tick(d8_cy_t *v, float bus)
     return y;
 }
 
+/* One stretch of the cymbal: the same ops as cy_tick, with state and the
+ * constant coefficients in scalars (their address is never taken, so they
+ * do not alias the float output buf). Written back once at the end. */
+__attribute__((noinline)) static int cy_run(d8_cy_t *restrict v, float *restrict buf, const float *restrict bus, int m)
+{
+    const float c10 = k_cy_bp1[0], c11 = k_cy_bp1[1], c12 = k_cy_bp1[2], c13 = k_cy_bp1[3];
+    const float c14 = k_cy_bp1[4], c15 = k_cy_bp1[5], c16 = k_cy_bp1[6];
+    const float c20 = k_cy_bp2[0], c21 = k_cy_bp2[1], c22 = k_cy_bp2[2], c23 = k_cy_bp2[3];
+    const float c24 = k_cy_bp2[4], c25 = k_cy_bp2[5], c26 = k_cy_bp2[6];
+    const float sus1_b0 = v->sus1.b0, sus1_e1 = v->sus1.e1, sus1_e2 = v->sus1.e2;
+    const float sus2_b0 = v->sus2.b0, sus2_e1 = v->sus2.e1, sus2_e2 = v->sus2.e2;
+    const float br_b0 = v->body_res.b0, br_e1 = v->body_res.e1, br_e2 = v->body_res.e2;
+    const float sk_n0 = v->body_sk.n0, sk_n1 = v->body_sk.n1, sk_n2 = v->body_sk.n2;
+    const float sk_e1 = v->body_sk.e1, sk_e2 = v->body_sk.e2;
+    const float th_n0 = v->top_hp.n0, th_n1 = v->top_hp.n1, th_n2 = v->top_hp.n2;
+    const float th_e1 = v->top_hp.e1, th_e2 = v->top_hp.e2;
+    const float oh_n0 = v->out_hp.n0, oh_n1 = v->out_hp.n1, oh_n2 = v->out_hp.n2;
+    const float oh_e1 = v->out_hp.e1, oh_e2 = v->out_hp.e2;
+    const float hpa_a = v->body_hpa.a, crhp_a = v->crash_hp.a, dc_a = v->dc.a;
+    const float d1 = v->d1, d2 = v->d2, d3 = v->d3, atk_c = v->atk_c;
+    float bp1z0 = v->bp1.z[0], bp1z1 = v->bp1.z[1], bp1z2 = v->bp1.z[2];
+    float bp2z0 = v->bp2.z[0], bp2z1 = v->bp2.z[1], bp2z2 = v->bp2.z[2];
+    float sus1_z1 = v->sus1.z1, sus1_z2 = v->sus1.z2;
+    float sus2_z1 = v->sus2.z1, sus2_z2 = v->sus2.z2;
+    float br_z1 = v->body_res.z1, br_z2 = v->body_res.z2;
+    float sk_z1 = v->body_sk.z1, sk_z2 = v->body_sk.z2;
+    float th_z1 = v->top_hp.z1, th_z2 = v->top_hp.z2;
+    float oh_z1 = v->out_hp.z1, oh_z2 = v->out_hp.z2;
+    float hpa_y = v->body_hpa.y, hpa_z = v->body_hpa.z;
+    float crhp_y = v->crash_hp.y, crhp_z = v->crash_hp.z;
+    float dc_y = v->dc.y, dc_z = v->dc.z;
+    float blp0 = v->body_lp[0], blp1 = v->body_lp[1];
+    float flp0 = v->floor_lp[0], flp1 = v->floor_lp[1];
+    float clp0 = v->crash_lp[0], clp1 = v->crash_lp[1];
+    float top_lp = v->top_lp;
+    float e1 = v->e1, e2 = v->e2, e3 = v->e3, e1t = v->e1t, e1_base = v->e1_base;
+    int32_t e1_n = v->e1_n, quiet = v->quiet;
+    uint8_t e1_ramp = v->e1_ramp, active = v->active;
+    int i;
+
+    for (i = 0; i < m && active; i++) {
+        float bus_x = bus[i];
+        float b1, b2, g1, g2, g3, sus, body_pre, body_dk, body, top_in, top, c1, y;
+        float bx, yy;
+        /* bq3 bp1 + opamp: the same ops as bq3_run(&v->bp1, k_cy_bp1, bus) */
+        y = c10 * bus_x + bp1z0;
+        bp1z0 = c11 * bus_x - c14 * y + bp1z1;
+        bp1z1 = c12 * bus_x - c15 * y + bp1z2;
+        bp1z2 = c13 * bus_x - c16 * y;
+        b1 = opamp_clip(y, 14.0f, 1.0f / 14.0f);
+        /* bq3 bp2 */
+        y = c20 * bus_x + bp2z0;
+        bp2z0 = c21 * bus_x - c24 * y + bp2z1;
+        bp2z1 = c22 * bus_x - c25 * y + bp2z2;
+        bp2z2 = c23 * bus_x - c26 * y;
+        b2 = opamp_clip(y, 14.0f, 1.0f / 14.0f);
+        if (D8_UNLIKELY(e1t > 0.0f)) {
+            e1 += (e1t - e1) * atk_c;
+            if (e1 > e1t * 0.99f)
+                e1t = 0.0f;
+        } else {                                      /* linear discharge, as start - n step */
+            if (D8_UNLIKELY(!e1_ramp)) {
+                e1_ramp = 1;
+                e1_base = e1;
+                e1_n = 0;
+            }
+            if (e1 > 0.0f) {
+                e1 = e1_base - (float)(++e1_n) * d1;
+                if (e1 < 0.0f)
+                    e1 = 0.0f;
+            }
+        }
+        e2 *= d2;
+        e3 *= d3;
+        g1 = knee_gate(e1);
+        g2 = knee_gate(e2);
+        g3 = knee_gate(e3);
+        /* bp_run sus1 then sus2, as in (1.4f * bp(sus1) + bp(sus2)) * g1 */
+        bx = sus1_b0 * b1;
+        yy = bx + sus1_z1;
+        sus1_z1 = (yy + yy + sus1_z2) - sus1_e1 * yy;
+        sus1_z2 = (-bx - yy) - sus1_e2 * yy;
+        sus = 1.4f * yy;
+        bx = sus2_b0 * b1;
+        yy = bx + sus2_z1;
+        sus2_z1 = (yy + yy + sus2_z2) - sus2_e1 * yy;
+        sus2_z2 = (-bx - yy) - sus2_e2 * yy;
+        sus = (sus + yy) * g1;
+        /* hp1 body_hpa, then bq body_sk */
+        hpa_y = hpa_a * (hpa_y + b2 - hpa_z);
+        hpa_z = b2;
+        yy = sk_n0 * hpa_y + sk_z1;
+        sk_z1 = (sk_n1 * hpa_y + (yy + yy + sk_z2)) - sk_e1 * yy;
+        sk_z2 = (sk_n2 * hpa_y - yy) - sk_e2 * yy;
+        body_pre = yy;
+        /* bp body_res */
+        bx = br_b0 * body_pre;
+        yy = bx + br_z1;
+        br_z1 = (yy + yy + br_z2) - br_e1 * yy;
+        br_z2 = (-bx - yy) - br_e2 * yy;
+        body_dk = yy;
+        blp0 += (body_dk - blp0) * D8_CY_BODY_LPC; body_dk = blp0;
+        blp1 += (body_dk - blp1) * D8_CY_BODY_LPC; body_dk = blp1;
+        flp0 += (body_pre - flp0) * D8_CY_FLOOR_LPC;
+        flp1 += (flp0 - flp1) * D8_CY_FLOOR_LPC;
+        body = body_dk * g2 + flp1 * (0.065f * g1);
+        /* bq top_hp */
+        yy = th_n0 * body_pre + th_z1;
+        th_z1 = (th_n1 * body_pre + (yy + yy + th_z2)) - th_e1 * yy;
+        th_z2 = (th_n2 * body_pre - yy) - th_e2 * yy;
+        top_in = yy;
+        top_lp += (top_in - top_lp) * D8_CY_TOP_LPC;
+        top = top_lp * (g3 + 0.005f * g1);
+        /* hp1 crash_hp */
+        crhp_y = crhp_a * (crhp_y + b1 - crhp_z);
+        crhp_z = b1;
+        c1 = crhp_y;
+        clp0 += (c1 - clp0) * D8_CY_CRASH_LPC; c1 = clp0;
+        clp1 += (c1 - clp1) * D8_CY_CRASH_LPC; c1 = clp1;
+        y = sus * 0.042f + body * 1.00f + top * 0.58f + c1 * (0.016f * g2);
+        /* bq out_hp, then hp1 dc */
+        y = y * 0.74f;
+        yy = oh_n0 * y + oh_z1;
+        oh_z1 = (oh_n1 * y + (yy + yy + oh_z2)) - oh_e1 * yy;
+        oh_z2 = (oh_n2 * y - yy) - oh_e2 * yy;
+        dc_y = dc_a * (dc_y + yy - dc_z);
+        dc_z = yy;
+        y = dc_y;
+        if (y > 3.2e-5f || y < -3.2e-5f)
+            quiet = 0;
+        else if (++quiet > 400 && e1 < DIODE_VON * 0.5f && e2 < DIODE_VON && e3 < DIODE_VON)
+            active = 0;
+        buf[i] = y;
+    }
+
+    v->bp1.z[0] = bp1z0; v->bp1.z[1] = bp1z1; v->bp1.z[2] = bp1z2;
+    v->bp2.z[0] = bp2z0; v->bp2.z[1] = bp2z1; v->bp2.z[2] = bp2z2;
+    v->sus1.z1 = sus1_z1; v->sus1.z2 = sus1_z2;
+    v->sus2.z1 = sus2_z1; v->sus2.z2 = sus2_z2;
+    v->body_res.z1 = br_z1; v->body_res.z2 = br_z2;
+    v->body_sk.z1 = sk_z1; v->body_sk.z2 = sk_z2;
+    v->top_hp.z1 = th_z1; v->top_hp.z2 = th_z2;
+    v->out_hp.z1 = oh_z1; v->out_hp.z2 = oh_z2;
+    v->body_hpa.y = hpa_y; v->body_hpa.z = hpa_z;
+    v->crash_hp.y = crhp_y; v->crash_hp.z = crhp_z;
+    v->dc.y = dc_y; v->dc.z = dc_z;
+    v->body_lp[0] = blp0; v->body_lp[1] = blp1;
+    v->floor_lp[0] = flp0; v->floor_lp[1] = flp1;
+    v->crash_lp[0] = clp0; v->crash_lp[1] = clp1;
+    v->top_lp = top_lp;
+    v->e1 = e1; v->e2 = e2; v->e3 = e3; v->e1t = e1t; v->e1_base = e1_base;
+    v->e1_n = e1_n; v->quiet = quiet;
+    v->e1_ramp = e1_ramp; v->active = active;
+    return i;
+}
+
 /* ---- hi-hats: sc808_mt_circuit.h HatCircuit ---- */
 /* Boot only (drum808_init). hat_tick / hat_trigger stay -O2. */
 X0X_COLD __attribute__((noinline)) static void hat_init(d8_hat_t *v, int mode)
@@ -1109,6 +1265,104 @@ static inline __attribute__((always_inline)) float hat_tick(d8_hat_t *v, float b
              (v->linear ? v->lin_level <= 0.0f : (v->env.target <= 0.0f && v->env.v < DIODE_VON * 0.5f)))
         v->active = 0;
     return sv;
+}
+
+/* One stretch of a hat: the same ops as hat_tick, state in scalars. */
+__attribute__((noinline)) static int hat_run(d8_hat_t *restrict v, float *restrict buf, const float *restrict bus, int m)
+{
+    const float ska_n0 = v->ska.n0, ska_n1 = v->ska.n1, ska_n2 = v->ska.n2;
+    const float ska_e1 = v->ska.e1, ska_e2 = v->ska.e2;
+    const float skb_n0 = v->skb.n0, skb_n1 = v->skb.n1, skb_n2 = v->skb.n2;
+    const float skb_e1 = v->skb.e1, skb_e2 = v->skb.e2;
+    const float dc_a = v->dc.a, lp_c = v->lp_c, out_scale = v->out_scale;
+    const float lin_atk_c = v->lin_atk_c, lin_step = v->lin_step;
+    const float env_up = v->env.up, env_down = v->env.down;
+    const int np = v->mode == 1 ? 5 : 1;
+    const uint8_t linear = v->linear;
+    float ska_z1 = v->ska.z1, ska_z2 = v->ska.z2;
+    float skb_z1 = v->skb.z1, skb_z2 = v->skb.z2;
+    float dc_y = v->dc.y, dc_z = v->dc.z;
+    float d1 = v->d1, d2 = v->d2;
+    float lp0 = v->lp[0], lp1 = v->lp[1], lp2 = v->lp[2], lp3 = v->lp[3], lp4 = v->lp[4];
+    float lin_level = v->lin_level, lin_target = v->lin_target, lin_base = v->lin_base;
+    float env_v = v->env.v, env_target = v->env.target;
+    int32_t lin_hold = v->lin_hold, lin_n = v->lin_n, quiet = v->quiet;
+    uint8_t ramp = v->ramp, active = v->active;
+    int i;
+
+    for (i = 0; i < m && active; i++) {
+        float bus_x = bus[i];
+        float t1 = bus_x - d1, hp, e, sv, yy;
+        d1 = bus_x;
+        hp = (t1 - d2) * 30.0f;
+        d2 = t1;
+        if (linear) {
+            e = lin_level;                        /* knee uses the level from before this sample's update */
+            if (D8_UNLIKELY(lin_target > 0.0f)) {
+                lin_level += (lin_target - lin_level) * lin_atk_c;
+                if (lin_level > lin_target * 0.99f)
+                    lin_target = 0.0f;
+            } else if (lin_hold > 0)
+                lin_hold--;
+            else {                                /* C62's discharge, as start - n step */
+                if (D8_UNLIKELY(!ramp)) {
+                    ramp = 1;
+                    lin_base = lin_level;
+                    lin_n = 0;
+                }
+                if (lin_level > 0.0f) {
+                    lin_level = lin_base - (float)(++lin_n) * lin_step;
+                    if (lin_level < 0.0f)
+                        lin_level = 0.0f;
+                }
+            }
+        } else {
+            if (env_target > 0.0f) {
+                env_v = env_target + (env_v - env_target) * env_up;
+                if (env_v >= env_target * 0.995f)
+                    env_target = 0.0f;
+            } else
+                env_v *= env_down;
+            e = env_v;
+        }
+        hp = hp * knee_gate(e);
+        /* bq ska then skb, as bq_run(&skb, bq_run(&ska, ...)) */
+        yy = ska_n0 * hp + ska_z1;
+        ska_z1 = (ska_n1 * hp + (yy + yy + ska_z2)) - ska_e1 * yy;
+        ska_z2 = (ska_n2 * hp - yy) - ska_e2 * yy;
+        sv = skb_n0 * yy + skb_z1;
+        skb_z1 = (skb_n1 * yy + (sv + sv + skb_z2)) - skb_e1 * sv;
+        skb_z2 = (skb_n2 * yy - sv) - skb_e2 * sv;
+        /* unrolled: the same cascade as the np-trip loop, no address taken */
+        lp0 += (sv - lp0) * lp_c; sv = lp0;
+        if (np == 5) {
+            lp1 += (sv - lp1) * lp_c; sv = lp1;
+            lp2 += (sv - lp2) * lp_c; sv = lp2;
+            lp3 += (sv - lp3) * lp_c; sv = lp3;
+            lp4 += (sv - lp4) * lp_c; sv = lp4;
+        }
+        sv = sv * out_scale;
+        dc_y = dc_a * (dc_y + sv - dc_z);
+        dc_z = sv;
+        sv = dc_y;
+        if (sv > 3.2e-5f || sv < -3.2e-5f)
+            quiet = 0;
+        else if (++quiet > 400 &&
+                 (linear ? lin_level <= 0.0f : (env_target <= 0.0f && env_v < DIODE_VON * 0.5f)))
+            active = 0;
+        buf[i] = sv;
+    }
+
+    v->ska.z1 = ska_z1; v->ska.z2 = ska_z2;
+    v->skb.z1 = skb_z1; v->skb.z2 = skb_z2;
+    v->dc.y = dc_y; v->dc.z = dc_z;
+    v->d1 = d1; v->d2 = d2;
+    v->lp[0] = lp0; v->lp[1] = lp1; v->lp[2] = lp2; v->lp[3] = lp3; v->lp[4] = lp4;
+    v->lin_level = lin_level; v->lin_target = lin_target; v->lin_base = lin_base;
+    v->env.v = env_v; v->env.target = env_target;
+    v->lin_hold = lin_hold; v->lin_n = lin_n; v->quiet = quiet;
+    v->ramp = ramp; v->active = active;
+    return i;
 }
 
 /* ---- cowbell: sc808_mt_circuit.h CowbellCircuit ---- */
@@ -1914,9 +2168,9 @@ static __attribute__((noinline)) int voice_run(drum808_t *d, int l, float *buf, 
     case L_MA: for (i = 0; i < m && d->ma.active; i++) buf[i] = ma_tick(&d->ma); break;
     case L_CP: for (i = 0; i < m && d->cp.active; i++) buf[i] = cp_tick(&d->cp); break;
     case L_CB: for (i = 0; i < m && d->cb.active; i++) buf[i] = cb_tick(&d->cb, pair[i]); break;
-    case L_CH: for (i = 0; i < m && d->ch.active; i++) buf[i] = hat_tick(&d->ch, bus[i]); break;
-    case L_OH: for (i = 0; i < m && d->oh.active; i++) buf[i] = hat_tick(&d->oh, bus[i]); break;
-    default: for (i = 0; i < m && d->cy.active; i++) buf[i] = cy_tick(&d->cy, bus[i]); break;
+    case L_CH: i = hat_run(&d->ch, buf, bus, m); break;
+    case L_OH: i = hat_run(&d->oh, buf, bus, m); break;
+    default: i = cy_run(&d->cy, buf, bus, m); break;
     }
     return i;
 }
