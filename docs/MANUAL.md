@@ -456,8 +456,10 @@ with notes in that pattern: bright where that part is playing it now, dim otherw
   HOME and press a white key.
 - **One part:** on that part's screen (SEQ, EDIT, TB-3PO), turn PRESETS.
 - **A chain:** on HOME, hold two white keys at once. All five parts play each pattern from the
-  first to the second, then start again. Each pattern plays for one chain slot: as many steps as
-  the longest 909 pattern in the range (#855). Choosing a single pattern ends the chain.
+  first to the second, then start again. Each pattern plays for one chain slot: as long as the
+  longest playing part in that pattern (909, 808, both 303s and BREAK), counting each part's
+  length and rate, rounded up to a whole 909 bar. Muted and empty parts do not set the length.
+  The chain is live only and is not saved. Choosing a single pattern ends the chain.
 
 While playing, the new pattern starts when the current bar ends; stopped, it takes over at once.
 A part that changes pattern starts again from step 1; the others carry on.

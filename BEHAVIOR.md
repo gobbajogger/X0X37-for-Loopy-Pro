@@ -175,7 +175,7 @@ PAT-02. A pattern holds the steps, length and rate of each part, the break setti
 PAT-03. Sounds, effects and master settings are not part of a pattern. [MANUAL §9]
 PAT-04. Each part can play a different pattern. [MANUAL §9]
 PAT-05. While the sequencer plays, a new pattern starts at the end of the current bar. While it does not play, the new pattern starts immediately. [MANUAL §9]
-PAT-06. Hold two white keys on HOME to make a chain. A single pattern selection ends the chain. [MANUAL §9]
+PAT-06. Hold two white keys on HOME to make a chain. A single pattern selection ends the chain. Each chain slot lasts for the longest playing part in the current pattern (909, 808, both 303s and BREAK), counting length and rate, rounded up to a whole 909 bar. Muted, part-off and empty parts do not extend the slot. At least one 909 bar. The chain is live only and is not saved. [MANUAL §9] [CODE seq/sequencer.c:seq_chain_slot_len]
 PAT-07. Hold SAVE to copy. Press a white key to paste. If the target has notes, X0X asks first. [MANUAL §9]
 PAT-08. X0X does not save part mutes on HOME. A song keeps its mutes. [MANUAL §9]
 PAT-09. The 909 length sets the bar length. The 909 pattern holds the swing for all parts. Swing goes from 50 % (straight) to 75 %. [MANUAL §9] [CODE seq/pattern.h:75]

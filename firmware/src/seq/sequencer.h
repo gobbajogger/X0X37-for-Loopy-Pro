@@ -211,7 +211,7 @@ typedef struct {
     uint8_t ext_skip;                 /* 1: the next block of ticks gives no tick period (the first ticks of a new input) */
     uint32_t clk_lock_at;             /* ext_now at its last Clock, Start or Continue */
     uint32_t clk_stop_at;             /* ext_now at its last Stop */
-    uint8_t chain_win, chain_at; /* runtime chain slot; never serialized */
+    uint16_t chain_win, chain_at; /* runtime chain slot, 909 steps; never serialized */
 } seq_t;
 
 void seq_init(seq_t *s, pattern_t *patterns);
@@ -231,7 +231,10 @@ int seq_clock_waiting(const seq_t *s);  /* EXTERNAL: playing, but no clock for 0
 void seq_cue(seq_t *s, int pattern);  /* every part, at the end of the bar (now, if stopped) */
 void seq_cue_part(seq_t *s, int part, int pattern);
 void seq_chain(seq_t *s, int a, int b);
-int seq_chain_window(const pattern_t *pat, int a, int b);
+/* 909 steps one chain slot lasts for the playing chain pattern.
+ * Longest playing part (length and rate), rounded up to a whole 909 pass.
+ * Muted, part-off and empty parts do not extend the slot. At least one 909 pass. */
+int seq_chain_slot_len(const seq_t *s);
 int seq_cue_of(const seq_t *s, int part);   /* the part's cued pattern, or -1 */
 int seq_part_muted(const seq_t *s, int part);
 

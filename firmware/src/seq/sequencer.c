@@ -74,23 +74,6 @@ int seq_part_len(const seq_t *s, int t)
     return n < 1 ? 1 : n > NSTEPS ? NSTEPS : n;
 }
 
-/* PR855: one latched chain window, retaining the later atomic range snapshot. */
-__attribute__((noinline)) int seq_chain_window(const pattern_t *pat, int a, int b)
-{
-    int lo, hi, i, w = 1, n;
-    if (!pat || a < 0 || b < 0 || a >= NPAT || b >= NPAT) return 1;
-    lo = a < b ? a : b; hi = a < b ? b : a;
-#if defined(__clang__)
-#pragma clang loop unroll(disable) vectorize(disable) interleave(disable)
-#endif
-    for (i = lo; i <= hi; ++i) {
-        n = pat[i].drum[0].len;
-        if (n < 1) n = 1; else if (n > NSTEPS) n = NSTEPS;
-        if (n > w) w = n;
-    }
-    return w;
-}
-
 /* noinline: rate lookup shared by swing/advance/fire (else -O2 triples the ternary). */
 __attribute__((noinline)) static int part_rate(const seq_t *s, int t)
 {
@@ -406,6 +389,82 @@ static void song_write(seq_t *s, int k, const uint8_t *next)
 
 static int song_plays(const seq_t *s) { return s->song_on && s->song && (s->song_rec || s->song->len); }
 
+static int clamp_steps(int n)
+{
+    return n < 1 ? 1 : n > NSTEPS ? NSTEPS : n;
+}
+
+static int rate_ticks(int rate)
+{
+    return (int)TICKS_PER_STEP[(unsigned)rate < NRATES ? (unsigned)rate : RATE_16];
+}
+
+static int drum_plays(const dpart_t *d)
+{
+    int len = clamp_steps(d->len), v, s;
+    for (v = 0; v < NDRUM; v++)
+        for (s = 0; s < len; s++)
+            if (sm_get(d->hit[v], s))
+                return 1;
+    return 0;
+}
+
+static int bass_plays(const bpart_t *b)
+{
+    int len = clamp_steps(b->len), s;
+    for (s = 0; s < len; s++)
+        if (bstep_gate(&b->step[s]) != G_REST)
+            return 1;
+    return 0;
+}
+
+static int brk_plays(const brkpart_t *b)
+{
+    int s;
+    for (s = 0; s < 16; s++)
+        if (brk_step_on(b, s))
+            return 1;
+    return 0;
+}
+
+/* Owner 2026-11-12 12:33 UTC+10: a chain slot lasts for the longest playing
+ * part in the current pattern (length and rate), rounded up to a whole 909
+ * pass. Muted, part-off and empty parts do not extend the slot. One 909
+ * pass is the minimum (the bar). Computed on the slot-open (bar) path. */
+int seq_chain_slot_len(const seq_t *s)
+{
+    const pattern_t *p;
+    int bar_len, bar_t, max_t, t, n_bars, steps;
+
+    if (!s || !s->pat || s->ppat[TRK_DRUM] >= NPAT) return 1;
+    p = &s->pat[s->ppat[TRK_DRUM]];
+    bar_len = clamp_steps(p->drum[0].len);
+    bar_t = bar_len * rate_ticks(p->drum[0].rate);
+    max_t = bar_t;                                   /* at least one 909 pass */
+
+    /* 808 (the 909 sets the bar, already in max_t) */
+    if (!SEQ_PART_OFF(s, 1) && !seq_part_muted(s, 1) && drum_plays(&p->drum[1])) {
+        int tt = clamp_steps(p->drum[1].len) * rate_ticks(p->drum[1].rate);
+        if (tt > max_t) max_t = tt;
+    }
+    for (t = 0; t < NBASS; t++) {
+        int tr = TRK_BASS0 + t, tt;
+        if (SEQ_PART_OFF(s, tr) || seq_part_muted(s, tr) || !bass_plays(&p->bass[t]))
+            continue;
+        tt = clamp_steps(p->bass[t].len) * rate_ticks(p->bass[t].rate);
+        if (tt > max_t) max_t = tt;
+    }
+    /* BREAK's sequencer clock is 16 steps at 1/16, even when RATE_8 / RATE_4 group them. */
+    if (!SEQ_PART_OFF(s, TRK_BRK) && !seq_part_muted(s, TRK_BRK) && brk_plays(&p->brk)) {
+        int tt = 16 * rate_ticks(RATE_16);
+        if (tt > max_t) max_t = tt;
+    }
+    n_bars = (max_t + bar_t - 1) / bar_t;
+    if (n_bars < 1) n_bars = 1;
+    steps = n_bars * bar_len;
+    return steps > 65535 ? 65535 : steps;
+}
+
 __attribute__((noinline)) static void chain_slot_open(seq_t *s)
 {
     uint16_t chain = s->chain;
@@ -415,8 +474,9 @@ __attribute__((noinline)) static void chain_slot_open(seq_t *s)
     lo = ca < cb ? ca : cb; hi = ca < cb ? cb : ca;
     c = (int)s->ppat[TRK_DRUM];
     if (c < lo || c > hi) return;
-    s->chain_win = (uint8_t)seq_chain_window(s->pat, ca, cb);
+    s->chain_win = (uint16_t)seq_chain_slot_len(s);
 }
+
 static int drum_boundary(const seq_t *s, int wrapped)
 {
     if (!s->chain_win || (song_plays(s) && !s->song_rec)) return wrapped;
