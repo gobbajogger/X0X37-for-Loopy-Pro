@@ -250,11 +250,13 @@ export class Updater {
       if (!r) continue;
       last = Date.now();
       if (r.addr === 0xE0000000 || r.addr === 0xF0000000) {
+        // App ota.c and loader ldr_core.c both read the eight-byte "success\0" token.
+        if (r.len !== 8) throw fail("badreq", `bad finish request ${r.addr.toString(16)}+${r.len}`);
         link.send(response(r.addr, [...new TextEncoder().encode("success"), 0]));
         if (r.addr === finishAddr) return { served, finished: true };
         continue;
       }
-      if (r.len > MAXDATA || r.addr + r.len > image.length) throw fail("badreq", `bad request ${r.addr.toString(16)}+${r.len}`);
+      if (r.len === 0 || r.len > MAXDATA || r.addr + r.len > image.length) throw fail("badreq", `bad request ${r.addr.toString(16)}+${r.len}`);
       await sleep(10);
       if (!link.send(response(r.addr, Array.from(image.subarray(r.addr, r.addr + r.len)), r.fl))) {
         return { served, finished: false, lost: true };
