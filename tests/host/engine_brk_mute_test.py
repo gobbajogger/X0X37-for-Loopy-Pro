@@ -48,6 +48,17 @@ def main():
     for first in ("enum { T_909,", "enum { PART_909,"):
         start = api.index(first)
         declarations += "\n" + api[start:api.index(";", start) + 1]
+    # After 53fe37d6, engine_render uses the same-block FX/master tail
+    # pipeline symbols. Extract them verbatim. Reviewed: BREAK mute still
+    # holds; the official suite failed only because these were missing.
+    if "static float eng_vol;" in source:
+        start = source.index("static float eng_vol;")
+        end = source.index("static volatile uint32_t eng_fx_done;", start)
+        declarations += "\n" + source[start:end]
+    if "#define ENG_TAIL_CS " in source:
+        start = source.index("#define ENG_TAIL_CS ")
+        end = source.index("\n", start)
+        declarations += "\n" + source[start:end + 1]
     signatures = [
         "static int cq_replace(",
         "__attribute__((noinline)) static void cq_put(",
