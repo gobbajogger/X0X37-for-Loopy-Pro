@@ -1,0 +1,6 @@
+{
+  "firmware/src/app/smc_mixer.c": "009ae28ff67ea0a6e1517da013d00f229f322dbf01cf2431e1777fd5b885adcf",
+  "firmware/src/app/main_fm1.c": "74de15cd0ee2e9456420fae16d8eaf4d5b11c1ae9badc3e2b07e6d1b94fa22e2",
+  "tests/host/smc_reachability_test.c": "ce7bb557254ccde89ccd29578d5307565d1be5fe635c850ba420b374d20e73f4",
+  "tests/host/smc_reachability_test.sh": "7d3fec22308b2fe41d0bcbb144f21f82446a58c18b43585ff2522b00b8bcb49b"
+}

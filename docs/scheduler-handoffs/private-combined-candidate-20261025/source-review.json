@@ -1,0 +1,312 @@
+{
+  "schema": 1,
+  "reviewer": "/root/combined_source_review",
+  "independent": true,
+  "authored_source_or_tests": false,
+  "verified_utc": "2026-10-25T05:02:57.307546+00:00",
+  "verdict": "ACCEPT_COMBINED_SCOPED_SOURCE_HOST",
+  "findings": [],
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/mb-private-combined-smc-editor-bundle-20261025",
+  "accepted_commit": "0e3e4d572e2466872e1ddd1986ff34b9e77dddd3",
+  "complete_root": "441970c541c8c7abad0030d6f70c2c2fb484a080",
+  "tested_commit": "c8895c3ac32cb627228617cd7a2f87a368b3ced3",
+  "root_reuse": {
+    "reason": "Merge author metadata corrected after tests; complete source tree identical.",
+    "command": "git diff --exit-code c8895c3ac32cb627228617cd7a2f87a368b3ced3 0e3e4d572e2466872e1ddd1986ff34b9e77dddd3 --",
+    "exit": 0,
+    "both_complete_roots": "441970c541c8c7abad0030d6f70c2c2fb484a080"
+  },
+  "base": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "inputs": {
+    "PR143": "784607fcb21ec9a90bcbae7c6b9a0118f4c71dfe",
+    "PR141": "33434f47228e54a8ed949f6ea513902727fa2d18",
+    "PR142": "04cb592c47f4b8d5049f5399d7f6f45b50b92c2c"
+  },
+  "scope": "Combined source integration of temporary SMC presentation, editor/OTA request ownership, project hold/reset boundaries. Package/parser/native build review owned separately.",
+  "checks": [
+    {
+      "command": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE X0X_TEST_JOBS=1 sh tests/run_tests.sh editor-ota-dispatch project-protocol project-runtime smc-ui smc-ui-negative smc-protocol smc-fader smc-buttons smc-queue smc-link smc-reachability smc-mapping smc-drum-mutes smc-drum-rs smc-performance-abort smc-filter smc-feedback smc-record-feedback smc-part-select smc-clip-visibility",
+      "exit": 0,
+      "selected_suites": [
+        "editor-ota-dispatch",
+        "project-protocol",
+        "project-runtime",
+        "smc-ui",
+        "smc-ui-negative",
+        "smc-protocol",
+        "smc-fader",
+        "smc-buttons",
+        "smc-queue",
+        "smc-link",
+        "smc-reachability",
+        "smc-mapping",
+        "smc-drum-mutes",
+        "smc-drum-rs",
+        "smc-performance-abort",
+        "smc-filter",
+        "smc-feedback",
+        "smc-record-feedback",
+        "smc-part-select",
+        "smc-clip-visibility"
+      ],
+      "passed": 20,
+      "failed": 0,
+      "log": "source-review-logs/combined-regressions.log",
+      "unselected_notice": "Runner prints skip SMK-37 Pro package tests because this host-only clone lacks native products. No selected source/host suite skipped."
+    },
+    {
+      "command": "SAN_FLAGS='-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer' python3 -B tests/host/editor_ota_dispatch_test.py",
+      "exit": 0,
+      "assertions": 34,
+      "diagnostics": 0,
+      "log": "source-review-logs/dispatch-sanitized.log"
+    },
+    {
+      "command": "CC=/usr/bin/clang SAN_FLAGS='-fsanitize=address -fno-omit-frame-pointer' ASAN_OPTIONS=halt_on_error=1 SMC_UI_OUT=build/host/smc-ui-asan sh tests/host/smc_ui_test.sh",
+      "exit": 0,
+      "assertions": 191,
+      "diagnostics": 0,
+      "log": "source-review-logs/smc-ui-asan.log"
+    },
+    {
+      "command": "git diff --check 54f2ffbc3124f7449a69067dc8215a2d91a2e675..HEAD -- firmware tests tools",
+      "exit": 0
+    }
+  ],
+  "negative_controls": {
+    "count": 4,
+    "names": [
+      "timeout-disabled",
+      "cancel-disabled",
+      "clip-redraw-disabled",
+      "yellow-notice-returned"
+    ],
+    "result": "Each compiled and failed a relevant runtime assertion; compile failures excluded."
+  },
+  "manual_review": [
+    "Combined main_fm1.c differs from PR143 only by PR141 declaration, editor classification assignment and guarded OTA call; all loop paths assign eligibility before use.",
+    "ed_service releases ordinary editor packets only after copying, retains project/sample frames through their handler, and permits OTA only for the same non-editor packet left pending. Unchanged usb.c blocks replacement while sx_ready is set.",
+    "SMC presentation does not mutate navigation or reinstate a stale saved screen. Context/navigation/project/help/confirmation/timeout cancellation retain existing owners, and redraw invalidates the clipped painter.",
+    "Full production UI and SMC rendering, project runtime and extracted production dispatch/clip-routing blocks ran together on the merged source.",
+    "Static rendered images inspected: full mixer/pickup screen, restored HOME, CLIP KEYS value, mute action. These are local generated render artifacts, not computer or hardware use."
+  ],
+  "evidence_reused": [
+    {
+      "source": "task14 PR143 committed receipt docs/scheduler-handoffs/smc-full-control-ui-20261025.json",
+      "basis": "Identical SMC/UI and UI-test blobs; source-level mapping/layout review and historical baseline fastmath reproduction reused; combined affected regressions rerun."
+    },
+    {
+      "source": "task16 PR141 docs/scheduler-handoffs/editor-ota-dispatch-race-20261025/independent-review.md and independent-runs.json",
+      "basis": "Identical editor/dispatch-test, ota.c and usb.c blobs. Prior baseline 22/34 to candidate 34/34 and unchanged broader-runtime UBSan fastmath failure reused; merged positive/sanitized dispatch rerun."
+    }
+  ],
+  "blob_equivalence": {
+    "firmware/src/app/smc_mixer.c": {
+      "reference": "784607fcb21ec9a90bcbae7c6b9a0118f4c71dfe",
+      "reference_blob": "c9a1b3036ef0575ad502ae0ef1ae19644df49daf",
+      "candidate_blob": "c9a1b3036ef0575ad502ae0ef1ae19644df49daf",
+      "unchanged": true
+    },
+    "firmware/src/app/ui.c": {
+      "reference": "784607fcb21ec9a90bcbae7c6b9a0118f4c71dfe",
+      "reference_blob": "f16fb25abec5aad055098d674ade75e560f759e0",
+      "candidate_blob": "f16fb25abec5aad055098d674ade75e560f759e0",
+      "unchanged": true
+    },
+    "tests/host/smc_ui_test.c": {
+      "reference": "784607fcb21ec9a90bcbae7c6b9a0118f4c71dfe",
+      "reference_blob": "3e31ae9b9bb78b8f5f9053d9b2c05c2857d52d08",
+      "candidate_blob": "3e31ae9b9bb78b8f5f9053d9b2c05c2857d52d08",
+      "unchanged": true
+    },
+    "tests/host/smc_ui_test.sh": {
+      "reference": "784607fcb21ec9a90bcbae7c6b9a0118f4c71dfe",
+      "reference_blob": "d97cc2c28fbb4d1e32e96dad834a9add11fe100b",
+      "candidate_blob": "d97cc2c28fbb4d1e32e96dad834a9add11fe100b",
+      "unchanged": true
+    },
+    "tests/host/smc_ui_negative_test.py": {
+      "reference": "784607fcb21ec9a90bcbae7c6b9a0118f4c71dfe",
+      "reference_blob": "cf9ed2ccb2edd4379e04388f2eb827c1d698ee5e",
+      "candidate_blob": "cf9ed2ccb2edd4379e04388f2eb827c1d698ee5e",
+      "unchanged": true
+    },
+    "firmware/src/app/editor.c": {
+      "reference": "33434f47228e54a8ed949f6ea513902727fa2d18",
+      "reference_blob": "9530298bd98da7eea712d7527324964e616d74c5",
+      "candidate_blob": "9530298bd98da7eea712d7527324964e616d74c5",
+      "unchanged": true
+    },
+    "tests/host/editor_ota_dispatch_test.c": {
+      "reference": "33434f47228e54a8ed949f6ea513902727fa2d18",
+      "reference_blob": "fbe63f6ca4b517f65e3f798af25a8ea3feae04ee",
+      "candidate_blob": "fbe63f6ca4b517f65e3f798af25a8ea3feae04ee",
+      "unchanged": true
+    },
+    "tests/host/editor_ota_dispatch_test.py": {
+      "reference": "33434f47228e54a8ed949f6ea513902727fa2d18",
+      "reference_blob": "e118affa4ffa4f8ff3fbe286bbe84ceeeede591b",
+      "candidate_blob": "e118affa4ffa4f8ff3fbe286bbe84ceeeede591b",
+      "unchanged": true
+    },
+    "tests/host/project_update_guard_test.c": {
+      "reference": "33434f47228e54a8ed949f6ea513902727fa2d18",
+      "reference_blob": "cfb431928fdb6dafe42f8f94adb65af7a8841d60",
+      "candidate_blob": "cfb431928fdb6dafe42f8f94adb65af7a8841d60",
+      "unchanged": true
+    },
+    "firmware/src/ota.c": {
+      "reference": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "reference_blob": "735e6791540b7586ed78ebe73b720fcd62310162",
+      "candidate_blob": "735e6791540b7586ed78ebe73b720fcd62310162",
+      "unchanged": true
+    },
+    "firmware/src/usb.c": {
+      "reference": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "reference_blob": "90bbde452668c2b28967bdd16f08e89626ef8a11",
+      "candidate_blob": "90bbde452668c2b28967bdd16f08e89626ef8a11",
+      "unchanged": true
+    },
+    "firmware/src/dsp/fastmath.h": {
+      "reference": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "reference_blob": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+      "candidate_blob": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+      "unchanged": true
+    }
+  },
+  "baseline_ubsan": {
+    "path": "firmware/src/dsp/fastmath.h:57",
+    "status": "PREEXISTING_UNCHANGED",
+    "candidate_blob": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+    "sha256": "71d0fb4c242e6c03e435cebacc1e978f928ce2672d6b47a48b68372e72453349",
+    "observation": "Earlier independent task14/task16 runs reproduced left shift of negative -1 on baseline and candidate. No unrelated DSP fix or new failure claimed; broader UBSan qualification not claimed."
+  },
+  "limitations": [
+    "Host fixtures substitute hardware and clip field storage/grid painter; dispatch handlers are sentinels.",
+    "USB ISR timing, actual editor replies, hardware timeout causation, physical LCD/radio behavior and actual flash operations are unproven.",
+    "No full release gate, complete-root release qualification, model-specific hardware test, protected-ref merge, publication, deployment, MIDI port access or GUI/computer use performed.",
+    "Native Elite/Pro/controller builds and package/parser/model/CRC/budget/admission checks are separate parent/other-reviewer deliverables."
+  ],
+  "environment": {
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "platform": "Darwin arm64",
+    "darwin_define": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE"
+  },
+  "checkout_clean": true,
+  "logs": {
+    "source-review-logs/combined-regressions.log": {
+      "bytes": 551,
+      "sha256": "2247ce830f96b3ff8feeddf431b552c03acd0f62817bc42d73415455bae0d668"
+    },
+    "source-review-logs/dispatch-sanitized.log": {
+      "bytes": 2040,
+      "sha256": "f0c85d62ced49a72fb641ef5f62020b63ddc62d877c9f54e1cd62356db95b5cb"
+    },
+    "source-review-logs/editor-ota-dispatch.log": {
+      "bytes": 2040,
+      "sha256": "f0c85d62ced49a72fb641ef5f62020b63ddc62d877c9f54e1cd62356db95b5cb"
+    },
+    "source-review-logs/equivalence.json": {
+      "bytes": 3072,
+      "sha256": "4f1bb2754aa7d5eb82232b901b03dead56ecff0111459c8bd24568ccf5d37e89"
+    },
+    "source-review-logs/negative-cancel-disabled.log": {
+      "bytes": 52,
+      "sha256": "d131cab92029311fa98317859a220268b431679460103488a89077a38018e137"
+    },
+    "source-review-logs/negative-clip-redraw-disabled.log": {
+      "bytes": 476,
+      "sha256": "27588785af0f3dc53d355f91001b49ae0e49c962cf1548b24c9821f3911900f3"
+    },
+    "source-review-logs/negative-timeout-disabled.log": {
+      "bytes": 52,
+      "sha256": "d131cab92029311fa98317859a220268b431679460103488a89077a38018e137"
+    },
+    "source-review-logs/negative-yellow-notice-returned.log": {
+      "bytes": 311,
+      "sha256": "3f0e6e50d789c74c5898f722bde9a38d3aaa0871af50f75cdc820091cc1f610c"
+    },
+    "source-review-logs/project-protocol.log": {
+      "bytes": 104,
+      "sha256": "1a9773fc5a168928c7a4fecbd6111a80335e6b6ba03ff75e1fc1d143142b779e"
+    },
+    "source-review-logs/project-runtime.log": {
+      "bytes": 257,
+      "sha256": "d9a185bba122be2c4c546993e9eb2b89c36cc0127f254df569e630aaa0bcb493"
+    },
+    "source-review-logs/smc-buttons.log": {
+      "bytes": 80,
+      "sha256": "1df751729edccc07a92318958edd074cf7027b7b9635e4717f9de5520630439d"
+    },
+    "source-review-logs/smc-clip-visibility.log": {
+      "bytes": 8683,
+      "sha256": "1069e67bd4b28e47b02b5a8f7560e276cd956dd8a5e78589cd57cba15724e00d"
+    },
+    "source-review-logs/smc-drum-mutes.log": {
+      "bytes": 4054,
+      "sha256": "e54cc258b48f8ae80aa5c4b006409b7de8fecf29453fabe6973a6d70ff428465"
+    },
+    "source-review-logs/smc-drum-rs.log": {
+      "bytes": 263,
+      "sha256": "04a5f72cc9479a85ef201ee130b289221e5249edd7ada0b48316868a036e0de9"
+    },
+    "source-review-logs/smc-fader.log": {
+      "bytes": 72,
+      "sha256": "d0188c0936de6698d2ac4c58c843bd746bd27d0e986df3f9e104494a708a8fe2"
+    },
+    "source-review-logs/smc-feedback.log": {
+      "bytes": 106,
+      "sha256": "e955f5d8e434484ca245da46d3336212b16b7bd7023aab5fc1a2300e896d0018"
+    },
+    "source-review-logs/smc-filter.log": {
+      "bytes": 63,
+      "sha256": "4a8e1afdd584ebbb3bc29c9892cedfaa2b2ec76b3c27e45c3b44cc7c5c9c5f92"
+    },
+    "source-review-logs/smc-link.log": {
+      "bytes": 266,
+      "sha256": "2267283443edeee352a891f132e99bc2212453cb5c7477b982406651354448fc"
+    },
+    "source-review-logs/smc-mapping.log": {
+      "bytes": 123,
+      "sha256": "1d0965c197dbedb144b294c81dac5bae105fadae6704dd6d74ac1aeb4d4c3938"
+    },
+    "source-review-logs/smc-part-select.log": {
+      "bytes": 20,
+      "sha256": "232941838900ea044e95c2e848228751dd188b6c5441145fc0dc70069c338938"
+    },
+    "source-review-logs/smc-performance-abort.log": {
+      "bytes": 500,
+      "sha256": "3633c954719dfff591f8d5b6f1070b78641df2649292a2323c79f1475378e1ad"
+    },
+    "source-review-logs/smc-protocol.log": {
+      "bytes": 65,
+      "sha256": "7dd80227d6127e4d93cd62751cc2242f4123ac82ccaa3e744c9a433c6bce773b"
+    },
+    "source-review-logs/smc-queue.log": {
+      "bytes": 81,
+      "sha256": "da6b4dac8ef71a42c86a5719f3c42555d17693de206db28ec95344beabbd26cb"
+    },
+    "source-review-logs/smc-reachability.log": {
+      "bytes": 465,
+      "sha256": "e2322eab897bf8bd378ca9c17f182fd35c889c58cd0286c7e339a0190a24b7e8"
+    },
+    "source-review-logs/smc-record-feedback.log": {
+      "bytes": 489,
+      "sha256": "f35c7a277fd65d3228bec16a0683b0774c2d5a9d24324fbfb130d4bafcdcafd4"
+    },
+    "source-review-logs/smc-ui-asan.log": {
+      "bytes": 596,
+      "sha256": "b25385c914668352d603ceba73bbe94c94292e734af2b3a9b20139eb874482a7"
+    },
+    "source-review-logs/smc-ui-negative.log": {
+      "bytes": 463,
+      "sha256": "7491953e53dd1218eb9e8d50690a83b3f28d61d6e487bae23975da90febcf4d0"
+    },
+    "source-review-logs/smc-ui.log": {
+      "bytes": 596,
+      "sha256": "b25385c914668352d603ceba73bbe94c94292e734af2b3a9b20139eb874482a7"
+    }
+  },
+  "setup_note": "One initial shell wrapper used zsh read-only variable status after sanitized dispatch; wrapper exited 1. Corrected wrapper reran the test and recorded true exit 0. No source changes or bypass."
+}

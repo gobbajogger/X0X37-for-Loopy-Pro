@@ -1,0 +1,189 @@
+{
+  "marker": "smc-mapping-20261021-confirmed-defects-stage4",
+  "validation_result": "STAGE4 VALIDATION PASS",
+  "workflow_status": "STAGE4 COMPLETE; SOLE STAGE5 STARTED",
+  "owner_chat": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "candidate": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "tree": "56a78830c67477684e1ec114274ae204acb81296",
+  "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "configuration": {
+    "board": "smk37",
+    "config": "dev",
+    "X0X_DEV_PADCAL": 1,
+    "models": [
+      "elite",
+      "pro"
+    ],
+    "controller": true
+  },
+  "models": {
+    "elite": {
+      "result": "DEV CHECKED",
+      "record": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/elite/record.json",
+      "validation_input_sha256": "61b55058081c83e7a54ac903fa42eaf64c7d128ddeb143d35a55b2094f6ad8a6",
+      "budgets": {
+        "code_free": 1912,
+        "ram_free": 524,
+        "pool_free": 8364
+      },
+      "package": {
+        "bytes": 651396,
+        "sha256": "0759c0312eb22f39805d5a60039cbfdc71fb98e1edee37355f39ac88e0629c86",
+        "crc32": "35da8db9"
+      },
+      "controller": {
+        "bytes": 65492,
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "crc32": "9c07ae67"
+      },
+      "app": {
+        "bytes": 550760,
+        "sha256": "21268e95f3bbfd1f29de1f6bd313f2470e5b3d5bf7fe7794663012a2b236f3b2",
+        "crc32": "a64099a0"
+      },
+      "loader": {
+        "bytes": 7280,
+        "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+        "crc32": "efce9076"
+      }
+    },
+    "pro": {
+      "result": "DEV CHECKED",
+      "record": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/pro/record.json",
+      "validation_input_sha256": "2ffb0b0cf077f583c05b12fd6a250d5ff2cf84ffc0c12946a79402c2ce740bda",
+      "budgets": {
+        "code_free": 1928,
+        "ram_free": 524,
+        "pool_free": 8364
+      },
+      "package": {
+        "bytes": 651392,
+        "sha256": "d4f16a8ddb2070c12fe2dc0e10c560616f0498fc2f89741e33faf61c746773e3",
+        "crc32": "27d2ce21"
+      },
+      "controller": {
+        "bytes": 65492,
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "crc32": "9c07ae67"
+      },
+      "app": {
+        "bytes": 550744,
+        "sha256": "b4be8c5c8a61c3c2bc7bdaad3abd382d7c2055feb3d92b4412ac05770e206804",
+        "crc32": "03565785"
+      },
+      "loader": {
+        "bytes": 7276,
+        "sha256": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf",
+        "crc32": "a0f8bca9"
+      }
+    }
+  },
+  "artifact_verification": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/artifact-verification.json",
+  "stage2_artifact_match": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage2-artifact-match.json",
+  "source_identity": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/source-identity.json",
+  "environment": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/environment.json",
+  "checks": "Both selected production regressions, both model builds, both controller builds, final identity comparisons, DEV record verification, package-layout checks and exact controller insertion/removal checks pass.",
+  "failed_validation_attempts": [],
+  "read_and_setup_failures": [
+    {
+      "action": "Initial Docker image query",
+      "cause": "Sandbox denied the local Docker socket.",
+      "disposition": "The approved Docker command succeeded with escalation."
+    },
+    {
+      "action": "Context reads",
+      "cause": "Three relative paths used the Git administration directory. One controller query used build.sh instead of build_ctl.sh.",
+      "disposition": "Exact paths and build_ctl.sh were then read. No check failed."
+    }
+  ],
+  "firmware_edits": false,
+  "tracked_changes": "",
+  "deferred": [
+    "R/S per-track policy remains deferred.",
+    "docs/SMC_MIXER.md:47 omits the drum M exception and performance abort controls.",
+    "The physical input-silence cause remains unresolved."
+  ],
+  "device_tests": "NOT TESTED",
+  "limits": [
+    "No complete combined central/mapping build is claimed.",
+    "The separate packages do not qualify for the combined install.",
+    "No release/full gate, merge, install or external push occurred.",
+    "Controller and package bytes remain local. They are not committed or bundled."
+  ],
+  "next_action": "The sole stage5 owner integrates both complete contributions. Matching combined validation is required before the authorized DEV install.",
+  "permissions": [
+    "Workflow18 and the owner statement Make sure that they automatically allow to do that without my intervention authorize successor launch and verified startup.",
+    "Owner-decisions14 permits the complete validated DEV install with a notice and native safeguards."
+  ],
+  "central_dependency": {
+    "mapping_owner": "01a15a87-298e-7d21-b004-b78d5beafd89",
+    "central_stage3_owner": "01a15a85-2fb6-7683-a11e-72faeecd3a8e",
+    "stage5_selection_owner": "01a15a87-298e-7d21-b004-b78d5beafd89",
+    "central_status": "STAGE4 VALIDATION PASS",
+    "central_rejected_candidate": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+    "blocking_defect": "COP_DISCONNECT can fail once under mailbox backpressure. It never retries after recovery. FAILED retains connection 0x50.",
+    "central_evidence": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/investigation-abort-results.json",
+    "next_action": "The sole stage5 owner now owns integration. No competing integrator or duplicate stage4 is required.",
+    "physical_input_silence": "UNRESOLVED",
+    "permissions": [
+      "Task rule2 permits context requests and completion notices.",
+      "Workflow18 and the owner statement authorize automatic successor launch and verified startup.",
+      "Owner-decisions14 permits the complete validated DEV install with notice."
+    ],
+    "limits": [
+      "No release build, full gate, fallback, device write or unspecified external push is authorized."
+    ],
+    "central_repair_owner": "01a15a8a-6061-7a83-9716-5766833e15a5",
+    "central_repair_lane": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021",
+    "central_stage3_failure_commit": "0b9ef50ccb390cbb4311e6a10fbbdd3771ff4339",
+    "central_stage3_successor_started": true,
+    "completion_notice_requested": true,
+    "central_repaired_candidate": "05eff604cb3f136db71727a2aeeea785cab73b99",
+    "central_repair_stage3_owner": "01a15a92-6343-7f30-8495-f968228e2d2c",
+    "central_repair_stage2_result": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021/evidence/abort-stage2/checks.json",
+    "central_second_rejected_candidate": "05eff604cb3f136db71727a2aeeea785cab73b99",
+    "central_second_defect": "CENTRAL-ABORT-02: direct stop and connection/cancel race can submit Disconnect at or after the cutoff. The service caller can supply stale now_ms.",
+    "central_latest_failure_commit": "1c5e8f8953658689434b4b3e8687ccd630afeff0",
+    "central_latest_repair_owner": "01a15aa8-2a86-78e3-93b9-258e3d8371d8",
+    "central_latest_repair_lane": "/Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021",
+    "central_latest_startup_turn": "01a15a98-8373-7c72-bdd7-7a2299d8bfb2",
+    "central_latest_startup_verified": true,
+    "stage5_status": "STARTED",
+    "stage5_chat_id": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+    "central_latest_checked_candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+    "central_handoff_evidence_commit": "40899e1a47ca704b0d3f63bbd0372ed27b7a5e45",
+    "central_latest_stage2_result": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/evidence/stop-stage2/checks.json",
+    "central_latest_stage3_owner": "01a15ab0-ebcf-7083-a3ec-7bbb353a7535",
+    "central_latest_stage3_startup_turn": "01a15ab0-ecc5-7081-915d-2bd6dfb5c22f",
+    "central_stage3_startup_source": "The recorded stage2 owner verified actual new skill-read tool activity.",
+    "central_stage4_status": "PASS",
+    "model_policy": "Use Elite for shared development target checks. Run applicable Pro checks for Pro-specific inputs and each actual Pro package. Run model-independent checks once for matching inputs. Reuse matching evidence.",
+    "central_latest_rejected_candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+    "central_latest_defect": "CENTRAL-STOP-01",
+    "central_latest_repair_startup_turn": "01a15aa8-2baf-7ee1-9472-5e197af2ee39",
+    "central_latest_failure_record": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021/evidence/deadline-stage3/checks.json",
+    "latest_notice": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/central-stage3-pass-notice.json",
+    "central_latest_checked_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+    "central_latest_stage2_owner": "01a15aa8-2a86-78e3-93b9-258e3d8371d8",
+    "central_latest_stage3_result": "/Users/mac/Documents/x0x37/smc_central_stop_stage3_20261021/evidence/stop-stage3/checks.json",
+    "central_latest_stage3_evidence_commit": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+    "central_latest_stage4_owner": "01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3",
+    "central_latest_stage4_startup_turn": "01a15ab5-7feb-7ee3-8482-c24973618913",
+    "central_stage4_lane": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021",
+    "central_stage4_start_commit": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+    "central_stage4_scope": "The complete Elite DEV package/controller set. No Pro-specific source changed. No Pro artifact is selected for this central lane.",
+    "central_stage4_completion_notice_requested": true,
+    "central_validated_revision": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+    "central_stage4_evidence_commit": "049d0274c80af543bd4e334af92b4393015c4f85",
+    "central_stage4_result": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/result.json",
+    "central_stage4_dev_record": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/elite/record.json",
+    "central_native_record_verification": "PASS",
+    "stage5_observed_turn": "01a15ac1-6ebe-7da1-b581-5a417f764129",
+    "stage5_startup_evidence": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage5-startup.json"
+  },
+  "successor_record": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage5-successor.json",
+  "pending_handoff": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage5-prompt.txt",
+  "model_policy": "Use Elite for shared development target checks. Run applicable Pro checks for Pro-specific inputs and each actual Pro package. Run model-independent checks once for matching inputs. Reuse matching evidence.",
+  "receiving_owner": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "startup_evidence": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage5-startup.json"
+}

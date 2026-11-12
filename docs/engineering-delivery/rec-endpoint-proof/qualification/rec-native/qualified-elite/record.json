@@ -1,0 +1,496 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "bbae7f3552258425253b82d25b65a29957cf31169a019741260122f9768b0521",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "fcd5d4953c8bf69de222be3d9ac3e6209cf04c1aa4c6ae0e439de02c51098814",
+      "configuration": {
+        "model": "elite",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "d633833ac369f8466bc2563791614206070e87d1",
+          "scope": "Frozen REC endpoint-only stream6 and mixed-continuation preservation follow-up at1d2418a2. Receipt-bound reuse of independent17registeredselectors(including4newsuites),4ASan/UBSan suites,96case/288check timing matrix and12024key ownership checks. Only storage follow-up changed after reviewed recorder source; exact current1314ASan/UBSan + zero-write reproduction cleared preservation HOLD. No full PINGPONG/RANDOM or whole-snapshot/voice-identity claim. Both DEV models and matchingcontroller build from exact pin.",
+          "checks": [
+            {
+              "reason": "Qualify actual compiler Clang4.0.1 and pinned current controller SDK input bytes before build, record application SDK file digests.",
+              "argv": [
+                "python3",
+                "-B",
+                "-c",
+                "import subprocess, pathlib, hashlib, json, re, os\nclang=pathlib.Path(os.environ['JIELI_TOOLCHAIN'])/'pi32v2/bin/clang'\ns=subprocess.check_output([str(clang),'--version'],text=True); print(s); assert 'clang version 4.0.1' in s\nsdk=pathlib.Path(os.environ['AC79_SDK'])\nprint('SDK_HEAD_FILE', (sdk/'.git/HEAD').read_text().strip())\nrows=re.findall(r'^([0-9a-f]{64}) (.+)$',pathlib.Path('ble/ctl/fetch_sdk.sh').read_text(),re.M)\nfor expected,rel in rows:\n actual=hashlib.sha256((sdk/rel).read_bytes()).hexdigest(); print(actual,rel); assert actual==expected\nfor rel in ['cpu/wl82/tools/uboot.boot','cpu/wl82/tools/cfg_tool.bin','cpu/wl82/tools/cfg/eq_cfg_hw.bin']:\n print(hashlib.sha256((sdk/rel).read_bytes()).hexdigest(),rel)\n"
+              ]
+            },
+            {
+              "reason": "Verify exact-source authentic independent REC musical/ownership/storage proof and the bounded current storage-HOLD clearance without repeating unchanged checked closures.",
+              "argv": [
+                "python3",
+                "-B",
+                "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py"
+              ]
+            }
+          ],
+          "dependencies": [
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/rec-proof-map.json",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/input-reuse.json",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/receipt.json",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-receipt.json",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/core-sanitized.log",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/adjacent-regression.log",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/production-probe.log",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/matrix.log",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-storage-asan.log",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-independent-reproduction.log"
+          ],
+          "worker": {
+            "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+            "platform": [
+              "Linux",
+              "x86_64",
+              "6.8.0-117-generic"
+            ],
+            "environment": {
+              "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+              "HOSTNAME": "c35f85aa99e2",
+              "HOME": "/root",
+              "JIELI_TOOLCHAIN": "/Users/mac/.jieli/toolchain",
+              "AC79_SDK": "/Users/mac/fw-AC79_AIoT_SDK",
+              "CC": "cc",
+              "CXX": "c++",
+              "PYTHONDONTWRITEBYTECODE": "1",
+              "CPATH": "/usr/local/include",
+              "LIBRARY_PATH": "/usr/local/lib",
+              "SDK_LOCAL": "/Users/mac/fw-AC79_AIoT_SDK",
+              "MODEL": "elite",
+              "BOARD": "smk37",
+              "X0X_DEV_PADCAL": "1",
+              "CTL_NO_CACHE": "1",
+              "CTL_NATIVE": "1"
+            },
+            "mounts": {
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/repo": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/dev-check-sbqkpl03": false,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/repo/tools": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/repo/.git": false,
+              "/Users/mac/.jieli/toolchain": true,
+              "/Users/mac/fw-AC79_AIoT_SDK": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/rec-proof-map.json": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/input-reuse.json": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/receipt.json": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-receipt.json": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/core-sanitized.log": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/adjacent-regression.log": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/production-probe.log": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/matrix.log": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-storage-asan.log": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-independent-reproduction.log": true,
+              "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1": true
+            },
+            "orchestrator_platform": [
+              "Darwin",
+              "arm64",
+              "27.2.0"
+            ],
+            "orchestrator_tools": {
+              "docker": {
+                "sha256": "d5a8e97986df13467ff99f71740267e60a96ad098397b204e8cf32dc2f1a8f4a",
+                "executable": true
+              },
+              "python": {
+                "sha256": "6e7ae61f68a3838094fc56590f84c52069a97d7816f6bb79e0e85995b340e464",
+                "executable": true
+              },
+              "git": {
+                "sha256": "5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d",
+                "executable": true
+              }
+            }
+          }
+        },
+        "dependencies": [
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/rec-proof-map.json",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/input-reuse.json",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/receipt.json",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-receipt.json",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/core-sanitized.log",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/adjacent-regression.log",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/production-probe.log",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/matrix.log",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-storage-asan.log",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-independent-reproduction.log"
+        ]
+      },
+      "environment": {
+        "BOARD": "smk37",
+        "CC": "cc",
+        "CPATH": "/usr/local/include",
+        "CTL_NATIVE": "1",
+        "CTL_NO_CACHE": "1",
+        "CXX": "c++",
+        "LIBRARY_PATH": "/usr/local/lib",
+        "MODEL": "elite",
+        "X0X_DEV_PADCAL": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.8.0-117-generic"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "88771086fc5daeae12b9fe56617eed458f83c3e5a12d3f3825361d5ddc493b9d",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "39c5956f49de3ca9aa6aa3edab43aa9a481264136ed0dbb029ae377de3c965a6",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+          "executable": true
+        },
+        "git": {
+          "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+          "executable": true
+        },
+        "make": {
+          "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+          "executable": true
+        },
+        "node": {
+          "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+          "executable": true
+        },
+        "python": {
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+          "executable": true
+        },
+        "python3": {
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": null,
+        "pillow": {
+          "version": "9.4.0",
+          "sha256": "c6d6f5bc403396868ad18dad0b1d84a003b0837ece68e7f144d88fec9ea358b2"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py": {
+          "sha256": "d33d33b0a564fadca057a1000d37f98532835cfeef23539635b9238c1e0553ef",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/rec-proof-map.json": {
+          "sha256": "c30c1c7efe1865703369d40f961e452da01eb8450e993e96ff71dbe4bfa213bf",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/input-reuse.json": {
+          "sha256": "ccd63d6d2ac3d21ca50c38f9f61cbb2c9fc4c2f00ecab5cf3cd81f1475cb8061",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/receipt.json": {
+          "sha256": "f2026b0435dbf1af04886231f3485b3f8202a9aa0901b2363121173849638182",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-receipt.json": {
+          "sha256": "a34ffa935cebc8894035cde21a9ee77d537ad8800f16ab7730a1dbc7259caa12",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/core-sanitized.log": {
+          "sha256": "e2d7fb8be8f046b21d6039bb7dba3df3398fa6eb8588a983d290054fed0dc9c6",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/adjacent-regression.log": {
+          "sha256": "cd2f229b71f509ddb2cbd79746ca68b7243bc28888bebfb9196ceb9a8851b9a9",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/production-probe.log": {
+          "sha256": "002188fa099e9b6034868f80d2840956a0ac51e8aeb1eb36f9dd0b27afdbe8cc",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/matrix.log": {
+          "sha256": "91d6f55a19635a06cd45e592c2f993d4c51f0c238ada8c1e4e6a6b117ad3a653",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-storage-asan.log": {
+          "sha256": "20b5f8e20fba925d8c962f5c2fa5496856b39b445186bdecc87d3808866726d5",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-independent-reproduction.log": {
+          "sha256": "f22981671f16925c95b354a681e5552d5ea0c0d500188210e04ddd1e836d9c30",
+          "executable": false
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "elite",
+  "commit": "1d2418a26003a5aecadb4a8609520e6c507f35c6",
+  "tree": "fcd5d4953c8bf69de222be3d9ac3e6209cf04c1aa4c6ae0e439de02c51098814",
+  "plan": {
+    "base": "d633833ac369f8466bc2563791614206070e87d1",
+    "scope": "Frozen REC endpoint-only stream6 and mixed-continuation preservation follow-up at1d2418a2. Receipt-bound reuse of independent17registeredselectors(including4newsuites),4ASan/UBSan suites,96case/288check timing matrix and12024key ownership checks. Only storage follow-up changed after reviewed recorder source; exact current1314ASan/UBSan + zero-write reproduction cleared preservation HOLD. No full PINGPONG/RANDOM or whole-snapshot/voice-identity claim. Both DEV models and matchingcontroller build from exact pin.",
+    "checks": [
+      {
+        "reason": "Qualify actual compiler Clang4.0.1 and pinned current controller SDK input bytes before build, record application SDK file digests.",
+        "argv": [
+          "python3",
+          "-B",
+          "-c",
+          "import subprocess, pathlib, hashlib, json, re, os\nclang=pathlib.Path(os.environ['JIELI_TOOLCHAIN'])/'pi32v2/bin/clang'\ns=subprocess.check_output([str(clang),'--version'],text=True); print(s); assert 'clang version 4.0.1' in s\nsdk=pathlib.Path(os.environ['AC79_SDK'])\nprint('SDK_HEAD_FILE', (sdk/'.git/HEAD').read_text().strip())\nrows=re.findall(r'^([0-9a-f]{64}) (.+)$',pathlib.Path('ble/ctl/fetch_sdk.sh').read_text(),re.M)\nfor expected,rel in rows:\n actual=hashlib.sha256((sdk/rel).read_bytes()).hexdigest(); print(actual,rel); assert actual==expected\nfor rel in ['cpu/wl82/tools/uboot.boot','cpu/wl82/tools/cfg_tool.bin','cpu/wl82/tools/cfg/eq_cfg_hw.bin']:\n print(hashlib.sha256((sdk/rel).read_bytes()).hexdigest(),rel)\n"
+        ]
+      },
+      {
+        "reason": "Verify exact-source authentic independent REC musical/ownership/storage proof and the bounded current storage-HOLD clearance without repeating unchanged checked closures.",
+        "argv": [
+          "python3",
+          "-B",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py"
+        ]
+      }
+    ],
+    "dependencies": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/rec-proof-map.json",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/input-reuse.json",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/receipt.json",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-receipt.json",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/core-sanitized.log",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/adjacent-regression.log",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/production-probe.log",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/matrix.log",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-storage-asan.log",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-independent-reproduction.log"
+    ],
+    "worker": {
+      "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.8.0-117-generic"
+      ],
+      "environment": {
+        "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "HOSTNAME": "c35f85aa99e2",
+        "HOME": "/root",
+        "JIELI_TOOLCHAIN": "/Users/mac/.jieli/toolchain",
+        "AC79_SDK": "/Users/mac/fw-AC79_AIoT_SDK",
+        "CC": "cc",
+        "CXX": "c++",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "CPATH": "/usr/local/include",
+        "LIBRARY_PATH": "/usr/local/lib",
+        "SDK_LOCAL": "/Users/mac/fw-AC79_AIoT_SDK",
+        "MODEL": "elite",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1"
+      },
+      "mounts": {
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/repo": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/dev-check-sbqkpl03": false,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/repo/tools": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/repo/.git": false,
+        "/Users/mac/.jieli/toolchain": true,
+        "/Users/mac/fw-AC79_AIoT_SDK": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/rec-proof-map.json": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/input-reuse.json": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/receipt.json": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-receipt.json": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/core-sanitized.log": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/adjacent-regression.log": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/production-probe.log": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/matrix.log": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-storage-asan.log": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-review/followup-independent-reproduction.log": true,
+        "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1": true
+      },
+      "orchestrator_platform": [
+        "Darwin",
+        "arm64",
+        "27.2.0"
+      ],
+      "orchestrator_tools": {
+        "docker": {
+          "sha256": "d5a8e97986df13467ff99f71740267e60a96ad098397b204e8cf32dc2f1a8f4a",
+          "executable": true
+        },
+        "python": {
+          "sha256": "6e7ae61f68a3838094fc56590f84c52069a97d7816f6bb79e0e85995b340e464",
+          "executable": true
+        },
+        "git": {
+          "sha256": "5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d",
+          "executable": true
+        }
+      }
+    }
+  },
+  "changed_files": [
+    "docs/engineering-delivery/rec-endpoint-proof/README.md",
+    "docs/engineering-delivery/rec-endpoint-proof/baseline-held-duration-asan.log",
+    "docs/engineering-delivery/rec-endpoint-proof/bass-prob-midi.log",
+    "docs/engineering-delivery/rec-endpoint-proof/engine-cq-boff-overflow.log",
+    "docs/engineering-delivery/rec-endpoint-proof/engine-cq-bon-overflow.log",
+    "docs/engineering-delivery/rec-endpoint-proof/engine-cq-brk-overflow.log",
+    "docs/engineering-delivery/rec-endpoint-proof/engine-cq-drum-overflow.log",
+    "docs/engineering-delivery/rec-endpoint-proof/engine-cq-rec-overflow.log",
+    "docs/engineering-delivery/rec-endpoint-proof/mixed-storage-after.log",
+    "docs/engineering-delivery/rec-endpoint-proof/mixed-storage-before.log",
+    "docs/engineering-delivery/rec-endpoint-proof/mixed-storage-detailed-after.log",
+    "docs/engineering-delivery/rec-endpoint-proof/mixed-storage-independent-after.log",
+    "docs/engineering-delivery/rec-endpoint-proof/mixed-storage-receipt.json",
+    "docs/engineering-delivery/rec-endpoint-proof/nonforward-before-guard.log",
+    "docs/engineering-delivery/rec-endpoint-proof/project-303-stream.log",
+    "docs/engineering-delivery/rec-endpoint-proof/project-stage.log",
+    "docs/engineering-delivery/rec-endpoint-proof/rec-endpoint-lifecycle.log",
+    "docs/engineering-delivery/rec-endpoint-proof/rec-endpoint-storage.log",
+    "docs/engineering-delivery/rec-endpoint-proof/rec-held-duration.log",
+    "docs/engineering-delivery/rec-endpoint-proof/rec-live-smk.log",
+    "docs/engineering-delivery/rec-endpoint-proof/rec-live.log",
+    "docs/engineering-delivery/rec-endpoint-proof/rec-nonforward-guard.log",
+    "docs/engineering-delivery/rec-endpoint-proof/receipt.json",
+    "docs/engineering-delivery/rec-endpoint-proof/sanitized-rec-tests.log",
+    "docs/engineering-delivery/rec-endpoint-proof/seq-long-notes.log",
+    "docs/engineering-delivery/rec-endpoint-proof/seq-random-tie-preview.log",
+    "docs/engineering-delivery/rec-endpoint-proof/sequencer.log",
+    "docs/engineering-delivery/rec-endpoint-stream6.md",
+    "firmware/src/app/engine.c",
+    "firmware/src/app/engine.h",
+    "firmware/src/app/project.c",
+    "firmware/src/app/ui.c",
+    "firmware/src/app/x0x.h",
+    "firmware/src/seq/pattern.h",
+    "firmware/src/seq/sequencer.c",
+    "firmware/src/seq/sequencer.h",
+    "tests/host/engine_cq_rec_overflow_test.py",
+    "tests/host/project_export_fixture.c",
+    "tests/host/project_export_fixture.sh",
+    "tests/host/rec_endpoint_lifecycle_test.c",
+    "tests/host/rec_endpoint_lifecycle_test.sh",
+    "tests/host/rec_endpoint_storage_test.c",
+    "tests/host/rec_endpoint_storage_test.sh",
+    "tests/host/rec_held_duration_test.c",
+    "tests/host/rec_held_duration_test.sh",
+    "tests/host/rec_live_test.c",
+    "tests/host/rec_nonforward_guard_test.c",
+    "tests/host/rec_nonforward_guard_test.sh",
+    "tests/host/run_project_303_stream.sh",
+    "tests/run_tests.sh"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 227036,
+    "ram_free": 300,
+    "pool_free": 21092
+  },
+  "firmware_version": null,
+  "firmware": {
+    "firmware_version": null,
+    "release_display": null,
+    "version_label": "Unversioned legacy DEV",
+    "build_id": "g1d2418a26003-he20a53c54189",
+    "display_label": "X0X37 Unversioned legacy DEV \u00b7 SMK-37 Elite \u00b7 DEV \u00b7 DEVICE NOT TESTED",
+    "model": "elite",
+    "product": "SMK-37 Elite_900",
+    "source_commit": "1d2418a26003a5aecadb4a8609520e6c507f35c6",
+    "package_sha256": "e20a53c54189d0d904fc2be3615e5fe4d3ae8b5851509e4b3658ac11a558691f",
+    "package_bytes": 651455,
+    "status": "package-inspected",
+    "device_tested": false,
+    "installable": false
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import subprocess, pathlib, hashlib, json, re, os\nclang=pathlib.Path(os.environ['JIELI_TOOLCHAIN'])/'pi32v2/bin/clang'\ns=subprocess.check_output([str(clang),'--version'],text=True); print(s); assert 'clang version 4.0.1' in s\nsdk=pathlib.Path(os.environ['AC79_SDK'])\nprint('SDK_HEAD_FILE', (sdk/'.git/HEAD').read_text().strip())\nrows=re.findall(r'^([0-9a-f]{64}) (.+)$',pathlib.Path('ble/ctl/fetch_sdk.sh').read_text(),re.M)\nfor expected,rel in rows:\n actual=hashlib.sha256((sdk/rel).read_bytes()).hexdigest(); print(actual,rel); assert actual==expected\nfor rel in ['cpu/wl82/tools/uboot.boot','cpu/wl82/tools/cfg_tool.bin','cpu/wl82/tools/cfg/eq_cfg_hw.bin']:\n print(hashlib.sha256((sdk/rel).read_bytes()).hexdigest(),rel)\n"
+      ],
+      "returncode": 0,
+      "sha256": "02f752490f37012639cb60b796f4cf75a03117e9732869344bc18ce56c14133f"
+    },
+    "check-1": {
+      "argv": [
+        "python3",
+        "-B",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/rec-native/verify_rec_evidence.py"
+      ],
+      "returncode": 0,
+      "sha256": "90770e8547fad864a2592cb9503e6a57e525ff9d3c021d26c90824560d03dd9c"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "e68b9df7290b80a69b83ee08b1abb3b1a2ab1ca6a850e0ee9d3fa42946c9e4c4"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "fd632d383a651179d0256cb018aefad23980e906c641e2077aab2af57f37dc4f"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37-elite.fwsc",
+      "sha256": "e20a53c54189d0d904fc2be3615e5fe4d3ae8b5851509e4b3658ac11a558691f"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}

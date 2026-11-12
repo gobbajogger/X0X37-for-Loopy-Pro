@@ -1,0 +1,15 @@
+{
+  "base": "af1a3a5e6ab9d4442977ed283072ded3a034ddee",
+  "status": "static review only; candidate working-tree source hashes after caller corrections",
+  "algorithm": "sha256",
+  "files": {
+    "firmware/src/app/smc_fx_map.h": "ee350659d80e4a93e9d594e15c9de7c3f77018537d4de90f51093acc2f95648a",
+    "firmware/src/app/smc_fx_strip.h": "ee393e66eb4be5c723e7c03ad0a7092bed052f49dba7376e79f1dc63cad1cadb",
+    "firmware/src/app/smc_mixer.c": "165b1170800d0f630bc2ee26445d13fde66e9abc4d0657f9f59063864cfa2464",
+    "firmware/src/app/smk_arrows.h": "fc2907106c155feef7ef1cd53da41ef25f87ccb2a02135aa23c0e0deb43ef700",
+    "firmware/src/app/ui_pictograms.h": "bbab822f9ed3ec3820dcbbb2833c5dd5fe76c398c01e824ecc93280ca48a491f",
+    "tests/host/smc_fx_preset_preserve_test.py": "fb0a0f3a4046ed231cf475cbca8741a840a41e6309f0d0ae97ba95a5ebb4de9e",
+    "tests/host/smc_remainder_test.c": "0617267dbbb2bf142fb5f76b20bd4d6b95140df40aa69c72bf932bcaaca6282e",
+    "tests/host/smc_select_mode_test.c": "2266a28e99bd269842a3dff839a3c17ec2891e2b599aae21ac69f7f77b9a1147"
+  }
+}

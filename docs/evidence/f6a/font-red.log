@@ -1,0 +1,6 @@
+site: /tmp/site-retention-0waz7rk8/shell: 0 version(s), models [], firmware files 0
+Traceback (most recent call last):
+  File "<repo>/web/test_site_generation.py", line 54, in <module>
+    assert font.is_file(), 'The shared typeface must be bundled for offline use.'
+           ^^^^^^^^^^^^^^
+AssertionError: The shared typeface must be bundled for offline use.

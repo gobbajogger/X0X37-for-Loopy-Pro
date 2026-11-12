@@ -1,0 +1,3 @@
+segment size=2859 packed_len=6679
+load=-9 unsupported=1
+after fallback save=-9 erases_delta=0 programs_delta=0 saves_delta=0

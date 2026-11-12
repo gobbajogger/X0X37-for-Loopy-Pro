@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+date: Tue, 20 Oct 2026 13:11:51 GMT
+server: envoy
+
+HTTP/2 302
+server: envoy
+date: Tue, 20 Oct 2026 13:11:54 GMT
+content-type: text/html; charset=utf-8
+content-length: 0
+x-frame-options: SAMEORIGIN
+location: https://jl-update.oss-cn-shenzhen.aliyuncs.com/jieli-linux-toolchains-20260730.1.tar.xz
+x-envoy-upstream-service-time: 1843

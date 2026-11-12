@@ -1,0 +1,9 @@
+{
+  "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+  "tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e",
+  "production_files": [
+    "firmware/src/ble.c",
+    "firmware/src/ble/ble_midi_central.c"
+  ],
+  "source_inputs_sha256": "2da6760d054844385987dd9cef8e5b7a9f916a28142385e9afa3b6c74d9f6a1d"
+}

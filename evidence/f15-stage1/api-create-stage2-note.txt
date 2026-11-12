@@ -1,0 +1,1 @@
+CURSOR_API_KEY unset in this pod. Two create attempts not sent (no owner key). Do not use Task as Stage 2. Ask Project coordinator CreateAgent with startingRef=cursor/f15-f03-slotprobe-stage1-237f and evidence/f15-stage1/SUCCESSOR-STAGE2.txt. Stage 1 ownership retained until owner-visible Stage 2 id is on the remote.

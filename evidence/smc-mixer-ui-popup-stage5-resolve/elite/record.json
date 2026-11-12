@@ -1,0 +1,319 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "8383ea3ef5a87342538d5fa0b5cbf5626540d10e7f7cd54d93f5bc0f64db727a",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "67c15750402e5ea6a5893d422e5ade1ce023001953bbe04378f34fc6cf774097",
+      "configuration": {
+        "model": "elite",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "4a219ff423a5a158434e39d7872772ae7c9df20c",
+          "scope": "SMC mixer UI popup merge-resolve onto main (#9+#8). Peek as SMC-07 on main-mixer; help is a card (#8); drum SEQ banks from #9. Tip e894804dfdb0bb66c7247eb1846313a215422c9f. Re-validate Elite/Pro DEV after smc_mixer.c changed vs 828298d9. No page-lock/multi-SMC.",
+          "checks": [
+            {
+              "reason": "SMC-07 peek map, hold refresh, restore without set_view, and clip/help/overlay/perf_testing guards (synth SEQ).",
+              "argv": [
+                "sh",
+                "tests/host/smc_ui_popup_test.sh"
+              ]
+            },
+            {
+              "reason": "Existing SMC destination reachability remains intact after peek hooks on main drum-SEQ mixer.",
+              "argv": [
+                "sh",
+                "tests/host/smc_reachability_test.sh"
+              ]
+            }
+          ]
+        },
+        "dependencies": []
+      },
+      "environment": {
+        "CXX": "c++",
+        "CC": "cc",
+        "MODEL": "elite",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.12.94+"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "3341b5f29aa352adecc8b7e6002f9966c8a2fa3c3767640076ab28c937253dc1",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "618310cee42f469d7136bc3cd65e1993bb63b6e810c1927c36b5ea8d11cd9fc0",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+          "executable": true
+        },
+        "git": {
+          "sha256": "eb54b535467e0975c1284d4c4d08eea779aeb248a5d34b02e2ee171382e22201",
+          "executable": true
+        },
+        "make": {
+          "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+          "executable": true
+        },
+        "node": {
+          "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "6452af2eea333b8c65e1adb92964fc8f97863ab003fa13f9d12bff5345cd7dbe",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "9276e918e3c26d3aa7ef9dd2232cd8ac692f03d3c1f270bfa5144a2b5492b713",
+          "executable": true
+        },
+        "python": {
+          "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": {
+          "version": "1.26.4",
+          "sha256": "0ef82d76121885f9d0ff6a335df347f2582760e90bd194a152665a235a9291cd"
+        },
+        "pillow": {
+          "version": "10.2.0",
+          "sha256": "47ead06269170b91e6792d5121d37500a490ad3eb2eafd8ec06c909834981001"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        }
+      },
+      "references": {
+        "NINEW9_DIR": {
+          "sha256": "f294646e5b85ca19e8af9a1885d4d5291b674eb77135e5f270111b0be86d39c3"
+        },
+        "EIGHTW8_DIR": {
+          "sha256": "c9afce2266d3e7b999806ebe19d3b30378500039f8727e02a2b715e33c055768"
+        },
+        "SCHWUNG303": {
+          "sha256": "aa138ec5b833ff21173aed6911be1e1550df0f3d15330b15068ebf7ae1631a7b"
+        },
+        "TB3PO_REF": {
+          "sha256": "f9345b97eb05692a161893ac1d3d2d100025eb68f4f90e8b7ae7605533d7c9e6",
+          "executable": false
+        },
+        "X0X_REFS": {
+          "sha256": "12813b6693241c602660df0f857804c25df849619099c5420f3c7213b506f5f3"
+        }
+      }
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "elite",
+  "commit": "e894804dfdb0bb66c7247eb1846313a215422c9f",
+  "tree": "67c15750402e5ea6a5893d422e5ade1ce023001953bbe04378f34fc6cf774097",
+  "plan": {
+    "base": "4a219ff423a5a158434e39d7872772ae7c9df20c",
+    "scope": "SMC mixer UI popup merge-resolve onto main (#9+#8). Peek as SMC-07 on main-mixer; help is a card (#8); drum SEQ banks from #9. Tip e894804dfdb0bb66c7247eb1846313a215422c9f. Re-validate Elite/Pro DEV after smc_mixer.c changed vs 828298d9. No page-lock/multi-SMC.",
+    "checks": [
+      {
+        "reason": "SMC-07 peek map, hold refresh, restore without set_view, and clip/help/overlay/perf_testing guards (synth SEQ).",
+        "argv": [
+          "sh",
+          "tests/host/smc_ui_popup_test.sh"
+        ]
+      },
+      {
+        "reason": "Existing SMC destination reachability remains intact after peek hooks on main drum-SEQ mixer.",
+        "argv": [
+          "sh",
+          "tests/host/smc_reachability_test.sh"
+        ]
+      }
+    ]
+  },
+  "changed_files": [
+    "BEHAVIOR.md",
+    "docs/SMC_MIXER.md",
+    "docs/audit/smc-mixer-ui-popup-2026-10-22.md",
+    "evidence/smc-mixer-ui-popup-stage1/HANDOFF.md",
+    "evidence/smc-mixer-ui-popup-stage1/SUCCESSOR-STAGE2.txt",
+    "evidence/smc-mixer-ui-popup-stage2-repair/HANDOFF.md",
+    "evidence/smc-mixer-ui-popup-stage2-repair/HEAD.txt",
+    "evidence/smc-mixer-ui-popup-stage2-repair/RESULT.txt",
+    "evidence/smc-mixer-ui-popup-stage2-repair/SHA256SUMS",
+    "evidence/smc-mixer-ui-popup-stage2-repair/SUCCESSOR-STAGE3.txt",
+    "evidence/smc-mixer-ui-popup-stage2-repair/host-suite.log",
+    "evidence/smc-mixer-ui-popup-stage2-repair/pr-create-attempt.log",
+    "evidence/smc-mixer-ui-popup-stage2-repair/size-elite-repair.log",
+    "evidence/smc-mixer-ui-popup-stage2-repair/size-pro-repair.log",
+    "evidence/smc-mixer-ui-popup-stage2-repair/smc_clip_visibility_test.log",
+    "evidence/smc-mixer-ui-popup-stage2-repair/smc_ui_popup_test.log",
+    "evidence/smc-mixer-ui-popup-stage2-repair/stage3-prompt.txt",
+    "evidence/smc-mixer-ui-popup-stage2/HANDOFF.md",
+    "evidence/smc-mixer-ui-popup-stage2/SHA256SUMS",
+    "evidence/smc-mixer-ui-popup-stage2/SUCCESSOR-STAGE3.txt",
+    "evidence/smc-mixer-ui-popup-stage2/pr-and-successor.json",
+    "evidence/smc-mixer-ui-popup-stage2/smc_buttons_test.log",
+    "evidence/smc-mixer-ui-popup-stage2/smc_clip_visibility_test.log",
+    "evidence/smc-mixer-ui-popup-stage2/smc_drum_mutes_test.log",
+    "evidence/smc-mixer-ui-popup-stage2/smc_fader_test.log",
+    "evidence/smc-mixer-ui-popup-stage2/smc_filter_test.log",
+    "evidence/smc-mixer-ui-popup-stage2/smc_mapping_test.log",
+    "evidence/smc-mixer-ui-popup-stage2/smc_part_select_test.log",
+    "evidence/smc-mixer-ui-popup-stage2/smc_performance_abort_test.log",
+    "evidence/smc-mixer-ui-popup-stage2/smc_reachability_test.log",
+    "evidence/smc-mixer-ui-popup-stage2/smc_ui_popup_test.log",
+    "evidence/smc-mixer-ui-popup-stage2/stage3-prompt.txt",
+    "evidence/smc-mixer-ui-popup-stage4/DEFECT.txt",
+    "evidence/smc-mixer-ui-popup-stage4/HANDOFF.md",
+    "evidence/smc-mixer-ui-popup-stage4/HEAD.txt",
+    "evidence/smc-mixer-ui-popup-stage4/RESULT.txt",
+    "evidence/smc-mixer-ui-popup-stage4/SHA256SUMS",
+    "evidence/smc-mixer-ui-popup-stage4/SUCCESSOR-STAGE2-REPAIR.txt",
+    "evidence/smc-mixer-ui-popup-stage4/dev-plan.json",
+    "evidence/smc-mixer-ui-popup-stage4/elite-dev_validate-build.log",
+    "evidence/smc-mixer-ui-popup-stage4/elite-manual-build.log",
+    "evidence/smc-mixer-ui-popup-stage4/elite/build.log",
+    "evidence/smc-mixer-ui-popup-stage4/elite/check-0.log",
+    "evidence/smc-mixer-ui-popup-stage4/elite/check-1.log",
+    "evidence/smc-mixer-ui-popup-stage4/environment.json",
+    "evidence/smc-mixer-ui-popup-stage4/minimal-peek-elite.log",
+    "evidence/smc-mixer-ui-popup-stage4/pr-and-successor.json",
+    "evidence/smc-mixer-ui-popup-stage4/pr-comment-attempt.log",
+    "evidence/smc-mixer-ui-popup-stage4/pro-implement-build.log",
+    "evidence/smc-mixer-ui-popup-stage4/repair-elite-build.log",
+    "evidence/smc-mixer-ui-popup-stage4/repair-smc_ui_popup_test.log",
+    "evidence/smc-mixer-ui-popup-stage4/run-validation.log",
+    "evidence/smc-mixer-ui-popup-stage4/run-validation.sh",
+    "evidence/smc-mixer-ui-popup-stage4/size-implement.log",
+    "evidence/smc-mixer-ui-popup-stage4/size-main-base.log",
+    "evidence/smc-mixer-ui-popup-stage4/size-pro-ad4f311.log",
+    "evidence/smc-mixer-ui-popup-stage4/size-pro-e00741e.log",
+    "evidence/smc-mixer-ui-popup-stage4/size-tests.log",
+    "evidence/smc-mixer-ui-popup-stage4/stage2-repair-prompt.txt",
+    "evidence/smc-mixer-ui-popup-stage4/toolchain-preflight.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/FINAL-TIP.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/HANDOFF.md",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/HEAD.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/MERGE-INSTRUCTIONS-PRIOR.md",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/SHA256SUMS",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/SUCCESSOR-STAGE6-PARENT.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/SUCCESSOR-STAGE6.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/dev-plan.json",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite-dev_validate-build.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/build.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/check-0.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/check-1.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/controller.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/ctl.img",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/x0x-smk37-elite.fwsc",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/environment.json",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/host-suite.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pr-and-successor.json",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro-dev_validate-build.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/build.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/check-0.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/check-1.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/controller.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/ctl.img",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/x0x-smk37.fwsc",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/stage6-prompt.txt",
+    "firmware/src/app/smc_mixer.c",
+    "tests/host/smc_drum_rs_test.c",
+    "tests/host/smc_feedback_test.py",
+    "tests/host/smc_reachability_test.c",
+    "tests/host/smc_ui_popup_test.c",
+    "tests/host/smc_ui_popup_test.sh",
+    "tests/run_tests.sh"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 6244,
+    "ram_free": 492,
+    "pool_free": 8324
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "sh",
+        "tests/host/smc_ui_popup_test.sh"
+      ],
+      "returncode": 0,
+      "sha256": "a8c81419b3bb05332ed6b023371ced3746f2a284dd7345f8e92db46cb26f711d"
+    },
+    "check-1": {
+      "argv": [
+        "sh",
+        "tests/host/smc_reachability_test.sh"
+      ],
+      "returncode": 0,
+      "sha256": "e2322eab897bf8bd378ca9c17f182fd35c889c58cd0286c7e339a0190a24b7e8"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "7562d3d6aefdc25bc4cb2bf57458cebe46f3580a0e7440151683861949004bf9"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "e0dac15b9e1579a35e0e1f494c53f27e7514f772b558f642740f8fd4f8c78529"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37-elite.fwsc",
+      "sha256": "19cf000582b67f6e66295c4f0c70512c493432e87f3c88c817f938f67e138c64"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}
