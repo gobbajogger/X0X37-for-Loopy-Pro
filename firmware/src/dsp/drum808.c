@@ -821,6 +821,77 @@ D8_TICK float cp_tick(d8_cp_t *v)
     return y;
 }
 
+/* One stretch of the clap: the same ops as cp_tick, state in scalars. */
+__attribute__((noinline)) static int cp_run(d8_cp_t *restrict v, float *restrict buf, int m)
+{
+    const float bp_b0 = v->bp.b0, bp_e1 = v->bp.e1, bp_e2 = v->bp.e2;
+    const float hp_n0 = v->hp.n0, hp_n1 = v->hp.n1, hp_n2 = v->hp.n2;
+    const float hp_e1 = v->hp.e1, hp_e2 = v->hp.e2;
+    const float tooth_d = v->tooth_d, main_d = v->main_d, floor_d = v->floor_d;
+    const float main_atk = v->main_atk;
+    const int32_t spread = v->spread, main_open = v->main_open;
+    float bp_z1 = v->bp.z1, bp_z2 = v->bp.z2;
+    float hp_z1 = v->hp.z1, hp_z2 = v->hp.z2;
+    float tooth = v->tooth, main_level = v->main_level, main_target = v->main_target;
+    float floor_level = v->floor_level;
+    uint32_t rs1 = v->rng.s1, rs2 = v->rng.s2, rs3 = v->rng.s3;
+    int32_t fired = v->fired, age = v->age, quiet = v->quiet;
+    uint8_t active = v->active;
+    int i;
+
+    for (i = 0; i < m && active; i++) {
+        float ctrl, n, y, bx, hy;
+        fm_bits_t u;
+        if (fired < 3 && age >= fired * spread) {
+            tooth = 0.80f;
+            fired++;
+        }
+        if (age == main_open) {
+            main_target = 1.0f;
+            floor_level = 0.030f;
+        }
+        age++;
+        ctrl = tooth + main_level + floor_level;
+        tooth *= tooth_d;
+        if (main_target > 0.0f) {
+            main_level += (main_target - main_level) * main_atk;
+            if (main_level > 0.98f)
+                main_target = 0.0f;
+        } else
+            main_level *= main_d;
+        floor_level *= floor_d;
+        /* rng_frand2, address never taken */
+        rs1 = ((rs1 & 0xFFFFFFFEu) << 12) ^ (((rs1 << 13) ^ rs1) >> 19);
+        rs2 = ((rs2 & 0xFFFFFFF8u) << 4) ^ (((rs2 << 2) ^ rs2) >> 25);
+        rs3 = ((rs3 & 0xFFFFFFF0u) << 17) ^ (((rs3 << 3) ^ rs3) >> 11);
+        u.u = 0x40000000u | ((rs1 ^ rs2 ^ rs3) >> 9);
+        n = u.f - 3.0f;
+        /* bp_run(&v->bp, (n > 0 ? n : 0) * ctrl) * 0.62f */
+        bx = bp_b0 * ((n > 0.0f ? n : 0.0f) * ctrl);
+        y = bx + bp_z1;
+        bp_z1 = (y + y + bp_z2) - bp_e1 * y;
+        bp_z2 = (-bx - y) - bp_e2 * y;
+        y = y * 0.62f;
+        /* bq_run(&v->hp, y) */
+        hy = hp_n0 * y + hp_z1;
+        hp_z1 = (hp_n1 * y + (hy + hy + hp_z2)) - hp_e1 * hy;
+        hp_z2 = (hp_n2 * y - hy) - hp_e2 * hy;
+        y = hy;
+        if (__builtin_expect(y > drum808_quiet || y < -drum808_quiet, 1)) quiet = 0;
+        else if (++quiet > 400) active = 0;
+        buf[i] = y;
+    }
+
+    v->bp.z1 = bp_z1; v->bp.z2 = bp_z2;
+    v->hp.z1 = hp_z1; v->hp.z2 = hp_z2;
+    v->tooth = tooth; v->main_level = main_level; v->main_target = main_target;
+    v->floor_level = floor_level;
+    v->rng.s1 = rs1; v->rng.s2 = rs2; v->rng.s3 = rs3;
+    v->fired = fired; v->age = age; v->quiet = quiet;
+    v->active = active;
+    return i;
+}
+
 /* ---- the metal bank: sc808_mt_circuit.h SchmittBank ---- */
 static const d8ff_t k_bank_inc[6] = {             /* oscHz / sr * 2^32 */
     {2.007239800e+07f, 1.792653054e-01f}, {3.585956800e+07f, 2.173968256e-01f},
@@ -1411,6 +1482,59 @@ D8_TICK float cb_tick(d8_cb_t *v, float pair)  /* pair = (o5 + o6) / 2 */
     else if (++v->quiet > 400 && env < 1e-4f)
         v->active = 0;
     return y;
+}
+
+/* One stretch of the cowbell: the same ops as cb_tick, state in scalars. */
+__attribute__((noinline)) static int cb_run(d8_cb_t *restrict v, float *restrict buf, const float *restrict pair, int m)
+{
+    const float bp_b0 = v->bp.b0, bp_e1 = v->bp.e1, bp_e2 = v->bp.e2;
+    const float bla_a = v->bla.a, blb_a = v->blb.a, hp_a = v->hp.a;
+    const float clank_d = v->clank_d, body_d = v->body_d;
+    float bp_z1 = v->bp.z1, bp_z2 = v->bp.z2;
+    float bla_y = v->bla.y, bla_z = v->bla.z;
+    float blb_y = v->blb.y, blb_z = v->blb.z;
+    float hp_y = v->hp.y, hp_z = v->hp.z;
+    float clank = v->clank, body = v->body;
+    int32_t quiet = v->quiet;
+    uint8_t active = v->active;
+    int i;
+
+    for (i = 0; i < m && active; i++) {
+        float pair_x = pair[i], bx, x, env, sv, hp_x, y;
+        /* bp_run(&v->bp, pair) */
+        bx = bp_b0 * pair_x;
+        x = bx + bp_z1;
+        bp_z1 = (x + x + bp_z2) - bp_e1 * x;
+        bp_z2 = (-bx - x) - bp_e2 * x;
+        env = clank + body;
+        clank *= clank_d;
+        body *= body_d;
+        /* hp1_run(&v->blb, hp1_run(&v->bla, pair)) */
+        bla_y = bla_a * (bla_y + pair_x - bla_z);
+        bla_z = pair_x;
+        blb_y = blb_a * (blb_y + bla_y - blb_z);
+        blb_z = bla_y;
+        sv = (x + 0.55f * blb_y) * env;
+        sv = sv + 2.0f * sv * sv;
+        /* hp1_run(&v->hp, sv * 1.9f) */
+        hp_x = sv * 1.9f;
+        hp_y = hp_a * (hp_y + hp_x - hp_z);
+        hp_z = hp_x;
+        y = hp_y;
+        if (y > 3.2e-5f || y < -3.2e-5f)
+            quiet = 0;
+        else if (++quiet > 400 && env < 1e-4f)
+            active = 0;
+        buf[i] = y;
+    }
+
+    v->bp.z1 = bp_z1; v->bp.z2 = bp_z2;
+    v->bla.y = bla_y; v->bla.z = bla_z;
+    v->blb.y = blb_y; v->blb.z = blb_z;
+    v->hp.y = hp_y; v->hp.z = hp_z;
+    v->clank = clank; v->body = body;
+    v->quiet = quiet; v->active = active;
+    return i;
 }
 
 /* ======================================================================= */
@@ -2166,8 +2290,8 @@ static __attribute__((noinline)) int voice_run(drum808_t *d, int l, float *buf, 
     case L_RS: for (i = 0; i < m && d->rs.active; i++) buf[i] = rs_tick(&d->rs); break;
     case L_CL: for (i = 0; i < m && d->cl.active; i++) buf[i] = cl_tick(&d->cl); break;
     case L_MA: for (i = 0; i < m && d->ma.active; i++) buf[i] = ma_tick(&d->ma); break;
-    case L_CP: for (i = 0; i < m && d->cp.active; i++) buf[i] = cp_tick(&d->cp); break;
-    case L_CB: for (i = 0; i < m && d->cb.active; i++) buf[i] = cb_tick(&d->cb, pair[i]); break;
+    case L_CP: i = cp_run(&d->cp, buf, m); break;
+    case L_CB: i = cb_run(&d->cb, buf, pair, m); break;
     case L_CH: i = hat_run(&d->ch, buf, bus, m); break;
     case L_OH: i = hat_run(&d->oh, buf, bus, m); break;
     default: i = cy_run(&d->cy, buf, bus, m); break;
