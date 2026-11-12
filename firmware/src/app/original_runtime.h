@@ -3,6 +3,7 @@
 #include "original_sound.h"
 #include "../dsp/original_chicago_backend.h"
 #include "../dsp/original_miami_backend.h"
+#include "../dsp/drone_string.h"
 
 enum { ORIGINAL_INPUT_USB, ORIGINAL_INPUT_BLE, ORIGINAL_INPUT_TRS,
        ORIGINAL_INPUT_KEYS, ORIGINAL_INPUT_SEQUENCE, ORIGINAL_INPUT_COUNT };
@@ -11,6 +12,7 @@ enum { ORIGINAL_RUNTIME_OK = 1, ORIGINAL_RUNTIME_INVALID = 0,
 typedef union {
     original_chicago_backend chicago;
     original_miami_backend miami;
+    drone_string_t drone; /* third synth kind, never an extra part */
 } original_runtime_backend;
 typedef struct {
     original_runtime_backend dsp;
