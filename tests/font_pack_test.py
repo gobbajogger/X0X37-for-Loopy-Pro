@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Lossless font storage: byte-run boundaries and production rendering equivalence."""
 import os
+import shlex
 from pathlib import Path
 import random
 import re
@@ -30,12 +31,32 @@ def unpack(data):
     return out
 
 
+def unpack_lz(data):
+    out, i = [], 0
+    while i < len(data):
+        token = data[i]
+        i += 1
+        if token & 128:
+            distance = data[i]
+            i += 1
+            assert 1 <= distance <= min(255, len(out))
+            for _ in range((token & 127) + 3):
+                out.append(out[-distance])
+        else:
+            count = token + 1
+            assert i + count <= len(data)
+            out.extend(data[i:i + count])
+            i += count
+    return out
+
+
 def main():
     rng = random.Random(9327)
     for count in (0, 1, 2, 3, 127, 128, 129, 255, 256, 257, 600):
         for source in ([0] * count, [255] * count, [i & 255 for i in range(count)],
                        [rng.randrange(256) for _ in range(count)]):
             assert unpack(gen_font.pack_glyph(source)) == source
+            assert unpack_lz(gen_font.pack_glyph_lz(source)) == source
     for fontset in ("barlow", "terminus"):
         gen_font.FONTSET = fontset
         gen_font.SIZES = gen_font.FONTSETS[fontset]
@@ -52,7 +73,7 @@ def main():
             (path / "font_raw.h").write_text(original.replace("FONT_", "RAW_FONT_"))
             executable = path / "font_pack_test"
             subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-Wall", "-Wextra", "-Werror",
-                            "-Wno-unused-function", "-I" + directory, str(ROOT / "tests/host/font_pack_test.c"),
+                            "-Wno-unused-function", *shlex.split(os.environ.get("SAN_FLAGS", "")), "-I" + directory, str(ROOT / "tests/host/font_pack_test.c"),
                             "-o", str(executable)], check=True)
             subprocess.run([str(executable)], check=True)
             print(f"{fontset}: {size(original) - size(packed)} bytes saved; all rendered pixels retained")
