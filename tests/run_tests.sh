@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 16363)
-Total output lines: 750
-
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
 # X0X host tests: the maths, the sequencer + TB-3PO (against schwung-tb3po), each engine
@@ -410,7 +407,52 @@ run smc-action-source python3 tests/host/smc_action_source_test.py
 run smc-fx-caption sh tests/host/smc_fx_caption_test.sh
 run smc-fx-page-port sh tests/host/smc_fx_page_port_test.sh
 run smc-fx-two-page-strip sh tests/host/smc_fx_two_page_strip_test.sh
-run smc-fx-echo-page…1363 tokens truncated…ra -Werror -Ifirmware/src/ble -o $OUT/ble_link_epoch_reset_test tests/host/ble_link_epoch_reset_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_link_epoch_reset_test"
+run smc-fx-echo-page sh tests/host/smc_fx_echo_page_test.sh
+run smc-fx-peer-view python3 tests/host/smc_fx_peer_view_test.py
+run smc-fx-preset-preserve python3 tests/host/smc_fx_preset_preserve_test.py
+run smc-queue python3 tests/host/smc_queue_test.py
+run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
+run engine-cq-rec-overflow python3 tests/host/engine_cq_rec_overflow_test.py   # atomic REC word retains critical priority
+run engine-cq-isr-preemption python3 tests/host/engine_cq_isr_preemption_test.py   # source-masked critical publication survives consumer ISR
+run engine-cq-boff-overflow python3 tests/host/engine_cq_boff_overflow_test.py   # full CQ must keep C_BOFF (displace param)
+run engine-cq-brk-overflow python3 tests/host/engine_cq_brk_overflow_test.py   # full CQ must keep C_BRK press+release (displace param)
+run engine-cq-bon-overflow python3 tests/host/engine_cq_bon_overflow_test.py   # full CQ must keep C_BON (displace param)
+run engine-cq-drum-overflow python3 tests/host/engine_cq_drum_overflow_test.py   # full CQ must keep C_DRUM (displace param)
+run engine-808-scratch-alias sh tests/host/engine_808_scratch_alias_test.sh   # 808 scratch in the out window: bit-identical to separate t0/tr
+run midi-mq-noteoff-overflow python3 tests/host/midi_mq_noteoff_overflow_test.py   # full MIDI-in MQ must keep Note Off (displace CC)
+run midi-mq-rt-overflow python3 tests/host/midi_mq_rt_overflow_test.py   # full MIDI-in MQ must keep Start/Continue/Stop (displace CC)
+run midi-overflow-order python3 tests/host/midi_overflow_order_test.py   # FIFO under full MIDI/BLE queues, rollover and TIMER5 boundaries
+run midi-out-mq-noteoff-overflow python3 tests/host/midi_out_mq_noteoff_overflow_test.py   # full MIDI-out MQ must keep Note Off (displace CC)
+run ble-out-noteoff-overflow python3 tests/host/ble_out_noteoff_overflow_test.py   # full BLE out mirror must keep Note Off (displace CC)
+run ble-out-rt-overflow python3 tests/host/ble_out_rt_overflow_test.py   # full BLE out mirror must keep Start/Continue/Stop (displace CC)
+run usb-sxq-sticky-apc python3 tests/host/usb_sxq_sticky_apc_test.py   # full SXQ must sticky-retry APC inquiry/intro
+run usb-live-update python3 -B tests/host/usb_live_update_test.py   # legacy update keys cannot interrupt live notes/transport
+run live-a-mix-report python3 -B tests/host/live_a_mix_report_test.py   # measurement fixture/provenance contracts, no firmware render
+run smc-host-data7 python3 tests/host/smc_host_data7_test.py
+run smc-host-overflow-data7 python3 tests/host/smc_host_overflow_data7_test.py
+run smc-sender-isolation python3 tests/host/smc_sender_isolation_test.py
+run ble-ctl-fail-return python3 tests/host/ble_ctl_fail_return_test.py   # BT lib reset in a poll returns core 1 (BLE-13)
+run smc-ble-payload python3 tests/host/smc_ble_payload_test.py
+run smc-link python3 tests/host/smc_link_test.py
+run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # prevent stale central MIDI after BLE reconnect
+run smc-boot-saved-roles python3 tests/host/test_smc_boot_saved_roles.py
+run ble-central-first-notification python3 tests/host/ble_central_first_notification_test.py
+# Verify the normal firmware configuration, not a test-only -DBLEC_TWO_PEER override.
+# The #700 single-peer command-credit fallback remains exercised explicitly.
+run ble-active-peer-contract python3 tests/host/ble_active_peer_contract_test.py
+run ble-smc-outbound-slots python3 tests/host/ble_smc_outbound_slot_test.py
+run ble-one-peer-command env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=0" sh tests/host/ble_one_peer_command_retry_test.sh
+run ble-single-peer-status sh -c "${CC:-cc} -std=c99 -O1 -g -Wall -Wextra -Werror -o $OUT/ble_single_peer_status_test tests/host/ble_single_peer_status_test.c && $OUT/ble_single_peer_status_test"
+run ble-dual-peer env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_dual_peer_test.sh
+run ble-command-credit env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_command_credit_event_test.sh
+run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
+if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
+if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
+run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"
+run ble-hci-completed sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_hci_completed_packets_test tests/host/ble_hci_completed_packets_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_hci_completed_packets_test"
+run ble-acl-zero-credit sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_zero_credit_test tests/host/ble_acl_zero_credit_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_zero_credit_test"
+run ble-zero-conn sh -c "for d in 0 1; do $CC -std=c99 -O1 -Wall -Wextra -Werror -D_POSIX_C_SOURCE=200809L -DBLEC_TWO_PEER=\$d -Ifirmware/src -Ifirmware/src/ble -o $OUT/ble_zero_conn_test\$d tests/host/ble_zero_conn_test.c firmware/src/ble/ble_midi_central.c && $OUT/ble_zero_conn_test\$d || exit 1; done"
+run ble-link-epoch-reset sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_link_epoch_reset_test tests/host/ble_link_epoch_reset_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_link_epoch_reset_test"
 run ble-disconnect-status sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_disconnect_status_test tests/host/ble_disconnect_status_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_disconnect_status_test"
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-reachability Pillow; else run smc-reachability sh tests/host/smc_reachability_test.sh; fi
 run smc-pickup-acceptance sh tests/host/smc_pickup_acceptance_test.sh
