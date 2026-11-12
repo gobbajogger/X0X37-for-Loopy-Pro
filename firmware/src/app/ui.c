@@ -415,12 +415,13 @@ static uint8_t original_page_bank, original_list_bank;
 static int original_display_value(pref_t r);
 static const ui_original_control_view *original_text_view(pref_t r, int value);
 static void build_pages(void);
-static const char *const BENGINE_N[] = {"CHICAGO", "MIAMI"};
-static const x0x_param_t BENGINE_P = {"ENGINE",1,0,BENGINE_N};
+static const char *const BENGINE_N[] = {"CHICAGO", "MIAMI", "DRONE"};
+static const x0x_param_t BENGINE_P = {"ENGINE",2,0,BENGINE_N};
 static x0x_param_t BPRESET_P = {"PRESET",54,0,0};
 static const x0x_param_t BSTATUS_P = {"STATUS",0,0,0};
 /* per-pattern preset recall (owner 2026-11-12 02:42): 0 OFF, else the preset number in the
- * part's current engine; stored as pattern_t.rsv[part] = bank << 7 | preset + 1 */
+ * part's current engine. Codes 1..81=Chicago, 129..158=Miami and
+ * 193..196=Drone. Reuse the original pattern byte without migration. */
 static x0x_param_t PATSND_P = {"PAT SOUND",54,0,0};
 
 static const char *const RATE_N[] = {"1/16", "1/16T", "1/32", "1/8T", "1/8", "1/4"};   /* M13: index = pattern.h RATE_* */
@@ -663,7 +664,10 @@ static int pref_get(pref_t r)
     case R_MIDICH: return seq.ch[r.a % NPARTS] == SEQ_CH_OFF ? 0 : seq.ch[r.a % NPARTS] + 1;
     case R_PARTON: return !SEQ_PART_OFF(&seq, r.a % NPARTS);
     case R_QUEUEMUTE: return seq.queued_mutes;
-    case R_BPATSND: return pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1] & 127;
+    case R_BPATSND: {
+        uint8_t ps = pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1];
+        return (ps & 0xC0u) == 0xC0u ? (ps & 0x3Fu) : (ps & 127u);
+    }
     case R_NOTELOCK: return engine_note_lock_capture_on();
     case R_OUTLOUD: return proj.set.out_loud;
     case R_USBFULL: return proj.set.usb_full;
@@ -810,10 +814,13 @@ X0X_COLD static void pref_set_impl(pref_t r, int v, int from_keyboard)
         PROJ_SET_QMUTE(&proj.set, v);
         seq.queued_mutes = (uint8_t)PROJ_QMUTE_OF(&proj.set);
         break;
-    case R_BPATSND:
+    case R_BPATSND: {
+        unsigned bank = (unsigned)engine_bass_requested_bank(r.b);
         pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1] =
-            (uint8_t)(v ? (unsigned)engine_bass_requested_bank(r.b) << 7 | (unsigned)v : 0u);
+            (uint8_t)(!v ? 0u : bank == ORIGINAL_SOUND_DRONE ?
+                      (0xC0u | (unsigned)v) : ((bank << 7) | (unsigned)v));
         break;
+    }
     case R_NOTELOCK: engine_note_lock_capture(v); break;
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
@@ -1038,7 +1045,10 @@ static const char *original_status_name(int voice)
 }
 static int original_value_text(pref_t r, int value, char *num, char *unit)
 {
-    if (r.kind == R_BENGINE) { put_s(num,BENGINE_N[value == ORIGINAL_SOUND_MIAMI]); return 1; }
+    if (r.kind == R_BENGINE) {
+        put_s(num, value >= 0 && value <= ORIGINAL_SOUND_DRONE ? BENGINE_N[value] : "INVALID");
+        return 1;
+    }
     if (r.kind == R_BPRESET) {
         if (value < 0) put_s(num,"USER");
         else {
@@ -1053,7 +1063,8 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
     unsigned kind = (unsigned)bank, id = r.c;
     const ui_original_control_view *v = 0;
     /* a corrupt patch has no bank: never index a name table through a null view */
-    if (bank != ORIGINAL_SOUND_CHICAGO && bank != ORIGINAL_SOUND_MIAMI) { put_s(num,"INVALID"); return 1; }
+    if (bank != ORIGINAL_SOUND_CHICAGO && bank != ORIGINAL_SOUND_MIAMI && bank != ORIGINAL_SOUND_DRONE) { put_s(num,"INVALID"); return 1; }
+    if (kind == ORIGINAL_SOUND_DRONE) { put_i(num,(value*100+63)/127); put_s(unit,"%"); return 1; }
     if (ui_original_states(kind,id) || (kind == ORIGINAL_SOUND_CHICAGO && id == 4) ||
         (kind == ORIGINAL_SOUND_MIAMI && id == 7)) {
         v = original_text_view(r,value);
@@ -1245,8 +1256,9 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     case R_BPATSND: {
         unsigned ps = pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1];
         if (!ps) { put_s(num, "OFF"); return; }
-        num[0] = (ps >> 7) == ORIGINAL_SOUND_MIAMI ? 'M' : 'C';
-        put_i(num + 1, (int)(ps & 127u));
+        unsigned drone = (ps & 0xC0u) == 0xC0u;
+        num[0] = drone ? 'D' : (ps >> 7) == ORIGINAL_SOUND_MIAMI ? 'M' : 'C';
+        put_i(num + 1, (int)(drone ? (ps & 0x3Fu) : (ps & 127u)));
         return;
     }
     case R_SBAR: put_i(num, v + 1); return;
@@ -1489,9 +1501,12 @@ static void describe_pages(pages_t *out, page_query_t *query, int view, int p, i
             int b = p - PART_303A;
             emit->group = GR_SOUND;
             int kind = engine_bass_bank(b), chicago = kind == ORIGINAL_SOUND_CHICAGO;
-            const int8_t (*rows)[4] = chicago ? ui_original_chicago_rows : ui_original_miami_rows;
-            const char *const *titles = chicago ? ui_original_chicago_titles : ui_original_miami_titles;
-            int count = chicago ? UI_ORIGINAL_CHICAGO_PAGES : UI_ORIGINAL_MIAMI_PAGES;
+            const int8_t (*rows)[4] = kind == ORIGINAL_SOUND_DRONE ? ui_original_drone_rows :
+                chicago ? ui_original_chicago_rows : ui_original_miami_rows;
+            const char *const *titles = kind == ORIGINAL_SOUND_DRONE ? ui_original_drone_titles :
+                chicago ? ui_original_chicago_titles : ui_original_miami_titles;
+            int count = kind == ORIGINAL_SOUND_DRONE ? UI_ORIGINAL_DRONE_PAGES :
+                chicago ? UI_ORIGINAL_CHICAGO_PAGES : UI_ORIGINAL_MIAMI_PAGES;
             for (int row = 0; row < count; row++) {
                 pref_t refs[4];
                 for (int col = 0; col < 4; col++) refs[col] = rows[row][col] < 0 ? NONE : PR(R_ENG,T_303,b,rows[row][col]);
@@ -2870,7 +2885,8 @@ static const ui_original_control_view *original_text_view(pref_t r, int value)
 {
     const uint8_t *cell = proj.sound.v[T_303][r.b];
     unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);
-    uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_TEXT_MASK : UI_ORIGINAL_MIAMI_TEXT_MASK;
+    uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_TEXT_MASK :
+        kind == ORIGINAL_SOUND_MIAMI ? UI_ORIGINAL_MIAMI_TEXT_MASK : 0u;
     uint8_t preview[22] = {0}; uint32_t mask = 0;
     for (unsigned id = 0; id < original_sound_count(kind); id++) if (relevant & (1u<<id)) {
         pref_t ref = PR(R_ENG,T_303,r.b,id);
@@ -2887,6 +2903,7 @@ static const ui_original_wave_cache *original_wave_view(pref_t r, int value)
 {
     const uint8_t *cell = proj.sound.v[T_303][r.b];
     unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);
+    if (kind == ORIGINAL_SOUND_DRONE) return 0; /* drone has no Miami oscillator UI */
     uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_WAVE_MASK : UI_ORIGINAL_MIAMI_WAVE_MASK;
     uint8_t preview[22] = {0}; uint32_t mask = 0;
     for (unsigned id = 0; id < original_sound_count(kind); id++) if (relevant & (1u<<id)) {
@@ -5260,7 +5277,8 @@ static UI_DRAW void draw_header(void)
         ;
     if (cacheable) {
         snapshot.name = part_display(ui.part);
-        if (is_303()) snapshot.name = engine_bass_bank(bidx()) == ORIGINAL_SOUND_MIAMI ?
+        if (is_303()) snapshot.name = engine_bass_bank(bidx()) == ORIGINAL_SOUND_DRONE ?
+            (bidx() ? "DRONE B" : "DRONE A") : engine_bass_bank(bidx()) == ORIGINAL_SOUND_MIAMI ?
             (bidx() ? "MIAMI B" : "MIAMI A") : (bidx() ? "CHICAGO B" : "CHICAGO A");
         memcpy(snapshot.colours, pal, sizeof pal);
         snapshot.col = matrix_col(); snapshot.light = ui_theme_light;
@@ -5308,7 +5326,9 @@ static UI_DRAW void draw_header(void)
         ) {
         const char *name=part_display(ui.part);
         if(is_303()) {
-            name=engine_bass_bank(bidx())==ORIGINAL_SOUND_MIAMI?(bidx()?"MIAMI B":"MIAMI A"):(bidx()?"CHICAGO B":"CHICAGO A");
+            name=engine_bass_bank(bidx())==ORIGINAL_SOUND_DRONE?(bidx()?"DRONE B":"DRONE A"):
+                engine_bass_bank(bidx())==ORIGINAL_SOUND_MIAMI?(bidx()?"MIAMI B":"MIAMI A"):
+                (bidx()?"CHICAGO B":"CHICAGO A");
         }
         int night=matrix_three_rows() || X0X_ORIGINAL_SYNTH;
         if(night) sound_slab(0,0,240,20,0);
@@ -8685,7 +8705,9 @@ static void pattern_sound_tick(void)
         if (seen_pat[b] == pat && seen_val[b] == ps) continue;
         seen_pat[b] = (uint8_t)pat; seen_val[b] = (uint8_t)ps;
         if (!ps) continue;
-        int bank = (int)(ps >> 7), preset = (int)(ps & 127u) - 1;
+        int drone = (ps & 0xC0u) == 0xC0u;
+        int bank = drone ? ORIGINAL_SOUND_DRONE : (int)(ps >> 7);
+        int preset = (int)(drone ? (ps & 0x3Fu) : (ps & 127u)) - 1;
         if (engine_bass_requested_bank(b) == bank && engine_bass_requested_preset(b) == preset &&
             !engine_bass_preset_edited(b) && !engine_bass_preset_pending(b)) continue;
         (void)engine_bass_select_preset_at(b, bank, preset, &proj.sound, pat);
