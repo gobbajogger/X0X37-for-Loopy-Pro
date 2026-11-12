@@ -927,9 +927,10 @@ void engine_brk_live(int key, int down) { if (down && SEQ_PART_OFF(&seq, TRK_BRK
 #error "X0X_DIAG_STATE_TRACE must be 0 or 1"
 #endif
 #if X0X_DIAG_STATE_TRACE
-struct diag_row { uint32_t half, late, state, events, count, drums, bass, steps, plan; };
+struct diag_row { uint32_t half, late, phase909, events, count, drums, clock_next, steps, plan, prior_cost, best_cost, decision; };
 volatile struct { uint32_t written; struct diag_row row[48]; } x0x_state_trace;
 static uint32_t diag_events, diag_count, diag_drums, diag_bass;
+static uint32_t diag_prior_cost, diag_best_cost, diag_decision;
 __attribute__((noinline, minsize)) static void diag_event(uint32_t data)
 {
     diag_events = (diag_events * 33u) ^ data;
@@ -2652,6 +2653,11 @@ static uint32_t plan_pick(uint32_t n)
         k = plan_cost(m, c);
         if (k < bc) { bc = k; best = m; }
     }
+#if X0X_DIAG_STATE_TRACE
+    /* Capture the last actual planner comparison, before its chosen plan changes. */
+    diag_prior_cost = cost; diag_best_cost = bc;
+    diag_decision = (uint32_t)eng_plan | (best << 8) | (n << 16);
+#endif
     if (bc * 8u < cost * 7u || (eng_plan & ~(act & ok)))   /* 1/8 better, or a job of it went idle */
         eng_plan = (uint8_t)best;
     return eng_plan & act & ok;
@@ -2846,18 +2852,16 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
 #if X0X_DIAG_STATE_TRACE
 __attribute__((noinline, minsize)) void engine_diag_half(uint32_t half, uint32_t late)
 {
-    uint32_t h = seq.mute ^ ((uint32_t)seq.playing << 31), steps = 0, i;
+    uint32_t steps = 0, i;
     for (i = 0; i < NTRACKS; ++i) {
-        h = h * 33u ^ seq.t[i].to_next;
-        h = h * 33u ^ seq.t[i].to_off;
-        h = h * 33u ^ seq.ppat[i];
         steps |= (uint32_t)(seq.t[i].pos & 63u) << (i * 6u);
     }
-    if (half >= 160u && half < 208u) {
-        volatile struct diag_row *r = &x0x_state_trace.row[half - 160u];
-        r->half = half; r->late = late; r->state = h; r->events = diag_events;
-        r->count = diag_count; r->drums = diag_drums; r->bass = diag_bass; r->steps = steps;
+    if (half >= 174u && half < 222u) {
+        volatile struct diag_row *r = &x0x_state_trace.row[half - 174u];
+        r->half = half; r->late = late; r->phase909 = seq.t[TRK_DRUM].to_next; r->events = diag_events;
+        r->count = diag_count; r->drums = diag_drums; r->clock_next = seq.clk_to_next; r->steps = steps;
         r->plan = (uint32_t)eng_plan | (uint32_t)eng_c1_mask << 8 | (uint32_t)eng_808_split << 16;
+        r->prior_cost = diag_prior_cost; r->best_cost = diag_best_cost; r->decision = diag_decision;
         ++x0x_state_trace.written;
     }
     diag_events = diag_count = diag_drums = diag_bass = 0;

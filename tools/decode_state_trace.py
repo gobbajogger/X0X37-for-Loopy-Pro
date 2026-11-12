@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Decode the exact ELF's X0X_DIAG_STATE_TRACE RAM snapshot (layout v1)."""
+"""Decode the exact ELF's X0X_DIAG_STATE_TRACE RAM snapshot (layout v2)."""
 import argparse
 import json
 from pathlib import Path
 import struct
 import subprocess
 
-FIELDS=('half','late','state','events','count','drums','bass','steps','plan')
+FIELDS=('half','late','phase909','events','count','drums','clock_next','steps','plan','prior_cost','best_cost','decision')
 def decode(data):
-    if len(data)!=1732: raise ValueError('expected 1732-byte v1 trace symbol')
+    if len(data)!=2308: raise ValueError('expected 2308-byte v2 trace symbol')
     written,=struct.unpack_from('<I',data)
     if written>48: raise ValueError('invalid committed row count')
     rows=[]
     for i in range(written):
-        row=dict(zip(FIELDS,struct.unpack_from('<9I',data,4+i*36)))
-        if row['half']!=160+i: raise ValueError('nonsequential half index: wrong ELF/layout or incomplete capture')
+        row=dict(zip(FIELDS,struct.unpack_from('<12I',data,4+i*48)))
+        if row['half']!=174+i: raise ValueError('nonsequential half index: wrong ELF/layout or incomplete capture')
         row['track_steps']=[(row['steps']>>(j*6))&63 for j in range(5)]
         row['drum_requests']=[(j//11,j%11) for j in range(22) if row['drums']&(1<<j)]
-        row['last_sequence_bass_request']={'part':row['bass']&255,'note':(row['bass']>>8)&255,'velocity':(row['bass']>>16)&255,'runtime_result':(row['bass']>>24)&255}
+        row['planner_comparison']={'prior_mask':row['decision']&255,'best_mask':(row['decision']>>8)&255,'stretch_frames':row['decision']>>16}
+        row['phase909_samples_q8']=row['phase909']
+        row['clock_samples_q8']=row['clock_next']
         rows.append(row)
-    return {'layout':1,'written':written,'window_complete':written==48,'rows':rows}
+    return {'layout':2,'written':written,'window_complete':written==48,'rows':rows}
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--elf',type=Path,required=True);p.add_argument('--ram',type=Path,required=True)
