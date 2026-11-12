@@ -2,8 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-only
 set -eu
 cd "$(dirname "$0")/../.."
+<<<<<<< HEAD
 DARWIN=
 [ "$(uname -s)" != Darwin ] || DARWIN=-D_DARWIN_C_SOURCE
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 OUT=${1:?output directory}
 mkdir -p "$OUT"
 OUT=$(cd "$OUT" && pwd)
@@ -26,7 +29,11 @@ for mode in normal sanitized; do
     # Existing whole-app GCC weak-inline/attribute warnings remain visible.
     # Focused new modules are separately checked with -Werror.
     ${CC:-cc} -std=c99 $FLAGS -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
+<<<<<<< HEAD
         -D_POSIX_C_SOURCE=200809L $DARWIN ${X0X_HOST_DEFS:-} -DX0X_HOST -DX0X_ORIGINAL_SYNTH=1 -DX0X_DEV_WOBBLE=0 -DX0X_WOBBLE=0 \
+=======
+        -D_POSIX_C_SOURCE=200809L -DX0X_HOST -DX0X_ORIGINAL_SYNTH=1 -DX0X_DEV_WOBBLE=0 -DX0X_WOBBLE=0 \
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         -DORIGINAL_USE_SOFT_FMA -DMIAMI_FX_NO_HOST_FENV -fno-fast-math -ffp-contract=off \
         -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen -Iexperiments/original_synth -Iexperiments/wobble \
         tests/host/original_release_integration_test.c $U -lm -o "$OUT/$mode" > "$OUT/$mode.compile.log" 2>&1

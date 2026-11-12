@@ -324,7 +324,11 @@ int original_miami_backend_render_stereo(original_miami_backend *s, original_mia
     return original_miami_backend_render_events(s, w, left, right, frames, NULL, 0);
 }
 
+<<<<<<< HEAD
 int original_miami_backend_voice_active(const original_miami_backend *s)
+=======
+int original_miami_backend_active(const original_miami_backend *s)
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 {
     if (!original_miami_backend_status(s)) return 1;
     /* Raw latched keys survive ordinary releases; only an enabled latch
@@ -334,6 +338,7 @@ int original_miami_backend_voice_active(const original_miami_backend *s)
         s->allocator.held_active.count) return 1;
     for (unsigned i = 0; i < ORIGINAL_MIAMI_BACKEND_VOICES; ++i)
         if (s->voices[i].active || s->voices[i].awaiting_restart) return 1;
+<<<<<<< HEAD
     return 0;
 }
 
@@ -341,6 +346,9 @@ int original_miami_backend_active(const original_miami_backend *s)
 {
     return original_miami_backend_voice_active(s) ||
         s->output.fx.decimator.kernel.held_left != 0 || s->output.fx.decimator.kernel.held_right != 0;
+=======
+    return s->output.fx.decimator.kernel.held_left != 0 || s->output.fx.decimator.kernel.held_right != 0;
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 }
 
 int original_miami_backend_idle(const original_miami_backend *s)

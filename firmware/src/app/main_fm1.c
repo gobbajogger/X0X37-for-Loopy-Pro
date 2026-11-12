@@ -224,7 +224,11 @@ static void apc_note(uint32_t note, uint32_t vel)
 #else
 #include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
 #endif
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 #include "app/wobble_ui.h"       /* W_WOBBLE_DEPTH for Miami mod wheel */
 #endif
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
@@ -1027,12 +1031,16 @@ static void smk_wheels(void)
     if (bend != bend_now) {
         if (bend_part < 0 && bend && is_303())
             bend_part = (int8_t)bidx();
+<<<<<<< HEAD
         if (bend_part < 0 && bend && ui.part == PART_BRK && !smk_clip_mode_on())
             bend_part = 2;
         if (bend_part == 2) {
             engine_brk_bend(bend < 0 ? bend * 8192 / 63 : bend * 8191 / 63);
             if (!bend) bend_part = -1;
         } else if (bend_part >= 0) {
+=======
+        if (bend_part >= 0) {
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 #if X0X_ORIGINAL_SYNTH
             int param = engine_bass_is_wobble(bend_part) ?
                 ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND;
@@ -1066,7 +1074,11 @@ static void smk_wheels(void)
             engine_set(T_303, cut_part, engine_bass_is_wobble(cut_part) ?
                 ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF, (int)want);
 #else
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
             if (engine_bass_is_wobble(cut_part))
                 engine_set(T_303, cut_part, W_WOBBLE_DEPTH, (int)want);
             else
