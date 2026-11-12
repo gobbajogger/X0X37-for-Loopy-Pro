@@ -54,6 +54,13 @@ BLE_LO, BLE_HI = 0x8B000, 0x9B000              # SMK: flash range of the Bluetoo
 # SMK sample slot map (firmware/src/app/slots.c SMP_USER_OFF / SMP_USER_SIZE): (flash offset, size) per slot
 SLOTMAP = {"smk37": [(0xC2000, 0x14000), (0xD6000, 0x1E000), (0xB3000, 0x8000)],
            "fm1": [(0xA0000, 0x14000), (0xB4000, 0x14000)]}
+# Complete maps the live installer pkHasSlotMap allow-list accepts (flash 0x9CF00, CRC required).
+# Two-slot; older 44 KiB slot 3 at 0xB0000; current 32 KiB slot 3 at 0xB3000 after the shadows.
+SLOTMAP_ALLOWED = (
+    ((0xC2000, 0x14000), (0xD6000, 0x1E000)),
+    ((0xC2000, 0x14000), (0xD6000, 0x1E000), (0xB0000, 0xB000)),
+    ((0xC2000, 0x14000), (0xD6000, 0x1E000), (0xB3000, 0x8000)),
+)
 # Plain bytes after the encrypted cfg, scanned by the installers. SMK: just below 0x9D000.
 # FM-1: in the gap at the end of the 0x93000 image. Older packages have no record and stay on the
 # three-slot fallback.

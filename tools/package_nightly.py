@@ -154,9 +154,14 @@ def _package(raw, model, expected_version=None, ledger=None):
         raise add_ctl.PkgError("app.bin entry CRC")
     if pm.crc16(area[0x120:0x120 + add_ctl.SMK_SLOT]) != struct.unpack_from("<H", area, 34)[0]:
         raise add_ctl.PkgError("app.bin data CRC")
+    if tuple(pm.SLOTMAP["smk37"]) not in pm.SLOTMAP_ALLOWED:
+        raise add_ctl.PkgError("current SMK-37 sample slot map is not in the installer allow list")
     expected_map = pm.slotmap_blob(pm.SLOTMAP["smk37"])
     if st["flash"][pm.SLOTMAP_OFF:pm.SLOTMAP_OFF + len(expected_map)] != expected_map:
         raise add_ctl.PkgError("NIGHTLY package has no matching current SMK-37 sample slot map")
+    if not any(st["flash"][pm.SLOTMAP_OFF:pm.SLOTMAP_OFF + len(blob)] == blob
+               for blob in (pm.slotmap_blob(m) for m in pm.SLOTMAP_ALLOWED)):
+        raise add_ctl.PkgError("NIGHTLY package has no supported SMK-37 sample slot map")
     app_version = _app_version(st)
     if version is not None and version != app_version:
         raise add_ctl.PkgError("package identity does not match app firmware version")
