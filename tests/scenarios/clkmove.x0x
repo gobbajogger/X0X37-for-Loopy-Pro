@@ -1,96 +1,63 @@
-# a75: CLOCK SOURCE moves from the a74 byte 38 (payload byte 42; ck_x1 in the clip keys) to the settings bt
-# byte (offset 27, payload byte 31): bits 1-2 the value, bit 3 marks it. Byte 39 is payload byte 43.
+# Revision 13 keeps CLOCK SOURCE in bt (settings offset 27, payload 31),
+# independent of clip-key swing/human and rhythm/strum (offsets 38/39).
+# Earlier unmarked clock layouts are deliberately no longer migrated.
 wait 300
 expect clksrc 0
 expect setbyte27 8
 expect setbyte38 0
-# a75 save: EXTERNAL is in bt, byte 38 stays 0
 tap GLO
 turn ALGO 2
 tap HOME
 expect clksrc 2
 wait 6000
+expect storeset23 13
 expect storeset31 12
 expect storeset42 0
 expect storeset43 0
-# a74 save, EXTERNAL, BLUETOOTH off: bt 0, byte 38 = 2. The value moves to bt, byte 38 becomes 0 (no ARP SWING)
-storepoke 0 31 00
-storepoke 0 42 02
 reboot
 wait 300
 expect clksrc 2
-expect setbyte27 12
-expect setbyte38 0
 expect clkext 1
-# the next save writes the new layout (autosave: 20 s after the last save)
-wait 21000
-tap GLO
-turn ALGO -1
-turn ALGO 1
-tap HOME
-expect clksrc 2
-wait 6000
-expect storeset31 12
-expect storeset42 0
-reboot
-wait 300
-expect clksrc 2
-# a74 save, INTERNAL, BLUETOOTH on: bt 1, byte 38 = 1. BLUETOOTH stays on
-storepoke 0 31 01
-storepoke 0 42 01
+# Valid marked INTERNAL + BLUETOOTH; clip settings survive independently.
+storepoke 0 31 0B
+storepoke 0 42 0B
+storepoke 0 43 12
 reboot
 wait 300
 expect clksrc 1
 expect setbyte27 11
-expect setbyte38 0
-# a74 save, AUTO: bt 1, byte 38 = 0
-storepoke 0 31 01
-storepoke 0 42 00
+expect setbyte38 11
+expect setbyte39 18
+expect clkext 0
+tap GLO
+turn ALGO -1
+tap HOME
+expect clksrc 0
+tap SAVE
+wait 100
+expect storeset31 9
+expect storeset42 11
+expect storeset43 18
 reboot
 wait 300
 expect clksrc 0
 expect setbyte27 9
-# a73 save (byte 38 was padding, 0) with BLUETOOTH off: AUTO
-storepoke 0 31 00
-storepoke 0 42 00
-storepoke 0 43 00
-reboot
-wait 300
-expect clksrc 0
-expect setbyte27 8
-expect setbyte38 0
-# no mark, byte 38 more than 2 (a clip keys ck_x1: SWING 3, HUMAN 1): AUTO, byte 38 stays
-storepoke 0 31 00
-storepoke 0 42 0B
-reboot
-wait 300
-expect clksrc 0
 expect setbyte38 11
-# no mark, byte 39 not 0 (a clip keys ck_x2): byte 38 = 1 is ck_x1, not CLOCK SOURCE; AUTO, both stay
-storepoke 0 31 00
-storepoke 0 42 01
-storepoke 0 43 12
-reboot
-wait 300
-expect clksrc 0
-expect setbyte38 1
 expect setbyte39 18
-# with the mark, a load does not read byte 38 (after the merge: ck_x1 SWING 2)
-storepoke 0 31 0A
+# Missing clock mark is invalid revision-13 data: safe defaults, no a74 migration.
+storepoke 0 31 01
 storepoke 0 42 02
 storepoke 0 43 00
 reboot
 wait 300
-expect clksrc 1
-expect setbyte38 2
-# with the mark, a value of 3 in bits 1-2 loads AUTO; BLUETOOTH and the mark stay
+expect clksrc 0
+expect setbyte27 9
+expect setbyte38 0
+expect setbyte39 0
+# Reserved clock source 3 is invalid too, not a usable runtime source.
 storepoke 0 31 0F
 reboot
 wait 300
 expect clksrc 0
 expect setbyte27 9
-# a project saved by X0X 0.10 (a shorter object, no bt byte): AUTO
-storeload tests/fixtures/v1_store.bin
-wait 100
-expect clksrc 0
 expect setbyte38 0
