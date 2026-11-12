@@ -1,4 +1,0 @@
---- a/tests/host/smk_clip_isolation_test.py
-+++ b/tests/host/smk_clip_isolation_test.py
-@@ -28,0 +29 @@
-+#define CK_FN

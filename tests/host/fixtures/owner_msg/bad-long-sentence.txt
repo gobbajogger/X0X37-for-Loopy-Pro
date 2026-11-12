@@ -1,1 +1,0 @@
-The new build that we made tonight fixes the pads and the clock and the screen and the Bluetooth link for your iPhone.
