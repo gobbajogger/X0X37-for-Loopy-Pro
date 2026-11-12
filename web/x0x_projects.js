@@ -253,6 +253,8 @@ export class ProjectDevice {
       const deadline = this.now() + timeout;
       while (this.now() < deadline) {
         const p = await this.link.read(Math.max(1, deadline - this.now()));
+        // A receive burst may poison the link after resolving this read.
+        if (this.link.rxError) throw this.link.rxError;
         if (!p) break;
         if (p.length < 6 || p[0] !== 0xF0 || p.at(-1) !== 0xF7 || p[1] !== 0x7D || p[2] !== 0x46 || p[3] !== 0x4C || p[4] !== cmd) continue;
         const r = Array.from(p).slice(5, -1);
@@ -319,7 +321,14 @@ export class ProjectDevice {
     if (this.mode !== 0) throw fail("Finish sample recovery before exporting a project.", "recovery");
     // BEGIN can have succeeded even when its reply is lost, so the caller must ABORT in finally.
     this.active = true; this.mode = 1;
-    const r = await this.command(PROJECT_OP.EXPORT, [], { length: 5 });
+    let r;
+    try { r = await this.command(PROJECT_OP.EXPORT, [], { length: 5 }); }
+    catch (e) {
+      // A validated BUSY reply denies BEGIN: the active session may belong to a
+      // different MIDI client. Never ABORT it. Uncertain replies still need cleanup.
+      if (e.code === "device-2" && e.rc === 2) { this.active = false; this.mode = 0; }
+      throw e;
+    }
     if (get21(r, 2) !== this.projectLength) throw fail("The exported project size changed.", "protocol");
     const b = new Uint8Array(this.projectLength);
     for (let off = 0; off < b.length;) {
@@ -501,6 +510,13 @@ export async function applyProjectImport(device, prepared, { confirmed = false, 
   try {
     await device.stage(file.project);
     await device.validate(); // Firmware checks semantic validity and pattern capacity before any sample mutation.
+    // EXPORT released its hold before IMPORT acquired one. A peer may have
+    // changed samples in that gap; never overwrite them from a stale backup.
+    const held = await device.snapshotSlots(progress);
+    if (JSON.stringify(held.layout) !== JSON.stringify(fresh.layout) ||
+        held.images.length !== backup.images.length ||
+        held.images.some((img, k) => !sameBytes(img, backup.images[k])))
+      throw fail("The keyboard samples changed since the import preview. Prepare the import again.", "changed");
     for (const { k } of plan.changes) {
       touched.push(k); // Include a write whose acknowledgement is lost.
       await device.writeSlot(k, file.images[k], slotSize(fresh.layout, k), (n, all) => progress(k, n, all));
@@ -571,28 +587,46 @@ async function applyRecoveryImport(device, file, originalLayout, progress) {
 export class ProjectMidiLink {
   constructor(input, output) {
     this.input = input; this.output = output; this.queue = []; this.pending = null; this.closed = false;
+    this.rxBytes = 0; this.rxError = null;
     this.listener = (event) => {
+      if (this.closed) return;
       const d = event.data;
       if (d.length < 6 || d[0] !== 0xF0 || d.at(-1) !== 0xF7 || d[1] !== 0x7D || d[2] !== 0x46 || d[3] !== 0x4C) return;
-      if (this.pending) { const p = this.pending; this.pending = null; clearTimeout(p.timer); p.resolve(Array.from(event.data)); }
-      else { if (this.queue.length === 64) this.queue.shift(); this.queue.push(Array.from(event.data)); }
+      // Bound frame count and aggregate wire bytes before copying. Never drop
+      // replies and then continue a project transaction on the same link.
+      if (this.queue.length >= 64 || d.length > 65536 - this.rxBytes) {
+        this.rxError = fail("MIDI receive overflow. Reconnect before continuing.", "overflow");
+        this.close();
+        return;
+      }
+      if (this.pending) { const p = this.pending; this.pending = null; clearTimeout(p.timer); p.resolve(Array.from(d)); }
+      else { this.queue.push(Array.from(d)); this.rxBytes += d.length; }
     };
     input.addEventListener("midimessage", this.listener);
   }
-  drain() { this.queue.length = 0; }
-  send(frame) { try { this.session?.assert(); if (this.closed || this.input.state === "disconnected" || this.output.state === "disconnected") return false; this.output.send(frame); return true; } catch { return false; } }
+  drain() { this.queue.length = 0; this.rxBytes = 0; }
+  send(frame) {
+    if (this.rxError) throw this.rxError;
+    try { this.session?.assert(); if (this.closed || this.input.state === "disconnected" || this.output.state === "disconnected") return false; this.output.send(frame); return true; } catch { return false; }
+  }
   read(ms) {
+    if (this.rxError) return Promise.reject(this.rxError);
     if (this.closed) return Promise.resolve(null);
-    if (this.queue.length) return Promise.resolve(this.queue.shift());
-    return new Promise((resolve) => {
+    if (this.queue.length) { const frame = this.queue.shift(); this.rxBytes -= frame.length; return Promise.resolve(frame); }
+    return new Promise((resolve, reject) => {
       const timer = setTimeout(() => { this.pending = null; resolve(null); }, ms);
-      this.pending = { resolve, timer };
+      this.pending = { resolve, reject, timer };
     });
   }
   close() {
+    if (this.closed) return;
     this.closed = true; this.session?.close();
     this.input.removeEventListener("midimessage", this.listener);
-    if (this.pending) { clearTimeout(this.pending.timer); this.pending.resolve(null); this.pending = null; }
-    this.queue.length = 0;
+    if (this.pending) {
+      clearTimeout(this.pending.timer);
+      if (this.rxError) this.pending.reject(this.rxError); else this.pending.resolve(null);
+      this.pending = null;
+    }
+    this.drain();
   }
 }

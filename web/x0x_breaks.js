@@ -97,12 +97,32 @@ export function trimSilence(x, sr, floor = 0.001, preMs = 1, fadeMs = 5) {
 }
 
 // upload_breaks.cut: mono floats at their rate -> int16 at `rate` (one bar if bars; silence cut if trim)
-export function cut(x, sr, bars, rate = RATE, trim = false) {
+// Count with resample()'s exact accumulated-position rule, without allocating
+// expanded audio. The bounded walk also handles floating-point endpoint rounding.
+export function importResampledLength(length, sr, to, limit) {
+  if (sr === to) {
+    if (length > limit) throw new Error("This loop exceeds the sample slot capacity.");
+    return length;
+  }
+  const step = sr / to, last = length - 1;
+  if (!(step > 0) || !Number.isFinite(step) || last / step > limit + 1)
+    throw new Error("This loop exceeds the sample slot capacity.");
+  let n = 0, p = 0;
+  while (p < last) {
+    if (++n > limit) throw new Error("This loop exceeds the sample slot capacity.");
+    p += step;
+  }
+  return n;
+}
+
+export function cut(x, sr, bars, rate = RATE, trim = false, limit = Infinity) {
   if (trim) x = trimSilence(x, sr);
   if (bars) {
     const n = barsOf(x.length / sr)[0];
     x = x.slice(0, Math.round(x.length / n));
   }
+  // Bounded preflight: reject an oversized loop before resample() allocates it.
+  if (limit !== Infinity) importResampledLength(x.length, sr, rate, limit);
   const y = resample(x, sr, rate);
   const pk = peak(y);
   return toInt16(y.map((v) => v * (0.95 / pk)));
@@ -122,10 +142,21 @@ export function applyOldschool(s, storageRate, factor = OLDSCHOOL_FACTOR) {
   return { s: out, rate: playbackRate };
 }
 
-export function cutLoop(x, sr, bars, storageRate = RATE, trim = false, gritFactor = 1) {
-  let s = cut(x, sr, bars, storageRate, trim);
+export function cutLoop(x, sr, bars, storageRate = RATE, trim = false, gritFactor = 1,
+                        maxDataBytes = Math.max(...DRY_SLOT_KB) * 1024 - SLOT_DATA_OFF) {
+  if (!Number.isSafeInteger(maxDataBytes) || maxDataBytes <= 0 || maxDataBytes > Math.floor(Number.MAX_SAFE_INTEGER / 32))
+    throw new Error("Invalid sample slot capacity.");
+  const maxSamples = maxDataBytes * 2; // 4-bit IMA ADPCM: two samples per byte
+  // Grit may make an otherwise oversized loop fit. Bound its intermediate at
+  // the selected reduction, rather than rejecting legitimate quality choices.
+  const g = gritFactor > 1 ? gritFactor : 1;
+  let s = cut(x, sr, bars, storageRate, trim, Math.ceil(maxSamples * g) + 2);
   let rate = storageRate;
-  if (gritFactor > 1) ({ s, rate } = applyOldschool(s, storageRate, gritFactor));
+  if (gritFactor > 1) {
+    importResampledLength(s.length, storageRate, storageRate / gritFactor, maxSamples);
+    ({ s, rate } = applyOldschool(s, storageRate, gritFactor));
+  }
+  if (s.length > maxSamples) throw new Error("This loop exceeds the sample slot capacity.");
   return { s, rate };
 }
 
