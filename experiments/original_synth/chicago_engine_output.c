@@ -25,7 +25,8 @@ typedef struct {original_chicago_fx2_wrapper *wrapper;original_chicago_fx2_works
 static void process(void *p,int16_t *l,int16_t *r,uint32_t n){context *c=p;c->status=original_chicago_fx2_wrapper_process(c->wrapper,c->workspace,l,r,n);}
 static void reset(void *p){context *c=p;original_chicago_fx2_wrapper_reset(c->wrapper);}
 static int process_core(original_chicago_engine_output *s,original_chicago_output_workspace *w,original_chicago_fx2_workspace *fxw,const original_chicago_routing *r,const uint32_t *il,const uint32_t *ir,uint32_t *ol,uint32_t *orr,uint32_t n,unsigned fz,unsigned known_zero){
- if(!s||!r)return 0;if(!n)return 1;
+ if(!s||!r)return 0;
+ if(!n)return 1;
  if(!fxw||n>fxw->capacity||fxw->capacity>4096||!fxw->new_left||!fxw->new_right||!fxw->old_left||!fxw->old_right)return 0;
  int16_t kernel[2],mixed[2];
  int zero_ready=known_zero?
