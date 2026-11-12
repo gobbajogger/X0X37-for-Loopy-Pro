@@ -10,9 +10,10 @@ typedef struct { uint32_t token, midi, cq; } bass_request_t;
  * its pattern. 0xFF = no gate (every ordinary preset choice). */
 static volatile uint8_t bass_gate_pat[NBASS] = {0xFF, 0xFF};
 static void bass_preset_boundary_voice(int v);
-static const bass_identity_entry_t BASS_SOUND_REGISTRY[2] = {
+static const bass_identity_entry_t BASS_SOUND_REGISTRY[3] = {
     {ORIGINAL_SOUND_CHICAGO_ID, ORIGINAL_SOUND_SCHEMA, 22, 1},
-    {ORIGINAL_SOUND_MIAMI_ID, ORIGINAL_SOUND_SCHEMA, 18, 1}
+    {ORIGINAL_SOUND_MIAMI_ID, ORIGINAL_SOUND_SCHEMA, 18, 1},
+    {ORIGINAL_SOUND_DRONE_ID, ORIGINAL_SOUND_SCHEMA, ORIGINAL_DRONE_NPARAMS, 1}
 };
 
 static int bass_request_snapshot(int voice, bass_request_t *r)
@@ -44,13 +45,13 @@ static void bass_tag_set(sound_t *sound, int voice, int bank, int preset, int ed
     bass_sound_info_t info = {{original_sound_engine_id((unsigned)bank), ORIGINAL_SOUND_SCHEMA,
         (uint8_t)original_sound_count((unsigned)bank), BASS_IDENTITY_KNOWN},
         (uint16_t)preset, (uint8_t)(edited ? BASS_SOUND_EDITED : 0)};
-    (void)bass_sound_tag_encode(&sound->bass[voice], &info, BASS_SOUND_REGISTRY, 2);
+    (void)bass_sound_tag_encode(&sound->bass[voice], &info, BASS_SOUND_REGISTRY, 3);
 }
 static int bass_tagged_cell_validate(const uint8_t *cell, const bass_sound_tag_t *tag, int *bank)
 {
     bass_sound_info_t info;
     if (!original_sound_valid(cell)) return -9;
-    if (bass_sound_tag_decode(&info, tag, BASS_SOUND_REGISTRY, 2) != BASS_IDENTITY_READY) return -9;
+    if (bass_sound_tag_decode(&info, tag, BASS_SOUND_REGISTRY, 3) != BASS_IDENTITY_READY) return -9;
     *bank = cell[29];
     if (info.identity.engine != original_sound_engine_id((unsigned)*bank) ||
         info.preset != cell[30] || info.flags != (original_sound_edit_mask(cell) ? BASS_SOUND_EDITED : 0)) return -9;
@@ -121,7 +122,7 @@ static int bass_note_capture(lane_t *lanes,int pat,int voice,int step,const soun
             (uint8_t)original_sound_count((unsigned)cell[29]), BASS_IDENTITY_KNOWN},
             (uint16_t)cell[30], (uint8_t)(original_sound_edit_mask(cell) ? BASS_SOUND_EDITED : 0)};
         if(bass_sound_tag_encode((bass_sound_tag_t *)(next.val+BASS_NOTE_TAG),&info,
-                                BASS_SOUND_REGISTRY,2)!=BASS_IDENTITY_READY)return -1;
+                                BASS_SOUND_REGISTRY,3)!=BASS_IDENTITY_READY)return -1;
     }
     if(engine_bass_note_validate(&next))return -1;
     lanes[k].used=0;
@@ -221,7 +222,7 @@ static void bass_restore_sound(const sound_t *sound)
 int engine_bass_bank(int v) { return (unsigned)v < NBASS ? original_bass[v].kind : -1; }
 int engine_bass_bank_available(int v, int bank)
 {
-    return (unsigned)v < NBASS && (bank == FACTORY_BANK_MIAMI ||
+    return (unsigned)v < NBASS && (bank == ORIGINAL_SOUND_DRONE || bank == FACTORY_BANK_MIAMI ||
         (bank == FACTORY_BANK_CHICAGO && original_fx_ready));
 }
 const x0x_param_t *engine_bass_bank_param(int bank, int parameter)
@@ -249,7 +250,7 @@ int engine_bass_preset_pending(int v)
     return 1;
 }
 int engine_bass_requested_bank(int v)
-{ bass_request_t r; return (unsigned)v < NBASS && bass_request_snapshot(v, &r) && engine_bass_preset_pending(v) ? (int)((r.token >> 7) & 1) : engine_bass_bank(v); }
+{ bass_request_t r; return (unsigned)v < NBASS && bass_request_snapshot(v, &r) && engine_bass_preset_pending(v) ? (int)((r.token >> 7) & 3u) : engine_bass_bank(v); }
 int engine_bass_requested_preset(int v)
 { bass_request_t r; return (unsigned)v < NBASS && bass_request_snapshot(v, &r) && engine_bass_preset_pending(v) ? (int)(r.token & 127) : engine_bass_preset_index(v); }
 void engine_bass_cancel_preset(int v)
@@ -292,7 +293,7 @@ int engine_bass_select_preset_at(int v, int bank, int preset, sound_t *sound, in
     if (bass_has_locks(v)) return -4;
     bass_gate_pat[v] = (uint8_t)((unsigned)pat < NPAT ? pat : 0xFF);
     __asm__ volatile("" ::: "memory");
-    uint32_t token = 0x80000000u | ((++bass_request_serial & 0x3fffffu) << 8) |
+    uint32_t token = 0x80000000u | ((++bass_request_serial & 0x3fffffu) << 9) |
         ((uint32_t)bank << 7) | (uint32_t)preset;
     bass_preview_dirty = 1;
     bass_publish_request(v, token);
@@ -311,7 +312,7 @@ static void bass_preset_boundary_voice(int v)
         if (engine_bass_preset_pending(v) != 1) return;
         /* A pattern preset waits until its pattern plays (the bar switch). */
         if (bass_gate_pat[v] < NPAT && seq.ppat[TRK_BASS0 + v] != bass_gate_pat[v]) return;
-        int bank = (int)((token >> 7) & 1), preset = (int)(token & 127);
+        int bank = (int)((token >> 7) & 3u), preset = (int)(token & 127);
         uint8_t next[32];
         if (!engine_bass_bank_available(v, bank) || !original_sound_init(next, bank, preset)) return;
         live_key_context_retire(v, 1);
