@@ -32,6 +32,25 @@ def compile_plan(env):
 
 
 class OriginalBuildCompositionTests(unittest.TestCase):
+    def test_native_o2_loop_policy_is_bounded_and_preserves_arithmetic(self):
+        with mock.patch.object(build, "BOARD", "smk37"):
+            _, _, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "1"})
+        optimized = 0
+        for path, command in sources.items():
+            with self.subTest(source=path):
+                if "-O2" in command:
+                    optimized += 1
+                    self.assertEqual(command.count("-fno-unroll-loops"), 1)
+                    self.assertIn("-ffp-contract=off", command)
+                    self.assertNotIn("-ffast-math", command)
+                    self.assertNotIn("-flto", command)
+                else:
+                    self.assertNotIn("-fno-unroll-loops", command)
+        self.assertGreater(optimized, 0)
+        with mock.patch.object(build, "BOARD", "fm1"):
+            commands, _, _ = compile_plan({"X0X_ORIGINAL_SYNTH": "1"})
+        self.assertFalse(any("-fno-unroll-loops" in c for c in commands))
+
     def test_removed_engines_have_no_build_hook(self):
         # Even a currently unreachable build branch can accidentally compile a
         # deleted source after a later selector change. Keep the plan clean.

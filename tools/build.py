@@ -392,6 +392,8 @@ def app_compile_commands(flags, original_synth, wobble):
         flags = [*flags, "-DX0X_ORIGINAL_SYNTH=1",
                  "-Iexperiments/original_synth", "-Iexperiments/wobble"]
     o2 = [f if f != "-Os" else "-O2" for f in flags]
+    if BOARD == "smk37":
+        o2.append("-fno-unroll-loops")
     units = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
              ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
              ("cc", "-c", FW / "hal" / "fm1_isr.S", "-o", OUT / "fm1_isr.o"),
