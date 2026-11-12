@@ -46,6 +46,16 @@ uint32_t plat_buttons(void)
 }
 
 uint32_t plat_keys(void) { return fm1_in.notes & ((1u << NKEYS) - 1u); }
+#if X0X_DIAG_STATE_TRACE
+uint32_t plat_diag_key_tick(unsigned note)
+{
+#if BOARD_SMK37
+    return note < 27u && (fm1_in.knotes & (1u << note)) ? smk_diag_key_tick[note + SMK_KEY_F3] : 0;
+#else
+    (void)note; return 0;
+#endif
+}
+#endif
 #if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE
 int plat_division_pad(unsigned owner)
 {

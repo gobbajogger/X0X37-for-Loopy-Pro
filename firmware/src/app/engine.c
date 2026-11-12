@@ -851,6 +851,11 @@ X0X_COLD void engine_apply_sound(const sound_t *s)
                     ) engine_set(t, v, i, s->v[t][v][i]);
 }
 
+#if X0X_DIAG_STATE_TRACE
+static uint32_t diag_consume, diag_command, diag_offset;
+uint32_t engine_diag_render_offset;
+#endif
+
 void engine_drum(int kit, int voice, float vel)
 {
     if ((unsigned)kit < NKIT && SEQ_PART_OFF(&seq, kit)) return;
@@ -927,15 +932,11 @@ void engine_brk_live(int key, int down) { if (down && SEQ_PART_OFF(&seq, TRK_BRK
 #error "X0X_DIAG_STATE_TRACE must be 0 or 1"
 #endif
 #if X0X_DIAG_STATE_TRACE
-struct diag_row { uint32_t half, late, phase909, events, count, drums, clock_next, steps, plan, prior_cost, best_cost, decision; };
+struct diag_row { uint32_t half, late, key18_tick, key22_tick, consume_tick, command, offset; };
 volatile struct { uint32_t written; struct diag_row row[48]; } x0x_state_trace;
-static uint32_t diag_events, diag_count, diag_drums, diag_bass;
-static uint32_t diag_prior_cost, diag_best_cost, diag_decision;
-__attribute__((noinline, minsize)) static void diag_event(uint32_t data)
-{
-    diag_events = (diag_events * 33u) ^ data;
-    ++diag_count;
-}
+
+#define diag_event(data) ((void)0)
+
 #else
 #define diag_event(data) ((void)0)
 #endif
@@ -971,11 +972,7 @@ static int s_drum_seq(void *x, int kit, int v, float vel)
 __attribute__((noinline)) static void s_drum(void *x, int kit, int v, float vel)
 {
     (void)x;
-#if X0X_DIAG_STATE_TRACE
-    union { float f; uint32_t u; } dv = {vel};
-    diag_event(((1u + (uint32_t)kit * 16u + (uint32_t)v) << 24) ^ dv.u);
-    if ((unsigned)kit < 2u && (unsigned)v < 11u) diag_drums |= 1u << (kit * 11 + v);
-#endif
+
     if (v == 0)                          /* BD (both kits' track 1): the master's PUMP key */
         master_key(&mst, kit, vel);
     if ((unsigned)kit < NKIT && (unsigned)v < NDRUM)   /* MIX's drum pages: the track's meter jumps */
@@ -1139,10 +1136,7 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
     int rc = original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)note, (unsigned)velocity);
     if (sl && previous >= 0)
         (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
-#if X0X_DIAG_STATE_TRACE
-    diag_bass = (uint32_t)p | (uint32_t)(note & 255) << 8 | (uint32_t)(velocity & 255) << 16 | (uint32_t)(rc & 255) << 24;
-    diag_event(((32u + (uint32_t)p) << 24) ^ diag_bass);
-#endif
+
     original_seq_note[p] = (int16_t)note;
     return rc == ORIGINAL_RUNTIME_OK;
 }
@@ -1918,8 +1912,12 @@ static void drain(void)
         else if (type == C_BASE) {
             if (a < NTARGETS) apply_base((int)a, (int)b, (int)v);
             else mot_apply(0, (int)a, (int)b, (int)v, mot_base(0, (int)a, (int)b, (int)v));
-        } else if (type == C_DRUM)
+        } else if (type == C_DRUM) {
+#if X0X_DIAG_STATE_TRACE
+            diag_consume = plat_ticks24(); diag_command = c; diag_offset = engine_diag_render_offset;
+#endif
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
+        }
         else if ((type == C_BON || type == C_REC) && a < NBASS) {
             int slide = type == C_REC ? live_rec_legato((int)a, 3) && bass_held[a] != b : (int)((v >> 1) & 1u);
 #ifdef X0X_HOST
@@ -2653,11 +2651,7 @@ static uint32_t plan_pick(uint32_t n)
         k = plan_cost(m, c);
         if (k < bc) { bc = k; best = m; }
     }
-#if X0X_DIAG_STATE_TRACE
-    /* Capture the last actual planner comparison, before its chosen plan changes. */
-    diag_prior_cost = cost; diag_best_cost = bc;
-    diag_decision = (uint32_t)eng_plan | (best << 8) | (n << 16);
-#endif
+
     if (bc * 8u < cost * 7u || (eng_plan & ~(act & ok)))   /* 1/8 better, or a job of it went idle */
         eng_plan = (uint8_t)best;
     return eng_plan & act & ok;
@@ -2852,19 +2846,14 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
 #if X0X_DIAG_STATE_TRACE
 __attribute__((noinline, minsize)) void engine_diag_half(uint32_t half, uint32_t late)
 {
-    uint32_t steps = 0, i;
-    for (i = 0; i < NTRACKS; ++i) {
-        steps |= (uint32_t)(seq.t[i].pos & 63u) << (i * 6u);
-    }
     if (half >= 174u && half < 222u) {
         volatile struct diag_row *r = &x0x_state_trace.row[half - 174u];
-        r->half = half; r->late = late; r->phase909 = seq.t[TRK_DRUM].to_next; r->events = diag_events;
-        r->count = diag_count; r->drums = diag_drums; r->clock_next = seq.clk_to_next; r->steps = steps;
-        r->plan = (uint32_t)eng_plan | (uint32_t)eng_c1_mask << 8 | (uint32_t)eng_808_split << 16;
-        r->prior_cost = diag_prior_cost; r->best_cost = diag_best_cost; r->decision = diag_decision;
+        r->half = half; r->late = late;
+        r->key18_tick = plat_diag_key_tick(13); r->key22_tick = plat_diag_key_tick(17);
+        r->consume_tick = diag_consume; r->command = diag_command; r->offset = diag_offset;
         ++x0x_state_trace.written;
     }
-    diag_events = diag_count = diag_drums = diag_bass = 0;
+    diag_consume = 0;
 }
 #endif
 

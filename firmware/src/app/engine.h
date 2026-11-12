@@ -307,3 +307,7 @@ unsigned engine_live_key_probe(int voice,int field);
 #if X0X_DIAG_STATE_TRACE
 void engine_diag_half(uint32_t half, uint32_t late);
 #endif
+
+#if X0X_DIAG_STATE_TRACE
+extern uint32_t engine_diag_render_offset;
+#endif
