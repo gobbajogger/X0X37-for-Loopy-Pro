@@ -657,6 +657,20 @@ static void test_action_captions_and_knobs(void)
     puts("PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/live-locked; knob arc extremes and bipolar center");
 }
 
+static void test_home_select_remap(void)
+{
+    /* SMC HOME + SELECT on the FX page cycles that strip's effect and stays on FX;
+     * a lone HOME tap still navigates on release. */
+    setup(V_FX, PART_303A);
+    uint8_t before = smc.fx_effect[0];
+    message(0x90, 6, 127); CHECK(ui.view == V_FX);
+    message(0x90, 24, 127); message(0x90, 24, 0);
+    message(0x90, 6, 0);
+    CHECK(ui.view == V_FX);
+    CHECK(smc.fx_effect[0] != before);
+    message(0x90, 6, 127); CHECK(ui.view == V_FX);
+    message(0x90, 6, 0); CHECK(ui.view != V_FX);
+}
 #ifndef SMC_UI_MAIN
 #define SMC_UI_MAIN main
 #endif
@@ -664,7 +678,7 @@ int SMC_UI_MAIN(void)
 {
     test_navigation_replay(); test_distinct_maps(); test_track_knob_align(); test_physical_geometry(); test_selected_lane(); test_drum_titles(); test_action_captions_and_knobs();
     test_restore(); puts("PASS restore: eight views preserve complete navigation state and exact framebuffer");
-    test_activity(); test_existing_feedback(); test_navigation(); test_overlays(); test_clip(); test_actions_and_reset();
+    test_activity(); test_existing_feedback(); test_navigation(); test_overlays(); test_clip(); test_actions_and_reset(); test_home_select_remap();
     printf("smc_ui: PASS (%u checks)\n", checks);
     return 0;
 }
