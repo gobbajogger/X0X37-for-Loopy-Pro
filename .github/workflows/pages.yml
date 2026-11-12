@@ -1,0 +1,27 @@
+# Builds, tests and publication run locally under the project workflow.
+name: Pages local workflow information
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  instructions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show local preview instructions
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'INFO'
+          Run these commands in the authorized local agent environment:
+
+          ```sh
+          python3 tools/make_pages.py --shell --out build/pages-preview
+          python3 tests/make_pages_test.py
+          python3 tests/host/pages_publish_ff_test.py
+          ```
+
+          This manual workflow only displays instructions. Publication uses the
+          designated owner and the separately validated history-preserving route.
+          INFO
