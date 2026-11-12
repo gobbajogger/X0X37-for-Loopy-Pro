@@ -16,10 +16,9 @@ FAST = set('fastmath sequencer encoder uac trs undo lz motion smk-flash smk-stor
 TEST_ROUTES = [
     ('firmware/src/dsp/drum909', 'drum909 drum909-adpcm drum-pan'),
     ('firmware/src/dsp/drum808', 'drum808 drum-pan'),
-    ('firmware/src/dsp/bass303', 'bass303 bass303_lite'),
     ('firmware/src/dsp/breaks', 'breaks'),
     ('firmware/src/dsp/', 'master stereo fastmath'),
-    ('firmware/src/seq/', 'sequencer motion loop-bars rec-live'),
+    ('firmware/src/seq/', 'sequencer motion loop-bars rec-live-smk'),
     ('firmware/src/storage', 'smk-storage'),
     ('firmware/hal/fm1_flash_map.h', 'smk-flash smk-storage'),
     ('firmware/src/ble', 'ble smk-clip-ble-clear smk-clip-ble-notify diag-size'),
@@ -27,6 +26,16 @@ TEST_ROUTES = [
     ('tools/fm1_install.py', 'installer installer-slots installer-ctl installer-targets'),
     ('tools/fm1pkg_make.py', 'smk-package'),
     ('tools/upload_breaks.py', 'upload-images upload-tools breaks-web'),
+    # FP-001 dual-digest host check (source fingerprint ≠ served install HTML).
+    ('tools/check_installer_digests.py', 'installer-digests'),
+    ('tests/host/test_check_installer_digests.py', 'installer-digests'),
+    # Project companion modules and their shared breaks helper need the project
+    # suites; the generic web/ route never names projects-web / projects-page.
+    ('web/x0x_projects.js', 'projects-web projects-page'),
+    ('web/x0x_projects.html', 'projects-web projects-page'),
+    ('web/x0x_breaks.js', 'projects-web projects-page'),
+    ('web/test_projects.mjs', 'projects-web'),
+    ('web/test_projects_page.mjs', 'projects-page'),
     ('web/', 'breaks-web breaks-page install-slots-web'),
     ('tools/locked_settings.json', 'locked-settings'),
 ]
@@ -43,10 +52,7 @@ def route(path):
         return 'target'
     if path.startswith(('tests/', 'host/', 'web/')):
         return 'checks'
-    # Project skills are procedure text. Cursor loads `.cursor/skills/` and
-    # `.agents/skills/`; `skills/` is the older project copy. See QUICKCHECK-SCOPE.md.
-    if (path.startswith(('docs/', '.cursor/skills/', '.agents/skills/', 'skills/')) or
-            path == 'loopyx0x37-classic-build-skill.zip' or
+    if (path.startswith('docs/') or
             ('/' not in path and path.endswith('.md'))):
         return 'docs'
     return 'target'
@@ -101,7 +107,7 @@ def select(root, changed, target):
             continue
         for m in re.finditer(r'(?:^|[\s;&|])run "?([A-Za-z0-9_.-]+)"?\s+(.*)', line):
             cmds.setdefault(m[1], m[2])
-    for name in ('drum909', 'drum808', 'bass303', 'breaks'):
+    for name in ('drum909', 'drum808', 'breaks'):
         if (root / ('tests/host/run_' + name + '.sh')).exists():
             cmds[name] = 'sh tests/host/run_' + name + '.sh'
     scen = {'scenario-' + p.stem for p in (root / 'tests/scenarios').glob('*.x0x')}

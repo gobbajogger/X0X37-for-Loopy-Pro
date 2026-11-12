@@ -1,152 +1,95 @@
-/* Exercise the production SMC input queues, dispatch, encoder routing and clip
- * editor entry with menu/help covering the stage or its X0X fallback page. */
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include "x0x_cold.h"
-#include "app/smc_protocol.h"
-#define CK_FN __attribute__((unused))
-#include "app/smk_clip_keys.h"
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* Production queues, musical targets and popup over keyboard clip stages.
+ * SCALE/CHORD/ARP belong to the keyboard; SMC keeps its own mixer context. */
+#define SMC_UI_MAIN smc_clip_legacy_main
+#include "smc_ui_test.c"
+#undef SMC_UI_MAIN
 
-enum { O_NONE, O_LIST, O_ASK, R_NONE, R_HDR, R_ACT, R_ENG, EN_K1, NE,
-       B_HOME, NKIT = 2, PROJ_BT_SMC_CENTRAL = 16, PROJ_BT_SMC_USER = 32 };
-typedef struct { uint8_t kind; } pref_t;
-static struct { struct { uint8_t bt; } set; } proj;
-static struct {
-    uint8_t overlay, help;
-    uint32_t act_t;
-    uint32_t enc_t[NE];
-    uint8_t enc_run[NE];
-} ui;
-static struct { uint8_t pg; } ck;
-static uint8_t clip_grid_mode, fields[CK_NE];
-static unsigned dirty, notices, fallback_turns;
-static int page_value;
-static uint32_t ck_get(uint32_t f) { return fields[f]; }
-static void ck_set(uint32_t f, uint32_t v) { fields[f] = (uint8_t)v; }
-static void mark_dirty(void) { dirty++; }
-static void ui_say(const char *a, const char *b) { (void)a; (void)b; notices++; }
-static char *put_s(char *d, const char *s) { while ((*d++ = *s++)) {} return d - 1; }
-static const char *ck_val_txt(uint32_t f, uint32_t v, char *s)
-{
-    (void)f;
-    sprintf(s, "%u", (unsigned)v);
-    return s;
-}
-#include "clip_turn.inc"
+static unsigned route;
+static const char *const routes[] = {"BLE DAW", "BLE USER", "host USER"};
 
-static uint8_t perf_testing(void) { return 0; }
-static int ui_project_busy(void) { return 0; }
-static void button_tap(int button) { (void)button; }
-static void engine_smc_solo(uint8_t solo) { (void)solo; }
-static void smc_button(uint8_t note, int mmc) { (void)note; (void)mmc; }
-static void smc_release(uint8_t note) { (void)note; }
-static void smc_fader(int n, uint8_t value) { (void)n; (void)value; }
-static pref_t smc_knob_target(int n) { (void)n; return (pref_t){R_ENG}; }
-static void turn_ref(pref_t r, int delta, int enc)
+static void clip_turn(unsigned strip, int delta)
 {
-    (void)r; (void)enc;
-    fallback_turns++;
-    page_value += delta;
-}
-static uint32_t plat_ms(void) { return 1234u; }
-static void smc_show(int n, int knob, pref_t r) { (void)n; (void)knob; (void)r; notices++; }
-#include "smc_input.inc"
-#include "smc_turn.inc"
-
-static int fails, route;
-static const char *const ROUTES[] = {"BLE DAW", "BLE USER", "host USER"};
-static void check(const char *label, int ok)
-{
-    printf("%s %s page %u: %s\n", ok ? "PASS" : "FAIL", ROUTES[route], ck.pg & 3u, label);
-    fails += !ok;
-}
-static void turn(int n, uint8_t value)
-{
-    uint8_t msg[3] = {route == 2 ? 0xBFu : 0xB0u, (uint8_t)(16 + n), value};
-    if (route == 2) {
-        if (!smc_midi_host(0x0Bu | (uint32_t)msg[0] << 8 | (uint32_t)msg[1] << 16 | (uint32_t)msg[2] << 24))
-            check("host accepts the encoder message", 0);
-    } else
-        smc_ble_midi(msg, sizeof msg);
+    uint8_t msg[3] = {route == 2 ? 0xBFu : 0xB0u,
+        (uint8_t)(16u + strip), (uint8_t)(delta > 0 ? delta : 64 - delta)};
+    if (route == 2)
+        CHECK(smc_midi_host(0x0Bu | (uint32_t)msg[0] << 8 |
+            (uint32_t)msg[1] << 16 | (uint32_t)msg[2] << 24));
+    else smc_ble_midi(msg, sizeof msg);
     smc_poll();
+    CHECK(smc_qr == smc_qw && smc_host_r == smc_host_w);
 }
-static void covered(uint8_t overlay, uint8_t help)
+
+static void exercise_cover(uint8_t overlay, uint8_t help)
 {
-    uint8_t before[CK_NE];
-    unsigned d = dirty, nt = notices, ft = fallback_turns;
-    int pv = page_value;
-    uint32_t act = ui.act_t;
-    memcpy(before, fields, sizeof before);
-    ui.overlay = overlay;
-    ui.help = help;
-    for (int n = 0; n < 8; n++)
-        turn(n, 1);
-    if (overlay == O_LIST && !help) {
-        check("menu owns encoders without editing covered clip fields",
-              !memcmp(before, fields, sizeof before) && dirty == d &&
-              fallback_turns == ft + 8 && page_value == pv + 8);
-    } else if (help) {
-        if (clip_grid_mode && !(ck.pg & 3u)) {
-            /* Grid itself still swallows encoders; help must not become a second lock. */
-            check("help leaves clip-grid encoders inactive",
-                  !memcmp(before, fields, sizeof before) && dirty == d &&
-                  fallback_turns == ft && page_value == pv && ui.help == 1);
-        } else {
-            check("help leaves encoders working under the card",
-                  (dirty != d || fallback_turns != ft || page_value != pv ||
-                   memcmp(before, fields, sizeof before)) && ui.help == 1);
-        }
-    } else {
-        check("confirmation blocks clip fields and X0X fallback",
-              !memcmp(before, fields, sizeof before) && dirty == d && notices == nt &&
-              fallback_turns == ft && page_value == pv && ui.act_t == act);
+    uint8_t before_fields[CK_NE];
+    pref_t target[8];
+    int values[8];
+    /* Capture actual independent SMC destinations before the confirmation
+     * makes destination lookup deliberately return NONE. */
+    ui.overlay = O_NONE; ui.help = 0;
+    smc_ui_cancel();
+    for (unsigned n = 0; n < 8; n++) {
+        target[n] = smc_knob_target((int)n);
+        CHECK(target[n].kind == R_ENG);
+        const x0x_param_t *desc = pref_desc(target[n]);
+        CHECK(desc && desc->max > 2);
+        pref_set(target[n], desc->max / 2);
+        values[n] = pref_get(target[n]);
     }
-    check("covered encoder events are drained", smc_qr == smc_qw && smc_host_r == smc_host_w);
-    memcpy(before, fields, sizeof before);
-    d = dirty;
-    ft = fallback_turns;
-    pv = page_value;
-    ui.overlay = O_NONE;
-    ui.help = 0;
+    ui.overlay = overlay; ui.help = help;
+    screen_state_t keyboard = screen_state();
+    memcpy(before_fields, fields, sizeof before_fields);
+    for (unsigned n = 0; n < 8; n++) {
+        clip_turn(n, 1);
+        CHECK(pref_get(target[n]) == values[n] + (overlay != O_ASK));
+        unchanged(keyboard);
+        CHECK(!memcmp(before_fields, fields, sizeof before_fields));
+        if (overlay == O_ASK || help) CHECK(!smc_ui_active());
+        else {
+            CHECK(smc_ui_active());
+            CHECK(smc_ui.kind == 1 && smc_ui.strip == n && smc_ui.peer == 0);
+            ui_frame(); /* Exercise the existing production renderer too. */
+            unchanged(keyboard);
+        }
+    }
+    ui.overlay = O_NONE; ui.help = 0;
+    smc_ui_cancel();
     smc_poll();
-    check("closing the overlay does not replay turns", !memcmp(before, fields, sizeof before) &&
-          dirty == d && fallback_turns == ft && page_value == pv);
+    for (unsigned n = 0; n < 8; n++)
+        CHECK(pref_get(target[n]) == values[n] + (overlay != O_ASK));
+    CHECK(!memcmp(before_fields, fields, sizeof before_fields));
+    /* Closing a cover does not replay a drained detent. A new detent still
+     * reaches the same SMC destination and shows its dedicated popup. */
+    int value = pref_get(target[0]);
+    keyboard = screen_state();
+    clip_turn(0, -1);
+    CHECK(pref_get(target[0]) == value - 1);
+    CHECK(smc_ui_active() && smc_ui.kind == 1 && smc_ui.strip == 0);
+    CHECK(!memcmp(before_fields, fields, sizeof before_fields));
+    unchanged(keyboard);
 }
+
 int main(void)
 {
     for (route = 0; route < 3; route++) {
+        setup(V_PART, PART_303A);
         proj.set.bt = PROJ_BT_SMC_CENTRAL | (route ? PROJ_BT_SMC_USER : 0);
-        smc_ble_link(1);
-        smc_poll();
-        clip_grid_mode = 1;
-        for (unsigned page = 1; page <= 3; page++) {
-            unsigned d = dirty, ft = fallback_turns;
-            uint32_t f = CK_PAGE_FIELDS[page - 1][0];
+        smc_view(V_HOME, 0); /* Dedicated SMC mixer, with a different keyboard page. */
+        ui.mixsel = PART_808; ui.sel[0] = 10; ui.sel[1] = 8;
+        *page_of(V_FX) = 1;
+        for (unsigned mode = 0; mode < 5; mode++) {
+            clip_grid_mode = mode < 4;
+            ck.pg = (uint8_t)(mode < 4 ? mode : 1);
             memset(fields, 0, sizeof fields);
-            ck.pg = (uint8_t)page;
-            turn(0, 1);
-            check("visible stage edits its first field", fields[f] == 1 && dirty == d + 1 && fallback_turns == ft);
-            covered(O_LIST, 0);
-            covered(O_NONE, 1);
-            covered(O_ASK, 0);
-            turn(0, 0x41);
-            check("visible stage resumes editing", fields[f] == 0 && fallback_turns == ft + 8);
-        }
-        ck.pg = 0;                    /* clip grid, with the normal X0X page underneath */
-        covered(O_LIST, 0);
-        covered(O_NONE, 1);
-        clip_grid_mode = 0;            /* normal X0X page, with a stale stage selection */
-        ck.pg = 1;
-        covered(O_LIST, 0);
-        covered(O_NONE, 1);
-        {
-            unsigned ft = fallback_turns;
-            int pv = page_value;
-            turn(0, 1);
-            check("visible X0X fallback still edits", fallback_turns == ft + 1 && page_value == pv + 1);
+            exercise_cover(O_NONE, 0);
+            exercise_cover(O_LIST, 0);
+            exercise_cover(O_NONE, 1);
+            exercise_cover(O_ASK, 0);
+            printf("PASS %s keyboard clip mode %u: independent SMC edits/popup, "
+                "keyboard fields/navigation preserved, modal drain\n", routes[route], mode);
         }
     }
-    printf("smc_clip_visibility: %s (%d failures)\n", fails ? "failed" : "ok", fails);
-    return fails != 0;
+    printf("smc_clip_visibility: PASS (%u checks)\n", checks);
+    return 0;
 }

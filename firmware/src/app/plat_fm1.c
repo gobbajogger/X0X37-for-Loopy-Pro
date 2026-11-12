@@ -2,6 +2,20 @@
 /* X0X platform on the FM-1: plat.h over Felucca's HAL, panel map, USB rings and storage.
  * Part of the unity build (x0x.c), after the HAL, usb.c, storage.c and panel.c. */
 
+/* Full target store ordering for the BREAK pulse publication. */
+#include "../../hal/fm1_sync.h"
+
+/* Main-loop CQ producer and ALNK0 consumer share CPU0. Source masking leaves
+ * MIDI/clock IRQs alone and never changes the caller's global IRQ state. */
+uint32_t plat_cq_lock(void)
+{
+    return fm1_irq_mask_save(FM1_IRQ_ALNK0);
+}
+void plat_cq_unlock(uint32_t state)
+{
+    fm1_irq_mask_restore(FM1_IRQ_ALNK0, state);
+}
+
 uint32_t plat_ms(void) { return fm1_ms; }
 
 uint32_t plat_buttons(void)
@@ -32,6 +46,57 @@ uint32_t plat_buttons(void)
 }
 
 uint32_t plat_keys(void) { return fm1_in.notes & ((1u << NKEYS) - 1u); }
+#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE
+int plat_division_pad(unsigned owner)
+{
+    uint32_t flags = irq_save();
+    int hit = smk__division_poll(owner);
+    irq_restore(flags);
+    return hit;
+}
+#endif
+
+uint64_t plat_physical_keys(void)
+{
+#if BOARD_SMK37
+    uint32_t flags=irq_save();uint64_t keys=fm1_in.keys;irq_restore(flags);return keys;
+#else
+    return (uint64_t)plat_keys()<<5;
+#endif
+}
+int plat_outer_keys(plat_outer_event_t *events, uint64_t *keys, int *overflow,
+                    uint32_t epoch, int enabled, int octave, int publish)
+{
+    int n = 0;
+#if BOARD_SMK37
+    uint32_t flags = irq_save();
+    *keys = fm1_in.keys;
+    *overflow = smk_extq_overflow;
+    if (publish || *overflow)
+        smk_extq_r = smk_extq_w;
+    else while (smk_extq_r != smk_extq_w && (unsigned)n < SMK_EXTQ - 1u) {
+        events[n].generation = smk_extq[smk_extq_r][0];
+        events[n++].word = smk_extq[smk_extq_r][1];
+        smk_extq_r = (uint8_t)((smk_extq_r + 1u) % SMK_EXTQ);
+    }
+    smk_extq_overflow = 0;
+    if (publish) {
+        smk_ext_epoch = epoch;
+        smk_ext_enabled = (uint8_t)!!enabled;
+        smk_ext_oct = (int8_t)octave;
+    }
+    irq_restore(flags);
+#else
+    (void)events;
+    (void)epoch;
+    (void)enabled;
+    (void)octave;
+    (void)publish;
+    *keys = plat_physical_keys();
+    *overflow = 0;
+#endif
+    return n;
+}
 
 uint8_t plat_key_velocity(int key)
 {
@@ -104,19 +169,12 @@ void plat_leds(uint32_t buttons, uint32_t keys)
 }
 #else
 /* LEDs: the picture is built off-line and copied one byte per column (Felucca: clearing
- * and relighting would let the 10 kHz scan catch the dark gap and flicker) */
-static uint8_t led_pos[FM1_NKEY];
-static void led_pos_init(void)
-{
-    uint32_t id, p, r;
-    for (id = 0; id < FM1_NKEY; id++) {
-        led_pos[id] = 0xFF;
-        for (p = 0; p < FM1_NCOL; p++)
-            for (r = 1; r < 5u; r++)
-                if (FM1_KEYMAP[r][p] == (int8_t)id)
-                    led_pos[id] = (uint8_t)((p << 3) | r);
-    }
-}
+ * and relighting would let the 10 kHz scan catch the dark gap and flicker).
+ * led_pos[id] = (col << 3) | row from FM1_KEYMAP (was rebuilt into BSS at boot). */
+static const uint8_t led_pos[FM1_NKEY] = {
+    4, 12, 49, 33, 17, 1, 74, 66, 57, 41, 25, 9, 82, 58, 28, 20, 44, 36, 60, 52, 68, 76, 84,
+    3, 11, 19, 27, 35, 43, 51, 59, 67, 75, 83, 2, 10, 18, 26, 34, 50, 42};
+static void led_pos_init(void) {}
 /* Glow: every button not lit is lit dim, on one scan frame in GLOW_DIV (the HAL's fm1_led_dim) */
 #define GLOW_DIV 4u
 static uint8_t glow_on = 1;
@@ -153,13 +211,56 @@ void plat_leds(uint32_t buttons, uint32_t keys)
 #endif
 
 /* MIDI: Felucca's rings carry 4-byte USB-MIDI event packets, byte 0 = cable / CIN */
+uint32_t plat_midi_mark(void)
+{
+    __asm__ volatile("" ::: "memory");
+    return mi_w;
+}
+int plat_midi_passed(uint32_t mark)
+{
+    __asm__ volatile("" ::: "memory");
+    return (int32_t)(mi_r-mark)>=0;
+}
+int plat_midi_pending(void)
+{
+    __asm__ volatile("" ::: "memory");
+    return mi_r != mi_w;
+}
+uint32_t plat_midi_cut(void)
+{
+    /* Requests may come from main or TIMER5; exclude the audio consumer too.
+     * Clear all slot tags at each cut, so even token wrap cannot revive an old
+     * queued packet. This cut supersedes every previous cut. */
+    uint32_t audio = fm1_irq_mask_save(FM1_IRQ_ALNK0);
+    uint32_t transport = fm1_irq_mask_save(FM1_IRQ_TIMER5);
+    uint32_t i, epoch = mi_epoch + 1u;
+    if (!epoch)
+        epoch = 1u;
+    for (i = 0; i < MQ; i++)
+        mi_fresh[i] = 0u;
+    mi_epoch = epoch;                 /* request capture, both sources excluded */
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, transport);
+    fm1_irq_mask_restore(FM1_IRQ_ALNK0, audio);
+    return epoch;
+}
+int plat_midi_in_epoch(uint32_t *pkt, uint32_t *epoch)
+{
+    /* Ingress overflow can compact the live ring in TIMER5. Keep its slot
+     * read and consume together so an interrupted read cannot skip a note. */
+    uint32_t irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);
+    int found = mi_r != mi_w;
+    if (found) {
+        *pkt = midi_in_q[mi_r % MQ];
+        *epoch = mi_fresh[mi_r % MQ] ? mi_epoch : 0u;
+        mi_r++;
+    }
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, irq);
+    return found;
+}
 int plat_midi_in(uint32_t *pkt)
 {
-    if (mi_r == mi_w)
-        return 0;
-    *pkt = midi_in_q[mi_r % MQ];
-    mi_r++;
-    return 1;
+    uint32_t epoch;
+    return plat_midi_in_epoch(pkt, &epoch);
 }
 void plat_midi_out(uint32_t pkt)
 {
@@ -174,14 +275,52 @@ void plat_midi_out(uint32_t pkt)
     ble_out(pkt);                               /* the same, to a Bluetooth MIDI connection */
 #endif
 }
+/* A pulse must not use priority replacement: an Off replacing an older CC
+ * could otherwise precede its newly appended On. Reserve two slots or drop both. */
+int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity)
+{
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    if (smk_clip_mode_on()) return 0;
+#endif
+    uint32_t on = 9u | ((uint32_t)(0x90u | channel) << 8) |
+        ((uint32_t)note << 16) | ((uint32_t)velocity << 24);
+    uint32_t off = 8u | ((uint32_t)(0x80u | channel) << 8) | ((uint32_t)note << 16);
+    int sent = 0;
+    /* Called by CPU0 only. Exclude its audio producer and TIMER5 USB/BLE
+     * consumer/link transitions, preserving source enables and global IRQ state.
+     * The generic CLI/STI flash helpers are intentionally not used. */
+    uint32_t audio = fm1_irq_mask_save(FM1_IRQ_ALNK0);
+    uint32_t transport = fm1_irq_mask_save(FM1_IRQ_TIMER5);
+    if (usb.config && mo_w - mo_r <= MQ - 2u) {
+        midi_out_q[mo_w % MQ] = on;
+        midi_out_q[(mo_w + 1u) % MQ] = off;
+        fm1_data_sync(); mo_w += 2u;
+        sent |= 1;
+    }
+#if X0X_BLE
+    if (!ble_central_role && !smc_ble_role_get() && ble_want && ble_host_on &&
+        bleh_notifying(&ble_r.host.h) && ble_r.ow - ble_r.orr <= BLE_OQ - 2u) {
+        ble_oq[ble_r.ow % BLE_OQ] = on;
+        ble_oq[(ble_r.ow + 1u) % BLE_OQ] = off;
+        fm1_data_sync(); ble_r.ow += 2u;
+        sent |= 2;
+    }
+#endif
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, transport);
+    fm1_irq_mask_restore(FM1_IRQ_ALNK0, audio);
+    return sent;
+}
 #if !X0X_BLE
 int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
 const char *plat_ble_name(void) { return ""; }
+void plat_ble_peers(plat_ble_peers_t *out) { __builtin_memset(out,0,sizeof *out); out->state=PLAT_BLE_NOIMG; }
 void plat_ble_set(int on) { (void)on; }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 0; }
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len) { (void)slot; (void)msg; (void)len; return 0; }
 #endif
 
-int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -1; }
+int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -2; }
 int plat_store_save(uint32_t obj, const void *src, uint32_t len) { return flash_ok ? st_save(obj, src, len) : -9; }
 
 int plat_slot_zones(int k) { return (k >= 0 && k < SMP_USER_SLOTS) ? usr_nz[k] : 0; }
@@ -189,15 +328,18 @@ int plat_slot_zones(int k) { return (k >= 0 && k < SMP_USER_SLOTS) ? usr_nz[k] :
 const uint8_t *plat_slot(int k, int z, uint32_t *nsamples, uint32_t *rate, char name[9])
 {
     const smp_user_hdr_t *h;
-    uint32_t i;
+    uint32_t i, rate_q16;
     if (k < 0 || k >= SMP_USER_SLOTS || z < 0 || z >= usr_nz[k])
         return 0;
-    h = (const smp_user_hdr_t *)smp_user_xip((uint32_t)k);
+    h = smp_hdr(smp_user_xip((uint32_t)k));
     for (i = 0; i < 8u; i++)
         name[i] = h->name[i] >= 32 && h->name[i] < 127 ? h->name[i] : 0;
     name[8] = 0;
     *nsamples = h->zone[z].n;
-    *rate = (h->zone[z].rate * 44100u + 32768u) >> 16;
+    rate_q16 = h->zone[z].rate;
+    /* Split Q16 before multiplying: 88.2 kHz would overflow a uint32_t product. */
+    *rate = (rate_q16 >> 16) * 44100u +
+            (((rate_q16 & 0xFFFFu) * 44100u + 32768u) >> 16);
     return smp_user_xip((uint32_t)k) + SMP_USER_DATA + h->zone[z].off;
 }
 
@@ -226,6 +368,8 @@ int plat_cpu2_set(int on)
 int plat_cpu2_on(void) { return fm1_c1_on; }
 int plat_cpu2_run(void (*fn)(uint32_t), uint32_t arg) { return fm1_cpu1_run(fn, arg); }
 int plat_cpu2_wait(void) { return fm1_cpu1_wait(); }
+int plat_cpu2_busy(void) { return fm1_cpu1_busy(); }
+void plat_cpu2_sync(void) { fm1_cpu1_sync(); }
 int plat_cpu2_gave_up(void) { return fm1_c1_gave_up; }
 uint32_t plat_cpu2_bad(void) { return fm1_c1_mb.bad; }
 uint32_t plat_xruns(void) { return audio_xruns; }

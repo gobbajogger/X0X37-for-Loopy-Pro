@@ -10,7 +10,14 @@
 
 #ifndef CK_CD_FN
 #ifdef __clang__
-#define CK_CD_FN __attribute__((minsize, noinline, unused))
+#ifndef X0X_MINSIZE
+#if defined(__clang__)
+#define X0X_MINSIZE minsize,   /* clang (the firmware toolchain): small code */
+#else
+#define X0X_MINSIZE            /* gcc host tests: gcc has no minsize */
+#endif
+#endif
+#define CK_CD_FN __attribute__((X0X_MINSIZE noinline, unused))
 #else
 #define CK_CD_FN __attribute__((noinline, unused))
 #endif
@@ -57,13 +64,12 @@ static const char CK_CD_NAMES[] =
     "7(13)\0" "7(b13)\0" "7(#11)\0" "7(#5)\0" "7sus4\0sus4\0m\0madd9\0"
     "m7\0m9\0m7(11)\0m6\0mMaj7\0m7b5\0dim\0sus2\0dim7\0maj11\0m11\0"
     "11\0maj13\0m13\0" "13";
-static const char CK_CD_NOTES[12][3] = {
-    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-};
+#include "note_names.h"
 
 CK_CD_FN static const char *ck_chord_note_name(uint32_t pc)
 {
-    return pc < 12u ? CK_CD_NOTES[pc] : "-";
+    /* Same twelve names as UI NOTE_N / clip ROOT (X0X_NOTE_N → X0X_NOTE_PACK). */
+    return pc < 12u ? X0X_NOTE_N[pc] : "-";
 }
 
 /* At least three bits, without counting the rest. */

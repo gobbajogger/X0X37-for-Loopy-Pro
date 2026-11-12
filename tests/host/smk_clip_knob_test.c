@@ -11,9 +11,14 @@
 #include <stdio.h>
 #include <string.h>
 #define RING_PUBLISH() __asm__ volatile("" ::: "memory")
+#define FM1_IRQ_TIMER5 63u
+static uint32_t fm1_irq_mask_save(unsigned n) { (void)n; return 0; }
+static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 #define BOARD_SMK37 1
 #define X0X_BLE 0
 #define SMK_BIG
+#define FM1_TICKS_PER_US 24u
+static uint32_t fm1_ticks(void) { return 0; }
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 #include "src/usb.c"
 void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
@@ -25,9 +30,12 @@ typedef struct {                    /* the clip keys fields of settings_t (app/x
     uint8_t autosave_off;
 } settings_t;
 static struct { settings_t set; } proj;
-static struct { uint16_t bpm; uint8_t playing, req_start, req_cont, req_stop; } seq;
+seq_t seq;                          /* usb.c (LIVE-A update guard) sees the real seq_t through app/engine.h */
+int engine_project_notes(void) { return 0; }   /* no live notes in this fixture */
 static uint8_t project_busy;
 static int ui_project_busy(void) { return project_busy; }
+/* This clip/MIDI fixture has no active boot capture or maintenance lease. */
+int ui_boot_flash_busy(void) { return 0; }
 #include "fm1_opt.h"
 #define SMK_KEY_F3 5u
 #define SMK_BTN_KNOB_BANK 0
@@ -84,6 +92,16 @@ static volatile uint8_t ck_start_req;
 void smk_ck_midi_stop(void);
 void smk_inlog(uint32_t src, uint32_t pkt) { (void)src; (void)pkt; }
 #include "apc_b.inc"
+/* ck_a.inc calls production SMC clip popup helpers; this fixture owns MIDI/CC
+ * and chord-screen behaviour, not presentation — same stub class as
+ * smc_clip_visibility_test.c (#453), different harness. */
+static void smc_ui_clip_show(int n, const char *name, const char *value)
+{
+    (void)n;
+    (void)name;
+    (void)value;
+}
+static void smc_ui_cancel(void) {}
 #include "ck_a.inc"
 #include "ck_b.inc"
 static void ck_page_draw(void) {}
@@ -95,6 +113,7 @@ static int project_save(void) { save_calls++; return 0; }
 static void say(const char *s, uint32_t t) { (void)s; (void)t; }
 static void save_project(void) { save_wait = 0u; project_save(); }
 #define BOARD_SMK37 1
+int project_storage_unsupported(void) { return 0; }   /* #810 autosave guard: supported storage here */
 #include "autosave.inc"
 #undef BOARD_SMK37
 

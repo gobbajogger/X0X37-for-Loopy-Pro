@@ -16,17 +16,19 @@
 #define NKIT 2                       /* 0 = 909 (drum909.h order), 1 = 808 (drum808.h order) */
 #define NBASS 2                      /* 303 A, 303 B */
 
-enum { RATE_16, RATE_16T, RATE_32, RATE_8T, NRATES };      /* step length */
+enum { RATE_16, RATE_16T, RATE_32, RATE_8T, RATE_8, RATE_4, NRATES };      /* step length */
 enum { DIR_FWD, DIR_REV, DIR_PINGPONG, DIR_RANDOM, NDIRS };  /* 303 playback direction */
 enum { G_REST, G_NOTE, G_TIE };                             /* 303 step gate */
 
 /* 303 step: velocity 1..127; zero means the legacy/default velocity (100). */
+/* 0 = legacy gate; 1..15 = captured release fraction of this playback slot. */
+#define BS_END_SHIFT 4u
 #define BS_GATE_MASK 0x03u
 #define BS_ACCENT 0x04u
 #define BS_SLIDE 0x08u                /* slide INTO the next step (303 semantics) */
 typedef struct {
     uint8_t note;                     /* MIDI note */
-    uint8_t flags;                    /* gate | BS_ACCENT | BS_SLIDE */
+    uint8_t flags;                    /* gate | BS_ACCENT | BS_SLIDE | endpoint << 4 */
     uint8_t velocity;
 } bstep_t;
 #define BASS_VELOCITY_DEFAULT 100u
@@ -70,9 +72,34 @@ typedef struct {
     uint32_t steps;                   /* bit s = the break may sound on 16th s of the bar */
     uint8_t set[BRK_NSET];            /* breaks.h param values, in BRK_* order */
     uint8_t slot_a, slot_b;           /* loop A / B: the built-in bank, then the user slots (engine_brk_slot_names) */
-    uint8_t rsv[2];
-    uint8_t slice[16];                /* per 16th: 0 = the generator chooses, 1..8 = loop A's slice 1..8 */
+    uint8_t slice_mode;               /* packed A/B count codes (2 bits each): 0=8,1=4,2=16,3=32 */
+    uint8_t rate;                     /* RATE_16 / RATE_8 / RATE_4. Other values, including a
+                                       * legacy reserved byte, play as 1/16 and stay stored. */
+    uint8_t slice[16];                /* per 16th: 0 = the generator chooses, 1..32 = loop A's stored slice intent (resolved modulo count) */
 } brkpart_t;
+
+static inline unsigned brk_slice_code_count(unsigned code)
+{
+    return code == 0 ? 8u : code == 1 ? 4u : code == 2 ? 16u : 32u;
+}
+static inline unsigned brk_slice_count(const brkpart_t *p, unsigned which)
+{
+    return brk_slice_code_count((p->slice_mode >> (2u * which)) & 3u);
+}
+
+/* BREAK keeps a 16th-note generator clock (breaks_step / slice[16]).
+ * RATE_8 and RATE_4 group those 16ths: one user step covers 2 or 4 sixteenths.
+ * The step bits 0-7 (1/8) or 0-3 (1/4) enable the group. Other rate bytes play as 1/16. */
+static inline int brk_rate_of(const brkpart_t *p)
+{
+    return (p->rate == RATE_8 || p->rate == RATE_4) ? (int)p->rate : RATE_16;
+}
+static inline int brk_step_on(const brkpart_t *p, int s16)
+{
+    unsigned rate = (unsigned)brk_rate_of(p);
+    unsigned bit = rate == RATE_8 ? (unsigned)s16 >> 1 : rate == RATE_4 ? (unsigned)s16 >> 2 : (unsigned)s16;
+    return (int)((p->steps >> (bit & 31u)) & 1u);
+}
 
 typedef struct {
     dpart_t drum[NKIT];

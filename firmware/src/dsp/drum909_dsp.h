@@ -14,7 +14,8 @@
  *  - Sample read position: 9W9 keeps a double; here 32.32 fixed point, which is
  *    exact for every playback rate the pots produce (identical positions).
  *  - tanh: a 1025-point table with linear interpolation (abs error < 6e-6),
- *    generated offline; used for the diode rounding and every saturator.
+ *    generated offline and stored as a lossless IEEE binary32 pack
+ *    (x0x_tanh_value); used for the diode rounding and every saturator.
  *  - Biquad coefficients: cos(w0) as 1 - 2 sin^2(w0/2), which keeps the
  *    low-frequency filters (20 Hz DC blocker) as accurate as libm's cosf. */
 #pragma once
@@ -25,10 +26,24 @@
 #if defined(__GNUC__) || defined(__clang__)
 #define D9_INLINE static inline __attribute__((always_inline))
 #define D9_NOINLINE static __attribute__((noinline, unused))   /* not every includer uses every helper */
+#if defined(X0X_HOST) || !defined(__clang__)
+/* Match fastmath: strict host C99 and GCC host tests use translation-unit-local bodies. */
+#define D9_ONE static inline
+#else
+/* One link-wide body. The text stays here so a call can still be inlined.
+ * Each unit may emit a weak copy; the link keeps a single one. */
+#define D9_ONE extern inline __attribute__((gnu_inline, weak, unused))
+#endif
+#define D9_ONE_OUT __attribute__((weak, noinline, unused))
 #else
 #define D9_INLINE static inline
 #define D9_NOINLINE static
+#define D9_ONE static inline
+#define D9_ONE_OUT static
 #endif
+
+/* Distortion mode labels: FX bus is Off+seven; 909 voices use &x0x_dist_names[1]. */
+extern const char *const x0x_dist_names[8];
 
 #define D9_SR 44100.0f
 #define D9_MS (0.001f * D9_SR)                 /* samples per ms, as 9W9's `ms` */
@@ -138,7 +153,9 @@ typedef struct {
     float x1, x2, y1, y2;
 } d9_biquad_t;
 
-static inline void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+/* One link-wide body: drum909.c and fxbus.c both retune biquads (was a private
+ * copy in each -O2 unit). D9_ONE keeps inlining at call sites like d9_tanh. */
+D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
 {
     float fc = freq / (D9_SR * 0.5f);
     if (fc >= 1.0f) fc = 0.9999f;
@@ -188,7 +205,37 @@ static inline float d9_tri(uint32_t ph)
 /* ===================================================================== */
 /* tanh from the table                                                    */
 /* ===================================================================== */
-static inline float d9_tanh(float u)
+/* PR861: decode adjacent table entries with one packed-run search. */
+static inline void d9_tanh_pair(unsigned i, float *t0, float *t1)
+{
+#if defined(__GNUC__) && defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    unsigned r = X0X_TANH_RUNS - 1u, start = x0x_tanh_run_end[X0X_TANH_RUNS - 2];
+    if (i < start) {
+        r = 0; start = 0;
+        while (i >= x0x_tanh_run_end[r]) { start = x0x_tanh_run_end[r]; ++r; }
+    }
+    const x0x_tanh_run_t *run = &x0x_tanh_runs[r];
+    if (i + 1u < x0x_tanh_run_end[r] && 2u * run->width <= 57u) {
+        union { uint32_t u; float f; } a, b;
+        a.u = b.u = run->base;
+        if (run->width) {
+            const unsigned bit = (i - start) * (unsigned)run->width;
+            uint64_t w;
+            __builtin_memcpy(&w, (const unsigned char *)&x0x_tanh_words[run->offset] + (bit >> 3), sizeof w);
+            w >>= bit & 7u;
+            const uint32_t mask = (1u << run->width) - 1u;
+            a.u |= (uint32_t)w & mask;
+            b.u |= (uint32_t)(w >> run->width) & mask;
+        }
+        *t0 = a.f; *t1 = b.f; return;
+    }
+#endif
+    *t0 = x0x_tanh_value(i); *t1 = x0x_tanh_value(i + 1u);
+}
+
+/* The body, always inlined: drum909.c's per-sample voice loops call it with no call
+ * overhead. d9_tanh below is the same body for every other caller. */
+D9_INLINE float d9_tanh_inline(float u)
 {
     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
     float t;
@@ -197,10 +244,14 @@ static inline float d9_tanh(float u)
     } else {
         const int32_t i = (int32_t)a;
         const float fr = a - (float)i;
-        t = x0x_tanh_tab[i] + (x0x_tanh_tab[i + 1] - x0x_tanh_tab[i]) * fr;
+        const float t0 = x0x_tanh_raw[(unsigned)i];      /* 0e88652c0: one exact const float table */
+        const float t1 = x0x_tanh_raw[(unsigned)i + 1u];
+        t = t0 + (t1 - t0) * fr;
     }
     return u < 0.0f ? -t : t;
 }
+
+D9_ONE float d9_tanh(float u) { return d9_tanh_inline(u); }
 
 /* ===================================================================== */
 /* The voice / master distortion stage (er99_shape_st), 7 types           */
@@ -212,7 +263,7 @@ typedef struct {
     float c1, c2;  /* type-specific constants (see prep) */
 } d9_shape_t;
 
-static inline void d9_shape_prep(d9_shape_t *s, float drive, int type)
+D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
 {
     const float k = drive > 0.01f ? drive : 0.01f;
     s->type = type;
@@ -238,7 +289,7 @@ static inline void d9_shape_prep(d9_shape_t *s, float drive, int type)
 }
 
 /* types 1..6, out of line (the switch is big; the default type is inline below) */
-D9_NOINLINE float d9_shape_other(const d9_shape_t *s, float x, float *st)
+D9_ONE_OUT float d9_shape_other(const d9_shape_t *s, float x, float *st)
 {
     const float k = s->k;
     switch (s->type) {

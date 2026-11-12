@@ -24,7 +24,7 @@ static void log_ev(int k, int a, int b, int c, int d)
         evs[nev++] = (ev_t){now, k, a, b, c, d};
 }
 static int s_drum(void *x, int k, int v, float vel) { (void)x; log_ev(E_DRUM, k * 100 + v, (int)(vel * 127.0f + 0.5f), 0, 0); return 1; }
-static void s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; last_bass_velocity = velocity; log_ev(E_ON, p, n, acc, sl); }
+static int s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; last_bass_velocity = velocity; log_ev(E_ON, p, n, acc, sl); return 1; }
 static void s_off(void *x, int p) { (void)x; log_ev(E_OFF, p, 0, 0, 0); }
 static void s_brk(void *x, int s16, int bar, float spb, int en) { (void)x; log_ev(E_BRK, s16, bar, (int)spb, en); }
 static void s_brkstop(void *x) { (void)x; log_ev(E_BRKSTOP, 0, 0, 0, 0); }
@@ -103,6 +103,28 @@ static void test_drum_timing(void)
     printf("  drum timing: %d BD, %d CH on the sample\n", n, k);
 }
 
+/* T_VEL / seq.drum_vel: a recorded strike velocity overrides accent_q7 for that voice. */
+static void test_drum_step_velocity(void)
+{
+    int i;
+    reset();
+    S.bpm = 120.0f;
+    S.accent_q7 = 88;
+    P[0].drum[0].hit[0][0] = 1u;                           /* BD on step 1 only */
+    S.drum_vel[0][0] = 40;
+    seq_start(&S);
+    run(5513);
+    i = find(E_DRUM, 0, 0);
+    CHECK(i >= 0 && evs[i].b == 40, "recorded drum velocity reaches the sink (%d)", i >= 0 ? evs[i].b : -1);
+    nev = 0;
+    S.drum_vel[0][0] = 0;                                  /* legacy: accent row / accent_q7 */
+    seq_start(&S);
+    run(5513);
+    i = find(E_DRUM, 0, 0);
+    CHECK(i >= 0 && evs[i].b == 88, "zero drum_vel keeps accent_q7 (%d)", i >= 0 ? evs[i].b : -1);
+    printf("  drum step velocity: recorded 40, legacy 88\n");
+}
+
 static void test_swing_and_rates(void)
 {
     int i, k;
@@ -147,7 +169,8 @@ static void test_303(void)
     b->step[2] = (bstep_t){41, G_NOTE | BS_ACCENT, 0};           /* reached by slide, accented */
     b->step[3] = (bstep_t){41, G_TIE, 0};                        /* tie: 2 held through 3 */
     b->step[4] = (bstep_t){0, G_REST, 0};
-    b->step[5] = (bstep_t){43, G_TIE, 0};                        /* tie after rest = a note */
+    b->step[5] = (bstep_t){43, G_TIE, 0};                        /* orphan tie after rest stays silent */
+    b->step[6] = (bstep_t){45, G_NOTE, 0};                       /* later NOTE attacks cleanly */
     b->transpose = 26;                                        /* +2 */
     seq_start(&S);
     run((uint32_t)(step * 8));
@@ -163,7 +186,7 @@ static void test_303(void)
     CHECK(off > i, "no gate off between a slide and its target");
     CHECK(off >= 0 && abs((int)evs[off].t - (int)(3.5 * step + 0.5)) <= 1, "tie holds step 3 into step 4, whose gate falls at its half (%u, want %.0f)", off >= 0 ? evs[off].t : 0, 3.5 * step);
     i = find(E_ON, 0, off);
-    CHECK(i >= 0 && evs[i].b == 45 && abs((int)evs[i].t - (int)(5 * step + 0.5)) <= 1, "tie after a rest plays as a note");
+    CHECK(i >= 0 && evs[i].b == 47 && evs[i].d == 0 && abs((int)evs[i].t - (int)(6 * step + 0.5)) <= 1, "orphan TIE stays silent; later NOTE attacks without slide");
     printf("  303 gate / slide / tie / transpose: checked\n");
 }
 
@@ -755,6 +778,48 @@ static void test_rec_nearest(void)
     printf("  live record: the nearest step, no second sound on the pass of the hit: checked\n");
 }
 
+
+/* Three MIDI ticks form a 1/32 step. At tick 1 the hit is only one third of the way
+ * through the step, so nearest-step recording must not advance until tick 2. */
+static void test_rec_32nd_tick_midpoint(void)
+{
+    static const int part[] = {TRK_DRUM, 1, TRK_BASS0};
+    int i;
+    reset();
+    P[0].drum[0].rate = RATE_32;                     /* 909 */
+    P[0].drum[1].rate = RATE_32;                     /* 808 */
+    P[0].bass[0].rate = RATE_32;                     /* 303 */
+    S.clk_src = SEQ_CLK_EXT;
+    seq_advance(&S, 0, sink);                       /* select EXTERNAL before PLAY */
+    seq_start(&S);
+    seq_advance(&S, 0, sink);
+    seq_ext_clock(&S);                              /* tick 0: downbeat step */
+    seq_advance(&S, 0, sink);
+    for (i = 0; i < 3; i++)
+        CHECK(S.t[part[i]].started && seq_rec_step(&S, part[i]) == 0,
+              "external 1/32: part %d first tick plays step 1", part[i]);
+    seq_ext_clock(&S);                              /* tick 1/3: before halfway */
+    seq_advance(&S, 0, sink);
+    for (i = 0; i < 3; i++)
+        CHECK(seq_rec_step(&S, part[i]) == 0,
+              "external 1/32: part %d after one tick stays on step 1", part[i]);
+    seq_ext_clock(&S);                              /* tick 2/3: past halfway */
+    seq_advance(&S, 0, sink);
+    for (i = 0; i < 3; i++)
+        CHECK(seq_rec_step(&S, part[i]) == 1,
+              "external 1/32: part %d after two ticks records on step 2", part[i]);
+    for (i = 0; i < 3; i++) {                        /* wrapping step 16 -> step 1 */
+        S.t[part[i]].pos = 15;
+        S.t[part[i]].ext_ticks = 1;
+        CHECK(seq_rec_step(&S, part[i]) == 15,
+              "external 1/32: part %d before midpoint stays on step 16", part[i]);
+        S.t[part[i]].ext_ticks = 2;
+        CHECK(seq_rec_step(&S, part[i]) == 0,
+              "external 1/32: part %d past midpoint wraps to step 1", part[i]);
+    }
+    printf("  external 1/32 recording midpoint: 909, 808, 303 and 16-step wrap checked\n");
+}
+
 /* ---- a74: GLO > MIDI > CLOCK SOURCE (AUTO, INTERNAL, EXTERNAL) */
 static int count_midi(int st, int from)                       /* MIDI out of status st since event from */
 {
@@ -1183,9 +1248,124 @@ static void test_tb3po_matches_reference(void)
 }
 #endif
 
+/* A malformed chain range must not become an out-of-bounds pattern index at
+ * the next bar, including endpoint values that would wrap when cast to u8. */
+static void test_chain_endpoint_bounds(void)
+{
+    static const int INVALID[][2] = {
+        {-1, 5}, {3, -1}, {NPAT, 5}, {3, NPAT},
+        {NPAT + 256, 5}, {3, NPAT + 256}, {-256, 5}, {3, -256}
+    };
+    unsigned i;
+    int t;
+    reset();
+    S.bpm = 120.0f;
+    seq_chain(&S, 3, 5);
+    CHECK(S.chain_a == 3 && S.chain_b == 5, "valid chain endpoints accepted");
+    for (i = 0; i < sizeof INVALID / sizeof INVALID[0]; i++) {
+        seq_chain(&S, INVALID[i][0], INVALID[i][1]);
+        CHECK(S.chain_a == 3 && S.chain_b == 5,
+              "invalid chain endpoints %d,%d preserved valid range (got %u,%u)",
+              INVALID[i][0], INVALID[i][1],
+              (unsigned)S.chain_a, (unsigned)S.chain_b);
+        seq_chain(&S, 3, 5);             /* baseline must not index a bad pattern */
+    }
+    for (t = 0; t < NTRACKS; t++)
+        S.ppat[t] = 3;
+    seq_chain(&S, -1, NPAT);
+    if (S.chain_a == 3 && S.chain_b == 5) {
+        seq_start(&S);
+        run(FS * 2u + 2048u);           /* bar boundary at 120 BPM */
+        CHECK(S.ppat[TRK_DRUM] == 4 && S.ppat[TRK_BRK] == 4,
+              "rejected chain leaves valid 909/break bar transition");
+    }
+    seq_chain(&S, 5, 3);
+    CHECK(S.chain_a == 5 && S.chain_b == 3, "valid reversed endpoints accepted");
+    seq_chain(&S, 3, 3);
+    CHECK(S.chain_a == 3 && S.chain_b == 3, "equal endpoints disable chain");
+    printf("  chain endpoints: valid, reversed, disabled and eight invalid ranges checked\n");
+}
+
+/* REC-06: a swung internal step is long or short. Recording must use the midpoint
+ * of that ACTUAL interval (fire_step), not half an unswung step. */
+static void test_rec_swing_midpoint(void)
+{
+    static const int tracks[] = {TRK_DRUM, 1, TRK_BASS0, TRK_BASS0 + 1, TRK_BRK};
+    uint32_t L;
+    int i;
+    reset();
+    S.bpm = 120.0f;
+    P[0].swing = 100;                           /* maximum swing: long 1.5L, short 0.5L */
+    L = seq_step_q8(&S, RATE_16);
+    for (i = 0; i < (int)(sizeof tracks / sizeof tracks[0]); i++) {
+        seq_track_t *tr = &S.t[tracks[i]];
+        tr->started = 1;
+        tr->pos = 0;
+        tr->to_next = L * 3u / 5u;             /* 60% through long step: next */
+        CHECK(seq_rec_step(&S, tracks[i]) == 1, "swung long midpoint track %d", tracks[i]);
+        tr->pos = 1;
+        tr->to_next = L * 3u / 8u;             /* 25% through short step: current */
+        CHECK(seq_rec_step(&S, tracks[i]) == 1, "swung short first quarter track %d", tracks[i]);
+        tr->to_next = L / 8u;                  /* 75% through short step: next */
+        CHECK(seq_rec_step(&S, tracks[i]) == 2, "swung short last quarter track %d", tracks[i]);
+    }
+
+    P[0].drum[0].rate = RATE_32;
+    P[0].bass[0].rate = RATE_32;
+    L = seq_step_q8(&S, RATE_32);
+    S.t[TRK_DRUM].pos = 0;
+    S.t[TRK_DRUM].to_next = L * 3u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 1, "1/32 swung long midpoint drum");
+    S.t[TRK_BASS0].pos = 1;
+    S.t[TRK_BASS0].to_next = L * 3u / 8u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 1, "1/32 swung short midpoint 303");
+
+    P[0].bass[0].rate = RATE_16;
+    P[0].bass[0].dir = DIR_REV;
+    P[0].bass[0].len = 16;
+    L = seq_step_q8(&S, RATE_16);
+    S.t[TRK_BASS0].pos = 4;                    /* reverse: 4 -> 3, long */
+    S.t[TRK_BASS0].to_next = L * 3u / 5u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 3, "reverse 303 long step");
+    S.t[TRK_BASS0].pos = 5;                    /* reverse: 5 -> 4, short */
+    S.t[TRK_BASS0].to_next = L * 3u / 8u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 5, "reverse 303 short step");
+    P[0].bass[0].dir = DIR_PINGPONG;
+    S.t[TRK_BASS0].pos = 15;
+    S.t[TRK_BASS0].pp_dir = 1;                  /* endpoint reverses to even step 14 */
+    S.t[TRK_BASS0].to_next = L * 3u / 8u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 15, "ping-pong short step at endpoint");
+
+    P[0].drum[0].rate = RATE_16;            /* restore rate after the RATE_32 cases */
+    P[0].drum[0].len = 3;                      /* even step 2 -> even step 0: no swing */
+    L = seq_step_q8(&S, RATE_16);
+    S.t[TRK_DRUM].pos = 2;
+    S.t[TRK_DRUM].to_next = L * 2u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "odd-length even-to-even wrap midpoint");
+
+    P[0].drum[0].len = 16;
+    P[0].drum[0].rate = RATE_16T;              /* triplets are not swung */
+    L = seq_step_q8(&S, RATE_16T);
+    S.t[TRK_DRUM].pos = 0;
+    S.t[TRK_DRUM].to_next = L * 3u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "triplet retains unswung midpoint");
+    P[0].swing = 0;
+    P[0].drum[0].rate = RATE_16;
+    L = seq_step_q8(&S, RATE_16);
+    S.t[TRK_DRUM].to_next = L * 2u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 1, "straight rate retains nearest-step midpoint");
+    S.t[TRK_DRUM].to_next = 0xFFFFFFFFu;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "no next event stays on current step");
+    S.t[TRK_DRUM].started = 0;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "before first step remains step 0");
+    printf("  recording midpoint follows swung internal step durations: checked\n");
+}
+
 int main(void)
 {
+    test_chain_endpoint_bounds();
     test_drum_timing();
+    test_drum_step_velocity();
     test_swing_and_rates();
     test_303();
     test_303_velocity_slide_overlap();
@@ -1198,6 +1378,8 @@ int main(void)
     test_ext_transport_ble();
     test_ext_burst_steps();
     test_rec_nearest();
+    test_rec_32nd_tick_midpoint();
+    test_rec_swing_midpoint();
     test_clksrc_internal();
     test_clksrc_external();
     test_clksrc_switch();

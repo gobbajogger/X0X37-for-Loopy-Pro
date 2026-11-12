@@ -1,33 +1,67 @@
-# Scoped local proof
+# Minimum local proof
 
-Use this matrix to select meaningful checks for the requested outcome under
-[AGENTS.md](../../AGENTS.md) and the [active workflow](workflow.md). Independent
-review, current permissions, required remote checks and ownership remain separate.
-GitHub Actions and billing status are not substitutes for agent-run test results.
+Use this selector matrix only to plan scoped local checks. [AGENTS.md](../../AGENTS.md), the [maintained workflow](../../skills/x0x37-workflow/SKILL.md), current owner instructions, and live branch protections govern review, merge, and publication. GitHub Actions and `@codex` are not substitutes for local test results.
 
-| Scope | Applicable proof |
-| --- | --- |
-| Documentation or skill rules | Exact diff, syntax and reachable links; semantic/independent review when authority or delivery behavior changes. No firmware rebuild. |
-| Workflow or validation helper | Relevant complete helper test closure, changed positive/negative behavior and affected callers. No firmware build unless consumed compiler inputs change. |
-| Firmware implementation | Covering host regressions and meaningful negative/boundary tests; affected target native validation when required by the delivery stage. |
-| Evidence-only change | Authenticate stated source/inputs, exits, records and stored byte hashes; reuse unchanged valid proof. |
-| Development package | Actual affected Elite/Pro development validation, matching controller, model/config, CRC/SHA-256 and memory/flash/pool budgets. |
-| Integration | Fresh exact source/base, independent review and applicable combined-tree checks, normal authorized update and remote readback. |
-| Publication | Applicable qualification, preserved catalog/history, authorized publisher and served page/catalog/package byte verification. |
-| Device/production | Separately authorized same-byte, matching-model owner hardware result and applicable production approval. |
+Plan a tip with:
 
-`tools/local_proof_plan.py` may suggest selectors from the actual diff. Verify its
-output against the requested behavior and current scripts; a planner is not proof.
-Historical numbered stage or successor validators check old records only. They do
-not require a new thread or block current delivery because no successor ID exists.
+```bash
+python3 tools/local_proof_plan.py --base <pr-base> --head HEAD --branch <head-branch>
+```
 
-Rebuild only when consumed source/configuration/tool/dependency inputs changed or
-required stored artifacts/proof cannot be verified. A new commit ID alone does
-not invalidate identical input evidence. Missing, failed or NOT_RUN required checks
-stay negative/pending; optional gaps do not stop independent ready work.
+Prefer the plan's `x0x_tests`, `verify`, and `skip` lists over a fixed kitchen-sink selector string. Prefer skip or narrow over delete. Package integrity gates stay required when they apply.
 
-Preserve applicable DEV CHECKED records, package/controller hashes, model guards,
-flash/static-RAM limits, `pool_free >= 8192`, data-preserving installer negatives,
-independent QA and actual live byte verification. A source-only task needs none of
-the unrelated future hardware/publication proof. No local pass overrides an actual
-denial, required review or branch protection. Report, then continue authorized work.
+## Reuse exact-input proof
+
+Reuse recorded checks only when the checked source tree, configuration, tools and toolchain, dependencies and references, selected tests, and artifact/package/controller identities still match. Verify that the evidence names those inputs and its actual result. A new commit ID alone does not require a retest; an unchanged commit ID does not validate mutable inputs. Rerun only invalidated or failed checks after repair. See [validation and evidence](../../skills/x0x37-check/references/validation.md).
+
+Local proof establishes only its recorded coverage. It does not authorize a stage advance, merge, device action, or publication. Missing or failed required checks remain open.
+
+## PR kind → minimum proof
+
+Classify from the three-dot diff vs the PR base and the actual affected inputs. Stage labels below describe evidence shape only; they do not create successor, merge, or publication authority.
+
+| Kind | Typical tip | Must run | Must not re-run by default |
+| --- | --- | --- | --- |
+| audit-evidence / evidence-only | `evidence/*-stage1/*` only | Scope/whitespace; CHECKS vs exact inputs; `stage-handoff` if HANDOFF/SUCCESSOR changed; live catalog MATCH only when claiming a live page | Full `tests/run_tests.sh`; publish/web kitchen sink; package rebuild; `node web/test_web.mjs` |
+| implement (firmware/tests) | Repair + host test + evidence | Host BF selectors for changed firmware paths (for clock/seq: `sequencer clk-lock clock-handover`); `stage-handoff` when handoff files change | Package rebuild; unrelated publish/web selectors; full suite |
+| test-evidence | `evidence/*-stage3/*` only | Scope; verify CHECKS / test-run-summary against exact source, configuration, tools, dependencies, and selectors; rerun invalidated checks | Full suite; package rebuild; default publish/web kitchen sink; duplicate ALL_PASS reconfirm |
+| validate-evidence | `evidence/*-stage4/*` only, records already `DEV CHECKED` | Scope; `python3 tools/verify_dev_checked_records.py --evidence <dir>`; CHECKS digest spot-check only if all validation inputs still match | **Elite+Pro `dev_validate.py run` rebuild**; full suite; default publish/web kitchen sink |
+| validate (product change) | Firmware/tools build inputs in the tip | Full affected Elite/Pro `dev_validate.py run`; `pool_free >= 8192`; record digests MATCH | Unrelated host suites not touched by the change |
+| integration-evidence | `evidence/*-stage5/*` only | Scope; tree gate vs validated inputs; install prompt digests vs DEV records; `stage-handoff`; `install-gate-guard` if touched | Package rebuild; publish/web kitchen sink; `test_web.mjs`; host BF suite already proven for exact inputs |
+| publish-evidence | `evidence/*-stage7/*` only | Scope; live catalog + package/controller hash MATCH if publication is separately authorized; qualification claims | Package rebuild when all validation inputs and digests remain identical; unrelated host suites |
+| docs-only / harness | `docs/`, `tools/` planner, tests for tools | Planner/unit tests for touched harness; selectors only for touched tools | Firmware BF suite; package rebuild |
+| docs-only skill edit | `AGENTS.md`, docs, or skills only | Diff and link review; changed skill validation | Firmware and package work |
+
+## Default kitchen sink to stop using
+
+Older local reviews ran this on every stage PR:
+
+```bash
+X0X_TESTS='stage-handoff nightly-publish installer-targets installer-digests install-gate-guard projects-web projects-page'
+node web/test_web.mjs
+```
+
+Keep those selectors when the three-dot diff touches the matching tools/web paths. Do not run them as a default tax on evidence-only tips. `tools/local_proof_plan.py` encodes that rule.
+
+## Package rebuild rule
+
+Rebuild Elite and Pro development packages in local review only when:
+
+1. Checked firmware, configuration, toolchain, tools, dependencies, references, packaging inputs, or artifact bytes changed or cannot be shown identical, or
+2. Tip records are missing, not `DEV CHECKED`, or fail `verify_dev_checked_records.py`.
+
+When the tip is evidence-only and `DEV CHECKED` records cover the exact source, configuration, tools, dependencies, selectors, and artifact digests, verify those records and CHECKS claims instead of rebuilding.
+
+## Integrity gates that stay
+
+Do not remove or weaken:
+
+- `DEV CHECKED` result on affected Elite/Pro records
+- `pool_free >= 8192`
+- Package and controller SHA-256 MATCH for publish and install prompts
+- Required BF host regressions when firmware, matching host tests, or other checked inputs change and prior proof does not cover the exact inputs
+- Live page hash MATCH before treating a nightly publish as done
+
+## Policy
+
+GitHub Actions and `@codex` are not local test results. Inspect required checks and current branch protection before any separately authorized merge. A local proof record does not override a required check, review, or permission.

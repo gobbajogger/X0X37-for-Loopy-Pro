@@ -38,14 +38,14 @@ tapkey b6
 tapkey w12
 shot 03_808_grid.png
 # 303 A: TB-3PO page, generate a line
-turn ALGO 1
+turn ALGO 3
 expect part 2
 tap ARP
 expect view 2
 tap OCT+
 shot 04_tb3po_a.png
 # 303 B: generate, then sound page: open the filter
-turn ALGO 1
+turn ALGO -1
 tap ARP
 tap OCT+
 tap EDIT
@@ -53,7 +53,7 @@ turn K1 20
 turn K2 30
 shot 05_303b_sound.png
 # BREAK: all 16 steps on
-turn ALGO 1
+turn ALGO -1
 expect part 4
 tapkey w0
 tapkey w1

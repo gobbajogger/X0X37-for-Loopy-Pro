@@ -1,8 +1,9 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* X0X motion; see motion.h. */
 #include "motion.h"
+#include "../x0x_cold.h"              /* X0X_COLD: Main-path edit helpers — not ISR step/tick/release */
 
-void motion_init(motion_t *m, lane_t *lanes)
+X0X_COLD void motion_init(motion_t *m, lane_t *lanes)
 {
     uint32_t i;
     uint8_t *z = (uint8_t *)m;
@@ -13,7 +14,7 @@ void motion_init(motion_t *m, lane_t *lanes)
         m->rt[i].applied = m->rt[i].rec_last = MOT_NONE;
 }
 
-static void put(motion_t *m, const lane_t *l, lane_rt_t *r, int v)
+__attribute__((noinline)) static void put(motion_t *m, const lane_t *l, lane_rt_t *r, int v)
 {
     if (r->applied != v) {
         m->apply(m->ctx, l->t, l->v, l->i, v);
@@ -21,17 +22,23 @@ static void put(motion_t *m, const lane_t *l, lane_rt_t *r, int v)
     }
 }
 
-static void to_base(motion_t *m, const lane_t *l, lane_rt_t *r)
+static void restore_base(motion_t *m, const lane_t *l)
+{
+    if (m->restore) m->restore(m->ctx, l->t, l->v, l->i);
+    else m->apply(m->ctx, l->t, l->v, l->i, m->base(m->ctx, l->t, l->v, l->i));
+}
+
+__attribute__((noinline)) static void to_base(motion_t *m, const lane_t *l, lane_rt_t *r)
 {
     if (r->applied != MOT_NONE)
-        m->apply(m->ctx, l->t, l->v, l->i, m->base(m->ctx, l->t, l->v, l->i));
+        restore_base(m, l);
     r->applied = MOT_NONE;
     r->ramp = 0;
 }
 
 void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
 {
-    int k;
+    int k, phase;
     if (part < 0 || part >= MOT_PARTS || step < 0 || step >= NSTEPS)
         return;
     if (m->age[part])
@@ -40,11 +47,13 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
     m->last[part] = (uint8_t)step;
     if (next < 0 || next >= NSTEPS)
         next = 0;
-    for (k = 0; k < NLANE; k++) {
+    /* Restore departing patterns first; a later slot must never overwrite
+     * the active pattern for the same parameter with the base value. */
+    for (phase = 0; phase < 2; phase++) for (k = 0; k < NLANE; k++) {
         lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         int v, nv;
-        if (!l->used || l->part != part)
+        if (!l->used || l->t==0xfdu || l->part != part)
             continue;
         if (r->gen != l->gen) {                        /* a reused slot: a fresh runtime */
             r->gen = l->gen;
@@ -54,11 +63,18 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
             r->hold_left = 0;
         }
         if (l->pat != pat) {                           /* not this part's pattern now: the knob */
+            if (phase)
+                continue;
+            /* A queued knob event belongs to the departing pattern, not the next
+             * time this lane's pattern happens to come around. */
+            r->rec_req = r->hold_req = 0;
             to_base(m, l, r);
             r->rec_last = MOT_NONE;
             r->hold_left = 0;
             continue;
         }
+        if (!phase)
+            continue;
         if (r->hold_req) {
             r->hold_req = 0;
             r->hold_left = (uint8_t)pass;
@@ -93,7 +109,8 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
             continue;
         }
         v = l->val[step];
-        put(m, l, r, v == MOT_NONE ? m->base(m->ctx, l->t, l->v, l->i) : v);
+        if (v == MOT_NONE && m->restore) to_base(m, l, r);
+        else put(m, l, r, v == MOT_NONE ? m->base(m->ctx, l->t, l->v, l->i) : v);
         nv = l->val[next];
         r->ramp = (uint8_t)(v != MOT_NONE && nv != MOT_NONE && nv != v);
         r->from = (uint8_t)v;
@@ -111,7 +128,7 @@ void motion_tick(motion_t *m, uint32_t n)
         const lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         uint32_t L, a;
-        if (!r->ramp || !l->used || r->gen != l->gen || l->part >= MOT_PARTS)
+        if (!r->ramp || !l->used || l->t==0xfdu || r->gen != l->gen || l->part >= MOT_PARTS)
             continue;
         L = m->len[l->part][r->part_parity];
         if (!L)
@@ -128,10 +145,13 @@ void motion_release(motion_t *m)
     int k, p;
     for (k = 0; k < NLANE; k++) {
         lane_rt_t *r = &m->rt[k];
-        if (m->lane[k].used && r->gen == m->lane[k].gen)
+        if (m->lane[k].used && m->lane[k].t!=0xfdu && r->gen == m->lane[k].gen)
             to_base(m, &m->lane[k], r);
         r->rec_last = MOT_NONE;
         r->hold_left = 0;
+        /* Stop/load boundary: discard requests queued by the preceding transport. */
+        r->rec_req = 0;
+        r->hold_req = 0;
     }
     for (p = 0; p < MOT_PARTS; p++)
         m->age[p] = m->len[p][0] = m->len[p][1] = 0;
@@ -144,7 +164,7 @@ int motion_value(const motion_t *m, int k)
     return m->rt[k].applied == MOT_NONE ? -1 : m->rt[k].applied;
 }
 
-int motion_find(const lane_t *L, int pat, int part, int t, int v, int i)
+X0X_COLD int motion_find(const lane_t *L, int pat, int part, int t, int v, int i)
 {
     int k;
     for (k = 0; k < NLANE; k++)
@@ -153,7 +173,7 @@ int motion_find(const lane_t *L, int pat, int part, int t, int v, int i)
     return -1;
 }
 
-int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
+X0X_COLD int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
 {
     int k, s;
     for (k = 0; k < NLANE; k++)
@@ -166,6 +186,7 @@ int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
     L[k].t = (uint8_t)t;
     L[k].v = (uint8_t)v;
     L[k].i = (uint8_t)i;
+    L[k].rsv = 0;
     for (s = 0; s < NSTEPS; s++)
         L[k].val[s] = MOT_NONE;
     L[k].gen++;
@@ -174,13 +195,27 @@ int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
     return k;
 }
 
-void motion_clear(lane_t *L, int k)
+X0X_COLD void motion_clear(motion_t *m, int k)
 {
-    if (k >= 0 && k < NLANE)
-        L[k].used = 0;
+    if (k >= 0 && k < NLANE) {
+        if (m->lane[k].used && m->lane[k].t!=0xfdu && m->apply && m->base) {
+            /* Restore the target before freeing the slot. T_VEL caches the last
+             * applied strike in seq.drum_vel; skipping this leaves that override
+             * sticky after the lane is gone (and after Stop), so later hits keep
+             * the deleted velocity instead of the accent fallback. */
+            restore_base(m, &m->lane[k]);
+            m->rt[k].applied = MOT_NONE;
+            m->rt[k].ramp = 0;
+        }
+        /* This slot may be reused before the next audio step.  Drop knob
+         * intents from its former owner, not the fresh owner's first event. */
+        m->lane[k].used = 0;
+        m->rt[k].rec_req = 0;
+        m->rt[k].hold_req = 0;
+    }
 }
 
-int motion_count(const lane_t *L)
+X0X_COLD int motion_count(const lane_t *L)
 {
     int k, n = 0;
     for (k = 0; k < NLANE; k++)
@@ -188,13 +223,13 @@ int motion_count(const lane_t *L)
     return n;
 }
 
-void motion_req_rec(motion_t *m, int k)
+X0X_COLD void motion_req_rec(motion_t *m, int k)
 {
     if (k >= 0 && k < NLANE)
         m->rt[k].rec_req = 1;
 }
 
-void motion_req_hold(motion_t *m, int k)
+X0X_COLD void motion_req_hold(motion_t *m, int k)
 {
     if (k >= 0 && k < NLANE)
         m->rt[k].hold_req = 1;

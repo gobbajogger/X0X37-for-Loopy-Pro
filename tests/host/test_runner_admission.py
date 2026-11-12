@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 import time
 
@@ -47,14 +48,12 @@ if n == "host-build": pathlib.Path("generated").touch()
 event("end")
 sys.exit(7 if os.environ.get("FAIL_TEST") == n else 0)
 ''' % SCRATCH
-MKDIR = '''#!/usr/bin/env python3
-import json, os, sys
+MKDIR = '#!' + sys.executable + ' -S\n' + '''import json, os, sys
 with open("mkdir-calls", "a") as f: f.write(json.dumps(sys.argv[1:]) + "\\n")
 if os.environ.get("FAIL_SETUP") and "build/scenarios/alpha" in sys.argv: sys.exit(9)
 os.execv("/bin/mkdir", ["mkdir"] + sys.argv[1:])
 '''
-FLOCK = '''#!/usr/bin/env python3
-import json, os, sys
+FLOCK = '#!' + sys.executable + ' -S\n' + '''import json, os, sys
 with open("flock-calls", "a") as f: f.write(json.dumps(sys.argv[1:]) + "\\n")
 os.execvp(sys.argv[4], sys.argv[4:])
 '''
@@ -66,9 +65,9 @@ def fixture(source):
     end = source.rindex('if [ "$JOBS" -le 1 ]; then\n    tests_body')
     scenario = source[source.index("for s in tests/scenarios/"):source.index("run perf-scratch ")]
     body = "tests_body() {\n"
-    body += "".join(f"run {n} python3 worker.py {n}\n" for n in NAMES[:NAMES.index("scenario-alpha")])
+    body += "".join(f"run {n} python3 -S worker.py {n}\n" for n in NAMES[:NAMES.index("scenario-alpha")])
     body += 'note "  skip fixture package"\n' + scenario
-    body += 'run perf-scratch python3 worker.py perf-scratch\n}\n'
+    body += 'run perf-scratch python3 -S worker.py perf-scratch\n}\n'
     return source[:start] + body + source[end:]
 
 
@@ -82,13 +81,16 @@ def execute(source, jobs, selected, *, fail="", setup="", holds=False):
         (root / "worker.py").write_text(WORKER)
         (root / "build/host").mkdir(parents=True)
         host = root / "build/host/x0x_host"
-        host.write_text('#!/bin/sh\nexec python3 worker.py "$@"\n'); host.chmod(0o755)
+        host.write_text('#!/bin/sh\nexec python3 -S worker.py "$@"\n'); host.chmod(0o755)
         (root / "bin").mkdir()
         for name, script in (("mkdir", MKDIR), ("flock", FLOCK)):
             p = root / "bin" / name; p.write_text(script); p.chmod(0o755)
         (root / "gate.lock").touch()
         if setup == "perf": (root / "build/host/scratch_defs.h").mkdir()
+        # This scheduler fixture replaces test bodies and omits full-suite dependencies.
+        # Do not inherit the outer suite's production dependency gate into this tree.
         env = dict(os.environ, PATH=str(root / "bin") + os.pathsep + os.environ["PATH"],
+                   X0X_STRICT_PREFLIGHT="0",
                    X0X_TEST_JOBS=str(jobs), X0X_TESTS=selected, X0X_GATE_LOCK=str(root / "gate.lock"),
                    X0X_GATE_HOLDS_LOCK="1" if holds else "0", FAIL_TEST=fail,
                    FAIL_SETUP="1" if setup == "scenario" else "")
@@ -144,7 +146,7 @@ def check(r, selected, *, fail="", setup=""):
     assert r["test_class_substitutions"] == 0
     assert r["key_formats"] == (len(chosen) + 1 if r["jobs"] > 1 else 0), r["key_formats"]
     locks = [x for x in r["flock"] if x[:2] == ["-s", "-o"]]
-    wanted_locks = [n for n in chosen if n in ("install-slots-web", "installer", "rec-live-smk")]
+    wanted_locks = [n for n in chosen if n in ("install-slots-web", "installer")]  # install_path: not rec-live*
     assert len(locks) == (0 if r["holds"] else len(wanted_locks)), locks
     assert sorted(x[-1] for x in locks) == ([] if r["holds"] else sorted(wanted_locks)), locks
     if r["jobs"] > 1 and all(n in chosen for n in NAMES):

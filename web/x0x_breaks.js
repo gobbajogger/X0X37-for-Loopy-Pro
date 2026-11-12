@@ -1,3 +1,4 @@
+import { watchDeviceSession } from "./device_session.js";
 // SPDX-License-Identifier: GPL-3.0-only
 // X0X break loops in the browser: tools/upload_breaks.py and its helpers (tools/sampleio.py,
 // Felucca's encoder; tools/import_breaks.py's bar guess) as plain functions, so the page
@@ -11,7 +12,17 @@ export const SLOT_HDR_LEN = 32 + SLOT_ZONES * 28;
 export const SLOT_MAX_DATA = SLOT_SIZE - SLOT_DATA_OFF;
 export const ROOT_BASE = 36;              // loop i is zone root 36 + i: the slot sorts its zones by root
 export const RATE = 44100, RATE_HALF = 22050;   // 44.1 kHz by default; 22.05 kHz only when asked for
-export const DRY_SLOT_KB = [80, 120, 44]; // upload_breaks.py --dry-run's default layout: the SMK-37's slots (KiB)
+export const OLDSCHOOL_FACTOR = 2;              // --oldschool CLI default (medium grit)
+export const MIN_LOOP_SAMPLES = 64;           // firmware breaks_set_loop minimum
+/** @type {{ key: string, label: string, factor: number }[]} */
+export const OLDSCHOOL_GRIT = [
+  { key: "", label: "Off (clean)", factor: 1 },
+  { key: "light", label: "Light", factor: 1.5 },
+  { key: "medium", label: "Medium", factor: 2 },
+  { key: "heavy", label: "Heavy", factor: 3 },
+  { key: "max", label: "Max", factor: 4 },
+];
+export const DRY_SLOT_KB = [80, 120, 32]; // upload_breaks.py --dry-run's default layout: the SMK-37's three slots (KiB)
 
 const IMA_STEP = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88,
   97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658,
@@ -95,6 +106,40 @@ export function cut(x, sr, bars, rate = RATE, trim = false) {
   const y = resample(x, sr, rate);
   const pk = peak(y);
   return toInt16(y.map((v) => v * (0.95 / pk)));
+}
+
+// Optional "oldschool" import: speed the audio up (fewer samples), store a lower zone playback rate so
+// the BREAK player stretches it back to the same bar length (grit / aliasing from the encode path stay).
+export function applyOldschool(s, storageRate, factor = OLDSCHOOL_FACTOR) {
+  if (factor <= 1) return { s, rate: storageRate };
+  const x = [];
+  for (let i = 0; i < s.length; i++) x.push(s[i] / 32768);
+  const y = resample(x, storageRate, storageRate / factor);
+  const out = toInt16(y.map((v) => v * 0.95));
+  const playbackRate = Math.round(storageRate / factor);
+  if (out.length < MIN_LOOP_SAMPLES)
+    throw new Error(`too short after oldschool processing (${out.length} samples)`);
+  return { s: out, rate: playbackRate };
+}
+
+export function cutLoop(x, sr, bars, storageRate = RATE, trim = false, gritFactor = 1) {
+  let s = cut(x, sr, bars, storageRate, trim);
+  let rate = storageRate;
+  if (gritFactor > 1) ({ s, rate } = applyOldschool(s, storageRate, gritFactor));
+  return { s, rate };
+}
+
+export function gritLabel(factor) {
+  const g = OLDSCHOOL_GRIT.find((o) => o.factor === factor);
+  return g && g.factor > 1 ? g.label : "";
+}
+
+// What you hear on the device: IMA round-trip at the zone playback rate (stretched timing).
+export function loopPreviewPcm(s, playbackRate, roundTrip = true) {
+  const pcm = roundTrip ? imaDecode(imaEncode(s), s.length) : s;
+  const samples = new Float32Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) samples[i] = pcm[i] / 32768;
+  return { samples, rate: playbackRate };
 }
 
 // sampleio.ima_encode: 4-bit IMA ADPCM, low nibble first, from predictor 0 / index 0
@@ -305,20 +350,41 @@ export function asciiName(b) {
 // offset (null if unknown) and used KiB come from X0X's extension ('X', 1, then per slot offset and size in
 // 4 KiB sectors and used KiB, 14 bits each); without it every slot has the one size.
 export function parseInfo(r) {
-  if (r.length < 2) throw new Error("short SMP_INFO reply");
+  if (!r || r.length < 2) throw new Error("short SMP_INFO reply");
   const count = r[0], size = r[1] * 1024, slots = [];
+  if (count < 1 || count > 16 || !size || r[1] > 127)
+    throw new Error("invalid SMP_INFO slot count or size");
   let i = 2;
   for (let k = 0; k < count; k++) {
+    if (i >= r.length || r[i] > 16) throw new Error("invalid SMP_INFO slot record");
     const nz = r[i], j = r.indexOf(0, i + 1);
-    slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1], size, off: null, used: r[j + 1] });
+    // Device names have at most eight bytes and must end before used-KiB.
+    if (j < 0 || j > i + 9 || j + 1 >= r.length || r[j + 1] > 127)
+      throw new Error("truncated SMP_INFO slot record");
+    // Empty slots must have empty names and zero used bytes. Otherwise a
+    // damaged SMP_INFO descriptor could skip the required pre-OTA sample backup.
+    if (nz === 0 && (j !== i + 1 || r[j + 1] !== 0))
+      throw new Error(`slot ${k + 1}: empty SMP_INFO slot has occupied metadata`);
+    slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1],
+      size, off: null, used: r[j + 1] });
     i = j + 2;
   }
-  const ext = r.length >= i + 2 + 6 * count && r[i] === 0x58 && r[i + 1] === 1;
-  if (ext)
+  // Valid legacy X0X layouts can omit the extension altogether. If any
+  // extension bytes exist, they MUST describe all declared slots completely.
+  const ext = i < r.length;
+  if (ext) {
+    if (r[i] !== 0x58 || r[i + 1] !== 1 || r.length !== i + 2 + 6 * count)
+      throw new Error("malformed or truncated SMP_INFO extension");
     slots.forEach((sl, k) => {
       const v = [0, 1, 2].map((m) => r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7);
+      if (!v[1] || v[2] > v[1] * 4)
+        throw new Error("invalid SMP_INFO extended slot size");
+      // Firmware saturates only the legacy byte; both fields describe the same used KiB.
+      if (sl.kb !== Math.min(127, v[2]))
+        throw new Error(`slot ${k + 1}: legacy/extended used-size disagreement`);
       Object.assign(sl, { off: v[0] * 0x1000, size: v[1] * 0x1000, used: v[2] });
     });
+  }
   return { count, size, ext, slots };
 }
 
@@ -340,11 +406,17 @@ export function parseHeader(b) {
 
 // layout: parseInfo(); images: per slot, Uint8Array or null -> the archive (x0x_slots.make_archive)
 export function makeArchive(layout, images, created) {
+  if (!layout || !Array.isArray(images) || images.length !== layout.count || layout.slots.length !== layout.count)
+    throw new Error("The sample backup is incomplete.");
   const entries = [], blobs = [];
   let off = 0;
   images.forEach((img, k) => {
     const sl = layout.slots[k] || {};
     const e = { slot: k + 1, size: sl.size ?? layout.size, empty: img === null };
+    // Source occupancy is authoritative: a CRC-valid archive marked empty
+    // must never conceal a slot that SMP_INFO reported as occupied.
+    if (sl.nz > 0 && img === null)
+      throw new Error(`slot ${k + 1}: occupied source slot is missing from the backup`);
     if (sl.off !== null && sl.off !== undefined) e.flash = sl.off;
     if (img !== null) {
       const h = parseHeader(img);
@@ -372,20 +444,42 @@ export function makeArchive(layout, images, created) {
 // archive bytes -> {meta, images}; throws on any damage (x0x_slots.read_archive)
 export function readArchive(b) {
   const bad = (m) => { throw new Error(m); };
-  if (b.length < 20 || String.fromCharCode(...b.subarray(0, 8)) !== ARCH_MAGIC) bad("This is not an .x0xslots backup.");
+  const int = (n, lo, hi) => Number.isSafeInteger(n) && n >= lo && n <= hi;
+  if (!(b instanceof Uint8Array) || b.length < 20 || b.length > 4 * 1024 * 1024 ||
+      String.fromCharCode(...b.subarray(0, 8)) !== ARCH_MAGIC) bad("This is not an .x0xslots backup.");
   const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
   if (v.getUint32(b.length - 4, true) !== crc32(b.subarray(0, b.length - 4))) bad("The backup file is damaged (CRC).");
-  if (v.getUint16(8, true) !== 1) bad("This backup has a newer format.");
-  const n = v.getUint32(12, true), meta = JSON.parse(new TextDecoder().decode(b.subarray(16, 16 + n)));
-  const base = 16 + n, images = [];
-  for (const e of meta.slots) {
-    if (e.empty) { images.push(null); continue; }
-    const img = b.slice(base + e.offset, base + e.offset + e.length), h = parseHeader(img);
-    if (img.length !== e.length || crc32(img) !== e.crc32) bad(`Slot ${e.slot} in the backup is damaged.`);
-    if (!h || img.length !== SLOT_HDR_AREA + h.dataLen || crc32(img.subarray(SLOT_HDR_AREA)) !== h.crc)
-      bad(`Slot ${e.slot} in the backup is not a valid slot.`);
-    images.push(img);
+  if (v.getUint16(8, true) !== 1 || v.getUint16(10, true) !== 0) bad("This backup has an unsupported format.");
+  const n = v.getUint32(12, true), base = 16 + n;
+  if (n > 65536 || base > b.length - 4) bad("The backup metadata exceeds the file.");
+  const meta = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(b.subarray(16, base)));
+  if (!meta || meta.format !== "x0xslots" || meta.version !== 1 || !int(meta.count, 1, 16) ||
+      !Array.isArray(meta.slots) || meta.slots.length !== meta.count || !int(meta.size, 512, 4 * 1024 * 1024))
+    bad("The backup slot count or format is invalid.");
+  const images = [];
+  let used = 0;
+  for (let k = 0; k < meta.count; k++) {
+    const e = meta.slots[k];
+    if (!e || e.slot !== k + 1 || typeof e.empty !== "boolean" || !int(e.size, 512, 4 * 1024 * 1024))
+      bad(`Slot ${k + 1} is missing, reordered or invalid.`);
+    if (e.empty) {
+      if (["offset", "length", "crc32"].some((key) => Object.hasOwn(e, key))) bad(`Slot ${e.slot}: empty slot has image pointers.`);
+      images.push(null); continue;
+    }
+    if (e.offset !== used || !int(e.length, 512, Math.min(e.size, b.length - 4 - base - used)) || !int(e.crc32, 0, 0xFFFFFFFF))
+      bad(`Slot ${e.slot}: overlapping, missing or invalid image range.`);
+    const img = b.slice(base + used, base + used + e.length), h = parseHeader(img);
+    if (crc32(img) !== e.crc32 || !h || img.length !== SLOT_HDR_AREA + h.dataLen || crc32(img.subarray(SLOT_HDR_AREA)) !== h.crc)
+      bad(`Slot ${e.slot} in the backup is damaged or invalid.`);
+    const hv = new DataView(img.buffer);
+    for (let z = 0; z < h.nz; z++) {
+      const o = 32 + z * 28, rate = hv.getUint32(o + 16, true), zone = h.zones[z];
+      if (zone.off + Math.ceil(zone.n / 2) > h.dataLen || img[o + 24] > 88 || !rate || rate > 4 * 65536)
+        bad(`Slot ${e.slot}: invalid sample zone ${z + 1}.`);
+    }
+    images.push(img); used += img.length;
   }
+  if (base + used !== b.length - 4) bad("The backup contains unreferenced sample data.");
   return { meta, images };
 }
 
@@ -467,6 +561,53 @@ export function planMigration(images, risk, oldMap, newLayout, newMap) {
   return { todo, skipped };
 }
 
+export const X0X_NBREAKS_BUILTIN = 2;
+const LOOP_MENU_GUARD = "LOOP menu order or indices would change; saved break pattern A/B indices could point at different loops. "
+  + "The backup is retained. Restore samples manually to a compatible layout, then check and re-assign LOOP A/B in every saved pattern before playback.";
+
+function userLoopMenuIds(layout, images, origins = null) {
+  // scan_loops lists each zone, not each slot. Preserve original slot identity:
+  // identical sample bytes in distinct slots are not interchangeable indices.
+  const ids = [];
+  layout.slots.forEach((sl, k) => {
+    for (let z = 0; z < sl.nz; z++)
+      ids.push(origins === null ? `old:${k}:${z}` : origins[k] === null ? `new:${k}:${z}` : `old:${origins[k]}:${z}`);
+  });
+  return ids;
+}
+
+function loopMenuAfterMigration(oldLayout, images, risk, oldMap, newMap, newLayout, todo) {
+  const imgs = newMap.map(() => null), origins = newMap.map(() => null);
+  const slots = newLayout.slots.map((sl) => ({ ...sl }));
+  images.forEach((img, k) => {
+    if (risk.includes(k) || !img) return;
+    const off = oldMap[k].off;
+    const j = newMap.findIndex((m) => m.off === off);
+    if (j < 0) return;
+    imgs[j] = img; origins[j] = k;
+    slots[j] = { ...oldLayout.slots[k] };
+  });
+  todo.forEach(({ k, j }) => { imgs[j] = images[k]; origins[j] = k; slots[j] = { ...oldLayout.slots[k] }; });
+  return userLoopMenuIds({ ...newLayout, slots }, imgs, origins);
+}
+
+export function migrationReordersLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo) {
+  if (!todo.length) return false;
+  const before = userLoopMenuIds(oldLayout, images);
+  const after = loopMenuAfterMigration(oldLayout, images, risk, oldMap, newMap, newLayout, todo);
+  // Compare absolute common positions; skipped middle slots can shift indices
+  // even when surviving entries retain their relative order. Trailing-only
+  // omissions or additions leave all remaining original positions unchanged.
+  return before.slice(0, after.length).some((id, i) => id !== after[i]);
+}
+
+export function guardMigrationLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo, skipped) {
+  if (!migrationReordersLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo)) return { todo, skipped };
+  const extra = [...skipped];
+  for (const { k } of todo) extra.push(`slot ${k + 1}: not restored automatically (${LOOP_MENU_GUARD})`);
+  return { todo: [], skipped: extra };
+}
+
 // ---- the slot commands over a link with send / read / drain (fm1ota.js's Link): SysEx F0 7D 46 4C cmd .. F7 ----
 const ED = [0xF0, 0x7D, 0x46, 0x4C];
 
@@ -488,7 +629,14 @@ export async function slotReq(link, cmd, args, ms = 3000, tries = 3) {
     while (Date.now() < end) {
       const p = await link.read(end - Date.now());
       if (!p) break;
-      if (p.length > 5 && p[1] === ED[1] && p[2] === ED[2] && p[3] === ED[3] && p[4] === cmd) return p.slice(5, p.length - 1);
+      if (p.length > 5 && p[0] === 0xF0 && p.at(-1) === 0xF7 && p[1] === ED[1] && p[2] === ED[2] && p[3] === ED[3] && p[4] === cmd) {
+        const r = p.slice(5, -1);
+        if (r.some((v) => !Number.isInteger(v) || v < 0 || v > 127)) throw new Error("Malformed sample reply.");
+        if ([11, 13, 14].includes(cmd) && (r.length !== 2 || r[0] !== args[0])) continue;
+        if (cmd === 12 && (r.length !== 5 || !args.slice(0, 4).every((v, i) => v === r[i]))) continue;
+        if (cmd === 16 && (r.length < 5 || !args.slice(0, 4).every((v, i) => v === r[i]))) continue;
+        return r;
+      }
     }
   }
   throw new Error(`The keyboard did not answer (slot command ${cmd}).`);
@@ -500,7 +648,11 @@ async function readSlotBytes(link, k, off, n, onPart) {
   const out = new Uint8Array(n);
   for (let at = 0; at < n;) {
     const want = Math.min(224, n - at), adr = off + at;
-    const b = unpack78((await slotReq(link, 16, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, (want + 1) >> 1])).slice(4));
+    const packed = (await slotReq(link, 16, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, (want + 1) >> 1])).slice(4);
+    const b = unpack78(packed);
+    if (b.length < want || b.length > want + (want % 2) ||
+        !pack78(b).every((v, i) => v === packed[i]) || pack78(b).length !== packed.length)
+      throw new Error(`slot ${k + 1}: invalid sample read length or encoding`);
     if (!b.length) throw new Error(`slot ${k + 1}: no data`);
     out.set(b.subarray(0, Math.min(b.length, n - at)), at);
     at += Math.min(b.length, n - at);
@@ -510,10 +662,13 @@ async function readSlotBytes(link, k, off, n, onPart) {
 }
 
 // slot k as an image (the 512-byte header area, then the data), or null if it is empty. Reads only.
-export async function readSlotImage(link, k, nz, onPart) {
+export async function readSlotImage(link, k, nz, onPart, slotSize = null) {
   if (!nz) return null;
   const area = await readSlotBytes(link, k, 0, SLOT_HDR_AREA), h = parseHeader(area.subarray(0, SLOT_HDR_LEN));
-  if (!h) return null;
+  if (!h || h.nz !== nz)
+    throw new Error(`slot ${k + 1}: occupied sample header is unreadable, unsupported or mismatches SMP_INFO`);
+  if (h.dataLen === 0 || (slotSize !== null && h.dataLen > slotSize - SLOT_HDR_AREA))
+    throw new Error(`slot ${k + 1}: occupied sample data length exceeds the slot or is empty`);
   const data = await readSlotBytes(link, k, SLOT_HDR_AREA, h.dataLen, onPart);
   if (crc32(data) !== h.crc) throw new Error(`slot ${k + 1}: the data read back does not match its CRC`);
   const img = new Uint8Array(SLOT_HDR_AREA + data.length);
@@ -526,12 +681,15 @@ export async function readSlotImage(link, k, nz, onPart) {
 export async function backupSlots(link, onPart) {
   const layout = await readSlotLayout(link), images = [];
   for (let k = 0; k < layout.count; k++)
-    images.push(await readSlotImage(link, k, layout.slots[k].nz, onPart && ((d, n) => onPart(k, d, n))));
+    images.push(await readSlotImage(link, k, layout.slots[k].nz,
+      onPart && ((d, n) => onPart(k, d, n)), layout.slots[k].size));
   return { layout, images };
 }
 
 // erase slot k and write the image (null: erase only); throws on a device error (x0x_slots.write_slot)
-export async function writeSlotImage(link, k, img, onPart) {
+export async function writeSlotImage(link, k, img, onPart, headerLength = SLOT_HDR_LEN) {
+  if (headerLength !== SLOT_HDR_LEN && headerLength !== SLOT_HDR_AREA)
+    throw new Error("Unsupported sample header length.");
   if (!img) {
     if ((await slotReq(link, 14, [k], 30000))[1]) throw new Error(`slot ${k + 1}: erase failed`);
     return;
@@ -544,7 +702,7 @@ export async function writeSlotImage(link, k, img, onPart) {
     if (r[4]) throw new Error(`slot ${k + 1}: write at 0x${adr.toString(16)} failed (${r[4]})`);
     if (onPart) onPart(Math.min(off + 256, data.length), data.length);
   }
-  const e = await slotReq(link, 13, [k, ...pack78(img.subarray(0, SLOT_HDR_LEN))], 5000);
+  const e = await slotReq(link, 13, [k, ...pack78(img.subarray(0, headerLength))], 5000);
   if (e[1]) throw new Error(`slot ${k + 1}: the keyboard refused the header (${e[1]})`);
 }
 
@@ -553,8 +711,8 @@ export async function restoreMapped(link, todo, images, onPart) {
   for (const { k, j } of todo) await writeSlotImage(link, j, images[k], onPart && ((d, n) => onPart(j, d, n)));
   const after = await readSlotLayout(link);
   for (const { k, j } of todo) {
-    const got = await readSlotImage(link, j, after.slots[j].nz);
-    if (!got || got.length !== images[k].length || crc32(got) !== crc32(images[k]))
+    const got = await readSlotImage(link, j, after.slots[j].nz, undefined, after.slots[j].size);
+    if (!got || got.length !== images[k].length || got.some((v, i) => v !== images[k][i]))
       throw new Error(`slot ${j + 1}: read back differs from the backup of slot ${k + 1}`);
   }
 }
@@ -576,12 +734,29 @@ export function archiveStamp(t = new Date()) {
 export async function installKeepingSlots(up, image, product, board, hooks) {
   const h = Object.assign({ step() {}, say() {}, save() {}, progress() {}, sameKeyboard: () => true }, hooks);
   const fail = (code, msg, detail = "") => Object.assign(new Error(msg), { code, detail });
-  let move = null;
+  let move = null, checkedLayout = null, checkedSnapshot = null;
   const dev = await up.find((id) => !/^ota-/i.test(id.model));
-  if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
-  else if (dev) {
+  const session = dev && up.access && dev.link.input && dev.link.output
+    ? watchDeviceSession(up.access, dev.link.input, dev.link.output, () => {}) : null;
+  try {
+  // Require a freshly detected device and an informed physical-model decision for published DEV.
+  if (!dev && h.confirmModel) throw fail("notfound", "Verify the keyboard model before DEV installation.");
+  if (dev) {
     try {
-      const layout = await readSlotLayout(dev.link, 1000, 2).catch(() => null);
+      if (!h.sameKeyboard(dev.id.model, product.split("_")[0])) throw fail("model", "Device family mismatch.");
+      if (h.confirmModel && !h.confirmModel(dev.id, product)) throw fail("modelcancel", "Physical model not confirmed; nothing written.");
+      let layout = null;
+      try { layout = await readSlotLayout(dev.link, 1000, 2); }
+      catch (e) {
+        // Only the independently exercised stock Pro _016 no-response path
+        // lacks SMP_INFO. Corrupt replies, USB failures, current X0X and
+        // unclassified firmware must NEVER bypass the prewrite backup gate.
+        const knownStockNoReply = dev.id && dev.id.text === "SMK-37 Pro_016" &&
+          e && e.message === "The keyboard did not answer (slot command 15).";
+        if (!knownStockNoReply)
+          throw fail("slotlayout", "Cannot verify the current sample layout before install: " + (e && e.message || e));
+      }
+      checkedLayout = layout;
       if (layout && layout.slots.some((sl) => sl.nz)) {
         const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
         const risk = atRisk(layout, oldMap, newMap);
@@ -591,22 +766,63 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
           try {
             saved = await backupSlots(dev.link, (k, d, n) => h.progress((k + d / n) / layout.count));
           } catch (e) { throw fail("slotbackup", e.message); }
+          checkedSnapshot = saved;
           const st = archiveStamp(), file = makeArchive(saved.layout, saved.images, st.created);
           readArchive(file);                                  // what was saved reads back
-          h.save(file, st.name);
-          move = { risk, oldMap, newMap, images: saved.images, name: st.name, todo: [], skipped: [] };
+          // Do not start destructive OTA while an asynchronous backup export is
+          // pending or after the owner has rejected/failed that export.
+          // A legacy synchronous callback returning undefined is preserved;
+          // the browser's current download-click fallback is NOT durability proof.
+          try {
+            const savedOut = await h.save(file, st.name);
+            if (savedOut === false) throw new Error("Backup export was not confirmed.");
+          } catch (e) {
+            throw fail("slotbackup", "Backup export failed: " + (e && e.message || e), st.name);
+          }
+          // SMP_INFO can change while the backup is read. Use the exact verified
+          // snapshot for preservation, just as the Python SlotMove.backup does.
+          const savedMap = flashMap(saved.layout, board);
+          move = { risk: atRisk(saved.layout, savedMap, newMap), oldMap: savedMap, newMap,
+            layout: saved.layout, images: saved.images, name: st.name, todo: [], skipped: [] };
         }
       }
     } finally { dev.link.close(); }
   }
-  const ran = await up.install(image, product, h.step);
+  // The owner may change or revoke an approved package during backup readback.
+  // Repeat the selection check immediately before beginning destructive OTA.
+  if (typeof h.beforeFirmwareWrite === "function" && !h.beforeFirmwareWrite())
+    throw fail("selectionstale", "Firmware selection changed before writing; nothing was installed.");
+  const ran = await up.install(image, product, h.step, { beforeUpgrade: async (fresh) => {
+    // Names and model strings are shared across keyboards. Bind the fresh lookup
+    // to the exact preflight port objects, and re-read the saved bytes after the
+    // owner has reselected the durable backup. Refuse a changed target/snapshot.
+    session?.assert();
+    if (!dev || fresh.name !== dev.name || fresh.id.text !== dev.id.text ||
+        fresh.link.input !== dev.link.input || fresh.link.output !== dev.link.output)
+      throw fail("selectionstale", "The keyboard changed after backup. Reconnect and prepare again.");
+    if (checkedLayout) {
+      const current = checkedSnapshot ? await backupSlots(fresh.link) : { layout: await readSlotLayout(fresh.link) };
+      const expected = checkedSnapshot || { layout: checkedLayout };
+      if (JSON.stringify(current.layout) !== JSON.stringify(expected.layout) || checkedSnapshot &&
+          current.images.some((img, k) => (img === null) !== (expected.images[k] === null) || img &&
+            (img.length !== expected.images[k].length || img.some((v, i) => v !== expected.images[k][i]))))
+        throw fail("slotbackup", "Samples changed after backup. Nothing was installed; make a fresh backup.");
+    }
+    if (typeof h.beforeFirmwareWrite === "function" && !h.beforeFirmwareWrite())
+      throw fail("selectionstale", "Firmware selection changed before writing; nothing was installed.");
+    session?.assert();
+    session?.close(); // The intentional OTA transition starts only after this guard.
+  } });
   if (!move || !move.newMap.length) return { product: ran, move };
   h.say("slotback");
-  const back = await up.waitFor((id) => !/^ota-/i.test(id.model), 20000);
+  // Same fail-closed rule as the post-write wait: reopen the port install just accepted, not another keyboard.
+  const back = await up.reconnectAfter((id) => !/^ota-/i.test(id.model), 20000);
   if (!back) throw fail("slots", "the keyboard did not answer after the install", move.name);
   try {
     const layout = await readSlotLayout(back.link);
-    const plan = planMigration(move.images, move.risk, move.oldMap, layout, flashMap(layout, board));
+    let plan = planMigration(move.images, move.risk, move.oldMap, layout, flashMap(layout, board));
+    plan = guardMigrationLoopMenu(move.layout, move.images, move.risk, move.oldMap, layout,
+      flashMap(layout, board), plan.todo, plan.skipped);
     move.todo = plan.todo;
     move.skipped = plan.skipped;
     const total = plan.todo.length || 1;
@@ -615,4 +831,60 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
     throw fail("slots", e.message, move.name);
   } finally { back.link.close(); }
   return { product: ran, move };
+  } finally { session?.close(); }
+}
+
+// A break pack: whole IMA ADPCM of each loop, from the first sample. tools/break_pack.py writes the same bytes.
+function packCrc32(bytes) {
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) {
+    crc ^= bytes[i];
+    for (let b = 0; b < 8; b++) crc = (crc >>> 1) ^ (0xEDB88320 & -(crc & 1));
+  }
+  return (~crc) >>> 0;
+}
+
+export function encodeBreakPack(loops, rate = RATE) {
+  if (!loops.length || loops.length > 8) throw new Error("a pack holds 1 to 8 loops");
+  if (rate !== RATE && rate !== RATE_HALF) throw new Error("rate must be 44100 or 22050");
+  const parts = [];
+  for (const loop of loops) {
+    const samples = loop.samples;
+    const adpcm = loop.adpcm || imaEncode(samples);
+    const ns = loop.nsamples || samples.length;
+    const bars = loop.bars;
+    if (ns < 64 || ((ns + 1) >> 1) !== adpcm.length) throw new Error(`${loop.name}: ADPCM length is not the whole loop`);
+    if (![1, 2, 4, 8].includes(bars)) throw new Error(`${loop.name}: bars must be 1, 2, 4 or 8`);
+    const rec = new Uint8Array(20 + adpcm.length);
+    const name = String(loop.name || "LOOP").slice(0, 7);
+    for (let i = 0; i < name.length; i++) rec[i] = name.charCodeAt(i) & 0x7F;
+    const dv = new DataView(rec.buffer);
+    dv.setUint32(8, ns, true);
+    dv.setUint8(12, bars);
+    dv.setUint32(16, adpcm.length, true);
+    rec.set(adpcm, 20);
+    parts.push(rec);
+  }
+  const body = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+  let o = 0;
+  for (const p of parts) { body.set(p, o); o += p.length; }
+  const out = new Uint8Array(20 + body.length);
+  for (let i = 0; i < 8; i++) out[i] = "X0XBRKPK".charCodeAt(i);
+  const hv = new DataView(out.buffer);
+  hv.setUint16(8, 1, true);
+  hv.setUint16(10, loops.length, true);
+  hv.setUint32(12, rate, true);
+  hv.setUint32(16, packCrc32(body), true);
+  out.set(body, 20);
+  return out;
+}
+
+// Full WAV, no silence cut and no bar cut. Resampled to 44100. The bar count is the same rule as the firmware.
+export function loopFromWav(buf, name) {
+  const { rate, x } = readWav(buf);
+  const samples = cut(x, rate, false, RATE, false);
+  if (samples.length < 64) throw new Error(`${name} is too short`);
+  const bars = barsOf(samples.length / RATE)[0];
+  const clean = String(name || "LOOP").replace(/\.[^.]+$/, "").replace(/[^\x20-\x7e]/g, "").slice(0, 7) || "LOOP";
+  return { name: clean, samples, bars, rate: RATE };
 }

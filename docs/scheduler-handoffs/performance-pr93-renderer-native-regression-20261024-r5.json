@@ -1,0 +1,97 @@
+{
+  "bench_host_proxy": {
+    "baseline_mad_ns": 13630462,
+    "baseline_median_ns": 322306062,
+    "command": "./renderer-{original,repaired} --trace /dev/null, 7 alternating trials each, complete process incl setup & file output, not MCU RT measurement",
+    "median_reduction_percent": 8.54,
+    "optimized_mad_ns": 6358765,
+    "optimized_median_ns": 294771436,
+    "physical_cpu_or_isr_speedup_claim": false,
+    "trials_each": 7
+  },
+  "champion": {
+    "last_seen_head": "1087ede952f6c6f5f22d1b56b062628f07a6af10",
+    "policy": "DO_NOT_INCLUDE_OPTIONAL_PR93_PERFORMANCE_IN_FIRST_CANDIDATE",
+    "pr": 103
+  },
+  "evidence_revision": "performance-pr93-whole-renderer-equivalence-20261024-r5",
+  "files": [
+    {
+      "path": "tests/host/breaks_renderer_equivalence_test.c",
+      "sha256": "db8269634f145eb740e0c161c02c348ff535aca52b6a7276098889a2ae0956bd"
+    },
+    {
+      "path": "tests/host/run_breaks_renderer_equivalence.sh",
+      "sha256": "6c10e7155906918ebc34edaa6f166baa62ebe400eac9c001390ca7fb34d103ae"
+    },
+    {
+      "path": "docs/audit/performance-pr93-whole-renderer-20261024.md"
+    }
+  ],
+  "historical_build_only": {
+    "build_evidence": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/93#issuecomment-6372477760",
+    "compiler_inputs_changed_in_this_run": false,
+    "controller_flash_free_bytes": 44,
+    "controller_native_exit": 0,
+    "elite_native_exit": 0,
+    "executed_by": "Hourly Build, not this run",
+    "fresh_target_compilation_in_this_run": "NOT_RUN",
+    "pool_free_bytes_elite": 8308,
+    "pool_free_bytes_pro": 8308,
+    "pool_minimum_free_bytes": 8192,
+    "pro_native_exit": 0,
+    "static_ram_free_bytes": 492
+  },
+  "native_runner": {
+    "bad_selector_expected_exit": 2,
+    "baseline_repaired_pcm_byte_equal": true,
+    "cases_per_configuration": 13,
+    "command": "bash tests/host/run_breaks_renderer_equivalence.sh",
+    "corrupt_trace_rejected": true,
+    "exit": 0,
+    "gcc_clang_optimized_and_asan_ubsan_compile_exits": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "host": "Linux x86_64",
+    "log_sha256": "f1f83a5e7138090c790aab0d45ccb8d4053efdb092648a4278ef283341fa474e",
+    "renderer_test_exits": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "total_frames_per_configuration": 4705792,
+    "trace_sha256": "fe7272407f98fb90c0c892fdeaeb6b7a4e788454483fc8c0ce47e88da06075a6"
+  },
+  "next": {
+    "action": "Independently review full current HEAD of PR93 and new host renderer regression, phase/NoteOff and other current-root negatives, post exact-SHA decision; Safe Merge only later after minimal first NIGHTLY candidate approved/merged",
+    "owner": "Independent NIGHTLY QA",
+    "remaining_gate": "CURRENT_COMPLETE_ROOT_QA_PENDING; PUBLIC_INSTALLABILITY_NOT_AUTHORIZED; DEVICE_UNKNOWN"
+  },
+  "outcome": "SOURCE_COMPLETE_REVIEW_READY__NEW_SCOPED_NATIVE_RENDERER_REGRESSION_PASS__INDEPENDENT_FULL_ROOT_QA_PENDING",
+  "role": "LoopyX0X37 Performance Engineering",
+  "run_utc": "2026-10-24T08:34:00Z",
+  "schema_version": 1,
+  "source": {
+    "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+    "breaks_c_blob": "0fcdbe65b674dea3becb26fc265cb2514908f1a5",
+    "breaks_h_blob": "6cb71d336c2c90fdc60a9594c2356f3a4379c264",
+    "compiled_firmware_subtree": "a87a83e15116422eed84528d95f52ddef5029927",
+    "complete_root_reconstructed": false,
+    "parent_root_tree": "117b93a2527b6b54222cfff0f117ce53d3f15ac3",
+    "preimage_breaks_c_blob": "1d3d692b6788d9d1f13901cd7ab13df506cdb72f",
+    "preimage_breaks_h_blob": "094af6650333e844311a8806145a6177a0318225",
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "tested_parent_commit": "6d3af9200f35a3c302405d3346b3c71671dce547"
+  },
+  "unrun": [
+    "independent exact complete-root PR93 review",
+    "full firmware MIDI NoteOff transport / SMC / BLE / sequencer phase tests",
+    "target real-time ISR cycles, XRUN and physical hardware",
+    "sample backup and OTA",
+    "public license, artifact and HTTP checks"
+  ]
+}

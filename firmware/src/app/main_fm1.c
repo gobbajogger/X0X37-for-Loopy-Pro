@@ -4,6 +4,7 @@
 /* X0X on the FM-1: boot (WDT first, boot-loop guard, guards), LCD, input (TIMER5 10 kHz),
  * audio (ALNK0), USB; then the main loop: UI at ~60 frames/s, input polled in between. */
 extern uint32_t _data_start[], _data_end[], _data_load[], _bss_start[], _bss_end[];
+extern uint32_t _xpool_start[], _xpool_end[];
 extern uint32_t _pool_start[], _pool_end[], _rt_start[], _rt_end[], _rt_load[], _c1_start[], _c1_end[], _c1_load[];
 
 /* --------------------------------------------------------------- audio --- */
@@ -49,9 +50,15 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
             uac_tap(o + 2u * k, REND_FRAMES);       /* the USB audio input: the same master output */
 #endif
             engine_volume(o + 2u * k, REND_FRAMES);     /* USB AUDIO FULL: the MASTER knob after the tap */
+#if FELUCCA_UAC
+            uac_out_mix(o + 2u * k, REND_FRAMES);   /* USB audio from the host, after the tap and MASTER */
+#endif
         }
     }
     us = (fm1_ticks() - t0) / FM1_TICKS_PER_US;
+#if X0X_LCD_TRACE
+    lcd_trace_record(LCD_T_AUDIO, us);
+#endif
 #if X0X_DEBUG
     x0x_worst.magic = 0x57525354u;                  /* "WRST" */
     x0x_worst.blocks++;
@@ -120,6 +127,9 @@ static uint8_t usb_due;
 void fm1_timer5_irq(void)
 {
     static uint32_t sub;
+#if X0X_LCD_TRACE
+    uint32_t lcd_t5_started = fm1_ticks();
+#endif
 #if X0X_DEBUG
     uint32_t tt0 = fm1_ticks();
 #endif
@@ -131,6 +141,9 @@ void fm1_timer5_irq(void)
     if (x0x_dbg.in_audio)
         x0x_dbg.nested++;
     fm1_input_tick();
+#if X0X_LCD_TRACE && BOARD_SMK37
+    lcd_trace_input_tick(fm1_in.keys, fm1_in.notes, mi_w);
+#endif
 #if X0X_BLE
     fm1_t5w_check(1u, fm1_ms);
 #endif
@@ -179,6 +192,9 @@ void fm1_timer5_irq(void)
     if (x0x_dbg.in_audio)
         dbg_tmr += fm1_ticks() - tt0;
 #endif
+#if X0X_LCD_TRACE
+    lcd_trace_record(LCD_T_TIMER5, (fm1_ticks() - lcd_t5_started) / FM1_TICKS_PER_US);
+#endif
 }
 extern void isr_timer5(void);
 
@@ -219,6 +235,7 @@ static void apc_note(uint32_t note, uint32_t vel)
 }
 #include "app/smk_clip_keys.h"
 #include "app/smk_arrows.h"
+#include "app/original_sound.h"
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
 void smk_ck_midi_stop(void);            /* all notes off: ck_t off_req (in the pool) */
 static uint8_t knob_bank_prev;
@@ -338,12 +355,90 @@ static void smk_inlog_w(uint32_t v, uint32_t nb)   /* one word, nb x 7 bits, low
         v >>= 7;
     }
 }
+/* INLOG 6: the CPU0 main loop copies existing input state without masking IRQs.
+ * Only its TIMER5 ISR writes these samples. That ISR completes before the main
+ * loop resumes and increments adc_ok or adc_miss before updating inputs. Reject
+ * a copy crossed by a tick, at most three times. Copy 176 bytes to the existing
+ * call-scoped editor scratch; serialize later, outside the short coherence window.
+ * The scratch is not shared with the ISR (x0x.c), and curves are boot-immutable.
+ * Latest mux samples are not simultaneous analog measurements. No scan-path work
+ * or persistent RAM is added. The 521-byte payload fits the existing ed_out. */
+static void smk_pad_inputs_reply(void)
+{
+    uint8_t *s = ed_smp_buf;
+    uint32_t attempt, i, j, ok = 0, miss = 0, frames = 0, now = 0, notes = 0;
+    _Static_assert(SMK_NPAD == 16u, "pad snapshot v1 requires 16 pads");
+    _Static_assert(176u <= ED_SMP_BUF_SIZE, "pad snapshot fits the call-scoped editor scratch");
+    for (attempt = 0; attempt < 3u; attempt++) {
+        ok = fm1_in.adc_ok;
+        miss = fm1_in.adc_miss;
+        frames = fm1_in.frames;
+        RING_PUBLISH();
+        now = fm1_ms;
+        notes = fm1_in.pnotes;
+        for (i = 0; i < SMK_NPAD; i++) {
+            uint32_t at = i * 10u;
+            uint16_t raw = fm1_in.pad_raw[i], base = fm1_in.pad_base[i], peak = fm1_in.pad_peak[i];
+            s[at] = (uint8_t)raw;
+            s[at + 1u] = (uint8_t)(raw >> 8);
+            s[at + 2u] = (uint8_t)base;
+            s[at + 3u] = (uint8_t)(base >> 8);
+            s[at + 4u] = (uint8_t)peak;
+            s[at + 5u] = (uint8_t)(peak >> 8);
+            s[at + 6u] = fm1_in.pad_st[i];
+            s[at + 7u] = fm1_in.pad_vel[i];
+            s[at + 8u] = fm1_in.pad_press[i];
+            s[at + 9u] = smk_pad_note[i];
+        }
+        for (i = 0; i < 8u; i++) {
+            uint16_t v = i < 4u ? fm1_in.fad_raw[i] : i < 6u ? fm1_in.wheel[i - 4u]
+                                                      : i == 6u ? fm1_in.pedal : fm1_in.batt;
+            s[160u + 2u * i] = (uint8_t)v;
+            s[161u + 2u * i] = (uint8_t)(v >> 8);
+        }
+        RING_PUBLISH();
+        if (ok == fm1_in.adc_ok && miss == fm1_in.adc_miss && frames == fm1_in.frames)
+            break;
+    }
+    ed_b(6u);
+    ed_b(1u);                                      /* schema version */
+    ed_b(attempt == 3u);                            /* status: snapshot / busy */
+    if (attempt == 3u)
+        return;                                    /* no torn/partial measurements */
+    ed_b(SMK_NPAD);
+    ed_b(smk_pad_grid | (uint32_t)smk_pad_piano << 1);
+    ed_b(SMK_PAD_ON);
+    ed_b(SMK_PAD_OFF);
+    ed_b(SMK_PAD_PEAKN);
+    smk_inlog_w(now, 5u);
+    smk_inlog_w(frames, 5u);
+    smk_inlog_w(ok, 5u);
+    smk_inlog_w(miss, 5u);
+    smk_inlog_w(notes, 5u);
+    for (i = 0; i < 8u; i++)
+        smk_inlog_w(s[160u + 2u * i] | (uint32_t)s[161u + 2u * i] << 8, 3u);
+    for (i = 0; i < SMK_NPAD; i++) {
+        const uint8_t *p = s + i * 10u;
+        for (j = 0; j < 3u; j++)                   /* raw, base, peak */
+            smk_inlog_w(p[2u * j] | (uint32_t)p[2u * j + 1u] << 8, 3u);
+        smk_inlog_w(p[6], 2u);                     /* state */
+        ed_b(p[7]);                               /* last velocity */
+        ed_b(p[8]);                               /* pressure */
+        ed_b(p[9]);                               /* mapped note + 1, or 0 */
+        for (j = 0; j < 5u; j++)
+            smk_inlog_w(smk_trim_pad[i][j], 3u);    /* active curves, not a flash read */
+    }
+}
 /* The reply of editor command 38 INLOG (editor.c, web/EDITOR_PROTOCOL.md). Arg 1: the pad LED output
  * (lcd.c): the colour to send and the last frame sent. Args 2-5: the pad calibration export (CLP-79).
- * Else: the entries and the stored clip cells. */
+ * Arg 6: the read-only pad input snapshot. Else: the entries and the stored clip cells. */
 static void smk_inlog_reply(uint32_t arg)
 {
     uint32_t i;
+    if (arg == 6u) {
+        smk_pad_inputs_reply();
+        return;
+    }
 #if X0X_DEV_PADCAL
     if (arg - 2u < 128u / SMK_PADCAL_CHUNK) {     /* args 2-5: the pad calibration, 32 entries each (CLP-79) */
         const uint8_t *c = padcal.rgb[(arg - 2u) * SMK_PADCAL_CHUNK];
@@ -779,30 +874,40 @@ static void smk_pads(void)
     padled_flush();
 }
 
-/* The four faders, by FADER BANK (its LED lit on bank B): A = the levels of 909, 808, 303 A, 303 B; B = the
- * BREAK level, the reverb and delay returns, the master FILTER (middle off, low-pass left, high-pass right).
+/* The four faders follow PART_ORDER (FADER BANK LED lit on bank B): A = the first four
+ * displayed parts; B = the fifth part, reverb/delay returns and master FILTER (middle off).
  * They set the same values as the knobs (saved with the project; a knob move while REC runs records motion).
  * A fader takes over when it reaches the saved value (also after a bank change). */
 static void smk_faders(void)
 {
-    static const char *const NAME[2][4] = {{"909 LEVEL", "808 LEVEL", "303 A LEVEL", "303 B LEVEL"},
-                                           {"BREAK LEVEL", "REV RETURN", "DLY RETURN", "FILTER"}};
+    static const char *const NAME[3] = {"REV RETURN", "DLY RETURN", "FILTER"};
     /* Bit 7 of last[] means waiting for pickup; the low bits hold the last raw reading. */
-    static uint8_t last[4] = {0x80, 0x80, 0x80, 0x80}, held;
+    /* held bit 1 marks an unknown first sample: startup may already exceed 200 frames. */
+    static uint8_t last[4] = {0x80, 0x80, 0x80, 0x80}, held = 2u;
+    uint32_t bank_changed = 0;
     uint32_t i, down = (fm1_in.buttons >> SMK_BTN_FADER_BANK) & 1u;
-    if (ui_project_busy()) {
+    if ((held & 2u) || ui_project_busy()) {
         for (i = 0; i < 4u; i++)
             last[i] = (uint8_t)(0x80u | fm1_in.fader[i]);
+        smk_mute_known = smk_mute_active = smk_mute_edit = 0;
         held = (uint8_t)down;
         return;
     }
     if (down && !held) {                                /* FADER BANK: match the new targets before taking over */
+        bank_changed = 1;
         smk_fbank ^= 1u;
         for (i = 0; i < 4u; i++)
             last[i] = (uint8_t)(0x80u | fm1_in.fader[i]);
-        say(smk_fbank ? "FADERS: BRK REV DLY FILTER" : "FADERS: 909 808 303A 303B", 0);   /* (say: 27 chars) */
+        char names[28], *q = put_s(names, "FADERS: ");
+        if (smk_fbank) put_s(put_s(q, part_s(part_at(4))), " REV DLY FILTER");
+        else for (i = 0; i < 4u; i++) {
+            if (i) q = put_s(q, " ");
+            q = put_s(q, part_s(part_at((int)i)));
+        }
+        say(names, 0);                                  /* all short part labels fit 27 chars */
     }
     held = (uint8_t)down;
+    smk_mute_bank = smk_fbank;
     for (i = 0; i < 4u; i++) {
         uint32_t v = fm1_in.fader[i];
         pref_t r;
@@ -813,15 +918,26 @@ static void smk_faders(void)
             continue;
         }
         if (!smk_fbank)
-            r = PR(R_ENG, T_MIX, i, MX_LEVEL);
+            r = PR(R_ENG, T_MIX, part_at((int)i), MX_LEVEL);
         else if (i == 0)
-            r = PR(R_ENG, T_MIX, PART_BRK, MX_LEVEL);
+            r = PR(R_ENG, T_MIX, part_at(4), MX_LEVEL);
         else if (i == 1)
             r = PR(R_ENG, T_FX, 0, FX_RV_LEVEL);
         else if (i == 2)
             r = PR(R_ENG, T_FX, 0, FX_DL_LEVEL);
         else
             r = PR(R_ENG, T_MST, 0, MST_DJF);
+        uint8_t bit = (uint8_t)(1u << i);
+        int level = pref_get(r), silent = volume_muted(r), mute_history = smk_mute_known & bit;
+        /* Seed a new bank without inheriting the previous destination's mute
+         * gesture. An external base edit ends this epoch's exception. */
+        if (!(smk_mute_known & bit) || (!(smk_mute_active & bit) && silent)) smk_mute_edit |= bit;
+        if (bank_changed || !silent || ((smk_mute_known & bit) && smk_mute_intended[i] != level))
+            smk_mute_edit &= (uint8_t)~bit;
+        smk_mute_known |= bit;
+        if (silent) smk_mute_active |= bit;
+        else smk_mute_active &= (uint8_t)~bit;
+        smk_mute_intended[i] = (uint8_t)level;
         /* These eight fader destinations are all 0..127 pots. */
         /* A knob or loaded project can change a target while this bank stays selected. */
         if (!(last[i] & 0x80u) && pref_get(r) != (int)(last[i] & 127u))
@@ -834,7 +950,7 @@ static void smk_faders(void)
             uint32_t near = v + 2u >= target && v <= target + 2u;
             uint32_t crossed = (prev < target && v >= target) || (prev > target && v <= target);
             last[i] = (uint8_t)(0x80u | v);
-            if (!near && !crossed) {
+            if (!near && !crossed && !(mute_history && (smk_mute_edit & bit))) {
                 char hint[20], *p = put_s(hint, "PICK F");
                 p = put_i(p, (int)i + 1);
                 put_s(p, v < target ? " UP" : " DOWN");
@@ -844,10 +960,11 @@ static void smk_faders(void)
         }
         last[i] = (uint8_t)v;
         pref_set(r, (int)v);
+        smk_mute_intended[i] = (uint8_t)v;
         motion_touch(r);
         ui.act_t = plat_ms();                            /* (the autosave waits for quiet) */
         pref_value(r, num, unit);
-        q = put_s(put_s(t, NAME[smk_fbank][i]), " ");
+        q = r.a == T_MIX ? put_s(put_s(t, part_s(r.b)), " LEVEL ") : put_s(put_s(t, NAME[i - 1]), " ");
         while (n < 16u && num[n])
             n++;
         if (n < 8u)                                      /* NAME (<= 11) + " " + num (< 8) + unit (< 8): fits say() */
@@ -858,35 +975,62 @@ static void smk_faders(void)
 
 /* The wheels (mux C address 4 = pitch, 5 = mod), self-calibrating as in the reference port: the pitch wheel's
  * rest is its centre (taken at power-on, followed slowly while it rests), each wheel's range grows to what it
- * has reached. On a 303 (the part on screen) they play its sound without changing what is saved: pitch = its
- * TUNE (about +-1.5 semitones), mod = its CUTOFF opened from the saved value up to the top. Released (or
- * another part chosen), the saved values sound again. Other parts: the wheels do nothing. */
+ * has reached. On a 303 (the part on screen) they play its sound without changing what is saved.
+ * Pitch wheel = the selected engine's bend (Chicago CHI_PBEND / Miami W_PITCH_BEND).
+ * Both span ±2 semitones; release restores that engine's own saved bend, never TUNE.
+ * With REC on and playing, a pitch-wheel move records the bend motion lane.
+ * Mod wheel = Chicago cutoff on native303; Miami/WBL1 wobble depth on a live WBL1 voice.
+ * Chicago: replaces the cutoff knob (BASS303_CUTOFF before master). Down closes (0); up opens (127).
+ * Miami: writes W_WOBBLE_DEPTH the same way. High ADC is down; that sense is not inverted.
+ * It does not write MST_CUTOFF or the saved pot. A gesture keeps its original 303 until the wheel
+ * returns to rest, across screen/part changes. A stationary wheel does not send a sound parameter. */
 static void smk_wheels(void)
 {
     enum { DEAD = 12, SPAN0 = 80, MOD_LO = 485, MOD_HI = 615 };
-    static int32_t pc, plo, phi, mlo, mhi, rest;
-    static int8_t part = -1;
-    static int16_t tune_now = -1, cut_now = -1;
+    /* ADC endpoints stay in -80..1103, rest reaches at most 201. Narrow the
+     * bounded fields to pay for the ADC-publication history without more RAM. */
+    static int16_t pc, plo, phi, mlo, mhi;
+    static int16_t rest, mod_prev;
+    static uint16_t mod_seen;
+    static int8_t bend_part = -1, cut_part = -1;
+    static int16_t bend_now, mw_now;
+    uint16_t mod_seq = fm1_in.wheel_mod_seq;
     int32_t p = fm1_in.wheel[0], m = fm1_in.wheel[1], d, bend, mw, want;
     if (ui_project_busy())
         return;
     if (fm1_in.frames < 300u)                         /* (the readings settle) */
         return;
+#if X0X_BASS_PRESET_PREVIEW
+    /* A first physical wheel move must choose its engine and publish ownership
+     * as one transaction. Otherwise the audio boundary can switch banks before
+     * the command's engine-dependent parameter is selected. */
+    engine_bass_edit_hold(1);
+#endif
     if (!pc) {
         pc = p;
         plo = p - SPAN0;
         phi = p + SPAN0;
         mlo = m < MOD_LO ? m : MOD_LO;
         mhi = m > MOD_HI ? m : MOD_HI;
+        mod_prev = (int16_t)m;
+        mod_seen = mod_seq;
     }
-    if (p < plo)
-        plo = p;
-    if (p > phi)
-        phi = p;
-    if (m < mlo)
-        mlo = m;
-    if (m > mhi)
-        mhi = m;
+    /* The range grows one count a call: an ADC spike (a pad or mux edge) cannot widen it at
+     * once and move the rest point out of the dead zone. A real sweep holds and still reaches it. */
+    plo -= p < plo;
+    phi += p > phi;
+    /* Confirm a stable endpoint on two adjacent ADC publications. Foreground
+     * polls may read the same sample many times; they must not teach a range.
+     * The IIR tail after one raw spike changes on each publication until it is
+     * within three ADC counts of rest. It cannot teach that transient extreme.
+     * A conversion between the snapshot reads defers learning to the next poll. */
+    if (mod_seq != mod_seen && mod_seq == fm1_in.wheel_mod_seq) {
+        int adjacent = (uint16_t)(mod_seq - mod_seen) == 1u;
+        mlo -= adjacent && m < mlo && m == mod_prev;
+        mhi += adjacent && m > mhi && m == mod_prev;
+        mod_prev = (int16_t)m;
+        mod_seen = mod_seq;
+    }
     d = p - pc;
     if (d > -DEAD && d < DEAD) {
         bend = 0;
@@ -902,29 +1046,65 @@ static void smk_wheels(void)
     }
     mw = mhi - m <= DEAD ? 0 : (mhi - m - DEAD) * 127 / (mhi - mlo - DEAD > 1 ? mhi - mlo - DEAD : 1);
     mw = clamp(mw, 0, 127);
-    if (part != (is_303() ? bidx() : -1)) {          /* another part: the last 303 sounds as saved again */
-        if (part >= 0 && tune_now >= 0)
-            engine_set(T_303, part, BASS303_TUNE, proj.sound.v[T_303][part][BASS303_TUNE]);
-        if (part >= 0 && cut_now >= 0)
-            engine_set(T_303, part, BASS303_CUTOFF, proj.sound.v[T_303][part][BASS303_CUTOFF]);
-        part = (int8_t)(is_303() ? bidx() : -1);
-        tune_now = cut_now = -1;
+    /* Hysteresis: a one-step change is ADC jitter, not a move (rest and the ends always pass).
+     * Without it a resting wheel wrote cutoff / wobble depth and REC lanes by itself. */
+    if (mw && mw != 127 && mw - mw_now < 2 && mw_now - mw < 2)
+        mw = mw_now;
+    if (bend && bend != 63 && bend != -63 && bend - bend_now < 2 && bend_now - bend < 2)
+        bend = bend_now;
+    /* Only physical wheel changes own sound writes. Keep each gesture's target until
+     * release, so changing the visible part neither restores nor retargets a held wheel.
+     * In particular, a stationary wheel must not overwrite a knob or sequencer lock. */
+    if (bend != bend_now) {
+        if (bend_part < 0 && bend && is_303())
+            bend_part = (int8_t)bidx();
+        if (bend_part < 0 && bend && ui.part == PART_BRK && !smk_clip_mode_on())
+            bend_part = 2;
+        if (bend_part == 2) {
+            engine_brk_bend(bend < 0 ? bend * 8192 / 63 : bend * 8191 / 63);
+            if (!bend) bend_part = -1;
+        } else if (bend_part >= 0) {
+            int param = engine_bass_is_wobble(bend_part) ?
+                ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND;
+            PARAM_TRACE(PARAM_WHEEL_PITCH, T_303, bend_part, param,
+                        bend ? ((bend + 63) * 127 + 63) / 126 : 64);
+            if (bend)
+                engine_set(T_303, bend_part, param, ((bend + 63) * 127 + 63) / 126);
+            else
+                engine_set_base(T_303, bend_part, param); /* exact factory value, including 0.5 */
+            motion_touch(PR(R_ENG, T_303, bend_part, param)); /* REC on: the wheel records its lane */
+            if (!bend)
+                bend_part = -1;
+        }
+        bend_now = (int16_t)bend;
     }
-    if (part < 0)
-        return;
-    want = bend ? clamp(proj.sound.v[T_303][part][BASS303_TUNE] + bend, 0, 127) : -1;
-    if (want != tune_now) {
-        engine_set(T_303, part, BASS303_TUNE, want >= 0 ? want : proj.sound.v[T_303][part][BASS303_TUNE]);
-        tune_now = (int16_t)want;
+    if (mw != mw_now) {
+        if (cut_part < 0 && mw && is_303())
+            cut_part = (int8_t)bidx();
+        if (cut_part >= 0) {
+            /* mw 0 is down (closed / min depth). mw 127 is up (open / max depth). */
+            want = mw;
+            PARAM_TRACE(PARAM_WHEEL_MOD, T_303, cut_part,
+                        engine_bass_mod_param(cut_part), (int)want);
+            engine_bass_mod(cut_part, (int)want);
+            motion_touch(PR(R_ENG, T_303, cut_part, engine_bass_mod_param(cut_part)));
+            if (!mw)
+                cut_part = -1;
+        }
+        mw_now = (int16_t)mw;
     }
-    {
-        int32_t base = proj.sound.v[T_303][part][BASS303_CUTOFF];
-        want = mw ? base + (127 - base) * mw / 127 : -1;
+    /* External MIDI bend / CC1 on a part's channel record like the wheels. */
+    for (int v = 0; v < NBASS; ++v) {
+        int t = engine_bass_ext_touch(v);
+        if (t & 1) motion_touch(PR(R_ENG, T_303, v, engine_bass_is_wobble(v) ?
+                                   ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND));
+        if (t & 2) motion_touch(PR(R_ENG, T_303, v, engine_bass_mod_param(v)));
     }
-    if (want != cut_now) {
-        engine_set(T_303, part, BASS303_CUTOFF, want >= 0 ? want : proj.sound.v[T_303][part][BASS303_CUTOFF]);
-        cut_now = (int16_t)want;
-    }
+#if X0X_BASS_PRESET_PREVIEW
+    engine_bass_wheel_owners((uint8_t)((bend_part >= 0 && bend_part < NBASS ? 1u << bend_part : 0u) |
+                                      (cut_part >= 0 ? 1u << cut_part : 0u)));
+    engine_bass_edit_hold(0);
+#endif
 }
 
 /* < and >: the route and the hold repeat are in smk_arrows.h. Not if HARDWARE CALIBRATION gave them an FM-1 label.
@@ -939,6 +1119,7 @@ static void smk_wheels(void)
 static void smk_arrows(void)
 {
     static arw_t arw;
+    static uint32_t menu_id;
     uint32_t now = fm1_in.buttons >> SMK_BTN_LEFT & 3u, i, route;
     int32_t d;
     if (ui_project_busy()) {
@@ -949,11 +1130,16 @@ static void smk_arrows(void)
         if (panel.btn[i] == SMK_BTN_LEFT || panel.btn[i] == SMK_BTN_RIGHT)
             now &= ~(1u << (panel.btn[i] - SMK_BTN_LEFT));
     route = arw_route((uint32_t)ui_menu_open(), clip_grid_mode, (plat_buttons() >> B_HOME) & 1u);
+    i = arw_menu_id(ui.view, (uint32_t)cur_page());
+    if (clip_grid_mode && route == ARW_MENU && i != menu_id)
+        arw_rearm(&arw, now);                     /* CLP-82: a held arrow does not edit the new list */
+    menu_id = i;
     d = arw_frame(&arw, now, route, fm1_ms);
     if (!d)
         return;
     if (route == ARW_MENU) {
-        ui_menu_arrow(d);
+        if (ui_menu_arrow(d))
+            arw_rearm(&arw, now);                 /* a held > or < that changed the GLOBAL section does not edit it */
     } else {
         uint32_t l = fm1__lock();
         fm1_in.enc_steps[panel.enc[EN_SELECT]] += (int16_t)(d * panel.dir[EN_SELECT]);
@@ -994,6 +1180,8 @@ enum { CK_F_LATCH = 1u, CK_F_NRUSED = 2u, CK_F_BLE = 4u, CK_F_ACTIVE = 8u };
 #define CK_QN 24u
 static uint16_t ck_qe[CK_QN];
 static uint8_t ck_qt[CK_QN], ck_qn;
+static uint32_t ck_strum_keep[4];
+static uint32_t ck_clip_live[4];
 static void ck_q_run(uint32_t only);
 __attribute__((minsize)) static void ck_send(uint32_t st, uint32_t d1, uint32_t d2)
 {
@@ -1023,6 +1211,10 @@ CK_FN static uint32_t ck_key_notes(uint32_t k, uint8_t *out)
     CK_BASE;
     CK_SET;
     uint32_t c = cp->on & CK_M_CHORD;
+    if (!(cp->on & (CK_M_SCALE | CK_M_CHORD))) {
+        out[0] = (uint8_t)(CK_BASE_NOTE + k);
+        return 1u;
+    }
     return ck_notes(CK_BASE_NOTE + k, ck_mask(sp->ck_scale, sp->ck_root), cp->on & CK_M_SCALE ? sp->ck_snap + 1u : 0u,
                     c ? (int32_t)sp->ck_chord : -1, c ? sp->ck_inv : 0u, out);
 }
@@ -1047,6 +1239,23 @@ CK_FN static void ck_on(uint32_t note)
     ck_qe[ck_qn] = (uint16_t)(note | v << 7);
     ck_qt[ck_qn++] = (uint8_t)(fm1_ms + late);
 }
+/* Non-ARP CLIP KEYS owns only pitches actually triggered or queued.
+ * Queued HUMAN notes are flushed by ck_send before their matching NoteOff. */
+CK_FN static void ck_clip_on(uint32_t note)
+{
+    if (CK_BIT(ck_clip_live, note))
+        return;
+    ck_clip_live[note >> 5] |= 1u << (note & 31u);
+    ck_on(note);
+}
+CK_FN static void ck_clip_off(uint32_t note)
+{
+    CK_BASE;
+    if (!CK_BIT(ck_clip_live, note))
+        return;
+    ck_clip_live[note >> 5] &= ~(1u << (note & 31u));
+    ck_send(0x80u | cp->ch, note, 0u);
+}
 /* key k: note on (st 0x90), note off (0x80), or note off that keeps the notes of the other sounding keys
  * (0x81: a key release) */
 CK_FN static void ck_key_send(uint32_t k, uint32_t st)
@@ -1054,17 +1263,19 @@ CK_FN static void ck_key_send(uint32_t k, uint32_t st)
     CK_BASE;
     uint8_t out[CK_MAXN];
     uint32_t keep[4] = {0, 0, 0, 0}, n, i, q;
-    if (st & 1u)
+    /* Private dispatch bits: single-key events compare all other owners;
+     * whole-voice off/on compares only earlier visited keys (one MIDI event per pitch). */
+    if (st & 3u)
         for (q = 0; q < CK_NKEY; q++)
-            if (q != k && CK_BIT(cp->snd, q))
+            if (q != k && CK_BIT(cp->snd, q) && (!(st & 2u) || q < k))
                 for (i = 0, n = ck_key_notes(q, out); i < n; i++)
                     keep[out[i] >> 5] |= 1u << (out[i] & 31u);
     for (i = 0, n = ck_key_notes(k, out); i < n; i++)
         if (!CK_BIT(keep, out[i])) {
             if (st & 0x10u)
-                ck_on(out[i]);
+                ck_clip_on(out[i]);
             else
-                ck_send(0x80u | cp->ch, out[i], 0u);
+                ck_clip_off(out[i]);
         }
 }
 /* all keys that sound: note off (0x80) or on again (0x90), round a setting change */
@@ -1072,9 +1283,12 @@ CK_FN static void ck_voice(uint32_t st)
 {
     CK_BASE;
     uint32_t k;
+    /* Full revoice/panic supersedes any unfinished non-ARP strum. */
+    if (!(cp->on & CK_M_ARP))
+        cp->nk = 0;
     for (k = 0; k < CK_NKEY; k++)
         if (CK_BIT(cp->snd, k))
-            ck_key_send(k, st);
+            ck_key_send(k, st | 3u);
 }
 /* All notes off: the keys, the arp note, the arp list */
 CK_FN static void ck_all_off(void)
@@ -1085,6 +1299,7 @@ CK_FN static void ck_all_off(void)
     cp->snd[0] = cp->snd[1] = 0;
     ck_arp_stop_note();
     cp->nk = 0;
+    memset(ck_clip_live, 0, sizeof ck_clip_live);
 }
 
 /* Project replacement ends notes using the old scale/chord and channel. Calibration,
@@ -1092,7 +1307,15 @@ CK_FN static void ck_all_off(void)
 CK_FN void smk_project_reset(void)
 {
     uint32_t i;
-    ck_qn = 0;                                       /* delayed note-ons never belong to the new project */
+    /* Project reset discards HUMAN notes that never reached MIDI. Releasing
+     * those queued pitches would cut unrelated Loopy voices sharing a note. */
+    for (i = 0; i < ck_qn; i++) {
+        uint32_t note = ck_qe[i] & 127u;
+        ck_clip_live[note >> 5] &= ~(1u << (note & 31u));
+        if (ck.arp_note == note + 1u)
+            ck.arp_note = 0;
+    }
+    ck_qn = 0;
     ck_all_off();
     memset(&ck, 0, sizeof ck);
     ck.keys[0] = ((const volatile uint32_t *)&fm1_in.keys)[0];
@@ -1109,6 +1332,21 @@ CK_FN void smk_project_reset(void)
     clip_pad_active = clip_grid_mode;
     knob_bank_prev = (uint8_t)((fm1_in.buttons >> SMK_BTN_KNOB_BANK) & 1u);
     was_on = 0u;                                    /* redraw clip-key settings after the swap */
+}
+/* Finish the previous strum before snapshotting the tones owned by held keys.
+ * Keep the snapshot through this strum: a previously held key might be released
+ * before a shared delayed note, but its sounding pitch is now owned by this key. */
+CK_FN static void ck_strum_snapshot(uint32_t key)
+{
+    CK_BASE;
+    uint8_t out[CK_MAXN];
+    uint32_t q, i, n;
+    for (q = 0; q < 4u; q++)
+        ck_strum_keep[q] = 0;
+    for (q = 0; q < CK_NKEY; q++)
+        if (q != key && CK_BIT(cp->snd, q))
+            for (i = 0, n = ck_key_notes(q, out); i < n; i++)
+                ck_strum_keep[out[i] >> 5] |= 1u << (out[i] & 31u);
 }
 /* STRUM (ARP off): the notes of the strum key, low to high, one each STRUM x 10 ms after the press.
  * dt: the ms since the last call (a big dt sends all the notes that wait). */
@@ -1127,7 +1365,8 @@ CK_FN static void ck_strum(uint32_t dt)
         }
     cp->acc += dt;
     for (; cp->nk <= n && (cp->nk - 1u) * gap <= cp->acc; cp->nk++)
-        ck_on(out[cp->nk - 1u]);
+        if (!CK_BIT(ck_strum_keep, out[cp->nk - 1u]))
+            ck_clip_on(out[cp->nk - 1u]);
     if (cp->nk > n)
         cp->nk = 0;
 }
@@ -1137,16 +1376,18 @@ CK_FN static void ck_press(uint32_t k, uint32_t vel)
     CK_BASE;
     cp->vel = (uint8_t)(vel ? vel : 1u);
     if (!(cp->on & CK_M_ARP)) {
-        cp->snd[k >> 5] |= 1u << (k & 31u);
         if ((sp->ck_x2 >> 4) && (cp->on & CK_M_CHORD)) {     /* STRUM: the last strum ends at once */
             ck_strum(1u << 20);
+            ck_strum_snapshot(k);                       /* before the new physical owner is added */
+            cp->snd[k >> 5] |= 1u << (k & 31u);
             cp->korder[0] = (uint8_t)k;
             cp->nk = 1;
             cp->acc = 0;
             ck_strum(0);
             return;
         }
-        ck_key_send(k, 0x90u);
+        cp->snd[k >> 5] |= 1u << (k & 31u);
+        ck_key_send(k, 0x91u);  /* bit 0 checks existing owners; ck_on emits real NoteOn */
         return;
     }
     cp->keys[k >> 5] ^= 1u << (k & 31u);                     /* (for a moment: the other keys only) */
@@ -1193,7 +1434,7 @@ CK_FN static void ck_arp_step(uint32_t rate, uint32_t pos)
     uint8_t list[CK_ARPN], out[CK_MAXN];
     uint32_t n = 0, i, j, c;
     int note;
-    for (i = 0; i < cp->nk; i++)
+    for (i = 0; i < cp->nk && n < CK_ARPN; i++)
         for (j = 0, c = ck_key_notes(cp->korder[i], out); j < c && n < CK_ARPN; j++) {
             uint32_t x = out[j], p = n++;
             if (sp->ck_ord != CK_ORD_PLAYED)
@@ -1353,8 +1594,8 @@ int smk_ck_smc_turn(int n, int delta)
         ck_set(f, (uint32_t)v);
         mark_dirty();
     }
-    put_s(put_s(name, ck_nm(CK_FLD_N, f)), " ");
-    ui_say(name, ck_val_txt(f, ck_get(f), value));
+    put_s(name, ck_nm(CK_FLD_N, f));
+    smc_ui_clip_show(n, name, ck_val_txt(f, ck_get(f), value));
     return 1;
 }
 /* SMC arrows select stages and edit the highlighted field; bank/channel buttons
@@ -1366,6 +1607,7 @@ int smk_ck_smc_nav(uint8_t note)
     if (!clip_grid_mode || !((note >= 0x60 && note <= 0x63) ||
         note == 0x2E || note == 0x2F || note == 0x30 || note == 0x31 || note == 6))
         return 0;
+    smc_ui_cancel();
     if (note == 6)
         ck.pg = 0;
     else if (note == 0x60 || note == 0x61)
@@ -1398,6 +1640,7 @@ CK_FN static void ck_controls(void)
     cur |= (raw >> SMK_BTN_LEFT & 3u) << 5;                  /* < and > */
     press = cur & ~(uint32_t)cp->btn_prev;
     rel = (uint32_t)cp->btn_prev & ~cur;
+    if (press || rel) smc_ui_cancel();
     cp->btn_prev = (uint8_t)cur;
     if (!own)
         press &= ~0x60u;                                    /* a menu: < and > belong to smk_arrows */
@@ -1429,6 +1672,7 @@ CK_FN static void ck_controls(void)
             char n[12], t[12];
             if (!d)
                 continue;
+            smc_ui_cancel();
             ui.act_t = fm1_ms;                               /* CC turns also keep flash writes away from playing */
             if (v > 2u) {                                   /* no stage: CC 48-54 for MIDI-learn */
                 ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);   /* (relative) */
@@ -1875,8 +2119,14 @@ static void smk_clip_mode_poll(void)
 
 CK_FN static void smk_frame(void)
 {
-    while (smk_extkey_take() >= 0)
-        ;
+    extern void ui_brk_page_keys(unsigned keys, int allowed);
+    unsigned outer = (unsigned)((fm1_in.keys >> 1) & 1u) | (unsigned)((fm1_in.keys >> 2) & 2u) |
+        (unsigned)((fm1_in.keys << 2) & 4u) | (unsigned)((fm1_in.keys << 1) & 8u);
+    int allow_pages = !clip_grid_mode;
+#if X0X_DEV_PADCAL
+    allow_pages = allow_pages && !padcal.on;
+#endif
+    ui_brk_page_keys(outer, allow_pages);
     if (ui_project_busy()) {
         smk_arrows();
         smk_faders();
@@ -1976,7 +2226,7 @@ static void fm1_fault(const fm1_crash_t *c)
     uint32_t t0;
     fm1_audio_stop();
     lcd_fill(0, 0, 240, 240, RGB(160, 0, 0));
-    draw_text_box(0, 8, 240, &FONT_S, "X0X CRASH", C_WHITE, 1);
+    draw_text_box(0, 8, 240, &FONT_S, "DnBOX CRASH", C_WHITE, 1);
     hexs(b, c->vec);
     draw_text_box(10, 40, 220, &FONT_S, b, C_WHITE, 0);
     hexs(b, c->pc);
@@ -2005,6 +2255,24 @@ static void enter_uboot(const char *why)
     fm1_enter_uboot();
 }
 
+/* Main-loop pre-admission only, not a supported capture dispatcher. Watchdog
+ * and USB retry keep running, but no normal UI/storage/editor work is admitted.
+ * An eventual capture reader must be serviced through a separately qualified
+ * path; adding a wire command must not silently bypass this barrier. */
+static int capture_maintenance_poll(void)
+{
+    if (!fm1_capture_maintenance_held())
+        return 0;
+    (void)ed_service(); /* held branch only: drop old-protocol frames, no housekeeping */
+    if (usb.ota_req || usb.uboot_req || ed_reboot_at) {
+        (void)fm1_capture_pre_admit();
+        usb.ota_req = 0;
+        usb.uboot_req = 0;
+        ed_reboot_at = 0;
+    }
+    return 1;
+}
+
 /* SAFE MODE: X0X crashed (or hung) twice while starting. Nothing that makes sound runs: no audio,
  * no engine, no UI; USB is on, so the web installer (X0X, or the stock firmware) and M-UPGRADE can
  * reach it. PLAY tries X0X again. The chip's own update mode stays the last resort (fm1_cstart). */
@@ -2013,7 +2281,7 @@ static void safe_main(void)
     char b[24];
     uint32_t t0, play;
     lcd_fill(0, 0, 240, 240, C_BLACK);
-    draw_text_box(0, 18, 240, &FONT_B, "X0X SAFE MODE", C_HI, 1);
+    draw_text_box(0, 18, 240, &FONT_B, "DnBOX SAFE MODE", C_HI, 1);
     draw_text_box(0, 52, 240, &FONT_S, "IT CRASHED TWICE", C_WHITE, 1);
     draw_text_box(0, 72, 240, &FONT_S, "WHILE STARTING.", C_WHITE, 1);
     draw_text_box(0, 102, 240, &FONT_S, "NO SOUND. USB IS ON:", C_WHITE, 1);
@@ -2048,12 +2316,14 @@ static void safe_main(void)
     for (;;) {
         fm1_wdt_feed();
         usb_retry(fm1_ms);
+        if (capture_maintenance_poll())
+            continue;
         if (bootguard.pending && fm1_ms - t0 > 10000u)
             bootguard.pending = 0;                  /* safe mode itself is up: not another failed boot */
         if ((fm1_in.buttons & play) && fm1_ms - t0 > 500u) {
             bootguard.failed = 0;                   /* try X0X again, from scratch */
             bootguard.pending = 0;
-            draw_text_box(0, 172, 240, &FONT_S, "STARTING X0X...", C_HI, 1);
+            draw_text_box(0, 172, 240, &FONT_S, "STARTING DnBOX...", C_HI, 1);
             usb_detach();
             fm1_delay_ms(30);
             fm1_reboot();
@@ -2061,17 +2331,21 @@ static void safe_main(void)
         ota_service();
         if (usb.ota_req) {
             usb.ota_req = 0;
+            ed_install_forget();
             if (flash_ok)
                 ota_session();                      /* an install commits and resets; else back here */
         }
-        if (usb.uboot_req)
+        if (usb.uboot_req) {
+            ed_install_forget();
             enter_uboot("UBOOT (USB)");
+        }
     }
 }
 
 static void fm1_main(void)
 {
     int32_t knob = 512 * 16;
+    int ota_pending;
     uint32_t last_frame = 0, k;
     uint8_t last_pat = 0xFF;
     {
@@ -2085,13 +2359,16 @@ static void fm1_main(void)
 #endif
             for (k = 0; k < SMP_USER_SLOTS; k++)
                 smp_user_scan(k);
+            ed_smp_recover();                       /* mid-WRITE power loss: put sector 0 back from FL_SMPV */
             ota_boot_cleanup();
         }
     }
     lcd_init();
     palette_set(1);
-    draw_text_box(0, 96, 240, &FONT_M, "X0X", C_HI, 1);
-    draw_text_box(0, 134, 240, &FONT_S, "909 808 303 303 BREAK", C_GRAY, 1);
+    {
+        const uint8_t *record = boot_shown();
+        draw_boot_screen(record ? record + BOOT_PAY_OFF : 0);
+    }
     if (x0x_dbg.magic != DBG_MAGIC) {
         memset(&x0x_dbg, 0, sizeof x0x_dbg);
         x0x_dbg.magic = DBG_MAGIC;
@@ -2132,8 +2409,11 @@ static void fm1_main(void)
     project_apply_io();                             /* clock and notes out, the MIDI channels, the output */
     engine_brk_loops();
 #if X0X_BLE
-    ble_prepare(proj.set.bt & 1u);                  /* a controller image, BLUETOOTH ON: core 1 starts ready for it */
-    ble_start();                                    /* its init on core 0, before core 1 starts (about 0.6 s) */
+    /* Initialize the checked controller at boot even if the saved radio setting is OFF.
+     * Keep the image/boot-loop guards: an OFF-to-ON toggle later needs no restart. */
+    ble_prepare(1);
+    ble_start();
+    plat_ble_set(proj.set.bt & 1u);                 /* OFF stays idle until explicitly enabled */
 #endif
     plat_cpu2_set(1);                               /* the second core: at power-on, before the audio and the
                                                      * timers, as Melodee starts it (started later, it does not
@@ -2172,6 +2452,8 @@ static void fm1_main(void)
     for (;;) {
         fm1_wdt_feed();
         usb_retry(fm1_ms);
+        if (capture_maintenance_poll())
+            continue;
         if (fm1_ms > 30000u && bootguard.pending) {     /* a crash or hang in the first 30 s counts */
             bootguard.pending = 0;
             bootguard.failed = 0;
@@ -2214,38 +2496,58 @@ static void fm1_main(void)
                     shown = left;
                 }
             } else if (fm1_ms - t0 > 5000u) {
+                ed_install_forget();
                 enter_uboot("UBOOT");
             }
         }
         {   /* Project transfers cannot queue an update across COMMIT or ABORT. */
             int held = ui_project_busy();
-            ed_service();                           /* sample upload SysEx */
+            ota_pending = ed_service();             /* classify the shared pending frame once */
             if (held || ui_project_busy()) {
                 usb.ota_req = 0;
                 usb.uboot_req = 0;
+                if (ed_install_pending) ed_install_forget();
             }
         }
+        if (ed_install_pending) {
+            /* A validated COMMIT owns this iteration. Drop legacy IRQ requests
+             * rather than inheriting one or running a reboot before admission. */
+            usb.ota_req = usb.uboot_req = 0;
+            ed_reboot_at = 0;
+            if (ed_install_pending != 1u) ed_install_pending = 0;
+        }
         if (!ui_project_busy() && ed_reboot_at && fm1_ms - ed_reboot_at > 200u) {
+            ed_install_forget();
             bootguard.pending = 0;                  /* intentional reset: not a failed boot */
             usb_detach();                           /* ED_BT_TEST restart: the reply had 200 ms */
             fm1_delay_ms(30);
             fm1_reboot();
         }
-        if (!ui_project_busy())
+        if (ota_pending && !ui_project_busy())
             ota_service();                          /* M-UPGRADE uses the same main-loop scratch as project staging */
-        if (!ui_project_busy() && usb.ota_req) {
+        if (!ui_project_busy() && (usb.ota_req || ed_install_pending)) {
+            int guarded = ed_install_pending;
+            ed_install_forget();                     /* consume before OTA; no editor/UI call may intervene */
             usb.ota_req = 0;
             seq_stop(&seq);
             if (flash_ok)
                 ota_session();                      /* returns only if nothing was committed */
+            ed_install_forget();
+            if (guarded) {
+                usb.ota_req = usb.uboot_req = 0;       /* no request received in the session may replay */
+                ed_reboot_at = 0;
+            }
             lcd_fill(0, 0, 240, 240, C_BLACK);
             ui_init();
         }
-        if (!ui_project_busy() && usb.uboot_req)
+        if (!ui_project_busy() && usb.uboot_req) {
+            ed_install_forget();
             enter_uboot("UBOOT (USB)");
+        }
 #if X0X_CDC
         cdc_task();
 #endif
+        if (!ui_project_busy()) engine_brk_flush(); /* main-loop completion after held notes/free snapshots */
         if (!ui_project_busy() && seq.ppat[TRK_BRK] != last_pat) { /* the break's new pattern may name other loops */
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
@@ -2256,12 +2558,19 @@ static void fm1_main(void)
         if (fm1_ms - last_frame >= 16u) {           /* ~60 frames/s at most; input in between */
             last_frame = fm1_ms;
             x0x_dbg.ui_frames++;
+#if X0X_LCD_TRACE
+            lcd_trace_frame();
+            lcd_trace_dispatch();
+#endif
             ui_frame();
 #if BOARD_SMK37
             smk_frame();                            /* faders, wheels, pads */
             smk_ck_poll();                          /* clip mode keybed */
 #endif
         } else {
+#if X0X_LCD_TRACE
+            lcd_trace_dispatch();
+#endif
             ui_input_only();
 #if BOARD_SMK37
             smk_wheels();                           /* (the wheels follow the hand, not the screen) */
@@ -2302,6 +2611,8 @@ void fm1_cstart(void)
     for (d = _bss_start; d < _bss_end; d++)
         *d = 0;
     for (d = _pool_start; d < _pool_end; d++)
+        *d = 0;
+    for (d = _xpool_start; d < _xpool_end; d++)
         *d = 0;
     for (s = _data_load, d = _data_start; d < _data_end; s++, d++)
         *d = *s;

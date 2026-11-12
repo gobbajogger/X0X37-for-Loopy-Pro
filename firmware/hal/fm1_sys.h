@@ -18,6 +18,7 @@
 #pragma once
 #include <stdint.h>
 #include "fm1_cc.h"
+#include "fm1_capture_gate.h"
 
 #define FM1_P33_CON (*(volatile uint32_t *)0x13E08u)
 #define FM1_P33_DAT (*(volatile uint32_t *)0x13E0Cu)
@@ -119,6 +120,7 @@ static void fm1_reset_reason(void)
 
 static void fm1_reboot(void)
 {
+    fm1_capture_handoff();
     __asm__ volatile("cli");
     *(volatile uint32_t *)0x1EEE004u |= 0x2u;          /* the second core held (fm1_cpu1.h) */
     *(volatile uint32_t *)0x1EEE004u &= ~0x8u;
@@ -131,6 +133,7 @@ static void fm1_enter_uboot(void)
 {
     static const char k[16] = "usb_update_mode";
     uint32_t i;
+    fm1_capture_handoff();
     __asm__ volatile("cli");
     /* CPU0 write limits (fm1_guard.h) may cover the mailbox: drop them all */
     if (!(*(volatile uint32_t *)0x1EEE240u & 1u))
@@ -145,6 +148,7 @@ static void fm1_enter_uboot(void)
 
 FM1_INLINE void fm1_core_reset(void)
 {
+    fm1_capture_handoff();
     *(volatile uint32_t *)0x1EEE004u |= 0x2u;          /* the second core held first (fm1_cpu1.h): it */
     *(volatile uint32_t *)0x1EEE004u &= ~0x8u;         /* must not run old code while the loader writes */
     FM1_PWR_CON |= 0x10u;
@@ -155,6 +159,7 @@ FM1_INLINE void fm1_core_reset(void)
 FM1_INLINE void fm1_enter_update(const uint8_t *parm)
 {
     uint32_t i;
+    fm1_capture_handoff();
     __asm__ volatile("cli");
     if (!(*(volatile uint32_t *)0x1EEE240u & 1u))       /* drop CPU0 write limits, as fm1_enter_uboot */
         *(volatile uint32_t *)0x1EEE240u = 0xE7u;

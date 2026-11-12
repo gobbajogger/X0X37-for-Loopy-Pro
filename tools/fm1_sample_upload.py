@@ -15,7 +15,12 @@ name, C4 = 60, else 60); without LO-HI the zones split the keyboard between thei
 These are one-shots: the silence at both ends is cut first (sampleio.trim_silence: -60 dBFS, 1 ms
 kept before the sound, 5 ms fade at the end); --no-trim keeps it. For loops use upload_breaks.py.
 A slot holds 80 KiB (about 7 s at 22050 Hz). Protocol: web/EDITOR_PROTOCOL.md, cmds 11..15.
-Needs mido (and a backend such as python-rtmidi) for the device commands.
+Read-only native MIDI info/backup and offline slot-image building remain supported.
+Offline build never replaces existing .hdr/.bin outputs; use a private destination folder.
+Native MIDI sample writes/erase/restore are intentionally disabled: the RtMidi
+backend cannot authenticate a physical unit or guarantee atomic output delivery.
+Matching MIDI names and successful read-only probes are not sufficient.
+Needs mido (and a backend such as python-rtmidi) for read-only device commands.
 """
 import sys
 import time
@@ -45,20 +50,56 @@ class Link:
         except ImportError:
             sys.exit("needs mido: pip install mido python-rtmidi")
         self.mido = mido
-        outs = [n for n in mido.get_output_names() if "Felucca" in n or "X0X" in n]
-        ins = [n for n in mido.get_input_names() if "Felucca" in n or "X0X" in n]
-        if not outs or not ins:
-            sys.exit("no MIDI port named Felucca: connect the FM-1 (running Felucca) by USB")
-        self.o = mido.open_output(outs[0])
-        self.i = mido.open_input(ins[0])
-        for _ in range(3):                          # the first frame after opening the port can be lost
+        # Port names never gate discovery (USB names change, e.g. "DnBOX <ver> 37PRO"). Every in/out pair with
+        # one shared name is probed; only a unit that answers the slot query counts, and exactly one must answer.
+        # A shared display name is NOT a hardware-unique identity; it only pairs the input with its output.
+        ins_all, outs_all = mido.get_input_names(), mido.get_output_names()
+        pairs = [n for n in dict.fromkeys(ins_all) if ins_all.count(n) == 1 and outs_all.count(n) == 1]
+        found = []
+        for name in pairs:
             try:
-                self.req(1, [], 1.0)
-                break
-            except TimeoutError:
-                pass
+                o = mido.open_output(name)
+            except BaseException:
+                continue
+            try:
+                i = mido.open_input(name)
+            except BaseException:
+                o.close()
+                continue
+            self.o, self.i = o, i
+            answered = False
+            for _ in range(3):  # the first frame after opening may be lost
+                try:
+                    self.req(1, [], 1.0)
+                    answered = True
+                    break
+                except (TimeoutError, OSError, ValueError):
+                    continue
+            if answered:
+                found.append((o, i))
+            else:
+                i.close()
+                o.close()
+        if len(found) != 1:
+            for o, i in found:
+                i.close()
+                o.close()
+            sys.exit("no MIDI device answered the sample query: connect the keyboard by USB" if not found else
+                     "more than one MIDI device answered the sample query: disconnect other keyboards; "
+                     "no sample write was started")
+        self.o, self.i = found[0]
 
     def req(self, cmd, args, timeout=3.0):
+        # RtMidi endpoint names and an SMP_INFO response cannot authenticate a
+        # physical unit, nor make the outgoing send atomic against a USB swap.
+        # Until the production backend provides an authenticated per-unit
+        # transaction, this native link is READ ONLY. This protects the sample
+        # upload, break upload and x0x_slots restore consumers of this Link.
+        if type(cmd) is not int or cmd not in (1, 15, 16):
+            sys.exit("native USB-MIDI sample writes are unsupported: no authenticated "
+                     "physical-device binding or atomic output delivery; no erase/write "
+                     "packet sent. Use offline build/show/extract, or await a separately "
+                     "qualified hardware-bound installer")
         for _ in self.i.iter_pending():
             pass
         self.o.send(self.mido.Message("sysex", data=HDR + [cmd] + list(args)))
@@ -69,6 +110,87 @@ class Link:
                     return list(m.data[4:])
             time.sleep(0.002)
         raise TimeoutError(f"no reply to cmd {cmd}")
+
+
+def write_slot_pair(prefix, hdr, data):
+    """Create both offline slot outputs without overwriting another recording.
+
+    Bind all operations to one no-follow destination directory. Any partial
+    pair is removed only while its exact newly-created inode remains at the
+    original name. If both descriptor identity queries fail after creation,
+    the unidentified output is left for owner inspection rather than blindly
+    deleted. Like extraction, use a private destination directory when
+    another local process might change its contents concurrently.
+    """
+    import os
+    from pathlib import Path
+
+    dest = Path(prefix)
+    if not dest.name or not hasattr(os, "O_NOFOLLOW") or not hasattr(os, "O_DIRECTORY"):
+        raise OSError("safe slot build requires POSIX no-follow directory handles")
+    directory = os.open(dest.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    names = ((dest.name + ".hdr", hdr), (dest.name + ".bin", data))
+    created = []
+    try:
+        for name, _ in names:
+            try:
+                os.stat(name, dir_fd=directory, follow_symlinks=False)
+            except FileNotFoundError:
+                pass
+            else:
+                raise FileExistsError(f"slot build refuses existing output: {dest.parent / name}")
+        try:
+            for name, payload in names:
+                fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                             0o600, dir_fd=directory)
+                try:
+                    try:
+                        identity = os.fstat(fd)
+                    except BaseException:
+                        # Creation succeeded. Query the original open descriptor,
+                        # never a name another process could already have swapped.
+                        try:
+                            identity = os.stat(fd)
+                        except BaseException:
+                            raise OSError(
+                                f"slot output identity unavailable after creating "
+                                f"{dest.parent / name}. Manual recovery required: "
+                                "automatic deletion is unsafe without inode proof. "
+                                "Inspect this file in the private output directory, "
+                                "remove it only if verified as this attempt's partial "
+                                "output, and retry. Existing files were not overwritten."
+                            )
+                    created.append((name, identity.st_dev, identity.st_ino))
+                    file = os.fdopen(fd, "wb")
+                    fd = None  # fdopen owns it from here
+                    with file:
+                        if file.write(payload) != len(payload):
+                            raise OSError(f"short slot build write: {name}")
+                        file.flush()
+                        os.fsync(file.fileno())
+                finally:
+                    if fd is not None:
+                        os.close(fd)
+            for name, dev, ino in created:
+                actual = os.stat(name, dir_fd=directory, follow_symlinks=False)
+                if (actual.st_dev, actual.st_ino) != (dev, ino):
+                    raise OSError(f"slot build output replaced during writing: {name}")
+            bound = os.fstat(directory)
+            current = os.stat(dest.parent, follow_symlinks=False)
+            if (bound.st_dev, bound.st_ino) != (current.st_dev, current.st_ino):
+                raise OSError("slot build output directory changed while writing")
+            os.fsync(directory)
+        except BaseException:
+            for name, dev, ino in created:
+                try:
+                    actual = os.stat(name, dir_fd=directory, follow_symlinks=False)
+                    if (actual.st_dev, actual.st_ino) == (dev, ino):
+                        os.unlink(name, dir_fd=directory)
+                except OSError:
+                    pass  # do not guess whether another owner's file replaced it
+            raise
+    finally:
+        os.close(directory)
 
 
 def build(name, specs, trim=True):
@@ -97,6 +219,10 @@ def main():
     if len(sys.argv) < 2 or sys.argv[1] not in ("info", "load", "erase", "build"):
         sys.exit(__doc__)
     cmd = sys.argv[1]
+    if cmd in ("load", "erase"):
+        sys.exit("native MIDI sample load/erase disabled: no authenticated physical-device "
+                 "identity or atomic output delivery. No MIDI port was opened or write sent. "
+                 "Use build offline or info read-only.")
     if cmd in ("load", "build"):
         if len(sys.argv) < 5:
             sys.exit(__doc__)
@@ -105,8 +231,10 @@ def main():
         except (OSError, ValueError) as e:
             sys.exit(f"cannot build the slot: {e}")
         if cmd == "build":
-            Path(sys.argv[3] + ".hdr").write_bytes(hdr)
-            Path(sys.argv[3] + ".bin").write_bytes(data)
+            try:
+                write_slot_pair(sys.argv[3], hdr, data)
+            except OSError as e:
+                sys.exit(f"cannot safely save the slot: {e}")
             print(f"{sys.argv[2]}: {len(data)} B ADPCM, {hdr[6]} zones")
             return
     if cmd != "info":

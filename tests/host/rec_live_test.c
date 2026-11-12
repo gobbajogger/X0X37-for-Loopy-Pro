@@ -6,6 +6,9 @@
  *    step 1, not to the step of the last run (a73).
  *  - 909: a live hit records on the nearest step; just before the loop start: step 1 (a73).
  * Build: see tests/run_tests.sh (needs build/gen from host/build_host.sh). */
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE 1 /* expose host libproc instrumentation under POSIX feature selection */
+#endif
 #define main x0x_host_main
 #include "../../host/x0x_host.c"
 #undef main
@@ -35,13 +38,24 @@ void smk_apc_clock_start(void) {}
 void smk_apc_clock_position(uint32_t sixteenths) { (void)sixteenths; }
 void smk_ck_midi_stop(void) {}
 int smc_connected(void) { return 0; }
-void smc_frame(void) {}
-void smc_poll(void) {}
-int smc_midi_host(uint32_t pkt) { (void)pkt; return 0; }
+/* This fixture models disconnected SMC; project_smc_runtime_test.c covers
+ * the production SMC project-active/reset implementation. */
 /* This link does not include smc_mixer.c. ui.c still asks whether an SMC solo holds the project. */
 int smc_project_active(void) { return 0; }
 void smc_project_reset(void) {}
+void smc_frame(void) {}
+void smc_poll(void) {}
+int smc_midi_host(uint32_t pkt) { (void)pkt; return 0; }
+/* Presentation lives in smc_mixer.c; this fixture is disconnected SMC / live-rec only. */
+void smc_ui_cancel(void) {}
+int smc_ui_active(void) { return 0; }
+void smc_ui_draw(void) {}
+void smc_ui_clip_show(int n, const char *name, const char *value)
+{ (void)n; (void)name; (void)value; }
 #endif
+
+/* Chicago/Miami stay active through release tails; inspect key ownership. */
+extern int engine_bass_keys_held(void);
 
 static int fails;
 #define CHECK(c, ...) do { if (!(c)) { fails++; printf("  FAIL %s:%d: ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n"); } } while (0)
@@ -158,43 +172,45 @@ static void test_303_key_release(void)
     set_view(V_PART);
     ui.freeplay[0] = 1;
     build_pages();
+    tick(20); /* Admit the physical keybed before its first edge. */
 
     key(10, 1);
     tick(10);
-    CHECK(engine_midi_held() & 1, "303 A key sounds before octave change");
+    CHECK(engine_bass_keys_held() & 1, "303 A key sounds before octave change");
     btn(B_OCTUP, 1);
     btn(B_OCTUP, 0);
-    CHECK(engine_midi_held() & 1, "303 A key continues through octave change");
+    CHECK(engine_bass_keys_held() & 1, "303 A key continues through octave change");
     key(10, 0);
     tick(10);
-    CHECK(!(engine_midi_held() & 1), "303 A key releases after octave change");
+    CHECK(!(engine_bass_keys_held() & 1), "303 A key releases after octave change");
 
     key(10, 1);
     tick(10);
-    CHECK(engine_midi_held() & 1, "303 A key sounds before part change");
-    enc_acc[EN_ALGO] += 1;
+    CHECK(engine_bass_keys_held() & 1, "303 A key sounds before part change");
+    enc_acc[EN_ALGO] -= 1;
     tick(1);
     CHECK(ui.part == PART_303B, "ALGORITHM selects 303 B while A key is held");
     key(10, 0);
     tick(10);
-    CHECK(!(engine_midi_held() & 1), "303 A key releases while 303 B is selected");
+    CHECK(!(engine_bass_keys_held() & 1), "303 A key releases while 303 B is selected");
 
     ui.part = PART_303A;
+    tick(20); /* Reconcile the part change before a new physical press. */
     key(10, 1);
     key(12, 1);                                      /* 303 is monophonic: the later key owns the gate */
     tick(10);
     key(10, 0);
     tick(10);
-    CHECK(engine_midi_held() & 1, "release of older key leaves later note sounding");
+    CHECK(engine_bass_keys_held() & 1, "release of older key leaves later note sounding");
     key(12, 0);
     tick(10);
-    CHECK(!(engine_midi_held() & 1), "later key releases its note");
+    CHECK(!(engine_bass_keys_held() & 1), "later key releases its note");
 
     key(10, 1);
     tick(10);
     pref_set(PR(R_FREEPLAY, 0, 0, 0), 0);         /* SEQ > KEYS > FREE PLAY switched off */
     tick(10);
-    CHECK(!(engine_midi_held() & 1), "free-play exit ends held note");
+    CHECK(!(engine_bass_keys_held() & 1), "free-play exit ends held note");
     key(10, 0);
 
     btn(B_REC, 1);
@@ -207,17 +223,18 @@ static void test_303_key_release(void)
     CHECK(!ui.rec, "record turns off while key is held");
     key(10, 0);
     tick(10);
-    CHECK(!(engine_midi_held() & 1), "held 303 key releases after record exit");
+    CHECK(!(engine_bass_keys_held() & 1), "held 303 key releases after record exit");
 
 #if BOARD_SMK37
     ui.freeplay[0] = 1;
+    tick(20); /* FREE PLAY admission precedes the physical key edge. */
     key(10, 1);
     tick(10);
-    CHECK(engine_midi_held() & 1, "303 A key sounds before clip entry");
+    CHECK(engine_bass_keys_held() & 1, "303 A key sounds before clip entry");
     smk_clip_enter_cleanup();                     /* same cleanup used by the knob-bank mode switch */
     test_clip_mode = 1;
     tick(10);
-    CHECK(!(engine_midi_held() & 1), "clip entry ends held 303 note");
+    CHECK(!(engine_bass_keys_held() & 1), "clip entry ends held 303 note");
     key(10, 0);
     test_clip_mode = 0;
 #endif
@@ -232,7 +249,7 @@ static void test_303_step_preview_lifecycle(void)
     ui.part = PART_303A;
     ui.rec = 0;
     ui.freeplay[0] = ui.freeplay[1] = 0;
-    set_view(V_PART);
+    set_view(V_SEQ);
     a = &proj.pat[seq.ppat[PART_303A]].bass[0].step[0];
     b = &proj.pat[seq.ppat[PART_303B]].bass[1].step[0];
     a->note = 48;
@@ -242,32 +259,37 @@ static void test_303_step_preview_lifecycle(void)
 
     key(white, 1);
     tick(10);
-    CHECK(engine_midi_held() & 1, "303 A step preview starts while its key is held");
-    enc_acc[EN_ALGO] = 1;                              /* change A to B with the key still down */
+    CHECK(engine_bass_keys_held() & 1, "303 A step preview starts while its key is held");
+    /* SEQ + held step assigns ALGORITHM to velocity. EDIT preserves the
+     * held preview and restores part navigation to ALGORITHM. */
+    btn(B_EDIT, 1); btn(B_EDIT, 0);
+    CHECK(ui.view == V_PART && (engine_bass_keys_held() & 1),
+          "EDIT preserves the held preview until part navigation");
+    enc_acc[EN_ALGO] = -1;                             /* change A to B with the key still down */
     tick(20);
     CHECK(ui.part == PART_303B, "ALGORITHM selected 303 B");
-    CHECK(!(engine_midi_held() & 1), "303 A preview ended on part change");
+    CHECK(!(engine_bass_keys_held() & 1), "303 A preview ended on part change");
     key(white, 0);
     CHECK(b->flags == G_NOTE && b->note == 55, "303 B step survives the old key-up");
     CHECK(a->flags == G_NOTE, "303 A step survives navigation without a tap");
 
     ui.part = PART_303A;
-    set_view(V_PART);
+    set_view(V_SEQ);
     key(white, 1);
     tick(2);
     btn(B_FX, 1);
     btn(B_FX, 0);
     tick(20);
-    CHECK(ui.view == V_FX && !(engine_midi_held() & 1), "FX closes the held step preview");
+    CHECK(ui.view == V_FX && !(engine_bass_keys_held() & 1), "FX closes the held step preview");
     key(white, 0);
     CHECK(a->flags == G_NOTE, "view change does not turn the old step off");
 
-    set_view(V_PART);
+    set_view(V_SEQ);
     key(white, 1);
     tick(2);
     smk_clip_enter_cleanup();                         /* the hardware clip-entry hook */
     tick(20);
-    CHECK(!(engine_midi_held() & 1), "clip entry closes the held step preview");
+    CHECK(!(engine_bass_keys_held() & 1), "clip entry closes the held step preview");
     key(white, 0);
     CHECK(a->flags == G_NOTE, "clip entry does not turn the old step off");
 
@@ -276,7 +298,7 @@ static void test_303_step_preview_lifecycle(void)
     btn(B_REC, 1);                                  /* REC changes the same keybed to keyboard notes */
     btn(B_REC, 0);
     tick(20);
-    CHECK(ui.rec && !(engine_midi_held() & 1), "REC closes the old step preview");
+    CHECK(ui.rec && !(engine_bass_keys_held() & 1), "REC closes the old step preview");
     key(white, 0);
     CHECK(a->flags == G_NOTE, "REC transition does not toggle the old step");
     btn(B_REC, 1);
@@ -286,7 +308,7 @@ static void test_303_step_preview_lifecycle(void)
     tick(2);
     seq.ppat[PART_303A] = 1;                        /* a queued pattern can change during a hold */
     tick(20);
-    CHECK(!(engine_midi_held() & 1), "pattern change closes the old step preview");
+    CHECK(!(engine_bass_keys_held() & 1), "pattern change closes the old step preview");
     key(white, 0);
     CHECK(a->flags == G_NOTE, "pattern change leaves the original step on");
     CHECK(bstep_gate(&proj.pat[1].bass[0].step[0]) == G_REST,
@@ -310,7 +332,7 @@ static void test_303_auto_slide(void)
     bpart_t *bp;
     seq_stop(&seq);
     ui.part = PART_303A;
-    set_view(V_PART);
+    set_view(V_SEQ);
     ui.rec = 0;
     ui.freeplay[0] = 0;
     build_pages();
@@ -374,21 +396,24 @@ static void test_303_auto_slide(void)
     btn(B_ENV, 0);
     at_step(TRK_BASS0, 5, 10);
     key(12, 1);
-    CHECK(bst(4)->flags == (G_NOTE | BS_ACCENT | BS_SLIDE), "live overlap slides source and retains accent");
-    CHECK(bst(5)->flags == G_NOTE, "live destination has no outgoing slide");
+    tick(8);
+    CHECK((bst(4)->flags & 15u) == (G_NOTE | BS_ACCENT | BS_SLIDE), "live overlap slides source and retains accent");
+    CHECK((bst(5)->flags & 15u) == G_NOTE, "live destination has no outgoing slide");
     key(10, 0); key(12, 0);
     at_step(TRK_BASS0, 6, 10);
     key(14, 1); key(14, 0);
     CHECK(!(bst(5)->flags & BS_SLIDE), "live detached notes do not slide");
     at_step(TRK_BASS0, 8, 10);
     key(10, 1); key(12, 1);
-    CHECK(bst(8)->flags == G_NOTE && bst(8)->note == kbd_note(12),
+    tick(8);
+    CHECK((bst(8)->flags & 15u) == G_NOTE && bst(8)->note == kbd_note(12),
           "two live notes on one quantized step replace pitch without a self-slide");
     key(10, 0); key(12, 0);
     at_step(TRK_BASS0, 15, 10);
     key(10, 1);
     at_step(TRK_BASS0, 0, 10);
     key(12, 1);
+    tick(8);
     CHECK(bst(15)->flags & BS_SLIDE, "live overlap slides across loop boundary");
     key(10, 0); key(12, 0);
     btn(B_REC, 1); btn(B_REC, 0);
@@ -401,7 +426,7 @@ static void test_303_live(void)
 {
     int s, n_lfo = kbd_note(15), n_env = kbd_note(14), n_plain = kbd_note(22), n_after = kbd_note(10);
     ui.part = PART_303A;
-    set_view(V_PART);
+    set_view(V_SEQ);
     build_pages();
     proj.pat[seq.ppat[PART_303A]].bass[0].len = 16;
     for (s = 0; s < 16; s++) {
@@ -426,7 +451,7 @@ static void test_303_live(void)
     CHECK(bst(10)->note == n_lfo && bstep_gate(bst(10)) == G_NOTE, "LFO + key: step 11 note %d, want %d", bst(10)->note, n_lfo);
     CHECK(bst(10)->flags & BS_SLIDE, "LFO + key: step 11 has no slide (flags 0x%02x)", bst(10)->flags);
     CHECK(!(bst(10)->flags & BS_ACCENT), "LFO + key: step 11 has an accent (flags 0x%02x)", bst(10)->flags);
-    CHECK(ui.view == V_PART, "LFO released after LFO + key: view %d, want V_PART %d (V_MIX %d)", ui.view, V_PART, V_MIX);
+    CHECK(ui.view == V_SEQ, "LFO released after LFO + key: view %d, want V_SEQ %d (V_MIX %d)", ui.view, V_SEQ, V_MIX);
     /* a plain key on step 14: it records, without a slide */
     at_step(TRK_BASS0, 13, 10);
     tap_key(22, 30);
@@ -441,7 +466,7 @@ static void test_303_live(void)
     tick(5);
     CHECK(bst(2)->note == n_env && (bst(2)->flags & BS_ACCENT) && !(bst(2)->flags & BS_SLIDE),
           "ENV + key: step 3 note %d flags 0x%02x, want note %d, accent", bst(2)->note, bst(2)->flags, n_env);
-    CHECK(ui.view == V_PART, "ENV released after ENV + key: view %d, want V_PART %d", ui.view, V_PART);
+    CHECK(ui.view == V_SEQ, "ENV released after ENV + key: view %d, want V_SEQ %d", ui.view, V_SEQ);
     at_step(TRK_BASS0, 5, 10);
     tap_key(10, 30);
     tick(5);
@@ -465,7 +490,7 @@ static void test_start_ext_running(void)
 {
     int s, n, stop_at, run_no;
     ui.part = PART_909;
-    set_view(V_PART);
+    set_view(V_SEQ);
     build_pages();
     clear_909();
     tick(1500);
@@ -523,6 +548,78 @@ static void test_start_ext_running(void)
     printf("  Start with the clock running, a hit before the first tick: step 1: checked\n");
 }
 
+/* Black-key REC stores strike velocity in a T_VEL lane (same packing as T_PROB). */
+static void test_drum_record_velocity(void)
+{
+    int s, lane, voice = 0 << 4 | 2; /* 909 tom / black key 3 */
+    ui.part = PART_909;
+    set_view(V_SEQ);
+    build_pages();
+    clear_909();
+    tick(700);
+    seq.bpm = 120.0f;
+    btn(B_REC, 1);
+    btn(B_REC, 0);
+    btn(B_PLAY, 1);
+    btn(B_PLAY, 0);
+    tick(20);
+    CHECK(ui.rec && seq.playing, "REC on and playing");
+    at_step(TRK_DRUM, 0, 20);
+    key_velocity[BLACK_K[2]] = 37;
+    tap_key(BLACK_K[2], 10);
+    key_velocity[BLACK_K[2]] = 0;
+    tick(50);
+    for (s = 0; s < 64 && !sm_get(proj.pat[seq.ppat[0]].drum[0].hit[2], s); s++)
+        ;
+    CHECK(s < 64 && sm_get(proj.pat[seq.ppat[0]].drum[0].hit[2], s), "soft hit recorded a step");
+    lane = motion_find(proj.arr.lane, seq.ppat[0], PART_909, T_VEL, voice, 0);
+    CHECK(lane >= 0, "T_VEL lane allocated for the recorded voice");
+    CHECK(lane >= 0 && proj.arr.lane[lane].val[s] == 37,
+          "recorded velocity %d, want 37", lane >= 0 ? proj.arr.lane[lane].val[s] : -1);
+    at_step(TRK_DRUM, 4, 20);
+    key_velocity[BLACK_K[2]] = 110;
+    tap_key(BLACK_K[2], 10);
+    key_velocity[BLACK_K[2]] = 0;
+    tick(50);
+    for (s = 0; s < 64; s++)
+        if (sm_get(proj.pat[seq.ppat[0]].drum[0].hit[2], s) && proj.arr.lane[lane].val[s] == 110)
+            break;
+    CHECK(s < 64, "hard hit stored velocity 110 on its step");
+    btn(B_REC, 1);
+    btn(B_REC, 0);
+    btn(B_PLAY, 1);
+    btn(B_PLAY, 0);
+    tick(300);
+    printf("  909 live record: black-key strike velocity in T_VEL lane: checked\n");
+}
+
+/* Clearing the last T_VEL lane queues the accent-law base restore for audio.
+ * drum_vel_clear_step and CLEAR PART both reach engine_motion_clear. */
+static void test_drum_vel_clear_resets_runtime(void)
+{
+    int lane, voice = PART_909 << 4 | 3;
+    ui.part = PART_909;
+    set_view(V_SEQ);
+    build_pages();
+    clear_909();
+    tick(100);
+    seq_stop(&seq);
+    ui.rec = 0;
+    tick(20);
+    lane = motion_alloc(proj.arr.lane, seq.ppat[0], PART_909, T_VEL, voice, 0);
+    CHECK(lane >= 0, "T_VEL lane allocated for clear-reset test");
+    if (lane < 0)
+        return;
+    proj.arr.lane[lane].val[0] = 55;
+    seq.drum_vel[0][3] = 55;                          /* as if motion had applied the strike */
+    engine_motion_clear(lane);
+    tick(20); /* C_BASE restoration is consumed by the audio command queue. */
+    CHECK(!proj.arr.lane[lane].used, "engine_motion_clear frees the lane");
+    CHECK(seq.drum_vel[0][3] == 0,
+          "clearing last T_VEL restores accent fallback (drum_vel=%u)", seq.drum_vel[0][3]);
+    printf("  909 T_VEL clear restores seq.drum_vel to accent fallback: checked\n");
+}
+
 /* a73 (owner OK 2026-10-16 20:11): a live drum hit records on the nearest step */
 static void test_drum_nearest(void)
 {
@@ -535,7 +632,7 @@ static void test_drum_nearest(void)
     };
     int i, s, n;
     ui.part = PART_909;
-    set_view(V_PART);
+    set_view(V_SEQ);
     build_pages();
     clear_909();
     tick(700);
@@ -602,6 +699,8 @@ int main(void)
     test_303_auto_slide();
     test_303_live();
     test_start_ext_running();
+    test_drum_record_velocity();
+    test_drum_vel_clear_resets_runtime();
     test_drum_nearest();
 #if BOARD_SMK37
     seq_stop(&seq);

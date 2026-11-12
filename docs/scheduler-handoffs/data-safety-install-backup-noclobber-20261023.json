@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T13:24:06Z",
+  "role": "Data Safety",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/data-safety-installer-backup-noclobber-20261023-1324",
+    "tested_commit": "057009814e63dbb34b8f7f3de03aa9391bd00306",
+    "tested_tree": "2eeff330c66d3e3f8da0473eef026bc0fdcfe5d3",
+    "pr": 81
+  },
+  "summary": "Prevent firmware installer SlotMove.backup from truncating preexisting user sample archives on disk-full/partial write, symlink or filename collision, by consuming PR81 staged no-clobber archive helper. Extracted source-window host checked only.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "tools/fm1_install.py",
+      "description": "Minimal installer backup publication change"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/fm1_install_slot_backup_atomic_test.py",
+      "description": "Eleven mocked MIDI/read and real filesystem host safety regressions"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/data-safety-install-backup-noclobber-20261023.md",
+      "description": "Baseline reproduction, model scope and next independent QA"
+    },
+    {
+      "kind": "regression",
+      "location": "docs/scheduler-handoffs/data-safety-install-backup-noclobber-20261023-patched.log",
+      "description": "Actual local patched test log, 11/11 passing"
+    }
+  ],
+  "checks": [
+    {
+      "name": "original installer data loss reproduction",
+      "status": "FAIL",
+      "command": "python3 /mnt/data/datasafety_run5/tests/fm1_install_slot_backup_atomic_test.py /mnt/data/datasafety_run5/fixtures/before",
+      "exit_code": 1,
+      "evidence": "Local logs/baseline.log (source-extracted original, not Git committed)",
+      "log_sha256": "63c149a9cb82798807893204544742c6fb4318f867b8e6a108267410a1206ef4",
+      "coverage": "11 attempted; 8 failure assertions as expected RED; preexisting archive overwrite, corrupt symlink target, disk-full partial destination truncation"
+    },
+    {
+      "name": "patched source-window installer backup regressions",
+      "status": "PASS",
+      "command": "python3 /mnt/data/datasafety_run5/tests/fm1_install_slot_backup_atomic_test.py /mnt/data/datasafety_run5/fixtures/after",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/data-safety-install-backup-noclobber-20261023-patched.log",
+      "log_sha256": "fa5ea0be9e846cd879683fbbc766c40ee48dd505dfbb927f317a1cd1358eaf1f",
+      "coverage": "11/11 pass: new backup, refusal of existing/repeat/raced/symlink/directory, CRC, read failure, short write, fsync and readback faults"
+    },
+    {
+      "name": "scoped Python compilation",
+      "status": "PASS",
+      "command": "python3 -m py_compile /mnt/data/datasafety_run5/fixtures/after/fm1_install.py /mnt/data/datasafety_run5/fixtures/after/x0x_slots.py /mnt/data/datasafety_run5/tests/fm1_install_slot_backup_atomic_test.py",
+      "exit_code": 0,
+      "evidence": "Local empty py_compile.log; sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "coverage": "Compiled changed affected method fixture, dependency helper fixture, full test"
+    },
+    {
+      "name": "exact entire PR tree regression",
+      "status": "NOT_RUN",
+      "command": "python3 tests/fm1_install_slot_backup_atomic_test.py",
+      "evidence": "Local GitHub shell DNS prevents cloning complete source tree; connected GitHub verified changed source and helper blobs; Independent QA required",
+      "coverage": "No full-tree smoke or port-specific filesystem verification"
+    },
+    {
+      "name": "Elite and Pro firmware and controller native builds",
+      "status": "NOT_RUN",
+      "command": "Hourly Build native pinned Elite/Pro/ctl commands (not invoked; different owner)",
+      "evidence": "Source-only Python installer safety change; model-specific controller/checksum/budgets and device tests not performed",
+      "coverage": "Elite/Pro DEVICE NOT TESTED"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Source-only targeted host check, not installable"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Source-only targeted host check, not installable"
+    }
+  ],
+  "dependencies": [
+    "Unmerged Data Safety draft PR #81 at 057009814e63dbb34b8f7f3de03aa9391bd00306 provides xs.save_backup_archive; must land before/with this stacked PR",
+    "Firmware nightly 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e lacks PR81 helper",
+    "Other Data Safety archive fixes #56 #66 #75 #76 require integration compatibility"
+  ],
+  "next": {
+    "owner": "Independent QA -> sole Safe Merge",
+    "action": "Rerun exact stacked PR checkout source/slot/installer regression, inspect no-clobber compatibility, then integrate PR81 dependency under sole Safe Merge",
+    "gate": "Full-tree independent QA and guarded firmware nightly source integration"
+  },
+  "publication": "SOURCE_ONLY"
+}

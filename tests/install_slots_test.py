@@ -16,7 +16,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import install_test as T  # noqa: E402  (FakeSMK, package, cli; its tests run only as __main__)
-from slot_mock import Flash, MockDevice, SMK_MAP, SMK_OLD_MAP  # noqa: E402
+from slot_mock import Flash, MockDevice, SMK_MAP, SMK_NOW, SMK_OLD_MAP, SMK_TWO  # noqa: E402
 import fm1pkg_make  # noqa: E402
 import x0x_slots as xs  # noqa: E402
 import sampleio as sio  # noqa: E402
@@ -93,7 +93,11 @@ def read(flash, slot_map, ext=True):
     return [m.image(k) for k in range(m.count)]
 
 
-NEW = (SMK_MAP, True)                  # this X0X
+NEW = (SMK_MAP, True)                  # the previous 3-slot X0X (installer scenarios)
+TWO = (SMK_TWO, True)                  # the two-slot X0X (0.0.24.x): same offsets for 1 and 2
+TWO_PKG = "SMK-37 Pro_9001200"
+NOW = (SMK_NOW, True)                  # this firmware: three slots, slot 3 at 0xB3000 (32 KiB)
+NOW_PKG = "SMK-37 Pro_9002500"
 OLD = (SMK_OLD_MAP, False)             # X0X before the layout change: 2 x 80 KiB, no extension
 MOVED = [(0xC2000, 0x14000), (0xD7000, 0x1D000), (0xB0000, 0xB000)]    # a later map: slot 2 one sector up
 NEW_PKG = "SMK-37 Pro_9001100"
@@ -140,7 +144,7 @@ def explicit_backup_keeps():
 
 
 def downgrade():
-    """this X0X -> older X0X: slot 2 > 80 KiB and slot 3 have no place; slot 3 goes to the free old slot 2"""
+    """this X0X -> older X0X: skipping oversized slot 2 must not assign its LOOP index to slot 3"""
     fl = Flash()
     a = put(fl, SMK_MAP, 0, "BR1", 120000, 3)
     b = put(fl, SMK_MAP, 1, "BIG", 200000, 5)          # about 98 KiB: more than an old 80 KiB slot
@@ -150,15 +154,20 @@ def downgrade():
     rc, out, err = T.cli([pkgfile("old.fwsc", raw), "--yes", "--backup", "before.x0xslots"], dev)
     f = TMP / "before.x0xslots"
     meta, imgs = xs.read_archive(f.read_bytes()) if f.exists() else (None, None)
-    ok(rc == 0 and imgs == [a, b, c], "downgrade: every slot saved to --backup FILE before the install")
+    ok(rc == I.EXIT["slots"] == 7 and imgs == [a, b, c],
+       "downgrade: every slot saved before install; incomplete restoration returns exit 7")
     first_install = next(i for i, p in enumerate(dev.sent) if p == I.UPGRADE)
     reads_before = [c for idn, c in dev.slot_cmds if idn == NEW_PKG]
     ok(set(reads_before) <= {xs.CMD_INFO, xs.CMD_READ} and dev.sent[first_install - 1][:4] == I.ED_HDR,
        "downgrade: the backup sends SMP_INFO / SMP_READ only, and before the install")
     ok("slot 2 (BIG, 98 KiB), slot 3 (BR3, 30 KiB)" in out, "downgrade: the warning names the slots at risk")
     now = read(fl, SMK_OLD_MAP, ext=False)
-    ok(now == [a, c] and "slot 3 written back to slot 2 and read back: ok" in out and "not written back: slot 2" in out,
-       "downgrade: slot 1 kept, slot 3 written back to the free slot 2, slot 2 (too large) reported")
+    ok(now == [a, None] and not any(cmd in (xs.CMD_BEGIN, xs.CMD_WRITE, xs.CMD_END, xs.CMD_ERASE)
+                                     for identity, cmd in dev.slot_cmds if identity == OLD_PKG)
+       and "LOOP menu order or indices" in out and "not written back: slot 2" in out,
+       "downgrade: kept slot unchanged, no restore writes before manual LOOP index reconciliation")
+    ok("x0x_slots.py restore before.x0xslots" in err and "not written back" in err,
+       "downgrade: exit 7 exposes retained archive recovery instructions")
 
 
 def moved():
@@ -220,9 +229,9 @@ def stock():
     dev = FakeX0X(I.logical_image(raw), NEW_PKG, "SMK-37 Pro_016", {NEW_PKG: NEW}, fl, stock_erases=[(0x9D000, 0xC0000)])
     rc, out, err = T.cli([pkgfile("stock.fwsc", raw), "--yes", "--force", "--backup", "stock.x0xslots"], dev)
     f = TMP / "stock.x0xslots"
-    ok(rc == 0 and f.exists() and xs.read_archive(f.read_bytes())[1] == [a, None, c]
-       and "x0x_slots.py restore stock.x0xslots" in out and "no X0X slots" in out,
-       "stock package: all slots saved, no write back, the restore steps printed")
+    ok(rc == I.EXIT["slots"] == 7 and f.exists() and xs.read_archive(f.read_bytes())[1] == [a, None, c]
+       and "x0x_slots.py restore stock.x0xslots" in err and "no X0X sample slots" in err,
+       "stock package: archived samples retained, no slot destination, incomplete exit 7 with restore steps")
     clear()
 
 
@@ -249,15 +258,96 @@ def old_package_without_controller():
        "old package transport: no controller is selected implicitly")
 
 
+def drop_third():
+    """a 3-slot keyboard -> the two-slot map (0.0.24.x). Slots 1 and 2 stay. A filled slot 3 is saved."""
+    fl = Flash()
+    a = put(fl, SMK_MAP, 0, "BR1", 120000, 3)
+    b = put(fl, SMK_MAP, 1, "BR2", 140000, 5)
+    c = put(fl, SMK_MAP, 2, "BR3", 60000, 7)
+    raw = package(TWO_PKG, SMK_TWO)
+    dev = FakeX0X(I.logical_image(raw), NEW_PKG, TWO_PKG, {NEW_PKG: NEW, TWO_PKG: TWO}, fl)
+    rc, out, err = T.cli([pkgfile("two.fwsc", raw), "--yes", "--backup", "drop3.x0xslots"], dev)
+    f = TMP / "drop3.x0xslots"
+    meta, imgs = xs.read_archive(f.read_bytes()) if f.exists() else (None, None)
+    ok(rc == I.EXIT["slots"] == 7 and imgs == [a, b, c] and read(fl, SMK_TWO) == [a, b],
+       "3 slots -> 2: slots 1 and 2 stay, slot 3 is saved, both remaining slots are full")
+    ok("slot 3 (BR3, 30 KiB)" in out and "not written back: slot 3" in out,
+       "3 slots -> 2: the warning names slot 3 and the restore reports it")
+    clear()
+    fl = Flash()
+    a = put(fl, SMK_MAP, 1, "LOOPA", 120000, 5)
+    b = put(fl, SMK_MAP, 2, "LOOPB", 60000, 7)
+    raw = package(TWO_PKG, SMK_TWO)
+    dev = FakeX0X(I.logical_image(raw), NEW_PKG, TWO_PKG, {NEW_PKG: NEW, TWO_PKG: TWO}, fl)
+    rc, out, err = T.cli([pkgfile("two-free.fwsc", raw), "--yes", "--backup", "drop3b.x0xslots"], dev)
+    ok(rc == I.EXIT["slots"] == 7 and read(fl, SMK_TWO) == [None, a]
+       and "not restored automatically" in out and "LOOP menu order" in out,
+       "3 slots -> 2: empty slot 1 + A in 2 + B in 3 must not auto-restore B into slot 1 (break indices)")
+    ok("x0x_slots.py restore drop3b.x0xslots" in err,
+       "3 slots -> 2: loop-menu guard leaves manual restore instructions")
+    clear()
+
+
+def third_back():
+    """slot 3 restored (owner 2026-11-12): two-slot X0X -> this, this -> two-slot, first 3-slot map -> this"""
+    fl = Flash()
+    a = put(fl, SMK_TWO, 0, "BR1", 120000, 3)
+    b = put(fl, SMK_TWO, 1, "BR2", 140000, 5)
+    raw = package(NOW_PKG, SMK_NOW)
+    dev = FakeX0X(I.logical_image(raw), TWO_PKG, NOW_PKG, {TWO_PKG: TWO, NOW_PKG: NOW}, fl)
+    rc, out, err = T.cli([pkgfile("three.fwsc", raw), "--yes"], dev)
+    writes = [c for _, c in dev.slot_cmds if c != xs.CMD_INFO]
+    ok(rc == 0 and not backups() and writes == [] and read(fl, SMK_NOW) == [a, b, None] and "lose" not in out,
+       "two slots -> 3: slots 1 and 2 stay, no backup, no slot write, slot 3 empty")
+    clear()
+    fl = Flash()
+    a = put(fl, SMK_NOW, 0, "BR1", 120000, 3)
+    b = put(fl, SMK_NOW, 1, "BR2", 140000, 5)
+    c = put(fl, SMK_NOW, 2, "BR3", 60000, 7)
+    raw = package(TWO_PKG, SMK_TWO)
+    dev = FakeX0X(I.logical_image(raw), NOW_PKG, TWO_PKG, {NOW_PKG: NOW, TWO_PKG: TWO}, fl)
+    rc, out, err = T.cli([pkgfile("two-down.fwsc", raw), "--yes", "--backup", "down3.x0xslots"], dev)
+    f = TMP / "down3.x0xslots"
+    meta, imgs = xs.read_archive(f.read_bytes()) if f.exists() else (None, None)
+    ok(rc == I.EXIT["slots"] == 7 and imgs == [a, b, c] and read(fl, SMK_TWO) == [a, b]
+       and "slot 3 (BR3, 30 KiB)" in out,
+       "3 slots -> two-slot downgrade: slots 1 and 2 stay, the new slot 3 is saved first and reported")
+    clear()
+    fl = Flash()
+    a = put(fl, SMK_MAP, 0, "BR1", 120000, 3)
+    b = put(fl, SMK_MAP, 1, "BR2", 140000, 5)
+    c = put(fl, SMK_MAP, 2, "BR3", 60000, 7)
+    raw = package(NOW_PKG, SMK_NOW)
+    dev = FakeX0X(I.logical_image(raw), NEW_PKG, NOW_PKG, {NEW_PKG: NEW, NOW_PKG: NOW}, fl)
+    rc, out, err = T.cli([pkgfile("three-moved.fwsc", raw), "--yes"], dev)
+    ok(rc == 0 and len(backups()) == 1 and read(fl, SMK_NOW) == [a, b, c]
+       and "slot 3 written back to slot 3 and read back: ok" in out,
+       "first 3-slot map -> this: the old 0xB0000 slot 3 is saved and written back into the new slot 3")
+    clear()
+
+
 def maps():
     ok(I.package_slot_map(I.logical_image(package(NEW_PKG, SMK_MAP)), NEW_PKG) == SMK_MAP
        and I.package_slot_map(I.logical_image(package(OLD_PKG)), OLD_PKG) == SMK_OLD_MAP
        and I.package_slot_map(I.logical_image(package("SMK-37 Pro_016", marker=False)), "SMK-37 Pro_016") == [],
        "package slot map: the map record, else the old 2 x 80 KiB (Felucca loader), else none (stock)")
+    fm1, fm1_now = "FM-1_900", fm1pkg_make.SLOTMAP["fm1"]
+    fm1_old = [(0xA0000 + k * 0x14000, 0x14000) for k in range(3)]
+    ok(I.package_slot_map(I.logical_image(package(fm1, fm1_now)), fm1) == fm1_now
+       and I.package_slot_map(I.logical_image(package(fm1)), fm1) == fm1_old,
+       "FM-1: a package with the record has two slots; an older package with no record stays at three")
+    sdk = Path(os.environ.get("AC79_SDK", Path.home() / "fw-AC79_AIoT_SDK"))
+    if (sdk / "cpu/wl82/tools/uboot.boot").is_file():
+        os.environ["AC79_SDK"] = str(sdk)
+        fm1pkg_make.set_board("fm1")
+        flash = fm1pkg_make.flash_image(b"\x00" * 64, fm1pkg_make.KEY)
+        ok(fm1pkg_make.slotmap_of(flash) == fm1_now, "an FM-1 image carries the two-slot map")
+        fm1pkg_make.set_board("smk37")
     p = ROOT / "build/x0x-smk37.fwsc"
     if p.exists():
         prod, img = I.load_package(str(p), False)
-        ok(I.package_slot_map(img, prod) == SMK_MAP, "build/x0x-smk37.fwsc carries this firmware's slot map")
+        ok(I.package_slot_map(img, prod) == fm1pkg_make.SLOTMAP["smk37"] == SMK_NOW,
+           "build/x0x-smk37.fwsc carries this firmware's slot map")
 
 
 ROOT = HERE.parent
@@ -266,6 +356,8 @@ upgrade_keeps()
 explicit_backup_keeps()
 downgrade()
 clear()
+drop_third()
+third_back()
 moved()
 fails()
 backup_fails()

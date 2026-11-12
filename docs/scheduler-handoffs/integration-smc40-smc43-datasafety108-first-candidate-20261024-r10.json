@@ -1,0 +1,120 @@
+{
+  "schema": "loopyx0x37-scheduler-handoff-v1",
+  "evidence_revision": "safe-merge-pr103-smc40-43-data108-first-candidate-20261024-r10",
+  "day_utc": "2026-10-24",
+  "role": "LoopyX0X37 Safe Merge, exclusive firmware nightly integrator",
+  "owner": "gobbajogger",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+  "pr": 103,
+  "consumed": {
+    "integration": {
+      "head": "ecd79cab02a5595cf4e910490720e92e986c95ac",
+      "full_root_tree": "9dc695fb9f4da4069362c24aa866f9b995b1b463",
+      "firmware_subtree": "96709cae2835fc8680cfc81b54f01e95893a2b27",
+      "evidence_revision": "safe-merge-pr103-smc79-63-73-prehardware-critical-repair-20261024-r9"
+    },
+    "producers": [
+      {
+        "pr": 40,
+        "head": "908722735c2040662af3a1263306358eb1eee79e",
+        "reviewed_exact_guard_blob": "d3d1046b520b435ec83961b1d7aa18f4b4dd57c2",
+        "evidence_revision": "smc-pr40-current-candidate-data7-negative-20261024-r1",
+        "change": "reject nonsevenbit USB/peripheral BLE SMC User bytes"
+      },
+      {
+        "pr": 43,
+        "head": "defb0d8307a143beb6cb05c5acf5d428fa9b0865",
+        "reviewed_exact_engine_blob": "fd11e81d77a0aec1afb395a2ea5b070483d87ec4",
+        "evidence_revision": "smc-pr43-trs-current-candidate-20261024-r1",
+        "change": "TRS+unknown sources bypass host SMC User"
+      },
+      {
+        "pr": 108,
+        "head": "b85758ed84ee56cf116e782e509753923d02c4df",
+        "reviewed_exact_slot_blob": "d63774e7f2775c5359d3b24e549a900f8c75c685",
+        "evidence_revision": "data-safety-smp-read-canonical-20261024-r2",
+        "change": "canonical pack7, readback frame length, oversize refusals"
+      }
+    ]
+  },
+  "static_source_reconciliation": {
+    "outcome": "PASS",
+    "method": "GitHub REST exact blob/SHA reads, surgical unique-anchor source transplants, exact producer SMC host function and TRS route block matches; full source/recovery functions, queue STOP, reg selectors and executable modes retained",
+    "source_blobs": {
+      "firmware/src/app/smc_mixer.c": "703a271135bd6b7f7795bd075e10c06e57f4213c",
+      "firmware/src/app/engine.c": "fd11e81d77a0aec1afb395a2ea5b070483d87ec4",
+      "tools/x0x_slots.py": "d63774e7f2775c5359d3b24e549a900f8c75c685",
+      "tests/host/smc_queue_test.py": "917142f14fcef7ba36c51a440e645a9639f6c7fd",
+      "tests/run_tests.sh": "78ab42978a57b80930ac751a3c4ac2c8acc0440c"
+    },
+    "producer_test_blobs": {
+      "tests/host/smc_host_data7_test.py": "4843db8c63b5811b3bd6d03b2ddbd90c327697c3",
+      "tests/host/smc_sender_isolation_test.py": "076c3bd3c439b7d366574807264e8e5aeb0c7e98",
+      "tests/x0x_slots_read_reply_test.py": "589fda01acf668ed9396ca08b594cb2dd55f7485"
+    },
+    "checked_source_files": 5,
+    "new_registered_exact_producer_test_files": 3,
+    "prior_preflight_assertions": 62,
+    "additional_file_reconciliation": "PASS"
+  },
+  "independent_scoped_QA_ack": {
+    "evidence_revision": "independent-qa-pr108-pack7-and-pr40-pr43-combined-20261024-r1",
+    "review_stage": "SCOPED REVIEW, not formal full-root acceptance",
+    "SMC": "GCC/Clang UBSan and ASan+UBSan: 16 native compiles exit 0; combined corrected two guards 4/4 native runs exit 0, 18/18 assertions each; old or single guard negative controls fail as expected",
+    "SMP_READ": "15/15 registered source-window positives/negatives exit 0; prior 7/7 QA errors resolved; extended 7/7 including 320 seeded variants exit 0; optimized and syntax passed"
+  },
+  "actual_safe_merge_commands": [
+    {
+      "command": "GitHub REST file/ref/PR/tree exact SHA fetch + JS unique-hunk/static reconciler",
+      "exit": 0,
+      "scope": "source/blob identity and test registration, NOT native linked/complete checkout"
+    },
+    {
+      "command": "GitHub Git Data API create_blob on 5 new source/runner files",
+      "exit": 0,
+      "scope": "staged immutable source blobs, NOT publication"
+    }
+  ],
+  "unrun_or_pending": {
+    "actual_new_complete_root_native_regressions": "NOT RUN by Safe Merge",
+    "actual_current_model_elite": "BUILD REQUIRED: new firmware subtree",
+    "actual_current_model_pro": "BUILD REQUIRED: new firmware subtree",
+    "actual_current_controller": "BUILD REQUIRED / independent exact input identity",
+    "full_root_independent_QA": "PENDING",
+    "protected_branch_PR_review_merge": "PENDING",
+    "public_immutable_host_HTTP": "NOT RUN",
+    "owner_hardware_feedback": "UNKNOWN"
+  },
+  "handoff": [
+    {
+      "owner": "Independent QA",
+      "action": "Run exact new complete-root host/sanitizer negative and broad regression matrix for SMC host-data7/TRS/STOP/reconnect/direct BLE, 303, sample readback/archive/restore/backup/OTA, and submit exact HEAD independent review",
+      "gate": "full combined source QA/negative safety before protected PR merge"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Without waiting for QA/merge, compile exact changed firmware subtree for native Elite/Pro and matching private controller as BUILD_ONLY; log pinned toolchain/SDK/config, bytes, model, CRC, SHA256, RAM/code/flash budgets and retain private artifacts",
+      "gate": "new source-matched Elite/Pro/controller packages"
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "After independent exact-root QA and required native checks pass, use only authorized reviewed PR workflow to merge firmware nightly and read back exact resulting SHA",
+      "gate": "reviewed protected PR merge"
+    },
+    {
+      "owner": "Catalog/NIGHTLY sole publisher",
+      "action": "Retain previous safe packages; show selectable versions only with prehardware model/controller/sample/backup/license/corresponding source/immutable hosting and HTTP hash gate",
+      "gate": "lawful complete software and HTTP acceptance; prior physical PASS not required for NIGHTLY"
+    }
+  ],
+  "status": "SOURCE-COMPLETE / READY FOR INDEPENDENT REVIEW / QA PENDING / MODEL BUILD PENDING / NOT INSTALLABLE",
+  "safeguards": {
+    "no_force": true,
+    "no_protected_ref_write": true,
+    "no_production_promotion": true,
+    "no_public_binary_vendor_source_leak": true,
+    "no_device_flash": true,
+    "previous_safe_private_firmware_untouched": true
+  }
+}

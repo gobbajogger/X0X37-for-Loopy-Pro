@@ -6,7 +6,7 @@ wait 100
 shot s01_pans.png
 tapkey b0
 turn K2 -40
-tapkey b2
+tapkey b4
 turn K2 30
 wait 1200
 shot s02_panned.png
@@ -15,8 +15,8 @@ expect sound5.2.3 94
 # a drum voice's PAN: the 909's kick, knob 2 of MIX's 909 MIX page (the black keys pick the track)
 tap LFO
 expect part 0
-turn SELECT -9
-turn SELECT 1
+# MIX pages wrap (PARTS, 909 MIX, 808 MIX, MASTER, WAVE); the second LFO tap opens 909 MIX
+expect page 1
 tapkey b0
 turn K2 -24
 wait 1200
@@ -25,5 +25,5 @@ expect sound0.0.10 40
 # on MIX, ALGORITHM picks the matching page: the 808's tracks, then the levels for a 303
 turn ALGO 1
 expect part 1
-turn ALGO 1
+turn ALGO 3
 expect part 2

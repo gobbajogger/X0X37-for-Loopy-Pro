@@ -54,6 +54,10 @@ static int ota_fread(uint32_t off, void *p, uint32_t n);
 static void ota_show(uint32_t step, int32_t code);
 static void ota_commit(const uint8_t *parm);
 
+#ifndef OTA_MAINTENANCE_ADMIT
+#define OTA_MAINTENANCE_ADMIT() 1
+#endif
+
 static uint32_t ota_rd16(const uint8_t *p) { return (uint32_t)p[0] | (uint32_t)p[1] << 8; }
 static uint32_t ota_rd24(const uint8_t *p) { return ota_rd16(p) | (uint32_t)p[2] << 16; }
 static uint32_t ota_rd32(const uint8_t *p) { return ota_rd24(p) | (uint32_t)p[3] << 24; }
@@ -174,7 +178,12 @@ static uint32_t ota_take(void)
 /* main loop, outside a session: answer handshakes */
 static void ota_service(void)
 {
-    uint32_t d = ota_take();
+    uint32_t d;
+    if (!OTA_MAINTENANCE_ADMIT()) {
+        ota_frame_done();  /* discard, do not queue a handshake across release */
+        return;
+    }
+    d = ota_take();
     if (d == 7u && ota_dec[2] == 0x11)
         ota_reply_identity();
 }
@@ -282,6 +291,12 @@ static int ota_stage(void)                       /* steps 1..6; 0 = host said su
     uint32_t i, n, ota_off, ota_len, fl_off, fl_len, c, len, own, official;
     int rc;
     /* 1. UFW header + entry list */
+#if BOARD_SMK37 && X0X_SMC_VENDOR_TEST && !FELUCCA_LOADER
+#ifndef X0X_BUNDLE_UPDATE_ALLOWED
+#define X0X_BUNDLE_UPDATE_ALLOWED() 0
+#endif
+    if (!X0X_BUNDLE_UPDATE_ALLOWED()) return -74;
+#endif
     ota_show(1, 0);
     if ((rc = ota_ufw(hdr, &fl_off, &fl_len, &ota_off, &ota_len)) != 0)
         return rc;
@@ -301,6 +316,14 @@ static int ota_stage(void)                       /* steps 1..6; 0 = host said su
         own = ota_memeq(b + i, (const uint8_t *)"FELUCCA-LOADER-1", 16) && ota_rd32(b + 0x20 + 4) <= 0x14000u;
     if (!official && !own)
         return -7;
+#if BOARD_SMK37 && X0X_SMC_VENDOR_TEST && !FELUCCA_LOADER
+    { uint32_t cap=0;
+      for(i=0x48;i+16<=0x48+64;i++)
+        cap |= ota_memeq(b+i,(const uint8_t *)"X0X-BUNDLE-LDR1",16);
+      if(!own || !cap) return -7;
+    }
+#endif
+
     if (official) {                    /* the official loader writes the head: it must equal ours */
         ota_show(2, 0);
         for (i = 0; i < 0x4000u; i += 512u) {
@@ -310,6 +333,10 @@ static int ota_stage(void)                       /* steps 1..6; 0 = host said su
                 return -5;
         }
     }
+#if BOARD_SMK37 && X0X_SMC_VENDOR_TEST && !FELUCCA_LOADER
+    if (ota_fread(OTA_RES, mine, 112)) return -75;
+    for (i=0;i<112;i++) if (mine[i]!=255) return -75;
+#endif
     /* 4. stage the package's loader: erase, body, verify, head last */
     ota_show(3, 0);
     if (ota_read(ota_off, b, 512))
@@ -351,6 +378,10 @@ static int ota_stage(void)                       /* steps 1..6; 0 = host said su
 
 static void ota_unstage(void)
 {
+#if BOARD_SMK37 && X0X_SMC_VENDOR_TEST && !FELUCCA_LOADER
+    return; /* only bundle loader may retire the exact admitted record */
+#endif
+
     uint32_t i;
     for (i = 0; i < OTA_AREA_LEN; i += 0x1000u)
         ota_erase(OTA_AREA + i);
@@ -359,10 +390,23 @@ static void ota_unstage(void)
 /* returns only when nothing was committed (refused, failed, or dry run) */
 static int ota_session(void)
 {
+#if BOARD_SMK37 && defined(X0X_SMC_VENDOR_TEST) && X0X_SMC_VENDOR_TEST && !FELUCCA_LOADER
+#ifndef X0X_BUNDLE_UPDATE_ALLOWED
+#define X0X_BUNDLE_UPDATE_ALLOWED() 0
+#endif
+    /* Deny before staging AND before the failure cleanup can erase any record. */
+    if (!X0X_BUNDLE_UPDATE_ALLOWED()) return -42;
+#endif
+#ifdef OTA_SCRATCH                              /* the app: the scratch tail, after ota_dec */
+    uint8_t *const parm = OTA_SCRATCH + OTA_PARM_OFF;
+#else
     static uint8_t parm[112];
+#endif
     uint8_t back[112];
     uint32_t i;
     int rc;
+    if (!OTA_MAINTENANCE_ADMIT())
+        return -20; /* before staging, cleanup, UI feedback or reset */
     ota_deadline = ota_now_ms() + 120000u;          /* step 1 normally takes ~5 s; a stalled host gives up after 2 min */
     rc = ota_stage();
     if (rc) {
@@ -371,7 +415,7 @@ static int ota_session(void)
         return rc;
     }
     /* 5./7. UPDATA_PARM (update_mode_api_v2 layout), flash copy first */
-    for (i = 0; i < sizeof parm; i++)
+    for (i = 0; i < 112u; i++)
         parm[i] = 0;
     ota_wr16(parm + 2, 0x5A0Du);
     ota_wr16(parm + 4, 0x5A01u);
@@ -389,8 +433,8 @@ static int ota_session(void)
 #define FELUCCA_OTA_RAMONLY 0                       /* 1: RAM record only, no power-loss resume (a power
                                                      * cycle leaves a broken loader behind) */
 #endif
-    if (!FELUCCA_OTA_RAMONLY && (ota_prog(OTA_RES, parm, sizeof parm) || ota_fread(OTA_RES, back, sizeof back) ||
-        !ota_memeq(back, parm, sizeof parm))) {
+    if (!FELUCCA_OTA_RAMONLY && (ota_prog(OTA_RES, parm, 112u) || ota_fread(OTA_RES, back, sizeof back) ||
+        !ota_memeq(back, parm, 112u))) {
         ota_unstage();
         ota_show(9, -14);
         return -14;

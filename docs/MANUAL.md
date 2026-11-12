@@ -288,10 +288,22 @@ A **tie** holds the note before it through the step, so it doesn't play again. O
 tied note joins the note it holds in one long bar. Turning KNOB 1 on a tie makes it a note of
 its own.
 
+For a longer bass note, enter a NOTE, then set each following step to TIE with
+KNOB 2. For example, `NOTE C2 | TIE | TIE | REST` sounds one C2 across three
+step positions, with no new attack on the ties. The final tie releases halfway
+through its step, as a normal note does. To glide into a new pitch instead, use
+SLIDE on the step before that NOTE. The part's RATE sets the time between steps;
+adding ties extends a note without changing that rate.
+
 **Keyboard.** Press REC and all 27 keys become a keyboard (KEYS shows on the top line). The
 notes you play are written: step by step while the pattern is stopped, live while it plays.
 OCT- and OCT+ change the octave. Play a key while still holding another and the 303 slides
 between them. Press REC again to go back to steps.
+
+While stopped with REC on, enter the note, then hold LFO and press OCT- or OCT+
+once for each continuation TIE. Hold ENV and press OCT- or OCT+ to insert a REST.
+Live recording currently writes a NOTE when you press a key; holding that key
+does not automatically write ties. Add the ties in SEQ after recording.
 
 **Free play.** To play the 303 without writing anything, press SEQ, turn SELECT to the KEYS page
 and set FREE PLAY to ON. The keys then play the 303 on every 303 screen, stopped or playing, so
@@ -372,10 +384,16 @@ In SEL's list: PHRASE, the length of a phrase (2, 4, 8 or 16 bars, or off), and 
 LENGTH, how often a new slice is chosen (every 1/4 bar to every 8 bars).
 
 **The loops.** EDIT has LOOP A, LOOP B, B CHANCE (the chance of switching to loop B in the last
-bar of a phrase; with PHRASE off, in any bar) and PITCH; LEVEL is in SEL's list. Loops follow the
+bar of a phrase; with PHRASE off, in any bar) and PITCH; LEVEL and 8 SLICES are in SEL's list.
+8 SLICES is off unless you turn it on. Off, MIDI notes 36–43 on the break's channel play the
+eight slices. On, every MIDI note on that channel plays a slice (the note number divided by 8,
+the remainder picks the slice), so higher and lower notes replay the same eight slices. Loops follow the
 tempo by playing faster or slower, so their pitch follows it too, as on a sampler; PITCH shifts it
-on top. X0X comes with two loops of its own, 909 GR and 909 FL, played by its 909; loops you
-upload come after them.
+on top. The default app build leaves the loop bank empty; a packaged firmware may include stock
+loops in the free code tail. The installer keeps the selected package's loops by default. You can
+replace them with the three stock loops, CRAMEN, TASTY and HOTPANT, or your own WAV files.
+The stock pack retains complete loops with one-bar metadata; see `assets/factory-breaks/provenance.json`
+for sample lengths and conversion details. Loops uploaded into sample slots follow the installed loops.
 
 All of these, the steps, slices and loops, are saved with the pattern. The break's level, pan
 and sends are on the mixer's PARTS page (LFO, black key 5).
@@ -384,9 +402,9 @@ and sends are on the mixer's PARTS page (LFO, black key 5).
 
 Load your own loops with the [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/), in
 Chrome or Edge with the FM-1 connected. They appear after X0X's own loops as BR1, BR2 and so on.
-Loops are sent at full quality, 44.1 kHz. The SMK-37 has three slots of different sizes: slot 1
-holds about 3.7 seconds, slot 2 about 5.5 seconds and slot 3 about 2 seconds, about 11.3 seconds
-in all. The FM-1 has three slots of about 3.7 seconds, about 11 seconds in all. A one-bar loop
+Loops are sent at full quality, 44.1 kHz. The SMK-37 has three slots: slot 1
+holds about 3.7 seconds, slot 2 about 5.5 seconds and slot 3 about 1.5 seconds,
+about 10.7 seconds in all. The FM-1 has two slots of about 3.7 seconds, about 7.4 seconds in all. A one-bar loop
 at 120 BPM takes 2 seconds. A loop must fit in one slot, so the longest loop on the SMK-37 is
 about 5.5 seconds. The page fills the slots in order and puts a loop that is too long for one
 slot into the next slot that can take it.
@@ -438,7 +456,8 @@ with notes in that pattern: bright where that part is playing it now, dim otherw
   HOME and press a white key.
 - **One part:** on that part's screen (SEQ, EDIT, TB-3PO), turn PRESETS.
 - **A chain:** on HOME, hold two white keys at once. All five parts play each pattern from the
-  first to the second, a bar each, then start again. Choosing a single pattern ends the chain.
+  first to the second, then start again. Each pattern plays for one chain slot: as many steps as
+  the longest 909 pattern in the range (#855). Choosing a single pattern ends the chain.
 
 While playing, the new pattern starts when the current bar ends; stopped, it takes over at once.
 A part that changes pattern starts again from step 1; the others carry on.
@@ -588,7 +607,7 @@ the echoes between left and right.
 
 ![MIX, with the compressor pumping](img/screen-mix.png)
 
-Press LFO to open the mixer; press it again (or turn SELECT) for its four pages. The red bar on
+Press LFO to open the mixer; press it again (or turn SELECT) for its five pages. The red bar on
 the right is the compressor's gain reduction.
 
 - **PARTS**: a level and a meter for each part. Press black keys 1-5 to pick the 909, 808,
@@ -597,6 +616,9 @@ the right is the compressor's gain reduction.
   the black keys pick a track, and the knobs set its LEVEL, PAN, REV and DLY.
 - **MASTER**: four knobs over the whole mix. The screen shows the output level over the last
   couple of seconds, so you can see the pump and the compressor working.
+- **WAVE**: the same four master knobs, with a live mid-line plot of the master output (after
+  the compressor, pump, filter and limiter). The compressor's gain-reduction bar stays on the
+  right. Press LFO again from MASTER to open it.
 
 On PARTS, 909 MIX and 808 MIX, hold HOME and press a black key to mute or unmute that channel (a
 part on PARTS, a track on the drum pages). The key lights show it: the channel the knobs set is
@@ -752,7 +774,7 @@ listens on its own channel; these are the defaults:
 | Channel 11 | The 808, with the same notes, plus 56 for the cowbell and 49 for the cymbal. |
 | Channel 2 | 303A. Overlapping notes slide, and a velocity of 100 or more plays an accent. |
 | Channel 3 | 303B, in the same way. |
-| Channel 4 | Notes 36–43 play break slices 1–8. |
+| Channel 4 | Notes 36–43 play break slices 1–8. With 8 SLICES on, every note on this channel plays a slice (note mod 8). Notes on this channel do not also play another part. |
 | Clock | X0X follows an incoming MIDI clock automatically, and returns to its own tempo half a second after the clock stops. Start, Stop and Continue start and stop the patterns. |
 
 GLO sets each part's channel (909 MIDI CH and so on), or OFF to ignore its notes, for example when
@@ -768,14 +790,18 @@ so it doesn't flicker with every clock.
 The SMK-37 can also send and receive MIDI over Bluetooth (BLE MIDI, as iPads, Macs and most
 music apps use it). Bluetooth audio is not supported.
 
-The Bluetooth part is a separate program from Bluetooth chip maker JieLi. X0X is not allowed to
-include it, so you build it on your own computer once, and the installer adds it:
+The Bluetooth controller is a separate program that uses JieLi components. Qualified NIGHTLY
+packages include the matching controller, so select one complete package in the NIGHTLY
+installer. No separate `ctl.img` selection is needed for that path. Availability depends on
+the package checks, applicable component terms and authorized publication; see LICENSING.md.
+
+For an existing unbundled package, supply its exact matching controller explicitly:
 
 1. Run `ble/ctl/build_ctl.sh` from the X0X source (needs the JieLi toolchain and Docker; see
    BUILDING.md). It downloads JieLi's files from JieLi's own site, checks them and makes `ctl.img`.
-2. Install X0X with `tools/fm1_install.py` (it adds `ctl.img` by itself), or in the web
-   installer choose the `ctl.img` file under "Bluetooth MIDI (optional)" before you press Install.
-   Do this again for every update: an update without it removes Bluetooth.
+2. Install X0X with `tools/fm1_install.py PACKAGE.fwsc --ctl ctl.img`, or select the
+   matching `ctl.img` in the legacy web installer before you press Install. The installer
+   refuses a current package with an empty controller block when no matching image is supplied.
 3. On the keyboard, set GLO > BLUETOOTH MIDI > BLUETOOTH to ON and switch it off and on again.
 
 STATUS then shows READY. Connect from your app's Bluetooth MIDI settings (on an iPad or a Mac:
@@ -796,6 +822,11 @@ hear, after VOLUME, in stereo.
 Record it in any audio app, or monitor it live through one. The FM-1 keeps its USB audio in step
 with the computer's clock, so live monitoring doesn't drift or drop out. The first moment after an
 app opens the input can click while the FM-1 settles.
+
+It is also an audio output (two channels, 44.1 kHz): an iPhone, iPad or computer can play through
+it. What the host plays comes out of the headphones and line out, added on top of the DnBOX
+engines; the host's own volume sets its level (the MASTER knob does not). The host's audio is not
+sent back to the USB input, so recording the input while playing through the output does not loop.
 
 ---
 
@@ -865,7 +896,10 @@ Drum settings range from 0 to 127. DIST, the distortion type, can be DIODE, CLIP
 PDIST, FOLD or CRUSH. PAN goes from L64 through C (the middle) to R63.
 
 Each track's Level, Pan, Rev and Dly are on the mixer (909 MIX, 808 MIX); its Drive and Dist are
-in SEL's list; the rest are its sound pages.
+in SEL's list; the rest are its sound pages. Sound-page knobs follow a fixed order across tracks —
+Tune, Tone, Attack, Sound, Decay, then Snappy / Tail / pitch envelope — so the same kind of
+control stays on the same physical knob when you change drum or kit. Tables below list each
+track's settings (including mixer and SEL fields), not the knobs' left-to-right order.
 
 <details><summary>909 tracks</summary>
 

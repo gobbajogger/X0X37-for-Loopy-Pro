@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "at_utc": "2026-10-25T10:59:23.876405+00:00",
+  "base": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
+  "prior_comparison": "58e2c52",
+  "stage": "REVIEWED_SOURCE_TESTS_AND_SCOPED_NATIVE_MEASUREMENT",
+  "hardware": "NOT_RUN",
+  "native": {
+    "stage": "AFFECTED_TU_RECOMPILE_AND_APP_RELINK_ONLY",
+    "model": "elite",
+    "config": "DEV",
+    "bytes": 552620,
+    "code_free": 52,
+    "errors": [],
+    "notes": [
+      ".ram_text: 1082 insns, no calls",
+      "app code area 552672 B, 52 B free (Bluetooth block at app.bin 0x86ee0)",
+      "no soft-double routines (single-precision FPU only)",
+      "image 552620 B; RAM .data+.bss 98004 B of 98304; pool 335740 B of 344064"
+    ],
+    "baseline_bytes": 552604,
+    "baseline_code_free": 68,
+    "delta_bytes": 16,
+    "new_static_state_bytes": 0
+  },
+  "native_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "native_generated_headers": {
+    "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+    "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+    "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+    "felucca_font.h": "8529407f76ca5ac703c70575505779515ebc8b815a7dac4195ba66c9b33efcfe"
+  },
+  "source_sha256": "d1212dc0f817ca4961b503f74269af3c145014c592bb9fda781e07ae922d6b4a",
+  "tests": {
+    "production_acceptance": "PASS835361 assertions;192 crossings;262144 raw packets2048writes;4096stateful events",
+    "installed_crossing": "FAIL runtime as required",
+    "installed_motion": "FAIL runtime as required",
+    "affected_selectors": "PASS10 selected tests",
+    "independent_pause_loss": "PASS397 assertions",
+    "independent_review": "PASS scoped source/new stateful replay; final exact blob readback pending"
+  },
+  "native_limit": "Affected x0x translation-unit compile and app relink only; verified reused installed objects; not package or both-model DEV qualification",
+  "initial_native_measurement": "DISCARDED host/Linux font mismatch; corrected final receipt only",
+  "public_binary": "NOT_PUBLISHED",
+  "integration_required": [
+    "apply isolated fix to single combined-owner branch",
+    "affected acceptance/lock/reachability regressions",
+    "independent exact combined review",
+    "both model final native budgets",
+    "parent-owned hardware trace for intermittent observations"
+  ]
+}

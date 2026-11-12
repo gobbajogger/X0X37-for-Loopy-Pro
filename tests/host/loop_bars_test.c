@@ -5,6 +5,10 @@
  *   loop_bars_test */
 #include <stdint.h>
 #include <stdio.h>
+/* engine.c may mark loop_bars X0X_COLD; host extract has no x0x_cold.h — ignore the attr. */
+#ifndef X0X_COLD
+#define X0X_COLD
+#endif
 #include LOOP_BARS_SRC
 
 static int bad;

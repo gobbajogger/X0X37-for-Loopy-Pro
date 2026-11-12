@@ -393,12 +393,16 @@ To get the calibration mode again, build with `X0X_DEV_PADCAL=1` (or with no val
 marks the complete calibration mode (CLP-79, orientation page, reopen fix, ok dot).
 
 The build also generates `build/gen/`. It contains the font and the 909's cymbal samples (IMA ADPCM,
-44.1 kHz) and tables (`tools/gen_drum_samples.py`). It also contains the built-in break loops (two 2-bar
-loops, IMA ADPCM at 44.1 kHz, 220,500 B). The 909 port renders them on the host
-(`tools/gen_builtin_break.sh`, needs a host `cc`). Opt-in: `X0X_BREAK_BANK=DIR` builds the break bank
-from one-bar WAVs instead. `tools/import_breaks.py` makes such a folder from BB Gen's samples, in
-`build/breaks/` (README.md, Breaks). The build fails if it links a soft-double routine (a `double` crept
-in). It also checks the image, RAM and pool sizes.
+44.1 kHz) and tables (`tools/gen_drum_samples.py`). The default app image does not compile in factory
+break loops. The designated CRAMEN, TASTY and HOTPANT stock loops are IMA ADPCM at 44.1 kHz,
+with retained one-bar metadata and a 131,152-byte pack. Their complete lengths and conversion
+provenance are in `assets/factory-breaks/provenance.json`. `tools/export_factory_breaks.sh` exports
+the same stock bytes for the installer. `tools/package_stock_loops.py` or the installer can place
+them in the free app-code tail without recompiling. `X0X_FACTORY_BREAKS=1` explicitly compiles
+these stock bytes into the image. `X0X_BREAK_BANK=DIR` uses another bank instead (`tools/gen_break_bank.py`).
+`tools/import_breaks.py` makes such a folder from BB Gen's samples, in `build/breaks/` (README.md, Breaks).
+The build fails if it links a soft-double routine (a `double` crept in). It also checks the image, RAM
+and pool sizes.
 
 ### M-Vave SMK-37 Pro
 
@@ -411,8 +415,9 @@ but a different panel). Each difference is behind `BOARD_SMK37` (C, default 0). 
 (`-DBOARD_SMK37=1`, for the app and the update loader). The plain `./build.sh` does not change. Its
 `build/x0x.bin`, `build/loader/ota.bin` and `build/x0x.fwsc` stay byte for byte as before the SMK port.
 The SMK build keeps its objects, app and loader in `build/smk37/`. It writes the package
-`build/x0x-smk37.fwsc` (identity `SMK-37 Pro_900`). `--release X.Y` gives `x0x-smk37-X.Y.fwsc`
-(`SMK-37 Pro_9XXYYZZ`).
+`build/x0x-smk37.fwsc` (identity `SMK-37 Pro_900`). `--release X.Y[.Z]` gives `x0x-smk37-X.Y.Z.fwsc`
+(`SMK-37 Pro_9XXYYZZ`). The package identity is only that number. An open-beta build also shows
+`X.Y.Z_openbeta` beside ABOUT X0X; those words are not part of the identity.
 
 `MODEL=elite` or `MODEL=mke` builds the same firmware under the model name of the SMK-37 Elite or the
 MKE-P37. The identity is `SMK-37 Elite_900` / `MKE-P37_900`. The objects go in `build/smk37-elite/` /
@@ -425,9 +430,9 @@ The SMK build differs from the FM-1 build in these items:
   window reaches the head (0x0-0x3FFF), BTIF / USRTRIM (0xC0000-0xC1FFF, the factory key and pad
   calibration), the stock resources (0xF4000-0xFDFFF) or key_mac (0xFF000-). The RAM flash driver has a
   second guard.
-- The store (`storage.c`): seven objects A/B at 0x9D000-0xAAFFF (spare to 0xAEFFF), the store owner tag at
+- The store (`storage.c`): seven objects A/B at 0x9D000-0xAAFFF, boot screen copies at 0xAB000 and 0xAC000, spare 0xAD000-0xAEFFF, the store owner tag at
   0xAF000. The update staging at 0xBB000 (`ota.c`). Three user sample slots (`app/slots.c`): slot 1 80 KiB at
-  0xC2000 and slot 2 120 KiB at 0xD6000 (to 0xF3FFF). Slot 3 44 KiB at 0xB0000 (to 0xBAFFF).
+  0xC2000, slot 2 120 KiB at 0xD6000 (to 0xF3FFF) and slot 3 32 KiB at 0xB3000 (to 0xBAFFF), after the sector-0 shadows at 0xB0000.
 - The Bluetooth controller block: 64 KiB at flash 0x8B000-0x9AFFF (XIP 0x02087000), at the top of the
   encrypted app slot. The app code ends below it: `APP_CODE_MAX` 0x86EE0 (552,672 B). `build.py` links the
   app to that length and stops when the image is larger.
@@ -450,11 +455,15 @@ X0X clears a store with the tag of another firmware, or with no tag (`FELUCCA_DA
 The tests (below) include the SMK flash map, the store, the package layout and the update path on
 SMK-layout packages. They check `build/x0x-smk37.fwsc` when it exists.
 
-## The Bluetooth controller image (SMK-37, optional)
+## The Bluetooth controller image (SMK-37)
 
-Bluetooth MIDI on the SMK-37 needs a controller image that you build yourself. X0X does not
-ship it (LICENSING.md). With the toolchain above and Docker (or on Linux x86-64 with
-`CTL_NATIVE=1`), do these steps:
+Qualified NIGHTLY packages include their matching Bluetooth controller. See
+[bundled NIGHTLY packaging](docs/bundled-nightly-packages.md) for the checked composition
+command and catalog contract. Publication depends on the applicable source, component terms,
+QA and publication decisions; this source change does not authorize distribution.
+
+The existing unbundled package path remains available. To build a controller locally, use
+the toolchain above and Docker (or Linux x86-64 with `CTL_NATIVE=1`):
 
 ```
 ble/ctl/build_ctl.sh        # fetches JieLi's files (pinned, SHA-256 checked), builds ble/ctl/out/ctl.img
@@ -464,8 +473,9 @@ python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
 
 `build_ctl.sh` also copies the image to `~/.config/x0x/ctl.img`, but the installer
 does not select that cache implicitly. Give the exact validated image with
-`tools/fm1_install.py --ctl FILE` for every current SMK-37 update. The installer
-refuses an empty controller block. The web installer has a file field for the image.
+`tools/fm1_install.py --ctl FILE` when installing an unbundled current SMK-37 package.
+The installer refuses an empty controller block. The legacy web path has a file field for
+the matching image; a qualified bundled NIGHTLY package needs no separate selection.
 See ble/README.md for how the image and the app fit together.
 
 ## Tests

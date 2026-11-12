@@ -14,15 +14,23 @@ typedef struct {               /* proportional, see tools/gen_font.py */
 } felucca_font_t;
 #include "felucca_font.h"
 
-#define CV_MAX (240u * 144u)      /* X0X: the main area, both bands, is 240 x 144 */
+/* One strip, not a 240x240 frame. The panel is three strips that are never
+ * drawn at the same time: header 20, main area 2*69 = 138, knob row 82
+ * (20+138+82 = 240). The tallest is the main area. The strip used to be 144
+ * rows; the extra 6 moved into the knob row and were still reserved here
+ * (240 * 6 * 2 = 2880 bytes of the pool). */
+#define CV_ROWS 138u
+#define CV_MAX (240u * CV_ROWS)
+_Static_assert(CV_ROWS >= 82u, "screen strip shorter than the knob row");
 static uint16_t cv_px[CV_MAX] __attribute__((section(".pool")));
 static uint32_t cv_w, cv_h;
 static int32_t cv_oy;            /* y offset for graph drawing */
 static int32_t cv_y0, cv_y1;     /* X0X: the rows drawing may touch (cv_band) */
 
 #define RGB(r, g, b) ((uint16_t)((((r) >> 3) << 11) | (((g) >> 2) << 5) | ((b) >> 3)))
-#define C_BLACK 0x0000u
-#define C_WHITE 0xFFFFu              /* accent only: what is being touched / where we are */
+#include "ui_theme.h"
+#define C_BLACK UI_N_BASE
+#define C_WHITE UI_N_WHITE           /* what is being touched / where we are */
 /* The screen's five steps, darkest to brightest, plus white; picked as THEME in GLOBAL. */
 typedef struct {
     const char *name;
@@ -31,13 +39,14 @@ typedef struct {
 /* X0X: the first three steps are neutral greys in every theme (structure: rules, empty cells,
  * labels); only the two brightest carry the theme's hue (values, highlights). Colour on the
  * screen then means something: a part, a value, an alarm. */
-#define NEUTRALS RGB(34, 34, 40), RGB(74, 74, 82), RGB(150, 150, 158)
+#define NEUTRALS RGB(40,56,61), RGB(128,146,148), RGB(156,170,168)
 static const palette_t PALETTES[] = {
     {"GREEN", {NEUTRALS, RGB(80, 220, 120), RGB(150, 255, 175)}},
     {"AMBER", {NEUTRALS, RGB(232, 136, 30), RGB(255, 184, 70)}},
     {"CYAN", {NEUTRALS, RGB(60, 180, 235), RGB(150, 225, 255)}},
     {"RED", {NEUTRALS, RGB(232, 76, 60), RGB(255, 132, 112)}},
     {"MONO", {NEUTRALS, RGB(196, 196, 202), RGB(236, 236, 240)}},
+    {"LIGHT", {RGB(180,193,180), RGB(80,97,77), RGB(64,81,62), RGB(130,84,14), RGB(36,91,43)}},
 };
 #define NPALETTES (sizeof(PALETTES) / sizeof(PALETTES[0]))
 static uint16_t pal[5];
@@ -50,15 +59,20 @@ static uint16_t pal[5];
 static void palette_set(uint32_t i)
 {
     uint32_t k;
+    ui_theme_light = i % NPALETTES == 5u;
     for (k = 0; k < 5u; k++)
         pal[k] = PALETTES[i % NPALETTES].c[k];
 }
 
 static inline uint16_t swap16(uint32_t c) { return (uint16_t)(((c >> 8) & 0xFFu) | ((c & 0xFFu) << 8)); }
 
+/* Exact for every RGB565 blend numerator (0..63*15). */
+static inline uint32_t cv_div15(uint32_t x) { return (x * 0x8889u) >> 19; }
+
 static void cv_begin(uint32_t w, uint32_t h, uint16_t bg)
 {
     uint32_t i, n;
+    uint32_t fill = swap16(bg);
     if (w * h > CV_MAX)
         h = CV_MAX / w;
     lcd_sync();                     /* the last blit may still read cv_px */
@@ -67,8 +81,15 @@ static void cv_begin(uint32_t w, uint32_t h, uint16_t bg)
     cv_oy = cv_y0 = 0;
     cv_y1 = (int32_t)h;
     n = w * h;
-    for (i = 0; i < n; i++)
-        cv_px[i] = swap16(bg);
+    i = 0;
+    if (n && ((uintptr_t)cv_px & 3u))
+        cv_px[i++] = (uint16_t)fill;
+    fill |= fill << 16;
+    /* Copy object bytes: the host unity build strips type attributes. */
+    for (; i + 1u < n; i += 2u)
+        __builtin_memcpy(__builtin_assume_aligned(cv_px + i, 4), &fill, sizeof fill);
+    if (i < n)
+        cv_px[i] = (uint16_t)fill;
 }
 
 /* X0X: draw the next things as if the canvas were rows y0 .. y0+h-1 alone (one band of a
@@ -147,9 +168,10 @@ static uint32_t glyph(const felucca_font_t *f, uint32_t ch)
 
 /* text in colour c, each pixel's coverage blended over what is already on the canvas (an
  * anti-aliased face on a coloured box gets no dark fringe); returns the end x */
-static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
+static int32_t cv_text_clip(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c, int32_t clip_left, int32_t clip_right)
 {
     uint32_t r = c >> 11, g = (c >> 5) & 63u, b = c & 31u;
+    uint16_t sc = swap16(c);
     for (; *s; s++) {
         uint32_t gi = glyph(f, (uint8_t)*s), gx, gy, w;
 #ifdef FONT_PACKBITS
@@ -187,15 +209,15 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
 #endif
                 int32_t px = x - f->pad + (int32_t)gx, py = y + (int32_t)gy + cv_oy;
                 a = (gx & 1u) ? (a & 15u) : (a >> 4);
-                if (!a || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)
+                if (!a || px < clip_left || px >= clip_right || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)
                     continue;
                 if (a == 15u) {
-                    cv_px[(uint32_t)py * cv_w + (uint32_t)px] = swap16(c);
+                    cv_px[(uint32_t)py * cv_w + (uint32_t)px] = sc;
                 } else {
                     uint32_t bg = swap16(cv_px[(uint32_t)py * cv_w + (uint32_t)px]);
                     uint32_t br = bg >> 11, bgg = (bg >> 5) & 63u, bb = bg & 31u;
-                    uint32_t nr = (r * a + br * (15u - a)) / 15u, ng = (g * a + bgg * (15u - a)) / 15u,
-                             nb = (b * a + bb * (15u - a)) / 15u;
+                    uint32_t nr = cv_div15(r * a + br * (15u - a)), ng = cv_div15(g * a + bgg * (15u - a)),
+                             nb = cv_div15(b * a + bb * (15u - a));
                     cv_px[(uint32_t)py * cv_w + (uint32_t)px] = swap16((nr << 11) | (ng << 5) | nb);
                 }
             }
@@ -203,6 +225,9 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
     }
     return x;
 }
+
+static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
+{ return cv_text_clip(x,y,f,s,c,0,(int32_t)cv_w); }
 
 static int32_t text_w(const felucca_font_t *f, const char *s)
 {
@@ -225,4 +250,25 @@ static void draw_text_box(uint32_t x, uint32_t y, uint32_t w, const felucca_font
     cv_text(tx, 0, f, s, c);
     cv_blit(x, y);
     lcd_sync();                     /* one-shots (boot, crash, UBOOT, update) finish here */
+}
+
+/* One static frame, using the existing validated still-picture record. */
+#include "app/boot_screen.h"
+static void draw_boot_screen(const uint8_t *pay)
+{
+    char title[13], subtitle[22];
+    int custom = pay && pay[0] == BOOT_KIND_CUSTOM;
+    int picture = custom && (pay[1] & BOOT_F_PIC);
+    boot_lines(pay,title,subtitle);
+    for (int band=0; band<2; ++band) {
+        cv_begin(240,120,C_BLACK);
+        if (picture) for (unsigned y=0; y<BOOT_PIC_H; ++y)
+            for (unsigned x=0; x<BOOT_PIC_W; ++x)
+                if (boot_pix(pay+BOOT_PAY_FIXED,x,y)) cv_pset((int)x,(int)y+20-band*120,C_HI);
+        cv_blit(0,(uint32_t)band*120u);
+    }
+    /* B supports lowercase; M deliberately contains capitals/numbers only. */
+    draw_text_box(0,picture?137:96,240,&FONT_B,title,C_HI,1);
+    draw_text_box(0,picture?164:134,240,&FONT_S,subtitle,C_GRAY,1);
+    if (!custom) draw_text_box(0,154,240,&FONT_S,"BREAK",C_DIM,1);
 }

@@ -24,10 +24,11 @@ assert '#include "app/apc40_pad_owner.h"' in main and "APC40_RGB" not in main
 print("PASS APC40 pad table (128 entries, owner-calibrated)")
 
 # Universal Device Inquiry returns the APC40 mkII identity and protocol version.
-assert "apc40_device_inquiry" in usb
-assert "msg[1] = 0x7E" in usb and "msg[5] = 0x47" in usb and "msg[6] = 0x29" in usb
-assert "msg[7] = 0x00; msg[8] = 0x19" in usb
-assert "midi_send_sysex(msg, sizeof msg)" in usb
+# Sticky usb_sx_answer (mirror ble_sx_reply) builds the same Akai/APC40 mkII bytes.
+assert "apc40_device_inquiry" in usb and "usb_sx_answer" in usb and "usb_sx_reply" in usb
+assert "m[1] = 0x7E" in usb and "m[5] = 0x47" in usb and "m[6] = 0x29" in usb
+assert "m[7] = 0x00; m[8] = 0x19" in usb
+assert "midi_send_sysex(m, n)" in usb
 assert "packets = (len + 2u) / 3u" in usb and "so_w - so_r + packets > SXQ" in usb
 assert "sx_busy = 1" in usb and "sx_out_q[so_w % SXQ] = pkt" in usb
 assert "usb.sysex[4] == 0x01u" in usb and "apc40_device_inquiry(usb.sysex[2])" in usb
@@ -103,7 +104,11 @@ assert "smk_apc_host_is_active" not in engine and "smk_apc_host_is_active" not i
 assert "apc_host_on & (1u << apc_in_ble)" in main   # APC handshake owns only the input link that sent it
 assert "smk_apc_ble_host_seen();" in ble and "smk_apc_host_seen();" in usb
 assert "if (d1 <= 98u)\n        return owned;" in main and "(d1 >= 48u && d1 <= 63u)" in main
-assert engine.count("if (smk_clip_mode_on())\n                return;") == 2
+# Clip pads: keep Loopy pad feedback out of the sound engine in clip mode, but a note
+# on the break's own channel is the break (kit-consume), not a clip pad.
+assert engine.count("if (smk_clip_mode_on() && ch != seq.ch[TRK_BRK])\n                return;") == 1
+# Transport feedback notes still use the plain clip-mode early return.
+assert engine.count("if (smk_clip_mode_on())\n                return;") == 1
 assert "SMK_APC40_PAD_FLOOR" not in main   # pads: half level, no floor (user decision)
 assert "smk_clip_pad_level(rgb[0], v, brightness)" in main
 assert "SMK_CLIP_LCD_FLOOR" not in main   # LCD_FLOOR is in tools/apc_colour_model.py now
@@ -134,11 +139,11 @@ assert "clip_mode && panel.btn[i] <= FM1_BTN_OCT_UP" in plat
 # clip keys: the keybed stays out of the X0X UI; a held pad still blocks its white key (main_fm1.c)
 assert "if (smk_clip_mode_on() || smk_padcal_on())\n#else\n    if (smk_clip_mode_on())\n#endif\n        return;" in ui   # CLP-79: also in the pad calibration (dev build)
 assert "w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u)" in main
-update = main.split("OCT- + OCT+ held 5 s", 1)[1].split('enter_uboot("UBOOT")', 1)[0]
-assert "ui_project_busy()" in update and "smk_clip_mode_on()" in update
-assert 'enter_uboot("UBOOT")' in main
-assert "0xF0, 0x47, 0x7F, 0x29, 0x61, 0x00, 0x09" in usb
-assert "apc40_introduction_reply();" in usb
+update_mode = main.split("/* OCT- + OCT+ held 5 s:")[1].split("/* Project transfers cannot queue")[0]
+assert "if (ui_project_busy()" in update_mode and "|| smk_clip_mode_on()" in update_mode
+assert "t0 = fm1_ms;" in update_mode and 'enter_uboot("UBOOT")' in update_mode
+assert "m[0] = 0xF0; m[1] = 0x47; m[2] = 0x7F; m[3] = 0x29; m[4] = 0x61; m[5] = 0x00; m[6] = 0x09;" in usb
+assert "apc40_introduction_reply();" in usb and "usb_sx_reply = 2u" in usb
 print("PASS clip input isolation and APC40 initialization handshake")
 
 # 1.5: clip grid on the LCD, drawn in the main loop (ui.c draw_main), rate limited, no new buffer.

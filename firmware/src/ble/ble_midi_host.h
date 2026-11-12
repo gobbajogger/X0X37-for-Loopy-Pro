@@ -52,6 +52,9 @@ typedef struct {
     uint16_t cmd_op;
     uint16_t conn;
     uint8_t cccd[2];
+    /* Unsent ATT response. An ATT bearer has at most one outstanding request;
+     * retry ahead of notifications when the HCI mailbox is full. */
+    uint8_t att_rsp[BLEH_MTU], att_rsp_len;
     uint8_t credits, acl_total;
     uint8_t rx[BLEH_MTU + 8];            /* one L2CAP PDU being collected */
     uint8_t rx_have, rx_need, rx_on;

@@ -10,12 +10,12 @@ static int fails;
 enum { USB = 0, BLE = 1, TRS = 2 };
 
 static int s_drum(void *x, int k, int v, float vel) { (void)x; (void)k; (void)v; (void)vel; return 1; }
-static void s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; (void)p; (void)n; (void)acc; (void)sl; (void)velocity; }
+static int s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; (void)p; (void)n; (void)acc; (void)sl; (void)velocity; return 1; }
 static void s_off(void *x, int p) { (void)x; (void)p; }
 static void s_brk(void *x, int s16, int bar, float spb, int en) { (void)x; (void)s16; (void)bar; (void)spb; (void)en; }
 static void s_brkstop(void *x) { (void)x; }
 static void s_midi(void *x, uint8_t st, uint8_t d1, uint8_t d2) { (void)x; (void)st; (void)d1; (void)d2; }
-static const seq_sink_t SINK = {s_drum, s_on, s_off, s_brk, s_brkstop, s_midi, 0, 0};
+static const seq_sink_t SINK = {s_drum, s_on, s_off, s_brk, s_brkstop, s_midi, 0, 0, 0};
 static seq_t S;
 static pattern_t P[NPAT];
 static uint32_t ticks;                         /* clocks that the sequencer took */
@@ -282,6 +282,44 @@ int main(void)
     run(512);
     msg(0xF8, BLE);
     CHECK(S.clk_lock == BLE + 1, "AUTO after INTERNAL: the first input gets the clock (%u)", S.clk_lock);
+
+    /* A stopped input may keep sending clocks after Stop. At the grace expiry a
+     * second input can take over within the same audio block as an old burst.
+     * Those queued old-owner ticks cannot start or advance the new transport. */
+    for (m = 0; m < 2; m++) {
+        uint8_t src = m ? SEQ_CLK_EXT : SEQ_CLK_AUTO;
+        const char *nm = m ? "EXTERNAL" : "AUTO";
+        for (int reverse = 0; reverse < 2; reverse++) {
+            unsigned old_src = reverse ? BLE : USB;
+            unsigned new_src = reverse ? USB : BLE;
+            for (int new_tick = 0; new_tick <= 1; new_tick++) {
+                reset(src);
+                msg(0xFA, old_src);
+                msg(0xF8, old_src);
+                run(256);                           /* old input starts step 1 */
+                msg(0xFC, old_src);
+                run(256);                           /* old input stops */
+                for (int i = 0; i < 9; i++) {       /* clocks continue after Stop: 450ms */
+                    msg(0xF8, old_src);
+                    run_ms(50);
+                }
+                CHECK(!S.playing && S.clk_stop && S.clk_lock == old_src + 1,
+                      "%s old=%u: stopped input still owns the clock", nm, old_src);
+                for (int i = 0; i < 6; i++)
+                    msg(0xF8, old_src);             /* six old-owner ticks queued in this block */
+                CHECK(S.ext_pending == 6, "%s old=%u: six old ticks pending (%u)", nm, old_src, S.ext_pending);
+                msg(0xFA, new_src);                 /* grace elapsed: new source takes over */
+                CHECK(S.clk_lock == new_src + 1, "%s old=%u: new Start gets the lock", nm, old_src);
+                if (new_tick)
+                    msg(0xF8, new_src);             /* first real new-owner downbeat */
+                run(256);
+                CHECK(S.playing && S.t[TRK_DRUM].started == (unsigned)new_tick &&
+                          S.t[TRK_DRUM].pos == 0,
+                      "%s old=%u new_tick=%d: stale clocks advanced new transport (started=%u pos=%u)",
+                      nm, old_src, new_tick, S.t[TRK_DRUM].started, S.t[TRK_DRUM].pos);
+            }
+        }
+    }
 
     printf("%s clock lock (MID-15): %d fail\n", fails ? "FAIL" : "PASS", fails);
     return fails ? 1 : 0;

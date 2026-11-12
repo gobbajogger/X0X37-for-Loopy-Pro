@@ -8,8 +8,11 @@ tapkey w4
 wait 600
 tapkey w8
 wait 600
+# the tune knob is on EDIT (the sound page); SEQ is back for the steps
+tap EDIT
 turn K1 5
 wait 600
+tap SEQ
 expect hit0.0.8 1
 expect sound0.0.0 39
 # undo the tune, then step 9, then steps 1 and 5
@@ -54,17 +57,22 @@ expect hit0.0.8 0
 expect hit0.0.12 1
 # RESET PROJECT clears the old undo/redo history and creates a fresh default baseline.
 # Change a sound and tempo too, so clearing only the current pattern cannot satisfy the reset checks.
+tap EDIT
 turn K1 7
 wait 600
 expect sound0.0.0 41
+tap SEQ
 press HOME
 turn SELECT 5
 release HOME
 expect tempo 130
 # GLO > RESET PROJECT (+17 selectable rows from CLOCK SOURCE), then confirm.
 tap GLO
-turn SELECT 17
-expect listsel 21
+# GLOBAL > PROJECT (section 3) > RESET PROJECT (row 4)
+turn SELECT 3
+tap SEL
+turn SELECT 4
+expect listsel 4
 tap SEL
 expect overlay 2
 tap SEL

@@ -6,7 +6,18 @@
 // firmware/src/app/editor.c over one NOR flash model, so the slots stay over an install as on the device.
 // Each firmware has its slot map: this X0X 80/120/44 KiB with the SMP_INFO extension, an older X0X
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
+import "./test_install_nightly_download_guard.mjs";
+import "./test_install_nightly_product_identity.mjs";
+import "./test_install_nightly_reconnect.mjs";
+import "./test_install_stock_model_preflight.mjs";
+import "./test_install_nightly_scan_order.mjs";
+import "./test_install_nightly_ota_model.mjs";
+import "./test_install_nightly_local_selection.mjs";
+import "./test_install_nightly_controller_selection.mjs";
+import "./test_install_nightly_slot_prewrite.mjs";
+import "./test_install_connection_retry.mjs";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -116,7 +127,9 @@ class FakeX0X {
     }
     if (eq(d, HS)) {
       const t = [...new TextEncoder().encode(this.identity)];
-      this.tx([0xF0, ...pack7([0, 0x59, 0x11, 0, 0, 0, ...t, ...new Array(28 - t.length).fill(0)]), 0xF7]);
+      const payload = [...t, ...new Array(27 - t.length).fill(0)];
+      const body = [0, 0x59, 0x11, 27, 0, 0, ...payload, ~payload.reduce((sum, b) => sum + b, 0) & 255];
+      this.tx([0xF0, ...pack7(body), 0xF7]);
     } else if (eq(d, UPGRADE)) {
       this.upgrades++;
       this.queue = this.identity.startsWith("ota-") ? [...Array.from({ length: 6 }, (_, k) => [k * 512, 512]), [0xF0000000, 8]]
@@ -137,7 +150,7 @@ class FakeX0X {
     if (!r) return;
     this.waiting = r;
     const [addr, len] = r;
-    const u = [0, 0x59, 0x30, 0, 0, 0, 0, addr & 0xFF, (addr >>> 8) & 0xFF, (addr >>> 16) & 0xFF, (addr >>> 24) & 0xFF, len & 0xFF, len >> 8, 0];
+    const u = [0, 0x59, 0x30, 8, 0, 0, 0, addr & 0xFF, (addr >>> 8) & 0xFF, (addr >>> 16) & 0xFF, (addr >>> 24) & 0xFF, len & 0xFF, len >> 8, 0];
     let s = 0;
     for (let i = 6; i < 14; i++) s += u[i];
     u.push(~s & 0xFF);
@@ -243,9 +256,10 @@ ok(packageSlotMap(packageOf(NEW_PKG, { map: NEW.map }).image).map((m) => [m.off,
   const before = r.dev.slotLog.filter(([id]) => id === NOW).map(([, c]) => c);
   ok(before.every((c) => c === 15 || c === 16) && before.includes(16), "downgrade: the backup sends SMP_INFO / SMP_READ only");
   const now = slotImages(r.flash, OLD);
-  ok(r.res && same(now[0], IMG[0]) && same(now[1], IMG[2]) && r.res.move.todo.map((t) => `${t.k}>${t.j}`).join() === "2>1"
-    && r.res.move.skipped.length === 1 && /slot 2/.test(r.res.move.skipped[0]),
-    "downgrade: slot 1 kept, slot 3 -> slot 2 and read back, slot 2 reported");
+  ok(r.res && same(now[0], IMG[0]) && now[1] === null && r.res.move.todo.length === 0
+    && r.res.move.skipped.length === 2 && r.res.move.skipped.some(s => /LOOP menu order or indices/.test(s))
+    && r.dev.slotLog.filter(([id]) => id === OLD_PKG).every(([, cmd]) => cmd === 15 || cmd === 16),
+    "downgrade: skipped middle loop blocks all restore writes and preserves archive for reconciliation");
   ok(r.said.some(([k, a]) => k === "slotsave" && a === "2, 3"), "downgrade: the page is told which slots are at risk");
 }
 
@@ -295,16 +309,35 @@ ok(packageSlotMap(packageOf(NEW_PKG, { map: NEW.map }).image).map((m) => [m.off,
 // ---- 8. the installer page itself (stub DOM): the download, the status, the instructions ----
 const strip = (src) => src.replace(/^export\s+/gm, "").replace(/^import .*?;\n/gms, "");
 async function page(pkg, product, firmware, from, fill, opts = {}) {
-  const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
+  // Match tools/make_pages.py LIB order (boot preview + factory loops).
+  const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "factory_break_pack.js", "boot_screen.js", "device_session.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
   const html = readFileSync(new URL("x0x_installer.html", import.meta.url), "utf8");
   const model = /^SMK-37 Elite/i.test(product) ? "elite" : /^MKE-P37/i.test(product) ? "mke"
     : /^FM-1/i.test(product) ? "fm1" : "pro";
+  // Only this simulated-device test injects a reviewed-source permission.
+  // The real NIGHTLY source keeps its immutable publisher allowlist EMPTY.
+  // This tests the full backup/write/restore journey *after* the picker gate.
+  const pkgSha = createHash("sha256").update(pkg.raw).digest("hex");
+  const ctlSha = "b".repeat(64), rootSha = "1".repeat(40), treeSha = "2".repeat(40);
+  const pkgUrl = "https://nightly.example.test/sha256/test.fwsc";
+  const entry = { product, pkg: pkgUrl, size: pkg.raw.length, sha256: pkgSha, controller_sha256: ctlSha };
   const catalog = JSON.stringify({
     repo: "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
     latest: "test",
-    versions: [{ version: "test", models: { [model]: { product, pkg: "x.fwsc", size: pkg.raw.length } } }],
+    versions: [{ version: "test", status: "dev-checked", source_commit: rootSha,
+      firmware_tree_sha: treeSha, qa_pass: true, source_licenses_approved: true,
+      models: { [model]: entry } }],
   });
-  const js = /<script type="module">([\s\S]*)<\/script>/.exec(html.replace("/*LIB*/", lib).replace("/*CATALOG*/", catalog))[1];
+  const approval = {
+    prehardware_qa_pass: true, license_and_source_ok: true, backup_integrity_pass: true,
+    model_and_controller_pass: true, immutable_http_pass: true, model, product,
+    source_root_sha: rootSha, firmware_tree_sha: treeSha,
+    package_url: pkgUrl, package_size: entry.size, package_sha256: pkgSha, controller_sha256: ctlSha, host_sha256: pkgSha,
+  };
+  const source = html.replace("const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze({});",
+    `const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze(${JSON.stringify({ [`test/${model}`]: approval })});`);
+  if (source === html) throw new Error("test source publisher guard not found");
+  const js = /<script type="module">([\s\S]*)<\/script>/.exec(source.replace("/*LIB*/", lib).replace("/*CATALOG*/", catalog))[1];
   const flash = new Flash();
   fill.forEach(([k, img]) => load(flash, firmware[from], k, img));
   const dev = new FakeX0X(pkg.image, from, product, firmware, flash, opts);
@@ -313,20 +346,55 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     const o = {
       tag, textContent: "", value: "", disabled: false, hidden: false, checked: false, className: "",
       dataset: {}, handlers: {}, children: [], style: {},
+      // Boot preview canvas; installer draws at import time.
+      getContext() { return { clearRect() {}, fillRect() {}, drawImage() {}, fillText() {},
+        measureText: () => ({ width: 0 }), save() {}, restore() {}, beginPath() {}, closePath() {},
+        moveTo() {}, lineTo() {}, stroke() {}, fill() {}, translate() {}, scale() {},
+        putImageData() {}, getImageData: () => ({ data: new Uint8ClampedArray(4), width: 1, height: 1 }),
+        createImageData: (w, h) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }),
+        canvas: { width: 128, height: 64 } }; },
+      classList: {toggle() {},add(){},remove(){}},
       addEventListener(t, f) { this.handlers[t] = f; },
       append(...nodes) { for (const n of nodes) this.children.push(n); },
       appendChild(n) { this.children.push(n); return n; },
       remove() {},
       removeAttribute() {},
+      setAttribute(name, value) { this[name] = value; if (name === "id") this.id = value; },
+      focus() {},
       click() { if (this.download) downloads.push({ name: this.download, href: this.href, blob: this.blob }); },
       set innerHTML(v) { this._html = v; this.children = []; this.value = ""; },
       get innerHTML() { return this._html || ""; },
+      // Installer backup readback inserts a panel after #status; auto-confirm it.
+      after(node) {
+        this._after = this._after || [];
+        this._after.push(node);
+        if (node && node.id === "backupverify") {
+          queueMicrotask(async () => {
+            const link = node.children.find((c) => c && c.download);
+            const chooser = node.children.find((c) => c && c.type === "file");
+            if (!link || !chooser || !chooser.handlers.change) return;
+            const blob = blobs.get(link.href);
+            if (!blob) return;
+            const bytes = new Uint8Array(await blob.arrayBuffer());
+            link.click();
+            Object.defineProperty(chooser, "files", {
+              configurable: true,
+              get: () => [{
+                name: link.download || "backup.x0xslots",
+                size: bytes.length,
+                async arrayBuffer() { return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength); },
+              }],
+            });
+            await chooser.handlers.change();
+          });
+        }
+      },
     };
     if (tag === "input") radios.push(o);
     return o;
   };
   globalThis.document = {
-    getElementById: (id) => (ids[id] ||= el(id === "version" ? "select" : id === "models" ? "div" : "div")),
+    getElementById: (id) => (ids[id] ||= el(id === "version" ? "select" : id === "bootprev" ? "canvas" : id === "models" ? "div" : "div")),
     querySelectorAll: () => [],
     querySelector: (sel) => {
       const m = /input\[value="([^"]+)"\]/.exec(sel);
@@ -353,19 +421,35 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     return node;
   };
   globalThis.window = { addEventListener() {}, confirm: () => true };
+  if (typeof globalThis.ImageData !== "function") {
+    globalThis.ImageData = class ImageData {
+      constructor(dataOrW, wOrH, h) {
+        if (typeof dataOrW === "number") {
+          this.width = dataOrW; this.height = wOrH;
+          this.data = new Uint8ClampedArray(this.width * this.height * 4);
+        } else {
+          this.data = dataOrW; this.width = wOrH; this.height = h;
+        }
+      }
+    };
+  }
+
   globalThis.fetch = async (url) => {
     if (String(url).includes("api.github.com")) return { ok: false, status: 404, json: async () => [] };
-    return { ok: true, arrayBuffer: async () => pkg.raw.buffer.slice(pkg.raw.byteOffset, pkg.raw.byteOffset + pkg.raw.byteLength) };
+    // Mirror modern Fetch: approved remote firmware requires bounded streaming.
+    return { ok: true, body: new Blob([pkg.raw]).stream() };
   };
   const blobs = new Map();
   URL.createObjectURL = (b) => { const u = `blob:${blobs.size}`; blobs.set(u, b); return u; };
   URL.revokeObjectURL = () => {};
-  Object.defineProperty(globalThis, "navigator", { configurable: true, value: { requestMIDIAccess: async () => dev.access } });
+  Object.defineProperty(globalThis, "navigator", { configurable: true, value: { locks: {request: async (_name, _opts, fn) => fn({})}, requestMIDIAccess: async () => dev.access } });
   await import("data:text/javascript;base64," + Buffer.from(js + `\n//${Math.random()}`).toString("base64"));
   for (let i = 0; i < 200 && ids.go?.disabled !== false; i++) await new Promise((r) => setTimeout(r, 10));
   if (!ids.go || ids.go.disabled !== false) throw new Error("installer page did not enable Install");
   if (!ids.go.handlers.click) throw new Error("installer page has no Install click handler");
-  const before = ids.status.textContent;
+  // Status is only created when say()/applyLang touch it; seed before click.
+  const before = (ids.status ||= el()).textContent;
+  ids.stockconfirm.checked = true; // Post-write discovery must clear existing local consent.
   const clicked = ids.go.handlers.click();
   for (let i = 0; i < 3000; i++) {
     if (ids.status.textContent && ids.status.textContent !== before && ids.go.disabled === false) break;
@@ -379,12 +463,16 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     files.push({ name: d.name, b: new Uint8Array(await blobs.get(key).arrayBuffer()) });
   }
   dump("page", flash, files.map((x) => x.b));
-  return { status: ids.status.textContent, files, flash };
+  return { status: ids.status.textContent, files, flash,
+    connected: ids.conn.textContent === "Connected", consentChecked: ids.stockconfirm.checked,
+    completedBar: ids.bar.value };
 }
 {
   const fw = { [NOW]: NEW, [NEW_PKG]: MOVED };
   const r = await page(packageOf(NEW_PKG, { map: MOVED.map }), NEW_PKG, fw, NOW, [[0, IMG[0]], [1, IMG[1]]]);
-  ok(/slots were written back and checked/.test(r.status) && r.files.length === 1 && same(slotImages(r.flash, MOVED)[1], IMG[1]),
+  ok(/slots were written back and checked/.test(r.status) && r.connected && !r.consentChecked &&
+    r.completedBar === 100 && r.files.length === 1 && same(slotImages(r.flash, MOVED)[1], IMG[1]) &&
+    same(readArchive(r.files[0].b).images[1], IMG[1]),
     `installer page: download, install, slots back ("${r.status}")`);
 }
 {
@@ -397,3 +485,4 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
 
 console.log(bad ? `INSTALL SLOT WEB TESTS FAILED (${bad})` : "install slot web tests passed");
 process.exit(bad ? 1 : 0);
+
