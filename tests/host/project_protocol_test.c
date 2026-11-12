@@ -7,17 +7,25 @@
 #define X0X_HOST 1
 #define BOARD_SMK37 0
 #define X0X_BLE 0
+#define X0X_DRUM_TABLES_DEFINE              /* x0x.h pulls drum909 tanh helpers */
 #include "../../firmware/src/app/x0x.h"
 
 static uint8_t flash_image[0x100000];
 #define SMP_USER_XIP(k) (flash_image + SMP_USER_OFF(k))
 #include "../../firmware/src/app/slots.c"
 project_t proj, project_stage;
+/* Drive the real editor's revision-13 export preflight without a DSP/storage link. */
+static int host_storage_unsupported, host_sound_invalid, host_preset_pending;
+int project_storage_unsupported(void) { return host_storage_unsupported; }
+int engine_bass_sound_validate(const sound_t *sound) { (void)sound; return host_sound_invalid; }
+int engine_bass_preset_pending(int voice) { (void)voice; return host_preset_pending; }
 static uint32_t fm1_ms, fm1_crash[2];
 static struct { uint32_t failed, pending; } bootguard;
-static int flash_ok = 1, flash_writes, flash_erases, held, adopts, aborts, validation, action;
+static struct { unsigned ota_req, uboot_req; } usb;
+static int flash_ok = 1, flash_writes, flash_erases, held, adopts, aborts, validation, action, wire_fail, stage_held, headers;
 static uint8_t frame[640], reply[800];
 static uint32_t frame_n, reply_n;
+static void (*wire_after_send)(void);
 static void fm1_irq_off(void) {}
 static void fm1_irq_on(void) {}
 static void fm1_wdt_feed(void) {}
@@ -33,6 +41,28 @@ static int fl_erase4k(uint32_t off, uint32_t *took)
     assert(off + 4096 <= sizeof flash_image);
     memset(flash_image + off, 255, 4096); *took = 1; flash_erases++; return 0;
 }
+/* Boot-customize paths in editor.c (ef38e221+) need the same host stubs as
+ * smp_begin_cancel_test.c so this TU links under -Werror. */
+static int fl_read(uint32_t off, void *dst, uint32_t n)
+{
+    assert(off + n <= sizeof flash_image);
+    memcpy(dst, flash_image + off, n);
+    return 0;
+}
+static uint8_t *fm1_xip_ptr(uint32_t off)
+{
+    assert(off < sizeof flash_image);
+    return flash_image + off;
+}
+static int store_stage_held(void) { return stage_held; }
+static uint8_t *store_stage_lock(uint32_t *cap)
+{
+    static uint8_t buf[64];
+    if (cap)
+        *cap = sizeof buf;
+    return buf;
+}
+static void store_stage_unlock(void) {}
 static uint32_t st_crc32(const uint8_t *p, uint32_t n)
 {
     uint32_t c = ~0u, b;
@@ -43,7 +73,10 @@ static uint32_t st_crc32(const uint8_t *p, uint32_t n)
     return ~c;
 }
 void engine_brk_loops(void) {}
+void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes) { (void)base; (void)nbytes; }
 void ui_say(const char *a, const char *b) { (void)a; (void)b; }
+int ui_boot_flash_busy(void) { return 0; }
+int ui_project_busy(void) { return held; }
 int ui_project_begin(void) { if (held) return UI_PROJECT_BUSY; held = 1; return 0; }
 void ui_project_end(int apply)
 {
@@ -55,17 +88,23 @@ int ui_project_save(void) { return action; }
 int ui_project_load(void) { return action; }
 int ui_project_reset(void) { return action; }
 void project_capture_stage(void) { memcpy(&project_stage, &proj, sizeof proj); }
-void project_file_header(uint8_t *h) { memset(h, 0x55, PROJECT_FILE_HDR); }
+void project_file_header(uint8_t *h) { headers++; memset(h, 0x55, PROJECT_FILE_HDR); }
 int project_file_validate(const uint8_t *h) { (void)h; return validation; }
 static int ota_wire_send(const uint8_t *p, uint32_t n)
 {
-    assert(n <= sizeof reply); memcpy(reply, p, n); reply_n = n; return 0;
+    assert(n <= sizeof reply); memcpy(reply, p, n); reply_n = n;
+    if (wire_after_send) wire_after_send();
+    return wire_fail;
 }
 static int ota_frame_get(const uint8_t **p, uint32_t *n)
 {
     *p = frame; *n = frame_n; return frame_n != 0;
 }
 static void ota_frame_done(void) { frame_n = 0; }
+/* Prove the device overlay path: editor chunk staging aliases the same 0xD00
+ * region class as ota_dec (call-scoped; no cross-message retention). */
+static uint8_t host_main_scratch[4096] __attribute__((aligned(4)));
+#define ED_SMP_SCRATCH (host_main_scratch + 0xD00)
 #include "../../firmware/src/app/editor.c"
 
 static void request(uint8_t cmd, const uint8_t *p, uint32_t n)
@@ -111,9 +150,15 @@ int main(void)
     uint32_t i, n;
     for (i = 0; i < sizeof data; i++) data[i] = (uint8_t)(i * 37 + 91);
     memset(&proj, 0x42, sizeof proj);
-    op(64, 0, 0, 0); assert(reply_n == 13 && reply[7] == 1 && ed_u21(reply + 8) == sizeof data && !reply[11]);
+    op(64, 0, 0, 0); assert(reply_n == 13 && reply[7] == (X0X_BASS_TAGGED_SOUND ? 2 : 1) && ed_u21(reply + 8) == sizeof data && !reply[11]);
     u21(a, sizeof data - 1); op(67, a, 3, 1); assert(!held);
     held = 1; u21(a, sizeof data); op(67, a, 3, 2); held = 0;
+    host_storage_unsupported = 1; op(65, 0, 0, 2); assert(!held);
+    host_storage_unsupported = 0;
+    host_sound_invalid = 1; op(65, 0, 0, 2); assert(!held);
+    host_sound_invalid = 0;
+    host_preset_pending = 1; op(65, 0, 0, 2); assert(!held);
+    host_preset_pending = 0;
     op(65, 0, 0, 0); assert(ed_project.mode == 1 && held);
     u21(a, 20); a[3] = 100; a[4] = 0; op(66, a, 5, 0);
     assert(ed_u21(reply + 7) == 20 && ed_unpack_exact(reply + 10, reply_n - 11, decoded, sizeof decoded) == 100);
@@ -135,7 +180,9 @@ int main(void)
     validation = -4; op(69, confirm, 2, 4); assert(!adopts && held);
     validation = -7; op(74, 0, 0, 6);
     validation = -1; op(74, 0, 0, 5);
+    int headers_before_validate = headers;
     validation = 0; op(74, 0, 0, 0); assert(!adopts && held && !ed_project_samples_locked());
+    assert(headers == headers_before_validate + 1); /* migrated bytes need a new CRC header */
     op(69, confirm, 2, 0); assert(adopts == 1 && !held && !ed_project.mode);
     assert(!memcmp(&proj, data + PROJECT_FILE_HDR, sizeof proj));
     assert(!flash_writes && !flash_erases);
@@ -145,26 +192,55 @@ int main(void)
     begin_import(); fm1_ms += 14999; op(64, 0, 0, 0); assert(reply[11] == 2);
     fm1_ms += 14999; ed_service(); assert(held);
     fm1_ms++; ed_service(); assert(!held && aborts == 2); ed_service(); assert(aborts == 2);
-    /* Complete original 512-byte header area, including the reserved 32 bytes. */
+    /* Sample headers after #432: END needs WRITE that erased sector 0. Also
+     * proves rewrite-after-live-sample WRITE still programs payload (backup
+     * must not clobber ed_smp_buf). */
     {
-        uint8_t header[512], original[544];
+        uint8_t header[512], original[544], smp_data[32];
         smp_user_hdr_t *h = (smp_user_hdr_t *)header;
+        int end_writes = 0;
+
+        memset(flash_image + SMP_USER_OFF(0), 0xFF, 4096);
+        for (i = 0; i < sizeof smp_data; i++) smp_data[i] = (uint8_t)(i * 7 + 3);
         memset(header, 0, sizeof header); h->magic = SMP_USER_MAGIC; h->version = 1; h->nz = 1;
         h->data_len = 32; h->zone[0].n = 64; h->zone[0].rate = 65536;
         for (i = 480; i < 512; i++) header[i] = (uint8_t)(i * 13);
-        h->crc = st_crc32(flash_image + SMP_USER_OFF(0) + 512, 32);
+        h->crc = st_crc32(smp_data, sizeof smp_data);
+
+        a[0] = 0; n = pack(header, sizeof header, a + 1); request(ED_SMP_END, a, n + 1);
+        assert(reply[6] == 6);                      /* no sector-0 erase this import */
+
+        a[0] = 0; request(ED_SMP_BEGIN, a, 1); assert(reply[6] == 0);
+        a[0] = 0; u21(a + 1, 512); n = pack(smp_data, sizeof smp_data, a + 4);
+        request(ED_SMP_WRITE, a, n + 4); assert(reply[9] == 0);
+        assert(!memcmp(flash_image + SMP_USER_OFF(0) + 512, smp_data, sizeof smp_data));
         a[0] = 0; n = pack(header, sizeof header, a + 1); request(ED_SMP_END, a, n + 1);
         assert(reply[6] == 0 && !memcmp(flash_image + SMP_USER_OFF(0), header, sizeof header));
-        n = pack(header, 480, a + 1); request(ED_SMP_END, a, n + 1); assert(reply[6] == 0);
+        end_writes++;
+
+        /* Second import: backup shadows live sector 0 then WRITE must still land. */
+        a[0] = 0; request(ED_SMP_BEGIN, a, 1); assert(reply[6] == 0);
+        a[0] = 0; u21(a + 1, 512); n = pack(smp_data, sizeof smp_data, a + 4);
+        request(ED_SMP_WRITE, a, n + 4); assert(reply[9] == 0);
+        assert(!memcmp(flash_image + SMP_USER_OFF(0) + 512, smp_data, sizeof smp_data));
+        a[0] = 0; n = pack(header, 480, a + 1); request(ED_SMP_END, a, n + 1);
+        assert(reply[6] == 0);
+        end_writes++;
+
         n = pack(header, 511, a + 1); request(ED_SMP_END, a, n + 1); assert(reply[6] == 1);
         n = pack(header, 512, a + 1); a[n + 1] = 0; request(ED_SMP_END, a, n + 2); assert(reply[6] == 1);
-        assert(flash_writes == 2);
+        assert(end_writes == 2);
+        /* Capture live flash (480-byte END leaves reserved tail erased). */
         memcpy(original, flash_image + SMP_USER_OFF(0), sizeof original);
+
         begin_import();
         for (i = 0; i < sizeof data; i += 224)
             write_chunk(i, sizeof data - i < 224 ? sizeof data - i : 224, 0);
         op(74, 0, 0, 0);
         a[0] = 0; request(ED_SMP_BEGIN, a, 1); assert(reply[6] == 0);
+        /* BEGIN alone keeps last-good (#427); WRITE must erase before recovery. */
+        a[0] = 0; u21(a + 1, 512); n = pack(original + 512, 32, a + 4);
+        request(ED_SMP_WRITE, a, n + 4); assert(reply[9] == 0);
         fm1_ms += 15000; ed_service();
         assert(held && ed_project.recovery);
         op(64, 0, 0, 0); assert(reply[11] == 3);
@@ -175,6 +251,7 @@ int main(void)
         op(74, 0, 0, 0);
         a[0] = 0; u21(a + 1, 512); n = pack(original + 512, 32, a + 4);
         request(ED_SMP_WRITE, a, n + 4); assert(reply[9] == 0 && held);
+        assert(!memcmp(flash_image + SMP_USER_OFF(0) + 512, original + 512, 32));
         a[0] = 0; n = pack(original, 512, a + 1); request(ED_SMP_END, a, n + 1);
         assert(reply[6] == 0 && held && !memcmp(original, flash_image + SMP_USER_OFF(0), sizeof original));
         op(70, 0, 0, 0); assert(!held && adopts == 1);

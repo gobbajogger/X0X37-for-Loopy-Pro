@@ -26,6 +26,12 @@ void smk_padcal_enter(void) {}
 uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
 static int feedback;
 int plat_ble_smc_send(const uint8_t *m, uint8_t n) { (void)m; (void)n; feedback++; return 1; }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #include "app/smc_mixer.c"
 
 static project_t before;
@@ -102,6 +108,15 @@ int main(void)
     ui_project_end(0);
     smc_poll();
     assert(!memcmp(&proj, &before, sizeof proj) && !memcmp(&seq, &seq_before, sizeof seq));
+    /* HOME strip-0 knob is MIX CUT, open-at-max by default. Seed mid-range so a
+     * +1 relative detent can prove input resumed after the abort (same ceiling
+     * trap as smc_drum_mutes continuous_probe). */
+    {
+        pref_t r = smc_knob_target(0);
+        const x0x_param_t *d = pref_desc(r);
+        assert(d && d->max);
+        pref_set(r, d->max / 2);
+    }
     int value = pref_get(smc_knob_target(0));
     knob(); smc_poll();
     assert(pref_get(smc_knob_target(0)) == value + 1); /* input resumes after abort */

@@ -111,6 +111,8 @@ typedef struct drum909 drum909_t;
 
 void drum909_init(drum909_t *d);
 void drum909_trigger(drum909_t *d, int voice, float vel);
+/* Noise/history only: engine calls this only while the kit is inactive. */
+void drum909_advance_noise(drum909_t *d, int n);
 void drum909_render(drum909_t *d, float *dry, float *rev, float *dly, int n);
 /* X0X stereo: each voice placed by its PAN into dry_l / dry_r (sends mono); all centred, both are
  * drum909_render's dry exactly */
@@ -121,8 +123,13 @@ void drum909_render_st_masked(drum909_t *d, float *dry_l, float *dry_r, float *r
 void drum909_pan_settle(drum909_t *d);   /* every pan to its target at once (the kit is silent: no zipper) */
 int drum909_nparams(int voice);
 const x0x_param_t *drum909_param(int voice, int i);
+int drum909_param_si(int voice, int i, int pot, float *val);
+float drum909_bd_hz(float tau, float m, float pm, float t_ms);   /* UI: kick pitch sweep */
+float drum909_env(const drum909_t *d, int voice);   /* UI: live amp envelope */
 void drum909_set(drum909_t *d, int voice, int i, int value);
 int drum909_get(const drum909_t *d, int voice, int i);
 
 /* true while any voice is still sounding (for a caller that wants to skip work) */
 int drum909_active(const drum909_t *d);
+
+void drum909_all_off(drum909_t *d);

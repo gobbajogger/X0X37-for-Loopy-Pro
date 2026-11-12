@@ -1,0 +1,77 @@
+{
+  "row_id": "#71",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:195; /workspace/docs-audit/roadmap-status.md:112; out/docs/roadmap-evidence/#71.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#71 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#71 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:112 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:195",
+      "/workspace/docs-audit/roadmap-status.md:112",
+      "out/docs/roadmap-evidence/#71.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "boot-screen",
+      "ui-theme"
+    ],
+    "evidence": "tests/boot_screen_test.c:218: check(\"factory words are DnBOX and the engine line\", !strcmp(l0, \"DnBOX\") && !strcmp(l1, BOOT_FACTORY_1));; tests/host/ui_theme_test.c:70: CHECK(!strcmp(caps_of(\"About DnBOX\"),\"ABOUT DnBOX\"));",
+    "identifiers": [
+      {
+        "identifier": "DnBOX",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:195"
+      }
+    ],
+    "matches": [
+      {
+        "test": "boot-screen",
+        "symbol_from_row": "DnBOX",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:195",
+        "file": "tests/boot_screen_test.c",
+        "line": 218,
+        "quote": "check(\"factory words are DnBOX and the engine line\", !strcmp(l0, \"DnBOX\") && !strcmp(l1, BOOT_FACTORY_1));",
+        "identifier": "DnBOX"
+      },
+      {
+        "test": "ui-theme",
+        "symbol_from_row": "DnBOX",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:195",
+        "file": "tests/host/ui_theme_test.c",
+        "line": 70,
+        "quote": "CHECK(!strcmp(caps_of(\"About DnBOX\"),\"ABOUT DnBOX\"));",
+        "identifier": "DnBOX"
+      }
+    ],
+    "recorded_results": {
+      "boot-screen": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "ui-theme": {
+        "result": "FAIL",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 11",
+        "raw": "  FAIL ui-theme"
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/boot_screen.h",
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": []
+  }
+}

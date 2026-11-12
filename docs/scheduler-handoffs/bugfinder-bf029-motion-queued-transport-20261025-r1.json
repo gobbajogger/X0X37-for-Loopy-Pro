@@ -1,0 +1,53 @@
+{
+  "schema": "loopyx0x37-bugfinder-evidence-v1",
+  "revision": "bugfinder-bf029-motion-queued-transport-real-sequencer-20261025-r1",
+  "owner": "existing Hourly Bugfinder; source producer only",
+  "parent_source_commit": "31a0be8eaebdccf15111c2e9aa5d1a73002a0d21",
+  "source_branch": "lane/bugfinder-bf027-motion-idle-transport-20261025",
+  "target_pr": 135,
+  "intent": "Queued STOP never transiently writes automation ramps; queued PLAY/CONTINUE counts first active audio frames, preserving normal interpolation.",
+  "finding": "engine_render called motion_tick against previous seq.playing before seq_advance(0) applies pending transport commands.",
+  "change": "Reordered engine_render callsite: drain, fx BPM, real sequencer zero-frame transport and step callback, then conditional motion_tick; registered linked native transport regression.",
+  "exact_reconstructed_production_input_blobs": {
+    "firmware/src/seq/sequencer.c": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+    "firmware/src/seq/sequencer.h": "9bbddbf55438247469816625bd0b07a865aa0dcb",
+    "firmware/src/seq/tb3po.c": "8578c9cfc144b7e74dfdd8f36d4d8f1c6cfd635d",
+    "firmware/src/seq/pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "firmware/src/seq/motion.c": "f94c93428153eaf6f42f25aee4c21cfb1e7cdd96"
+  },
+  "real_native_test": "test_real_linked.py, registered as tests/host/motion_transport_transition_test.py; verbatim production engine_render scheduling fragment compiled with Git-blob-exact sequencer.c,pattern.c,tb3po.c,motion.c; equivalent s_step callback, real seq_advance request handling. Other audio/DSP/engine_render code not linked.",
+  "test_configurations": [
+    "GCC O2",
+    "GCC UBSan",
+    "GCC ASan+UBSan",
+    "Clang O2",
+    "Clang UBSan",
+    "Clang ASan+UBSan"
+  ],
+  "pre_correction": {
+    "compile_exit": 0,
+    "runtime_exit": 1,
+    "behavioral_failures_per_config": 4,
+    "assertions_per_config": 11
+  },
+  "after_correction": {
+    "compile_exit": 0,
+    "runtime_exit": 0,
+    "assertions_passed_per_config": 11,
+    "sanitizer_diagnostics": "none observed; ASAN_OPTIONS=detect_leaks=0"
+  },
+  "test_scope_exclusions": [
+    "complete firmware engine/audio render",
+    "complete current-root QA",
+    "Elite and Pro new compiler-input BUILD_ONLY",
+    "hardware",
+    "browser/public installer",
+    "production approval"
+  ],
+  "required_receivers": [
+    "existing Hourly Build: fresh matched Elite+Pro/controller for new compiler tree",
+    "existing Independent QA: independently rerun full engine/clock/STOP/START transitions",
+    "sole firmware Safe Merge: separately approve integration after QA"
+  ]
+}

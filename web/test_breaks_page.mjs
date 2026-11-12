@@ -18,7 +18,7 @@ import re, sys
 sys.path.insert(0, "web")
 from make_site import strip_module
 page = open("web/x0x_breaks.html", encoding="utf-8").read()
-lib = strip_module(open("web/x0x_breaks.js", encoding="utf-8").read())
+lib = "\\n".join(strip_module(open("web/" + f, encoding="utf-8").read()) for f in ("x0x_breaks.js", "device_session.js"))
 print(re.search(r'<script type="module">(.*)</script>', page.replace("/*LIB*/", lib), re.S).group(1))
 `]).toString();
 
@@ -88,7 +88,8 @@ class Device {
     }
     if (cmd === 13) {
       const h = unpack7(a.slice(1)), p = parseHeader(h);
-      if (h.length !== HDR_LEN) return [k, 1];
+      // Current ED_SMP_END admits the structured header or the full archived area.
+      if (h.length !== HDR_LEN && h.length !== DATA_OFF) return [k, 1];
       if (!p || p.dataLen > this.sizes[k] - DATA_OFF) return [k, 2];
       if (crc32(this.flash[k].subarray(DATA_OFF, DATA_OFF + p.dataLen)) !== p.crc) return [k, 3];
       this.program(k, 0, h);
@@ -125,10 +126,11 @@ const blobs = [];
 URL.createObjectURL = (b) => { blobs.push(b); return "blob:test"; };
 URL.revokeObjectURL = () => {};
 Object.defineProperty(globalThis, "navigator", { configurable: true, value: {
+  locks: {request: async (_name, _opts, fn) => fn({})},
   requestMIDIAccess: async () => {
-    const input = { name: "X0X FM-1", state: "connected", open: async () => {}, onmidimessage: null };
+    const input = { id: "i", name: "X0X FM-1", state: "connected", open: async () => {}, onmidimessage: null };
     const output = {
-      name: "X0X FM-1", open: async () => {},
+      id: "o", state: "connected", name: "X0X FM-1", open: async () => {},
       send(d) {
         const r = device.handle(d[4], d.slice(5, d.length - 1));
         if (r) setTimeout(() => input.onmidimessage({ data: new Uint8Array([0xF0, 0x7D, 0x46, 0x4C, d[4], ...r, 0xF7]) }), 0);
@@ -159,7 +161,10 @@ h, d = sio.user_slot("BR1", [([int(4000 * ((i * 7) % 13 - 6)) for i in range(300
                              ([int(3000 * ((i * 5) % 11 - 5)) for i in range(20000)], 37, None, None)], rate=44100)
 sys.stdout.buffer.write(h.ljust(512, bytes([255])) + d)
 `]);
-  return new Uint8Array(out);
+  const image = new Uint8Array(out);
+  // A backup owns all 512 header bytes, including bytes outside smp_user_hdr_t.
+  for (let i = HDR_LEN; i < DATA_OFF; i++) image[i] = (i * 17 + 3) & 255;
+  return image;
 })();
 device = new Device(2, 80 * 1024);
 device.load(0, img1);
@@ -184,10 +189,11 @@ device.load(1, other);
 await $("connect").onclick();
 await idle();
 $("archive").onchange({ target: { files: [{ name: "b.x0xslots", arrayBuffer: async () => arch.buffer }], value: "" } });
-check(await idle(/Restored|differ|fit|damaged/), `Restore: "${$("status").textContent}"`);
+check(await idle(/Complete restore|PARTIAL|differ|fit|damaged/), `Restore: "${$("status").textContent}"`);
 const im0 = device.image(0);
 check(im0 && im0.length === img1.length && im0.every((v, i) => v === img1[i]) && device.image(1) === null,
-  "Restore: slot 1 equals the backup, slot 2 erased");
+  "Restore: slot 1 equals all original bytes including reserved header area, slot 2 erased");
+check(/Complete restore/.test($("status").textContent), "Restore reports complete only after full original-byte readback");
 
 // ---- 3. a 3 x 120 KB device: the page follows SMP_INFO ----
 device = new Device(3, 120 * 1024);

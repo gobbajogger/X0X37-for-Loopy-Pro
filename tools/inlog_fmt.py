@@ -13,6 +13,8 @@ import re
 from pathlib import Path
 
 ED_INLOG = 38
+PAD_INPUT_ARG = 6
+PAD_INPUT_BYTES = 521
 CELLS = 40
 SRC = ["USB", "BLE", "EDGE", "BLE NO CELL"]
 MAIN = Path(__file__).resolve().parents[1] / "firmware/src/app/apc40_pad_owner.h"
@@ -126,6 +128,67 @@ def parse_pads(r):
         return None
     w = [r[2 + 4 * k] | r[3 + 4 * k] << 7 | r[4 + 4 * k] << 14 | r[5 + 4 * k] << 21 for k in range(32)]
     return r[1], w[:16], w[16:]
+
+
+def parse_pad_inputs(r):
+    """INLOG 6 v1. Decode strictly; legacy fallback, short and noncanonical replies are not data."""
+    if not r or any(not isinstance(b, int) or not 0 <= b <= 127 for b in r):
+        return None
+    if list(r[:3]) == [PAD_INPUT_ARG, 1, 1] and len(r) == 3:
+        return {"version": 1, "status": "busy"}
+    if len(r) != PAD_INPUT_BYTES or list(r[:4]) != [PAD_INPUT_ARG, 1, 0, 16] or r[4] > 3:
+        return None
+    at = 8
+
+    def take(bits):
+        nonlocal at
+        n = (bits + 6) // 7
+        v = sum(r[at + k] << (7 * k) for k in range(n))
+        at += n
+        if v >= 1 << bits:
+            raise ValueError("noncanonical word")
+        return v
+
+    try:
+        d = {"version": 1, "status": "snapshot", "grid": bool(r[4] & 1), "piano": bool(r[4] & 2),
+             "on_delta": r[5], "off_delta": r[6], "peak_samples": r[7]}
+        for key in ("now_ms", "frames", "adc_ok", "adc_miss", "pnotes"):
+            d[key] = take(32)
+        d["mux_c"] = [take(16) for _ in range(8)]
+        d["pads"] = []
+        for i in range(16):
+            p = {"pad": i}
+            for key in ("raw", "base", "peak"):
+                p[key] = take(16)
+            p["state"] = take(8)
+            for key in ("velocity", "pressure", "note_plus_one"):
+                p[key] = take(7)
+            p["curve"] = [take(16) for _ in range(5)]
+            d["pads"].append(p)
+        return d if at == len(r) else None
+    except ValueError:
+        return None
+
+
+def pad_inputs_text(d):
+    if d is None:
+        return ["PAD INPUTS: unsupported, missing or malformed reply; no sensor conclusion."]
+    if d["status"] == "busy":
+        return ["PAD INPUTS: scan crossed all three snapshot attempts; busy, no measurements."]
+    out = [f"PAD INPUTS: latest mux samples at {d['now_ms']} ms; frames {d['frames']}, "
+           f"ADC ok {d['adc_ok']}, missed {d['adc_miss']}; pnotes 0x{d['pnotes']:08x}",
+           f"Hit above base + {d['on_delta']}; release below base + {d['off_delta']}; "
+           f"peak window {d['peak_samples']} samples; grid {d['grid']}, piano {d['piano']}",
+           "Mux C: faders 1-4 (raw), wheels (filtered), pedal, battery: " + str(d["mux_c"]),
+           "Hardware pads 0-7 top row, 8-15 bottom row, left to right:"]
+    for p in d["pads"]:
+        out.append(f"  pad {p['pad']:2d}: raw {p['raw']:4d} base {p['base']:4d} "
+                   f"delta {p['raw'] - p['base']:+5d} peak {p['peak']:4d} state 0x{p['state']:02x} "
+                   f"vel {p['velocity']:3d} pressure {p['pressure']:3d} "
+                   f"note+1 {p['note_plus_one']:2d} curve {p['curve']}")
+    out.append("Peak/velocity are the last strike, not a press counter. Curves are active RAM values; "
+               "factory/default origin is not reported. A snapshot alone does not diagnose the hardware.")
+    return out
 
 
 PADCAL_ARGS = (2, 3, 4, 5)   # CLP-79: the pad calibration export, 32 entries each

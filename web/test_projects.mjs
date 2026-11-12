@@ -2,7 +2,9 @@
 // Host-only project/container/MIDI safety checks. Run: node web/test_projects.mjs
 import test from "node:test";
 import assert from "node:assert/strict";
-import { webcrypto } from "node:crypto";
+import { webcrypto, createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { inflateSync } from "node:zlib";
 import { crc32, pack78, unpack78, userSlotRaw, parseHeader } from "./x0x_breaks.js";
 import { PROJECT_OP as OP, ProjectDevice, ProjectMidiLink, parseProject, validateSlotImage, sameBytes, makeProjectFile,
   readProjectFile, planProjectImport, readProjectSnapshot, prepareProjectImport, applyProjectImport } from "./x0x_projects.js";
@@ -13,10 +15,10 @@ const u21 = (n) => [n & 127, n >> 7 & 127, n >> 14 & 127];
 const n21 = (a, p = 0) => a[p] | a[p + 1] << 7 | a[p + 2] << 14;
 const frame = (cmd, payload) => [0xF0, 0x7D, 0x46, 0x4C, cmd, ...payload, 0xF7];
 const clone = (b) => b === null ? null : b.slice();
-function rawProject(seed = 1, length = 1337) {
+function rawProject(seed = 1, length = 36452) {
   const b = new Uint8Array(length), v = new DataView(b.buffer);
   for (let i = 32; i < b.length; i++) b[i] = (seed * 17 + i * 13) & 255;
-  [0x50583058, 1, length - 32, crc32(b.subarray(32)), 1, 3, 4, 0].forEach((n, k) => v.setUint32(k * 4, n, true));
+  [0x50583058, 1, length - 32, crc32(b.subarray(32)), 1, 13, 13, 0].forEach((n, k) => v.setUint32(k * 4, n, true));
   return b;
 }
 function sample(name = "ORIGINAL", seed = 1, length = 593, rate = 44100) {
@@ -59,7 +61,8 @@ function editArchive(b, edit) {
 // taken effect, which catches unsafe retries and ambiguous COMMIT handling.
 class Keyboard {
   constructor({ project = rawProject(), images = [original, null, third], sizes = [4096, 8192, 4096], identity = "X0X test", transform = null } = {}) {
-    this.project = project.slice(); this.saved = project.slice(); this.images = images.map(clone); this.sizes = sizes;
+    this.project = project.slice(); this.saved = project.slice();
+    this.supportedSchema = parseProject(project); this.images = images.map(clone); this.sizes = sizes;
     this.flash = images.map((img, k) => { const b = new Uint8Array(sizes[k]).fill(255); if (img) b.set(img); return b; });
     this.identity = identity; this.mode = 0; this.staging = null; this.offset = 0; this.previousWrite = null; this.validated = false; this.sampleBaseline = null;
     this.queue = []; this.calls = []; this.commits = []; this.transform = transform; this.clock = 0; this.disconnected = false;
@@ -113,7 +116,11 @@ class Keyboard {
       }
       if (op === OP.VALIDATE || op === OP.COMMIT) {
         if (this.mode !== 2 || this.offset !== this.project.length) return reply(2);
-        try { parseProject(this.staging, this.project.length); } catch { return reply(4); }
+        try {
+          const schema = parseProject(this.staging, this.project.length);
+          if (schema.patternVersion !== this.supportedSchema.patternVersion || schema.soundRevision !== this.supportedSchema.soundRevision)
+            return reply(1); // Firmware also validates the exact staged revision.
+        } catch { return reply(4); }
         if (this.staging[32] === 0xEE) return reply(5);
         if (op === OP.VALIDATE) this.validated = true;
         if (op === OP.COMMIT) {
@@ -190,7 +197,8 @@ test("inner project rejects corrupt, truncated, oversized and incompatible schem
     assert.throws(() => parseProject(raw), /incompatible/);
   }
   const bad = rawProject(); bad[35] ^= 1; assert.throws(() => parseProject(bad), /CRC/);
-  assert.throws(() => parseProject(rawProject().subarray(0, 100)), /length/);
+  assert.throws(() => parseProject(rawProject().subarray(0, 100)), /structural layout/);
+  assert.throws(() => parseProject(legacyProject().subarray(0, 100)), /length/);
   assert.throws(() => parseProject(new Uint8Array(0x200000)), /size/);
   assert.throws(() => parseProject(rawProject(), 100), /firmware/);
 });
@@ -516,4 +524,203 @@ test("MIDI adapter ignores normal playing traffic and bounds idle SysEx bufferin
   listener({ data: [0xF8] }); assert.notEqual(link.pending, null);
   listener({ data: frame(9, [OP.ABORT, 0]) }); assert.deepEqual(await waiting, frame(9, [OP.ABORT, 0]));
   link.close(); assert.equal(listener, null);
+});
+
+// Actual C project_capture_stage/project_file_header export, not a forged JS header.
+function firmwareProjectFixture(pattern = 3) {
+  const f = JSON.parse(readFileSync(new URL(`../tests/fixtures/project-v${pattern}-sound10.json`, import.meta.url), "utf8"));
+  const raw = new Uint8Array(inflateSync(Buffer.from(f.zlib_base64, "base64")));
+  assert.equal(f.synthetic, true); assert.equal(f.contains_user_data, false);
+  assert.equal(f.project_validate_stage, 0); assert.equal(f.project_file_validate, 0);
+  assert.ok(f.defines.includes("X0X_WOBBLE=1"), "fixture must use the product Miami backend");
+  const producers = { 3: "d633833ac369f8466bc2563791614206070e87d1", 6: "6ddea31d6040d6735989e64adbe11630fc1ee7ec" };
+  assert.equal(f.source_commit, producers[pattern]);
+  assert.deepEqual(f.dirty_production_files, []);
+  assert.equal(f.producer_readback.same_previous_fixture_bytes, true);
+  assert.equal(raw.length, f.length);
+  assert.equal(createHash("sha256").update(raw).digest("hex"), f.sha256);
+  return raw;
+}
+
+test("only explicit pattern/sound revision pairs are accepted", () => {
+  for (const [patternVersion, soundRevision] of [[3, 4], [3, 10], [6, 10]]) {
+    const raw = rawProject(), v = new DataView(raw.buffer); v.setUint32(20, patternVersion, true); v.setUint32(24, soundRevision, true);
+    assert.equal(parseProject(raw).patternVersion, patternVersion); assert.equal(parseProject(raw).soundRevision, soundRevision);
+  }
+  for (const [pattern, sound] of [[2, 10], [3, 5], [3, 9], [3, 11], [4, 10], [5, 10], [6, 4], [6, 9], [7, 10], [999, 999]]) {
+    const raw = rawProject(), v = new DataView(raw.buffer); v.setUint32(20, pattern, true); v.setUint32(24, sound, true);
+    assert.throws(() => parseProject(raw), /incompatible/);
+  }
+});
+
+test("historical firmware export retains its 3/10 header and every payload byte for inspection", async () => {
+  const raw = firmwareProjectFixture(), info = parseProject(raw);
+  assert.equal(info.patternVersion, 3); assert.equal(info.soundRevision, 10);
+  for (const portable of [false, true]) {
+    const file = await readProjectFile(await bundle(raw, snapshot(), portable));
+    assert.deepEqual(file.project, raw); assert.equal(file.portable, portable);
+  }
+  const corrupt = raw.slice(); corrupt[corrupt.length - 1] ^= 1;
+  assert.throws(() => parseProject(corrupt), /CRC/);
+  assert.throws(() => parseProject(raw, raw.length + 1), /firmware/);
+});
+
+// Revision 13 is the only loadable schema. Historical exports remain inspectable,
+// replacing the former positive legacy import/migration expectations deliberately.
+function legacyProject(pattern = 3, sound = 10, length = 36452) {
+  const raw = rawProject(2, length), v = new DataView(raw.buffer);
+  v.setUint32(20, pattern, true); v.setUint32(24, sound, true);
+  return raw;
+}
+function assertNoImportMutations(keyboard, since = 0) {
+  const mutations = keyboard.calls.slice(since).filter(c => c.cmd >= 11 && c.cmd <= 14 ||
+    c.cmd === 9 && [OP.IMPORT, OP.WRITE, OP.ADOPT_BASS, OP.COMMIT].includes(c.args[0]));
+  assert.deepEqual(mutations, [], "rejected legacy input cannot import, write samples/project, adopt or commit");
+}
+
+test("historical firmware exports remain exact read-only snapshots but cannot prepare an import", async () => {
+  for (const pattern of [3, 6]) {
+    const raw = firmwareProjectFixture(pattern), { keyboard, device } = await connected({ project: raw });
+    const exported = await readProjectSnapshot(device);
+    assert.deepEqual(exported.project, raw);
+    for (const portable of [false, true]) {
+      const saved = await bundle(raw, snapshot(), portable);
+      assert.deepEqual((await readProjectFile(saved)).project, raw);
+      await assert.rejects(prepareProjectImport(device, saved), e => e.code === "version" && /revision 13/.test(e.message));
+    }
+    assertNoImportMutations(keyboard);
+    assert.deepEqual(keyboard.project, raw); assert.deepEqual(keyboard.images, snapshot().images);
+  }
+});
+
+test("current import refuses a historical live snapshot before any mutation while preserving read-only export", async () => {
+  const historical = legacyProject(), current = rawProject(3);
+  const { keyboard, device } = await connected({ project: historical });
+  const exported = await readProjectSnapshot(device);
+  assert.deepEqual(exported.project, historical); assert.deepEqual(exported.images, snapshot().images);
+  const archived = await readProjectFile(await bundle(exported.project, exported));
+  assert.deepEqual(archived.project, historical); assert.deepEqual(archived.images, exported.images);
+  const incoming = await bundle(current, snapshot([alternate, null, third]));
+  assert.equal(parseProject((await readProjectFile(incoming)).project).soundRevision, 13);
+  const at = keyboard.calls.length, exports = keyboard.projectCalls(OP.EXPORT).length;
+  await assert.rejects(prepareProjectImport(device, incoming),
+    e => e.code === "version" && /revision 13/.test(e.message));
+  assert.equal(keyboard.projectCalls(OP.EXPORT).length, exports + 1,
+    "a valid current input reaches the live snapshot guard after read-only export");
+  assertNoImportMutations(keyboard, at);
+  assert.deepEqual(keyboard.project, historical); assert.deepEqual(keyboard.images, exported.images);
+  assert.equal(keyboard.mode, 0); assert.equal(device.mode, 0);
+});
+
+test("current import rejects a historical replacement recovery backup before staging or sample writes", async () => {
+  const { keyboard, device } = await connected();
+  const prepared = await prepareProjectImport(device, await bundle(rawProject(2), snapshot([alternate, null, third])));
+  assert.ok(prepared.plan.collisions.length, "the intended import would replace original sample bytes");
+  const historical = legacyProject();
+  prepared.backupBytes = await bundle(historical, snapshot());
+  const replacement = await readProjectFile(prepared.backupBytes);
+  assert.deepEqual(replacement.project, historical); assert.deepEqual(replacement.images, snapshot().images);
+  assert.equal(parseProject((await readProjectFile(prepared.file.bytes)).project).soundRevision, 13,
+    "only the backup changed; the intended import remains current");
+  const at = keyboard.calls.length, exports = keyboard.projectCalls(OP.EXPORT).length;
+  await assert.rejects(applyProjectImport(device, prepared, { confirmed: true, backupSaved: true }),
+    e => e.code === "version" && /revision 13/.test(e.message));
+  assertNoImportMutations(keyboard, at);
+  assert.equal(keyboard.projectCalls(OP.EXPORT).length, exports,
+    "the invalid rollback source is rejected before the fresh snapshot and staging");
+  assert.deepEqual(keyboard.project, rawProject()); assert.deepEqual(keyboard.images, snapshot().images);
+  assert.equal(keyboard.mode, 0); assert.equal(device.mode, 0);
+});
+
+test("direct stage and preparation reject same-length old headers and protocol2 migration before mutation", async () => {
+  const cases = [[3,4], [3,10], [6,10], [6,11], [7,11], [8,11], [9,11]];
+  for (const [pattern, sound] of cases) {
+    const raw = legacyProject(pattern, sound), { keyboard, device } = await connected();
+    assert.equal(raw.length, keyboard.project.length);
+    assert.equal(parseProject(raw).patternVersion, pattern, "historical inspection remains available");
+    await assert.rejects(device.stage(raw), e => e.code === "version" && /revision 13/.test(e.message));
+    await assert.rejects(prepareProjectImport(device, await bundle(raw)), e => e.code === "version" && /revision 13/.test(e.message));
+    assertNoImportMutations(keyboard);
+    assert.deepEqual(keyboard.project, rawProject()); assert.deepEqual(keyboard.images, snapshot().images);
+  }
+  const { keyboard, device } = await connected({ transform: (cmd, a, r) => {
+    if (cmd === 9 && a[0] === OP.QUERY) return [OP.QUERY, 0, 2, ...u21(36452), r[6]];
+    return r;
+  } });
+  for (const pattern of [3, 6]) {
+    const raw = legacyProject(pattern, 10, 36428);
+    await assert.rejects(device.stage(raw), e => e.code === "version" && /revision 13/.test(e.message));
+    assertNoImportMutations(keyboard);
+  }
+});
+
+test("retained-recovery preparation refuses legacy bundles without releasing its hold", async () => {
+  const { keyboard, device } = await connected();
+  keyboard.mode = 3; await device.query({ acceptModeChange: true });
+  const at = keyboard.calls.length;
+  await assert.rejects(prepareProjectImport(device, await bundle(legacyProject())),
+    e => e.code === "version" && /revision 13/.test(e.message));
+  assertNoImportMutations(keyboard, at);
+  assert.equal(keyboard.mode, 3); assert.equal(device.mode, 3);
+});
+
+test("normal and retained-recovery APIs recheck tampered prepared bytes before any mutation", async () => {
+  for (const recovery of [false, true]) {
+    const { keyboard, device } = await connected();
+    if (recovery) { keyboard.mode = 3; await device.query({ acceptModeChange: true }); }
+    const valid = await bundle(rawProject(2), snapshot([alternate, null, third]));
+    const old = await bundle(legacyProject(), snapshot([alternate, null, third]));
+    const prepared = await prepareProjectImport(device, valid), at = keyboard.calls.length;
+    prepared.file.bytes = old; // Valid outer/component CRCs; revision policy must be checked again.
+    await assert.rejects(applyProjectImport(device, prepared, { confirmed: true, backupSaved: true }),
+      e => e.code === "version" && /revision 13/.test(e.message));
+    assertNoImportMutations(keyboard, at);
+    assert.deepEqual(keyboard.project, rawProject()); assert.deepEqual(keyboard.images, snapshot().images);
+    assert.equal(keyboard.mode, recovery ? 3 : 0, "rejection preserves an existing recovery hold");
+  }
+});
+
+test("revision 13 round-trips every project payload byte and original sample through both protocol versions", async () => {
+  for (const protocol of [1, 2]) {
+    const { keyboard, device } = await connected({ transform: (cmd, a, r) => {
+      if (cmd === 9 && a[0] === OP.QUERY) return [OP.QUERY, 0, protocol, ...u21(36452), r[6]];
+      return r;
+    } });
+    const raw = rawProject(2), prepared = await prepareProjectImport(device, await bundle(raw, snapshot(), false));
+    assert.deepEqual(parseProject(raw), { length: 36452, payloadLength: 36420, fileVersion: 1,
+      projectVersion: 1, patternVersion: 13, soundRevision: 13, partOffMask: 0 });
+    await applyProjectImport(device, prepared, { confirmed: true });
+    assert.deepEqual((await readProjectSnapshot(device)).project, raw);
+    assert.deepEqual(keyboard.images, snapshot().images); assert.equal(keyboard.sampleWrites().length, 0);
+    assert.equal(keyboard.projectCalls(OP.VALIDATE).length, 1);
+    assert.equal(keyboard.projectCalls(OP.COMMIT).length, 1);
+  }
+});
+
+// Layout is unchanged; the stream discriminator makes old firmware reject counts.
+test("adaptive BREAK stream 8/9 project schemas keep exact bytes and CRC checks", () => {
+  for (const stream of [8, 9]) {
+    const b = new Uint8Array(36452), v = new DataView(b.buffer);
+    v.setUint32(0,0x50583058,true);v.setUint32(4,1,true);v.setUint32(8,b.length-32,true);
+    v.setUint32(16,1,true);v.setUint32(20,stream,true);v.setUint32(24,11,true);
+    v.setUint32(12,crc32(b.subarray(32)),true);
+    assert.equal(parseProject(b).patternVersion,stream);
+    b[100] ^= 1; assert.throws(() => parseProject(b), /CRC/);
+  }
+});
+
+// M7a uses the reserved file-header word, not payload/padding mutation.
+test("part-off masks round-trip and every one-bit header corruption is rejected", () => {
+  const check = m => (m&1?0x17:0)^(m&2?0x2E:0)^(m&4?0x5C:0)^(m&8?0xB8:0)^(m&16?0x67:0);
+  for(let mask=0;mask<32;mask++) {
+    const raw=rawProject(), before=raw.slice(32), v=new DataView(raw.buffer);
+    const word=mask ? (0x4F460000 | check(mask)<<8 | mask)>>>0 : 0;
+    v.setUint32(28,word,true);
+    assert.equal(parseProject(raw).partOffMask,mask);
+    assert.deepEqual(raw.subarray(32),before);
+    for(let bit=0;bit<32;bit++) {
+      v.setUint32(28,(word ^ 2**bit)>>>0,true);
+      assert.throws(()=>parseProject(raw),/incompatible/);
+    }
+  }
 });

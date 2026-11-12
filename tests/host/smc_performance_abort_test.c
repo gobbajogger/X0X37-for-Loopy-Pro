@@ -27,6 +27,12 @@ uint8_t smk_padcal_on(void) { return 0; }
 void smk_padcal_enter(void) {}
 uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
 int plat_ble_smc_send(const uint8_t *m, uint8_t n) { (void)m; (void)n; return 1; }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -168,7 +174,9 @@ static void start_abort_same_poll(void)
     for (ui.list_sel = 0; ui.list_sel < ui.list_n; ui.list_sel++)
         if (list_rows[ui.list_sel].kind == R_ACT && list_rows[ui.list_sel].a == ACT_PERF_TEST) break;
     assert(ui.list_sel < ui.list_n);
-    note(5);                           /* start through the production SMC menu action */
+    note(5);smc_poll();                 /* SMC cannot activate keyboard menu actions */
+    assert(!perf_testing() && ui.overlay==O_LIST);
+    button_tap(B_SEL);                  /* keyboard starts; SMC aborts in same queued poll */
     note(0x5D);
     edits();
     smc_poll();

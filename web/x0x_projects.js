@@ -4,13 +4,13 @@
 import { crc32, pack78, unpack78, parseHeader, parseInfo, makeArchive, readArchive, slotSize } from "./x0x_breaks.js";
 
 export const PROJECT_OP = Object.freeze({ QUERY: 64, EXPORT: 65, READ: 66, IMPORT: 67, WRITE: 68,
-  COMMIT: 69, ABORT: 70, SAVE: 71, LOAD: 72, RESET: 73, VALIDATE: 74 });
+  COMMIT: 69, ABORT: 70, SAVE: 71, LOAD: 72, RESET: 73, VALIDATE: 74, ADOPT_BASS: 75 });
 export const PROJECT_MAX_FILE = 4 * 1024 * 1024;
 const PROJECT_MAGIC = "X0XPROJ\0", PROJECT_META_MAX = 16384, PROJECT_HEADER = 32;
 const PROJECT_ED = [0xF0, 0x7D, 0x46, 0x4C], PROJECT_CONFIRM = [0x58, 0x30];
 const PROJECT_ERRORS = ["", "Unsupported arguments or project version.", "Stop playback, recording and performance mode first.",
   "The project transfer offset is incorrect.", "The project checksum did not match.", "The project contains invalid settings or patterns.",
-  "This project does not fit the keyboard.", "The keyboard could not access project storage.", "Confirmation is required."];
+  "This project does not fit the keyboard.", "The keyboard could not access project storage.", "Confirmation is required.", "Choose and explicitly confirm both legacy bass engine identities before adoption."];
 const fail = (message, code = "invalid") => Object.assign(new Error(message), { code });
 const bytes = (b) => b instanceof Uint8Array ? b : new Uint8Array(b);
 const view = (b) => new DataView(b.buffer, b.byteOffset, b.byteLength);
@@ -37,17 +37,35 @@ export async function sha256(b) {
 // The inner file is firmware's canonical persistent project schema, not a sample archive.
 export function parseProject(b, expectedLength = null) {
   b = bytes(b);
+  const offChk=m=>(m&1?0x17:0)^(m&2?0x2E:0)^(m&4?0x5C:0)^(m&8?0xB8:0)^(m&16?0x67:0);
+  const offWordOk=(w,p,s)=>w===0 || ((p===13 || p===14) && s===13 && (w&0xFFFF0000)>>>0===0x4F460000 && (w&0xFF)>=1 && (w&0xFF)<=31 && (w>>>8&0xFF)===offChk(w&0xFF));
   if (b.length < PROJECT_HEADER || b.length > 0x1FFFFF) throw fail("Invalid project file size.");
   const v = view(b);
   if (v.getUint32(0, true) !== 0x50583058) throw fail("The project header is missing.");
-  if (v.getUint32(4, true) !== 1 || v.getUint32(16, true) !== 1 || v.getUint32(20, true) !== 3 ||
-      v.getUint32(24, true) !== 4 || v.getUint32(28, true) !== 0)
-    throw fail("This project uses an incompatible file, project, pattern or sound version.", "version");
+  const patternVersion=v.getUint32(20,true), soundRevision=v.getUint32(24,true);
+  const knownSchema=(patternVersion===3 && (soundRevision===4 || soundRevision===10)) ||
+    ([6,8].includes(patternVersion) && (soundRevision===10 || soundRevision===11)) ||
+    ([7,9].includes(patternVersion) && soundRevision===11) || ((patternVersion===13 || patternVersion===14) && soundRevision===13);
+  if(v.getUint32(4,true)!==1 || v.getUint32(16,true)!==1 || !knownSchema || !offWordOk(v.getUint32(28,true),patternVersion,soundRevision))
+    throw fail("This project uses an incompatible file, project, pattern or sound version.","version");
+  if((soundRevision===13 || [6,7,8,9].includes(patternVersion) && soundRevision===11) && b.length!==36452)
+    throw fail("This tagged project has an unsupported structural layout.","version");
   if (v.getUint32(8, true) !== b.length - PROJECT_HEADER) throw fail("The project payload length is incorrect.");
   if (expectedLength !== null && b.length !== expectedLength) throw fail("The project size does not match this firmware.", "version");
   if (v.getUint32(12, true) !== crc32(b.subarray(PROJECT_HEADER))) throw fail("The project payload is damaged (CRC).");
   return { length: b.length, payloadLength: b.length - PROJECT_HEADER, fileVersion: 1, projectVersion: 1,
-    patternVersion: 3, soundRevision: 4 };
+    patternVersion, soundRevision, partOffMask: v.getUint32(28,true)&0xFF };
+}
+
+// Historical schemas stay readable for inspection and byte-exact backups. Device
+// imports, including rollback/recovery, accept only the current persistent schema.
+function requireCurrentProject(project, expectedLength = null) {
+  const meta = parseProject(project);
+  // Stream 14 = 13 plus per-pattern bass presets and note locks; same 36,452-byte layout.
+  if ((meta.patternVersion !== 13 && meta.patternVersion !== 14) || meta.soundRevision !== 13)
+    throw fail("Only revision 13 projects can be loaded. Older projects remain available for inspection and backup.", "version");
+  if (expectedLength !== null) parseProject(project, expectedLength);
+  return meta;
 }
 
 export function validateSlotImage(img, capacity) {
@@ -261,7 +279,7 @@ export class ProjectDevice {
   async command(op, args = [], { length = 2, offset = null, tries = 1, timeout = this.timeout } = {}) {
     const r = await this.request(9, [op, ...args], { tries, timeout, accept: (r) => {
       if (r[0] !== op) return false;
-      if (r.length < 2 || r[1] > 8 || r[1] && r.length !== 2 || !r[1] && r.length !== length)
+      if (r.length < 2 || r[1] > 9 || r[1] && r.length !== 2 || !r[1] && r.length !== length)
         throw fail(`Malformed project reply for operation ${op}.`, "protocol");
       if (!r[1] && offset !== null && get21(r, 2) !== offset) return false;
       return true;
@@ -286,12 +304,13 @@ export class ProjectDevice {
   }
   async query({ acceptModeChange = false, allowRecovery = false } = {}) {
     const r = await this.command(PROJECT_OP.QUERY, [], { length: 7, tries: 2 });
-    if (r[2] !== 1 || !integer(get21(r, 3), PROJECT_HEADER, 0x1FFFFF) || !integer(r[6], 0, 3)) throw fail("Unsupported project protocol version or file size.", "version");
+    if (![1,2].includes(r[2]) || r[2]===2 && get21(r,3)!==36452 || !integer(get21(r, 3), PROJECT_HEADER, 0x1FFFFF) || !integer(r[6], 0, 3)) throw fail("Unsupported project protocol version or file size.", "version");
     if (acceptModeChange || allowRecovery && r[6] === 3) { this.mode = r[6]; this.active = this.mode !== 0; }
     if (r[6] !== this.mode) throw fail(this.active ? "The project transfer expired or changed. Sample writes have stopped." :
       "Another project transfer is active. Close the other editor and reconnect after it finishes.", this.active ? "expired" : "busy");
     const size = get21(r, 3);
     if (this.projectLength !== null && this.projectLength !== size) throw fail("The connected firmware changed. Reconnect before continuing.", "version");
+    this.projectProtocol=r[2];
     this.projectLength = size;
     return size;
   }
@@ -327,7 +346,8 @@ export class ProjectDevice {
     return b;
   }
   async stage(project, onProgress = () => {}) {
-    parseProject(project, await this.query());
+    const size = await this.query();
+    requireCurrentProject(project, size);
     this.active = true; this.mode = 2;
     await this.command(PROJECT_OP.IMPORT, u21(project.length));
     for (let off = 0; off < project.length;) {
@@ -338,6 +358,12 @@ export class ProjectDevice {
     }
   }
   async validate() { await this.command(PROJECT_OP.VALIDATE); }
+  async adoptLegacyBass(engines,{confirmed=false}={}) {
+    if(confirmed!==true || this.projectProtocol!==2 || !Array.isArray(engines) || engines.length!==2 ||
+       !integer(engines[0],0,1) || !integer(engines[1],0,1) || engines[0]===1 && engines[1]===1)
+      throw fail("Explicit valid engine choices for both bass slots are required.","identity");
+    throw fail("Only revision 13 projects can be loaded. Legacy bass adoption is unavailable.", "version");
+  }
   async commit() { await this.command(PROJECT_OP.COMMIT, PROJECT_CONFIRM); this.active = false; this.mode = 0; }
   async save() { await this.command(PROJECT_OP.SAVE, [], { timeout: Math.max(10000, this.timeout) }); }
   async load(confirmed) {
@@ -436,21 +462,23 @@ export async function readProjectSnapshot(device, progress = () => {}) {
 }
 
 export async function prepareProjectImport(device, input, { progress = () => {} } = {}) {
-  const file = await readProjectFile(input, await device.query());
+  const size = await device.query(), file = await readProjectFile(input);
+  requireCurrentProject(file.project, size);
   if (device.mode === 3) {
     if (!file.portable) throw fail("Recovery requires a portable project with its original samples. A project-only file cannot repair partial sample slots.", "recovery");
     const layout = await device.layout();
     validateRecoveryLayout(file, layout);
     const changes = file.meta.slots.map((to, k) => ({ k, to, from: { slot: k + 1, empty: null, unknown: true }, action: to.empty ? "clear" : "restore" }));
-    return { file, recovery: true, layout, plan: { changes, collisions: [], unchanged: [] }, backupBytes: null };
+    return { session: device.link, file, recovery: true, layout, plan: { changes, collisions: [], unchanged: [] }, backupBytes: null };
   }
   const before = await readProjectSnapshot(device, progress);
+  requireCurrentProject(before.project, device.projectLength); // Rollback must also be loadable.
   const plan = await planProjectImport(file, before);
   const backupBytes = await makeProjectFile(before.project, before, { name: "Before project import", portable: true });
   const backup = await readProjectFile(backupBytes, device.projectLength);
   if (!sameBytes(backup.project, before.project) || before.images.some((img, k) => !sameBytes(img, backup.images[k])))
     throw fail("The recovery backup did not verify.", "backup");
-  return { file, before, plan, backupBytes };
+  return { session: device.link, file, before, plan, backupBytes };
 }
 
 function validateRecoveryLayout(file, layout) {
@@ -468,10 +496,13 @@ async function verifyImages(device, wanted, progress) {
 // Preparation is read-only. Applying needs an explicit live-project confirmation and,
 // for occupied-slot collisions, a user-acknowledged, verified downloadable backup.
 export async function applyProjectImport(device, prepared, { confirmed = false, backupSaved = false, progress = () => {} } = {}) {
+  if (prepared.session !== device.link) throw fail("The keyboard connection changed. Prepare the import again.", "connection");
   if (confirmed !== true) throw fail("Confirm replacing the live project before importing.", "confirmation");
-  const file = await readProjectFile(prepared.file.bytes, await device.query());
+  const size = await device.query(), file = await readProjectFile(prepared.file.bytes);
+  requireCurrentProject(file.project, size);
   if (prepared.recovery) return applyRecoveryImport(device, file, prepared.layout, progress);
   const backup = await readProjectFile(prepared.backupBytes, device.projectLength);
+  requireCurrentProject(backup.project, device.projectLength);
   if (!backup.portable) throw fail("A complete portable recovery backup is required.", "backup");
   const plan = await planProjectImport(file, prepared.before);
   if (plan.collisions.length && backupSaved !== true) throw fail("Download the verified recovery backup and confirm it is saved before replacing existing samples.", "backup");
@@ -555,7 +586,7 @@ async function applyRecoveryImport(device, file, originalLayout, progress) {
 // Minimal Web MIDI adapter. Device methods above also run against the host-test mock.
 export class ProjectMidiLink {
   constructor(input, output) {
-    this.input = input; this.output = output; this.queue = []; this.pending = null;
+    this.input = input; this.output = output; this.queue = []; this.pending = null; this.closed = false;
     this.listener = (event) => {
       const d = event.data;
       if (d.length < 6 || d[0] !== 0xF0 || d.at(-1) !== 0xF7 || d[1] !== 0x7D || d[2] !== 0x46 || d[3] !== 0x4C) return;
@@ -565,8 +596,9 @@ export class ProjectMidiLink {
     input.addEventListener("midimessage", this.listener);
   }
   drain() { this.queue.length = 0; }
-  send(frame) { try { if (this.output.state === "disconnected") return false; this.output.send(frame); return true; } catch { return false; } }
+  send(frame) { try { this.session?.assert(); if (this.closed || this.input.state === "disconnected" || this.output.state === "disconnected") return false; this.output.send(frame); return true; } catch { return false; } }
   read(ms) {
+    if (this.closed) return Promise.resolve(null);
     if (this.queue.length) return Promise.resolve(this.queue.shift());
     return new Promise((resolve) => {
       const timer = setTimeout(() => { this.pending = null; resolve(null); }, ms);
@@ -574,6 +606,7 @@ export class ProjectMidiLink {
     });
   }
   close() {
+    this.closed = true; this.session?.close();
     this.input.removeEventListener("midimessage", this.listener);
     if (this.pending) { clearTimeout(this.pending.timer); this.pending.resolve(null); this.pending = null; }
     this.queue.length = 0;

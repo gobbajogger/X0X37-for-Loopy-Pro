@@ -1,7 +1,7 @@
-# The manual's Getting started, step by step: each step as the manual words it, checked.
+# Getting started adapted to the current Miami/Chicago panel metadata.
 wait 300
 # 1. X0X opens on the 909, every part empty. A kick: black key 1 (heard), white keys 1, 5, 9, 13
-expect view 1
+expect view 8
 expect part 0
 peakreset
 tapkey b0
@@ -30,21 +30,31 @@ tapkey w10
 tapkey w14
 expect hit0.8.2 1
 expect hit0.8.14 1
-# 5. write a 303 line: ALGORITHM two clicks clockwise to 303A, ARP, OCT+
-turn ALGO 2
+# 5. write a Miami A line: ALGORITHM four clicks clockwise, ARP, OCT+
+turn ALGO 4
 expect part 2
 tap ARP
 expect view 2
 tap OCT+
-# 6. shape it: EDIT (FILTER page), KNOB 1 cutoff, KNOB 2 resonance
+# 6. Miami FILTER is page 2: KNOB 1 cutoff, KNOB 2 crush.
+# Seed known control positions so the ten-detent changes remain exact.
 tap EDIT
 expect view 1
+tap EDIT
+tap EDIT
+expect page 2
+param 2 0 9 48
+param 2 0 10 100
 turn K1 10
 turn K2 -10
-expect sound2.0.0 58
-expect sound2.0.1 90
-# 7. the break: ALGORITHM two more clicks to BREAK, all sixteen white keys
-turn ALGO 2
+tap SEL
+turn SELECT 8
+expect rowval 58
+turn SELECT 1
+expect rowval 90
+tap HOME
+# 7. the break: ALGORITHM two clicks counterclockwise to BREAK, all sixteen white keys
+turn ALGO -2
 expect part 4
 tapkey w0
 tapkey w1
@@ -64,15 +74,15 @@ tapkey w14
 tapkey w15
 expect brk0 1
 expect brk15 1
-# 8. mute the break: HOME, black key 5 (and again to bring it back)
+# 8. mute the break: HOME, black key 3 (and again to bring it back)
 tap HOME
 expect view 0
-tapkey b4
+tapkey b2
 expect mute 16777216
-tapkey b4
+tapkey b2
 expect mute 0
 # 9. record a filter sweep: ALGORITHM back to 303A, EDIT, REC, turn KNOB 1, REC
-turn ALGO -2
+turn ALGO 2
 tap EDIT
 expect part 2
 expect view 1

@@ -17,12 +17,19 @@
 #include <stdio.h>
 #include <string.h>
 #define RING_PUBLISH() __asm__ volatile("" ::: "memory")
+#define FM1_IRQ_TIMER5 63u
+static uint32_t fm1_irq_mask_save(unsigned n) { (void)n; return 0; }
+static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 #define BOARD_SMK37 1
 #define X0X_BLE 0
 #define SMK_BIG
+#define FM1_TICKS_PER_US 24u
+static uint32_t fm1_ticks(void) { return 0; }
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
 #include "src/usb.c"
+seq_t seq;                          /* usb.c (LIVE-A update guard) sees the real seq_t through app/engine.h */
+int engine_project_notes(void) { return 0; }   /* no live notes in this fixture */
 #undef BOARD_SMK37                 /* main_fm1.c: leave out the INLOG reply (it needs editor.c), as in smk_clip_dark_test */
 static volatile uint32_t fm1_ms;
 static void lcd_sync(void) {}

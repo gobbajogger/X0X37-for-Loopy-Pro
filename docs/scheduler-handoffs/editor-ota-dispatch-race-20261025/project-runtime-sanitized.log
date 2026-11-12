@@ -1,0 +1,4 @@
+project_update_guard: held restart, BEGIN/COMMIT update discard and idle updates ok
+firmware/src/dsp/fastmath.h:57:14: runtime error: left shift of negative value -1
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior firmware/src/dsp/fastmath.h:57:14 
+tests/host/project_runtime_test.sh: line 17: 83641 Abort trap: 6           "$OUT/$test"

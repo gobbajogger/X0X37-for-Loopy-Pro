@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 ui = (Path(__file__).resolve().parents[2] / "firmware/src/app/ui.c").read_text()
-d0 = ui.index("static void draw_main(void)")
+d0 = ui.index("static UI_DRAW void draw_main(void)")
 dm = ui[d0:ui.index("\n}\n", d0)]
 fails = 0
 

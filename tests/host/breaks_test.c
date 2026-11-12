@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define X0X_IMA_TABLES_DEFINE              /* breaks.c alone: define the shared IMA tables here */
 #include "../../firmware/src/dsp/breaks.c"
 
 static int g_pass, g_fail;
@@ -206,7 +207,7 @@ static void test_slice_select(void)
         CHECK(fabsf(brk_weight_at(i, 0.5f) - (0.5f + 0.5f * locked[i])) < 1e-5f, "weight_at(%d, .5)", i);
     }
     {
-        brk_sel_t in = {0, 0, 0.5f, 0.7f, 0.3f, 1.0f, 0, 0};
+        brk_sel_t in = {0, 0, 8, 0.5f, 0.7f, 0.3f, 1.0f, 0, 0};
         float c, a, r;
         brk_apply_phrase(&in, &c, &a, &r);
         CHECK(c == 0.5f && a == 0.7f && r == 0.3f, "phrase off: no modulation");
@@ -223,7 +224,7 @@ static void test_slice_select(void)
     breaks_init(&b);
     b.rng = 12345;
     {
-        brk_sel_t in = {3, 3, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0};
+        brk_sel_t in = {3, 3, 8, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0};
         CHECK(brk_select_next(&in, &b) == 3, "sequential: beat_position 3");
         in.current_slice = 7; in.beat_position = 7;
         CHECK(brk_select_next(&in, &b) == 7, "sequential: beat_position 7");
@@ -231,7 +232,7 @@ static void test_slice_select(void)
         CHECK(brk_select_next(&in, &b) == 5, "after a swap the beat plays its own slice");
     }
     {   /* Roll=1 Anchor=0 from 4: never 4, >= 80 % +-1 walks */
-        brk_sel_t in = {4, 4, 0.5f, 0.0f, 1.0f, 0.0f, 0, 0};
+        brk_sel_t in = {4, 4, 8, 0.5f, 0.0f, 1.0f, 0.0f, 0, 0};
         int rep = 0, walk = 0;
         b.rng = 0x1234abcd;
         for (int i = 0; i < 2000; i++) {
@@ -243,14 +244,14 @@ static void test_slice_select(void)
         CHECK(walk > 1600, "Roll=1 Anchor=0: >= 80 %% walks (%d/2000)", walk);
     }
     {   /* Roll=1 Anchor=1 slice 0: repeat >= 80 % */
-        brk_sel_t in = {0, 0, 0.5f, 1.0f, 1.0f, 0.0f, 0, 0};
+        brk_sel_t in = {0, 0, 8, 0.5f, 1.0f, 1.0f, 0.0f, 0, 0};
         int rep = 0;
         b.rng = 0xfacefeed;
         for (int i = 0; i < 2000; i++) rep += brk_select_next(&in, &b) == 0;
         CHECK(rep >= 1600, "Roll=1 Anchor=1 slice 0 repeats >= 80 %% (%d)", rep);
     }
     {   /* Complexity=1: uniform */
-        brk_sel_t in = {0, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0, 0};
+        brk_sel_t in = {0, 0, 8, 1.0f, 0.0f, 0.0f, 0.0f, 0, 0};
         int cnt[8] = {0}, ok = 1;
         b.rng = 0x55aa55aa;
         for (int i = 0; i < 8000; i++) cnt[brk_select_next(&in, &b)]++;
@@ -258,14 +259,14 @@ static void test_slice_select(void)
         CHECK(ok, "Complexity=1: uniform per slice");
     }
     {   /* fill bar releases the anchor lock */
-        brk_sel_t in = {0, 0, 1.0f, 1.0f, 1.0f, 1.0f, 4, 3};
+        brk_sel_t in = {0, 0, 8, 1.0f, 1.0f, 1.0f, 1.0f, 4, 3};
         int rep = 0;
         b.rng = 0xc0ffee;
         for (int i = 0; i < 2000; i++) rep += brk_select_next(&in, &b) == 0;
         CHECK(rep <= 400, "fill bar: anchor lock released (%d)", rep);
     }
     {   /* Anchor=1 Complexity=0 Roll=0 locks to the beat position */
-        brk_sel_t in = {0, 0, 0.0f, 1.0f, 0.0f, 0.0f, 0, 0};
+        brk_sel_t in = {0, 0, 8, 0.0f, 1.0f, 0.0f, 0.0f, 0, 0};
         int ok = 1;
         b.rng = 0xa11ce1;
         for (int bp = 0; bp < 8; bp++) {
@@ -282,7 +283,6 @@ static void test_perf(void)
 {
     brk_perf_t p;
     memset(&p, 0, sizeof p);
-    p.rate_mult = 1.0f;
     perf_push(&p, 1); perf_push(&p, 2); perf_push(&p, 3);
     CHECK(p.count == 3 && perf_top(&p) == 3, "stack depth 3, top 3");
     perf_release(&p, 2);
@@ -298,21 +298,7 @@ static void test_perf(void)
     CHECK(p.count == 0, "one release clears it");
     perf_push(&p, 1); perf_push(&p, 2); perf_push(&p, 1);
     CHECK(p.count == 2 && perf_top(&p) == 1, "re-press moves to top");
-    perf_half(&p, 1); perf_half(&p, 1);
-    CHECK(p.rate_mult == 0.5f, "duplicate half stays 0.5");
-    {
-        int f[6];
-        p.trig_acc = 0.0f;
-        for (int i = 0; i < 6; i++) f[i] = perf_trigger_fires(&p);
-        CHECK(!f[0] && f[1] && !f[2] && f[3] && !f[4] && f[5], "half speed fires every other trigger");
-    }
-    perf_half(&p, 0);
-    CHECK(p.rate_mult == 1.0f, "release half -> 1.0");
-    {
-        int all = 1;
-        for (int i = 0; i < 5; i++) all &= perf_trigger_fires(&p);
-        CHECK(all, "1x fires every trigger");
-    }
+
 }
 
 /* 3. the generator through breaks_step */
@@ -634,12 +620,12 @@ static void test_live(void)
     for (int i = 0; i < n; i++) ok &= g_dec_log[i].slice == 2;
     breaks_live(&b, 2, 0);
     CHECK(ok, "held slices override the generator, last held wins, release falls back");
-    /* half speed: every other trigger; stutter: 4x on every trigger */
+    /* jungle stretch keeps every trigger; stutter: 4x on every trigger */
     setup(&b);
     breaks_set(&b, BRK_COMPLEX, 0);
     breaks_live(&b, 9, 1);
     n = run_steps(&b, 2);
-    CHECK(n == 8, "half speed: every other trigger fires (%d in 2 bars incl. the start)", n);
+    CHECK(n == 16, "jungle: unchanged trigger cadence (%d in 2 bars)", n);
     breaks_live(&b, 9, 0);
     breaks_live(&b, 10, 1);
     n = run_steps(&b, 1);
@@ -663,6 +649,126 @@ static void test_live(void)
     breaks_set_loop(&b, 0, 0);
     breaks_render(&b, buf, 256);
     CHECK(!b.v[0].on && !b.v[1].on, "loop removed: voices dropped");
+}
+
+static void arm(breaks_t *b);
+/* Changing slice while one is already sounding crossfades. The buffer stays loud, and reverse stays on. */
+static void test_slice_retrigger(void)
+{
+    breaks_t b;
+    float buf[256];
+    int i, quiet = 0;
+    arm(&b);
+    breaks_live(&b, 0, 1);
+    breaks_render(&b, buf, 256);
+    breaks_live(&b, 8, 1);                 /* reverse, still holding slice 0 */
+    breaks_render(&b, buf, 256);
+    breaks_slice_on(&b, 3);                /* another note of a different slice, reverse still held */
+    breaks_render(&b, buf, 256);
+    for (i = 0; i < 256; i += 32) {
+        int k, any = 0;
+        for (k = 0; k < 32; k++)
+            if (buf[i + k] != 0.0f)
+                any = 1;
+        if (!any)
+            quiet++;
+    }
+    CHECK(quiet == 0 && b.v[b.cur].on && b.v[b.cur].rev, "slice change keeps the voice and reverse");
+    CHECK(identify(buf + 120, 120, 1.0, 0, 0) == 6 || identify(buf + 120, 120, 1.0, 0, 0) == 7,
+          "retrigger plays slice 3");
+}
+
+/* A loop change must not mute the voice that is already sounding, not even for one buffer.
+ * The new loop is what the next trigger plays. The sounding loop stays as it was. */
+static int pcm_same(const float *a, const float *b, int n)
+{
+    for (int i = 0; i < n; i++)
+        if (a[i] != b[i])
+            return 0;
+    return 1;
+}
+static int pcm_loud(const float *x, int n)
+{
+    float p = 0.0f;
+    for (int i = 0; i < n; i++) {
+        float a = x[i] < 0.0f ? -x[i] : x[i];
+        if (a > p)
+            p = a;
+    }
+    return p > 0.02f;
+}
+static void arm(breaks_t *b)
+{
+    breaks_init(b);
+    breaks_set_loop(b, 0, &g_loop[0]);
+    breaks_set_loop(b, 1, &g_loop[1]);
+    breaks_set(b, BRK_COMPLEX, 0);
+    breaks_set(b, BRK_BCHANCE, 0);
+    breaks_set(b, BRK_PHRASE, 0);
+    breaks_set(b, BRK_LEVEL, 100);
+    breaks_step(b, 0, 0, 5512.5f, 1);
+}
+static void test_loop_switch(void)
+{
+    breaks_t *live = calloc(1, sizeof *live), *hold = calloc(1, sizeof *hold);
+    float a[256], c[256];
+    int i, loud, same;
+    CHECK(live && hold, "loop-switch buffers");
+    if (!live || !hold) {
+        free(live);
+        free(hold);
+        return;
+    }
+    /* mid-slice: reloading the same loop, the other bank, and a new loop must not drop a buffer */
+    arm(live);
+    arm(hold);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256), "both voices started on the same loop");
+    breaks_set_loop(live, 0, &g_loop[0]);             /* the reload that used to bump the voice generation */
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256) && (live->v[0].on || live->v[1].on),
+          "reloading the playing loop keeps every sample");
+    breaks_set_loop(live, 1, &g_loop[0]);             /* the other bank */
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256), "switching the other bank leaves the playing loop");
+    breaks_set_loop(live, 0, &g_loop[1]);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256) && (live->v[0].on || live->v[1].on),
+          "a new loop does not mute or rewrite the voice already playing");
+    /* rapid changes, still mid-slice */
+    for (i = 0; i < 24; i++)
+        breaks_set_loop(live, 0, (i & 1) ? &g_loop[0] : &g_loop[1]);
+    breaks_flush(live);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256), "rapid loop changes keep the sounding loop");
+    /* the next trigger, on a downbeat, plays the loop just chosen and is not a silent buffer */
+    breaks_set_loop(live, 0, &g_loop[1]);
+    breaks_flush(live);
+    breaks_step(live, 0, 1, 5512.5f, 1);
+    breaks_step(hold, 0, 1, 5512.5f, 1);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    loud = pcm_loud(a, 256);
+    same = pcm_same(a, c, 256);
+    CHECK(loud && !same, "downbeat after a loop change stays loud and plays the new loop");
+    /* reverse keeps the loop it started, including across a bank change */
+    arm(live);
+    arm(hold);
+    breaks_live(live, 8, 1);
+    breaks_live(hold, 8, 1);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    breaks_set_loop(live, 0, &g_loop[1]);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256), "reverse keeps its samples across a loop change");
+    free(live);
+    free(hold);
 }
 
 /* ---------------------------------------------------------------------------------------- */
@@ -711,7 +817,8 @@ int main(int argc, char **argv)
     printf("sizeof(breaks_t) = %u bytes (bank %u, voice %u)\n", (unsigned)sizeof(breaks_t),
            (unsigned)sizeof(brk_bank_t), (unsigned)sizeof(brk_voice_t));
 #ifdef BRK_CLICK_CONTROL
-    (void)test_slice_select; (void)test_perf; (void)test_generator; (void)test_gate; (void)test_live; (void)demo;
+    (void)test_slice_select; (void)test_perf; (void)test_generator; (void)test_gate; (void)test_live;
+    (void)test_slice_retrigger; (void)test_loop_switch; (void)demo;
     printf("positive control: BRK_FADE = %d (crossfade off)\n", BRK_FADE);
     test_audio(90.0f);
     test_audio(170.0f);
@@ -725,6 +832,8 @@ int main(int argc, char **argv)
     test_audio(170.0f);
     test_gate();
     test_live();
+    test_slice_retrigger();
+    test_loop_switch();
     if (argc > 1) demo(argv[1]);
     printf("%d passed, %d failed\n", g_pass, g_fail);
     return g_fail ? 1 : 0;

@@ -1,0 +1,2 @@
+site: /tmp/tmp.Q9sw3afGyC/out: webapp/installer (29338 B), firmware/felucca-0.0-bf003-s4.fwsc (1024 B, FM-1_900)
+make_site_dry_ok installer_only no_editor_copy

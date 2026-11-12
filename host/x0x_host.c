@@ -16,7 +16,7 @@
  *   clipmode 0|1                 the clip mode flag for the arrow route only
  *   master N                     MASTER pot 0..4096
  *   param T V I VALUE            a sound pot (engine.h target, voice, index), as its knob would
- *   slot K NAME A.wav [B.wav..]  user sample slot K (0..2): one loop (zone) per WAV, encoded here
+ *   slot K NAME A.wav [B.wav..]  user sample slot K (0..1): one loop (zone) per WAV, encoded here
  *   slotimg K F.hdr F.bin       slot K from tools/upload_breaks.py --dry-run's image (the device format)
  *   midi B0 B1 B2                incoming USB MIDI message (hex bytes)
  *   wav FILE | wavstop           start / stop recording the output
@@ -35,6 +35,9 @@
  *                                to the simulated flash and booted, as if it had been made here
  */
 #define X0X_HOST 1
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE 1   /* libproc / task instruction-count APIs require Darwin types */
+#endif
 #define _POSIX_C_SOURCE 200809L                 /* clock_gettime, CLOCK_MONOTONIC (glibc <time.h>) */
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,10 +63,12 @@ static void lcd_fill(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint16_t c)
             fb[j * 240u + i] = sc;
 }
 static uint32_t blits;
+static uint64_t blit_px;                 /* pixels sent: a frame's SPI time (tests) */
 static void lcd_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const uint16_t *px)
 {
     uint32_t i, j;
     blits++;
+    blit_px += (uint64_t)w * h;
     for (j = 0; j < h; j++)
         for (i = 0; i < w; i++)
             if (x + i < 240u && y + j < 240u)
@@ -106,16 +111,58 @@ void plat_keys_dim(uint32_t k) { dim_keys = k; }      /* dim keys: "o" in the le
 
 #define MQ 256
 static uint32_t min_q[MQ], mi_w, mi_r;
+static uint8_t mi_fresh[MQ];
+static uint32_t mi_epoch = 1u;
+static void host_midi_put(uint32_t pkt)
+{
+    min_q[mi_w % MQ] = pkt;
+    mi_fresh[mi_w % MQ] = 1u;
+    mi_w++;
+}
 int engine_midi_held(void);              /* engine.c (X0X_HOST): the notes held from MIDI in */
+int engine_bass_perf(int v, int which, int live); /* engine.c (X0X_HOST): 0 bend 1 damper 2 mod */
+int engine_bass_keys_held(void);         /* engine.c (X0X_HOST): bit k when 303 k holds a key, not the release tail */
 static FILE *midi_log;
-int plat_midi_in(uint32_t *pkt)
+uint32_t plat_midi_mark(void)
+{
+    __asm__ volatile("" ::: "memory");
+    return mi_w;
+}
+int plat_midi_passed(uint32_t mark)
+{
+    __asm__ volatile("" ::: "memory");
+    return (int32_t)(mi_r-mark)>=0;
+}
+int plat_midi_pending(void)
+{
+    __asm__ volatile("" ::: "memory");
+    return mi_r != mi_w;
+}
+uint32_t plat_midi_cut(void)
+{
+    uint32_t i;
+    for (i = 0; i < MQ; i++)
+        mi_fresh[i] = 0u;
+    if (!++mi_epoch)
+        mi_epoch = 1u;
+    return mi_epoch;
+}
+int plat_midi_in_epoch(uint32_t *pkt, uint32_t *epoch)
 {
     if (mi_r == mi_w)
         return 0;
-    *pkt = min_q[mi_r++ % MQ];
+    *pkt = min_q[mi_r % MQ];
+    *epoch = mi_fresh[mi_r % MQ] ? mi_epoch : 0u;
+    mi_r++;
     return 1;
 }
+int plat_midi_in(uint32_t *pkt)
+{
+    uint32_t epoch;
+    return plat_midi_in_epoch(pkt, &epoch);
+}
 static uint32_t midi_out_count, clock_out_count, note_ons, transport_out_count;
+static unsigned host_cpu2_active, midi_pulse_crosscore;
 void plat_midi_out(uint32_t pkt)
 {
     midi_out_count++;
@@ -129,25 +176,41 @@ void plat_midi_out(uint32_t pkt)
         fprintf(midi_log, "%u ms: %02X %02X %02X\n", now_ms, (pkt >> 8) & 0xFF, (pkt >> 16) & 0xFF, (pkt >> 24) & 0xFF);
 }
 
+int plat_midi_pulse(uint8_t ch, uint8_t note, uint8_t velocity)
+{
+    if (host_cpu2_active) midi_pulse_crosscore++;
+    plat_midi_out(9u | ((uint32_t)(0x90u | ch) << 8) | ((uint32_t)note << 16) | ((uint32_t)velocity << 24));
+    plat_midi_out(8u | ((uint32_t)(0x80u | ch) << 8) | ((uint32_t)note << 16));
+    return 1;
+}
+
 /* flash: one buffer per object, kept across a simulated reboot */
 static uint8_t store[OBJ_NOBJ][PLAT_STORE_MAX];
+static uint8_t store_previous[OBJ_NOBJ][PLAT_STORE_MAX];
+static int store_previous_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
 static int store_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
 static uint32_t store_writes;
 static int store_fail;
 int plat_store_load(uint32_t obj, void *dst, uint32_t max)
 {
-    int n = store_len[obj];
-    if (obj >= OBJ_NOBJ || n < 0)
+    int previous = (obj & PLAT_STORE_PREVIOUS) != 0;
+    obj &= ~PLAT_STORE_PREVIOUS;
+    if (obj >= OBJ_NOBJ) return -1;
+    int n = previous ? store_previous_len[obj] : store_len[obj];
+    if (n < 0)
         return -1;
     if ((uint32_t)n > max)
         n = (int)max;
-    memcpy(dst, store[obj], (size_t)n);
+    memcpy(dst, previous ? store_previous[obj] : store[obj], (size_t)n);
     return n;
 }
 int plat_store_save(uint32_t obj, const void *src, uint32_t len)
 {
     if (store_fail || obj >= OBJ_NOBJ || len > PLAT_STORE_MAX)
         return -1;
+    store_previous_len[obj] = store_len[obj];
+    if (store_len[obj] >= 0)
+        memcpy(store_previous[obj], store[obj], (size_t)store_len[obj]);
     memcpy(store[obj], src, len);
     store_len[obj] = (int)len;
     store_writes++;
@@ -158,8 +221,8 @@ int plat_store_save(uint32_t obj, const void *src, uint32_t len)
  *  - slotimg: a slot image exactly as tools/upload_breaks.py writes it, read by the firmware's own
  *    slots.c (the device path: what the upload tool writes is what the firmware parses);
  *  - slot: WAVs encoded here, one zone each (quick, for scenarios that do not test the format). */
-static uint8_t slot_img[3][0x1E000];               /* the largest slot (SMK-37 slot 2: 120 KiB) */
-static int slot_is_img[3];
+static uint8_t slot_img[PLAT_NSLOTS][0x1E000];    /* the largest slot (SMK-37 slot 2: 120 KiB) */
+static int slot_is_img[PLAT_NSLOTS];
 #define SMP_USER_XIP(k) ((const uint8_t *)slot_img[k])
 static uint32_t st_crc32(const void *p, uint32_t n)
 {
@@ -211,21 +274,32 @@ const uint8_t *plat_slot(int k, int z, uint32_t *ns, uint32_t *rate, char name[9
 static uint32_t cpu_pct, cpu_peak;
 static int load_force = -1;                      /* script "load N": the guard sees N%, -1 measured */
 /* the second core, simulated: a job runs at once, in order (the split path, the same sums) */
-static int cpu2_on;
+static int cpu2_on, cpu2_fail_once;
 int plat_cpu2_set(int on) { cpu2_on = on; return 0; }
 int plat_cpu2_on(void) { return cpu2_on; }
 int plat_cpu2_run(void (*fn)(uint32_t), uint32_t arg)
 {
     if (!cpu2_on)
         return 0;
+    host_cpu2_active = 1;
     fn(arg);
+    host_cpu2_active = 0;
     return 1;
 }
-int plat_cpu2_wait(void) { return 0; }
+int plat_cpu2_wait(void) { int fail = cpu2_fail_once; cpu2_fail_once = 0; return fail; }
 int plat_cpu2_gave_up(void) { return 0; }
 uint32_t plat_cpu2_bad(void) { return 0; }
 static int ble_on;                              /* Bluetooth MIDI: no controller image on the host */
+#ifdef X0X_HOST_BLE_STATE
+int plat_ble_state(void) { return X0X_HOST_BLE_STATE; }
+#else
 int plat_ble_state(void) { return PLAT_BLE_NOIMG + 0 * ble_on; }
+#endif
+#ifdef X0X_HOST_BLE_PEERS
+void plat_ble_peers(plat_ble_peers_t *out) { X0X_HOST_BLE_PEERS(out); }
+#else
+void plat_ble_peers(plat_ble_peers_t *out) { memset(out, 0, sizeof *out); out->state = plat_ble_state(); }
+#endif
 const char *plat_ble_name(void) { return ""; }
 void plat_ble_set(int on) { ble_on = on; }
 uint32_t plat_cpu_pct(void) { return cpu_pct; }
@@ -255,8 +329,24 @@ void plat_stalls_enable(int on) { (void)on; }
 
 /* -------------------------------------------------------------- app --- */
 #include "../firmware/src/app/x0x.h"
+#include "../firmware/src/app/smk_clip_arp_share.c"   /* one ck_arp_pick + CK_RATE_T for engine + clip MIDI */
+#include "../firmware/src/app/smc_fx_map_tables.c"    /* one SMC FX map table for engine + smc_mixer */
 #include "../firmware/src/app/project.c"
 #include "../firmware/src/app/ui.c"
+
+#if X0X_PARAM_TRACE
+void x0x_param_trace(int source, int target, int voice, int parameter, int value)
+{
+    static const char *const names[] = {
+        "wheel-pitch", "wheel-mod", "panel-knob", "smc-knob", "smc-pickup",
+        "motion", "motion-restore", "preset", "midi"
+    };
+    if ((unsigned)target >= NTARGETS || (unsigned)voice >= NVOICES_MAX ||
+        (unsigned)source >= sizeof names / sizeof names[0]) return;
+    fprintf(stderr, "param-write ms=%u source=%s target=%d voice=%d param=%d value=%d\n",
+            plat_ms(), names[source], target, voice, parameter, value);
+}
+#endif
 #if BOARD_SMK37
 /* Native SMC fixtures provide clip input substitutes; real keybed/pad reset is hardware-only. */
 int smk_project_active(void) { extern uint8_t smk_ck_flash_busy(void); return smk_ck_flash_busy(); }
@@ -270,13 +360,22 @@ static uint32_t arrows_held, clip_on, arrow_steps;
 static arw_t host_arw;
 static void host_arrows(void)
 {
+    static uint32_t menu_id;
     uint32_t route = arw_route((uint32_t)ui_menu_open(), clip_on, (held_btn >> B_HOME) & 1u);
-    int32_t d = arw_frame(&host_arw, arrows_held, route, now_ms);
+    uint32_t id = arw_menu_id(ui.view, (uint32_t)cur_page());
+    int32_t d;
+    if (clip_on && route == ARW_MENU && id != menu_id)
+        arw_rearm(&host_arw, arrows_held);           /* CLP-82, as main_fm1.c smk_arrows */
+    menu_id = id;
+    d = arw_frame(&host_arw, arrows_held, route, now_ms);
     if (!d)
         return;
     arrow_steps++;                                   /* (expect arrowsteps: the steps that the arrows gave) */
     if (route == ARW_MENU)
-        ui_menu_arrow(d);
+    {
+        if (ui_menu_arrow(d))
+            arw_rearm(&host_arw, arrows_held);       /* as main_fm1.c: entry consumes the held arrow */
+    }
     else
         enc_acc[EN_SELECT] += d;
 }
@@ -412,6 +511,8 @@ static uint64_t ins_total, ins_frames, ins_block_max;
 /* the engine's stage timing (eng_prof, in plat_cycles() units: here nanoseconds), summed per block
  * while playing; printed with X0X_PROFILE=1 in the environment */
 static uint64_t prof_tot[ENG_PROF_N];
+/* worst blocks while playing (wall ns), with the stage split, for X0X_PROFILE */
+static double blk_worst_ns[8]; static uint32_t blk_worst_ms[8]; static uint32_t blk_worst_pr[8][ENG_PROF_N]; static uint64_t blk_count;
 static uint64_t instr_now(void)
 {
 #ifdef __APPLE__
@@ -463,8 +564,19 @@ static void run_ms(uint32_t ms)
             di = instr_now() - i0;
             dt = now_ns() - t0;
             if (seq.playing) {                           /* the cost that matters: while it plays */
+                int w, j;
                 for (k = 0; k < ENG_PROF_N; k++)
                     prof_tot[k] += (uint32_t)(eng_prof[k] - pr0[k]);
+                blk_count++;
+                for (w = 0; w < 8 && blk_worst_ns[w] >= dt; w++) {}
+                if (w < 8) {
+                    for (j = 7; j > w; j--) {
+                        blk_worst_ns[j] = blk_worst_ns[j - 1]; blk_worst_ms[j] = blk_worst_ms[j - 1];
+                        memcpy(blk_worst_pr[j], blk_worst_pr[j - 1], sizeof blk_worst_pr[j]);
+                    }
+                    blk_worst_ns[w] = dt; blk_worst_ms[w] = now_ms;
+                    for (k = 0; k < ENG_PROF_N; k++) blk_worst_pr[w][k] = (uint32_t)(eng_prof[k] - pr0[k]);
+                }
                 ins_total += di;
                 ins_frames += 256;
                 if (di > ins_block_max)
@@ -476,6 +588,11 @@ static void run_ms(uint32_t ms)
             if (cpu_pct > cpu_peak)
                 cpu_peak = cpu_pct;
             engine_load(load_force >= 0 ? (uint32_t)load_force : cpu_pct, 256);
+            {   /* X0X_RAW=FILE: the engine's 24-bit output words, for exact A/B checks */
+                static FILE *raw; static int raw_init;
+                if (!raw_init) { const char *f = getenv("X0X_RAW"); raw_init = 1; raw = f ? fopen(f, "wb") : NULL; }
+                if (raw) fwrite(blk, 4, 512, raw);
+            }
             for (k = 0; k < 256; k++) {
                 float l = (float)blk[2 * k] / 8388608.0f, r = (float)blk[2 * k + 1] / 8388608.0f;
                 int16_t s[2];
@@ -496,6 +613,7 @@ static void run_ms(uint32_t ms)
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
         }
+        engine_brk_flush();
         if (now_ms >= ui_due) {
             ui_due = now_ms + 16;
             ui_frame();
@@ -921,6 +1039,10 @@ int main(int argc, char **argv)
                 printf("line %d: no param %d %d %d\n", lineno, t, v, i);
                 return 2;
             }
+            if (t == T_303) {
+                if ((unsigned)v >= NBASS || !original_sound_set(proj.sound.v[t][v], (unsigned)i, (unsigned)val)) return 2;
+                engine_bass_sound_refresh(&proj.sound, v);
+            } else
             proj.sound.v[t][v][i] = (uint8_t)val;
             engine_set(t, v, i, val);
             run_ms(1);
@@ -931,6 +1053,10 @@ int main(int argc, char **argv)
             int k, z = 0;
             strtok(rest, " \t\n");                          /* K */
             k = atoi(a);
+            if (k < 0 || k >= PLAT_NSLOTS) {
+                printf("line %d: no sample slot %d\n", lineno, k);
+                return 2;
+            }
             tok = strtok(0, " \t\n");                      /* NAME */
             snprintf(slot_name[k], sizeof slot_name[k], "%s", tok ? tok : "");
             slot_nz[k] = 0;
@@ -945,7 +1071,7 @@ int main(int argc, char **argv)
             int k = atoi(a);
             FILE *fh = fopen(b, "rb"), *fd = fopen(c, "rb");
             size_t nh, nd;
-            if (!fh || !fd || k < 0 || k > 2) {
+            if (!fh || !fd || k < 0 || k >= PLAT_NSLOTS) {
                 printf("line %d: cannot read the slot image\n", lineno);
                 return 2;
             }
@@ -966,12 +1092,27 @@ int main(int argc, char **argv)
             smp_user_scan((uint32_t)k);
             printf("  slot %d: %d zone(s) from the image\n", k, usr_nz[k]);
             engine_brk_loops();
+        } else if (!strcmp(cmd, "partch")) {       /* partch PART CHANNEL: CHANNEL 1-16, 0 = off */
+            int part = atoi(a), chn = atoi(b);
+            if (part < 0 || part >= NPARTS || chn < 0 || chn > 16) {
+                printf("line %d: partch %s %s\n", lineno, a, b);
+                return 2;
+            }
+            seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+        } else if (!strcmp(cmd, "brkcount")) { /* brkcount A|B 4|8|16|32 */
+            unsigned count = (unsigned)atoi(b), code;
+            if (count != 4 && count != 8 && count != 16 && count != 32) return 2;
+            code = count == 4 ? 1 : count == 8 ? 0 : count == 16 ? 2 : 3;
+            unsigned shift = a[0] == 'B' ? 2 : 0;
+            brkpart_t *bp = &proj.pat[seq.ppat[TRK_BRK]].brk;
+            bp->slice_mode = (uint8_t)((bp->slice_mode & ~(3u << shift)) | (code << shift));
+            engine_brk_loops();
         } else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4, src = (uint32_t)atoi(line_d) & 3u;   /* midi S D1 D2 [SRC] */
-            min_q[mi_w++ % MQ] = cin | src << 4 | s << 8 | d1 << 16 | d2 << 24;   /* SRC: 0 USB, 1 BLE, 2 TRS */
+            host_midi_put(cin | src << 4 | s << 8 | d1 << 16 | d2 << 24);   /* SRC: 0 USB, 1 BLE, 2 TRS */
         } else if (!strcmp(cmd, "blelinkend") || !strcmp(cmd, "usblinkend")) {   /* a link ends (usb.c midi_link_check) */
-            min_q[mi_w++ % MQ] = PLAT_MIDI_LINK_END(cmd[0] == 'b' ? 1u : 0u);
+            host_midi_put(PLAT_MIDI_LINK_END(cmd[0] == 'b' ? 1u : 0u));
         } else if (!strcmp(cmd, "wav")) {
             snprintf(out, sizeof out, "%s/%s", dir, a);
             wav_open(out);
@@ -1028,6 +1169,9 @@ int main(int argc, char **argv)
                     return 1;
                 }
                 store_len[o] = n;
+                /* Legacy dump files contain one generation only. Do not let
+                 * the previous in-memory session supply unrelated A/B data. */
+                if (ld) store_previous_len[o] = -1;
             }
             fclose(f);
             if (ld) {                                    /* boot on it */
@@ -1095,6 +1239,13 @@ int main(int argc, char **argv)
         for (k = 0; k < ENG_PROF_N; k++)
             printf(" %s %.1f%% (%.1f)", N[k], tot ? 100.0 * (double)prof_tot[k] / (double)tot : 0.0,
                    ins_frames ? (double)prof_tot[k] / (double)ins_frames : 0.0);
+        printf("\n");
+        printf("worst blocks (us; deadline %.0f us per 256 frames) of %llu:", 256.0 * 1e6 / 44100.0, (unsigned long long)blk_count);
+        for (k = 0; k < 8 && blk_worst_ns[k] > 0; k++) {
+            int q;
+            printf("\n  %.1f at %u ms:", blk_worst_ns[k] / 1000.0, blk_worst_ms[k]);
+            for (q = 0; q < ENG_PROF_N; q++) printf(" %s %.1f", N[q], blk_worst_pr[k][q] / 1000.0);
+        }
         printf("\n");
     }
     if (ins_frames && ins_total)

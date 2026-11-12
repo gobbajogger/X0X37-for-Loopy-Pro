@@ -56,7 +56,7 @@ installer and the storage) and replaces the instrument on top.
 
 X0X doesn't ship with any recorded breaks, only two loops played by its own 909. You can load
 your own into the sample slots. Loops go in at 44.1 kHz. The SMK-37 has three slots of
-80, 120 and 44 KiB (about 3.7, 5.5 and 2 seconds, 11.3 seconds in all); the FM-1 has three of
+80, 120 and 32 KiB (about 3.7, 5.5 and 1.5 seconds, 10.7 seconds in all); the FM-1 has two of
 80 KiB (about 3.7 seconds each). Ask for 22.05 kHz to fit twice as much at lower quality. An
 install that would lose loops saves them to a file first and writes them back after.
 The [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/) does it from Chrome or

@@ -2,7 +2,7 @@
 
 Use this procedure for an already-authorized source or sanitized evidence change when the current executor cannot use native Git transport. It does not grant permission to bypass a denial, replace the current source owner, move protected integration refs, publish firmware or operate a device.
 
-Read the current [workflow](rules/workflow.md), exact candidate rules and action-specific authority first. Use a disjoint source branch and retain the existing sole integration owner. A source push is not a merge, build, published package or delivered device function.
+Read the current [workflow](../skills/x0x37-workflow/SKILL.md), exact candidate rules and action-specific authority first. Use a disjoint source branch and retain the existing sole integration owner. A source push is not a merge, build, published package or delivered device function.
 
 ## Classify the actual failure
 
@@ -59,4 +59,5 @@ A proposed patch, created object, successful push, PR opening, review, merge, na
 
 ## Read-only source recovery is separate
 
-The maintained `nightly` document `docs/github-api-nightly-checkout.md`, read at a freshly resolved full commit SHA, describes how to reconstruct source for native execution and performs no push. A successful API source read or checkout proves neither a firmware build nor write authorization. Verify the required source closure before tests; do not repeat compiler/SDK downloads for a documentation-only delivery.
+[Exact REST checkout](github-api-nightly-checkout.md) reconstructs source for native execution and performs no push. A successful API source read or checkout proves neither a firmware build nor write authorization. Verify the required source closure before tests; do not repeat compiler/SDK downloads for a documentation-only delivery.
+

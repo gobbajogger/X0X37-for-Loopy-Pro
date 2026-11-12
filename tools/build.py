@@ -18,6 +18,9 @@ so M-Vave's updater still takes that unit's factory package; build/x0x-smk37-eli
 
 The JieLi toolchain is Linux x86-64 only. JIELI_TOOLCHAIN points at it; on
 macOS (or with JIELI_DOCKER=1) each tool runs in a linux/amd64 container.
+
+X0X_ORIGINAL_SYNTH=1 is the default Chicago/Miami replacement, with the admitted
+seven-type Chicago FX policy. Explicit0 retains only a reference build lane.
 """
 import argparse
 import hashlib
@@ -39,6 +42,9 @@ sys.path.insert(0, str(SRC / "tools"))
 import fm1pkg_make  # noqa: E402
 import gen_cache  # noqa: E402
 import lz4blk  # noqa: E402
+import rom_guard  # noqa: E402
+import check_original_inputs  # noqa: E402
+from firmware_build_labels import canonical_version  # noqa: E402
 
 APP_XIP = 0x02000120                # app.bin offset 0 in the XIP map; the SPL jumps here
 APP_SLOT = fm1pkg_make.APP_SLOT
@@ -46,21 +52,114 @@ APP_CODE_MAX = fm1pkg_make.APP_CODE_MAX   # SMK: the app code ends below the Blu
 LOADER_LOAD = 0x01C0A800
 LOADER_NAME = b"usb_hid_ota.bin"    # the file name the SPL looks for
 DOCKER_IMAGE = os.environ.get("JIELI_DOCKER_IMAGE", "debian:bookworm-slim")
-CFLAGS = ["-Os", "-ffunction-sections", "-fno-builtin", "-Wall", "-Wno-unused-function"]
+CFLAGS = ["-Os", "-ffunction-sections", "-fdata-sections", "-fno-builtin", "-Wall", "-Wno-unused-function"]
 # X0X: the AC79's single-precision FPU (the SDK's own flags); no fused multiply-add, so the host
 # build (-ffp-contract=off) computes the same samples
 FPU = ["-mcpu=r3", "-mfprev1", "-ffp-contract=off"]
+
+def clang_std_inc():
+    """Resolve JieLi standard headers in the compiler's execution environment."""
+    include = "/opt/jieli/pi32v2/include" if use_docker() else str(toolchain() / "pi32v2" / "include")
+    return ["-idirafter", include]
 # the DSP, the sequencer and the audio engine: separate units at -O2
-O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/bass303.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
-            "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
+O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
+            "dsp/x0x_param.c", "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
+# Explicit compilation superset. The app's backend calls, not forced export roots,
+# decide which function/data sections survive the link. master_unmuted.c is an old
+# component reference; the original graph uses master.c and its real lifecycle.
+ORIGINAL_SYNTH_UNITS = [
+    "experiments/original_synth/chicago_allocator.c",
+    "experiments/original_synth/chicago_arp_control.c",
+    "experiments/original_synth/chicago_control_owner.c",
+    "experiments/original_synth/chicago_drive.c",
+    "experiments/original_synth/chicago_dynamics.c",
+    "experiments/original_synth/chicago_engine_output.c",
+    "experiments/original_synth/chicago_full_mg.c",
+    "experiments/original_synth/chicago_fx2_compact.c",
+    "experiments/original_synth/chicago_fx2_wrapper.c",
+    "experiments/original_synth/chicago_global_mg.c",
+    "experiments/original_synth/chicago_global_stage.c",
+    "experiments/original_synth/chicago_key_admission.c",
+    "experiments/original_synth/chicago_modulation.c",
+    "experiments/original_synth/chicago_mp4.c",
+    "experiments/original_synth/chicago_note_context.c",
+    "experiments/original_synth/chicago_output.c",
+    "experiments/original_synth/chicago_packed.c",
+    "experiments/original_synth/chicago_program.c",
+    "experiments/original_synth/chicago_program_output.c",
+    "experiments/original_synth/chicago_scheduler.c",
+    "experiments/original_synth/chicago_selector.c",
+    "experiments/original_synth/chicago_smallfx.c",
+    "experiments/original_synth/chicago_tuning.c",
+    "experiments/original_synth/chicago_voice.c",
+    "experiments/original_synth/chicago_voice_owner.c",
+    "experiments/original_synth/chicago_voice_snapshot.c",
+    "experiments/original_synth/control_math.c",
+    "experiments/original_synth/engine_events.c",
+    "experiments/original_synth/fixed_fx.c",
+    "experiments/original_synth/fused_reference.c",
+    "experiments/original_synth/lossless_table.c",
+    "experiments/original_synth/master.c",
+    "experiments/original_synth/miami_control_owner.c",
+    "experiments/original_synth/miami_fx_chain.c",
+    "experiments/original_synth/miami_geometry.c",
+    "experiments/original_synth/miami_ms20.c",
+    "experiments/original_synth/miami_note_context.c",
+    "experiments/original_synth/miami_output.c",
+    "experiments/original_synth/miami_pitch.c",
+    "experiments/original_synth/miami_program.c",
+    "experiments/original_synth/miami_selected_voice.c",
+    "experiments/original_synth/miami_startup.c",
+    "experiments/original_synth/miami_voice_owner.c",
+    "experiments/original_synth/miami_voice_snapshot.c",
+    "experiments/original_synth/oscillator_motion.c",
+    "experiments/original_synth/program_envelope.c",
+    "experiments/original_synth/state_codec.c",
+    "experiments/original_synth/voice_gain.c",
+    "experiments/wobble/miami_decimator_adapter.c",
+    "experiments/wobble/miami_decimator_component.c",
+    "experiments/wobble/miami_fx_conversion.c",
+]
+ORIGINAL_SYNTH_BACKENDS = [
+    "firmware/src/dsp/original_chicago_backend.c",
+    "firmware/src/dsp/original_miami_backend.c",
+    "firmware/src/app/original_runtime.c",
+    "firmware/src/app/original_sound.c",
+]
+# Per-sample Chicago/Miami DSP units: -O2 like O2_UNITS (the rest stays -Os for flash).
+# -ffp-contract=off and -fno-fast-math keep every float result the same at either level.
+ORIGINAL_SYNTH_O2_UNITS = {
+    "oscillator_motion", "miami_selected_voice", "miami_ms20", "miami_output", "miami_fx_chain",
+    "miami_pitch", "voice_gain", "program_envelope", "fixed_fx", "master",
+    "chicago_voice", "chicago_mp4", "chicago_drive", "chicago_dynamics", "chicago_fx2_compact", "chicago_fx2_wrapper",
+    "chicago_smallfx", "chicago_output", "chicago_engine_output", "chicago_full_mg", "chicago_global_mg",
+    "chicago_global_stage", "chicago_modulation",
+    "miami_decimator_component", "miami_decimator_adapter", "miami_fx_conversion",
+    "original_chicago_backend", "original_miami_backend", "original_runtime",
+    "fused_reference", "chicago_selector", "miami_geometry",
+    "chicago_scheduler", "chicago_voice_owner", "chicago_packed", "lossless_table", "chicago_arp_control", "chicago_note_context", "control_math",
+}
+ORIGINAL_SYNTH_FLAGS = ["-fno-fast-math", "-ffp-contract=off", "-DNDEBUG",
+                        "-DORIGINAL_USE_SOFT_FMA", "-DMIAMI_FX_NO_HOST_FENV",
+                        "-DX0X_FAST_FMA"]   # device: mul+add for the soft FMA (docs/perf/engine-load-20261031.md)
 LINE = re.compile(r"^\s*([0-9a-f]+):\s+((?:[0-9a-f]{2} )+)\s*\t(.*)$")
 
-# SDK files of AC79NN_SDK_V1.2.1_2023-12-13 (the tested version)
+# SDK files of AC79NN_SDK_V1.2.14_2026-10-13 (owner-selected SDK for 0.0.25 and new NIGHTLY builds)
+SDK_TAG = "AC79NN_SDK_V1.2.14_2026-10-13"
 SDK_SHA256 = {
-    "uboot.boot": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+    "uboot.boot": "64ccc63e4df3238046fadb200f1b134311d8fe6ec6e3ccb8c8b81379231b867e",
     "cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
-    "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+    "cfg/eq_cfg_hw.bin": "179ac9f4501d2cf8c3bdbc06fcda1e46228b7ace7e339342c767bb6568de57d8",
 }
+
+
+def check_sdk(read=None):
+    """Stop the build before anything is compiled unless every pinned SDK file matches."""
+    read = read or fm1pkg_make.sdk_file
+    for rel, sha in SDK_SHA256.items():
+        got = hashlib.sha256(read(rel)).hexdigest()
+        if got != sha:
+            raise SystemExit(f"build: SDK {rel} sha256 {got} does not match pinned {SDK_TAG} ({sha})")
 
 PRODUCT = "FM-1_900"                # package identity; release builds are FM-1_9XXYYZZ (see main)
 BOARD = "fm1"                       # fm1 (default) or smk37: BOARD env or --board
@@ -68,7 +167,17 @@ BOARD_PREFIX = {"fm1": "FM-1_9", "smk37": "SMK-37 Pro_9"}   # identity of a rele
 BOARD_DEFS = {"fm1": [], "smk37": ["-DBOARD_SMK37=1"]}       # the FM-1 build gets no new flag (byte-identical)
 # smk37: the keyboard's model name (MODEL env or --model); one hardware, three names. pro adds no flag
 MODELS = {"pro": "SMK-37 Pro", "elite": "SMK-37 Elite", "mke": "MKE-P37"}
-VERSION = None                      # FELUCCA_VERSION for release builds (default: firmware/src/ui.c)
+MODEL = "pro"                       # current USB app name variant, set by --model
+VERSION = None                      # numeric X.Y.Z passed to the firmware as X0X_VERSION
+GIT_SHA = None                      # short source revision, diagnostics only
+RELEASE_LABEL = None                # display only, e.g. 0.1.3_openbeta; not part of the package identity
+
+
+def usb_product_define(board, model):
+    """Select the application USB name without changing the update loader identity."""
+    if board == "smk37" and model in ("pro", "elite"):
+        return f"-DX0X_USB_37{model.upper()}=1"
+    return None
 
 
 def toolchain():
@@ -158,16 +267,23 @@ def generate():
             failed.append(c[0].name)
     if failed:
         raise SystemExit(f"build: {', '.join(failed)} failed")
-    # the BREAK part's built-in bank: the 909-rendered loops (no recordings), or, opt-in,
-    # one-bar WAVs from X0X_BREAK_BANK (made by tools/import_breaks.py; not in this tree)
+    # The default image has no built-in loops: that flash is code room. X0X_FACTORY_BREAKS=1
+    # puts the designated stock loops in the image. X0X_BREAK_BANK=DIR uses another bank instead.
+    import break_pack
     bank = os.environ.get("X0X_BREAK_BANK")
-    cmd = ([sys.executable, str(tools / "gen_break_bank.py"), bank, str(GEN / "x0x_break_bank.h")] if bank
-           else ["sh", str(tools / "gen_builtin_break.sh"), str(GEN)])
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    sys.stdout.write(r.stdout)
-    if r.returncode:
-        sys.stderr.write(r.stderr)
-        raise SystemExit("build: break bank failed")
+    factory = os.environ.get("X0X_FACTORY_BREAKS") == "1"
+    if bank or factory:
+        cmd = ([sys.executable, str(tools / "gen_break_bank.py"), bank, str(GEN / "x0x_break_bank.h")] if bank
+               else [sys.executable, str(tools / "break_pack.py"), "--from-export",
+                     str(SRC / "assets" / "factory-breaks"), "--header", str(GEN / "x0x_break_bank.h")])
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        sys.stdout.write(r.stdout)
+        if r.returncode:
+            sys.stderr.write(r.stderr)
+            raise SystemExit("build: break bank failed")
+    else:
+        break_pack.write_empty_header(GEN / "x0x_break_bank.h")
+        print("break bank: none (factory loops are an optional install)")
     gen_cache.store(GEN)
 
 
@@ -205,7 +321,7 @@ def ldr_wrap(image):
 def build_loader():
     LDR.mkdir(parents=True, exist_ok=True)
     src = FW / "loader"
-    flags = [*CFLAGS, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src"]
+    flags = [*CFLAGS, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src", *clang_std_inc()]
     tc_all(("cc", "-c", src / "crt0_ldr.S", "-o", LDR / "crt0_ldr.o"),
            ("cc", *flags, "-c", src / "loader.c", "-o", LDR / "loader.o"))
     elf = LDR / "loader.elf"
@@ -233,14 +349,105 @@ def build_loader():
 
 # ---- app
 
+def synth_build_config(environ=None):
+    """Select one DSP implementation; an explicit legacy enable cannot mix them."""
+    env = os.environ if environ is None else environ
+    original = env.get("X0X_ORIGINAL_SYNTH", "1")
+    if original != "1":
+        raise SystemExit("X0X_ORIGINAL_SYNTH: only 1 is supported")
+    if env.get("X0X_WOBBLE", "0") != "0":
+        raise SystemExit("X0X_ORIGINAL_SYNTH=1 requires X0X_WOBBLE=0 or unset")
+    if env.get("X0X_DEV_WOBBLE", "1") not in ("0", "1"):
+        raise SystemExit("X0X_DEV_WOBBLE: 0 or 1 (original Miami rate-pad UI only)")
+    return True, "0"
+
+
+def require_original_synth_sources(root=None):
+    """Fail before invoking the compiler if source or exact inputs are missing."""
+    root = SRC if root is None else Path(root)
+    required = [*ORIGINAL_SYNTH_UNITS, *ORIGINAL_SYNTH_BACKENDS,
+                *(str(Path(u).with_suffix(".h")) for u in ORIGINAL_SYNTH_BACKENDS)]
+    missing = [u for u in required if not (root / u).is_file()]
+    if missing:
+        raise SystemExit("X0X_ORIGINAL_SYNTH=1: missing replacement sources: " + ", ".join(missing))
+    inputs = check_original_inputs.verify(
+        root, expected_manifest_sha256=check_original_inputs.MANIFEST_SHA256)
+    if not inputs["ok"]:
+        raise SystemExit("X0X_ORIGINAL_SYNTH=1: invalid external inputs: " +
+                         "; ".join(inputs["errors"]))
+
+
+def app_compile_commands(flags, original_synth, wobble):
+    """Return the exact app compile/link input plan without running tools."""
+    if not original_synth:
+        raise SystemExit("X0X_ORIGINAL_SYNTH: only 1 is supported")
+    if original_synth:
+        if wobble != "0":
+            raise SystemExit("X0X_ORIGINAL_SYNTH=1 cannot compile legacy WBL")
+        # x0x.c and engine.c use this flag to select the matching UI/factory and
+        # backend code. The old factory tables are textual includes in x0x.c,
+        # not standalone units that can be removed from this list.
+        flags = [*flags, "-DX0X_ORIGINAL_SYNTH=1",
+                 "-Iexperiments/original_synth", "-Iexperiments/wobble"]
+    o2 = [f if f != "-Os" else "-O2" for f in flags]
+    units = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
+             ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
+             ("cc", "-c", FW / "hal" / "fm1_isr.S", "-o", OUT / "fm1_isr.o"),
+             ("cc", "-c", FW / "hal" / "fm1_cpu1.S", "-o", OUT / "fm1_cpu1.o"),
+             ("cc", *[f if f != "-Os" else "-Oz" for f in flags], "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
+    objs = [OUT / "crt0.o", OUT / "fm1_vec.o", OUT / "fm1_isr.o", OUT / "fm1_cpu1.o", OUT / "x0x.o"]
+    # Every admitted build is Chicago/Miami only. Keep the obsolete engine
+    # units out of the compilation plan, not behind unreachable switches.
+    for u in O2_UNITS:
+        o = OUT / "o2" / (u.replace("/", "_")[:-2] + ".o")
+        unit_flags = [*o2, *ORIGINAL_SYNTH_FLAGS] if u == "app/engine.c" else o2
+        units.append(("cc", *unit_flags, "-c", FW / "src" / u, "-o", o))
+        objs.append(o)
+    if original_synth:
+        original_flags = [*flags, *ORIGINAL_SYNTH_FLAGS]
+        original_o2 = [*o2, *ORIGINAL_SYNTH_FLAGS]
+        for u in (*ORIGINAL_SYNTH_UNITS, *ORIGINAL_SYNTH_BACKENDS):
+            o = OUT / "original" / (Path(u).stem + ".o")
+            uf = original_o2 if Path(u).stem in ORIGINAL_SYNTH_O2_UNITS else original_flags
+            units.append(("cc", *uf, "-c", Path(u), "-o", o))
+            objs.append(o)
+    return units, objs
+
+
 def build_app():
+    original_synth, wobble = synth_build_config()
+    if original_synth:
+        require_original_synth_sources()
     flags = [*CFLAGS, *FPU, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src", "-Ibuild/gen"]
+    usb_name = usb_product_define(BOARD, MODEL)
+    if usb_name:
+        flags.append(usb_name)  # app only: loader, VID/PID and package identity unchanged
     if VERSION and os.environ.get("X0X_DEBUG") == "1":
         raise SystemExit("X0X_DEBUG=1 (register peek / poke over USB) is for development builds only")
-    for flag in ("X0X_CDC", "X0X_DEBUG", "X0X_DEV_PADCAL"):
-        v = os.environ.get(flag)    # unset: the default in firmware/src/x0x.c
+    for flag in ("X0X_CDC", "X0X_DEBUG", "X0X_DEV_PADCAL", "X0X_DEV_WOBBLE", "X0X_WOBBLE", "X0X_LCD_TRACE"):
+        v = os.environ.get(flag)    # unset: the default in firmware headers / below
         if v in ("0", "1"):
             flags.append(f"-D{flag}={v}")
+    # Sound-selector previews use tagged storage but deliberately leave the
+    # separate per-note snapshot lifecycle disabled until it is qualified.
+    bass_flags = ("X0X_BASS_PRESET_PREVIEW", "X0X_BASS_TAGGED_SOUND", "X0X_BASS_NOTE_SOUND")
+    for flag in bass_flags:
+        v = os.environ.get(flag)
+        if v is not None:
+            if v not in ("0", "1"):
+                raise SystemExit(f"{flag}: 0 or 1")
+            flags.append(f"-D{flag}={v}")
+    if os.environ.get("X0X_BASS_NOTE_SOUND") == "1" and os.environ.get("X0X_BASS_TAGGED_SOUND") != "1":
+        raise SystemExit("X0X_BASS_NOTE_SOUND requires X0X_BASS_TAGGED_SOUND=1")
+    if os.environ.get("X0X_BASS_TAGGED_SOUND") == "1" and os.environ.get("X0X_BASS_PRESET_PREVIEW") != "1":
+        raise SystemExit("X0X_BASS_TAGGED_SOUND requires X0X_BASS_PRESET_PREVIEW=1")
+    # The original replacement never links Wobble DSP. X0X_DEV_WOBBLE=1
+    # enables only Miami's physical Free Play rate-pad UI by default.
+    if f"-DX0X_WOBBLE={wobble}" not in flags:
+        flags.append(f"-DX0X_WOBBLE={wobble}")
+    if not any(f.startswith("-DX0X_DEV_WOBBLE=") for f in flags):
+        flags.append(f"-DX0X_DEV_WOBBLE={'1' if original_synth else wobble}")
+    flags += clang_std_inc()
     flags.append(f'-DFELUCCA_ID="{PRODUCT}"')
     if BOARD == "smk37":            # SMK store owner (storage.c st_owner_check): X0X's own family, untagged data cleared
         fam = os.environ.get("FELUCCA_DATA_FAMILY", "X0X")
@@ -255,21 +462,10 @@ def build_app():
             if not re.fullmatch(r"[0-8]", baud):
                 raise SystemExit("X0X_SMK_LCD_BAUD: 0..8 (SPI clock = 60 MHz / (n + 1))")
             flags.append(f"-DLCD_BAUD={baud}u")
-    if VERSION:
-        flags.append(f'-DX0X_VERSION="{VERSION}"')
-    o2 = [f if f != "-Os" else "-O2" for f in flags]
-    units = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
-             ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
-             ("cc", "-c", FW / "hal" / "fm1_isr.S", "-o", OUT / "fm1_isr.o"),
-             ("cc", "-c", FW / "hal" / "fm1_cpu1.S", "-o", OUT / "fm1_cpu1.o"),
-             ("cc", *[f if f != "-Os" else "-Oz" for f in flags], "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
-    objs = [OUT / "crt0.o", OUT / "fm1_vec.o", OUT / "fm1_isr.o", OUT / "fm1_cpu1.o", OUT / "x0x.o"]
-    (OUT / "o2").mkdir(parents=True, exist_ok=True)
-    for u in O2_UNITS:
-        o = OUT / "o2" / (u.replace("/", "_")[:-2] + ".o")
-        unit_flags = [f if f != "-O2" else "-Oz" for f in o2] if u == "dsp/bass303.c" else o2
-        units.append(("cc", *unit_flags, "-c", FW / "src" / u, "-o", o))
-        objs.append(o)
+    flags += version_defines(VERSION, RELEASE_LABEL, GIT_SHA)
+    units, objs = app_compile_commands(flags, original_synth, wobble)
+    for directory in {o.parent for o in objs}:
+        directory.mkdir(parents=True, exist_ok=True)
     tc_all(*units)
     elf = OUT / "x0x.elf"
     # unreferenced functions (each in its own section: -ffunction-sections) are dropped: the DSP keeps
@@ -309,6 +505,9 @@ def build_app():
             img += b"\xff" * (load - APP_XIP - len(img))
             img += blob
     img += b"\xff" * (-len(img) % 4)
+    # A 0x00 mark, then pad back to a word. The optional break pack sits after this
+    # mark, in the 0xFF tail, and does not overwrite the image.
+    img += b"\x00\xff\xff\xff"
     (OUT / "x0x.bin").write_bytes(img)
     return bytes(img), syms, dis, rt
 
@@ -325,14 +524,7 @@ def check(img, syms, dis, rt):
         errors.append(f".ram_text contains calls: {rt_calls[:3]}")
     else:
         notes.append(f".ram_text: {len([ln for ln in rt.splitlines() if LINE.match(ln)])} insns, no calls")
-    for ln in dis.splitlines():     # nothing may call or load an address in the chip ROM
-        mm = LINE.match(ln)
-        if not mm:
-            continue
-        for v in re.findall(r"= (-?\d+) <|call -?\d+ <[^:>]*: ([0-9a-f]+) >", mm.group(3)):
-            val = (int(v[0]) & 0xFFFFFFFF) if v[0] else int(v[1], 16) & 0xFFFFFFFF
-            if 0xFFC00000 <= val < 0xFFD00000:
-                errors.append(f"reference to ROM address {val:#010x}")
+    errors.extend(rom_guard.references(dis))  # no ROM calls, loads or escaping ROM addresses
     if len(img) > APP_CODE_MAX:
         errors.append(f"image {len(img)} B exceeds the app code area ({APP_CODE_MAX} B)")
     else:
@@ -402,16 +594,80 @@ def mmio_check():
     return errors
 
 
+def release_identity(text):
+    """Split a --release argument into machine identity and open-beta display.
+
+    The package identity uses only X.Y.Z, each component 0..99, as model_9XXYYZZ.
+    `_openbeta` is a display label. It is not accepted as a version argument and
+    it is not encoded in the product name. A different -suffix keeps the older
+    on-device version string and gets no open-beta label.
+    """
+    match = re.fullmatch(r"(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?(-[A-Za-z0-9]+)?", text or "")
+    if not match:
+        raise ValueError("use X.Y[.Z][-suffix], up to two digits each")
+    major, minor, patch = int(match[1]), int(match[2]), int(match[3] or 0)
+    numeric = "%d.%d.%d" % (major, minor, patch)
+    digits = "%02d%02d%02d" % (major, minor, patch)
+    channel = match.group(4)
+    if channel in (None, "-openbeta"):
+        return {"numeric": numeric, "digits": digits, "version_macro": numeric,
+                "release_label": numeric + "_openbeta", "filename": numeric}
+    shown = text.upper() if "BETA" in text.upper() else text.upper() + " BETA"
+    return {"numeric": numeric, "digits": digits, "version_macro": shown,
+            "release_label": None, "filename": text}
+
+
+def nightly_identity(text, git_sha):
+    """Display version and diagnostic SHA; never a loader/product identity."""
+    version = canonical_version(text)
+    if not isinstance(git_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", git_sha):
+        raise ValueError("Git SHA must be 40 lowercase hexadecimal characters")
+    return {"version_macro": version, "git_sha": git_sha[:8]}
+
+
+def version_defines(version, release_label, git_sha):
+    """Application-only defines shared by UI, editor and USB display text."""
+    flags = []
+    if version:
+        flags.append(f'-DX0X_VERSION="{version}"')
+    if release_label:
+        flags.append(f'-DX0X_RELEASE_LABEL="{release_label}"')
+    if git_sha:
+        flags.append(f'-DX0X_GIT_SHA="{git_sha}"')
+    return flags
+
+
 def main():
-    global PRODUCT, VERSION, BOARD, APP_SLOT, APP_CODE_MAX, OUT, LDR
+    global PRODUCT, VERSION, GIT_SHA, RELEASE_LABEL, BOARD, MODEL, APP_SLOT, APP_CODE_MAX, OUT, LDR
     ap = argparse.ArgumentParser()
-    ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_9XXYYZZ, version string X.Y[.Z]")
+    versions = ap.add_mutually_exclusive_group()
+    versions.add_argument("--release", metavar="X.Y[.Z]", help="release build: numeric package identity and version string")
+    versions.add_argument("--nightly-version", metavar="X.Y.Z",
+                          help="nightly display version; keep the model_900 loader/package identity")
+    ap.add_argument("--git-sha", help="nightly source commit (40 lowercase hex; default: git rev-parse HEAD)")
     ap.add_argument("--board", choices=sorted(BOARD_PREFIX), default=None,
                     help="target board: fm1 (default) or smk37 (default: $BOARD, else fm1)")
     ap.add_argument("--model", choices=sorted(MODELS), default=None,
                     help="smk37: the model name, pro (default), elite or mke (default: $MODEL, else pro)")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     a = ap.parse_args()
+    nightly = None
+    if a.git_sha is not None and a.nightly_version is None:
+        ap.error("--git-sha requires --nightly-version")
+    if a.nightly_version is not None:
+        sha = a.git_sha
+        if sha is None:
+            try:
+                sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=SRC, text=True).strip()
+            except (OSError, subprocess.CalledProcessError) as exc:
+                ap.error(f"cannot read source commit; supply --git-sha: {exc}")
+        try:
+            nightly = nightly_identity(a.nightly_version, sha)
+        except ValueError as exc:
+            ap.error(str(exc))
+    original_synth, _ = synth_build_config()
+    if original_synth:
+        require_original_synth_sources()
     # regression guard: hardware-relevant settings must match tools/locked_settings.json
     if subprocess.run([sys.executable, str(SRC / "tools" / "check_locked_settings.py")]).returncode:
         raise SystemExit("build.py: locked settings differ (see above); the build stops")
@@ -421,6 +677,7 @@ def main():
     model = (a.model or (os.environ.get("MODEL") if BOARD == "smk37" else None) or "pro").lower()
     if model not in MODELS or (model != "pro" and BOARD != "smk37"):
         raise SystemExit(f"MODEL={model}: pro, elite or mke, with BOARD=smk37")
+    MODEL = model
     fm1pkg_make.set_board(BOARD)
     APP_SLOT = fm1pkg_make.APP_SLOT
     APP_CODE_MAX = fm1pkg_make.APP_CODE_MAX
@@ -438,21 +695,28 @@ def main():
         OUT = OUT.parent / f"{BOARD}-{model}"     # its own objects: the Pro build's stay as they are
         LDR = OUT / "loader"
     name = f"{stem}.fwsc"
+    VERSION = GIT_SHA = None
+    RELEASE_LABEL = None
+    if nightly:
+        if BOARD != "smk37" or MODEL not in ("elite", "pro"):
+            ap.error("--nightly-version supports SMK-37 Elite/Pro only")
+        VERSION = nightly["version_macro"]
+        GIT_SHA = nightly["git_sha"]
     if a.release:
         # identity FM-1_9 + major, minor, patch as two digits each (0.10 -> FM-1_9001000). FM-1 is the
         # model the update tools match on; the number is ours (X0X 0.3..0.9 were FM-1_9XY, one digit
-        # each, which ran out at 0.9 and was also Felucca's own numbering). 12 of the 20 characters a
-        # package's identity holds; digits only after the underscore, as the tools parse it.
-        m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?(-[A-Za-z0-9]+)?", a.release)
-        if not m:
-            raise SystemExit(f"--release {a.release}: use X.Y[.Z][-suffix], up to two digits each")
-        PRODUCT = BOARD_PREFIX[BOARD] + "%02d%02d%02d" % (int(m[1]), int(m[2]), int(m[3] or 0))
-        VERSION = a.release.upper() if "BETA" in a.release.upper() else a.release.upper() + " BETA"
-        name = f"{stem}-{a.release}.fwsc"
+        # each, which ran out at 0.9 and was also Felucca's own numbering). Digits only after the
+        # underscore. The open-beta words stay in X0X_RELEASE_LABEL, not in this identity.
+        try:
+            ident = release_identity(a.release)
+        except ValueError as exc:
+            raise SystemExit(f"--release {a.release}: {exc}") from exc
+        PRODUCT = BOARD_PREFIX[BOARD] + ident["digits"]
+        VERSION = ident["version_macro"]
+        RELEASE_LABEL = ident["release_label"]
+        name = f"{stem}-{ident['filename']}.fwsc"
     fm1pkg_make.SDK = a.sdk
-    for rel, sha in SDK_SHA256.items():          # fail early without the SDK
-        if hashlib.sha256(fm1pkg_make.sdk_file(rel)).hexdigest() != sha:
-            print(f"warning: SDK {rel} differs from AC79NN_SDK_V1.2.1; the package will not match the reference")
+    check_sdk()                                  # fail early without the pinned SDK
     OUT.mkdir(parents=True, exist_ok=True)
     with ThreadPoolExecutor(2) as ex:
         gen, ldr = ex.submit(generate), ex.submit(build_loader)
@@ -480,3 +744,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+

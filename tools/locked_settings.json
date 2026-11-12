@@ -110,13 +110,13 @@
     "config_btctler_le_features": "0",
     "config_btctler_mode": "BT_NORMAL",
     "config_btctler_hci_standard": "1",
-    "config_btctler_le_hw_nums": "1",
+    "config_btctler_le_hw_nums": "2",
     "config_btctler_le_rx_nums": "5",
     "config_btctler_le_acl_packet_length": "27",
-    "config_btctler_le_acl_total_nums": "5",
+    "config_btctler_le_acl_total_nums": "3",
     "config_btctler_le_slave_conn_update_winden": "2500",
     "config_btctler_le_afh_en": "0",
-    "config_btctler_le_master_multilink": "0",
+    "config_btctler_le_master_multilink": "1",
     "config_btctler_le_tws": "0",
     "config_btctler_single_carrier_en": "0",
     "config_vendor_le_bb": "0",
@@ -175,22 +175,22 @@
    "name": "slot_offsets",
    "file": "firmware/src/app/slots.c",
    "regex": "#define SMP_USER_OFF\\(k\\) \\(\\(k\\) == 0u \\? (\\w+) : \\(k\\) == 1u \\? (\\w+) : (\\w+)\\)",
-   "why": "sample slot 1, 2, 3 flash offsets (user data: never move silently)",
-   "value": "0xC2000u,0xD6000u,0xB0000u"
+   "why": "sample slot 1, 2, 3 flash offsets (user data: never move silently). Slot 3 restored 2026-11-12 (owner: the 2026-10-26 cut had no owner reason), after the sector-0 shadows.",
+   "value": "0xC2000u,0xD6000u,0xB3000u"
   },
   {
    "name": "slot_sizes",
    "file": "firmware/src/app/slots.c",
    "regex": "#define SMP_USER_SIZE\\(k\\) \\(\\(k\\) == 0u \\? (\\w+) : \\(k\\) == 1u \\? (\\w+) : (\\w+)\\)",
-   "why": "sample slot sizes",
-   "value": "0x14000u,0x1E000u,0xB000u"
+   "why": "sample slot sizes. Slot 3 restored 2026-11-12: 32 KiB, 0xB3000-0xBAFFF.",
+   "value": "0x14000u,0x1E000u,0x8000u"
   },
   {
    "name": "pkg_slotmap",
    "file": "tools/fm1pkg_make.py",
-   "regex": "^SLOTMAP = \\{\"smk37\": \\[(.*)\\]\\}",
+   "regex": "SLOTMAP = \\{\"smk37\": \\[(.*?)\\]",
    "why": "slot map in the package (installer backup/restore)",
-   "value": "(0xC2000, 0x14000), (0xD6000, 0x1E000), (0xB0000, 0xB000)"
+   "value": "(0xC2000, 0x14000), (0xD6000, 0x1E000), (0xB3000, 0x8000)"
   },
   {
    "name": "pkg_ble_block",

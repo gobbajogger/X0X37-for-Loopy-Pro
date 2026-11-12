@@ -1,0 +1,20 @@
+{
+  "id": "switcher_bass",
+  "tags": [
+    "factory_preset",
+    "steady_voiced"
+  ],
+  "bpm": 170.0,
+  "sampleRate": 48000,
+  "frames": 48000,
+  "noteOnFrame": 4800,
+  "noteOffFrame": 24000,
+  "steadyWindowStart": 4800,
+  "steadyWindowEnd": 19200,
+  "midiNote": 48,
+  "velocity": 80,
+  "nominalHz": 130.8127826502993,
+  "refWav": "switcher_bass.wav",
+  "factoryPresetIndex": 22,
+  "factoryPresetName": "Switcher Bass"
+}

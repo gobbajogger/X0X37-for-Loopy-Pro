@@ -51,6 +51,8 @@ static inline uint32_t seq_part_mask(int p)
 
 #define NSONG 192
 #define SEQ_CH_OFF 0xFFu
+#define SEQ_PART_OFF(s, t) (((s)->part_off >> (t)) & 1u)
+#define SEQ_FILL_VOICE 1u                /* M6 drum fill: the 909 snare (DR_SD) */
 /* a step's chance (the T_PROB lanes): 1-100 = that percentage, PROB_COND + k = the cycle k in the order
  * 1:2 2:2 1:3 2:3 3:3 1:4 ... 8:8 (A:B: on the A-th of every B passes of the part's pattern) */
 #define PROB_COND 101
@@ -78,13 +80,14 @@ typedef struct {
 
 typedef struct {
     int (*drum)(void *ctx, int kit, int voice, float vel);      /* 0: the hit did not play (its chance) */
-    void (*bass_on)(void *ctx, int part, int note, int accent, int slide, int velocity);
+    int (*bass_on)(void *ctx, int part, int note, int accent, int slide, int velocity); /* 0: chance skipped; do not echo MIDI */
     void (*bass_off)(void *ctx, int part);
     void (*brk)(void *ctx, int step16, int bar, float samples_per_16th, int enabled);
     void (*brk_stop)(void *ctx);
     void (*midi)(void *ctx, uint8_t status, uint8_t d1, uint8_t d2);   /* clock / transport / notes out */
     void (*step)(void *ctx, int part, int step);                        /* UI playhead (optional) */
     void *ctx;
+    void (*transport)(void *ctx, int running); /* ordered with following input */
 } seq_sink_t;
 
 #define SEQ_EXT_BEATS 8u              /* the tempo of an external clock: the mean over this many beats */
@@ -115,32 +118,65 @@ typedef struct {                      /* one part's runtime */
     uint8_t ext_ticks;                /* external clock: ticks into this step */
     uint8_t rec_skip_step;            /* a live hit recorded on a step not played yet on this pass: */
     uint8_t rec_skip_pat;             /* that step, its pattern, and the voices (bit v; 303: bit 0) */
+    uint8_t mut_steps;                /* random 303: low 7 pass count, high bit time-slot swing parity */
     uint16_t rec_skip;                /* that the step does not sound once (the key sounded) */
 } seq_track_t;
 
+typedef struct {
+    uint32_t at, slot;
+    uint8_t active, pat, first, last, prev, note, src, entered;
+    uint8_t gen;       /* bumped on context cancel; a reopened DSP gate is not this generation */
+    uint8_t own_ok;    /* 1 = own_* is an accepted live press of own_gen */
+    uint8_t own_gen;   /* generation that accepted the live press */
+    uint8_t own_src;   /* route of that press */
+    uint8_t own_note;  /* pitch of that press */
+} seq_bass_rec_t;
+
+/* Main loop while playing: cue via pcue[], chain via seq_chain(), and song_start.
+ * Performance restore must be stopped before replacing pat, ppat[], pcue[], mute,
+ * song_on or bpm as a group. Individual live tempo/mute controls remain supported;
+ * this does not permit a multi-field runtime restore during ISR playback. */
 typedef struct {
     pattern_t *pat;                   /* NPAT patterns (the project's) */
     song_t *song;                     /* the project's song (may be 0) */
     volatile uint8_t playing;         /* 1 = running */
     volatile uint8_t ppat[NTRACKS];   /* the pattern each part plays */
     volatile uint8_t pcue[NTRACKS];   /* each part's cued pattern (0xFF = none) */
-    volatile uint8_t chain_a, chain_b;/* chain range (whole patterns); a == b = no chain */
+    union {
+        volatile uint16_t chain;      /* publish a | b << 8 with one aligned store */
+        struct {                     /* little-endian read aliases for the main-loop UI */
+            volatile uint8_t chain_a, chain_b;
+        };
+    };                               /* a == b = no chain; write only via seq_chain() */
     volatile uint8_t song_on;         /* 1 = the song decides the patterns, bar by bar */
     volatile uint8_t song_rec;        /* with song_on: write the live state into the song */
     volatile uint16_t song_pos;       /* bar playing */
     volatile uint16_t song_start;     /* bar PLAY starts at */
     volatile uint8_t ext;             /* 1 = following an external clock */
     volatile uint8_t send_clock;      /* 1 = emit MIDI clock + transport when internal */
+    volatile uint8_t part_off; /* M7: suppress new notes independently of mute */
+    volatile uint8_t fill_req;        /* M6 drum fill: 1 while the SMC fill key is held (UI writes) */
+    uint8_t fill_on;                  /* the fill plays: latched at the 909's bar, cleared on release */
     volatile uint8_t send_notes;      /* 1 = echo the sequence on MIDI, on each part's channel */
     volatile uint8_t ch[NTRACKS];     /* each part's MIDI channel, 0-15 (in and out); SEQ_CH_OFF = none */
     uint8_t song_rep;                 /* the song bar playing: its passes still to play (SONG_REP) */
     volatile uint32_t mute;           /* MUTE_* bits */
+    volatile uint32_t mute_q;         /* part-mute bits waiting for the next 909 bar (xor) */
     volatile uint32_t vmute;          /* drum tracks muted on their own (bit k * NDRUM + v): kept apart from
                                        * the part mutes, which the song and HOME set as a whole */
+    volatile uint32_t vmute_q;        /* track-mute bits waiting for the next 909 bar (xor) */
+    volatile uint8_t queued_mutes;    /* 1: mute/unmute presses wait for the next 909 bar */
     volatile uint8_t accent_q7;       /* drum velocity of a non-accented hit, of 127 */
+    volatile uint8_t drum_vel[NKIT][NDRUM]; /* per-voice step velocity from a T_VEL lane (engine); 0 = accent law */
     float bpm;                        /* internal tempo (UI writes; read per step) */
     float ext_bpm;                    /* tempo measured from the external clock */
     seq_track_t t[NTRACKS];           /* TRK_DRUM, TRK_BASS0.., TRK_BRK */
+    /* Audio-side visual observer. UI reads only metro_view (one atomic byte):
+     * 0 = stopped/waiting, 1..32 = quarter-note phase. Never schedules events. */
+    uint32_t metro_phase, metro_period; /* elapsed/period in sample Q8 */
+    float metro_bpm;
+    uint8_t metro_tick;               /* accepted external clocks, independent of tempo ring */
+    volatile uint8_t metro_view;
     uint32_t clk_to_next;             /* internal: samples to the next MIDI clock, Q8 */
     uint32_t ext_since;               /* samples since the last external clock (tempo estimate) */
     uint32_t ext_period;              /* smoothed samples per external clock, Q8 */
@@ -148,8 +184,14 @@ typedef struct {
     uint32_t ext_beat[SEQ_EXT_BEATS]; /* ext_now at the last beats (24 external clocks each), a ring */
     uint8_t ext_nb, ext_bi, ext_q;    /* beats in the ring, the next ring slot, clocks into this beat */
     volatile uint32_t ext_pending;    /* external clocks received, not yet consumed */
+    volatile uint32_t req_prior_ticks;/* ticks queued before latest Start/Continue request */
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
+    volatile uint8_t rec_epoch, rec_dirty, rec_mask, rec_refused; /* accepted audio-side recorder context */
+    volatile uint32_t rec_ev_gen;              /* external REC boundary generation; UI advances only with audio held */
+    volatile uint8_t rec_ext_mask;              /* REC on: every 303 records external MIDI (src<3) on its channel */
+    volatile uint8_t rec_hold_mask;             /* finish an onset carried from SEQ into EDIT; no new onsets */
+    seq_bass_rec_t rec_bass[NBASS];
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */
     uint8_t bass_notes_out[NBASS];    /* note echoed on MIDI, for the note off */
     uint8_t bass_out_valid[NBASS], bass_out_ch[NBASS]; /* note zero is valid; release on its original channel */
@@ -160,6 +202,7 @@ typedef struct {
     uint8_t clk_cur;                  /* SEQ_CLK_*: the clock source that seq_advance applied */
     uint8_t clk_lost;                 /* EXTERNAL: no clock now, the pause (or the wait) is done */
     volatile uint8_t req_rt;          /* 1 = the pending Start or Continue came from MIDI in (seq_midi_rt) */
+    volatile uint8_t req_stop_rt;     /* 1 = pending Stop came from MIDI, not local PLAY */
     uint8_t start_local;              /* 1 = the last start came from PLAY (not from MIDI in) */
     uint32_t start_at;                /* ext_now at the last start */
     uint8_t clk_lock;                 /* the input that has the clock (MID-15): 0 none, else input + 1 */
@@ -168,6 +211,7 @@ typedef struct {
     uint8_t ext_skip;                 /* 1: the next block of ticks gives no tick period (the first ticks of a new input) */
     uint32_t clk_lock_at;             /* ext_now at its last Clock, Start or Continue */
     uint32_t clk_stop_at;             /* ext_now at its last Stop */
+    uint8_t chain_win, chain_at; /* runtime chain slot; never serialized */
 } seq_t;
 
 void seq_init(seq_t *s, pattern_t *patterns);
@@ -187,8 +231,14 @@ int seq_clock_waiting(const seq_t *s);  /* EXTERNAL: playing, but no clock for 0
 void seq_cue(seq_t *s, int pattern);  /* every part, at the end of the bar (now, if stopped) */
 void seq_cue_part(seq_t *s, int part, int pattern);
 void seq_chain(seq_t *s, int a, int b);
+int seq_chain_window(const pattern_t *pat, int a, int b);
 int seq_cue_of(const seq_t *s, int part);   /* the part's cued pattern, or -1 */
 int seq_part_muted(const seq_t *s, int part);
+
+/* GM drum note per kit voice — seq MIDI out and engine MIDI in share one table */
+extern const uint8_t GM_DRUM[NKIT][NDRUM];
+/* Default 0-based MIDI channels for the five parts (seq_init + project_apply_io) */
+extern const uint8_t SEQ_CH_DEFAULT[NTRACKS];
 
 /* steps of one part's rate, in samples Q8 (no swing) at the current tempo */
 uint32_t seq_step_q8(const seq_t *s, int rate);
@@ -197,3 +247,22 @@ int seq_part_len(const seq_t *s, int t);         /* steps in part t's pattern */
 int seq_next_step(seq_t *s, int t, int p);       /* the step after p (direction; no commit) */
 int seq_rec_step(seq_t *s, int t);               /* the step a live hit now records on: the nearest */
 void seq_rec_skip(seq_t *s, int t, int step, int voice);   /* that hit: its step does not sound it once */
+
+#define SEQ_REC_LEGATO 0x40u /* accepted live incoming transition; never stored in step flags */
+/* Live MIDI/keyboard edges, at the current audio clock. Last press owns the line;
+ * older/different-route releases do not end it. Repeated identical presses count.
+ * SEQ_REC_LEGATO is not ownership: overlap also needs the accepted note generation. */
+void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, int flags);
+void seq_rec_bass_end(seq_t *s, int b);
+/* Context cancel, part or pattern change, REC off, bulk finalize: drop the accepted
+ * generation and finish the open capture. Press membership stays with the engine. */
+void seq_rec_cancel(seq_t *s, int b);
+
+/* Audio recorder storage transaction supplied by the product engine (per-note
+ * sound lock, engine.h X0X_BASS_NOTE_SOUND). sequencer.c holds weak defaults
+ * (prepare 1: nothing stored, clear: nothing) for builds without the engine. */
+#define SEQ_BASS_NOTE_SOUND 1
+int seq_bass_sound_prepare(seq_t *s,int voice,int pat,int step); /* 0 stored, 1 lock off, <0 refused */
+void seq_bass_sound_clear(seq_t *s,int voice,int pat,int step);
+
+void seq_notes_off(seq_t *s, const seq_sink_t *o);

@@ -12,6 +12,7 @@
 #pragma once
 #include <stdint.h>
 #include "fm1_xip.h"
+#include "fm1_capture_gate.h"
 
 #define RAMFN  __attribute__((section(".ram_text"), noinline, used))
 #define RAMINL static inline __attribute__((always_inline))
@@ -138,15 +139,6 @@ static RAMFN uint32_t fl_jedec_ram(void)                 /* expect 0x856014 (FL_
     return id;
 }
 
-static RAMFN uint32_t fl_status_ram(void)                /* SR1 | SR2 << 8 */
-{
-    fl_saved_t s; uint32_t v;
-    if (fl_enter(&s)) return 0xFFFFFFFFu;
-    v = fl_rdsr(0x05) | ((uint32_t)fl_rdsr(0x35) << 8);
-    fl_exit(&s);
-    return v;
-}
-
 static RAMFN int fl_erase4k_ram(uint32_t off, uint32_t *took_us)
 {
     fl_saved_t s; int rc;
@@ -209,8 +201,22 @@ static void fl_plain_window_init(void)
     __asm__ volatile("csync\n\tsti" ::: "memory");
 }
 
-static inline uint32_t irq_save(void) { __asm__ volatile("cli" ::: "memory"); return 0; }
-static inline void irq_restore(uint32_t f) { (void)f; __asm__ volatile("csync\n\tsti" ::: "memory"); }
+/* SDK V1.2.1 asm/irq.h local_irq_save/restore: preserve the complete ICFG,
+ * including entry from an ISR or an already masked critical section. */
+static inline uint32_t irq_save(void)
+{
+    uint32_t flags;
+    __asm__ volatile("%0 = icfg" : "=r"(flags) :: "memory");
+    uint32_t disabled = flags & ~(1u << 8);
+    __asm__ volatile("icfg = %0" :: "r"(disabled) : "memory");
+    __asm__ volatile("csync" ::: "memory");
+    return flags;
+}
+static inline void irq_restore(uint32_t flags)
+{
+    __asm__ volatile("csync" ::: "memory");
+    __asm__ volatile("icfg = %0" :: "r"(flags) : "memory");
+}
 
 /* A Bluetooth controller on core 1 runs from the flash too (fm1_cpu1.h): park core 1 in RAM
  * around each operation that turns the flash off. Without one (or in the loader) these do nothing. */
@@ -226,6 +232,8 @@ static int fl_erase4k(uint32_t off, uint32_t *took_us)
 {
     uint32_t f;
     int rc;
+    if (!fm1_capture_mutation_allowed())
+        return FM1_CAPTURE_BUSY;
     (void)FL_PARK();
     f = irq_save();
     rc = FL_FAR(fl_erase4k_ram)(off, took_us);
@@ -250,6 +258,8 @@ static inline int fl_read(uint32_t off, uint8_t *dst, uint32_t n)
 static int fl_write(uint32_t off, const uint8_t *src_ram, uint32_t n)
 {
     uint32_t took;
+    if (n && !fm1_capture_mutation_allowed())
+        return FM1_CAPTURE_BUSY;
     while (n) {
         uint32_t chunk = 256u - (off & 0xFFu);
         int rc;

@@ -5,6 +5,7 @@
  * Hardware I/O and unused clip handlers are substitutes. No audio claim is made.
  */
 #define main simulator_main
+void smc_ui_cancel(void);
 #include "../../host/x0x_host.c"
 #undef main
 #include <assert.h>
@@ -15,6 +16,12 @@ int smk_ck_smc_turn(int n, int delta) { (void)n; (void)delta; return 0; }
 int smk_ck_smc_nav(uint8_t note) { (void)note; return 0; }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
 { (void)msg; (void)len; return 1; }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #ifndef SMC_MIXER_SOURCE
 #define SMC_MIXER_SOURCE "app/smc_mixer.c"
 #endif
@@ -42,9 +49,9 @@ static void setup(int mode, int bank)
     if (!mode) smc_view(V_HOME, 0);
     else {
         smc_view(V_MIX, mode);
-        ui.sel[mode - 1] = bank * 8;
-        build_pages();
-        assert(drum_mix_page() == mode - 1);
+        smc_select_part(mode - 1);
+        smc.sel[mode - 1] = bank * 8;
+        assert(smc_drum_mix() == mode - 1);
     }
     seq.mute = seq.vmute = 0;
     smc.solo = 0;
@@ -56,7 +63,8 @@ static void continuous_probe(int mode, int bank, int strip)
 {
     setup(mode, bank);
     pref_t r = smc_target(strip);
-    assert(smc_same(r, smc_knob_target(strip)));
+    pref_t k = smc_knob_target(strip);
+    assert(r.kind == R_NONE ? k.kind == R_NONE : !smc_same(r, k));
     if (r.kind == R_NONE) return;
     if (mode) {
         pref_t expected = find_ref(mode == 1 ? T_909 : T_808, bank * 8 + strip, "Level");
@@ -65,13 +73,18 @@ static void continuous_probe(int mode, int bank, int strip)
         assert(smc_same(r, expected));
     }
     const x0x_param_t *d = pref_desc(r);
+    const x0x_param_t *dk = pref_desc(k);
     pref_set(r, d->max / 2);
+    /* Home CUT (and any other open-at-max default) must sit below the ceiling so a
+     * +1 relative detent can prove the knob moved without touching the fader. */
+    if (dk && dk->max)
+        pref_set(k, dk->max / 2);
     smc_frame();
-    int before = pref_get(r);
+    int level = pref_get(r), before = pref_get(k);
     /* DAW K1 = b0 10 01. */
     message(0xB0, 16 + strip, 1);
-    int after_knob = pref_get(r);
-    assert(after_knob > before);
+    int after_knob = pref_get(k);
+    assert(after_knob > before && pref_get(r) == level);
     /* First acquire the current target, then move the pitch-bend fader to 0. */
     message(0xE0 + strip, 0, smc_scaled(r));
     assert(smc.picked & (1u << strip));
@@ -99,6 +112,7 @@ static void mute_regression(int mode, int bank, int strip)
     smc_frame();
     uint32_t expected = track < NDRUM ? 1u << (kit * NDRUM + track) : 0;
     message(0x90, 16 + strip, 127);
+    message(0x80, 16 + strip, 0);           /* release: a repeat NoteOn is not a toggle (d06b6c96) */
     assert(seq.vmute == expected);
     assert(seq.mute == 0);
     assert(smc.lit[16 + strip] == (track < NDRUM));
@@ -114,8 +128,10 @@ static void mute_regression(int mode, int bank, int strip)
         mute_track(kit, track);
         smc_frame();
         assert(smc.lit[16 + strip] == 0);
+        smc.sel[kit] = bank * 8 + (strip + 1) % (bank ? 3 : 8);
         message(0x90, 24 + strip, 127);
-        assert(ui.sel[kit] == track && ui.view == V_MIX);
+        assert(smc.sel[kit] == track && smc.view == V_MIX);
+        assert(ui.sel[kit] == bank * 8 + 2 && ui.part == 3);
         assert(smc.lit[24 + strip] == 1);
     } else {
         assert(smc_target(strip).kind == R_NONE);
@@ -135,8 +151,12 @@ static void main_regression(void)
         int before = strip < NPARTS ? 0 : pref_get(fx);
         assert(strip < NPARTS || before > 0);
         message(0x90, 16 + strip, 127);
+        message(0x80, 16 + strip, 0);       /* release: a repeat NoteOn is not a toggle (d06b6c96) */
         assert(seq.vmute == 0 && smc.lit[16 + strip] == 1);
-        if (strip < NPARTS) assert(seq.mute == MUTE_MASK[strip]);
+        if (strip < NPARTS) {
+            static const int expected_part[5] = {PART_909, PART_808, PART_BRK, PART_303B, PART_303A};
+            assert(seq.mute == MUTE_MASK[expected_part[strip]]);
+        }
         else assert(seq.mute == 0 && pref_get(fx) == 0);
         message(0x90, 16 + strip, 127);
         assert(seq.vmute == 0 && seq.mute == 0 && smc.lit[16 + strip] == 0);
@@ -146,7 +166,7 @@ static void main_regression(void)
 
 static void priority_regression(void)
 {
-    /* Keep the existing main-part mute behavior while menu or clip owns input. */
+    /* Keyboard menu/clip ownership must not retarget the independent drum mixer. */
     for (int owner = 0; owner < 4; owner++) {
         setup(1, 0);
         if (owner == 0) ui.help = 1;
@@ -154,10 +174,10 @@ static void priority_regression(void)
         if (owner == 2) ui.overlay = O_LIST;
         if (owner == 3) clip_mode = 1;
         message(0x90, 17, 127);
-        /* Help leaves drum MIX mutes working; confirmation parks the surface;
-         * menu/clip fall through to whole-part mute instead. */
-        assert(seq.vmute == (owner == 0 ? (1u << 1) : 0));
-        assert(seq.mute == (owner >= 2 ? MUTE_MASK[1] : 0));
+        /* Keyboard menus and clips cannot retarget the independent mixer.
+         * Confirmation still parks its musical actions. */
+        assert(seq.vmute == (owner == 1 ? 0 : (1u << 1)));
+        assert(seq.mute == 0);
     }
     for (int kit = 0; kit < 2; kit++) {
         setup(kit + 1, 0);
@@ -166,17 +186,22 @@ static void priority_regression(void)
         smc_frame();
         for (int strip = 0; strip < 8; strip++) assert(smc.lit[16 + strip] == 1);
         message(0x90, 0x2F, 127);
-        assert(ui.sel[kit] == 8);
+        assert(smc.sel[kit] == 0); /* a pending BANK chord cannot navigate */
+        message(0x80, 0x2F, 0);    /* an uncombined BANK tap commits on release */
+        assert(smc.sel[kit] == 8);
         for (int strip = 0; strip < 8; strip++) {
             assert(smc.lit[16 + strip] == (strip < 3));
             assert(smc.lit[24 + strip] == (strip == 0));
         }
         message(0x90, 0x2E, 127);
+        assert(smc.sel[kit] == 8);
+        message(0x80, 0x2E, 0);
         for (int strip = 0; strip < 8; strip++) assert(smc.lit[16 + strip] == 1);
         /* The owner-selected drum R/S layout follows the same visible bank. */
         setup(kit + 1, 1);
         message(0x90, 1, 127);
-        assert(ui.part == kit && ui.sel[kit] == 9 && ui.rec);
+        assert(smc.part == kit && smc.sel[kit] == 9 && ui.rec);
+        assert(ui.part == PART_909 && ui.sel[kit] == 0);
         message(0x90, 9, 127);
         assert(smc_project_active() && smc.lit[9] == 1);
         message(0x80, 9, 0);

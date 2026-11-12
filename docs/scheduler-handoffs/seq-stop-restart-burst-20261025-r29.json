@@ -1,0 +1,420 @@
+{
+  "actual_test_commands": {
+    "native_positive": "gcc and clang -std=c11 -O1 -g -Wall -Wextra -Werror -I<exact-production-source> tests/host/seq_stop_restart_burst_test.c <exact-production-source>/{sequencer,pattern,tb3po}.c -lm [none|UBSan|ASan+UBSan] -o fresh-output; execute fresh output",
+    "replay": "python3 run-r29.py"
+  },
+  "behavior_refs": [
+    "BEHAVIOR.md MID-06",
+    "BEHAVIOR.md MID-13",
+    "BEHAVIOR.md MID-14",
+    "BEHAVIOR.md MID-15"
+  ],
+  "compiled_firmware_subtree": "978e4c3008f886d53d02767133b30b5637a3e8a0",
+  "deliberate_negative": {
+    "committed_mutants": false,
+    "expected_execution_exit": 1,
+    "mutations": [
+      "skip pending Stop when Start/Continue follows",
+      "omit Stop-path bass NoteOff",
+      "fail to subtract clock ticks preceding new transport epoch"
+    ],
+    "results": [
+      {
+        "case": "negative-skip-stop",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "plain",
+        "log_sha256": "65acd81fad5519b053b2b22ec97db7eed8a3e2300eb2967d989ffb8c171ddc36",
+        "observed": [
+          "FAIL scenario=2 block=1024 line=65 m.break_stops==1",
+          "FAIL scenario=2 block=1024 line=65 m.ev_count>=4 && m.events[1]=='O' && m.events[2]=='B' && m.events[3]=='N'",
+          "seq stop/restart burst: 372/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-skip-stop",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "ubsan",
+        "log_sha256": "65acd81fad5519b053b2b22ec97db7eed8a3e2300eb2967d989ffb8c171ddc36",
+        "observed": [
+          "FAIL scenario=2 block=1024 line=65 m.break_stops==1",
+          "FAIL scenario=2 block=1024 line=65 m.ev_count>=4 && m.events[1]=='O' && m.events[2]=='B' && m.events[3]=='N'",
+          "seq stop/restart burst: 372/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-skip-stop",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "asan-ubsan",
+        "log_sha256": "65acd81fad5519b053b2b22ec97db7eed8a3e2300eb2967d989ffb8c171ddc36",
+        "observed": [
+          "FAIL scenario=2 block=1024 line=65 m.break_stops==1",
+          "FAIL scenario=2 block=1024 line=65 m.ev_count>=4 && m.events[1]=='O' && m.events[2]=='B' && m.events[3]=='N'",
+          "seq stop/restart burst: 372/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-skip-stop",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "plain",
+        "log_sha256": "65acd81fad5519b053b2b22ec97db7eed8a3e2300eb2967d989ffb8c171ddc36",
+        "observed": [
+          "FAIL scenario=2 block=1024 line=65 m.break_stops==1",
+          "FAIL scenario=2 block=1024 line=65 m.ev_count>=4 && m.events[1]=='O' && m.events[2]=='B' && m.events[3]=='N'",
+          "seq stop/restart burst: 372/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-skip-stop",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "ubsan",
+        "log_sha256": "65acd81fad5519b053b2b22ec97db7eed8a3e2300eb2967d989ffb8c171ddc36",
+        "observed": [
+          "FAIL scenario=2 block=1024 line=65 m.break_stops==1",
+          "FAIL scenario=2 block=1024 line=65 m.ev_count>=4 && m.events[1]=='O' && m.events[2]=='B' && m.events[3]=='N'",
+          "seq stop/restart burst: 372/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-skip-stop",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "asan-ubsan",
+        "log_sha256": "65acd81fad5519b053b2b22ec97db7eed8a3e2300eb2967d989ffb8c171ddc36",
+        "observed": [
+          "FAIL scenario=2 block=1024 line=65 m.break_stops==1",
+          "FAIL scenario=2 block=1024 line=65 m.ev_count>=4 && m.events[1]=='O' && m.events[2]=='B' && m.events[3]=='N'",
+          "seq stop/restart burst: 372/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-drop-off",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "plain",
+        "log_sha256": "e6d12d01943337363fd1ba04bbfe6b501355c8db6f7b2942e0698668b2533382",
+        "observed": [
+          "FAIL scenario=2 block=64 line=67 !s.playing&&m.on==m.off&&held_count(&m)==0",
+          "FAIL scenario=3 block=64 line=72 m.on==1&&m.off==1",
+          "seq stop/restart burst: 360/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-drop-off",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "ubsan",
+        "log_sha256": "e6d12d01943337363fd1ba04bbfe6b501355c8db6f7b2942e0698668b2533382",
+        "observed": [
+          "FAIL scenario=2 block=64 line=67 !s.playing&&m.on==m.off&&held_count(&m)==0",
+          "FAIL scenario=3 block=64 line=72 m.on==1&&m.off==1",
+          "seq stop/restart burst: 360/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-drop-off",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "asan-ubsan",
+        "log_sha256": "e6d12d01943337363fd1ba04bbfe6b501355c8db6f7b2942e0698668b2533382",
+        "observed": [
+          "FAIL scenario=2 block=64 line=67 !s.playing&&m.on==m.off&&held_count(&m)==0",
+          "FAIL scenario=3 block=64 line=72 m.on==1&&m.off==1",
+          "seq stop/restart burst: 360/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-drop-off",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "plain",
+        "log_sha256": "e6d12d01943337363fd1ba04bbfe6b501355c8db6f7b2942e0698668b2533382",
+        "observed": [
+          "FAIL scenario=2 block=64 line=67 !s.playing&&m.on==m.off&&held_count(&m)==0",
+          "FAIL scenario=3 block=64 line=72 m.on==1&&m.off==1",
+          "seq stop/restart burst: 360/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-drop-off",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "ubsan",
+        "log_sha256": "e6d12d01943337363fd1ba04bbfe6b501355c8db6f7b2942e0698668b2533382",
+        "observed": [
+          "FAIL scenario=2 block=64 line=67 !s.playing&&m.on==m.off&&held_count(&m)==0",
+          "FAIL scenario=3 block=64 line=72 m.on==1&&m.off==1",
+          "seq stop/restart burst: 360/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-drop-off",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "asan-ubsan",
+        "log_sha256": "e6d12d01943337363fd1ba04bbfe6b501355c8db6f7b2942e0698668b2533382",
+        "observed": [
+          "FAIL scenario=2 block=64 line=67 !s.playing&&m.on==m.off&&held_count(&m)==0",
+          "FAIL scenario=3 block=64 line=72 m.on==1&&m.off==1",
+          "seq stop/restart burst: 360/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-misphase",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "plain",
+        "log_sha256": "7e321149729db03404ced0bd453fd95804d5cc7e3d5b79cdcb7427813d15a8c7",
+        "observed": [
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "seq stop/restart burst: 402/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-misphase",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "ubsan",
+        "log_sha256": "7e321149729db03404ced0bd453fd95804d5cc7e3d5b79cdcb7427813d15a8c7",
+        "observed": [
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "seq stop/restart burst: 402/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-misphase",
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "asan-ubsan",
+        "log_sha256": "7e321149729db03404ced0bd453fd95804d5cc7e3d5b79cdcb7427813d15a8c7",
+        "observed": [
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "seq stop/restart burst: 402/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-misphase",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "plain",
+        "log_sha256": "7e321149729db03404ced0bd453fd95804d5cc7e3d5b79cdcb7427813d15a8c7",
+        "observed": [
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "seq stop/restart burst: 402/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-misphase",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "ubsan",
+        "log_sha256": "7e321149729db03404ced0bd453fd95804d5cc7e3d5b79cdcb7427813d15a8c7",
+        "observed": [
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "seq stop/restart burst: 402/408 checks FAILED"
+        ],
+        "run_exit": 1
+      },
+      {
+        "case": "negative-misphase",
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "asan-ubsan",
+        "log_sha256": "7e321149729db03404ced0bd453fd95804d5cc7e3d5b79cdcb7427813d15a8c7",
+        "observed": [
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "FAIL scenario=1 block=1024 line=56 m.steps==2",
+          "seq stop/restart burst: 402/408 checks FAILED"
+        ],
+        "run_exit": 1
+      }
+    ],
+    "runs": 18
+  },
+  "device": "NOT TESTED",
+  "evidence_revision": "seqclock-pr90-stop-restart-burst-20261025-r29",
+  "execution_limitations": [
+    "Native producer scoped tests linking the exact Git-matched sequencer source; not a complete PR-root checkout/independent root review.",
+    "No target SMK-37 Elite or Pro firmware or controller binary produced.",
+    "No physical device, user samples, OTA/backup/restore, website, Pages, HTTPS or installer tested.",
+    "ASan leak detection disabled; not a LeakSanitizer pass."
+  ],
+  "independent_qa": "NOT RUN THIS PRODUCER STAGE",
+  "native_compilers": [
+    "gcc (Debian 14.2.0-19) 14.2.0",
+    "clang version 17.0.0 (https://github.com/swiftlang/llvm-project.git 10999b6d034fe318f3d56c83bddb6572593a8bb0)"
+  ],
+  "neighbor_replay": {
+    "all_compile_exit": 0,
+    "all_execution_exit": 0,
+    "results": [
+      {
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "log_sha256": "4f15681b7842f533f5b988af00f6cba0f4fdb155770d71dc199c2dbd5ac7f712",
+        "observed": [
+          "seq external dropout/resume: 22560/22560 checks PASSED"
+        ],
+        "run_exit": 0,
+        "test": "seq_external_dropout_resume_test.c"
+      },
+      {
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "log_sha256": "3245d7375f08c5f0f354264fd7c8e1fbcb4fccbd9b8fb32d0871c4ddcbc4b198",
+        "observed": [
+          "seq MIDI lifetime stress: 387739/387739 assertions PASSED, 1467 note-ons, 1467 note-offs, 180 deterministic scenarios"
+        ],
+        "run_exit": 0,
+        "test": "seq_midi_lifetime_stress_test.c"
+      },
+      {
+        "compile_exit": 0,
+        "compiler": "clang",
+        "log_sha256": "4f15681b7842f533f5b988af00f6cba0f4fdb155770d71dc199c2dbd5ac7f712",
+        "observed": [
+          "seq external dropout/resume: 22560/22560 checks PASSED"
+        ],
+        "run_exit": 0,
+        "test": "seq_external_dropout_resume_test.c"
+      },
+      {
+        "compile_exit": 0,
+        "compiler": "clang",
+        "log_sha256": "3245d7375f08c5f0f354264fd7c8e1fbcb4fccbd9b8fb32d0871c4ddcbc4b198",
+        "observed": [
+          "seq MIDI lifetime stress: 387739/387739 assertions PASSED, 1467 note-ons, 1467 note-offs, 180 deterministic scenarios"
+        ],
+        "run_exit": 0,
+        "test": "seq_midi_lifetime_stress_test.c"
+      }
+    ],
+    "runs": 4,
+    "tests": [
+      "seq_external_dropout_resume_test.c",
+      "seq_midi_lifetime_stress_test.c"
+    ]
+  },
+  "new_test_path": "tests/host/seq_stop_restart_burst_test.c",
+  "new_test_sha256": "8a80c066122056ddbc10fb1f491b2c83c4ae41a83dbb1d0e5e5c6a5d59a4f138",
+  "next_consumer": "existing Independent QA owner; exact PR #90 remote HEAD after producer push, run transport-stop-restart and affected transport-clock root suite; do not self-approve",
+  "owned_branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "parent_pr_number": 86,
+  "parent_sha": "191e9c11e3461dde51a8c0361e6e93be7a8db592",
+  "positive": {
+    "all_compile_exit": 0,
+    "all_execution_exit": 0,
+    "checks_per_run": 408,
+    "clock_modes": [
+      "AUTO",
+      "EXTERNAL"
+    ],
+    "observed_MIDI_note_order": "NoteOff -> break stop -> NoteOn",
+    "render_partition_frames": [
+      1,
+      64,
+      1024
+    ],
+    "results": [
+      {
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "plain",
+        "log_sha256": "b80c2a026084871bef7d837efb44ce50099d7d071c8e8d6ad4e20791963680ec",
+        "run_exit": 0
+      },
+      {
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "ubsan",
+        "log_sha256": "b80c2a026084871bef7d837efb44ce50099d7d071c8e8d6ad4e20791963680ec",
+        "run_exit": 0
+      },
+      {
+        "compile_exit": 0,
+        "compiler": "gcc",
+        "config": "asan-ubsan",
+        "log_sha256": "b80c2a026084871bef7d837efb44ce50099d7d071c8e8d6ad4e20791963680ec",
+        "run_exit": 0
+      },
+      {
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "plain",
+        "log_sha256": "b80c2a026084871bef7d837efb44ce50099d7d071c8e8d6ad4e20791963680ec",
+        "run_exit": 0
+      },
+      {
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "ubsan",
+        "log_sha256": "b80c2a026084871bef7d837efb44ce50099d7d071c8e8d6ad4e20791963680ec",
+        "run_exit": 0
+      },
+      {
+        "compile_exit": 0,
+        "compiler": "clang",
+        "config": "asan-ubsan",
+        "log_sha256": "b80c2a026084871bef7d837efb44ce50099d7d071c8e8d6ad4e20791963680ec",
+        "run_exit": 0
+      }
+    ],
+    "runs": 6,
+    "scenarios": [
+      "Stop then Start",
+      "Stop then Continue",
+      "Start then Stop"
+    ]
+  },
+  "pre_delivery_source_commit": "bb5108d897e54e3ac394a8f869734f3a4b7d9dc4",
+  "pre_delivery_source_root_tree": "ed1ea5f52b0298c095b126ddf62d422e53b3464b",
+  "production": "NO RELEASE / NO HARDWARE PASS / NO INSTALLABILITY",
+  "production_git_source_blobs": {
+    "firmware/src/seq/pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "firmware/src/seq/sequencer.c": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+    "firmware/src/seq/sequencer.h": "6ff366ed1b36faafab6676498483921d46e1b746",
+    "firmware/src/seq/tb3po.c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+    "firmware/src/seq/tb3po.h": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c"
+  },
+  "production_source_sha256": {
+    "pattern.c": "0d9b36c4ab979533df2974e0adc962d521c9bf587403eaecca4109042eaddf2a",
+    "pattern.h": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba",
+    "sequencer.c": "a7de20c255cc94aa50acf9fa4dcac89dc172b521702e83dc8ea103d309ae6892",
+    "sequencer.h": "767c9d36df0e7f30ed0bd87bb36588bd47cbe47e7764a070b2fe9ae9bc9e2f78",
+    "tb3po.c": "7c238132753aff9f16acd6af3235845f95e13a5e5ae51dca544e142ee77e166b",
+    "tb3po.h": "7dd646a572129fc8df5628f6111f68fef6b54476446f75cc5f583b6f110f0073"
+  },
+  "remote_delivery": "To be verified by remote Git commit/tree/readback and exact-SHA Git receipt; not asserted in this manifest.",
+  "schema": "x0x37.seqclock.producer.evidence.v1",
+  "source_repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "stage": "SOURCE_TEST_ONLY_SCOPED_NATIVE_PASSED",
+  "target_build": "NOT RUN; compiled firmware input subtree unchanged by this test-only commit",
+  "test_registration": "transport-stop-restart",
+  "user_observable_contract": "If Loopy sends Stop then Start or Continue in one MIDI input burst while a sliding 303 note is sounding, the previous note is stopped before the new note; Start restarts step one, Continue resumes next step, the sixth new-epoch clock tick advances once, and there are no duplicate notes, orphan NoteOff messages or external clock echoes. Start then Stop stays stopped."
+}

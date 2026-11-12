@@ -28,6 +28,7 @@
  * defaults {5,640,800,920,980}). Our scan samples a key once per 1.6 ms, so fast strikes quantise coarsely. */
 #pragma once
 #include <stdint.h>
+#include "../src/app/plat.h"
 #include "fm1_time.h"
 #include "fm1_gpio.h"
 #include "fm1_cc.h"
@@ -103,6 +104,20 @@ static volatile uint8_t smk_pad_grid;   /* set by the UI: pads as a step grid, w
 static const int8_t SMK_PIANO_NOTE[SMK_NPAD] = {7, 9, 11, 12, 14, 16, 18, 19, 8, 10, -1, 13, 15, 17, -1, 20};
 static volatile uint8_t smk_pad_piano;
 static uint8_t smk_pad_note[SMK_NPAD];   /* the note key a pad pressed (+1; 0 = none): its release ends that one */
+#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE
+/* Press owner, pending hit and held-release ownership copied from 6ae0928. */
+static volatile uint8_t smk_div_owner, smk_div_pending;
+static uint16_t smk_div_held;
+static int smk__division_poll(unsigned owner)
+{
+    int hit = -1;
+    if (owner == smk_div_owner && smk_div_pending)
+        hit = (int)smk_div_pending - 1;
+    smk_div_pending = 0;
+    smk_div_owner = (uint8_t)owner;
+    return hit;
+}
+#endif
 #define SMK_WHITE_OF_PAD(p) (smk_pad_grid ? (p) : (p) < 8u ? (p) + 8u : (p) - 8u)
 
 #define SMK_TRIM_FLASH 0xC1000u   /* USRTRIM: the factory calibration record ("trimdat"), never written here */
@@ -136,6 +151,7 @@ static volatile struct {
     uint16_t fad_acc[4];         /* faders: 0..1023 IIR */
     uint8_t fader[4];            /* 0..127 */
     uint16_t wheel[2], pedal, batt;   /* raw 0..1023 (mux C addresses 4, 5, 6, 7) */
+    uint16_t wheel_mod_seq;          /* accepted mod ADC publications, not foreground polls */
     uint16_t fad_raw[4];         /* (debug: the last raw fader readings) */
     uint16_t fad_hist[4][2];     /* the two readings before: a median of 3 drops a lone spike */
     uint32_t adc_ok, adc_miss;   /* (debug: conversions read / not finished within a tick) */
@@ -144,8 +160,10 @@ static volatile struct {
 
 /* key events beyond the FM-1's 27 (keybed keys 0..4 and 32..36): key << 8 | velocity (0 = release) */
 #define SMK_EXTQ 32u
-static volatile uint16_t smk_extq[SMK_EXTQ];
-static volatile uint8_t smk_extq_w, smk_extq_r;
+static volatile uint32_t smk_extq[SMK_EXTQ][2]; /* generation, physical/velocity/pitch */
+static volatile uint8_t smk_extq_w, smk_extq_r, smk_extq_overflow, smk_ext_enabled;
+static volatile uint32_t smk_ext_epoch;
+static volatile int8_t smk_ext_oct;
 
 static uint8_t fm1_led[SMK_NLED];     /* 1 = lit (button LED i = button i) */
 static volatile uint32_t smk_ledw[2]; /* per LED group: 0xFFFF0000 | low half (LED lines active low) */
@@ -299,9 +317,11 @@ FM1_INLINE uint32_t smk__closed(uint32_t code) { return (fm1_in.raw[code >> 4] >
 static void smk__extq(uint32_t k, uint32_t vel)
 {
     uint8_t w = smk_extq_w;
-    if ((uint8_t)(w + 1u) % SMK_EXTQ == smk_extq_r)
-        return;
-    smk_extq[w] = (uint16_t)(k << 8 | vel);
+    if ((uint8_t)(w + 1u) % SMK_EXTQ == smk_extq_r) {
+        smk_extq_overflow=1;return;
+    }
+    smk_extq[w][0]=smk_ext_enabled?smk_ext_epoch:0;
+    smk_extq[w][1] = PLAT_OUTER_PACK(k, vel, 36 + (int)k + 12 * smk_ext_oct);
     smk_extq_w = (uint8_t)((w + 1u) % SMK_EXTQ);
 }
 
@@ -441,6 +461,18 @@ static void fm1__frame(void)
 
 static void smk__padq(uint32_t pad, uint32_t vel)     /* a pad hit (vel) or release (0): its white key */
 {
+#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE
+    uint16_t owned = (uint16_t)(1u << pad);
+    if (smk_div_held & owned) {
+        if (!vel) smk_div_held &= (uint16_t)~owned;
+        return; /* release belongs to the press-time role */
+    }
+    if (vel && pad < SMK_NPAD && smk_div_owner && !smk_pad_note[pad]) {
+        smk_div_held |= owned;
+        smk_div_pending = (uint8_t)(pad + 1u);
+        return; /* Free Play pads (rate, wobble shape, empty) never create note/keybed velocity */
+    }
+#endif
     int32_t n0 = smk_pad_piano ? SMK_PIANO_NOTE[pad] : (int32_t)SMK_WHITE_NOTE[SMK_WHITE_OF_PAD(pad)];
     uint32_t n, bit;
     if (vel) {
@@ -506,6 +538,13 @@ static void smk__pad(uint32_t p, uint32_t raw)
     }
 }
 
+static void smk__wheel(uint32_t wheel, uint32_t raw)
+{
+    fm1_in.wheel[wheel] = (uint16_t)(fm1_in.wheel[wheel] +
+        ((int32_t)raw - fm1_in.wheel[wheel]) / 4);
+    if (wheel == 1u) fm1_in.wheel_mod_seq++;
+}
+
 static void smk__analog(uint32_t slot, uint32_t raw)
 {
     uint32_t a = smk__slot_addr(slot), ch = slot % 3u;
@@ -528,7 +567,7 @@ static void smk__analog(uint32_t slot, uint32_t raw)
         if (v > fm1_in.fader[f] + 1u || v + 1u < fm1_in.fader[f] || (v != fm1_in.fader[f] && (v == 0u || v == 127u)))
             fm1_in.fader[f] = (uint8_t)v;                    /* +-1 dead band, the ends reachable */
     } else if (a < 6u) {
-        fm1_in.wheel[a - 4u] = (uint16_t)(fm1_in.wheel[a - 4u] + ((int32_t)raw - fm1_in.wheel[a - 4u]) / 4);
+        smk__wheel(a - 4u, raw);
     } else if (a == 6u) {
         fm1_in.pedal = (uint16_t)raw;
     } else {
@@ -597,16 +636,11 @@ static void fm1_input_scan(void)
 }
 
 /* ------------------------------------------------------- main-loop API --- */
-static inline uint32_t fm1__lock(void)
-{
-    __asm__ volatile("cli" ::: "memory");
-    return 0;
-}
-static inline void fm1__unlock(uint32_t v)
-{
-    (void)v;
-    __asm__ volatile("csync\n\tsti" ::: "memory");
-}
+/* Defined by fm1_flash.h later in the unity build: one IRQ primitive. */
+static inline uint32_t irq_save(void);
+static inline void irq_restore(uint32_t flags);
+#define fm1__lock irq_save
+#define fm1__unlock irq_restore
 
 static int32_t fm1_enc_take(uint32_t e)
 {
@@ -638,15 +672,6 @@ static uint32_t fm1_input_note_edges(void)
 }
 
 /* the next outer-key event (keybed key << 8 | velocity, 0 = release), -1 if none */
-static int32_t smk_extkey_take(void)
-{
-    int32_t v = -1;
-    if (smk_extq_r != smk_extq_w) {
-        v = smk_extq[smk_extq_r];
-        smk_extq_r = (uint8_t)((smk_extq_r + 1u) % SMK_EXTQ);
-    }
-    return v;
-}
 
 /* LED of button id (0..17); note keys have no LED on the SMK (the pads show the step grid) */
 static void fm1_led_key(uint32_t id, int on)

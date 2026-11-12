@@ -1,6 +1,10 @@
 # Felucca editor protocol (SysEx over USB-MIDI)
 
-The firmware side is `firmware/src/editor.c`. Commands 16-26 (user presets and live sync) are protocol v2. Commands 27-30 (tracks) are protocol v3. Commands 31-32 (any track's parameters) are protocol v4.
+Historical notes for the Felucca editor SysEx surface. The X0X fork removed
+`web/editor.html` and `firmware/src/editor.c` (commit 23775375); this document is
+kept as protocol reference only and is not a live product surface.
+
+The firmware side was `firmware/src/editor.c`. Commands 16-26 (user presets and live sync) are protocol v2. Commands 27-30 (tracks) are protocol v3. Commands 31-32 (any track's parameters) are protocol v4.
 
 **v3 (four tracks):** the device has four tracks: 1..3 are synth parts, 4 is the drum track. One
 of them is *selected* (the TRACKS page on the device, or `TRACK`). Every v1 / v2 command acts on the
@@ -48,9 +52,9 @@ after an engine change.
 | 8 PRESET | engine, preset | engine, preset (applies the preset: sound, sends, arp, and its pattern if the sequencer is empty or still holds an untouched preset pattern) |
 | 9 PROJECT | op (0 load, 1 save, 2 query), slot 0..3 | op, slot, used (1/0). Save writes flash: allow ~2 s |
 | 10 NAMES | engine | engine, count, count preset-name strings, then the two edit-page titles |
-| 11 SMP_BEGIN | slot 0..2 | slot, rc (0 ok). Erases the slot's header sector: the slot is empty from now on |
-| 12 SMP_WRITE | slot, offset (3 × 7 bit, LSB first), pack7 data (≤ 256 bytes) | slot, offset, rc: 0 ok, 1 arguments, 2 erase, 3 write, 4 slot in use (send SMP_BEGIN first). Offset ≥ 512 and a multiple of 256. Writes go in increasing order (a write at a 4 KiB boundary erases that sector) |
-| 13 SMP_END | slot, pack7 header (480 bytes) | slot, rc: 0 ok, 1 size, 2 header, 3 data CRC, 4 flash, 5 zones |
+| 11 SMP_BEGIN | slot 0..2 | slot, rc (0 ok). Arms the slot for rewrite. Does **not** erase flash: cancel or abandon before the first SMP_WRITE keeps the last good sample. If a prior import erased sector 0 and never committed, BEGIN restores that sector from the FL_SMPV shadow first. The previous sample stays visible to SMP_INFO until a WRITE erases its sector (or SMP_ERASE) |
+| 12 SMP_WRITE | slot, offset (3 × 7 bit, LSB first), pack7 data (≤ 256 bytes) | slot, offset, rc: 0 ok, 1 arguments, 2 erase, 3 write, 4 slot in use (send SMP_BEGIN first). Offset ≥ 512 and a multiple of 256. Writes go in increasing order. The first write into the header sector (offset below 4 KiB) copies that 4 KiB into FL_SMPV then erases it; a write at a higher 4 KiB boundary erases that sector. A failed SMP_END (or the next BEGIN) restores sector 0 from the shadow when the live slot did not commit |
+| 13 SMP_END | slot, pack7 header (480 bytes) | slot, rc: 0 ok, 1 size, 2 header, 3 data CRC, 4 flash, 5 zones, 6 no sector-0 erase this import (send SMP_WRITE into the header sector first — NOR cannot safely rewrite a live header) |
 | 14 SMP_ERASE | slot | slot, rc (erases the whole slot, ~1 s) |
 | 15 SMP_INFO | — | slots, slot KiB (the smallest slot, at most 127), then per slot: zone count (0 = empty), name string, data KiB (at most 127). Then (X0X with the SMK-37 flash layout 2) the extension `58 01` and per slot three 14-bit values, low 7 bits first. The three values are: flash offset in 4 KiB sectors, slot size in 4 KiB sectors, data KiB. A reader without the extension ignores these bytes. A reply without them has equal slots of the one size |
 | 16 SMP_READ (X0X) | slot, offset (3 × 7 bits, from the slot's start, header included), count in pairs (7 bits) | slot, offset (3 × 7 bits), up to 224 bytes packed 7 to 8 as SMP_WRITE takes them |
@@ -85,9 +89,57 @@ after an engine change.
 **pack7:** groups of up to 7 bytes, each preceded by one byte holding their top bits
 (bit j = bit 7 of byte j).
 
+### SMK-37 pad sensor snapshot (INLOG argument 6)
+
+Command 38 with argument 6 is read-only. It does not change input thresholds,
+calibration, mappings, LEDs or scan timing. Arguments 0-5 keep their existing
+format. `tools/ble_autotest.py --pad-inputs` requests this page only; unlike the
+tool's default Bluetooth test, it never clears the start guard or restarts the unit.
+An older firmware may return the argument-0 format; the sensor decoder rejects it.
+
+All words below use 7-bit chunks, least significant chunk first. `u16` has 3
+chunks, `u8` has 2, and `u32` has 5. Unused high bits must be zero.
+
+| Reply field | Bytes |
+| --- | --- |
+| Argument 6, version 1, status | 3 |
+| For status 1 (BUSY), the reply ends here; there are no measurements | 0 |
+| For status 0: pad count 16; flags (bit 0 grid, bit 1 piano); hit delta, release delta, peak sample count | 5 |
+| Time ms, scan frames, ADC completed count, ADC missed count, mapped pad-note bitmap (`pnotes`), each u32 | 25 |
+| Mux C context: four raw faders in fader order, two filtered wheels, pedal and battery, each u16 | 24 |
+| 16 pads in hardware order: raw u16, baseline u16, last-strike peak u16, state u8, last velocity, pressure, mapped note + 1 (0 = none), then five active curve points u16 | 16 × 29 |
+
+A successful payload has exactly 521 bytes (527 including SysEx framing); BUSY
+has 3 bytes (9 with framing). Both fit the existing 732-byte output buffer.
+State is 0 idle, 1-2 collecting a peak, or 128 held. Raw/base/peak are ADC-domain
+values, not MIDI velocities. Pressure is meaningful while held; peak and velocity
+can remain from a previous strike. Hardware indices 0-7 are the top row and 8-15
+the bottom row, left to right. The mapping flags and note identify routing, not
+the physical location. Active curves are copied from RAM; their factory/default
+origin is not reported and no factory flash bytes are exposed.
+
+The CPU0 main-loop reader copies 176 bytes of mutable telemetry to the existing
+call-scoped editor scratch, then serializes that copy and boot-immutable curves
+into the reply buffer. It checks the ISR-owned ADC and frame counters only around
+the short copy, not around serialization, with compiler barriers. The CPU0 timer ISR cannot execute concurrently with that main loop;
+each normal tick increments an ADC counter before updating the inputs. If a tick
+crosses the copy, it retries, at most three times, then returns BUSY. No interrupts
+are masked. Samples from different mux slots have different acquisition times;
+this is a consistent view of their latest values, not simultaneous ADC sampling.
+Counters wrap modulo 2^32. No counters are cleared by the read.
+
+This is telemetry, not a repair or an electrical diagnosis. Compare resting and
+pressed samples and counter progress before interpreting a silent pad. A changing
+raw value without a note can localize the problem to thresholds/state/routing;
+unchanged values do not identify a cable, sensor, mux, supply or mechanical cause.
+RGB pad calibration (arguments 2-5) is unrelated to sensor sensitivity. Device
+access, firmware installation, physical work and calibration writes need their
+own current authorization; the source/host tests perform none of them.
+
 **User sample slot** (80 KiB each, SAMPLE engine sets USR1..USR3): header at 0, ADPCM data at 512.
 The reference uploader is `tools/fm1_sample_upload.py`, and the slot builder is `sampleio.user_slot`.
-`web/test_web.mjs` checks the editor's port of it byte for byte.
+The retired Felucca web editor once carried a JS port checked by `web/test_web.mjs`; that
+byte-check was removed with the editor (BF-003).
 
 | Offset | Field |
 | --- | --- |
@@ -206,5 +258,5 @@ editor takes both from `INFO`. Records stored with 53 load with the SLICER off.
 - **Port.** The device's MIDI port has the name "Felucca" (USB 1209:0001). Updates use the same
   port with other SysEx (the `F0 22 24 35 …` keys, `00 59 …` frames). Never send those
   from the editor.
-- **Safety.** Only `PROJECT` save, the sample-slot commands and `UP_PUT` / `UP_STORE` / `UP_ERASE` write flash, and only in
-  Felucca's own storage. They never write the app or the update area.
+- **Safety.** Only `PROJECT` save, the sample-slot commands, the boot-screen commands (39, 43–47) and `UP_PUT` / `UP_STORE` / `UP_ERASE` write flash, and only in
+  Felucca's own storage or the boot-screen sectors. They never write the app or the update area. A boot-screen save that the keyboard refuses does not erase the previous boot screen. The header of a new copy is written last.

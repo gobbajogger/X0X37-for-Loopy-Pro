@@ -29,6 +29,20 @@ int main(void)
         if (d > e) e = d;
     }
     check("expf", e, 6e-7);
+    /* expf clamps at +88.7f, whose reduction reaches exponent n=128.
+     * Earlier sweeps ended at 88.0f and missed this legal endpoint. */
+    {
+        const float limit = 88.7f;
+        const double expected = exp((double)limit);
+        const float at_limit = fm_expf(limit);
+        const float clamped = fm_expf(100.0f);
+        if ((int)fm_floorf(limit * FM_LOG2E + 0.5f) != 128) {
+            fprintf(stderr, "fastmath: upper expf reduction no longer n=128\n");
+            fails++;
+        }
+        check("expf@max", isfinite(at_limit) ? fabs((double)at_limit - expected) / expected : 1.0, 6e-7);
+        check("expf>max", isfinite(clamped) ? fabs((double)clamped - (double)at_limit) : 1.0, 0.0);
+    }
     for (e = 0, i = 0; i <= 200000; i++) {                 /* log2f, absolute, 1e-30..1e30 */
         x = (float)pow(10.0, -30.0 + 60.0 * i / 200000.0);
         double d = fabs(fm_log2f(x) - log2((double)x));

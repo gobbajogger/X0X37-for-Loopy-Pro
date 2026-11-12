@@ -36,6 +36,9 @@ static void lcd_sync(void)          /* finish the running transfer (before touch
         return;
     fm1_lcd_wait();
     fm1_lcd_deselect();
+#if X0X_LCD_TRACE
+    lcd_trace_dma_done();
+#endif
     lcd_busy = 0;
 }
 
@@ -52,6 +55,9 @@ static void lcd_data(const void *p, uint32_t n)
     if (!n)
         return;                    /* SPI_CNT = 0 never completes */
     lcd_sync();
+#if X0X_LCD_TRACE
+    lcd_trace_dma_begin(n);
+#endif
     fm1_lcd_send_data(p, n);
     lcd_busy = 1;                  /* completed by lcd_sync */
 }
@@ -74,7 +80,11 @@ static void lcd_window(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
     lcd_cmd(0x2C);
 }
 
+#if BOARD_SMK37
+static uint16_t lcd_fillbuf[240] SMK_BIG;
+#else
 static uint16_t lcd_fillbuf[240];
+#endif
 
 static void lcd_fill(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint16_t c)
 {
@@ -102,6 +112,9 @@ static void lcd_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const uint1
     if (!w || !h)
         return;
     lcd_window(x, y, x + w - 1u, y + h - 1u);
+#if X0X_LCD_TRACE
+    lcd_trace_pixels(w * h * 2u);
+#endif
     lcd_data(px, w * h * 2u);
 }
 

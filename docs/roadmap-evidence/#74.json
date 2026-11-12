@@ -1,0 +1,98 @@
+{
+  "row_id": "#74",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:198; /workspace/docs-audit/roadmap-status.md:115; out/docs/roadmap-evidence/#74.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#74 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#74 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:115 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:198",
+      "/workspace/docs-audit/roadmap-status.md:115",
+      "out/docs/roadmap-evidence/#74.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "smk-pad-inputs",
+      "padcal-flag",
+      "smk-padcal-wiring"
+    ],
+    "evidence": "tests/smk_pad_inputs_test.py:39: assert 'arg == 6u' in function(main, 'smk_inlog_reply'); tests/padcal_flag_test.py:83: body = rel[rel.index(\"static void smk_inlog_reply(uint32_t arg)\"):]; tests/smk_padcal_wiring_test.py:79: rp = body(main, \"static void smk_inlog_reply(uint32_t arg)\")",
+    "identifiers": [
+      {
+        "identifier": "smk_inlog_reply",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:198"
+      }
+    ],
+    "matches": [
+      {
+        "test": "smk-pad-inputs",
+        "symbol_from_row": "smk_inlog_reply",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:198",
+        "file": "tests/smk_pad_inputs_test.py",
+        "line": 39,
+        "quote": "assert 'arg == 6u' in function(main, 'smk_inlog_reply')",
+        "identifier": "smk_inlog_reply"
+      },
+      {
+        "test": "padcal-flag",
+        "symbol_from_row": "smk_inlog_reply",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:198",
+        "file": "tests/padcal_flag_test.py",
+        "line": 83,
+        "quote": "body = rel[rel.index(\"static void smk_inlog_reply(uint32_t arg)\"):]",
+        "identifier": "smk_inlog_reply"
+      },
+      {
+        "test": "smk-padcal-wiring",
+        "symbol_from_row": "smk_inlog_reply",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:198",
+        "file": "tests/smk_padcal_wiring_test.py",
+        "line": 79,
+        "quote": "rp = body(main, \"static void smk_inlog_reply(uint32_t arg)\")",
+        "identifier": "smk_inlog_reply"
+      }
+    ],
+    "recorded_results": {
+      "smk-pad-inputs": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "padcal-flag": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "smk-padcal-wiring": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/main_fm1.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/main_fm1.c",
+        "line": 434,
+        "identifier": "smk_inlog_reply",
+        "quote": "static void smk_inlog_reply(uint32_t arg)"
+      }
+    ]
+  }
+}

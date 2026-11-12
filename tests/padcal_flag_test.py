@@ -54,7 +54,10 @@ x0x_h = (SRC / "x0x.h").read_text()
 build = (ROOT / "tools/build.py").read_text()
 check(re.search(r"#ifndef X0X_DEV_PADCAL[^\n]*\n#define X0X_DEV_PADCAL 1\b", x0x_h) is not None,
       "app/x0x.h: the default is 1 (dev build)")
-check('"X0X_DEV_PADCAL")' in build and 'flags.append(f"-D{flag}={v}")' in build,
+check(re.search(r'for flag in \([^)]*"X0X_DEV_PADCAL"', build) is not None
+      and 'v = os.environ.get(flag)' in build
+      and 'if v in ("0", "1"):' in build
+      and 'flags.append(f"-D{flag}={v}")' in build,
       "tools/build.py: X0X_DEV_PADCAL=0 or 1 from the environment goes to the compiler")
 
 building = (ROOT / "BUILDING.md").read_text()

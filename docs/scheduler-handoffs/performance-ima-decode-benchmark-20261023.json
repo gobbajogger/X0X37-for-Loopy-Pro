@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T13:06:44Z",
+  "role": "LoopyX0X37 Performance Engineering",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "nightly",
+    "tested_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "tested_tree": "71b759dd206d844cceed9e40ae68966142720e9c"
+  },
+  "summary": "Implement a host-only benchmark plus 91,168-case IMA decoder correctness/negative regression against exact firmware source, GCC and Clang optimized plus sanitizer execution, four synthetic workloads with 9-trial medians and MAD; firmware decoder unchanged, no hardware performance claim.",
+  "outputs": [
+    {
+      "kind": "benchmark",
+      "location": "tests/host/ima_decode_perf_test.c",
+      "description": "Executable native IMA decoder correctness check and reproducible throughput profiler, with fail-closed CLI"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/audit/performance-engineering-2026-10-23-ima-decoder-host-profile.md",
+      "description": "Checked SHA, exact command exits and measured GCC/Clang host timing plus limitations"
+    }
+  ],
+  "checks": [
+    {
+      "name": "GCC O2 correctness and throughput",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -o gcc-ima-perf tests/host/ima_decode_perf_test.c && ./gcc-ima-perf --check && ./gcc-ima-perf --bench",
+      "exit_code": 0,
+      "evidence": "Local native test-commands.log SHA256=ce8f96fd3c6703d366bd3f1916cf357565bf84549274327738427684d653bc88; full results summarized in docs/audit/performance-engineering-2026-10-23-ima-decoder-host-profile.md",
+      "coverage": "91,168 sample/predictor/index comparisons, 4 workloads x 9 trials x 1,572,864 nibbles"
+    },
+    {
+      "name": "Clang O2 correctness and throughput",
+      "status": "PASS",
+      "command": "clang -std=c11 -O2 -Wall -Wextra -Werror -pedantic -o clang-ima-perf tests/host/ima_decode_perf_test.c && ./clang-ima-perf --check && ./clang-ima-perf --bench",
+      "exit_code": 0,
+      "evidence": "Local native test-commands.log SHA256=ce8f96fd3c6703d366bd3f1916cf357565bf84549274327738427684d653bc88; full results summarized in docs/audit/performance-engineering-2026-10-23-ima-decoder-host-profile.md",
+      "coverage": "91,168 comparisons, 4 workloads x 9 trials x 1,572,864 nibbles"
+    },
+    {
+      "name": "GCC ASan and UBSan",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -pedantic -fno-omit-frame-pointer -fsanitize=address,undefined -o gcc-ima-perf-asan tests/host/ima_decode_perf_test.c && ./gcc-ima-perf-asan --check",
+      "exit_code": 0,
+      "evidence": "Local native test-commands.log SHA256=ce8f96fd3c6703d366bd3f1916cf357565bf84549274327738427684d653bc88; full results summarized in docs/audit/performance-engineering-2026-10-23-ima-decoder-host-profile.md",
+      "coverage": "91,168 correctness comparisons under sanitizers; no sanitizer-derived speed claims"
+    },
+    {
+      "name": "Clang ASan and UBSan",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -pedantic -fno-omit-frame-pointer -fsanitize=address,undefined -o clang-ima-perf-asan tests/host/ima_decode_perf_test.c && ./clang-ima-perf-asan --check",
+      "exit_code": 0,
+      "evidence": "Local native test-commands.log SHA256=ce8f96fd3c6703d366bd3f1916cf357565bf84549274327738427684d653bc88; full results summarized in docs/audit/performance-engineering-2026-10-23-ima-decoder-host-profile.md",
+      "coverage": "91,168 correctness comparisons under sanitizers; no sanitizer-derived speed claims"
+    },
+    {
+      "name": "Invalid selector rejection",
+      "status": "PASS",
+      "command": "sh -c './gcc-ima-perf --bogus >/dev/null 2>&1; [ \"$?\" -eq 2 ] && ./clang-ima-perf --bogus >/dev/null 2>&1; [ \"$?\" -eq 2 ]'",
+      "exit_code": 0,
+      "evidence": "Local native test-commands.log SHA256=ce8f96fd3c6703d366bd3f1916cf357565bf84549274327738427684d653bc88; full results summarized in docs/audit/performance-engineering-2026-10-23-ima-decoder-host-profile.md",
+      "coverage": "Both individual invalid selector invocations exited 2; explicit wrapper check exited 0"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Host-only benchmark and tests, no target build requested or claimed"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Host-only benchmark and tests, no target build requested or claimed"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA",
+    "action": "Independently run GCC/Clang O2 and ASan+UBSan correctness, negative CLI, and compare reported HOST timings against branch SHA",
+    "gate": "Source-only independent QA before sole Safe Merge into firmware nightly"
+  },
+  "dependencies": [
+    "Shared unchanged DSP decoder blob 9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+    "Unmerged evidence contract PR #78 head 67df140182b08394c10e5edc6f37de43cc5a48d2"
+  ],
+  "publication": "SOURCE_ONLY"
+}

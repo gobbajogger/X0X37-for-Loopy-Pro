@@ -28,9 +28,13 @@
  *     0x04120-0x8AFFF  app code (app.bin offset 0 .. FL_APP_CODE_MAX; build.py links to it)
  *     0x8B000-0x9AFFF  Bluetooth controller block, 64 KiB, one piece (FL_BLE; XIP 0x02087000), in app.bin
  *     0x9B000-0x9CFFF  app slot end (0x9B520, APP_SLOT 0x97400 as stock), cfg_tool, region table, cfg
- *   0x9D000-0xAFFFF  VM: X0X store (storage.c: 7 objects, A/B, 0x9D000-0xAAFFF; spare 0xAB000-0xAEFFF;
- *                    owner tag 0xAF000)                                            FL_DATA
- *   0xB0000-0xBAFFF  VM: user sample slot 3 (44 KiB; app/slots.c)                 FL_SMPV
+ *   0x9D000-0xAFFFF  VM: X0X store (storage.c: 7 objects, A/B, 0x9D000-0xAAFFF; boot screen
+ *                    copies 0xAB000 and 0xAC000; spare 0xAD000-0xAEFFF; owner tag 0xAF000)  FL_DATA
+ *   0xB0000-0xBAFFF  VM spare, 44 KiB, not linker code: the sector-0 shadows of the three sample
+ *                    slots (0xB0000-0xB2FFF) and user sample slot 3 (0xB3000-0xBAFFF, 32 KiB;
+ *                    app/slots.c). The app code region ends at the Bluetooth block (0x8B000).
+ *                    The settings store, this spare, the update area and calibration sit after
+ *                    that. Moving calibration would not join this spare to the code. FL_SMPV
  *   0xBB000-0xBFFFF  VM: M-UPGRADE loader staging + update record (ota.c)          FL_OTA
  *   0xC0000-0xC0FFF  BTIF (BT pairing)              NEVER
  *   0xC1000-0xC1FFF  USRTRIM (key/pad/wheel calibration, "trimdat")   NEVER
@@ -54,7 +58,7 @@
 #define FL_PLAIN_LO     0x0009D000u                /* plain XIP window from the VM start */
 #define FL_DATA_LO      0x0009D000u                /* X0X store */
 #define FL_DATA_HI      0x000B0000u
-#define FL_SMPV_LO      0x000B0000u                /* user sample slot 3 in the VM spare (app/slots.c) */
+#define FL_SMPV_LO      0x000B0000u                /* VM spare: slot shadows + sample slot 3 (app/slots.c) */
 #define FL_SMPV_HI      0x000BB000u
 #define FL_OTA_LO       0x000BB000u                /* M-UPGRADE loader staging, ota.c */
 #define FL_OTA_HI       0x000C0000u
@@ -85,10 +89,21 @@ _Static_assert(FL_REC_HI == FL_CAL_LO && FL_OTA_HI <= FL_REC_HI && FL_OTA_LO >= 
                "SMK: the update record (OTA area) must lie in the loader's record window, below BTIF");
 _Static_assert(FL_DATA_HI <= FL_OTA_LO && FL_APP_HI <= FL_DATA_LO, "SMK: windows overlap");
 /* the update loader (loader.c): the app area, and records only in the VM below BTIF */
+#if defined(X0X_SMC_VENDOR_TEST) && X0X_SMC_VENDOR_TEST
+#define FL_LDR_RANGE_OK(off, n) (FL_IN(off, n, FL_APP_LO, FL_APP_HI) || \
+                               FL_IN(off, n, FL_REC_LO, 0xAB000u) || FL_IN(off, n, 0xAF000u, FL_REC_HI))
+#else
 #define FL_LDR_RANGE_OK(off, n) (FL_IN(off, n, FL_APP_LO, FL_APP_HI) || FL_IN(off, n, FL_REC_LO, FL_REC_HI))
+#endif
+/* TEST profile's external data stay protected independently of BLE state. */
+#if defined(X0X_SMC_VENDOR_TEST) && X0X_SMC_VENDOR_TEST
+#define FL_STORE_OK(off, n) (FL_IN(off, n, FL_DATA_LO, 0xAB000u) || FL_IN(off, n, 0xAF000u, FL_DATA_HI) || \
+                             FL_IN(off, n, FL_SMP_LO, FL_SMP_HI) || FL_IN(off, n, FL_SMPV_LO, FL_SMPV_HI))
+#else
 /* X0X's own store: FL_DATA and the sample slots */
 #define FL_STORE_OK(off, n) (FL_IN(off, n, FL_DATA_LO, FL_DATA_HI) || FL_IN(off, n, FL_SMP_LO, FL_SMP_HI) || \
                              FL_IN(off, n, FL_SMPV_LO, FL_SMPV_HI))
+#endif
 #ifndef FL_RANGE_OK
 #define FL_RANGE_OK(off, n) (FL_STORE_OK(off, n) || FL_IN(off, n, FL_OTA_LO, FL_OTA_HI))
 #endif
@@ -101,6 +116,9 @@ _Static_assert(FL_DATA_HI <= FL_OTA_LO && FL_APP_HI <= FL_DATA_LO, "SMK: windows
                               (uint32_t)(n) > FL_KEYMAC_LO - (uint32_t)(off))
 #define FL_GUARD(off, n) (FL_RANGE_OK(off, n) && !FL_PROTECTED(off, n))
 #else /* FM-1 */
+/* FM-1 boot screen copies: the 4 KiB gap after the song object (0x9E000 ends at
+ * 0x9F000, samples start at 0xA0000) and the unused third globals sector
+ * (settings use 0xFC000 and 0xFD000). app/boot_screen.h. Not sample slots. */
 #define FL_PLAIN_LO     0x00093000u                /* plain XIP window from the FM-1 VM start */
 #define FL_DATA_LO      0x00097000u                /* Felucca main store */
 #define FL_DATA_HI      0x000E0000u

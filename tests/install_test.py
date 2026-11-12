@@ -76,9 +76,10 @@ class FakeSMK:
     """a MIDI backend with one SMK-37 Pro on it"""
 
     def __init__(self, image, identity="SMK-37 Pro_016", name="SMK-37 Pro", unplug_after=None, after_write="SMK-37 Pro_900",
-                 stall_after=None, bad_addr=None):
+                 stall_after=None, bad_addr=None, slot_info=(2, 80, 0, 0, 0, 0, 0, 0)):
         self.image, self.unplug_after, self.after_write = image, unplug_after, after_write
         self.stall_after, self.bad_addr = stall_after, bad_addr
+        self.slot_info = slot_info
         self.served = self.bad = self.upgrades = 0
         self.sent, self.links, self.gen, self.lock = [], [], 0, threading.Lock()
         self.boot(identity, name)
@@ -107,9 +108,16 @@ class FakeSMK:
                 link.q.put(bytes(pkt))
 
     def rx(self, d):
+        # SMP_INFO: default slot_info is a valid empty layout (count/size > 0, all nz=0).
+        # Mute with answer_slots=False or slot_info=None: no reply → TimeoutError (fail closed).
+        # Do not answer [0,0]: parse_info rejects count/size 0 as malformed, not empty.
         if d == I.HS_QUERY:
             t = self.identity.encode()
-            self.tx(b"\xF0" + I.pack7(bytes([0, 0x59, 0x11, 0, 0, 0]) + t + bytes(28 - len(t))) + b"\xF7")
+            payload = t + bytes(27 - len(t))
+            self.tx(b"\xF0" + I.pack7(bytes([0, 0x59, 0x11, 27, 0, 0]) + payload + bytes([~sum(payload) & 255])) + b"\xF7")
+        elif d == I.ED_HDR + bytes([I.xs.CMD_INFO, 0xF7]):
+            if getattr(self, "answer_slots", True) and self.slot_info is not None:
+                self.tx(I.ED_HDR + bytes([I.xs.CMD_INFO]) + bytes(self.slot_info) + b"\xF7")
         elif d == I.UPGRADE:
             self.upgrades += 1
             first = self.bad_addr if self.bad_addr is not None else 0
@@ -201,6 +209,16 @@ def installs():
     ok(rc == 0 and dev.bad == 0 and dev.upgrades == 2 and dev.served == 11 and "runs SMK-37 Pro_900" in out
        and "100%" in out, f"install: running -> loader -> Felucca ({dev.served} reads)")
 
+    # A silent or malformed sample-layout response must never permit an OTA write.
+    dev = FakeSMK(image, slot_info=None)
+    rc, out, err = cli([p, "--yes"], dev)
+    ok(rc == I.EXIT["slots"] and dev.upgrades == 0 and "SMP_INFO timed out" in err,
+       "install: missing SMP_INFO -> fail closed before write")
+    dev = FakeSMK(image, slot_info=(2, 80, 0, 0))
+    rc, out, err = cli([p, "--yes"], dev)
+    ok(rc == I.EXIT["slots"] and dev.upgrades == 0 and "truncated SMP_INFO" in err,
+       "install: malformed SMP_INFO -> fail closed before write")
+
     raw10 = package("SMK-37 Pro_9001000")
     dev = FakeSMK(I.logical_image(raw10), identity="SMK-37 Pro_909", after_write="SMK-37 Pro_9001000")
     rc, out, err = cli([pkgfile("x10.fwsc", raw10), "--yes"], dev)
@@ -209,7 +227,12 @@ def installs():
 
     dev = FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update")
     rc, out, err = cli([p, "--yes"], dev)
-    ok(rc == 0 and dev.bad == 0 and dev.upgrades == 1 and "update mode" in out, "install: device already in update mode -> finishes the write")
+    ok(rc == I.EXIT["slots"] == 7 and dev.upgrades == 0 and "--no-slots" in err,
+       "install: update loader without explicit sample-preservation decision -> fail before write")
+    dev = FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update")
+    rc, out, err = cli([p, "--yes", "--no-slots"], dev)
+    ok(rc == 0 and dev.bad == 0 and dev.upgrades == 1 and "update mode" in out,
+       "install: already in loader -> explicit --no-slots recovery finishes the write")
 
     dev = FakeSMK(image)
     rc, out, err = cli([p], dev, answer=False)
@@ -230,7 +253,7 @@ def errors():
     p = pkgfile("ok.fwsc", raw)
 
     rc, out, err = cli([p, "--yes"], FakeSMK(image, name="IAC Driver Bus 1"))
-    ok(rc == 3 and "not found" in err and "IAC Driver" in err, "no SMK-37 Pro port -> exit 3, lists the MIDI inputs")
+    ok(rc == 0, "a unit on a port named 'IAC Driver Bus 1' is found: the handshake model decides, not the port name")
     dev = FakeSMK(image)
     rc, out, err = cli([p, "--yes", "--port", "Felucca"], dev)
     ok(rc == 3 and dev.upgrades == 0, "--port that matches nothing -> exit 3")
@@ -243,11 +266,11 @@ def errors():
     ok(rc == 4 and "disconnected" in err and "nothing was written" in err and time.monotonic() - t0 < 3,
        "unplugged in step 1 -> exit 4 'lost', nothing written")
     t0 = time.monotonic()
-    rc, out, err = cli([p, "--yes"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", unplug_after=3))
+    rc, out, err = cli([p, "--yes", "--no-slots"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", unplug_after=3))
     ok(rc == 4 and "run the install again" in err and time.monotonic() - t0 < 3, "unplugged during the write -> exit 4 at once")
-    rc, out, err = cli([p, "--yes"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", stall_after=3))
+    rc, out, err = cli([p, "--yes", "--no-slots"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", stall_after=3))
     ok(rc == 4 and "stopped answering" in err, "loader stops answering -> exit 4 after the idle time")
-    rc, out, err = cli([p, "--yes"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", bad_addr=len(image)))
+    rc, out, err = cli([p, "--yes", "--no-slots"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", bad_addr=len(image)))
     ok(rc == 4 and "outside the package" in err, "read past the package -> exit 4")
 
     rc, out, err = cli([p, "--yes"], FakeSMK(image, after_write="SMK-37 Pro_016"))
@@ -256,8 +279,20 @@ def errors():
     rc, out, err = cli([p, "--yes"], dev)
     ok(rc == 6 and dev.upgrades == 0, "another model -> exit 6, nothing sent")
     dev = FakeSMK(image, identity="ota-FM-1_900", name="Felucca Update")
-    rc, out, err = cli([p, "--yes"], dev)
+    rc, out, err = cli([p, "--yes", "--no-slots"], dev)
     ok(rc == 6 and dev.upgrades == 0, "SMK package on an FM-1 in update mode -> exit 6 (wrong model), nothing sent")
+    # USB names never decide: a renamed Pro/Elite is found, and identity comes only from the handshake model
+    for name, ident in (("DnBOX 0.0.14 37PRO", "SMK-37 Pro_900"), ("Any Name", "SMK-37 Pro_900")):
+        dev = FakeSMK(image, identity=ident, name=name)
+        rc, out, err = cli([p, "--yes"], dev)
+        ok(rc == 0 and dev.bad == 0 and dev.upgrades == 2, f"install: {ident} named {name!r} is discovered and updated")
+    # Strict model gate: a Pro package is never written to a keyboard that reports Elite.
+    dev = FakeSMK(image, identity="SMK-37 Elite_900", name="DnBOX 0.0.14 37ELITE")
+    rc, out, err = cli([p, "--yes"], dev)
+    ok(rc == 6 and dev.upgrades == 0, "Pro package on a keyboard reporting SMK-37 Elite -> exit 6, nothing sent")
+    dev = FakeSMK(image, identity="FM-1_900", name="DnBOX 0.0.14 37PRO")
+    rc, out, err = cli([p, "--yes"], dev)
+    ok(rc == 6 and dev.upgrades == 0, "a '37PRO' USB name never overrides the reported model (FM-1 -> exit 6)")
 
     class Stuck(FakeSMK):          # the loader never shows up
         def boot(self, identity, name):
@@ -307,8 +342,8 @@ if __name__ == "__main__":
        and not I.same_keyboard("FM-1_015", "SMK-37 Pro_900") and not I.same_keyboard("SMK-37 Elite_016", "FM-1_900")
        and not I.same_keyboard("XY-9_001", "SMK-37 Pro_900"),
        "models: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another")
-    ok(all(I.PORT_RE.search(n) for n in ("SMK-37 Elite", "MKE-P37", "STARRYKEY-37 PLAY", "Snoop37", "Vox37", "Felucca",
-                                         "X0X FM-1", "FoMni SMK-37", "Makkuro37 Update")),
-       "port names: every SMK model and every port firmware probed")
+    ok(not hasattr(I, "PORT_RE"), "port names never gate discovery (no PORT_RE)")
+    for f, gate in (("web/fm1ota.js", "test(input.name"), ("web/x0x_breaks.html", "test(input.name")):
+        ok(gate not in (ROOT / f).read_text(), f"{f}: no USB-name discovery gate")
     print(f"INSTALL TESTS FAILED ({failed})" if failed else "install tests passed")
     sys.exit(1 if failed else 0)

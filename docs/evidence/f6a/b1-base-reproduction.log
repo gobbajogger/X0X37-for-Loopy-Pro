@@ -1,0 +1,31 @@
+evalmachine.<anonymous>:96
+    sayK("stockbad", " " + t("localfilesize"));
+    ^
+
+ReferenceError: t is not defined
+    at selectStockFile (evalmachine.<anonymous>:96:5)
+    at Object.change (evalmachine.<anonymous>:111:9)
+    at Object.input (file://<base>/web/test_install_local_file.mjs:47:35)
+    at file://<base>/web/test_install_local_file.mjs:87:15
+    at caseRun (file://<base>/web/test_install_local_file.mjs:79:9)
+    at file://<base>/web/test_install_local_file.mjs:83:7
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.19.0
+✖ web/test_install_local_file.mjs (56.378024ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 66.740975
+
+✖ failing tests:
+
+test at web/test_install_local_file.mjs:1:1
+✖ web/test_install_local_file.mjs (56.378024ms)
+  'test failed'

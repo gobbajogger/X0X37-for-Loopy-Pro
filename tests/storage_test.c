@@ -90,6 +90,38 @@ int main(void)
     nor[st_sector(OBJ_PROJECT0 + 2, 0) + 8] ^= 0x01;    /* both headers broken */
     nor[st_sector(OBJ_PROJECT0 + 2, 1) + 8] ^= 0x01;
     bad += check("both headers broken -> nothing", st_load(OBJ_PROJECT0 + 2, got, sizeof got) < 0);
+    {   /* the device builds project objects in this buffer: the new bytes must survive the seq check */
+        char own[600];
+        memset(own, 'C', sizeof own);
+        memcpy(st_buf, a, sizeof a);
+        bad += check("save from the store buffer", st_save(OBJ_PROJECT0 + 1, st_buf, sizeof a) == 0);
+        n = st_load(OBJ_PROJECT0 + 1, got, sizeof got);
+        bad += check("store-buffer save loads back", n == (int)sizeof a && !memcmp(got, a, sizeof a));
+        bad += check("second copy from a separate buffer", st_save(OBJ_PROJECT0 + 1, b, sizeof b) == 0);
+        {
+            st_hdr_t h;
+            int cur = st_current(OBJ_PROJECT0 + 1, &h);
+            nor[st_sector(OBJ_PROJECT0 + 1, (uint32_t)cur) + ST_PAYLOAD_OFF + 20] ^= 0x01;
+        }
+        memcpy(st_buf, own, sizeof own);
+        bad += check("rotten newer copy does not replace the store-buffer bytes",
+                     st_save(OBJ_PROJECT0 + 1, st_buf, sizeof own) == 0);
+        n = st_load(OBJ_PROJECT0 + 1, got, sizeof got);
+        bad += check("store-buffer bytes load back", n == (int)sizeof own && !memcmp(got, own, sizeof own));
+    }
+    {   /* a boot upload holds the one store buffer: refuse load and save, keep the bytes */
+        uint32_t cap = 0;
+        uint8_t *b = store_stage_lock(&cap);
+        bad += check("boot stage uses the existing store buffer", b && cap >= 2924u);
+        b[0] = 0x5A;
+        bad += check("save refused while the boot stage holds the buffer", st_save(OBJ_SETTINGS, "nope", 4) == -8);
+        bad += check("refused save leaves the staged bytes", b[0] == 0x5A);
+        bad += check("load refused while the boot stage holds the buffer", st_load(OBJ_SETTINGS, got, 5) < 0);
+        bad += check("refused load leaves the staged bytes", b[0] == 0x5A);
+        store_stage_unlock();
+        bad += check("save works after the boot stage releases the buffer",
+                     st_save(OBJ_SETTINGS, "hello", 5) == 0 && st_load(OBJ_SETTINGS, got, 5) == 5);
+    }
     {   /* X0X map: every object in a data region, none in the sample slots (0xA0000..0xDBFFF), no overlaps */
         uint32_t o, p, ok = 1;
         for (o = 0; o < OBJ_NOBJ; o++) {

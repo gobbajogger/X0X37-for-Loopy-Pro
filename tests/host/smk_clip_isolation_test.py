@@ -50,8 +50,11 @@ static const uint8_t SMK_WHITE_NOTE[16] = {0,2,4,6,7,9,11,12,14,16,18,19,21,23,2
 static const int8_t SMK_PIANO_NOTE[16] = {7,9,11,12,14,16,18,19,8,10,-1,13,15,17,-1,20};
 static struct {
  uint32_t buttons,pnotes,knotes,notes,notes_pressed;
+ uint64_t keys;  /* hal/smk_input.h: smk_frame reads the outer keys for the BREAK pages */
  uint8_t key_vel[37],pad_vel[16];
 } fm1_in;
+/* smk_frame calls it for the BREAK page keys (no BREAK UI in this test) */
+void ui_brk_page_keys(unsigned keys, int allowed) {(void)keys;(void)allowed;}
 static unsigned failed, irq, require_lock, usb_n, ble_n, flush_n, flush_mode[8];
 static uint32_t usb_packets[256], ble_packets[256];
 #define CHECK(x) do {if (!(x)) {fprintf(stderr,"FAIL line %d: %s\n",__LINE__,#x); failed++;}} while(0)
@@ -172,7 +175,9 @@ static void capture(void *ctx,uint8_t st,uint8_t d1,uint8_t d2) {
  (void)ctx; assert(count<4); output[count++]=st|d1<<8|d2<<16;
 }
 '''
-flush_body = "\n".join(function(seq_source, n) for n in ("midi", "bass_midi_flush"))
+# #521/#528 shared Note Off helpers out of bass_midi_flush; extract them too.
+flush_helpers = ("midi", "midi_note_off", "bass_slide_midi_off", "bass_midi_flush")
+flush_body = "\n".join(function(seq_source, n) for n in flush_helpers)
 if "void seq_midi_flush(" in seq_source:
     flush_body += "\n" + function(seq_source, "seq_midi_flush")
 else:

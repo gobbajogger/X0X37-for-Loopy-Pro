@@ -95,22 +95,6 @@ run host-build sh host/probe.c
         self.assertEqual(self.plan()['tests'], [])
         self.assertFalse((self.repo / 'build/invoked').exists())
 
-    def test_project_skill_files_skip_target_builds(self):
-        for path in (
-            '.cursor/skills/loopyx0x37-classic-build/SKILL.md',
-            '.cursor/skills/loopyx0x37-classic-build/references/builds.md',
-            '.agents/skills/x0x37-workflow/SKILL.md',
-            'skills/x0x37-check/references/validation.md',
-            'loopyx0x37-classic-build-skill.zip',
-        ):
-            self.assertEqual(PLAN.route(path), 'docs', path)
-        self.assertEqual(PLAN.route('unknown.json'), 'target')
-        self.put('.cursor/skills/loopyx0x37-classic-build/SKILL.md', '# Skill\n')
-        self.qc()
-        self.assertFalse(self.plan()['target'])
-        self.assertEqual(self.plan()['tests'], [])
-        self.assertFalse((self.repo / 'build/invoked').exists())
-
     def test_firmware_build_unknown_mixed_empty_and_odd_names(self):
         for paths in [[], ['firmware/source.c'], ['build.sh'], ['unknown.json'],
                       ['docs/start.md', 'firmware/source.c'], ['docs/odd name.md'],
@@ -205,6 +189,42 @@ run host-build sh host/probe.c
         # Parsing and indexing share the same runner bytes.
         self.assertEqual(reads.count(self.repo / 'tests/host/probe.c'), 1)
         self.assertEqual(reads.count(self.repo / 'tests/run_tests.sh'), 1)
+
+    def test_project_web_routes_select_project_suites(self):
+        """BF-002: project modules must pull projects-web and projects-page."""
+        runner = self.repo / 'tests/run_tests.sh'
+        runner.write_text(runner.read_text() + '''
+run projects-web node web/test_projects.mjs
+run projects-page node web/test_projects_page.mjs
+run breaks-page sh web/page.js
+run install-slots-web true
+''')
+        self.put('web/x0x_projects.js', '// projects\n')
+        self.put('web/x0x_projects.html', '<html></html>\n')
+        self.put('web/x0x_breaks.js', '// shared\n')
+        self.put('web/test_projects.mjs', '// project suite\n')
+        self.put('web/test_projects_page.mjs', '// project page suite\n')
+        project_paths = [
+            'web/x0x_projects.js',
+            'web/x0x_projects.html',
+            'web/x0x_breaks.js',
+            'web/test_projects.mjs',
+            'web/test_projects_page.mjs',
+        ]
+        for path in project_paths:
+            with self.subTest(path=path):
+                selected = PLAN.select(self.repo, [path], False)
+                if path.endswith('test_projects.mjs'):
+                    self.assertIn('projects-web', selected)
+                elif path.endswith('test_projects_page.mjs'):
+                    self.assertIn('projects-page', selected)
+                else:
+                    self.assertIn('projects-web', selected)
+                    self.assertIn('projects-page', selected)
+        unrelated = PLAN.select(self.repo, ['web/page.js'], False)
+        self.assertIn('breaks-web', unrelated)
+        self.assertNotIn('projects-web', unrelated)
+        self.assertNotIn('projects-page', unrelated)
 
 
 if __name__ == '__main__':

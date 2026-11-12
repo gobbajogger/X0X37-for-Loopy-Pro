@@ -27,6 +27,7 @@ TOOLS = (
     "tools/gen_builtin_break.sh",
     "tools/gen_builtin_break.c",
     "tools/sampleio.py",
+    "tools/break_pack.py",
 )
 ROOTS = (
     SRC / "tools" / "gen_builtin_break.c",
@@ -107,11 +108,37 @@ def _wavs(directory):
     return sorted(path for path in directory.rglob("*") if path.is_file() and path.suffix.lower() == ".wav")
 
 
+def _font_renderer_inputs():
+    """Version the libraries which turn font bytes into compiled glyph headers.
+
+    A source/assets hash alone cannot distinguish Pillow, FreeType or libraqm
+    changes. If this runtime cannot be identified, bypass rather than reuse
+    an incompatible generated-header cache entry.
+    """
+    try:
+        import PIL
+        from PIL import features
+        raqm = bool(features.check("raqm"))
+        return {
+            "pillow": PIL.__version__,
+            "freetype2": features.version_module("freetype2") or "unavailable",
+            "raqm-enabled": "1" if raqm else "0",
+            "raqm-version": (features.version_feature("raqm") or "unavailable") if raqm else "disabled",
+        }
+    except (ImportError, AttributeError, ValueError, RuntimeError) as exc:
+        raise OSError("cannot identify Pillow font renderer for generated cache") from exc
+
+
 def fingerprint():
-    """Hash the inputs of generate(). The compiler version is part of the break bank."""
+    """Hash generate() inputs: compiler, assets, source, and font renderer."""
     hasher = hashlib.sha256()
-    for key in ("X0X_FONTSET", "X0X_FONT_DIRS", "X0X_BREAK_BANK", "CC"):
+    for label, value in sorted(_font_renderer_inputs().items()):
+        _add(hasher, "font-renderer-" + label, str(value).encode())
+    for key in ("X0X_FONTSET", "X0X_FONT_DIRS", "X0X_BREAK_BANK", "X0X_FACTORY_BREAKS", "CC"):
         _add(hasher, key, os.environ.get(key, "").encode())
+    mode = "bank" if os.environ.get("X0X_BREAK_BANK") else (
+        "factory" if os.environ.get("X0X_FACTORY_BREAKS") == "1" else "none")
+    _add(hasher, "break-bank-mode", mode.encode())
     cc = os.environ.get("CC", "cc")
     resolved = shutil.which(cc) or cc
     _add(hasher, "cc-path", resolved.encode())
@@ -125,6 +152,10 @@ def fingerprint():
         _add_file(hasher, path)
     for path in _wavs(SRC / "assets" / "909"):
         _add_file(hasher, path)
+    if mode == "factory":
+        for path in sorted((SRC / "assets" / "factory-breaks").iterdir()):
+            if path.name == "pack.txt" or path.suffix == ".adpcm":
+                _add_file(hasher, path)
     bank = os.environ.get("X0X_BREAK_BANK")
     if bank:
         for path in sorted(p for p in Path(bank).rglob("*") if p.is_file()):
