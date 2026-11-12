@@ -79,6 +79,8 @@ static int live_rec_legato(int a, int source) { return 0; }
 static void live_rec_accept(int a, int source, int note) {}
 static int original_runtime_key(int *owner, int source, unsigned note, unsigned velocity) { return 0; }
 static int original_runtime_release_source(int *owner, int source) { return 0; }
+/* BREAK-only fixture: unrelated synth slots remain monophonic. */
+int seq_bass_poly(seq_t *s, int b) { (void)s; (void)b; return 0; }
 void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int source, int flags) {}
 float seq_tempo(const seq_t *s) { return 20.0f; }
 int seq_clock_waiting(const seq_t *s) { return 0; }
