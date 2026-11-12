@@ -417,6 +417,7 @@ static uint32_t bar_end(seq_t *s, int start)
     }
     for (t = 0; t < NTRACKS; t++)
         if (next[t] != s->ppat[t]) {
+            if (t < NKIT || t == TRK_BRK) s->rec_ev_gen++;
             s->ppat[t] = next[t];
             changed |= 1u << t;
         }
@@ -576,7 +577,7 @@ __attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq
         s->metro_tick = 24; /* waiting: next accepted clock is phase zero */
     } /* Continue preserves musical position and the stopped visual phase. */
     s->clk_to_next = 0;
-    s->run_gen++;
+    s->rec_ev_gen++;
     s->playing = 1;
     if (o->transport) o->transport(o->ctx, 1);
     seq_send_rt(s, o, remote, from_top ? 0xFA : 0xFB);
@@ -586,6 +587,7 @@ __attribute__((noinline)) static void do_stop(seq_t *s, const seq_sink_t *o, uin
 {
     int t;
     s->playing = 0;
+    s->rec_ev_gen++;
     bass_and_brk_stop(s, o);
     if (o->transport) o->transport(o->ctx, 0);
     for (t = 0; t < NTRACKS; t++) {
@@ -887,6 +889,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
             s->clk_to_next = 0;
         for (t = 0; t < NTRACKS; t++)                /* stopped: a cue takes effect at once */
             if (s->pcue[t] < NPAT) {
+                if (s->ppat[t] != s->pcue[t] && (t < NKIT || t == TRK_BRK)) s->rec_ev_gen++;
                 s->ppat[t] = s->pcue[t];
                 s->pcue[t] = 0xFF;
             }
