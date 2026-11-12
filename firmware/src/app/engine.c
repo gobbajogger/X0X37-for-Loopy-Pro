@@ -964,9 +964,12 @@ static void bass_adapt_flags(int p, int acc, int sl)
 
 typedef struct {
     uint8_t used, chicago;
-    float master_tune, cutoff, env_depth, portamento, output;
+    float master_tune, cutoff, env_depth, portamento, output, vcf_decay;
 } bass_adapt_saved_t;
 static bass_adapt_saved_t bass_adapt_saved[NBASS];
+/* Accent make-up after the voice (run_job's quiet scan): current, target. */
+static float bass_accent_mk[NBASS] = {1.0f, 1.0f}, bass_accent_mk_to[NBASS] = {1.0f, 1.0f};
+static float bass_c13[NBASS];          /* accent sweep charge (bass_303_sweep_step) */
 
 void engine_bass_tune(int steps)
 {
@@ -980,16 +983,22 @@ static float bass_adapt_tune_semitones(void)
     return bass_303_tune_semitones(bass_tune_steps);
 }
 
-static void bass_adapt_pre(int b)
+static void bass_adapt_pre(int b, unsigned n)
 {
     float semis;
-    bass_adapt_saved[b].used = 0;
     if ((unsigned)b >= NBASS) return;
+    bass_adapt_saved[b].used = 0;
+    bass_accent_mk_to[b] = 1.0f;
     semis = bass_adapt_tune_semitones();
     if (original_bass[b].kind == ORIGINAL_SOUND_CHICAGO) {
         original_chicago_voice_controls *c = &original_bass[b].dsp.chicago.controls;
         int accent = bass_accent[b], slide = bass_slide[b];
-        if (semis == 0.0f && !accent && !slide) return;
+        if (accent || bass_c13[b] != 0.0f) {
+            const original_chicago_backend *k = &original_bass[b].dsp.chicago;
+            float meg = accent && k->voice.active ? k->voice.vcf.level : 0.0f;
+            bass_c13[b] = bass_303_sweep_step(bass_c13[b], BASS_303_ACCENT_AMT * fm_clampf(meg, 0.0f, 1.0f), n);
+        }
+        if (semis == 0.0f && !accent && !slide && bass_c13[b] == 0.0f) return;
         bass_adapt_saved[b].used = 1;
         bass_adapt_saved[b].chicago = 1;
         bass_adapt_saved[b].master_tune = c->pitch.master_tune;
@@ -997,9 +1006,13 @@ static void bass_adapt_pre(int b)
         bass_adapt_saved[b].env_depth = c->env_depth;
         bass_adapt_saved[b].portamento = c->pitch.portamento;
         bass_adapt_saved[b].output = c->gain.output;
+        bass_adapt_saved[b].vcf_decay = c->vcf[1];
         if (semis != 0.0f) c->pitch.master_tune += semis;
         bass_303_accent_controls(accent, &c->cutoff, &c->env_depth);
-        bass_303_accent_output(accent, &c->gain.output);
+        bass_303_accent_decay(accent, &c->vcf[1]);
+        if (bass_c13[b] != 0.0f)
+            c->cutoff = fm_clampf(c->cutoff + bass_303_sweep_cutoff(bass_c13[b], c->resonance), 0.0f, 1.0f);
+        bass_accent_mk_to[b] = bass_303_accent_output(accent, &c->gain.output);
         bass_303_slide_porta(slide, &c->pitch.portamento);
     } else if (semis != 0.0f) {
         original_miami_voice_controls *c = &original_bass[b].dsp.miami.controls;
@@ -1008,6 +1021,7 @@ static void bass_adapt_pre(int b)
         bass_adapt_saved[b].master_tune = c->pitch.master_tune;
         c->pitch.master_tune += semis;
     }
+    if (original_bass[b].kind != ORIGINAL_SOUND_CHICAGO) bass_c13[b] = 0.0f;  /* Miami: no sweep */
 }
 
 static void bass_adapt_post(int b, float *left, float *right, unsigned n)
@@ -1021,6 +1035,7 @@ static void bass_adapt_post(int b, float *left, float *right, unsigned n)
         c->env_depth = bass_adapt_saved[b].env_depth;
         c->pitch.portamento = bass_adapt_saved[b].portamento;
         c->gain.output = bass_adapt_saved[b].output;
+        c->vcf[1] = bass_adapt_saved[b].vcf_decay;
     } else
         original_bass[b].dsp.miami.controls.pitch.master_tune = bass_adapt_saved[b].master_tune;
     bass_adapt_saved[b].used = 0;
@@ -2337,7 +2352,7 @@ static int run_job(int j, int core)
         bb[bv] = bl; bb[1 - bv] = br;                     /* bass B renders right-left, as always */
         PROF_T(pb);
         (void)original_runtime_prepare(&original_bass[bv], seq_tempo(&seq));
-        bass_adapt_pre(bv);
+        bass_adapt_pre(bv, (unsigned)n);
         int status = original_runtime_render(&original_bass[bv], bv ? &original_workspace_b : &original_workspace,
                                              bb[bv], bb[1-bv], n);
         bass_adapt_post(bv, bb[bv], bb[1-bv], (unsigned)n);
@@ -2349,13 +2364,33 @@ static int run_job(int j, int core)
              * gone, fade residual insert output over 512 samples. Cancellation or
              * a fresh owner ramps back smoothly; DSP histories keep advancing. */
             int fade = engine_bass_preset_pending(bv) == 2 && !original_runtime_owned(&original_bass[bv]);
+            if (fade || original_switch_gain[bv] != 512u)    /* else fused below */
+                bass_303_accent_makeup(bb[bv], bb[1-bv], (unsigned)n, &bass_accent_mk[bv], bass_accent_mk_to[bv]);
             if (!fade && original_switch_gain[bv] == 512u) {
                 /* Settled gain 1.0: x * 1.0f == x for every float, so only the
                  * quiet count runs (the same per-sample result). */
                 uint32_t q = original_quiet_samples[bv];
-                for (i = 0; i < n; ++i) {
-                    if (fm_fabsf(bb[bv][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-bv][i]) > 1.0f/65536.0f) q = 0;
-                    else if (q < 512u) ++q;
+                float g = bass_accent_mk[bv], t = bass_accent_mk_to[bv];
+                if (g == 1.0f && t == 1.0f) {
+                    for (i = 0; i < n; ++i) {
+                        if (fm_fabsf(bb[bv][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-bv][i]) > 1.0f/65536.0f) q = 0;
+                        else if (q < 512u) ++q;
+                    }
+                } else {
+                    /* Accent make-up (bass_303_accent_makeup), fused into this
+                     * scan: one pass over the part, the same samples. */
+                    for (i = 0; i < n; ++i) {
+                        if (g != t) {
+                            float d = t - g;
+                            g = d > BASS_303_MAKEUP_SLEW ? g + BASS_303_MAKEUP_SLEW
+                              : d < -BASS_303_MAKEUP_SLEW ? g - BASS_303_MAKEUP_SLEW : t;
+                        }
+                        float l = bb[bv][i] * g, r = bb[1-bv][i] * g;
+                        bb[bv][i] = l; bb[1-bv][i] = r;
+                        if (fm_fabsf(l) > 1.0f/65536.0f || fm_fabsf(r) > 1.0f/65536.0f) q = 0;
+                        else if (q < 512u) ++q;
+                    }
+                    bass_accent_mk[bv] = g;
                 }
                 bass_quiet_next[bv] = q;
             } else {
