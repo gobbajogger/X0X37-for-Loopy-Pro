@@ -165,20 +165,62 @@ static void compare(unsigned kind, unsigned factory)
     if(kind==ORIGINAL_SOUND_MIAMI) {cell[18]=1;assert(!original_sound_valid(cell));}
     factories++;
 }
+static void verify_drone(void)
+{
+    static const uint8_t preset[4][6] = {
+        {57,66,51,23,83,95}, {35,39,38,58,108,105},
+        {94,97,70,17,72,83}, {73,75,12,5,55,94}
+    };
+    assert(original_sound_count(ORIGINAL_SOUND_DRONE) == 8);
+    assert(original_sound_factories(ORIGINAL_SOUND_DRONE) == 4);
+    assert(original_sound_engine_id(ORIGINAL_SOUND_DRONE) == ORIGINAL_SOUND_DRONE_ID);
+    for (unsigned factory = 0; factory < ORIGINAL_DRONE_FACTORIES; ++factory) {
+        uint8_t cell[32], copy[32];
+        assert(original_sound_init(cell, ORIGINAL_SOUND_DRONE, factory));
+        assert(original_sound_valid(cell) && cell[28] == ORIGINAL_SOUND_SCHEMA);
+        assert(cell[29] == ORIGINAL_SOUND_DRONE && cell[30] == factory);
+        assert(!original_sound_edit_mask(cell));
+        assert(!memcmp(cell, preset[factory], 6));
+        assert(original_sound_name(ORIGINAL_SOUND_DRONE, factory));
+        for (unsigned i = 0; i < 6; ++i) {
+            float value = -1.0f;
+            assert(original_sound_value(cell, i, &value));
+            assert(value >= 0.0f && value <= 1.0f);
+        }
+        float bend = -1.0f, damper = -1.0f;
+        assert(original_sound_value(cell, 6, &bend) && bend == .5f);
+        assert(original_sound_value(cell, 7, &damper) && damper == 0.0f);
+        assert(original_sound_is_performance(ORIGINAL_SOUND_DRONE, 6));
+        assert(original_sound_is_performance(ORIGINAL_SOUND_DRONE, 7));
+        memcpy(copy, cell, sizeof cell);
+        assert(!original_sound_set(cell, 6, 100) && !memcmp(cell, copy, 32));
+        assert(!original_sound_set(cell, 7, 100) && !memcmp(cell, copy, 32));
+        assert(original_sound_set(cell, 1, 119));
+        assert(original_sound_valid(cell) && original_sound_edit_mask(cell) == (1u << 1));
+        float x = -1;
+        assert(original_sound_value(cell, 1, &x) && x > .93f && x < .95f);
+        cell[8] = 1;
+        assert(!original_sound_valid(cell)); /* unused patch bytes stay zero */
+    }
+    uint8_t bad[32] = {0};
+    assert(!original_sound_init(bad, ORIGINAL_SOUND_DRONE, 4));
+    assert(!original_sound_valid(bad));
+}
+
 int main(void)
 {
     uint8_t legacy[32]={0};
     assert(!original_sound_valid(legacy));
     memset(legacy,127,sizeof legacy);assert(!original_sound_valid(legacy));
     assert(!original_sound_valid(0) && !original_sound_set(0,0,0) && !original_sound_init(0,0,0));
-    assert(!original_sound_count(2) && !original_sound_factories(2) && !original_sound_engine_id(2));
-    assert(!original_sound_param(2,0) && !original_sound_name(2,0));
+    assert(!original_sound_count(3) && !original_sound_factories(3) && !original_sound_engine_id(3));
+    assert(!original_sound_param(3,0) && !original_sound_name(3,0));
     assert(!original_sound_fx_name(12));
     static const char *const fx_names[12]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ",
         "ENSEM","SH DLY","BPM DL","HALL","GT REV"};
     for(unsigned i=0;i<12;i++)assert(!strcmp(original_sound_fx_name(i),fx_names[i]));
-    assert(!original_sound_is_performance(2,16) && !original_sound_is_performance(0,99));
-    assert(original_sound_factory_source(2,0)==-1 && original_sound_factory_source(0,81)==-1);
+    assert(!original_sound_is_performance(3,16) && !original_sound_is_performance(0,99));
+    assert(original_sound_factory_source(3,0)==-1 && original_sound_factory_source(0,81)==-1);
     /* Independently enumerate all original factory routings. Visible 0..54
      * are the compact-policy programs in source order (unchanged stored
      * indexes); 55..80 are the restored-insert programs in source order.
@@ -203,7 +245,7 @@ int main(void)
     assert(compact==55 && restored==26 && original_sound_factories(0)==81);
     float refused=-7;
     assert(!original_sound_control_value(0,17,12,&refused) && refused==-7);
-    assert(!original_sound_control_value(2,0,0,&refused) && refused==-7);
+    assert(!original_sound_control_value(3,0,0,&refused) && refused==-7);
     for(unsigned kind=0;kind<2;kind++) {
         unsigned parameter=kind?7:4;
         float previous=-1;
@@ -219,6 +261,7 @@ int main(void)
     }
     for(unsigned kind=0;kind<2;++kind)
         for(unsigned factory=0;factory<original_sound_factories(kind);++factory) compare(kind,factory);
+    verify_drone();
     printf("PASS compact32-byte patch cell: %u exact factory programs, %u single-control edits, %u malformed transactions; %u performance edits refused and %u stale performance restores neutral; twelve FX and all 81 factory programs (55 compact + 26 restored inserts); schema1 rejected; no factory float round-trip\n",factories,edits,failures,performance_refusals,stale_restores);
     return 0;
 }
