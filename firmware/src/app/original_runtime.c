@@ -18,11 +18,26 @@ int original_runtime_init(original_runtime_part *p, const uint8_t cell[32], floa
      * boundary. A caller must inspect the returned admission result. */
     memset(p, 0, sizeof *p);
     p->kind = (uint8_t)kind;
-    int rc = kind == ORIGINAL_SOUND_MIAMI ?
-        (original_miami_backend_init(&p->dsp.miami, factory, bpm) ? 1 : -2) :
-        original_chicago_backend_init_compact(&p->dsp.chicago, factory, bpm, 0, tuning, fx);
+    int rc;
+    if (kind == ORIGINAL_SOUND_DRONE) {
+        drone_string_init(&p->dsp.drone);
+        rc = ORIGINAL_RUNTIME_OK;
+    } else if (kind == ORIGINAL_SOUND_MIAMI)
+        rc = original_miami_backend_init(&p->dsp.miami, factory, bpm) ? 1 : -2;
+    else
+        rc = original_chicago_backend_init_compact(&p->dsp.chicago, factory, bpm, 0, tuning, fx);
     p->status = (int8_t)rc;
     if (rc != ORIGINAL_RUNTIME_OK) return rc;
+    if (kind == ORIGINAL_SOUND_DRONE) {
+        /* Factory values live in the same 32-byte patch. Adopt them once at
+         * the cold boundary; no table lookups in the audio render. */
+        for (unsigned i = 0; i < ORIGINAL_DRONE_NPARAMS - 2u; ++i) {
+            float value;
+            if (!original_sound_value(cell, i, &value) ||
+                !drone_string_set(&p->dsp.drone, i, value))
+                return runtime_result(p, 0);
+        }
+    }
     uint32_t edits = original_sound_edit_mask(cell);
     /* All admitted factories have neutral bend/damper. Archived performance
      * edit bits never become inputs to a newly adopted runtime instance. */
@@ -43,7 +58,10 @@ int original_runtime_prepare(original_runtime_part *p, float bpm)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return p ? p->status : 0;
     int ok;
-    if (p->kind == ORIGINAL_SOUND_MIAMI) {
+    if (p->kind == ORIGINAL_SOUND_DRONE) {
+        /* No tempo-dependent parameters: prepare is idempotent. */
+        ok = 1;
+    } else if (p->kind == ORIGINAL_SOUND_MIAMI) {
         ok = original_miami_backend_set_tempo(&p->dsp.miami, bpm) &&
              original_miami_backend_prepare(&p->dsp.miami);
     } else {
@@ -67,14 +85,18 @@ int original_runtime_retire(original_runtime_part *p)
 int original_runtime_param(original_runtime_part *p, unsigned parameter, float value)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return p ? p->status : 0;
-    return runtime_result(p, p->kind == ORIGINAL_SOUND_MIAMI ?
+    return runtime_result(p, p->kind == ORIGINAL_SOUND_DRONE ?
+        drone_string_set(&p->dsp.drone, parameter, value) :
+        p->kind == ORIGINAL_SOUND_MIAMI ?
         original_miami_backend_set_macro(&p->dsp.miami, parameter, value) :
         original_chicago_backend_set(&p->dsp.chicago, parameter, value) == ORIGINAL_CHICAGO_BACKEND_OK);
 }
 
 static int runtime_note(original_runtime_part *p, unsigned key, unsigned velocity)
 {
-    return runtime_result(p, p->kind == ORIGINAL_SOUND_MIAMI ?
+    return runtime_result(p, p->kind == ORIGINAL_SOUND_DRONE ?
+        drone_string_note(&p->dsp.drone, key, velocity) :
+        p->kind == ORIGINAL_SOUND_MIAMI ?
         (velocity ? original_miami_backend_note_on(&p->dsp.miami, key, velocity) :
                     original_miami_backend_note_off(&p->dsp.miami, key)) :
         original_chicago_backend_note(&p->dsp.chicago, key, velocity) == ORIGINAL_CHICAGO_BACKEND_OK);
@@ -195,7 +217,10 @@ int original_runtime_all_off(original_runtime_part *p)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return p ? p->status : 0;
     int ok;
-    if (p->kind == ORIGINAL_SOUND_MIAMI) {
+    if (p->kind == ORIGINAL_SOUND_DRONE) {
+        drone_string_all_off(&p->dsp.drone);
+        ok = 1;
+    } else if (p->kind == ORIGINAL_SOUND_MIAMI) {
         ok = original_miami_backend_all_off(&p->dsp.miami);
     } else {
         ok = original_chicago_backend_all_off(&p->dsp.chicago) == ORIGINAL_CHICAGO_BACKEND_OK;
@@ -211,7 +236,8 @@ int original_runtime_all_off(original_runtime_part *p)
 int original_runtime_owned(const original_runtime_part *p)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return 0;
-    return p->kind == ORIGINAL_SOUND_MIAMI ? original_miami_backend_voice_active(&p->dsp.miami) :
+    return p->kind == ORIGINAL_SOUND_DRONE ? drone_string_active(&p->dsp.drone) :
+        p->kind == ORIGINAL_SOUND_MIAMI ? original_miami_backend_voice_active(&p->dsp.miami) :
         original_chicago_backend_active(&p->dsp.chicago);
 }
 
@@ -239,6 +265,17 @@ int original_runtime_voice_view(const original_runtime_part *p, float *level, fl
                 *state=v->vca.state; *key_down=v->key_down;
             }
         }
+    } else if (p->kind == ORIGINAL_SOUND_DRONE) {
+        for (unsigned i = 0; i < DRONE_STRING_VOICES; ++i) {
+            const drone_string_voice *v = &p->dsp.drone.voice[i];
+            if (v->stage && v->envelope > *level) {
+                *level = v->envelope;
+                *modulation = 0.0f;
+                *state = v->stage == DRONE_ATTACK ? 0u :
+                    v->stage == DRONE_RELEASE ? 3u : 1u;
+                *key_down = v->down;
+            }
+        }
     } else return 0;
     return 1;
 }
@@ -255,6 +292,7 @@ int original_runtime_motion_view(const original_runtime_part *p, float *phase, f
     float *current, float *target, int *active)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return 0;
+    if (p->kind == ORIGINAL_SOUND_DRONE) return 0;
     if (p->kind == ORIGINAL_SOUND_MIAMI)
         return original_miami_backend_motion_view(&p->dsp.miami, phase, bipolar, current, target, active);
     *phase = *bipolar = 0.0f;
@@ -270,7 +308,8 @@ int original_runtime_env_view(const original_runtime_part *p, float adsr[4], flo
 int original_runtime_active(const original_runtime_part *p)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return 0;
-    return p->kind == ORIGINAL_SOUND_MIAMI ? original_miami_backend_active(&p->dsp.miami) :
+    return p->kind == ORIGINAL_SOUND_DRONE ? drone_string_active(&p->dsp.drone) :
+        p->kind == ORIGINAL_SOUND_MIAMI ? original_miami_backend_active(&p->dsp.miami) :
         original_chicago_backend_active(&p->dsp.chicago);
 }
 
@@ -281,7 +320,10 @@ int original_runtime_render(original_runtime_part *p, original_runtime_workspace
     if (p->status != ORIGINAL_RUNTIME_OK) return p->status;
     if (runtime_stale_tick(p, frames) != ORIGINAL_RUNTIME_OK) return p->status;
     int ok;
-    if (p->kind == ORIGINAL_SOUND_MIAMI) {
+    if (p->kind == ORIGINAL_SOUND_DRONE) {
+        /* Existing stereo part buses: no new scratch or buffer latency. */
+        ok = drone_string_render(&p->dsp.drone, left, right, frames);
+    } else if (p->kind == ORIGINAL_SOUND_MIAMI) {
         original_miami_backend_workspace workspace = {w->miami.left, w->miami.right,
             {w->miami.dry[0], w->miami.dry[1], w->miami.scratch[0], w->miami.scratch[1], 256}};
         ok = original_miami_backend_render_stereo(&p->dsp.miami, &workspace, left, right, frames);
