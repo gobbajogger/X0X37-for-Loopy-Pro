@@ -32,24 +32,22 @@ def compile_plan(env):
 
 
 class OriginalBuildCompositionTests(unittest.TestCase):
-    def test_native_o2_loop_policy_is_bounded_and_preserves_arithmetic(self):
-        with mock.patch.object(build, "BOARD", "smk37"):
-            _, _, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "1"})
-        optimized = 0
-        for path, command in sources.items():
-            with self.subTest(source=path):
-                if "-O2" in command:
-                    optimized += 1
-                    self.assertEqual(command.count("-fno-unroll-loops"), 1)
-                    self.assertIn("-ffp-contract=off", command)
-                    self.assertNotIn("-ffast-math", command)
-                    self.assertNotIn("-flto", command)
-                else:
+    def test_compact_chicago_preserves_hot_unrolling_and_other_boards(self):
+        for board, model, compact in (("smk37", "elite", True),
+                                      ("smk37", "pro", True),
+                                      ("smk37", "mke", False),
+                                      ("fm1", "pro", False)):
+            with mock.patch.object(build, "BOARD", board), mock.patch.object(build, "MODEL", model):
+                _, _, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "1"})
+            for path, command in sources.items():
+                with self.subTest(board=board, model=model, source=path):
                     self.assertNotIn("-fno-unroll-loops", command)
-        self.assertGreater(optimized, 0)
-        with mock.patch.object(build, "BOARD", "fm1"):
-            commands, _, _ = compile_plan({"X0X_ORIGINAL_SYNTH": "1"})
-        self.assertFalse(any("-fno-unroll-loops" in c for c in commands))
+                    self.assertNotIn("-flto", command)
+                    expected = compact and Path(path).stem == "chicago_packed"
+                    self.assertEqual("-DX0X_CHICAGO_COMPACT_HEADERS=1" in command, expected)
+                    if "-O2" in command:
+                        self.assertIn("-ffp-contract=off", command)
+                        self.assertNotIn("-ffast-math", command)
 
     def test_removed_engines_have_no_build_hook(self):
         # Even a currently unreachable build branch can accidentally compile a

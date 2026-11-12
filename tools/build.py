@@ -43,7 +43,6 @@ import fm1pkg_make  # noqa: E402
 import gen_cache  # noqa: E402
 import lz4blk  # noqa: E402
 import rom_guard  # noqa: E402
-import merge_native_constants  # noqa: E402
 import check_original_inputs  # noqa: E402
 from firmware_build_labels import canonical_version  # noqa: E402
 
@@ -254,6 +253,10 @@ def tc_all(*cmds):
 def generate():
     """generated headers: the font (Felucca's), the 909's samples and tables, the break bank"""
     GEN.mkdir(parents=True, exist_ok=True)
+    if BOARD == "smk37" and MODEL in ("elite", "pro"):
+        import gen_chicago_compact
+        gen_chicago_compact.generate(SRC / "experiments/original_synth/chicago_packed_private.h",
+                                     GEN / "chicago_compact_private.h")
     if gen_cache.restore(GEN):
         print("generate: cached font, drums, and break bank")
         return
@@ -392,8 +395,6 @@ def app_compile_commands(flags, original_synth, wobble):
         flags = [*flags, "-DX0X_ORIGINAL_SYNTH=1",
                  "-Iexperiments/original_synth", "-Iexperiments/wobble"]
     o2 = [f if f != "-Os" else "-O2" for f in flags]
-    if BOARD == "smk37":
-        o2.append("-fno-unroll-loops")
     units = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
              ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
              ("cc", "-c", FW / "hal" / "fm1_isr.S", "-o", OUT / "fm1_isr.o"),
@@ -413,6 +414,8 @@ def app_compile_commands(flags, original_synth, wobble):
         for u in (*ORIGINAL_SYNTH_UNITS, *ORIGINAL_SYNTH_BACKENDS):
             o = OUT / "original" / (Path(u).stem + ".o")
             uf = original_o2 if Path(u).stem in ORIGINAL_SYNTH_O2_UNITS else original_flags
+            if BOARD == "smk37" and MODEL in ("elite", "pro") and Path(u).stem == "chicago_packed":
+                uf = [*uf, "-DX0X_CHICAGO_COMPACT_HEADERS=1"]
             units.append(("cc", *uf, "-c", Path(u), "-o", o))
             objs.append(o)
     return units, objs
@@ -481,8 +484,8 @@ def build_app():
             raise SystemExit("app.ld: the XIP LENGTH line was not found")
         ld = OUT / "app.ld"
         ld.write_text(txt.replace("LENGTH = 0x8DFBC", f"LENGTH = {APP_CODE_MAX:#X}".replace("0X", "0x")))
-    # Preserve generated instructions and constant folding; coalesce only pinned value-only LUTs.
-    merge_native_constants.merge_constants(objs)
+    # Keep the 591 table policy: 10a coalescing regressed strict Pro timing.
+    # Do not re-enable it without exact-image timing qualification.
     tc("pi32v2/bin/ld", "--gc-sections", "-e", "_start", "-T", ld, *objs, "-o", elf)
     for sect in ("text.bin", "data.bin", "ramtext.bin", "c1text.bin"):
         (OUT / sect).unlink(missing_ok=True)
