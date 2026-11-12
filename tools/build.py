@@ -43,6 +43,7 @@ import fm1pkg_make  # noqa: E402
 import gen_cache  # noqa: E402
 import lz4blk  # noqa: E402
 import rom_guard  # noqa: E402
+import merge_native_constants  # noqa: E402
 import check_original_inputs  # noqa: E402
 from firmware_build_labels import canonical_version  # noqa: E402
 
@@ -478,6 +479,8 @@ def build_app():
             raise SystemExit("app.ld: the XIP LENGTH line was not found")
         ld = OUT / "app.ld"
         ld.write_text(txt.replace("LENGTH = 0x8DFBC", f"LENGTH = {APP_CODE_MAX:#X}".replace("0X", "0x")))
+    # Preserve generated instructions and constant folding; coalesce only pinned value-only LUTs.
+    merge_native_constants.merge_constants(objs)
     tc("pi32v2/bin/ld", "--gc-sections", "-e", "_start", "-T", ld, *objs, "-o", elf)
     for sect in ("text.bin", "data.bin", "ramtext.bin", "c1text.bin"):
         (OUT / sect).unlink(missing_ok=True)
