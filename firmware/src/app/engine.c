@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* X0X audio engine; see engine.h. */
 #include "engine.h"
+#include "../seq/held_chord.h"
 #include "plat.h"
 #include "../x0x_cold.h"
 #include "../dsp/drum909.h"
@@ -1049,6 +1050,37 @@ int engine_bass_accent(int p) { return (unsigned)p < NBASS ? bass_accent[p] : 0;
 int engine_bass_slide(int p) { return (unsigned)p < NBASS ? bass_slide[p] : 0; }
 #endif
 
+/* The new slot kinds are polyphonic; Chicago/Miami preserve mono/unison.
+ * This is intentionally dormant on the 25.1 base until those engines integrate. */
+int seq_bass_poly(seq_t *s,int b)
+{ (void)s;return (unsigned)b<NBASS && original_bass[b].kind>=2 && original_bass[b].kind<=3; }
+int seq_bass_chord_keys(seq_t *s,int b,uint8_t *notes)
+{
+    (void)s;int n=0;
+    for(unsigned key=0;key<128;key++) {
+        unsigned held=0;
+        for(unsigned src=0;src<ORIGINAL_INPUT_SEQUENCE;src++)held|=original_bass[b].keys[src][key];
+        if(held) { if(n==HELD_CHORD_NOTES)return -1;notes[n++]=(uint8_t)key; }
+    }
+    return n;
+}
+int seq_bass_chord_get(seq_t *s,int b,int pat,int step,uint8_t *notes)
+{ return held_chord_get(mot.lane,pat,b,step,s->pat[pat].bass[b].step[step].note,notes); }
+int seq_bass_chord_set(seq_t *s,int b,int pat,int step,const uint8_t *notes,int count)
+{
+    (void)s;
+    if(!mot.lane)return 0;
+    /* Audio owns both operations. A new sound lock can consume one lane
+     * between admission and the chord write, so reserve it in the same check. */
+    int reserve=count<0 && engine_note_lock_capture_on() && bass_note_find(mot.lane,pat,b,step)<0;
+    return held_chord_write(mot.lane,pat,b,step,notes,count,reserve);
+}
+void seq_bass_chord_on(seq_t *s,int b,int note,int velocity)
+{
+    if(seq_bass_poly(s,b))
+        (void)original_runtime_key(&original_bass[b],ORIGINAL_INPUT_SEQUENCE,(unsigned)note,(unsigned)velocity);
+}
+
 static void bass_onset(int v);          /* original_presets.inc: pattern preset, note lock */
 static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
@@ -1062,6 +1094,10 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
         return 0;
     }
     bass_onset(p);
+    if(seq_bass_poly(&seq,p)) {
+        (void)original_runtime_release_source(&original_bass[p],ORIGINAL_INPUT_SEQUENCE);
+        original_seq_note[p]=-1;
+    }
     int previous = original_seq_note[p];
     if (!sl && previous >= 0)
         (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
@@ -1264,7 +1300,7 @@ void engine_motion_clear(int k)
      * removed ramp after the restoration or interleave DSP program writes. */
     if (k < 0 || k >= NLANE || !mot.lane) return;
     lane_t *lane = &mot.lane[k];
-    int restore = lane->used && lane->t != 0xfdu;
+    int restore = lane->used && lane->t != 0xfdu && lane->t != HELD_CHORD_TARGET;
     int t = lane->t, v = lane->v, i = lane->i;
     if (original_motion_performance(t, v, i)) restore = 0;
     lane->used = 0;
@@ -1687,6 +1723,12 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
                     bass_held[k] = d1; bass_held_src[k] = (uint8_t)src;
                     bass_held_count[k] = original_bass[k].keys[src][d1];
                     live_rec_accept(k, src, d1);
+                } else if (seq_bass_poly(&seq,k)) {
+                    seq_rec_bass(&seq,k,d1,0,0,src,0);
+                    if(bass_held_src[k]==src && bass_held[k]==d1) {
+                        bass_held_count[k]=original_bass[k].keys[src][d1];
+                        if(!bass_held_count[k])seq.rec_bass[k].own_ok=0;
+                    }
                 } else if (bass_held_src[k] == (uint8_t)src && bass_held[k] == d1) {
                     bass_held_count[k] = original_bass[k].keys[src][d1];
                     if (!bass_held_count[k]) {
@@ -1843,18 +1885,20 @@ static void drain(void)
 #ifdef X0X_HOST
             bass_attacked[a] = (uint8_t)!slide;
 #endif
+            int poly=seq_bass_poly(&seq,(int)a);
+            if(poly)(void)original_runtime_key(&original_bass[a],ORIGINAL_INPUT_KEYS,b,(v>>2)&127u);
             if (type == C_REC && rec_epoch == (seq.rec_epoch & 127u))
                 seq_rec_bass(&seq, (int)a, (int)b, (int)((v >> 2) & 127u), 1, 3,
                     ((v & 1u) ? BS_ACCENT : 0) | ((v & 512u) ? BS_SLIDE : 0) | (slide ? SEQ_REC_LEGATO : 0));
             v &= 511u; /* the outgoing manual-slide flag is recorder metadata only */
             bass_adapt_flags((int)a, (int)(v & 1u), slide);
-            (void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, v >> 2);
+            if(!poly)(void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, v >> 2);
             bass_held[a] = (uint8_t)b;
             bass_held_count[a] = 1; bass_held_src[a] = 3;
             src_held[0] &= (uint16_t)~(1u << a); src_held[1] &= (uint16_t)~(1u << a); src_held[2] &= (uint16_t)~(1u << a);
             live_rec_accept((int)a, 3, (int)b);
         } else if (type == C_BOFF && a < NBASS && bass_held_src[a] == 3) {
-            if ((!v || b == bass_held[a]) && seq.rec_bass[a].own_src == 3) {
+            if (!seq_bass_poly(&seq,(int)a) && (!v || b == bass_held[a]) && seq.rec_bass[a].own_src == 3) {
                 seq_rec_bass(&seq, (int)a, seq.rec_bass[a].own_note, 0, 0, 3, 0);
                 seq.rec_bass[a].own_ok = 0;
                 bass_held_count[a] = 0;
@@ -1864,6 +1908,7 @@ static void drain(void)
                 (void)original_runtime_release_source(&original_bass[a], ORIGINAL_INPUT_KEYS);
                 __builtin_memset(original_key_pitch[a], 0, sizeof original_key_pitch[a]);
             }
+            if(seq_bass_poly(&seq,(int)a))seq_rec_bass(&seq,(int)a,(int)b,0,0,3,0);
             if (!v || b == bass_held[a]) { bass_held[a] = bass_held_count[a] = 0; bass_slide[a] = 0; }
         } else if (type == C_BOFF && a < NBASS) {
             /* another input owns the voice: still drop the keyboard's own keys,
@@ -1873,6 +1918,7 @@ static void drain(void)
                 (void)original_runtime_release_source(&original_bass[a], ORIGINAL_INPUT_KEYS);
                 __builtin_memset(original_key_pitch[a], 0, sizeof original_key_pitch[a]);
             }
+            if(seq_bass_poly(&seq,(int)a))seq_rec_bass(&seq,(int)a,(int)b,0,0,3,0);
         } else if (type == C_BRK)
             brk_local_event((int)a, (int)b);
     }

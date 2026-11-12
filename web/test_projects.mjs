@@ -724,3 +724,35 @@ test("part-off masks round-trip and every one-bit header corruption is rejected"
     }
   }
 });
+
+test("stream 15 chord projects retain every opaque payload byte in backup and restore", async () => {
+  const chord = rawProject(7), v = new DataView(chord.buffer); v.setUint32(20, 15, true);
+  assert.equal(parseProject(chord).patternVersion, 15);
+  for (const portable of [false, true]) {
+    const file = await readProjectFile(await bundle(chord, snapshot(), portable));
+    assert.deepEqual(file.project, chord);
+  }
+  const { device, keyboard } = await connected({ project: chord });
+  const saved = await readProjectSnapshot(device);
+  assert.deepEqual(saved.project, chord);
+  const target = chord.slice(); target[40] ^= 1;
+  new DataView(target.buffer).setUint32(12, crc32(target.subarray(32)), true);
+  const prepared = await prepareProjectImport(device, await bundle(target, snapshot(), false));
+  assert.deepEqual((await readProjectFile(prepared.backupBytes)).project, chord);
+  await applyProjectImport(device, prepared, { confirmed: true });
+  assert.deepEqual(keyboard.project, target);
+  assert.equal(keyboard.sampleWrites().length, 0);
+});
+test("stream 15 on old firmware fails validation before sample mutation or commit", async () => {
+  const chord = rawProject(7); new DataView(chord.buffer).setUint32(20, 15, true);
+  const { device, keyboard } = await connected();
+  const prepared = await prepareProjectImport(device, await bundle(chord, snapshot([alternate, null, third])));
+  await assert.rejects(applyProjectImport(device, prepared, { confirmed: true, backupSaved: true }), /version/);
+  assert.equal(keyboard.sampleWrites().length, 0);
+  assert.equal(keyboard.projectCalls(OP.COMMIT).length, 0);
+  assert.deepEqual(keyboard.project, rawProject());
+  for (const version of [16, 999]) {
+    new DataView(chord.buffer).setUint32(20, version, true);
+    assert.throws(() => parseProject(chord), /incompatible/);
+  }
+});

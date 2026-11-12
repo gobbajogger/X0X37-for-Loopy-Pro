@@ -11,6 +11,7 @@
  * Keys: F3..G5; the 16 white keys are steps (HOME: patterns), the 11 black keys a drum
  * machine's tracks or the break's slice pads (HOME: part mutes). */
 #include "x0x.h"
+#include "../seq/held_chord.h"
 #include "panic_chord.h"
 #include "play_question.h"
 #include "home_pattern_glyph.h" /* HOME complete patterns, per-hit velocity */
@@ -3338,8 +3339,34 @@ static void bass_write(int b, int note, int gate)
         bass_note_clear(proj.arr.lane,seq.ppat[ui.part],b,w);
 #endif
     }
+    (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],b,w,0,0);
     bp->step[w].flags = f;
     ui.wpos[b] = (uint8_t)((w + 1) % len);
+    mark_dirty();
+}
+
+static void bass_write_held_chord(int b)
+{
+    uint8_t notes[HELD_CHORD_NOTES];int n=0;
+    for(unsigned j=0;j<kbd_arp_n[b];j++) {
+        unsigned note=kbd_arp_note[b][j];int at=0;
+        while(at<n && notes[at]<note)at++;
+        if(at<n && notes[at]==note)continue;
+        if(n==HELD_CHORD_NOTES){say("CHORD NOT SAVED",0);return;}
+        for(int q=n;q>at;q--)notes[q]=notes[q-1];
+        notes[at]=(uint8_t)note;n++;
+    }
+    if(!n)return;
+    bpart_t *bp=&cur_pat()->bass[b];int len=bp->len?bp->len:16;
+    int extend=kbd_arp_n[b]>1 && bass_rec_step[b] && bass_rec_pat[b]==seq.ppat[ui.part] && !bass_rec_playing[b];
+    int step=extend?(int)bass_rec_step[b]-1:ui.wpos[b]%len;
+    int reserve=engine_note_lock_capture_on() && bass_note_find(proj.arr.lane,seq.ppat[ui.part],b,step)<0;
+    if(!held_chord_write(proj.arr.lane,seq.ppat[ui.part],b,step,notes,-n,reserve)) {say("CHORD NOT SAVED",0);return;}
+    if(engine_bass_note_capture(proj.arr.lane,seq.ppat[ui.part],b,step,&proj.sound)<0) {say("NOTE SOUND NOT SAVED",0);return;}
+    (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],b,step,notes,n);
+    bp->step[step]=(bstep_t){notes[0],G_NOTE,BASS_VELOCITY_DEFAULT};
+    bass_rec_step[b]=(uint8_t)(step+1);bass_rec_pat[b]=seq.ppat[ui.part];bass_rec_playing[b]=0;
+    if(!extend)ui.wpos[b]=(uint8_t)((step+1)%len);
     mark_dirty();
 }
 
@@ -3363,7 +3390,8 @@ static void bass_kbd(int key, int step_record)
                                 (ui.view == V_PART || (ui.freeplay[b] && !ui.rec)) ?
                                     plat_key_velocity(key) : BASS_VELOCITY_DEFAULT);
     if (step_record && ui.rec && !seq.playing) {
-        bass_write(b, n, G_NOTE);
+        if(engine_bass_sound_bank(&proj.sound,b)>=2)bass_write_held_chord(b);
+        else bass_write(b, n, G_NOTE);
     } else if (step_record && ui.rec && seq.playing) {
         int f = ((ui.btn & (1u << B_ENV)) ? BS_ACCENT : 0) |
                 ((ui.btn & (1u << B_LFO)) ? BS_SLIDE : 0);
@@ -3399,6 +3427,7 @@ static void bass_step_key(int white, int down)
                 bass_step_cancel();say("NOTE SOUND NOT SAVED",0);return;
             }
 #endif
+            (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],b,s,0,0);
             bp->step[s].flags = G_NOTE;
             mark_dirty();
         }
@@ -3409,6 +3438,7 @@ static void bass_step_key(int white, int down)
     } else if (ui.held_step == s && ui.held_step_part == ui.part &&
                ui.held_step_pat == seq.ppat[ui.part]) {
         if (!ui.step_created && !ui.step_edited && plat_ms() - ui.step_t0 < STEP_TAP_MS) {   /* a tap takes it off */
+            (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],b,s,0,0);
             bp->step[s].flags = G_REST;
 #if X0X_BASS_NOTE_SOUND
             bass_note_clear(proj.arr.lane,seq.ppat[ui.part],b,s);
@@ -3450,7 +3480,18 @@ static void held_note_by(int by)
         say("NOTE SOUND NOT SAVED",0);return;
     }
 #endif
-    st->note = (uint8_t)(n < 12 ? 12 : n > 108 ? 108 : n);
+    uint8_t notes[HELD_CHORD_NOTES];
+    int count=held_chord_get(proj.arr.lane,seq.ppat[ui.part],bidx(),ui.held_step,st->note,notes);
+    int newroot=n<12?12:n>108?108:n,delta=newroot-st->note,kept=1;
+    if(bstep_gate(st)==G_NOTE && count>1) {
+        notes[0]=(uint8_t)newroot;
+        for(int j=1;j<count;j++) {
+            int pitch=notes[j]+delta;pitch=pitch<0?0:pitch>127?127:pitch;
+            if(pitch>notes[kept-1])notes[kept++]=(uint8_t)pitch;
+        }
+        (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],bidx(),ui.held_step,notes,kept);
+    } else (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],bidx(),ui.held_step,0,0);
+    st->note = (uint8_t)newroot;
     if (bstep_gate(st) != G_NOTE)
         st->flags = (uint8_t)((st->flags & (BS_ACCENT | BS_SLIDE)) | G_NOTE);
     ui.step_edited = 1;
@@ -4078,6 +4119,7 @@ X0X_COLD static void button_tap(int b)
                 char t[20];
                 bp->gen.seed = tb3po_new_seed(plat_ms() ^ (ui.frame << 7));
                 tb3po_generate(bp);
+                for(int step=0;step<NSTEPS;step++)(void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],bidx(),step,0,0);
 #if X0X_BASS_NOTE_SOUND
                 for(int step=0;step<NSTEPS;step++)bass_note_clear(proj.arr.lane,seq.ppat[ui.part],bidx(),step);
 #endif
@@ -4087,6 +4129,7 @@ X0X_COLD static void button_tap(int b)
             } else {
                 uint32_t r = bp->gen.seed ^ plat_ms();
                 tb3po_mutate(bp, &r);
+                for(int step=0;step<NSTEPS;step++)(void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],bidx(),step,0,0);
 #if X0X_BASS_NOTE_SOUND
                 for(int step=0;step<NSTEPS;step++)if(bstep_gate(&bp->step[step])!=G_NOTE)
                     bass_note_clear(proj.arr.lane,seq.ppat[ui.part],bidx(),step);
@@ -4404,7 +4447,7 @@ X0X_COLD static void input_body(void)
     }
     if (seq.rec_dirty) { seq.rec_dirty = 0; mark_dirty(); ui.act_t = plat_ms(); }
     if (seq.rec_refused) {
-        say(seq.rec_refused==2?"NOTE SOUND NOT SAVED":"REC NEEDS FWD/REV",0);
+        say(seq.rec_refused==3?"CHORD NOT SAVED":seq.rec_refused==2?"NOTE SOUND NOT SAVED":"REC NEEDS FWD/REV",0);
         seq.rec_refused=0;
     }
     seq.rec_mask = ui.rec && is_303() && ui.view == V_SEQ && ui.overlay == O_NONE ?
