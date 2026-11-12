@@ -1,0 +1,62 @@
+{
+  "input_commit": "e50df9a67f72211f85f0410c97c430b03c2e96ee",
+  "worktree": "/workspace/x0x-stage3-safety",
+  "environment": {
+    "CC": "cc",
+    "CXX": "c++",
+    "X0X_HOST_DEFS": "-D_POSIX_C_SOURCE=200809L",
+    "X0X_TEST_JOBS": "1",
+    "X0X_GATE_LOCK": "/workspace/x0x-stage3-evidence/safety/test.lock"
+  },
+  "commands": [
+    {
+      "argv": [
+        "sh",
+        "tests/run_tests.sh",
+        "validation-inputs",
+        "smk-update-contract",
+        "installer",
+        "installer-targets",
+        "installer-slots",
+        "installer-ctl",
+        "install-gate-guard",
+        "install-guards",
+        "install-head",
+        "gate-configs",
+        "gate-reason"
+      ],
+      "exit_code": 0,
+      "log": "runner.log",
+      "actual_pass_count": 11
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/host/test_dev_validate.py"
+      ],
+      "exit_code": 0,
+      "log": "dev-validate.log",
+      "unittest_pass_count": 12
+    }
+  ],
+  "coverage": [
+    "gate-configs: execute Elite/Pro dev/release loops and CRC admission against scratch inputs; stale FM-1 artifacts excluded, missing SMK artifact refused; expected-test parser ignores comments and preserves required missing checks.",
+    "validation-inputs: source/config/toolchain/SDK/reference/runner identities invalidate reuse; old FM-1-inclusive model evidence rejected; unchanged synthetic identity reuse routing accepted.",
+    "smk-update-contract: real package maker and host OTA/loader/installer consumers exercised without FM-1 target inputs; failed build, code/RAM/pool margin and missing SMK expected-test cases rejected.",
+    "installer/installer-targets: fake SMK protocol/model identity and generated installer model guards.",
+    "installer-slots/installer-ctl: synthetic slot backup/restore/readback/failure preservation and explicit controller requirements/CRC verification/refusals.",
+    "install-gate-guard/install-guards/install-head: exact-tree/evidence/artifact checks, foreground/hardware locks and bootloader guards refuse before real device access.",
+    "dev_validate: all 12 scratch validation/guard/identity/timeout cases pass."
+  ],
+  "review": {
+    "base": "2592a00",
+    "production_installer_controller_slot_guards": "git diff --name-only 2592a00..e50df9a -- tools/fm1_install.py tools/require_gate_pass.sh tools/dev_validate.py tools/x0x_slots.py tools/add_ctl.py is empty",
+    "source_changes": false
+  },
+  "failures": [],
+  "limitations": [
+    "Host/mock/scratch evidence only; no real gate, target build or physical-device result.",
+    "runner emits package-input skip because this isolated worktree has no target outputs; installer detail skips built-package parity. Parent owns target-package coverage. Real package consumers are exercised with synthetic bytes by smk-update-contract.",
+    "Printed DEV CHECKED and DEV OK refer to synthetic scratch fixture commits only."
+  ]
+}

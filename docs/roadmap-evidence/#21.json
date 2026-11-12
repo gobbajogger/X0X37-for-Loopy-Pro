@@ -1,0 +1,105 @@
+{
+  "row_id": "#21",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:145; /workspace/docs-audit/roadmap-status.md:62; out/docs/roadmap-evidence/#21.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#21 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#21 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:62 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:145",
+      "/workspace/docs-audit/roadmap-status.md:62",
+      "out/docs/roadmap-evidence/#21.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "freeplay-rate-pads",
+      "original-build"
+    ],
+    "evidence": "tests/host/test_freeplay_rate_pad_port.py:117: assert(division_pad_owner()==1);; tests/host/test_original_build_composition.py:144: self.assertIn(\"static int division_pad_owner(void)\", ui)",
+    "identifiers": [
+      {
+        "identifier": "division_pad_owner",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:145"
+      },
+      {
+        "identifier": "division_pad_input",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:145"
+      }
+    ],
+    "matches": [
+      {
+        "test": "freeplay-rate-pads",
+        "symbol_from_row": "division_pad_owner",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:145",
+        "file": "tests/host/test_freeplay_rate_pad_port.py",
+        "line": 117,
+        "quote": "assert(division_pad_owner()==1);",
+        "identifier": "division_pad_owner"
+      },
+      {
+        "test": "original-build",
+        "symbol_from_row": "division_pad_owner",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:145",
+        "file": "tests/host/test_original_build_composition.py",
+        "line": 144,
+        "quote": "self.assertIn(\"static int division_pad_owner(void)\", ui)",
+        "identifier": "division_pad_owner"
+      }
+    ],
+    "recorded_results": {
+      "freeplay-rate-pads": {
+        "result": "FAIL",
+        "source": "/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 10",
+        "raw": "  FAIL freeplay-rate-pads"
+      },
+      "original-build": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 225,
+        "identifier": "division_pad_owner",
+        "quote": "static int division_pad_owner(void);"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 3899,
+        "identifier": "division_pad_owner",
+        "quote": "static int division_pad_owner(void)"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 3948,
+        "identifier": "division_pad_input",
+        "quote": "static void division_pad_input(void)"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 3950,
+        "identifier": "division_pad_owner",
+        "quote": "int owner = division_pad_owner();"
+      }
+    ]
+  }
+}

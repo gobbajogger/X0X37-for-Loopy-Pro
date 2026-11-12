@@ -1,0 +1,3 @@
+After production stop: path=scan-disable refused=0 state=1 waiting=1 handle=0 attempts=1 accepted=1 deadline=3100
+After Scan Disable Command Complete: status=12 state=0 waiting=0
+Assertion failed: (c->state == (failed_status ? BLEC_FAILED : BLEC_OFF) && !linked), function main, file service-stop-probe.c, line 75.

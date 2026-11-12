@@ -1,0 +1,16 @@
+{
+  "base": "092589b84fd455355216cb0de93c4782236f7524",
+  "scope": "F15 BF-034 FakeSMK mute/empty SMP_INFO / F03 fail-closed harness repair only (tests/install_test.py + tests/install_f03_slot_probe_test.py; repair commit 7fb4b71d; tested tip d16cdb67 on cursor/f15-bf034-slotprobe-stage3-237f). Firmware tree unchanged vs audited tip 092589b8 / firmware tree a5ba0804… (harness-only). Stage 3 ALL_PASS for required BF-034 host regressions (install_f03_slot_probe_test, install_test FakeSMK suite, x0x_slots_info_preflight 31/31, install_slots_test). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-034-affected host checks. A host pass is not a package pass. Do not reopen BF-001–BF-013 or FP-001. Do not implement deferred items. Do not lengthen SLOT_PROBE budgets. Do not steal Arp/Fx leftovers.",
+  "checks": [
+    {
+      "reason": "BF-034 host regressions: FakeSMK mute/empty SMP_INFO fail-closed + F03 slot-probe + slots INFO preflight + install slots must PASS.",
+      "argv": [
+        "bash",
+        "/agent/repos/x0x37-for-loopy-pro/evidence/f15-stage4/check-bf034-host.sh"
+      ]
+    }
+  ],
+  "dependencies": [
+    "/agent/repos/x0x37-for-loopy-pro/evidence/f15-stage4/check-bf034-host.sh"
+  ]
+}

@@ -1,0 +1,27 @@
+# Performance Engineering R10 — 64-sample callback tail host regression
+
+**Desired end-user behavior:** long break loops should play in reverse without crackles around decoder-cache boundaries; pressing stop should silence playback. Average throughput alone could hide expensive individual audio callbacks.
+
+**Actual scope:** production `breaks.c` compiled into native x86-64 linked host harness; deterministic synthetic ADPCM only. All 64-sample render calls are timed individually. They are a host proxy and cannot establish device ISR deadlines or XRUN behavior. No firmware source, controller, binaries or user audio was changed.
+
+## Exact source and provenance
+
+- Repaired source PR #93, non-draft current HEAD `58b10227f233654faa6a7c4ec03d53e2d7474d07`, complete ROOT tree `80760967f7526c2a1dae1668b87050f30b287c71`, compiled `firmware/` subtree `a87a83e15116422eed84528d95f52ddef5029927`. Direct source blobs `breaks.c 0fcdbe65b674dea3becb26fc265cb2514908f1a5`; `breaks.h 6cb71d336c2c90fdc60a9594c2356f3a4379c264`.
+- Accepted firmware NIGHTLY baseline `54f2ffbc3124f7449a69067dc8215a2d91a2e675`, complete ROOT tree `3b5cadafba33f4c1b116660bc9d19a27a892337c`, firmware subtree `5c209609b770fd13949230aeb80956594fd6b741`, `breaks.c 1d3d692b6788d9d1f13901cd7ab13df506cdb72f`, `breaks.h 094af6650333e844311a8806145a6177a0318225`. Six compiled host dependency source blobs were previously Git-matched in R9; this run `git hash-object` rechecked the source files in the exact R9 snapshot archive. **This is a scoped projection, not a complete remote Git root checkout.**
+- Verified private input archive: `LoopyX0X37-PR93-PostMerge-Nightly-ReverseRate-Native-R9-20261024.zip` with exact Git source projections, not target firmware assets.
+
+## Test stimulus and actual results
+
+- Two IMA loop lengths (65,535 and 2,116,800 samples), forward/reverse, adversarial playback ratios 1×–2048× where explicit tempo expression remains >1; 64 output frames per measured callback. 38 distinct cohorts × 2 trials × **3 independently completed process-paired rounds** per compiler. GCC and Clang `-O2 -ffp-contract=off -Wall -Wextra -Werror -pedantic`: every compile and run **exit 0**; **456 PCM/control-matched trial pairs** across both compilers and rounds. Every comparison checked whole-output hash, audible count, frame count and stop/quiet state.
+- Both original and repaired sources also compiled and ran under **GCC/Clang ASan+UBSan**, `-O1 -g -fno-omit-frame-pointer`: four compiles and four 64-block sanitizer probe executions exit 0, empty diagnostic stderr, 152 additional paired sanitizer trials. Source runner individually completed `--compiler gcc` and `--compiler clang` each exit 0 (a combined two-compiler run exceeded the local 45s orchestration limit; never call that interrupted parent PASS).
+- Four optimized invalid command checks returned expected exit **2**; malformed runner compiler and same-root arguments returned expected **2**. Deliberately mutated PCM hashes caused the comparator to reject exit **1**, proving the differential assertion can fail.
+- Long reverse 2,116,800-sample **host aggregate render time**, median of per-round medians over rates 4–2048: GCC **-36.0%**, Clang **-33.6%** relative to NIGHTLY; negative means less elapsed time. Long reverse **per-callback p99** reductions per individual rate were mixed with host noise but favored optimized in the three-round median: GCC ranged from **-71.1% to -15.2%**, Clang **-51.7% to -19.3%**.
+- **Important adversarial limitation:** short 65,535-sample reverse cohorts were **not uniformly faster**. In GCC, 7/9 reverse rate cohorts had a slower median callback p99, with strong per-round scatter; Clang's results differed. Do not represent PR #93 as a universal per-block improvement or certified hardware deadline.
+
+Test sources: `tests/host/breaks_callback_tail_perf_test.c`, `tests/host/compare_callback_tail.py`, `tests/host/run_breaks_callback_tail.sh`. The runner accepts separately authenticated baseline source path and optional compiler selection. Reproduction example from a checked current PR #93 full checkout and a separate checked NIGHTLY checkout: `bash tests/host/run_breaks_callback_tail.sh --baseline-root /full/path/to/nightly-source --compiler gcc`, then use `clang` likewise. See private evidence archive for exact saved baseline/PR93 source inputs, build and comparison logs, and 3-round JSON summaries.
+
+## Disposition / gate
+
+**Producer scoped host PASS / performance evidence only; Independent QA PENDING.** Keep `BRK_NCK=480` and `BRK_RCH=512` unchanged. Existing Elite+Pro scoped native BUILD_ONLY evidence previously indicated 8,308 bytes free pool >=8,192; this host-only test adds no compiled firmware input, and **does not execute a new target build or requalify binaries**. No MIDi NoteOff source-route, sample restore, OTA, full-root, controller, Pages/live HTTP or hardware tests in this R10 stage. The fact that both host variants produce identical synthetic PCM does not prove device safety. Preserve first accepted NIGHTLY without grafting optional PR #93.
+
+**Owner | Action | Evidence | Stop:** Independent QA | independently verify current PR #93 source/host tests and investigate short-loop per-block tail under exact complete-root checks | current-head review with actual command exits, affected unit coverage | approve for later Safe Merge consideration only after review acceptance; any reproducible regression returns to Performance Engineering. Only Safe Merge owns NIGHTLY source integration.

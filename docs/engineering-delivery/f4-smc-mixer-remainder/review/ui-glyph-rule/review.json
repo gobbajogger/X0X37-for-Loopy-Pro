@@ -1,0 +1,110 @@
+{
+  "status": "complete",
+  "verdict": "Not ready",
+  "scope": {
+    "base": "97282d7fed8859f337d606d4880cb095b1ce2591",
+    "branch": "chat/f4-smc-mixer-remainder-023",
+    "head_sha": "97282d7fed8859f337d606d4880cb095b1ce2591",
+    "pr_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/800",
+    "files_changed": 3,
+    "supplemental_files": [
+      "firmware/src/app/ui_pictograms.h",
+      "docs/engineering-delivery/f4-smc-mixer-remainder/UI_GLYPHS.md"
+    ]
+  },
+  "intent": "Replace action words with semantic pictures in the existing keyboard header and SMC popup while preserving exact values, names, routing, timing and disabled distinctions.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "adversarial"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Static review found no supported code defect. Actual framebuffer legibility, long values, native flash fit and static RAM remain unmeasured. The 26x9 uint16_t atlas is 468 bytes of constant source data; no new mutable static state was found, but final memory placement requires link maps."
+  ],
+  "testing_gaps": [
+    "Badge assertions cover the isolated helper, not complete headers with CHN or step ranges. Add legal pattern 64 plus steps 49-64, a three-digit tempo, chain and pending-cue precedence to the external qualification scenes/assertions. Static inspection established no newly introduced pixel collision.",
+    "Standalone toggle assertions do not prove actual footer state mappings. The planned record/mute/solo/transport, FX held/idle and pickup framebuffer pairs must verify those meanings."
+  ],
+  "coverage": {
+    "mode": "agent report-only; static only",
+    "review_result": "No retained findings; no source fixes requested by this review. Merge readiness remains blocked by the explicitly required external qualification and owner visual approval.",
+    "tracked_files": [
+      "firmware/src/app/ui.c",
+      "firmware/src/app/smc_mixer.c",
+      "tests/host/smc_remainder_test.c"
+    ],
+    "untracked_scope": "Atlas and UI_GLYPHS.md are untracked, excluded from the standard tracked diff and inspected only as parent-authorized supplemental dependency/intent. Other review output files are outside product scope.",
+    "scope_helper": {
+      "status": "complete",
+      "exec_lines": 238,
+      "lite_eligible": false,
+      "test_files_changed": true,
+      "source": "Existing local read-only CE review-scope helper; current cloud CE findings-mechanics helper used for merge."
+    },
+    "standards": "AGENTS.md instruction-file fallback applies to every changed path; no scoped CODING_STANDARDS.md or CLAUDE.md in verified tree. No CE config/packs or solutions corpus found; docs_root defaults to docs.",
+    "plan": "UI_GLYPHS.md supplied supplemental intent. No formal CE plan discovered; settlement suppression not evaluated.",
+    "roster_reasons": {
+      "correctness": "Core logic and intent lens.",
+      "project-standards": "Root AGENTS.md fallback criteria.",
+      "testing": "Changed fixture and capture-driver interaction.",
+      "maintainability": "238 executable changed lines and new glyph abstraction.",
+      "adversarial": "More than 50 changed code lines and verification fixture."
+    },
+    "cross_model": {
+      "status": "not run",
+      "reason": "Only codex CLI installed; no different-provider route available. Local adversarial fallback completed; no code egress occurred.",
+      "host_family": "codex",
+      "independence_verified": false
+    },
+    "reviewer_outcomes": "All five launched reviewers returned terminal schema-shaped artifacts; no failed or timed-out reviewers. No supported release/close primitive available.",
+    "fast_pass": "No urgent candidates.",
+    "mechanics": {
+      "findings": 0,
+      "malformed_findings": 0,
+      "malformed_returns": 0,
+      "suppressed_findings": 0,
+      "mode_aware_demotions": 0
+    },
+    "validators": "No validator selected: final primary/actionable finding set is empty. No cross-model shortcut used.",
+    "static_checks": [
+      "9x9 atlas glyphs and scale-one button placement stay inside 22x11 cells.",
+      "Scaled action picture/toggle and footer status pictures fit the 60-pixel footer.",
+      "Authoritative captions retain disabled X/-- and FX effect/page text; selection, acquired check and held FX use distinct symbols.",
+      "Existing route, destination, lock and cache code is outside the new renderer changes.",
+      "F4_CAPTURE_DRIVER excludes only new-helper assertions and candidate main; capture scenes use existing base APIs. Candidate suite still calls pictogram_rendering unconditionally and prior assertion calls remain present.",
+      "Complete range composition was traced. Supporting existing Barlow metrics give old P64 plus49-64 end188, new end190,120BPM starts191; no new collision was established. Existing generated font is not a candidate render. Pinned/current generator differ only in lowercase n retention; numeric/capital derivation and pinned TTF bytes agree."
+    ],
+    "not_run": [
+      "Host tests",
+      "Capture-driver compilation or execution",
+      "Real framebuffer before/after captures",
+      "Elite native build",
+      "Pro native build",
+      "Compiler or linter execution",
+      "Link-map/static-RAM/flash measurement",
+      "Device validation"
+    ],
+    "reviewed_sha256": {
+      "firmware/src/app/ui.c": "fe5ba38271066a818cdc5c59152edcc3e766e1f53bacbfeaf945abfea7fa9c28",
+      "firmware/src/app/smc_mixer.c": "1869224c99baf25df4b9a741b9713b2914cdc140b78a812f17acb602c77c1745",
+      "firmware/src/app/ui_pictograms.h": "c45acd93bc7a150e2ddef2b99b10d1c82da72d4d58bac206608a078798dea553",
+      "tests/host/smc_remainder_test.c": "b7f6104022783a5e205d5dcdf1832fce32ca442d39767b066e13ea4b06f69c30"
+    },
+    "runtime_claims": "None. Source-level capture compatibility is not a compile or runtime PASS.",
+    "verdict_reason": "Static review is complete with no supported defect. Required candidate-pinned framebuffer pairs, full host suite, Elite/Pro qualification, memory evidence and owner visual approval remain outstanding."
+  },
+  "artifact_path": "/workspace/work/f4/source/docs/engineering-delivery/f4-smc-mixer-remainder/review/ui-glyph-rule",
+  "run_artifact_path": "/tmp/compound-engineering-0/ce-code-review/ui-glyph-rule-20261031",
+  "run_id": "ui-glyph-rule-20261031"
+}

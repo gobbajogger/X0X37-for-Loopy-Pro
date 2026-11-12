@@ -1,0 +1,67 @@
+Stage3 requires a source repair before stage4.
+The original physical input failure remains unresolved.
+
+Candidate: f080d1a5f31073dde600238f780acf37c12b2738.
+Candidate tree: f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e.
+Owner chat: 01a15aa1-3015-75c0-b331-15e212d9b5ec.
+Lane base: 767de3dea05ac7a38b17f7a4380b063d364f8a84.
+
+The public central, receive, signaling, abort and deadline tests pass with ASan and UBSan.
+The old and extended DIAG tests pass.
+The independent test helper completed 56 commands with their expected results.
+All 413 selected stage2 inputs match.
+The actual production service passes the public deadline cases.
+The old-caller mutation and exact broken-source controls fail as expected.
+The four old stale-service simulations remain expected negative examples.
+They do not execute the repaired caller.
+These checks confirm the original Disconnect cutoff repair.
+
+Both independent helpers found CENTRAL-STOP-01.
+After successful Create status, a no-handle stop can lose Cancel under mailbox backpressure.
+blec_command sets waiting only after transport acceptance.
+If Cancel is refused, blec_stop interprets waiting=0 and conn=0 as completed stop.
+It enters OFF before connection creation ends.
+A later successful connection event is then ignored.
+The host loses the active controller handle and submits no Disconnect.
+The test helper reproduces this with a full public startup sequence.
+Both legacy and correctly sized enhanced connection events fail.
+The investigation helper reproduces the failure through the extracted production service.
+The same service enters OFF when Scan Disable is refused during active scanning.
+An accepted Scan Disable with failed Command Complete status also enters OFF.
+Accepted-command controls pass.
+Twelve independent Disconnect event-order and stop-intent cases pass with ASan and UBSan.
+The refusal failures also occur on exact 05eff60 and pre-session 1313e0f source.
+This is an inherited stop/backpressure defect, not a newly introduced regression.
+No sanitizer error precedes the functional assertions.
+The failures do not establish the cause of the original physical input failure.
+
+The matching earlier replay and six stage2 build artifacts remain available.
+The capture, harness, store, generated payloads, compiler, SDK and image identities match.
+The replay has 1268 unchanged payloads, 2616 decoded messages and 513 feedback messages.
+The queue is empty. The performance test is idle. Help and overlay are inactive.
+The peer, HCI framing, mailbox, time and schedule are simulated.
+Three oversized ATT packets remain excluded. No payload resegmentation occurs.
+The project store is synthetic. Target interrupts and physical radio execution remain untested.
+Stage3 did not repeat the matching replay or target builds.
+The saved DEV builds are not stage4 validated install records.
+A source repair invalidates its affected source checks and builds.
+
+No production source or public test changed in stage3.
+No target build, device write, controller write, release, full gate, fallback or external push occurred.
+Physical result: NOT TESTED.
+Original all-input failure: UNRESOLVED.
+
+One fresh LOCAL stage2 must repair CENTRAL-STOP-01.
+The saved stage2-prompt.txt contains the complete repair handoff.
+A checked repair then requires one fresh stage3 with independent test and investigation helpers.
+Only a passing repaired stage3 can start scoped DEV stage4.
+Use Elite for shared development checks. Actual Pro packages retain applicable checks.
+Do model-independent checks once for matching inputs.
+
+Mapping stage4 owner: 01a15a87-298e-7d21-b004-b78d5beafd89.
+Mapping result: /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json.
+That chat retains selection of the sole stage5 integrator for both contributions.
+Its mapping contribution has STAGE4 VALIDATION PASS.
+Both contributions require matching validation before the combined install.
+The complete validated DEV-install permission carries forward with its notice requirement.
+No external push is authorized.

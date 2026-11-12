@@ -1,0 +1,18 @@
+The independent investigation result is FAIL.
+CENTRAL-ABORT-02 requires a source repair.
+
+Stop and cancel-race paths can submit Disconnect after the original deadline.
+Twelve focused probes fail the deadline invariant.
+The failures occur at the exact cutoff and 1 ms after it.
+The failures also occur across timer wrap.
+A stale current time affects the production stop-before-poll order.
+A helper guard that uses stale c.now_ms alone is insufficient.
+
+Both saved controls fail on the broken source and pass on this candidate.
+The additional event-order and lifecycle checks pass.
+No production source changes occur in this investigation.
+
+Use one fresh stage2, then one fresh stage3.
+Do not advance this candidate to stage4.
+Physical result: NOT TESTED.
+Original all-input failure: UNRESOLVED.

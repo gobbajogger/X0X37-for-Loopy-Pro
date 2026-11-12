@@ -1,0 +1,14 @@
+{
+  "verdicts": [
+    {
+      "#": 1,
+      "validated": true,
+      "reason": "Original evidence proves a new display-target inconsistency: after NoteOn 0, NoteOn 1, NoteOff 1, the added header resolver selects held note 0, while the original release path leaves smc_ui.action and strip at note 1; the footer and strip number therefore disagree with the next arrow's actual target. The current caller-applied fix closes this issue statically: after release and any navigation cleanup, it transfers only the active same-peer action popup whose focused key was released to a remaining physically held, FX-owned note through smc_fx_show, updating both action and strip. The footer then reads that note's owned bus, effect and pinned page, matching the glyph and edit selector. The added held_fx_header sequence asserts focus returns to note 0 and the next arrow edits its cell. No material remaining source concern for this finding; tests were inspected only, not executed."
+    },
+    {
+      "#": 2,
+      "validated": true,
+      "reason": "Original evidence proves a new routing bug: smc.up is assigned from the central BLE link, whereas enabled User-mode channel-16 host messages reach smc_message and establish physical/FX ownership without that link. The original !smc.up condition in the new shared held-note selector rejects that valid hold for both controller and keyboard arrows. The current caller-applied fix closes this issue statically by removing only the central-link condition while retaining readiness, context, modal/busy/performance, physical-held and owned-bus checks; existing link/preset/release-loss cleanup still clears stale ownership. The added held_fx_host_arrows explicitly disconnects central BLE, asserts !smc.up, sends channel-16 host NoteOn and Right through smc_midi_host, checks the mapping step, checks a keyboard Left step, and releases through the host path. No material remaining source concern for this finding; tests were inspected only, not executed."
+    }
+  ]
+}

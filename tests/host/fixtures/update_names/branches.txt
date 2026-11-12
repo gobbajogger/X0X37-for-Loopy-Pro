@@ -1,0 +1,17 @@
+# Cases for check 9 (tests/host/test_update_names.sh): want|name of a NEW branch pushed to the scratch box repository.
+accept|lane/mb-clock
+accept|lane/sb-scale-2
+accept|lane/opt-pool
+accept|lane/btr-checks
+accept|lane/dk-rules-pointers
+accept|archive/ble-a60
+reject|feature-x
+reject|ble-a99
+reject|wip/clip-keys
+reject|test-speed-2
+reject|lane/foo-x
+reject|lane/btr
+reject|lane/mb-
+reject|lane/MB-clock
+reject|archive
+reject|archives/x

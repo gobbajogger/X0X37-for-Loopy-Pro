@@ -1,0 +1,4 @@
+{
+  "name": "X0X37 for Loopy Pro",
+  "install": "bash tools/agent_env_install.sh"
+}

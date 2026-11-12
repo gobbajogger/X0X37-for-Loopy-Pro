@@ -1,0 +1,72 @@
+Stage2 source repair and affected checks pass.
+The original physical input failure remains unresolved.
+
+Repair candidate: cce6ac5ccd45ebb2809afd973671af96b138748a.
+Candidate tree: cdc6752b931e8bdb49df7c4f44222b1dfd222797.
+Base: 1c5e8f8953658689434b4b3e8687ccd630afeff0.
+Owner chat: 01a15aa8-2a86-78e3-93b9-258e3d8371d8.
+Branch: lane/mb-smc-central-stop-repair-20261021.
+
+CENTRAL-STOP-01 is an inherited stop/backpressure defect.
+A refused Cancel previously reported OFF and lost a later successful connection handle.
+A refused Scan Disable also reported OFF.
+A failed Scan Disable response also reported OFF.
+The previous independent stage3 records retain these failures and the accepted controls.
+They do not establish the cause of the physical input failure.
+
+The repair changes one production file, firmware/src/ble/ble_midi_central.c.
+A refused stop command remains pending until acceptance or the original cutoff.
+An accepted stop command does not repeat while its response or operation completion is pending.
+Successful Command Status does not complete a synchronous command.
+Failed command responses and absent completion give FAILED instead of an unsupported OFF result.
+A repeated stop does not renew the cutoff.
+Stop preserves an automatic Cancel cutoff and its accepted command.
+A late successful connection retains its handle and stop intent.
+Every Disconnect entry uses the existing original cutoff.
+At or after that cutoff, the host retains the handle without a late Disconnect submission.
+Only the applicable successful Disconnection Complete restores the link credits.
+A direct start cannot erase an unresolved stop.
+Successful stop completion permits a fresh Reset.
+The production caller already supplies current service time before stop.
+That caller remains unchanged.
+
+The public central, receive, signaling, abort, deadline and stop suites pass with ASan and UBSan.
+The old and extended DIAG tests pass.
+The four new public path controls fail functionally on f080d1a5 and pass after repair.
+The saved independent realistic Cancel probes pass for both event types and both transport states.
+The saved 12 event-order cases pass.
+All five saved production-service stop probes pass after repair.
+CENTRAL-ABORT-01 and CENTRAL-ABORT-02 negative controls retain their exact broken revisions and expected failures.
+The four old stale-service simulations remain expected negative examples.
+The repaired helper with the old production caller also fails as expected.
+No sanitizer error precedes the expected functional failures.
+The source-input record retains 411 of 413 earlier inputs unchanged.
+Only the repaired production file and expanded runner differ.
+Two new public stop test files are added.
+
+The affected recorded-payload replay ran again.
+It has 1268 unchanged payloads, 2616 decoded messages and 513 feedback messages.
+The queue is empty. The performance test is idle. Help and overlay are inactive.
+The peer, HCI framing, mailbox, clock and schedule are simulated.
+Three oversized ATT packets remain excluded. No payload resegmentation occurs.
+The store is synthetic. Target interrupts and physical radio execution remain untested.
+
+The Elite DEV target build passes with X0X_DEV_PADCAL=1.
+Code margin: 1128 bytes. Static RAM margin: 524 bytes.
+Pool margin: 8364 bytes. Required pool margin: 8192 bytes.
+This shared-source check uses the current Elite policy.
+No Pro-specific source changed. No new Pro artifact is claimed.
+The stage2 build is not a stage4 validated install record.
+Mapping and controller source remain unchanged.
+
+Physical result: NOT TESTED.
+Original all-input failure: UNRESOLVED.
+No device write, controller write, release build, full gate, fallback or external push occurred.
+
+Next: one fresh LOCAL independent stage3 with separate test and investigation subagents.
+Only a passing repaired stage3 can start scoped DEV stage4.
+Mapping stage4 owner: 01a15a87-298e-7d21-b004-b78d5beafd89.
+Mapping result: /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json.
+That chat retains selection of the sole stage5 integrator for both contributions.
+The complete validated DEV-install permission carries forward with a notice.
+No external push is authorized.

@@ -1,0 +1,51 @@
+{
+  "workflow": "host-setup-20261021",
+  "stage": 2,
+  "state": "checked",
+  "lane": "/Users/mac/Documents/x0x37/host_setup_implementation",
+  "base": "9a94229b3ff8751763351b403e980ac2a2a4cdf6",
+  "owned_files": [
+    "host/build_host.sh",
+    "tests/host/smc_reachability_test.sh",
+    "tests/host/smc_drum_mutes_test.sh",
+    "tests/host/smc_performance_abort_test.sh",
+    "tests/host/ui_feedback_test.sh",
+    "tests/host/test_host_setup.py"
+  ],
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "tests/host/test_host_setup.py",
+        "-v"
+      ],
+      "risk": "Asset setup dispatch, empty-header startup, custom bank, inherited environment, default compile arguments/output and fatal setup/compiler failures.",
+      "result": "PASS (7 tests, 2.684 seconds)",
+      "log": "evidence/host-setup-stage2/fixtures.log"
+    },
+    {
+      "commands": "See probes.json",
+      "risk": "The four real production probes still compile and pass using the generated assets.",
+      "result": "PASS (4 probes)",
+      "log": "evidence/host-setup-stage2/probes.json"
+    },
+    {
+      "command": "git diff --check",
+      "risk": "Patch whitespace errors.",
+      "result": "PASS"
+    },
+    {
+      "command": "Source-section comparison with audit commit",
+      "risk": "Changing asset setup, compile flags, probe selection/assertions, environment, cleanup or failure propagation.",
+      "result": "PASS",
+      "log": "evidence/host-setup-stage2/source-preservation.json"
+    }
+  ],
+  "limits": [
+    "No paired baseline timing was measured; elapsed command times do not establish a savings estimate.",
+    "Default simulator compilation was checked with controlled compiler fixtures and exact unchanged source-section comparison, rather than another real full simulator compile.",
+    "Builtin break generation remains per call; the separate asset-cache lane owns that optimization.",
+    "No target/controller build, full gate, device operation, firmware integration or external push was needed."
+  ],
+  "next_stage": "One fresh stage3 with separate test and investigation subagents; reuse matching evidence."
+}
