@@ -52,7 +52,7 @@ static void check_plain_select(void)
         message(0x90, 24 + strip, 127);
         CHECK(!smc.fx_down && !smc.fx_main_wait);
         if (strip < NPARTS) { CHECK(ui.part == (strip==2?4:strip==4?2:strip)); CHECK(ui.view == V_PART); check_select_led(strip, 1); }
-        else { CHECK(ui.view == (strip == 7 ? V_MIX : V_FX)); CHECK(cur_page() == (strip == 5 ? 0 : strip == 6 ? 1 : 3)); }
+        else { CHECK(ui.view == (strip == 7 ? V_MIX : V_FX)); CHECK(cur_page() == (strip == 5 ? 0 : strip == 6 ? 1 : views[v]==V_MIX ? 1 : 0)); }
         int view = ui.view, page = cur_page(), part = ui.part;
         message(0x90, 24 + strip, 127); /* repeat cannot acquire FX after navigation */
         now_ms += 200; smc_poll();
@@ -104,7 +104,7 @@ static void check_main_taps(void)
     setup(V_FX, PART_303A);
     message(0x90, 27, 127); CHECK(smc.fx_down);
     message(0x90, 31, 127); message(0x80, 31, 0);
-    CHECK(ui.view == V_MIX && !smc.fx_down && !smc.fx_main_wait);
+    CHECK(ui.view == V_MIX && smc.fx_down && !smc.fx_main_wait);
     message(0x80, 27, 0); CHECK(ui.view == V_MIX && !smc.fx_down);
 }
 static void check_mode_changes(void)
@@ -117,7 +117,7 @@ static void check_mode_changes(void)
         ui.part = views[v] == V_SEQ || views[v] == V_MIX ? PART_909 : PART_303A;
         set_view(views[v]); build_pages();
         int part = ui.part, page = cur_page();
-        smc_poll(); CHECK(!smc.fx_down && !smc.fx_main_wait);
+        smc_poll(); CHECK(smc.fx_owned == (1u << (strip==2?4:strip==4?2:strip)));
         check_main_navigation_leds();
         if (views[v] != V_SEQ && views[v] != V_MIX)
             for (int lane = 0; lane < NPARTS; lane++) check_select_led(lane, lane == (part==2?4:part==4?2:part));

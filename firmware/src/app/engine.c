@@ -70,6 +70,7 @@ static drum808_t d808 POOL;
 #if X0X_ORIGINAL_SYNTH
 static volatile uint8_t project_hold;
 static original_runtime_part original_bass[NBASS] POOL;
+<<<<<<< HEAD
 static uint16_t original_quiet_samples[NBASS], original_switch_gain[NBASS];
 #ifdef X0X_HOST
 /* Read-only host diagnostics for the actual adoption boundary. */
@@ -79,6 +80,8 @@ unsigned engine_original_tail_state(int v)
         (original_runtime_owned(&original_bass[v]) ? 0x10000u : 0u) | ((unsigned)original_switch_gain[v] << 17) : UINT32_MAX;
 }
 #endif
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 static original_runtime_workspace original_workspace POOL;
 static original_chicago_tuning original_tuning POOL;
 static original_chicago_fx2_compact original_fx[NBASS] POOL;
@@ -141,7 +144,11 @@ void engine_live_key_state(int voice,uint32_t *generation,int *arp,uint32_t *con
 #else
     *arp=chi_arp_on[voice];
 #endif
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
     if(bass_slot[voice].active.ops==&wobble_foundation_ops) *arp=0;
 #endif
     if(live_key_owner[voice].blocked)*arp=-1; /* fail closed until cold boot */
@@ -341,7 +348,11 @@ static void guard_apply(void)
     guard_applied = guard_on;
 #if !X0X_ORIGINAL_SYNTH
     for (int k = 0; k < NBASS; k++)
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         synth_lite(&bass_slot[k], guard_on);
 #else
         bass303_set_lite(&b303[k], guard_on);
@@ -574,7 +585,11 @@ const char *engine_voice_name(int t, int v)
 int engine_bass_is_wobble(int v)
 { return (unsigned)v < NBASS && original_bass[v].kind == ORIGINAL_SOUND_MIAMI; }
 #endif
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 int engine_bass_is_wobble(int voice) { return bass_wobble_voice(voice); }
 static void __attribute__((noinline)) bass_voice_note_on(int v, int note, int acc, int slide, int vel)
 {
@@ -601,7 +616,11 @@ __attribute__((noinline)) static void chi_live_note_off(int v)
     (void)original_runtime_release_source(&original_bass[v], ORIGINAL_INPUT_KEYS);
     __builtin_memset(original_key_pitch[v], 0, sizeof original_key_pitch[v]);
 #else
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
     if (bass_wobble_voice(v)) {
         /* Only live/MIDI release may defer on Miami's own damper. Pattern
          * s_boff and transport panic retain their unconditional gate-off. */
@@ -778,7 +797,11 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
                 (void)original_runtime_param(&original_bass[v], (unsigned)i, value);
         }
 #else
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         if (bass_wobble_voice(v)) {
             /* WBL1 indices overlap Chicago's private indices; never mutate
              * dormant native303/arp/FX on a Miami pot write. */
@@ -929,7 +952,11 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
         s->v[T_MIX][PART_303A + v][MX_DLY] = 0;
         s->v[T_MIX][PART_303A + v][MX_REV] = 0;
 #else
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         /* Apply Chicago defaults only to the selected Chicago parameter bank. */
         if (
 #if X0X_BASS_TAGGED_SOUND
@@ -1366,7 +1393,11 @@ X0X_COLD int engine_project_notes(void)
     for (k = 0; k < NBASS; k++)
 #if X0X_ORIGINAL_SYNTH
         if (original_runtime_active(&original_bass[k]))
+<<<<<<< HEAD
 #elif X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#elif X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         if (synth_active(&bass_slot[k]) || bass_held[k])
 #else
         if (b303[k].gate || bass_held[k])
@@ -1517,7 +1548,10 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
                 bass_held[k] = bass_held_count[k] = 0;
             }
 #endif
+<<<<<<< HEAD
         if (brk_bend_owner == src) { breaks_bend(&brk, 0); brk_bend_owner = -1; }
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         brk_link_end(src, (uint16_t)v);   /* slices this input held; the other input's slices stay */
         src_held[src] = 0;
         return;
@@ -1688,7 +1722,11 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
     for (k = 0; k < NBASS; k++)
 #if X0X_ORIGINAL_SYNTH
         r |= original_runtime_active(&original_bass[k]) ? 1 << k : 0;
+<<<<<<< HEAD
 #elif X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#elif X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         r |= synth_active(&bass_slot[k]) ? 1 << k : 0;
 #else
         r |= b303[k].gate ? 1 << k : 0;
@@ -2228,12 +2266,15 @@ static void drain(void)
             brk_local_event((int)a, (int)b);
     }
     cq_r = r;
+<<<<<<< HEAD
     int16_t wheel = brk_wheel;
     if (wheel != brk_wheel_seen) {
         breaks_bend(&brk, wheel);
         brk_bend_owner = wheel ? 3 : -1;
         brk_wheel_seen = wheel;
     }
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
     while (guard-- > 0 && plat_midi_in(&pkt))
         if (!project_midi_drop) midi_in(pkt);
     if (guard >= 0) project_midi_drop = 0;
@@ -2278,7 +2319,11 @@ static void live_key_drain(void)
         }
 #else
         int arp=chi_arp_on[v];
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         if(bass_wobble_voice((int)v))arp=0;
 #endif
         if(velocity) {
@@ -2300,7 +2345,11 @@ static void live_key_drain(void)
                 }
                 o->arp=1;
             } else {
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
                 bass_voice_note_on((int)v,(int)pitch,(int)accent,(int)slide,(int)velocity);
 #else
                 bass303_note_on_velocity(&b303[v],(int)pitch,(int)accent,(int)slide,(int)velocity);
@@ -2620,6 +2669,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         /* Failed/unadmitted DSP is visible through engine_bass_status. No
          * fallback renderer, guessed silence-success or idle clock skipping. */
         if (status != ORIGINAL_RUNTIME_OK) continue;
+<<<<<<< HEAD
         /* One coherent request decision per sub-block. Once note ownership is
          * gone, fade residual insert output over 512 samples. Cancellation or
          * a fresh owner ramps back smoothly; DSP histories keep advancing. */
@@ -2633,6 +2683,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
                 original_quiet_samples[b] = 0;
             else if (original_quiet_samples[b] < 512u) ++original_quiet_samples[b];
         }
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         bfx_shape(p, bb[b], bb[1-b], 0, 0, 2, (int)n);
         mix_targets(p, mix_level[p], solo_parts);
         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
@@ -2643,7 +2695,11 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
 #else
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         PROF_T(pb);
         /* Use the accepted internal/measured external clock, including free play.
          * Tempo changes do not retrigger notes or reset the wobble phase. */
@@ -2771,7 +2827,11 @@ void engine_render(int32_t *out_lr, uint32_t n)
 #if !X0X_ORIGINAL_SYNTH
         chi_arp_tick(k);
 #endif
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         render_sub(out_l + done, out_r + done, k, done);
 #else
         render_sub(out_l + done, out_r + done, k, 0);
@@ -3113,7 +3173,10 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     synth_boundary(&bass_slot[0]); /* Product Miami: 303A is WBL1 before first audio block. */
 #endif
 #endif
+<<<<<<< HEAD
     brk_wheel = brk_wheel_seen = 0; brk_bend_owner = -1;
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
     breaks_init(&brk);
     brk.accepted = s_brk_accepted;
     fxbus_init(&fx, dly_buf, DLY_LEN);
@@ -3180,7 +3243,11 @@ unsigned engine_live_key_probe(int voice,int field)
 #if X0X_ORIGINAL_SYNTH
         return original_runtime_active(&original_bass[voice]);
 #else
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         if(bass_wobble_voice(voice))return (unsigned)dev_wobble.gate;
 #endif
         return (unsigned)b303[voice].gate;

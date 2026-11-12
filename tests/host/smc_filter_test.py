@@ -28,7 +28,7 @@ typedef struct { int kind, a, b, c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 static struct { int rec, part, view, overlay, help, sel[2]; } ui;
 static struct { int rec_part, solo,locked,lock_kit,lock_bank; uint16_t drum_solo[2]; uint8_t fx_down; } smc;
-static struct { int playing; } seq;
+static struct { int playing; uint8_t metro_view; } seq;
 static int volume, filter;
 static int pref_get(pref_t r) { return r.a == T_MST ? filter : volume; }
 static int part_muted(int p) { (void)p; return 0; }
