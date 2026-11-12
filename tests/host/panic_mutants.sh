@@ -1,44 +1,42 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
-# Mutate the 25.1 live-key generation guard; restore the exact source afterward.
+# Run mutations only in a private source copy; compiler errors are not killed mutants.
 set -eu
 cd "$(dirname "$0")/../.."
-file=firmware/src/app/engine.c
-backup=$(mktemp)
-midi_file=host/x0x_host.c
-midi_backup=$(mktemp)
-cp "$file" "$backup"
-cp "$midi_file" "$midi_backup"
-restore() { cp "$backup" "$file"; cp "$midi_backup" "$midi_file"; }
-trap 'restore; rm -f "$backup" "$midi_backup"' EXIT HUP INT TERM
-python3 - "$file" <<'PY'
-import pathlib,sys
-p=pathlib.Path(sys.argv[1]);s=p.read_text()
+work=$(mktemp -d "${TMPDIR:-/tmp}/x0x-panic-mutants.XXXXXX")
+trap 'rm -rf "$work"' EXIT HUP INT TERM
+mkdir -p "$work/tests/host" "$work/firmware/src/app" "$work/host"
+cp tests/host/live_key_epoch_test.py tests/host/midi_epoch_step_test.py "$work/tests/host/"
+cp firmware/src/app/engine.c "$work/firmware/src/app/"
+cp host/x0x_host.c "$work/host/"
+cd "$work"
+python3 tests/host/live_key_epoch_test.py > baseline-live.log 2>&1 || { cat baseline-live.log; echo 'BASELINE FAILED: live-key'; exit 1; }
+python3 tests/host/midi_epoch_step_test.py > baseline-midi.log 2>&1 || { cat baseline-midi.log; echo 'BASELINE FAILED: midi-epoch'; exit 1; }
+python3 - <<'PY'
+import pathlib
+p=pathlib.Path('firmware/src/app/engine.c');s=p.read_text()
 old='if(o->blocked || c.generation!=o->generation)continue;'
-new='if(o->blocked)continue;'
-if s.count(old)!=1: raise SystemExit("mutation anchor not unique")
-p.write_text(s.replace(old,new,1))
+if s.count(old)!=1: raise SystemExit('mutation anchor not unique')
+p.write_text(s.replace(old,'if(o->blocked)continue;',1))
 PY
-set +e
-python3 tests/host/live_key_epoch_test.py > /tmp/x0x-panic-stale-generation.log 2>&1
-rc=$?
-set -e
-restore
-if [ "$rc" -eq 0 ]; then echo "MUTANT SURVIVED: stale-generation"; exit 1; fi
-echo "MUTANT KILLED: stale-generation"
-python3 - "$midi_file" <<'PY'
-import pathlib,sys
-p=pathlib.Path(sys.argv[1]);s=p.read_text()
-old='if (!++mi_epoch)'
-new='if (!(mi_epoch += 2u))'
-if s.count(old)!=1: raise SystemExit("MIDI epoch mutation anchor not unique")
-p.write_text(s.replace(old,new,1))
+rc=0
+python3 tests/host/live_key_epoch_test.py > stale-generation.log 2>&1 || rc=$?
+if [ "$rc" -eq 0 ]; then echo 'MUTANT SURVIVED: stale-generation'; exit 1; fi
+if [ "$rc" -ne 1 ] || ! grep -qx 'FAIL live key epoch: applied=2 pitch=61 gate=1 r=2 w=2' stale-generation.log; then
+    cat stale-generation.log; echo 'MUTANT ERROR: stale-generation'; exit 1
+fi
+echo 'MUTANT KILLED: stale-generation'
+python3 - <<'PY'
+import pathlib
+p=pathlib.Path('host/x0x_host.c');s=p.read_text();old='if (!++mi_epoch)'
+if s.count(old)!=1: raise SystemExit('MIDI epoch mutation anchor not unique')
+p.write_text(s.replace(old,'if (!(mi_epoch += 2u))',1))
 PY
-set +e
-python3 tests/host/midi_epoch_step_test.py > /tmp/x0x-panic-midi-epoch-plus2.log 2>&1
-midi_rc=$?
-set -e
-restore
-if [ "$midi_rc" -eq 0 ]; then echo "MUTANT SURVIVED: midi-epoch-plus2"; exit 1; fi
-echo "MUTANT KILLED: midi-epoch-plus2"
-echo "panic mutants: 2 killed"
+rc=0
+python3 tests/host/midi_epoch_step_test.py > midi-epoch-plus2.log 2>&1 || rc=$?
+if [ "$rc" -eq 0 ]; then echo 'MUTANT SURVIVED: midi-epoch-plus2'; exit 1; fi
+if [ "$rc" -ne 1 ] || ! grep -qx 'FAIL MIDI epoch sequence: 1 3 5' midi-epoch-plus2.log; then
+    cat midi-epoch-plus2.log; echo 'MUTANT ERROR: midi-epoch-plus2'; exit 1
+fi
+echo 'MUTANT KILLED: midi-epoch-plus2'
+echo 'panic mutants: 2 killed'
