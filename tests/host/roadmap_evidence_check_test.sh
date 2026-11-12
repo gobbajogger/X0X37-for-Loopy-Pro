@@ -144,6 +144,44 @@ printf '{not-json\n' > "$R4/docs/roadmap-evidence/#1.json"
 expect_nonzero RED_malformed_json sh "$CHECK" "$R4" "$R4/docs/roadmap-evidence"
 note "MUTANT RED_malformed_json: wrap json.load in a bare except that continues as UNPROVEN/OK -> RED would exit 0; this case catches it."
 
+# Eight fail-closed negatives: malformed UNPROVEN metadata (5) and escaped paths (3).
+for kind in row_id roadmap_pin_commit roadmap_blob proof_source filename_mismatch; do
+  fixture=$TMP/unproven_$kind
+  write_good_present "$fixture" "$fixture/docs/roadmap-evidence"
+  python3 - "$fixture" "$kind" <<'PYFIXTURE'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1]); p = root / "docs/roadmap-evidence/#1.json"
+d = json.loads(p.read_text()); d["status"] = "UNPROVEN"
+if sys.argv[2] == "filename_mismatch": d["row_id"] = "#wrong"
+else: del d[sys.argv[2]]
+p.write_text(json.dumps(d))
+d["row_id"] = "#2"; d["roadmap_pin_commit"] = "5f578fc0642a1200a5163802bcd69277c511bfc7"
+d["roadmap_blob"] = "a204a54c989d6f323d619e70f799427603756541"; d["proof_source"] = "fixture"
+(p.parent / "#2.json").write_text(json.dumps(d))
+PYFIXTURE
+  expect_nonzero "RED_UNPROVEN_$kind" sh "$CHECK" "$fixture" "$fixture/docs/roadmap-evidence"
+  out=$(sh "$CHECK" "$fixture" "$fixture/docs/roadmap-evidence" 2>&1) || :
+  case "$kind" in filename_mismatch) reason=row_id_filename_mismatch ;; *) reason=missing_$kind ;; esac
+  if ! printf '%s\n' "$out" | grep -F '#1: UNPROVEN_BAD:' | grep -Fq "$reason" ||
+     ! printf '%s\n' "$out" | grep -q 'UNPROVEN=2 MISSING=2 rows=2'; then
+    note "FAIL UNPROVEN diagnostics/count: $out"; fail=$((fail + 1))
+  fi
+done
+for kind in absolute parent symlink; do
+  fixture=$TMP/outside_$kind
+  write_good_present "$fixture" "$fixture/docs/roadmap-evidence"
+  printf 'outside fixture\n' > "$TMP/outside.c"
+  ln -s "$TMP/outside.c" "$fixture/outside-link.c"
+  python3 - "$fixture" "$kind" "$TMP/outside.c" <<'PYFIXTURE'
+import json, pathlib, sys
+p = pathlib.Path(sys.argv[1]) / "docs/roadmap-evidence/#1.json"
+d = json.loads(p.read_text())
+d["code_paths"] = [{"absolute": sys.argv[3], "parent": "../outside.c", "symlink": "outside-link.c"}[sys.argv[2]]]
+p.write_text(json.dumps(d))
+PYFIXTURE
+  expect_nonzero "RED_outside_path_$kind" sh "$CHECK" "$fixture" "$fixture/docs/roadmap-evidence"
+done
+
 # --- Strict fixtures: synthetic files and run entries only; nothing is executed. ---
 CANDIDATE=ce27812951555ff7ed9694bf99d20a65dd5f410b
 
