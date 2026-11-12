@@ -113,6 +113,8 @@ static int part_neighbor(int part, int direction)
 #if X0X_BASS_PRESET_PREVIEW
 static const char *bass_display_name(int bank,int other,int voice)
 {
+    if (bank == ORIGINAL_SOUND_DRONE) return bank == other ?
+        (voice ? "DRONE B" : "DRONE A") : "DRONE";
     if(bank==other) return bank?(voice?"MIAMI B":"MIAMI A"):(voice?"CHICAGO B":"CHICAGO A");
     return bank?"MIAMI":"CHICAGO";
 }
@@ -130,7 +132,7 @@ static const char *part_display(int part)
 #endif
     return PART_N[part];
 }
-/* A part's shown name: the bass slots name their engine (CHICAGO / MIAMI). */
+/* A part's shown name uses the synth slot's actual engine kind. */
 static const char *part_name(int part)
 {
 #if X0X_BASS_PRESET_PREVIEW
@@ -152,6 +154,8 @@ static const char *part_s(int i)
 #if X0X_BASS_TAGGED_SOUND
         if(engine_bass_sound_bank(&proj.sound,v)<0)return "?";
 #endif
+        if (b == ORIGINAL_SOUND_DRONE) return b == engine_bass_bank(1-v) ?
+            (v ? "DR-B" : "DR-A") : "DRN";
         if(b==engine_bass_bank(1-v)) return b?(v?"MI-B":"MI-A"):(v?"CH-B":"CH-A");
         return b?"MIA":"CHI";
     }
@@ -5376,9 +5380,8 @@ static UI_DRAW void draw_header(void)
             else
 #endif
             {
-            int miami = engine_bass_bank(bidx()) == FACTORY_BANK_MIAMI;
-            part_label = miami ? (bidx() ? "MIAMI B" : "MIAMI A") :
-                                 (bidx() ? "CHICAGO B" : "CHICAGO A");
+            part_label = bass_display_name(engine_bass_bank(bidx()),
+                engine_bass_bank(1 - bidx()), bidx());
             }
         }
 #endif
@@ -6885,6 +6888,7 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
  * oscillator mix or the Miami carrier, 1 the Miami modulator, 2 the wobble. */
 static int original_wave_slot(unsigned kind,int p)
 {
+    if (kind == ORIGINAL_SOUND_DRONE) return -1;
     if(p==0)return 0;
     if(kind==ORIGINAL_SOUND_MIAMI)return p==6?1:p==11?2:-1;
     return -1;
