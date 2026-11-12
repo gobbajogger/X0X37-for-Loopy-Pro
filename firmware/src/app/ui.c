@@ -19,6 +19,7 @@
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
 #include "ui_original_controls.h"
+#include "bass_pattern_preset.h"
 #include "ui_original_wave.h"
 #include "../dsp/bass_param_ids.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
@@ -666,7 +667,8 @@ static int pref_get(pref_t r)
     case R_QUEUEMUTE: return seq.queued_mutes;
     case R_BPATSND: {
         uint8_t ps = pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1];
-        return (ps & 0xC0u) == 0xC0u ? (ps & 0x3Fu) : (ps & 127u);
+        unsigned bank, value;
+        return bass_pattern_preset_decode(ps, &bank, &value) ? (int)value : 0;
     }
     case R_NOTELOCK: return engine_note_lock_capture_on();
     case R_OUTLOUD: return proj.set.out_loud;
@@ -817,8 +819,7 @@ X0X_COLD static void pref_set_impl(pref_t r, int v, int from_keyboard)
     case R_BPATSND: {
         unsigned bank = (unsigned)engine_bass_requested_bank(r.b);
         pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1] =
-            (uint8_t)(!v ? 0u : bank == ORIGINAL_SOUND_DRONE ?
-                      (0xC0u | (unsigned)v) : ((bank << 7) | (unsigned)v));
+            (uint8_t)bass_pattern_preset_encode(bank, (unsigned)v);
         break;
     }
     case R_NOTELOCK: engine_note_lock_capture(v); break;
@@ -1256,9 +1257,10 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     case R_BPATSND: {
         unsigned ps = pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1];
         if (!ps) { put_s(num, "OFF"); return; }
-        unsigned drone = (ps & 0xC0u) == 0xC0u;
-        num[0] = drone ? 'D' : (ps >> 7) == ORIGINAL_SOUND_MIAMI ? 'M' : 'C';
-        put_i(num + 1, (int)(drone ? (ps & 0x3Fu) : (ps & 127u)));
+        unsigned kind, preset;
+        if (!bass_pattern_preset_decode(ps, &kind, &preset)) { put_s(num, "INVALID"); return; }
+        num[0] = kind == ORIGINAL_SOUND_DRONE ? 'D' : kind == ORIGINAL_SOUND_MIAMI ? 'M' : 'C';
+        put_i(num + 1, (int)preset);
         return;
     }
     case R_SBAR: put_i(num, v + 1); return;
@@ -8705,9 +8707,9 @@ static void pattern_sound_tick(void)
         if (seen_pat[b] == pat && seen_val[b] == ps) continue;
         seen_pat[b] = (uint8_t)pat; seen_val[b] = (uint8_t)ps;
         if (!ps) continue;
-        int drone = (ps & 0xC0u) == 0xC0u;
-        int bank = drone ? ORIGINAL_SOUND_DRONE : (int)(ps >> 7);
-        int preset = (int)(drone ? (ps & 0x3Fu) : (ps & 127u)) - 1;
+        unsigned kind, one_based;
+        if (!bass_pattern_preset_decode(ps, &kind, &one_based) || !one_based) continue;
+        int bank = (int)kind, preset = (int)one_based - 1;
         if (engine_bass_requested_bank(b) == bank && engine_bass_requested_preset(b) == preset &&
             !engine_bass_preset_edited(b) && !engine_bass_preset_pending(b)) continue;
         (void)engine_bass_select_preset_at(b, bank, preset, &proj.sound, pat);
