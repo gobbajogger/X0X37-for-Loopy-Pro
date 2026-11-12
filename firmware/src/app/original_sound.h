@@ -8,10 +8,14 @@
 #define ORIGINAL_SOUND_BYTES 32u
 #define ORIGINAL_SOUND_CHICAGO 0u
 #define ORIGINAL_SOUND_MIAMI 1u
+#define ORIGINAL_SOUND_DRONE 2u
 #define ORIGINAL_SOUND_CHICAGO_ID UINT32_C(0x4f434831)
 #define ORIGINAL_SOUND_MIAMI_ID UINT32_C(0x4f4d4931)
+#define ORIGINAL_SOUND_DRONE_ID UINT32_C(0x4f445231)
 #define ORIGINAL_SOUND_SCHEMA 2u
 #define ORIGINAL_CHICAGO_FACTORIES 81u
+#define ORIGINAL_DRONE_FACTORIES 4u
+#define ORIGINAL_DRONE_NPARAMS 8u
 #define ORIGINAL_CHICAGO_FX_CHOICES 12u
 
 /* Public control positions used by the physical performance wheels. */
@@ -25,7 +29,8 @@ static inline int original_sound_is_performance(unsigned kind, unsigned paramete
     return (kind == ORIGINAL_SOUND_CHICAGO &&
             (parameter == ORIGINAL_CHICAGO_PITCH_BEND || parameter == ORIGINAL_CHICAGO_PITCH_BEND + 1u)) ||
            (kind == ORIGINAL_SOUND_MIAMI &&
-            (parameter == ORIGINAL_MIAMI_PITCH_BEND || parameter == ORIGINAL_MIAMI_PITCH_BEND + 1u));
+            (parameter == ORIGINAL_MIAMI_PITCH_BEND || parameter == ORIGINAL_MIAMI_PITCH_BEND + 1u)) ||
+           (kind == ORIGINAL_SOUND_DRONE && (parameter == 6u || parameter == 7u));
 }
 
 /* New firmware patch representation, not a legacy bank decoder:
@@ -33,7 +38,9 @@ static inline int original_sound_is_performance(unsigned kind, unsigned paramete
  * [29] engine kind; [30] selected factory index; [31] reserved zero.
  * Chicago indexes all 81 programs (the 55 compact ones first, then the 26
  * restored-insert ones) and FxType stores a twelve-choice index.
- * Both map explicitly to the original program/selector; schema1 is refused.
+ * Drone adds kind 2 to this exact schema-2 32-byte cell, with six editable
+ * registrations/contours and two performance inputs. No song migration.
+ * The original engines still map to their original selectors; schema1 is refused.
  * Untouched controls come from the immutable binary32 factory data, never
  * their rounded display bytes. Edits represent the firmware's 7-bit controls.
  * Pitch bend and damper are performance-only. Older schema2 bytes/edit bits
