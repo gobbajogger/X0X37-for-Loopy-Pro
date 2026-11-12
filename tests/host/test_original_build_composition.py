@@ -42,7 +42,8 @@ class OriginalBuildCompositionTests(unittest.TestCase):
             for path, command in sources.items():
                 with self.subTest(board=board, model=model, source=path):
                     self.assertNotIn("-fno-unroll-loops", command)
-                    self.assertNotIn("-flto", command)
+                    native_only = Path(path).suffix == ".S" or Path(path).stem in {"chicago_dynamics", "chicago_modulation"}
+                    self.assertEqual("-flto" in command, compact and not native_only)
                     expected = compact and Path(path).stem == "chicago_packed"
                     self.assertEqual("-DX0X_CHICAGO_COMPACT_HEADERS=1" in command, expected)
                     if "-O2" in command:

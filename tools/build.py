@@ -394,6 +394,8 @@ def app_compile_commands(flags, original_synth, wobble):
         # not standalone units that can be removed from this list.
         flags = [*flags, "-DX0X_ORIGINAL_SYNTH=1",
                  "-Iexperiments/original_synth", "-Iexperiments/wobble"]
+    if BOARD == "smk37" and MODEL in ("elite", "pro"):
+        flags = [*flags, "-flto"]
     o2 = [f if f != "-Os" else "-O2" for f in flags]
     units = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
              ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
@@ -414,6 +416,8 @@ def app_compile_commands(flags, original_synth, wobble):
         for u in (*ORIGINAL_SYNTH_UNITS, *ORIGINAL_SYNTH_BACKENDS):
             o = OUT / "original" / (Path(u).stem + ".o")
             uf = original_o2 if Path(u).stem in ORIGINAL_SYNTH_O2_UNITS else original_flags
+            if Path(u).stem in {"chicago_dynamics", "chicago_modulation"}:
+                uf = [f for f in uf if f != "-flto"]
             if BOARD == "smk37" and MODEL in ("elite", "pro") and Path(u).stem == "chicago_packed":
                 uf = [*uf, "-DX0X_CHICAGO_COMPACT_HEADERS=1"]
             units.append(("cc", *uf, "-c", Path(u), "-o", o))
@@ -486,7 +490,15 @@ def build_app():
         ld.write_text(txt.replace("LENGTH = 0x8DFBC", f"LENGTH = {APP_CODE_MAX:#X}".replace("0X", "0x")))
     # Keep the 591 table policy: 10a coalescing regressed strict Pro timing.
     # Do not re-enable it without exact-image timing qualification.
-    tc("pi32v2/bin/ld", "--gc-sections", "-e", "_start", "-T", ld, *objs, "-o", elf)
+    lto_link = []
+    if BOARD == "smk37" and MODEL in ("elite", "pro"):
+        lto_link = ["-plugin", ("/opt/jieli/pi32v2/bin/LLVMgold.so" if use_docker() else str(toolchain() / "pi32v2/bin/LLVMgold.so")),
+                    "-plugin-opt=-inline-threshold=0", "-plugin-opt=-inlinehint-threshold=0",
+                    "-plugin-opt=-inlinecold-threshold=0", "-plugin-opt=-enable-tail-merge",
+                    "-plugin-opt=-tail-merge-size=1", "-plugin-opt=-tail-merge-threshold=10000",
+                    "-plugin-opt=-function-sections", "-plugin-opt=-data-sections",
+                    "-plugin-opt=-fp-contract=off", "--sort-section=alignment"]
+    tc("pi32v2/bin/ld", *lto_link, "--gc-sections", "-e", "_start", "-T", ld, *objs, "-o", elf)
     for sect in ("text.bin", "data.bin", "ramtext.bin", "c1text.bin"):
         (OUT / sect).unlink(missing_ok=True)
     *_, syms, dis, rt = tc_all(("common/bin/objcopy", "-O", "binary", "-j", ".text", elf, OUT / "text.bin"),
