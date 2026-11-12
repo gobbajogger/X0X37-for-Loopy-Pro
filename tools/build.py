@@ -416,7 +416,7 @@ def app_compile_commands(flags, original_synth, wobble):
         for u in (*ORIGINAL_SYNTH_UNITS, *ORIGINAL_SYNTH_BACKENDS):
             o = OUT / "original" / (Path(u).stem + ".o")
             uf = original_o2 if Path(u).stem in ORIGINAL_SYNTH_O2_UNITS else original_flags
-            if Path(u).stem in {"chicago_dynamics", "chicago_modulation"}:
+            if Path(u).stem in {"chicago_dynamics", "chicago_modulation", "original_runtime"}:
                 uf = [f for f in uf if f != "-flto"]
             if BOARD == "smk37" and MODEL in ("elite", "pro") and Path(u).stem == "chicago_packed":
                 uf = [*uf, "-DX0X_CHICAGO_COMPACT_HEADERS=1"]
