@@ -211,6 +211,7 @@ typedef struct {
     uint8_t ext_skip;                 /* 1: the next block of ticks gives no tick period (the first ticks of a new input) */
     uint32_t clk_lock_at;             /* ext_now at its last Clock, Start or Continue */
     uint32_t clk_stop_at;             /* ext_now at its last Stop */
+    uint8_t chord_out[NBASS][5], chord_out_n[NBASS], chord_out_ch[NBASS];
     uint16_t chain_win, chain_at; /* runtime chain slot, 909 steps; never serialized */
 } seq_t;
 
@@ -269,3 +270,11 @@ int seq_bass_sound_prepare(seq_t *s,int voice,int pat,int step); /* 0 stored, 1 
 void seq_bass_sound_clear(seq_t *s,int voice,int pat,int step);
 
 void seq_notes_off(seq_t *s, const seq_sink_t *o);
+
+/* Poly-slot hooks. Existing mono engines keep the original path. The chord
+ * store reuses sparse metadata lanes; negative count is admission-only. */
+int seq_bass_poly(seq_t *, int part);
+int seq_bass_chord_keys(seq_t *, int part, uint8_t *notes);
+int seq_bass_chord_get(seq_t *, int part, int pat, int step, uint8_t *notes);
+int seq_bass_chord_set(seq_t *, int part, int pat, int step, const uint8_t *notes, int count);
+void seq_bass_chord_on(seq_t *, int part, int note, int velocity);

@@ -330,6 +330,8 @@ run seq-tb3po-bars sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_tb3po_bar_test t
 run seq-random-swing sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_swing_test tests/host/seq_random_swing_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_random_swing_test"
 run seq-random-clock-handoff sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_clock_handoff_test tests/host/seq_random_clock_handoff_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_random_clock_handoff_test"
 run seq-eighth-quarter sh tests/host/seq_eighth_quarter_test.sh
+run held-chords sh tests/host/held_chords_test.sh
+run held-chord-integration sh tests/host/held_chord_integration_test.sh
 run queued-mutes sh tests/host/queued_mutes_test.sh
 run break-rate sh tests/host/break_rate_test.sh
 run seq-long-notes sh -c "$CC $W -o $OUT/seq_long_note_test tests/host/seq_long_note_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_long_note_test"
