@@ -964,9 +964,12 @@ static void bass_adapt_flags(int p, int acc, int sl)
 
 typedef struct {
     uint8_t used, chicago;
-    float master_tune, cutoff, env_depth, portamento, output;
+    float master_tune, cutoff, env_depth, portamento, output, vcf_decay;
 } bass_adapt_saved_t;
 static bass_adapt_saved_t bass_adapt_saved[NBASS];
+/* Accent make-up after the voice (run_job's quiet scan): current, target. */
+static float bass_accent_mk[NBASS] = {1.0f, 1.0f}, bass_accent_mk_to[NBASS] = {1.0f, 1.0f};
+static float bass_c13[NBASS];          /* accent sweep charge (bass_303_sweep_step) */
 
 void engine_bass_tune(int steps)
 {
@@ -980,16 +983,22 @@ static float bass_adapt_tune_semitones(void)
     return bass_303_tune_semitones(bass_tune_steps);
 }
 
-static void bass_adapt_pre(int b)
+static void bass_adapt_pre(int b, unsigned n)
 {
     float semis;
-    bass_adapt_saved[b].used = 0;
     if ((unsigned)b >= NBASS) return;
+    bass_adapt_saved[b].used = 0;
+    bass_accent_mk_to[b] = 1.0f;
     semis = bass_adapt_tune_semitones();
     if (original_bass[b].kind == ORIGINAL_SOUND_CHICAGO) {
         original_chicago_voice_controls *c = &original_bass[b].dsp.chicago.controls;
         int accent = bass_accent[b], slide = bass_slide[b];
-        if (semis == 0.0f && !accent && !slide) return;
+        if (accent || bass_c13[b] != 0.0f) {
+            const original_chicago_backend *k = &original_bass[b].dsp.chicago;
+            float meg = accent && k->voice.active ? k->voice.vcf.level : 0.0f;
+            bass_c13[b] = bass_303_sweep_step(bass_c13[b], BASS_303_ACCENT_AMT * fm_clampf(meg, 0.0f, 1.0f), n);
+        }
+        if (semis == 0.0f && !accent && !slide && bass_c13[b] == 0.0f) return;
         bass_adapt_saved[b].used = 1;
         bass_adapt_saved[b].chicago = 1;
         bass_adapt_saved[b].master_tune = c->pitch.master_tune;
@@ -997,9 +1006,13 @@ static void bass_adapt_pre(int b)
         bass_adapt_saved[b].env_depth = c->env_depth;
         bass_adapt_saved[b].portamento = c->pitch.portamento;
         bass_adapt_saved[b].output = c->gain.output;
+        bass_adapt_saved[b].vcf_decay = c->vcf[1];
         if (semis != 0.0f) c->pitch.master_tune += semis;
         bass_303_accent_controls(accent, &c->cutoff, &c->env_depth);
-        bass_303_accent_output(accent, &c->gain.output);
+        bass_303_accent_decay(accent, &c->vcf[1]);
+        if (bass_c13[b] != 0.0f)
+            c->cutoff = fm_clampf(c->cutoff + bass_303_sweep_cutoff(bass_c13[b], c->resonance), 0.0f, 1.0f);
+        bass_accent_mk_to[b] = bass_303_accent_output(accent, &c->gain.output);
         bass_303_slide_porta(slide, &c->pitch.portamento);
     } else if (semis != 0.0f) {
         original_miami_voice_controls *c = &original_bass[b].dsp.miami.controls;
@@ -1008,6 +1021,7 @@ static void bass_adapt_pre(int b)
         bass_adapt_saved[b].master_tune = c->pitch.master_tune;
         c->pitch.master_tune += semis;
     }
+    if (original_bass[b].kind != ORIGINAL_SOUND_CHICAGO) bass_c13[b] = 0.0f;  /* Miami: no sweep */
 }
 
 static void bass_adapt_post(int b, float *left, float *right, unsigned n)
@@ -1021,6 +1035,7 @@ static void bass_adapt_post(int b, float *left, float *right, unsigned n)
         c->env_depth = bass_adapt_saved[b].env_depth;
         c->pitch.portamento = bass_adapt_saved[b].portamento;
         c->gain.output = bass_adapt_saved[b].output;
+        c->vcf[1] = bass_adapt_saved[b].vcf_decay;
     } else
         original_bass[b].dsp.miami.controls.pitch.master_tune = bass_adapt_saved[b].master_tune;
     bass_adapt_saved[b].used = 0;
@@ -2126,8 +2141,16 @@ static uint8_t eng_brk_mark;                           /* brk_midi_count before 
 static uint8_t eng_808_split;
 static volatile uint8_t eng_808_body;                  /* 1: BD+SD is in left808/right808 */
 static volatile uint8_t eng_808_metal_done;            /* 1: core 0 is done with the metal raw (Chicago workspace) */
+static float eng_vol;                                  /* this callback's master volume (render_sub may master) */
+static uint8_t eng_master_done;                        /* 1: this stretch ran the master */
+static uint8_t eng_do_master;                          /* pipeline this stretch */
+static uint32_t eng_mastered;                          /* contiguous prefix already mastered */
+static volatile uint32_t eng_fx_done;                  /* frames of FX visible to core 0 (tail pipeline) */
+static float *eng_fx_ol, *eng_fx_or;
+static uint32_t eng_fx_n;
 static void c1_take_over(uint32_t s);
 static void d808_body_run(void);
+static void core2_fx(uint32_t arg);
 
 /* the second core still working: 1, done: 0, it failed: -1 (fm1: plat_fm1.c). One core: done. */
 __attribute__((weak)) int plat_cpu2_busy(void) { return 0; }
@@ -2329,7 +2352,7 @@ static int run_job(int j, int core)
         bb[bv] = bl; bb[1 - bv] = br;                     /* bass B renders right-left, as always */
         PROF_T(pb);
         (void)original_runtime_prepare(&original_bass[bv], seq_tempo(&seq));
-        bass_adapt_pre(bv);
+        bass_adapt_pre(bv, (unsigned)n);
         int status = original_runtime_render(&original_bass[bv], bv ? &original_workspace_b : &original_workspace,
                                              bb[bv], bb[1-bv], n);
         bass_adapt_post(bv, bb[bv], bb[1-bv], (unsigned)n);
@@ -2341,13 +2364,33 @@ static int run_job(int j, int core)
              * gone, fade residual insert output over 512 samples. Cancellation or
              * a fresh owner ramps back smoothly; DSP histories keep advancing. */
             int fade = engine_bass_preset_pending(bv) == 2 && !original_runtime_owned(&original_bass[bv]);
+            if (fade || original_switch_gain[bv] != 512u)    /* else fused below */
+                bass_303_accent_makeup(bb[bv], bb[1-bv], (unsigned)n, &bass_accent_mk[bv], bass_accent_mk_to[bv]);
             if (!fade && original_switch_gain[bv] == 512u) {
                 /* Settled gain 1.0: x * 1.0f == x for every float, so only the
                  * quiet count runs (the same per-sample result). */
                 uint32_t q = original_quiet_samples[bv];
-                for (i = 0; i < n; ++i) {
-                    if (fm_fabsf(bb[bv][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-bv][i]) > 1.0f/65536.0f) q = 0;
-                    else if (q < 512u) ++q;
+                float g = bass_accent_mk[bv], t = bass_accent_mk_to[bv];
+                if (g == 1.0f && t == 1.0f) {
+                    for (i = 0; i < n; ++i) {
+                        if (fm_fabsf(bb[bv][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-bv][i]) > 1.0f/65536.0f) q = 0;
+                        else if (q < 512u) ++q;
+                    }
+                } else {
+                    /* Accent make-up (bass_303_accent_makeup), fused into this
+                     * scan: one pass over the part, the same samples. */
+                    for (i = 0; i < n; ++i) {
+                        if (g != t) {
+                            float d = t - g;
+                            g = d > BASS_303_MAKEUP_SLEW ? g + BASS_303_MAKEUP_SLEW
+                              : d < -BASS_303_MAKEUP_SLEW ? g - BASS_303_MAKEUP_SLEW : t;
+                        }
+                        float l = bb[bv][i] * g, r = bb[1-bv][i] * g;
+                        bb[bv][i] = l; bb[1-bv][i] = r;
+                        if (fm_fabsf(l) > 1.0f/65536.0f || fm_fabsf(r) > 1.0f/65536.0f) q = 0;
+                        else if (q < 512u) ++q;
+                    }
+                    bass_accent_mk[bv] = g;
                 }
                 bass_quiet_next[bv] = q;
             } else {
@@ -2526,6 +2569,42 @@ static uint32_t plan_pick(uint32_t n)
     return eng_plan & act & ok;
 }
 
+/* post-mix tail on both cores. L and R cannot be split: the reverb's four combs
+ * and the HP are shared (the right is those combs with alternate signs, then its
+ * own allpasses); the delay is one line (PING feeds the loop from the right tap);
+ * the glue reads the louder side and moves both; the master compressor and the
+ * limiter are linked (both sides' power, max abs). FX and master have no
+ * cross-feed, so core 1 runs FX in 32-frame chunks and core 0 runs the filter
+ * and the master on each chunk once it is visible. Same sample order, same
+ * bits, same block, no added latency. A stretch of ENG_TAIL_CS or more is
+ * pipelined when it continues the already-mastered prefix (sample order). */
+#define ENG_TAIL_CS 32u
+static void core2_fx(uint32_t arg)
+{
+    uint32_t n = eng_fx_n, off = 0, cs = ENG_TAIL_CS;
+    float *ol = eng_fx_ol, *orr = eng_fx_or;
+    (void)arg;
+    while (off < n) {
+        uint32_t m = n - off;
+        if (m > cs)
+            m = cs;
+        fxbus_process_st(&fx, dry_l + off, dry_r + off, rev + off, dly + off,
+                         ol + off, orr + off, (int)m);
+        off += m;
+        eng_sync();
+        eng_fx_done = off;
+        eng_sync();
+    }
+}
+static void tape_after_fx(void)
+{
+    if (fx.dl_type != 1 || fx.dl_level <= 0.0f || (fx.muted & 2u))
+        tape_signal_seen = 0;
+    else if (fx.dl_signal) {
+        tape_signal_at = plat_ms();
+        tape_signal_seen = 1;
+    }
+}
 /* one stretch: the jobs split between the cores by plan_pick (see above), each mixed in the
  * order one core always used (909, 808, bass A, bass B, break): the same sums either way */
 __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n, uint32_t offset)
@@ -2592,14 +2671,88 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     }
     bfx_send_shape(0, rev, (int)n);
     bfx_send_shape(1, dly, (int)n);
-    {
+    if (eng_do_master && n >= ENG_TAIL_CS) {
+        uint32_t done = 0, waited = 0, first = 1;
+        PROF_T(pf);
+#ifdef X0X_HOST
+        /* host: the same chunks, in order (core 1 is lazy). Proves the bits. */
+        while (done < n) {
+            uint32_t m = n - done;
+            if (m > ENG_TAIL_CS)
+                m = ENG_TAIL_CS;
+            fxbus_process_st(&fx, dry_l + done, dry_r + done, rev + done, dly + done,
+                             out_l + done, out_r + done, (int)m);
+            if (first) { PROF_ADD(5, pf); first = 0; }
+            bfx_flt_shape(out_l + done, out_r + done, (int)m);
+            {
+                PROF_T(pt);
+                master_process_st(&mst, out_l + done, out_r + done, (int)m, eng_vol);
+                PROF_ADD(6, pt);
+            }
+            done += m;
+        }
+        (void)waited;
+#else
+        eng_fx_ol = out_l;
+        eng_fx_or = out_r;
+        eng_fx_n = n;
+        eng_fx_done = 0;
+        eng_sync();
+        if (!plat_cpu2_run(core2_fx, 0u)) {
+            fxbus_process_st(&fx, dry_l, dry_r, rev, dly, out_l, out_r, (int)n);
+            PROF_ADD(5, pf);
+            tape_after_fx();
+            bfx_flt_shape(out_l, out_r, (int)n);
+            {
+                PROF_T(pt);
+                master_process_st(&mst, out_l, out_r, (int)n, eng_vol);
+                PROF_ADD(6, pt);
+            }
+            eng_master_done = 1;
+            return;
+        }
+        while (done < n) {
+            uint32_t ready;
+            eng_sync();
+            ready = eng_fx_done;
+            if (ready <= done) {
+                if (plat_cpu2_busy() <= 0) {
+                    if (!waited) {
+                        waited = 1;
+                        (void)plat_cpu2_wait();
+                    }
+                    ready = eng_fx_done;
+                    if (ready < n) {
+                        fxbus_process_st(&fx, dry_l + ready, dry_r + ready, rev + ready, dly + ready,
+                                         out_l + ready, out_r + ready, (int)(n - ready));
+                        eng_sync();
+                        eng_fx_done = n;
+                        ready = n;
+                    }
+                } else
+                    continue;
+            }
+            if (first) { PROF_ADD(5, pf); first = 0; }
+            bfx_flt_shape(out_l + done, out_r + done, (int)(ready - done));
+            {
+                PROF_T(pt);
+                master_process_st(&mst, out_l + done, out_r + done, (int)(ready - done), eng_vol);
+                PROF_ADD(6, pt);
+            }
+            done = ready;
+        }
+        if (!waited)
+            (void)plat_cpu2_wait();
+#endif
+        tape_after_fx();
+        eng_master_done = 1;
+    } else {
         PROF_T(pf);
         fxbus_process_st(&fx, dry_l, dry_r, rev, dly, out_l, out_r, (int)n);
-        if (fx.dl_type != 1 || fx.dl_level <= 0.0f || (fx.muted & 2u)) tape_signal_seen = 0;
-        else if (fx.dl_signal) { tape_signal_at = plat_ms(); tape_signal_seen = 1; }
+        tape_after_fx();
         PROF_ADD(5, pf);
+        bfx_flt_shape(out_l, out_r, (int)n);
     }
-    bfx_flt_shape(out_l, out_r, (int)n);
 }
 
 void engine_render(int32_t *out_lr, uint32_t n)
@@ -2611,6 +2764,9 @@ void engine_render(int32_t *out_lr, uint32_t n)
     if (n > 256u)
         n = 256u;
     if (!n) return;
+    eng_vol = vol;
+    eng_master_done = 0;
+    eng_mastered = 0;
     if (project_hold) {
         tape_signal_seen = 0;
         for (i = 0; i < n * 2u; i++)
@@ -2646,7 +2802,12 @@ void engine_render(int32_t *out_lr, uint32_t n)
     while (done < n) {
         uint32_t k = seq_until_event(&seq, n - done);
         brk_mute_boundary(); /* also follows song mutes at an in-buffer event */
+        /* any stretch of ENG_TAIL_CS or more: pipeline. Mastered frames
+         * must be a prefix (the master's state is in sample order). */
+        eng_do_master = (k >= ENG_TAIL_CS && done == eng_mastered);
         render_sub(out_l + done, out_r + done, k, 0);
+        if (eng_do_master && eng_master_done)
+            eng_mastered = done + k;
         {
             PROF_T(pt);
             original_prepare_all(); /* next actual sequencer stretch, before its events */
@@ -2663,9 +2824,10 @@ void engine_render(int32_t *out_lr, uint32_t n)
 #endif
     }
     mot_playing = seq.playing;
-    {
+    if (eng_mastered < n) {
         PROF_T(pt);
-        master_process_st(&mst, out_l, out_r, (int)n, vol);
+        master_process_st(&mst, out_l + eng_mastered, out_r + eng_mastered,
+                          (int)(n - eng_mastered), vol);
         PROF_ADD(6, pt);
     }
     {   /* globals in registers: the stores below cannot reload them per sample */
