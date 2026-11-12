@@ -190,3 +190,18 @@ compares 17 scenarios / 50 audio-state files before versus after the optimizatio
 port. Host ABBA15/A-A measurements are separate from native/device timing and
 must report noise or slowdown honestly. Device tests remain NOT_RUN. Exported
 BUILD_ONLY candidates are not a passing NIGHTLY release or a safe-install claim.
+
+## 0.0.26 (owner requests, 2026-11-12 UTC+10)
+
+Source for each row is the owner's own chat words. Status is from the box at 2026-11-12 12:50 UTC+10. No 0.0.26 code is written yet.
+
+| # | Item | Owner source | Status | Link |
+|---|------|--------------|--------|------|
+| 26.1 | Drone synth engine: lightweight, full-featured, majestic sound, runs smoothly under heavy load, so DnBOX can be fully standalone. Search other custom firmware for the best one. | 03:32 "search other custom firmware to add a drone engine and chords support for it in seq for 26build ... best lightweight but feature full synth ... run it smoothly at hard load and will sound majestically ... fully standalone device" | RESEARCH DONE. Pick: Mutable Instruments Plaits String Machine (MIT), about one Chicago voice per sample on the host (36-38 ns/frame); device cost NOT MEASURED. | `/workspace/drone-engine-research-026.md` (box) |
+| 26.2 | The drone is a third synth engine, selected in a synth slot like Chicago and Miami. No 6th part, no song-format change; it uses that slot's level, mute and FX. | 03:49 "Drone engine is just another synth engine don't you get it?" | DESIGN AGREED. | research file, "OWNER CORRECTION" |
+| 26.3 | Chords in the sequencer from held keys recorded to steps; no one-finger auto-chords. Live checks: chord changes land on the step; held chords sustain across steps and release cleanly on mute, Stop and PANIC; pattern switches leave no hanging notes; predictable voice stealing; CPU safe at full load. | 03:32 "chords support for it in seq"; 03:49 "it shouldn't play chords with 1 note I think, or it can but there's a lot of things to be considered for a live performance" | DESIGN AGREED. | research file, "OWNER CORRECTION" |
+| 26.4 | Juno-6-style (or similar classic polysynth) slot engine. | 06:10 "Maybe there's something like a juno6?"; "Or smth cool like it" | RESEARCH DONE. Proposal (not yet approved by the owner): Juno-60-style engine on the Plaits analog oscillator/filter model (MIT), 6 voices, about 160 B per voice, host 32-39 ns/sample per voice; still needs osc mix, HPF, envelope, LFO. Ruled out: AMY full library (size), Junox/KR-106/OB-Xd (GPL). | `/workspace/juno-engine-research-026.md` (box) |
+| 26.5 | Cheap chorus for that engine, ideally without a big delay line. | "Maybe there's a cheaper way to achieve chorus without delay line" | RESEARCH DONE. Proposal: one shared 16-bit short delay, 512 B, Juno-60 chorus I/II range 1.7-5.4 ms, about 11 ns/sample on the host, cost does not grow with voices. Delay-free options sounded like detune or phaser. | `/workspace/juno-engine-research-026.md` (box) |
+| 26.6 | fm1-emu (MIT, 360 MHz, SMK-37 adapter) is the device-accurate CPU gate for every build from 0.0.26 on. | 03:50 owner approved the plan (thumbs up) | DONE for 0.0.25: emulator fixed to 360 MHz and pushed (branch `emu/fm1-emu-360mhz` 8c8fa82); gate `/workspace/zdprobe/dnbox360/gate.sh`, PASS = worst block < 11,609 µs and 0 late (owner 07:26). | `emu/fm1-emu-360mhz` |
+
+Every 0.0.26 item still has to pass all standing rules: no slower than the previous build, zero dropouts at < 11,609 µs per core under heavy load, no added latency, pool reserve >= 8,192 B, nothing removed without the owner's words.
