@@ -9,6 +9,7 @@
 #define JUNO6_CHORUS_SAMPLES 256u
 typedef struct {
  float phase,increment,envelope,filter,filter_state,velocity;
+ float subphase;
  uint8_t note,gate,stage,reserved;
  uint32_t age;
 } juno6_voice_t;
@@ -16,7 +17,8 @@ typedef struct {
  juno6_voice_t voice[JUNO6_VOICES];
  uint32_t age;
  float sample_rate,attack,decay,sustain,release,cutoff,resonance,pulse_width,sub_level;
- uint8_t waveform;
+ uint8_t waveform, damper;
+ float macro[18], bend, hpf, hp_state, hp_input, lfo_phase;
 } juno6_t;
 typedef struct {
  int16_t delay[JUNO6_CHORUS_SAMPLES];
@@ -32,3 +34,6 @@ void juno6_render(juno6_t*,float*,unsigned);
 void juno6_chorus_init(juno6_chorus_t*,float);
 void juno6_chorus_set(juno6_chorus_t*,float,float,float);
 void juno6_chorus_process(juno6_chorus_t*,float*,float*,unsigned);
+/* Slot adapter: normalized patch macros; final two are performance-only. */
+int juno6_set(juno6_t*, unsigned, float);
+int juno6_active(const juno6_t*);

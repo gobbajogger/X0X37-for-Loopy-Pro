@@ -14,6 +14,7 @@
  * patterns of 32 steps in OBJ_PAT0/1, the song and 32-step lanes in OBJ_SONG/OBJ_MOTION) is
  * converted as it loads: its steps land on steps 1-32, its patterns on 1-16. */
 #include "x0x.h"
+#include "bass_pattern_preset.h"
 #include "lz.c"
 #include "../crc32_nibble.h"           /* one nibble table shared with storage.c */
 
@@ -626,9 +627,9 @@ static int project_validate_for(const project_t *p)
         const pattern_t *pat = &p->pat[k];
         if (pat->swing > 100)
             return -1;
-        for (b = 0; b < NBASS; b++) {           /* pattern preset: 0 none, else bank << 7 | preset + 1 */
-            unsigned ps = pat->rsv[b];
-            if (ps && (!(ps & 127u) || (ps & 127u) > original_sound_factories(ps >> 7)))
+        for (b = 0; b < NBASS; b++) {           /* schema-14: same one-byte preset field */
+            unsigned kind, preset;
+            if (!bass_pattern_preset_decode(pat->rsv[b], &kind, &preset))
                 return -1;
         }
         for (b = 0; b < NKIT; b++)
@@ -851,3 +852,4 @@ int project_save(void)
         return -2;
     return save_stream();
 }
+
