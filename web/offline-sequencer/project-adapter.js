@@ -19,6 +19,9 @@ function projectBytes(input) {
   const view=new DataView(raw.buffer);
   if(view.getUint32(20,true)!==13||view.getUint32(24,true)!==13)
     throw fail('Only revision-13 projects are supported; no legacy migration is performed.','version');
+  // Editing still models only legacy rate values. Opaque backup/restore can
+  // accept format 2, but this editor must not reinterpret its extended rates.
+  if(view.getUint32(16,true)!==1)throw fail('Extended-rate projects are supported by backup/restore, not this editor.','version');
   parseProject(raw,36452);
   if(view.getUint32(32,true)!==0x50305830||view.getUint32(36,true)!==1||raw[50]!==2||raw[51]!==13)
     throw fail('Project settings do not match the revision-13 layout.','version');

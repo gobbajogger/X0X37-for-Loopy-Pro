@@ -91,7 +91,7 @@ test_class() {
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-zero-conn|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-ctl-fail-return|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
-    composed-features|composed-panic-cutover|panic-clear|panic-order|panic-mutants|live-key-epoch|midi-epoch-step|roadmap-evidence-check|composed-ui-identity|drone-slot|juno-slot-integration|held-chord-integration|poly-chord-integration|composed-smc-panic) TEST_CLASS=G ;;
+    composed-features|composed-panic-cutover|panic-clear|panic-order|panic-mutants|live-key-epoch|midi-epoch-step|roadmap-evidence-check|composed-ui-identity|drone-slot|juno-slot-integration|held-chord-integration|poly-chord-integration|project-rates-companion|composed-smc-panic) TEST_CLASS=G ;;
     rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|freeplay-live-keys|synth-bus-mute|storage-warning|freeplay-latency|pads-in-settings|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|pattern-preset-notelock) TEST_CLASS=G ;;
@@ -309,6 +309,7 @@ run composed-ui-identity env SMC_UI_TEST_FILE=tests/host/composed_ui_identity_te
 run drone-slot env SMC_UI_TEST_FILE=tests/host/drone_slot_test.c SMC_UI_OUT=build/host/drone-slot sh tests/host/smc_ui_test.sh
 run juno-slot-integration env SMC_UI_TEST_FILE=tests/host/juno_slot_integration_test.c SMC_UI_OUT=build/host/juno-slot sh tests/host/smc_ui_test.sh
 run poly-chord-integration sh tests/host/poly_chord_integration_test.sh
+run project-rates-companion sh tests/host/project_rates_companion_test.sh
 run composed-midi-epoch python3 tests/host/m1_midi_epoch_test.py build/host/composed-midi-epoch --baseline-usb tests/host/reference/usb_before_midi_epoch.c
 run break-retrigger-lut sh -c "$CC -O1 -std=c99 -ffp-contract=off tests/host/break_retrigger_lut_test.c -lm -o $OUT/break_retrigger_lut && $OUT/break_retrigger_lut"
 run dsp-host-linkage sh tests/host/run_dsp_host_linkage.sh

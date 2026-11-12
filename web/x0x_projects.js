@@ -42,18 +42,22 @@ export function parseProject(b, expectedLength = null) {
   if (b.length < PROJECT_HEADER || b.length > 0x1FFFFF) throw fail("Invalid project file size.");
   const v = view(b);
   if (v.getUint32(0, true) !== 0x50583058) throw fail("The project header is missing.");
-  const patternVersion=v.getUint32(20,true), soundRevision=v.getUint32(24,true);
+  const projectVersion=v.getUint32(16,true), patternVersion=v.getUint32(20,true), soundRevision=v.getUint32(24,true);
+  // Format 2 protects RATE_8/RATE_4 from older firmware. Its layout is unchanged,
+  // but it is valid only with the current revision-13 stream family.
+  const currentSchema=[13,14,15].includes(patternVersion) && soundRevision===13;
+  const knownFormat=projectVersion===1 || (projectVersion===2 && currentSchema);
   const knownSchema=(patternVersion===3 && (soundRevision===4 || soundRevision===10)) ||
     ([6,8].includes(patternVersion) && (soundRevision===10 || soundRevision===11)) ||
     ([7,9].includes(patternVersion) && soundRevision===11) || ((patternVersion===13 || patternVersion===14 || patternVersion===15) && soundRevision===13);
-  if(v.getUint32(4,true)!==1 || v.getUint32(16,true)!==1 || !knownSchema || !offWordOk(v.getUint32(28,true),patternVersion,soundRevision))
+  if(v.getUint32(4,true)!==1 || !knownFormat || !knownSchema || !offWordOk(v.getUint32(28,true),patternVersion,soundRevision))
     throw fail("This project uses an incompatible file, project, pattern or sound version.","version");
   if((soundRevision===13 || [6,7,8,9].includes(patternVersion) && soundRevision===11) && b.length!==36452)
     throw fail("This tagged project has an unsupported structural layout.","version");
   if (v.getUint32(8, true) !== b.length - PROJECT_HEADER) throw fail("The project payload length is incorrect.");
   if (expectedLength !== null && b.length !== expectedLength) throw fail("The project size does not match this firmware.", "version");
   if (v.getUint32(12, true) !== crc32(b.subarray(PROJECT_HEADER))) throw fail("The project payload is damaged (CRC).");
-  return { length: b.length, payloadLength: b.length - PROJECT_HEADER, fileVersion: 1, projectVersion: 1,
+  return { length: b.length, payloadLength: b.length - PROJECT_HEADER, fileVersion: 1, projectVersion,
     patternVersion, soundRevision, partOffMask: v.getUint32(28,true)&0xFF };
 }
 
