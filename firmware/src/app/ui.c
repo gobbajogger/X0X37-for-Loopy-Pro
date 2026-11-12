@@ -5380,8 +5380,10 @@ static UI_DRAW void draw_header(void)
             else
 #endif
             {
-            part_label = bass_display_name(engine_bass_bank(bidx()),
-                engine_bass_bank(1 - bidx()), bidx());
+            int kind = engine_bass_bank(bidx());
+            part_label = kind == ORIGINAL_SOUND_DRONE ? (bidx() ? "DRONE B" : "DRONE A") :
+                         kind == ORIGINAL_SOUND_MIAMI ? (bidx() ? "MIAMI B" : "MIAMI A") :
+                                                       (bidx() ? "CHICAGO B" : "CHICAGO A");
             }
         }
 #endif
