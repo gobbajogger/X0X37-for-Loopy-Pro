@@ -119,11 +119,19 @@ static inline int drone_string_note(drone_string_t *d, unsigned key, unsigned ve
         return 1;
     }
     drone_string_voice *pick = 0;
-    for (unsigned i = 0; i < DRONE_STRING_VOICES; ++i) {
-        drone_string_voice *v = &d->voice[i];
-        if (v->stage && v->key == key) { pick = v; break; }
-        if (!v->stage) { pick = v; break; }
-    }
+    /* Scan existing keys before free slots. Re-triggering a held pitch must
+     * never allocate a second voice just because the first slot is idle. */
+    for (unsigned i = 0; i < DRONE_STRING_VOICES; ++i)
+        if (d->voice[i].stage && d->voice[i].key == key) {
+            pick = &d->voice[i];
+            break;
+        }
+    if (!pick)
+        for (unsigned i = 0; i < DRONE_STRING_VOICES; ++i)
+            if (!d->voice[i].stage) {
+                pick = &d->voice[i];
+                break;
+            }
     if (!pick) {
         pick = &d->voice[0];
         for (unsigned i = 1; i < DRONE_STRING_VOICES; ++i) {
@@ -190,6 +198,13 @@ static inline float drone_string_saw(float phase, float step)
 static inline int drone_string_render(drone_string_t *d, float *left, float *right, unsigned frames)
 {
     if (!d || !left || !right || frames > 256u) return 0;
+    /* This is the exclusive synth-part buffer, not an additive FX bus.
+     * Its scratch storage is reused every block and is NOT cleared by
+     * engine.c. Initializing here also makes silent blocks truly silent. */
+    for (unsigned i = 0; i < frames; ++i) {
+        left[i] = 0.0f;
+        right[i] = 0.0f;
+    }
     static const float pan_l[DRONE_STRING_VOICES] = { 0.61f, 0.44f, 0.56f, 0.39f };
     static const float pan_r[DRONE_STRING_VOICES] = { 0.39f, 0.56f, 0.44f, 0.61f };
     for (unsigned j = 0; j < DRONE_STRING_VOICES; ++j) {
