@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "../../firmware/src/app/original_sound.h"
+#include "../../firmware/src/app/bass_pattern_preset.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -165,6 +166,30 @@ static void compare(unsigned kind, unsigned factory)
     if(kind==ORIGINAL_SOUND_MIAMI) {cell[18]=1;assert(!original_sound_valid(cell));}
     factories++;
 }
+static void verify_pattern_preset_codec(void)
+{
+    unsigned bank=99u, one=99u;
+    assert(bass_pattern_preset_encode(ORIGINAL_SOUND_CHICAGO,0)==0u);
+    assert(bass_pattern_preset_decode(0,&bank,&one) && bank==0 && one==0);
+    for (unsigned k=0;k<=ORIGINAL_SOUND_DRONE;++k) {
+        unsigned n=original_sound_factories(k);
+        for(unsigned p=1;p<=n;++p) {
+            unsigned code=bass_pattern_preset_encode(k,p);
+            unsigned expect = k == ORIGINAL_SOUND_DRONE ? 0xC0u | p : (k << 7) | p;
+            assert(code==expect && code<=255u);
+            assert(bass_pattern_preset_decode(code,&bank,&one) && bank==k && one==p);
+        }
+        assert(!bass_pattern_preset_encode(k,n+1));
+    }
+    static const uint8_t invalid[]={82,127,128,159,191,192,197,255};
+    for(unsigned i=0;i<sizeof invalid;++i)
+        assert(!bass_pattern_preset_decode(invalid[i],&bank,&one));
+    assert(!bass_pattern_preset_decode(256,&bank,&one));
+    assert(!bass_pattern_preset_decode(1,0,&one));
+    assert(!bass_pattern_preset_decode(1,&bank,0));
+    assert(!bass_pattern_preset_encode(3,1));
+}
+
 static void verify_drone(void)
 {
     static const uint8_t preset[4][6] = {
@@ -262,6 +287,7 @@ int main(void)
     for(unsigned kind=0;kind<2;++kind)
         for(unsigned factory=0;factory<original_sound_factories(kind);++factory) compare(kind,factory);
     verify_drone();
+    verify_pattern_preset_codec();
     printf("PASS compact32-byte patch cell: %u exact factory programs, %u single-control edits, %u malformed transactions; %u performance edits refused and %u stale performance restores neutral; twelve FX and all 81 factory programs (55 compact + 26 restored inserts); schema1 rejected; no factory float round-trip\n",factories,edits,failures,performance_refusals,stale_restores);
     return 0;
 }
