@@ -367,6 +367,7 @@ run chicago-fx2-inserts sh tests/host/chicago_fx2_inserts_test.sh build/chicago_
 run original-sound-cell sh tests/host/original_sound_cell_test.sh build/original-sound-cell
 run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
 run original-build python3 tests/host/test_original_build_composition.py
+run load-guard-diagnostic python3 tests/host/test_load_guard_diagnostic.py
 run play-question sh tests/host/play_question_test.sh
 run play-question-ui sh tests/host/play_question_ui_test.sh
 run sound-reset sh tests/host/sound_reset_test.sh

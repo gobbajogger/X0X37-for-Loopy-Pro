@@ -231,15 +231,23 @@ void engine_motion_reset(void) { mot_release_req = 1; }   /* lanes changed under
  * -50 dB instead of -90 (~2%); after 3 s back under 65% both return. The platform reports each
  * block's load after rendering it (engine_load, same context as engine_render); the change is
  * made at the start of the next block. Off during the PERF test, which measures the full cost. */
+/* Diagnostic only: lock adaptive load shedding off for paired native audio
+ * comparisons. The default keeps release behavior and timing policy unchanged. */
+#ifndef X0X_DIAG_DISABLE_LOAD_GUARD
+#define X0X_DIAG_DISABLE_LOAD_GUARD 0
+#endif
+#if X0X_DIAG_DISABLE_LOAD_GUARD != 0 && X0X_DIAG_DISABLE_LOAD_GUARD != 1
+#error "X0X_DIAG_DISABLE_LOAD_GUARD must be 0 or 1"
+#endif
 #define GUARD_ON_LAST 92u
 #define GUARD_ON_AVG 85u
 #define GUARD_OFF 65u
 #define GUARD_CALM_FRAMES (3u * 44100u)
 extern float drum808_quiet;
-static uint8_t guard_on, guard_applied, guard_enabled = 1;
+static uint8_t guard_on, guard_applied, guard_enabled = !X0X_DIAG_DISABLE_LOAD_GUARD;
 static uint32_t guard_avg_q8, guard_calm;
 volatile uint32_t eng_guard_count;
-void engine_guard_enable(int on) { guard_enabled = (uint8_t)(on != 0); }
+void engine_guard_enable(int on) { guard_enabled = (uint8_t)(!X0X_DIAG_DISABLE_LOAD_GUARD && on != 0); }
 int engine_guard_active(void) { return guard_on; }
 void engine_load(uint32_t pct, uint32_t frames)
 {
@@ -3163,7 +3171,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     mot_playing = mot_release_req = 0;
     mot_on = mot_was_on = 1;
     guard_on = guard_applied = 0;
-    guard_enabled = 1;
+    guard_enabled = !X0X_DIAG_DISABLE_LOAD_GUARD;
     guard_avg_q8 = guard_calm = 0;
     drum808_quiet = 3.2e-5f;
     smc_solo_state = 0;
