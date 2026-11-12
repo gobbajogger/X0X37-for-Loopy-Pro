@@ -227,8 +227,95 @@ static void test_64_step_808_quarter_fits_u16(void)
     VERIFY(bars_until_advance(20) == 16);
 }
 
+
+/* Real sequencer regressions for independently selected parts and bar controls. */
+static void test_mixed_patterns(void)
+{
+    setup(); bass_note(1, 0, 64, RATE_4); S.ppat[TRK_BASS0] = 1;
+    start(); VERIFY(S.chain_win == 256); run(BAR); VERIFY(S.ppat[TRK_DRUM] == 0);
+    setup(); P[1].drum[1].len = 32; P[1].drum[1].hit[0][0] = 1;
+    S.ppat[1] = 1; start(); VERIFY(S.chain_win == 32);
+    setup(); P[0].drum[0].len = 8; P[1].brk.steps = 1;
+    S.ppat[TRK_BRK] = 1; start(); VERIFY(S.chain_win == 16);
+}
+
+static void test_muted_voice_hits(void)
+{
+    setup(); P[0].drum[1].len = 64; P[0].drum[1].rate = RATE_4;
+    P[0].drum[1].hit[0][0] = 1; S.vmute = 1u << NDRUM;
+    start(); VERIFY(S.chain_win == 16); VERIFY(bars_until_advance(2) == 1);
+    setup(); P[0].drum[1].len = 64; P[0].drum[1].rate = RATE_4;
+    P[0].drum[1].hit[0][0] = P[0].drum[1].hit[1][0] = 1;
+    S.vmute = 1u << NDRUM; start(); VERIFY(S.chain_win == 256);
+    setup(); P[0].drum[1].len = 64; P[0].drum[1].rate = RATE_4;
+    P[0].drum[1].hit[0][0] = 1; S.mute = 1u << NDRUM;
+    start(); VERIFY(S.chain_win == 16);
+}
+
+static void test_invalid_pattern_indices(void)
+{
+    VERIFY(seq_chain_slot_len(0) == 1);
+    for (int t = 0; t < NTRACKS; t++) {
+        setup(); S.ppat[t] = NPAT; VERIFY(seq_chain_slot_len(&S) == 1);
+    }
+}
+
+static void test_bar_actions_inside_long_slot(void)
+{
+    setup(); bass_note(0, 0, 32, RATE_16); start();
+    S.fill_req = 1; S.mute_q = seq_part_mask(TRK_BASS0 + 1);
+    run(BAR); VERIFY(S.ppat[TRK_DRUM] == 0); VERIFY(S.fill_on == 1);
+    VERIFY(seq_part_muted(&S, TRK_BASS0 + 1)); VERIFY(S.mute_q == 0);
+    run(BAR); VERIFY(S.ppat[TRK_DRUM] == 1);
+    setup(); bass_note(0, 0, 32, RATE_16); start();
+    seq_cue_part(&S, TRK_BASS0 + 1, 2); run(BAR);
+    VERIFY(S.ppat[TRK_DRUM] == 0); VERIFY(S.ppat[TRK_BASS0 + 1] == 2);
+    VERIFY(S.pcue[TRK_BASS0 + 1] == 0xff);
+    run(BAR); VERIFY(S.ppat[TRK_DRUM] == 1); /* cue does not restart the chain clock */
+}
+
+static void test_tie_eligibility(void)
+{
+    setup(); P[0].bass[0].len = 64; P[0].bass[0].rate = RATE_4;
+    for (int i = 0; i < NSTEPS; i++) P[0].bass[0].step[i].flags = G_TIE;
+    start(); VERIFY(!S.t[TRK_BASS0].sounding); VERIFY(S.chain_win == 16);
+    VERIFY(bars_until_advance(2) == 1);
+    /* A NOTE followed by ties really sounds and must retain the long slot. */
+    setup(); bass_note(0, 0, 32, RATE_16);
+    for (int i = 1; i < 32; i++) P[0].bass[0].step[i].flags = G_TIE;
+    P[0].bass[0].step[31].flags |= BS_SLIDE; /* explicit held continuation at boundary */
+    P[1].bass[0].len = 32;
+    for (int i = 0; i < 32; i++) P[1].bass[0].step[i].flags = G_TIE;
+    start(); VERIFY(S.t[TRK_BASS0].sounding); VERIFY(S.chain_win == 32);
+    run(BAR * 2); VERIFY(S.ppat[TRK_DRUM] == 1);
+    VERIFY(S.t[TRK_BASS0].sounding); VERIFY(S.chain_win == 32);
+    run(BAR); VERIFY(S.ppat[TRK_DRUM] == 1); VERIFY(S.t[TRK_BASS0].sounding);
+}
+
+static void test_rest_breaks_carried_tie(void)
+{
+    for (int reverse = 0; reverse < 2; reverse++) {
+        setup(); bass_note(0, 0, 32, RATE_16);
+        for (int i = 1; i < 32; i++) P[0].bass[0].step[i].flags = G_TIE;
+        P[0].bass[0].step[31].flags |= BS_SLIDE;
+        P[1].bass[0].len = 64; P[1].bass[0].rate = RATE_4;
+        P[1].bass[0].dir = reverse ? DIR_REV : DIR_FWD;
+        for (int i = 0; i < 64; i++) P[1].bass[0].step[i].flags = G_TIE;
+        P[1].bass[0].step[reverse ? 63 : 0].flags = G_REST;
+        start(); run(BAR * 2);
+        VERIFY(S.ppat[TRK_DRUM] == 1); VERIFY(!S.t[TRK_BASS0].sounding);
+        VERIFY(S.chain_win == 16); run(BAR); VERIFY(S.ppat[TRK_DRUM] == 0);
+    }
+}
+
 int main(void)
 {
+    test_rest_breaks_carried_tie();
+    test_invalid_pattern_indices();
+    test_mixed_patterns();
+    test_muted_voice_hits();
+    test_bar_actions_inside_long_slot();
+    test_tie_eligibility();
     test_32_step_303_is_two_bars();
     test_all_16_is_one_bar();
     test_303_eighth_rate_is_two_bars();

@@ -436,21 +436,25 @@ static int rate_ticks(int rate)
     return (int)TICKS_PER_STEP[(unsigned)rate < NRATES ? (unsigned)rate : RATE_16];
 }
 
-static int drum_plays(const dpart_t *d)
+static int drum_plays(const dpart_t *d, uint32_t muted)
 {
     int len = clamp_steps(d->len), v, s;
     for (v = 0; v < NDRUM; v++)
         for (s = 0; s < len; s++)
-            if (sm_get(d->hit[v], s))
+            if (!(muted & (1u << v)) && sm_get(d->hit[v], s))
                 return 1;
     return 0;
 }
 
-static int bass_plays(const bpart_t *b)
+static int bass_plays(const bpart_t *b, int sounding, int restarted)
 {
     int len = clamp_steps(b->len), s;
+    /* A carried gate only survives a restart if its first played step is TIE. */
+    if (restarted && bstep_gate(&b->step[b->dir == DIR_REV ? len - 1 : 0]) != G_TIE)
+        sounding = 0;
     for (s = 0; s < len; s++)
-        if (bstep_gate(&b->step[s]) != G_REST)
+        if (bstep_gate(&b->step[s]) == G_NOTE ||
+            (sounding && bstep_gate(&b->step[s]) == G_TIE))
             return 1;
     return 0;
 }
@@ -468,29 +472,37 @@ static int brk_plays(const brkpart_t *b)
  * part in the current pattern (length and rate), rounded up to a whole 909
  * pass. Muted, part-off and empty parts do not extend the slot. One 909
  * pass is the minimum (the bar). Computed on the slot-open (bar) path. */
-int seq_chain_slot_len(const seq_t *s)
+static int chain_slot_len(const seq_t *s, uint32_t restarted)
 {
     const pattern_t *p;
     int bar_len, bar_t, max_t, t, n_bars, steps;
 
-    if (!s || !s->pat || s->ppat[TRK_DRUM] >= NPAT) return 1;
+    if (!s || !s->pat) return 1;
+    for (t = 0; t < NTRACKS; t++)
+        if (s->ppat[t] >= NPAT) return 1;
     p = &s->pat[s->ppat[TRK_DRUM]];
     bar_len = clamp_steps(p->drum[0].len);
     bar_t = bar_len * rate_ticks(p->drum[0].rate);
     max_t = bar_t;                                   /* at least one 909 pass */
 
     /* 808 (the 909 sets the bar, already in max_t) */
-    if (!SEQ_PART_OFF(s, 1) && !seq_part_muted(s, 1) && drum_plays(&p->drum[1])) {
+    p = &s->pat[s->ppat[1]];
+    if (!SEQ_PART_OFF(s, 1) && !seq_part_muted(s, 1) &&
+        drum_plays(&p->drum[1], (s->mute | s->vmute) >> NDRUM)) {
         int tt = clamp_steps(p->drum[1].len) * rate_ticks(p->drum[1].rate);
         if (tt > max_t) max_t = tt;
     }
     for (t = 0; t < NBASS; t++) {
         int tr = TRK_BASS0 + t, tt;
-        if (SEQ_PART_OFF(s, tr) || seq_part_muted(s, tr) || !bass_plays(&p->bass[t]))
+        p = &s->pat[s->ppat[tr]];
+        if (SEQ_PART_OFF(s, tr) || seq_part_muted(s, tr) ||
+            !bass_plays(&p->bass[t], s->t[tr].sounding,
+                        !s->t[tr].started || (restarted & (1u << tr))))
             continue;
         tt = clamp_steps(p->bass[t].len) * rate_ticks(p->bass[t].rate);
         if (tt > max_t) max_t = tt;
     }
+    p = &s->pat[s->ppat[TRK_BRK]];
     /* BREAK's sequencer clock is 16 steps at 1/16, even when RATE_8 / RATE_4 group them. */
     if (!SEQ_PART_OFF(s, TRK_BRK) && !seq_part_muted(s, TRK_BRK) && brk_plays(&p->brk)) {
         int tt = 16 * rate_ticks(RATE_16);
@@ -502,7 +514,9 @@ int seq_chain_slot_len(const seq_t *s)
     return steps > 65535 ? 65535 : steps;
 }
 
-__attribute__((noinline)) static void chain_slot_open(seq_t *s)
+int seq_chain_slot_len(const seq_t *s) { return chain_slot_len(s, 0); }
+
+__attribute__((noinline)) static void chain_slot_open(seq_t *s, uint32_t restarted)
 {
     uint16_t chain = s->chain;
     int ca = chain & 255u, cb = chain >> 8, lo, hi, c;
@@ -511,12 +525,12 @@ __attribute__((noinline)) static void chain_slot_open(seq_t *s)
     lo = ca < cb ? ca : cb; hi = ca < cb ? cb : ca;
     c = (int)s->ppat[TRK_DRUM];
     if (c < lo || c > hi) return;
-    s->chain_win = (uint16_t)seq_chain_slot_len(s);
+    s->chain_win = (uint16_t)chain_slot_len(s, restarted);
 }
 
-static int drum_boundary(const seq_t *s, int wrapped)
+static int chain_boundary(const seq_t *s)
 {
-    if (!s->chain_win || (song_plays(s) && !s->song_rec)) return wrapped;
+    if (!s->chain_win || (song_plays(s) && !s->song_rec)) return 1;
     return s->chain_at >= s->chain_win;
 }
 
@@ -563,7 +577,7 @@ static uint32_t bar_end(seq_t *s, int start)
             }
         uint16_t chain = s->chain;                    /* one snapshot of the published pair */
         int ca = chain & 0xFFu, cb = chain >> 8;
-        if (!cued && !start && ca != cb) {
+        if (!cued && !start && ca != cb && chain_boundary(s)) {
             int a = ca < cb ? ca : cb;
             int b = ca < cb ? cb : ca, c = s->ppat[TRK_DRUM];
             c = (c < a || c >= b) ? a : c + 1;
@@ -623,11 +637,12 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
              bpart(s, t - TRK_BASS0)->dir != DIR_RANDOM && p == 0);
     }
     {
-        int bar = t == TRK_DRUM && drum_boundary(s, wrapped);
+        int bar = t == TRK_DRUM && wrapped;
+        int slot = bar && chain_boundary(s);
         if (bar && ((changed = bar_end(s, 0)) & (1u << TRK_DRUM)) != 0) {
             rate = part_rate(s, t); L = seq_step_q8(s, rate); p = 0;
         }
-        if (bar) chain_slot_open(s);
+        if (bar && (slot || (changed & (1u << TRK_DRUM)))) chain_slot_open(s, changed);
         if (bar || !s->fill_req) s->fill_on = s->fill_req;   /* fill: starts on a bar, stops on release */
     }
     if (bass) {
@@ -754,7 +769,7 @@ __attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq
     bass_release_all(s, o);                /* Start/Continue reinitialises timers: release old notes first */
     if (from_top) {
         bar_end(s, 1);
-        chain_slot_open(s);
+        chain_slot_open(s, (1u << NTRACKS) - 1u);
     }
     for (t = 0; t < NTRACKS; t++)
         track_arm(s, t, from_top, 1);
