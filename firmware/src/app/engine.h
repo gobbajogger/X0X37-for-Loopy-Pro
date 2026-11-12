@@ -303,3 +303,7 @@ int engine_live_key(int voice,uint32_t generation,int token,int pitch,int veloci
 void engine_live_key_force_serial(int voice,uint32_t generation,uint32_t context);
 unsigned engine_live_key_probe(int voice,int field);
 #endif
+
+#if X0X_DIAG_STATE_TRACE
+void engine_diag_half(uint32_t half, uint32_t late);
+#endif

@@ -918,6 +918,27 @@ void engine_bass_off_note(int part, int note)
 }
 void engine_brk_live(int key, int down) { if (down && SEQ_PART_OFF(&seq, TRK_BRK)) return; cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
 
+/* Opt-in bounded trace: ordinary RAM, never the audio pool. No raw struct
+ * bytes, addresses, wall clock, or DSP floating-point arithmetic enter hashes. */
+#ifndef X0X_DIAG_STATE_TRACE
+#define X0X_DIAG_STATE_TRACE 0
+#endif
+#if X0X_DIAG_STATE_TRACE != 0 && X0X_DIAG_STATE_TRACE != 1
+#error "X0X_DIAG_STATE_TRACE must be 0 or 1"
+#endif
+#if X0X_DIAG_STATE_TRACE
+struct diag_row { uint32_t half, late, state, events, count, drums, bass, steps, plan; };
+volatile struct { uint32_t written; struct diag_row row[48]; } x0x_state_trace;
+static uint32_t diag_events, diag_count, diag_drums, diag_bass;
+__attribute__((noinline, minsize)) static void diag_event(uint32_t data)
+{
+    diag_events = (diag_events * 33u) ^ data;
+    ++diag_count;
+}
+#else
+#define diag_event(data) ((void)0)
+#endif
+
 /* ------------------------------------------------------- sequencer sink --- */
 /* probability: each part's (and drum track's) chance on the step playing now, set by its T_PROB lane
  * before the step fires (motion_step runs first); 100 = always */
@@ -949,6 +970,11 @@ static int s_drum_seq(void *x, int kit, int v, float vel)
 __attribute__((noinline)) static void s_drum(void *x, int kit, int v, float vel)
 {
     (void)x;
+#if X0X_DIAG_STATE_TRACE
+    union { float f; uint32_t u; } dv = {vel};
+    diag_event(((1u + (uint32_t)kit * 16u + (uint32_t)v) << 24) ^ dv.u);
+    if ((unsigned)kit < 2u && (unsigned)v < 11u) diag_drums |= 1u << (kit * 11 + v);
+#endif
     if (v == 0)                          /* BD (both kits' track 1): the master's PUMP key */
         master_key(&mst, kit, vel);
     if ((unsigned)kit < NKIT && (unsigned)v < NDRUM)   /* MIX's drum pages: the track's meter jumps */
@@ -1112,11 +1138,16 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
     int rc = original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)note, (unsigned)velocity);
     if (sl && previous >= 0)
         (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
+#if X0X_DIAG_STATE_TRACE
+    diag_bass = (uint32_t)p | (uint32_t)(note & 255) << 8 | (uint32_t)(velocity & 255) << 16 | (uint32_t)(rc & 255) << 24;
+    diag_event(((32u + (uint32_t)p) << 24) ^ diag_bass);
+#endif
     original_seq_note[p] = (int16_t)note;
     return rc == ORIGINAL_RUNTIME_OK;
 }
 static void s_boff(void *x, int p)
 {
+    diag_event((48u << 24) ^ (uint32_t)p);
     (void)x;
     if ((unsigned)p >= NBASS) return;
     (void)original_runtime_release_source(&original_bass[p], ORIGINAL_INPUT_SEQUENCE);
@@ -2811,6 +2842,27 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         bfx_flt_shape(out_l, out_r, (int)n);
     }
 }
+
+#if X0X_DIAG_STATE_TRACE
+__attribute__((noinline, minsize)) void engine_diag_half(uint32_t half, uint32_t late)
+{
+    uint32_t h = seq.mute ^ ((uint32_t)seq.playing << 31), steps = 0, i;
+    for (i = 0; i < NTRACKS; ++i) {
+        h = h * 33u ^ seq.t[i].to_next;
+        h = h * 33u ^ seq.t[i].to_off;
+        h = h * 33u ^ seq.ppat[i];
+        steps |= (uint32_t)(seq.t[i].pos & 63u) << (i * 6u);
+    }
+    if (half >= 200u && half < 248u) {
+        volatile struct diag_row *r = &x0x_state_trace.row[half - 200u];
+        r->half = half; r->late = late; r->state = h; r->events = diag_events;
+        r->count = diag_count; r->drums = diag_drums; r->bass = diag_bass; r->steps = steps;
+        r->plan = (uint32_t)eng_plan | (uint32_t)eng_c1_mask << 8 | (uint32_t)eng_808_split << 16;
+        ++x0x_state_trace.written;
+    }
+    diag_events = diag_count = diag_drums = diag_bass = 0;
+}
+#endif
 
 void engine_render(int32_t *out_lr, uint32_t n)
 {

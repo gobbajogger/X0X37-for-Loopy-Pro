@@ -438,6 +438,11 @@ def build_app():
         raise SystemExit("X0X_DIAG_DISABLE_LOAD_GUARD: 0 or 1")
     if diagnostic_guard == "1":
         flags.append("-DX0X_DIAG_DISABLE_LOAD_GUARD=1")
+    diagnostic_trace = os.environ.get("X0X_DIAG_STATE_TRACE", "0")
+    if diagnostic_trace not in ("0", "1"):
+        raise SystemExit("X0X_DIAG_STATE_TRACE: 0 or 1")
+    if diagnostic_trace == "1":
+        flags.append("-DX0X_DIAG_STATE_TRACE=1")
     usb_name = usb_product_define(BOARD, MODEL)
     if usb_name:
         flags.append(usb_name)  # app only: loader, VID/PID and package identity unchanged

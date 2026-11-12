@@ -55,6 +55,9 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
 #endif
         }
     }
+#if X0X_DIAG_STATE_TRACE
+    engine_diag_half(x0x_dbg.halves, x0x_dbg.late);
+#endif
     us = (fm1_ticks() - t0) / FM1_TICKS_PER_US;
 #if X0X_LCD_TRACE
     lcd_trace_record(LCD_T_AUDIO, us);
