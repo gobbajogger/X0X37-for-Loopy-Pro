@@ -63,7 +63,7 @@ def clang_std_inc():
     return ["-idirafter", include]
 # the DSP, the sequencer and the audio engine: separate units at -O2
 O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
-            "dsp/x0x_param.c", "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
+            "dsp/x0x_param.c", "dsp/juno6.c", "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
 # Explicit compilation superset. The app's backend calls, not forced export roots,
 # decide which function/data sections survive the link. master_unmuted.c is an old
 # component reference; the original graph uses master.c and its real lifecycle.
