@@ -217,7 +217,7 @@ expect_strict_failure() {
 SG=$TMP/strict_green
 write_strict_present "$SG"
 expect_zero STRICT_GREEN sh "$CHECK" --strict --candidate-sha "$CANDIDATE" "$SG" "$SG/docs/roadmap-evidence"
-if ! printf '%s\\n' "$LAST_OUT" | grep -q '^STRICT_RESULT PASS rows=1 required=1
+if ! printf '%s\n' "$LAST_OUT" | grep -q '^STRICT_RESULT PASS rows=1 required=1$'; then
   note "FAIL STRICT_GREEN summary: $LAST_OUT"
   fail=$((fail + 1))
 fi
