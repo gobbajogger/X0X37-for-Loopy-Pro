@@ -43,10 +43,10 @@ int main(void) {
  push(0,6,100); push(1,7,100);
  live_key_drain();
  if(applied!=1 || original_key_pitch[0][1]!=61 || !live_key_owner[0].gate || live_key_r!=live_key_w) {
-  printf("FAIL live key epoch: applied=%d pitch=%u gate=%u r=%u w=%u\\n",applied,original_key_pitch[0][1],live_key_owner[0].gate,live_key_r,live_key_w); return 1;
+  printf("FAIL live key epoch: applied=%d pitch=%u gate=%u r=%u w=%u\n",applied,original_key_pitch[0][1],live_key_owner[0].gate,live_key_r,live_key_w); return 1;
  }
  live_key_cancel=1u; live_key_drain();
- if(retired!=1) { printf("FAIL live key cancel: retired=%d\\n",retired); return 1; }
+ if(retired!=1) { printf("FAIL live key cancel: retired=%d\n",retired); return 1; }
  puts("live key epoch: 0 failures"); return 0;
 }
 """
@@ -56,10 +56,10 @@ def extract(text, signature):
   if text[j]=="{": depth+=1
   elif text[j]=="}":
    depth-=1
-   if depth==0:return text[start:j+1]+"\\n"
+   if depth==0:return text[start:j+1]+"\n"
  raise SystemExit("unclosed "+signature)
 engine=(ROOT/"firmware/src/app/engine.c").read_text()
-source=PRE+extract(engine,"static void live_key_drain(void)\\n{")+HARNESS
+source=PRE+extract(engine,"static void live_key_drain(void)\n{")+HARNESS
 with tempfile.TemporaryDirectory(prefix="x0x-live-epoch-") as d:
  c=Path(d)/"test.c"; exe=Path(d)/"test"; c.write_text(source)
  subprocess.run(["cc","-std=c11","-O2","-Wall","-Wextra","-Werror",str(c),"-o",str(exe)],check=True)
