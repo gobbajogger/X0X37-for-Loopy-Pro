@@ -5,9 +5,12 @@ set -eu
 cd "$(dirname "$0")/../.."
 file=firmware/src/app/engine.c
 backup=$(mktemp)
+midi_file=host/x0x_host.c
+midi_backup=$(mktemp)
 cp "$file" "$backup"
-restore() { cp "$backup" "$file"; }
-trap 'restore; rm -f "$backup"' EXIT HUP INT TERM
+cp "$midi_file" "$midi_backup"
+restore() { cp "$backup" "$file"; cp "$midi_backup" "$midi_file"; }
+trap 'restore; rm -f "$backup" "$midi_backup"' EXIT HUP INT TERM
 python3 - "$file" <<'PY'
 import pathlib,sys
 p=pathlib.Path(sys.argv[1]);s=p.read_text()
@@ -23,9 +26,6 @@ set -e
 restore
 if [ "$rc" -eq 0 ]; then echo "MUTANT SURVIVED: stale-generation"; exit 1; fi
 echo "MUTANT KILLED: stale-generation"
-midi_file=host/x0x_host.c
-midi_backup=$(mktemp)
-cp "$midi_file" "$midi_backup"
 python3 - "$midi_file" <<'PY'
 import pathlib,sys
 p=pathlib.Path(sys.argv[1]);s=p.read_text()
@@ -38,7 +38,7 @@ set +e
 python3 tests/host/midi_epoch_step_test.py > /tmp/x0x-panic-midi-epoch-plus2.log 2>&1
 midi_rc=$?
 set -e
-cp "$midi_backup" "$midi_file"; rm -f "$midi_backup"
+restore
 if [ "$midi_rc" -eq 0 ]; then echo "MUTANT SURVIVED: midi-epoch-plus2"; exit 1; fi
 echo "MUTANT KILLED: midi-epoch-plus2"
 echo "panic mutants: 2 killed"
