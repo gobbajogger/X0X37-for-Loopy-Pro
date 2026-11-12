@@ -19,24 +19,24 @@ static uint8_t eng_plan,eng_c1_mask,eng_808_split;
 '''+DECL+HALF+'''
 int main(void) {
 #if X0X_DIAG_STATE_TRACE
-    diag_event(123); engine_diag_half(199,0);
+    diag_event(123); engine_diag_half(159,0);
     assert(x0x_state_trace.written==0 && diag_count==0 && diag_events==0);
     seq.t[0].pos=3; seq.t[4].pos=7;seq.t[2].to_next=12345;
     diag_event(123); diag_event(456);diag_drums=5;diag_bass=789;
     eng_plan=3;eng_c1_mask=2;eng_808_split=1;
-    engine_diag_half(200,4);
+    engine_diag_half(160,4);
     assert(x0x_state_trace.written==1);
-    assert(x0x_state_trace.row[0].half==200 && x0x_state_trace.row[0].late==4);
+    assert(x0x_state_trace.row[0].half==160 && x0x_state_trace.row[0].late==4);
     assert(x0x_state_trace.row[0].count==2 && x0x_state_trace.row[0].events==((123u*33u)^456u));
     assert(x0x_state_trace.row[0].drums==5 && x0x_state_trace.row[0].bass==789);
     assert(x0x_state_trace.row[0].steps==(3u|(7u<<24)) && x0x_state_trace.row[0].plan==0x10203);
     assert(!diag_count && !diag_events && !diag_drums && !diag_bass);
     uint32_t hash=x0x_state_trace.row[0].state;
-    engine_diag_half(201,4);assert(x0x_state_trace.row[1].state==hash);
-    seq.t[2].to_next++;engine_diag_half(202,4);assert(x0x_state_trace.row[2].state!=hash);
-    for (unsigned i=203;i<248;i++)engine_diag_half(i,4);
-    assert(x0x_state_trace.written==48 && x0x_state_trace.row[47].half==247);
-    engine_diag_half(248,5);engine_diag_half(1000,5);
+    engine_diag_half(161,4);assert(x0x_state_trace.row[1].state==hash);
+    seq.t[2].to_next++;engine_diag_half(162,4);assert(x0x_state_trace.row[2].state!=hash);
+    for (unsigned i=163;i<208;i++)engine_diag_half(i,4);
+    assert(x0x_state_trace.written==48 && x0x_state_trace.row[47].half==207);
+    engine_diag_half(208,5);engine_diag_half(1000,5);
     assert(x0x_state_trace.written==48 && x0x_state_trace.row[47].late==4);
 #endif
     return 0;
@@ -60,14 +60,14 @@ int main(void) {
         data=bytearray(1732)
         self.assertEqual(mod.decode(data)['written'],0)
         struct.pack_into('<I',data,0,1)
-        struct.pack_into('<9I',data,4,200,2,3,4,5,1,0x017f3c00,0,7)
+        struct.pack_into('<9I',data,4,160,2,3,4,5,1,0x017f3c00,0,7)
         row=mod.decode(data)['rows'][0]
         self.assertEqual(row['last_sequence_bass_request']['note'],60)
         self.assertEqual(row['drum_requests'],[(0,0)])
         with self.assertRaises(ValueError):mod.decode(data[:-1])
         struct.pack_into('<I',data,0,49)
         with self.assertRaises(ValueError):mod.decode(data)
-        struct.pack_into('<I',data,0,1);struct.pack_into('<I',data,4,201)
+        struct.pack_into('<I',data,0,1);struct.pack_into('<I',data,4,161)
         with self.assertRaises(ValueError):mod.decode(data)
 
     def test_one_hook_per_native_half_and_no_pool(self):

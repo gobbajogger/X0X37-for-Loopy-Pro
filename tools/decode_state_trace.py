@@ -15,7 +15,7 @@ def decode(data):
     rows=[]
     for i in range(written):
         row=dict(zip(FIELDS,struct.unpack_from('<9I',data,4+i*36)))
-        if row['half']!=200+i: raise ValueError('nonsequential half index: wrong ELF/layout or incomplete capture')
+        if row['half']!=160+i: raise ValueError('nonsequential half index: wrong ELF/layout or incomplete capture')
         row['track_steps']=[(row['steps']>>(j*6))&63 for j in range(5)]
         row['drum_requests']=[(j//11,j%11) for j in range(22) if row['drums']&(1<<j)]
         row['last_sequence_bass_request']={'part':row['bass']&255,'note':(row['bass']>>8)&255,'velocity':(row['bass']>>16)&255,'runtime_result':(row['bass']>>24)&255}

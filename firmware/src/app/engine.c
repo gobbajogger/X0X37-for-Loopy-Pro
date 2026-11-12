@@ -2853,8 +2853,8 @@ __attribute__((noinline, minsize)) void engine_diag_half(uint32_t half, uint32_t
         h = h * 33u ^ seq.ppat[i];
         steps |= (uint32_t)(seq.t[i].pos & 63u) << (i * 6u);
     }
-    if (half >= 200u && half < 248u) {
-        volatile struct diag_row *r = &x0x_state_trace.row[half - 200u];
+    if (half >= 160u && half < 208u) {
+        volatile struct diag_row *r = &x0x_state_trace.row[half - 160u];
         r->half = half; r->late = late; r->state = h; r->events = diag_events;
         r->count = diag_count; r->drums = diag_drums; r->bass = diag_bass; r->steps = steps;
         r->plan = (uint32_t)eng_plan | (uint32_t)eng_c1_mask << 8 | (uint32_t)eng_808_split << 16;
