@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ui-theme progress
 
 Lane: `codex/ui-theme`. Base: `e888d046`. Scope: local source commits, host checks and one `X0X_ORIGINAL_SYNTH=1` Elite Docker build. No push or device access.
@@ -58,3 +59,20 @@ Independent source and actual-render review has no remaining blocker. The factor
 Final affected runner: PASS, `build/ui-theme/host-suite-final5.log` (`original-release-integration ui-theme boot-screen`). Integration: 210,508 checks, normal/ASan/UBSan equality. SMK theme/UI: 14,855,263 checks, 127 identical normal/sanitized PNGs. Chicago tail: three post-voice blocks, nine total switch blocks, smooth cancellation verified. The chosen Miami factory had no post-voice tail: zero natural tail blocks, four switch blocks; a separately seeded real decimator-held state proves signal history is not note ownership. The adoption output bound is at most one 16-bit LSB for both tested transitions. `project-stage` and `host-build` PASS in runner final2; `part-order` PASS in the initial runner. Web boot tests PASS. Earlier failed attempts remain failures in their logs; they are superseded only by the repaired affected checks.
 
 Target build is the next authorized action. Source commit will identify the candidate; flash/RAM figures remain unmeasured until that build completes.
+=======
+# Mixer UX lane status
+
+Branch: codex/mixer-ux. Base: e888d046bd16d7f9f64e9c824ca4027570bb38fe.
+Owner scope: mixer UI/logic only. Local commits only; no device access or push.
+
+PR inspection completed through GitHub read-only connector: #168 closed, not merged, head 0c5fc921b617d7edb2a831e40cbf20a0034707dc; #650 open a51b030d98e1400f697ba1fa7b5056a62f7399fc; #638 open 5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134; #636 open 92108efd743fb9fbadd665c361ee48e22b0e86e0. Changed-file inventories and source/diffs inspected. #168 strip layout/pickup/repeat Select/lock successors already exist in base. #636/#650 provide renderer foundations, not the missing mixer mapping. #638 supplies a reusable clocked metronome observer. No wholesale PR merge is planned.
+
+Items 31, 37, 39, 40, 42, 44, 45, 46, 67, 20: implemented in source, focused shipping host checks PASS; broader regression/build pending. Item 16: SMC Solo/FX ownership implemented and checked; no claim of a new whole-project gesture audit. Item 41: partial; complete agreed FX button mapping is absent from the supplied evidence and must not be invented. The existing FX context remains available with explicit Select low-pass, truthful captions and coloured travel. A source-location question is pending while independent work continues.
+
+Proposal: docs/mixer-ux-proposal.md and docs/mixer-ux-proposal.svg (proposal, not firmware render). Independent design review completed before implementation; held-release loss, exact Unmute matching, locked bank recapture and FX release ownership findings were resolved. Actual candidate framebuffer images inspected at build/host/mixer-ux-native3/: stopped pickup, running pickup phases and locked drum bank 2. Independent candidate review pending.
+
+Focused check: PATH="$PWD/build/mixer-ux/bin:$PATH" MIXER_UX_OUT=build/host/mixer-ux-native3 sh tests/host/mixer_ux_test.sh: PASS 358 checks, original Chicago/Miami profile and revision 13 asserted. Log: build/mixer-ux/focused-native3.log. Earlier focused attempts failed on the system Python 3.9 annotation support and a fixture zero-frame render assumption; corrected native Python 3.12 setup and a real one-frame render pass. These setup/fixture failures are retained in separate logs.
+
+Broader tests are running against base and candidate. Initial Docker parallel host run failed because the shared mount cannot create its FIFO. A tmpfs retry was stopped in favour of supported native host execution; no complete PASS is claimed for either Docker host attempt. Only mixer-ux-owned process trees/containers were stopped. Native setup uses local ignored wrappers for Python 3.12 and Apple cc with _DARWIN_C_SOURCE, without changing system configuration. Docker Elite build 01 was stopped during setup to avoid competing duplicate fixture generation; final candidate build 02 is running. No hardware or install command is involved.
+Commits: none yet. Broad host tests and Docker Elite build: RUNNING. Flash/RAM free: not measured. All twelve manifest-pinned private headers were copied only from ../chicago-opt and verified; they remain ignored, untracked and excluded from staging. No hardware validation is authorized.
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)

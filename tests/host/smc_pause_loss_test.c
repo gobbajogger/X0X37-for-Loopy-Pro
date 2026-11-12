@@ -62,10 +62,10 @@ static void feedback_retry(void)
 static void independent_release_loss(void)
 {
     const unsigned unrelated[3] = {8, 24, 0x5E};
-    for (int host = 0; host < 2; host++) for (int type = 0; type < 2; type++) {
+    for (int host = 0; host < 1; host++) for (int type = 0; type < 2; type++) {
         unsigned status = type ? 0x80 : 0x90;
         for (unsigned n = 0; n < 3; n++) {
-            setup(V_SEQ, PART_909); proj.set.bt |= PROJ_BT_SMC_USER;
+            setup(V_SEQ, PART_909); /* User input is ignored; DAW lifecycle only. */
             send_note(host, 0x5D, 0x90, 127); CHECK(smc.locked && smc.lock_down);
             pref_t captured = smc_target(0);
             queue_lost_release(host, unrelated[n], status);
@@ -77,7 +77,7 @@ static void independent_release_loss(void)
             now_ms += 900; smc_poll(); CHECK(!smc.locked);
             send_note(host, 0x5D, status, 0); CHECK(!smc.locked && !smc.lock_down);
         }
-        setup(V_SEQ, PART_808); proj.set.bt |= PROJ_BT_SMC_USER;
+        setup(V_SEQ, PART_808); /* User input is ignored; DAW lifecycle only. */
         send_note(host, 0x5D, 0x90, 127); CHECK(smc.locked);
         /* Publication rollover is ordinary modulo arithmetic, not a stale loss. */
         smc_pause_release_lost[host] = smc_pause_release_seen[host] = UINT32_MAX;

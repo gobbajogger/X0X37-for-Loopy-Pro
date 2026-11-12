@@ -46,7 +46,7 @@ harness = r'''
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
 typedef struct { uint8_t kind, a, b, c; } pref_t;
-enum { O_NONE, O_ASK, NKIT = 2 };
+enum { O_NONE, O_ASK, NKIT = 2, NPARTS = 5 };
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { uint8_t overlay, help; } ui;
 static int locked, interrupt_at, interrupt_up;
