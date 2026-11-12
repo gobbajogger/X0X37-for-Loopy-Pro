@@ -91,7 +91,7 @@ test_class() {
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-zero-conn|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-ctl-fail-return|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
-    composed-features|composed-panic-cutover|panic-clear|panic-order|panic-mutants|live-key-epoch|roadmap-evidence-check|composed-ui-identity|composed-smc-panic) TEST_CLASS=G ;;
+    composed-features|composed-panic-cutover|panic-clear|panic-order|panic-mutants|live-key-epoch|midi-epoch-step|roadmap-evidence-check|composed-ui-identity|composed-smc-panic) TEST_CLASS=G ;;
     rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|freeplay-live-keys|synth-bus-mute|storage-warning|freeplay-latency|pads-in-settings|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|pattern-preset-notelock) TEST_CLASS=G ;;
@@ -370,6 +370,7 @@ run cq-shift-preempt python3 tests/host/cq_shift_preempt_test.py   # one masked 
 run panic-order sh tests/host/panic_order_test.sh
 run panic-mutants sh tests/host/panic_mutants.sh
 run live-key-epoch python3 tests/host/live_key_epoch_test.py
+run midi-epoch-step python3 tests/host/midi_epoch_step_test.py
 run roadmap-evidence-check sh tests/host/roadmap_evidence_check_test.sh
 run optimization-equivalence sh tests/host/run_optimization_equivalence.sh
 run sdk-pin python3 tests/sdk_pin_test.py   # SDK V1.2.14 pins; a wrong SDK stops the build
