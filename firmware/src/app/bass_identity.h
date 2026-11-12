@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Product-sound identity codec. Callers own storage transactions. The original
- * profile accepts only OCH1/OMI1 schema 1 and their 22/18-control cells; legacy
+ * profile accepts OCH1/OMI1/ODR1 schema 2 and their 22/18/8-control cells; legacy
  * profiles retain their own product identity rules. The integration owner
  * supplies the registry from actual production descriptors. */
 #pragma once
@@ -40,10 +40,13 @@ static inline int bass_identity_check(const bass_identity_t *tag,
     size_t i;
     if (!tag || (!registry && n)) return BASS_IDENTITY_INVALID;
     if (tag->state == BASS_IDENTITY_UNKNOWN) return BASS_IDENTITY_UNSUPPORTED;
-    if (tag->engine != ORIGINAL_SOUND_CHICAGO_ID && tag->engine != ORIGINAL_SOUND_MIAMI_ID)
+    if (tag->engine != ORIGINAL_SOUND_CHICAGO_ID && tag->engine != ORIGINAL_SOUND_MIAMI_ID &&
+        tag->engine != ORIGINAL_SOUND_DRONE_ID)
         return BASS_IDENTITY_UNSUPPORTED;
     if (tag->schema != ORIGINAL_SOUND_SCHEMA) return BASS_IDENTITY_UNSUPPORTED;
-    if (tag->count != original_sound_count(tag->engine == ORIGINAL_SOUND_MIAMI_ID))
+    unsigned kind = tag->engine == ORIGINAL_SOUND_MIAMI_ID ? ORIGINAL_SOUND_MIAMI :
+        tag->engine == ORIGINAL_SOUND_DRONE_ID ? ORIGINAL_SOUND_DRONE : ORIGINAL_SOUND_CHICAGO;
+    if (tag->count != original_sound_count(kind))
         return BASS_IDENTITY_INVALID;
     if (tag->state == BASS_IDENTITY_UNKNOWN)
         return !tag->engine && !tag->schema && !tag->count ?
@@ -126,7 +129,9 @@ static inline int bass_sound_tag_decode(bass_sound_info_t *out,const bass_sound_
     info.preset=(uint16_t)(wire->bytes[8]|((uint16_t)wire->bytes[9]<<8));
     info.flags=wire->bytes[10];
     if(wire->bytes[11] || (info.flags&~BASS_SOUND_EDITED))return BASS_IDENTITY_INVALID;
-    if (info.preset >= original_sound_factories(info.identity.engine == ORIGINAL_SOUND_MIAMI_ID))
+    unsigned kind = info.identity.engine == ORIGINAL_SOUND_MIAMI_ID ? ORIGINAL_SOUND_MIAMI :
+        info.identity.engine == ORIGINAL_SOUND_DRONE_ID ? ORIGINAL_SOUND_DRONE : ORIGINAL_SOUND_CHICAGO;
+    if (info.preset >= original_sound_factories(kind))
         return BASS_IDENTITY_INVALID;
     if(rc==BASS_IDENTITY_CHOICE_REQUIRED) {
         if(info.preset || info.flags)return BASS_IDENTITY_INVALID;
