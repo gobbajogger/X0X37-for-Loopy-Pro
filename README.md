@@ -106,6 +106,7 @@ The SMK-37 firmware answers a MIDI Device Inquiry with the Akai and APC40 mkII I
 ## Changelog, contributing and security
 
 - [CHANGELOG.md](CHANGELOG.md) — recent firmware changes
+- [docs/RELEASING.md](docs/RELEASING.md) — how a public release is made
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to report issues and propose changes
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Contributor Covenant 2.1
 - [SECURITY.md](SECURITY.md) — how to report a vulnerability

@@ -23,6 +23,10 @@ Do not attach private backups, credentials, or raw captures that you do not want
 4. Build and test guidance is in [BUILDING.md](BUILDING.md).
 5. Do not change GitHub workflow files under `.github/workflows/` unless a maintainer asks you to.
 
+## Releases
+
+Every public DnBOX release on main and on nightly follows [docs/RELEASING.md](docs/RELEASING.md). Do not invent a different tag, asset name, or notes layout.
+
 ## Security
 
 See [SECURITY.md](SECURITY.md). Do not file a public issue for a vulnerability.
