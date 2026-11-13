@@ -1,0 +1,86 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* X0X app: the project (everything that is saved) and the app-level entry points.
+ * Included by the unity build after gfx.c, so drawing helpers are in scope. */
+#pragma once
+#include <stdint.h>
+#include "plat.h"
+#include "engine.h"
+#include "../seq/pattern.h"
+#include "../seq/sequencer.h"
+#include "../seq/tb3po.h"
+#include "../seq/motion.h"
+#include "../dsp/breaks.h"
+#include "../dsp/fxbus.h"            /* FX_* param indices (the send pages) */
+
+#ifndef X0X_VERSION                     /* a release build passes its own (tools/build.py --release) */
+#define X0X_VERSION "DEV"
+#endif
+#ifndef X0X_DEV_PADCAL                  /* the pad calibration (BEHAVIOR.md CLP-79): 1 dev build, 0 release build */
+#define X0X_DEV_PADCAL 1                /* (tools/build.py passes X0X_DEV_PADCAL=0 or 1 from the environment) */
+#endif
+#define PROJ_MAGIC 0x50305830u           /* "0X0P" */
+#define PROJ_FORMAT 1u
+#define PROJ_STEREO 2u
+#define PROJ_SND_REV 4u                  /* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
+                                          * 2: the master's one-knob COMP and FILTER, the delay's TAPE;
+                                          * 3: the 909 BD has sends (REV, DLY at 8, 9; PAN moved to 10);
+                                          * 4: the 808 BD too (REV, DLY at 7, 8; PAN moved to 9) */
+/* settings_t.bt, bits 1-2: GLO > MIDI > CLOCK SOURCE (SEQ_CLK_*). Bit 3: bits 1-2 hold it (a75 and later). Without
+ * bit 3 (a74 and older), project_load reads the a74 byte at offset 38 (padding then; ck_x1 in the clip keys). */
+#define PROJ_BT_CLK_MASK 6u
+#define PROJ_BT_CLK_IN 8u
+#define PROJ_CLK_SRC(bt) ((uint8_t)((bt) >> 1 & 3u))
+#define PROJ_A74_CLK_OFF 38u
+
+typedef struct {
+    uint32_t magic, format;
+    uint8_t palette, keyled, clk_out, notes_out;   /* keyled: 0 off, 1 keys and the buttons' glow, 2 keys only */
+    uint16_t bpm_x10;
+    uint8_t accent_q7, keysound;         /* black drum keys sound: 0 = only when stopped or recording, 1 = always */
+    uint8_t autosave_off;                /* 0: save by itself while stopped and idle (ui.c autosave) */
+    uint8_t rsv_bright;                  /* was the screen's brightness (removed: always full); unused */
+    uint8_t stereo;                      /* the pans the sound has: 0 none (saved mono), 1 the parts', 2 the
+                                          * drum voices' too (PROJ_STEREO); a load centres what is missing */
+    uint8_t snd_rev;                     /* the sound's layout (PROJ_SND_REV): 0 = before the 909 SD's DECAY */
+    uint8_t midi_ch[5];                  /* each part's MIDI channel (in and out): 0 = its default (an older
+                                          * project), 1-16, 17 = OFF */
+    uint8_t out_loud;                    /* 1: the output 6 dB hotter (the codec's full scale) */
+    uint8_t usb_full;                    /* 1: USB audio at full level, the MASTER knob for the FM-1's own outputs */
+    uint8_t bt;                          /* bit 0: Bluetooth MIDI on (SMK-37; 0 = off, also in older objects);
+                                          * bits 1-3: CLOCK SOURCE (PROJ_BT_CLK_IN) */
+    uint8_t ck_ch;                       /* SMK-37 clip mode: the keybed MIDI channel 2-15 (0: an older object) */
+    uint8_t ck_root, ck_scale, ck_snap;  /* clip mode SCALE: root 0-11, scale, 0 NEAR / 1 FILTER (smk_clip_keys.h) */
+    uint8_t ck_chord;                    /* clip mode CHORD: type */
+    uint8_t ck_ord, ck_rate, ck_oct;     /* clip mode ARP: order, rate, octaves - 1 (0-3) */
+    uint8_t ck_gate;                     /* clip mode ARP: gate / 10 % - 1 (0-9) */
+    uint8_t ck_inv;                      /* clip mode CHORD: inversion 0-3 */
+    uint8_t ck_x1;                       /* clip mode ARP: bits 0-2 SWING (50 + 3 x %), bits 3-5 HUMAN (0 = off) */
+    uint8_t ck_x2;                       /* clip mode: bits 0-3 ARP RHYTHM (CK_RHY_T), bits 4-6 CHORD STRUM (x 10 ms) */
+} settings_t;
+
+/* the song and the motion lanes: one blob, split across OBJ_SONG and OBJ_MOTION */
+typedef struct {
+    song_t song;
+    lane_t lane[NLANE];
+} arrange_t;
+
+typedef struct {
+    settings_t set;
+    sound_t sound;
+    pattern_t pat[NPAT];
+    arrange_t arr;
+} project_t;
+
+extern project_t proj;
+
+void project_defaults(void);
+int project_load(void);                  /* 0 = loaded; else defaults are in place */
+int project_save(void);                  /* 0 = saved and verified; -7 = too much to fit (nothing written) */
+void project_apply_io(void);             /* the settings into the sequencer and the engine: MIDI, the output */
+int project_mem_pct(void);               /* how full the room for patterns, song and motion is, % */
+
+void ui_init(void);
+void ui_frame(void);
+void ui_input_only(void);
+int ui_dirty(void);
+void ui_say(const char *a, const char *b);
