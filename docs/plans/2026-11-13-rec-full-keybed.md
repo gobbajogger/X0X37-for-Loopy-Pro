@@ -114,3 +114,64 @@ SDK V1.2.14 raw bytes are unavailable in this execution session.
 - Existing negative drum/BREAK regression assertions cannot close either
   outstanding requirement. Source/PR delivery is not a firmware build or
   device acceptance.
+
+## PR #896 exact-source REC/Free Play ownership host continuation
+
+Test input: PR #896 at `2584b83d833c560f7acc9e900caa5fc351cf0613`; GitHub `firmware/src/app/ui.c`
+blob `5af70e36fe02e05287760a8e182c80d828d650b9`.
+Three unmodified production C ranges were retrieved through the GitHub
+connector and checked against local exact text (length / FNV-1a):
+`live_token + ui_live_key_owner` 894/`25710e1f`,
+`rec_outer_keys` 1788/`4ccb3d0f`,
+`input` 263/`7f944367`.
+Using the same production-source snippets and GitHub-matched
+`rec_outer_keymap.h` blob `a23a24ae6c2eb7f40f4b1b41eeadf208a9159b8a`,
+the focused host integration compiled and ran:
+- GCC: **PASS**, 4,304 assertions, 130 note-ons, 130 note-offs, 0 failures.
+- Clang ASan+UBSan: **PASS**, same 4,304 / 130 / 130 / 0.
+- GCC UBSan: **PASS**, same 4,304 / 130 / 130 / 0.
+
+The committed `tests/host/rec37_owner_integration_test.sh` extracts
+the live production functions directly from `ui.c` and compiles them
+against a deterministic mock input/engine. Coverage: both 303 parts,
+physical 0–36 and octaves -2 through +3, token/pitch identity, held
+pairs, suppression at REC entry, proper release across REC/part/page/
+clip/project/performance boundaries, no central-key theft, Free Play
+owner eligibility, and REC input-dispatch mask. **This is source-extracted
+component integration, not the full-application REC/Free Play scripts,
+PCM identity, SDK build, or device hardware validation.** FNV values
+guard against an accidental snippet mismatch; the Git blob pins the
+remote source. Test scripts must be rerun after future source edits.
+
+**Full-app host gates NOT_RUN on exact head:** `rec_keybed_37_test.sh`,
+`freeplay_live_keys_test.sh`, `freeplay_latency_test.sh`,
+`run_rec_live.sh smk37`, and affected ownership/lifecycle. These
+require the entire source tree and consumed host input generators and
+assets, which are not available from the current raw mounts. The GitHub
+connector provides exact selected text blobs; the raw Library source ZIP
+request to `files__materialize` returned: "This Project file does not
+have an authorized raw-byte materialization path." Old Oct-23/Oct-30
+source and precompiled 94197fc8 firmware do not replace current HEAD.
+
+**Native SDK HOLD:** Files `files__materialize` returned the same
+raw-byte error for the Library V1.2.14 SDK ZIP. Both target builds,
+flash free >=8192 B per model, pool free >=8192 B per model, target
+timing, and whole-app sound identity remain NOT_MEASURED. PR #893
+modwheel's verified Elite/Pro builds are different source and are
+flash-short by 516/508 B; never use their firmware bytes as REC proof.
+
+**Producer handoff:** Obtain a real supported local file upload or
+authorized container mount with the **raw current PR #896 source
+archive** plus exact host generator inputs (not an indexed Project
+reference). Verify all consumed file blobs and tree against the
+GitHub connector's exact PR HEAD before testing. Run only the five
+focused checks named above using the repository scripts and actual
+test process exits; do not claim zero failures from a test not run.
+Native builds additionally require a separately authorized,
+physically accessible raw SDK V1.2.14 archive with verified component
+hashes and JieLi Clang 4.0.1, and must embed the identical exact Git
+source SHA. Log image sizes, flash/pool free, model identities and
+hashes. Do not bypass materialization denial, substitute PR #893
+artifacts, touch main/nightly or publish/flash.
+**909/808/BREAK outer-key REC remains explicitly unimplemented and
+awaits an approved mapping, not a reinterpretation of the old tests.**
