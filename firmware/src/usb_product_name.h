@@ -3,14 +3,20 @@
 #include <stdint.h>
 #include "app/version.h"
 
-/* This file is included only in the Pro or Elite application, never the loader. */
-#if !BOARD_SMK37 || (defined(X0X_USB_37PRO) == defined(X0X_USB_37ELITE))
-#error USB product name requires exactly one SMK-37 Pro/Elite model
+/* SMK application descriptors only; the update loader keeps its existing identity. */
+#if !BOARD_SMK37 || (defined(X0X_USB_37PRO) && defined(X0X_USB_37ELITE))
+#error USB product name requires an SMK board and unambiguous model
 #endif
 #if defined(X0X_USB_37ELITE)
 #define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " 37ELITE"
-#else
+#elif defined(X0X_USB_37PRO)
 #define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " 37PRO"
+#else
+#ifndef SMK_MODEL
+#error SMK_MODEL is required for an SMK USB descriptor
+#endif
+/* Direct/MKE builds must not fall back to the legacy non-keyboard name. */
+#define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " " SMK_MODEL
 #endif
 
 enum { X0X_USB_PRODUCT_CHARS = sizeof(X0X_USB_PRODUCT_TEXT) / sizeof(uint16_t) - 1u };

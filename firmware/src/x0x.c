@@ -52,7 +52,7 @@ static inline int32_t clamp(int32_t v, int32_t lo, int32_t hi) { return v < lo ?
 #define FELUCCA_UAC X0X_UAC
 #ifndef FELUCCA_ID
 #if BOARD_SMK37
-#define FELUCCA_ID "SMK-37 Pro_900"   /* package identity (tools/build.py) */
+#define FELUCCA_ID SMK_MODEL "_900"   /* same model as HAL and loader, including direct builds */
 #else
 #define FELUCCA_ID "FM-1_900"     /* package identity (tools/build.py) */
 #endif

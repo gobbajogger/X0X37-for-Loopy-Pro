@@ -154,3 +154,10 @@ firmware adoption or device proof. Keep production separate from NIGHTLY.
 Rows 73 and 120 remain excluded; row 119 belongs to F6. No bootloader, device,
 publication, integration or merge action is part of this source PR.
 
+
+## SMK identity fallback hardening (2026-11-13)
+
+- Scope: direct/MKE SMK USB builds must not fall back to a non-keyboard product label; direct Elite/MKE OTA identity must use the selected `SMK_MODEL`, not Pro.
+- Base: published 0.0.26 source `600b3b45f8d59c3432d958238b05753eb6f2fcb5`. Its normal Elite/Pro package identities and USB descriptor bytes were already correct. This is not evidence for the reported slow-boot cause.
+- Status: source candidate. `tests/host/usb_product_names_test.py` compiles and decodes the real USB descriptors and fallback OTA model definitions. Existing explicit Elite/Pro display strings, VID/PID, loader identity and protected flash behavior remain unchanged.
+- Qualification: focused checks PASS; target rebuild and device checks not run for this candidate. No release or hardware-fix claim.

@@ -68,13 +68,47 @@ def main():
                 assert result.returncode == 0, result.stdout + result.stderr
                 assert expected in result.stdout, result.stdout
                 print(result.stdout.strip())
+        # Compile the real descriptor without the optional display flags. These
+        # direct/MKE build paths previously fell through to the FM-1 descriptor.
+        for model in ("SMK-37 Pro", "SMK-37 Elite", "MKE-P37"):
+            expected = f"DnBOX DEV {model}"
+            args = ["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                    "-DBOARD_SMK37=1", f'-DSMK_MODEL="{model}"',
+                    f'-DEXPECTED="{expected}"', "-Ifirmware/src", str(source), "-o", str(binary)]
+            result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True)
+            assert result.returncode == 0, result.stderr
+            result = subprocess.run([str(binary)], capture_output=True, text=True)
+            assert result.returncode == 0, result.stdout + result.stderr
+            print(result.stdout.strip())
+        # Exercise the actual fallback OTA definition rather than a duplicate.
+        x0x = (ROOT / "firmware/src/x0x.c").read_text()
+        start = x0x.index("#ifndef FELUCCA_ID")
+        stop = x0x.index('#include "usb.c"', start)
+        ota = Path(tmp) / "ota.c"
+        ota.write_text('#include <stdio.h>\n' + x0x[start:stop] +
+                       '\nint main(void) { puts(FELUCCA_ID); return 0; }\n')
+        for model in ("SMK-37 Pro", "SMK-37 Elite", "MKE-P37"):
+            result = subprocess.run(["cc", "-DBOARD_SMK37=1", f'-DSMK_MODEL="{model}"',
+                                     str(ota), "-o", str(binary)], capture_output=True, text=True)
+            assert result.returncode == 0, result.stderr
+            result = subprocess.run([str(binary)], capture_output=True, text=True)
+            assert result.returncode == 0 and result.stdout.strip() == model + "_900", result.stdout
+            print("PASS fallback OTA identity: " + result.stdout.strip())
+        for defines in (["-DBOARD_SMK37=0", "-DX0X_USB_37PRO=1"],
+                        ["-DBOARD_SMK37=1", "-DX0X_USB_37PRO=1", "-DX0X_USB_37ELITE=1"],
+                        ["-DBOARD_SMK37=1"]):
+            result = subprocess.run(["cc", "-std=c11", *defines, '-DEXPECTED="invalid"',
+                                     "-Ifirmware/src", str(source), "-o", str(binary)],
+                                    cwd=ROOT, capture_output=True, text=True)
+            assert result.returncode != 0, "invalid board/model flags were accepted"
+        print("PASS non-SMK, conflicting and missing model definitions rejected")
         too_long = "1" * 125
         result = compile_one(source, binary, "elite", too_long, f"DnBOX {too_long} 37ELITE")
         assert result.returncode != 0 and "USB product name exceeds" in result.stderr, result.stderr
         print("PASS oversized USB product name rejected at compile time")
 
     usb = (ROOT / "firmware/src/usb.c").read_text(encoding="utf-8")
-    assert '#include "usb_product_name.h"' in usb
+    assert '#elif BOARD_SMK37\n#include "usb_product_name.h"' in usb
     assert '*d = (const uint8_t *)&STR2;' in usb
     assert '0x09, 0x12, FELUCCA_USB_PID & 0xFF' in usb  # existing VID/PID unchanged
     assert "'F', 0, 'e', 0, 'l', 0, 'u'" in usb  # loader name unchanged
