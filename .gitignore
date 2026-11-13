@@ -1,4 +1,4 @@
-build/
+/build/
 .DS_Store
 __pycache__/
 *.o
@@ -8,20 +8,15 @@ releases/openbeta/*.json.tmp
 # Firmware and other binary build outputs (do not commit)
 *.fwsc
 *.elf
-*.bin
 *.img
 *.hex
-*.map
 
-# Logs, dumps and captures
-*.log
+# Dumps
 *.dump
-*.raw
 *ramdump*
 *.core
 
-# Archives
-*.zip
+# Archives that are not part of the tracked tree
 *.tar
 *.tar.gz
 *.tgz

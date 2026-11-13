@@ -1,12 +1,12 @@
 # DnBOX
 
-DnBOX (formerly X0X37) is firmware that turns an **M-VAVE SMK-37 Elite** or **SMK-37 Pro** into a groovebox you can play with [Loopy Pro](https://loopypro.com/) and as a stand-alone instrument. It also runs on the M-VAVE FM-1.
+DnBOX (formerly X0X37) is firmware that turns an **M-VAVE SMK-37 Elite** or **SMK-37 Pro** into a groovebox you can play with [Loopy Pro](https://loopypro.com/) and as a stand-alone instrument. FM-1 builds exist in source; current public packages are SMK-37 only.
 
 It gives you a **909**, an **808**, two **303s** with an acid line generator, and a **breakbeat player**, all running at once. Each part can use its own pattern length and rate. You can chain patterns, record knob moves, and play everything in stereo through a shared reverb, tape delay and master compressor. Over USB the keyboard is a MIDI device and an audio interface, with no driver needed.
 
 The factory sound is set up for big beat, so it should make noise the moment you press PLAY.
 
-[![DnBOX running on the FM-1 (watch on YouTube)](https://img.youtube.com/vi/cZLYrZaLDUk/maxresdefault.jpg)](https://www.youtube.com/watch?v=cZLYrZaLDUk)
+[![X0X running on the FM-1 (watch on YouTube)](https://img.youtube.com/vi/cZLYrZaLDUk/maxresdefault.jpg)](https://www.youtube.com/watch?v=cZLYrZaLDUk)
 
 ## Install
 
@@ -20,7 +20,7 @@ You can also download the current Elite and Pro packages from **[GitHub Releases
 - **Back up your sample slots before you install.** The installer can do this for you.
 - Do not unplug the USB cable while firmware is being written.
 
-See the [manual](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/manual/) and the [SMK-37 control map](SMK37.md). To load your own break loops, use the [sample importer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/).
+See the [manual](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/manual/) (written for the FM-1; [SMK37.md](SMK37.md) has the keyboard map). To load your own break loops, use the [sample importer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/).
 
 ### Hardware test status
 
@@ -62,7 +62,7 @@ A **0.0.26** package was briefly offered on the [nightly installer](https://gobb
 
 Each part has its own step length (up to 64 steps) and rate, so parts can drift against each other. Pattern changes wait for the end of the bar, and patterns can be chained.
 
-On the SMK-37, clip mode can act as an Akai APC40 mkII for Loopy Pro. Bluetooth MIDI is available if you build a matching controller image on your own computer (it cannot be shipped with the public packages): see the manual's "Bluetooth MIDI" section and [ble/README.md](ble/README.md).
+On the SMK-37, clip mode can act as an Akai APC40 mkII for Loopy Pro (experimental, not hardware-verified). Bluetooth MIDI is available if you build a matching controller image on your own computer (it cannot be shipped with the public packages; experimental, not hardware-verified): see the manual's "Bluetooth MIDI" section and [ble/README.md](ble/README.md).
 
 DnBOX is a fork of [Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita (Hügelton Instruments). It keeps Felucca's foundations (the hardware layer, USB, the update loader, the web installer and the storage) and replaces the instrument on top.
 
@@ -95,7 +95,7 @@ tests/run_tests.sh      # maths, sequencer, engines, and the app in a simulator
 
 ## Licence and credits
 
-DnBOX is GPL-3.0-only, like Felucca, 9W9, 8W8 and schwung-tb3po. Open303 (by Robin Schmidt) is MIT. BB Gen is ported from mestela's schwung-breakbeat; upstream declares MIT, and the inherited port is recorded as GPL-3.0-only with the MIT notice retained. The 909's hi-hat, ride and crash samples come from ER-99 (Matthew Cieplak, GPL-3.0). The fonts are Barlow Semi Condensed and Terminus (SIL OFL 1.1). The BLE-MIDI host (from felucca-bsp) and the Bluetooth controller interface are MPL-2.0. JieLi's Bluetooth files are never part of this firmware tree. See [CREDITS.md](CREDITS.md), [LICENSING.md](LICENSING.md) and [LICENSE](LICENSE) for the full terms.
+DnBOX is GPL-3.0-only, like Felucca, 9W9, 8W8 and schwung-tb3po. Open303 (by Robin Schmidt) is MIT. BB Gen is ported from mestela's schwung-breakbeat; upstream declares MIT, and the inherited port is recorded as GPL-3.0-only with the MIT notice retained. The 909's hi-hat, ride and crash samples come from ER-99 (Matthew Cieplak, GPL-3.0). The fonts are Barlow Semi Condensed and Terminus (SIL OFL 1.1). The BLE-MIDI host (from felucca-bsp) and the Bluetooth controller interface are MPL-2.0. JieLi's Bluetooth files are never part of this firmware tree. Packages include three JieLi SDK files (Apache-2.0); see [LICENSING.md](LICENSING.md), [CREDITS.md](CREDITS.md) and [LICENSE](LICENSE) for the full terms.
 
 Felucca's own assets that aren't under its GPL (the icon set, the panel photo and the Hügelton drum pack) aren't part of this fork.
 

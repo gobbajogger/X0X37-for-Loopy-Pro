@@ -7,7 +7,7 @@ body:
       value: |
         Thanks for a report. Please fill in every required field.
         Do not attach private backups, credentials, or raw captures you do not want public.
-        For a vulnerability, use [SECURITY.md](../SECURITY.md) instead of this form.
+        For a vulnerability, use the [security policy](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/security/policy) instead of this form.
   - type: dropdown
     id: model
     attributes:
