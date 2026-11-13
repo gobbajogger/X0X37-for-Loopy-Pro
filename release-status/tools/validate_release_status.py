@@ -1558,6 +1558,8 @@ def apply_proposal(record: dict, proposal: dict) -> dict:
         out["gate_evidence"] = copy.deepcopy(proposal["gate_evidence"])
     if "history" in proposal:
         out["history"] = copy.deepcopy(proposal["history"])
+    if "current_report_sequence" in proposal:
+        out["current_report_sequence"] = proposal["current_report_sequence"]
     if "conflicts" in proposal:
         out["conflicts"] = copy.deepcopy(proposal["conflicts"])
     if "models" in proposal:
