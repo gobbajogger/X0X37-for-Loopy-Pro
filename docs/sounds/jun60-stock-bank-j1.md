@@ -63,3 +63,9 @@ sh tests/host/juno_stock_bank_test.sh
 - **UX #891:** later sound browser should show concise role-based names, stable factory indices, clear factory/user/edit state, fast non-destructive audition and per-engine identity. This PR does not implement UI.
 
 Integration must check exact 0..3 byte and name preservation, validate old saved schema-2 cells and per-pattern codes, reject invalid edits, render/inspect the final source's dry/wet output, and prove full-load device safety before delivery.
+
+## Supplemental local check detail
+
+- GCC -O2, Clang -O2: PASS for the 16 Juno dry/chorus scenes, with the test and factory-header blobs byte-identical to their GitHub files (test `9b4428364df85acb7cce8a785991aeca8daf8fa7`, header `3cd1e4175bda6506ae7312c0a5af8b5b5583b88e`).
+- GCC ASan + UBSan: PASS **after** adapting only the isolated October host math fixture's signed `n << 23` expression to the unsigned `(uint32_t)n << 23` form already present in the live integration math header. The unpatched historic fixture initially reported an undefined signed left shift; do not misattribute that to the J1 patch or claim an exact current-tree sanitizer run.
+- A **local, non-repository** four-sound listening WAV was rendered from that host fixture: stereo 16-bit PCM 44.1 kHz, nine seconds, SUB BASS / WARM KEYS / PULSE LEAD / SLOW STR each two seconds plus 250 ms gap, maximum PCM sample 0.148407 and zero int16 saturation. File SHA-256: `6d6a714762d91b51a8b9dd9e55a73f68b59b05a1ec83c1e41a905d1dad67a4e6`. No WAV, binary, capture or vendor data was committed to this repository. This preview is not a blind listening panel, not an exact-input firmware replay and not hardware mastering proof.
