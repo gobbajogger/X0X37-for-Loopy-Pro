@@ -48,9 +48,12 @@ tap LFO
 tapkey b0
 turn K3 25
 tapkey b4
-turn K4 -10
+expect sound5.2.2 0
+turn K4 10
+expect sound5.2.2 10
 tapkey b3
 turn K4 30
+expect sound5.3.2 30
 shot 21_sends_303.png
 tapkey b2
 turn K3 30
@@ -60,7 +63,7 @@ tap FX
 tap FX
 turn K4 1
 shot 22b_tape.png
-expect sound5.2.2 70
+expect sound5.2.2 10
 expect sound5.4.1 55
 # tempo 135, play 8 bars
 press HOME

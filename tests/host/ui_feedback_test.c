@@ -137,17 +137,20 @@ static void read_only_rows_do_not_edit(void)
     }
 }
 
-/* MIX WAVE sibling: silent eng_scope is flat; a latched shape changes the main hash; MASTER
- * page index stays 3; WAVE is page 4 with the same master knobs. */
 /* HOME pattern glyphs: two used patterns with different 909 hits must not paint the same fill. */
 static void home_pattern_glyph_content(void)
 {
-    int lit0, lit1, sx0, sx1, y, i;
+    /* 16 stored steps map in pairs to eight columns. The current plate starts
+     * at x=7, with its 8x3 content inset by two pixels, at canvas y=4. */
+    static const unsigned expected_mask[2] = {0x11u, 0x03u};
+    unsigned observed_mask[2] = {0, 0};
+    int pattern, row, column;
 
     memset(&ui, 0, sizeof ui);
     boot();
     pattern_init(&proj.pat[0], 1u, 2u);
     pattern_init(&proj.pat[1], 3u, 4u);
+    proj.set.accent_q7 = 88;
     sm_set(proj.pat[0].drum[PART_909].hit[0], 0);
     sm_set(proj.pat[0].drum[PART_909].hit[0], 8);
     sm_set(proj.pat[1].drum[PART_909].hit[0], 1);
@@ -157,22 +160,22 @@ static void home_pattern_glyph_content(void)
     ui.pbank = 0;
     now_ms = 1000;
     (void)main_hash();
-    sx0 = 4 + 2;
-    sx1 = 4 + 14 + 2;
-    y = MAIN_Y + 5;
-    lit0 = lit1 = 0;
-    for (i = 0; i < 8; i++) {
-        if (fb[y * 240 + (unsigned)(sx0 + i)] != 0)
-            lit0++;
-        if (fb[y * 240 + (unsigned)(sx1 + i)] != 0)
-            lit1++;
+    for (pattern = 0; pattern < 2; pattern++) {
+        /* Velocity 88 has brightness 12/16 when current, 7/16 otherwise.
+         * Compare exact content colours, including every unlit plate pixel;
+         * labels and assignment borders are outside this sampled rectangle. */
+        uint16_t ink = swap16(dim(PART_COL[PART_909], pattern == 0 ? 12 : 7));
+        for (row = 0; row < 3; row++)
+            for (column = 0; column < 8; column++) {
+                uint16_t pixel = fb[(MAIN_Y + 4 + row) * 240 + 9 + pattern * 14 + column];
+                uint16_t expected = (expected_mask[pattern] & (1u << column)) ?
+                                    ink : swap16(UI_N_SIDE);
+                assert(pixel == expected);
+                if (row == 0 && pixel == ink) observed_mask[pattern] |= 1u << column;
+            }
+        assert(observed_mask[pattern] == expected_mask[pattern]);
     }
-    assert(lit0 == 2);
-    assert(lit1 == 2);
-    assert(fb[y * 240 + (unsigned)(sx0 + 4)] != 0);
-    assert(fb[y * 240 + (unsigned)(sx1 + 1)] != 0);
-    assert(fb[y * 240 + (unsigned)(sx0 + 1)] == 0);
-    assert(fb[y * 240 + (unsigned)(sx1 + 4)] == 0);
+    assert(observed_mask[0] != observed_mask[1]);
 }
 
 static void mix_wave_sibling_scope(void)
