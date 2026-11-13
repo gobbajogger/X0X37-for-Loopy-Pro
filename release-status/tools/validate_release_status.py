@@ -330,6 +330,7 @@ def build_audit_event(
     prev_sha256: str,
     note: str | None = None,
     actor_identity: str = "github",
+    appended_at: str | None = None,
 ) -> dict:
     event = {
         "time": time,
@@ -345,6 +346,8 @@ def build_audit_event(
     }
     if note is not None:
         event["note"] = note
+    if appended_at is not None:
+        event["appended_at"] = appended_at
     return event
 
 
