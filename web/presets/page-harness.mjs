@@ -197,5 +197,12 @@ export async function checkPresetPage({ appSource, htmlSource, codec, zip }) {
     expect(!ui.$("preview").hidden, "Drop did not preview file");
     expect(ui.$("session-list").children.length===0, "Drop committed without confirmation");
   });
+  await check("unsupported dropped format is rejected without creating a preview", async () => {
+    const ui=environment(), bytes=makePreset("chicago");
+    await ui.choose(ui.file("unverified.aupreset",bytes));
+    expect(/BAD FILE/.test(ui.$("status").textContent), "Unsupported format not rejected");
+    expect(ui.$("preview").hidden===true, "Unsupported format generated a preview");
+    expect(ui.$("session-list").children.length===0, "Unsupported format changed session");
+  });
   return Object.freeze({ passed, failures, total:passed.length+failures.length });
 }
