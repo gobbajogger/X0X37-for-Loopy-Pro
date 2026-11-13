@@ -63,9 +63,10 @@ export async function readDnprZip(input) {
     if (u32(b, i) === 0x06054b50 && i + 22 + u16(b, i + 20) === b.length) { eocd = i; break; }
   }
   if (eocd < 0) fail("BAD FILE", "ZIP directory is missing");
-  if (u16(b, eocd + 4) !== 0 || u16(b, eocd + 6) !== 0 ||
-      u16(b, eocd + 8) !== u16(b, eocd + 10))
+  if (u16(b, eocd + 4) !== 0 || u16(b, eocd + 6) !== 0)
     fail("UNSUPPORTED ZIP", "Multi-disk ZIP is not supported");
+  if (u16(b, eocd + 8) !== u16(b, eocd + 10))
+    fail("BAD FILE", "ZIP member count mismatch");
   const count = u16(b, eocd + 10), cdLen = u32(b, eocd + 12), cdAt = u32(b, eocd + 16);
   if (count === 0 || count > ZIP_MAX_ENTRIES || cdAt + cdLen !== eocd)
     fail("BAD FILE", "ZIP directory size/count mismatch");
