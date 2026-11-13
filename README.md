@@ -103,6 +103,20 @@ Felucca and Hügelton Instruments are names of Hügelton Instruments. M-VAVE, FM
 
 The SMK-37 firmware answers a MIDI Device Inquiry with the Akai and APC40 mkII IDs only for interoperability with host software such as Loopy Pro.
 
+## Support the original creators
+
+DnBOX does not take donations. It builds on other people's work. If you want to support it, support the original creators directly:
+
+- Leo Kuroshita / Hügelton Instruments (Felucca): [GitHub Sponsors](https://github.com/sponsors/hugelton) or [Felucca on itch.io](https://hugelton.itch.io/felucca)
+- athousanddetails (9W9, 8W8): [GitHub](https://github.com/athousanddetails)
+- Matthew Cieplak (ER-99): [ER-99](https://github.com/matthewcieplak/er-99)
+- Robin Schmidt (Open303): [Open303](https://github.com/RobinSchmidt/Open303)
+- charlesvestal (schwung-303, TB-3PO, Polly): [GitHub](https://github.com/charlesvestal)
+- mestela (BB Gen): [schwung-breakbeat](https://github.com/mestela/schwung-breakbeat)
+- midilab (jc303): [Support midilab](https://midilab.co/#support)
+- Dave Mollen (dm-Rat): [GitHub Sponsors](https://github.com/sponsors/davemollen)
+- djphazer (Hemisphere Suite TB-3PO): [GitHub](https://github.com/djphazer)
+
 ## Changelog, contributing and security
 
 - [CHANGELOG.md](CHANGELOG.md) — recent firmware changes

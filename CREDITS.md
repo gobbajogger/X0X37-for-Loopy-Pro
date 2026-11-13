@@ -19,3 +19,18 @@ DnBOX is a fork of [Felucca](https://github.com/hugelton/Felucca) and keeps that
 | JieLi AC79 SDK files (`uboot.boot`, `cfg_tool.bin`, `cfg/eq_cfg_hw.bin`) | [JieLi AC79 SDK](https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK); read from the SDK checkout at package time and placed in each `.fwsc` package. No SDK files are in this tree. See [LICENSING.md](LICENSING.md). | Apache-2.0 |
 
 Fonts (Barlow Semi Condensed and Terminus, SIL OFL 1.1) and the BLE-MIDI host from felucca-bsp (MPL-2.0) are also described in [LICENSING.md](LICENSING.md). Felucca's non-GPL assets (icon atlas, panel photo, Hügelton drum pack) are not part of this fork.
+
+## Support the original creators
+
+DnBOX does not take donations. It builds on other people's work. If you want to support it, support the original creators directly:
+
+- Leo Kuroshita / Hügelton Instruments (Felucca): [GitHub Sponsors](https://github.com/sponsors/hugelton) or [Felucca on itch.io](https://hugelton.itch.io/felucca)
+- athousanddetails (9W9, 8W8): [GitHub](https://github.com/athousanddetails)
+- Matthew Cieplak (ER-99): [ER-99](https://github.com/matthewcieplak/er-99)
+- Robin Schmidt (Open303): [Open303](https://github.com/RobinSchmidt/Open303)
+- charlesvestal (schwung-303, TB-3PO, Polly): [GitHub](https://github.com/charlesvestal)
+- mestela (BB Gen): [schwung-breakbeat](https://github.com/mestela/schwung-breakbeat)
+- midilab (jc303): [Support midilab](https://midilab.co/#support)
+- Dave Mollen (dm-Rat): [GitHub Sponsors](https://github.com/sponsors/davemollen)
+- djphazer (Hemisphere Suite TB-3PO): [GitHub](https://github.com/djphazer)
+
