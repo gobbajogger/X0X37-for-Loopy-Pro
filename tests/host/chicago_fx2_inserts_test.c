@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#define X0X_FX_BEATS_DEFINE
 #include "chicago_fx2_compact.h"
 #include "../../firmware/src/app/original_sound.h"
 
