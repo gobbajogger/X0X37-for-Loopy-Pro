@@ -1,0 +1,95 @@
+{
+  "row_id": "#58",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:182; /workspace/docs-audit/roadmap-status.md:99; out/docs/roadmap-evidence/#58.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#58 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#58 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:99 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:182",
+      "/workspace/docs-audit/roadmap-status.md:99",
+      "out/docs/roadmap-evidence/#58.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "home-pattern-glyph"
+    ],
+    "evidence": "tests/host/home_pattern_glyph_test.c:57: b->step[16].flags = G_NOTE; b->step[16].velocity = 120;",
+    "identifiers": [
+      {
+        "identifier": "home_glyph_put",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:182"
+      },
+      {
+        "identifier": "pat_glyph_row",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:182"
+      },
+      {
+        "identifier": "velocity",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:182"
+      }
+    ],
+    "matches": [
+      {
+        "test": "home-pattern-glyph",
+        "symbol_from_row": "velocity",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:182",
+        "file": "tests/host/home_pattern_glyph_test.c",
+        "line": 57,
+        "quote": "b->step[16].flags = G_NOTE; b->step[16].velocity = 120;",
+        "identifier": "velocity"
+      }
+    ],
+    "recorded_results": {
+      "home-pattern-glyph": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/home_pattern_glyph.h",
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/home_pattern_glyph.h",
+        "line": 25,
+        "identifier": "home_glyph_put",
+        "quote": "static inline void home_glyph_put(uint8_t out[8], unsigned step, unsigned length, uint8_t vel)"
+      },
+      {
+        "file": "firmware/src/app/home_pattern_glyph.h",
+        "line": 66,
+        "identifier": "home_glyph_put",
+        "quote": "home_glyph_put(out, s, len, strength);"
+      },
+      {
+        "file": "firmware/src/app/home_pattern_glyph.h",
+        "line": 72,
+        "identifier": "home_glyph_put",
+        "quote": "if ((pt->brk.steps >> s) & 1u) home_glyph_put(out, s, 16u, 127u);"
+      },
+      {
+        "file": "firmware/src/app/home_pattern_glyph.h",
+        "line": 91,
+        "identifier": "home_glyph_put",
+        "quote": "if (held) home_glyph_put(out, s, len, held);"
+      }
+    ]
+  }
+}

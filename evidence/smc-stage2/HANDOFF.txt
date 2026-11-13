@@ -1,0 +1,115 @@
+SMC stage 2 — approved knob mapping and bounded receive diagnostics, 2026-10-21
+Owner chat: 01a159fc-b487-7ed0-ae49-12e13cc06aef.
+Base: 3d7c29bdd4cec0450cfb3a8f319ffa1e1a1611f9.
+Lane: lane/mb-smc-regression-repair-20261021.
+Checkout: /Users/mac/Documents/x0x37/smc_regression_repair_20261021.
+Receiving owner: exactly one fresh LOCAL stage-3 test/investigation chat.
+
+LATEST OWNER CORRECTION WINS
+
+Read OWNER-CORRECTION.txt and docs/USER_PREFERENCES.md first. The owner corrected
+the audit interpretation: "Because thats intended. And there's 3 modes for faders and buttons to map like they do on keyboard faders and to then map to individual sounds of either 909 and 808".
+The owner then requested "Map knobs too". This supersedes audit finding 1,
+proposed stage-2 item 1 and the original prompt's generic fader page-following
+redesign. All of those new fader changes were withdrawn before commit. Do not
+revive them from the inherited audit or older owner answer.
+
+Approved implementation
+
+- HOME/main MIX: knobs 1-8 trim 909, 808, 303A, 303B, BREAK, reverb, delay,
+  master filter, matching the keyboard-equivalent fader strips.
+- 909 MIX/808 MIX: knobs trim corresponding drum levels in the active bank:
+  tracks 1-8, then tracks 9-11 on controls 1-3. Knobs 4-8 are inactive in bank 2.
+- Other sound pages retain four visible knob fields. Menus retain six visible
+  rows and take precedence over mixer modes. Clip editors retain their existing
+  fields/navigation. Help, confirmation and performance guards remain.
+- A paired fader/knob can share a field. Duplicate fields within the knob bank
+  use the first position. No new generic sound-page following for faders.
+- Fader/button routing, navigation, pickup and feedback functions are identical
+  to the base. preserved-contracts.json records function hashes. Drum track pan
+  and sends remain accessible in deep menus. docs/SMC_MIXER.md has the concrete map.
+
+ALL-input silence remains unresolved
+
+Owner report: ALL SMC controls fail, both ends DAW, while light feedback works.
+This report is trusted. No setup error is assumed. Knob mapping does NOT establish
+a transport repair. No deterministic complete-silence source fault reproduced.
+Last-good source 53d5654 first had silence then worked without firmware change;
+exact pre-remap physical package/readback is missing. Its source mapping difference
+is now intentional per the owner's correction, not an approved bugfix target.
+
+Bounded app-side trace provides missing observability without changing transport:
+- Last rejected ACL's first 8 bytes, zero-padded, total byte count and reason.
+- Last ATT opcode and notification handle, discovered MIDI value/CCCD handles,
+  ATT response-pending flag. Existing state/step shows subscription progression.
+- Existing ACL/notification/MIDI counters and queue enqueue/drop/dispatch counters
+  retain receipt -> decode -> queue -> dispatch boundaries.
+- ED_DIAG appends six words with magic 0x534D4301. w[] grows 71 -> 77 (24 stack B),
+  ed_out remains 732 B; bounds check passes. New decoder accepts old and new DIAG.
+  Use this checkout's tool for the new extension; old decoder assumes a fixed tail.
+- Central struct adds 14 trace bytes (alignment may pad). No new allocation/ring.
+  The controller source and firmware/hal/fm1_ble.h are untouched. No reconnect,
+  re-subscribe, SMP, MTU, radio or connection-parameter policy changes.
+- Trace is a best-effort bounded snapshot, not an event history or synchronized
+  sample. Values persist until replaced/reinitialized and need not share a time.
+  Only interpret CID on a start packet with >=8 bytes; continuation data is not
+  an L2CAP header. ATT response-pending covers discovery as well as subscribe.
+  CONNECTED/step14 follows a successful write response in production, but synthetic
+  discovery does not prove physical peer delivery. Dispatch count counts a call,
+  not proof an edit survived modal guards or pickup.
+
+No new candidate has been installed. The actual rejected CID/packet shape and
+live discovered handles on the owner's device are still UNKNOWN: old firmware
+retained only rejection reason. A new checked diagnostic artifact is required
+before those live fields can be read. Do not request owner movement/capture.
+Reuse captured payloads/simulated sends per docs/rules/device-bug.md. Do not read
+idle zero counters as evidence of failure. Hardware input behavior: NOT TESTED.
+
+Checks and evidence
+
+See CHECKS.json for final source hashes, commands/results and logs. Knob contract
+and diagnostic decoder regressions fail against the audited production base and
+pass candidate. The decoder regression prevents new tail words from shifting
+old fields. Public receive sanitizer checks cover short zero-padded headers,
+CID rejection shape and ATT notification handles. Capture replay is unchanged:
+1271 exact payloads through SIMULATED whole HCI and fragmented tails1-8 emit2616
+supported events; 3 >64-byte ATT packets rejected equally. RESEGMENTED MTU23
+SIMULATED HCI emits all2711 events. SHAa92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+The differential audit compares53d5654,91356e7,39db004; it is historical source
+comparison, not live delivery proof or authority to change the intended mapping.
+
+Full production UI host harness passed5 routes: injected BLE DAW, BLE USER,
+host USER, synthetic fragmented HCI DAW and USER. These force/inject a connected
+state. They cover downstream processing, not real radio delivery.
+
+The first diagnostic-only Elite/Pro DEV builds passed but are SUPERSEDED by
+final knob-and-diagnostic DEV builds named build-*-knobs-dev.log. All builds use
+X0X_DEV_PADCAL=1, uploaded compiler SHA c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f
+at /Users/mac/.jieli/toolchain, and SDK d179b4484759423312073f5fbb232501aa491047
+at /Users/mac/fw-AC79_AIoT_SDK. Local image x0x37-validation:local, network none.
+These are preliminary scoped stage-2 target checks. Stage4 must validate exact
+candidate/install-package identities; no dev-record/install approval is implied.
+No FM-1 target work, release build, fullgate, firmware install, fallback, or push.
+
+Preserve exact existing controller
+
+Installed app b3112a8, source-same39db004 addsMarkdown. Actual current controller
+SHA956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a,
+full block readback CRC4a400899. Recorded ctl.img CRC9c07ae67. Preserve these bytes,
+notes, pad colors, loop data, licensing, features, quality, model guards and budgets.
+Do not reuse completed old workflow's install or push approvals for this candidate.
+
+Required stage3 continuation
+
+Read workspace AGENTS.md/agent-rules.md and this checkout's maintained matching
+rules, including corrected device-bug rule. Recheck activity; use an isolated
+local lane from this stage's exact final commit. Use independent scoped subagents
+for tests and failure investigation, as workflow rule17 requires: separate knob/UI
+contract checks from receive/DIAG/buffer/replay checks and live-silence evidence
+review. No firmware install, no speculative transport fixes. Do not ask the owner
+to repeat mode/control details or move controls. New code repairs require exactly
+one fresh stage2 repair thread, then a fresh stage3 for affected checks. If tests
+pass, create/start exactly one fresh LOCAL stage4 exact DEV build/package owner;
+record successor ID, verify startup and end stage3. Stage4 hands sole integration
+ownership to stage5 only after validation. Installation still needs its own exact
+checked artifact/scope decision. Do not advance unresolved hardware silence as PASS.

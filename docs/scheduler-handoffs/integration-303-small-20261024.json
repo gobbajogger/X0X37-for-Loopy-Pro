@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T15:48:54.824Z",
+  "role": "LoopyX0X37 Safe Merge (sole firmware NIGHTLY source integrator)",
+  "outcome": "ISOLATED_COMBINED_SOURCE_CANDIDATE__EXACT_COMBINED_HOST_AND_INDEPENDENT_QA_PENDING",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "base_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "base_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+    "source_identity": "FULL_ROOT_PARENT_EXACT; candidate tree obtained from GitHub Git objects; target firmware build/test still NOT_RUN",
+    "producer_heads": [
+      {
+        "pr": 95,
+        "branch": "lane/seq-pingpong-live-length-shrink-20261023-run4-1410",
+        "commit": "17631165c251aca1c6183e0b0fe85876887bea49",
+        "review": "independent source-window focused host PASS (COMMENTED; no formal approval)"
+      },
+      {
+        "pr": 98,
+        "branch": "lane/bugfinder-bf015-tb3po-anchor-20261023-run11",
+        "commit": "9506a68aa2d1f0e04eca23871368d18ab2a070cd",
+        "review": "independent affected-source host PASS (COMMENTED; no formal approval)"
+      }
+    ]
+  },
+  "summary": "Combine two disjoint reviewed-scope 303 sequencing repairs into the first small source candidate: ping-pong never traverses disabled steps after live shortening, and generated zero-density TB-3PO mutation does not silence its last note. Keep broad older integration #70/#71 separate and WIP.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/seq/sequencer.c",
+      "git_blob_sha": "09d9cea9936de02a6e410f80321d1c6c4b400f11"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/seq_pingpong_resize_test.py",
+      "git_blob_sha": "4515a96f6794059f3b015362804d513233b49e87"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/run_tests.sh",
+      "git_blob_sha": "b8258c5cd43ec7149243763edbab91aef075b027"
+    },
+    {
+      "kind": "source",
+      "location": "firmware/src/seq/tb3po.c",
+      "git_blob_sha": "8578c9cfc144b7e74dfdd8f36d4d8f1c6cfd635d"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/tb3po_mutate_anchor_test.c",
+      "git_blob_sha": "043c25da8095de30b2652905e1111f98a4c3e034"
+    },
+    {
+      "kind": "evidence",
+      "location": "docs/scheduler-handoffs/integration-303-small-20261024.md"
+    }
+  ],
+  "checks": [
+    {
+      "name": "GitHub NIGHTLY immutable parent read",
+      "command": "GET /git/ref/heads/nightly",
+      "status": "PASS",
+      "exit_code": 0,
+      "observed_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+    },
+    {
+      "name": "Five exact Git producer file blobs",
+      "command": "GitHub fetch_file(path, producer_full_commit)",
+      "status": "PASS",
+      "exit_code": 0,
+      "observed_blobs": [
+        "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+        "4515a96f6794059f3b015362804d513233b49e87",
+        "b8258c5cd43ec7149243763edbab91aef075b027",
+        "8578c9cfc144b7e74dfdd8f36d4d8f1c6cfd635d",
+        "043c25da8095de30b2652905e1111f98a4c3e034"
+      ]
+    },
+    {
+      "name": "Eight source registration/guard assertions",
+      "command": "Local JavaScript static assertions against GitHub-returned exact text",
+      "status": "PASS",
+      "exit_code": 0,
+      "assertions": {
+        "pingpong_out_of_range_guard": true,
+        "pingpong_regression_present": true,
+        "pingpong_selector_registered": true,
+        "tb3po_had_previous_gate": true,
+        "tb3po_final_full_scan": true,
+        "tb3po_fallback_avoids_manual_rests": true,
+        "tb3po_native_test_present": true,
+        "paths_unique": true
+      }
+    },
+    {
+      "name": "Native combined GCC/Clang negative, sequencer, 303 host",
+      "command": "X0X_TEST_JOBS=1 CC=gcc bash tests/run_tests.sh sequencer clk-lock seq-pingpong-resize project-303-stream (also CC=clang; compile/run BF-015 native harness)",
+      "status": "NOT_RUN",
+      "reason": "No full exact Git checkout in current native sandbox; HTTPS git ls-remote failed exit 128 (DNS); static checks are not native tests"
+    },
+    {
+      "name": "Native pinned Elite/Pro DEV plus ctl.img, budgets, CRC",
+      "command": "Hourly Build to compile exact new candidate full SHA",
+      "status": "NOT_RUN",
+      "reason": "Exclusive Hourly Build ownership; source integration neither builds nor publishes"
+    },
+    {
+      "name": "Independent QA on exact candidate root",
+      "status": "NOT_RUN",
+      "reason": "Required separately before protected firmware NIGHTLY merge"
+    },
+    {
+      "name": "Full prehardware safety/license/immutable HTTP",
+      "status": "NOT_RUN",
+      "reason": "Separate owners/gates; neither installation nor publication allowed here"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA (parallel: Hourly Build)",
+    "action": "Reconstruct exact new integration candidate full root; run GCC/Clang combined negative and host tests on source and cross-source 303 behavior. Hourly Build compiles matching Elite/Pro DEV+ctl.img BUILD_ONLY without waiting for merge or QA.",
+    "gate": "Independent exact-combined-tree QA plus fresh native scoped tests before protected reviewed nightly merge; separate full prehardware package/backup/model/controller/license/immutable HTTP gates before owner-installable NIGHTLY."
+  },
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    }
+  ],
+  "publication": "NONE; production main/gh-pages and nightly website untouched"
+}

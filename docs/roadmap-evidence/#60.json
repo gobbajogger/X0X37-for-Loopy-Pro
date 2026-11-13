@@ -1,0 +1,81 @@
+{
+  "row_id": "#60",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:184; /workspace/docs-audit/roadmap-status.md:101; out/docs/roadmap-evidence/#60.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#60 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint ONLY: green scenario-sound_matrix_miami (/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 34) records triangle/square/XMOD/wobble screenshots; possible waveform-glyph lead. The row does not name it; this is not a binding and does not justify PRESENT.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#60 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:101 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:184",
+      "/workspace/docs-audit/roadmap-status.md:101",
+      "out/docs/roadmap-evidence/#60.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "ui-waveform-truth"
+    ],
+    "evidence": "tests/host/ui_waveform_truth_test.c:19: assert(ui_miami_wave_value(1,1,.05f)>.99f);",
+    "identifiers": [
+      {
+        "identifier": "ui_miami_wave_value",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:184"
+      }
+    ],
+    "matches": [
+      {
+        "test": "ui-waveform-truth",
+        "symbol_from_row": "ui_miami_wave_value",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:184",
+        "file": "tests/host/ui_waveform_truth_test.c",
+        "line": 19,
+        "quote": "assert(ui_miami_wave_value(1,1,.05f)>.99f);",
+        "identifier": "ui_miami_wave_value"
+      }
+    ],
+    "recorded_results": {
+      "ui-waveform-truth": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/ui.c",
+      "firmware/src/app/ui_waveform.h"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/ui_waveform.h",
+        "line": 11,
+        "identifier": "ui_miami_wave_value",
+        "quote": "static float ui_miami_wave_value(int pulse, int selected, float phase)"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 6596,
+        "identifier": "ui_miami_wave_value",
+        "quote": "float a=miami_wave_plot_y(pulse,ui_miami_wave_value(shape==3,mix!=0,p0));"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 6597,
+        "identifier": "ui_miami_wave_value",
+        "quote": "float b=miami_wave_plot_y(pulse,ui_miami_wave_value(shape==3,mix!=0,p1));"
+      }
+    ]
+  }
+}

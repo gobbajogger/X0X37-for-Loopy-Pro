@@ -1,0 +1,74 @@
+{
+  "row_id": "#20",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:144; /workspace/docs-audit/roadmap-status.md:61; out/docs/roadmap-evidence/#20.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=#20 status=in 0.0.24\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=#20 status=in 0.0.24",
+      "proof_source": "roadmap-status.md:61 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:144",
+      "/workspace/docs-audit/roadmap-status.md:61",
+      "out/docs/roadmap-evidence/#20.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "smc-feedback"
+    ],
+    "evidence": "tests/host/smc_feedback_test.py:94: \"smc_home_target\", \"smc_drum_mix_context\", \"smc_drum_mix\", \"smc_drum_track\", \"smc_lock_blocks\", \"smc_beat_lit\", \"smc_led\", \"smc_frame_peer\", \"smc_frame\"))",
+    "identifiers": [
+      {
+        "identifier": "smc_beat_lit",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:144"
+      }
+    ],
+    "matches": [
+      {
+        "test": "smc-feedback",
+        "symbol_from_row": "smc_beat_lit",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:144",
+        "file": "tests/host/smc_feedback_test.py",
+        "line": 94,
+        "quote": "\"smc_home_target\", \"smc_drum_mix_context\", \"smc_drum_mix\", \"smc_drum_track\", \"smc_lock_blocks\", \"smc_beat_lit\", \"smc_led\", \"smc_frame_peer\", \"smc_frame\"))",
+        "identifier": "smc_beat_lit"
+      }
+    ],
+    "recorded_results": {
+      "smc-feedback": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/smc_mixer.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 743,
+        "identifier": "smc_beat_lit",
+        "quote": "static int smc_beat_lit(void)"
+      },
+      {
+        "file": "firmware/src/app/smc_mixer.c",
+        "line": 2405,
+        "identifier": "smc_beat_lit",
+        "quote": "int beat = smc_beat_lit(); /* keep phase current even while locked */"
+      }
+    ]
+  }
+}

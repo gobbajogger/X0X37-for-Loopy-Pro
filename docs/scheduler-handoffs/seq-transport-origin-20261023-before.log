@@ -1,0 +1,11 @@
+COMPILE gcc -std=c11 -Wall -Wextra -Werror -O1 /tmp/seq-origin-host-aqyx0oxy/test.c -o /tmp/seq-origin-host-aqyx0oxy/test
+COMPILE_EXIT 0
+FAIL remote Start then local PLAY must count as local
+FAIL PLAY echo within a step must not cause duplicate Start
+FAIL remote Start/Stop/local Start preserves origin
+FAIL remote Start/Stop/local Continue preserves origin
+FAIL Stop clears canceled remote origin
+FAIL local Continue overrides incoming Start
+FAIL local Start overrides incoming Continue
+9/16 transport provenance checks passed
+TEST_EXIT 1

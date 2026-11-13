@@ -1,0 +1,1232 @@
+{
+  "scope": "Text-only historical preservation; not production integration or executable package",
+  "base_read": "094bb1a55c159aefb0e2bfa39790a1b4b74cee40",
+  "files": [
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/firmware/src/app/editor.c",
+      "bytes": 41986,
+      "sha256": "72a8092916238981dce38dbc62131ebe5f1a6ac57d6d15e8791e2b79bfe99f28",
+      "git_blob_sha1": "61760a0efde0f103ef9b5cf77e7b795ffbec6f0b",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "firmware/src/app/editor.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/firmware/src/app/boot_screen.h",
+      "bytes": 14189,
+      "sha256": "75a32a59b4f888b2e590077ce0022ddef036c9251d7a9ca9bffc507107950129",
+      "git_blob_sha1": "d6bdc7b47de63dfd3993966d67a9d7d95389b7b8",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "firmware/src/app/boot_screen.h"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/firmware/src/app/engine.c",
+      "bytes": 110928,
+      "sha256": "3e54a0ca7330eea5b947119de321569da91459c86105f5f5b3b219c2c2a577e3",
+      "git_blob_sha1": "16767b4832b8210eea2f0619415f2977c286f96a",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "firmware/src/app/engine.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/firmware/src/app/engine.h",
+      "bytes": 11790,
+      "sha256": "979cd5c6a519a79b326e9c46469100b4a2d40dee0332390c12b88ef109b9aef1",
+      "git_blob_sha1": "167f5c822580bebfcd69bf04c92812bbe74920ea",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "firmware/src/app/engine.h"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/firmware/src/app/main_fm1.c",
+      "bytes": 111139,
+      "sha256": "acd3004bd1e2f347083fe259db3460c5eceac55bebe23eb4b87988252e6ab1b8",
+      "git_blob_sha1": "844690fa5e549ea63d41c3060ddcf4dd6b492e31",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "firmware/src/app/main_fm1.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/firmware/src/app/plat.h",
+      "bytes": 8828,
+      "sha256": "ebd1b1bbf908d16fce2fbe5a206ee8b4bc4cad6d6c120bf7c42fa30dede08f80",
+      "git_blob_sha1": "d8c5c644f5f3dc88357d6904ec987b19c369d46f",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "firmware/src/app/plat.h"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/firmware/src/app/project.c",
+      "bytes": 45708,
+      "sha256": "10d40448e99a1f04ffa61acf0fdf1e356cf59bb106599b7803b6672927142c0d",
+      "git_blob_sha1": "377e18fc6ba8a4e4ac583ba856da86d3a2d6a3c7",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "firmware/src/app/project.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/firmware/src/app/plat_fm1.c",
+      "bytes": 16958,
+      "sha256": "015d1d5025a30e20c881e74b5314e42657e739d59bec088b5b794c6bd5038eb4",
+      "git_blob_sha1": "cc6512bf90968d148ab792797857c519bef460d3",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "firmware/src/app/plat_fm1.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/firmware/src/ble.c",
+      "bytes": 33330,
+      "sha256": "ab6e837fea365652773ee1ce50b788761e89d114de7880292e5958bf83bfe500",
+      "git_blob_sha1": "6ae214fbdbe29cab6fac638e648ab9914785b8bf",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "firmware/src/ble.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/firmware/src/app/x0x.h",
+      "bytes": 8682,
+      "sha256": "1169f21050d27adda38545301befc7ae977fff0d8a2427f3ccf53b422a1354ea",
+      "git_blob_sha1": "5d5f485e0289db76971148cfbef2a26327950857",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "firmware/src/app/x0x.h"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/boot_media_edges_test.c",
+      "bytes": 3609,
+      "sha256": "d68397e37d45626d2520241181510bc2dce44dc648a6621f294f3d4b93cb94f5",
+      "git_blob_sha1": "f5122eb06467aa6b843457487122b4fe9620569f",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/boot_media_edges_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/boot_media_storage_test.c",
+      "bytes": 2782,
+      "sha256": "8abcfac6e39cb164e19a292d38aeec32a23275679e73bc6237e98a4428143fe1",
+      "git_blob_sha1": "d05b73175084b6ff811f336b098ebddfb942d58f",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/boot_media_storage_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/boot_media_model_cache_test.c",
+      "bytes": 1440,
+      "sha256": "bab3b4936e40dc7454502acbe628e718a497bc13e4c610ec1fb9912bebb789e6",
+      "git_blob_sha1": "b1ada0fa9facf9d8d35c755e508a1a5e760b86f2",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/boot_media_model_cache_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/boot_media_test.c",
+      "bytes": 1981,
+      "sha256": "f96980fc850075120fcd8e8837f18ce497df2dbc496847ab8743c7925f3fb733",
+      "git_blob_sha1": "26f6bce989ce9445e41dd41828207d42777635d2",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/boot_media_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/boot_media_converter_test.py",
+      "bytes": 1587,
+      "sha256": "8594f7f96d85a22541dad67df5a9e8e4e59f0056d24ba898b201d614a8c9745c",
+      "git_blob_sha1": "160786f8e18466bc12e531d36f4ff830421bbeab",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/boot_media_converter_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/ble_device_setting_flow_test.py",
+      "bytes": 7111,
+      "sha256": "2d287b64510aa596cba08b87191131de1dbab8c08459eb9d0085a7261b2697a6",
+      "git_blob_sha1": "172ff86ded6e7d721fc8dbba8e5bf75b676afe67",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/ble_device_setting_flow_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/boot_screen_test.c",
+      "bytes": 11184,
+      "sha256": "455dae9b38eac4a520d49f10bd8ec059638274076366baf528a974066174b32a",
+      "git_blob_sha1": "dfc6f772dc2639496fcf077cabc959647b8ea823",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/boot_screen_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/adaptive_break_controls_test.c",
+      "bytes": 11452,
+      "sha256": "1aa991b31a81f5105a706201ddbe3a7cf92fa3a4847fb2fb545f498edb80b35b",
+      "git_blob_sha1": "4e9c8bf85e8d9c6c58b0a83523dc5ac36f20bc35",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/adaptive_break_controls_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/boot_player_test.c",
+      "bytes": 1601,
+      "sha256": "970217141933f2ee2c279c0fb0a088da63a0b02118dce95e79c5ad800a251a2d",
+      "git_blob_sha1": "1059862f86cd3436df331b6aef45f999dce72111",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/boot_player_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/ble_discovery_replay_test.c",
+      "bytes": 4529,
+      "sha256": "b46baff1f28f0167f26dc4f21f12122dc4f0fd90a973831df8d9408e634a2d59",
+      "git_blob_sha1": "02fda74ee06de88368e3092f28e5cd9658a8e783",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/ble_discovery_replay_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/ble_failure_detail_test.py",
+      "bytes": 5774,
+      "sha256": "03e875f1c951213964f368bec35471ab00adc1b1820fabf4acf47ce40fa57dee",
+      "git_blob_sha1": "c0a94230a11fab4bc78145e54ced20b941c156f4",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/ble_failure_detail_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/ble_dual_handle_test.c",
+      "bytes": 9437,
+      "sha256": "a02877a2609b001aff09f0e9905e35ae6a43bf122f7a3e22b469b424e01f59c4",
+      "git_blob_sha1": "15f4f647869d80c7d3a1fb4491a98107fb85f989",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/ble_dual_handle_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/ble_handle_zero_test.py",
+      "bytes": 1839,
+      "sha256": "40f7a69c0bf586562729a6fdd1d0b73cea778f41ab3105e630d33a301159f7b4",
+      "git_blob_sha1": "e45eb44b28a52b619afeccffbb4e1da31c983dff",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/ble_handle_zero_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/ble_peer_snapshot_test.py",
+      "bytes": 2188,
+      "sha256": "bb20f2ce927176e51fd1e5532d4a4783aeb7a2bac9d34d6b2b5669e3612e77f1",
+      "git_blob_sha1": "78424addd53f39c689b3fbe205ae57698d272780",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/ble_peer_snapshot_test.py"
+        },
+        {
+          "commit": "e2f881b0b0d5fbde8b4e352ab03c8ae2adc46058",
+          "path": "tests/host/ble_peer_snapshot_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/boot_input_actual_test.py",
+      "bytes": 7537,
+      "sha256": "482675279792829aa8a1b129b55a45709a0c02042e06fcb16f2e36c7d52e04fd",
+      "git_blob_sha1": "77d66b8315f8581d86ee124f7782e1440ce84f7b",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/boot_input_actual_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/ble_zero_handle_lifecycle_test.c",
+      "bytes": 4616,
+      "sha256": "e0289f10c8021495b4b4f3e7484c9b8342996f0b7d1f84a81aaee7cdad45ea6a",
+      "git_blob_sha1": "2b0f47d77fb8036747f3d8c031e19225889c1ab3",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/ble_zero_handle_lifecycle_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/boot_info_actual_test.py",
+      "bytes": 3022,
+      "sha256": "2525d8e314ea77aa342e2df68bf0abf12f97d985f969b3620daed2bd4c2217b7",
+      "git_blob_sha1": "d13be91c53c6a112584441ce0a8a3abc54b79698",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/boot_info_actual_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/boot_runtime_actual_test.py",
+      "bytes": 5131,
+      "sha256": "ec58aae21639a893adc12be1de95aa1d97528a6c2e69386a77e63e67c6a4b8ac",
+      "git_blob_sha1": "527145c3d466d52bd6ff3b5ac276d25c623a3aa7",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/boot_runtime_actual_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/ble_toggle_persistence_gate_test.py",
+      "bytes": 3378,
+      "sha256": "3e2e8f0833fd1db73980a104bbe5f49ad000e423a8b55027a8b42628d35fbf19",
+      "git_blob_sha1": "6ef60949d8451ccc3f610abd0f2ac5430219e010",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/ble_toggle_persistence_gate_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/miami_freeplay_pads_test.sh",
+      "bytes": 1229,
+      "sha256": "e1c388bd01c0a9e6c4b22ca32f50fada7da365bdb75d4408a3ba6745652d7daa",
+      "git_blob_sha1": "288488aec646a6659495e673553dd5ff29211d45",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/miami_freeplay_pads_test.sh"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/freeplay_live_keys_test.sh",
+      "bytes": 1047,
+      "sha256": "64049df19451d39603ad0306aeb2a68dcbdf09d945afd212fd2b4d209ab546cb",
+      "git_blob_sha1": "cc3121a2daba2a598aaf1b6a7bb2ba808dc2c7a1",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/freeplay_live_keys_test.sh"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/miami_freeplay_pads_fixture.py",
+      "bytes": 7786,
+      "sha256": "6d8d6e64e7513b03cce42275c2eb4ec3b3e1239ef0f9b07019bb7d5c4939b3b0",
+      "git_blob_sha1": "40cf55261b3a4c037b3840ba70f15073aa8cc60f",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/miami_freeplay_pads_fixture.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/freeplay_live_keys_cases.inc",
+      "bytes": 15202,
+      "sha256": "292e7f66d10160c0acbb39ef5206e416cc59b609ff5ee4683d89e25afab8eb14",
+      "git_blob_sha1": "c7c17184ff03874cf05ffcdfbddb2afde161727f",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/freeplay_live_keys_cases.inc"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/freeplay_live_keys_fixture.py",
+      "bytes": 1652,
+      "sha256": "74a15c4d11dfe35e161f694adbd1839108274995cf22222f566094a8ad914b6e",
+      "git_blob_sha1": "32097bbac34094ab6a0c2c24a244b822aeed552d",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/freeplay_live_keys_fixture.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/miami_mw_wobble_test.c",
+      "bytes": 5856,
+      "sha256": "fbae07002e1e0fc298530165f2d5f569117a0c0f08c0820a4a2efbe32ba65acf",
+      "git_blob_sha1": "3c0f3d83face5664f5b40eea6dd506c8e03e99fb",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/miami_mw_wobble_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/miami_invariant_cache_test.sh",
+      "bytes": 1446,
+      "sha256": "58db661be53f5ab5b13cd886491d36d8b59a2e6e62b81b35ec3f246ad5172059",
+      "git_blob_sha1": "708dd875706062b4cef34f27ac9105f71306a1f7",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/miami_invariant_cache_test.sh"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/miami_invariant_cache_test.c",
+      "bytes": 3156,
+      "sha256": "094d4d852c0f36d9a3fcb043621bfbb590b9921c22de69dd747f7d4e361e166e",
+      "git_blob_sha1": "0754b9e3f8b5a3083e8d9f138e53928bdadc8414",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/miami_invariant_cache_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/pad_diagnostics_test.sh",
+      "bytes": 1341,
+      "sha256": "ab9b5ab99a42ea63f121cd3f7a314cae917bdc345054fb9119977ad5bd371b2d",
+      "git_blob_sha1": "c2625079c96ac062f8c8d0aabbfc9f3572a54f81",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/pad_diagnostics_test.sh"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/project_runtime_test.c",
+      "bytes": 12151,
+      "sha256": "756156c71f783dff4bdf7ec2783853a8ce5e536c9c20fc379adee944a84e99d6",
+      "git_blob_sha1": "b4ae24e34c2df520ebbc3b9ca793a41a6e31115c",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/project_runtime_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/project_stage_test.c",
+      "bytes": 33492,
+      "sha256": "7ea4bd6aecce82ae84baa9ee56688ca7782c51aef7074cf61e6637dabddb6c36",
+      "git_blob_sha1": "800c8480ded13e2c5901b8bd310e8244a85b2528",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/project_stage_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/pad_diagnostics_test.c",
+      "bytes": 13136,
+      "sha256": "d02d7f835df4d510a911af685cfd14db9f8fe4d6e005b66ebb7b068009f1aec6",
+      "git_blob_sha1": "d88712eb4d4342552dc9983ffeceb7249ecbb849",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/pad_diagnostics_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/rec_endpoint_lifecycle_test.c",
+      "bytes": 21211,
+      "sha256": "83b2e5f907eac21ab6ca287d8e63b29082215caebdb3355127a37de2ffa642e0",
+      "git_blob_sha1": "a34db39104e85fde8ef53755170536e75eb41100",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/rec_endpoint_lifecycle_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/project_smc_runtime_test.c",
+      "bytes": 4834,
+      "sha256": "01ec599b55f01f62252d549cf094cb895adf80a83c55e1ff8d77eff3ed89b310",
+      "git_blob_sha1": "f24a77fbf057a0c25eea9bb3c9032c3f9559bbbe",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/project_smc_runtime_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/rec_held_duration_test.c",
+      "bytes": 6988,
+      "sha256": "d9fcfd681e2920ea6466b9b409a4535ceb9e4e92110a78ae2c8d35b2d0b94f88",
+      "git_blob_sha1": "e5f3d9f48646996e0e8c092a74552d1110fd9f86",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/rec_held_duration_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/rec_nonforward_guard_test.c",
+      "bytes": 7505,
+      "sha256": "24afe906d388ff21892b51ea1ea02d8e1c31b9f325967ad0bfd81e26fcb15fa8",
+      "git_blob_sha1": "1f1a1198794c707fc68a988de95ed0f6616ef6ea",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/rec_nonforward_guard_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/rec_live_test.c",
+      "bytes": 27032,
+      "sha256": "2ca74075ccfc061671cf05b3a26d356cf561d6079df88d7c4d6c42fbf387ca62",
+      "git_blob_sha1": "814a82a4c5e4fb4816928ce9b0d628ee58f09a3b",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/rec_live_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_buttons_test.py",
+      "bytes": 5399,
+      "sha256": "04903091fb438e169f75ce10e3baee34498f1690ae7f8dd21cc6a5b72e4095f0",
+      "git_blob_sha1": "4ac803c0a3ba82a69e7fe0695228022360c8121a",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_buttons_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/save_note_quiet_test.c",
+      "bytes": 6265,
+      "sha256": "e874fb22a0c0ef6a96d54dbbcf874d88e49d05b43b991dde67f9a6e6e6f856cd",
+      "git_blob_sha1": "8e7780e9a150e4d2522060de24ea4d4df6915bf1",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/save_note_quiet_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_ble_payload_test.py",
+      "bytes": 4679,
+      "sha256": "7d61baa1c08f2eaeba6689a0c928967780d5c97ddfb80a28b93e7333dc7219bb",
+      "git_blob_sha1": "0060d4fb76f1632ca997c52edbf605860e58ff77",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_ble_payload_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_ble_reconnect_epoch_test.py",
+      "bytes": 8199,
+      "sha256": "76b17c2a46f7f073d6b281a17348b6a2d553218d14694ab511c3ff7c195fed71",
+      "git_blob_sha1": "0524bf6cc9befe121d421cf6c5f894a8aa622088",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_ble_reconnect_epoch_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_clip_visibility_test.c",
+      "bytes": 6557,
+      "sha256": "eb9bb8eabeaa0bac98f46f571e76109aeabf031cf75f84483f409023ebb44158",
+      "git_blob_sha1": "2967de37bb2158432e381fff5671bfa1989b8b62",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_clip_visibility_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_daw_only_test.py",
+      "bytes": 13001,
+      "sha256": "7da07de64d36c3328bd00c71541ad121a0407d7de1b394130bad2e45512ff2ce",
+      "git_blob_sha1": "672a9df6e9101ccfb327d340315b4597fa8a9f1a",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_daw_only_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_daw_only_ui_test.c",
+      "bytes": 1281,
+      "sha256": "d1c22dcaf8311d5ac8fbeb7f458e76fda7a2c58cc17655bb4be8526bad159876",
+      "git_blob_sha1": "a65b62a91eb1ca74e4b6dbc766ec8daab875801a",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_daw_only_ui_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_drum_rs_test.c",
+      "bytes": 22647,
+      "sha256": "1f2887335cd46081c80b67336076de914a44878fafa72dc4bd05f8bb91d30715",
+      "git_blob_sha1": "a5f2499dbb7f3b7d96839a191aee6714e6219d41",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_drum_rs_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_daw_only_ui_test.sh",
+      "bytes": 224,
+      "sha256": "aaec76cde457b2765ed6b4de511af65a38ca4ec1e292a29398f569108258f648",
+      "git_blob_sha1": "6077e40f4cff6d3f6eca6c973fd1011931fb9b17",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_daw_only_ui_test.sh"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_link_test.py",
+      "bytes": 8051,
+      "sha256": "c68c169b588be5757b231856c40bdfecbe3e10bcf822c57f673c0214f030c71f",
+      "git_blob_sha1": "e2a614d69e6c712b003b93dff846542d050a9709",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_link_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_host_overflow_data7_test.py",
+      "bytes": 5063,
+      "sha256": "db91ff3d7bd502d204983a756a66b96a68bd431129ba7d209dcdb881c38cd836",
+      "git_blob_sha1": "a5f8da8e68650130668e434c4fc3c33fd9591b77",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_host_overflow_data7_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_lock_beat_test.c",
+      "bytes": 6988,
+      "sha256": "af22d2fd2552249cb483c084b9d8edca1c097674a6f9fd074334de23a1e2c26d",
+      "git_blob_sha1": "a6fd32f975f74774edb309f058f2908c7253913a",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_lock_beat_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_lock_test.c",
+      "bytes": 24565,
+      "sha256": "ccab026d917d80681f864aff7e4aa7d90ac6679e88fb19b88ffc5a31ee8fac23",
+      "git_blob_sha1": "568d2e02063bfdedc33d3547ca88ecf92baed1ce",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_lock_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_host_data7_test.py",
+      "bytes": 3739,
+      "sha256": "c3adf32d9025771d57c32338ef62405dfd2546d3264679d043b2818280574e6a",
+      "git_blob_sha1": "2dc0f83110a6a2b85ebc09939596084cd1e69fce",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_host_data7_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_pickup_acceptance_test.c",
+      "bytes": 12591,
+      "sha256": "3a4bd590771c1296785e132ff56312e99bcad378e42bcf4207cb3e6526a2d42c",
+      "git_blob_sha1": "789966f5d5adff9cf84f27e934be937901cd82cf",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_pickup_acceptance_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_reachability_test.c",
+      "bytes": 23114,
+      "sha256": "0e3b42025e2c76a56feb8d62a79aeb331e2dbfadd6f9cd22cbe79e892481c907",
+      "git_blob_sha1": "9f0fb0c1e5254b34218d3c31ab96d217579df76b",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_reachability_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_pause_loss_test.c",
+      "bytes": 4599,
+      "sha256": "dfc1650017141c23879479466fa138edc63816b2d1ca1cd96abf36494b7b0df3",
+      "git_blob_sha1": "4efc9a9672893154a0f56d72a9ab697058c91d75",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_pause_loss_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_multi_peer_test.c",
+      "bytes": 8868,
+      "sha256": "2606f5851ffa727079c37790ba1e8534dca4ac1883ab0514eb516a74366b1705",
+      "git_blob_sha1": "580c205a14944628cdef2d4c92466269834f21cf",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_multi_peer_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_performance_abort_test.c",
+      "bytes": 8453,
+      "sha256": "ddae9e07ca51fa0201324ad18ff723c02ae8e9256be161ca0eb565659e788a7a",
+      "git_blob_sha1": "e8ed7e6efc69b0c98623fff03f94796db5233f3f",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_performance_abort_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_pad_diag_gate_test.py",
+      "bytes": 10350,
+      "sha256": "682b5a247ba6281e7421a8bf81160a61bc3bbd332cafa1be28a637311b4fd662",
+      "git_blob_sha1": "7f20795202e30aa30e06720224bc24a3d9b9d9e9",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_pad_diag_gate_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smk_wheel_mode_test.c",
+      "bytes": 8718,
+      "sha256": "eee835d794b1a7c20864802c3487890029a613e4b479d40d66ed23f3a6d59597",
+      "git_blob_sha1": "955d11afc45f92e34fb93b8762690c0042584fdd",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smk_wheel_mode_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/smc_sender_isolation_test.py",
+      "bytes": 3835,
+      "sha256": "c3bcbd4359bdf9b8227c5c7acc6695192455f383c4f5d6b3b1f3b8078929b799",
+      "git_blob_sha1": "72e620acd3e2f2067ea4d2c1de68fd02c774588c",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/smc_sender_isolation_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": false
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/tape_clock_order_test.py",
+      "bytes": 1042,
+      "sha256": "62cfb668e6ae241b50bc7d65f0d90b5c04b2a6deb57b6a091bfdcfa4c27780d8",
+      "git_blob_sha1": "3f2cb1dd44dd89214d5d34f0a5fca981380481c9",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/tape_clock_order_test.py"
+        },
+        {
+          "commit": "e2f881b0b0d5fbde8b4e352ab03c8ae2adc46058",
+          "path": "tests/host/tape_clock_order_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/sound_matrix_test.c",
+      "bytes": 22699,
+      "sha256": "b8f508e66705935e7126e2cc230e2079e762a3a820612f892ee08072cf335d41",
+      "git_blob_sha1": "b732a53aab14c10cf3f1cff188fdd9ff68e64351",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/sound_matrix_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/host/wobble_zero_depth_test.c",
+      "bytes": 4552,
+      "sha256": "438abc1006e734890d025b92806a0ea277c604dd201f53c4867e4767ab090002",
+      "git_blob_sha1": "b4d2c176ea4f880da93307c93b134f646ff535c6",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/host/wobble_zero_depth_test.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/smk_pad_inputs_test.py",
+      "bytes": 9011,
+      "sha256": "e660d8a755312d4fd70dc13d4203372d32aba1d77d9b58a4ddf0908b4725f6aa",
+      "git_blob_sha1": "672cf9aa8e3daba84c3619957a8bc5332eca0d68",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/smk_pad_inputs_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/run_tests.sh",
+      "bytes": 55151,
+      "sha256": "c96aa64dd625286c4c9789d358b459302603378defa69f87b9f198fb0c371023",
+      "git_blob_sha1": "91878a36431852d26e2c1f8ceee2fcc6701b1ebf",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/run_tests.sh"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tests/pad_diagnostics_scanner_test.py",
+      "bytes": 3571,
+      "sha256": "77eac4ec3b74fe4a0fa7ebffc7873d8982701533a69d43a159d42b4619deb150",
+      "git_blob_sha1": "636a313d0cb1edf6da525a0d5ea0a98d709fffc8",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tests/pad_diagnostics_scanner_test.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/0e58b960/tools/boot_media.py",
+      "bytes": 4959,
+      "sha256": "ec20f047fe9e26ac4dcfccbb9c887f121de51f37b2208ea34c0083270c8fc408",
+      "git_blob_sha1": "892a56f7db2a1d19671eba9f80e1f1a2124258d1",
+      "original_sources": [
+        {
+          "commit": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+          "path": "tools/boot_media.py"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/e2f881b0/firmware/src/app/engine.c",
+      "bytes": 101684,
+      "sha256": "c563611697c1460b00c9aa73d0d0768e8a36f4f42ba2cc6bf3b74534a81c5e76",
+      "git_blob_sha1": "434625ad909618a680b773a8ead11e1ba822f32f",
+      "original_sources": [
+        {
+          "commit": "e2f881b0b0d5fbde8b4e352ab03c8ae2adc46058",
+          "path": "firmware/src/app/engine.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/e2f881b0/firmware/src/app/main_fm1.c",
+      "bytes": 110997,
+      "sha256": "51a4de86e70f38d6ab8234e824b65c5d446601ec93bc305c06b7b14ea8895507",
+      "git_blob_sha1": "69a20f25c6793f32af1572c4c08a31a21b945296",
+      "original_sources": [
+        {
+          "commit": "e2f881b0b0d5fbde8b4e352ab03c8ae2adc46058",
+          "path": "firmware/src/app/main_fm1.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/e2f881b0/firmware/src/app/engine.h",
+      "bytes": 11358,
+      "sha256": "f87448f32a9023a26df694f4f3a1163a3375f4e832483bf40033d2657a1ac10c",
+      "git_blob_sha1": "1239ad0934f8e67c5ee1fc96f75e843458623caf",
+      "original_sources": [
+        {
+          "commit": "e2f881b0b0d5fbde8b4e352ab03c8ae2adc46058",
+          "path": "firmware/src/app/engine.h"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/e2f881b0/firmware/src/app/plat_fm1.c",
+      "bytes": 12770,
+      "sha256": "d6b91569e491ba6239f40e00f4b650f99a0ee8898321a7d07e228286bbadd1e6",
+      "git_blob_sha1": "4ce00023a36717464807b4b75689c182200f5df0",
+      "original_sources": [
+        {
+          "commit": "e2f881b0b0d5fbde8b4e352ab03c8ae2adc46058",
+          "path": "firmware/src/app/plat_fm1.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/e2f881b0/firmware/src/app/plat.h",
+      "bytes": 7051,
+      "sha256": "22d3408bc22918dd44289da47028c63a92180bc6ad360f4f0af8b865da9faad5",
+      "git_blob_sha1": "01e5ea3d773254ea634e95ab21c261eba4670e39",
+      "original_sources": [
+        {
+          "commit": "e2f881b0b0d5fbde8b4e352ab03c8ae2adc46058",
+          "path": "firmware/src/app/plat.h"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    },
+    {
+      "path": "reference/recovered-local-source/source/e2f881b0/firmware/src/ble.c",
+      "bytes": 31116,
+      "sha256": "b07702b56af878668ab917fb74392297526da281855cdc22c6fed47065ba16a6",
+      "git_blob_sha1": "a398d2124d7ea6f417d39d92b85a844754abe7a9",
+      "original_sources": [
+        {
+          "commit": "e2f881b0b0d5fbde8b4e352ab03c8ae2adc46058",
+          "path": "firmware/src/ble.c"
+        }
+      ],
+      "remote_blob_lookup": "NOT_FOUND",
+      "license": "Original project GPL-3.0-only; see linked repository LICENSE",
+      "spdx_present": true
+    }
+  ],
+  "excluded": "Private headers, credentials, captures, binaries, SDK/toolchain assets, owner quotations; previously remote blob bytes skipped",
+  "source_runtime_tests": "NOT_RUN",
+  "mac_golden_performance_firmware_hardware": "NOT_RUN"
+}

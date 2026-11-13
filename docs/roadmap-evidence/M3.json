@@ -1,0 +1,68 @@
+{
+  "row_id": "M3",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:288; /workspace/docs-audit/roadmap-status.md:205; out/docs/roadmap-evidence/M3.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "matched_5f578fc0_master id=M3 status=done\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint: no specific plausibly covering green suite entry identified in this pass; this does not establish that coverage is absent.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "matched_5f578fc0_master id=M3 status=done",
+      "proof_source": "roadmap-status.md:205 (reconciled; gate result=MISSING)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:288",
+      "/workspace/docs-audit/roadmap-status.md:205",
+      "out/docs/roadmap-evidence/M3.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "NOT_COVERED",
+    "tests": [],
+    "evidence": "No qualifying literal identifier reference found in runner-mapped test source.",
+    "identifiers": [
+      {
+        "identifier": "R_TEMPO",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:288"
+      }
+    ],
+    "matches": [],
+    "recorded_results": {},
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [
+      "firmware/src/app/ui.c"
+    ],
+    "firmware_references": [
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 383,
+        "identifier": "R_TEMPO",
+        "quote": "R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 521,
+        "identifier": "R_TEMPO",
+        "quote": "case R_TEMPO: return &SEQ_P[SQ_TEMPO];"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 605,
+        "identifier": "R_TEMPO",
+        "quote": "case R_TEMPO: return (int)(seq.bpm + 0.5f) - 20;"
+      },
+      {
+        "file": "firmware/src/app/ui.c",
+        "line": 742,
+        "identifier": "R_TEMPO",
+        "quote": "case R_TEMPO: seq.bpm = (float)(v + 20); break;"
+      }
+    ]
+  }
+}

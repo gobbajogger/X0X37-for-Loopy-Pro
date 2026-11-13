@@ -1,0 +1,54 @@
+{
+  "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "source": [
+    "firmware/src/app/smc_mixer.c"
+  ],
+  "tests": [
+    "tests/host/smc_performance_abort_test.c",
+    "tests/host/smc_performance_abort_test.sh",
+    "tests/host/smc_clip_visibility_test.c",
+    "tests/host/smc_clip_visibility_test.sh"
+  ],
+  "checks": [
+    {
+      "command": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE sh tests/host/smc_performance_abort_test.sh",
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "fixed.log"
+    },
+    {
+      "command": "SMC_SOURCE_FILE=<saved base smc_mixer.c> X0X_HOST_DEFS=-D_DARWIN_C_SOURCE sh tests/host/smc_performance_abort_test.sh",
+      "result": "EXPECTED FAIL",
+      "exit_code": 1,
+      "log": "base.log",
+      "failure": "DAW key 5D phase 0 did not abort"
+    },
+    {
+      "command": "sh tests/host/smc_clip_visibility_test.sh",
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "clip-visibility.log"
+    }
+  ],
+  "coverage": [
+    "Direct DAW input queue",
+    "Direct stock User MMC input queue",
+    "Host User channel16 note queue",
+    "Host User MMC source0 queue",
+    "Host User MMC source1 queue",
+    "STOP, PLAY and back abort in phases0-2",
+    "Note releases and zero velocity do not abort",
+    "Queued mute, select, record, menu, knob and fader inputs stay blocked",
+    "Same-poll performance menu start, STOP and trailing edits",
+    "Pending phase3 restore blocks input",
+    "Production engine block commits stop before perf_test_tick restores saved sequencer state",
+    "Project bytes remain unchanged",
+    "Ordinary input resumes after restoration"
+  ],
+  "limits": [
+    "Host tests use simulated sends; no Bluetooth/HCI or physical device PASS.",
+    "This repair does not establish the cause of complete physical input silence.",
+    "R/S policy remains outside this repair."
+  ],
+  "base_source_sha256": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0"
+}

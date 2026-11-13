@@ -1,0 +1,30 @@
+{
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "tools/check_project_skills.py"
+      ],
+      "result": "PASS 10 workflow skills, triggers, discovery, references, and legacy decision entries"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/check_writing_skills.py"
+      ],
+      "result": "PASS 2 pinned writing skills, 10 source hashes, references, discovery links"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/prefs_lint.py",
+        "docs/USER_PREFERENCES.md"
+      ],
+      "result": "PREFS OK 34 entries"
+    }
+  ],
+  "host": "macOS",
+  "linux_tests_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "rule_markdown_words_before": 9997,
+  "rule_markdown_words_after": 9997
+}

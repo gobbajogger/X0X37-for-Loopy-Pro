@@ -1,0 +1,73 @@
+{
+  "row_id": "DONE-007",
+  "roadmap_pin_commit": "5f578fc0642a1200a5163802bcd69277c511bfc7",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
+  "status": "UNPROVEN",
+  "proof_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:25; out/docs/roadmap-evidence/DONE-007.json:original notes; No test named in pinned row, its reconciliation row, or original evidence notes.",
+  "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id\nPASS1: [NEEDS_NAMED_TEST] No test named in pinned row, its reconciliation row, or original evidence notes. Hint ONLY: green scenario-upload44 (/workspace/cloud-agent-transcripts/bc-2569ed42-6fe8-5c70-b234-0675d502c017.jsonl:JSONL 148, tool_result.value.output line 44) loads and plays 44.1-kHz uploaded loops; narrow sample-rate/import lead. The row does not name it; this is not a binding and does not justify PRESENT.",
+  "code_paths": [],
+  "test_refs": [],
+  "pass1": {
+    "original": {
+      "notes": "historical Done synthetic id from gate; not a 5f578fc0 Master tracker id",
+      "proof_source": "docs/roadmap-completeness-audit-0.0.24.5.json id=DONE-007 result=MISSING (audit pin 70b5a033; rematch to 5f578fc0 by id)"
+    },
+    "category": "NEEDS_NAMED_TEST",
+    "row_sources": [
+      "/workspace/docs-audit/_ROADMAP-5f578fc0.md:25",
+      "out/docs/roadmap-evidence/DONE-007.json:original notes"
+    ],
+    "named_tests": [],
+    "bindings": {},
+    "missing_results": []
+  },
+  "pass2_coverage": {
+    "verdict": "COVERED_CANDIDATE",
+    "tests": [
+      "loop-bars",
+      "upload-tools"
+    ],
+    "evidence": "tests/host/loop_bars_test.c:26: check(96218u, 44100u, 1, \"one bar at 110 BPM, 44.1 kHz\");; tests/upload_tools_test.py:57: loops = [wav(OUT / f\"l{k}.wav\", 2.0) for k in range(3)]       # one bar at 120 BPM each: 88200 samples at 44.1 kHz",
+    "identifiers": [
+      {
+        "identifier": "44.1",
+        "source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:25"
+      }
+    ],
+    "matches": [
+      {
+        "test": "loop-bars",
+        "symbol_from_row": "44.1",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:25",
+        "file": "tests/host/loop_bars_test.c",
+        "line": 26,
+        "quote": "check(96218u, 44100u, 1, \"one bar at 110 BPM, 44.1 kHz\");",
+        "identifier": "44.1"
+      },
+      {
+        "test": "upload-tools",
+        "symbol_from_row": "44.1",
+        "row_source": "/workspace/docs-audit/_ROADMAP-5f578fc0.md:25",
+        "file": "tests/upload_tools_test.py",
+        "line": 57,
+        "quote": "loops = [wav(OUT / f\"l{k}.wav\", 2.0) for k in range(3)]       # one bar at 120 BPM each: 88200 samples at 44.1 kHz",
+        "identifier": "44.1"
+      }
+    ],
+    "recorded_results": {
+      "loop-bars": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      },
+      "upload-tools": {
+        "result": "unknown",
+        "source": "No explicit individual result in the supplied ce278129 Dev run excerpts.",
+        "raw": null
+      }
+    },
+    "scope": "Literal source lead only; at most three candidates; does not establish full feature coverage or row naming.",
+    "named_code_paths_searched": [],
+    "firmware_references": []
+  }
+}

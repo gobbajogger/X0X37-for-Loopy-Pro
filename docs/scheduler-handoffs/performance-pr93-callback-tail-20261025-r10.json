@@ -1,0 +1,118 @@
+{
+  "accepted_nightly_baseline": {
+    "firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "head": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+    "root_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c"
+  },
+  "artifacts": {
+    "source_files_sha256": {
+      "breaks_callback_tail_perf_test.c": "739dd75178d66b632e67d1a31dee7f5f97601bef83324ce4ac9966504b4d4867",
+      "compare_callback_tail.py": "3e50d1c075b3681464dbadfeab8da432d97406b3c503d412a58477c39c70abcc",
+      "performance-pr93-callback-tail-r10-summary.json": "3835bb220f1f1b657ecf582b0a6f773ddd41cbd10abe0ec451b4d89e944f64f6",
+      "run_breaks_callback_tail.sh": "20bb10e65358317b0b509fd516f07b7bd5ca87f197fc9030fa2dad5d863732b0"
+    },
+    "summary_sha256": "3835bb220f1f1b657ecf582b0a6f773ddd41cbd10abe0ec451b4d89e944f64f6"
+  },
+  "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+  "changed_files": [
+    "tests/host/breaks_callback_tail_perf_test.c",
+    "tests/host/compare_callback_tail.py",
+    "tests/host/run_breaks_callback_tail.sh",
+    "docs/audit/performance-pr93-callback-tail-20261025.md",
+    "docs/scheduler-handoffs/performance-pr93-callback-tail-20261025-r10.json"
+  ],
+  "checks": [
+    {
+      "cases_per_variant_compiler": 76,
+      "command": "gcc|clang -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Werror -pedantic -I${source} tests/host/breaks_callback_tail_perf_test.c firmware/src/dsp/breaks.c -o native-test",
+      "compile_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "execution_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "note": "Three independently completed rounds; 456 paired trials per 2 compilers combined",
+      "paired_rounds_per_compiler": 3,
+      "pcm_control_comparison_exits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "command": "gcc|clang -std=c11 -O1 -g -ffp-contract=off -fsanitize=address,undefined ... ; ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 binary --blocks 64",
+      "compile_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "execution_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "stderr_empty": true
+    },
+    {
+      "clang_exit": 0,
+      "command": "bash tests/host/run_breaks_callback_tail.sh --baseline-root ../baseline-nightly --compiler gcc|clang",
+      "gcc_exit": 0,
+      "orchestration_combined_attempt": "TIMEOUT_NOT_PASS"
+    },
+    {
+      "bad_compiler_exit": 2,
+      "command": "invalid selector; same-root source; invalid compiler; mutated PCM hash",
+      "invalid_selector_expected_exits": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "same_root_exit": 2,
+      "tampered_pcm_compare_expected_exit": 1
+    }
+  ],
+  "compiled_firmware_subtree": "a87a83e15116422eed84528d95f52ddef5029927",
+  "compiler_inputs_changed": false,
+  "consumed_full_root_tree": "80760967f7526c2a1dae1668b87050f30b287c71",
+  "consumed_head_sha": "58b10227f233654faa6a7c4ec03d53e2d7474d07",
+  "device": "UNKNOWN_NOT_TESTED",
+  "evidence_revision": "performance-pr93-callback-tail-p99-host-20261025-r10",
+  "full_root_qa": "PENDING",
+  "installable": false,
+  "next_action": "Read back final PR93 source HEAD/root, verify native host callback test and short-loop p99 nuance, run independent affected full-root review and exact-SHA disposition. Safe Merge only after independently accepted.",
+  "next_owner": "Independent QA",
+  "old_build_reuse": {
+    "elite_actual_build_executed_this_run": false,
+    "minimum": 8192,
+    "model_pool_free_bytes_historical": 8308,
+    "pro_actual_build_executed_this_run": false,
+    "source": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/93#issuecomment-6372477760",
+    "status": "PREVIOUS_VERIFIED_BUILD_ONLY_UNCHANGED_COMPILER_SOURCE"
+  },
+  "outcome": "SOURCE_READY_SCOPED_NATIVE_HOST_PASS_INDEPENDENT_QA_PENDING",
+  "pr": 93,
+  "producer": "Performance Engineering",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "run_utc": "2026-10-24T17:43:23.461783+00:00",
+  "schema_version": 1,
+  "served_http": "NOT_RUN",
+  "unrun": [
+    "independent complete root QA",
+    "actual hardware ISR CPU and XRUN",
+    "MIDI NoteOff routing / sequencer phase",
+    "backup restore OTA / controller integration",
+    "license/source notices, public hosting and HTTP byte verification"
+  ]
+}
