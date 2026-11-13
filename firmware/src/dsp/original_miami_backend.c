@@ -4,7 +4,12 @@
 #include "../../../experiments/original_synth/binary32_math.h"
 #include "../../../experiments/original_synth/miami_idle_clock.h"
 #include "../../../experiments/original_synth/miami_zero.h"
+#define original_pitch44100 original_pitch44100_local
 #include "../../../experiments/original_synth/motion_tables_private.h"
+#undef original_pitch44100
+/* Export one copy. Chicago and this file both bind this symbol.
+ * The values remain the table in motion_tables_private.h. */
+extern const int32_t original_pitch44100[128] __attribute__((alias("original_pitch44100_local")));
 #include <string.h>
 
 #define BACKEND_READY UINT32_C(0x4d424531)
