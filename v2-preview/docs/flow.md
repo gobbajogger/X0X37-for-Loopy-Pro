@@ -1,8 +1,8 @@
 # DnBOX website v2 — install, recovery, first use, and preset flows
 
-Companion to `ia.md`. This is a design of decisions, not a live installer and not a device test. Buttons in the prototype are inert. Sources and fetch times are the same as in `ia.md`.
+Companion to `ia.md`. This is a design of decisions, not a live installer and not a device test. Buttons in the prototype move between simulated states; they never request MIDI permissions, write firmware, inspect hardware or save files. Sources and fetch times are the same as in `ia.md`.
 
-A rendered picture of each mermaid diagram is saved next to this file: `flow-install.png` and `flow-presets.png`.
+Older PNG renderings `flow-install.png` and `flow-presets.png` are retained for history. **The install PNG is superseded by the diagram below** and must not be treated as the current flow or test evidence.
 
 ---
 
@@ -10,40 +10,50 @@ A rendered picture of each mermaid diagram is saved next to this file: `flow-ins
 
 Default version is **0.0.25.1**, the known-good fallback (nightly `/new/`, nightly `/manual/`). A 0.0.26 replacement candidate at `94197fc8` may be chosen only after its limits are shown. The withdrawn original 0.0.26 at `600b3b45` is not offered. Recovery is reachable from the first state, before any write. Device identity is the name printed on the keyboard **and** the installer’s check of the connected device; a USB or port name is not confirmation (nightly `/manual/`: “A connection name is not proof of the board model”).
 
-The iPhone path is supported, equally with Chrome or Edge on a computer, and is tagged **UNVERIFIED: route pending Installer QA**. No app is named.
+The iPhone route is **UNVERIFIED**, with no validated app, OS, connection procedure or completed DnBOX install; the preview does not allow it to proceed. Computer Chrome/Edge is the documented route. A failed or skipped sample-slot backup produces a visible **warning only** (c237b0d1), never a mandatory install gate. Transfer, restart and observed boot are distinct.
 
 ```mermaid
 flowchart TB
-  start[Open Install] --> help0[Recovery is already reachable]
-  help0 --> device{Printed name on the case?}
+  start[Open inert installer preview] --> device{Printed keyboard model?}
   device -->|Elite| pkgE[Elite package]
-  device -->|Pro, or Starrykey 37 Play| pkgP[Pro package]
-  device -->|Unsure| look[Look at the case, not the USB name]
-  look --> device
-  pkgE --> check[Installer also checks the connected device]
+  device -->|Pro or Starrykey 37 Play| pkgP[Pro package]
+  device -->|Unknown| find[Check printed case, never guess from USB name]
+  find --> device
+  pkgE --> check[Real installer must verify actual connected device]
   pkgP --> check
-  check -->|Mismatch| mismatch[Stop. Do not write]
+  check -->|Mismatch| mismatch[STOP / never write]
   mismatch --> device
-  check -->|Match — more than a USB name| version{Which package?}
-  version -->|0.0.25.1 default| v251[Known-good fallback<br/>on-device 0.0.25 · 79280e76]
-  version -->|0.0.26 candidate 94197fc8| v026[Owner-operated testing<br/>startup not verified]
-  version -->|Original 0.0.26 600b3b45| withdrawn[Withdrawn. Not offered.<br/>If already on a device: restore stock]
-  v026 --> ack{Limits acknowledged?}
+  check -->|Match required in real installer| version{Choose version}
+  version -->|0.0.25.1 default| fallback[Fallback / owner-reported Elite boot]
+  version -->|0.0.26 candidate| candidate[Development / owner-reported Elite boot; no exact hash or Pro QA]
+  candidate --> ack{Candidate limitation acknowledged?}
   ack -->|No| version
-  ack -->|Yes| path
-  v251 --> path{Which path?}
-  withdrawn --> recover[Recover]
-  path -->|Chrome or Edge on a computer| backup
-  path -->|iPhone with a compatible app<br/>UNVERIFIED: route pending Installer QA| backup
-  backup[Back up sample slots] --> write[Write. Keep USB connected.<br/>A dark display can be normal]
-  write -->|Finished| confirm[Confirm. 0.0.25.1 shows 0.0.25<br/>This prototype has not talked to a device]
-  write -->|USB lost or write stopped| usb[Replug. Finish the same package.<br/>Start after a stopped write is unknown]
-  write -->|Device no longer matches| mismatch
-  confirm --> first[Play a first pattern]
-  confirm -->|Screen black, or Restarting does not end| nostart[Retain log, package, and model]
-  usb --> recover
+  ack -->|Yes| route
+  fallback --> route{Choose route}
+  route -->|Computer Chrome or Edge| permission{Browser MIDI permission / simulated}
+  route -->|iPhone unverified| iphone[No verified iPhone install path / stop]
+  iphone --> route
+  permission -->|Denied| denied[No write / browser permission guidance]
+  permission -->|Unavailable| unavailable[No write / compatible browser guidance]
+  permission -->|No eligible device| absent[No write / check cable and model]
+  denied --> permission
+  unavailable --> route
+  absent --> permission
+  permission -->|Simulated permission granted| backup{Back up sample slots}
+  backup -->|Success| write[Simulate write]
+  backup -->|Failed or skipped| warning[Visible backup WARNING / not blocking]
+  warning -->|Retry| backup
+  warning -->|Deliberate continue| write
+  write -->|USB lost or write stopped| stopped[Write incomplete / same package / recovery]
+  write -->|Model mismatch| mismatch
+  write -->|Transfer acknowledged| transfer[TRANSFER ONLY / not ready]
+  transfer --> restart[Wait for restart observation]
+  restart -->|No boot or stalled| nostart[No confirmed boot / recovery]
+  restart -->|Visitor selects observed boot| boot[Mock boot observation / not hardware proof]
+  boot --> first[First pattern tutorial]
+  stopped --> recover[Recovery guidance]
   nostart --> recover
-  help0 -.-> recover
+  start -.-> recover
 ```
 
 **Failure branches, in words.**
@@ -55,7 +65,10 @@ flowchart TB
 | Write interrupted | Same as above. Do not switch to a different package to “rescue” a half-write. | Replug, finish the same package. |
 | Screen black, or stuck at Restarting, after a write | Retain the log, the package version, and the exact model. | Recover: installer restore to M-VAVE stock, or M-UPGRADE. Report those three facts. Do not install another device’s stock firmware. Do not reinstall withdrawn 0.0.26 (`600b3b45`). |
 | Original 0.0.26 already on the device | That package was withdrawn after black-screen / Restarting reports. | Restore stock. Do not reinstall it. |
-| Visitor is on iPhone | The path is supported. The exact app and steps are unconfirmed. | “Install from your iPhone with a compatible app,” tag **UNVERIFIED: route pending Installer QA**. |
+| Browser MIDI denied/unavailable, or no eligible device | No bytes transferred; this is not an installation failure. | Give the specific permission, browser or cable/model guidance. |
+| Sample-slot backup failed or was skipped | WARNING: samples may be lost; no successful backup is claimed. | Offer retry **or deliberate continuation**; never block the install solely because backup failed. |
+| Transfer acknowledged, but no restart/boot observation | Firmware bytes being sent is not a playable firmware boot. | Remain at transfer/restart check; no Ready banner or complete-success state. |
+| Visitor is on iPhone | No validated app/OS/connection or DnBOX installation was demonstrated. | Mark **UNVERIFIED**, do not offer this route as supported, and direct to the documented computer path. |
 
 ---
 
