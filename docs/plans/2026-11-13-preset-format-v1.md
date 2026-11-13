@@ -305,3 +305,85 @@ Stage 1 shrank: `load_into` zeros the working record directly, so `preset_record
 
 Stages 2–4 grew a little because `preset_record_import` now decodes into a stack scratch and assigns the caller only on success (a failed WRONG ENGINE import never looks like a filled slot), and because `*written` is set only after the buffer-size check. Those are correctness costs. All four stages stay below the before-pass sums (1,340 / 1,549 / 2,941 / 3,008). The current stage-4 HOST ESTIMATE 2,687 B is still far above the 248 B / 256 B flash headroom. These are host numbers, not device numbers. JieLi pi32v2 is still MISSING. There is no device link. The Optimizer lane `lane/opt-flash-savings-026` is not touched.
 
+
+## 13. Safe capacity without a storage-map change
+
+This section places a user-preset bank in an existing unused spare. It does not change the storage map, the floors, or any other region. It is a plan, not a wiring step.
+
+### The spare, and that it is unused at 94197fc8
+
+The SMK-37 `FL_DATA` spare is `0xAD000`–`0xAEFFF`: 8,192 B, two 4 KiB sectors (`0xAD000`–`0xADFFF` and `0xAE000`–`0xAEFFF`).
+
+Sources, byte-identical to 94197fc8 (tree 72d28fbc; this branch does not touch them):
+
+- `firmware/hal/fm1_flash_map.h` line 32 lists the spare in the `FL_DATA` comment, between the boot-screen copies at `0xAB000` / `0xAC000` and the owner tag at `0xAF000`.
+- `firmware/src/storage.c` line 47: "0xAD000..0xAEFFF stays spare." The seven store objects end at `0xAB000` (`storage.c` lines 51–52: `ST_SMK_BASE + 2 * OBJ_NOBJ * ST_SECTOR == 0xAB000u`). The boot screen uses `0xAB000` and `0xAC000` (`app/boot_screen.h`). The owner tag is `0xAF000` (`storage.c` line 71).
+- No object, no boot-screen copy, and no owner record uses `0xAD000` as a base. The only mentions in the 94197fc8 sources are these comments (and the same wording in `BUILDING.md` / `BEHAVIOR.md`). The flash allow-list `FL_STORE_OK` includes all of `FL_DATA`, so a later wiring step may program this spare, but nothing does so at 94197fc8.
+
+A foreign-store clear (`storage.c` `st_owner_check`, lines 92–103) erases `0x9D000` up to the owner sector `0xAF000`, which includes this spare. A later wiring step must treat that clear as a wipe of any presets stored here, or must change that clear (that would be a later, explicit choice; this step does not change it).
+
+### Erase-sector size
+
+The erase unit is 4,096 B (4 KiB):
+
+- `storage.c` line 20: `#define ST_SECTOR 4096u`. Every existing store object is an A/B pair of these sectors.
+- `firmware/hal/fm1_flash.h`: `fl_erase4k` (line 231) calls `fl_erase4k_ram` (line 142). The RAM helper requires `off` aligned to `0x1000`, issues SPI NOR command `0x20` (4 KiB sector erase, line 151), and invalidates 4,096 B.
+
+A record of 108–296 B is much smaller than one sector. A save must erase a whole 4 KiB sector and rewrite it. Records must not straddle a sector boundary.
+
+### Record sizes used below
+
+v1 wire length = 96 B header + 4 B payload head + `nparams` + 16 B × `nsamples`.
+
+| Engine | nparams | nsamples | Record (B) |
+| --- | ---: | ---: | ---: |
+| Chicago | 22 | 0 | 122 |
+| Miami | 18 | 0 | 118 |
+| Juno | 18 | 0 | 118 |
+| Drone | 8 | 0 | 108 |
+| 909 | 132 | 4 | 296 |
+| 808 (no refs) | 144 | 0 | 244 |
+| 808 (max refs) | 144 | 16 | 500 |
+| BREAK | 16 | 2 | 148 |
+
+808 has a variable sample-ref count (any 0..16). Both ends are shown. A 32 B `DNCM` commit marker is reserved at the end of each sector. For every size in this table, `floor((4096 − 32) / size)` equals `floor(4096 / size)`.
+
+### Slots in the 8 KiB spare (sector-aware)
+
+Each 4 KiB sector holds `floor((4096 − 32) / record)` records, and must not pack a record across the 0xAE000 boundary.
+
+- **With the A/B undo copy:** sector `0xAD000` is the live pad, sector `0xAE000` is the previous pad. One bank-level undo (the other sector is the previous whole bank). Capacity is the per-sector count.
+- **Without the A/B undo copy:** both sectors are live. Capacity is twice the per-sector count. There is no previous pad.
+
+64 slots is not a requirement. 64 A/B 909 records would need about 37 KiB and do not fit.
+
+| Engine | Record (B) | Per 4 KiB sector | Slots with A/B undo | Slots without A/B |
+| --- | ---: | ---: | ---: | ---: |
+| Chicago | 122 | 33 | 33 | 66 |
+| Miami | 118 | 34 | 34 | 68 |
+| Juno | 118 | 34 | 34 | 68 |
+| Drone | 108 | 37 | 37 | 74 |
+| 909 | 296 | 13 | 13 | 26 |
+| 808 (no refs) | 244 | 16 | 16 | 32 |
+| 808 (max refs) | 500 | 8 | 8 | 16 |
+| BREAK | 148 | 27 | 27 | 54 |
+
+A raw byte budget `floor(8192 / size)` is one or two higher if a record is allowed to straddle the sector boundary. That is not safe: erasing one sector would tear the straddling record. The table above is the safe count.
+
+### Mixed-bank example
+
+The two pads can hold a mix of engines, as long as each pad is a complete image of the same set and no record crosses `0xAE000`.
+
+Example, one 4 KiB live pad: 8 Chicago records (8 × 122 = 976 B) and 10 909 records (10 × 296 = 2,960 B) total 3,936 B, with 160 B left (the 32 B commit marker fits). With A/B undo, that is 18 slots and a whole-bank previous copy. Without A/B, both sectors can hold that mix: 16 Chicago and 20 909, 36 slots, no undo.
+
+Another mix: 20 Chicago (2,440 B) and 5 909 (1,480 B) total 3,920 B, 25 slots with A/B.
+
+### Tradeoffs
+
+- **Undo copy vs. capacity.** A/B uses one of the two sectors as the previous pad, so the slot count is half of the no-undo count. The gain is a power-loss-safe previous bank (the overwrite-undo already specified for this format). Without A/B, a torn erase or a torn program can lose every record in that sector.
+- **Sector granularity.** The erase unit is 4 KiB. Updating one record means erasing and rewriting the whole sector (every packed record in that pad). Saves are not per-record in flash. The write must run from the main loop, stopped and quiet, never from an audio callback (a 4 KiB erase already silences audio on this product).
+- **Wear.** Only two sectors would take every preset save. A/B writes the inactive sector and then the commit marker, so each save erases one sector. Typical NOR endurance is high enough for occasional user saves, but the wear is concentrated. Packing more records per sector means each save rewrites more live data.
+- **Power-loss safety.** The planned order stands: write the full new pad to the inactive sector, verify its CRC, then write the 32 B `DNCM` marker last; the valid marker with the higher seq is live; on a seq tie, pad A wins; a torn pad falls back to the other. This needs the A/B layout. A packed no-undo layout cannot keep a previous pad.
+- **Foreign-store clear.** `st_owner_check` already erases this spare when it clears another family's store. Wiring must accept that, or change the clear later. This step does not change it.
+- **What this spare cannot do.** It cannot hold 64 A/B 909-sized slots. A larger bank needs a later flash-reserve decision and a storage-map change, which this step does not make.
+
