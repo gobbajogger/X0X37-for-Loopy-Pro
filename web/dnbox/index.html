@@ -50,6 +50,12 @@
         <button id="start" class="primary" type="button" disabled>Enable sound &amp; boot firmware</button>
       </div>
       <p class="panel-help">The screen, pads and keys above are rendered by the original Rust/WASM emulator. Drag knobs and faders, touch multiple keys, or use the accessible controls below. Headphones recommended.</p>
+      <div id="dnbox-metrics" class="metrics" role="status" aria-live="off" aria-label="Emulator timing and input responsiveness">
+        <span id="dnbox-metric-speed">Runtime: not started</span>
+        <span id="dnbox-metric-drop">Short audio quanta: not measured</span>
+        <span id="dnbox-metric-input">Input message round trip: not measured</span>
+      </div>
+      <p class="metric-footnote">These are browser-emulator diagnostics, not physical-device performance or measured key-to-speaker latency.</p>
       <p id="demo-error" role="alert" hidden>Browser check failed. Use a current desktop Chromium-based browser over HTTPS or localhost. No device access or installation is attempted.</p>
     </div>
     <aside class="side bar" aria-label="Firmware and browser controls">
