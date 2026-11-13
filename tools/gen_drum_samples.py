@@ -236,46 +236,75 @@ def main():
     for i, (n, lo, hi) in enumerate(EXP_RANGES):
         t.append(f"#define X0X_EXP_{n} {i}   /* {lo:g} .. {hi:g} */")
     t.append(f"#define X0X_EXP_COUNT {len(EXP_RANGES)}")
-    # All variable bits are contiguous low bits. Encode their exact binary32
-    # representation, never recompute a curve in the runtime setter.
+    # Successive unsigned IEEE-bit deltas of the exact binary32 table.
+    # Each curve is a rising sequence of positive floats, so the bit
+    # patterns also rise. The first value is in the row; each of the
+    # 127 steps is a packed unsigned delta. The decoder adds those
+    # deltas with integer arithmetic only (no FP, no recomputed pow).
+    # Callers are the cold pot setters, not the audio render path.
     words, rows = [], []
     for n, lo, hi in EXP_RANGES:
         vals = [bits32(pot_exp(lo, hi, p)) for p in range(128)]
-        mask = 0
-        for v in vals:
-            mask |= v ^ vals[0]
-        width = mask.bit_length()
-        assert 0 < width < 32 and mask == (1 << width) - 1
-        base = vals[0] & ~mask
-        rows.append((base, len(words), width))
-        stream = sum((v & mask) << (p * width) for p, v in enumerate(vals))
+        assert all(vals[i] < vals[i + 1] for i in range(127)), n
+        deltas = [vals[i + 1] - vals[i] for i in range(127)]
+        width = max(deltas).bit_length()
+        assert 0 < width < 32, (n, width)
+        rows.append((vals[0], len(words), width))
+        stream = sum(d << (i * width) for i, d in enumerate(deltas))
         words.extend((stream >> bit) & 0xffffffff
-                     for bit in range(0, 128 * width, 32))
+                     for bit in range(0, 127 * width, 32))
     words.append(0)  # final aligned high-word read; no out-of-bounds load
-    t += ["typedef struct { uint32_t base; uint16_t offset; uint8_t width; uint8_t reserved; } x0x_exp_row_t;",
+    def _unp(first, off, width, pot):
+        u = first
+        mask = (1 << width) - 1
+        for i in range(pot):
+            bit = i * width
+            shift = bit & 31
+            idx = off + (bit >> 5)
+            v = words[idx] >> shift
+            if shift:
+                v |= words[idx + 1] << (32 - shift)
+            u += v & mask
+        return u
+    for (n, lo, hi), (first, off, width) in zip(EXP_RANGES, rows):
+        vals = [bits32(pot_exp(lo, hi, p)) for p in range(128)]
+        for p in range(128):
+            assert _unp(first, off, width, p) == vals[p], (n, p)
+    t += ["typedef struct { uint32_t first; uint16_t offset; uint8_t width; uint8_t reserved; } x0x_exp_row_t;",
           "#ifdef X0X_DRUM_TABLES_DEFINE",
           "static const x0x_exp_row_t x0x_exp_rows[X0X_EXP_COUNT] = {"]
-    t += [f"    {{0x{base:08x}u, {offset}, {width}, 0}},"
-          for base, offset, width in rows]
+    t += [f"    {{0x{first:08x}u, {offset}, {width}, 0}},"
+          for first, offset, width in rows]
     t += ["};", arr("uint32_t", "x0x_exp_words", words,
                      lambda v: f"0x{v:08x}u", per=8),
           "/* row < X0X_EXP_COUNT, pot < 128: callers retain their domain checks.",
-          " * At most two aligned XIP payload loads plus row metadata; no cache or FP arithmetic. */",
+          " * Exact IEEE reconstruct: add pot packed unsigned deltas to first.",
+          " * Integer adds only; used by cold pot setters, not audio render. */",
           "__attribute__((noinline)) float x0x_pot_exp_value(unsigned row, unsigned pot)",
           "{",
           "    const x0x_exp_row_t *r = &x0x_exp_rows[row];",
-          "    unsigned bit = pot * r->width, shift = bit & 31u;",
-          "    const uint32_t *p = &x0x_exp_words[r->offset + (bit >> 5)];",
-          "    uint32_t v = p[0] >> shift;",
-          "    if (shift) v |= p[1] << (32u - shift);",
+          "    uint32_t u = r->first;",
+          "    unsigned w = r->width;",
+          "    uint32_t mask = (1u << w) - 1u;",
+          "    const uint32_t *base = &x0x_exp_words[r->offset];",
+          "    for (unsigned i = 0; i < pot; i++) {",
+          "        unsigned bit = i * w, shift = bit & 31u;",
+          "        const uint32_t *p = &base[bit >> 5];",
+          "        uint32_t v = p[0] >> shift;",
+          "        if (shift) v |= p[1] << (32u - shift);",
+          "        u += v & mask;",
+          "    }",
           "    union { uint32_t u; float f; } result;",
-          "    result.u = r->base | (v & ((1u << r->width) - 1u));",
+          "    result.u = u;",
           "    return result.f;",
           "}", "#else",
           "float x0x_pot_exp_value(unsigned row, unsigned pot);", "#endif", ""]
     out_t.write_text("\n".join(t))
+    raw_exp_b = len(EXP_RANGES) * 128 * 4
+    packed_exp_b = len(rows) * 8 + len(words) * 4
     print(f"gen_drum_samples: {total} frames ({nbytes} bytes of ADPCM, {total * 2} as int16) -> {out_s.name}; "
-          f"tanh {TANH_N + 2} packed {tanh_raw_b}->{tanh_packed_b} B + {len(EXP_RANGES)} pot curves -> {out_t.name}")
+          f"tanh {TANH_N + 2} packed {tanh_raw_b}->{tanh_packed_b} B + {len(EXP_RANGES)} pot curves "
+          f"delta-packed {raw_exp_b}->{packed_exp_b} B -> {out_t.name}")
 
 
 if __name__ == "__main__":
