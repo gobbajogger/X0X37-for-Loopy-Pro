@@ -37,8 +37,10 @@ python3 dnbox/dropout/fixture.py \
   --out /workspace/btr-dropout-repro/observer-inputs/cramen-slot1
 ```
 
-Those input paths describe the existing Runner workspace; their availability in
-this Classic workspace is not established. The output directory must not exist.
+Those input paths describe the existing Runner workspace. The owner's private
+Library handoff has now materialized in the Classic workspace; both model ELF
+and package hashes and the factory pack hash match the recorded pins. The
+output directory must not exist.
 CRAMEN is a chosen representative sample, not the owner's confirmed sample.
 The fixture records the pack's bar count separately from the firmware's
 user-slot bar inference (`engine.c:2960`), because the slot format omits bars.
@@ -108,3 +110,62 @@ Independent source review found that retained samples in other slots could make
 the selected sample ambiguous. A failing regression reproduced it; the builder
 now rejects that input. Binary32 versus Python bar inference was also checked
 over the supported slot-size domain without finding a differing selection.
+
+## Host observer checkpoint
+
+`crates/fm1-soc/src/dnbox_observer.rs` observes existing RAM stores, scheduled
+DMA edges, ALNK entry and the matching outer IRQ return. It does not execute a
+guest call, write guest memory, add guest cycles or change dual-core slices.
+`FM1_DNBOX_MAP` supplies symbol ranges and `FM1_DNBOX_TRACE` names a new JSONL
+file. Both variables must be supplied together. The supported route is the
+strict 360 MHz dual-core `--shot` route with the pinned package; incompatible
+timing, fault-injection and profiling overrides are rejected before loading.
+`FM1_DNBOX_PCM` writes the existing DAC PCM stream, including with observation
+disabled for a control run.
+
+The map requires all eighteen pinned counters/buffers. Optional `scene_*` raw
+byte ranges support target-layout-verified scene state without guest changes.
+They are limited to 64 ranges, 512 bytes each and 4096 bytes total; all ranges
+must be disjoint and in RAM. Partial and unaligned overlaps with guest writes
+produce clipped byte events, so snapshot replay does not silently omit them.
+
+`trace.py` reduces a complete trace into `summary.json`, `per_half.csv` and
+`stage_events.jsonl`. It checks every selected half against actual DMA time,
+replays watched stores from IRQ entry to return, requires both 256-frame render
+increments and exactly one `last_us` write, and preserves repeated equal values.
+Missed DMA edges are counted by sequence, not alternating half identity.
+Completion has a documented one-emulator-tick bound; core 1 event timestamps
+use the shared slice clock. Output states are `OBSERVED` or `INCOMPLETE`, never
+an owner-scene PASS. Scene bytes and human audibility remain unverified until
+separate checks interpret them.
+
+Focused validation at this checkpoint:
+
+- 19 Rust observer tests passed in the actual `fm1-soc` crate, including the
+  strict dual-CPU DMA/IRQ observer-on versus observer-off CPU/RAM/PCM/clock test.
+- 19 Python reducer tests passed, including missing-store replay, truncated
+  observations, actual DMA deadlines, counter wrap and optional scene bytes.
+- The real built executable rejects `FM1_USB_SIE_NS` and `FM1_FLASH_CUT` before
+  attempting to load firmware. Both cases failed before that guard fix.
+- `cargo build --locked --release -p fm1-live` passed. Only the host emulator was
+  built; the firmware artifacts were reused unchanged.
+
+These synthetic neutrality tests establish the tested execution paths, not
+target-wide equivalence. A real firmware observer-off/on control remains a
+separate runtime check.
+
+### First exact-input short run: scene rejected
+
+The first 30-second Elite run completed with the exact input package and a
+CRAMEN user slot. Its 20–29 second window contained 775 coherent halves, but
+it **does not qualify the requested scene**: final RAM showed A=Miami,
+B=Chicago, an unintended 808 BD pattern, no Juno and zero BREAK steps.
+BREAK was loaded but had no observed dry-mix contribution. Therefore its
+zero missed deadlines and 8467 us maximum `last_us` are diagnostic results
+for that rejected setup only. They are not evidence that the reported owner
+scene meets its deadline. The next fixture revision must verify actual scene
+state at captured boundaries before any scene timing qualification.
+
+The sanitized receipt in `evidence/2026-11-13-initial-rejected.json` records
+the exact artifact, input-script, trace and final-RAM hashes. Raw firmware,
+sample data, RAM and PCM remain private and are not committed.
