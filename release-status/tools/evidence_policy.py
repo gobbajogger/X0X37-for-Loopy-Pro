@@ -101,6 +101,12 @@ def installation_for_model(record: dict, model: str) -> tuple[bool, str]:
     receipt = receipts[0]
     if receipt.get("model_proof") not in MODEL_PROOF_TYPES:
         return False, "missing hardware-field model proof (USB name is not model proof)"
+    if receipt.get("model_proof_model") != model:
+        return False, "claimed_model does not match the model named by hardware proof"
+    if parse_instant(receipt.get("model_proof_time")) is None:
+        return False, "hardware model proof requires a real observation time"
+    if not direct_source_link(receipt.get("model_proof_source_link")):
+        return False, "hardware model proof requires an independently attributable direct source"
     if receipt.get("model_confidence") != "verified" or receipt.get("build_confidence") != "verified":
         return False, "model and exact build confidence must both be verified per model"
     wanted_hash = (models[model] or {}).get("image_sha256")
