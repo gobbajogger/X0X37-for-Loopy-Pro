@@ -2056,6 +2056,11 @@ static void mute_track(int km, int v)                /* one drum track on / off 
 
 static void key_event(int k, int down)
 {
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    if (smk_clip_mode_on() && KEY_WHITE[k] >= 0)
+        return;   /* clip mode owns the white keys; do not edit steps */
+#endif
     int w = KEY_WHITE[k], bl = KEY_BLACK[k], wp = w >= 0 ? ui.pbank * 16 + w : -1;   /* wp: a white key's pattern */
     if (ui.overlay == O_ASK || ui.view == V_PERF || perf_testing())
         return;

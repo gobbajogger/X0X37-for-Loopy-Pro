@@ -443,6 +443,10 @@ static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_m
 
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
+#if BOARD_SMK37
+void smk_clip_state_set(uint8_t i, uint8_t s);
+uint8_t smk_clip_mode_on(void);
+#endif
 
 static void midi_in(uint32_t pkt)
 {
@@ -456,6 +460,14 @@ static void midi_in(uint32_t pkt)
     case 0xFC: seq_stop(&seq); return;
     default: break;
     }
+#if BOARD_SMK37
+    if ((ty == 0x90 || ty == 0x80) && d1 >= 36 && d1 <= 51) {
+        uint8_t stt = (ty == 0x80 || d2 == 0) ? 0u : (d2 == 127 ? 3u : d2 > 64 ? 2u : 1u);
+        smk_clip_state_set((uint8_t)(d1 - 36), stt);
+        if (smk_clip_mode_on())
+            return;
+    }
+#endif
     if (ty == 0x90 && d2 == 0)
         ty = 0x80;
     for (k = 0; k < NKIT; k++)                          /* each part on its own channel (GLO): the drum */

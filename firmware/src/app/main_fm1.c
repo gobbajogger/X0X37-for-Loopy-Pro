@@ -172,11 +172,40 @@ extern void isr_timer5(void);
 /* What the SMK-37 Pro has beyond the FM-1's panel (smk_input.h), after the UI (ui.c) in this unity build.
  * The pads: the 16 white keys' lights (plat_fm1.c plat_leds) in the colour of the part on screen, lit half
  * bright, dim an eighth, else dark; sent between LCD transfers (lcd.c padled_flush). */
+static volatile uint8_t clip_grid_mode;   /* additive LP clip launcher; long KNOB BANK toggles */
+static uint32_t knob_bank_hold_start;
+static uint8_t knob_bank_toggled;
+static uint8_t clip_state[16];            /* 0 empty, 1 has content, 2 playing, 3 recording */
+void smk_clip_state_set(uint8_t i, uint8_t s)
+{
+    if (i < 16u && s <= 3u)
+        clip_state[i] = s;
+}
+uint8_t smk_clip_mode_on(void)
+{
+    return clip_grid_mode;
+}
 static void smk_pads(void)
 {
+    uint32_t w;
+    if (clip_grid_mode) {
+        for (w = 0; w < 16u; w++) {
+            uint8_t s = clip_state[w];
+            if (s == 3)
+                padled_set(w, 90, 0, 0);          /* recording: red */
+            else if (s == 2)
+                padled_set(w, 0, 110, 0);         /* playing: green */
+            else if (s == 1)
+                padled_set(w, 18, 18, 18);        /* has content: white */
+            else
+                padled_set(w, 0, 0, 0);           /* empty: off */
+        }
+        padled_flush();
+        return;
+    }
     uint16_t c = PART_COL[ui.part % NPARTS];
     uint32_t r = (uint32_t)(c >> 11) * 255u / 31u, g = (uint32_t)((c >> 5) & 63u) * 255u / 63u,
-             b = (uint32_t)(c & 31u) * 255u / 31u, w;
+             b = (uint32_t)(c & 31u) * 255u / 31u;
     for (w = 0; w < SMK_NPAD; w++) {
         uint32_t k = SMK_WHITE_NOTE[w], pad = SMK_PAD_OF_WHITE(w), sh;
         sh = (smk_keys_lit >> k) & 1u ? 1u : (smk_keys_dim >> k) & 1u ? 3u : 0u;
@@ -341,8 +370,10 @@ static void smk_arrows(void)
 /* pads as a step grid (steps, patterns: 1-8 top row) unless they play notes (a 303's REC keyboard) */
 static void smk_grid(void)
 {
-    smk_pad_grid = (uint8_t)(ui.view == V_HOME || ui.view == V_SONG || (ui.btn & (1u << B_HOME | 1u << B_SAVE)) ||
-                             !(is_303() && ui.rec));
+    smk_pad_grid = (uint8_t)(clip_grid_mode || ui.view == V_HOME || ui.view == V_SONG ||
+                             (ui.btn & (1u << B_HOME | 1u << B_SAVE)) || !(is_303() && ui.rec));
+    if (clip_grid_mode)
+        smk_pad_piano = 0;
 }
 
 static void smk_frame(void)
@@ -352,6 +383,60 @@ static void smk_frame(void)
     smk_arrows();
     smk_faders();
     smk_wheels();
+    /* long KNOB BANK hold toggles clip-grid mode once per hold */
+    if (fm1_in.buttons & (1u << SMK_BTN_KNOB_BANK)) {
+        if (!knob_bank_hold_start)
+            knob_bank_hold_start = fm1_ms ? fm1_ms : 1u;
+        else if (!knob_bank_toggled && fm1_ms - knob_bank_hold_start > 1000u) {
+            clip_grid_mode ^= 1u;
+            knob_bank_toggled = 1u;
+            say(clip_grid_mode ? "LP" : "LP OFF", 0);
+        }
+    } else {
+        knob_bank_hold_start = 0;
+        knob_bank_toggled = 0;
+    }
+    static uint32_t last_notes;
+    static uint32_t sent_notes;   /* pads for which we sent note-on */
+    static uint8_t was_on;
+    if (clip_grid_mode) {
+        smk_pad_piano = 0;   /* force direct white map, ignore piano layout */
+        /* simple pad press: send note on rising edge, note-off on falling */
+        if (!was_on) {
+            last_notes = fm1_in.notes;   /* suppress false rising edges from pads held at entry */
+            sent_notes = 0;
+            was_on = 1u;
+        }
+        uint32_t now = fm1_in.notes, edge = now & ~last_notes, fall = last_notes & ~now;
+        last_notes = now;
+        for (uint32_t i = 0; i < 16u; i++) {
+            uint32_t bit = 1u << SMK_WHITE_NOTE[i];
+            if (edge & bit) {
+                extern void midi_send_note(uint32_t note, uint32_t vel);
+                midi_send_note(36u + i, 100u);
+                sent_notes |= bit;
+            }
+            if ((fall & bit) && (sent_notes & bit)) {
+                extern void midi_send_note(uint32_t note, uint32_t vel);
+                midi_send_note(36u + i, 0u);
+                sent_notes &= ~bit;
+            }
+        }
+    } else {
+        if (was_on) {
+            /* mode exit: send note-off only for pads that received a note-on */
+            for (uint32_t i = 0; i < 16u; i++) {
+                uint32_t bit = 1u << SMK_WHITE_NOTE[i];
+                if (sent_notes & bit) {
+                    extern void midi_send_note(uint32_t note, uint32_t vel);
+                    midi_send_note(36u + i, 0u);
+                }
+            }
+            was_on = 0;
+            last_notes = 0;
+            sent_notes = 0;
+        }
+    }
     smk_grid();
     smk_pads();
 }

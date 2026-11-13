@@ -138,6 +138,10 @@ static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
         mo_w++;
     }
 }
+void midi_send_note(uint32_t note, uint32_t vel)
+{
+    midi_out_event(0x09u | (0x90u << 8) | (note << 16) | (vel << 24));
+}
 
 /* ------------------------------------------------------- descriptors --- */
 /* interfaces: 0 audio control, 1 MIDI streaming, 2 audio streaming (FELUCCA_UAC), then CDC's two.
