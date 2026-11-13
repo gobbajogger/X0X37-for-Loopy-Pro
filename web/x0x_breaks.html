@@ -148,6 +148,8 @@ let link = null, busy = false, readOk = false, midi = null, connectionEpoch = 0,
 // 120 KB on the SMK-37); nothing here assumes a fixed slot count or size
 let lay = { count: 0, size: SLOT_SIZE, slots: [] };
 const nslot = () => lay.count, slotMax = (k) => slotSize(lay, k) - SLOT_DATA_OFF;
+// Largest single slot payload: the device layout once read, else the dry-run default.
+const importMaxData = () => readOk && lay.count ? Math.max(...lay.slots.map((_, k) => slotMax(k))) : Math.max(...DRY_SLOT_KB) * 1024 - SLOT_DATA_OFF;
 const cap = () => Array.from({ length: nslot() }, (_, k) => slotMax(k)).reduce((a, b) => a + b, 0);
 
 // the loops in order, as the FM-1 numbers them: {adpcm, n, s, file, isNew} (adpcm, n: as stored, adpcm null for a
@@ -326,7 +328,7 @@ async function addFiles(list, at = -1) {
     try {
       const { rate: srcRate, x } = await decode(f);
       if (!x.length) throw new Error("no audio");
-      const storageRate = newRate(), { s, rate } = cutLoop(x, srcRate, $("bars").checked, storageRate, $("trim").checked, gf);
+      const storageRate = newRate(), { s, rate } = cutLoop(x, srcRate, $("bars").checked, storageRate, $("trim").checked, gf, importMaxData());
       const loop = { adpcm: null, n: s.length, s, rate, file: f.name, isNew: true, srcRate, x, gritFactor: gf };
       if (gf > 1) preview.push({ label: f.name, loop });
       else got.push(loop);
@@ -602,7 +604,7 @@ function recutNewLoops() {
     if (l.isNew) {
       const storageRate = newRate();
       try {
-        ({ s: l.s, rate: l.rate } = cutLoop(l.x, l.srcRate, $("bars").checked, storageRate, $("trim").checked, gf));
+        ({ s: l.s, rate: l.rate } = cutLoop(l.x, l.srcRate, $("bars").checked, storageRate, $("trim").checked, gf, importMaxData()));
         l.gritFactor = gf;
         l.n = l.s.length;
         l.adpcm = null;
