@@ -108,6 +108,14 @@ static int check_states_and_pixels(void)
             failures++;
             continue;
         }
+        /* A wrong semantic choice must flip real RGB565 pixels. Otherwise a
+         * trivially constant/empty framebuffer could pass the equality test. */
+        if (legacy_glyph_pixels(r, 0, old_n, (expected[0] + 1) % old_n)) {
+            printf("PIXEL_ORACLE_INACTIVE c=%d\n", control);
+            failures++;
+            continue;
+        }
+        printf("PIXEL_ORACLE_NEGATIVE c=%d PASS\n", control);
         for (int value = 0; value < 128; value++) {
             int idx = -1;
             original_controls.valid = 0; /* Cold: one view, not 128 restores. */
