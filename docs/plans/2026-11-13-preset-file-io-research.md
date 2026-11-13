@@ -2,9 +2,9 @@
 
 Recommendations for live-safe preset file import and export on DnBOX, mapped to DNPR v1. This extends existing work. It does not repeat the wire format, the UX flows, or the plugin-identity verdict.
 
-Website implementation is Dot's area. This document only specifies the interface the web page needs (transport, file format, naming). It does not build the page.
+Ownership. Firmware Main Builder (FMB) owns the firmware transport, storage and device UI end to end: real device save, load, import and export, after the Optimizer's flash savings. Web file transfer is owned by **Website UX**. Its checks are owned by **Installer QA**. This document specifies the host interface (file format, naming, a transfer-protocol stub, errors, and acceptance). It does not build the page, and it does not implement the firmware path.
 
-ROADMAP row: **26.8** on `lane/fmb-presets-format`. Device wiring of the codec is **BLOCKED** on Optimizer flash savings (+2,164 B on JieLi; floor 8,192 B). The host librarian can still be specified now.
+The DNPR codec alone does **not** fulfil ROADMAP 26.8. The codec is a record format and an encoder. The request also needs the FMB firmware path (transport, on-device storage, device UI) and a Website UX page with Installer QA checks. Device work waits on Optimizer savings (+2,164 B on JieLi; flash-free floor 8,192 B).
 
 ## 1. What is already decided (do not redo)
 
@@ -15,7 +15,7 @@ Read these first. This file does not replace them.
 - DNPR v1 plan: `docs/plans/2026-11-13-preset-format-v1.md`. Magic `DNPR`, CRC, origin, plugin-format room, visible errors `WRONG ENGINE` / `BAD FILE` / `MEMORY FULL` / `NEWER DATA`, factory-derived export gated with the same switch, 8 KiB spare capacity, JieLi measurement.
 - Plugin identity: `/workspace/presets-research/plugin-identity.md`. Two-way Chicago/Miami interchange with the real KORG plugin is **not** justified. Do not add a plugin converter to the v1 librarian.
 
-The spec already says: choose the file through “the existing file / transfer path that Dot inventories”; do not invent a new USB UI or remap a control. The gaps this research fills are that path’s **host interface**: filename, extension, single vs bulk, SysEx versus files, and a Web MIDI / Web Serial policy.
+The UX spec already says: choose the file through the existing file / transfer path; do not invent a new USB UI or remap a control. Web file transfer on that path is owned by Website UX; Installer QA owns the checks. The gaps this research fills are that path’s **host interface**: filename, extension, single vs bulk, SysEx versus files, and a Web MIDI / Web Serial policy.
 
 ## 2. Findings (established hardware and host tools)
 
@@ -86,9 +86,9 @@ These already match live-safe practice (Elektron free-slot checks, OP-Z rejected
 
 Optional ADD, display only, no wire change: the librarian can show the writer’s firmware label if the device supplies it out of band (USB identity / version string). Do not spend header bytes on this in v1.
 
-### R3. ADD a host librarian interface (Dot) — files first, one record per file
+### R3. ADD a host librarian interface (Website UX) — files first, one record per file
 
-This is the “existing file / transfer path” in spec §3.5–§3.6, specified so Dot can implement the page without a new device USB UI and without remapping a control.
+This is the “existing file / transfer path” in spec §3.5–§3.6, specified so Website UX can implement the page without a new device USB UI and without remapping a control. FMB owns the firmware transport that the page will eventually use. Installer QA owns the checks in section 4.
 
 **File format.** The uploaded or downloaded object is the raw v1 DNPR byte record (108–500 B plus the 96 B header, max `PRESET_MAX_BYTES` 548). The page does not re-encode parameters. It may **display** name, engine, origin, date, and CRC status. It must not strip provenance. It must not convert to or from a KORG or other plugin format in v1 (`plugin-identity.md`).
 
@@ -117,17 +117,147 @@ Deluge’s sidecar folder is for embedded sample paths. DNPR v1 already stores r
 - Do not treat the 0.0.25 “Per-pattern preset recall” row as this work: that is SEQ > PRESET > PAT SOUND for in-device factory recall, already DONE (`29296cbd7`). 26.8 is file I/O of user-made engine presets.
 - Do not drop the flash floor or wire the codec into a default (stage-0) image until Optimizer savings restore headroom.
 
-## 4. Interface the web page needs (Dot) — short contract
+## 4. DNPR host interface and acceptance criteria
+
+This section is the contract for **Website UX** (the page) and **Installer QA** (the checks). FMB owns the firmware transport, storage and device UI; those parts that are not yet defined are marked **TBD** below. The page does not invent a keyboard USB panel or a new gesture.
+
+### 4.1 Byte format (DNPR v1)
+
+Reference: `docs/plans/2026-11-13-preset-format-v1.md` section 1, and `firmware/src/app/preset_record.h`. All integers are little-endian. The page sends and receives this record as raw bytes. It does not re-encode parameters. It does not strip provenance.
+
+**Header** (96 bytes, `PRESET_HEADER_BYTES`):
+
+| Offset | Size | Field |
+| ---: | ---: | --- |
+| 0 | 4 | Magic `DNPR` (`0x52504E44` little-endian) |
+| 4 | 2 | Format version (`1`) |
+| 6 | 2 | Engine id (table below) |
+| 8 | 2 | Engine param-schema version (`1`) |
+| 10 | 2 | Flags (v1: must be 0) |
+| 12 | 4 | Total length of the record, including this header |
+| 16 | 4 | zlib CRC-32 of the **whole record** with this field set to 0 |
+| 20 | 1 | Origin: `0` unknown, `1` factory, `2` user, `3` imported |
+| 21 | 1 | Original engine (`0` = unknown; else the engine id) |
+| 22 | 2 | Factory index (`0` = none; else 1-based) |
+| 24 | 4 | Date as `YYYYMMDD` in America/Chicago (`0` = unknown) |
+| 28 | 2 | Plugin format id (`0` = none) |
+| 30 | 2 | Plugin version (`0` = unknown) |
+| 32 | 32 | Display name, NUL-terminated, zero-padded |
+| 64 | 32 | Provenance source name, same rule |
+
+**Payload** (starts at offset 96):
+
+| Offset | Size | Field |
+| ---: | ---: | --- |
+| 96 | 1 | `nparams` |
+| 97 | 1 | `nsamples` |
+| 98 | 2 | Reserved, must be 0 |
+| 100 | `nparams` | User param bytes |
+| 100 + `nparams` | `nsamples` × 16 | Sample references |
+
+Each sample reference is 16 bytes: source (`0` none, `1` ROM, `2` pack, `3` user slot), reserved 0, index, zlib CRC-32 of the sample bytes, and an 8-byte name hint.
+
+**Engine ids** (stable; not a UI order): `1` Chicago, `2` Miami, `3` Juno, `4` Drone, `5` 909, `6` 808, `7` BREAK.
+
+**Schema v1 sizes** (header 96 + payload head 4 + params + 16 × samples = wire length):
+
+| Engine | nparams | nsamples | Record (B) |
+| --- | ---: | ---: | ---: |
+| Chicago | 22 | 0 | 122 |
+| Miami | 18 | 0 | 118 |
+| Juno | 18 | 0 | 118 |
+| Drone | 8 | 0 | 108 |
+| 909 | 132 | 4 | 296 |
+| 808 (no refs) | 144 | 0 | 244 |
+| 808 (max 16 refs) | 144 | 16 | 500 |
+| BREAK | 16 | 2 | 148 |
+
+`PRESET_MAX_BYTES` is **548**. A file longer than that, or whose “total length” field does not match the file and the size implied by `nparams` / `nsamples`, is `BAD FILE`. A 32-byte `DNCM` commit marker is a **device** A/B object, not part of the `.dnpr` file.
+
+**CRC.** zlib CRC-32 over the entire record with bytes 16–19 set to zero. A mismatch is `BAD FILE`. The page must compute and check this itself before any device send, and after any receive, using the same rule.
+
+**Versions.** Format version and param-schema version are both `1`. A value **newer than 1** is `NEWER DATA` (no partial load). An older **unknown** format is `BAD FILE`. Version 1 files without provenance (all those fields zero) load as origin `unknown` and must not fail.
+
+### 4.2 File naming
+
+- Extension: `.dnpr`.
+- Pattern: `<sanitized-display-name>.<engine>.dnpr`, for example `acid-bass.chicago.dnpr`.
+- Engine tokens (lower case): `chicago`, `miami`, `juno`, `drone`, `909`, `808`, `break`.
+- Sanitise: ASCII letters, digits, hyphen, underscore; no path separators, no leading dot, no control bytes; spaces become a hyphen; full name including extension ≤ 64 characters. Empty display name → `user` or `imp` plus a number.
+- The **authoritative** name is the 32-byte display-name field in the header. Renaming the file on disk must not break import. The file name is the default download name and the provenance “source name” on import.
+
+Bulk: a `.zip` of `.dnpr` files only. Unpack on the host. One record at a time. No v1 bank wire format.
+
+### 4.3 Transfer protocol stub (TBD with the firmware transport)
+
+**Defined now (host file path):** the object on the wire of the page is the raw DNPR v1 byte record. Website UX implements download and upload of `.dnpr` (and a zip of them). The page validates magic, length, CRC, version and engine **before** any send. It sends **one** record at a time. It never evicts a slot. It never deletes the user’s file on failure. Factory and factory-derived records are not downloaded or sent while `DNBOX_FACTORY_PRESET_EXPORT` is OFF.
+
+**TBD — to be defined with FMB’s firmware transport** (not owned by Website UX alone):
+
+| Topic | Status |
+| --- | --- |
+| Device endpoint (USB MIDI SysEx wrapper, or another FMB-defined path) | TBD |
+| Framing, manufacturer / device IDs, command bytes | TBD |
+| 8-to-7-bit packing, if SysEx is chosen (DNPR is 8-bit) | TBD |
+| How the page discovers a connected DnBOX and shows progress | TBD |
+| Busy / stopped handshake: device NAKs or defers when playing, recording, or `ui_boot_flash_busy`; words stay `SAVES WHEN STOPPED` / kin | TBD; **semantics are not TBD** — they follow the UX spec §3.1 and §4 |
+| Device-side write order (validate, then inactive A/B pad, then commit marker) | TBD detail; **rule is not TBD** — no live mutation before a valid CRC and version check |
+| Optional Web MIDI on the page (HTTPS, `requestMIDIAccess({ sysex: true })` on a user gesture) | TBD, only after the firmware SysEx stub exists |
+
+Not in v1: Web Serial, USB mass-storage, or a boot-time disk mode.
+
+Until the firmware transport exists, the page may still open, CRC-check, display, and save `.dnpr` files on the host. That file-only work is **not** a completed 26.8 and is **not** a waiver of the flash floor. The codec alone does not fulfil the request.
+
+### 4.4 Error classes and what the page must show
+
+The visible words are the plan’s import classes (and the UX-spec kin). Website UX may shorten for width; the meaning must stay. No mutation, no silent fallback, no relabel of engine.
+
+| Class | When | Page must show | Mutation |
+| --- | --- | --- | --- |
+| `BAD FILE` | Bad magic, truncated file, length mismatch, reserved field not 0, flags not 0, bad or unreadable structure, **CRC mismatch**, older unknown format | `BAD FILE` | None. No slot write. No partial file on export. |
+| `NEWER DATA` | Format version or param-schema version newer than 1 | `NEWER DATA` (consistent with `NEWER DATA: LOAD BLOCKED`) | None |
+| `WRONG ENGINE` | Record engine (or original engine, when required) does not match the target engine / part | `WRONG ENGINE` | None. A Chicago file is not accepted as Miami, and the reverse. |
+| `MEMORY FULL` | No empty user/import slot; a bulk send that would overflow | `MEMORY FULL` | None. **No eviction. No data loss.** Existing slots unchanged. Stop a bulk send at this record. |
+| `EXPORT FAILED` | Export cannot complete (host write error, or a later device NAK other than the classes above) | `EXPORT FAILED` | Bank unchanged. No partial file if that can be avoided. |
+| Factory refusal | Origin `factory`, or a nonzero factory index (derived capture / re-import), while `DNBOX_FACTORY_PRESET_EXPORT` is OFF | `FACTORY EXPORT OFF` (or the same meaning) | No download, no send, no file written |
+| Sample warning | 909 / 808 / BREAK: `verify_sample(s)` fails (CRC or slot does not match device content) | A clear “sample missing / changed” warning. Do not present the kit as complete | The record may still be held as imported if otherwise valid; the warning is mandatory. No silent assign as a full kit |
+
+A success import of a user or non-factory-derived record does not toast a factory word. Origin `unknown` (all provenance zero) is not an error.
+
+### 4.5 Testable acceptance criteria (Installer QA)
+
+Installer QA runs these. Website UX is green only when the page meets them. Device-side counterparts are FMB, after Optimizer savings; where a criterion needs the firmware transport, mark the host-only half as passing only the file-side checks until that transport exists.
+
+**A1. Round-trip byte-identical.** Start with a valid user (or imported, non-factory-derived) `.dnpr` for each engine (Chicago, Miami, Juno, Drone, 909, 808 at 0 refs and at 16 refs, BREAK). Import, then export (host file path; and the device path once FMB provides it). The output bytes are **identical** to the input (magic, every header field, CRC, payload). A file rename on disk does not change the exported record bytes except, if and only if the product later chooses to refresh provenance “source name,” that field and the CRC; the param payload and engine identity stay identical. The default requirement is: payload and identity fields are byte-identical; document any provenance-field refresh.
+
+**A2. Corrupt or CRC-bad file refused, no write.** For each of: flipped CRC, truncated file, wrong magic, length field not matching the file. The page shows `BAD FILE`. No slot is created or overwritten. A subsequent listing of the bank matches the pre-test snapshot (hashes of occupied slots). Repeat once the device path exists: the device bank is unchanged.
+
+**A3. Newer version refused.** A file with format version `2` (or schema version `2`), otherwise well-formed and CRC-valid, is `NEWER DATA`. No write, bank unchanged.
+
+**A4. Wrong engine refused.** A valid Chicago `.dnpr` offered to a Miami target (and Miami to Chicago, and a synth file to a 909 target) is `WRONG ENGINE`. No write, bank unchanged. The file is not relabelled.
+
+**A5. Memory full without data loss.** With the user/import bank full, an import of a valid new user `.dnpr` is `MEMORY FULL`. Every existing slot’s bytes are unchanged (hash before and after). No eviction. A bulk zip that would overflow stops without writing the overflowing records; already-accepted records in that zip, if any were committed only after a free-slot check, are documented; the conservative default is to validate the whole zip first and write nothing if the free-slot count is insufficient.
+
+**A6. Missing sample warned.** A valid 909 (and 808, and BREAK) record whose sample-ref CRC does not match the device (or a host fixture that simulates a miss) shows the sample-missing warning. The page does not present the kit as complete. The failure is visible in the Installer QA log.
+
+**A7. User presets only (happy path).** With the factory-export switch OFF, a user-origin record (factory index 0) and an imported non-factory-derived record download and, when the transport exists, send. Origin and factory index in the exported file match the source.
+
+**A8. Factory Chicago/Miami export OFF.** With the switch OFF: a factory-origin Chicago record, a factory-origin Miami record, and a user or imported record with a **nonzero factory index** (derived) are refused with `FACTORY EXPORT OFF`. No file is written, no send starts. Juno/Drone factory rows follow the same switch (the switch is global). Turning the switch ON is not part of this acceptance and is not authorized by it.
+
+Each criterion is recorded as PASS / FAIL / NOT_RUN (NOT_RUN only when the firmware transport is still TBD and the criterion’s host-file half cannot be exercised — A1–A8’s file-side checks should still run).
+
+### 4.6 Short contract (summary)
 
 | Item | Contract |
 | --- | --- |
-| Format | Raw DNPR v1 bytes. Magic `DNPR`. Max 548 B. CRC as in the plan. One preset per `.dnpr` file. |
-| Download name | `<sanitized-display-name>.<engine>.dnpr` (R1). User may rename the file; import still uses the bytes. |
-| Upload | Accept `.dnpr` and a `.zip` of `.dnpr`. Validate magic, CRC, version, engine **before** any device send. Map failures to `BAD FILE`, `NEWER DATA`, `WRONG ENGINE`. Factory / factory-derived: no download and no send while the export switch is OFF. |
-| Bulk | Host zip only. Send one record at a time. Stop on `MEMORY FULL`. Never evict. Never delete the user’s file on failure. |
-| Transport v1 | Host file download / upload. Optional later: Web MIDI SysEx wrap of the same bytes, only when the device is stopped and quiet, HTTPS, explicit SysEx permission. No Web Serial in v1. |
+| Format | Raw DNPR v1 bytes, §4.1. Max 548 B. One preset per `.dnpr` file. |
+| Download name | `<sanitized-display-name>.<engine>.dnpr` (§4.2). User may rename the file; import still uses the bytes. |
+| Upload | Accept `.dnpr` and a `.zip` of `.dnpr`. Validate before any device send. Errors per §4.4. |
+| Bulk | Host zip only. One record at a time. Stop on `MEMORY FULL`. Never evict. Never delete the user’s file on failure. |
+| Transport | Host file path is defined. Device endpoint is **TBD with FMB** (§4.3). No Web Serial in v1. |
 | Display | Name, engine, origin, date, CRC ok/fail, sample-ref warnings. No “identical to the plugin” language. |
-| Device UI | Out of scope for the page. Gestures and toasts stay in the UX spec. The page does not invent a new USB panel on the keyboard. |
+| Owners | Website UX: the page. Installer QA: §4.5. FMB: firmware transport, storage, device UI, after Optimizer savings. |
+| Device UI | Out of scope for the page. Gestures and toasts stay in the UX spec. |
 
 ## 5. Conflicts with existing specs
 
@@ -135,7 +265,7 @@ Deluge’s sidecar folder is for embedded sample paths. DNPR v1 already stores r
 - **Spec §3.5 “existing transfer path.”** This document **fills** that path. It does not add a keyboard USB UI or a new gesture, so it agrees with “do not invent a new USB UI.”
 - **Spec §9A automatic `USER 01` names.** Agrees: the richer `.dnpr` filename is a **host** name. The device list stays on the §9A working assumption until the owner picks rename.
 - **Spec §1.2 / plan §3 factory export OFF.** Agrees, and the page must follow the codec’s refusal.
-- **Spec §3A and `plugin-identity.md`.** Agrees: no plugin converter on the v1 page.
+- **Spec §3A and `plugin-identity.md`.** Agrees: no plugin converter on the v1 **file-I/O page**. User-preset two-way work with the real Chicago and Miami plugins is a separate, in-scope path (`docs/plans/2026-11-13-chicago-miami-plugin-compat-gaps.md`). Factory KORG redistribution stays OFF and does not block that user path. Do not claim parameter or sound fidelity until it is measured.
 - **ROADMAP “Per-pattern preset recall” (0.0.25, DONE).** Different feature. 26.8 references it and does not duplicate it.
 - **Flash floor.** The measured +2,164 B codec is below the 8,192 B flash-free floor (plan §14). Device import/export stays blocked. The page’s file-only work is not a waiver of that floor.
 
