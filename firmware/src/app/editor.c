@@ -59,21 +59,6 @@ static void ed_b(uint32_t v)
     if (ed_n < sizeof ed_out - 1u)
         ed_out[ed_n++] = (uint8_t)(v & 0x7Fu);
 }
-/* Only ED_DIAG (<=77 words) and ED_BT_TEST (<=127 words) use this
- * unchecked writer. Their bounded frames fit in ed_out including F7.
- * Each call replaces five ed_b calls (and five per-byte capacity checks).
- * Preserve the protocol bytes, especially the fifth 7-bit group. */
-/* ED_W35_BEGIN */
-_Static_assert(5u + 1u + 77u * 5u + 1u <= sizeof ed_out, "ED_DIAG frame fits");
-_Static_assert(5u + 2u + 127u * 5u + 1u <= sizeof ed_out, "ED_BT_TEST frame fits");
-static __attribute__((noinline)) void ed_w35(uint32_t value)
-{
-    for (unsigned i = 0; i < 5u; ++i) {
-        ed_out[ed_n++] = (uint8_t)(value & 0x7fu);
-        value >>= 7;
-    }
-}
-/* ED_W35_END */
 static void ed_str(const char *s, uint32_t max)
 {
     uint32_t i;
@@ -911,8 +896,13 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         nw += ble_diag(w + nw, (uint32_t)(sizeof w / 4u) - nw);
 #endif
         ed_b(nw);
-        for (k = 0; k < nw; k++)
-            ed_w35(w[k]);
+        for (k = 0; k < nw; k++) {
+            ed_b(w[k]);
+            ed_b(w[k] >> 7);
+            ed_b(w[k] >> 14);
+            ed_b(w[k] >> 21);
+            ed_b(w[k] >> 28);
+        }
         break;
     }
 #if BOARD_SMK37
@@ -1056,7 +1046,11 @@ static void ed_handle(const uint8_t *f, uint32_t n)
             ed_b(words);
             for (k = 0; k < words; k++) {
                 uint32_t v = k < nt ? t[k] : op == 3u ? fm1_t5w.hits : g[k - nt];
-                ed_w35(v);
+                ed_b(v);
+                ed_b(v >> 7);
+                ed_b(v >> 14);
+                ed_b(v >> 21);
+                ed_b(v >> 28);
             }
             break;
         }
