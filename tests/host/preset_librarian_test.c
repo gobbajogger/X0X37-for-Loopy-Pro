@@ -81,35 +81,68 @@ static void execute_files(void)
     }
     check(preset_librarian_entry(6, write_argv) != 0,
           "no overwrite of existing destination");
-    check(preset_librarian_entry(6, wrong_argv) != 0,
-          "wrong target engine refused");
+    f = fopen(out, "rb");
+    check(f != NULL, "existing export remains present");
+    if (f) {
+        check(fread(exported, 1, sizeof exported, f) == n &&
+              memcmp(blob, exported, n) == 0,
+              "existing export remains byte-identical after refusal");
+        check(fclose(f) == 0, "close preserved export");
+    }
+    check(unlink(out) == 0, "clear destination for negative cases");
+    check(preset_librarian_entry(6, wrong_argv) != 0 &&
+          !exists(out), "wrong target engine refused with no output");
     check(put_file(in, blob, n), "restore pristine source");
+
     blob[20] = PRESET_ORIGIN_FACTORY;
     blob[22] = 1;
     rewrite_crc(blob, n);
     check(put_file(in, blob, n), "factory test fixture");
-    check(preset_librarian_entry(6, write_argv) != 0 ||
-          DNBOX_FACTORY_PRESET_EXPORT, "factory OFF refuses output");
-    check(put_file(in, blob, n), "restore derived seed");
-    blob[20] = PRESET_ORIGIN_USER;
+    check((preset_librarian_entry(6, write_argv) == 0) ==
+          (DNBOX_FACTORY_PRESET_EXPORT != 0),
+          "factory export precisely follows switch");
+    check(exists(out) == (DNBOX_FACTORY_PRESET_EXPORT != 0),
+          "factory export output presence follows switch");
+    if (exists(out))
+        check(unlink(out) == 0, "clear factory ON output");
+
+    blob[20] = PRESET_ORIGIN_USER; /* still factory-derived: index 1 */
     rewrite_crc(blob, n);
     check(put_file(in, blob, n), "derived fixture");
-    check(preset_librarian_entry(6, write_argv) != 0 ||
-          DNBOX_FACTORY_PRESET_EXPORT, "derived factory OFF refuses");
-    blob[20] = PRESET_ORIGIN_USER;
+    check((preset_librarian_entry(6, write_argv) == 0) ==
+          (DNBOX_FACTORY_PRESET_EXPORT != 0),
+          "factory-derived export precisely follows switch");
+    check(exists(out) == (DNBOX_FACTORY_PRESET_EXPORT != 0),
+          "factory-derived output presence follows switch");
+    if (exists(out))
+        check(unlink(out) == 0, "clear derived ON output");
+
     blob[22] = 0;
     rewrite_crc(blob, n);
     blob[100] ^= 1u; /* CRC is now wrong */
     check(put_file(in, blob, n), "CRC-bad fixture");
-    check(preset_librarian_entry(6, write_argv) != 0,
-          "corrupt file refused");
+    check(preset_librarian_entry(6, write_argv) != 0 && !exists(out),
+          "corrupt file refused before output");
     blob[100] ^= 1u;
     blob[8] = 2u;
     rewrite_crc(blob, n);
     check(put_file(in, blob, n), "newer schema fixture");
-    check(preset_librarian_entry(6, write_argv) != 0,
-          "newer schema refused");
-    check(exists(out), "reject cases leave preexisting export intact");
+    check(preset_librarian_entry(6, write_argv) != 0 && !exists(out),
+          "newer schema refused before output");
+    blob[8] = 1u;
+    rewrite_crc(blob, n);
+    blob[n] = 0u;
+    check(put_file(in, blob, n + 1u), "trailing byte fixture");
+    check(preset_librarian_entry(6, write_argv) != 0 && !exists(out),
+          "trailing byte refused before output");
+    {
+        uint8_t huge[PRESET_MAX_BYTES + 1u];
+        memset(huge, 0, sizeof huge);
+        check(put_file(in, huge, sizeof huge), "oversize fixture");
+        check(preset_librarian_entry(6, write_argv) != 0 && !exists(out),
+              "oversize file refused before output");
+    }
+    check(!exists(out), "all negative cases left destination absent");
     (void)unlink(in);
     (void)unlink(out);
     check(rmdir(dir) == 0, "temp fixture cleaned");
