@@ -491,7 +491,7 @@ static const uint8_t STR0[4] = {4, 3, 0x09, 0x04};
 static const uint8_t STR1[] = {42, 3, 'H', 0, 0xFC, 0, 'g', 0, 'e', 0, 'l', 0, 't', 0, 'o', 0, 'n', 0, ' ', 0, 'I', 0,
                                'n', 0, 's', 0, 't', 0, 'r', 0, 'u', 0, 'm', 0, 'e', 0, 'n', 0, 't', 0, 's', 0};
 #else
-static const uint8_t STR1[] = {8, 3, 'X', 0, '0', 0, 'X', 0};          /* X0X: manufacturer */
+static const uint8_t STR1[] = {12, 3, 'D', 0, 'n', 0, 'B', 0, 'O', 0, 'X', 0}; /* DnBOX: manufacturer */
 #endif
 #if defined(FELUCCA_LOADER) && BOARD_SMK37
 #include "usb_product_name.h"           /* model-specific update-mode USB name */
