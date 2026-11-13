@@ -16,8 +16,12 @@
 
 /* Public control positions used by the physical performance wheels. */
 enum { ORIGINAL_CHICAGO_CUTOFF = 2, ORIGINAL_CHICAGO_FX_TYPE = 17, ORIGINAL_CHICAGO_PITCH_BEND = 20,
+<<<<<<< HEAD
        ORIGINAL_MIAMI_WOBBLE_DEPTH = 12, ORIGINAL_MIAMI_WOBBLE_RATE = 13,
        ORIGINAL_MIAMI_PITCH_BEND = 16 };
+=======
+       ORIGINAL_MIAMI_WOBBLE_DEPTH = 12, ORIGINAL_MIAMI_PITCH_BEND = 16 };
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 
 /* The final two macro IDs remain native runtime inputs, outside patch edits. */
 static inline int original_sound_is_performance(unsigned kind, unsigned parameter)

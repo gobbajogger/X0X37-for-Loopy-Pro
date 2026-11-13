@@ -120,7 +120,10 @@ int original_miami_backend_render_events(original_miami_backend *, original_miam
  * clocks, global MG and effect state must still receive every audio frame.
  * Failed owners are never reported idle. */
 int original_miami_backend_status(const original_miami_backend *);
+<<<<<<< HEAD
 int original_miami_backend_voice_active(const original_miami_backend *s);
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 int original_miami_backend_active(const original_miami_backend *);
 int original_miami_backend_idle(const original_miami_backend *);
 
