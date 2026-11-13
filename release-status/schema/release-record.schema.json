@@ -137,6 +137,13 @@
         "$ref": "#/definitions/hardware_approval"
       },
       "description": "Per-model, per-build owner hardware approvals. An Elite approval never applies to Pro."
+    },
+    "install_verifications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/install_verification"
+      },
+      "description": "One independent exact-model installation receipt per device model. Browser outcomes and reports alone are not verification."
     }
   },
   "definitions": {
@@ -741,6 +748,12 @@
         },
         "note": {
           "type": "string"
+        },
+        "model_confidence": {
+          "$ref": "#/definitions/confidence"
+        },
+        "build_confidence": {
+          "$ref": "#/definitions/confidence"
         }
       }
     },
@@ -763,7 +776,11 @@
         "model",
         "source_sha",
         "image_sha256",
-        "approved"
+        "approved",
+        "quoted",
+        "quoted_words",
+        "time",
+        "source_link"
       ],
       "properties": {
         "model": {
@@ -783,19 +800,20 @@
           "type": "boolean"
         },
         "quoted": {
-          "type": "boolean"
+          "type": "boolean",
+          "const": true
         },
         "quoted_words": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "time": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(?:Z|[+-]\\d{2}:\\d{2})$"
         },
         "source_link": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^https://[^\\s/@]+/.+"
         },
         "note": {
           "type": "string"
