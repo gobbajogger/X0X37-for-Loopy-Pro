@@ -82,7 +82,22 @@ Optimized/static/inlined symbols may be absent. An ELF symbol size or disassembl
 python3 dnbox/dropout/trace.py --help
 python3 -m unittest discover -s dnbox/dropout -p 'test_*.py'
 ```
-For an already-verified, captured `trace.jsonl` and known measurement window, invoke `python3 dnbox/dropout/trace.py --trace "$trace" --start-ms 20000 --end-ms 29000 --slot 1 --out "$new_output_dir"` where `trace` is the read-only discovered file and `new_output_dir` is a **new** directory. The 20–29 s values are the historical rejected-run window, **not** a universal acceptance window. Record command, exact trace hash and `summary.json/per_half.csv` together; never treat `OBSERVED` by itself as qualified owner scene. The known 30 s Elite run had **775** coherent halves, `max_guest_last_us=8467` and no observed late, **but was rejected**: A=Miami, B=Chicago, Juno absent, 808 active and BREAK silent/zero steps (see #892 `dnbox/dropout/evidence/2026-11-13-initial-rejected.json`). Do **not** reclassify this run as owner-scene PASS. Any separately reported **648-half** scene also remains a different, unqualified workload until its captured part/arp/Juno/BREAK/909 state is proven to match the owner's scene.
+For a captured trace, this complete command **requires exactly one existing trace file** rather than silently selecting arbitrary evidence. Run in a local #892 tooling checkout; it neither records a new trace nor builds firmware:
+
+```bash
+set -eu
+test -f dnbox/dropout/trace.py || { printf 'NOT_RUN: #892 reducer checkout absent\n'; exit 2; }
+mapfile -d '' -t traces < <(find . -type f -name 'trace.jsonl' -print0)
+if [ "${#traces[@]}" -ne 1 ]; then
+  printf 'NOT_RUN: expected one preverified trace.jsonl; found %s\n' "${#traces[@]}"
+  exit 2
+fi
+sha256sum "${traces[0]}"
+outbase="$(mktemp -d)"
+python3 dnbox/dropout/trace.py --trace "${traces[0]}" \
+  --start-ms 20000 --end-ms 29000 --slot 1 --out "$outbase/reduced"
+```
+The 20–29 s values are the historical rejected-run window, **not** a universal acceptance window. Record command, exact trace hash and `summary.json/per_half.csv` together; never treat `OBSERVED` by itself as qualified owner scene. The known 30 s Elite run had **775** coherent halves, `max_guest_last_us=8467` and no observed late, **but was rejected**: A=Miami, B=Chicago, Juno absent, 808 active and BREAK silent/zero steps (see #892 `dnbox/dropout/evidence/2026-11-13-initial-rejected.json`). Do **not** reclassify this run as owner-scene PASS. Any separately reported **648-half** scene also remains a different, unqualified workload until its captured part/arp/Juno/BREAK/909 state is proven to match the owner's scene.
 
 ## 5. Interpretation and pass/fail decisions
 
