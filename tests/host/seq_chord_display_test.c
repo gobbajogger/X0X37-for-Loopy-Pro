@@ -1037,8 +1037,10 @@ static void test_mono_identity_and_chords(void)
         CHECK(!label_equal(fb_sel_mono, fb_sel_chord));
         CHECK(!plock_notch_at(0, 48, 46, 60));
         chord_label_fmt(&lab, triad, 3, triad, 3, "STEP 1  ", " V100");
+#if SEQ_CHORD_LABEL_TIER1
         CHECK(strcmp(lab.cell, "C") == 0);
         CHECK(strcmp(lab.symbol, "C") == 0);
+#endif
     }
 
     /* --- playing --- */
@@ -1103,9 +1105,15 @@ static void test_mono_identity_and_chords(void)
     {
         chord_label_t lab;
         chord_label_fmt(&lab, triad, 3, triad, 3, "WRITE 1  ", " V100");
+#if SEQ_CHORD_LABEL_TIER1
         CHECK(lab.recognized);
         CHECK(strcmp(lab.symbol, "C") == 0);
         CHECK(strstr(lab.held, "WRITE 1  C  C3 E3 G3") == lab.held);
+#else
+        CHECK(!lab.recognized);
+        CHECK(lab.symbol[0] == 0);
+        CHECK(strstr(lab.held, "WRITE 1  C3 E3 G3") == lab.held);
+#endif
     }
 
     /* --- page 2 --- */
