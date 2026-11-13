@@ -688,6 +688,20 @@
           "items": {
             "type": "string"
           }
+        },
+        "selected_package_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "selected_source_sha": {
+          "$ref": "#/definitions/git_sha"
+        },
+        "quoted_words": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_link": {
+          "type": "string",
+          "pattern": "^https://[^\\s/@]+/.+"
         }
       }
     },
