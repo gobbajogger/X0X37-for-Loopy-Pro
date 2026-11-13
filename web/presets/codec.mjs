@@ -171,7 +171,7 @@ export function ensureExportable(record) {
 }
 export function sampleWarnings(record, inventory = null) {
   return record.sampleRefs.flatMap((r, i) => {
-    if (r.source === 0) return [];
+    if (r.source === 0) return ["Sample " + (i + 1) + " is unassigned; the kit may be incomplete."];
     const key = r.source + ":" + r.index;
     const actual = inventory && Object.hasOwn(inventory, key) ? inventory[key] : null;
     if (actual == null) return ["Sample " + (i + 1) + " (" + key + ") not checked against keyboard; it may be missing or changed."];
