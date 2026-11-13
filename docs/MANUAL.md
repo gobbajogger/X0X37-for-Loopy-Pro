@@ -8,24 +8,25 @@ The product name is exactly DnBOX. Use that spelling in every player-facing sent
 
 1. This manual and the firmware version
 2. The panel
-3. First sound
-4. First pattern
-5. First bass line: Chicago, then Miami
-6. First break
-7. Save, and why it waits
-8. Step versus sound
-9. The mixer, the effects and the master
-10. Patterns, chains and song
-11. Recording and free play
-12. Knob motion, p-locks and chance
-13. GLOBE settings
-14. MIDI, USB audio and Bluetooth
-15. Loopy clip mode
-16. Install and update safety
-17. Troubleshooting
-18. Expert shortcuts
-19. Parameters
-20. Credits
+3. Quick start: real musical tasks
+4. First sound
+5. First pattern
+6. First bass line: Chicago, then Miami
+7. First break
+8. Save, and why it waits
+9. Step versus sound
+10. The mixer, the effects and the master
+11. Patterns, chains and song
+12. Recording and free play
+13. Knob motion, p-locks and chance
+14. GLOBE settings
+15. MIDI, USB audio and Bluetooth
+16. Loopy clip mode
+17. Install and update safety
+18. Troubleshooting
+19. Expert shortcuts
+20. Parameters
+21. Credits
 - Appendix A. Same key, different job
 - Appendix B. Names from the older FM-1 build
 - Appendix C. Protocol identifiers that must stay the same
@@ -40,7 +41,7 @@ The bass slots can run Chicago, Miami, Juno or Drone. Chicago is the 303 engine.
 
 Elite and Pro share the same playing surface. The USB product name and the Bluetooth name differ. The controls do not.
 
-**Goal.** A first-time player can hear a sound, write a pattern, and save it. Expert shortcuts stay in chapter 18. This book does not remove them.
+**Goal.** A first-time player can hear a sound, write a pattern, and save it. Expert shortcuts stay in chapter 19. This book does not remove them.
 
 **Version this book describes.** This manual matches source `94197fc8` (full id `94197fc839b00aff47b98ca02f3c6396e4a6eabf`). That source sits after the published tag `v0.0.25.1`. The Git describe string is `v0.0.25.1-87-g94197fc83`.
 
@@ -48,7 +49,7 @@ The open-beta ledger has not allocated a new number. This book does not call the
 
 A published package must print the same `X0X_VERSION` that the build used. About and the USB product use the same words: `DnBOX` plus that version. About shows a line that starts `DnBOX ` plus the version, then `MEM` and `CPU`. If a build does not pass a version, that line starts `DnBOX DEV`. About can also append a short Git id as `g` plus the SHA when the build provides it.
 
-**How to read this book.** Start with chapters 3 to 7. Those chapters take you from a cold start to a saved pattern. Later chapters cover the rest of the instrument. Chapter 18 keeps expert muscle memory in one place.
+**How to read this book.** Start with chapter 3 for real musical tasks. Chapters 4 to 8 then take you from a cold start to a saved pattern. Later chapters cover the rest of the instrument. Chapter 19 keeps expert muscle memory in one place.
 
 A companion file, `web/MANUAL.md`, covers install, samples and project files in the browser. That file is not a second control manual.
 
@@ -106,9 +107,63 @@ The PARA footer points you back to the steps: `SEQ: STEPS`. On a drum part it al
 
 ---
 
-## 3. First sound
+## 3. Quick start: real musical tasks
 
-The unit starts on the 909 step grid. The header shows the 909 chip and the word `SEQ`. Every part is empty. You are already on the right screen. You do not need to press SEQ.
+This chapter is a short path through four real musical tasks. Each step points to the chapter that states the same fact.
+
+Do these tasks on the SMK-37 after a start. Do not use Loopy clip mode for these tasks. A single press of KNOB BANK leaves this instrument.
+
+### Make a drum beat
+
+1. Stay on the 909 step grid, or press SEQ to return to it. See [First sound](#4-first-sound).
+2. Do not tap PATCH. A tap of PATCH opens HOME. Do not press KNOB BANK. KNOB BANK opens Loopy clip mode.
+3. While playback does not run, press black key 1. This selects the bass drum (`BD`). You hear it.
+4. Press white keys 1, 5, 9 and 13. These write kick steps on the selected track.
+5. Press black key 7. This selects the clap (`CP`). Press a white key to place a clap step. See [First pattern](#5-first-pattern).
+6. Press black key 8. This selects the closed hat (`CH`). Place hat steps the same way.
+7. Press SEQ PLAY to start the pattern. Press SEQ PLAY again to stop.
+
+### Play and record a bass line
+
+1. Turn K3 clockwise from the 909. Three clicks select Chicago. Chicago is the 303 engine. See [First bass line: Chicago, then Miami](#6-first-bass-line-chicago-then-miami).
+2. Four clicks select Miami. Miami is never a 303. Use Chicago or Miami for this task.
+3. Press PARA to play the selected bass slot. The 37 keys play that slot.
+4. Press SEQ REC to turn record on. The toast is `RECORD ON: KEYS + KNOBS`. See [Recording and free play](#12-recording-and-free-play).
+5. On a bass slot, the keys play and write notes while record is on.
+6. Press SEQ PLAY to start the pattern. Play the bass line on the keys.
+7. Press SEQ REC again to turn record off. The toast is `RECORD OFF`.
+
+### Save a project, and power-off
+
+1. If the pattern runs, press SEQ PLAY to stop. See [Save, and why it waits](#8-save-and-why-it-waits).
+2. Tap BT. A tap is a release before 250 ms. BT is Save, not Bluetooth.
+3. If the toast is `SAVES WHEN STOPPED`, `SAVES WHEN QUIET` or `REC OFF TO SAVE`, stop the pattern. Wait until the unit is quiet.
+4. Look for the toast `SAVED`. That toast lasts 1300 ms. The unit writes only after you stop and the machine stays quiet.
+5. Autosave is on by default. After 4 s of quiet, while stopped, the unit can save on its own, at most every 20 s. The toast is `AUTOSAVED`.
+6. Power the unit off, then on. The unit loads the last written project. It does not keep other live edits.
+7. If the unit has no valid saved project, it starts with empty parts.
+8. A chain does not return after power-off. The project does not save a chain. See [Patterns, chains and song](#11-patterns-chains-and-song).
+
+### Live set: switch, mute and chain
+
+1. If you are not on HOME, tap PATCH to open HOME. The header word is `HOME`. See [Patterns, chains and song](#11-patterns-chains-and-song).
+2. If you are already on HOME, do not tap PATCH again. That tap opens SONG.
+3. Press a white key, or a pad, to select a pattern. There are 32 patterns, in two banks: 1 to 16 and 17 to 32.
+4. On HOME or SONG, press OCTAVE+ for patterns 17–32. Press OCTAVE− for patterns 1–16.
+5. Turn K4 to cue a pattern. A pending cue shows a NEXT glyph and a blinking pattern number.
+6. On HOME, press a black key to mute a part in display order. Black keys 1 to 5 mute 909, 808, BREAK, Chicago and Miami.
+7. Press two white keys to make a chain. A live chain shows a small amber `CHN`.
+8. A chain is live only. The project does not save a chain. A save or a power-off does not keep it.
+9. Press one white key to end the chain. Turn K4 to end the chain as well.
+10. HOME keys make no sound. Press SEQ to return to the grid.
+
+---
+
+## 4. First sound
+
+The unit starts on the 909 step grid. The header shows the 909 chip and the word `SEQ`. You are already on the right screen. You do not need to press SEQ.
+
+On a first start, or when the unit has no valid saved project, every part is empty. After a written save, a later start loads that project. See chapter 3.
 
 Why: a cold start is ready for the first drum pattern. The first sound is a 909 kick on the grid.
 
@@ -132,7 +187,7 @@ Press SEQ PLAY. The pattern starts. Press SEQ PLAY again to stop. Transport acts
 
 ---
 
-## 4. First pattern
+## 5. First pattern
 
 Stay on 909 SEQ.
 
@@ -148,11 +203,11 @@ On SEQ, the SEQUENCE page sets LENGTH and RATE on K5 and K6. The default rate na
 
 Swing for the whole pattern sits on HOME, on the `PERFORM` page (K6), not on this SEQ page.
 
-To mute a track from SEQ, hold PATCH and press that track's black key. If you release PATCH with no key, the view changes to HOME. See chapter 3 for how to return.
+To mute a track from SEQ, hold PATCH and press that track's black key. If you release PATCH with no key, the view changes to HOME. See chapter 4 for how to return.
 
 ---
 
-## 5. First bass line: Chicago, then Miami
+## 6. First bass line: Chicago, then Miami
 
 Turn K3 clockwise from the 909. The part order is 909, then 808, then BREAK, then Chicago, then Miami.
 
@@ -200,7 +255,7 @@ When the keyboard is on, the 37 physical keys play the selected bass slot. The k
 
 ---
 
-## 6. First break
+## 7. First break
 
 From the 909, turn K3 two clicks clockwise to BREAK. Do not turn four clicks.
 
@@ -220,7 +275,7 @@ To put your own loops on the unit, use the browser sample tools in `web/MANUAL.m
 
 ---
 
-## 7. Save, and why it waits
+## 8. Save, and why it waits
 
 The printed legend on the Save button is **BT**. A tap of BT saves the project, or queues the save until it is safe.
 
@@ -238,13 +293,13 @@ Autosave is on by default. After 4 s of quiet, while stopped, the unit can save 
 
 To load the last saved project, open GLOBE, then PROJECT, then `LOAD SAVED`. If you have unsaved edits, the question is `LOAD SAVED PROJECT?` with `DISCARD UNSAVED EDITS`. SCALE is yes. PATCH is no.
 
-The project does not save a chain. A chain is live only. See chapter 10.
+The project does not save a chain. A chain is live only. See chapter 11.
 
 To copy, hold BT for 250 ms, still alone. The toast is `CHOOSE PASTE TARGET`. Then press a white key to paste. If you let go after 250 ms and before 400 ms, with no paste target, that release still saves. At 400 ms the help card appears, and the release does not save. Hold BT plus OCTAVE to pick the copy bank (`P1-16` or `P17-32`).
 
 ---
 
-## 8. Step versus sound
+## 9. Step versus sound
 
 Keep this split. It is easy to confuse, and an older book was wrong here.
 
@@ -266,7 +321,7 @@ A turned knob replaces the bottom of the screen for 900 ms with a large readout.
 
 ---
 
-## 9. The mixer, the effects and the master
+## 10. The mixer, the effects and the master
 
 ### The mixer (NOTE REPEAT)
 
@@ -320,7 +375,7 @@ The SMC has its own pickup words: `PICKUP: MOVE UP TO TARGET` and `PICKUP: MOVE 
 
 ---
 
-## 10. Patterns, chains and song
+## 11. Patterns, chains and song
 
 There are 32 patterns, in two banks: 1 to 16 and 17 to 32. On HOME or SONG, OCTAVE+ shows 17–32. OCTAVE− shows 1–16.
 
@@ -352,7 +407,7 @@ If you press SEQ PLAY while the SONG screen is up, song mode stays on even after
 
 ---
 
-## 11. Recording and free play
+## 12. Recording and free play
 
 Press SEQ REC to turn record on or off. This acts on press. The toast is `RECORD ON: KEYS + KNOBS` or `RECORD OFF`. A red record dot shows in the header. The SEQ REC lamp is on while record is on.
 
@@ -374,7 +429,7 @@ If a recorded chord does not fit, the toast is `CHORD NOT SAVED`. Other record t
 
 ---
 
-## 12. Knob motion, p-locks and chance
+## 13. Knob motion, p-locks and chance
 
 A p-lock of a sound knob happens on PARA. Hold the step, and turn K5–K8. The knob tag shows `P-LOCK STEP n`. On a bass step, the roll also shows a `STEP n` line with the note and velocity.
 
@@ -390,7 +445,7 @@ A chance miss is a rest for both the internal sound and MIDI out.
 
 ---
 
-## 13. GLOBE settings
+## 14. GLOBE settings
 
 Press GLOBE to open settings. The list title is `GLOBAL`. Press GLOBE again to close and return to the previous view. PATCH in a subsection goes back one level. PATCH at the root closes.
 
@@ -398,11 +453,11 @@ SCALE opens a screen as a list, runs a list row, or answers yes to a question.
 
 The six sections are `MIDI + CLOCK`, `BLUETOOTH`, `AUDIO`, `KEYS + SCREEN`, `PROJECT` and `SYSTEM`.
 
-**MIDI + CLOCK.** `CLOCK SOURCE` is `AUTO`, `INTERNAL` or `EXTERNAL`. `CLOCK OUT` and `NOTES OUT` are on or off. Each part has a MIDI channel (see chapter 14). On the SMK there is also `CLIP KEYS CH` for clip mode.
+**MIDI + CLOCK.** `CLOCK SOURCE` is `AUTO`, `INTERNAL` or `EXTERNAL`. `CLOCK OUT` and `NOTES OUT` are on or off. Each part has a MIDI channel (see chapter 15). On the SMK there is also `CLIP KEYS CH` for clip mode.
 
 **BLUETOOTH.** `BLUETOOTH` is on or off. `BT ROLE` is `DEVICE` or `SMC HOST`. `SMC PRESET` is `DAW` or `USER`. `STATUS` and `NAME` are read only.
 
-The name is the advertised Bluetooth name (chapter 14). If the controller only starts at power-on, a change can toast `RESTART TO TURN ON`. A later flush can toast `BLUETOOTH SAVED`. This settings bit is separate from the project save on the BT button.
+The name is the advertised Bluetooth name (chapter 15). If the controller only starts at power-on, a change can toast `RESTART TO TURN ON`. A later flush can toast `BLUETOOTH SAVED`. This settings bit is separate from the project save on the BT button.
 
 **AUDIO.** `OUTPUT` is `NORMAL` or `LOUD`. `USB AUDIO` is `FOLLOWS KNOB` or `FULL`. `TUNE` is a global bass fine-tune for the slots together. Each part has an on/off row.
 
@@ -416,7 +471,7 @@ The on-screen name is the engine display name. For drums and BREAK, that is `909
 
 ---
 
-## 14. MIDI, USB audio and Bluetooth
+## 15. MIDI, USB audio and Bluetooth
 
 ### What the computer shows
 
@@ -466,7 +521,7 @@ On every bass engine, the pitch wheel bends pitch, without writing saved pots. T
 
 ---
 
-## 15. Loopy clip mode
+## 16. Loopy clip mode
 
 A single press of KNOB BANK (the moment you press it, not a hold) enters clip mode. The toast is `LOOPY CLIPS`. The header shows `LP`. This leaves the normal instrument UI.
 
@@ -490,7 +545,7 @@ DnBOX still identifies itself to Loopy as an APC40 mkII. That identity is a prot
 
 ---
 
-## 16. Install and update safety
+## 17. Install and update safety
 
 Install from a browser that provides Web MIDI with SysEx. The current installer site is <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/>. The companion file `web/MANUAL.md` describes the browser steps, sample backup and project files.
 
@@ -510,7 +565,7 @@ MKE-P37 is the same hardware with a third name: USB product `DnBOX ` plus versio
 
 ---
 
-## 17. Troubleshooting
+## 18. Troubleshooting
 
 **No sound after you press keys.** You are likely on HOME or SONG. HOME keys select patterns and mute parts. They do not play sound. Press SEQ to return to the grid. If you are on SONG, press PATCH for HOME, then press SEQ.
 
@@ -532,7 +587,7 @@ If the unit starts twice and fails, you can reach `DnBOX SAFE MODE`. The title i
 
 In safe mode, nothing that makes sound runs. USB is already on for the web installer. Press SEQ PLAY to try the application again. Use a verified package for your printed model.
 
-**An install made the unit unusable.** See chapter 16. Use a verified package for the model printed on the keyboard. Do not pick the package from the USB name alone.
+**An install made the unit unusable.** See chapter 17. Use a verified package for the model printed on the keyboard. Do not pick the package from the USB name alone.
 
 **Faders do nothing at first.** They wait for pickup. Move each fader to the saved position, or across it. The header shows `PICK Fn UP` or `PICK Fn DOWN` until then.
 
@@ -540,7 +595,7 @@ In safe mode, nothing that makes sound runs. USB is already on for the web insta
 
 ---
 
-## 18. Expert shortcuts
+## 19. Expert shortcuts
 
 These shortcuts stay. They are part of live muscle memory. This book documents them. It does not ask for their removal.
 
@@ -579,7 +634,7 @@ A live bass note cancels if the owner, the arp, or the context changes. This is 
 
 ---
 
-## 19. Parameters
+## 20. Parameters
 
 These names come from the control tables at this SHA. They are the words on the PARA and FX pages. They are not an older TONE / VOICE list.
 
@@ -657,7 +712,7 @@ Drums: LENGTH, RATE. Bass: LENGTH, RATE, DIR (`FWD`, `REV`, `PING`, `RND`), TRAN
 
 ---
 
-## 20. Credits
+## 21. Credits
 
 DnBOX firmware is free software under the GNU General Public License, version 3. If you share the firmware, you must also share its source.
 
