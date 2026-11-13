@@ -1,6 +1,6 @@
 # Changelog
 
-Firmware version labels are applied at package time. The numbers below are the public package versions.
+Firmware version labels are applied at package time. The numbers below are the public package versions of DnBOX.
 
 ## 0.0.25.1 — 2026-11-12
 
@@ -8,9 +8,9 @@ Source: `79280e763341d03ba43266d3e25dad66f12de860`.
 
 - A pattern-chain slot lasts for the longest playing part in the current pattern (909, 808, both 303s and BREAK), counting length and rate, rounded up to a whole 909 bar.
 - Muted, part-off and empty parts do not extend the slot. Chaining stays live-only and is not saved.
-- Packages: SMK-37 Elite and Pro, 651,721 bytes each. Device not tested.
+- Packages: SMK-37 Elite and Pro, 651,721 bytes each. Software-checked; **not signed off as a physical device test**.
 
-Install: https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/
+Install with the [web installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/) or from [GitHub Releases (latest)](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/latest) (v0.0.25.1).
 
 ## 0.0.25
 

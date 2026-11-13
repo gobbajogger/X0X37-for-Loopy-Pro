@@ -1,6 +1,6 @@
 # Security
 
-If you find a vulnerability in DnBOX / X0X37 firmware, the installer, or this repository, please **do not** open a public GitHub issue or discussion.
+If you find a vulnerability in DnBOX firmware, the installer, or this repository, please **do not** open a public GitHub issue or discussion.
 
 Report it privately with [GitHub's security advisory form](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/security/advisories/new) if that is available to you, and include:
 
