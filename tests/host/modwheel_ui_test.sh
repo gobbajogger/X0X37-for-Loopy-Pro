@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
-# Phase 1 mod-wheel readout: names, percent, unassigned-once, frames, notes, cost.
+# Compact mod-wheel readout: events, true live snapshots, expiry, frames, notes, cost.
 set -eu
 cd "$(dirname "$0")/../.."
 OUT=${1:-build/modwheel-ui}
@@ -42,7 +42,12 @@ names = [
     "after-single-drone.png",
     "after-rest-0.png",
     "after-double.png",
+    "after-double-distinct.png",
     "after-unassigned.png",
+    "after-unassigned-long-gesture.png",
+    "after-unassigned-rest.png",
+    "after-knob-wins.png",
+    "after-wheel-wins.png",
 ]
 ux = Path("/workspace/smk-ux/overhaul/modwheel/frames")
 # box at (8,103) 224x50

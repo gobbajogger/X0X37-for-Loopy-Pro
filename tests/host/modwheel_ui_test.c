@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Phase 1 mod-wheel / CC1 readout: names, percent law, unassigned-once,
- * shared 224x50 box, no CC1 string, held-note survival, and ui_frame cost. */
+/* Compact mod-wheel / CC1 readout: independent snapshots, percent law,
+ * last-event expiry and knob ownership, plus held-note survival. */
 #define BOARD_SMK37 1
 #define X0X_DEV_PADCAL 1
 #define main simulator_main
@@ -256,15 +256,15 @@ int main(int argc, char **argv)
             ui.part = PART_303A;
             seq_page(PART_303A, 1);
             wheels_rest();
-            ui_wheel_mod(1, 0, cases[i].live, 0, 0);
+            ui_wheel_mod(0, -1, cases[i].live);
             paint();
             put_i(num, pct(cases[i].live));
             expect_log(cases[i].name, num, "%");
             CHECK(box_nonblack() > 100);
             /* 0, 64, 127 law */
-            ui_wheel_mod(1, 0, 0, 0, 0); paint(); expect_log(cases[i].name, "0", "%");
-            ui_wheel_mod(1, 0, 64, 0, 0); paint(); expect_log(cases[i].name, "50", "%");
-            ui_wheel_mod(1, 0, 127, 0, 0); paint(); expect_log(cases[i].name, "100", "%");
+            ui_wheel_mod(0, -1, 0); paint(); expect_log(cases[i].name, "0", "%");
+            ui_wheel_mod(0, -1, 64); paint(); expect_log(cases[i].name, "50", "%");
+            ui_wheel_mod(0, -1, 127); paint(); expect_log(cases[i].name, "100", "%");
             CHECK(pct(0) == 0 && pct(64) == 50 && pct(127) == 100);
             /* CC1 on this part's channel only */
             wheels_rest();
@@ -281,7 +281,7 @@ int main(int argc, char **argv)
         set_pot(1, 51);
         ui.part = PART_303B;
         seq_page(PART_303B, 1);
-        ui_wheel_mod(1, 1, 51, 0, 0);
+        ui_wheel_mod(1, -1, 51);
         paint();
         expect_log("MIAMI B  WOBBLE", "40", "%");
     }
@@ -296,7 +296,7 @@ int main(int argc, char **argv)
     shot(dir1, "before-juno-seq");
     { int nb = box_nonblack(); /* before: no box, or only SEQ content may occupy the region */ (void)nb; }
 
-    ui_wheel_mod(1, 0, 70, 0, 0);
+    ui_wheel_mod(0, -1, 70);
     shot(dir1, "after-single-juno");
     expect_log("JUNO A  CUTOFF", "55", "%");
     CHECK(!has_str(ui_wheel_log, "PATCH"));
@@ -304,14 +304,14 @@ int main(int argc, char **argv)
     select_kind(0, ORIGINAL_SOUND_CHICAGO, 0);
     set_pot(0, 64);
     seq_page(PART_303A, 1);
-    ui_wheel_mod(1, 0, 64, 0, 0);
+    ui_wheel_mod(0, -1, 64);
     shot(dir1, "after-single-chicago");
     expect_log("CHICAGO A  CUTOFF", "50", "%");
 
     select_kind(0, ORIGINAL_SOUND_MIAMI, 0);
     set_pot(0, 51);
     seq_page(PART_303A, 1);
-    ui_wheel_mod(1, 0, 51, 0, 0);
+    ui_wheel_mod(0, -1, 51);
     shot(dir1, "after-single-miami");
     expect_log("MIAMI A  WOBBLE", "40", "%");
     CHECK(!has_str(ui_wheel_log, "303"));
@@ -319,7 +319,7 @@ int main(int argc, char **argv)
     select_kind(0, ORIGINAL_SOUND_DRONE, 0);
     set_pot(0, 66);
     seq_page(PART_303A, 1);
-    ui_wheel_mod(1, 0, 66, 0, 0);
+    ui_wheel_mod(0, -1, 66);
     shot(dir1, "after-single-drone");
     expect_log("DRONE A  BRIGHTNESS", "52", "%");
 
@@ -356,8 +356,29 @@ int main(int argc, char **argv)
     CHECK(engine_bass_mod_ctl(0) == 64);
     CHECK(engine_bass_mod_ctl(1) == 64);
     shot(dir1, "after-double");
-    expect_log("JUNO A  CUTOFF", "MIAMI B  WOBBLE", "50");
-    CHECK(!has_str(ui_wheel_log, "CC1"));
+    CHECK(strcmp(ui_wheel_log, "JUNO A  CUTOFF 50%|MIAMI B  WOBBLE 50%") == 0);
+    forbid_labels();
+
+    /* Distinct live control values: the callback snapshots both, not v0 twice. */
+    engine_bass_mod(0, 32);
+    engine_bass_mod(1, 110);
+    audio();
+    CHECK(engine_bass_mod_ctl(0) == 32);
+    CHECK(engine_bass_mod_ctl(1) == 110);
+    ui_wheel_mod(0, 1, -1);
+    shot(dir1, "after-double-distinct");
+    CHECK(strcmp(ui_wheel_log, "JUNO A  CUTOFF 25%|MIAMI B  WOBBLE 87%") == 0);
+    forbid_labels();
+    /* A -1 from engine_bass_mod_ctl must be omitted, never displayed as 0%. */
+    engine_set(T_303, 1, engine_bass_mod_param(1), 66);
+    audio();
+    CHECK(engine_bass_mod_ctl(1) == -1);
+    paint(); /* event-time snapshots must survive subsequent live-pot changes */
+    CHECK(strcmp(ui_wheel_log, "JUNO A  CUTOFF 25%|MIAMI B  WOBBLE 87%") == 0);
+    ui_wheel_mod(0, 1, -1);
+    paint();
+    CHECK(wu.n == 1 && wu.v[0] == 0 && wu.pct[0] == 25);
+    CHECK(!has_str(ui_wheel_log, "MIAMI B"));
     /* Physical wheel still one latched part. */
     ui.part = PART_303A;
     wheels_rest();
@@ -377,26 +398,32 @@ int main(int argc, char **argv)
     expect_log("UNASSIGNED", NULL, NULL);
     CHECK(!has_str(ui_wheel_log, "CUTOFF"));
     { int first = box_nonblack(); CHECK(first > 50);
-      /* later steps of the same gesture must not retrigger (timer stays). */
-      now_ms += 400;
+      /* A moving UNASSIGNED wheel stays visible beyond 900 ms from start. */
+      now_ms += 850;
       physical_mw(40);
-      physical_mw(80);
-      physical_mw(120);
-      paint();
-      expect_log("UNASSIGNED", NULL, NULL);
-      now_ms += 501; /* 901 from first fire */
+      paint(); expect_log("UNASSIGNED", NULL, NULL);
+      now_ms += 850; /* 1700 ms since the initial event, 850 ms since last */
+      paint(); expect_log("UNASSIGNED", NULL, NULL);
+      shot(dir1, "after-unassigned-long-gesture");
+      physical_mw(80); /* refresh at t=1700 */
+      now_ms += 899;
+      paint(); expect_log("UNASSIGNED", NULL, NULL);
+      now_ms += 1; /* exactly 900 ms after the last movement */
       ui_wheel_log[0] = 0;
-      paint();
-      CHECK(ui_wheel_log[0] == 0);
-      /* still sweeping: no second fire until rest */
-      physical_mw(100);
+      paint(); CHECK(ui_wheel_log[0] == 0);
+      physical_mw(120); /* continuing the gesture is another event */
+      paint(); expect_log("UNASSIGNED", NULL, NULL);
+      now_ms += 400;
+      physical_mw(0); /* rest itself refreshes the expiry */
+      now_ms += 899;
+      paint(); expect_log("UNASSIGNED", NULL, NULL);
+      shot(dir1, "after-unassigned-rest");
+      now_ms += 1;
       ui_wheel_log[0] = 0;
-      paint();
-      CHECK(ui_wheel_log[0] == 0);
+      paint(); CHECK(ui_wheel_log[0] == 0);
     }
-    physical_mw(0); /* rest: new gesture may fire */
     now_ms += 10;
-    physical_mw(30);
+    physical_mw(30); /* another gesture after rest */
     paint();
     expect_log("UNASSIGNED", NULL, NULL);
     shot(dir1, "after-unassigned");
@@ -496,7 +523,7 @@ int main(int argc, char **argv)
 
     /* ---- 7. Timeout: box gone after 900 ms ---- */
     seq_page(PART_303A, 1);
-    ui_wheel_mod(1, 0, 64, 0, 0);
+    ui_wheel_mod(0, -1, 64);
     paint();
     CHECK(has_str(ui_wheel_log, "CUTOFF") || has_str(ui_wheel_log, "WOBBLE") || has_str(ui_wheel_log, "BRIGHTNESS"));
     now_ms += 901;
@@ -517,18 +544,34 @@ int main(int argc, char **argv)
     /* A later knob detent takes the box. */
     now_ms += 5;
     ui.touched = 0;
-    ui.touch_until = plat_ms() + 900u;
+    ui.touch_until = plat_ms() + UI_READOUT_MS;
     ui.touch_view = ui.view;
     ui_wheel_log[0] = 0;
     paint();
     /* Wheel snapshot is still live but knob owns the surface: wheel draw is skipped. */
     CHECK(ui_wheel_log[0] == 0);
+    shot(dir1, "after-knob-wins");
+    /* Equal deadline duration is part of the ordering contract. */
+    CHECK(ui.touch_until == plat_ms() + UI_READOUT_MS);
     /* Next accepted wheel step takes it back. */
     now_ms += 5;
     physical_mw(90);
     audio();
     paint();
     expect_log("JUNO A  CUTOFF", NULL, NULL);
+    shot(dir1, "after-wheel-wins");
+    /* Same-millisecond knob and wheel deadlines select the wheel (stable tie). */
+    ui.touched = 0;
+    ui.touch_until = plat_ms() + UI_READOUT_MS;
+    ui_wheel_mod(0, -1, 64);
+    paint();
+    expect_log("JUNO A  CUTOFF", "50", "%");
+    /* Both valid snapshots remain subject to the existing overlay/help gate. */
+    ui.overlay = O_LIST;
+    ui_wheel_log[0] = 0;
+    draw_main();
+    CHECK(ui_wheel_log[0] == 0);
+    ui.overlay = O_NONE;
     /* Fader say() does not take the box; UNSAVED stays if dirty. */
     ui.dirty = 1;
     ui_say("VOL  80", 0);
@@ -543,7 +586,7 @@ int main(int argc, char **argv)
     ui.msg_until = 0;
     now_ms += 1000;
     ui.dirty = 1;
-    ui_wheel_mod(1, 0, 64, 0, 0);
+    ui_wheel_mod(0, -1, 64);
     paint();
     expect_log("JUNO A  CUTOFF", "50", "%");
     CHECK(ui.msg[0] == 0); /* wheel did not call say() */
@@ -555,7 +598,7 @@ int main(int argc, char **argv)
     ui.touch_until = 0;
     seq_page(PART_303A, 1);
     t_off = measure_paint(300);
-    ui_wheel_mod(1, 0, 64, 0, 0);
+    ui_wheel_mod(0, -1, 64);
     t_wheel = measure_paint(300);
     now_ms += 1000;
     ui.touched = 0;
