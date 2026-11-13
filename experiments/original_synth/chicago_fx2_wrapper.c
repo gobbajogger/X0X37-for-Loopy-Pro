@@ -30,14 +30,18 @@ int original_chicago_fx2_wrapper_set(original_chicago_fx2_wrapper *s,unsigned p,
  if(p==0){if(s->pending_type!=v){s->pending_type=(uint8_t)v;s->type_dirty=1;}return 1;}
  if(p==1){s->switch_pending=(uint8_t)(v==1);s->switch_dirty=1;return 1;}
  if(p==2)s->edit1=(uint8_t)v;else s->edit2=(uint8_t)v;
- if(s->active)s->active->parameter(s->active->context,p,v);return 1;
+ if(s->active)s->active->parameter(s->active->context,p,v);
+ return 1;
 }
 int original_chicago_fx2_wrapper_tempo(original_chicago_fx2_wrapper *s,int32_t tempo){
- if(!s||tempo<200||tempo>4000)return 0;s->tempo_times10=tempo;
- if(s->active)s->active->tempo(s->active->context,tempo);return 1;
+ if(!s||tempo<200||tempo>4000)return 0;
+ s->tempo_times10=tempo;
+ if(s->active)s->active->tempo(s->active->context,tempo);
+ return 1;
 }
 void original_chicago_fx2_wrapper_reset(original_chicago_fx2_wrapper *s){
- if(!s)return;s->transitioning=0;s->switch_current=s->switch_pending;
+ if(!s)return;
+ s->transitioning=0;s->switch_current=s->switch_pending;
  s->wet_target=s->switch_current?32767:0;s->wet_accumulator=s->wet_target*32768;
  if(s->cold_policy){if(s->active)s->active->reset(s->active->context);}
  else s->owner.reset_all(s->owner.context);
