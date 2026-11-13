@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#define X0X_IMA_TABLES_DEFINE
 #include "../../firmware/src/dsp/ima_adpcm.h"
 
 enum { DATA_BYTES = 8192, TRIALS = 9, PASSES = 96 };
