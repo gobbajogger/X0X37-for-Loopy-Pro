@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>DnBOX | Release status</title>
+<style>
+:root { color-scheme:dark; font-family:system-ui,-apple-system,Segoe UI,sans-serif; background:#0f131a; color:#f1f4f9; }
+* {box-sizing:border-box}
+body { margin:0; }
+header { background:#19212b; border-bottom:1px solid #334052; padding:1.4rem max(1rem,calc((100vw - 940px)/2)); }
+main {max-width:940px;margin:auto;padding:1.4rem 1rem 4rem}
+h1 {font-size:1.65rem;letter-spacing:.03em;margin:0}
+h2 {font-size:1.13rem;margin:.2rem 0 .7rem}
+p {line-height:1.55}
+.muted {color:#bdc7d5}
+.card {padding:1.2rem;margin:1rem 0;border:1px solid #364255;border-radius:12px;background:#1a2330}
+.meta {font-size:.84rem;color:#c7d2df;margin:.5rem 0 0}
+.models {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin:1rem 0}
+.model {border:1px solid #344356;background:#111923;border-radius:9px;padding:.8rem;min-width:0}
+@media(max-width:600px){.models{grid-template-columns:1fr}}
+.tag {display:inline-block;color:#fff;border:1px solid #788ca4;border-radius:6px;font-size:.77rem;padding:.2rem .55rem;margin:.5rem 0}
+.withdrawn {color:#ffb2a3;border-color:#c97564}
+main a {color:#a3c8ff}
+details {border-top:1px solid #415064;padding-top:.75rem;margin-top:.8rem;overflow-wrap:anywhere}
+summary {cursor:pointer;font-weight:600}
+dl {display:grid;grid-template-columns:max-content minmax(0,1fr);gap:.25rem .75rem;font-size:.82rem;line-height:1.55}
+dt {color:#aebccc} dd {margin:0;overflow-wrap:anywhere}
+footer {margin:2rem 0;color:#bbc7d7;font-size:.84rem}
+#loading {padding:1rem 0}
+</style>
+</head>
+<body>
+<header>
+<h1>DnBOX <span style="font-weight:400;color:#bfccda">/ release status</span></h1>
+<p class="muted">Verified source and package identities, with careful separation of reports from hardware qualification.</p>
+</header>
+<main>
+<p>These are published and development build records. An owner's reported install, a browser upload, and a tested-and-approved hardware release are different things. Pro is not covered by Elite tests.</p>
+<p id="loading" role="status">Loading the release catalog…</p>
+<div id="records"></div>
+<footer>Read-only preview from the release catalog. Not a new publication, hardware approval, firmware promotion or installer replacement.</footer>
+</main>
+<script>
+"use strict";
+const records = document.getElementById("records");
+const loading = document.getElementById("loading");
+function el(tag, text, className) {
+  const node=document.createElement(tag);
+  if (text !== undefined && text !== null) node.textContent=String(text);
+  if (className) node.className=className;
+  return node;
+}
+function addData(list, key, value) {
+  list.append(el("dt",key),el("dd",value ?? "Not supplied"));
+}
+function modelStatus(model,record) {
+  if (record.states?.withdrawn) return "Withdrawn. Do not install.";
+  if (model.owner_hardware_approval) return "Owner hardware approval recorded";
+  if (model.install_verified) return "Model-specific installed-image proof recorded; owner approval pending";
+  if (model.owner_tested) return "Owner reports use. Exact installed hash not verified.";
+  return "No device test reported for this model";
+}
+function render(record) {
+  const card=el("article",null,"card");
+  card.append(el("h2","DnBOX "+record.version));
+  const channel=record.states?.withdrawn ? "Withdrawn" :
+      record.channel==="stable-MAIN" ? "Main installer channel" : "Nightly hardware-test candidate";
+  card.append(el("div",channel,"tag"+(record.states?.withdrawn?" withdrawn":"")));
+  if (record.states?.withdrawn) {
+    card.append(el("p","Withdrawn. This build is retained for transparency and must not be offered for installation."));
+  } else if (record.states?.["boot-restart-reported"]) {
+    card.append(el("p","A restart and normal boot have been reported, but exact installed-image verification and full hardware approval are still missing."));
+  } else if (record.states?.["installation-reported"]) {
+    card.append(el("p","An installation has been reported. Exact installed-image verification is still missing."));
+  } else {
+    card.append(el("p","No confirmed hardware installation in this record."));
+  }
+  const models=el("div",null,"models");
+  for (const name of ["elite","pro"]) {
+    const model=record.models?.[name];
+    if(!model) continue;
+    const box=el("div",null,"model");
+    box.append(el("strong",name==="elite"?"SMK-37 Elite":"SMK-37 Pro"));
+    box.append(el("p",modelStatus(model,record),"muted"));
+    models.append(box);
+  }
+  card.append(models);
+  const detail=el("details");
+  detail.append(el("summary","Exact identity and evidence details"));
+  const list=el("dl");
+  addData(list,"Catalog ID",record.catalog_id);
+  addData(list,"Source commit",record.source_sha);
+  addData(list,"Channel",record.channel);
+  addData(list,"Hardware approved on both models",record.states?.["owner-hardware-approval"] ? "Claimed" : "No");
+  for (const name of ["elite","pro"]) {
+    const model=record.models?.[name];
+    if(!model) continue;
+    addData(list,name+" package SHA-256",model.package_sha256);
+    addData(list,name+" image SHA-256",model.image_sha256);
+    addData(list,name+" installed verification",model.install_verified_gate || "missing");
+    addData(list,name+" owner approval",model.owner_hardware_approval_gate || "missing");
+  }
+  detail.append(list);
+  const provenance=record.owner_reported_events || [];
+  if(provenance.length) {
+    const listNotes=el("ul");
+    for(const event of provenance) {
+      const item=el("li",(event.time || "Time unknown") + ": " + event.text);
+      listNotes.append(item);
+    }
+    detail.append(el("h3","Reported history"),listNotes);
+  }
+  card.append(detail);
+  card.append(el("p",record.catalog_id,"meta"));
+  return card;
+}
+fetch("../catalog/catalog.json",{cache:"no-store"}).then(async response=>{
+  if(!response.ok)throw new Error("HTTP "+response.status);
+  const catalog=await response.json();
+  if(!Array.isArray(catalog.records) || catalog.promotion_performed!==false) {
+    throw new Error("Catalog integrity guard failed");
+  }
+  for(const record of catalog.records)records.append(render(record));
+  loading.remove();
+}).catch(e=>{loading.textContent="Catalog could not be loaded: "+e.message;});
+</script>
+</body>
+</html>

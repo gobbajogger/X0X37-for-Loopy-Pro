@@ -1,0 +1,130 @@
+{
+  "version": "0.0.25.1",
+  "catalog_id": "nightly-79280e76-dev",
+  "channel": "stable-MAIN",
+  "source_sha": "79280e763341d03ba43266d3e25dad66f12de860",
+  "source_tree": "ab2e16a61c81abbcb6c4a71bd83bf0b5d943c120",
+  "source_branch": "release/0.0.25.1",
+  "source_pr": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/79280e763341d03ba43266d3e25dad66f12de860",
+  "models": {
+    "elite": {
+      "image_sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+      "image_size": 651721,
+      "package_sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+      "product": "SMK-37 Elite_900",
+      "package_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a/x0x37-elite-dev.fwsc",
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "controller_size": 61552,
+      "controller_crc32": "564a8f55",
+      "controller_strategy": "bundled",
+      "controller_check": "PASS"
+    },
+    "pro": {
+      "image_sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+      "image_size": 651721,
+      "package_sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+      "product": "SMK-37 Pro_900",
+      "package_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf/x0x37-pro-dev.fwsc",
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "controller_size": 61552,
+      "controller_crc32": "564a8f55",
+      "controller_strategy": "bundled",
+      "controller_check": "PASS"
+    }
+  },
+  "combined_package_sha256": null,
+  "published_pages_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/",
+  "gate_evidence": [
+    {
+      "kind": "emu360-strict",
+      "result": "PASS",
+      "elite_worst_us": 11548,
+      "pro_worst_us": 11564,
+      "elite_late": 0,
+      "pro_late": 0,
+      "threshold_us": 11609,
+      "ref": "nightly versions.json catalog description for nightly-79280e76-dev (official emu360 gate)",
+      "applies_to_image": "exact-image",
+      "elite_image_sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+      "pro_image_sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+      "board": "smk37",
+      "mhz": 360,
+      "note": "Official emu360 figures from the nightly catalog for this package: Elite 11548 us, Pro 11564 us, 0 late, under 11609 us. This is an emulator result, not a hardware result. The catalog label is DEVICE NOT TESTED."
+    },
+    {
+      "kind": "bt-controller-bundle",
+      "result": "PASS",
+      "elite_worst_us": null,
+      "pro_worst_us": null,
+      "elite_late": null,
+      "pro_late": null,
+      "threshold_us": null,
+      "ref": "nightly catalog: package_nightly --check exit 0 for both models",
+      "applies_to_image": "exact-image"
+    }
+  ],
+  "states": {
+    "built": true,
+    "gate-passed": true,
+    "published-nightly": true,
+    "installation-reported": true,
+    "install-verified": false,
+    "boot-restart-reported": false,
+    "owner-hardware-approval": false,
+    "withdrawn": false
+  },
+  "identity_confidence": {
+    "model": "reported",
+    "build": "absent",
+    "installed_hash": "absent",
+    "model_note": "Owner-reported Elite from the owner's own words in the Orchestrator chat on 2026-11-13 at 23:22 UTC+10: \"I used elite\". Relayed by Orchestrator. This is not hardware-field verification. Pro was not tested. An Elite report never implies Pro.",
+    "build_note": "The owner named 0.0.25.1. The installed package hash and source SHA were not confirmed.",
+    "installed_hash_note": "Installed hash is absent and is NOT verified."
+  },
+  "notes": [
+    "Channel assignment in this workflow: stable MAIN. This record does not publish and does not change the MAIN installer. PR #880 is owned by Installer QA and is not edited here.",
+    "Hashes and sizes come from the live nightly versions.json row for nightly-79280e76-dev (display version 0.0.25.1). Source branch is release/0.0.25.1.",
+    "This is not a promotion of 0.0.26. 0.0.26 (94197fc8) stays a nightly hardware-test build.",
+    "The owner reported testing 0.0.25.1 on an SMK-37 Elite. The installed package hash was not confirmed. Pro was not tested. installation-reported is true. install-verified and owner-hardware-approval stay false. A test report is not hardware approval. The nightly catalog label DEVICE NOT TESTED is unchanged and is not a full hardware qualification."
+  ],
+  "current_report_sequence": 1,
+  "history": [
+    {
+      "sequence": 1,
+      "time": "2026-11-13T23:20:00+10:00",
+      "time_precision": "exact",
+      "order": "latest",
+      "kind": "install-report",
+      "source": "owner in Orchestrator chat, relayed by Orchestrator",
+      "quoted": true,
+      "confidence": "reported",
+      "verified": false,
+      "is_current": true,
+      "text": "The project owner reported testing 0.0.25.1 and 0.0.26, and said he used Elite. The installed package hash was not confirmed. Pro was not tested.",
+      "events": [
+        "install",
+        "test"
+      ],
+      "device": "owner's SMK",
+      "model": "Elite",
+      "model_confidence": "reported",
+      "build": "0.0.25.1",
+      "build_confidence": "absent",
+      "build_confidence_reason": "The owner named 0.0.25.1. The installed package hash and source SHA were not confirmed.",
+      "installed_hash": null,
+      "installed_hash_confidence": "absent",
+      "scope": {
+        "full_functional_suite": false,
+        "hardware_qualification_both_models": false,
+        "promotion": false
+      },
+      "notes": [
+        "Owner quotes (Orchestrator chat, 2026-11-13, Asia/Vladivostok / UTC+10): at 23:20, \"Bro I tested a 25,1 and 26 already\"; at 23:22, \"I used elite\". Relayed by Orchestrator. These are the owner's own words.",
+        "Earlier Dot relay of owner ChatGPT words, not the primary source for this event: \"i already recovered to 25.1\", \"25.1 is good\", and \"and yep 25.1 to 26 is smooth\".",
+        "Installed hash is absent. Model Elite is owner-stated and not hardware-field verified.",
+        "Pro was not tested. An Elite report never implies Pro. There is no Pro event.",
+        "This is not a full functional suite pass. This is not hardware qualification on either model. This is not a promotion. A test report is not owner-hardware-approval."
+      ]
+    }
+  ]
+}

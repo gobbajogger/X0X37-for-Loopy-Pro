@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gobbajogger.github.io/x0x37-release-status/audit-event.schema.json",
+  "title": "Audit event",
+  "description": "One append-only audit line. A later line may retract an earlier line. No line is rewritten. Admin option C: GitHub identity plus this JSONL file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "time",
+    "actor",
+    "actor_identity",
+    "action",
+    "record_id",
+    "from_states",
+    "to_states",
+    "evidence_refs",
+    "commit_sha",
+    "prev_sha256"
+  ],
+  "properties": {
+    "time": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor": {
+      "type": "string",
+      "const": "gobbajogger",
+      "description": "Option C allowlist. The only permitted actor is the GitHub identity gobbajogger."
+    },
+    "actor_identity": {
+      "type": "string",
+      "const": "github"
+    },
+    "action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "from_states": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "to_states": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "commit_sha": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      ]
+    },
+    "prev_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "note": {
+      "type": "string"
+    },
+    "appended_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(?:Z|[+-]\\d{2}:\\d{2})$",
+      "description": "Wall-clock insertion time in append-only JSONL order. time is historical event time. Legacy lines omit appended_at and remain immutable."
+    }
+  }
+}
