@@ -46,16 +46,14 @@ See [ble/README.md](ble/README.md) for Bluetooth MIDI.
 
 ## Versions
 
-The current stable release is **DnBOX 0.0.25.1**.
-Download it from **[GitHub Releases (latest)](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/latest)**.
+**Recommended release: DnBOX 0.0.25.1**, on [GitHub Releases](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). Choose the file for the model printed on your keyboard:
 
-The **[nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/)** offers the current **0.0.26** package, and also keeps 0.0.25.1.
-The project withdrew an earlier 0.0.26 package, pending a boot fix.
-Do not install that withdrawn package.
-Use only the current 0.0.26 package from the nightly installer.
+- [SMK-37 Elite: `dnbox-x0x37-0.0.25.1-elite.fwsc`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/v0.0.25.1/dnbox-x0x37-0.0.25.1-elite.fwsc)
+- [SMK-37 Pro: `dnbox-x0x37-0.0.25.1-pro.fwsc`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/v0.0.25.1/dnbox-x0x37-0.0.25.1-pro.fwsc)
 
-0.0.25.1 and 0.0.26 are owner-tested on an SMK-37 Elite. The Pro is not yet tested.
-See the [0.0.25.1 release notes](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1) and the [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/).
+The [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/) also lists **0.0.26 from source `94197fc8`**, but marks it **hardware test: boot/restart not yet verified**. An earlier 0.0.26 package was withdrawn after a boot concern. This is not a stable upgrade; use it only for deliberate hardware testing with a retained 0.0.25.1 recovery package.
+
+The owner reported testing 0.0.25.1 and an earlier 0.0.26 build on an SMK-37 Elite, **without confirming the installed package hash**. That does not validate startup or recovery of the current 0.0.26 candidate. The Pro package has no reported physical test. Neither model has completed full hardware qualification.
 
 ## Install
 
@@ -68,8 +66,7 @@ Connect the keyboard with USB.
 
 Pick the package that matches your model (**Elite** or **Pro**).
 Starrykey 37 Play uses the SMK-37 Pro package.
-**Back up your sample slots before you install.** The installer can do this for you.
-Do not unplug the USB cable during a firmware write.
+**Back up your sample slots before installing, and confirm the downloaded backup exists.** The main installer currently blocks a risky write if a required sample backup fails; the nightly installer may continue with a warning and lose unbacked-up samples. Do not unplug USB during a firmware write.
 
 Get the 0.0.25.1 packages from GitHub Releases.
 Confirm the version name before you write the keyboard.
@@ -77,7 +74,7 @@ You can drop a downloaded `.fwsc` file on the web installer.
 
 ## Manual and help
 
-- **[Manual](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/manual/)**. The published manual is for the FM-1. [SMK37.md](SMK37.md) has the SMK-37 keyboard map.
+- **[SMK-37 keyboard map](SMK37.md)** for the older port; the [0.0.26 control manual (draft)](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/docs/manual-94197fc8/docs/MANUAL.md) explains the newer screens, glyphs, chords and presets, but is **not** a manual for the stable 0.0.25.1 firmware. The [published web manual](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/manual/) still describes the FM-1.
 - **[Sample importer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/)** — import your own break loops
 - **[Projects](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/)** — save, load and export projects
 
@@ -88,7 +85,7 @@ Repository and Pages URLs still use the previous name, because the GitHub reposi
 If an install fails, the keyboard becomes unresponsive, or you want the factory software back:
 
 1. Keep the USB cable plugged in until any write in progress finishes. Do not unplug during a write.
-2. Use the [web installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/) to restore **M-VAVE stock firmware**, or use [M-VAVE M-UPGRADE](https://www.m-vave.com/download).
+2. Download the **stock firmware for your exact physical model** from [M-VAVE](https://www.m-vave.com/download). Use the [web installer's local `.fwsc` option](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/) or follow M-VAVE M-UPGRADE instructions. The installer does **not** bundle a factory firmware image.
 3. If you have a sample-slot backup, restore it after the keyboard runs again. Use the installer or `tools/x0x_slots.py restore`.
 
 This project does not document a special SMK-37 button gesture for recovery.
