@@ -16,53 +16,111 @@
     "identity_confidence"
   ],
   "properties": {
-    "version": { "type": "string", "minLength": 1 },
-    "catalog_id": { "type": "string", "minLength": 1 },
-    "source_sha": { "$ref": "#/definitions/git_sha" },
-    "source_tree": { "$ref": "#/definitions/git_sha" },
-    "source_branch": { "type": "string" },
-    "source_pr": { "type": "string" },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "catalog_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_sha": {
+      "$ref": "#/definitions/git_sha"
+    },
+    "source_tree": {
+      "$ref": "#/definitions/git_sha"
+    },
+    "source_branch": {
+      "type": "string"
+    },
+    "source_pr": {
+      "type": "string"
+    },
     "models": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "elite": { "$ref": "#/definitions/model_image" },
-        "pro": { "$ref": "#/definitions/model_image" }
+        "elite": {
+          "$ref": "#/definitions/model_image"
+        },
+        "pro": {
+          "$ref": "#/definitions/model_image"
+        }
       }
     },
     "combined_package_sha256": {
       "oneOf": [
-        { "type": "null" },
-        { "$ref": "#/definitions/sha256" }
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/definitions/sha256"
+        }
       ]
     },
-    "published_pages_url": { "type": "string" },
-    "publish_ref": { "type": "string" },
-    "publish_branch": { "type": "string" },
-    "publish_time": { "type": "string" },
-    "elf_provenance": { "$ref": "#/definitions/elf_provenance" },
+    "published_pages_url": {
+      "type": "string"
+    },
+    "publish_ref": {
+      "type": "string"
+    },
+    "publish_branch": {
+      "type": "string"
+    },
+    "publish_time": {
+      "type": "string"
+    },
+    "elf_provenance": {
+      "$ref": "#/definitions/elf_provenance"
+    },
     "gate_evidence": {
       "type": "array",
-      "items": { "$ref": "#/definitions/gate_evidence_item" }
+      "items": {
+        "$ref": "#/definitions/gate_evidence_item"
+      }
     },
-    "states": { "$ref": "#/definitions/states" },
-    "identity_confidence": { "$ref": "#/definitions/identity_confidence" },
-    "current_report_sequence": { "type": "integer", "minimum": 1 },
+    "states": {
+      "$ref": "#/definitions/states"
+    },
+    "identity_confidence": {
+      "$ref": "#/definitions/identity_confidence"
+    },
+    "current_report_sequence": {
+      "type": "integer",
+      "minimum": 1
+    },
     "history": {
       "type": "array",
-      "items": { "$ref": "#/definitions/history_event" }
+      "items": {
+        "$ref": "#/definitions/history_event"
+      }
     },
     "conflicts": {
       "type": "array",
-      "items": { "$ref": "#/definitions/conflict" }
+      "items": {
+        "$ref": "#/definitions/conflict"
+      }
     },
-    "withdraw_ref": { "type": "string" },
-    "withdraw_reason": { "type": "string" },
-    "withdraw_time": { "type": "string" },
-    "replaced_by": { "type": "string" },
+    "withdraw_ref": {
+      "type": "string"
+    },
+    "withdraw_reason": {
+      "type": "string"
+    },
+    "withdraw_time": {
+      "type": "string"
+    },
+    "replaced_by": {
+      "type": "string"
+    },
     "notes": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
+    },
+    "install_verification": {
+      "$ref": "#/definitions/install_verification"
     }
   },
   "definitions": {
@@ -80,11 +138,20 @@
     },
     "confidence": {
       "type": "string",
-      "enum": ["verified", "inferred", "reported", "absent"]
+      "enum": [
+        "verified",
+        "inferred",
+        "reported",
+        "absent"
+      ]
     },
     "pass_fail_or_not_run": {
       "type": "string",
-      "enum": ["PASS", "FAIL", "NOT_RUN"]
+      "enum": [
+        "PASS",
+        "FAIL",
+        "NOT_RUN"
+      ]
     },
     "model_image": {
       "type": "object",
@@ -99,17 +166,44 @@
         "controller_check"
       ],
       "properties": {
-        "image_sha256": { "$ref": "#/definitions/sha256" },
-        "image_size": { "type": "integer", "minimum": 1 },
-        "package_sha256": { "$ref": "#/definitions/sha256" },
-        "crc32": { "$ref": "#/definitions/crc32" },
-        "product": { "type": "string" },
-        "package_url": { "type": "string" },
-        "controller_sha256": { "$ref": "#/definitions/sha256" },
-        "controller_size": { "type": "integer", "minimum": 1 },
-        "controller_crc32": { "$ref": "#/definitions/crc32" },
-        "controller_strategy": { "type": "string", "enum": ["bundled"] },
-        "controller_check": { "$ref": "#/definitions/pass_fail_or_not_run" }
+        "image_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "image_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "package_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "crc32": {
+          "$ref": "#/definitions/crc32"
+        },
+        "product": {
+          "type": "string"
+        },
+        "package_url": {
+          "type": "string"
+        },
+        "controller_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "controller_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "controller_crc32": {
+          "$ref": "#/definitions/crc32"
+        },
+        "controller_strategy": {
+          "type": "string",
+          "enum": [
+            "bundled"
+          ]
+        },
+        "controller_check": {
+          "$ref": "#/definitions/pass_fail_or_not_run"
+        }
       }
     },
     "elf_model": {
@@ -123,35 +217,77 @@
         "mapping_result"
       ],
       "properties": {
-        "elf_sha256": { "$ref": "#/definitions/sha256" },
-        "elf_size": { "type": "integer", "minimum": 1 },
-        "image_sha256": { "$ref": "#/definitions/sha256" },
-        "mapping": { "type": "string", "minLength": 1 },
-        "mapping_result": { "type": "string", "enum": ["MATCH", "FAIL", "NOT_RUN"] }
+        "elf_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "elf_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "image_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "mapping": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mapping_result": {
+          "type": "string",
+          "enum": [
+            "MATCH",
+            "FAIL",
+            "NOT_RUN"
+          ]
+        }
       }
     },
     "elf_provenance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["published", "source_sha", "sdk", "padcal", "toolchain", "models"],
+      "required": [
+        "published",
+        "source_sha",
+        "sdk",
+        "padcal",
+        "toolchain",
+        "models"
+      ],
       "properties": {
-        "published": { "type": "boolean" },
-        "source_sha": { "$ref": "#/definitions/git_sha" },
-        "sdk": { "type": "string" },
-        "padcal": { "type": "integer" },
+        "published": {
+          "type": "boolean"
+        },
+        "source_sha": {
+          "$ref": "#/definitions/git_sha"
+        },
+        "sdk": {
+          "type": "string"
+        },
+        "padcal": {
+          "type": "integer"
+        },
         "toolchain": {
           "oneOf": [
-            { "type": "null" },
-            { "type": "string" }
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
           ]
         },
-        "input_zip_sha256": { "$ref": "#/definitions/sha256" },
+        "input_zip_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
         "models": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "elite": { "$ref": "#/definitions/elf_model" },
-            "pro": { "$ref": "#/definitions/elf_model" }
+            "elite": {
+              "$ref": "#/definitions/elf_model"
+            },
+            "pro": {
+              "$ref": "#/definitions/elf_model"
+            }
           }
         }
       }
@@ -171,20 +307,79 @@
         "applies_to_image"
       ],
       "properties": {
-        "kind": { "type": "string", "minLength": 1 },
-        "result": { "$ref": "#/definitions/pass_fail_or_not_run" },
-        "elite_worst_us": { "type": ["integer", "null"], "minimum": 0 },
-        "pro_worst_us": { "type": ["integer", "null"], "minimum": 0 },
-        "elite_late": { "type": ["integer", "null"], "minimum": 0 },
-        "pro_late": { "type": ["integer", "null"], "minimum": 0 },
-        "threshold_us": { "type": ["integer", "null"], "minimum": 0 },
-        "ref": { "type": "string" },
-        "applies_to_image": { "type": "string", "enum": ["exact-image", "other-inputs"] },
-        "board": { "type": "string" },
-        "mhz": { "type": "integer" },
-        "fm1_strict": { "type": "integer" },
-        "gate_id": { "type": "string" },
-        "note": { "type": "string" }
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result": {
+          "$ref": "#/definitions/pass_fail_or_not_run"
+        },
+        "elite_worst_us": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "pro_worst_us": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "elite_late": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "pro_late": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "threshold_us": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "ref": {
+          "type": "string"
+        },
+        "applies_to_image": {
+          "type": "string",
+          "enum": [
+            "exact-image",
+            "other-inputs"
+          ]
+        },
+        "board": {
+          "type": "string"
+        },
+        "mhz": {
+          "type": "integer"
+        },
+        "fm1_strict": {
+          "type": "integer"
+        },
+        "gate_id": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "elite_image_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "pro_image_sha256": {
+          "$ref": "#/definitions/sha256"
+        }
       }
     },
     "states": {
@@ -201,40 +396,86 @@
         "withdrawn"
       ],
       "properties": {
-        "built": { "type": "boolean" },
-        "gate-passed": { "type": "boolean" },
-        "published-nightly": { "type": "boolean" },
-        "installation-reported": { "type": "boolean" },
-        "install-verified": { "type": "boolean" },
-        "boot-restart-reported": { "type": "boolean" },
-        "owner-hardware-approval": { "type": "boolean" },
-        "withdrawn": { "type": "boolean" }
+        "built": {
+          "type": "boolean"
+        },
+        "gate-passed": {
+          "type": "boolean"
+        },
+        "published-nightly": {
+          "type": "boolean"
+        },
+        "installation-reported": {
+          "type": "boolean"
+        },
+        "install-verified": {
+          "type": "boolean"
+        },
+        "boot-restart-reported": {
+          "type": "boolean"
+        },
+        "owner-hardware-approval": {
+          "type": "boolean"
+        },
+        "withdrawn": {
+          "type": "boolean"
+        }
       }
     },
     "identity_confidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["model", "build", "installed_hash"],
+      "required": [
+        "model",
+        "build",
+        "installed_hash"
+      ],
       "properties": {
-        "model": { "$ref": "#/definitions/confidence" },
-        "build": { "$ref": "#/definitions/confidence" },
-        "installed_hash": { "$ref": "#/definitions/confidence" },
-        "model_note": { "type": "string" },
-        "build_note": { "type": "string" },
-        "installed_hash_note": { "type": "string" }
+        "model": {
+          "$ref": "#/definitions/confidence"
+        },
+        "build": {
+          "$ref": "#/definitions/confidence"
+        },
+        "installed_hash": {
+          "$ref": "#/definitions/confidence"
+        },
+        "model_note": {
+          "type": "string"
+        },
+        "build_note": {
+          "type": "string"
+        },
+        "installed_hash_note": {
+          "type": "string"
+        }
       }
     },
     "recovery_build": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["version"],
+      "required": [
+        "version"
+      ],
       "properties": {
-        "version": { "type": "string" },
-        "catalog_id": { "type": "string" },
-        "source_sha": { "$ref": "#/definitions/git_sha" },
-        "source_tree": { "$ref": "#/definitions/git_sha" },
-        "hashes_from": { "type": "string" },
-        "role": { "type": "string" },
+        "version": {
+          "type": "string"
+        },
+        "catalog_id": {
+          "type": "string"
+        },
+        "source_sha": {
+          "$ref": "#/definitions/git_sha"
+        },
+        "source_tree": {
+          "$ref": "#/definitions/git_sha"
+        },
+        "hashes_from": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
         "models": {
           "type": "object",
           "additionalProperties": false,
@@ -242,19 +483,35 @@
             "elite": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["image_sha256", "image_size"],
+              "required": [
+                "image_sha256",
+                "image_size"
+              ],
               "properties": {
-                "image_sha256": { "$ref": "#/definitions/sha256" },
-                "image_size": { "type": "integer", "minimum": 1 }
+                "image_sha256": {
+                  "$ref": "#/definitions/sha256"
+                },
+                "image_size": {
+                  "type": "integer",
+                  "minimum": 1
+                }
               }
             },
             "pro": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["image_sha256", "image_size"],
+              "required": [
+                "image_sha256",
+                "image_size"
+              ],
               "properties": {
-                "image_sha256": { "$ref": "#/definitions/sha256" },
-                "image_size": { "type": "integer", "minimum": 1 }
+                "image_sha256": {
+                  "$ref": "#/definitions/sha256"
+                },
+                "image_size": {
+                  "type": "integer",
+                  "minimum": 1
+                }
               }
             }
           }
@@ -275,10 +532,32 @@
         "text"
       ],
       "properties": {
-        "sequence": { "type": "integer", "minimum": 1 },
-        "time": { "type": ["string", "null"] },
-        "time_precision": { "type": "string", "enum": ["exact", "unknown", "day"] },
-        "order": { "type": "string", "enum": ["earlier", "latest", "intermediate"] },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "time": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "time_precision": {
+          "type": "string",
+          "enum": [
+            "exact",
+            "unknown",
+            "day"
+          ]
+        },
+        "order": {
+          "type": "string",
+          "enum": [
+            "earlier",
+            "latest",
+            "intermediate"
+          ]
+        },
         "kind": {
           "type": "string",
           "enum": [
@@ -293,55 +572,166 @@
             "other"
           ]
         },
-        "source": { "type": "string" },
-        "quoted": { "type": "boolean" },
-        "confidence": { "$ref": "#/definitions/confidence" },
-        "verified": { "type": "boolean" },
-        "is_current": { "type": "boolean" },
-        "text": { "type": "string" },
+        "source": {
+          "type": "string"
+        },
+        "quoted": {
+          "type": "boolean"
+        },
+        "confidence": {
+          "$ref": "#/definitions/confidence"
+        },
+        "verified": {
+          "type": "boolean"
+        },
+        "is_current": {
+          "type": "boolean"
+        },
+        "text": {
+          "type": "string"
+        },
         "events": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
-        "device": { "type": "string" },
-        "model": { "type": ["string", "null"] },
-        "model_confidence": { "$ref": "#/definitions/confidence" },
-        "build": { "type": ["string", "null"] },
-        "build_confidence": { "$ref": "#/definitions/confidence" },
-        "build_confidence_reason": { "type": "string" },
-        "installed_hash": { "type": ["string", "null"] },
-        "installed_hash_confidence": { "$ref": "#/definitions/confidence" },
-        "upgrade_path_cause_proven": { "type": "boolean" },
-        "recovery_build": { "$ref": "#/definitions/recovery_build" },
+        "device": {
+          "type": "string"
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model_confidence": {
+          "$ref": "#/definitions/confidence"
+        },
+        "build": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "build_confidence": {
+          "$ref": "#/definitions/confidence"
+        },
+        "build_confidence_reason": {
+          "type": "string"
+        },
+        "installed_hash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "installed_hash_confidence": {
+          "$ref": "#/definitions/confidence"
+        },
+        "upgrade_path_cause_proven": {
+          "type": "boolean"
+        },
+        "recovery_build": {
+          "$ref": "#/definitions/recovery_build"
+        },
         "scope": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "full_functional_suite": { "type": "boolean" },
-            "hardware_qualification_both_models": { "type": "boolean" },
-            "promotion": { "type": "boolean" }
+            "full_functional_suite": {
+              "type": "boolean"
+            },
+            "hardware_qualification_both_models": {
+              "type": "boolean"
+            },
+            "promotion": {
+              "type": "boolean"
+            }
           }
         },
-        "ref": { "type": "string" },
+        "ref": {
+          "type": "string"
+        },
         "notes": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
     "conflict": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "status"],
+      "required": [
+        "kind",
+        "status"
+      ],
       "properties": {
-        "kind": { "type": "string" },
-        "status": { "type": "string", "enum": ["unresolved", "resolved"] },
+        "kind": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unresolved",
+            "resolved"
+          ]
+        },
         "event_ids": {
           "type": "array",
-          "items": { "type": "integer" }
+          "items": {
+            "type": "integer"
+          }
         },
-        "summary": { "type": "string" }
+        "summary": {
+          "type": "string"
+        }
       }
+    },
+    "install_verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claimed_model": {
+          "type": "string",
+          "enum": [
+            "elite",
+            "pro"
+          ]
+        },
+        "installed_hash": {
+          "$ref": "#/definitions/sha256"
+        },
+        "model_proof": {
+          "$ref": "#/definitions/model_proof_type"
+        },
+        "firmware_git_readback": {
+          "$ref": "#/definitions/git_sha"
+        },
+        "backup_field": {
+          "type": "string"
+        },
+        "backup_field_hash": {
+          "$ref": "#/definitions/sha256"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "model_proof_type": {
+      "type": "string",
+      "enum": [
+        "board_id",
+        "model_id",
+        "flash_id",
+        "mac",
+        "firmware_readback",
+        "backup_field"
+      ],
+      "description": "Explicit hardware-field proof. USB names and product strings are not allowed."
     }
   }
 }

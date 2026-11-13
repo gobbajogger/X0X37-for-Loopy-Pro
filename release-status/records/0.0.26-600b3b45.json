@@ -11,7 +11,11 @@
       "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
       "controller_size": 61552,
       "controller_strategy": "bundled",
-      "controller_check": "NOT_RUN"
+      "controller_check": "PASS",
+      "crc32": "5c668fbb",
+      "product": "SMK-37 Elite_900",
+      "package_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a/x0x37-elite-dev.fwsc",
+      "controller_crc32": "564a8f55"
     },
     "pro": {
       "image_sha256": "528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655",
@@ -20,17 +24,34 @@
       "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
       "controller_size": 61552,
       "controller_strategy": "bundled",
-      "controller_check": "NOT_RUN"
+      "controller_check": "PASS",
+      "crc32": "407cc185",
+      "product": "SMK-37 Pro_900",
+      "package_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655/x0x37-pro-dev.fwsc",
+      "controller_crc32": "564a8f55"
     }
   },
   "combined_package_sha256": null,
   "published_pages_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/",
   "publish_ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/116",
   "publish_branch": "publish/nightly-600b3b45-0.0.26",
-  "publish_time": "2026-11-13T01:34:00Z",
-  "gate_evidence": [],
+  "publish_time": "2026-11-13T01:34:16Z",
+  "gate_evidence": [
+    {
+      "kind": "bt-controller-bundle",
+      "result": "PASS",
+      "elite_worst_us": null,
+      "pro_worst_us": null,
+      "elite_late": null,
+      "pro_late": null,
+      "threshold_us": null,
+      "ref": "package_nightly --check PASS both: nightly PR #116 body; 600b catalog description; review --check receipt",
+      "applies_to_image": "exact-image",
+      "note": "The 600b publish-branch catalog (nightly-600b3b45-dev) says package_nightly --check PASS both."
+    }
+  ],
   "states": {
-    "built": false,
+    "built": true,
     "gate-passed": false,
     "published-nightly": true,
     "installation-reported": false,
@@ -48,7 +69,7 @@
   "history": [
     {
       "sequence": 1,
-      "time": "2026-11-13T01:34:00Z",
+      "time": "2026-11-13T01:34:16Z",
       "time_precision": "exact",
       "order": "earlier",
       "kind": "publish",
@@ -57,12 +78,12 @@
       "confidence": "verified",
       "verified": true,
       "is_current": false,
-      "text": "PR #116 published this build to gh-pages. The merge time is 13 November 2026, 01:34 UTC (12 November 2026, 19:34 America/Chicago).",
+      "text": "PR #116 published this build to gh-pages. The merge time is 13 November 2026, 01:34:16 UTC (12 November 2026, 19:34:16 America/Chicago).",
       "ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/116"
     },
     {
       "sequence": 2,
-      "time": "2026-11-13T05:44:00Z",
+      "time": "2026-11-13T05:44:03Z",
       "time_precision": "exact",
       "order": "latest",
       "kind": "withdrawal",
@@ -71,19 +92,21 @@
       "confidence": "verified",
       "verified": true,
       "is_current": true,
-      "text": "PR #120 withdrew the installer selection pending boot fix. The owner requested temporary removal after boot and restart failures. The PR removed the nightly-600b3b45-dev catalog row, restored 0.0.25.1 as latest, and kept the immutable package files.",
+      "text": "PR #120 withdrew the installer selection pending boot fix. The merge time is 13 November 2026, 05:44:03 UTC (12 November 2026, 23:44:03 America/Chicago). The owner requested temporary removal after boot and restart failures. The PR removed the nightly-600b3b45-dev catalog row, restored 0.0.25.1 as latest, and kept the immutable package files.",
       "ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120"
     }
   ],
   "withdraw_ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120",
   "withdraw_reason": "boot and restart failures, pending boot fix",
-  "withdraw_time": "2026-11-13T05:44:00Z",
+  "withdraw_time": "2026-11-13T05:44:03Z",
   "replaced_by": "nightly-94197fc8-dev",
   "notes": [
     "The 94197fc8 description says it replaces this withdrawn 600b build and includes the retained-RAM boot-guard correction.",
-    "built is false because the seed has no package_nightly --check result for 600b (controller_check is NOT_RUN). The validator requires a PASS controller check for built when the package is bundled.",
-    "controller_size 61552 is taken from the same controller SHA-256 as the 94197fc8 record. The 600b catalog section listed the SHA-256 but not the size.",
-    "package_sha256 equals image_sha256, following the 0.0.26 package pattern in the design.",
+    "controller_check is PASS. Sources: nightly PR #116 body, the 600b publish-branch catalog (package_nightly --check PASS both), and the independent review's --check receipt.",
+    "built is true because images exist and the bundled controller check is PASS for both models.",
+    "controller_size 61552 comes from the 600b publish-branch catalog (models.elite.controller_size and models.pro.controller_size) and from the historic 600b packages. It is not taken from the 94197fc8 record.",
+    "package_sha256 equals image_sha256. This was verified against the historic .fwsc bytes (SHA-256 25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a Elite and 528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655 Pro).",
+    "crc32 values Elite 5c668fbb and Pro 407cc185 are the CRC-32 of those historic .fwsc bytes.",
     "The validator refuses any promotion of this withdrawn record."
   ]
 }

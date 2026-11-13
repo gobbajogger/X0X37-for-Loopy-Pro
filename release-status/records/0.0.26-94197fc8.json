@@ -40,7 +40,7 @@
     "source_sha": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
     "sdk": "V1.2.14",
     "padcal": 0,
-    "toolchain": "unknown",
+    "toolchain": null,
     "input_zip_sha256": "f344c213a51497a71381c24364d4db17d892b48ca2528b116e549f133b220018",
     "models": {
       "elite": {
@@ -74,7 +74,9 @@
       "mhz": 360,
       "fm1_strict": 1,
       "gate_id": "gate-20261113-202119",
-      "note": "Elite is 13 us slower than 0.0.25.1 (11548). Pro is 39 us faster than 0.0.25.1 (11564). Both have 0 late. This is an emulator result, not a hardware result. Do not mix with the d408 other-inputs figures (Elite 11406 us, Pro 11410 us)."
+      "note": "Elite is 13 us slower than 0.0.25.1 (11548). Pro is 39 us faster than 0.0.25.1 (11564). Both have 0 late. This is an emulator result, not a hardware result. Do not mix with the d408 other-inputs figures (Elite 11406 us, Pro 11410 us).",
+      "elite_image_sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6",
+      "pro_image_sha256": "ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8"
     },
     {
       "kind": "bt-controller-bundle",

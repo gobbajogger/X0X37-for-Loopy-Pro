@@ -16,8 +16,11 @@ import argparse
 import copy
 import hashlib
 import json
+import os
 import re
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -62,6 +65,27 @@ ELF_BINARY_KEYS = frozenset(
         "data",
         "payload",
     }
+)
+
+# Option C: the only permitted admin actor is this GitHub identity.
+ALLOWED_ACTOR = "gobbajogger"
+REQUIRED_ACTOR_IDENTITY = "github"
+
+# Explicit hardware-field types for model proof. USB and product strings are not allowed.
+MODEL_PROOF_TYPES = frozenset(
+    {
+        "board_id",
+        "model_id",
+        "flash_id",
+        "mac",
+        "firmware_readback",
+        "backup_field",
+    }
+)
+
+USB_OR_PRODUCT_RE = re.compile(
+    r"usb(_|\s+)?(name|product|label|port)|product(\s+|_)?(string|name)|usb_name",
+    re.IGNORECASE,
 )
 
 
@@ -396,6 +420,297 @@ def validate_audit_append_only(previous_text: str, current_text: str, record_id:
 
 
 # ---------------------------------------------------------------------------
+# Option C actor allowlist, model proof, installed-hash proof, git previous.
+# ---------------------------------------------------------------------------
+
+def check_audit_actor(event: dict, line_no: int) -> list[Issue]:
+    """Option C: actor must be gobbajogger and actor_identity must be github."""
+    issues: list[Issue] = []
+    rid = str(event.get("record_id") or f"audit-line-{line_no}")
+    actor = event.get("actor")
+    if actor != ALLOWED_ACTOR:
+        issues.append(
+            Issue(
+                "audit-actor",
+                rid,
+                f"line {line_no}: actor {actor!r} is not the option C allowlist value {ALLOWED_ACTOR!r}",
+            )
+        )
+    identity = event.get("actor_identity")
+    if identity != REQUIRED_ACTOR_IDENTITY:
+        issues.append(
+            Issue(
+                "audit-actor-identity",
+                rid,
+                f"line {line_no}: actor_identity {identity!r} is required and must be {REQUIRED_ACTOR_IDENTITY!r}",
+            )
+        )
+    return issues
+
+
+def is_usb_or_product_proof(evidence: dict, record: dict) -> bool:
+    """True if the offered model proof is a USB name or a product string.
+
+    Only evidence, install_verification, and identity_confidence proof fields
+    are inspected. History text is not inspected, because a record may narrate
+    that a USB label did not prove a model.
+    """
+    iv = record.get("install_verification") or {}
+    conf = record.get("identity_confidence") or {}
+    blobs: list[str] = []
+    for obj in (evidence, iv):
+        if not isinstance(obj, dict):
+            continue
+        for key in (
+            "usb_name",
+            "usb_name_only",
+            "usb_product",
+            "usb_label",
+            "usb_port",
+            "product_string",
+            "product_name",
+        ):
+            if obj.get(key):
+                return True
+        for key in ("model_proof", "model_note", "note", "proof", "proof_text"):
+            val = obj.get(key)
+            if isinstance(val, str) and val:
+                blobs.append(val)
+    note = conf.get("model_note")
+    if isinstance(note, str) and note:
+        blobs.append(note)
+    for blob in blobs:
+        if USB_OR_PRODUCT_RE.search(blob):
+            return True
+        # A model_proof value that is not an allowed enum and mentions product/USB.
+        if "usb" in blob.lower() or "product string" in blob.lower():
+            return True
+    return False
+
+
+def offered_model_proof(evidence: dict, record: dict) -> str | None:
+    iv = record.get("install_verification") or {}
+    proof = evidence.get("model_proof")
+    if proof is None:
+        proof = iv.get("model_proof")
+    return proof if isinstance(proof, str) else None
+
+
+def resolve_claimed_model(evidence: dict, record: dict) -> str | None:
+    iv = record.get("install_verification") or {}
+    for candidate in (
+        evidence.get("installed_hash_model"),
+        evidence.get("model"),
+        iv.get("claimed_model"),
+    ):
+        if candidate in ("elite", "pro"):
+            return candidate
+    return None
+
+
+def resolve_installed_hash(evidence: dict, record: dict) -> tuple[str | None, str]:
+    """Return (hash_or_none, how). Does not treat a confidence flag as a hash."""
+    iv = record.get("install_verification") or {}
+    ev_hash = evidence.get("installed_hash")
+    if isinstance(ev_hash, str) and ev_hash not in ("", "present", "absent"):
+        return ev_hash, "evidence.installed_hash"
+    iv_hash = iv.get("installed_hash")
+    if isinstance(iv_hash, str) and iv_hash:
+        return iv_hash, "install_verification.installed_hash"
+    backup = iv.get("backup_field_hash") or evidence.get("backup_field_hash")
+    if isinstance(backup, str) and backup:
+        return backup, "backup_field"
+    # A history event may store a verified installed hash, but only when it is
+    # a real 64-hex value (not null).
+    current = current_history(record)
+    if current:
+        h = current.get("installed_hash")
+        if isinstance(h, str) and SHA256.fullmatch(h):
+            return h, "history.installed_hash"
+    return None, "absent"
+
+
+def firmware_readback_ok(evidence: dict, record: dict) -> bool:
+    """Firmware GIT readback of the exact source_sha is accepted as build proof."""
+    iv = record.get("install_verification") or {}
+    got = evidence.get("firmware_git_readback") or iv.get("firmware_git_readback")
+    src = record.get("source_sha")
+    return isinstance(got, str) and isinstance(src, str) and got == src
+
+
+def states_equal(a: dict, b: dict) -> bool:
+    for flag in STATE_FLAGS:
+        if bool(a.get(flag)) != bool(b.get(flag)) or (flag in a) != (flag in b):
+            # Require the flag to be present on both and equal.
+            if a.get(flag) != b.get(flag):
+                return False
+        if flag not in a or flag not in b:
+            return False
+        if a.get(flag) != b.get(flag):
+            return False
+    return True
+
+
+def latest_audit_event(events: list[dict], record_id: str) -> dict | None:
+    latest = None
+    for event in events:
+        if event.get("record_id") == record_id:
+            latest = event
+    return latest
+
+
+def check_states_match_audit(records: list[tuple[str, dict]], events: list[dict]) -> list[Issue]:
+    issues: list[Issue] = []
+    for filename, rec in records:
+        rid = record_id_of(rec, filename)
+        latest = latest_audit_event(events, rid)
+        if latest is None:
+            issues.append(
+                Issue(
+                    "audit-state-mismatch",
+                    rid,
+                    "no audit event exists for this record_id; every record must have a latest to_states",
+                )
+            )
+            continue
+        to_states = latest.get("to_states") or {}
+        rec_states = rec.get("states") or {}
+        if not states_equal(rec_states, to_states):
+            issues.append(
+                Issue(
+                    "audit-state-mismatch",
+                    rid,
+                    "record states must equal the latest audit to_states for this record_id",
+                )
+            )
+    return issues
+
+
+def check_proposal_audit_event(
+    proposal: dict,
+    record: dict,
+    after: dict,
+    audit_lines: list[str],
+    audit_events: list[dict],
+) -> list[Issue]:
+    """--propose must include a new audit event with the permitted actor."""
+    issues: list[Issue] = []
+    rid = record_id_of(record, str(proposal.get("record_id") or ""))
+    event = proposal.get("audit_event")
+    if not isinstance(event, dict):
+        issues.append(
+            Issue(
+                "propose-audit-required",
+                rid,
+                "--propose requires a new audit event (audit_event) with the permitted actor",
+            )
+        )
+        return issues
+    issues.extend(check_audit_actor(event, (len(audit_events) + 1) if audit_events else 1))
+    expected_prev = next_prev_hash(audit_lines[-1] if audit_lines else None)
+    if event.get("prev_sha256") != expected_prev:
+        issues.append(
+            Issue(
+                "audit-chain",
+                rid,
+                "proposal audit_event.prev_sha256 must match the hash of the last existing audit line",
+            )
+        )
+    to_states = event.get("to_states") or {}
+    if not states_equal(after.get("states") or {}, to_states):
+        issues.append(
+            Issue(
+                "audit-state-mismatch",
+                rid,
+                "proposal audit_event.to_states must equal the proposed record states",
+            )
+        )
+    if event.get("record_id") not in (rid, record.get("catalog_id"), proposal.get("record_id")):
+        issues.append(
+            Issue(
+                "propose-audit-required",
+                rid,
+                "proposal audit_event.record_id must match the proposal record",
+            )
+        )
+    return issues
+
+
+def git_previous_audit(audit_path: Path) -> tuple[str | None, str]:
+    """If audit_path is a tracked file in a git checkout, return the previous text.
+
+    When the working tree differs from HEAD, HEAD is the previous snapshot
+    (an uncommitted rewrite). When the working tree matches HEAD, the parent
+    commit (HEAD^) is the previous snapshot (a committed rewrite).
+
+    A bare directory that is not a git checkout cannot detect a rehashed
+    rewrite. The first commit of an orphan branch has no parent and also
+    cannot default --audit-previous.
+    """
+    audit_path = audit_path.resolve()
+    try:
+        top = subprocess.run(
+            ["git", "-C", str(audit_path.parent), "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None, "git is not available"
+    if top.returncode != 0:
+        return None, "not a git checkout"
+    root = Path(top.stdout.strip())
+    try:
+        rel = os.path.relpath(audit_path, root)
+    except ValueError:
+        return None, "audit path is not inside the git checkout"
+    if rel.startswith(".."):
+        return None, "audit path is not inside the git checkout"
+    tracked = subprocess.run(
+        ["git", "-C", str(root), "ls-files", "--error-unmatch", rel],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if tracked.returncode != 0:
+        return None, "audit file is not tracked in git"
+    head = subprocess.run(
+        ["git", "-C", str(root), "show", f"HEAD:{rel}"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if head.returncode != 0:
+        return None, "audit file is not in HEAD"
+    current = audit_path.read_text(encoding="utf-8")
+    if raw_lines(head.stdout) != raw_lines(current):
+        return head.stdout, "HEAD"
+    parent = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "HEAD^"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if parent.returncode != 0:
+        return None, "no parent commit (orphan first commit)"
+    prev = subprocess.run(
+        ["git", "-C", str(root), "show", f"HEAD^:{rel}"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if prev.returncode != 0:
+        return None, "audit file is not in the parent commit"
+    return prev.stdout, "HEAD^"
+
+
+BARE_AUDIT_WARNING = (
+    "WARNING: no --audit-previous and not inside a git checkout with a previous "
+    "audit snapshot; a rehashed rewrite of the audit file cannot be detected."
+)
+
+
+# ---------------------------------------------------------------------------
 # Record helpers
 # ---------------------------------------------------------------------------
 
@@ -498,7 +813,7 @@ def check_elf_provenance(record: dict) -> list[Issue]:
     return issues
 
 
-def emu360_exact_pass(item: dict) -> tuple[bool, str | None]:
+def emu360_exact_pass(item: dict, record: dict | None = None) -> tuple[bool, str | None]:
     """Return (ok, reason-if-not)."""
     if item.get("kind") != "emu360-strict":
         return False, "not emu360-strict"
@@ -517,6 +832,15 @@ def emu360_exact_pass(item: dict) -> tuple[bool, str | None]:
         return False, "worst-time values are missing"
     if elite >= threshold or pro >= threshold:
         return False, f"worst time is not under the threshold ({threshold})"
+    if record is not None:
+        models = models_of(record)
+        for name, field in (("elite", "elite_image_sha256"), ("pro", "pro_image_sha256")):
+            got = item.get(field)
+            expected = (models.get(name) or {}).get("image_sha256")
+            if not isinstance(got, str) or not SHA256.fullmatch(got):
+                return False, f"{field} is required and must equal the record {name} image SHA-256"
+            if expected and got != expected:
+                return False, f"{field} must equal the record {name} image SHA-256 (relabeled other-input evidence is refused)"
     return True, None
 
 
@@ -565,7 +889,7 @@ def check_states(record: dict, *, proposing: dict | None = None) -> list[Issue]:
                 if item.get("applies_to_image") == "other-inputs":
                     other = True
                     reasons.append("emu360 result applies to other-inputs, not the exact 94197fc8 images")
-                ok, reason = emu360_exact_pass(item)
+                ok, reason = emu360_exact_pass(item, record)
                 if ok:
                     exact_ok = True
                 elif reason:
@@ -578,8 +902,15 @@ def check_states(record: dict, *, proposing: dict | None = None) -> list[Issue]:
                     "an emu360 result on other inputs (for example d408) must not pass gate-passed for these images",
                 )
             elif not exact_ok:
-                # Distinguish late/threshold from missing evidence.
-                if any("late" in r or "threshold" in r or "worst" in r for r in reasons):
+                # Distinguish late/threshold, missing image hashes, and missing evidence.
+                if any("image SHA-256" in r or "image_sha256" in r for r in reasons):
+                    _add(
+                        issues,
+                        "emu360-image-hash",
+                        rid,
+                        reasons[0] if reasons else "exact-image emu360 evidence must carry matching elite and pro image SHA-256 values",
+                    )
+                elif any("late" in r or "threshold" in r or "worst" in r for r in reasons):
                     _add(
                         issues,
                         "emu360-late-or-threshold",
@@ -658,22 +989,83 @@ def check_states(record: dict, *, proposing: dict | None = None) -> list[Issue]:
             )
         elif build_c != "verified":
             _add(issues, "inferred-build", rid, "install-verified requires exact-build confidence verified")
-        if hash_c == "absent" or hash_c != "verified" or evidence.get("installed_hash") in (None, "", False):
-            # evidence.installed_hash may be omitted when we only inspect the record.
-            if hash_c != "verified":
-                _add(
-                    issues,
-                    "absent-installed-hash",
-                    rid,
-                    "absent installed hash must not pass install-verified",
-                )
-        if evidence.get("model_proof") == "usb_name" or evidence.get("usb_name_only"):
+
+        # Model proof must be an explicit hardware-field type. Reject USB or
+        # product-string proof regardless of flags.
+        if is_usb_or_product_proof(evidence, record):
             _add(
                 issues,
                 "usb-name-not-model-proof",
                 rid,
-                "a USB name as the only model proof must not pass install-verified",
+                "a USB name or product string must not pass as model proof for install-verified, regardless of flags",
             )
+        else:
+            proof = offered_model_proof(evidence, record)
+            if proof not in MODEL_PROOF_TYPES:
+                _add(
+                    issues,
+                    "usb-name-not-model-proof",
+                    rid,
+                    "install-verified requires an explicit hardware-field model proof "
+                    "(board_id, model_id, flash_id, mac, firmware_readback, or backup_field)",
+                )
+
+        # Installed hash must actually be present and equal the claimed model's
+        # image SHA-256. A confidence flag alone is not a hash (this is the
+        # former inner-if bug). Alternatives: firmware GIT readback of
+        # source_sha, or a backup field that names the image hash.
+        stored_hash, hash_how = resolve_installed_hash(evidence, record)
+        claimed = resolve_claimed_model(evidence, record)
+        readback = firmware_readback_ok(evidence, record)
+        backup_names = stored_hash if hash_how == "backup_field" else None
+        has_image_proof = False
+        if stored_hash and SHA256.fullmatch(stored_hash):
+            if claimed and claimed in models:
+                expected = models[claimed].get("image_sha256")
+                if stored_hash == expected:
+                    has_image_proof = True
+                else:
+                    _add(
+                        issues,
+                        "installed-hash-mismatch",
+                        rid,
+                        f"installed hash does not equal models.{claimed}.image_sha256",
+                    )
+            else:
+                matches = [
+                    name
+                    for name, model in models.items()
+                    if model.get("image_sha256") == stored_hash
+                ]
+                if len(matches) == 1:
+                    has_image_proof = True
+                else:
+                    _add(
+                        issues,
+                        "installed-hash-mismatch",
+                        rid,
+                        "installed hash does not equal the image SHA-256 of the claimed model",
+                    )
+        elif not readback:
+            _add(
+                issues,
+                "absent-installed-hash",
+                rid,
+                "install-verified requires a stored installed hash equal to "
+                "models.<claimed model>.image_sha256 (or a firmware GIT readback "
+                "of source_sha, or a backup field that names that hash). "
+                "A confidence value alone is not enough.",
+            )
+        # A firmware GIT readback of source_sha may satisfy exact-build proof,
+        # but only together with a matching installed or backup image hash, or
+        # as the stated alternative when the backup/hash path is used.
+        # If only readback is present with no image hash, accept as the
+        # alternative exact-build proof only when claimed model is otherwise
+        # verified; still require the hash when a hash was offered.
+        if readback and not stored_hash:
+            # Alternative exact-build path: firmware readback of source_sha.
+            # Model still needs a hardware-field proof (checked above).
+            has_image_proof = True
 
     if states.get("owner-hardware-approval"):
         if evidence.get("web_install_success_only") or evidence.get("web_install_success"):
@@ -831,13 +1223,15 @@ def check_proposal_evidence(record: dict, proposal: dict) -> list[Issue]:
     set_states = proposal.get("set_states") or {}
     merged_states = {**(record.get("states") or {}), **set_states}
 
-    if set_states.get("install-verified") or merged_states.get("install-verified") and set_states:
-        if ev.get("model_proof") == "usb_name" or ev.get("usb_name_only"):
+    if set_states.get("install-verified") or (merged_states.get("install-verified") and set_states):
+        if is_usb_or_product_proof(ev, record) or (
+            ev.get("model_proof") is not None and ev.get("model_proof") not in MODEL_PROOF_TYPES
+        ):
             _add(
                 issues,
                 "usb-name-not-model-proof",
                 rid,
-                "a USB name as the only model proof must not pass install-verified",
+                "a USB name or product string must not pass as model proof for install-verified, regardless of flags",
             )
 
     if ev.get("web_install_success_only") or (ev.get("web_install_success") and ev.get("boot_or_restart_observed") is not True):
@@ -893,6 +1287,17 @@ def check_proposal_evidence(record: dict, proposal: dict) -> list[Issue]:
                     rid,
                     "an emu360 result on other inputs (for example d408) must not pass gate-passed",
                 )
+            after_models = models_of(apply_proposal(record, proposal)) if incoming is not None else models_of(record)
+            for g in emu:
+                if g.get("applies_to_image") == "exact-image":
+                    ok, reason = emu360_exact_pass(g, {"models": after_models, "catalog_id": rid})
+                    if not ok and reason and ("image SHA-256" in reason or "image_sha256" in reason):
+                        _add(
+                            issues,
+                            "emu360-image-hash",
+                            rid,
+                            reason or "relabeled other-input emu360 evidence must not pass gate-passed",
+                        )
 
     if unresolved_conflicts(record) or unresolved_conflicts(proposal) or any(
         isinstance(c, dict) and c.get("status") == "unresolved"
@@ -939,6 +1344,23 @@ def apply_proposal(record: dict, proposal: dict) -> dict:
         out["withdraw_ref"] = proposal["withdraw_ref"]
     if "withdraw_reason" in proposal:
         out["withdraw_reason"] = proposal["withdraw_reason"]
+    ev = proposal.get("evidence") or {}
+    iv_src = proposal.get("install_verification")
+    if iv_src or ev.get("installed_hash") or ev.get("model_proof") or ev.get("model") or ev.get("firmware_git_readback") or ev.get("backup_field_hash"):
+        iv = out.setdefault("install_verification", {})
+        if isinstance(iv_src, dict):
+            iv.update(iv_src)
+        if isinstance(ev.get("installed_hash"), str) and ev["installed_hash"] not in ("", "present", "absent"):
+            iv["installed_hash"] = ev["installed_hash"]
+        claimed = ev.get("installed_hash_model") or ev.get("model")
+        if claimed in ("elite", "pro"):
+            iv["claimed_model"] = claimed
+        if ev.get("model_proof") in MODEL_PROOF_TYPES:
+            iv["model_proof"] = ev["model_proof"]
+        if ev.get("firmware_git_readback"):
+            iv["firmware_git_readback"] = ev["firmware_git_readback"]
+        if ev.get("backup_field_hash"):
+            iv["backup_field_hash"] = ev["backup_field_hash"]
     return out
 
 
@@ -1013,6 +1435,8 @@ def validate_all(
     audit_schema: dict | None,
     audit_previous_path: Path | None = None,
     proposal: dict | None = None,
+    require_proposal_audit: bool = False,
+    bare_audit_warning: list[str] | None = None,
 ) -> list[Issue]:
     issues: list[Issue] = []
     for filename, rec in records:
@@ -1028,9 +1452,18 @@ def validate_all(
         if audit_schema is not None:
             issues.extend(validate_audit_schema(events, audit_schema))
         issues.extend(validate_audit_chain(lines, events))
+        for i, event in enumerate(events, start=1):
+            issues.extend(check_audit_actor(event, i))
+        previous_text = None
         if audit_previous_path is not None:
             previous_text = audit_previous_path.read_text(encoding="utf-8")
+        else:
+            previous_text, src = git_previous_audit(audit_path)
+            if previous_text is None and bare_audit_warning is not None:
+                bare_audit_warning.append(f"{BARE_AUDIT_WARNING} ({src})")
+        if previous_text is not None:
             issues.extend(validate_audit_append_only(previous_text, current_text))
+        issues.extend(check_states_match_audit(records, events))
 
     if proposal is not None:
         rid = str(proposal.get("record_id") or "")
@@ -1039,6 +1472,19 @@ def validate_all(
             issues.append(Issue("proposal", rid or "(missing)", "proposal record_id does not match a loaded record"))
         else:
             issues.extend(validate_proposal(rec, proposal, record_schema))
+            if require_proposal_audit or proposal.get("audit_event") is not None or "audit_event" in proposal:
+                after = apply_proposal(rec, proposal)
+                issues.extend(
+                    check_proposal_audit_event(proposal, rec, after, lines, events)
+                )
+            elif require_proposal_audit:
+                issues.append(
+                    Issue(
+                        "propose-audit-required",
+                        rid,
+                        "--propose requires a new audit event with the permitted actor",
+                    )
+                )
         # A proposal may also include a replacement audit text to test rewrites.
         if "audit_text" in proposal and audit_path is not None:
             issues.extend(validate_audit_append_only(current_text, proposal["audit_text"]))
@@ -1062,12 +1508,26 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--schema", type=Path, default=defaults["schema"])
     p.add_argument("--audit", type=Path, default=defaults["audit"])
     p.add_argument("--audit-schema", type=Path, default=defaults["audit_schema"])
-    p.add_argument("--audit-previous", type=Path, default=None)
+    p.add_argument(
+        "--audit-previous",
+        type=Path,
+        default=None,
+        help=(
+            "Previous audit.jsonl snapshot. Refuses any rewrite of an existing line. "
+            "When omitted inside a git checkout, defaults to the previous commit's "
+            "audit.jsonl (HEAD if the working tree is dirty, otherwise HEAD^). "
+            "A bare run that is not in a git checkout cannot detect a rehashed rewrite."
+        ),
+    )
     p.add_argument(
         "--propose",
         type=Path,
         default=None,
-        help="Optional CHANGE.json. Checks one state change and does not write the record.",
+        help=(
+            "Optional CHANGE.json. Checks one state change and does not write the record. "
+            "The file must include a new audit_event with actor gobbajogger and "
+            "actor_identity github."
+        ),
     )
     return p.parse_args(argv)
 
@@ -1083,6 +1543,7 @@ def main(argv: list[str] | None = None) -> int:
         proposal = load_json(args.propose) if args.propose else None
         if proposal is not None and not isinstance(proposal, dict):
             raise UsageError("proposal must be a JSON object")
+        bare_warning: list[str] = []
         issues = validate_all(
             records=records,
             record_schema=record_schema,
@@ -1090,6 +1551,8 @@ def main(argv: list[str] | None = None) -> int:
             audit_schema=audit_schema,
             audit_previous_path=args.audit_previous,
             proposal=proposal,
+            require_proposal_audit=args.propose is not None,
+            bare_audit_warning=bare_warning,
         )
     except UsageError as exc:
         print(f"USAGE: {exc}", file=sys.stderr)
@@ -1098,6 +1561,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"USAGE: file not found: {exc}", file=sys.stderr)
         return 2
 
+    for warning in bare_warning:
+        print(warning, file=sys.stderr)
     if issues:
         for issue in issues:
             print(issue, file=sys.stderr)

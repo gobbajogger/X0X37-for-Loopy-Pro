@@ -8,6 +8,7 @@
   "required": [
     "time",
     "actor",
+    "actor_identity",
     "action",
     "record_id",
     "from_states",
@@ -17,30 +18,62 @@
     "prev_sha256"
   ],
   "properties": {
-    "time": { "type": "string", "minLength": 1 },
-    "actor": { "type": "string", "minLength": 1 },
-    "actor_identity": { "type": "string", "enum": ["github"] },
-    "action": { "type": "string", "minLength": 1 },
-    "record_id": { "type": "string", "minLength": 1 },
+    "time": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor": {
+      "type": "string",
+      "const": "gobbajogger",
+      "description": "Option C allowlist. The only permitted actor is the GitHub identity gobbajogger."
+    },
+    "actor_identity": {
+      "type": "string",
+      "const": "github"
+    },
+    "action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "record_id": {
+      "type": "string",
+      "minLength": 1
+    },
     "from_states": {
       "type": "object",
-      "additionalProperties": { "type": "boolean" }
+      "additionalProperties": {
+        "type": "boolean"
+      }
     },
     "to_states": {
       "type": "object",
-      "additionalProperties": { "type": "boolean" }
+      "additionalProperties": {
+        "type": "boolean"
+      }
     },
     "evidence_refs": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "commit_sha": {
       "oneOf": [
-        { "type": "null" },
-        { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
       ]
     },
-    "prev_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-    "note": { "type": "string" }
+    "prev_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "note": {
+      "type": "string"
+    }
   }
 }

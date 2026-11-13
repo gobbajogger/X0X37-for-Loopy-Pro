@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+import copy
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -73,7 +75,7 @@ class TestValidator(unittest.TestCase):
         self.assertEqual(kinds, ["recovery-history", "install-and-boot-report"])
         self.assertFalse(RECORD_941["history"][0]["is_current"])
         self.assertTrue(RECORD_941["history"][1]["is_current"])
-        self.assertEqual(RECORD_941["elf_provenance"]["toolchain"], "unknown")
+        self.assertIsNone(RECORD_941["elf_provenance"]["toolchain"])
         self.assertFalse(RECORD_941["elf_provenance"]["published"])
 
     def test_600b_seed_passes_as_withdrawn(self):
@@ -83,7 +85,7 @@ class TestValidator(unittest.TestCase):
         self.assertFalse(RECORD_600["states"]["install-verified"])
         self.assertFalse(RECORD_600["states"]["owner-hardware-approval"])
         self.assertFalse(RECORD_600["states"]["gate-passed"])
-        self.assertFalse(RECORD_600["states"]["built"])
+        self.assertTrue(RECORD_600["states"]["built"])
         self.assertEqual(
             RECORD_600["withdraw_ref"],
             "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120",
@@ -145,11 +147,192 @@ class TestValidator(unittest.TestCase):
 
     def test_audit_seed_uses_github_identity(self):
         events = load_jsonl(AUDIT)
-        self.assertEqual(len(events), 2)
+        self.assertEqual(len(events), 3)
         for event in events:
             self.assertEqual(event["actor"], "gobbajogger")
             self.assertEqual(event["actor_identity"], "github")
             self.assertIsNone(event["commit_sha"])
+
+
+    def test_evil_bot_actor_rejected(self):
+        from validate_release_status import (
+            canonical_json,
+            sha256_text,
+            validate_all,
+        )
+        original = AUDIT.read_text(encoding="utf-8")
+        lines = raw_lines(original)
+        new_event = {
+            "time": "2026-11-13T12:00:00-06:00",
+            "actor": "evil-bot",
+            "actor_identity": "github",
+            "action": "set-states",
+            "record_id": "nightly-94197fc8-dev",
+            "from_states": dict(RECORD_941["states"]),
+            "to_states": dict(RECORD_941["states"]),
+            "evidence_refs": [],
+            "commit_sha": None,
+            "prev_sha256": sha256_text(lines[-1]),
+        }
+        new_text = original if original.endswith("\n") else original + "\n"
+        new_text = new_text + canonical_json(new_event) + "\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "audit.jsonl"
+            path.write_text(new_text, encoding="utf-8")
+            issues = validate_all(
+                records=[
+                    ("0.0.26-94197fc8.json", RECORD_941),
+                    ("0.0.26-600b3b45.json", RECORD_600),
+                ],
+                record_schema=SCHEMA,
+                audit_path=path,
+                audit_schema=AUDIT_SCHEMA,
+            )
+        self.assertTrue(any(i.rule == "audit-actor" for i in issues), [str(i) for i in issues])
+
+    def test_anonymous_actor_and_missing_identity_rejected(self):
+        from validate_release_status import canonical_json, sha256_text, validate_all
+        original = AUDIT.read_text(encoding="utf-8")
+        lines = raw_lines(original)
+        events = load_jsonl(AUDIT)
+        e = dict(events[-1])
+        e["actor"] = "anonymous"
+        e.pop("actor_identity", None)
+        e["prev_sha256"] = sha256_text(lines[0]) if False else sha256_text(lines[-2]) if len(lines) > 1 else ("0" * 64)
+        # Rebuild a full file: keep all but last, last is anonymous without identity
+        new_lines = lines[:-1] + [canonical_json(e)]
+        # repair chain from the start
+        from validate_release_status import ZERO_PREV
+        repaired = []
+        prev = ZERO_PREV
+        raw_kept = lines[:-1]
+        for line in raw_kept:
+            repaired.append(line)
+            prev = sha256_text(line)
+        e["prev_sha256"] = prev
+        repaired.append(canonical_json(e))
+        new_text = "\n".join(repaired) + "\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "audit.jsonl"
+            path.write_text(new_text, encoding="utf-8")
+            issues = validate_all(
+                records=[
+                    ("0.0.26-94197fc8.json", RECORD_941),
+                    ("0.0.26-600b3b45.json", RECORD_600),
+                ],
+                record_schema=SCHEMA,
+                audit_path=path,
+                audit_schema=AUDIT_SCHEMA,
+            )
+        rules = [i.rule for i in issues]
+        self.assertTrue("audit-actor" in rules, [str(i) for i in issues])
+        self.assertTrue("audit-actor-identity" in rules or "audit-schema" in rules, [str(i) for i in issues])
+
+    def test_states_must_equal_latest_audit_to_states(self):
+        from validate_release_status import validate_all
+        rec = copy.deepcopy(RECORD_941)
+        rec["states"]["install-verified"] = True
+        issues = validate_all(
+            records=[
+                ("0.0.26-94197fc8.json", rec),
+                ("0.0.26-600b3b45.json", RECORD_600),
+            ],
+            record_schema=SCHEMA,
+            audit_path=AUDIT,
+            audit_schema=AUDIT_SCHEMA,
+        )
+        self.assertTrue(any(i.rule == "audit-state-mismatch" for i in issues), [str(i) for i in issues])
+
+    def test_cli_propose_requires_audit_event_with_permitted_actor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            propose = Path(tmp) / "change.json"
+            propose.write_text(
+                json.dumps({
+                    "record_id": "nightly-94197fc8-dev",
+                    "set_states": {"installation-reported": True},
+                }),
+                encoding="utf-8",
+            )
+            result = _run_cli(extra=["--propose", str(propose)])
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("propose-audit-required", result.stderr)
+
+    def test_git_checkout_defaults_audit_previous(self):
+        """Inside a git checkout, a rehashed rewrite is caught without --audit-previous."""
+        import subprocess
+        from validate_release_status import (
+            canonical_json,
+            load_jsonl,
+            sha256_text,
+            ZERO_PREV,
+        )
+        original = AUDIT.read_text(encoding="utf-8")
+        events = load_jsonl(AUDIT)
+        # Reorder and repair hashes (internally consistent rewrite)
+        evs = list(reversed([copy.deepcopy(e) for e in events]))
+        prev = ZERO_PREV
+        new_lines = []
+        for e in evs:
+            e["prev_sha256"] = prev
+            line = canonical_json(e)
+            new_lines.append(line)
+            prev = sha256_text(line)
+        rewritten = "\n".join(new_lines) + "\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo"
+            (repo / "release-status" / "audit").mkdir(parents=True)
+            (repo / "release-status" / "records").mkdir(parents=True)
+            (repo / "release-status" / "schema").mkdir(parents=True)
+            import shutil
+            shutil.copytree(ROOT / "records", repo / "release-status" / "records", dirs_exist_ok=True)
+            shutil.copytree(ROOT / "schema", repo / "release-status" / "schema", dirs_exist_ok=True)
+            audit = repo / "release-status" / "audit" / "audit.jsonl"
+            audit.write_text(original, encoding="utf-8")
+            def git(*args):
+                return subprocess.run(
+                    ["git", "-C", str(repo), *args],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+            git("init")
+            git("config", "user.name", "gobbajogger")
+            git("config", "user.email", "255244738+gobbajogger@users.noreply.github.com")
+            git("add", "release-status")
+            git("commit", "-m", "original audit")
+            # Second commit is the rewrite
+            audit.write_text(rewritten, encoding="utf-8")
+            git("add", "release-status/audit/audit.jsonl")
+            git("commit", "-m", "rehashed rewrite")
+            # Run validator with no --audit-previous; should default to HEAD^
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    "--records", str(repo / "release-status" / "records"),
+                    "--schema", str(repo / "release-status" / "schema" / "release-record.schema.json"),
+                    "--audit", str(audit),
+                    "--audit-schema", str(repo / "release-status" / "schema" / "audit-event.schema.json"),
+                ],
+                capture_output=True,
+                text=True,
+                cwd=str(repo),
+            )
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("audit-rewrite", result.stderr)
+
+    def test_bare_run_warns_it_cannot_detect_rehashed_rewrite(self):
+        """A bare directory (no git, no --audit-previous) cannot detect a rehashed rewrite.
+
+        The CLI still exits 0 on an internally consistent file and prints a warning.
+        This documents the limitation; the git-checkout default covers the real gate.
+        """
+        result = _run_cli()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("rehashed rewrite", result.stderr)
+        self.assertIn("cannot be detected", result.stderr)
+
+
 
 
 if __name__ == "__main__":

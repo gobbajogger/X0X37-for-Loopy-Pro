@@ -339,5 +339,124 @@ class TestPromotionGates(unittest.TestCase):
         self.assertIn("unresolved-conflict-no-promotion", rules(issues), [str(i) for i in issues])
 
 
+    def test_pro_hash_claimed_as_elite_must_not_pass_install_verified(self):
+        elite = RECORD_941["models"]["elite"]["image_sha256"]
+        pro = RECORD_941["models"]["pro"]["image_sha256"]
+        self.assertNotEqual(elite, pro)
+        issues = propose(
+            RECORD_941,
+            {
+                "record_id": "nightly-94197fc8-dev",
+                "set_states": {"install-verified": True},
+                "identity_confidence": {
+                    "model": "verified",
+                    "build": "verified",
+                    "installed_hash": "verified",
+                },
+                "evidence": {
+                    "model": "elite",
+                    "installed_hash": pro,
+                    "installed_hash_model": "elite",
+                    "model_proof": "board_id",
+                },
+            },
+        )
+        self.assertIn("installed-hash-mismatch", rules(issues), [str(i) for i in issues])
+
+    def test_foreign_hash_must_not_pass_install_verified(self):
+        foreign = "a" * 64
+        issues = propose(
+            RECORD_941,
+            {
+                "record_id": "nightly-94197fc8-dev",
+                "set_states": {"install-verified": True},
+                "identity_confidence": {
+                    "model": "verified",
+                    "build": "verified",
+                    "installed_hash": "verified",
+                },
+                "evidence": {
+                    "model": "elite",
+                    "installed_hash": foreign,
+                    "model_proof": "flash_id",
+                },
+            },
+        )
+        self.assertIn("installed-hash-mismatch", rules(issues), [str(i) for i in issues])
+
+    def test_confidence_only_without_stored_hash_must_not_pass_install_verified(self):
+        rec = copy.deepcopy(RECORD_941)
+        rec["states"]["install-verified"] = True
+        rec["identity_confidence"] = {
+            "model": "verified",
+            "build": "verified",
+            "installed_hash": "verified",
+        }
+        issues = validate_record(rec, SCHEMA)
+        self.assertIn("absent-installed-hash", rules(issues), [str(i) for i in issues])
+
+    def test_empty_evidence_proposal_must_not_pass_install_verified(self):
+        issues = propose(
+            RECORD_941,
+            {
+                "record_id": "nightly-94197fc8-dev",
+                "set_states": {"install-verified": True},
+                "identity_confidence": {
+                    "model": "verified",
+                    "build": "verified",
+                    "installed_hash": "verified",
+                },
+                "evidence": {},
+            },
+        )
+        self.assertIn("absent-installed-hash", rules(issues), [str(i) for i in issues])
+
+    def test_usb_product_string_without_flags_must_not_pass(self):
+        issues = propose(
+            RECORD_941,
+            {
+                "record_id": "nightly-94197fc8-dev",
+                "set_states": {"install-verified": True},
+                "identity_confidence": {
+                    "model": "verified",
+                    "build": "verified",
+                    "installed_hash": "verified",
+                    "model_note": "model taken from USB name FM-1",
+                },
+                "evidence": {
+                    "installed_hash": RECORD_941["models"]["elite"]["image_sha256"],
+                    "usb_name": "FM-1",
+                    "model_proof": "USB product string FM-1",
+                    "model": "elite",
+                },
+            },
+        )
+        self.assertIn("usb-name-not-model-proof", rules(issues), [str(i) for i in issues])
+
+    def test_relabeled_d408_exact_image_without_matching_hashes_fails(self):
+        issues = propose(
+            RECORD_941,
+            {
+                "record_id": "nightly-94197fc8-dev",
+                "set_states": {"gate-passed": True},
+                "gate_evidence": [
+                    {
+                        "kind": "emu360-strict",
+                        "result": "PASS",
+                        "elite_worst_us": 11406,
+                        "pro_worst_us": 11410,
+                        "elite_late": 0,
+                        "pro_late": 0,
+                        "threshold_us": 11609,
+                        "ref": "d408 numbers relabeled as exact-image",
+                        "applies_to_image": "exact-image",
+                    }
+                ],
+            },
+        )
+        self.assertIn("emu360-image-hash", rules(issues), [str(i) for i in issues])
+
+
+
 if __name__ == "__main__":
     unittest.main()
