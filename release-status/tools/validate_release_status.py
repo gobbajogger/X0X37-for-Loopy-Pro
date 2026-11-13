@@ -24,6 +24,8 @@ import tempfile
 from pathlib import Path
 from typing import Any, Iterable
 
+from evidence_policy import approval_errors, installation_for_model, audit_chronology_errors
+
 GIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 ZERO_PREV = "0" * 64
@@ -607,6 +609,11 @@ def check_proposal_audit_event(
         )
         return issues
     issues.extend(check_audit_actor(event, (len(audit_events) + 1) if audit_events else 1))
+    if event.get("appended_at") is None:
+        issues.append(Issue("audit-append-time-required", rid,
+                            "new audit proposals require appended_at; time is the historical event time"))
+    for reason in audit_chronology_errors([*audit_events, event]):
+        issues.append(Issue("audit-chronology", rid, reason))
     expected_prev = next_prev_hash(audit_lines[-1] if audit_lines else None)
     if event.get("prev_sha256") != expected_prev:
         issues.append(
@@ -755,12 +762,7 @@ def _add(issues: list[Issue], rule: str, rid: str, message: str) -> None:
 
 
 def check_hardware_approval_scope(record: dict, proposing: dict | None = None) -> list[Issue]:
-    """Hardware approval is scoped to one exact model and one exact build.
-
-    An Elite approval never implies a Pro approval. The overall
-    owner-hardware-approval flag is true only when every model in the
-    record has its own scoped approval for this source SHA and image hash.
-    """
+    """Require independent owner quote, time, source and image for EACH model."""
     issues: list[Issue] = []
     rid = record_id_of(record)
     evidence = (proposing or {}).get("evidence") or {}
@@ -768,75 +770,41 @@ def check_hardware_approval_scope(record: dict, proposing: dict | None = None) -
     if proposing and proposing.get("hardware_approvals") is not None:
         approvals = list(proposing.get("hardware_approvals") or [])
     models = models_of(record)
-    source_sha = record.get("source_sha")
     states = record.get("states") or {}
-
     approved_models: set[str] = set()
+    quote_signatures: dict[tuple[str, str, str], str] = {}
+
     for item in approvals:
         if not isinstance(item, dict):
             continue
         model = item.get("model")
-        if model not in models:
-            _add(
-                issues,
-                "elite-approval-not-pro",
-                rid,
-                f"hardware approval model {model!r} is not a model on this record",
-            )
-            continue
-        if item.get("source_sha") != source_sha:
-            _add(
-                issues,
-                "elite-approval-not-pro",
-                rid,
-                f"hardware approval for {model} must name this record's exact source_sha",
-            )
-            continue
-        expected = (models.get(model) or {}).get("image_sha256")
-        if item.get("image_sha256") != expected:
-            _add(
-                issues,
-                "elite-approval-not-pro",
-                rid,
-                f"hardware approval for {model} must name that model's exact image SHA-256",
-            )
-            continue
+        errors = approval_errors(item, record)
         if item.get("approved") is True:
-            # A scoped approval still needs its own quote when it is claimed.
-            # The overall flag check below also requires quotes. Here we only
-            # record which models have a scoped, identity-matching approval.
+            signature = (str(item.get("time") or ""), str(item.get("source_link") or ""),
+                         str(item.get("quoted_words") or ""))
+            previous_model = quote_signatures.get(signature)
+            if previous_model is not None and previous_model != model:
+                errors.append("the same owner quotation/time/source cannot authorize two models")
+            elif not errors:
+                quote_signatures[signature] = model
+        for err in errors:
+            _add(issues, "elite-approval-not-pro", rid, f"{model}: {err}")
+        if item.get("approved") is True and not errors:
             approved_models.add(model)
 
-    # Implying Pro from Elite (or the reverse) is refused.
     if evidence.get("imply_pro_from_elite") or evidence.get("imply_elite_from_pro"):
-        _add(
-            issues,
-            "elite-approval-not-pro",
-            rid,
-            "an Elite hardware approval never implies a Pro approval (and the reverse is also refused)",
-        )
+        _add(issues, "elite-approval-not-pro", rid,
+             "an Elite hardware approval never implies a Pro approval (or vice versa)")
     ev_model = evidence.get("approval_model") or evidence.get("model")
-    if evidence.get("copy_approval_from") and ev_model:
-        src_model = evidence.get("copy_approval_from")
-        if src_model != ev_model:
-            _add(
-                issues,
-                "elite-approval-not-pro",
-                rid,
-                f"a {src_model} hardware approval does not apply to {ev_model}",
-            )
+    if evidence.get("copy_approval_from") and ev_model and evidence["copy_approval_from"] != ev_model:
+        _add(issues, "elite-approval-not-pro", rid, "an approval copied from another model is refused")
 
     if states.get("owner-hardware-approval"):
-        missing = [name for name in models if name not in approved_models]
+        missing = [model for model in models if model not in approved_models]
         if missing:
-            _add(
-                issues,
-                "elite-approval-not-pro",
-                rid,
-                "owner-hardware-approval on the record requires a scoped approval for each "
-                "model and exact build; an Elite approval never implies a Pro approval. "
-                f"Missing scoped approval for: {', '.join(missing)}",
-            )
+            _add(issues, "elite-approval-not-pro", rid,
+                 "each model requires its own exact-build, quoted owner approval with time and "
+                 "direct source_link; missing: " + ", ".join(missing))
     return issues
 
 
@@ -1358,6 +1326,11 @@ def check_states(record: dict, *, proposing: dict | None = None) -> list[Issue]:
             )
 
     issues.extend(check_hardware_approval_scope(record, proposing))
+    if states.get("install-verified") or states.get("owner-hardware-approval"):
+        for model_name in models:
+            qualified, reason = installation_for_model(record, model_name)
+            if not qualified:
+                _add(issues, "install-model-scope", rid, f"{model_name}: {reason}")
 
     if states.get("withdrawn"):
         if not record.get("withdraw_ref") or not record.get("withdraw_reason"):
@@ -1708,6 +1681,8 @@ def validate_all(
         if audit_schema is not None:
             issues.extend(validate_audit_schema(events, audit_schema))
         issues.extend(validate_audit_chain(lines, events))
+        for reason in audit_chronology_errors(events):
+            issues.append(Issue("audit-chronology", "audit", reason))
         for i, event in enumerate(events, start=1):
             issues.extend(check_audit_actor(event, i))
         previous_text = None
