@@ -10,6 +10,13 @@
 #pragma once
 #include <stdint.h>
 
+#ifndef DNBOX_PRESET_MEASURE_STAGE
+/* Device measurement only: 0 (default) = the codec is not in the image.
+ * 1..4 select a linkable subset (load; +validation; +encode/commit; +export).
+ * Stage 0 must leave the device image byte-identical to the base. */
+#define DNBOX_PRESET_MEASURE_STAGE 0
+#endif
+
 #ifndef DNBOX_FACTORY_PRESET_EXPORT
 /* Temporary engineering default: OFF. This is not a rights finding.
  * It is the single build-time switch that gates factory (and factory-derived)
