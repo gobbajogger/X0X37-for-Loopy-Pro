@@ -33,3 +33,9 @@ The chicago-mono AFTER frame is SHA-256 identical to BEFORE (same pixels).
 juno-held-triad paints every onset pitch (three marks vs the baseline's
 root only) plus a cache-hit label; the +3.6 µs is that extra draw, well
 under a 16 ms UI frame. Not a device measurement.
+
+This tree (§10r + caps, default T1): event log still BYTE-IDENTICAL (68 lines).
+  HOST_NAMER_COST long=21.9 hex=24.0 clamp=17.1 ns/call
+  HOST_DRAW_TIME chicago-mono 0.144577 ms (baseline 0.157301, no regression; SHA identical)
+  HOST_DRAW_TIME juno-held-triad 0.138525 ms (baseline 0.147091, faster this run)
+  Log: evidence/host-latency/after-log.txt (re-run Fri Nov 13 23:57 +10)
