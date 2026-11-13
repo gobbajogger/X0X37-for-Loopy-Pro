@@ -1,10 +1,12 @@
 # Credits
 
-DnBOX is a fork of [Felucca](https://github.com/hugelton/Felucca) and keeps that project's licence. The names below are the third-party work it is built from. Full terms, file paths and notices are in [LICENSING.md](LICENSING.md) and [LICENSE](LICENSE).
+DnBOX comes from this line of work: [Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita (Hügelton Instruments); [X0X](https://github.com/charlesvestal/fm1-x0x) by [Charles Vestal](https://github.com/charlesvestal), groovebox firmware for the M-VAVE FM-1 and a fork of Felucca; then the [X0X37 SMK-37 port](https://github.com/genkigenki/fm1-x0x) by [genkigenki](https://github.com/genkigenki) (`smk37` branch; [SMK37 site](https://genkigenki.github.io/smk37/); [upstream PR #13](https://github.com/charlesvestal/fm1-x0x/pull/13)). DnBOX keeps that project's licence. The names below are the third-party work it is built from. Full terms, file paths and notices are in [LICENSING.md](LICENSING.md) and [LICENSE](LICENSE).
 
 | Work | Authors / origin | Licence |
 | --- | --- | --- |
 | [Felucca](https://github.com/hugelton/Felucca) (platform: hardware layer, USB, update loader, web installer, storage) | Leo Kuroshita ([@kurogedelic](https://github.com/kurogedelic)), [Hügelton Instruments](https://github.com/hugelton) | GPL-3.0-only |
+| [X0X](https://github.com/charlesvestal/fm1-x0x) (FM-1 groovebox firmware; a fork of Felucca) | [Charles Vestal](https://github.com/charlesvestal) ([@charlesvestal](https://github.com/charlesvestal)) | GPL-3.0 |
+| [X0X37](https://github.com/genkigenki/fm1-x0x) (SMK-37 Pro / Elite / MKE-P37 port of X0X) | [genkigenki](https://github.com/genkigenki); [SMK37 site](https://genkigenki.github.io/smk37/); [upstream PR #13](https://github.com/charlesvestal/fm1-x0x/pull/13) | GPL-3.0 |
 | [9W9](https://github.com/athousanddetails/schwung-9W9) (909 voices) | athousanddetails, after [ER-99](https://github.com/matthewcieplak/er-99) | GPL-3.0 |
 | [ER-99](https://github.com/matthewcieplak/er-99) (909 hi-hat, ride and crash samples in `assets/909/`) | Matthew Cieplak | GPL-3.0 |
 | [8W8](https://github.com/athousanddetails/schwung-8W8) (808 voices) | athousanddetails; circuit models after the TR-808 service notes and Werner / Abel / Smith; rim shot after sc808 (Yoshinosuke Horiuchi / Sam Aaron) | GPL-3.0 |
@@ -25,10 +27,11 @@ Fonts (Barlow Semi Condensed and Terminus, SIL OFL 1.1) and the BLE-MIDI host fr
 DnBOX does not take donations. It builds on other people's work. If you want to support it, support the original creators directly:
 
 - Leo Kuroshita / Hügelton Instruments (Felucca): [GitHub Sponsors](https://github.com/sponsors/hugelton) or [Felucca on itch.io](https://hugelton.itch.io/felucca)
+- Charles Vestal (X0X, schwung-303, TB-3PO, Polly): [X0X](https://github.com/charlesvestal/fm1-x0x) or [GitHub](https://github.com/charlesvestal)
+- genkigenki (X0X37 SMK-37 port): [SMK37](https://genkigenki.github.io/smk37/) or [the port](https://github.com/genkigenki/fm1-x0x)
 - athousanddetails (9W9, 8W8): [GitHub](https://github.com/athousanddetails)
 - Matthew Cieplak (ER-99): [ER-99](https://github.com/matthewcieplak/er-99)
 - Robin Schmidt (Open303): [Open303](https://github.com/RobinSchmidt/Open303)
-- charlesvestal (schwung-303, TB-3PO, Polly): [GitHub](https://github.com/charlesvestal)
 - mestela (BB Gen): [schwung-breakbeat](https://github.com/mestela/schwung-breakbeat)
 - midilab (jc303): [Support midilab](https://midilab.co/#support)
 - Dave Mollen (dm-Rat): [GitHub Sponsors](https://github.com/sponsors/davemollen)

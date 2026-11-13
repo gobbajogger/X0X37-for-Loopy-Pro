@@ -64,7 +64,7 @@ Each part has its own step length (up to 64 steps) and rate, so parts can drift 
 
 On the SMK-37, clip mode can act as an Akai APC40 mkII for Loopy Pro (experimental, not hardware-verified). Bluetooth MIDI is available if you build a matching controller image on your own computer (it cannot be shipped with the public packages; experimental, not hardware-verified): see the manual's "Bluetooth MIDI" section and [ble/README.md](ble/README.md).
 
-DnBOX is a fork of [Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita (Hügelton Instruments). It keeps Felucca's foundations (the hardware layer, USB, the update loader, the web installer and the storage) and replaces the instrument on top.
+DnBOX comes from [Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita (Hügelton Instruments), then [X0X](https://github.com/charlesvestal/fm1-x0x) by [Charles Vestal](https://github.com/charlesvestal) (groovebox firmware for the M-VAVE FM-1), then the [X0X37 SMK-37 port](https://github.com/genkigenki/fm1-x0x) by [genkigenki](https://github.com/genkigenki). It keeps Felucca's foundations (the hardware layer, USB, the update loader, the web installer and the storage) and replaces the instrument on top.
 
 ## Your own breaks
 
@@ -95,6 +95,8 @@ tests/run_tests.sh      # maths, sequencer, engines, and the app in a simulator
 
 ## Licence and credits
 
+DnBOX comes from [Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita (Hügelton Instruments), then [X0X](https://github.com/charlesvestal/fm1-x0x) by [Charles Vestal](https://github.com/charlesvestal) (groovebox firmware for the M-VAVE FM-1), then the [X0X37 SMK-37 port](https://github.com/genkigenki/fm1-x0x) by [genkigenki](https://github.com/genkigenki). X0X and the SMK-37 port are GPL-3.0, like Felucca.
+
 DnBOX is GPL-3.0-only, like Felucca, 9W9, 8W8 and schwung-tb3po. Open303 (by Robin Schmidt) is MIT. BB Gen is ported from mestela's schwung-breakbeat; upstream declares MIT, and the inherited port is recorded as GPL-3.0-only with the MIT notice retained. The 909's hi-hat, ride and crash samples come from ER-99 (Matthew Cieplak, GPL-3.0). The fonts are Barlow Semi Condensed and Terminus (SIL OFL 1.1). The BLE-MIDI host (from felucca-bsp) and the Bluetooth controller interface are MPL-2.0. JieLi's Bluetooth files are never part of this firmware tree. Packages include three JieLi SDK files (Apache-2.0); see [LICENSING.md](LICENSING.md), [CREDITS.md](CREDITS.md) and [LICENSE](LICENSE) for the full terms.
 
 Felucca's own assets that aren't under its GPL (the icon set, the panel photo and the Hügelton drum pack) aren't part of this fork.
@@ -108,10 +110,11 @@ The SMK-37 firmware answers a MIDI Device Inquiry with the Akai and APC40 mkII I
 DnBOX does not take donations. It builds on other people's work. If you want to support it, support the original creators directly:
 
 - Leo Kuroshita / Hügelton Instruments (Felucca): [GitHub Sponsors](https://github.com/sponsors/hugelton) or [Felucca on itch.io](https://hugelton.itch.io/felucca)
+- Charles Vestal (X0X, schwung-303, TB-3PO, Polly): [X0X](https://github.com/charlesvestal/fm1-x0x) or [GitHub](https://github.com/charlesvestal)
+- genkigenki (X0X37 SMK-37 port): [SMK37](https://genkigenki.github.io/smk37/) or [the port](https://github.com/genkigenki/fm1-x0x)
 - athousanddetails (9W9, 8W8): [GitHub](https://github.com/athousanddetails)
 - Matthew Cieplak (ER-99): [ER-99](https://github.com/matthewcieplak/er-99)
 - Robin Schmidt (Open303): [Open303](https://github.com/RobinSchmidt/Open303)
-- charlesvestal (schwung-303, TB-3PO, Polly): [GitHub](https://github.com/charlesvestal)
 - mestela (BB Gen): [schwung-breakbeat](https://github.com/mestela/schwung-breakbeat)
 - midilab (jc303): [Support midilab](https://midilab.co/#support)
 - Dave Mollen (dm-Rat): [GitHub Sponsors](https://github.com/sponsors/davemollen)
