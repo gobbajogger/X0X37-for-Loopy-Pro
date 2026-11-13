@@ -2462,6 +2462,7 @@ static int run_job(int j, int core)
                                              bb[bv], bb[1-bv], n);
         bass_adapt_post(bv, bb[bv], bb[1-bv], (unsigned)n);
         PROF_ADD_CORE(core, 2 + bv, pb);
+        pb = plat_cycles();                        /* post-DSP gain/FX is bass work, not idle 808 */
         bass_render_ok[bv] = (uint8_t)(status == ORIGINAL_RUNTIME_OK);   /* recorder: core 0, after */
         if (status == ORIGINAL_RUNTIME_OK) {
             /* One coherent request decision per sub-block. Once note ownership is
@@ -2512,10 +2513,12 @@ static int run_job(int j, int core)
             }
             bfx_shape(p, bb[bv], bb[1-bv], 0, 0, 2, (int)n);
         }
+        PROF_ADD_CORE(core, 2 + bv, pb);          /* post-DSP cost, before dependent-stage wait */
         w0 = plat_ticks24();
         if (stage_wait((uint32_t)(2 + bv), core))         /* A mixes after the 808, B after A */
             return 0;
         wt = plat_ticks24() - w0;
+        pb = plat_cycles();
         if (status == ORIGINAL_RUNTIME_OK) {
             /* A part that was silent when Solo excluded it must not leak a new
              * note through the 10 ms mix glide-out: start its glides at zero.
@@ -2541,6 +2544,7 @@ static int run_job(int j, int core)
             add_glide(rev, bb[bv], &mix_glide[p][GL_REV], n);
             add_glide(dly, bb[bv], &mix_glide[p][GL_DLY], n);
         }
+        PROF_ADD_CORE(core, 2 + bv, pb);          /* actual bass mixing, excluding stage wait */
         eng_sync();
         eng_stage = (uint32_t)(3 + bv);
     } else {
@@ -2804,6 +2808,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     for (j = 0; j < NBASS; j++)                       /* the recorder (shared with the sequencer): core 0 */
         if (bass_render_ok[j]) original_rec_recover_off(j);
     if (!brk_silent_now) {
+        PROF_T(pbrkmix);
         float g = mix_level[PART_BRK];
         mix_targets(PART_BRK, g, solo_parts);
         add_glide(dry_l, kbuf, &mix_glide[PART_BRK][GL_L], n);
@@ -2811,6 +2816,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         add_glide(rev, kbuf, &mix_glide[PART_BRK][GL_REV], n);
         add_glide(dly, kbuf, &mix_glide[PART_BRK][GL_DLY], n);
         meter(PART_BRK, kbuf, g, n);
+        PROF_ADD(PR_BRK, pbrkmix);              /* BREAK bus glides and metering are part work */
     }
     bfx_send_shape(0, rev, (int)n);
     bfx_send_shape(1, dly, (int)n);
