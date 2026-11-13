@@ -8,13 +8,13 @@ through this page yet.
 
 ## Use
 
-Serve the repository's \`web\` directory through any localhost static server
-(for example, \`cd web && python3 -m http.server 8765\`). Visit
-\`http://localhost:8765/presets/\` in a modern browser.
+Serve the repository's `web` directory through any localhost static server
+(for example, `cd web && python3 -m http.server 8765`). Visit
+`http://localhost:8765/presets/` in a modern browser.
 
 1. Optionally select the intended SMK-37 Elite or SMK-37 Pro and target engine.
    Those are **user intentions**, not a device identification.
-2. Choose one or more \`.dnpr\` files or a ZIP containing only flat \`.dnpr\`
+2. Choose one or more `.dnpr` files or a ZIP containing only flat `.dnpr`
    records. Drop and file-picker controls use the same validation.
 3. Review the name, actual record engine, origin, format/schema, verified file
    CRC, and the unverified/empty sample references. Nothing is staged on preview.
@@ -32,11 +32,11 @@ Factory and factory-derived exports remain blocked.
 
 ## Wire and naming contract
 
-The normative source is \`firmware/src/app/preset_record.[ch]\` and
-\`docs/plans/2026-11-13-preset-file-io-research.md\`. The web implementation
+The normative source is `firmware/src/app/preset_record.[ch]` and
+`docs/plans/2026-11-13-preset-file-io-research.md`. The web implementation
 was initially pinned against native codec commit
-\`16f9f9ad6448f2bb5cab2adbc94097265d4fca20\` and the exact C golden
-Chicago/909 fixtures in \`tests/host/preset_record_test.c\`.
+`16f9f9ad6448f2bb5cab2adbc94097265d4fca20` and the exact C golden
+Chicago/909 fixtures in `tests/host/preset_record_test.c`.
 
 DNPR v1 is **raw**, not a bank format: 96-byte little-endian header;
 version 1, engine-schema version 1, total length and CRC-32; 4-byte payload
@@ -46,11 +46,11 @@ header bytes 16–19 as zero. Unknown format/schema versions fail closed.
 All seven engine IDs are stable (1 Chicago, 2 Miami, 3 Juno, 4 Drone,
 5 909, 6 808, 7 BREAK).
 
-The prescribed download filename is \`<clean-name>.<engine>.dnpr\`, where
-engine is \`chicago\`, \`miami\`, \`juno\`, \`drone\`, \`909\`, \`808\` or
-\`break\`. The complete filename is at most 64 characters. **Neither hardware
+The prescribed download filename is `<clean-name>.<engine>.dnpr`, where
+engine is `chicago`, `miami`, `juno`, `drone`, `909`, `808` or
+`break`. The complete filename is at most 64 characters. **Neither hardware
 model nor firmware version is a DNPR v1 header field.** The optional
-\`.elite.<engine>.dnpr\` / \`.pro.<engine>.dnpr\` filename suffix is only
+`.elite.<engine>.dnpr` / `.pro.<engine>.dnpr` filename suffix is only
 a conflict hint. The web tool must never present a hint as an authenticated
 device identity. A file may be renamed without changing its embedded engine.
 
@@ -65,15 +65,15 @@ plugin compatibility, KORG redistribution, or AudioKit J6 fidelity is claimed.
 
 Run locally with Node.js 22+ from the repository root:
 
-\`\`\`sh
+```sh
 node --test web/presets/test_codec.mjs web/presets/test_page.mjs
-\`\`\`
+```
 
-- \`test_codec.mjs\` pins two byte-exact native C encoder golden fixtures;
+- `test_codec.mjs` pins two byte-exact native C encoder golden fixtures;
   checks all seven engines including 808 with 0/16 refs; malformed CRC,
   schema, length, header, count and sample refs; engine/model guards;
   browser capacity/ZIP atomicity; factory-export OFF and filename rules.
-- \`test_page.mjs\` drives the actual \`app.mjs\` event handlers against an
+- `test_page.mjs` drives the actual `app.mjs` event handlers against an
   isolated DOM and file mock for 11 workflows. It verifies explicit preview
   and confirmation, invalid file unchanged session, ZIP bytes, no factory
   export, warning visibility, model conflict, clear confirmation and
@@ -88,8 +88,8 @@ Do not cite these source-driven tests as full device qualification.
 ## Handoff to native F1 owner / Installer QA / U1 / Website UX
 
 Native owner: [PR #900](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/900)
-on \`lane/fmb-presets-format\`. The native continuation supplied strict
-\`preset_record_import_file\` and host file no-clobber checks, with its own
+on `lane/fmb-presets-format`. The native continuation supplied strict
+`preset_record_import_file` and host file no-clobber checks, with its own
 qualification evidence. This W3 branch edits no native code.
 
 F1 must supply an explicit, reviewed transport contract **before** connecting
