@@ -88,9 +88,11 @@ passes. Web MIDI is optional.
 checks, 0 fails. They covered pinned positive/negative identity, URL and
 model tampering, all 37 key note numbers, bad inputs, chord release, short
 audio queue bounds, missing AudioWorklet, required DOM IDs and build/runtime
-asset inventory. That harness substitutes small URL/SearchParams parsing
-stubs because the connector JS runtime does not expose browser global URL.
-It is **not** a Node, Rust, browser, boot or audio test.
+asset inventory. In a second run, the **exact three repository .test.mjs files**
+executed **14 / 14 test bodies PASS** with compatible Node assertion/fs stubs;
+the changed JavaScript source and tests parsed 8 / 8. The connector V8
+runtime substitutes URL/SearchParams because browser globals are unavailable.
+These are **not** native Node, Rust, browser boot or acoustic audio tests.
 
 **NOT_RUN**: `node --test web/dnbox/*.test.mjs` in a checkout; building the
 exact `fm1_web.wasm`; actual Elite and Pro browser boot; sound amplitude,
