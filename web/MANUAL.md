@@ -1,6 +1,12 @@
 # DnBOX manual
 
-DnBOX turns an SMK-37 keyboard into a groovebox with 909 and 808 drums, Chicago and Miami synthesizers, a BREAK sample player, and Loopy Pro control. This development tree uses project revision 13. Keep backups with the firmware version that made them.
+This page covers install, samples and project files in the browser.
+
+DnBOX turns an SMK-37 Elite or SMK-37 Pro into a groovebox. It has 909 and 808 drums, a BREAK sample player, two bass slots, and Loopy Pro control. At firmware source `94197fc8`, the bass slots can run Chicago, Miami, Juno or Drone. Chicago is the 303 engine. Miami is never a 303.
+
+The browser workspace in this tree imports project revision 13. Keep backups with the firmware version that made them.
+
+For keyboard controls, read [docs/MANUAL.md](../docs/MANUAL.md). That book matches this source. It is the control manual. This page does not replace it.
 
 ## Connect and choose firmware
 
@@ -42,10 +48,16 @@ Restore preserves slot numbering. It lists slots that do not fit and reports a p
 
 Export a portable project with original samples for a complete project backup. A project-only export contains sample identities and requires matching sample slots at import. The page checks the file before preparing an import preview. A recovery backup is available before replacing occupied slots.
 
-The current Chicago/Miami build imports revision 13 only. Earlier files can be inspected, but this workspace does not migrate engine projects. Keep their original firmware and backups. Import replaces the live project; Save on keyboard stores it. Load and Reset require explicit confirmation and keep uploaded sample slots.
+The browser workspace imports revision 13 only. You can inspect earlier files, but this workspace does not migrate engine projects. Keep their original firmware and backups. Import replaces the live project. Save on the keyboard stores it. Load and Reset require explicit confirmation and keep uploaded sample slots.
 
 A disconnect invalidates the device session and import preview. Local selected files and recovery downloads remain available. Reconnect, read the new target, and prepare a fresh preview. If firmware holds audio after an interrupted sample transfer, use the complete portable recovery backup described by the Projects workspace before playing.
 
-## Detailed keyboard controls and provenance
+## Keyboard controls
 
-The [keyboard control reference](legacy.html) preserves the project's full existing manual and diagrams. Its older engine and firmware descriptions are historical; current revision 13 uses only Chicago and Miami in the two synth slots. See the repository's SMK37.md for the physical control map. A website build, host test or package checksum does not establish hardware acceptance.
+The full keyboard control manual is [docs/MANUAL.md](../docs/MANUAL.md). That book matches firmware source `94197fc8`. It uses the SMK printed legends.
+
+The part order is 909, 808, BREAK, Chicago, then Miami. The bass engines are Chicago, Miami, Juno and Drone. Chicago is the 303 engine. Miami is never a 303.
+
+This page is the install, samples and projects companion. It is not a second control manual. Do not treat an older `legacy.html` copy as the current control book.
+
+A website build, a host test or a package checksum does not establish hardware acceptance.
