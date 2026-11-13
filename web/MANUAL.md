@@ -2,7 +2,7 @@
 
 This companion explains how to install DnBOX, back up samples and work with project files in the browser. Use the [SMK-37 keyboard manual](../docs/MANUAL.md) to play, record and navigate the instrument.
 
-It describes the **0.0.26 hardware-test candidate** at source `94197fc8`, **not** the stable [0.0.25.1 release](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). Startup/restart of this exact nightly package remain unverified on hardware. Juno, Drone and held-key chord recording belong to this candidate, not 0.0.25.1. Chicago is the 303 engine; Miami is not.
+It describes the **0.0.26 hardware-test candidate** at source `94197fc8`, **not** the [recommended published 0.0.25.1 release](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). **Neither is fully hardware-qualified.** Release notes report Elite testing of 0.0.25.1 without a confirmed installed-package hash, and no Pro device test; the exact 0.0.26 candidate's boot/restart remain unverified. Juno, Drone and held-key chord recording belong to the 0.0.26 candidate only. Chicago is the 303 engine; Miami is not.
 
 This browser workspace imports project revision 13. Keep a project backup made with the original firmware version; incompatible engines and older project revisions are not silently migrated.
 
@@ -16,11 +16,11 @@ Use a USB data cable and a browser that provides Web MIDI with SysEx. Desktop Ch
 
 Close other MIDI editors. Connect the keyboard, press Connect and allow MIDI and SysEx access. Scanning means identification is in progress. Try again follows a failed lookup; Rescan checks an existing connection again. Read the reported identity and check the model printed on the keyboard. An old Elite may identify as Pro; a shared USB name does not prove the physical model.
 
-Choose an admitted published version or select your local `.fwsc` file. The file's current validation result appears beside the chooser. A new selection clears the old package and model confirmation. A controller image is optional only when the package permits it; its format and approved digest must match the selected model. Never substitute an unrelated controller image.
+On the [published main installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/), choose the **visible Elite/Pro model and admitted version in the firmware list**. The separate **`Restore original firmware / local package` chooser is hidden and disabled** on that site; a downloaded `.fwsc` cannot be dropped there. The [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/) has a separate visible local-file section in its published source, but that is not proof of a safe or hardware-tested stock recovery. Prefer its listed admitted packages for deliberate testing. Changing model/version clears the previous confirmation. Only supply a controller image if that specific admitted package asks for it and validates it.
 
 ## Back up and install
 
-Stop playback and recording. Keep USB connected throughout the operation. **Make and verify a separate `.x0xslots` backup before updating.** The [main installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/) currently blocks a risky firmware write if the required recovery backup cannot be secured. The [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/) attempts a backup but may **continue automatically with a warning** if it fails; unbacked-up samples can then be lost permanently. The browser cannot prove a download was saved: check that the backup file exists before proceeding.
+When the **normal app responds**, stop playback and recording. From [Samples](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/) save an `.x0xslots` archive, and from [Projects](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/) separately export a portable `.x0xproject` including its samples; **verify both files exist on disk**. A project export and a raw sample-slot backup serve different purposes. Keep USB connected during any write. The [main installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/) blocks a write if a required at-risk slot backup fails. The [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/) may warn and **continue automatically without a backup**; unbacked-up samples can be lost permanently. A browser download request alone does not prove the file was retained.
 
 The installer checks the selected package and target again immediately before OTA. A changed connection or sample snapshot may refuse the write. When a verified backup exists, the installer attempts to restore compatible sample slots after the application returns and checks the restored data. A partial restore is **not** complete: keep the named archive and resolve each skipped slot. If installation continued without backup, there may be no samples to restore.
 
@@ -28,9 +28,14 @@ Browser workspaces on the same origin share an operation lock. Close other MIDI 
 
 ## Recovery and older firmware
 
-If the keyboard is already in its update loader, the old application's sample reader may be unavailable. **No new backup is possible from an unreadable application**. Recover only with a correctly matched package, understanding that existing samples may be lost. Keep any earlier backup for restoration after compatible firmware runs again.
+Use the **observed state** to choose a path; an SMK-37 USB product name alone does not prove the printed Elite/Pro model.
 
-For stock firmware, obtain the exact model's package from [M-VAVE](https://www.m-vave.com/download) and use the installer's **local-file chooser**, or follow the manufacturer's M-UPGRADE procedure. The web installer does **not** include a factory firmware package. Stock firmware may have no DnBOX sample slots; keep your archive for use after returning to compatible firmware. A completed firmware transfer does not prove that all samples were restored.
+1. **Normal DnBOX application responds (first install or re-install).** Save and check the separate sample and project backups above. In the **main installer**, Connect, grant MIDI/SysEx permission, choose the printed physical model and a **listed, admitted published DnBOX package**, then follow the visible confirmation. A file downloaded from GitHub Releases is a download, **not** a working local upload route on the main website.
+2. **Only the update loader responds after an interrupted write.** Connect and check the installer's actual loader status (`ota-` identity). The running application's sample reader is unavailable, so **no new `.x0xslots` or project backup can be made from that state**. The main installer has a loader-resume path for a **listed, admitted package matched to the physical model**; it bypasses app-side sample backup. Proceed only if that exact option is available and a retained backup or the possible sample loss is acceptable. A matching USB name alone is insufficient. If no safe match is offered, stop; do not use the hidden file chooser or invent a button combination.
+3. **Uncertain restart or no device found.** Wait until any in-progress write ends, then reconnect and use **Connect / Rescan** to distinguish the normal app from the update loader. Check MIDI/SysEx permission and close other MIDI apps. Do **not** guess the state from a transient disconnect or repeat an unverified write.
+4. **Return to M-VAVE stock firmware.** Obtain the package for the **exact physical model** from [M-VAVE](https://www.m-vave.com/download) and follow the manufacturer's **M-UPGRADE** procedure. The main DnBOX web installer's local stock chooser is hidden; it does not contain or support uploading the factory package. Keep your existing `.x0xslots` / project archives for later use with compatible DnBOX firmware. Stock firmware may not read DnBOX sample slots.
+
+**What completion means.** The browser's `Done` status follows a **fresh, matching application MIDI response** after the write, not a flash-byte attestation, an audio test, or a successful sample restore. Check that the normal app truly runs and plays sound, then inspect the saved project and sample slots. If sample restoration reports skipped slots, a partial result, or missing read-back, keep the recovery archive: **restoration is not complete**. Neither published package nor nightly build has full Elite/Pro hardware qualification.
 
 ## Prepare and preview samples
 
@@ -58,4 +63,4 @@ A disconnect invalidates the device session and import preview. Local selected f
 
 For playing, control glyphs, chord recording and the difference between factory presets and project backups, read the source-matched [SMK-37 manual](../docs/MANUAL.md). This companion does not reproduce its controls or supersede them.
 
-A website build, host test or package checksum does not prove hardware startup, restart or recovery.
+A website build, host test, matching USB identity or package checksum does not prove hardware startup, restart, audio, or sample recovery.
