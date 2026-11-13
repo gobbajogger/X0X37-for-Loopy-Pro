@@ -282,6 +282,7 @@ def build_action(
             prev_sha256=prev,
             note=note,
             actor_identity=REQUIRED_ACTOR_IDENTITY,
+            appended_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         )
     else:
         event = {
