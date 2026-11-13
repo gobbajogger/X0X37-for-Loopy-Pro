@@ -72,6 +72,84 @@ void engine_bass_sound_refresh(sound_t *sound, int v)
     const uint8_t *cell = sound->v[T_303][v];
     bass_tag_set(sound, v, cell[29], cell[30], original_sound_edit_mask(cell) != 0);
 }
+#if X0X_BASS_NOTE_SOUND
+/* Note snapshots (ported from the legacy preset-preview unit, 12d04267/750c4624).
+ * The original cell carries its own bank (29), named preset (30) and per-control
+ * edit mask (22..25); the tag mirrors them. */
+int engine_bass_note_validate(const lane_t *l)
+{
+    int bank;
+    if (l->used != 1 || l->t != BASS_NOTE_TARGET || l->pat >= NPAT ||
+        l->part < PART_303A || l->part > PART_303B || l->v >= NSTEPS ||
+        l->i != BASS_NOTE_VERSION || l->rsv) return -1;
+    for (int i = BASS_NOTE_USED; i < NSTEPS; i++) if (l->val[i]) return -1;
+    int rc = bass_tagged_cell_validate(l->val, (const bass_sound_tag_t *)(l->val + BASS_NOTE_TAG), &bank);
+    if (rc) return rc;
+    for (int i = 0; i < MX_NPARAMS; i++) if (l->val[BASS_NOTE_MIX + i] > engine_param(T_MIX, l->part, i)->max) return -1;
+    return 0;
+}
+/* Motion can return an edited base to the exact named sound. Recompute the
+ * edit mask and tag of the complete captured cell from its named factory
+ * sound, rather than inheriting the base flags. */
+static int bass_note_edited_refresh(uint8_t *cell, bass_sound_tag_t *tag)
+{
+    uint8_t named[ORIGINAL_SOUND_BYTES];
+    unsigned bank = cell[29], count = original_sound_count(bank);
+    if (!count || original_sound_init(named, bank, cell[30]) != 0) return -1;
+    uint32_t mask = 0;
+    for (unsigned i = 0; i < count; ++i) if (cell[i] != named[i]) mask |= 1u << i;
+    for (unsigned i = 0; i < 4; ++i) cell[22 + i] = (uint8_t)(mask >> (8 * i));
+    bass_sound_info_t info = {{original_sound_engine_id(bank), ORIGINAL_SOUND_SCHEMA,
+        (uint8_t)count, BASS_IDENTITY_KNOWN}, (uint16_t)cell[30], (uint8_t)(mask ? BASS_SOUND_EDITED : 0)};
+    return bass_sound_tag_encode(tag, &info, BASS_SOUND_REGISTRY, 2) == BASS_IDENTITY_READY ? 0 : -1;
+}
+static int bass_note_capture(lane_t *lanes, int pat, int voice, int step, const sound_t *sound, int effective)
+{
+    if (!lanes || sound != mot_base_snd || (unsigned)pat >= NPAT ||
+        (unsigned)voice >= NBASS || (unsigned)step >= NSTEPS || engine_bass_sound_bank(sound, voice) < 0) return -1;
+    int k = bass_note_find(lanes, pat, voice, step);
+    if (k < 0) for (int j = 0; j < NLANE; j++) if (!lanes[j].used) { k = j; break; }
+    if (k < 0) return -7;
+    lane_t next = {0};
+    next.used = 1; next.gen = (uint8_t)(lanes[k].gen + 1); next.t = BASS_NOTE_TARGET;
+    next.pat = (uint8_t)pat; next.part = (uint8_t)(PART_303A + voice); next.v = (uint8_t)step; next.i = BASS_NOTE_VERSION;
+    __builtin_memcpy(next.val, sound->v[T_303][voice], NPARAMS_MAX);
+    __builtin_memcpy(next.val + BASS_NOTE_TAG, &sound->bass[voice], BASS_SOUND_TAG_BYTES);
+    __builtin_memcpy(next.val + BASS_NOTE_MIX, sound->v[T_MIX][PART_303A + voice], MX_NPARAMS);
+    if (effective) {
+        /* Audio owns motion runtime. Capture what this accepted edge hears,
+         * including an in-flight ramp, without rewriting the selected base. */
+        unsigned count = original_sound_count(next.val[29]);
+        for (int j = 0; j < NLANE; j++) {
+            const lane_t *l = &mot.lane[j];
+            int value = motion_value(&mot, j);
+            if (value < 0 || l->part != PART_303A + voice) continue;
+            if (l->t == T_303 && l->v == voice && l->i < count) next.val[l->i] = (uint8_t)value;
+            if (l->t == T_MIX && l->v == PART_303A + voice && l->i < MX_NPARAMS)
+                next.val[BASS_NOTE_MIX + l->i] = (uint8_t)value;
+        }
+        if (bass_note_edited_refresh(next.val, (bass_sound_tag_t *)(next.val + BASS_NOTE_TAG))) return -1;
+    }
+    if (engine_bass_note_validate(&next)) return -1;
+    lanes[k].used = 0;
+    __asm__ volatile("" ::: "memory");
+    __builtin_memcpy((uint8_t *)&lanes[k] + 1, (const uint8_t *)&next + 1, sizeof next - 1);
+    __asm__ volatile("" ::: "memory");
+    lanes[k].used = 1;
+    return 0;
+}
+int engine_bass_note_capture(lane_t *lanes, int pat, int voice, int step, const sound_t *sound)
+{ return bass_note_capture(lanes, pat, voice, step, sound, 0); }
+/* Sequencer calls these only for actual recorder writes, before changing notes.
+ * A refusal affects storage only: the accepted live note still auditions. */
+int seq_bass_sound_prepare(seq_t *s, int voice, int pat, int step)
+{
+    if (s != &seq || !mot.lane) return -1;
+    return bass_note_capture(mot.lane, pat, voice, step, mot_base_snd, 1);
+}
+void seq_bass_sound_clear(seq_t *s, int voice, int pat, int step)
+{ if (s == &seq && mot.lane) bass_note_clear(mot.lane, pat, voice, step); }
+#endif
 static int bass_restore_part(const sound_t *sound, int v)
 {
     if (engine_bass_sound_bank(sound, v) < 0) return 0;

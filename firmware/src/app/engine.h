@@ -47,7 +47,7 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #undef X0X_BASS_TAGGED_SOUND
 #define X0X_BASS_TAGGED_SOUND 1
 #undef X0X_BASS_NOTE_SOUND
-#define X0X_BASS_NOTE_SOUND 0
+#define X0X_BASS_NOTE_SOUND 1
 #endif
 /* Separate optional storage features for the legacy build profile. */
 #ifndef X0X_BASS_PRESET_PREVIEW
@@ -57,7 +57,7 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #define X0X_BASS_TAGGED_SOUND 0
 #endif
 #ifndef X0X_BASS_NOTE_SOUND
-#define X0X_BASS_NOTE_SOUND 0
+#define X0X_BASS_NOTE_SOUND 1
 #endif
 #if X0X_BASS_NOTE_SOUND && !X0X_BASS_TAGGED_SOUND
 #error Note sounds require tagged bass storage
@@ -114,7 +114,7 @@ int engine_bass_ext_touch(int v);           /* bit0 bend, bit1 mod moved by ext 
 #define X0X_BASS_TAGGED_SOUND 0
 #endif
 #ifndef X0X_BASS_NOTE_SOUND
-#define X0X_BASS_NOTE_SOUND 0
+#define X0X_BASS_NOTE_SOUND 1
 #endif
 #if X0X_BASS_NOTE_SOUND && !X0X_BASS_TAGGED_SOUND
 #error Note sounds require tagged bass storage
