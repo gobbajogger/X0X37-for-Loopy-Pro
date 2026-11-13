@@ -55,6 +55,11 @@ fixture.zip=file("owner.zip",makeDnprZip([
   {name:"one.juno.dnpr",bytes:new Uint8Array(readFileSync(fixture.juno))},
   {name:"two.drone.dnpr",bytes:new Uint8Array(readFileSync(fixture.drone))}
 ]));
+fixture.mixedZip=file("mixed.zip",makeDnprZip([
+  {name:"clean.chicago.dnpr",bytes:new Uint8Array(readFileSync(fixture.chicago))},
+  {name:"kit.909.dnpr",bytes:new Uint8Array(readFileSync(fixture.kit))},
+  {name:"factory.miami.dnpr",bytes:new Uint8Array(readFileSync(fixture.factory))}
+]));
 
 const cases=[], errors=[], unexpectedRequests=[];
 const run=async (name, fn)=>{
@@ -76,7 +81,14 @@ const listen=()=>new Promise((resolve,reject)=>{
 const waitStatus=(page,text)=>page.waitForFunction(t=>document.querySelector("#status")?.textContent.includes(t),{timeout:6000},text);
 const status=page=>page.$eval("#status",x=>x.textContent);
 const count=page=>page.$$eval("#session-list > button",items=>items.length);
-const upload=async(page,path)=>{await (await page.$("#files")).uploadFile(path);};
+const upload=async(page,...paths)=>{await (await page.$("#files")).uploadFile(...paths);};
+const previewSummary=page=>page.evaluate(()=>({
+  count:document.querySelector("#preview-count").textContent,
+  warningsHidden:document.querySelector("#preview-warnings").hidden,
+  warnings:[...document.querySelectorAll("#preview-warnings .preview-warning-record")].map(x=>x.textContent),
+  records:[...document.querySelectorAll("#preview-meta .preview-record > h3")].map(x=>x.textContent),
+  overflow:document.documentElement.scrollWidth > innerWidth + 1
+}));
 const screenshot=async(page,name)=>{
   const path=join(evidenceDir,name);
   await page.screenshot({path,fullPage:true});
@@ -161,6 +173,55 @@ try {
     await desktop.select("#model","pro");await upload(desktop,fixture.model);await waitStatus(desktop,"WRONG MODEL");
     assert.equal(await count(desktop),1);await desktop.select("#model","");
   });
+  const multi=await makePage({width:1365,height:900,deviceScaleFactor:1});
+  await run("Chromium two-file picker shows sample warning on second record and reversed order",async()=>{
+    await upload(multi,fixture.chicago,fixture.kit);await waitStatus(multi,"All 2 record");
+    let info=await previewSummary(multi);
+    assert.equal(info.warningsHidden,false);
+    assert.deepEqual(info.records,["Record 1 of 2: Owner chicago (Chicago)","Record 2 of 2: Owner 909 (909)"]);
+    assert.equal(info.warnings.length,1);
+    assert.match(info.warnings[0],/Record 2 of 2: Owner 909.*not checked against keyboard/s);
+    assert.equal(info.overflow,false);assert.equal(await count(multi),0);
+    desktopShots.push(await screenshot(multi,"desktop-warning-second.png"));
+    await upload(multi,fixture.kit,fixture.chicago);await waitStatus(multi,"All 2 record");
+    info=await previewSummary(multi);
+    assert.equal(info.warnings.length,1);
+    assert.match(info.warnings[0],/Record 1 of 2: Owner 909.*not checked against keyboard/s);
+    assert.equal(await count(multi),0);
+    await multi.click("#discard");await waitStatus(multi,"Preview discarded");
+    assert.equal(await multi.$eval("#preview",e=>e.hidden),true);
+  });
+  await run("Chromium factory warning on second record and reversed order before bulk Keep",async()=>{
+    await upload(multi,fixture.chicago,fixture.factory);await waitStatus(multi,"All 2 record");
+    let info=await previewSummary(multi);
+    assert.equal(info.warningsHidden,false);assert.equal(info.warnings.length,1);
+    assert.match(info.warnings[0],/Record 2 of 2: Owner miami.*FACTORY EXPORT OFF/s);
+    assert.equal(await count(multi),0);
+    await upload(multi,fixture.factory,fixture.chicago);await waitStatus(multi,"All 2 record");
+    info=await previewSummary(multi);
+    assert.equal(info.warnings.length,1);
+    assert.match(info.warnings[0],/Record 1 of 2: Owner miami.*FACTORY EXPORT OFF/s);
+    assert.equal(await count(multi),0);
+    await multi.click("#discard");await waitStatus(multi,"Preview discarded");
+  });
+  await run("Chromium mixed three-record ZIP shows all warnings before Keep; export guards remain",async()=>{
+    await upload(multi,fixture.mixedZip);await waitStatus(multi,"All 3 record");
+    const info=await previewSummary(multi);
+    assert.match(info.count,/3 validated records/);assert.equal(info.records.length,3);
+    assert.equal(info.warningsHidden,false);assert.equal(info.warnings.length,2);
+    assert.match(info.warnings[0],/Record 2 of 3: Owner 909.*not checked against keyboard/s);
+    assert.match(info.warnings[1],/Record 3 of 3: Owner miami.*FACTORY EXPORT OFF/s);
+    assert.equal(info.overflow,false);assert.equal(await count(multi),0);
+    desktopShots.push(await screenshot(multi,"desktop-mixed-zip-warnings.png"));
+    await multi.click("#keep");await waitStatus(multi,"Added 3 validated");
+    assert.equal(await count(multi),3);
+    const before=readdirSync(downloads).length;
+    await multi.click("#save-zip");await waitStatus(multi,"FACTORY EXPORT OFF");
+    await multi.click("#session-list button:nth-child(3)");
+    await multi.click("#save-file");await waitStatus(multi,"FACTORY EXPORT OFF");
+    assert.equal(readdirSync(downloads).length,before,"A blocked export created a download");
+  });
+  await multi.close();
   await run("Real ZIP picker: preview/keep, ZIP download, both original records intact",async()=>{
     await upload(desktop,fixture.zip);await waitStatus(desktop,"All 2 record");
     assert.equal(await count(desktop),1);
@@ -222,6 +283,19 @@ try {
     mobileShots.push(await screenshot(mobile,"mobile-390-kept.png"));
     await mobile.tap("#save-file");await waitStatus(mobile,"Download requested");
     assert.equal(Buffer.compare(await download(downloads,"Owner-808.808.dnpr"),readFileSync(fixture.drum)),0);
+  });
+  await run("Chromium mobile 390px: mixed ZIP warnings visible before touch Keep",async()=>{
+    await upload(mobile,fixture.mixedZip);await waitStatus(mobile,"All 3 record");
+    const info=await previewSummary(mobile);
+    assert.equal(info.records.length,3);assert.equal(info.warnings.length,2);
+    assert.match(info.warnings[0],/Record 2 of 3: Owner 909.*not checked against keyboard/s);
+    assert.match(info.warnings[1],/Record 3 of 3: Owner miami.*FACTORY EXPORT OFF/s);
+    assert.equal(info.overflow,false);
+    assert.equal(await count(mobile),1,"Mixed ZIP preview should not stage records");
+    assert.ok(await mobile.$eval("#keep",e=>e.getBoundingClientRect().height>=44));
+    mobileShots.push(await screenshot(mobile,"mobile-390-mixed-zip-warnings.png"));
+    await mobile.tap("#discard");await waitStatus(mobile,"Preview discarded");
+    assert.equal(await count(mobile),1);
   });
   await run("Small mobile 320px: no clipping, accessible focus and touch targets",async()=>{
     await mobile.setViewport({width:320,height:720,isMobile:true,hasTouch:true,deviceScaleFactor:2});

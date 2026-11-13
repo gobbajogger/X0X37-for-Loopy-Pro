@@ -67,9 +67,34 @@ function clearPending(message = "") {
 }
 function renderPending() {
   if (!pending.length) return clearPending();
-  const first = pending[0].record;
   $("preview-empty").hidden = true; $("preview").hidden = false;
-  appendMeta($("preview-meta"), first); appendWarnings($("preview-warnings"), first);
+  const meta = $("preview-meta"), warnings = $("preview-warnings");
+  if (pending.length === 1) {
+    meta.className = "meta";
+    appendMeta(meta, pending[0].record);
+    appendWarnings(warnings, pending[0].record);
+  } else {
+    meta.className = "preview-records";
+    meta.replaceChildren(); warnings.replaceChildren();
+    for (const [index, { record }] of pending.entries()) {
+      const name = record.name || "Unnamed";
+      const heading = document.createElement("h3"), group = document.createElement("section"),
+        details = document.createElement("dl"), notice = document.createElement("div");
+      heading.textContent = "Record " + (index + 1) + " of " + pending.length + ": " + name + " (" + record.title + ")";
+      group.className = "preview-record";
+      details.className = "meta";
+      appendMeta(details, record);
+      group.append(heading, details); meta.append(group);
+      appendWarnings(notice, record);
+      if (!notice.hidden) {
+        const warningGroup = document.createElement("section"), label = document.createElement("strong");
+        warningGroup.className = "preview-warning-record";
+        label.textContent = "Record " + (index + 1) + " of " + pending.length + ": " + name + " (" + record.title + ")";
+        warningGroup.append(label, notice); warnings.append(warningGroup);
+      }
+    }
+    warnings.hidden = warnings.children.length === 0;
+  }
   $("preview-count").textContent = pending.length === 1
     ? "One validated record. Keeping it does not send to a keyboard."
     : pending.length + " validated records: " + pending.map(p => (p.record.name || "Unnamed") + " (" + p.record.title + ")").join(", ") +

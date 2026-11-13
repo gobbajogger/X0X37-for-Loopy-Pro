@@ -45,6 +45,12 @@
     dd { margin:0; font-weight:600; }
     .warning { padding:12px; border:1px solid #8a6b45; border-radius:6px; color:#ffdaa2; background:#292319; font-size:.88rem; }
     .warning ul { padding-left:18px; margin:6px 0; }
+    .preview-records { display:grid; gap:14px; margin:14px 0; }
+    .preview-record { border-top:1px solid var(--edge); padding-top:8px; min-width:0; }
+    .preview-record h3 { margin:2px 0; overflow-wrap:anywhere; }
+    .preview-record .meta { margin:8px 0 6px; }
+    .preview-warning-record { overflow-wrap:anywhere; }
+    .preview-warning-record + .preview-warning-record { border-top:1px solid #8a6b45; margin-top:10px; padding-top:10px; }
     .records { display:grid; gap:8px; margin-top:14px; }
     .record { width:100%; text-align:left; border:1px solid var(--edge); background:#111a13; color:var(--ink); display:flex; justify-content:space-between; gap:12px; align-items:center; }
     .record[aria-pressed=true] { border-color:var(--accent); box-shadow:inset 3px 0 0 var(--accent); }

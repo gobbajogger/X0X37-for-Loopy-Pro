@@ -4,6 +4,7 @@
 export async function checkPresetPage({ appSource, htmlSource, codec, zip }) {
   const failures = [], passed = [];
   const expect = (condition, message) => { if (!condition) throw Error(message); };
+  const treeText = node => [node.textContent || "", ...(node.children || []).map(treeText)].join(" ");
   async function check(name, callback) {
     try { await callback(); passed.push(name); }
     catch (error) { failures.push(name + ": " + error.message); }
@@ -168,6 +169,88 @@ export async function checkPresetPage({ appSource, htmlSource, codec, zip }) {
     ui.click("save-file"); expect(ui.downloads.length===0, "Factory export leaked bytes");
     expect(/FACTORY EXPORT OFF/.test(ui.$("status").textContent), "Factory refusal not visible");
     ui.click("save-zip"); expect(ui.downloads.length===0, "ZIP exported factory-derived data");
+  });
+
+  await check("multi-record preview shows sample warning on second record and reversed order", async () => {
+    const clean = makePreset("chicago"), kit = makePreset("909");
+    for (const second of [true, false]) {
+      const ui = environment();
+      const files = second
+        ? [ui.file("clean.chicago.dnpr", clean), ui.file("kit.909.dnpr", kit)]
+        : [ui.file("kit.909.dnpr", kit), ui.file("clean.chicago.dnpr", clean)];
+      await ui.choose(...files);
+      const warnings = ui.$("preview-warnings"), label = "Record " + (second ? 2 : 1) + " of 2: Owner 909 (909)";
+      expect(!warnings.hidden && warnings.children.length === 1, "Missing indexed sample warning");
+      expect(treeText(warnings).includes(label) && /not checked against keyboard/.test(treeText(warnings)),
+        "Sample warning not associated with the correct record");
+      expect(ui.$("preview-meta").children.length === 2 &&
+        treeText(ui.$("preview-meta")).includes("Owner 909") &&
+        treeText(ui.$("preview-meta")).includes("Owner chicago"), "Not all record metadata shown");
+      expect(ui.$("session-list").children.length === 0, "Multi-file preview mutated session");
+      ui.click("discard");
+      expect(ui.$("preview").hidden && ui.$("session-list").children.length === 0, "Discard failed");
+    }
+  });
+
+  await check("multi-record factory warning is visible in either order before keep and export stays blocked", async () => {
+    const clean = makePreset("chicago"), factory = makePreset("miami", 1, 1);
+    for (const second of [true, false]) {
+      const ui = environment();
+      const files = second
+        ? [ui.file("clean.chicago.dnpr", clean), ui.file("factory.miami.dnpr", factory)]
+        : [ui.file("factory.miami.dnpr", factory), ui.file("clean.chicago.dnpr", clean)];
+      await ui.choose(...files);
+      const warnings = ui.$("preview-warnings"), index = second ? 2 : 1;
+      expect(!warnings.hidden && treeText(warnings).includes("Record " + index + " of 2: Owner miami (Miami)") &&
+        treeText(warnings).includes("FACTORY EXPORT OFF"), "Factory warning missing before bulk Keep");
+      expect(ui.$("session-list").children.length === 0, "Factory preview changed session");
+      ui.click("keep");
+      expect(ui.$("session-list").children.length === 2, "Keep failed to stage both validated records");
+      ui.click("save-zip");
+      expect(ui.downloads.length === 0 && /FACTORY EXPORT OFF/.test(ui.$("status").textContent),
+        "Bulk ZIP exported a factory-derived record");
+      ui.$("session-list").children[index - 1].emit("click");
+      ui.click("save-file");
+      expect(ui.downloads.length === 0 && /FACTORY EXPORT OFF/.test(ui.$("status").textContent),
+        "Factory-derived single-file export was not blocked");
+    }
+  });
+
+  await check("three-record mixed ZIP shows both sample and factory warnings before any bulk Keep", async () => {
+    const ui = environment();
+    const archive = zip.makeDnprZip([
+      { name:"clean.chicago.dnpr", bytes:makePreset("chicago") },
+      { name:"kit.909.dnpr", bytes:makePreset("909") },
+      { name:"factory.miami.dnpr", bytes:makePreset("miami", 1, 1) }
+    ]);
+    await ui.choose(ui.file("mixed.zip", archive));
+    const warnings = ui.$("preview-warnings"), text = treeText(warnings);
+    expect(/3 validated records/.test(ui.$("preview-count").textContent), "ZIP count missing");
+    expect(ui.$("preview-meta").children.length === 3, "All ZIP metadata not visible");
+    expect(!warnings.hidden && warnings.children.length === 2, "Both ZIP warnings must be shown");
+    expect(text.includes("Record 2 of 3: Owner 909 (909)") && text.includes("not checked against keyboard"),
+      "ZIP sample warning missing or mislabelled");
+    expect(text.includes("Record 3 of 3: Owner miami (Miami)") && text.includes("FACTORY EXPORT OFF"),
+      "ZIP factory warning missing or mislabelled");
+    expect(ui.$("session-list").children.length === 0, "ZIP preview silently staged records");
+    ui.click("keep");
+    expect(ui.$("session-list").children.length === 3, "ZIP Keep failed");
+    ui.click("save-zip");
+    expect(ui.downloads.length === 0 && /FACTORY EXPORT OFF/.test(ui.$("status").textContent),
+      "Mixed ZIP export bypassed factory guard");
+  });
+
+  await check("cross-engine original-source warning on second record is visible before Keep", async () => {
+    const ui = environment(), conflict = Uint8Array.from(makePreset("chicago"));
+    conflict[21] = 2;
+    new DataView(conflict.buffer).setUint32(16, codec.crc32(conflict, true), true);
+    await ui.choose(ui.file("clean.chicago.dnpr", makePreset("chicago")),
+      ui.file("source-other.chicago.dnpr", conflict));
+    const warnings = ui.$("preview-warnings"), text = treeText(warnings);
+    expect(!warnings.hidden && warnings.children.length === 1, "Source conflict warning hidden");
+    expect(text.includes("Record 2 of 2: Owner chicago (Chicago)") &&
+      text.includes("Original engine differs from record engine"), "Source-conflict warning missing");
+    expect(ui.$("session-list").children.length === 0, "Source-conflict preview mutated session");
   });
 
   await check("model filename conflict is blocked; model does not prove device compatibility", async () => {

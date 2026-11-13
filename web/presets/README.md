@@ -74,10 +74,11 @@ node --test web/presets/test_codec.mjs web/presets/test_page.mjs
   schema, length, header, count and sample refs; engine/model guards;
   browser capacity/ZIP atomicity; factory-export OFF and filename rules.
 - `test_page.mjs` drives the actual `app.mjs` event handlers against an
-  isolated DOM and file mock for 11 workflows. It verifies explicit preview
-  and confirmation, invalid file unchanged session, ZIP bytes, no factory
-  export, warning visibility, model conflict, clear confirmation and
-  drag/drop. It is **not** a Chromium rendering/interaction run.
+  isolated DOM and file mock for 15 workflows (11 original + 4 multi-record
+  warning regressions). It verifies explicit preview and confirmation,
+  invalid file unchanged session, ZIP bytes, no factory export, indexed
+  per-record warnings before bulk Keep, model conflict, clear confirmation
+  and drag/drop. It is **not** a Chromium rendering/interaction run.
 
 Actual Node CLI and Chromium checks are now verified against pinned W3 source
 `bd318e93d01d3c991deda430aec73bc632cf92a1`:
@@ -97,6 +98,33 @@ Actual Node CLI and Chromium checks are now verified against pinned W3 source
 **NOT_RUN:** real phone/iOS Safari, physical SMK-37 USB transfer, device backup,
 firmware target build and hardware audio. These tests establish only file-side
 and local browser behavior, not device qualification.
+
+## Follow-up: all warnings visible before multi-record Keep
+
+When inspecting several .dnpr files, or a ZIP containing several records, the
+Review panel now shows an indexed metadata block for **every** record and
+individually labelled warnings for **every affected** record. A clean first
+record cannot conceal later missing-sample references, original-engine
+conflicts, or factory-derived export restrictions. No automatic staging,
+device action, ZIP encoding or factory-export permission has changed.
+
+The existing 11 DOM workflows and 15 Chromium scenarios remain active.
+Four additional DOM regressions cover warning-second/reversed order, factory
+warnings and export guards, mixed three-entry ZIP, and second-record
+original-engine conflict. Four additional Chromium scenarios cover actual
+multi-file selection, warning order, a mixed ZIP with two warning sources,
+and 390px mobile touch preview.
+
+**Re-verified on the isolated DnBOX cloud:** Node **18/18 subtests PASS**
+(including 15/15 DOM scenarios), Chromium **19/19 PASS**, no page exceptions
+or off-loopback HTTP requests. A negative control on the previous #901
+`332477009179ea13e90b444b1ba700e41be24fed` application reproduces
+**4/4 expected new regression failures** while retaining 11 original
+DOM passes. Exact source blobs, executable commands, failure evidence and
+screenshot hashes are in
+[multi-record executed receipt](evidence/2026-11-13-multi-record-preview.md).
+The earlier [baseline receipt](evidence/2026-11-13-node-chromium.md)
+continues to document its own 15/15 Chromium run; these are separate runs.
 
 ## Handoff to native F1 owner / Installer QA / U1 / Website UX
 
