@@ -1,3 +1,10 @@
+
+#include <stdint.h>
+
+extern uint32_t plat_ticks24(void);
+extern volatile uint32_t zdq_cur[48];
+#define QT(v) uint32_t v = plat_ticks24()
+#define QA(k, t) do { uint32_t zq_ = plat_ticks24(); zdq_cur[k] += zq_ - (t); (t) = zq_; } while (0)
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* The 9W9 TR-909 voices on the FM-1. A port of 9W9's er99_engine.c,
  * er99_circuit.h, er99_tom909.h and er99_perc909.h (GPL-3.0): the circuit models,
@@ -1039,30 +1046,37 @@ static void d9_render(drum909_t *d, float *dry, float *rev, float *dly, int n, u
     bus.y = y;
     if (n > 256)
         n = 256;
+    QT(q9);
     float *const nz = d9_noise_span(d, n);
+    QA(0, q9);
 
     /* 9W9's summing order: BD SD LT MT HT RS CP OH RD CR CH */
     if (d->bt[DR_BD].mute > 0) {
         d9_bus(&bus, d, DR_BD, dry, rev, dly, audible_tracks);
         d9_render_bd(&d->bt[DR_BD], nz, &bus, n);
     }
+    QA(1, q9);
     if (d->bt[DR_SD].mute > 0) {
         d9_bus(&bus, d, DR_SD, dry, rev, dly, audible_tracks);
         d9_render_sd(&d->bt[DR_SD], nz, &bus, n);
     }
+    QA(2, q9);
     for (int t = 0; t < 3; ++t)
         if (d->tom[t].mute > 0) {
             d9_bus(&bus, d, DR_LT + t, dry, rev, dly, audible_tracks);
             d9_render_tom(&d->tom[t], &d->bt[DR_LT + t], nz, &bus, n);
         }
+    QA(3, q9);
     if (d->rim.mute > 0) {
         d9_bus(&bus, d, DR_RS, dry, rev, dly, audible_tracks);
         d9_render_rim(&d->rim, nz, &bus, n);
     }
+    QA(4, q9);
     if (d->clap.mute > 0) {
         d9_bus(&bus, d, DR_CP, dry, rev, dly, audible_tracks);
         d9_render_clap(&d->clap, nz, &bus, n);
     }
+    QA(5, q9);
     static const uint8_t order[4] = { DR_OH, DR_RD, DR_CR, DR_CH };
     for (int k = 0; k < 4; ++k) {
         d9_smp_t *s = &d->smp[order[k] - DR_CH];
@@ -1071,6 +1085,7 @@ static void d9_render(drum909_t *d, float *dry, float *rev, float *dly, int n, u
             d9_render_smp(s, &bus, n);
         }
     }
+    QA(6, q9);
 }
 
 void drum909_render(drum909_t *d, float *dry, float *rev, float *dly, int n)
@@ -1083,12 +1098,14 @@ void drum909_render_st_masked(drum909_t *d, float *dry_l, float *dry_r, float *r
                              int n, uint16_t audible_tracks)
 {
     d9_dry_r = dry_r;
+    QT(qp);
     for (int v = 0; v < DR_NUM; ++v) {             /* every voice's pan glides, sounding or not */
         d9_pl0[v] = d->pan_lc[v];
         d9_pr0[v] = d->pan_rc[v];
         d->pan_dl[v] = x0x_glide_block(&d->pan_lc[v], d->pan_l[v], n > 256 ? 256 : n);
         d->pan_dr[v] = x0x_glide_block(&d->pan_rc[v], d->pan_r[v], n > 256 ? 256 : n);
     }
+    QA(7, qp);
     d9_render(d, dry_l, rev, dly, n, audible_tracks);
     d9_dry_r = 0;
 }

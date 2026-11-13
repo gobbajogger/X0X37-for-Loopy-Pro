@@ -1,3 +1,10 @@
+
+#include <stdint.h>
+
+extern uint32_t plat_ticks24(void);
+volatile uint32_t zdq_cur[48] __attribute__((section(".pool")));
+#define QT(v) uint32_t v = plat_ticks24()
+#define QA(k, t) do { uint32_t zq_ = plat_ticks24(); zdq_cur[k] += zq_ - (t); (t) = zq_; } while (0)
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* X0X audio engine; see engine.h. */
 #include "engine.h"
@@ -27,6 +34,11 @@
 volatile uint32_t eng_prof[ENG_PROF_N], eng_prof_frames;
 #define PROF_T(v) uint32_t v = plat_cycles()
 #define PROF_ADD(k, t0) (eng_prof[k] += plat_cycles() - (t0))
+volatile uint32_t zdp_cur[16] __attribute__((section(".noinit")));
+#define ZT(v) uint32_t v = plat_ticks24()
+volatile uint32_t zds_cur[16] __attribute__((section(".noinit")));
+#define ZS(k, st) do { uint32_t zq = plat_ticks24(); zds_cur[k] += zq - (st); (st) = zq; } while (0)
+#define ZA(k, t0) (zdp_cur[k] += plat_ticks24() - (t0))
 
 /* ---------------------------------------------------------------- state --- */
 seq_t seq;
@@ -2243,6 +2255,7 @@ static int run_job(int j, int core)
     uint8_t solo_parts = eng_job_solo;
     uint32_t solo = smc_solo_state;
     int active = 1;
+    ZT(zj);
     float *left808 = t0 + offset, *right808 = tr + offset;
     if (j == JB_909) {
         PROF_T(p9);
@@ -2254,6 +2267,7 @@ static int run_job(int j, int core)
             drum909_pan_settle(&d909);                    /* silent: pans move at once, no glide */
         } else {
             drum909_render_st_masked(&d909, dry_l, dry_r, rev, dly, (int)n, smc_audible_drums(solo, PART_909));
+            QT(q9p);
             mix_targets(PART_909, mix_level[PART_909], solo_parts);
             bfx_shape(PART_909, dry_l, dry_r, rev, dly, 4, (int)n);
             for (i = 0; i < n; i++)                       /* kit send: filtered sides, still centred */
@@ -2263,6 +2277,7 @@ static int run_job(int j, int core)
             scale_glide(rev, &mix_glide[PART_909][GL_VREV], n);
             scale_glide(dly, &mix_glide[PART_909][GL_VDLY], n);
             kit_sends(PART_909, mono, n);
+            QA(39, q9p);
         }
         if (!core)
             PROF_ADD(PR_909, p9);
@@ -2287,7 +2302,9 @@ static int run_job(int j, int core)
                 }
                 drum808_finish_rest(&d808, (const float (*)[256])raw, left808, right808, t1, t2,
                                     (int)n, aud);
+                QT(q8s);
                 bfx_shape(PART_808, left808, right808, t1, t2, 4, (int)n);
+                QA(40, q8s);
                 eng_sync();
                 eng_808_metal_done = 1;
                 eng_sync();
@@ -2295,7 +2312,9 @@ static int run_job(int j, int core)
                 for (i = 0; i < n; i++)
                     left808[i] = t1[i] = t2[i] = right808[i] = 0.0f;
                 drum808_render_st_masked(&d808, left808, right808, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
+                QT(q8s);
                 bfx_shape(PART_808, left808, right808, t1, t2, 4, (int)n);
+                QA(40, q8s);
             }
         } else {
             active = 0;
@@ -2305,7 +2324,7 @@ static int run_job(int j, int core)
         if (stage_wait(1, core))
             return 0;
         wt = plat_ticks24() - w0;
-        mix_808(left808, right808, n, solo_parts);
+        { QT(q8m); mix_808(left808, right808, n, solo_parts); QA(41, q8m); }
         if (!core)
             PROF_ADD(PR_808, p8);
         eng_sync();
@@ -2328,11 +2347,16 @@ static int run_job(int j, int core)
         float *bb[NBASS];
         bb[bv] = bl; bb[1 - bv] = br;                     /* bass B renders right-left, as always */
         PROF_T(pb);
+        QT(qb);
         (void)original_runtime_prepare(&original_bass[bv], seq_tempo(&seq));
+        QA(25, qb);
         bass_adapt_pre(bv);
+        QA(26, qb);
         int status = original_runtime_render(&original_bass[bv], bv ? &original_workspace_b : &original_workspace,
                                              bb[bv], bb[1-bv], n);
+        QA(27 + bv, qb);
         bass_adapt_post(bv, bb[bv], bb[1-bv], (unsigned)n);
+        QA(29, qb);
         if (!core)
             PROF_ADD(2 + bv, pb);
         bass_render_ok[bv] = (uint8_t)(status == ORIGINAL_RUNTIME_OK);   /* recorder: core 0, after */
@@ -2363,12 +2387,15 @@ static int run_job(int j, int core)
                 }
                 bass_quiet_next[bv] = q;
             }
+            QA(30, qb);
             bfx_shape(p, bb[bv], bb[1-bv], 0, 0, 2, (int)n);
+            QA(31, qb);
         }
         w0 = plat_ticks24();
         if (stage_wait((uint32_t)(2 + bv), core))         /* A mixes after the 808, B after A */
             return 0;
         wt = plat_ticks24() - w0;
+        QT(qbm);
         if (status == ORIGINAL_RUNTIME_OK) {
             /* A part that was silent when Solo excluded it must not leak a new
              * note through the 10 ms mix glide-out: start its glides at zero.
@@ -2394,12 +2421,15 @@ static int run_job(int j, int core)
             add_glide(rev, bb[bv], &mix_glide[p][GL_REV], n);
             add_glide(dly, bb[bv], &mix_glide[p][GL_DLY], n);
         }
+        QA(32, qbm);
         eng_sync();
         eng_stage = (uint32_t)(3 + bv);
     } else {
         PROF_T(pk);
+        QT(qk);
         brk_silent_now = breaks_silent(&brk);             /* the render writes zeros: nothing to mix */
         breaks_render(&brk, kbuf, (int)n);
+        QA(42, qk);
         if (!brk_silent_now)
             bfx_shape(PART_BRK, kbuf, 0, 0, 0, 1, (int)n);
         else
@@ -2409,6 +2439,7 @@ static int run_job(int j, int core)
     }
     if (active)
         job_cost(j, plat_ticks24() - tk - wt, n);
+    ZA(2 + j, zj);
     return 1;
 }
 
@@ -2418,6 +2449,7 @@ static void core2_jobs(uint32_t arg)
 {
     int j;
     (void)arg;
+    ZT(zc1);
     if (eng_808_split && !eng_808_body)
         d808_body_run();
     for (j = eng_c1_next; j < JB_N; j++) {
@@ -2437,6 +2469,7 @@ static void core2_jobs(uint32_t arg)
         eng_sync();
     }
     eng_c1_next = JB_N;
+    ZA(11, zc1);
     eng_sync();
 }
 
@@ -2565,7 +2598,9 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     for (j = 0; j < JB_N; j++)
         if (!(eng_c1_mask & (1u << j)))
             (void)run_job(j, 0);
+    zdp_cur[7] |= eng_c1_mask;
     if (eng_c1_mask) {
+        ZT(zw);
         uint32_t pt = plat_cycles();
         if (!eng_c1_waited) {
             eng_c1_waited = 1;
@@ -2574,10 +2609,12 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         }
         c1_take_over(JB_N + 1u);                      /* failed, or the host: the rest here */
         PROF_ADD(PR_808, pt);                         /* core 0's wait for core 1 (as before) */
+        ZA(8, zw);
     }
 #if X0X_DEBUG
     eng_dbg_wait += plat_ticks24() - w0;              /* now: core 0's whole job span */
 #endif
+    QT(qe);
     brk_midi_drain();
     for (j = 0; j < NBASS; j++)                       /* the recorder (shared with the sequencer): core 0 */
         if (bass_render_ok[j]) original_rec_recover_off(j);
@@ -2592,14 +2629,15 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     }
     bfx_send_shape(0, rev, (int)n);
     bfx_send_shape(1, dly, (int)n);
+    QA(43, qe);
     {
-        PROF_T(pf);
+        PROF_T(pf); ZT(zf);
         fxbus_process_st(&fx, dry_l, dry_r, rev, dly, out_l, out_r, (int)n);
         if (fx.dl_type != 1 || fx.dl_level <= 0.0f || (fx.muted & 2u)) tape_signal_seen = 0;
         else if (fx.dl_signal) { tape_signal_at = plat_ms(); tape_signal_seen = 1; }
-        PROF_ADD(5, pf);
+        PROF_ADD(5, pf); ZA(9, zf);
     }
-    bfx_flt_shape(out_l, out_r, (int)n);
+    { QT(qg); bfx_flt_shape(out_l, out_r, (int)n); QA(44, qg); }
 }
 
 void engine_render(int32_t *out_lr, uint32_t n)
@@ -2618,40 +2656,46 @@ void engine_render(int32_t *out_lr, uint32_t n)
         return;
     }
     eng_prof_frames += n;
+    ZT(zx);
     original_prepare_all(); /* precedes every serial frame-zero edit and key */
+    ZS(11, zx);
     if ((mot_was_on && !mot_on) || mot_release_req) {   /* motion off, or its lanes replaced: knobs back */
         mot_release_req = 0;
         motion_release(&mot);
     }
     mot_was_on = mot_on;
-    guard_apply();
+    guard_apply(); ZS(12, zx);
     {
-        PROF_T(pt);
-        drain();
+        PROF_T(pt); ZT(zs); ZT(zz);
+        drain(); ZS(0, zz);
         /* A final MIDI Stop may have no following MIDI note to consume it.
          * Complete transport before the independent physical-key FIFO. */
         if (seq.ext_pending || seq.req_start || seq.req_stop || seq.req_cont)
             seq_advance(&seq, 0, &SINK);
-        live_key_drain();
+        ZS(1, zz);
+        live_key_drain(); ZS(2, zz);
 #if X0X_BASS_PRESET_PREVIEW
         bass_preset_boundary();
 #endif
-        fxbus_set_bpm(&fx, seq_tempo(&seq));
-        seq_advance(&seq, 0, &SINK);
-        brk_midi_drain();
+        ZS(3, zz);
+        fxbus_set_bpm(&fx, seq_tempo(&seq)); ZS(4, zz);
+        seq_advance(&seq, 0, &SINK); ZS(5, zz);
+        brk_midi_drain(); ZS(6, zz);
         if (mot_on && seq.playing && !seq_clock_waiting(&seq))
             motion_tick(&mot, n);
-        PROF_ADD(7, pt);
+        ZS(7, zz);
+        PROF_ADD(7, pt); ZA(1, zs);
     }
     while (done < n) {
         uint32_t k = seq_until_event(&seq, n - done);
         brk_mute_boundary(); /* also follows song mutes at an in-buffer event */
         render_sub(out_l + done, out_r + done, k, 0);
         {
-            PROF_T(pt);
+            PROF_T(pt); ZT(zy);
             original_prepare_all(); /* next actual sequencer stretch, before its events */
-            seq_advance(&seq, k, &SINK);
-            brk_midi_drain();
+            ZS(8, zy);
+            seq_advance(&seq, k, &SINK); ZS(9, zy);
+            brk_midi_drain(); ZS(10, zy);
             PROF_ADD(7, pt);
         }
         done += k;
@@ -2665,9 +2709,12 @@ void engine_render(int32_t *out_lr, uint32_t n)
     mot_playing = seq.playing;
     {
         PROF_T(pt);
-        master_process_st(&mst, out_l, out_r, (int)n, vol);
+        ZT(zm);
+        master_process_st(&mst, out_l, out_r, (int)n, vol); ZA(10, zm);
+        zdp_cur[12] = eng_job_cost[0]; zdp_cur[13] = eng_job_cost[1]; zdp_cur[14] = eng_job_cost[2]; zdp_cur[15] = eng_job_cost[3];
         PROF_ADD(6, pt);
     }
+    QT(qo);
     {   /* globals in registers: the stores below cannot reload them per sample */
         const float lim = out_lim, scale = out_scale;
         for (i = 0; i < n; i++) {
@@ -2690,6 +2737,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
             eng_peak[p] = (uint16_t)q;
         part_peak[p] = 0.0f;
     }
+    QA(46, qo);
 }
 
 /* -------------------------------------------------------------- loops --- */

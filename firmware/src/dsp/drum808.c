@@ -1,3 +1,10 @@
+
+#include <stdint.h>
+
+extern uint32_t plat_ticks24(void);
+extern volatile uint32_t zdq_cur[48];
+#define QT(v) uint32_t v = plat_ticks24()
+#define QA(k, t) do { uint32_t zq_ = plat_ticks24(); zdq_cur[k] += zq_ - (t); (t) = zq_; } while (0)
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* X0X 808 drum part: a C99 / float / no-libm port of 8W8 (see drum808.h).
  *
@@ -2015,13 +2022,16 @@ static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n, u
     for (off = 0; off < n; off += CHUNK) {
         int m = n - off < CHUNK ? n - off : CHUNK;
         int cb_on = (lanes & (1u << L_CB)) && lane_on(d, L_CB);
+        QT(q8);
         if (d8_dry_r)                                 /* only the tracks this call owns (a split: each once) */
             d8_pan_lanes(d, lanes, m);
+        QA(11, q8);
         /* the shared bank runs only while a metal voice of this call sounds */
         if ((lanes & D8_LANES_METAL) &&
             (cb_on || lane_on(d, L_CH) || lane_on(d, L_OH) || lane_on(d, L_CY))) {
             bank_block(&d->bank, bus, pair, m, cb_on);
         }
+        QA(8, q8);
         for (l = 0; l < L_NUM; l++) {
             if (!(lanes & (1u << l)))
                 continue;
@@ -2039,13 +2049,16 @@ static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n, u
                     }
                 }
             }
+            QA(10, q8);
             got = voice_run(d, l, buf, mm, bus, pair);
+            { uint32_t zq_ = plat_ticks24(); zdq_cur[9] += zq_ - q8; zdq_cur[12 + l] += zq_ - q8; q8 = zq_; }
             {
                 float *dr = d8_dry_r;                     /* the chunk's slice of the right side */
                 d8_dry_r = dr ? dr + off : 0;
                 lane_mix(d, ln, buf, got, dry + off, rev + off, dly + off, audible_tracks);
                 d8_dry_r = dr;
             }
+            QA(10, q8);
 #if D8_TAIL_DB
             lane_tail(d, l, buf, got);
 #endif
@@ -2105,9 +2118,12 @@ void drum808_metal_prepare(drum808_t *d, float raw[4][256], int n, uint16_t audi
     for (off = 0, ch = 0; off < n; off += CHUNK, ch++) {
         int m = n - off < CHUNK ? n - off : CHUNK;
         int cb_on = lane_on(d, L_CB);
+        QT(q8mp);
         d8_pan_lanes(d, D8_LANES_METAL, m);
+        QA(11, q8mp);
         if (cb_on || lane_on(d, L_CH) || lane_on(d, L_OH) || lane_on(d, L_CY))
             bank_block(&d->bank, bus, pair, m, cb_on);
+        QA(8, q8mp);
         for (l = L_CB; l <= L_CY; l++) {
             d8_lane_t *ln = &d->lane[l];
             int mm = m, got, k = l - L_CB;
@@ -2131,7 +2147,9 @@ void drum808_metal_prepare(drum808_t *d, float raw[4][256], int n, uint16_t audi
                     }
                 }
             }
+            QA(10, q8mp);
             got = voice_run(d, l, buf, mm, bus, pair);
+            { uint32_t zq_ = plat_ticks24(); zdq_cur[9] += zq_ - q8mp; zdq_cur[12 + l] += zq_ - q8mp; q8mp = zq_; }
             for (i = 0; i < got; i++)
                 raw[k][off + i] = buf[i];
             d8_msnap.got[ch][k] = got;

@@ -1,3 +1,10 @@
+
+#include <stdint.h>
+
+extern uint32_t plat_ticks24(void);
+extern volatile uint32_t zdq_cur[48];
+#define QT(v) uint32_t v = plat_ticks24()
+#define QA(k, t) do { uint32_t zq_ = plat_ticks24(); zdq_cur[k] += zq_ - (t); (t) = zq_; } while (0)
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Send reverb, synced delay and master stage: a port of 9W9's er99_verb_tick,
  * er99_dly_tick, master distortion and master_glue (GPL-3.0). See fxbus.h. */
@@ -499,10 +506,14 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
 {
     if (n > 256)
         n = 256;
+    QT(qf);
     __builtin_memcpy(out_l, dry_l, (unsigned)n * sizeof(float));
     __builtin_memcpy(out_r, dry_r, (unsigned)n * sizeof(float));
+    QA(33, qf);
     fx_reverb(f, rev, out_l, out_r, n);
+    QA(34, qf);
     fx_delay(f, dly, out_l, out_r, n);
+    QA(35, qf);
     if (f->dist_mode >= 1) {
         const float k = f->drive;
         for (int i = 0; i < n; ++i) {
@@ -510,6 +521,7 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
             out_r[i] = dist_one(&f->shape, out_r[i], k, f->crush_str);
         }
     }
+    QA(36, qf);
     if (f->comp > 0.001f && !fx_comp_settled_zero(f, out_l, out_r, n)) {
         const float thr = f->c_thr, slope = f->c_slope, makeup = f->c_makeup;
         const float drel = f->c_drel, atk = f->c_atk, rel = f->c_rel;
@@ -523,6 +535,7 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
         f->comp_det = det;
         f->comp_env_db = env;
     }
+    QA(37, qf);
     const float vol = f->muted & 4u ? 0.0f : f->volume;
     if (vol != 1.0f)                                  /* x * 1 == x: unity skips the pass */
         for (int i = 0; i < n; ++i) {

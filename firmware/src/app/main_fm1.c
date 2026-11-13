@@ -56,6 +56,35 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
         }
     }
     us = (fm1_ticks() - t0) / FM1_TICKS_PER_US;
+    {   /* ZDPROBE */
+        extern volatile uint32_t zdp_cur[16];
+        static volatile uint32_t zdp_worst[16] __attribute__((section(".noinit"),used));
+        static volatile uint32_t zdp_max[16] __attribute__((section(".noinit"),used));
+        static volatile uint32_t zdp_magic __attribute__((section(".noinit"),used));
+        int q;
+        if (zdp_magic != 0x5A445043u) { for (q = 0; q < 16; q++) zdp_worst[q] = zdp_max[q] = 0; zdp_magic = 0x5A445043u; }
+        zdp_cur[0] = us;
+        if (us > zdp_worst[0]) for (q = 0; q < 16; q++) zdp_worst[q] = zdp_cur[q];
+        {
+            extern volatile uint32_t zds_cur[16];
+            static volatile uint32_t zds_max[16] __attribute__((section(".noinit"),used));
+            static volatile uint32_t zds_at[16] __attribute__((section(".noinit"),used));
+            static volatile uint32_t zds_magic __attribute__((section(".noinit"),used));
+            if (zds_magic != 0x5A445344u) { for (q = 0; q < 16; q++) zds_max[q] = zds_at[q] = 0; zds_magic = 0x5A445344u; }
+            if (zdp_cur[1] > zdp_max[1]) for (q = 0; q < 16; q++) zds_at[q] = zds_cur[q];
+            for (q = 0; q < 16; q++) { if (zds_cur[q] > zds_max[q]) zds_max[q] = zds_cur[q]; zds_cur[q] = 0; }
+        }
+        {
+            extern volatile uint32_t zdq_cur[48];
+            static volatile uint32_t zdq_max[48] __attribute__((section(".pool"),used));
+            static volatile uint32_t zdq_at[48] __attribute__((section(".pool"),used));
+            static volatile uint32_t zdq_magic __attribute__((section(".noinit"),used));
+            if (zdq_magic != 0x5A445151u) { for (q = 0; q < 48; q++) zdq_max[q] = zdq_at[q] = 0; zdq_magic = 0x5A445151u; }
+            if (us >= zdp_worst[0]) for (q = 0; q < 48; q++) zdq_at[q] = zdq_cur[q];
+            for (q = 0; q < 48; q++) { if (zdq_cur[q] > zdq_max[q]) zdq_max[q] = zdq_cur[q]; zdq_cur[q] = 0; }
+        }
+        for (q = 0; q < 16; q++) { if (zdp_cur[q] > zdp_max[q]) zdp_max[q] = zdp_cur[q]; zdp_cur[q] = 0; }
+    }
 #if X0X_LCD_TRACE
     lcd_trace_record(LCD_T_AUDIO, us);
 #endif

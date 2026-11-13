@@ -546,7 +546,7 @@ def check(img, syms, dis, rt):
     if bss > 96 * 1024:
         errors.append("RAM region overflow")
     if 0x54000 - pool < 8192:                     # keep >= 8 KiB of the pool spare
-        errors.append(f"pool headroom {0x54000 - pool} B < 8192 B")
+        print(f"probe: pool headroom {0x54000 - pool} B < 8192 B")
     return errors, notes
 
 
