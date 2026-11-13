@@ -36,7 +36,7 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at the repository owner, using a private GitHub security advisory: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/security/advisories/new. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported through [GitHub's private vulnerability reporting form](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/security/advisories/new) or by contacting @gobbajogger via GitHub. All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the reporter of any incident.
 
