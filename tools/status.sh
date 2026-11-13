@@ -134,7 +134,7 @@ fi
 # Primary: $RESULTS/INSTALLED.tsv (time, hash, fwsc, ctl crc, gate tree, result; one row per install,
 # Firmware Main Builder appends). The newest row by time wins.
 # Fallback: the ledger rows "| <any id> (INSTALLED hh:mm ...)" or "| <id> (installed) | date | Installed hh:mm"
-# in BLE_ATTEMPTS.md on all branches. The newest by date + install time wins (ties: the later row in the file).
+# in docs/internal/BLE_ATTEMPTS.md (or BLE_ATTEMPTS.md on older branches) on all branches. The newest by date + install time wins (ties: the later row in the file).
 INSTTSV=$RESULTS/INSTALLED.tsv
 INST="unknown"; INSTSRC=""; INSTROW=""; INSTWHY=""
 if [ -s "$INSTTSV" ]; then
@@ -150,7 +150,7 @@ if [ -s "$INSTTSV" ]; then
 fi
 if [ "$INST" = unknown ]; then
   LROWS=$(for b in "${BR[@]}"; do
-    G show "$b:BLE_ATTEMPTS.md" 2>/dev/null | awk -v br="$b" '/^\| *[A-Za-z]*[0-9]+[^|]*\((INSTALLED|installed)/ {print br "\t" NR "\t" $0}'
+    { G show "$b:docs/internal/BLE_ATTEMPTS.md" 2>/dev/null || G show "$b:BLE_ATTEMPTS.md" 2>/dev/null; } | awk -v br="$b" '/^\| *[A-Za-z]*[0-9]+[^|]*\((INSTALLED|installed)/ {print br "\t" NR "\t" $0}'
   done)
   best=""; bestk=-1; bestn=0
   while IFS=$'\t' read -r b n line; do
@@ -168,7 +168,7 @@ if [ "$INST" = unknown ]; then
   done <<<"$LROWS"
   if [ -n "$best" ]; then IFS='|' read -r id h dt b n rest <<<"$best"
     INST="${h:0:7} (ledger row $id, installed $dt)"
-    INSTSRC="fallback: BLE_ATTEMPTS.md line $n on branch $b ($INSTTSV is missing or empty)"
+    INSTSRC="fallback: docs/internal/BLE_ATTEMPTS.md (or BLE_ATTEMPTS.md on older branches) line $n on branch $b ($INSTTSV is missing or empty)"
     INSTROW=$(echo "$best" | cut -d'|' -f6-)
     INSTWHY="newest install time (date column + INSTALLED/Installed/Time hh:mm) of all INSTALLED rows of any id on all branches"
   else INST="unknown (source: no INSTALLED.tsv and no ledger row with an install time and a hash)"; fi
@@ -195,7 +195,7 @@ if [ -s "$INSTTSV" ]; then
     k=$(date -d "$t" +%s 2>/dev/null) || continue; ILIST+="INSTALLED.tsv $t|${h:0:7}|$k"$'\n'; done < "$INSTTSV"
 fi
 [ -n "${LROWS:-}" ] || LROWS=$(for b in "${BR[@]}"; do
-    G show "$b:BLE_ATTEMPTS.md" 2>/dev/null | awk -v br="$b" '/^\| *[A-Za-z]*[0-9]+[^|]*\((INSTALLED|installed)/ {print br "\t" NR "\t" $0}'; done)
+    { G show "$b:docs/internal/BLE_ATTEMPTS.md" 2>/dev/null || G show "$b:BLE_ATTEMPTS.md" 2>/dev/null; } | awk -v br="$b" '/^\| *[A-Za-z]*[0-9]+[^|]*\((INSTALLED|installed)/ {print br "\t" NR "\t" $0}'; done)
 while IFS=$'\t' read -r b n line; do
   [ -n "$line" ] || continue
   id=$(echo "$line" | sed -n 's/^| *\([A-Za-z]*[0-9][0-9]*\).*/\1/p')
@@ -394,7 +394,7 @@ echo "- Hash: $INST."
 echo "- Source: ${INSTSRC:-none}."
 echo "- Why this row: ${INSTWHY:--}."
 echo "- Source row: \`$(echo "${INSTROW:--}" | sed 's/`/'"'"'/g')\`"
-echo "- Method: primary source $INSTTSV (newest row by time). If it is missing or empty: the newest INSTALLED row of any id (a74, b1, ...) in BLE_ATTEMPTS.md on all branches, by date + install time. The device itself is not read."
+echo "- Method: primary source $INSTTSV (newest row by time). If it is missing or empty: the newest INSTALLED row of any id (a74, b1, ...) in docs/internal/BLE_ATTEMPTS.md (or BLE_ATTEMPTS.md on older branches) on all branches, by date + install time. The device itself is not read."
 echo
 echo "## Agents"
 echo

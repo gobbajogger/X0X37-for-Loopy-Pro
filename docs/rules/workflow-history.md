@@ -11,8 +11,8 @@ launcher policy, ownership transfer or authorization:
 
 - `docs/plans/full-cycle-orchestrator.md` and other dated `docs/plans/` records.
 - `docs/audit/`, dated investigation/handoff documents and `docs/scheduler-handoffs/`.
-- `evidence/`, `audit/`, `cloud-handoff/` and `local-handoff/` records, prompts and logs.
-- Dated device sessions in `BLE_ATTEMPTS.md`, prior PR bodies and old rule revisions.
+- `evidence/`, `docs/internal/audit/`, `cloud-handoff/` and `docs/internal/local-handoff/` records, prompts and logs.
+- Dated device sessions in `docs/internal/BLE_ATTEMPTS.md`, prior PR bodies and old rule revisions.
 - The retained `loopyx0x37-classic-build-skill.zip` export archive, which is not an
   active installation source; use the maintained unpacked adapter and current rules.
 - The v0.1.47 Cursor export provenance and removed `docs/agent-rules.md` or

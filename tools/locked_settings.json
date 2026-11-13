@@ -1,5 +1,5 @@
 {
- "rule": "Hardware-relevant settings. tools/check_locked_settings.py compares the source with these values before each build. To change one: change the source and this file in one commit that names the setting, and add a BLE_ATTEMPTS.md row. Never change a value inside an unrelated commit.",
+ "rule": "Hardware-relevant settings. tools/check_locked_settings.py compares the source with these values before each build. To change one: change the source and this file in one commit that names the setting, and add a docs/internal/BLE_ATTEMPTS.md row. Never change a value inside an unrelated commit.",
  "settings": [
   {
    "name": "pwr_ble",

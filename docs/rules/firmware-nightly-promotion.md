@@ -3,7 +3,7 @@
 The firmware source repository has two persistent branch roles:
 
 - `nightly`: reviewed integration of development firmware source. Specialist changes are proposed from isolated branches via PRs targeting `nightly`; sole Safe Merge owner integrates compatible work only after actual appropriate native tests and independent QA. A draft or failed PR remains unmerged and is not a checked build.
-- `main`: hardware-proven production source. No automated nightly-to-main merge. Promotion requires attributable owner-operated physical Elite/Pro testing on the corresponding exact firmware AND controller hashes, independent QA, validated nightly checkpoint, and a separate explicit owner production approval. Device evidence from one model never certifies another.
+- `main`: production source. No automated nightly-to-main merge. Promotion of a hardware-proven package requires attributable owner-operated physical Elite/Pro testing on the corresponding exact firmware AND controller hashes, independent QA, a validated nightly checkpoint, and a separate explicit owner production approval. Device evidence from one model never certifies another. The current public main package, v0.0.25.1, is software-checked only and has not been signed off as a physical device test; it is not a hardware-proven package.
 
 The separate `gobbajogger/x0x37-for-Loopy-Pro_nightly` repository remains GPL browser/status/Pages only. Do not mirror firmware source, vendor SDK, DSP references, toolchains, firmware `.fwsc`, `ctl.img`, secrets or user samples into it. It may reference exact checked source SHA and legally distributable immutable externally hosted test artifacts after byte/hash validation.
 

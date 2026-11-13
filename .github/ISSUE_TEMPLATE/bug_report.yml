@@ -1,0 +1,67 @@
+name: Bug report
+description: Report a problem with DnBOX firmware or this repository.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for a report. Please fill in every required field.
+        Do not attach private backups, credentials, or raw captures you do not want public.
+        For a vulnerability, use the [security policy](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/security/policy) instead of this form.
+  - type: dropdown
+    id: model
+    attributes:
+      label: Keyboard model
+      options:
+        - SMK-37 Elite
+        - SMK-37 Pro
+        - FM-1
+        - Other / not sure
+    validations:
+      required: true
+  - type: input
+    id: firmware_version
+    attributes:
+      label: Firmware version
+      description: Version shown on the device or in the installer (for example 0.0.25.1).
+      placeholder: 0.0.25.1
+    validations:
+      required: true
+  - type: dropdown
+    id: backup_done
+    attributes:
+      label: Did you back up your sample slots before installing?
+      options:
+        - "Yes"
+        - "No"
+        - Not applicable
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What you did, in order.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Extra context
+      description: Optional. Host software (for example Loopy Pro version), screenshots of the front panel, or other detail that is safe to publish.

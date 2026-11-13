@@ -89,7 +89,7 @@ def available_selectors(root: Path) -> set[str]:
 
 
 def bucket(path: str) -> str:
-    if path.startswith(EVIDENCE_PREFIXES) or path.startswith('cloud-handoff/') or path.startswith('local-handoff/'):
+    if path.startswith(EVIDENCE_PREFIXES) or path.startswith('cloud-handoff/') or path.startswith('local-handoff/') or path.startswith('docs/internal/local-handoff/') or path.startswith('docs/internal/audit/'):
         return 'evidence'
     if path.startswith(DOC_PREFIXES) or DOC_ROOT_MD.match(path) or path == 'AGENTS.md':
         return 'docs'
