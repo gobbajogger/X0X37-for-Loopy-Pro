@@ -80,7 +80,7 @@ node --test web/presets/test_codec.mjs web/presets/test_page.mjs
   drag/drop. It is **not** a Chromium rendering/interaction run.
 
 Actual Node CLI and Chromium checks are now verified against pinned W3 source
-`fa85b9463a3f88df8bad022043722f375a762aee`:
+`bd318e93d01d3c991deda430aec73bc632cf92a1`:
 
 - `node --test web/presets/test_codec.mjs web/presets/test_page.mjs`:
   **18/18 Node subtests PASS**, comprising the existing 17 codec cases and
