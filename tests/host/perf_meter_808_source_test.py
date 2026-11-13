@@ -32,6 +32,25 @@ assert job.count("PROF_ADD_CORE(core, PR_808, p8);") == 3
 assert "d808_body_run(0);" in wait
 assert "d808_body_run(1);" in SRC
 
+# Cross-check the other two active-engine attribution boundaries, without
+# trying to substitute a fake synth or BREAK renderer for their real DSP.
+bass = slice_between("} else if (j == JB_A || j == JB_B) {", "} else {\n        PROF_T(pk);")
+credit = "PROF_ADD_CORE(core, 2 + bv, pb);"
+assert bass.count(credit) == 3, "bass DSP, post-DSP, and bus mix must be accounted separately"
+assert bass.find(credit) < bass.find("bass_render_ok[bv]")
+assert bass.find(credit, bass.find(credit) + 1) < bass.find("stage_wait((uint32_t)(2 + bv), core)")
+assert bass.rfind(credit) > bass.find("add_glide(dly, bb[bv],")
+assert "pb = plat_cycles();" in bass, "the waits must be excluded from bass's next interval"
+
+mix_anchor = "    brk_midi_drain();\n    for (j = 0; j < NBASS; j++)"
+assert SRC.count(mix_anchor) == 1
+mix_tail = SRC[SRC.index(mix_anchor):]
+brk_credit = "PROF_ADD(PR_BRK, pbrkmix);"
+assert brk_credit in mix_tail
+assert mix_tail.index("PROF_T(pbrkmix)") < mix_tail.index("mix_targets(PART_BRK, g, solo_parts)")
+assert mix_tail.index(brk_credit) > mix_tail.index("meter(PART_BRK, kbuf, g, n)")
+assert mix_tail.index(brk_credit) < mix_tail.index("bfx_send_shape(0, rev, (int)n)")
+
 prefix = r'''
 #include <assert.h>
 #include <stdint.h>
