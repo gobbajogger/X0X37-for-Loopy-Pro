@@ -91,11 +91,21 @@ static uint32_t ble_msg_of_usb(uint32_t pkt, uint8_t b[3])
     return n;
 }
 
-/* the address and the name "X0X-XXXX" from a factory record (the same on every boot of a unit,
- * different between units): a random static address, top two bits 11 */
-static void ble_addr_of(const uint8_t *rec, uint32_t n, uint8_t addr[6], char name[9])
+/* Keep the factory-derived address and four-hex-digit suffix stable. Only
+ * the advertised/GATT name gains the selected keyboard model. */
+#if BOARD_SMK37
+#ifndef SMK_MODEL
+#define SMK_MODEL "SMK-37 Pro"
+#endif
+#define BLE_DEVICE_NAME_PREFIX SMK_MODEL "-"
+#else
+#define BLE_DEVICE_NAME_PREFIX "X0X-"
+#endif
+#define BLE_DEVICE_NAME_SIZE (sizeof(BLE_DEVICE_NAME_PREFIX) + 4u)
+_Static_assert(BLE_DEVICE_NAME_SIZE - 1u <= BLEH_NAME_MAX,
+               "BLE model name and suffix exceed host name capacity");
+static void ble_addr_of(const uint8_t *rec, uint32_t n, uint8_t addr[6], char name[BLE_DEVICE_NAME_SIZE])
 {
-    /* Same 16 digits ui.c and main_fm1.c already index. One literal in this TU. */
     uint32_t a = xb_crc32(0, rec, n), b = xb_crc32(0x5A5A5A5Au, rec, n);
     addr[0] = (uint8_t)a;
     addr[1] = (uint8_t)(a >> 8);
@@ -103,10 +113,14 @@ static void ble_addr_of(const uint8_t *rec, uint32_t n, uint8_t addr[6], char na
     addr[3] = (uint8_t)(a >> 24);
     addr[4] = (uint8_t)b;
     addr[5] = (uint8_t)((b >> 8) | 0xC0u);
-    name[0] = 'X'; name[1] = '0'; name[2] = 'X'; name[3] = '-';
-    name[4] = "0123456789ABCDEF"[addr[1] >> 4]; name[5] = "0123456789ABCDEF"[addr[1] & 15u];
-    name[6] = "0123456789ABCDEF"[addr[0] >> 4]; name[7] = "0123456789ABCDEF"[addr[0] & 15u];
-    name[8] = 0;
+    unsigned i;
+    for (i = 0; i < sizeof(BLE_DEVICE_NAME_PREFIX) - 1u; i++)
+        name[i] = BLE_DEVICE_NAME_PREFIX[i];
+    name[i++] = "0123456789ABCDEF"[addr[1] >> 4];
+    name[i++] = "0123456789ABCDEF"[addr[1] & 15u];
+    name[i++] = "0123456789ABCDEF"[addr[0] >> 4];
+    name[i++] = "0123456789ABCDEF"[addr[0] & 15u];
+    name[i] = 0;
 }
 
 /* ---- the start guard (src/ble.c keeps it in .noinit: it survives a reset, not a power-off) ----

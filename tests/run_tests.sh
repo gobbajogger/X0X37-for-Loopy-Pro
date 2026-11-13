@@ -643,6 +643,7 @@ fi
 # the controller image in a package, Python and JavaScript (tests/ble_pkg_test.py, needs the SMK build)
 run ble-sysex-bounds sh -c "$CC -std=c11 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/ble_sysex_bounds_test tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_sysex_bounds_test"
 run ble sh -c "$CC $W -Ifirmware/hal -Ifirmware/src/ble -o $OUT/ble_test tests/ble_test.c -lpthread && $OUT/ble_test"
+run ble-model-identity python3 -B tests/host/ble_identity_test.py
 [ -f build/x0x-smk37.fwsc ] && run ble-package python3 tests/ble_pkg_test.py
 run upload-images sh -c "python3 tests/host/make_test_loops.py build/test_loops && \
     python3 tools/upload_breaks.py --rate 22050 --nslots 2 --dry-run build/test_upload build/test_loops/loop*.wav && \

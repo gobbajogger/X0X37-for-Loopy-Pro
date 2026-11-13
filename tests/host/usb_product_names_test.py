@@ -93,6 +93,16 @@ def main():
             result = subprocess.run([str(binary)], capture_output=True, text=True)
             assert result.returncode == 0, result.stdout + result.stderr
             print(result.stdout.strip())
+        for model in ("SMK-37 Pro", "SMK-37 Elite", "MKE-P37"):
+            expected = model + " Update"
+            result = subprocess.run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                     "-DBOARD_SMK37=1", "-DFELUCCA_LOADER=1", f'-DSMK_MODEL="{model}"',
+                                     f'-DEXPECTED="{expected}"', "-Ifirmware/src", str(source), "-o", str(binary)],
+                                    cwd=ROOT, capture_output=True, text=True)
+            assert result.returncode == 0, result.stderr
+            result = subprocess.run([str(binary)], capture_output=True, text=True)
+            assert result.returncode == 0, result.stdout + result.stderr
+            print(result.stdout.strip())
         # Exercise the actual fallback OTA definition rather than a duplicate.
         x0x = (ROOT / "firmware/src/x0x.c").read_text()
         start = x0x.index("#ifndef FELUCCA_ID")
@@ -122,10 +132,11 @@ def main():
 
     usb = (ROOT / "firmware/src/usb.c").read_text(encoding="utf-8")
     assert '#elif BOARD_SMK37\n#include "usb_product_name.h"' in usb
+    assert '#if defined(FELUCCA_LOADER) && BOARD_SMK37\n#include "usb_product_name.h"' in usb
     assert '*d = (const uint8_t *)&STR2;' in usb
     assert '0x09, 0x12, FELUCCA_USB_PID & 0xFF' in usb  # existing VID/PID unchanged
     assert "'F', 0, 'e', 0, 'l', 0, 'u'" in usb  # loader name unchanged
-    print("PASS USB wiring, unchanged VID/PID and loader descriptor")
+    print("PASS USB wiring, unchanged VID/PID and legacy non-SMK loader descriptor")
 
 
 if __name__ == "__main__":

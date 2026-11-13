@@ -159,5 +159,7 @@ publication, integration or merge action is part of this source PR.
 
 - Scope: direct/MKE SMK USB builds must not fall back to a non-keyboard product label; direct Elite/MKE OTA identity must use the selected `SMK_MODEL`, not Pro.
 - Base: published 0.0.26 source `600b3b45f8d59c3432d958238b05753eb6f2fcb5`. Its normal Elite/Pro package identities were already correct, but USB names `DnBOX 0.0.26 37PRO/37ELITE` lacked M-Flasher’s SMK discovery token. This is not evidence for the reported slow-boot cause.
-- Status: source candidate. `tests/host/usb_product_names_test.py` compiles and decodes the real USB descriptors and fallback OTA model definitions. Normal Elite/Pro USB names now include the `SMK-37` token required by M-Flasher v0.11 discovery. OTA identity, VID/PID, loader identity and protected flash behavior remain unchanged.
+- Status: source candidate. `tests/host/usb_product_names_test.py` compiles and decodes the real USB descriptors and fallback OTA model definitions. Normal Elite/Pro USB names now include the `SMK-37` token required by M-Flasher v0.11 discovery. OTA protocol identity, VID/PID and protected flash behavior remain unchanged. The SMK loader USB display name is now model-specific (`SMK-37 Pro/Elite Update`).
 - Qualification: focused checks PASS; target rebuild and device checks not run for this candidate. No release or hardware-fix claim.
+
+- Bluetooth followup: use `SMK-37 Pro-XXXX` / `SMK-37 Elite-XXXX` for scan response and GAP Device Name. Factory-derived static address, suffix, controller image and pairing behavior are unchanged. Real host HCI/GATT and address-preservation checks pass for both models; target BLERAM/resource qualification remains pending.
