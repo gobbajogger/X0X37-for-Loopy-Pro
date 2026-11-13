@@ -14,7 +14,7 @@ const CLOCKS = [60, 80, 100, 120, 160, 200, 240, 360];
 const DEVICE = document.documentElement.dataset.device === "smk37" ? "smk37" : "fm1";
 const DNBOX = document.documentElement.dataset.dnbox === "true";
 const DEV = DEVICE === "smk37"
-  ? { product: "M-VAVE SMK-37", board: 1, key: DNBOX ? "dnbox." : "smk37.", stock: "SMK-37 Pro_016.fwsc", stockFile: /^SMK-37 (Pro|Elite)_\d+( \(\d+\))?\.fwsc$/i,
+  ? { product: DNBOX ? "DnBOX" : "M-VAVE SMK-37", board: 1, key: DNBOX ? "dnbox." : "smk37.", stock: "SMK-37 Pro_016.fwsc", stockFile: /^SMK-37 (Pro|Elite)_\d+( \(\d+\))?\.fwsc$/i,
       other: { name: "FM-1", href: "../" } }
   : { product: "M-VAVE FM-1", board: 0, key: "fm1.", stock: "FM-1.fwsc", stockFile: /^FM-1( \(\d+\))?\.fwsc$/i,
       other: { name: "SMK-37", href: "smk37/" } };
