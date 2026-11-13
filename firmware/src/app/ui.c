@@ -3428,16 +3428,20 @@ static void bass_write_held_chord(int b)
     mark_dirty();
 }
 
-static void bass_kbd(int key, int step_record)
+/* live_token is defined with the 37-key live path; identity 1..27 matches key+1. */
+static unsigned live_token(unsigned physical);
+
+/* Shared 303 REC/play writer: identity is key+1 (FM-1 window) or live_token (outer). */
+static void bass_kbd_at(int identity, int n, int step_record, int vel_key)
 {
-    int b = bidx(), n = kbd_note(key);
+    int b = bidx();
     if ((X0X_ORIGINAL_SYNTH || chi_arp_on_part(b)) && kbd_arp_n[b] < UI_BASS_HELD_MAX) {
         uint32_t i, have = 0;
         for (i = 0; i < kbd_arp_n[b]; i++)
-            if (kbd_arp_key[b][i] == (uint8_t)(key + 1))
+            if (kbd_arp_key[b][i] == (uint8_t)identity)
                 have = 1;
         if (!have) {
-            kbd_arp_key[b][kbd_arp_n[b]] = (uint8_t)(key + 1);
+            kbd_arp_key[b][kbd_arp_n[b]] = (uint8_t)identity;
             kbd_arp_note[b][kbd_arp_n[b]] = (uint8_t)n;
             kbd_arp_n[b]++;
         }
@@ -3445,8 +3449,8 @@ static void bass_kbd(int key, int step_record)
     if (!(step_record && ui.rec && seq.playing))
         engine_bass_on_velocity(b, n, (ui.btn & (1u << B_ENV)) != 0,
                                 !chi_arp_on_part(b) && kbd_held_note[b] != 0,
-                                (ui.view == V_PART || (ui.freeplay[b] && !ui.rec)) ?
-                                    plat_key_velocity(key) : BASS_VELOCITY_DEFAULT);
+                                (vel_key >= 0 && (ui.view == V_PART || (ui.freeplay[b] && !ui.rec))) ?
+                                    plat_key_velocity(vel_key) : BASS_VELOCITY_DEFAULT);
     if (step_record && ui.rec && !seq.playing) {
         if(engine_bass_sound_bank(&proj.sound,b)>=2)bass_write_held_chord(b);
         else bass_write(b, n, G_NOTE);
@@ -3460,7 +3464,56 @@ static void bass_kbd(int key, int step_record)
     } else
         bass_rec_step[b] = 0;
     kbd_held_note[b] = (uint8_t)n;
-    kbd_held_key[b] = (uint8_t)(key + 1);
+    kbd_held_key[b] = (uint8_t)identity;
+}
+
+static void bass_kbd(int key, int step_record)
+{
+    bass_kbd_at(key + 1, kbd_note(key), step_record, key);
+}
+
+#if BOARD_SMK37 || defined(X0X_HOST)
+static void bass_kbd_physical(int p, int n)
+{
+    bass_kbd_at((int)live_token((unsigned)p), n, ui.view == V_SEQ, -1);
+}
+#endif
+
+/* Release a held 303 identity (key+1 or live_token). 1 if a voice was ended. */
+static int bass_kbd_release(int identity)
+{
+    uint8_t id = (uint8_t)identity;
+    for (int b = 0; b < NBASS; b++) {
+        uint32_t i, j, hit = 0;
+        int note = -1;
+        for (i = 0; i < kbd_arp_n[b]; i++)
+            if (kbd_arp_key[b][i] == id) {
+                note = kbd_arp_note[b][i];
+                for (j = i + 1; j < kbd_arp_n[b]; j++) {
+                    kbd_arp_key[b][j - 1] = kbd_arp_key[b][j];
+                    kbd_arp_note[b][j - 1] = kbd_arp_note[b][j];
+                }
+                kbd_arp_n[b]--;
+                hit = 1;
+                break;
+            }
+        if (kbd_held_key[b] == id || hit) {
+            if ((X0X_ORIGINAL_SYNTH || chi_arp_on_part(b)) && note >= 0)
+                engine_bass_off_note(b, note);
+            else
+                engine_bass_off(b);
+            if (!kbd_arp_n[b]) {
+                kbd_held_note[b] = 0;
+                kbd_held_key[b] = 0;
+            } else {
+                kbd_held_note[b] = kbd_arp_note[b][kbd_arp_n[b] - 1u];
+                kbd_held_key[b] = kbd_arp_key[b][kbd_arp_n[b] - 1u];
+            }
+            bass_rec_step[b] = 0;
+            return 1;
+        }
+    }
+    return 0;
 }
 
 /* an edit sounds as the drum keys do (KEY SOUND): while stopped or recording, or always */
@@ -3712,36 +3765,8 @@ static void key_event(int k, int down)
     }
     if (live_central_event(k,down)) return;
     if (!down) {
-        for (int b = 0; b < NBASS; b++) {
-            uint32_t i, j, hit = 0;
-            int note = -1;
-            for (i = 0; i < kbd_arp_n[b]; i++)
-                if (kbd_arp_key[b][i] == (uint8_t)(k + 1)) {
-                    note = kbd_arp_note[b][i];
-                    for (j = i + 1; j < kbd_arp_n[b]; j++) {
-                        kbd_arp_key[b][j - 1] = kbd_arp_key[b][j];
-                        kbd_arp_note[b][j - 1] = kbd_arp_note[b][j];
-                    }
-                    kbd_arp_n[b]--;
-                    hit = 1;
-                    break;
-                }
-            if (kbd_held_key[b] == k + 1 || hit) {
-                if ((X0X_ORIGINAL_SYNTH || chi_arp_on_part(b)) && note >= 0)
-                    engine_bass_off_note(b, note);
-                else
-                    engine_bass_off(b);
-                if (!kbd_arp_n[b]) {
-                    kbd_held_note[b] = 0;
-                    kbd_held_key[b] = 0;
-                } else {
-                    kbd_held_note[b] = kbd_arp_note[b][kbd_arp_n[b] - 1u];
-                    kbd_held_key[b] = kbd_arp_key[b][kbd_arp_n[b] - 1u];
-                }
-                bass_rec_step[b] = 0;
-                return;
-            }
-        }
+        if (bass_kbd_release(k + 1))
+            return;
     }
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
@@ -4738,11 +4763,77 @@ X0X_COLD static void input_body(void)
     }
 }
 
+#if BOARD_SMK37 || defined(X0X_HOST)
+/* REC feeder for the ten SMK-37 keys outside the FM-1 27-key window (physical
+ * 0-4 and 32-36), on a 303 only (kbd_on / is_303). The 27-key plat_keys path
+ * and ui_live_key_owner's ui.rec exclusion are unchanged.
+ * 909/808/BREAK: the outer keys stay unmapped. Drum voices are the 11 black
+ * keys of F3-G5 (NDRUM, KEY_BLACK[NKEYS]); BREAK steps and slices use the
+ * same 27-key tables; low outer C3-D#3 already page BREAK via ui_brk_page_keys.
+ * See docs/plans/2026-11-13-rec-full-keybed.md. */
+static uint64_t rec_outer_prev, rec_outer_suppress, rec_outer_admitted;
+static uint8_t rec_outer_armed;
+static const uint8_t rec_outer_idx[10] = {0,1,2,3,4,32,33,34,35,36};
+
+static void rec_outer_keys(void)
+{
+    uint64_t phys = plat_physical_keys();
+    unsigned i;
+    int admit = ui.rec && is_303() && kbd_on() && !project_busy && ui.overlay != O_ASK && !perf_testing();
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    if (smk_clip_mode_on()) admit = 0;
+#endif
+    if (!admit) {
+        if (rec_outer_admitted) {
+            for (i = 0; i < 10; i++) {
+                unsigned p = rec_outer_idx[i];
+                uint64_t bit = (uint64_t)1u << p;
+                if (rec_outer_admitted & bit)
+                    (void)bass_kbd_release((int)live_token(p));
+            }
+            rec_outer_admitted = 0;
+        }
+        rec_outer_prev = phys;
+        rec_outer_suppress = phys;   /* already-held keys stay quiet at the next REC entry */
+        rec_outer_armed = 0;
+        return;
+    }
+    if (!rec_outer_armed) {
+        rec_outer_suppress = phys;
+        rec_outer_prev = phys;
+        rec_outer_armed = 1;
+        return;
+    }
+    for (i = 0; i < 10; i++) {
+        unsigned p = rec_outer_idx[i];
+        uint64_t bit = (uint64_t)1u << p;
+        int on  = !!(phys & bit);
+        int was = !!(rec_outer_prev & bit);
+        if (on && (rec_outer_suppress & bit))
+            continue;
+        if (!on)
+            rec_outer_suppress &= ~bit;
+        if (on && !was) {
+            bass_kbd_physical((int)p, 36 + (int)p + 12 * ui.oct);
+            rec_outer_admitted |= bit;
+        } else if (!on && was && (rec_outer_admitted & bit)) {
+            (void)bass_kbd_release((int)live_token(p));
+            rec_outer_admitted &= ~bit;
+        }
+    }
+    rec_outer_prev = phys;
+}
+#endif
+
 static void input(void)
 {
     live_boundary(1);
     input_body();
     seq.rec_ext_mask = ui.rec && !project_busy && ui.overlay != O_ASK ? (uint8_t)((1u << NBASS) - 1u) : 0;
+#if BOARD_SMK37 || defined(X0X_HOST)
+    rec_outer_keys();
+#endif
     live_boundary(0);
 }
 
