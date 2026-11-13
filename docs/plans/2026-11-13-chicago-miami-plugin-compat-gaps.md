@@ -6,6 +6,8 @@ This document does **not** redo `/workspace/presets-research/plugin-identity.md`
 
 Chicago is the 303 engine. Miami is never 303 or 303B.
 
+**26.8 scope, sibling.** AudioKit Synth One J6 ↔ DnBOX Juno is in the same 26.8 plugin-compat scope: `docs/plans/2026-11-13-audiokit-j6-juno-compat.md`. That work is not a Chicago/Miami rights issue. U1–U3 were rechecked on 2026-11-13 (box, repo, attachments): still MISSING; no `.aupreset`, `.nksf`, capability log, or plugin binary was found.
+
 ## 1. User-preset two-way round-trip with the real plugins (IN SCOPE)
 
 **Goal.** A user program saved from the real Chicago or Miami plugin can become a DNPR v1 record (and a DnBOX user slot), and a DNPR / DnBOX user program can be written back in a form the same plugin accepts, with every public macro reported honestly as EXACT, APPROXIMATE, or UNSUPPORTED (spec §3A.2, X13, X15). A/B renders (X14) measure acoustic drift. No identical-sound language until those measurements exist.
@@ -65,3 +67,4 @@ Do not wait on a rights clearance to gather U1–U4 or to implement the user pat
 - `tools/import_chicago_miami_factory_banks.py` (one-way factory reader; no writer).
 - `docs/plans/2026-11-13-preset-format-v1.md` (DNPR v1; factory-export switch).
 - `docs/plans/2026-11-13-preset-file-io-research.md` (host file I/O; no plugin converter on the v1 page).
+- `docs/plans/2026-11-13-audiokit-j6-juno-compat.md` (sibling: AudioKit J6 ↔ DnBOX Juno).
