@@ -1455,8 +1455,133 @@ X0X_COLD __attribute__((noinline)) static void more_refs(page_emitter_t *emit, c
     }
 }
 
+/* Table-driven page descriptions. One emitter, shared title fragments and
+ * shared pref rows (MASTER and WAVE; KIT track via axis). Output is identical
+ * to the previous unrolled switch for every view, part, engine and model. */
+enum {
+    DT_PERFORM, DT_SEQUENCE, DT_PRESET, DT_KEYS, DT_GROOVE, DT_RETRIG,
+    DT_KIT, DT_SOUND, DT_LOOPS, DT_GENERATE, DT_SCALE, DT_REVERB, DT_DELAY,
+    DT_PARTS, DT_MASTER, DT_WAVE, DT_PERF, DT_BAR, DT_EMPTY, DT_N
+};
+static const char *const DT_TITLE[DT_N] = {
+    "PERFORM", "SEQUENCE", "PRESET", "KEYS", "GROOVE", "RETRIG",
+    "KIT", "SOUND", "LOOPS", "GENERATE", "SCALE", "REVERB", "DELAY",
+    "PARTS", "MASTER", "WAVE", "PERF", "BAR", ""
+};
+enum { DT_MORE = 0xFFu, DT_KEEP = 0xFFu };
+typedef struct {
+    uint8_t title, n, axis, group;
+    const pref_t *refs;
+} dpcmd_t;
+
+static const pref_t DPR_PERFORM[4] = {PR(R_TEMPO, 0, 0, 0), PR(R_SWING, 0, 0, 0), PR(R_ENG, T_MST, 0, MST_DJF), PR(R_ENG, T_MST, 0, MST_PUMP)};
+static const pref_t DPR_SEQ_DRUM[4] = {PR(R_DLEN, 0, 0, 0), PR(R_DRATE, 0, 0, 0), NONE, NONE};
+static const pref_t DPR_SEQ_303[4] = {PR(R_BLEN, 0, 0, 0), PR(R_BRATE, 0, 0, 0), PR(R_BDIR, 0, 0, 0), PR(R_BTRANS, 0, 0, 0)};
+static const pref_t DPR_PRESET[4] = {PR(R_BPATSND, 0, 0, 0), NONE, NONE, NONE};
+static const pref_t DPR_KEYS[4] = {PR(R_FREEPLAY, 0, 0, 0), NONE, NONE, NONE};
+static const pref_t DPR_SEQ_BRK[4] = {PR(R_BRKRATE, 0, 0, 0), NONE, NONE, NONE};
+static const pref_t DPR_GROOVE[4] = {PR(R_BRKSET, 0, 0, BRK_COMPLEX), PR(R_BRKSET, 0, 0, BRK_ANCHOR), PR(R_BRKSET, 0, 0, BRK_ROLL), PR(R_BRKSET, 0, 0, BRK_FILL)};
+static const pref_t DPR_RETRIG[4] = {PR(R_BRKSET, 0, 0, BRK_R2), PR(R_BRKSET, 0, 0, BRK_R3), PR(R_BRKSET, 0, 0, BRK_R4), PR(R_BRKSET, 0, 0, BRK_R8)};
+static const pref_t DPR_PHRASE[3] = {PR(R_BRKSET, 0, 0, BRK_PHRASE), PR(R_BRKSET, 0, 0, BRK_ALEN), PR(R_BRKSET, 0, 0, BRK_BLEN)};
+static const pref_t DPR_KIT[4] = {PR(R_ENG, 0, NDRUM, 1), NONE, NONE, NONE};
+static const pref_t DPR_SOUND[4] = {PR(R_BENGINE, 0, 0, 0), PR(R_BPRESET, 0, 0, 0), PR(R_BSTATUS, 0, 0, 0), NONE};
+static const pref_t DPR_LOOPS[4] = {PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE), PR(R_ENG, T_BRK, 0, 1)};
+static const pref_t DPR_LOOPS_MORE[3] = {PR(R_ENG, T_BRK, 0, 0), PR(R_BRKSLICE, 0, 0, 0), PR(R_BRKSLICE, 1, 0, 0)};
+static const pref_t DPR_GEN[4] = {PR(R_GEN, 0, 0, G_DENS), PR(R_GEN, 0, 0, G_ACC), PR(R_GEN, 0, 0, G_SLIDE), PR(R_GEN, 0, 0, G_OCTS)};
+static const pref_t DPR_SCALE[4] = {PR(R_GEN, 0, 0, G_ROOT), PR(R_GEN, 0, 0, G_SCALE), PR(R_GEN, 0, 0, G_BASE), PR(R_GEN, 0, 0, G_MUT)};
+static const pref_t DPR_REVERB[4] = {PR(R_ENG, T_FX, 0, FX_RV_DECAY), PR(R_ENG, T_FX, 0, FX_RV_TONE), NONE, NONE};
+static const pref_t DPR_DELAY[4] = {PR(R_ENG, T_FX, 0, FX_DL_TIME), PR(R_ENG, T_FX, 0, FX_DL_FDBK), PR(R_ENG, T_FX, 0, FX_DL_TONE), PR(R_TAPE, 0, 0, 0)};
+static const pref_t DPR_FX_MORE[5] = {PR(R_ENG, T_FX, 0, FX_RV_HPF), PR(R_ENG, T_FX, 0, FX_RV_LEVEL), PR(R_ENG, T_FX, 0, FX_DL_HPF), PR(R_ENG, T_FX, 0, FX_DL_LEVEL), PR(R_ENG, T_FX, 0, FX_DL_PING)};
+static const pref_t DPR_PARTS[4] = {PR(R_ENG, T_MIX, 0, MX_LEVEL), PR(R_ENG, T_MIX, 0, MX_PAN), PR(R_ENG, T_MIX, 0, MX_REV), PR(R_ENG, T_MIX, 0, MX_DLY)};
+static const pref_t DPR_MASTER[4] = {PR(R_ENG, T_FX, 0, FX_DRIVE), PR(R_ENG, T_MST, 0, MST_COMP1), PR(R_ENG, T_MST, 0, MST_PUMP), PR(R_ENG, T_MST, 0, MST_DJF)};
+static const pref_t DPR_MST_MORE[12] = {PR(R_ENG, T_MST, 0, MST_THRESH), PR(R_ENG, T_MST, 0, MST_RATIO), PR(R_ENG, T_MST, 0, MST_ATTACK), PR(R_ENG, T_MST, 0, MST_RELEASE), PR(R_ENG, T_MST, 0, MST_MAKEUP), PR(R_ENG, T_MST, 0, MST_MIX), PR(R_ENG, T_MST, 0, MST_PUMPSRC), PR(R_ENG, T_MST, 0, MST_RESO), PR(R_ENG, T_MST, 0, MST_LIMIT), PR(R_ENG, T_FX, 0, FX_DIST), PR(R_ENG, T_FX, 0, FX_COMP), PR(R_ENG, T_FX, 0, FX_VOLUME)};
+static const pref_t DPR_PERF[4] = {PR(R_STALLS, 0, 0, 0), NONE, NONE, NONE};
+static const pref_t DPR_BAR1[4] = {PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_909, 0, 0), PR(R_SPAT, PART_808, 0, 0), PR(R_SPAT, PART_BRK, 0, 0)};
+static const pref_t DPR_BAR2[4] = {PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_303B, 0, 0), PR(R_SPAT, PART_303A, 0, 0), PR(R_SREP, 0, 0, 0)};
+static const pref_t DPR_EMPTY[4] = {NONE, NONE, NONE, NONE};
+
+static const dpcmd_t DPC_HOME[] = {{DT_PERFORM, 4, 0, DT_KEEP, DPR_PERFORM}};
+static const dpcmd_t DPC_SEQ_DRUM[] = {{DT_SEQUENCE, 4, 1, GR_PAT, DPR_SEQ_DRUM}};
+static const dpcmd_t DPC_SEQ_303[] = {
+    {DT_SEQUENCE, 4, 1, GR_PAT, DPR_SEQ_303},
+    {DT_PRESET, 4, 2, DT_KEEP, DPR_PRESET},
+    {DT_KEYS, 4, 1, GR_NONE, DPR_KEYS}
+};
+static const dpcmd_t DPC_SEQ_BRK[] = {
+    {DT_SEQUENCE, 4, 0, GR_PAT, DPR_SEQ_BRK},
+    {DT_GROOVE, 4, 0, DT_KEEP, DPR_GROOVE},
+    {DT_RETRIG, 4, 0, DT_KEEP, DPR_RETRIG},
+    {DT_MORE, 3, 0, DT_KEEP, DPR_PHRASE}
+};
+static const dpcmd_t DPC_KIT[] = {{DT_KIT, 4, 1, GR_KIT, DPR_KIT}};
+static const dpcmd_t DPC_SOUND[] = {{DT_SOUND, 4, 2, DT_KEEP, DPR_SOUND}};
+static const dpcmd_t DPC_LOOPS[] = {
+    {DT_LOOPS, 4, 0, GR_PAT, DPR_LOOPS},
+    {DT_MORE, 3, 0, DT_KEEP, DPR_LOOPS_MORE}
+};
+static const dpcmd_t DPC_GEN[] = {
+    {DT_GENERATE, 4, 1, GR_PAT, DPR_GEN},
+    {DT_SCALE, 4, 1, DT_KEEP, DPR_SCALE}
+};
+static const dpcmd_t DPC_FX[] = {
+    {DT_REVERB, 4, 0, DT_KEEP, DPR_REVERB},
+    {DT_DELAY, 4, 0, DT_KEEP, DPR_DELAY},
+    {DT_MORE, 5, 0, DT_KEEP, DPR_FX_MORE}
+};
+static const dpcmd_t DPC_PARTS[] = {{DT_PARTS, 4, 2, DT_KEEP, DPR_PARTS}};
+static const dpcmd_t DPC_MASTER[] = {
+    {DT_MASTER, 4, 0, DT_KEEP, DPR_MASTER},
+    {DT_MORE, 12, 0, DT_KEEP, DPR_MST_MORE},
+    {DT_WAVE, 4, 0, DT_KEEP, DPR_MASTER}
+};
+static const dpcmd_t DPC_PERF[] = {{DT_PERF, 4, 0, DT_KEEP, DPR_PERF}};
+static const dpcmd_t DPC_SONG[] = {
+    {DT_BAR, 4, 0, DT_KEEP, DPR_BAR1},
+    {DT_BAR, 4, 0, DT_KEEP, DPR_BAR2}
+};
+static const dpcmd_t DPC_EMPTY[] = {{DT_EMPTY, 4, 0, DT_KEEP, DPR_EMPTY}};
+
+X0X_COLD __attribute__((noinline)) static void emit_cmds(page_emitter_t *emit, const dpcmd_t *cmd, unsigned n, uint8_t val)
+{
+    unsigned i;
+    for (i = 0; i < n; i++) {
+        if (cmd[i].group != DT_KEEP)
+            emit->group = cmd[i].group;
+        if (cmd[i].title == DT_MORE)
+            more_refs(emit, cmd[i].refs, cmd[i].n, cmd[i].axis, val);
+        else
+            add_page_refs(emit, DT_TITLE[cmd[i].title], cmd[i].refs, cmd[i].axis, val);
+    }
+}
+#define EMIT(emit, tab, val) emit_cmds(emit, tab, (unsigned)(sizeof(tab) / sizeof(tab)[0]), (uint8_t)(val))
+
+X0X_COLD static void add_bass_engine_pages(page_emitter_t *emit, int b)
+{
+    int kind = engine_bass_bank(b);
+    const int8_t (*rows)[4];
+    const char *const *titles;
+    int count, row, col;
+    if (kind == ORIGINAL_SOUND_JUNO) {
+        rows = ui_original_juno_rows; titles = ui_original_juno_titles; count = UI_ORIGINAL_JUNO_PAGES;
+    } else if (kind == ORIGINAL_SOUND_DRONE) {
+        rows = ui_original_drone_rows; titles = ui_original_drone_titles; count = UI_ORIGINAL_DRONE_PAGES;
+    } else if (kind == ORIGINAL_SOUND_CHICAGO) {
+        rows = ui_original_chicago_rows; titles = ui_original_chicago_titles; count = UI_ORIGINAL_CHICAGO_PAGES;
+    } else {
+        rows = ui_original_miami_rows; titles = ui_original_miami_titles; count = UI_ORIGINAL_MIAMI_PAGES;
+    }
+    emit->group = GR_SOUND;
+    for (row = 0; row < count; row++) {
+        pref_t refs[4];
+        for (col = 0; col < 4; col++)
+            refs[col] = rows[row][col] < 0 ? NONE : PR(R_ENG, T_303, b, rows[row][col]);
+        add_page_refs(emit, titles[row], refs, 0, 0);
+    }
+    EMIT(emit, DPC_SOUND, b);
+}
+
 /* Pure navigation inputs: emit existing descriptors without keyboard clamping. */
-static void describe_pages(pages_t *out, page_query_t *query, int view, int p, int mixsel, const uint8_t *selection)
+X0X_COLD __attribute__((noinline)) static void describe_pages(pages_t *out, page_query_t *query, int view, int p, int mixsel, const uint8_t *selection)
 {
     page_emitter_t output = {out, query, GR_NONE};
     page_emitter_t *emit = &output;
@@ -1467,118 +1592,51 @@ static void describe_pages(pages_t *out, page_query_t *query, int view, int p, i
     switch (view) {
     case V_HOME:                                       /* the pattern: how the parts run through it */
     case V_GLO:
-        do { static const pref_t refs[4] = {PR(R_TEMPO, 0, 0, 0), PR(R_SWING, 0, 0, 0), PR(R_ENG, T_MST, 0, MST_DJF), PR(R_ENG, T_MST, 0, MST_PUMP)};
-            add_page_refs(emit, "PERFORM", refs, 0, 0); } while (0);
+        EMIT(emit, DPC_HOME, 0);
         break;
     case V_SEQ:                                        /* the part's steps: how its pattern runs */
-        emit->group = GR_PAT;
         if (part_is_drum(p))
-            do { static const pref_t refs[4] = {PR(R_DLEN, 0, 0, 0), PR(R_DRATE, 0, 0, 0), NONE, NONE};
-            add_page_refs(emit, "SEQUENCE", refs, 1, p); } while (0);   /* (the swing: HOME's, all parts') */
-        else if (part_is_303(p)) {
-            int b = p - PART_303A;
-            do { static const pref_t refs[4] = {PR(R_BLEN, 0, 0, 0), PR(R_BRATE, 0, 0, 0), PR(R_BDIR, 0, 0, 0), PR(R_BTRANS, 0, 0, 0)};
-            add_page_refs(emit, "SEQUENCE", refs, 1, b); } while (0);
-            add_page(emit, "PRESET", PR(R_BPATSND, 0, b, 0), NONE, NONE, NONE);   /* 0.0.25: this pattern's bass preset */
-            emit->group = GR_NONE;                          /* (not the pattern's: no P1 in its name) */
-            do { static const pref_t refs[4] = {PR(R_FREEPLAY, 0, 0, 0), NONE, NONE, NONE};
-            add_page_refs(emit, "KEYS", refs, 1, b); } while (0);
-        }
-        else {
-            do { static const pref_t refs[4] = {PR(R_BRKRATE, 0, 0, 0), NONE, NONE, NONE};
-            add_page_refs(emit, "SEQUENCE", refs, 0, 0); } while (0);
-            do { static const pref_t refs[4] = {PR(R_BRKSET, 0, 0, BRK_COMPLEX), PR(R_BRKSET, 0, 0, BRK_ANCHOR), PR(R_BRKSET, 0, 0, BRK_ROLL), PR(R_BRKSET, 0, 0, BRK_FILL)};
-            add_page_refs(emit, "GROOVE", refs, 0, 0); } while (0);
-            do { static const pref_t refs[4] = {PR(R_BRKSET, 0, 0, BRK_R2), PR(R_BRKSET, 0, 0, BRK_R3), PR(R_BRKSET, 0, 0, BRK_R4), PR(R_BRKSET, 0, 0, BRK_R8)};
-            add_page_refs(emit, "RETRIG", refs, 0, 0); } while (0);
-            do { static const pref_t refs[] = {PR(R_BRKSET, 0, 0, BRK_PHRASE), PR(R_BRKSET, 0, 0, BRK_ALEN), PR(R_BRKSET, 0, 0, BRK_BLEN)};
-                more_refs(emit, refs, 3, 0, 0); } while (0);
-        }
+            EMIT(emit, DPC_SEQ_DRUM, p);
+        else if (part_is_303(p))
+            EMIT(emit, DPC_SEQ_303, p - PART_303A);
+        else
+            EMIT(emit, DPC_SEQ_BRK, 0);
         break;
     case V_PART:                                       /* the part's sound */
         if (part_is_drum(p)) {
             int t = p == PART_909 ? T_909 : T_808;
             add_track_pages(emit, t, selection[p]);
-            emit->group = GR_KIT;
-            if (p == PART_909)                         /* (the kit's gain: the mixer's level does it) */
-                do { static const pref_t refs[4] = {PR(R_ENG, T_909, NDRUM, 1), NONE, NONE, NONE};
-            add_page_refs(emit, "KIT", refs, 0, 0); } while (0);
-            else
-                do { static const pref_t refs[4] = {PR(R_ENG, T_808, NDRUM, 1), NONE, NONE, NONE};
-            add_page_refs(emit, "KIT", refs, 0, 0); } while (0);
-        } else if (part_is_303(p)) {
-            int b = p - PART_303A;
-            emit->group = GR_SOUND;
-            int kind = engine_bass_bank(b), chicago = kind == ORIGINAL_SOUND_CHICAGO;
-            const int8_t (*rows)[4] = kind == ORIGINAL_SOUND_JUNO ? ui_original_juno_rows : kind == ORIGINAL_SOUND_DRONE ? ui_original_drone_rows :
-                chicago ? ui_original_chicago_rows : ui_original_miami_rows;
-            const char *const *titles = kind == ORIGINAL_SOUND_JUNO ? ui_original_juno_titles : kind == ORIGINAL_SOUND_DRONE ? ui_original_drone_titles :
-                chicago ? ui_original_chicago_titles : ui_original_miami_titles;
-            int count = kind == ORIGINAL_SOUND_JUNO ? UI_ORIGINAL_JUNO_PAGES : kind == ORIGINAL_SOUND_DRONE ? UI_ORIGINAL_DRONE_PAGES :
-                chicago ? UI_ORIGINAL_CHICAGO_PAGES : UI_ORIGINAL_MIAMI_PAGES;
-            for (int row = 0; row < count; row++) {
-                pref_t refs[4];
-                for (int col = 0; col < 4; col++) refs[col] = rows[row][col] < 0 ? NONE : PR(R_ENG,T_303,b,rows[row][col]);
-                add_page_refs(emit, titles[row],refs,0,0);
-            }
-            add_page(emit, "SOUND",PR(R_BENGINE,0,b,0),PR(R_BPRESET,0,b,0),PR(R_BSTATUS,0,b,0),NONE);
-        } else {
-            emit->group = GR_PAT;                           /* (its groove and retrigs: SEQ) */
-            do { static const pref_t refs[4] = {PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE), PR(R_ENG, T_BRK, 0, 1)};
-            add_page_refs(emit, "LOOPS", refs, 0, 0); } while (0);
-            more(emit, PR(R_ENG, T_BRK, 0, 0));
-            more(emit, PR(R_BRKSLICE, 0, 0, 0));
-            more(emit, PR(R_BRKSLICE, 1, 0, 0));
-        }
+            EMIT(emit, DPC_KIT, t);
+        } else if (part_is_303(p))
+            add_bass_engine_pages(emit, p - PART_303A);
+        else
+            EMIT(emit, DPC_LOOPS, 0);
         break;
-    case V_GEN: {
-        int b = p - PART_303A;
-        emit->group = GR_PAT;
-        do { static const pref_t refs[4] = {PR(R_GEN, 0, 0, G_DENS), PR(R_GEN, 0, 0, G_ACC), PR(R_GEN, 0, 0, G_SLIDE), PR(R_GEN, 0, 0, G_OCTS)};
-            add_page_refs(emit, "GENERATE", refs, 1, b); } while (0);
-        do { static const pref_t refs[4] = {PR(R_GEN, 0, 0, G_ROOT), PR(R_GEN, 0, 0, G_SCALE), PR(R_GEN, 0, 0, G_BASE), PR(R_GEN, 0, 0, G_MUT)};
-            add_page_refs(emit, "SCALE", refs, 1, b); } while (0);
+    case V_GEN:
+        EMIT(emit, DPC_GEN, p - PART_303A);
         break;
-    }
     case V_FX:                                         /* (each part's sends: MIX's PARTS) */
-        do { static const pref_t refs[4] = {PR(R_ENG, T_FX, 0, FX_RV_DECAY), PR(R_ENG, T_FX, 0, FX_RV_TONE), NONE, NONE};
-            add_page_refs(emit, "REVERB", refs, 0, 0); } while (0);
-        do { static const pref_t refs[4] = {PR(R_ENG, T_FX, 0, FX_DL_TIME), PR(R_ENG, T_FX, 0, FX_DL_FDBK), PR(R_ENG, T_FX, 0, FX_DL_TONE), PR(R_TAPE, 0, 0, 0)};
-            add_page_refs(emit, "DELAY", refs, 0, 0); } while (0);
-            do { static const pref_t refs[] = {PR(R_ENG, T_FX, 0, FX_RV_HPF), PR(R_ENG, T_FX, 0, FX_RV_LEVEL), PR(R_ENG, T_FX, 0, FX_DL_HPF), PR(R_ENG, T_FX, 0, FX_DL_LEVEL), PR(R_ENG, T_FX, 0, FX_DL_PING)};
-                more_refs(emit, refs, 5, 0, 0); } while (0);
+        EMIT(emit, DPC_FX, 0);
         break;
     case V_MIX:                                        /* a channel picked with a black key, its four knobs */
-        do { static const pref_t refs[4] = {PR(R_ENG, T_MIX, 0, MX_LEVEL), PR(R_ENG, T_MIX, 0, MX_PAN), PR(R_ENG, T_MIX, 0, MX_REV), PR(R_ENG, T_MIX, 0, MX_DLY)};
-            add_page_refs(emit, "PARTS", refs, 2, mixsel); } while (0);
+        EMIT(emit, DPC_PARTS, mixsel);
         for (p = 0; p < NKIT; p++) {                    /* each drum machine's tracks: LEVEL, PAN, REV, DLY */
             int t = p ? T_808 : T_909, v = selection[p];
             add_page(emit, p ? "808 MIX" : "909 MIX", find_ref(t, v, "Level"), find_ref(t, v, "Pan"), find_ref(t, v, "Rev"),
                      find_ref(t, v, "Dly"));
         }
-        do { static const pref_t refs[4] = {PR(R_ENG, T_FX, 0, FX_DRIVE), PR(R_ENG, T_MST, 0, MST_COMP1), PR(R_ENG, T_MST, 0, MST_PUMP), PR(R_ENG, T_MST, 0, MST_DJF)};
-            add_page_refs(emit, "MASTER", refs, 0, 0); } while (0);
-            do { static const pref_t refs[] = {PR(R_ENG, T_MST, 0, MST_THRESH), PR(R_ENG, T_MST, 0, MST_RATIO), PR(R_ENG, T_MST, 0, MST_ATTACK), PR(R_ENG, T_MST, 0, MST_RELEASE), PR(R_ENG, T_MST, 0, MST_MAKEUP), PR(R_ENG, T_MST, 0, MST_MIX), PR(R_ENG, T_MST, 0, MST_PUMPSRC), PR(R_ENG, T_MST, 0, MST_RESO), PR(R_ENG, T_MST, 0, MST_LIMIT), PR(R_ENG, T_FX, 0, FX_DIST), PR(R_ENG, T_FX, 0, FX_COMP), PR(R_ENG, T_FX, 0, FX_VOLUME)};
-                more_refs(emit, refs, 12, 0, 0); } while (0);
-        /* sibling of MASTER: same knobs, post-master eng_scope wave (Baud Girl ≤10 Hz redraw) */
-        do { static const pref_t refs[4] = {PR(R_ENG, T_FX, 0, FX_DRIVE), PR(R_ENG, T_MST, 0, MST_COMP1), PR(R_ENG, T_MST, 0, MST_PUMP), PR(R_ENG, T_MST, 0, MST_DJF)};
-            add_page_refs(emit, "WAVE", refs, 0, 0); } while (0);
+        EMIT(emit, DPC_MASTER, 0);
         break;
     case V_PERF:
-        do { static const pref_t refs[4] = {PR(R_STALLS, 0, 0, 0), NONE, NONE, NONE};
-            add_page_refs(emit, "PERF", refs, 0, 0); } while (0);
+        EMIT(emit, DPC_PERF, 0);
         break;
     case V_SONG:
-        do { static const pref_t refs[4] = {PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_909, 0, 0), PR(R_SPAT, PART_808, 0, 0), PR(R_SPAT, PART_BRK, 0, 0)};
-            add_page_refs(emit, "BAR", refs, 0, 0); } while (0);
-        do { static const pref_t refs[4] = {PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_303B, 0, 0), PR(R_SPAT, PART_303A, 0, 0), PR(R_SREP, 0, 0, 0)};
-            add_page_refs(emit, "BAR", refs, 0, 0); } while (0);
+        EMIT(emit, DPC_SONG, 0);
         break;
     default: break;
     }
     if ((query ? query->n : out->n) == 0)
-        do { static const pref_t refs[4] = {NONE, NONE, NONE, NONE};
-            add_page_refs(emit, "", refs, 0, 0); } while (0);
+        EMIT(emit, DPC_EMPTY, 0);
 }
 
 static void build_pages(void)
