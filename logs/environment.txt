@@ -1,0 +1,9 @@
+cc path: /usr/bin/cc
+cc (Debian 14.2.0-19) 14.2.0
+Copyright (C) 2024 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+HEAD: 7173c8fed9ade6d91b6897960680bddce0a5bdd2
+TREE: 98ed2617847ddce71c233248d5371516c68b91d2
+cwd: /workspace/qa-runs/7173c8fe
