@@ -1,0 +1,53 @@
+730	e567d207a55717838f3d450c4564ab94ab75659c	cursor/single-authoritative-rules-0459	wip/one-build	Point agents at the single workflow rules file
+714	8ff23cff749e4e9796de55e5995d40ddc6fe65b1	wip/mixer-ux-one-build	wip/one-build	Keep SMC mixer buttons reliable on the latest integrated build
+711	1eb56ce34841bd6574b41ea4db7fbbfb53e4a5ca	fix/enable-miami-rate-pads	fix/freeplay-unused-pads	Enable Miami wobble RATE pads in normal builds
+707	58136bc26bfa255be799b967e9abe044b064635b	wip/miami-table-fastpath	wip/one-build	Speed up Miami filter updates without changing audio
+701	58ccaf0229884bce5618bd91e81ed34bb3339b58	wip/engines-ui	wip/ui-theme	Keep the approved DnBOX screens with faster Chicago and Miami engines
+697	ff0f35c02163543ced4f79666787f2166ac327b4	chat/dnbox-author-policy-20261029	nightly	DnBOX: enforce canonical Git destination and default commit author
+695	72db66d8ddcc2ccbffc667f5578175f668df85f2	chat/pr-conflicts	wip/one-build	Reconcile earlier MIDI and Chicago fixes with one-build
+688	7b2d1726f3515b319d5edcab34529007d33ab3a8	wip/mixer-ux	nightly	[DRAFT] DnBOX mixer/UX continuation from abe3fb9a (feature-list 16,20,31,37,39–46,67)
+686	c4658725b69cce125f9bb9bbddcf95cd980501aa	chat/mixer-ux	nightly	[DRAFT] SMC mixer UX: queued patterns, held feedback and mute pickup (items 44/45/67)
+684	9d1cf9fb017889967f0c5f4b57727eab0d15a185	codex/release-chicago-miami-idle-9d1cf9fb	nightly	Chicago/Miami on published release UI with exact idle optimization
+681	ca8299b6bbf2f4ffaa3f10558b335e30a2c10914	fix/original-chicago-miami-idle-glyphs-20261029	nightly	[Superseded by #684] Chicago/Miami previous UI base
+679	f8567f0f4d2c6031e5ea0dad7bf85d81959e4729	fix/smc-command-credit-20261029	lane/mb-smc-composed-20261027	fix(smc): correct startup credits and two-peer controller heap
+637	f25f2fd47106992e4dbfdf6211b9299f6eb8c757	repair/adaptive-break-slices-20261027	nightly	fix(break): make loop slice counts adaptive without losing held-note identity
+636	92108efd743fb9fbadd665c361ee48e22b0e86e0	lane/opt-night-ui-continuity-20261027	nightly	Preserve checked Night UI content, filter and alignment fixes
+635	0e2b6f32d28d3001e84a7810a91f67aafce03a21	lane/mb-ec026-atomic-preservation-20261027	nightly	Guard sample backup snapshots at atomic OTA admission
+621	6f9090cf0c841a68a6652f918fa7d4a1262f46cb	lane/performance-cq-isr-regression-20261026	nightly	test(engine): RED deterministic audio-CQ ISR preemption regression
+617	9108a14df0f44a497036a27c0d539bcd6b473673	fix/bass-mode-routing-wbl1-20261026	nightly	fix(bass): isolate Miami/Chicago modes, complete WBL1 controls and add regressions
+601	4cade1cf84cd96204020ee31f5852e7f2e7c7074	cursor/midi-out-mq-noteoff-0998	nightly	Never drop USB MIDI-out Note Off when MQ is full
+593	32fe2ea11d10aa0f521ad0c7262a8414a3c46d0a	cursor/usb-mq-never-drop-noteoff-0998	nightly	fix(midi): never drop Note Off when USB/TRS midi_in_q is full
+587	01dd3bee5c2000dbc4f477a59850a8f92c025dd3	lane/installer-backup-selection-recheck-r48-20261026	nightly	fix(installer): recheck package approval after sample backup
+584	35b1a46dcecac240491ab3689297257b77166d62	lane/data-safety-wav-integrity-20261026	nightly	Data Safety: validate WAV metadata and reject nonfinite sample import
+539	7b344558559440ff92989cf4c4fdcac2d3784cf8	cursor/bass-midi-flush-noinline-0998-d758	nightly	Size: noinline seq bass_midi_flush (−96 B pi32)
+416	1cc39ca4c647248c9be380ab3a1076ee5f43153e	cursor/share-d808-cy-oh-lvl-tune-0a57	nightly	Share 808 crash/open-hat Level+Tune (flash)
+374	b3408b2e4c0ee6902c846a629081d096b98b4bd7	cursor/miami-stereo-split-f649	nightly	Miami WBL1: mono sub + Bass Split stereo body (product vs AU)
+371	831fef1dab5c0236668e4198296d122b1f156041	cursor/miami-wbl1-nightly-0c43	nightly	LX-158: Wire WBL1 Miami engine (DEV fixture) onto nightly base
+344	6736303314ca9fa8feb2dd57f0762f8afd284207	cursor/seq-cold-xip-0998	nightly	Stage 2: free nightly flash with cold seq setup/UI helpers (behavior unchanged)
+322	e47268ee194971d7aa68038b419e60c415c24a5f	cursor/f14-bf013-stage4-237f	nightly	F14 Stage 4: DEV CHECK Elite/Pro for BF-013 (worker-image)
+318	656d70e9f0dbcffb346c59112d6ae582f2d93fe7	cursor/f14-bf013-stage3-237f	nightly	F14 Stage 3: BF-013 stereo host ALL_PASS
+317	16ed4be8109814b434946f0955a6439fb50fa7c4	cursor/f14-bf013-stage2-909f	nightly	Stage 2: keep delay on the beat at 20 BPM
+316	4c01165a8391d12a2ca2842bb139671e89b1fc8b	cursor/f14-bf013-stage2-237f	nightly	F14 Stage 2: accept delay sync at exact 20 BPM (BF-013)
+307	2a15c684273d2d179a0babcfaba5b4421541538a	cursor/f13-bf012-stage5-land-237f	nightly	Stage 5: BF-012 land blocked — nightly XIP full before merge
+305	74ad409106fbf63e3fb885725a261c8dde638502	cursor/clip-arp-reuse-stage2-ea88	cursor/stream4-combined-schema-53a1	Stage 2: one shared arp engine for clip keys and Chicago parts
+294	a57b3626d9a3c144a9e6bb844dbbfd3d32099cdc	cursor/f13-bf012-stage2-237f	nightly	Stage 2: stop stale audio when turning the master limiter back on
+283	12976887a67f48010a895452e4e18908488960fe	cursor/chicago-amp-adsr-ab91	cursor/stream4-combined-schema-53a1	Chicago amp Env Attack/Decay/Sustain/Release on native303
+246	30b8bf4b7ff3a0f155bbad81162b1941956731de	lane/performance-font-renderer-cache-closure-20261025-r28	nightly	Stage 2: rebuild fonts only when their inputs actually change
+239	2dfb2cb16ee27070f5be1dec87fe83d202c754e3	handoff/multi-smc-capacity-20261026	coord/full-controls-20261025	Closed: two-SMC peer isolation over flash budget (superseded)
+237	a33c2de208c227beab7203fbb2de9e244052eff6	handoff/chicago-amplitude-response-20261025	handoff/chicago-synthetic-analysis-20261025	Chicago acoustic experiment: measured gate envelope and velocity response
+227	1bdfa020cac2c0f20537ef801e07326b809cab03	coord/full-controls-20261025	main	Stage 2: fix SMK fader pickup, mute levels, bank nav and save space
+214	218dbf80cc61384947d6bb2b02e41fc1f3556048	lane/dk-rules-feature-continuation	lane/incremental-delivery-contract-20261025	Require verified autonomous continuation through feature delivery
+212	9aab1f1deb8da75a0ae3dcae59c5841787f50cd1	experiment/selectable-engine-foundation	nightly	Stage 2: add a versioned engine boundary so bass can swap DSP later
+211	74167d4a1b2f2e7b961134b3c71dea4c7098de58	experiment/original-wobble-host-20261025	experiment/wobble-host-baseline-20261025	Host experiment: original wobble DSP with measured reference mismatches
+209	297a00fe0fea628efcaa8f3c4348e32508e05f96	fix/muted-fader-intent-20261025	cursor/next-owner-combined-stage2-task86	Stage 2 (flash NO-GO): keep muted-track fader moves as intended levels
+200	2bf818df7811a043a99fca5f27ba75fe529010cf	feature/smc-navigation-banks-e75fb2a	lane/smc-physical-layout-lock-select-20261025	[Flash budget blocked] Keep SMC navigation live under lock with knob banks
+193	c6cdad53f6c2eb46c8171210f4b01c4af09aa3d2	cursor/next-owner-combined-stage2-task86	nightly	Stage 2: SMC labels/pickup, TIE/RANDOM timing, sustain, and silent cutoff
+182	e2856159236de7b8e6587f05f139436ac72967a5	lane/dsp-reliability-render-20261025	nightly	Stage 2: keep bass sustain steady while you turn Decay
+168	0c5fc921b617d7edb2a831e40cbf20a0034707dc	lane/smc-physical-layout-lock-select-20261025	nightly	Stage 2: clearer SMC strips, Pause page lock, drum sound names
+159	0b2bf26a690245218be944f412fbee56a30ffbb4	lane/bugfinder-bf033-random-tie-preview-20261025	nightly	fix(seq): align RANDOM 303 TIE lookahead with selected next step (BF-033)
+155	e2482a5039527195e346925c751ac3e3a333ada9	lane/incremental-delivery-contract-20261025	cursor/clarify-classic-build-skill-e96a	Unify agent delivery contract and add conservative workflow checkpoints
+150	025fba5a777b74012bf0cc1746fda207482423bc	lane/smc-pause-context-lock-20261025	nightly	Stage 2: prepare SMC context lock so knobs stay on the frozen part
+148	3862175d5815d2bd505ab04ca1c8e1868761a2e7	lane/mb-private-combined-smc-editor-bundle-20261025	main	Production: full SMC control screen, safer editor OTA, matched packages
+116	459f59de67e8a1d5c6f0956c9d332b9da29b90a5	lane/ota-unique-discovery-first-nightly-20261024	lane/data-safety-ota-target-identity-20261024-1711	Closed: refuse OTA when several devices match the same target (superseded)
+114	4d17df164eaa6c9ff86b495a811d590244f67ad8	lane/data-safety-ota-target-identity-20261024-1711	lane/safe-merge-303-first-nightly-20261024-0138	Closed: pin OTA to the target keyboard, not any USB device (superseded)
+102	5d0ede03c275869dae133317ed1f13fca76d28f9	lane/installer-nightly-download-guard-20261024	nightly	fix(installer/nightly): guard direct firmware links and disable unreviewed Release import

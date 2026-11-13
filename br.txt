@@ -1,0 +1,81 @@
+MISSING origin/feature/multi-smc-app-20261025 f8b9fa85 2026-10-25 unpicked=22 mbbehind=1259 code=89
+INAIO origin/integration/all-in-one
+MISSING origin/lane/archive-agent-rules-20261022 d3800c1b 2026-10-22 unpicked=144 mbbehind=1447 code=305
+INBASE origin/lane/bass-ui-integration-20261026
+MISSING origin/lane/btr-feedback-session-audit-20261021 e699b715 2026-10-22 unpicked=143 mbbehind=1447 code=271
+MISSING origin/lane/btr-smc-feedback-guide-20261021 c75edcfa 2026-10-22 unpicked=142 mbbehind=1447 code=267
+MISSING origin/lane/btr-subscription-security-recovery-20261021 e9cf25d1 2026-10-22 unpicked=145 mbbehind=1447 code=277
+INBASE origin/lane/bugfinder-bf018-cq-bass-off-20261024
+INBASE-eq origin/lane/bugfinder-bf024-motion-switch-order-20261025
+MISSING origin/lane/bugfinder-bf025-bass-direction-cycles-20261025 c9e9c8c1 2026-10-25 unpicked=4 mbbehind=1311 code=3
+INBASE-eq origin/lane/bugfinder-bf033-random-tie-preview-20261025
+MISSING origin/lane/build-catalog-controller-audit-20261023 7978c4ac 2026-10-23 unpicked=2 mbbehind=1442 code=0
+MISSING origin/lane/build-fastmath-boundary-20261023 349af1c6 2026-10-23 unpicked=26 mbbehind=1443 code=11
+MISSING origin/lane/catalog-public-device-proof-gate-20261023 d9a4b9e4 2026-10-23 unpicked=3 mbbehind=1442 code=2
+MISSING origin/lane/codex-pr102-postwrite-status-20261024 0924924d 2026-10-25 unpicked=3 mbbehind=961 code=0
+MISSING origin/lane/codex-pr114-complete-root-qa-20261024 3209a90c 2026-10-25 unpicked=25 mbbehind=1323 code=20
+INBASE-eq origin/lane/data-safety-archive-slot-identity-20261023-1919
+INBASE-eq origin/lane/data-safety-backup-atomic-20261023-run4-1215
+INBASE-eq origin/lane/data-safety-ctl-atomic-publish-20261023-1728
+INBASE-eq origin/lane/data-safety-installer-backup-noclobber-20261023-1324
+INBASE origin/lane/data-safety-unique-slot-targets-20261023
+MISSING origin/lane/direct-smc-verified-tests-20261022 fbb6c0d1 2026-10-22 unpicked=144 mbbehind=1447 code=267
+MISSING origin/lane/dk-pro-303a-crash-20261026 2dfe47b2 2026-10-26 unpicked=2 mbbehind=251 code=5
+MISSING origin/lane/dk-smc-lock-clock-cue-20261027 5a74ce49 2026-10-26 unpicked=3 mbbehind=195 code=23
+MISSING origin/lane/gh-pages-installer-reconnect-20261023 491a0ddf 2026-10-23 unpicked=7 mbbehind=1442 code=5
+MISSING origin/lane/hourly-build-bf025-c9e9c8c-build-evidence-20261025 3a56c1e1 2026-10-25 unpicked=1 mbbehind=1311 code=0
+MISSING origin/lane/installer-backup-readback-r45-20261025 3b461692 2026-10-25 unpicked=70 mbbehind=1440 code=14
+MISSING origin/lane/installer-build-registry-20261023 ac36d6ae 2026-10-27 unpicked=89 mbbehind=1442 code=21
+MISSING origin/lane/installer-catalog-startup-20261023 491a0ddf 2026-10-23 unpicked=7 mbbehind=1442 code=5
+MISSING origin/lane/installer-connect-announcement-20261023 33c60ee9 2026-10-23 unpicked=12 mbbehind=1442 code=5
+MISSING origin/lane/installer-connection-scan-order-20261023 491a0ddf 2026-10-23 unpicked=7 mbbehind=1442 code=5
+MISSING origin/lane/installer-improvements-prod-verified-only-run9-20261023 33c60ee9 2026-10-23 unpicked=12 mbbehind=1442 code=5
+MISSING origin/lane/installer-nightly-download-guard-20261024 64ed3f70 2026-10-25 unpicked=4 mbbehind=966 code=3
+MISSING origin/lane/installer-permission-retry-20261023 491a0ddf 2026-10-23 unpicked=7 mbbehind=1442 code=5
+INBASE origin/lane/installer-prod-hardware-evidence-gate-20261023
+MISSING origin/lane/installer-restore-target-guard-20261023 f8edd6e9 2026-10-23 unpicked=2 mbbehind=1442 code=2
+MISSING origin/lane/integration-ble-clock-q16-data-20261023-1838 93af3b53 2026-10-23 unpicked=3 mbbehind=1442 code=24
+MISSING origin/lane/integration-smc-clock-routes-20261023-1736 8557b698 2026-10-23 unpicked=2 mbbehind=1442 code=16
+MISSING origin/lane/integration-smc-fastmath-clock-20261023-1637 233d310b 2026-10-23 unpicked=1 mbbehind=1442 code=12
+MISSING origin/lane/interactive-surface-simulator-20261021 1b900a7e 2026-10-22 unpicked=138 mbbehind=1447 code=298
+MISSING origin/lane/mb-audit-integration-20261021 f5fd4d86 2026-10-21 unpicked=51 mbbehind=1447 code=110
+INBASE origin/lane/mb-cloud-transfer-20261020
+MISSING origin/lane/mb-github-sync-20261021 8f181864 2026-10-21 unpicked=1 mbbehind=1447 code=61
+MISSING origin/lane/mb-golden-691 bb21d7eb 2026-10-30 unpicked=12 mbbehind=46 code=31
+MISSING origin/lane/mb-historical-kit-tools-20261021 789768a0 2026-10-22 unpicked=64 mbbehind=1447 code=157
+MISSING origin/lane/mb-native-dev-candidate-20261021 56e88bd1 2026-10-22 unpicked=62 mbbehind=1447 code=152
+MISSING origin/lane/mb-native-transfer-20261021 be693687 2026-10-21 unpicked=1 mbbehind=1447 code=2
+MISSING origin/lane/mb-note-effective-edited 12d04267 2026-10-27 unpicked=1 mbbehind=168 code=2
+MISSING origin/lane/mb-published-integration-20261021 816e0d39 2026-10-21 unpicked=54 mbbehind=1447 code=125
+MISSING origin/lane/mb-reference-smc-checkpoint-20261021 5ce17833 2026-10-22 unpicked=83 mbbehind=1447 code=199
+MISSING origin/lane/mb-review-696 35261cf3 2026-10-30 unpicked=10 mbbehind=14 code=6
+MISSING origin/lane/mb-smc-proven-retest-20261022 0154cf7f 2026-10-22 unpicked=1 mbbehind=1658 code=2
+MISSING origin/lane/mb-smc-reach-20261022 5058f3e7 2026-10-25 unpicked=3 mbbehind=1447 code=19
+INBASE-eq origin/lane/nightly-installability-fulltree-20261024
+MISSING origin/lane/opt-preserve-808-shift-20261021 3e706703 2026-10-22 unpicked=109 mbbehind=1447 code=234
+MISSING origin/lane/opt-preserve-909-init-20261021 048b0aef 2026-10-22 unpicked=110 mbbehind=1447 code=235
+MISSING origin/lane/opt-preserve-mono-scratch-20261021 b8944a6a 2026-10-22 unpicked=109 mbbehind=1447 code=234
+MISSING origin/lane/opt-preserve-reference-dev-20261021 3200990e 2026-10-22 unpicked=141 mbbehind=1447 code=267
+MISSING origin/lane/opt-preserve-reviewed-base-20261021 dba04be4 2026-10-22 unpicked=108 mbbehind=1447 code=232
+MISSING origin/lane/opt-preserve-vendor-retirement-20261021 cba7e93e 2026-10-22 unpicked=142 mbbehind=1447 code=267
+MISSING origin/lane/perf-gfx-canvas-bench-20261023-run11 ead4c392 2026-10-23 unpicked=3 mbbehind=1442 code=2
+INBASE origin/lane/performance-fastmath-hotpath-ubsan-20261023-r11
+MISSING origin/lane/performance-ima-delta-correction-20261024-1226 9c5a75d6 2026-10-24 unpicked=1 mbbehind=1440 code=4
+MISSING origin/lane/pr103-r10-native-build-evidence-20261024-0404 8d50e0d2 2026-10-24 unpicked=2 mbbehind=1340 code=0
+MISSING origin/lane/qa-nightly-safety-swing-master-slots-20261023-1120 78e161a5 2026-10-23 unpicked=15 mbbehind=1442 code=32
+MISSING origin/lane/safe-merge-303-first-nightly-20261024-0138 151bcb16 2026-10-25 unpicked=6 mbbehind=1312 code=6
+INBASE origin/lane/safe-merge-pages-publisher-20261023
+MISSING origin/lane/seq-pingpong-live-length-shrink-20261023-run4-1410 52a383e3 2026-10-25 unpicked=1 mbbehind=1233 code=2
+INBASE origin/lane/seq-transport-request-order-20261023-1640
+INBASE-eq origin/lane/smc-ble-acl-start-pb0-pb3-20261023-1406
+INBASE origin/lane/smc-ble-data7-guard-20261023-1703
+MISSING origin/lane/smc-ble-overflow-inactive-central-20261024-run5 891dd184 2026-10-25 unpicked=29 mbbehind=1324 code=17
+INBASE-eq origin/lane/smc-ble-sysex-length-guard-20261023-1310
+MISSING origin/lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6 58204819 2026-10-26 unpicked=36 mbbehind=1324 code=17
+INBASE-eq origin/lane/smc-physical-layout-lock-select-20261025
+MISSING origin/lane/stage4-test-selector-failclosed-20261023 349af1c6 2026-10-23 unpicked=26 mbbehind=1443 code=11
+MISSING origin/wip/chicago-opt dd735533 2026-10-30 unpicked=1 mbbehind=59 code=440
+MISSING origin/wip/fmb-guards-slots 4775ef91 2026-10-30 unpicked=1 mbbehind=59 code=279
+INAIO origin/wip/miami-opt2
+MISSING origin/wip/pr-merges edbf182e 2026-10-30 unpicked=1 mbbehind=59 code=28
+INBASE origin/wip/ui-theme
