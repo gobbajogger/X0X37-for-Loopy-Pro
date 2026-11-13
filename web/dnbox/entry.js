@@ -6,6 +6,30 @@ import { mountControls } from './controls.js';
 const status = document.getElementById('status');
 const start = document.getElementById('start');
 const errorBox = document.getElementById('demo-error');
+const metricSpeed = document.getElementById('dnbox-metric-speed');
+const metricDrop = document.getElementById('dnbox-metric-drop');
+const metricInput = document.getElementById('dnbox-metric-input');
+document.addEventListener('dnbox:booting', () => {
+  metricSpeed.textContent = 'Runtime: booting…';
+  metricDrop.textContent = 'Short audio quanta: awaiting first full second';
+  metricInput.textContent = 'Input message round trip: play a key to measure';
+});
+document.addEventListener('dnbox:telemetry', e => {
+  const m = e.detail;
+  metricSpeed.textContent = m.halted ? 'Emulated CPU halted' :
+    'Firmware speed ' + m.speed + ' · Audio-thread load ' + m.load;
+  metricDrop.textContent = 'Short audio quanta ' + m.short +
+    ' · Worst observed worklet quantum ' + Number(m.worstQuantumMs).toFixed(2) + ' ms';
+});
+document.addEventListener('dnbox:input-latency', e => {
+  const m = e.detail;
+  metricInput.textContent = 'Input message round trip: median ' + m.medianMs.toFixed(1) +
+    ' ms / p95 ' + m.p95Ms.toFixed(1) + ' ms (' + m.samples +
+    ' keys). Not measured acoustic latency.';
+});
+document.addEventListener('dnbox:stopped', () => {
+  metricSpeed.textContent = 'Runtime: stopped after an emulator error';
+});
 start.disabled = true;
 async function ready() {
   const caps = runtimeCapabilities(globalThis);
