@@ -93,7 +93,7 @@ def make_xml(directory):
 
     root = control(lexml, "dnbox_companion", "GROUP", (0, 0, 480, 800), script="controller.lua")
     children = element(root, "children")
-    control(children, "title", "LABEL", (16, 12, 448, 38), "DNBOX / MIDI PERFORMANCE")
+    control(children, "title", "LABEL", (16, 12, 448, 38), "DnBOX / MIDI PERFORMANCE")
     control(children, "route", "LABEL", (16, 54, 448, 38), "DISARMED / MIDI CH 2 / connection 1")
     control(children, "feedback", "LABEL", (16, 96, 448, 38), "No incoming MIDI observed")
     control(children, "instructions", "LABEL", (16, 138, 448, 38), "Confirm route and GLO MIDI channel, then ARM")
