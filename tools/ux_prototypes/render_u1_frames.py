@@ -150,7 +150,7 @@ def presets():
     for y, text in [(56, "> FACTORY  01"), (80, "  FACTORY  02"), (104, "  USER     01")]:
         label(img, 8, y, text, "S", WHITE if y==56 else GRAY)
     label(img, 8, 135, "IMPORT: VERIFY FORMAT", "XS", DIM)
-    strip(img, [("SOURCE", "USER"), ("BANK", "01"), ("OPEN", "SEL"), ("BACK", "PATCH")])
+    strip(img, [("SOURCE", "ROM"), ("BANK", "01"), ("OPEN", "SEL"), ("BACK", "PATCH")])
     return img
 
 def inversion():
