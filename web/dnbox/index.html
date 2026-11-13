@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-device="smk37" data-dnbox="true">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Play DnBOX | Real firmware in your browser</title>
+<meta name="description" content="Try the actual published DnBOX 0.0.25.1 Elite or Pro firmware in the fm1-emu WebAssembly runtime, before installing on an SMK-37.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="DnBOX browser emulator home">DnBOX <small>/ TRY</small></a>
+    <nav class="sitenav" aria-label="Page navigation">
+      <a href="#instrument">Instrument</a>
+      <a href="#dnbox-controls">Play</a>
+      <a href="#guide">Guide</a>
+      <a href="https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/">Install</a>
+    </nav>
+    <a class="gh" href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro">Source</a>
+    <a id="fullpage" class="embed-only" href="./">Open full demo</a>
+  </div>
+</header>
+<main id="top">
+  <section class="intro" aria-labelledby="headline">
+    <p class="eyebrow">TRY BEFORE YOU INSTALL <span class="dot"></span> REAL FIRMWARE / VIRTUAL HARDWARE</p>
+    <h1 id="headline">DnBOX, without the keyboard.</h1>
+    <p class="lead">This is the actual published DnBOX code running inside the <a href="https://github.com/joakimeriksson/fm1-emu">fm1-emu</a> SMK-37 CPU emulator. Make beats, open the sequencer, play keys and explore the display. It does <strong>not</strong> connect to, update or validate your physical instrument.</p>
+  </section>
+  <section class="player" id="instrument" aria-label="Virtual SMK-37 instrument">
+    <div class="deck">
+      <div class="deck-head">
+        <h2 id="title">DnBOX 0.0.25.1 · virtual SMK-37</h2>
+        <span id="status" role="status" aria-live="polite">Checking browser capabilities…</span>
+      </div>
+      <div id="perfwarn" role="alert" hidden>
+        <p id="perfwarn-text"></p>
+        <div class="acts">
+          <button type="button" id="perfwarn-fix" class="primary"></button>
+          <button type="button" id="perfwarn-copy">Copy performance report</button>
+          <a href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues">Report issue</a>
+          <button type="button" id="perfwarn-close" aria-label="Dismiss warning">×</button>
+        </div>
+      </div>
+      <div class="stage">
+        <canvas id="panel" aria-label="Emulated SMK-37 screen, 37 keys, 16 pads and knobs. Mouse and multi-touch active after Start."></canvas>
+        <button id="start" class="primary" type="button" disabled>Enable sound &amp; boot firmware</button>
+      </div>
+      <p class="panel-help">The screen, pads and keys above are rendered by the original Rust/WASM emulator. Drag knobs and faders, touch multiple keys, or use the accessible controls below. Headphones recommended.</p>
+      <p id="demo-error" role="alert" hidden>Browser check failed. Use a current desktop Chromium-based browser over HTTPS or localhost. No device access or installation is attempted.</p>
+    </div>
+    <aside class="side bar" aria-label="Firmware and browser controls">
+      <section class="box">
+        <h3 class="eyebrow">FIRMWARE IDENTITY</h3>
+        <label>Hardware model <select id="fw" aria-label="Firmware model and version"></select></label>
+        <label>Emulated CPU clock <select id="mhz" aria-label="Emulated CPU clock in megahertz"></select></label>
+        <p id="about" class="firmware-info"></p>
+        <p class="dim">Both listed packages are pinned to the release's own SHA-256 and checked before boot. The 0.0.26 development build is not in this demo.</p>
+        <label hidden>Open firmware file <input type="file" id="open" accept=".fwsc" disabled></label>
+        <label hidden>DX7 bank <input type="file" id="bank" disabled></label>
+        <span id="bankname" hidden></span>
+      </section>
+      <section class="box">
+        <h3 class="eyebrow">YOUR SESSION</h3>
+        <span id="save-status" role="status" aria-live="polite">Your firmware flash saves can stay in this browser.</span>
+        <div class="row save-actions">
+          <button type="button" id="save-now">Save browser flash</button>
+          <button type="button" id="export-save">Export backup</button>
+          <label hidden>Import backup <input type="file" id="import-save" accept=".fm1save" disabled></label>
+        </div>
+        <div class="save-actions">
+          <button type="button" id="reset-save">Reset browser save…</button>
+          <button type="button" id="browse-saves" hidden disabled>Browse saved firmware</button>
+          <select id="saved-versions" hidden disabled aria-label="Saved firmware versions"></select>
+          <button type="button" id="open-saved-version" hidden disabled>Open saved firmware</button>
+          <button type="button" id="update-firmware" hidden disabled>Update firmware</button>
+        </div>
+        <p class="dim">Changes written by the firmware to flash can be stored locally. Reset affects the <em>browser demo only</em>, never a connected SMK-37. Export a backup before resetting.</p>
+      </section>
+      <section class="box">
+        <h3 class="eyebrow">OPTIONAL MIDI INPUT</h3>
+        <label id="midiin">Keyboard <span class="sel"><span id="midiact" aria-hidden="true"></span><select id="midi" aria-label="Web MIDI input"><option value="">Off</option><option value="*">All inputs</option></select></span></label>
+        <label id="midichl" hidden>Channel <select id="midich" aria-label="MIDI channel"><option value="0">As sent</option></select></label>
+        <p class="dim">MIDI access is optional and requested only if you select an input. Audio is local. This is not an installer or MIDI-to-hardware bridge.</p>
+      </section>
+    </aside>
+  </section>
+
+  <section id="dnbox-controls" class="play-controls" aria-labelledby="play-title">
+    <div class="section-head">
+      <div><p class="eyebrow">PLAY DnBOX</p><h2 id="play-title">Hands on the sound.</h2></div>
+      <div class="actions">
+        <button id="dnbox-chord" type="button" disabled>Send C minor triad</button>
+        <button id="dnbox-play" type="button" disabled>SEQ PLAY (hold)</button>
+      </div>
+    </div>
+    <p>Notes are genuine 37-key hardware events, from C3 to C6. The triad sends C4, E♭4 and G4 into the currently selected firmware mode. It only makes sound if that mode accepts keyboard notes.</p>
+    <div class="keys-scroll" role="region" aria-label="Scrollable 37-key keyboard" tabindex="0">
+      <div id="dnbox-keys" class="keys" role="group" aria-label="37 piano keys C3 through C6"></div>
+    </div>
+    <details class="extras">
+      <summary>Pads, faders, wheels and knobs</summary>
+      <div id="dnbox-pads" class="pads" role="group" aria-label="16 drum and function pads"></div>
+      <div id="dnbox-mixer" class="mixer" role="group" aria-label="Four faders and two wheels"></div>
+      <div id="dnbox-knobs" class="knobs" role="group" aria-label="Eight encoders"></div>
+    </details>
+    <p class="dim">Computer keyboard: A–' plays C4–F5; Z / X shifts octave, Space is SEQ PLAY, R is REC, 1–8 play the upper pads, arrows and comma/period turn the first three knobs. Focus a piano key with Tab and press Space or Enter to hold it.</p>
+  </section>
+
+  <section class="library" id="firmwares" aria-labelledby="firmwares-title">
+    <div class="section-head"><div><p class="eyebrow">PINNED SOURCE</p><h2 id="firmwares-title">Two models. One published version.</h2></div></div>
+    <ul class="cards" id="fwlist"></ul>
+    <p class="dim">Package bytes are downloaded from the project's published nightly artifact URLs only when you start. The browser verifies their model-specific SHA-256 before the emulated CPU boots.</p>
+  </section>
+  <section id="guide" class="guide-panel" aria-labelledby="guide-title">
+    <p class="eyebrow">GOOD TO KNOW</p>
+    <h2 id="guide-title">What this demo can and cannot prove</h2>
+    <div class="guide-grid">
+      <div><h3>Actual runtime</h3><p>JieLi CPU and peripherals are emulated with the upstream MIT-licensed fm1-emu Rust/WASM engine; sound comes from the firmware's own I2S buffers through an AudioWorklet at 44.1 kHz. Not a rendered video or a JavaScript substitute synth.</p></div>
+      <div><h3>Sound is a performance test</h3><p>Start audio with a click. Watch the live speed, load and dropout warnings. Desktop Chromium is the initial target; Firefox, Safari and mobile performance have not been qualified. A fast emulator is not proof of hardware timing.</p></div>
+      <div><h3>Low queue, honest latency</h3><p>The default audio queue allowance is 512 frames (about 11.6 ms at 44.1 kHz), not 2.5 seconds. This is <strong>not</strong> measured key-to-speaker latency. You can try <code>?ahead=256</code> or <code>?ahead=1024</code>; smaller queues may crackle on slower computers.</p></div>
+      <div><h3>Safe boundaries</h3><p>There is no WebUSB, WebSerial, flashing or device write here. Local flash saves and export live only in this browser. Model/version metadata and packages must match before boot; no unfinished 0.0.26 build is advertised as ready.</p></div>
+    </div>
+    <p class="credits">Emulator © Joakim Eriksson, <a href="https://github.com/joakimeriksson/fm1-emu/blob/master/LICENSE">MIT license</a>; SMK-37 port information from <a href="https://github.com/genkigenki/fm1-to-smk37">genkigenki</a>; DnBOX firmware source and GPL-3.0 license at <a href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro">gobbajogger/X0X37-for-Loopy-Pro</a>. Third-party firmware components retain their original rights. Unaffiliated with M-VAVE.</p>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><span>DnBOX · Real firmware, emulated hardware. Try first; install only when you choose.</span><a href="https://gobbajogger.github.io/X0X37-for-Loopy-Pro/manual/">Manual</a></div></footer>
+<script type="module" src="entry.js"></script>
+</body>
+</html>
