@@ -90,7 +90,7 @@ def page(title, part, engine, pattern="P03"):
     label(img, 5, 3, "DnBOX", "B", WHITE)
     label(img, 62, 4, part, "XS", CYAN)
     label(img, 155, 4, pattern, "XS", GRAY)
-    label(img, 196, 4, title, "XS", HI)
+    label(img, 196, 4, {"PRESETS":"BANK","READOUT":"SEQ"}.get(title,title), "XS", HI)
     line(img, (0, 19, 239, 19))
     line(img, (0, 157, 239, 157))
     return img
@@ -141,7 +141,7 @@ def held():
     label(img, 7, 110, "RECORDED STEP 07", "XS", DIM)
     for k in (8, 12, 15):
         rectangle(img, (8+k*6, 130, 8+k*6+4, 143), GREEN, GREEN)
-    strip(img, [("CUTOFF", "76"), ("RES", "20"), ("SUB", "40"), ("CHORUS", "ON")])
+    strip(img, [("CUT", "76"), ("RES", "20"), ("SUB", "40"), ("CHO", "ON")])
     return img
 
 def presets():
@@ -150,7 +150,19 @@ def presets():
     for y, text in [(56, "> FACTORY  01"), (80, "  FACTORY  02"), (104, "  USER     01")]:
         label(img, 8, y, text, "S", WHITE if y==56 else GRAY)
     label(img, 8, 135, "IMPORT: VERIFY FORMAT", "XS", DIM)
-    strip(img, [("SOURCE", "FACTORY"), ("BANK", "01"), ("APPLY", "SELECT"), ("BACK", "PATCH")])
+    strip(img, [("SOURCE", "USER"), ("BANK", "01"), ("OPEN", "SEL"), ("BACK", "PATCH")])
+    return img
+
+def inversion():
+    img = page("SEQ", "BASS B", "CHICAGO")
+    label(img, 7, 29, "STEP 08 / 16", "B", HI)
+    label(img, 7, 56, "C/E", "B", WHITE)
+    label(img, 7, 84, "E4 G4 C5", "S", WHITE)
+    for i in range(16):
+        x = 8 + i * 14
+        rectangle(img, (x, 119, x + 10, 135), HI if i == 7 else LINE,
+                  HI if i == 7 else None)
+    strip(img, [("STEP", "08"), ("VEL", "110"), ("GATE", "80%"), ("RATE", "1/16")])
     return img
 
 def readout():
@@ -163,7 +175,7 @@ def readout():
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, fn in [("01-home",home), ("02-seq",seq), ("03-held",held), ("04-presets",presets), ("05-readout",readout)]:
+    for name, fn in [("01-home",home), ("02-seq",seq), ("03-held",held), ("04-presets",presets), ("05-readout",readout), ("06-inversion",inversion)]:
         im = fn()
         assert im.size == (240, 240)
         path = OUT / (name + ".png")
