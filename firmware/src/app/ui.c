@@ -3085,8 +3085,8 @@ static uint32_t lock_marks(int t, int v, int base)
     int k, c;
     for (k = 0; k < NLANE; k++) {
         const lane_t *l = &proj.arr.lane[k];
-        if (!l->used || l->part != ui.part || l->pat != seq.ppat[ui.part] || (t >= 0 && l->t != t) ||
-            (v >= 0 && l->v != v))
+        if (!l->used || l->t == HELD_CHORD_TARGET || l->part != ui.part || l->pat != seq.ppat[ui.part] ||
+            (t >= 0 && l->t != t) || (v >= 0 && l->v != v))
             continue;
         for (c = 0; c < 16; c++)
             if (base + c < NSTEPS && l->val[base + c] != MOT_NONE)
@@ -5569,6 +5569,442 @@ static int held_note_of(const bpart_t *bp, int s)
     return bp->step[start >= 0 ? start : s].note;
 }
 
+#ifndef SEQ_CHORD_LABEL_TIER1
+#define SEQ_CHORD_LABEL_TIER1 1
+#endif
+#ifndef SEQ_CHORD_LABEL_TIER2
+#define SEQ_CHORD_LABEL_TIER2 0
+#endif
+
+/* Drone sounding-voice rule (cite, do not change engine allocation):
+ * DRONE_STRING_VOICES is 4 (firmware/src/dsp/drone_string.h:32).
+ * Juno JUNO6_VOICES is 6 (firmware/src/dsp/juno6.h:7).
+ * The sequencer fires stored pitches low-to-high: the root via bass_on, then
+ * extras via seq_bass_chord_on (sequencer.c 323, 357-378).
+ * drone_string_note (drone_string.h 121-155) fills a free slot, else steals
+ * a RELEASE / quieter / older voice. On a cold onset the last min(n,4)
+ * stored Drone pitches sound. Stored-but-not-sounding notes are painted in
+ * C_DIM. The store itself is unchanged. */
+#define SEQ_CHORD_DRONE_VOICES 4
+#define SEQ_CHORD_JUNO_VOICES 6
+#define SEQ_CHORD_HELD_MAX 232
+
+static int onset_chord_of(const bpart_t *bp, int s, uint8_t *notes)
+{
+    int start = note_start_of(bp, s);
+    if (start < 0)
+        return 0;
+    return held_chord_get(proj.arr.lane, seq.ppat[ui.part], bidx(), start,
+                          bp->step[start].note, notes);
+}
+
+static int chord_from_lanes(const int *lk, int step, int root, uint8_t *out)
+{
+    const lane_t *L = proj.arr.lane;
+    int n = 1, i;
+    if ((unsigned)step >= NSTEPS || (unsigned)root > 127)
+        return 0;
+    out[0] = (uint8_t)root;
+    for (i = 0; i < HELD_CHORD_NOTES - 1; i++) {
+        int k = lk[i], note;
+        if (k < 0 || L[k].val[step] == MOT_NONE)
+            break;
+        note = L[k].val[step];
+        if (note > 127 || note <= out[n - 1])
+            break;
+        out[n++] = (uint8_t)note;
+    }
+    return n;
+}
+
+static void chord_lanes_prefetch(int *lk, int poly)
+{
+    int i, k, pat, b;
+    for (i = 0; i < HELD_CHORD_NOTES - 1; i++)
+        lk[i] = -1;
+    if (!poly)
+        return;
+    /* One NLANE pass per draw, not per cell. */
+    pat = seq.ppat[ui.part];
+    b = bidx();
+    for (k = 0; k < NLANE; k++) {
+        const lane_t *l = &proj.arr.lane[k];
+        if (l->used && l->t == HELD_CHORD_TARGET && l->pat == (uint8_t)pat &&
+            l->part == (uint8_t)(NKIT + b) && l->v == (uint8_t)b &&
+            l->i < HELD_CHORD_NOTES - 1)
+            lk[l->i] = k;
+    }
+}
+
+static int chord_sound_midi(int note, int trans)
+{
+    int n = note + trans - 24;
+    return n < 0 ? 0 : n > 127 ? 127 : n;
+}
+
+static int chord_sounding_n(int kind, int nstore)
+{
+    int cap = kind == ORIGINAL_SOUND_DRONE ? SEQ_CHORD_DRONE_VOICES :
+              kind == ORIGINAL_SOUND_JUNO ? SEQ_CHORD_JUNO_VOICES : 1;
+    return nstore < cap ? nstore : cap;
+}
+
+/* Sounding pitches after transpose: last cap notes (Drone cold-onset steal). */
+static int chord_sounding_of(int kind, const uint8_t *store, int nstore, int trans, uint8_t *sound)
+{
+    int ns = chord_sounding_n(kind, nstore);
+    int start = nstore - ns, i;
+    if (nstore <= 0)
+        return 0;
+    if (start < 0)
+        start = 0;
+    for (i = 0; i < ns; i++)
+        sound[i] = (uint8_t)chord_sound_midi(store[start + i], trans);
+    return ns;
+}
+
+#if SEQ_CHORD_LABEL_TIER1
+/* 2-byte interval mask + shared suffix strings. */
+static const uint16_t chord_qual_mask[] = {
+    0x0091u, /* maj    {0,4,7} */
+    0x0089u, /* min    {0,3,7} */
+    0x0081u, /* 5      {0,7} */
+    0x0491u, /* 7      {0,4,7,10} */
+    0x0891u, /* maj7   {0,4,7,11} */
+    0x0489u, /* min7   {0,3,7,10} */
+#if SEQ_CHORD_LABEL_TIER2 >= 1
+    0x0049u, /* dim    {0,3,6} */
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 2
+    0x00A1u, /* sus4   {0,5,7} */
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 3
+    0x0085u, /* sus2   {0,2,7} */
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 4
+    0x0111u, /* aug    {0,4,8} */
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 5
+    0x0291u, /* 6      {0,4,7,9} */
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 6
+    0x0449u, /* min7b5 {0,3,6,10} */
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 7
+    0x0249u, /* dim7   {0,3,6,9} */
+#endif
+};
+static const char *const chord_qual_suf[] = {
+    "", "min", "5", "7", "maj7", "min7",
+#if SEQ_CHORD_LABEL_TIER2 >= 1
+    "dim",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 2
+    "sus4",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 3
+    "sus2",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 4
+    "aug",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 5
+    "6",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 6
+    "min7b5",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 7
+    "dim7",
+#endif
+};
+#define CHORD_NQUAL ((int)(sizeof chord_qual_mask / sizeof chord_qual_mask[0]))
+
+static uint16_t chord_rot(uint16_t pcs, int r)
+{
+    r %= 12;
+    if (r < 0)
+        r += 12;
+    if (r == 0)
+        return (uint16_t)(pcs & 0x0FFFu);
+    return (uint16_t)(((pcs >> r) | (pcs << (12 - r))) & 0x0FFFu);
+}
+
+static int chord_match(uint16_t pcs, int bass_pc, int *root_out)
+{
+    int i, off, hits = 0, hit_r = -1, hit_q = -1;
+    uint16_t rot = chord_rot(pcs, bass_pc);
+    for (i = 0; i < CHORD_NQUAL; i++)
+        if (rot == chord_qual_mask[i]) {
+            *root_out = bass_pc;
+            return i;
+        }
+    for (off = 1; off < 12; off++) {
+        int r = (bass_pc + off) % 12;
+        if (!(pcs & (1u << r)))
+            continue;
+        rot = chord_rot(pcs, r);
+        for (i = 0; i < CHORD_NQUAL; i++)
+            if (rot == chord_qual_mask[i]) {
+                hits++;
+                if (hits == 1) {
+                    hit_r = r;
+                    hit_q = i;
+                }
+                break;
+            }
+    }
+    if (hits == 1) {
+        *root_out = hit_r;
+        return hit_q;
+    }
+    return -1; /* no match, or uncertain (>1 other-root matches) */
+}
+#endif /* SEQ_CHORD_LABEL_TIER1 */
+
+typedef struct {
+    char cell[16];
+    char symbol[16];
+    char fallback[12];
+    char notes[48];
+    char held[80];
+    const felucca_font_t *cell_font;
+    const felucca_font_t *held_font;
+    uint8_t recognized, nsound, nstore;
+} chord_label_t;
+
+/* Unrecognized / ambiguous / overflow text. The ONLY place that writes
+ * the notes-only or compact (C3x3) form. chord_label_fmt, the held line,
+ * and the NOTE cell call this; draw code only paints lab.cell / lab.held.
+ * piano-roll.md §10 will replace this body (and only this body).
+ * compact == 0: held-line mid (today: the full low-to-high note list).
+ * compact != 0: NOTE cell and held overflow (today: C3x3, or C3 if n==1). */
+static void chord_label_fallback(char *dst, const uint8_t *sound, int ns,
+                                 const char *note_list, int compact)
+{
+    if (!dst)
+        return;
+    if (!compact && note_list && note_list[0]) {
+        put_s(dst, note_list);
+        return;
+    }
+    dst[0] = 0;
+    if (!sound || ns <= 0)
+        return;
+    {
+        char *q = put_note(dst, sound[0]);
+        if (ns > 1) {
+            *q++ = 'x';
+            *q = 0;
+            put_i(q, ns);
+        }
+    }
+}
+
+/* One swappable formatter for NOTE-cell and held-line chord text.
+ * Recognized-symbol wording lives here; unrecognized wording lives in
+ * chord_label_fallback. A compile switch (SEQ_CHORD_LABEL_TIER1=0)
+ * selects the C3x3 fallback-only form by compiling the matcher out. */
+static void chord_label_fmt(chord_label_t *o,
+                            const uint8_t *sound, int ns,
+                            const uint8_t *listed, int nlist,
+                            const char *prefix, const char *flags)
+{
+    char *q;
+    int i, npc = 0;
+    uint16_t pcs = 0;
+    memset(o, 0, sizeof *o);
+    o->nsound = (uint8_t)(ns < 0 ? 0 : ns);
+    o->nstore = (uint8_t)(nlist < 0 ? 0 : nlist);
+    o->cell_font = &FONT_M;
+    o->held_font = &FONT_B;
+    if (nlist <= 0 && ns <= 0)
+        return;
+    if (ns <= 0) {
+        sound = listed;
+        ns = nlist;
+        o->nsound = (uint8_t)ns;
+    }
+    q = o->notes;
+    for (i = 0; i < nlist; i++) {
+        if (i)
+            q = put_s(q, " ");
+        q = put_note(q, listed[i]);
+    }
+    /* Compact fallback, always via the single swappable function. */
+    chord_label_fallback(o->fallback, sound, ns, o->notes, 1);
+    if (ns == 1) {
+        chord_label_fallback(o->cell, sound, ns, o->notes, 1);
+        o->cell_font = &FONT_M;
+    } else {
+#if SEQ_CHORD_LABEL_TIER1
+        int bass_pc, root = -1, qi = -1;
+        for (i = 0; i < ns; i++)
+            pcs |= (uint16_t)(1u << (sound[i] % 12));
+        {
+            uint16_t m = pcs;
+            while (m) {
+                npc += (int)(m & 1u);
+                m >>= 1;
+            }
+        }
+        bass_pc = sound[0] % 12;
+        if (npc > 1)
+            qi = chord_match(pcs, bass_pc, &root);
+        if (qi >= 0) {
+            o->recognized = 1;
+            q = put_s(o->symbol, NOTE_N[(root % 12 + 12) % 12]);
+            q = put_s(q, chord_qual_suf[qi]);
+            if (root != bass_pc) {
+                q = put_s(q, "/");
+                put_s(q, NOTE_N[(bass_pc % 12 + 12) % 12]);
+            }
+        }
+#endif
+        if (o->recognized) {
+            char noslash[16], *cut;
+            put_s(noslash, o->symbol);
+            cut = noslash;
+            while (*cut && *cut != '/')
+                cut++;
+            *cut = 0;
+            if (tw(&FONT_M, o->symbol) <= 54) {
+                put_s(o->cell, o->symbol);
+                o->cell_font = &FONT_M;
+            } else if (tw(&FONT_S, o->symbol) <= 54) {
+                put_s(o->cell, o->symbol);
+                o->cell_font = &FONT_S;
+            } else if (tw(&FONT_XS, o->symbol) <= 54) {
+                put_s(o->cell, o->symbol);
+                o->cell_font = &FONT_XS;
+            } else if (tw(&FONT_M, noslash) <= 54) {
+                put_s(o->cell, noslash);
+                o->cell_font = &FONT_M;
+            } else if (tw(&FONT_S, noslash) <= 54) {
+                put_s(o->cell, noslash);
+                o->cell_font = &FONT_S;
+            } else {
+                put_s(o->cell, noslash);
+                o->cell_font = &FONT_XS;
+            }
+        } else {
+            chord_label_fallback(o->cell, sound, ns, o->notes, 1);
+            if (tw(&FONT_M, o->cell) <= 54)
+                o->cell_font = &FONT_M;
+            else if (tw(&FONT_S, o->cell) <= 54)
+                o->cell_font = &FONT_S;
+            else
+                o->cell_font = &FONT_XS;
+        }
+    }
+    /* Held line, piano-roll.md §9: 'STEP n  <symbol>  <notes>  V###'
+     * (two spaces around the mid-section). Font is tried B, then S, then XS.
+     * If XS still overflows 232 px, mid-section becomes the compact
+     * fallback (symbol stays if recognized). Never cut a name.
+     * o->notes is left as the full low-to-high list. */
+    {
+        const felucca_font_t *faces[3] = { &FONT_B, &FONT_S, &FONT_XS };
+        char mid[48];
+        int pass, fi, fitted = 0;
+        for (pass = 0; pass < 2 && !fitted; pass++) {
+            q = o->held;
+            if (prefix)
+                q = put_s(q, prefix);
+            if (o->recognized && o->symbol[0]) {
+                q = put_s(q, o->symbol);
+                q = put_s(q, "  ");
+                /* Notes beside a recognized symbol, or compact on overflow. */
+                q = put_s(q, pass ? o->fallback : o->notes);
+            } else {
+                /* Unrecognized: mid-section comes only from the fallback. */
+                chord_label_fallback(mid, sound, ns, o->notes, pass);
+                q = put_s(q, mid);
+            }
+            if (flags) {
+                const char *f = flags;
+                while (*f == ' ')
+                    f++;
+                if (*f) {
+                    q = put_s(q, "  ");
+                    q = put_s(q, f);
+                }
+            }
+            *q = 0;
+            for (fi = 0; fi < 3; fi++) {
+                if (tw(faces[fi], o->held) <= SEQ_CHORD_HELD_MAX) {
+                    o->held_font = faces[fi];
+                    fitted = 1;
+                    break;
+                }
+            }
+            if (!fitted)
+                o->held_font = &FONT_XS;
+        }
+    }
+}
+
+static int strcmp_s(const char *a, const char *b);
+
+/* Cache: name once per held-step / onset change, never per column or band. */
+static struct {
+    uint8_t valid, part, pat, step, kind, nstore;
+    int16_t trans;
+    uint8_t store[HELD_CHORD_NOTES];
+    char prefix[20], flags[32];
+    chord_label_t lab;
+} chord_lab_cache;
+
+static void chord_label_cached(chord_label_t *o, const bpart_t *bp, int s,
+                               const int *lk, int have_lk, int poly, int kind,
+                               const char *prefix, const char *flags)
+{
+    uint8_t store[HELD_CHORD_NOTES], sound[HELD_CHORD_NOTES], listed[HELD_CHORD_NOTES];
+    int start = note_start_of(bp, s);
+    int nstore, ns, i, trans = bp->transpose;
+    int pat = seq.ppat[ui.part];
+    if (start >= 0 && have_lk && poly)
+        nstore = chord_from_lanes(lk, start, bp->step[start].note, store);
+    else if (start >= 0 && poly)
+        nstore = onset_chord_of(bp, s, store);
+    else {
+        store[0] = bp->step[start >= 0 ? start : s].note;
+        nstore = 1;
+    }
+    if (nstore <= 0) {
+        store[0] = bp->step[start >= 0 ? start : s].note;
+        nstore = 1;
+    }
+    if (chord_lab_cache.valid &&
+        chord_lab_cache.part == (uint8_t)ui.part &&
+        chord_lab_cache.pat == (uint8_t)pat &&
+        chord_lab_cache.step == (uint8_t)s &&
+        chord_lab_cache.kind == (uint8_t)kind &&
+        chord_lab_cache.trans == (int16_t)trans &&
+        chord_lab_cache.nstore == (uint8_t)nstore &&
+        memcmp(chord_lab_cache.store, store, (size_t)nstore) == 0 &&
+        strcmp_s(chord_lab_cache.prefix, prefix ? prefix : "") == 0 &&
+        strcmp_s(chord_lab_cache.flags, flags ? flags : "") == 0) {
+        *o = chord_lab_cache.lab;
+        return;
+    }
+    ns = chord_sounding_of(kind, store, nstore, trans, sound);
+    for (i = 0; i < nstore; i++)
+        listed[i] = (uint8_t)chord_sound_midi(store[i], trans);
+    chord_label_fmt(o, sound, ns, listed, nstore, prefix, flags);
+    chord_lab_cache.valid = 1;
+    chord_lab_cache.part = (uint8_t)ui.part;
+    chord_lab_cache.pat = (uint8_t)pat;
+    chord_lab_cache.step = (uint8_t)s;
+    chord_lab_cache.kind = (uint8_t)kind;
+    chord_lab_cache.trans = (int16_t)trans;
+    chord_lab_cache.nstore = (uint8_t)nstore;
+    memcpy(chord_lab_cache.store, store, (size_t)nstore);
+    put_s(chord_lab_cache.prefix, prefix ? prefix : "");
+    put_s(chord_lab_cache.flags, flags ? flags : "");
+    chord_lab_cache.lab = *o;
+}
+
+
 static UI_DRAW void draw_303(int band, int gen)
 {
     int b = bidx(), c, o = band * BAND_H, n;       /* o: drawn in the screen's rows, minus the band's */
@@ -5576,16 +6012,27 @@ static UI_DRAW void draw_303(int band, int gen)
     int ph = seq.playing ? eng_step[TRK_BASS0 + b] : -1, lo = 127, hi = 0;
     uint16_t col = part_col();
     uint32_t lmarks = gen ? 0 : lock_marks(-1, -1, ui.spage * 16);
-    char t[40], *q = t;
+    char t[80], *q = t;
+    int lk[HELD_CHORD_NOTES - 1];
+    int poly = seq_bass_poly(&seq, b);
+    int kind = engine_bass_bank(b);
     (void)gen;
+    chord_lanes_prefetch(lk, poly);
     for (c = 0; c < bp->len && c < NSTEPS; c++) {
-        int start = note_start_of(bp, c);
-        if (start >= 0) {
-            int pitch = bp->step[start].note;
-            if (pitch < lo)
-                lo = pitch;
-            if (pitch > hi)
-                hi = pitch;
+        uint8_t notes[HELD_CHORD_NOTES];
+        int nn, k;
+        if (bstep_gate(&bp->step[c]) != G_NOTE)
+            continue;
+        nn = poly ? chord_from_lanes(lk, c, bp->step[c].note, notes) : 1;
+        if (!poly || nn <= 0) {
+            notes[0] = bp->step[c].note;
+            nn = 1;
+        }
+        for (k = 0; k < nn; k++) {
+            if (notes[k] < lo)
+                lo = notes[k];
+            if (notes[k] > hi)
+                hi = notes[k];
         }
     }
     if (lo > hi)
@@ -5612,29 +6059,45 @@ static UI_DRAW void draw_303(int band, int gen)
         if (s == ph)
             cv_rect(x, ROLL_TOP - 4 - o, 12, ROLL_BOT - ROLL_TOP + 10, dim(col, 2));
         if (g != G_REST && note_start_of(bp, s) >= 0) {
-            int hn = held_note_of(bp, s), y = note_y(hn, lo, hi) - o;
-            uint16_t fc = s == ui.held_step ? C_WHITE : (st->flags & BS_ACCENT) ? col : dim(col, 9);
-            int end = st->flags >> BS_END_SHIFT;
-            int width = end ? (end * 12 + 14) / 15 : 12;
-            night_mark(x, y, width, 5, fc,1); /* captured 1..15 release fraction of this step */
-            if ((lmarks >> c) & 1u)                  /* the step's own values (p-locks): a notch */
-                cv_rect(x + 5, y - 3, 2, 2, C_WHITE);
-            if (g == G_TIE) {
-                if (c > 0)                           /* continued from previous visible step */
-                    cv_rect(col_x(c - 1) + 6, y,
-                            x - (col_x(c - 1) + 6) + (width < 6 ? width : 6), 5, fc);
-                else {                               /* page 16→17 or loop last→first */
-                    cv_rect(x - 4, y + 1, 4, 3, fc);
-                    cv_rect(x - 7, y + 2, 3, 1, fc);
+            int start = note_start_of(bp, s);
+            uint8_t notes[HELD_CHORD_NOTES];
+            int nn = poly ? chord_from_lanes(lk, start, bp->step[start].note, notes) : 1;
+            int k, nsound, nfirst, end, width;
+            uint16_t fc_live;
+            if (!poly || nn <= 0) {
+                notes[0] = bp->step[start].note;
+                nn = 1;
+            }
+            nsound = chord_sounding_n(kind, nn);
+            nfirst = nn - nsound;
+            if (nfirst < 0)
+                nfirst = 0;
+            fc_live = s == ui.held_step ? C_WHITE : (st->flags & BS_ACCENT) ? col : dim(col, 9);
+            end = st->flags >> BS_END_SHIFT;
+            width = end ? (end * 12 + 14) / 15 : 12;
+            for (k = 0; k < nn; k++) {
+                int y = note_y(notes[k], lo, hi) - o;
+                uint16_t fc = (k < nfirst) ? C_DIM : fc_live;
+                night_mark(x, y, width, 5, fc, 1); /* captured 1..15 release fraction of this step */
+                if (k == 0 && ((lmarks >> c) & 1u))  /* real p-locks only (chord lanes skipped) */
+                    cv_rect(x + 5, y - 3, 2, 2, C_WHITE);
+                if (g == G_TIE) {
+                    if (c > 0)                       /* continued from previous visible step */
+                        cv_rect(col_x(c - 1) + 6, y,
+                                x - (col_x(c - 1) + 6) + (width < 6 ? width : 6), 5, fc);
+                    else {                           /* page 16→17 or loop last→first */
+                        cv_rect(x - 4, y + 1, 4, 3, fc);
+                        cv_rect(x - 7, y + 2, 3, 1, fc);
+                    }
                 }
-            }
-            if (c == 15 && bstep_gate(&bp->step[s + 1 < bp->len ? s + 1 : 0]) == G_TIE) {
-                cv_rect(x + 12, y + 1, 2, 3, fc);
-                cv_rect(x + 14, y + 2, 2, 1, fc);
-            }
-            if ((st->flags & BS_SLIDE) && c < 15) {
-                int nx = s + 1 < bp->len ? s + 1 : 0, ny = note_y(bp->step[nx].note, lo, hi) - o;
-                cv_line(x + 11, y + 2, x + 14, ny + 2, C_WHITE);
+                if (c == 15 && bstep_gate(&bp->step[s + 1 < bp->len ? s + 1 : 0]) == G_TIE) {
+                    cv_rect(x + 12, y + 1, 2, 3, fc);
+                    cv_rect(x + 14, y + 2, 2, 1, fc);
+                }
+                if (k == 0 && (st->flags & BS_SLIDE) && c < 15) {
+                    int nx = s + 1 < bp->len ? s + 1 : 0, ny = note_y(bp->step[nx].note, lo, hi) - o;
+                    cv_line(x + 11, y + 2, x + 14, ny + 2, C_WHITE);
+                }
             }
         }
         night_mark(x + 1, 101 - o, 10, 4, g && (st->flags & BS_ACCENT) ? C_WHITE : C_LINE,g && (st->flags & BS_ACCENT));   /* its accent, its slide */
@@ -5645,18 +6108,21 @@ static UI_DRAW void draw_303(int band, int gen)
     if (ui.held_step >= 0 || ui.rec) {   /* the step held (or being written) */
         int s = ui.held_step >= 0 ? ui.held_step : ui.wpos[b];
         const bstep_t *st = &bp->step[s];
-        q = put_s(q, ui.held_step >= 0 ? "STEP " : "WRITE ");
+        char prefix[20], flags[32], *fp;
+        chord_label_t lab;
+        q = put_s(prefix, ui.held_step >= 0 ? "STEP " : "WRITE ");
         q = put_i(q, s + 1);
-        q = put_s(q, "  ");
-        q = put_note(q, held_note_of(bp, s) + bp->transpose - 24);
+        put_s(q, "  ");
+        fp = flags;
         if (bstep_gate(st) == G_TIE)
-            q = put_s(q, " TIE");
+            fp = put_s(fp, " TIE");
         if (st->flags & BS_ACCENT)
-            q = put_s(q, " ACC");
+            fp = put_s(fp, " ACC");
         if (st->flags & BS_SLIDE)
-            q = put_s(q, " SLIDE");
-        put_i(put_s(q, " V"), bstep_velocity(st));
-        cv_text(4, vc(&FONT_B, 122, 16) - o, &FONT_B, t, C_WHITE);
+            fp = put_s(fp, " SLIDE");
+        put_i(put_s(fp, " V"), bstep_velocity(st));
+        chord_label_cached(&lab, bp, s, lk, 1, poly, kind, prefix, flags);
+        cv_text(4, vc(lab.held_font, 122, 16) - o, lab.held_font, lab.held, C_WHITE);
     } else {                                           /* else the line's scale and seed */
         char t2[16];
         q = put_s(q, ROOT_N[bp->gen.root % 12]);
@@ -8373,13 +8839,20 @@ static UI_DRAW void draw_knobs(void)
         const bpart_t *bp = &cur_pat()->bass[bidx()];
         const bstep_t *st = &bp->step[ui.held_step];
         for (i = 0; i < 4; i++) {
-            char v[12];
+            char v[16];
             int cx = i * 60 + 30;
             if (i)
                 cv_rect(i * 60, 14, 1, 50, C_LINE);
-            if (i == 0)
-                put_note(v, held_note_of(bp, ui.held_step) + bp->transpose - 24);
-            else if (i == 1)
+            if (i == 0) {
+                chord_label_t lab;
+                int kpoly = seq_bass_poly(&seq, bidx());
+                int kkind = engine_bass_bank(bidx());
+                chord_label_cached(&lab, bp, ui.held_step, 0, 0, kpoly, kkind, 0, 0);
+                put_s(v, lab.cell);
+                text_c(cx, vc(&FONT_XS, 13, 10), &FONT_XS, SN[i], C_GRAY);
+                text_c(cx, vc(lab.cell_font, 30, 34), lab.cell_font, v, C_WHITE);
+                continue;
+            } else if (i == 1)
                 put_s(v, G[bstep_gate(st)]);
             else
                 put_s(v, (st->flags & (i == 2 ? BS_ACCENT : BS_SLIDE)) ? "ON" : "OFF");

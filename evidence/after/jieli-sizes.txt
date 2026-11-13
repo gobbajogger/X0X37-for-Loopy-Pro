@@ -1,0 +1,50 @@
+SEQ chord display + Tier-1 namer — JieLi Elite/Pro flash/pool
+Source: /workspace/build-1214/seqchord-measure (same ui.c as lane/fmb-seq-chord-display)
+SDK V1.2.14, clang 4.0.1, --git-sha 94197fc8 (same length/value as baseline so the
+version string is not in the delta). Images NOT FOR INSTALL.
+Times: Asia/Vladivostok (UTC+10), 2026-11-13 22:59.
+
+Baseline 94197fc8 (REPORT.txt):
+  Elite flash free 8,440 B    Pro flash free 8,448 B    pool free 8,340 B
+  Elite image 544,232 B       Pro image 544,224 B
+  RAM .data+.bss 95,536 B
+
+Default build (SEQ_CHORD_LABEL_TIER1=1, TIER2=0):
+  Elite: app 546,600 B of 552,672; flash free 6,072 B; RAM 95,792 B; pool used 335,724 of 344,064 (free 8,340)
+  Pro:   app 546,588 B of 552,672; flash free 6,084 B; RAM 95,792 B; pool used 335,724 of 344,064 (free 8,340)
+
+Deltas vs 94197fc8:
+  Elite flash  -2,368 B free (used +2,368). Flag 248 B: OVER by 2,120 B.
+  Pro   flash  -2,364 B free (used +2,364). Flag 256 B: OVER by 2,108 B.
+  Pool         0 B both models (under 148 B). Cache is BSS, not X0X_POOL.
+  RAM          +256 B .data+.bss (chord_lab_cache 252 B BSS + align).
+  Floor 8,192 B flash: BOTH models BELOW (Elite 6,072, Pro 6,084). Not trimmed; Optimizer frees flash separately.
+
+Namer / Tier cost at Elite link (same recipe):
+  TIER1=0 TIER2=0 (fallback-only): flash free 6,492  image 546,180
+    → Tier-1 namer costs 420 B on top of the display fix
+    → display fix + fallback-only costs 1,948 B (8,440-6,492)
+  TIER2 entries on top of TIER1 (image / free / cost vs previous):
+    T2=0 (default)  546,600 / 6,072
+    T2=1 dim        546,608 / 6,064   +8 B
+    T2=2 sus4       546,620 / 6,052   +12 B
+    T2=3 sus2       546,632 / 6,040   +12 B
+    T2=4 aug        546,640 / 6,032   +8 B
+    T2=5 6          546,648 / 6,024   +8 B
+    T2=6 min7b5     546,660 / 6,012   +12 B
+    T2=7 dim7       546,672 / 6,000   +12 B
+    All seven Tier-2: +72 B. Does not fit (already over). Left TIER2=0.
+
+Biggest Elite text/BSS contributors vs 94197fc8 ELF (nm -S):
+  chord_label_cached     +1,376 B  (fmt + match inlined into the cache wrapper)
+  draw_303               +436 B    (1,546 → 1,982)
+  draw_knobs             +226 B    (5,222 → 5,448)
+  chord_lab_cache BSS    +252 B
+  held_chord_get         +100 B    (now a standalone)
+  chord_from_lanes       +82 B
+  chord_label_fallback   +62 B
+  switch tables          ~154 B
+  chord_rot              +42 B
+  suffixes+masks         +36 B
+  lock_marks             +12 B     (158 → 170)
+  held_note_by           -62 B

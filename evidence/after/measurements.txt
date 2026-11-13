@@ -1,0 +1,127 @@
+SEQ chord display AFTER measurements (draw-only fix)
+host render of real ui.c draw_303 / draw_main / draw_knobs
+label function=chord_label_fmt TIER1=1 TIER2=0
+ACC maj-root symbol='C' cell='C' notes='C3 E3 G3' held='STEP 1  C  C3 E3 G3  V100' want_sym='C' want_cell='C' want_notes='C3 E3 G3'
+ACC maj-inv symbol='C/E' cell='C/E' notes='E3 G3 C4' held='STEP 1  C/E  E3 G3 C4  V100' want_sym='C/E' want_cell='C/E' want_notes='E3 G3 C4'
+ACC min7-flats-in symbol='Cmin7' cell='Cmin7' notes='C3 D#3 G3 A#3' held='STEP 1  Cmin7  C3 D#3 G3 A#3  V100' want_sym='Cmin7' want_cell='Cmin7' want_notes='C3 D#3 G3 A#3'
+ACC maj-spread symbol='C' cell='C' notes='C3 G3 C4 E4' held='STEP 1  C  C3 G3 C4 E4  V100' want_sym='C' want_cell='C' want_notes='C3 G3 C4 E4'
+ACC power symbol='C5' cell='C5' notes='C3 G3' held='STEP 1  C5  C3 G3  V100' want_sym='C5' want_cell='C5' want_notes='C3 G3'
+ACC CEGA-t1 symbol='Amin7/C' cell='Amin7/C' notes='C3 E3 G3 A3' held='STEP 1  Amin7/C  C3 E3 G3 A3  V100' want_sym='Amin7/C' want_cell='Amin7/C' want_notes='C3 E3 G3 A3'
+ACC cluster symbol='' cell='C3x3' notes='C3 C#3 D3' held='STEP 1  C3 C#3 D3  V100' want_sym='' want_cell='C3x3' want_notes='C3 C#3 D3'
+ACC oct-double symbol='' cell='C4x2' notes='C4 C5' held='STEP 1  C4 C5  V100' want_sym='' want_cell='C4x2' want_notes='C4 C5'
+ACC mono symbol='' cell='C3' notes='C3' held='STEP 1  C3  V100' want_sym='' want_cell='C3' want_notes='C3'
+ACC maj7-recorded symbol='Cmaj7' cell='Cmaj7' notes='C3 E3 G3 B3' held='STEP 1  Cmaj7  C3 E3 G3 B3  V100' want_sym='Cmaj7' want_cell='Cmaj7' want_notes='C3 E3 G3 B3'
+ACC hex-recorded symbol='' cell='C3x6' notes='C3 E3 G3 B3 D4 F4' held='STEP 1  C3 E3 G3 B3 D4 F4  V100' want_sym='' want_cell='C3x6' want_notes='C3 E3 G3 B3 D4 F4'
+ACC min symbol='Cmin' cell='Cmin' notes='C3 D#3 G3' held='STEP 1  Cmin  C3 D#3 G3  V100' want_sym='Cmin' want_cell='Cmin' want_notes='C3 D#3 G3'
+ACC dom7 symbol='C7' cell='C7' notes='C3 E3 G3 A#3' held='STEP 1  C7  C3 E3 G3 A#3  V100' want_sym='C7' want_cell='C7' want_notes='C3 E3 G3 A#3'
+ACC aug-root symbol='' cell='C3x3' notes='C3 E3 G#3' held='STEP 1  C3 E3 G#3  V100' want_sym='' want_cell='C3x3' want_notes='C3 E3 G#3'
+ACC aug-inv symbol='' cell='E3x3' notes='E3 G#3 C4' held='STEP 1  E3 G#3 C4  V100' want_sym='' want_cell='E3x3' want_notes='E3 G#3 C4'
+ACC dim7-root symbol='' cell='C3x4' notes='C3 D#3 F#3 A3' held='STEP 1  C3 D#3 F#3 A3  V100' want_sym='' want_cell='C3x4' want_notes='C3 D#3 F#3 A3'
+ACC min7b5-slash symbol='' cell='A#2x4' notes='A#2 C3 D#3 F#3' held='STEP 1  A#2 C3 D#3 F#3  V100' want_sym='' want_cell='A#2x4' want_notes='A#2 C3 D#3 F#3'
+ACC gs-seven symbol='G#7' cell='G#7' notes='G#2 C3 D#3 F#3' held='STEP 1  G#7  G#2 C3 D#3 F#3  V100' want_sym='G#7' want_cell='G#7' want_notes='G#2 C3 D#3 F#3'
+ACC longest-produced symbol='' cell='G#2x4' notes='G#2 A#2 C#3 E3' held='STEP 1  G#2 A#2 C#3 E3  V100' want_sym='' want_cell='G#2x4' want_notes='G#2 A#2 C#3 E3'
+ACC sus-ambiguous symbol='' cell='D3x3' notes='D3 G3 C4' held='STEP 1  D3 G3 C4  V100' want_sym='' want_cell='D3x3' want_notes='D3 G3 C4'
+ACC dyad-third symbol='' cell='C3x2' notes='C3 E3' held='STEP 1  C3 E3  V100' want_sym='' want_cell='C3x2' want_notes='C3 E3'
+ACC transpose-plus12 symbol='C' cell='C' notes='C4 E4 G4' held='STEP 1  C  C4 E4 G4  V100' want_sym='C' want_cell='C' want_notes='C4 E4 G4'
+23-row ran=22 wrong=0 TIER1=1 TIER2=0
+png /workspace/seq-chord-001/evidence/after/after-symbol-C.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-CslashE.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-Cmin7.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-C-folded.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-C5.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-CEGA.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-C3x3.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-C4x2.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-C3.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-Cmaj7.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-Cmin.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-C7.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-Gsharp7.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-C3x6.png
+png /workspace/seq-chord-001/evidence/after/after-symbol-C3x2.png
+mono-C3 step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=1
+  note[0]=48 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-mono-control.png
+DRAW_TIME juno-mono iters=400 full_ms=0.222549
+mono-E3 step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[50,64] ink=23b1 nstore=1
+  note[0]=52 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-mono-E3.png
+dyad step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=2
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-dyad.png
+triad step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=1
+  note[2]=55 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-triad.png
+DRAW_TIME juno-triad iters=400 full_ms=0.234711
+tetrad step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,61] ink=23b1 nstore=4
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=1
+  note[2]=55 inside=1 drawn=1
+  note[3]=59 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-tetrad.png
+hexachord step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,67] ink=23b1 nstore=6
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=1
+  note[2]=55 inside=1 drawn=1
+  note[3]=59 inside=1 drawn=1
+  note[4]=62 inside=1 drawn=1
+  note[5]=65 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-hexachord.png
+chord-beside-mono/chord step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=1
+  note[2]=55 inside=1 drawn=1
+chord-beside-mono/mono step=7 col=7 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=1
+  note[0]=57 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-chord-and-mono.png
+selected-triad step=0 col=0 spage=0 held=0 playing=0 ph=-1 window=[46,60] ink=df3b nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=1
+  note[2]=55 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-selected-chord.png
+DRAW_TIME juno-held-triad iters=400 full_ms=0.223583
+png /workspace/seq-chord-001/evidence/after/after-selected-mono.png
+playing-triad step=0 col=0 spage=0 held=-1 playing=1 ph=0 window=[46,60] ink=23b1 nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=1
+  note[2]=55 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-playing-chord.png
+playing playhead_hits=83
+sustained/onset step=0 col=0 spage=0 held=-1 playing=1 ph=2 window=[46,60] ink=23b1 nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=1
+  note[2]=55 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-sustained-triad.png
+slide/onset step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=1
+  note[2]=55 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-slide-triad.png
+png /workspace/seq-chord-001/evidence/after/after-write-triad.png
+page1-of-32 step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[55,69] ink=23b1 nstore=1
+  note[0]=57 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-page1-with-page2-chord.png
+page2-chord step=16 col=0 spage=1 held=-1 playing=0 ph=-1 window=[55,69] ink=23b1 nstore=3
+  note[0]=60 inside=1 drawn=1
+  note[1]=64 inside=1 drawn=1
+  note[2]=67 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-page2-chord.png
+page2-selected step=16 col=0 spage=1 held=16 playing=0 ph=-1 window=[55,69] ink=df3b nstore=3
+  note[0]=60 inside=1 drawn=1
+  note[1]=64 inside=1 drawn=1
+  note[2]=67 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-page2-selected-chord.png
+page2-playing step=16 col=0 spage=1 held=-1 playing=1 ph=16 window=[55,69] ink=23b1 nstore=3
+  note[0]=60 inside=1 drawn=1
+  note[1]=64 inside=1 drawn=1
+  note[2]=67 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/after/after-page2-playing-chord.png
+png /workspace/seq-chord-001/evidence/after/after-chicago-mono.png
+DRAW_TIME chicago-mono iters=400 full_ms=0.169595
+png /workspace/seq-chord-001/evidence/after/after-miami-mono.png
+DRAW_TIME miami-mono iters=400 full_ms=0.149771
+png /workspace/seq-chord-001/evidence/after/after-drone-hexachord.png
+PLAYBACK_HASH 0x4c5a264a
