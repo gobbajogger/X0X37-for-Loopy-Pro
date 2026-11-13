@@ -179,7 +179,7 @@ async function connectSelected() {
     device = null; previewStale = true; downloaded = false; $("backup-saved").checked = false;
     $("identity").textContent = "Disconnected"; controls();
     say("USB connection changed. Local files and recovery backups are retained. Reconnect and prepare a new preview before importing.", true);
-  });
+  }, () => device !== null && link === ownedLink);
   const next = new ProjectDevice(link);
   try {
     const info = await next.connect(); device = next; $("identity").textContent = info.identity;
