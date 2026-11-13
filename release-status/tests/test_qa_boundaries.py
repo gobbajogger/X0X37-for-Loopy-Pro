@@ -26,6 +26,9 @@ def receipt(record: dict, model: str) -> dict:
     return {
         "claimed_model": model,
         "model_proof": "board_id",
+        "model_proof_model": model,
+        "model_proof_time": "2026-11-13T11:20:00-06:00",
+        "model_proof_source_link": "https://example.org/synthetic-model-proof/" + model,
         "model_confidence": "verified",
         "build_confidence": "verified",
         "installed_hash": record["models"][model]["image_sha256"],
@@ -122,6 +125,13 @@ class TestQABoundaries(unittest.TestCase):
         rec["install_verifications"] = [receipt(rec, "pro")]
         rec["install_verifications"][0]["installed_hash"] = rec["models"]["elite"]["image_sha256"]
         self.assertEqual(evaluate_install_verified(rec, "pro")["status"], "fail")
+
+
+    def test_hardware_proof_model_mismatch_blocks_other_model(self):
+        rec = complete_fixture()
+        rec["install_verifications"][1]["model_proof_model"] = "elite"
+        self.assertFalse(installation_for_model(rec, "pro")[0])
+        self.assertEqual(evaluate_install_verified(rec, "pro")["status"], "missing")
 
     def test_existing_append_only_audit_preserves_historical_times(self):
         legacy = load_jsonl(AUDIT)
