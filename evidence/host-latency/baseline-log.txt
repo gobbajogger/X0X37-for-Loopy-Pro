@@ -1,0 +1,73 @@
+HOST evidence — not a device test.
+seq_chord_latency_test: fast 1-2 ms notes across SEQ enter/exit and a chord-label redraw.
+build=baseline-or-no-namer (94197fc8 ui.c or TIER1 undefined)
+BLK samples=44 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=88 n=44 held=1 ons=0 dons=0 hash=cf5d27e1
+BLK samples=176 n=88 held=1 ons=0 dons=0 hash=d634534a
+BLK samples=264 n=88 held=0 ons=0 dons=0 hash=f2d30939
+BLK samples=308 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=352 n=44 held=1 ons=0 dons=0 hash=c98f5749
+BLK samples=440 n=88 held=1 ons=0 dons=0 hash=7437aee2
+BLK samples=528 n=88 held=0 ons=0 dons=0 hash=1ed639fc
+BLK samples=572 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=616 n=44 held=1 ons=0 dons=0 hash=a7c51876
+BLK samples=704 n=88 held=1 ons=0 dons=0 hash=da18074a
+BLK samples=792 n=88 held=0 ons=0 dons=0 hash=62214563
+BLK samples=836 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=880 n=44 held=1 ons=0 dons=0 hash=4080a71f
+BLK samples=968 n=88 held=1 ons=0 dons=0 hash=c9bc11b1
+BLK samples=1056 n=88 held=0 ons=0 dons=0 hash=33e88ae1
+UI seq-exit i=8 samples=1056
+BLK samples=1100 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=1144 n=44 held=1 ons=0 dons=0 hash=a52ff3da
+BLK samples=1232 n=88 held=1 ons=0 dons=0 hash=672ae9ca
+BLK samples=1320 n=88 held=0 ons=0 dons=0 hash=60358978
+BLK samples=1364 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=1408 n=44 held=1 ons=0 dons=0 hash=52c960db
+BLK samples=1496 n=88 held=1 ons=0 dons=0 hash=a2158e02
+BLK samples=1584 n=88 held=0 ons=0 dons=0 hash=215d6e7b
+UI seq-enter i=12 samples=1584
+BLK samples=1628 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=1672 n=44 held=1 ons=0 dons=0 hash=937157ed
+BLK samples=1760 n=88 held=1 ons=0 dons=0 hash=77892ac1
+BLK samples=1848 n=88 held=0 ons=0 dons=0 hash=f93ac453
+BLK samples=1892 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=1936 n=44 held=1 ons=0 dons=0 hash=8f563639
+BLK samples=2024 n=88 held=1 ons=0 dons=0 hash=3a3ba176
+BLK samples=2112 n=88 held=0 ons=0 dons=0 hash=ee8f3c35
+UI chord-redraw i=16 samples=2112
+BLK samples=2156 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=2200 n=44 held=1 ons=0 dons=0 hash=e6a40bd0
+BLK samples=2288 n=88 held=1 ons=0 dons=0 hash=59580f7e
+BLK samples=2376 n=88 held=0 ons=0 dons=0 hash=4616df07
+BLK samples=2420 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=2464 n=44 held=1 ons=0 dons=0 hash=53567724
+BLK samples=2552 n=88 held=1 ons=0 dons=0 hash=20e2c484
+BLK samples=2640 n=88 held=0 ons=0 dons=0 hash=3e5ca113
+BLK samples=2684 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=2728 n=44 held=1 ons=0 dons=0 hash=26a12a05
+BLK samples=2816 n=88 held=1 ons=0 dons=0 hash=8a657afa
+BLK samples=2904 n=88 held=0 ons=0 dons=0 hash=3ae13213
+BLK samples=2948 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=2992 n=44 held=1 ons=0 dons=0 hash=27121475
+BLK samples=3080 n=88 held=1 ons=0 dons=0 hash=b3767612
+BLK samples=3168 n=88 held=0 ons=0 dons=0 hash=1487e591
+BLK samples=3212 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=3256 n=44 held=1 ons=0 dons=0 hash=0b209ecc
+BLK samples=3344 n=88 held=1 ons=0 dons=0 hash=3116279b
+BLK samples=3432 n=88 held=0 ons=0 dons=0 hash=81bd9369
+BLK samples=3476 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=3520 n=44 held=1 ons=0 dons=0 hash=dd863cda
+BLK samples=3608 n=88 held=1 ons=0 dons=0 hash=c02b1780
+BLK samples=3696 n=88 held=0 ons=0 dons=0 hash=93754e73
+BLK samples=3740 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=3784 n=44 held=1 ons=0 dons=0 hash=6ff07202
+BLK samples=3872 n=88 held=1 ons=0 dons=0 hash=eb66583f
+BLK samples=3960 n=88 held=0 ons=0 dons=0 hash=a48904a6
+BLK samples=4004 n=44 held=1 ons=0 dons=0 hash=075a6545
+BLK samples=4048 n=44 held=1 ons=0 dons=0 hash=c3b437b7
+BLK samples=4136 n=88 held=1 ons=0 dons=0 hash=04df6377
+BLK samples=4224 n=88 held=0 ons=0 dons=0 hash=58cae3c1
+BURST notes=32 ev=0 blk=64 samples=4224 ons=0
+HOST_DRAW_TIME chicago-mono iters=80 full_ms=0.157301
+HOST_DRAW_TIME juno-held-triad iters=80 full_ms=0.147091

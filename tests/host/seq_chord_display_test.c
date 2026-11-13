@@ -2,7 +2,9 @@
 /* Host test of the SEQ chord display fix. Compiles the real ui.c draw path
  * and writes native 240x240 AFTER frames. Inverts the 94197fc8 baseline
  * "extra pitch is absent" checks, adds playback identity, Chicago/Miami
- * mono identity, draw-time, and the 23-row chord_name.py acceptance set against chord_label_fmt. */
+ * mono identity, draw-time, the 41-row chord_name.py §9 acceptance set against seq_chord_symbol
+ * / chord_label_fmt (60 §10 rows are skipped; not implemented in this run),
+ * and HOST latency evidence (fast notes vs 94197fc8; namer is UI-task only). */
 #define SMC_UI_MAIN unused_smc_ui_main
 #include "smc_ui_test.c"
 
@@ -287,11 +289,13 @@ static uint32_t playback_hash(void)
     return h;
 }
 
-/* 23-row acceptance from smk-ux/seq-chords/chord_name.py, against the
- * firmware function chord_label_fmt (sounding MIDI after +transpose-24).
- * TIER2 is a compile switch: this table lists both T1 and T2 expects.
- * CEGA-t1 is skipped when TIER2 is on; CEGA-t2 is skipped when TIER2 is
- * off, so each published expectation is asserted on a matching binary. */
+/* 41-row §9 acceptance from smk-ux/seq-chords/chord_name.py (piano-roll.md
+ * sha d0307933…, §9.8 errata). Against the firmware functions
+ * seq_chord_symbol (0/1) and chord_label_fmt (sounding MIDI after
+ * +transpose-24, clamped events kept — F6). TIER2 is a compile switch:
+ * this table lists both T1 and T2 expects. Split pairs (id ending
+ * -t1 / -t2) run on one binary each; every other row runs on both.
+ * The 60 §10 rows are listed and skipped: §10 is out of this run. */
 #define SEQ_CHORD_HAVE_T2 (SEQ_CHORD_LABEL_TIER2 >= 7)
 
 typedef struct {
@@ -301,43 +305,125 @@ typedef struct {
     const char *sym_t2, *cell_t2;
     const char *sym_t1, *cell_t1;
     const char *notes;
-    const char *held; /* NULL: do not assert held (T1/T2 held text differs) */
+    const char *held_t2, *held_t1;
 } chord_row_t;
 
 static const chord_row_t CHORD_ROWS[] = {
-    {"maj-root",         {48,52,55},       3, 24, 1, "C",           "C",         "C",        "C",       "C3 E3 G3",            "STEP 1  C  C3 E3 G3  V100"},
-    {"maj-inv",          {52,55,60},       3, 24, 1, "C/E",         "C/E",       "C/E",      "C/E",     "E3 G3 C4",            "STEP 1  C/E  E3 G3 C4  V100"},
-    {"min7-flats-in",    {48,51,55,58},    4, 24, 1, "Cmin7",       "Cmin7",     "Cmin7",    "Cmin7",   "C3 D#3 G3 A#3",       "STEP 1  Cmin7  C3 D#3 G3 A#3  V100"},
-    {"maj-spread",       {48,55,60,64},    4, 24, 1, "C",           "C",         "C",        "C",       "C3 G3 C4 E4",         "STEP 1  C  C3 G3 C4 E4  V100"},
-    {"power",            {48,55},          2, 24, 1, "C5",          "C5",        "C5",       "C5",      "C3 G3",               "STEP 1  C5  C3 G3  V100"},
-    {"CEGA-t2",          {48,52,55,57},    4, 24, 1, "C6",          "C6",        "Amin7/C",  "Amin7/C", "C3 E3 G3 A3",         0},
-    {"CEGA-t1",          {48,52,55,57},    4, 24, 0, "C6",          "C6",        "Amin7/C",  "Amin7/C", "C3 E3 G3 A3",         "STEP 1  Amin7/C  C3 E3 G3 A3  V100"},
-    {"cluster",          {48,49,50},       3, 24, 1, "",            "C3x3",      "",         "C3x3",    "C3 C#3 D3",           "STEP 1  C3 C#3 D3  V100"},
-    {"oct-double",       {60,72},          2, 24, 1, "",            "C4x2",      "",         "C4x2",    "C4 C5",               "STEP 1  C4 C5  V100"},
-    {"mono",             {48},             1, 24, 1, "",            "C3",        "",         "C3",      "C3",                  "STEP 1  C3  V100"},
-    {"maj7-recorded",    {48,52,55,59},    4, 24, 1, "Cmaj7",       "Cmaj7",     "Cmaj7",    "Cmaj7",   "C3 E3 G3 B3",         "STEP 1  Cmaj7  C3 E3 G3 B3  V100"},
-    {"hex-recorded",     {48,52,55,59,62,65}, 6, 24, 1, "",         "C3x6",      "",         "C3x6",    "C3 E3 G3 B3 D4 F4",   "STEP 1  C3 E3 G3 B3 D4 F4  V100"},
-    {"min",              {48,51,55},       3, 24, 1, "Cmin",        "Cmin",      "Cmin",     "Cmin",    "C3 D#3 G3",           "STEP 1  Cmin  C3 D#3 G3  V100"},
-    {"dom7",             {48,52,55,58},    4, 24, 1, "C7",          "C7",        "C7",       "C7",      "C3 E3 G3 A#3",        "STEP 1  C7  C3 E3 G3 A#3  V100"},
-    {"aug-root",         {48,52,56},       3, 24, 1, "Caug",        "Caug",      "",         "C3x3",    "C3 E3 G#3",           0},
-    {"aug-inv",          {52,56,60},       3, 24, 1, "Eaug",        "Eaug",      "",         "E3x3",    "E3 G#3 C4",           0},
-    {"dim7-root",        {48,51,54,57},    4, 24, 1, "Cdim7",       "Cdim7",     "",         "C3x4",    "C3 D#3 F#3 A3",       0},
-    {"min7b5-slash",     {46,48,51,54},    4, 24, 1, "Cmin7b5/A#",  "Cmin7b5",  "",         "A#2x4",   "A#2 C3 D#3 F#3",      0},
-    {"gs-seven",         {44,48,51,54},    4, 24, 1, "G#7",         "G#7",       "G#7",      "G#7",     "G#2 C3 D#3 F#3",      "STEP 1  G#7  G#2 C3 D#3 F#3  V100"},
-    {"longest-produced", {44,46,49,52},    4, 24, 1, "A#min7b5/G#", "A#min7b5", "",         "G#2x4",   "G#2 A#2 C#3 E3",      0},
-    {"sus-ambiguous",    {50,55,60},       3, 24, 1, "",            "D3x3",      "",         "D3x3",    "D3 G3 C4",            "STEP 1  D3 G3 C4  V100"},
-    {"dyad-third",       {48,52},          2, 24, 1, "",            "C3x2",      "",         "C3x2",    "C3 E3",               "STEP 1  C3 E3  V100"},
-    {"transpose-plus12", {48,52,55},       3, 36, 1, "C",           "C",         "C",        "C",       "C4 E4 G4",            "STEP 1  C  C4 E4 G4  V100"},
+    {"maj-root", {48,52,55,0,0,0}, 3, 24, 1, "C", "C", "C", "C", "C3 E3 G3", "STEP 1  C  C3 E3 G3  V100", "STEP 1  C  C3 E3 G3  V100"},
+    {"maj-inv", {52,55,60,0,0,0}, 3, 24, 1, "C/E", "C/E", "C/E", "C/E", "E3 G3 C4", "STEP 1  C/E  E3 G3 C4  V100", "STEP 1  C/E  E3 G3 C4  V100"},
+    {"min7-flats-in", {48,51,55,58,0,0}, 4, 24, 1, "Cmin7", "Cmin7", "Cmin7", "Cmin7", "C3 D#3 G3 A#3", "STEP 1  Cmin7  C3 D#3 G3 A#3  V100", "STEP 1  Cmin7  C3 D#3 G3 A#3  V100"},
+    {"maj-spread", {48,55,60,64,0,0}, 4, 24, 1, "C", "C", "C", "C", "C3 G3 C4 E4", "STEP 1  C  C3 G3 C4 E4  V100", "STEP 1  C  C3 G3 C4 E4  V100"},
+    {"power", {48,55,0,0,0,0}, 2, 24, 1, "C5", "C5", "C5", "C5", "C3 G3", "STEP 1  C5  C3 G3  V100", "STEP 1  C5  C3 G3  V100"},
+    {"CEGA-t2", {48,52,55,57,0,0}, 4, 24, 1, "C6", "C6", "Amin7/C", "Amin7/C", "C3 E3 G3 A3", "STEP 1  C6  C3 E3 G3 A3  V100", "STEP 1  Amin7/C  C3 E3 G3 A3  V100"},
+    {"CEGA-t1", {48,52,55,57,0,0}, 4, 24, 0, "C6", "C6", "Amin7/C", "Amin7/C", "C3 E3 G3 A3", "STEP 1  C6  C3 E3 G3 A3  V100", "STEP 1  Amin7/C  C3 E3 G3 A3  V100"},
+    {"cluster", {48,49,50,0,0,0}, 3, 24, 1, "", "C3x3", "", "C3x3", "C3 C#3 D3", "STEP 1  C3 C#3 D3  V100", "STEP 1  C3 C#3 D3  V100"},
+    {"oct-double", {60,72,0,0,0,0}, 2, 24, 1, "", "C4x2", "", "C4x2", "C4 C5", "STEP 1  C4 C5  V100", "STEP 1  C4 C5  V100"},
+    {"mono", {48,0,0,0,0,0}, 1, 24, 1, "", "C3", "", "C3", "C3", "STEP 1  C3  V100", "STEP 1  C3  V100"},
+    {"maj7-recorded", {48,52,55,59,0,0}, 4, 24, 1, "Cmaj7", "Cmaj7", "Cmaj7", "Cmaj7", "C3 E3 G3 B3", "STEP 1  Cmaj7  C3 E3 G3 B3  V100", "STEP 1  Cmaj7  C3 E3 G3 B3  V100"},
+    {"hex-recorded", {48,52,55,59,62,65}, 6, 24, 1, "", "C3x6", "", "C3x6", "C3 E3 G3 B3 D4 F4", "STEP 1  C3 E3 G3 B3 D4 F4  V100", "STEP 1  C3 E3 G3 B3 D4 F4  V100"},
+    {"min", {48,51,55,0,0,0}, 3, 24, 1, "Cmin", "Cmin", "Cmin", "Cmin", "C3 D#3 G3", "STEP 1  Cmin  C3 D#3 G3  V100", "STEP 1  Cmin  C3 D#3 G3  V100"},
+    {"dom7", {48,52,55,58,0,0}, 4, 24, 1, "C7", "C7", "C7", "C7", "C3 E3 G3 A#3", "STEP 1  C7  C3 E3 G3 A#3  V100", "STEP 1  C7  C3 E3 G3 A#3  V100"},
+    {"aug-root", {48,52,56,0,0,0}, 3, 24, 1, "Caug", "Caug", "", "C3x3", "C3 E3 G#3", "STEP 1  Caug  C3 E3 G#3  V100", "STEP 1  C3 E3 G#3  V100"},
+    {"aug-inv", {52,56,60,0,0,0}, 3, 24, 1, "Eaug", "Eaug", "", "E3x3", "E3 G#3 C4", "STEP 1  Eaug  E3 G#3 C4  V100", "STEP 1  E3 G#3 C4  V100"},
+    {"dim7-root", {48,51,54,57,0,0}, 4, 24, 1, "Cdim7", "Cdim7", "", "C3x4", "C3 D#3 F#3 A3", "STEP 1  Cdim7  C3 D#3 F#3 A3  V100", "STEP 1  C3 D#3 F#3 A3  V100"},
+    {"min7b5-slash", {46,48,51,54,0,0}, 4, 24, 1, "Cmin7b5/A#", "Cmin7b5", "", "A#2x4", "A#2 C3 D#3 F#3", "STEP 1  Cmin7b5/A#  A#2 C3 D#3 F#3  V100", "STEP 1  A#2 C3 D#3 F#3  V100"},
+    {"gs-seven", {44,48,51,54,0,0}, 4, 24, 1, "G#7", "G#7", "G#7", "G#7", "G#2 C3 D#3 F#3", "STEP 1  G#7  G#2 C3 D#3 F#3  V100", "STEP 1  G#7  G#2 C3 D#3 F#3  V100"},
+    {"longest-produced", {44,46,49,52,0,0}, 4, 24, 1, "A#min7b5/G#", "A#min7b5", "", "G#2x4", "G#2 A#2 C#3 E3", "STEP 1  A#min7b5/G#  G#2 A#2 C#3 E3  V100", "STEP 1  G#2 A#2 C#3 E3  V100"},
+    {"sus-ambiguous", {50,55,60,0,0,0}, 3, 24, 1, "", "D3x3", "", "D3x3", "D3 G3 C4", "STEP 1  D3 G3 C4  V100", "STEP 1  D3 G3 C4  V100"},
+    {"dyad-third", {48,52,0,0,0,0}, 2, 24, 1, "", "C3x2", "", "C3x2", "C3 E3", "STEP 1  C3 E3  V100", "STEP 1  C3 E3  V100"},
+    {"transpose-plus12", {48,52,55,0,0,0}, 3, 36, 1, "C", "C", "C", "C", "C4 E4 G4", "STEP 1  C  C4 E4 G4  V100", "STEP 1  C  C4 E4 G4  V100"},
+    {"T20-sus2", {48,50,55,0,0,0}, 3, 24, 1, "Csus2", "Csus2", "", "C3x3", "C3 D3 G3", "STEP 1  Csus2  C3 D3 G3  V100", "STEP 1  C3 D3 G3  V100"},
+    {"T21-sus4", {55,60,62,0,0,0}, 3, 24, 1, "Gsus4", "Gsus4", "", "G3x3", "G3 C4 D4", "STEP 1  Gsus4  G3 C4 D4  V100", "STEP 1  G3 C4 D4  V100"},
+    {"T22-sus-amb", {55,60,65,0,0,0}, 3, 24, 1, "", "G3x3", "", "G3x3", "G3 C4 F4", "STEP 1  G3 C4 F4  V100", "STEP 1  G3 C4 F4  V100"},
+    {"T23-amin7", {45,48,52,55,0,0}, 4, 24, 1, "Amin7", "Amin7", "Amin7", "Amin7", "A2 C3 E3 G3", "STEP 1  Amin7  A2 C3 E3 G3  V100", "STEP 1  Amin7  A2 C3 E3 G3  V100"},
+    {"T24-CEGA-inv-t2", {52,55,57,60,0,0}, 4, 24, 1, "", "E3x4", "Amin7/E", "Amin7/E", "E3 G3 A3 C4", "STEP 1  E3 G3 A3 C4  V100", "STEP 1  Amin7/E  E3 G3 A3 C4  V100"},
+    {"T25-CEGA-inv-t1", {52,55,57,60,0,0}, 4, 24, 0, "", "E3x4", "Amin7/E", "Amin7/E", "E3 G3 A3 C4", "STEP 1  E3 G3 A3 C4  V100", "STEP 1  Amin7/E  E3 G3 A3 C4  V100"},
+    {"T26-CEGA-g", {55,57,60,64,0,0}, 4, 24, 1, "", "G3x4", "Amin7/G", "Amin7/G", "G3 A3 C4 E4", "STEP 1  G3 A3 C4 E4  V100", "STEP 1  Amin7/G  G3 A3 C4 E4  V100"},
+    {"T27-dim", {48,51,54,0,0,0}, 3, 24, 1, "Cdim", "Cdim", "", "C3x3", "C3 D#3 F#3", "STEP 1  Cdim  C3 D#3 F#3  V100", "STEP 1  C3 D#3 F#3  V100"},
+    {"T28-dim-inv", {51,54,60,0,0,0}, 3, 24, 1, "Cdim/D#", "Cdim/D#", "", "D#3x3", "D#3 F#3 C4", "STEP 1  Cdim/D#  D#3 F#3 C4  V100", "STEP 1  D#3 F#3 C4  V100"},
+    {"T29-dim7", {48,51,54,57,0,0}, 4, 24, 1, "Cdim7", "Cdim7", "", "C3x4", "C3 D#3 F#3 A3", "STEP 1  Cdim7  C3 D#3 F#3 A3  V100", "STEP 1  C3 D#3 F#3 A3  V100"},
+    {"T30-dim7-inv", {51,54,57,60,0,0}, 4, 24, 1, "D#dim7", "D#dim7", "", "D#3x4", "D#3 F#3 A3 C4", "STEP 1  D#dim7  D#3 F#3 A3 C4  V100", "STEP 1  D#3 F#3 A3 C4  V100"},
+    {"T31-aug-gs", {44,48,52,0,0,0}, 3, 24, 1, "G#aug", "G#aug", "", "G#2x3", "G#2 C3 E3", "STEP 1  G#aug  G#2 C3 E3  V100", "STEP 1  G#2 C3 E3  V100"},
+    {"T32-min7b5", {48,51,54,58,0,0}, 4, 24, 1, "Cmin7b5", "Cmin7b5", "", "C3x4", "C3 D#3 F#3 A#3", "STEP 1  Cmin7b5  C3 D#3 F#3 A#3  V100", "STEP 1  C3 D#3 F#3 A#3  V100"},
+    {"T33-min7b5-inv", {51,54,58,60,0,0}, 4, 24, 1, "Cmin7b5/D#", "Cmin7b5", "", "D#3x4", "D#3 F#3 A#3 C4", "STEP 1  Cmin7b5/D#  D#3 F#3 A#3 C4  V100", "STEP 1  D#3 F#3 A#3 C4  V100"},
+    {"T34-c5g", {43,48,0,0,0,0}, 2, 24, 0, "C5/G", "C5/G", "C5/G", "C5/G", "G2 C3", "STEP 1  C5/G  G2 C3  V100", "STEP 1  C5/G  G2 C3  V100"},
+    {"T35-foreign", {50,60,64,67,0,0}, 4, 24, 1, "", "D3x4", "", "D3x4", "D3 C4 E4 G4", "STEP 1  D3 C4 E4 G4  V100", "STEP 1  D3 C4 E4 G4  V100"},
+    {"T37-trans-23", {48,52,55,0,0,0}, 3, 23, 1, "B", "B", "B", "B", "B2 D#3 F#3", "STEP 1  B  B2 D#3 F#3  V100", "STEP 1  B  B2 D#3 F#3  V100"},
+    {"F6-clamp-merge", {103,107,110,0,0,0}, 3, 48, 1, "", "G9x3", "", "G9x3", "G9 G9 G9", "STEP 1  G9 G9 G9  V100", "STEP 1  G9 G9 G9  V100"},
 };
+
+static const char *const SEC10_SKIPPED[] = {
+        "r-maj-root",
+        "r-maj-inv",
+        "r-min7",
+        "r-spread",
+        "r-power",
+        "r-CEGA-t2",
+        "r-CEGA-t1",
+        "r-mono",
+        "r-maj7",
+        "r-aug",
+        "r-min7b5-slash",
+        "r-gs-seven",
+        "r-longest",
+        "r-transpose",
+        "r-cluster",
+        "r-dyad",
+        "r-hex",
+        "r-sus-amb",
+        "r-oct",
+        "r-add9",
+        "r-add2",
+        "r-7sus4",
+        "r-9",
+        "r-min9",
+        "r-11",
+        "r-69",
+        "r-minmaj7",
+        "r-min+9",
+        "r-maj9",
+        "r-6min7-amb",
+        "r-min7-6-amb",
+        "r-sus2-dual",
+        "r-leftover-tri",
+        "r-7plus",
+        "r-7sharp9-tie",
+        "r-sharp-minmaj7",
+        "a-cluster",
+        "a-sus-amb",
+        "a-C6",
+        "b-add9",
+        "b-sus-amb",
+        "b-cluster",
+        "b-C6",
+        "c-cluster",
+        "c-add9",
+        "c-sus-amb",
+        "c-maj",
+        "c-hex",
+        "d-sus-amb",
+        "d-cluster",
+        "d-C6",
+        "r-T20",
+        "r-T22",
+        "r-T24",
+        "r-T25",
+        "r-T26",
+        "r-T35",
+        "r-F6-clamp",
+        "r-drone-stored",
+        "r-drone-voice"
+};
+#define N_SEC10 ((int)(sizeof SEC10_SKIPPED / sizeof SEC10_SKIPPED[0]))
+#define N_CHORD_ROWS ((int)(sizeof CHORD_ROWS / sizeof CHORD_ROWS[0]))
 
 static int chord_row_applies(const chord_row_t *r)
 {
-    /* The two CEGA rows share pitches and only one published expect applies. */
-    if (r->need_t2 && !SEQ_CHORD_HAVE_T2 && r->sym_t2[0] &&
-        strcmp(r->sym_t2, r->sym_t1) != 0 && strcmp(r->id, "CEGA-t2") == 0)
-        return 0;
-    if (!r->need_t2 && SEQ_CHORD_HAVE_T2 && strcmp(r->id, "CEGA-t1") == 0)
-        return 0;
+    size_t n = strlen(r->id);
+    int split_t2 = n >= 3 && strcmp(r->id + n - 3, "-t2") == 0;
+    int split_t1 = n >= 3 && strcmp(r->id + n - 3, "-t1") == 0;
+    if (split_t2 && !SEQ_CHORD_HAVE_T2) return 0;
+    if (split_t1 && SEQ_CHORD_HAVE_T2) return 0;
     return 1;
 }
 
@@ -346,7 +432,9 @@ static void acc_row(const chord_row_t *r, int *nrun, int *nwrong)
     uint8_t sound[6];
     int i, trans = r->trans;
     chord_label_t o;
-    const char *want_sym, *want_cell;
+    const char *want_sym, *want_cell, *want_held;
+    char symbuf[16];
+    int rec;
     if (!chord_row_applies(r))
         return;
     for (i = 0; i < r->n; i++) {
@@ -356,13 +444,16 @@ static void acc_row(const chord_row_t *r, int *nrun, int *nwrong)
         sound[i] = (uint8_t)p;
     }
     /* Store is not passed to the namer; sounding MIDI is. Stored values
-     * stay as in the table (this test never writes back). */
+     * stay as in the table (this test never writes back). Clamped
+     * events are kept, including collisions (F6: 127,127,127 → G9x3). */
     chord_label_fmt(&o, sound, r->n, sound, r->n, "STEP 1  ", " V100");
     want_sym  = SEQ_CHORD_HAVE_T2 ? r->sym_t2  : r->sym_t1;
     want_cell = SEQ_CHORD_HAVE_T2 ? r->cell_t2 : r->cell_t1;
-    printf("ACC %s trans=%d t2=%d symbol='%s' cell='%s' notes='%s' held='%s' (want sym='%s' cell='%s' notes='%s')\n",
+    want_held = SEQ_CHORD_HAVE_T2 ? r->held_t2 : r->held_t1;
+    rec = seq_chord_symbol(symbuf, sound, r->n);
+    printf("ACC %s trans=%d t2=%d symbol='%s' cell='%s' notes='%s' held='%s' (want sym='%s' cell='%s' notes='%s') rec=%d\n",
            r->id, trans, SEQ_CHORD_HAVE_T2, o.symbol, o.cell, o.notes, o.held,
-           want_sym, want_cell, r->notes);
+           want_sym, want_cell, r->notes, rec);
     if (meas)
         fprintf(meas, "ACC %s symbol='%s' cell='%s' notes='%s' held='%s' want_sym='%s' want_cell='%s' want_notes='%s'\n",
                 r->id, o.symbol, o.cell, o.notes, o.held, want_sym, want_cell, r->notes);
@@ -370,22 +461,48 @@ static void acc_row(const chord_row_t *r, int *nrun, int *nwrong)
     if (strcmp(o.symbol, want_sym) != 0 ||
         strcmp(o.cell, want_cell) != 0 ||
         strcmp(o.notes, r->notes) != 0 ||
-        (r->held && strcmp(o.held, r->held) != 0) ||
-        (want_sym[0] && strchr(o.symbol, '?'))) {
+        strcmp(o.held, want_held) != 0 ||
+        (want_sym[0] && strchr(o.symbol, '?')) ||
+        rec != (want_sym[0] ? 1 : 0) ||
+        (rec && strcmp(symbuf, want_sym) != 0) ||
+        (!rec && symbuf[0]) ||
+        tw(o.cell_font, o.cell) > 54 ||
+        (want_sym[0] && strchr(want_sym, '/') && !strstr(o.held, want_sym))) {
         (*nwrong)++;
-        printf("  WRONG %s\n", r->id);
+        printf("  WRONG %s tw=%d\n", r->id, tw(o.cell_font, o.cell));
     }
     CHECK(strcmp(o.symbol, want_sym) == 0);
     CHECK(strcmp(o.cell, want_cell) == 0);
     CHECK(strcmp(o.notes, r->notes) == 0);
-    if (r->held)
-        CHECK(strcmp(o.held, r->held) == 0);
+    CHECK(strcmp(o.held, want_held) == 0);
+    /* Hard rule: the held line always shows the real notes, named or not. */
+    CHECK(strstr(o.held, o.notes) != 0);
     if (want_sym[0])
         CHECK(strchr(o.symbol, '?') == 0);
+    /* seq_chord_symbol 0/1 matches the recognized §9 name. */
+    CHECK(rec == (want_sym[0] ? 1 : 0));
+    if (rec)
+        CHECK(strcmp(symbuf, want_sym) == 0);
+    else
+        CHECK(symbuf[0] == 0);
+    /* F8: every NOTE tw() <= 54. A slashed symbol stays on the held line. */
+    CHECK(tw(o.cell_font, o.cell) <= 54);
+    if (want_sym[0] && strchr(want_sym, '/'))
+        CHECK(strstr(o.held, want_sym) != 0);
     /* transpose-plus12: sounding is +12; the stored table is still 48,52,55. */
     if (strcmp(r->id, "transpose-plus12") == 0) {
         CHECK(r->stored[0] == 48 && r->stored[1] == 52 && r->stored[2] == 55);
         CHECK(sound[0] == 60 && sound[1] == 64 && sound[2] == 67);
+    }
+    if (strcmp(r->id, "T37-trans-23") == 0) {
+        CHECK(r->stored[0] == 48 && r->stored[1] == 52 && r->stored[2] == 55);
+        CHECK(sound[0] == 47 && sound[1] == 51 && sound[2] == 54);
+    }
+    if (strcmp(r->id, "F6-clamp-merge") == 0) {
+        CHECK(sound[0] == 127 && sound[1] == 127 && sound[2] == 127);
+        CHECK(o.symbol[0] == 0 && rec == 0);
+        CHECK(strcmp(o.cell, "G9x3") == 0);
+        CHECK(strcmp(o.notes, "G9 G9 G9") == 0);
     }
 }
 
@@ -409,9 +526,151 @@ static void hold_step(int s)
     ui.held_step_pat = seq.ppat[ui.part];
 }
 
+#if SEQ_CHORD_LABEL_TIER1
+static void test_suffix_bytes(void)
+{
+    /* F9: suffix table is a pointer table, not a packed octal literal.
+     * Every byte is checked; '5' and '7' (and T2 '6') are 0x35/0x37/0x36. */
+    static const char *want[] = {
+        "", "min", "5", "7", "maj7", "min7",
+#if SEQ_CHORD_LABEL_TIER2 >= 1
+        "dim",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 2
+        "sus4",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 3
+        "sus2",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 4
+        "aug",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 5
+        "6",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 6
+        "min7b5",
+#endif
+#if SEQ_CHORD_LABEL_TIER2 >= 7
+        "dim7",
+#endif
+    };
+    int i, n = (int)(sizeof want / sizeof want[0]);
+    CHECK(n == CHORD_NQUAL);
+    for (i = 0; i < n; i++) {
+        const char *s = chord_qual_suf[i];
+        int k;
+        CHECK(strcmp(s, want[i]) == 0);
+        for (k = 0; want[i][k]; k++)
+            CHECK((unsigned char)s[k] == (unsigned char)want[i][k]);
+        CHECK(s[k] == 0);
+    }
+    CHECK((unsigned char)chord_qual_suf[2][0] == 0x35); /* '5', not octal \05 */
+    CHECK((unsigned char)chord_qual_suf[3][0] == 0x37); /* '7', not octal \07 */
+#if SEQ_CHORD_LABEL_TIER2 >= 5
+    CHECK((unsigned char)chord_qual_suf[10][0] == 0x36); /* '6' */
+#endif
+    printf("suffix-bytes: %d entries, '5'=0x35 '7'=0x37 — PASS\n", n);
+    if (meas) fprintf(meas, "suffix-bytes n=%d PASS\n", n);
+}
+#endif
+
+static void test_t36_tie(void)
+{
+    /* T36: onset CEG + two TIE. onset_chord_of on a TIE returns the onset
+     * (3 notes); seq_chord_symbol names C (Tier 1). An orphan TIE invents
+     * nothing. An onset edit is visible from a TIE view. */
+    uint8_t ceg[3] = {48, 52, 55};
+    uint8_t cmin[3] = {48, 51, 55};
+    uint8_t notes[HELD_CHORD_NOTES];
+    int b, i, nn;
+    char sym[16];
+    bpart_t *bp;
+    seq_ready(16, 0);
+    b = bidx();
+    set_chord(b, 0, ceg, 3, G_NOTE);
+    bp = &cur_pat()->bass[b];
+    for (i = 1; i <= 2; i++) {
+        bp->step[i].note = 48;
+        bp->step[i].flags = (uint8_t)(G_TIE | 0xF0u);
+        bp->step[i].velocity = BASS_VELOCITY_DEFAULT;
+        (void)held_chord_set(proj.arr.lane, seq.ppat[ui.part], b, i, 0, 0);
+    }
+    for (i = 0; i <= 2; i++) {
+        nn = onset_chord_of(bp, i, notes);
+        CHECK(nn == 3);
+        CHECK(notes[0] == 48 && notes[1] == 52 && notes[2] == 55);
+#if SEQ_CHORD_LABEL_TIER1
+        CHECK(seq_chord_symbol(sym, notes, nn) == 1);
+        CHECK(strcmp(sym, "C") == 0);
+#endif
+    }
+    /* Onset edit, still viewing a TIE: extras come from the new onset. */
+    set_chord(b, 0, cmin, 3, G_NOTE);
+    nn = onset_chord_of(bp, 2, notes);
+    CHECK(nn == 3);
+    CHECK(notes[0] == 48 && notes[1] == 51 && notes[2] == 55);
+#if SEQ_CHORD_LABEL_TIER1
+    CHECK(seq_chord_symbol(sym, notes, nn) == 1);
+    CHECK(strcmp(sym, "Cmin") == 0);
+#endif
+    /* Orphan TIE: no invented pitch or symbol. */
+    clear_bass(b);
+    bp->step[0].note = 48;
+    bp->step[0].flags = (uint8_t)(G_TIE | 0xF0u);
+    bp->step[0].velocity = BASS_VELOCITY_DEFAULT;
+    nn = onset_chord_of(bp, 0, notes);
+    CHECK(nn == 0);
+#if SEQ_CHORD_LABEL_TIER1
+    CHECK(seq_chord_symbol(sym, notes, nn) == 0);
+    CHECK(sym[0] == 0);
+#endif
+    printf("T36 TIE onset / edit / orphan — PASS\n");
+    if (meas) fprintf(meas, "T36 PASS\n");
+}
+
+static void test_namer_cost(void)
+{
+    /* HOST: worst-case seq_chord_symbol cost, not a device cycle count. */
+    static const uint8_t longn[] = {44, 46, 49, 52};       /* A#min7b5/G# */
+    static const uint8_t hexa[] = {48, 52, 55, 59, 62, 65};
+    static const uint8_t clamp[] = {127, 127, 127};
+    static const uint8_t ceg[] = {48, 52, 55};
+    char dst[16];
+    const int N = 100000;
+    int i, rec;
+    double t, ns_long, ns_hex, ns_clamp, ns_hit;
+    chord_label_t o;
+    rec = seq_chord_symbol(dst, longn, 4);
+    (void)rec;
+    t = cpu_ms();
+    for (i = 0; i < N; i++)
+        (void)seq_chord_symbol(dst, longn, 4);
+    ns_long = (cpu_ms() - t) * 1e6 / N;
+    t = cpu_ms();
+    for (i = 0; i < N; i++)
+        (void)seq_chord_symbol(dst, hexa, 6);
+    ns_hex = (cpu_ms() - t) * 1e6 / N;
+    t = cpu_ms();
+    for (i = 0; i < N; i++)
+        (void)seq_chord_symbol(dst, clamp, 3);
+    ns_clamp = (cpu_ms() - t) * 1e6 / N;
+    /* Cache-hit path of the formatter (held-line redraw of a warm label). */
+    chord_label_fmt(&o, ceg, 3, ceg, 3, "STEP 1  ", " V100");
+    t = cpu_ms();
+    for (i = 0; i < N; i++)
+        chord_label_fmt(&o, ceg, 3, ceg, 3, "STEP 1  ", " V100");
+    ns_hit = (cpu_ms() - t) * 1e6 / N;
+    printf("HOST_NAMER_COST iters=%d long_ns=%.1f hex_ns=%.1f clamp_ns=%.1f fmt_ceg_ns=%.1f (host CPU, not device)\n",
+           N, ns_long, ns_hex, ns_clamp, ns_hit);
+    if (meas)
+        fprintf(meas, "HOST_NAMER_COST iters=%d long_ns=%.1f hex_ns=%.1f clamp_ns=%.1f fmt_ceg_ns=%.1f\n",
+                N, ns_long, ns_hex, ns_clamp, ns_hit);
+}
+
 static void test_symbols(void)
 {
-    /* 23-row UX acceptance (chord_name.py) against chord_label_fmt. */
+    /* 41-row §9 UX acceptance against seq_chord_symbol / chord_label_fmt. */
     static const uint8_t ceg[] = {48, 52, 55};
     static const uint8_t egc[] = {52, 55, 60};
     static const uint8_t cmin7[] = {48, 51, 55, 58}; /* C D# G A# (put_note spelling of Eb Bb) */
@@ -428,39 +687,68 @@ static void test_symbols(void)
     static const uint8_t hexa[] = {48, 52, 55, 59, 62, 65};
     static const uint8_t dyad[] = {48, 52};
     int b, i, nrun = 0, nwrong = 0;
-    CHECK((int)(sizeof CHORD_ROWS / sizeof CHORD_ROWS[0]) == 23);
+    CHECK(N_CHORD_ROWS == 41);
+    CHECK(N_SEC10 == 60);
 #if !SEQ_CHORD_LABEL_TIER1
     /* Fallback-only compile: matcher is out; every multi-note set is compact. */
     {
         static const uint8_t ceg_fb[] = {48, 52, 55};
         static const uint8_t cmin7_fb[] = {48, 51, 55, 58};
         static const uint8_t mono_fb[] = {48};
+        static const uint8_t clamp_fb[] = {127, 127, 127};
         chord_label_t o;
+        char sym[16];
         chord_label_fmt(&o, ceg_fb, 3, ceg_fb, 3, "STEP 1  ", " V100");
         CHECK(!o.recognized && o.symbol[0] == 0);
         CHECK(strcmp(o.cell, "C3x3") == 0);
         CHECK(strcmp(o.held, "STEP 1  C3 E3 G3  V100") == 0);
+        CHECK(seq_chord_symbol(sym, ceg_fb, 3) == 0 && sym[0] == 0);
         chord_label_fmt(&o, cmin7_fb, 4, cmin7_fb, 4, "STEP 1  ", " V100");
         CHECK(strcmp(o.cell, "C3x4") == 0);
         CHECK(!o.recognized);
         chord_label_fmt(&o, mono_fb, 1, mono_fb, 1, "STEP 1  ", " V100");
         CHECK(strcmp(o.cell, "C3") == 0);
         CHECK(strcmp(o.held, "STEP 1  C3  V100") == 0);
-        printf("fallback-only TIER1=0: CEG C3x3, Cmin7 C3x4, mono C3 — PASS\n");
+        chord_label_fmt(&o, clamp_fb, 3, clamp_fb, 3, "STEP 1  ", " V100");
+        CHECK(strcmp(o.cell, "G9x3") == 0);
+        CHECK(strcmp(o.notes, "G9 G9 G9") == 0);
+        CHECK(o.symbol[0] == 0);
+        printf("fallback-only TIER1=0: CEG C3x3, Cmin7 C3x4, mono C3, F6 G9x3 — PASS\n");
         if (meas)
             fprintf(meas, "fallback-only TIER1=0 PASS\n");
+        printf("§10 skipped (%d rows, not implemented):", N_SEC10);
+        for (i = 0; i < N_SEC10; i++)
+            printf(" %s", SEC10_SKIPPED[i]);
+        printf("\n");
+        test_t36_tie();
+        test_namer_cost();
         return;
     }
 #endif
-    for (i = 0; i < 23; i++)
+#if SEQ_CHORD_LABEL_TIER1
+    test_suffix_bytes();
+#endif
+    for (i = 0; i < N_CHORD_ROWS; i++)
         acc_row(&CHORD_ROWS[i], &nrun, &nwrong);
-    printf("chord_name.py 23-row host: ran %d this compile (TIER1=%d TIER2=%d), %d wrong symbols\n",
+    printf("chord_name.py 41-row §9 host: ran %d this compile (TIER1=%d TIER2=%d), %d wrong symbols; 60 §10 rows skipped\n",
            nrun, SEQ_CHORD_LABEL_TIER1, SEQ_CHORD_LABEL_TIER2, nwrong);
     if (meas)
-        fprintf(meas, "23-row ran=%d wrong=%d TIER1=%d TIER2=%d\n",
-                nrun, nwrong, SEQ_CHORD_LABEL_TIER1, SEQ_CHORD_LABEL_TIER2);
+        fprintf(meas, "41-row ran=%d wrong=%d TIER1=%d TIER2=%d sec10_skipped=%d\n",
+                nrun, nwrong, SEQ_CHORD_LABEL_TIER1, SEQ_CHORD_LABEL_TIER2, N_SEC10);
+    printf("§10 skipped (%d rows, not implemented):", N_SEC10);
+    for (i = 0; i < N_SEC10; i++)
+        printf(" %s", SEC10_SKIPPED[i]);
+    printf("\n");
     CHECK(nwrong == 0);
-    CHECK(nrun >= 22); /* 22 of 23 on each binary; the CEGA pair is split */
+    CHECK(nrun >= 39); /* 39 of 41 on each binary; CEGA and T24/T25 pairs are split */
+
+    /* F8: 51 px fallbacks have 3 px spare. */
+    CHECK(tw(&FONT_S, "Cmin7b5") == 51);
+    CHECK(tw(&FONT_XS, "A#min7b5") == 51);
+    CHECK(tw(&FONT_M, "C5/G") == 46);
+
+    test_t36_tie();
+    test_namer_cost();
 
     /* Mono held line matches piano-roll §9 (two spaces before V). */
     {
@@ -818,30 +1106,35 @@ static void test_mono_identity_and_chords(void)
     time_paint("miami-mono", Ntime);
     CHECK(!fb_equal(fb_chi, fb_mia)); /* different engine name in the header */
 
-    /* --- Drone 6-note: last 4 sound (G7), first 2 dim. */
+    /* --- Drone 6-note: F1 — no verified voice-state source, so name the
+     * stored set (C3x6, no symbol) and paint every mark in live ink. Do
+     * not assume last-four / G7 / C_DIM. */
     seq_ready_part(PART_303B, ORIGINAL_SOUND_DRONE, 16, 0);
     b = bidx();
     set_chord(b, 0, hexa, 6, G_NOTE);
     hold_step(0);
     paint();
     pitch_window(&cur_pat()->bass[b], &lo, &hi);
-    CHECK(mark_at_pitch(0, 55, lo, hi, C_WHITE)); /* G3 sounds, held white */
+    CHECK(mark_at_pitch(0, 48, lo, hi, C_WHITE)); /* all six stored, live ink */
+    CHECK(mark_at_pitch(0, 52, lo, hi, C_WHITE));
+    CHECK(mark_at_pitch(0, 55, lo, hi, C_WHITE));
     CHECK(mark_at_pitch(0, 59, lo, hi, C_WHITE));
     CHECK(mark_at_pitch(0, 62, lo, hi, C_WHITE));
     CHECK(mark_at_pitch(0, 65, lo, hi, C_WHITE));
-    CHECK(mark_at_pitch(0, 48, lo, hi, C_DIM));   /* C3, E3 stored, not sounding */
-    CHECK(mark_at_pitch(0, 52, lo, hi, C_DIM));
+    CHECK(!mark_at_pitch(0, 48, lo, hi, C_DIM));
+    CHECK(!mark_at_pitch(0, 52, lo, hi, C_DIM));
     {
-        uint8_t sound[4] = {55, 59, 62, 65};
         uint8_t listed[6] = {48, 52, 55, 59, 62, 65};
         chord_label_t lab;
-        uint8_t snd_midi[4], list_midi[6];
-        int i;
-        for (i = 0; i < 4; i++) snd_midi[i] = (uint8_t)chord_sound_midi(sound[i], 24);
-        for (i = 0; i < 6; i++) list_midi[i] = (uint8_t)chord_sound_midi(listed[i], 24);
-        chord_label_fmt(&lab, snd_midi, 4, list_midi, 6, "STEP 1  ", " V100");
-        printf("DRONE hex symbol='%s' cell='%s'\n", lab.symbol, lab.cell);
-        CHECK(strcmp(lab.symbol, "G7") == 0);
+        char sym[16];
+        chord_label_fmt(&lab, listed, 6, listed, 6, "STEP 1  ", " V100");
+        printf("DRONE hex symbol='%s' cell='%s' notes='%s' held='%s'\n",
+               lab.symbol, lab.cell, lab.notes, lab.held);
+        CHECK(lab.symbol[0] == 0);
+        CHECK(strcmp(lab.cell, "C3x6") == 0);
+        CHECK(strcmp(lab.notes, "C3 E3 G3 B3 D4 F4") == 0);
+        CHECK(seq_chord_symbol(sym, listed, 6) == 0);
+        CHECK(sym[0] == 0);
     }
     capture("after-drone-hexachord");
 
