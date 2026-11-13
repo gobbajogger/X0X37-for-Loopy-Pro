@@ -34,7 +34,7 @@
       },
       "display_version": "0.0.25.1",
       "title": "DnBOX 0.0.25.1 \u00b7 SMK-37 Elite and Pro",
-      "description": "Owner-approved 0.0.25.1 packages. The owner reports successful use and recovery to 25.1; independent exact-package hardware validation for both models is not recorded here. Firmware reports 0.0.25, GIT 79280e76. Bundled Bluetooth controller included. 0.0.26 is withdrawn.",
+      "description": "Owner-approved 0.0.25.1 packages. The owner reports successful use and recovery to 25.1; independent exact-package hardware validation for both models is not recorded here. Firmware reports 0.0.25, GIT 79280e76. Bundled Bluetooth controller included. The 600b 0.0.26 build was withdrawn. 0.0.26 at 94197fc8 is a hardware-test build on the nightly; it is not offered here.",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/79280e763341d03ba43266d3e25dad66f12de860",
       "lifecycle": "current"
     },
