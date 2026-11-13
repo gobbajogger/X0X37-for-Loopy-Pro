@@ -2248,7 +2248,7 @@ static volatile uint32_t eng_fx_done;                  /* frames of FX visible t
 static float *eng_fx_ol, *eng_fx_or;
 static uint32_t eng_fx_n;
 static void c1_take_over(uint32_t s);
-static void d808_body_run(void);
+static void d808_body_run(int core);
 static void core2_fx(uint32_t arg);
 
 /* the second core still working: 1, done: 0, it failed: -1 (fm1: plat_fm1.c). One core: done. */
@@ -2311,15 +2311,17 @@ static int stage_wait(uint32_t s, int core)
 
 /* BD+SD into zeroed buses. Core 1 runs this at the start of the stretch; core 0
  * only if core 1 did not (it failed, or one core). */
-static void d808_body_run(void)
+static void d808_body_run(int core)
 {
     uint32_t arg = eng_job_arg, n = arg & 0xFFu ? arg & 0xFFu : 256u, i;
     uint32_t offset = (arg >> 20) & 0xFFu;
     float *left808 = t0 + offset, *right808 = tr + offset;
+    PROF_T(p8body);
     for (i = 0; i < n; i++)
         left808[i] = right808[i] = t1[i] = t2[i] = 0.0f;
     drum808_render_st_lanes(&d808, left808, right808, t1, t2, (int)n,
                             (uint16_t)(arg >> 9 & 0x7FFu), D8_LANES_BODY);
+    PROF_ADD_CORE(core, PR_808, p8body);         /* BD+SD belongs to 808, even when C1 renders it */
     eng_sync();
     eng_808_body = 1;
     eng_sync();
@@ -2351,7 +2353,7 @@ static int body_wait(int core)
                 (void)plat_cpu2_wait();
             }
             if (!eng_808_body)
-                d808_body_run();
+                d808_body_run(0);
             return eng_808_body ? 0 : 1;
         }
     }
@@ -2400,12 +2402,16 @@ static int run_job(int j, int core)
                 float (*raw)[256] = (float (*)[256])(void *)&original_workspace;
                 uint16_t aud = (uint16_t)(arg >> 9 & 0x7FFu);
                 drum808_metal_prepare(&d808, raw, (int)n, aud);
+                PROF_ADD_CORE(core, PR_808, p8);
+                w0 = plat_ticks24();
                 if (body_wait(core)) {
                     eng_sync();
                     eng_808_metal_done = 1;
                     eng_sync();
                     return 0;
                 }
+                wt += plat_ticks24() - w0;
+                p8 = plat_cycles();                    /* exclude C1 body wait from 808 work */
                 drum808_finish_rest(&d808, (const float (*)[256])raw, left808, right808, t1, t2,
                                     (int)n, aud);
                 bfx_shape(PART_808, left808, right808, t1, t2, 4, (int)n);
@@ -2422,10 +2428,12 @@ static int run_job(int j, int core)
             active = 0;
             drum808_pan_settle(&d808);
         }
+        PROF_ADD_CORE(core, PR_808, p8);         /* actual synth/pan/FX work, before 909 dependency */
         w0 = plat_ticks24();
         if (stage_wait(1, core))
             return 0;
-        wt = plat_ticks24() - w0;
+        wt += plat_ticks24() - w0;
+        p8 = plat_cycles();                       /* separate actual mix work from stage wait */
         mix_808(left808, right808, n, solo_parts);
         PROF_ADD_CORE(core, PR_808, p8);
         eng_sync();
@@ -2557,7 +2565,7 @@ static void core2_jobs(uint32_t arg)
     int j;
     (void)arg;
     if (eng_808_split && !eng_808_body)
-        d808_body_run();
+        d808_body_run(1);
     for (j = eng_c1_next; j < JB_N; j++) {
         if (!(eng_c1_mask & (1u << j)))
             continue;
