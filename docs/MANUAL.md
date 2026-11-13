@@ -39,7 +39,7 @@ The bass slots can run Chicago, Miami, Juno or Drone. Chicago is the 303 engine.
 
 Elite and Pro share the same playing surface. The USB product name and the Bluetooth name differ. The controls do not.
 
-**Version.** This manual describes the **0.0.26 hardware-test candidate** built from source `94197fc8`, as listed in the [nightly installer catalog](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/versions.json). This is **not the stable release**: startup and restart have not been verified on hardware for this exact package. The current stable release is [0.0.25.1](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1); it has Chicago and Miami, but **not** Juno, Drone or held-key chord recording. Do not follow those 0.0.26-only steps on 0.0.25.1.
+**Version.** This manual describes the **0.0.26 hardware-test candidate** built from source `94197fc8`, as listed in the [nightly installer catalog](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/versions.json). This is **not a published, hardware-qualified release**: startup and restart have not been verified on hardware for this exact 0.0.26 package. The **recommended published release (hardware qualification incomplete)** is [0.0.25.1](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). Its release notes report Elite testing without a confirmed installed-package hash; Pro has no reported device test. It has Chicago and Miami, but **not** Juno, Drone or held-key chord recording. Do not follow those 0.0.26-only steps on 0.0.25.1.
 
 For a first beat, bass line and saved pattern, use chapter 3, then chapters 4–8. Chapter 19 gathers shortcuts. The [browser companion](../web/MANUAL.md) explains installing, samples and project files; it does not replace the keyboard guide.
 
@@ -541,7 +541,7 @@ DnBOX identifies itself to Loopy as an APC40 mkII for compatibility. Loopy mappi
 
 ## 17. Install and update safety
 
-Install from a browser that provides Web MIDI with SysEx. The current installer site is <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/>. The companion file `web/MANUAL.md` describes the browser steps, sample backup and project files.
+For a published DnBOX reinstall, use the [main web installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/) in desktop Chrome or Edge: connect by USB, grant MIDI/SysEx access, and select a **listed, admitted** package for the printed keyboard model. The main site's **local `.fwsc` and stock firmware chooser is hidden and disabled**. Downloading a package from Releases does not make it uploadable through that page. For factory firmware, use the exact-model download and official [M-VAVE M-UPGRADE](https://www.m-vave.com/download) instructions. The [browser companion](../web/MANUAL.md) explains the recovery decision and sample backups.
 
 **Check the model printed on the keyboard**, Elite or Pro, not only the USB name. An older Elite can report Pro. A shared USB name does not prove the physical model.
 
@@ -553,7 +553,9 @@ USB names are not sufficient to identify a model for a safe write. Package and l
 
 While the unit is in the update loader, the USB product is `SMK-37 Elite Update` or `SMK-37 Pro Update`.
 
-Stop playback and recording before an install. Keep USB connected until the operation ends. If samples are at risk, back them up first, as the installer asks.
+Before the first install or reinstall, if the **normal DnBOX app responds**, stop playback and recording, export a separate `.x0xslots` sample archive and a portable `.x0xproject` project, and verify both downloads exist. The main installer blocks writes if a required sample backup fails; the nightly installer may warn and **continue without a backup**, risking permanent sample loss. Keep USB connected until the write has finished.
+
+If **only the update loader** responds after an interrupted install, the normal app's sample reader is absent: do not expect a new sample/project export. The main installer's published-package flow has a loader-resume path, but only for an admitted package matching the physical model; it cannot recover unsaved samples. If no admitted package or reliable device identity is available, stop rather than attempt an unverified write. After a write, a matching app identity and a `Done` message are **not proof** that sound, reboot or sample restoration has passed physical testing. Check that the app actually runs and read back restored samples where possible.
 
 Current public packages target **SMK-37 Elite and Pro only**. Starrykey 37 Play uses the Pro package. MKE-P37 has a distinct update identity and is **not** a third publicly offered package; do not substitute an Elite or Pro file for an unsupported identity. If the installer cannot confirm the physical model and package match, do not write.
 
@@ -581,7 +583,7 @@ If the unit starts twice and fails, you can reach `DnBOX SAFE MODE`. The title i
 
 In safe mode, nothing that makes sound runs. USB is already on for the web installer. Press SEQ PLAY to try the application again. Use a verified package for your printed model.
 
-**An install made the unit unusable.** See chapter 17. Use a verified package for the model printed on the keyboard. Do not pick the package from the USB name alone.
+**An install failed or the unit only shows its update loader.** See chapter 17 and the [recovery decision](../web/MANUAL.md#recovery-and-older-firmware). Check whether the normal app or only `ota-` loader identity responds before selecting a next step. Use only an admitted package for the printed physical model; a matching USB name alone is not enough. The loader does not supply a new sample backup.
 
 **Faders do nothing at first.** They wait for pickup. Move each fader to the saved position, or across it. The header shows `PICK Fn UP` or `PICK Fn DOWN` until then.
 
