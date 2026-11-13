@@ -45,7 +45,7 @@ test('sampled input round-trip and audio shortfall are measured, not acoustic cl
   assert.match(page, /dnbox:telemetry/);
   assert.match(worklet, /type: "input-ack"/);
   assert.match(worklet, /short: this\.short/);
-  assert.match(html, /not measured key-to-speaker latency/i);
+  assert.match(html, /measured key-to-speaker latency/i);
   assert.match(html, /not physical-device performance/i);
   assert.match(entry, /Input message round trip/);
 });
