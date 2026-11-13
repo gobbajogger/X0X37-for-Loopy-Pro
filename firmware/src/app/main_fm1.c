@@ -2216,7 +2216,8 @@ CK_FN static void smk_frame(void)
 
 /* ------------------------------------------------------------- boot --- */
 #define BOOTGUARD_MAGIC 0x42475244u
-struct bootguard_s bootguard __attribute__((section(".noinit")));   /* declared in x0x.c (ota_commit) */
+/* Retained RAM can change outside the C program across reset. Keep its full-width ABI under LTO. */
+volatile struct bootguard_s bootguard __attribute__((section(".noinit")));   /* declared in x0x.c (ota_commit) */
 
 static void hexs(char *b, uint32_t v)
 {

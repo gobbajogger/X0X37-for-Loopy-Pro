@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Host regression for the actual firmware plat_slot conversion and slot admission.
+"""Host regression for the actual firmware and host plat_slot conversions and slot admission.
 
 Extracts the exact plat_slot C function from the source tree, compiles it
 alongside the original slots.c validator with GCC/Clang, and checks real sampleio
@@ -23,7 +23,7 @@ import sampleio  # noqa: E402
 
 
 def function_source(text: str) -> str:
-    pattern = r'^const uint8_t \*plat_slot\(int k, int z, uint32_t \*nsamples, uint32_t \*rate, char name\[9\]\)\n\{'
+    pattern = r'^const uint8_t \*plat_slot\(int k, int z, uint32_t \*(?:nsamples|ns), uint32_t \*rate, char name\[9\]\)\n\{'
     m = re.search(pattern, text, re.M)
     if not m:
         raise RuntimeError("plat_slot function signature not found in source; NOT TESTED")
@@ -39,9 +39,20 @@ def function_source(text: str) -> str:
     raise RuntimeError("unterminated plat_slot function; NOT TESTED")
 
 
-def run(cc: str, flags: list[str]):
-    text = (ROOT / "firmware/src/app/plat_fm1.c").read_text()
+def run(cc: str, flags: list[str], source: str):
+    text = (ROOT / source).read_text()
     fn = function_source(text)
+    # Host image slots use the same production validator, plus a separate WAV path.
+    host_state = """
+#define PLAT_NSLOTS 3
+#define PLAT_SLOT_ZONES 16
+static int slot_is_img[PLAT_NSLOTS] = {1, 1, 1};
+static uint8_t *slot_data[PLAT_NSLOTS][PLAT_SLOT_ZONES];
+static uint32_t slot_n[PLAT_NSLOTS][PLAT_SLOT_ZONES], slot_rate[PLAT_NSLOTS][PLAT_SLOT_ZONES];
+static int slot_nz[PLAT_NSLOTS];
+static char slot_name[PLAT_NSLOTS][9];
+""" if source == "host/x0x_host.c" else ""
+    print("SOURCE", source, flush=True)
     with tempfile.TemporaryDirectory(prefix="x0x37-slot-rate-") as td:
         tmp = Path(td)
         cases = [22050, 44100, 65536, 88200, 96000, 176400]
@@ -61,8 +72,7 @@ static uint32_t mem[3][0x1E000/4];
 #define SMP_USER_XIP(k) ((const uint8_t *)mem[(k)])
 #include "firmware/src/app/slots.c"
 /* Exact production plat_slot function inserted below (not rewritten in the test). */
-#line 189 "firmware/src/app/plat_fm1.c"
-''' + fn + '''
+''' + host_state + fn + '''
 int main(int argc, char **argv)
 {
     int failures = 0;
@@ -121,4 +131,5 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser()
     p.add_argument('--cc', default='gcc')
     a = p.parse_args()
-    run(a.cc, [])
+    for source in ['firmware/src/app/plat_fm1.c', 'host/x0x_host.c']:
+        run(a.cc, [], source)

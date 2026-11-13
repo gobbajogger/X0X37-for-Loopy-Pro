@@ -27,7 +27,7 @@ typedef struct {
     uint8_t fr[XB_FRAME_MAX];                   /* one frame from the controller */
     volatile uint32_t ow, orr;
     uint32_t sysex_drops;
-    char nm[9];                                 /* the name it advertises */
+    char nm[BLE_DEVICE_NAME_SIZE];                                 /* the name it advertises */
 } ble_ram_t;
 _Static_assert(sizeof(blec_t) * 2u <= sizeof(bleh_t), "two central peers must fit the peripheral union");
 static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));

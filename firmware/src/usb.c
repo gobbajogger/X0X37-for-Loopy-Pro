@@ -493,10 +493,12 @@ static const uint8_t STR1[] = {42, 3, 'H', 0, 0xFC, 0, 'g', 0, 'e', 0, 'l', 0, '
 #else
 static const uint8_t STR1[] = {8, 3, 'X', 0, '0', 0, 'X', 0};          /* X0X: manufacturer */
 #endif
-#ifdef FELUCCA_LOADER
+#if defined(FELUCCA_LOADER) && BOARD_SMK37
+#include "usb_product_name.h"           /* model-specific update-mode USB name */
+#elif defined(FELUCCA_LOADER)
 static const uint8_t STR2[] = {30, 3, 'F', 0, 'e', 0, 'l', 0, 'u', 0, 'c', 0, 'c', 0, 'a', 0, ' ', 0, 'U', 0, 'p', 0,
                                'd', 0, 'a', 0, 't', 0, 'e', 0};
-#elif BOARD_SMK37 && (defined(X0X_USB_37PRO) || defined(X0X_USB_37ELITE))
+#elif BOARD_SMK37
 #include "usb_product_name.h"           /* DnBOX version and Pro/Elite model */
 #else
 static const uint8_t STR2[] = {18, 3, 'X', 0, '0', 0, 'X', 0, ' ', 0, 'F', 0, 'M', 0, '-', 0, '1', 0};   /* legacy */

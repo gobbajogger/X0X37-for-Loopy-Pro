@@ -52,7 +52,7 @@ static inline int32_t clamp(int32_t v, int32_t lo, int32_t hi) { return v < lo ?
 #define FELUCCA_UAC X0X_UAC
 #ifndef FELUCCA_ID
 #if BOARD_SMK37
-#define FELUCCA_ID "SMK-37 Pro_900"   /* package identity (tools/build.py) */
+#define FELUCCA_ID SMK_MODEL "_900"   /* same model as HAL and loader, including direct builds */
 #else
 #define FELUCCA_ID "FM-1_900"     /* package identity (tools/build.py) */
 #endif
@@ -111,7 +111,7 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
 #include "storage.c"
 
 struct bootguard_s { uint32_t magic, failed, pending; };
-extern struct bootguard_s bootguard;
+extern volatile struct bootguard_s bootguard;
 /* One 4 KiB scratch for main-loop jobs that never use the same bytes at the same time:
  *   0x000-0xFFF  the LZ hash table of a project save (lz.c);
  *   0x000-0x7FF  the read buffers of an update session (ota.c);
