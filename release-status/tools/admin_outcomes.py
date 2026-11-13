@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from evidence_policy import direct_source_link, parse_instant, quote_names_one_model
 
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
-STAGES = frozenset({"installed-reported", "restart-reported", "restart-and-boot-reported", "tested-with-issue"})
+STAGES = frozenset({"installed-reported", "restart-reported", "restart-and-boot-reported", "tested-no-issues-reported", "tested-with-issue"})
 REPORT_STAGES = ("transfer-started", "transfer-completed", "restart-observed", "boot-observed", "failed")
 MAX_NOTE = 700
 
@@ -77,12 +77,14 @@ def prepare_owner_outcome(record: dict, entry: dict, *, owner_login: str) -> dic
         "installed-reported": ["install"],
         "restart-reported": ["restart"],
         "restart-and-boot-reported": ["restart", "boot"],
+        "tested-no-issues-reported": ["test"],
         "tested-with-issue": ["test", "issue"],
     }
     kinds = {
         "installed-reported": "install-report",
         "restart-reported": "boot-restart-report",
         "restart-and-boot-reported": "install-and-boot-report",
+        "tested-no-issues-reported": "other",
         "tested-with-issue": "other",
     }
     history.append({
@@ -119,7 +121,7 @@ def prepare_owner_outcome(record: dict, entry: dict, *, owner_login: str) -> dic
         **({"quoted_words": quote, "source_link": source_link} if quote else {}),
     })
     states = {}
-    if stage in ("installed-reported", "restart-and-boot-reported", "tested-with-issue"):
+    if stage in ("installed-reported", "restart-and-boot-reported", "tested-no-issues-reported", "tested-with-issue"):
         states["installation-reported"] = True
     if stage == "restart-and-boot-reported":
         states["boot-restart-reported"] = True
