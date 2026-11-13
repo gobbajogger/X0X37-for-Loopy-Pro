@@ -170,3 +170,15 @@ Required follow-up evidence: watch accessible demonstrations; compare official m
 - YouTube audiovisual review: NOT_RUN, fetch throttled.
 - DnBOX behavioral validation, hardware testing and builds: NOT_RUN, outside this research stage.
 - Independent review and design approval: PENDING.
+
+## Shared website planning use
+
+The existing website owner in [PR #890](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/890) should use the same evidence IDs, not maintain a contradictory capability story. Website research can feed new questions into firmware planning; a page claim must follow verified firmware behavior.
+
+- R01/R05: demonstrate a short real musical journey and recovery, rather than claim effortless creativity without proof.
+- R02/R09: make saved-data scope, prerequisites and recovery boundaries understandable before installation.
+- R03/R06/R08: show controls and the playable target in context; a static beauty shot cannot prove discoverability.
+- R04/R10: distinguish standalone, phone/tablet, computer and external-gear scenarios by verified model, connection, routing and storage capabilities. Do not imply wireless support from a proposed showcase.
+- R07: use measured, qualified reliability claims, not emulator success or competitor figures.
+
+These are planning implications, not approved copy or a new implementation assignment. Both owners should preserve accepted/rejected/unknown decisions and reasons against these IDs. Outstanding video review and current-firmware audit remain explicit gaps.
