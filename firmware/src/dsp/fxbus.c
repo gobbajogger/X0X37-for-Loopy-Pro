@@ -9,9 +9,8 @@ static const int32_t fx_al[2] = { 556, 441 };
 static const int32_t fx_alr[2] = { 579, 457 };
 #define FX_RV_QUIET (1356 + 8192)          /* combs silent this long: the allpass tail is < -140 dB */
 
-/* 1/32 1/16T 1/16 1/8T 1/16. 1/8 1/4T 1/8. 1/4 1/2T 1/4. 1/2 1/2. (in beats).
- * Shared with Chicago BPM Delay (chi_bpmdly_beats). */
-const float fx_beats[13] = {
+/* 1/32 1/16T 1/16 1/8T 1/16. 1/8 1/4T 1/8. 1/4 1/2T 1/4. 1/2 1/2. (in beats) */
+static const float fx_beats[13] = {
     0.125f, 1.0f / 6.0f, 0.25f, 1.0f / 3.0f, 0.375f, 0.5f, 2.0f / 3.0f,
     0.75f, 1.0f, 4.0f / 3.0f, 1.5f, 2.0f, 3.0f
 };
