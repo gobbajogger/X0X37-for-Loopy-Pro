@@ -24,6 +24,7 @@ def slice_between(start, stop):
 
 
 body = slice_between("static void d808_body_run(int core)\n{", "\n/* 0 = body visible")
+fold = slice_between("static void prof_c1_fold(int keep)\n{", "\n#ifdef X0X_HOST")
 wait = slice_between("static int body_wait(int core)\n{", "\n/* one job, render and mix")
 job = slice_between("} else if (j == JB_808) {", "} else if (j == JB_A || j == JB_B) {")
 assert "PROF_ADD_CORE(core, PR_808, p8body);" in body
@@ -113,6 +114,7 @@ static int stage_wait(uint32_t s, int core) {
 #define PART_808 1
 static uint8_t eng_job_solo;
 '''
+fold_start = '''static void prof_c1_fold(int keep)\n{'''
 body_start = '''static void d808_body_run(int core)\n{'''
 wait_start = '''static int body_wait(int core)\n{'''
 job_start = '''static int run_808(int core)\n{
@@ -153,17 +155,24 @@ int main(void) {
     assert(run_808(0) == 1);
     assert(eng_prof[PR_808] == 115); /* 5 scan + 30 metal + 20 rest + 23 FX + 37 mix */
     assert(n_body == 1 && n_render == 0 && n_fx == 1);
+    prof_c1_fold(1);
+    assert(eng_prof[PR_808] == 185 && eng_prof_c1[PR_808] == 0);
+    prof_c1_fold(1);
+    assert(eng_prof[PR_808] == 185); /* repeated join never counts twice */
 
     reset(); d808.active = 1; eng_808_split = 1;
     assert(run_808(0) == 1); /* C1 unavailable, core 0 does the body too */
     assert(n_body == 1 && eng_prof_c1[PR_808] == 0);
     assert(eng_prof[PR_808] == 185); /* same work as split plus 70 actual body */
+    eng_prof_c1[PR_808] = 70; /* discarded failed C1 credit */
+    prof_c1_fold(0);
+    assert(eng_prof_c1[PR_808] == 0 && eng_prof[PR_808] == 185);
     /* Its 200-cycle join and 4000-cycle stage wait are not 808 work. */
     puts("PASS perf-meter-808-source: silent, active, split C1, C0 takeover");
     return 0;
 }
 '''
-code = (prefix + body_start + body + "\n" + wait_start + wait + "\n" + job_start + job + suffix)
+code = (prefix + fold_start + fold + "\n" + body_start + body + "\n" + wait_start + wait + "\n" + job_start + job + suffix)
 with tempfile.TemporaryDirectory(prefix="dnbox-perf-meter-") as tmp:
     src = Path(tmp) / "test.c"
     exe = Path(tmp) / "test"
