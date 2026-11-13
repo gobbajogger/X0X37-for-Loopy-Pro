@@ -34,7 +34,14 @@ import inlog_fmt  # noqa: E402  (a76: editor command 38 INLOG)
 
 HDR = [0x7D, 0x46, 0x4C]
 ED_DIAG, ED_BT_TEST = 33, 34
-PORT_KEYS = ("X0X", "SMK", "FM-1", "Felucca")
+# USB/MIDI port tokens: keep both the old manufacturer (X0X) and the new one
+# (DnBOX). SMK covers SMK-37 product and BLE names. Felucca is the legacy loader.
+PORT_KEYS = ("X0X", "DnBOX", "SMK", "FM-1", "Felucca")
+
+
+def port_name_matches(name):
+    return any(key in name for key in PORT_KEYS)
+
 
 CRASH = ["magic", "count", "vec", "pc", "rets", "emu", "dbg", "sp", "psr", "icfg", "up_ms",
          "etm0", "etm1", "etm2", "etm3", "early", "core"]
@@ -53,8 +60,8 @@ ERR = ["NONE", "BOOT", "HEAP", "TASK", "ASSERT", "RESET"]
 
 
 def ports():
-    i = [n for n in mido.get_input_names() if any(k in n for k in PORT_KEYS)]
-    o = [n for n in mido.get_output_names() if any(k in n for k in PORT_KEYS)]
+    i = [n for n in mido.get_input_names() if port_name_matches(n)]
+    o = [n for n in mido.get_output_names() if port_name_matches(n)]
     return (i[0], o[0]) if i and o else None
 
 

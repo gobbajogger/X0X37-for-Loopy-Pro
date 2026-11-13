@@ -1,6 +1,6 @@
 # Naming proposal 026
 
-**Kind:** proposal only. This tree has no build, test suite, publish, merge, push or device action.
+**Kind:** proposal plus consumer follow-up. No JieLi build, no publish, no merge, no device action.
 
 **Plan:** `/workspace/audit-026/manual-glossary-naming-plan.md`  
 SHA-256 `69b86dbde348b7a155690ecfe774acc3767b64b663cec76c950c4921a32a3ad6` (starts `69b86dbd`, ends `a3ad6`).
@@ -8,23 +8,26 @@ SHA-256 `69b86dbde348b7a155690ecfe774acc3767b64b663cec76c950c4921a32a3ad6` (star
 **Base:** gobbajogger/X0X37-for-Loopy-Pro `94197fc839b00aff47b98ca02f3c6396e4a6eabf`, tree `72d28fbc741244d18fa3d18495da16ab0fcb1d24`.
 
 **Local repo:** `/workspace/naming-026`  
-**Branch:** `lane/fmb-naming-026` (no remotes, not pushed)
+**Branch:** `lane/fmb-naming-026`
 
 | Commit | SHA | Tree | Author |
 |---|---|---|---|
-| Base import | `8df7a4935dd231bee6c7031e9e6a070f568991e5` | `72d28fbc741244d18fa3d18495da16ab0fcb1d24` | gobbajogger <255244738+gobbajogger@users.noreply.github.com> |
-| Proposal | `8fbd0f7956f99f306a04cd430c6abfc3050c03cf` | `478d551d486d4ae735963589869505666348d168` | gobbajogger <255244738+gobbajogger@users.noreply.github.com> |
+| Parent (USB manufacturer + brand spelling) | `f3bfee74b5c681fc9be633bfe60be066cc1aeb50` | `2c7a1ee3924fec742174b6ba5dd51b50b20bb28c` | gobbajogger <255244738+gobbajogger@users.noreply.github.com> |
+| This follow-up (matchers accept old and new manufacturer) | this commit | this tree | gobbajogger <255244738+gobbajogger@users.noreply.github.com> |
 
-The branch holds those two commits only. The original verified tree at `/workspace/dnbox-94197-rebuild/source/gobbajogger-X0X37-for-Loopy-Pro-94197fc` was not modified.
-
-**Patch file:** `/workspace/naming-026/naming-026.patch`  
-SHA-256 `785d4e0fae722719266dccfa2fd9879a9adaf349818bbe36f6c227d1da2ddea3`. This file and this proposal stay untracked.
-
-**Files in the proposal commit:**
+**Files in the parent commit (`f3bfee74`):**
 
 - `firmware/src/usb.c`
 - `web/offline-sequencer/index.html`
 - `web/offline-sequencer/touchosc/pack.py`
+
+**Files in this follow-up:**
+
+- `tools/fm1_debug.py`
+- `tools/ble_autotest.py`
+- `tests/host/test_usb_port_name_filters.py`
+- `tests/run_tests.sh`
+- `docs/proposals/naming-026-PROPOSAL.md`
 
 ---
 
@@ -36,7 +39,7 @@ SHA-256 `785d4e0fae722719266dccfa2fd9879a9adaf349818bbe36f6c227d1da2ddea3`. This
 
 Unchanged on purpose: package identity `SMK-37 Elite_900` / `SMK-37 Pro_900`, USB VID/PID, BLE-MIDI UUIDs, OTA SysEx, APC `0x47` / `0x29`, editor INFO `X0X `, storage magic. This proposal does not invent `X0X 37PRO`. It does not touch `*_private.h`, `bass303`, `wobble.c`, BTIF, USRTRIM, efuse, key_mac or the bootloader.
 
-No tool matcher was edited. No test asserts the exact firmware strings that changed, so the commit has no test updates.
+The parent commit did not edit tool matchers. This follow-up does: every USB/MIDI port-name matcher accepts both the old manufacturer `X0X` and the new manufacturer `DnBOX`, so a unit still on old firmware is found. VID/PID and protocol (editor INFO `X0X `, storage magic, OTA SysEx, package identity) stay unchanged. Product strings are unchanged in this follow-up.
 
 ---
 
@@ -60,45 +63,59 @@ A later BLE rename that keeps `SMK-37` and adds `DnBOX` does not fit the Elite n
 
 ---
 
-## 3. Matcher list
+## 3. Consumer list (file:line, old / new behaviour)
 
-The tree was searched for `X0X`, `FM-1`, `DNBOX`, `DnBOX`, `SMK-37`, `Elite-`, `Pro-`, and the USB manufacturer string. The rows below are checks that match on a name this proposal changes, plus the main discoverers that the plan called out. “Breaks?” is about this proposal, not about a future BLE rename.
+The whole tree was searched again for USB manufacturer, product and port-name consumers of `X0X`, `X0X FM-1`, `X0X 37PRO`, `SMK-37`, `DNBOX` and `DnBOX`, in `tools/*.py`, web installer JS (WebSerial / WebUSB / WebMIDI filters), TouchOSC, tests and docs. There is no WebSerial or WebUSB name or VID/PID filter in this tree; discovery is WebMIDI `requestMIDIAccess({ sysex: true })` plus a handshake. VID `0x1209` / PID `0x0001` (loader `0x0002`) were not changed.
 
-| File:line | What it matches | Breaks? | Follow-up (not in this commit) |
-|---|---|---|---|
-| `tools/fm1_debug.py:29` | First output port whose name contains `FM-1` or `X0X` | **Can break.** The SMK product string is `DnBOX <version> SMK-37 Elite` or `… Pro`. It has no `X0X` and no `FM-1`. Today a host that puts manufacturer `X0X` into the port name can be the only reason this tool finds an SMK unit. After the change, a port such as `DnBOX DnBOX <version> SMK-37 Pro` matches neither token. Exact OS port wording is unverified. | Add `DnBOX` and `SMK-37` to the filter. Do not use the port name to choose Elite vs Pro. |
-| `tools/ble_autotest.py:37,56-57` | `PORT_KEYS = ("X0X", "SMK", "FM-1", "Felucca")` in the port name | **Unlikely for SMK** if the host shows the product string, because that string still contains `SMK`. A host that shows only the manufacturer would miss, because `DnBOX` is not in `PORT_KEYS`. | Add `DnBOX` to `PORT_KEYS` for robustness. |
-| `tools/fm1_install.py:98-99,408-421` | Every port is a candidate. Handshake identity (`SMK-37 Pro_900` / `SMK-37 Elite_900`) decides. Port names never gate discovery. | No. | Keep this pattern. The comment example `DnBOX <ver> 37PRO` is not the current descriptor. |
-| `tools/fm1_sample_upload.py:53-56` | Same as install: port names never gate discovery. Pairs with one shared name are probed. The slot query decides. | No. | Keep this pattern. |
-| `web/fm1ota.js:180-197` | No name gate. Handshake identity decides. Duplicate or mismatched labels are refused. | No. | Keep this pattern. |
-| `web/x0x_installer.html:436` (and model checks around 801–817, 1104, 1378) | Handshake plus a warning: check the model printed on the keyboard, not just the USB name. Package identity is `SMK-37…` / `FM-1…`, not the manufacturer string. | No. | Keep the printed-model warning. |
-| `web/offline-sequencer/project-adapter.js:11-12` | Refuses a USB port name as a package model. Accepts only `SMK-37 Elite` or `SMK-37 Pro`. | No. | Keep this check. |
-| `tests/host/usb_product_names_test.py:52-81` | M-Flasher v0.11 tokens in the OS port name: `fm-1`, `fm1`, `minifm`, `smk-37`, `smk37`, `felucca`. Asserts that `DnBOX … SMK-37 Pro/Elite` is recognised and that `DnBOX 0.0.26 37PRO` / `37ELITE` are not. Tests the product string, not manufacturer `STR1`. | No, if the host shows the product string. `SMK-37` stays in the product. Manufacturer `DnBOX` is not an M-Flasher token. | Do not drop `SMK-37` from the product. Do not use this string to choose the package. |
-| External M-Flasher (`jvitkauskas/m-flasher` v0.11), documented in that test | Tokens in the USB / OS port name | Same as the row above. | Same as the row above. |
-| `web/x0x_projects.js:300` and `web/offline-sequencer/device-sync.js:24` | Editor identity must match `/^X0X [\x20-\x7e]{1,20}$/` (INFO prefix `X0X `, protocol). | No. This proposal does not change INFO. | Change only with a tool pass, as the plan says. |
-| `web/test_projects_page.mjs:32,49` | Mock port name `X0X`. Connect still checks identity `X0X `. | No. Fixture and protocol, not the USB manufacturer. | Leave the fixture until INFO changes. |
-| `web/test_breaks_page.mjs:131-133` | Mock port name `X0X FM-1` | No. Fixture for the breaks page, not an assert of the live SMK manufacturer. | None for this proposal. |
-| `web/test_midi_port_pairing.mjs:20-26` | Pairs ports by shared name, then handshake. Names never gate model. Fixtures use `SMK-37 Pro` and `FM-1`. | No. | None. |
-| `web/offline-sequencer/touchosc/pack.test.py` | Packed layout, scripts, IDs, canvas size. It does not assert the title `DNBOX / MIDI PERFORMANCE`. | No. | Optional later assert of `DnBOX / MIDI PERFORMANCE`. |
-| Offline sequencer browser tests (`browser.test.py`, `review-browser.test.py`, `render_actual.py`, `f6b-browser.test.py`) | Drive the editor. They use `DNBOX_*` environment variables, not the brand word. | No. | None. |
-| `tests/host/reference/usb_before_midi_epoch.c:474` | Historical copy of old `usb.c`, still has manufacturer `X0X`. | No. This is a reference snapshot, not a check of the live string. | Leave the snapshot. Do not “update” it to the new string. |
-| `tests/ble_test.c:424,432` and `tests/host/ble_identity_test.py:12-21` | BLE prefix `SMK_MODEL "-"`, address and four-hex suffix, GAP name length. | No. BLE names are unchanged. | If a later change adds `DnBOX` to the Elite prefix, first raise `BLEH_NAME_MAX` or shorten the prefix. 23 characters do not fit. |
-| `tools/manual_html.py:169,241,244` | Docs generator. Matches a manual title `X0X`. | No. Not a device matcher, and manuals are out of scope. | Docs Keeper can update the manual title later. |
-| `tools/make_pages.py:55-65,232` | Maps package identity `FM-1` / `SMK-37 Pro` / `SMK-37 Elite` / `MKE-P37`. Nav already says `DnBOX`. | No. | None. |
-| `tools/build.py` / `tools/firmware_build_labels.py` / `tools/release_alloc.py` / `tools/fm1pkg_make.py` | Package identity and compile flags (`SMK-37 Elite_900`, `X0X_USB_37PRO` as a flag, not a USB string). | No. | None. |
-| `web/x0x_projects.html:190-196` | Lists every MIDI port. No name filter. | No. | None. |
+### 3.1 Port-name matchers (edited in this follow-up)
 
-No test in this tree asserts the exact app manufacturer string `X0X` or the brand word `DNBOX`. The proposal commit therefore contains no test edits.
+| File:line | Old behaviour | New behaviour |
+|---|---|---|
+| `tools/fm1_debug.py:21,24,37` (was :29) | First output port whose name contains `FM-1` or `X0X`. Misses a new-firmware SMK port that has neither token (for example `DnBOX DnBOX <ver> SMK-37 Pro`, or the product string alone). | `PORT_KEYS = ("X0X", "DnBOX", "FM-1", "SMK-37")` via `port_name_matches`. Accepts old manufacturer `X0X`, new manufacturer `DnBOX`, legacy `FM-1`, and the SMK product token. Does not choose Elite vs Pro. |
+| `tools/ble_autotest.py:39,42,63-64` (was :37,56-57) | `PORT_KEYS = ("X0X", "SMK", "FM-1", "Felucca")`. Finds an SMK unit if the host shows the product (`SMK`), but misses a host that shows only the new manufacturer `DnBOX`. | `PORT_KEYS = ("X0X", "DnBOX", "SMK", "FM-1", "Felucca")` via `port_name_matches`. Accepts both manufacturers. `SMK` and `Felucca` stay. |
+
+Host test: `tests/host/test_usb_port_name_filters.py`, registered as `usb-port-name-filters` in `tests/run_tests.sh`. It stubs `mido` and checks that both tools accept old and new manufacturer / product names, reject unrelated ports, and do not treat Pro and Elite differently.
+
+### 3.2 Discoverers with no name gate (unchanged)
+
+| File:line | What it matches | Old / new behaviour |
+|---|---|---|
+| `tools/fm1_install.py:98-99,408-421` | Every port is a candidate. Handshake identity (`SMK-37 Pro_900` / `SMK-37 Elite_900`) decides. Port names never gate discovery. | Unchanged. The comment example `DnBOX <ver> 37PRO` is not the current descriptor. |
+| `tools/fm1_sample_upload.py:53-56` | Port names never gate discovery. Pairs with one shared name are probed. The slot query decides. | Unchanged. `tools/x0x_slots.py` and `tools/upload_breaks.py` use this link. |
+| `web/fm1ota.js:180-197` | No name gate. Handshake identity decides. Duplicate or mismatched labels are refused. | Unchanged. Also used by `web/index_pkg.html`. |
+| `web/x0x_installer.html:436` (and model checks around 801–817, 1104, 1378) | Handshake plus a warning: check the model printed on the keyboard, not just the USB name. Package identity is `SMK-37…` / `FM-1…`, not the manufacturer string. | Unchanged. Keep the printed-model warning. **Release Packager** must confirm installer copy (see §6). |
+| `web/x0x_projects.html:190-200` | Lists every MIDI port. Pairs by shared name, then protocol. No name filter. | Unchanged. |
+| `web/x0x_breaks.html:385-389` | Same pattern: no name gate; pair in/out, then the slot handshake. | Unchanged. |
+| `web/offline-sequencer/project-adapter.js:11-12` | Refuses a USB port name as a package model. Accepts only `SMK-37 Elite` or `SMK-37 Pro`. | Unchanged. |
+
+### 3.3 Protocol, tests, docs (unchanged; not manufacturer matchers)
+
+| File:line | What it matches | Old / new behaviour |
+|---|---|---|
+| `tests/host/usb_product_names_test.py:52-81` | M-Flasher v0.11 tokens in the OS port name: `fm-1`, `fm1`, `minifm`, `smk-37`, `smk37`, `felucca`. Asserts that `DnBOX … SMK-37 Pro/Elite` is recognised and that `DnBOX 0.0.26 37PRO` / `37ELITE` are not. Tests the product string, not manufacturer `STR1`. | Unchanged. `SMK-37` stays in the product. Manufacturer `DnBOX` is not an M-Flasher token. |
+| External M-Flasher (`jvitkauskas/m-flasher` v0.11), documented in that test | Tokens in the USB / OS port name | Unchanged. Same as the row above. |
+| `web/x0x_projects.js:300` and `web/offline-sequencer/device-sync.js:24` | Editor identity must match `/^X0X [\x20-\x7e]{1,20}$/` (INFO prefix `X0X `, protocol). | Unchanged. Protocol, not the USB manufacturer. |
+| `web/test_projects_page.mjs:32,49` | Mock port name `X0X`. Connect still checks identity `X0X `. | Unchanged. Fixture and protocol. Leave until INFO changes. |
+| `web/test_breaks_page.mjs:131-133` | Mock port name `X0X FM-1` | Unchanged. Fixture, not an assert of the live SMK manufacturer. |
+| `web/test_midi_port_pairing.mjs:20-26` | Pairs ports by shared name, then handshake. Names never gate model. Fixtures use `SMK-37 Pro`, `FM-1`, and `DnBOX 0.0.14 37PRO`. | Unchanged. |
+| `web/offline-sequencer/touchosc/pack.test.py` | Packed layout, scripts, IDs, canvas size. It does not assert the title `DnBOX / MIDI PERFORMANCE`. | Unchanged. Optional later assert of the new title. |
+| Offline sequencer browser tests (`browser.test.py`, `review-browser.test.py`, `render_actual.py`, `f6b-browser.test.py`) | Drive the editor. They use `DNBOX_*` environment variables, not the brand word. | Unchanged. |
+| `tests/host/reference/usb_before_midi_epoch.c:474` | Historical copy of old `usb.c`, still has manufacturer `X0X`. | Unchanged. Leave the snapshot. |
+| `tests/ble_test.c:424,432` and `tests/host/ble_identity_test.py:12-21` | BLE prefix `SMK_MODEL "-"`, address and four-hex suffix, GAP name length. | Unchanged. BLE names are unchanged. |
+| `tools/manual_html.py:169,241,244` | Docs generator. Matches a manual title `X0X`. | Unchanged. Not a device matcher. **Release Packager** / Docs Keeper: see §7. |
+| `tools/make_pages.py:55-65,232` | Maps package identity `FM-1` / `SMK-37 Pro` / `SMK-37 Elite` / `MKE-P37`. Nav already says `DnBOX`. | Unchanged. **Release Packager** must confirm published site copy (see §6). This follow-up does not change installer website deployment. |
+| `tools/build.py` / `tools/firmware_build_labels.py:95` / `tools/release_alloc.py` / `tools/fm1pkg_make.py` | Package identity and compile flags (`SMK-37 Elite_900`, `X0X_USB_37PRO` as a flag, not a USB string). DEV display label is still `X0X37 … · DEV · DEVICE NOT TESTED`. Package file names stay `x0x-smk37-*.fwsc`. | Unchanged. **Release Packager** must confirm package names and DEV labels (see §6). |
+| `.github`, `bass303`, `wobble.c`, `*_private.h`, flash / bootloader paths | Out of scope. | Not touched. |
 
 ---
 
 ## 4. Risks
 
-1. **`fm1_debug.py` can miss the unit** after the manufacturer change, if the host port name no longer contains `X0X` or `FM-1`. This is the main tooling risk. The install path does not use that filter.
-2. **OS port wording is unverified.** Some hosts show manufacturer plus product. Some show only the product. No device run was done in this pass.
+1. **`fm1_debug.py` and `ble_autotest.py` now accept both manufacturers.** The earlier miss on a new-firmware SMK port name is closed in source and in the host test. The install path still does not use a name filter.
+2. **OS port wording is unverified.** Some hosts show manufacturer plus product. Some show only the product. No device run was done in this pass. The new keys cover both shapes that are known.
 3. **M-Flasher still needs `SMK-37` in the port name.** The product string still has it. Do not later shorten the product to `DnBOX 37PRO`.
 4. **Wrong-package brick path is unchanged.** Package identity and handshake admission stay. Installers must still use the printed model, not the USB display name.
-5. **Website publish** of the offline sequencer spelling is outside this proposal. Coordinate with DnBOX Website UX before a site page is updated.
+5. **Website publish** of the offline sequencer spelling is outside this follow-up. Coordinate with DnBOX Website UX and Release Packager before a site page is updated.
 6. A future BLE rename to include `DnBOX` while keeping `SMK-37` does not fit the Elite name in the 20-character host limit.
 
 ---
@@ -114,7 +131,22 @@ No test in this tree asserts the exact app manufacturer string `X0X` or the bran
 
 ---
 
-## 6. Diff (`git diff base..HEAD`)
+## 6. Release Packager must confirm
+
+This follow-up does not change user-facing release notes, installer website deployment, or package file names. Release Packager should confirm each item below before a 0.0.26 (or later) publish.
+
+1. **Release notes.** Should the notes say that the app USB manufacturer string is now `DnBOX` (was `X0X`), and that a unit still on older firmware will appear as manufacturer `X0X`? Should user-facing product copy use `DnBOX` rather than `X0X`?
+2. **Installer text.** The published installer is not updated by this branch. Site nav in `tools/make_pages.py` already says `DnBOX`. Confirm the exact installer headings, button labels and help text for the next published site, including that installers must keep using the model printed on the keyboard, not the USB display name.
+3. **Package names and identity.** This branch does not change package identity (`SMK-37 Elite_900` / `SMK-37 Pro_900`) or package file names (`x0x-smk37-*.fwsc` and the Elite / MKE variants). Confirm they stay as they are for the next release.
+4. **DEV / non-release labels.** `tools/firmware_build_labels.py` still emits `X0X37 <label> · <model> · DEV · DEVICE NOT TESTED`. Confirm whether that user-visible label stays or becomes `DnBOX`.
+5. **Offline sequencer and TouchOSC.** Source already spells the visible brand `DnBOX` (was `DNBOX`). Confirm when the published offline-sequencer page and any shipped TouchOSC layout are updated. `DNBOX_*` environment variables and schema names stay.
+6. **Manual title.** `tools/manual_html.py` still treats a manual title `X0X`. Confirm whether release manuals keep that title or switch to `DnBOX`.
+7. **Bluetooth advertised names.** They stay `SMK-37 Pro-` + four hex and `SMK-37 Elite-` + four hex. Confirm that release notes do not claim a `DnBOX` Bluetooth name.
+
+---
+
+## 7. Diff of the parent commit (`git diff 94197fc8..f3bfee74`)
+
 
 ```diff
 diff --git a/firmware/src/usb.c b/firmware/src/usb.c
