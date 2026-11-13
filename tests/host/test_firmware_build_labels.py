@@ -35,6 +35,8 @@ class FirmwareBuildLabelsTest(unittest.TestCase):
         self.assertEqual(result['release_display'], '0.7.2_openbeta')
         self.assertNotIn('openbeta', result['product'])
         self.assertEqual(result['version_label'], 'v0.7.2')
+        self.assertTrue(result['display_label'].startswith('DnBOX v0.7.2 · '))
+        self.assertIn('DEVICE NOT TESTED', result['display_label'])
         self.assertEqual(result['source_commit'], SHA)
         self.assertEqual(result['package_sha256'], __import__('hashlib').sha256(self.path.read_bytes()).hexdigest())
         self.assertTrue(result['build_id'].startswith('g0123456789ab-h'))
@@ -49,6 +51,7 @@ class FirmwareBuildLabelsTest(unittest.TestCase):
                 self.make_package(product)
                 result = inspect_package(self.path, model, SHA)
                 self.assertIsNone(result['firmware_version'])
+                self.assertTrue(result['display_label'].startswith('DnBOX Unversioned'))
                 self.assertIn('Unversioned', result['display_label'])
                 with self.assertRaisesRegex(ValueError, 'no numeric version'):
                     inspect_package(self.path, model, SHA, '0.7.2')

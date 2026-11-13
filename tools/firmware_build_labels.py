@@ -92,7 +92,7 @@ def inspect_package(path, model, source_commit, expected_version=None):
         "release_display": None if actual_version is None else release_display(actual_version),
         "version_label": label,
         "build_id": build_id,
-        "display_label": "X0X37 " + label + " · " + MODELS[model] + " · DEV · DEVICE NOT TESTED",
+        "display_label": "DnBOX " + label + " · " + MODELS[model] + " · DEV · DEVICE NOT TESTED",
         "model": model,
         "product": product,
         "source_commit": source_commit,

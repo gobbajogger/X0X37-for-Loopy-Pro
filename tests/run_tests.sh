@@ -350,6 +350,8 @@ run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/enc
 run bass-midi-pending-native python3 tests/host/bass_midi_pending_native_test.py
 run usb-product-names python3 -B tests/host/usb_product_names_test.py  # model-specific USB names, version, bounds, VID/PID, loader
 run usb-port-name-filters python3 -B tests/host/test_usb_port_name_filters.py  # fm1_debug / ble_autotest accept both X0X and DnBOX
+run firmware-build-labels python3 -B tests/host/test_firmware_build_labels.py  # DEV display_label prefix is DnBOX
+run manual-html-title python3 -B tests/host/test_manual_html_title.py  # manual title and home link are DnBOX
 run nightly-version python3 -B tests/host/test_nightly_version.py
 run nightly-package python3 -B tests/nightly_package_test.py
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"

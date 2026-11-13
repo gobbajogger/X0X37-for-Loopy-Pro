@@ -13,7 +13,8 @@ SHA-256 `69b86dbde348b7a155690ecfe774acc3767b64b663cec76c950c4921a32a3ad6` (star
 | Commit | SHA | Tree | Author |
 |---|---|---|---|
 | Parent (USB manufacturer + brand spelling) | `f3bfee74b5c681fc9be633bfe60be066cc1aeb50` | `2c7a1ee3924fec742174b6ba5dd51b50b20bb28c` | gobbajogger <255244738+gobbajogger@users.noreply.github.com> |
-| This follow-up (matchers accept old and new manufacturer) | this commit | this tree | gobbajogger <255244738+gobbajogger@users.noreply.github.com> |
+| Matcher follow-up | `05ce9fdae2294adf9bb3ba2d14dd8f1bce27a32d` | `74004821f96e00be321b53036c50f25471362014` | gobbajogger <255244738+gobbajogger@users.noreply.github.com> |
+| This follow-up (Release Packager answers 1–7) | this commit | this tree | gobbajogger <255244738+gobbajogger@users.noreply.github.com> |
 
 **Files in the parent commit (`f3bfee74`):**
 
@@ -21,13 +22,23 @@ SHA-256 `69b86dbde348b7a155690ecfe774acc3767b64b663cec76c950c4921a32a3ad6` (star
 - `web/offline-sequencer/index.html`
 - `web/offline-sequencer/touchosc/pack.py`
 
-**Files in this follow-up:**
+**Files in the matcher follow-up (`05ce9fda`):**
 
 - `tools/fm1_debug.py`
 - `tools/ble_autotest.py`
 - `tests/host/test_usb_port_name_filters.py`
 - `tests/run_tests.sh`
 - `docs/proposals/naming-026-PROPOSAL.md`
+
+**Files in this follow-up (Release Packager answers):**
+
+- `docs/proposals/naming-026-PROPOSAL.md` (§6 answers)
+- `tools/firmware_build_labels.py`
+- `tools/manual_html.py`
+- `docs/manual.html` (title, description and home link only)
+- `tests/host/test_firmware_build_labels.py`
+- `tests/host/test_manual_html_title.py`
+- `tests/run_tests.sh`
 
 ---
 
@@ -102,9 +113,9 @@ Host test: `tests/host/test_usb_port_name_filters.py`, registered as `usb-port-n
 | Offline sequencer browser tests (`browser.test.py`, `review-browser.test.py`, `render_actual.py`, `f6b-browser.test.py`) | Drive the editor. They use `DNBOX_*` environment variables, not the brand word. | Unchanged. |
 | `tests/host/reference/usb_before_midi_epoch.c:474` | Historical copy of old `usb.c`, still has manufacturer `X0X`. | Unchanged. Leave the snapshot. |
 | `tests/ble_test.c:424,432` and `tests/host/ble_identity_test.py:12-21` | BLE prefix `SMK_MODEL "-"`, address and four-hex suffix, GAP name length. | Unchanged. BLE names are unchanged. |
-| `tools/manual_html.py:169,241,244` | Docs generator. Matches a manual title `X0X`. | Unchanged. Not a device matcher. **Release Packager** / Docs Keeper: see §7. |
+| `tools/manual_html.py:167-173,241-245` | Docs generator. Title and home link were `X0X`. | Now `DnBOX Manual` / `DnBOX: …`, home link `DnBOX`. A markdown H1 of `X0X` is still recognised as the main title and is rendered as `DnBOX`. Body text that names older firmware is left as written. Snapshot `docs/manual.html` title, description and home link were updated to match; the body was not regenerated. |
 | `tools/make_pages.py:55-65,232` | Maps package identity `FM-1` / `SMK-37 Pro` / `SMK-37 Elite` / `MKE-P37`. Nav already says `DnBOX`. | Unchanged. **Release Packager** must confirm published site copy (see §6). This follow-up does not change installer website deployment. |
-| `tools/build.py` / `tools/firmware_build_labels.py:95` / `tools/release_alloc.py` / `tools/fm1pkg_make.py` | Package identity and compile flags (`SMK-37 Elite_900`, `X0X_USB_37PRO` as a flag, not a USB string). DEV display label is still `X0X37 … · DEV · DEVICE NOT TESTED`. Package file names stay `x0x-smk37-*.fwsc`. | Unchanged. **Release Packager** must confirm package names and DEV labels (see §6). |
+| `tools/build.py` / `tools/firmware_build_labels.py:95` / `tools/release_alloc.py` / `tools/fm1pkg_make.py` | Package identity and compile flags (`SMK-37 Elite_900`, `X0X_USB_37PRO` as a flag, not a USB string). Package file names stay `x0x-smk37-*.fwsc`. | Package names and identity stay. DEV `display_label` prefix changes from `X0X37 ` to `DnBOX ` (no live parser, test, installer JS, CI or tool matched that prefix; see §6 item 4). |
 | `.github`, `bass303`, `wobble.c`, `*_private.h`, flash / bootloader paths | Out of scope. | Not touched. |
 
 ---
@@ -131,17 +142,47 @@ Host test: `tests/host/test_usb_port_name_filters.py`, registered as `usb-port-n
 
 ---
 
-## 6. Release Packager must confirm
+## 6. Release Packager answers
 
-This follow-up does not change user-facing release notes, installer website deployment, or package file names. Release Packager should confirm each item below before a 0.0.26 (or later) publish.
+Recorded 2026-11-13 from Release Packager, applying these sources:
 
-1. **Release notes.** Should the notes say that the app USB manufacturer string is now `DnBOX` (was `X0X`), and that a unit still on older firmware will appear as manufacturer `X0X`? Should user-facing product copy use `DnBOX` rather than `X0X`?
-2. **Installer text.** The published installer is not updated by this branch. Site nav in `tools/make_pages.py` already says `DnBOX`. Confirm the exact installer headings, button labels and help text for the next published site, including that installers must keep using the model printed on the keyboard, not the USB display name.
-3. **Package names and identity.** This branch does not change package identity (`SMK-37 Elite_900` / `SMK-37 Pro_900`) or package file names (`x0x-smk37-*.fwsc` and the Elite / MKE variants). Confirm they stay as they are for the next release.
-4. **DEV / non-release labels.** `tools/firmware_build_labels.py` still emits `X0X37 <label> · <model> · DEV · DEVICE NOT TESTED`. Confirm whether that user-visible label stays or becomes `DnBOX`.
-5. **Offline sequencer and TouchOSC.** Source already spells the visible brand `DnBOX` (was `DNBOX`). Confirm when the published offline-sequencer page and any shipped TouchOSC layout are updated. `DNBOX_*` environment variables and schema names stay.
-6. **Manual title.** `tools/manual_html.py` still treats a manual title `X0X`. Confirm whether release manuals keep that title or switch to `DnBOX`.
-7. **Bluetooth advertised names.** They stay `SMK-37 Pro-` + four hex and `SMK-37 Elite-` + four hex. Confirm that release notes do not claim a `DnBOX` Bluetooth name.
+- Owner vision brief `/workspace/steers/owner-vision-brief-20261113.md`, SHA-256 `9bb766b6872220a7856db8459fb82de528f2816d5d2e664840140c1b9e907e21` (starts `9bb766b6`): “DnBOX is the brand headline (SMK-37 = supported hardware)”.
+- Owner rule of 2026-10-31 15:48 (standing): never identify or filter a device by USB/port name; hardware and firmware fields only. The USB name proves nothing.
+
+1. **Release notes.** User-facing product copy uses DnBOX as the brand headline; SMK-37 is the supported hardware. Use this release-note text:
+
+   > From 0.0.26 the USB manufacturer name is DnBOX. Keyboards on older firmware still show X0X. VID/PID and protocol are unchanged.
+
+2. **Installer text.** Include this line:
+
+   > Choose the model printed on your keyboard. The USB name does not prove the model.
+
+   The installer itself is Installer QA / Website scope. This branch does not edit the installer or its published site.
+
+3. **Package names and identity.** Keep package file names `x0x-smk37-*.fwsc` (and the Elite / MKE variants) and product IDs `SMK-37 Elite_900` / `SMK-37 Pro_900`. Unchanged in this commit.
+
+4. **DEV / non-release labels.** Change the `display_label` prefix in `tools/firmware_build_labels.py` from `X0X37 ` to `DnBOX `. The whole tree was searched, including `web/`, `tools/`, `tests/` and `.github` (read only, not edited). No parser, test, installer JS, CI or tool matches the `X0X37` prefix of that label.
+
+   Hits that are **not** prefix parsers of the DEV label, so they did not block the change:
+
+   - The producer itself, now updated: `tools/firmware_build_labels.py:95`.
+   - Tests that only assert other substrings of `display_label` (`Unversioned`, `DEVICE NOT TESTED`, `SMK-37 Pro`): `tests/host/test_firmware_build_labels.py`, `tests/host/test_dev_validate.py:142,162`. Those tests now also check the `DnBOX ` prefix where they read `display_label`.
+   - Historical recorded labels (left unchanged): `docs/FIRMWARE_VERSIONING.md:69`, `docs/engineering-delivery/rec-endpoint-proof/qualification/rec-native/*.json`, and evidence catalogs.
+   - BLE test fixtures that use the exact GATT name `"X0X37"` (not this label): `tests/ble_mailbox_backpressure_test.c`, `tests/host/ble_*`, `tests/host/smc_peer_names_test.c:45`.
+   - Repository URLs and project names `X0X37-for-Loopy-Pro` / `LoopyX0X37` in tools, web, tests and docs.
+   - `.github`: no `X0X37`, `display_label` or `DEVICE NOT TESTED` hits.
+
+5. **Offline sequencer and TouchOSC.** Source already spells the visible brand `DnBOX` (was `DNBOX`). Updating the published page is Website scope and is not done in this branch. `DNBOX_*` environment variables and schema names stay.
+
+6. **Manual title.** Switch the title in `tools/manual_html.py` to DnBOX. A markdown H1 of `X0X` is still treated as the main title and is rendered as DnBOX. Keep `X0X` in body text only where it names old firmware.
+
+   Snapshots and tests:
+
+   - `docs/manual.html`: the committed snapshot pinned `<title>X0X Manual</title>`, the description “for X0X”, and the home link `X0X`. Those three strings were updated to DnBOX. The body was not regenerated: `docs/MANUAL.md` and this snapshot were already out of sync, and a full regen would have rewritten later sections. The lede in the snapshot still begins “X0X turns the M-VAVE FM-1…”.
+   - No existing host test pinned the title. Added `tests/host/test_manual_html_title.py` (`manual-html-title`).
+   - `docs/NEW.md` and other pages are generated at site-publish time, not as committed snapshots.
+
+7. **Bluetooth advertised names.** They stay `SMK-37 Pro-` + four hex and `SMK-37 Elite-` + four hex. Release notes must not claim a `DnBOX` Bluetooth name.
 
 ---
 
