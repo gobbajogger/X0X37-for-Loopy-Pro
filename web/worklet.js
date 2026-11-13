@@ -89,7 +89,15 @@ class Fm1 extends AudioWorkletProcessor {
           this.flushSnapshots();
         } else if (m.type === "cancel-snapshot") this.snapshots = this.snapshots.filter(r => r.request !== m.request);
         else if (m.type === "resume") this.paused = false;
-        else if (m.type === "key") this.x.fm1_key(m.id, m.down ? 1 : 0);
+        else if (m.type === "key") {
+          this.x.fm1_key(m.id, m.down ? 1 : 0);
+          // Optional DnBOX diagnostics: an acknowledgment after the emulated key input
+          // is accepted by the audio thread. This is message turnaround, NOT acoustic latency.
+          // No clock measurement or postMessage is added to the per-sample render path.
+          if (Number.isInteger(m.probe) && m.probe > 0) {
+            this.port.postMessage({ type: "input-ack", seq: this.seq, probe: m.probe });
+          }
+        }
         else if (m.type === "enc") this.x.fm1_enc(m.enc, m.clicks);
         else if (m.type === "pot") this.x.fm1_pot(m.value);
         else if (m.type === "midi") for (const b of m.bytes) this.x.fm1_midi(b);
