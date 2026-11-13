@@ -106,6 +106,7 @@ void engine_bass_wheel_owners(uint8_t mask);
 void engine_bass_mod(int v, int val);       /* mod wheel: Chicago cutoff / Miami wobble depth, recordable */
 int engine_bass_mod_param(int v);
 int engine_bass_ext_touch(int v);           /* bit0 bend, bit1 mod moved by ext MIDI since last call */
+int engine_bass_mod_ctl(int v);             /* live wheel/CC1 value, or -1 if the wheel does not own it */
 
 /* Review-only runtime and separately guarded tagged-storage units; defaults OFF. */
 #ifndef X0X_BASS_PRESET_PREVIEW

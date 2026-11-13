@@ -1256,6 +1256,7 @@ void engine_bass_mod(int v, int val) { cq_put(C_MOD, (uint32_t)v, 0, (uint32_t)v
 int engine_bass_ext_touch(int v)                   /* UI: take the ext-MIDI bend/mod moves */
 { if ((unsigned)v >= NBASS) return 0; int t = ext_touch[v]; ext_touch[v] = 0; return t; }
 int engine_bass_mod_param(int v) { return (unsigned)v < NBASS ? mod_param(v) : -1; }
+int engine_bass_mod_ctl(int v) { return (unsigned)v < NBASS ? mod_ctl[v] : -1; }
 #ifdef X0X_HOST
 int engine_bass_perf(int v, int which, int live) /* host test: 0 bend, 1 damper, 2 mod; last applied or live */
 {
