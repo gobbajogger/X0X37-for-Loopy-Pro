@@ -84,6 +84,8 @@ GEN-57. The knob strip (the bottom 82 rows) sends only the rectangle that change
   - A wide value (for example 0-127) steps one at a time: the presses and the repeats are too slow for the knob acceleration. An action row (for example SAVE, CLEAR PATTERN, RESET PROJECT) and a section header do nothing. If "<" and ">" go down in the same frame, no step occurs. A press of one arrow while you hold the other gives one step and stops the repeat. While you hold HOME, they do nothing.
   - A question (O_ASK) is not a menu list: the arrows do nothing there. The function list_sub_arrow in ui.c is the hook for submenu rows (">" enters, "<" goes back). This build has no submenu rows. (Added 2026-10-16, a77, owner approval 21:20.) [USER] [CODE app/smk_arrows.h arw_route arw_frame] [CODE app/ui.c ui_menu_arrow] [CODE app/main_fm1.c smk_arrows]
 
+GEN-58. The PERF page shows each render stage's share of the CPU (909, 808, 303 A, 303 B, BREAK, FX, MASTER, SEQ). Each share is that stage's measured work on both cores, against one core's sample budget, so the eight shares may sum to more than 100%. The page layout does not change. LOAD and PEAK stay the core-0 wall-clock share of the audio deadline (they can stay at or under 100% while the stage shares sum over 100%). Core 0's wait for core 1 is not billed to the 808 row. It stays in LOAD and PEAK (last_us) and in the RAM counter eng_prof_wait. There is no WAIT row on the screen. [USER 2026-11-13, fix incorrect meter reporting without hiding load] [CODE app/engine.c PROF_ADD_CORE eng_prof_c1 eng_prof_wait] [TEST tests/host/perf_meter_c1_test.c] (Added 2026-11-13.)
+
 ## 3. 909 and 808
 
 DRM-01. Each drum machine has 11 tracks, one on each black key. [MANUAL §5]
