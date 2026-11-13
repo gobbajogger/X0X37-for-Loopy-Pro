@@ -365,6 +365,7 @@ if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh h
 run original-release-integration sh tests/host/original_release_integration_test.sh build/ui-theme/original-integration
 run chicago-fx2-inserts sh tests/host/chicago_fx2_inserts_test.sh build/chicago_fx2_inserts
 run original-sound-cell sh tests/host/original_sound_cell_test.sh build/original-sound-cell
+run preset-record sh tests/host/preset_record_test.sh build/preset-record
 run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
 run original-build python3 tests/host/test_original_build_composition.py
 run load-guard-diagnostic python3 tests/host/test_load_guard_diagnostic.py
