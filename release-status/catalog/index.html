@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DnBOX release status</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --ink: #1b1b18;
+      --muted: #4a4a43;
+      --card: #fffdf8;
+      --line: #d4cfc4;
+      --withdrawn: #8b1e1e;
+      --withdrawn-bg: #f8e8e8;
+      --pass: #215c2a;
+      --fail: #8b1e1e;
+      --missing: #6a4d00;
+      --yes: #215c2a;
+      --no: #5c5c56;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    header, main, footer {
+      max-width: 68rem;
+      margin: 0 auto;
+      padding: 1.25rem 1.25rem;
+    }
+    header {
+      padding-top: 2rem;
+    }
+    h1 { font-size: 2rem; margin: 0 0 0.5rem; }
+    h2 { font-size: 1.45rem; margin-top: 0; }
+    h3 { font-size: 1.15rem; }
+    h4 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+    .lead, .meta, footer { color: var(--muted); }
+    .disclaimers {
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 0.75rem 1rem;
+    }
+    .record {
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 1.2rem 1.2rem 0.4rem;
+      margin: 1.5rem 0;
+    }
+    .withdrawn-record {
+      border-color: var(--withdrawn);
+      background: var(--withdrawn-bg);
+    }
+    .withdrawn-banner, .banner {
+      border: 2px solid var(--withdrawn);
+      padding: 0.6rem 0.8rem;
+      background: #fff;
+    }
+    .models {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+      gap: 1rem;
+    }
+    .model, .event {
+      border: 1px solid var(--line);
+      padding: 0.8rem 1rem;
+      background: #fff;
+      margin-bottom: 0.8rem;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: #fff;
+      margin-bottom: 1rem;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border: 1px solid var(--line);
+      padding: 0.35rem 0.5rem;
+    }
+    code {
+      font-family: "IBM Plex Mono", "Source Code Pro", ui-monospace, monospace;
+      font-size: 0.82em;
+      word-break: break-all;
+    }
+    td.yes, .gate-pass { color: var(--yes); font-weight: 600; }
+    td.no { color: var(--no); }
+    td.withdrawn, .gate-fail { color: var(--fail); font-weight: 600; }
+    .gate-missing { color: var(--missing); font-weight: 600; }
+    .tag { font-style: italic; color: var(--muted); }
+    dl { display: grid; grid-template-columns: 12rem 1fr; gap: 0.2rem 0.8rem; }
+    dt { font-weight: 600; }
+    dd { margin: 0; }
+    a { color: #123a73; }
+    nav ul { padding-left: 1.2rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>DnBOX release status</h1>
+    <p class="lead">A read-only status page generated from release-status records. It is not a live installer and it does not promote a build.</p>
+    <ul class="disclaimers">
+      <li>This catalog is a read-only report from release-status records.</li><li>It is not a hardware qualification and it does not promote a build.</li><li>An Elite report never implies a Pro report.</li><li>Emulation, an upload, and a catalog publication are not hardware qualification.</li><li>A withdrawn build is shown and must not be offered for install.</li>
+    </ul>
+    <nav>
+      <p>Records in this catalog:</p>
+      <ul>
+        <li><a href="#nightly-79280e76-dev">DnBOX 0.0.25.1 · nightly-79280e76-dev · stable-MAIN</a></li><li><a href="#nightly-94197fc8-dev">DnBOX 0.0.26 · nightly-94197fc8-dev · nightly-hardware-test</a></li><li><a href="#nightly-600b3b45-dev">DnBOX 0.0.26 · nightly-600b3b45-dev (withdrawn) · withdrawn</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    
+<section class="record" id="nightly-79280e76-dev">
+  <h2>DnBOX 0.0.25.1 · nightly-79280e76-dev</h2>
+  
+  <p>Channel: <strong>stable-MAIN</strong>. Source SHA: <code>79280e763341d03ba43266d3e25dad66f12de860</code>. Source tree: <code>ab2e16a61c81abbcb6c4a71bd83bf0b5d943c120</code>.</p>
+  <p>Elite never implies Pro. This record is not a hardware qualification. This page does not promote this build.</p>
+  <p>Identity confidence: model <strong>reported</strong>, build <strong>absent</strong>, installed hash <strong>absent</strong>.</p><p>Owner-reported Elite from the owner&#x27;s own words in the Orchestrator chat on 2026-11-13 at 23:22 UTC+10: &quot;I used elite&quot;. Relayed by Orchestrator. This is not hardware-field verification. Pro was not tested. An Elite report never implies Pro.</p><p>The owner named 0.0.25.1. The installed package hash and source SHA were not confirmed.</p><p>Installed hash is absent and is NOT verified.</p>
+  <h3>States</h3>
+  <table class="states">
+    <thead><tr><th>Flag</th><th>Value</th></tr></thead>
+    <tbody>
+    <tr><th scope="row">built</th><td class="yes">true</td></tr>
+<tr><th scope="row">gate-passed</th><td class="yes">true</td></tr>
+<tr><th scope="row">published-nightly</th><td class="yes">true</td></tr>
+<tr><th scope="row">installation-reported</th><td class="yes">true</td></tr>
+<tr><th scope="row">boot-restart-reported</th><td class="no">false</td></tr>
+<tr><th scope="row">install-verified</th><td class="no">false</td></tr>
+<tr><th scope="row">owner-hardware-approval</th><td class="no">false</td></tr>
+<tr><th scope="row">withdrawn</th><td class="no">false</td></tr>
+    </tbody>
+  </table>
+  <h3>Exact model artifacts</h3>
+  <div class="models">
+  
+<article class="model" id="model-elite">
+  <h4>SMK-37 Elite</h4>
+  <p class="tag">owner-reported test is present. An Elite report never implies Pro.</p>
+  <p>Product: <code>SMK-37 Elite_900</code></p>
+  <dl>
+    <dt>Image SHA-256</dt><dd><code>5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a</code></dd>
+    <dt>Image size</dt><dd>651721 bytes</dd>
+    <dt>Package SHA-256</dt><dd><code>5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a</code></dd>
+    <dt>Package URL</dt><dd><a href="https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a/x0x37-elite-dev.fwsc">https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a/x0x37-elite-dev.fwsc</a></dd>
+    <dt>Controller SHA-256</dt><dd><code>a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984</code></dd>
+    <dt>Controller check</dt><dd>PASS (bundled, 61552 bytes)</dd>
+    <dt>Install-verified evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+    <dt>Owner-hardware-approval evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+  </dl>
+</article>
+
+<article class="model" id="model-pro">
+  <h4>SMK-37 Pro</h4>
+  <p class="tag">no owner-reported test for this model. An Elite report never implies Pro.</p>
+  <p>Product: <code>SMK-37 Pro_900</code></p>
+  <dl>
+    <dt>Image SHA-256</dt><dd><code>6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf</code></dd>
+    <dt>Image size</dt><dd>651721 bytes</dd>
+    <dt>Package SHA-256</dt><dd><code>6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf</code></dd>
+    <dt>Package URL</dt><dd><a href="https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf/x0x37-pro-dev.fwsc">https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf/x0x37-pro-dev.fwsc</a></dd>
+    <dt>Controller SHA-256</dt><dd><code>a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984</code></dd>
+    <dt>Controller check</dt><dd>PASS (bundled, 61552 bytes)</dd>
+    <dt>Install-verified evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+    <dt>Owner-hardware-approval evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+  </dl>
+</article>
+
+  </div>
+  <h3>Owner-reported events (with sources)</h3>
+  
+<article class="event">
+  <h4>install-report · 2026-11-13T23:20:00+10:00</h4>
+  <p class="meta">sequence 1 · current · install-report · quoted owner words · not verified</p>
+  <p><strong>Source:</strong> owner in Orchestrator chat, relayed by Orchestrator</p>
+  <p>The project owner reported testing 0.0.25.1 and 0.0.26, and said he used Elite. The installed package hash was not confirmed. Pro was not tested.</p>
+  <p><strong>Model:</strong> Elite (confidence reported). An Elite report never implies Pro.</p>
+  <p><strong>Installed hash:</strong> absent (confidence absent).</p>
+  
+  <ul><li>Owner quotes (Orchestrator chat, 2026-11-13, Asia/Vladivostok / UTC+10): at 23:20, &quot;Bro I tested a 25,1 and 26 already&quot;; at 23:22, &quot;I used elite&quot;. Relayed by Orchestrator. These are the owner&#x27;s own words.</li><li>Earlier Dot relay of owner ChatGPT words, not the primary source for this event: &quot;i already recovered to 25.1&quot;, &quot;25.1 is good&quot;, and &quot;and yep 25.1 to 26 is smooth&quot;.</li><li>Installed hash is absent. Model Elite is owner-stated and not hardware-field verified.</li><li>Pro was not tested. An Elite report never implies Pro. There is no Pro event.</li><li>This is not a full functional suite pass. This is not hardware qualification on either model. This is not a promotion. A test report is not owner-hardware-approval.</li></ul>
+</article>
+
+  <h3>Owner-required gates (report only)</h3>
+  <p>Channel stable-MAIN. Hardware approval still requires install-verified and owner-hardware-approval on each model. An Elite result never implies Pro.</p>
+  <p>Automatic promotion: <strong>not-performed</strong>. Owner-required promotion ready: <strong>False</strong>. owner-required hardware gates are not all pass: install-verified:elite=missing; owner-hardware-approval:elite=missing; install-verified:pro=missing; owner-hardware-approval:pro=missing</p>
+  <table class="gates">
+    <thead><tr><th>Status</th><th>Gate</th><th>Reason</th></tr></thead>
+    <tbody>
+    <tr><td class="gate-pass">pass</td><td>built</td><td>images exist and bundled controller checks are PASS</td></tr>
+<tr><td class="gate-pass">pass</td><td>gate-passed</td><td>exact-image emu360 strict PASS (0 late, worst time under the threshold, matching image hashes). This is not a hardware result.</td></tr>
+<tr><td class="gate-pass">pass</td><td>published-nightly</td><td>catalog id, Pages URL, and published SHA-256 are present. This is not hardware qualification.</td></tr>
+<tr><td class="gate-pass">pass</td><td>installation-reported</td><td>an install report is present (owner in Orchestrator chat, relayed by Orchestrator). A report is not install-verified and is not hardware approval.</td></tr>
+<tr><td class="gate-missing">missing</td><td>boot-restart-reported</td><td>no boot or restart report is present in history</td></tr>
+<tr><td class="gate-pass">pass</td><td>withdrawn</td><td>the record is not withdrawn</td></tr>
+<tr><td class="gate-missing">missing</td><td>install-verified:elite (elite)</td><td>elite: model confidence is &#x27;reported&#x27;, not verified; build confidence is &#x27;absent&#x27;, not verified; no hardware-field model proof (board_id, model_id, flash_id, mac, firmware_readback, or backup_field); installed hash is absent. This is not install-verified.</td></tr>
+<tr><td class="gate-missing">missing</td><td>owner-hardware-approval:elite (elite)</td><td>elite: install-verified for elite is missing, not pass; no scoped hardware_approvals entry for elite that names this source SHA and this model&#x27;s image SHA-256. This is not owner-hardware-approval.</td></tr>
+<tr><td class="gate-missing">missing</td><td>install-verified:pro (pro)</td><td>pro was not tested. A report for elite never implies pro. Installed hash is absent for pro.</td></tr>
+<tr><td class="gate-missing">missing</td><td>owner-hardware-approval:pro (pro)</td><td>no quoted owner hardware approval for pro on this exact build. An Elite statement never implies pro. install-verified for pro is missing.</td></tr>
+    </tbody>
+  </table>
+  <h3>Record notes</h3>
+  <ul><li>Channel assignment in this workflow: stable MAIN. This record does not publish and does not change the MAIN installer. PR #880 is owned by Installer QA and is not edited here.</li><li>Hashes and sizes come from the live nightly versions.json row for nightly-79280e76-dev (display version 0.0.25.1). Source branch is release/0.0.25.1.</li><li>This is not a promotion of 0.0.26. 0.0.26 (94197fc8) stays a nightly hardware-test build.</li><li>The owner reported testing 0.0.25.1 on an SMK-37 Elite. The installed package hash was not confirmed. Pro was not tested. installation-reported is true. install-verified and owner-hardware-approval stay false. A test report is not hardware approval. The nightly catalog label DEVICE NOT TESTED is unchanged and is not a full hardware qualification.</li></ul>
+</section>
+
+<section class="record" id="nightly-94197fc8-dev">
+  <h2>DnBOX 0.0.26 · nightly-94197fc8-dev</h2>
+  
+  <p>Channel: <strong>nightly-hardware-test</strong>. Source SHA: <code>94197fc839b00aff47b98ca02f3c6396e4a6eabf</code>. Source tree: <code>72d28fbc741244d18fa3d18495da16ab0fcb1d24</code>.</p>
+  <p>Elite never implies Pro. This record is not a hardware qualification. This page does not promote this build.</p>
+  <p>Identity confidence: model <strong>reported</strong>, build <strong>inferred</strong>, installed hash <strong>absent</strong>.</p><p>Elite is owner-stated from the owner&#x27;s own words in the Orchestrator chat on 2026-11-13 at 23:22 UTC+10: &quot;I used elite&quot;. Relayed by Orchestrator. This is not hardware-field verification. Pro was not tested. An Elite report never implies Pro.</p><p>94197fc8 is inferred from the current nightly. The owner named 0.0.26. The installed hash has not been verified.</p><p>Installed hash is absent and is NOT verified.</p>
+  <h3>States</h3>
+  <table class="states">
+    <thead><tr><th>Flag</th><th>Value</th></tr></thead>
+    <tbody>
+    <tr><th scope="row">built</th><td class="yes">true</td></tr>
+<tr><th scope="row">gate-passed</th><td class="yes">true</td></tr>
+<tr><th scope="row">published-nightly</th><td class="yes">true</td></tr>
+<tr><th scope="row">installation-reported</th><td class="yes">true</td></tr>
+<tr><th scope="row">boot-restart-reported</th><td class="yes">true</td></tr>
+<tr><th scope="row">install-verified</th><td class="no">false</td></tr>
+<tr><th scope="row">owner-hardware-approval</th><td class="no">false</td></tr>
+<tr><th scope="row">withdrawn</th><td class="no">false</td></tr>
+    </tbody>
+  </table>
+  <h3>Exact model artifacts</h3>
+  <div class="models">
+  
+<article class="model" id="model-elite">
+  <h4>SMK-37 Elite</h4>
+  <p class="tag">owner-reported test is present. An Elite report never implies Pro.</p>
+  <p>Product: <code>SMK-37 Elite_900</code></p>
+  <dl>
+    <dt>Image SHA-256</dt><dd><code>95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6</code></dd>
+    <dt>Image size</dt><dd>651732 bytes</dd>
+    <dt>Package SHA-256</dt><dd><code>95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6</code></dd>
+    <dt>Package URL</dt><dd><a href="https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6/DnBOX-0.0.26-SMK37-Elite-94197fc8-hwtest.fwsc">https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6/DnBOX-0.0.26-SMK37-Elite-94197fc8-hwtest.fwsc</a></dd>
+    <dt>Controller SHA-256</dt><dd><code>a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984</code></dd>
+    <dt>Controller check</dt><dd>PASS (bundled, 61552 bytes)</dd>
+    <dt>Install-verified evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+    <dt>Owner-hardware-approval evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+  </dl>
+</article>
+
+<article class="model" id="model-pro">
+  <h4>SMK-37 Pro</h4>
+  <p class="tag">no owner-reported test for this model. An Elite report never implies Pro.</p>
+  <p>Product: <code>SMK-37 Pro_900</code></p>
+  <dl>
+    <dt>Image SHA-256</dt><dd><code>ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8</code></dd>
+    <dt>Image size</dt><dd>651730 bytes</dd>
+    <dt>Package SHA-256</dt><dd><code>ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8</code></dd>
+    <dt>Package URL</dt><dd><a href="https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8/DnBOX-0.0.26-SMK37-Pro-94197fc8-hwtest.fwsc">https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8/DnBOX-0.0.26-SMK37-Pro-94197fc8-hwtest.fwsc</a></dd>
+    <dt>Controller SHA-256</dt><dd><code>a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984</code></dd>
+    <dt>Controller check</dt><dd>PASS (bundled, 61552 bytes)</dd>
+    <dt>Install-verified evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+    <dt>Owner-hardware-approval evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+  </dl>
+</article>
+
+  </div>
+  <h3>Owner-reported events (with sources)</h3>
+  
+<article class="event">
+  <h4>recovery-history · time not recorded (unknown)</h4>
+  <p class="meta">sequence 1 · earlier · recovery-history · not a quotation · not verified</p>
+  <p><strong>Source:</strong> relayed via Orchestrator, owner words not quoted</p>
+  <p>0.0.26 got stuck on restart with a black screen for 1-2 min. 0.0.25.1 recovered the device. Upgrade-path cause is not proven. M-Flasher worked. The FM-1 USB label did not prove a wrong model.</p>
+  <p><strong>Model:</strong> not stated.</p>
+  <p><strong>Installed hash:</strong> absent (confidence absent).</p>
+  
+  <ul><li>This is an earlier incident, not the current state.</li><li>A USB port name is not model proof. The FM-1 USB label did not prove a wrong model.</li></ul>
+</article>
+
+<article class="event">
+  <h4>install-and-boot-report · time not recorded (unknown)</h4>
+  <p class="meta">sequence 2 · intermediate · install-and-boot-report · not a quotation · not verified</p>
+  <p><strong>Source:</strong> owner-reported via Dot relay</p>
+  <p>Owner-reported install, automatic restart, and boot at normal speed on the owner&#x27;s SMK.</p>
+  <p><strong>Model:</strong> Elite (confidence inferred). An Elite report never implies Pro.</p>
+  <p><strong>Installed hash:</strong> absent (confidence absent).</p>
+  
+  <ul><li>This is the latest report and is the current state.</li><li>The source is owner-reported via Dot relay. This is not a quotation of the owner.</li><li>Installed hash is absent. Model is unverified (Elite is inferred).</li><li>This is not a full functional suite pass. This is not hardware qualification on both models. This is not a promotion.</li><li>A later event records the owner&#x27;s own words that the model was Elite. This event itself is not an owner quotation. Model here stays inferred.</li></ul>
+</article>
+
+<article class="event">
+  <h4>install-and-boot-report · 2026-11-13T23:22:00+10:00</h4>
+  <p class="meta">sequence 3 · current · install-and-boot-report · quoted owner words · not verified</p>
+  <p><strong>Source:</strong> owner in Orchestrator chat, relayed by Orchestrator</p>
+  <p>The project owner reported testing 0.0.25.1 and 0.0.26 on an SMK-37 Elite. This updates the model on the earlier install, automatic restart, and normal-boot report from inferred to owner-stated Elite. The installed package hash was not confirmed. Pro was not tested.</p>
+  <p><strong>Model:</strong> Elite (confidence reported). An Elite report never implies Pro.</p>
+  <p><strong>Installed hash:</strong> absent (confidence absent).</p>
+  
+  <ul><li>This is the latest report and is the current state.</li><li>Owner quotes (Orchestrator chat, 2026-11-13, Asia/Vladivostok / UTC+10): at 23:20, &quot;Bro I tested a 25,1 and 26 already&quot;; at 23:22, &quot;I used elite&quot;. Relayed by Orchestrator. These are the owner&#x27;s own words.</li><li>Installed hash is absent. Model Elite is owner-stated and not hardware-field verified.</li><li>Pro was not tested. An Elite report never implies Pro. There is no Pro event.</li><li>This is not a full functional suite pass. This is not hardware qualification on both models. This is not a promotion. A test report is not owner-hardware-approval.</li></ul>
+</article>
+
+  <h3>Owner-required gates (report only)</h3>
+  <p>Channel nightly-hardware-test is not a MAIN promotion. This report does not move the record to stable-MAIN.</p>
+  <p>Automatic promotion: <strong>not-performed</strong>. Owner-required promotion ready: <strong>False</strong>. owner-required hardware gates are not all pass: install-verified:elite=missing; owner-hardware-approval:elite=missing; install-verified:pro=missing; owner-hardware-approval:pro=missing</p>
+  <table class="gates">
+    <thead><tr><th>Status</th><th>Gate</th><th>Reason</th></tr></thead>
+    <tbody>
+    <tr><td class="gate-pass">pass</td><td>built</td><td>images exist and bundled controller checks are PASS</td></tr>
+<tr><td class="gate-pass">pass</td><td>gate-passed</td><td>exact-image emu360 strict PASS (0 late, worst time under the threshold, matching image hashes). This is not a hardware result.</td></tr>
+<tr><td class="gate-pass">pass</td><td>published-nightly</td><td>catalog id, Pages URL, and published SHA-256 are present. This is not hardware qualification.</td></tr>
+<tr><td class="gate-pass">pass</td><td>installation-reported</td><td>an install report is present (owner-reported via Dot relay; owner in Orchestrator chat, relayed by Orchestrator). A report is not install-verified and is not hardware approval.</td></tr>
+<tr><td class="gate-pass">pass</td><td>boot-restart-reported</td><td>a boot or restart report is present (relayed via Orchestrator, owner words not quoted; owner-reported via Dot relay; owner in Orchestrator chat, relayed by Orchestrator). This report is not verified proof. This is not hardware approval.</td></tr>
+<tr><td class="gate-pass">pass</td><td>withdrawn</td><td>the record is not withdrawn</td></tr>
+<tr><td class="gate-missing">missing</td><td>install-verified:elite (elite)</td><td>elite: model confidence is &#x27;reported&#x27;, not verified; build confidence is &#x27;inferred&#x27;, not verified; no hardware-field model proof (board_id, model_id, flash_id, mac, firmware_readback, or backup_field); installed hash is absent. This is not install-verified.</td></tr>
+<tr><td class="gate-missing">missing</td><td>owner-hardware-approval:elite (elite)</td><td>elite: install-verified for elite is missing, not pass; no scoped hardware_approvals entry for elite that names this source SHA and this model&#x27;s image SHA-256. This is not owner-hardware-approval.</td></tr>
+<tr><td class="gate-missing">missing</td><td>install-verified:pro (pro)</td><td>pro was not tested. A report for elite never implies pro. Installed hash is absent for pro.</td></tr>
+<tr><td class="gate-missing">missing</td><td>owner-hardware-approval:pro (pro)</td><td>no quoted owner hardware approval for pro on this exact build. An Elite statement never implies pro. install-verified for pro is missing.</td></tr>
+    </tbody>
+  </table>
+  <h3>Record notes</h3>
+  <ul><li>This SHA replaces withdrawn 600b (nightly-600b3b45-dev). The MAIN installer in PR #880 still keeps 0.0.26 off MAIN. That MAIN fact is not this nightly record.</li><li>The two history events are ordered: earlier recovery-history, then the latest install and boot success, which is the current state. They are not marked as a conflict.</li><li>Exact timestamps for the history events were not in the source, so only sequence and earlier/latest order are recorded.</li><li>Promotion remains blocked: installed hash is absent, model Elite is owner-stated but not hardware-field verified, Pro was not tested, and there is no owner hardware approval.</li><li>Channel assignment in this workflow: nightly hardware-test build. This is not a promotion to MAIN. 0.0.25.1 is the stable MAIN channel.</li><li>The earlier install, automatic restart, and normal-boot event source is &#x27;owner-reported via Dot relay&#x27;. A later owner quote in the Orchestrator chat at 23:22 UTC+10, &quot;I used elite&quot;, states the model. Elite never implies Pro.</li></ul>
+</section>
+
+<section class="record withdrawn-record" id="nightly-600b3b45-dev">
+  <h2>DnBOX 0.0.26 · nightly-600b3b45-dev</h2>
+  <p class="banner withdrawn-banner"><strong>Withdrawn.</strong> boot and restart failures, pending boot fix Ref: <a href="https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120">https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120</a>. Do not offer this exact build for install.</p>
+  <p>Channel: <strong>withdrawn</strong>. Source SHA: <code>600b3b45f8d59c3432d958238b05753eb6f2fcb5</code>. Source tree: <code>bcf12a1e20b6f74104f31241a609462926f7c970</code>.</p>
+  <p>Elite never implies Pro. This record is not a hardware qualification. This page does not promote this build.</p>
+  <p>Identity confidence: model <strong>absent</strong>, build <strong>absent</strong>, installed hash <strong>absent</strong>.</p>
+  <h3>States</h3>
+  <table class="states">
+    <thead><tr><th>Flag</th><th>Value</th></tr></thead>
+    <tbody>
+    <tr><th scope="row">built</th><td class="yes">true</td></tr>
+<tr><th scope="row">gate-passed</th><td class="no">false</td></tr>
+<tr><th scope="row">published-nightly</th><td class="yes">true</td></tr>
+<tr><th scope="row">installation-reported</th><td class="no">false</td></tr>
+<tr><th scope="row">boot-restart-reported</th><td class="no">false</td></tr>
+<tr><th scope="row">install-verified</th><td class="no">false</td></tr>
+<tr><th scope="row">owner-hardware-approval</th><td class="no">false</td></tr>
+<tr><th scope="row">withdrawn</th><td class="withdrawn">true</td></tr>
+    </tbody>
+  </table>
+  <h3>Exact model artifacts</h3>
+  <div class="models">
+  
+<article class="model" id="model-elite">
+  <h4>SMK-37 Elite</h4>
+  <p class="tag">no owner-reported test for this model. An Elite report never implies Pro.</p>
+  <p>Product: <code>SMK-37 Elite_900</code></p>
+  <dl>
+    <dt>Image SHA-256</dt><dd><code>25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a</code></dd>
+    <dt>Image size</dt><dd>651721 bytes</dd>
+    <dt>Package SHA-256</dt><dd><code>25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a</code></dd>
+    <dt>Package URL</dt><dd><a href="https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a/x0x37-elite-dev.fwsc">https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a/x0x37-elite-dev.fwsc</a></dd>
+    <dt>Controller SHA-256</dt><dd><code>a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984</code></dd>
+    <dt>Controller check</dt><dd>PASS (bundled, 61552 bytes)</dd>
+    <dt>Install-verified evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+    <dt>Owner-hardware-approval evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+  </dl>
+</article>
+
+<article class="model" id="model-pro">
+  <h4>SMK-37 Pro</h4>
+  <p class="tag">no owner-reported test for this model. An Elite report never implies Pro.</p>
+  <p>Product: <code>SMK-37 Pro_900</code></p>
+  <dl>
+    <dt>Image SHA-256</dt><dd><code>528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655</code></dd>
+    <dt>Image size</dt><dd>651721 bytes</dd>
+    <dt>Package SHA-256</dt><dd><code>528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655</code></dd>
+    <dt>Package URL</dt><dd><a href="https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655/x0x37-pro-dev.fwsc">https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655/x0x37-pro-dev.fwsc</a></dd>
+    <dt>Controller SHA-256</dt><dd><code>a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984</code></dd>
+    <dt>Controller check</dt><dd>PASS (bundled, 61552 bytes)</dd>
+    <dt>Install-verified evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+    <dt>Owner-hardware-approval evidence</dt><dd>missing (this is not a qualification stamp)</dd>
+  </dl>
+</article>
+
+  </div>
+  <h3>Owner-reported events (with sources)</h3>
+  
+<article class="event">
+  <h4>publish · 2026-11-13T01:34:16Z</h4>
+  <p class="meta">sequence 1 · earlier · publish · not a quotation · verified</p>
+  <p><strong>Source:</strong> nightly PR #116 merge</p>
+  <p>PR #116 published this build to gh-pages. The merge time is 13 November 2026, 01:34:16 UTC (12 November 2026, 19:34:16 America/Chicago).</p>
+  
+  
+  <p>Ref: <a href="https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/116">https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/116</a></p>
+  
+</article>
+
+<article class="event">
+  <h4>withdrawal · 2026-11-13T05:44:03Z</h4>
+  <p class="meta">sequence 2 · current · withdrawal · not a quotation · verified</p>
+  <p><strong>Source:</strong> nightly PR #120 merge</p>
+  <p>PR #120 withdrew the installer selection pending boot fix. The merge time is 13 November 2026, 05:44:03 UTC (12 November 2026, 23:44:03 America/Chicago). The owner requested temporary removal after boot and restart failures. The PR removed the nightly-600b3b45-dev catalog row, restored 0.0.25.1 as latest, and kept the immutable package files.</p>
+  
+  
+  <p>Ref: <a href="https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120">https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120</a></p>
+  
+</article>
+
+  <h3>Owner-required gates (report only)</h3>
+  <p>Channel withdrawn: this exact build must not be offered and cannot gain a promotion flag.</p>
+  <p>Automatic promotion: <strong>not-performed</strong>. Owner-required promotion ready: <strong>False</strong>. withdrawn: promotion is refused</p>
+  <table class="gates">
+    <thead><tr><th>Status</th><th>Gate</th><th>Reason</th></tr></thead>
+    <tbody>
+    <tr><td class="gate-pass">pass</td><td>built</td><td>images exist and bundled controller checks are PASS</td></tr>
+<tr><td class="gate-missing">missing</td><td>gate-passed</td><td>no emu360-strict evidence item is present</td></tr>
+<tr><td class="gate-pass">pass</td><td>published-nightly</td><td>the exact package was published, and was later withdrawn. A past publication is not a current offer and is not hardware qualification.</td></tr>
+<tr><td class="gate-missing">missing</td><td>installation-reported</td><td>no install report is present in history</td></tr>
+<tr><td class="gate-missing">missing</td><td>boot-restart-reported</td><td>no boot or restart report is present in history</td></tr>
+<tr><td class="gate-pass">pass</td><td>withdrawn</td><td>withdrawn: boot and restart failures, pending boot fix (ref https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120). A withdrawn record cannot gain a promotion flag.</td></tr>
+<tr><td class="gate-missing">missing</td><td>install-verified:elite (elite)</td><td>elite: model confidence is &#x27;absent&#x27;, not verified; build confidence is &#x27;absent&#x27;, not verified; no hardware-field model proof (board_id, model_id, flash_id, mac, firmware_readback, or backup_field); installed hash is absent. This is not install-verified.</td></tr>
+<tr><td class="gate-missing">missing</td><td>owner-hardware-approval:elite (elite)</td><td>no quoted owner hardware approval for elite on this exact build. install-verified for elite is missing.</td></tr>
+<tr><td class="gate-missing">missing</td><td>install-verified:pro (pro)</td><td>pro: model confidence is &#x27;absent&#x27;, not verified; build confidence is &#x27;absent&#x27;, not verified; no hardware-field model proof (board_id, model_id, flash_id, mac, firmware_readback, or backup_field); installed hash is absent. This is not install-verified.</td></tr>
+<tr><td class="gate-missing">missing</td><td>owner-hardware-approval:pro (pro)</td><td>no quoted owner hardware approval for pro on this exact build. install-verified for pro is missing.</td></tr>
+    </tbody>
+  </table>
+  <h3>Record notes</h3>
+  <ul><li>The 94197fc8 description says it replaces this withdrawn 600b build and includes the retained-RAM boot-guard correction.</li><li>controller_check is PASS. Sources: nightly PR #116 body, the 600b publish-branch catalog (package_nightly --check PASS both), and the independent review&#x27;s --check receipt.</li><li>built is true because images exist and the bundled controller check is PASS for both models.</li><li>controller_size 61552 comes from the 600b publish-branch catalog (models.elite.controller_size and models.pro.controller_size) and from the historic 600b packages. It is not taken from the 94197fc8 record.</li><li>package_sha256 equals image_sha256. This was verified against the historic .fwsc bytes (SHA-256 25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a Elite and 528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655 Pro).</li><li>crc32 values Elite 5c668fbb and Pro 407cc185 are the CRC-32 of those historic .fwsc bytes.</li><li>The validator refuses any promotion of this withdrawn record.</li></ul>
+</section>
+
+  </main>
+  <footer>
+    <p>Generated by release-status/tools/generate_catalog.py. Content SHA-256: <code>7b438a9390b15695f187c8f8e72f395002eb98218f573a468579ba45345aee13</code>.</p>
+    <p>This page is not published by the generator. Publication needs a later owner decision.</p>
+  </footer>
+</body>
+</html>

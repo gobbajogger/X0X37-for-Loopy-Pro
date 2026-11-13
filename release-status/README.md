@@ -1,6 +1,6 @@
 # Release status workflow
 
-This directory holds one release record for each exact firmware build, a JSON schema, an append-only audit log, a validator, and tests.
+This directory holds one release record for each exact firmware build, a JSON schema, an append-only audit log, a validator, a catalog generator, an admin action tool, a promotion evaluator, and tests.
 
 It does not install firmware. It does not write to a device. It does not publish a package. It does not edit the nightly catalog, the MAIN installer, `docs/ROADMAP.md`, or `.github/workflows`.
 
@@ -37,10 +37,18 @@ release-status/records/0.0.26-600b3b45.json
 release-status/records/0.0.25.1-79280e76.json
 release-status/audit/audit.jsonl
 release-status/tools/validate_release_status.py
+release-status/tools/generate_catalog.py
+release-status/tools/admin_action.py
+release-status/tools/evaluate_promotion.py
+release-status/catalog/catalog.json
+release-status/catalog/index.html
 release-status/tests/test_schema.py
 release-status/tests/test_validator.py
 release-status/tests/test_promotion_gates.py
 release-status/tests/test_owner_reported_elite.py
+release-status/tests/test_generate_catalog.py
+release-status/tests/test_admin_action.py
+release-status/tests/test_evaluate_promotion.py
 ```
 
 This tree lives on the orphan branch `lane/rp-release-status-workflow-20261113` in `gobbajogger/X0X37-for-Loopy-Pro`. The branch holds only `release-status/`. It is not based on `main`, `nightly`, `gh-pages`, or `wip/one-build`.
@@ -68,7 +76,58 @@ A bare run that is not in a git checkout, and that does not pass `--audit-previo
 python3 -m unittest discover -s release-status/tests -v
 ```
 
-The validator has no third-party dependencies.
+The tools have no third-party dependencies.
+
+### Catalog generator
+
+This command builds a read-only catalog and a static HTML status page from the records:
+
+```
+python3 release-status/tools/generate_catalog.py   --records release-status/records   --out-json release-status/catalog/catalog.json   --out-html release-status/catalog/index.html
+```
+
+The page shows states, exact source and artifact hashes, model identity with confidence, and owner-reported events with their sources. It shows withdrawn builds. It states that an Elite report never implies Pro. The generator does not publish the page. The generator does not promote a build. Emulation and an upload are not hardware qualification.
+
+`--dry-run` prints the catalog JSON and does not write files.
+
+### Admin action tool
+
+This command prepares one authenticated audit event. Dry-run is the default. Dry-run writes nothing.
+
+```
+python3 release-status/tools/admin_action.py   --records release-status/records   --audit release-status/audit/audit.jsonl   --record-id nightly-79280e76-dev   --action record-update   --note "example"   --evidence-ref "https://example.invalid/ref"
+```
+
+The actor is the GitHub login verified through the GitHub API. For a proposed commit, the tool reads the authenticated user. For an existing commit, the tool reads the commit author. If that login is unavailable, or is not `gobbajogger`, the result is `actor not verified` and the tool refuses `--commit`. The JSONL `actor` field is not authentication.
+
+`--commit` produces a GitHub commit on an allowed feature branch only, through the GitHub tree and blob API. It does a fast-forward update. It refuses `main`, `nightly`, `gh-pages`, and `wip/one-build`. It writes only paths under `release-status/`. The validator still refuses an illegal promotion. The tool never promotes a build automatically.
+
+### Promotion evaluator
+
+This command reports, for each record and its channel, which owner-required gates are pass, fail, or missing:
+
+```
+python3 release-status/tools/evaluate_promotion.py   --records release-status/records
+```
+
+`--json` prints JSON. The report is output only. The evaluator never promotes. It never infers hardware qualification from an upload or from emulation. An Elite result never implies Pro. Channels stay distinct. A withdrawn record cannot be promoted. If every owner-required gate is pass, the owner still decides.
+
+## Finish line
+
+The finish-line artifacts are the generated catalog and the static status page:
+
+- `release-status/catalog/catalog.json`
+- `release-status/catalog/index.html`
+
+Generate them again with `generate_catalog.py` after a record change. The committed files must match a fresh generation.
+
+This pull request does not publish the page. This pull request does not merge into main. This pull request does not promote a firmware release.
+
+Remaining owner-gated actions:
+
+1. Merge pull request #883 into main. That merge is the owner's decision.
+2. After that merge, a designated publisher can publish the generated status page. A possible location is a GitHub Pages path on the main site, for example `https://gobbajogger.github.io/X0X37-for-Loopy-Pro/release-status/`. This workstream does not write to `gh-pages` and does not publish that page.
+3. Firmware release promotion is not part of this pull request. The promotion evaluator only reports gates.
 
 ## States
 
