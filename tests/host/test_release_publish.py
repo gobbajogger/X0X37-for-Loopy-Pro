@@ -16,7 +16,7 @@ import validation_inputs  # noqa: E402
 from firmware_build_labels import inspect_package, version_of_product  # noqa: E402
 from fm1pkg_make import ufw  # noqa: E402
 from publish_nightly import (LABEL, NightlyPublishError, _embedded_version, _model_entry_ok,  # noqa: E402
-                             _version_ok, publish_valid_nightly)
+                             _public_package_name, _version_ok, publish_valid_nightly)
 from release_alloc import ReleaseError, bind_file, empty_ledger  # noqa: E402
 
 
@@ -144,11 +144,33 @@ class ReleasePublishTest(unittest.TestCase):
         self.assertEqual(entry["release_display"], "0.1.3_openbeta")
         self.assertEqual(entry["models"]["elite"]["product"], "SMK-37 Elite_9000103")
         self.assertEqual(entry["models"]["pro"]["product"], "SMK-37 Pro_9000103")
-        self.assertEqual(Path(entry["models"]["elite"]["pkg"]).name, "x0x37-0.1.3-elite.fwsc")
+        build_id = git(self.repo, "rev-parse", "HEAD")[:8]
+        for model, spelled in (("elite", "Elite"), ("pro", "Pro")):
+            advertised = f"DnBOX-0.1.3-SMK37-{spelled}-{build_id}-hwtest.fwsc"
+            pkg = entry["models"][model]["pkg"]
+            self.assertEqual(Path(pkg).name, advertised)
+            self.assertTrue((Path(self.tmp.name) / "page" / "firmware" / advertised).is_file())
         self.assertNotIn("9.9.9", entry["models"]["elite"]["pkg"])
         self.assertNotIn("openbeta", entry["models"]["elite"]["product"])
         self.assertEqual(entry["models"]["elite"]["controller_sha256"], "ab" * 32)
         self.assertEqual(entry["models"]["pro"]["controller_sha256"], "cd" * 32)
+
+    def test_numeric_public_name_026_and_fail_closed_inputs(self):
+        sha = "94197fc839b00aff47b98ca02f3c6396e4a6eabf"
+        self.assertEqual(_public_package_name("0.0.26", "elite", sha),
+                         "DnBOX-0.0.26-SMK37-Elite-94197fc8-hwtest.fwsc")
+        self.assertEqual(_public_package_name("0.0.26", "pro", sha),
+                         "DnBOX-0.0.26-SMK37-Pro-94197fc8-hwtest.fwsc")
+        for bad_version in (None, "", "0.0.026", "0.0.26_openbeta",
+                            "0.0.26-dev", "0.0.26/evil", "0.0.100"):
+            with self.subTest(version=bad_version), self.assertRaises(NightlyPublishError):
+                _public_package_name(bad_version, "elite", sha)
+        for bad_model in (None, "", "mke", "fm1", "pro ", "Elite"):
+            with self.subTest(model=bad_model), self.assertRaises(NightlyPublishError):
+                _public_package_name("0.0.26", bad_model, sha)
+        for bad_sha in (None, "94197fc8", "A" * 40, "f" * 39, "g" * 40):
+            with self.subTest(source_commit=bad_sha), self.assertRaises(NightlyPublishError):
+                _public_package_name("0.0.26", "pro", bad_sha)
 
     def test_legacy_name_does_not_invent_a_version(self):
         elite = self.package("0.1.3_openbeta.fwsc", "SMK-37 Elite_900")
