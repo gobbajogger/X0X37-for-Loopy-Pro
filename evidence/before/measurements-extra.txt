@@ -1,0 +1,2 @@
+PLAYBACK_HASH 0x4c5a264a
+chicago-mono and miami-mono BEFORE frames written
