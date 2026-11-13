@@ -20,18 +20,19 @@ const int16_t IMA_STEP_T[89] = {
     4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899, 15289, 16818, 18500, 20350,
     22385, 24623, 27086, 29794, 32767};
 const int8_t IMA_IDX_T[8] = {-1, -1, -1, -1, 2, 4, 6, 8};
-#else
-extern const int16_t IMA_STEP_T[89];
-extern const int8_t IMA_IDX_T[8];
-#endif
-
-/* decode nibble i of d; updates the decoder state and returns the new sample */
-static const uint8_t IMA_ROUND_CORR[64] = {
+const uint8_t IMA_ROUND_CORR[64] = {
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0, 0,1,0,1,0,1,0,1,
     0,0,0,0,0,0,0,0, 0,0,1,1,0,0,1,1,
     0,1,0,1,0,1,0,1, 0,1,1,2,0,1,1,2
 };
+#else
+extern const int16_t IMA_STEP_T[89];
+extern const int8_t IMA_IDX_T[8];
+extern const uint8_t IMA_ROUND_CORR[64];
+#endif
+
+/* decode nibble i of d; updates the decoder state and returns the new sample */
 static inline int32_t ima_decode(const uint8_t *d, uint32_t i, int32_t *pred, int32_t *idx)
 {
     uint32_t byte = d[i >> 1], code = (i & 1u) ? (byte >> 4) : (byte & 15u);

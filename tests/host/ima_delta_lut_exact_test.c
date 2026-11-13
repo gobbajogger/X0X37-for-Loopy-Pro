@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define X0X_IMA_TABLES_DEFINE
 #include "../../firmware/src/dsp/ima_adpcm.h"
 
 static uint32_t rand32(uint32_t *seed)
