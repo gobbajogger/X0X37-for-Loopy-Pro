@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#define X0X_IMA_TABLES_DEFINE
 #include "../../firmware/src/dsp/ima_adpcm.h"
 #include "../../firmware/src/dsp/breaks.h"
 
