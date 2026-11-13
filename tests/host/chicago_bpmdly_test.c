@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "bass303.h"
-#define X0X_FX_BEATS_DEFINE
 #include "chicago_bpmdly.h"
 #include "chicago_fx.h"
 
