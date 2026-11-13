@@ -809,8 +809,32 @@ static int smc_nav_key(int note)
     return note == 5 ? (smk_clip_mode_on() && ui.overlay == O_NONE ? B_GLO : B_SEL) :
            note == 6 ? B_HOME : note == 14 ? B_GLO : -1;
 }
+/* MOCKUP: two-page FX strip. In V_FX all four buttons of every strip are
+ * momentary FX slots: slot = page*4 + row (REC, SOLO, MUTE, SELECT), filled
+ * in SMCFX_SUIT order; empty slots read "--". Page flip is an open question. */
+uint8_t smc_fx2_page, smc_fx2_held_bus = 0xff, smc_fx2_held_slot;
+static int smc_fx2_on(void)
+{
+    return (smc.locked ? smc.lock_view : ui.view) == V_FX && smc_drum_mix() < 0;
+}
+static int smc_fx2_slot_fx(int note)
+{
+    int bus = smc_fx_bus_now((uint8_t)(24 + (note & 7))), slot = smc_fx2_page * 4 + (note >> 3);
+    if (bus < 0 || slot >= SMCFX_SUIT_N[bus]) return -1;
+    return SMCFX_SUIT[bus][slot];
+}
+static int smc_fx2_held(int note)
+{
+    return smc_fx_bus_now((uint8_t)(24 + (note & 7))) == smc_fx2_held_bus &&
+           smc_fx2_page * 4 + (note >> 3) == smc_fx2_held_slot;
+}
 static const char *smc_button_caption(int note)
 {
+    if (smc_fx2_on()) {
+        int fx = smc_fx2_slot_fx(note);
+        return fx < 0 ? "--" : SMCFX_SHORT[fx];   /* held or not: the slot's real effect */
+    }
+
     int kit = smc_drum_mix(), strip = note & 7, row = note >> 3;
     if (kit >= 0 && smc_drum_track(kit, strip) < 0) return "--";
     if (smc_lock_blocks((uint8_t)note)) return "X";
@@ -912,10 +936,12 @@ static UI_DRAW void smc_ui_grid(void)
             if (!(smc.picked & (1u << n)))
                 cv_rect(x + 1, 111 - smc.last[n] * 45 / 127, 6, 1, C_WHITE);
         }
-        for (unsigned row = 0; row < sizeof NOTES / sizeof NOTES[0]; row++) {
-            int y = 62 + row * 12;
-            uint16_t c = smc_led(NOTES[row] + n) ? C_HI : f.kind == R_NONE ? C_DIM : C_GRAY;
-            const char *caption = smc_button_caption(NOTES[row] + n);
+        int fx2 = smc_fx2_on();
+        static const uint8_t NOTES4[4] = {16, 8, 0, 24};
+        for (unsigned row = 0; row < (fx2 ? 4u : sizeof NOTES / sizeof NOTES[0]); row++) {
+            int y = 62 + row * 12, note = fx2 ? NOTES4[row] + n : NOTES[row] + n;
+            uint16_t c = (fx2 ? smc_fx2_held(note) : smc_led(note)) ? C_HI : f.kind == R_NONE ? C_DIM : C_GRAY;
+            const char *caption = smc_button_caption(note);
             if (caption[0] == 'X' || caption[0] == '-') c = C_DIM;
             cv_rect(x + 8, y, 22, 11, C_LINE);
             text_c(x + 19, y + 1, &FONT_T, caption, c);
