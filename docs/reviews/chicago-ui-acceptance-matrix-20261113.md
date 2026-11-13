@@ -50,15 +50,15 @@ All times are absolute monotonic microseconds (not wall-clock); record the origi
 
 From an *existing* source/artifact workspace, locate candidates without network or writes:
 
-`bash
+```bash
 find . -type f \( -name '*.elf' -o -name '*.map' -o -name '*trace*.jsonl' -o -name 'summary.json' \) -print
 find . -type f -name '*.elf' -exec sha256sum {} +
 find . -type f -name '*.map' -exec sha256sum {} +
-`
+```
 
 Previously pinned exact-`94197fc8` ELF hashes from #892 (verify **bytes** and matching provenance; never infer source from basename): **Elite** `720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea`; **Pro** `7e67c3b33fe2e690e5f913b5d048727a715c70daca06ddd326a10e37eacb9535`. Packages: Elite `95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6`; Pro `ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8`. Their provenance was recorded by #892, **not rechecked here**. Mismatched map/ELF/source/build mode -> `INVALID_ARTIFACT`.
 
-`bash
+```bash
 find . -type f -name '*.elf' -print0 | while IFS= read -r -d '' elf; do
   printf '\n=== ELF %s ===\n' "$elf"
   sha256sum "$elf"
@@ -73,15 +73,15 @@ find . -type f -name '*.map' -print0 | while IFS= read -r -d '' map; do
   printf '\n=== MAP %s ===\n' "$map"
   grep -nE -m 24 'build_pages|draw_part_sound|ui_frame|lcd_sync|render_block|x0x_dbg' "$map" || :
 done
-`
-Optimized/static/inlined symbols may be absent. An ELF symbol size or disassembly is **not** an elapsed-time result. The matching linker map is required to translate existing RAM snapshots into addresses; `llvm-addr2line -e "$elf" 0x...` only after a **real** address is captured. Never use symbol addresses from another build/model.
+```
+Optimized/static/inlined symbols may be absent. An ELF symbol size or disassembly is **not** an elapsed-time result. The matching linker map is required to translate existing RAM snapshots into addresses; `llvm-addr2line -e "$elf" "$captured_address"` only after a **real** `captured_address` is captured. Never use symbol addresses from another build/model.
 
 #892's existing host-only audio observer/reducer is the single source for per-half DMA/late/BREAK evidence. In the **existing #892 tooling checkout** (not this docs-only branch), after locating a *real* trace by `find`, the verified reducer interface is:
 
-`bash
+```bash
 python3 dnbox/dropout/trace.py --help
 python3 -m unittest discover -s dnbox/dropout -p 'test_*.py'
-`
+```
 For an already-verified, captured `trace.jsonl` and known measurement window, invoke `python3 dnbox/dropout/trace.py --trace "$trace" --start-ms 20000 --end-ms 29000 --slot 1 --out "$new_output_dir"` where `trace` is the read-only discovered file and `new_output_dir` is a **new** directory. The 20–29 s values are the historical rejected-run window, **not** a universal acceptance window. Record command, exact trace hash and `summary.json/per_half.csv` together; never treat `OBSERVED` by itself as qualified owner scene. The known 30 s Elite run had **775** coherent halves, `max_guest_last_us=8467` and no observed late, **but was rejected**: A=Miami, B=Chicago, Juno absent, 808 active and BREAK silent/zero steps (see #892 `dnbox/dropout/evidence/2026-11-13-initial-rejected.json`). Do **not** miscite this run as a 648-half or owner-scene PASS.
 
 ## 5. Interpretation and pass/fail decisions
