@@ -439,7 +439,22 @@ function draw() {
 requestAnimationFrame(draw);
 
 // ---------------------------------------------------------------- input to the machine
-const send = (m) => node && node.port.postMessage(m);
+// Probe only occasional note-ons; measuring messages must never enter the audio
+// rendering hot path. Round trip is NOT key-to-speaker latency.
+let nextInputProbe = 0, lastInputProbe = -Infinity;
+const inputProbes = new Map(), inputRtts = [];
+const send = (m) => {
+  if (!node) return;
+  if (DNBOX && m.type === 'key' && m.down && performance.now() - lastInputProbe >= 250) {
+    const at = performance.now(), probe = ++nextInputProbe;
+    lastInputProbe = at;
+    inputProbes.set(probe, at);
+    if (inputProbes.size > 16) inputProbes.delete(inputProbes.keys().next().value);
+    node.port.postMessage({ ...m, probe });
+    return;
+  }
+  node.port.postMessage(m);
+};
 function setKey(id, on) {
   if (down[id] === (on ? 1 : 0)) return;
   down[id] = on ? 1 : 0;
@@ -959,7 +974,10 @@ function boot(options = {}) {
       sessions.set(seq, session);
       loadedUrl = got.url;
       showFirmware();
-      if (DNBOX) document.dispatchEvent(new Event('dnbox:booting'));
+      if (DNBOX) {
+        document.dispatchEvent(new Event('dnbox:booting'));
+        inputProbes.clear(); inputRtts.length = 0; lastInputProbe = -Infinity;
+      }
       down.fill(0); holds.fill(0); pointers.clear(); encClicks.fill(0);
       frame = last = null;
       booting = seq;
@@ -1025,6 +1043,20 @@ async function startAudio(auto = false) {
 // what the audio thread sends: the screen and LEDs with its timing, boot and error news
 function onWorklet(e) {
   const m = e.data;
+  if (DNBOX && m.type === 'input-ack') {
+    const at = inputProbes.get(m.probe);
+    if (at !== undefined && m.seq === bootSeq) {
+      inputProbes.delete(m.probe);
+      inputRtts.push(performance.now() - at);
+      if (inputRtts.length > 64) inputRtts.shift();
+      const sorted = [...inputRtts].sort((a, b) => a - b);
+      document.dispatchEvent(new CustomEvent('dnbox:input-latency', {
+        detail: { samples: sorted.length, medianMs: sorted[Math.floor((sorted.length - 1) / 2)],
+          p95Ms: sorted[Math.ceil(.95 * sorted.length) - 1] }
+      }));
+    }
+    return;
+  }
   if (m.type === "error") {
     if (m.fatal && running?.seq === m.seq) {
       if (DNBOX) document.dispatchEvent(new Event('dnbox:stopped'));
@@ -1086,6 +1118,11 @@ function onWorklet(e) {
   const now = performance.now();
   if (!last || now - last.t > 1000) {
     perf.second(m);
+    if (DNBOX) document.dispatchEvent(new CustomEvent('dnbox:telemetry', {
+      detail: { short: m.short, worstQuantumMs: m.worst, emulatedMs: m.emulated,
+        speed: perf.speedText(), load: perf.loadText(), halted: m.halted, playing: m.playing,
+        audioFrames: m.frames, audioQuanta: m.quanta }
+    }));
     status.textContent = (tryOutError ? `${tryOutError} · ` : "") + (m.halted ? `${fw.name}: the emulated CPU halted` :
       `${fw.name} · ${mhz} MHz · ${perf.speedText()} · load ${perf.loadText()} · ` +
       `${(m.ms / 1000).toFixed(1)} s`);
