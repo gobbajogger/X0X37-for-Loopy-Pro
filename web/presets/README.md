@@ -79,11 +79,24 @@ node --test web/presets/test_codec.mjs web/presets/test_page.mjs
   export, warning visibility, model conflict, clear confirmation and
   drag/drop. It is **not** a Chromium rendering/interaction run.
 
-Current W3 source was exercised in the GitHub-connected JS isolate: **17/17
-codec fixture cases and 11/11 DOM-event scenarios PASS**. The local Node
-command, actual Chromium pass, physical USB transfer, target build, device
-backup and hardware audio checks are **NOT_RUN** in that environment.
-Do not cite these source-driven tests as full device qualification.
+Actual Node CLI and Chromium checks are now verified against pinned W3 source
+`fa85b9463a3f88df8bad022043722f375a762aee`:
+
+- `node --test web/presets/test_codec.mjs web/presets/test_page.mjs`:
+  **18/18 Node subtests PASS**, comprising the existing 17 codec cases and
+  11 DOM-event scenarios (28 focused cases), with 0 fail / 0 skip.
+- `DNBOX_PUPPETEER_MODULE=/path/to/puppeteer DNBOX_CHROMIUM=/usr/bin/chromium
+  node web/presets/test_browser.mjs` (Puppeteer 25, Chromium 156):
+  **15/15 real browser scenarios PASS**. The runner creates its own isolated
+  loopback HTTP server and browser profile, uses browser file chooser/download,
+  keyboard Tab+Enter, Chrome accessibility tree and emulated touch viewports
+  390px and 320px. No hardware connection is attempted.
+- Exact-file Git blob hashes, screenshot SHA-256 manifests and all 15 browser
+  case results: [executed evidence](evidence/2026-11-13-node-chromium.md).
+
+**NOT_RUN:** real phone/iOS Safari, physical SMK-37 USB transfer, device backup,
+firmware target build and hardware audio. These tests establish only file-side
+and local browser behavior, not device qualification.
 
 ## Handoff to native F1 owner / Installer QA / U1 / Website UX
 
