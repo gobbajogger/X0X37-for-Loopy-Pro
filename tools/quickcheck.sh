@@ -47,6 +47,12 @@
 #   changes touch docs/AGENTS_AND_ROOMS.md, the map comes from <commit> and the files from integration. "LANES FAIL"
 #   (files with no lane) makes "QUICK FAIL ... LANES: ...". No lane_files.py, no smk37 ref or a map that the parser cannot
 #   read: a note, no failure (the server update hook fails closed for lane pushes). The step runs with X0X_QUICK_ONLY=ste.
+# Commit step (checks 19, 20, 21, 22 and 24 of rules v4): tools/commit_lint.py (the copy beside this script) on BASE..<commit>.
+#   A "COMMIT FAIL" (check 20: the author is not genkigenki <3080081+genkigenki@users.noreply.github.com>) makes
+#   "QUICK FAIL ... COMMIT: ...". A "COMMIT WARN" (19: src/ and no tests/ file; 21: a time in an added *.md line later
+#   than the commit time; 22: an ID of BEHAVIOR.md in the message and no BEHAVIOR.md change; 24: a BEHAVIOR.md item
+#   change and no owner decision time) only adds "COMMIT WARN <n>" to the QUICK line. The step runs with
+#   X0X_QUICK_ONLY=ste too. No commit_lint.py: a note, no failure.
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 set -u
 T0=$(date +%s%N)
@@ -252,6 +258,24 @@ lanes_step() {
     esac
     return 0
 }
+# Commit step (see the header). It sets CL_FAIL (1 = a failure) and CL_NOTE.
+commit_step() {
+    CL_FAIL=0; CL_NOTE=""
+    local cl="$QCDIR/commit_lint.py" o rc
+    [ -f "$cl" ] || { CL_NOTE="; no $cl, commit step skipped"; return 0; }
+    o=$(python3 "$cl" "$W" "$BASE" "$H" 2>&1); rc=$?
+    echo "$o" >> "$LOG"
+    if [ "$rc" != 0 ]; then
+        CL_FAIL=1; CL_NOTE="COMMIT: $(echo "$o" | grep -E '^COMMIT (FAIL|ERROR)' | head -2 | sed 's/^COMMIT //' | paste -sd';' - | cut -c1-240)"
+        return 0
+    fi
+    rc=$(echo "$o" | grep -c '^COMMIT WARN')
+    if [ "$rc" -gt 0 ]; then
+        echo "COMMIT WARN $rc issues"; echo "$o" | grep '^COMMIT WARN' | head -5
+        CL_NOTE="; COMMIT WARN $rc"
+    fi
+    return 0
+}
 if [ "${X0X_QUICK_ONLY:-}" = devbug ]; then
     devbug_step; [ "$DB_FAIL" = 1 ] && out FAIL "$DB_NOTE"; out PASS "(device bug step only)"
 fi
@@ -259,7 +283,8 @@ if [ "${X0X_QUICK_ONLY:-}" = ste ]; then
     ste_step; [ "$STE_FAIL" = 1 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"
     rules_step; [ "$RULES_FAIL" = 1 ] && out FAIL "$RULES_NOTE"
     lanes_step; [ "$LN_FAIL" = 1 ] && out FAIL "$LN_NOTE"
-    out PASS "(STE step only${STE_NOTE}${LN_NOTE})"
+    commit_step; [ "$CL_FAIL" = 1 ] && out FAIL "$CL_NOTE"
+    out PASS "(STE step only${STE_NOTE}${LN_NOTE}${CL_NOTE})"
 fi
 
 # 1. the Elite build (incremental), with its build checks
@@ -330,5 +355,6 @@ WT=""; ste_step; WT="$STE_NOTE"; [ "$STE_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC
 rules_step; [ "$RULES_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "$RULES_NOTE"
 devbug_step; [ "$DB_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "$DB_NOTE"
 lanes_step; [ "$LN_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "$LN_NOTE"; WT="$WT$LN_NOTE"
+commit_step; [ "$CL_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "$CL_NOTE"; WT="$WT$CL_NOTE"
 [ "$NF" = 0 ] && [ "$TRC" = 0 ] || out FAIL "tests: $NF failed ($(grep '^  FAIL' "$L/tests.log" | awk '{print $2}' | tr '\n' ' ' | sed 's/ $//'))$WT"
 out PASS "($NOK tests ok${MISS:+; not run:$MISS}$WT)"
