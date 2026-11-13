@@ -6602,7 +6602,7 @@ static UI_DRAW void draw_perf(int band)
 
 /* the readout: the knob being turned, large, across the bottom band */
 /* Shared 224x50 pane at (8,14): name on the left, value (+ unit) on the right.
- * by/bh shift the text (wheel PATCH lifts it); the frame stays at (8,14). */
+ * by/bh centre the text; the frame stays at (8,14). */
 static UI_DRAW void readout_pane(const char *nm, const char *num, const char *unit,
                                 const felucca_font_t *vf, int32_t by, int32_t bh)
 {
@@ -6678,20 +6678,14 @@ static void wu_name(char *t, int v)
     *q++ = ' ';
     put_s(q, ui_original_name(k, (unsigned)engine_bass_mod_param(v)));
 }
-static int wu_pot(int v)
-{
-    pref_t p;
-    p.kind = R_ENG;
-    p.a = T_303;
-    p.b = (uint8_t)v;
-    p.c = (uint8_t)engine_bass_mod_param(v);
-    return pref_get(p);
-}
 static UI_DRAW void draw_wheel_readout(void)
 {
+    /* PATCH pot line omitted: first Elite link was 1,076 B over the 94197fc8
+     * image (7,364 B free, floor 8,192). Rest still shows 0 %. The pot is
+     * never written back. */
     char s[24], num[8];
-    int i, pot, show_p;
-    int32_t y, h, row, ly, uw, w;
+    int i;
+    int32_t row, ly, uw, w;
 #ifdef X0X_HOST
     ui_wheel_log[0] = 0;
 #endif
@@ -6720,25 +6714,12 @@ static UI_DRAW void draw_wheel_readout(void)
         }
         return;
     }
-    pot = wu_pot(wu.v[0]);
-    show_p = WU_PCT(wu.live[0]) != WU_PCT(pot);
-    y = show_p ? 10 : 14;
-    h = show_p ? 42 : 50;
     wu_name(s, wu.v[0]);
     put_i(num, WU_PCT(wu.live[0]));
-    readout_pane(s, num, "%", &FONT_M, y, h);
+    readout_pane(s, num, "%", &FONT_M, 14, 50);
 #ifdef X0X_HOST
     wu_log(s); wu_log(num); wu_log("%");
 #endif
-    if (show_p) {
-        char *q = put_s(s, "PATCH  ");
-        q = put_i(q, WU_PCT(pot));
-        put_s(q, " %");
-        text_r(220, 60 - FONT_T.h, &FONT_T, s, C_DIM);
-#ifdef X0X_HOST
-        wu_log(s);
-#endif
-    }
 }
 #endif
 
