@@ -421,16 +421,17 @@ p{max-width:76ch}h1,h2,h3{text-wrap:balance}button,a,input,select,summary{touch-
 @media(max-width:360px){.feature-grid figure{grid-template-columns:1fr}.feature-grid .ui-illustration{width:176px}}
 .screen-link{display:block;width:fit-content;max-width:100%;border-radius:3px}.screen-link:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
 @media(max-width:760px){.workspace-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.workspace-nav a,.workspace-nav a:last-child{font-size:13px;line-height:1.3;min-height:48px;white-space:normal;align-content:center}.workspace-nav a:last-child{grid-column:auto}.workspace-nav a[aria-current]{border-bottom:2px solid var(--accent)}}
-/* Production catalog has no exact-model hardware-proven package. Local files cannot bypass admission. */
+/* Local files cannot bypass exact-package admission. */
 #stock, .published-installer { display:none !important; }
 </style>
 </head>
 <body>
 <a class="skip-link" href="#workspace-main">Skip to task</a>
+<dialog id="main-confirm"><p id="main-confirm-text"></p><button type="button" id="main-confirm-no">Cancel</button> <button type="button" id="main-confirm-yes">Continue</button></dialog>
 <main id="workspace-main">
   <header class="site-head">
     <div class="header-top">
-      <a class="home" href="../" aria-label="X0X37 home">X0X37</a>
+      <a class="home" href="../" aria-label="X0X37 home">DnBOX</a>
       <nav class="head-nav" aria-label="Site navigation">
         <a href="../manual/" data-t="navmanual">Manual</a>
       </nav>
@@ -473,7 +474,7 @@ p{max-width:76ch}h1,h2,h3{text-wrap:balance}button,a,input,select,summary{touch-
           <div class="step-kicker" data-t="stage2">Step 02 / Firmware</div>
           <h2 data-t="pickheading">Choose the right firmware</h2>
         </div>
-        <p class="small" id="noversion" hidden data-t="noversion"></p><a class="published-installer" href="https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/">Open published NIGHTLY installer</a>
+        <p id="backup-warning" role="alert" hidden></p><p class="small" id="noversion" hidden data-t="noversion"></p><a class="published-installer" href="https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/">Open published NIGHTLY installer</a>
     <fieldset class="model-select" id="modeldetails">
       <legend data-t="modelheading">Choose your keyboard model</legend>
       <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
@@ -819,10 +820,15 @@ const MAXDATA = 512;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const IS_OTA = (id) => /^ota-/i.test(id.model);
 const PORT_RE = /fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi/i;
-// the SMK-37 Pro, SMK-37 Elite, MKE-P37, Starrykey 37 Play and the SMK-37+VA mod: one keyboard under several model
-// names, so a package for one runs on all of them; an FM-1 is another device
-const SMK_FAMILY = /^(ota-)?(SMK-37[ +].*|MKE-P37|STARRYKEY-37.*)$/i;
-const sameKeyboard = (a, b) => a === b || (SMK_FAMILY.test(a) && SMK_FAMILY.test(b));   // two models
+// Strict model match (X0X37-for-Loopy-Pro #806 62cf11e98): a package is written only
+// when its model equals the model the keyboard reports (case-insensitive, "ota-"
+// ignored). No family or alias match, and an FM-1 is never flashed.
+function keyboardModel(model) {
+  if (typeof model !== "string" || !model) return null;
+  const name = model.replace(/^ota-/i, "").toLowerCase();
+  return name === "fm-1" ? null : name;
+}
+const sameKeyboard = (a, b) => keyboardModel(a) !== null && keyboardModel(a) === keyboardModel(b);
 
 // errors carry a code the pages translate: notfound, model, stopped, noloader, lost, noreturn,
 // mismatch (detail: the identity the device reports), badreq
@@ -860,8 +866,13 @@ function response(addr, data, fl = 0) {
 
 function parseRequest(pkt) {
   if (pkt[0] !== 0xF0 || pkt[pkt.length - 1] !== 0xF7) return null;
-  const u = unpack7(pkt.slice(1, -1));
-  if (u.length !== 15 || u[0] !== 0 || u[1] !== 0x59 || u[2] !== 0x30) return null;
+  const wire = pkt.slice(1, -1);
+  if (wire.some((b) => b & 0x80)) return null;
+  const u = unpack7(wire);
+  // ota_read sends an eight-byte body: flags, address32, requested length24.
+  if (u.length !== 15 || u[0] !== 0 || u[1] !== 0x59 || u[2] !== 0x30 ||
+      u[3] !== 8 || u[4] !== 0 || u[5] !== 0) return null;
+  if (pack7(u).some((b, i) => b !== wire[i])) return null;
   let s = 0;
   for (let i = 6; i < 14; i++) s += u[i];
   if ((~s & 0xFF) !== u[14]) return null;
@@ -869,8 +880,18 @@ function parseRequest(pkt) {
 }
 
 function parseIdentity(pkt) {
-  const d = unpack7(pkt.slice(1, -1));
-  if (d.length !== 34 || d[0] !== 0 || d[1] !== 0x59 || d[2] !== 0x11) return null;
+  if (pkt[0] !== 0xF0 || pkt[pkt.length - 1] !== 0xF7) return null;
+  const wire = pkt.slice(1, -1);
+  if (wire.some((b) => b & 0x80)) return null;       // SysEx data must be seven-bit
+  const d = unpack7(wire);
+  // ota_send_msg(0x11): 27 identity bytes, a 24-bit declared length, then ~sum(payload).
+  if (d.length !== 34 || d[0] !== 0 || d[1] !== 0x59 || d[2] !== 0x11 ||
+      d[3] !== 27 || d[4] !== 0 || d[5] !== 0) return null;
+  let sum = 0;
+  for (let i = 6; i < 33; i++) sum += d[i];
+  if ((~sum & 0xFF) !== d[33]) return null;
+  // Reject extra packed padding bits as well as status bytes hidden in the payload.
+  if (pack7(d).some((b, i) => b !== wire[i])) return null;
   const txt = String.fromCharCode(...d.slice(6, 33)).replace(/\0+$/, "");
   const m = /^([^_]+)_(\d+)$/.exec(txt);
   return m ? { text: txt, model: m[1], version: parseInt(m[2], 10) } : null;
@@ -879,44 +900,91 @@ function parseIdentity(pkt) {
 // one MIDI in/out pair with a SysEx queue
 class Link {
   constructor(input, output) {
-    this.input = input; this.output = output; this.q = []; this.waiter = null;
-    input.onmidimessage = (ev) => {
-      if (ev.data[0] !== 0xF0) return;
+    this.input = input; this.output = output; this.q = []; this.waiter = null; this.rxBytes = 0; this.rxError = null; this.closed = false;
+    this.onMessage = (ev) => {
+      if (this.closed || this.rxError || ev.data[0] !== 0xF0) return;
+      // Bound both frame count and bytes; overflow poisons this connection.
+      // Never continue an OTA exchange with dropped or stale responses.
+      if (this.q.length >= 64 || ev.data.length > 65536 - this.rxBytes) {
+        this.rxError = fail("overflow", "MIDI receive overflow. Reconnect before retrying the update.");
+        this.drain();
+        this.close();
+        if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
+        return;
+      }
       this.q.push(Array.from(ev.data));
+      this.rxBytes += ev.data.length;
       if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
     };
+    input.onmidimessage = this.onMessage;
   }
-  get lost() { return this.input.state === "disconnected" || this.output.state === "disconnected"; }
+  get lost() { return this.closed || this.input.onmidimessage !== this.onMessage || this.input.state === "disconnected" || this.output.state === "disconnected"; }
   // false when the port is gone (unplugged): WebMIDI throws on a disconnected output
   send(bytes) {
+    if (this.rxError) throw this.rxError;
+    if (this.lost) return false;
     try { this.output.send(bytes); return true; } catch (_) { return false; }
   }
-  drain() { this.q.length = 0; }
+  drain() { this.q.length = 0; this.rxBytes = 0; }
   async read(ms) {
+    if (this.rxError) throw this.rxError;
+    if (this.lost) return null;
     if (!this.q.length) {
       let tm;
       await Promise.race([new Promise((r) => { this.waiter = r; }), new Promise((r) => { tm = setTimeout(r, ms); })]);
       clearTimeout(tm);
       this.waiter = null;
     }
-    return this.q.shift() || null;
+    if (this.rxError) throw this.rxError;
+    const pkt = this.q.shift();
+    if (pkt) this.rxBytes -= pkt.length;
+    return pkt || null;
   }
-  close() { this.input.onmidimessage = null; }
+  close() {
+    this.closed = true;
+    // A later scan can own this port now. Stale cleanup must not remove it.
+    if (this.input.onmidimessage === this.onMessage) this.input.onmidimessage = null;
+    if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
+  }
 }
 
-async function handshake(link, tries = 3) {
+async function handshake(link, tries = 3, onPacket = null, deadline = Infinity) {
   link.drain();
-  for (let t = 0; t < tries; t++) {
+  for (let t = 0; t < tries && Date.now() < deadline; t++) {
     if (!link.send(HS_QUERY)) return null;
-    const end = Date.now() + 1000;
+    const end = Math.min(Date.now() + 1000, deadline);
     while (Date.now() < end) {
       const p = await link.read(end - Date.now());
       if (!p) break;
+      if (onPacket && onPacket(p)) continue;
       const id = parseIdentity(p);
       if (id) return id;
     }
   }
   return null;
+}
+
+async function openMidiPort(port, deadline = Infinity) {
+  // Bound the entire opening operation, not just its statechange event.
+  // Some Web MIDI hosts emit statechange but never settle open().
+  const ms = Math.min(3000, deadline - Date.now());
+  if (ms <= 0) throw fail("open", "The MIDI port did not finish opening. Reconnect and try again.");
+  let changed, timer;
+  const transition = port.connection === "closed" ? new Promise(resolve => {
+    changed = () => resolve();
+    port.addEventListener("statechange", changed, { once: true });
+  }) : Promise.resolve();
+  try {
+    await Promise.race([
+      Promise.all([port.open(), transition]),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(fail("open", "The MIDI port did not finish opening. Reconnect and try again.")), ms);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+    if (changed) port.removeEventListener("statechange", changed);
+  }
 }
 
 class Updater {
@@ -927,66 +995,161 @@ class Updater {
     this.targetName = null;
     this.verified = false;
     this.product = null;
+    this.binding = null;
+    this.onPortState = null;
+    this.admitted = null;
+    this.finishRetry = null;
+    this.responders = new Set();
   }
 
   ports() {
-    return [...this.access.inputs.values()].filter((p) => p.state !== "disconnected" && PORT_RE.test(p.name || ""));
+    return [...this.access.inputs.values()].filter((p) => p.state !== "disconnected" && this.responders.has(p));
   }
 
   singlePort(selected = null) {
     // Model/version has no unit serial. A sole keyboard may rename its port on
     // reboot; multiple update-compatible ports cannot be safely distinguished.
     const ports = this.ports();
-    if (ports.length > 1 || (selected !== null && (ports.length !== 1 || ports[0].name !== selected)))
+    // Identity comes from the device-reported model, never from port names/ids.
+    if (ports.length > 1)
       throw fail("ambiguous", "Cannot bind this update to one keyboard across reboot. Disconnect the other update-compatible keyboards and select the target again.");
-    if (this.verified && ports.length && ports[0].name !== this.targetName)
-      throw fail("ambiguous", "The verified keyboard's MIDI port changed before readback or sample restore; refusing another port.");
     return ports;
   }
 
   bind(dev) {
     try {
       this.singlePort(dev.name);
-      if (this.target && (this.targetName !== dev.name || !sameKeyboard(this.target.model, dev.id.model)))
+      if (this.target && !sameKeyboard(this.target.model.replace(/^ota-/i, ""), dev.id.model.replace(/^ota-/i, "")))
         throw fail("ambiguous", "The selected keyboard changed before the update.");
     } catch (e) { dev.link.close(); throw e; }
     this.target = dev.id;
     this.targetName = dev.name;
+    if (!this.binding) {
+      this.binding = { input: dev.link.input, output: dev.link.output, invalid: false,
+        observed: typeof this.access.addEventListener === "function" };
+      const binding = this.binding;
+      this.onPortState = (event) => {
+        const p = event.port;
+        // Event callbacks can lag a disconnect/reconnect. Current state alone
+        // cannot prove that this bound connection remained uninterrupted.
+        // iOS Web MIDI hosts fire statechange on open/reopen and may swap port
+        // objects/ids without any reconnect. Only a real disconnect counts; the
+        // device is re-identified by its SysEx model reply before continuing.
+        if (p && p.state === "disconnected" && (p === binding.input || p === binding.output)) binding.lostPort = true;
+      };
+      if (binding.observed) this.access.addEventListener("statechange", this.onPortState);
+    }
+  }
+
+  assertContinuous(dev) {
+    // Continuity = same device-reported model (SysEx identity), not the same
+    // MIDI port object, id or name (those change spuriously on iOS).
+    if (dev?.id && this.target &&
+        !sameKeyboard(dev.id.model.replace(/^ota-/i, ""), this.target.model.replace(/^ota-/i, "")))
+      throw fail("model", `The selected keyboard changed model during the update: ${dev.id.text}`);
+    if (dev?.link && dev.link !== this.binding && dev.link.lost)
+      throw fail("lost", "The keyboard disconnected. Reconnect it and press Install again.");
+  }
+
+  close() {
+    if (this.onPortState && typeof this.access.removeEventListener === "function")
+      this.access.removeEventListener("statechange", this.onPortState);
+    this.onPortState = null;
+    this.finishRetry = null;
+    if (this.binding) this.binding.invalid = true;
+  }
+
+  assertAdmitted() {
+    if (this.admitted && !this.admitted())
+      throw fail("admission", "The selected firmware or its approval changed. Select and confirm the intended package again.");
+  }
+
+  _portPairs() {
+    const ins = [...this.access.inputs.values()].filter((p) => p.state !== "disconnected");
+    const outs = [...this.access.outputs.values()].filter((p) => p.state !== "disconnected");
+    const pairs = [];
+    for (const input of ins) {
+      // Names alone do not prove physical identity. Refuse duplicate or
+      // mismatched port labels instead of guessing which keyboard receives MIDI.
+      if (ins.filter((p) => p.name === input.name).length !== 1) continue;
+      const matching = outs.filter((p) => p.name === input.name);
+      if (matching.length !== 1) continue;
+      pairs.push({ input, output: matching[0], name: input.name });
+    }
+    return pairs;
   }
 
   // every in/out pair with the same port name that answers the handshake
-  async find(filter) {
-    const outs = [...this.access.outputs.values()];
-    for (const input of (this.target ? this.singlePort() : this.ports())) {
-      const output = outs.find((o) => o.name === input.name) || (outs.length === 1 ? outs[0] : null);
-      if (!output) continue;
-      try { await input.open(); await output.open(); } catch (_) { continue; }
+  async find(filter, deadline = Infinity) {
+    this.responders.clear();
+    let found = null;
+    for (const { input, output } of this._portPairs()) {
+      if (Date.now() >= deadline) { found?.link.close(); return null; }
+      try { await openMidiPort(input, deadline); await openMidiPort(output, deadline); } catch (_) { continue; }
+      // A timed-out opening can settle later. Never give that stale attempt a
+      // receive handler or let it turn a finished timeout into success.
+      if (Date.now() >= deadline) { found?.link.close(); return null; }
+      if (!this._portPairs().some((p) => p.input === input && p.output === output)) continue;
       const link = new Link(input, output);
-      const id = await handshake(link, 2);
+      let id;
+      try { id = await handshake(link, 2, pkt => this.retryFinish(link, pkt), deadline); }
+      catch (error) { found?.link.close(); link.close(); throw error; }
+      if (Date.now() >= deadline) { link.close(); { found?.link.close(); return null; } }
+      if (id && /^(ota-)?SMK-37 (Elite|Pro)$/i.test(id.model)) {
+        this.responders.add(input);
+        if (this.responders.size > 1) {
+          found?.link.close(); link.close(); this.singlePort();
+        }
+      }
+      if (id && !/^(ota-)?SMK-37 (Elite|Pro)$/i.test(id.model)) { link.close(); continue; }
       if (id && this.target && !sameKeyboard(this.target.model.replace(/^ota-/i, ""), id.model.replace(/^ota-/i, ""))) {
-        link.close();
+        found?.link.close(); link.close();
         throw fail("model", `The selected keyboard changed model during the update: ${id.text}`);
       }
-      if (id && (!filter || filter(id))) return { link, id, name: input.name };
+      if (id && (!filter || filter(id))) {
+        const dev = { link, id, name: input.name };
+        try { if (this.binding) this.assertContinuous(dev); }
+        catch (error) { found?.link.close(); link.close(); throw error; }
+        this.finishRetry = null;
+        found = dev;
+        continue;
+      }
       link.close();
     }
-    return null;
+    return found;
   }
 
   async waitFor(filter, ms) {
     const end = Date.now() + ms;
     while (Date.now() < end) {
-      const dev = await this.find(filter);
+      const dev = await this.find(filter, end);
       if (dev) return dev;
-      await sleep(1000);
+      if (Date.now() < end) await sleep(Math.min(1000, end - Date.now()));
     }
     return null;
+  }
+
+  // A successful Web MIDI send only queues bytes. Keep the completed-stage
+  // token available during discovery so a loader can retry a lost response.
+  // Never answer image reads or a terminal request from another port pair.
+  retryFinish(link, pkt) {
+    const pending = this.finishRetry;
+    if (!pending || Date.now() > pending.until) return false;
+    if (link.input !== pending.input || link.output !== pending.output) return false;
+    const r = parseRequest(pkt);
+    if (!r || (r.addr !== 0xE0000000 && r.addr !== 0xF0000000)) return false;
+    this.singlePort();
+    if (r.addr !== pending.addr || r.len !== 8)
+      throw fail("badreq", "Unexpected OTA completion during restart");
+    if (!link.send(response(r.addr, [...new TextEncoder().encode("success"), 0])))
+      throw fail("lost", "The keyboard disconnected during restart.");
+    return true;
   }
 
   // serve read requests until the device asks for one of the finish addresses; stops early
   // when the port disappears (lost: true) instead of waiting out idleMs
   async serve(link, image, finishAddr, idleMs, onProgress) {
-    let served = 0, last = Date.now();
+    let served = 0, transferred = 0, startedAtHeader = false, last = Date.now();
     for (;;) {
       const pkt = await link.read(1000);
       if (!pkt) {
@@ -998,34 +1161,59 @@ class Updater {
       if (!r) continue;
       last = Date.now();
       if (r.addr === 0xE0000000 || r.addr === 0xF0000000) {
-        link.send(response(r.addr, [...new TextEncoder().encode("success"), 0]));
+        // App ota.c and loader ldr_core.c both read the eight-byte "success\0" token.
+        if (r.len !== 8) throw fail("badreq", `bad finish request ${r.addr.toString(16)}+${r.len}`);
+        if (r.addr !== finishAddr || transferred === 0 || !startedAtHeader)
+          throw fail("badreq", "Unexpected OTA completion before this stage transferred image data");
+        if (!link.send(response(r.addr, [...new TextEncoder().encode("success"), 0]))) {
+          return { served, finished: false, lost: true };
+        }
+        this.finishRetry = { addr: r.addr, input: link.input, output: link.output,
+          until: Date.now() + 70000 };
         if (r.addr === finishAddr) return { served, finished: true };
         continue;
       }
-      if (r.len > MAXDATA || r.addr + r.len > image.length) throw fail("badreq", `bad request ${r.addr.toString(16)}+${r.len}`);
+      if (r.len === 0 || r.len > MAXDATA || r.addr + r.len > image.length) throw fail("badreq", `bad request ${r.addr.toString(16)}+${r.len}`);
       await sleep(10);
+      if (finishAddr === 0xF0000000 && transferred === 0) this.assertAdmitted();
       if (!link.send(response(r.addr, Array.from(image.subarray(r.addr, r.addr + r.len)), r.fl))) {
         return { served, finished: false, lost: true };
       }
       served++;
+      transferred += r.len;
+      if (r.addr === 0) startedAtHeader = true;
       if (onProgress) onProgress(served, r.addr);
     }
   }
 
   // full install: running firmware -> loader -> new firmware
-  async install(image, product, onStep) {
+  async install(image, product, onStep, start = null, admitted = null) {
+    this.admitted = admitted;
     const step = onStep || (() => {});
     const dev = await this.find((id) => !IS_OTA(id));
-    if (!dev) throw fail("notfound", "FM-1 not found (USB cable, and no other app using it?)");
+    if (!dev) throw fail("notfound", "SMK-37 not found (USB cable, and no other app using it?)");
     const [model] = product.split("_");
     if (!sameKeyboard(dev.id.model, model)) { dev.link.close(); throw fail("model", `the device is ${dev.id.text}, the package is for ${product}`); }
     this.bind(dev);
     this.product = product;
+    try { this.assertContinuous(dev); }
+    catch (error) { dev.link.close(); throw error; }
+    // A snapshot COMMIT both checks freshness and enters OTA on the device.
+    // Do not send a second legacy UPGRADE, and do not drain queued OTA reads
+    // after the exact acknowledgement. A rejected/uncertain COMMIT is not retried.
+    if (start) {
+      try { this.assertAdmitted(); await start(dev); }
+      catch (e) { dev.link.close(); throw e; }
+    }
     step("start", dev.id.text);
-    dev.link.send(UPGRADE);
-    await sleep(2000);
-    const s1 = await this.serve(dev.link, image, 0xE0000000, 8000, (n) => step("verify", n));
-    dev.link.close();
+    let s1;
+    try {
+      this.assertContinuous(dev);
+      this.assertAdmitted();
+      if (!start && !dev.link.send(UPGRADE)) throw fail("lost", "The keyboard disconnected before the update started.");
+      await sleep(2000);
+      s1 = await this.serve(dev.link, image, 0xE0000000, 8000, (n) => step("verify", n));
+    } finally { dev.link.close(); }
     if (!s1.finished) throw fail(s1.lost ? "lost" : "stopped", `the device ${s1.lost ? "was disconnected" : "stopped"} after ${s1.served} requests: nothing was written`);
     step("loader");
     await sleep(3000);
@@ -1033,13 +1221,27 @@ class Updater {
     if (!ota) throw fail("noloader", "the update loader did not appear. Replug the USB cable and press Install again: the device stays in update mode until it is finished.");
     const s2 = await this.write(ota, image, step);
     if (!s2.finished) throw fail(s2.lost ? "lost" : "stopped", `the loader ${s2.lost ? "was disconnected" : "stopped"} after ${s2.served} requests. Replug and press Install again to resume.`);
+    return this.finishApplication(product, step);
+  }
+
+  // Observe a fresh application and its marker under the single-port guard.
+  // The protocol has no unit serial or flash hash: this is not exact-byte proof.
+  async finishApplication(product, step) {
+    this.verified = false;
     step("reboot");
     await sleep(3000);
-    const back = await this.waitFor((id) => !IS_OTA(id), 40000);
+    // Loader terminal retries can take 4 × 3 × 5 seconds before reset.
+    const back = await this.waitFor((id) => !IS_OTA(id), 70000);
     if (!back) throw fail("noreturn", "the device did not come back: power-cycle it");
-    back.link.close();
-    if (back.id.text !== product) throw fail("mismatch", `installed, but the device reports ${back.id.text}`, back.id.text);
-    this.targetName = back.name;
+    try {
+      this.singlePort();
+      this.assertContinuous(back);
+      if (IS_OTA(back.id)) throw fail("noreturn", "the device is still in update mode");
+      if (!sameKeyboard(back.id.model, product.split("_")[0]))
+        throw fail("model", `The selected keyboard changed model during the update: ${back.id.text}`);
+      if (back.id.text !== product) throw fail("mismatch", `installed, but the device reports ${back.id.text}`, back.id.text);
+      this.targetName = back.name;
+    } finally { back.link.close(); }
     this.verified = true;
     step("done", back.id.text);
     return back.id.text;
@@ -1048,21 +1250,25 @@ class Updater {
   // step 2 with the loader found by find()/waitFor()
   async write(ota, image, step) {
     try {
-      this.singlePort(ota.name);
+      this.singlePort();
       if (!this.product || !sameKeyboard(ota.id.model.replace(/^ota-/i, ""), this.product.split("_")[0]))
         throw fail("model", `the loader is ${ota.id.text}, the package is for ${this.product || "an unknown model"}`);
+      if (!IS_OTA(ota.id)) throw fail("model", "The selected device is not an update loader");
+      this.assertContinuous(ota);
+      this.assertAdmitted();
     } catch (e) { ota.link.close(); throw e; }
-    ota.link.send(UPGRADE);
-    await sleep(2000);
-    const s2 = await this.serve(ota.link, image, 0xF0000000, 180000, (n) => step("write", n));
-    ota.link.close();
-    return s2;
+    try {
+      if (!ota.link.send(UPGRADE)) throw fail("lost", "The update loader disconnected before writing.");
+      await sleep(2000);
+      return await this.serve(ota.link, image, 0xF0000000, 180000, (n) => step("write", n));
+    } finally { ota.link.close(); }
   }
 
-  // resume: the device is already in update mode (loader) -> true when the write finished. product: the
+  // resume: loader -> true only after a fresh application response matches product. product: the
   // package's identity; the loader's model must match it by install()'s rule (sameKeyboard): an SMK's loader
   // never gets an FM-1 image, and without the identity nothing is written
-  async resume(image, onStep, product = "") {
+  async resume(image, onStep, product = "", admitted = null) {
+    this.admitted = admitted;
     const ota = await this.find(IS_OTA);
     if (!ota) return false;
     if (!product || !sameKeyboard(ota.id.model.replace(/^ota-/i, ""), product.split("_")[0])) {
@@ -1071,7 +1277,10 @@ class Updater {
     }
     this.bind(ota);
     this.product = product;
-    return (await this.write(ota, image, onStep || (() => {}))).finished;
+    const step = onStep || (() => {});
+    if (!(await this.write(ota, image, step)).finished) return false;
+    await this.finishApplication(product, step);
+    return true;
   }
 }
 
@@ -1382,20 +1591,44 @@ function asciiName(b) {
 // offset (null if unknown) and used KiB come from X0X's extension ('X', 1, then per slot offset and size in
 // 4 KiB sectors and used KiB, 14 bits each); without it every slot has the one size.
 function parseInfo(r) {
-  if (r.length < 2) throw new Error("short SMP_INFO reply");
+  if (!r || r.length < 2) throw new Error("short SMP_INFO reply");
+  if (Array.from(r).some(b => !Number.isInteger(b) || b < 0 || b > 127))
+    throw new Error("invalid SMP_INFO MIDI data");
   const count = r[0], size = r[1] * 1024, slots = [];
+  if (count < 1 || count > 16 || !size) throw new Error("invalid SMP_INFO slot count or size");
   let i = 2;
   for (let k = 0; k < count; k++) {
+    if (i >= r.length || r[i] > 16) throw new Error("invalid SMP_INFO slot record");
     const nz = r[i], j = r.indexOf(0, i + 1);
+    if (j < 0 || j > i + 9 || j + 1 >= r.length)
+      throw new Error("truncated SMP_INFO slot record");
+    if (nz === 0 && (j !== i + 1 || r[j + 1] !== 0))
+      throw new Error(`slot ${k + 1}: empty SMP_INFO slot has occupied metadata`);
     slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1], size, off: null, used: r[j + 1] });
     i = j + 2;
   }
-  const ext = r.length >= i + 2 + 6 * count && r[i] === 0x58 && r[i + 1] === 1;
-  if (ext)
+  const ext = r[i] === 0x58;
+  // Unknown metadata after the descriptors cannot become a legacy preservation map.
+  if (i < r.length && !ext) throw new Error("unknown SMP_INFO trailing metadata");
+  if (ext && (r[i + 1] !== 1 || r.length !== i + 2 + 6 * count))
+    throw new Error("truncated or unsupported SMP_INFO flash-map extension");
+  if (ext) {
+    const ranges = [];
     slots.forEach((sl, k) => {
       const v = [0, 1, 2].map((m) => r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7);
-      Object.assign(sl, { off: v[0] * 0x1000, size: v[1] * 0x1000, used: v[2] });
+      const off = v[0] * 0x1000, size = v[1] * 0x1000, end = off + size;
+      // Validate every range before preservation decisions: two occupied slots
+      // must never alias one kept destination and silently bypass the backup.
+      if (!off || size < SLOT_HDR_AREA || v[2] * 1024 > size ||
+          ranges.some(([lo, hi]) => off < hi && lo < end))
+        throw new Error(`slot ${k + 1}: invalid or overlapping SMP_INFO flash range`);
+      // Firmware saturates only the legacy byte; both fields describe the same used KiB.
+      if (sl.kb !== Math.min(127, v[2]))
+        throw new Error(`slot ${k + 1}: legacy/extended used-size disagreement`);
+      ranges.push([off, end]);
+      Object.assign(sl, { off, size, used: v[2] });
     });
+  }
   return { count, size, ext, slots };
 }
 
@@ -1449,20 +1682,57 @@ function makeArchive(layout, images, created) {
 // archive bytes -> {meta, images}; throws on any damage (x0x_slots.read_archive)
 function readArchive(b) {
   const bad = (m) => { throw new Error(m); };
+  const uint = (x, max = Number.MAX_SAFE_INTEGER) => Number.isSafeInteger(x) && x >= 0 && x <= max;
   if (b.length < 20 || String.fromCharCode(...b.subarray(0, 8)) !== ARCH_MAGIC) bad("This is not an .x0xslots backup.");
   const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
   if (v.getUint32(b.length - 4, true) !== crc32(b.subarray(0, b.length - 4))) bad("The backup file is damaged (CRC).");
-  if (v.getUint16(8, true) !== 1) bad("This backup has a newer format.");
-  const n = v.getUint32(12, true), meta = JSON.parse(new TextDecoder().decode(b.subarray(16, 16 + n)));
-  const base = 16 + n, images = [];
-  for (const e of meta.slots) {
-    if (e.empty) { images.push(null); continue; }
-    const img = b.slice(base + e.offset, base + e.offset + e.length), h = parseHeader(img);
-    if (img.length !== e.length || crc32(img) !== e.crc32) bad(`Slot ${e.slot} in the backup is damaged.`);
+  if (v.getUint16(8, true) !== 1 || v.getUint16(10, true) !== 0) bad("This backup has an unsupported format.");
+  const n = v.getUint32(12, true), base = 16 + n;
+  if (base > b.length - 4) bad("The backup metadata exceeds the file length.");
+  const meta = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(b.subarray(16, base)));
+  // Both archive writers serialize one contiguous image per populated slot, in slot order.
+  // Require that exact layout: a valid outer CRC alone cannot establish which data a slot owns.
+  const slots = meta && meta.slots;
+  if (!meta || meta.format !== "x0xslots" || meta.version !== 1 || !Array.isArray(slots) ||
+      !uint(meta.count) || meta.count !== slots.length || !uint(meta.size) || meta.size < SLOT_HDR_AREA)
+    bad("The backup file has invalid slot metadata.");
+  const imageFields = ["name", "zones", "samples", "rates", "data_len", "data_crc32", "offset", "length", "crc32"];
+  const images = [];
+  let used = 0;
+  for (let k = 0; k < slots.length; k++) {
+    const e = slots[k];
+    if (!e || typeof e !== "object" || Array.isArray(e) || e.slot !== k + 1)
+      bad(`The backup file has a bad slot number for entry ${k + 1}.`);
+    if (!uint(e.size) || e.size < SLOT_HDR_AREA || ("flash" in e && !uint(e.flash)) || typeof e.empty !== "boolean")
+      bad(`Slot ${e.slot} in the backup has invalid metadata.`);
+    if (e.empty) {
+      if (imageFields.some((f) => f in e)) bad(`Slot ${e.slot} has conflicting empty/image metadata.`);
+      images.push(null);
+      continue;
+    }
+    if (!uint(e.offset) || e.offset !== used || !uint(e.length) || e.length < SLOT_HDR_AREA ||
+        e.length > b.length - 4 - base - used || e.length > e.size || !uint(e.crc32, 0xFFFFFFFF))
+      bad(`Slot ${e.slot} in the backup has invalid image range metadata.`);
+    const img = b.slice(base + used, base + used + e.length), h = parseHeader(img);
+    if (crc32(img) !== e.crc32) bad(`Slot ${e.slot} in the backup is damaged.`);
     if (!h || img.length !== SLOT_HDR_AREA + h.dataLen || crc32(img.subarray(SLOT_HDR_AREA)) !== h.crc)
       bad(`Slot ${e.slot} in the backup is not a valid slot.`);
+    // Match the device scanner before restore is allowed to erase a destination.
+    const iv = new DataView(img.buffer, img.byteOffset, img.byteLength);
+    for (let z = 0; z < h.nz; z++) {
+      const o = 32 + z * 28, zone = h.zones[z], q16 = iv.getUint32(o + 16, true);
+      if (zone.off > h.dataLen || Math.ceil(zone.n / 2) > h.dataLen - zone.off ||
+          img[o + 24] > 88 || q16 === 0 || q16 > (4 << 16))
+        bad(`Slot ${e.slot} in the backup has an invalid sample zone.`);
+    }
+    const equalArray = (a, expected) => Array.isArray(a) && a.length === expected.length && a.every((x, i) => x === expected[i]);
+    if (e.name !== h.name || e.zones !== h.nz || e.data_len !== h.dataLen || e.data_crc32 !== h.crc ||
+        !equalArray(e.samples, h.zones.map((z) => z.n)) || !equalArray(e.rates, h.zones.map((z) => z.rate)))
+      bad(`Slot ${e.slot} metadata does not match its original header.`);
     images.push(img);
+    used += img.length;
   }
+  if (base + used !== b.length - 4) bad("The backup contains unreferenced sample data.");
   return { meta, images };
 }
 
@@ -1501,20 +1771,65 @@ function flashMap(layout, board = "smk") {
   return layout.slots.map((_, k) => ({ off: LEGACY_BASE[board] + k * layout.size, size: layout.size }));
 }
 
+// Read only CRC-checked package files, never trust markers in header/padding.
+function slotPackageFiles(image) {
+  const crc16 = b => {
+    let c = 0;
+    for (const x of b) {
+      c ^= x << 8;
+      for (let k = 0; k < 8; k++) c = c & 0x8000 ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF;
+    }
+    return c;
+  };
+  const decode = b => {
+    const out = Uint8Array.from(b); let key = 0xFFFF;
+    for (let j = 0; j < out.length; j++) {
+      out[j] ^= key & 0xFF;
+      key = ((key << 1) ^ (key & 0x8000 ? 0x1021 : 0)) & 0xFFFF;
+    }
+    return out;
+  };
+  if (image.length < 64) return null;
+  const hdr = decode(image.subarray(0, 64)), h = new DataView(hdr.buffer, hdr.byteOffset, hdr.byteLength);
+  const count = h.getUint16(8, true), end = 64 + count * 80;
+  if (crc16(hdr.subarray(2)) !== h.getUint16(0, true) || h.getUint32(4, true) !== image.length ||
+      count < 1 || count > 8 || end > image.length || crc16(image.subarray(64, end)) !== h.getUint16(2, true)) return null;
+  const files = {}; let priorEnd = end;
+  for (let j = 0; j < count; j++) {
+    const entry = decode(image.subarray(64 + j * 80, 144 + j * 80));
+    const v = new DataView(entry.buffer, entry.byteOffset, entry.byteLength);
+    const off = v.getUint32(8, true), size = v.getUint32(12, true);
+    if (!size || off < priorEnd || off + size > image.length) return null;
+    const data = image.subarray(off, off + size);
+    if (crc16(data) !== v.getUint16(4, true)) return null;
+    for (const [name, type] of [["flash.bin", 0], ["ota.bin", 100]]) {
+      if (v.getUint16(0, true) === type) {
+        if (files[name] || findBytes(entry.subarray(64), name + "\0") !== 0) return null;
+        files[name] = data;
+      }
+    }
+    priorEnd = off + size;
+  }
+  return files["flash.bin"] ? files : null;
+}
+
 // the slot map of a package's logical image (fm1pkg_make.slotmap_of): its slot map record; for an older X0X
 // (Felucca loader, no record) the equal 80 KiB slots of that time; [] for any other package (stock firmware)
 function packageSlotMap(image, board = "smk") {
-  const i = findBytes(image, SLOTMAP_MAGIC);
-  if (i >= 0 && i + 24 <= image.length) {
-    const v = new DataView(image.buffer, image.byteOffset, image.byteLength), n = v.getUint32(i + 16, true);
+  const files = slotPackageFiles(image);
+  if (!files) return [];
+  const flash = files["flash.bin"], i = board === "fm1" ? 0x92F00 : 0x9CF00;
+  if (i + 24 <= flash.length && findBytes(flash.subarray(i, i + 16), SLOTMAP_MAGIC) === 0) {
+    const v = new DataView(flash.buffer, flash.byteOffset, flash.byteLength), n = v.getUint32(i + 16, true);
     const end = i + 20 + 8 * n;
-    if (n <= 16 && end + 4 <= image.length && v.getUint32(end, true) === crc32(image.subarray(i, end))) {
+    if (n <= 16 && end + 4 <= flash.length && v.getUint32(end, true) === crc32(flash.subarray(i, end))) {
       const m = [];
       for (let k = 0; k < n; k++) m.push({ off: v.getUint32(i + 20 + 8 * k, true), size: v.getUint32(i + 24 + 8 * k, true) });
       return m;
     }
+    return []; // A damaged current record cannot claim the legacy layout.
   }
-  if (findBytes(image, LOADER_MARK) < 0) return [];
+  if (!files["ota.bin"] || findBytes(files["ota.bin"], LOADER_MARK) < 0) return [];
   return Array.from({ length: board === "smk" ? 2 : 3 }, (_, k) => ({ off: LEGACY_BASE[board] + k * 0x14000, size: 0x14000 }));
 }
 
@@ -1542,6 +1857,53 @@ function planMigration(images, risk, oldMap, newLayout, newMap) {
     else { todo.push({ k, j }); taken.add(j); }
   }
   return { todo, skipped };
+}
+
+const X0X_NBREAKS_BUILTIN = 2;
+const LOOP_MENU_GUARD = "LOOP menu order or indices would change; saved break pattern A/B indices could point at different loops. "
+  + "The backup is retained. Restore samples manually to a compatible layout, then check and re-assign LOOP A/B in every saved pattern before playback.";
+
+function userLoopMenuIds(layout, images, origins = null) {
+  // scan_loops lists each zone, not each slot. Preserve original slot identity:
+  // identical sample bytes in distinct slots are not interchangeable indices.
+  const ids = [];
+  layout.slots.forEach((sl, k) => {
+    for (let z = 0; z < sl.nz; z++)
+      ids.push(origins === null ? `old:${k}:${z}` : origins[k] === null ? `new:${k}:${z}` : `old:${origins[k]}:${z}`);
+  });
+  return ids;
+}
+
+function loopMenuAfterMigration(oldLayout, images, risk, oldMap, newMap, newLayout, todo) {
+  const imgs = newMap.map(() => null), origins = newMap.map(() => null);
+  const slots = newLayout.slots.map((sl) => ({ ...sl }));
+  images.forEach((img, k) => {
+    if (risk.includes(k) || !img) return;
+    const off = oldMap[k].off;
+    const j = newMap.findIndex((m) => m.off === off);
+    if (j < 0) return;
+    imgs[j] = img; origins[j] = k;
+    slots[j] = { ...oldLayout.slots[k] };
+  });
+  todo.forEach(({ k, j }) => { imgs[j] = images[k]; origins[j] = k; slots[j] = { ...oldLayout.slots[k] }; });
+  return userLoopMenuIds({ ...newLayout, slots }, imgs, origins);
+}
+
+function migrationReordersLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo) {
+  if (!todo.length) return false;
+  const before = userLoopMenuIds(oldLayout, images);
+  const after = loopMenuAfterMigration(oldLayout, images, risk, oldMap, newMap, newLayout, todo);
+  // Compare absolute common positions; skipped middle slots can shift indices
+  // even when surviving entries retain their relative order. Trailing-only
+  // omissions or additions leave all remaining original positions unchanged.
+  return before.slice(0, after.length).some((id, i) => id !== after[i]);
+}
+
+function guardMigrationLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo, skipped) {
+  if (!migrationReordersLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo)) return { todo, skipped };
+  const extra = [...skipped];
+  for (const { k } of todo) extra.push(`slot ${k + 1}: not restored automatically (${LOOP_MENU_GUARD})`);
+  return { todo: [], skipped: extra };
 }
 
 // ---- the slot commands over a link with send / read / drain (fm1ota.js's Link): SysEx F0 7D 46 4C cmd .. F7 ----
@@ -1587,10 +1949,15 @@ async function readSlotBytes(link, k, off, n, onPart) {
 }
 
 // slot k as an image (the 512-byte header area, then the data), or null if it is empty. Reads only.
-async function readSlotImage(link, k, nz, onPart) {
+// Layout-aware callers pass the actual capacity; standalone legacy reads retain the 80 KiB default.
+async function readSlotImage(link, k, nz, onPart, capacity = SLOT_SIZE) {
   if (!nz) return null;
+  if (!Number.isSafeInteger(capacity) || capacity < SLOT_HDR_AREA)
+    throw new Error(`slot ${k + 1}: invalid sample slot capacity`);
   const area = await readSlotBytes(link, k, 0, SLOT_HDR_AREA), h = parseHeader(area.subarray(0, SLOT_HDR_LEN));
-  if (!h) return null;
+  if (!h) throw new Error(`slot ${k + 1}: occupied sample slot has an invalid header; backup stopped`);
+  if (h.dataLen > capacity - SLOT_HDR_AREA)
+    throw new Error(`slot ${k + 1}: sample data exceeds slot capacity`);
   const data = await readSlotBytes(link, k, SLOT_HDR_AREA, h.dataLen, onPart);
   if (crc32(data) !== h.crc) throw new Error(`slot ${k + 1}: the data read back does not match its CRC`);
   const img = new Uint8Array(SLOT_HDR_AREA + data.length);
@@ -1603,7 +1970,7 @@ async function readSlotImage(link, k, nz, onPart) {
 async function backupSlots(link, onPart) {
   const layout = await readSlotLayout(link), images = [];
   for (let k = 0; k < layout.count; k++)
-    images.push(await readSlotImage(link, k, layout.slots[k].nz, onPart && ((d, n) => onPart(k, d, n))));
+    images.push(await readSlotImage(link, k, layout.slots[k].nz, onPart && ((d, n) => onPart(k, d, n)), slotSize(layout, k)));
   return { layout, images };
 }
 
@@ -1630,8 +1997,9 @@ async function restoreMapped(link, todo, images, onPart) {
   for (const { k, j } of todo) await writeSlotImage(link, j, images[k], onPart && ((d, n) => onPart(j, d, n)));
   const after = await readSlotLayout(link);
   for (const { k, j } of todo) {
-    const got = await readSlotImage(link, j, after.slots[j].nz);
-    if (!got || got.length !== images[k].length || crc32(got) !== crc32(images[k]))
+    const got = await readSlotImage(link, j, after.slots[j].nz, undefined, slotSize(after, j));
+    if (!got || got.length !== images[k].length || crc32(got) !== crc32(images[k]) ||
+        !got.every((byte, i) => byte === images[k][i]))
       throw new Error(`slot ${j + 1}: read back differs from the backup of slot ${k + 1}`);
   }
 }
@@ -1643,29 +2011,123 @@ function archiveStamp(t = new Date()) {
   return { created, name: `x0x-slots-before-install-${created.replace(/[-:]/g, "").replace("T", "-")}.x0xslots` };
 }
 
+const SNAPSHOT_COMMAND = 48, SNAPSHOT_TOKEN_SIZE = 16;
+const snapshotFail = (message) => Object.assign(new Error(message), { code: "slotbackup" });
+
+// Only an exact, read-only INFO capability permits a new command. Old X0X,
+// stock and other custom firmware must not receive an unknown write command.
+async function hasInstallSnapshot(link) {
+  let info;
+  try { info = await slotReq(link, 1, [], 1000, 1); }
+  catch (e) {
+    if (/did not answer \(slot command 1\)/.test(e.message)) return false;
+    throw e;
+  }
+  const z = info.indexOf(0);
+  if (z < 0 || !/^X0X [\x20-\x7e]{1,20}$/.test(String.fromCharCode(...info.slice(0, z)))) return false;
+  return info.length === z + 12 && info.slice(z + 7).every((b, k) => b === [0x58, 0x53, 0x47, 1, SNAPSHOT_COMMAND][k]);
+}
+
+// One request, never an authorization retry. Responses from another operation,
+// token or ticket cannot authorize this backup. Leave later queued OTA reads
+// untouched when returning the matching ACK.
+async function snapshotRequest(link, op, token, ticket = null) {
+  if (link.lost) throw snapshotFail("The USB connection was lost. Start a new install attempt.");
+  const encoded = ticket === null ? [] : Array.from({ length: 4 }, (_, k) => (ticket >>> (7 * k)) & 127);
+  link.drain();
+  if (!link.send([...ED, SNAPSHOT_COMMAND, op, ...token, ...encoded, 0xF7]))
+    throw snapshotFail("The USB connection was lost; no snapshot authorization was retried.");
+  const end = Date.now() + 3000;
+  while (Date.now() < end) {
+    const p = await link.read(end - Date.now());
+    if (!p) break;
+    if (p.length < 6 || p[0] !== 0xF0 || p.at(-1) !== 0xF7 ||
+        p[1] !== ED[1] || p[2] !== ED[2] || p[3] !== ED[3] || p[4] !== SNAPSHOT_COMMAND) continue;
+    const r = Array.from(p).slice(5, -1);
+    if (r[0] !== op) continue;
+    if (r.length !== 22 || r.some(b => !Number.isInteger(b) || b < 0 || b > 127) || r[1] > 5)
+      throw snapshotFail("The keyboard returned a malformed sample-snapshot acknowledgement.");
+    if (!token.every((b, k) => r[k + 2] === b)) continue;
+    const got = r.slice(18).reduce((n, b, k) => n + b * 2 ** (7 * k), 0);
+    if (ticket !== null && got !== ticket) continue;
+    if (r[1]) throw snapshotFail(r[1] === 4 ?
+      "The samples changed after this backup began. No update was started. Make and retain a fresh backup before retrying." :
+      "The sample snapshot is unavailable, busy or expired. No update was started. Finish other transfers and start a new install attempt.");
+    if (!got) throw snapshotFail("The keyboard returned an invalid sample-snapshot ticket.");
+    if (link.lost) throw snapshotFail("The USB connection was lost. The authorization was not retried.");
+    return got;
+  }
+  throw snapshotFail("The keyboard did not acknowledge the sample snapshot. The authorization was not retried.");
+}
+
+async function beginInstallSnapshot(link) {
+  if (!globalThis.crypto?.getRandomValues)
+    throw snapshotFail("Secure random tokens are unavailable. Use a supported secure browser; no update was started.");
+  const token = new Uint8Array(SNAPSHOT_TOKEN_SIZE);
+  do { crypto.getRandomValues(token); token.forEach((b, k) => { token[k] = b & 127; }); }
+  while (token.every(b => b === 0));
+  const ticket = await snapshotRequest(link, 1, token);
+  return { token, ticket, consumed: false };
+}
+
+async function commitInstallSnapshot(link, snapshot, admitted = () => true) {
+  if (snapshot.consumed) throw snapshotFail("This sample snapshot has already been consumed. Start a new install attempt.");
+  snapshot.consumed = true; // A lost reply may follow device admission. Never replay it.
+  if (link.lost) throw snapshotFail("The USB connection was lost. Start a new install attempt.");
+  // The Updater reacquires a link after backup. Same keyboard family is not a
+  // capability promise: a restart/reconnect may expose older or stock firmware.
+  // Recheck read-only INFO here, but never START again with this older archive.
+  let capable;
+  try { capable = await hasInstallSnapshot(link); }
+  catch (e) { throw snapshotFail(`The final sample-snapshot capability check failed (${e.message}). No update was started.`); }
+  if (!capable) throw snapshotFail("The reconnected keyboard does not support atomic sample-snapshot admission. No update was started. Start a new install attempt.");
+  // No await follows this last caller approval before COMMIT sends the
+  // token-bound atomic update command. Rechecking only before INFO is racy.
+  if (!admitted()) throw snapshotFail("The selected package is no longer approved. No update was started.");
+  await snapshotRequest(link, 3, snapshot.token, snapshot.ticket);
+}
+
+async function cancelInstallSnapshot(link, snapshot) {
+  if (!snapshot || snapshot.consumed) return;
+  snapshot.consumed = true;
+  try { await snapshotRequest(link, 2, snapshot.token, snapshot.ticket); }
+  catch (_) { /* A passive watch holds no audio, UI or storage; preserve the original error. */ }
+}
+
 // The install with the slots kept (fm1_install.py's flow, for the installer page). up: fm1ota.js's Updater;
-// hooks: {step(k, a) for up.install, say(key, detail), save(bytes, name) (the download), progress(f),
+// hooks: {step(k, a) for up.install, say(key, detail), save(bytes, name) -> true / Promise<true> only after the backup is retained, progress(f),
 // sameKeyboard(model, packageModel) (fm1ota.js's: the slots are read only when the install can go ahead)}.
-// 1. If a slot holds samples the new firmware does not keep: read every slot into an .x0xslots archive and
-//    save it. 2. Install. 3. Reconnect to the new firmware, write the slots back into its map, read them back.
+// 1. If slots are at risk, attempt an .x0xslots archive and download.
+//    Backup errors or cancelled retention confirmation stop before OTA.
+//    2. Install. 3. Reconnect to the new firmware, write the slots back into its map, read them back.
 // Throws the install's errors as they are; a failure in step 3 throws code "slots" (the archive is saved).
 // -> {product, move: null or {risk, todo, skipped, name}}
 async function installKeepingSlots(up, image, product, board, hooks) {
-  const h = Object.assign({ step() {}, say() {}, save() {}, progress() {}, sameKeyboard: () => true }, hooks);
+  const h = Object.assign({ step() {}, say() {}, save() {}, progress() {}, sameKeyboard: () => true, admitted: () => true }, hooks);
   const fail = (code, msg, detail = "") => Object.assign(new Error(msg), { code, detail });
-  let move = null;
+  let move = null, snapshot = null, unprotected = false;
   const dev = await up.find((id) => !/^ota-/i.test(id.model));
-  if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
-  else if (dev) {
+  if (!dev) throw fail("notfound", "No running keyboard was found for sample preflight; no update was started.");
+  if (!h.sameKeyboard(dev.id.model, product.split("_")[0])) {
+    dev.link.close();
+    throw fail("model", "The keyboard does not match this package; no update was started.");
+  }
+  {
     up.bind(dev);
     try {
+      // Arm before FIRST layout/occupancy/risk reads, including empty slots.
+      // Otherwise empty-to-occupied and in-progress-import races escape backup.
+      try {
+        if (await hasInstallSnapshot(dev.link)) snapshot = await beginInstallSnapshot(dev.link);
+      } catch (e) { throw fail("slotbackup", `The sample snapshot could not be established (${e.message}). No update was started.`); }
       let layout;
       try { layout = await readSlotLayout(dev.link, 1000, 2); }
       catch (e) {
-        const stock = dev.id.text === "FM-1_015" || (dev.id.version === 16 && /^(SMK-37[ +].*|MKE-P37|STARRYKEY-37.*)$/i.test(dev.id.model));
-        if (stock && /did not answer \(slot command 15\)/.test(e.message)) layout = null;
-        else throw fail("slotbackup", `The sample layout is unknown (${e.message}). Reconnect and retry; no update was started.`);
+        // An unreadable slot map must not silently discard samples.
+        throw fail("slotbackup", `Sample layout unavailable (${e.message}); stopping before firmware write.`);
       }
+      // Legacy 25.1 may lack atomic snapshots. Preserve its verified archive
+      // path; do not require a newer firmware capability to upgrade it.
       if (layout && layout.slots.some((sl) => sl.nz)) {
         const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
         const risk = atRisk(layout, oldMap, newMap);
@@ -1675,23 +2137,44 @@ async function installKeepingSlots(up, image, product, board, hooks) {
           try {
             saved = await backupSlots(dev.link, (k, d, n) => h.progress((k + d / n) / layout.count));
           } catch (e) { throw fail("slotbackup", e.message); }
-          const st = archiveStamp(), file = makeArchive(saved.layout, saved.images, st.created);
-          readArchive(file);                                  // what was saved reads back
-          h.save(file, st.name);
-          move = { risk, oldMap, newMap, images: saved.images, name: st.name, todo: [], skipped: [] };
+          const st = archiveStamp();
+          let file;
+          try {
+            file = makeArchive(saved.layout, saved.images, st.created);
+            readArchive(file);                                // verify the in-memory archive
+          } catch (e) { throw fail("slotbackup", e.message); }
+          let retained;
+          try { retained = await h.save(file, st.name); }
+          catch (e) { throw fail("slotbackup", "The recovery backup could not be downloaded (" + e.message + ")."); }
+          if (retained !== true)
+            throw fail("slotbackupconfirm", "The browser could not confirm saving the recovery backup.", st.name);
+          // SMP_INFO can change while the backup is read. Use the exact verified
+          // snapshot for preservation, just as the Python SlotMove.backup does.
+          const savedMap = flashMap(saved.layout, board);
+          move = { risk: atRisk(saved.layout, savedMap, newMap), oldMap: savedMap, newMap,
+            layout: saved.layout, images: saved.images, name: st.name, todo: [], skipped: [] };
         }
       }
+    } catch (e) {
+      // MAIN keeps backup failures fail-closed. Never begin OTA without the
+      // recoverable snapshot this path required.
+      await cancelInstallSnapshot(dev.link, snapshot);
+      throw e;
     } finally { dev.link.close(); }
   }
-  const ran = await up.install(image, product, h.step);
-  if (!move || !move.newMap.length) return { product: ran, move };
+  if (!h.admitted()) throw fail("unapproved", "The selected package is no longer approved. No update was started.");
+  const ran = await up.install(image, product, h.step,
+    snapshot ? (dev) => commitInstallSnapshot(dev.link, snapshot, h.admitted) : null, h.admitted);
+  if (!move || !move.newMap.length) return { product: ran, move, unprotected };
   h.say("slotback");
   const back = await up.waitFor((id) => !/^ota-/i.test(id.model), 20000);
   if (!back) throw fail("slots", "the keyboard did not answer after the install", move.name);
   try {
     up.bind(back);
     const layout = await readSlotLayout(back.link);
-    const plan = planMigration(move.images, move.risk, move.oldMap, layout, flashMap(layout, board));
+    let plan = planMigration(move.images, move.risk, move.oldMap, layout, flashMap(layout, board));
+    plan = guardMigrationLoopMenu(move.layout, move.images, move.risk, move.oldMap, layout,
+      flashMap(layout, board), plan.todo, plan.skipped);
     move.todo = plan.todo;
     move.skipped = plan.skipped;
     const total = plan.todo.length || 1;
@@ -1699,21 +2182,21 @@ async function installKeepingSlots(up, image, product, board, hooks) {
   } catch (e) {
     throw fail("slots", e.message, move.name);
   } finally { back.link.close(); }
-  return { product: ran, move };
+  return { product: ran, move, unprotected };
 }
 
 const $ = (id) => document.getElementById(id);
 const MODELS = { pro: "SMK-37 Pro", elite: "SMK-37 Elite", mke: "MKE-P37", fm1: "FM-1" };
-const MODEL_KEYS = ["pro", "elite", "mke", "fm1"];
+const MODEL_KEYS = ["pro", "elite"];
 const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
 const TEXT = {
   ja: {
     navinstaller: "インストール", navmanual: "マニュアル", navsamples: "サンプル",
     controlleroptional: "旧パッケージでは必須 / SMC Bluetooth", ctlchoose: "コントローラー画像 (.img)",
-    verlatest: "最新 DEV", verolder: "旧 DEV", verdev: "DEV", verrelease: "リリース", verunverified: "未検証",
+    verlegacy: "旧 DEV（番号未割当）", vermixed: "モデルごとに異なるバージョン", verlatest: "最新 DEV", verolder: "旧 DEV", verdev: "DEV", verrelease: "リリース", verunverified: "未検証",
     eyebrow: "デバイスファームウェア / Web MIDI", journey1: "機器を接続", journey2: "ファームウェアを選択", journey3: "確認して書き込む",
     stage1: "手順 01 / 接続", stage2: "手順 02 / ファームウェア", stage3: "手順 03 / インストール",
-    pickheading: "ビルドを選択", versionlabel: "ファームウェアのバージョン", modelheading: "機種を選択",
+    pickheading: "ビルドを選択", versionlabel: "パッケージのバージョン", modelheading: "機種を選択",
     diagnostics: "技術情報・動作ログ", guidelabel: "始める前に", guideheading: "サンプルを安全に保管",
     guide1: "PC の Chrome または Edge と USB データケーブルを使用してください。",
     guide2: "大切なサンプルは先に個別に書き出してください。必要時に自動バックアップしますが、別のコピーも推奨します。",
@@ -1724,7 +2207,7 @@ const TEXT = {
     hintverifying: "パッケージの読み込み・整合性確認を待ってください。",
     hintack: "開発版の注意事項を確認し、チェックを入れてください。",
     hintready: "書き込む準備ができました。開始前に機種と内容をもう一度確認します。",
-    hintbusy: "書き込み中です。USB を抜かず、ページを閉じないでください。",
+    hintbusy: "インストールの処理中です。USB を抜かず、ページを閉じないでください。",
     latestdev: "最新の利用可能な DEV", devchecked: "DEV CHECKED", hardwareuntested: "実機未テスト", superseded: "旧ビルド・非推奨",
     devagree: "実機未テストの開発版であることを理解し、機種と大切なサンプルのバックアップを確認しました。",
     ctrlwarning: "この旧パッケージのインストールには、一致するローカル ctl.img が必要です。",
@@ -1734,7 +2217,7 @@ const TEXT = {
     evidencelink: "開発検証記録", archiveheading: "ビルド履歴", archiveintro: "SHA確認済みビルドとソースのみの状態・未入手アーカイブ・失敗ビルドを区別します。コミットだけではインストールできません。",
     choosebuild: "このビルドを選ぶ", otherbuilds: "その他のチェックポイント (インストール不可)", unapproved: "このパッケージには機種別検証記録がないため、自動インストールできません。",
     title: "X0X をインストール",
-    intro: "SMK-37 と FM-1 向けファームウェア。USB で接続して機種とビルドを選び、サンプルのバックアップ保護を確認してインストールします。PC の Chrome または Edge をご使用ください。",
+    intro: "SMK-37 Pro / Elite 向けファームウェア。USB で接続して機種とビルドを選び、サンプルのバックアップ保護を確認してインストールします。PC の Chrome または Edge をご使用ください。",
     warn: "書き込み中は USB を抜かないでください。",
     install: "ファームウェアを書き込む", other: "English", connect: "USB 接続",
     connhelp: "Chrome か Edge で開き、USB でつないでから接続を押してください。",
@@ -1746,11 +2229,11 @@ const TEXT = {
     breaks: "サンプル・インポーター：自分のブレイク・ループ",
     untested: "X0X はベータ版です。",
     direct: "USB ケーブルはパソコンに直接つないでください。",
-    brick: "万一 FM-1 が起動しなくなった場合は、Mac から標準ファームウェアに戻せます:",
-    bricklink: "起動しない FM-1 の復旧（マニュアル）",
+    brick: "起動や復旧の問題は、お使いの SMK モデルに対応する手順を確認してください:",
+    bricklink: "SMK の起動・復旧サポート",
     beta: "これはベータ版で、不安定な場合があります。自己責任でお使いください。",
     back: "公式や他のカスタムへ移すには、下に .fwsc を落とすか M-VAVE の M-UPGRADE を使います。",
-    noversion: "本番インストールに使える実機検証済みビルドはありません。既存の開発ビルドは履歴に保持されていますが、ここでは選択できません。",
+    noversion: "まだ公開パッケージがありません。下に .fwsc を落として書き込めます（アップグレード・ダウングレード・純正・他カスタム）。",
     stockh: "任意の .fwsc（純正・他カスタム・手元のビルド）",
     stockwhy: "アップグレード・ダウングレード、別のカスタム、純正への復帰は同じ手順です。キーボードの機種名は保たれ、キャリブレーションとペアリングは触りません。スロットが消える場合は先に .x0xslots へ保存します。",
     stock1: "純正が必要なら機種の公式 .fwsc を入手:",
@@ -1768,7 +2251,7 @@ const TEXT = {
     stockdone: "完了。デバイスは新しいファームウェアで起動しました。",
     confirm: "書き込みますか？\n\n接続中: ",
     confirmto: "\n書き込む: ",
-    confirmrisk: "\n\nキャリブレーションとペアリングは触りません。サンプル・スロットが消える場合は先にファイルへ保存します。USB を抜かないでください。",
+    confirmrisk: "\n\n先にキーボードをバックアップしてください。必要なサンプルのバックアップに失敗した場合、または保存を確認できない場合は、書き込み前に停止します。続行しますか？",
     nomidi: "このブラウザでは使えません。Chrome か Edge で開いてください。", loadfail: "読み込めませんでした: ",
     start: "開始します", verify: "確認中", loader: "書き込みモードに切り替え中", write: "書き込み中",
     reboot: "再起動中", done: "完了しました", stopped: "途中で止まりました。USB を挿し直してもう一度押してください。",
@@ -1784,13 +2267,25 @@ const TEXT = {
     leave: "書き込み中です。ページを閉じないでください。",
     slotsave: "新しいファームウェアではスロットのサンプルが消えます（スロット ",
     slotsave2: "）。先に全スロットをファイルに保存します。",
-    slotsaved: "スロットを保存しました（ダウンロード）: ",
+    slotdownload: "バックアップのダウンロードを要求しました。保存できたかは確認できないため、ダウンロード先を確認してください: ",
+    slotsaved: "バックアップを保管したことをユーザーが確認しました: ",
+    slotconfirm: "インストールする前にバックアップの保存を確認してください。",
+    slotconfirmhelp: "ブラウザにこのファイルのダウンロードを要求しましたが、保存できたかは確認できません。ダウンロード先でファイルを見つけ、安全な場所に保管してください。ファイルを保管できた場合だけ続行し、それ以外はキャンセルしてください。ファームウェアはまだ書き込んでいません。",
+    slotretained: "バックアップを保存しました — 続行",
+    slotcancel: "インストールをキャンセル",
+    slotbackupconfirm: "バックアップの保存確認を受け付けませんでした。ファームウェアもサンプルも書き込んでいません。選択内容を確認し、保存できる状態で再試行してください: ",
     slotback: "スロットを書き戻しています",
     slotsdone: "完了。スロットを書き戻して確認しました。",
+    slotspartial: "インストールは完了しましたが、復元できなかったサンプルがあります。ダウンロードした .x0xslots バックアップを確認し、容量を空けてブレークループの「Restore」で復元してください。未復元: ",
     slotskip: " 書き戻せなかったスロット（入りきらない）: ",
     slotstock: "完了。純正ファームウェアには X0X のスロットがありません。サンプルは次のファイルにあります（X0X を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
     slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
     slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
+    slotbackupcancel: "バックアップがないためインストールをキャンセルしました。何も書き込んでいません。 ",
+    slotunprotectedwarning: "警告：サンプルのバックアップに失敗しました。インストールは自動的に続行します。以前のサンプルや保存したブレークループが永久に失われる可能性があります。保存できなかったスロットは復元できません。エラー：",
+    slotunprotectedquestion: "\n\nバックアップなしでインストールを続行しますか？",
+    slotunprotectedcontinue: "バックアップなしで続行",
+    slotunprotecteddone: "バックアップなしでインストールが完了しました。以前のサンプルスロットは失われた可能性があります。",
     license: "GPL-3.0、無保証。ソース:",
     blewhy: "この旧パッケージには、ble/ctl/build_ctl.sh で作成した一致する ctl.img が必要です。選択するまでインストールできません。検証済みの一体型 NIGHTLY には Bluetooth が含まれ、別ファイルは不要です。",
     ctlreading: "コントローラー画像を読み込み、確認しています…",
@@ -1804,10 +2299,10 @@ const TEXT = {
   en: {
     navinstaller: "Installer", navmanual: "Manual", navsamples: "Samples",
     controlleroptional: "Required for legacy packages / SMC Bluetooth", ctlchoose: "Controller image (.img)",
-    verlatest: "Latest development build", verolder: "Earlier development build", verdev: "Development build", verrelease: "Release", verunverified: "Unverified",
+    verlegacy: "Legacy DEV (unnumbered)", vermixed: "Version varies by model", verlatest: "Latest development build", verolder: "Earlier development build", verdev: "Development build", verrelease: "Release", verunverified: "Unverified",
     eyebrow: "DEVICE SOFTWARE / WEB MIDI", journey1: "Connect keyboard", journey2: "Select firmware", journey3: "Review and install",
     stage1: "Step 01 / Connection", stage2: "Step 02 / Firmware", stage3: "Step 03 / Install",
-    pickheading: "Choose your build", versionlabel: "Firmware version", modelheading: "Choose your keyboard model",
+    pickheading: "Choose your build", versionlabel: "Package version", modelheading: "Choose your keyboard model",
     diagnostics: "Details: activity log", guidelabel: "Before you begin", guideheading: "Keep your samples safe",
     guide1: "Use Chrome or Edge on a computer with a USB data cable.",
     guide2: "Export important samples first. Automatic slot backup runs when needed, but keep a separate copy.",
@@ -1818,7 +2313,7 @@ const TEXT = {
     hintverifying: "Waiting for the firmware download and integrity check.",
     hintack: "Confirm the model and consent above to continue.",
     hintready: "Ready to install.",
-    hintbusy: "Writing is in progress. Keep USB connected and this page open.",
+    hintbusy: "An installation operation is in progress. Keep USB connected and this page open.",
     latestdev: "LATEST AVAILABLE DEV", devchecked: "DEV CHECKED", hardwareuntested: "HARDWARE UNTESTED", superseded: "SUPERSEDED",
     devagree: "I accept hardware-untested development firmware for my selected keyboard model.",
     ctrlwarning: "This legacy package requires the matching local ctl.img before installation.",
@@ -1828,23 +2323,23 @@ const TEXT = {
     evidencelink: "Development validation record", archiveheading: "Build history", archiveintro: "SHA-verified builds are separated from source-only checkpoints, unavailable archives and failed builds. A source commit alone is not flashable firmware.",
     choosebuild: "Select this build", otherbuilds: "Other checkpoints — not available for installation", unapproved: "No model-specific development/release validation for this package. Automatic installation is disabled.",
     title: "Install firmware",
-    intro: "Firmware for SMK-37 and FM-1. Connect over USB, choose your build, and install with sample-backup safeguards. Use Chrome or Edge on a computer.",
+    intro: "Firmware for SMK-37 Pro and Elite. Connect over USB, choose your build, and install with sample-backup safeguards. Use Chrome or Edge on a computer.",
     warn: "Do not unplug the USB cable while writing.",
     install: "Install firmware", other: "日本語", connect: "Connect USB",
     connhelp: "Plug in by USB. Use Chrome or Edge on a computer.",
     connected: "Connected", notconnected: "Not connected", looking: "Looking for the device…",
     otahelp: "Update mode. Choose a package and press Install to finish (or resume) the write.",
     flashother: "Flash another keyboard version",
-    modelwhy: "The same firmware under another model name. Pick your keyboard's own model (an Elite running an older build may report SMK-37 Pro), so M-VAVE's updater accepts its factory firmware again. Starrykey 37 Play: use SMK-37 Pro.",
+    modelwhy: "Choose the exact model printed on your keyboard. Elite and Pro packages are not interchangeable.",
     manual: "The manual", whatsnew: "What's new", download: "Download this package",
     breaks: "Sample importer: your own break loops",
     untested: "X0X is a beta.",
     direct: "Connect the USB cable directly to the computer. No probe or Transporter is needed.",
-    brick: "If the FM-1 no longer starts, a Mac can put the stock firmware back:",
-    bricklink: "recovering an FM-1 that won't start (manual)",
+    brick: "For startup or recovery problems, use instructions for your exact SMK model:",
+    bricklink: "SMK startup and recovery support",
     beta: "This is a beta and may be unstable. The author accepts no responsibility if your device is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
     back: "To move to stock or another custom firmware, drop its .fwsc below, or use M-VAVE's M-UPGRADE.",
-    noversion: "No hardware-proven builds are available for production installation. Existing development builds remain in Build history; they cannot be selected here.",
+    noversion: "No packages are included in this source preview. Use the published NIGHTLY installer, or choose a local package below.",
     stockh: "Any .fwsc (stock, other custom, or a local build)",
     stockwhy: "Choose a .fwsc package for this keyboard model. Calibration and pairing stay in place. Sample slots are backed up automatically if the update would overwrite them.",
     stock1: "For stock, get the official .fwsc for your model:",
@@ -1862,7 +2357,7 @@ const TEXT = {
     stockdone: "Done. The device has restarted with the new firmware.",
     confirm: "Install this firmware?\n\nConnected: ",
     confirmto: "\nWill write: ",
-    confirmrisk: "\n\nCalibration and pairing are never touched. If sample slots would be lost, they are saved to a file first. Keep USB connected until Done.",
+    confirmrisk: "\n\nBack up your keyboard first. If a required sample backup fails or is not confirmed saved, installation stops before writing firmware. Continue?",
     nomidi: "Web MIDI is unavailable. Use desktop Chrome or Edge over HTTPS or localhost, and allow MIDI / SysEx permission. Safari and iOS browsers are unsupported.", loadfail: "Could not load: ",
     start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
     reboot: "Restarting", done: "Done", stopped: "Stopped. Replug the USB cable and press Install again.",
@@ -1878,13 +2373,25 @@ const TEXT = {
     leave: "Writing. Do not close the page.",
     slotsave: "The new firmware does not keep the samples in slot ",
     slotsave2: ". Saving every slot to a file first.",
-    slotsaved: "Slots saved (downloaded): ",
+    slotdownload: "Backup download requested; check Downloads because the browser cannot verify it was saved: ",
+    slotsaved: "User confirmed retained recovery backup: ",
+    slotconfirm: "Confirm your recovery backup before installing.",
+    slotconfirmhelp: "The browser was asked to download this file, but cannot verify that it was saved. Find it in your downloads and keep it somewhere safe. Confirm only after you have the file; otherwise cancel. No firmware has been written yet.",
+    slotretained: "I have saved this backup — continue",
+    slotcancel: "Cancel installation",
+    slotbackupconfirm: "Recovery backup confirmation was not accepted. No firmware or samples were written. Check your selection and retry when you can save the backup: ",
     slotback: "Writing the slots back",
     slotsdone: "Done. The slots were written back and checked.",
+    slotspartial: "Installed, but some samples were NOT restored. Check the downloaded .x0xslots backup and use Restore on the break loops page after making room. Not restored: ",
     slotskip: " Not written back (no room): ",
     slotstock: "Done. The stock firmware has no X0X slots. Your samples are in this file (after you install X0X again, restore it with Restore on the break loops page): ",
     slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
     slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
+    slotbackupcancel: "Install cancelled: sample recovery backup unavailable or not retained. Nothing was installed. ",
+    slotunprotectedwarning: "WARNING: Sample backup failed. Installation continues automatically, but existing samples and saved break loops may be permanently lost. The installer cannot restore unbacked-up slots. Backup error: ",
+    slotunprotectedquestion: "\n\nContinue installing WITHOUT a sample backup?",
+    slotunprotectedcontinue: "Continue WITHOUT backup",
+    slotunprotecteddone: "Installation completed WITHOUT a sample backup. Previous sample slots may be permanently lost.",
     license: "GPL-3.0, no warranty. Source:",
     blewhy: "This legacy package requires the exact matching ctl.img built on your computer with ble/ctl/build_ctl.sh. Installation is blocked until it is supplied. Qualified bundled NIGHTLY packages include Bluetooth and need no separate file.",
     ctlreading: "Reading and checking the controller image…",
@@ -1914,7 +2421,7 @@ const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textCont
 const say = (txt) => { lastKey = null; $("status").textContent = txt; };
 const log = (txt) => { $("log").textContent += txt + "\n"; };
 
-const catalog = {"schema":2,"repo":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro","pages":"https://gobbajogger.github.io/X0X37-for-Loopy-Pro","latest":"dev-20261022-1638-e894804","versions":[{"version":"dev-20261022-1638-e894804","title":"SMC-07 mixer popup + main help-card merge","built_at":"2026-10-22T16:38:00Z","source_commit":"e894804dfdb0bb66c7247eb1846313a215422c9f","status":"dev-checked","lifecycle":"current","hardware_tested":false,"description":"SMC mixer peek/hold/restore integrated with main 909/808 drum mixer, record feedback and help card. Newest recovered DEV CHECKED packages; physical installation remains pending.","notes":"DEV CHECKED is a development validation result, not a device test. A separate locally built ctl.img is needed for direct SMC Bluetooth. Use the appropriate model and the guarded local installation procedure.","evidence_url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt","models":{"elite":{"product":"SMK-37 Elite_900","pkg":"firmware/x0x37-dev-20261022-1638-e894804-elite.fwsc","size":651396,"sha256":"19cf000582b67f6e66295c4f0c70512c493432e87f3c88c817f938f67e138c64","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json"},"pro":{"product":"SMK-37 Pro_900","pkg":"firmware/x0x37-dev-20261022-1638-e894804-pro.fwsc","size":651392,"sha256":"ca458e0e4fe216ec349566d4a122ad65498d78aabc21c9e01dfe8d7e8494d56f","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json"}}},{"version":"dev-20261022-1629-116d903","title":"SMC-07 mixer popup: pre-help-card checkpoint","built_at":"2026-10-22T16:29:31Z","source_commit":"116d9030f18ec251c37c3bd09ffcad2eb0a613be","status":"dev-checked","lifecycle":"superseded","hardware_tested":false,"description":"Previously validated merge candidate; replaced by the 16:38 UTC build after integrating the main help-card. Keep only for regression comparison.","notes":"DEV CHECKED is a development validation result, not a device test. A separate locally built ctl.img is needed for direct SMC Bluetooth. Use the appropriate model and the guarded local installation procedure.","evidence_url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt","models":{"elite":{"product":"SMK-37 Elite_900","pkg":"firmware/x0x37-dev-20261022-1629-116d903-elite.fwsc","size":651396,"sha256":"b14ae4145359743d62b1cb789b7c9f8b2b83664b79bcc462ba4e1be29ff4402c","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json"},"pro":{"product":"SMK-37 Pro_900","pkg":"firmware/x0x37-dev-20261022-1629-116d903-pro.fwsc","size":651392,"sha256":"8008b633b96e5c33a4bb7dbb7adb98b5e7315720c1d64446664209aadeccee57","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json"}}}],"history":[{"id":"smc-peek-later","title":"SMC peek-overlay guard","source_commit":"877f512b384fa4e903dd5b868af1fee1f7007362","status":"source-only","date":"2026-10-22","models":["elite","pro"],"description":"Newer source/PR #19; no matching validated firmware package. Existing archived binaries in this branch predate the new source.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19"},{"id":"current-main","title":"Current main source","source_commit":"c9718ae833eb64a5191c350922593df8a36017c9","status":"source-only","date":"2026-10-23","models":[],"description":"Repository source head only. Do not confuse branch recency with the latest verified firmware artifact.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main"},{"id":"older-integrated-smc","title":"Integrated SMC and project management","source_commit":"ab121324455e06e5fad0a8a2f16d897177965acf","status":"not-hosted","date":"2026-10-22","models":["elite","pro"],"description":"Earlier Elite/Pro DEV CHECKED installer archives are mentioned in development handoffs; original package bytes are not hosted in the GitHub installer. No flash link.","url":null},{"id":"direct-smc-elite","title":"Direct-SMC Elite development reference","source_commit":"81459573792a68edd02fa1ee5658796b55597ba0","status":"not-hosted","date":"2026-10-21","models":["elite"],"description":"Previous Elite-only installer ZIP verified in a separate environment; original package is not hosted here and physical link behavior was not established.","url":null},{"id":"project-save-stage","title":"Project reset/save/load/export stage","source_commit":"68e1117262aba958f96b6eb65cb3bfb1b3cc94ce","status":"evidence-only","date":"2026-10-21","models":["elite","pro"],"description":"DEV CHECKED results recorded; original binaries are not recovered as accessible GitHub firmware packages.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/docs/audit/project-management-dev-validation.md"},{"id":"xip-failed","title":"SMC mixer popup XIP overflow","source_commit":"df1b204745e78784cccfe41b03e75ac4f105eb2b","status":"failed","date":"2026-10-22","models":["elite","pro"],"description":"DEV build failed the XIP budget. Not installable; retained to explain why the subsequent repair was needed.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/12"},{"id":"smc-physical-ref","title":"Earlier SMC connected reference","source_commit":"53d5654c9bbaec10b64c55fb60d0e7d857ba8156","status":"reference","date":"2026-10-21","models":["elite"],"description":"SMC connection and RX controls were observed in a prior device report, but the exact installed firmware attribution is unproven. Not a verified flash artifact.","url":null}]};
+const catalog = {"schema":2,"repo":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro","pages":"https://gobbajogger.github.io/X0X37-for-Loopy-Pro","latest":"nightly-79280e76-dev","versions":[{"version":"nightly-79280e76-dev","label":"DEVICE NOT TESTED","status":"dev-checked","config":"X0X_DEV_PADCAL=0","hardware_tested":false,"source_commit":"79280e763341d03ba43266d3e25dad66f12de860","source_tree":"ab2e16a61c81abbcb6c4a71bd83bf0b5d943c120","models":{"elite":{"product":"SMK-37 Elite_900","sha256":"5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a","size":651721,"controller_sha256":"a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984","controller_strategy":"bundled","controller_size":61552,"pkg":"https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a/x0x37-elite-dev.fwsc"},"pro":{"product":"SMK-37 Pro_900","sha256":"6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf","size":651721,"controller_sha256":"a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984","controller_strategy":"bundled","controller_size":61552,"pkg":"https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf/x0x37-pro-dev.fwsc"}},"display_version":"0.0.25.1","title":"DnBOX 0.0.25.1 \u00b7 SMK-37 Elite and Pro","description":"Owner-approved 0.0.25.1 packages. The owner reports successful use and recovery to 25.1; independent exact-package hardware validation for both models is not recorded here. Firmware reports 0.0.25, GIT 79280e76. Bundled Bluetooth controller included. 0.0.26 is withdrawn.","evidence_url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/79280e763341d03ba43266d3e25dad66f12de860","lifecycle":"current"},{"version":"dev-20261022-1638-e894804","title":"SMC-07 mixer popup + main help-card merge","built_at":"2026-10-22T16:38:00Z","source_commit":"e894804dfdb0bb66c7247eb1846313a215422c9f","status":"dev-checked","lifecycle":"current","hardware_tested":false,"description":"SMC mixer peek/hold/restore integrated with main 909/808 drum mixer, record feedback and help card. Newest recovered DEV CHECKED packages; physical installation remains pending.","notes":"DEV CHECKED is a development validation result, not a device test. A separate locally built ctl.img is needed for direct SMC Bluetooth. Use the appropriate model and the guarded local installation procedure.","evidence_url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt","models":{"elite":{"product":"SMK-37 Elite_900","pkg":"firmware/x0x37-dev-20261022-1638-e894804-elite.fwsc","size":651396,"sha256":"19cf000582b67f6e66295c4f0c70512c493432e87f3c88c817f938f67e138c64","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json"},"pro":{"product":"SMK-37 Pro_900","pkg":"firmware/x0x37-dev-20261022-1638-e894804-pro.fwsc","size":651392,"sha256":"ca458e0e4fe216ec349566d4a122ad65498d78aabc21c9e01dfe8d7e8494d56f","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json"}}},{"version":"dev-20261022-1629-116d903","title":"SMC-07 mixer popup: pre-help-card checkpoint","built_at":"2026-10-22T16:29:31Z","source_commit":"116d9030f18ec251c37c3bd09ffcad2eb0a613be","status":"dev-checked","lifecycle":"superseded","hardware_tested":false,"description":"Previously validated merge candidate; replaced by the 16:38 UTC build after integrating the main help-card. Keep only for regression comparison.","notes":"DEV CHECKED is a development validation result, not a device test. A separate locally built ctl.img is needed for direct SMC Bluetooth. Use the appropriate model and the guarded local installation procedure.","evidence_url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt","models":{"elite":{"product":"SMK-37 Elite_900","pkg":"firmware/x0x37-dev-20261022-1629-116d903-elite.fwsc","size":651396,"sha256":"b14ae4145359743d62b1cb789b7c9f8b2b83664b79bcc462ba4e1be29ff4402c","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json"},"pro":{"product":"SMK-37 Pro_900","pkg":"firmware/x0x37-dev-20261022-1629-116d903-pro.fwsc","size":651392,"sha256":"8008b633b96e5c33a4bb7dbb7adb98b5e7315720c1d64446664209aadeccee57","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json"}}}],"history":[{"id":"smc-peek-later","title":"SMC peek-overlay guard","source_commit":"877f512b384fa4e903dd5b868af1fee1f7007362","status":"source-only","date":"2026-10-22","models":["elite","pro"],"description":"Newer source/PR #19; no matching validated firmware package. Existing archived binaries in this branch predate the new source.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19"},{"id":"current-main","title":"Current main source","source_commit":"c9718ae833eb64a5191c350922593df8a36017c9","status":"source-only","date":"2026-10-23","models":[],"description":"Repository source head only. Do not confuse branch recency with the latest verified firmware artifact.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main"},{"id":"older-integrated-smc","title":"Integrated SMC and project management","source_commit":"ab121324455e06e5fad0a8a2f16d897177965acf","status":"not-hosted","date":"2026-10-22","models":["elite","pro"],"description":"Earlier Elite/Pro DEV CHECKED installer archives are mentioned in development handoffs; original package bytes are not hosted in the GitHub installer. No flash link.","url":null},{"id":"direct-smc-elite","title":"Direct-SMC Elite development reference","source_commit":"81459573792a68edd02fa1ee5658796b55597ba0","status":"not-hosted","date":"2026-10-21","models":["elite"],"description":"Previous Elite-only installer ZIP verified in a separate environment; original package is not hosted here and physical link behavior was not established.","url":null},{"id":"project-save-stage","title":"Project reset/save/load/export stage","source_commit":"68e1117262aba958f96b6eb65cb3bfb1b3cc94ce","status":"evidence-only","date":"2026-10-21","models":["elite","pro"],"description":"DEV CHECKED results recorded; original binaries are not recovered as accessible GitHub firmware packages.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/docs/audit/project-management-dev-validation.md"},{"id":"xip-failed","title":"SMC mixer popup XIP overflow","source_commit":"df1b204745e78784cccfe41b03e75ac4f105eb2b","status":"failed","date":"2026-10-22","models":["elite","pro"],"description":"DEV build failed the XIP budget. Not installable; retained to explain why the subsequent repair was needed.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/12"},{"id":"smc-physical-ref","title":"Earlier SMC connected reference","source_commit":"53d5654c9bbaec10b64c55fb60d0e7d857ba8156","status":"reference","date":"2026-10-21","models":["elite"],"description":"SMC connection and RX controls were observed in a prior device report, but the exact installed firmware attribution is unproven. Not a verified flash artifact.","url":null}]};
 let catalogLive = catalog;
 const repo = catalog.repo || "https://github.com/gobbajogger/X0X37-for-Loopy-Pro";
 $("repolink").href = repo;
@@ -2037,9 +2544,13 @@ $("connbtn").addEventListener("click", () => { scan(); });
 function isRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
-// Production admission is closed: neither preserved catalog entry has physical-device PASS.
-// A catalog flag or evidence URL alone cannot authorize a package.
-function versions() { return []; }
+// Owner approved these exact 0.0.25.1 artifacts, not arbitrary catalog entries.
+const MAIN_251_SOURCE = "79280e763341d03ba43266d3e25dad66f12de860";
+const MAIN_251_MODELS = {"elite":{"product":"SMK-37 Elite_900","sha256":"5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a","size":651721,"controller_sha256":"a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984","controller_strategy":"bundled","controller_size":61552,"pkg":"https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a/x0x37-elite-dev.fwsc"},"pro":{"product":"SMK-37 Pro_900","sha256":"6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf","size":651721,"controller_sha256":"a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984","controller_strategy":"bundled","controller_size":61552,"pkg":"https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf/x0x37-pro-dev.fwsc"}};
+function versions() {
+  return archivedCatalogVersions().filter(v => v.version === "nightly-79280e76-dev" &&
+    v.source_commit === MAIN_251_SOURCE && !catalogDenied(v));
+}
 function archivedCatalogVersions() {
   try {
     const list = catalogLive?.versions;
@@ -2146,7 +2657,13 @@ async function verifyBundledController(logical, p) {
   if (embedded.length !== p.controller_size || await sha256Hex(embedded) !== p.controller_sha256)
     throw new Error(t("ctlbundlebad"));
 }
-function isCatalogChecked(v,p) { return false; }
+function isCatalogChecked(v,p) {
+  try {
+    const pin = MAIN_251_MODELS[chosenModel];
+    return versions().includes(v) && !!pin && archivedNightlyAdmission(v,p) &&
+      Object.keys(pin).every(k => p[k] === pin[k]);
+  } catch { return false; }
+}
 function archivedNightlyAdmission(v,p) {
   try {
     if (!isRecord(v) || !isRecord(p) || catalogDenied(v) || catalogDenied(p) || v.status !== "dev-checked" ||
@@ -2214,7 +2731,7 @@ function renderBuildHistory() {
     const el=document.createElement("article");el.className="build-item";
     const h=document.createElement("h3");h.textContent=(v.title||v.version)+" · "+v.version;el.append(h);
     const badges=document.createElement("div");badges.className="build-badges";
-    badges.append(buildBadge("Not available for production installation", "blocked"));
+    badges.append(buildBadge(versions().includes(v) ? "Owner-approved 0.0.25.1" : "Archived · not installable", versions().includes(v) ? "important" : "blocked"));
     if(v.status==="dev-checked")badges.append(buildBadge(t("devchecked")));
     if(v.hardware_tested!==true)badges.append(buildBadge(t("hardwareuntested"),"important"));
     if(v.lifecycle==="superseded")badges.append(buildBadge(t("superseded"),"blocked"));
@@ -2339,7 +2856,7 @@ function versionOptionCaption(v) {
   const kind = v.status === "dev-checked"
     ? (v.lifecycle === "superseded" ? "verolder" : (v.version === catalogLive.latest ? "verlatest" : "verdev"))
     : (v.status === "release-checked" ? "verrelease" : "verunverified");
-  return t(kind) + (kind === "verlatest" ? "" : " " + (versions().indexOf(v) + 1));
+  return v.display_version ? "DnBOX " + v.display_version : t(kind) + (kind === "verlatest" ? "" : " " + (versions().indexOf(v) + 1));
 }
 function refreshVersionLabels() {
   const byVersion = new Map(versions().map((v) => [v.version, v]));
@@ -2383,9 +2900,24 @@ function fillVersions() {
   renderBuildHistory();
 }
 
+function confirmInPage(message) {
+  const box = $("main-confirm");
+  $("main-confirm-text").textContent = message;
+  return new Promise(resolve => {
+    const done = value => {
+      box.close(); box.oncancel = null;
+      $("main-confirm-yes").onclick = $("main-confirm-no").onclick = null;
+      resolve(value);
+    };
+    box.oncancel = event => { event.preventDefault(); done(false); };
+    $("main-confirm-yes").onclick = () => done(true);
+    $("main-confirm-no").onclick = () => done(false);
+    box.showModal();
+  });
+}
 function confirmWrite(product) {
   const from = lastId ? lastId.text : "(not connected yet — Connect first if you can)";
-  return window.confirm(t("confirm") + from + t("confirmto") + product + t("confirmrisk"));
+  return confirmInPage(t("confirm") + from + t("confirmto") + product + t("confirmrisk"));
 }
 $("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPackage(); });
 $("devagree").addEventListener("change", updateInstallGate);
@@ -2490,9 +3022,31 @@ drop.addEventListener("drop", async (e) => {
   await selectStockFile(f);
 });
 
-async function run(img, product, opts = {}) { say("Production installation is unavailable: no hardware-proven package is admitted."); return; }
+async function saveSlotBackup(file, name) {
+  const a = document.createElement("a");
+  const url = URL.createObjectURL(new Blob([file], { type: "application/octet-stream" }));
+  a.href = url;
+  a.download = name;
+  try {
+    document.body.appendChild(a);
+    a.click();
+  } finally {
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  log(t("slotdownload") + name);
+  return confirmInPage("Before continuing: confirm that " + name + " was saved and is accessible in your Downloads. Cancel if the download was blocked or is missing.");
+}
+
+async function run(img, product, opts = {}) {
+  // Local files and arbitrary calls cannot bypass the exact-package admission.
+  if (opts.foreign !== false || typeof opts.admitted !== "function" ||
+      !opts.admitted() || !hasCurrentVerifiedSelection() ||
+      img !== image || product !== selectedProduct) return;
+  return archivedInstallerRun(img, product, opts);
+}
 async function archivedInstallerRun(img, product, opts = {}) {
-  if (writing || !workspaceActive) return;
+  if (writing || !workspaceActive) { $("status").textContent = writing ? "An install is already running." : "Open the Firmware tab, then press Install again."; updateInstallGate(); return; }
   getSampleWorkspace()?.invalidate();
   getProjectWorkspace()?.invalidate();
   writing = true;
@@ -2500,8 +3054,10 @@ async function archivedInstallerRun(img, product, opts = {}) {
   ctlLoadSerial++; stockLoadSerial++;
   $("go").disabled = $("stockgo").disabled = true;
   $("bar").value = 0;
+  $("backup-warning").hidden = true;
+  $("backup-warning").textContent = "";
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
-  let access;
+  let access, up, unprotected = false;
   try { access = await midiAccess(); }
   catch (e) {
     writing = false;
@@ -2512,14 +3068,14 @@ async function archivedInstallerRun(img, product, opts = {}) {
   led("busy");
   try {
     if (opts.admitted && !opts.admitted()) throw new Error(t("unapproved"));
-    const up = new Updater(access, log);
+    up = new Updater(access, log);
     const total = 74 + 1167;
     const step = (k, a) => {
       log(`${k} ${a ?? ""}`);
       if (k === "start") sayK("start");
-      if (k === "verify") { sayK("verify"); $("bar").value = (a / total) * 100; }
+      if (k === "verify") { sayK("verify"); $("bar").value = Math.min(99, (a / total) * 100); }
       if (k === "loader") sayK("loader");
-      if (k === "write") { sayK("write"); $("bar").value = ((74 + a) / total) * 100; }
+      if (k === "write") { sayK("write"); $("bar").value = Math.min(99, ((74 + a) / total) * 100); }
       if (k === "reboot") sayK("reboot");
       if (k === "done") { $("bar").value = 100; sayK(foreign ? "stockdone" : "done"); }
     };
@@ -2528,49 +3084,57 @@ async function archivedInstallerRun(img, product, opts = {}) {
     if (ota) {
       // Interrupted upgrade/downgrade/stock write: finish with this package (same keyboard family).
       ota.link.close();
-      const ok = await up.resume(img, step, product);
-      $("bar").value = ok ? 100 : $("bar").value;
-      sayK(ok ? (foreign ? "stockdone" : "done") : "stopped");
+      const ok = await up.resume(img, step, product, opts.admitted);
+      if (!ok) sayK("stopped"); // Successful completion is emitted only after application readback.
     } else {
       const board = /^(SMK|MKE|STARRY)/i.test(product) ? "smk" : "fm1";
       const r = await installKeepingSlots(up, img, product, board, {
-        step, sameKeyboard,
-        say: (k, a) => { if (k === "slotsave") sayK("slotsave", a + t("slotsave2")); else sayK(k); log(`${k} ${a ?? ""}`); },
-        progress: (f) => { $("bar").value = Math.min(100, f * 100); },
-        save: (file, name) => {
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(new Blob([file], { type: "application/octet-stream" }));
-          a.download = name;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(a.href), 60000);
-          log(t("slotsaved") + name);
+        step, sameKeyboard, admitted: opts.admitted,
+        say: (k, a) => {
+          if (k === "slotsave") sayK("slotsave", a + t("slotsave2"));
+          else if (k === "slotunprotectedwarning") {
+            $("backup-warning").textContent = t(k) + (a ?? "");
+            $("backup-warning").hidden = false;
+            sayK(k, a || "");
+          } else sayK(k);
+          log(k + " " + (a ?? ""));
         },
+        progress: (f) => { $("bar").value = Math.min(up.verified ? 100 : 99, f * 100); },
+        save: (file, name) => saveSlotBackup(file, name),
       });
+      unprotected = r.unprotected === true;
       if (r.move && !r.move.newMap.length) sayK("slotstock", r.move.name);
       else if (r.move) {
         $("bar").value = 100;
-        sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
+        if (r.move.skipped.length) {
+          sayK("slotspartial", r.move.skipped.join("; ") + ` (${r.move.name})`);
+        } else sayK("slotsdone");
       }
     }
-    await scan();
+    await scan(true);
+    if (unprotected) {
+      sayK("slotunprotecteddone");
+      log("Firmware installed without a recoverable sample-slot backup.");
+    }
   } catch (e) {
-    // Stock / other custom firmware often reports a different identity string than the package marker.
-    if (foreign && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }
-    else if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
+    if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
     else sayK("error", e && e.message);
     log(String(e && e.stack || e));
     led("err");
+  } finally {
+    up?.close?.();
+    writing = false;
+    updateInstallGate();
+    $("stockgo").disabled = !stock || !$("stockconfirm").checked;
   }
-  writing = false;
-  updateInstallGate();
-  $("stockgo").disabled = !stock || !$("stockconfirm").checked;
 }
 
 $("go").addEventListener("click", async () => {
   if (writing || $("go").disabled || !hasCurrentVerifiedSelection() || !$("devagree").checked) return;
-  if (!confirmWrite(selectedProduct)) return;
+  const confirmedProduct = selectedProduct, confirmedImage = image, confirmedSerial = loadSerial;
+  if (!await confirmWrite(confirmedProduct)) return;
+  if (writing || loadSerial !== confirmedSerial || image !== confirmedImage ||
+      selectedProduct !== confirmedProduct || !hasCurrentVerifiedSelection()) return;
   const { version: ver, pkg } = currentSelection();
   const selectedImage = image, product = selectedProduct, controller = ctl, serial = loadSerial;
   $("go").disabled = true;
@@ -2603,9 +3167,9 @@ $("go").addEventListener("click", async () => {
     image === selectedImage && (bundled || ctl === controller) && $("devagree").checked &&
     hasCurrentVerifiedSelection() });
 });
-$("stockgo").addEventListener("click", () => {
+$("stockgo").addEventListener("click", async () => {
   if (!stock || !$("stockconfirm").checked || writing) return;
-  if (!confirmWrite(stock.product)) return;
+  if (!await confirmWrite(stock.product)) return;
   $("stockgo").disabled = true;
   run(stock.image, stock.product, { foreign: true });
 });
@@ -2661,3 +3225,4 @@ navigateWorkspace();
 </script>
 </body>
 </html>
+

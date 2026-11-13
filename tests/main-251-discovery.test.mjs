@@ -1,0 +1,9 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import {readFileSync} from 'node:fs';
+const html=readFileSync(new URL('../install/index.html',import.meta.url),'utf8');
+const start=html.indexOf('const HS_QUERY ='),end=html.indexOf('// SPDX-License-Identifier:',html.indexOf('  async resume',start));
+const {Updater,pack7}=await import('data:text/javascript;base64,'+Buffer.from(html.slice(start,end)+'\nexport {Updater,pack7};').toString('base64'));
+for (const name of ['DnBOX 0.0.25 37PRO','DnBOX 0.0.25 37ELITE','unknown MIDI name']) test('SysEx discovery is not gated by '+name,()=>{const i={name,state:'connected'},o={name,state:'connected'};const u=new Updater({inputs:new Map([['i',i]]),outputs:new Map([['o',o]]),addEventListener(){},removeEventListener(){}});assert.equal(u._portPairs().length,1);assert.equal(u.ports().length,0);u.close();});
+
+function ports(models){const ins=new Map(),outs=new Map();models.forEach((model,k)=>{const i={name:'device'+k,state:'connected',open:async()=>{}};const o={name:i.name,state:'connected',open:async()=>{},send(){if(model){const data=new Array(27).fill(0);[...model+'_900'].forEach((c,j)=>data[j]=c.charCodeAt());queueMicrotask(()=>i.onmidimessage?.({data:[240,...pack7([0,89,17,27,0,0,...data,~data.reduce((a,b)=>a+b,0)&255]),247]}));}}};ins.set(k,i);outs.set(k,o)});return{inputs:ins,outputs:outs,addEventListener(){},removeEventListener(){}};}
+test('one SMK with unrelated nonresponding MIDI is not ambiguous',async()=>{const u=new Updater(ports(['SMK-37 Pro',null]));const d=await u.find(()=>true);assert.equal(d.id.model,'SMK-37 Pro');assert.equal(u.singlePort().length,1);d.link.close();u.close()});
+test('two responding SMKs are ambiguous',async()=>{const u=new Updater(ports(['SMK-37 Pro','SMK-37 Elite']));await assert.rejects(u.find(()=>true),{code:'ambiguous'});u.close()});
