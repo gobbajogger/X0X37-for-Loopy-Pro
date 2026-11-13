@@ -2,6 +2,8 @@
 
 This document extends the existing ROADMAP **26.8** plugin-compat scope on `lane/fmb-presets-format`. It is a sibling of `docs/plans/2026-11-13-chicago-miami-plugin-compat-gaps.md`. Native DNPR Juno presets stay **independent**: a user Juno `.dnpr` does not require AudioKit, and this converter is not a firmware change.
 
+**26.8b (engine fidelity).** A sibling engineering goal — that the DnBOX Juno **engine** should reproduce J6 sounds faithfully, without claiming identity — is in `docs/plans/2026-11-13-j6-juno-engine-fidelity.md`. That work is host-only prototypes in `/workspace/j6-fidelity`. It does not change this converter contract, and it does not make the J6 schema verified. CPU-adding engine items are **NOT ALLOWED as-is** until an offsetting saving exists. Engine edits wait until after 26.8b and the 26.9 loudness study.
+
 **Cite, do not redo.** Website UX finished the AudioKit product-identity and format research (relayed to this lane on 2026-11-13, America/Chicago). This document **does not redo** that format research. Their findings, used as given:
 
 - The product is **most likely AudioKit Synth One J6**, **not** the older open-source AudioKit Synth One.
