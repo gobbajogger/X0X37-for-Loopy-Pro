@@ -452,6 +452,10 @@ def build_app():
         v = os.environ.get(flag)    # unset: the default in firmware headers / below
         if v in ("0", "1"):
             flags.append(f"-D{flag}={v}")
+    meas = os.environ.get("DNBOX_PRESET_MEASURE_STAGE", "4")
+    if meas not in ("0", "1", "2", "3", "4"):
+        raise SystemExit("DNBOX_PRESET_MEASURE_STAGE: 0..4")
+    flags.append(f"-DDNBOX_PRESET_MEASURE_STAGE={meas}")
     # Sound-selector previews use tagged storage but deliberately leave the
     # separate per-note snapshot lifecycle disabled until it is qualified.
     bass_flags = ("X0X_BASS_PRESET_PREVIEW", "X0X_BASS_TAGGED_SOUND", "X0X_BASS_NOTE_SOUND")
