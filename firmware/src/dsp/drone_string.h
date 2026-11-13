@@ -67,7 +67,7 @@ static inline void drone_string_refresh(drone_string_t *d)
     d->tone = 0.012f + bright * bright * 0.48f;
     d->attack_step = 1.0f / ((0.004f + attack * attack * 2.0f) * DRONE_STRING_SAMPLE_RATE);
     d->release_step = 1.0f / ((0.08f + release * release * 4.0f) * DRONE_STRING_SAMPLE_RATE);
-    d->output = 0.24f * d->macro[5];
+    d->output = 0.50f * d->macro[5];
 }
 
 static inline void drone_string_init(drone_string_t *d)
