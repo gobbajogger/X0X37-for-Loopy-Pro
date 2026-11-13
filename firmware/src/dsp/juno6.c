@@ -45,7 +45,11 @@ void juno6_render(juno6_t *s, float *out, unsigned n)
    float x=(saw*saw_g+pulse*pul_g)*.7f+sub*sub_g;
    if(v->stage==1) {v->envelope+=attack;if(v->envelope>=1){v->envelope=1;v->stage=2;}}
    else if(v->stage==2){v->envelope-=decay;if(v->envelope<=s->sustain){v->envelope=s->sustain;v->stage=3;}}
-   else if(v->stage==4){v->envelope-=fm_maxf(.000001f,v->envelope)*release;if(v->envelope<.00001f){v->envelope=0;v->stage=0;}}
+   else if(v->stage==4){
+    /* Values below the old 1e-6 floor retire at 1e-5 in either form. */
+    v->envelope-=v->envelope*release;
+    if(v->envelope<.00001f){v->envelope=0;v->stage=0;}
+   }
    /* Bounded two-pole lowpass, no transcendental work per voice/sample. */
    float a=clampf(TWO_PI*(base+v->envelope*env)/sr,.001f,.75f);
    v->filter_state+=a*(x-v->filter_state-res8*v->filter);

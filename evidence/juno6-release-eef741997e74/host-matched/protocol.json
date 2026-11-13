@@ -1,0 +1,53 @@
+{
+  "candidate": "eef741997e743189f17df7e46bf881e472ad254c",
+  "parent": "1322293e89c1582eecb3d9b7950e14db01722065",
+  "candidate_source_sha256": "b1e8ab2268a494f469089bb13d6b7bed13b055d8bbb66218617895da6a5422dd",
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "compiler_path": "/usr/bin/cc",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "cpu_affinity": [
+    0
+  ],
+  "load_average_before": [
+    0.0068359375,
+    0.22705078125,
+    0.64404296875
+  ],
+  "started_utc": "2026-11-13T17:36:06Z",
+  "common_flags": [
+    "-std=c99",
+    "-ffp-contract=off",
+    "-fno-fast-math",
+    "-Wall",
+    "-Wextra",
+    "-I/workspace/scratch/ae3d1fd5cef1/juno-exact-continuation/firmware/src/dsp"
+  ],
+  "optimizations": [
+    "Os",
+    "O2"
+  ],
+  "link_orders": [
+    "AB",
+    "BA"
+  ],
+  "sample_rate": 44100,
+  "frames_per_block": 256,
+  "blocks_per_leg": 16,
+  "quartets_per_trial": 16,
+  "trials_per_case": 15,
+  "cases": [
+    "idle",
+    "held-1",
+    "held-6",
+    "release-1",
+    "release-6"
+  ],
+  "control": "same parent function pointer for both A and B labels, interleaved with actual comparison",
+  "order": "alternate ABBA/BAAB and control/comparison first; rotate case order",
+  "control_gate": "99% nominal sign-test median interval includes 1 and lies within [0.99, 1.01]; this is a noise gate, not an allowed regression",
+  "acceptance": "reject a qualified regression reproduced in both link layouts; otherwise report case intervals. No universal never-slower assertion; no outlier deletion or repeat-until-pass",
+  "interval_limit": "nominal iid median interval; temporal dependence or nonstationarity weakens inference",
+  "dsp_and_proof_reuse": "production source unchanged; previous PCM/state and native build proofs are not rerun",
+  "driver_sha256": "dacfef303dcf7c435839902a37100940ccd0529482d9679128492449d1488a34",
+  "runner_sha256": "413de7e610d4bf99d1fb876118217ad0f1ecef068e62f77024e722822aad28e4"
+}
