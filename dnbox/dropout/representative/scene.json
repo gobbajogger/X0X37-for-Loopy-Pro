@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "firmware_source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "kind": "representative",
+  "owner_scene_exact": false,
+  "status": "REQUIRED_STATE_OBSERVED_IN_SHORT_DIAGNOSTIC_FULL_DURATION_NOT_RUN",
+  "start_ms": 20000,
+  "end_ms": 320000,
+  "shot_ms": 320500,
+  "keys": "scene.keys",
+  "usb": "scene.usb",
+  "preconditions": [
+    "Fresh project produced from the exact package; no restored owner project",
+    "X0X_NBREAKS=0, app-tail pack absent, exactly one valid user slot/zone",
+    "Default UI V_SEQ/PART_909, empty sequences, tempo125, A=Miami and B=Chicago",
+    "SMK physical master and all unmentioned controls at emulator/package defaults"
+  ],
+  "intended": {
+    "tempo_bpm": 140,
+    "synth_a": {
+      "engine": "Chicago",
+      "factory_preset": 0,
+      "internal_arp": "on",
+      "arp_other_settings": "factory defaults",
+      "usb_channel": 2,
+      "held_notes": [
+        48,
+        52,
+        55
+      ],
+      "velocity": 100
+    },
+    "synth_b": {
+      "engine": "Juno",
+      "factory_preset": 0,
+      "usb_channel": 3,
+      "held_notes": [
+        60,
+        64,
+        67
+      ],
+      "velocity": 100
+    },
+    "break": {
+      "sample": "CRAMEN",
+      "slot": 1,
+      "loop_index": 0,
+      "steps": "0xffff",
+      "b_chance": 0
+    },
+    "909": {
+      "voice": "BD",
+      "steps": "0x1111",
+      "step_velocity": "default after physical toggle"
+    },
+    "808": {
+      "all_steps": "empty",
+      "external_notes": "none"
+    },
+    "fx": "factory/default state",
+    "master": "emulator default"
+  },
+  "owner_unknown": [
+    "installed_package_hash",
+    "installed_model",
+    "tempo",
+    "patches",
+    "fx",
+    "break_sample",
+    "arp_settings",
+    "held_notes",
+    "velocities",
+    "master_level"
+  ],
+  "runtime_scene_verification": "Exact Elite short run observed all required sampled states at1550 IRQ boundaries in20\u201329s; separate808job predicate and final-output isolation evidence are recorded in runtime receipts. This declaration is not owner reproduction.",
+  "source_references": [
+    "firmware/src/app/ui.c:99 (part order)",
+    "firmware/src/app/ui.c:1426 (per-part page memory)",
+    "firmware/src/app/ui.c:1589 (SOUND-page preservation per part)",
+    "firmware/src/app/ui.c:2729 (encoder acceleration interval)",
+    "firmware/src/app/ui.c:4069 (physical ARP is TB-3PO)",
+    "firmware/src/app/ui.c:4099 (SEQ from V_PART)",
+    "firmware/src/app/ui.c:4565 (SELECT page wrap)",
+    "firmware/src/app/ui.c:4588 (part change before page rebuild)",
+    "firmware/src/app/engine.c:784 (initial synth banks)",
+    "firmware/src/app/engine.c:1744 (USB synth note routing)",
+    "firmware/src/app/project.c:92 (tempo default)",
+    "firmware/src/app/project.c:102 (fresh patterns)",
+    "firmware/src/app/smk_input.h:56 (white keys)",
+    "crates/fm1-soc/src/script.rs:37 (physical encoder syntax)",
+    "firmware/hal/smk_input.h:416-436 (decoder initialization and reversal residuals)",
+    "crates/fm1-soc/src/periph.rs:609-614,695-702 (four physical transitions per detent)"
+  ],
+  "encoder_primers": {
+    "scope": "Physical input sequence only; no firmware or emulator input-model modification",
+    "events": [
+      "3800:e1:+1",
+      "8200:e2:+1",
+      "10400:e1:-1",
+      "10800:e4:+1",
+      "14200:e4:-1",
+      "15800:e4:+1",
+      "16700:e2:-1"
+    ],
+    "reason": "Pinned SMK decoder suppresses the first detent on initial use and direction reversal; original events then supply the intended UI steps",
+    "evidence": "Source-derived correction then accepted by actual short-run boundary-state checks"
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "classification": "MEASURED_REJECTED_SETUP",
+  "owner_scene_exact": false,
+  "requested_scene_qualified": false,
+  "firmware_source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "runner_source": "31157d25caf7284080cdb5d86ab7e8e438120fd9",
+  "observer_binary_sha256": "5df112b59a8d68f9a39bcb4c7d418caab5db3ccbba351d55b03134b48cc4e8a1",
+  "elite_elf_sha256": "720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea",
+  "elite_fwsc_sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6",
+  "factory_pack_sha256": "cbfe682a9c69b51dac4ee96db7ab4605c8ecdb2839230efcc5445aa0a8fe199e",
+  "run_ms": 30000,
+  "returncode": 0,
+  "artifacts_sha256": {
+    "trace.jsonl": "41ae590ed7c2ade94ecc2dd78ad8e04aa8f06b725c99405b4c0653974b25f974",
+    "audio.raw": "5658e4b56c8b023e34c45f634811a6f4ca108aecb1900dbf2fd02301860c08e2",
+    "ram.bin": "ed68df77cb9b39f90401bb8513bdcfda98739e208b59825c6ac55936f5400e98",
+    "scene.keys": "6bcc2de74cb3f87d46064c2a99604912fda76b224d91c45070e52b16b7c14e43",
+    "scene.usb": "8ec69ab33ce988d37ec37679122521c9bc439bd95822c14c5a7e576c129f6aa1",
+    "scene.json": "a314f386c2a351c1667a88affc9b5e20c3ecf934d581f77f21e24f03f2f0b456"
+  },
+  "analysis": {
+    "schema": 1,
+    "status": "OBSERVED",
+    "trace_sha256": "41ae590ed7c2ade94ecc2dd78ad8e04aa8f06b725c99405b4c0653974b25f974",
+    "firmware_source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "runner_source": "31157d25caf7284080cdb5d86ab7e8e438120fd9",
+    "owner_scene_exact": false,
+    "representative_scene_qualified": false,
+    "clock": {
+      "hz": 5760000000,
+      "unit": "emulator_tick",
+      "cycle_ticks": 16
+    },
+    "window": {
+      "start_ms": 20000.0,
+      "end_ms": 29000.0,
+      "selection": "DMA interval wholly contained in window",
+      "dma_edges": 775,
+      "completed_halves": 775,
+      "coherent_halves": 775
+    },
+    "deadline": {
+      "completed_irq_deadline_misses": 0,
+      "unserviced_dma_edges": 0,
+      "boundary_uncertain_halves": 0,
+      "max_dma_edges_during_irq": 0,
+      "minimum_slack_lower_us": 3133.2114583333337,
+      "max_guest_last_us": 8467,
+      "firmware_late_delta": 0,
+      "firmware_xruns_delta": 0
+    },
+    "attribution": {
+      "eng_prof_scope": "guest_counters_with_known_core1_omissions",
+      "eng_prof_names": [
+        "909",
+        "808_and_shared_wait",
+        "303A",
+        "303B",
+        "BREAK",
+        "FX",
+        "MASTER",
+        "SEQ"
+      ],
+      "eng_prof_delta_sum": [
+        0,
+        32687289,
+        0,
+        61155699,
+        667211,
+        820875,
+        11771576,
+        6418234
+      ],
+      "eng_prof_unit": "24 MHz timer ticks for pinned perf_cyc_ok=0 firmware",
+      "eng_job_cost": "smoothed normalized ticks per 256 frames; not raw per-half work",
+      "core1_timestamps": "global slice clock; not independent core-1 instruction timings",
+      "shared_wait_bucket": "808",
+      "total_dsp_cost": "NOT_DERIVABLE"
+    },
+    "break_evidence": {
+      "slot": 1,
+      "loaded": "OBSERVED",
+      "mix_contribution": "NOT_OBSERVED",
+      "contributing_halves": 0,
+      "invalid_mix_halves": 0,
+      "audibility": "UNVERIFIED",
+      "limitation": "A finite current-stretch dry-bus delta is numerical contribution; final-output or human audibility requires separate evidence."
+    },
+    "unverified_scene_fields": [
+      "Chicago engine and arp state",
+      "Juno engine and held triad",
+      "909 four-on-the-floor pattern",
+      "808 inactivity",
+      "final-output BREAK audibility",
+      "owner installed package/model and musical settings"
+    ],
+    "scene_observations": {
+      "fields": {},
+      "interpretation": "UNVERIFIED",
+      "scope": "Raw configured bytes only; offsets and values require separate source/layout and ELF verification."
+    },
+    "trailing_pending_seq": 2521,
+    "error_count": 0,
+    "errors": [],
+    "evidence_scope": "observer trace only; no hardware qualification or guessed PASS"
+  },
+  "final_snapshot_scope": "Final RAM only; not proof of state throughout the measurement window",
+  "final_observed_state": {
+    "a_kind": "Miami",
+    "a_status": 1,
+    "a_usb_held_counts": {
+      "48": 1,
+      "52": 1,
+      "55": 1
+    },
+    "b_kind": "Chicago",
+    "b_status": 1,
+    "b_arp_enable": 1,
+    "b_usb_held_counts": {
+      "60": 1,
+      "64": 1,
+      "67": 1
+    },
+    "playing": 1,
+    "bpm": 139,
+    "channels_zero_based": [
+      9,
+      10,
+      1,
+      2,
+      3
+    ],
+    "part_patterns": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "active_pattern_pointer_matches_project_pattern0": true,
+    "part_off": 0,
+    "mute": 0,
+    "vmute": 0,
+    "909_bd_low_word": "0x1111",
+    "other_909_hit_words": 0,
+    "808_bd_low_word": "0xffff",
+    "other_808_hit_words": 0,
+    "break_steps": 0,
+    "break_slot_a": 0,
+    "break_slot_b": 1,
+    "break_b_chance": 0,
+    "break_rate": 0
+  },
+  "rejection_reasons": [
+    "A is Miami, not Chicago",
+    "B is Chicago, not Juno",
+    "808 BD pattern is nonempty",
+    "BREAK has zero steps and no observed dry-mix contribution",
+    "tempo is139 instead of intended140"
+  ],
+  "scope": "Exact pinned firmware emulator execution of a rejected setup. No owner reproduction, hardware, never-slower firmware or audio equivalence claim.",
+  "layout_receipt_sha256": "126d0601f2d31f826f5feed571c21866e06e6423884e7b86927c01198f40899e"
+}

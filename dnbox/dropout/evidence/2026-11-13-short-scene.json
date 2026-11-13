@@ -1,0 +1,710 @@
+{
+  "schema": 1,
+  "evidence_class": "MEASURED_EMULATOR_SHORT_DIAGNOSTIC",
+  "status": "OBSERVATION_COMPLETE",
+  "owner_scene_exact": false,
+  "owner_hardware_dropout_reproduced": false,
+  "owner_hardware_dropout_status": "NOT_ESTABLISHED; no misses in this chosen short representative window",
+  "duration_scope": "SHORT_DIAGNOSTIC",
+  "declared_five_minute_window_status": "NOT_RUN",
+  "pro_runtime_status": "NOT_RUN; exact inputs hash-verified",
+  "firmware_source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "runner_source": "31157d25caf7284080cdb5d86ab7e8e438120fd9",
+  "observer_rust_source_checkpoint": "dd830c0d2668d4fea5d972ceadc97e8c53af5294",
+  "observer_binary_sha256": "04c795b1961298cbd10d4bd9881ab97fde5eef7ff179f49a6b953dab78d43dc8",
+  "firmware_changes": {
+    "additional_guest_measurement_code": false,
+    "added_flash_bytes": 0,
+    "added_pool_bytes": 0,
+    "new_firmware_cycle_cost": "None: firmware unchanged; host observation cost is not guest time",
+    "package_and_elf_bytes_changed": 0,
+    "separate_emulator_sample_overlay": {
+      "physical_user_slot": 1,
+      "slot_bytes": 81920,
+      "outside_slot_unchanged": true,
+      "scope": "Input fixture, not linked firmware modification"
+    }
+  },
+  "input_hashes": {
+    "scene": "005a31b081da0413be91b4af4dbde7088785fc75524eeae419e7be76807286b0",
+    "keys": "fc0b36dba5836217e989f110bd580e720106a71e8741ab2c1726252789212965",
+    "usb": "8ec69ab33ce988d37ec37679122521c9bc439bd95822c14c5a7e576c129f6aa1",
+    "emulator": "04c795b1961298cbd10d4bd9881ab97fde5eef7ff179f49a6b953dab78d43dc8",
+    "fwsc": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6",
+    "elf": "720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea",
+    "pack": "cbfe682a9c69b51dac4ee96db7ab4605c8ecdb2839230efcc5445aa0a8fe199e",
+    "observer_map": "8449c3d91d3e831f329a90627a7678448b9fc6c3dd15ad8be0533ec2ea4f2b77"
+  },
+  "fixture": {
+    "schema": 1,
+    "status": "PREPARED_NOT_RUN",
+    "owner_scene_exact": false,
+    "firmware_source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "runner_source": "31157d25caf7284080cdb5d86ab7e8e438120fd9",
+    "base_flash_sha256": "81acb3507b1a4b6c7268cf68b9739704e67f8d4e4ac551ea656e5e88b82a4605",
+    "flash_sha256": "b609658785d999135f29a4730bd853793139da416b6396d4c06776f9f76a9808",
+    "unchanged_outside_slot": true,
+    "other_sample_slots_with_fsmp_headers": [],
+    "sample": {
+      "pack_sha256": "cbfe682a9c69b51dac4ee96db7ab4605c8ecdb2839230efcc5445aa0a8fe199e",
+      "name": "CRAMEN",
+      "slot": 1,
+      "offset": 794624,
+      "slot_bytes": 81920,
+      "slot_sha256": "05e4a161a336beffb564a7f51189c778414cb51af3292957f1fff10305edcfe7",
+      "adpcm_sha256": "9f8605587a8b04ca5ed6c5739cd09d69b307c57e496986cabc786ec547c1f4a8",
+      "adpcm_bytes": 35295,
+      "samples": 70589,
+      "rate": 44100,
+      "pack_bars": 1,
+      "user_slot_bars_inferred": 1
+    },
+    "runtime_evidence": {
+      "loaded": "NOT_RUN",
+      "break_mix_contribution": "NOT_RUN",
+      "audibility": "NOT_RUN",
+      "deadline": "NOT_RUN"
+    },
+    "owner_unknown": [
+      "installed_package_hash",
+      "installed_model",
+      "tempo",
+      "patches",
+      "fx",
+      "break_sample",
+      "arp_settings",
+      "held_notes",
+      "velocities"
+    ]
+  },
+  "measurement_window": {
+    "start_ms": 20000.0,
+    "end_ms": 29000.0,
+    "selection": "DMA interval wholly contained in window",
+    "dma_edges": 775,
+    "completed_halves": 775,
+    "coherent_halves": 775
+  },
+  "deadline": {
+    "completed_irq_deadline_misses": 0,
+    "unserviced_dma_edges": 0,
+    "boundary_uncertain_halves": 0,
+    "max_dma_edges_during_irq": 0,
+    "minimum_slack_lower_us": 2776.033854166667,
+    "max_guest_last_us": 8824,
+    "firmware_late_delta": 0,
+    "firmware_xruns_delta": 0
+  },
+  "scene": {
+    "status": "OBSERVED_MATCH",
+    "required_state_matches_at_all_observed_boundaries": true,
+    "owner_scene_exact": false,
+    "evidence_scope": "Required scene state at observed ALNK entry/completion boundaries only.",
+    "representative_scene_qualified": false,
+    "808_live_inactivity": "UNVERIFIED",
+    "declared_window": {
+      "start_ms": 20000,
+      "end_ms": 320000
+    },
+    "observed_window": {
+      "start_ms": 20000.0,
+      "end_ms": 29000.0
+    },
+    "requested_observation_window": {
+      "start_ms": 20000,
+      "end_ms": 29000
+    },
+    "observation_window_override": true,
+    "partial_duration": true,
+    "layout_receipt": {
+      "source_commit": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+      "proof_sha256": "126d0601f2d31f826f5feed571c21866e06e6423884e7b86927c01198f40899e",
+      "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+      "toolchain_archive_sha256": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19",
+      "constant_record_sha256": "25aa423b3abaa29c66e04941c83020c8543c1f797fcad123c4a9fcdf4233d44e",
+      "abi": "ELF32 little endian, machine0xf1; pi32v2/r3/fprev1; pointers4, float4",
+      "derivation": "target-compiler offsetof/sizeof; three aggregate ELF size cross-checks; no DWARF",
+      "runtime_measurement": false
+    },
+    "csv_sha256": "c13e5b96382c0723f457390bf074d090346a3aa0175abc1d456f1a29c21f536b",
+    "rows": 775,
+    "coherent_rows": 775,
+    "matching_rows": 775,
+    "checked_boundaries": 1550,
+    "failing_boundaries": 0,
+    "trace_complete": true,
+    "unobserved_dma_edges": 0,
+    "continuous_state_between_boundaries": "UNVERIFIED",
+    "audibility": "UNVERIFIED",
+    "failures": [],
+    "incomplete_reasons": [],
+    "limitations": [
+      "Boundary snapshots do not prove unchanged scene state between observations.",
+      "Held-key bytes are ownership counters, not note velocities or active voice counts.",
+      "Empty 808 hit rows prove the sampled pattern is empty, not absence of residual live voices.",
+      "An optional zero 808 activity predicate at a boundary does not prove inactivity in every stretch.",
+      "Patch/factory identity, FX settings and most BREAK generator controls remain unverified.",
+      "BREAK configuration is separate from loaded sample, numerical contribution and human audibility evidence.",
+      "Owner settings and installed artifact remain unconfirmed; this scene is representative."
+    ]
+  },
+  "activity_808": {
+    "status": "INACTIVE_OBSERVED",
+    "all_observed_stretches_inactive": true,
+    "mix_guard_excluded_at_all_observed_stretches": true,
+    "predicate_active_observed": false,
+    "provenance_verified": true,
+    "coverage_complete": true,
+    "firmware_source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "runner_source": "31157d25caf7284080cdb5d86ab7e8e438120fd9",
+    "stage_events_sha256": "8a9076066d9ae6aea4aca365f1d6b154fc0d01e0a713ae3a5a72b346b525ffc7",
+    "expected_stage_events_sha256": "8a9076066d9ae6aea4aca365f1d6b154fc0d01e0a713ae3a5a72b346b525ffc7",
+    "watch_metadata": {
+      "address": 29393605,
+      "bytes": 1,
+      "element_bytes": 1
+    },
+    "observed_window": {
+      "start_ms": 20000.0,
+      "end_ms": 29000.0,
+      "selection": "DMA interval wholly contained in window",
+      "dma_edges": 775,
+      "completed_halves": 775,
+      "coherent_halves": 775
+    },
+    "selected_halves": 775,
+    "expected_completed_halves": 775,
+    "total_stretches": 2052,
+    "activity_stores": 2052,
+    "active_stores": 0,
+    "unobserved_dma_edges": 0,
+    "inactivity_on_unobserved_dma_edges": "UNVERIFIED",
+    "zero_808_cpu_cost": "UNVERIFIED",
+    "owner_scene_exact": false,
+    "representative_scene_qualified": false,
+    "audibility": "UNVERIFIED",
+    "evidence_scope": "Fresh d808_was_active predicates at all covered JB_808 entries, bounded by each eng_stage0..2 stretch interval; mix_808 is excluded when that predicate is zero.",
+    "incomplete_reasons": [],
+    "error_count": 0,
+    "source_references": [
+      "engine.c:2209",
+      "engine.c:2257-2261",
+      "engine.c:2383-2384",
+      "engine.c:2418-2422",
+      "engine.c:2710",
+      "engine.c:2718-2722"
+    ],
+    "limitations": [
+      "The predicate is read at JB_808 entry within each stretch, not continuously between observations.",
+      "A zero predicate excludes the guarded JB_808 render and mix_808 contribution for that stretch.",
+      "The earlier eng_808_split decision can dispatch split-body prefix work before this predicate read; that work is not excluded.",
+      "808 setup, pan settling and shared wait attribution may still consume CPU; zero CPU cost is not established.",
+      "No activity state is inferred for unserviced DMA edges or an interval outside the reducer's window.",
+      "This does not establish the other instruments, final-output audibility, hardware timing, or exact owner reproduction."
+    ]
+  },
+  "break_full_scene": {
+    "slot": 1,
+    "loaded": "OBSERVED",
+    "mix_contribution": "OBSERVED",
+    "contributing_halves": 775,
+    "invalid_mix_halves": 0,
+    "audibility": "UNVERIFIED",
+    "limitation": "A finite current-stretch dry-bus delta is numerical contribution; final-output or human audibility requires separate evidence."
+  },
+  "attribution": {
+    "eng_prof_scope": "guest_counters_with_known_core1_omissions",
+    "eng_prof_names": [
+      "909",
+      "808_and_shared_wait",
+      "303A",
+      "303B",
+      "BREAK",
+      "FX",
+      "MASTER",
+      "SEQ"
+    ],
+    "eng_prof_delta_sum": [
+      16725183,
+      654939,
+      57436922,
+      39286586,
+      0,
+      3803738,
+      11657837,
+      4905315
+    ],
+    "eng_prof_unit": "24 MHz timer ticks for pinned perf_cyc_ok=0 firmware",
+    "eng_job_cost": "smoothed normalized ticks per 256 frames; not raw per-half work",
+    "core1_timestamps": "global slice clock; not independent core-1 instruction timings",
+    "shared_wait_bucket": "808",
+    "total_dsp_cost": "NOT_DERIVABLE"
+  },
+  "endpoint_plan_mask": {
+    "eng_plan_values": [
+      16
+    ],
+    "eng_c1_mask_values": [
+      16
+    ],
+    "selected_halves": 775,
+    "scope": "End-of-half snapshots; bit4 is BREAK. Stage event file retains within-half stores."
+  },
+  "worst_half": {
+    "dma_seq": "2164",
+    "scheduled_cycle": "148897352983",
+    "deadline_cycle": "148964199703",
+    "entry_cycle": "148897352983",
+    "completion_cycle": "148948209748",
+    "completion_uncertainty_cycles": "1",
+    "dma_period_us": "11605.333333333334",
+    "entry_latency_us": "0.0",
+    "irq_elapsed_us": "8829.299479166668",
+    "slack_lower_us": "2776.033854166667",
+    "slack_upper_us": "2776.0340277777777",
+    "deadline_miss": "0",
+    "deadline_boundary_uncertain": "0",
+    "dma_edges_during_irq": "0",
+    "last_us": "8824",
+    "last_us_writes": "1",
+    "late_delta": "0",
+    "xruns_delta": "0",
+    "nested_delta": "88",
+    "timer_irqs_delta": "88",
+    "ui_frames_delta": "0",
+    "halves_delta": "1",
+    "eng_prof_frames_delta": "512",
+    "eng_prof_delta": "[23618, 1038, 76052, 50642, 0, 11044, 14532, 14775]",
+    "eng_job_cost": "[12068, 0, 42581, 28093, 7496]",
+    "eng_plan": "16",
+    "eng_c1_mask": "16",
+    "eng_mastered": "0",
+    "eng_do_master": "0",
+    "break_loaded": "1",
+    "break_mix_nonzero_writes": "1024",
+    "break_mix_peak_delta": "0.7474498748779297",
+    "break_mix_invalid": "0",
+    "coherent": "1"
+  },
+  "last_us_statistics": {
+    "mean": 8024.81935483871,
+    "median": 8179,
+    "maximum": 8824
+  },
+  "observer_control_comparison": {
+    "scope": "Separate exact same package/fixture/scripts/strict360 runs; observed capture has27scene watches, control observation disabled",
+    "pcm_bit_exact": true,
+    "final_ram_bit_exact": true,
+    "final_flash_bit_exact": true,
+    "pcm_bytes": 5163008,
+    "pcm_sha256": "a5f6fa473b55ead4a4a021a8d02f3c0b17bf46977c3309e02e1cb97939c0169e",
+    "ram_sha256": "6bb558514d883d5c7c4dc87825cc0922a8d03565aa96a40ffc570f502e713c51",
+    "flash_sha256": "b609658785d999135f29a4730bd853793139da416b6396d4c06776f9f76a9808"
+  },
+  "isolated_break": {
+    "state": {
+      "schema": 1,
+      "status": "NUMERICAL_BREAK_OUTPUT_OBSERVED",
+      "owner_scene_exact": false,
+      "representative_scene_qualified": false,
+      "input_isolation": {
+        "status": "CONDITIONAL_ON_SEPARATE_EXECUTION_RECEIPT",
+        "verified_by_this_function": false,
+        "requirements": [
+          "Runner records a fresh fixture made from the exact hash-verified package and the verified BREAK sample.",
+          "Runner records the exact derived BREAK-only key script SHA256 and its full-scene parent SHA256.",
+          "Runner records no USB script and no other note-injection routes or inherited runtime/project state.",
+          "Runner binds this run's trace and PCM file hashes to that execution receipt."
+        ],
+        "full_keys_sha256": "fc0b36dba5836217e989f110bd580e720106a71e8741ab2c1726252789212965",
+        "break_only_keys_sha256": "8d9adb5687d5af1cfe37231e527e2786b79aa2d8cf9c2fd968535594f8ac853b",
+        "limitation": "Zero sampled USB ownership counters and drum hit rows do not prove arbitrary traces contain no hidden or earlier notes."
+      },
+      "human_audibility": "UNVERIFIED",
+      "full_scene_break_dac_mix": "NOT_PROVEN",
+      "808_live_inactivity": "UNVERIFIED",
+      "evidence_scope": "Separate BREAK-only-input numerical witness, conditional on the recorded fresh-fixture/derived-keys/no-USB execution contract.",
+      "window_policy": "Same millisecond bounds; CSV contains full DMA intervals and PCM selects scheduled DMA reads before their IRQ renders.",
+      "incomplete_reasons": [],
+      "failures": [],
+      "declared_window": {
+        "start_ms": 20000,
+        "end_ms": 320000
+      },
+      "observed_window": {
+        "start_ms": 20000.0,
+        "end_ms": 29000.0
+      },
+      "partial_duration": true,
+      "csv_sha256": "f3a78c4ae9b02853288117195409aede371d120031c78343f11bcae436238c5a",
+      "trace_complete": true,
+      "trace_sha256": "67064db34a43841e39884802ffa190371366900834a99a38856a1fa24727a320",
+      "pcm_sha256": "8a8abcea4d4a84fb7726a94e6ef75b38335de4210ad633b4401a6b0aa0dad618",
+      "window_pcm_sha256": "947b4f083c80440dbaca01472cd8bacbcd78b0ab719227793cdb22d989c8eff7",
+      "rows": 775,
+      "checked_boundaries": 1550,
+      "failing_boundaries": 0,
+      "loaded_rows": 775,
+      "contributing_rows": 775,
+      "invalid_mix_rows": 0,
+      "break_numeric_contribution": true,
+      "pcm_numeric_output_nonzero": true,
+      "pcm_samples": {
+        "scalar_samples": 794624,
+        "nonzero_samples": 794403,
+        "peak_absolute_int16": 13129,
+        "sum_squares_int16": 3935345311619,
+        "rms_int16": 2225.412812358575,
+        "rms_full_scale": 0.06791420936152878,
+        "rms_dbfs": -23.360787017574328,
+        "rms_dbfs_kind": "finite",
+        "dbfs_reference": "signed int16 full-scale amplitude32768"
+      },
+      "boundary_state_matches": true
+    },
+    "analysis": {
+      "schema": 1,
+      "status": "OBSERVED",
+      "trace_sha256": "67064db34a43841e39884802ffa190371366900834a99a38856a1fa24727a320",
+      "firmware_source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+      "runner_source": "31157d25caf7284080cdb5d86ab7e8e438120fd9",
+      "owner_scene_exact": false,
+      "representative_scene_qualified": false,
+      "clock": {
+        "hz": 5760000000,
+        "unit": "emulator_tick",
+        "cycle_ticks": 16
+      },
+      "window": {
+        "start_ms": 20000.0,
+        "end_ms": 29000.0,
+        "selection": "DMA interval wholly contained in window",
+        "dma_edges": 775,
+        "completed_halves": 775,
+        "coherent_halves": 775
+      },
+      "deadline": {
+        "completed_irq_deadline_misses": 0,
+        "unserviced_dma_edges": 0,
+        "boundary_uncertain_halves": 0,
+        "max_dma_edges_during_irq": 0,
+        "minimum_slack_lower_us": 7901.054166666667,
+        "max_guest_last_us": 3699,
+        "firmware_late_delta": 0,
+        "firmware_xruns_delta": 0
+      },
+      "attribution": {
+        "eng_prof_scope": "guest_counters_with_known_core1_omissions",
+        "eng_prof_names": [
+          "909",
+          "808_and_shared_wait",
+          "303A",
+          "303B",
+          "BREAK",
+          "FX",
+          "MASTER",
+          "SEQ"
+        ],
+        "eng_prof_delta_sum": [
+          1811795,
+          490641,
+          7158939,
+          14777229,
+          0,
+          3073472,
+          11596489,
+          3413633
+        ],
+        "eng_prof_unit": "24 MHz timer ticks for pinned perf_cyc_ok=0 firmware",
+        "eng_job_cost": "smoothed normalized ticks per 256 frames; not raw per-half work",
+        "core1_timestamps": "global slice clock; not independent core-1 instruction timings",
+        "shared_wait_bucket": "808",
+        "total_dsp_cost": "NOT_DERIVABLE"
+      },
+      "break_evidence": {
+        "slot": 1,
+        "loaded": "OBSERVED",
+        "mix_contribution": "OBSERVED",
+        "contributing_halves": 775,
+        "invalid_mix_halves": 0,
+        "audibility": "UNVERIFIED",
+        "limitation": "A finite current-stretch dry-bus delta is numerical contribution; final-output or human audibility requires separate evidence."
+      },
+      "unverified_scene_fields": [
+        "Chicago engine and arp state",
+        "Juno engine and held triad",
+        "909 four-on-the-floor pattern",
+        "808 inactivity",
+        "final-output BREAK audibility",
+        "owner installed package/model and musical settings"
+      ],
+      "scene_observations": {
+        "fields": {
+          "scene_a_kind": {
+            "address": 29611968,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_a_status": {
+            "address": 29611969,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_a_usb_keys": {
+            "address": 29610508,
+            "bytes": 128,
+            "element_bytes": 1
+          },
+          "scene_a_arp_enable": {
+            "address": 29607162,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_b_kind": {
+            "address": 29617096,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_b_status": {
+            "address": 29617097,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_b_usb_keys": {
+            "address": 29615636,
+            "bytes": 128,
+            "element_bytes": 1
+          },
+          "scene_seq_pat": {
+            "address": 29403072,
+            "bytes": 4,
+            "element_bytes": 1
+          },
+          "scene_seq_playing": {
+            "address": 29403080,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_seq_ppat": {
+            "address": 29403081,
+            "bytes": 5,
+            "element_bytes": 1
+          },
+          "scene_seq_ch": {
+            "address": 29403106,
+            "bytes": 5,
+            "element_bytes": 1
+          },
+          "scene_seq_part_off": {
+            "address": 29403102,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_seq_mute": {
+            "address": 29403112,
+            "bytes": 4,
+            "element_bytes": 1
+          },
+          "scene_seq_vmute": {
+            "address": 29403120,
+            "bytes": 4,
+            "element_bytes": 1
+          },
+          "scene_seq_bpm": {
+            "address": 29403152,
+            "bytes": 4,
+            "element_bytes": 1
+          },
+          "scene_909_hit": {
+            "address": 29410212,
+            "bytes": 88,
+            "element_bytes": 1
+          },
+          "scene_909_len": {
+            "address": 29410308,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_909_rate": {
+            "address": 29410309,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_808_hit": {
+            "address": 29410312,
+            "bytes": 88,
+            "element_bytes": 1
+          },
+          "scene_808_len": {
+            "address": 29410408,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_808_rate": {
+            "address": 29410409,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_brk_steps": {
+            "address": 29410828,
+            "bytes": 4,
+            "element_bytes": 1
+          },
+          "scene_brk_set": {
+            "address": 29410832,
+            "bytes": 12,
+            "element_bytes": 1
+          },
+          "scene_brk_slot_a": {
+            "address": 29410844,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_brk_rate": {
+            "address": 29410847,
+            "bytes": 1,
+            "element_bytes": 1
+          },
+          "scene_brk_slice": {
+            "address": 29410848,
+            "bytes": 16,
+            "element_bytes": 1
+          }
+        },
+        "interpretation": "UNVERIFIED",
+        "scope": "Raw configured bytes only; offsets and values require separate source/layout and ELF verification."
+      },
+      "trailing_pending_seq": null,
+      "error_count": 0,
+      "errors": [],
+      "evidence_scope": "observer trace only; no hardware qualification or guessed PASS",
+      "per_half_csv_sha256": "f3a78c4ae9b02853288117195409aede371d120031c78343f11bcae436238c5a",
+      "stage_events_sha256": "2086a062f98459502f54e7fdc3affd6707cf7d2e99b5a6b97f6ad34cc960b5a3"
+    },
+    "pcm": {
+      "schema": 1,
+      "status": "OBSERVED",
+      "numeric_output": "NONZERO",
+      "pcm_sha256": "8a8abcea4d4a84fb7726a94e6ef75b38335de4210ad633b4401a6b0aa0dad618",
+      "window_pcm_sha256": "947b4f083c80440dbaca01472cd8bacbcd78b0ab719227793cdb22d989c8eff7",
+      "trace_sha256": "67064db34a43841e39884802ffa190371366900834a99a38856a1fa24727a320",
+      "pcm_bytes": 5163008,
+      "dma_count": 2521,
+      "format": "signed16 little-endian interleaved L/R; two scalar samples per stereo frame",
+      "clock": {
+        "hz": 5760000000,
+        "unit": "emulator_tick",
+        "cycle_ticks": 16,
+        "dma_period_ticks": 66846720,
+        "sample_rate_stereo_frames_per_second": {
+          "numerator": 24000000,
+          "denominator": 544
+        }
+      },
+      "source_profile": {
+        "firmware_source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+        "runner_source": "31157d25caf7284080cdb5d86ab7e8e438120fd9",
+        "artifact_attestation": "header source pins only; actual input hashes are checked by Runner"
+      },
+      "window": {
+        "start_ms": 20000.0,
+        "end_ms": 29000.0,
+        "selection": "DMA scheduled timestamp in [start_ms,end_ms); include every scalar sample in each selected chunk",
+        "selected_dma_count": 776,
+        "first_dma_seq": 1660,
+        "last_dma_seq": 2435,
+        "first_scheduled_tick": 115206606103,
+        "last_scheduled_tick": 167012814103,
+        "first_observed_tick": 115206606103,
+        "last_observed_tick": 167012814103,
+        "pcm_byte_first": 3397632,
+        "pcm_byte_end_exclusive": 4986880,
+        "scalar_sample_first": 1698816,
+        "scalar_sample_end_exclusive": 2493440,
+        "stereo_frames": 397312
+      },
+      "samples": {
+        "scalar_samples": 794624,
+        "nonzero_samples": 794403,
+        "peak_absolute_int16": 13129,
+        "sum_squares_int16": 3935345311619,
+        "rms_int16": 2225.412812358575,
+        "rms_full_scale": 0.06791420936152878,
+        "rms_dbfs": -23.360787017574328,
+        "rms_dbfs_kind": "finite",
+        "dbfs_reference": "signed int16 full-scale amplitude32768"
+      },
+      "channels": {
+        "left": {
+          "scalar_samples": 397312,
+          "nonzero_samples": 397183,
+          "peak_absolute_int16": 13117,
+          "sum_squares_int16": 1947503685980,
+          "rms_int16": 2213.9780102209384,
+          "rms_full_scale": 0.06756524689394953,
+          "rms_dbfs": -23.4055326383234,
+          "rms_dbfs_kind": "finite",
+          "dbfs_reference": "signed int16 full-scale amplitude32768"
+        },
+        "right": {
+          "scalar_samples": 397312,
+          "nonzero_samples": 397220,
+          "peak_absolute_int16": 13129,
+          "sum_squares_int16": 1987841625639,
+          "rms_int16": 2236.789158834051,
+          "rms_full_scale": 0.06826138790387118,
+          "rms_dbfs": -23.316497716147623,
+          "rms_dbfs_kind": "finite",
+          "dbfs_reference": "signed int16 full-scale amplitude32768"
+        }
+      },
+      "evidence_scope": "Numeric DAC capture buffer values mapped to DMA read events; no musical-source or human-audibility attribution.",
+      "same_irq_render_attribution": "NOT_CLAIMED; DMA reads precede the corresponding IRQ render",
+      "boot_padding": "none; PCM begins with DMA seq1 regardless of boot delay",
+      "trace_irq_qualification": "NOT_EVALUATED",
+      "scene_qualification": "NOT_EVALUATED",
+      "break_attribution": "NOT_EVALUATED",
+      "human_audibility": "UNVERIFIED"
+    }
+  },
+  "artifact_hashes": {
+    "trace": "4cccc352c2ceef3857cd2ab23de533f9211b5daeef693daa7d91f94ee91c2468",
+    "per_half_csv": "c13e5b96382c0723f457390bf074d090346a3aa0175abc1d456f1a29c21f536b",
+    "stage_events": "8a9076066d9ae6aea4aca365f1d6b154fc0d01e0a713ae3a5a72b346b525ffc7",
+    "scene_receipt": "278b0523b5473e28677c5062214e30bd6b21e6285f52d88a993621e968592e35",
+    "activity_receipt": "3e5a90e1a1bfa606a2af2e684dfd7c6cb21dc63b918ab4c10c5542c1668dafba",
+    "control_command": "48faa8d9be1b87c0947acdd2f96c125be8150d9eb7a24489af6dee05e61b9c71",
+    "observed_command": "42514d4bad07b7da748930ed592eaace06d2fa0464c9ec203ea2615cf66d0f08",
+    "isolation_command": "9b039f904947b705f552fb3b4117631e8518ae972d68f2b0f547dd98b62cd1e5"
+  },
+  "isolation_execution_contract_verified": {
+    "fresh_initial_flash_sha256": "b609658785d999135f29a4730bd853793139da416b6396d4c06776f9f76a9808",
+    "matches_observed_initial_flash": true,
+    "full_keys_sha256": "fc0b36dba5836217e989f110bd580e720106a71e8741ab2c1726252789212965",
+    "derived_keys_sha256": "8d9adb5687d5af1cfe37231e527e2786b79aa2d8cf9c2fd968535594f8ac853b",
+    "usb_midi_input": "NONE",
+    "observed_isolated_command_has_no_FM1_USB_SEND": true,
+    "package_sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6",
+    "emulator_sha256": "04c795b1961298cbd10d4bd9881ab97fde5eef7ff179f49a6b953dab78d43dc8"
+  },
+  "owner_unknown": [
+    "installed_package_hash",
+    "installed_model",
+    "tempo",
+    "patches",
+    "fx",
+    "break_sample",
+    "arp_settings",
+    "held_notes",
+    "velocities",
+    "master_level"
+  ],
+  "limitations": [
+    "No hardware timing or owner listening result.",
+    "The nine-second window is not the declared five-minute gate.",
+    "The owner package/model/patches/FX/sample/tempo/arp settings remain unconfirmed.",
+    "Numerical BREAK dry-mix contribution is observed in the full scene; independent BREAK-only DAC output is observed. Full-scene DAC source decomposition and human audibility are not claimed.",
+    "eng_prof is partial and omits core1 work; eng_job_cost is smoothed normalized cost, not a raw per-half cost.",
+    "No firmware optimization or dropout-cause confirmation is inferred from this short result."
+  ]
+}

@@ -223,6 +223,23 @@ struct Machine {
 
 impl Machine {
     fn new(o: &Opts) -> std::io::Result<Self> {
+        let observer_paths = match (std::env::var_os("FM1_DNBOX_MAP"), std::env::var_os("FM1_DNBOX_TRACE")) {
+            (None, None) => None,
+            (Some(map), Some(trace)) => {
+                let forbidden = ["FM1_NO_BLOCKS", "FM1_WATCH_LEDPUT", "FM1_TPROF", "FM1_LCD_INSTANT",
+                    "FM1_NO_SKIP", "FM1_SKIP_FROM", "FM1_SUPERVISOR_START", "FM1_TRACE",
+                    "FM1_USB_SIE_NS", "FM1_FLASH_CUT"];
+                if std::env::var("FM1_STRICT").ok().as_deref() != Some("1") || o.mhz != 360 ||
+                    o.shot.is_none() || o.fwsc.is_none() || o.syx.is_some() || o.flaky_core1.is_some() || o.cpu1_survives ||
+                    forbidden.iter().any(|name| std::env::var_os(name).is_some()) {
+                    return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput,
+                        "DnBOX observer requires FM1_STRICT=1 --mhz360 --shot --fwsc, normal dual-core scheduling, and no timing/fault overrides"));
+                }
+                Some((map, trace))
+            }
+            _ => return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput,
+                "FM1_DNBOX_MAP and FM1_DNBOX_TRACE must be supplied together")),
+        };
         let stock = match &o.fwsc {
             Some(path) => {
                 let syx = o.syx.as_ref().map(std::fs::read).transpose()?;
@@ -276,6 +293,12 @@ impl Machine {
             if f.len() != fm1_soc::FLASH_SIZE {
                 return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, format!("{path}: not a {} byte flash image", fm1_soc::FLASH_SIZE)));
             }
+            // The pinned DnBOX flash map protects package/app bytes below0x9D000.
+            // --flash otherwise replaces those too; an unchanged package hash alone
+            // would not establish which guest code actually ran. Sample slots are above.
+            if observer_paths.is_some() {
+                fm1_soc::dnbox_observer::validate_flash_fixture(&stock.as_ref().unwrap().flash, &f)?;
+            }
             // (through the SFC as the loader leaves it, and again when the firmware sets its window)
             soc.restore_flash(&f);
         }
@@ -286,6 +309,12 @@ impl Machine {
         let blocks = std::env::var("FM1_NO_BLOCKS").is_err();
         let watch_call = std::env::var("FM1_WATCH_LEDPUT").ok().and_then(|v| v.parse().ok()).map(|ms| (0x0201_ad60u32, ms));
         let blocks = blocks && watch_call.is_none();
+        if let Some((map_path, trace_path)) = observer_paths {
+            let map = std::fs::read_to_string(map_path)?;
+            let file = std::fs::OpenOptions::new().write(true).create_new(true).open(trace_path)?;
+            soc.dnbox_observer = Some(fm1_soc::dnbox_observer::Observer::new(
+                &map, soc.ram.len(), soc.periph.hz, Box::new(std::io::BufWriter::new(file)))?);
+        }
         Ok(Self { cpu, cpu1: None, soc, skip_log, blocks, pending_tick: false, watch_call, watch_hits: 0 })
     }
 
@@ -924,6 +953,23 @@ fn shot(o: &Opts, ms: u64) {
     }
     if let Ok(path) = std::env::var("FM1_CORE_LOAD_CSV") { fm1_soc::machine::core_load::dump(&path); }
     save_flash(&m, o.flash.as_ref());
+    // Optional raw DAC PCM: the existing guest output, with no extra guest calls/ticks.
+    // Also usable without the observer to compare host-observed and baseline runs.
+    if let Some(path) = std::env::var_os("FM1_DNBOX_PCM") {
+        use std::io::Write;
+        let result = (|| -> std::io::Result<()> {
+            let file = std::fs::OpenOptions::new().write(true).create_new(true).open(path)?;
+            let mut file = std::io::BufWriter::new(file);
+            for sample in &m.soc.periph.audio { file.write_all(&sample.to_le_bytes())?; }
+            file.flush()
+        })();
+        if let Err(e) = result { eprintln!("DnBOX PCM: {e}"); std::process::exit(1); }
+    }
+    if let Some(mut observer) = m.soc.dnbox_observer.take() {
+        if let Err(e) = observer.finish(m.soc.periph.cycles) {
+            eprintln!("DnBOX observer: {e}"); std::process::exit(1);
+        }
+    }
 }
 
 /// FM1_USB_SEND='MS:HEX…;MS:HEX…': MIDI messages to send over USB at those times (ms); `@PATH` reads them

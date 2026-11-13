@@ -546,6 +546,11 @@ pub fn cpu0_between(cpu: &mut Cpu, soc: &mut Soc) {
             if cpu.irq_ready(prio) {
                 let handler = soc.read32(VEC_BASE + 4 * irq as u32);
                 cpu.interrupt(handler, prio);
+                if irq == 11 {
+                    if let Some(observer) = &mut soc.dnbox_observer {
+                        observer.irq_enter(&soc.ram, soc.periph.cycles, cpu.irq_levels.len());
+                    }
+                }
                 // the handler's first instruction may stay in compiled code (a micro-op now):
                 // TIMER4's idle skip must see "in an ISR" from that instruction on
                 soc.periph.in_isr = true;
@@ -623,6 +628,9 @@ pub fn run_blocks(cpu: &mut Cpu, soc: &mut Soc, n: u32, pending_tick: &mut bool)
                 ticked = due;
             }
             Err(e) => return Err(format!("{e:?} at pc {:#010x}", cpu.pc)),
+        }
+        if let Some(observer) = &mut soc.dnbox_observer {
+            observer.after_block(&soc.ram, soc.periph.cycles, cpu.irq_levels.len(), u8::from(ticked));
         }
         if std::mem::take(&mut cpu.pc_trip) {
             // code fetched outside the PC limits: that instruction runs, then the CPU exception

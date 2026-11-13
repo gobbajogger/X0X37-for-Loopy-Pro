@@ -26,6 +26,7 @@
 use fm1_core::Bus;
 
 pub mod script;
+pub mod dnbox_observer;
 pub mod flaky;
 pub mod hwdsp;
 pub mod hweq;
@@ -259,6 +260,8 @@ pub struct Soc {
     bt_window: u32,
     pub xip: Vec<u8>,
     pub ram: Ram,
+    /// Optional host-only DnBOX trace. It reads RAM directly and never advances guest time.
+    pub dnbox_observer: Option<dnbox_observer::Observer>,
     pub lcd: Lcd,
     /// SPI0 + the external NOR flash (1 MiB; `--flash` image loaded at 0).
     pub flash: SpiFlash,
@@ -509,6 +512,7 @@ impl Soc {
             bt_window: BT_WINDOW_BASE,
             xip,
             ram: Ram::new(ram_size),
+            dnbox_observer: None,
             ovl: Ram::new(512 * 1024),
             sram2: Ram::new(256 * 1024),
             lcd: Lcd::new(),
@@ -607,6 +611,9 @@ impl Soc {
             eprintln!("chip reset at {} ms ({})", self.periph.ms(), if cause == p33::P33::RST_WDT { "watchdog" } else { "PR_PWR" });
         }
         self.resets += 1;
+        if let Some(observer) = &mut self.dnbox_observer {
+            observer.reset(self.periph.cycles);
+        }
         self.periph.chip_reset();
         self.p33.chip_reset(cause);
         let mut old = std::mem::take(&mut self.usb);
@@ -744,6 +751,9 @@ impl Soc {
     /// bits — Felucca writes Q15 << 7, audio.c OUT_SHIFT — so >> 8 to i16).
     pub fn advance(&mut self, n: u64) {
         let due = self.periph.advance(n);
+        if let (Some(observer), Some(edge)) = (&mut self.dnbox_observer, due.audio_edge) {
+            observer.dma(edge);
+        }
         if due.wdt {
             self.reset_req.get_or_insert(p33::P33::RST_WDT);
         }
@@ -1243,7 +1253,12 @@ impl Bus for Soc {
     fn write8(&mut self, addr: u32, value: u8) {
         let o = addr.wrapping_sub(RAM_BASE);
         if (o as usize) < self.ram.len() {
-            return self.ram.write8(o, value);
+            let old = self.dnbox_observer.as_ref().map(|_| self.ram.read8(o) as u32);
+            self.ram.write8(o, value);
+            if let (Some(observer), Some(old)) = (&mut self.dnbox_observer, old) {
+                observer.store(&self.ram, self.periph.cycles, self.core1_charging as u8, addr, 1, old, value as u32);
+            }
+            return;
         }
         self.write8_slow(addr, value)
     }
@@ -1256,7 +1271,12 @@ impl Bus for Soc {
         // merged at (addr & 2) within the aligned word, as the slow path does
         let o = (addr & !1).wrapping_sub(RAM_BASE) as usize;
         if o + 2 <= self.ram.len() && addr & 1 == 0 {
-            return self.ram.write16(o as u32, value);
+            let old = self.dnbox_observer.as_ref().map(|_| self.ram.read16(o as u32) as u32);
+            self.ram.write16(o as u32, value);
+            if let (Some(observer), Some(old)) = (&mut self.dnbox_observer, old) {
+                observer.store(&self.ram, self.periph.cycles, self.core1_charging as u8, addr, 2, old, value as u32);
+            }
+            return;
         }
         self.write16_slow(addr, value)
     }
@@ -1268,7 +1288,12 @@ impl Bus for Soc {
             if addr & 3 != 0 && self.strict_align {
                 self.misaligned(addr, 4);
             }
-            return self.ram.write32(o as u32, value);
+            let old = self.dnbox_observer.as_ref().map(|_| self.ram.read32(o as u32));
+            self.ram.write32(o as u32, value);
+            if let (Some(observer), Some(old)) = (&mut self.dnbox_observer, old) {
+                observer.store(&self.ram, self.periph.cycles, self.core1_charging as u8, addr, 4, old, value);
+            }
+            return;
         }
         self.write32_slow(addr, value)
     }

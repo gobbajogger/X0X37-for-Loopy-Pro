@@ -427,6 +427,9 @@ impl Default for Periph {
 pub struct Due {
     /// A half buffer finished playing: (RAM address, words).
     pub audio_half: Option<(u32, u32)>,
+    /// Host observer timing for that DMA transition; the scheduled deadline is not
+    /// rounded to the nominal firmware budget and does not alias the two half IDs.
+    pub audio_edge: Option<crate::dnbox_observer::DmaEdge>,
     /// A UART byte the RX DMA wrote: (address, byte).
     pub uart_rx: Option<(u32, u8)>,
     /// A USB frame is due (the SoC runs the host's millisecond: usb.rs).
@@ -559,6 +562,15 @@ impl Periph {
         }
         if self.cycles >= self.alnk_next {
             let words = self.alnk_len.max(2);
+            due.audio_edge = Some(crate::dnbox_observer::DmaEdge {
+                seq: self.audio_halves + 1,
+                scheduled_cycle: self.alnk_next,
+                observed_cycle: self.cycles,
+                deadline_cycle: self.alnk_next + self.half_period(),
+                half: self.alnk_half,
+                address: self.alnk_adr.wrapping_add(self.alnk_half * words * 4),
+                words,
+            });
             due.audio_half = Some((self.alnk_adr.wrapping_add(self.alnk_half * words * 4), words));
             self.alnk_half ^= 1;
             // every channel CON1 sets up pends with the block: FM1 Open's driver takes its
