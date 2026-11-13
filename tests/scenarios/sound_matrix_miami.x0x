@@ -1,4 +1,4 @@
-# Four rows, four physical knob columns; the first bank has sixteen controls.
+# Current Miami pages: CARRIER, XMOD, FILTER, WOBBLE, OUTPUT, SOUND.
 wait 300
 turn ALGO 4
 tap EDIT
@@ -7,7 +7,7 @@ shot miami_sound.png
 param 2 0 0 0
 wait 30
 shot miami_triangle.png
-param 2 0 0 1
+param 2 0 0 64
 wait 30
 shot miami_square.png
 tap EDIT
@@ -15,35 +15,36 @@ expect page 1
 param 2 0 6 0
 wait 30
 shot miami_xmod_triangle.png
-param 2 0 6 1
+param 2 0 6 127
 wait 30
 shot miami_xmod_pulse.png
 tap EDIT
 expect page 2
+shot miami_filter.png
+tap EDIT
+expect page 3
 param 2 0 11 0
 wait 30
 shot miami_wobble_triangle.png
-param 2 0 11 1
+param 2 0 11 42
 wait 30
 shot miami_wobble_square.png
-tap EDIT
-expect page 3
-shot miami_adsr_idle.png
+shot miami_wobble_idle.png
 spin K1 10
 wait 30
-shot miami_adsr_active.png
+shot miami_wobble_active.png
 wait 500
-shot miami_adsr_grace.png
-spin K3 -20
+shot miami_wobble_grace.png
+spin K2 -20
 wait 30
-shot miami_adsr_sustain.png
+shot miami_wobble_sustain.png
 wait 1000
-shot miami_adsr_done.png
+shot miami_wobble_done.png
 tap EDIT
 expect page 4
 shot miami_page2.png
-turn SELECT 2
-expect page 6
+turn SELECT 1
+expect page 5
 shot miami_presets.png
 tap EDIT
 expect page 0
