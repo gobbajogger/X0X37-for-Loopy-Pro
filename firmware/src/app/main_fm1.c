@@ -2590,51 +2590,38 @@ static void fm1_main(void)
 
 #if DNBOX_PRESET_MEASURE_STAGE
 /* Measurement hook: one init-time reference so --gc-sections and LTO keep
- * the selected codec stage. Not in ui.c, not in any audio callback, not
- * in the main loop. Results are ignored. */
+ * the selected codec stage. The keep[] pointers themselves are volatile
+ * (not the pointed-to type), so the address stores stay live. Not in ui.c,
+ * not in any audio callback, not in the main loop. Results are ignored. */
 #include "preset_record.h"
+__attribute__((used, noinline))
 static void preset_measure_touch(void)
 {
-    volatile const void *keep[12];
+    void *volatile keep[12];
     unsigned n = 0;
-    keep[n++] = (const void *)preset_record_load;
+    keep[n++] = (void *)preset_record_load;
 #if DNBOX_PRESET_MEASURE_STAGE >= 2
-    keep[n++] = (const void *)preset_record_decode;
-    keep[n++] = (const void *)preset_record_verify_sample;
-    keep[n++] = (const void *)preset_record_verify_samples;
-    keep[n++] = (const void *)preset_record_import;
-    keep[n++] = (const void *)preset_slot_find_empty;
+    keep[n++] = (void *)preset_record_decode;
+    keep[n++] = (void *)preset_record_verify_sample;
+    keep[n++] = (void *)preset_record_verify_samples;
+    keep[n++] = (void *)preset_record_import;
+    keep[n++] = (void *)preset_slot_find_empty;
 #endif
 #if DNBOX_PRESET_MEASURE_STAGE >= 3
-    keep[n++] = (const void *)preset_record_encode;
-    keep[n++] = (const void *)preset_commit_encode;
-    keep[n++] = (const void *)preset_commit_decode;
-    keep[n++] = (const void *)preset_commit_winner;
-    keep[n++] = (const void *)preset_commit_previous;
+    keep[n++] = (void *)preset_record_encode;
+    keep[n++] = (void *)preset_commit_encode;
+    keep[n++] = (void *)preset_commit_decode;
+    keep[n++] = (void *)preset_commit_winner;
+    keep[n++] = (void *)preset_commit_previous;
 #endif
 #if DNBOX_PRESET_MEASURE_STAGE >= 4
-    keep[n++] = (const void *)preset_record_export;
+    keep[n++] = (void *)preset_record_export;
 #endif
-    (void)keep[0];
-    (void)n;
-    (void)preset_record_load((preset_record_t *)0, (const uint8_t *)0, 0);
-#if DNBOX_PRESET_MEASURE_STAGE >= 2
-    (void)preset_record_decode((preset_record_t *)0, (const uint8_t *)0, 0, 0);
-    (void)preset_record_verify_sample((const preset_record_t *)0, 0, 0);
-    (void)preset_record_verify_samples((const preset_record_t *)0, (const uint32_t *)0, 0);
-    (void)preset_record_import((preset_record_t *)0, (const uint8_t *)0, 0, 0);
-    (void)preset_slot_find_empty((const uint8_t *)0, 0, (unsigned *)0);
-#endif
-#if DNBOX_PRESET_MEASURE_STAGE >= 3
-    (void)preset_record_encode((uint8_t *)0, 0, (uint32_t *)0, (const preset_record_t *)0);
-    (void)preset_commit_encode((uint8_t *)0, 0, (uint32_t *)0, (const preset_commit_t *)0);
-    (void)preset_commit_decode((preset_commit_t *)0, (const uint8_t *)0, 0);
-    (void)preset_commit_winner((const uint8_t *)0, 0, (const uint8_t *)0, 0);
-    (void)preset_commit_previous((const uint8_t *)0, 0, (const uint8_t *)0, 0);
-#endif
-#if DNBOX_PRESET_MEASURE_STAGE >= 4
-    (void)preset_record_export((uint8_t *)0, 0, (uint32_t *)0, (const preset_record_t *)0);
-#endif
+    {
+        void *volatile sink = keep[0];
+        (void)sink;
+        (void)n;
+    }
 }
 #endif
 
