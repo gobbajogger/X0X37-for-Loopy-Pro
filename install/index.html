@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Firmware & samples · X0X37</title>
+<title>Firmware & samples · DnBOX</title>
 <style>
 /* X0X37 / firmware control desk. Source-only skin: no flashing logic. */
 :root {
@@ -431,7 +431,7 @@ p{max-width:76ch}h1,h2,h3{text-wrap:balance}button,a,input,select,summary{touch-
 <main id="workspace-main">
   <header class="site-head">
     <div class="header-top">
-      <a class="home" href="../" aria-label="X0X37 home">DnBOX</a>
+      <a class="home" href="../" aria-label="DnBOX home">DnBOX</a>
       <nav class="head-nav" aria-label="Site navigation">
         <a href="../manual/" data-t="navmanual">Manual</a>
       </nav>
@@ -583,7 +583,7 @@ p{max-width:76ch}h1,h2,h3{text-wrap:balance}button,a,input,select,summary{touch-
   <div class="site-footer">
 
 
-  <p class="small">X0X is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
+  <p class="small">DnBOX is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
     with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator.<br>
     <span data-t="license"></span> <a id="repolink" href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro" target="_blank" rel="noopener">github.com/gobbajogger/X0X37-for-Loopy-Pro</a></p>
   </div>
@@ -2004,11 +2004,11 @@ async function restoreMapped(link, todo, images, onPart) {
   }
 }
 
-// an archive file name for now: x0x-slots-before-install-YYYYMMDD-HHMMSS.x0xslots, and its "created" text
+// an archive file name for now: DnBOX-slots-before-install-YYYYMMDD-HHMMSS.x0xslots, and its "created" text
 function archiveStamp(t = new Date()) {
   const p = (v) => String(v).padStart(2, "0");
   const created = `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}T${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}`;
-  return { created, name: `x0x-slots-before-install-${created.replace(/[-:]/g, "").replace("T", "-")}.x0xslots` };
+  return { created, name: `DnBOX-slots-before-install-${created.replace(/[-:]/g, "").replace("T", "-")}.x0xslots` };
 }
 
 const SNAPSHOT_COMMAND = 48, SNAPSHOT_TOKEN_SIZE = 16;
@@ -2216,7 +2216,7 @@ const TEXT = {
     ctlbundlebad: "内蔵 Bluetooth コントローラーがないか、破損しているか、このビルドと一致しません。",
     evidencelink: "開発検証記録", archiveheading: "ビルド履歴", archiveintro: "SHA確認済みビルドとソースのみの状態・未入手アーカイブ・失敗ビルドを区別します。コミットだけではインストールできません。",
     choosebuild: "このビルドを選ぶ", otherbuilds: "その他のチェックポイント (インストール不可)", unapproved: "このパッケージには機種別検証記録がないため、自動インストールできません。",
-    title: "X0X をインストール",
+    title: "DnBOX をインストール",
     intro: "SMK-37 Pro / Elite 向けファームウェア。USB で接続して機種とビルドを選び、サンプルのバックアップ保護を確認してインストールします。PC の Chrome または Edge をご使用ください。",
     warn: "書き込み中は USB を抜かないでください。",
     install: "ファームウェアを書き込む", other: "English", connect: "USB 接続",
@@ -2227,7 +2227,7 @@ const TEXT = {
     modelwhy: "同じファームウェアを別の機種名で書き込みます。キーボード本来の機種（古い Elite は Pro と出ることがあります）を選ぶと、あとで M-VAVE の純正に戻せます。Starrykey 37 Play は SMK-37 Pro を使います。",
     manual: "マニュアル（英語）", whatsnew: "更新内容", download: "このパッケージをダウンロード",
     breaks: "サンプル・インポーター：自分のブレイク・ループ",
-    untested: "X0X はベータ版です。",
+    untested: "DnBOX はベータ版です。",
     direct: "USB ケーブルはパソコンに直接つないでください。",
     brick: "起動や復旧の問題は、お使いの SMK モデルに対応する手順を確認してください:",
     bricklink: "SMK の起動・復旧サポート",
@@ -2278,7 +2278,7 @@ const TEXT = {
     slotsdone: "完了。スロットを書き戻して確認しました。",
     slotspartial: "インストールは完了しましたが、復元できなかったサンプルがあります。ダウンロードした .x0xslots バックアップを確認し、容量を空けてブレークループの「Restore」で復元してください。未復元: ",
     slotskip: " 書き戻せなかったスロット（入りきらない）: ",
-    slotstock: "完了。純正ファームウェアには X0X のスロットがありません。サンプルは次のファイルにあります（X0X を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
+    slotstock: "完了。純正ファームウェアには DnBOX のスロットがありません。サンプルは次のファイルにあります（DnBOX を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
     slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
     slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
     slotbackupcancel: "バックアップがないためインストールをキャンセルしました。何も書き込んでいません。 ",
@@ -2333,7 +2333,7 @@ const TEXT = {
     modelwhy: "Choose the exact model printed on your keyboard. Elite and Pro packages are not interchangeable.",
     manual: "The manual", whatsnew: "What's new", download: "Download this package",
     breaks: "Sample importer: your own break loops",
-    untested: "X0X is a beta.",
+    untested: "DnBOX is a beta.",
     direct: "Connect the USB cable directly to the computer. No probe or Transporter is needed.",
     brick: "For startup or recovery problems, use instructions for your exact SMK model:",
     bricklink: "SMK startup and recovery support",
@@ -2384,7 +2384,7 @@ const TEXT = {
     slotsdone: "Done. The slots were written back and checked.",
     slotspartial: "Installed, but some samples were NOT restored. Check the downloaded .x0xslots backup and use Restore on the break loops page after making room. Not restored: ",
     slotskip: " Not written back (no room): ",
-    slotstock: "Done. The stock firmware has no X0X slots. Your samples are in this file (after you install X0X again, restore it with Restore on the break loops page): ",
+    slotstock: "Done. The stock firmware has no DnBOX slots. Your samples are in this file (after you install DnBOX again, restore it with Restore on the break loops page): ",
     slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
     slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
     slotbackupcancel: "Install cancelled: sample recovery backup unavailable or not retained. Nothing was installed. ",
