@@ -16,6 +16,9 @@ async function ready() {
   if (!url.searchParams.has('mhz')) url.searchParams.set('mhz', String(policy.mhz));
   if (!url.searchParams.has('ahead')) url.searchParams.set('ahead', String(policy.ahead));
   if (!url.searchParams.has('latency')) url.searchParams.set('latency', policy.latency);
+  // Never let a query parameter bypass the pinned firmware catalog or inject a
+  // foreign try-out script/flash image into this public page.
+  for (const key of ['package', 'name', 'flash', 'script']) url.searchParams.delete(key);
   const chosen = url.searchParams.get('fw');
   if (!Object.hasOwn(PINNED, chosen)) url.searchParams.set('fw', 'dnbox-elite-0251');
   history.replaceState(null, '', url.pathname + url.search + url.hash);
