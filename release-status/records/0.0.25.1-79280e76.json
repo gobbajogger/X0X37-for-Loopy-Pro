@@ -1,0 +1,88 @@
+{
+  "version": "0.0.25.1",
+  "catalog_id": "nightly-79280e76-dev",
+  "channel": "stable-MAIN",
+  "source_sha": "79280e763341d03ba43266d3e25dad66f12de860",
+  "source_tree": "ab2e16a61c81abbcb6c4a71bd83bf0b5d943c120",
+  "source_branch": "release/0.0.25.1",
+  "source_pr": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/79280e763341d03ba43266d3e25dad66f12de860",
+  "models": {
+    "elite": {
+      "image_sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+      "image_size": 651721,
+      "package_sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+      "product": "SMK-37 Elite_900",
+      "package_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a/x0x37-elite-dev.fwsc",
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "controller_size": 61552,
+      "controller_crc32": "564a8f55",
+      "controller_strategy": "bundled",
+      "controller_check": "PASS"
+    },
+    "pro": {
+      "image_sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+      "image_size": 651721,
+      "package_sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+      "product": "SMK-37 Pro_900",
+      "package_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf/x0x37-pro-dev.fwsc",
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "controller_size": 61552,
+      "controller_crc32": "564a8f55",
+      "controller_strategy": "bundled",
+      "controller_check": "PASS"
+    }
+  },
+  "combined_package_sha256": null,
+  "published_pages_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/",
+  "gate_evidence": [
+    {
+      "kind": "emu360-strict",
+      "result": "PASS",
+      "elite_worst_us": 11548,
+      "pro_worst_us": 11564,
+      "elite_late": 0,
+      "pro_late": 0,
+      "threshold_us": 11609,
+      "ref": "nightly versions.json catalog description for nightly-79280e76-dev (official emu360 gate)",
+      "applies_to_image": "exact-image",
+      "elite_image_sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+      "pro_image_sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+      "board": "smk37",
+      "mhz": 360,
+      "note": "Official emu360 figures from the nightly catalog for this package: Elite 11548 us, Pro 11564 us, 0 late, under 11609 us. This is an emulator result, not a hardware result. The catalog label is DEVICE NOT TESTED."
+    },
+    {
+      "kind": "bt-controller-bundle",
+      "result": "PASS",
+      "elite_worst_us": null,
+      "pro_worst_us": null,
+      "elite_late": null,
+      "pro_late": null,
+      "threshold_us": null,
+      "ref": "nightly catalog: package_nightly --check exit 0 for both models",
+      "applies_to_image": "exact-image"
+    }
+  ],
+  "states": {
+    "built": true,
+    "gate-passed": true,
+    "published-nightly": true,
+    "installation-reported": false,
+    "install-verified": false,
+    "boot-restart-reported": false,
+    "owner-hardware-approval": false,
+    "withdrawn": false
+  },
+  "identity_confidence": {
+    "model": "absent",
+    "build": "absent",
+    "installed_hash": "absent",
+    "model_note": "DEVICE NOT TESTED in the nightly catalog. This record does not claim a verified install identity."
+  },
+  "notes": [
+    "Channel assignment in this workflow: stable MAIN. This record does not publish and does not change the MAIN installer. PR #880 is owned by Installer QA and is not edited here.",
+    "Hashes and sizes come from the live nightly versions.json row for nightly-79280e76-dev (display version 0.0.25.1). Source branch is release/0.0.25.1.",
+    "This is not a promotion of 0.0.26. 0.0.26 (94197fc8) stays a nightly hardware-test build.",
+    "install-verified and owner-hardware-approval are false. The catalog says DEVICE NOT TESTED."
+  ]
+}

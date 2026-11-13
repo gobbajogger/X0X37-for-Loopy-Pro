@@ -160,7 +160,7 @@
       "time_precision": "unknown",
       "order": "latest",
       "kind": "install-and-boot-report",
-      "source": "relayed by Dot via Orchestrator, owner words not quoted",
+      "source": "owner-reported via Dot relay",
       "quoted": false,
       "confidence": "reported",
       "verified": false,
@@ -186,9 +186,9 @@
       },
       "notes": [
         "This is the latest report and is the current state.",
-        "This report does not satisfy install-verified or owner-hardware-approval.",
-        "Identity is not verified, so boot-restart-reported lacks verification.",
-        "NOT a full functional suite, NOT hardware qualification on both models, and NOT a promotion."
+        "The source is owner-reported via Dot relay. This is not a quotation of the owner.",
+        "Installed hash is absent. Model is unverified (Elite is inferred).",
+        "This is not a full functional suite pass. This is not hardware qualification on both models. This is not a promotion."
       ]
     }
   ],
@@ -196,6 +196,9 @@
     "This SHA replaces withdrawn 600b (nightly-600b3b45-dev). The MAIN installer in PR #880 still keeps 0.0.26 off MAIN. That MAIN fact is not this nightly record.",
     "The two history events are ordered: earlier recovery-history, then the latest install and boot success, which is the current state. They are not marked as a conflict.",
     "Exact timestamps for the history events were not in the source, so only sequence and earlier/latest order are recorded.",
-    "Promotion remains blocked: installed hash is absent, model is unverified, and there is no owner hardware approval."
-  ]
+    "Promotion remains blocked: installed hash is absent, model is unverified, and there is no owner hardware approval.",
+    "Channel assignment in this workflow: nightly hardware-test build. This is not a promotion to MAIN. 0.0.25.1 is the stable MAIN channel.",
+    "The latest install, automatic restart, and normal-boot event source is 'owner-reported via Dot relay'. It is not an owner quotation."
+  ],
+  "channel": "nightly-hardware-test"
 }

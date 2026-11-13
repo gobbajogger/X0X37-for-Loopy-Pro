@@ -19,6 +19,7 @@ from validate_release_status import (  # noqa: E402
 SCHEMA = load_json(ROOT / "schema" / "release-record.schema.json")
 RECORD_941 = load_json(ROOT / "records" / "0.0.26-94197fc8.json")
 RECORD_600 = load_json(ROOT / "records" / "0.0.26-600b3b45.json")
+RECORD_025 = load_json(ROOT / "records" / "0.0.25.1-79280e76.json")
 
 
 class TestSchema(unittest.TestCase):
@@ -28,6 +29,10 @@ class TestSchema(unittest.TestCase):
 
     def test_seed_600b_matches_schema(self):
         errors = validate_instance(RECORD_600, SCHEMA, SCHEMA)
+        self.assertEqual(errors, [], msg=errors)
+
+    def test_seed_0251_matches_schema(self):
+        errors = validate_instance(RECORD_025, SCHEMA, SCHEMA)
         self.assertEqual(errors, [], msg=errors)
 
     def test_missing_required_field_fails(self):

@@ -6,9 +6,13 @@ It does not install firmware. It does not write to a device. It does not publish
 
 Admin authentication is option C.
 
-Option C is the GitHub identity `gobbajogger` plus this append-only JSONL audit file.
+Option C has one admin: the GitHub login `gobbajogger`. There is no other principal.
 
-The validator accepts only `actor` `gobbajogger` and requires `actor_identity` `github`. Any other actor, including `evil-bot` or `anonymous`, is refused. A missing `actor_identity` is refused.
+The JSONL `actor` field is a label only. It is not authentication.
+
+The validator checks the GitHub login on each git commit that added lines to `audit.jsonl`. It uses the GitHub API, or local git to list commits and then the GitHub API to read the login. If that history or the GitHub login is unavailable, the validator reports `actor not verified` and does not pass.
+
+A local copy or an off-git audit file is not tamper-proof. Do not treat the hash chain or the JSONL actor field as proof of the admin.
 
 No new credential, GitHub App, or permission is required.
 
@@ -18,9 +22,7 @@ A later line may retract an earlier line.
 
 No line is rewritten.
 
-The Git commit that contains the line binds it to the GitHub identity.
-
-Seed lines have `commit_sha` set to `null`. Those lines are not rewritten after they are first committed. The containing commit is the bind.
+Seed lines have `commit_sha` set to `null` so those lines are not rewritten. The containing Git commit is what the actor check uses.
 
 Each record's `states` must equal the latest audit `to_states` for that `record_id`.
 
@@ -32,6 +34,7 @@ release-status/schema/release-record.schema.json
 release-status/schema/audit-event.schema.json
 release-status/records/0.0.26-94197fc8.json
 release-status/records/0.0.26-600b3b45.json
+release-status/records/0.0.25.1-79280e76.json
 release-status/audit/audit.jsonl
 release-status/tools/validate_release_status.py
 release-status/tests/test_schema.py
@@ -52,13 +55,13 @@ python3 release-status/tools/validate_release_status.py \
   --audit release-status/audit/audit.jsonl
 ```
 
-Exit `0` means every record and the audit file are valid. Exit `1` is a schema or evidence error; the script prints the rule and the record id. Exit `2` is a usage or file error.
+Exit `0` means every record and the audit file are valid, and the GitHub login on each audit-adding commit is `gobbajogger`. Exit `1` is a schema, evidence, or actor-verification error; the script prints the rule and the record id. Exit `2` is a usage or file error. On a bare directory with no git history, the exit is `1` and the message starts with `actor not verified`.
 
 `--propose CHANGE.json` checks one state change in memory and does not write the record. The change file must include a new `audit_event` whose `actor` is `gobbajogger` and whose `actor_identity` is `github`.
 
 `--audit-previous FILE` refuses any rewrite of an existing audit line. When that flag is omitted and the audit file is inside a git checkout, the validator uses the previous commit's `audit.jsonl` by default (HEAD if the working tree is dirty, otherwise HEAD^).
 
-A bare run that is not in a git checkout, and that does not pass `--audit-previous`, cannot detect a rehashed rewrite of the audit file. The validator then prints a warning. The hash chain still checks internal consistency, but a rewrite that also repairs the chain will pass that check.
+A bare run that is not in a git checkout, and that does not pass `--audit-previous`, cannot detect a rehashed rewrite of the audit file. The validator then prints a warning. The hash chain still checks internal consistency, but a rewrite that also repairs the chain will pass that check. That is one reason a local or off-git log is not tamper-proof. The same bare run also reports `actor not verified`.
 
 ```
 python3 -m unittest discover -s release-status/tests -v
@@ -78,7 +81,7 @@ Flags on one record are independent. The validator sets or accepts a flag only w
 | `installation-reported` | A report of an install. The model and the build may lack a verified identity. |
 | `install-verified` | Model and exact-build confidence are `verified`. A stored installed hash must equal `models.<claimed model>.image_sha256`. A firmware GIT readback of `source_sha`, or a backup field that names that image hash, is also accepted. An inferred, reported, or absent field fails. A confidence flag alone is not a hash. A USB port name or a product string is not model proof, regardless of flags. Model proof must be one of: `board_id`, `model_id`, `flash_id`, `mac`, `firmware_readback`, `backup_field`. A "current nightly" guess is not proof. |
 | `boot-restart-reported` | A report says boot or restart occurred. If identity is not verified, the flag lacks verification and does not satisfy any promotion gate. A web install success alone is not boot, restart, or hardware proof. |
-| `owner-hardware-approval` | The owner's own words, quoted, with a timestamp and a direct source link, and `install-verified` is already true. A relay with no quotation does not satisfy this gate. |
+| `owner-hardware-approval` | The owner's own words, quoted, with a timestamp and a direct source link, and `install-verified` is already true. A relay with no quotation does not satisfy this gate. Approval is scoped to one exact model and one exact build. An Elite approval never implies a Pro approval. The overall flag is true only when every model on the record has its own scoped approval. |
 | `withdrawn` | Do not offer this exact build for install. A withdrawn record cannot gain a new promotion flag. |
 
 Promotion flags are `gate-passed`, `published-nightly`, `install-verified`, and `owner-hardware-approval`. Missing gate evidence blocks `gate-passed`. An unresolved conflict (generic rule, used only with a synthetic record in tests) blocks hardware promotion. The 0.0.26 seed has no conflict.
@@ -96,15 +99,21 @@ Source `94197fc839b00aff47b98ca02f3c6396e4a6eabf`. Exact-image emu360 strict PAS
 History, both relayed via Orchestrator, owner words not quoted:
 
 1. Earlier, recovery-history (not current): stuck on restart with a black screen for 1–2 minutes; 0.0.25.1 recovered the device; upgrade-path cause not proven; M-Flasher worked; the FM-1 USB label did not prove a wrong model. The 0.0.25.1 recovery build is a reference only. Its hashes come from the live nightly `versions.json` (`nightly-79280e76-dev`, source `79280e763341d03ba43266d3e25dad66f12de860`).
-2. Latest, current state: owner-reported install, automatic restart, and boot at normal speed on the owner's SMK. Model Elite is inferred. Build `94197fc8` is inferred from the current nightly. Installed hash is absent.
+2. Latest, current state: install, automatic restart, and boot at normal speed on the owner's SMK. The event source is `owner-reported via Dot relay`. This is not a quotation of the owner. No exact time was available. Model Elite is inferred and unverified. Installed hash is absent. This is not a full functional suite pass.
 
-States: `built`, `gate-passed`, `published-nightly`, `installation-reported`, and `boot-restart-reported` are true. `install-verified` and `owner-hardware-approval` are false. `withdrawn` is false. Promotion stays blocked because the installed hash is absent, the model is unverified, and there is no owner hardware approval.
+States: `built`, `gate-passed`, `published-nightly`, `installation-reported`, and `boot-restart-reported` are true. `install-verified` and `owner-hardware-approval` are false. `withdrawn` is false. The channel is `nightly-hardware-test`. This is not a promotion to MAIN.
 
-ELF provenance is hashes only, `published=false`. The toolchain is `null` because the kept build logs do not name the compiler. ELF bytes are not in this tree and must not be added.
+ELF provenance is hashes only, `published=false`. The toolchain is `null`. The kept build logs do not name the compiler. The validator does not infer a toolchain. ELF bytes are not in this tree and must not be added.
+
+### `nightly-79280e76-dev` (0.0.25.1, stable MAIN)
+
+Source `79280e763341d03ba43266d3e25dad66f12de860` on branch `release/0.0.25.1`. The channel in this workflow is `stable-MAIN`. This record does not publish. It does not edit the MAIN installer or PR #880.
+
+Hashes come from the live nightly `versions.json` row. `install-verified` and `owner-hardware-approval` are false. The catalog label is DEVICE NOT TESTED.
 
 ### `nightly-600b3b45-dev` (0.0.26, withdrawn)
 
-Source `600b3b45f8d59c3432d958238b05753eb6f2fcb5`. Published by nightly PR #116 (merge 13 November 2026, 01:34:16 UTC). Withdrawn by nightly PR #120 (merge 13 November 2026, 05:44:03 UTC) after boot and restart failures. Replaced by `nightly-94197fc8-dev`. `withdrawn` is true. The validator refuses a promotion of this record.
+Channel in this workflow: `withdrawn`. Source `600b3b45f8d59c3432d958238b05753eb6f2fcb5`. Published by nightly PR #116 (merge 13 November 2026, 01:34:16 UTC). Withdrawn by nightly PR #120 (merge 13 November 2026, 05:44:03 UTC) after boot and restart failures. Replaced by `nightly-94197fc8-dev`. `withdrawn` is true. The validator refuses a promotion of this record.
 
 `built` is true. `controller_check` is `PASS` for both models. Sources for that PASS are the nightly PR #116 body, the 600b publish-branch catalog (`package_nightly --check PASS both`), and the independent review's `--check` receipt.
 

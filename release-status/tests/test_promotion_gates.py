@@ -274,6 +274,9 @@ class TestPromotionGates(unittest.TestCase):
         current = RECORD_941["history"][1]
         self.assertTrue(current["is_current"])
         self.assertFalse(current["quoted"])
+        self.assertEqual(current["source"], "owner-reported via Dot relay")
+        self.assertIsNone(current.get("quoted_words"))
+        self.assertFalse(current["scope"]["full_functional_suite"])
         self.assertEqual(current["confidence"], "reported")
         self.assertIn("automatic restart", current["events"])
         self.assertIn("boot at normal speed", current["events"])
@@ -455,6 +458,113 @@ class TestPromotionGates(unittest.TestCase):
             },
         )
         self.assertIn("emu360-image-hash", rules(issues), [str(i) for i in issues])
+
+
+
+    def test_elite_approval_never_implies_pro(self):
+        elite = RECORD_941["models"]["elite"]["image_sha256"]
+        pro = RECORD_941["models"]["pro"]["image_sha256"]
+        elite_approval = {
+            "model": "elite",
+            "source_sha": RECORD_941["source_sha"],
+            "image_sha256": elite,
+            "approved": True,
+            "quoted": True,
+            "quoted_words": "synthetic quoted words for the Elite-only scope test only",
+            "time": "2026-11-13T12:00:00-06:00",
+            "source_link": "https://example.invalid/owner-elite",
+        }
+        # Overall owner-hardware-approval true with Elite only must fail.
+        issues = propose(
+            RECORD_941,
+            {
+                "record_id": "nightly-94197fc8-dev",
+                "set_states": {
+                    "install-verified": True,
+                    "owner-hardware-approval": True,
+                },
+                "identity_confidence": {
+                    "model": "verified",
+                    "build": "verified",
+                    "installed_hash": "verified",
+                },
+                "hardware_approvals": [elite_approval],
+                "evidence": {
+                    "installed_hash": elite,
+                    "model": "elite",
+                    "model_proof": "board_id",
+                    "owner_words_quoted": True,
+                    "owner_timestamp": "2026-11-13T12:00:00-06:00",
+                    "owner_source_link": "https://example.invalid/owner-elite",
+                    "imply_pro_from_elite": True,
+                },
+            },
+        )
+        self.assertIn("elite-approval-not-pro", rules(issues), [str(i) for i in issues])
+
+        # Copying an Elite approval onto Pro must fail.
+        issues2 = propose(
+            RECORD_941,
+            {
+                "record_id": "nightly-94197fc8-dev",
+                "set_states": {"owner-hardware-approval": True, "install-verified": True},
+                "identity_confidence": {
+                    "model": "verified",
+                    "build": "verified",
+                    "installed_hash": "verified",
+                },
+                "hardware_approvals": [
+                    elite_approval,
+                    {
+                        "model": "pro",
+                        "source_sha": RECORD_941["source_sha"],
+                        "image_sha256": pro,
+                        "approved": True,
+                        "note": "copied from Elite approval",
+                    },
+                ],
+                "evidence": {
+                    "installed_hash": elite,
+                    "model": "pro",
+                    "model_proof": "board_id",
+                    "owner_words_quoted": True,
+                    "owner_timestamp": "2026-11-13T12:00:00-06:00",
+                    "owner_source_link": "https://example.invalid/owner-elite",
+                    "copy_approval_from": "elite",
+                    "approval_model": "pro",
+                },
+            },
+        )
+        self.assertIn("elite-approval-not-pro", rules(issues2), [str(i) for i in issues2])
+
+        # Elite-only scoped approval, overall flag false, is not a Pro approval.
+        rec = copy.deepcopy(RECORD_941)
+        rec["hardware_approvals"] = [elite_approval]
+        rec["states"]["owner-hardware-approval"] = False
+        issues3 = validate_record(rec, SCHEMA)
+        # May fail other rules (install-verified still false) but must not
+        # treat Pro as approved. The overall flag is false, so the scope
+        # rule does not fire; Pro is not approved.
+        self.assertFalse(rec["states"]["owner-hardware-approval"])
+        self.assertTrue(all(a.get("model") != "pro" or not a.get("approved") for a in rec["hardware_approvals"]))
+
+    def test_toolchain_is_not_inferred(self):
+        rec = copy.deepcopy(RECORD_941)
+        rec["elf_provenance"]["toolchain"] = "arm-none-eabi-gcc (inferred)"
+        rec["elf_provenance"].pop("toolchain_source", None)
+        issues = validate_record(rec, SCHEMA)
+        self.assertIn("toolchain-inferred", rules(issues), [str(i) for i in issues])
+        # null remains accepted
+        rec2 = copy.deepcopy(RECORD_941)
+        rec2["elf_provenance"]["toolchain"] = None
+        issues2 = validate_record(rec2, SCHEMA)
+        self.assertNotIn("toolchain-inferred", rules(issues2), [str(i) for i in issues2])
+
+    def test_94197fc8_is_nightly_hardware_test_not_promoted(self):
+        self.assertEqual(RECORD_941["channel"], "nightly-hardware-test")
+        self.assertFalse(RECORD_941["states"]["owner-hardware-approval"])
+        self.assertFalse(RECORD_941["states"]["install-verified"])
+        self.assertFalse(RECORD_941["states"]["withdrawn"])
 
 
 

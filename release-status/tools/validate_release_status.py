@@ -753,6 +753,240 @@ def _add(issues: list[Issue], rule: str, rid: str, message: str) -> None:
     issues.append(Issue(rule, rid, message))
 
 
+
+def check_hardware_approval_scope(record: dict, proposing: dict | None = None) -> list[Issue]:
+    """Hardware approval is scoped to one exact model and one exact build.
+
+    An Elite approval never implies a Pro approval. The overall
+    owner-hardware-approval flag is true only when every model in the
+    record has its own scoped approval for this source SHA and image hash.
+    """
+    issues: list[Issue] = []
+    rid = record_id_of(record)
+    evidence = (proposing or {}).get("evidence") or {}
+    approvals = list(record.get("hardware_approvals") or [])
+    if proposing and proposing.get("hardware_approvals") is not None:
+        approvals = list(proposing.get("hardware_approvals") or [])
+    models = models_of(record)
+    source_sha = record.get("source_sha")
+    states = record.get("states") or {}
+
+    approved_models: set[str] = set()
+    for item in approvals:
+        if not isinstance(item, dict):
+            continue
+        model = item.get("model")
+        if model not in models:
+            _add(
+                issues,
+                "elite-approval-not-pro",
+                rid,
+                f"hardware approval model {model!r} is not a model on this record",
+            )
+            continue
+        if item.get("source_sha") != source_sha:
+            _add(
+                issues,
+                "elite-approval-not-pro",
+                rid,
+                f"hardware approval for {model} must name this record's exact source_sha",
+            )
+            continue
+        expected = (models.get(model) or {}).get("image_sha256")
+        if item.get("image_sha256") != expected:
+            _add(
+                issues,
+                "elite-approval-not-pro",
+                rid,
+                f"hardware approval for {model} must name that model's exact image SHA-256",
+            )
+            continue
+        if item.get("approved") is True:
+            # A scoped approval still needs its own quote when it is claimed.
+            # The overall flag check below also requires quotes. Here we only
+            # record which models have a scoped, identity-matching approval.
+            approved_models.add(model)
+
+    # Implying Pro from Elite (or the reverse) is refused.
+    if evidence.get("imply_pro_from_elite") or evidence.get("imply_elite_from_pro"):
+        _add(
+            issues,
+            "elite-approval-not-pro",
+            rid,
+            "an Elite hardware approval never implies a Pro approval (and the reverse is also refused)",
+        )
+    ev_model = evidence.get("approval_model") or evidence.get("model")
+    if evidence.get("copy_approval_from") and ev_model:
+        src_model = evidence.get("copy_approval_from")
+        if src_model != ev_model:
+            _add(
+                issues,
+                "elite-approval-not-pro",
+                rid,
+                f"a {src_model} hardware approval does not apply to {ev_model}",
+            )
+
+    if states.get("owner-hardware-approval"):
+        missing = [name for name in models if name not in approved_models]
+        if missing:
+            _add(
+                issues,
+                "elite-approval-not-pro",
+                rid,
+                "owner-hardware-approval on the record requires a scoped approval for each "
+                "model and exact build; an Elite approval never implies a Pro approval. "
+                f"Missing scoped approval for: {', '.join(missing)}",
+            )
+    return issues
+
+
+def local_git_commits_for(path: Path) -> list[str] | None:
+    """Return commit SHAs that changed path, newest first, or None if git is unavailable."""
+    path = path.resolve()
+    try:
+        top = subprocess.run(
+            ["git", "-C", str(path.parent), "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if top.returncode != 0:
+        return None
+    root = Path(top.stdout.strip())
+    try:
+        rel = os.path.relpath(path, root)
+    except ValueError:
+        return None
+    if rel.startswith(".."):
+        return None
+    tracked = subprocess.run(
+        ["git", "-C", str(root), "ls-files", "--error-unmatch", rel],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if tracked.returncode != 0:
+        return None
+    log = subprocess.run(
+        ["git", "-C", str(root), "log", "--follow", "--format=%H", "--", rel],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if log.returncode != 0:
+        return None
+    shas = [line.strip() for line in log.stdout.splitlines() if line.strip()]
+    return shas
+
+
+def git_remote_repo(path: Path) -> str | None:
+    """Return 'owner/repo' from the origin URL of the checkout that contains path."""
+    path = path.resolve()
+    try:
+        top = subprocess.run(
+            ["git", "-C", str(path.parent), "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if top.returncode != 0:
+        return None
+    root = Path(top.stdout.strip())
+    remote = subprocess.run(
+        ["git", "-C", str(root), "remote", "get-url", "origin"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if remote.returncode != 0:
+        return None
+    url = remote.stdout.strip()
+    # git@github.com:owner/repo.git or https://github.com/owner/repo.git
+    m = re.search(r"github\.com[:/]([^/]+)/([^/]+?)(?:\.git)?$", url)
+    if not m:
+        return None
+    return f"{m.group(1)}/{m.group(2)}"
+
+
+def github_commit_login(repo: str, sha: str) -> str | None:
+    """Return the GitHub login of the commit author, or None if unavailable.
+
+    Uses the gh CLI when present. Does not treat a local author string as a
+    verified GitHub login.
+    """
+    try:
+        proc = subprocess.run(
+            ["gh", "api", f"repos/{repo}/commits/{sha}", "--jq", ".author.login // .committer.login // empty"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if proc.returncode != 0:
+        return None
+    login = proc.stdout.strip()
+    return login or None
+
+
+def verify_audit_commits_github_login(
+    audit_path: Path,
+    *,
+    commit_shas: list[str] | None = None,
+    login_lookup=None,
+    repo: str | None = None,
+) -> list[Issue]:
+    """Check that each commit which added audit.jsonl lines is by GitHub login gobbajogger.
+
+    This check uses verified git / GitHub history only. The actor field inside
+    the JSONL file is not authentication. If history or the GitHub login is
+    unavailable, the result is 'actor not verified' and is not a pass.
+    """
+    issues: list[Issue] = []
+    shas = commit_shas
+    if shas is None:
+        shas = local_git_commits_for(audit_path)
+    if not shas:
+        issues.append(
+            Issue(
+                "actor-not-verified",
+                "audit",
+                "actor not verified: no git history is available to check commits that added audit.jsonl lines",
+            )
+        )
+        return issues
+    if repo is None and login_lookup is None:
+        repo = git_remote_repo(audit_path)
+    for sha in shas:
+        login = None
+        if login_lookup is not None:
+            login = login_lookup(sha)
+        elif repo:
+            login = github_commit_login(repo, sha)
+        if not login:
+            issues.append(
+                Issue(
+                    "actor-not-verified",
+                    "audit",
+                    f"actor not verified: GitHub login unavailable for commit {sha}",
+                )
+            )
+            continue
+        if login != ALLOWED_ACTOR:
+            issues.append(
+                Issue(
+                    "audit-actor",
+                    "audit",
+                    f"commit {sha} that changed audit.jsonl is by GitHub login {login!r}, not {ALLOWED_ACTOR!r}",
+                )
+            )
+    return issues
+
+
 def check_elf_provenance(record: dict) -> list[Issue]:
     issues: list[Issue] = []
     rid = record_id_of(record)
@@ -810,6 +1044,18 @@ def check_elf_provenance(record: dict) -> list[Issue]:
                     rid,
                     f"elf_provenance.models.{name}.image_sha256 must equal the record image SHA-256",
                 )
+    # Toolchain stays null or "unknown" unless exact build provenance names it.
+    # Do not infer a compiler from the SDK or from other context.
+    toolchain = elf.get("toolchain")
+    if toolchain not in (None, "", "unknown"):
+        cited = elf.get("toolchain_source")
+        if not (isinstance(cited, str) and cited.strip()):
+            _add(
+                issues,
+                "toolchain-inferred",
+                rid,
+                "toolchain must stay null or unknown unless exact build provenance names it; no inference",
+            )
     return issues
 
 
@@ -1111,6 +1357,8 @@ def check_states(record: dict, *, proposing: dict | None = None) -> list[Issue]:
                 "owner-hardware-approval is refused when install-verified is false",
             )
 
+    issues.extend(check_hardware_approval_scope(record, proposing))
+
     if states.get("withdrawn"):
         if not record.get("withdraw_ref") or not record.get("withdraw_reason"):
             _add(
@@ -1344,6 +1592,10 @@ def apply_proposal(record: dict, proposal: dict) -> dict:
         out["withdraw_ref"] = proposal["withdraw_ref"]
     if "withdraw_reason" in proposal:
         out["withdraw_reason"] = proposal["withdraw_reason"]
+    if "hardware_approvals" in proposal:
+        out["hardware_approvals"] = copy.deepcopy(proposal["hardware_approvals"])
+    if "channel" in proposal:
+        out["channel"] = proposal["channel"]
     ev = proposal.get("evidence") or {}
     iv_src = proposal.get("install_verification")
     if iv_src or ev.get("installed_hash") or ev.get("model_proof") or ev.get("model") or ev.get("firmware_git_readback") or ev.get("backup_field_hash"):
@@ -1437,6 +1689,10 @@ def validate_all(
     proposal: dict | None = None,
     require_proposal_audit: bool = False,
     bare_audit_warning: list[str] | None = None,
+    commit_shas: list[str] | None = None,
+    login_lookup=None,
+    github_repo: str | None = None,
+    skip_commit_actor_check: bool = False,
 ) -> list[Issue]:
     issues: list[Issue] = []
     for filename, rec in records:
@@ -1464,6 +1720,17 @@ def validate_all(
         if previous_text is not None:
             issues.extend(validate_audit_append_only(previous_text, current_text))
         issues.extend(check_states_match_audit(records, events))
+        # Option C actor proof is the GitHub login on commits that added
+        # audit lines, not the actor field inside the JSONL file.
+        if not skip_commit_actor_check:
+            issues.extend(
+                verify_audit_commits_github_login(
+                    audit_path,
+                    commit_shas=commit_shas,
+                    login_lookup=login_lookup,
+                    repo=github_repo,
+                )
+            )
 
     if proposal is not None:
         rid = str(proposal.get("record_id") or "")

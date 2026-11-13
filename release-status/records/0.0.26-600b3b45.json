@@ -108,5 +108,6 @@
     "package_sha256 equals image_sha256. This was verified against the historic .fwsc bytes (SHA-256 25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a Elite and 528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655 Pro).",
     "crc32 values Elite 5c668fbb and Pro 407cc185 are the CRC-32 of those historic .fwsc bytes.",
     "The validator refuses any promotion of this withdrawn record."
-  ]
+  ],
+  "channel": "withdrawn"
 }

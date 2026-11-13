@@ -30,6 +30,7 @@ SCHEMA = load_json(ROOT / "schema" / "release-record.schema.json")
 AUDIT_SCHEMA = load_json(ROOT / "schema" / "audit-event.schema.json")
 RECORD_941 = load_json(ROOT / "records" / "0.0.26-94197fc8.json")
 RECORD_600 = load_json(ROOT / "records" / "0.0.26-600b3b45.json")
+RECORD_025 = load_json(ROOT / "records" / "0.0.25.1-79280e76.json")
 AUDIT = ROOT / "audit" / "audit.jsonl"
 SCRIPT = TOOLS / "validate_release_status.py"
 
@@ -77,6 +78,12 @@ class TestValidator(unittest.TestCase):
         self.assertTrue(RECORD_941["history"][1]["is_current"])
         self.assertIsNone(RECORD_941["elf_provenance"]["toolchain"])
         self.assertFalse(RECORD_941["elf_provenance"]["published"])
+        self.assertEqual(RECORD_941["channel"], "nightly-hardware-test")
+        self.assertEqual(RECORD_941["history"][1]["source"], "owner-reported via Dot relay")
+        self.assertFalse(RECORD_941["history"][1]["quoted"])
+        self.assertIsNone(RECORD_941["history"][1].get("quoted_words"))
+        self.assertFalse(RECORD_941["history"][1]["scope"]["full_functional_suite"])
+
 
     def test_600b_seed_passes_as_withdrawn(self):
         issues = validate_record(RECORD_600, SCHEMA, filename="0.0.26-600b3b45.json")
@@ -96,10 +103,12 @@ class TestValidator(unittest.TestCase):
             records=[
                 ("0.0.26-94197fc8.json", RECORD_941),
                 ("0.0.26-600b3b45.json", RECORD_600),
+                ("0.0.25.1-79280e76.json", RECORD_025),
             ],
             record_schema=SCHEMA,
             audit_path=AUDIT,
             audit_schema=AUDIT_SCHEMA,
+            skip_commit_actor_check=True,
         )
         self.assertEqual([str(i) for i in issues], [])
 
@@ -121,10 +130,12 @@ class TestValidator(unittest.TestCase):
         issues = validate_audit_append_only(original, appended)
         self.assertEqual([str(i) for i in issues], [])
 
-    def test_cli_exit_0_on_seeds(self):
+    def test_cli_bare_reports_actor_not_verified(self):
+        # On a bare directory the JSONL actor field is not proof. The validator
+        # must report 'actor not verified' and must not pass silently.
         result = _run_cli()
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("OK:", result.stdout)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("actor not verified", result.stderr)
 
     def test_cli_exit_2_on_missing_file(self):
         result = _run_cli(extra=["--propose", "/tmp/does-not-exist-release-status-propose.json"])
@@ -147,7 +158,7 @@ class TestValidator(unittest.TestCase):
 
     def test_audit_seed_uses_github_identity(self):
         events = load_jsonl(AUDIT)
-        self.assertEqual(len(events), 3)
+        self.assertEqual(len(events), 5)
         for event in events:
             self.assertEqual(event["actor"], "gobbajogger")
             self.assertEqual(event["actor_identity"], "github")
@@ -324,14 +335,86 @@ class TestValidator(unittest.TestCase):
     def test_bare_run_warns_it_cannot_detect_rehashed_rewrite(self):
         """A bare directory (no git, no --audit-previous) cannot detect a rehashed rewrite.
 
-        The CLI still exits 0 on an internally consistent file and prints a warning.
-        This documents the limitation; the git-checkout default covers the real gate.
+        The CLI prints a warning. It also reports 'actor not verified' because
+        commit history is unavailable. Local or off-git logs are not tamper-proof.
         """
         result = _run_cli()
-        self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("rehashed rewrite", result.stderr)
         self.assertIn("cannot be detected", result.stderr)
+        self.assertIn("actor not verified", result.stderr)
+        self.assertNotEqual(result.returncode, 0)
 
+
+
+
+    def test_commit_actor_not_verified_when_history_unavailable(self):
+        from validate_release_status import verify_audit_commits_github_login
+        issues = verify_audit_commits_github_login(
+            AUDIT,
+            commit_shas=[],
+        )
+        self.assertTrue(issues)
+        self.assertEqual(issues[0].rule, "actor-not-verified")
+        self.assertIn("actor not verified", issues[0].message)
+
+    def test_commit_actor_verified_when_github_login_is_gobbajogger(self):
+        from validate_release_status import validate_all
+        issues = validate_all(
+            records=[
+                ("0.0.26-94197fc8.json", RECORD_941),
+                ("0.0.26-600b3b45.json", RECORD_600),
+                ("0.0.25.1-79280e76.json", RECORD_025),
+            ],
+            record_schema=SCHEMA,
+            audit_path=AUDIT,
+            audit_schema=AUDIT_SCHEMA,
+            commit_shas=["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+            login_lookup=lambda sha: "gobbajogger",
+        )
+        self.assertEqual([str(i) for i in issues], [])
+
+    def test_commit_actor_rejected_when_github_login_is_not_gobbajogger(self):
+        from validate_release_status import validate_all
+        issues = validate_all(
+            records=[
+                ("0.0.26-94197fc8.json", RECORD_941),
+                ("0.0.26-600b3b45.json", RECORD_600),
+                ("0.0.25.1-79280e76.json", RECORD_025),
+            ],
+            record_schema=SCHEMA,
+            audit_path=AUDIT,
+            audit_schema=AUDIT_SCHEMA,
+            commit_shas=["bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"],
+            login_lookup=lambda sha: "evil-bot",
+        )
+        self.assertTrue(any(i.rule == "audit-actor" for i in issues), [str(i) for i in issues])
+
+    def test_commit_actor_not_verified_when_login_unavailable(self):
+        from validate_release_status import validate_all
+        issues = validate_all(
+            records=[
+                ("0.0.26-94197fc8.json", RECORD_941),
+                ("0.0.26-600b3b45.json", RECORD_600),
+                ("0.0.25.1-79280e76.json", RECORD_025),
+            ],
+            record_schema=SCHEMA,
+            audit_path=AUDIT,
+            audit_schema=AUDIT_SCHEMA,
+            commit_shas=["cccccccccccccccccccccccccccccccccccccccc"],
+            login_lookup=lambda sha: None,
+        )
+        self.assertTrue(any(i.rule == "actor-not-verified" for i in issues), [str(i) for i in issues])
+        self.assertTrue(any("actor not verified" in str(i) for i in issues))
+
+    def test_0251_is_stable_main_channel(self):
+        from validate_release_status import validate_record
+        issues = validate_record(RECORD_025, SCHEMA, filename="0.0.25.1-79280e76.json")
+        self.assertEqual([str(i) for i in issues], [])
+        self.assertEqual(RECORD_025["channel"], "stable-MAIN")
+        self.assertEqual(RECORD_025["version"], "0.0.25.1")
+        self.assertFalse(RECORD_025["states"]["install-verified"])
+        self.assertFalse(RECORD_025["states"]["owner-hardware-approval"])
+        self.assertFalse(RECORD_025["states"]["withdrawn"])
 
 
 

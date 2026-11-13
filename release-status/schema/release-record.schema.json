@@ -121,6 +121,22 @@
     },
     "install_verification": {
       "$ref": "#/definitions/install_verification"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "stable-MAIN",
+        "nightly-hardware-test",
+        "withdrawn"
+      ],
+      "description": "Release channel assignment in this workflow. It is not a promotion and does not publish."
+    },
+    "hardware_approvals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/hardware_approval"
+      },
+      "description": "Per-model, per-build owner hardware approvals. An Elite approval never applies to Pro."
     }
   },
   "definitions": {
@@ -289,6 +305,13 @@
               "$ref": "#/definitions/elf_model"
             }
           }
+        },
+        "toolchain_source": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Citation of exact build provenance that names the compiler. Required if toolchain is set to a value other than null or unknown."
         }
       }
     },
@@ -732,6 +755,52 @@
         "backup_field"
       ],
       "description": "Explicit hardware-field proof. USB names and product strings are not allowed."
+    },
+    "hardware_approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "source_sha",
+        "image_sha256",
+        "approved"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "enum": [
+            "elite",
+            "pro"
+          ]
+        },
+        "source_sha": {
+          "$ref": "#/definitions/git_sha"
+        },
+        "image_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "approved": {
+          "type": "boolean"
+        },
+        "quoted": {
+          "type": "boolean"
+        },
+        "quoted_words": {
+          "type": "string"
+        },
+        "time": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_link": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
     }
   }
 }
