@@ -280,7 +280,7 @@ def _public_package_name(version, model, source_commit):
     This is an output label only. _verify_records must already have checked
     the internal Elite/Pro identity, version, source and package bytes.
     """
-    if model not in PRODUCTS:
+    if not isinstance(model, str) or model not in PRODUCTS:
         raise NightlyPublishError("DnBOX public package requires Elite or Pro")
     if not isinstance(source_commit, str) or not HEX40.fullmatch(source_commit):
         raise NightlyPublishError("DnBOX public package requires a full source commit")
