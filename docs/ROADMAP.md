@@ -4,7 +4,7 @@ This is the sole list of owner requests and decisions. Each request keeps its nu
 
 Workers must check this file, the relevant source/feature registry and the latest authenticated owner decisions before asking the owner anything. Machine-local notes are supporting history, not a prerequisite. Never re-ask a feature or decision he already agreed. A newer owner word wins; mark the older row SUPERSEDED, do not delete it. A removal needs a reason in the owner's own words (rule of 2026-11-12 03:17 UTC+10).
 
-Last sync: 2026-11-13 19:20 UTC, live PR ownership/evidence reconciliation and current U1 plan-only gate. Earlier widget decisions (approved louder Juno/Drone, presets before chord names) remain unchanged. Source base remains `94197fc8`; this documentation update does not qualify a firmware build.
+Last sync: 2026-11-13, live reconciliation, live PR ownership/evidence reconciliation and current U1 plan-only gate. Earlier widget decisions (approved louder Juno/Drone, presets before chord names) remain unchanged. Source base remains `94197fc8`; this documentation update does not qualify a firmware build.
 
 ## The goal
 
