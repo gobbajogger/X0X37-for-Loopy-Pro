@@ -36,10 +36,11 @@ static const x0x_param_t original_sound_juno_params[18] = {
  {"PBend",127,0,0},{"Damper",127,0,0}
 };
 #include "juno_stock_bank.h"
-_Static_assert(sizeof original_sound_juno_factories / sizeof original_sound_juno_factories[0] == ORIGINAL_JUNO_FACTORIES,
-               "Juno factory count must match stored selector range");
-_Static_assert(sizeof original_sound_juno_names / sizeof original_sound_juno_names[0] == ORIGINAL_JUNO_FACTORIES,
-               "Juno factory names must match selector range");
+/* C99-compatible count checks; the original host cell gate uses -std=c99 -pedantic. */
+typedef char juno_factory_count_matches[
+    sizeof original_sound_juno_factories / sizeof original_sound_juno_factories[0] == ORIGINAL_JUNO_FACTORIES ? 1 : -1];
+typedef char juno_factory_name_count_matches[
+    sizeof original_sound_juno_names / sizeof original_sound_juno_names[0] == ORIGINAL_JUNO_FACTORIES ? 1 : -1];
 static const x0x_param_t original_sound_drone_params[ORIGINAL_DRONE_NPARAMS] = {
     {"Register",127,57,0},{"Brightness",127,66,0},
     {"Flutter",127,51,0},{"Attack",127,23,0},
