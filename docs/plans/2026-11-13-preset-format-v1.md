@@ -475,7 +475,7 @@ Whole-image `.text` (the XIP output section, which also holds `.rodata`) grew 2,
 - **Flash free does not hold.** Elite free 6,276 B is **1,916 B below** the 8,192 B floor. Pro free 6,284 B is **1,908 B below** the 8,192 B floor. (Equivalently, the STAGE=4 image is 1,916 B / 1,908 B over the largest image the floor would allow, 544,480 B.)
 - **Pool free holds.** 8,340 B on both models, 148 B above the 8,192 B floor.
 
-A default stage-0 link (the shipped default) does not add this cost: both the `x0x.c` include and the `main_fm1.c` hook are behind `#if DNBOX_PRESET_MEASURE_STAGE`, which is 0 when the define is unset or default. At stage 0 the device image stays byte-identical to a base built with the same `--git-sha`. This pair used `--git-sha a6770c1e…`, so only the 7-character short SHA display string would differ.
+A default stage-0 link (the shipped default) does not add this cost. Both gated sites compile out when `DNBOX_PRESET_MEASURE_STAGE` is 0 or unset: the codec include in `firmware/src/x0x.c` lines 214–221, and the measurement hook in `firmware/src/app/main_fm1.c` at line 2598 with its call from `fm1_cstart` at line 2674. At stage 0 the device image stays byte-identical to a base built with the same `--git-sha`. This pair used `--git-sha a6770c1e…`, so only the 7-character short SHA display string would differ.
 
 ### Recipe, commands, logs, hashes
 
@@ -515,5 +515,8 @@ Images (MEASUREMENT ONLY — NOT FOR INSTALL), kept under `/workspace/build-1214
 | Pro ELF | 632,428 | `e30b84cbec07d57bdab9b36b1356c508179c91a7a4eb9bd80eba33402105acee` |
 | Pro app `.bin` | 546,388 | `b252320c90390f52b5d1dead7719c9c96020a4ba75fa03661dabb0f9bbc984e3` |
 
-The hook that kept the STAGE=4 symbols live under LTO and `--gc-sections` is `preset_measure_touch` in `firmware/src/app/main_fm1.c` at line 2598 (`__attribute__((used, noinline))`, `void *volatile keep[]`). It is called once from `fm1_cstart` at line 2674, after the boot fields are set and before `fm1_main()`, not in the `for(;;)` loop, not in `ui.c`, and not on the audio path (audio starts later inside `fm1_main`). The codec is included from `firmware/src/x0x.c` line 214 (`#if DNBOX_PRESET_MEASURE_STAGE`) / line 220 (`#include "app/preset_record.c"`). The default in `firmware/src/app/preset_record.h` lines 13–17 is 0.
+Two sites on the device path are gated by `#if DNBOX_PRESET_MEASURE_STAGE` (the default in `firmware/src/app/preset_record.h` lines 13–17 is 0):
+
+- The codec include is in `firmware/src/x0x.c` lines 214–221: the `#if` at line 214, `PRESET_RECORD_NO_STRINGS`, `#include "app/preset_record.c"` at line 220, and the `#endif` at line 221.
+- The measurement hook that kept the STAGE=4 symbols live under LTO and `--gc-sections` is `preset_measure_touch` in `firmware/src/app/main_fm1.c` at line 2598 (`__attribute__((used, noinline))`, `void *volatile keep[]`). It is called once from `fm1_cstart` at line 2674, after the boot fields are set and before `fm1_main()`, not in the `for(;;)` loop, not in `ui.c`, and not on the audio path (audio starts later inside `fm1_main`).
 
