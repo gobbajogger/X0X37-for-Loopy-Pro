@@ -1,0 +1,75 @@
+SEQ chord display BEFORE measurements at 94197fc8
+host render of real ui.c draw_303 / draw_main / draw_knobs
+mono-C3 step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=1
+  note[0]=48 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/before/before-mono-control.png
+mono-E3 step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[50,64] ink=23b1 nstore=1
+  note[0]=52 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/before/before-mono-E3.png
+dyad step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=2
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=0
+png /workspace/seq-chord-001/evidence/before/before-dyad.png
+triad step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=0
+  note[2]=55 inside=1 drawn=0
+png /workspace/seq-chord-001/evidence/before/before-triad.png
+triad vs mono-C3: only difference is false 2x2 p-lock notch (chord lanes in lock_marks)
+tetrad step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=4
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=0
+  note[2]=55 inside=1 drawn=0
+  note[3]=59 inside=1 drawn=0
+png /workspace/seq-chord-001/evidence/before/before-tetrad.png
+hexachord step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=6
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=0
+  note[2]=55 inside=1 drawn=0
+  note[3]=59 inside=1 drawn=0
+  note[4]=62 inside=0 drawn=0
+  note[5]=65 inside=0 drawn=0
+png /workspace/seq-chord-001/evidence/before/before-hexachord.png
+chord-beside-mono/chord step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=0
+  note[2]=55 inside=1 drawn=0
+chord-beside-mono/mono step=7 col=7 spage=0 held=-1 playing=0 ph=-1 window=[46,60] ink=23b1 nstore=1
+  note[0]=57 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/before/before-chord-and-mono.png
+selected-triad step=0 col=0 spage=0 held=0 playing=0 ph=-1 window=[46,60] ink=df3b nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=0
+  note[2]=55 inside=1 drawn=0
+png /workspace/seq-chord-001/evidence/before/before-selected-chord.png
+png /workspace/seq-chord-001/evidence/before/before-selected-mono.png
+selected triad vs selected mono: labels+NOTE knob identical; roll differs only by false p-lock notch
+playing-triad step=0 col=0 spage=0 held=-1 playing=1 ph=0 window=[46,60] ink=23b1 nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=0
+  note[2]=55 inside=1 drawn=0
+png /workspace/seq-chord-001/evidence/before/before-playing-chord.png
+playing playhead_hits=93
+sustained/onset step=0 col=0 spage=0 held=-1 playing=1 ph=2 window=[46,60] ink=23b1 nstore=3
+  note[0]=48 inside=1 drawn=1
+  note[1]=52 inside=1 drawn=0
+  note[2]=55 inside=1 drawn=0
+png /workspace/seq-chord-001/evidence/before/before-sustained-triad.png
+page1-of-32 step=0 col=0 spage=0 held=-1 playing=0 ph=-1 window=[55,69] ink=23b1 nstore=1
+  note[0]=57 inside=1 drawn=1
+png /workspace/seq-chord-001/evidence/before/before-page1-with-page2-chord.png
+page2-chord step=16 col=0 spage=1 held=-1 playing=0 ph=-1 window=[55,69] ink=23b1 nstore=3
+  note[0]=60 inside=1 drawn=1
+  note[1]=64 inside=1 drawn=0
+  note[2]=67 inside=1 drawn=0
+png /workspace/seq-chord-001/evidence/before/before-page2-chord.png
+page2-selected step=16 col=0 spage=1 held=16 playing=0 ph=-1 window=[55,69] ink=df3b nstore=3
+  note[0]=60 inside=1 drawn=1
+  note[1]=64 inside=1 drawn=0
+  note[2]=67 inside=1 drawn=0
+png /workspace/seq-chord-001/evidence/before/before-page2-selected-chord.png
+page2-playing step=16 col=0 spage=1 held=-1 playing=1 ph=16 window=[55,69] ink=23b1 nstore=3
+  note[0]=60 inside=1 drawn=1
+  note[1]=64 inside=1 drawn=0
+  note[2]=67 inside=1 drawn=0
+png /workspace/seq-chord-001/evidence/before/before-page2-playing-chord.png
