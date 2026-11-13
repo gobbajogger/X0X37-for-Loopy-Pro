@@ -1,8 +1,26 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* User-preset record codec. Explicit little-endian wire, zlib CRC-32.
- * No flash I/O, no audio-path use, no factory table bytes, no static buffers. */
+ * No flash I/O, no audio-path use, no factory table bytes, no static buffers.
+ * The working record (HOST sizeof 536) lives on the stack or in caller scratch.
+ *
+ * CRC is the existing firmware CRC: firmware/src/crc32_nibble.h, symbols
+ * x0x_crc32, x0x_crc32_upd, and table X0X_CRC32_NIBBLE_T. A unity build
+ * includes that header once (include guards). A separate object that must
+ * not duplicate the table is built with PRESET_RECORD_EXT_CRC and linked
+ * against the existing provider.
+ *
+ * Host-only debug strings (err_str, engine_name, origin_name, import_message)
+ * are omitted when PRESET_RECORD_NO_STRINGS is set. The device maps errors
+ * to the small PRESET_ERR_* / PRESET_IMPORT_* codes. UI words come later. */
 #include "preset_record.h"
+#include <stddef.h>
+
+#ifdef PRESET_RECORD_EXT_CRC
+uint32_t x0x_crc32_upd(uint32_t c, const uint8_t *p, uint32_t n);
+uint32_t x0x_crc32(const void *p, uint32_t n);
+#else
 #include "../crc32_nibble.h"
+#endif
 
 _Static_assert(PRESET_HEADER_BYTES == 96u, "header size");
 _Static_assert(PRESET_SAMPLE_REF_BYTES == 16u, "sample-ref size");
@@ -11,6 +29,50 @@ _Static_assert(PRESET_909_NPARAMS_V1 <= PRESET_MAX_PARAMS, "909 params fit");
 _Static_assert(PRESET_808_NPARAMS_V1 <= PRESET_MAX_PARAMS, "808 params fit");
 _Static_assert(PRESET_BREAK_NPARAMS_V1 <= PRESET_MAX_PARAMS, "BREAK params fit");
 _Static_assert(sizeof(preset_sample_ref_t) == 16u, "sample-ref HOST sizeof");
+_Static_assert(PRESET_FACTORY_CHICAGO_N <= 255u, "factory count fits u8");
+
+/* Engine-indexed v1 tables. Index 0 is PRESET_ENGINE_NONE. 0xFF in
+ * k_nsamples means "any count up to PRESET_MAX_SAMPLES" (808). */
+static const uint8_t k_nparams[8] = {
+    0,
+    (uint8_t)PRESET_CHICAGO_NPARAMS_V1,
+    (uint8_t)PRESET_MIAMI_NPARAMS_V1,
+    (uint8_t)PRESET_JUNO_NPARAMS_V1,
+    (uint8_t)PRESET_DRONE_NPARAMS_V1,
+    (uint8_t)PRESET_909_NPARAMS_V1,
+    (uint8_t)PRESET_808_NPARAMS_V1,
+    (uint8_t)PRESET_BREAK_NPARAMS_V1
+};
+static const uint8_t k_nsamples[8] = {
+    0, 0, 0, 0, 0,
+    (uint8_t)PRESET_909_NSAMPLES_V1,
+    0xFFu,
+    (uint8_t)PRESET_BREAK_NSAMPLES_V1
+};
+static const uint8_t k_factory[8] = {
+    0,
+    (uint8_t)PRESET_FACTORY_CHICAGO_N,
+    (uint8_t)PRESET_FACTORY_MIAMI_N,
+    (uint8_t)PRESET_FACTORY_JUNO_N,
+    (uint8_t)PRESET_FACTORY_DRONE_N,
+    0, 0, 0
+};
+
+/* Table-driven numeric header: one walk writes or reads every scalar field.
+ * Packed as wire_off, width (1/2/4), offsetof(preset_record_t). */
+#define HF(wo, w, m) { (uint8_t)(wo), (uint8_t)(w), (uint8_t)offsetof(preset_record_t, m) }
+static const uint8_t k_hdr[][3] = {
+    HF( 6, 2, engine_id),
+    HF( 8, 2, schema_version),
+    HF(10, 2, flags),
+    HF(20, 1, origin_tag),
+    HF(21, 1, original_engine),
+    HF(22, 2, factory_index),
+    HF(24, 4, date),
+    HF(28, 2, plugin_format),
+    HF(30, 2, plugin_version)
+};
+#define K_HDR_N ((unsigned)(sizeof k_hdr / sizeof k_hdr[0]))
 
 static void wr_u16(uint8_t *p, uint16_t v)
 {
@@ -37,16 +99,58 @@ static uint32_t rd_u32(const uint8_t *p)
            ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
 }
 
+/* Width-dispatch used only by the header table walk. */
+static void wr_w(uint8_t *p, unsigned w, uint32_t v)
+{
+    if (w == 1u)
+        p[0] = (uint8_t)v;
+    else if (w == 2u)
+        wr_u16(p, (uint16_t)v);
+    else
+        wr_u32(p, v);
+}
+
+static uint32_t rd_w(const uint8_t *p, unsigned w)
+{
+    if (w == 1u)
+        return p[0];
+    if (w == 2u)
+        return rd_u16(p);
+    return rd_u32(p);
+}
+
+static void copy_n(uint8_t *d, const uint8_t *s, unsigned n)
+{
+    unsigned i;
+    for (i = 0; i < n; i++)
+        d[i] = s[i];
+}
+
+static void zero_n(uint8_t *d, uint32_t n)
+{
+    uint32_t i;
+    for (i = 0; i < n; i++)
+        d[i] = 0;
+}
+
+static int same_n(const uint8_t *a, const uint8_t *b, unsigned n)
+{
+    unsigned i;
+    for (i = 0; i < n; i++) {
+        if (a[i] != b[i])
+            return 0;
+    }
+    return 1;
+}
+
 static int pad_canonical(const uint8_t *s, unsigned n)
 {
     unsigned i, z = 0;
     for (i = 0; i < n; i++) {
-        if (z) {
-            if (s[i] != 0)
-                return 0;
-        } else if (s[i] == 0) {
+        if (s[i] == 0)
             z = 1;
-        }
+        else if (z)
+            return 0;
     }
     return z ? 1 : 0;
 }
@@ -54,8 +158,7 @@ static int pad_canonical(const uint8_t *s, unsigned n)
 static int set_pad(uint8_t *dst, unsigned n, const char *src)
 {
     unsigned i;
-    for (i = 0; i < n; i++)
-        dst[i] = 0;
+    zero_n(dst, n);
     if (!src)
         return PRESET_OK;
     for (i = 0; src[i] != 0; i++) {
@@ -69,9 +172,8 @@ static int set_pad(uint8_t *dst, unsigned n, const char *src)
 static uint32_t crc_zero_field(const uint8_t *p, uint32_t n, uint32_t off, uint32_t flen)
 {
     uint8_t z[4];
-    uint32_t i, c;
-    for (i = 0; i < 4u; i++)
-        z[i] = 0;
+    uint32_t c;
+    zero_n(z, 4u);
     c = x0x_crc32_upd(0xFFFFFFFFu, p, off);
     c = x0x_crc32_upd(c, z, flen);
     c = x0x_crc32_upd(c, p + off + flen, n - off - flen);
@@ -84,6 +186,57 @@ static uint32_t record_size(uint8_t nparams, uint8_t nsamples)
            (uint32_t)nsamples * PRESET_SAMPLE_REF_BYTES;
 }
 
+static int engine_ok(uint16_t id)
+{
+    return id >= (uint16_t)PRESET_ENGINE_CHICAGO && id <= (uint16_t)PRESET_ENGINE_LAST;
+}
+
+static int tab_u8(uint16_t id, const uint8_t *t)
+{
+    if (id > (uint16_t)PRESET_ENGINE_LAST)
+        return 0;
+    return (int)t[id];
+}
+
+static void wr_sample(uint8_t *p, const preset_sample_ref_t *s)
+{
+    p[0] = s->source;
+    p[1] = s->reserved;
+    wr_u16(p + 2, s->index);
+    wr_u32(p + 4, s->crc);
+    copy_n(p + 8, s->name, 8u);
+}
+
+static void rd_sample(preset_sample_ref_t *s, const uint8_t *p)
+{
+    s->source = p[0];
+    s->reserved = p[1];
+    s->index = rd_u16(p + 2);
+    s->crc = rd_u32(p + 4);
+    copy_n(s->name, p + 8, 8u);
+}
+
+static void hdr_wr(uint8_t *out, const preset_record_t *rec)
+{
+    unsigned i;
+    const uint8_t *rb = (const uint8_t *)rec;
+    for (i = 0; i < K_HDR_N; i++) {
+        const uint8_t *f = k_hdr[i];
+        wr_w(out + f[0], f[1], rd_w(rb + f[2], f[1]));
+    }
+}
+
+static void hdr_rd(preset_record_t *rec, const uint8_t *in)
+{
+    unsigned i;
+    uint8_t *rb = (uint8_t *)rec;
+    for (i = 0; i < K_HDR_N; i++) {
+        const uint8_t *f = k_hdr[i];
+        wr_w(rb + f[2], f[1], rd_w(in + f[0], f[1]));
+    }
+}
+
+#ifndef PRESET_RECORD_NO_STRINGS
 const char *preset_record_err_str(int err)
 {
     switch (err) {
@@ -133,6 +286,7 @@ const char *preset_record_origin_name(uint8_t origin_tag)
     default: return 0;
     }
 }
+#endif
 
 int preset_import_class(int err)
 {
@@ -147,6 +301,7 @@ int preset_import_class(int err)
     return PRESET_IMPORT_BAD_FILE;
 }
 
+#ifndef PRESET_RECORD_NO_STRINGS
 const char *preset_import_message(int err)
 {
     switch (preset_import_class(err)) {
@@ -158,60 +313,34 @@ const char *preset_import_message(int err)
     default: return "BAD FILE";
     }
 }
+#endif
 
 int preset_record_expected_nparams(uint16_t engine_id, uint16_t schema)
 {
     if (schema != PRESET_SCHEMA_V1)
         return 0;
-    switch (engine_id) {
-    case PRESET_ENGINE_CHICAGO: return (int)PRESET_CHICAGO_NPARAMS_V1;
-    case PRESET_ENGINE_MIAMI: return (int)PRESET_MIAMI_NPARAMS_V1;
-    case PRESET_ENGINE_JUNO: return (int)PRESET_JUNO_NPARAMS_V1;
-    case PRESET_ENGINE_DRONE: return (int)PRESET_DRONE_NPARAMS_V1;
-    case PRESET_ENGINE_909: return (int)PRESET_909_NPARAMS_V1;
-    case PRESET_ENGINE_808: return (int)PRESET_808_NPARAMS_V1;
-    case PRESET_ENGINE_BREAK: return (int)PRESET_BREAK_NPARAMS_V1;
-    default: return 0;
-    }
+    return tab_u8(engine_id, k_nparams);
 }
 
 int preset_record_expected_nsamples(uint16_t engine_id, uint16_t schema)
 {
+    int n;
     if (schema != PRESET_SCHEMA_V1)
         return 0;
-    switch (engine_id) {
-    case PRESET_ENGINE_CHICAGO:
-    case PRESET_ENGINE_MIAMI:
-    case PRESET_ENGINE_JUNO:
-    case PRESET_ENGINE_DRONE:
-        return 0;
-    case PRESET_ENGINE_909: return (int)PRESET_909_NSAMPLES_V1;
-    case PRESET_ENGINE_808: return -1;
-    case PRESET_ENGINE_BREAK: return (int)PRESET_BREAK_NSAMPLES_V1;
-    default: return 0;
-    }
+    n = tab_u8(engine_id, k_nsamples);
+    return (n == 0xFF) ? -1 : n;
 }
 
 unsigned preset_record_factory_count(uint16_t engine_id)
 {
-    switch (engine_id) {
-    case PRESET_ENGINE_CHICAGO: return PRESET_FACTORY_CHICAGO_N;
-    case PRESET_ENGINE_MIAMI: return PRESET_FACTORY_MIAMI_N;
-    case PRESET_ENGINE_JUNO: return PRESET_FACTORY_JUNO_N;
-    case PRESET_ENGINE_DRONE: return PRESET_FACTORY_DRONE_N;
-    default: return 0;
-    }
+    return (unsigned)tab_u8(engine_id, k_factory);
 }
 
 void preset_record_clear(preset_record_t *rec)
 {
-    uint8_t *p;
-    uint32_t i;
     if (!rec)
         return;
-    p = (uint8_t *)rec;
-    for (i = 0; i < (uint32_t)sizeof *rec; i++)
-        p[i] = 0;
+    zero_n((uint8_t *)rec, (uint32_t)sizeof *rec);
 }
 
 int preset_record_set_name(preset_record_t *rec, const char *name)
@@ -230,9 +359,10 @@ int preset_record_set_source(preset_record_t *rec, const char *source)
 
 int preset_record_equal(const preset_record_t *a, const preset_record_t *b)
 {
-    unsigned i, k;
+    unsigned i;
     if (!a || !b)
         return 0;
+    /* Field-wise, not a raw struct memcmp: padding and unused tails differ. */
     if (a->engine_id != b->engine_id || a->schema_version != b->schema_version ||
         a->flags != b->flags || a->origin_tag != b->origin_tag ||
         a->original_engine != b->original_engine ||
@@ -240,23 +370,14 @@ int preset_record_equal(const preset_record_t *a, const preset_record_t *b)
         a->plugin_format != b->plugin_format || a->plugin_version != b->plugin_version ||
         a->nparams != b->nparams || a->nsamples != b->nsamples)
         return 0;
-    for (i = 0; i < PRESET_NAME_MAX; i++)
-        if (a->name[i] != b->name[i])
-            return 0;
-    for (i = 0; i < PRESET_SOURCE_MAX; i++)
-        if (a->source_name[i] != b->source_name[i])
-            return 0;
-    for (i = 0; i < a->nparams; i++)
-        if (a->params[i] != b->params[i])
-            return 0;
+    if (!same_n(a->name, b->name, PRESET_NAME_MAX) ||
+        !same_n(a->source_name, b->source_name, PRESET_SOURCE_MAX) ||
+        !same_n(a->params, b->params, a->nparams))
+        return 0;
     for (i = 0; i < a->nsamples; i++) {
-        const preset_sample_ref_t *sa = &a->samples[i], *sb = &b->samples[i];
-        if (sa->source != sb->source || sa->reserved != sb->reserved ||
-            sa->index != sb->index || sa->crc != sb->crc)
+        if (!same_n((const uint8_t *)&a->samples[i],
+                    (const uint8_t *)&b->samples[i], 16u))
             return 0;
-        for (k = 0; k < 8u; k++)
-            if (sa->name[k] != sb->name[k])
-                return 0;
     }
     return 1;
 }
@@ -272,25 +393,6 @@ int preset_record_factory_derived(const preset_record_t *rec)
     return 0;
 }
 
-static int sample_name_ok(const uint8_t name[8])
-{
-    unsigned i, allz = 1, z = 0;
-    for (i = 0; i < 8u; i++)
-        if (name[i] != 0)
-            allz = 0;
-    if (allz)
-        return 1;
-    for (i = 0; i < 8u; i++) {
-        if (z) {
-            if (name[i] != 0)
-                return 0;
-        } else if (name[i] == 0) {
-            z = 1;
-        }
-    }
-    return z ? 1 : 0;
-}
-
 static int check_samples(const preset_record_t *rec)
 {
     unsigned i;
@@ -300,55 +402,79 @@ static int check_samples(const preset_record_t *rec)
             return PRESET_ERR_PAYLOAD;
         if (s->source == PRESET_SAMPLE_NONE && (s->index != 0 || s->crc != 0))
             return PRESET_ERR_PAYLOAD;
-        if (!sample_name_ok(s->name))
+        if (!pad_canonical(s->name, 8u))
             return PRESET_ERR_PAYLOAD;
     }
     return PRESET_OK;
 }
 
-static int check_record(const preset_record_t *rec)
+static int check_counts(const preset_record_t *rec)
 {
+    uint16_t id = rec->engine_id;
     int nparams, nsamples;
-    unsigned max_origin;
-    if (!rec)
-        return PRESET_ERR_NULL;
-    if (rec->flags != 0)
-        return PRESET_ERR_FLAGS;
-    if (!preset_record_engine_name(rec->engine_id))
-        return PRESET_ERR_ENGINE;
-    if (rec->schema_version != PRESET_SCHEMA_V1)
-        return PRESET_ERR_SCHEMA;
-    if (rec->origin_tag > PRESET_ORIGIN_LAST)
-        return PRESET_ERR_ORIGIN;
-    if (rec->original_engine != 0 && !preset_record_engine_name(rec->original_engine))
-        return PRESET_ERR_ENGINE;
-    nparams = preset_record_expected_nparams(rec->engine_id, rec->schema_version);
-    nsamples = preset_record_expected_nsamples(rec->engine_id, rec->schema_version);
+    /* Direct table walk so the public expected_* wrappers can be dropped
+     * by gc-sections when only the codec is linked. */
+    if (rec->schema_version != PRESET_SCHEMA_V1 || id > (uint16_t)PRESET_ENGINE_LAST)
+        return PRESET_ERR_PAYLOAD;
+    nparams = (int)k_nparams[id];
+    nsamples = (int)k_nsamples[id];
     if (nparams <= 0 || rec->nparams != (uint8_t)nparams)
         return PRESET_ERR_PAYLOAD;
-    if (nsamples < 0) {
+    if (nsamples == 0xFF) {
         if (rec->nsamples > PRESET_MAX_SAMPLES)
             return PRESET_ERR_PAYLOAD;
     } else if (rec->nsamples != (uint8_t)nsamples) {
         return PRESET_ERR_PAYLOAD;
     }
-    if (!pad_canonical(rec->name, PRESET_NAME_MAX) ||
-        !pad_canonical(rec->source_name, PRESET_SOURCE_MAX))
-        return PRESET_ERR_NAME;
-    max_origin = preset_record_factory_count(rec->engine_id);
+    return PRESET_OK;
+}
+
+static int check_origin(const preset_record_t *rec)
+{
+    unsigned max_origin;
+    uint16_t id = rec->engine_id;
+    if (rec->origin_tag > PRESET_ORIGIN_LAST)
+        return PRESET_ERR_ORIGIN;
+    if (rec->original_engine != 0 && !engine_ok(rec->original_engine))
+        return PRESET_ERR_ENGINE;
+    max_origin = (id > (uint16_t)PRESET_ENGINE_LAST) ? 0u : (unsigned)k_factory[id];
     if (rec->factory_index != PRESET_FACTORY_NONE) {
         if (max_origin == 0 || rec->factory_index > max_origin)
             return PRESET_ERR_ORIGIN;
     } else if (rec->origin_tag == PRESET_ORIGIN_FACTORY) {
         return PRESET_ERR_ORIGIN;
     }
+    return PRESET_OK;
+}
+
+/* Encode-side check. Schema not equal to v1 is SCHEMA (not OLDER). */
+static int check_record(const preset_record_t *rec)
+{
+    int rc;
+    if (!rec)
+        return PRESET_ERR_NULL;
+    if (rec->flags != 0)
+        return PRESET_ERR_FLAGS;
+    if (!engine_ok(rec->engine_id))
+        return PRESET_ERR_ENGINE;
+    if (rec->schema_version != PRESET_SCHEMA_V1)
+        return PRESET_ERR_SCHEMA;
+    rc = check_origin(rec);
+    if (rc != PRESET_OK)
+        return rc;
+    rc = check_counts(rec);
+    if (rc != PRESET_OK)
+        return rc;
+    if (!pad_canonical(rec->name, PRESET_NAME_MAX) ||
+        !pad_canonical(rec->source_name, PRESET_SOURCE_MAX))
+        return PRESET_ERR_NAME;
     return check_samples(rec);
 }
 
 int preset_record_encode(uint8_t *out, uint32_t cap, uint32_t *written,
                          const preset_record_t *rec)
 {
-    uint32_t total, i, k, off, crc;
+    uint32_t total, i, off;
     int rc = check_record(rec);
     if (rc != PRESET_OK)
         return rc;
@@ -359,44 +485,23 @@ int preset_record_encode(uint8_t *out, uint32_t cap, uint32_t *written,
         return PRESET_OK;
     if (cap < total)
         return PRESET_ERR_BUFFER;
-    for (i = 0; i < total; i++)
-        out[i] = 0;
+    zero_n(out, total);
     wr_u32(out + 0, PRESET_MAGIC);
     wr_u16(out + 4, (uint16_t)PRESET_FORMAT_V1);
-    wr_u16(out + 6, rec->engine_id);
-    wr_u16(out + 8, rec->schema_version);
-    wr_u16(out + 10, rec->flags);
+    hdr_wr(out, rec);
     wr_u32(out + 12, total);
-    wr_u32(out + 16, 0);
-    out[20] = rec->origin_tag;
-    out[21] = rec->original_engine;
-    wr_u16(out + 22, rec->factory_index);
-    wr_u32(out + 24, rec->date);
-    wr_u16(out + 28, rec->plugin_format);
-    wr_u16(out + 30, rec->plugin_version);
-    for (i = 0; i < PRESET_NAME_MAX; i++)
-        out[32 + i] = rec->name[i];
-    for (i = 0; i < PRESET_SOURCE_MAX; i++)
-        out[64 + i] = rec->source_name[i];
+    copy_n(out + 32, rec->name, PRESET_NAME_MAX);
+    copy_n(out + 64, rec->source_name, PRESET_SOURCE_MAX);
     out[96] = rec->nparams;
     out[97] = rec->nsamples;
-    wr_u16(out + 98, 0);
     off = PRESET_HEADER_BYTES + PRESET_PAYLOAD_HEAD;
-    for (i = 0; i < rec->nparams; i++)
-        out[off + i] = rec->params[i];
+    copy_n(out + off, rec->params, rec->nparams);
     off += rec->nparams;
     for (i = 0; i < rec->nsamples; i++) {
-        const preset_sample_ref_t *s = &rec->samples[i];
-        out[off + 0] = s->source;
-        out[off + 1] = s->reserved;
-        wr_u16(out + off + 2, s->index);
-        wr_u32(out + off + 4, s->crc);
-        for (k = 0; k < 8u; k++)
-            out[off + 8 + k] = s->name[k];
+        wr_sample(out + off, &rec->samples[i]);
         off += PRESET_SAMPLE_REF_BYTES;
     }
-    crc = x0x_crc32(out, total);
-    wr_u32(out + 16, crc);
+    wr_u32(out + 16, x0x_crc32(out, total));
     return PRESET_OK;
 }
 
@@ -410,17 +515,15 @@ int preset_record_export(uint8_t *out, uint32_t cap, uint32_t *written,
     return preset_record_encode(out, cap, written, rec);
 }
 
-int preset_record_decode(preset_record_t *rec, const uint8_t *buf, uint32_t len,
-                         uint16_t expected_engine)
+/* Structural load: magic, length, CRC, format version, flags, reserved,
+ * length consistency. Copies fields. Does not check engine, schema, names,
+ * origin, param counts, or sample refs. On error, *rec is unchanged. */
+static int load_into(preset_record_t *out, const uint8_t *buf, uint32_t len)
 {
-    uint32_t total, i, k, off;
-    uint16_t format, engine, schema, flags, findex, pfmt, pver;
-    uint8_t nparams, nsamples, origin, orig_eng;
-    int rsv;
-    int rc, expect_np, expect_ns;
-    preset_record_t out;
+    uint32_t total, i, off;
+    uint8_t nparams, nsamples;
 
-    if (!rec || !buf)
+    if (!out || !buf)
         return PRESET_ERR_NULL;
     if (len < PRESET_HEADER_BYTES)
         return PRESET_ERR_TRUNCATED;
@@ -433,97 +536,86 @@ int preset_record_decode(preset_record_t *rec, const uint8_t *buf, uint32_t len,
         return PRESET_ERR_TRUNCATED;
     if (crc_zero_field(buf, total, 16u, 4u) != rd_u32(buf + 16))
         return PRESET_ERR_CRC;
-
-    format = rd_u16(buf + 4);
-    if (format > PRESET_FORMAT_V1)
-        return PRESET_ERR_VERSION;
-    if (format < PRESET_FORMAT_V1)
-        return PRESET_ERR_OLDER;
-    engine = rd_u16(buf + 6);
-    schema = rd_u16(buf + 8);
-    flags = rd_u16(buf + 10);
-    origin = buf[20];
-    orig_eng = buf[21];
-    findex = rd_u16(buf + 22);
-    pfmt = rd_u16(buf + 28);
-    pver = rd_u16(buf + 30);
-    rsv = 0;
-    if (len >= PRESET_HEADER_BYTES + PRESET_PAYLOAD_HEAD) {
-        nparams = buf[96];
-        nsamples = buf[97];
-        if (rd_u16(buf + 98) != 0)
-            rsv = 1;
-    } else {
-        return PRESET_ERR_TRUNCATED;
+    {
+        uint16_t format = rd_u16(buf + 4);
+        if (format > PRESET_FORMAT_V1)
+            return PRESET_ERR_VERSION;
+        if (format < PRESET_FORMAT_V1)
+            return PRESET_ERR_OLDER;
     }
-    if (rsv || flags != 0)
+    if (len < PRESET_HEADER_BYTES + PRESET_PAYLOAD_HEAD)
+        return PRESET_ERR_TRUNCATED;
+    nparams = buf[96];
+    nsamples = buf[97];
+    if (rd_u16(buf + 98) != 0 || rd_u16(buf + 10) != 0)
         return PRESET_ERR_FLAGS;
     if (record_size(nparams, nsamples) != total)
         return PRESET_ERR_LENGTH;
+
+    preset_record_clear(out);
+    hdr_rd(out, buf);
+    copy_n(out->name, buf + 32, PRESET_NAME_MAX);
+    copy_n(out->source_name, buf + 64, PRESET_SOURCE_MAX);
+    out->nparams = nparams;
+    out->nsamples = nsamples;
+    off = PRESET_HEADER_BYTES + PRESET_PAYLOAD_HEAD;
+    copy_n(out->params, buf + off, nparams);
+    off += nparams;
+    for (i = 0; i < nsamples; i++) {
+        rd_sample(&out->samples[i], buf + off);
+        off += PRESET_SAMPLE_REF_BYTES;
+    }
+    return PRESET_OK;
+}
+
+int preset_record_load(preset_record_t *rec, const uint8_t *buf, uint32_t len)
+{
+    preset_record_t out;
+    int rc;
+    rc = load_into(&out, buf, len);
+    if (rc != PRESET_OK)
+        return rc;
+    *rec = out;
+    return PRESET_OK;
+}
+
+/* Semantic checks for a loaded record. Order matches the original decoder
+ * so a multi-fault input still reports the same first error. */
+static int check_loaded(const preset_record_t *rec, uint16_t expected_engine)
+{
+    int rc;
+    uint16_t schema = rec->schema_version;
     if (schema > PRESET_SCHEMA_V1)
         return PRESET_ERR_SCHEMA;
     if (schema < PRESET_SCHEMA_V1)
         return PRESET_ERR_OLDER;
-    if (!preset_record_engine_name(engine))
+    if (!engine_ok(rec->engine_id))
         return PRESET_ERR_ENGINE;
-    if (expected_engine != 0 && engine != expected_engine)
+    if (expected_engine != 0 && rec->engine_id != expected_engine)
         return PRESET_ERR_ENGINE;
-    expect_np = preset_record_expected_nparams(engine, schema);
-    expect_ns = preset_record_expected_nsamples(engine, schema);
-    if (expect_np <= 0 || nparams != (uint8_t)expect_np)
-        return PRESET_ERR_PAYLOAD;
-    if (expect_ns < 0) {
-        if (nsamples > PRESET_MAX_SAMPLES)
-            return PRESET_ERR_PAYLOAD;
-    } else if (nsamples != (uint8_t)expect_ns) {
-        return PRESET_ERR_PAYLOAD;
-    }
-    if (!pad_canonical(buf + 32, PRESET_NAME_MAX) ||
-        !pad_canonical(buf + 64, PRESET_SOURCE_MAX))
+    rc = check_counts(rec);
+    if (rc != PRESET_OK)
+        return rc;
+    if (!pad_canonical(rec->name, PRESET_NAME_MAX) ||
+        !pad_canonical(rec->source_name, PRESET_SOURCE_MAX))
         return PRESET_ERR_NAME;
-    if (origin > PRESET_ORIGIN_LAST)
-        return PRESET_ERR_ORIGIN;
-    if (orig_eng != 0 && !preset_record_engine_name(orig_eng))
-        return PRESET_ERR_ENGINE;
-    if (findex != PRESET_FACTORY_NONE) {
-        unsigned max_o = preset_record_factory_count(engine);
-        if (max_o == 0 || findex > max_o)
-            return PRESET_ERR_ORIGIN;
-    } else if (origin == PRESET_ORIGIN_FACTORY) {
-        return PRESET_ERR_ORIGIN;
-    }
+    rc = check_origin(rec);
+    if (rc != PRESET_OK)
+        return rc;
+    return check_samples(rec);
+}
 
-    preset_record_clear(&out);
-    out.engine_id = engine;
-    out.schema_version = schema;
-    out.flags = flags;
-    out.origin_tag = origin;
-    out.original_engine = orig_eng;
-    out.factory_index = findex;
-    out.date = rd_u32(buf + 24);
-    out.plugin_format = pfmt;
-    out.plugin_version = pver;
-    for (i = 0; i < PRESET_NAME_MAX; i++)
-        out.name[i] = buf[32 + i];
-    for (i = 0; i < PRESET_SOURCE_MAX; i++)
-        out.source_name[i] = buf[64 + i];
-    out.nparams = nparams;
-    out.nsamples = nsamples;
-    off = PRESET_HEADER_BYTES + PRESET_PAYLOAD_HEAD;
-    for (i = 0; i < nparams; i++)
-        out.params[i] = buf[off + i];
-    off += nparams;
-    for (i = 0; i < nsamples; i++) {
-        preset_sample_ref_t *s = &out.samples[i];
-        s->source = buf[off + 0];
-        s->reserved = buf[off + 1];
-        s->index = rd_u16(buf + off + 2);
-        s->crc = rd_u32(buf + off + 4);
-        for (k = 0; k < 8u; k++)
-            s->name[k] = buf[off + 8 + k];
-        off += PRESET_SAMPLE_REF_BYTES;
-    }
-    rc = check_samples(&out);
+int preset_record_decode(preset_record_t *rec, const uint8_t *buf, uint32_t len,
+                         uint16_t expected_engine)
+{
+    preset_record_t out;
+    int rc;
+    if (!rec)
+        return PRESET_ERR_NULL;
+    rc = load_into(&out, buf, len);
+    if (rc != PRESET_OK)
+        return rc;
+    rc = check_loaded(&out, expected_engine);
     if (rc != PRESET_OK)
         return rc;
     *rec = out;
@@ -591,7 +683,6 @@ int preset_slot_find_empty(const uint8_t *used, unsigned nslots, unsigned *slot)
 int preset_commit_encode(uint8_t *out, uint32_t cap, uint32_t *written,
                          const preset_commit_t *mark)
 {
-    uint32_t i;
     if (!mark)
         return PRESET_ERR_NULL;
     if (mark->copy > 1u || mark->reserved[0] || mark->reserved[1] || mark->reserved[2])
@@ -602,8 +693,7 @@ int preset_commit_encode(uint8_t *out, uint32_t cap, uint32_t *written,
         return PRESET_OK;
     if (cap < PRESET_COMMIT_BYTES)
         return PRESET_ERR_BUFFER;
-    for (i = 0; i < PRESET_COMMIT_BYTES; i++)
-        out[i] = 0;
+    zero_n(out, PRESET_COMMIT_BYTES);
     wr_u32(out + 0, PRESET_COMMIT_MAGIC);
     wr_u32(out + 4, mark->seq);
     wr_u32(out + 8, mark->slot);
@@ -624,9 +714,10 @@ int preset_commit_decode(preset_commit_t *mark, const uint8_t *buf, uint32_t len
         return PRESET_ERR_MAGIC;
     if (x0x_crc32(buf, 28u) != rd_u32(buf + 28))
         return PRESET_ERR_CRC;
-    for (i = 17; i < 28u; i++)
+    for (i = 17; i < 28u; i++) {
         if (buf[i] != 0)
             return PRESET_ERR_FLAGS;
+    }
     if (buf[16] > 1u)
         return PRESET_ERR_PAYLOAD;
     mark->seq = rd_u32(buf + 4);
