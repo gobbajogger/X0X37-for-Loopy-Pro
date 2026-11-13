@@ -32,6 +32,17 @@ static void expect_eq(int got, int want, const char *msg)
     }
 }
 
+static void rewrite_crc(uint8_t *buf, uint32_t n)
+{
+    uint32_t crc;
+    buf[16] = buf[17] = buf[18] = buf[19] = 0;
+    crc = x0x_crc32(buf, n);
+    buf[16] = (uint8_t)crc;
+    buf[17] = (uint8_t)(crc >> 8);
+    buf[18] = (uint8_t)(crc >> 16);
+    buf[19] = (uint8_t)(crc >> 24);
+}
+
 static void fill_params(preset_record_t *r)
 {
     unsigned i;
@@ -329,11 +340,8 @@ static void test_reject(void)
               PRESET_ERR_ENGINE, "import WRONG ENGINE");
     expect(preset_import_class(PRESET_ERR_ENGINE) == PRESET_IMPORT_WRONG_ENGINE,
            "import class");
-    /* engine is not relabelled: a failed import leaves caller buffer only if we
-     * decode first; import returns before changing? Our import decodes then
-     * checks, so out may be filled. Check original_engine was not rewritten. */
-    expect(out.engine_id == PRESET_ENGINE_CHICAGO, "no relabel engine id");
-    expect(out.original_engine == PRESET_ENGINE_CHICAGO, "no relabel original");
+    /* Slot-clean behaviour of a failed import is in
+     * test_import_failed_leaves_slot_clean. */
 
     /* newer schema */
     expect_eq(preset_record_encode(buf, sizeof buf, &n, &r), PRESET_OK, "re-encode 2");
@@ -752,6 +760,201 @@ static void test_golden_bytes(void)
     }
 }
 
+
+/* R1: a failed import must not look like a filled slot. */
+static void test_import_failed_leaves_slot_clean(void)
+{
+    preset_record_t r, slot;
+    uint8_t buf[PRESET_MAX_BYTES];
+    uint32_t n = 0;
+    unsigned i;
+    const uint8_t *p, *q;
+
+    make_user(&r, PRESET_ENGINE_CHICAGO, "Src");
+    expect_eq(preset_record_encode(buf, (uint32_t)sizeof buf, &n, &r), PRESET_OK,
+              "R1 encode");
+
+    /* Sentinel: a previously empty / unknown slot. */
+    preset_record_clear(&slot);
+    slot.engine_id = PRESET_ENGINE_NONE;
+    slot.origin_tag = PRESET_ORIGIN_UNKNOWN;
+    slot.nparams = 0;
+    slot.nsamples = 0;
+    preset_record_set_name(&slot, "EMPTY");
+
+    expect_eq(preset_record_import(&slot, buf, n, PRESET_ENGINE_MIAMI),
+              PRESET_ERR_ENGINE, "R1 WRONG ENGINE");
+
+    expect(slot.engine_id == PRESET_ENGINE_NONE, "R1 engine_id unchanged");
+    expect(slot.origin_tag == PRESET_ORIGIN_UNKNOWN, "R1 origin unchanged");
+    expect(slot.nparams == 0, "R1 nparams unchanged");
+    expect(slot.name[0] == 'E' && slot.name[1] == 'M', "R1 name unchanged");
+    /* Not relabelled to the file's engine. */
+    expect(slot.engine_id != PRESET_ENGINE_CHICAGO, "R1 not filled as Chicago");
+    expect(slot.original_engine != PRESET_ENGINE_CHICAGO, "R1 original not filled");
+
+    /* A second failure must not clobber a slot already filled by a good import. */
+    expect_eq(preset_record_import(&slot, buf, n, PRESET_ENGINE_CHICAGO), PRESET_OK,
+              "R1 matching import fills");
+    {
+        preset_record_t saved = slot;
+        expect_eq(preset_record_import(&slot, buf, n, PRESET_ENGINE_MIAMI),
+                  PRESET_ERR_ENGINE, "R1 second WRONG ENGINE");
+        p = (const uint8_t *)&slot;
+        q = (const uint8_t *)&saved;
+        for (i = 0; i < (unsigned)sizeof slot; i++) {
+            if (p[i] != q[i]) {
+                expect(0, "R1 failed import did not clobber a good slot");
+                return;
+            }
+        }
+        expect(1, "R1 good slot left intact");
+    }
+}
+
+/* R2: wrong magic and older-than-v1 format / schema. */
+static void test_reject_bad_magic(void)
+{
+    preset_record_t r, out;
+    uint8_t buf[PRESET_MAX_BYTES];
+    uint32_t n = 0;
+    int rc;
+
+    make_user(&r, PRESET_ENGINE_CHICAGO, "Mag");
+    expect_eq(preset_record_encode(buf, (uint32_t)sizeof buf, &n, &r), PRESET_OK,
+              "R2 magic encode");
+    preset_record_clear(&out);
+    buf[0] ^= 1u;
+    rc = preset_record_decode(&out, buf, n, 0);
+    expect_eq(rc, PRESET_ERR_MAGIC, "R2 bad magic");
+    expect(preset_import_class(rc) == PRESET_IMPORT_BAD_FILE, "R2 magic class BAD FILE");
+    expect(out.engine_id == 0 && out.nparams == 0, "R2 bad magic leaves output clean");
+    buf[0] ^= 1u;
+    expect_eq(preset_record_decode(&out, buf, n, 0), PRESET_OK, "R2 restored decodes");
+}
+
+static void test_reject_older_version(void)
+{
+    preset_record_t r, out;
+    uint8_t buf[PRESET_MAX_BYTES];
+    uint32_t n = 0;
+    int rc;
+
+    make_user(&r, PRESET_ENGINE_CHICAGO, "Old");
+    expect_eq(preset_record_encode(buf, (uint32_t)sizeof buf, &n, &r), PRESET_OK,
+              "R2 older encode");
+
+    /* Older format, CRC valid. */
+    buf[4] = 0;
+    buf[5] = 0;
+    rewrite_crc(buf, n);
+    preset_record_clear(&out);
+    rc = preset_record_decode(&out, buf, n, 0);
+    expect_eq(rc, PRESET_ERR_OLDER, "R2 older format");
+    expect(preset_import_class(rc) == PRESET_IMPORT_BAD_FILE, "R2 older format BAD FILE");
+    expect(out.engine_id == 0 && out.nparams == 0, "R2 older format leaves output clean");
+
+    /* Restore, then older schema, CRC valid. */
+    expect_eq(preset_record_encode(buf, (uint32_t)sizeof buf, &n, &r), PRESET_OK,
+              "R2 older re-encode");
+    buf[8] = 0;
+    buf[9] = 0;
+    rewrite_crc(buf, n);
+    preset_record_clear(&out);
+    rc = preset_record_decode(&out, buf, n, 0);
+    expect_eq(rc, PRESET_ERR_OLDER, "R2 older schema");
+    expect(preset_import_class(rc) == PRESET_IMPORT_BAD_FILE, "R2 older schema BAD FILE");
+    expect(out.engine_id == 0 && out.nparams == 0, "R2 older schema leaves output clean");
+}
+
+/* R3: *written is set only after the buffer-size check passes. */
+static void test_encode_written_after_buffer_check(void)
+{
+    preset_record_t r;
+    preset_commit_t m;
+    uint8_t guard[16], buf[PRESET_MAX_BYTES];
+    uint32_t w, n = 0, i;
+    int rc;
+
+    make_user(&r, PRESET_ENGINE_CHICAGO, "Cap");
+
+    w = 99;
+    rc = preset_record_encode(0, 0, &w, &r);
+    expect_eq(rc, PRESET_OK, "R3 encode size query");
+    expect(w == (PRESET_HEADER_BYTES + PRESET_PAYLOAD_HEAD + PRESET_CHICAGO_NPARAMS_V1),
+           "R3 size query sets written");
+
+    for (i = 0; i < 16u; i++)
+        guard[i] = 0xAAu;
+    w = 99;
+    rc = preset_record_encode(guard, 16, &w, &r);
+    expect_eq(rc, PRESET_ERR_BUFFER, "R3 encode short buffer");
+    expect(w == 99, "R3 encode written unchanged on BUFFER");
+    for (i = 0; i < 16u; i++)
+        expect(guard[i] == 0xAAu, "R3 encode no partial");
+
+    w = 99;
+    rc = preset_record_export(guard, 16, &w, &r);
+    expect_eq(rc, PRESET_ERR_BUFFER, "R3 export short buffer");
+    expect(w == 99, "R3 export written unchanged on BUFFER");
+
+    memset(&m, 0, sizeof m);
+    m.seq = 1;
+    m.slot = 0;
+    m.copy = 0;
+    w = 99;
+    rc = preset_commit_encode(guard, 16, &w, &m);
+    expect_eq(rc, PRESET_ERR_BUFFER, "R3 commit short buffer");
+    expect(w == 99, "R3 commit written unchanged on BUFFER");
+
+    w = 99;
+    rc = preset_record_encode(buf, (uint32_t)sizeof buf, &w, &r);
+    expect_eq(rc, PRESET_OK, "R3 encode success");
+    expect(w == (PRESET_HEADER_BYTES + PRESET_PAYLOAD_HEAD + PRESET_CHICAGO_NPARAMS_V1),
+           "R3 success sets written");
+    n = w;
+    w = 99;
+    rc = preset_commit_encode(buf, PRESET_COMMIT_BYTES, &w, &m);
+    expect_eq(rc, PRESET_OK, "R3 commit success");
+    expect(w == PRESET_COMMIT_BYTES, "R3 commit success sets written");
+    (void)n;
+}
+
+/* R5: 808 allows a variable sample-ref count; round-trip nsamples > 0
+ * and reject a CRC mismatch. */
+static void test_808_nsamples_and_crc(void)
+{
+    preset_record_t r, out;
+    uint8_t buf[PRESET_MAX_BYTES];
+    uint32_t n = 0, actual[2];
+
+    make_user(&r, PRESET_ENGINE_808, "808kit");
+    r.nsamples = 2;
+    fill_sample(&r.samples[0], PRESET_SAMPLE_ROM, 0, 0xaaaaaaaau, "BD");
+    fill_sample(&r.samples[1], PRESET_SAMPLE_ROM, 1, 0xbbbbbbbbu, "SD");
+    expect_eq(roundtrip(&r, PRESET_ENGINE_808), PRESET_OK, "R5 808 samples round-trip");
+
+    expect_eq(preset_record_encode(buf, (uint32_t)sizeof buf, &n, &r), PRESET_OK,
+              "R5 encode");
+    expect(n == (PRESET_HEADER_BYTES + PRESET_PAYLOAD_HEAD +
+                 PRESET_808_NPARAMS_V1 + 2u * PRESET_SAMPLE_REF_BYTES),
+           "R5 808 wire length");
+    expect_eq(preset_record_decode(&out, buf, n, PRESET_ENGINE_808), PRESET_OK,
+              "R5 decode");
+    expect(out.nsamples == 2, "R5 nsamples is 2");
+    actual[0] = 0xaaaaaaaau;
+    actual[1] = 0xbbbbbbbbu;
+    expect_eq(preset_record_verify_samples(&out, actual, 2), PRESET_OK,
+              "R5 sample crc ok");
+    actual[1] = 0xdeadbeefu;
+    expect_eq(preset_record_verify_samples(&out, actual, 2), PRESET_ERR_SAMPLE_CRC,
+              "R5 sample crc mismatch");
+    expect_eq(preset_record_verify_sample(&out, 1, 0xdeadbeefu), PRESET_ERR_SAMPLE_CRC,
+              "R5 one sample mismatch");
+    expect_eq(preset_record_verify_sample(&out, 1, 0xbbbbbbbbu), PRESET_OK,
+              "R5 one sample ok");
+}
+
 int main(void)
 {
     printf("DNBOX_FACTORY_PRESET_EXPORT=%d\n", (int)DNBOX_FACTORY_PRESET_EXPORT);
@@ -759,6 +962,11 @@ int main(void)
     test_names();
     test_roundtrip();
     test_reject();
+    test_import_failed_leaves_slot_clean();
+    test_reject_bad_magic();
+    test_reject_older_version();
+    test_encode_written_after_buffer_check();
+    test_808_nsamples_and_crc();
     test_sample_crc();
     test_factory_stable();
     test_project_files();
