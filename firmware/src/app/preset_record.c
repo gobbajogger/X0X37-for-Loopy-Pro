@@ -479,12 +479,12 @@ int preset_record_encode(uint8_t *out, uint32_t cap, uint32_t *written,
     if (rc != PRESET_OK)
         return rc;
     total = record_size(rec->nparams, rec->nsamples);
+    if (out && cap < total)
+        return PRESET_ERR_BUFFER;
     if (written)
         *written = total;
     if (!out)
         return PRESET_OK;
-    if (cap < total)
-        return PRESET_ERR_BUFFER;
     zero_n(out, total);
     wr_u32(out + 0, PRESET_MAGIC);
     wr_u16(out + 4, (uint16_t)PRESET_FORMAT_V1);
@@ -543,8 +543,6 @@ static int load_into(preset_record_t *out, const uint8_t *buf, uint32_t len)
         if (format < PRESET_FORMAT_V1)
             return PRESET_ERR_OLDER;
     }
-    if (len < PRESET_HEADER_BYTES + PRESET_PAYLOAD_HEAD)
-        return PRESET_ERR_TRUNCATED;
     nparams = buf[96];
     nsamples = buf[97];
     if (rd_u16(buf + 98) != 0 || rd_u16(buf + 10) != 0)
@@ -552,7 +550,7 @@ static int load_into(preset_record_t *out, const uint8_t *buf, uint32_t len)
     if (record_size(nparams, nsamples) != total)
         return PRESET_ERR_LENGTH;
 
-    preset_record_clear(out);
+    zero_n((uint8_t *)out, (uint32_t)sizeof *out);
     hdr_rd(out, buf);
     copy_n(out->name, buf + 32, PRESET_NAME_MAX);
     copy_n(out->source_name, buf + 64, PRESET_SOURCE_MAX);
@@ -625,16 +623,25 @@ int preset_record_decode(preset_record_t *rec, const uint8_t *buf, uint32_t len,
 int preset_record_import(preset_record_t *rec, const uint8_t *buf, uint32_t len,
                          uint16_t target_engine)
 {
+    preset_record_t tmp;
     int rc;
     uint16_t have;
     if (!target_engine)
         return PRESET_ERR_ENGINE;
-    rc = preset_record_decode(rec, buf, len, 0);
+    if (!rec)
+        return PRESET_ERR_NULL;
+    /* Decode into scratch. Assign *rec only when the target matches, so a
+     * WRONG ENGINE (or any other) failure never looks like a filled slot. */
+    rc = load_into(&tmp, buf, len);
     if (rc != PRESET_OK)
         return rc;
-    have = rec->original_engine ? rec->original_engine : rec->engine_id;
+    rc = check_loaded(&tmp, 0);
+    if (rc != PRESET_OK)
+        return rc;
+    have = tmp.original_engine ? tmp.original_engine : tmp.engine_id;
     if (have != target_engine)
         return PRESET_ERR_ENGINE;
+    *rec = tmp;
     return PRESET_OK;
 }
 
@@ -687,12 +694,12 @@ int preset_commit_encode(uint8_t *out, uint32_t cap, uint32_t *written,
         return PRESET_ERR_NULL;
     if (mark->copy > 1u || mark->reserved[0] || mark->reserved[1] || mark->reserved[2])
         return PRESET_ERR_PAYLOAD;
+    if (out && cap < PRESET_COMMIT_BYTES)
+        return PRESET_ERR_BUFFER;
     if (written)
         *written = PRESET_COMMIT_BYTES;
     if (!out)
         return PRESET_OK;
-    if (cap < PRESET_COMMIT_BYTES)
-        return PRESET_ERR_BUFFER;
     zero_n(out, PRESET_COMMIT_BYTES);
     wr_u32(out + 0, PRESET_COMMIT_MAGIC);
     wr_u32(out + 4, mark->seq);
