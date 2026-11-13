@@ -93,3 +93,8 @@ footer.site a { color:var(--ink); }
   #status { display:block; padding-top:8px; }
 }
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .keys .note { transition:none; } }
+
+.metrics { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; font:12px/1.4 ui-monospace,monospace; }
+.metrics span { padding:7px 10px; background:var(--well); border:1px solid var(--line);
+  border-radius:6px; overflow-wrap:anywhere; }
+.metric-footnote { color:var(--dim); font-size:11px; margin:0; }
