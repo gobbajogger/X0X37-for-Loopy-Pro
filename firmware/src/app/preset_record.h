@@ -170,14 +170,18 @@ typedef struct {
 extern "C" {
 #endif
 
+#ifndef PRESET_RECORD_NO_STRINGS
+/* Host-only debug strings. Omitted from a device build that sets
+ * PRESET_RECORD_NO_STRINGS. The device uses PRESET_ERR_* and
+ * PRESET_IMPORT_* codes. UI words are owned by a later UX step. */
 const char *preset_record_err_str(int err);
 const char *preset_record_engine_name(uint16_t engine_id);
 const char *preset_record_origin_name(uint8_t origin_tag);
-
-/* Import class and the product words WRONG ENGINE / BAD FILE / MEMORY FULL /
- * NEWER DATA. These are for later UI. This module does not show a toast. */
-int preset_import_class(int err);
 const char *preset_import_message(int err);
+#endif
+
+/* Import class (UX spec §3.5). This module does not show a toast. */
+int preset_import_class(int err);
 
 int preset_record_expected_nparams(uint16_t engine_id, uint16_t schema);
 int preset_record_expected_nsamples(uint16_t engine_id, uint16_t schema);
@@ -204,11 +208,19 @@ int preset_record_encode(uint8_t *out, uint32_t cap, uint32_t *written,
 int preset_record_export(uint8_t *out, uint32_t cap, uint32_t *written,
                          const preset_record_t *rec);
 
-/* Decode one record. Trailing bytes after total_len are ignored.
- * If expected_engine is not 0, a different engine id is PRESET_ERR_ENGINE
- * and original_engine is not rewritten. A missing provenance field (zeros)
- * loads as origin unknown and does not fail. A newer format or schema is
- * PRESET_ERR_VERSION or PRESET_ERR_SCHEMA. No input crashes the decoder. */
+/* Structural load: magic, length, CRC, format version, and flags only.
+ * Does not check engine, schema, names, origin, param counts, or sample
+ * refs. On error, *rec is unchanged. A load-only link can drop the
+ * validation code. The 536 B HOST working record is a stack local here. */
+int preset_record_load(preset_record_t *rec, const uint8_t *buf, uint32_t len);
+
+/* Decode one record: load, then the semantic checks (engine, schema,
+ * names, origin, counts, sample refs). Trailing bytes after total_len
+ * are ignored. If expected_engine is not 0, a different engine id is
+ * PRESET_ERR_ENGINE and original_engine is not rewritten. A missing
+ * provenance field (zeros) loads as origin unknown and does not fail.
+ * A newer format or schema is PRESET_ERR_VERSION or PRESET_ERR_SCHEMA.
+ * No input crashes the decoder. */
 int preset_record_decode(preset_record_t *rec, const uint8_t *buf, uint32_t len,
                          uint16_t expected_engine);
 

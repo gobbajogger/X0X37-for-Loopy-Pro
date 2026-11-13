@@ -123,7 +123,7 @@ The working record is `preset_record_t` (HOST sizeof 536 B). It must live on the
 
 This step does **not** add the module to the device link. Device flash and pool delta is 0 B until a later wiring increment.
 
-HOST ONLY, `cc -Os`, `size` on `preset_record.o` (not a device figure): see the test log. Host `.text` of the full object is about 5 KiB including `.rodata` and a private CRC table. That is larger than the 248 B Elite code-flash headroom. A later wiring step must shrink the linked set, share the existing CRC table, and measure a JieLi `-Os` image before it adds this file to the unity build. This step does not do general flash savings elsewhere.
+HOST ONLY staged measurements, before and after a size-optimization pass on this module, are in section 12. Those figures are HOST ESTIMATE, not device sizes. JieLi pi32v2 `-Os` is MISSING. Even the smallest after-pass subset is still larger than the 248 B Elite / 256 B Pro code-flash headroom. The module is not wired. This step does not do general flash savings elsewhere.
 
 Pool free on the given base is 8,340 B (floor 8,192 B). The module `.bss` is 0.
 
@@ -200,9 +200,88 @@ The new module is not in the audio path. This change does not alter engine code.
 ## 11. What a later device link would include
 
 Files that would be linked: `preset_record.c` and `preset_record.h` only.
-The CRC nibble table must be shared with the existing unity translation unit, not duplicated.
+The CRC nibble table must be shared with the existing unity translation unit, not duplicated: include `firmware/src/crc32_nibble.h` once (symbols `x0x_crc32`, `x0x_crc32_upd`, table `X0X_CRC32_NIBBLE_T`). A separate object uses `-DPRESET_RECORD_EXT_CRC` and links the existing provider. This step does not change `crc32_nibble.h` (its functions are `static`).
+A device build should set `PRESET_RECORD_NO_STRINGS` so host debug strings (`err_str`, `engine_name`, `origin_name`, `import_message`) are omitted. Errors stay as the small `PRESET_ERR_*` / `PRESET_IMPORT_*` codes. UI words come later.
 Host tests, this plan, and `run_tests.sh` are not device code.
 Factory program objects are not referenced by the module.
 No `*_private.h`, `bass303`, or `wobble.c` file is touched.
 
 The archived plan `docs/plans/2026-10-25-native-preset-workflow.md` is reused for versioning, CRC rejection, and power-loss ideas. Its 303-only schema and project-sidecar layout are not used.
+
+## 12. Smallest linkable subset: size breakdown (HOST ESTIMATE)
+
+These numbers are HOST ESTIMATE, from a host `cc` on x86-64. They are not device sizes. Never treat them as JieLi flash or pool bytes.
+
+### How the figures were taken
+
+Flags: `cc -std=c99 -Os -ffunction-sections -fdata-sections -fno-unwind-tables -fno-asynchronous-unwind-tables`.
+Link: `-nostdlib -Wl,--gc-sections`. The driver is a tiny `_start` that only calls the functions in that stage.
+Module-only totals drop the driver (`_start`, `sink`) and host ELF notes. `.text` is the sum of kept function symbols. `.rodata` is `size -A` (includes anonymous strings and alignment). `.data` and `.bss` are 0 in every stage. Host `.eh_frame` is 0 with these flags and is not counted.
+
+The existing firmware CRC is `firmware/src/crc32_nibble.h`, symbols `x0x_crc32`, `x0x_crc32_upd`, and table `X0X_CRC32_NIBBLE_T`. A private copy of that CRC in this translation unit is HOST ESTIMATE `.text` 70 (54 + 16) + `.rodata` 64 = 134 B. A unity device build includes the header once and does not add those 134 B. The "CRC reused" column attributes the CRC to the existing firmware (0 added). The "private CRC" column is what a standalone object pays if it includes the header itself.
+
+Before figures are the module at 9bda58dd (tree cf846cd3), before the size-optimization pass. After figures are this pass, built with `-DPRESET_RECORD_EXT_CRC -DPRESET_RECORD_NO_STRINGS`.
+
+The four stages:
+
+1. Decode / load-only, CRC reused, no encode, no export, no import-error strings, no sample-ref validation.
+2. Add validation and sample-ref checks (`decode`, `verify_sample(s)`, `import`, `slot_find_empty`).
+3. Add save / encode and the commit marker (`encode`, `commit_encode`, `commit_decode`, `commit_winner`, `commit_previous`).
+4. Add export with the factory-export switch off (`export`, `factory_derived`).
+
+### Before / after, CRC reused (0 added) — intended device story
+
+All values HOST ESTIMATE, bytes, `.data` 0, `.bss` 0.
+
+| Stage | Before `.text` | Before `.rodata` | Before sum | After `.text` | After `.rodata` | After sum | Delta |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 load-only | 1244 | 96 | 1340 | 670 | 32 | 702 | −638 |
+| 2 + validation | 1453 | 96 | 1549 | 1337 | 64 | 1401 | −148 |
+| 3 + encode, commit | 2845 | 96 | 2941 | 2506 | 64 | 2570 | −371 |
+| 4 + export, switch off | 2912 | 96 | 3008 | 2578 | 64 | 2642 | −366 |
+
+Before stage 1 `.rodata` 96 is the CRC-reused remainder after subtracting the 64 B table from the measured 160 B (the other 96 B held engine-name strings, because the old `decode` called `preset_record_engine_name` to test a valid engine, plus jump and switch tables). After stage 1, engine validity is a numeric range check (`engine_ok`), sample checks live in `check_samples` (called from `decode`, not from `load`), and host strings are compiled out, so `.rodata` is the 27 B header field table `k_hdr` plus alignment (32 B). After stages 2–4 also keep the 8 B engine tables `k_nparams`, `k_nsamples`, and `k_factory` (24 B), which is why `.rodata` is 64 B.
+
+If a standalone object included a private CRC copy, add 134 B (or 118 B in stages 1–2, which only need `x0x_crc32_upd` and the table) to the sum. Do not add that on a unity link.
+
+### Full object (every symbol, including test-only helpers)
+
+HOST ESTIMATE, not a staged gc-sections subset.
+
+| Build | `.text` | `.rodata` | `.data` | `.bss` | Sum |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Before, host default (private CRC, strings on) | 3821 | 446 | 0 | 0 | 4267 |
+| After, host default (private CRC, strings on) | 3618 | 483 | 0 | 0 | 4101 |
+| After, device-like (`EXT_CRC`, `NO_STRINGS`, CRC not in this object) | 3177 | 68 | 0 | 0 | 3245 |
+
+The host-default after object is a little larger in `.rodata` because of `k_hdr` and the engine tables; `.text` is still smaller. The device-like object drops host strings (code and text) and the private CRC.
+
+The test script's `size` line on `preset_record.o` is also HOST ONLY and may include host unwind if that compile does not pass `-fno-unwind-tables`. Do not compare that line to the table above without checking the flags.
+
+### Large functions, after stage 4 (CRC not included)
+
+HOST ESTIMATE `.text`: `preset_record_encode` 586, `load_into` 571, `preset_record_decode` 234, `preset_commit_decode` 199, `preset_commit_encode` 175, `decode_ab` 146, `check_counts` 82, `check_origin` 82, `preset_commit_previous` 81, `check_samples` 80.
+
+Before stage 4, the two largest were `preset_record_decode` 958 and `preset_record_encode` 812 (encode had the record checks inlined).
+
+gc-sections drops from stage 4 (still in the full object): `preset_record_equal`, the string helpers, `preset_import_class`, `expected_nparams`, `expected_nsamples`, `factory_count` (the codec uses the tables directly), `set_name`, and `set_source`.
+
+### What the pass changed (behavior and wire format unchanged)
+
+- CRC share: `PRESET_RECORD_EXT_CRC`, or a unity include of `crc32_nibble.h`.
+- Table-driven numeric header (`k_hdr`) and engine count tables.
+- Host debug strings gated by `PRESET_RECORD_NO_STRINGS`. Engine validity does not use `engine_name`.
+- `preset_record_load` is the separable structural path, so a load-only link can drop sample-ref validation. `preset_record_decode` still runs every check.
+- No 64-bit math: lengths and loops use `uint32_t`.
+- The working record (HOST sizeof 536) stays on the stack (`load` / `decode` local) or in caller scratch. No `.bss` or pool buffer.
+
+Golden v1 wire bytes were captured from the 9bda58dd encoder (Chicago 122 B, 909 296 B, commit marker 32 B) and are locked by `test_golden_bytes`. The after encoder emits the same bytes.
+
+### JieLi pi32v2 and the flash / pool headroom
+
+JieLi pi32v2 `-Os` size is MISSING. The V1.2.14 SDK is not on this host, and this step does not run a device build.
+
+The 94197fc8 V1.2.14 base has 248 B Elite and 256 B Pro code-flash headroom, and 148 B pool headroom (floors 8,192 B; this step does not change floors). The after stage-4 HOST ESTIMATE 2,642 B (CRC reused) is still far above that flash headroom. These are host numbers, not device numbers. The module is not added to the device link. Module `.bss` / pool remains 0 B: the 536 B HOST working record is on the stack.
+
+A later wiring step must measure a real JieLi image before this file joins the unity build. This pass does not touch `ui.c`, SEQ code, floors, or the storage map.
+
