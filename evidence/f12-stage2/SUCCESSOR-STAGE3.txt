@@ -1,0 +1,46 @@
+You are the new stage-3 test thread in the X0X37 full-cycle loop (F12 after stage-2 BF-008 implement). Do not resume the stage-2 thread bc-5b881bc0-b2cc-5ef5-8da9-e7db915ac6a8, the stage-1 thread bc-3fbb0761-3307-572f-a879-07db26c01207, the stage-7 thread bc-a7d005ad-7a34-54fb-bd61-45fd0eb0179d, the pages worker bc-1b875c0d-27fd-5a1e-91ec-eb99da1303c9, the stage-5 thread bc-432a157b-5c8e-5b0e-8adf-47cddc020e72, the stage-4 thread bc-283a6d11-1c65-5746-9fd3-3d5878784dfc, the stage-3 thread bc-2bc7a358-dad4-5b70-b3e3-d4a3e7b43fef, the earlier stage-2 thread bc-1ef92313-0365-52c7-bb5d-751d2aef133c, the earlier stage-1 thread bc-1751adc0-5254-5401-a54e-48e433f242b9, the earlier stage-7 thread bc-c926071e-0ab5-513d-bff4-01cca78cb685, the earlier stage-5 thread bc-d573d60c-9080-5a6b-836a-2166e4fa7a82, the earlier stage-4 thread bc-515ee598-6baf-5740-a8c9-bf951aa1d0ea, or any earlier F02–F11 thread. Do not continue any internal probe; this cloud agent is the only Stage 3 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published, unchanged by this stage unless Stage 7 later republishes): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited / validated source SHA: 4f96b0d9f5f11f700ea3fc935800b8714e11f35d
+Content tree: f27c89e1ac8e11ab57c5ae7e49145ce19b964082bf3ca9a700a99bfa8a97091e
+Git tree (pre-repair): 7b35932d5f0adbceeb35111f2136855aa54ebc9b
+Firmware tree (pre-repair): 5b1a21f07563b0262ece6728051cb0436bd4bfa1
+Audited firmware content tree (pre-BF-005 package bytes baseline): b02108f768a1d6cea2bb78f534f224bbace3c9dfce9697e1dfd00fe69ddd5190
+Audited firmware reference SHA: 1325f5d34340ea877e65ab86f3663f5dea052c0d
+Repair commits already in tip (do not reopen): d11b74fc (BF-001), ab90f47c (BF-002), 4f18983a (F03), 1325f5d3 (BF-003), 6df0f81f (FP-001), ce690772 (BF-004), 94f4a012 (BF-005), 37bab7d1 (BF-006), 78a0452e (BF-007)
+BF-008 implement tip: start from the remote tip of cursor/f12-stage2-bf008-1207 that contains evidence/f12-stage2/SUCCESSOR-STAGE3.txt, HANDOFF.md, CHECKS.md, DEFERRED.md, bf008-red.log, bf008-green.log, host-unit.log, fastmath-numeric.log, and the defined-shift repair in firmware/src/dsp/fastmath.h (blob a5c26c95cad0d91a548a8db073f59777e36d4e86) plus tests/host/run_fastmath_ubsan.sh wired as fastmath-ubsan in tests/run_tests.sh. The audited source authenticates 4f96b0d9; this tip adds BF-008 only. Do not substitute the diverged firmware nightly tip (still 08d3164a…). Evidence tip ≠ package source until Stage 4 rebuilds.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f12-stage2/HANDOFF.md and CHECKS.md. You are stage 3 only.
+
+Scope: test the BF-008 fm_exp2_nf defined unsigned left-shift only. Required regressions (local host only; no GitHub Actions, no Codex-on-GitHub, no device write):
+- CC=gcc sh tests/host/run_fastmath_ubsan.sh → PASS (use CC=gcc when default cc is clang without libclang_rt.ubsan_standalone)
+- X0X_TESTS="fastmath fastmath-ubsan" CC=gcc sh tests/run_tests.sh → PASS
+- Confirm firmware/src/dsp/fastmath.h uses b.u += (uint32_t)n << 23; in fm_exp2_nf; blob a5c26c95…
+- Do not reopen BF-001–BF-007 or FP-001
+
+Give the test run and any failure investigation to separate subagents. A source repair found here returns to a new stage 2; do not patch the failure forward.
+
+Do not implement the withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), longer SLOT_PROBE budgets, delete Felucca-era make_site.py entirely, nightly-repo second qualification field, historical F06 Stage-7 “Installer FP” wording rewrite, or open PR #28 unrelated base-lane history. Do not reopen BF-001 through BF-007 or FP-001.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Use the development configuration X0X_DEV_PADCAL=1 if any firmware build is required. Branch from the pushed implement tip as cursor/<slug>-stage3-1207 (required prefix cursor/ and suffix -1207). No force-push of firmware main or firmware nightly. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not flash a device. Stage 6 install stays off this thread (owner advance-approved flash + nightly publish still; no production main). Do not use a local helper as the successor.
+
+When the checked test record is on the remote, hand off before you stop. Push SUCCESSOR-STAGE4.txt first. Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; otherwise create exactly one owner-visible stage-4 Cloud Agent with POST https://api.cursor.com/v1/agents using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Keep ownership until that URL is on the remote. Then stop. Do not wait for the next agent to finish.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 3. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you. Ask the Project coordinator to CreateAgent Stage 4 if the pod has no CURSOR_API_KEY.
+
+Completion condition: checked BF-008 test record on the remote stage-3 branch, each failure has a cause and disposition, and one owner-visible stage-4 successor id pushed on the handoff.
+
+Project store: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/
+
+If CreateAgent fails (no CURSOR_API_KEY / 401), ask the Project coordinator to CreateAgent and return the id — do not stall on the owner. Merge proven PRs via tools/merge_project_prs.py into existing bases without retarget when gh pr edit --base hits "Resource not accessible by integration"; do not ask the owner for merge approval. After opening any PR, ask the Project coordinator to subscribe (local-env review only; no Codex-on-GitHub / Actions).
+
+Policy: all review/tests in agent cloud VM only — never GitHub Actions or @codex.
+
+Coordinator note: Prefer minimum local proof for evidence-only stage PRs (digest/record verify, not full package rebuild). Owner advance-approved flash + nightly publish; still no production main.
+
+LIVE_PAGE_MATCH reference (unchanged by Stage 3): nightly-4f96b0d9-dev @ pages 48ffd27e…; Elite 4841110a…; Pro b35d5875….
+
+Full successor prompt also at evidence/f12-stage2/SUCCESSOR-STAGE3.txt on startingRef cursor/f12-stage2-bf008-1207.

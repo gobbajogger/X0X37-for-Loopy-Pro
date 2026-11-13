@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "kind": "nightly-controller-tail-admission-repair",
+  "date_utc": "2026-10-24",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "base_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "base_commit": "1087ede952f6c6f5f22d1b56b062628f07a6af10",
+    "root_tree": "ba59448baa98213f2cb75de429a85f156a992efb"
+  },
+  "changes": [
+    {
+      "path": "tools/add_ctl.py",
+      "blob": "7ab21ddf81894cdbcc2227a29596b57b13ed942a",
+      "mode": "100755"
+    },
+    {
+      "path": "web/fm1pkg.js",
+      "blob": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/ble_pkg_test.py",
+      "blob": "dc866a1e7cabdb2b626e1f279c4aef7c553a23d8",
+      "mode": "100644"
+    }
+  ],
+  "bug": "Both native and Web controller preflight admitted controller images with non-erased bytes past header-declared size. Package parser rejected them afterward, producing contradictory admission.",
+  "behavior": {
+    "negative": "Reject all non-0xFF trailing bytes before creating package",
+    "positive": "Accept all-0xFF padding; canonical controller and embedded package output remain identical",
+    "models": [
+      "SMK-37 Elite_900",
+      "SMK-37 Pro_900"
+    ]
+  },
+  "evidence": {
+    "environment": "ChatGPT native Linux x86_64; Python 3.13.5; Node 22.16.0",
+    "source_identity": "tools/add_ctl.py exact base Git blob; web/fm1pkg.js exact base Git blob; tests/ble_pkg_test.py exact base Git blob; tools/fm1pkg_make.py exact base Git blob. The historical support checkout contains other older files: full R17 root not executed.",
+    "baseline": {
+      "command": "python3 -B tests/controller_trailing_padding_test.py",
+      "exit": 1,
+      "negative_failure": "6 assertions failed on non-erased trailer (before patch)"
+    },
+    "after": [
+      {
+        "command": "python3 -B tests/controller_trailing_padding_test.py (synthetic Python + JS)",
+        "exit": 0,
+        "summary": "5 tests, 1 optional private-input skip"
+      },
+      {
+        "command": "python3 -B tests/controller_trailing_padding_test.py (with exact private R14 ctl.img, Elite/Pro FWSC)",
+        "exit": 0,
+        "summary": "5 tests, 0 skips; model, native/JS insertion parity, rejected corrupted trailers, original package unchanged"
+      },
+      {
+        "command": "python3 -B tests/ble_pkg_test.py (byte-identical changed files, older supporting installer modules, real Pro package)",
+        "exit": 0,
+        "summary": "PASS including new JS/Python malformed-tail negatives"
+      },
+      {
+        "command": "python3 -B -m py_compile tools/add_ctl.py tests/ble_pkg_test.py",
+        "exit": 0
+      },
+      {
+        "command": "node --check web/fm1pkg.js",
+        "exit": 0
+      }
+    ],
+    "private_input_hashes": {
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "elite_fwsc_sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c",
+      "pro_fwsc_sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c"
+    }
+  },
+  "status": {
+    "producer_scoped_tests": "PASS",
+    "independent_exact_root_QA": "NOT_RUN",
+    "firmware_compiler_rerun": "NOT_RUN; unchanged firmware subtree from candidate base",
+    "physical_hardware": "NOT_TESTED",
+    "nightly_installable": false,
+    "public_distribution": "NOT_AUTHORIZED",
+    "public_gh_pages": "NOT_MODIFIED"
+  },
+  "next": "Independent QA review exact branch; sole Safe Merge integrates only after current-root critical negative/OTA/sample checks. Nightly publisher alone qualifies lawful external host/serving bytes and model/controller/backup gates."
+}

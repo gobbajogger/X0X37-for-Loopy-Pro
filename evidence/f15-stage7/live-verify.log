@@ -1,0 +1,21 @@
+=== LIVE VERIFY F15 BF-034 Stage 7 (NO-OP — current tip) ===
+time=2026-10-25T20:36:11Z
+rule=never rewind nightly page to older SHA (Bugbot #338)
+stale_stage5_pointer=092589b84fd455355216cb0de93c4782236f7524 (NOT a republish target)
+versions_http=200
+latest nightly-b48cd800-dev
+source_commit b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a
+label DEV / HARDWARE TEST — DEVICE NOT TESTED
+hardware_tested False
+catalog_elite 81aaf361cb11717ad0bcee325453e361064506e4d6720781e8eb8ffcc1dadae2 651396
+fetch_elite 651396 81aaf361cb11717ad0bcee325453e361064506e4d6720781e8eb8ffcc1dadae2 MATCH
+catalog_pro e0ac6b68e117ac42eac97944430d1a7ed2cacfba38336676096fa8a09f57319a 651392
+fetch_pro 651392 e0ac6b68e117ac42eac97944430d1a7ed2cacfba38336676096fa8a09f57319a MATCH
+ctl catalog 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a MATCH
+pages_tip a338960ca3eef0bf42f308ded09c02c9415e18e4
+TIP_SHA_AUTHENTICATED=b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a
+PACKAGES_SHA=b48cd800 tip packages (81aaf361 / e0ac6b68)
+REWIND=no
+PAGES_WRITE=none
+LIVE_PAGE_MATCH yes
+disposition NO_OP_CONFIRM_CURRENT_TIP

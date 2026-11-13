@@ -1,0 +1,108 @@
+{
+  "result": "DEV CHECKED",
+  "source_commit": "1d2418a26003a5aecadb4a8609520e6c507f35c6",
+  "source_tree": "15a071788d65513d795841f61cd2b22fa82c8428",
+  "review_proof": {
+    "map": "rec-proof-map.json",
+    "verifier": "verify_rec_evidence.py",
+    "independent_registered_selectors": 17,
+    "new_suites_included_in_total": 4,
+    "additional_sanitized_suite_runs": 4,
+    "timing_matrix": "96cases,288checks,0failures",
+    "physical_key_epoch_probe": "12024checks,0failures",
+    "current_storage_followup": "1314ASan/UBSanchecks,0failures; independentmixed-segmentreproduction load/save-9,zeroerases/programs/saves; priorHOLDcleared"
+  },
+  "models": {
+    "elite": {
+      "record": "qualified-elite/record.json",
+      "record_sha256": "c7faa838cdf637424750c6e8e3083fae685089cb6a9c021534b8cf383f991e9b",
+      "budgets": {
+        "code_free": 227036,
+        "ram_free": 300,
+        "pool_free": 21092
+      },
+      "product": "SMK-37 Elite_900",
+      "display_label": "X0X37 Unversioned legacy DEV \u00b7 SMK-37 Elite \u00b7 DEV \u00b7 DEVICE NOT TESTED",
+      "validation_inputs_sha256": "bbae7f3552258425253b82d25b65a29957cf31169a019741260122f9768b0521",
+      "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "artifacts": {
+        "package": {
+          "file": "x0x-smk37-elite.fwsc",
+          "sha256": "e20a53c54189d0d904fc2be3615e5fe4d3ae8b5851509e4b3658ac11a558691f",
+          "bytes": 651455,
+          "whole_file_crc32": "cca1962a"
+        },
+        "controller": {
+          "file": "ctl.img",
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "bytes": 65492,
+          "whole_file_crc32": "9c07ae67",
+          "controller_header_crc32": "77b7a496",
+          "maintained_header_ABI_bounds_CRC_check": "PASS"
+        },
+        "app": {
+          "file": "app-from-package.bin",
+          "bytes": 325636,
+          "sha256": "788f83c331ee1d826276ab0c6dd7f68eafb1ec676b7f1062957c217256f93b7e",
+          "whole_file_crc32": "4f08421d"
+        },
+        "loader": {
+          "bytes": 7339,
+          "sha256": "f72f60d1e48f09781e7d73e6e1cbe1f916aec1f0f0297f0190b88d1d9c0db5cc",
+          "whole_file_crc32": "d1b84637"
+        }
+      }
+    },
+    "pro": {
+      "record": "qualified-pro/record.json",
+      "record_sha256": "810b48b63e1eed59820e81fbb5e60ade713bb8840b65a5841128ed4e6f26af57",
+      "budgets": {
+        "code_free": 227036,
+        "ram_free": 300,
+        "pool_free": 21092
+      },
+      "product": "SMK-37 Pro_900",
+      "display_label": "X0X37 Unversioned legacy DEV \u00b7 SMK-37 Pro \u00b7 DEV \u00b7 DEVICE NOT TESTED",
+      "validation_inputs_sha256": "42a782079dc48fc0866a3cd529fc505d8f9d7a4062f3908a75e41ea44e33aedd",
+      "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "artifacts": {
+        "package": {
+          "file": "x0x-smk37.fwsc",
+          "sha256": "9553046339695d15591ac2716c14591f617f172cb3f45f81a6f4999baeaa3d98",
+          "bytes": 651455,
+          "whole_file_crc32": "0342f685"
+        },
+        "controller": {
+          "file": "ctl.img",
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "bytes": 65492,
+          "whole_file_crc32": "9c07ae67",
+          "controller_header_crc32": "77b7a496",
+          "maintained_header_ABI_bounds_CRC_check": "PASS"
+        },
+        "app": {
+          "file": "app-from-package.bin",
+          "bytes": 325636,
+          "sha256": "3049490e55deb56fda45095981a87787b7c5cdac54709faadc90c9b6b81f6147",
+          "whole_file_crc32": "3dc5e6c0"
+        },
+        "loader": {
+          "bytes": 7339,
+          "sha256": "cbcc1dd80e1d665fe1a75e93f6139a378d69970b3902bcfeadd9439d3649fb04",
+          "whole_file_crc32": "62d49a0b"
+        }
+      }
+    }
+  },
+  "limits": [
+    "PINGPONG/RANDOM exact occurrence recording guarded, not supported",
+    "One traversal maximum",
+    "Full per-voice engine identity/whole-sound snapshots remain OPEN",
+    "Historical stream5/snapshot import unsupported, bytes retained",
+    "Later CQ critical-section source not included",
+    "Separate bass/UI guard and SMC LED integration not covered by this REC branch record",
+    "Unversioned legacy DEV; no numeric allocation",
+    "DEVICE NOT TESTED; no physical/device timing proof",
+    "No source edits/commits, GUI, device, flash, merge or publication by this executor"
+  ]
+}

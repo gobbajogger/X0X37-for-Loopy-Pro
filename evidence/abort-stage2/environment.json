@@ -1,0 +1,57 @@
+{
+  "host": "macOS-27.2-arm64-arm-64bit",
+  "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "base": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+  "start": "0b9ef50ccb390cbb4311e6a10fbbdd3771ff4339",
+  "lane": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021",
+  "branch": "lane/mb-smc-central-abort-repair-20261021",
+  "sdk": {
+    "commit": "d179b4484759423312073f5fbb232501aa491047",
+    "status": ""
+  },
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "configuration": {
+    "X0X_DEV_PADCAL": 1,
+    "models": [
+      "elite",
+      "pro"
+    ],
+    "board": "smk37"
+  },
+  "build_command": [
+    "docker",
+    "run",
+    "--rm",
+    "--platform",
+    "linux/amd64",
+    "--network",
+    "none",
+    "--user",
+    "501:20",
+    "-v",
+    "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37",
+    "-v",
+    "/Users/mac/.jieli/toolchain:/Users/mac/.jieli/toolchain:ro",
+    "-v",
+    "/Users/mac/fw-AC79_AIoT_SDK:/sdk:ro",
+    "-w",
+    "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021",
+    "x0x37-validation:local",
+    "sh",
+    "evidence/abort-stage2/run-builds.sh"
+  ],
+  "setup_notes": [
+    {
+      "action": "Read the local Docker image identity.",
+      "cause": "The sandbox denied the Docker socket.",
+      "disposition": "The same Docker read succeeded with escalation."
+    },
+    {
+      "action": "Read a prior environment record.",
+      "cause": "The previous stage2 has no environment.json.",
+      "disposition": "This record reads the actual SDK and compiler identities."
+    }
+  ]
+}

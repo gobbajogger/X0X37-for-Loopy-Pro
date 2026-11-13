@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "role": "secondary_diagnostic",
+  "description": "Isolated per-control Miami matrix configs (not factory preset sign-off). Use AU_COMPARE_MODE=matrix.",
+  "sampleRate": 48000,
+  "configurations": [
+    { "id": "carrier_filter" },
+    { "id": "carrier_open" },
+    { "id": "square_open" },
+    { "id": "sub_open" },
+    { "id": "mod_triangle" },
+    { "id": "mod_pulse" },
+    { "id": "mix_depth" }
+  ]
+}

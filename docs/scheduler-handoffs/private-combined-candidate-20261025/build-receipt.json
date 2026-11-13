@@ -1,0 +1,483 @@
+{
+  "stage": "BUILD_ONLY",
+  "configuration": {
+    "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "board": "smk37",
+    "X0X_DEV_PADCAL": "1",
+    "release": false,
+    "target": "pi32v2",
+    "cpu": "r3",
+    "chip": "AC791N",
+    "models": [
+      "SMK-37 Elite_900",
+      "SMK-37 Pro_900"
+    ],
+    "network": "none",
+    "controller_cache_writes": false
+  },
+  "source": {
+    "commit": "0e3e4d572e2466872e1ddd1986ff34b9e77dddd3",
+    "root_tree": "441970c541c8c7abad0030d6f70c2c2fb484a080",
+    "firmware_tree": "5326e3c214cbe8d133b748685a2259d759e72c97",
+    "controller_tree": "7d169a6b97cd3b48064d938c23ccb6d3fb197fbd",
+    "tools_tree": "0a30ed660aab681045dd71e76619e08e56fa2a88",
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "local_checkout": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate",
+    "tracked_inputs_unchanged": true
+  },
+  "artifacts": {
+    "controller": {
+      "path": "private-build/ctl.img",
+      "local_path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/ctl.img",
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "9c07ae67",
+      "header": {
+        "magic": "43423058",
+        "header_version": 2,
+        "header_size": 68,
+        "size": 65492,
+        "header_crc32": "77b7a496",
+        "abi": 2,
+        "ram_lo": "01c01800",
+        "ram_hi": "01c07ce0",
+        "ram_bytes": 25824,
+        "ram_free": 544
+      }
+    },
+    "elite": {
+      "product": "SMK-37 Elite_900",
+      "app": {
+        "path": "build/smk37-elite/x0x.bin",
+        "local_path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/build/smk37-elite/x0x.bin",
+        "bytes": 549804,
+        "sha256": "325df5820de019cfecb87bac8728eed016d9b0e447c2c8c9d38a2ba04ac03f4d",
+        "crc32": "40521d2f"
+      },
+      "loader": {
+        "path": "build/smk37-elite/loader/ota.bin",
+        "local_path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/build/smk37-elite/loader/ota.bin",
+        "bytes": 7280,
+        "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+        "crc32": "efce9076"
+      },
+      "plain": {
+        "path": "build/x0x-smk37-elite.fwsc",
+        "local_path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/build/x0x-smk37-elite.fwsc",
+        "bytes": 651396,
+        "sha256": "786237ee08f7e03ec5799d8bd020aab05d5404b138a0a355920e97de88e5ff99",
+        "crc32": "ccf70031"
+      },
+      "controller_joined": {
+        "path": "private-build/x0x-smk37-elite-bundled.fwsc",
+        "local_path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/x0x-smk37-elite-bundled.fwsc",
+        "bytes": 651396,
+        "sha256": "812c1565e2bcf9182a6c2a97115cfbb0b95514f523bc35bc38a8f0a45bda2b66",
+        "crc32": "85318616"
+      },
+      "header_and_file_CRCS": "PASS",
+      "embedded_controller_identity": "same exact ctl.img bytes",
+      "package_receipt": {
+        "controller": {
+          "abi": 2,
+          "block_crc32": "4a400899",
+          "block_size": 65536,
+          "bundled": true,
+          "crc32": "77b7a496",
+          "flash_offset": 569344,
+          "header_version": 2,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "size": 65492,
+          "strategy": "bundled"
+        },
+        "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "controller_size": 65492,
+        "controller_strategy": "bundled",
+        "model": "elite",
+        "product": "SMK-37 Elite_900",
+        "schema": "x0x37-bundled-controller-v1",
+        "sha256": "812c1565e2bcf9182a6c2a97115cfbb0b95514f523bc35bc38a8f0a45bda2b66",
+        "size": 651396
+      }
+    },
+    "pro": {
+      "product": "SMK-37 Pro_900",
+      "app": {
+        "path": "build/smk37/x0x.bin",
+        "local_path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/build/smk37/x0x.bin",
+        "bytes": 549804,
+        "sha256": "070e10514588fc0a851aa3af5eaf083b552c9c99cd5141a27e1de3c9cb6aadf9",
+        "crc32": "63982f0c"
+      },
+      "loader": {
+        "path": "build/smk37/loader/ota.bin",
+        "local_path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/build/smk37/loader/ota.bin",
+        "bytes": 7276,
+        "sha256": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf",
+        "crc32": "a0f8bca9"
+      },
+      "plain": {
+        "path": "build/x0x-smk37.fwsc",
+        "local_path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/build/x0x-smk37.fwsc",
+        "bytes": 651392,
+        "sha256": "453f8bd8a597b8321a50d32beeb2b7ced10dcd28337830808871ab7b1ea94d72",
+        "crc32": "1acc7ad6"
+      },
+      "controller_joined": {
+        "path": "private-build/x0x-smk37-pro-bundled.fwsc",
+        "local_path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/x0x-smk37-pro-bundled.fwsc",
+        "bytes": 651392,
+        "sha256": "f7d947fce392a2ee179e277940ce43e343e79d5d099954f543d9f0c95019ae97",
+        "crc32": "d993904c"
+      },
+      "header_and_file_CRCS": "PASS",
+      "embedded_controller_identity": "same exact ctl.img bytes",
+      "package_receipt": {
+        "controller": {
+          "abi": 2,
+          "block_crc32": "4a400899",
+          "block_size": 65536,
+          "bundled": true,
+          "crc32": "77b7a496",
+          "flash_offset": 569344,
+          "header_version": 2,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "size": 65492,
+          "strategy": "bundled"
+        },
+        "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "controller_size": 65492,
+        "controller_strategy": "bundled",
+        "model": "pro",
+        "product": "SMK-37 Pro_900",
+        "schema": "x0x37-bundled-controller-v1",
+        "sha256": "f7d947fce392a2ee179e277940ce43e343e79d5d099954f543d9f0c95019ae97",
+        "size": 651392
+      }
+    }
+  },
+  "budgets": {
+    "elite": {
+      "code_limit": 552672,
+      "code_free": 2868,
+      "ram_used": 97892,
+      "ram_limit": 98304,
+      "ram_free": 412,
+      "pool_used": 335740,
+      "pool_limit": 344064,
+      "pool_free": 8324
+    },
+    "pro": {
+      "code_limit": 552672,
+      "code_free": 2868,
+      "ram_used": 97892,
+      "ram_limit": 98304,
+      "ram_free": 412,
+      "pool_used": 335740,
+      "pool_limit": 344064,
+      "pool_free": 8324
+    }
+  },
+  "unrun": [
+    "hardware and user-data backup/readback/restore on a physical unit",
+    "full release gate (not requested)",
+    "next-stage exact-candidate adaptation/review of proven task8 accepted-build mapping, launcher and narrow head pins",
+    "artifact publication or HTTP qualification"
+  ],
+  "commands": [
+    {
+      "argv": "python3 tools/build.py --board smk37 --model elite",
+      "exit": 0,
+      "log": "private-build/elite-build.log"
+    },
+    {
+      "argv": "python3 tools/build.py --board smk37 --model pro",
+      "exit": 0,
+      "log": "private-build/pro-build.log"
+    },
+    {
+      "argv": "CTL_NATIVE=1 CTL_NO_CACHE=1 SDK_LOCAL=/sdk sh ble/ctl/build_ctl.sh",
+      "exit": 0,
+      "log": "private-build/controller-build.log"
+    },
+    {
+      "argv": "python3 tools/add_ctl.py ble/ctl/out/ctl.img --check",
+      "exit": 0,
+      "log": "private-build/controller-check.log"
+    },
+    {
+      "argv": "python3 tools/package_nightly.py build/x0x-smk37-elite.fwsc private-build/ctl.img --model elite --controller-sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a --controller-size 65492 -o private-build/x0x-smk37-elite-bundled.fwsc",
+      "exit": 0,
+      "log": "private-build/elite-package-receipt.json"
+    },
+    {
+      "argv": "python3 tools/package_nightly.py build/x0x-smk37.fwsc private-build/ctl.img --model pro --controller-sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a --controller-size 65492 -o private-build/x0x-smk37-pro-bundled.fwsc",
+      "exit": 0,
+      "log": "private-build/pro-package-receipt.json"
+    },
+    {
+      "argv": "python3 tools/package_nightly.py private-build/x0x-smk37-elite-bundled.fwsc --check --model elite --controller-sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a --controller-size 65492",
+      "exit": 0,
+      "log": "private-build/elite-recheck.json"
+    },
+    {
+      "argv": "python3 tools/package_nightly.py private-build/x0x-smk37-pro-bundled.fwsc --check --model pro --controller-sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a --controller-size 65492",
+      "exit": 0,
+      "log": "private-build/pro-recheck.json"
+    }
+  ],
+  "verification": {
+    "package_header_file_crc": true,
+    "controller_header_abi_crc_ram": true,
+    "embedded_controller_same_bytes": true,
+    "model_identity": true,
+    "code_ram_pool_budgets": true,
+    "hardware": false,
+    "source_tracked_bytes_unchanged": true,
+    "sdk_and_toolchain_before_after_unchanged": true,
+    "controller_ELF_map_bound_to_image": true,
+    "retained_ELF_reproduces_controller": true
+  },
+  "verified_utc": "2026-10-25T05:06:21.582226+00:00",
+  "controller_link_provenance": {
+    "same_fresh_build_invocation": true,
+    "elf": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/ctl.elf",
+      "bytes": 819740,
+      "sha256": "a53173f0b45a88b6395160ff4317c2b5dc4c92645f9ef79511aa24b8da8a9b16",
+      "crc32": "44da5548"
+    },
+    "map": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/ctl.map",
+      "bytes": 38135,
+      "sha256": "0e681ad89a50b243644488742b8105660e0a6510fbe978dc463e8e16e9e4b36f",
+      "crc32": "b8162a63"
+    },
+    "sections": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/sections.txt",
+      "bytes": 1091,
+      "sha256": "2a19860ae239e5b81e84dd0a2ebc22259caf80adbc2518e7acf80b53bf89a8de",
+      "crc32": "b61d8a8e"
+    },
+    "symbols": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/symbols.txt",
+      "bytes": 435681,
+      "sha256": "a75894596c6cc02991e66cd4d8444c053cef849dfc6fbf709d3e21113061dbb5",
+      "crc32": "fd7782a9"
+    },
+    "link_log": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/ld.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "crc32": "00000000"
+    },
+    "image": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/ctl.img",
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "9c07ae67"
+    },
+    "elf_to_image_reproduction": {
+      "argv": [
+        "python3",
+        "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/ble/ctl/mkimage.py",
+        "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/ctl.elf",
+        "/Users/mac/Documents/Codex/2026-10-25/task-17/native-build/reproduced-ctl.img"
+      ],
+      "exit": 0,
+      "byte_identical": true
+    },
+    "flash_free": 44,
+    "private_only": true,
+    "retained_component_review": "Separate notice/provenance reviewer may inspect retained ELF/map; no generic SDK library rights conclusion is claimed."
+  },
+  "input_provenance": {
+    "before": {
+      "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "toolchain": "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1",
+      "sdk": "/Users/mac/fw-AC79_AIoT_SDK",
+      "files": [
+        {
+          "path": "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1/pi32v2/bin/clang",
+          "bytes": 46784720,
+          "sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f"
+        },
+        {
+          "path": "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1/pi32v2/bin/ld",
+          "bytes": 5728352,
+          "sha256": "fd61aff15616bb6f6b58fd2e9ede7af741c7bf05facb3e0cb3d3c9817c268fd9"
+        },
+        {
+          "path": "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1/common/bin/objcopy",
+          "bytes": 2141808,
+          "sha256": "295151226e28891115c97262e6460a06fe67fc0753858e0df3234eb000ea6e66"
+        },
+        {
+          "path": "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1/common/bin/objdump",
+          "bytes": 3523120,
+          "sha256": "f7e449e2c8001d5ed4493a45d1f5f304c8910418e4074acdc8715079ef64e08a"
+        },
+        {
+          "path": "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1/pi32v2/bin/LLVMgold.so",
+          "bytes": 17659208,
+          "sha256": "2ca8dafde18070d6a42fc47fc2ec4723946cf3d2404ca25981de5070beb1aa12"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/cpu/wl82/tools/uboot.boot",
+          "bytes": 14536,
+          "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/cpu/wl82/tools/cfg_tool.bin",
+          "bytes": 383,
+          "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+          "bytes": 655,
+          "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/cpu/wl82/liba/btctrler.a",
+          "bytes": 5157416,
+          "sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/cpu/wl82/liba/wl_rf_common.a",
+          "bytes": 321802,
+          "sha256": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/cpu/wl82/liba/crypto_toolbox_Osize.a",
+          "bytes": 421662,
+          "sha256": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/cpu/wl82/liba/lib_ccm_aes.a",
+          "bytes": 33128,
+          "sha256": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/include_lib/newlib/pi32v2-lib/libc.a",
+          "bytes": 188988,
+          "sha256": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/include_lib/newlib/pi32v2-lib/libcompiler_rt.a",
+          "bytes": 111588,
+          "sha256": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/apps/common/net/wifi_conf.c",
+          "bytes": 52960,
+          "sha256": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb"
+        },
+        {
+          "path": "/Users/mac/fw-AC79_AIoT_SDK/LICENSE",
+          "bytes": 11357,
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        }
+      ],
+      "refs": {
+        "schwung-9W9": {
+          "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+          "dirty": ""
+        },
+        "schwung-8W8": {
+          "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+          "dirty": ""
+        },
+        "schwung-303": {
+          "commit": "7680578cdecd91e512cfddb9c9eb07b287fb64f4",
+          "dirty": ""
+        },
+        "schwung-tb3po": {
+          "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+          "dirty": ""
+        }
+      },
+      "toolchain_tree_manifest": {
+        "files": 640,
+        "bytes": 508140323,
+        "sha256": "8b15b1677566fff0c467001e53f8c674824e395e26051d6b3d430957b31f66b4"
+      }
+    },
+    "after": {
+      "all_selected_inputs_unchanged": true,
+      "toolchain_manifest_sha256": "8b15b1677566fff0c467001e53f8c674824e395e26051d6b3d430957b31f66b4",
+      "toolchain_regular_files": 640,
+      "toolchain_symlinks": 44,
+      "all_DSP_refs_unchanged": true
+    }
+  },
+  "driver": {
+    "image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "script": "/Users/mac/Documents/Codex/2026-10-25/task-17/native-build/run-native.sh",
+    "script_sha256": "d5f220f17e071296e51e11210fa505ce7f3cb46f1614ac0e650ea0c8900724c1",
+    "exit": 0,
+    "network": "none",
+    "sdk_toolchain_references": "read-only mounts",
+    "workspace_write_root": "/Users/mac/Documents/Codex/2026-10-25/task-17"
+  },
+  "logs": {
+    "pro-recheck.json": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/pro-recheck.json",
+      "bytes": 667,
+      "sha256": "089f1621e76eb85fa61f93993f5111194717109855606cade0757383fd3a7b27",
+      "crc32": "5f61306a"
+    },
+    "runtime.txt": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/runtime.txt",
+      "bytes": 217,
+      "sha256": "dbfa566c44c3fbffaaeed01eee06326691684d4c1b8f2bc7f59e576ef0ee8e8d",
+      "crc32": "8d633223"
+    },
+    "elite-recheck.json": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/elite-recheck.json",
+      "bytes": 671,
+      "sha256": "1053a1a3ccb78868506240ee2c0b9f952a8d33f726cc876a58d5e5c8e3700805",
+      "crc32": "8a28d30c"
+    },
+    "pro-package-receipt.json": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/pro-package-receipt.json",
+      "bytes": 667,
+      "sha256": "089f1621e76eb85fa61f93993f5111194717109855606cade0757383fd3a7b27",
+      "crc32": "5f61306a"
+    },
+    "elite-package-receipt.json": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/elite-package-receipt.json",
+      "bytes": 671,
+      "sha256": "1053a1a3ccb78868506240ee2c0b9f952a8d33f726cc876a58d5e5c8e3700805",
+      "crc32": "8a28d30c"
+    },
+    "controller-check.log": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/controller-check.log",
+      "bytes": 24,
+      "sha256": "2baffe460c777740a2b17796d532972d41b4937f0a95e23ad428b8cd25b26939",
+      "crc32": "5e05c7da"
+    },
+    "controller-build.log": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/controller-build.log",
+      "bytes": 737,
+      "sha256": "911625c2b1df0d5e17759fcf9b4f39c58321a332b25929e7d4ddfcb20c55e4c6",
+      "crc32": "a1e003a9"
+    },
+    "elite-build.log": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/elite-build.log",
+      "bytes": 1329,
+      "sha256": "6ed25d79ba684da5770b32e51d8dfda163b290c67fdb89b65bf082a78cd3ea7e",
+      "crc32": "1ab77ed4"
+    },
+    "pro-build.log": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/pro-build.log",
+      "bytes": 1309,
+      "sha256": "8e71259174a6e89e12a7654d39993066afb38f62835126d81053a39dddcd0ca2",
+      "crc32": "fb8c66b9"
+    }
+  },
+  "notes": [
+    "BUILD_ONLY plus separately recorded independent affected source/package QA; no hardware or timeout-resolution claim.",
+    "Unchanged baseline fastmath.h negative-shift UBSan reused from task14/task16 evidence; unrelated DSP left unchanged.",
+    "Private owner-local ELF/map/controller/package only. No binary or SDK/toolchain is committed."
+  ]
+}

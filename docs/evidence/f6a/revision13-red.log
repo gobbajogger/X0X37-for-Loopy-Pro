@@ -1,0 +1,126 @@
+✖ legacy adoption requires two explicit dense identities, never an omitted engine (2.998881ms)
+✔ portable and project-only containers preserve raw project, all slots and full header bytes (21.23661ms)
+✔ inner project rejects corrupt, truncated, oversized and incompatible schemas (4.654798ms)
+✔ outer CRC, version, flags, metadata size and raw unmanifested files are rejected (7.113533ms)
+✔ strict metadata rejects duplicated entries, overlapping ranges and unreferenced bytes (11.564895ms)
+✔ sample metadata must match the original header even when both JSON copies and CRCs agree (4.505488ms)
+✔ sample image rejects data CRC, impossible zone boundaries and rate corruption (0.422814ms)
+✔ project-only matching checks every occupied and empty slot and never remaps (3.368584ms)
+✔ portable plans fills, identical skips and backed-up clear/replacement collisions (4.625236ms)
+✔ non-X0X identity is rejected before any project command (2.315348ms)
+✔ unsupported or malformed query replies are explained clearly (2.201204ms)
+✔ export snapshots project plus every original sample and always aborts; no sample writes (18.612687ms)
+✔ export aborts interrupted reads and uncertain BEGIN without blind BEGIN retry (1.515682ms)
+✔ READ/WRITE replies correlate operation and offset and validate exact byte lengths (13.441649ms)
+✔ sample reads correlate slot and offset and reject a short reply (21.238475ms)
+✔ project chunk replay recovers a lost WRITE acknowledgement exactly once (10.937122ms)
+✔ complete project-only import preserves every sample byte with zero sample write commands (40.43957ms)
+✔ confirmation or missing verified recovery acknowledgement refuses all sample mutations (27.562286ms)
+✔ firmware semantic validation fails before sample writes and keeps the previous live project (33.332942ms)
+✔ portable import fills and clears exact positions, skips identical images and preserves 512-byte headers (34.807237ms)
+✔ a changed keyboard invalidates the preview before any sample writes (28.103814ms)
+✔ sample readback mismatch rolls back exact original bytes before aborting adoption (35.739976ms)
+✔ lost sample-write acknowledgement is not blindly retried and rollback uses its backup (34.866177ms)
+✔ failed rollback reports recovery failure concretely and does not claim restoration (30.036313ms)
+✔ lost COMMIT reply restores the previous project as well as samples without repeating adoption (36.136691ms)
+✔ QUERY detects retained recovery mode after expiry and rollback restages without releasing its hold (36.771401ms)
+✔ failed recovery retains mode3; reconnect restores a portable backup without reading partial sample images (42.347553ms)
+✔ mode3 refuses project-only recovery and keeps the hold on a failed portable recovery (11.374417ms)
+✔ save/load/reset use confirmation tokens, do not touch samples and never retry SAVE blindly (1.417584ms)
+✔ MIDI adapter ignores normal playing traffic and bounds idle SysEx buffering (0.613163ms)
+✔ only explicit pattern/sound revision pairs are accepted (3.899821ms)
+✔ historical firmware export retains its 3/10 header and every payload byte for inspection (13.799975ms)
+✖ historical firmware exports remain exact read-only snapshots but cannot prepare an import (28.845392ms)
+✖ direct stage and preparation reject same-length old headers and protocol2 migration before mutation (7.623824ms)
+✖ retained-recovery preparation refuses legacy bundles without releasing its hold (3.59135ms)
+✖ normal and retained-recovery APIs recheck tampered prepared bytes before any mutation (38.083279ms)
+✔ revision 13 round-trips every project payload byte and original sample through both protocol versions (78.693848ms)
+✔ adaptive BREAK stream 8/9 project schemas keep exact bytes and CRC checks (1.154627ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 33
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 793.404299
+
+✖ failing tests:
+
+test at web/test_project_adoption_identities.mjs:6:1
+✖ legacy adoption requires two explicit dense identities, never an omitted engine (2.998881ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file://<repo>/web/test_project_adoption_identities.mjs:20:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at web/test_projects.mjs:580:1
+✖ historical firmware exports remain exact read-only snapshots but cannot prepare an import (28.845392ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file://<repo>/web/test_projects.mjs:588:7)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at web/test_projects.mjs:595:1
+✖ direct stage and preparation reject same-length old headers and protocol2 migration before mutation (7.623824ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file://<repo>/web/test_projects.mjs:601:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at web/test_projects.mjs:617:1
+✖ retained-recovery preparation refuses legacy bundles without releasing its hold (3.59135ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file://<repo>/web/test_projects.mjs:621:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at web/test_projects.mjs:627:1
+✖ normal and retained-recovery APIs recheck tampered prepared bytes before any mutation (38.083279ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+
+  Caught error:
+
+  Error: Unsupported arguments or project version.
+      at async TestContext.<anonymous> (file://<repo>/web/test_projects.mjs:635:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: Unsupported arguments or project version.
+        at fail (file://<repo>/web/x0x_projects.js:14:59)
+        at ProjectDevice.command (file://<repo>/web/x0x_projects.js:275:35)
+        at async ProjectDevice.validate (file://<repo>/web/x0x_projects.js:348:22)
+        at async applyProjectImport (file://<repo>/web/x0x_projects.js:503:5)
+        at async waitForActual (node:assert:646:5)
+        at async strict.rejects (node:assert:769:25)
+        at async TestContext.<anonymous> (file://<repo>/web/test_projects.mjs:635:5)
+        at async Test.run (node:internal/test_runner/test:1389:7)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:960:7),
+    operator: 'rejects',
+    diff: 'simple'
+  }

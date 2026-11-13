@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "status": "SCOPED_HOST_PASS_FULL_HOST_NOT_RUN",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "chat/remaining-features",
+  "pull_request": 694,
+  "base_branch": "wip/one-build",
+  "base_commit": "cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21",
+  "historical_owner_base": "094bb1a55c159aefb0e2bfa39790a1b4b74cee40",
+  "evaluated_head": "aa1d17a71a99027b9ad8a4033fad1dfe0e0169e4",
+  "source_transport": "GitHub connector/API. Native git network was not used.",
+  "integration": "Non-force merge into the existing PR branch; not a literal history rewrite.",
+  "environment": {
+    "platform": "Linux x86_64",
+    "compiler_gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+    "compiler_clang": "clang version 17.0.0",
+    "python": "3.13.5",
+    "node": "22.16.0"
+  },
+  "exact_input_blobs": [
+    {
+      "path": "firmware/src/app/home_pattern_glyph.h",
+      "git_blob": "065933fc65074b196aa70c97cd24d937fe1ec515"
+    },
+    {
+      "path": "tests/host/home_pattern_glyph_test.c",
+      "git_blob": "237b2bb6a921cf4c46a5d4c23c6da75dd1319d65"
+    },
+    {
+      "path": "tests/host/home_pattern_glyph_test.sh",
+      "git_blob": "4afb4429fbe3dc563a9565ffd11d8766dc12b3b6"
+    },
+    {
+      "path": "firmware/src/seq/pattern.h",
+      "git_blob": "b66583a59ad1cf49430faab8aa51b3d2aaa4fab0"
+    },
+    {
+      "path": "firmware/src/seq/motion.h",
+      "git_blob": "fcb39561683aa7531fdeeef5d78ae6e0d194425d"
+    },
+    {
+      "path": "tools/remaining_feature_proof.py",
+      "git_blob": "91e3368d76d5ba1488d63e43b1b488f45f8c1be8"
+    },
+    {
+      "path": "tests/host/remaining_feature_proof_test.py",
+      "git_blob": "75717de6d4aff78c9e40925fdd258e3660cd3eaa"
+    }
+  ],
+  "tests": [
+    {
+      "name": "home-pattern-glyph-gcc",
+      "command": "CC=gcc sh tests/host/home_pattern_glyph_test.sh",
+      "exit_code": 0,
+      "scope": "Exact Git-blob host source closure",
+      "log_sha256": "7c2f09f20baf792de5c107d8a93da0733e50f2bfd7f1f64382afc72b4affdafe"
+    },
+    {
+      "name": "home-pattern-glyph-clang",
+      "command": "CC=clang sh tests/host/home_pattern_glyph_test.sh",
+      "exit_code": 0,
+      "scope": "Exact Git-blob host source closure",
+      "log_sha256": "7c2f09f20baf792de5c107d8a93da0733e50f2bfd7f1f64382afc72b4affdafe"
+    },
+    {
+      "name": "home-pattern-glyph-ubsan",
+      "command": "clang -std=c11 -O1 -g -fsanitize=undefined -fno-sanitize-recover=all -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/seq tests/host/home_pattern_glyph_test.c -o home-glyph-ubsan && ./home-glyph-ubsan",
+      "exit_code": 0,
+      "scope": "Exact Git-blob host source closure",
+      "log_sha256": "7c2f09f20baf792de5c107d8a93da0733e50f2bfd7f1f64382afc72b4affdafe"
+    },
+    {
+      "name": "remaining-feature-proof-selftest",
+      "command": "python3 -B tests/host/remaining_feature_proof_test.py",
+      "exit_code": 0,
+      "scope": "Exact Git-blob self-contained test/source",
+      "log_sha256": "7ffda15959781bbeb74d2c9ce9c4733de3476eef648354bb85a78ce6d9366e2e"
+    },
+    {
+      "name": "drum-kit-identity-historical",
+      "command": "sh tests/host/drum_kit_identity_test.sh",
+      "exit_code": 0,
+      "scope": "Historical 7537a46 checkout; not current integration",
+      "log_sha256": "cf7509b1c67f3c8ea6de19bed80da4d738376e64a246dae4a17f65009cf7a510"
+    },
+    {
+      "name": "bootstrap-full-host-build-historical",
+      "command": "sh host/build_host.sh",
+      "exit_code": 0,
+      "scope": "Historical 7537a46 checkout only; not current integration"
+    }
+  ],
+  "remote_source_contracts": {
+    "checks_passed": 8,
+    "checks_total": 8,
+    "scope": "Read-only AST/text identity checks on exact merged PR code, not compiler tests"
+  },
+  "github_actions": {
+    "run_id": 41010270356,
+    "job_id": 123914336043,
+    "conclusion": "failure",
+    "executed_steps": 0,
+    "log_lookup": "NOT_FOUND BlobNotFound",
+    "qualification": "NOT_RUN - no verified host test executed in this GitHub workflow run"
+  },
+  "not_run": [
+    "Complete current-HEAD host simulator build and linked integration host suite (exact full checkout unavailable to local shell)",
+    "Current-HEAD HOME framebuffer screenshots and browser render",
+    "Full two-model firmware build, bit-exact audio golden, performance timing, real-device verification, installer publishing"
+  ],
+  "source_safety": "No new private headers, controller/firmware binaries, bootloader edits, device flash or protected branch merge."
+}

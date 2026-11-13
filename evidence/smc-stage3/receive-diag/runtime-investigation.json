@@ -1,0 +1,63 @@
+{
+  "platform": {
+    "system": "Linux",
+    "node": "07e3668a7a2a",
+    "release": "6.8.0-117-generic",
+    "version": "#117-Ubuntu SMP PREEMPT_DYNAMIC Tue May  5 19:26:24 UTC 2026",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "compiler": "cc (Debian 12.2.0-14+deb12u1) 12.2.0\nCopyright (C) 2022 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "trivial_runs": [
+    {
+      "attempt": 1,
+      "exit_code": -11,
+      "output": "AddressSanitizer:DEADLYSIGNAL\nAddressSanitizer:DEADLYSIGNAL\nAddressSanitizer:DEADLYSIGNAL\nAddressSanitizer:DEADLYSIGNAL\nAddressSanitizer:DEADLYSIGNAL\nAddressSanitizer:DEADLYSIGNAL\n"
+    },
+    {
+      "attempt": 2,
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "attempt": 3,
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "attempt": 4,
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "attempt": 5,
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "attempt": 6,
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "attempt": 7,
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "attempt": 8,
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "attempt": 9,
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "attempt": 10,
+      "exit_code": 0,
+      "output": ""
+    }
+  ]
+}
