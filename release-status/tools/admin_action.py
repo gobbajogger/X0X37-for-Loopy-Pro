@@ -473,19 +473,13 @@ def commit_files_via_api(
     tree_sha = tree.get("sha")
     if not tree_sha:
         raise UsageError("tree create failed")
-    # Chicago-offset author date.
-    now = datetime.now(ZoneInfo("America/Chicago")).isoformat(timespec="seconds")
+    # GitHub uses the authenticated connection's default author/committer.
+    # No alternate identity is embedded or imposed by this tool.
     new_commit = github_request(
         "POST",
         f"{API_ROOT}/repos/{repo}/git/commits",
         token,
-        {
-            "message": message,
-            "tree": tree_sha,
-            "parents": [head],
-            "author": {"name": AUTHOR_NAME, "email": AUTHOR_EMAIL, "date": now},
-            "committer": {"name": AUTHOR_NAME, "email": AUTHOR_EMAIL, "date": now},
-        },
+        {"message": message, "tree": tree_sha, "parents": [head]},
     )
     sha = new_commit.get("sha")
     if not sha:
