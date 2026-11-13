@@ -26,7 +26,7 @@ test('page does not request installation access, and user gesture is required fo
   for (const source of [html,entry,from('./controls.js')]) {
     assert.doesNotMatch(source, /requestDevice\(|requestPort\(|navigator\.usb|navigator\.serial|navigator\.hid/i);
   }
-  assert.match(page, /startBtn\.addEventListener\("click", \(\) => start\(\)\)/);
+  assert.match(page, /startBtn\.addEventListener\("click", \(\) => start\(\)\.catch/);
   assert.match(page, /new AudioContext\(/);
   assert.match(page, /await ac\.resume\(\)/);
   assert.match(entry, /'package', 'name', 'flash', 'script'/);
