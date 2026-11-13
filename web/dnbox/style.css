@@ -1,0 +1,95 @@
+/* DnBOX trial styling layers over upstream fm1-emu CSS. No synthetic UI audio. */
+:root { --room:#0b1013; --ink:#eff5f4; --dim:#9cacae; --faint:#7d8e92; --text:#cad4d5;
+  --amber:#75e4bd; --amber-hi:#b7fbe3; --green:#77cfad; --well:#1a2329; --line:#3c4d51;
+  --rule:#263438; --card:#141c20; --bar:#0c1216; color-scheme:dark; }
+html { scroll-behavior:smooth; }
+body { min-width:320px; }
+header.site .wrap { min-height:70px; }
+.brand { font-size:22px; font-weight:850; letter-spacing:-.055em; }
+.brand small { font:650 10px ui-monospace,monospace; letter-spacing:.16em; color:var(--amber); }
+main { gap:54px; padding-top:0; }
+.intro { padding:clamp(38px,7vw,96px) 0 10px; max-width:920px; }
+.intro .eyebrow { color:var(--amber); letter-spacing:.16em; }
+.intro h1 { font-weight:850; font-size:clamp(36px,6vw,80px); line-height:1.02;
+  letter-spacing:-.065em; margin:18px 0 22px; text-wrap:balance; }
+.intro .lead { max-width:760px; font-size:clamp(15px,1.6vw,19px); color:var(--text) !important; }
+.dot { display:inline-block; width:6px; height:6px; margin:0 5px 2px; border-radius:50%; background:currentColor; }
+.player { border:1px solid var(--rule); border-radius:18px; padding:clamp(10px,2vw,24px); background:#10171b; }
+.deck { flex:999 1 650px; }
+.deck-head h2 { font-size:16px; font-weight:650; letter-spacing:-.025em; margin:0; }
+#status { max-width:100%; overflow-wrap:anywhere; }
+.stage { border-radius:12px; background:radial-gradient(110% 100% at 45% 0,#223035 0%,#121a1f 75%); }
+#start { width:min(300px,70%); height:auto; min-height:56px; padding:10px 16px;
+  border-radius:9px; background:var(--amber); color:#0b2019; font-size:clamp(13px,1.8vw,17px); font-weight:750; }
+.panel-help { font-size:13px; color:var(--dim); margin:0; }
+#demo-error { color:#ffc4b7; }
+.side { flex:1 1 270px; grid-template-columns:minmax(0,1fr); }
+.side .box { border-radius:10px; }
+.side .box h3 { margin:0; color:var(--amber); }
+.side label { flex-wrap:wrap; }
+.side select { max-width:100%; }
+.save-actions { display:flex; gap:7px; flex-wrap:wrap; }
+.save-actions > button { flex:1 0 130px; }
+#perfwarn { border-color:#bda76a; }
+#perfwarn button.primary { background:var(--amber); }
+.play-controls { border-top:1px solid var(--rule); padding-top:18px; min-width:0; }
+.section-head { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:16px; }
+.section-head h2,.guide-panel h2 { margin:5px 0 0; font-size:clamp(26px,3.6vw,43px); line-height:1.12; letter-spacing:-.048em; }
+.section-head .eyebrow,.guide-panel .eyebrow { color:var(--amber); }
+.actions { display:flex; flex-wrap:wrap; gap:8px; }
+.play-controls button { cursor:pointer; font:inherit; }
+.play-controls button:disabled { cursor:not-allowed; opacity:.5; }
+.actions button { padding:9px 12px; border:1px solid var(--line); border-radius:8px; color:var(--ink); background:var(--well); }
+.actions button:hover:not(:disabled) { border-color:var(--amber); }
+.keys-scroll { overflow-x:auto; overscroll-behavior-x:contain; max-width:100%; margin-top:18px; padding:0 0 12px; }
+.keys { position:relative; height:180px; min-width:660px; max-width:1180px; margin:0; touch-action:pan-x; user-select:none; }
+.keys .note { position:absolute; top:0; border-radius:0 0 5px 5px; border:1px solid #707c84;
+  font:700 10px/1 ui-monospace,monospace; padding:0 2px 8px; display:flex; align-items:flex-end;
+  justify-content:center; color:#28333a; transition:background .06s ease; touch-action:none; }
+.keys .natural { width:calc(100% / 22); height:100%; background:#dbe2e4; z-index:1; }
+.keys .sharp { width:calc(100% / 22 * .68); height:63%; background:#202c33; color:#e9f3f2;
+  border:1px solid #0a1115; z-index:2; padding-bottom:12px; }
+.keys .note[aria-pressed="true"] { background:#6fdaba; color:#072218; }
+.keys .note:focus-visible { outline:3px solid #6fdaba; outline-offset:-3px; z-index:4; }
+.extras { margin-top:16px; border:1px solid var(--rule); background:var(--card); border-radius:12px; padding:0 16px; }
+.extras summary { padding:14px 0; cursor:pointer; font-weight:650; color:var(--ink); }
+.extras[open] { padding-bottom:16px; }
+.pads { display:grid; grid-template-columns:repeat(8,minmax(45px,1fr)); gap:7px; margin-bottom:22px; }
+.pad { border:1px solid var(--line); background:#253438; color:var(--ink); border-radius:7px;
+  min-height:54px; font:600 11px ui-monospace,monospace !important; }
+.pad[aria-pressed="true"] { background:var(--amber); color:#091e17; }
+.mixer { display:flex; flex-wrap:wrap; gap:18px; margin-bottom:20px; }
+.slider-control { display:flex; flex-direction:column; flex:1 0 95px; gap:12px;
+  color:var(--dim); font:600 11px ui-monospace,monospace; }
+.slider-control input { width:100%; accent-color:var(--amber); min-height:34px; }
+.knobs { display:flex; flex-wrap:wrap; gap:9px; }
+.encoder-control { display:flex; align-items:center; gap:5px; background:var(--well);
+  padding:6px; border-radius:7px; color:var(--ink); font:12px ui-monospace,monospace; }
+.encoder-control span { min-width:24px; }
+.encoder-control button { background:var(--card); color:var(--ink); border:1px solid var(--line);
+  border-radius:5px; min-width:31px; min-height:34px; }
+.guide-panel { padding:26px 0 0; border-top:1px solid var(--rule); }
+.guide-grid { margin:22px 0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+.guide-grid > div { border-top:1px solid var(--rule); padding:14px 0; }
+.guide-grid h3 { margin:0 0 8px; font-size:16px; }
+.guide-grid p { font-size:14px; }
+.credits { font-size:12px; color:var(--dim); line-height:1.6; }
+footer.site .wrap { align-items:center; justify-content:space-between; }
+footer.site a { color:var(--ink); }
+@media (max-width:860px) {
+  .guide-grid { grid-template-columns:1fr; gap:6px; }
+  .player { padding:10px; }
+  .deck { flex-basis:100%; }
+  .stage { padding:4px; }
+  .side { flex-basis:100%; grid-template-columns:repeat(auto-fit,minmax(min(100%,275px),1fr)); }
+  .pads { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@media (max-width:560px) {
+  main { padding:0 12px; gap:35px; }
+  .intro { padding:36px 0 0; }
+  .intro h1 { font-size:39px; }
+  .keys { min-width:660px; }
+  .deck-head { display:block; }
+  #status { display:block; padding-top:8px; }
+}
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .keys .note { transition:none; } }
