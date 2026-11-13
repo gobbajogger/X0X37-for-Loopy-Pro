@@ -49,7 +49,16 @@ def compile_one(source, dest, model, version=None, expected=None):
     return subprocess.run(args, cwd=ROOT, capture_output=True, text=True)
 
 
+def mflasher_recognizes(name):
+    # jvitkauskas/m-flasher v0.11.0 src/midi.rs NAMES/unit_of.
+    # This is discovery only; OTA model admission must still verify identity.
+    return any(token in name.lower() for token in
+               ("fm-1", "fm1", "minifm", "smk-37", "smk37", "felucca"))
+
+
 def main():
+    assert not mflasher_recognizes("DnBOX 0.0.26 37PRO")
+    assert not mflasher_recognizes("DnBOX 0.0.26 37ELITE")
     assert build.usb_product_define("smk37", "pro") == "-DX0X_USB_37PRO=1"
     assert build.usb_product_define("smk37", "elite") == "-DX0X_USB_37ELITE=1"
     assert build.usb_product_define("smk37", "mke") is None
@@ -61,12 +70,16 @@ def main():
         for model in ("pro", "elite"):
             for version in (None, "0.1.3", "99.99.99"):
                 label = version if version is not None else "DEV"
-                expected = f"DnBOX {label} 37{model.upper()}"
+                expected = f"DnBOX {label} SMK-37 {model.title()}"
                 result = compile_one(source, binary, model, version, expected)
                 assert result.returncode == 0, result.stderr
                 result = subprocess.run([str(binary)], cwd=ROOT, capture_output=True, text=True)
                 assert result.returncode == 0, result.stdout + result.stderr
                 assert expected in result.stdout, result.stdout
+                # M-Flasher v0.11 discovers USB MIDI units by a model token
+                # in the OS port name (src/midi.rs NAMES/unit_of), not SysEx.
+                assert mflasher_recognizes(expected) and "smk-37" in expected.lower()
+                assert "fm-1" not in expected.lower()
                 print(result.stdout.strip())
         # Compile the real descriptor without the optional display flags. These
         # direct/MKE build paths previously fell through to the FM-1 descriptor.
@@ -103,7 +116,7 @@ def main():
             assert result.returncode != 0, "invalid board/model flags were accepted"
         print("PASS non-SMK, conflicting and missing model definitions rejected")
         too_long = "1" * 125
-        result = compile_one(source, binary, "elite", too_long, f"DnBOX {too_long} 37ELITE")
+        result = compile_one(source, binary, "elite", too_long, f"DnBOX {too_long} SMK-37 Elite")
         assert result.returncode != 0 and "USB product name exceeds" in result.stderr, result.stderr
         print("PASS oversized USB product name rejected at compile time")
 

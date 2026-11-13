@@ -8,9 +8,9 @@
 #error USB product name requires an SMK board and unambiguous model
 #endif
 #if defined(X0X_USB_37ELITE)
-#define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " 37ELITE"
+#define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " SMK-37 Elite"
 #elif defined(X0X_USB_37PRO)
-#define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " 37PRO"
+#define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " SMK-37 Pro"
 #else
 #ifndef SMK_MODEL
 #error SMK_MODEL is required for an SMK USB descriptor
