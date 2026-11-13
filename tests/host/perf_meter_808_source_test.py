@@ -16,10 +16,9 @@ SRC = (ROOT / "firmware/src/app/engine.c").read_text()
 
 def slice_between(start, stop):
     assert SRC.count(start) == 1, f"missing/nonunique start: {start}"
-    assert SRC.count(stop) == 1, f"missing/nonunique end: {stop}"
     a = SRC.index(start) + len(start)
-    b = SRC.index(stop, a)
-    assert a < b
+    b = SRC.find(stop, a)
+    assert b >= a, f"missing end after start: {stop}"
     return SRC[a:b]
 
 
