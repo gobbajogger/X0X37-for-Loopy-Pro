@@ -1,0 +1,32 @@
+You are the new stage-4 validate thread in the X0X37 full-cycle loop (F04 after stage-3 BF-001 test). Do not resume the stage-3 thread bc-ead74ca6-9020-58cf-9542-8b8091a1c878, the stage-2 thread bc-d910ead2-0c33-5313-adea-956b263a6fae, the stage-1 thread bc-b24569bd-4f94-5a38-abb3-ed5ce76d4012, the stage-7 thread bc-b413a138-39ce-508e-bee4-893900ed93d1, the stage-5 thread bc-612598eb-d3fa-5382-8448-3bd7e18b0901, the earlier stage-4 thread bc-16eff7cf-f278-524a-8fd3-c45a34488945, the earlier stage-3 thread bc-21ba0310-0c10-5552-a8e2-35032c15b732, the earlier stage-2 thread bc-94c505d8-1ca0-5d88-b61f-049933c106b9, the earlier stage-1 thread bc-2e0f6b6e-50b2-506d-92f4-e19a81d6cfac, the Mac gh-pages push agent bc-3f7a599b-afeb-52c0-8f2a-84c20ba806e6, or any earlier F02/F03 thread. Do not continue any internal probe; this cloud agent is the only Stage 4 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published, unchanged by this stage): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited / validated source SHA: a03cfab3a423ab5c65a6546afd4993fe51754ee7
+Content tree: 1755a2dd6d8b79e7405ab58919cc4d60a69ca11a4ae6601030b0f5de963f170e
+Git tree: 85e159c5365b14c48e9f3df7d2089e8f2eb560d4
+Repair commit already in tip (F03; do not reopen): 4f18983a
+BF-001 repair commit: d11b74fc
+Tested tip: start from the remote tip of cursor/f04-bf001-stage3-fb90 that contains evidence/f04-stage3/SUCCESSOR-STAGE4.txt, HANDOFF.md, CHECKS.md, and the BF-001 repair (d11b74fc) plus the stage-3 test record. Do not substitute the diverged firmware nightly tip (still 08d3164a…).
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f04-stage3/HANDOFF.md and CHECKS.md. You are stage 4 only.
+
+Scope: validate development packages for the BF-001 local .fwsc / ctl.img selection-generation repair candidate only. Build Elite and Pro development packages with X0X_DEV_PADCAL=1 from the tested tree. Record exact package and controller identities, budgets (pool free at least 8192 bytes), checks, and logs. A host pass is not a package pass. The BF-001 repair is web/x0x_installer.html (stockLoadSerial / ctlLoadSerial / selectStockFile) and web/test_install_local_file.mjs; firmware / controller / package bytes should match the audited tip unless a package gate proves otherwise.
+
+Stage 3 result: ALL_PASS for required BF-001 regressions (node web/test_install_local_file.mjs) and affected installer checks (installer, installer-f02-bind, installer-f02-bind-web, installer-f03-probe, installer-f03-probe-web, installer-slots, installer-ctl, install-slots-web, install-guards, install-head). No source repair found in stage 3. Deferred items remain in evidence/f04-stage2/DEFERRED.md — do not implement BF-002, BF-003 (still needs retire-versus-restore decision), the withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), or longer SLOT_PROBE budgets.
+
+A package or source failure found here returns to a new stage 2, then a new stage 3, then a new stage 4. Do not patch the failure forward. Do not advance to merge, install, or the nightly page while checks are failed.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Branch from the pushed test tip as cursor/<slug>-stage4-fb90 (required prefix cursor/ and suffix -fb90). No force-push of firmware main or firmware nightly. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not flash a device. Stage 6 install stays off this thread. Do not use a local helper as the successor.
+
+When the DEV CHECKED package record is on the remote, hand off before you stop. Push SUCCESSOR-STAGE5.txt first. Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; otherwise create exactly one owner-visible stage-5 Cloud Agent with POST https://api.cursor.com/v1/agents using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Keep ownership until that URL is on the remote. Then stop. Do not wait for the next agent to finish.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 4. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you. Ask the Project coordinator to CreateAgent Stage 5 if the pod has no CURSOR_API_KEY.
+
+Completion condition: Elite and Pro development packages DEV CHECKED on the remote stage-4 branch, budgets met, and one owner-visible stage-5 successor id pushed on the handoff.
+
+Project store: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/
+
+If CreateAgent fails (no CURSOR_API_KEY / 401), ask the Project coordinator to CreateAgent and return the id — do not stall on the owner. Merge proven PRs via tools/merge_project_prs.py into existing bases without retarget when gh pr edit --base hits "Resource not accessible by integration"; do not ask the owner for merge approval.

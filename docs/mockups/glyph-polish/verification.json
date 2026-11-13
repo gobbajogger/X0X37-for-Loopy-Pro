@@ -1,0 +1,180 @@
+{
+  "status": "PASS",
+  "scope": "SMK-37 Elite and Pro development builds and host UI checks only; no hardware, install, controller or release qualification.",
+  "source_sha256": {
+    "firmware/src/app/engine.c": "112b2594022e3ba9c6cee0aaee6b90f45e7e6c89a5bc17949fcd9b4d098f1003",
+    "firmware/src/app/engine.h": "546e2890cdbbc683d72720ab737513648fc67f1ca9dd46d6f77f8302eb75ef34",
+    "firmware/src/app/original_runtime.c": "140478f85fbc893888b474fb8b09efadb77e6bd7e98f60c21f405c4d996fadb2",
+    "firmware/src/app/original_runtime.h": "7e8b9f78449b42aafc267ecd55405d735dcdfd2a4514591720ad3a72fd1157df",
+    "firmware/src/app/ui.c": "e6285548bcf1ff36c4beb71413c5c588741a9165e27e827406b6737756701eee",
+    "tests/host/original_release_ui_test.c": "d268736bd5c0548b26acf4173a2943399a82cda872999a755d7810c584cc67a0",
+    "tests/host/ui_chicago_env_motion_test.c": "76b11d0581fa6d05ca251e366280198c99deb72a743902f96da4490b27359a48",
+    "tests/host/ui_drum_glyph_test.c": "6ebc2ee395a75ed5b5f7f2eb980042a462101fdca726ec70b448e7ba9dbedde2",
+    "tests/host/ui_drum_mix_material_test.c": "008744151f4442910a881ef19aa87593b74dd8ed28245f73d5c1fe1349d18f83",
+    "tests/host/ui_glyph_polish_render.c": "77f6485f0a906dd92849801a0138a18c3d7f651ed6fea5ad0e9bd13939bb2cd1",
+    "tests/host/ui_glyph_polish_render.sh": "c1fb37f5170a78c00dacb7d86d81c1ae62744f4b6d632a9828f81f17b199eb62",
+    "tests/host/ui_glyph_polish_test.c": "286d1dc100e813055e0a5db5884a62016337ddc6a9f5549fae129f14b3d3f649",
+    "tests/host/ui_glyph_polish_test.sh": "b29ad87d24210da7b802ab8745302391b10020e125b94794186904a99efc13e2",
+    "tests/run_tests.sh": "65540d6aa51d46b28ae06749bb3973bbd66bc47c21caa3aac1bfcbc42e439682",
+    "tools/render_glyph_polish.py": "0f7e914d4749f1be7d176c483a0cb2ef6c75d29ffe324f59fedf0da47978c337"
+  },
+  "host_checks": [
+    {
+      "check": "glyph-polish",
+      "exit_code": 0,
+      "seconds": 12.77
+    },
+    {
+      "check": "chicago-env",
+      "exit_code": 0,
+      "seconds": 12.27
+    },
+    {
+      "check": "drum-glyph",
+      "exit_code": 0,
+      "seconds": 16.0
+    },
+    {
+      "check": "shared-glyph",
+      "exit_code": 0,
+      "seconds": 11.56
+    },
+    {
+      "check": "drum-mix-material",
+      "exit_code": 0,
+      "seconds": 11.44
+    },
+    {
+      "check": "smc-ui",
+      "exit_code": 0,
+      "seconds": 12.6
+    },
+    {
+      "check": "smc-ui-bounds",
+      "exit_code": 0,
+      "seconds": 20.05
+    },
+    {
+      "check": "smc-ui-negative",
+      "exit_code": 0,
+      "seconds": 180.64
+    },
+    {
+      "check": "ui-theme",
+      "exit_code": 0,
+      "seconds": 44.41
+    },
+    {
+      "check": "glyph-polish-sanitized",
+      "exit_code": 0,
+      "seconds": 28.14
+    }
+  ],
+  "host_check_environment": {
+    "ui-theme": "ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c; normal and ASan/UBSan runs with exact capture comparison",
+    "glyph-polish-sanitized": "SAN_FLAGS=-fsanitize=address,undefined -fno-sanitize-recover=all; ASAN_OPTIONS=detect_leaks=0"
+  },
+  "sdk": {
+    "tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "commit": "d179b4484759423312073f5fbb232501aa491047",
+    "archive_sha256": "8422e17f9fa15089c85a7bed70c0ed09d5c33f3e590cad3ceb04ac9ce0ad6940"
+  },
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+  "models": [
+    {
+      "model": "elite",
+      "board": "smk37",
+      "config": "development",
+      "exit_code": 0,
+      "status": "PASS",
+      "package_identity_decoded_from_bytes": "SMK-37 Elite_900",
+      "budgets": {
+        "image_bytes": 467840,
+        "app_code_max_bytes": 552672,
+        "app_code_free_bytes": 84832,
+        "ram_data_bss_bytes": 95456,
+        "ram_max_bytes": 98304,
+        "ram_free_bytes": 2848,
+        "pool_bytes": 333824,
+        "pool_max_bytes": 344064,
+        "pool_free_bytes": 10240,
+        "pool_min_free_bytes": 8192
+      },
+      "warnings": [
+        "experiments/wobble/miami_decimator_adapter.c:7:39: warning: suggest braces around initialization of subobject [-Wmissing-braces]"
+      ],
+      "artifact_hashes": [
+        {
+          "role": "application",
+          "bytes": 467840,
+          "sha256": "f02ed13c9c886f52953c00801bccac4ff730bc0398f84f3b6150c99eac3df927"
+        },
+        {
+          "role": "loader",
+          "bytes": 7341,
+          "sha256": "7f7b107048194dc2f2e62936c365589bb87f9c1409eb67d120cc4c4e69dc2a21"
+        },
+        {
+          "role": "package",
+          "bytes": 651457,
+          "sha256": "733aaf7ff8fb619edd009ad2d3aa889c0763c69b31cd0c3e7ebcbbada6107987"
+        }
+      ]
+    },
+    {
+      "model": "pro",
+      "board": "smk37",
+      "config": "development",
+      "exit_code": 0,
+      "status": "PASS",
+      "package_identity_decoded_from_bytes": "SMK-37 Pro_900",
+      "budgets": {
+        "image_bytes": 467824,
+        "app_code_max_bytes": 552672,
+        "app_code_free_bytes": 84848,
+        "ram_data_bss_bytes": 95456,
+        "ram_max_bytes": 98304,
+        "ram_free_bytes": 2848,
+        "pool_bytes": 333824,
+        "pool_max_bytes": 344064,
+        "pool_free_bytes": 10240,
+        "pool_min_free_bytes": 8192
+      },
+      "warnings": [
+        "experiments/wobble/miami_decimator_adapter.c:7:39: warning: suggest braces around initialization of subobject [-Wmissing-braces]"
+      ],
+      "artifact_hashes": [
+        {
+          "role": "application",
+          "bytes": 467824,
+          "sha256": "de843dfed1c29a00bacf1f9d6fb100b8816c5edfe2421cc5f96892e48e83a889"
+        },
+        {
+          "role": "loader",
+          "bytes": 7341,
+          "sha256": "9047d7ab8946f73260525d2c03197e5f1b2101af3941b3f2702d843ee9e75229"
+        },
+        {
+          "role": "package",
+          "bytes": 651457,
+          "sha256": "39f35fb68884c8520bc3a1826777203bbcefd5a52ebd29e7cd340b2e4cce886a"
+        }
+      ]
+    }
+  ],
+  "source_unchanged_during_builds": true,
+  "review": {
+    "method": "Compound Engineering multi-persona review plus independent validation and scoped fix verification",
+    "actionable_findings_remaining": 0
+  },
+  "visuals": {
+    "animated_gifs": 24,
+    "series": 47,
+    "source_frames_per_phase": 1987,
+    "every_frame_sheets_inspected": 58,
+    "composition_checks_passed": 108,
+    "composition_checks_failed": 0,
+    "inspection_record": "visual-inspection.json"
+  }
+}

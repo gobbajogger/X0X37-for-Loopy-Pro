@@ -1,0 +1,62 @@
+{
+  "schema": "x0x37.git-evidence/1",
+  "evidence_revision": "installer-nightly-product-identity-20261024-r1",
+  "role": "Installer Improvements browser source producer",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/installer-nightly-download-guard-20261024",
+  "consumed_commit_sha": "8653854acd757514d98d2892a9e0f8368ed24875",
+  "consumed_full_root_tree_sha": "4d7d81a536ad609a54701f573cac2a09629d3b03",
+  "compiled_firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+  "consumed_installer_blob": "712340ed6452237ad60dd8ea4823caf972c67b71",
+  "finding": "NIGHTLY publisher PR102 comment 6379804861: built bare Elite/Pro _900 headers wrongly rejected",
+  "changes": [
+    "web/x0x_installer.html",
+    "web/test_install_nightly_product_identity.mjs",
+    "docs/installer-nightly-product-identity-20261024.md",
+    "docs/scheduler-handoffs/installer-nightly-product-identity-20261024.json"
+  ],
+  "producer_tests": [
+    {
+      "command": "GitHub-connected V8 exact Git source 30 synthetic assertions",
+      "exit": "completed no process exit code",
+      "result": "30/30 PASS incl 4 expected baseline red",
+      "scope": "source-exact admission"
+    },
+    {
+      "command": "node --check /mnt/data/installer_product_20261024/web/test_install_nightly_product_identity.mjs",
+      "exit": 0,
+      "scope": "native Node syntax for independently authored test"
+    },
+    {
+      "command": "node test_install_nightly_product_identity.mjs old_admission.html",
+      "exit": 1,
+      "result": "EXPECTED baseline failure (source-window mirror)"
+    },
+    {
+      "command": "node test_install_nightly_product_identity.mjs fixed_admission.html",
+      "exit": 0,
+      "result": "30/30 PASS (source-window mirror)"
+    },
+    {
+      "command": "python3 /mnt/data/installer_product_20261024/test_browser_product_window.py",
+      "exit": 0,
+      "result": "60/60 PASS",
+      "scope": "Chromium isolated source-window simulated DOM, not generated-site"
+    }
+  ],
+  "disposition": "SOURCE_COMPLETE_PRODUCER_CHECKED_QA_PENDING",
+  "pr": 102,
+  "build_status": "BUILD_NOT_RUN_BROWSER_ONLY",
+  "device_status": "DEVICE_NOT_TESTED",
+  "publication_status": "NO_GO_EMPTY_APPROVAL_ALLOWLIST",
+  "next_owner": "Independent QA",
+  "next_action": "Run exact new Git HEAD registered native Node plus full generated-site Chromium/backup/OTA negative and model product checks; then sole Safe Merge. NIGHTLY website PR1 source owner must independently integrate equivalent gate.",
+  "remaining_gates": [
+    "Independent QA",
+    "firmware NIGHTLY Safe Merge integration",
+    "separate NIGHTLY website source/QA/review",
+    "lawful immutable download and HTTP byte/SHA",
+    "Elite/Pro prehardware package/controller/backups/source safety before public install"
+  ],
+  "no_binary_committed": true
+}

@@ -1,0 +1,155 @@
+{
+  "schema": "loopyx0x37.bugfinder.handoff.v1",
+  "evidence_revision": "bugfinder-bf018-motion-lane-reuse-20261024-r1",
+  "date_utc": "2026-10-24",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "Hourly Bugfinder",
+  "branch": "lane/bugfinder-bf018-motion-clear-stale-20261024",
+  "base_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "base_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+  "first_nightly_candidate": {
+    "pr": 103,
+    "source_commit": "dc4669083218f17f8cfb69069e7f32911a232b52",
+    "full_root_tree": "02cba17c78ab0e0334995f63363c4e8c407ae6a0",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "disposition": "DRAFT_NEEDS_CHANGES_DUE_OWNED_DATA_SAFETY_OTA_DEVICE_BINDING",
+    "repaired_controller_tail": "SCOPED_CHECKED_PR115",
+    "owned_ota_repairs": [
+      "#114",
+      "#116"
+    ],
+    "not_integrated_by_bugfinder": true
+  },
+  "finding": {
+    "id": "BF-018",
+    "title": "Pending knob REC/HOLD request survives live motion lane deletion and is applied to unrelated reused slot",
+    "prior_issue": "BF-017 PR #101 only clears requests at transport stop, not during live lane deletion",
+    "root_cause": "motion_clear(lane_t*,k) cleared used but not ISR rt[k].rec_req/hold_req; generation mismatch resets gestures, but retains request flags",
+    "patch": "motion_clear(motion_t*,k) clears used and pending flags, routed through engine_motion_clear for all 4 UI deletion paths; no serialized structs enlarged",
+    "paths": [
+      {
+        "path": "firmware/src/seq/motion.c",
+        "blob_sha": "ec90cfc132bbcd36a69c56602abe038e6416ce73"
+      },
+      {
+        "path": "firmware/src/seq/motion.h",
+        "blob_sha": "3d8d4f9251dc7cba1746bd93154a2c3378cb537e"
+      },
+      {
+        "path": "firmware/src/app/engine.c",
+        "blob_sha": "9dcd03632f45302a7d16d8d208c70938c09ade9b"
+      },
+      {
+        "path": "firmware/src/app/engine.h",
+        "blob_sha": "7adf4ba2e1b26f215f79d14ef57f90d9f3c1eef2"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "blob_sha": "a2bc0889de2bd9270107c07209bc94f2c527d657"
+      },
+      {
+        "path": "tests/host/motion_test.c",
+        "blob_sha": "597863c590368717fbc2bb37718c247bb844334e"
+      },
+      {
+        "path": "tests/host/motion_clear_pending_test.c",
+        "blob_sha": "0920efebe977607467e42da7de4c3fce2c40477d"
+      }
+    ],
+    "original_blobs": {
+      "firmware/src/seq/motion.c": "f94c93428153eaf6f42f25aee4c21cfb1e7cdd96",
+      "firmware/src/seq/motion.h": "aca33934b0006fe2db2abe0a3048312ac79991f1",
+      "firmware/src/app/engine.c": "555480d9c81ca8b088842bfa6bac93e85865d49a",
+      "firmware/src/app/engine.h": "63e79e24bb06549bb1352abe08a05ec97e2c310d",
+      "firmware/src/app/ui.c": "0c661c870f537348070fd3aaff665ced3bc97cd0",
+      "tests/host/motion_test.c": "e147123792ef8da15c964412010258ffbbf549a7"
+    }
+  },
+  "native": {
+    "os": "Linux x86_64",
+    "compiler_versions": [
+      "GCC 14.2.0 (Debian 14.2.0-19)",
+      "Clang 17.0.0"
+    ],
+    "source_identity": "Git hash-object checks on extracted R14 compiler source matching exact NIGHTLY/R18 motion.c and motion.h; existing host test bytes verified against connected GitHub blob",
+    "commands": [
+      "CC=gcc|clang; cc -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O0 -g -fsanitize=undefined [-DBF018_OLD_API for baseline] tests/host/motion_clear_pending_test.c firmware/src/seq/motion.c -o test && ./test",
+      "CC=gcc|clang; cc -std=c11 -Wall -Wextra -Werror -fno-omit-frame-pointer -O1 -g -fsanitize=address,undefined [-DBF018_OLD_API for baseline] tests/host/motion_clear_pending_test.c firmware/src/seq/motion.c -o test && ./test",
+      "CC=gcc|clang; same -O0/-O1 suites compiling authentic tests/host/motion_test.c with repaired motion.c (and updated one-line API call)"
+    ],
+    "before": {
+      "compile_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "run_exits": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "each": "3 functional failures: stale rec clobbers new lock, wrong first playback, stale hold suppresses playback",
+      "log_sha256": "ff787d5255323e1bbf54681fc8440dabde195579b99f52f147db43395a47d0e7"
+    },
+    "after": {
+      "compile_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "run_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "each": "motion-clear-pending: PASS (0 failures)",
+      "log_sha256": "769c8f285451243dd1a2431ca986ece11a7ea0d6c97496d8a531d1ea4cc11002"
+    },
+    "existing": {
+      "compile_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "run_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "each": "motion: ok",
+      "log_sha256": "4d91e54dfc9a91a2628759cd5edde76cc8e11e1d9e9ce2c811cac7fd4827a7bb"
+    },
+    "coverage": [
+      "live lane deletion and target reuse without transport STOP",
+      "new lock integrity",
+      "queued REC and HOLD discard",
+      "fresh post-reuse REC/HOLD accepted before first new step",
+      "invalid lane indexes",
+      "existing sweep/ramp/gap/hold/stop/reuse cases"
+    ],
+    "no_sanitizer_diagnostics": true,
+    "scope": "native host motion.c linked to real tests; entire firmware/ISR/project/UI/target build NOT run"
+  },
+  "status": {
+    "producer": "SOURCE_COMPLETE_NATIVE_SCOPED_CHECKED",
+    "independent_qa": "PENDING",
+    "native_elite_pro_build": "NOT_RUN",
+    "matched_controller_build": "NOT_RUN",
+    "source_combined_safe_merge": "NOT_INTEGRATED",
+    "installed_nightly": "NOT_INSTALLABLE",
+    "device": "NOT_TESTED",
+    "memory_budgets": "UNVERIFIED",
+    "protected_branches_modified": false
+  },
+  "next_consumers": [
+    "Independent QA: verify exact PR SHA and run full-root motion/quickcheck including ISR/UI and destructive-boundary negatives",
+    "Hourly Build: fresh pinned Elite and Pro DEV target builds for NEW firmware subtree with matched controller and full RAM/pool budgets (no reuse of R18 BUILT_ONLY bytes)",
+    "Sole Safe Merge: do not add to frozen first candidate until first candidate OTA owned blockers and independent review justify it"
+  ]
+}

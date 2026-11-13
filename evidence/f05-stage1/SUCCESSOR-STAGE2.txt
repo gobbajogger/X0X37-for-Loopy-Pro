@@ -1,0 +1,31 @@
+You are the new stage-2 implementation thread in the X0X37 full-cycle loop (F05 after F04 nightly publish). Do not resume the stage-1 thread bc-bd9cb2ca-4784-5d48-968d-bee42f593ff1, the stage-7 thread bc-0d4e5c60-b783-50bf-aade-b445b509603c, the stage-5 thread bc-53d982c6-2d09-50b5-a24b-19a82e0ab4bc, the stage-4 thread bc-5cbf81ce-9d35-5c9f-8919-36e1f7b2a870, the stage-3 thread bc-ead74ca6-9020-58cf-9542-8b8091a1c878, the stage-2 thread bc-d910ead2-0c33-5313-adea-956b263a6fae, the earlier stage-1 thread bc-b24569bd-4f94-5a38-abb3-ed5ce76d4012, the earlier stage-7 thread bc-b413a138-39ce-508e-bee4-893900ed93d1, the earlier stage-5 thread bc-612598eb-d3fa-5382-8448-3bd7e18b0901, the earlier stage-4 thread bc-16eff7cf-f278-524a-8fd3-c45a34488945, the earlier stage-3 thread bc-21ba0310-0c10-5552-a8e2-35032c15b732, the earlier stage-2 thread bc-94c505d8-1ca0-5d88-b61f-049933c106b9, the earlier stage-1 thread bc-2e0f6b6e-50b2-506d-92f4-e19a81d6cfac, the Mac gh-pages push agents bc-795342a0-d8f9-52d2-8485-20377d0a90f8 or bc-130fb82c-37a5-5211-adcc-10db676a56f3, the earlier Mac agent bc-3f7a599b-afeb-52c0-8f2a-84c20ba806e6, or any earlier F02/F03 thread. Do not continue any internal probe; this cloud agent is the only Stage 2 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published, unchanged by this stage): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited / validated source SHA: 0d79d63485dc6585800a71ef716d095445f5a1fc
+Content tree: 1b067cadd1e7887415354c4f384a51f93d6437c367574e2cee52b0b44d829479
+Git tree: 603e2a2b1442a8214cd97b03d32bf57fc158feac
+Repair commits already in tip (do not reopen): d11b74fc (BF-001), 4f18983a (F03)
+Start from the remote tip of cursor/f05-bf002-stage1-fb90 that contains evidence/f05-stage1/SUCCESSOR-STAGE2.txt, AUDIT.md, CHECKS.md, and HANDOFF.md. That tip is the pushed audit. The source under repair authenticates 0d79d634. Do not substitute the diverged firmware nightly tip (still 08d3164a…).
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f05-stage1/HANDOFF.md and AUDIT.md. You are stage 2 only.
+
+Approved repair: BF-002 only. Scoped quickcheck omits project web regressions. tools/quickcheck_plan.py maps web/ to breaks-web breaks-page install-slots-web and never selects projects-web or projects-page for web/x0x_projects.js, web/x0x_projects.html, or shared web/x0x_breaks.js. Add explicit project-suite routes for those sources (and modified project tests). Extend tests/host/test_quickcheck_plan.py with a fixture that advertises both project commands; assert both suites are selected by production-module edits and that unrelated UI changes remain scoped. Run the affected planner host tests and project web/page suites on the exact resulting head (local host/node only). Definition: open PR #26 / docs/audit/bugfinder-watch-2026-10-23.md on lane/bugfinder-reports-20261023. Repro: evidence/f05-stage1/bf002-repro.log.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Use the development configuration X0X_DEV_PADCAL=1 if any firmware build is required. This repair must not change firmware, the controller, or package bytes. Branch from the pushed audit tip as cursor/<slug>-stage2-fb90 (required prefix cursor/ and suffix -fb90). Commit the checked repair. No force-push of firmware main or firmware nightly. No GitHub Actions as tests.
+
+Do not implement BF-003, the withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), or longer SLOT_PROBE budgets. Record anything you defer. BF-003 still needs a retire-versus-restore decision — leave it deferred. Do not reopen BF-001.
+
+Leave production main and production GitHub Pages unchanged. Do not flash a device. Stage 6 install stays off this thread. Do not use a local helper as the successor.
+
+When the checked commits are on the remote, hand off before you stop. Push SUCCESSOR-STAGE3.txt first. Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; otherwise create exactly one owner-visible stage-3 Cloud Agent with POST https://api.cursor.com/v1/agents using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Keep ownership until that URL is on the remote. Then stop. Do not wait for the next agent to finish.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 2. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you. Ask the Project coordinator to CreateAgent Stage 3 if the pod has no CURSOR_API_KEY.
+
+Completion condition: checked BF-002 commits on the remote stage-2 branch, deferred items recorded if any, and one owner-visible stage-3 successor id pushed on the handoff.
+
+Project store: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/
+
+If CreateAgent fails (no CURSOR_API_KEY / 401), ask the Project coordinator to CreateAgent and return the id — do not stall on the owner. Merge proven PRs via tools/merge_project_prs.py into existing bases without retarget when gh pr edit --base hits "Resource not accessible by integration"; do not ask the owner for merge approval. After opening any PR, ask the Project coordinator to subscribe (local-env review only; no Codex-on-GitHub / Actions).

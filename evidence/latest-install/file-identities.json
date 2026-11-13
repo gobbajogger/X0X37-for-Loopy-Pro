@@ -1,0 +1,142 @@
+[
+  {
+    "file": ".gitignore",
+    "bytes": 30,
+    "sha256": "f312a743b1eafba494c541bfa482bbdd56f766a813ba63e9d504b2632d231499"
+  },
+  {
+    "file": "after/snapshot.json",
+    "bytes": 2615,
+    "sha256": "b994a33755e816add4a08da10dff656f03537864dd19249afa549b89461c3b8f"
+  },
+  {
+    "file": "artifact-verification.json",
+    "bytes": 2235,
+    "sha256": "92482d772025178d835475e38139d20858e6ceed1ed2b91b03d99cc1a6e510ca"
+  },
+  {
+    "file": "attempt-1.json",
+    "bytes": 482,
+    "sha256": "0030e2c0eb4c4d15dc2d080fab277ff3c691395387b29dbbc993fb1e81b7a217"
+  },
+  {
+    "file": "before/snapshot.json",
+    "bytes": 2619,
+    "sha256": "e3b996c37744b4db566d53ec68308a32f9c8cce9f99fce206d5a5ad9a392a0a6"
+  },
+  {
+    "file": "build-environment.json",
+    "bytes": 781,
+    "sha256": "024483b4597822c5db251e8bd849f1e4a69ff288f3bee9d08e71cdb03417c6cf"
+  },
+  {
+    "file": "dev-plan-linux.json",
+    "bytes": 2318,
+    "sha256": "906d31bb772088586f9de1ab49192572cebda0920590bdcc99b4bc086b22b045"
+  },
+  {
+    "file": "dev-plan.json",
+    "bytes": 1900,
+    "sha256": "3f5a426bfc66ecae2481683545ab5e5ae5b7beed1a6156509e416974c3124e2e"
+  },
+  {
+    "file": "device_snapshot.py",
+    "bytes": 3351,
+    "sha256": "74580c9be0f03599d5b78968a8f4fac52495e10d66a174a279f871febe52cf70"
+  },
+  {
+    "file": "elite/check-0.log",
+    "bytes": 7900,
+    "sha256": "c234c99b57c0f4d70a164e2f34b15e5ade311683b68e574a0a798ab919c15990"
+  },
+  {
+    "file": "elite-linux/build.log",
+    "bytes": 1439,
+    "sha256": "af7de3ce24e01e32a68e78130970410293ece837e1f1833466bca8cebdb9842d"
+  },
+  {
+    "file": "elite-linux/check-0.log",
+    "bytes": 132,
+    "sha256": "194a3e232aa3813a247823b37095d7edc47e33a301658a296f40acabe3631afd"
+  },
+  {
+    "file": "elite-linux/controller.log",
+    "bytes": 811,
+    "sha256": "c667ff7f3581126d94f66cde952bf44489dd215874cdd4f316fdea2015212b9d"
+  },
+  {
+    "file": "elite-linux/package-layout.log",
+    "bytes": 439,
+    "sha256": "8e7ffb6b973257e15e2c05331715507d2ce866dfe9d87f414d506f235856653b"
+  },
+  {
+    "file": "elite-linux/record.json",
+    "bytes": 23470,
+    "sha256": "23a621de82db6642cddc491bf0577420404a634bfe03d625d03e88af76baa4b5"
+  },
+  {
+    "file": "finalize.py",
+    "bytes": 3004,
+    "sha256": "21853d7018ecf4ea4c20941ac79d30e4ba9a833c4b15b765b20a37c841d3d22a"
+  },
+  {
+    "file": "install-ledger.json",
+    "bytes": 7331,
+    "sha256": "515b0566464fbfbcad21cb2789c3d59a87ae6c42dd8d15dbf31cd5a0c28d302e"
+  },
+  {
+    "file": "install-record.json",
+    "bytes": 11786,
+    "sha256": "b2c516cb20dcb6f8a5a120cc3769292378a87cb4285996bd82d38b3f7256a2f0"
+  },
+  {
+    "file": "install.log",
+    "bytes": 22534,
+    "sha256": "e1dfdc1314045b721a6ba9fa2740703d86deccb5d8255f19a7d98b7f429b4ce8"
+  },
+  {
+    "file": "install_watched.py",
+    "bytes": 6132,
+    "sha256": "e4ca3d546e8a092e2730f5ff7ebbc2e83008f511ed92ce758bc18760e6e87d62"
+  },
+  {
+    "file": "native-repair-prompt.txt",
+    "bytes": 4372,
+    "sha256": "4e918d663a344cfba430c8e5da6d9f49f062fd4e707d3a122138aa877bb8dbcb"
+  },
+  {
+    "file": "native-repair-successor.json",
+    "bytes": 674,
+    "sha256": "97878e88b96c0e00267a34521ae974e1eacc440f35fa1820be4ec58a4899760b"
+  },
+  {
+    "file": "preflight.json",
+    "bytes": 3371,
+    "sha256": "9288ba177a8dcc6258857e402f0a13679bed4ec431b8a2934f36370a8afcc469"
+  },
+  {
+    "file": "scope.json",
+    "bytes": 1521,
+    "sha256": "bbd26d003d729b7769b73c40662dc6ae5f19ea977f13219402d71bf3287b54e7"
+  },
+  {
+    "file": "source-comparison.json",
+    "bytes": 780,
+    "sha256": "69ac1fcdfb01b18ef7e06897954e6d8ac8c22050d5339e509c4a0c53db2bf140"
+  },
+  {
+    "file": "validation-linux.log",
+    "bytes": 3493,
+    "sha256": "f1f2e6e787a919d15d391a1e407d1172ba33318943580761987a71d9329a3134"
+  },
+  {
+    "file": "validation.log",
+    "bytes": 253,
+    "sha256": "f3c993cb2fc2529c30b164ed66df61a2c8c27ad528607b61457d09f820267586"
+  },
+  {
+    "file": "verify-artifacts.py",
+    "bytes": 3962,
+    "sha256": "21f3ba5024384ffeafc7ac4e98f8e395cdcc572aedcbdf2d284eca710192a8e4"
+  }
+]

@@ -1,0 +1,5 @@
+PASS sparse stream7 note representation/storage/copy/clear/pool-full schema checks
+PASS 1653 tagged rev11 storage/stage/legacy adoption checks WBL0; sound=2712 project=36420
+PASS sparse stream7 note representation/storage/copy/clear/pool-full schema checks
+PASS 1692 tagged rev11 storage/stage/legacy adoption checks WBL1; sound=2712 project=36420
+PASS 19 actual rev11 producer/browser pair and explicit adoption command checks
