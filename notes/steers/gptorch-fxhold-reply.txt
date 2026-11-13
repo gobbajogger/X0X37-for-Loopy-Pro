@@ -1,0 +1,19 @@
+I’ll check the new row 41 rule against the registry, archive and earlier button/arrow decisions, especially where a held FX button could steal navigation or leave an effect active.
+
+Yes, there are overlapping gestures, but no fundamental conflict with the new rule. It should replace the old FX-mapping gesture only, with clear priority over ordinary arrows while an FX button is held.
+
+The important points:
+
+HOME mapping is intentionally superseded. The archive’s HOME + FX-button assignment is obsolete under your new rule. Its old SELECT tap-latch/forced-low-pass behavior must not return on this momentary FX strip. General SELECT behavior elsewhere stays intact.
+
+< > already changes pages and navigates menus. While exactly one eligible FX button is held, the arrow must change its effect and do nothing else. Without a held FX button, normal navigation remains. SMC parameter arrows (0x62/0x63) are distinct from Rewind/Forward pattern controls (0x5B/0x5C), so bar-boundary pattern changes and their notifications can stay unchanged. Current routing.
+
+The biggest remaining ambiguity is quick-tap navigation. PR #800 starts the FX immediately, but some quick releases still open their old page. So it currently means “tap fires FX AND may navigate,” not “tap only fires FX.” My recommendation: make these four FX-strip buttons FX-only in FX context, with release ending the momentary effect. That would explicitly retire the older tap-to-open-page behavior for those buttons. Release behavior.
+
+Preserve other held-button ownership. Registry row 16’s original-target-until-release rule, rows 32–33’s per-peer locked context, row 37’s banks/pages and row 44’s pending-pattern behavior still apply. Capture the original button, peer, bus and FX page; don’t remap a different page because navigation changed underneath. Confirmation dialogs and clip mode should keep priority, and held arrows must not leak into navigation after release.
+
+Multiple holds and the glyph need a defined meaning. The current candidate safely consumes arrows without editing when several eligible FX buttons are held. I’d keep that. The top-bar glyph should identify the held button’s assigned effect, update with each step and disappear or switch to another held button on release. It must not pretend to summarize every active bus. This fits the registry’s truthful-display/held-screen requirements in rows 61 and 67.
+
+Separate existing problem: #800 still has an older transport mapping that conflicts with #789. That is not caused by this rule, but needs reconciliation before combined validation.
+
+The new chord already exists in #800’s source. These conclusions are from source, registry and archive inspection; runtime validation remains NOT_RUN. Your new rule settles HOME replacement, but does not by itself settle whether quick taps should retain their old page-opening side effect.

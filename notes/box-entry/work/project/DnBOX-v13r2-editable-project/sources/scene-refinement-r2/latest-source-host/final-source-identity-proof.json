@@ -1,0 +1,19 @@
+{
+  "source_commit": "d0c40c3f4a132348621c930f0a20b5a614e186f4",
+  "source_tree": "533564a4085bace9e65245b45affbc45c54a647e",
+  "status": "source render proof; review/native pending, not rollout",
+  "owner_bank_header_sha256": "be54ac2ac740ba92849dc09942740c99ccd81901990523337cc08cfc59df8d63",
+  "all_prior_component_pixels_byte_identical": {
+    "MIX-WAVE-current-state.png": true,
+    "FX-current-state.png": true,
+    "BREAKS-current-state.png": true,
+    "HOME-current-state.png": true
+  },
+  "source_unchanged": true,
+  "frames": {
+    "MIX-WAVE-current-state.png": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+    "FX-current-state.png": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+    "BREAKS-current-state.png": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+    "HOME-current-state.png": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d"
+  }
+}

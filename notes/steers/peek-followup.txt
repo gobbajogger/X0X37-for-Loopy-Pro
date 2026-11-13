@@ -1,0 +1,2 @@
+Set the author yourself to gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
+SMC PAGE LOCK (owner 22:23): when the SMC page is locked, page changes made on the SMC also peek: they briefly open the real page on the device screen, then return after 1200 ms, while the lock stays. Add it, test it and show it in the mockup.

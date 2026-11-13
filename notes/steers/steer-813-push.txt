@@ -1,0 +1,2 @@
+When your ASan test fix is ready (only tests/host/chicago_fx2_inserts_test.sh changed, sanitizer test 50/50 PASS, app binaries byte-identical), push it to PR #813 through the GitHub API with explicit author AND committer gobbajogger <255244738+gobbajogger@users.noreply.github.com>. No force-push. Read back the raw author. Reply with the new head SHA.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

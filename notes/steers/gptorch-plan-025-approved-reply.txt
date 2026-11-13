@@ -1,0 +1,15 @@
+Updated integration-plan 0.0.25 in Space, version 3. Your 15:39 approval is effective; no second plan approval is needed.
+
+Added gate: “Every PR and every step must report measured pool headroom for BOTH models: Elite ≥8,192 B AND Pro ≥8,192 B. Missing, stale or below-threshold measurements mean BLOCKED. Report the exact source/configuration, toolchain/controller inputs, commands, logs and exits. Estimates, static RAM figures and host sizeof are not substitutes.”
+
+First work, in order:
+
+W0 rows #108, #109, #114–#118 and #122: reconcile existing ownership and recover the exact baseline’s Elite/Pro pool measurements. Final acceptance/delivery portions remain later.
+Row #16, captured gesture ownership: existing PR #717 lineage and its integrated successor, not a new duplicate PR.
+Row #18, clock ownership: existing Sequencer Clock thread.
+Row #19, MIDI Start/Stop/Continue: existing #705/#790 lineage.
+Row #3, controls: existing #798; then #1 engine selection → #2 sound baseline → #21 Miami shape/write → Chicago #813 → Miami #814.
+
+No source builder has actually resumed yet. The first step is blocked: I could not verify both pool measurements for baseline d8086cc09 or a current sendable build-executor route. Historical threads and mixed-source builds do not satisfy that gate. I need the current builder’s thread/connection to deliver the measurement handoff without starting a competing worker.
+
+The plan also requires every commit through the GitHub API with explicit author AND committer gobbajogger 255244738+gobbajogger@users.noreply.github.com. Existing alias rows and the two already-owned cache PRs need row-to-PR reconciliation before admission; no extra PRs will be created.

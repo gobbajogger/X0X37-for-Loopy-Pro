@@ -1,0 +1,2 @@
+Log a ROADMAP row on PR #812: the rate-pad composition test fails on base build/0.0.24 (d8086cc09). It also failed in the #813 QA but isn't caused by #813. Source: #813 QA, 2026-11-01. Status: open, not to be fixed before the 18:00 show. Commit through the GitHub API with explicit author AND committer gobbajogger <255244738+gobbajogger@users.noreply.github.com>. Reply with the head SHA.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

@@ -1,0 +1,6 @@
+Owner decision, approved 15:21 UTC+10 on 2026-11-01. Update integration-plan 0.0.25 with it:
+- PANIC on the keyboard is FX+SEQ pressed together.
+- PANIC on the SMC is BANK L+R pressed together, in DAW mode only. There is no PANIC in MMC mode.
+- If PLAY is pressed while a question is open, it answers NO and then works as the normal PLAY toggle. Keep HOME+PLAY as redo.
+Remove every other PANIC placement, including PANIC on HOME and a long STOP hold. Check the plan for conflicts with this decision. Post the changed sections as plain text, not as an attachment, and say which sections changed. Builders stay paused until the owner approves the plan.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

@@ -1,0 +1,20 @@
+#813 QA final reply (chat 6ae6b5f7, reply to "Finish the #813 QA now", worked 27m 26s) -- transcription, values verbatim
+PR #813: urgent QA
+HEAD: a41651e9391012c19f9e09df04226f1f0c438afd | Base: d8086cc09203945919c70d3c805f8ca3e6acbe5a
+Build, X0X_DEV_PADCAL=0: Elite PASS, Pro PASS
+Free pool >= 8,192 B: Elite PASS (8,328 B), Pro PASS (8,328 B) (136 B above threshold)
+Bundled BT nightly package check: Elite PASS, Pro PASS
+Versioned nightly image hashes (--nightly-version 0.0.24, padcal off):
+Elite app x0x.bin 512,328 B 984a0f31577010b208db8bb1371cce2efa3b6de613e9222b8011bb4228e23149
+Pro app x0x.bin 512,328 B 07ed1b2201b2d6e077f0602461753f83ec4c5201247ac68a4d1f48a32f4ed4c3
+Elite BT-bundled .fwsc 651,570 B 079eb7b03f082b328fbb307c1a84d68c0f008f759967754d139fe83e6ad6ddb6
+Pro BT-bundled .fwsc 651,566 B e4d36d0595255a4788aa06cd38dff22f6c275fd424e45a85246be7af07516774
+package_nightly.py --check exit 0 for both; controller SHA-256 a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984, 61,552 B, CRC32 564a8f55.
+install-slots-web passes on #813 in Linux with Node 24.14.1.
+Full host suite: FAIL. Preflight 16 PASS/0 FAIL; completed 32, passed 30, failed 2, skipped 0; remaining not executed (run stopped; wrapper exit 137 deliberate).
+ - original-build: test_rate_pad_port_preserves_574f_press_ownership_and_native_eight_rates fails identically on base d8086cc09 and #813 (inherited; HAL header and test identical).
+ - chicago-fx2-inserts: normal DSP check passes, Linux AddressSanitizer run crashes (exit 139) on #813; matching base passes; cause unresolved.
+Audio identity: PASS 17 scenarios / 50 files.
+FINAL QA VERDICT: HOLD (full host suite FAIL). Not fully QA-qualified. Nothing installed, flashed, merged or published.
+
+Earlier in same chat (PR #813 + #814 combined QA): #814 head 448225f31acfdc24c75fbe3e09d883b82c263317 FAIL pool headroom 7944 B < 8192 B on Elite and Pro (since repaired to dcc9833f, see qa-814-dcc-result.txt).

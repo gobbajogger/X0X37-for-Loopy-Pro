@@ -1,0 +1,26 @@
+Independent QA: PR #814
+Target: PR #814 | Head: dcc9833f24b20ec2baf47beb131f937e32d95e11 | Base: d8086cc09203945919c70d3c805f8ca3e6acbe5a | GitHub tree: 2e0c17c1856e650324be60fecb09fa1110814eba
+Source inventory: 5,453 tree entries; no truncation. Repair moves Miami coefficient caches to shared per-part ownership; all 12 changed files match GitHub blobs.
+
+PASS: Miami coefficient-cache tests (-O2/-Os x hw/sw FMA; runtime-part struct 5,368 B vs 5,368 B limit).
+PASS: host render benchmark, no median slowdown. Base 133.849 ns/frame, PR #814 133.479 ns/frame (median of 9 interleaved runs, 1,024,000 frames; 0.28% faster, within noise).
+PASS: Elite build. App 512,136 B; OTA loader 7,454 B; unbundled package 651,570 B; pool 335,864/344,064 B; headroom 8,200 B (required 8,192).
+PASS: Pro build. App 512,120 B; OTA loader 7,450 B; unbundled package 651,566 B; pool 335,864/344,064 B; headroom 8,200 B.
+PASS: audio identity, 17 scenarios / 50 files bit-identical (0 differing).
+FAIL: full host suite, zero-failure requirement not met. Native full suite exit 1: passed 361, failed 31, skipped 0. Failures include smc-solo-overflow, smc-multi-peer, sound-matrix, scenario-plock, scenario-upload, original-build, usb-product-names. Some platform-dependent or inherited from base; original-build rate-pad failure independently reproduced on d8086cc09. Strict preflight passed 16/16 on native Mac and Linux. Linux full-suite did not finish (unverified).
+PASS: nightly package check. BT controller a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984 (61,552 B). Synthetic Elite/Pro composition tests pass. Dev packages rejected for DnBOX DEV label (expected). Versioned 0.0.24 nightly builds PASS: Elite app 512,200 B, Pro app 512,184 B, headroom 8,200 B each. Real bundled packages PASS (SMK-37 Elite_900 / SMK-37 Pro_900, controller ABI 2, pinned SHA, valid CRC, bundled: true).
+
+Built image hashes (unbundled exact-head dev artifacts, SHA-256):
+Elite application 512,136  db32189321b9483e58e932b428e2fb2f1a956dbcfcbb6ba34204dd1d5ffb75c4
+Elite OTA loader  7,454    db9d7a16b81582f68b8a0b9b52aa720878eeabf240cfbe3d8912accc70b939d4
+Elite .fwsc       651,570  577fcf107554d3bfbd794437075c9d683cdcdd054b93b2eaae7bdda91281fe5d
+Pro application   512,120  61075e55b6edf50002250429c5b37e6669618efc6bc078e630cf2355afb442c3
+Pro OTA loader    7,450    1bd8d9895d4f4b421a78b3a074d3c2a036f3c861f0a98a11dc0c2ca0250e4f67
+Pro .fwsc         651,566  21a0cd2c91678c4d16d0d8623ee16c2280e15662402b8986051acf1ca1045390
+Bundled nightly packages: Elite 651,570 8201f7fbb44650320c83d36df3d130b110e1fa2098b2078b418159b87f90a77b ; Pro 651,566 47b3d4b68edcbe0c2c2e19eb448cafe2f0d32cbe5bf9140f4e4bae564b03081f
+Versioned nightly app SHA-256: Elite 52c424c6a6f4c4ead3b1d2f52d9a79c069dc66270836e17110192403e90a4ca4 ; Pro e9cb9e0271d042801c8ab18826faaacfaf3182408e3ec4ea31e458c0f99a9635
+
+Acceptance summary: Elite build PASS; Pro build PASS; both pool checks PASS; both bundled nightly packages PASS; audio identity PASS; benchmark PASS; full host suite FAIL.
+FINAL QA VERDICT: FAIL. Recommendation: HOLD PR #814 for the live show until full-suite failures are resolved or established as acceptable baseline exceptions.
+Logs on the Mac: /Users/mac/X0X37-QA-814-HEAD-dcc9833f/logs/. No commits, pushes, installs, flashes or publication performed.
+(Condensed transcription of the final reply; all values verbatim.)

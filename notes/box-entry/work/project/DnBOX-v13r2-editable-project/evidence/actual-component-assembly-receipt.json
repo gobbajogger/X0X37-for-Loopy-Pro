@@ -1,0 +1,2051 @@
+{
+  "objects": {
+    "actual.WAVE.header": {
+      "bounds": [
+        0,
+        0,
+        240,
+        21
+      ],
+      "source_sha256": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.WAVE.header.solid",
+        "actual.WAVE.header.face"
+      ],
+      "geometry_pixel_runs": 495,
+      "final_target": [
+        0.0,
+        1.0950000286102295,
+        0.06666667014360428
+      ],
+      "page": "WAVE",
+      "route": {
+        "in": [
+          13,
+          25
+        ],
+        "out": [
+          49,
+          60
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          25,
+          48
+        ]
+      }
+    },
+    "actual.WAVE.scope": {
+      "bounds": [
+        0,
+        21,
+        204,
+        72
+      ],
+      "source_sha256": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.WAVE.scope.solid",
+        "actual.WAVE.scope.face"
+      ],
+      "geometry_pixel_runs": 72,
+      "final_target": [
+        -0.18000000715255737,
+        0.6299999952316284,
+        0.06666667014360428
+      ],
+      "page": "WAVE",
+      "route": {
+        "in": [
+          13,
+          25
+        ],
+        "out": [
+          49,
+          60
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          25,
+          48
+        ]
+      }
+    },
+    "actual.WAVE.gain_reduction": {
+      "bounds": [
+        204,
+        21,
+        36,
+        72
+      ],
+      "source_sha256": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.WAVE.gain_reduction.solid",
+        "actual.WAVE.gain_reduction.face"
+      ],
+      "geometry_pixel_runs": 325,
+      "final_target": [
+        1.0199999809265137,
+        0.6299999952316284,
+        0.06666667014360428
+      ],
+      "page": "WAVE",
+      "route": {
+        "in": [
+          13,
+          25
+        ],
+        "out": [
+          49,
+          60
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          25,
+          48
+        ]
+      }
+    },
+    "actual.WAVE.compression": {
+      "bounds": [
+        0,
+        93,
+        120,
+        64
+      ],
+      "source_sha256": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.WAVE.compression.solid",
+        "actual.WAVE.compression.face"
+      ],
+      "geometry_pixel_runs": 1133,
+      "final_target": [
+        -0.6000000238418579,
+        -0.05000000074505806,
+        0.06666667014360428
+      ],
+      "page": "WAVE",
+      "route": {
+        "in": [
+          25,
+          36
+        ],
+        "out": [
+          49,
+          60
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          36,
+          48
+        ]
+      }
+    },
+    "actual.WAVE.pump_status": {
+      "bounds": [
+        120,
+        93,
+        120,
+        64
+      ],
+      "source_sha256": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.WAVE.pump_status.solid",
+        "actual.WAVE.pump_status.face"
+      ],
+      "geometry_pixel_runs": 651,
+      "final_target": [
+        0.6000000238418579,
+        -0.05000000074505806,
+        0.06666667014360428
+      ],
+      "page": "WAVE",
+      "route": {
+        "in": [
+          25,
+          36
+        ],
+        "out": [
+          49,
+          60
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          36,
+          48
+        ]
+      }
+    },
+    "actual.WAVE.control.DRIVE": {
+      "bounds": [
+        0,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.WAVE.control.DRIVE.solid",
+        "actual.WAVE.control.DRIVE.face"
+      ],
+      "geometry_pixel_runs": 579,
+      "final_target": [
+        -0.8999999761581421,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "WAVE",
+      "route": {
+        "in": [
+          25,
+          36
+        ],
+        "out": [
+          49,
+          60
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          36,
+          48
+        ]
+      }
+    },
+    "actual.WAVE.control.COMP": {
+      "bounds": [
+        60,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.WAVE.control.COMP.solid",
+        "actual.WAVE.control.COMP.face"
+      ],
+      "geometry_pixel_runs": 651,
+      "final_target": [
+        -0.30000001192092896,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "WAVE",
+      "route": {
+        "in": [
+          25,
+          36
+        ],
+        "out": [
+          49,
+          60
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          36,
+          48
+        ]
+      }
+    },
+    "actual.WAVE.control.PUMP": {
+      "bounds": [
+        120,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.WAVE.control.PUMP.solid",
+        "actual.WAVE.control.PUMP.face"
+      ],
+      "geometry_pixel_runs": 787,
+      "final_target": [
+        0.30000001192092896,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "WAVE",
+      "route": {
+        "in": [
+          25,
+          36
+        ],
+        "out": [
+          49,
+          60
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          36,
+          48
+        ]
+      }
+    },
+    "actual.WAVE.control.FILTER": {
+      "bounds": [
+        180,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.WAVE.control.FILTER.solid",
+        "actual.WAVE.control.FILTER.face"
+      ],
+      "geometry_pixel_runs": 899,
+      "final_target": [
+        0.8999999761581421,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "WAVE",
+      "route": {
+        "in": [
+          25,
+          36
+        ],
+        "out": [
+          49,
+          60
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          36,
+          48
+        ]
+      }
+    },
+    "actual.WAVE.footer": {
+      "bounds": [
+        0,
+        227,
+        240,
+        13
+      ],
+      "source_sha256": "90252ffdec247b7aa4df0ce2b74270ed9f317dbf340253efce29fc407d6f353e",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.WAVE.footer.solid",
+        "actual.WAVE.footer.face"
+      ],
+      "geometry_pixel_runs": 905,
+      "final_target": [
+        0.0,
+        -1.1349999904632568,
+        0.06666667014360428
+      ],
+      "page": "WAVE",
+      "route": {
+        "in": [
+          25,
+          36
+        ],
+        "out": [
+          49,
+          60
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          36,
+          48
+        ]
+      }
+    },
+    "actual.BREAK.header": {
+      "bounds": [
+        0,
+        0,
+        240,
+        21
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.header.solid",
+        "actual.BREAK.header.face"
+      ],
+      "geometry_pixel_runs": 669,
+      "final_target": [
+        0.0,
+        1.0950000286102295,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.slice.1": {
+      "bounds": [
+        0,
+        21,
+        33,
+        68
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.slice.1.solid",
+        "actual.BREAK.slice.1.face"
+      ],
+      "geometry_pixel_runs": 190,
+      "final_target": [
+        -1.034999966621399,
+        0.6499999761581421,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.slice.2": {
+      "bounds": [
+        33,
+        21,
+        29,
+        68
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.slice.2.solid",
+        "actual.BREAK.slice.2.face"
+      ],
+      "geometry_pixel_runs": 212,
+      "final_target": [
+        -0.7250000238418579,
+        0.6499999761581421,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.slice.3": {
+      "bounds": [
+        62,
+        21,
+        29,
+        68
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.slice.3.solid",
+        "actual.BREAK.slice.3.face"
+      ],
+      "geometry_pixel_runs": 208,
+      "final_target": [
+        -0.4350000023841858,
+        0.6499999761581421,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.slice.4": {
+      "bounds": [
+        91,
+        21,
+        29,
+        68
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.slice.4.solid",
+        "actual.BREAK.slice.4.face"
+      ],
+      "geometry_pixel_runs": 226,
+      "final_target": [
+        -0.14499999582767487,
+        0.6499999761581421,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.slice.5": {
+      "bounds": [
+        120,
+        21,
+        29,
+        68
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.slice.5.solid",
+        "actual.BREAK.slice.5.face"
+      ],
+      "geometry_pixel_runs": 268,
+      "final_target": [
+        0.14499999582767487,
+        0.6499999761581421,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.slice.6": {
+      "bounds": [
+        149,
+        21,
+        29,
+        68
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.slice.6.solid",
+        "actual.BREAK.slice.6.face"
+      ],
+      "geometry_pixel_runs": 285,
+      "final_target": [
+        0.4350000023841858,
+        0.6499999761581421,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.slice.7": {
+      "bounds": [
+        178,
+        21,
+        29,
+        68
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.slice.7.solid",
+        "actual.BREAK.slice.7.face"
+      ],
+      "geometry_pixel_runs": 213,
+      "final_target": [
+        0.7250000238418579,
+        0.6499999761581421,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.slice.8": {
+      "bounds": [
+        207,
+        21,
+        33,
+        68
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.slice.8.solid",
+        "actual.BREAK.slice.8.face"
+      ],
+      "geometry_pixel_runs": 256,
+      "final_target": [
+        1.034999966621399,
+        0.6499999761581421,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.steps": {
+      "bounds": [
+        0,
+        89,
+        240,
+        15
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.steps.solid",
+        "actual.BREAK.steps.face"
+      ],
+      "geometry_pixel_runs": 718,
+      "final_target": [
+        0.0,
+        0.23499999940395355,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.slot_names": {
+      "bounds": [
+        0,
+        104,
+        240,
+        24
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.slot_names.solid",
+        "actual.BREAK.slot_names.face"
+      ],
+      "geometry_pixel_runs": 800,
+      "final_target": [
+        0.0,
+        0.03999999910593033,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.negative_space": {
+      "bounds": [
+        0,
+        128,
+        240,
+        29
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.negative_space.solid",
+        "actual.BREAK.negative_space.face"
+      ],
+      "geometry_pixel_runs": 29,
+      "final_target": [
+        0.0,
+        -0.22499999403953552,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.control.LOOP_A": {
+      "bounds": [
+        0,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.control.LOOP_A.solid",
+        "actual.BREAK.control.LOOP_A.face"
+      ],
+      "geometry_pixel_runs": 823,
+      "final_target": [
+        -0.8999999761581421,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.control.LOOP_B": {
+      "bounds": [
+        60,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.control.LOOP_B.solid",
+        "actual.BREAK.control.LOOP_B.face"
+      ],
+      "geometry_pixel_runs": 740,
+      "final_target": [
+        -0.30000001192092896,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.control.B_CHANCE": {
+      "bounds": [
+        120,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.control.B_CHANCE.solid",
+        "actual.BREAK.control.B_CHANCE.face"
+      ],
+      "geometry_pixel_runs": 785,
+      "final_target": [
+        0.30000001192092896,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.control.PITCH": {
+      "bounds": [
+        180,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.control.PITCH.solid",
+        "actual.BREAK.control.PITCH.face"
+      ],
+      "geometry_pixel_runs": 916,
+      "final_target": [
+        0.8999999761581421,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.BREAK.footer": {
+      "bounds": [
+        0,
+        227,
+        240,
+        13
+      ],
+      "source_sha256": "aea2cf8d2019750bc7f9d3d54b30ef7d006214142d5cdf26e95084547c4554c6",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.BREAK.footer.solid",
+        "actual.BREAK.footer.face"
+      ],
+      "geometry_pixel_runs": 905,
+      "final_target": [
+        0.0,
+        -1.1349999904632568,
+        0.06666667014360428
+      ],
+      "page": "BREAK",
+      "route": {
+        "in": [
+          49,
+          60
+        ],
+        "out": [
+          73,
+          84
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          60,
+          72
+        ]
+      }
+    },
+    "actual.FX.header": {
+      "bounds": [
+        0,
+        0,
+        240,
+        21
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.header.solid",
+        "actual.FX.header.face"
+      ],
+      "geometry_pixel_runs": 415,
+      "final_target": [
+        0.0,
+        1.0950000286102295,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.column_names": {
+      "bounds": [
+        0,
+        21,
+        240,
+        12
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.column_names.solid",
+        "actual.FX.column_names.face"
+      ],
+      "geometry_pixel_runs": 507,
+      "final_target": [
+        0.0,
+        0.9300000071525574,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.send.909": {
+      "bounds": [
+        0,
+        33,
+        240,
+        11
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.send.909.solid",
+        "actual.FX.send.909.face"
+      ],
+      "geometry_pixel_runs": 210,
+      "final_target": [
+        0.0,
+        0.8149999976158142,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.send.808": {
+      "bounds": [
+        0,
+        44,
+        240,
+        11
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.send.808.solid",
+        "actual.FX.send.808.face"
+      ],
+      "geometry_pixel_runs": 210,
+      "final_target": [
+        0.0,
+        0.7049999833106995,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.send.BRK": {
+      "bounds": [
+        0,
+        55,
+        240,
+        11
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.send.BRK.solid",
+        "actual.FX.send.BRK.face"
+      ],
+      "geometry_pixel_runs": 234,
+      "final_target": [
+        0.0,
+        0.5950000286102295,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.send.CHI": {
+      "bounds": [
+        0,
+        66,
+        240,
+        11
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.send.CHI.solid",
+        "actual.FX.send.CHI.face"
+      ],
+      "geometry_pixel_runs": 232,
+      "final_target": [
+        0.0,
+        0.48500001430511475,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.send.MIA": {
+      "bounds": [
+        0,
+        77,
+        240,
+        11
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.send.MIA.solid",
+        "actual.FX.send.MIA.face"
+      ],
+      "geometry_pixel_runs": 242,
+      "final_target": [
+        0.0,
+        0.375,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.effect_status": {
+      "bounds": [
+        0,
+        88,
+        240,
+        45
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.effect_status.solid",
+        "actual.FX.effect_status.face"
+      ],
+      "geometry_pixel_runs": 1834,
+      "final_target": [
+        0.0,
+        0.0949999988079071,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.negative_space": {
+      "bounds": [
+        0,
+        133,
+        240,
+        24
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.negative_space.solid",
+        "actual.FX.negative_space.face"
+      ],
+      "geometry_pixel_runs": 24,
+      "final_target": [
+        0.0,
+        -0.25,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.control.DECAY": {
+      "bounds": [
+        0,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.control.DECAY.solid",
+        "actual.FX.control.DECAY.face"
+      ],
+      "geometry_pixel_runs": 591,
+      "final_target": [
+        -0.8999999761581421,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.control.TONE": {
+      "bounds": [
+        60,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.control.TONE.solid",
+        "actual.FX.control.TONE.face"
+      ],
+      "geometry_pixel_runs": 603,
+      "final_target": [
+        -0.30000001192092896,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.control.EMPTY_3": {
+      "bounds": [
+        120,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.control.EMPTY_3.solid",
+        "actual.FX.control.EMPTY_3.face"
+      ],
+      "geometry_pixel_runs": 120,
+      "final_target": [
+        0.30000001192092896,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.control.EMPTY_4": {
+      "bounds": [
+        180,
+        157,
+        60,
+        70
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.control.EMPTY_4.solid",
+        "actual.FX.control.EMPTY_4.face"
+      ],
+      "geometry_pixel_runs": 407,
+      "final_target": [
+        0.8999999761581421,
+        -0.7200000286102295,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.FX.footer": {
+      "bounds": [
+        0,
+        227,
+        240,
+        13
+      ],
+      "source_sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.FX.footer.solid",
+        "actual.FX.footer.face"
+      ],
+      "geometry_pixel_runs": 905,
+      "final_target": [
+        0.0,
+        -1.1349999904632568,
+        0.06666667014360428
+      ],
+      "page": "FX",
+      "route": {
+        "in": [
+          73,
+          84
+        ],
+        "out": [
+          97,
+          109
+        ],
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          84,
+          96
+        ]
+      }
+    },
+    "actual.HOME.header": {
+      "bounds": [
+        0,
+        0,
+        240,
+        21
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.header.solid",
+        "actual.HOME.header.face"
+      ],
+      "geometry_pixel_runs": 575,
+      "final_target": [
+        0.0,
+        1.0950000286102295,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          97,
+          108
+        ],
+        "out": null,
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          108,
+          192
+        ]
+      }
+    },
+    "actual.HOME.pattern.bank1": {
+      "bounds": [
+        0,
+        21,
+        60,
+        32
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.pattern.bank1.solid",
+        "actual.HOME.pattern.bank1.face"
+      ],
+      "geometry_pixel_runs": 386,
+      "final_target": [
+        -0.8999999761581421,
+        0.8299999833106995,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          97,
+          108
+        ],
+        "out": null,
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          108,
+          192
+        ]
+      }
+    },
+    "actual.HOME.pattern.bank2": {
+      "bounds": [
+        60,
+        21,
+        60,
+        32
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.pattern.bank2.solid",
+        "actual.HOME.pattern.bank2.face"
+      ],
+      "geometry_pixel_runs": 388,
+      "final_target": [
+        -0.30000001192092896,
+        0.8299999833106995,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          97,
+          108
+        ],
+        "out": null,
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          108,
+          192
+        ]
+      }
+    },
+    "actual.HOME.pattern.bank3": {
+      "bounds": [
+        120,
+        21,
+        56,
+        32
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.pattern.bank3.solid",
+        "actual.HOME.pattern.bank3.face"
+      ],
+      "geometry_pixel_runs": 390,
+      "final_target": [
+        0.2800000011920929,
+        0.8299999833106995,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          97,
+          108
+        ],
+        "out": null,
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          108,
+          192
+        ]
+      }
+    },
+    "actual.HOME.pattern.bank4": {
+      "bounds": [
+        176,
+        21,
+        64,
+        32
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.pattern.bank4.solid",
+        "actual.HOME.pattern.bank4.face"
+      ],
+      "geometry_pixel_runs": 412,
+      "final_target": [
+        0.8799999952316284,
+        0.8299999833106995,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          97,
+          108
+        ],
+        "out": null,
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          108,
+          192
+        ]
+      }
+    },
+    "actual.HOME.lane.909": {
+      "bounds": [
+        0,
+        53,
+        240,
+        16
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.lane.909.solid",
+        "actual.HOME.lane.909.face"
+      ],
+      "geometry_pixel_runs": 703,
+      "final_target": [
+        0.0,
+        0.5899999737739563,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          120
+        ],
+        "out": null,
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          120,
+          192
+        ]
+      }
+    },
+    "actual.HOME.lane.808": {
+      "bounds": [
+        0,
+        69,
+        240,
+        16
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.lane.808.solid",
+        "actual.HOME.lane.808.face"
+      ],
+      "geometry_pixel_runs": 703,
+      "final_target": [
+        0.0,
+        0.4300000071525574,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          120
+        ],
+        "out": null,
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          120,
+          192
+        ]
+      }
+    },
+    "actual.HOME.lane.BRK": {
+      "bounds": [
+        0,
+        85,
+        240,
+        16
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.lane.BRK.solid",
+        "actual.HOME.lane.BRK.face"
+      ],
+      "geometry_pixel_runs": 696,
+      "final_target": [
+        0.0,
+        0.27000001072883606,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          120
+        ],
+        "out": null,
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          120,
+          192
+        ]
+      }
+    },
+    "actual.HOME.lane.CHI": {
+      "bounds": [
+        0,
+        101,
+        240,
+        16
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.lane.CHI.solid",
+        "actual.HOME.lane.CHI.face"
+      ],
+      "geometry_pixel_runs": 698,
+      "final_target": [
+        0.0,
+        0.10999999940395355,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          120
+        ],
+        "out": null,
+        "direction": "LEFT\u2192RIGHT",
+        "held": [
+          120,
+          192
+        ]
+      }
+    },
+    "actual.HOME.lane.MIA": {
+      "bounds": [
+        0,
+        117,
+        240,
+        20
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.lane.MIA.solid",
+        "actual.HOME.lane.MIA.face"
+      ],
+      "geometry_pixel_runs": 727,
+      "final_target": [
+        0.0,
+        -0.07000000029802322,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          120
+        ],
+        "out": null,
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          120,
+          192
+        ]
+      }
+    },
+    "actual.HOME.negative_space": {
+      "bounds": [
+        0,
+        137,
+        240,
+        20
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.negative_space.solid",
+        "actual.HOME.negative_space.face"
+      ],
+      "geometry_pixel_runs": 20,
+      "final_target": [
+        0.0,
+        -0.27000001072883606,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          169
+        ],
+        "out": null,
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          169,
+          192
+        ]
+      }
+    },
+    "actual.HOME.perform_label": {
+      "bounds": [
+        0,
+        157,
+        240,
+        14
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.perform_label.solid",
+        "actual.HOME.perform_label.face"
+      ],
+      "geometry_pixel_runs": 356,
+      "final_target": [
+        0.0,
+        -0.4399999976158142,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          169
+        ],
+        "out": null,
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          169,
+          192
+        ]
+      }
+    },
+    "actual.HOME.control.TEMPO": {
+      "bounds": [
+        0,
+        171,
+        60,
+        56
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.control.TEMPO.solid",
+        "actual.HOME.control.TEMPO.face"
+      ],
+      "geometry_pixel_runs": 816,
+      "final_target": [
+        -0.8999999761581421,
+        -0.7900000214576721,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          169
+        ],
+        "out": null,
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          169,
+          192
+        ]
+      }
+    },
+    "actual.HOME.control.SWING": {
+      "bounds": [
+        60,
+        171,
+        60,
+        56
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.control.SWING.solid",
+        "actual.HOME.control.SWING.face"
+      ],
+      "geometry_pixel_runs": 746,
+      "final_target": [
+        -0.30000001192092896,
+        -0.7900000214576721,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          169
+        ],
+        "out": null,
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          169,
+          192
+        ]
+      }
+    },
+    "actual.HOME.control.FILTER": {
+      "bounds": [
+        120,
+        171,
+        60,
+        56
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.control.FILTER.solid",
+        "actual.HOME.control.FILTER.face"
+      ],
+      "geometry_pixel_runs": 652,
+      "final_target": [
+        0.30000001192092896,
+        -0.7900000214576721,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          169
+        ],
+        "out": null,
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          169,
+          192
+        ]
+      }
+    },
+    "actual.HOME.control.PUMP": {
+      "bounds": [
+        180,
+        171,
+        60,
+        56
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.control.PUMP.solid",
+        "actual.HOME.control.PUMP.face"
+      ],
+      "geometry_pixel_runs": 769,
+      "final_target": [
+        0.8999999761581421,
+        -0.7900000214576721,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          169
+        ],
+        "out": null,
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          169,
+          192
+        ]
+      }
+    },
+    "actual.HOME.footer": {
+      "bounds": [
+        0,
+        227,
+        240,
+        13
+      ],
+      "source_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+      "children": [
+        "actual.HOME.footer.solid",
+        "actual.HOME.footer.face"
+      ],
+      "geometry_pixel_runs": 905,
+      "final_target": [
+        0.0,
+        -1.1349999904632568,
+        0.06666667014360428
+      ],
+      "page": "HOME",
+      "route": {
+        "in": [
+          109,
+          169
+        ],
+        "out": null,
+        "direction": "RIGHT\u2192LEFT",
+        "held": [
+          169,
+          192
+        ]
+      }
+    }
+  },
+  "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+  "approved_audio_sha256": "19dbec641016005cde1e3b9fa4c89497e7eab8c252840d5791dbca3794febb14",
+  "final_home_matrices_constant": [
+    169,
+    181,
+    192
+  ],
+  "no_file_image_textures": true,
+  "whole_page_crossfade": false,
+  "pending": "Source candidate b57 physical fader fix supersession; rendered HOME/FX pixel state already correct"
+}

@@ -1,0 +1,33 @@
+### F7 - Pads diagnostics, truthful checks, release packaging (rows 74, 107, 108, 110-118, 121, 122)
+Scope: 74 SMK37 dead-pad diagnostic, 107 reliability under joint load, 108 keep old fixes (port #687 test from draft PR #782), 110 daily-use check with no new gaps, 111-113 one NIGHTLY with both model packages via existing installer, 114 separate readiness states, 115 independent check of final inputs, 116 request tracker, 117 shorter request-to-feature path, 118 production vs NIGHTLY, 121 M-VAVE firmware/simulator, 122 review completeness.
+Existing: chat/remaining-features, #693/wip/orchestrator, #646 fail-closed (in), #782, x0x37-results/padcal. Row 73 (recovery bootloader) EXCLUDED: bootloader is forbidden - owner decision needed.
+Visual: YES for row 74 pad diagnostic screen only.
+
+Rows 119/120 (community library, owner-voice inbox) are process/web - F6 (119); 120 needs owner decision, not a firmware PR.
+
+## Feature briefs (from feature-inventory-0.0.22 corrected: 20 done, 92 partial, 10 missing)
+Already in 0.0.23 / handled elsewhere (do NOT include): #692, #651, #677, #693 (nav wrap is in 0.0.23), #168, SMC FX captions; #688 remainder = PR #788; SMC popup = PR #789.
+
+Order / file ownership (to avoid overlap):
+- F1 engines (firmware/src/engine/original_*, experiments/original_synth) - must start after B2 or be done by the same session (same files).
+- F2 sequencer/record (seq*.c, rec*, project_runtime).
+- F3 BREAKS (break*.c, stock breaks).
+- F4 SMC/mixer remainder (smc_mixer.c, ble peer names) - stacked on #788 + #789 after they merge.
+- F5 keyboard UI glyphs/theme (ui.c draw_* only, ui_theme) - after #789 merges (ui.c).
+- F6 web site + editor (web/, tools/web*) - not installer connection code (that is B1).
+- F7 pads diagnostics + truthful checks + release packaging (tools/, tests/, smk pad diag).
+
+## Common rules (paste into every brief)
+- Author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>. One brief = one branch from build/0.0.23 = one PR into build/0.0.23 (or the named stacked base).
+- Never touch main, never touch .github/ or Actions.
+- SDK V1.2.1. Build Elite and Pro with X0X_DEV_PADCAL=0. Report static RAM free for both (0.0.23 = 2352 B). Free RAM must not go down without a written reason.
+- No FM-1 code or targets. Do not touch BTIF, USRTRIM, efuse, key_mac or the bootloader.
+- Never use the USB name for device identity (use the package identity / model id).
+- No Miami ADSR.
+- Never reinvent: port the existing implementation named in the brief (cherry-pick or git cherry check first; record which commits you ported, which were already in, and why anything was dropped).
+- Visual changes: attach real-framebuffer BEFORE/AFTER PNGs (host framebuffer dump, 240x240, not drawings) and stop for owner approval before merge.
+- Do not weaken or delete test checks. If a check must change, explain the old and new behaviour in the PR. Register every new test in the host suite.
+- Use the Superpowers and Compound Engineering plugins (plan, TDD, ce-code-review before PR).
+Exclude row 73 (bootloader) and row 120.
+
+One new PR, base build/0.0.23. Do not duplicate other briefs' scope (file ownership above). Report the PR URL, SHA, RAM (Elite/Pro), tests and mockup paths. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

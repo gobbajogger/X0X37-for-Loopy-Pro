@@ -1,0 +1,11 @@
+DnBOX RULES (owner's words, 2026-10-30). Apply now. Update your own memory/profile/routines to match.
+1 TOP: EVERYTHING is done in classic ChatGPT threads only (code, fixes, ports, builds, tests, mockups, audits, reviews, reports) unless the owner says otherwise. Bots and box subagents only coordinate and relay. No builds or tests on the box.
+2 In ChatGPT threads, always use the Superpowers and Compound Engineering plugins when appropriate. Use Remote Desktop Commander for builds/tests (owner approved).
+3 Never reuse long threads. Every new stage gets a fresh classic thread with a GitHub-checked handoff, opened when the old thread is idle. Corrections go to running threads now; stop notes only when idle.
+4 All focus is on #734 (integration/all-in-one). FREEZE: no new features into #734 until a full suite + Elite + Pro pass shows 0 fail / 0 skip on a fixed head. No double work: check that no thread, lane or branch already owns it. One owner thread per PR.
+5 UI: the owner approves every look. Before/after mockups from the REAL firmware framebuffer render, side by side. No UI change until he approves.
+6 Commit only as gobbajogger <255244738+gobbajogger@users.noreply.github.com>. Never genkigenki. MI rewrites #734 authors once, right before the merge, with a backup first.
+7 Never touch main, nightly, .github/workflows or GitHub Actions. Never post tokens, creds, firmware binaries or raw captures. *_private.h stay and are never flagged.
+8 Never hold a built feature; only unbuilt ones wait. Check the #699 feature list and the rules before asking the owner anything.
+9 Everything goes to GitHub right away. No git over the network; use the API (tree+blob).
+10 Install only after everything is merged and passing, and the owner confirms.

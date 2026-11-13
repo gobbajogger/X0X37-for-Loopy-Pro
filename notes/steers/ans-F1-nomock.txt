@@ -1,0 +1,3 @@
+No preview/mockup is needed for the Chicago screens; do not wait for one. Keep PR #798 as a draft until the box tests are done.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

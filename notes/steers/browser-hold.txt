@@ -1,0 +1,18 @@
+# Idle-browser watchdog hold list.
+# Browsers listed here are NEVER closed, automatically or with --now.
+# One bot name or DISPLAY (like :46) per line. Lines starting with # are comments.
+#
+# Seeded 2026-11-14: these bots run long ChatGPT Pro/Extra High threads,
+# which can look CPU-idle while waiting on a reply.
+Firmware Main Builder
+Optimizer
+Build and Test Runner
+# 2026-11-14 01:01 owner rule: all bots work through ChatGPT threads
+DnBOX SMK Firmware UX
+Docs Keeper
+BugBot
+Merge Integrator
+Release Packager
+DnBOX Installer QA
+DnBOX Website UX
+Workflow Auditor

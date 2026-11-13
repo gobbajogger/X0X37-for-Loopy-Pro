@@ -1,0 +1,23 @@
+SUPERSEDED 22:15 UTC+10: do NOT target integration/all-in-one. Live target is wip/one-build via the #734 batch (base fix by FMB first). Bring any built work from this task into #734 by hand-combining; post results there.
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+
+Task: fix the host-suite failures on the batch. Repo gobbajogger/X0X37-for-Loopy-Pro. Base: integration/all-in-one at 70ec6074 (GitHub-verified 21:51 UTC+10; 219 ahead of wip/one-build 8ac1ed62). Create the new branch fix/batch-host-failures from 70ec6074 and open ONE draft PR into integration/all-in-one (never main or nightly).
+Evidence (reported, #721 box check at e189819d): 260 pass / 57 fail. Logs: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/box/host-setup/tools/box-host-setup/results/721-e189819 (see also the comments on PR #721).
+Top errors:
+- ld multiple definition of bass303_set_bend (bass303, drum808)
+- implicit declaration of ED_MAINTENANCE_HELD (editor-ota-dispatch) and ui_boot_flash_busy (smk-clip-chord-display, smk-clip-knob)
+- smk-clip-isolation: struct has no member keys
+- padcal-flag: X0X_DEV_PADCAL env not passed
+- bass-tagged-storage: project_prepare_legacy_file == -10
+- ~24 scenario-* expectation fails (sound2.0.0 48/58 got 127, page==6 got 0, unknown command brkwrap)
+Ignore GCC14-only items (static x0x_tanh_value in inline, unlink decl) unless they also fail on clang.
+Source: tree/blob API per https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/docs/full-source-fetch/docs/FULL-SOURCE-FETCH.md (never zipball, never git over network). SDK V1.2.1 from project files.
+Run the full host suite plus Elite and Pro builds in your own cloud; target 0 fail. Post a PR status comment (SHA, base, full results, next step, blockers).
+Rules: push only new work via the GitHub plugin/API; commits as gobbajogger only; no .github/ changes; keep all private headers; NEVER GitHub Actions; approve your own posts and GitHub actions; no installs. Click Allow on repo GitHub cards.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

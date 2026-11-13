@@ -1,0 +1,89 @@
+HOST MEASURED box-entry frame budget
+elapsed 18.89s
+frame 36 vs HOME-240 differing pixels: 0
+identical groups: ['frames 1-5 (5 copies)', 'frame 6', 'frame 7', 'frame 8', 'frame 9', 'frame 10', 'frame 11', 'frame 12', 'frame 13', 'frame 14', 'frame 15', 'frame 16', 'frame 17', 'frame 18', 'frame 19', 'frame 20', 'frame 21', 'frame 22', 'frame 23', 'frame 24', 'frame 25', 'frames 26-36 (11 copies)']
+unique RGB565 colors frames 1-35: 1484
+unique RGB565 colors all 36: 1484
+
+Per-frame (1..36): i uniq dirty bbox(x,y,w,h) rle xor_rle dirty_span_rle bbox_rle lz xor_lz spi_bbox_ms
+   1    526  57600 [0, 0, 240, 240] rle= 36349 xor= 36349 dsr= 36349 bb= 36349 lz= 30045 xorlz= 30045 spi=76.8ms
+   2    526      0 [0, 0, 0, 0] rle= 36349 xor=  1350 dsr=     6 bb=     2 lz= 30045 xorlz=  2672 spi=0.0ms
+   3    526      0 [0, 0, 0, 0] rle= 36349 xor=  1350 dsr=     6 bb=     2 lz= 30045 xorlz=  2672 spi=0.0ms
+   4    526      0 [0, 0, 0, 0] rle= 36349 xor=  1350 dsr=     6 bb=     2 lz= 30045 xorlz=  2672 spi=0.0ms
+   5    526      0 [0, 0, 0, 0] rle= 36349 xor=  1350 dsr=     6 bb=     2 lz= 30045 xorlz=  2672 spi=0.0ms
+   6    533    600 [12, 28, 199, 197] rle= 36255 xor=  4201 dsr=  5042 bb= 26585 lz= 29944 xorlz=  4618 spi=52.3ms
+   7    523   5823 [11, 26, 200, 201] rle= 36307 xor= 22325 dsr= 32781 bb= 27203 lz= 29742 xorlz= 19484 spi=53.6ms
+   8    530  16645 [11, 26, 200, 202] rle= 35780 xor= 33926 dsr= 44411 bb= 26654 lz= 29587 xorlz= 30944 spi=53.9ms
+   9    514  27675 [10, 25, 202, 206] rle= 35662 xor= 37033 dsr= 39090 bb= 27331 lz= 30032 xorlz= 34595 spi=55.5ms
+  10    533  37064 [9, 24, 204, 211] rle= 36709 xor= 40807 dsr= 37417 bb= 29790 lz= 30287 xorlz= 38069 spi=57.4ms
+  11    490  42530 [3, 21, 212, 219] rle= 36701 xor= 45278 dsr= 36477 bb= 32382 lz= 31022 xorlz= 42102 spi=61.9ms
+  12    468  46293 [0, 19, 218, 221] rle= 36643 xor= 49778 dsr= 35760 bb= 32793 lz= 33084 xorlz= 46885 spi=64.2ms
+  13    394  45978 [0, 16, 223, 224] rle= 37967 xor= 53568 dsr= 39989 bb= 34780 lz= 35240 xorlz= 51882 spi=66.6ms
+  14    436  45878 [0, 12, 233, 228] rle= 40359 xor= 58612 dsr= 45942 bb= 37906 lz= 37853 xorlz= 57356 spi=70.8ms
+  15    480  46567 [0, 8, 240, 232] rle= 45420 xor= 64854 dsr= 52625 bb= 44820 lz= 42840 xorlz= 64057 spi=74.2ms
+  16    551  54238 [0, 4, 240, 236] rle= 48918 xor= 72248 dsr= 52613 bb= 48864 lz= 45226 xorlz= 71695 spi=75.5ms
+  17    581  48817 [0, 0, 240, 240] rle= 55751 xor= 73706 dsr= 60026 bb= 55759 lz= 48260 xorlz= 72872 spi=76.8ms
+  18    633  40175 [0, 0, 240, 240] rle= 55429 xor= 66578 dsr= 53440 bb= 55437 lz= 44805 xorlz= 65615 spi=76.8ms
+  19    491  24495 [0, 0, 240, 240] rle= 38965 xor= 47362 dsr= 35360 bb= 38973 lz= 26955 xorlz= 45802 spi=76.8ms
+  20    445  11371 [0, 0, 240, 240] rle= 36519 xor= 25707 dsr= 30169 bb= 36527 lz= 24655 xorlz= 24447 spi=76.8ms
+  21    461   9069 [0, 0, 240, 240] rle= 35041 xor= 22108 dsr= 27311 bb= 35049 lz= 23584 xorlz= 21192 spi=76.8ms
+  22    478   8834 [0, 0, 240, 240] rle= 34326 xor= 20566 dsr= 24473 bb= 34334 lz= 22716 xorlz= 19680 spi=76.8ms
+  23    449   8340 [0, 0, 240, 240] rle= 33384 xor= 18964 dsr= 21311 bb= 33392 lz= 21641 xorlz= 18207 spi=76.8ms
+  24    439   7934 [0, 0, 240, 240] rle= 32359 xor= 17726 dsr= 19644 bb= 32367 lz= 20754 xorlz= 17138 spi=76.8ms
+  25    383   8042 [0, 0, 240, 240] rle= 32394 xor= 16855 dsr= 17188 bb= 32402 lz= 20045 xorlz= 16260 spi=76.8ms
+  26    222   9795 [0, 0, 240, 240] rle= 25722 xor= 17055 dsr=  9194 bb= 25730 lz= 14400 xorlz= 14987 spi=76.8ms
+  27    222      0 [0, 0, 0, 0] rle= 25722 xor=  1350 dsr=     6 bb=     2 lz= 14400 xorlz=  2672 spi=0.0ms
+  28    222      0 [0, 0, 0, 0] rle= 25722 xor=  1350 dsr=     6 bb=     2 lz= 14400 xorlz=  2672 spi=0.0ms
+  29    222      0 [0, 0, 0, 0] rle= 25722 xor=  1350 dsr=     6 bb=     2 lz= 14400 xorlz=  2672 spi=0.0ms
+  30    222      0 [0, 0, 0, 0] rle= 25722 xor=  1350 dsr=     6 bb=     2 lz= 14400 xorlz=  2672 spi=0.0ms
+  31    222      0 [0, 0, 0, 0] rle= 25722 xor=  1350 dsr=     6 bb=     2 lz= 14400 xorlz=  2672 spi=0.0ms
+  32    222      0 [0, 0, 0, 0] rle= 25722 xor=  1350 dsr=     6 bb=     2 lz= 14400 xorlz=  2672 spi=0.0ms
+  33    222      0 [0, 0, 0, 0] rle= 25722 xor=  1350 dsr=     6 bb=     2 lz= 14400 xorlz=  2672 spi=0.0ms
+  34    222      0 [0, 0, 0, 0] rle= 25722 xor=  1350 dsr=     6 bb=     2 lz= 14400 xorlz=  2672 spi=0.0ms
+  35    222      0 [0, 0, 0, 0] rle= 25722 xor=  1350 dsr=     6 bb=     2 lz= 14400 xorlz=  2672 spi=0.0ms
+  36    222      0 [0, 0, 0, 0] rle= 25722 xor=  1350 dsr=     6 bb=     2 lz= 14400 xorlz=  2672 spi=0.0ms
+
+=== 35f_70fps_drop_last ===
+  rle: 863,156 B  (842.9 KiB) n=35
+  xor_rle: 863,156 B  (842.9 KiB) n=35
+  dirty_span_rle: 756,690 B  (739.0 KiB) n=35
+  lz: 842,668 B  (822.9 KiB) n=35
+  bbox_rle: 785,453 B  (767.0 KiB) n=35
+  raw: 4,032,000 B  (3937.5 KiB) n=35
+  concat_xor_lz: 842,668 B  (822.9 KiB) n=
+  concat_xor_zlib: 454,340 B  (443.7 KiB) n=
+  spi_bbox_total_ms: 1530.7
+  spi_bbox_max_ms: 76.8
+  spi_full_each_total_ms: 2688.0
+=== 18f_35fps_drop_last ===
+  rle: 491,861 B  (480.3 KiB) n=18
+  xor_rle: 491,861 B  (480.3 KiB) n=18
+  dirty_span_rle: 393,515 B  (384.3 KiB) n=18
+  lz: 474,463 B  (463.3 KiB) n=18
+  bbox_rle: 424,182 B  (414.2 KiB) n=18
+  raw: 2,073,600 B  (2025.0 KiB) n=18
+  concat_xor_lz: 474,463 B  (463.3 KiB) n=
+  concat_xor_zlib: 259,496 B  (253.4 KiB) n=
+  spi_bbox_total_ms: 849.4
+  spi_bbox_max_ms: 76.8
+  spi_full_each_total_ms: 1382.4
+=== unique_holds_drop_last ===
+  rle: 845,606 B  (825.8 KiB) n=22
+  xor_rle: 845,606 B  (825.8 KiB) n=22
+  dirty_span_rle: 756,612 B  (738.9 KiB) n=22
+  lz: 807,932 B  (789.0 KiB) n=22
+  bbox_rle: 785,427 B  (767.0 KiB) n=22
+  raw: 2,534,400 B  (2475.0 KiB) n=22
+  concat_xor_lz: 807,932 B  (789.0 KiB) n=
+  concat_xor_zlib: 450,942 B  (440.4 KiB) n=
+  spi_bbox_total_ms: 1530.7
+  spi_bbox_max_ms: 76.8
+  spi_full_each_total_ms: 1689.6
+
+Palette (LOSSY unless noted):
+  16 colors: {'palette_bytes': 32, 'frames_1_to_35_index_rle': 348652, 'frames_1_to_35_index_xor_rle': 210577, 'psnr_min': 25.46, 'psnr_mean': 26.47, 'first_frame_rle': 10387, 'lossy': True, 'frames_18_index_xor_rle': 123276}
+  32 colors: {'palette_bytes': 64, 'frames_1_to_35_index_rle': 361103, 'frames_1_to_35_index_xor_rle': 221716, 'psnr_min': 26.8, 'psnr_mean': 27.77, 'first_frame_rle': 10767, 'lossy': True, 'frames_18_index_xor_rle': 130737}
+  256 colors: {'palette_bytes': 512, 'frames_1_to_35_index_rle': 617660, 'frames_1_to_35_index_xor_rle': 389892, 'psnr_min': 37.11, 'psnr_mean': 37.99, 'first_frame_rle': 17818, 'lossy': True, 'frames_18_index_xor_rle': 225228}
+  lossless: {'unique_colors_frames_1_35': 1484, 'unique_colors_all_36': 1484, 'fits_256': False}
+
+SPI full frame 76.8 ms at 12 MHz; 240x72 check 23.04 ms (comment said 23 ms)

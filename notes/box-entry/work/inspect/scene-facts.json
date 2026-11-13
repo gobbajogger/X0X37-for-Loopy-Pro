@@ -1,0 +1,2537 @@
+{
+  "blend": "/workspace/box-entry/work/DnBOX-v13r2-copy.blend",
+  "blender": "4.3.2",
+  "fps": 70,
+  "fps_base": 1.0,
+  "frame_start": 1,
+  "frame_end": 192,
+  "frame_current": 1,
+  "resolution": [
+    480,
+    480,
+    100
+  ],
+  "engine": "CYCLES",
+  "cycles_samples": 48,
+  "use_denoising": false,
+  "motion_blur": true,
+  "motion_blur_shutter": 0.3799999952316284,
+  "film_transparent": false,
+  "image_format": "PNG",
+  "color_mode": "RGB",
+  "color_depth": "8",
+  "view_transform": "Standard",
+  "look": "None",
+  "custom_props": {
+    "cycles": "<bpy id prop: owner=\"SCScene\", name=\"cycles\", address=0x7f25a59cc4a0>",
+    "scene_status": "Actual latest grouping UI components; exact owner bank; approved audio; source review/pin supersession pending",
+    "parameters_file": "scene-parameters.json",
+    "revision_status": "Corrected opening and rests; current source HOME binding pending; silent geometry revision only",
+    "timeline_summary": "8 beats: open1-36; WAVE37-48; SLICE49-72; FX73-96; HOME97-120; logo121-168; final169-192",
+    "actual_source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+    "approved_audio_sha256": "19dbec641016005cde1e3b9fa4c89497e7eab8c252840d5791dbca3794febb14",
+    "audio_clock": "120960 mono samples@44100;192 frames@70; no changed audio",
+    "geometry_input_source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+    "verified_current_source_tree": "533564a4085bace9e65245b45affbc45c54a647e",
+    "verified_current_source_local_commit": "d0c40c3f4a132348621c930f0a20b5a614e186f4",
+    "verified_current_source_remote_alias": "09449ac0d52df90515bb282f239413f0c23cd4fe",
+    "current_source_identity_proof": "sources/scene-refinement-r2/latest-source-host/final-source-identity-proof.json",
+    "delivery_status": "r2 delivered preview checkpoint; timing refinement and broader actual UI styling pending owner review"
+  },
+  "camera": {
+    "name": "fixed perspective camera",
+    "type": "PERSP",
+    "location": [
+      0.0,
+      0.0,
+      5.400000095367432
+    ],
+    "rotation_euler": [
+      0.0,
+      -0.0,
+      0.0
+    ],
+    "lens": 80.0,
+    "sensor_width": 36.0,
+    "sensor_fit": "HORIZONTAL",
+    "has_animation": false
+  },
+  "images": [
+    {
+      "name": "Render Result",
+      "source": "VIEWER",
+      "filepath": "",
+      "size": [
+        0,
+        0
+      ],
+      "packed": false
+    }
+  ],
+  "relevant_materials": [
+    {
+      "name": "Actual UI source pixels / unlit display surface",
+      "nodes": [
+        {
+          "type": "EMISSION",
+          "name": "Emission"
+        }
+      ]
+    },
+    {
+      "name": "Actual UI zero background",
+      "nodes": [
+        {
+          "type": "EMISSION",
+          "name": "Emission"
+        }
+      ]
+    }
+  ],
+  "interesting_objects": [
+    {
+      "name": "actual.BREAK.control.B_CHANCE.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.control.B_CHANCE",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.control.LOOP_A.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.control.LOOP_A",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.control.LOOP_B.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.control.LOOP_B",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.control.PITCH.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.control.PITCH",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.footer.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.footer",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.header.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.header",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.negative_space.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.negative_space",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.slice.1.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.slice.1",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.slice.2.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.slice.2",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.slice.3.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.slice.3",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.slice.4.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.slice.4",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.slice.5.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.slice.5",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.slice.6.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.slice.6",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.slice.7.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.slice.7",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.slice.8.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.slice.8",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.slot_names.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.slot_names",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.BREAK.steps.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.BREAK.steps",
+      "keyframe_span": [],
+      "collections": [
+        "04_SLICE"
+      ]
+    },
+    {
+      "name": "actual.FX.column_names.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.column_names",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.control.DECAY.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.control.DECAY",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.control.EMPTY_3.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.control.EMPTY_3",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.control.EMPTY_4.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.control.EMPTY_4",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.control.TONE.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.control.TONE",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.effect_status.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.effect_status",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.footer.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.footer",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.header.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.header",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.negative_space.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.negative_space",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.send.808.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.send.808",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.send.909.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.send.909",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.send.BRK.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.send.BRK",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.send.CHI.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.send.CHI",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.FX.send.MIA.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.FX.send.MIA",
+      "keyframe_span": [],
+      "collections": [
+        "05_FX"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.FILTER",
+      "type": "EMPTY",
+      "location": [
+        2.700000047683716,
+        -0.7900000214576721,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.FILTER.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.control.FILTER",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.FILTER.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.control.FILTER",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.PUMP",
+      "type": "EMPTY",
+      "location": [
+        2.700000047683716,
+        -0.7900000214576721,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.PUMP.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.control.PUMP",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.PUMP.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.control.PUMP",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.SWING",
+      "type": "EMPTY",
+      "location": [
+        2.700000047683716,
+        -0.7900000214576721,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.SWING.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.control.SWING",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.SWING.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.control.SWING",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.TEMPO",
+      "type": "EMPTY",
+      "location": [
+        2.700000047683716,
+        -0.7900000214576721,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.TEMPO.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.control.TEMPO",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.control.TEMPO.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.control.TEMPO",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.footer",
+      "type": "EMPTY",
+      "location": [
+        2.700000047683716,
+        -1.1349999904632568,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.footer.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.footer",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.footer.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.footer",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.header",
+      "type": "EMPTY",
+      "location": [
+        -2.700000047683716,
+        1.0950000286102295,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.header.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.header",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.header.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.header",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.808",
+      "type": "EMPTY",
+      "location": [
+        -2.700000047683716,
+        0.4300000071525574,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.808.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.lane.808",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.808.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.lane.808",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.909",
+      "type": "EMPTY",
+      "location": [
+        -2.700000047683716,
+        0.5899999737739563,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.909.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.lane.909",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.909.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.lane.909",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.BRK",
+      "type": "EMPTY",
+      "location": [
+        -2.700000047683716,
+        0.27000001072883606,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.BRK.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.lane.BRK",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.BRK.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.lane.BRK",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.CHI",
+      "type": "EMPTY",
+      "location": [
+        -2.700000047683716,
+        0.10999999940395355,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.CHI.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.lane.CHI",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.CHI.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.lane.CHI",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.MIA",
+      "type": "EMPTY",
+      "location": [
+        2.700000047683716,
+        -0.07000000029802322,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.MIA.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.lane.MIA",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.lane.MIA.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.lane.MIA",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.negative_space",
+      "type": "EMPTY",
+      "location": [
+        2.700000047683716,
+        -0.27000001072883606,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.negative_space.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.negative_space",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.negative_space.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.negative_space",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank1",
+      "type": "EMPTY",
+      "location": [
+        -2.700000047683716,
+        0.8299999833106995,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank1.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.pattern.bank1",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank1.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.pattern.bank1",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank2",
+      "type": "EMPTY",
+      "location": [
+        -2.700000047683716,
+        0.8299999833106995,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank2.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.pattern.bank2",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank2.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.pattern.bank2",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank3",
+      "type": "EMPTY",
+      "location": [
+        -2.700000047683716,
+        0.8299999833106995,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank3.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.pattern.bank3",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank3.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.pattern.bank3",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank4",
+      "type": "EMPTY",
+      "location": [
+        -2.700000047683716,
+        0.8299999833106995,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank4.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.pattern.bank4",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.pattern.bank4.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.pattern.bank4",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.perform_label",
+      "type": "EMPTY",
+      "location": [
+        2.700000047683716,
+        -0.4399999976158142,
+        0.3266666829586029
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.perform_label.face",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.perform_label",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.HOME.perform_label.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.HOME.perform_label",
+      "keyframe_span": [],
+      "collections": [
+        "06_HOME_DESTINATION"
+      ]
+    },
+    {
+      "name": "actual.WAVE.compression.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.WAVE.compression",
+      "keyframe_span": [],
+      "collections": [
+        "03_WAVE"
+      ]
+    },
+    {
+      "name": "actual.WAVE.control.COMP.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.WAVE.control.COMP",
+      "keyframe_span": [],
+      "collections": [
+        "03_WAVE"
+      ]
+    },
+    {
+      "name": "actual.WAVE.control.DRIVE.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.WAVE.control.DRIVE",
+      "keyframe_span": [],
+      "collections": [
+        "03_WAVE"
+      ]
+    },
+    {
+      "name": "actual.WAVE.control.FILTER.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.WAVE.control.FILTER",
+      "keyframe_span": [],
+      "collections": [
+        "03_WAVE"
+      ]
+    },
+    {
+      "name": "actual.WAVE.control.PUMP.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.WAVE.control.PUMP",
+      "keyframe_span": [],
+      "collections": [
+        "03_WAVE"
+      ]
+    },
+    {
+      "name": "actual.WAVE.footer.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.WAVE.footer",
+      "keyframe_span": [],
+      "collections": [
+        "03_WAVE"
+      ]
+    },
+    {
+      "name": "actual.WAVE.gain_reduction.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.WAVE.gain_reduction",
+      "keyframe_span": [],
+      "collections": [
+        "03_WAVE"
+      ]
+    },
+    {
+      "name": "actual.WAVE.header.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.WAVE.header",
+      "keyframe_span": [],
+      "collections": [
+        "03_WAVE"
+      ]
+    },
+    {
+      "name": "actual.WAVE.pump_status.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.WAVE.pump_status",
+      "keyframe_span": [],
+      "collections": [
+        "03_WAVE"
+      ]
+    },
+    {
+      "name": "actual.WAVE.scope.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        -0.04699999839067459
+      ],
+      "hide_render": false,
+      "parent": "actual.WAVE.scope",
+      "keyframe_span": [],
+      "collections": [
+        "03_WAVE"
+      ]
+    },
+    {
+      "name": "box.assembly",
+      "type": "EMPTY",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.lid.front",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.149999976158142,
+        0.05700000002980232
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.lid.hinge",
+      "type": "EMPTY",
+      "location": [
+        0.0,
+        1.149999976158142,
+        0.75
+      ],
+      "hide_render": false,
+      "parent": "box.assembly",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.lid.solid",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.149999976158142,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.mark.brand.B.lower",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.4299999475479126,
+        0.09000000357627869
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.mark.brand.B.upper",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.4299999475479126,
+        0.09000000357627869
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.mark.brand.D.lower",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.4299999475479126,
+        0.09000000357627869
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.mark.brand.D.upper",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.4299999475479126,
+        0.09000000357627869
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.mark.brand.n.lower",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.4299999475479126,
+        0.09000000357627869
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.mark.brand.n.upper",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.4299999475479126,
+        0.09000000357627869
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.mark.brand.O.lower",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.4299999475479126,
+        0.09000000357627869
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.mark.brand.O.upper",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.4299999475479126,
+        0.09000000357627869
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.mark.brand.X.lower",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.4299999475479126,
+        0.09000000357627869
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.mark.brand.X.upper",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.4299999475479126,
+        0.09000000357627869
+      ],
+      "hide_render": false,
+      "parent": "box.lid.hinge",
+      "keyframe_span": [],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.wall.bottom",
+      "type": "MESH",
+      "location": [
+        0.0,
+        -1.1399999856948853,
+        0.25
+      ],
+      "hide_render": false,
+      "parent": "box.assembly",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.wall.left",
+      "type": "MESH",
+      "location": [
+        -1.1399999856948853,
+        0.0,
+        0.25
+      ],
+      "hide_render": false,
+      "parent": "box.assembly",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.wall.right",
+      "type": "MESH",
+      "location": [
+        1.1399999856948853,
+        0.0,
+        0.25
+      ],
+      "hide_render": false,
+      "parent": "box.assembly",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "box.wall.top",
+      "type": "MESH",
+      "location": [
+        0.0,
+        1.1399999856948853,
+        0.25
+      ],
+      "hide_render": false,
+      "parent": "box.assembly",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "01_BOX"
+      ]
+    },
+    {
+      "name": "brand.B.lower",
+      "type": "MESH",
+      "location": [
+        -2.799999952316284,
+        0.15000000596046448,
+        0.800000011920929
+      ],
+      "hide_render": false,
+      "parent": "brand.DnBOX",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.B.upper",
+      "type": "MESH",
+      "location": [
+        -2.799999952316284,
+        0.15000000596046448,
+        0.800000011920929
+      ],
+      "hide_render": false,
+      "parent": "brand.DnBOX",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.D.lower",
+      "type": "MESH",
+      "location": [
+        -2.799999952316284,
+        0.15000000596046448,
+        0.800000011920929
+      ],
+      "hide_render": false,
+      "parent": "brand.DnBOX",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.D.upper",
+      "type": "MESH",
+      "location": [
+        -2.799999952316284,
+        0.15000000596046448,
+        0.800000011920929
+      ],
+      "hide_render": false,
+      "parent": "brand.DnBOX",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.DnBOX",
+      "type": "EMPTY",
+      "location": [
+        0.08799999952316284,
+        0.06300000101327896,
+        0.0
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.n.lower",
+      "type": "MESH",
+      "location": [
+        -2.799999952316284,
+        0.15000000596046448,
+        0.800000011920929
+      ],
+      "hide_render": false,
+      "parent": "brand.DnBOX",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.n.upper",
+      "type": "MESH",
+      "location": [
+        -2.799999952316284,
+        0.15000000596046448,
+        0.800000011920929
+      ],
+      "hide_render": false,
+      "parent": "brand.DnBOX",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.O.lower",
+      "type": "MESH",
+      "location": [
+        2.799999952316284,
+        0.15000000596046448,
+        0.800000011920929
+      ],
+      "hide_render": false,
+      "parent": "brand.DnBOX",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.O.upper",
+      "type": "MESH",
+      "location": [
+        2.799999952316284,
+        0.15000000596046448,
+        0.800000011920929
+      ],
+      "hide_render": false,
+      "parent": "brand.DnBOX",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.shade.NOT_UI",
+      "type": "MESH",
+      "location": [
+        0.0,
+        0.0,
+        0.3799999952316284
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.X.lower",
+      "type": "MESH",
+      "location": [
+        2.799999952316284,
+        0.15000000596046448,
+        0.800000011920929
+      ],
+      "hide_render": false,
+      "parent": "brand.DnBOX",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "brand.X.upper",
+      "type": "MESH",
+      "location": [
+        2.799999952316284,
+        0.15000000596046448,
+        0.800000011920929
+      ],
+      "hide_render": false,
+      "parent": "brand.DnBOX",
+      "keyframe_span": [
+        1,
+        192,
+        192
+      ],
+      "collections": [
+        "07_DnBOX"
+      ]
+    },
+    {
+      "name": "fixed perspective camera",
+      "type": "CAMERA",
+      "location": [
+        0.0,
+        0.0,
+        5.400000095367432
+      ],
+      "hide_render": false,
+      "parent": null,
+      "keyframe_span": [],
+      "collections": [
+        "00_STAGE_CAMERA_LIGHT"
+      ]
+    }
+  ],
+  "collections": [
+    "00_STAGE_CAMERA_LIGHT",
+    "01_BOX",
+    "02_SHARED_UI",
+    "03_WAVE",
+    "04_SLICE",
+    "05_FX",
+    "06_HOME_DESTINATION",
+    "07_DnBOX",
+    "Collection"
+  ],
+  "lid_object": "actual.BREAK.control.B_CHANCE.solid",
+  "home_object_count": 51,
+  "home_object_sample": [
+    "actual.HOME.control.FILTER",
+    "actual.HOME.control.FILTER.face",
+    "actual.HOME.control.FILTER.solid",
+    "actual.HOME.control.PUMP",
+    "actual.HOME.control.PUMP.face",
+    "actual.HOME.control.PUMP.solid",
+    "actual.HOME.control.SWING",
+    "actual.HOME.control.SWING.face",
+    "actual.HOME.control.SWING.solid",
+    "actual.HOME.control.TEMPO",
+    "actual.HOME.control.TEMPO.face",
+    "actual.HOME.control.TEMPO.solid",
+    "actual.HOME.footer",
+    "actual.HOME.footer.face",
+    "actual.HOME.footer.solid",
+    "actual.HOME.header",
+    "actual.HOME.header.face",
+    "actual.HOME.header.solid",
+    "actual.HOME.lane.808",
+    "actual.HOME.lane.808.face",
+    "actual.HOME.lane.808.solid",
+    "actual.HOME.lane.909",
+    "actual.HOME.lane.909.face",
+    "actual.HOME.lane.909.solid",
+    "actual.HOME.lane.BRK",
+    "actual.HOME.lane.BRK.face",
+    "actual.HOME.lane.BRK.solid",
+    "actual.HOME.lane.CHI",
+    "actual.HOME.lane.CHI.face",
+    "actual.HOME.lane.CHI.solid"
+  ],
+  "poses": [
+    {
+      "frame": 1,
+      "lid": [
+        2.71907,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.PUMP": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.SWING": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.TEMPO": [
+          2.7,
+          -0.79,
+          0.32667
+        ]
+      }
+    },
+    {
+      "frame": 6,
+      "lid": [
+        2.71907,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.PUMP": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.SWING": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.TEMPO": [
+          2.7,
+          -0.79,
+          0.32667
+        ]
+      }
+    },
+    {
+      "frame": 8,
+      "lid": [
+        2.71907,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.PUMP": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.SWING": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.TEMPO": [
+          2.7,
+          -0.79,
+          0.32667
+        ]
+      }
+    },
+    {
+      "frame": 18,
+      "lid": [
+        2.71907,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.PUMP": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.SWING": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.TEMPO": [
+          2.7,
+          -0.79,
+          0.32667
+        ]
+      }
+    },
+    {
+      "frame": 26,
+      "lid": [
+        2.71907,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.PUMP": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.SWING": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.TEMPO": [
+          2.7,
+          -0.79,
+          0.32667
+        ]
+      }
+    },
+    {
+      "frame": 36,
+      "lid": [
+        2.71907,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.PUMP": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.SWING": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.TEMPO": [
+          2.7,
+          -0.79,
+          0.32667
+        ]
+      }
+    },
+    {
+      "frame": 37,
+      "lid": [
+        2.71907,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.PUMP": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.SWING": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.TEMPO": [
+          2.7,
+          -0.79,
+          0.32667
+        ]
+      }
+    },
+    {
+      "frame": 96,
+      "lid": [
+        -2.68093,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.PUMP": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.SWING": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.TEMPO": [
+          2.7,
+          -0.79,
+          0.32667
+        ]
+      }
+    },
+    {
+      "frame": 97,
+      "lid": [
+        -2.68093,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.PUMP": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.SWING": [
+          2.7,
+          -0.79,
+          0.32667
+        ],
+        "actual.HOME.control.TEMPO": [
+          2.7,
+          -0.79,
+          0.32667
+        ]
+      }
+    },
+    {
+      "frame": 120,
+      "lid": [
+        -2.68093,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          1.95391,
+          -0.79,
+          0.24584
+        ],
+        "actual.HOME.control.PUMP": [
+          2.14043,
+          -0.79,
+          0.24584
+        ],
+        "actual.HOME.control.SWING": [
+          1.76739,
+          -0.79,
+          0.24584
+        ],
+        "actual.HOME.control.TEMPO": [
+          1.58086,
+          -0.79,
+          0.24584
+        ]
+      }
+    },
+    {
+      "frame": 169,
+      "lid": [
+        -2.68093,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          0.3,
+          -0.79,
+          0.06667
+        ],
+        "actual.HOME.control.PUMP": [
+          0.9,
+          -0.79,
+          0.06667
+        ],
+        "actual.HOME.control.SWING": [
+          -0.3,
+          -0.79,
+          0.06667
+        ],
+        "actual.HOME.control.TEMPO": [
+          -0.9,
+          -0.79,
+          0.06667
+        ]
+      }
+    },
+    {
+      "frame": 192,
+      "lid": [
+        -2.68093,
+        -0.71672,
+        0.28383
+      ],
+      "lid_rot": [
+        0.06981,
+        -0.41888,
+        0.0
+      ],
+      "homes": {
+        "actual.HOME.control.FILTER": [
+          0.3,
+          -0.79,
+          0.06667
+        ],
+        "actual.HOME.control.PUMP": [
+          0.9,
+          -0.79,
+          0.06667
+        ],
+        "actual.HOME.control.SWING": [
+          -0.3,
+          -0.79,
+          0.06667
+        ],
+        "actual.HOME.control.TEMPO": [
+          -0.9,
+          -0.79,
+          0.06667
+        ]
+      }
+    }
+  ]
+}

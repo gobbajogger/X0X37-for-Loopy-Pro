@@ -1,0 +1,3 @@
+Remove the pad-diagnostics UI part (excluded earlier); keep the proof checks. F6 community/full-song library parts are deferred and stay out of the 0.0.24 PR.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

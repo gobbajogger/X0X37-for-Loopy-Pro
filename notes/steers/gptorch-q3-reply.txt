@@ -1,0 +1,45 @@
+I’ll read both attachments and check those calls against the current source and review receipts, especially whether #789’s fixes are verified and whether F3 really satisfies rows 24–29. I’ll separate intentional behavior, unresolved bugs and remaining 0.0.24 coverage without starting another repair or test run.
+
+Partly. I agree with keeping the intentional behavior, but not with marking every listed issue fixed or “fine as is.” Both attachments describe older inputs than the current PR heads.
+
+1. Audit calls
+
+smc_connected OOB: corrected in #789’s production source. But “all 14 base test failures fixed” is not yet supported. Earlier bff24bbd has producer evidence for 47 selected checks, 22 sanitized link cases and both model builds. Latest b860e160 changes three fixtures for four further selectors and explicitly leaves those changes unrun. Follow-up limits. Also, an out-of-bounds access should not be certified as “only a cosmetic hint” from inspection alone.
+Q-P2.1 power-cut fallback: valid data-preservation concern. Recovery must select a coherent valid project, preserve recoverable flash and prevent defaults from silently overwriting it.
+Q-P2.5 generation/key release: valid cancellation invariant to check, but the audit itself did not reproduce a stuck note or trace every generation change. Use existing LIVERISK #810, not a new PR. Head 357efa1e has follow-up fixture/declaration corrections; the same reviewer’s rerun remains pending. Handoff.
+Clock hold and source-drop release: keep both. Clock loss must remain distinct from explicit Stop; source loss must release only that source’s notes. Last-tempo hold does not automatically settle the separate whole-BPM rounding and 275 BPM cap questions.
+
+For the other Part 2 calls:
+
+2.2 mixed settings/sound/pattern generations: not automatically fine. Individually valid objects can still form a musically inconsistent project. Define the permitted recovery combinations and test them; stream fallback alone may not close this.
+2.3 dropping Note On before Note Off: keep this overload safety policy, but a lost attack is still a musical dropout. It does not satisfy zero-loss operation under the agreed workload.
+2.4 UAC silence/reprime: keep the recovery mechanism. The underrun that triggers it remains a failure against your zero-dropout goal.
+2.6 halving a long delay: preserve the existing sound for now, but a shorter delay is not the selected division. Document and verify the limit rather than claiming full timing fidelity or changing it during optimization.
+2.7 truncated SysEx: next-F0 recovery is useful, but does not prove all disconnect, status-byte, realtime-byte and source-isolation cases safe. Retain the existing parser/admission checks.
+
+Use distinct finding names: the attachment’s B1/B2 mean OOB/test failures, whereas the release briefs’ B1/B2 mean iPhone install/dropouts. Mixing them risks closing the wrong bug.
+
+2. F3 no-change
+
+“No new implementation needed” is reasonable; “rows 24–29 fully accepted” is not established. At bb190749:
+
+24: independent A/B slice state and counts already exist.
+25: keyboard slice navigation already exists; interaction/readability acceptance is separate.
+26: MIDI output exists, but its current documentation still calls the output mapping a proposed default requiring musical acceptance.
+27: BREAKS pitch bend exists.
+28: Jungle grain stretching exists.
+29: CRAMEN, TASTY and HOTPANT assets exist. The default app build still has an empty bank, so the final package must explicitly include and verify the stock bank.
+
+There is also stale documentation saying the three assets are unavailable, contradicting the stock README. Don’t request them again or recreate BREAKS. Keep F3 as implementation retained; acceptance and package evidence pending. Controls/MIDI contract, stock package contract.
+
+3. Remaining 0.0.24 gaps
+
+The major list is unchanged from the reconciliation:
+
+Explicit coverage for omitted partial rows 73, 81–88, missing row 120, and regression preservation of the 20 historical “done” rows.
+Row 8 per-note sound lock, still explicitly unported; unresolved editor/two-way-sync outcomes must not be closed by offline editing alone.
+Exact #810 recheck, #811 parameter-drift validation, actual iPhone installation/audio and device key-to-sound latency evidence.
+One frozen combined source/package, full test-union results, controller/model identities, stock-bank inclusion, RAM/stack and peak CPU margins, plus the installed package pin.
+Sound/PCM and picture equivalence for optimizations; idle CPU alone cannot prove peak headroom.
+
+The status attachment is stale: #801/#805 attribution corrections are already delivered, #806 includes discovery work, #807 has newer source, B4 is now #811, and #800 now incorporates the latest #789. Those are real advances, but not a combined 0.0.24 acceptance. I did not run tests or change code for this assessment.

@@ -1,0 +1,33 @@
+Read the whole attachment. All four directions can work live, but I would tighten them before implementation. This is a design review of the supplied audit, not a fresh code or device test.
+
+SMC HOME + strip SELECT: keep, with safeguards.
+Use only strips that actually represent a part, outside FX. Capture that strip’s target, including its locked context, rather than whichever part happens to be selected elsewhere.
+Restore the last successfully saved sound only. Leave level, pan, sends, mute, samples and fader pickup unchanged. If there is no valid saved sound, do nothing and show that clearly. Make the reset one undoable operation.
+
+HOME must be down first. Fire once, and consume both inputs so ordinary SELECT and the HOME help card do not also fire. Do not reset behind an open question. Sound-only reset can still cause a loud timbre change, so test it with held notes and effect tails; avoid blocking flash reads in the live path.
+
+Hold FX + < >: keep, but define every overlap.
+Exactly one held FX button: arrows step its assigned effect. Two or more held FX buttons: do nothing with the arrows and indicate the ambiguity. Never fall through to page navigation.
+On the FX page, SMC note 6 must be FX-only across all routes, including Up/Down save/reset and its release-time navigation tap. Otherwise the collision survives even after fixing < >.
+
+When stepping a sounding effect, release the old effect cleanly, activate the new one, and ensure releasing the button releases the new effect too. No stuck effect or unintended double activation. Replace the stale CYC caption with feedback for the actual gesture.
+
+There is still a reachability gap: if SMC HOME is an FX button there, HOME+< > cannot also be the SMC’s page-change gesture. Document the remaining usable page-change route rather than claiming both gestures work on that device.
+
+PLAY/STOP through a question: strongly keep.
+Make this unmodified PLAY/STOP, dispatched once on the normal press edge. “Always passes through” would otherwise steal the existing HOME+PLAY redo chord. Keep HOME-first redo behavior without delaying ordinary PLAY.
+The question stays open and keeps its original target. Starting playback must not make a later “yes” clear a different part or perform an operation that is now unsafe. Revalidate the captured target and operation before confirmation executes.
+
+Also, “SMC 5/6 answer the question before FX logic” does not by itself prove no FX clash. Test an FX button held before the question appears: its release must still stop its effect, without accidentally answering the question.
+
+RW/FF top bar with part + cue: keep.
+Replace the duplicate toast, and show the actual selected-or-locked target: for example, “909 → P5.”
+Keep the display tied to the real pending cue. Clear it when the cue actually applies or is cancelled, not simply at the next bar. With transport stopped, those are different events. Cancellation must name the part too: “909: cue cancelled.”
+
+Make part-only and all-part cues distinguishable. Do not hide an open question, switch the keyboard’s page, or imply that one displayed cue is the only pending cue.
+
+Two audit statements need correction:
+
+“Only mockups exist, so no conflict” is false: a proposed drum-fill button can already conflict with the agreed 32 FX buttons. Do not silently reduce that to 31.
+Keep L5 as an explicit “retain current gesture” decision, rather than implying a new implementation was completed.
+PANIC is off HOME; the help card stays on HOME. The old HOME-hold PANIC proposal is superseded. I have not chosen another PANIC button.

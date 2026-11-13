@@ -1,0 +1,2 @@
+Also redo item6-after-effect.png: the owner says the bottom area is unclear. Drop the left grid panel. Show the current effect name BIG, plus a glyph of the FX button being held and < > to step the effect. It must be obvious at a glance. Push it together with the item4 fix, and reply with the new head SHA and PNG links.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

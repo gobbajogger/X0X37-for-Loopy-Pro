@@ -1,0 +1,8 @@
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+
+Task: fix docs-only PR #732 in gobbajogger/X0X37-for-Loopy-Pro on its own branch (head 1e83f458, base wip/one-build). Commit author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>. QA fixes: (1) keep the live-ref routing paragraph in runtime-contract.md and drop the 'Historical ... do not use' line that retires it. (2) Scope 'full suite + Elite/Pro' to firmware integration and packaging only (not docs-only changes), and write it as '0 fail / 0 skip'. Do NOT act on QA item 3: all *_private.h files stay (owner rule). Docs only: no code changes, and no push to #734 (frozen). When done, post a status comment on #732 with the new head SHA.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

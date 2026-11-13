@@ -1,0 +1,11 @@
+URGENT, for a live show at 18:00 UTC+10. Independent QA of PR #814 at head dcc9833f24b20ec2baf47beb131f937e32d95e11. This is read only and tests only: do not commit or push.
+Read the full tree through the GitHub API (tree and blob) and run everything with the Remote Desktop Commander plugin.
+Needed, each with a clear PASS or FAIL:
+- the full host suite;
+- the Elite and Pro builds;
+- the nightly package check (BT controller a334208b bundled);
+- measured pool headroom of at least 8,192 B for both Elite and Pro;
+- audio identity (17 scenarios / 50 files bit-identical);
+- the host render benchmark compared with base d8086cc09, with no slowdown allowed.
+Report the image sizes and hashes. Don't install or flash anything. Reply by 16:30 UTC+10, with partial results if needed.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

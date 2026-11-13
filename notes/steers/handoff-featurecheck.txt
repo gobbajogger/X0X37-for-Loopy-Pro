@@ -1,0 +1,10 @@
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+Rules: read only, change no code. gobbajogger only. Never main or nightly. *_private.h stay.
+TASK FEATURE-CHECK: the owner's feature list is the 122 features in PR #699 (gobbajogger/X0X37-for-Loopy-Pro), including every SMC mixer feature: two SMCs, FX page mappings, page behavior, page lock, and peek on fader, knob and page change. For EACH of the 122, check integration/all-in-one (PR #734, live head) and report one of: IN #734 (file or function); BUILT ELSEWHERE (PR or branch plus SHA, and what's needed to bring it in); NOT BUILT. Also check every open PR, every lane/ wip/ fix/ feat/ cursor/ branch, and docs/FEATURE-REGISTRY.md for built features missing from #734. Ignore bass303, wobble.c, ctl.img, capture logs, .env, .github workflows and binaries. The ones already in progress: #688 mixer items (thread B), #638 (thread C), the peek plus home-knob peek plus page-lock peek (peek thread). Push the table to docs/feature-check-734.md on a new branch docs/feature-check-734 and post a summary comment on #734.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

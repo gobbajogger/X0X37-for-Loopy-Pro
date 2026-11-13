@@ -1,0 +1,19 @@
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+
+Task: PR #696 'Keep the DJ filter centered and make host failures trustworthy', branch chat/ui-theme, reuse this PR. Verified head 7d313427f90931d41fa5bf755e9b58265b4b3331. PR base wip/one-build cb5423c4, but wip/one-build is now 8d7c4365: rebase/update onto 8d7c4365 via API and name it as base.
+Done (per 19:59 PR comment): host failure reporter tests 17/0/0; SDK V1.2.1 11/11 SHA-256 pins PASS; JieLi compiler + clang 4.0.1 pins PASS; tree at head 4585 entries.
+Tests: FULL host suite NOT_RUN, Elite NOT_RUN, Pro NOT_RUN.
+Blocker: source transfer (zipball refused; old chat wrongly used GitHub Actions — remove any Actions workflow it added).
+Source: zipball is blocked, use the tree API + docs/FULL-SOURCE-FETCH.md / tools/restore_github_api_batches.py (PR #726). SDK V1.2.1 from project files.
+Next step: full suite + Elite/Pro builds on exact head, fix real failures on this PR, post a status comment (head SHA, base, pass/fail/skip, delta vs base, Elite/Pro, blockers, next step). Close the independent QA dirty-worktree source-identity finding.
+Unverified gap: none known; old chat content after 19:59 unknown.
+Reminders: NEVER GitHub Actions; GitHub plugin/API only, no git over network; private headers may be pushed, never credentials/tokens/binaries/raw captures; don't reinvent; push only new; approve own posts and GitHub actions; no installs.
+
+CURRENT PLAN (22:15 UTC+10, overrides older lines above): FMB fixes the base first (thread A only verifies). Then ONE batch full run (full suite + Elite + Pro) on PR #734 after the owner's go, then merge into wip/one-build (never main/nightly). Do not merge this PR alone and do not wait for an order of PRs; make it build clean on the live wip/one-build head (re-read it via API), push via API with a merge commit (no force-push), and post results. Box runs are only a double-check. No installs.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

@@ -1,0 +1,114 @@
+I’ll cross-check the full 0.0.24 plan against the registry, archive, current PRs and branches, and your recorded decisions, using build/0.0.23 at bb190749 as the baseline. I’ll separate missing work and real conflicts from intentional behavior, and flag where the evidence is incomplete rather than treating a claim as proof.
+
+The eight files cover more than the PR list: release fixes, live-performance choices, optimizations, quality checks, and archive leftovers. I’m checking each requirement against current source and history, then separating confirmed conflicts, missing acceptance evidence, duplicates, and intentional or deferred behavior. One distinction already matters: several live-performance entries are proposals, so they must not silently become changes to your agreed controls.
+
+The cross-check has found concrete double-work and stale instructions. The baseline already contains many fixes the documents still describe as unmerged; meanwhile, the current installer still rejects “DnBOX” port names even though fixes already exist in PRs #770/#771. The briefs also reopen pad diagnostics, community-library work, and performance-control changes that your later decisions excluded or settled.
+
+The repository inventory is complete: 910 branches and 805 PR records, with targeted ancestry and source checks. One important correction to the supplied archive audit: the current five chunks join byte-for-byte to the unsplit archive and match the documented hash. That upload does not need replacing; the remaining archive limitation is filtered content and incomplete historical reconstruction, not a proven corrupt current file.
+
+My conclusion: don’t execute the attached briefs verbatim. They contain useful work, but mix delivered code, unresolved defects, old proposals and deliberately deferred scope. The attached 12-page report gives the corrected findings, PR-by-PR evidence, preservation rules and integration sequence.
+
+I read all eight files, inventoried 910 branches and 805 PR records, made 32 targeted ancestry comparisons, checked relevant current source and archive material, and reconciled owner decisions. PR #810 arrived afterward and is included as an addendum. This was a source/history cross-check, not a fresh firmware test run or an exhaustive review of every branch’s code.
+
+The highest-priority real gaps
+
+Settings can still be overwritten after a read failure. Current #790 still turns a negative settings read into “no settings object,” then writes defaults during Bluetooth persistence. Its atomic-chain acceptance does not close this separate data-preservation defect. Fresh source inspection confirms the mechanism; the six modeled reproductions are earlier evidence, not a new device-loss claim. Current path.
+
+The installer still filters out DnBOX names before handshake. This remains in checked #794/#804/#806 paths. Existing #770/#771 repairs need reconciliation and delivery, not another implementation. Removing the name filter must preserve real target-identification safeguards. Affected installer source.
+
+#789’s default single-peer out-of-bounds finding remains open. Passing fixtures compiled for two peers do not repair that production configuration. Existing finding.
+
+Several requested outcomes remain unclosed: B4 parameter-drift attribution; F2 per-note sound and broader gesture/recording/clock acceptance; silence-only autosave; actual iPhone reset/streaming and physical key-to-sound measurements. Nearby scoped fixes do not close these whole outcomes. Context-preserving LOAD is still a proposal, not a decision I’m inventing for you.
+
+Wrong, duplicated or conflicting work
+
+The “20 done / 92 partial / 10 missing” figures describe 0.0.22 code presence, not 0.0.23 acceptance. The exported registry also truncates evidence cells.
+Many supposedly unmerged predecessors are already ancestors of bb190749, including stock loops, installer flow, Chicago UI, single-peer SMC, pads under SETTINGS/HELP, Miami shape pads, locked banks and earlier free-play latency work.
+Navigation wrap exists. #787 adds test registration; F5 should not rewrite it. F4’s peer-name reference is wrong: #762, not #782.
+RATE pads already exist alongside SHAPE pads. An archived test that disables them under HELP/SETTINGS is stale and would reverse current behavior.
+#800/#807 still inherit older #789 source. UI, engine, USB and test-runner lanes overlap substantially. Independent PR passes cannot substitute for deliberate composition and combined validation.
+F7 reopens excluded pad diagnostics; F6 reopens deferred community work. Other parked sample/process requests must retain their dispositions. Rows 81–88 need explicit inclusion/defer/exclusion decisions, not automatic new features.
+“Never touch main_fm1.c” conflicts with briefs assigning SMK main-loop changes there. The filename and the prohibited FM-1 target are not the same thing.
+
+Intentional behavior we must protect
+
+Existing PLAY/undo/redo timing, bar-end pattern changes, immediate tempo, PLAY without a popup, and contextual SMC dialog answering.
+Long-HOME PANIC; HOME+part restores saved sound.
+Muted parts ignore fader movement, then jump to the physical position on unmute; queued mutes remain optional.
+Independent SMC popup without keyboard-menu switching; locked mixers can still navigate their own pages. Don’t resurrect the older real-page peek blindly.
+Four momentary FX buttons, the agreed two-page mappings, FX throws/fills on the SMC FX page, and idle ADSR readability.
+All ten Chicago inserts. No Miami gain change, Miami ADSR, frozen idle DSP state, project migration, revived diagnostics, scenes, or unnecessary expansion beyond 32 patterns.
+
+Evidence corrections
+
+#796’s repository-recorded host-only closeout stays host-only; it is not device-performance proof. Same-tree attribution changes in #801/#805 do not justify repeated reviews. Current archive chunks are verified and match the unsplit file and documented hash. #810 is a new untested source candidate; its “muted fader edits remain live” wording needs reconciliation with your exact mute contract before integration, not an assumption that it is already correct or definitely broken.
+
+Recommended order: correct the scope/evidence map, finish the existing owners’ safety gaps, reconcile overlapping source once, then qualify one frozen combined candidate with the test union, real UI captures, both models’ memory/build evidence and matching controller/package checks. Keep deferred hardware checks separate from source delivery. Nothing was merged, installed or published by this audit.
+
+DnBOX-0.0.24-cross-check.docx
+
+One change arrived just after the report’s snapshot: #802 at 86b9dfd4 now includes A1/A2 and additional 808/909 idle-path work, so “A3 only delivered” is superseded. The new source explicitly avoids a generic silent-state freeze, but all new tests, benchmarks and builds are still NOT_RUN; the earlier A3 passes do not qualify this expanded commit.
+
+Independent QA has now returned NEEDS CHANGES on #810. Project recovery, synth mute and storage-warning checks passed, including sanitizers, but the free-play test fails to compile because a declaration is missing; the base passes. A scratch diagnostic then exposes a separate cancellation-state assertion failure. The existing producer needs to resolve both and return the affected checks to the same reviewer. Full-suite, native-build and device validation remain pending.
+
+PR #801 at f708b8ed now has independently verified scoped acceptance: freeplay key and latency tests passed on Mac, including ASan/UBSan. The negative control correctly failed when the first audio render was removed.
+
+QA evidence. The integrator still needs to reconcile these tests with #810’s failing changes; this does not establish device latency or qualify the combined firmware.
+
+PR #800 now includes hold-an-FX-button + arrow remapping at 28b7f728, replacing HOME remapping. Runtime tests and framebuffer captures remain NOT_RUN.
+
+Its older transport-button mapping still conflicts with #789. The F4 producer needs to reconcile that before the changed gestures can be qualified.
+
+PR #789’s new preview shows Rewind/Forward using the 1.3-second “NEXT: PAT” notice instead of opening a popup, with four framebuffer images.
+
+Only the proposal and captures are pushed at 1ca03fd0. The implementation is still local, and the previously reported single-peer out-of-bounds issue remains unresolved in published source.
+
+PR #811 now contains the B4 mod-wheel calibration repair at ecaa6fbb, intended to stop repeated high ADC outliers from becoming a false resting position.
+
+It remains a draft: all runtime tests and native builds are NOT_RUN, and the final P1 correction still needs independent rechecking. This delivers source, but does not yet establish that the parameter-jump problem is fixed.
+
+New owner rule: on the FX momentary buttons (SELECT/REC/SOLO/MUTE FX strip, registry row 41), HOLD an FX button + < or > (SMC or keyboard) steps that button's effect forward/back; quick tap still fires the FX live; this replaces the HOME combo for FX mapping; the effect shows as a glyph in the top bar while held. Does this conflict with anything in the 122-row registry, the archive, or earlier owner decisions (e.g. other uses of < > or held buttons)?
+
+I’ll check the new row 41 rule against the registry, archive and earlier button/arrow decisions, especially where a held FX button could steal navigation or leave an effect active.
+
+Yes, there are overlapping gestures, but no fundamental conflict with the new rule. It should replace the old FX-mapping gesture only, with clear priority over ordinary arrows while an FX button is held.
+
+The important points:
+
+HOME mapping is intentionally superseded. The archive’s HOME + FX-button assignment is obsolete under your new rule. Its old SELECT tap-latch/forced-low-pass behavior must not return on this momentary FX strip. General SELECT behavior elsewhere stays intact.
+
+< > already changes pages and navigates menus. While exactly one eligible FX button is held, the arrow must change its effect and do nothing else. Without a held FX button, normal navigation remains. SMC parameter arrows (0x62/0x63) are distinct from Rewind/Forward pattern controls (0x5B/0x5C), so bar-boundary pattern changes and their notifications can stay unchanged. Current routing.
+
+The biggest remaining ambiguity is quick-tap navigation. PR #800 starts the FX immediately, but some quick releases still open their old page. So it currently means “tap fires FX AND may navigate,” not “tap only fires FX.” My recommendation: make these four FX-strip buttons FX-only in FX context, with release ending the momentary effect. That would explicitly retire the older tap-to-open-page behavior for those buttons. Release behavior.
+
+Preserve other held-button ownership. Registry row 16’s original-target-until-release rule, rows 32–33’s per-peer locked context, row 37’s banks/pages and row 44’s pending-pattern behavior still apply. Capture the original button, peer, bus and FX page; don’t remap a different page because navigation changed underneath. Confirmation dialogs and clip mode should keep priority, and held arrows must not leak into navigation after release.
+
+Multiple holds and the glyph need a defined meaning. The current candidate safely consumes arrows without editing when several eligible FX buttons are held. I’d keep that. The top-bar glyph should identify the held button’s assigned effect, update with each step and disappear or switch to another held button on release. It must not pretend to summarize every active bus. This fits the registry’s truthful-display/held-screen requirements in rows 61 and 67.
+
+Separate existing problem: #800 still has an older transport mapping that conflicts with #789. That is not caused by this rule, but needs reconciliation before combined validation.
+
+The new chord already exists in #800’s source. These conclusions are from source, registry and archive inspection; runtime validation remains NOT_RUN. Your new rule settles HOME replacement, but does not by itself settle whether quick taps should retain their old page-opening side effect.
+
+Is mute in the DnBOX firmware meant to stop synth voices (to save CPU)? Owner bug: unmute of a synth bus only takes effect on the next MIDI note; held notes must be audible at once. How do we keep unmute instant while staying within CPU limits? Any history or owner decisions on this?
+
+I’ll check the mute implementation and earlier decisions. Your requirement is clear: unmuting must restore a still-held synth note immediately, without waiting for another MIDI note.
+
+No: synth-bus mute should silence the output, not kill a held voice. Your requirement means unmute must restore the continuing note without another Note On. I found no verified owner decision making mute a voice-kill mechanism for CPU savings.
+
+What the history/source shows:
+
+The 0.0.23 baseline still calls both synth renderers every audio block. Its sequencer turns muted synth steps into rests, which can lose continuing/tied sound. That is not evidence of an intentional CPU shutdown. It also does not conclusively diagnose your installed build’s external-MIDI symptom. Baseline source.
+
+PR #810 already contains the relevant repair: gate the synth’s dry output and new FX sends while voices, envelopes, sequencing and effect histories continue. Existing return tails decay. Unmute restores the held sound through the existing roughly 10 ms click-suppression glide, with no new note required.
+
+Independent QA reports 144 mute checks passed, covering Chicago/Miami, held MIDI notes, sustain and sequence ties. This is host proof, not measured device latency. #810 still has separate failing freeplay checks, so the whole PR is not qualified. QA evidence.
+
+How to stay within CPU limits:
+
+Keep processing Note Off, pedal release, envelope/phase progression and relevant histories while muted. Never freeze an active voice just because its output is silent.
+Save CPU through measured, sound-equivalent optimizations and genuinely idle paths. “Muted” and “idle” are different states. Recreating or retriggering voices on unmute changes the sound and risks stale notes.
+Budget for all supported buses active, including simultaneous unmute. If that exceeds the limit, optimize the renderer; don’t make correct unmute depend on another MIDI note or on keeping buses muted.
+
+Earlier decisions also require muted faders not to change audible output, then unmute to use the physical fader position. That is separate from voice lifetime. The Miami decision to preserve its sound and avoid extra gain still applies.
+
+My recommendation: keep the existing #810 output-gate repair, resolve its separate failures, then measure the combined firmware’s worst-case CPU/headroom. Don’t create another mute implementation.

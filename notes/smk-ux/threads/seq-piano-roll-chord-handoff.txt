@@ -1,0 +1,13 @@
+DnBOX SMK-37 SEQ piano roll + chord notation — handoff from DnBOX SMK Firmware UX (design proposal, read-only; no firmware edits/builds/devices; no playback/pitch change).
+Base source: 94197fc839b00aff47b98ca02f3c6396e4a6eabf (lane/026-combined-20261112, PR #869). Writer of the draw-only chord fix: Firmware Main Builder, lane/fmb-seq-chord-display (one swappable label function).
+Owner prefs (relayed by Dot, not literal): compact names like Cmin7; slash C/E when bass+set support it; note names only when truly uncertain; native 240x240 legible mockups from REAL recorded examples; label budget HOST ESTIMATE; no playback change.
+Final label spec (sent to FMB): Tier1 maj(bare C) min 5 7 maj7 min7; Tier2 if bytes: dim sus4 sus2 aug 6 min7b5 dim7. Match: pc mask, roots tried bass first then upward, exact match, first wins; slash when root!=bass; no '?'; unrecognised -> notes / NOTE cell 'C3x3'; mono 'C3' unchanged; name once per step/onset change, cached. Budget ~90-140 B Tier1 (HOST ESTIMATE) vs 248 B Elite headroom shared with presets.
+Task for this thread: review the spec for musical correctness and edge cases (inversions, spread voicings, sus2/sus4 and 6/min7 symmetry, aug/dim7, Drone 4 voices vs 6 stored), and propose test-set additions. Return findings only; the files below stay the source of truth.
+
+Files (sha256):
+b3efe9ab29bcdddde071a8442d7b64be75fafab07d86c6a9d745249b17207895  seq-chords/piano-roll.md
+bf01f5e29d575310f857ff1c1ba45a7a3d9159dadef8c52ead7ff3db4aaaada9  seq-chords/diagnosis.md
+5aacebfd3d3c8e767f07abcbac18dc3de3fe9f8617bbbfd5fdb0b3fdafaa1192  seq-chords/SHA256SUMS
+513be5705a89750f3d7d63c146e9235b485208877c8064f486d9d5dba0af5adc  directions/directions.md
+b756dc12473bbc50d5f607fc59b10d427bd6e38688aefea701fe2781da9f4caf  directions/source-mapping.md
+860eb7d488b2b4e80be4cd5c90f04466838aef4b69c00483ea7b8249ac6c1abc  presets-spec.md

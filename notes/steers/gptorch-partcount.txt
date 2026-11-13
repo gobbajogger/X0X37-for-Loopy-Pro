@@ -1,0 +1,3 @@
+How many archive parts are there in total? Reply with the total count and, for each part, its name and whether it is pushed or ready yet. Tell me when every part (all worktrees, source trees and commit heads) is pushed, with branch names and SHAs.
+Also: the 605 source/text versions in the 6 loose folders that are missing from the 26 MB archive must be packed into an extra archive part. Same exclusions: no credentials, tokens, binaries, raw captures, .env or bass303; keep *_private.h. Give its file name and file list.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

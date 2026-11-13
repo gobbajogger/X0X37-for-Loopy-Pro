@@ -1,0 +1,4 @@
+F5 (held) note: source for rows 60/66 is commit 9e237cce, now on GitHub branch archive/box-restore-features-9e237cce.
+LIVE-B = L2+L3+L6 (PANIC = long hold of HOME: all notes off, all modes); held for #789. L8: while muted, the fader must not affect the part; on unmute, level = fader position. Verify #788 does this, else add to LIVE-C (L9+L13). L7 tempo pending owner. L4, L5, L10 dropped.
+
+2026-11-01 04:08 LIVE-B L2 update: autosave ON/OFF toggle in settings (persisted); OFF = manual save only; ON = save only after 1 s output silence + no MIDI in. Settings row needs real-framebuffer before/after mockup for owner approval before code ships. Still held for #789.

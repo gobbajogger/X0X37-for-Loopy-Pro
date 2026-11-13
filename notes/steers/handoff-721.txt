@@ -1,0 +1,36 @@
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+
+HANDOFF: PR #721 (new builder thread)
+Repo: gobbajogger/X0X37-for-Loopy-Pro
+PR: "Add private headers so full builds and tests can run" (draft, open)
+URL: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/721
+Branch: wip/private-headers
+Head: e189819d817dd3c59b4a1d219bf93be9f065d8d7
+PR base now: wip/one-build cb5423c4 (old). Live wip/one-build head: b00b460a91ed99466f41cda0b71507e5e977f409 (#724 merge, verified 2026-10-30 21:30 UTC+10). Rebase onto it.
+Commits: 1 (e189819d, "Add private headers needed for full builds and tests"; 13 headers + .gitignore)
+Merge order: goes in the ONE batch on #734 (no separate first merge).
+
+Status (reported, PR comments):
+- QA 18:56 UTC+10: inputs PASS 12/12 blob identity; docs NEEDS CHANGES. EXTERNAL-INPUTS.md/.json still say the headers are excluded/ignored/not in source.
+- Full host suite, SDK V1.2.1 Elite/Pro builds, devices: NOT RUN.
+- Orchestrator 19:06: update EXTERNAL-INPUTS.md/.json clearance state, push only new, post status.
+
+Task:
+1. Rebase/update onto latest wip/one-build via API; name the base SHA.
+2. Author every commit as gobbajogger (never genkigenki, never a default or custom author).
+3. Get source per docs/FULL-SOURCE-FETCH.md + tools/restore_github_api_batches.py (zipball blocked).
+4. Fix the EXTERNAL-INPUTS.md/.json docs drift.
+5. Run full tests/run_tests.sh + Elite/Pro builds on the exact head; fix real failures on this PR.
+6. Post a status comment: head, base, pass/fail/skip, delta vs base, Elite/Pro, blockers, next step.
+
+Rules: NEVER GitHub Actions; GitHub plugin/API only, no git over network; private headers may be pushed, never credentials/tokens/raw captures; don't reinvent; push only new; approve own posts and GitHub actions; no installs. Click Allow on repo blob/tree/commit/ref cards.
+Also: restore the .gitignore guard lines this PR removed; keep only the private-header allowance.
+
+CURRENT PLAN (22:15 UTC+10, overrides older lines above): FMB fixes the base first (thread A only verifies). Then ONE batch full run (full suite + Elite + Pro) on PR #734 after the owner's go, then merge into wip/one-build (never main/nightly). Do not merge this PR alone and do not wait for an order of PRs; make it build clean on the live wip/one-build head (re-read it via API), push via API with a merge commit (no force-push), and post results. Box runs are only a double-check. No installs.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

@@ -1,0 +1,5 @@
+Repo gobbajogger/X0X37-for-Loopy-Pro. Base build/0.0.24 at d8086cc09. MOCKUPS ONLY, no feature code change: make before/after mockup PNGs from the REAL firmware framebuffer render (not hand-drawn), glyphs and pictures instead of text, beautiful. Put the PNGs on a new branch and open ONE PR into build/0.0.24 with them shown in the PR body. Commit author and committer: gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
+(a) Item 4: HOME + a part's button resets that part's sound to the one saved in the project. First check in the code that this combo is free and report what you found.
+(b) Item 6: effect throw plus the drum fill on the SMC mixer FX page, inside the mixer window, no new screens.
+(c) Item 7: a settings toggle with an on/off option for each synth and each drum part.
+Never touch main or .github. Report the PR URL, head SHA and a link to each PNG. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

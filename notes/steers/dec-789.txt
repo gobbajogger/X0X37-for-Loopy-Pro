@@ -1,0 +1,3 @@
+The single-peer smc_connected out-of-bounds fix must be in the published head. Push it and confirm the head SHA that contains it.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

@@ -1,0 +1,11 @@
+Repo gobbajogger/X0X37-for-Loopy-Pro. QA task (tests and checks are done by you, in this thread; the box only coordinates). PRs: #813 (opt/chicago-coef-cache-0.0.24, head a41651e9) and #814 (opt/miami-coef-cache-0.0.24, head 448225f3). Test each PR ALONE against base build/0.0.24 at d8086cc09, then BOTH TOGETHER.
+Checks, report PASS/FAIL for each, per scenario (813 alone, 814 alone, 813+814):
+1. Full host test suite.
+2. audio_path_identity: output bit-identical to base in every scenario.
+3. Elite and Pro builds with X0X_DEV_PADCAL=0.
+4. package_nightly --check, with the bundled BT controller a334208b (61,552 B, CRC32 564a8f55).
+5. Idle and active CPU, before (base) and after.
+6. Scope: each PR changes only its own item, nothing extra.
+7. Author and committer are gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
+Push the logs to each PR (as a comment or a logs file on the PR branch, author gobbajogger). Do not flash any device. Never touch main, .github, BTIF, USRTRIM, efuse, key_mac or the bootloader. Report the pass/fail table and the log links.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

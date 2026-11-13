@@ -1,0 +1,121 @@
+# SHA256 — /workspace/smk-ux/seq-chords/
+# 2026-11-13 America/Chicago  baseline 94197fc8
+#
+# Diagnosis (SOURCE RECONSTRUCTION) — priority
+bf01f5e29d575310f857ff1c1ba45a7a3d9159dadef8c52ead7ff3db4aaaada9  diagnosis.md
+ababe5fd1cb0ef3b5960143a52240859ddec4acd603b9f9b03763a1fa32a0c4b  render_diagnosis.py
+25aa6e6102548575fea7873b2b52ac49e824310f71c829a675426b2f9ac70838  frames/1x/SR-01-sustained-triad.png
+71135196e85d9c24ba99f2355682bbe574d875793b426a14f962667d7c4f5fc5  frames/1x/SR-02-overlapping-chords.png
+287787b0a208617aa0d60b739a3ac712499cc62f6242df8aaab5622acb15cbfa  frames/1x/SR-03-chord-and-single.png
+6727511df708524e55450a005a0e6047821e7445a37e1000c3ed395e86fcd283  frames/1x/SR-04-voice-limit.png
+02e909dc5eb542a534a98c9472b0712a7cbe904b08b221916f211a7aada711ae  frames/1x/SR-05-beyond-limit.png
+484864bfbb9debdd5efdb08dfa4285956f7be71572fede42d7bcfb6e8beb5d6d  frames/2x/SR-01-sustained-triad.png
+8d77f5f8af7f4bb9824aa05d394eccb93dc7976326c89b78a48e528c54c898fb  frames/2x/SR-02-overlapping-chords.png
+c5efc89e07c8d6879e1690eb6c15424c38d5c54f7ff2d66b41a7cf8b0e3a0c0e  frames/2x/SR-03-chord-and-single.png
+c832109daa07d4b171bc0897de8a8d83ed1352bdc7903c56be9124fcfec30286  frames/2x/SR-04-voice-limit.png
+e28a9fdfaa2cc97c770dcca4eda9058d43cf34ce07cc6959eb110ef09c88cbfb  frames/2x/SR-05-beyond-limit.png
+88370ecd3842e6b2a268374a05e34e6bd418313b015e6409535808c7739b33c0  sheet-diagnosis.png
+8d84847a709cb46ad43b142b8c58486183dc3c77dd5445ee143614a1115d10de  sheet-diagnosis-2x.png
+#
+# B chord/note view (PROPOSAL) and A/C variants
+e31a049dff7f8354af907777f018425c0591f32033bca00ad1d1599dfd1a475c  piano-roll.md
+c67933e7f9cd7dc2f9162174cd571be8518fd1484b53380beccc6c0dfd19db6a  render_piano_roll.py
+a31ac04e1e313b1adfdce9220e5bcb5758fc00e7d41c41cbebcc3f8ca6e57ce5  frames/1x/A-01-sustained-triad.png
+4f157bfa3f71b62ada0a1ba63b37dfafd67a46d8cf50bbb374a3f35fb6b626d3  frames/1x/A-03-chord-and-single.png
+c5149951c986d22acec5a21e22a88f4f52ea6e7a1b317f76eba7950e5c6f7608  frames/1x/B-01-sustained-triad.png
+005bd018ae29342dc1a073de199b1b59da138b701b655d46f1e217c5c45676bd  frames/1x/B-02-overlapping-chords.png
+54fa15a0acfd245de45460da125e0e2b01f423dff1c3b20c5cf8e4efbcb22fd9  frames/1x/B-03-chord-and-single.png
+194d68f668c20a3144b15e2f9e338cc5805e55a93b17686814ae00c98cc5d2f4  frames/1x/B-04-voice-limit.png
+6cb5c1001597a22553937916d85202a6b5db3e4c50fda499c0759035d3184de3  frames/1x/B-05-beyond-limit.png
+fb9d4bf1d2d3cdab518f736693e076c7a4d2669eb79dd4fa94337ee496500691  frames/1x/C-01-sustained-triad.png
+46353956f2f07edeba63e030eb80e8198b8bebfdfefabc560d7b6b40c377ff97  frames/1x/C-03-chord-and-single.png
+5b636847d808eb75f83034011d71f4ec21cee53208e633c18abded467a82b7e2  frames/2x/A-01-sustained-triad.png
+e5f0f38356e2b5ce33db6b11d1bbb29febe3efccbd562f11f0f4e0ae3b1a0e41  frames/2x/A-03-chord-and-single.png
+04eeed6b2b3a250727ab360606ae7bc12a21ae735946748dc049a349315777a6  frames/2x/B-01-sustained-triad.png
+c4eef08c963b01b1871a6042e408ad7055b28035d4f44161763b84545960d691  frames/2x/B-02-overlapping-chords.png
+3e397648291fcf0aa632ee7610bba432285054159b9c0dd95995eef34e3f551f  frames/2x/B-03-chord-and-single.png
+0ce2881a666759f2ad65fc2ae6f01901dbb61d2d2b86965f0d135e50b3affd78  frames/2x/B-04-voice-limit.png
+4f176f048af62856ee27dc8c712cae8ead4834732cc36bd484cf341882f32285  frames/2x/B-05-beyond-limit.png
+0ddb6a4a9b61156b2c1e1c9bdb17a53975ae98a65b555b96530a60fc37f8c105  frames/2x/C-01-sustained-triad.png
+afad2e3f743882270d023ead233adfc4f209f351dab7c2001500b96e46e2f1db  frames/2x/C-03-chord-and-single.png
+712f1499c554e19d8c02456bd649e3b0cd97f6e826c90326b832b8c9ba591cc5  sheet-B.png
+03229ddc3fb55130da1fca5e2209930936271f8f5692f72e3373c0bc6a6b0bed  sheet-B-2x.png
+6eff263b843e675777af2365736370167a8a1e73c578a340ce78d3dccefd3cca  sheet-variants.png
+5e646a5704404c8c4b60f1e0dfcd6e383f692e5df3110314c23400904806ed37  sheet-variants-2x.png
+#
+# Chord notation (§9 of piano-roll.md) — PROPOSAL, host-side
+# 1× = native 240×240; 3× = nearest-neighbour zoom
+c286bd67bd8474d0a7572fb6a7a18af7eef01d6ed1db820328298872d0ff357a  chord_name.py
+4526a0f35aedb521fac12a4fc6251eefb8b4bc91ebb39bd651bc506a618b2e11  render_chord_notation.py
+53722c04395a06cbb629c046a1b2802d24a9dc53bbfd12a2b1c86c68405b2ab4  host-size/seq_chord_name.c
+ba9094cc5b1410f7ad12da6de8aa4cb3b2f44ec8ba99efb383c37e2aeb2799d3  host-size/measurements.txt
+8e9608c4f008da3f4bfef74d5dccc652f9e3485e0740b43b0486cd0c48f694ba  host-size/measure.sh
+67c935ea72f3e8ba904b25601dba2c7b5f16c19184e1e5c3c6e91b4bcca839dd  frames/1x/N-01-held-maj.png
+4b497f145ed375a170ce6d41fbf9bd8aec53f9b9aee42828502d1135b1347eba  frames/1x/N-02-held-maj7.png
+149ace4ed9e0535669b004219ffb62a8687f4344bc87bf779941196b0e947562  frames/1x/N-03-held-hex.png
+f46fb46061f6aa6ce9b3cb1d2e79434d1b892ffed72a1c437d9fe92e717b9ff3  frames/1x/N-04-held-mono.png
+996d8fb1adb6f00380cffdd4bc93d22972bd0474520ca654514e353550734c13  frames/1x/N-05-held-dyad.png
+15d3b932f71db0174725d511e45fcfd7e8ed6a1b6f1322e025f06690e627a038  frames/1x/N-06-inv-C-over-E.png
+2d6f530a49d7edd4c4ec2e147959d468fd59987b30d3efeebdb7a8f7f6058cf2  frames/1x/N-07-spread-maj.png
+289967c2fad39fa94df18536eb30e133ecf9982d5578d6f2fa8d2cfd1cc5885d  frames/1x/N-08-CEGA-tier2.png
+919bea9da77422f8edf16952ac98b4c8d6886fc745f9174e0bc98dcc76d9fbe7  frames/1x/N-09-CEGA-tier1.png
+420125179635af9902b96ed2bb15146e67a43c061040b033ca10e05d963d91be  frames/1x/N-10-cluster.png
+63ea5b1cab0f54ba8efb365458ae4b63df9f859723a48979a3a8bd1a6b24c18d  frames/1x/N-11-power-C5.png
+051fa4db82f40b88d8f1155ed8c645a4a86b900d7c032c58dc541a1eeb149a26  frames/1x/N-12-min7.png
+ab3f66d71548166269f0ed6f24d1a53763830b4c7b44dab00da4dfdcf526aef1  frames/1x/N-13-oct-double.png
+e01c1326955df4985efc28d89b0c108e22cc48609d3c99aab8cf10484a9d44df  frames/1x/N-14-min7b5-slash.png
+b0833976ca79200f7ccd279aa64bfce1cc18c6f6e4208a750c21d0d455e77362  frames/1x/N-15-drone-overflow.png
+671fcb285f26beb309cbe423cc72ba823fe60be8d22e7113d01aaf872e3751b5  frames/1x/N-16-aug-bass.png
+3b65e002eb1c9b7621cfd51c0772d558c0cde4a5fbc949f9cede11600944e84e  frames/1x/N-17-sus-ambiguous.png
+a34f8f667bd7bb21985c7a4b6bc5b9334d3262d6b6068d3137c98b46d8c7a0c9  frames/1x/N-18-longest-slash.png
+2985efeb225cde96677c3c9ba4a5a9606f36f37be0db9ac4ce931c704c186bcd  frames/3x/N-01-held-maj.png
+48b28ddcabcc858ee1463ec5e31a9eac89aaebfeb8e28fd7735b7fe7d6f877c4  frames/3x/N-02-held-maj7.png
+b4b08d1e10b4d16d164f9e42b7bfcc169b17a48501199f3842b87e507b948dc0  frames/3x/N-03-held-hex.png
+e530fcdce8f6ddf678abb0453c95dfa423f48fc30628c2fc87bfa6e4fe88d938  frames/3x/N-04-held-mono.png
+d71b84fef1aedf50dd9b3c8d27bcd5723bdf147957c4f8be6447ab087b3bcccc  frames/3x/N-05-held-dyad.png
+a8d4f81fe033f58715ac8e84f6bba84c3b2fe024e4e4d10d39c2949f68d76756  frames/3x/N-06-inv-C-over-E.png
+272bdc75e3d5e12c8570bac73a3e4d28c291ad451d54fec5e82e3e026997ee50  frames/3x/N-07-spread-maj.png
+6e3db3b6c9804138583753a9701c853dc08fcfde1db2fc9774983f202108a937  frames/3x/N-08-CEGA-tier2.png
+acd0f24039b1f14ea4991623a22b9651a5a05cbfe39661be8de58c69060f41f6  frames/3x/N-09-CEGA-tier1.png
+684eaf20ae447a2c36f74d303ad207826b2fb35e4c9c422913ec7eeb11db40ab  frames/3x/N-10-cluster.png
+80f5616e7288a0c29ede97ace08f890e6781edbe69118cacd4e2d6811249c1d3  frames/3x/N-11-power-C5.png
+cb268c91d73207f88064c2c8d23da3fb2d65876896a4db31edb31bd783f1a341  frames/3x/N-12-min7.png
+f0341ff9cfca50e2a18976b1b780f2e86daca27a8a702b14d893f251bd96a849  frames/3x/N-13-oct-double.png
+9f98252b98b4f14b53e11b625dff1ddc536c7ac0f4f73fd2cb3324907b83c069  frames/3x/N-14-min7b5-slash.png
+e95fc2163ad91a78ce87c6f385002c8450f5106a6b88421cf9f0f62d1fc48008  frames/3x/N-15-drone-overflow.png
+fd08e187a0267d615a67a30082267cb769391399e3e49604e8966d7e36d242d8  frames/3x/N-16-aug-bass.png
+4078a8fe52601edb6242ca86ec376c1b8e371832ed5b022c59483726831dcf3c  frames/3x/N-17-sus-ambiguous.png
+d8a2ece8a78d46eaf31cde61c6d7077eb9abeea2dddbdebc39b326a74bc78bda  frames/3x/N-18-longest-slash.png
+5091fa053b7aaf91a54d63549978ae778b0146c0be11979e0c8241b578b37418  sheet-notation.png
+182ad7b57fc08a6255a2677afa0c3da1b312be72f85157de317f3d6f2fc41a3f  sheet-notation-3x.png
+#
+# §9.8 errata + §10r (actual notes, exact names only) — PROPOSAL, host-side
+# §10 (interval forms / Rec ship) is SUPERSEDED. 1× = native 240×240; 3× = nearest-neighbour zoom
+# Errata section (§9.8) sha256: 2f47d5e1a9e74ce4bd5ceb046668efd2b69f847790c5d17d9936d9e10a18b9a7
+555607056f7b2a1aa943b098d0f252aed2ddc28ae9031f7c78b0bb0a97bf6027  host-size/seq_chord_label.c
+b471bf985d08cdea3d6d9c8d551f1bc268a0b380c53ee35984344106f2f40de1  host-size/measure_label.sh
+688b4e934f522a611477a0d449e62f265458fd9dbb20eb2b167a02bf0b8e6aeb  host-size/measurements_label.txt
+2156c4e876e5b1e1877be260f3c0a15c6c622df31b1a36ac84fe426dd52f6858  render_ambiguous.py
+4d2c83ff315b5e1ad0411979cce7951da74253f6e5fff127709e88b8cb4f9cc4  sheet-ambiguous.png
+7c52d3e65042dec96ab2179949a470993a7062c6513c0bdb6cb84ee81de846e0  sheet-ambiguous-3x.png
+42e8dfa580fcb0be1dfb0714c5b5e9cf61e26edefe205d2cbb4bc5f72f125ec0  frames/1x/AMB-R-01-dyad.png
+cf3e1cb11c29ef92e03dfe7a5446daa6fafb5ffca036aedbdcb7462fa45e621f  frames/3x/AMB-R-01-dyad.png
+61f1e34566f23df3e5352a147e354154974e6b8437edc545d5cbdb0242b7f629  frames/1x/AMB-R-02-cluster.png
+ebaaa0495010ded947e35fef5dae65805a7cd6e720bb5eab2ca1038c0876bc62  frames/3x/AMB-R-02-cluster.png
+77a41ce592d30c79eb2c59b46c30469f9abffeb137da2a42b7a3009f7872c6d3  frames/1x/AMB-R-03-susamb.png
+1f96020e6cb9f6f6e8f379fe86ad54419d834e863280bdb18233210c90642fe7  frames/3x/AMB-R-03-susamb.png
+55df5bf8524128059e304a0f29ea819f44a2c3effe3cb03a95201055aef6ef09  frames/1x/AMB-R-04-add9.png
+e1320a9274a17ce1d13c23e2129a4a23028cc144716f42eb385b3ae0154c964b  frames/3x/AMB-R-04-add9.png
+030b12d0aeae43b8b9a03ca3864a00b066b8a3543fa5b045d3c0a48aefa8690c  frames/1x/AMB-R-05-hex.png
+f1b4ff67bc43634792eab1c842550b5df41aae850b9870d6151d71a2fff19091  frames/3x/AMB-R-05-hex.png
+# §10r frames (AMB-9 = §9 compact; AMB-R = §10r exact or notes)
+996d8fb1adb6f00380cffdd4bc93d22972bd0474520ca654514e353550734c13  frames/1x/AMB-9-01-dyad.png
+420125179635af9902b96ed2bb15146e67a43c061040b033ca10e05d963d91be  frames/1x/AMB-9-02-cluster.png
+3b65e002eb1c9b7621cfd51c0772d558c0cde4a5fbc949f9cede11600944e84e  frames/1x/AMB-9-03-susamb.png
+a2045704541497264bad0bb1b7bc428db30c8dcd51ec02762c5595b69aae8bd2  frames/1x/AMB-9-04-add9.png
+149ace4ed9e0535669b004219ffb62a8687f4344bc87bf779941196b0e947562  frames/1x/AMB-9-05-hex.png
+d71b84fef1aedf50dd9b3c8d27bcd5723bdf147957c4f8be6447ab087b3bcccc  frames/3x/AMB-9-01-dyad.png
+684eaf20ae447a2c36f74d303ad207826b2fb35e4c9c422913ec7eeb11db40ab  frames/3x/AMB-9-02-cluster.png
+4078a8fe52601edb6242ca86ec376c1b8e371832ed5b022c59483726831dcf3c  frames/3x/AMB-9-03-susamb.png
+7e8185d2b5ae64406a51e5b439b0d36b6f5a02768bfc6c22da5897cda05fd154  frames/3x/AMB-9-04-add9.png
+b4b08d1e10b4d16d164f9e42b7bfcc169b17a48501199f3842b87e507b948dc0  frames/3x/AMB-9-05-hex.png

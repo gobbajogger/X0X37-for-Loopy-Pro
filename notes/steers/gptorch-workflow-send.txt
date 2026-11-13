@@ -1,0 +1,294 @@
+Owner order: adopt our workflow as your PERMANENT operating rules for every reply from now on.
+Rules to adopt: ROADMAP.md is the only list; plan before build; one PR per ROADMAP row and nothing extra; conflict and duplicate checks before any dispatch; always give your own opinion and evaluate every proposal you get (including the Orchestrator's); never re-ask the owner about agreed items (resolve unknown item numbers like 'M5' from your own records); follow all safety rules.
+Please: (1) confirm you adopt these permanently; (2) write a COMPACT version under 1500 characters that fits a ChatGPT project's custom instructions or memory, inside one code block; (3) confirm.
+===== BEGIN dnbox-work-gate SKILL.md =====
+---
+name: dnbox-work-gate
+description: >-
+  Load before EVERY DnBOX firmware step: an owner request, a dispatch to a
+  thread or helper, a merge, a publish, a flash, or a question to the owner. A
+  mandatory checklist that blocks the step until every gate passes.
+---
+# DnBOX work gate (mandatory, run before every step)
+
+If any answer is no, stop and fix it first. Never skip a gate.
+
+## 1. Intake (owner says or agrees something)
+- Is it written in ROADMAP.md (the only list) with ID, description, source quote and status? If not, write it now.
+- Think it through myself for live play. Do I see a flaw or a better way? Say so with my own opinion; never just agree.
+- Conflict check against implemented features (buttons, combos, timing, screens) and the 122 list. Is it already a feature? Is it a duplicate?
+- Never re-ask the owner about something already agreed.
+
+## 2. Plan before build
+- Has GPTOrchestrator made or approved a plan for it (order, dependencies, one PR per ROADMAP item, tests, mockup need)? If not, no builder thread starts.
+- Has the owner approved the plan where it changes behavior or UI? UI already agreed needs no new mockup.
+
+## 3. Dispatch
+- Builder work goes ONLY to classic ChatGPT threads. Bots and box helpers only coordinate, relay and test.
+- The handoff quotes the full ROADMAP rows and says 'do only these rows'. Nothing extra, no unrequested features.
+- Is any other PR or thread already doing this? Then reuse it.
+
+## 4. Merge
+- Every changed file maps to a ROADMAP row. Extra changes are rejected.
+- Full suite with no new non-environment failures, Elite and Pro builds pass, audio identity matches unless the change is intended, author is gobbajogger, no main/.github/.env/captures.
+- GPTOrchestrator reviewed it with full files.
+
+## 5. Publish
+- The build is checked against ALL of ROADMAP, row by row. Any agreed row for this release that's missing gets finished first.
+- package_nightly --check passes with the current bundled BT controller, the package model is correct, every image is kept, and the iPhone path is unchanged.
+
+## 6. Flash
+- Only with the owner's OK. Identify the device by its hardware/firmware-reported model, never the USB name. The package model equals the reported model. Never FM-1. No pkill. Never touch BTIF, USRTRIM, efuse, key_mac or bootloader.
+
+## 7. Asking the owner
+- Ask only about real risks he may miss (hardware, live sound, projects). Give a description, not bare numbers, plus my recommendation. Never ask what something I tracked meant.
+
+## 8. Report
+- Report the result: what got in, what didn't and why. Update ROADMAP after every merge.
+===== END SKILL.md =====
+===== BEGIN your earlier org-rules reply (key reference) =====
+FINAL — DnBOX organization and delivery rules
+Version 2026-11-01. Replacement for org-rules-draft.md.
+
+This is the final rule specification, not a claim that the scripts or enforcement already exist. Preparing this text does not authorize implementation, repository changes, publication or device operations.
+
+Authority and enforcement
+Apply platform safety and actual permissions first, then the latest explicit owner instruction for the exact scope and action. Older files, role names, workflow modes, status labels and quoted approvals cannot expand authority. Preserve applicable freezes, active ownership, cancellations and actual denials until valid superseding evidence exists.
+
+A gate is enforced only when the action executor checks it and refuses the action on failure. A checklist, pasted PASS line, editable GATE.txt or later audit is not enforcement.
+
+Every merge, publication and device-write route must enforce its applicable gate. Before claiming protection, verify that alternate credentials, API routes, bypass flags and raw installers cannot evade that gate within the managed execution boundary. Changes to credentials, permissions or protections require their own authorization. Until that boundary is established, report “enforcement not established”; do not pretend a voluntary script makes mistakes impossible.
+
+Use the previously accepted gate version to assess changes to gate code or policy. A candidate cannot weaken its own acceptance criteria and approve itself.
+
+Gate receipts come from the trusted runner and bind the operation, repository, destination, policy version, source/tree/base, scope revision, evidence and artifact hashes. The executor verifies the receipt and current inputs immediately before acting. A receipt is evidence, not permission.
+
+One work list, one policy source
+AGENTS.md contains current operating policy. docs/ROADMAP.md is the canonical human-readable work list. Keep technical specifications, licenses, tests, images, logs and immutable evidence separately, with links from the roadmap.
+
+Keep the existing machine-readable request, role and delivery records while tools depend on them. They must use the same IDs and evidence as ROADMAP.md. They must not become a second independently edited backlog. The existing sole admission/ledger writer controls state changes; Docs Keeper maintains the roadmap presentation through that flow.
+
+Do not create intake/pending.md and intake/ideas.md as additional live queues. Use Intake and Ideas sections within ROADMAP.md, or the existing intake system with a generated roadmap view.
+
+Each canonical item must have:
+
+Stable ID and namespaced aliases. Preserve existing request IDs; do not renumber them merely to introduce R-NNNN.
+Plain title and complete behavior: trigger, result, limits and exclusions.
+Source reference, date and verified authorization provenance.
+Decision state: proposed, agreed, deferred, rejected or blocked-record-recovery.
+Explicit release commitment, or unassigned. “Agreed” alone does not mean “must ship next release.”
+Applicable models and surfaces. DnBOX targets Elite and Pro; FM-1 is not an admitted target.
+Current accountable owner, active work unit and PR links.
+Dependencies, overlapping controls/scopes, and their resolution.
+Acceptance criteria and evidence references.
+Next action, receiver and completion criterion.
+Keep source delivery, independent review, host tests, native builds, visual validation, package qualification, publication, installation and hardware acceptance separate. Each applicable check is PASS, FAIL, NOT_RUN or BLOCKED; N/A requires a recorded reason under the accepted acceptance contract.
+
+“Done” means the item’s declared outcome has been delivered and evidenced. A source-only task can be done as source delivery; that does not mean the feature is installed or shipped.
+
+The linter validates structure, references, unique IDs and valid transitions. It does not impose arbitrary word counts or reject honest unresolved records. Empty acceptance criteria block implementation admission.
+
+Intake and forgotten agreements
+Record every owner request in the same session, before dispatch. Keep the original source accessible privately where needed; public records contain a nonsecret technical summary and a provenance reference, not private owner quotations.
+
+For meetings, reconcile each recorded agreement to a canonical item, a documented duplicate, or an owner-authorized rejection. Report the complete read-back with full behavior descriptions. Existing explicit agreement does not need another routine “yes.” Silence is not approval of a changed scope.
+
+Never ask the owner what “M5,” “item 5,” or another forgotten item number means. Recover it from conversations, meeting notes, recordings, archives and prior work. Record what was searched and what remains unavailable.
+
+If recovery fails, retain blocked-record-recovery with the original alias and source. Do not invent its meaning, delete it, mark it rejected, move it to later, or turn the agent’s lost record into an owner question. Continue unrelated work. Do not claim that the affected meeting or release is fully reconciled.
+
+Before calling a feature missing, inspect the current registry/crosswalk, delivered source, relevant PRs and retained archive evidence. An old tracker entry is not proof of present absence.
+
+Duplicate and conflict checks
+Keyword searches identify possible matches; they do not decide equivalence. Compare intended behavior, acceptance criteria and source provenance before merging records. Preserve every alias and source when duplicates are consolidated.
+
+Check active claims, open and relevant historical PRs, branches and supported worker state. Complete required pagination. Failed or stale reads mean unknown, not “no duplicate.”
+
+Check shared controls and state paths, not just files: press/release, long hold, modifiers, mode, page, part, connection and cancellation. HOME long-hold PANIC and HOME+part reset must have an explicit coexistence rule and positive/negative tests.
+
+An overlap is not automatically an owner decision. Resolve technical coexistence within agreed behavior. Ask only when a real unresolved product choice, authority or material risk requires the owner.
+
+Dispatch and ownership gate
+dispatch_check must validate the accepted item revision, current scope, exact base commit, branch, model/configuration, dependencies, affected tests, exclusions, receiver and done criteria.
+
+Acquire the active claim atomically through the existing sole admission writer, using an expected state revision. Search-then-write is insufficient. Two simultaneous claims for overlapping work must not both succeed.
+
+One cohesive work unit has one accountable producer. One PR may cover several items; one item may have sequential or explicitly disjoint PRs. Do not impose one PR per row forever. Preserve historical PRs and explicit handoffs.
+
+Receivers validate the issued claim receipt against current state. A first-line PASS string is not a claim. Record the receiver’s first substantive action separately from a sent pointer.
+
+Preserve external chat owners and independent reviewers. Do not infer release from silence. Within the admitted DnBOX chain, use at most six concurrent native subagents across the chain, not per event. Do not create Work/Codex tasks or new Chat threads. Existing continuations retain their branches; new admitted unowned implementation uses wip/<lane>, unless an explicit scoped owner assignment names another branch.
+
+A substantial implementation/integration plan must be reported with a recorded message receipt before implementation or integration. Reuse the accepted plan; do not restart it at each event.
+
+Implementation and scope gate
+Implement only the admitted behavior and necessary supporting changes. Map changed behavior and diff hunks to the accepted scope, including affected callers. A row ID in a commit or an allowed filename does not authorize unrelated changes inside that file.
+
+Record useful extras as proposals; do not implement them without admission. Do not remove existing behavior, reduce audio quality, weaken tests or consume protected data space to make a task pass.
+
+Use isolated owned workspaces. Serialize shared-file mutations and hardware sessions. Stop only owned processes by verified PID, never broad kill commands.
+
+For repairs, establish the cause with current evidence and meaningful fail-before/pass-after plus affected negative tests. Do not make every source repair wait for physical INLOG when an adequate authorized reproduction exists. Do not claim that a synthetic reproduction proves hardware behavior.
+
+For optimization, measure before/after on identical inputs and account for code, RAM, decoder/cache overhead and worst-case behavior. Host timing is not device CPU, latency or XRUN evidence.
+
+Review, source delivery and merge gate
+Keep source fixed during an independent review. Preserve the existing reviewer, stable findings and review budget. Review only affected changes and unresolved findings in later rounds. Timeout, refusal or exhausted budget is HOLD, not approval and not permission to rename the package and restart.
+
+Normal source delivery requires the applicable review and test evidence, exact remote commit/tree/file readback and a usable PR receipt. Preserve current author and committer policy: gobbajogger 255244738+gobbajogger@users.noreply.github.com. Matching those strings does not substitute for authenticated authority.
+
+Use GitHub API/connector routes in Chat, not network Git. No force push, protection bypass, automatic GitHub Actions tests or .github changes.
+
+merge_check validates current head/base, accepted destination, sole merger claim, scope, independent acceptance, unresolved findings and exact required evidence. Recheck head/base at execution; a changed merge result requires affected requalification.
+
+During iteration, run focused checks and reuse unchanged proof. Firmware integration and packaging qualification require the full required host suite and Elite and Pro builds on the selected immutable inputs, with zero failures and zero skips. Missing or environment-blocked required checks remain NOT_RUN/BLOCKED. “Zero new non-environment failures” is not equivalent.
+
+Documentation-only work needs content, link and policy checks, not firmware builds. Source review, BUILD_ONLY, merge, publication and device acceptance remain separate.
+
+Only the existing qualified merger may use an expressly authorized target. These rules grant no main/nightly merge, publication or device authority. Separate current action-specific permissions remain applicable; an older blanket branch ban does not erase them, and a broad permission does not override a narrower task restriction. Never blindly retarget stacked PRs.
+
+Images and visual evidence
+Preserve original supplied images and accepted references by content hash and provenance. Check additions, modifications, deletions, renames and replacements. Existence alone and diff-filter=DR are insufficient.
+
+Asset changes require mapped scope and review. Keep prior versions recoverable; do not retain obsolete runtime assets merely to preserve history. Never strip images or private headers simply because of their filename.
+
+Within admitted visual work: mockup → independent semantic/readability/edge-state/feasibility review → implementation → actual candidate validation. Label proposals as proposals. Use real firmware-framebuffer renders where required, and actual browser interaction for web acceptance.
+
+Report meaningful completed visual stages and the actual preview before rollout. Do not add an owner-aesthetic-response wait where current authority makes the preview informational. A specifically scoped mockups-only instruction still forbids implementation.
+
+Release commitments and completeness
+Before release qualification, pin the agreed release obligation set, acceptance criteria, model matrix and source provenance. Keep an append-only decision history.
+
+A release check must compare against that baseline, not only today’s remaining rows. Deleting a row, marking it rejected, changing its target/model, weakening acceptance or silently substituting a feature cannot remove a commitment. Such changes require a verified applicable owner decision.
+
+Existing behavior remains a regression obligation. A feature commit being an ancestor proves provenance only: later commits may revert or break it. Require current-candidate behavioral evidence.
+
+A test filename appearing in a log is not coverage. Reconcile the expected test inventory against actual executions, outcomes and complete logs. Missing selectors, unregistered tests, interrupted runs and silently reduced inventories fail qualification.
+
+A selected 21-test union, a focused PASS or a PR list must never be presented as the entire host suite.
+
+Exact roadmap_gate.py contract
+Command:
+python tools/gates/roadmap_gate.py --release <version> --candidate <full-commit> --roadmap-ref <full-commit> --baseline <immutable-release-scope-receipt> --evidence <evidence-manifest.json> --artifacts <directory> --destination <authorized-destination> [--dry-run]
+
+The gate resolves and verifies inputs; it never silently uses “latest.” It performs these checks:
+
+RG01 Schema and provenance: valid canonical records, stable IDs, aliases, source reconciliation, authorized transitions and complete relevant input reads.
+
+RG02 Release scope: every baseline obligation is present; all additions, deferrals, rejections, model changes and acceptance changes have valid provenance. Unresolved record-recovery gaps affecting completeness block qualification.
+
+RG03 Behavioral coverage: every committed item/model meets its acceptance criteria on the candidate. No unresolved blocking conflicts, unsupported done claims or ancestry-only acceptance.
+
+RG04 Evidence integrity: verify producer/reviewer identities, exact source/tree, configuration, SDK/toolchain/controller/generated-input closure, commands, complete logs, exit statuses and expected test inventory. Reject stale, fabricated, truncated or mismatched receipts.
+
+RG05 Required qualification: full host suite and Elite/Pro builds satisfy zero-fail/zero-skip requirements; applicable audio, storage, installer, visual and other required checks pass. Host estimates do not satisfy required hardware checks.
+
+RG06 Real package targets: parse each package and payload, verify supported model, build target, board/layout compatibility, address ranges and provenance. Filenames, manifest text and an embedded display string agreeing are not enough. Reject FM-1 payloads for SMK-37.
+
+RG07 Bluetooth completeness: verify the actual matching controller bytes inside the assembled install package, expected digest, size, format, configuration, version compatibility and safe placement. A nonempty ctl.img, self-computed CRC or bt_bundled flag alone is insufficient. Controller reuse requires proven unchanged inputs and identical bytes.
+
+RG08 Assets: verify retained/reference hashes, authorized changes, independent visual evidence and actual candidate renders for relevant UI work.
+
+RG09 Release configuration and budgets: X0X_DEV_PADCAL=0; free pool at least 8192 bytes under the supplied applicable policy; no flash/RAM-region overflow; all other required model-specific limits and safety reserves satisfied. Missing limits block qualification; never invent or silently lower them.
+
+RG10 Publication authority and content: exact destination/action permitted, required ownership present, distribution rights established and excluded material absent. No credentials, unrelated private samples, raw captures, restricted SDK/toolchain material or other prohibited bytes.
+
+Complete install-package qualification and lawful publication are separate. If the required controller cannot lawfully be redistributed, block that publication. Do not publish restricted bytes or silently omit Bluetooth. A separately authorized local-assembly delivery must verify the complete assembled package before installation.
+
+Output one machine-readable JSON report and readable lines:
+GATE <check-id> PASS|FAIL|BLOCKED|ERROR <reason>
+
+Exit codes:
+
+0: all applicable requirements pass.
+1: an evaluated requirement fails.
+2: invalid invocation or malformed schema.
+3: required input, dependency, identity, authority or evidence is unavailable/unverifiable.
+4: internal gate execution error.
+Report all findings. For mixed categories, use precedence 4, then 2, then 3, then 1. Every nonzero exit, timeout, signal, malformed output or missing required receipt blocks the next action.
+
+Dry-run issues no action receipt. A real successful run atomically issues an immutable trusted receipt with the complete artifact allowlist, sizes and SHA-256 hashes. Failed attempts cannot leave a reusable stale PASS. Preserve earlier receipts as history, not as substitutes for the failed candidate.
+
+The publisher verifies receipt authenticity, current authority, exact destination and artifact bytes immediately before upload. Reject unlisted files, path escapes, symlink substitution and changed bytes. Verify remote hashes and catalog/installer linkage afterward. An uncertain upload is reconciled before retry.
+
+Device-write gate
+This section defines requirements only; it grants no device access, probing, flashing or recovery permission.
+
+The authorized device operator must verify the current exact model/action grant before any protected device operation. An editable quote in flash/grants.md, a role title, an old automatic-install rule or a package PASS is not sufficient authority.
+
+Use a verified physical identity mechanism independent of USB display names, port order and mutable application model strings. Confirm board/model compatibility and physical continuity through reconnects. A supplied serial or one connected device alone does not prove either. If the hardware cannot provide sufficient identity, block the write; do not invent support or fall back to a name.
+
+Under an exclusive session lock, bind a short-lived, one-use write receipt to the verified device, artifact hashes, permitted address ranges, grant and verified backups. Revalidate immediately before writing and after reconnect. Wrong-model, same-model swapped-device, stale-sibling and changed-package cases must fail.
+
+Before writing, verify readable off-device backups of occupied sample slots, project/calibration data and required layout metadata. Preserve existing backups. Never write BTIF, USRTRIM, efuse, key_mac or other protected ranges. Bootloader work requires a separate explicit scope and cannot be inferred from an install request.
+
+Use the supported guarded installer and supervise the operation. Afterward, verify firmware/controller readback and per-slot content/CRC plus metadata. A whole-file CRC does not replace per-slot preservation checks. Report mismatches immediately; no automatic rollback, recovery or repeated write without applicable authority.
+
+Questions and reports
+Before asking, search the relevant existing decisions and evidence. Do not make an incomplete search look complete. Never ask the owner to reconstruct forgotten item numbers.
+
+Ask promptly for an actually missing decision, permission or material risk. Describe the behavior and consequence in plain language, with options where useful. Do not force an unsafe default or restrict necessary questions to one message per day.
+
+Batch routine summaries. Do not suppress meaningful completed-stage reports, changed blockers, safety notices, required approvals or verified delivery until a daily slot. Send each result once.
+
+A daily review, when already authorized, checks changed items, upcoming release obligations, unresolved record recovery, actual owners/consumer actions and violations. It does not create extra schedulers or repeat unchanged audits. A blocked stage blocks only dependent work.
+
+Violations and gate verification
+The trusted runner records append-only receipts. Audit actual action records against them, not just agent-maintained PASS text.
+
+Before enabling an enforced gate, independently test:
+
+Direct action without a receipt; forged, expired and replayed receipts.
+Deleted/retargeted release obligations and weakened acceptance.
+Concurrent duplicate claims.
+Reverted implementation with ancestor evidence.
+Missing, skipped, failing, removed and unregistered tests.
+Modified assets at unchanged paths.
+Dummy/wrong controller payloads.
+Consistently mislabeled FM-1 images.
+Package substitution after PASS.
+Wrong-device/reconnect/same-model swap and revoked grants.
+API failure, incomplete pagination, missing history and malformed logs.
+Unsafe cases must block; legitimate authorized cases must pass. Use simulation for device negatives unless physical testing is separately authorized.
+
+A violation stops the unsafe action and its dependent work, preserves evidence and identifies the cause. Resume only after the relevant correction and regression proof. Do not halt unrelated lanes, reset review budgets, delete evidence or alter automations.
+
+Transient recovery uses the current bounded retry policy. Denials, cancellations and exhausted reviews are not transient errors. Never blindly retry an uncertain write.
+
+Migration and consolidation
+Migration is a separate authorized documentation task, not a side effect of this review.
+
+Inventory all 174 claimed master-tracker entries and the earlier roadmap sections. Recount the actual rows. Preserve an immutable original snapshot and a crosswalk from every old entry to its canonical item or evidence record.
+
+Merge genuine duplicates only after semantic review. Preserve distinctions between similarly numbered aliases. M1/L6 may map to one PANIC request; M2/L8 may map to one retained muted-fader decision. M5 remains blocked-record-recovery until recovered.
+
+Do not convert “in 0.0.24” into qualified or done. Many supplied rows explicitly say partial, source-only, research-only or NOT_RUN. Preserve those limits and verify actual source adoption instead of assuming that a “merged” tracker label means the PR itself was merged.
+
+Consolidate current operating policy from:
+
+agent-rules.md and rules/core.md, commit.md, device-bug.md, docs.md, install.md, integration.md, owner-messages.md, shared-work.md and style.md.
+steers/preflight.txt.
+Both supplied AGENTS_AND_ROOMS.md versions.
+Applicable operating-policy entries in USER_PREFERENCES.md.
+Move applicable behavior decisions, commitments and open work into ROADMAP.md; retain detailed behavior specifications separately.
+
+After crosswalk completeness, evidence retention and link checks pass, replace obsolete operational copies with canonical pointers or archive them as explicitly historical. Remove duplicate live status maintenance from FEATURE-REGISTRY, briefs, spreadsheets, lane plans and handoffs. Keep their unique technical/reference content.
+
+Update x0x37-builder-loop and fast-firmware-one-build to reference canonical policy rather than copy it. Do not delete licenses, technical manuals, immutable logs, screenshots, approved source headers, backups or required runtime records merely to leave two files.
+
+Explicit conflict resolutions
+Final prohibition on asking about forgotten item numbers overrides draft S1.6, G7 and the M5 “ask owner” next step.
+Current autonomous visual stages override older blanket owner-aesthetic reply waits; exact mockups-only scopes still apply.
+Current authorized public-source delivery overrides historical box-only/no-GitHub text, without permitting restricted bytes.
+Current gobbajogger author/committer requirement overrides historical genkigenki identity.
+The full exact-input qualification bar overrides “zero new non-environment failures.” Focused iteration and docs-only checks remain valid.
+The supplied 8192-byte pool minimum overrides its historical 4096-byte predecessor; other applicable limits remain.
+Latest exact device authority overrides historical automatic installs. No workflow mode grants hardware access.
+Current explicit scoped routing overrides historical room IDs and branch names. Age alone does not release an owner or end the #734 freeze.
+Current action-specific merge grants apply only to their named role/target/scope; this DnBOX source-delivery chain grants no merge/publication authority.
+Required checks cannot be bypassed with skip-quickcheck, --force, trial results or manual PASS messages.
+Complete Bluetooth packaging does not override distribution restrictions.
+Immediate material reports and necessary questions override daily-only silence.
+Use one shared gate library with thin intake, dispatch, merge, release and device entry points. Do not build separate frameworks for word counts, ordinary message formatting or banning all Markdown tables. Add controls only where they prevent a specific failure, and test that they actually block the unsafe action.
+===== END org-rules reply =====
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

@@ -1,0 +1,17 @@
+I’ll recheck all six against the current PR heads and the archive/registry, and flag where the proposed decision differs from what is implemented or actually tested.
+
+Mostly agree with the direction, but decisions 3–5 need corrections, and 2/6 have already advanced.
+
+F4 #800: confirmed in source. Head 99b93edd includes latest #789 b860e160, adopts its transport behavior, and consumes arrows when multiple FX buttons are held. FX-only quick taps remain undecided; current quick-tap handlers are unchanged. Combined tests/builds remain NOT_RUN. Consumption receipt.
+
+#810: correction and same-reviewer recheck are now done. At 357efa1e, the original reviewer reports normal and ASan/UBSan runs passing, 17,065 direct checks, and two negative controls failing as intended. This closes that scoped Free Play regression, not full firmware/device acceptance. QA receipt.
+
+#790: agree as the required fix, but it is not implemented yet. Current f0ab01ab still converts a negative settings read into defaults and writes them in project_device_bt_save(). Generic read failure also lacks the proposed persistence block. Distinguish confirmed empty storage from an I/O failure: preserve existing stored bytes, block overwrite, and test failure followed by a controlled successful retry. Existing atomic-chain/size tests do not prove this. Coordinate with #810’s storage changes. Current source.
+
+#806: name-filter reconciliation is delivered; “iPhone works” is not verified. b46fff14 incorporates #770 and reconciles #771 without overwriting newer generated pages. Preserve protocol, pairing, ambiguity and destination safeguards. Important qualification: the inspected same-keyboard helpers allow SMK-family equivalence, not strict Elite/Pro equality or unique physical identity. Don’t treat removing the display-name whitelist as proof of safe same-device continuity. Actual iPhone validation remains NOT_RUN. #806.
+
+#803: defer diagnostic UI, retain proof checks. There is no diagnostic UI in its current patch to remove. Its proof repair already has scoped independent acceptance; the PR/registry wording still needs to reflect row 74’s deferral. For F6, name the deferred items: 119 community library and 76 full-device song import/export. Don’t silently defer 103/104 sound round-trip/live sync, or backup/restore/data-safety work. Existing #808 offline editing is separate and should remain.
+
+#789: the single-peer OOB fix is already published and now independently scoped verified. It remains in b860e160. The original reviewer checked the production function with one/two peers under UBSan/bounds, and restoring the unsafe indexing triggered the expected abort. Clear this specific finding; don’t duplicate the push. This does not close the 14 base failures or whole-PR QA. Latest receipt.
+
+Main conflicts: calling #790 finished, claiming iPhone success, treating family matching as physical identity, or counting deferred registry rows as complete. This recheck was read-only; I reused the existing reviewers’ results rather than starting another review round.

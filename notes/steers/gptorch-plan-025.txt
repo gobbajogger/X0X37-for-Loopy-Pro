@@ -1,0 +1,29 @@
+I’ll read the full attachment and return a concrete plan.
+
+The tracker has 174 rows: 168 are not marked done, including 112 labelled “in 0.0.24” that still need qualification. I’m including all of them, without turning already-delivered work into duplicate implementation PRs.
+
+One proposal needs correction before approval: there is no dedicated STOP button on the keyboard, and the SMC’s physical PAUSE button already controls lock/unlock. The plan will flag that mapping decision explicitly. I’m keeping this planning-only; no builder work is being started by me.
+
+The full plan is drafted, with a row-by-row crosswalk, PR ownership, dependencies, tests and mockup requirements. I’m checking it for omissions and circular dependencies before sending it; the two proposed transport gestures remain approval decisions, not adopted behavior.
+
+The complete 0.0.25 integration plan is attached. It covers all 174 roadmap rows: 168 unfinished dispositions and six regression-only completed rows, plus C1–C9. Every item has dependencies, a PR disposition, tests and mockup requirements. Existing work is reused, not rebuilt.
+
+Proposed order:
+
+Reconcile source, owners and outstanding designs.
+Establish engine/control and timing baselines, then qualify the Chicago/Miami caches.
+Resolve live-input safety, SMC behavior and approved UI changes, with prerequisite data contracts brought forward.
+Complete approved data/web gaps.
+Qualify one combined candidate with full host tests, audio checks, Elite/Pro builds and resource budgets. Device testing and publication retain separate gates.
+
+Two decisions:
+
+Long-hold STOP is not a usable universal PANIC mapping: the keyboard has no separate STOP, SMC DAW PAUSE owns context lock, and MMC STOP provides no hold/release signal. HOME remains help.
+For PLAY during a question, I recommend NO/cancel once, then normal PLAY behavior: start if stopped, stop if running. Preserve HOME+PLAY redo.
+
+Mockups come before affected control maps, FX/reset/fill/toggle screens, cue indicators and new editor/installer layouts. The unknown M5 item stays an internal record-recovery task, not another question for you.
+
+The coverage review passed after correcting circular dependencies and build ordering. No implementation or builds were started. Please approve this plan, or specify changes; builders remain instructed to stay paused until approval.
+
+integration-plan.md
+Pasted text.txt

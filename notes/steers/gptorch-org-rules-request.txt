@@ -1,0 +1,1333 @@
+REQUEST FOR GPTOrchestrator — full review of DnBOX organization rules draft (repo gobbajogger/X0X37-for-Loopy-Pro).
+Owner goal: good rules make it impossible to mess up. Every rule must be an enforced gate (script/checklist that blocks the next step), not a promise.
+Real failures to prevent: agreed meeting items (PANIC on long hold of HOME, part sound reset, effect throw, per-part toggle) left out of 0.0.24; owner re-asked about agreed features and asked what "item 5" was; unrequested extra work; scattered documents; USB-name mix-up that bricked the Elite; build without bundled BT controller; discarded images; FM-1 build flashed onto SMK-37; duplicate PRs; conflicts between new requests and existing features; agents not following rules.
+Please return:
+1. Holes: any failure above that a determined or careless agent can still cause with these gates. Name the exact path around the gate.
+2. Conflicts between the draft and the existing rule files below; say which wins.
+3. Over-engineering: any gate that costs more than it saves; propose the minimal version.
+4. Concrete fixes as replacement text for the draft (full sections), plus the exact roadmap_gate.py checks and exit codes.
+5. Which existing rule files to delete or merge into ROADMAP.md / AGENTS.md (single source).
+Do not build, push or open PRs. Review only.
+
+===================== FILE: x0x37-results/org-rules-draft.md (THE DRAFT) =====================
+# DnBOX organization rules (draft v1, 2026-11-01)
+
+Goal: a mistake must be impossible, not forbidden. Each rule is a gate. A gate is a script or a checklist file. If the gate fails, the next step cannot start. A promise ("I will check") is not a gate.
+
+Repo: gobbajogger/X0X37-for-Loopy-Pro. Tools live in `tools/gates/`. Every gate prints `GATE <name> PASS|FAIL <reason>` and exits 0 or 1.
+
+## 0. Failures this must stop (real incidents)
+
+| ID | Incident | Gate that stops it |
+|---|---|---|
+| F1 | Meeting items PANIC/HOME hold, part sound reset, effect throw, per-part toggle missing from 0.0.24 | G1 intake + G5 publish |
+| F2 | Owner re-asked about agreed features; "what is item 5?" | G1 (ID+description), G7 question |
+| F3 | Extra work nobody asked for | G3 dispatch + G8 scope |
+| F4 | Many scattered documents | S1 single source |
+| F5 | USB-name mix-up bricked the Elite | G6 flash |
+| F6 | Build without bundled BT controller | G5 publish (BT check) |
+| F7 | Images discarded | G5 (image check) + G4 merge |
+| F8 | FM-1 build flashed onto SMK-37 | G5 model check + G6 flash |
+| F9 | Duplicate PRs | G1 duplicate check + G3 dispatch |
+| F10 | New request conflicts with existing feature | G1 conflict check |
+| F11 | Agents ignore rules | R10 violation catch |
+
+## S1. Single source of truth: docs/ROADMAP.md
+
+1. ROADMAP.md is the only list of work. FEATURE-REGISTRY, briefs, ledgers, steers and meeting notes are inputs. They are not lists. A task that has no ROADMAP row does not exist.
+2. Each row has exactly these 10 columns. `tools/gates/roadmap_lint.py` rejects any other shape.
+
+| Column | Rule |
+|---|---|
+| ID | Stable, never reused, never renumbered. Form `R-NNNN` (4 digits). Old IDs (#5, M5, L6) go in `Alias`. |
+| Title | ≤ 8 words, says the behavior ("PANIC on long hold of HOME"). |
+| Description | One sentence: trigger → result → limits. ≥ 12 words. "item 5", "TBD", "unknown" = lint FAIL. |
+| Source | Owner quote + date + place (meeting 2026-11-01, chat link, #699 line). Required. |
+| Status | One of: `agreed`, `in-progress`, `in-build`, `done`, `rejected`, `owner-question`. |
+| Target | Release (`0.0.25`) or `later`. `agreed` with a target = must ship in that release. |
+| Models | `Elite`, `Pro`, `FM-1` (any subset). |
+| Owner-thread / PR | One PR number, or `-`. One row → one PR at most. |
+| Evidence | For `in-build`/`done`: `commit:<sha> test:<file or scenario>` and for UI `png:<path>`. |
+| Alias / conflicts | Old numbers and IDs of rows it touches (`conflicts:R-0123`). |
+
+3. Only the Docs Keeper writes ROADMAP.md, through PRs titled `roadmap: <IDs>`. Other agents send row changes to the Docs Keeper.
+4. `roadmap_lint.py` runs in every gate below. A lint FAIL blocks all gates.
+5. Other docs may not contain a status table. `tools/gates/docs_lint.py` fails if a new `.md` outside `docs/` or a table with a `Status` column outside ROADMAP.md appears in a PR.
+6. Migration: convert the 174 Master tracker rows of PR #812 to the schema. M5 (unknown item) becomes one `owner-question` row with the meeting recording/notes pointer. It is the only allowed question for that meeting.
+
+## G1. Intake gate (agreement → row → checks → thread)
+
+Order is fixed. A step cannot start before the step above passes.
+1. Record: within the same session as the agreement, the receiving agent writes the row (ID, title, full description, owner quote) into `intake/pending.md`. A meeting ends with a read-back: the agent lists every new row with its description to the owner. The owner says yes. No read-back = meeting not closed.
+2. Duplicate check: `tools/gates/intake_check.py R-NNNN` searches ROADMAP titles/descriptions/aliases, FEATURE-REGISTRY, open PRs and branches (GitHub API) for the key words. It prints matches. If a match exists, the agent merges the request into the existing row (adds Source) instead of a new row.
+3. Conflict check: the script lists rows that touch the same button, page, file or gesture (keyword map `tools/gates/controls.yaml`: HOME, SHIFT, FX, part buttons, faders…). Example: HOME long hold (PANIC) vs HOME + part button (sound reset) must name both. If a conflict exists, the row gets `conflicts:` and the agent writes ONE owner question (G7). Status stays `owner-question`.
+4. Row lands in ROADMAP.md as `agreed` (Docs Keeper PR).
+5. Only then may a thread/PR be opened (G3).
+
+## G3. Dispatch gate
+
+`tools/gates/dispatch_check.py <ROW-IDs> <thread-file>` must PASS before any handoff is sent. It checks:
+- every ID exists and is `agreed` or `in-progress`;
+- no other open PR or live thread owns the row (Owner-thread column + PR search) → stops duplicate PRs;
+- the handoff file quotes the full row description for each ID (no bare numbers);
+- the handoff has the fixed header: base commit, branch, models, done criteria = row Evidence fields, "do only these rows";
+- the preflight lines 1–6 are present.
+The script writes the thread/PR into the row. A handoff without a PASS line in its first line is invalid; receivers must refuse it.
+
+## G4. Merge gate
+
+`tools/gates/merge_check.py <PR>` must PASS before merge into the integration branch:
+- PR title/body names ≥ 1 row ID; every changed file maps to a named row (diff hunk ↔ row, reviewer ticks per file) → scope;
+- full host suite 0 fail / 0 skip; Elite and Pro build exit 0;
+- no deleted or replaced `*.png`, `assets/`, `images/`, `*_private.h` file unless a row says so (`git diff --diff-filter=DR`) → stops discarded images;
+- author gobbajogger; base is not `main`/`nightly`; no `.github/` change;
+- no second open PR touches the same row.
+
+## G5. Publish gate: `tools/gates/roadmap_gate.py`
+
+Spec. Input: `--release 0.0.25 --artifacts <dir>`. Exit 1 on any FAIL. Output is pasted into the release PR.
+1. Roadmap coverage: for every row with `Target = release` and status `agreed|in-progress|in-build|done`: status must be `in-build` or `done`, Evidence must have a commit that is an ancestor of the build commit (`git merge-base --is-ancestor`) and a test file that exists and ran in this suite log. Any row without it → `FAIL R-NNNN <title>: no build evidence`. `owner-question` rows with a target → FAIL (decide or move to `later` with owner quote).
+2. Lint: roadmap_lint PASS, zero rows with empty Description.
+3. BT controller: each Elite/Pro package contains `ctl.img`; size > 0; CRC32 equals the CRC in the build manifest; the firmware manifest flag `bt_bundled=1`. Missing → FAIL.
+4. Model: each artifact name, manifest `model` field and the binary's embedded model string agree (`SMK37-ELITE`, `SMK37-PRO`, `FM1`). An FM-1 image in an SMK-37 folder, or a mismatch → FAIL. Installer has strict model match (#806).
+5. Images: every PNG/asset in the previous release still exists, or a row approves its removal. Every UI row has an owner-approved framebuffer PNG path.
+6. Release config: `X0X_DEV_PADCAL=0`; RAM/pool free ≥ limits.
+7. Writes `release/<ver>/GATE.txt` with sha256 of every artifact. The publish step reads only artifacts listed there.
+
+## G6. Flash gate
+
+No device write without `tools/gates/flash_check.py --device <port>`:
+- reads the device ID by query (not by USB name, not by port order). USB names are never used to pick a target. Device must answer model + serial;
+- compares with the artifact manifest model and the GATE.txt sha256 → mismatch stops;
+- checks a fresh slot backup exists for this serial;
+- requires the latest owner grant for this model and action, quoted with time, in `flash/grants.md`;
+- only one device connected, or the serial is passed explicitly.
+The installer refuses to run without the token that flash_check prints.
+
+## G7. Question gate
+
+The owner may be asked only if `tools/gates/question_check.py "<text>"` passes:
+- the answer is not in ROADMAP (Description/Source), #699, USER_PREFERENCES.md or the rules (keyword search printed);
+- the question names row ID + full title + description, never a bare number;
+- it is one question with labeled options (A/B) and a default;
+- the row is set to `owner-question`.
+Questions are batched: at most one message with questions per day (daily review), except a blocker for a device write or a conflict that stops a running build.
+
+## G8. Scope gate
+
+- Work exists only for an `agreed` row. A commit without a row ID in its message fails `merge_check`.
+- An agent who sees a useful extra writes an `idea:` line in `intake/ideas.md`. It does not code it. The owner promotes ideas in the daily review.
+- Reports list rows touched. Files changed outside the rows → merge FAIL.
+
+## R9. Daily review (one fixed time, e.g. 20:00 Asia/Vladivostok)
+
+`tools/gates/daily_review.py` creates one message to the owner:
+1. rows changed today (ID, title, old → new status, evidence);
+2. agreed rows for the next release that lack evidence (roadmap_gate dry run);
+3. open PRs/threads and their rows; any PR or thread without a row;
+4. batched owner questions (G7);
+5. violations caught (R10).
+No other status message goes to the owner that day except blockers.
+
+## R10. Catching rule violations
+
+- Gates are code, not reading: each gate writes a line to `gates/log.tsv` (time, agent, gate, target, PASS/FAIL).
+- `tools/gates/audit.py` (in the daily review) compares: merged PRs without a merge_check PASS; handoffs without dispatch PASS; flashes without flash_check token; owner questions without question_check PASS; new docs outside S1. Each hit is a violation row.
+- A violation stops the agent's lane until the Orchestrator writes a fix (rule, script change, or gate) — the fix makes the same mistake impossible next time. "Agent will be more careful" is not an accepted fix.
+- Every new incident gets an F-row in section 0 and a gate change in the same day.
+
+===================== END FILE: x0x37-results/org-rules-draft.md (THE DRAFT) =====================
+
+===================== FILE: steers/preflight.txt =====================
+PRE-SEND CHECK (Orchestrator, before EVERY order, steer, handoff or agent message):
+1. EVERYTHING (code, fix, port, mockup, build, test, audit, check, review, report) goes ONLY to a ChatGPT classic thread unless the owner explicitly says otherwise. Bots only coordinate and relay.
+2. No double work: no other thread, PR or branch already has it. Focus is #734.
+3. It doesn't contradict any earlier order or saved rule.
+4. Is the answer already in the owner's feature list (#699, 122 features) or the rules? Then decide; don't ask the owner.
+5. Corrections and spec changes go to running threads NOW; stop notes only when idle.
+6. First lines 1-5, gobbajogger only, UI = mockup, no Actions/.github, never main/nightly, *_private.h stay.
+- Before opening any thread for a PR: check that no thread already owns that PR (Chat Driver's thread list + PR status comments). One owner thread per PR.
+- FREEZE (owner 08:52 EDT): no new feature work into #734 until a full suite + Elite + Pro post 0 fail / 0 skip on a fixed #734 head. Pending fixes wait, then go as separate PRs into integration/all-in-one.
+- Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.
+- Owner 09:16 EDT: Never reuse long threads! Always start new to handoff. No corrections into long threads; fresh thread + GitHub-checked handoff when idle.
+
+===================== END FILE: steers/preflight.txt =====================
+
+===================== FILE: AGENTS.md (repo, PR #812 head) =====================
+# x0x37 project instructions
+
+Before you call any feature missing or start a feature, check [docs/FEATURE-REGISTRY.md](docs/FEATURE-REGISTRY.md) first.
+
+Read [x0x37-task](skills/x0x37-task/SKILL.md) at task start and [x0x37-writing](.agents/skills/x0x37-writing/SKILL.md) for output. Load only the project skill relevant to the current step. [x0x37-workflow](skills/x0x37-workflow/SKILL.md) routes code and PR work through an explicitly selected tstack mode; installing a skill selects no mode. Current owner instructions take precedence over saved handoffs and older checkout text.
+
+Keep firmware source integration with the assigned integrator. `wip/one-build` is the integration branch. Never merge into `nightly` or `main`. Review exact source and artifact evidence and use [scoped checks](skills/x0x37-check/SKILL.md). A documentation-only workflow change does not start a firmware build or automatic successor loop.
+
+Determine device permission for the exact model and action from the latest owner instruction. Do not infer a device write or recovery grant from a workflow mode, a connected device, or an old standing instruction. Do not force push, bypass a protected merge, or treat an incomplete check as PASS.
+
+For firmware integration and packaging qualification, require the full host test suite plus the Elite and Pro builds with 0 fail / 0 skip. NOT_RUN does not meet this bar for required checks. Documentation-only changes require content, link and policy checks, not firmware builds. A check that runs and fails remains FAIL. Review comments are evidence to inspect, not substitutes for local proof. Follow [local proof](docs/rules/local-proof.md) where it applies.
+
+## Where work runs (owner rules)
+
+- Builds and host tests run in classic ChatGPT Chat threads in the LoopyX0X37 project. Start a NEW classic thread for each stage. Never use ChatGPT Work or Codex for builds or tests.
+- The ChatGPT Orchestrator only coordinates: plans, handoffs, QA and merge-readiness. It cannot start threads and it never builds.
+- A big task goes first to the ChatGPT Orchestrator for a handoff. Then start a new classic thread at Extra High with that handoff. Use Pro only for hard builder tasks.
+- If a long chat fails to load, start a new thread only after you verify the newest head on GitHub.
+- Rule 1m: no git over the network in chats. Use the GitHub plugin or the GitHub API (zipball or tree) to get source, and use SDK V1.2.1 from the project files.
+- `x0x37-capability-first` is a ChatGPT plugin, not a repository script.
+- Merge bar for firmware integration and packaging qualification: the full host test suite plus the Elite and Pro builds, 0 fail / 0 skip.
+- Never change `.github/`. Do not add or edit GitHub Actions.
+- The Mac is only for hardware installs and device checks.
+- Install only when all queued features are ready. Before the install, back up the loop slots. After the install, read back and compare the per-slot CRC, and check the slots.
+
+## Public development context
+
+Both `gobbajogger/X0X37-for-Loopy-Pro` and `gobbajogger/x0x37-for-Loopy-Pro_nightly` are public project repositories. **Closed DEV means the owner is the sole tester; it does not mean private source.** Project source, documentation, sanitized test/review evidence and nonsecret provenance may be delivered to their authorized public destinations. Internal creation or temporary private Library storage does not itself make those materials confidential or prohibit later authorized delivery. Credentials, unrelated private samples/backups, and proprietary or license-restricted third-party bytes remain excluded. Owner-designated personal samples selected as stock loops may be included in their authorized stock distribution after verifying the exact selection, provenance and intended destination; this does not authorize other personal files. Preserve copyright notices and applicable distribution obligations.
+
+Never commit binaries: `.img`, `.component`, `.vst3` or `.fwsc` files. The approved exception is the Miami `.f32` golden files (the golden DSP renders used by the host tests): commit them with the tests that use them. Private headers (`*_private.h`, including the vendor and wobble headers, and the #684 synth headers such as `state_codec_private.h`, `fx_tables.h` and `miami_factory_typed.h`) stay in the repository. They are not a security problem; do not remove or flag them. This rule replaces the earlier rule against committing the #684 private synth headers.
+
+Use the latest action-specific owner authorization. A completed stage's read-only, local-only, or no-publication limit is not a permanent project-wide ban; a later authorized stage may expand that scope. Do not infer a new grant merely from a stage change. Actual tool denials remain binding for the denied operation; do not retry or route around them without the required changed authorization or permitted resolution. Continue independent authorized work. Source delivery, review, build, merge, publication and owner-available results remain separate states.
+
+For queued work and handoffs, apply the [continuation contract](skills/x0x37-workflow/references/handoff.md). Consume the existing request and checkpoint, then perform the next authorized action. A bounded unit limits ownership and concurrency; its report does not end an unfinished outcome. Preserve current delegated owners and continue independent ready work without waiting for owner acknowledgment. Use the maintained development policy at the verified `nightly` revision; older production-main instructions do not reinstate retired stage loops or authorize firmware promotion.
+
+For recurring and queued work, resolve the live `coordination/merge-queue` ref and read the [shared automation contract](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/coordination/merge-queue/coordination/automation/runtime-contract.md), `coordination/automation/roles.json` and relevant request/delivery records at that same commit. New authorized work updates the existing request and acceptance data; keep each role bootstrap stable. Actual permissions, role ownership and action-specific denials still govern.
+
+## Autonomous visual stages
+
+Within the agreed task, visual UI, glyph, menu, website and 3D work follows **mockup → internal independent review → implementation → actual validation**. Reuse unchanged approved presentations. Label mockups as proposals; they are not implemented renders. Resolve blocking design findings before implementation, then validate the actual candidate-pinned render or interaction and report it before rollout. Report each meaningful completed stage with evidence and its next action, then continue the next authorized step without waiting for an owner reply. These stage reports and previews are informative, not another aesthetic approval gate.
+
+This supersedes earlier owner-aesthetic-response waits within the agreed scope, not actual preview evidence or independent correctness checks. A required UI-completion-before-boot dependency means finish and validate the UI stage first, not wait for the owner to answer. Current action-specific authority, real tool denials, licensing, device validation, production and publication boundaries remain. A materially new scope or action still needs its applicable authority; continue independent authorized work meanwhile.
+
+===================== END FILE: AGENTS.md (repo, PR #812 head) =====================
+
+===================== FILE: agent-rules.md (root) =====================
+# Agent Rules
+
+The agent rules (version 3) are in rules/core.md. All agents follow them. The core index names the other rule files.
+
+===================== END FILE: agent-rules.md (root) =====================
+
+===================== FILE: rules/commit.md =====================
+# Rules v3: commit
+
+Read when: before a commit or a push, and before you give work to another agent.
+
+Terms: The task agent owns a task in the lanes table (AGENTS_AND_ROOMS.md).
+
+### Rule 9 [v2: 4]
+Step: P3 host test, P4 lane commit.
+Rule owner: Firmware Main Builder.
+
+Put each planned change in the batch for integration. Make one commit and one host test for each change. Run only the affected tests, and use time scale 20 (X0X_TEST_TIME_SCALE) only when the code reads it. Builders follow the x0x37-builder-loop skill.
+
+### Rule 10 [v2: 5]
+Step: P4 lane commit.
+Rule owner: Merge Integrator.
+
+Integration is the one working branch. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Fetch and rebase before each commit, and push only your lane branch, never integration. Change only the files of your lane. Give other work to its task agent with SendToAgent. For the move of commits onto integration, see integration.md (rule 11).
+
+Commit only on your lane branch. Never commit directly on integration. Merge Integrator moves integration with git push only (integration.md). [Orchestrator 2026-10-17 00:04, owner OK]
+
+===================== END FILE: rules/commit.md =====================
+
+===================== FILE: rules/core.md =====================
+# Core rules (read at each task start)
+
+1. Never push outside the box and the owner's machines. Never push, merge or package refs-oscuro.
+2. Stop only your own processes, by PID. Never use pkill -f or killall on a shared script.
+4. Do the Decision check (x0x37-builder-loop core card, steps 6 to 10) before a shared or hard-to-undo action.
+
+## Index: open each file at its step
+- shared-work.md (3): hardware, shared file, wait.
+- install.md (5 to 7): install (only Firmware Main Builder installs).
+- device-bug.md (8).
+- commit.md (9, 10): commit, push.
+- integration.md (11): merge, gate.
+- docs.md (12): doc, log, checklist, device result.
+- owner-messages.md (13, 14, 4B): owner, decision.
+- style.md (15): text, terms.
+
+===================== END FILE: rules/core.md =====================
+
+===================== FILE: rules/device-bug.md =====================
+# Rules v3: device bug
+
+Read when: after a device bug report or a failed device test.
+
+### Rule 8 [v2: 11, sentences 2 to 6, in time order]
+Step: P1 record bug, P2 find cause.
+Rule owner: Firmware Main Builder.
+
+For a device bug, the owner first shows the bug once with INLOG on. The builder then makes a host replay test from that log. Make a fix only when data and a host test prove the cause. If a fix fails on the device, do not guess again: name the wrong assumption and get the missing data. If 2 device tests fail one after the other, go back to last-good-hw and bisect.
+
+To log a device result, see docs.md (rule 12).
+
+## Owner facts for a fix
+
+- Optimize without cutting features. Font size is not a feature. (owner, 2026-10-16 18:41)
+
+===================== END FILE: rules/device-bug.md =====================
+
+===================== FILE: rules/docs.md =====================
+# Rules v3: docs, checklists and logs
+
+Read when: before you write an owner test checklist, a doc or a log, and before you log a device result. Read it also at the end of each task.
+
+### Rule 12 [v2: 15, v2: 11 sentence 1, and the NEW checklist header]
+Step: P7 checklist, P11 log result.
+Rule owner: Docs Keeper.
+
+Do not invent data. Docs and logs hold only development information. Update BEHAVIOR.md (reference copy on integration), ROADMAP.md, USER_PREFERENCES.md and the log in the same task. Log a device PASS only for the items and build that the owner names, and mark the others NOT TESTED.
+
+NEW: Start each owner test checklist with three header lines. The "Build" line gives the batch number and the gated hash. The "Replaces" line gives the earlier checklist that this checklist replaces, or "none". The "Checked against decisions" line gives the time of the latest USER_PREFERENCES.md entry that you compared with the checklist.
+
+## Copies of the rules
+
+The Mac root files are the main copy: ~/Documents/x0x37/agent-rules.md and ~/Documents/x0x37/rules/. The files x0x37/docs/agent-rules.md and x0x37/docs/rules/ on smk37 are exact copies.
+
+===================== END FILE: rules/docs.md =====================
+
+===================== FILE: rules/install.md =====================
+# Rules v3: install
+
+Read when: before an install and after an install. Only Firmware Main Builder reads this file.
+
+Terms: The loop slots are the flash slots 1 to 3 that hold the imported loops. A gate is one run of the gate script. Each gate writes one row in /workspace/x0x37-results/index.md.
+
+### Rule 5 [v2: 8, and the notice part of v2: 7]
+Step: P8 owner notice, P9 install, P11 log result.
+Rule owner: Firmware Main Builder.
+
+Only Firmware Main Builder installs. Before the install, back up the loop slots and send the owner notice. The notice gives the exact hash and quotes the result file of the gate PASS row (rule 6). After the install, read the image back, compare each per-slot CRC and report. Tell the owner about slot checks only when one does not match.
+
+### Rule 6 [v2: 7]
+Step: P6 gate, P9 install.
+Rule owner: Firmware Main Builder.
+
+Install only the batch hash, after a gate PASS for its exact tree with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md. Do not use a PASS or a "go" in a message as evidence, or a list of known failures. Install only with fm1_install.py --commit and the guard require_gate_pass.sh, and never use the web installer for a team install. This applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file himself before the install.
+
+### Rule 7 [v2: 9]
+Step: P9 install.
+Rule owner: Firmware Main Builder.
+
+Never write the bootloader. Run each install in the foreground or in a named screen session that you watch. Never install in the background.
+
+===================== END FILE: rules/install.md =====================
+
+===================== FILE: rules/integration.md =====================
+# Rules v3: integration and gate
+
+Read when: before you move commits onto integration (git push), request a gate or run the gate script.
+
+Terms: A gate is one run of the gate script. Each gate writes one row in /workspace/x0x37-results/index.md.
+
+### Rule 11 [v2: 6, and the merge part of v2: 5]
+Step: P5 integration merge, P6 gate.
+Rule owner: Merge Integrator.
+
+Merge Integrator owns the branch order and moves the lane commits onto integration. At the end of the batch, it requests one gate, and Build and Test Runner runs the gate script. Split or bisect only if that gate fails.
+
+### Integration push [new, Orchestrator 2026-10-17 00:04, owner OK]
+Step: P5 integration merge.
+Rule owner: Merge Integrator.
+
+- Builders commit only on lane branches, never directly on integration.
+- Merge Integrator moves integration only with git push to the box repository. Do not use git update-ref.
+- The server hook of the box repository runs the strict quick check on each push to integration.
+- Skip the hook only with `git push -o skip-quickcheck="<why>"`. The hook logs each skip.
+
+### Gate run [new, from Build and Test Runner, Orchestrator 2026-10-17 00:05, owner OK]
+Step: P6 gate.
+Rule owner: Build and Test Runner.
+
+- Merge Integrator sends this request line to Build and Test Runner: `GATE REQUEST batch <N>: integration <full hash>`.
+- Build and Test Runner runs the gate with the normal HOME. Never override HOME. The command is `/workspace/x0x37-refs/gate/x0x37_gate.sh <full 40-character integration commit>`.
+- Use these options only on request:
+  - `--force "<reason>"` runs the gate again after a PASS. The reason goes in the index row.
+  - `--trial` runs a commit that is not on integration. A TRIAL PASS never counts for a release.
+- The gate refuses a commit that is not on integration. It holds gate.lock (exclusive) and uses time scale 1.
+- The gate writes /workspace/x0x37-results/<tree>-<time>.md and one row in /workspace/x0x37-results/index.md.
+- If the toolchain or the SDK is missing, the result is VOID, and the gate writes no row.
+- The last output line is `PASS|FAIL <hash> (time scale 1)`.
+
+### Free pool [owner 2026-10-16 21:53]
+Step: P4 lane commit, P6 gate.
+Rule owner: Merge Integrator.
+
+build.sh and the gate require 8192 B of free pool or more. The 8192 B limit replaces the 4096 B limit.
+
+===================== END FILE: rules/integration.md =====================
+
+===================== FILE: rules/owner-messages.md =====================
+# Rules v3: owner messages and decisions
+
+Read when: before you write to the owner or relay an owner report, and before you send a decision message or a skill change.
+
+### Rule 13 [v2: 2, sentences 1 to 4]
+Step: P8 owner notice, P10 owner test, each message to the owner.
+Rule owner: Orchestrator.
+
+Write each message to the owner in ASD-STE100, with plain words about what the owner hears, feels and does. Describe a change to the owner only after you verify it. Orchestrator is the only route for questions to the owner. If an agent quotes an owner report with the build, the report is valid in any chat.
+
+Make each message to the owner as short as possible, and keep every fact (caveman length). Use full, simple ASD-STE100 words. Do not use shorthand, IDs or hashes, unless the owner needs them. [owner 2026-10-17 00:05]
+
+### Rule 14 [v2: 3, and v2: 2 sentence 5]
+Step: P2 to P5 (before you decide a change).
+Rule owner: Orchestrator.
+
+Ask the owner only about a change that the owner can see, hear or play. Ask before you make the change. This includes each change that affects how the keyboard plays. Decide all other changes and continue.
+
+### Rule 4B [v2: 14, sentences 3 to 5]
+Step: each decision and each skill change.
+Rule owner: Orchestrator.
+
+Send skill changes through Orchestrator. Send one decision message for each item. Give it a tag "supersedes <time>" when it replaces an earlier decision.
+
+===================== END FILE: rules/owner-messages.md =====================
+
+===================== FILE: rules/shared-work.md =====================
+# Rules v3: shared work
+
+Read when: before hardware work, before an edit to a shared file, and when you wait for a result.
+
+### Rule 3 [v2: 10]
+Step: all steps.
+Rule owner: Orchestrator.
+
+Run hardware work and edits to one shared file one at a time. While you wait for a result, do the next task that does not need it. If you have no task, tell Orchestrator.
+
+===================== END FILE: rules/shared-work.md =====================
+
+===================== FILE: rules/style.md =====================
+# Rules v3: style and terms
+
+Read when: before you write a file, a commit, a checklist or an agent message.
+
+### Rule 15 [v2: 1, and the style scope line of the v2 header]
+Step: each text (P1 to P11).
+Rule owner: Docs Keeper.
+
+Write files (docs and logs), commits and checklists with the asd-ste skill. Write agent-to-agent messages, including task messages, with the caveman skill. If a text is in the scope of asd-ste, asd-ste wins. For messages to the owner, see owner-messages.md (rule 13).
+
+## Terms (these are not rules)
+
+- owner: the person who owns the project. Do not write "user" for this person.
+- Orchestrator: the agent that routes the tasks and relays the messages to the owner. Do not write "parent agent".
+- task agent: the agent that owns a task in the lanes table (AGENTS_AND_ROOMS.md).
+- rule owner: the agent role that keeps a rule current. The rule owner is not the owner of the project.
+- loop slots: the flash slots that hold the imported loops (slots 1 to 3).
+- gate: one run of the gate script. Each gate writes one row in /workspace/x0x37-results/index.md.
+- Bluetooth (BLE): Bluetooth Low Energy MIDI. In text, write "Bluetooth". Use "BLE" only in names, for example ble-a74, BLE-16 and BLE_ATTEMPTS.md.
+- behavior: use this US spelling in all files.
+- pairing: the Bluetooth security step between two devices. It includes the bonds. Do not write "bonding".
+- colour: British spelling. Use "color" only in code names. Keep "colour" in text.
+- owner quotes: Owner quotes stay word for word inside quotation marks. Quotes are exempt from STE.
+
+## Rule owners
+
+- Merge Integrator: rules 1, 10 and 11.
+- Orchestrator: rules 2, 3, 4, 4B, 13 and 14.
+- Firmware Main Builder: rules 5 to 9.
+- Docs Keeper: rules 12 and 15.
+- Build and Test Runner: the gate run section of integration.md.
+
+## Pipeline steps (the "Step" values)
+
+- P1. Record the bug (INLOG).
+- P2. Find the cause with data.
+- P3. Make the host test.
+- P4. Make the lane commit.
+- P5. Merge onto integration.
+- P6. Run one gate for each batch.
+- P7. Write the owner test checklist.
+- P8. Send the owner notice.
+- P9. Install.
+- P10. The owner tests.
+- P11. Log the result.
+
+## Skills and versions
+
+The project skills are asd-ste (/home/box/agent-data/workflows/asd-ste/SKILL.md), caveman (/home/box/agent-data/workflows/caveman/SKILL.md) and x0x37-builder-loop (/home/box/agent-data/workflows/x0x37-builder-loop/SKILL.md). USER_PREFERENCES.md holds the owner decisions.
+
+Version 3 (2026-10-17 00:00, owner approved) has the rule files in this folder. Each rule gives its version 2 number in brackets. Version 2 (15 rules) is docs/agent-rules.md at smk37 09ff57e. Version 1 (41 rules) is agent-rules-v1-2026-10-16.md on the Mac. It is not in git.
+
+===================== END FILE: rules/style.md =====================
+
+===================== FILE: AGENTS_AND_ROOMS.md (rules-v3 stage) =====================
+# x0x37 Agents and Lanes
+
+This file lets another model make the multi-agent setup for the x0x37 firmware project again. Docs Keeper maintains this file. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy, and x0x37/docs/AGENTS_AND_ROOMS.md on smk37 is an exact copy. Update both together.
+
+Last updated: 2026-10-17 00:01 (Vladivostok, UTC+10).
+
+## Agents
+
+### Orchestrator
+- ID: 6816f054-4f75-496c-b5a8-67dc1a4daf99
+- Purpose: Orchestrator is the primary bot. It routes the tasks and makes sure that the agents obey the project rules and the style rules. It relays the messages between the agents and the owner.
+- Never: Installs firmware.
+- Box folder: /workspace/x0x37-orchestrator.
+
+### Firmware Main Builder
+- ID: a02ff4ed-d19b-42fc-8286-d5854da64a2a
+- Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi lane files. Commits on a lane/mb-<topic> branch, and Merge Integrator moves each commit onto integration (rules 9 to 11). Installs the batch hash with a gate PASS. It is the only agent that can install (with loop slot backups, a per-slot CRC compare and a notice before the install).
+- Never: Writes the bootloader. Installs in the background. Installs without a loop slot backup and a per-slot CRC compare.
+- Worktrees (Mac, flash_review repo): /private/tmp/a74wt (ble-a74, 14fb352, the build to install again if batch 1 fails), /private/tmp/refswt (refs-oscuro, read only).
+- Box copy: /workspace/x0x37-firmware-main-builder (a git repository). Commits there, then syncs the commits to the Mac repo before each install.
+
+### Second Builder
+- ID: d9628bfa-aaf6-4aa0-81b3-db56618755f2
+- Purpose: Builds the clip-mode keybed, scale, chord, arp and tempo carry-over features. Owns the clip pad colours and the < and > buttons in all modes (Orchestrator 22:21). Commits on a lane/sb-<topic> branch, and Merge Integrator moves each commit onto integration (rules 9 to 11). Runs an Elite build before each handoff.
+- Never: Installs. Edits the Bluetooth/JieLi lane files (Firmware Main Builder owns them).
+- Box copy: /workspace/x0x37-second-builder. Commits there on its lane/sb-<topic> branches.
+
+### Firmware Q&A
+- ID: 421cc513-a96f-4a66-b299-af00df87fbf4
+- Purpose: Watches the branches. Answers questions about the firmware and the branches.
+- Never: Installs or changes code.
+
+### Merge Integrator
+- ID: 6d5025ab-17f1-4d00-abb1-a1475550e792
+- Purpose: Owns the working branch integration: the branch order, the merges and the gate of the batch (rule 11). Requests one gate at the end of each batch, and Build and Test Runner runs it. Splits or bisects the batch only if that gate fails. Reports conflicts early to Orchestrator and the builders. Keeps the caches and worktrees clean. Writes merge-monitor-log.md.
+- Packaging (owner OK 23:32): Packages only a hash with a gate PASS and a device PASS. It uses the same checks as before: CRCs, loop slot backup paths and a changelog in plain words.
+- Never: Installs firmware. Merges, packages or pushes refs-oscuro. Pushes to GitHub or to an outside remote.
+- Worktree: /Users/mac/Documents/x0x37/flash_review_integration (branch integration).
+
+### Build and Test Runner
+- ID: a35e97c4-ec2a-4d3b-bea2-e32d8aedaa97
+- Purpose: Runs headless builds, unit tests (for example smk_clip_keys_test), size checks and flash-map checks. Runs the gate script when Merge Integrator requests it (rule 11). Keeps the build caches ready.
+- Never: Installs firmware.
+- Box folder: /workspace/x0x37-build-and-test-runner.
+
+### Release Packager
+- ID: 47f0d1b2-8691-46f3-9c06-c99fd805761c
+- Purpose: Packages the merged builds that pass, with CRCs, loop slot backup paths and a changelog in plain words.
+- Never: Installs. Packages a part of refs-oscuro. Pushes refs-oscuro. Pushes to GitHub or to an outside remote.
+- Box folder: /workspace/x0x37-release-packager.
+- Status (owner OK 2026-10-16 23:32): "retire after batch-1 checklist answers are logged". From 23:32, Merge Integrator does the packaging.
+
+### Docs Keeper
+- ID: ffd7fca0-6687-4102-bc74-4dda79e8604a
+- Purpose: Keeps BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, AGENTS_AND_ROOMS.md and the progress log in sync. Applies rule 12. Writes the owner test checklists and sends them to Orchestrator (owner OK 23:32). A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes. The templates are in /workspace/x0x37-test-plan-writer/ (checklist-batch1.md).
+- Never: Installs or changes firmware code.
+- Box folder: /workspace/x0x37-docs-keeper.
+
+### Test Plan Writer
+- ID: 64d26138-589a-454f-90c9-389404c9c990
+- Purpose: Writes short hardware test checklists, only for the changed items. Sends them to Orchestrator.
+- Never: Installs or changes code.
+- Box folder: /workspace/x0x37-test-plan-writer.
+- Status (owner OK 2026-10-16 23:32): "retire after batch-1 checklist answers are logged". From 23:32, Docs Keeper writes the checklists.
+
+### Optimizer
+- ID: e9e30685-7138-4a21-8945-13dffc12afc9
+- Purpose: Suggests optimizations that are safe for the experience of the owner. Gives patches to the lane builders.
+- Never: Installs firmware. Commits to the files of a builder lane. Runs a gate or a trial merge (Orchestrator audit 22:21). Pushes outside the box and the Mac.
+- Box folder: /workspace/x0x37-optimizer.
+
+Note: the iChord agents are part of a different project. They are not part of this setup.
+
+## Agent identities and lanes
+
+Each task has one task agent, and this table shows it. Integration is the one working branch, and Merge Integrator moves each commit onto it. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Each lane pushes only its own lane branch (rules 9 to 11). A lane is a set of files. Heavy agents write code or run builds, and light agents write docs, do checks or give answers.
+
+| Agent | Owns (only this agent) | Does not do | Hands off to | Cost tier |
+|---|---|---|---|---|
+| Orchestrator | Rule checks. Task assignment. Messages to and from the owner. | Build, write code or install. | Task agent, from this table. | Light |
+| Firmware Main Builder | Bluetooth/JieLi lane files on integration. All firmware installs (the batch hash with a gate PASS). | Edit the clip mode lane files. Write the bootloader. | Merge Integrator (commits). Docs Keeper (install changes, logs). | Heavy |
+| Second Builder | Clip mode lane files on integration (clip mode, scale, chord, arp, tempo). The clip pad colours. The < and > buttons in all modes. An Elite build before each handoff. | Install. Edit the Bluetooth/JieLi lane files. | Merge Integrator (commits). Docs Keeper (logs). | Heavy |
+| Firmware Q&A | Answers about the firmware and the branches. | Commit, change code or install. | Task agent of the topic, from this table. | Light |
+| Merge Integrator | Branch integration: branch order, merges, merge conflicts, the request for the gate of the batch. merge-monitor-log.md. Release packages (a hash with a gate PASS and a device PASS) with CRCs, loop slot backup paths and changelogs. | Install. Write feature code. Merge, package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (batch hash with a gate PASS). | Heavy |
+| Build and Test Runner | Headless builds, unit tests, size checks and flash-map checks. The gates (when Merge Integrator requests them). | Install. Write feature code. | Merge Integrator (pass). Task agent (fail). | Heavy |
+| Release Packager | Status: "retire after batch-1 checklist answers are logged". Until then: release packages with CRCs, loop slot backup paths and changelogs. | Install. Change code. Package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (install). Docs Keeper (logs). | Light |
+| Docs Keeper | BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, this file, progress log. Owner test checklists, sent to Orchestrator. | Install. Change firmware code. | Orchestrator (rule changes, checklists). | Light |
+| Test Plan Writer | Status: "retire after batch-1 checklist answers are logged". Until then: hardware test checklists, sent to Orchestrator. | Install. Change code. | Orchestrator (checklists). Docs Keeper (results). | Light |
+| Optimizer | Patches for optimizations that are safe for the experience of the owner. | Install. Commit to the files of a builder lane. Run a gate or a trial merge. Push outside the box and the Mac. | Task agent of the lane, from this table. | Light |
+
+## Messages
+
+There are no rooms. Agents send messages directly to each other with SendToAgent. Orchestrator relays the messages to the owner. Orchestrator is the only route for questions to the owner. If an agent quotes an owner report with the build, the report is valid in any chat (rule 13).
+
+## Coordination rules
+
+The rules are in rules/core.md. The core index names the other rule files. The skills are asd-ste, caveman and x0x37-builder-loop. The x0x37-builder-loop skill is now the core card. Its version is 2026-10-16 23:20 5748c74f.
+
+Other team notes:
+- Text for the owner (questions and explanations): use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms (owner, 2026-10-16 20:12). Write it in ASD-STE100, and describe a change only after you verify it (owner, 23:11, rule 13). Docs, logs and commits stay in asd-ste.
+- Generic work needs no approval (owner, 2026-10-16 02:11). Only a change that the owner can see, hear or play needs the approval of the owner (owner, 2026-10-16 19:25). Decide the other changes and continue.
+- If the Mac does not answer, try again for 5 minutes. Report the Mac offline only after 5 minutes.
+- From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict). (Orchestrator decision 23:36)
+- Build, test and analyze on the box copy. Use the Mac only for installs and device access.
+- Box build paths: JieLi toolchain /home/box/.jieli/toolchain, AC79 SDK /home/box/fw-AC79_AIoT_SDK (build.sh defaults).
+- All agents share one box. Each agent uses its own box folder (see the agent list). Merge Integrator uses its Mac worktree. Firmware Q&A only reads and has no folder. Never use the folder of another agent. Each builder works only in its own worktree.
+- Builders commit on the box. Before an install, they sync the commits to the Mac repo with a git bundle (same hashes, no patches).
+
+Repositories:
+- The shared bare repository on the box is /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it (owner, 2026-10-16 02:09). Lanes push only their lane/<agent>-<topic> branch, never integration (rule 10).
+- Code stays only on the box and on the machines of the owner. Never push to GitHub or to any other outside remote (owner, 2026-10-16 18:09). The GitHub origin of the Mac x0x37 repo stays, and nobody pushes to it.
+- Keep the JieLi files on the box and on the Mac. Do not commit them. Exception: branch refs-oscuro (ac10280, tip babd349) is a reference (owner, 2026-10-16 17:44 and 17:45).
+- refs-oscuro holds the Oscuro reference firmware (refs/oscuro/) and the JieLi libraries and AC79 SDK headers (refs/jieli/). It is not for distribution. Never merge, package or push refs-oscuro (owner, 2026-10-16 18:09). The full SDK and the toolchain stay out of git.
+- Pre-push blocks for refs-oscuro: box /workspace/x0x37.git and the builder box folders. Mac ~/Documents/x0x37/x0x37/.git/hooks/pre-push and ~/Documents/x0x37/flash_review/.git/hooks/pre-push (for all flash_review worktrees). The hook blocks only a push that contains refs-oscuro or its commits.
+
+## Current project context
+
+- Mac: Mac-mini.local, /Users/mac/Documents/x0x37. The main source tree is x0x37 (branch smk37). The smk37 docs/ folder holds copies of agent-rules.md, rules/, USER_PREFERENCES.md, ROADMAP.md and this file. Box smk37 and Mac smk37 stay identical (git bundle sync).
+- Keyboard:
+  - The keyboard runs integration 9a733fe (batch 1). Firmware Main Builder installed it at 22:25 (ledger b1, b913735).
+  - The fwsc CRC32 is 3a738997. The ctl.img read-back is eb742dd2. Slots 1 and 2 did not change. DIAG shows READY.
+  - The gate gave PASS at 22:29 (tree 1d3c048d, 93 ok, 0 FAIL, 0 skip). The gate Elite fwsc CRC32 3a738997 is the same as the installed file.
+  - The install at 22:25 came before the gate PASS. This is a rule 6 break. Cause: Merge Integrator called a manual test run a gate PASS, and Firmware Main Builder accepted it without a check of index.md. We made no new rule.
+  - The owner tests batch 1 only after the gate PASS (this is now true). If the owner test fails, Firmware Main Builder installs 14fb352 (a74) again. Device test: PENDING (checklist-batch1).
+- Bluetooth branches:
+  - Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). It stays at 94285b5.
+  - Before batch 1, the keyboard ran a74 (14fb352, installed 21:03, branch ble-a74, ledger tip 11d81a7). Owner test 1 (21:18): violet FAIL, pad clear FAIL.
+  - ble-a75 38af0a0, ble-pad-a76 1c45b4b and ble-arrows-a77 59ddadd are in integration (installed in 9a733fe).
+  - Side branches with builds that nobody installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. Live list: /workspace/x0x37-results/LIVE_BRANCHES.
+- Working branch: integration. Installed = batch 1 (9a733fe). The gate on batch 1 gave PASS at 22:29 (tree 1d3c048d). The gate at 22:24 was VOID (setup error). clip-keys-a65 5a89b76: its changes are in integration (cherry-picked).
+  - Batch 2 (e8232e7) has a gate PASS, and nobody installed it. Next = batch 3 on integration (open, Merge Integrator closes it at about 23:49). Batch 3 has pad calibration (CLP-79), the LCD colours from the Akai CSV and the Optimizer cuts. It also has the install guard, the STE check and the fail-closed hook.
+- fix-bass303 (9703c4f): owner TO CONFIRM.
+- refs-oscuro (ac10280, tip babd349): reference only. See the repository rules.
+- main_fm1.c, plat_fm1.c (plat_midi_out) and BEHAVIOR.md BLE-09 can change in the Bluetooth/JieLi lane and in the clip mode lane. Merge them carefully.
+- Files to keep: agent-rules.md, rules/, USER_PREFERENCES.md, ROADMAP.md, x0x37-progress-log.md, merge-monitor-log.md, x0x37/BEHAVIOR.md and BLE_ATTEMPTS.md (the Bluetooth ledger in the Bluetooth branch). Do not delete slot_backups/.
+
+## How to make the setup again
+1. Make the agents above with the exact names and the purposes in the list. Do not make Release Packager and Test Plan Writer (they retire).
+2. Give each agent its permanent task in its prompt. There are no rooms: agents use SendToAgent.
+3. Send the coordination rules to each agent.
+4. Tell all agents to read this file and the project folder.
+
+## Change log
+Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rules-v1-2026-10-16.md on the Mac). Entries from 2026-10-16 22:25 until 2026-10-17 00:00 use version 2 numbers. Each version 3 rule gives its version 2 number in brackets.
+- 2026-10-16 01:35: We made this file. It had the agent IDs, the worktrees and the never-do items. It also had the room limit (6 agents), rules 23 to 25 and the install rules.
+- 2026-10-16 02:08 to 02:29: We added box-first work, a box folder for each agent, the git bundle sync, the shared box repository and auto-approval. We also added the Mac offline retry (5 min), the commit hash in each install notice and short posts.
+- 2026-10-16 02:43 to 02:45: We added rule 26 (delegation), rule 27 and the lanes table. Merge Integrator owns merge-monitor-log.md.
+- 2026-10-16 17:45: We added new agent IDs. All room IDs were TO CONFIRM.
+- 2026-10-16 17:44 to 18:15: We added the refs-oscuro rules (never merge, package or push) and the JieLi-files exception. We also added no outside remotes and the pre-push hooks.
+- 2026-10-16 18:47: The live Bluetooth lane became ble-a65.
+- 2026-10-16 18:52: We added the new agent Optimizer.
+- 2026-10-16 19:02: We added rule 28 (docs hold only development information). We made the file shorter to obey rule 28.
+- 2026-10-16 19:13: We added rules 29 to 31 (gate PASS before an install notice, tag last-good-hw, shared schwung references). We also added the box toolchain and SDK paths.
+- 2026-10-16 19:39: We updated the branch tips (ble-a65 4d1608a, clip-keys-a65 81f6418, integration ceaac0a, side branches a68 to a71).
+- 2026-10-16 20:12: We added the plain-language rule for text to the owner.
+- 2026-10-16 20:28: The live Bluetooth lane became ble-a73 (a73 installed, full owner test pending).
+- 2026-10-16 20:32: We added the install rule (foreground, watched tmux or screen session). It is now in rule 29.
+- 2026-10-16 20:46: We removed the rooms (SendToAgent, Orchestrator relays to the owner). We changed rules 1, 11, 26, 27 and 29 and added rules 32 to 36. Only changes that the owner can see, hear or play need approval. Orchestrator never installs (confirmed).
+- 2026-10-16 20:47: We added rule 36 (gate locks and X0X_TEST_TIME_SCALE) and the ble-a74 status.
+- 2026-10-16 21:07: We added the per-slot CRC note to rule 29 (the CRC of the full file proves nothing) and rule 37 (builder loop skill). Firmware Main Builder installed ble-a74 at 21:03.
+- 2026-10-16 21:42: The live Bluetooth lane became ble-a74 (owner test 1: 2 FAIL). We added ble-a75, ble-pad-a76 and integration 110d4c2.
+- 2026-10-16 21:48: We added rule 38 (stop only your own PIDs). Cause: a Firmware Main Builder worker ran pkill -f x0x37_gate.sh at 21:41 and 21:43.
+- 2026-10-16 21:55: The BEHAVIOR.md reference became integration (rule 22). Rule 29 now requires a gate PASS for the exact tree. We put rules 5, 11, 26, 28, 29 and 34 in asd-ste and updated the branch tips.
+- 2026-10-16 21:57: We fixed the rule contradictions (rules 1, 2, 7, 9, 11, 26, 27, 30, 33, 35, 36). "Task agent" replaces "owner of the task". We added the box folders for each agent.
+- 2026-10-16 21:57: Rule 1: caveman is only for agent-to-agent messages. Messages to the owner use plain words (Orchestrator confirmed).
+- 2026-10-16 22:00: We added rule 39 (owner 22:00): one working branch, integration, and one gate for each batch. Rule 29 now says to install the batch hash. Lanes are file sets.
+- 2026-10-16 22:03: We added rule 40 (Decision check for each agent, owner 22:02). Rule 37 now says that skill changes go through Orchestrator.
+- 2026-10-16 22:04: We added rule 41 (no idle waiting, owner 22:03).
+- 2026-10-16 22:25: We made agent-rules.md version 2 (15 rules). The coordination rules list the 15 rules. Integration became 6ee9c69, with a76 and a77 merged.
+- 2026-10-16 22:27: We removed the old worktrees from the agent sections (live: a74wt, refswt, flash_review_integration). The Second Builder purpose comes from its profile. Optimizer runs no gate and no trial merge and pushes only to the box and the Mac. The lanes table has no branch names for the lanes, and Test Plan Writer sends checklists to Orchestrator. The profiles of Release Packager and Test Plan Writer confirm "Never installs".
+- 2026-10-16 22:28: Second Builder owns the clip pad colours and the < and > buttons in all modes (Orchestrator 22:21). It runs an Elite build before each handoff.
+- 2026-10-16 22:30: Integration became f357a2e. The keyboard runs integration 9a733fe (installed 22:25, ledger b1). The device test is pending.
+- 2026-10-16 22:39: The gate on batch 1 (9a733fe) gave PASS at 22:29, after the install at 22:25 (rule 7 break). We added the lane file split as an open item.
+- 2026-10-16 22:40: Rule 11 now says: record the bug first (owner 22:39). Make an INLOG replay test before a fix for a device bug.
+- 2026-10-16 22:59: Rule 11 now says: make a fix only when data and a host test prove the cause. Do not try a second guess (owner 22:59).
+- 2026-10-16 23:13: Skill-use audit C1-C14: we changed rules 2, 4, 5, 6, 7, 10 and 11. Lanes push only their own branch. Build and Test Runner runs the gate, and Merge Integrator requests it. The no-rebase OK of 22:03 (Orchestrator) is void. Rule 2 now has the owner rule of 23:11.
+- 2026-10-16 23:16: Orchestrator decisions 23:15: lane branches lane/<agent>-<topic> (rule 5). Orchestrator is the only route for owner questions (rule 2). Send one decision message for each item, with "supersedes <time>" (rule 14). The x0x37-builder-loop skill became the core card (23:15, 0f296f5c), and the Decision check is steps 6 to 10.
+- 2026-10-16 23:27: We rewrote the docs in ASD-STE100 (Orchestrator 23:19). agent-rules.md has a list of terms and the caveman scope. Rule 7 names the install tool fm1_install.py --commit and the guard require_gate_pass.sh. The x0x37-builder-loop core card is now 2026-10-16 23:20 5748c74f.
+- 2026-10-16 23:30: Orchestrator decisions 23:29: rule 7 applies the install guard from batch 3. Until then, Firmware Main Builder reads the index row and the result file before the install. The web installer ban is only for team installs. New terms: colour and owner quotes. The 20:12 owner example is word for word again.
+- 2026-10-16 23:33: Owner OK 23:32: Merge Integrator does the release packaging (a hash with a gate PASS and a device PASS). Docs Keeper writes the owner test checklists. Release Packager and Test Plan Writer retire after Docs Keeper logs the batch-1 checklist answers. Their status is "retire after batch-1 checklist answers are logged".
+- 2026-10-16 23:36: Orchestrator decision 23:36: name a batch by its number and its gated hash only. Installed = batch 1 (9a733fe). Batch 2 (e8232e7) has a gate PASS. Batch 3 is open on integration.
+- 2026-10-16 23:39: Orchestrator decision 23:36: From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict).
+- 2026-10-17 00:01: Agent rules version 3 (owner approved, Orchestrator 00:00). rules/core.md has rules 1, 2 and 4 and an index. The 8 other rule files have the names shared-work, install, device-bug, commit, integration, docs, owner-messages and style. agent-rules.md points to rules/core.md. Merges M1 to M4 and split S2 are in. The coordination rules section is now a pointer, and the rule numbers in the docs have the version 3 numbers.
+
+===================== END FILE: AGENTS_AND_ROOMS.md (rules-v3 stage) =====================
+
+===================== FILE: docs/handoff/workspace/docs-keeper/AGENTS_AND_ROOMS.md (repo, PR #812) =====================
+Rule 1 (owner, explicit, 2026-10-31): Don't do stupid work. Only do work that moves the build forward.
+
+Rule 2 (owner, explicit, 2026-10-31): Always start a new Codex/ChatGPT thread for each job. Never reuse old threads.
+
+Rule 3 (owner, explicit, 2026-10-31): Speed first. Fix blockers (like forbidden files) first, run tests and builds in parallel, and cut anything the build does not need.
+
+Rule 4 (owner, explicit, 2026-10-31): Don't overcomplicate it. Keep work and messages simple.
+
+# x0x37 Agents and Rooms
+
+This file lets another model recreate the multi-agent setup for the x0x37 firmware project.
+
+Last updated: 2026-10-16 02:15 (Vladivostok, UTC+10) by Docs Keeper.
+Owner: Docs Keeper (living document). Docs Keeper updates this file when an agent, a room or a rule changes.
+"TO CONFIRM" marks a fact that no project file or agent profile shows.
+
+## Agents
+
+### Orchestrator
+- ID: 2ffad88e-a21e-45d2-a50d-545c22bcdd01
+- Purpose: Primary bot. Routes tasks, enforces project rules and simple-English style.
+- Never: Installs firmware itself. (TO CONFIRM: no written rule found in the project files.)
+- Rooms: X0X37 Loopy, Integration, Feature Design, User Test.
+
+### Firmware Main Builder
+- ID: cd078dcf-119e-4eb7-8a01-bc7cd78bfd48
+- Purpose: Builds, debugs and installs custom firmware. Owns Bluetooth/JieLi work on ble-stage3. Only agent allowed to install (with backups + CRC + pre-install heads-up).
+- Never: (none specific beyond rules). From USER_PREFERENCES.md: never write the bootloader, never install in the background, never install without a slot backup and a CRC compare.
+- Worktree: /Users/mac/Documents/x0x37/flash_review (branch ble-stage3).
+- Box copy: /workspace/x0x37-firmware-main-builder. Commits there, then syncs the commits to the Mac repo before each install.
+- Rooms: Loopy, Integration, Feature Design, User Test.
+
+### Second Builder
+- ID: c05ee676-c48e-4c91-82a7-f72d9e2999ae
+- Purpose: Builds clip-mode keybed, scale/chord/arp, tempo carry-over on clip-keys. (TO CONFIRM: the agent profile has no description.)
+- Never: Installs. Does not edit the flash_review tree (it belongs to Firmware Main Builder).
+- Worktree: /Users/mac/Documents/x0x37/flash_review_clipkeys (branch clip-keys).
+- Box copy: /workspace/x0x37-second-builder. Commits there, then syncs to the Mac branch clip-keys.
+- Rooms: Loopy, Feature Design, User Test.
+
+### Firmware Q&A
+- ID: 0f40e61f-32f1-41b8-8bdf-3f1248fea9ff
+- Purpose: Watches branches, maintains merge-monitor-log.md.
+- Never: Installs or changes code.
+- Rooms: Loopy, Integration.
+
+### Merge Integrator
+- ID: 74f84c15-8626-459c-9991-6ae8d1fb3eae
+- Purpose: Merges branches into an integration branch on commits. Runs build + unit tests. Surfaces conflicts early. Reports in plain English in Integration and Loopy. Keeps caches and worktrees clean.
+- Never: Installs firmware.
+- Worktree: /Users/mac/Documents/x0x37/flash_review_integration (branch integration).
+- Rooms: Loopy, Integration.
+
+### Build and Test Runner
+- ID: 5e1ab02f-7ef4-4d1c-a1c6-e9723c4297f1
+- Purpose: Headless builds, unit tests (smk_clip_keys_test etc.), size and flash-map checks. Keeps caches warm.
+- Never: Installs firmware.
+- Rooms: Loopy, Integration.
+
+### Release Packager
+- ID: 80ee3bbf-c4eb-4766-a2f2-2e8630622548
+- Purpose: Packages passing merged builds with CRCs, slot backup paths, and plain-English changelog.
+- Never: Installs. (TO CONFIRM: implied by the profile, not written.)
+- Rooms: Integration.
+
+### Docs Keeper
+- ID: a1b0f316-d57b-4658-bab6-cfa9b19e17bb
+- Purpose: Keeps BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, progress and merge logs in sync. Handles rules 23-25.
+- Never: Installs or changes firmware code.
+- Box folder: /workspace/x0x37-docs-keeper.
+- Rooms: Feature Design.
+
+### Test Plan Writer
+- ID: faf66b58-8e0c-4222-ae06-ac2ca1eb6fa9
+- Purpose: Writes short hardware test checklists for meaningful changes. Posts them in User Test.
+- Never: Installs or changes code. (TO CONFIRM: implied, not written.)
+- Rooms: User Test.
+
+Note: the iChord agents belong to a different project. They are not part of this setup.
+
+## Rooms (max 6 agents each)
+
+Rule: a room can have a maximum of 6 agents. Before you add an agent to a full room, remove one agent or use a different room.
+
+| Room | Room ID | Agents now | Full? |
+|---|---|---|---|
+| X0X37 Loopy | 360e3fb0-f335-40f0-8824-89d953a17837 | 6 | Yes |
+| X0X37 Integration | 3fb43bfe-fd4c-4130-8cbe-55bb8461ce44 | 6 | Yes |
+| X0X37 Feature Design | 0f264707-d2fd-4cf4-90ce-5a4916ef9d06 | 4 | No (2 free) |
+| X0X37 User Test | 4bfa62f7-a67e-4703-84dc-b8a97230ac7e | 4 | No (2 free) |
+
+### X0X37 Loopy
+- Purpose: Main coordination room for the firmware + Loopy work.
+- Members: Orchestrator, Firmware Main Builder, Second Builder, Firmware Q&A, Merge Integrator, Build and Test Runner.
+
+### X0X37 Integration
+- Purpose: Merges, parallel builds, tests, and packaging only.
+- Members: Orchestrator, Merge Integrator, Build and Test Runner, Firmware Main Builder, Firmware Q&A, Release Packager.
+
+### X0X37 Feature Design
+- Purpose: Agree behavior rules (BLE-09, MID-07 etc.) before code is written.
+- Members: Orchestrator, Firmware Main Builder, Second Builder, Docs Keeper.
+
+### X0X37 User Test
+- Purpose: Install notices, test checklists, and user results.
+- Members: Orchestrator, Test Plan Writer, Firmware Main Builder, Second Builder.
+- Note: User posts results here from the sidebar.
+
+## Coordination rules
+- Commit early so the Integrator has a base.
+- Build and Test Runner does checks on every commit (parallel, cache-warm).
+- Merge Integrator merges as soon as both sides have a commit.
+- Only Firmware Main Builder installs. Give a heads-up just before each install so the device can be prepared.
+- Use simple English. Keep logs (x0x37-progress-log.md, merge-monitor-log.md) updated.
+- Docs Keeper handles paperwork.
+- Build, test and analyze on a copy of the project on the box. Use the Mac only for installs and device access.
+- If the Mac does not respond, retry for 5 minutes. Report it offline only after 5 minutes.
+- All agents share one box. Each agent uses its own box folder, /workspace/x0x37-<agent-name>. Never use another agent's folder.
+- Builders commit on the box, then sync the commits to the Mac repo before an install.
+- Keep one copy of the project on the box and one on the Mac. Keep the two copies in sync.
+- Shared bare repository on the box: /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it. No agent pushes outside the box. (User approved 2026-10-16 02:09.)
+- Generic work is approved automatically. Notify the user first before anything that changes how the device works or feels. Safety rules stay. (User, 2026-10-16 02:11.)
+
+More rules from agent-rules.md, USER_PREFERENCES.md and merge-monitor-log.md:
+- Rule 23: if you change intended behavior, update BEHAVIOR.md in the same task.
+- Rule 24: read USER_PREFERENCES.md before you start. Add each new lasting user decision to it.
+- Rule 25: when a step finishes or a plan changes, update ROADMAP.md.
+- Before each install, back up the sample slots. After the install, compare the slot CRCs. Backups are in slot_backups/.
+- Run each install in the foreground. Never write the bootloader.
+- Before each install, notify the user and wait for the go from the parent agent. After the install, send the commit hash and the CRC result.
+- A verified build installs with no question to the user (decision of 2026-10-16). The backup, CRC and notice steps stay.
+- Do not push outside the box. The only allowed remote is box (/workspace/x0x37.git). Write commit messages in Simplified Technical English.
+- Changes outside clip mode need the explicit approval of the user first.
+- Keep the JieLi files local on the box and on the Mac. Do not commit them.
+- Each builder works only in its own worktree.
+
+## Current project context
+- Location: ~/Documents/x0x37
+- Base commit: 585d63c
+- Active branches: ble-stage3 (Main Builder, flash_review), clip-keys (Second Builder, flash_review_clipkeys)
+- Both touch main_fm1.c (careful merge needed)
+- Logs to keep: x0x37-progress-log.md, merge-monitor-log.md, USER_PREFERENCES.md, BEHAVIOR.md, ROADMAP.md
+
+More facts (checked 2026-10-16 01:32):
+- Machine: Mac-mini.local. Full path: /Users/mac/Documents/x0x37.
+- Main source tree: /Users/mac/Documents/x0x37/x0x37 (branch smk37, HEAD 4ffcd2d).
+- Worktrees: flash_review (ble-stage3), flash_review_clipkeys (clip-keys), flash_review_integration (integration). All three were at 585d63c. Second Builder had work that was not committed.
+- Files that both branches can change: firmware/src/app/main_fm1.c, firmware/src/app/plat_fm1.c (plat_midi_out), BEHAVIOR.md item BLE-09.
+- New on clip-keys: firmware/src/app/smk_clip_keys.h, tests/smk_clip_keys_test.c.
+- Other files to keep: agent-rules.md (the 25 agent rules), x0x37/BEHAVIOR.md, ble_split/BLE_ATTEMPTS.md (one row for each Bluetooth attempt), slot_backups/ (do not delete).
+- A second copy of this setup is at x0x37/docs/AGENTS_AND_ROOMS.md. This root file is the main copy.
+
+## How to recreate
+1. Create the nine agents above with the exact names and the purposes listed.
+2. Create the four rooms and add the members listed (respect the 6-agent limit).
+3. Give each agent its standing duty via a prompt.
+4. Post the coordination rules in the rooms.
+5. Point everyone at this file and the project folder.
+
+## Change log
+- 2026-10-16 01:35, Docs Keeper: added the update line and the owner note. Added agent IDs, worktree paths and more never-do items. Added the 6-agent room rule with counts. Added rules 23 to 25 and the install rules. Added verified project facts. Added TO CONFIRM marks. Nothing was removed.
+- 2026-10-16 02:08, Docs Keeper: added box copy paths for the two builders. Added four rules: box-first work, Mac offline retry, one box folder for each agent, commit on the box then sync before an install.
+- 2026-10-16 02:09, Docs Keeper: added the two-copy sync rule and the shared box repository rule (/workspace/x0x37.git, remote box). Changed the push rule and the JieLi rule.
+- 2026-10-16 02:15, Docs Keeper: added the two-copy sync rule, the box repository rule (user approved 02:09) and the auto-approval rule (02:11). Push rule allows only the box remote. JieLi rule changed. Offline rule is now 5 minutes. Added the Docs Keeper box folder.
+
+===================== END FILE: docs/handoff/workspace/docs-keeper/AGENTS_AND_ROOMS.md (repo, PR #812) =====================
+
+===================== FILE: USER_PREFERENCES.md (rules-v3 stage) =====================
+# X0X37 project: owner preferences and decisions
+
+Read this file before you work on the X0X37 project. Also obey the agent rules (rules/core.md). This Mac root file is the main copy, and x0x37/docs/USER_PREFERENCES.md on smk37 is an exact copy. The reference for the intended behavior is BEHAVIOR.md on the branch integration. The smk37 copy x0x37/BEHAVIOR.md is a synced copy of it.
+
+## How to work with the owner
+
+- Talk plainly and briefly. Give the result first. Explain hardware and code findings in simple words.
+- Do the work. Ask only when a wrong choice has real results or when the owner must decide.
+- Only a change that the owner can see, hear or play needs the approval of the owner first (see the 19:25 entry). Decide the other changes and continue.
+- Do not change release scripts unless the owner asks.
+- In build-test mode, do not install fallback or recovery builds only to make the keyboard playable. An example is a build with no Bluetooth. Install the fixed build directly. The owner tests the keyboard and does not make music with it.
+- Commits: author genkigenki <3080081+genkigenki@users.noreply.github.com>, messages in ASD-STE100 (asd-ste skill). Log each change in x0x37-progress-log.md.
+- 2026-10-16 18:41 (owner): Optimize without cutting features. Font size is not a feature.
+- 2026-10-16 20:12 (owner):
+  - Questions and explanations to the owner use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms.
+  - Example: "When you record live and hit a pad a little before the beat, the keyboard puts the note on the step before the one you meant, so your recording sounds a bit early. I can make it snap to the closest step instead."
+  - This rule applies only to text for the owner. Docs, logs and commits stay in asd-ste. (Extended 2026-10-16 23:11: these messages are also in ASD-STE100. See the 23:11 entry.)
+- 2026-10-17 00:05 (owner): Make each message to the owner as short as possible, and keep every fact (caveman length). Use full, simple ASD-STE100 words: no shorthand, no IDs and no hashes, unless the owner needs them (agent rule 13).
+- 2026-10-16 19:25 (owner): Do not ask the owner to approve a change that has no visible, audible or playable effect. Decide and continue. Ask only when the change affects the experience of the owner.
+- 2026-10-16 19:10 (owner, from Optimizer items C3 and B3):
+  - In the XS, S and B faces, only these lower-case letters keep their own glyphs: `a b d k m p r s t x z`. Each other lower-case letter shows as its capital letter, also in sample names.
+  - The characters ` { | } ~ show as "?". Symbols outside the font show as ?. The owner approved this on 2026-10-16 at 19:25. See BEHAVIOR.md GEN-55.
+- 2026-10-16 19:02 (owner): Docs and logs hold only development information (agent rule 12).
+
+## Installs and safety
+
+- Never touch the bootloader. Never risk a brick. Run each install in the foreground, never in the background.
+- Before each install, back up the loop slots. After the install, compare the slot CRCs. The owner has 5 imported loops (3 in slot 1, 2 in slot 2). The backups are in slot_backups/.
+- 2026-10-16: A verified build installs with no question to the owner. Before each install, send the owner a notice. Give the commit hash and the result file of the gate PASS row for the exact tree (/workspace/x0x37-results/index.md). A "go" in a message does not replace that row (agent rule 6). After the install, give the owner the commit hash and the CRC result.
+- 2026-10-16: Report UX changes immediately. Some changes can affect the experience of the owner: latency, packet or MTU size, memory margins, sample length and connection behavior. If the builder decides on such a change, it sends a short note to Orchestrator before it continues. Orchestrator tells the owner.
+- 2026-10-16 02:11:
+  - Generic work needs no approval. Generic work is builds, tests, commits, pushes to the box, doc updates and merges on the box. Tell the owner first before a change that can change how the device works or feels.
+  - Examples: installs, new behavior rules, changes that the owner can see, hear or play, flash layout changes, removed features. The safety rules do not change.
+  - The 19:25 entry replaces these examples. Only a change that the owner can see, hear or play needs approval. The install notice stays (agent rule 5).
+- 2026-10-16 17:3x (the owner gave this decision to Firmware Main Builder):
+  - The pool limit is 4096 B, from the build.py rule. heap2 (3584 B) is already inside .pool. A release build must turn off the test-26 RAM canary (it writes 0xFF at 0x01C72000-0x01C74000), or keep at least 8192 B of free pool.
+  - Enforced: build.sh and the gate require 8192 B of free pool (2026-10-16 21:53). The 8192 B limit replaces the 4096 B limit.
+
+## Repositories and remotes
+
+- 2026-10-16 02:09: The shared bare repository on the box is /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it. Lanes push only their lane/<agent>-<topic> branch, never integration. Merge Integrator moves each commit onto integration (agent rules 10 and 11, 23:15 entry).
+- 2026-10-16 18:09: Code stays only on the box and on the machines of the owner. Never push to GitHub or to any other outside remote. The GitHub origin of the Mac x0x37 repo stays at this time. Nobody pushes to it.
+- Box first: build, test and analyze on the box copy. Use the Mac only for installs and device access. Copy the built files to the Mac just before an install. Sync box commits to the Mac with a git bundle (same hashes, no patches). Keep the box and Mac copies in sync (git commits and docs).
+- Keep the JieLi files on the box and on the Mac. Do not commit them. Exception: branch refs-oscuro (see below).
+- 2026-10-16 17:44 and 18:09:
+  - Branch refs-oscuro (ac10280, tip babd349) is a reference. It holds the SMK-37 Oscuro reference firmware (refs/oscuro/). It also holds the JieLi Bluetooth libraries and AC79 SDK headers (refs/jieli/). It is not for distribution.
+  - Never merge it into a branch. Never package a part of it. Never push it. It stays in the local repositories.
+  - The full SDK and the toolchain stay out of git. (Source: refs/jieli/README.md and refs/oscuro/README.md.)
+- Pre-push blocks for refs-oscuro: on the box /workspace/x0x37.git and the builder box folders, on the Mac x0x37/.git/hooks/pre-push and flash_review/.git/hooks/pre-push (for all flash_review worktrees). The hook blocks only a push that contains refs-oscuro or its commits.
+
+## Team rules
+
+- 2026-10-16 02:14: If the Mac does not answer, try again for 5 minutes. Report the Mac offline only after 5 minutes with no answer.
+- 2026-10-16 02:28: Posts and agent messages hold only results, blockers and decisions, in two sentences or fewer. "Idle, no task" counts as a blocker: tell Orchestrator (agent rule 3).
+- 2026-10-16 02:43:
+  - Docs, logs and commits obey the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Messages to agents obey the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md).
+  - The caveman skill applies only to agent-to-agent messages, including task messages. If a text is in the scope of asd-ste, asd-ste wins.
+  - (2026-10-16 21:57, Orchestrator confirmed: messages to the owner obey the 20:12 owner entry in "How to work with the owner". From 23:11, they are also in ASD-STE100.)
+- 2026-10-16 13:03: Do not ask the owner for approval to start a helper subagent. Start it.
+- 2026-10-16 22:00 (owner):
+  - All planned changes go on one working branch, integration. Make one commit and one host test for each change. Run only the affected tests. Use time scale 20 only when the code reads X0X_TEST_TIME_SCALE (agent rule 9).
+  - Run one gate at the end of the batch. Split or bisect only if that gate fails. Merge Integrator owns the branch order and the gate of the batch.
+  - Builders fetch and rebase before each commit and change only the files of their lane. The install is the batch hash with a gate PASS. This replaces the gate for each lane (agent rules 6 and 9 to 11).
+- 2026-10-16 22:02 (owner): Each agent, not only the builders, does the Decision check before an action that is hard to undo or shared. The check is steps 12 to 16 of the x0x37-builder-loop skill (evidence, damage, undo, cause, size), with its stop words (agent rule 4). Changes to the skill go through Orchestrator. (2026-10-16 23:15: in the core card, the Decision check is steps 6 to 10.)
+- 2026-10-16 22:03 (owner): Do not wait idle. While you wait for a gate, a review, a merge or an owner reply, do the next task that does not need that result. Only hardware work and edits to the same shared file stay one at a time (agent rule 3).
+- 2026-10-16 22:39 (owner): Record the bug first. Before a fix for a device bug, the owner shows the bug once with INLOG (the inbound MIDI recorder) on. The builder makes a host replay test from that log, then fixes the bug. Do not make guess fixes (agent rule 8).
+- 2026-10-16 22:59 (owner): Never build a fix before data and a host test prove that it fixes the cause. If a fix does not help on the device, go back to the start. Name the wrong assumption and get the missing data. Do not try a second guess (agent rule 8).
+- 2026-10-16 23:11 (owner): Write each message to the owner in ASD-STE100, also with the plain words of the 20:12 entry. Do not describe a change to the owner before you verify it (agent rule 13, asd-ste skill).
+- 2026-10-16 23:15 (Orchestrator decision): Integration is the one working branch. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Merge Integrator moves each commit onto integration (agent rules 10 and 11).
+- 2026-10-16 23:15 (Orchestrator decision): Orchestrator is the only route for questions to the owner. If an agent quotes an owner report with the build, the report is valid in any chat (agent rule 13).
+- 2026-10-16 23:15 (Orchestrator decision): Send one decision message for each item. Give it a tag "supersedes <time>" when it replaces an earlier decision (agent rule 4B).
+- 2026-10-16 23:19 (Orchestrator decision): Install only with fm1_install.py --commit and the guard require_gate_pass.sh. Never use the web installer for a team install (agent rule 6).
+- 2026-10-16 23:29 (Orchestrator decision): The install guard of rule 6 applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file before the install. Owner quotes stay word for word inside quotation marks, and STE does not apply to them.
+- 2026-10-17 00:01 (Orchestrator decision, owner approved 00:00): Agent rules version 3. rules/core.md has rules 1, 2 and 4 and an index of the rule files. Read the core at the start of each task, and open each other rule file only at its step. Each rule number in this file is a version 3 number.
+- 2026-10-16 23:36 (Orchestrator decision): From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict).
+- 2026-10-16 23:36 (Orchestrator decision): Name a batch only by its number and its gated hash, for example batch 1 (9a733fe). Do not name a batch by a branch name.
+- 2026-10-16 23:32 (owner): Merge the small roles.
+  - Merge Integrator does the release packaging. It packages only a hash with a gate PASS and a device PASS, with the same checks as before (CRCs, loop slot backup paths).
+  - Docs Keeper writes the owner test checklists and sends them to Orchestrator. A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes.
+  - Release Packager and Test Plan Writer retire after Docs Keeper logs the batch-1 checklist answers.
+
+## Hardware and targets
+
+- The target is the M-Vave SMK-37 (Pro and Elite) with a JieLi AC79 chip. The keyboard of the owner is an Elite.
+- Only the SMK-37 build is important. We do not maintain the FM-1 build. The owner accepts its XIP overflow (about 650 B) (LIM-12).
+- The owner knows the SMK-37 port by genkigenki. This project has its own source.
+
+## Audio and samples
+
+- Use 44.1 kHz wherever possible, at all times. This includes the factory breaks and the imported loops.
+- Do not cut quality or length. Do not halve sample rates. The factory breaks stay 2 bars at 44.1 kHz.
+- IMA ADPCM at 44.1 kHz is the preferred storage format for all samples. In a blind A/B test, the owner heard no difference for the 909 ride, crash and hi-hat.
+- Keep the memory for the imported loops. Work that saves space must not take from the loop storage. Use free flash for the loop slots. We did not decide yet if we keep spare space for growth.
+- The imported loops are for BREAK mode only.
+- The installer backs up the loop slots automatically before an install and restores them after it (for example when the flash layout changes).
+
+## Clip mode (APC40 mkII emulation for Loopy Pro)
+
+- OCT- moves the clip view down. OCT+ moves the clip view up.
+- Keep the current pad-and-key blocking behavior (a pad blocks the white key of the keybed).
+- The pad brightness stays at the previous level. Do not add pad dimming or a pad brightness floor.
+- LCD clip colours:
+  - Keep the exact hue when a colour becomes brighter. Do not let the hue drift (for example, blue must not go toward purple). The owner likes the current red.
+  - The approved table is the OKLCH lift with the "strong" hue fix for 0x32 (0x325D) and 0x33 (0x3A17). tools/apc_pad_colors.py makes the table in apc40_lcd565.h. It must go into the firmware after the Bluetooth test.
+  - Updated 2026-10-16 23:34: the LCD colours are now the plain Akai colours as RGB565, from the Akai CSV (tools/apc40mk2_akai_protocol_v1.2.csv, CLP-05). They have no lift and no hue fix, so X0X does not use the OKLCH table. The plan puts pad colour calibration (CLP-79) in batch 3.
+- Loopy Pro start/stop can also start the X0X sequencer, but it must not conflict with the external MIDI clock sync.
+- The usb.c APC identity reply has no gate check, and this is not a problem. Leave it.
+- FREE PLAY: keep it, and document it as it is.
+- 2026-10-17 00:01 (owner): Pad calibration is only for development. The release build has X0X_DEV_PADCAL=0 (no PAD COLOURS row), with the pad table that the owner calibrated.
+
+## Clip mode keybed, arp, chord and scale (decided 2026-10-16)
+
+- 2026-10-16 00:45: The owner approved this change outside clip mode. When the external MIDI clock stops (0.5 s with no tick), the internal tempo takes the last measured external tempo (whole BPM). Nothing must jump. This applies to the main sequencer too.
+- In clip mode, the keybed sends MIDI notes only to Loopy Pro. It does not control the X0X UI. A held pad still blocks its white key.
+- The note path in clip mode is: key, then SCALE, then CHORD, then ARP, then the CLIP KEYS channel on USB and Bluetooth MIDI.
+- GLO > MIDI has CLIP KEYS CH: channel 2 to 15, default 2. Channels 1 and 16 stay free for the APC40 emulation.
+- The new settings are new bytes at the end of the settings. Older projects load the defaults. Do not use rsv_bright.
+- The arp follows the incoming MIDI clock when a tick came in the last 0.5 s. If no tick came, it uses the internal tempo. It also runs when Loopy does not play. MIDI Start resets it. The arp sends no clock.
+- Send only the processed notes. The default scale snap is NEAR.
+- Knob 1 is always the MASTER volume. (First decision: knobs 2 to 5 set the mode that has the knobs. Branch clip-keys ce5236e now uses knobs 2-8 for CC 48-54 and the SCALE, CHORD and ARP pages for the settings: BEHAVIOR.md CLP-63, CLP-73, CLP-75.)
+- GLO opens on the LCD in clip mode. The clip grid comes back when the menu closes.
+- In clip mode, the mode chip on the LCD shows "LP".
+
+## Bluetooth MIDI
+
+- MIDI only. No Bluetooth audio.
+- The firmware, with its Bluetooth stack, must be freely shareable under an open license.
+- Before you use licensed third-party code, check if we can make it again in a legally distinct way. An example is code from public specifications.
+- JieLi does not publish the source of its Bluetooth controller (btctrler.a). Do not bundle JieLi files. The computer of the end user downloads them from the official source and builds the controller image locally. The controller runs as a separate image (our MPL shim, HCI mailbox, core 1).
+- Keep the Bluetooth image in one contiguous flash block.
+- The Bluetooth settings are in the GLOBAL menu (BLUETOOTH MIDI section). The BT buttons stay as they are, or work only in clip mode.
+- The preferred delivery is an HTML web installer that gets the necessary files automatically. If possible, end users need no toolchain.
+- 2026-10-16 00:08:
+  - Bluetooth: use the Bluetooth Low Energy host of JieLi with SMP pairing for auto-reconnect. Get it from the official SDK, build it locally and never bundle it. Remove classic Bluetooth and audio.
+  - Loop slot 3 can shrink to about 16 KiB (0.7 s) for the host (0xAB000-0xB6FFF). Keep the pairing keys in an X0X area, never in BTIF, USRTRIM, efuse or key_mac.
+  - (a38 to a64 used this host. a65 goes back to our own app host with no pairing: BEHAVIOR.md BLE-07.)
+- 2026-10-16 18:18: The keyboard sends no connection parameter request. a65 sends none (the owner approved this at 18:18). On Oct 15, the request made the iPhone link drop (test 31) and gave a large MIDI delay (test 34). This replaces the 17:41 decision.
+
+## Where things are
+
+- Source tree: x0x37/ (branch smk37). Firmware work: one working branch, integration (batch flow, agent rules 6 and 9 to 11), box repo /workspace/x0x37.git and Mac worktree flash_review_integration. The keyboard runs integration 9a733fe (batch 1, installed 22:25).
+- Rules: rules/core.md (agent-rules.md points to it). Agents and lanes: AGENTS_AND_ROOMS.md. Intended behavior: BEHAVIOR.md on integration (x0x37/BEHAVIOR.md on smk37 is a synced copy). Change log: x0x37-progress-log.md. Plan: ROADMAP.md. Bluetooth attempt ledger: BLE_ATTEMPTS.md in the Bluetooth branch.
+- BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
+- Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
+
+Last update: 2026-10-17 00:06.
+
+===================== END FILE: USER_PREFERENCES.md (rules-v3 stage) =====================
+
+===================== FILE: skill x0x37-builder-loop/SKILL.md =====================
+---
+name: x0x37-builder-loop
+description: >-
+  Use this skill for each x0x37 firmware change. Firmware Main Builder, Second
+  Builder, Optimizer and Merge Integrator use it. Read it before a change, a
+  commit, a handoff, an install notice or a decision that is hard to undo. Read
+  it also before you write to the owner and after a failed device test.
+---
+# x0x37 builder loop
+
+version: 2026-10-17 02:40 5e31f1b4 (sha8 = sha256 of the text below this line)
+
+Read this card at each trigger. Write the version line in your log.
+
+The rules are in docs/rules/ on smk37 (start at core.md). If a step and a rule do not agree, obey the rule. The budget file is /workspace/x0x37-results/BUDGET.md.
+
+## Core card (all agents)
+
+### Commit (read docs/rules/commit.md first)
+1. Make sure that the host test fails on the base and passes after the change.
+2. Run tools/quickcheck.sh before each handoff.
+3. Put each behavior change in BEHAVIOR.md in the same commit.
+4. Give the exact hash to Merge Integrator.
+
+### Install (read docs/rules/install.md first)
+5. Write the path of the gate PASS index row in the ledger (BLE_ATTEMPTS.md) as the evidence. The owner notice has no hash and no IDs.
+
+### Decision check (for an action that is hard to undo or shared)
+6 to 10. Do the Decision check in docs/rules/shared-work.md (rule 4).
+
+### Failed device test (read docs/rules/device-bug.md first)
+11. Stop new work on that build.
+
+## Firmware Main Builder
+- After the install, compare the fwsc CRC32 with the gate build. The CRC of the full slot file proves nothing. Write the ledger row (BLE_ATTEMPTS.md).
+- Tell Orchestrator only when all queued changes are in one build with a gate PASS. Do not offer a partial build.
+
+## Second Builder
+- You own the clip mode lane files, the clip pad colours and the < and > buttons in all modes.
+- Run the Elite build before each handoff.
+- Do not commit to the Bluetooth/JieLi lane files.
+
+## Optimizer
+- Read the owner fact in docs/rules/device-bug.md before each saving.
+- Give each saving as one patch on the tip of integration. Give its measured byte or cycle delta and its UX effect (none or better).
+- Do not build variants. Do not run a gate or a trial merge. Do not commit to the files of a builder lane.
+- Send each patch to the lane builder, with a copy to Orchestrator.
+
+## Merge Integrator
+- Read docs/rules/integration.md before a push to integration or a gate request.
+- Accept only the index row: PASS, 0 fail, 0 skip. A known failure is a FAIL.
+- Write the result file. Give the app code, static RAM and pool delta in bytes. Stop if a free value goes below its limit.
+- Keep LIVE_BRANCHES and BUDGET.md current. Rename each dead branch to archive/<name>.
+
+===================== END FILE: skill x0x37-builder-loop/SKILL.md =====================
+
+===================== FILE: skill fast-firmware-one-build/SKILL.md =====================
+---
+name: Fast firmware one-build
+description: >-
+  Use this when several firmware PRs must be fixed, tested and merged into one
+  integration build fast, with helper bots sharing the work.
+---
+# Steps
+1. Stop duplicate work. Pause routines that only re-check stopped work. Give each helper bot one job and don't pause them.
+2. Split the fixes. One worker groups the integration PR's failures by root cause into a shared groups file. Other workers take the unowned groups. Side PRs run in parallel in their own directories.
+3. Share the setup. Use one source snapshot and one SDK copy, ccache, incremental builds and all cores. Run the host suite and the device builds at the same time.
+4. While fixing, run only the affected tests. Run the full suite plus every device build once, on the final head.
+5. Gather UI mockups. Render every mockup from the real framebuffer into one folder. The owner approves them all at once, before any UI code is pushed.
+6. Use a merge gate. A script checks the full logs for the exact head SHA, the approved author and committer, and that no secrets, binaries or CI files are in the diff.
+7. Merge one PR at a time as each passes. Make a backup ref first, then run the gate, then merge. The merge owner does it, not the fix workers.
+8. Device check. A helper writes the device test checklist during the build. Install only with the owner's OK after everything is merged.
+
+===================== END FILE: skill fast-firmware-one-build/SKILL.md =====================
+
+===================== FILE: docs/ROADMAP.md (PR #812 head) =====================
+# X0X37 roadmap
+
+This file tells what we build, what we finished, where we are and what we must still do. Update this file when a step ends or a plan changes. USER_PREFERENCES.md gives the preferences and rules. x0x37/BEHAVIOR.md gives the intended behavior. x0x37-progress-log.md gives the detailed history.
+
+## The goal
+
+We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has these properties:
+
+1. It has a clip mode that acts as an Akai APC40 mkII for Loopy Pro. The pads start clips, and the pads and the screen show the clip colours.
+2. It keeps all the X0X features (sequencer, synth engines, BREAK mode) at full quality: 44.1 kHz, with no length cuts.
+3. End users can import their own loops for BREAK mode, and the loops stay safe across updates.
+4. It has Bluetooth MIDI (MIDI only), and it stays freely shareable under an open license.
+5. End users install it from a web page, with no toolchain.
+
+## Done
+
+| Area | What | Where |
+|---|---|---|
+| Clip mode | APC40 mkII emulation for Loopy Pro. The pads send and receive MIDI and show the clip colours. The screen shows the clip view. OCT- and OCT+ move the view down and up. | smk37 branch |
+| Clip mode | Fixes: the firmware drops notes only in clip mode. Loopy Start does not echo back. The screen clip view is not too dark (LCD floor). | 0fbfe07 ... be6fc1d |
+| Docs | BEHAVIOR.md (intended behavior, 200+ items), agent-rules.md, BREAK mode guide, README, licences | 4046fe9, 7269951, c24899f |
+| Colours | Colour tool that calculates the real pad and screen colours from the APC40 palette | 07eb709 |
+| Step 1 | The installer backs up the loop slots and restores them automatically | 39eafa9 ... bd6f9f3 |
+| Step 2 | The firmware stores the 909 ride, crash and hi-hat as IMA ADPCM at 44.1 kHz (no audible difference, about 166 KB free after the change) | 241bd15 ... 936f155 |
+| Step 3 | Factory breaks: 2 bars at 44.1 kHz. The import tools use 44.1 kHz | d3f23c5 ... 25c87bf |
+| Step 4 | New flash layout: one 64 KiB Bluetooth block, 3 loop slots (about 11 s of import space at 44.1 kHz) | 62fc644 ... 81d5f74 |
+| Step 5 | Bluetooth MIDI code: the JieLi controller runs as a separate image on core 1. The end user builds it on a computer. GLOBAL > BLUETOOTH MIDI settings | 07159b6 ... 7972fbb |
+| Installed | The keyboard ran 81d5f74, and all 5 loops of the owner stayed intact | 2026-10-15 |
+| Safety | The installer refuses to add the Bluetooth image to old firmware (the image can overwrite code) | ab44241 (flash_review, ble-stage3) |
+| Safety | Bluetooth start guard: a failed Bluetooth start shows FAILED, and the keyboard starts normally (no crash loop into safe mode). The DIAG command reads the crash and start details | bad7b95, 70a9a5f (flash_review, ble-stage3) |
+| Bluetooth | Bluetooth starts: STATUS shows READY at power-on (6 of 6 automatic rounds) | f0bcb28 (a52) |
+| Bluetooth | The Mac connects over Bluetooth MIDI. MIDI goes in both directions | 79eb477 (a59), 4e6ae9b (a60) |
+| Bluetooth | The iPhone connects over Bluetooth MIDI, and the link holds | 94285b5 (a67) |
+| Clip keys | Knobs 2-8 send CC 48-54 when no clip keys mode is on | 9984344 |
+| Bluetooth | BLE-16: when the Bluetooth link ends, X0X releases the notes that came from Bluetooth (host test tests/scenarios/blenotes.x0x). In the installed build 89f680e | 355f920 |
+| Clip colours | The LCD clip colours are the plain Akai colours as RGB565, from the Akai CSV (CLP-05). In the installed build 89f680e | 453e9c8, 9a0b2c2 |
+| Pad colours | Pad colour calibration (CLP-79, dev builds only). The build option X0X_DEV_PADCAL (default 1) removes it from a release build | d303e4e (in 89f680e), bd254a0 (integration be9a097) |
+| Pad colours | The owner calibrated the pad colours (export of 2026-10-17, 89 entries with owner values). The clip pads use this table APC40_PAD_OWNER in the dev build and in the release build (CLP-13) | 48892fe, 4113ce0 (in the installed build c6bf44a) |
+| Gate | The gate builds and tests the dev configuration and the release configuration. The install guard checks the configuration | 7cef9e4, 2012283 (in f9bcc46) |
+
+## Where we are now (2026-10-19)
+
+- Branches:
+  - Local integration HEAD = 692c935 (batch 11 open). It adds a one-line dev PAD COLOURS waiting-screen redraw fix to f752007. Both Elite local builds and the focused and reference tests pass. The formal batch 11 gate and device test have not run. This local fast-forward has not been pushed to the box; the last box integration record in LIVE_BRANCHES is f752007.
+  - Installed = batch 10 (c6bf44a), release configuration (X0X_DEV_PADCAL=0). Batch 10 contains the batches before it. It remains the installed build.
+  - The gate on c6bf44a gave PASS at 2026-10-17 02:19 (tree b220466e91d0). It built and tested the dev and the release configuration (116 ok, 0 FAIL, 0 skip in each).
+  - Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18).
+  - The side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1), ble-a70 (77fa067) and ble-a71 (9ef7bc2) have builds. Nobody installed them.
+- Keyboard:
+  - The keyboard runs integration c6bf44a (batch 10) in the release configuration. The install time is 2026-10-17 02:25 (INSTALLED.tsv). It has no PAD COLOURS page, and the owner pad colours are in the firmware.
+  - The fwsc CRC32 is c48b5c6e. The ctl.img read-back is eb742dd2 (the same as the file). Slots 1 and 2 did not change, and slot 3 is empty. DIAG shows READY.
+  - Free bytes of the Elite release build at c6bf44a: app code 3864 B, static RAM 5824 B, pool 8196 B.
+  - Device test: PENDING (batch 10). Regression (owner 02:49): in clip mode, the knobs do nothing on the installed build. The batch 11 host fix is in local integration 692c935; the device has not been retested. Tag last-good-hw stays 94285b5.
+- iPhone:
+  - The iPhone works on a67 (owner test PASS 19:18). On a73, the link carries the Loopy clock and Start (20:37 PASS).
+  - History: a65 iPhone test 1 (18:23): the iPhone connected (interval 7.5 ms, MTU 185). Then the link ended with reason 0x08 (connection timeout).
+  - a62 and a62b: the link held for about 2 min at 26.25 ms with 0 connection updates, reason 0x00. a63-15 (d9844a4): iOS dropped the link before any GATT step.
+  - Oct 15: Loopy used the keyboard as its APC40 over Bluetooth (test 30). But some colour notes made sounds, some pads stayed empty and the colours were slow.
+  - A connection parameter request made the iPhone drop the link (test 31) and gave a large MIDI delay (test 34).
+- Mac: the Bluetooth GATT connection works, and MIDI goes in both directions (a59 79eb477, a60). The a59 fix: the host must register its event handler after btstack_task_init, because btstack_task_init removes it.
+- Bluetooth start: the supply must have the stock values (DCDC13, VDC14 1.60 V, SYSVDD 1.38 V) before the RF init (test 27, 56a7452). The controller init runs on core 0 before core 1 starts (83cd4dc). The clock stays at 360 MHz.
+- Release package 0b80994 (SMK-37 Elite only, a64 files: .fwsc CRC32 5ec8b21a, ctl.img CRC32 e9c05144):
+  - The free pool is 4096 B. The free app code is 144 B. The free app RAM is 0 B.
+  - Nobody built the Pro package. Nobody pushed the package. It is for tests only, it is out of date, and it is not for release.
+- Clip keys:
+  - clip-keys-a65 is at 5a89b76. Its changes are in integration (cherry-picked) and in the installed build 89f680e.
+  - It has the KEYS panel and the SCALE, CHORD and ARP pages. Knobs 2-8 send CC 48-54. It has 24 scales, 30 chords, swing, Euclid rhythm, HUMAN and strum.
+  - The host tests pass. The owner did not test it on the hardware.
+- Pool limit: build.sh and the gate require at least 8192 B of free pool (enforced 2026-10-16 21:53). USER_PREFERENCES.md keeps the older 4096 B owner entry.
+- Tools: tools/ble_autotest.py runs the Bluetooth test over USB with no user action. The attempt ledger is BLE_ATTEMPTS.md in the Bluetooth branch (one row for each attempt). The JieLi SDK Bluetooth design compared with our host, with the step plan for the iPhone link, is in ~/Documents/x0x37/ble_split/SDK_DESIGN_COMPARE.md (Mac).
+
+## Left to do
+
+1. Mac: test the clock and Start/Stop over Bluetooth, and check for audio dropouts.
+2. Clip mode with Loopy Pro:
+   - Open: CLP-50 FAIL. X0X PLAY does not start or stop Loopy Pro (a73, owner test 20:37-20:39). Capture the outbound MIDI from X0X PLAY, then test the pads, overdub and tempo with Loopy Pro.
+   - Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. The installed build c6bf44a has the owner pad table (48892fe). In c6bf44a, an idle pad sends the full owner table level (4113ce0). Current host tests pass; a device retest is still needed.
+   - Open: CLP-18 FAIL (a74 owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back immediately. The fix (a76) is in the installed build c6bf44a. In c6bf44a, a link end clears only the clip cells of that link (30a08fc, 79de009). Device test: pending.
+   - Open: the owner test of batch 10 (c6bf44a).
+   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. The batch 11 fix is in local integration 692c935; the local builds and tests pass. It needs the formal gate and a device retest. At 03:20, the owner said "Just fix them". The intended result is that knobs 2 to 8 edit the keybed ARP, CHORD and SCALE again, so that Loopy Pro records the keybed (owner 03:26).
+   - Batch 11 (owner 02:49, Second Builder): in clip mode, a tap on MODE latches the MODE UI open, and a second tap closes it. A hold works as before.
+   - Batch 11 (owner 02:50, Second Builder): show a "waiting for Loopy Pro to connect" screen instead of the 8x5 grid.
+   - Batch 11 (owner 02:52, Second Builder): a tap on the stage latches it open, and a tap closes it. FADER BANK also closes it. The screen has no top bar, and it shows a help line at the bottom. The stage is the MODE UI of the 02:49 item. The owner said at 02:51: "The SCALE, CHORD or ARP button" (Second Builder confirmed).
+   - Open: the owner did not test the a74 clock source (MID-13) and PLAY note (MID-14) items yet.
+3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
+4. Run the formal batch 11 gate on integration 692c935 or its later final hash. After the finished set is installed and the owner reports a device PASS, bring that integration hash into the main tree (x0x37, smk37).
+5. Owner checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and the idle clip colours on the screen. Also check that the patterns and settings stayed the same.
+6. Web installer: let the page get the JieLi files and build the Bluetooth image. Or let it guide the end user. If possible, end users need no toolchain.
+7. Release: Merge Integrator builds the Pro and Elite packages from a hash with a gate PASS and a device PASS. It checks the installer hashes and publishes only when the owner asks. The release build has X0X_DEV_PADCAL=0. It has no PAD COLOURS row, and it uses the pad table that the owner calibrated. Pad calibration is only for development (owner, 2026-10-17 00:01). The build option is in the code (bd254a0, BUILDING.md c3cdb5a).
+
+## Open decisions
+
+- Keep spare flash for growth, or give all of it to the loop slots.
+- Pairing: keep no pairing, or add pairing and a "forget pairing" row (BEHAVIOR.md OQ-11).
+- Installer: add ctl.img to an SMK-37 install by itself, or only with --ctl (BEHAVIOR.md OQ-12).
+
+## Not planned
+
+- FM-1 build. We do not maintain it, and we accept its overflow.
+- Bluetooth audio.
+- Ship JieLi Bluetooth files with the firmware.
+
+Last update: 2026-10-19.
+
+## Master tracker (status, evidence, next step)
+
+Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status words: done / in 0.0.24 / in progress / missing / waiting on owner.
+
+### Pre-publish checklist
+- [ ] Every row below has a status and evidence; no row says "missing" before the registry, branches, PRs and archive were searched.
+- [ ] Full host suite: 0 new non-environment failures.
+- [ ] Elite and Pro build exit 0 (X0X_DEV_PADCAL=0); RAM reported.
+- [ ] Audio identity vs base; only accepted differences (#810).
+- [ ] Installer strict model match on the published page.
+- [ ] Owner approved all visual changes (real framebuffer PNGs).
+- [ ] Author gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
+
+Counts: done 6, in 0.0.24 112, in progress 15, missing 36, waiting on owner 5. Total 174.
+
+| Item | Source | Status | Evidence | Next step |
+|---|---|---|---|---|
+| #1 Два полноценных выбираемых движка Chicago и Miami | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:13 — `firmware/src/app/engine.c:original_runtime_*` and `ui.c` selectable Chicago/Miami. Source integrated; builds/audio not qualified. | Device test on 0.0.24 image; owner acceptance |
+| #2 Достоверный звук оригинальных движков | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:14 — `engine.c:original_runtime_render`, original DSP backends. Bit-exact goldens/reference sound NOT_RUN; source does not establish audible pari | Device test on 0.0.24 image; owner acceptance |
+| #3 Полное и правильное управление Chicago и Miami | #699 / feature-check-734 | missing | docs/feature-check-734.md:15 — `original_sound.c` has 22 Chicago/18 Miami parameters; `ui_original_controls.h:ui_original_name` exposes only 20/16 names. Full accessible c | Write brief; build on build/0.0.24 |
+| #4 Pitch Bend и педаль на своих физических органах | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:16 — `engine.c` original-input ownership and bend/damper path, #693 subset. Test actual physical wheel/pedal to intended engine and values. | Device test on 0.0.24 image; owner acceptance |
+| #5 Все согласованные эффекты без скрытого урезания | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:17 — `original_sound.c` seven admitted Chicago FX choices and `chicago_fx2_compact.h`/`chicago_bpmdly.h`. Sound parity untested. #695@72db66d8ddc | Device test on 0.0.24 image; owner acceptance |
+| #6 Заводские пресеты и удобный выбор звука | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:18 — `original_sound.c:original_sound_name` and factory selectors, 55 Chicago/30 Miami. Validate labels/preset switch with device audio. | Device test on 0.0.24 image; owner acceptance |
+| #7 Привязка звука и движка к паттерну | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:19 — `engine.h:engine_bass_note_capture`, pattern/sound state and partially adopted #693. Pattern engine/preset recall on rev13 save/load still u | Device test on 0.0.24 image; owner acceptance |
+| #8 Полный sound lock на отдельной ноте | #699 / feature-check-734 | missing | docs/feature-check-734.md:20 — Per-note capture scaffolding exists, but complete per-note 22/18-param sound lock and safe morph not found in #734 or qualified external PR; | Write brief; build on build/0.0.24 |
+| #9 Честная замена старых движков | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:21 — `engine.c` original Chicago/Miami runtime initialization and rendering. Target exclusion of old engines and parity not demonstrated. | Device test on 0.0.24 image; owner acceptance |
+| #10 Реальные имена пресетов и переключение без щелчков | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:22 — `original_sound.c:original_sound_name`; `engine.c:engine_bass_preset_pending` with 512-sample gain ramp. Click-free real audio not qualified | Device test on 0.0.24 image; owner acceptance |
+| #11 Ноты длиннее одного шага | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:23 — `seq/sequencer.c` TIE gate, multi-step duration, slide and NoteOff timer. Exact playback tests pending. | Device test on 0.0.24 image; owner acceptance |
+| #12 Запись фактической длительности удержания | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:24 — `seq/sequencer.c:seq_rec_bass_end` measures actual elapsed time, `engine.c:seq_rec_bass` receives release. Verify device timing. | Device test on 0.0.24 image; owner acceptance |
+| #13 Музыкально корректная вероятность | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:25 — `seq/sequencer.c` probability skipping suppresses MIDI and respects cycles; drum-step UI routing and exact run untested. | Device test on 0.0.24 image; owner acceptance |
+| #14 RANDOM без расхождения с предпросмотром | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:26 — `seq/sequencer.c` RANDOM preview without advancing committed RNG; preview/playback regression on #734 NOT_RUN. | Device test on 0.0.24 image; owner acceptance |
+| #15 Сохранение cutoff locks при навигации | #699 / feature-check-734 | missing | docs/feature-check-734.md:27 — Motion and step-lock source exist, but no verified cutoff-lock persistence across navigation/current selection was found. #693 owner should  | Write brief; build on build/0.0.24 |
+| #16 Жест принадлежит исходной партии до отпускания | #699 / feature-check-734 | in progress | docs/feature-check-734.md:28 — External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` captures held SMC Solo/FX gestures. Port only missing ownership-throug | Bring external branch into next build |
+| #17 Безопасный жизненный цикл motion и записи | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:29 — `seq/motion.c` rec/hold request lifecycle and stop/load reset; #693 subset integrated. Final concurrent event tests missing. | Device test on 0.0.24 image; owner acceptance |
+| #18 Единые внутренние и внешние часы | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:30 — `seq/sequencer.c:seq_midi_rt`, `engine.c:seq_clk_drop` source ownership. Verify internal/external clock handover and exact phase. | Device test on 0.0.24 image; owner acceptance |
+| #19 Правильные Start Stop Continue и очереди MIDI | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:31 — `seq/sequencer.c:seq_midi_rt`, ordered MIDI queue logic, #705 adopted. Full Stop/Continue multi-input replay missing. | Device test on 0.0.24 image; owner acceptance |
+| #20 Визуальный метроном от настоящих часов | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:32 — `smc_mixer.c:smc_beat_lit` tracks sampled audio clock even when stopped. Real LED/LCD metronome NOT_RUN. | Device test on 0.0.24 image; owner acceptance |
+| #21 Синхронные доли Miami и удобный выбор на пэдах | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:33 — `ui.c:division_pad_owner`, `division_pad_input`, 8 Miami RATE pads (#702/#711). Four separate SHAPE-pad choices remain absent; test Free Pla | Device test on 0.0.24 image; owner acceptance |
+| #22 Legato при записи превращается в slide | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:34 — `engine.c:seq_rec_bass` passes `SEQ_REC_LEGATO`; `seq/sequencer.c` slide recorder. External MIDI/real overlap untested. | Device test on 0.0.24 image; owner acceptance |
+| #23 Сохранить отдельные модели 909 и 808 | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:35 — `engine.h` distinct `T_909`/`T_808`, 11-voice kit identities; #694 guard already adopted. DSP/device proof pending. | Device test on 0.0.24 image; owner acceptance |
+| #24 Независимая адаптивная нарезка двух лупов | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:36 — `dsp/breaks.c` independent dual-loop adaptive slicing (#689 integrated). Confirm audio and independent slice targets. | Device test on 0.0.24 image; owner acceptance |
+| #25 Понятная клавиатурная навигация по срезам | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:37 — `ui.c` BREAK slice-navigation physical-key route from #689. Keyboard A/B paging needs real-device test. | Device test on 0.0.24 image; owner acceptance |
+| #26 Правильный MIDI выход BREAKS | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:38 — `engine.c:brk_midi_events` transmits accepted BREAK hits. Confirm actual MIDI channel and NoteOff paths. | Device test on 0.0.24 image; owner acceptance |
+| #27 Pitch Bend для BREAKS | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:39 — `engine.c:engine_brk_bend` pitch-bend mailbox to BREAK DSP. Physical bend behavior unverified. | Device test on 0.0.24 image; owner acceptance |
+| #28 Jungle stretch вместо HALFTIME | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:40 — `dsp/breaks.c` Jungle grain/stretch instead of HALFTIME. Audition and source parity still needed. | Device test on 0.0.24 image; owner acceptance |
+| #29 Три выбранных владельцем штатных брейка | #699 / feature-check-734 | missing | docs/feature-check-734.md:41 — #699 refers to three owner-chosen stock loops, not a qualified byte-matched public set. Requires lawful/authorized sample input and stock ba | Write brief; build on build/0.0.24 |
+| #30 Читаемый восьмиполосный микшер | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:42 — `smc_mixer.c:smc_ui_grid` eight-strip renderer, drum banks. Source exists; screen/device readability unverified. | Device test on 0.0.24 image; owner acceptance |
+| #31 Осознанный выбор полосы и режима | #699 / feature-check-734 | in progress | docs/feature-check-734.md:43 — External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` holds explicit strip/mode cues (`smc_capture_bank`). Port only missing | Bring external branch into next build |
+| #32 Физический Pause как context lock с LED | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:44 — `smc_mixer.c:smc_lock_button`, `smc_lock_toggle` and LED state. Pause lock exists; locked PAGE real-page peek is external #737. | Device test on 0.0.24 image; owner acceptance |
+| #33 Два независимых SMC по Bluetooth | #699 / feature-check-734 | in progress | docs/feature-check-734.md:45 — External #735 `chat/enable-two-peer-ble-central@a2e805402292a07ccea464f84309951d06ee267b` enables two links and second peer output. #734 has | Bring external branch into next build |
+| #34 Безопасные отключение и возврат SMC | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:46 — `ble/ble_midi_central.c` per-peer reconnect state, `smc_mixer.c:smc_ble_link_slot`. Normal dual-link activation still needs #735. | Device test on 0.0.24 image; owner acceptance |
+| #35 Разведение SMC и других контроллеров | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:47 — `smc_mixer.c:smc_inputs[SMC_PEERS]` isolates SMC queues and host input. Two-SMC/APC40 overlap and overflow not tested. | Device test on 0.0.24 image; owner acceptance |
+| #36 Названия peer и сведения о подключении | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:48 — `smc_mixer.c:smc_ui_draw_peer` displays peer labels/status. Requires #735 and actual two devices to certify names. | Device test on 0.0.24 image; owner acceptance |
+| #37 Страницы восьмой полосой, банки ручек только Up/Down | #699 / feature-check-734 | in progress | docs/feature-check-734.md:49 — External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` has full Page-8 vs encoder-bank Up/Down UX; #734 partial `smc_page_set | Bring external branch into next build |
+| #38 Индивидуальный drum mixer вторым нажатием Select | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:50 — `smc_mixer.c` repeat Select drum routing with `smc_drum_track`. Confirm second press enters correct individual kit mixer. | Device test on 0.0.24 image; owner acceptance |
+| #39 Ручки не дублируют фейдеры | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:51 — `smc_mixer.c:smc_knob_target` checks `smc_fader_of` to avoid duplicate destination. Physical knob banks/FX path need test. | Device test on 0.0.24 image; owner acceptance |
+| #40 Контекст Select и исключение User mode | #699 / feature-check-734 | in progress | docs/feature-check-734.md:52 — External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` has context Select/User-mode distinctions; #734 contains baseline Sele | Bring external branch into next build |
+| #41 Отдельная страница эффектов на микшере | #699 / feature-check-734 | missing | docs/feature-check-734.md:53 — **Owner-confirmed 00:10 UTC+10, superseding earlier #41 notes:** 41.1 all four physical buttons (SELECT/REC/SOLO/MUTE) beside every fader mo | Write brief; build on build/0.0.24 |
+| #42 Полноценный временный SMC экран вместо жёлтой полосы | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:54 — `smc_mixer.c:smc_ui_begin`, `smc_ui_draw`, `SMC_UI_MS=1200`: complete temporary eight-strip control screen instead of yellow header. Real pa | Device test on 0.0.24 image; owner acceptance |
+| #43 Тихая смена связанного SMC контекста с прибора | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:55 — `smc_mixer.c:smc_page_set`, `smc_ui_cancel` adjust destinations silently. Full no-popup keyboard context regression unrun. | Device test on 0.0.24 image; owner acceptance |
+| #44 Накопление и отмена ожидаемой смены паттерна | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:56 — `smc_mixer.c:smc_pattern_delta` and rewind/forward cue-or-cancel. Additional #688 cue graphics are external but basic behavior in #734. | Device test on 0.0.24 image; owner acceptance |
+| #45 Единый pickup и правильный уровень после Unmute | #699 / feature-check-734 | in progress | docs/feature-check-734.md:57 — External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` has `smc_unmute_level`; #734 has only base pickup crossing. Port mute- | Bring external branch into next build |
+| #46 Pickup и lock feedback в музыкальном времени | #699 / feature-check-734 | in progress | docs/feature-check-734.md:58 — External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` adds musical-time pickup/lock cues; #734 baseline `smc_beat_lit` only. | Bring external branch into next build |
+| #47 Явное надёжное Save Project | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:59 — `ui.c` SAVE PROJECT action and `project.c:project_save`. Rev13 readback/atomic integrity tests on current SHA pending. | Device test on 0.0.24 image; owner acceptance |
+| #48 Явное безопасное Load Project | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:60 — `ui.c` LOAD SAVED confirmation and `project.c:project_load`, `project_file_validate`. Test reject/cancel/unsaved-state safety. | Device test on 0.0.24 image; owner acceptance |
+| #49 Раздельные Clear Song и Reset Project | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:61 — `ui.c` separate CLEAR SONG and RESET PROJECT; reset warns `SAMPLES ARE KEPT`. Verify saved sample survival. | Device test on 0.0.24 image; owner acceptance |
+| #50 Полный переносимый экспорт и импорт проекта | #699 / feature-check-734 | missing | docs/feature-check-734.md:62 — `web/x0x_projects.js:parseProject` **now accepts 13/13**, `project.c:project_file_validate` enforces it. Full portable rev13 firmware→web→fi | Write brief; build on build/0.0.24 |
+| #51 Надёжный backup и restore сэмплов | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:63 — `web/x0x_installer.html` slots backup/reselection/verification, `web/x0x_breaks.js`. #690 contains other site-only changes. Device sample re | Device test on 0.0.24 image; owner acceptance |
+| #52 Атомарные операции при нескольких клиентах | #699 / feature-check-734 | missing | docs/feature-check-734.md:64 — `web/device_session.js:withDeviceLock` only locks cooperating browser tabs and explicitly cannot lock unrelated apps. Full multi-client atom | Write brief; build on build/0.0.24 |
+| #53 Не терять данные при смене соединения | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:65 — `web/device_session.js:watchDeviceSession` rejects stale connection; local backups retained. Device-side interrupted transfer proof outstand | Device test on 0.0.24 image; owner acceptance |
+| #54 Явно решить совместимость старого формата проекта | #699 / feature-check-734 | missing | docs/feature-check-734.md:66 — `project.c:stream_known` permits only revision 13; `web/x0x_projects.js:parseProject` still allows legacy 3/6/7/8/9 schemas at lines 44–46.  | Write brief; build on build/0.0.24 |
+| #55 Полнота восстановления всех прежних сэмплов | #699 / feature-check-734 | missing | docs/feature-check-734.md:67 — Historical full owner samples absent from public source; #51 backup tool is not restoration of all original sample slots. Requires authorize | Write brief; build on build/0.0.24 |
+| #56 Довести именно новый согласованный UI | #699 / feature-check-734 | missing | docs/feature-check-734.md:68 — #734 has #696 shared UI material, but reviewed full Night composition #638 `lane/opt-reviewed-composition-20261027@5f6121cb1f50aedcf72dc93fc | Write brief; build on build/0.0.24 |
+| #57 Обзор реального содержимого всех паттернов | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:69 — `app/home_pattern_glyph.h:home_pattern_strength8` and `ui.c` HOME caller from #694 are already in #734. Verify all saved pattern glyphs on a | Device test on 0.0.24 image; owner acceptance |
+| #58 Показывать velocity без потери сильных шагов | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:70 — `home_pattern_glyph.h:home_glyph_put` preserves maximum velocity per bin, `ui.c:pat_glyph_row`. Real contrast/legibility still unchecked. | Device test on 0.0.24 image; owner acceptance |
+| #59 Больше места музыкальным шагам | #699 / feature-check-734 | in progress | docs/feature-check-734.md:71 — External #638 `lane/opt-reviewed-composition-20261027@5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134` checked Night row geometry; port only releva | Bring external branch into next build |
+| #60 Осмысленные waveform и morph glyphs | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:72 — `ui_waveform.h:ui_miami_wave_value` and `ui.c` waveform/morph glyph callers from #696. Raw shape cue is not audio oscilloscope; confirm mean | Device test on 0.0.24 image; owner acceptance |
+| #61 Правдивые глифы огибающих и эффектов | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:73 — `ui.c` envelope/FX glyph mapping and #696 shared UI material integrated; verify semantic accuracy and all framebuffer states. | Device test on 0.0.24 image; owner acceptance |
+| #62 Правильные подсказки физических ручек и ROW | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:114 — `firmware/src/app/ui.c` (`UI_CAP_*`, `matrix_knob_caption`, `matrix_row_hint`); physical K5–K8/ROW captions in the sound matrix. Verify real | Device test on 0.0.24 image; owner acceptance |
+| #63 Безопасный wrap навигации | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:115 — `firmware/src/app/ui.c` SELECT page-navigation wrap; `tests/host/ui_page_wrap_test.py`. Bounded to page selection, not destructive/numeric b | Device test on 0.0.24 image; owner acceptance |
+| #64 Структурированные настройки вместо плоского списка | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:116 — `firmware/src/app/ui.c` (`list_add`, `GR_MIDI`, `GR_AUDIO`, `GR_KEYS`, `GR_PROJECT`, `GR_SYSTEM`, `GR_BT`) groups settings in the deep list; | Device test on 0.0.24 image; owner acceptance |
+| #65 Анимация только по настоящей активности | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:117 — `firmware/src/app/ui.c` activity-sensitive tape/signal display path; prior source audit `docs/one-build-feature-coverage.md`. Exact displaye | Device test on 0.0.24 image; owner acceptance |
+| #66 Полная ADSR кривая при редактировании | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:118 — `firmware/src/app/ui.c` (`adsr_values`, `adsr_release`, `draw_adsr_overlay`); `tests/host/sound_matrix_test.c`. Engine-aware envelope previe | Device test on 0.0.24 image; owner acceptance |
+| #67 Экран остаётся пока продолжается взаимодействие | #699 / feature-check-734 | in progress | docs/feature-check-734.md:119 — [#688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688) `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` plus [#736](http | Bring external branch into next build |
+| #68 Матрица контролов с выделенной активной строкой | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:120 — `firmware/src/app/ui.c` (`matrix_row_hint`, active-row matrix cell render); `tests/host/sound_matrix_test.c`, `docs/notes/2026-10-26-ui-matr | Device test on 0.0.24 image; owner acceptance |
+| #69 Раздельные экраны секвенсора и звуковых контролов | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:121 — `firmware/src/app/ui.c` (`V_SEQ`, `V_PART`, `V_MIX`, `add_page_refs`) has distinct SEQUENCE and sound/control pages; composition #638 is sep | Device test on 0.0.24 image; owner acceptance |
+| #70 Настраиваемые цветовые темы, включая светлую | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:122 — `firmware/src/app/ui.c` (`THEME_N`: GREEN, AMBER, CYAN, RED, MONO, LIGHT; `SQ_THEME`). Light theme is selectable; real-screen contrast and p | Device test on 0.0.24 image; owner acceptance |
+| #71 Единое написание DnBOX и качественный визуальный стиль | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:123 — `firmware/src/app/ui.c`, `firmware/src/app/boot_screen.h`, `web/site.css` DnBOX labels and visual language. Full font/brand consistency acro | Device test on 0.0.24 image; owner acceptance |
+| #72 Статическая загрузка без нежелательного видео | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:124 — `firmware/src/app/boot_screen.h` static 240×96 picture/caption record; `web/boot_screen.js`. Static path exists; absence of all unwanted pla | Device test on 0.0.24 image; owner acceptance |
+| #73 Независимый recovery bootloader | #699 / feature-check-734 | missing | docs/feature-check-734.md:125 — No independent recovery bootloader implementation accepted. #694 supplies read-only study only; protected bootloader/flash writes expressly  | Write brief; build on build/0.0.24 |
+| #74 Диагностика неработающих пэдов SMK37 | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:126 — `firmware/src/app/main_fm1.c` (`smk_inlog_reply`, raw/base/peak/scan/mux INLOG). Diagnostic telemetry exists; actual failed pad hardware not | Device test on 0.0.24 image; owner acceptance |
+| #75 Одна понятная страница установки и управления данными | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:127 — `web/x0x_installer.html` integrates installer, samples and projects workspaces from [#690](https://github.com/gobbajogger/X0X37-for-Loopy-Pr | Device test on 0.0.24 image; owner acceptance |
+| #76 Импорт и экспорт song через сайт | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:128 — `web/x0x_installer.html` project/song transfer link and `web/x0x_projects.js` (`parseProject`, import/export). **Gap:** parser admits rev13/ | Device test on 0.0.24 image; owner acceptance |
+| #77 Новый DnBOX сайт и общий шрифт | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:129 — `web/site.css` Golos Text font/fallback and DnBOX site templates from #690. Current live website/font deployment not proven. | Device test on 0.0.24 image; owner acceptance |
+| #78 Настоящие Manual What’s New и History | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:130 — `web/x0x_installer.html` Manual / What's new / History links; `docs/MANUAL.md`, `docs/NEW.md`, `web/MANUAL.md`. Links/content in source, dep | Device test on 0.0.24 image; owner acceptance |
+| #79 Понятные шаги и состояния подключения | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:131 — `web/x0x_installer.html` `stepconnect`, `connectbar`, connection state/status messages, model/connection guards. Browser/device journey unve | Device test on 0.0.24 image; owner acceptance |
+| #80 Заметный локальный файл прошивки и ошибки рядом с ним | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:132 — `web/x0x_installer.html` local firmware-file selection and nearby error/status presentation; `web/test_install_local_file.mjs`. Verify real  | Device test on 0.0.24 image; owner acceptance |
+| #81 Заранее сообщать о неподдержанном браузере | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:133 — `web/x0x_installer.html` states Chrome/Edge requirement and Web MIDI/connection capability guards. Unsupported-browser early-message behavio | Device test on 0.0.24 image; owner acceptance |
+| #82 Доступность на телефоне и компьютере | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:134 — `web/x0x_installer.html` viewport and `web/site.css` responsive `@media(max-width:500px)`. Source-level mobile/desktop responsiveness only. | Device test on 0.0.24 image; owner acceptance |
+| #83 Правильный Bluetooth controller внутри пакета | #699 / feature-check-734 | missing | docs/feature-check-734.md:135 — `web/fm1pkg.js` (`ctlProblem`, `insertCtl`) can validate/insert a Bluetooth controller, but **no verified exact Elite/Pro current package wi | Write brief; build on build/0.0.24 |
+| #84 Сохранять устанавливаемые версии и честную историю | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:136 — `web/x0x_installer.html` catalog/history selection and `docs/FIRMWARE_VERSIONING.md`; #699 credits historical numbering only. Current live d | Device test on 0.0.24 image; owner acceptance |
+| #85 Устойчивое обновление и перенос данных | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:137 — `web/x0x_installer.html`, `web/x0x_breaks.js` backup/prewrite/restore guards and data workspace. No completed upgrade-and-preservation devic | Device test on 0.0.24 image; owner acceptance |
+| #86 Показывать возможности настоящими изображениями UI | #699 / feature-check-734 | missing | docs/feature-check-734.md:138 — No exact #734 verified device UI screenshot set showing shipped features on the site. Reference/mockup images in #703 are proposals, not cap | Write brief; build on build/0.0.24 |
+| #87 Превью и подготовка сэмплов под установщиком | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:139 — `web/x0x_installer.html` sample-preparation panel; `web/x0x_breaks.js` (`loopPreviewPcm`, `imaEncode`) implements preparation and local audi | Device test on 0.0.24 image; owner acceptance |
+| #88 Несколько визуальных вариантов сайта и качественный 3D акцент | #699 / feature-check-734 | missing | docs/feature-check-734.md:140 — No source-backed and rendered set of multiple website design variants with the requested 3D accent verified. #690 carries the basic site, #7 | Write brief; build on build/0.0.24 |
+| #89 Экономия памяти ускорением сэмплов при импорте | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:141 — `web/x0x_breaks.js` pre-speed `resample` import path and matched sample playback rate; `web/x0x_installer.html` speed-up selector. Storage/q | Device test on 0.0.24 image; owner acceptance |
+| #90 Полноценное редактирование паттернов снаружи | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:142 — `web/offline-sequencer/editor.js`, `index.html` from #685. Functional offline pattern drafts only, not a connected editor. | Device test on 0.0.24 image; owner acceptance |
+| #91 Piano roll для двух синтезаторных партий | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:143 — `web/offline-sequencer/editor.js` Synth1/Synth2 melodic piano roll and notes. No device sync. | Device test on 0.0.24 image; owner acceptance |
+| #92 Отдельные редакторы 909 808 и BREAKS | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:144 — `web/offline-sequencer/model.js`, `editor.js` 909/808 and BREAK step/edit model. Pattern-local drafts, not all device state. | Device test on 0.0.24 image; owner acceptance |
+| #93 Импорт MIDI файлов с явным предпросмотром | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:145 — `web/offline-sequencer/smf.js`, `import-worker.js` MIDI parse and preview/replacement dialog in `editor.js`. Browser acceptance not complete | Device test on 0.0.24 image; owner acceptance |
+| #94 Никакой тихой потери музыкальных данных при импорте | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:146 — `web/offline-sequencer/import-worker.js`, `review-regression.test.mjs` explicit affected-note/loss guards. Full real-input preservation stil | Device test on 0.0.24 image; owner acceptance |
+| #95 Локальные draft save load и Undo | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:147 — `web/offline-sequencer/draft-guards.js`, `model.js`, `editor.js` validated local draft, last-good copy, Web Lock, Undo; not a device backup. | Device test on 0.0.24 image; owner acceptance |
+| #96 Генераторы New и Mutate | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:148 — `web/offline-sequencer/generator.js` local New/Mutate source (TB-3PO). Device synthesis parity is not implied. | Device test on 0.0.24 image; owner acceptance |
+| #97 Удобный iPhone интерфейс по мотивам FunkyBeats | #699 / feature-check-734 | missing | docs/feature-check-734.md:149 — #685 offline `web/offline-sequencer/` provides a basic responsive surface but not the requested fully usable iPhone/FunkyBeats-style rich ed | Write brief; build on build/0.0.24 |
+| #98 Выделение и групповые операции | #699 / feature-check-734 | missing | docs/feature-check-734.md:150 — `editor.js` selects one note; `part-operations.js` has whole-part clipboard, but marquee and atomic multi-note group editing are absent; M01 | Write brief; build on build/0.0.24 |
+| #99 Полные операции над part и достижимые команды | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:151 — `web/offline-sequencer/part-operations.js`, `editor.js` copy/cut/paste/clear of complete parts with reachable controls. Device song/chain op | Device test on 0.0.24 image; owner acceptance |
+| #100 Redo и предсказуемая история редактирования | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:152 — `web/offline-sequencer/editor.js` (`store.undo()`, `store.redo()`), `model.js` transactional local draft history. Browser acceptance not com | Device test on 0.0.24 image; owner acceptance |
+| #101 Grid scale snap ghost и touch keyboard | #699 / feature-check-734 | missing | docs/feature-check-734.md:153 — `editor.js` has a new-note ghost/cursor and pitch-key labels, but full scale snapping and requested touch-keyboard workflow are not implemen | Write brief; build on build/0.0.24 |
+| #102 Корректные жесты и отмена на телефоне | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:154 — `web/offline-sequencer/editor.js` pointer capture, `pointercancel`, pinch handling, `cancelGesture` and keyboard alternatives. On-phone orie | Device test on 0.0.24 image; owner acceptance |
+| #103 Sound controls в редакторе соответствуют настоящему движку | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:155 — `web/offline-sequencer/control-schema.js`, `controls.json`, `editor.js` Chicago/Miami bounded sound-draft controls. **Partial:** catalog is  | Device test on 0.0.24 image; owner acceptance |
+| #104 Двусторонний протокол синхронизации с прибором | #699 / feature-check-734 | missing | docs/feature-check-734.md:156 — #685 editor is explicitly offline-only (`web/offline-sequencer/README.md`); no bidirectional device transaction, ownership or sync protocol. | Write brief; build on build/0.0.24 |
+| #105 Отдельный используемый TouchOSC проект | #699 / feature-check-734 | missing | docs/feature-check-734.md:157 — No qualified DnBOX TouchOSC `.tosc`/Lua companion or tested live link found; M02 remains unbuilt. | Write brief; build on build/0.0.24 |
+| #106 Реальная нагрузка в idle не выше 20 процентов | #699 / feature-check-734 | missing | docs/feature-check-734.md:158 — Optimized engine code from #691/#692 is integrated, but **no measured real-device idle CPU ≤20%** on the exact #734 candidate; host estimate | Write brief; build on build/0.0.24 |
+| #107 Надёжность под совместной нагрузкой | #699 / feature-check-734 | missing | docs/feature-check-734.md:159 — #734 contains relevant MIDI/SMC/FX reliability guards, but no exact combined-load stability/deadline, stack/pool and USB/DMA acceptance resu | Write brief; build on build/0.0.24 |
+| #108 Не потерять старые полезные исправления | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:160 — `docs/integration/all-in-one-log.md`, merged source/tests (including #705, #677 FX part, #689, #696). Explicit skipped sources remain listed | Device test on 0.0.24 image; owner acceptance |
+| #109 Проверки не должны выдавать ложный успех | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:161 — `tools/remaining_feature_proof.py`, `tests/host/preflight_full_suite.py`, `AGENTS.md` distinguish PASS/FAIL/NOT_RUN and bind inputs. Latest  | Device test on 0.0.24 image; owner acceptance |
+| #110 Проверка повседневного удобства без новых разрывов | #699 / feature-check-734 | missing | docs/feature-check-734.md:162 — No accepted exact #734 end-to-end day-to-day usability pass across all surfaces, controllers and transitions; planned by #693 only. | Write brief; build on build/0.0.24 |
+| #111 Одна полная обновлённая NIGHTLY версия | #699 / feature-check-734 | missing | docs/feature-check-734.md:163 — #734 is a frozen staging draft; no complete updated published NIGHTLY build/installer candidate exists from it. | Write brief; build on build/0.0.24 |
+| #112 Настоящие пакеты обеих моделей | #699 / feature-check-734 | missing | docs/feature-check-734.md:164 — No zero-fail, exact-#734 SDK V1.2.1 Elite **and** Pro native packages verified. Prior builds failed; not a package PASS. | Write brief; build on build/0.0.24 |
+| #113 Доставить через существующий установщик | #699 / feature-check-734 | missing | docs/feature-check-734.md:165 — No public installer publication of a qualified complete #734 nightly package. Source installer exists (#690), distribution stage is protecte | Write brief; build on build/0.0.24 |
+| #114 Не смешивать состояния готовности | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:166 — `AGENTS.md`, `docs/FEATURE-REGISTRY.md`, `docs/lanes/one-build.md` explicitly distinguish source, host tests, native builds, install and dev | Device test on 0.0.24 image; owner acceptance |
+| #115 Независимая проверка именно итоговых inputs | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:167 — `tools/remaining_feature_proof.py` and tests source/hash/log/exit receipt helper merged from #694. Independent exact-#734 full input evidenc | Device test on 0.0.24 image; owner acceptance |
+| #116 Не забывать ни один запрос | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:168 — `docs/lanes/missing-features-plan.md` and `docs/owner-requested-features.crosswalk.json` hold 122 registered requests; continuing intake own | Device test on 0.0.24 image; owner acceptance |
+| #117 Сократить путь от просьбы до доступной функции | #699 / feature-check-734 | missing | docs/feature-check-734.md:169 — `docs/workflow/velocity-metrics.md` records a baseline, but no verified shortened request-to-available-feature delivery cycle (full feature) | Write brief; build on build/0.0.24 |
+| #118 Production отдельно от NIGHTLY | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:170 — `docs/rules/firmware-nightly-promotion.md`, `AGENTS.md` separate NIGHTLY and production gates. Policy exists, no production promotion perfor | Device test on 0.0.24 image; owner acceptance |
+| #119 Библиотека песен сообщества | #699 / feature-check-734 | missing | docs/feature-check-734.md:171 — No community song library in #734. #694 and #699 explicitly mark this owner-deferred; personal import/export is separate. | Write brief; build on build/0.0.24 |
+| #120 Автоматический inbox предложений и голос владельца | #699 / feature-check-734 | missing | docs/feature-check-734.md:172 — No automated owner-voting intake inbox. Historical #184 form/helper is partial; #699 M04 held pending owner assignment. | Write brief; build on build/0.0.24 |
+| #121 Польза официальной M VAVE прошивки и симулятора | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:173 — `docs/remaining-features-20261030.md` (§121) assesses official M-VAVE source/workbench, licence boundaries and reuse ideas; **research only* | Device test on 0.0.24 image; owner acceptance |
+| #122 Проверка вклада Cursor и полноты ревью | #699 / feature-check-734 | missing | docs/feature-check-734.md:174 — Only historical scoped Cursor review/registries; no complete audited Cursor-contribution-to-accepted-successor map. #699 M04 explicitly unas | Write brief; build on build/0.0.24 |
+| #41 recovered owner requests (18 msgs): SMC FX page, momentary buttons, per-bus FX pages, remap shortcut | gptorch-archive/recovered-41-request-list.txt | in progress | #740 mockups, #741 held SELECT fix; full 4-row table not recovered | Owner approves #740 mockups; port REC/SOLO/MUTE maps |
+| Local source preservation delta (903 payloads) | gptorch-archive/delta-0212/note.txt | done | archive in /workspace/gptorch-archive (box only) | None; search it before calling a feature missing |
+| 122-feature reconciliation sheet | gptorch-archive/dnbox-122-feature-reconciliation.xlsx | done | box file; mirrored by rows above | Keep in sync with this table |
+| PR #790 Q1 sequencer chain atomic | integrated.md (verify-024) | in 0.0.24 | #790 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #791 F2 recording reconciliation | integrated.md (verify-024) | in 0.0.24 | #791 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #792 Q3 editor slots | integrated.md (verify-024) | in 0.0.24 | #792 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #793 OPT-B gfx | integrated.md (verify-024) | in 0.0.24 | #793 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #794 F6a site data | integrated.md (verify-024) | in 0.0.24 | #794 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #795 N5 update safety | integrated.md (verify-024) | in 0.0.24 | #795 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #796 B2 engine peaks | integrated.md (verify-024) | in 0.0.24 | #796 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #797 QB HAL/USB hygiene | integrated.md (verify-024) | in 0.0.24 | #797 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #799 LIVE-A safety | integrated.md (verify-024) | in 0.0.24 | #799 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #801 B3 FREE PLAY first render | integrated.md (verify-024) | in 0.0.24 | #801 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #802 OPT-A audio path | integrated.md (verify-024) | in 0.0.24 | #802 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #804 B1 installer retry | integrated.md (verify-024) | in 0.0.24 | #804 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #805 B5 USB audio reader progress | integrated.md (verify-024) | in 0.0.24 | #805 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #806 nightly version embed + strict model | integrated.md (verify-024) | in 0.0.24 | #806 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #808 F6b web editor | integrated.md (verify-024) | in 0.0.24 | #808 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #811 param write sources | integrated.md (verify-024) | in 0.0.24 | #811 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #810 live risks / instant unmute | integrated.md (verify-024) | in 0.0.24 | #810 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #798 F1 Chicago/Miami controls | integrated.md (verify-024) | in 0.0.24 | #798 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #800 F4 SMC mixer remainder | integrated.md (verify-024) | in 0.0.24 | #800 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #803 F7 truthful input checks | integrated.md (verify-024) | in 0.0.24 | #803 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #789 SMC dedicated popup | integrated.md (verify-024) | in 0.0.24 | #789 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #807 F5 waveform cache | integrated.md (verify-024) | in 0.0.24 | #807 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| PR #809 OPT-C UI frame | integrated.md (verify-024) | in 0.0.24 | #809 merged in build/0.0.24 d8086cc09 (integ8 suite ok=374) | Device test |
+| L1 USB SysEx OTA/UBOOT mid-set | x0x37-results/codex-briefs-live-0.0.24.md | in 0.0.24 | #799 LIVE-A, usb.c guard | Device test |
+| L2 Autosave flash erase during tails | x0x37-results/codex-briefs-live-0.0.24.md | in 0.0.24 | #810 "preserve projects and held notes across live transitions" | Device test (erase timing) |
+| L3 LOAD wipes UI state | x0x37-results/codex-briefs-live-0.0.24.md | in 0.0.24 | #810 same commit | Device test |
+| L4 PLAY plays SONG only on SONG screen | x0x37-results/codex-briefs-live-0.0.24.md | waiting on owner | codex-briefs-live-0.0.24.md L4; ui.c (seq.song_on) | Owner picks option a/b |
+| L5 Undo/redo on transport keys | x0x37-results/codex-briefs-live-0.0.24.md | waiting on owner | codex-briefs L5 | Owner picks new gesture |
+| L6 No global PANIC | x0x37-results/codex-briefs-live-0.0.24.md | missing | no panic gesture in firmware/src/app/ui.c @d8086cc09 | Same as meeting item 1 (HOME long hold) |
+| L7 Tempo fine nudge / ramp | x0x37-results/codex-briefs-live-0.0.24.md | waiting on owner | ui.c:742 whole-BPM set | Owner: ramp yes/no; then 0.1 BPM nudge |
+| L8 Muted fader jumps to level | x0x37-results/codex-briefs-live-0.0.24.md | done | owner 2026-11-01: keep; smc_mixer.c:1323 pickup skip | None |
+| L9 Fader loses pickup under motion | x0x37-results/codex-briefs-live-0.0.24.md | missing | smc_mixer.c:1293 clears picked | Brief LIVE-C; motion+fader test |
+| L10 Cue at BAR only | x0x37-results/codex-briefs-live-0.0.24.md | waiting on owner | sequencer.c bar-end cue | Owner: add CUE=BAR/BEAT? |
+| L11 BREAK mute late by one step | x0x37-results/codex-briefs-live-0.0.24.md | in 0.0.24 | #799 "fix BREAK unmute step" | Device test |
+| L12 Loudness between parts/banks | x0x37-results/codex-briefs-live-0.0.24.md | in progress | #799 adds loudness measurement; trims need owner listen | Owner listening check |
+| L13 Clip grid lost on host drop | x0x37-results/codex-briefs-live-0.0.24.md | missing | ui.c WAITING FOR LOOPY PRO screen | Mockup, owner approval, code |
+| M1 PANIC on long hold of HOME | meeting 2026-11-01 | missing | no panic path in ui.c @d8086cc09; only main_fm1.c clip mode | Brief: hold HOME → all notes off + CC123, transport keeps running |
+| M2 muted fader takes its level on unmute | meeting 2026-11-01 | done | smc_mixer.c:1323 (no pickup at level 0) | None |
+| M3 instant tempo | meeting 2026-11-01 | done | ui.c:742 R_TEMPO sets seq.bpm at once | None |
+| M4 part sound reset: HOME + part button | meeting 2026-11-01 | missing | mockup only | Owner approves mockup, then code |
+| M5 (unknown item) | meeting 2026-11-01 | waiting on owner | not recorded | Ask the owner what item 5 is |
+| M6 effect throw + drum fill on SMC FX page | meeting 2026-11-01 | missing | mockup only | Owner approves mockup, then code |
+| M7 per-part settings toggle | meeting 2026-11-01 | missing | mockup only | Owner approves mockup, then code |
+| FX hold + < > remap per button | chat | in progress | #741 (SELECT only), #740 mockups; docs/FEATURE-REGISTRY.md 41.1–41.2 | Extend to REC/SOLO/MUTE; owner approval |
+| Instant unmute (muted bus keeps running) | chat | in 0.0.24 | #810 commit 94a7a6095; engine.c:1608 | Device listening check |
+| Strict installer model match | chat | done | #806 62cf11e98 (tools/fm1_install.py:285 same_model); nightly PR #114 merged 9bc0ac56 | Port nightly-main-strict.patch to nightly main |
+| Engine coefficient caching (Chicago/Miami) | chat | in progress | ChatGPT threads; requests in /workspace/steers/engines-*-request.txt, base d8086cc09 | Wait for push; suite, identity, Elite/Pro, idle probe |
+| CPU idle bug | chat | in progress | #802 idle_cpu_probe fixed; host idle 0.130%; DEVICE-TEST-CHECKLIST.md:734 (ID 106) no HW pass | Measure idle CPU on device |
+| Screen lag bug | chat | in progress | #809 OPT-C UI frame merged; lag not re-measured on device | Device test; capture frame times |
+
+===================== END FILE: docs/ROADMAP.md (PR #812 head) =====================

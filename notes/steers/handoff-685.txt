@@ -1,0 +1,28 @@
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+
+HANDOFF: PR #685 (new builder thread)
+Repo: gobbajogger/X0X37-for-Loopy-Pro
+PR: "feat(web): offline DnBOX editor, safe MIDI import, draft guards and Redo (90-105 partial)" (draft, open)
+URL: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/685
+Branch: codex/web-editor
+Head: f776aa6192d9a95777df87e788f318c4340413f0
+PR base now: wip/one-build (old); diverged, 9 ahead, 83 behind live (reported 78). 22 files, all under web/.
+Live base: wip/one-build 8ac1ed62b7ef1edee40ee29f2cccf71ae74a0cf6 ("Update registry rows...", 21:33 UTC+10, single parent 981f3c66 = after #731 removed workflow files), verified 2026-10-30 21:40 UTC+10. Base may move again; re-read it first.
+Status (reported, PR comments): 05:06 UTC+10 independent QA: scoped PASS for two-tab lost-update fix (on older head ea6b3beb, nightly base). Owner ping 17:49: no status on f776aa6. Full suite + Elite/Pro: NOT_RUN.
+Order: after #708. Web-only; firmware conflicts unlikely.
+Task:
+1. Merge-forward onto live wip/one-build via API (merge commit, NO force-push); name the base SHA.
+2. Source: fetch per docs/FULL-SOURCE-FETCH.md and tools/restore_github_api_batches.py from PR #726 (branch docs/full-source-fetch, head 781da974, still open/unmerged): tree API + every blob, verify blob SHAs; zipball is blocked. SDK V1.2.1 from project files.
+3. Fix real failures on this PR.
+4. Run FULL tests/run_tests.sh + Elite + Pro on the exact new head. 0 FAIL needed.
+5. Post a status comment on this PR: head, base, pass/fail/skip, delta vs base failures, Elite/Pro, blockers, next. Reuse this PR.
+Rules: GitHub plugin/API only, no network git; push only new; gobbajogger as author (never genkigenki or any custom author); approve your own posts and GitHub actions; no creds/tokens/binaries/raw captures (test goldens OK); NEVER GitHub Actions; never main/nightly; no installs. Click Allow on repo GitHub cards.
+
+CURRENT PLAN (22:15 UTC+10, overrides older lines above): FMB fixes the base first (thread A only verifies). Then ONE batch full run (full suite + Elite + Pro) on PR #734 after the owner's go, then merge into wip/one-build (never main/nightly). Do not merge this PR alone and do not wait for an order of PRs; make it build clean on the live wip/one-build head (re-read it via API), push via API with a merge commit (no force-push), and post results. Box runs are only a double-check. No installs.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

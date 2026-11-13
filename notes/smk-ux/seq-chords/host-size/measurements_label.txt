@@ -1,0 +1,44 @@
+# HOST SIZE PROBE — §10 chord-label add-on
+# 2026-11-13 America/Chicago. Baseline 94197fc8.
+# Not a firmware patch. Not linked into a device image.
+# Toolchain: JieLi pi32v2 clang 4.0.1, same flags as seq_chord_name.c
+# (-Os -ffunction-sections -fdata-sections -fno-builtin -mcpu=r3,
+#  __attribute__((minsize, noinline))).
+# put_s, NOTE_N and seq_chord_symbol are extern (already in ui.c / the §9 object).
+# Reproduce: host-size/measure_label.sh
+# Unlinked object sizes (HOST MEASURED). LTO can move this by a few tens
+# of bytes; it will not cut it in half. A linked build is still F7 acceptance.
+#
+# OPT A / D  (.text only; no data)
+#   seq_put_reading   50 B  (0x32)
+#   seq_put_second    22 B  (0x16)
+#   TOTAL text        72 B
+#   plus a matcher hook to stash the second fit: 16–40 B HOST ESTIMATE
+#
+# OPT C
+#   seq_interval     200 B  (0xc8); 196 B at -Oz (0xc4)
+#   .rodata.DEG       27 B  (0x1b)
+#   .rodata "oct"      4 B
+#   TOTAL            231 B
+#
+# OPT B  (C + nearest + TIER3)
+#   seq_interval     200 B
+#   seq_nearest      398 B  (0x18e); 378 B at -Oz (0x17a)
+#   .rodata.T3_MASK   24 B  (12 x uint16)
+#   .rodata.T3_SUF    58 B  (0x3a)
+#   DEG + "oct"       31 B
+#   TOTAL            711 B
+#
+# OPT R full = B + A
+#   200+398+50+22+24+58+27+4 = 783 B  (+ hook ESTIMATE)
+#
+# OPT R ship (recommended): drop nearest
+#   200+50+22+24+58+27+4     = 385 B  + hook 16–40 ≈ 401–425 B
+#   TIER3 is 82 B data, 0 text if the existing loop bound grows (~6.8 B/entry).
+#
+# On top of the measured 285 B Tier 1 (and +46 B Tier 2 if taken).
+# Tier 1 alone already exceeds Elite’s 248 B. Do not stack without a
+# flash decision. Measure at link. Pool: 0 (BSS cache, not X0X_POOL).
+#
+# CPU: once per onset / held-step change, cached. Invalidate on every
+# input change (§9.8 F5). Never in the ISR, never per column.

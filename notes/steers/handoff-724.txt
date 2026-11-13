@@ -1,0 +1,15 @@
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+
+Handoff (GitHub-verified 2026-10-30 20:45 UTC+10). Task: repair host tests broken by firmware API changes until 0 fail / 0 skip. PR #724 https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/724 (draft, open), branch fix/one-build-host-test-failures, verified head 689737d5c874f3a8281501517022aac6529948d9, base wip/one-build 8d7c4365. Done so far: 3 commits: e21196a4 (909 reference test uses x0x_pot_exp_value() instead of removed x0x_pot_exp array), d9c783bc (run full host tests), 689737d5 (keep PR focused on the test fix). Test status: reported scoped GCC syntax check 1 PASS (before FAIL); full suite NOT_RUN; no Elite/Pro results. Last status comment cites head e21196a4, so the newer head 689737d5 has no status comment yet. Base: 69 FAILs reported by owner (~25 setup-related, ~40 possible code issues); not reproduced. Blockers (reported): full source not materialized (296 blobs not matched from historical snapshot). Next step: base host-test failure fixes go first (69 base FAILs; ~25 are setup per PR); add a preflight check.
+Source: follow docs/FULL-SOURCE-FETCH.md on branch docs/full-source-fetch (tree API + every blob, verify SHAs; zipball is blocked). SDK V1.2.1 from project files. Run the full tests/run_tests.sh and Elite + Pro builds in your own cloud. Push only new work via the GitHub plugin/API to this same branch and PR (never git over the network, never GitHub Actions). Post a PR status comment: head SHA, base, pass/fail/skip, delta vs base failures, Elite/Pro results, blockers, next step. Approve your own posts and GitHub actions. Never commit credentials, tokens, binaries or raw captures. No installs.
+
+Base update: wip/one-build is now 8d7c4365 (cb5423c4 is stale). Rebase/update onto 8d7c4365 via API and name it as base.
+
+CURRENT PLAN (22:15 UTC+10, overrides older lines above): FMB fixes the base first (thread A only verifies). Then ONE batch full run (full suite + Elite + Pro) on PR #734 after the owner's go, then merge into wip/one-build (never main/nightly). Do not merge this PR alone and do not wait for an order of PRs; make it build clean on the live wip/one-build head (re-read it via API), push via API with a merge commit (no force-push), and post results. Box runs are only a double-check. No installs.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

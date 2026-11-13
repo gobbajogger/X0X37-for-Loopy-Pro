@@ -1,0 +1,3 @@
+There is no A5, my typo. Scope = A1, A2, A3 + idle A-D. Approved: push A1/A2 and all local B/C/D patches + harness to #802 now.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

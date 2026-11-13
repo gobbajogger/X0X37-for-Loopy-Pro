@@ -1,0 +1,82 @@
+Sequencer chain atomic bug: write the failing test FIRST, then fix.
+Drop any item already covered by other tasks: OPT-A (engine.c, dsp/master.c audio path), OPT-B (gfx.c), B1 (iPhone install MIDI reset), B5 (USB audio on iPhone). Do not touch those files' covered areas.
+
+## Brief QA - sequencer/engine/project core (Q1.1-Q1.7)
+Files: firmware/src/seq/sequencer.{c,h}, firmware/src/app/engine.c, firmware/src/app/project.c, new tests.
+Order: Q1.1 first (TDD: failing torn-chain test, then fix). Then cleanups.
+Coordinate: F2 owns seq*/rec*/project_runtime features. Rebase on F2 if it merges first; Q1.1 must stay.
+Done when: the new tests pass, the host suite is green, both builds pass, RAM >= 2352 B free.
+
+### Q1 area: sequencer / engine / project (seq/, app/engine.c, app/project.c)
+
+Q1.1 **bug** firmware/src/seq/sequencer.c:1086-1093 (writer) and :399-401 (audio-ISR reader).
+`seq_chain()` runs in the main loop and writes `chain_a`, then `chain_b`, as two separate byte stores.
+At a bar boundary the audio ISR reads `chain_a`/`chain_b` four times. If the ISR runs between the two
+stores it sees a mixed pair. Example: cancel chain 3..6 -> (0,0): the ISR can see (0,6) and plays a
+0..6 chain for one bar (wrong pattern), or sets a chain the user never selected.
+Callers: ui.c:2198, 2255, 3382, 3389, 4204.
+Fix: store the pair as one `volatile uint16_t chain` (a | b << 8) written with one store, or write both
+inside `irq_save()`. In the ISR, read it ONCE into locals before comparing. No behaviour change except
+removing the torn state.
+Test: new tests/host/seq_chain_atomic_test.c. Add a test hook (or the real `s->chain` after the fix).
+Simulate the ISR running between the two stores (call the bar-boundary path from a store hook). Assert
+that the next pattern is always from the old chain or from the new chain, never from a mix. Register
+the test in the host suite.
+
+Q1.2 **cleanup** firmware/src/app/engine.c:1235-1241. `midi_in()` checks `src < 0 || src >= MIDI_NSRC`
+twice. The second check is in the CIN-0 branch and can never be true. Delete it.
+Test: the existing midi link-end tests (ble_role_switch_test, midi_* overflow tests) still pass.
+
+Q1.3 **cleanup (stale comment + dead code)** firmware/src/app/project.c:132-147 `load_settings()`.
+The comment says "a shorter payload of this format loads into the front of dst". Line 137 rejects any
+`n != sizeof *dst + 4`, so:
+- the second check at :139 (`n < 20 || n > sizeof+4 || io_buf[0..3]`) can never fail;
+- `if (n == sizeof *dst + 4u)` at :142 is always true.
+Fix: keep the one strict check and remove the dead lines. Rewrite the comment to say "exact size only;
+an older settings object is unsupported (-9)". Do not change behaviour.
+Test: project_runtime_test / project_save_preflight_test still pass. Add one case: a short settings object
+returns -9 (it does today; this locks it).
+
+Q1.4 **risk** firmware/src/app/project.c:502-504. `(&s->ck_ch)[i] > CK_MAX[i]` for i < 12 walks 12
+settings_t bytes by pointer arithmetic from `ck_ch`. This is correct only while ck_ch..ck_x2 stay 12
+adjacent uint8_t fields. If a field is added in the middle, the check silently reads the wrong bytes.
+Fix: add `_Static_assert(offsetof(settings_t, ck_x2) - offsetof(settings_t, ck_ch) == 11, ...)` and
+`_Static_assert(sizeof CK_MAX == 12, ...)`, or list the fields by name. Same layout dependency in
+main_fm1.c:1468 `CK_FLD` (offsetof table, OK) - do not change that one.
+Test: build only (static assert). Plus a host case: a settings object with ck_x2 = 0xFF is rejected.
+
+Q1.5 **cleanup** firmware/src/app/engine.c:2161 `L[w] = (brk_loop_t){0};` gives a -Wmissing-field-initializers
+warning. Use `memset(&L[w], 0, sizeof L[w])` or `(brk_loop_t){0}` with explicit fields. No change.
+
+Q1.6 **cleanup** firmware/src/app/engine.c:1114-1118 `brk_note_slice()` comment says "the applied
+snapshot owns the held identity", but the function reads `breaks_count(&brk, 0)` (bank 0 only, the
+live count). Either the comment is stale or the bank argument is wrong for the second slicer (F3 owns
+the two-slicer feature). Do not change the code here. Correct the comment, and add a TODO that
+points to F3 row 24.
+
+Q1.7 **risk (test gap)** sequencer fields that the UI writes while the ISR runs (seq.pat, ppat[], pcue[],
+mute, song_on, bpm in ui.c:2186-2200 perf_restore and :2247-2258). Today these run only when the
+transport is stopped (perf test), so it is safe. Add a comment at seq_t (sequencer.h:136) that lists which fields
+the main loop may write while playing (pcue[], chain, song_start) and which it may write only when
+stopped. Add a debug assert `X0X_ASSERT(!seq.playing)` in perf_restore (host build only).
+Test: seq_test gets one case that calls perf-style restore with playing=1 and expects the host assert.
+
+## Common rules (paste into every brief)
+- Author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>. One brief = one branch from
+  build/0.0.23 = one PR into build/0.0.23.
+- Never touch main, .github/ or Actions.
+- SDK V1.2.1. Build Elite and Pro with X0X_DEV_PADCAL=0. Report static RAM free for both (0.0.23 = 2352 B).
+  Free RAM must not go down without a written reason.
+- No FM-1 code or targets. Do not touch BTIF, USRTRIM, efuse, key_mac or the bootloader.
+- Never use the USB name for device identity.
+- Behaviour, sound and screen must not change, except to fix the named bug. Any visible change: stop and ask
+  for owner mockup approval.
+- Do not touch smc_mixer.c, ui.c (except the one line in Q2.4 after #789 merges), or any file that F1-F7/B1-B5 or the
+  optimization brief owns. If you find overlap, drop the item and say so in the PR.
+- Do not weaken or delete test checks. Register every new test in the host suite.
+- Build once with the extra warning flags (-Wextra -Wshadow -Wcast-align) and attach the warning count before/after.
+  Do not add these flags to the default build in this PR.
+- Use the Superpowers and Compound Engineering plugins (writing-plans, test-driven-development, ce-code-review
+  before the PR, verification-before-completion).
+
+One new PR, base build/0.0.23. Report the PR URL, SHA, RAM (Elite/Pro) and tests. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

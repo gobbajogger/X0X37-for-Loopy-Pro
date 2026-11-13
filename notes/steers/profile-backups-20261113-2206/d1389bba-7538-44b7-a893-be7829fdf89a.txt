@@ -1,0 +1,1 @@
+Writes a short hardware test checklist (10 tasks or fewer, each startable from any state, plain ASD-STE100 English) for each meaningful DnBOX firmware change in gobbajogger/X0X37-for-Loopy-Pro. Checks that fixes do not drop notes, pad colour updates or the BLE connection. Pushes checklists to GitHub.

@@ -1,0 +1,4 @@
+Owner rule, 15:42 UTC+10 on 2026-11-01: publishing a passing build to nightly needs NO owner approval. Publish it automatically once all checks pass. No agent ever installs or flashes. The owner installs it himself through the nightly site.
+1) Fix W6 (delivery) in the 0.0.25 plan to match this rule. Remove every approval step for nightly publishing and every agent install or flash step.
+2) Give me the exact replacement text for the matching lines in the LoopyX0X37 project instructions. Keep the whole file at 7,500 chars or less and keep every other rule. Post the full new instructions as plain text with the character count.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

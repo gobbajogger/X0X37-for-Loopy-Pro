@@ -1,0 +1,19 @@
+I’ll check the mute implementation and earlier decisions. Your requirement is clear: unmuting must restore a still-held synth note immediately, without waiting for another MIDI note.
+
+No: synth-bus mute should silence the output, not kill a held voice. Your requirement means unmute must restore the continuing note without another Note On. I found no verified owner decision making mute a voice-kill mechanism for CPU savings.
+
+What the history/source shows:
+
+The 0.0.23 baseline still calls both synth renderers every audio block. Its sequencer turns muted synth steps into rests, which can lose continuing/tied sound. That is not evidence of an intentional CPU shutdown. It also does not conclusively diagnose your installed build’s external-MIDI symptom. Baseline source.
+PR #810 already contains the relevant repair: gate the synth’s dry output and new FX sends while voices, envelopes, sequencing and effect histories continue. Existing return tails decay. Unmute restores the held sound through the existing roughly 10 ms click-suppression glide, with no new note required.
+Independent QA reports 144 mute checks passed, covering Chicago/Miami, held MIDI notes, sustain and sequence ties. This is host proof, not measured device latency. #810 still has separate failing freeplay checks, so the whole PR is not qualified. QA evidence.
+
+How to stay within CPU limits:
+
+Keep processing Note Off, pedal release, envelope/phase progression and relevant histories while muted. Never freeze an active voice just because its output is silent.
+Save CPU through measured, sound-equivalent optimizations and genuinely idle paths. “Muted” and “idle” are different states. Recreating or retriggering voices on unmute changes the sound and risks stale notes.
+Budget for all supported buses active, including simultaneous unmute. If that exceeds the limit, optimize the renderer; don’t make correct unmute depend on another MIDI note or on keeping buses muted.
+
+Earlier decisions also require muted faders not to change audible output, then unmute to use the physical fader position. That is separate from voice lifetime. The Miami decision to preserve its sound and avoid extra gain still applies.
+
+My recommendation: keep the existing #810 output-gate repair, resolve its separate failures, then measure the combined firmware’s worst-case CPU/headroom. Don’t create another mute implementation.

@@ -1,0 +1,1 @@
+Is mute in the DnBOX firmware meant to stop synth voices (to save CPU)? Owner bug: unmute of a synth bus only takes effect on the next MIDI note; held notes must be audible at once. How do we keep unmute instant while staying within CPU limits? Any history or owner decisions on this?

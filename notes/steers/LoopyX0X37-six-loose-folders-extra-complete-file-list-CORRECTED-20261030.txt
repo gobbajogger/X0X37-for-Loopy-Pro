@@ -1,0 +1,2769 @@
+SIX LOOSE FOLDERS — CORRECTED COMPLETE FILE LIST
+605 exact text versions; 949 path aliases; all included after project provenance audit.
+Independent archive: no other archive required. No Git write, workflow execution or source change.
+Copy objects/<sha256> unchanged to desired original project-relative aliases.
+
+VERSION 001 | INCLUDED | SHA256 002840d2173a3b99c063de2eadc16431f6543a58e481bcecf0fded50a7f6dd53 | 53948 bytes
+Archive payload: objects/002840d2173a3b99c063de2eadc16431f6543a58e481bcecf0fded50a7f6dd53
+  scratch/firmware-direct-8145957/docs/USER_PREFERENCES.md
+  scratch/firmware-integration/docs/USER_PREFERENCES.md
+
+VERSION 002 | INCLUDED | SHA256 003577ca9ccaaac8a96cf873575c7c5c838ffeacad6dbaffd4bde4937fd68ab0 | 11032 bytes
+Archive payload: objects/003577ca9ccaaac8a96cf873575c7c5c838ffeacad6dbaffd4bde4937fd68ab0
+  scratch/firmware-direct-8145957/tools/add_ctl.py
+  scratch/firmware-integration/tools/add_ctl.py
+
+VERSION 003 | INCLUDED | SHA256 00383313c990f19103523b8b4909ba700d9dcbb6f92790d344738d1064e94728 | 5707 bytes
+Archive payload: objects/00383313c990f19103523b8b4909ba700d9dcbb6f92790d344738d1064e94728
+  scratch/firmware-direct-8145957/docs/audit/smc-app-ui-admission-helper-2026-10-21.md
+
+VERSION 004 | INCLUDED | SHA256 0081931e4a642c50a4ec9f32475359b8aed11a31facf2d3231ca7b1f7f849c4f | 4077 bytes
+Archive payload: objects/0081931e4a642c50a4ec9f32475359b8aed11a31facf2d3231ca7b1f7f849c4f
+  scratch/firmware-direct-8145957/tools/prepush-check.sh
+  scratch/firmware-integration/tools/prepush-check.sh
+
+VERSION 005 | INCLUDED | SHA256 00e672e56a5948daee7416c0e3ad0b3287a2ff3c06f728889c02776c075453d7 | 2231 bytes
+Archive payload: objects/00e672e56a5948daee7416c0e3ad0b3287a2ff3c06f728889c02776c075453d7
+  scratch/firmware-direct-8145957/docs/audit/inventory.md
+  scratch/firmware-integration/docs/audit/inventory.md
+
+VERSION 006 | INCLUDED | SHA256 00f2a0caf0d3315f048aa514a511dc2d60678e22e911c536155496e42e686c9c | 117 bytes
+Archive payload: objects/00f2a0caf0d3315f048aa514a511dc2d60678e22e911c536155496e42e686c9c
+  shared/owner-inventory-current-build/assets/factory-breaks/pack.txt
+
+VERSION 007 | INCLUDED | SHA256 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b | 1 bytes
+Archive payload: objects/01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+  scratch/firmware-direct-8145957/tests/host/fixtures/owner_msg/bad-empty.txt
+  scratch/firmware-integration/tests/host/fixtures/owner_msg/bad-empty.txt
+
+VERSION 008 | INCLUDED | SHA256 02107f9296709c236be178a63eedeb2d05d88e6db0f3ff71604629a187c5468d | 2038 bytes
+Archive payload: objects/02107f9296709c236be178a63eedeb2d05d88e6db0f3ff71604629a187c5468d
+  scratch/firmware-direct-8145957/tests/ble/segment_fixture_test.c
+
+VERSION 009 | INCLUDED | SHA256 02221e65816f8d01d1e5574d690ae1d89fda172898c2eca6a813d703dd6c5bd1 | 2273 bytes
+Archive payload: objects/02221e65816f8d01d1e5574d690ae1d89fda172898c2eca6a813d703dd6c5bd1
+  scratch/firmware-direct-8145957/skills/sources.json
+  scratch/firmware-integration/skills/sources.json
+
+VERSION 010 | INCLUDED | SHA256 02b607e2dc2a18e759ce021e1b6a9608190d24193a0416c6f9e0e283eda95591 | 825 bytes
+Archive payload: objects/02b607e2dc2a18e759ce021e1b6a9608190d24193a0416c6f9e0e283eda95591
+  scratch/firmware-direct-8145957/tests/host/pattern_size_equivalence_test.c
+
+VERSION 011 | INCLUDED | SHA256 0412b1e29047d9fee0ebc306ac8221923dcf606fa262d7968ce37ba8f94964c1 | 39787 bytes
+Archive payload: objects/0412b1e29047d9fee0ebc306ac8221923dcf606fa262d7968ce37ba8f94964c1
+  shared/owner-inventory-current-build/firmware/src/dsp/breaks.c
+
+VERSION 012 | INCLUDED | SHA256 0427ae86c0320d9045626875c501f98b4919a66cd7ae0fa7cab8c4f0035bdc68 | 3888 bytes
+Archive payload: objects/0427ae86c0320d9045626875c501f98b4919a66cd7ae0fa7cab8c4f0035bdc68
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_dynamics.h
+
+VERSION 013 | INCLUDED | SHA256 05293b82a595962d856786e27efa0a7ece792cbcbcdabed445c001edcb1ab31c | 4992 bytes
+Archive payload: objects/05293b82a595962d856786e27efa0a7ece792cbcbcdabed445c001edcb1ab31c
+  scratch/firmware-direct-8145957/docs/audit/smc-recovery-provenance-2026-10-21.md
+  scratch/firmware-integration/docs/audit/smc-recovery-provenance-2026-10-21.md
+
+VERSION 014 | INCLUDED | SHA256 05541b8fe21a0ba8435b5537e9fd0ab78b9c32b4b120a21e36e2fcfc76f309f4 | 12413 bytes
+Archive payload: objects/05541b8fe21a0ba8435b5537e9fd0ab78b9c32b4b120a21e36e2fcfc76f309f4
+  scratch/firmware-direct-8145957/tests/smk_clip_dark_test.c
+  scratch/firmware-integration/tests/smk_clip_dark_test.c
+
+VERSION 015 | INCLUDED | SHA256 05e60708f8c61d4be563c64a2b02d52b1e81394870a48af4169f5bf22dfef4b6 | 23523 bytes
+Archive payload: objects/05e60708f8c61d4be563c64a2b02d52b1e81394870a48af4169f5bf22dfef4b6
+  scratch/firmware-direct-8145957/tools/ste_check.py
+  scratch/firmware-integration/tools/ste_check.py
+
+VERSION 016 | INCLUDED | SHA256 063fd067be7a434accf7c83cb688c7dcc02e30bbbd2a1a01a4310edc62a46723 | 7796 bytes
+Archive payload: objects/063fd067be7a434accf7c83cb688c7dcc02e30bbbd2a1a01a4310edc62a46723
+  scratch/firmware-direct-8145957/tools/smc_vendor_dev_build.py
+
+VERSION 017 | INCLUDED | SHA256 06e21da4cafe73827a20bfe2e0a811b680c10d5c8f2fc66040b2bb05953e6da1 | 14152 bytes
+Archive payload: objects/06e21da4cafe73827a20bfe2e0a811b680c10d5c8f2fc66040b2bb05953e6da1
+  shared/owner-inventory-current-build/firmware/src/app/engine.h
+
+VERSION 018 | INCLUDED | SHA256 0801092ffe87337b7be73f3382187390d4c6e28435bdca79670537e7d5878be8 | 4357 bytes
+Archive payload: objects/0801092ffe87337b7be73f3382187390d4c6e28435bdca79670537e7d5878be8
+  scratch/firmware-direct-8145957/tests/host/ble_midi_receive_test.c
+  scratch/firmware-integration/tests/host/ble_midi_receive_test.c
+
+VERSION 019 | INCLUDED | SHA256 08615f9fe1947c9af1b0bca084d5bf7cd488e8fca9e1c903eda031a18b21d06d | 86 bytes
+Archive payload: objects/08615f9fe1947c9af1b0bca084d5bf7cd488e8fca9e1c903eda031a18b21d06d
+  scratch/firmware-direct-8145957/tests/host/fixtures/status/ROADMAP-good.md
+  scratch/firmware-integration/tests/host/fixtures/status/ROADMAP-good.md
+
+VERSION 020 | INCLUDED | SHA256 0891c4ba31273e3406a421390abdf1b123ff6249e764799ab9aad356746d8ed1 | 3079 bytes
+Archive payload: objects/0891c4ba31273e3406a421390abdf1b123ff6249e764799ab9aad356746d8ed1
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-size-continuation-2026-10-21.md
+
+VERSION 021 | INCLUDED | SHA256 09f816cbdd12ce5354ee86c58695ec510be6082853565909bb1754038e253e50 | 854 bytes
+Archive payload: objects/09f816cbdd12ce5354ee86c58695ec510be6082853565909bb1754038e253e50
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/automatic-independent-review.txt
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/automatic-independent-review.txt
+
+VERSION 022 | INCLUDED | SHA256 0a18785a674c0061da0fa1eb1bbdfe2d7db383b3f2e64c73454540e9cc3ae33d | 4448 bytes
+Archive payload: objects/0a18785a674c0061da0fa1eb1bbdfe2d7db383b3f2e64c73454540e9cc3ae33d
+  scratch/firmware-direct-8145957/assets/fonts/Terminus-LICENSE.txt
+  scratch/firmware-integration/assets/fonts/Terminus-LICENSE.txt
+  shared/owner-inventory-current-build/assets/fonts/Terminus-LICENSE.txt
+
+VERSION 023 | INCLUDED | SHA256 0a86055875fea3f150204eff1b3297a2d4001e897cd9c0fbb94bb047b7fea98f | 17406 bytes
+Archive payload: objects/0a86055875fea3f150204eff1b3297a2d4001e897cd9c0fbb94bb047b7fea98f
+  scratch/firmware-direct-8145957/docs/audit/rollout-2026-10-19.json
+  scratch/firmware-integration/docs/audit/rollout-2026-10-19.json
+
+VERSION 024 | INCLUDED | SHA256 0b4513ab2deb215a6be9abeae9f5f7c0557582697c761486c9d860044cf3195b | 7096 bytes
+Archive payload: objects/0b4513ab2deb215a6be9abeae9f5f7c0557582697c761486c9d860044cf3195b
+  scratch/firmware-direct-8145957/firmware/src/x0x.c
+
+VERSION 025 | INCLUDED | SHA256 0b88c0d292e40f6a5d5e72c40c2323c403c788225c0373ff4db1be94b57f7412 | 14078 bytes
+Archive payload: objects/0b88c0d292e40f6a5d5e72c40c2323c403c788225c0373ff4db1be94b57f7412
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_vendor_profile.c
+
+VERSION 026 | INCLUDED | SHA256 0bab3d337d4036871e33ca72c2deecba6c9b364156890df57491932394f8a578 | 85 bytes
+Archive payload: objects/0bab3d337d4036871e33ca72c2deecba6c9b364156890df57491932394f8a578
+  scratch/firmware-direct-8145957/tests/host/fixtures/owner_msg/bad-four-sentences.txt
+  scratch/firmware-integration/tests/host/fixtures/owner_msg/bad-four-sentences.txt
+
+VERSION 027 | INCLUDED | SHA256 0cf1abb46f1cee7d0d3b7aa417681ce9977df827d690355811d6d834856e5aa9 | 4602 bytes
+Archive payload: objects/0cf1abb46f1cee7d0d3b7aa417681ce9977df827d690355811d6d834856e5aa9
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-pc-window-blocker-2026-10-21.md
+
+VERSION 028 | INCLUDED | SHA256 0d9da9db574e3ccfce98ffe4113469fa802e8895f960d7ffaa5f01fd05dfc9e6 | 16478 bytes
+Archive payload: objects/0d9da9db574e3ccfce98ffe4113469fa802e8895f960d7ffaa5f01fd05dfc9e6
+  scratch/firmware-direct-8145957/tests/smk_apc40_test.py
+
+VERSION 029 | INCLUDED | SHA256 0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de | 2143 bytes
+Archive payload: objects/0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de
+  scratch/firmware-direct-8145957/docs/QUICKCHECK-SCOPE.md
+  scratch/firmware-integration/docs/QUICKCHECK-SCOPE.md
+
+VERSION 030 | INCLUDED | SHA256 0e7830eaa9e6602a9b1e98b9962e465b5548e6431f8bf7c1cf7df631d02698ef | 1791 bytes
+Archive payload: objects/0e7830eaa9e6602a9b1e98b9962e465b5548e6431f8bf7c1cf7df631d02698ef
+  scratch/firmware-direct-8145957/tools/studies/smc_reference/compression.py
+  scratch/firmware-integration/tools/studies/smc_reference/compression.py
+
+VERSION 031 | INCLUDED | SHA256 0e85dcd58b15289d2b838f57a88bc2e12aede9e9348659d668eceee4204f0d96 | 21793 bytes
+Archive payload: objects/0e85dcd58b15289d2b838f57a88bc2e12aede9e9348659d668eceee4204f0d96
+  scratch/firmware-direct-8145957/build/host/smc_host_ingress/ck_a.inc
+  scratch/firmware-integration/build/host/smc_host_ingress/ck_a.inc
+
+VERSION 032 | INCLUDED | SHA256 0ebdbbce916b08f91ea0d9b7b0d112959b733d312404afd93592f336030cf462 | 32 bytes
+Archive payload: objects/0ebdbbce916b08f91ea0d9b7b0d112959b733d312404afd93592f336030cf462
+  scratch/firmware-direct-8145957/tests/host/fixtures/owner_msg/bad-backticks.txt
+  scratch/firmware-integration/tests/host/fixtures/owner_msg/bad-backticks.txt
+
+VERSION 033 | INCLUDED | SHA256 0ec70bcbac72c16685732ce2d0e85c0c5b61c52f853c5647d78364d0031bc396 | 668 bytes
+Archive payload: objects/0ec70bcbac72c16685732ce2d0e85c0c5b61c52f853c5647d78364d0031bc396
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-interlocked-app-fixture-2026-10-21.json
+
+VERSION 034 | INCLUDED | SHA256 0f15f7f46dd6df11a38e624a3ed21bea8a7323f03a5b74e5c913c9765e6d7995 | 7048 bytes
+Archive payload: objects/0f15f7f46dd6df11a38e624a3ed21bea8a7323f03a5b74e5c913c9765e6d7995
+  scratch/firmware-direct-8145957/tests/host/ble_midi_connection_test.c
+  scratch/firmware-integration/tests/host/ble_midi_connection_test.c
+
+VERSION 035 | INCLUDED | SHA256 0f7a09865f1d6c2a134ca2b52b52fe44c4481d4ca8b355537b00bdc7730a53d0 | 3697 bytes
+Archive payload: objects/0f7a09865f1d6c2a134ca2b52b52fe44c4481d4ca8b355537b00bdc7730a53d0
+  scratch/firmware-direct-8145957/tools/checklist_lint.py
+  scratch/firmware-integration/tools/checklist_lint.py
+
+VERSION 036 | INCLUDED | SHA256 1057268fb0765902e20774b77d415fb23ff7b814c85cc770dd7c4a23519d3901 | 6188 bytes
+Archive payload: objects/1057268fb0765902e20774b77d415fb23ff7b814c85cc770dd7c4a23519d3901
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_output.h
+
+VERSION 037 | INCLUDED | SHA256 10f999635c8e063416199fcb5d9e452546120fd363829bde915ed4ea01565fa9 | 2816 bytes
+Archive payload: objects/10f999635c8e063416199fcb5d9e452546120fd363829bde915ed4ea01565fa9
+  scratch/firmware-direct-8145957/tools/recovery/README.md
+  scratch/firmware-integration/tools/recovery/README.md
+
+VERSION 038 | INCLUDED | SHA256 1115ad1ab2819ed68d3ad525e465075c6824b6997aac27d542b84d759904c4ca | 5039 bytes
+Archive payload: objects/1115ad1ab2819ed68d3ad525e465075c6824b6997aac27d542b84d759904c4ca
+  scratch/firmware-direct-8145957/tests/host/smk_clip_wait_test.c
+  scratch/firmware-integration/tests/host/smk_clip_wait_test.c
+
+VERSION 039 | INCLUDED | SHA256 11aa88fdb186da862be57d36d6c09aac7245dcc8b27c814eb5c94e9fb438c3d1 | 1007 bytes
+Archive payload: objects/11aa88fdb186da862be57d36d6c09aac7245dcc8b27c814eb5c94e9fb438c3d1
+  scratch/firmware-direct-8145957/firmware/hal/x0x_smc_readback.h
+
+VERSION 040 | INCLUDED | SHA256 11afb0ffce93cbdea91dd5f52f2c85bf9c638dca8203ba801c0f3633c6ee1d25 | 2894 bytes
+Archive payload: objects/11afb0ffce93cbdea91dd5f52f2c85bf9c638dca8203ba801c0f3633c6ee1d25
+  scratch/firmware-direct-8145957/tests/app_ui_admission_test.c
+
+VERSION 041 | INCLUDED | SHA256 11d30c36a51d546e90c5cb2a3afa3e8b4962bebebf822ec0a9d3f82e3df0a6f8 | 40 bytes
+Archive payload: objects/11d30c36a51d546e90c5cb2a3afa3e8b4962bebebf822ec0a9d3f82e3df0a6f8
+  scratch/firmware-direct-8145957/tests/host/fixtures/owner_msg/bad-two-questions.txt
+  scratch/firmware-integration/tests/host/fixtures/owner_msg/bad-two-questions.txt
+
+VERSION 042 | INCLUDED | SHA256 12961b8a5853b22cc3b98b52731da358bed6b0e87962162bf2626a16c4b51a88 | 5225 bytes
+Archive payload: objects/12961b8a5853b22cc3b98b52731da358bed6b0e87962162bf2626a16c4b51a88
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_heap.c
+
+VERSION 043 | INCLUDED | SHA256 129727eb6f46ec037b1bad4955afe5c309fd84fb37c5e7a13766de3a8faa9e7b | 27148 bytes
+Archive payload: objects/129727eb6f46ec037b1bad4955afe5c309fd84fb37c5e7a13766de3a8faa9e7b
+  shared/owner-inventory-current-build/experiments/wobble/evidence/history-comparison.json
+
+VERSION 044 | INCLUDED | SHA256 13794417cd578b98e490297273edaec4c687545e2292d42a6125de4991640df0 | 1163 bytes
+Archive payload: objects/13794417cd578b98e490297273edaec4c687545e2292d42a6125de4991640df0
+  scratch/firmware-direct-8145957/tools/publish_pages.sh
+  scratch/firmware-integration/tools/publish_pages.sh
+
+VERSION 045 | INCLUDED | SHA256 154ec8d2914e32b1f8a6927b8d3fe264ba5b331c4f97051d4420a642ac721b68 | 1544 bytes
+Archive payload: objects/154ec8d2914e32b1f8a6927b8d3fe264ba5b331c4f97051d4420a642ac721b68
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules/style.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules/style.md
+
+VERSION 046 | INCLUDED | SHA256 159d704c1c810a63483a208a15c0524444d7a45d8df42aea9f05095c19af1d9d | 2653 bytes
+Archive payload: objects/159d704c1c810a63483a208a15c0524444d7a45d8df42aea9f05095c19af1d9d
+  scratch/firmware-direct-8145957/skills/x0x37-owner-decisions/SKILL.md
+  scratch/firmware-integration/skills/x0x37-owner-decisions/SKILL.md
+
+VERSION 047 | INCLUDED | SHA256 15a5828d0be5c3fcdbfa21f9fdb23c82a254c36460ec5003a1ed46c5776766a7 | 4161 bytes
+Archive payload: objects/15a5828d0be5c3fcdbfa21f9fdb23c82a254c36460ec5003a1ed46c5776766a7
+  scratch/firmware-direct-8145957/docs/distribution/DEVELOPMENT_KITS.md
+  scratch/firmware-integration/docs/distribution/DEVELOPMENT_KITS.md
+
+VERSION 048 | INCLUDED | SHA256 160c9740799f191ad5815141f50ae6e75f61d757a5f5872aca885fdfddeae95a | 5340 bytes
+Archive payload: objects/160c9740799f191ad5815141f50ae6e75f61d757a5f5872aca885fdfddeae95a
+  scratch/firmware-direct-8145957/tests/host/ble_midi_att_setup_test.c
+  scratch/firmware-integration/tests/host/ble_midi_att_setup_test.c
+
+VERSION 049 | INCLUDED | SHA256 16155143feef39ae08d44273f6c8b849c97b26815d4ae6940c96b18f5468f910 | 715 bytes
+Archive payload: objects/16155143feef39ae08d44273f6c8b849c97b26815d4ae6940c96b18f5468f910
+  scratch/firmware-direct-8145957/tests/host/ble_midi_receive_test.sh
+  scratch/firmware-integration/tests/host/ble_midi_receive_test.sh
+
+VERSION 050 | INCLUDED | SHA256 16a22b84067eab180d3eac9ec1f7d6fc147dedc80ea64a7f7c8ba9e92e376b8d | 1183 bytes
+Archive payload: objects/16a22b84067eab180d3eac9ec1f7d6fc147dedc80ea64a7f7c8ba9e92e376b8d
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/automatic-startup.json
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/automatic-startup.json
+
+VERSION 051 | INCLUDED | SHA256 16fa4e563d1bd3656508a846d391e48d30d1404205fe4b0e907ec32b555f9930 | 3745 bytes
+Archive payload: objects/16fa4e563d1bd3656508a846d391e48d30d1404205fe4b0e907ec32b555f9930
+  shared/owner-inventory-current-build/firmware/src/app/original_sound.h
+
+VERSION 052 | INCLUDED | SHA256 17473b15d59133d47ef19c255233ca0fde21f71195c14e5d161c2c972377363c | 8103 bytes
+Archive payload: objects/17473b15d59133d47ef19c255233ca0fde21f71195c14e5d161c2c972377363c
+  scratch/firmware-direct-8145957/firmware/hal/x0x_ble_segment.h
+
+VERSION 053 | INCLUDED | SHA256 18432eb957d27d7206c9ad7434403eb79b300920d88dc595333bc51d22fcaed7 | 2996 bytes
+Archive payload: objects/18432eb957d27d7206c9ad7434403eb79b300920d88dc595333bc51d22fcaed7
+  scratch/firmware-direct-8145957/tests/host/test_gate_reason.py
+  scratch/firmware-integration/tests/host/test_gate_reason.py
+
+VERSION 054 | INCLUDED | SHA256 186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f | 4377 bytes
+Archive payload: objects/186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f
+  scratch/firmware-direct-8145957/assets/fonts/Barlow-OFL.txt
+  scratch/firmware-integration/assets/fonts/Barlow-OFL.txt
+  shared/owner-inventory-current-build/assets/fonts/Barlow-OFL.txt
+
+VERSION 055 | INCLUDED | SHA256 1881aaacfedac91b0ab6cf38d0b5851d19e002a74c3684e43a0fcae23d4aadb0 | 2784 bytes
+Archive payload: objects/1881aaacfedac91b0ab6cf38d0b5851d19e002a74c3684e43a0fcae23d4aadb0
+  scratch/firmware-direct-8145957/build/host/smc_host_ingress/ck_b.inc
+  scratch/firmware-integration/build/host/smc_host_ingress/ck_b.inc
+
+VERSION 056 | INCLUDED | SHA256 192492529fa9150b3ca0aed12c6beb19ba1b7812069dfa99dacdbae99eb3fa60 | 1747 bytes
+Archive payload: objects/192492529fa9150b3ca0aed12c6beb19ba1b7812069dfa99dacdbae99eb3fa60
+  scratch/firmware-direct-8145957/tests/ble/check_segment_elf.py
+
+VERSION 057 | INCLUDED | SHA256 196d91e198dfa355992c83f9503a9ba05178ac576f9c02c8520e9be6aa39c798 | 263 bytes
+Archive payload: objects/196d91e198dfa355992c83f9503a9ba05178ac576f9c02c8520e9be6aa39c798
+  scratch/firmware-direct-8145957/docs/rules/shared-work.md
+  scratch/firmware-integration/docs/rules/shared-work.md
+
+VERSION 058 | INCLUDED | SHA256 1978203f0eabbd74b5d76b9b6dd776e1e9ab6a78ad61e613f2bbc3bf022321c8 | 15831 bytes
+Archive payload: objects/1978203f0eabbd74b5d76b9b6dd776e1e9ab6a78ad61e613f2bbc3bf022321c8
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-resolved-link-2026-10-21.json
+
+VERSION 059 | INCLUDED | SHA256 1a38e77ce9c5b8a5468833c20540b8521d45a0d54471eeec5defd25b2108a926 | 3003 bytes
+Archive payload: objects/1a38e77ce9c5b8a5468833c20540b8521d45a0d54471eeec5defd25b2108a926
+  scratch/firmware-direct-8145957/docs/song-actions-handoff-2026-10-20.md
+  scratch/firmware-integration/docs/song-actions-handoff-2026-10-20.md
+
+VERSION 060 | INCLUDED | SHA256 1aa0d44f63e933c351b631ef7982ab8ee7170a781a15f1df5ec846e5bc51ed44 | 808 bytes
+Archive payload: objects/1aa0d44f63e933c351b631ef7982ab8ee7170a781a15f1df5ec846e5bc51ed44
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_host_scope.h
+
+VERSION 061 | INCLUDED | SHA256 1ad24ad7add8ff89c90d6b632bc7fbdd186bca76b42e2d0088efd08fa71dd75f | 4438 bytes
+Archive payload: objects/1ad24ad7add8ff89c90d6b632bc7fbdd186bca76b42e2d0088efd08fa71dd75f
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/build_combined.py
+
+VERSION 062 | INCLUDED | SHA256 1b0ab8c84f109b54bd6d5bed867717954753afb79ffd299e877ada7270c9f952 | 5567 bytes
+Archive payload: objects/1b0ab8c84f109b54bd6d5bed867717954753afb79ffd299e877ada7270c9f952
+  scratch/firmware-direct-8145957/tests/host/ble_midi_smp_test.c
+  scratch/firmware-integration/tests/host/ble_midi_smp_test.c
+
+VERSION 063 | INCLUDED | SHA256 1b7ea0b8c29da09ab600c885b8cf8ce6e679740e1f082d3a54ffc20fa464b262 | 1510 bytes
+Archive payload: objects/1b7ea0b8c29da09ab600c885b8cf8ce6e679740e1f082d3a54ffc20fa464b262
+  scratch/firmware-direct-8145957/tests/host/ble_midi_stop_test.py
+  scratch/firmware-integration/tests/host/ble_midi_stop_test.py
+
+VERSION 064 | INCLUDED | SHA256 1bd3c86f144a6b7116fe528157b1a1e51cb3626047b6cf97729a21eaceb55a70 | 2587 bytes
+Archive payload: objects/1bd3c86f144a6b7116fe528157b1a1e51cb3626047b6cf97729a21eaceb55a70
+  shared/owner-inventory-current-build/PRIVATE-LOCAL-INPUT-RECEIPT.json
+
+VERSION 065 | INCLUDED | SHA256 1be127cd8c1bf009f53cff7631c68b6959ec0dfbd141ad801b101a7d636624b9 | 4167 bytes
+Archive payload: objects/1be127cd8c1bf009f53cff7631c68b6959ec0dfbd141ad801b101a7d636624b9
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/wire_test.c
+
+VERSION 066 | INCLUDED | SHA256 1bee5770e0dab1614e3fad90bdec27c90894c942d62877220431e123bff216a2 | 2209 bytes
+Archive payload: objects/1bee5770e0dab1614e3fad90bdec27c90894c942d62877220431e123bff216a2
+  scratch/firmware-integration/docs/audit/smc-diagnostic-withdrawal-2026-10-21.md
+
+VERSION 067 | INCLUDED | SHA256 1befa7d341f0c648cb8ae99c7989942b7a0bd6b84e4ad0109b9a17a2a8fa8704 | 144 bytes
+Archive payload: objects/1befa7d341f0c648cb8ae99c7989942b7a0bd6b84e4ad0109b9a17a2a8fa8704
+  scratch/firmware-direct-8145957/tests/host/fixtures/status/prefs_lint_ok.py
+  scratch/firmware-integration/tests/host/fixtures/status/prefs_lint_ok.py
+
+VERSION 068 | INCLUDED | SHA256 1cbb06eaf8f3e139ae0ab4fc88b672a1fdb0841ac83874bb5570feb368ae5a23 | 8911 bytes
+Archive payload: objects/1cbb06eaf8f3e139ae0ab4fc88b672a1fdb0841ac83874bb5570feb368ae5a23
+  scratch/firmware-direct-8145957/tools/distribution/package_dev.py
+  scratch/firmware-integration/tools/distribution/package_dev.py
+
+VERSION 069 | INCLUDED | SHA256 1d1647aa28b6a9b566f8a4bc098c650c06a312d10de4477990000ea638aff7f4 | 2755 bytes
+Archive payload: objects/1d1647aa28b6a9b566f8a4bc098c650c06a312d10de4477990000ea638aff7f4
+  scratch/firmware-direct-8145957/docs/audit/rules-on-demand-2026-10-20.md
+  scratch/firmware-integration/docs/audit/rules-on-demand-2026-10-20.md
+
+VERSION 070 | INCLUDED | SHA256 1d324072bd5f5b2df370592b952148101d8e9ef213007c1a1c0574edea287cdd | 12668 bytes
+Archive payload: objects/1d324072bd5f5b2df370592b952148101d8e9ef213007c1a1c0574edea287cdd
+  scratch/firmware-direct-8145957/docs/PROJECT_FILES.md
+  scratch/firmware-integration/docs/PROJECT_FILES.md
+
+VERSION 071 | INCLUDED | SHA256 1e3521baa8d7458ba3c3138fc2525151bcf598ce7c62ef8b2462c6bbc1eaf8aa | 2046 bytes
+Archive payload: objects/1e3521baa8d7458ba3c3138fc2525151bcf598ce7c62ef8b2462c6bbc1eaf8aa
+  scratch/firmware-direct-8145957/skills/x0x37-check/SKILL.md
+  scratch/firmware-integration/skills/x0x37-check/SKILL.md
+
+VERSION 072 | INCLUDED | SHA256 1eac93af3698769b22a5141e32431bfc46e7926c344dbcc2ac328f66d0f6b4f4 | 3913 bytes
+Archive payload: objects/1eac93af3698769b22a5141e32431bfc46e7926c344dbcc2ac328f66d0f6b4f4
+  shared/owner-inventory-current-build/firmware/src/seq/motion.h
+
+VERSION 073 | INCLUDED | SHA256 1ef4e91f55f373dfc1af8eab7b020241d6f6be404aafe142fdddb4b85c64f244 | 5257 bytes
+Archive payload: objects/1ef4e91f55f373dfc1af8eab7b020241d6f6be404aafe142fdddb4b85c64f244
+  scratch/firmware-direct-8145957/docs/audit/skill-archive-search.json
+  scratch/firmware-integration/docs/audit/skill-archive-search.json
+
+VERSION 074 | INCLUDED | SHA256 1f8ad890be2f94a252664f0fe4829e6873fbc50035d02c3238007a82f37914f9 | 1256 bytes
+Archive payload: objects/1f8ad890be2f94a252664f0fe4829e6873fbc50035d02c3238007a82f37914f9
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules/integration.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules/integration.md
+
+VERSION 075 | INCLUDED | SHA256 1f9d914491158342c22376e53fb4235b95d8f3b3df2d9688be235b0b5d605864 | 132 bytes
+Archive payload: objects/1f9d914491158342c22376e53fb4235b95d8f3b3df2d9688be235b0b5d605864
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/agent-rules.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/agent-rules.md
+
+VERSION 076 | INCLUDED | SHA256 20f110cb01406525f55bb6a3ca30cb2d7c73de74787c104dd38248f042045e49 | 2301 bytes
+Archive payload: objects/20f110cb01406525f55bb6a3ca30cb2d7c73de74787c104dd38248f042045e49
+  shared/owner-inventory-current-build/firmware/src/app/original_runtime.h
+
+VERSION 077 | INCLUDED | SHA256 215e83116df6fa6b5f3a4f629a8f3a3dfd1eedd2a9f3124c4141bac7314be0b9 | 4338 bytes
+Archive payload: objects/215e83116df6fa6b5f3a4f629a8f3a3dfd1eedd2a9f3124c4141bac7314be0b9
+  scratch/firmware-direct-8145957/tests/ble/ctl_vendor_bridge_test.c
+
+VERSION 078 | INCLUDED | SHA256 21a074b151230a29dd4befbbda695b1dbdabd1114002189386d98e0bfd520207 | 3248 bytes
+Archive payload: objects/21a074b151230a29dd4befbbda695b1dbdabd1114002189386d98e0bfd520207
+  scratch/firmware-direct-8145957/tests/host/test_prefs_lint.sh
+  scratch/firmware-integration/tests/host/test_prefs_lint.sh
+
+VERSION 079 | INCLUDED | SHA256 23d182f217c5531000a2974ef1980695936deb1c29b0b9c3089c3e6a39305a26 | 5063 bytes
+Archive payload: objects/23d182f217c5531000a2974ef1980695936deb1c29b0b9c3089c3e6a39305a26
+  scratch/firmware-direct-8145957/docs/audit/installer-sample-safety-20261021.md
+  scratch/firmware-integration/docs/audit/installer-sample-safety-20261021.md
+
+VERSION 080 | INCLUDED | SHA256 23e1fd0c4bb23bc7cc7d913c2c913fb230ea3916566d319652453d513dc2871f | 723 bytes
+Archive payload: objects/23e1fd0c4bb23bc7cc7d913c2c913fb230ea3916566d319652453d513dc2871f
+  scratch/firmware-direct-8145957/firmware/hal/fm1_smc_vendor.h
+
+VERSION 081 | INCLUDED | SHA256 23e59b297d65927a84e76eb93ab988d9d90cf2b33f60c7f485bb18caf0d84055 | 531 bytes
+Archive payload: objects/23e59b297d65927a84e76eb93ab988d9d90cf2b33f60c7f485bb18caf0d84055
+  scratch/firmware-direct-8145957/tests/host/smk_clip_audit_test.sh
+  scratch/firmware-integration/tests/host/smk_clip_audit_test.sh
+
+VERSION 082 | INCLUDED | SHA256 241659bc45804384359184d6af772181b0629a34a2c2216921c85579ae34596d | 9957 bytes
+Archive payload: objects/241659bc45804384359184d6af772181b0629a34a2c2216921c85579ae34596d
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_dynamics.c
+
+VERSION 083 | INCLUDED | SHA256 24319dea1cfc1efb6420c05183c21f5954ba5ccce91ac422cbd9bf073686349b | 10817 bytes
+Archive payload: objects/24319dea1cfc1efb6420c05183c21f5954ba5ccce91ac422cbd9bf073686349b
+  scratch/firmware-direct-8145957/tests/host/motion_test.c
+  scratch/firmware-integration/tests/host/motion_test.c
+
+VERSION 084 | INCLUDED | SHA256 24f7e817dd341b396f18ddfcef07f8e0e40a4018a72ec41cf49a743ab6f9ebf7 | 141 bytes
+Archive payload: objects/24f7e817dd341b396f18ddfcef07f8e0e40a4018a72ec41cf49a743ab6f9ebf7
+  scratch/firmware-direct-8145957/tests/host/fixtures/status/ROADMAP-bad.md
+  scratch/firmware-integration/tests/host/fixtures/status/ROADMAP-bad.md
+
+VERSION 085 | INCLUDED | SHA256 25425f19c4faac15db45e724c0304cc3d8bbde1dfd2426cd918c48b350f89036 | 1170 bytes
+Archive payload: objects/25425f19c4faac15db45e724c0304cc3d8bbde1dfd2426cd918c48b350f89036
+  scratch/firmware-direct-8145957/docs/audit/classic-chain-correction-2026-10-21/after.json
+  scratch/firmware-integration/docs/audit/classic-chain-correction-2026-10-21/after.json
+
+VERSION 086 | INCLUDED | SHA256 25574ee9bd26268c10d2829eb6956b2622a66bfec197f38b7cafcadfe535e643 | 1015 bytes
+Archive payload: objects/25574ee9bd26268c10d2829eb6956b2622a66bfec197f38b7cafcadfe535e643
+  scratch/firmware-direct-8145957/tests/ble/app_ui_fixture_test.c
+
+VERSION 087 | INCLUDED | SHA256 2576702222d15a535dc943184ea103b86a29c4f621824e26c215e7199c19883e | 1559 bytes
+Archive payload: objects/2576702222d15a535dc943184ea103b86a29c4f621824e26c215e7199c19883e
+  shared/owner-inventory-current-build/firmware/src/ui_theme.h
+
+VERSION 088 | INCLUDED | SHA256 25914cbed956bbb172f00112e71bba14cba9daedebf838c4d400f922aa1d4b62 | 3272 bytes
+Archive payload: objects/25914cbed956bbb172f00112e71bba14cba9daedebf838c4d400f922aa1d4b62
+  scratch/firmware-direct-8145957/skills/asd-ste100/references/media.md
+  scratch/firmware-integration/skills/asd-ste100/references/media.md
+
+VERSION 089 | INCLUDED | SHA256 2665f703b1fb5fe2167921a8173a0ae467c83e2aef5372876cc25e68ec2a116c | 35474 bytes
+Archive payload: objects/2665f703b1fb5fe2167921a8173a0ae467c83e2aef5372876cc25e68ec2a116c
+  shared/owner-inventory-current-build/tools/build.py
+
+VERSION 090 | INCLUDED | SHA256 2684903403e175bec2c439f438e6dc31a9f414011b93cd3052d754e64be12a6d | 53 bytes
+Archive payload: objects/2684903403e175bec2c439f438e6dc31a9f414011b93cd3052d754e64be12a6d
+  scratch/firmware-direct-8145957/tests/host/fixtures/owner_msg/good-question.txt
+  scratch/firmware-integration/tests/host/fixtures/owner_msg/good-question.txt
+
+VERSION 091 | INCLUDED | SHA256 268b0e7afd243789bb6e99db1fdae9318cc1f93698ef106331d48069e71ba734 | 10055 bytes
+Archive payload: objects/268b0e7afd243789bb6e99db1fdae9318cc1f93698ef106331d48069e71ba734
+  shared/owner-inventory-current-build/firmware/src/gfx.c
+
+VERSION 092 | INCLUDED | SHA256 26a73e1566a1374eaa7f77e35d8144929d3e6d9f694165e86203bc773b236e46 | 1681 bytes
+Archive payload: objects/26a73e1566a1374eaa7f77e35d8144929d3e6d9f694165e86203bc773b236e46
+  scratch/firmware-direct-8145957/skills/x0x37-writing/references/strict.md
+  scratch/firmware-integration/skills/x0x37-writing/references/strict.md
+
+VERSION 093 | INCLUDED | SHA256 27b5fdbdb004b0594214c02cd5113839cd9c9ea3d9ac25774b541f1d12cee32f | 1006 bytes
+Archive payload: objects/27b5fdbdb004b0594214c02cd5113839cd9c9ea3d9ac25774b541f1d12cee32f
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules/core.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules/core.md
+
+VERSION 094 | INCLUDED | SHA256 27c3dc12ac6bf5248b4fb3ce795d5d91598881760f5f4feddf95f08f3b97b3a3 | 8020 bytes
+Archive payload: objects/27c3dc12ac6bf5248b4fb3ce795d5d91598881760f5f4feddf95f08f3b97b3a3
+  scratch/firmware-direct-8145957/docs/rules-audit-2026-10-19.md
+  scratch/firmware-integration/docs/rules-audit-2026-10-19.md
+
+VERSION 095 | INCLUDED | SHA256 281ba847f81779b2c6319e2930859db3f0257a88dcd25847968a35e69447f793 | 6945 bytes
+Archive payload: objects/281ba847f81779b2c6319e2930859db3f0257a88dcd25847968a35e69447f793
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/bundle_probe.h
+
+VERSION 096 | INCLUDED | SHA256 28366d9b6d527c57e830376cc6d7f740c826978ce69f9227a21fe938e697821d | 1215 bytes
+Archive payload: objects/28366d9b6d527c57e830376cc6d7f740c826978ce69f9227a21fe938e697821d
+  scratch/firmware-direct-8145957/tests/ble/ctl_vendor_events_test.c
+
+VERSION 097 | INCLUDED | SHA256 2917b9472cee11300ad1022a6d3e880b1a3fc54562eab903bd2d1446280726fd | 7677 bytes
+Archive payload: objects/2917b9472cee11300ad1022a6d3e880b1a3fc54562eab903bd2d1446280726fd
+  scratch/firmware-direct-8145957/docs/plans/2026-10-15-ble-stage3-test-plan.md
+  scratch/firmware-integration/docs/plans/2026-10-15-ble-stage3-test-plan.md
+
+VERSION 098 | INCLUDED | SHA256 2972c93953d57330955c04d43366b5f252edf119907d1fc689d7c6ba2feabff1 | 8696 bytes
+Archive payload: objects/2972c93953d57330955c04d43366b5f252edf119907d1fc689d7c6ba2feabff1
+  scratch/firmware-direct-8145957/docs/audit/smc-link-publication-20261021.md
+  scratch/firmware-integration/docs/audit/smc-link-publication-20261021.md
+
+VERSION 099 | INCLUDED | SHA256 29c929e9b946c9ec64545cb0369e4efd741056b2c4e3d0f1763e14fc68967960 | 629 bytes
+Archive payload: objects/29c929e9b946c9ec64545cb0369e4efd741056b2c4e3d0f1763e14fc68967960
+  scratch/firmware-direct-8145957/tests/host/fixtures/install_guards/head_cases.txt
+  scratch/firmware-integration/tests/host/fixtures/install_guards/head_cases.txt
+
+VERSION 100 | INCLUDED | SHA256 2a466588335d01f8fa372c1854a2d6edca942f7aba28ab1af5e905fc30dfeed2 | 1847 bytes
+Archive payload: objects/2a466588335d01f8fa372c1854a2d6edca942f7aba28ab1af5e905fc30dfeed2
+  scratch/firmware-direct-8145957/docs/audit/writing-skills-rollout-2026-10-19.json
+  scratch/firmware-integration/docs/audit/writing-skills-rollout-2026-10-19.json
+
+VERSION 101 | INCLUDED | SHA256 2a4ed845559f545e5372b0ef2032a48cc0f74e07ebfb03b7129b3aa728044762 | 1433 bytes
+Archive payload: objects/2a4ed845559f545e5372b0ef2032a48cc0f74e07ebfb03b7129b3aa728044762
+  scratch/firmware-direct-8145957/skills/x0x37-install/SKILL.md
+  scratch/firmware-integration/skills/x0x37-install/SKILL.md
+
+VERSION 102 | INCLUDED | SHA256 2b2cc03118da60e5a8c4343e664fa38e4869840afccc3946fca3d02f4505422f | 3517 bytes
+Archive payload: objects/2b2cc03118da60e5a8c4343e664fa38e4869840afccc3946fca3d02f4505422f
+  scratch/firmware-direct-8145957/docs/audit/shorter-skills-2026-10-21.md
+  scratch/firmware-integration/docs/audit/shorter-skills-2026-10-21.md
+
+VERSION 103 | INCLUDED | SHA256 2c3505170fc58e09cef0bfa0e8d7c6c67a111a1bf4ed635ceac1399b4e484451 | 3868 bytes
+Archive payload: objects/2c3505170fc58e09cef0bfa0e8d7c6c67a111a1bf4ed635ceac1399b4e484451
+  scratch/firmware-direct-8145957/tools/distribution/source_inventory.py
+  scratch/firmware-integration/tools/distribution/source_inventory.py
+
+VERSION 104 | INCLUDED | SHA256 2c71795f8799c2c96141fea3a4bfcb4947cd92c62928a6aed8e19398924ccfda | 2869 bytes
+Archive payload: objects/2c71795f8799c2c96141fea3a4bfcb4947cd92c62928a6aed8e19398924ccfda
+  shared/owner-inventory-current-build/host/build_host.sh
+
+VERSION 105 | INCLUDED | SHA256 2ca8a5daa62add5be01c16e138506e25359c2b88fb45f8f4d33321a46e14bdbb | 12126 bytes
+Archive payload: objects/2ca8a5daa62add5be01c16e138506e25359c2b88fb45f8f4d33321a46e14bdbb
+  shared/owner-inventory-current-build/firmware/src/app/boot_screen.h
+
+VERSION 106 | INCLUDED | SHA256 2cc90f00c1a8d2f53ed26bc89a63bcc89b3abcacabe0cbfb79625cb7a2ff93ba | 94646 bytes
+Archive payload: objects/2cc90f00c1a8d2f53ed26bc89a63bcc89b3abcacabe0cbfb79625cb7a2ff93ba
+  scratch/firmware-direct-8145957/BLE_ATTEMPTS.md
+  scratch/firmware-integration/BLE_ATTEMPTS.md
+
+VERSION 107 | INCLUDED | SHA256 2cfab1afe185efd7a19ce437a6ac929dc395684fa8297c9007c89f89820d2868 | 25112 bytes
+Archive payload: objects/2cfab1afe185efd7a19ce437a6ac929dc395684fa8297c9007c89f89820d2868
+  scratch/firmware-direct-8145957/tests/host/project_stage_test.c
+  scratch/firmware-integration/tests/host/project_stage_test.c
+
+VERSION 108 | INCLUDED | SHA256 2e129738a1cfad07fab89b64644d3fd04db26eee867dc714382703df4b64220e | 5736 bytes
+Archive payload: objects/2e129738a1cfad07fab89b64644d3fd04db26eee867dc714382703df4b64220e
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-ingress-helper-2026-10-21.md
+
+VERSION 109 | INCLUDED | SHA256 2f97bfe289327f8b90de1430212754bbf80b3651039c2ab24144078ed8d487f2 | 2239 bytes
+Archive payload: objects/2f97bfe289327f8b90de1430212754bbf80b3651039c2ab24144078ed8d487f2
+  scratch/firmware-direct-8145957/tools/build_smk_release.sh
+  scratch/firmware-integration/tools/build_smk_release.sh
+
+VERSION 110 | INCLUDED | SHA256 30004f6a2d4d95794929118c8311d821fb237814502bd7b4449b35c84c3ba903 | 2483 bytes
+Archive payload: objects/30004f6a2d4d95794929118c8311d821fb237814502bd7b4449b35c84c3ba903
+  scratch/firmware-direct-8145957/tests/ctl_host_heap_test.c
+
+VERSION 111 | INCLUDED | SHA256 3124216614c54a4495d75dadef5435aadeec8015e5870592beb2caa19b981828 | 51074 bytes
+Archive payload: objects/3124216614c54a4495d75dadef5435aadeec8015e5870592beb2caa19b981828
+  scratch/firmware-integration/tools/fm1_install.py
+
+VERSION 112 | INCLUDED | SHA256 320d2e47da91e56987b7cb9dc1fbda6ff9c16ffcc7660c13227bd9e587370709 | 26152 bytes
+Archive payload: objects/320d2e47da91e56987b7cb9dc1fbda6ff9c16ffcc7660c13227bd9e587370709
+  scratch/firmware-direct-8145957/docs/audit/smc-reference-integration-2026-10-21.md
+
+VERSION 113 | INCLUDED | SHA256 32e63b5232ea7bd498def87afee5b4322f012253ea111dcd677edb5f24094188 | 16786 bytes
+Archive payload: objects/32e63b5232ea7bd498def87afee5b4322f012253ea111dcd677edb5f24094188
+  scratch/firmware-integration/docs/audit/smc-reference-integration-2026-10-21.md
+
+VERSION 114 | INCLUDED | SHA256 336a337e44f8ccf6d41dd93bf3792c8e408d81cf3c9f803d7bcbecf7e6c86fbe | 53751 bytes
+Archive payload: objects/336a337e44f8ccf6d41dd93bf3792c8e408d81cf3c9f803d7bcbecf7e6c86fbe
+  scratch/firmware-direct-8145957/tools/fm1_install.py
+
+VERSION 115 | INCLUDED | SHA256 342ca2540544dddeb0087c2ce473aca9f9143bdcb09e256836efb3bd9e28e730 | 1021 bytes
+Archive payload: objects/342ca2540544dddeb0087c2ce473aca9f9143bdcb09e256836efb3bd9e28e730
+  scratch/firmware-direct-8145957/firmware/hal/x0x_bundle_gate.h
+
+VERSION 116 | INCLUDED | SHA256 34e29841ad37b51384d3980c5d058bd6bf25625ce6db8ac92b6d89f223a98c13 | 5649 bytes
+Archive payload: objects/34e29841ad37b51384d3980c5d058bd6bf25625ce6db8ac92b6d89f223a98c13
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules/SCRIPT-CHECKS.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules/SCRIPT-CHECKS.md
+
+VERSION 117 | INCLUDED | SHA256 362fefb85dd989d6d8bda7f9361d53afb5f2cf58e8af7a6ca1d9a06df975a41e | 634 bytes
+Archive payload: objects/362fefb85dd989d6d8bda7f9361d53afb5f2cf58e8af7a6ca1d9a06df975a41e
+  scratch/firmware-direct-8145957/tests/host/fixtures/prefs_lint/bad.md
+  scratch/firmware-integration/tests/host/fixtures/prefs_lint/bad.md
+
+VERSION 118 | INCLUDED | SHA256 36ed9dca5c30e753b060a6c745bb6730e6652a7d504250d29b1f10576dd16e6b | 4021 bytes
+Archive payload: objects/36ed9dca5c30e753b060a6c745bb6730e6652a7d504250d29b1f10576dd16e6b
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-integrated-fit-2026-10-21.md
+
+VERSION 119 | INCLUDED | SHA256 372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37 | 7822 bytes
+Archive payload: objects/372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37
+  scratch/firmware-direct-8145957/tools/quickcheck_plan.py
+  scratch/firmware-integration/tools/quickcheck_plan.py
+
+VERSION 120 | INCLUDED | SHA256 3778fedec0cc84896c6dee7e0b19364ef353b918dd3cddf4185fc00a48b776da | 5626 bytes
+Archive payload: objects/3778fedec0cc84896c6dee7e0b19364ef353b918dd3cddf4185fc00a48b776da
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/discovery-rollout.json
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/discovery-rollout.json
+
+VERSION 121 | INCLUDED | SHA256 37de5745551b9b03805ebe3262a44d6484f41a2fdc4cd07cc7a4425527357637 | 9061 bytes
+Archive payload: objects/37de5745551b9b03805ebe3262a44d6484f41a2fdc4cd07cc7a4425527357637
+  scratch/firmware-direct-8145957/firmware/hal/fm1_flash_map.h
+
+VERSION 122 | INCLUDED | SHA256 381ee8e5f0fbd3620d9d06545b3f570aefbe8d410e1c3adebf771d2dd5e121fc | 3587 bytes
+Archive payload: objects/381ee8e5f0fbd3620d9d06545b3f570aefbe8d410e1c3adebf771d2dd5e121fc
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_port.h
+
+VERSION 123 | INCLUDED | SHA256 39232a40db0cdab306dd0c4fa23a32e0be6daf22b397a143b85f9c34ede32239 | 33329 bytes
+Archive payload: objects/39232a40db0cdab306dd0c4fa23a32e0be6daf22b397a143b85f9c34ede32239
+  scratch/firmware-direct-8145957/firmware/src/seq/sequencer.c
+  scratch/firmware-integration/firmware/src/seq/sequencer.c
+
+VERSION 124 | INCLUDED | SHA256 39cb4e47d871fe7d18e62d80cdd5890ff7bee92f80314ff2e73b33126cbd26bd | 24737 bytes
+Archive payload: objects/39cb4e47d871fe7d18e62d80cdd5890ff7bee92f80314ff2e73b33126cbd26bd
+  scratch/firmware-direct-8145957/tests/smc_connection_watch_test.py
+  scratch/firmware-integration/tests/smc_connection_watch_test.py
+
+VERSION 125 | INCLUDED | SHA256 3b1307e85a9cd11447e7a10ca0e047ec4dd4893d61a08493077113754a4de1ba | 6412 bytes
+Archive payload: objects/3b1307e85a9cd11447e7a10ca0e047ec4dd4893d61a08493077113754a4de1ba
+  scratch/firmware-direct-8145957/tests/host/test_quickcheck_ste.sh
+  scratch/firmware-integration/tests/host/test_quickcheck_ste.sh
+
+VERSION 126 | INCLUDED | SHA256 3b29ac6d2f9b6f87bd763c43c6d75832c63bbcac7345174de3380c5793bdbf9d | 7397 bytes
+Archive payload: objects/3b29ac6d2f9b6f87bd763c43c6d75832c63bbcac7345174de3380c5793bdbf9d
+  scratch/firmware-direct-8145957/docs/audit/smc-smp-central-20261021.md
+  scratch/firmware-integration/docs/audit/smc-smp-central-20261021.md
+
+VERSION 127 | INCLUDED | SHA256 3b5dbc74a27ce8518f05c2da6a17a96e4fa78ba575f10d0197a2857f2e2fe539 | 1851 bytes
+Archive payload: objects/3b5dbc74a27ce8518f05c2da6a17a96e4fa78ba575f10d0197a2857f2e2fe539
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_smallfx.c
+
+VERSION 128 | INCLUDED | SHA256 3c3544e97ce01619a8f7430d1a89c3ed13942b96d551fd785c38a20eb89afdcd | 15194 bytes
+Archive payload: objects/3c3544e97ce01619a8f7430d1a89c3ed13942b96d551fd785c38a20eb89afdcd
+  shared/owner-inventory-current-build/firmware/src/seq/sequencer.h
+
+VERSION 129 | INCLUDED | SHA256 3c393b081381a25c2cf28b4951f03be4309403d572fd29764067123022336d4d | 1076 bytes
+Archive payload: objects/3c393b081381a25c2cf28b4951f03be4309403d572fd29764067123022336d4d
+  scratch/firmware-direct-8145957/tests/make_pages_test.py
+  scratch/firmware-integration/tests/make_pages_test.py
+
+VERSION 130 | INCLUDED | SHA256 3c7673f955ec57db5a7609b8c3a62f8094e24391fb8da5738c4e0900304df31a | 5304 bytes
+Archive payload: objects/3c7673f955ec57db5a7609b8c3a62f8094e24391fb8da5738c4e0900304df31a
+  scratch/firmware-direct-8145957/docs/audit/enforcement-2026-10-19.md
+  scratch/firmware-integration/docs/audit/enforcement-2026-10-19.md
+
+VERSION 131 | INCLUDED | SHA256 3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0 | 206 bytes
+Archive payload: objects/3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0
+  scratch/firmware-direct-8145957/tests/host/fixtures/prefs_lint/rules/core.md
+  scratch/firmware-integration/tests/host/fixtures/prefs_lint/rules/core.md
+
+VERSION 132 | INCLUDED | SHA256 3db1c8f06f8b45e730df61d6e06fcd56ddf46958b0d505c159e834b6219a4753 | 10375 bytes
+Archive payload: objects/3db1c8f06f8b45e730df61d6e06fcd56ddf46958b0d505c159e834b6219a4753
+  scratch/firmware-direct-8145957/docs/firmware-ux-review-2026-10-19.md
+  scratch/firmware-integration/docs/firmware-ux-review-2026-10-19.md
+
+VERSION 133 | INCLUDED | SHA256 3e3006127128d9cd2c07e9ba55f3875268e9472dc46d6147b407664d1d60fdf0 | 3190 bytes
+Archive payload: objects/3e3006127128d9cd2c07e9ba55f3875268e9472dc46d6147b407664d1d60fdf0
+  scratch/firmware-direct-8145957/docs/audit/smc-highcpu-bss-diagnostic-2026-10-21.md
+
+VERSION 134 | INCLUDED | SHA256 3e42532e261ff3ca04edda718bea3b2ec02678bb9e101c4f06944a7e0ef9987c | 257 bytes
+Archive payload: objects/3e42532e261ff3ca04edda718bea3b2ec02678bb9e101c4f06944a7e0ef9987c
+  scratch/firmware-direct-8145957/docs/rules/integration.md
+  scratch/firmware-integration/docs/rules/integration.md
+
+VERSION 135 | INCLUDED | SHA256 3f2c064f7a8c54149a88d97c623b38bfed9153d7fa8aaf98e33c25f3b6493521 | 1361 bytes
+Archive payload: objects/3f2c064f7a8c54149a88d97c623b38bfed9153d7fa8aaf98e33c25f3b6493521
+  scratch/firmware-direct-8145957/tests/ble/smc_readback_test.c
+
+VERSION 136 | INCLUDED | SHA256 3f65ac1b231758240bc065fde806300f166d0ea24cc6115bc9a9e4b7e09c35c4 | 129163 bytes
+Archive payload: objects/3f65ac1b231758240bc065fde806300f166d0ea24cc6115bc9a9e4b7e09c35c4
+  shared/owner-inventory-current-build/firmware/src/app/engine.c
+
+VERSION 137 | INCLUDED | SHA256 3f66d45265858000e4ba11c6b2de9a659e168f3cced950e6917d315e25f3d5bf | 30174 bytes
+Archive payload: objects/3f66d45265858000e4ba11c6b2de9a659e168f3cced950e6917d315e25f3d5bf
+  scratch/firmware-direct-8145957/tests/run_tests.sh
+  scratch/firmware-integration/tests/run_tests.sh
+
+VERSION 138 | INCLUDED | SHA256 40dccd8defb8fbc816359538f29138332ac397119ac5d644eb3fa1f20176b31d | 2308 bytes
+Archive payload: objects/40dccd8defb8fbc816359538f29138332ac397119ac5d644eb3fa1f20176b31d
+  shared/owner-inventory-current-build/firmware/src/app/factory_banks.h
+
+VERSION 139 | INCLUDED | SHA256 40e3ef7c3b7887778d083fbfa224eb642969740453a69cbe9bebedda1da59df9 | 6812 bytes
+Archive payload: objects/40e3ef7c3b7887778d083fbfa224eb642969740453a69cbe9bebedda1da59df9
+  scratch/firmware-integration/tools/studies/smc_reference/README.md
+
+VERSION 140 | INCLUDED | SHA256 40fc30e5e081240552f818186fa787fb42c96e99aa3e3e053cc65ffa7de10be0 | 3383 bytes
+Archive payload: objects/40fc30e5e081240552f818186fa787fb42c96e99aa3e3e053cc65ffa7de10be0
+  scratch/firmware-direct-8145957/docs/audit/clear-authorization-2026-10-21.md
+  scratch/firmware-integration/docs/audit/clear-authorization-2026-10-21.md
+
+VERSION 141 | INCLUDED | SHA256 415d43518f2b1a9498c15a445d4657117b129ee5e81b19454ce348439cc6672b | 4678 bytes
+Archive payload: objects/415d43518f2b1a9498c15a445d4657117b129ee5e81b19454ce348439cc6672b
+  scratch/firmware-direct-8145957/skills/caveman/SKILL.md
+  scratch/firmware-integration/skills/caveman/SKILL.md
+
+VERSION 142 | INCLUDED | SHA256 41675029e3d7cc757ed166845dd0bc8ba4621afdb5e855660ef1a38f47f47caa | 46838 bytes
+Archive payload: objects/41675029e3d7cc757ed166845dd0bc8ba4621afdb5e855660ef1a38f47f47caa
+  shared/owner-inventory-current-build/firmware/src/app/project.c
+
+VERSION 143 | INCLUDED | SHA256 41f3fdf21c96771701f82f1c62e61190e820d83d468e791dfcc9e7f40f3539a6 | 2061 bytes
+Archive payload: objects/41f3fdf21c96771701f82f1c62e61190e820d83d468e791dfcc9e7f40f3539a6
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-materialized-regions-2026-10-21.json
+
+VERSION 144 | INCLUDED | SHA256 420d57a81e8417351b4890fbc715f1068a330eb849e48394112bb66957ec0b7c | 1590 bytes
+Archive payload: objects/420d57a81e8417351b4890fbc715f1068a330eb849e48394112bb66957ec0b7c
+  scratch/firmware-direct-8145957/tests/host/test_ste_owner_msg.sh
+  scratch/firmware-integration/tests/host/test_ste_owner_msg.sh
+
+VERSION 145 | INCLUDED | SHA256 433b264d00b9fcbdecb760c29c6bb008533e3eddf6da80e22b14f570796bbf98 | 2523 bytes
+Archive payload: objects/433b264d00b9fcbdecb760c29c6bb008533e3eddf6da80e22b14f570796bbf98
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/prepare.py
+
+VERSION 146 | INCLUDED | SHA256 4375d98484d77ace5008df70f4310bb1a6d8f8b346489b330b6c2d28f7b193f7 | 858 bytes
+Archive payload: objects/4375d98484d77ace5008df70f4310bb1a6d8f8b346489b330b6c2d28f7b193f7
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_highcpu.c
+
+VERSION 147 | INCLUDED | SHA256 43bfb923af5e5344a0bb34740beb563917d374435199a6a757cdfb9e3ec20aaf | 2282 bytes
+Archive payload: objects/43bfb923af5e5344a0bb34740beb563917d374435199a6a757cdfb9e3ec20aaf
+  shared/owner-inventory-current-build/experiments/wobble/evidence/independent-review.md
+
+VERSION 148 | INCLUDED | SHA256 442820c9813e00e6b03b8d6c82c20917441c6f68d76c45dfe92a9dddc6a49384 | 8463 bytes
+Archive payload: objects/442820c9813e00e6b03b8d6c82c20917441c6f68d76c45dfe92a9dddc6a49384
+  scratch/firmware-direct-8145957/docs/audit/classic-chat-2026-10-21/before.json
+  scratch/firmware-integration/docs/audit/classic-chat-2026-10-21/before.json
+
+VERSION 149 | INCLUDED | SHA256 44b7638dea158669b59abad49da6bc433ca8ce092e770002b7d9b58e1ef16a77 | 6927 bytes
+Archive payload: objects/44b7638dea158669b59abad49da6bc433ca8ce092e770002b7d9b58e1ef16a77
+  scratch/firmware-direct-8145957/firmware/src/seq/motion.c
+  scratch/firmware-integration/firmware/src/seq/motion.c
+
+VERSION 150 | INCLUDED | SHA256 451fabdbc218c0decc263bda8f6e4f96da73dc6425a6f45fa7fd32314d1dd3e6 | 24469 bytes
+Archive payload: objects/451fabdbc218c0decc263bda8f6e4f96da73dc6425a6f45fa7fd32314d1dd3e6
+  scratch/firmware-direct-8145957/tools/ble_autotest.py
+  scratch/firmware-integration/tools/ble_autotest.py
+
+VERSION 151 | INCLUDED | SHA256 4555c9edbc9eee30ee0aa729b40c4afc81c7b096670a1769bc8fac834adef616 | 5474 bytes
+Archive payload: objects/4555c9edbc9eee30ee0aa729b40c4afc81c7b096670a1769bc8fac834adef616
+  scratch/firmware-direct-8145957/firmware/src/ble/smc_host_ingress.h
+
+VERSION 152 | INCLUDED | SHA256 45d0163d08cccabcee418060bb2d775a2bb8539bca57ff669beacdd44d94eeed | 42091 bytes
+Archive payload: objects/45d0163d08cccabcee418060bb2d775a2bb8539bca57ff669beacdd44d94eeed
+  shared/owner-inventory-current-build/firmware/src/app/editor.c
+
+VERSION 153 | INCLUDED | SHA256 45e13f1305064a4650c66af98d0ce8a70c66f1ac3a50e689c36828a4a8a64965 | 8516 bytes
+Archive payload: objects/45e13f1305064a4650c66af98d0ce8a70c66f1ac3a50e689c36828a4a8a64965
+  scratch/firmware-direct-8145957/docs/audit/smc-normal-connection-20261021.md
+  scratch/firmware-integration/docs/audit/smc-normal-connection-20261021.md
+
+VERSION 154 | INCLUDED | SHA256 45fb59e1c6677e9ac1cb5ca5957a9718cbfc09b6a3463641cfdab62087022120 | 10637 bytes
+Archive payload: objects/45fb59e1c6677e9ac1cb5ca5957a9718cbfc09b6a3463641cfdab62087022120
+  scratch/firmware-direct-8145957/tests/install_slot_verify_test.py
+  scratch/firmware-integration/tests/install_slot_verify_test.py
+
+VERSION 155 | INCLUDED | SHA256 462bbe16131334f99cb991f360b64e43f3331bb4e1f5703e4c3831c0226d8ca2 | 5339 bytes
+Archive payload: objects/462bbe16131334f99cb991f360b64e43f3331bb4e1f5703e4c3831c0226d8ca2
+  shared/owner-inventory-cloud-094bb/tests/host/smc_buttons_locked_inventory_test.py
+
+VERSION 156 | INCLUDED | SHA256 46363e16bf461a1e5a82e6242c6e2f31d5390ddbb9cf4a87e39a0436b8c433af | 3104 bytes
+Archive payload: objects/46363e16bf461a1e5a82e6242c6e2f31d5390ddbb9cf4a87e39a0436b8c433af
+  scratch/firmware-direct-8145957/tests/ble/ctl_host_scope_test.c
+
+VERSION 157 | INCLUDED | SHA256 4760ca8c804720ffd0eec590b4ea4e8ab1fb5575b700d2055a5b3983ae5d3973 | 954 bytes
+Archive payload: objects/4760ca8c804720ffd0eec590b4ea4e8ab1fb5575b700d2055a5b3983ae5d3973
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-paired-app-loader-2026-10-21.json
+
+VERSION 158 | INCLUDED | SHA256 48f4573c20ba17d6cb1fda0a1011a66e621ad80955111f11b1eb1f1b5b89fcb1 | 235 bytes
+Archive payload: objects/48f4573c20ba17d6cb1fda0a1011a66e621ad80955111f11b1eb1f1b5b89fcb1
+  scratch/firmware-direct-8145957/docs/rules/docs.md
+  scratch/firmware-integration/docs/rules/docs.md
+
+VERSION 159 | INCLUDED | SHA256 49375a90dc5dc734076a72458b6c60e2e2e0e183640de361eb7becaf6b247060 | 14369 bytes
+Archive payload: objects/49375a90dc5dc734076a72458b6c60e2e2e0e183640de361eb7becaf6b247060
+  scratch/firmware-direct-8145957/tests/install_test.py
+  scratch/firmware-integration/tests/install_test.py
+
+VERSION 160 | INCLUDED | SHA256 49d3c905925bb6eb76ab072994f8b65223c6bcc9a7501aa405b8b22da3a75d99 | 13922 bytes
+Archive payload: objects/49d3c905925bb6eb76ab072994f8b65223c6bcc9a7501aa405b8b22da3a75d99
+  shared/owner-inventory-current-build/firmware/src/app/plat_fm1.c
+
+VERSION 161 | INCLUDED | SHA256 49f7879f107ca56ccd6a5995da16a0c5c54ce3558e8e89fee93105c8ec6a784e | 11813 bytes
+Archive payload: objects/49f7879f107ca56ccd6a5995da16a0c5c54ce3558e8e89fee93105c8ec6a784e
+  scratch/firmware-direct-8145957/tools/smc_vendor_install.py
+
+VERSION 162 | INCLUDED | SHA256 4a4c46a89a620925ac280167bb3ccfe7daee36844cdb9b7afc58ad189b749134 | 3863 bytes
+Archive payload: objects/4a4c46a89a620925ac280167bb3ccfe7daee36844cdb9b7afc58ad189b749134
+  scratch/firmware-direct-8145957/firmware/src/seq/motion.h
+  scratch/firmware-integration/firmware/src/seq/motion.h
+
+VERSION 163 | INCLUDED | SHA256 4ae02c877837e15bdba0cc7dc71b7662bb0428096a1ada8360560ce8e6a2fd1e | 1206 bytes
+Archive payload: objects/4ae02c877837e15bdba0cc7dc71b7662bb0428096a1ada8360560ce8e6a2fd1e
+  scratch/firmware-direct-8145957/tests/host/ui_page_recipe_test.c
+
+VERSION 164 | INCLUDED | SHA256 4b734bc609443c327e0ac40b30a9a83f033ea3d07270f72d30a343370b842e2a | 2862 bytes
+Archive payload: objects/4b734bc609443c327e0ac40b30a9a83f033ea3d07270f72d30a343370b842e2a
+  scratch/firmware-direct-8145957/docs/audit/gate-scope-2026-10-20.md
+  scratch/firmware-integration/docs/audit/gate-scope-2026-10-20.md
+
+VERSION 165 | INCLUDED | SHA256 4b8b5ac1de260f7151e66755391d97258148bf1cf88ad96237400faec996334e | 2087 bytes
+Archive payload: objects/4b8b5ac1de260f7151e66755391d97258148bf1cf88ad96237400faec996334e
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/loader_core.h
+
+VERSION 166 | INCLUDED | SHA256 4bb682312d5470c76af47e53d8eca99389b52f35e5bbfaf0cdf255c93fae61ef | 3256 bytes
+Archive payload: objects/4bb682312d5470c76af47e53d8eca99389b52f35e5bbfaf0cdf255c93fae61ef
+  scratch/firmware-direct-8145957/skills/x0x37-task/references/routing.md
+  scratch/firmware-integration/skills/x0x37-task/references/routing.md
+
+VERSION 167 | INCLUDED | SHA256 4c3593f290d0bda926288f873802d38d4ec32c6f3d9245054a52258bce41b36d | 1740 bytes
+Archive payload: objects/4c3593f290d0bda926288f873802d38d4ec32c6f3d9245054a52258bce41b36d
+  scratch/firmware-direct-8145957/firmware/src/app/smc_protocol.h
+  scratch/firmware-integration/firmware/src/app/smc_protocol.h
+
+VERSION 168 | INCLUDED | SHA256 4c9f57f815750193c60d64b9c3cce33c3d622e2108a05cdb23739655c8f0beda | 16239 bytes
+Archive payload: objects/4c9f57f815750193c60d64b9c3cce33c3d622e2108a05cdb23739655c8f0beda
+  scratch/firmware-direct-8145957/firmware/src/ota.c
+
+VERSION 169 | INCLUDED | SHA256 4d3b1e33bba4735b964c064b69d936f8afd3f566fdb56b2aa8fc033f58a45e1b | 3781 bytes
+Archive payload: objects/4d3b1e33bba4735b964c064b69d936f8afd3f566fdb56b2aa8fc033f58a45e1b
+  scratch/firmware-direct-8145957/tests/diag_size_test.py
+  scratch/firmware-integration/tests/diag_size_test.py
+
+VERSION 170 | INCLUDED | SHA256 4dc932e612a3a55525c27f97d9e160d1d19ad9b8686a313fd62686bea0a227cf | 2375 bytes
+Archive payload: objects/4dc932e612a3a55525c27f97d9e160d1d19ad9b8686a313fd62686bea0a227cf
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/record_owner.h
+
+VERSION 171 | INCLUDED | SHA256 4de0a65f2896f1ecc8450edc705fefecdd1e83cd25b3cc7f962eb7112d337ce3 | 2421 bytes
+Archive payload: objects/4de0a65f2896f1ecc8450edc705fefecdd1e83cd25b3cc7f962eb7112d337ce3
+  scratch/firmware-direct-8145957/docs/fm1-reference-handoff.md
+  scratch/firmware-integration/docs/fm1-reference-handoff.md
+
+VERSION 172 | INCLUDED | SHA256 4e505e3eb140f55134249894767dc1239919af2c95b6760526f32d109b79eaf1 | 6613 bytes
+Archive payload: objects/4e505e3eb140f55134249894767dc1239919af2c95b6760526f32d109b79eaf1
+  scratch/firmware-direct-8145957/docs/audit/smc-cpu-init-scope-2026-10-21.md
+
+VERSION 173 | INCLUDED | SHA256 4e5c7ecabed6821d89c782e2f5f8c66a9a01941776a0863ff1b822def5cad8b3 | 1564 bytes
+Archive payload: objects/4e5c7ecabed6821d89c782e2f5f8c66a9a01941776a0863ff1b822def5cad8b3
+  scratch/firmware-direct-8145957/tests/ble/check_smc_profile.py
+
+VERSION 174 | INCLUDED | SHA256 4ea980c1288212a5e11db5d72bcc62ab1b4174b52343704b0a512cc1ce75eb17 | 1581 bytes
+Archive payload: objects/4ea980c1288212a5e11db5d72bcc62ab1b4174b52343704b0a512cc1ce75eb17
+  shared/owner-inventory-current-build/assets/factory_banks/README.md
+
+VERSION 175 | INCLUDED | SHA256 4ebbc6a295eb0f4e9e3cab89322841149d98d6b34ab5db567a25bc93010abb6d | 7408 bytes
+Archive payload: objects/4ebbc6a295eb0f4e9e3cab89322841149d98d6b34ab5db567a25bc93010abb6d
+  shared/owner-inventory-current-build/firmware/src/app/bass_identity.h
+
+VERSION 176 | INCLUDED | SHA256 4ee845309e2755623a6407d2cc5270693a93577cb78e9576dfd128e061e61ebb | 613 bytes
+Archive payload: objects/4ee845309e2755623a6407d2cc5270693a93577cb78e9576dfd128e061e61ebb
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/maintained-rollout.json
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/maintained-rollout.json
+
+VERSION 177 | INCLUDED | SHA256 4f399d3e0c88ba5fd2d3e75d3d0ba91f6f24171d06de1cb858e162201ec8e69a | 5568 bytes
+Archive payload: objects/4f399d3e0c88ba5fd2d3e75d3d0ba91f6f24171d06de1cb858e162201ec8e69a
+  scratch/firmware-direct-8145957/docs/audit/stage-thread-workflow-2026-10-20.md
+  scratch/firmware-integration/docs/audit/stage-thread-workflow-2026-10-20.md
+
+VERSION 178 | INCLUDED | SHA256 4f6c8732aacb04cb1c66c1af3e8bc1863ad49966c52784f21cecd789fbd6976d | 4044 bytes
+Archive payload: objects/4f6c8732aacb04cb1c66c1af3e8bc1863ad49966c52784f21cecd789fbd6976d
+  scratch/firmware-direct-8145957/docs/audit/fresh-thread-rules-2026-10-20.md
+  scratch/firmware-integration/docs/audit/fresh-thread-rules-2026-10-20.md
+
+VERSION 179 | INCLUDED | SHA256 4ff877639aaca84300eb5ea62afb3c4e5e0646d0cd2a130c2579c31c7eaa64d4 | 2521 bytes
+Archive payload: objects/4ff877639aaca84300eb5ea62afb3c4e5e0646d0cd2a130c2579c31c7eaa64d4
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/rollback_fixture.py
+
+VERSION 180 | INCLUDED | SHA256 501d4fadcfeee843addb11d8576170c4bea927dc6d6e50b7399ab6d2655ef9ff | 2780 bytes
+Archive payload: objects/501d4fadcfeee843addb11d8576170c4bea927dc6d6e50b7399ab6d2655ef9ff
+  scratch/firmware-direct-8145957/tests/smk_arrows_owner_test.py
+  scratch/firmware-integration/tests/smk_arrows_owner_test.py
+
+VERSION 181 | INCLUDED | SHA256 508baf45cabf8b88c180e4295d2145f0432d3cbd081c8f236e7306305cb6a1de | 1505 bytes
+Archive payload: objects/508baf45cabf8b88c180e4295d2145f0432d3cbd081c8f236e7306305cb6a1de
+  scratch/firmware-direct-8145957/skills/x0x37-check/references/validation.md
+  scratch/firmware-integration/skills/x0x37-check/references/validation.md
+
+VERSION 182 | INCLUDED | SHA256 50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9 | 253844 bytes
+Archive payload: objects/50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9
+  scratch/firmware-direct-8145957/build/gen/x0x_drum_samples.h
+  shared/owner-inventory-current-build/build/gen/x0x_drum_samples.h
+
+VERSION 183 | INCLUDED | SHA256 52066723c0d951d15d94acb07bead99482d521a663b520037ae6244d83a17a96 | 1132 bytes
+Archive payload: objects/52066723c0d951d15d94acb07bead99482d521a663b520037ae6244d83a17a96
+  scratch/firmware-direct-8145957/tools/studies/smc_app_data/prepare_admission.py
+
+VERSION 184 | INCLUDED | SHA256 5399d507048658d61aa45c720e0a9ab829302454275dcd6d6a6c16571e45353b | 9473 bytes
+Archive payload: objects/5399d507048658d61aa45c720e0a9ab829302454275dcd6d6a6c16571e45353b
+  scratch/firmware-direct-8145957/docs/SMC_MIXER.md
+  scratch/firmware-integration/docs/SMC_MIXER.md
+
+VERSION 185 | INCLUDED | SHA256 53eda427beaed1c3fa2fff7821262efaf26fa2863bc3064cf59c2da356ef5eb3 | 437 bytes
+Archive payload: objects/53eda427beaed1c3fa2fff7821262efaf26fa2863bc3064cf59c2da356ef5eb3
+  scratch/firmware-direct-8145957/tests/host/fixtures/update_names/branches.txt
+  scratch/firmware-integration/tests/host/fixtures/update_names/branches.txt
+
+VERSION 186 | INCLUDED | SHA256 540d16e4f7d6603f8bf46ae2435df800acfa6ba589a80d1c24c3374649d9c817 | 76268 bytes
+Archive payload: objects/540d16e4f7d6603f8bf46ae2435df800acfa6ba589a80d1c24c3374649d9c817
+  shared/owner-inventory-current-build/experiments/wobble/evidence/comparison.json
+
+VERSION 187 | INCLUDED | SHA256 549549f34ad2dedb8352e37579c126390f0d02c0344397526fecd9da03a8e4b7 | 684 bytes
+Archive payload: objects/549549f34ad2dedb8352e37579c126390f0d02c0344397526fecd9da03a8e4b7
+  scratch/firmware-direct-8145957/docs/audit/classic-chat-2026-10-21/checks.txt
+  scratch/firmware-integration/docs/audit/classic-chat-2026-10-21/checks.txt
+
+VERSION 188 | INCLUDED | SHA256 54ac463bf3435a7e701030d594b20fee4ac7c69a7213c4ea5adb3a6dfeae221f | 9335 bytes
+Archive payload: objects/54ac463bf3435a7e701030d594b20fee4ac7c69a7213c4ea5adb3a6dfeae221f
+  scratch/firmware-direct-8145957/tests/host/ble_midi_signal_test.c
+  scratch/firmware-integration/tests/host/ble_midi_signal_test.c
+
+VERSION 189 | INCLUDED | SHA256 54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56 | 765857 bytes
+Archive payload: objects/54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56
+  scratch/firmware-direct-8145957/build/gen/x0x_break_bank.h
+  shared/owner-inventory-current-build/build/gen/x0x_break_bank.h
+
+VERSION 190 | INCLUDED | SHA256 54ecc6f87ff0a0daaee85b565ef7e41b251f15c07cda42eea0e1a6ed7200887e | 2758 bytes
+Archive payload: objects/54ecc6f87ff0a0daaee85b565ef7e41b251f15c07cda42eea0e1a6ed7200887e
+  scratch/firmware-direct-8145957/tools/padcal/pads-owner-20261017.txt
+  scratch/firmware-integration/tools/padcal/pads-owner-20261017.txt
+  shared/owner-inventory-current-build/tools/padcal/pads-owner-20261017.txt
+
+VERSION 191 | INCLUDED | SHA256 54fd816f224761329d5fd63c16e14e91f47d2ebc7b57ce1e37f115952cf009da | 5355 bytes
+Archive payload: objects/54fd816f224761329d5fd63c16e14e91f47d2ebc7b57ce1e37f115952cf009da
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/README.md
+
+VERSION 192 | INCLUDED | SHA256 556d849a9aa062cfa466d29fc714a5bbe8879bd19d318f7757febdc4c4bf86b3 | 3746 bytes
+Archive payload: objects/556d849a9aa062cfa466d29fc714a5bbe8879bd19d318f7757febdc4c4bf86b3
+  shared/owner-inventory-current-build/firmware/src/dsp/fxbus.h
+
+VERSION 193 | INCLUDED | SHA256 5590c3250a3042fd508ac4ec63f95bfa029da9dbe0b8ef5e5954c1e1b9b25501 | 2459 bytes
+Archive payload: objects/5590c3250a3042fd508ac4ec63f95bfa029da9dbe0b8ef5e5954c1e1b9b25501
+  scratch/firmware-direct-8145957/docs/audit/checks-follow-edits-2026-10-21.md
+  scratch/firmware-integration/docs/audit/checks-follow-edits-2026-10-21.md
+
+VERSION 194 | INCLUDED | SHA256 571045c55d523f14611a9f46e50c2c222b8cd20e8c40b6b4f26c55ae2e00512b | 9976 bytes
+Archive payload: objects/571045c55d523f14611a9f46e50c2c222b8cd20e8c40b6b4f26c55ae2e00512b
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_main.c
+
+VERSION 195 | INCLUDED | SHA256 57186587268b5a7bb30a1503572d6b5ba995814381cf4f48433db9ff6ea54cd7 | 1479 bytes
+Archive payload: objects/57186587268b5a7bb30a1503572d6b5ba995814381cf4f48433db9ff6ea54cd7
+  scratch/firmware-direct-8145957/tools/studies/smc_vendor_lz/measure.py
+
+VERSION 196 | INCLUDED | SHA256 578deeaae86a0efab45628bf5edeaf96654143923fe12a5464ebc4f7358447b1 | 34626 bytes
+Archive payload: objects/578deeaae86a0efab45628bf5edeaf96654143923fe12a5464ebc4f7358447b1
+  shared/owner-inventory-current-build/firmware/src/ble/ble_midi_central.c
+
+VERSION 197 | INCLUDED | SHA256 598fed48631778538286dfba6cce6f8686da4b36df948d2e59fac6170e638c92 | 1040 bytes
+Archive payload: objects/598fed48631778538286dfba6cce6f8686da4b36df948d2e59fac6170e638c92
+  scratch/firmware-direct-8145957/docs/audit/rules-reading-size.json
+  scratch/firmware-integration/docs/audit/rules-reading-size.json
+
+VERSION 198 | INCLUDED | SHA256 59a1f3b126594944bb94f13b737525b3c3d1878182b78c2ff3425e28d62f24b2 | 2458 bytes
+Archive payload: objects/59a1f3b126594944bb94f13b737525b3c3d1878182b78c2ff3425e28d62f24b2
+  shared/owner-inventory-current-build/experiments/wobble/miami_decimator_component.c
+
+VERSION 199 | INCLUDED | SHA256 59ce89d7cf60df9cdce7e1464b63869f7f00634c4dd0f85130bd9ad2ae16014a | 5123 bytes
+Archive payload: objects/59ce89d7cf60df9cdce7e1464b63869f7f00634c4dd0f85130bd9ad2ae16014a
+  scratch/firmware-direct-8145957/docs/plans/2026-10-04-song-motion.md
+  scratch/firmware-integration/docs/plans/2026-10-04-song-motion.md
+
+VERSION 200 | INCLUDED | SHA256 5ab1da302f2a2e6531a77d263ac17d6803f92824811166c66eea843ee2186300 | 5603 bytes
+Archive payload: objects/5ab1da302f2a2e6531a77d263ac17d6803f92824811166c66eea843ee2186300
+  scratch/firmware-direct-8145957/tests/host/smc_clip_visibility_test.c
+
+VERSION 201 | INCLUDED | SHA256 5acaadef40ca37320c9761bcd2c4a7fa1c88475130a4cdd7db5bc30dd2269b66 | 33613 bytes
+Archive payload: objects/5acaadef40ca37320c9761bcd2c4a7fa1c88475130a4cdd7db5bc30dd2269b66
+  scratch/firmware-direct-8145957/tools/status.sh
+  scratch/firmware-integration/tools/status.sh
+
+VERSION 202 | INCLUDED | SHA256 5ad2d6fb4d5e0bb9cc27faefb52efbfe958c9d875b7fad3b34de2bdd2a648dfe | 2324 bytes
+Archive payload: objects/5ad2d6fb4d5e0bb9cc27faefb52efbfe958c9d875b7fad3b34de2bdd2a648dfe
+  scratch/firmware-direct-8145957/skills/x0x37-workflow/references/handoff.md
+  scratch/firmware-integration/skills/x0x37-workflow/references/handoff.md
+
+VERSION 203 | INCLUDED | SHA256 5ae8f7ea21d51caffe37c07ebc76ae724321aed1538eaf40f5ca7c571fa67a65 | 24793 bytes
+Archive payload: objects/5ae8f7ea21d51caffe37c07ebc76ae724321aed1538eaf40f5ca7c571fa67a65
+  scratch/firmware-direct-8145957/firmware/src/ble/ble_midi_host.c
+  scratch/firmware-integration/firmware/src/ble/ble_midi_host.c
+
+VERSION 204 | INCLUDED | SHA256 5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c | 21952 bytes
+Archive payload: objects/5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c
+  scratch/firmware-direct-8145957/tools/quickcheck.sh
+  scratch/firmware-integration/tools/quickcheck.sh
+
+VERSION 205 | INCLUDED | SHA256 5b23867c79591fd858f21cd79de6b56974d65e5da4a22de1341c4475670c0a6a | 49684 bytes
+Archive payload: objects/5b23867c79591fd858f21cd79de6b56974d65e5da4a22de1341c4475670c0a6a
+  shared/owner-inventory-current-build/firmware/src/seq/sequencer.c
+
+VERSION 206 | INCLUDED | SHA256 5b56cb7fc1bf35786cf6d77d79294847469d76ba1054867ad75e6412610b4d51 | 3161 bytes
+Archive payload: objects/5b56cb7fc1bf35786cf6d77d79294847469d76ba1054867ad75e6412610b4d51
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules-breaks.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules-breaks.md
+
+VERSION 207 | INCLUDED | SHA256 5b820702df2161fd1572a94b526eccc26285b2c955bdd3ef338ea8f6dbd06519 | 764 bytes
+Archive payload: objects/5b820702df2161fd1572a94b526eccc26285b2c955bdd3ef338ea8f6dbd06519
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/update_gate.h
+
+VERSION 208 | INCLUDED | SHA256 5c1b038a3b007c639dfee96b2cad303c2885f85c49a3c0a15743b16fabb49854 | 6010 bytes
+Archive payload: objects/5c1b038a3b007c639dfee96b2cad303c2885f85c49a3c0a15743b16fabb49854
+  scratch/firmware-direct-8145957/docs/audit/elite-default-2026-10-21.md
+  scratch/firmware-integration/docs/audit/elite-default-2026-10-21.md
+
+VERSION 209 | INCLUDED | SHA256 5ceb727530d1b76d3c560159ba61eb2859a10ded1fad7d439a063b1bf79351c1 | 9703 bytes
+Archive payload: objects/5ceb727530d1b76d3c560159ba61eb2859a10ded1fad7d439a063b1bf79351c1
+  scratch/firmware-direct-8145957/tools/studies/smc_reference/run.py
+  scratch/firmware-integration/tools/studies/smc_reference/run.py
+
+VERSION 210 | INCLUDED | SHA256 5d4dc616eafb50b066fffd14830c6b55420f5ad6d5fa6879ee1f2ac38999def2 | 1177 bytes
+Archive payload: objects/5d4dc616eafb50b066fffd14830c6b55420f5ad6d5fa6879ee1f2ac38999def2
+  scratch/firmware-direct-8145957/tools/studies/smc_reference/input-hashes.json
+  scratch/firmware-integration/tools/studies/smc_reference/input-hashes.json
+
+VERSION 211 | INCLUDED | SHA256 5d9599e9341fbf06cfdacf39be7a1bedb8490d75eb8a8db0325d9fc77d662822 | 2217 bytes
+Archive payload: objects/5d9599e9341fbf06cfdacf39be7a1bedb8490d75eb8a8db0325d9fc77d662822
+  scratch/firmware-direct-8145957/tools/smc_vendor_replay.py
+
+VERSION 212 | INCLUDED | SHA256 5da61e313bdc6e34110ae57f728dca384676ed1a25ef406e13155d06eade1500 | 349 bytes
+Archive payload: objects/5da61e313bdc6e34110ae57f728dca384676ed1a25ef406e13155d06eade1500
+  scratch/firmware-direct-8145957/tests/host/fixtures/install_guards/foreground.txt
+  scratch/firmware-integration/tests/host/fixtures/install_guards/foreground.txt
+
+VERSION 213 | INCLUDED | SHA256 5edbe4c173e4d80ab8256fb2cc061dfce90fbb6adbb6b25dc067223cc5e0913d | 684 bytes
+Archive payload: objects/5edbe4c173e4d80ab8256fb2cc061dfce90fbb6adbb6b25dc067223cc5e0913d
+  scratch/firmware-direct-8145957/docs/audit/classic-chat-2026-10-21/source-rollout.json
+  scratch/firmware-integration/docs/audit/classic-chat-2026-10-21/source-rollout.json
+
+VERSION 214 | INCLUDED | SHA256 5f09ce5723e3b8493f56cc979269df200bdb67fefa06d4281c7c28886f0a6e66 | 3453 bytes
+Archive payload: objects/5f09ce5723e3b8493f56cc979269df200bdb67fefa06d4281c7c28886f0a6e66
+  scratch/firmware-direct-8145957/docs/audit/smc-cold-entry-2026-10-21.md
+
+VERSION 215 | INCLUDED | SHA256 5f638f1c3fa6ed432e08a191f56f8bc89ceab4ca855ad9907ae0c43234db7236 | 12635 bytes
+Archive payload: objects/5f638f1c3fa6ed432e08a191f56f8bc89ceab4ca855ad9907ae0c43234db7236
+  scratch/firmware-direct-8145957/tests/host/ble_midi_stop_test.c
+  scratch/firmware-integration/tests/host/ble_midi_stop_test.c
+
+VERSION 216 | INCLUDED | SHA256 5f702ef0b8d193e3b70826d0953dd918ee0617199a7787feb3106ff0b5962f4f | 3825 bytes
+Archive payload: objects/5f702ef0b8d193e3b70826d0953dd918ee0617199a7787feb3106ff0b5962f4f
+  scratch/firmware-direct-8145957/docs/audit/install-slot-readback-20261021.md
+  scratch/firmware-integration/docs/audit/install-slot-readback-20261021.md
+
+VERSION 217 | INCLUDED | SHA256 5ff2ef9984e8264360bfd871c9a4856541866b383ded82d268967e64ae58ade9 | 8965 bytes
+Archive payload: objects/5ff2ef9984e8264360bfd871c9a4856541866b383ded82d268967e64ae58ade9
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_output.c
+
+VERSION 218 | INCLUDED | SHA256 6050b43a97211f6909b95e19d3b3a60f8c8058d3faeff2174c9d83442a9e7d75 | 5263 bytes
+Archive payload: objects/6050b43a97211f6909b95e19d3b3a60f8c8058d3faeff2174c9d83442a9e7d75
+  scratch/firmware-direct-8145957/tests/distribution/test_package_dev.py
+  scratch/firmware-integration/tests/distribution/test_package_dev.py
+
+VERSION 219 | INCLUDED | SHA256 6083733c78daeec8bef258325eeddff9f9b91af8fdb74e3b0ba46001ba2a2f6c | 6777 bytes
+Archive payload: objects/6083733c78daeec8bef258325eeddff9f9b91af8fdb74e3b0ba46001ba2a2f6c
+  scratch/firmware-direct-8145957/tests/distribution/test_launcher_contract.py
+  scratch/firmware-integration/tests/distribution/test_launcher_contract.py
+
+VERSION 220 | INCLUDED | SHA256 60c22ed141d93363a47462962a0d3a251280ba1d8b75963d52374b1c4335bc25 | 16560 bytes
+Archive payload: objects/60c22ed141d93363a47462962a0d3a251280ba1d8b75963d52374b1c4335bc25
+  scratch/firmware-direct-8145957/tests/host/smk_clip_usb_clear_test.c
+  scratch/firmware-integration/tests/host/smk_clip_usb_clear_test.c
+
+VERSION 221 | INCLUDED | SHA256 6138e19bba7177463137ff3d75d21000a9143df5c5de664d08d472c46e4e818a | 2932 bytes
+Archive payload: objects/6138e19bba7177463137ff3d75d21000a9143df5c5de664d08d472c46e4e818a
+  scratch/firmware-direct-8145957/docs/audit/x0x37-rules-final-review-hashes.json
+  scratch/firmware-integration/docs/audit/x0x37-rules-final-review-hashes.json
+
+VERSION 222 | INCLUDED | SHA256 618a7de5eb4d406ae5cebdcfbd85931c812edb5602977e347b19ccf926ce5088 | 240 bytes
+Archive payload: objects/618a7de5eb4d406ae5cebdcfbd85931c812edb5602977e347b19ccf926ce5088
+  scratch/firmware-direct-8145957/docs/rules/commit.md
+  scratch/firmware-integration/docs/rules/commit.md
+
+VERSION 223 | INCLUDED | SHA256 6208790b5e947ffb28c2aa0e06bb7f57afed8a7d699422b648e2dbf707cabd91 | 3503 bytes
+Archive payload: objects/6208790b5e947ffb28c2aa0e06bb7f57afed8a7d699422b648e2dbf707cabd91
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/test_host.py
+
+VERSION 224 | INCLUDED | SHA256 636a15024b364324a83295f3ad1f5f81a20c6aa36fa59217d48ce379570115c3 | 908 bytes
+Archive payload: objects/636a15024b364324a83295f3ad1f5f81a20c6aa36fa59217d48ce379570115c3
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules/device-bug.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules/device-bug.md
+
+VERSION 225 | INCLUDED | SHA256 63c22779add99e3dbda636004ed2af890b02ad38db79a6f8108ec97d496320d5 | 24082 bytes
+Archive payload: objects/63c22779add99e3dbda636004ed2af890b02ad38db79a6f8108ec97d496320d5
+  scratch/firmware-integration/firmware/src/app/editor.c
+
+VERSION 226 | INCLUDED | SHA256 63e2b486fd4893262e7618bc6f6b159ec8a4263c331be10e7548a653a47ab65f | 4279 bytes
+Archive payload: objects/63e2b486fd4893262e7618bc6f6b159ec8a4263c331be10e7548a653a47ab65f
+  shared/owner-inventory-current-build/experiments/original_synth/miami_output.c
+
+VERSION 227 | INCLUDED | SHA256 6416a138eed5c1261214d2671f5fe7f14394a0fdbcb79a78866799458bf489fa | 11220 bytes
+Archive payload: objects/6416a138eed5c1261214d2671f5fe7f14394a0fdbcb79a78866799458bf489fa
+  scratch/firmware-direct-8145957/tests/host/test_runner_admission.py
+  scratch/firmware-integration/tests/host/test_runner_admission.py
+
+VERSION 228 | INCLUDED | SHA256 6487044d78cc729c9a1ed666efc6d5806271690242af2ca288550fd129fe943e | 322205 bytes
+Archive payload: objects/6487044d78cc729c9a1ed666efc6d5806271690242af2ca288550fd129fe943e
+  shared/owner-inventory-cloud-094bb/firmware/src/app/ui.c
+  shared/owner-inventory-current-build/firmware/src/app/ui.c
+
+VERSION 229 | INCLUDED | SHA256 64c1bfec72ef68d690606cdc8484160e0d6268dcf9b760a1779a1937fd688065 | 1157 bytes
+Archive payload: objects/64c1bfec72ef68d690606cdc8484160e0d6268dcf9b760a1779a1937fd688065
+  scratch/firmware-direct-8145957/tests/host/ui_page_recipe_test.sh
+
+VERSION 230 | INCLUDED | SHA256 64dbfa5b26033daa039143397c17c15dd90c29b79555942d2f1e745be35a6c26 | 3900 bytes
+Archive payload: objects/64dbfa5b26033daa039143397c17c15dd90c29b79555942d2f1e745be35a6c26
+  scratch/firmware-direct-8145957/tests/fixtures/inlog_9a733fe_clips.txt
+  scratch/firmware-integration/tests/fixtures/inlog_9a733fe_clips.txt
+
+VERSION 231 | INCLUDED | SHA256 653cac29a1a8b98baaba6695aea7ab73b7fcad138b7f676196370743d17ac644 | 5971 bytes
+Archive payload: objects/653cac29a1a8b98baaba6695aea7ab73b7fcad138b7f676196370743d17ac644
+  scratch/firmware-direct-8145957/tests/host/ctl_os_wait_test.c
+  scratch/firmware-integration/tests/host/ctl_os_wait_test.c
+
+VERSION 232 | INCLUDED | SHA256 6571c71cdf9fb73dfc4b3925c8edd270b1a83a3ae7d81254dc04bfd943aa9780 | 7986 bytes
+Archive payload: objects/6571c71cdf9fb73dfc4b3925c8edd270b1a83a3ae7d81254dc04bfd943aa9780
+  scratch/firmware-direct-8145957/tests/host/test_rules_rollout.py
+  scratch/firmware-integration/tests/host/test_rules_rollout.py
+
+VERSION 233 | INCLUDED | SHA256 65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168 | 3638 bytes
+Archive payload: objects/65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168
+  scratch/firmware-direct-8145957/tools/install_gate.sh
+  scratch/firmware-integration/tools/install_gate.sh
+
+VERSION 234 | INCLUDED | SHA256 65be0769947d95a3f1517e9088724bb7cba368e8ad0c9eb0df5e602e7d6c28b9 | 6529 bytes
+Archive payload: objects/65be0769947d95a3f1517e9088724bb7cba368e8ad0c9eb0df5e602e7d6c28b9
+  shared/owner-inventory-current-build/firmware/src/app/ui_original_controls.h
+
+VERSION 235 | INCLUDED | SHA256 65f85a14bb6393cf9ed3aab91fdaa8ff3a8079539be3049cf09ef64373df79e4 | 4075 bytes
+Archive payload: objects/65f85a14bb6393cf9ed3aab91fdaa8ff3a8079539be3049cf09ef64373df79e4
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_vendor_bridge.c
+
+VERSION 236 | INCLUDED | SHA256 6711a6708aca2b4253f039747970a3ff5c451a10e043ff02c79d095b7104c187 | 41831 bytes
+Archive payload: objects/6711a6708aca2b4253f039747970a3ff5c451a10e043ff02c79d095b7104c187
+  shared/owner-inventory-current-build/build/gen/x0x_drum_tables.h
+
+VERSION 237 | INCLUDED | SHA256 679ead2128acec368be799e7599bac9839ac57ab7ac22229d0e96708e1f5391c | 6091 bytes
+Archive payload: objects/679ead2128acec368be799e7599bac9839ac57ab7ac22229d0e96708e1f5391c
+  scratch/firmware-direct-8145957/tests/apc40_pad_owner_test.py
+  scratch/firmware-integration/tests/apc40_pad_owner_test.py
+
+VERSION 238 | INCLUDED | SHA256 67dd2c07b3f68888d1f9ee1d81169aba600ca0ebb5d9a721199946ae18a9a316 | 70 bytes
+Archive payload: objects/67dd2c07b3f68888d1f9ee1d81169aba600ca0ebb5d9a721199946ae18a9a316
+  scratch/firmware-direct-8145957/docs/audit/classic-chat-2026-10-21/rollout-check.json
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/automatic-discovery-check.json
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/discovery-check.json
+  scratch/firmware-integration/docs/audit/classic-chat-2026-10-21/rollout-check.json
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/automatic-discovery-check.json
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/discovery-check.json
+
+VERSION 239 | INCLUDED | SHA256 682358262ad9e7b146fa15a0b4d08c4d112bfd2d5b4875b48fa22070145a5a66 | 11572 bytes
+Archive payload: objects/682358262ad9e7b146fa15a0b4d08c4d112bfd2d5b4875b48fa22070145a5a66
+  shared/dnbox-orchestrator-candidate/docs/lanes/orchestrator.md
+
+VERSION 240 | INCLUDED | SHA256 6838914b5db871e6f1cbeb7df895510fd097631cd6a868a215df2aaca89d7d4f | 3576 bytes
+Archive payload: objects/6838914b5db871e6f1cbeb7df895510fd097631cd6a868a215df2aaca89d7d4f
+  scratch/firmware-direct-8145957/docs/audit/classic-chat-2026-10-21.md
+  scratch/firmware-integration/docs/audit/classic-chat-2026-10-21.md
+
+VERSION 241 | INCLUDED | SHA256 6879e6430de30bed896831d5711ad937f8fb906fac6757c429a7d7b360b3bcd6 | 6045 bytes
+Archive payload: objects/6879e6430de30bed896831d5711ad937f8fb906fac6757c429a7d7b360b3bcd6
+  scratch/firmware-direct-8145957/tests/host/ble_midi_central_test.c
+  scratch/firmware-integration/tests/host/ble_midi_central_test.c
+
+VERSION 242 | INCLUDED | SHA256 68df1e10d51294af3d9f4accfd748b7148f3e99cd3f88a5d5b1095af2fd2df4f | 119 bytes
+Archive payload: objects/68df1e10d51294af3d9f4accfd748b7148f3e99cd3f88a5d5b1095af2fd2df4f
+  scratch/firmware-direct-8145957/tests/host/fixtures/owner_msg/bad-long-sentence.txt
+  scratch/firmware-integration/tests/host/fixtures/owner_msg/bad-long-sentence.txt
+
+VERSION 243 | INCLUDED | SHA256 692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725 | 129 bytes
+Archive payload: objects/692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725
+  scratch/firmware-direct-8145957/tests/host/fixtures/status/BEHAVIOR.md
+  scratch/firmware-integration/tests/host/fixtures/status/BEHAVIOR.md
+
+VERSION 244 | INCLUDED | SHA256 69be276dcf6216b8b3e53f32eb3ec120782a6c4a3269fa15c5b9a3fe8d354ac8 | 14725 bytes
+Archive payload: objects/69be276dcf6216b8b3e53f32eb3ec120782a6c4a3269fa15c5b9a3fe8d354ac8
+  scratch/firmware-direct-8145957/docs/audit/smc-reference-fit-2026-10-21.json
+
+VERSION 245 | INCLUDED | SHA256 6b38e44eae7ab92ae17632039794a85e06aa03530ca958bd52c59d3e961630c8 | 46656 bytes
+Archive payload: objects/6b38e44eae7ab92ae17632039794a85e06aa03530ca958bd52c59d3e961630c8
+  scratch/firmware-direct-8145957/firmware/src/app/engine.c
+  scratch/firmware-integration/firmware/src/app/engine.c
+
+VERSION 246 | INCLUDED | SHA256 6bb3baee25d3fbeee2491ac734511533635270c585ceb49ff558f8b11972af94 | 2072 bytes
+Archive payload: objects/6bb3baee25d3fbeee2491ac734511533635270c585ceb49ff558f8b11972af94
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_host_scope.c
+
+VERSION 247 | INCLUDED | SHA256 6d0a58b586a8debf12c731dd0b96d5310d803060583ae440ce5c2c71f49eb2df | 25455 bytes
+Archive payload: objects/6d0a58b586a8debf12c731dd0b96d5310d803060583ae440ce5c2c71f49eb2df
+  scratch/firmware-direct-8145957/tools/smc_connection_watch.py
+  scratch/firmware-integration/tools/smc_connection_watch.py
+
+VERSION 248 | INCLUDED | SHA256 6e34e62a4485c87ff66014031d452c0c8e005db63a5fd65145b20eea31ef0533 | 1578 bytes
+Archive payload: objects/6e34e62a4485c87ff66014031d452c0c8e005db63a5fd65145b20eea31ef0533
+  shared/owner-inventory-current-build/experiments/wobble/vendor-review/SHA256SUMS.json
+
+VERSION 249 | INCLUDED | SHA256 6e56504ab770160591b2aea724d0806e97fd075bd0254173c22fb248e32844c8 | 423 bytes
+Archive payload: objects/6e56504ab770160591b2aea724d0806e97fd075bd0254173c22fb248e32844c8
+  shared/owner-inventory-current-build/experiments/wobble/battery.json
+
+VERSION 250 | INCLUDED | SHA256 6e863eecf57661c96e113a0c4dc2cf9f6d029f995fd95b2532ff4cfd16ad928b | 1592 bytes
+Archive payload: objects/6e863eecf57661c96e113a0c4dc2cf9f6d029f995fd95b2532ff4cfd16ad928b
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules/install.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules/install.md
+
+VERSION 251 | INCLUDED | SHA256 6e990c7723a386474534a68cf599dcb84e94aae1444f0308fb26932b1ee0ada4 | 8728 bytes
+Archive payload: objects/6e990c7723a386474534a68cf599dcb84e94aae1444f0308fb26932b1ee0ada4
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-host-activation-2026-10-21.md
+
+VERSION 252 | INCLUDED | SHA256 6eeeb1614b8774de8e634cb1ce63b59d2a419ac0d304a59f99e1645bbcc3efec | 66173 bytes
+Archive payload: objects/6eeeb1614b8774de8e634cb1ce63b59d2a419ac0d304a59f99e1645bbcc3efec
+  scratch/firmware-direct-8145957/firmware/src/dsp/drum808.c
+
+VERSION 253 | INCLUDED | SHA256 6fdf696157ad60987ace6fe0896e2f2d93eb29857c9903cfd06665e4e252b1a6 | 1900 bytes
+Archive payload: objects/6fdf696157ad60987ace6fe0896e2f2d93eb29857c9903cfd06665e4e252b1a6
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_smallfx.h
+
+VERSION 254 | INCLUDED | SHA256 701bb30e80726fa8b568fcad20692dad25d72fe2ae0b6525691e9759dfb3f032 | 2131 bytes
+Archive payload: objects/701bb30e80726fa8b568fcad20692dad25d72fe2ae0b6525691e9759dfb3f032
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/pin_app.py
+
+VERSION 255 | INCLUDED | SHA256 709e39e9ed3e61a23dc904573cb3cb9a28d2cd220d2fa5b427313b6a87ae02ce | 13707 bytes
+Archive payload: objects/709e39e9ed3e61a23dc904573cb3cb9a28d2cd220d2fa5b427313b6a87ae02ce
+  shared/owner-inventory-current-build/tools/rom_guard.py
+
+VERSION 256 | INCLUDED | SHA256 70dbaf48d1689bbc7e9b43e9deb995e403ea2927bd3cda431f9155d935783425 | 7880 bytes
+Archive payload: objects/70dbaf48d1689bbc7e9b43e9deb995e403ea2927bd3cda431f9155d935783425
+  shared/owner-inventory-current-build/firmware/src/seq/motion.c
+
+VERSION 257 | INCLUDED | SHA256 70dc866269252a8b313a76df4c0156058c303d96df2de2fd50c077a2371e8d77 | 5387 bytes
+Archive payload: objects/70dc866269252a8b313a76df4c0156058c303d96df2de2fd50c077a2371e8d77
+  scratch/firmware-direct-8145957/docs/audit/enforcement-inventory.json
+  scratch/firmware-integration/docs/audit/enforcement-inventory.json
+
+VERSION 258 | INCLUDED | SHA256 710239dfad1ea83af30cfaebc8f29b600c90be1cc84637b3453332d3c94fbdff | 6899 bytes
+Archive payload: objects/710239dfad1ea83af30cfaebc8f29b600c90be1cc84637b3453332d3c94fbdff
+  scratch/firmware-direct-8145957/tests/host/test_quickcheck_rules.sh
+  scratch/firmware-integration/tests/host/test_quickcheck_rules.sh
+
+VERSION 259 | INCLUDED | SHA256 710573b71bfb92ba88e977a01f2265cbcca7ce06fcb65616537c842b3504e07d | 3847 bytes
+Archive payload: objects/710573b71bfb92ba88e977a01f2265cbcca7ce06fcb65616537c842b3504e07d
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_engine_output.c
+
+VERSION 260 | INCLUDED | SHA256 712221ee9b447380c3ec26493d71fa4c48efa5d167e867471570a29dc099d087 | 10714 bytes
+Archive payload: objects/712221ee9b447380c3ec26493d71fa4c48efa5d167e867471570a29dc099d087
+  scratch/firmware-direct-8145957/tools/make_pages.py
+  scratch/firmware-integration/tools/make_pages.py
+
+VERSION 261 | INCLUDED | SHA256 7235a886764f1e4ee526321ba5bd39d599414a56826859956059229e8a43ce56 | 15777 bytes
+Archive payload: objects/7235a886764f1e4ee526321ba5bd39d599414a56826859956059229e8a43ce56
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_modulation.c
+
+VERSION 262 | INCLUDED | SHA256 7248d120adb3d25048b88285e41643cbaa075ebc33d8716e93fde75ce1e3a242 | 3118 bytes
+Archive payload: objects/7248d120adb3d25048b88285e41643cbaa075ebc33d8716e93fde75ce1e3a242
+  scratch/firmware-direct-8145957/docs/audit/writing-skill-recovery.md
+  scratch/firmware-integration/docs/audit/writing-skill-recovery.md
+
+VERSION 263 | INCLUDED | SHA256 73ef645d27aa009205833d11ea6d93277be497301cf43725b30e8895875b1bb3 | 9673 bytes
+Archive payload: objects/73ef645d27aa009205833d11ea6d93277be497301cf43725b30e8895875b1bb3
+  shared/owner-inventory-current-build/firmware/src/app/original_presets.inc
+
+VERSION 264 | INCLUDED | SHA256 74322ed8c7e6566149b3a30dc4fdae62851732c34f5fea9ef26857c4d438cee9 | 6613 bytes
+Archive payload: objects/74322ed8c7e6566149b3a30dc4fdae62851732c34f5fea9ef26857c4d438cee9
+  scratch/firmware-direct-8145957/tests/host/smc_queue_test.py
+  scratch/firmware-integration/tests/host/smc_queue_test.py
+
+VERSION 265 | INCLUDED | SHA256 7490e8d8eaffbb65e05f60d12b721657b7ac365876eb613f1110556217655401 | 1435 bytes
+Archive payload: objects/7490e8d8eaffbb65e05f60d12b721657b7ac365876eb613f1110556217655401
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_vendor_events.c
+
+VERSION 266 | INCLUDED | SHA256 752b41573945b5fcdda2674c4d23d74d01badfc33170dcd9205974869310f36e | 6927 bytes
+Archive payload: objects/752b41573945b5fcdda2674c4d23d74d01badfc33170dcd9205974869310f36e
+  scratch/firmware-direct-8145957/tools/recovery/install_records/collect_install_records.py
+  scratch/firmware-integration/tools/recovery/install_records/collect_install_records.py
+
+VERSION 267 | INCLUDED | SHA256 75a30fa54a5430b044604f9dba0c58d36910a28384d3d95b3977f18694721502 | 1565 bytes
+Archive payload: objects/75a30fa54a5430b044604f9dba0c58d36910a28384d3d95b3977f18694721502
+  scratch/firmware-direct-8145957/docs/audit/check-scope-2026-10-20.md
+  scratch/firmware-integration/docs/audit/check-scope-2026-10-20.md
+
+VERSION 268 | INCLUDED | SHA256 763e8daaafc1f1a1f1e08896e2938da8d30226c91910c20cebb9f9f189741e73 | 1626 bytes
+Archive payload: objects/763e8daaafc1f1a1f1e08896e2938da8d30226c91910c20cebb9f9f189741e73
+  scratch/firmware-direct-8145957/skills/x0x37-workflow/SKILL.md
+  scratch/firmware-integration/skills/x0x37-workflow/SKILL.md
+
+VERSION 269 | INCLUDED | SHA256 76799d983965e9f7ff4ebb209f315b9cdb3bd0554c52f7aacd6d125b3673c55b | 1450 bytes
+Archive payload: objects/76799d983965e9f7ff4ebb209f315b9cdb3bd0554c52f7aacd6d125b3673c55b
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules/shared-work.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules/shared-work.md
+
+VERSION 270 | INCLUDED | SHA256 76a51f44b6ee3c43586ad31ba97f4435b5982fe7e4ec4c9594dd8994673b8a80 | 5226 bytes
+Archive payload: objects/76a51f44b6ee3c43586ad31ba97f4435b5982fe7e4ec4c9594dd8994673b8a80
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_modulation.h
+
+VERSION 271 | INCLUDED | SHA256 76b38fe447650d56999249882f11edb9d461f4c4f7f92facbb7e8a75aa748f28 | 1380 bytes
+Archive payload: objects/76b38fe447650d56999249882f11edb9d461f4c4f7f92facbb7e8a75aa748f28
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/quiescence_attempt.py
+
+VERSION 272 | INCLUDED | SHA256 776860b647f7b1fab80e790958b579c7bc3e28c84deb511c2060744f7aa6b9d3 | 8105 bytes
+Archive payload: objects/776860b647f7b1fab80e790958b579c7bc3e28c84deb511c2060744f7aa6b9d3
+  shared/owner-inventory-current-build/firmware/src/dsp/original_chicago_backend.h
+
+VERSION 273 | INCLUDED | SHA256 77edf120ad89baff4b7d2219eb65cbb9d5d3f309e6e98799e470b6bb59d408c5 | 2460 bytes
+Archive payload: objects/77edf120ad89baff4b7d2219eb65cbb9d5d3f309e6e98799e470b6bb59d408c5
+  scratch/firmware-direct-8145957/tools/studies/smc_app_data/prepare_bridge.py
+
+VERSION 274 | INCLUDED | SHA256 78f3e646cff85bbfb434398baca7e5a7276bc7608d7c6a894218c05e234b4c85 | 1311 bytes
+Archive payload: objects/78f3e646cff85bbfb434398baca7e5a7276bc7608d7c6a894218c05e234b4c85
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules/commit.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules/commit.md
+
+VERSION 275 | INCLUDED | SHA256 7964aaf34d1a636fd268ba6bae6aede29cfaac010c88783c0ef9ddd99246c366 | 1191 bytes
+Archive payload: objects/7964aaf34d1a636fd268ba6bae6aede29cfaac010c88783c0ef9ddd99246c366
+  scratch/firmware-direct-8145957/firmware/hal/x0x_smc_host_messages.h
+
+VERSION 276 | INCLUDED | SHA256 79ba253b5b0663835a5b8bcc6b8fc22775e81162be46c9287575cbe0c6e0da8c | 10853 bytes
+Archive payload: objects/79ba253b5b0663835a5b8bcc6b8fc22775e81162be46c9287575cbe0c6e0da8c
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21.md
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21.md
+
+VERSION 277 | INCLUDED | SHA256 79e94946cb89fefc328fd5317735340b051fb543682fc8532810552a14d334be | 18129 bytes
+Archive payload: objects/79e94946cb89fefc328fd5317735340b051fb543682fc8532810552a14d334be
+  scratch/firmware-direct-8145957/tests/host/smk_clip_knob_test.c
+  scratch/firmware-integration/tests/host/smk_clip_knob_test.c
+
+VERSION 278 | INCLUDED | SHA256 7a90fc191eb454512f1de165eb45b537027989807e026f7fa39247a41418fc24 | 1649 bytes
+Archive payload: objects/7a90fc191eb454512f1de165eb45b537027989807e026f7fa39247a41418fc24
+  scratch/firmware-direct-8145957/firmware/hal/x0x_smc_profile.h
+
+VERSION 279 | INCLUDED | SHA256 7abd75c25f503b1fc02501cc527fc08988685bd4dc841c92b8719fc7cf2d6323 | 102426 bytes
+Archive payload: objects/7abd75c25f503b1fc02501cc527fc08988685bd4dc841c92b8719fc7cf2d6323
+  shared/owner-inventory-current-build/expected.json
+
+VERSION 280 | INCLUDED | SHA256 7af9095fe5f8e5727bae96cf983547c769d6a0c219b7290f549d37d083e5d43d | 2853 bytes
+Archive payload: objects/7af9095fe5f8e5727bae96cf983547c769d6a0c219b7290f549d37d083e5d43d
+  scratch/firmware-direct-8145957/tests/host/test_runner_selections.py
+  scratch/firmware-integration/tests/host/test_runner_selections.py
+
+VERSION 281 | INCLUDED | SHA256 7b40765f7c3d2c2992f3802837f51b7d24463ceb9140dc5c399562d8cfc256d5 | 13674 bytes
+Archive payload: objects/7b40765f7c3d2c2992f3802837f51b7d24463ceb9140dc5c399562d8cfc256d5
+  scratch/firmware-direct-8145957/tools/recovery/artifact_evidence/collect.py
+  scratch/firmware-integration/tools/recovery/artifact_evidence/collect.py
+
+VERSION 282 | INCLUDED | SHA256 7b85f4fd1f3804c821ea4f135e949fc24dacb1f0e6bc40545122d8e18118df50 | 237 bytes
+Archive payload: objects/7b85f4fd1f3804c821ea4f135e949fc24dacb1f0e6bc40545122d8e18118df50
+  scratch/firmware-direct-8145957/tests/host/fixtures/status/prefs_lint_fail.py
+  scratch/firmware-integration/tests/host/fixtures/status/prefs_lint_fail.py
+
+VERSION 283 | INCLUDED | SHA256 7b861bb190bec27a5bb69bfa1055e4400333b1014d54032a5d6a2cff4287cfde | 12747 bytes
+Archive payload: objects/7b861bb190bec27a5bb69bfa1055e4400333b1014d54032a5d6a2cff4287cfde
+  shared/owner-inventory-current-build/assets/factory_banks/miami.json
+
+VERSION 284 | INCLUDED | SHA256 7c238132753aff9f16acd6af3235845f95e13a5e5ae51dca544e142ee77e166b | 5173 bytes
+Archive payload: objects/7c238132753aff9f16acd6af3235845f95e13a5e5ae51dca544e142ee77e166b
+  scratch/firmware-direct-8145957/firmware/src/seq/tb3po.c
+  scratch/firmware-integration/firmware/src/seq/tb3po.c
+
+VERSION 285 | INCLUDED | SHA256 7c5224b5e83e5440b3db2ee4f9f6e94bae86e51dc2be29d4c1223b5078a047fe | 2585 bytes
+Archive payload: objects/7c5224b5e83e5440b3db2ee4f9f6e94bae86e51dc2be29d4c1223b5078a047fe
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/test.c
+
+VERSION 286 | INCLUDED | SHA256 7c6d336aa141dfcf33b2c87ba3b7b1117ae8d27e364cf00aa406da9f509997e2 | 2072 bytes
+Archive payload: objects/7c6d336aa141dfcf33b2c87ba3b7b1117ae8d27e364cf00aa406da9f509997e2
+  scratch/firmware-direct-8145957/skills/asd-ste100/references/strict.md
+  scratch/firmware-integration/skills/asd-ste100/references/strict.md
+
+VERSION 287 | INCLUDED | SHA256 7c82334c9c4cd70938df010f8a76da69f26bfb2143e91f4b70583fe11c76cf53 | 5000 bytes
+Archive payload: objects/7c82334c9c4cd70938df010f8a76da69f26bfb2143e91f4b70583fe11c76cf53
+  scratch/firmware-direct-8145957/tools/recovery/artifact_evidence/README.txt
+  scratch/firmware-integration/tools/recovery/artifact_evidence/README.txt
+
+VERSION 288 | INCLUDED | SHA256 7c91b472871aafde3806478077f108e58aaf7194cc1c4a7efc92f57ec671d3e6 | 3352 bytes
+Archive payload: objects/7c91b472871aafde3806478077f108e58aaf7194cc1c4a7efc92f57ec671d3e6
+  scratch/firmware-direct-8145957/tools/studies/smc_reference/roots.json
+  scratch/firmware-integration/tools/studies/smc_reference/roots.json
+
+VERSION 289 | INCLUDED | SHA256 7d508af048db864e46c1de72379818df26149f3e78f64a74c3e10eae76db7a57 | 1962 bytes
+Archive payload: objects/7d508af048db864e46c1de72379818df26149f3e78f64a74c3e10eae76db7a57
+  scratch/firmware-direct-8145957/skills/x0x37-shared-work/SKILL.md
+  scratch/firmware-integration/skills/x0x37-shared-work/SKILL.md
+
+VERSION 290 | INCLUDED | SHA256 7db001f9f783d404fc8ec4d2765cbff26e14783e643f048e829249f2d817563d | 3654 bytes
+Archive payload: objects/7db001f9f783d404fc8ec4d2765cbff26e14783e643f048e829249f2d817563d
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-paired-app-loader-2026-10-21.md
+
+VERSION 291 | INCLUDED | SHA256 7e08343286d1f43531198ef1dd201c99737ead391d30cd709e68af34e8f795b8 | 1939 bytes
+Archive payload: objects/7e08343286d1f43531198ef1dd201c99737ead391d30cd709e68af34e8f795b8
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_control_owner.c
+
+VERSION 292 | INCLUDED | SHA256 7e18eb0e2db57f6b326c3caa01cb495345aca3a903d564683ae9fc4f5629f915 | 11068 bytes
+Archive payload: objects/7e18eb0e2db57f6b326c3caa01cb495345aca3a903d564683ae9fc4f5629f915
+  scratch/firmware-direct-8145957/tests/ble_segment_manifest_test.c
+
+VERSION 293 | INCLUDED | SHA256 7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f | 6035 bytes
+Archive payload: objects/7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f
+  scratch/firmware-direct-8145957/tests/host/test_portable_rules.py
+  scratch/firmware-integration/tests/host/test_portable_rules.py
+
+VERSION 294 | INCLUDED | SHA256 7e34cabef753234e0eb876dfb9af5674427562f6750c558a654beb0fc566d7d7 | 9787 bytes
+Archive payload: objects/7e34cabef753234e0eb876dfb9af5674427562f6750c558a654beb0fc566d7d7
+  scratch/firmware-direct-8145957/tools/studies/smc_reference/seal_segments.py
+
+VERSION 295 | INCLUDED | SHA256 7e46e3795659cdaa255b7719989e7ea486e1bc51784c89a7b5d9e141639a8a98 | 6345 bytes
+Archive payload: objects/7e46e3795659cdaa255b7719989e7ea486e1bc51784c89a7b5d9e141639a8a98
+  scratch/firmware-direct-8145957/README.md
+  scratch/firmware-integration/README.md
+
+VERSION 296 | INCLUDED | SHA256 7ed2ca7008c74ab89f6c64f0d282a7f102fc6325061247f814e7b555c2cd50c1 | 6503 bytes
+Archive payload: objects/7ed2ca7008c74ab89f6c64f0d282a7f102fc6325061247f814e7b555c2cd50c1
+  scratch/firmware-direct-8145957/docs/audit/smc-app-readonly-relocation-feasibility-2026-10-21.md
+
+VERSION 297 | INCLUDED | SHA256 7ef5941f4bc68cb388fedff49eb3564b55791785ebaa94f9a7615cf99adb037b | 8063 bytes
+Archive payload: objects/7ef5941f4bc68cb388fedff49eb3564b55791785ebaa94f9a7615cf99adb037b
+  scratch/firmware-direct-8145957/docs/audit/smc-offline-connection-repair-20261021.md
+  scratch/firmware-integration/docs/audit/smc-offline-connection-repair-20261021.md
+
+VERSION 298 | INCLUDED | SHA256 7f49873792bc09c15185e9182183034538e78ea382ffdc1e3b571bf2bec4ed10 | 4114 bytes
+Archive payload: objects/7f49873792bc09c15185e9182183034538e78ea382ffdc1e3b571bf2bec4ed10
+  shared/owner-inventory-current-build/firmware/src/app/bass_presets.h
+
+VERSION 299 | INCLUDED | SHA256 7fcfb2f7e279086e3b733b9b4d622494593aacbb59a10582d77fe59d523d9bfd | 7409 bytes
+Archive payload: objects/7fcfb2f7e279086e3b733b9b4d622494593aacbb59a10582d77fe59d523d9bfd
+  shared/owner-inventory-current-build/experiments/original_synth/CHICAGO-PARAMETER-TRACE.json
+
+VERSION 300 | INCLUDED | SHA256 8022533006930b2804590bab9c98c1cb2a866b2bfbcdbedf9c9a46d6cc38d2d3 | 1754 bytes
+Archive payload: objects/8022533006930b2804590bab9c98c1cb2a866b2bfbcdbedf9c9a46d6cc38d2d3
+  shared/owner-inventory-current-build/tests/host/original_release_ui_test.sh
+
+VERSION 301 | INCLUDED | SHA256 80325b523ac2bc0242fa0f2f33b885c847dc37131a5c77e64a627e2ec910402c | 5178 bytes
+Archive payload: objects/80325b523ac2bc0242fa0f2f33b885c847dc37131a5c77e64a627e2ec910402c
+  shared/owner-inventory-current-build/experiments/wobble/MEASUREMENTS.md
+
+VERSION 302 | INCLUDED | SHA256 821748bfdc3c57ed147a3c4e6df3c0e463bb248e4e8f25a1db7e912b7f75ad8e | 4062 bytes
+Archive payload: objects/821748bfdc3c57ed147a3c4e6df3c0e463bb248e4e8f25a1db7e912b7f75ad8e
+  scratch/firmware-direct-8145957/tools/distribution/verify_combined.py
+  scratch/firmware-integration/tools/distribution/verify_combined.py
+
+VERSION 303 | INCLUDED | SHA256 837c8401a931b3c149ad29cab8da78df487ea09c7ebf06428b3d2f3a7d5941e4 | 10897 bytes
+Archive payload: objects/837c8401a931b3c149ad29cab8da78df487ea09c7ebf06428b3d2f3a7d5941e4
+  scratch/firmware-direct-8145957/tests/host/smc_reachability_test.c
+  scratch/firmware-integration/tests/host/smc_reachability_test.c
+
+VERSION 304 | INCLUDED | SHA256 83b5c294f1ff09606715b619ffef734b4520f094a7c108677bad1bd00f06b8fe | 4202 bytes
+Archive payload: objects/83b5c294f1ff09606715b619ffef734b4520f094a7c108677bad1bd00f06b8fe
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_timer.c
+
+VERSION 305 | INCLUDED | SHA256 8430ec9407ee3ede4defbcc33c6f0b92e8e4a539aa0983d145d21fc8ab26b359 | 6606 bytes
+Archive payload: objects/8430ec9407ee3ede4defbcc33c6f0b92e8e4a539aa0983d145d21fc8ab26b359
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/test.c
+
+VERSION 306 | INCLUDED | SHA256 84a68d47ababdbf1c06211c81eb3f15215ac20a1d7157ec350545774909c903e | 8836 bytes
+Archive payload: objects/84a68d47ababdbf1c06211c81eb3f15215ac20a1d7157ec350545774909c903e
+  scratch/firmware-direct-8145957/docs/plans/2026-10-03-x0x-design.md
+  scratch/firmware-integration/docs/plans/2026-10-03-x0x-design.md
+
+VERSION 307 | INCLUDED | SHA256 84a755b5890f40733f8a3a85ae2a6862c285b98f67415bbe182e5d42445bbcdc | 407 bytes
+Archive payload: objects/84a755b5890f40733f8a3a85ae2a6862c285b98f67415bbe182e5d42445bbcdc
+  scratch/firmware-direct-8145957/tests/host/fixtures/release_tree/paths.txt
+  scratch/firmware-integration/tests/host/fixtures/release_tree/paths.txt
+
+VERSION 308 | INCLUDED | SHA256 84bacb13adc50ce658d1e35e2ee75b8106dafe9e710d8aa39ad9bca0a835e347 | 245 bytes
+Archive payload: objects/84bacb13adc50ce658d1e35e2ee75b8106dafe9e710d8aa39ad9bca0a835e347
+  scratch/firmware-direct-8145957/docs/rules/style.md
+  scratch/firmware-integration/docs/rules/style.md
+
+VERSION 309 | INCLUDED | SHA256 84ef50ea1e505cecf9c85f8cf16f4cb97b664e4a9d81209675188ba13ae71ce8 | 1917 bytes
+Archive payload: objects/84ef50ea1e505cecf9c85f8cf16f4cb97b664e4a9d81209675188ba13ae71ce8
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules/docs.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules/docs.md
+
+VERSION 310 | INCLUDED | SHA256 850eb51de4a1d10dd052d4cd31a28f0106282cbe6db224aa0439eb538b29442d | 964 bytes
+Archive payload: objects/850eb51de4a1d10dd052d4cd31a28f0106282cbe6db224aa0439eb538b29442d
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-actual-response-replay-2026-10-21.json
+
+VERSION 311 | INCLUDED | SHA256 853a64965f1e983383c7eb643239377877b74dd331ea4b7219de7d99488bff0c | 5532 bytes
+Archive payload: objects/853a64965f1e983383c7eb643239377877b74dd331ea4b7219de7d99488bff0c
+  scratch/firmware-direct-8145957/tests/host/ble_midi_command_retry_test.c
+  scratch/firmware-integration/tests/host/ble_midi_command_retry_test.c
+
+VERSION 312 | INCLUDED | SHA256 853bfdea20906c030e65b2e4cd50d6c29273e0ee8160b4a323d970a39561fd6c | 6655 bytes
+Archive payload: objects/853bfdea20906c030e65b2e4cd50d6c29273e0ee8160b4a323d970a39561fd6c
+  scratch/firmware-direct-8145957/skills/asd-ste100/SKILL.md
+  scratch/firmware-integration/skills/asd-ste100/SKILL.md
+
+VERSION 313 | INCLUDED | SHA256 85828d827811298eb97445f4239599502390ef3af555ced8aca6e76ab4c8d0e6 | 5659 bytes
+Archive payload: objects/85828d827811298eb97445f4239599502390ef3af555ced8aca6e76ab4c8d0e6
+  scratch/firmware-direct-8145957/tests/host/test_rules_guard_hook.sh
+  scratch/firmware-integration/tests/host/test_rules_guard_hook.sh
+
+VERSION 314 | INCLUDED | SHA256 858c20b2559dc7bc06313a6e2dfe3fce346e4f555a264a0ae7e2a3f67ef5207c | 6776 bytes
+Archive payload: objects/858c20b2559dc7bc06313a6e2dfe3fce346e4f555a264a0ae7e2a3f67ef5207c
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-frozen-checkpoint-2026-10-21.md
+
+VERSION 315 | INCLUDED | SHA256 85bcd4f94f5946bf3c310d9ea1539ef7dfd4bc6a0bd4ea0a6d3cad749b5c8eb5 | 3663 bytes
+Archive payload: objects/85bcd4f94f5946bf3c310d9ea1539ef7dfd4bc6a0bd4ea0a6d3cad749b5c8eb5
+  scratch/firmware-direct-8145957/docs/audit/dev-default-2026-10-21.md
+  scratch/firmware-integration/docs/audit/dev-default-2026-10-21.md
+
+VERSION 316 | INCLUDED | SHA256 8627db24e3ad7a1725f4dc434cc05d9b4c8e1df285239eb0448186c7ee5b85f7 | 102497 bytes
+Archive payload: objects/8627db24e3ad7a1725f4dc434cc05d9b4c8e1df285239eb0448186c7ee5b85f7
+  scratch/firmware-direct-8145957/firmware/src/app/main_fm1.c
+
+VERSION 317 | INCLUDED | SHA256 868ebd574d75359fee80a59fe856cac5f1507c01a5588ba5d3ff9427f9294ae2 | 4173 bytes
+Archive payload: objects/868ebd574d75359fee80a59fe856cac5f1507c01a5588ba5d3ff9427f9294ae2
+  shared/pr721-readback-20261030/hash-readback.json
+
+VERSION 318 | INCLUDED | SHA256 86bea91ea649d0840332af99a8624caf06cc0f40defba970f60a0f4dce7988eb | 5433 bytes
+Archive payload: objects/86bea91ea649d0840332af99a8624caf06cc0f40defba970f60a0f4dce7988eb
+  scratch/firmware-direct-8145957/tests/host/test_prefs_lint.py
+  scratch/firmware-integration/tests/host/test_prefs_lint.py
+
+VERSION 319 | INCLUDED | SHA256 86fd36858b75b2245dd2f873a6df9d7cf3e8f2fa0b4717b17adf6db45861feed | 261 bytes
+Archive payload: objects/86fd36858b75b2245dd2f873a6df9d7cf3e8f2fa0b4717b17adf6db45861feed
+  shared/owner-inventory-current-build/experiments/wobble/evidence/foundation-tests.txt
+
+VERSION 320 | INCLUDED | SHA256 87257c92a514efb4d3c1f4fd5bbd415f3b20b4332673146d7f9428d3dde59362 | 6378 bytes
+Archive payload: objects/87257c92a514efb4d3c1f4fd5bbd415f3b20b4332673146d7f9428d3dde59362
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_fx2_wrapper.c
+
+VERSION 321 | INCLUDED | SHA256 87383d5a9a6e005197bec918f3d9d73cca5b3dd9458525798767a47e8989a1b5 | 12347 bytes
+Archive payload: objects/87383d5a9a6e005197bec918f3d9d73cca5b3dd9458525798767a47e8989a1b5
+  scratch/firmware-direct-8145957/tools/smc_vendor_dev_validate.py
+
+VERSION 322 | INCLUDED | SHA256 87d015f7126d7da1e8f477868fd017e795ba99fd431d813c0914f5cd71510b07 | 2747 bytes
+Archive payload: objects/87d015f7126d7da1e8f477868fd017e795ba99fd431d813c0914f5cd71510b07
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/head_export.h
+
+VERSION 323 | INCLUDED | SHA256 87d127f76482834f2d72a2456b850a688af9c2fdc166f24171c54f57ddc0efdd | 5034 bytes
+Archive payload: objects/87d127f76482834f2d72a2456b850a688af9c2fdc166f24171c54f57ddc0efdd
+  scratch/firmware-direct-8145957/docs/audit/smc-cold-flags-fit-2026-10-21.md
+
+VERSION 324 | INCLUDED | SHA256 87fb3d30e7d54fa86d227305326fe439ad88c4392dba9f2582cea74c3819584c | 591 bytes
+Archive payload: objects/87fb3d30e7d54fa86d227305326fe439ad88c4392dba9f2582cea74c3819584c
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_vendor_crc.c
+
+VERSION 325 | INCLUDED | SHA256 88da14134771538b26ab9eebec221cc6bdcc100ad68cdb7ba9ce5cdedd638ebc | 4390 bytes
+Archive payload: objects/88da14134771538b26ab9eebec221cc6bdcc100ad68cdb7ba9ce5cdedd638ebc
+  scratch/firmware-direct-8145957/docs/audit/rules-token-review-2026-10-19.md
+  scratch/firmware-integration/docs/audit/rules-token-review-2026-10-19.md
+
+VERSION 326 | INCLUDED | SHA256 890f7858ead243f61db782395f6d6b274cf9ab24aba33ff036307fefe5bb9a1d | 2806 bytes
+Archive payload: objects/890f7858ead243f61db782395f6d6b274cf9ab24aba33ff036307fefe5bb9a1d
+  shared/owner-inventory-current-build/build/host/original-release-ui/sources.txt
+
+VERSION 327 | INCLUDED | SHA256 89cf92ddff789823c86639c3478c26ca4b0b6938653b374c03b1a9b7c6f508ae | 38288 bytes
+Archive payload: objects/89cf92ddff789823c86639c3478c26ca4b0b6938653b374c03b1a9b7c6f508ae
+  shared/owner-inventory-current-build/tools/gate.sh
+
+VERSION 328 | INCLUDED | SHA256 8a63dbf2e74684c93e287d9b86db93d21a83aced0c3f6568d900cb0b50c7e2b9 | 1760 bytes
+Archive payload: objects/8a63dbf2e74684c93e287d9b86db93d21a83aced0c3f6568d900cb0b50c7e2b9
+  scratch/firmware-direct-8145957/build/host/smc_host_ingress/autosave.inc
+  scratch/firmware-integration/build/host/smc_host_ingress/autosave.inc
+
+VERSION 329 | INCLUDED | SHA256 8ab5a6837ff967ae90c294a7fc91f5d97175b2b17f9f5dc2112e668e82ad101d | 1996 bytes
+Archive payload: objects/8ab5a6837ff967ae90c294a7fc91f5d97175b2b17f9f5dc2112e668e82ad101d
+  scratch/firmware-direct-8145957/docs/audit/plain-writing-2026-10-21.md
+  scratch/firmware-integration/docs/audit/plain-writing-2026-10-21.md
+
+VERSION 330 | INCLUDED | SHA256 8b08ea710673e4aadef2ca272e403221966216e410e357fb9fddc276a3f6036a | 512 bytes
+Archive payload: objects/8b08ea710673e4aadef2ca272e403221966216e410e357fb9fddc276a3f6036a
+  scratch/firmware-direct-8145957/tests/host/fixtures/prepush_allow/urls.txt
+  scratch/firmware-integration/tests/host/fixtures/prepush_allow/urls.txt
+
+VERSION 331 | INCLUDED | SHA256 8b1d2f62e24c5346ca20807acc55a341e5aa583a1415922b436c1535cb145bd9 | 2114 bytes
+Archive payload: objects/8b1d2f62e24c5346ca20807acc55a341e5aa583a1415922b436c1535cb145bd9
+  scratch/firmware-direct-8145957/skills/x0x37-docs/SKILL.md
+  scratch/firmware-integration/skills/x0x37-docs/SKILL.md
+
+VERSION 332 | INCLUDED | SHA256 8b6744569c1105d7a1638293b69358b2008596019347bf62a74020230f8b16f8 | 8716 bytes
+Archive payload: objects/8b6744569c1105d7a1638293b69358b2008596019347bf62a74020230f8b16f8
+  shared/owner-inventory-current-build/firmware/src/app/x0x.h
+
+VERSION 333 | INCLUDED | SHA256 8b96385f159b2dec4133293d9d275d5c06a90e00fac08a9ff04fafdad96cbbe7 | 101677 bytes
+Archive payload: objects/8b96385f159b2dec4133293d9d275d5c06a90e00fac08a9ff04fafdad96cbbe7
+  scratch/firmware-direct-8145957/BEHAVIOR.md
+  scratch/firmware-integration/BEHAVIOR.md
+
+VERSION 334 | INCLUDED | SHA256 8c085841d611867dbff0f705236b8e2dae1af6e2d20fd1b6183caa24d3c5c0c6 | 3325 bytes
+Archive payload: objects/8c085841d611867dbff0f705236b8e2dae1af6e2d20fd1b6183caa24d3c5c0c6
+  scratch/firmware-direct-8145957/docs/audit/skills-migration-2026-10-21.md
+  scratch/firmware-integration/docs/audit/skills-migration-2026-10-21.md
+
+VERSION 335 | INCLUDED | SHA256 8c1f180fa4689aa441a85991c854518b8d9bc0100ce2fd8705b1829f5e3cba8f | 4068 bytes
+Archive payload: objects/8c1f180fa4689aa441a85991c854518b8d9bc0100ce2fd8705b1829f5e3cba8f
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/host.py
+
+VERSION 336 | INCLUDED | SHA256 8c230446592b726c74efa235ad1c1caea283560e7ba61505edf4dc063a6a699d | 1597 bytes
+Archive payload: objects/8c230446592b726c74efa235ad1c1caea283560e7ba61505edf4dc063a6a699d
+  scratch/firmware-direct-8145957/.github/workflows/smc-host-regressions.yml
+  scratch/firmware-integration/.github/workflows/smc-host-regressions.yml
+
+VERSION 337 | INCLUDED | SHA256 8cab931ca96d4b7f7e761a179964eea7e30a26f68eae60e31ff5541e2a0916cb | 3924 bytes
+Archive payload: objects/8cab931ca96d4b7f7e761a179964eea7e30a26f68eae60e31ff5541e2a0916cb
+  scratch/firmware-direct-8145957/tests/host/test_status_checks.sh
+  scratch/firmware-integration/tests/host/test_status_checks.sh
+
+VERSION 338 | INCLUDED | SHA256 8cd358d7e989b29b2f1cc52bfb6f5ad3da8cbc67ffc1f32f4b245e6c82aed13e | 1012 bytes
+Archive payload: objects/8cd358d7e989b29b2f1cc52bfb6f5ad3da8cbc67ffc1f32f4b245e6c82aed13e
+  shared/owner-inventory-current-build/assets/factory_banks/manifest.json
+
+VERSION 339 | INCLUDED | SHA256 8cf831e4cc6dcd91580af795a54450ffe6ded8a8fc3d44da31bf2251179b909a | 7380 bytes
+Archive payload: objects/8cf831e4cc6dcd91580af795a54450ffe6ded8a8fc3d44da31bf2251179b909a
+  scratch/firmware-direct-8145957/firmware/src/dsp/fastmath.h
+  scratch/firmware-integration/firmware/src/dsp/fastmath.h
+
+VERSION 340 | INCLUDED | SHA256 8d826dfede613c0e88021478f0fbc64d0e2d34e3f3fb585ae97c19567d6054e7 | 247 bytes
+Archive payload: objects/8d826dfede613c0e88021478f0fbc64d0e2d34e3f3fb585ae97c19567d6054e7
+  scratch/firmware-direct-8145957/docs/rules/install.md
+  scratch/firmware-integration/docs/rules/install.md
+
+VERSION 341 | INCLUDED | SHA256 8f6fc51fc4db2138b2c15410479a8a921f7ec13d367a265a23649de68fa41a56 | 209 bytes
+Archive payload: objects/8f6fc51fc4db2138b2c15410479a8a921f7ec13d367a265a23649de68fa41a56
+  shared/owner-inventory-current-build/experiments/wobble/evidence/object-size.txt
+
+VERSION 342 | INCLUDED | SHA256 903ba197a280efabb988c459a38d5236cb626bbee2859d81493d43c795ce8b72 | 21618 bytes
+Archive payload: objects/903ba197a280efabb988c459a38d5236cb626bbee2859d81493d43c795ce8b72
+  scratch/firmware-direct-8145957/tools/studies/smc_reference/config-values.json
+  scratch/firmware-integration/tools/studies/smc_reference/config-values.json
+
+VERSION 343 | INCLUDED | SHA256 90658019afe2cd0fc23430edf672074ec9c8f27c991fad2bb5a7e8c3b9dc8f83 | 3605 bytes
+Archive payload: objects/90658019afe2cd0fc23430edf672074ec9c8f27c991fad2bb5a7e8c3b9dc8f83
+  shared/owner-inventory-current-build/private-input-check.json
+
+VERSION 344 | INCLUDED | SHA256 9065c213675a7dc7e28c99c289578fe925170a7fe719569405dfa1452c268db4 | 13274 bytes
+Archive payload: objects/9065c213675a7dc7e28c99c289578fe925170a7fe719569405dfa1452c268db4
+  scratch/firmware-direct-8145957/tests/ble_pkg_test.py
+  scratch/firmware-integration/tests/ble_pkg_test.py
+
+VERSION 345 | INCLUDED | SHA256 9105ac227be2364e49d7c360fe12830031e01e52cb4201df5976db3d6793b0a6 | 235 bytes
+Archive payload: objects/9105ac227be2364e49d7c360fe12830031e01e52cb4201df5976db3d6793b0a6
+  scratch/firmware-direct-8145957/docs/rules/core.md
+  scratch/firmware-integration/docs/rules/core.md
+
+VERSION 346 | INCLUDED | SHA256 913069ee77d3d40ee62f0834e83cfb91113d5a27153aad0a00b2bb7c021d7490 | 7611 bytes
+Archive payload: objects/913069ee77d3d40ee62f0834e83cfb91113d5a27153aad0a00b2bb7c021d7490
+  scratch/firmware-direct-8145957/docs/plans/2026-10-04-performance.md
+  scratch/firmware-integration/docs/plans/2026-10-04-performance.md
+
+VERSION 347 | INCLUDED | SHA256 913b926c4443cd30636d3b5b9ac4312d9c434fd46a5929c47b7cfa191f69c3c1 | 11705 bytes
+Archive payload: objects/913b926c4443cd30636d3b5b9ac4312d9c434fd46a5929c47b7cfa191f69c3c1
+  scratch/firmware-direct-8145957/docs/audit/x0x37-rules-final-review.md
+  scratch/firmware-integration/docs/audit/x0x37-rules-final-review.md
+
+VERSION 348 | INCLUDED | SHA256 9183d7be2ef66252e1ee00b20466329b60529d5b70c8db5c390e3ebdf739d0e1 | 6387 bytes
+Archive payload: objects/9183d7be2ef66252e1ee00b20466329b60529d5b70c8db5c390e3ebdf739d0e1
+  scratch/firmware-direct-8145957/tests/host/ui_page_reference.inc
+
+VERSION 349 | INCLUDED | SHA256 91e5d311dea589e5dbee13872b9c65eb753a5867f4d9a2ef68fcf3d58dc0cdcf | 4252 bytes
+Archive payload: objects/91e5d311dea589e5dbee13872b9c65eb753a5867f4d9a2ef68fcf3d58dc0cdcf
+  scratch/firmware-direct-8145957/docs/audit/smc-connection-handle-20261021.md
+  scratch/firmware-integration/docs/audit/smc-connection-handle-20261021.md
+
+VERSION 350 | INCLUDED | SHA256 91f30658fadf9239e1e52c1e92e98e4afebdd057f7b2834753ea4710af389082 | 259 bytes
+Archive payload: objects/91f30658fadf9239e1e52c1e92e98e4afebdd057f7b2834753ea4710af389082
+  scratch/firmware-direct-8145957/docs/rules/device-bug.md
+  scratch/firmware-integration/docs/rules/device-bug.md
+
+VERSION 351 | INCLUDED | SHA256 92ca9b8d2702088e0643f809311179bbaf3cb71474922d419abccef3b4dc7377 | 121122 bytes
+Archive payload: objects/92ca9b8d2702088e0643f809311179bbaf3cb71474922d419abccef3b4dc7377
+  scratch/firmware-direct-8145957/docs/audit/instruction-inventory.json
+  scratch/firmware-integration/docs/audit/instruction-inventory.json
+
+VERSION 352 | INCLUDED | SHA256 9376b5f749a3c8d1590fe261a77a791ad4e96e6676ef1d0c09e08ce26812227e | 10762 bytes
+Archive payload: objects/9376b5f749a3c8d1590fe261a77a791ad4e96e6676ef1d0c09e08ce26812227e
+  scratch/firmware-direct-8145957/tools/require_gate_pass.sh
+
+VERSION 353 | INCLUDED | SHA256 937e6e109f0d2f25508cd4a3f9ccac3cfcca91e9b09476c8202659bd42ddfe5e | 5480 bytes
+Archive payload: objects/937e6e109f0d2f25508cd4a3f9ccac3cfcca91e9b09476c8202659bd42ddfe5e
+  scratch/firmware-integration/tests/host/smc_clip_visibility_test.c
+
+VERSION 354 | INCLUDED | SHA256 93a5eb2173ba3bb41997ed10bcb9574989421f67d53d7b8829f240a13c8e6e72 | 6989 bytes
+Archive payload: objects/93a5eb2173ba3bb41997ed10bcb9574989421f67d53d7b8829f240a13c8e6e72
+  scratch/firmware-integration/ble/ctl/src/ctl_os.c
+
+VERSION 355 | INCLUDED | SHA256 93dcbd7deed52fd2f19f54238aa5bb6eaf9911e4ca982cd29fe489291f5e93b4 | 3013 bytes
+Archive payload: objects/93dcbd7deed52fd2f19f54238aa5bb6eaf9911e4ca982cd29fe489291f5e93b4
+  shared/owner-inventory-current-build/experiments/original_synth/EXTERNAL-INPUTS.md
+
+VERSION 356 | INCLUDED | SHA256 945ae29442defe651d9b2835050b70b2b1bda23636d24bf5e77bf3575350fa72 | 9383 bytes
+Archive payload: objects/945ae29442defe651d9b2835050b70b2b1bda23636d24bf5e77bf3575350fa72
+  scratch/firmware-direct-8145957/tests/installer_safety_test.py
+  scratch/firmware-integration/tests/installer_safety_test.py
+
+VERSION 357 | INCLUDED | SHA256 9471a25023ba6f6c6bbb13a94523b5eb81a3d6630b699930ae80ad6080149854 | 7262 bytes
+Archive payload: objects/9471a25023ba6f6c6bbb13a94523b5eb81a3d6630b699930ae80ad6080149854
+  scratch/firmware-direct-8145957/tests/ble/ctl_vendor_profile_test.c
+
+VERSION 358 | INCLUDED | SHA256 94ba4c1c408802ce5f876a7f7b9b58dc40a148dd6adb19afff87d1174721ab95 | 1585 bytes
+Archive payload: objects/94ba4c1c408802ce5f876a7f7b9b58dc40a148dd6adb19afff87d1174721ab95
+  scratch/firmware-direct-8145957/tests/ble/check_app_ui_fixture.py
+
+VERSION 359 | INCLUDED | SHA256 9560aa1023d65d8c15d6ec24be769cae66cbf488a51117db03052fc62f6bfc6c | 2655 bytes
+Archive payload: objects/9560aa1023d65d8c15d6ec24be769cae66cbf488a51117db03052fc62f6bfc6c
+  scratch/firmware-direct-8145957/skills/x0x37-task/SKILL.md
+  scratch/firmware-integration/skills/x0x37-task/SKILL.md
+
+VERSION 360 | INCLUDED | SHA256 956e382d26ca5ac7a0eaa6fc78e21f641c4d9d10f2a6fa286b098d4bf6bee28e | 2638 bytes
+Archive payload: objects/956e382d26ca5ac7a0eaa6fc78e21f641c4d9d10f2a6fa286b098d4bf6bee28e
+  scratch/firmware-direct-8145957/skills/workflows.json
+  scratch/firmware-integration/skills/workflows.json
+
+VERSION 361 | INCLUDED | SHA256 9637973a8719fbf73b152ec07dbdf5bd6e20fa4a67e938e815144acf68cb50ed | 2958 bytes
+Archive payload: objects/9637973a8719fbf73b152ec07dbdf5bd6e20fa4a67e938e815144acf68cb50ed
+  scratch/firmware-direct-8145957/docs/audit/strict-ste-2026-10-21.md
+  scratch/firmware-integration/docs/audit/strict-ste-2026-10-21.md
+
+VERSION 362 | INCLUDED | SHA256 982ec1667005052523dbd69561433e64b14f75142a5f3e874b20221060a424e8 | 1262 bytes
+Archive payload: objects/982ec1667005052523dbd69561433e64b14f75142a5f3e874b20221060a424e8
+  scratch/firmware-direct-8145957/tests/host/smc_vendor_dispatch_test.sh
+
+VERSION 363 | INCLUDED | SHA256 98f6c130b4a75a3c635cbe8a9c80a7d8d35672a0d821ab40818a852940f7a9b4 | 3336 bytes
+Archive payload: objects/98f6c130b4a75a3c635cbe8a9c80a7d8d35672a0d821ab40818a852940f7a9b4
+  scratch/firmware-direct-8145957/tools/distribution/README_RU.txt
+  scratch/firmware-integration/tools/distribution/README_RU.txt
+
+VERSION 364 | INCLUDED | SHA256 994325c9b6d81e58b8e919e226c3623f20a3c588c54b8c0a4b1d8916f5698eb7 | 521 bytes
+Archive payload: objects/994325c9b6d81e58b8e919e226c3623f20a3c588c54b8c0a4b1d8916f5698eb7
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/independent-review.txt
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/independent-review.txt
+
+VERSION 365 | INCLUDED | SHA256 99699cd82cc00cfcbbb4f9f174f54fde104ffd11ae5c379ddbd981645b8eeb83 | 11850 bytes
+Archive payload: objects/99699cd82cc00cfcbbb4f9f174f54fde104ffd11ae5c379ddbd981645b8eeb83
+  scratch/firmware-direct-8145957/docs/audit/rules-token-rollout-2026-10-19.json
+  scratch/firmware-integration/docs/audit/rules-token-rollout-2026-10-19.json
+
+VERSION 366 | INCLUDED | SHA256 99a18f792d6ac74fbf10a6ebbd3711734a93c60ecf95a10f6b869318511b0228 | 2022 bytes
+Archive payload: objects/99a18f792d6ac74fbf10a6ebbd3711734a93c60ecf95a10f6b869318511b0228
+  scratch/firmware-direct-8145957/docs/chatgpt-project-instructions.txt
+  scratch/firmware-integration/docs/chatgpt-project-instructions.txt
+
+VERSION 367 | INCLUDED | SHA256 99a67ed4079cc4f9e3fa847713ddee5df460109b0189d4973f0cf158d275a69e | 14131 bytes
+Archive payload: objects/99a67ed4079cc4f9e3fa847713ddee5df460109b0189d4973f0cf158d275a69e
+  shared/owner-inventory-current-build/tests/host/original_release_ui_test.c
+
+VERSION 368 | INCLUDED | SHA256 99c00b29713e5f3fd1afb0743f8aed4aea64b04600abf45a0986c60bd4e67cec | 1916 bytes
+Archive payload: objects/99c00b29713e5f3fd1afb0743f8aed4aea64b04600abf45a0986c60bd4e67cec
+  scratch/firmware-direct-8145957/docs/audit/uncommitted-merge-2026-10-21.md
+  scratch/firmware-integration/docs/audit/uncommitted-merge-2026-10-21.md
+
+VERSION 369 | INCLUDED | SHA256 9a47186eda7e5e62071c330227bc40fd8adae83d10ae5f05b7b5c7527d5fb06e | 1318 bytes
+Archive payload: objects/9a47186eda7e5e62071c330227bc40fd8adae83d10ae5f05b7b5c7527d5fb06e
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/automatic-discovery-rollout.json
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/automatic-discovery-rollout.json
+
+VERSION 370 | INCLUDED | SHA256 9ae86b18b2a3ecc0410479ee543c97a8aa981aad6311b159013aaefd42ae1dd5 | 3050 bytes
+Archive payload: objects/9ae86b18b2a3ecc0410479ee543c97a8aa981aad6311b159013aaefd42ae1dd5
+  scratch/firmware-direct-8145957/docs/smc-mapping-handoff-2026-10-20.md
+  scratch/firmware-integration/docs/smc-mapping-handoff-2026-10-20.md
+
+VERSION 371 | INCLUDED | SHA256 9af2bd39ea34e378dd55aedaa17afc1e663ad6ee3d8a3aca92d0f9889a535b62 | 4559 bytes
+Archive payload: objects/9af2bd39ea34e378dd55aedaa17afc1e663ad6ee3d8a3aca92d0f9889a535b62
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/real_fixture.py
+
+VERSION 372 | INCLUDED | SHA256 9b6d3c0d34d0a7cec622166c4353e6998ff0b5daae596b04ef3e5d97961d6cc8 | 6477 bytes
+Archive payload: objects/9b6d3c0d34d0a7cec622166c4353e6998ff0b5daae596b04ef3e5d97961d6cc8
+  scratch/firmware-direct-8145957/tools/mix_report.py
+  scratch/firmware-integration/tools/mix_report.py
+  shared/owner-inventory-current-build/tools/mix_report.py
+
+VERSION 373 | INCLUDED | SHA256 9c31c902eb42405d9c9abdd7b101198a3e90286a5480139bd41ec60e5551b7ea | 11780 bytes
+Archive payload: objects/9c31c902eb42405d9c9abdd7b101198a3e90286a5480139bd41ec60e5551b7ea
+  scratch/firmware-direct-8145957/docs/ROADMAP.md
+  scratch/firmware-integration/docs/ROADMAP.md
+
+VERSION 374 | INCLUDED | SHA256 9c3a02083aad56478566f6902d3e1f6be9e3da26462b83a3011794d4479997ac | 2644 bytes
+Archive payload: objects/9c3a02083aad56478566f6902d3e1f6be9e3da26462b83a3011794d4479997ac
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/rollback_test.c
+
+VERSION 375 | INCLUDED | SHA256 9c7ac9b0a71e775fb7009e2d4035fce827b2c56c4e8e692a7a8910c9c6c881bc | 11437 bytes
+Archive payload: objects/9c7ac9b0a71e775fb7009e2d4035fce827b2c56c4e8e692a7a8910c9c6c881bc
+  shared/owner-inventory-current-build/experiments/original_synth/EXTERNAL-INPUTS.json
+  shared/pr721-readback-20261030/manifest.json
+
+VERSION 376 | INCLUDED | SHA256 9d33c69d7187fa8b819fd70fc858229d32261f28ef0af19b6c515c16d2ca1eb5 | 7027 bytes
+Archive payload: objects/9d33c69d7187fa8b819fd70fc858229d32261f28ef0af19b6c515c16d2ca1eb5
+  shared/owner-inventory-current-build/experiments/original_synth/CHICAGO-COMPACT-POLICY.md
+
+VERSION 377 | INCLUDED | SHA256 9fa3a5e7089a6587d85122a304d0c1d103b9dd9252596e1625c05fbd990dcdad | 4587 bytes
+Archive payload: objects/9fa3a5e7089a6587d85122a304d0c1d103b9dd9252596e1625c05fbd990dcdad
+  scratch/firmware-direct-8145957/docs/smc-device-investigation-2026-10-20.md
+  scratch/firmware-integration/docs/smc-device-investigation-2026-10-20.md
+
+VERSION 378 | INCLUDED | SHA256 a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e | 184 bytes
+Archive payload: objects/a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e
+  scratch/firmware-direct-8145957/tests/host/fixtures/prefs_lint/rules/style.md
+  scratch/firmware-integration/tests/host/fixtures/prefs_lint/rules/style.md
+
+VERSION 379 | INCLUDED | SHA256 a1043dfc62d9fee207eb9093af3d72054990c5727cf587c3d32b176e2951fcaf | 895 bytes
+Archive payload: objects/a1043dfc62d9fee207eb9093af3d72054990c5727cf587c3d32b176e2951fcaf
+  scratch/firmware-direct-8145957/.github/FUNDING.yml
+  scratch/firmware-integration/.github/FUNDING.yml
+
+VERSION 380 | INCLUDED | SHA256 a2153a445fe49ffc4b91795da8b562c2e6777504a1ad95e317bbe39aaed1ca98 | 2524 bytes
+Archive payload: objects/a2153a445fe49ffc4b91795da8b562c2e6777504a1ad95e317bbe39aaed1ca98
+  shared/owner-inventory-current-build/experiments/wobble/evidence/receipt.json
+
+VERSION 381 | INCLUDED | SHA256 a27422f3c7f686459b86f2cbcc5b79a22a63043f1abdcd49075106c2d2c18355 | 851 bytes
+Archive payload: objects/a27422f3c7f686459b86f2cbcc5b79a22a63043f1abdcd49075106c2d2c18355
+  scratch/firmware-direct-8145957/tests/host/fixtures/checklist/bad.txt
+  scratch/firmware-integration/tests/host/fixtures/checklist/bad.txt
+
+VERSION 382 | INCLUDED | SHA256 a29f6d559cd22b502a4a9d3047c1a00bf597ff34959088c91da5695296362be1 | 731 bytes
+Archive payload: objects/a29f6d559cd22b502a4a9d3047c1a00bf597ff34959088c91da5695296362be1
+  scratch/firmware-direct-8145957/tests/host/fixtures/prefs_lint/good.md
+  scratch/firmware-integration/tests/host/fixtures/prefs_lint/good.md
+
+VERSION 383 | INCLUDED | SHA256 a2a419678c30d825510807dc28b9853ab5683bc054fc6633d7cf43ff1fd693ee | 29887 bytes
+Archive payload: objects/a2a419678c30d825510807dc28b9853ab5683bc054fc6633d7cf43ff1fd693ee
+  scratch/firmware-direct-8145957/firmware/src/app/project.c
+  scratch/firmware-integration/firmware/src/app/project.c
+
+VERSION 384 | INCLUDED | SHA256 a2d5c462a03ceb54bf088fcdc3b42ee372a7333ed2b68dfecf4a313b2f4124b1 | 2820 bytes
+Archive payload: objects/a2d5c462a03ceb54bf088fcdc3b42ee372a7333ed2b68dfecf4a313b2f4124b1
+  scratch/firmware-direct-8145957/tests/host/smk_clip_settings_dirty_test.c
+  scratch/firmware-integration/tests/host/smk_clip_settings_dirty_test.c
+
+VERSION 385 | INCLUDED | SHA256 a2e6bdeff35f571c30667ba198f26d4138420867d4bc80957296d34c997f6fb9 | 271 bytes
+Archive payload: objects/a2e6bdeff35f571c30667ba198f26d4138420867d4bc80957296d34c997f6fb9
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/reading-size.json
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/reading-size.json
+
+VERSION 386 | INCLUDED | SHA256 a38d72081495f7fb5ef77b440c12a27f699e0a5e1a05e212fde6d4a09cb7274c | 8118 bytes
+Archive payload: objects/a38d72081495f7fb5ef77b440c12a27f699e0a5e1a05e212fde6d4a09cb7274c
+  scratch/firmware-direct-8145957/skills/asd-ste100/README.md
+  scratch/firmware-integration/skills/asd-ste100/README.md
+
+VERSION 387 | INCLUDED | SHA256 a427a2f7734080a8eaa71fef5b51a91d1f2e2c2fc183348bb5ff141588b1a891 | 3268 bytes
+Archive payload: objects/a427a2f7734080a8eaa71fef5b51a91d1f2e2c2fc183348bb5ff141588b1a891
+  shared/owner-inventory-cloud-094bb/RESULTS.md
+
+VERSION 388 | INCLUDED | SHA256 a56543728f6f908b76e8008ff622f86684d768c98d280b9d0e102ab128088014 | 15861 bytes
+Archive payload: objects/a56543728f6f908b76e8008ff622f86684d768c98d280b9d0e102ab128088014
+  scratch/firmware-direct-8145957/tools/smc_vendor_bundle.py
+
+VERSION 389 | INCLUDED | SHA256 a5ed7675fd77cdbf08cf3a101eaa0ed1c87d24a9b875019aafb3d18321329efb | 5902 bytes
+Archive payload: objects/a5ed7675fd77cdbf08cf3a101eaa0ed1c87d24a9b875019aafb3d18321329efb
+  scratch/firmware-direct-8145957/docs/smc-drum-controls-2026-10-21.md
+  scratch/firmware-integration/docs/smc-drum-controls-2026-10-21.md
+
+VERSION 390 | INCLUDED | SHA256 a634b63c7d74266867741bff9c0d1c6077dea7f1903ab7e424cb3f912368f3b8 | 147258 bytes
+Archive payload: objects/a634b63c7d74266867741bff9c0d1c6077dea7f1903ab7e424cb3f912368f3b8
+  shared/owner-inventory-current-build/build/gen/felucca_font.h
+
+VERSION 391 | INCLUDED | SHA256 a69d256b47dc67eff02ae15f81700c79954ef8bfb67280a03c8de46a27929d3e | 3099 bytes
+Archive payload: objects/a69d256b47dc67eff02ae15f81700c79954ef8bfb67280a03c8de46a27929d3e
+  scratch/firmware-direct-8145957/tests/host/drum808_outline_test.c
+
+VERSION 392 | INCLUDED | SHA256 a7145bf5a6bd308864376bf000ea963d7ae824163a02a2ce3e76cef0964a6308 | 4349 bytes
+Archive payload: objects/a7145bf5a6bd308864376bf000ea963d7ae824163a02a2ce3e76cef0964a6308
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/record_test.c
+
+VERSION 393 | INCLUDED | SHA256 a87ca59ba98207d04e98910deecacfd2d55995acff84e36b09983786956b949f | 7751 bytes
+Archive payload: objects/a87ca59ba98207d04e98910deecacfd2d55995acff84e36b09983786956b949f
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-frozen-checkpoint-2026-10-21.json
+
+VERSION 394 | INCLUDED | SHA256 a8bc8fa75081d1680fe85a39cd00be670e4edef105a191c65199d5cdf32e4aa9 | 1514 bytes
+Archive payload: objects/a8bc8fa75081d1680fe85a39cd00be670e4edef105a191c65199d5cdf32e4aa9
+  scratch/firmware-direct-8145957/tools/studies/smc_vendor_lz/load_probe.h
+
+VERSION 395 | INCLUDED | SHA256 a9b88d6ad74dc739323e9315f7520294ee7d8a2cec8306414dfe935f89642e3e | 628 bytes
+Archive payload: objects/a9b88d6ad74dc739323e9315f7520294ee7d8a2cec8306414dfe935f89642e3e
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_highcpu.h
+
+VERSION 396 | INCLUDED | SHA256 aa1d62635f628590a863c0206a3272f3dc15690749a86b23b52ba2834138a8fd | 158 bytes
+Archive payload: objects/aa1d62635f628590a863c0206a3272f3dc15690749a86b23b52ba2834138a8fd
+  shared/owner-inventory-current-build/experiments/wobble/evidence/compiler.txt
+
+VERSION 397 | INCLUDED | SHA256 aa743d9ff3d73ad528a09e93266830e25d050ee782f8082da81826bdf4ab0aae | 1437 bytes
+Archive payload: objects/aa743d9ff3d73ad528a09e93266830e25d050ee782f8082da81826bdf4ab0aae
+  scratch/firmware-direct-8145957/docs/audit/native-cloud-workflow-2026-10-21/checks.txt
+  scratch/firmware-integration/docs/audit/native-cloud-workflow-2026-10-21/checks.txt
+
+VERSION 398 | INCLUDED | SHA256 aa8ec51f45128a546eb4e66ddabde3c2e0bd844703c26d997d6577eb4b080f81 | 1737 bytes
+Archive payload: objects/aa8ec51f45128a546eb4e66ddabde3c2e0bd844703c26d997d6577eb4b080f81
+  scratch/firmware-direct-8145957/skills/x0x37-device-bug/SKILL.md
+  scratch/firmware-integration/skills/x0x37-device-bug/SKILL.md
+
+VERSION 399 | INCLUDED | SHA256 aac65dc2327a7eec2e927a14db9aa846feed90f4712d9f6a1b509f8a90379f71 | 7540 bytes
+Archive payload: objects/aac65dc2327a7eec2e927a14db9aa846feed90f4712d9f6a1b509f8a90379f71
+  shared/owner-inventory-current-build/firmware/src/dsp/original_miami_backend.h
+
+VERSION 400 | INCLUDED | SHA256 abaa727cb82c6e6a6ca62ee15735ec1970dfb3bbc47d2adc266dbe9ea8d492cf | 3619 bytes
+Archive payload: objects/abaa727cb82c6e6a6ca62ee15735ec1970dfb3bbc47d2adc266dbe9ea8d492cf
+  shared/owner-inventory-current-build/experiments/original_synth/lossless_table.c
+
+VERSION 401 | INCLUDED | SHA256 abca2c986e74d296af70726fcc4fdc84ed8f5cc3ef595ea33f2695257da99ce6 | 2948 bytes
+Archive payload: objects/abca2c986e74d296af70726fcc4fdc84ed8f5cc3ef595ea33f2695257da99ce6
+  scratch/firmware-direct-8145957/firmware/src/ble/ble_midi_central.h
+  scratch/firmware-integration/firmware/src/ble/ble_midi_central.h
+
+VERSION 402 | INCLUDED | SHA256 abf67d7d48c873156914c34d8f0f920820616a579bfc9a01f990f76b2bada273 | 5096 bytes
+Archive payload: objects/abf67d7d48c873156914c34d8f0f920820616a579bfc9a01f990f76b2bada273
+  scratch/firmware-direct-8145957/tests/host/smc_mapping_test.py
+  scratch/firmware-integration/tests/host/smc_mapping_test.py
+
+VERSION 403 | INCLUDED | SHA256 ac4ef0b6c3d33170991cf838095fc36b8fc25ee4c1ea4d31d659577059433517 | 4677 bytes
+Archive payload: objects/ac4ef0b6c3d33170991cf838095fc36b8fc25ee4c1ea4d31d659577059433517
+  scratch/firmware-direct-8145957/SMK37.md
+  scratch/firmware-integration/SMK37.md
+
+VERSION 404 | INCLUDED | SHA256 ac64394c9f158b20047f3834edc4c89c7bc05547545ccc7e5fcfd5cf0e08a3ae | 9664 bytes
+Archive payload: objects/ac64394c9f158b20047f3834edc4c89c7bc05547545ccc7e5fcfd5cf0e08a3ae
+  shared/owner-inventory-current-build/firmware/src/app/original_sound.c
+
+VERSION 405 | INCLUDED | SHA256 ac92941114d6d19e6aed9f799f12939dba5720e51e9fbba0dd78816f314adf34 | 7452 bytes
+Archive payload: objects/ac92941114d6d19e6aed9f799f12939dba5720e51e9fbba0dd78816f314adf34
+  scratch/firmware-direct-8145957/tests/host/smc_drum_mutes_test.c
+  scratch/firmware-integration/tests/host/smc_drum_mutes_test.c
+
+VERSION 406 | INCLUDED | SHA256 aca6c508269c64084f5ea6ddd7b4bd0ed70fd371944a60461c0277352de29855 | 2601 bytes
+Archive payload: objects/aca6c508269c64084f5ea6ddd7b4bd0ed70fd371944a60461c0277352de29855
+  scratch/firmware-direct-8145957/docs/plans/2026-10-03-ui.md
+  scratch/firmware-integration/docs/plans/2026-10-03-ui.md
+
+VERSION 407 | INCLUDED | SHA256 ad3734fa60b2c763e7b1f80395c3819a070fd1a76d959e7830afa5732f9eb537 | 1110 bytes
+Archive payload: objects/ad3734fa60b2c763e7b1f80395c3819a070fd1a76d959e7830afa5732f9eb537
+  scratch/firmware-direct-8145957/skills/x0x37-writing/SKILL.md
+  scratch/firmware-integration/skills/x0x37-writing/SKILL.md
+
+VERSION 408 | INCLUDED | SHA256 ad619db8cc97efd7c124f0f8d30cc469937ff1c19d5947d6b13b35ddf887afaf | 6608 bytes
+Archive payload: objects/ad619db8cc97efd7c124f0f8d30cc469937ff1c19d5947d6b13b35ddf887afaf
+  scratch/firmware-direct-8145957/tests/slot_mock.py
+  scratch/firmware-integration/tests/slot_mock.py
+
+VERSION 409 | INCLUDED | SHA256 ad67dfeed091d56c2c8add3216d332e1b909622b04e413e80d4743254d0f5214 | 11650 bytes
+Archive payload: objects/ad67dfeed091d56c2c8add3216d332e1b909622b04e413e80d4743254d0f5214
+  scratch/firmware-direct-8145957/docs/smc-feedback-investigation-2026-10-21.md
+  scratch/firmware-integration/docs/smc-feedback-investigation-2026-10-21.md
+
+VERSION 410 | INCLUDED | SHA256 ad884608ea3f51d3d26eab15f28e4024bd9d6ee551cc26a9ca229091d502a694 | 5828 bytes
+Archive payload: objects/ad884608ea3f51d3d26eab15f28e4024bd9d6ee551cc26a9ca229091d502a694
+  scratch/firmware-direct-8145957/tests/ble/ctl_vendor_scheduler_test.c
+
+VERSION 411 | INCLUDED | SHA256 ad9cd9ae5d4639f90e319afb4b52348c35fe024e4aa52b2b553ad795e4f5e403 | 4505 bytes
+Archive payload: objects/ad9cd9ae5d4639f90e319afb4b52348c35fe024e4aa52b2b553ad795e4f5e403
+  scratch/firmware-direct-8145957/docs/rules-audit-2026-10-20-gate-reason.md
+  scratch/firmware-integration/docs/rules-audit-2026-10-20-gate-reason.md
+
+VERSION 412 | INCLUDED | SHA256 ae986892e0fda236820e16180adc674ec46d579627337a796e5621f273eb4749 | 4827 bytes
+Archive payload: objects/ae986892e0fda236820e16180adc674ec46d579627337a796e5621f273eb4749
+  scratch/firmware-direct-8145957/tools/studies/smc_app_data/seal_fixture.py
+
+VERSION 413 | INCLUDED | SHA256 af12ad3bd59f0a33a321050e70e518fe5a91a8e78f41b424fd89374d429f1994 | 1360 bytes
+Archive payload: objects/af12ad3bd59f0a33a321050e70e518fe5a91a8e78f41b424fd89374d429f1994
+  scratch/firmware-direct-8145957/docs/audit/classic-chain-correction-2026-10-21/results.json
+  scratch/firmware-integration/docs/audit/classic-chain-correction-2026-10-21/results.json
+
+VERSION 414 | INCLUDED | SHA256 b049a464418cf7831a7c54d7936f08dbebe65cc8e4b8307a66aa26bcb5837879 | 1487 bytes
+Archive payload: objects/b049a464418cf7831a7c54d7936f08dbebe65cc8e4b8307a66aa26bcb5837879
+  scratch/firmware-direct-8145957/skills/x0x37-integrate/SKILL.md
+  scratch/firmware-integration/skills/x0x37-integrate/SKILL.md
+
+VERSION 415 | INCLUDED | SHA256 b06daa3276ec0dfea3e3161d9cc2c9ec13e19a45190cd407051dcb72ed86022c | 5270 bytes
+Archive payload: objects/b06daa3276ec0dfea3e3161d9cc2c9ec13e19a45190cd407051dcb72ed86022c
+  shared/owner-inventory-current-build/experiments/original_synth/miami_ms20.c
+
+VERSION 416 | INCLUDED | SHA256 b08403087db36f599a5df0328065d194524b107932ee9b78d46d53cba5a46777 | 5607 bytes
+Archive payload: objects/b08403087db36f599a5df0328065d194524b107932ee9b78d46d53cba5a46777
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/acquire.py
+
+VERSION 417 | INCLUDED | SHA256 b0ceaebc26ddae60d08531516f371ee6b63d56cf36da77ef3fb5d57ff00b9459 | 24174 bytes
+Archive payload: objects/b0ceaebc26ddae60d08531516f371ee6b63d56cf36da77ef3fb5d57ff00b9459
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/USER_PREFERENCES.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/USER_PREFERENCES.md
+
+VERSION 418 | INCLUDED | SHA256 b231da17ece95956e231f2b54706dda4d9e8a0bab568443e6e2649f53be7b232 | 1535 bytes
+Archive payload: objects/b231da17ece95956e231f2b54706dda4d9e8a0bab568443e6e2649f53be7b232
+  scratch/firmware-direct-8145957/skills/x0x37-task/references/ownership.md
+  scratch/firmware-integration/skills/x0x37-task/references/ownership.md
+
+VERSION 419 | INCLUDED | SHA256 b3f7bb695452b738c6d9520a07c28fccab0a7012b4fbb39e7e5543f0cd8323ad | 3196 bytes
+Archive payload: objects/b3f7bb695452b738c6d9520a07c28fccab0a7012b4fbb39e7e5543f0cd8323ad
+  scratch/firmware-direct-8145957/skills/x0x37-docs/references/checks.md
+  scratch/firmware-integration/skills/x0x37-docs/references/checks.md
+
+VERSION 420 | INCLUDED | SHA256 b42dc59e1d7a9578c161207927302c1b42f96a79b2d69e49bfbe26582a06a03a | 146398 bytes
+Archive payload: objects/b42dc59e1d7a9578c161207927302c1b42f96a79b2d69e49bfbe26582a06a03a
+  scratch/firmware-direct-8145957/build/gen/felucca_font.h
+
+VERSION 421 | INCLUDED | SHA256 b44e4d79fca7d69785ed568d6557852760b54aa9c94eb33700179e26e89f403c | 9865 bytes
+Archive payload: objects/b44e4d79fca7d69785ed568d6557852760b54aa9c94eb33700179e26e89f403c
+  scratch/firmware-direct-8145957/LICENSING.md
+  scratch/firmware-integration/LICENSING.md
+
+VERSION 422 | INCLUDED | SHA256 b50ee7715f2c5776da8d2dd1ffdeaca7deab462930ec5d660379e69142b43cbb | 18049 bytes
+Archive payload: objects/b50ee7715f2c5776da8d2dd1ffdeaca7deab462930ec5d660379e69142b43cbb
+  shared/owner-inventory-current-build/firmware/src/app/factory_banks.c
+
+VERSION 423 | INCLUDED | SHA256 b57b6d116d289164468e21251913c896d14568d71e5c7502e90cc08da92ecac9 | 24410 bytes
+Archive payload: objects/b57b6d116d289164468e21251913c896d14568d71e5c7502e90cc08da92ecac9
+  scratch/firmware-direct-8145957/firmware/src/app/editor.c
+
+VERSION 424 | INCLUDED | SHA256 b5bb362ea74713f08627e743f449fe1f52d7fc6103c041295e7e6fbd4584fc14 | 339 bytes
+Archive payload: objects/b5bb362ea74713f08627e743f449fe1f52d7fc6103c041295e7e6fbd4584fc14
+  scratch/firmware-direct-8145957/skills/x0x37-writing/references/terms.md
+  scratch/firmware-integration/skills/x0x37-writing/references/terms.md
+
+VERSION 425 | INCLUDED | SHA256 b63997dae597cc3e1168589e12c2f622204e7645c4f60c2dc485357864372d3a | 2311 bytes
+Archive payload: objects/b63997dae597cc3e1168589e12c2f622204e7645c4f60c2dc485357864372d3a
+  scratch/firmware-direct-8145957/tests/ble/check_smc_dev_validation.py
+
+VERSION 426 | INCLUDED | SHA256 b6a6402fcfd6f1a467cdbe1e258ff9d86ab763e31d5003220a68eaa8ba743a28 | 21636 bytes
+Archive payload: objects/b6a6402fcfd6f1a467cdbe1e258ff9d86ab763e31d5003220a68eaa8ba743a28
+  scratch/firmware-direct-8145957/build/host/smc_host_ingress/apc_b.inc
+  scratch/firmware-integration/build/host/smc_host_ingress/apc_b.inc
+
+VERSION 427 | INCLUDED | SHA256 b7273300a5d7f79dee4481df171b5dc3ee81baacc3616c91dec3ce1ded15f590 | 58541 bytes
+Archive payload: objects/b7273300a5d7f79dee4481df171b5dc3ee81baacc3616c91dec3ce1ded15f590
+  scratch/firmware-direct-8145957/tests/host/seq_test.c
+  scratch/firmware-integration/tests/host/seq_test.c
+
+VERSION 428 | INCLUDED | SHA256 b734f671d0c63217c2a9fc8f091719f9c7e358571de42428a8babb8b19c2f8de | 807 bytes
+Archive payload: objects/b734f671d0c63217c2a9fc8f091719f9c7e358571de42428a8babb8b19c2f8de
+  scratch/firmware-direct-8145957/tests/ble/run_ctl_vendor_scheduler.sh
+
+VERSION 429 | INCLUDED | SHA256 b7c0e15cc7c5d3317253227e44827bb0c4bd15ea5942ae9989a27dace298f731 | 36902 bytes
+Archive payload: objects/b7c0e15cc7c5d3317253227e44827bb0c4bd15ea5942ae9989a27dace298f731
+  scratch/firmware-direct-8145957/firmware/src/ble/ble_midi_central.c
+  scratch/firmware-integration/firmware/src/ble/ble_midi_central.c
+
+VERSION 430 | INCLUDED | SHA256 b7c9f310159e12addce06ddf48055b5943deaa753e6eee02006a71c44fff8297 | 1320 bytes
+Archive payload: objects/b7c9f310159e12addce06ddf48055b5943deaa753e6eee02006a71c44fff8297
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/test_pin.py
+
+VERSION 431 | INCLUDED | SHA256 b8783f827d31a2bc3c5ea9738aa9eb5e442856ec3408497e60fe661a3846ac51 | 10796 bytes
+Archive payload: objects/b8783f827d31a2bc3c5ea9738aa9eb5e442856ec3408497e60fe661a3846ac51
+  scratch/firmware-direct-8145957/tools/prefs_lint.py
+  scratch/firmware-integration/tools/prefs_lint.py
+
+VERSION 432 | INCLUDED | SHA256 b89f589b73fca575c3890e06591e9e5a9564c70d33fc78d4cf14ae5c25baea1c | 5771 bytes
+Archive payload: objects/b89f589b73fca575c3890e06591e9e5a9564c70d33fc78d4cf14ae5c25baea1c
+  scratch/firmware-direct-8145957/tests/host/ble_midi_deadline_test.c
+  scratch/firmware-integration/tests/host/ble_midi_deadline_test.c
+
+VERSION 433 | INCLUDED | SHA256 b8de30dd29a9b78b37894aa012a871dd6ee44b9dd10d988d505fe0832704eff2 | 8214 bytes
+Archive payload: objects/b8de30dd29a9b78b37894aa012a871dd6ee44b9dd10d988d505fe0832704eff2
+  scratch/firmware-direct-8145957/docs/plans/2026-10-04-dual-core-and-clock.md
+  scratch/firmware-integration/docs/plans/2026-10-04-dual-core-and-clock.md
+
+VERSION 434 | INCLUDED | SHA256 b94c07424872b832d284d877cbcc0ca0679ec600f2fa4880a9c7ba138bb92413 | 1669 bytes
+Archive payload: objects/b94c07424872b832d284d877cbcc0ca0679ec600f2fa4880a9c7ba138bb92413
+  shared/pr721-readback-20261030/remote-files.json
+
+VERSION 435 | INCLUDED | SHA256 b957fa6513c08e32326dc46a149d22d5d6685d815711dce1b87376d178b6cda1 | 4512 bytes
+Archive payload: objects/b957fa6513c08e32326dc46a149d22d5d6685d815711dce1b87376d178b6cda1
+  scratch/firmware-direct-8145957/firmware/src/ble/ble_midi_host.h
+  scratch/firmware-integration/firmware/src/ble/ble_midi_host.h
+
+VERSION 436 | INCLUDED | SHA256 b95dce497b5a66545df620976d936451987264e723eda2e7abe3a27d241a98f3 | 15503 bytes
+Archive payload: objects/b95dce497b5a66545df620976d936451987264e723eda2e7abe3a27d241a98f3
+  shared/owner-inventory-current-build/firmware/src/dsp/original_miami_backend.c
+
+VERSION 437 | INCLUDED | SHA256 b9733246ba818a344bae68be8dceb18a1c931819d7a5563c3b6f1098ad4c4ceb | 1899 bytes
+Archive payload: objects/b9733246ba818a344bae68be8dceb18a1c931819d7a5563c3b6f1098ad4c4ceb
+  shared/owner-inventory-current-build/experiments/wobble/miami_decimator_component.h
+
+VERSION 438 | INCLUDED | SHA256 b97853ceb886368ed15978ef26a3a23c6db602a5eb34a3d4422f5c67a399b8cb | 1606 bytes
+Archive payload: objects/b97853ceb886368ed15978ef26a3a23c6db602a5eb34a3d4422f5c67a399b8cb
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/build_source.py
+
+VERSION 439 | INCLUDED | SHA256 b9ae9a070509cea7ba0f3d292279aebf6f4d2ba640ecca4a26c264dec4e2e8bd | 4302 bytes
+Archive payload: objects/b9ae9a070509cea7ba0f3d292279aebf6f4d2ba640ecca4a26c264dec4e2e8bd
+  shared/owner-inventory-current-build/experiments/wobble/miami_fx_conversion.c
+
+VERSION 440 | INCLUDED | SHA256 bb41ccefbdc006bd87521194ad7c191e97a02f0e1675d15f0ec6450419f49466 | 10421 bytes
+Archive payload: objects/bb41ccefbdc006bd87521194ad7c191e97a02f0e1675d15f0ec6450419f49466
+  shared/owner-inventory-current-build/tools/stage_handoff.py
+
+VERSION 441 | INCLUDED | SHA256 bb8b5dc72425cd5e5958da20fafb77f5daaa5084f9c8c13bdc872588c8c1ea7d | 12902 bytes
+Archive payload: objects/bb8b5dc72425cd5e5958da20fafb77f5daaa5084f9c8c13bdc872588c8c1ea7d
+  scratch/firmware-direct-8145957/firmware/src/ble_vendor.c
+
+VERSION 442 | INCLUDED | SHA256 bd5486df607fd5dcca9ba4104189e533332782a249d533a17033f728851df9f9 | 6123 bytes
+Archive payload: objects/bd5486df607fd5dcca9ba4104189e533332782a249d533a17033f728851df9f9
+  scratch/firmware-direct-8145957/tests/distribution/test_backend_selection.py
+  scratch/firmware-integration/tests/distribution/test_backend_selection.py
+
+VERSION 443 | INCLUDED | SHA256 be14ad0be68ad7a3f447e4453beee484b0d646c5a107368c71e14872a0935ae0 | 405 bytes
+Archive payload: objects/be14ad0be68ad7a3f447e4453beee484b0d646c5a107368c71e14872a0935ae0
+  scratch/firmware-direct-8145957/tests/host/fixtures/queue_guard/no-commit.txt
+  scratch/firmware-integration/tests/host/fixtures/queue_guard/no-commit.txt
+
+VERSION 444 | INCLUDED | SHA256 be1872bb3293f3edcf12b5c2b12243ad9c35fc8de6e9c41b664098d5c3694d63 | 19183 bytes
+Archive payload: objects/be1872bb3293f3edcf12b5c2b12243ad9c35fc8de6e9c41b664098d5c3694d63
+  scratch/firmware-direct-8145957/tools/x0x_slots.py
+  scratch/firmware-integration/tools/x0x_slots.py
+
+VERSION 445 | INCLUDED | SHA256 be386b7139959b2ea59550441fa245b2723e924df1d851485793f49a8a776d6a | 68159 bytes
+Archive payload: objects/be386b7139959b2ea59550441fa245b2723e924df1d851485793f49a8a776d6a
+  shared/owner-inventory-cloud-094bb/firmware/src/app/smc_mixer.c
+  shared/owner-inventory-current-build/firmware/src/app/smc_mixer.c
+
+VERSION 446 | INCLUDED | SHA256 bef898d0771f76458adc51f985981e07495bdf9d3b3b5613ca1185ae8c7547ec | 5704 bytes
+Archive payload: objects/bef898d0771f76458adc51f985981e07495bdf9d3b3b5613ca1185ae8c7547ec
+  scratch/firmware-direct-8145957/tests/distribution/test_dependency_setup.py
+  scratch/firmware-integration/tests/distribution/test_dependency_setup.py
+
+VERSION 447 | INCLUDED | SHA256 bf412c24866f79be8d8bd220d95686560dbb480668ae58c3652689d2eaf737ec | 3119 bytes
+Archive payload: objects/bf412c24866f79be8d8bd220d95686560dbb480668ae58c3652689d2eaf737ec
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/stage_test.c
+
+VERSION 448 | INCLUDED | SHA256 bf649dc9d5eededfc11c02d3c1a1f9801b7e225ad7fe2c16170e91e9bb079462 | 2464 bytes
+Archive payload: objects/bf649dc9d5eededfc11c02d3c1a1f9801b7e225ad7fe2c16170e91e9bb079462
+  scratch/firmware-direct-8145957/tests/host/test_prepush_allow.sh
+  scratch/firmware-integration/tests/host/test_prepush_allow.sh
+
+VERSION 449 | INCLUDED | SHA256 bff51f597157d6aba9b39f3c002bd2754e35a385172db3374063af1e7ad64404 | 6611 bytes
+Archive payload: objects/bff51f597157d6aba9b39f3c002bd2754e35a385172db3374063af1e7ad64404
+  scratch/firmware-direct-8145957/docs/audit/native-cloud-workflow-2026-10-21/text-sizes.json
+  scratch/firmware-integration/docs/audit/native-cloud-workflow-2026-10-21/text-sizes.json
+
+VERSION 450 | INCLUDED | SHA256 c0b7ce994de376f284dd04e6f5a8eec288b3060f4f40ce77c0cba94fff1e63a7 | 746 bytes
+Archive payload: objects/c0b7ce994de376f284dd04e6f5a8eec288b3060f4f40ce77c0cba94fff1e63a7
+  scratch/firmware-direct-8145957/docs/AGENTS_AND_ROOMS.md
+  scratch/firmware-integration/docs/AGENTS_AND_ROOMS.md
+
+VERSION 451 | INCLUDED | SHA256 c16aa0dc8acd0da7f4857f58bebe5d537df1f4c5ccd4c0d168223406bdad1b3a | 1490 bytes
+Archive payload: objects/c16aa0dc8acd0da7f4857f58bebe5d537df1f4c5ccd4c0d168223406bdad1b3a
+  scratch/firmware-direct-8145957/build/host/smc_host_ingress/padled.inc
+  scratch/firmware-integration/build/host/smc_host_ingress/padled.inc
+
+VERSION 452 | INCLUDED | SHA256 c1986a250ef9f820edb912dcf14711bfa8319992d79fc70f0e86e798d02aa8e5 | 38349 bytes
+Archive payload: objects/c1986a250ef9f820edb912dcf14711bfa8319992d79fc70f0e86e798d02aa8e5
+  scratch/firmware-direct-8145957/tools/gate.sh
+  scratch/firmware-integration/tools/gate.sh
+
+VERSION 453 | INCLUDED | SHA256 c1e5f0f89e9229a6328fdac046999d1d4ab4009ef7a81530a91cddecc4c41bc7 | 4137 bytes
+Archive payload: objects/c1e5f0f89e9229a6328fdac046999d1d4ab4009ef7a81530a91cddecc4c41bc7
+  shared/dnbox-orchestrator-candidate/tests/host/ui_page_wrap_test.py
+
+VERSION 454 | INCLUDED | SHA256 c1f1610e5d3881287f8f5934d339d629ea24e2c4276b01967559ca49aaa518b0 | 1192 bytes
+Archive payload: objects/c1f1610e5d3881287f8f5934d339d629ea24e2c4276b01967559ca49aaa518b0
+  scratch/firmware-direct-8145957/tests/ble/check_smc_update_entry.py
+
+VERSION 455 | INCLUDED | SHA256 c21d83e8188d36748e16ed5065c9bfc919eaa7cc676fdbc25ab938e604889b10 | 6184 bytes
+Archive payload: objects/c21d83e8188d36748e16ed5065c9bfc919eaa7cc676fdbc25ab938e604889b10
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-host-adapter-2026-10-21.md
+
+VERSION 456 | INCLUDED | SHA256 c274d10fd1f68ef6a1ad585df242f9a48844d6657a831398370f42013a990b78 | 31299 bytes
+Archive payload: objects/c274d10fd1f68ef6a1ad585df242f9a48844d6657a831398370f42013a990b78
+  scratch/firmware-direct-8145957/BUILDING.md
+  scratch/firmware-integration/BUILDING.md
+
+VERSION 457 | INCLUDED | SHA256 c2ab23e3d39406993b73a39332d109680b3f10c927abbc45bcb0f5fc251b3010 | 24533 bytes
+Archive payload: objects/c2ab23e3d39406993b73a39332d109680b3f10c927abbc45bcb0f5fc251b3010
+  scratch/firmware-integration/firmware/src/app/smc_mixer.c
+
+VERSION 458 | INCLUDED | SHA256 c2ac9d4b47c655c76009ffabdccd793c3038434644fb48a10b821022f94802ca | 10676 bytes
+Archive payload: objects/c2ac9d4b47c655c76009ffabdccd793c3038434644fb48a10b821022f94802ca
+  scratch/firmware-direct-8145957/docs/audit/project-management-dev-validation.md
+  scratch/firmware-integration/docs/audit/project-management-dev-validation.md
+
+VERSION 459 | INCLUDED | SHA256 c30cc1e5e2db2511e0c8c09ad66f50c55a6d81f37e6dffa69151b70dfecc1d48 | 9401 bytes
+Archive payload: objects/c30cc1e5e2db2511e0c8c09ad66f50c55a6d81f37e6dffa69151b70dfecc1d48
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-singlecentral-memory-2026-10-21.md
+
+VERSION 460 | INCLUDED | SHA256 c35c2011f6318c42fa048daa879392de24c0988408c467bf7246e35dc6feb6e2 | 5599 bytes
+Archive payload: objects/c35c2011f6318c42fa048daa879392de24c0988408c467bf7246e35dc6feb6e2
+  scratch/firmware-direct-8145957/tests/host/smc_vendor_ingress_test.c
+
+VERSION 461 | INCLUDED | SHA256 c3e64e99dfffa0a0bedd3c8bf13d5cdacc4ed9643a1c60114d63a89f5274e987 | 7813 bytes
+Archive payload: objects/c3e64e99dfffa0a0bedd3c8bf13d5cdacc4ed9643a1c60114d63a89f5274e987
+  scratch/firmware-direct-8145957/docs/audit/smc-segment-manifest-contract-2026-10-21.md
+
+VERSION 462 | INCLUDED | SHA256 c4d981c20f32dd8ca2c643c82469e530776f44b1cdaab4e6eb0571b72b3bc7ea | 9026 bytes
+Archive payload: objects/c4d981c20f32dd8ca2c643c82469e530776f44b1cdaab4e6eb0571b72b3bc7ea
+  shared/owner-inventory-current-build/firmware/src/x0x.c
+
+VERSION 463 | INCLUDED | SHA256 c4f6c7d5a0842823e09788381ed13c6c6b9cf4e201071c9bf4d04ae0abc1add9 | 7646 bytes
+Archive payload: objects/c4f6c7d5a0842823e09788381ed13c6c6b9cf4e201071c9bf4d04ae0abc1add9
+  scratch/firmware-direct-8145957/tests/smc_vendor_bundle_test.py
+
+VERSION 464 | INCLUDED | SHA256 c52d11107a4da6320f10e6984fe8f84795f055e0b4eef192cbe60dcd89ec485c | 8011 bytes
+Archive payload: objects/c52d11107a4da6320f10e6984fe8f84795f055e0b4eef192cbe60dcd89ec485c
+  scratch/firmware-direct-8145957/docs/audit/smc-input-queue-20261021.md
+  scratch/firmware-integration/docs/audit/smc-input-queue-20261021.md
+
+VERSION 465 | INCLUDED | SHA256 c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed | 11310 bytes
+Archive payload: objects/c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed
+  scratch/firmware-direct-8145957/tests/host/test_quickcheck_plan.py
+  scratch/firmware-integration/tests/host/test_quickcheck_plan.py
+
+VERSION 466 | INCLUDED | SHA256 c54e2006b7fbfbf6d495a43574cfb6c296d40327c447633097bad1a3299708b5 | 3062 bytes
+Archive payload: objects/c54e2006b7fbfbf6d495a43574cfb6c296d40327c447633097bad1a3299708b5
+  scratch/firmware-direct-8145957/tests/ble/check_smc_dev_artifacts.py
+
+VERSION 467 | INCLUDED | SHA256 c55a49ad04b55fa99274528b698ca174593b5f7f92fbbd8773cb7c7d3c6e2fc7 | 251 bytes
+Archive payload: objects/c55a49ad04b55fa99274528b698ca174593b5f7f92fbbd8773cb7c7d3c6e2fc7
+  scratch/firmware-direct-8145957/docs/rules/workflow.md
+  scratch/firmware-integration/docs/rules/workflow.md
+
+VERSION 468 | INCLUDED | SHA256 c567294f5b57b1be3b5e94c635748455312e3f99d869e7cdace4d1d09e0cf3cb | 27002 bytes
+Archive payload: objects/c567294f5b57b1be3b5e94c635748455312e3f99d869e7cdace4d1d09e0cf3cb
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/AGENTS_AND_ROOMS.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/AGENTS_AND_ROOMS.md
+
+VERSION 469 | INCLUDED | SHA256 c596a5ba16b287d439c14c86eb4c14db4f00b262eab4e8e82b356a711b1cb557 | 152 bytes
+Archive payload: objects/c596a5ba16b287d439c14c86eb4c14db4f00b262eab4e8e82b356a711b1cb557
+  scratch/firmware-direct-8145957/tests/host/fixtures/rules_guard/bad-rule.txt
+  scratch/firmware-integration/tests/host/fixtures/rules_guard/bad-rule.txt
+
+VERSION 470 | INCLUDED | SHA256 c66ae4a7ee741e9c40e336b5cbb33617f4ed5062c57d26e849cfa91451935448 | 172 bytes
+Archive payload: objects/c66ae4a7ee741e9c40e336b5cbb33617f4ed5062c57d26e849cfa91451935448
+  scratch/firmware-direct-8145957/docs/rules/SCRIPT-CHECKS.md
+  scratch/firmware-integration/docs/rules/SCRIPT-CHECKS.md
+
+VERSION 471 | INCLUDED | SHA256 c6f71bd22c0f9b769654e3d8fb6571056e00150811baaef8d32d892d35e0f9c1 | 894 bytes
+Archive payload: objects/c6f71bd22c0f9b769654e3d8fb6571056e00150811baaef8d32d892d35e0f9c1
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-integrated-fit-2026-10-21.json
+
+VERSION 472 | INCLUDED | SHA256 c8904df53efb38affdb6c71ef79d2a2bba860c2c92ed463e70d331f1ef56b25e | 1170 bytes
+Archive payload: objects/c8904df53efb38affdb6c71ef79d2a2bba860c2c92ed463e70d331f1ef56b25e
+  scratch/firmware-direct-8145957/docs/audit/classic-chain-correction-2026-10-21/before.json
+  scratch/firmware-integration/docs/audit/classic-chain-correction-2026-10-21/before.json
+
+VERSION 473 | INCLUDED | SHA256 c8f2e44aeea9d1b70ed8964fe6db69aa1d9b558ab4bd13c97d12e10fb20d4b69 | 8631 bytes
+Archive payload: objects/c8f2e44aeea9d1b70ed8964fe6db69aa1d9b558ab4bd13c97d12e10fb20d4b69
+  scratch/firmware-direct-8145957/firmware/src/storage.c
+
+VERSION 474 | INCLUDED | SHA256 c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199 | 76059 bytes
+Archive payload: objects/c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199
+  scratch/firmware-direct-8145957/build/gen/x0x_drum_tables.h
+
+VERSION 475 | INCLUDED | SHA256 c9e0c7f55cbc04166ae5f56511198b267b91f0a49cc7e50527bfb0bd5ad1a7d6 | 2710 bytes
+Archive payload: objects/c9e0c7f55cbc04166ae5f56511198b267b91f0a49cc7e50527bfb0bd5ad1a7d6
+  scratch/firmware-direct-8145957/tests/distribution/test_source_inventory.py
+  scratch/firmware-integration/tests/distribution/test_source_inventory.py
+
+VERSION 476 | INCLUDED | SHA256 caba99ecf5c715974b48e2efd12b8a3c8266aeac1697ae3dc71b390d01d51560 | 607 bytes
+Archive payload: objects/caba99ecf5c715974b48e2efd12b8a3c8266aeac1697ae3dc71b390d01d51560
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/rollback_pins.h
+
+VERSION 477 | INCLUDED | SHA256 cadd425adb406f0290ea54e86440077dda408fb476d62773323b5c4c70ef765c | 25259 bytes
+Archive payload: objects/cadd425adb406f0290ea54e86440077dda408fb476d62773323b5c4c70ef765c
+  scratch/firmware-direct-8145957/APC40_IMPLEMENTATION.md
+  scratch/firmware-integration/APC40_IMPLEMENTATION.md
+
+VERSION 478 | INCLUDED | SHA256 cb624851e603de8b67d0094e96ae7cb23d60c8cd44be64da0ec57409cee8f889 | 1294 bytes
+Archive payload: objects/cb624851e603de8b67d0094e96ae7cb23d60c8cd44be64da0ec57409cee8f889
+  scratch/firmware-direct-8145957/tests/ble/ctl_highcpu_test.c
+
+VERSION 479 | INCLUDED | SHA256 cb6af282cdf67cb80fd0a0fed97f9d59a3c7fee9999722ba79b1da441009c074 | 1830 bytes
+Archive payload: objects/cb6af282cdf67cb80fd0a0fed97f9d59a3c7fee9999722ba79b1da441009c074
+  scratch/firmware-direct-8145957/docs/agent-rules.md
+  scratch/firmware-integration/docs/agent-rules.md
+
+VERSION 480 | INCLUDED | SHA256 cb84d6546516e1cb4a7d63144ed7a201f93735bc001471be2587b846807f3058 | 8212 bytes
+Archive payload: objects/cb84d6546516e1cb4a7d63144ed7a201f93735bc001471be2587b846807f3058
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_fx2_compact.c
+
+VERSION 481 | INCLUDED | SHA256 cccc1d65403bd32974e954b31a868bc369afa010ee86bcbf8cf16de1b33d7deb | 12809 bytes
+Archive payload: objects/cccc1d65403bd32974e954b31a868bc369afa010ee86bcbf8cf16de1b33d7deb
+  scratch/firmware-integration/docs/audit/smc-reference-fit-2026-10-21.json
+
+VERSION 482 | INCLUDED | SHA256 cd4eeefa86aa5a40f4f1f344c49ade6239e0eee5250084198caf48231fdaaee9 | 8901 bytes
+Archive payload: objects/cd4eeefa86aa5a40f4f1f344c49ade6239e0eee5250084198caf48231fdaaee9
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/wire_replay.c
+
+VERSION 483 | INCLUDED | SHA256 cda289306a53279e54232654868b31f71ff39bcdd202e46d8ee25e483c7e5a78 | 197629 bytes
+Archive payload: objects/cda289306a53279e54232654868b31f71ff39bcdd202e46d8ee25e483c7e5a78
+  scratch/firmware-integration/firmware/src/app/ui.c
+
+VERSION 484 | INCLUDED | SHA256 cdfd35832c1282d1beeb24acae961bdbc0dad328ad8a50280e7ab3436dc6180a | 1987 bytes
+Archive payload: objects/cdfd35832c1282d1beeb24acae961bdbc0dad328ad8a50280e7ab3436dc6180a
+  scratch/firmware-direct-8145957/docs/audit/host-distribution-tools-2026-10-21.json
+  scratch/firmware-integration/docs/audit/host-distribution-tools-2026-10-21.json
+
+VERSION 485 | INCLUDED | SHA256 ce334939fc0ca6e948768b5a715facebba12d385a431d3d33c58d8d978b1d2ce | 2474 bytes
+Archive payload: objects/ce334939fc0ca6e948768b5a715facebba12d385a431d3d33c58d8d978b1d2ce
+  scratch/firmware-direct-8145957/tools/recovery/install_records/README.txt
+  scratch/firmware-integration/tools/recovery/install_records/README.txt
+
+VERSION 486 | INCLUDED | SHA256 cf1fbea09f8a6cc83882171c63bda01320c87297e4e95ce1b30c8f8e9ec92a9f | 1342 bytes
+Archive payload: objects/cf1fbea09f8a6cc83882171c63bda01320c87297e4e95ce1b30c8f8e9ec92a9f
+  shared/owner-inventory-current-build/experiments/original_synth/master.c
+
+VERSION 487 | INCLUDED | SHA256 cf2cb2a5858587489ddf67802117d456cad42b26fad11cc1ec35ddf8af9ed36c | 428 bytes
+Archive payload: objects/cf2cb2a5858587489ddf67802117d456cad42b26fad11cc1ec35ddf8af9ed36c
+  scratch/firmware-direct-8145957/assets/909/README.txt
+  scratch/firmware-integration/assets/909/README.txt
+  shared/owner-inventory-current-build/assets/909/README.txt
+
+VERSION 488 | INCLUDED | SHA256 cf5f0048a57630f1b17d96283aa52707383bfb55c2516b218b5cdc8b23b3a289 | 850 bytes
+Archive payload: objects/cf5f0048a57630f1b17d96283aa52707383bfb55c2516b218b5cdc8b23b3a289
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/automatic-maintained-rollout.json
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/automatic-maintained-rollout.json
+
+VERSION 489 | INCLUDED | SHA256 cf7dab05d015aa5df3045f81fa5a847a0ac5f56c74a8491a660bdb12e7e1c908 | 5616 bytes
+Archive payload: objects/cf7dab05d015aa5df3045f81fa5a847a0ac5f56c74a8491a660bdb12e7e1c908
+  shared/owner-inventory-current-build/tools/check_original_inputs.py
+
+VERSION 490 | INCLUDED | SHA256 cfe82e50cb0f7fcc4c2095eb54c4256c9f77d103e94041ab67536250ee44ec81 | 5607 bytes
+Archive payload: objects/cfe82e50cb0f7fcc4c2095eb54c4256c9f77d103e94041ab67536250ee44ec81
+  shared/owner-inventory-current-build/experiments/original_synth/fused_reference.c
+
+VERSION 491 | INCLUDED | SHA256 cfefe75a2545c74cac6b664d1ae24f4d43990f2527f8650fbd0d535e2a9dda4d | 205465 bytes
+Archive payload: objects/cfefe75a2545c74cac6b664d1ae24f4d43990f2527f8650fbd0d535e2a9dda4d
+  scratch/firmware-direct-8145957/firmware/src/app/ui.c
+
+VERSION 492 | INCLUDED | SHA256 d02e4969aae995652a02395492993c83f61c9d2532fe2ccf505f1bf88d0d6692 | 15556 bytes
+Archive payload: objects/d02e4969aae995652a02395492993c83f61c9d2532fe2ccf505f1bf88d0d6692
+  scratch/firmware-direct-8145957/tools/studies/smc_reference/README.md
+
+VERSION 493 | INCLUDED | SHA256 d0ded727fc81b7700d7be6b4a11981f8137de2bb490fd04f9db480f21588e9b9 | 589 bytes
+Archive payload: objects/d0ded727fc81b7700d7be6b4a11981f8137de2bb490fd04f9db480f21588e9b9
+  shared/owner-inventory-current-build/experiments/wobble/evidence/sanitizer-tests.txt
+
+VERSION 494 | INCLUDED | SHA256 d13f7c3a130bea564ad51630cdb8909d2e30191e787c8d5b4d788f9efb6d0b52 | 5859 bytes
+Archive payload: objects/d13f7c3a130bea564ad51630cdb8909d2e30191e787c8d5b4d788f9efb6d0b52
+  scratch/firmware-direct-8145957/tests/x0x_slots_test.py
+  scratch/firmware-integration/tests/x0x_slots_test.py
+
+VERSION 495 | INCLUDED | SHA256 d2941a63f1184d82936114e10003863c35eea6f6c7db03d11bc19d80c3839d31 | 3030 bytes
+Archive payload: objects/d2941a63f1184d82936114e10003863c35eea6f6c7db03d11bc19d80c3839d31
+  scratch/firmware-direct-8145957/docs/audit/rollout-2026-10-19.md
+  scratch/firmware-integration/docs/audit/rollout-2026-10-19.md
+
+VERSION 496 | INCLUDED | SHA256 d31bc3206764f781b3b1c196e01da431ea718ebb4e5aede337837061bc972e3e | 2028 bytes
+Archive payload: objects/d31bc3206764f781b3b1c196e01da431ea718ebb4e5aede337837061bc972e3e
+  scratch/firmware-direct-8145957/docs/audit/smc-owned-security-2026-10-21.md
+
+VERSION 497 | INCLUDED | SHA256 d3321be56db40f73211a6e9439d7d86d801af575c84470a469b68a86824d898f | 1536 bytes
+Archive payload: objects/d3321be56db40f73211a6e9439d7d86d801af575c84470a469b68a86824d898f
+  scratch/firmware-direct-8145957/skills/x0x37-install/references/artifacts.md
+  scratch/firmware-integration/skills/x0x37-install/references/artifacts.md
+
+VERSION 498 | INCLUDED | SHA256 d345f727f5400fbb8c6d6191a3268477b660e1a9ffbc9072f3aa4c7f4f370a93 | 2920 bytes
+Archive payload: objects/d345f727f5400fbb8c6d6191a3268477b660e1a9ffbc9072f3aa4c7f4f370a93
+  scratch/firmware-direct-8145957/skills/x0x37-workflow/references/stages.md
+  scratch/firmware-integration/skills/x0x37-workflow/references/stages.md
+
+VERSION 499 | INCLUDED | SHA256 d461fccf6a56bc81ad09b5c5ad3caf5818ed3ad851b8cbb5d6cb9b22fdcc96e0 | 1257 bytes
+Archive payload: objects/d461fccf6a56bc81ad09b5c5ad3caf5818ed3ad851b8cbb5d6cb9b22fdcc96e0
+  scratch/firmware-direct-8145957/tests/check_ctl_host_adapters.py
+
+VERSION 500 | INCLUDED | SHA256 d4a6f7f79bbb08074601a0b1cfc83c9b4813a6f1320e4fc60aeb4d29fe745620 | 2716 bytes
+Archive payload: objects/d4a6f7f79bbb08074601a0b1cfc83c9b4813a6f1320e4fc60aeb4d29fe745620
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_fx2_compact.h
+
+VERSION 501 | INCLUDED | SHA256 d53694496d654a408f28d8e433861714e74eb27d5a0f0132fe24221298277365 | 1319 bytes
+Archive payload: objects/d53694496d654a408f28d8e433861714e74eb27d5a0f0132fe24221298277365
+  scratch/firmware-direct-8145957/docs/audit/skill-recovery.json
+  scratch/firmware-integration/docs/audit/skill-recovery.json
+
+VERSION 502 | INCLUDED | SHA256 d5a99b532af8f0be768c64a729cdb95d74c0968ca1275801c3ae31c4187470d4 | 3519 bytes
+Archive payload: objects/d5a99b532af8f0be768c64a729cdb95d74c0968ca1275801c3ae31c4187470d4
+  scratch/firmware-direct-8145957/firmware/src/ble/ble_central_trace.h
+  scratch/firmware-integration/firmware/src/ble/ble_central_trace.h
+
+VERSION 503 | INCLUDED | SHA256 d64ca631193a0067374ccc64a2c00248feda2a9ed44a2a08b5f8b11ea4ac9f89 | 1119 bytes
+Archive payload: objects/d64ca631193a0067374ccc64a2c00248feda2a9ed44a2a08b5f8b11ea4ac9f89
+  scratch/firmware-direct-8145957/tests/host/motion_ui_test.sh
+  scratch/firmware-integration/tests/host/motion_ui_test.sh
+
+VERSION 504 | INCLUDED | SHA256 d657fcffad454ec5f5c3a7d89a5e27a8631cdb1da4ece217ee497f9f5f470753 | 5108 bytes
+Archive payload: objects/d657fcffad454ec5f5c3a7d89a5e27a8631cdb1da4ece217ee497f9f5f470753
+  scratch/firmware-direct-8145957/tools/recovery/artifact_evidence/test_collect.py
+  scratch/firmware-integration/tools/recovery/artifact_evidence/test_collect.py
+
+VERSION 505 | INCLUDED | SHA256 d68895dce973dd9d1ac25994ab5289e9984a15048fdad91f1c82f8b3e218a082 | 615 bytes
+Archive payload: objects/d68895dce973dd9d1ac25994ab5289e9984a15048fdad91f1c82f8b3e218a082
+  shared/owner-inventory-current-build/generated-inputs.json
+
+VERSION 506 | INCLUDED | SHA256 d7c36e8b60555a828044a1c18053914e8c1d578844be4f42c9d493035bd3c6e4 | 5071 bytes
+Archive payload: objects/d7c36e8b60555a828044a1c18053914e8c1d578844be4f42c9d493035bd3c6e4
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_fx2_wrapper.h
+
+VERSION 507 | INCLUDED | SHA256 d82a33218c36989b9fe6ff5e7f243ccf879023a7c228fa0a2b3ffbdabd34a19a | 13083 bytes
+Archive payload: objects/d82a33218c36989b9fe6ff5e7f243ccf879023a7c228fa0a2b3ffbdabd34a19a
+  scratch/firmware-direct-8145957/tests/install_slots_test.py
+  scratch/firmware-integration/tests/install_slots_test.py
+
+VERSION 508 | INCLUDED | SHA256 d83b134a5a5b71a7f64c6e68728ed5f69c18052eae2355e82a4522395a09290f | 2833 bytes
+Archive payload: objects/d83b134a5a5b71a7f64c6e68728ed5f69c18052eae2355e82a4522395a09290f
+  scratch/firmware-direct-8145957/tools/check_project_skills.py
+  scratch/firmware-integration/tools/check_project_skills.py
+
+VERSION 509 | INCLUDED | SHA256 d8fad4000ef769b410f1ef77431f92fba3c7c98713889036857a9d489c8abed0 | 38388 bytes
+Archive payload: objects/d8fad4000ef769b410f1ef77431f92fba3c7c98713889036857a9d489c8abed0
+  shared/owner-inventory-current-build/assets/factory_banks/chicago.json
+
+VERSION 510 | INCLUDED | SHA256 d9ba62fdc4613d0556f1ffe520c70841c099389e5d492b6de81c8cf659522bcc | 6567 bytes
+Archive payload: objects/d9ba62fdc4613d0556f1ffe520c70841c099389e5d492b6de81c8cf659522bcc
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-lz-feasibility-2026-10-21.md
+
+VERSION 511 | INCLUDED | SHA256 da7106edcf47089fa3bbeaac5c39db480b9d09c16f5f82f7a672d122134c0b65 | 1811 bytes
+Archive payload: objects/da7106edcf47089fa3bbeaac5c39db480b9d09c16f5f82f7a672d122134c0b65
+  scratch/firmware-direct-8145957/tests/host/test_checklist_lint.sh
+  scratch/firmware-integration/tests/host/test_checklist_lint.sh
+
+VERSION 512 | INCLUDED | SHA256 da9854618475a3d7f74cf04199ea9de5b36c6035e56172e6a7978e6509835f5e | 3051 bytes
+Archive payload: objects/da9854618475a3d7f74cf04199ea9de5b36c6035e56172e6a7978e6509835f5e
+  scratch/firmware-direct-8145957/tests/host/smc_host_ingress_test.c
+  scratch/firmware-integration/tests/host/smc_host_ingress_test.c
+
+VERSION 513 | INCLUDED | SHA256 da9894f71c9f60a7accf6fe74eb889f47092b053b09f37534f31e2b74a567d7e | 509 bytes
+Archive payload: objects/da9894f71c9f60a7accf6fe74eb889f47092b053b09f37534f31e2b74a567d7e
+  scratch/firmware-direct-8145957/docs/audit/classic-chat-2026-10-21/changed-files.json
+  scratch/firmware-integration/docs/audit/classic-chat-2026-10-21/changed-files.json
+
+VERSION 514 | INCLUDED | SHA256 dacb3c158f22ed36aea90b125ca737b7447d360ea76cbb5c8a3bb2aa35e00a8a | 136765 bytes
+Archive payload: objects/dacb3c158f22ed36aea90b125ca737b7447d360ea76cbb5c8a3bb2aa35e00a8a
+  scratch/firmware-direct-8145957/docs/audit/classic-chat-2026-10-21/rollout-apply.json
+  scratch/firmware-integration/docs/audit/classic-chat-2026-10-21/rollout-apply.json
+
+VERSION 515 | INCLUDED | SHA256 db0e5f83a3ea62ef7585d118df72bc0c15dd8e48a9336ece8fa6fa7738c82ad7 | 537 bytes
+Archive payload: objects/db0e5f83a3ea62ef7585d118df72bc0c15dd8e48a9336ece8fa6fa7738c82ad7
+  scratch/firmware-direct-8145957/tests/host/fixtures/checklist/good.txt
+  scratch/firmware-integration/tests/host/fixtures/checklist/good.txt
+
+VERSION 516 | INCLUDED | SHA256 db2072506f091c246a9d037a3caf84c6eb9c924d176685ae60c922541e29ce52 | 3103 bytes
+Archive payload: objects/db2072506f091c246a9d037a3caf84c6eb9c924d176685ae60c922541e29ce52
+  shared/owner-inventory-current-build/firmware/src/ble/ble_midi_central.h
+
+VERSION 517 | INCLUDED | SHA256 dbc34d04fc1cf1039f2e5a9fe501d428403400f2f684726b446ab391ca04e11b | 52 bytes
+Archive payload: objects/dbc34d04fc1cf1039f2e5a9fe501d428403400f2f684726b446ab391ca04e11b
+  scratch/firmware-direct-8145957/tests/host/fixtures/owner_msg/bad-path.txt
+  scratch/firmware-integration/tests/host/fixtures/owner_msg/bad-path.txt
+
+VERSION 518 | INCLUDED | SHA256 dbf1916c97365a65d06284b94b2bed6bba47dad222f8e463fb05b7858bb4c7b3 | 869 bytes
+Archive payload: objects/dbf1916c97365a65d06284b94b2bed6bba47dad222f8e463fb05b7858bb4c7b3
+  scratch/firmware-direct-8145957/tests/host/drum808_outline_test.sh
+
+VERSION 519 | INCLUDED | SHA256 dcc057752376217990b67c9daede42dd76388be2d86c1977015abba75168e83a | 33 bytes
+Archive payload: objects/dcc057752376217990b67c9daede42dd76388be2d86c1977015abba75168e83a
+  scratch/firmware-direct-8145957/tests/host/fixtures/owner_msg/bad-install-question.txt
+  scratch/firmware-integration/tests/host/fixtures/owner_msg/bad-install-question.txt
+
+VERSION 520 | INCLUDED | SHA256 dd22243cb091d671e75e496154aebe1a3d66ef7b431ea895ec11071f11374be4 | 2761 bytes
+Archive payload: objects/dd22243cb091d671e75e496154aebe1a3d66ef7b431ea895ec11071f11374be4
+  scratch/firmware-direct-8145957/tools/check_writing_skills.py
+  scratch/firmware-integration/tools/check_writing_skills.py
+
+VERSION 521 | INCLUDED | SHA256 dea22979aafa6770d1f4580efe659be1bb319d2e969b9362eb3b5d84dca5282a | 12680 bytes
+Archive payload: objects/dea22979aafa6770d1f4580efe659be1bb319d2e969b9362eb3b5d84dca5282a
+  scratch/firmware-direct-8145957/docs/NEW.md
+  scratch/firmware-integration/docs/NEW.md
+
+VERSION 522 | INCLUDED | SHA256 defd80d140ba8e55ad87fc1b86b908cc5d6918c750c993564a13cf3f40f59e0d | 497 bytes
+Archive payload: objects/defd80d140ba8e55ad87fc1b86b908cc5d6918c750c993564a13cf3f40f59e0d
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/loader_quiesce.h
+
+VERSION 523 | INCLUDED | SHA256 df6690f6d70b3bb38c2c4dc3dc7859b04e78621dabfdcb456b5f9c49c9776f75 | 8838 bytes
+Archive payload: objects/df6690f6d70b3bb38c2c4dc3dc7859b04e78621dabfdcb456b5f9c49c9776f75
+  shared/owner-inventory-current-build/firmware/src/dsp/breaks.h
+
+VERSION 524 | INCLUDED | SHA256 df6e0273aca27baa5d29b3e0583af515aad6440354e1d6e5f6f8b225547ab9ee | 3551 bytes
+Archive payload: objects/df6e0273aca27baa5d29b3e0583af515aad6440354e1d6e5f6f8b225547ab9ee
+  scratch/firmware-direct-8145957/tools/recovery/test_recovery_safety.py
+  scratch/firmware-integration/tools/recovery/test_recovery_safety.py
+
+VERSION 525 | INCLUDED | SHA256 dffedd420f9bfa7b122efc808011981fd55a7437c6dd5ac7f3a70c59c4d378db | 13182 bytes
+Archive payload: objects/dffedd420f9bfa7b122efc808011981fd55a7437c6dd5ac7f3a70c59c4d378db
+  shared/owner-inventory-current-build/tools/gen_font.py
+
+VERSION 526 | INCLUDED | SHA256 e0419210e592c4c4870dbe2a5fb330e7de961521ab9b59fe0e615be352d17060 | 1180 bytes
+Archive payload: objects/e0419210e592c4c4870dbe2a5fb330e7de961521ab9b59fe0e615be352d17060
+  shared/owner-inventory-cloud-094bb/manifest.json
+
+VERSION 527 | INCLUDED | SHA256 e0626a6cfe87c6f890053123e0d35bc10708143ecebe138b0c0f24bed839a545 | 42 bytes
+Archive payload: objects/e0626a6cfe87c6f890053123e0d35bc10708143ecebe138b0c0f24bed839a545
+  scratch/firmware-direct-8145957/tests/host/fixtures/owner_msg/bad-hex.txt
+  scratch/firmware-integration/tests/host/fixtures/owner_msg/bad-hex.txt
+
+VERSION 528 | INCLUDED | SHA256 e0d2ca0f582054648dfe78a02af9d3734388cc11e0dd35cb27801f777736e168 | 6100 bytes
+Archive payload: objects/e0d2ca0f582054648dfe78a02af9d3734388cc11e0dd35cb27801f777736e168
+  scratch/firmware-direct-8145957/docs/smc-reachability-handoff-2026-10-20.md
+  scratch/firmware-integration/docs/smc-reachability-handoff-2026-10-20.md
+
+VERSION 529 | INCLUDED | SHA256 e12c8559344c5b63428bc514f59e183edb0ceddb363af0a426afaac628d4abb7 | 7069 bytes
+Archive payload: objects/e12c8559344c5b63428bc514f59e183edb0ceddb363af0a426afaac628d4abb7
+  scratch/firmware-direct-8145957/PAD_MAP.md
+  scratch/firmware-integration/PAD_MAP.md
+
+VERSION 530 | INCLUDED | SHA256 e15790933a6ea7218ad50a10af6fa28af90ce5a4488030d3a8753dd5d9a93af2 | 2063 bytes
+Archive payload: objects/e15790933a6ea7218ad50a10af6fa28af90ce5a4488030d3a8753dd5d9a93af2
+  scratch/firmware-direct-8145957/tools/distribution/README_EN.txt
+  scratch/firmware-integration/tools/distribution/README_EN.txt
+
+VERSION 531 | INCLUDED | SHA256 e1fbbb9d3603d16da66f949b1a0e27b532e942ffe39f3539040eb8b6b7fd635e | 25324 bytes
+Archive payload: objects/e1fbbb9d3603d16da66f949b1a0e27b532e942ffe39f3539040eb8b6b7fd635e
+  scratch/firmware-direct-8145957/firmware/src/app/smc_mixer.c
+
+VERSION 532 | INCLUDED | SHA256 e33ed6f6997f69bbe4e98c24130507c6c6c9b68aea095bf73ee8c700b90c6d44 | 3412 bytes
+Archive payload: objects/e33ed6f6997f69bbe4e98c24130507c6c6c9b68aea095bf73ee8c700b90c6d44
+  scratch/firmware-direct-8145957/docs/rules-breaks.md
+  scratch/firmware-integration/docs/rules-breaks.md
+
+VERSION 533 | INCLUDED | SHA256 e35ea5bc000af8e0cfabb39cd8676c35507e750a1eaa0081957bc8b479f2a6f3 | 3281 bytes
+Archive payload: objects/e35ea5bc000af8e0cfabb39cd8676c35507e750a1eaa0081957bc8b479f2a6f3
+  scratch/firmware-direct-8145957/tools/studies/smc_head_export/test_acquire.py
+
+VERSION 534 | INCLUDED | SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | 0 bytes
+Archive payload: objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  shared/owner-inventory-current-build/experiments/wobble/evidence/undefined-symbols.txt
+
+VERSION 535 | INCLUDED | SHA256 e3d8569c621d2a0605a5a287d1741ed618fd20ca9e24045395daa66a26c04352 | 1958 bytes
+Archive payload: objects/e3d8569c621d2a0605a5a287d1741ed618fd20ca9e24045395daa66a26c04352
+  scratch/firmware-direct-8145957/docs/audit/main-port-2026-10-19.md
+  scratch/firmware-integration/docs/audit/main-port-2026-10-19.md
+
+VERSION 536 | INCLUDED | SHA256 e3fd44f74b6254844d72922787a175ec5c9bd9bc81ec4b6f6448220124d4a750 | 2650 bytes
+Archive payload: objects/e3fd44f74b6254844d72922787a175ec5c9bd9bc81ec4b6f6448220124d4a750
+  shared/owner-inventory-current-build/experiments/wobble/FOUNDATION-COMPATIBILITY.md
+
+VERSION 537 | INCLUDED | SHA256 e4dcb3dda25e6a1fe3225e5c84487b2195a240f66859cea011604ec807142f79 | 4320 bytes
+Archive payload: objects/e4dcb3dda25e6a1fe3225e5c84487b2195a240f66859cea011604ec807142f79
+  scratch/firmware-direct-8145957/tests/host/smc_vendor_dispatch_test.c
+
+VERSION 538 | INCLUDED | SHA256 e5a5fad0bd4176fff7ef9b518f42749c44ffa3dca90f43edc199aeb92049aa5d | 1253 bytes
+Archive payload: objects/e5a5fad0bd4176fff7ef9b518f42749c44ffa3dca90f43edc199aeb92049aa5d
+  scratch/firmware-direct-8145957/skills/x0x37-check/references/build-environment.md
+  scratch/firmware-integration/skills/x0x37-check/references/build-environment.md
+
+VERSION 539 | INCLUDED | SHA256 e5cce962dc5fff9957e503bfd17ca6a8c628050741dc8df133e35d689726c29d | 2514 bytes
+Archive payload: objects/e5cce962dc5fff9957e503bfd17ca6a8c628050741dc8df133e35d689726c29d
+  shared/owner-inventory-current-build/experiments/wobble/LICENSE-AUDIT.md
+
+VERSION 540 | INCLUDED | SHA256 e5ed94c0dd390def3c758abcfcf505cf097c80380cce060e05c1a964f46315ba | 736 bytes
+Archive payload: objects/e5ed94c0dd390def3c758abcfcf505cf097c80380cce060e05c1a964f46315ba
+  scratch/firmware-direct-8145957/skills/x0x37-check/references/commits.md
+  scratch/firmware-integration/skills/x0x37-check/references/commits.md
+
+VERSION 541 | INCLUDED | SHA256 e5fa59c648075b4a074f269ebbe7014428f4e981ad90182c6d66f6aff1371d05 | 750 bytes
+Archive payload: objects/e5fa59c648075b4a074f269ebbe7014428f4e981ad90182c6d66f6aff1371d05
+  scratch/firmware-direct-8145957/build/host/smc_host_ingress/apc_a.inc
+  scratch/firmware-integration/build/host/smc_host_ingress/apc_a.inc
+
+VERSION 542 | INCLUDED | SHA256 e766b81c7839f491e454bc695ce54860ef9f12dd420dfebd05c1ad66d29307f5 | 129 bytes
+Archive payload: objects/e766b81c7839f491e454bc695ce54860ef9f12dd420dfebd05c1ad66d29307f5
+  scratch/firmware-direct-8145957/tests/host/fixtures/owner_msg/good-result.txt
+  scratch/firmware-integration/tests/host/fixtures/owner_msg/good-result.txt
+
+VERSION 543 | INCLUDED | SHA256 e77987ae83fd407ed9e89853e0190daef096e99899b715a00a7f1d04d6a43d57 | 30827 bytes
+Archive payload: objects/e77987ae83fd407ed9e89853e0190daef096e99899b715a00a7f1d04d6a43d57
+  shared/owner-inventory-current-build/firmware/src/ble.c
+
+VERSION 544 | INCLUDED | SHA256 e81e8c782b070a85556911af9e0b53501c773c004bb300eacbc6b55e4976ef56 | 278 bytes
+Archive payload: objects/e81e8c782b070a85556911af9e0b53501c773c004bb300eacbc6b55e4976ef56
+  scratch/firmware-direct-8145957/docs/rules/owner-messages.md
+  scratch/firmware-integration/docs/rules/owner-messages.md
+
+VERSION 545 | INCLUDED | SHA256 e865fd4c7d02a67b682dd5e120d5840e168aadf46dde9356ebb0f9b72f4f1133 | 7135 bytes
+Archive payload: objects/e865fd4c7d02a67b682dd5e120d5840e168aadf46dde9356ebb0f9b72f4f1133
+  scratch/firmware-direct-8145957/tests/host/fixtures/checklist/batch10-live.txt
+  scratch/firmware-integration/tests/host/fixtures/checklist/batch10-live.txt
+
+VERSION 546 | INCLUDED | SHA256 e86753b5dd0ae6f06204ceb36672dc6144b8bb4308437f138aa3ba9151dadc3c | 2632 bytes
+Archive payload: objects/e86753b5dd0ae6f06204ceb36672dc6144b8bb4308437f138aa3ba9151dadc3c
+  scratch/firmware-direct-8145957/docs/audit/classic-chain-correction-2026-10-21.md
+  scratch/firmware-integration/docs/audit/classic-chain-correction-2026-10-21.md
+
+VERSION 547 | INCLUDED | SHA256 e8b22f37ccb204bd00cdf98c723c0df37aeda1f5863e9ad1d634f5c839d99e5d | 3030 bytes
+Archive payload: objects/e8b22f37ccb204bd00cdf98c723c0df37aeda1f5863e9ad1d634f5c839d99e5d
+  scratch/firmware-direct-8145957/skills/caveman/README.md
+  scratch/firmware-integration/skills/caveman/README.md
+
+VERSION 548 | INCLUDED | SHA256 e8ea1c857f2ee35358944bcee55a54e83241111045e6183374b2fe2b4ac5eeea | 934 bytes
+Archive payload: objects/e8ea1c857f2ee35358944bcee55a54e83241111045e6183374b2fe2b4ac5eeea
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/checks.txt
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/checks.txt
+
+VERSION 549 | INCLUDED | SHA256 e8ec8532705f70aa1f2862b6ed9fb0eabd457769e01553fbdde1d426c12496f7 | 6439 bytes
+Archive payload: objects/e8ec8532705f70aa1f2862b6ed9fb0eabd457769e01553fbdde1d426c12496f7
+  scratch/firmware-direct-8145957/tools/fm1_sample_upload.py
+  scratch/firmware-integration/tools/fm1_sample_upload.py
+
+VERSION 550 | INCLUDED | SHA256 ea1ee311a549b1f1f6570f6deda2c1af9fcc245fed3e29a78f9515b3c06c8dc8 | 589 bytes
+Archive payload: objects/ea1ee311a549b1f1f6570f6deda2c1af9fcc245fed3e29a78f9515b3c06c8dc8
+  shared/owner-inventory-current-build/experiments/wobble/evidence/tests.txt
+
+VERSION 551 | INCLUDED | SHA256 ea5e818a8ab0b0ba8a8cb40e98746968b85e2b2f6e5256278a51372897ca3bc2 | 1774 bytes
+Archive payload: objects/ea5e818a8ab0b0ba8a8cb40e98746968b85e2b2f6e5256278a51372897ca3bc2
+  scratch/firmware-direct-8145957/docs/SKILLS.md
+  scratch/firmware-integration/docs/SKILLS.md
+
+VERSION 552 | INCLUDED | SHA256 eb2c0081524da9579b9e8b3ecc29fa08e7de1adfbc50da047eb666aa51bb08ec | 4480 bytes
+Archive payload: objects/eb2c0081524da9579b9e8b3ecc29fa08e7de1adfbc50da047eb666aa51bb08ec
+  scratch/firmware-direct-8145957/tests/host/motion_ui_test.c
+  scratch/firmware-integration/tests/host/motion_ui_test.c
+
+VERSION 553 | INCLUDED | SHA256 eb4ecf81f8611cf1d19f0dbdda11294e7cc87126f8a4ef6f48209df1aeac7f0a | 6637 bytes
+Archive payload: objects/eb4ecf81f8611cf1d19f0dbdda11294e7cc87126f8a4ef6f48209df1aeac7f0a
+  scratch/firmware-direct-8145957/firmware/src/app/x0x.h
+
+VERSION 554 | INCLUDED | SHA256 eb705dc95c90c21979e79d965fc1c28ab4020e305b0759936feecedf9a209a5e | 306518 bytes
+Archive payload: objects/eb705dc95c90c21979e79d965fc1c28ab4020e305b0759936feecedf9a209a5e
+  shared/dnbox-orchestrator-candidate/firmware/src/app/ui.c
+
+VERSION 555 | INCLUDED | SHA256 eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22 | 184 bytes
+Archive payload: objects/eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22
+  scratch/firmware-direct-8145957/tests/host/fixtures/prefs_lint/rules/install.md
+  scratch/firmware-direct-8145957/tests/host/fixtures/rules_guard/good-rule.txt
+  scratch/firmware-integration/tests/host/fixtures/prefs_lint/rules/install.md
+  scratch/firmware-integration/tests/host/fixtures/rules_guard/good-rule.txt
+
+VERSION 556 | INCLUDED | SHA256 ecba29d1de0ebd51440494144d7116b372f7746cdde9d454236057a0b4a502e4 | 378 bytes
+Archive payload: objects/ecba29d1de0ebd51440494144d7116b372f7746cdde9d454236057a0b4a502e4
+  scratch/firmware-direct-8145957/docs/audit/classic-chat-2026-10-21/review.txt
+  scratch/firmware-integration/docs/audit/classic-chat-2026-10-21/review.txt
+
+VERSION 557 | INCLUDED | SHA256 edaf338d1f7bea461f1a7ef357b88cbc5c538fc20be4a298608407949dedc7ae | 136696 bytes
+Archive payload: objects/edaf338d1f7bea461f1a7ef357b88cbc5c538fc20be4a298608407949dedc7ae
+  scratch/firmware-direct-8145957/docs/audit/classic-chat-2026-10-21/rollout-dry-run.json
+  scratch/firmware-integration/docs/audit/classic-chat-2026-10-21/rollout-dry-run.json
+
+VERSION 558 | INCLUDED | SHA256 eed85306b52af6f125d4a420af36678c1dfa527059357b23e66f57e08108063c | 20126 bytes
+Archive payload: objects/eed85306b52af6f125d4a420af36678c1dfa527059357b23e66f57e08108063c
+  scratch/firmware-direct-8145957/tools/dev_validate.py
+
+VERSION 559 | INCLUDED | SHA256 ef23a072c2d7cd86f75437dbb3631d0b293b2b65e41a6f4013588c3feccb62a4 | 13065 bytes
+Archive payload: objects/ef23a072c2d7cd86f75437dbb3631d0b293b2b65e41a6f4013588c3feccb62a4
+  scratch/firmware-direct-8145957/docs/audit/smc-bundle-loader-forward-rollback-2026-10-21.md
+
+VERSION 560 | INCLUDED | SHA256 f0204106cefee8643e16904f1ed5d2facb88d95fe5ccdf04dba9979c9c9671b5 | 9285 bytes
+Archive payload: objects/f0204106cefee8643e16904f1ed5d2facb88d95fe5ccdf04dba9979c9c9671b5
+  scratch/firmware-direct-8145957/tests/smc_vendor_install_test.py
+
+VERSION 561 | INCLUDED | SHA256 f0500c17d0b982dd91930288b807a618990c2398ac61b74a24721ac3c0d10d66 | 904 bytes
+Archive payload: objects/f0500c17d0b982dd91930288b807a618990c2398ac61b74a24721ac3c0d10d66
+  scratch/firmware-direct-8145957/tools/studies/smc_vendor_lz/prepare_wrapper.py
+
+VERSION 562 | INCLUDED | SHA256 f11a1c32d951d21903e03593d878cb4e7c72b64edbba585d6b0a3644b8df249a | 7958 bytes
+Archive payload: objects/f11a1c32d951d21903e03593d878cb4e7c72b64edbba585d6b0a3644b8df249a
+  shared/owner-inventory-current-build/firmware/src/app/plat.h
+
+VERSION 563 | INCLUDED | SHA256 f13a649eb353c74e85182c101fb26bf44efb37619fa0fd8fb0b61e6082855ed5 | 7077 bytes
+Archive payload: objects/f13a649eb353c74e85182c101fb26bf44efb37619fa0fd8fb0b61e6082855ed5
+  scratch/firmware-direct-8145957/docs/audit/smc-bundle-loader-budget-paused-2026-10-21.md
+
+VERSION 564 | INCLUDED | SHA256 f1414477837b0fa0fa63d6bb15eb498df88ca2649bf6122602ab50faa414677b | 11792 bytes
+Archive payload: objects/f1414477837b0fa0fa63d6bb15eb498df88ca2649bf6122602ab50faa414677b
+  scratch/firmware-direct-8145957/tools/studies/smc_reference/link_runtime.py
+
+VERSION 565 | INCLUDED | SHA256 f15ba517ec4bbe29e2e8a7fec00fca367f408f07feef91dbc6d846335e74a664 | 1868 bytes
+Archive payload: objects/f15ba517ec4bbe29e2e8a7fec00fca367f408f07feef91dbc6d846335e74a664
+  scratch/firmware-direct-8145957/tools/studies/smc_app_data/prepare.py
+
+VERSION 566 | INCLUDED | SHA256 f1618875e6a1ceb78cb6380f635398c5074e9a46b3f7f7fe07de6b9407c29e36 | 101208 bytes
+Archive payload: objects/f1618875e6a1ceb78cb6380f635398c5074e9a46b3f7f7fe07de6b9407c29e36
+  scratch/firmware-integration/firmware/src/app/main_fm1.c
+
+VERSION 567 | INCLUDED | SHA256 f1771f7da024dae65001d9d5a366c055629b7c18dbc0d59b62051feef7c5877e | 7061 bytes
+Archive payload: objects/f1771f7da024dae65001d9d5a366c055629b7c18dbc0d59b62051feef7c5877e
+  shared/owner-inventory-current-build/firmware/src/app/original_runtime.c
+
+VERSION 568 | INCLUDED | SHA256 f2097bd214817fd804ae812cba8ba61210b690b8fc266bc8729c08a9f52827a1 | 1299 bytes
+Archive payload: objects/f2097bd214817fd804ae812cba8ba61210b690b8fc266bc8729c08a9f52827a1
+  scratch/firmware-direct-8145957/tests/ble/vendor_update_gate_test.c
+
+VERSION 569 | INCLUDED | SHA256 f27abeaa1368ad3629726c0dead927beb7a2e79d0405a3fd042dcc5b03fac284 | 48372 bytes
+Archive payload: objects/f27abeaa1368ad3629726c0dead927beb7a2e79d0405a3fd042dcc5b03fac284
+  shared/owner-inventory-current-build/host/x0x_host.c
+
+VERSION 570 | INCLUDED | SHA256 f27cb59013fff1008bfc4a7e22a2ce60cffed9ee80e814a55e5563e70b230cc3 | 1650 bytes
+Archive payload: objects/f27cb59013fff1008bfc4a7e22a2ce60cffed9ee80e814a55e5563e70b230cc3
+  scratch/firmware-direct-8145957/tools/recovery/install_records/safe_reads.py
+  scratch/firmware-integration/tools/recovery/install_records/safe_reads.py
+
+VERSION 571 | INCLUDED | SHA256 f2ad0ddcd0b47147b5dedc8dafca03fc8465d15362b788f2fd15186b5f4c577d | 1804 bytes
+Archive payload: objects/f2ad0ddcd0b47147b5dedc8dafca03fc8465d15362b788f2fd15186b5f4c577d
+  scratch/firmware-direct-8145957/docs/audit/handoff-reliability-2026-10-21/approval-recurrence.json
+  scratch/firmware-integration/docs/audit/handoff-reliability-2026-10-21/approval-recurrence.json
+
+VERSION 572 | INCLUDED | SHA256 f2cf219201393808140499e54df1fa62cafb28b8b7611608e30d04824c66f130 | 2931 bytes
+Archive payload: objects/f2cf219201393808140499e54df1fa62cafb28b8b7611608e30d04824c66f130
+  scratch/firmware-direct-8145957/tools/recovery/install_records/test_collect.py
+  scratch/firmware-integration/tools/recovery/install_records/test_collect.py
+
+VERSION 573 | INCLUDED | SHA256 f3e23c896b5655452f203aadea75845c9d28e17e5c9f3021e1890026a3b8453d | 9716 bytes
+Archive payload: objects/f3e23c896b5655452f203aadea75845c9d28e17e5c9f3021e1890026a3b8453d
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_os.c
+
+VERSION 574 | INCLUDED | SHA256 f4060fed1de5b66e3e53f1bf32514c5cbc7bd9028cdfc98acd0698d07930cdd7 | 10662 bytes
+Archive payload: objects/f4060fed1de5b66e3e53f1bf32514c5cbc7bd9028cdfc98acd0698d07930cdd7
+  scratch/firmware-direct-8145957/tests/host/ble_midi_trace_test.c
+  scratch/firmware-integration/tests/host/ble_midi_trace_test.c
+
+VERSION 575 | INCLUDED | SHA256 f44d388acfbb8319373456f710493ff71e0c33d3aa727c8fa6fe3ac470f14f41 | 5201 bytes
+Archive payload: objects/f44d388acfbb8319373456f710493ff71e0c33d3aa727c8fa6fe3ac470f14f41
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/prepare.py
+
+VERSION 576 | INCLUDED | SHA256 f4a78fb4d58329c1f2603e2d0c9ee37f5d36ac4b54013e8b1a0d858d0dd98b3f | 1585 bytes
+Archive payload: objects/f4a78fb4d58329c1f2603e2d0c9ee37f5d36ac4b54013e8b1a0d858d0dd98b3f
+  scratch/firmware-direct-8145957/docs/archive/rules-2026-10-17/rules/owner-messages.md
+  scratch/firmware-integration/docs/archive/rules-2026-10-17/rules/owner-messages.md
+
+VERSION 577 | INCLUDED | SHA256 f4d7ef25914ce6eb47476d76cf1b1a38f4058afb8fbb4a2154f349b6441a278a | 4972 bytes
+Archive payload: objects/f4d7ef25914ce6eb47476d76cf1b1a38f4058afb8fbb4a2154f349b6441a278a
+  scratch/firmware-direct-8145957/docs/audit/native-cloud-workflow-2026-10-21.md
+  scratch/firmware-integration/docs/audit/native-cloud-workflow-2026-10-21.md
+
+VERSION 578 | INCLUDED | SHA256 f63233d076f3a59206a4ab5a79432da02b8d0cb6c1068caadd24ba66942b1902 | 7845 bytes
+Archive payload: objects/f63233d076f3a59206a4ab5a79432da02b8d0cb6c1068caadd24ba66942b1902
+  scratch/firmware-direct-8145957/tests/host/ble_midi_abort_test.c
+  scratch/firmware-integration/tests/host/ble_midi_abort_test.c
+
+VERSION 579 | INCLUDED | SHA256 f63869c751b4a02d272be3023d8ef4f7959d5d3ac39849cbb75b2f699fa19062 | 31058 bytes
+Archive payload: objects/f63869c751b4a02d272be3023d8ef4f7959d5d3ac39849cbb75b2f699fa19062
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-size-continuation-2026-10-21.json
+
+VERSION 580 | INCLUDED | SHA256 f66bb69fb597f46e89aad524d6334a8a773d929bcea4a2a2f75c3730855a2a5d | 1860 bytes
+Archive payload: objects/f66bb69fb597f46e89aad524d6334a8a773d929bcea4a2a2f75c3730855a2a5d
+  shared/owner-inventory-current-build/experiments/original_synth/chicago_engine_output.h
+
+VERSION 581 | INCLUDED | SHA256 f671ff3f18594331f5d27458f88f3543b1c18ad56051ce6e90523d94a348c880 | 3846 bytes
+Archive payload: objects/f671ff3f18594331f5d27458f88f3543b1c18ad56051ce6e90523d94a348c880
+  scratch/firmware-direct-8145957/docs/audit/writing-skills-install-2026-10-19.md
+  scratch/firmware-integration/docs/audit/writing-skills-install-2026-10-19.md
+
+VERSION 582 | INCLUDED | SHA256 f6c684d7ddf96b3683a0f948a0b861a374a4fb2d6067d745be7062a8d2c2c79f | 2263 bytes
+Archive payload: objects/f6c684d7ddf96b3683a0f948a0b861a374a4fb2d6067d745be7062a8d2c2c79f
+  scratch/firmware-direct-8145957/docs/audit/classic-chat-2026-10-21/after.json
+  scratch/firmware-integration/docs/audit/classic-chat-2026-10-21/after.json
+
+VERSION 583 | INCLUDED | SHA256 f6d2aa6abc7bdf75fc070e9ed611ba14889e032f132f7b07829fb6340f3f20ed | 2514 bytes
+Archive payload: objects/f6d2aa6abc7bdf75fc070e9ed611ba14889e032f132f7b07829fb6340f3f20ed
+  scratch/firmware-direct-8145957/tools/studies/smc_vendor_lz/probe.c
+
+VERSION 584 | INCLUDED | SHA256 f7e659bfc9369a0652887a2a4dcbf178dd578a09f6d628b4b50a1a8f9637fee7 | 1781 bytes
+Archive payload: objects/f7e659bfc9369a0652887a2a4dcbf178dd578a09f6d628b4b50a1a8f9637fee7
+  scratch/firmware-direct-8145957/skills/x0x37-install/references/evidence.md
+  scratch/firmware-integration/skills/x0x37-install/references/evidence.md
+
+VERSION 585 | INCLUDED | SHA256 f809d884cb92229529daa6f5a7673b121fca3a667bd40d4c05a35e621086d2cc | 2164 bytes
+Archive payload: objects/f809d884cb92229529daa6f5a7673b121fca3a667bd40d4c05a35e621086d2cc
+  scratch/firmware-direct-8145957/tests/ble/smc_vendor_dev_plan.json
+
+VERSION 586 | INCLUDED | SHA256 f8c740c757112fb264498ecd61525a103449e1afe0cb7e8740fb60040ba5560f | 1738 bytes
+Archive payload: objects/f8c740c757112fb264498ecd61525a103449e1afe0cb7e8740fb60040ba5560f
+  scratch/firmware-direct-8145957/tools/smc_head_export_replay.py
+
+VERSION 587 | INCLUDED | SHA256 f8e74012059f7165302cf58ef9baef248d7ead868f2c2c0d5dd9e9473687d4aa | 3856 bytes
+Archive payload: objects/f8e74012059f7165302cf58ef9baef248d7ead868f2c2c0d5dd9e9473687d4aa
+  scratch/firmware-direct-8145957/docs/audit/host-distribution-tools-2026-10-21.md
+  scratch/firmware-integration/docs/audit/host-distribution-tools-2026-10-21.md
+
+VERSION 588 | INCLUDED | SHA256 f93ac78bd005980648a953ce781d4b6e45f58b5abc8625adf3f20f8478bf9c64 | 49830 bytes
+Archive payload: objects/f93ac78bd005980648a953ce781d4b6e45f58b5abc8625adf3f20f8478bf9c64
+  scratch/firmware-direct-8145957/docs/MANUAL.md
+  scratch/firmware-integration/docs/MANUAL.md
+
+VERSION 589 | INCLUDED | SHA256 f996a100976730ca5c332af1334dd581957b0984b2ec42f9e6ea1d3407c75b4f | 27133 bytes
+Archive payload: objects/f996a100976730ca5c332af1334dd581957b0984b2ec42f9e6ea1d3407c75b4f
+  scratch/firmware-direct-8145957/firmware/src/ble.c
+  scratch/firmware-integration/firmware/src/ble.c
+
+VERSION 590 | INCLUDED | SHA256 f9bb94c1a6c7045976ae78fcaa4d1c8e89109044b3d5d553bde5e1a65952e596 | 9218 bytes
+Archive payload: objects/f9bb94c1a6c7045976ae78fcaa4d1c8e89109044b3d5d553bde5e1a65952e596
+  scratch/firmware-direct-8145957/tests/ble_central_diag_test.py
+  scratch/firmware-integration/tests/ble_central_diag_test.py
+
+VERSION 591 | INCLUDED | SHA256 f9c3332414e8627aa49bd3abf5a7df8ce448a07accda0d0821cbf9c7c34b8d29 | 47208 bytes
+Archive payload: objects/f9c3332414e8627aa49bd3abf5a7df8ce448a07accda0d0821cbf9c7c34b8d29
+  shared/owner-inventory-current-build/matched.json
+
+VERSION 592 | INCLUDED | SHA256 f9e52cce0200e3b7d8a3ecd9b85a5f3136d0c78fd70a79dd53938243ab0d5e12 | 9694 bytes
+Archive payload: objects/f9e52cce0200e3b7d8a3ecd9b85a5f3136d0c78fd70a79dd53938243ab0d5e12
+  scratch/firmware-direct-8145957/docs/audit/workflow-2026-10-20.md
+  scratch/firmware-integration/docs/audit/workflow-2026-10-20.md
+
+VERSION 593 | INCLUDED | SHA256 fa01233f3e47fdb9218fd51b5d7580d184224d1169237d2bffc9ee7d38eb550f | 11560 bytes
+Archive payload: objects/fa01233f3e47fdb9218fd51b5d7580d184224d1169237d2bffc9ee7d38eb550f
+  scratch/firmware-direct-8145957/docs/audit/smc-recovery-provenance-2026-10-21.json
+  scratch/firmware-integration/docs/audit/smc-recovery-provenance-2026-10-21.json
+
+VERSION 594 | INCLUDED | SHA256 fa50cd26d9579e7bfd779015417b7dffd88703fcb6e8558889f8c721b7437a14 | 11961 bytes
+Archive payload: objects/fa50cd26d9579e7bfd779015417b7dffd88703fcb6e8558889f8c721b7437a14
+  scratch/firmware-direct-8145957/tools/rollout_rules.py
+  scratch/firmware-integration/tools/rollout_rules.py
+
+VERSION 595 | INCLUDED | SHA256 fb5fa79251687fbdcd406a84e78e2babe54903a313cd7e10df83470c5e44fcfa | 863 bytes
+Archive payload: objects/fb5fa79251687fbdcd406a84e78e2babe54903a313cd7e10df83470c5e44fcfa
+  scratch/firmware-direct-8145957/ble/ctl/src/ctl_vendor_profile.h
+
+VERSION 596 | INCLUDED | SHA256 fba153b992090a7de3422d837c5107c19380107bb59217903c08a7821198f186 | 112776 bytes
+Archive payload: objects/fba153b992090a7de3422d837c5107c19380107bb59217903c08a7821198f186
+  shared/owner-inventory-current-build/firmware/src/app/main_fm1.c
+
+VERSION 597 | INCLUDED | SHA256 fc777f846c7d79553f4eb2df965c1cea298470c3341f4faf702ef180f983bff8 | 19825 bytes
+Archive payload: objects/fc777f846c7d79553f4eb2df965c1cea298470c3341f4faf702ef180f983bff8
+  shared/owner-inventory-current-build/missing.json
+
+VERSION 598 | INCLUDED | SHA256 fd99d62ad909559a3b1e65bf7fd3ba846c2c28c4925e59596597cb7d3d54eb22 | 1799 bytes
+Archive payload: objects/fd99d62ad909559a3b1e65bf7fd3ba846c2c28c4925e59596597cb7d3d54eb22
+  scratch/firmware-direct-8145957/tools/smc_head_export_record.py
+
+VERSION 599 | INCLUDED | SHA256 fdae001badc14bd4169898cd9bc5c5eeca5ed6b199250ce88da2a30f2382666e | 600 bytes
+Archive payload: objects/fdae001badc14bd4169898cd9bc5c5eeca5ed6b199250ce88da2a30f2382666e
+  scratch/firmware-direct-8145957/AGENTS.md
+  scratch/firmware-integration/AGENTS.md
+
+VERSION 600 | INCLUDED | SHA256 fde9b40a9fa7b2a8567b5dab1d94ba15db71317d07efd816e948d18c0c270eb5 | 667 bytes
+Archive payload: objects/fde9b40a9fa7b2a8567b5dab1d94ba15db71317d07efd816e948d18c0c270eb5
+  scratch/firmware-direct-8145957/docs/audit/smc-vendor-app-ui-fixture-2026-10-21.json
+
+VERSION 601 | INCLUDED | SHA256 fdf16767d3db001e832e6df77e8724670211f342e7eb30c1dc51e6a5a5735ede | 18984 bytes
+Archive payload: objects/fdf16767d3db001e832e6df77e8724670211f342e7eb30c1dc51e6a5a5735ede
+  shared/owner-inventory-current-build/firmware/src/dsp/original_chicago_backend.c
+
+VERSION 602 | INCLUDED | SHA256 fe31ec95fb7ab1514b30c6c9c6d80a0179ff39f855596fbd2cd4fed755a5497a | 31360 bytes
+Archive payload: objects/fe31ec95fb7ab1514b30c6c9c6d80a0179ff39f855596fbd2cd4fed755a5497a
+  shared/owner-inventory-current-build/firmware/hal/smk_input.h
+
+VERSION 603 | INCLUDED | SHA256 fe83280301949dbaba217a14ddd46ac869041f3805e2c5b23f635a09ddc4189b | 1291 bytes
+Archive payload: objects/fe83280301949dbaba217a14ddd46ac869041f3805e2c5b23f635a09ddc4189b
+  scratch/firmware-direct-8145957/firmware/hal/x0x_app_ui_data.h
+
+VERSION 604 | INCLUDED | SHA256 ff1a1722e8fc9721dcae4dba6d531159260f7db7e010de54082104f4728d409a | 2180 bytes
+Archive payload: objects/ff1a1722e8fc9721dcae4dba6d531159260f7db7e010de54082104f4728d409a
+  scratch/firmware-direct-8145957/skills/x0x37-integrate/references/release-gate.md
+  scratch/firmware-integration/skills/x0x37-integrate/references/release-gate.md
+
+VERSION 605 | INCLUDED | SHA256 ff21503224cddff003c9823d14bacccff3342f70ae768d449926e1cb4e0d29cf | 1379 bytes
+Archive payload: objects/ff21503224cddff003c9823d14bacccff3342f70ae768d449926e1cb4e0d29cf
+  scratch/firmware-direct-8145957/tools/studies/smc_bundle_loader/test_combined_runner.py
+

@@ -1,0 +1,3 @@
+No previews or visual approval wait: the owner said no previews for this change. Finish and push; the Orchestrator verifies on the box.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

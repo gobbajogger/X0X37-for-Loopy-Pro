@@ -1,0 +1,70 @@
+## A. Quality audit of PR #789 (SMC uses the existing popup) - fix list for Codex
+
+Already sent (do not repeat): smc-ui-negative anchor; smc-select-mode line 19 LED; smc-lock line 368; smc_popup_engine_test.sh not registered.
+
+### A1. Removed behaviour that must come back
+1. Lock toggle lost its feedback and guard: restore `ui_say("SMC LOCK UNAVAILABLE")` on refusal, `"SMC TARGETS LOCKED"` / `"SMC FOLLOWS PAGE"` on toggle, and the `smk_clip_mode_on()` refusal (clip stages own their fields).
+2. Unlock dropped `smc.mixer_page[lock_view][part] = smc.lock_page`. Pages chosen with PAGE arrows while locked are lost at unlock. Restore it (lock rule: lock only stops following, it must not lose SMC's own page).
+3. `smc_button_apply`: O_ASK used to forward note 5/6 to SEL/HOME (answer the dialog from SMC); Help card closed with R7. Both removed. Restore (keyboard modal ownership is OK, but answer/close must work).
+4. `smc_home_held()` no longer sees the panel HOME button (`plat_buttons() >> B_HOME`); `self_home` changed too. Panel-HOME + SMC key combos are gone. Restore unless owner withdrew it.
+5. `smk_ck_smc_turn` / `smk_ck_smc_nav` calls removed (SCALE/CHORD/ARP field ownership). Decide: if SMC must not drive keyboard pages, delete the now-dead exporters in main_fm1.c? NO - FM-1 is out of scope: leave main_fm1.c untouched, but remove the `extern`s and add a comment why. Confirm with a test that SCALE/CHORD/ARP fields are not edited by SMC.
+6. O_LIST support removed (list rows on knobs, LIST/OK caption, list arrows). SMC note 5 caption is now always "HOME" and LED 5 = view==HOME. Note 5 and note 6 (B_SEL and B_HOME) now do almost the same thing. Give note 5 a clear own meaning (e.g. SMC page list inside the popup) or document it; do not ship two identical keys.
+7. `smc_select_part/drum`: `bass_step_cancel()`/`drum_step_cancel()` dropped. OK only if SMC SELECT never touches keyboard's held step - add a test that a held 303/drum step on the keyboard survives SMC SELECT.
+8. `smc_ui_context()` shrank to view/part/page/bank/locked. It no longer includes mixsel, sel[], overlay, help, project_revision, clip mode. Popup shows stale data after a project load / drum select / bank change. Put those fields back (FNV hash as before).
+9. Unlocked knobs on 303 pages: `turn_ref` now skips `original_ref_current()` for SMC (`!accel_smc`). Only the locked path checks `lock_bass_bank`. Unlocked SMC can write a Chicago ref into a Miami bank after a bank switch. Check the bank in the unlocked path too, or keep `original_ref_current`.
+
+### A2. Dead code / duplicated logic
+10. `smc_show(n, knob, r)` ignores `r` (`(void)r`). Replace all calls by `smc_ui_begin(n, knob)` and delete `smc_show`.
+11. `smc_view` resets `picked/knob_i/pending` and calls `smc_ui_begin`, then `smc_page_set` does the same. Keep it once (a small `smc_rearm()` helper used by view/page/select/lock/bank).
+12. `R_SBAR` filtered twice (`smc_knob_target` and `smc_bind`). Keep one.
+13. `lock_pages` is now only read by `smc_knob_bank`; `smc_page_count()` already answers for the locked context. Remove the field.
+14. `smc_capture_bank` swaps `smc.view/part/sel/mixer_page` in and out to fake the locked context. Replace with a context struct (`view, part, page, mixsel, sel[]`) passed to `smc_describe/smc_target/smc_knob_target`. Same for lock toggle. This removes the save/restore dance and is the main "по уму" item.
+15. Performance: `smc_page_count()`, `smc_page_name()` and `smc_page_target()` each run a full `describe_pages()`. `smc_knob_target(n)` loops `smc_page_target(i)` for i<n -> ~36 describe passes per grid draw plus more in the header. Cache one `page_query` per (context, page) per frame, or describe once into a small table. Measure main-loop time before/after.
+16. `smc_page_name()` returns a static 12-byte buffer; fine now, but two calls in one expression would alias. Return into a caller buffer.
+17. ui.c: `describe_pages(pages_t *out, page_query_t *query, ...)` has two output modes (global `page_output`/`page_query` swap). Make query mode explicit (one emitter callback or one out struct); remove `page_output` global if possible.
+18. ui.c `(p < NKIT)` and `((p == PART_303A || p == PART_303B))` are sed leftovers with double brackets. Add `part_is_drum(p)` / `part_is_303(p)` helpers and use them in ui.c and smc_mixer.c (smc_mixer.c repeats `smc.part==PART_303A || smc.part==PART_303B` 5 times).
+19. `int b = p - PART_303A;` computed for every part (negative for drums). Compute inside the 303 branch.
+
+### A3. Unclear names / stale comments
+20. `original_external_pages`, `original_external_sound`, `original_external_edit`, `original_external_accept`: rename to what they do (e.g. `bass_layout_pending_mask`, `bass_layout_on_sound_page`, `bass_layout_note_remote_edit`, `bass_layout_accept`). Add one comment block that explains the rule.
+21. `pref_set_impl(r, v, rebuild)` - name the flag `from_keyboard` or split into `pref_set()` / `pref_set_remote()`.
+22. Stale comments: smc_ui_grid "Selection follows the keyboard UI" (now SMC selection); smc_led "Panel REC and part changes update smc.part" (wrong, sed artefact); "blocked controls keep the current page"; forward decl comment "locked PAGE calls this before its definition"; `perf_test_abort()` comment still says "panel abort/restore path"; `smc_button` "refresh after the locked page changes" on `smc_ui_off`.
+23. Style: new code is compressed one-liners (`if(x)y;z;`), unlike the rest of the file. Reformat to file style (spaces, one statement per line).
+
+### A4. Tests
+24. Removed checks to restore or replace with an equivalent SMC-context check: `CHECK(!memcmp(before, proj.arr.lane, sizeof before))` (song lanes untouched - must stay); `assert(seq.vmute ...)` / `assert(seq.mute ...)` in drum mutes; `assert(tap==...)` O_ASK forwarding (with item 3); `CHECK(!ui.help ...)` (with item 3); `assert(note<0x62 ? moved==d && edited==0 : ...)` (list arrows; replace with SMC bank/page arrow check, not delete). Many `ui.sel/ui.part` checks were deleted, not converted to `smc.sel/smc.part` - convert them, and add `ui.*` unchanged checks (keyboard is not navigated).
+25. smc_reachability_test lost the per-button view/page expectations (R8 HOME, S6 MIX, S7 GLOBAL, S8 PART, SELECT6 REVERB, SELECT7 DELAY, SELECT8 MASTER). Re-add them against `smc.view`/SMC page.
+26. Add lock-rule tests: while locked, BANK arrows retarget inside SMC page; knob assignment, faders and knobs still edit; keyboard page change does not move SMC; unlock keeps the SMC page (item 2).
+
+### A5. Docs junk
+27. README says "no screen or renderer" but the header text now comes from `smc_page_name` - fine; remove "Compound Engineering review completed six passes and four validated P1s" process chatter and the internal SHA lists; keep build table + test counts. verification.json: keep, drop local paths.
+28. Rename `before-smc-menu-switch.png` to say what it shows (old peek header over keyboard page).
+
+### A6. Framebuffer PNGs (docs/engineering-delivery/smc-dedicated-popup-023/framebuffer)
+29. Header "KNOBS SEQUENCE / SEQUEN" - bank name repeats the page name and is cut. Show "KNOBS P1 SEQUENCE" or only the bank name; never cut mid-word.
+30. Knob labels clipped: "LENGT", "DIREC", "TRANS". Use the existing 4-char short names (as on the keyboard pages) or the smaller font.
+31. Knob row under strip titles 909/808/BRK/CHI/MIA shows LENGTH/RATE/DIREC/TRANS/FREE of one part (MIA SEQ page). The column titles imply per-part knobs. When knobs belong to one page, title the knob row with the page, not with part names (or grey the strip titles over the knob row).
+32. After-mute popup: label "909 LEVEL", value "MUTE ON". The label must name the mute ("909 MUTE").
+33. Two-line buttons "MIX/HOME", "GLOB/HOME", "GEN/HOME" are tight and touch the cell border; RVB/DLY/FLT strips show "--" for knobs and "-1.9" values with no unit. Check spacing 1 px clear of borders and add dB unit or drop it consistently.
+34. after-dismiss-keyboard header shows "P1 1-16" and an orange marker that before-keyboard does not show. Confirm this is a state difference (drum bank) and not a header change from this PR; if from this PR, revert.
+35. Orange "MIA" selected cell: text is white on light-grey - low contrast; use the theme selected style.
+
+Total: 35 items (9 removed-behaviour, 10 dead/duplicate, 4 naming, 3 test, 2 docs, 7 visual).
+
+Clarification for item 5: leave main_fm1.c alone; remove only the externs. Add a test that SMC does not edit SCALE/CHORD/ARP.
+
+Same PR #789 (same branch). Exclude row 73 (bootloader) and row 120.
+
+## Common rules (paste into every brief)
+- Author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>. One brief = one branch from build/0.0.23 = one PR into build/0.0.23 (or the named stacked base).
+- Never touch main, never touch .github/ or Actions.
+- SDK V1.2.1. Build Elite and Pro with X0X_DEV_PADCAL=0. Report static RAM free for both (0.0.23 = 2352 B). Free RAM must not go down without a written reason.
+- No FM-1 code or targets. Do not touch BTIF, USRTRIM, efuse, key_mac or the bootloader.
+- Never use the USB name for device identity (use the package identity / model id).
+- No Miami ADSR.
+- Never reinvent: port the existing implementation named in the brief (cherry-pick or git cherry check first; record which commits you ported, which were already in, and why anything was dropped).
+- Visual changes: attach real-framebuffer BEFORE/AFTER PNGs (host framebuffer dump, 240x240, not drawings) and stop for owner approval before merge.
+- Do not weaken or delete test checks. If a check must change, explain the old and new behaviour in the PR. Register every new test in the host suite.
+- Use the Superpowers and Compound Engineering plugins (plan, TDD, ce-code-review before PR).
+
+Push and report the head SHA, RAM, the failing test list and mockup paths. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

@@ -1,0 +1,1009 @@
+REQUEST: DnBOX x0x37 Miami coefficient caching (one PR)
+Repo: gobbajogger/X0X37-for-Loopy-Pro. Base: build/0.0.24 = d8086cc09203945919c70d3c805f8ca3e6acbe5a.
+Branch to create: opt/miami-coef-cache-0.0.24 (from d8086cc09). Open a PR into build/0.0.24.
+Author/committer: gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
+
+GOAL
+1. Mod (miami_selected_voice.c mg_advance, and the matching full-compile MG path): cache denominator (44100*base)*times and delta=numerator/denominator per MG; recompute only when base/times/bpm/D bits change. Phase update stays per tick.
+2. Glide (oscillator_motion.c original_glide, called from miami_pitch.c): cache coefficient a for (port,mod,fs,D) bit patterns; keep all validation and the current[] update each call. original_glide is shared: if any non-Miami caller exists, keep its signature and behaviour (put the cache in the Miami pitch state, e.g. a helper original_glide_cached(state,...)).
+3. Triangle (miami_ms20.c k_wave shape 0: t+triangle*t3): per-block fast path when triangle is exactly +0.0f AND the result is proven identical, incl. signed zero (t=-0 with t+(+0) gives +0; so the fast path must return t+0.0f, not t) and NaN/Inf (t3 is finite here; prove it). If you cannot prove identity for every input, drop item 3 and say so.
+
+HARD RULES
+- Output must be BIT-IDENTICAL to base in every scenario: same float operations in the same order (same ref_fma, no reciprocal substitution, no reassociation, no -ffast-math). Skip recomputation only when inputs are bit-equal (compare uint32 bits).
+- Invalidate caches on voice reset/note-on/program load/snapshot restore (miami_voice_snapshot.c field table: do not add cache fields to the wire format; mark cache invalid on restore).
+- Do NOT port old oscillators or filters. No visual/UI change. No .github or Actions edits. Do not touch main, wip/one-build, BTIF, USRTRIM, efuse, key_mac, bootloader. Never commit .env, bass303 files or captures.
+- Add tests/host/miami_coef_cache_test.c (cached vs uncached reference, bit-equal over mod rate/tempo sweeps, portamento + mod_portamento changes, triangle 0/-0/nonzero) and register it like the other miami_*_test.c. Add BEHAVIOR.md line: "Miami coefficient caching: no behaviour change (bit-identical)".
+- Return: branch, commit hash, the full changed files.
+
+I (builder) will verify: full host suite, tests/host/audio_path_identity.py vs base (all scenarios bit-identical), Elite + Pro builds (X0X_DEV_PADCAL=0, SDK V1.2.1), package_nightly --check with BT a334208b, idle_cpu_probe idle/active CPU.
+
+COMPLETE CURRENT FILES FOLLOW.
+
+===== BEGIN FILE experiments/original_synth/miami_selected_voice.c (base d8086cc09, 74d928eca49f) =====
+/* SPDX-License-Identifier: GPL-3.0-only */
+#include "miami_selected_voice.h"
+#include "binary32_classify.h"
+#include <math.h>
+#include <string.h>
+#ifdef ORIGINAL_USE_SOFT_FMA
+#include "fused_reference.h"
+#include "miami_interpolation.h"
+#define ref_fma original_rne_fmaf
+#define table_fma original_miami_interpolate_rne
+#else
+#define ref_fma fmaf
+#define table_fma fmaf
+#endif
+#define TABLE_READY 0x4d565431u
+#define CONTROL_READY 0x4d564331u
+#define VOICE_READY 0x71u
+static float fl(uint32_t u){float f;memcpy(&f,&u,4);return f;}
+static float clamp(float x,float lo,float hi){return x<lo?lo:x>hi?hi:x;}
+static unsigned quantize(float x,unsigned n){unsigned q=(unsigned)ref_fma(x,(float)(n-1),.5f);return q<n?q:n-1;}
+static float bipolar(float x){return ref_fma(x,2,-1);}
+static float native(const original_miami_program *p,unsigned id){float x=0;(void)original_miami_program_native(p,id,&x);return x;}
+static int valid(const original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm){
+ return s&&c&&t&&s->ready==VOICE_READY&&c->ready==CONTROL_READY&&t->ready==TABLE_READY&&original_binary32_isfinite(bpm)&&bpm>=20&&bpm<=400;
+}
+static int tables_valid(const original_ms20_tables *in,const int32_t pitch[128]){
+ if(!in||!in->a||!in->b||!in->r||!in->cap||!pitch)return 0;
+ for(unsigned i=0;i<129;i++)if(!original_binary32_isfinite(in->a[i])||!original_binary32_isfinite(in->b[i])||!original_binary32_isfinite(in->r[i])||!original_binary32_isfinite(in->cap[i]))return 0;
+ for(unsigned i=0;i<128;i++)if(pitch[i]<=0||(i&&pitch[i]<=pitch[i-1]))return 0;
+ return 1;
+}
+int original_miami_voice_tables_bind_immutable(original_miami_voice_tables *out,const original_ms20_tables *in,const int32_t pitch[128]){
+ if(!out||!tables_valid(in,pitch))return 0;
+ original_miami_voice_tables t;memset(&t,0,sizeof t);t.filter=*in;t.pitch=pitch;t.ready=TABLE_READY;*out=t;return 1;
+}
+int original_miami_voice_tables_init(original_miami_voice_tables *out,original_miami_voice_table_storage *storage,const original_ms20_tables *in,const int32_t pitch[128]){
+ if(!out||!storage||!tables_valid(in,pitch))return 0;
+ memcpy(storage->a,in->a,sizeof storage->a);memcpy(storage->b,in->b,sizeof storage->b);memcpy(storage->r,in->r,sizeof storage->r);memcpy(storage->cap,in->cap,sizeof storage->cap);memcpy(storage->pitch,pitch,sizeof storage->pitch);
+ original_miami_voice_tables t;memset(&t,0,sizeof t);t.filter=(original_ms20_tables){storage->a,storage->b,storage->r,storage->cap};t.pitch=storage->pitch;t.ready=TABLE_READY;*out=t;return 1;
+}
+static int program_valid(const original_miami_program *p){
+ for(unsigned i=0;i<18;i++)if(!original_binary32_isfinite(p->macro[i])||p->macro[i]<0||p->macro[i]>1)return 0;
+ for(unsigned i=0;i<24;i++)if(!original_binary32_isfinite(p->target[i])||p->target[i]<0||p->target[i]>1)return 0;
+ return 1;
+}
+int original_miami_voice_compile(original_miami_voice_controls *out,const original_miami_program *p){
+ if(!out||!p)return 0;
+ if(!program_valid(p))return 0;
+ original_miami_voice_controls c;memset(&c,0,sizeof c);
+ c.pitch.master_tune=bipolar(native(p,0));
+ c.pitch.unison_detune=native(p,90);c.pitch.bend_range=24.0f*native(p,55);
+ c.pitch.transpose=(int)quantize(native(p,18),49)-24;
+ c.pitch.detune=native(p,17);c.pitch.portamento=native(p,16);c.pitch.modulation_on=1;
+ for(unsigned i=0;i<4;i++){
+  unsigned n=i*4;c.shape[i]=(uint8_t)quantize(native(p,n+1),5);
+  if(c.shape[i]>3)return 0; /* PCM is outside the selected18 macro profile. */
+  c.pitch.semitone[i]=(int)quantize(native(p,n+2),49)-24;
+  c.pitch.fine_tune[i]=i?bipolar(native(p,n)):0;
+  c.gain.level[i]=native(p,n+3);
+ }
+ c.gain.output=native(p,94);c.gain.output=c.gain.output*c.gain.output;
+ c.gain.pan=bipolar(native(p,93));c.gain.spread=native(p,91);
+ c.gain.curve=0;c.gain.ms20=1;c.gain.filter_gain=1;
+ c.cutoff=native(p,24);c.resonance=native(p,25);c.env_depth=bipolar(native(p,26));c.noise=native(p,23);
+ c.pw_intensity=native(p,21);c.pw_width=native(p,22);
+ for(unsigned i=0;i<4;i++)
+  if(!original_pw_width(c.shape[i],c.pw_intensity,0,c.pw_width,0,0,&c.wave_width[i]))return 0;
+ if(!original_xmod_coefficient(native(p,39),0,&c.xmod))return 0;
+ c.vco_gain=ref_fma(native(p,102),3,1);
+ c.patch_slave=bipolar(native(p,80));c.patch_cutoff=bipolar(native(p,81));c.patch_gain=bipolar(native(p,87));
+ static const float base[10]={96,48,36,24,16,12,8,6,4,3};
+ for(unsigned i=0;i<2;i++){
+  c.mg_shape[i]=(uint8_t)quantize(native(p,i?49:43),5);if(c.mg_shape[i]>3)return 0;
+  c.mg_base[i]=base[quantize(native(p,i?53:47),10)];
+  c.mg_times[i]=(float)(16-quantize(native(p,i?54:48),16));
+ }
+ c.bend_normalized=native(p,105);c.damper=(uint8_t)(quantize(native(p,108),128)>=64);
+ c.master_volume=native(p,96);c.master_volume=c.master_volume*c.master_volume;
+ c.decimator_normalized[0]=native(p,110);c.decimator_normalized[1]=native(p,111);
+ c.revision=p->revision;c.ready=CONTROL_READY;*out=c;return 1;
+}
+/* The serial control owner supplies a corresponding preceding snapshot and
+ * exactly one mapped edit. Keep validation; reuse only unaffected conversions.
+ * Any other macro or uncertain cache takes the complete compiler above. */
+int original_miami_voice_recompile(original_miami_voice_controls *out,const original_miami_program *p,unsigned macro){
+ if(!out||!p)return 0;
+ if((macro!=16&&macro!=12)||out->ready!=CONTROL_READY||p->revision!=out->revision+UINT32_C(1))
+  return original_miami_voice_compile(out,p);
+ if(!program_valid(p))return 0;
+ /* Full compilation also rejects PCM and unsupported MG shapes. */
+ for(unsigned i=0;i<4;i++)if(quantize(native(p,1+4*i),5)>3)return 0;
+ if(quantize(native(p,43),5)>3||quantize(native(p,49),5)>3)return 0;
+ if(macro==16)out->bend_normalized=native(p,105);
+ else out->patch_cutoff=bipolar(native(p,81));
+ out->revision=p->revision;return 1;
+}
+static int mg_output(original_miami_voice_mg *m,unsigned shape){
+ if(!original_miami_mg_shape(shape,m->phase,&m->bipolar,&m->unipolar))return 0;
+ m->wrapped=0;return 1;
+}
+static void mg_advance(original_miami_voice_mg *m,float base,float times,float bpm,uint32_t D){
+ float numerator=(bpm*.800000011920929f)*(float)D;
+ float denominator=(44100.0f*base)*times;
+ float delta=numerator/denominator;if(delta>1)delta=1;
+ m->phase=m->phase+delta;if(m->phase>=1){m->phase=m->phase-2.0f;m->wrapped=1;}
+}
+/* VCF EG selected controls A0/D.5/S1/R0; distinct native release threshold.
+ * Sustain subtraction for its bipolar output happens after both EG ticks. */
+static void vcf_tick(original_vca *e,uint32_t D){
+ float q=e->level;
+ if(e->state==0){q=q+((float)D*(1.2999999523162842f-q))/(44100.0f*fl(0x3a83126fu));if(q>=1){q=1;e->state=1;}}
+ else if(e->state==1){if(q<1)q=1;else {q=q+((float)D*(1.0f-q))/(fl(0x3fc820c5u)*44100.0f);q=(q+1.0f)-1.0f;}}
+ else if(e->state==3){if(q>=fl(0x3727c5ac)){float den=fl(0x3b03126fu)*44100.0f;q=q*(1.0f-(float)D/den);q=(q+1.0f)-1.0f;}else {q=0;e->state=6;}}
+ e->level=q;
+}
+#ifndef MIAMI_VOICE_CHECKED_TABLE_PREP
+static float lookup(const float t[129],float q){if(q<=fl(0x3727c5ac))return t[0];if(q>=128)return t[128];unsigned j=(unsigned)q;return table_fma(t[j+1]-t[j],q-(float)j,t[j]);}
+static void stage(original_ramp *r,float target,float reciprocal){r->target=target;r->delta=(target-r->current)*reciprocal;}
+#endif
+/* Identical selected MS20 preparation arithmetic to the checked dependency.
+ * Only immutable-table scanning is hoisted into tables_init(). No state sample,
+ * nonlinear equation, interpolation or precision is changed. */
+static void ms20_prepare(original_miami_ms20 *s,const original_miami_voice_tables *t,const original_miami_voice_controls *c,float env,float mc,uint32_t D){
+#ifdef MIAMI_VOICE_CHECKED_TABLE_PREP
+ original_ms20_tables tables=t->filter;
+ (void)original_miami_ms20_prepare(s,&tables,c->cutoff,c->resonance,c->env_depth,env,0,mc,0,c->noise,0,D);
+#else
+ float d=clamp(c->env_depth+0.0f,-1,1),z=ref_fma(env,d,c->cutoff),q=ref_fma(mc,128,z*128.0f);
+ float a=lookup(t->filter.a,q),b=lookup(t->filter.b,q),cap=lookup(t->filter.cap,q),r=c->resonance+0.0f,R;
+ if(r==1)R=t->filter.r[128];else {float rq=r*128.0f;unsigned j=(unsigned)rq;R=table_fma(t->filter.r[j+1]-t->filter.r[j],rq-(float)j,t->filter.r[j]);}
+ float target=R<=fl(0x3727c5ac)?fl(0x3727c5ac):(R<cap?R:cap);
+ float ng=clamp(c->noise+0.0f,0,1);ng=ng*ng+fl(0x3727c5ac);float reciprocal=1.0f/(float)D;
+ stage(&s->a,a,reciprocal);stage(&s->resonance,target,reciprocal);stage(&s->noise_gain,ng,reciprocal);s->b=b;s->cap=cap;s->prepared=1;
+#endif
+}
+int original_miami_selected_voice_init(original_miami_selected_voice *s,const original_miami_voice_tables *t,unsigned index,unsigned last){
+ if(!s||!t||t->ready!=TABLE_READY||index>=128||last>127)return 0;
+ original_miami_selected_voice n;memset(&n,0,sizeof n);
+ if(!original_miami_pitch_init(&n.pitch,last)||!original_miami_ms20_init(&n.filter,index,t->filter.a[0],t->filter.b[0],t->filter.cap[0]))return 0;
+ /* Native B0738 reset, B0990..B09C0: both MG phases -1, cached outputs/
+  * hold zero, S&H LFSR seed6d70 and pending-wrap flag1. Full-note inputs
+  * still replace these with the owner-resolved ordered-head MG snapshot. */
+ for(unsigned i=0;i<2;i++){n.mg[i].phase=-1;n.mg[i].noise=0x6d70u;n.mg[i].wrapped=1;}
+ original_voice_gain_init(&n.gain);n.vca.state=n.vcf.state=6;n.ready=VOICE_READY;*s=n;return 1;
+}
+static void release(original_miami_selected_voice *s){s->key_down=0;s->damper_deferred=0;if(s->active){s->vcf.state=3;s->vca.state=3;}}
+int original_miami_selected_voice_note_off(original_miami_selected_voice *s,const original_miami_voice_controls *c){
+ if(!s||!c||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
+ if(c->damper){s->key_down=0;s->damper_deferred=(uint8_t)(s->active!=0);}else release(s);return 1;
+}
+int original_miami_selected_voice_pedal(original_miami_selected_voice *s,const original_miami_voice_controls *c){
+ if(!s||!c||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
+ if(!c->damper&&s->damper_deferred)release(s);
+ return 1;
+}
+static int preparation_tail(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,uint32_t D){
+ s->vcf_bipolar=s->vcf.level-1.0f;s->vca_bipolar=s->vca.level-1.0f;
+ original_miami_pitch_controls pc=c->pitch;pc.unison_coordinate=s->unison_coordinate;pc.bend=bipolar(c->bend_normalized);pc.mod_slave_pitch=s->mod_slave;
+ original_osc_controls oc;memset(&oc,0,sizeof oc);
+ if(!original_miami_pitch_prepare(&s->pitch,&pc,t->pitch,44100,D,oc.increment))return 0;
+ for(unsigned i=0;i<4;i++){
+  oc.shape[i]=c->shape[i];
+  oc.width[i]=c->wave_width[i];
+ }
+ oc.xmod=c->xmod;
+ if(!s->prepared.ready||memcmp(&s->prepared.controls,&oc,sizeof oc)){
+  if(!original_oscillator_prepare(&s->prepared,&oc))return 0;
+  s->wave_preparations++;
+ }
+ original_voice_gain_controls gc=c->gain;gc.envelope=s->vca.level;gc.mod_gain=s->mod_gain;gc.velocity=s->velocity;gc.unison_flag=s->unison_flag;
+ if(!original_voice_gain_prepare(&s->gain,&gc,s->activation,D))return 0;
+ ms20_prepare(&s->filter,t,c,s->vcf.level,s->mod_cutoff,D);
+ for(unsigned i=0;i<4;i++)if(s->activation[i]>0)s->activation[i]--;
+ s->last_duration=D;s->control_updates++;return 1;
+}
+int original_miami_selected_voice_block_valid(const original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm){
+ return valid(s,c,t,bpm)&&!s->awaiting_restart;
+}
+int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
+ if(s->awaiting_restart)return 0;
+ *action=0;if(!s->active||s->vca.state==6)return 1;
+ uint32_t D=0;int due=original_control_tick(&s->counter,44100,&D);if(due<0)return 0;if(!due)return 1;
+ s->previous_vca=s->vca.level;s->previous_mg1=s->mg[0].bipolar;
+ /* Three nonzero selected destinations, each a single ordered contribution.
+  * This is exactly the eight-route graph specialization, not current feedback. */
+ s->mod_slave=clamp(s->previous_vca*c->patch_slave+0.0f,-1,1);
+ s->mod_cutoff=clamp(s->previous_mg1*c->patch_cutoff+0.0f,-1,1);
+ s->mod_gain=clamp(s->previous_vca*c->patch_gain+0.0f,-1,1);
+ for(unsigned i=0;i<2;i++){
+  if(!mg_output(&s->mg[i],c->mg_shape[i]))return 0;
+  mg_advance(&s->mg[i],c->mg_base[i],c->mg_times[i],bpm,D);
+ }
+ vcf_tick(&s->vcf,D);
+ if(!original_vca_tick(&s->vca,44100,D,0,1,1,0,action))return 0;
+ if(*action){s->active=0;s->vca.level=0;s->vcf.level=0;s->vcf.state=6;
+  if(*action==2){s->pending_tail_duration=D;s->awaiting_restart=1;return 1;}
+  for(unsigned i=0;i<4;i++)s->activation[i]=0;
+ }
+ /* Native ordinary retirement B3D94->CF08->B3EC8 reaches B3ECC: despite
+  * cleared levels/states, recompute E-S and continue the preparation tail.
+  * State5 returns earlier and resumes this tail only after D8F0 parts. */
+ return preparation_tail(s,c,t,D);
+}
+int original_miami_selected_voice_control(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
+ if(!action||!valid(s,c,t,bpm))return 0;
+ return original_miami_selected_voice_control_prevalidated(s,c,t,bpm,action);
+}
+static int note_values(unsigned key,unsigned velocity,float pitch){return key<=127&&velocity>=1&&velocity<=127&&original_binary32_isfinite(pitch)&&pitch>=0&&pitch<=127;}
+static int full_mask(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_voice_note *note,unsigned mask,float bpm){
+ original_miami_selected_voice n=*s;
+ for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.pitch.current[i]=(float)note->last_note;n.activation[i]=-1;}
+ n.note_key=(uint8_t)note->note_key;n.raw_velocity=note->velocity;n.velocity=(float)note->velocity/127.0f;n.unison_coordinate=note->unison_coordinate;n.unison_flag=(uint8_t)note->unison_flag;
+ for(unsigned i=0;i<2;i++){n.mg[i]=note->mg[i];if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;}
+ if(!original_miami_ms20_note_reset(&n.filter,t->filter.a[0]))return 0;
+ original_voice_gain_miami_full_note(&n.gain);n.vca=(original_vca){0,0};n.vcf=(original_vca){0,0};n.vca_bipolar=n.vcf_bipolar=0;
+ n.key_down=1;n.damper_deferred=0;n.active=1;n.counter=44100;
+ unsigned action;if(!original_miami_selected_voice_control(&n,c,t,bpm,&action))return 0;
+ *s=n;return 1;
+}
+int original_miami_selected_voice_full_note(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_voice_note *note,float bpm){
+ if(!valid(s,c,t,bpm)||!note||s->active||s->vca.state!=6||s->awaiting_restart||!note_values(note->note_key,note->velocity,note->tuned_pitch)||note->last_note>127||!original_binary32_isfinite(note->unison_coordinate)||(note->unison_flag!=0&&note->unison_flag!=2))return 0;
+ for(unsigned i=0;i<2;i++)if(!original_binary32_isfinite(note->mg[i].phase)||note->mg[i].phase< -1||note->mg[i].phase>1||!original_binary32_isfinite(note->mg[i].hold))return 0;
+ return full_mask(s,c,t,note,15,bpm);
+}
+int original_miami_selected_voice_partial_note(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,unsigned key,unsigned velocity,float pitch,unsigned mask,float bpm){
+ if(!valid(s,c,t,bpm)||!s->active||s->awaiting_restart||!mask||mask>15||!note_values(key,velocity,pitch))return 0;
+ original_miami_selected_voice n=*s;
+ if(!original_miami_pitch_note(&n.pitch,key,0,mask,0))return 0;
+ for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=pitch;n.activation[i]=-1;}
+ n.note_key=(uint8_t)key;n.raw_velocity=velocity;n.velocity=(float)velocity/127.0f;n.key_down=1;n.damper_deferred=0;
+ for(unsigned i=0;i<2;i++)if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;
+ unsigned action;if(!original_miami_selected_voice_control(&n,c,t,bpm,&action))return 0;
+ *s=n;return 1;
+}
+int original_miami_selected_voice_sample(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,float *left,float *right,unsigned *action){
+ if(!left||!right||left==right||!action||!valid(s,c,t,bpm))return 0;
+ if(!original_miami_selected_voice_control(s,c,t,bpm,action))return 0;
+ return original_miami_selected_voice_render_frame(s,c,left,right);
+}
+int original_miami_selected_voice_render_frame(original_miami_selected_voice *s,const original_miami_voice_controls *c,float *left,float *right){
+ if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
+ return original_miami_selected_voice_render_prevalidated(s,c,left,right);
+}
+int original_miami_selected_voice_render_prevalidated(original_miami_selected_voice *s,const original_miami_voice_controls *c,float *left,float *right){
+ if(s->awaiting_restart)return 0;
+ if(!s->active){*left=0;*right=0;return 1;}
+ float mix,filtered,L,R;
+ if(!original_voice_gain_oscillator(&s->gain,&s->pitch.oscillator,&s->prepared,0,&mix)||!original_miami_ms20_sample(&s->filter,mix,c->vco_gain,&filtered)||!original_voice_gain_stereo(&s->gain,filtered,&L,&R))return 0;
+ *left=L;*right=R;return 1;
+}
+unsigned original_miami_selected_voice_request_kind(const original_miami_selected_voice *s,unsigned full){
+ if(!s||s->ready!=VOICE_READY||s->awaiting_restart||full>1||s->vca.state>6)return 0;
+ return full?(s->vca.state==6?ORIGINAL_MIAMI_REQUEST_FULL:ORIGINAL_MIAMI_REQUEST_STAGE):ORIGINAL_MIAMI_REQUEST_PARTIAL;
+}
+int original_miami_selected_voice_stage_raw(original_miami_selected_voice *s){
+ if(!s||s->ready!=VOICE_READY||s->awaiting_restart||s->vca.state>=6)return 0;
+ s->vca.state=5;return 1;
+}
+int original_miami_selected_voice_stop_raw(original_miami_selected_voice *s){
+ if(!s||s->ready!=VOICE_READY||s->awaiting_restart||s->vca.state>=6)return 0;
+ s->key_down=0;s->vca.state=4;return 1;
+}
+static int raw_note_valid(const original_miami_voice_note *n,unsigned full){
+ if(!n||n->note_key>127||n->velocity>127||n->unison_flag>2||!original_binary32_isfinite(n->tuned_pitch)||n->tuned_pitch<0||n->tuned_pitch>127||!original_binary32_isfinite(n->unison_coordinate))return 0;
+ if(full){
+  if(n->last_note>127)return 0;
+  for(unsigned i=0;i<2;i++)if(!original_binary32_isfinite(n->mg[i].phase)||n->mg[i].phase< -1||n->mg[i].phase>1||!original_binary32_isfinite(n->mg[i].hold))return 0;
+ }
+ return 1;
+}
+int original_miami_selected_voice_immediate_raw(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_voice_note *note,unsigned full,unsigned mask,float bpm,unsigned *action){
+ if(!action||!valid(s,c,t,bpm)||s->awaiting_restart||full>1||!mask||mask>15||!raw_note_valid(note,full))return 0;
+ if(full){if(s->vca.state!=6)return 0;int result=full_mask(s,c,t,note,mask,bpm);if(result)*action=0;return result;}
+ original_miami_selected_voice n=*s;
+ for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){n.pitch.target[i]=note->tuned_pitch;n.activation[i]=-1;}
+ n.note_key=(uint8_t)note->note_key;n.raw_velocity=note->velocity;n.velocity=(float)note->velocity/127.0f;n.unison_flag=(uint8_t)note->unison_flag;n.unison_coordinate=note->unison_coordinate;n.active=1;n.key_down=1;n.damper_deferred=0;
+ for(unsigned i=0;i<2;i++)if(!mg_output(&n.mg[i],c->mg_shape[i]))return 0;
+ unsigned result;if(!original_miami_selected_voice_control(&n,c,t,bpm,&result))return 0;*s=n;*action=result;return 1;
+}
+int original_miami_selected_voice_resume_part(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_voice_note *note,unsigned mask,unsigned final_part,float bpm){
+ if(!valid(s,c,t,bpm)||!s->awaiting_restart||!raw_note_valid(note,1)||final_part>1||!mask||mask>15||((mask&(mask-1))&&mask!=15)||(mask==15&&!final_part))return 0;
+ original_miami_selected_voice n=*s;uint32_t D=n.pending_tail_duration;n.awaiting_restart=0;
+ if(!full_mask(&n,c,t,note,mask,bpm))return 0;
+ if(final_part){if(!preparation_tail(&n,c,t,D))return 0;n.pending_tail_duration=0;}
+ else n.awaiting_restart=1;
+ *s=n;return 1;
+}
+int original_miami_selected_voice_core_reset(original_miami_selected_voice *s,const original_miami_voice_tables *t,unsigned index){
+ if(!s||s->ready!=VOICE_READY||!t||t->ready!=TABLE_READY||index>=128)return 0;
+ original_miami_selected_voice n;if(!original_miami_selected_voice_init(&n,t,index,60))return 0;
+ n.pitch.oscillator=s->pitch.oscillator;for(unsigned i=0;i<4;i++)n.pitch.target[i]=0;
+ n.velocity=s->velocity;n.unison_flag=1;
+ n.filter.a.current=n.filter.a.target=fl(0x3a98fbd4u);n.filter.noise_gain.target=0;
+ *s=n;return 1;
+}
+===== END FILE experiments/original_synth/miami_selected_voice.c =====
+
+===== BEGIN FILE experiments/original_synth/miami_selected_voice.h (base d8086cc09, df85dd947b0f) =====
+/* SPDX-License-Identifier: GPL-3.0-only */
+#ifndef ORIGINAL_MIAMI_SELECTED_VOICE_H
+#define ORIGINAL_MIAMI_SELECTED_VOICE_H
+#include "miami_program.h"
+#include "miami_pitch.h"
+#include "voice_gain.h"
+#include "control_math.h"
+
+/* Selected 30-program native 44100 context, one explicitly assigned voice.
+ * No allocator, held-key list, global Analog/tuning generator, outer FX/mute,
+ * sample-rate bridge or production engine activation is implied by this API.
+ * Structs are caller-owned; only these functions may mutate live voice state.
+ * A compiled control/table snapshot stays immutable until all readers finish. */
+typedef struct {
+ float a[129],b[129],r[129],cap[129];
+ int32_t pitch[128];
+} original_miami_voice_table_storage;
+typedef struct {
+ original_ms20_tables filter;
+ const int32_t *pitch;
+ uint32_t ready;
+} original_miami_voice_tables;
+/* Copies verified finite tables into an immutable owned snapshot. Tables must
+ * be authentic 44100-derived inputs; finite validation is not provenance proof.
+ * No references to mutable source arrays survive this call. */
+int original_miami_voice_tables_init(original_miami_voice_tables *out,
+ original_miami_voice_table_storage *storage,const original_ms20_tables *filter,
+ const int32_t pitch[128]);
+/* Target path: validate once, borrow qualified immutable flash arrays. Calling
+ * this function explicitly asserts verified provenance, lifetime across all
+ * voice readers, and exclusive immutable ownership of the underlying bytes.
+ * A const pointer alone does not enforce that contract. Mutable/shared-writer
+ * arrays must use the defensive owned copy above. No tables reside in voice
+ * state and no table-sized RAM copy is needed for immutable target flash. */
+int original_miami_voice_tables_bind_immutable(original_miami_voice_tables *out,
+ const original_ms20_tables *filter,const int32_t pitch[128]);
+
+typedef struct {
+ original_miami_pitch_controls pitch;
+ original_voice_gain_controls gain;
+ float cutoff,resonance,env_depth,noise,pw_intensity,pw_width,xmod,vco_gain;
+ /* Source/MI/MW are zero in this selected profile: widths change only with
+  * the program. Compile once instead of repeating four checked conversions
+  * at every voice start and 690 Hz control tick. */
+ float wave_width[4];
+ float patch_slave,patch_cutoff,patch_gain;
+ float mg_base[2],mg_times[2];
+ float bend_normalized;
+ /* The enclosing engine consumes these endpoints: macro14 master and
+  * macro10 Filter/Crush's two Decimator controls. Never apply master per voice. */
+ float master_volume,decimator_normalized[2];
+ uint32_t revision,ready;
+ uint8_t shape[4],mg_shape[2],damper;
+} original_miami_voice_controls;
+/* Cold path only: compile after program snapshot/revision changes. The audio
+ * path never calls program getters, scans109 parameters or reconverts macros.
+ * All18 macros have explicit voice/outer endpoints in this immutable view. */
+int original_miami_voice_compile(original_miami_voice_controls *out,
+ const original_miami_program *program);
+/* Incremental bend/cutoff edit of an initialized corresponding snapshot.
+ * Program must differ only by the named program_set edit. Other edits, an
+ * unready snapshot or a revision gap use full compilation. Failure is atomic. */
+int original_miami_voice_recompile(original_miami_voice_controls *out,
+ const original_miami_program *program,unsigned macro);
+
+typedef struct {
+ float phase,unipolar,bipolar,hold;
+ uint32_t noise;
+ uint8_t wrapped;
+} original_miami_voice_mg;
+typedef struct {
+ original_miami_pitch pitch;
+ original_voice_gain gain;
+ original_miami_ms20 filter;
+ original_prepared_oscillators prepared;
+ original_vca vcf,vca;
+ original_miami_voice_mg mg[2];
+ /* Last immutable VPatch sources consumed, and their selected destinations.
+  * Kept as state witnesses; no current-tick feedback is substituted. */
+ float previous_vca,previous_mg1,mod_slave,mod_cutoff,mod_gain;
+ float vcf_bipolar,vca_bipolar,velocity,unison_coordinate;
+ uint32_t raw_velocity;
+ uint32_t counter,last_duration,control_updates,wave_preparations;
+ uint32_t pending_tail_duration;
+ int32_t activation[4];
+ uint8_t unison_flag,note_key,key_down,damper_deferred,active,ready,awaiting_restart;
+} original_miami_selected_voice;
+typedef struct {
+ unsigned note_key,velocity,last_note;
+ /* Native d8f0 target after global scale/Analog/tuning generation. This
+  * unresolved producer is explicit: passing MIDI note asserts ET-only input. */
+ float tuned_pitch;
+ float unison_coordinate;
+ unsigned unison_flag;
+ /* Full-note copied head MG phase/hold/noise state, in native voice order.
+  * Caller provides {-1,...} for first key or an ordered head snapshot. */
+ original_miami_voice_mg mg[2];
+} original_miami_voice_note;
+
+int original_miami_selected_voice_init(original_miami_selected_voice *s,
+ const original_miami_voice_tables *tables,unsigned voice_index,unsigned last_note);
+/* Inactive MG reset matches native B0738: phase-1, cached outputs/hold0,
+ * seed0x6d70, wrapped1. This is component initialization, not a replacement
+ * for the complete global reset/allocator. First full note still requires
+ * its explicit native ordered-head MG input and tuned-pitch producer. */
+/* Full note requires inactive state. Reusing an audible tail requires the
+ * outer pending-replacement policy; rejection leaves this voice unchanged.
+ * Preserves all oscillator phases/current gains and filter noise/gain history.
+ * Both note functions refresh MG outputs THEN invoke the extra helper entry. */
+int original_miami_selected_voice_full_note(original_miami_selected_voice *s,
+ const original_miami_voice_controls *c,const original_miami_voice_tables *t,
+ const original_miami_voice_note *note,float bpm);
+int original_miami_selected_voice_partial_note(original_miami_selected_voice *s,
+ const original_miami_voice_controls *c,const original_miami_voice_tables *t,
+ unsigned note_key,unsigned velocity,float tuned_pitch,unsigned oscillator_mask,float bpm);
+/* Called for an owner-resolved final physical-key release, after held-key
+ * priority resolution. Damper defers this release. Program change must call
+ * pedal() before the next sample; this mirrors native setter event timing. */
+int original_miami_selected_voice_note_off(original_miami_selected_voice *s,
+ const original_miami_voice_controls *c);
+int original_miami_selected_voice_pedal(original_miami_selected_voice *s,
+ const original_miami_voice_controls *c);
+/* Extra/event helper entry is public for an explicit host dispatcher. Normal
+ * sample() always performs its own additional entry before audio processing.
+ * Control includes native states4/5: action1 retires; action2 pauses before
+ * the old preparation tail and requires the explicit owner/resume APIs below.
+ * The assigned sample convenience cannot finish an unresolved action2; use
+ * the voice owner and separate render entry for that complete lifecycle. */
+int original_miami_selected_voice_control(original_miami_selected_voice *s,
+ const original_miami_voice_controls *c,const original_miami_voice_tables *t,
+ float bpm,unsigned *action);
+/* Pre-FX stereo contribution, no outer master multiplier. Writes +0 when
+ * inactive. No allocation, program conversion, table scan or coefficient
+ * division per sample; prepared waveform coefficients are reused across gains.
+ * Dependencies retain checked scalar APIs. Failed precondition is nonmutating. */
+int original_miami_selected_voice_sample(original_miami_selected_voice *s,
+ const original_miami_voice_controls *c,const original_miami_voice_tables *t,
+ float bpm,float *left,float *right,unsigned *action);
+
+/* Original C6A4 decision: full+VCA6 immediate, full+otherVCA stage5;
+ * partial always immediate, regardless of enabled bit/VCA5. The assigned
+ * convenience APIs above keep their narrower preconditions unchanged. */
+#define ORIGINAL_MIAMI_REQUEST_FULL 1u
+#define ORIGINAL_MIAMI_REQUEST_STAGE 2u
+#define ORIGINAL_MIAMI_REQUEST_PARTIAL 3u
+unsigned original_miami_selected_voice_request_kind(const original_miami_selected_voice *,unsigned full);
+int original_miami_selected_voice_stage_raw(original_miami_selected_voice *);
+int original_miami_selected_voice_stop_raw(original_miami_selected_voice *);
+/* Actual C6A4 immediate numeric branch in selected physical0..127 domain.
+ * Velocity0 is a raw initializer value, not a canonical NoteOff encoding.
+ * The owner publishes all source words and resolves original tuning/MG before
+ * entry; partial preserves MG phase/hold/noise and copies record flag/coordinate.
+ * All masked current/target stores precede MG preparation. */
+int original_miami_selected_voice_immediate_raw(original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,const original_miami_voice_note *,unsigned full,unsigned mask,float bpm,unsigned *action);
+/* B3CC4..B3ECC/D8F0: action2 pauses before the old local preparation tail.
+ * Dispatch mask15 once, otherwise1/2/4/8 ascending using the preserved pending
+ * per-oscillator notes. Each full part runs its genuine extra helper before
+ * the final old tail. Never clear the pending descriptor/mask after dispatch.
+ * Ordered-head MG and separate global helper exits remain explicit owner seams;
+ * no sample or unrelated callback may intervene between these continuations. */
+int original_miami_selected_voice_resume_part(original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,const original_miami_voice_note *,unsigned mask,unsigned final_part,float bpm);
+/* Normal native preparation visits all configured voice IDs first. A caller
+ * can now render each lane without adding another690 control/helper entry. */
+int original_miami_selected_voice_render_frame(original_miami_selected_voice *,const original_miami_voice_controls *,float *left,float *right);
+/* Internal event-free backend seams. Validate each voice at block entry, then
+ * retain the same voice readiness, immutable controls/tables and BPM until
+ * block exit. Prevalidated calls require nonnull, disjoint output/action
+ * pointers and exclusive serial ownership; they retain dynamic restart and
+ * downstream DSP checks. Event/note APIs remain checked. */
+int original_miami_selected_voice_block_valid(const original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm);
+int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm,unsigned *action);
+int original_miami_selected_voice_render_prevalidated(original_miami_selected_voice *,const original_miami_voice_controls *,float *left,float *right);
+/* B0738 owned-state projection. Preserve oscillator phases and the separate
+ * normalized velocity source (core42c8), while resetting current raw velocity
+ * (voice20), local DSP/envelopes/MGs/cache/counter. Current pitches60,target0,
+ * original readonly initialA bits3a98fbd4, noiseIndex+1/epsilon. Global/list/
+ * controller reset and master preservation remain with their matching owner.
+ * Constructor phase zeroing is separate; call init for a new value object. */
+int original_miami_selected_voice_core_reset(original_miami_selected_voice *,const original_miami_voice_tables *,unsigned voice_index);
+#endif
+===== END FILE experiments/original_synth/miami_selected_voice.h =====
+
+===== BEGIN FILE experiments/original_synth/miami_ms20.c (base d8086cc09, f74384b3f5e8) =====
+/* SPDX-License-Identifier: GPL-3.0-only */
+#include "miami_ms20.h"
+#include "binary32_classify.h"
+#include "miami_n513_private.h"
+#include <math.h>
+#include "binary32_math.h"
+#include "miami_pow2_fma.h"
+#include <string.h>
+#ifdef ORIGINAL_USE_SOFT_FMA
+#include "fused_reference.h"
+#include "miami_interpolation.h"
+#define ref_fma original_rne_fmaf
+/* Exact optimized interpolation was previously qualified against the
+ * independent reference. Preserve the full software FMA elsewhere. */
+#define interpolate original_miami_interpolate_rne
+#else
+#define ref_fma fmaf
+#define interpolate fmaf
+#endif
+static float fl(uint32_t u){return original_math_float(u);}
+static float clamp(float x,float lo,float hi){return x<lo?lo:x>hi?hi:x;}
+static float lookup(const float *t,float q){if(q<=fl(0x3727c5ac))return t[0];if(q>=128)return t[128];unsigned j=(unsigned)q;return interpolate(t[j+1]-t[j],q-(float)j,t[j]);}
+static void stage(original_ramp *r,float target,float reciprocal){r->target=target;r->delta=(target-r->current)*reciprocal;}
+static float advance(const original_ramp *r){float q=r->current+r->delta;if(r->delta>0){if(q>=r->target)q=r->target;}else if(r->delta<0){if(q<=r->target)q=r->target;}else q=r->target;return q;}
+int original_miami_nonlinear(float x,float *out){
+ if(!out||!original_binary32_isfinite(x))return 0;
+ float u=512.0f*original_binary32_abs(x),result;
+ if(u<512){unsigned j=(unsigned)u;float a=fl(original_miami_n513_bits[j]),b=fl(original_miami_n513_bits[j+1]);float g=interpolate(b-a,u-(float)j,a);result=x*g;}
+ else result=clamp(x,-1,1)*fl(original_miami_n513_bits[512]);
+ *out=result;return 1;
+}
+int original_miami_mg_shape(unsigned ordinal,float phase,float *b,float *u){
+ if(!b||!u||b==u||ordinal>3||!original_binary32_isfinite(phase)||phase< -1||phase>1)return 0;
+ float bipolar,unipolar;
+ if(ordinal==0){bipolar=original_miami_mg_twice_plus_one(phase<0?phase:-phase);unipolar=original_miami_mg_half_plus_half(bipolar);}
+ else if(ordinal==1){bipolar=-phase;unipolar=original_miami_mg_half_plus_half(-phase);}
+ else if(ordinal==2){bipolar=phase;unipolar=original_miami_mg_half_plus_half(phase);}
+ else {bipolar=phase>=0?-1:1;unipolar=phase>=0?0:1;}
+ *b=bipolar;*u=unipolar;return 1;
+}
+int original_miami_ms20_init(original_miami_ms20 *s,unsigned index,float a0,float b0,float cap0){
+ if(!s||index>=128||!original_binary32_isfinite(a0)||!original_binary32_isfinite(b0)||!original_binary32_isfinite(cap0))return 0;
+ memset(s,0,sizeof *s);s->noise=index+1;s->noise_gain.current=fl(0x3727c5ac);s->a.current=s->a.target=a0;s->b=b0;s->cap=cap0;return 1;
+}
+int original_miami_ms20_note_reset(original_miami_ms20 *s,float a0){
+ if(!s||!original_binary32_isfinite(a0))return 0;
+ memset(s->history,0,sizeof s->history);s->a.current=s->a.target=a0;s->a.delta=0;
+ s->resonance=(original_ramp){0,0,0};s->prepared=0;return 1;
+}
+int original_miami_ms20_prepare(original_miami_ms20 *s,const original_ms20_tables *t,
+ float cutoff,float resonance,float depth,float env,float md,float mc,float mr,float noise,float mn,uint32_t duration){
+ if(!s||!t||!t->a||!t->b||!t->r||!t->cap||!duration||duration>2147482880u)return 0;
+ float controls[]={cutoff,resonance,depth,env,md,mc,mr,noise,mn};for(unsigned i=0;i<9;i++)if(!original_binary32_isfinite(controls[i]))return 0;
+ for(unsigned i=0;i<129;i++)if(!original_binary32_isfinite(t->a[i])||!original_binary32_isfinite(t->b[i])||!original_binary32_isfinite(t->r[i])||!original_binary32_isfinite(t->cap[i]))return 0;
+ float r=resonance+mr;if(!original_binary32_isfinite(r)||r<0||r>1)return 0;
+ float d=clamp(depth+md,-1,1),z=ref_fma(env,d,cutoff),q=ref_fma(mc,128,z*128.0f);
+ if(!original_binary32_isfinite(q))return 0;
+ float a=lookup(t->a,q),b=lookup(t->b,q),cap=lookup(t->cap,q),R;
+ if(r==1)R=t->r[128];else{float rq=r*128.0f;unsigned j=(unsigned)rq;R=interpolate(t->r[j+1]-t->r[j],rq-(float)j,t->r[j]);}
+ float target=R<=fl(0x3727c5ac)?fl(0x3727c5ac):(R<cap?R:cap);
+ float ng=clamp(noise+mn,0,1);ng=ng*ng+fl(0x3727c5ac);float reciprocal=1.0f/(float)duration;
+ stage(&s->a,a,reciprocal);stage(&s->resonance,target,reciprocal);stage(&s->noise_gain,ng,reciprocal);s->b=b;s->cap=cap;s->prepared=1;return 1;
+}
+int original_miami_ms20_sample(original_miami_ms20 *s,float osc,float gain,float *out){
+ if(!s||!out||!s->prepared||!original_binary32_isfinite(osc)||!original_binary32_isfinite(gain))return 0;
+ /* Calculate without publishing state: a failed sample must leave every field
+  * unchanged. Only the ramp currents, noise and history change on success;
+  * avoid copying the complete filter object twice on this sample path. */
+ float g=advance(&s->a),r=advance(&s->resonance),ng=advance(&s->noise_gain);
+ unsigned choose=(s->noise&0x40000000u)==0;uint32_t next_noise=(s->noise+s->noise)^(choose?8393u:0);
+ float noise=choose?.5f:-.5f;float v=ng*noise+osc;v=gain*v;
+ float x=v*fl(0x3fa47678);x=x*fl(0x3dcccccd);
+ float a=x+g*(s->history[0]-x);float b=a+g*(s->history[1]-a),nonlinear;
+ if(!original_miami_nonlinear(s->history[2]+b,&nonlinear))return 0;
+ float feedback=r*nonlinear,difference=feedback-s->history[4];
+ float d=difference+s->b*(s->history[3]+difference);float c=d+s->b*(s->history[2]-d);
+ if(!original_binary32_isfinite(a)||!original_binary32_isfinite(b)||!original_binary32_isfinite(c)||!original_binary32_isfinite(d)||!original_binary32_isfinite(feedback))return 0;
+ s->a.current=g;s->resonance.current=r;s->noise_gain.current=ng;s->noise=next_noise;
+ s->history[0]=a;s->history[1]=b;s->history[2]=c;s->history[3]=d;s->history[4]=feedback;
+ /* The output may alias a float field of s, as before: publish it last. */
+ *out=nonlinear;return 1;
+}
+
+/* Block kernel for one active Miami voice: oscillators (sync 0), MS-20 filter
+ * and stereo gain, added into L/R. The same float operations in the same
+ * order as original_voice_gain_oscillator + original_miami_ms20_sample +
+ * original_voice_gain_stereo per sample, with the state kept in locals.
+ * Finite checks run once at the end of the block (0: fault). */
+#include "voice_gain.h"
+#include "oscillator_motion.h"
+static inline float k_saw(float p,float correction){return p-clamp((p*correction)*128.0f,-1,1);}
+static inline float k_wave(unsigned shape,float p,float width,float correction,float triangle){
+ if(shape==0){float t=2.0f*(.5f-original_binary32_abs(p));float t2=t*t,t3=t*t2;return t+triangle*t3;}
+ float value=k_saw(p,correction);
+ if(shape>=2){float q=p+(width+width);if(q>1)q=q-2;value=value-k_saw(q,correction);}
+ return value;
+}
+static inline float k_phase(uint32_t u){return (float)(int32_t)u*0x1p-31f;}
+static inline float k_gain_advance(original_ramp *r){
+ float n=r->current+r->delta;if((r->delta>0)!=(r->target>n))n=r->target;r->current=n;return n;
+}
+int original_miami_voice_render_add(original_miami_ms20 *f,original_voice_gain *vg,original_oscillators *ph,
+ const original_prepared_oscillators *p,float vco_gain,float *L,float *R,uint32_t n){
+ if(!f->prepared||!p->ready||!original_binary32_isfinite(vco_gain))return 0;
+ const original_osc_controls *c=&p->controls;
+ original_ramp og[4],st[2];memcpy(og,vg->oscillator,sizeof og);memcpy(st,vg->stereo,sizeof st);
+ uint32_t phase[4];memcpy(phase,ph->phase,sizeof phase);
+ original_ramp ra=f->a,rr=f->resonance,rn=f->noise_gain;
+ float h0=f->history[0],h1=f->history[1],h2=f->history[2],h3=f->history[3],h4=f->history[4],fb=f->b;
+ uint32_t noise=f->noise;float xmod=c->xmod;
+ float b1=(float)c->increment[1]*0x1p-31f,b3=(float)c->increment[3]*0x1p-31f;
+ float st1=clamp(b1,-1,1)*0x1p31f,st3=clamp(b3,-1,1)*0x1p31f;
+ int32_t pstep1=st1>=0x1p31f?INT32_MAX:(int32_t)st1,pstep3=st3>=0x1p31f?INT32_MAX:(int32_t)st3;
+ for(uint32_t j=0;j<n;j++){
+  float gain[4]={og[0].current,og[1].current,og[2].current,og[3].current},w[4];
+  for(unsigned i=0;i<4;i+=2){
+   float b=i?b3:b1;int32_t step_i;
+   phase[i]-=c->increment[i];
+   if(gain[i]!=0.0f||xmod!=0.0f){
+    w[i]=k_wave(c->shape[i],k_phase(phase[i]),c->width[i],p->correction[i],p->triangle[i]);
+    float a=w[i]*xmod;float step=clamp(a+b,-1,1)*0x1p31f;step_i=step>=0x1p31f?INT32_MAX:(int32_t)step;
+   }else{w[i]=0.0f;step_i=i?pstep3:pstep1;}
+   phase[i+1]-=(uint32_t)step_i;
+   w[i+1]=gain[i+1]!=0.0f?k_wave(c->shape[i+1],k_phase(phase[i+1]),c->width[i+1],p->correction[i+1],p->triangle[i+1]):0.0f;
+  }
+  float mix=gain[0]!=0.0f?w[0]*(gain[0]*.5f):0.0f;for(unsigned i=1;i<4;i++)if(gain[i]!=0.0f)mix=mix+w[i]*(gain[i]*.5f);
+  for(unsigned i=0;i<4;i++)(void)k_gain_advance(&og[i]);
+  /* MS-20 */
+  float g=advance(&ra),r=advance(&rr),ng=advance(&rn);ra.current=g;rr.current=r;rn.current=ng;
+  unsigned choose=(noise&0x40000000u)==0;noise=(noise+noise)^(choose?8393u:0);
+  float nz=choose?.5f:-.5f;float v=ng*nz+mix;v=vco_gain*v;
+  float x=v*fl(0x3fa47678);x=x*fl(0x3dcccccd);
+  float a=x+g*(h0-x);float b=a+g*(h1-a);
+  float in=h2+b,u=512.0f*original_binary32_abs(in),nl;
+  if(u<512){unsigned k=(unsigned)u;float ta=fl(original_miami_n513_bits[k]),tb=fl(original_miami_n513_bits[k+1]);float gg=interpolate(tb-ta,u-(float)k,ta);nl=in*gg;}
+  else nl=clamp(in,-1,1)*fl(original_miami_n513_bits[512]);
+  float feedback=r*nl,difference=feedback-h4;
+  float d=difference+fb*(h3+difference);float cc=d+fb*(h2-d);
+  h0=a;h1=b;h2=cc;h3=d;h4=feedback;
+  float l=k_gain_advance(&st[0]),rg=k_gain_advance(&st[1]);
+  L[j]=L[j]+nl*l;R[j]=R[j]+nl*rg;
+ }
+ if(!original_binary32_isfinite(h0)||!original_binary32_isfinite(h1)||!original_binary32_isfinite(h2)||
+    !original_binary32_isfinite(h3)||!original_binary32_isfinite(h4))return 0;
+ memcpy(vg->oscillator,og,sizeof og);memcpy(vg->stereo,st,sizeof st);memcpy(ph->phase,phase,sizeof phase);
+ f->a=ra;f->resonance=rr;f->noise_gain=rn;f->noise=noise;
+ f->history[0]=h0;f->history[1]=h1;f->history[2]=h2;f->history[3]=h3;f->history[4]=h4;
+ return 1;
+}
+===== END FILE experiments/original_synth/miami_ms20.c =====
+
+===== BEGIN FILE experiments/original_synth/miami_pitch.c (base d8086cc09, 65ebc957a562) =====
+/* SPDX-License-Identifier: GPL-3.0-only */
+#include "miami_pitch.h"
+#include "binary32_classify.h"
+#include <math.h>
+#include <string.h>
+#ifdef ORIGINAL_USE_SOFT_FMA
+#include "fused_reference.h"
+#define ref_fma original_rne_fmaf
+#else
+#define ref_fma fmaf
+#endif
+static float clamp(float x,float lo,float hi){return x<lo?lo:x>hi?hi:x;}
+int original_miami_pitch_init(original_miami_pitch *s,unsigned last){
+ if(!s||last>127)return 0;
+ memset(s,0,sizeof *s);for(unsigned i=0;i<4;i++)s->current[i]=s->target[i]=(float)last;return 1;
+}
+int original_miami_pitch_note(original_miami_pitch *s,unsigned note,unsigned last,unsigned mask,unsigned full){
+ if(!s||note>127||last>127||mask>15||full>1)return 0;
+ for(unsigned i=0;i<4;i++)if(mask&(1u<<i)){s->target[i]=(float)note;if(full)s->current[i]=(float)last;}
+ return 1;
+}
+int original_miami_pitch_prepare(original_miami_pitch *s,const original_miami_pitch_controls *c,const int32_t table[128],float fs,uint32_t D,uint32_t out[4]){
+ if(!s||!c||!table||!out||c->modulation_on>1||c->transpose< -120||c->transpose>120)return 0;
+ const float values[]={c->master_tune,c->unison_coordinate,c->unison_detune,c->mod_master_pitch,c->bend_range,c->bend,c->detune,c->mod_detune,c->frequency_mod,c->mod_slave_pitch,c->portamento,c->mod_portamento};
+ for(unsigned i=0;i<sizeof values/sizeof values[0];i++)if(!original_binary32_isfinite(values[i]))return 0;
+ for(unsigned i=0;i<4;i++)if(!original_binary32_isfinite(c->fine_tune[i])||!original_binary32_isfinite(c->mod_pitch[i])||c->semitone[i]< -120||c->semitone[i]>120)return 0;
+ original_miami_pitch next=*s;if(!original_glide(next.current,next.target,c->portamento,c->mod_portamento,fs,D))return 0;
+ float common=c->master_tune+0.0f;common=ref_fma(c->unison_coordinate,c->unison_detune,common);common=ref_fma(c->mod_master_pitch,48,common);common=common+(float)c->transpose;common=ref_fma(c->bend_range,c->bend,common);
+ float dt=c->detune+c->mod_detune;if(!original_binary32_isfinite(common)||!original_binary32_isfinite(dt))return 0;dt=clamp(dt,0,1)*.3499999940395355f;
+ uint32_t increments[4];
+ for(unsigned i=0;i<4;i++){
+  float p=common+next.current[i];p=p+(float)c->semitone[i];p=ref_fma(c->mod_pitch[i],48,p);
+  if(i){p=c->fine_tune[i]+p;if(i==1)p=p-dt;else if(i==3)p=dt+p;}
+  if(c->modulation_on&&(i==1||i==3)){p=c->frequency_mod+p;p=ref_fma(c->mod_slave_pitch,48,p);}
+  if(!original_binary32_isfinite(p)||!original_pitch_increment(p,table,&increments[i]))return 0;
+ }
+ *s=next;memcpy(out,increments,sizeof increments);return 1;
+}
+===== END FILE experiments/original_synth/miami_pitch.c =====
+
+===== BEGIN FILE experiments/original_synth/oscillator_motion.c (base d8086cc09, 92dc49dc0e81) =====
+/* SPDX-License-Identifier: GPL-3.0-only */
+#include "oscillator_motion.h"
+#include "binary32_classify.h"
+#include "miami_fx_conversion.h"
+#include <math.h>
+#include "binary32_math.h"
+#include <string.h>
+#include <limits.h>
+#ifdef ORIGINAL_USE_SOFT_FMA
+#include "fused_reference.h"
+#define ref_fma original_rne_fmaf
+#else
+#define ref_fma fmaf
+#endif
+static float clamp(float x,float lo,float hi){return x<lo?lo:x>hi?hi:x;}
+static float fl(uint32_t u){return original_math_float(u);}
+static uint32_t bits(float f){return original_math_bits(f);}
+/* Nonnegative finite binary32 values have the same integer ordering. Accept
+ * negative zero explicitly, as the original floating comparisons do. */
+static int oscillator_gain_valid(float gain){uint32_t u=bits(gain);return u<=bits(ORIGINAL_OSCILLATOR_GAIN_MAX)||u==UINT32_C(0x80000000);}
+static int32_t signed32(uint32_t u){return u<=INT32_MAX?(int32_t)u:(int32_t)((int64_t)u-4294967296LL);}
+static float phase_float(uint32_t u){return (float)signed32(u)*0x1p-31f;}
+/* Prepared controls and finite waveforms bound this to [-2^31, 2^31].
+ * The positive endpoint must saturate before the C cast; every other value
+ * is representable after truncation, including the negative endpoint. */
+static int32_t phase_step_int(float step){return step>=0x1p31f?INT32_MAX:(int32_t)step;}
+static float saw(float p,float correction){return p-clamp((p*correction)*128.0f,-1,1);}
+static void coefficients(uint32_t D,float *correction,float *triangle){
+ *correction=1;
+ if(D>0x00ffffffu){uint64_t q=UINT64_C(0x7fffffff000000)/D;*correction=(float)signed32((uint32_t)q)*0x1p-31f;}
+ float a=(float)D*0x1p-31f;a=a-.024f;float b=a>0?a*8:0;*triangle=b>1?fl(0xbeb020c5):b*fl(0xbeb020c5);
+}
+static float prepared_wave(unsigned shape,float p,float width,float correction,float triangle){
+ if(shape==0){float t=2.0f*(.5f-original_binary32_abs(p));float t2=t*t,t3=t*t2;return t+triangle*t3;}
+ float value=saw(p,correction);
+ if(shape>=2){float q=p+(width+width);if(q>1)q=q-2;value=value-saw(q,correction);}
+ return value;
+}
+int original_waveform(unsigned shape,float p,uint32_t D,float width,float *out){
+ if(!out||shape>3||!original_binary32_isfinite(p)||p< -1||p>1||!D||D>INT32_MAX||!original_binary32_isfinite(width)||width<0||width>1)return 0;
+ float correction,triangle;coefficients(D,&correction,&triangle);*out=prepared_wave(shape,p,width,correction,triangle);return 1;
+}
+int original_oscillator_prepare(original_prepared_oscillators *out,const original_osc_controls *c){
+ if(!out||!c||!original_binary32_isfinite(c->xmod)||c->xmod<0||c->xmod>.8999999761581421f)return 0;
+ for(unsigned i=0;i<4;i++)if(c->shape[i]>3||!c->increment[i]||c->increment[i]>INT32_MAX||!original_binary32_isfinite(c->gain[i])||c->gain[i]<0||c->gain[i]>ORIGINAL_OSCILLATOR_GAIN_MAX||!original_binary32_isfinite(c->width[i])||c->width[i]<0||c->width[i]>1)return 0;
+ original_prepared_oscillators n;memset(&n,0,sizeof n);n.controls=*c;
+ for(unsigned i=0;i<4;i++)coefficients(c->increment[i],&n.correction[i],&n.triangle[i]);
+ n.ready=1;*out=n;return 1;
+}
+static int sample_gains(original_oscillators *s,const original_prepared_oscillators *prepared,const float gain[4],unsigned sync,float *output){
+ if(!s||!prepared||!prepared->ready||!output||sync>1)return 0;
+ const original_osc_controls *c=&prepared->controls;original_oscillators next=*s;float w[4];
+ for(unsigned i=0;i<4;i+=2){
+  uint32_t old=next.phase[i];next.phase[i]-=c->increment[i];
+  /* Zero gain: the shaper output is not heard. The even one still drives XMOD
+   * when xmod != 0. With xmod == 0, a+b == b exactly (b > 0), so it is skipped.
+   * Phases always advance as before. */
+  float b=(float)c->increment[i+1]*0x1p-31f,step;
+  if(gain[i]!=0.0f||c->xmod!=0.0f){
+   w[i]=prepared_wave(c->shape[i],phase_float(next.phase[i]),c->width[i],prepared->correction[i],prepared->triangle[i]);
+   float a=w[i]*c->xmod;step=clamp(a+b,-1,1)*0x1p31f;
+  }else{w[i]=0.0f;step=clamp(b,-1,1)*0x1p31f;}
+  next.phase[i+1]-=(uint32_t)phase_step_int(step);
+  if(sync&&signed32(next.phase[i])>signed32(old))next.phase[i+1]=0x7fffffffu;
+  w[i+1]=gain[i+1]!=0.0f?prepared_wave(c->shape[i+1],phase_float(next.phase[i+1]),c->width[i+1],prepared->correction[i+1],prepared->triangle[i+1]):0.0f;
+ }
+ /* A zero-gain term adds a signed zero: it changes no nonzero sum. */
+ float mix=gain[0]!=0.0f?w[0]*(gain[0]*.5f):0.0f;for(unsigned i=1;i<4;i++)if(gain[i]!=0.0f)mix=mix+w[i]*(gain[i]*.5f);
+ *s=next;*output=mix;return 1;
+}
+int original_oscillator_sample_prepared(original_oscillators *s,const original_prepared_oscillators *prepared,unsigned sync,float *output){
+ if(!prepared)return 0;
+ return sample_gains(s,prepared,prepared->controls.gain,sync,output);
+}
+int original_oscillator_sample_gains(original_oscillators *s,const original_prepared_oscillators *prepared,const float gain[4],unsigned sync,float *output){
+ if(!gain)return 0;
+ for(unsigned i=0;i<4;i++)if(!oscillator_gain_valid(gain[i]))return 0;
+ return sample_gains(s,prepared,gain,sync,output);
+}
+int original_oscillator_sample(original_oscillators *s,const original_osc_controls *c,unsigned sync,float *output){
+ original_prepared_oscillators p;if(!original_oscillator_prepare(&p,c))return 0;return original_oscillator_sample_prepared(s,&p,sync,output);
+}
+int original_mg_tempo(float *p,unsigned rate,float bpm,float fs,uint32_t D,unsigned *wrapped){
+ static const float base[8]={3,3,3,3,4,4,4,4},times[8]={16,8,4,2,8,4,2,1};
+ if(!p||!wrapped||rate>7||!original_binary32_isfinite(*p)||*p< -1||*p>1||!original_binary32_isfinite(bpm)||bpm<20||bpm>400||!original_binary32_isfinite(fs)||fs<8000||fs>2147482880.0f||!D||D>(uint32_t)original_binary32_ceil_finite(fs/690.0f))return 0;
+ float numerator=(bpm*fl(0x3f4ccccd))*(float)D;float denominator=(fs*base[rate])*times[rate];
+ float delta=original_binary32_min_one_finite(numerator/denominator);float next=*p+delta;unsigned wrap=next>=1;if(wrap)next=next-2;
+ *p=next;*wrapped=wrap;return 1;
+}
+int original_glide(float current[4],const float target[4],float port,float mod,float fs,uint32_t D){
+ if(!current||!target||!original_binary32_isfinite(port)||!original_binary32_isfinite(mod)||!original_binary32_isfinite(fs)||fs<8000||fs>2147482880.0f||!D||D>(uint32_t)original_binary32_ceil_finite(fs/690.0f))return 0;
+ for(unsigned i=0;i<4;i++)if(!original_binary32_isfinite(current[i])||current[i]<0||current[i]>127||!original_binary32_isfinite(target[i])||target[i]<0||target[i]>127)return 0;
+ float sum=port+mod;if(!original_binary32_isfinite(sum))return 0;float t=clamp(sum,0,1),a=t*t;a=ref_fma(a,fl(0x49f42400),fl(0x3a83126f));a=fs*a;a=(float)D/a;a=a*fl(0x4a8ab75d);a=original_binary32_min_one_finite(a);
+ float next[4];for(unsigned i=0;i<4;i++)next[i]=ref_fma(target[i]-current[i],a,current[i]);memcpy(current,next,sizeof next);return 1;
+}
+int original_pitch_increment(float pitch,const int32_t table[128],uint32_t *out){
+ if(!table||!out||!original_binary32_isfinite(pitch))return 0;
+ float p=clamp(pitch,0,120);unsigned j=(unsigned)p;
+ if(table[j]<=0||table[j+1]<table[j])return 0;
+ float f=p-(float)j;int32_t step=miami_fx_fcvtzs(bits((float)(table[j+1]-table[j])*f));
+ int64_t result=(int64_t)table[j]+step;if(result>INT32_MAX)return 0;*out=(uint32_t)result;return 1;
+}
+int original_pw_width(unsigned shape,float intensity,float source,float pw,float mi,float mw,float *out){
+ if(!out||shape>3||!original_binary32_isfinite(intensity)||!original_binary32_isfinite(source)||source< -1||source>1||!original_binary32_isfinite(pw)||!original_binary32_isfinite(mi)||!original_binary32_isfinite(mw)||!original_binary32_isfinite(intensity+mi)||!original_binary32_isfinite(pw+mw))return 0;
+ float depth=clamp(intensity+mi,0,1),width=clamp(pw+mw,.01f,.99f);
+ *out=shape<2?0:shape==2?(1-depth*source)*.5f:1-width;return 1;
+}
+
+int original_xmod_coefficient(float depth,float mod,float *out){
+ if(!out||!original_binary32_isfinite(depth)||depth<0||depth>1||!original_binary32_isfinite(mod)||mod< -1||mod>1)return 0;
+ *out=.8999999761581421f*clamp(ref_fma(depth,depth,mod),0,1);return 1;
+}
+===== END FILE experiments/original_synth/oscillator_motion.c =====
+
+===== BEGIN FILE experiments/original_synth/oscillator_motion.h (base d8086cc09, 8043c28b48ab) =====
+/* SPDX-License-Identifier: GPL-3.0-only */
+#ifndef ORIGINAL_OSCILLATOR_MOTION_H
+#define ORIGINAL_OSCILLATOR_MOTION_H
+#include <stdint.h>
+/* Explicit phases, increments, current gains and native ordinal selectors.
+ * This is not a note initializer, complete pitch binding or preset loader.
+ * Only the original 44.1 kHz phase-table context is presently evidenced. */
+typedef struct {uint32_t phase[4];} original_oscillators;
+/* Curve0 original level normalization is binary32 bits3faaa993. Physical
+ * oscillator gains can exceed normalized1, including stock factory programs.
+ * This is a recovered signal domain, not an enlarged firmware resource limit. */
+#define ORIGINAL_OSCILLATOR_GAIN_MAX 1.333299994468689f
+typedef struct {uint32_t increment[4];float gain[4],width[4];uint8_t shape[4];float xmod;} original_osc_controls;
+typedef struct {original_osc_controls controls;float correction[4],triangle[4];uint8_t ready;} original_prepared_oscillators;
+/* Original control-rate preparation caches increment-derived coefficients.
+ * Reprepare after any control/increment change. Prepared state is caller-owned
+ * and immutable during a sample; direct field mutation is unsupported. */
+int original_oscillator_prepare(original_prepared_oscillators *out,const original_osc_controls *controls);
+int original_oscillator_sample_prepared(original_oscillators *s,const original_prepared_oscillators *c,unsigned sync,float *output);
+/* Same immutable waveform preparation, with current audio-rate gain ramps.
+ * Updating gains alone must not repeat increment-derived divisions or waveform
+ * preparation. Inputs are physical [0, ORIGINAL_OSCILLATOR_GAIN_MAX] gains. */
+int original_oscillator_sample_gains(original_oscillators *s,const original_prepared_oscillators *c,const float current_gain[4],unsigned sync,float *output);
+/* Convenience checked preparation+sample reference; not the real-time route. */
+/* sync=0 Miami double XMod, sync=1 Chicago SYNC/XMod; each independently traced.
+ * Controls immutable for the call; output/state unchanged on invalid input. */
+int original_oscillator_sample(original_oscillators *s,const original_osc_controls *c,unsigned sync,float *output);
+int original_waveform(unsigned shape,float phase,uint32_t increment,float width,float *out);
+/* Native public rate ordinal 0..7. Read waveform from old phase before advance.
+ * Explicit input phase avoids guessing original unison initialization order. */
+int original_mg_tempo(float *phase,unsigned rate,float bpm,float fs,uint32_t duration,unsigned *wrapped);
+/* Four explicit current/target glide pitches; finite 0..127 (MIDI notes; final oscillator pitch clamps to 120). */
+int original_glide(float current[4],const float target[4],float portamento,float modulation,float fs,uint32_t duration);
+/* Original signed integer lookup requires verified 128-entry table. */
+int original_pitch_increment(float pitch,const int32_t table[128],uint32_t *out);
+int original_xmod_coefficient(float native_depth,float modulation,float *out);
+int original_pw_width(unsigned shape,float intensity,float source,float shadow_width,float mod_intensity,float mod_width,float *width);
+#endif
+===== END FILE experiments/original_synth/oscillator_motion.h =====
+
+===== BEGIN FILE experiments/original_synth/miami_voice_snapshot.c (base d8086cc09, d50e9a663228) =====
+/* SPDX-License-Identifier: GPL-3.0-only */
+#include "miami_voice_snapshot.h"
+#include "state_codec_private.h"
+#include <string.h>
+#define U ORIGINAL_STATE_U
+#define F ORIGINAL_STATE_F
+#define B ORIGINAL_STATE_B
+#define I ORIGINAL_STATE_I
+#define FIELD(kind,path) ORIGINAL_STATE_FIELD(original_miami_voice_snapshot,kind,path)
+/* Packed byte-offset/kind descriptors. Offsets are compiled for this ABI;
+ * wire field order is identical on host and target. Two readonly bytes/field. */
+static const uint16_t fields[ORIGINAL_MIAMI_VOICE_SNAPSHOT_WORDS]={
+ FIELD(U,voice.pitch.oscillator.phase[0]),
+ FIELD(U,voice.pitch.oscillator.phase[1]),
+ FIELD(U,voice.pitch.oscillator.phase[2]),
+ FIELD(U,voice.pitch.oscillator.phase[3]),
+ FIELD(F,voice.pitch.current[0]),
+ FIELD(F,voice.pitch.current[1]),
+ FIELD(F,voice.pitch.current[2]),
+ FIELD(F,voice.pitch.current[3]),
+ FIELD(F,voice.pitch.target[0]),
+ FIELD(F,voice.pitch.target[1]),
+ FIELD(F,voice.pitch.target[2]),
+ FIELD(F,voice.pitch.target[3]),
+ FIELD(F,voice.gain.oscillator[0].current),
+ FIELD(F,voice.gain.oscillator[0].target),
+ FIELD(F,voice.gain.oscillator[0].delta),
+ FIELD(F,voice.gain.oscillator[1].current),
+ FIELD(F,voice.gain.oscillator[1].target),
+ FIELD(F,voice.gain.oscillator[1].delta),
+ FIELD(F,voice.gain.oscillator[2].current),
+ FIELD(F,voice.gain.oscillator[2].target),
+ FIELD(F,voice.gain.oscillator[2].delta),
+ FIELD(F,voice.gain.oscillator[3].current),
+ FIELD(F,voice.gain.oscillator[3].target),
+ FIELD(F,voice.gain.oscillator[3].delta),
+ FIELD(F,voice.gain.stereo[0].current),
+ FIELD(F,voice.gain.stereo[0].target),
+ FIELD(F,voice.gain.stereo[0].delta),
+ FIELD(F,voice.gain.stereo[1].current),
+ FIELD(F,voice.gain.stereo[1].target),
+ FIELD(F,voice.gain.stereo[1].delta),
+ FIELD(F,voice.filter.history[0]),
+ FIELD(F,voice.filter.history[1]),
+ FIELD(F,voice.filter.history[2]),
+ FIELD(F,voice.filter.history[3]),
+ FIELD(F,voice.filter.history[4]),
+ FIELD(F,voice.filter.b),
+ FIELD(F,voice.filter.cap),
+ FIELD(F,voice.filter.a.current),
+ FIELD(F,voice.filter.a.target),
+ FIELD(F,voice.filter.a.delta),
+ FIELD(F,voice.filter.resonance.current),
+ FIELD(F,voice.filter.resonance.target),
+ FIELD(F,voice.filter.resonance.delta),
+ FIELD(F,voice.filter.noise_gain.current),
+ FIELD(F,voice.filter.noise_gain.target),
+ FIELD(F,voice.filter.noise_gain.delta),
+ FIELD(U,voice.filter.noise),
+ FIELD(B,voice.filter.prepared),
+ FIELD(B,voice.prepared.controls.shape[0]),
+ FIELD(B,voice.prepared.controls.shape[1]),
+ FIELD(B,voice.prepared.controls.shape[2]),
+ FIELD(B,voice.prepared.controls.shape[3]),
+ FIELD(U,voice.prepared.controls.increment[0]),
+ FIELD(U,voice.prepared.controls.increment[1]),
+ FIELD(U,voice.prepared.controls.increment[2]),
+ FIELD(U,voice.prepared.controls.increment[3]),
+ FIELD(F,voice.prepared.controls.gain[0]),
+ FIELD(F,voice.prepared.controls.gain[1]),
+ FIELD(F,voice.prepared.controls.gain[2]),
+ FIELD(F,voice.prepared.controls.gain[3]),
+ FIELD(F,voice.prepared.controls.width[0]),
+ FIELD(F,voice.prepared.controls.width[1]),
+ FIELD(F,voice.prepared.controls.width[2]),
+ FIELD(F,voice.prepared.controls.width[3]),
+ FIELD(F,voice.prepared.controls.xmod),
+ FIELD(F,voice.prepared.correction[0]),
+ FIELD(F,voice.prepared.correction[1]),
+ FIELD(F,voice.prepared.correction[2]),
+ FIELD(F,voice.prepared.correction[3]),
+ FIELD(F,voice.prepared.triangle[0]),
+ FIELD(F,voice.prepared.triangle[1]),
+ FIELD(F,voice.prepared.triangle[2]),
+ FIELD(F,voice.prepared.triangle[3]),
+ FIELD(B,voice.prepared.ready),
+ FIELD(F,voice.vcf.level),
+ FIELD(B,voice.vcf.state),
+ FIELD(F,voice.vca.level),
+ FIELD(B,voice.vca.state),
+ FIELD(F,voice.mg[0].phase),
+ FIELD(F,voice.mg[0].unipolar),
+ FIELD(F,voice.mg[0].bipolar),
+ FIELD(F,voice.mg[0].hold),
+ FIELD(U,voice.mg[0].noise),
+ FIELD(B,voice.mg[0].wrapped),
+ FIELD(F,voice.mg[1].phase),
+ FIELD(F,voice.mg[1].unipolar),
+ FIELD(F,voice.mg[1].bipolar),
+ FIELD(F,voice.mg[1].hold),
+ FIELD(U,voice.mg[1].noise),
+ FIELD(B,voice.mg[1].wrapped),
+ FIELD(F,voice.previous_vca),
+ FIELD(F,voice.previous_mg1),
+ FIELD(F,voice.mod_slave),
+ FIELD(F,voice.mod_cutoff),
+ FIELD(F,voice.mod_gain),
+ FIELD(F,voice.vcf_bipolar),
+ FIELD(F,voice.vca_bipolar),
+ FIELD(F,voice.velocity),
+ FIELD(U,voice.raw_velocity),
+ FIELD(F,voice.unison_coordinate),
+ FIELD(U,voice.counter),
+ FIELD(U,voice.last_duration),
+ FIELD(U,voice.control_updates),
+ FIELD(U,voice.wave_preparations),
+ FIELD(U,voice.pending_tail_duration),
+ FIELD(I,voice.activation[0]),
+ FIELD(I,voice.activation[1]),
+ FIELD(I,voice.activation[2]),
+ FIELD(I,voice.activation[3]),
+ FIELD(B,voice.unison_flag),
+ FIELD(B,voice.note_key),
+ FIELD(B,voice.key_down),
+ FIELD(B,voice.damper_deferred),
+ FIELD(B,voice.active),
+ FIELD(B,voice.ready),
+ FIELD(B,voice.awaiting_restart),
+ FIELD(I,pending.note),
+ FIELD(I,pending.velocity),
+ FIELD(U,pending.unison_flag),
+ FIELD(F,pending.coordinate),
+ FIELD(U,pending.mask),
+ FIELD(I,pending.oscillator_note[0]),
+ FIELD(I,pending.oscillator_note[1]),
+ FIELD(I,pending.oscillator_note[2]),
+ FIELD(I,pending.oscillator_note[3]),
+ FIELD(F,extra.velocity_bipolar),
+ FIELD(F,extra.key_unipolar),
+ FIELD(F,extra.key_bipolar),
+ FIELD(U,program_revision),
+ FIELD(U,voice_id),
+};
+int original_miami_voice_snapshot_capture(original_miami_voice_snapshot *out,const original_miami_voice_owner *s,unsigned id){
+ if(!out||!s||!s->status||id>=s->count)return 0;
+ original_miami_voice_snapshot n;memset(&n,0,sizeof n);n.voice=s->voices[id];n.pending=s->pending[id];n.extra=s->extra[id];n.program_revision=s->controls->revision;n.voice_id=id;*out=n;return 1;
+}
+static const original_state_schema schema={fields,ORIGINAL_MIAMI_VOICE_SNAPSHOT_WORDS,sizeof(original_miami_voice_snapshot),1,{'L','X','V','S'}};
+int original_miami_voice_snapshot_encode(const original_miami_voice_snapshot *s,void *bytes,size_t capacity){return original_state_encode(&schema,s,bytes,capacity);}
+int original_miami_voice_snapshot_decode(original_miami_voice_snapshot *out,const void *bytes,size_t length){
+ if(!out)return 0;
+ original_miami_voice_snapshot n;
+ if(!original_state_decode(&schema,&n,bytes,length))return 0;
+ *out=n;
+ return 1;
+}
+===== END FILE experiments/original_synth/miami_voice_snapshot.c =====

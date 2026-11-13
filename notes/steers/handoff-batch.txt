@@ -1,0 +1,33 @@
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+
+ROLE: batch-merge builder, repo gobbajogger/X0X37-for-Loopy-Pro.
+BASE: wip/one-build @ b00b460a91ed99466f41cda0b71507e5e977f409 (#724 merged 21:17 UTC+10). Re-check head before you start.
+
+OPEN PRs into wip/one-build (all mergeable; #717 state unstable, others clean; #712 is IN scope (no holds; keep #691 as the main version, port anything unique from #712); #718 already merged):
+#705 fix/midi-queue-order fc2eba78
+#725 feat/mixer-fx-page-on-one-build 8dfb42be
+#717 wip/smc-mixer-integration 3fa97e8e (adds .github/workflows file: drop it)
+#719 lane/second-builder-clip-settings-arrow-20261030 e26ed5b1
+#696 chat/ui-theme 340dfd09
+#715 fix/freeplay-pad-optout-regression cb73230c
+#691 chat/miami-opt bc47c97c
+#721 wip/private-headers e189819d
+#726 docs/full-source-fetch 781da974
+#700 smc-a-port-20261029 e606a74a
+#689 wip/break-feat e0d9460a
+
+GREEN (reported full suite + Elite/Pro): none. #719 reported full suite 257 ok/58 FAIL (same as base); builds stop at engine.c:79 check. All others report NOT_RUN.
+
+OVERLAPS: tests/run_tests.sh (689,691,696,700,705,717,725); smc_mixer.c (700,717,725); smc_fx_caption.h + smc_fx_caption_test.c/.sh (717,725); BEHAVIOR.md (717,719); main_fm1.c (700,719); ble.c (700,705); smc_reachability_test.c, smc_solo_overflow_test.py (700,717).
+NO OVERLAP: #715, #721, #726.
+
+TASK: From base b00b460a, use the #734 batch branch via the GitHub API (re-read the live wip/one-build head). WAIT for FMB's base fix and the owner's go. The batch PR is #734. Combine ALL these PRs; combine overlapping ones by hand (never exclude); #725+#717 first; #691 and #700 are main, port unique parts of #712 and #709. Then run ONE full tests/run_tests.sh plus Elite and Pro build in the chat. Open one draft PR to wip/one-build and post the counts. Post on #734; merge into wip/one-build only if 0 fail (Merge Integrator merges). Get source as docs/FULL-SOURCE-FETCH.md says (in #726; zipball is blocked).
+
+RULES: commits as gobbajogger only; no .github changes; GitHub plugin/API only, no network git; push only new work; post a status comment; approve your own posts/GitHub actions; no creds, tokens, binaries or raw captures (test goldens OK); NEVER GitHub Actions; never main/nightly; no installs. Click Allow on repo GitHub cards.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

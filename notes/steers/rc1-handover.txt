@@ -1,0 +1,8 @@
+Handover format for rc1: when the build and checks are done, post all of the following.
+(1) The Elite and Pro image files as downloadable attachments, plus the GitHub raw link if they are pushed to the nightly artifacts branch. Use the existing nightly artifacts pattern, never main.
+(2) The sha256 and size of each image.
+(3) The full package_nightly --check JSON for Elite and for Pro, as plain text.
+(4) The strict-model check result for each image (SMK-37 Elite_900 / SMK-37 Pro_900).
+(5) The prepared "0.0.25-rc1 QA IN PROGRESS" nightly entry, as a separate entry that doesn't replace 0.0.24, pushed as an unmerged PR branch with its URL. Commit through the GitHub API with explicit author AND committer gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
+Do NOT publish or merge it. Someone else will publish.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

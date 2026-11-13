@@ -1,0 +1,3 @@
+Fix the freeplay test's missing declaration and the cancellation-state assertion failure; the same independent reviewer re-checks the affected tests.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

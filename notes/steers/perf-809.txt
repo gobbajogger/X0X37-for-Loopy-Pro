@@ -1,0 +1,6 @@
+URGENT, for a live show at 18:00 UTC+10 today. This is read only: find the cause and propose a fix, without committing or pushing.
+Repo: gobbajogger/X0X37-for-Loopy-Pro. Read it through the GitHub API (tree and blob) and the Remote Desktop Commander plugin.
+PR #809 shows a host render slowdown of about 32% on build/0.0.24 compared with 0.0.23. Measure base 0.0.23 against build/0.0.24 with the host render benchmark: 5 runs, medians in ns/frame. Bisect or diff to find the commit and the code that cause it.
+Propose the smallest fix that keeps the audio output bit-identical (17 scenarios / 50 files). Show the exact diff and the measured speed after it. Pool headroom must stay at least 8,192 B for both Elite and Pro.
+Reply in plain words: the cause, the commit or file, the fix diff, the numbers before and after, and the risk. You must reply by 16:30 UTC+10. If you aren't done by then, post what you have.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

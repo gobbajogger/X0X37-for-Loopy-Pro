@@ -1,0 +1,66 @@
+I’ll cross-check the full 0.0.24 plan against the registry, archive, current PRs and branches, and your recorded decisions, using build/0.0.23 at bb190749 as the baseline. I’ll separate missing work and real conflicts from intentional behavior, and flag where the evidence is incomplete rather than treating a claim as proof.
+
+The eight files cover more than the PR list: release fixes, live-performance choices, optimizations, quality checks, and archive leftovers. I’m checking each requirement against current source and history, then separating confirmed conflicts, missing acceptance evidence, duplicates, and intentional or deferred behavior. One distinction already matters: several live-performance entries are proposals, so they must not silently become changes to your agreed controls.
+
+The cross-check has found concrete double-work and stale instructions. The baseline already contains many fixes the documents still describe as unmerged; meanwhile, the current installer still rejects “DnBOX” port names even though fixes already exist in PRs #770/#771. The briefs also reopen pad diagnostics, community-library work, and performance-control changes that your later decisions excluded or settled.
+
+The repository inventory is complete: 910 branches and 805 PR records, with targeted ancestry and source checks. One important correction to the supplied archive audit: the current five chunks join byte-for-byte to the unsplit archive and match the documented hash. That upload does not need replacing; the remaining archive limitation is filtered content and incomplete historical reconstruction, not a proven corrupt current file.
+
+My conclusion: don’t execute the attached briefs verbatim. They contain useful work, but mix delivered code, unresolved defects, old proposals and deliberately deferred scope. The attached 12-page report gives the corrected findings, PR-by-PR evidence, preservation rules and integration sequence.
+
+I read all eight files, inventoried 910 branches and 805 PR records, made 32 targeted ancestry comparisons, checked relevant current source and archive material, and reconciled owner decisions. PR #810 arrived afterward and is included as an addendum. This was a source/history cross-check, not a fresh firmware test run or an exhaustive review of every branch’s code.
+
+The highest-priority real gaps
+
+Settings can still be overwritten after a read failure. Current #790 still turns a negative settings read into “no settings object,” then writes defaults during Bluetooth persistence. Its atomic-chain acceptance does not close this separate data-preservation defect. Fresh source inspection confirms the mechanism; the six modeled reproductions are earlier evidence, not a new device-loss claim. Current path.
+
+The installer still filters out DnBOX names before handshake. This remains in checked #794/#804/#806 paths. Existing #770/#771 repairs need reconciliation and delivery, not another implementation. Removing the name filter must preserve real target-identification safeguards. Affected installer source.
+
+#789’s default single-peer out-of-bounds finding remains open. Passing fixtures compiled for two peers do not repair that production configuration. Existing finding.
+
+Several requested outcomes remain unclosed: B4 parameter-drift attribution; F2 per-note sound and broader gesture/recording/clock acceptance; silence-only autosave; actual iPhone reset/streaming and physical key-to-sound measurements. Nearby scoped fixes do not close these whole outcomes. Context-preserving LOAD is still a proposal, not a decision I’m inventing for you.
+
+Wrong, duplicated or conflicting work
+
+The “20 done / 92 partial / 10 missing” figures describe 0.0.22 code presence, not 0.0.23 acceptance. The exported registry also truncates evidence cells.
+Many supposedly unmerged predecessors are already ancestors of bb190749, including stock loops, installer flow, Chicago UI, single-peer SMC, pads under SETTINGS/HELP, Miami shape pads, locked banks and earlier free-play latency work.
+Navigation wrap exists. #787 adds test registration; F5 should not rewrite it. F4’s peer-name reference is wrong: #762, not #782.
+RATE pads already exist alongside SHAPE pads. An archived test that disables them under HELP/SETTINGS is stale and would reverse current behavior.
+#800/#807 still inherit older #789 source. UI, engine, USB and test-runner lanes overlap substantially. Independent PR passes cannot substitute for deliberate composition and combined validation.
+F7 reopens excluded pad diagnostics; F6 reopens deferred community work. Other parked sample/process requests must retain their dispositions. Rows 81–88 need explicit inclusion/defer/exclusion decisions, not automatic new features.
+“Never touch main_fm1.c” conflicts with briefs assigning SMK main-loop changes there. The filename and the prohibited FM-1 target are not the same thing.
+
+Intentional behavior we must protect
+
+Existing PLAY/undo/redo timing, bar-end pattern changes, immediate tempo, PLAY without a popup, and contextual SMC dialog answering.
+Long-HOME PANIC; HOME+part restores saved sound.
+Muted parts ignore fader movement, then jump to the physical position on unmute; queued mutes remain optional.
+Independent SMC popup without keyboard-menu switching; locked mixers can still navigate their own pages. Don’t resurrect the older real-page peek blindly.
+Four momentary FX buttons, the agreed two-page mappings, FX throws/fills on the SMC FX page, and idle ADSR readability.
+All ten Chicago inserts. No Miami gain change, Miami ADSR, frozen idle DSP state, project migration, revived diagnostics, scenes, or unnecessary expansion beyond 32 patterns.
+
+Evidence corrections
+
+#796’s repository-recorded host-only closeout stays host-only; it is not device-performance proof. Same-tree attribution changes in #801/#805 do not justify repeated reviews. Current archive chunks are verified and match the unsplit file and documented hash. #810 is a new untested source candidate; its “muted fader edits remain live” wording needs reconciliation with your exact mute contract before integration, not an assumption that it is already correct or definitely broken.
+
+Recommended order: correct the scope/evidence map, finish the existing owners’ safety gaps, reconcile overlapping source once, then qualify one frozen combined candidate with the test union, real UI captures, both models’ memory/build evidence and matching controller/package checks. Keep deferred hardware checks separate from source delivery. Nothing was merged, installed or published by this audit.
+
+One change arrived just after the report’s snapshot: #802 at 86b9dfd4 now includes A1/A2 and additional 808/909 idle-path work, so “A3 only delivered” is superseded. The new source explicitly avoids a generic silent-state freeze, but all new tests, benchmarks and builds are still NOT_RUN; the earlier A3 passes do not qualify this expanded commit.
+
+Independent QA has now returned NEEDS CHANGES on #810. Project recovery, synth mute and storage-warning checks passed, including sanitizers, but the free-play test fails to compile because a declaration is missing; the base passes. A scratch diagnostic then exposes a separate cancellation-state assertion failure. The existing producer needs to resolve both and return the affected checks to the same reviewer. Full-suite, native-build and device validation remain pending.
+
+PR #801 at f708b8ed now has independently verified scoped acceptance: freeplay key and latency tests passed on Mac, including ASan/UBSan. The negative control correctly failed when the first audio render was removed.
+
+QA evidence. The integrator still needs to reconcile these tests with #810’s failing changes; this does not establish device latency or qualify the combined firmware.
+
+PR #800 now includes hold-an-FX-button + arrow remapping at 28b7f728, replacing HOME remapping. Runtime tests and framebuffer captures remain NOT_RUN.
+
+Its older transport-button mapping still conflicts with #789. The F4 producer needs to reconcile that before the changed gestures can be qualified.
+
+PR #789’s new preview shows Rewind/Forward using the 1.3-second “NEXT: PAT” notice instead of opening a popup, with four framebuffer images.
+
+Only the proposal and captures are pushed at 1ca03fd0. The implementation is still local, and the previously reported single-peer out-of-bounds issue remains unresolved in published source.
+
+PR #811 now contains the B4 mod-wheel calibration repair at ecaa6fbb, intended to stop repeated high ADC outliers from becoming a false resting position.
+
+It remains a draft: all runtime tests and native builds are NOT_RUN, and the final P1 correction still needs independent rechecking. This delivers source, but does not yet establish that the parameter-jump problem is fixed.

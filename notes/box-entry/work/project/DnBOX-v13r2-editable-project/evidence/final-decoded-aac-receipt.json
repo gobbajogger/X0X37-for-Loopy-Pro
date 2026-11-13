@@ -1,0 +1,86 @@
+{
+  "status": "PASS",
+  "movie_path": "/workspace/scratch/f88caed124c4/instrument-branding-20261026/side-pass-story-v13/scene-refinement-r2/DnBOX-v13r2-175BPM-box-to-current-UI-final.mp4",
+  "movie_sha256": "b8369c9703dfcbb690360568f9566c0944ce5d0590f115eacb7e73312b3be8cb",
+  "source_path": "/workspace/scratch/f88caed124c4/personal-breaks-private-20261027-recovered/promo-soundtrack-v12/B_Selected_Snare_72_to_144ms_Cubic_In_Last_Kick_Last_Eighth_Crush.wav",
+  "source_sha256": "19dbec641016005cde1e3b9fa4c89497e7eab8c252840d5791dbca3794febb14",
+  "scope": "Final metadata and elementary AAC/priming equality; reuses already-decoded signal checks, no DSP rerender or audio/video changes",
+  "stream_metadata": [
+    {
+      "index": 0,
+      "codec_name": "h264",
+      "codec_type": "video",
+      "width": 480,
+      "height": 480,
+      "r_frame_rate": "70/1",
+      "time_base": "1/44100",
+      "start_pts": 0,
+      "start_time": "0.000000",
+      "duration_ts": 120960,
+      "duration": "2.742857",
+      "nb_frames": "192"
+    },
+    {
+      "index": 1,
+      "codec_name": "aac",
+      "codec_type": "audio",
+      "sample_rate": "44100",
+      "channels": 1,
+      "r_frame_rate": "0/0",
+      "time_base": "1/44100",
+      "start_pts": 0,
+      "start_time": "0.000000",
+      "duration_ts": 120960,
+      "duration": "2.742857",
+      "nb_frames": "120"
+    }
+  ],
+  "declared_exact120960_clock": true,
+  "audio_duration_difference_samples": 0,
+  "video192_at70": true,
+  "decoded_raw_frames": 121856,
+  "comparison_frames": 120960,
+  "codec_padding_after_comparison_frames": 896,
+  "decoded_finite": true,
+  "decoded_fullscale_clip_count": 0,
+  "lag_samples_within2048_search": 0,
+  "correlation": 0.9989841195005739,
+  "least_squares_gain_db": -0.05539777839690886,
+  "signal_to_AAC_error_db": 26.893952895204848,
+  "decoded_sample_peak_dbfs": -1.6756917579894255,
+  "decoded_4x_peak_estimate_dbfs": -1.6701643829583543,
+  "decoded_lufs_exact120960": -16.06,
+  "decoded_ffmpeg_true_peak_dbfs": -1.68,
+  "decode_tail_peak_dbfs": -60.94608726646476,
+  "limitations": [
+    "AAC is lossy; bit-identical decoded samples are not expected.",
+    "Integrated loudness is a short2.74second estimate.",
+    "Float decode may expose padded AAC frames beyond declared container presentation duration."
+  ],
+  "format_metadata": {
+    "duration": "2.742857"
+  },
+  "final_AAC_payload_identical_to_decoded_checked_original": true,
+  "aac_adts_sha256": "51c9db835482548bd49a14d82a2659effbac34682ff25cd8e30859f9eafaf445",
+  "AAC_priming_packet_identical": true,
+  "first_audio_packet": {
+    "packets": [
+      {
+        "pts": -1024,
+        "dts": -1024,
+        "duration": 1024,
+        "side_data_list": [
+          {
+            "side_data_type": "Skip Samples",
+            "skip_samples": 1024,
+            "discard_padding": 0,
+            "skip_reason": 0,
+            "discard_reason": 0
+          }
+        ]
+      }
+    ]
+  },
+  "decoded_signal_measurements_source": "The original checked mux, whose AAC elementary bytes and priming metadata are identical to this final mux",
+  "original_checked_movie_sha256": "43fb6753a6b1aa4642c23ebb35db02cb5d0a04e74a6d7b2e8450c4998c0b3e3f"
+}

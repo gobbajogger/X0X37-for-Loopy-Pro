@@ -1,0 +1,33 @@
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+
+TASK (owner 08:51 EDT, READ ONLY, change nothing, no code, no steers): Audit DnBOX/x0x37 workflow speed + reliability of all bots and threads. Repo gobbajogger/X0X37-for-Loopy-Pro. Evidence from GitHub (PRs, commits, comments, branches, last ~24h), tree+blob API only.
+Report:
+1) Top 5 bottlenecks slowing progress, each with evidence (PR#, SHA, times).
+2) Reliability issues: crashes/chats not loading, stalls >1h, REST rate limits, double work (same feature on several PRs/branches), wrong authors (anything not gobbajogger <255244738+gobbajogger@users.noreply.github.com>).
+3) Concrete optimizations that stay inside the rules: no GitHub Actions/.github; all code/build/test/audit only in classic ChatGPT threads; fresh thread per stage; #734 (integration/all-in-one) as the single focus, merged into wip/one-build; never main/nightly; UI changes need before/after mockups; *_private.h stay.
+4) Sanity check: rule contradictions, and rules in use that the owner never stated (list the rule, where it shows up, why it's doubtful). Rules file: /workspace/steers/preflight.txt + workflow-1010.txt contents are pasted below.
+Push the report to docs/workflow-audit-20261030.md on new branch docs/workflow-audit-20261030 (author gobbajogger), and reply with a short summary + link.
+
+--- preflight.txt
+PRE-SEND CHECK (Orchestrator, before EVERY order, steer, handoff or agent message):
+1. EVERYTHING (code, fix, port, mockup, build, test, audit, check, review, report) goes ONLY to a ChatGPT classic thread unless the owner explicitly says otherwise. Bots only coordinate and relay.
+2. No double work: no other thread, PR or branch already has it. Focus is #734.
+3. It doesn't contradict any earlier order or saved rule.
+4. Is the answer already in the owner's feature list (#699, 122 features) or the rules? Then decide; don't ask the owner.
+5. Corrections and spec changes go to running threads NOW; stop notes only when idle.
+6. First lines 1-5, gobbajogger only, UI = mockup, no Actions/.github, never main/nightly, *_private.h stay.
+--- workflow-1010.txt
+OWNER WORKFLOW (owner's 20 ranked improvements, OK'd 2026-10-30; canvas https://cursor.com/canvas/store-a7ba378e-cc94-4fe5-a543-9c487c5cfafb/3236fc46-1a17-471d-84cb-4c98eb5313f6). Follow it now.
+1 Pre-packed source snapshot + blob-SHA manifest: fetch only the PR diff (tree+blob API, no zipball, no git over network).
+2 Pre-built SDK V1.2.1/toolchain bundle from the Library.
+3 Preflight before every order/push (/workspace/steers/preflight.txt).
+4 Run the full suite in the background and poll; post results.
+5 Fix failures on #734 first, then merge green PRs one at a time.
+RULES: everything (code, fix, mockup, build, test, audit, review) only in classic ChatGPT threads; bots only coordinate/relay. New thread per stage, never pile onto long threads. No double work: #734 only. gobbajogger author. UI => before/after mockup. No Actions/.github. Push to GitHub right away. Check the rules and #699 before asking the owner.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

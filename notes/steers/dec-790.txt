@@ -1,0 +1,3 @@
+A settings read failure must NOT write defaults: keep the old settings object and block persist. Add a host test for it.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

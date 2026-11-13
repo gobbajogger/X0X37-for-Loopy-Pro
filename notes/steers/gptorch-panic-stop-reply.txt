@@ -1,0 +1,26 @@
+I’ll answer both as direct live-use recommendations, including whether STOP holds are detectable in MMC mode, and cite the pinned source lines.
+
+1. PANIC: I recommend FX+SEQ on the keyboard and BANK L+R on the SMC in DAW mode, rather than STOP held for >1 second. Neither held gesture works reliably in stock MMC mode.
+
+Long STOP has one advantage: a single transport button is easier to remember and press under stress. But on this build its disadvantages outweigh that:
+
+Keyboard: there is no separate STOP input. PLAY toggles start/stop, so “hold STOP, short STOP unchanged” cannot be added as described. panel.c:29–37, ui.c:3734–3745.
+SMC DAW: the physical PAUSE/STOP-position input already captures target lock immediately and unlocks after 900 ms on a subsequent hold. PANIC at >1 s would overlap that operation. smc_mixer.c:701–727, 1974–1977.
+SMC MMC: STOP arrives as a command, without release or a duration. Starting a one-second timer would turn an ordinary short STOP into delayed PANIC. Waiting for release would never fire. BANK L+R has the same limitation if interpreted as a held chord. smc_mixer.c:2080–2085 and 2109–2111.
+Even with a real release-capable STOP, preserving immediate short STOP means transport stops before PANIC fires. It also leaves stuck notes sounding for over a second.
+
+The two-button choices separate emergency action from normal transport and can use a shorter deliberate hold. Their tradeoff is harder finger placement, which still needs a physical usability check. FX and SEQ currently navigate on release; consume both releases after PANIC. ui.c:3806–3831, 4203–4210. BANK buttons currently navigate immediately and can recapture locked targets, so chord recognition must suppress those side effects before they happen. smc_mixer.c:1468–1479.
+
+Recommendation for MMC: reject hold-based PANIC altogether unless the preset is changed to provide press/release. Do not infer a hold from silence. The combos are preferable candidates, not already implemented or proven accident-proof.
+
+2. PLAY during a question: cancel as NO, then perform normal PLAY behavior is safer live than keeping the question open.
+
+It removes the pending destructive operation and restores predictable performance control. Keeping it open preserves an old CLEAR/LOAD/SAVE intent while playback and context change; revalidation adds failure paths and still leaves an accidental later YES possible. The cost of cancelling is simply reopening the question if it was intentional.
+
+Use the existing NO path, which restores the prior overlay without running the confirmed action, then dispatch transport once. Currently the question blocks PLAY on both devices. ui.c:3720–3731, smc_mixer.c:1807–1810.
+
+I recommend NO + normal PLAY toggle, not unconditional “force playing.” Start when stopped; stop when running. That preserves the existing keyboard/SMC behavior and lets the performer stop on the beat. ui.c:3734–3745, smc_mixer.c:1947–1955. Preserve HOME+PLAY redo, act only once on a fresh press, and still release previously held notes/FX.
+
+These are recommendations against build/0.0.24 at d8086cc09, not implementation or plan approval.
+
+One new qualification issue affects the plan: #812’s review says the roadmap understates #809’s known roughly 32% host slowdown as merely awaiting device testing. X21 must carry that unresolved performance finding explicitly. The review also requires restoring the strict full-suite gate and correcting stale approval wording and references. These remain with the existing owners; no builders have been resumed by this run.

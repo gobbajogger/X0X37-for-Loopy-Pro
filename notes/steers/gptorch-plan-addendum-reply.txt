@@ -1,0 +1,58 @@
+I’ll reconcile this expanded scope against the 122-row registry, archive findings and current PR evidence, then separate missing work, already-delivered work and conflicting requirements. I’ll keep the existing owners and live-play audit intact, and treat the listed counts and CPU figures as claims to verify rather than current acceptance.
+
+The expanded scope still has coverage holes, stale “missing” labels and several acceptance conflicts. The main corrections are:
+
+1. F1–F7 do not cover all 122 rows.
+They cover 92 unique rows: 83 historically partial and 9 historically missing. The omitted 30 are:
+
+20 historically done: 11–14, 19, 22, 33–35, 39–40, 42–43, 45–50, 109. Keep these in regression coverage.
+9 partial: 73 and 81–88. These include recovery bootloader, browser/mobile accessibility, matching controller packages, installable-version continuity, robust transfers, real UI imagery, sample preparation and website variants.
+1 missing: 120, proposal inbox/owner voice. This is a process decision, not a firmware PR.
+
+Also, 20 done / 92 partial / 10 missing describes build 0.0.22 at 2456968b, and “done” meant source present, not device-tested. It is not current 0.0.24 readiness.
+
+2. N1–N6 already have owners and delivered work.
+
+N1 atomic chain: #790.
+N2 Note Off and N3 bend retention: #797.
+N4 APC40 retry: already implemented; #797 adds stronger regression coverage.
+N5: #795 adds missing TEST-profile protections; permanent flash guards already existed.
+N6: restore-before-apply already existed; #791 adds regression coverage. It also overlaps registry row 17.
+
+Their remaining integration/testing gaps are real, but these are not six new repairs to launch.
+
+3. “14 unmerged registry rows” is misleading.
+The archive lists 14 source entries covering 19 distinct rows, not 14 independently missing features.
+
+#708 is already in baseline ancestry.
+#764 inserts have already been ported into #798, awaiting its qualification.
+#712/#759 already supply substantial engine/UI/ADSR work. The local 9e237cce donor does not prove those whole features are absent.
+Per-note sound lock, row 8, remains a real gap. #791 explicitly leaves the d7f156ec snapshot unported.
+#768 DAW-only behavior still needs an integration/equivalence disposition.
+#687 must not automatically reactivate two-peer operation over the current single-peer configuration.
+Old Miami idle work must be reconciled with existing safeguards, not reintroduced as a blanket silent-state freeze.
+
+4. Some requirements conflict unless narrowed.
+
+Ignoring update/bootloader SysEx during playback is required safety behavior. A missing BUSY explanation may be a bug; allowing an update to interrupt playback is not the fix. Stopped-but-sounding notes and tails also need protection.
+The older #738 page-switching approach conflicts with “SMC never switches keyboard menus.” Keep the dedicated-overlay direction in #789.
+“No new UI” means the old F5/F6 redesign and website-variant instructions cannot be executed wholesale. Restore agreed presentation and fix behavior; flag anything requiring a new design.
+Pad diagnostics are now explicitly included, but that does not authorize hardware operations or a new diagnostic-screen design. Bootloader row 73 still retains its separate action gate.
+
+5. The live bugs are not all closed by their scoped passes.
+
+B1: #804/#806 source does not yet prove the iPhone install-reset symptom fixed.
+B2: #796 has a legitimate host-scope closeout, not device zero-dropout proof. Recorded scope.
+B3: #801 has scoped host acceptance; physical keyscan-to-audio latency remains unmeasured. #810’s updated fixture is back with the same reviewer.
+B4: #811 addresses one wheel-publication mechanism; its latest checks are unrun and the full physical symptom is not attributed.
+B5: #805 has scoped USB checks; actual iPhone streaming, clock drift and combined-load continuity remain unverified.
+QA/QB/QC are work packages, not a blanket QA pass. Full-suite failures, scratch-buffer lifetime coverage and settings read-error/data-preservation issues remain.
+
+6. CPU and screen claims need tighter wording.
+If measured comparably, 22% idle misses row 106’s ≤20% target. It says nothing about worst-case margin. Define a numeric peak budget and measure combined synths, FX, dense MIDI, preset changes and simultaneous unmute. QB’s runtime BLE initialization risk, approximately 0.6 seconds with IRQs off in the brief, also remains unmeasured.
+
+#789 has delivered the header/notification correction, but its newest fixture edits are unrun. That is not yet proof of a lag fix on the installed combined build.
+
+The biggest missing deliverable is one frozen 0.0.24 composition: all 122 rows mapped to preserved or remaining outcomes, exact source and dependency pins, test union and failure dispositions, both model/controller/package identities, measured peak/RAM margins and the actual installed package pin. Keep the running live-play audit and current owners; do not start a second audit or duplicate these repairs.
+
+One dependency gap just narrowed: #800 at 99b93edd now includes the latest #789 source and reconciles its PLAY/RW/FF behavior. That removes the stale-stack mismatch, but this combined candidate has not been tested or built yet. Quick-tap FX navigation semantics are still unresolved.

@@ -1,0 +1,74 @@
+Do NOT touch main_fm1.c at all (skip those renames).
+Drop any item already covered by other tasks: OPT-A (engine.c, dsp/master.c audio path), OPT-B (gfx.c), B1 (iPhone install MIDI reset), B5 (USB audio on iPhone). Do not touch those files' covered areas.
+
+## Brief QC - editor/storage/slots + warnings (Q3.1-Q3.7)
+Files: firmware/src/app/editor.c, firmware/src/app/slots.c, firmware/src/x0x.c (scratch owner, debug only),
+firmware/src/app/main_fm1.c (renames only, Q3.1), firmware/src/dsp/original_chicago_backend.c (initializers only),
+experiments/wobble/miami_decimator_*.c, new tests.
+Do not touch the installer/web side (F6/B1). The editor reply bytes must be identical (Q3.4 test proves this).
+Done when: the -Wall build has 0 warnings, the touched files have 0 -Wshadow/-Wcast-align warnings, suite green, RAM >= 2352 B free.
+
+### Q3 area: editor / storage / slots / build warnings (app/editor.c, app/slots.c, storage.c, x0x.c, experiments/wobble)
+
+Q3.1 **cleanup (warnings, -Wshadow)** app/editor.c:949, :1016, :1043 (inner `n`/`off`/`src`/`k` shadow
+the outer locals of `ed_handle`); app/main_fm1.c:1542, 1568, 1863 (`pg` shadows a global). Rename
+the inner variables. main_fm1.c is the SMK main loop (built for SMK, not FM-1 only): rename only, no logic.
+smc_mixer.c:2122 and ui.c:3360 also shadow, but they belong to #789. Leave them; list them in the PR.
+Test: build with -Wshadow: 0 warnings in the touched files; host suite unchanged.
+
+Q3.2 **cleanup (warnings, -Wcast-align)** app/editor.c:167, 384, 499, 979, 992; app/slots.c:74;
+app/plat_fm1.c:299. Each one casts a `uint8_t *` to `const smp_user_hdr_t *`. They are safe today
+(slot offsets are 4 KiB aligned, ed_smp_buf is aligned(4)). Add one helper
+`static inline const smp_user_hdr_t *smp_hdr(const uint8_t *p)` with a debug alignment assert, and
+`_Static_assert((SMP_USER_OFF(0) & 3) == 0)`. Use it at all 7 sites.
+Test: build with -Wcast-align: 0 warnings in those files; the sample/editor host tests pass.
+
+Q3.3 **cleanup (warnings)** experiments/wobble/miami_decimator_adapter.c:7 and
+miami_decimator_component.c:24 (missing braces/field initializers); dsp/original_chicago_backend.c:105-106
+(missing `find`/`supports` initializers - explicit NULL). F1 owns experiments/original_synth, not
+experiments/wobble; if F1 changes these files too, drop the item.
+Test: -Wall build has 0 warnings.
+
+Q3.4 **cleanup (duplicated logic)** app/editor.c:949-967 (ED_SMP_READ) and :1043-1059 (ED_CTL_READ)
+use the same "21-bit offset + count in pairs, clamp to area, echo offset, put7" code. Make one helper
+`ed_read_area(const uint8_t *base, uint32_t size, const uint8_t *a)`. Byte output must be identical.
+Test: add a host case that compares the reply bytes before and after for the edge offsets
+(0, size-1, size, count 0, count 127).
+
+Q3.5 **risk** app/editor.c:1011-1028 ED_BT_TEST op 3/4: `ed_b(n)` sends the word count as one 7-bit byte.
+If `sizeof fm1_can / 4 + nt` grows past 127, the host reads the wrong count. Add `_Static_assert(n <= 127)`
+(compile-time constants). Test: build.
+
+Q3.6 **risk (RAM)** firmware/src/x0x.c:105-142 `x0x_main_scratch` (4 KiB) is shared by OTA, LZ save, the
+editor sample buffer and the PERF TEST patterns. The ownership rules are only in a comment. They are
+correct today (checked: the perf test restores before saves; ed_service runs before ota_service).
+Fix: add a debug owner tag (`scratch_owner` enum, set/clear by each user, assert on overlap; host and
+X0X_DEBUG builds only, 0 bytes in release).
+Test: host test: start a save while the PERF patterns own the scratch -> assert.
+
+Q3.7 **risk (RAM headroom)** Fast RAM has 2352 B free. The largest users are cv_px 66 KB (frame buffer),
+proj + project_stage 2 x 36 KB, dly_buf 158 KB (pool), fx 18 KB, original_bass 10 KB, abuf 8 KB, ua_ring 6 KB,
+uo_ring/cq/x0x_main_scratch 4 KB each, st_buf 3.8 KB. No change in this audit. Rule for all three briefs:
+free RAM must not go down. Report a before/after `nm --size-sort` of the 25 largest symbols in each PR.
+
+---
+
+## Common rules (paste into every brief)
+- Author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>. One brief = one branch from
+  build/0.0.23 = one PR into build/0.0.23.
+- Never touch main, .github/ or Actions.
+- SDK V1.2.1. Build Elite and Pro with X0X_DEV_PADCAL=0. Report static RAM free for both (0.0.23 = 2352 B).
+  Free RAM must not go down without a written reason.
+- No FM-1 code or targets. Do not touch BTIF, USRTRIM, efuse, key_mac or the bootloader.
+- Never use the USB name for device identity.
+- Behaviour, sound and screen must not change, except to fix the named bug. Any visible change: stop and ask
+  for owner mockup approval.
+- Do not touch smc_mixer.c, ui.c (except the one line in Q2.4 after #789 merges), or any file that F1-F7/B1-B5 or the
+  optimization brief owns. If you find overlap, drop the item and say so in the PR.
+- Do not weaken or delete test checks. Register every new test in the host suite.
+- Build once with the extra warning flags (-Wextra -Wshadow -Wcast-align) and attach the warning count before/after.
+  Do not add these flags to the default build in this PR.
+- Use the Superpowers and Compound Engineering plugins (writing-plans, test-driven-development, ce-code-review
+  before the PR, verification-before-completion).
+
+One new PR, base build/0.0.23. Report the PR URL, SHA, RAM (Elite/Pro) and tests. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

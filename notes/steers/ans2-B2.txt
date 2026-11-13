@@ -1,0 +1,1 @@
+Keep going until peaks are under the limit: worst block <= 60% of 11.6 ms, each synth <= 15%. Push to your PR and report head SHA. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

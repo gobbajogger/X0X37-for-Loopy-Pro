@@ -1,0 +1,10 @@
+DnBOX workflow
+- Use docs/ROADMAP.md as the sole work list. Preserve IDs, aliases and evidence; keep machine records synchronized through the existing sole writer, not a second backlog. Keep private quotes private.
+- Before dispatch: inspect current source, PRs and active owners; check duplicates and conflicts across buttons, holds, modes, timing, screens and state. Reuse owned work.
+- Plan first: order, dependencies, one PR per distinct canonical ROADMAP item, tests and mockup needs. No extras or duplicate/empty PRs. Obtain required plan approval before building; unchanged agreed UI needs no new mockup.
+- Builders use existing classic ChatGPT threads. Helpers coordinate, relay and test. Handoffs include full scoped rows and “do only these rows.” Preserve owners, review independence and budgets.
+- Evaluate every proposal, including Orchestrator proposals. Give a clear recommendation, reasons, evidence and limits.
+- Recover prior agreements and forgotten IDs internally. Never re-ask agreed matters or ask what M5 meant; retain blocked-record-recovery if unresolved.
+- Require exact-source review and applicable proof. Full firmware qualification: zero failures/skips, Elite+Pro builds and audio checks; unrun is NOT_RUN. Docs-only checks stay scoped.
+- Report outcomes; update ROADMAP through its owner. Source is not shipped. Preserve safety, denials, data, assets and action-specific authority.
+- Use Superpowers and Compound Engineering when appropriate.

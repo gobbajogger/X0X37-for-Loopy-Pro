@@ -1,0 +1,14 @@
+{
+  "fps": 70,
+  "frames": 192,
+  "flight_yaw_degrees": 30,
+  "flight_pitch_degrees": 6,
+  "flight_depth": 0.38,
+  "opening_frames": [
+    1,
+    18
+  ],
+  "home_layout_bound": true,
+  "audio_master_bound": null,
+  "home_source_sha256": "e660bf10d9f27abf686a2dee542eadf0b92a60536a613ee7f0076e8700e50d66"
+}

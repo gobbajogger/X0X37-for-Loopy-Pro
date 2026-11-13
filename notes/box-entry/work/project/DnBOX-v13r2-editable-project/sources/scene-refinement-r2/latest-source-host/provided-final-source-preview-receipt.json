@@ -1,0 +1,44 @@
+{
+  "source_commit": "d0c40c3f4a132348621c930f0a20b5a614e186f4",
+  "source_tree": "533564a4085bace9e65245b45affbc45c54a647e",
+  "status": "FINAL_CANDIDATE_REVIEW_NATIVE_PENDING",
+  "renderer": "production ui.c plus production SMC host fixture; native240x240, not a proposal",
+  "fixture": "Stopped, 125 BPM, P1, default USER synths Miami A / Chicago B, no held MIDI/recording; HOME shows empty patterns. WAVE/BREAK/FX/SOUND are production pages after navigation; SONG preview adds one empty bar. No hand-retouched labels.",
+  "frames": {
+    "home-drums-then-synths.png": {
+      "path": "/workspace/scratch/f88caed124c4/part-order-evidence-20261027/fader-fix/host/home-drums-then-synths.png",
+      "sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+      "byte_identical_to_round3": true
+    },
+    "song-drums-then-synths.png": {
+      "path": "/workspace/scratch/f88caed124c4/part-order-evidence-20261027/fader-fix/host/song-drums-then-synths.png",
+      "sha256": "2381af5c97f82d01ba402561a94fa97fff27c89d8cac32217d2169524bf86f7a",
+      "byte_identical_to_round3": true
+    },
+    "chicago-sound-user.png": {
+      "path": "/workspace/scratch/f88caed124c4/part-order-evidence-20261027/fader-fix/host/chicago-sound-user.png",
+      "sha256": "146eb941dbef102ba189292faa1ab1d5f37c51a63e76a2bd33739f99db40c303",
+      "byte_identical_to_round3": true
+    },
+    "fx-drums-then-synths.png": {
+      "path": "/workspace/scratch/f88caed124c4/part-order-evidence-20261027/fader-fix/host/fx-drums-then-synths.png",
+      "sha256": "aff0d381a5a9d48bdf0b88bee2f99959a601a624aec9fd068d84e53cdf520aef",
+      "byte_identical_to_round3": true
+    },
+    "mix-drums-then-synths.png": {
+      "path": "/workspace/scratch/f88caed124c4/part-order-evidence-20261027/fader-fix/host/mix-drums-then-synths.png",
+      "sha256": "aa6c44e12d5a4afc2efd66d45c5307970c6f885212fbd8ee0359be72e6a7703e",
+      "byte_identical_to_round3": true
+    },
+    "break-stopped.png": {
+      "path": "/workspace/scratch/f88caed124c4/part-order-evidence-20261027/fader-fix/host/break-stopped.png",
+      "sha256": "661af7bf147054fb2fe8204e9ef553b7cd537de1de1ad6f8858f4654488b29a7",
+      "byte_identical_to_round3": true
+    },
+    "wave-stopped.png": {
+      "path": "/workspace/scratch/f88caed124c4/part-order-evidence-20261027/fader-fix/host/wave-stopped.png",
+      "sha256": "ee8964978754485ec3eb3a585374806be9d8c364b585ba37b51c7bcf5ed790c9",
+      "byte_identical_to_round3": true
+    }
+  }
+}

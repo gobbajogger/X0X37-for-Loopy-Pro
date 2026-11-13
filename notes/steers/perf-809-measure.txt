@@ -1,0 +1,8 @@
+Correction, and it replaces the earlier #809 instructions. #809 (3241ece5) IS in build/0.0.24 (compare shows it 0 commits behind). The "32% slowdown" is only a claim from the #812 review, not a measurement.
+Task: measure the same host UI and audio workload, 5 runs each, reporting medians in ns/frame, on three versions:
+(1) build/0.0.23
+(2) build/0.0.24
+(3) build/0.0.24 with #809 reverted locally
+Report the real numbers and find where the 32% claim came from (file, comment or line in the #812 review).
+Only if (2) is measurably slower than (1) and the #809 revert removes that slowdown: prepare the normal revert commit on build/0.0.24 as in my previous message, with no force-push, author and committer gobbajogger <255244738+gobbajogger@users.noreply.github.com>, and the full checks. Otherwise commit nothing. Deadline: 16:30 UTC+10.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

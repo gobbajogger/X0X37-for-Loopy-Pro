@@ -1,0 +1,3 @@
+Rebase onto the latest #789 head and take #789's transport mapping (PLAY no popup, RW/FF top notification bar); drop F4's old transport mapping. While several FX buttons are held, arrows are consumed with no edit. (Quick-tap behavior of the FX-strip buttons: keep as is until the owner decides.)
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

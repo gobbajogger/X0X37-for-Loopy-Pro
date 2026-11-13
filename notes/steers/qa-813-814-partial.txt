@@ -1,0 +1,283 @@
+Share
+You said:
+Repo gobbajogger/X0X37-for-Loopy-Pro. QA task (tests and checks are done by you, in this thread; the box only coordinates). PRs: #813 (opt/chicago-coef-cache-0.0.24, head a41651e9) and #814 (opt/miami-coef-cache-0.0.24, head 448225f3). Test each PR ALONE against base build/0.0.24 at d8086cc09, then BOTH TOGETHER.
+Checks, report PASS/FAIL for each, per scenario (813 alone, 814 alone, 813+814):
+1. Full host test suite.
+2. audio_path_identity: output bit-identical to base in every scenario.
+3. Elite and Pro builds with X0X_DEV_PADCAL=0.
+4. package_nightly --check, with the bundled BT controller a334208b (61,552 B, CRC32 564a8f55).
+5. Idle and active CPU, before (base) and after.
+6. Scope: each PR changes only its own item, nothing extra.
+7. Author and committer are gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
+Push the logs to each PR (as a comment or a logs file on the PR branch, author gobbajogger). Do not flash any device. Never touch main, .github, BTIF, USRTRIM, efuse, key_mac or the bootloader. Report the pass/fail table and the log links.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.
+…
+Show more
+
+I’ll verify the two PRs against the exact pinned base, then test a combined tree without merging either PR. I’ll keep the three scenarios isolated, check the commit metadata and scope, run the available host, audio, build, packaging and CPU checks, and post evidence to both PRs. No device flashing or changes to protected areas.
+
+Retrieved PR metadata and reviewed available skills
+
+Listed available skills and repository metadata
+
+Inspected local environment and available tools
+
+Checked Mac-related files
+
+Compared Mac-related commit changes
+
+Checked Mac system status
+
+Both PR heads are confirmed as one commit ahead of the pinned base. The file lists show a potential integration overlap in BEHAVIOR.md and tests/run_tests.sh; I’ll check the combined result explicitly rather than assuming the two caches compose cleanly. The available Mac is online, and I’m checking whether it has the exact build inputs before treating it as a valid test environment.
+
+Inspected LoopyX0X37 sources, SDK, firmware, and build environment
+
+Located source files
+
+Validated and combined Loopy source patches
+
+Fetched commit metadata, source trees, and audio test sources
+
+Inspected GitHub Bootstrap Source and Toolchain
+
+Searching the web
+
+Assessed source access
+
+Tested GitHub API connectivity and inspected container filesystems
+
+Read GitHub SDK build instructions
+
+Inspected available environments
+
+Fetched SDK build instructions and reviewed GitHub pull request diff
+
+Inspected Mac build environment and source availability
+
+Fetched repository source and validated the Mac build environment
+
+The pinned repository defines audio_path_identity.py as a cross-build hash comparison, so I’ll capture the base first and compare each candidate against it. Docker on the connected Mac reports Linux x86-64, and the pinned SDK/toolchain paths exist. I’ll use isolated source snapshots and keep firmware output local; only sanitized QA logs will go to GitHub.
+
+Ran the download process
+
+ChatGPT said:
+DnBOX QA: PR #813, PR #814 и совместная проверка
+
+Базовый коммит: d8086cc09203945919c70d3c805f8ca3e6acbe5a
+
+Проверка GitHub API уже подтвердила для обоих PR:
+
+PASS: каждый PR содержит один коммит непосредственно поверх заданной базы.
+
+PASS: author и committer обоих коммитов точно совпадают с gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
+
+PASS: в перечнях изменённых файлов отсутствуют .github, bootloader и защищённые области устройства.
+
+PR
+
+	
+
+Проверенный HEAD
+
+	
+
+Git metadata
+
+
+
+
+#813
+
+	
+
+a41651e9391012c19f9e09df04226f1f0c438afd
+
+	
+
+PASS
+
+
+
+
+#814
+
+	
+
+448225f31acfdc24c75fbe3e09d883b82c263317
+
+	
+
+PASS
+
+Эти результаты относятся только к Git metadata и перечню изменённых файлов. Они не заменяют проверку компиляции, звучания или производительности.
+
+Verified focused tests and first target build
+
+Check
+
+	
+
+#813 alone
+
+	
+
+#814 alone
+
+	
+
+Both combined
+
+
+
+
+Coefficient differential tests
+
+	
+
+PASS
+
+	
+
+PASS
+
+	
+
+PASS
+
+
+
+
+Exact changed-file scope
+
+	
+
+PASS, 6 files
+
+	
+
+PASS, 13 files
+
+	
+
+PASS, 17-file union
+
+
+
+
+#813 Elite build, X0X_DEV_PADCAL=0
+
+	
+
+PASS
+
+	
+
+Not applicable
+
+	
+
+Not applicable
+
+The Chicago differential test verified 2,200 control ticks with bit-identical PCM and selected voice state. The Miami differential test passed all four runs. Both tests also passed in the combined source tree.
+
+The #813 Elite native build exited 0 with a 512,264-byte application image, 40,408 bytes of free code space and 95,872 bytes of RAM usage against a 98,304-byte budget.
+
+Confirmed build failure in PR #814
+
+PR #814 Elite: FAIL. The native build reaches the resource-budget gate but exits with:
+
+Plain text
+FAIL  pool headroom 7944 B < 8192 B
+build: checks failed
+
+The measured pool usage is 336,120 / 344,064 bytes. It misses the required free-pool margin by 248 bytes. I have not changed the limit or the source to conceal this failure.
+
+Separately, PR #814 audio_path_identity: PASS, with all 17 scenarios and 50 audio/state files bit-identical to the base. The sound-identity result does not cancel the build-budget failure.
+
+Combined Elite build also fails
+
+The combined #813+#814 Elite build reaches the same resource-budget failure:
+
+Plain text
+image 512776 B
+RAM .data+.bss 95872 B of 98304
+pool 336120 B of 344064
+FAIL pool headroom 7944 B < 8192 B
+
+The combined application still has 39,896 bytes of free code space, so this is specifically a pool-headroom failure, not a code-space or RAM .data+.bss overflow.
+
+The Pro build for the combined tree is being checked separately. No budget thresholds have been changed.
+
+The PR #814 Pro build also fails the same 8,192-byte free-pool requirement, with 7,944 bytes available. Thus #814 currently fails the mandatory build gate on both Elite and Pro.
+
+A separate five-run active-note host render benchmark completed for all four trees. Median render times were 134.49 ns/frame for the base, 131.49 for #813, 132.31 for #814, and 132.43 for the combination. These are host timing proxies, subject to measurement noise, not measured on-device CPU utilization.
+
+QA evidence posted to GitHub
+
+Both PRs now have owner-authored QA comments containing the exact commit pins, executed commands, verified test output, resource-budget results, and outstanding checks:
+
+PR #813 QA evidence log
+
+PR #814 QA evidence and failure log
+
+These are checkpoints, not final approvals. Full-suite and nightly-package results will be appended separately once their runs finish.
+
+Nightly package verification
+
+The versioned PR #813 Elite build has passed, and the separate package_nightly.py --check on its completed, controller-bundled package also returned PASS. It verified firmware version 0.0.24, the full pinned controller SHA-256, 61,552-byte size and embedded CRC32 564a8f55.
+
+This uses the repository’s supported --nightly-version build option. The earlier DEV-labelled package refusal was retained as a negative check, not treated as a firmware defect.
+
+Inspected build scripts, tests, and commit metadata
+
+Validated Mac build, packaging, QA, merge, and cache fixes
+
+Checked build environment and measured host performance
+
+Polled build output and inspected Docker dependencies
+
+Resolved validation details
+
+Ran QA, benchmarks, firmware builds, and controller CRC validations
+
+Completed full build, reference retrieval, and validation test suites
+
+Planned the test matrix
+
+Validated concurrent builds, tests, packaging, benchmarks, and release readiness
+
+Validated release and nightly builds, packaging, tests, and Docker performance in parallel
+
+Checked container resources and network
+
+Evaluated audio path identity tests and checked Docker build progress
+
+Ran native CPU probes, prepared benchmarks, and monitored Docker test builds
+
+Reviewed QA logs, troubleshot Docker FIFO failures, and reran strict test suites
+
+Ran nightly PR813 build verification and CPU benchmark tests
+
+Fixed interpolation, monitored builds, ran QA, and compared CPU performance
+
+Published QA evidence checkpoints on PRs 813 and 814
+
+Checked test statuses and final logs
+
+Reviewed PR #814 scope and optimization changes
+
+Optimized and assessed parallel test performance with validated tmpfs mounting
+
+Searching the web
+
+Restarting Container with Correct tmpfs Mount
+
+Connection interrupted. Waiting for the complete answer
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+Thinking effort
+Extra High

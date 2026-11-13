@@ -1,0 +1,28 @@
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+
+HANDOFF: PR #691 (new builder thread)
+Repo: gobbajogger/X0X37-for-Loopy-Pro
+PR: "Speed up Miami on one-build while preserving exact sound" (draft, open)
+URL: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/691
+Branch: chat/miami-opt
+Head: bc47c97cbbc26030b583d03cd73029e2a8931f2b
+PR base now: wip/one-build cb5423c4 (old). Live base: wip/one-build b00b460a91ed99466f41cda0b71507e5e977f409 (#724 merge, parents ca0cb081 + 2833a81c), verified 2026-10-30 21:30 UTC+10.
+Status (reported, 19:09 UTC+10): PASS #721 blobs 13/13, SDK pins 11/11, table 408,412 + clock 1,012,366 cases, PCM comparator 8/8. FAIL strict 15-golden gate exit 2 (15 .f32 missing; names in docs/lanes/miami-pr691-golden-input-check-20261030.txt). Full suite, Elite/Pro: NOT_RUN.
+Owner decision 20:52: commit the 15 Miami .f32 goldens (allowed exception).
+Task:
+1. Merge-forward onto live wip/one-build via API (merge commit, NO force-push); name the base SHA.
+2. Source: fetch per docs/FULL-SOURCE-FETCH.md and tools/restore_github_api_batches.py from PR #726 (branch docs/full-source-fetch, head 781da974, still open/unmerged): tree API + every blob, verify blob SHAs; zipball is blocked. SDK V1.2.1 from project files.
+3. Verify reference commit f9ffd12e exists; generate the 15 .f32 goldens from it; commit via API.
+4. Fix real failures; run full tests/run_tests.sh + Elite + Pro on the new head.
+5. Post status comment: head, base, pass/fail/skip, delta vs base, Elite/Pro, blockers, next. Reuse this PR.
+Rules: GitHub plugin/API only, no network git; push only new; gobbajogger as author (never genkigenki or any custom author); approve your own posts and GitHub actions; no creds/tokens/binaries/raw captures (test goldens OK); NEVER GitHub Actions; never main/nightly; no installs. Click Allow on repo GitHub cards.
+Goldens: commit the 15 Miami .f32 goldens from branch lane/mb-golden-691 @bb21d7eb onto this PR's branch (owner-approved exception), then run the full suite plus Elite/Pro.
+
+CURRENT PLAN (22:15 UTC+10, overrides older lines above): FMB fixes the base first (thread A only verifies). Then ONE batch full run (full suite + Elite + Pro) on PR #734 after the owner's go, then merge into wip/one-build (never main/nightly). Do not merge this PR alone and do not wait for an order of PRs; make it build clean on the live wip/one-build head (re-read it via API), push via API with a merge commit (no force-push), and post results. Box runs are only a double-check. No installs.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

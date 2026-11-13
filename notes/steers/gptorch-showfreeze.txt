@@ -1,0 +1,2 @@
+URGENT, owner rule: the owner has a live show at 18:00 UTC+10 today, and the top priority is NO LAG. New features are paused now. For tonight, only CPU-safety work is allowed: the #809 slowdown fix and the #813 QA. Don't resume any feature builder until the owner says so. Confirm in one line.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

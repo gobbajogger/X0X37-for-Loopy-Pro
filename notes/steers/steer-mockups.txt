@@ -1,0 +1,72 @@
+Correction for this task (spec update):
+- Item 4 reset = SMC HOME + strip SELECT, outside the FX page (not a black key; black key is mute). It resets sound settings only, not level, pan, sends or mute, and it can be undone with HOME+REC.
+- FX page: hold one FX button, then < > steps its effect. HOME + < > changes the FX page only when no FX button is held.
+- Remove the 'CYC' label and show a glyph-based 'effect' indicator.
+- Drum fill: propose the best FX-page button for it in the mockup.
+Full evidence follows.
+
+# DnBOX conflict audit: new agreed items vs 0.0.24 (read-only)
+
+Base: build/0.0.24 @ d8086cc09 (/workspace/eng024). Sources: docs/ROADMAP.md (docs/roadmap-tracker, PR #812), docs/FEATURE-REGISTRY.md, x0x37-results/codex-briefs-live-0.0.24.md (L1-L13), code. Audit date: 2026-11-01 (UTC+10). Nothing pushed, nothing changed in code.
+
+Fact that drives most rows: a HOME tap runs on RELEASE, and only if no chord used HOME (`ui.btn_used`). See ui.c:4205-4209 and the `ui.btn_used |= 1u << B_HOME` lines. HOME is already a modifier for 6 jobs on the keyboard, and for 2 more on the SMC.
+
+## C1. PANIC on long HOME hold vs HOME as a modifier (most important)
+- Items: M1 PANIC (long hold of HOME) vs these existing HOME chords:
+  - HOME + SELECT turn = tempo (ui.c:4239-4245).
+  - HOME + white key = pattern cue / chain (ui.c:3485-3505).
+  - HOME + black key = mute track / part (ui.c:3506-3512, 3543-3547).
+  - HOME + REC = undo, HOME + PLAY = redo (ui.c:3734-3738, 3748-3752).
+  - Clip mode PATCH(=HOME) + REC/PLAY = Loopy undo/redo (main_fm1.c:757-777, ui.c:4185-4189).
+  - SMC: keyboard HOME or SMC note 6 + Up/Down/</> = FX save / reset cuts / FX page (smc_mixer.c:1707-1715, 1565-1567).
+- Why it matters live: these chords are often held for a long time. Examples: a slow tempo ride with HOME held, or HOME held while you wait for the bar before you cue the next pattern. A plain time threshold fires PANIC in the middle of the chord. PANIC cuts every held note and pad. Also the release after PANIC still runs the HOME tap (view HOME<->SONG, close a list, or cancel a sound request, ui.c:3769-3779) unless it is suppressed.
+- Resolution: PANIC fires only when HOME is held for at least 1.5 s AND nothing else is touched during the hold. This means no button, key, encoder or SMC input, so `btn_used` HOME is still clear and the arrow route sees no use. PANIC then sets `btn_used` HOME, so the release does nothing. Any chord that starts before the threshold cancels PANIC for that hold. Show a progress cue at about 0.75 s so the performer can let go. In clip mode, leave PATCH alone: clip mode already has NOTE REPEAT = PANIC (main_fm1.c:1646-1650).
+
+## C2. PANIC long hold vs SMC note 6 as an FX throw on the FX page
+- Items: M1 PANIC vs #41 momentary FX on all SMC rows (FEATURE-REGISTRY 41.1). On the FX page, note 6 (HOME/Back) is an FX button: smc_fx_nav_index case 6 (smc_mixer.c:1549). The release does a nav tap only if the press was short (smc_mixer.c:2036-2040). Note 6 also sets `smc.home_down` (smc_mixer.c:1979-1984), so `smc_home_held()` is true.
+- Why it matters live: an effect throw is a long hold by design (2-8 s). If SMC note 6 counts as HOME for PANIC, every long throw on that button kills all notes at the drop.
+- Resolution: only the keyboard HOME (and SMC note 6 when not on the FX page) can arm PANIC. On the FX page, note 6 is only an FX key.
+
+## C3. FX hold + < > vs HOME + < > on the SMC (FX page)
+- Items: agreed "FX hold + < > steps that button's effect" (smc_fx_arrow, smc_mixer.c:1665-1688, run first at 1705) vs the existing HOME + </> = FX page and HOME + Up/Down = save/reset (smc_mixer.c:1707-1715). Plain </> = mixer page (smc_mixer.c:1951-1954).
+- Why it matters live: on the FX page, holding SMC note 6 (HOME) also holds an FX button (C2). So SMC HOME + > always steps note 6's own effect and never changes the FX page. Only the keyboard HOME reaches the FX page change. The same gesture does two different things, depending on which device's HOME you hold. On the keyboard, < > with HOME held is routed to "nothing" (main_fm1.c:1105, 1119), but the held-FX hook (ARW_HELD_FX_STEP) can still take it.
+- Resolution: if exactly one FX button is held, < > steps that button's effect (the agreed item wins, as the code does now). HOME + < > changes the FX page only when no FX button is held, and SMC note 6 does not count as HOME on the FX page. Write this priority in the help/manual.
+
+## C4. Stale "CYC" caption under HOME on the FX page
+- Items: removed HOME+SELECT cycle (#800 notes: "HOME+button mapping removed"; `smcfx_strip_cycle` has no caller) vs the caption, which still shows "CYC" when HOME is held (smc_mixer.c:964 -> smc_fx_caption.h:14-15). Agreed remap is now FX hold + < >.
+- Why it matters live: with HOME held, the screen promises a cycle on the SELECT row, but SELECT only plays the throw.
+- Resolution: remove the CYC caption. While an FX button is held, show "< > EFFECT" for it instead.
+
+## C5. HOME + part button = reset sound vs HOME + black key = mute
+- Items: M4 (HOME + part button resets that part's sound to the saved one) vs HOME + black key = mute part on MIX PARTS (ui.c:3506-3512) and mute track on drum pages (ui.c:3543-3547). Black keys 1-5 are the keyboard's part pickers on MIX PARTS (ui.c:3514-3519). On the SMC, there is no HOME check on the strip SELECT path (smc_mixer.c:1895-1898), so that path is free.
+- Why it matters live: if "part button" means black key 1-5, the same chord either mutes or wipes the sound edits, depending on the page. A wrong page means a lost sound in the middle of a set.
+- Resolution: put M4 on the SMC only: HOME + strip SELECT (notes 24-28), outside the FX page. Do not use keyboard black keys. Make it undoable (push to undo.c, so HOME+REC restores it) and say "SOUND RESET <PART>".
+
+## C6. M4 reset vs fader pickup / muted-fader rule
+- Items: M4 reset vs muted parts take the fader level (smc_mixer.c:1324-1327 with volume_muted, ui.c:3305-3311) and pickup (smc_notice clears `picked`, smc_mixer.c:1285-1296; L9).
+- Why it matters live: if the reset also restores the mixer level, pan or mute, the level jumps. The SMC fader then loses pickup and does nothing until the performer crosses the value again. A muted part also comes back at the saved level, not the fader level, which breaks M2.
+- Resolution: the reset touches only the sound/engine parameters. It does not touch MX_LEVEL, pan, sends, or the mute bits.
+
+## C7. L5 recommendation vs agreed HOME+REC undo / HOME+PLAY redo
+- Items: L5 (still "waiting on owner" in ROADMAP) proposes moving undo/redo off REC/PLAY. The agreed item keeps HOME+REC / HOME+PLAY. REC and PLAY act on press (ui.c:4203-4204). Redo needs HOME already down (ui.c:3735).
+- Why it matters live: if PLAY lands a few ms before HOME, the music stops instead of redo.
+- Resolution: keep the agreed chord and close L5 as "keep". HOME must be pressed first (the code already does this). Do not add a delay to PLAY. Change the ROADMAP L5 row to done/keep so that no brief moves it.
+
+## C8. PLAY with no popup vs an open question (O_ASK)
+- Items: agreed "PLAY with no popup" plus "SMC notes 5/6 answer O_ASK" (already in code, smc_mixer.c:1806-1809) vs button_tap: while a question is open, only SEL/HOME count, and PLAY is dropped (ui.c:3720-3731). SMC PLAY 0x5E is also dropped (smc_mixer.c:1806-1810 returns for every other note).
+- Why it matters live: a question that is still open (for example SAVE+REC "CLEAR PART?", or a LOAD confirm) blocks start/stop on both devices. The performer cannot stop or start on the beat.
+- Resolution: PLAY/STOP (keyboard PLAY, SMC 0x5D/0x5E) always passes through to the transport while a question stays open. The question stays until SEL/HOME or SMC 5/6 answers it.
+
+## C9. SMC Rewind/Forward top bar vs the current Rewind/Forward message
+- Items: agreed SMC Rewind/Forward top bar vs the current handler. It cues per part (smc.part, or lock_part when locked) and shows a 1 s ui_say "NEXT: PAT n" message. It skips smc_ui_cancel (smc_mixer.c:1932-1945, 2018-2019). The keyboard HOME + white key cues all parts (ui.c:3485-3505).
+- Why it matters live: the same cue would show in two places (the toast and the top bar), and only one of them names the part. The performer may think the whole pattern changes when only one part changes.
+- Resolution: the top bar replaces the toast for 0x5B/0x5C. It shows the part name and the cue ("909 -> P5" / "CANCEL") until the bar change.
+
+## Checked, not a conflict
+- M2 muted part takes fader level: code agrees (smc_mixer.c:1324-1327, main_fm1.c:918-926).
+- Instant unmute (#810, engine.c mix_targets): no clash with the mute or fader rules. Drums and BREAK unmute at the next hit (L11 is separate).
+- SMC 5/6 answer O_ASK: already in the code (smc_mixer.c:1806-1809). It runs before the FX-page logic, so there is no FX clash.
+- Per-part settings toggle (M7) and effect throw + drum fill (M6): only mockups exist, so there is no code to conflict with. One open point for M6: 41.1 makes all 32 FX-page buttons momentary FX, so the drum fill needs a button taken from FX. The owner must pick which one (C3/C4 priorities apply).
+- L1-L3, L10-L13: no shared button or screen with the new items.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

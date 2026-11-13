@@ -1,0 +1,1 @@
+NO builds/tests in Codex. Write code + tests, push a PR into build/0.0.23 (or your stacked base), report head SHA; Orchestrator runs suite/Elite/Pro on the box. If nothing to change, say so and add only missing regression tests in a PR (or no PR). Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

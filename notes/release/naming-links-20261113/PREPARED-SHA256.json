@@ -1,0 +1,42 @@
+{
+  "DnBOX-0.0.25.1-SMK37-Elite-79280e76.fwsc": {
+    "bytes": 651721,
+    "sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a"
+  },
+  "DnBOX-0.0.25.1-SMK37-Pro-79280e76.fwsc": {
+    "bytes": 651721,
+    "sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf"
+  },
+  "SHA256SUMS-CRC32-all.txt": {
+    "bytes": 511,
+    "sha256": "5f23dc33ee8d12718dd36aef59603d3fe14c982da7998f4bdb32d0ba03255038"
+  },
+  "SHA256SUMS-CRC32.txt.current": {
+    "bytes": 263,
+    "sha256": "1b2084fa7102ea7424443b4e4df24d2f49aca002677fc52af1e9d026ce4d8102"
+  },
+  "SHA256SUMS-CRC32.txt.proposed": {
+    "bytes": 511,
+    "sha256": "5f23dc33ee8d12718dd36aef59603d3fe14c982da7998f4bdb32d0ba03255038"
+  },
+  "SHA256SUMS-all.txt": {
+    "bytes": 406,
+    "sha256": "6d4d49eac44bb5353c511ca6388bf6280884118549c825b480a307f901498ef0"
+  },
+  "SHA256SUMS.txt.current": {
+    "bytes": 194,
+    "sha256": "9e61583f44416573bcb0867d8344af10e4d167216b1db6e72cf7e725c411a667"
+  },
+  "SHA256SUMS.txt.proposed": {
+    "bytes": 406,
+    "sha256": "6d4d49eac44bb5353c511ca6388bf6280884118549c825b480a307f901498ef0"
+  },
+  "dnbox-x0x37-0.0.25.1-elite.fwsc": {
+    "bytes": 651721,
+    "sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a"
+  },
+  "dnbox-x0x37-0.0.25.1-pro.fwsc": {
+    "bytes": 651721,
+    "sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf"
+  }
+}

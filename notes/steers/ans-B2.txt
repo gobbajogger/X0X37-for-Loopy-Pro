@@ -1,0 +1,3 @@
+No device route. No device commands, no fm1_install.py at all. Host evidence is enough for now; HW timing I check later on box with owner. Mark it done.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

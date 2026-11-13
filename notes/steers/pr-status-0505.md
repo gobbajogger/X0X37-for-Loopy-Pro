@@ -1,0 +1,14 @@
+# DnBOX 0.0.24 Codex PR status (05:05 UTC+10, Nov 1)
+- #789 SMC popup: head ee89337b (draft, RAM 2432 B Elite/Pro; 9 earlier host fails still open)
+- #795 N5 flash-sector guard: head 9e6440f7
+- #797 QB: 3ab6de7f
+- #801 B3 FREE PLAY latency test: 63e6c0da (wrong author, being re-committed)
+- #803 F7 pads diag/checks/packaging: 64326980
+- #804 B1 iPhone install MIDI reset: 982bf98e
+- #805 B5 USB audio overrun fix: d79a157f (wrong author, being re-committed)
+- #806 version embed: a7f6288f
+- #807 F5 keyboard UI: de80f7b6
+- #808 F6b: ac86538c
+- #809 OPT-C ui.c frame path: 3241ece5
+- F3 BREAKS (rows 24-29): no PR, task says no change needed
+- Still working: OPT-A (#802), B2 (#796), B4

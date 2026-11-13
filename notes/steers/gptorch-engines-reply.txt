@@ -1,0 +1,29 @@
+I’ll trace reusable DSP optimizations in the archive and repo history, then map them to Chicago/Miami with sound-compatibility risks and clearly labeled CPU estimates. I’ll also prepare an exact-commit WAV-pair and CPU measurement plan for OPT-A/OPT-B, without building or running anything.
+
+The strongest reusable idea so far is caching unchanged control calculations, rather than swapping in the old oscillators or filters, which would change the sound. I also found that the existing legacy render scripts are not valid ready-made A/B tools: some use the wrong sample rate or mishandle note-off, so the WAV plan will spell out the required adapter fixes instead of giving misleading comparisons.
+
+One relevant delivery update: PR #789 now publishes the single-peer out-of-bounds correction and the NEXT-pattern header notification at bff24bbd. Its producer records scoped tests and both firmware builds passing; the existing independent reviewer still needs to accept this exact update. Full-suite and device checks remain unrun.
+
+PR #810 has also delivered its scoped follow-up at 357efa1e: the missing test declaration and cancellation-test assertions are corrected. The producer has handed it back to the same reviewer; it is not a new runtime fix or a verified pass yet.
+
+The best reuse is coefficient caching, not replacing Chicago/Miami’s oscillators or filters. The attached report lists exact old/current files, functions and commits, estimated arithmetic savings, and sound risks.
+
+Most promising candidates:
+
+Chicago envelope denominators: up to 6 multiplies + 2 fused multiply-adds avoided per control tick.
+Chicago modulation and glide: cache unchanged rate/portamento terms.
+Miami modulation: up to 8 multiplies + 2 divisions avoided per voice-control tick across both modulators.
+Miami glide: cache the exact coefficient while retaining all voice-state updates.
+Miami triangle: a restricted zero-correction path could avoid 3 multiplies + 1 addition per oscillator/sample, but needs signed-zero and PCM equivalence proof.
+
+These are potentially bit-identical, not verified. Whole-engine CPU percentages cannot honestly be inferred from those counts. The archive’s historical 8.90% WBL1 host improvement does not predict Miami’s gain. Old filter/envelope substitutions and idle freezing change sound or state; some apparent savings already exist in the current engines.
+
+WAV plan: compare bass303/Chicago and wobble/Miami using legacy f690eb1b and current bb190749, with six patterns: single note, eighth-note riff, legato/release, modulation sweep, idle/restart and held-note mute. The report names the actual entry points and common 44.1 kHz event adapter needed. Existing scripts cannot produce fair pairs unchanged. CPU for all four engines remains NOT_RUN; no engine code was built or run.
+
+Coverage is bounded: the supplied archive is a supplement with missing historical bases, so this is not an exhaustive claim about every retired engine.
+
+Delivery blocker: I identified the actual OPT-A and OPT-B threads, but both sends failed with “thread not found”; readback confirms neither received the results. The complete handoff is attached here. OPT-B is currently graphics-only, so this research does not transfer voice-DSP ownership.
+
+DnBOX-DSP-optimization-and-WAV-plan.docx
+
+The earlier installer discovery gap also has source delivery now: PR #806 at b46fff14 incorporates the existing name-independent discovery work from #770/#771, keeping protocol/model and pairing checks. Tests and device/browser validation are still NOT_RUN, and this is not a live-site update.

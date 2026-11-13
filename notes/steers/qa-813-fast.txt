@@ -1,0 +1,3 @@
+URGENT, for a live show at 18:00 UTC+10. Finish the #813 QA now and focus on #813 only. #814 waits until its pool fix lands.
+Needed: the full host suite, Elite and Pro builds, the nightly package check (BT controller a334208b bundled), and measured pool headroom of at least 8,192 B for both Elite and Pro. Give a clear PASS or FAIL for each item, the #813 head SHA, and the image sizes and hashes. Don't install or flash anything. Reply by 16:30 UTC+10, with partial results if needed.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

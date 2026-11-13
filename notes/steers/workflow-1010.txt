@@ -1,0 +1,7 @@
+OWNER WORKFLOW (owner's 20 ranked improvements, OK'd 2026-10-30; canvas https://cursor.com/canvas/store-a7ba378e-cc94-4fe5-a543-9c487c5cfafb/3236fc46-1a17-471d-84cb-4c98eb5313f6). Follow it now.
+1 Pre-packed source snapshot + blob-SHA manifest: fetch only the PR diff (tree+blob API, no zipball, no git over network).
+2 Pre-built SDK V1.2.1/toolchain bundle from the Library.
+3 Preflight before every order/push (/workspace/steers/preflight.txt).
+4 Run the full suite in the background and poll; post results.
+5 Fix failures on #734 first, then merge green PRs one at a time.
+RULES: everything (code, fix, mockup, build, test, audit, review) only in classic ChatGPT threads; bots only coordinate/relay. New thread per stage, never pile onto long threads. No double work: #734 only. gobbajogger author. UI => before/after mockup. No Actions/.github. Push to GitHub right away. Check the rules and #699 before asking the owner.

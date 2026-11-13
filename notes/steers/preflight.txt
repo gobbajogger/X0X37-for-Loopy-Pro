@@ -1,0 +1,11 @@
+PRE-SEND CHECK (Orchestrator, before EVERY order, steer, handoff or agent message):
+1. EVERYTHING (code, fix, port, mockup, build, test, audit, check, review, report) goes ONLY to a ChatGPT classic thread unless the owner explicitly says otherwise. Bots only coordinate and relay.
+2. No double work: no other thread, PR or branch already has it. Focus is #734.
+3. It doesn't contradict any earlier order or saved rule.
+4. Is the answer already in the owner's feature list (#699, 122 features) or the rules? Then decide; don't ask the owner.
+5. Corrections and spec changes go to running threads NOW; stop notes only when idle.
+6. First lines 1-5, gobbajogger only, UI = mockup, no Actions/.github, never main/nightly, *_private.h stay.
+- Before opening any thread for a PR: check that no thread already owns that PR (Chat Driver's thread list + PR status comments). One owner thread per PR.
+- FREEZE (owner 08:52 EDT): no new feature work into #734 until a full suite + Elite + Pro post 0 fail / 0 skip on a fixed #734 head. Pending fixes wait, then go as separate PRs into integration/all-in-one.
+- Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.
+- Owner 09:16 EDT: Never reuse long threads! Always start new to handoff. No corrections into long threads; fresh thread + GitHub-checked handoff when idle.

@@ -1,0 +1,9 @@
+Owner decision, approved 15:21 UTC+10 on 2026-11-01. Add or update the ROADMAP.md rows on PR #812. Each row needs a number, description, source, status, and thread/PR/commit link:
+- PANIC: keyboard FX+SEQ; SMC BANK L+R in DAW mode only, none in MMC. Source: owner 2026-11-01 15:21. Status: approved, planned for 0.0.25. Remove or replace any older PANIC row (HOME or long STOP hold).
+- PLAY during an open question: answers NO, then normal PLAY toggle; HOME+PLAY stays redo. Source: owner 2026-11-01 15:21. Status: approved, planned for 0.0.25.
+Link both rows to the GPTOrch plan thread https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5 and to PR #812. Commit to the PR #812 branch only, through the GitHub API, with author and committer gobbajogger <255244738+gobbajogger@users.noreply.github.com>. Do not touch main. Reply with the new head SHA and a link to the changed rows. Do no builder work.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.
+
+Also add or update these #815 rows. Source: owner thumbs-up 2026-11-01 15:22 UTC+10. Link: PR #815.
+- Item 6 effect mockup: approved.
+- Item 4 reset overlay (show the part name, for example "909"; use "NO SAVED SOUND"): approved. It becomes final once the fixed PNG is pushed to #815.

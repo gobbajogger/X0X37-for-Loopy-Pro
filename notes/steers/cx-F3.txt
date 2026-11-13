@@ -1,0 +1,31 @@
+### F3 - BREAKS (rows 24-29)
+Scope: 24 two independent adaptive loop slicers, 25 clear keyboard slice navigation, 26 correct BREAKS MIDI out, 27 pitch bend for BREAKS, 28 jungle stretch instead of HALFTIME, 29 three owner-chosen stock breaks.
+Existing: #637, #689, wip/break-feat (merged; fill gaps), port/stock-three-loop be486a27e (in 0.0.23), restore-features a17a3fcd4 + ceb0a0106 (adaptive slice MIDI scenarios), 118e98545 (R23 latency test). Row 29: audio files are a private package - ask owner for the three files; do not invent breaks.
+Visual: YES for row 25 (slice navigation screen); rest NO.
+
+## Feature briefs (from feature-inventory-0.0.22 corrected: 20 done, 92 partial, 10 missing)
+Already in 0.0.23 / handled elsewhere (do NOT include): #692, #651, #677, #693 (nav wrap is in 0.0.23), #168, SMC FX captions; #688 remainder = PR #788; SMC popup = PR #789.
+
+Order / file ownership (to avoid overlap):
+- F1 engines (firmware/src/engine/original_*, experiments/original_synth) - must start after B2 or be done by the same session (same files).
+- F2 sequencer/record (seq*.c, rec*, project_runtime).
+- F3 BREAKS (break*.c, stock breaks).
+- F4 SMC/mixer remainder (smc_mixer.c, ble peer names) - stacked on #788 + #789 after they merge.
+- F5 keyboard UI glyphs/theme (ui.c draw_* only, ui_theme) - after #789 merges (ui.c).
+- F6 web site + editor (web/, tools/web*) - not installer connection code (that is B1).
+- F7 pads diagnostics + truthful checks + release packaging (tools/, tests/, smk pad diag).
+
+## Common rules (paste into every brief)
+- Author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>. One brief = one branch from build/0.0.23 = one PR into build/0.0.23 (or the named stacked base).
+- Never touch main, never touch .github/ or Actions.
+- SDK V1.2.1. Build Elite and Pro with X0X_DEV_PADCAL=0. Report static RAM free for both (0.0.23 = 2352 B). Free RAM must not go down without a written reason.
+- No FM-1 code or targets. Do not touch BTIF, USRTRIM, efuse, key_mac or the bootloader.
+- Never use the USB name for device identity (use the package identity / model id).
+- No Miami ADSR.
+- Never reinvent: port the existing implementation named in the brief (cherry-pick or git cherry check first; record which commits you ported, which were already in, and why anything was dropped).
+- Visual changes: attach real-framebuffer BEFORE/AFTER PNGs (host framebuffer dump, 240x240, not drawings) and stop for owner approval before merge.
+- Do not weaken or delete test checks. If a check must change, explain the old and new behaviour in the PR. Register every new test in the host suite.
+- Use the Superpowers and Compound Engineering plugins (plan, TDD, ce-code-review before PR).
+Exclude row 73 (bootloader) and row 120.
+
+One new PR, base build/0.0.23. Do not duplicate other briefs' scope (file ownership above). Report the PR URL, SHA, RAM (Elite/Pro), tests and mockup paths. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

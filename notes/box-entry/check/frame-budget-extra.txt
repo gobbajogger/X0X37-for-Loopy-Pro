@@ -1,0 +1,29 @@
+HOST MEASURED extra (follow-up on same frames, same RGB565 downsample)
+
+Lossless, drop frames 26-36 (they equal HOME-240):
+- independent per-frame pixel RLE frames 1-35: 1,219,854 B
+- keyframe+XOR-RLE frames 1-35: 863,156 B
+- dirty-span RLE frames 1-25 (unique motion + first): 747,418 B
+- keyframe+XOR-RLE unique 1+6-25: 828,551 B
+
+SPI at 12 MHz, dirty-pixel bytes (not bbox):
+- unique 1+6-25: 791.95 ms total (frame 1 = 76.8 ms, remaining 715.15 ms)
+- max mid-motion: frame 16 = 72.32 ms (54,238 dirty pixels)
+
+Palette XOR-RLE (lossy, median-cut, PSNR on RGB565-expanded 8-bit):
+- 4-color  21 unique: 107,805 B, psnr min 18.15 mean 20.02
+- 4-color  11 every-other: 65,257 B, 18.53 / 20.49
+- 4-color   6 keyframes: 41,102 B, 18.75 / 20.88
+- 4-color   3 keyframes: 25,137 B, 19.22 / 20.42
+- 4-color   first only:  6,968 B, 22.17
+- 8-color  21 unique: 120,846 B, 20.44 / 21.75
+- 8-color   first only:  7,849 B, 24.21
+- 16-color 21 unique: 193,661 B, 25.50 / 26.37
+- 16-color  6 keyframes: 67,492 B, 24.86 / 26.36
+- 16-color  first only: 10,287 B, 27.56
+
+1-bit first frame 240x240 packed (7200 B raw):
+- thr 80: RLE 2,533 B, firmware-LZ 1,930 B
+1-bit 240x96 crop (existing BOOT_PIC size, 2880 B raw):
+- y0=0 (top): RLE 463 B, LZ 481 B
+- y0=72: RLE 1,570 B, LZ 1,025 B

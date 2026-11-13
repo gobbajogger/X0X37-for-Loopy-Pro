@@ -1,0 +1,9 @@
+Chat Driver browser facts, 2026-10-30 (times UTC+10):
+- 19:02 #717 chat failed to load; loaded 19:07 in a second tab.
+- 19:50 untitled chats 6ae463b5 (#717), 6ae461bb (#705), 6ae463c9 failed to load; 6ae463c9 loaded 19:58; the other two still failed after several Try again clicks (cleared 20:22 via GitHub check).
+- 20:17 'Host Test Repair Status' 6ae36050 failed after 3 Try again clicks; never identified.
+- 20:35 #696 chat 6ae35989 failed to load for ~8 min; steer posted as PR comment; replaced by new thread 6ae476a4 at 21:03.
+- 21:03 a tab crashed; the Chicago hold line was not sent.
+- Evening (before 22:44): laggy browser, several 'Aw, Snap' crashes; a lag-garbled 'Corr' message went to thread B; a helper reloaded the frozen 734fix tab (rule break); a Stop was clicked on thread A before the 'stop only when idle' rule arrived; thread C crashed after a Stop click and showed 'Could not load' until one Try again at ~22:50.
+- ~22:50 tab-close by index went wrong: GPTOrchestrator tab closed (reopened), 'Verify Wip Build Tests' and peek tabs lost; peek 6ae48c12 now shows 'Could not load'. A typing glitch dropped a space in the 734fix correction.
+- 22:43 (08:43 EDT) GitHub comment approval card interrupted twice before the owner answered.

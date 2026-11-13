@@ -1,0 +1,32 @@
+My picks: keyboard FX + SEQ; SMC BANK LEFT + BANK RIGHT. Both are currently unassigned combinations, but neither is a harmless drop-in gesture: their individual buttons already have functions that the PANIC handler must suppress.
+
+I checked the requested source at d8086cc09203945919c70d3c805f8ca3e6acbe5a, including the supporting button maps and input routes. No physical reachability or accidental-press testing was performed.
+
+Keyboard
+
+Top pick: hold FX + SEQ together. Neither button performs its ordinary action on press; they open/change pages on release. That makes this pair cleaner than transport, recording or bank-switch buttons. I found no existing combined FX+SEQ handler in the inspected routes. Actions: ui.c 3806–3831, press/release dispatch: 4202–4211.
+
+Backup: hold FX + PARA together. Also no combined assignment found, with release-only ordinary actions. It is worse because PARA can cancel a pending sound change if recognition fails. ui.c 3786–3795.
+
+The physical labels map to B_FX, B_SEQ and B_EDIT respectively. Clip-mode controls do not intercept these pairs. panel.c 29–37, clip controls: main_fm1.c 1618–1623.
+
+HOME stays untouched. Help requires exactly one held button, so a recognized dual-button gesture need not take it over. ui.c 1903–1921.
+
+SMC
+
+Top pick: hold BANK LEFT + BANK RIGHT together, notes 0x2E + 0x2F. No combined handler found. This avoids HOME, transport, recording, mute/solo and all 32 FX buttons. However, individual presses already change part/track/drum bank, including locked targets. PANIC recognition must intercept them before either action happens. smc_mixer.c 1468–1480, 1870–1930.
+
+Backup: hold UP + DOWN together, notes 0x60 + 0x61. No combined assignment found, but more conflicts: these change knob bank, and with HOME held they save/reset FX cutoffs. Use only if recognition suppresses those paths; otherwise reject this backup. smc_mixer.c 1700–1715, 1821–1827.
+
+Important limitation: these held SMC gestures require DAW-mode press/release messages. Stock User/MMC supplies no physical release and bypasses held tracking. I cannot recommend a reliable held chord for that preset from this code. smc_protocol.h 5–14, smc_mixer.c 1970–1977.
+
+Required behavior before either pick is safe to implement
+
+Deliberate two-button hold, initially about 0.5–0.75 seconds as a proposal, then physical testing. No confirmation dialog.
+Fresh presses from the same device; fire once; release both before rearming. Held musical notes must not prevent PANIC.
+Consume both buttons and their releases. On SMC, a short chord-detection window necessarily delays ordinary bank navigation slightly.
+Work through open questions without answering them. The existing modal paths currently block ordinary controls, so merely adding a normal button action is insufficient.
+Clear every part’s note ownership and applicable outgoing notes, and show the short glyph. Do not assume the existing clip-mode NOTE REPEAT panic covers everything: it sends CC123 on one clip channel. main_fm1.c 1646–1650.
+Do not use OCT−+OCT+, KNOB BANK or “STOP+PLAY” as supposedly spare controls. OCT pairs have calibration/update duties; KNOB BANK switches clip mode; the SMC’s physical PAUSE key controls target lock.
+
+So: FX+SEQ and BANK LEFT+RIGHT are the cleanest candidates, not verified accident-proof controls. No code or mappings changed.

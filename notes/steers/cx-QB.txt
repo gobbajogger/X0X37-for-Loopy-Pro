@@ -1,0 +1,90 @@
+BLE timing: MEASURE ONLY, no change.
+Drop any item already covered by other tasks: OPT-A (engine.c, dsp/master.c audio path), OPT-B (gfx.c), B1 (iPhone install MIDI reset), B5 (USB audio on iPhone). Do not touch those files' covered areas.
+
+## Brief QB - HAL/platform/USB/BLE hygiene (Q2.1-Q2.6)
+Files: firmware/hal/fm1_flash.h, firmware/hal/smk_input.h, firmware/src/app/plat_fm1.c, firmware/src/app/plat.h,
+firmware/src/usb.c (SysEx parser only), firmware/src/ble.c (Q2.3 constants only), new tests.
+Q2.2 is measurement only. Do not touch usb.c audio or descriptor code (B5 owns it), or the MIDI connect path (B1).
+Done when: tests added, suite green, a 10-minute device play + USB MIDI soak shows no new dropouts, RAM >= 2352 B free.
+
+### Q2 area: HAL / platform / USB / BLE (hal/smk_input.h, hal/fm1_flash.h, app/plat_fm1.c, usb.c, ble.c)
+
+Q2.1 **risk** firmware/hal/fm1_flash.h:204-205 `irq_save()` / `irq_restore()` and
+firmware/hal/smk_input.h:630-639 `fm1__lock()`/`fm1__unlock()`.
+"save" returns 0 and "restore" always runs `sti`. They are not nestable. If a function that uses
+them is ever called with interrupts already off (inside another irq_save, a flash window, or an ISR),
+interrupts come back on too early. Current call sites (main_fm1.c:211/771/780/2067/2314, ble.c:286/293/597/636,
+plat_fm1.c:52/62/72, x0x.c:83) were checked: all of them run in the main loop, not nested. So this is
+a trap for future code, not a live bug.
+Fix: read the real interrupt-enable state on save (pi32v2 status register), and restore it only if it
+was on. If that cannot be read safely on this SDK, add a debug nesting counter that faults on nesting
+(host + X0X_DEBUG builds). Also make fm1__lock an alias of irq_save, so there is one primitive.
+Test: host test with the stub irq layer: nested save/restore keeps "off" until the outer restore.
+Device: no change in audio (run the existing 10-min play soak).
+
+Q2.2 **risk** firmware/src/ble.c:292-299. `fm1_ble_init_here()` runs with IRQs off and takes about 0.6 s
+(comment at :284). Audio, TIMER5 (USB) and input stop for that time. This is OK at boot. It can also
+run from `plat_ble_set()` at runtime (Bluetooth ON in settings, editor ED_BT_TEST op 1). Then there
+is a ~0.6 s audio drop and USB frames are lost.
+Fix: none in this brief (radio init is sensitive). Measure only: log init_ms and the TIMER5 frame
+watch on a runtime BT toggle, then report. If the drop is real, the owner decides (it may be expected).
+Do not touch BTIF/USRTRIM/efuse/key_mac.
+Test: device measurement table only.
+
+Q2.3 **cleanup (magic numbers)** firmware/src/ble.c:595-605, 626-631.
+`plat_ble_peer_names(char names[2][21])`, `20u`, `static char names[43]` and `peers[2][21]` repeat
+PLAT_BLE_PEER_CAP / PLAT_BLE_PEER_NAME_MAX (plat.h:114-115) and link_name[21] (ble_midi_central.h:31).
+ble.c:612 passes a [CAP][MAX+1] array into the [2][21] parameter, so it only matches by chance.
+Fix: use the plat.h constants everywhere. Add `_Static_assert(sizeof ((blec_t*)0)->link_name ==
+PLAT_BLE_PEER_NAME_MAX + 1)` and size `names` as CAP*(MAX+2)-1.
+Coordinate with F4 (peer names): if F4 already rewrote these lines, drop this item.
+Test: ui_peer_names_test / smc_peer_names_test still pass. Add one case with two 20-char names: the
+joined string is 42 chars and NUL-terminated.
+
+Q2.4 **cleanup (magic numbers, duplicated packing)** firmware/hal/smk_input.h:316-324 (`smk__extq`
+packs `k | vel<<7 | pitch<<14`, pitch `36 + k + 12*oct`), and ui.c:3999-4000 unpacks with `&127`, `>>7`, `>>14`.
+The format is in two files and has no name. Also plat_fm1.c:67-84 is written as dense one-liners.
+Fix: add `PLAT_OUTER_KEY(w)/VEL(w)/PITCH(w)` and `PLAT_OUTER_PACK()` macros in plat.h. Use them in
+smk_input.h and plat_fm1.c. Reformat plat_outer_keys() to file style. ui.c is owned by #789/F5:
+change only the ui.c:4000 decode line, and only if #789 is merged first; else leave ui.c alone.
+Also make the caller's array size explicit: `n < 31` must be `n < SMK_EXTQ - 1`. Add
+`_Static_assert` that the live_outer[] array in ui.c is at least SMK_EXTQ-1 entries.
+Test: host round-trip test for pack/unpack over k in {0..4, 32..36}, vel 0..127, oct -2..3.
+
+Q2.5 **risk** firmware/src/usb.c:848-913 `usb_sysex_byte`. A status byte 0x80-0xEF inside an open SysEx
+(a broken host stream, legal per MIDI as an implicit end) is stored as data. It does not end the
+message. `usb.sysex` keeps the bytes until the next F0/F7. The exact-length matches (6/12 bytes) make
+a false match unlikely, so there is no wrong action today. But a dropped F7 keeps `sx_collect` open
+and blocks the OTA/editor frame until the next F0.
+Fix: when a non-real-time status byte (>= 0x80, not F7, < 0xF8) arrives while `sx_on`, end the
+SysEx (sx_on = 0, sx_collect = 0) without dispatch.
+Test: new tests/host case (usb sysex parser): F0 22 24 35 90 3C 7F F0 ...valid frame... F7 -> the valid
+frame is delivered once and the broken one is ignored. Also: a 70-byte SysEx does not match any
+6/12-byte command.
+
+Q2.6 **test gap** firmware/src/usb.c:193-229 `midi_ring_put_note_off()` (full-ring displacement).
+The Python overflow tests cover the behaviour. No C test checks that the ring ORDER is kept when
+two keep-packets (Note Off + Stop) arrive on a full ring of CCs, or that a full ring of only
+keep-packets refuses a CC and accepts nothing silently (the return value).
+Fix: none. Test only: add tests/host/midi_ring_displace_test.c that compiles the function with the
+loader stubs.
+
+## Common rules (paste into every brief)
+- Author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>. One brief = one branch from
+  build/0.0.23 = one PR into build/0.0.23.
+- Never touch main, .github/ or Actions.
+- SDK V1.2.1. Build Elite and Pro with X0X_DEV_PADCAL=0. Report static RAM free for both (0.0.23 = 2352 B).
+  Free RAM must not go down without a written reason.
+- No FM-1 code or targets. Do not touch BTIF, USRTRIM, efuse, key_mac or the bootloader.
+- Never use the USB name for device identity.
+- Behaviour, sound and screen must not change, except to fix the named bug. Any visible change: stop and ask
+  for owner mockup approval.
+- Do not touch smc_mixer.c, ui.c (except the one line in Q2.4 after #789 merges), or any file that F1-F7/B1-B5 or the
+  optimization brief owns. If you find overlap, drop the item and say so in the PR.
+- Do not weaken or delete test checks. Register every new test in the host suite.
+- Build once with the extra warning flags (-Wextra -Wshadow -Wcast-align) and attach the warning count before/after.
+  Do not add these flags to the default build in this PR.
+- Use the Superpowers and Compound Engineering plugins (writing-plans, test-driven-development, ce-code-review
+  before the PR, verification-before-completion).
+
+One new PR, base build/0.0.23. Report the PR URL, SHA, RAM (Elite/Pro) and tests. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

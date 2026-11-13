@@ -1,0 +1,13 @@
+1) Commit and push all your work to GitHub automatically, right away, via the GitHub plugin/API, as gobbajogger.
+2) The full SDK V1.2.1 is in your project Library and it is complete. Use it.
+3) Pull the source through the GitHub API (tree/blob).
+4) Any UI change or UI port: make a mockup (image of the screen before and after) and push it to GitHub with the PR, so the owner can see it.
+5) No double work: work only on #734 (integration/all-in-one). Before you start, check that no other PR, branch or thread already has this work.
+Rules: gobbajogger only, merge-forward, no force-push, no .github changes, never main/nightly, *_private.h stay, no binaries/creds/captures.
+TASK PEEK: port the stage-6 page peek from cursor/smc-mixer-ui-popup-stage6-blocked-8e03 (b53545e9; commits ad4f3111 0ad446e3 116d9030) onto integration/all-in-one (#734) as a mode BESIDE the existing control overlay. The overlay keeps showing everywhere (owner 22:15). Peek: a fader or knob move opens the real page (strips 1-5 MIX PARTS with that part selected, 6 FX REVERB, 7 FX DELAY, 8 MIX MASTER) with live meters, LEDs follow, returns 1200 ms after the last move. About 80 lines in smc_mixer.c plus the smc_ui_popup_test port. Use docs/mockups/popup-650-vs-aio.png (branch docs/mb-popup-650-mockup) and push an after mockup. Draft PR into integration/all-in-one; run the full suite plus Elite and Pro.
+START FROM lane/mb-smc-peek-734 f9ae29e3 (on c54d9f9b, 1 WIP commit, gobbajogger): the peek is already ported into smc_mixer.c (hooked in smc_show before smc_ui_begin, smc_ui_off for the timeout, the first peer owns the peek, smc-ui-popup test passes). Don't redo it. Left to do: make the after mockup docs/mockups/smc-peek-734.png (tooling on docs/mb-popup-650-mockup 8e71da4f), run the full suite plus Elite and Pro plus the XIP size check, open a draft PR into integration/all-in-one. HOME encoders: owner 22:22 says YES, the home knobs peek too, like stage-6 (a knob move opens its real page, then returns after 1200 ms). Add it and show it in the mockup.
+Set the author yourself to gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
+SMC PAGE LOCK (owner 22:23): when the SMC page is locked, page changes made on the SMC also peek: they briefly open the real page on the device screen, then return after 1200 ms, while the lock stays. Add it, test it and show it in the mockup.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

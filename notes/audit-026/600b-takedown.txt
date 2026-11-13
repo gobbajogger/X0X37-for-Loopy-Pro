@@ -1,0 +1,132 @@
+600b TAKEDOWN EVIDENCE
+======================
+
+Subject
+  Withdrawn build: nightly-600b3b45-dev
+  Source commit:   600b3b45f8d59c3432d958238b05753eb6f2fcb5
+  Elite package SHA-256: 25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a
+  Pro package SHA-256:   528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655
+  Repo: gobbajogger/x0x37-for-Loopy-Pro_nightly
+  Pages site: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/
+
+Method (read-only; change nothing)
+  - GitHub API reads only (PR diffs, gh-pages history, contents). No pushes, no comments, no issue or PR writes.
+  - HTTP probes used: curl -sS -o /dev/null -w '%{http_code}' (no redirects), and the same command with -L (final code). --max-time 30 on the first pass.
+  - Live installer/manifest bodies were also fetched once to test whether 600b identifiers remain in the current Pages content. That is a content check, not a mutation.
+  - The only write from this work is this evidence file: /workspace/audit-026/600b-takedown.txt
+
+Repo refs
+  PR #116 (publish): https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/116
+    merged 2026-11-13T01:34:16Z
+    head  8ec81bf7d55258e7e1082658080299e3cfe0dcdc
+    merge 063e028075e2ac7405c49d7c3122ead574c86581
+    files added/changed: the two .fwsc packages below, plus install/index.html, versions.json, package-version-assignments.json
+  PR #120 (withdraw installer/catalog selection): https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120
+    merged 2026-11-13T05:44:03Z
+    merge 341d2f1c76ef8ab1ecab47427f148be728398d24
+    removed nightly-600b3b45-dev from versions.json, package-version-assignments.json, and the two embedded HTML catalog copies
+    immutable .fwsc packages were still in the tree after this merge
+  PR #125 (remove withdrawn package files so public artifact URLs 404): https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/125
+    merged 2026-11-13T08:14:00Z
+    merge 0903432973601571540c15ddecb6622512f437cc
+    deleted only the two 600b .fwsc files (Elite commit 3d5bdbb790ee, Pro commit 765373223225)
+  gh-pages tip at probe time: 6a9953dee4d31ac741ae90ec4bec70f2a10f9240 (2026-11-13T10:31:35Z)
+    "fix: publish reviewed DnBOX sample importer naming and discovery"
+
+How the public URL list was built
+  PR #116 added no files other than the two content-addressed packages and the three catalog/installer files. Each sha256 artifact directory contained only the one .fwsc (no index, checksum sidecar, or other file). Catalog pkg fields and the embedded installer catalog pointed only at the two github.io .fwsc URLs below. Install page and manifest URLs are the shared Pages paths that carried the 600b catalog entry until PR #120. Directory URLs are included because they were the published artifact prefixes. raw.githubusercontent.com paths are additional public git/raw URLs for the same files (not listed in the catalog).
+
+Git history vs live tree (API contents on gobbajogger/x0x37-for-Loopy-Pro_nightly)
+  Elite .fwsc: present at 8ec81bf (add, 2026-11-13T01:33:20Z) and at merge #116 (063e028) and merge #120 (341d2f1); removed by 3d5bdbb (2026-11-13T08:06:52Z); absent at merge #125 (0903432) and at gh-pages tip 6a9953d. Blob sha 926bf7458ac7, size 651721.
+  Pro .fwsc:   present at 8ec81bf and at 063e028 / 341d2f1; removed by 7653732 (2026-11-13T08:07:03Z); absent at 0903432 and tip 6a9953d. Blob sha ce2a3ec3ce96, size 651721.
+  Expected: yes, history still keeps the blobs. Live gh-pages tree and live Pages do not.
+
+URL lines
+  Fields: kind | utc | chicago | http_no_follow | http_follow(-L) | redirect | git_history | live_pages_or_tip | notes
+  Flag LIVE is applied when either HTTP code is 200, per the collection rule.
+
+--- official GitHub Pages URLs from PR #116 ---
+
+URL: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+  kind=install-page  utc=2026-11-13 10:51:07 UTC  chicago=2026-11-13 04:51:07 America/Chicago  http_no_follow=200  http_follow=200  redirect=none  git_history=yes (install/index.html still on gh-pages)  live_pages=yes  LIVE
+  notes: shared installer URL; still served. Live body 628621 bytes; count(600b3b45)=0, count(25b78701e4184f78)=0, count(528dac38557312bd)=0. 600b catalog entry removed by PR #120.
+
+URL: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/index.html
+  kind=install-page  utc=2026-11-13 10:51:07 UTC  chicago=2026-11-13 04:51:07 America/Chicago  http_no_follow=200  http_follow=200  redirect=none  git_history=yes  live_pages=yes  LIVE
+  notes: same bytes and content check as /install/. Shared installer URL; 600b identifiers absent from live body.
+
+URL: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/versions.json
+  kind=manifest  utc=2026-11-13 10:51:07 UTC  chicago=2026-11-13 04:51:07 America/Chicago  http_no_follow=200  http_follow=200  redirect=none  git_history=yes  live_pages=yes  LIVE
+  notes: shared catalog URL; still served (89223 bytes). Live latest=nightly-94197fc8-dev (37 versions). No nightly-600b3b45-dev entry, source 600b3b45f8d5..., or the two 600b package hashes. A later 0.0.26 (94197fc8) is present and its description mentions "the withdrawn 600b build" in prose only.
+
+URL: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/package-version-assignments.json
+  kind=manifest  utc=2026-11-13 10:51:08 UTC  chicago=2026-11-13 04:51:08 America/Chicago  http_no_follow=200  http_follow=200  redirect=none  git_history=yes  live_pages=yes  LIVE
+  notes: shared assignments URL; still served (35952 bytes). Live assignments=37; 0.0.26 is bound to nightly-94197fc8-dev / 94197fc839b00aff47b98ca02f3c6396e4a6eabf only. count(600b3b45)=0, count(25b78701e4184f78)=0, count(528dac38557312bd)=0.
+
+URL: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a/x0x37-elite-dev.fwsc
+  kind=fwsc-pages  utc=2026-11-13 10:51:08 UTC  chicago=2026-11-13 04:51:08 America/Chicago  http_no_follow=404  http_follow=404  redirect=none  git_history=yes (until 3d5bdbb; blob 926bf7458ac7)  live_pages=no  taken-down
+  notes: former catalog pkg URL for Elite 25b78701.... Removed from the live tree by PR #125. Not LIVE on Pages.
+
+URL: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655/x0x37-pro-dev.fwsc
+  kind=fwsc-pages  utc=2026-11-13 10:51:08 UTC  chicago=2026-11-13 04:51:08 America/Chicago  http_no_follow=404  http_follow=404  redirect=none  git_history=yes (until 7653732; blob ce2a3ec3ce96)  live_pages=no  taken-down
+  notes: former catalog pkg URL for Pro 528dac38.... Removed from the live tree by PR #125. Not LIVE on Pages.
+
+URL: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a/
+  kind=artifact-dir-pages  utc=2026-11-13 10:51:08 UTC  chicago=2026-11-13 04:51:08 America/Chicago  http_no_follow=404  http_follow=404  redirect=none  git_history=dir existed only as parent of the Elite .fwsc  live_pages=no  taken-down
+  notes: no other files were ever in this directory. Not LIVE on Pages.
+
+URL: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655/
+  kind=artifact-dir-pages  utc=2026-11-13 10:51:08 UTC  chicago=2026-11-13 04:51:08 America/Chicago  http_no_follow=404  http_follow=404  redirect=none  git_history=dir existed only as parent of the Pro .fwsc  live_pages=no  taken-down
+  notes: no other files were ever in this directory. Not LIVE on Pages.
+
+--- other public paths (raw.githubusercontent.com; not in the catalog pkg fields) ---
+
+URL: https://raw.githubusercontent.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/gh-pages/artifacts/nightly-dev/25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a/x0x37-elite-dev.fwsc
+  kind=fwsc-raw-gh-pages-tip  utc=2026-11-13 10:51:09 UTC  chicago=2026-11-13 04:51:09 America/Chicago  http_no_follow=404  http_follow=404  redirect=none  git_history=yes (historic SHAs only)  live_tip=no  taken-down-at-tip
+  notes: branch-tip raw URL 404s, consistent with the live tree.
+
+URL: https://raw.githubusercontent.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/gh-pages/artifacts/nightly-dev/528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655/x0x37-pro-dev.fwsc
+  kind=fwsc-raw-gh-pages-tip  utc=2026-11-13 10:51:09 UTC  chicago=2026-11-13 04:51:09 America/Chicago  http_no_follow=404  http_follow=404  redirect=none  git_history=yes  live_tip=no  taken-down-at-tip
+  notes: branch-tip raw URL 404s, consistent with the live tree.
+
+URL: https://raw.githubusercontent.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/8ec81bf7d55258e7e1082658080299e3cfe0dcdc/artifacts/nightly-dev/25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a/x0x37-elite-dev.fwsc
+  kind=fwsc-raw-history-publish-commit  utc=2026-11-13 10:51:09 UTC  chicago=2026-11-13 04:51:09 America/Chicago  http_no_follow=200  http_follow=200  redirect=none  git_history=yes  live_pages=no  LIVE
+  notes: expected. History still serves the Elite package at the PR #116 publish commit.
+
+URL: https://raw.githubusercontent.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/8ec81bf7d55258e7e1082658080299e3cfe0dcdc/artifacts/nightly-dev/528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655/x0x37-pro-dev.fwsc
+  kind=fwsc-raw-history-publish-commit  utc=2026-11-13 10:51:09 UTC  chicago=2026-11-13 04:51:09 America/Chicago  http_no_follow=200  http_follow=200  redirect=none  git_history=yes  live_pages=no  LIVE
+  notes: expected. History still serves the Pro package at the PR #116 publish commit.
+
+URL: https://raw.githubusercontent.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/063e028075e2ac7405c49d7c3122ead574c86581/artifacts/nightly-dev/25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a/x0x37-elite-dev.fwsc
+  kind=fwsc-raw-history-merge-116  utc=2026-11-13 10:51:10 UTC  chicago=2026-11-13 04:51:10 America/Chicago  http_no_follow=000 (curl 28 timeout after 30003 ms, 0 bytes)  http_follow=200  redirect=none  git_history=yes  live_pages=no  LIVE
+  retry_no_follow: utc=2026-11-13 10:52:30 UTC  chicago=2026-11-13 04:52:30 America/Chicago  http_no_follow=200  curl_rc=0
+  notes: expected. First no-follow probe timed out; retry and the -L probe both returned 200. History still serves the Elite package at the PR #116 merge commit.
+
+URL: https://raw.githubusercontent.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/063e028075e2ac7405c49d7c3122ead574c86581/artifacts/nightly-dev/528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655/x0x37-pro-dev.fwsc
+  kind=fwsc-raw-history-merge-116  utc=2026-11-13 10:51:40 UTC  chicago=2026-11-13 04:51:40 America/Chicago  http_no_follow=000 (curl 28 timeout after 30002 ms, 0 bytes)  http_follow=200  redirect=none  git_history=yes  live_pages=no  LIVE
+  retry_no_follow: utc=2026-11-13 10:52:30 UTC  chicago=2026-11-13 04:52:30 America/Chicago  http_no_follow=200  curl_rc=0
+  notes: expected. First no-follow probe timed out; retry and the -L probe both returned 200. History still serves the Pro package at the PR #116 merge commit.
+
+Summary
+  URLs probed: 14
+    official GitHub Pages URLs from PR #116: 8
+      install pages: 2
+      manifests: 2
+      .fwsc packages: 2
+      artifact directories: 2
+    other public raw URLs: 6 (2 at gh-pages tip, 4 at historic SHAs)
+
+  LIVE (HTTP 200): 8 of 14
+    A. Shared Pages installer/catalog URLs (4) — still 200, as expected for a living installer, but 600b catalog/assignment entries and the two 600b package hashes are gone from the live bodies. Current latest is nightly-94197fc8-dev (a later 0.0.26, different SHA and different package hashes). These are not the withdrawn 600b downloads.
+    B. Historic raw.githubusercontent.com URLs (4) — still 200. Expected: git history keeps the .fwsc blobs. Anyone who knows the historic commit SHA can still fetch the withdrawn Elite and Pro packages. This is not live Pages, but it is a still-reachable public URL.
+    No official github.io .fwsc or artifact-directory URL returned 200. Both withdrawn package URLs are 404 on live Pages (and 404 at the gh-pages branch-tip raw path).
+
+  Not LIVE on Pages / tip (HTTP 404): 6 of 14
+    Elite .fwsc (Pages + raw tip), Pro .fwsc (Pages + raw tip), both artifact directories (Pages).
+
+  Takedown status
+    Installer selection: withdrawn by PR #120 (600b no longer offered or assigned).
+    Live Pages downloads: withdrawn by PR #125 (both former public .fwsc URLs 404).
+    Git history: packages remain retrievable at historic SHAs, including 8ec81bf7d55258e7e1082658080299e3cfe0dcdc and 063e028075e2ac7405c49d7c3122ead574c86581.
+
+  No github.io 600b package URL is LIVE.

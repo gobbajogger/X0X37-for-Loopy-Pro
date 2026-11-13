@@ -1,0 +1,2 @@
+Fix for PR #815 item4-after.png: show the part name (for example '909') in the reset overlay, and replace 'NO SAVE: NO OP' with plain words like 'NO SAVED SOUND'. item6 is approved, leave it as is. Re-render from the real framebuffer, push to PR #815 (author and committer gobbajogger <255244738+gobbajogger@users.noreply.github.com>), and reply with the new head SHA and the item4-after PNG link.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

@@ -1,0 +1,3 @@
+Approved: push ALL local OPT-A work to PR #802 now: B/C patches, D harness, benchmarks and the 250 restart cases. This approval covers the whole OPT-A scope, not only 37ec652f.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

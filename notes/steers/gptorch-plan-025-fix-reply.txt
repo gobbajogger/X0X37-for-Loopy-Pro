@@ -1,0 +1,85 @@
+I’ll update the plan to those exact PANIC and PLAY behaviors, remove the alternatives, and check the affected sections for conflicts. I’ll paste the changed sections here; builders stay paused until you approve the plan.
+
+Updated integration-plan 0.0.25. Changed sections: 2; section 3’s W2; section 6’s X01, X06 and X07; section 7’s rows 153, 154 and 162; section 9.
+
+Changed text follows.
+
+SECTION 2 — PANIC
+
+Approved 2026-11-01 at 15:21 UTC+10:
+
+Keyboard PANIC: FX+SEQ pressed together.
+SMC PANIC: BANK L+R pressed together, DAW mode only. Both buttons must belong to the same SMC peer.
+No PANIC in MMC mode.
+
+These are the only active PANIC placements. HOME, long STOP and all alternative placements are superseded. “Pressed together” means a chord, not a long hold; no 0.75-second or greater-than-one-second hold requirement is added.
+
+A recognized chord consumes both component actions and their releases. Ordinary FX, SEQ, BANK L and BANK R presses retain their existing behavior. Verify both press orders, near-coincident inputs, debounce, repeats, release order and re-arming after release. Inputs from different SMC peers must never combine. MMC messages must never arm PANIC or start a synthetic hold timer.
+
+Retain the existing cleanup contract: clear local voice/note ownership, sustain/damper and queued note-ons safely; send tracked NoteOff and appropriate all-notes-off/CC123 to intended outputs without unrelated peer leakage. PANIC does not stop transport or change the project. Fire once per chord; clear pending chord state on disconnect or mode change. HOME help/chords, long FX throws and SMC PAUSE/context lock must not trigger PANIC.
+
+Preserve ordinary NOTE REPEAT and clip controls, including unrelated channel-local cleanup. Remove any old global-PANIC alias within X01, without deleting unrelated clip behavior. PANIC feedback remains in the mockup queue. Placement approval does not lift the builder pause.
+
+SECTION 2 — PLAY DURING A QUESTION
+
+A fresh ordinary PLAY press during an open question invokes the existing NO/cancel handler exactly once, closes the question without executing its requested action, then performs the normal PLAY toggle: stopped becomes playing; playing becomes stopped.
+
+HOME+PLAY remains redo and takes precedence even while a question is open. Preserve HOME-first recognition and the existing clip PATCH(=HOME)+PLAY redo route. A recognized redo chord performs neither the ordinary PLAY question-NO action nor a transport toggle. PLAY pressed before HOME remains ordinary PLAY, not a retroactive redo chord. Add no PLAY delay; releases and repeats must not cause another cancellation or toggle.
+
+This decision adds no separate STOP-question-cancellation behavior. Existing STOP and SMC PAUSE/context-lock meanings remain unchanged.
+
+Previously held FX/note releases must still reach their captured owner if a question opens meanwhile. Test cancellation before view changes, no destructive YES action, no stale callback, no double toggle and no stuck FX/notes. Existing SMC 5/6 question answers remain press-only and must not trigger FX.
+
+SECTION 2 — CONFLICT ENTRIES
+
+C1: HOME placement is historical only. Keyboard PANIC is FX+SEQ. Preserve HOME help and chords; test both chord orders, ordinary singles, exactly-once activation and suppression of component actions.
+
+C2: SMC PANIC is same-peer BANK L+R in DAW only. Note 6 remains an FX hold on the FX page. Test long throws, page/peer changes, BANK singles, chord suppression and cross-peer rejection. No MMC PANIC.
+
+C7: HOME+PLAY redo is settled, including during questions. HOME+REC undo remains unchanged. HOME first, no new PLAY delay; inverse order is ordinary PLAY.
+
+C8: Ordinary PLAY answers NO once, then toggles normally. HOME+PLAY redo takes precedence. Test destructive questions, both transport states, repeats/releases, redo without NO/toggle side effects and held-FX release cleanup.
+
+C3–C6 and C9 are unchanged.
+
+SECTION 3 — W2 BUILD ORDER
+
+W2 covers timing, motion lifecycle, gesture ownership, the approved PLAY-question routing and PANIC chords. R016 captured-input ownership precedes remap/reset/question-release changes. X01 placement and X07 routing are settled by the 15:21 decision. Chord arbitration and cleanup are verified after overall plan approval. Builders remain paused until then.
+
+SECTION 6 — X01 PANIC
+
+Keep P-X01 and the existing PANIC owner; ownership reconciliation is still required, not a new free claim. Implement only FX+SEQ on the keyboard and same-peer BANK L+R on SMC in DAW mode. No MMC PANIC or other placement. Preserve singles, suppress recognized-chord component actions/releases, retain cleanup and running transport.
+
+Tests: both press/release orders, debounce/coincidence, repeats, exactly-once activation, re-arm after release, disconnect/mode changes, cross-peer rejection, held FX/notes and no false PANIC from other controls. Dependencies remain R016/R019 in W2. Placement is approved; feedback mockup and overall plan approval remain required.
+
+SECTION 6 — X06 UNDO/REDO
+
+Keep HOME+REC undo and HOME+PLAY redo without new PLAY latency. HOME+PLAY redo takes precedence during questions and does neither ordinary question-NO nor transport toggle. Reconcile stale L5 wording to “keep.” Test HOME-first, PLAY-first, repeats/releases and the clip PATCH chord.
+
+P-X06 is needed only for a documentation/test gap, not a transport-remap PR. Dependencies remain R016/X07 in W2. No new mockup; the redo decision is settled, overall plan approval pending.
+
+SECTION 6 — X07 QUESTION + PLAY
+
+Keep P-X07; router ownership remains unassigned. Ordinary fresh PLAY runs NO once, closes the question and toggles normally. HOME+PLAY redo wins during O_ASK and performs neither ordinary NO nor toggle.
+
+Tests: CLEAR/LOAD/SAVE questions; keyboard/SMC press, release, repeat and velocity-zero events; both chord press orders; exactly-once cancellation; no destructive action or stale callback; captured FX/note releases through O_ASK. Preserve SMC 5/6 answers without triggering FX. No new STOP-cancellation scope.
+
+Dependencies remain R016/R019 in W2, preceding X05 qualification. PLAY/redo semantics are approved; overall plan approval is pending. No new visual is required if the existing question-close presentation is used.
+
+SECTION 7 — CROSSWALK
+
+Row 153, L5: retain the original status as historical tracker evidence, but explicitly record HOME+PLAY redo as settled. The old remap proposal is superseded.
+
+Row 154, L6: remains missing implementation, mapped to X01 with approved keyboard FX+SEQ and same-peer DAW BANK L+R; no MMC PANIC.
+
+Row 162, M1: the old “PANIC on long hold of HOME” label is explicitly SUPERSEDED HISTORICAL PROVENANCE ONLY. It maps to X01’s approved chords and is not an implementation instruction.
+
+SECTION 9 — DECISIONS AND MOCKUPS
+
+PANIC placement, no MMC PANIC, question PLAY = NO then normal toggle, and HOME+PLAY redo are settled decisions, not open options. No alternative placement or musical hold threshold awaits approval.
+
+Remaining decisions: overall plan approval and scope boundaries; #41’s complete 32-button table/multi-held behavior; M4 saved-sound/reset feedback; M6 fill allocation; M7 toggles; L4 song policy; L7 fine/ramp behavior; L10 quantization; L12 loudness trims. M5 remains internal record recovery, not another question to you.
+
+The X01 mockup entry now concerns feedback for the approved chords only. Other mockup and deferred-work entries are unchanged.
+
+Conflict check passed: stale placement and PLAY/redo approval blockers were removed; single-button behavior, per-peer isolation and redo precedence are covered. All 144 item records and 174 crosswalk IDs/order/original statuses remain, with existing owners preserved. No firmware code or tests were changed. Builders remain paused until you approve the plan.

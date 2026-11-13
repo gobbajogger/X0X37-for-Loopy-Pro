@@ -1,0 +1,2 @@
+After you update the plan with the PANIC decision, write a short summary of the 0.0.25 integration plan for the owner. Keep it to 10 lines or fewer, in plain words. Include the phases, their order, and the risks he might miss. Post it as plain text.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

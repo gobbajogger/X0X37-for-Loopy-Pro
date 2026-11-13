@@ -1,0 +1,10 @@
+PR #696 steer: do not use GitHub Actions (owner rule: never GitHub Actions). Do not rerun that workflow. Build and test in your own cloud instead. The zipball is refused, so use the tree API: GET /git/trees/7d313427?recursive=1, then fetch every blob in small batches (about 10 files per call, to stay under the tool-call limit), and decode binary blobs from base64 (not as UTF-8). The method and helper are in docs/FULL-SOURCE-FETCH.md and tools/restore_github_api_batches.py on branch docs/full-source-fetch (PR #726). Verify the blob SHA-1 values, then run the full host suite and the Elite and Pro builds with SDK V1.2.1. Note: docs/FEATURE-REGISTRY.md is on branch docs/feature-registry (PR #723), not in wip/one-build yet. Push only new work via the GitHub plugin/API (never git over the network) to this same branch and PR, base: the live wip/one-build head (re-read via API; cb5423c4 is stale), then post a PR status comment (head SHA, base, pass/fail/skip, Elite/Pro results, blockers, next step). Approve your own posts and GitHub actions. All work to GitHub right away. No installs.
+
+FULL SUITE HOW-TO (paste into every new thread and every steer)
+You CAN do this yourself in your own cloud. Do it now, before anything else:
+1. Get the full source: use the LoopyX0X37 GitHub plugin/API (never git over the network). List the tree (GET /git/trees/<sha>?recursive=1) and fetch every blob. Unzip into your working folder. The approved private headers are in the repo; use them.
+2. Use SDK V1.2.1 from the project files.
+3. Run the FULL host suite (tests/run_tests.sh) and build Elite and Pro firmware.
+4. Post a PR status comment: head SHA, full pass/fail/skip counts, Elite and Pro build results, and any failing test names.
+"Source not available" or "tool missing" is never a valid result: you have the tools above. Never use the zipball (it is blocked). If a step errors, retry in smaller batches and report the exact error text.
+Commit only as gobbajogger.

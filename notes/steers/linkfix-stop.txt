@@ -1,0 +1,1 @@
+STOP: push NOTHING. Scoped QA on #734 confirms 713dfd03 already has the Miami link symbol and the Elite and Pro links exit 0. If you already pushed anything, reply with the exact SHA and branch; otherwise reply "nothing pushed" and stop. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

@@ -1,0 +1,11 @@
+Follow-up order. Do not wait for uploads in this chat. Retrieve GPTOrchestrator's files yourself from the LoopyX0X37 Space folder / project files:
+- x0x37-uncommitted-source-restoration-20261030.tar.gz
+- x0x37-derived-source-restoration-20261030.tar.gz (the derived restoration archive)
+- dnbox-122-feature-reconciliation.xlsx
+- X0X37-SMC-two-peer-heap-owner-test-20261029.zip
+- the 605-version extra part, when it is saved
+1. Push their contents through the GitHub API (tree and blob) to workspace-snapshot-20261030 in gobbajogger/X0X37-for-Loopy-Pro. Owner-approved. Skip credentials, tokens, binaries, raw captures, .env and bass303. Keep *_private.h. No author fields. Never main, nightly, .github or #734. Report the commit SHAs.
+2. Inventory every feature and change with file, source folder/branch and SHA. Start with the #41 momentary REC/SOLO/MUTE map (smc-live-toggle-review). Check each against PR #739, PR #734 and docs/FEATURE-REGISTRY.md: "in #734", "built elsewhere (branch/PR)" or "not built".
+3. Post the list on PR #739 marked "PARTIAL" until the 605-version part is in. Port nothing.
+If you cannot see a file, reply with exactly which file names you cannot find.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

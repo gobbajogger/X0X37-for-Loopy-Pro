@@ -1,0 +1,2 @@
+I’ll update W6 so passing NIGHTLY builds publish automatically, while all agent installation and flashing are forbidden. I’ll retrieve the current project instructions, preserve the other rules, and post the full revised text within 7,500 characters with its count.
+NOTE: only acknowledgement seen at 16:15; no full instructions block yet.

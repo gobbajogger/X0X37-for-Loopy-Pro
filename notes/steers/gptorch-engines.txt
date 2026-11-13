@@ -1,0 +1,9 @@
+Question (no code, read-only): use the full archive plus the repo history of gobbajogger/X0X37-for-Loopy-Pro.
+
+1. OPTIMIZATIONS (main focus): find code in the old engines (bass303, wobble, and any other retired engines) that does the same job as parts of the Chicago and Miami engines (oscillator, filter, envelope, modulation, voice allocation) with less CPU or fewer CPU peaks. For each one, list: the old file and commit SHA, the matching Chicago/Miami file and function, an estimated CPU win, and whether a port keeps the sound bit-identical, near-identical, or changed.
+
+2. SOUND PAIRS: give a plan for rendering the same patterns on the host through the old engines (bass303, wobble) and the new engines (Chicago, Miami), as WAV pairs to listen to, plus CPU per engine. Name the patterns, the render tool/entry point, and the commits to use. Do not build or run anything.
+
+Do not do a feature-by-feature comparison. The results go to the OPT-A and OPT-B threads.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

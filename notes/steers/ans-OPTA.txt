@@ -1,0 +1,1 @@
+OPT-A answer: Use the same Mac checkout path the other tasks in this environment use: none found. Exact path only, no broad discovery. If it is not available, fetch build/0.0.23 via the GitHub API/tarball. SDK V1.2.1 as configured there. Proceed. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

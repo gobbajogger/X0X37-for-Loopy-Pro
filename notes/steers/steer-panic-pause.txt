@@ -1,0 +1,2 @@
+Change from the owner: PANIC will NOT be on long-hold HOME; the help card stays on long-hold HOME. Pause before wiring any PANIC gesture. Keep the PANIC logic itself (all notes and voices cleared on every part, panic glyph, tests) but do not bind it to a button yet; the button will come in a follow-up. Do not push a gesture change. Reply with what you have done so far and your current branch and head SHA.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

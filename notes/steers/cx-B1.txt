@@ -1,0 +1,20 @@
+### B1 - iPhone install: "MIDI connection reset" on Install press
+Repro: iPhone, installer page, press Install -> "MIDI connection reset".
+Existing work: fix/bt-reset-20261031 545edfe45 and fix/bt-reset-guard a20edeec1 (in 0.0.23 - controller failure returns core 1); NOT in 0.0.23: 850a5fefb "serialize MIDI permission writes and reset retry progress" (backup/bundle-codex-tasks-t138/o-lane/nightly-permission-progress-20261023), 1e987ff7e + bbe325d48 installer MIDI connection state tests (lane/installer-build-registry-20261023). Logs: x0x37-results/bt-reset-guard/, bt-reset-20261031/.
+Task: find where the reset happens (device log + installer log), port 850a5fefb/1e987ff7e if they apply, fix root cause, add regression test. Do not change device identity (no USB name).
+Visual: NO (installer message text only).
+
+## Common rules (paste into every brief)
+- Author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>. One brief = one branch from build/0.0.23 = one PR into build/0.0.23 (or the named stacked base).
+- Never touch main, never touch .github/ or Actions.
+- SDK V1.2.1. Build Elite and Pro with X0X_DEV_PADCAL=0. Report static RAM free for both (0.0.23 = 2352 B). Free RAM must not go down without a written reason.
+- No FM-1 code or targets. Do not touch BTIF, USRTRIM, efuse, key_mac or the bootloader.
+- Never use the USB name for device identity (use the package identity / model id).
+- No Miami ADSR.
+- Never reinvent: port the existing implementation named in the brief (cherry-pick or git cherry check first; record which commits you ported, which were already in, and why anything was dropped).
+- Visual changes: attach real-framebuffer BEFORE/AFTER PNGs (host framebuffer dump, 240x240, not drawings) and stop for owner approval before merge.
+- Do not weaken or delete test checks. If a check must change, explain the old and new behaviour in the PR. Register every new test in the host suite.
+- Use the Superpowers and Compound Engineering plugins (plan, TDD, ce-code-review before PR).
+Exclude row 73 (bootloader) and row 120.
+
+One new PR, base build/0.0.23. Do not duplicate other briefs' scope (file ownership above). Report the PR URL, SHA, RAM (Elite/Pro), tests and mockup paths. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

@@ -1,0 +1,33 @@
+{
+  "scope": "Owner explicitly authorized all three supplied breaks in finished project backup/push; not yet published",
+  "originals_unprocessed": true,
+  "files": [
+    {
+      "filename": "crunchy amen.wav",
+      "library_file_id": "libfile_c2da4a4479d88191b7fb472c0b9282b0",
+      "sha256": "f0177048f42719ea739a36f4618738f499cbbd5831c3b377b7b3add045384210",
+      "sample_rate": 44100,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 70589
+    },
+    {
+      "filename": "extremely tasty break tightened.wav",
+      "library_file_id": "libfile_7d104081ea548191942fa1166af14ec6",
+      "sha256": "7ea43aaf08c1fba2a5fb21d7b4b1ec5a333ccaa603db90688394321363fda7bd",
+      "sample_rate": 32000,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 76790
+    },
+    {
+      "filename": "broken s1100 hot pants baggy.wav",
+      "library_file_id": "libfile_e59de2f9d17881918838facdcf7c754f",
+      "sha256": "b737c2809b458541327d8f39672f86702c0636dc1d4d3dc9921382ffd74459ff",
+      "sample_rate": 44100,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 85725
+    }
+  ]
+}

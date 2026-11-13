@@ -1,0 +1,5 @@
+Follow-up: you did not evaluate the Orchestrator's two proposals. Please answer both directly.
+(1) PANIC = long hold of STOP (more than 1 s) on the keyboard and on the SMC; short STOP unchanged. Is this worse or better than FX+SEQ or BANK L+R for an emergency? Consider the MMC preset, where STOP sends no release (no note-off/key-up event), so a hold may not be detectable there.
+(2) PLAY during an open question: close the question as 'no', then play, instead of keeping the question open and revalidating it. Which is safer live?
+Give a clear recommendation for each, with reasons and file/line evidence.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

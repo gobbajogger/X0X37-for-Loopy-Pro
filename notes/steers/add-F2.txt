@@ -1,0 +1,1 @@
+ADD to this task: N6 knobs return to their base values after a pattern change (source commits e6c1cd1c / 03b696f9). Patch-compare, port only what is missing, add a test. Same PR. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

@@ -1,0 +1,2 @@
+Correction for the item4 and item6 redraws: the owner says there is too little text. Use a glyph PLUS a short clear label, for example the effect name 'REVERB', the hint 'FX + < >', and 'HOME + SELECT: RESET SOUND'. It must read at a glance while playing live. Apply this to both redraws before you push.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

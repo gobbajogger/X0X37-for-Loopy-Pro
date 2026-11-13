@@ -1,0 +1,1 @@
+Correction: push WITHOUT explicit author/committer fields (the API rejected them before; the earlier push worked without them). Use the Remote Desktop Commander plugin (already approved) to check that Elite and Pro link. Then post the new head SHA on #734. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

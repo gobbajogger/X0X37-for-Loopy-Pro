@@ -1,0 +1,13 @@
+STAGE: #734 full run + fix (fresh thread, replaces 734fix when idle)
+Read first-lines.txt 1-5 first. Author EVERY commit as gobbajogger <255244738+gobbajogger@users.noreply.github.com>; check raw author/committer after each push.
+Base: current head of integration/all-in-one (#734) — read it on GitHub first; list what prior threads already pushed, do not redo it.
+Do: pull FULL tree via GitHub API (zipball/tree+blob), SDK V1.2.1 from Library. Run tests/run_tests.sh full suite + Elite + Pro builds + XIP size check. Fix every fail on #734 only (new commits, no force-push). Known open: original_miami_backend_voice_active link error (Elite/Pro), remaining host fails.
+Rules: no .github/Actions, no tokens/creds/binaries/raw captures, *_private.h stay, no bass303/wobble.c re-add, no BTIF/USRTRIM/efuse/bootloader, never main/nightly. UI change => before/after mockup pushed.
+Done = post #734 comment: head SHA, suite N pass/0 fail, Elite PASS, Pro PASS, XIP size, logs pushed to docs/test-logs/.
+ALSO (owner 21:43 order): delete from #734 every cloud-handoff *.env file, capture log and ctl.img still in the diff. Merge wip/one-build 675d75fb (docs only) into #734 (merge-forward, no force). Confirm no .github/workflows files are in #734 (only FUNDING.yml allowed).
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+SPLIT (owner 08:52 EDT): this run is split over TWO parallel classic threads on the SAME fixed #734 head SHA (record it). Thread 1: tests/run_tests.sh first half of the host suite + Elite build. Thread 2: second half + Pro build + XIP size. Each posts its half on #734 with the head SHA; 0 fail / 0 skip needed in both. No pushes to #734 during the run.
+SANITARY (fix in a lane branch -> PR into integration/all-in-one, normal commits, author gobbajogger noreply): remove any .github/workflows, .env, capture logs, ctl.img, firmware binaries. Keep *_private.h, blep.h, the 15 Miami .f32 goldens and FUNDING.yml. List wrong-author commits (not gobbajogger noreply); don't rewrite them (MI does one rewrite before merge).
+CHECK: assets/factory-breaks/factory-break-pack.bin (added e5a547a8, Oct 25): confirm if it's a shipped asset the firmware/build loads (KEEP) or a build output (remove in the cleanup PR). Say which with evidence (file/line that loads it).
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

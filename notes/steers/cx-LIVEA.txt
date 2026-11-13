@@ -1,0 +1,43 @@
+Do: L1 (ignore update/bootloader SysEx while playing; usb.c only), L11, and L12 MEASURE ONLY with tools/mix_report.py, with NO level change (any sound change needs owner approval). QB also edits usb.c (SysEx terminator), so keep the L1 hunk small and rebase on QB if it lands first. Do not do LIVE-B or LIVE-C items.
+
+## Brief LIVE-A - live safety, non-UI files (base build/0.0.23, no stacking) - effort: high
+Items: L1 (usb.c), L11 (engine.c), L12 (measure + engine.c trims; sound change -> owner listening approval).
+Files: firmware/src/usb.c, firmware/src/app/engine.c, tools/mix_report.py (run only), tests.
+Done when: host test proves OTA/UBOOT request is ignored while playing and accepted when stopped; BREAK goes quiet within 1 block of mute with no click (peak-step test); LU table before/after attached; RAM reported.
+
+## Findings
+
+Severity: show-stopper = can stop the music or freeze the set; annoying = wrong/unsafe during a set, workaround exists; polish.
+
+| # | What the performer hits | Where | Sev | Proposed fix | Visual |
+|---|---|---|---|---|---|
+| L1 | Any app on the USB host (installer page left open, a MIDI tool replaying SysEx) sends one 6-byte SysEx: the box stops the sequencer and goes into OTA / UBOOT reboot mid-set. No check of transport. | usb.c:897-904 sets usb.ota_req / uboot_req from the ISR; app/main_fm1.c:2486-2499 does seq_stop + ota_session; 2290-2297 same | show-stopper | In usb.c only (do NOT touch main_fm1.c): drop ota_req/uboot_req while seq.playing, seq.req_start/req_cont, or engine_project_notes(); keep a counter `usb.ota_refused` and let the existing editor status reply say BUSY. Host test: request during play is ignored, request when stopped still works. If the owner wants on-device confirm (O_ASK), that is a separate visual item. | no |
+| L2 | Transport stopped in a breakdown (FREE PLAY, reverb/tape-delay tails, or Loopy driving the synths over MIDI): 4 s after the last touch AUTOSAVE erases flash and the audio goes to zero for tens of ms (tails cut, a pop, a note from MIDI lost). Same right after pressing stop with a queued SAVE (save_wait runs at once, no quiet wait outside clip mode). | ui.c:7996-8024 (autosave, AUTOSAVE_QUIET 4000 at :2026), ui.c:2075-2091 + 8006-8012 (save_wait), app/main_fm1.c:114 audio_silence | annoying (near show-stopper) | Add an "audio quiet" gate: autosave and queued save only when master output peak < -60 dBFS for >= 1 s AND no MIDI note/CC in for AUTOSAVE_QUIET, AND not in FREE PLAY with a held/sounding voice. Use an existing master meter (eng_peak) read in main loop; no new audio-ISR work. Queued SAVE after stop also waits for that gate. Host tests with a decaying delay tail and with a MIDI note stream. | no |
+| L3 | LOAD (or RESET) wipes the whole UI state: view jumps to SEQ/909, FREE PLAY switches off for both synths, held keys/arp cleared. Performer loses the screen and keys they were on. | ui.c:7914-7935 ui_project_end -> ui_init(); ui.c:7839-7858 memset(&ui,0) | annoying | Keep view, part, freeplay[], palette page selection across ui_project_end(apply) (save before ui_init, restore after, clamp to valid). Keep the full reset only for factory RESET. | no |
+| L4 | PLAY plays SONG only if the SONG screen is showing; pressing PLAY from MIX/FX/HOME/part screen plays patterns. Easy to start the wrong thing at the start of a song. | ui.c:4125-4126 (`seq.song_on = ui.view == V_SONG` while stopped) | annoying | OWNER DECISION. Option a: song mode is sticky (set by entering SONG, cleared only by a pattern pick or leaving SONG explicitly); option b: keep rule, show SONG/PAT in the header chip (visual). | a: no / b: yes |
+| L5 | Redo is HOME+PLAY and PLAY acts on press: pressing PLAY a few ms before HOME stops the music instead of redo. Undo HOME+REC has the same shape (REC arms on press). | ui.c:4106-4107 (REC/PLAY act on press), ui.c:3626-3640 | annoying | OWNER DECISION: move redo/undo off the transport keys (e.g. HOME+SELECT turn left/right is free only if tempo moves elsewhere; or HOME+< / >). Do not add a chord delay to PLAY (it would add timing latency). | no (help text only) |
+| L6 | No panic outside clip mode. A stuck FREE PLAY / MIDI note (lost key-up, BLE drop) can only be cleared by stopping or loading. | only main_fm1.c:1625-1629 (clip mode NOTE REPEAT) | annoying | Add a global PANIC gesture in ui.c (proposal: hold HOME + press REC + PLAY together, or hold PLAY 1 s while stopped; owner picks): release all 303 voices (original_runtime_all_off), stop BREAK keys, clear live key ring/held tables, send CC123 + CC120 on every channel in use on USB/BLE, say("PANIC"). Does not stop transport. | no |
+| L7 | Tempo moves in whole BPM only and jumps at once (HOME+SELECT and R_TEMPO); no fine nudge to match a band/DJ, no ramp. | ui.c:4141-4145, ui.c:724 | polish | Slow turn = 0.1 BPM, fast = accel as now (seq.bpm is already float, bpm_x10 saved). Optional ramp: owner decision. | yes (one decimal in tempo readout) |
+| L8 | Fader on a muted (level 0) part takes over at once, so raising it jumps straight to the fader position (loud jump). Same rule for keyboard faders. Glide avoids a click, not the loudness jump. | smc_mixer.c:1344-1347, main_fm1.c:871 (keyboard, do not touch) | polish | OWNER DECISION: keep (fast unmute) or require pickup like other values. If changed, smc_mixer.c only. | no |
+| L9 | A fader whose parameter is moved by recorded motion (or by keyboard knob/undo) loses pickup on every change and feels dead until it crosses the value again. | smc_mixer.c:1305-1314 smc_notice clears smc.picked when the value differs | annoying (verify on device with a motion lane) | While the fader is being moved (last move < 300 ms) do not clear picked for changes caused by motion playback; motion_touch already makes the fader win. Host test: motion lane + fader. | no |
+| L10 | Pattern changes only at bar end; no 1-beat or "now" option for fills; when stopped the cue applies at once (fine). | sequencer.c:369-398, 1035-1047 | polish | OWNER DECISION, feature: GLO setting CUE = BAR / BEAT. | yes (new setting row) |
+| L11 | BREAK mute is applied only at the next BREAK step (s_brk), so at slow break rates the loop keeps going up to one step after mute; drums/303 mute per step too. | engine.c:801 | polish | Also set breaks_set_quiet() when the mute bit changes (main loop -> existing cq command), let the existing gate fade do the declick. | no |
+| L12 | Loudness between parts/banks: both 303 slots use the same level 100 whatever the bank, so switching Chicago <-> Miami changes loudness; 909 75 / 808 112 / BRK 120 were set by mix_report against older engines. | engine.c:633-651 (factory mix), engine.c:405/421 bank lookups | annoying | Measure first with tools/mix_report.py on the current build: each part solo and the factory loop, LU and peak per bank. Then add one constant trim per bass bank (and adjust factory levels) so each part is within +/-1 LU of target. Sound change: owner listening approval before merge. | no |
+| L13 | Clip mode: if the Loopy host drops (cable, BLE), the clip grid is replaced by the full "WAITING FOR LOOPY PRO" screen; performer loses the grid while reconnecting. | ui.c:6181-6193 | polish | Keep the last grid, grey it, and show a one-line "NO HOST" banner. | yes |
+
+Counts: show-stopper 1 (L1); annoying 7 (L2, L3, L4, L5, L6, L9, L12); polish 5 (L7, L8, L10, L11, L13). Total 13.
+Owner decisions needed before coding: L4, L5, L6 gesture, L7 ramp, L8, L10.
+Not measured here (needs device): real erase duration in L2, LU numbers in L12, L9 on hardware.
+
+## Common rules (paste into every brief)
+- Author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>. One brief = one branch = one PR into build/0.0.23 (or the named stacked base).
+- Never touch main, .github/ or Actions.
+- Build Elite and Pro with X0X_DEV_PADCAL=0. Report static RAM free for both (0.0.23 = 2352 B). RAM must not go down without a written reason.
+- No FM-1 code or targets; do not touch app/main_fm1.c. No BTIF, USRTRIM, efuse, key_mac, bootloader.
+- Never use the USB name for device identity. No Miami ADSR.
+- No new work in the audio ISR beyond a flag read. No sound change without an owner listening check; no visual change without real-framebuffer BEFORE/AFTER PNGs (host dump 240x240) and owner approval.
+- Do not weaken or delete tests; register every new host test.
+- Use the Superpowers and Compound Engineering plugins (plan, TDD, ce-code-review before PR).
+- Model: GPT-6.1 Sol. Effort per brief as marked.
+
+One new PR, base build/0.0.23. Report the PR URL, SHA, RAM (Elite/Pro), tests and measurements. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

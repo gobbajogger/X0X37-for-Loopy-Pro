@@ -1,0 +1,2 @@
+Add a ROADMAP row on PR #812: fix the 33 known host-test failures plus the 2 not-run tests (the same set as on 0.0.24), after the show. Source: owner via Orchestrator, 2026-11-01. Status: open, scheduled after the 18:00 UTC+10 show. Link it to the #813/#814 QA and to the rate-pad row. Commit through the GitHub API with explicit author AND committer gobbajogger <255244738+gobbajogger@users.noreply.github.com>. Reply with the head SHA and a link to the row.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

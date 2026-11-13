@@ -1,0 +1,10 @@
+ROADMAP R003 check. This is read only: do not change code, commit, push or open a PR.
+Repo: gobbajogger/X0X37-for-Loopy-Pro, branch build/0.0.24 at commit d8086cc09. Read the files through the GitHub API (tree and blob).
+original_sound.c has 22 Chicago and 18 Miami params. In each set, two are PBend and Damper. These are the wheel and pedal (ROADMAP item 4), not panel knobs, so leave them out.
+Check only the 20 Chicago and 16 Miami panel params, against ui_original_controls.h and the key and SMC mappings. For each param, give:
+(a) whether it can be reached from the keyboard and from the SMC, and how;
+(b) the name shown on screen;
+(c) whether its range is correct.
+Owner rule: do not invent or suggest any new knobs.
+Reply with a short table. Then list only the real gaps by name, in plain words. If there are none, say "no gaps".
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

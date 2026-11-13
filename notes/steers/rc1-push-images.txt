@@ -1,0 +1,7 @@
+Push both rc1 images to PR #816's branch chat/rc1-nightly-qa-entry, from /Users/mac/Downloads/0.0.25-rc1-QA-IN-PROGRESS-Elite-Pro.zip:
+- Elite .fwsc, sha256 8f92210448184dd851039c18f92e96556687117a2ffec048b141cf66020c752c
+- Pro .fwsc, sha256 1531b321ed1c113e44db7268442bd67b342bd69614b6fa636f3c55650ffc581f
+Use the existing nightly artifacts layout. Commit through the GitHub API (blob and tree) with explicit author AND committer gobbajogger <255244738+gobbajogger@users.noreply.github.com>. No force-push. Don't merge or publish.
+Update the entry text so it reads clearly "0.0.25-rc1 — QA IN PROGRESS" and carries this warning: "Contains #809 (reported slowdown, measurement pending). #813 has an open AddressSanitizer crash in chicago-fx2-inserts. Not a final release."
+After pushing, download each pushed blob back through the API, re-hash it, and confirm it matches the sha256 above. Reply with the new head SHA, the file paths with raw links, and the re-hashed sha256s.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

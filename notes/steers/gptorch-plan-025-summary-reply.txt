@@ -1,0 +1,10 @@
+The PANIC decision is recorded; builders stay paused until you approve the whole plan.
+First, confirm existing work, owners, remaining decisions and screen mockups; reuse current PRs.
+Fix shared input ownership and clock/transport foundations before dependent controls or gestures.
+Complete Chicago/Miami controls and sound checks, then validate their performance optimizations.
+Add FX+SEQ PANIC and DAW-only SMC BANK L+R; question PLAY means NO then toggle, while HOME+PLAY stays redo.
+Complete SMC peer isolation, FX mappings and screens, then safe save/load, sample and web/editor work.
+Combine the changes and run the full host suite, sound comparisons, Elite/Pro builds and controller/package checks.
+Deliver only after the required checks and separate permissions; a PR or successful build is not an installed release.
+Watch for gesture collisions, changed sound, low memory reserves, and host speedups that do not hold on hardware.
+Dependencies outrank phase labels; failed, skipped or unrun checks still block qualification, and deferred items remain unfinished.

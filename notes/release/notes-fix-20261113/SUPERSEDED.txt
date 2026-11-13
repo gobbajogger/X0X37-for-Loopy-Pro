@@ -1,0 +1,8 @@
+SUPERSEDED 2026-11-13 07:19 CST by Orchestrator correction.
+The owner test on 2026-11-12 (12:33-12:54 UTC+10) was 0.0.25 nightly-1ec5d683-dev, not 0.0.25.1 / 79280e76.
+There is no owner report of a 79280e76 device test.
+Do not use proposed-body.md or proposed-test-status.md.
+The v0.0.25.1 release body stays unchanged ("Device not tested" is accurate).
+The #883 record keeps installation-reported=false.
+v2 (07:20 CST) replaces the superseded v1 drafts. v1 attributed a 2026-11-12 test that was 0.0.25 1ec5d683.
+v3 (2026-11-13 23:22 UTC+10) replaces v2. Basis: owner's own words in Orchestrator chat 23:20/23:22 UTC+10.

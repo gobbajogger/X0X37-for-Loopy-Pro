@@ -1,0 +1,13 @@
+{
+  "complete": true,
+  "frames": 192,
+  "fps": 70,
+  "resolution": [
+    480,
+    480
+  ],
+  "cycles_samples": 48,
+  "audio_sha256": "19dbec641016005cde1e3b9fa4c89497e7eab8c252840d5791dbca3794febb14",
+  "source_tree": "adc73cd56fe25dfc416a70216da9537c1a17695d",
+  "source_candidate_not_rollout_claim": true
+}

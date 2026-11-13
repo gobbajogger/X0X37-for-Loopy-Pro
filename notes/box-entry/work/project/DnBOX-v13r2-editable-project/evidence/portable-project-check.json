@@ -1,0 +1,26 @@
+{
+  "geometry_and_transform_samples_unchanged": true,
+  "sample_frames": [
+    1,
+    16,
+    26,
+    54,
+    90,
+    122,
+    145,
+    169,
+    192
+  ],
+  "objects": 210,
+  "file_images": 0,
+  "fonts": [],
+  "sounds": [
+    {
+      "file": "//assets/audio/approved-master.wav",
+      "packed_sha256": "19dbec641016005cde1e3b9fa4c89497e7eab8c252840d5791dbca3794febb14"
+    }
+  ],
+  "source_tree": "533564a4085bace9e65245b45affbc45c54a647e",
+  "r2_checkpoint_not_final_motion_acceptance": true,
+  "render_not_repeated": true
+}

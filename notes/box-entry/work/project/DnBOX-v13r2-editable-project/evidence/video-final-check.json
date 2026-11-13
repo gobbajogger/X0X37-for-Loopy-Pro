@@ -1,0 +1,51 @@
+{
+  "video_frames": 192,
+  "fps": 70,
+  "video_duration_ticks_at44100": 120960,
+  "audio_master_sha256": "19dbec641016005cde1e3b9fa4c89497e7eab8c252840d5791dbca3794febb14",
+  "video_sha256": "b8369c9703dfcbb690360568f9566c0944ce5d0590f115eacb7e73312b3be8cb",
+  "native_source_HOME_sha256": "18601a74d5201f5f9f9744c2ff679d1248b64707fe2aa873003999d86a16c39d",
+  "source_tree_verified": "533564a4085bace9e65245b45affbc45c54a647e",
+  "source_review_status": "independently approved/native-checked source draft PR634; no integration/rollout claim",
+  "final_pixel_residual": {
+    "raw_Blender": {
+      "different_pixels_480": 13,
+      "max_channel_error": 13,
+      "mean_channel_error": 0.00015046296296296297,
+      "pixel_exact_fraction": 0.9999435763888889
+    },
+    "decoded_H264": {
+      "different_pixels_480": 84916,
+      "max_channel_error": 26,
+      "mean_channel_error": 0.723509837962963,
+      "pixel_exact_fraction": 0.6314409722222222
+    }
+  },
+  "final_UI_object_matrices_constant_frames": [
+    169,
+    181,
+    192
+  ],
+  "scenegraph_no_UI_swap": true,
+  "selected_encoded_frames": [
+    1,
+    16,
+    26,
+    42,
+    54,
+    66,
+    78,
+    90,
+    122,
+    145,
+    169,
+    192
+  ],
+  "video_file": "DnBOX-v13r2-175BPM-box-to-current-UI-final.mp4",
+  "AAC_payload_adts_sha256": "51c9db835482548bd49a14d82a2659effbac34682ff25cd8e30859f9eafaf445",
+  "H264_payload_sha256": "fc37023fe5c9996cd84142d95298ba4d8617d632f54b559f648b01f0bce3ba73",
+  "source_remote_alias": "09449ac0d52df90515bb282f239413f0c23cd4fe",
+  "audio_track_duration_ticks": 120960,
+  "movie_timescale": 44100,
+  "rounding_fix": "Both encoded elementary streams unchanged; corrected container timebase removed6sample declaration rounding."
+}

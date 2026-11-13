@@ -1,0 +1,1 @@
+Correction: FREEZE on #734 (integration/all-in-one). No new feature work goes into #734 until a full host suite + Elite + Pro run with 0 fail / 0 skip is posted on one fixed #734 head SHA. Keep testing your PR on its own branch, but do not merge it into all-in-one until that pass is posted.

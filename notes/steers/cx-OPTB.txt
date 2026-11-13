@@ -1,0 +1,41 @@
+Touch gfx.c only.
+
+### Brief OPT-B: gfx.c draw primitives
+Items B1, B2, B3. Only gfx.c changes (it is included into the ui.c unity build, so check that #789 does not change gfx.c; if it does, rebase onto #789). Branch `opt/0.0.24-gfx`.
+- B1: exact `/15` replacement + hoisted swap16. Include an exhaustive host test for every input value.
+- B2: 32-bit fill in cv_begin, with an alignment/odd-length guard.
+- B3: only if disassembly shows a per-pixel multiply.
+- Proof: framebuffer hash + blit log identical. Report the main-loop frame time (host cycles per ui_frame over the script).
+
+## 1. Ranked findings (gain/risk)
+Gain estimates come from operation counts at 44.1 kHz (budget 11.6 ms per 512-frame half). They are rough. Each brief must measure the real gain: host cycle count (perf stat / -pg) and device PERF CPU% / peak before/after.
+
+| # | file:line | Waste | Change | Est. gain | Risk | Proof |
+|---|---|---|---|---|---|---|
+| A1 | app/engine.c:1803-1836 (render_sub, 303 path, settled branch) | For each bass and sample, 4 separate passes over bb[b]/bb[1-b]: quiet count, meter(L), meter(R), mono downmix (+2 add_glide). That is about 2 loads per sample in excess (L/R reread) of a fused loop, plus loop overhead, x2 basses. | Fuse the two meter() calls and the mono downmix (all after bfx_shape and the dry add_glides) into one loop: read L and R, update the peak, then write `.5f*(L+R)`. Max is order-independent, so the peak is bit-identical. The quiet count must stay where it is, BEFORE bfx_shape, because bfx_shape changes bb. Keep every add_glide call and its order unchanged. | ~0.2-0.5 % audio CPU (2 loads + loop/call overhead x 44.1k/s per bass, against roughly 100-200 cyc/sample total). | Low | Host render, bit-identical WAV + eng_peak trace |
+| A2 | dsp/master.c:276-285, 352-356 (djf_gsmooth noinline, called each sample when DJF mode on) | One out-of-line call per sample even when g == g_t (the usual case) | Inline guard `if (m->g != m->g_t) djf_gsmooth(...)`, else use m->g/m->a1 directly. Same arithmetic. | Only with DJF on: ~10-15 cyc/sample, ~0.3-0.5 % | Very low | Host render with DJF modes 1/2/3, static and sweeping cutoff |
+| A3 | app/engine.c:584-600 (engine_volume, USB AUDIO FULL) | Glide branch + fabs test inside per-sample loop when settled | Split loop: settled (v==vol) loop with only the multiplies; else the existing loop unchanged. | ~0.1-0.2 % (USB FULL only) | Very low | Host render with usb_full=1, knob step + steady |
+| A4 | app/main_fm1.c:75-79 (render_block) | `us*100u/budget` calculated 3 times, plus `/budget` once more: 4 integer divides per half | Calculate pct once. Keep cpu_q8 formula unchanged. | Negligible (<0.01 %). Only cleanup, bundle with A1. | None | Unit test of the stat values |
+| B1 | gfx.c:211-216 (cv_text_clip AA blend) | 3 integer `/15u` per partly covered glyph pixel (plus swap16(c) per opaque px) | Replace `/15u` with an exact multiply-shift `(x*0x8889u)>>19` (exact for x<=945 = 63*15, prove exhaustively on host), or a 16x64 LUT (RAM cost, so prefer multiply). Hoist `swap16(c)`. | Main loop only: text-heavy screens, maybe 5-15 % of the draw time of a text frame. Measure the AA pixel count per frame on host. | Very low | Exhaustive x in 0..945 test + framebuffer hash over all screens |
+| B2 | gfx.c:79-81 (cv_begin) | Fills up to 33 120 px with 16-bit stores each strip, each frame | Fill with 32-bit stores (cv_px is uint16 in .pool, check 4-byte alignment and an odd count). Pixels must stay identical. | Main loop: ~half of fill time, ~1-2 % of a UI frame | Low (alignment) | Framebuffer hash |
+| B3 | gfx.c:107-124 (cv_rect) | Index multiply `y*cv_w+i` per pixel (check -O level in disassembly; the compiler may hoist it already) | Row pointer per row | Small, only if disassembly shows the multiply | Very low | Framebuffer hash |
+| C1 | app/ui.c:4320-4371 (cv_commit_rows) **stack after #789** | Each frame hashes every pixel twice (row FNV and column FNV, ~33k px x 2 mul) even when nothing changed (most frames) | Pass 1: row hashes only. If no row changed and blit_hash set: return. This is the same decision as today, because the code returns before it updates last_* when r0==rows. Calculate column hashes only when a row changed. | Main loop: ~40-50 % of hash cost on idle frames (~1 ms+ of a 16 ms frame, estimated from ~66k mul+xor+ld). | Low | Framebuffer + blit-sequence log (x,y,w,h,hash) identical over the scripted UI session |
+| C2 | app/ui.c:8045-8112 (ui_frame: draw_header/draw_main/draw_knobs every 16 ms) **stack after #789, optional** | The full strip is redrawn each frame, then hashed. Most frames produce identical pixels. | Optional, more risk: skip draw_* for a region when a cheap "input signature" (view, page, values read, seq step, meters, frame-driven animations) is unchanged. Do this only where the signature is provably complete. Otherwise do not do it. | Potentially largest main-loop gain (most of the UI frame). | Medium (a missed input means a stale picture) | Framebuffer + blit log over a long scripted session incl. playback, meters, SMC |
+| C3 | ui.c:8064-8068 (eng_peak/eng_hit decay loops with `i/NDRUM`,`i%NDRUM`) | Divide/modulo per entry each frame | Nested loops | Negligible. Bundle with C1. | None | Framebuffer |
+
+Looked at and rejected (already good, or changing them changes output): render_sub zero-init of dry/rev/dly (needed); add_glide/scale_glide (already have a settled path); fm1_timer5_irq `sub % 5u` (2 kHz, trivial); fm1_ms accumulation loop (bounded); lcd_spin/fm1_lcd_wait busy waits (needed for hardware timing; padled already dirty-gated); master limiter/compressor (MST_CR decimation exists); fxbus retime (only on BPM change); scope/meter loops in engine_render (cheap). Not reviewed in depth and to profile first: leds() (ui.c:7711), smk_frame/smk_grid/smk_ck_poll, smc_frame (smc_mixer.c, #789 file), usb_poll/ble_service in TIMER5 (USB/BLE behaviour risk: not a zero-change optimisation).
+
+## 2. Common rules for every brief
+- Base: `build/0.0.23`. One PR per brief, into build/0.0.23 (or the build branch the owner names). Never main. Do not touch `.github/` or Actions.
+- Commit author: `gobbajogger <255244738+gobbajogger@users.noreply.github.com>`.
+- Build: SDK V1.2.1, both Elite and Pro, `X0X_DEV_PADCAL=0`. Report RAM free for each target against 0.0.23 = 2352 B. A brief must not lower RAM free. Report the code size delta too.
+- Do not build or change the FM-1 target. Do not touch BTIF, USRTRIM, efuse, key_mac or the bootloader.
+- Do not change B2 scope: Chicago/Miami voice DSP.
+- Zero output change is the acceptance gate:
+  - Audio: host render (host/x0x_host.c, or a tests/host harness that uses the production engine.c) of a fixed scenario set. Before/after must be bit-identical (sha256 of the raw int32 L/R stream and of eng_peak/eng_scope traces). The set must include: all parts playing, solo/mute, LEVEL/PAN/send sweeps, preset switch fade, DJF modes 1-3 static and sweeping, limiter on/off, comp on, USB FULL on/off with a MASTER step, a dense-event pattern, and a silent idle.
+  - Screen: host UI render (the ui_glyph_polish_render.c-style harness with the real ui.c/gfx.c). Store a sha256 of cv_px after each draw and a log of each lcd_blit (x,y,w,h,pixel hash). The log must be identical before/after over a scripted session (all views/pages, overlays, text-heavy lists, playback with meters, LIGHT and dark palettes).
+  - Run the existing tests/host suite: it must stay green.
+  - Gain: give host cycle counts before/after for the changed functions, and the device PERF CPU% avg/peak if a device is available. If a change gives no measurable gain, drop it.
+- Use the Superpowers (TDD, verification-before-completion) and Compound Engineering (ce-work, ce-code-review) plugins. Write the identity test first, and make it fail on a deliberately wrong change.
+
+PROOF REQUIRED: bit-identical audio output / identical framebuffers before vs after. Do not overlap B2 (synth voice DSP). One new PR, base build/0.0.23. Report the PR URL, SHA, RAM (Elite/Pro), CPU gain and tests. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

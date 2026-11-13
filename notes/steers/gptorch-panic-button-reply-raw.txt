@@ -1,0 +1,566 @@
+
+I’ll read both attachments and check those calls against the current source and review receipts, especially whether #789’s fixes are verified and whether F3 really satisfies rows 24–29. I’ll separate intentional behavior, unresolved bugs and remaining 0.0.24 coverage without starting another repair or test run.
+
+
+
+Partly. I agree with keeping the intentional behavior, but not with marking every listed issue fixed or “fine as is.” Both attachments describe older inputs than the current PR heads.
+
+1. Audit calls
+
+smc_connected OOB: corrected in #789’s production source. But “all 14 base test failures fixed” is not yet supported. Earlier bff24bbd has producer evidence for 47 selected checks, 22 sanitized link cases and both model builds. Latest b860e160 changes three fixtures for four further selectors and explicitly leaves those changes unrun. Follow-up limits. Also, an out-of-bounds access should not be certified as “only a cosmetic hint” from inspection alone.
+Q-P2.1 power-cut fallback: valid data-preservation concern. Recovery must select a coherent valid project, preserve recoverable flash and prevent defaults from silently overwriting it.
+Q-P2.5 generation/key release: valid cancellation invariant to check, but the audit itself did not reproduce a stuck note or trace every generation change. Use existing LIVERISK #810, not a new PR. Head 357efa1e has follow-up fixture/declaration corrections; the same reviewer’s rerun remains pending. Handoff.
+Clock hold and source-drop release: keep both. Clock loss must remain distinct from explicit Stop; source loss must release only that source’s notes. Last-tempo hold does not automatically settle the separate whole-BPM rounding and 275 BPM cap questions.
+For the other Part 2 calls:
+
+2.2 mixed settings/sound/pattern generations: not automatically fine. Individually valid objects can still form a musically inconsistent project. Define the permitted recovery combinations and test them; stream fallback alone may not close this.
+2.3 dropping Note On before Note Off: keep this overload safety policy, but a lost attack is still a musical dropout. It does not satisfy zero-loss operation under the agreed workload.
+2.4 UAC silence/reprime: keep the recovery mechanism. The underrun that triggers it remains a failure against your zero-dropout goal.
+2.6 halving a long delay: preserve the existing sound for now, but a shorter delay is not the selected division. Document and verify the limit rather than claiming full timing fidelity or changing it during optimization.
+2.7 truncated SysEx: next-F0 recovery is useful, but does not prove all disconnect, status-byte, realtime-byte and source-isolation cases safe. Retain the existing parser/admission checks.
+Use distinct finding names: the attachment’s B1/B2 mean OOB/test failures, whereas the release briefs’ B1/B2 mean iPhone install/dropouts. Mixing them risks closing the wrong bug.
+
+2. F3 no-change
+
+“No new implementation needed” is reasonable; “rows 24–29 fully accepted” is not established. At bb190749:
+
+24: independent A/B slice state and counts already exist.
+25: keyboard slice navigation already exists; interaction/readability acceptance is separate.
+26: MIDI output exists, but its current documentation still calls the output mapping a proposed default requiring musical acceptance.
+27: BREAKS pitch bend exists.
+28: Jungle grain stretching exists.
+29: CRAMEN, TASTY and HOTPANT assets exist. The default app build still has an empty bank, so the final package must explicitly include and verify the stock bank.
+There is also stale documentation saying the three assets are unavailable, contradicting the stock README. Don’t request them again or recreate BREAKS. Keep F3 as implementation retained; acceptance and package evidence pending. Controls/MIDI contract, stock package contract.
+
+3. Remaining 0.0.24 gaps
+
+The major list is unchanged from the reconciliation:
+
+Explicit coverage for omitted partial rows 73, 81–88, missing row 120, and regression preservation of the 20 historical “done” rows.
+Row 8 per-note sound lock, still explicitly unported; unresolved editor/two-way-sync outcomes must not be closed by offline editing alone.
+Exact #810 recheck, #811 parameter-drift validation, actual iPhone installation/audio and device key-to-sound latency evidence.
+One frozen combined source/package, full test-union results, controller/model identities, stock-bank inclusion, RAM/stack and peak CPU margins, plus the installed package pin.
+Sound/PCM and picture equivalence for optimizations; idle CPU alone cannot prove peak headroom.
+The status attachment is stale: #801/#805 attribution corrections are already delivered, #806 includes discovery work, #807 has newer source, B4 is now #811, and #800 now incorporates the latest #789. Those are real advances, but not a combined 0.0.24 acceptance. I did not run tests or change code for this assessment.
+
+
+
+Please recheck these 6 decisions against the archive, registry and current PRs: 1) F4 #800 rebases onto #789's latest head, takes #789's transport mapping, multi-hold consumes arrows (FX-only quick taps still pending the owner). 2) #810 fixes the freeplay declaration and cancellation assertion; same reviewer re-checks. 3) #790: settings read failure keeps the old object and blocks persist, with a test. 4) #806 reconciles #770/#771 to remove the installer name filter (hardware/firmware identity only, model match kept, iPhone path works). 5) #803 drops the pad-diagnostics UI, keeps proof checks; F6 community/full-song parts deferred. 6) #789 must publish the single-peer OOB fix. Flag any conflict.
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.
+
+
+
+I’ll recheck all six against the current PR heads and the archive/registry, and flag where the proposed decision differs from what is implemented or actually tested.
+
+
+
+Mostly agree with the direction, but decisions 3–5 need corrections, and 2/6 have already advanced.
+
+F4 #800: confirmed in source. Head 99b93edd includes latest #789 b860e160, adopts its transport behavior, and consumes arrows when multiple FX buttons are held. FX-only quick taps remain undecided; current quick-tap handlers are unchanged. Combined tests/builds remain NOT_RUN. Consumption receipt.
+
+#810: correction and same-reviewer recheck are now done. At 357efa1e, the original reviewer reports normal and ASan/UBSan runs passing, 17,065 direct checks, and two negative controls failing as intended. This closes that scoped Free Play regression, not full firmware/device acceptance. QA receipt.
+
+#790: agree as the required fix, but it is not implemented yet. Current f0ab01ab still converts a negative settings read into defaults and writes them in project_device_bt_save(). Generic read failure also lacks the proposed persistence block. Distinguish confirmed empty storage from an I/O failure: preserve existing stored bytes, block overwrite, and test failure followed by a controlled successful retry. Existing atomic-chain/size tests do not prove this. Coordinate with #810’s storage changes. Current source.
+
+#806: name-filter reconciliation is delivered; “iPhone works” is not verified. b46fff14 incorporates #770 and reconciles #771 without overwriting newer generated pages. Preserve protocol, pairing, ambiguity and destination safeguards. Important qualification: the inspected same-keyboard helpers allow SMK-family equivalence, not strict Elite/Pro equality or unique physical identity. Don’t treat removing the display-name whitelist as proof of safe same-device continuity. Actual iPhone validation remains NOT_RUN. #806.
+
+#803: defer diagnostic UI, retain proof checks. There is no diagnostic UI in its current patch to remove. Its proof repair already has scoped independent acceptance; the PR/registry wording still needs to reflect row 74’s deferral. For F6, name the deferred items: 119 community library and 76 full-device song import/export. Don’t silently defer 103/104 sound round-trip/live sync, or backup/restore/data-safety work. Existing #808 offline editing is separate and should remain.
+
+#789: the single-peer OOB fix is already published and now independently scoped verified. It remains in b860e160. The original reviewer checked the production function with one/two peers under UBSan/bounds, and restoring the unsafe indexing triggered the expected abort. Clear this specific finding; don’t duplicate the push. This does not close the 14 base failures or whole-PR QA. Latest receipt.
+
+Main conflicts: calling #790 finished, claiming iPhone success, treating family matching as physical identity, or counting deferred registry rows as complete. This recheck was read-only; I reused the existing reviewers’ results rather than starting another review round.
+
+
+
+Decision 3 has now advanced: #790’s new source at 16ba9e23 adds read-failure preservation, blocks persisting fallback defaults, and retains pending Bluetooth settings intent. It also adds failure/retry and byte-preservation regression cases.
+
+Those tests and builds are explicitly NOT_RUN. The existing reviewer still needs to validate this head, and the integrator must reconcile its shared storage/project changes with #810. Older #790 test/build receipts do not cover this update.
+
+
+
+Independent QA accepted #811’s scoped B4 host regression at 491a77ea: 61,972 assertions across 20 configurations, sanitizer checks, and a negative control that correctly failed.
+
+This validates the tested parameter-ownership behavior, not the physical drift symptom. Base-reproduced fixture failures, full-suite/native builds and measured RAM remain open. The existing integrator still owns combined-candidate validation.
+
+
+
+Independent QA also accepted #795’s TEST-profile protection at 9e6440f7: 4/4 host checks and 2/2 sanitizer checks passed; deliberately allowing writes into a protected range correctly failed.
+
+This is host/mock proof only. The broader 33 failures and 2 unrun checks remain unresolved, and physical flash/OTA and package validation are still pending.
+
+
+
+Independent QA accepted #797’s scoped IRQ, queue and SysEx checks at c1b09d5c: 9/9 host regressions and 3/3 sanitizer checks passed, and the deliberately broken IRQ-unmask control failed as expected.
+
+The 22 baseline failures, device timing, BLE/USB soak and package qualification remain unresolved. Integration is still pending.
+
+
+
+The storage handoff has moved forward: #810 now contains #790’s changes at ea991b09, combining Bluetooth retry/save protection with damaged-store recovery.
+
+The combined source is remote, but its tests and independent acceptance are still pending. The earlier scoped QA does not approve this new combined tree.
+
+
+
+The SMC/F4 branch #800 also consumed #806, bringing in version reporting and name-independent MIDI discovery while retaining the NEXT-pattern glyph. Head: 75ca8b57.
+
+This combined source still needs affected UI/discovery validation and independent review; iPhone and physical-device identity checks remain unverified.
+
+
+
+#807 now combines the F1, F4 and F5 work, including #806 and the latest #789 ancestry, at 314f181f. Its earlier outdated-stack limitation is resolved at source level.
+
+The merged UI and test conflicts still need validation on this exact tree; no new combined test or QA result is posted yet.
+
+
+
+#806 received scoped independent acceptance at b46fff14. Its host selection was 5 pass / 1 fail: the USB-name UTF-16 terminator compiler warning also reproduces on the base. Three Node checks passed, and the invalid-SHA negative control failed as intended.
+
+This is not a fully green result. The compiler failure, combined #800/#807 validation, native packages, screen renders and iPhone/device checks remain pending.
+
+
+
+#804 now has scoped independent QA acceptance at 982bf98e: three Node suites passed, covering 22 mock MIDI scenarios and 10 restore dispositions. The reconnect regression fails on the unchanged base and passes the candidate.
+
+The physical iPhone MIDI-reset issue is still unproven. Its existing owner needs the actual browser URL and paired installer/device traces; this acceptance does not establish device or package readiness.
+
+
+
+#800 advanced to e81dc430: strip 8’s select caption is now MIX, and eight test files were updated, including the newer #789 fixtures. No new passing test or render evidence is posted yet.
+
+#807 still contains the older #800 version, so its integrator needs to carry these changes forward and qualify the combined result.
+
+
+
+#807 has now incorporated the latest #800 changes at fa22346a, closing the dependency gap reported earlier. Combined tests and render evidence are still pending, as is integration with #810.
+
+
+
+#811’s revised SMC parameter-routing test now has independent QA at f753ee66: normal and sanitizer runs passed, and the deliberately wrong SMC view failed as expected. QA evidence.
+
+That closes this test’s qualification gap. Combining B4 with the other changes and validating the combined firmware remains with the existing integrator and QA owners; device and RAM results are still unverified.
+
+
+
+#810 at 45a7285e now has independent scoped QA for its combined storage and live-key changes: 8/8 selected host suites and 4/4 sanitizer selectors passed. Removing the save-protection guard produced 31 failures, confirming the regression check catches it. QA evidence.
+
+This closes the selected #790/#801 integration checks inside #810. The larger #807/#810/#811 combination, full builds and device validation remain pending with the existing owners.
+
+
+
+#805’s updated USB-audio test harness now has independent scoped acceptance at b558c1b0: Apple clang, clang with ASan/UBSan, and GCC 15 each passed 3,627 checks. The unchanged-base negative control failed eight checks as expected. QA evidence.
+
+This is host-test evidence. iPhone streaming, target interrupt timing and combined firmware validation still need proof.
+
+
+
+PR #806 now contains the exact-model flash guard at 62cf11e9: installer writes reject cross-model packages rather than accepting any SMK-family model. Regression tests were added, but the changed gates still need the existing reviewer’s validation; downstream branches still contain the older version. This does not yet prove physical-device continuity or iPhone operation.
+
+
+
+Website PR #113 merged and selects 0.0.24, source d8086cc0, in the repository catalogs. There’s an acceptance gap: the exposed review status started after the merge, and I haven’t verified independent acceptance of that catalog or the live download bytes. Its claimed 374 host passes and native builds remain reported evidence; hardware is explicitly untested.
+
+
+
+Update on #113’s review: it completed with no findings on 71f4f3e at 00:49:34 UTC, after the merge. That closes the running-review status; firmware qualification and live download verification remain open.
+
+
+
+PR #114 merged the strict model check into the deployment branch, without changing firmware packages. The supporting source and tests still need the producer’s follow-up source PR, and review is still running. Live-site verification remains open.
+
+
+
+#809’s independent QA found a performance regression: changing strips and knobs are about 32% slower across five alternating Mac benchmark rounds. Audio/framebuffer identity passed, but the optimization needs changes. The existing OPT-C producer needs to revise or drop C1 and reconcile the newer SMC fix before returning it to QA; these timings are not device measurements.
+
+
+
+Installer #114’s review has completed with no findings on 9e2d35fe. It completed after the merge; the supporting source/test follow-up and verification of the live installer remain pending with the installer owner.
+
+
+
+#802’s independent QA now confirms byte-identical audio, idle/restart and short stress outputs on bfecd02c; sanitizer checks passed and the deliberate gain-error control failed as expected.
+
+Performance remains unresolved: host benchmarks improved settled volume and mono, but stereo’s median was 13.3% slower with noisy timings. The existing optimization owner retains that investigation. Device CPU, long stress, full builds/packages and hardware remain untested.
+
+
+
+#799’s independent QA passed five selected host checks and two sanitizer checks on 9973e7e9. Behavioral negative controls failed as expected.
+
+Remaining gaps: the admission guard proves internal refusal, but not a BUSY wire response or ED_INSTALL handling; ISR timing and loudness/peak measurements are still missing. These stay with the existing producer, and this is not full firmware or device acceptance.
+
+
+
+#791’s QA passed the motion and pattern-handoff tests, including sanitizer runs, on b7ae1dd8. A deliberate removal of the departing-pattern restore made the test fail.
+
+This validates regression coverage of existing recording behavior; production motion code is unchanged. Outstanding recording features and physical recording/knob checks remain open.
+
+
+
+#794’s independent QA now passes five web/project checks at ed5c33ab, with both negative controls failing as intended. Full qualification remains open: the recorded full suite still has 23 failures and 3 unrun checks, and cross-client atomicity, archive/device readback and the installer’s separate 480-byte path still need evidence. Those remain with the existing F6a producer and integrator.
+
+
+
+#793’s graphics checks also passed independent scoped QA at 9bc0ac56: 1,454 renderer cases match the base, with sanitizer, unaligned-access and negative-control checks passing. This does not yet validate target speed or the combined firmware; the broader recorded host run still has 19 failures. The existing producer/integrator retains those next steps.
+
+
+
+#792’s QA found a Mac test-harness issue: the production alignment guard correctly traps, but the test rejects macOS’s SIGTRAP result. The existing Q3 producer needs to accept that signal and rerun the affected test without weakening the guard. Four other scoped checks passed; full firmware/package qualification remains pending.
+
+
+
+#808’s scoped QA passed 86 Node tests and 4 pack tests at 019b8219, including negative controls for collisions and unsafe live writes. Browser/Lua checks and actual TouchOSC/iPhone validation remain unrun; atomic device sync and live sound round-trip are still incomplete. The existing F6b owner retains that qualification work.
+
+
+
+Full request attached; read all of it and reply with the FINAL rule text.
+
+
+
+I’ll read the full attachment and return the final rule text.
+
+
+
+
+Full request attached; read all of it and reply with the FINAL rule text.
+FINAL — DnBOX organization and delivery rules
+Version 2026-11-01. Replacement for org-rules-draft.md.
+
+This is the final rule specification, not a claim that the scripts or enforcement already exist. Preparing this text does not authorize implementation, repository changes, publication or device operations.
+
+Authority and enforcement
+Apply platform safety and actual permissions first, then the latest explicit owner instruction for the exact scope and action. Older files, role names, workflow modes, status labels and quoted approvals cannot expand authority. Preserve applicable freezes, active ownership, cancellations and actual denials until valid superseding evidence exists.
+
+A gate is enforced only when the action executor checks it and refuses the action on failure. A checklist, pasted PASS line, editable GATE.txt or later audit is not enforcement.
+
+Every merge, publication and device-write route must enforce its applicable gate. Before claiming protection, verify that alternate credentials, API routes, bypass flags and raw installers cannot evade that gate within the managed execution boundary. Changes to credentials, permissions or protections require their own authorization. Until that boundary is established, report “enforcement not established”; do not pretend a voluntary script makes mistakes impossible.
+
+Use the previously accepted gate version to assess changes to gate code or policy. A candidate cannot weaken its own acceptance criteria and approve itself.
+
+Gate receipts come from the trusted runner and bind the operation, repository, destination, policy version, source/tree/base, scope revision, evidence and artifact hashes. The executor verifies the receipt and current inputs immediately before acting. A receipt is evidence, not permission.
+
+One work list, one policy source
+AGENTS.md contains current operating policy. docs/ROADMAP.md is the canonical human-readable work list. Keep technical specifications, licenses, tests, images, logs and immutable evidence separately, with links from the roadmap.
+
+Keep the existing machine-readable request, role and delivery records while tools depend on them. They must use the same IDs and evidence as ROADMAP.md. They must not become a second independently edited backlog. The existing sole admission/ledger writer controls state changes; Docs Keeper maintains the roadmap presentation through that flow.
+
+Do not create intake/pending.md and intake/ideas.md as additional live queues. Use Intake and Ideas sections within ROADMAP.md, or the existing intake system with a generated roadmap view.
+
+Each canonical item must have:
+
+Stable ID and namespaced aliases. Preserve existing request IDs; do not renumber them merely to introduce R-NNNN.
+Plain title and complete behavior: trigger, result, limits and exclusions.
+Source reference, date and verified authorization provenance.
+Decision state: proposed, agreed, deferred, rejected or blocked-record-recovery.
+Explicit release commitment, or unassigned. “Agreed” alone does not mean “must ship next release.”
+Applicable models and surfaces. DnBOX targets Elite and Pro; FM-1 is not an admitted target.
+Current accountable owner, active work unit and PR links.
+Dependencies, overlapping controls/scopes, and their resolution.
+Acceptance criteria and evidence references.
+Next action, receiver and completion criterion.
+Keep source delivery, independent review, host tests, native builds, visual validation, package qualification, publication, installation and hardware acceptance separate. Each applicable check is PASS, FAIL, NOT_RUN or BLOCKED; N/A requires a recorded reason under the accepted acceptance contract.
+
+“Done” means the item’s declared outcome has been delivered and evidenced. A source-only task can be done as source delivery; that does not mean the feature is installed or shipped.
+
+The linter validates structure, references, unique IDs and valid transitions. It does not impose arbitrary word counts or reject honest unresolved records. Empty acceptance criteria block implementation admission.
+
+Intake and forgotten agreements
+Record every owner request in the same session, before dispatch. Keep the original source accessible privately where needed; public records contain a nonsecret technical summary and a provenance reference, not private owner quotations.
+
+For meetings, reconcile each recorded agreement to a canonical item, a documented duplicate, or an owner-authorized rejection. Report the complete read-back with full behavior descriptions. Existing explicit agreement does not need another routine “yes.” Silence is not approval of a changed scope.
+
+Never ask the owner what “M5,” “item 5,” or another forgotten item number means. Recover it from conversations, meeting notes, recordings, archives and prior work. Record what was searched and what remains unavailable.
+
+If recovery fails, retain blocked-record-recovery with the original alias and source. Do not invent its meaning, delete it, mark it rejected, move it to later, or turn the agent’s lost record into an owner question. Continue unrelated work. Do not claim that the affected meeting or release is fully reconciled.
+
+Before calling a feature missing, inspect the current registry/crosswalk, delivered source, relevant PRs and retained archive evidence. An old tracker entry is not proof of present absence.
+
+Duplicate and conflict checks
+Keyword searches identify possible matches; they do not decide equivalence. Compare intended behavior, acceptance criteria and source provenance before merging records. Preserve every alias and source when duplicates are consolidated.
+
+Check active claims, open and relevant historical PRs, branches and supported worker state. Complete required pagination. Failed or stale reads mean unknown, not “no duplicate.”
+
+Check shared controls and state paths, not just files: press/release, long hold, modifiers, mode, page, part, connection and cancellation. HOME long-hold PANIC and HOME+part reset must have an explicit coexistence rule and positive/negative tests.
+
+An overlap is not automatically an owner decision. Resolve technical coexistence within agreed behavior. Ask only when a real unresolved product choice, authority or material risk requires the owner.
+
+Dispatch and ownership gate
+dispatch_check must validate the accepted item revision, current scope, exact base commit, branch, model/configuration, dependencies, affected tests, exclusions, receiver and done criteria.
+
+Acquire the active claim atomically through the existing sole admission writer, using an expected state revision. Search-then-write is insufficient. Two simultaneous claims for overlapping work must not both succeed.
+
+One cohesive work unit has one accountable producer. One PR may cover several items; one item may have sequential or explicitly disjoint PRs. Do not impose one PR per row forever. Preserve historical PRs and explicit handoffs.
+
+Receivers validate the issued claim receipt against current state. A first-line PASS string is not a claim. Record the receiver’s first substantive action separately from a sent pointer.
+
+Preserve external chat owners and independent reviewers. Do not infer release from silence. Within the admitted DnBOX chain, use at most six concurrent native subagents across the chain, not per event. Do not create Work/Codex tasks or new Chat threads. Existing continuations retain their branches; new admitted unowned implementation uses wip/<lane>, unless an explicit scoped owner assignment names another branch.
+
+A substantial implementation/integration plan must be reported with a recorded message receipt before implementation or integration. Reuse the accepted plan; do not restart it at each event.
+
+Implementation and scope gate
+Implement only the admitted behavior and necessary supporting changes. Map changed behavior and diff hunks to the accepted scope, including affected callers. A row ID in a commit or an allowed filename does not authorize unrelated changes inside that file.
+
+Record useful extras as proposals; do not implement them without admission. Do not remove existing behavior, reduce audio quality, weaken tests or consume protected data space to make a task pass.
+
+Use isolated owned workspaces. Serialize shared-file mutations and hardware sessions. Stop only owned processes by verified PID, never broad kill commands.
+
+For repairs, establish the cause with current evidence and meaningful fail-before/pass-after plus affected negative tests. Do not make every source repair wait for physical INLOG when an adequate authorized reproduction exists. Do not claim that a synthetic reproduction proves hardware behavior.
+
+For optimization, measure before/after on identical inputs and account for code, RAM, decoder/cache overhead and worst-case behavior. Host timing is not device CPU, latency or XRUN evidence.
+
+Review, source delivery and merge gate
+Keep source fixed during an independent review. Preserve the existing reviewer, stable findings and review budget. Review only affected changes and unresolved findings in later rounds. Timeout, refusal or exhausted budget is HOLD, not approval and not permission to rename the package and restart.
+
+Normal source delivery requires the applicable review and test evidence, exact remote commit/tree/file readback and a usable PR receipt. Preserve current author and committer policy: gobbajogger 255244738+gobbajogger@users.noreply.github.com. Matching those strings does not substitute for authenticated authority.
+
+Use GitHub API/connector routes in Chat, not network Git. No force push, protection bypass, automatic GitHub Actions tests or .github changes.
+
+merge_check validates current head/base, accepted destination, sole merger claim, scope, independent acceptance, unresolved findings and exact required evidence. Recheck head/base at execution; a changed merge result requires affected requalification.
+
+During iteration, run focused checks and reuse unchanged proof. Firmware integration and packaging qualification require the full required host suite and Elite and Pro builds on the selected immutable inputs, with zero failures and zero skips. Missing or environment-blocked required checks remain NOT_RUN/BLOCKED. “Zero new non-environment failures” is not equivalent.
+
+Documentation-only work needs content, link and policy checks, not firmware builds. Source review, BUILD_ONLY, merge, publication and device acceptance remain separate.
+
+Only the existing qualified merger may use an expressly authorized target. These rules grant no main/nightly merge, publication or device authority. Separate current action-specific permissions remain applicable; an older blanket branch ban does not erase them, and a broad permission does not override a narrower task restriction. Never blindly retarget stacked PRs.
+
+Images and visual evidence
+Preserve original supplied images and accepted references by content hash and provenance. Check additions, modifications, deletions, renames and replacements. Existence alone and diff-filter=DR are insufficient.
+
+Asset changes require mapped scope and review. Keep prior versions recoverable; do not retain obsolete runtime assets merely to preserve history. Never strip images or private headers simply because of their filename.
+
+Within admitted visual work: mockup → independent semantic/readability/edge-state/feasibility review → implementation → actual candidate validation. Label proposals as proposals. Use real firmware-framebuffer renders where required, and actual browser interaction for web acceptance.
+
+Report meaningful completed visual stages and the actual preview before rollout. Do not add an owner-aesthetic-response wait where current authority makes the preview informational. A specifically scoped mockups-only instruction still forbids implementation.
+
+Release commitments and completeness
+Before release qualification, pin the agreed release obligation set, acceptance criteria, model matrix and source provenance. Keep an append-only decision history.
+
+A release check must compare against that baseline, not only today’s remaining rows. Deleting a row, marking it rejected, changing its target/model, weakening acceptance or silently substituting a feature cannot remove a commitment. Such changes require a verified applicable owner decision.
+
+Existing behavior remains a regression obligation. A feature commit being an ancestor proves provenance only: later commits may revert or break it. Require current-candidate behavioral evidence.
+
+A test filename appearing in a log is not coverage. Reconcile the expected test inventory against actual executions, outcomes and complete logs. Missing selectors, unregistered tests, interrupted runs and silently reduced inventories fail qualification.
+
+A selected 21-test union, a focused PASS or a PR list must never be presented as the entire host suite.
+
+Exact roadmap_gate.py contract
+Command:
+python tools/gates/roadmap_gate.py --release <version> --candidate <full-commit> --roadmap-ref <full-commit> --baseline <immutable-release-scope-receipt> --evidence <evidence-manifest.json> --artifacts <directory> --destination <authorized-destination> [--dry-run]
+
+The gate resolves and verifies inputs; it never silently uses “latest.” It performs these checks:
+
+RG01 Schema and provenance: valid canonical records, stable IDs, aliases, source reconciliation, authorized transitions and complete relevant input reads.
+
+RG02 Release scope: every baseline obligation is present; all additions, deferrals, rejections, model changes and acceptance changes have valid provenance. Unresolved record-recovery gaps affecting completeness block qualification.
+
+RG03 Behavioral coverage: every committed item/model meets its acceptance criteria on the candidate. No unresolved blocking conflicts, unsupported done claims or ancestry-only acceptance.
+
+RG04 Evidence integrity: verify producer/reviewer identities, exact source/tree, configuration, SDK/toolchain/controller/generated-input closure, commands, complete logs, exit statuses and expected test inventory. Reject stale, fabricated, truncated or mismatched receipts.
+
+RG05 Required qualification: full host suite and Elite/Pro builds satisfy zero-fail/zero-skip requirements; applicable audio, storage, installer, visual and other required checks pass. Host estimates do not satisfy required hardware checks.
+
+RG06 Real package targets: parse each package and payload, verify supported model, build target, board/layout compatibility, address ranges and provenance. Filenames, manifest text and an embedded display string agreeing are not enough. Reject FM-1 payloads for SMK-37.
+
+RG07 Bluetooth completeness: verify the actual matching controller bytes inside the assembled install package, expected digest, size, format, configuration, version compatibility and safe placement. A nonempty ctl.img, self-computed CRC or bt_bundled flag alone is insufficient. Controller reuse requires proven unchanged inputs and identical bytes.
+
+RG08 Assets: verify retained/reference hashes, authorized changes, independent visual evidence and actual candidate renders for relevant UI work.
+
+RG09 Release configuration and budgets: X0X_DEV_PADCAL=0; free pool at least 8192 bytes under the supplied applicable policy; no flash/RAM-region overflow; all other required model-specific limits and safety reserves satisfied. Missing limits block qualification; never invent or silently lower them.
+
+RG10 Publication authority and content: exact destination/action permitted, required ownership present, distribution rights established and excluded material absent. No credentials, unrelated private samples, raw captures, restricted SDK/toolchain material or other prohibited bytes.
+
+Complete install-package qualification and lawful publication are separate. If the required controller cannot lawfully be redistributed, block that publication. Do not publish restricted bytes or silently omit Bluetooth. A separately authorized local-assembly delivery must verify the complete assembled package before installation.
+
+Output one machine-readable JSON report and readable lines:
+GATE <check-id> PASS|FAIL|BLOCKED|ERROR <reason>
+
+Exit codes:
+
+0: all applicable requirements pass.
+1: an evaluated requirement fails.
+2: invalid invocation or malformed schema.
+3: required input, dependency, identity, authority or evidence is unavailable/unverifiable.
+4: internal gate execution error.
+Report all findings. For mixed categories, use precedence 4, then 2, then 3, then 1. Every nonzero exit, timeout, signal, malformed output or missing required receipt blocks the next action.
+
+Dry-run issues no action receipt. A real successful run atomically issues an immutable trusted receipt with the complete artifact allowlist, sizes and SHA-256 hashes. Failed attempts cannot leave a reusable stale PASS. Preserve earlier receipts as history, not as substitutes for the failed candidate.
+
+The publisher verifies receipt authenticity, current authority, exact destination and artifact bytes immediately before upload. Reject unlisted files, path escapes, symlink substitution and changed bytes. Verify remote hashes and catalog/installer linkage afterward. An uncertain upload is reconciled before retry.
+
+Device-write gate
+This section defines requirements only; it grants no device access, probing, flashing or recovery permission.
+
+The authorized device operator must verify the current exact model/action grant before any protected device operation. An editable quote in flash/grants.md, a role title, an old automatic-install rule or a package PASS is not sufficient authority.
+
+Use a verified physical identity mechanism independent of USB display names, port order and mutable application model strings. Confirm board/model compatibility and physical continuity through reconnects. A supplied serial or one connected device alone does not prove either. If the hardware cannot provide sufficient identity, block the write; do not invent support or fall back to a name.
+
+Under an exclusive session lock, bind a short-lived, one-use write receipt to the verified device, artifact hashes, permitted address ranges, grant and verified backups. Revalidate immediately before writing and after reconnect. Wrong-model, same-model swapped-device, stale-sibling and changed-package cases must fail.
+
+Before writing, verify readable off-device backups of occupied sample slots, project/calibration data and required layout metadata. Preserve existing backups. Never write BTIF, USRTRIM, efuse, key_mac or other protected ranges. Bootloader work requires a separate explicit scope and cannot be inferred from an install request.
+
+Use the supported guarded installer and supervise the operation. Afterward, verify firmware/controller readback and per-slot content/CRC plus metadata. A whole-file CRC does not replace per-slot preservation checks. Report mismatches immediately; no automatic rollback, recovery or repeated write without applicable authority.
+
+Questions and reports
+Before asking, search the relevant existing decisions and evidence. Do not make an incomplete search look complete. Never ask the owner to reconstruct forgotten item numbers.
+
+Ask promptly for an actually missing decision, permission or material risk. Describe the behavior and consequence in plain language, with options where useful. Do not force an unsafe default or restrict necessary questions to one message per day.
+
+Batch routine summaries. Do not suppress meaningful completed-stage reports, changed blockers, safety notices, required approvals or verified delivery until a daily slot. Send each result once.
+
+A daily review, when already authorized, checks changed items, upcoming release obligations, unresolved record recovery, actual owners/consumer actions and violations. It does not create extra schedulers or repeat unchanged audits. A blocked stage blocks only dependent work.
+
+Violations and gate verification
+The trusted runner records append-only receipts. Audit actual action records against them, not just agent-maintained PASS text.
+
+Before enabling an enforced gate, independently test:
+
+Direct action without a receipt; forged, expired and replayed receipts.
+Deleted/retargeted release obligations and weakened acceptance.
+Concurrent duplicate claims.
+Reverted implementation with ancestor evidence.
+Missing, skipped, failing, removed and unregistered tests.
+Modified assets at unchanged paths.
+Dummy/wrong controller payloads.
+Consistently mislabeled FM-1 images.
+Package substitution after PASS.
+Wrong-device/reconnect/same-model swap and revoked grants.
+API failure, incomplete pagination, missing history and malformed logs.
+Unsafe cases must block; legitimate authorized cases must pass. Use simulation for device negatives unless physical testing is separately authorized.
+
+A violation stops the unsafe action and its dependent work, preserves evidence and identifies the cause. Resume only after the relevant correction and regression proof. Do not halt unrelated lanes, reset review budgets, delete evidence or alter automations.
+
+Transient recovery uses the current bounded retry policy. Denials, cancellations and exhausted reviews are not transient errors. Never blindly retry an uncertain write.
+
+Migration and consolidation
+Migration is a separate authorized documentation task, not a side effect of this review.
+
+Inventory all 174 claimed master-tracker entries and the earlier roadmap sections. Recount the actual rows. Preserve an immutable original snapshot and a crosswalk from every old entry to its canonical item or evidence record.
+
+Merge genuine duplicates only after semantic review. Preserve distinctions between similarly numbered aliases. M1/L6 may map to one PANIC request; M2/L8 may map to one retained muted-fader decision. M5 remains blocked-record-recovery until recovered.
+
+Do not convert “in 0.0.24” into qualified or done. Many supplied rows explicitly say partial, source-only, research-only or NOT_RUN. Preserve those limits and verify actual source adoption instead of assuming that a “merged” tracker label means the PR itself was merged.
+
+Consolidate current operating policy from:
+
+agent-rules.md and rules/core.md, commit.md, device-bug.md, docs.md, install.md, integration.md, owner-messages.md, shared-work.md and style.md.
+steers/preflight.txt.
+Both supplied AGENTS_AND_ROOMS.md versions.
+Applicable operating-policy entries in USER_PREFERENCES.md.
+Move applicable behavior decisions, commitments and open work into ROADMAP.md; retain detailed behavior specifications separately.
+
+After crosswalk completeness, evidence retention and link checks pass, replace obsolete operational copies with canonical pointers or archive them as explicitly historical. Remove duplicate live status maintenance from FEATURE-REGISTRY, briefs, spreadsheets, lane plans and handoffs. Keep their unique technical/reference content.
+
+Update x0x37-builder-loop and fast-firmware-one-build to reference canonical policy rather than copy it. Do not delete licenses, technical manuals, immutable logs, screenshots, approved source headers, backups or required runtime records merely to leave two files.
+
+Explicit conflict resolutions
+Final prohibition on asking about forgotten item numbers overrides draft S1.6, G7 and the M5 “ask owner” next step.
+Current autonomous visual stages override older blanket owner-aesthetic reply waits; exact mockups-only scopes still apply.
+Current authorized public-source delivery overrides historical box-only/no-GitHub text, without permitting restricted bytes.
+Current gobbajogger author/committer requirement overrides historical genkigenki identity.
+The full exact-input qualification bar overrides “zero new non-environment failures.” Focused iteration and docs-only checks remain valid.
+The supplied 8192-byte pool minimum overrides its historical 4096-byte predecessor; other applicable limits remain.
+Latest exact device authority overrides historical automatic installs. No workflow mode grants hardware access.
+Current explicit scoped routing overrides historical room IDs and branch names. Age alone does not release an owner or end the #734 freeze.
+Current action-specific merge grants apply only to their named role/target/scope; this DnBOX source-delivery chain grants no merge/publication authority.
+Required checks cannot be bypassed with skip-quickcheck, --force, trial results or manual PASS messages.
+Complete Bluetooth packaging does not override distribution restrictions.
+Immediate material reports and necessary questions override daily-only silence.
+Use one shared gate library with thin intake, dispatch, merge, release and device entry points. Do not build separate frameworks for word counts, ordinary message formatting or banning all Markdown tables. Add controls only where they prevent a specific failure, and test that they actually block the unsafe action.
+
+
+
+Full request attached; read all of it and reply.
+
+
+
+I’ll read the whole attachment and reply to its request.
+
+
+
+
+Full request attached; read all of it and reply.
+Read the whole attachment. All four directions can work live, but I would tighten them before implementation. This is a design review of the supplied audit, not a fresh code or device test.
+
+SMC HOME + strip SELECT: keep, with safeguards.
+Use only strips that actually represent a part, outside FX. Capture that strip’s target, including its locked context, rather than whichever part happens to be selected elsewhere.
+Restore the last successfully saved sound only. Leave level, pan, sends, mute, samples and fader pickup unchanged. If there is no valid saved sound, do nothing and show that clearly. Make the reset one undoable operation.
+
+HOME must be down first. Fire once, and consume both inputs so ordinary SELECT and the HOME help card do not also fire. Do not reset behind an open question. Sound-only reset can still cause a loud timbre change, so test it with held notes and effect tails; avoid blocking flash reads in the live path.
+
+Hold FX + < >: keep, but define every overlap.
+Exactly one held FX button: arrows step its assigned effect. Two or more held FX buttons: do nothing with the arrows and indicate the ambiguity. Never fall through to page navigation.
+On the FX page, SMC note 6 must be FX-only across all routes, including Up/Down save/reset and its release-time navigation tap. Otherwise the collision survives even after fixing < >.
+
+When stepping a sounding effect, release the old effect cleanly, activate the new one, and ensure releasing the button releases the new effect too. No stuck effect or unintended double activation. Replace the stale CYC caption with feedback for the actual gesture.
+
+There is still a reachability gap: if SMC HOME is an FX button there, HOME+< > cannot also be the SMC’s page-change gesture. Document the remaining usable page-change route rather than claiming both gestures work on that device.
+
+PLAY/STOP through a question: strongly keep.
+Make this unmodified PLAY/STOP, dispatched once on the normal press edge. “Always passes through” would otherwise steal the existing HOME+PLAY redo chord. Keep HOME-first redo behavior without delaying ordinary PLAY.
+The question stays open and keeps its original target. Starting playback must not make a later “yes” clear a different part or perform an operation that is now unsafe. Revalidate the captured target and operation before confirmation executes.
+
+Also, “SMC 5/6 answer the question before FX logic” does not by itself prove no FX clash. Test an FX button held before the question appears: its release must still stop its effect, without accidentally answering the question.
+
+RW/FF top bar with part + cue: keep.
+Replace the duplicate toast, and show the actual selected-or-locked target: for example, “909 → P5.”
+Keep the display tied to the real pending cue. Clear it when the cue actually applies or is cancelled, not simply at the next bar. With transport stopped, those are different events. Cancellation must name the part too: “909: cue cancelled.”
+
+Make part-only and all-part cues distinguishable. Do not hide an open question, switch the keyboard’s page, or imply that one displayed cue is the only pending cue.
+
+Two audit statements need correction:
+
+“Only mockups exist, so no conflict” is false: a proposed drum-fill button can already conflict with the agreed 32 FX buttons. Do not silently reduce that to 31.
+Keep L5 as an explicit “retain current gesture” decision, rather than implying a new implementation was completed.
+PANIC is off HOME; the help card stays on HOME. The old HOME-hold PANIC proposal is superseded. I have not chosen another PANIC button.
+
+
+
+Third request: the owner wants PANIC (all notes off on every part + short panic glyph) on a different button, NOT long-hold HOME (the help card stays on HOME). Using conflicts-0.0.24.md (sent above) and the button maps in ui.c, smc_mixer.c and main_fm1.c on build/0.0.24 (d8086cc09), find the best FREE button or combo for PANIC on the keyboard and on the SMC: easy to reach in an emergency, impossible to hit by accident while playing live. Check it is not used anywhere now. Give your top pick for each device plus one backup, with file/line evidence.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.
+
+
+
+I’ll check the button routes on d8086cc09 and give a primary and backup PANIC gesture for each device, with file/line evidence. I’ll prioritize fast access and resistance to accidental presses, though no physical gesture can guarantee zero accidents.
+
+
+
+
+Third request: the owner wants PANIC (all notes off on every part + short panic glyph) on a different button, NOT long-hold HOME (the help card stays on HOME). Using conflicts-0.0.24.md (sent above) and the button maps in ui.c, smc_mixer.c and main_fm1.c on build/0.0.24 (d8086cc09), find the best FREE button or combo for PANIC on the keyboard and on the SMC: easy to reach in an emergency, impossible to hit by accident while playing live. Check it is not used anywhere now. Give your top pick for each device plus one backup, with file/line evidence. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.
+My picks: keyboard FX + SEQ; SMC BANK LEFT + BANK RIGHT. Both are currently unassigned combinations, but neither is a harmless drop-in gesture: their individual buttons already have functions that the PANIC handler must suppress.
+
+I checked the requested source at d8086cc09203945919c70d3c805f8ca3e6acbe5a, including the supporting button maps and input routes. No physical reachability or accidental-press testing was performed.
+
+Keyboard
+
+Top pick: hold FX + SEQ together. Neither button performs its ordinary action on press; they open/change pages on release. That makes this pair cleaner than transport, recording or bank-switch buttons. I found no existing combined FX+SEQ handler in the inspected routes. Actions: ui.c 3806–3831, press/release dispatch: 4202–4211.
+
+Backup: hold FX + PARA together. Also no combined assignment found, with release-only ordinary actions. It is worse because PARA can cancel a pending sound change if recognition fails. ui.c 3786–3795.
+
+The physical labels map to B_FX, B_SEQ and B_EDIT respectively. Clip-mode controls do not intercept these pairs. panel.c 29–37, clip controls: main_fm1.c 1618–1623.
+
+HOME stays untouched. Help requires exactly one held button, so a recognized dual-button gesture need not take it over. ui.c 1903–1921.
+
+SMC
+
+Top pick: hold BANK LEFT + BANK RIGHT together, notes 0x2E + 0x2F. No combined handler found. This avoids HOME, transport, recording, mute/solo and all 32 FX buttons. However, individual presses already change part/track/drum bank, including locked targets. PANIC recognition must intercept them before either action happens. smc_mixer.c 1468–1480, 1870–1930.
+
+Backup: hold UP + DOWN together, notes 0x60 + 0x61. No combined assignment found, but more conflicts: these change knob bank, and with HOME held they save/reset FX cutoffs. Use only if recognition suppresses those paths; otherwise reject this backup. smc_mixer.c 1700–1715, 1821–1827.
+
+Important limitation: these held SMC gestures require DAW-mode press/release messages. Stock User/MMC supplies no physical release and bypasses held tracking. I cannot recommend a reliable held chord for that preset from this code. smc_protocol.h 5–14, smc_mixer.c 1970–1977.
+
+Required behavior before either pick is safe to implement
+
+Deliberate two-button hold, initially about 0.5–0.75 seconds as a proposal, then physical testing. No confirmation dialog.
+Fresh presses from the same device; fire once; release both before rearming. Held musical notes must not prevent PANIC.
+Consume both buttons and their releases. On SMC, a short chord-detection window necessarily delays ordinary bank navigation slightly.
+Work through open questions without answering them. The existing modal paths currently block ordinary controls, so merely adding a normal button action is insufficient.
+Clear every part’s note ownership and applicable outgoing notes, and show the short glyph. Do not assume the existing clip-mode NOTE REPEAT panic covers everything: it sends CC123 on one clip channel. main_fm1.c 1646–1650.
+Do not use OCT−+OCT+, KNOB BANK or “STOP+PLAY” as supposedly spare controls. OCT pairs have calibration/update duties; KNOB BANK switches clip mode; the SMC’s physical PAUSE key controls target lock.
+
+So: FX+SEQ and BANK LEFT+RIGHT are the cleanest candidates, not verified accident-proof controls. No code or mappings changed.
+
+
+
+
+
+

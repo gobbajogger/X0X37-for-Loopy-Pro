@@ -1,0 +1,2 @@
+Also mark ROADMAP row R003 (Chicago/Miami knob reach, names and ranges) as verified and agreed by the owner, source 2026-11-01 15:44 UTC+10, with a link to PR #798. Commit through the GitHub API with explicit author AND committer gobbajogger <255244738+gobbajogger@users.noreply.github.com>. Reply with the head SHA and a link to the row.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

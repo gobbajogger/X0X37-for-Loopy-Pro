@@ -1,0 +1,3 @@
+RW/FF (0x5B/0x5C) must NOT open any popup. Show a short top notification bar (pattern glyph + arrow + number, e.g. NEXT PAT 5), auto-hide ~1 s. PLAY stays no popup. No visual approval wait: owner approved without preview. Also fix smc_connected OOB (smc_mixer.c:328).
+
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

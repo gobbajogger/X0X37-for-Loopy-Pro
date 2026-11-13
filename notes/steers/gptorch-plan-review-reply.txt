@@ -1,0 +1,52 @@
+I’ll check the 0.0.24 plan against your decisions and the latest evidence, separating release blockers from intentional live-performance behavior that must be preserved.
+
+The 0.0.24 scope is sensible, but it is still a collection of candidates, not a qualified release plan. The biggest problems are unsafe “idle zero,” conflicting UI branches, and treating partial fixes/tests as completed features.
+
+What needs correcting
+
+#789 still has a real blocker. Independent QA confirmed the single-peer out-of-bounds read remains at ee89337b. The earlier UBSan failure applies to the unchanged defect; it is not a fresh full-head test. Keep its existing producer on the bounded peer-access fix and disconnected-single-peer regression. QA finding
+
+F4 can undo the new transport behavior. #800 still uses the old popup-key handling, while #789 changed it. Its producer explicitly identifies the same-hunk conflict. #807/F5 also rests on an older #789 parent, and #806 version embedding touches the UI. These need deliberate composition by the existing owner, preserving transport, SELECT8/clip exclusions, waveform/ADSR and version display together. Do not blindly merge the stacks or replace current UI with 9e237cce. F4 handoff
+
+“Skip DSP in silence” needs a much stricter definition. Zero output, mute and a zero fader do not prove an engine is idle. Envelopes, phase, modulation, filter state, tails and pending notes may still need to advance. Require equivalent retrigger/unmute/wake behavior and no clicks. F1 already rejected a nonadvancing idle shortcut. #802 currently covers the narrower settled-volume optimization, not all OPT-A or idle-zero work. Clarify that “808/909 idle” concerns existing drum voices, not adding engines beyond Chicago/Miami.
+
+Dropout work is not solved by better averages. #796 is diagnostic evidence and still has peak deadline failures. Graphics or silent-idle savings do not establish worst-case live audio safety. Keep the peak failures open until measured on the combined candidate; host timings are not device CPU/XRUN proof.
+
+Do not mark whole feature groups done from narrow evidence.
+
+#790 has scoped atomic-switch acceptance, not full transport or settings-safety acceptance.
+#791 proves a motion-handoff test, not completion of all motion behavior.
+#792/QC still has wider failed/unrun checks.
+#794/F6a does not close all installer, physical-target, backup and interruption cases.
+#795 flash guards do not prove complete restore/OTA safety.
+F1, F4, F5, LIVE-A and version embedding retain execution/combined-validation gaps.
+
+Carry existing defects into the release checklist. In particular: settings read errors must not become defaults that get saved over valid settings; DnBOX names must survive installer/device filtering; physical target identity must survive reconnect/loader rename without accepting a swapped device. USB queue work now has useful scoped acceptance in #805, but must be composed with #797 and LIVE-A rather than declared solved everywhere. #805 acceptance
+
+Add interaction tests, not just one test per PR. Test a bar-boundary pattern/chain switch with instant tempo change, queued mute, a moved muted fader, held/released notes, an FX tail, SMC reconnect and pending autosave. Explicitly define HOME-chord precedence so HOME+part cannot also trigger panic on release or a long hold. SMC yes/no must answer only the visible active dialog, once, without also performing its normal button action.
+
+Intentional behavior that must not be “fixed away”
+
+These follow your decisions; this list does not claim they are all implemented:
+
+PLAY does not open a popup. Rewind/Forward use the top notification bar.
+SMC can answer the keyboard’s active yes/no dialog.
+Pattern changes wait for the bar boundary. Preserve existing PLAY and undo/redo timing rather than inventing new quantization from the shorthand.
+PANIC is long HOME, not an ordinary HOME tap.
+A muted part ignores fader movement, then jumps to the physical fader position on unmute. Generic pickup must not override this exception.
+Tempo changes immediately.
+Autosave is optional and silence-only. STOP, mute or zero output alone must not be treated as proof of safe silence.
+Queued mutes are controlled by a setting, not compulsory.
+FX throw and 909/808 fill belong on the SMC FX page.
+HOME+part restores the saved sound.
+Scenes are postponed; 32 patterns is an accepted limit.
+
+Historical SMC behavior to preserve unless explicitly superseded: unlocked page-follow, per-peer locked mappings, and the temporary page peek that returns to the remembered page without unlocking. Unexpected page movement while locked is a bug; the temporary peek itself is not.
+
+What the final plan is missing: one selected combined SHA, preserved test-suite union, exact SDK/toolchain/controller/generated-input pins, combined model-specific RAM/pool/stack budgets, real framebuffer validation, audio fidelity and peak-load checks, and separate source/build/package/device acceptance. #803 improves test-runner trust but does not make all existing results green. Unrun checks stay NOT_RUN.
+
+I would make those explicit acceptance conditions for 0.0.24, while keeping the musical decisions above as protected regression expectations.
+
+One update to my 0.0.24 review: #796 now contains a Chicago/Miami control-recompile optimization at 401404f35af0aa47d7edfb7459131cdb1e243c0c, so my “diagnostics only” description is superseded.
+
+Its new evidence reports 379,667 differential checks and identical PCM. M4 stress runs meet the stated budgets, but the baseline also passes; Linux peak failures remain. Reported native code grows by 624 bytes per model, with free RAM unchanged. Independent acceptance, full-suite qualification and device dropout proof are still pending. The PR body still describes the old diagnostics-only state and needs reconciliation by its existing owner.

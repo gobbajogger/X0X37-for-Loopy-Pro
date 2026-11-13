@@ -1,0 +1,6 @@
+URGENT owner ask: build a test candidate in parallel with the QA. Don't commit to any PR branch, don't touch main, and don't install or flash anything.
+Candidate: build/0.0.24 + PR #813 (a41651e9) + PR #814 (dcc9833f). Read the full tree through the GitHub API (tree and blob) and build with the Remote Desktop Commander plugin.
+Build Elite and Pro with SDK V1.2.1 and X0X_DEV_PADCAL=0, with the BT controller a334208b bundled (61,552 B, CRC32 564a8f55). package_nightly --check must pass. Use a strict model match: SMK-37 Elite_900 / SMK-37 Pro_900, no FM-1.
+Keep all the images and report the sha256 and size of each one, plus the measured pool headroom (at least 8,192 B) for Elite and Pro.
+STOP before publishing. Get the nightly entry ready under the name "0.0.25-rc1 QA IN PROGRESS", as a separate entry that doesn't replace 0.0.24, but don't publish it until I send the go.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

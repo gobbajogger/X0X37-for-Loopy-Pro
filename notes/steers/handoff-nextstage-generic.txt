@@ -1,0 +1,8 @@
+STAGE: next stage of <PR/branch> (fresh thread)
+Read first-lines.txt 1-5. Author gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
+First read the branch head + PR comments on GitHub; list what is already pushed; continue ONLY what is not done. Target integration/all-in-one (#734).
+Full tree via API, SDK V1.2.1, full suite + Elite + Pro; UI => before/after mockup pushed. Post status comment with SHA + results.
+Same rules as handoff-734qa.txt.
+
+6) Before you start: check that no other thread owns this PR. FREEZE: no new features into #734 until its full pass is posted.
+Owner rule 09:11 EDT: in this ChatGPT thread, always use the Superpowers and Compound Engineering plugins whenever appropriate.

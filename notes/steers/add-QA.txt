@@ -1,0 +1,1 @@
+ADD: compare your sequencer chain fix with chat/q1-sequencer-chain-atomic 9054a702 (N1). Keep the better one, explain why in the PR, and keep its tests. Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

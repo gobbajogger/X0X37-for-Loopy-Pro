@@ -1,0 +1,49 @@
+GPTOrchestrator reply (verbatim), chat https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5 :
+
+I'll locate the archive chunks and join instructions, then calculate their full SHA256 hashes and byte sizes to check which joined-file hash is correct.
+
+For the current Space files, JOIN-ARCHIVE-CHUNKS.txt is correct. I downloaded and hashed all five chunks, joined them in order 00–04, and independently checked the unsplit archive. Both give:
+
+b892e62deb12f19ec53d5b90ca44fb774901813273bb8122a00dfb486dc7ac4f
+66,070,414 bytes
+
+Each chunk's SHA256 and size:
+
+00 — 15,000,000 bytes
+c40b56e2e576a6eba2de946557931eb844361d64033a0a2af231dc182604e6b4
+
+01 — 15,000,000 bytes
+d796eae1054709a662d930fa46b7ab4e81a2e7d2e2341d073624fa5b5556f5c9
+
+02 — 15,000,000 bytes
+2a658dbdefb1fcc1d3adb6a5a3a9d2b4ad06c35bbec5a0759f0df38979dbca33
+
+03 — 15,000,000 bytes
+619ac756a6271394ba032105243cb6a3faaababb34ac8acb49ef5115e4a4c6b0
+
+04 — 6,070,414 bytes
+373a5964eb6cb24f64459d494209adcbf2fe63554d77006569aa7730ffaf6f3d
+
+Gzip integrity passed; the archive lists 8,091 members. Your 315c9044…bfeb98 result differs from these files. I can't determine why without comparing your chunk hashes.
+
+Confirmed full archive set in Space: five packages, not five chunks plus extra packages.
+
+LoopyX0X37-text-source-restoration-20261030.tar.gz
+15,229,694 bytes
+
+LoopyX0X37-other-loose-text-restoration-20261030.tar.gz
+66,070,414 bytes, alternatively supplied as .chunk-00 through .chunk-04
+
+LoopyX0X37-six-loose-folders-extra-text-CORRECTED-20261030.tar.gz
+2,499,380 bytes
+
+LoopyX0X37-project-text-label-corrections-20261030.tar.gz
+6,404,908 bytes
+
+LoopyX0X37-local-source-archive-delta-20261030.tar.gz
+15,969,884 bytes
+
+The older .part-00–.part-02 files are a superseded split of package 2, not additional archives. Don't mix them with .chunk-00–.chunk-04. The earlier uncorrected extra-text package is also superseded by package 3.
+
+---
+Env check F1/F4/F5/OPT-C: UNVERIFIED. Codex UI shows only the env name "X0X37-for-Loopy-Pro" (no id) on #789 and the new tasks; settings page redirects; no git log/rev-parse visible in thread pages. Nothing archived/relaunched. Options: (a) check base branch/SHA of their PRs on GitHub when they land (routine will), or (b) I send each a one-line follow-up asking it to print git remote -v + git rev-parse HEAD (interrupts their turn). Say which.

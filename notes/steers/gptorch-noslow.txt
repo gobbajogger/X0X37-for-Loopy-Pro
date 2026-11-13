@@ -1,0 +1,2 @@
+Owner rule, 15:49 UTC+10: firmware must only get faster. Add a "no slowdown" gate to the 0.0.25 plan: any PR or build that is slower than the previous build, on host or device CPU, is a blocking failure and must not merge or publish. Confirm the gate text.
+Owner rule: always use the Superpowers and Compound Engineering plugins in this thread whenever appropriate.

@@ -1,0 +1,9 @@
+When your current step is done, fold these into docs/FULL-SOURCE-FETCH.md on branch docs/full-source-fetch:
+1. A blob-SHA manifest at the live wip/one-build head (re-read via API), and a method that fetches only the PR diff against it.
+2. The SDK V1.2.1/toolchain paths that build.sh checks.
+3. A preflight script (Pillow, ASan, node, reference folders) run before the suite.
+4. Run the suite in the background and poll for results; set X0X_TEST_JOBS to the CPU count.
+5. Build Elite and Pro in one session.
+6. A fixed PR status-comment template: head SHA, base, pass/fail/skip, delta vs base failures, Elite/Pro results, blockers, next step.
+Push via the GitHub plugin/API only (no git over the network, no GitHub Actions), then post a status comment on the draft PR.
+Commit as gobbajogger.
