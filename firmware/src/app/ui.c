@@ -1217,7 +1217,11 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     switch (r.kind) {
     case R_ENG:
 #if !X0X_ORIGINAL_SYNTH
+<<<<<<< HEAD
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+=======
+#if X0X_DEV_WOBBLE
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
         if (r.a == T_303 && engine_bass_is_wobble(r.b)) {
             /* Miami shares T_303 indices with Chicago, but none of its pot
              * laws are Chicago's. Format the actual WBL1 controls first. */
@@ -4005,6 +4009,7 @@ X0X_COLD static void button_tap(int b)
     }
 }
 
+<<<<<<< HEAD
 /* Physical Free Play rate pads, ported from 6ae0928's division_pad_* route.
  * Original Miami keeps its native macro13/division order. Shape pads untouched. */
 static int division_pad_owner(void)
@@ -4057,6 +4062,8 @@ static void division_pad_input(void)
 #endif
 }
 
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 #if X0X_ORIGINAL_SYNTH
 /* 37 physical identities, not indices into the legacy 27-key tables. */
 typedef struct {
@@ -5129,8 +5136,9 @@ static UI_DRAW void draw_header(void)
         put_i(b, shown);
     }
     text_r(212, vc(&FONT_S, 1, 17), &FONT_S, b, seq.ext ? C_AMB : C_HI);
-    if (seq.playing && (!seq_clock_waiting(&seq) || (ui.frame & 32u)))   /* EXTERNAL waits: it blinks */
-        play_icon(217, 4, (eng_step[TRK_DRUM] & 3) == 0 ? C_WHITE : C_HI);
+    { uint8_t phase = seq.metro_view;  /* audio-owned phase, neutral in STOP/WAIT */
+      play_icon(217, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
+    }
     if (ui.rec)
         dot(231, 9, 4, RGB(255, 50, 50));
     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
@@ -7453,7 +7461,10 @@ X0X_COLD void ui_init(void)
 #endif
     int i;
     memset(&ui, 0, sizeof ui);
+<<<<<<< HEAD
     (void)plat_division_pad(0);
+=======
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 #if X0X_ORIGINAL_SYNTH
     original_controls.valid = 0;
 #endif

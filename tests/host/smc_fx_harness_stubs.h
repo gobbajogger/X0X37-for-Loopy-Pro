@@ -18,3 +18,12 @@ static void __attribute__((unused)) smc_fx_load_page(int page) { (void)page; }
 /* These source-extracted queue fixtures do not exercise the lock gesture.
  * The production integration smc-lock-beat test owns its timer/loss coverage. */
 static void __attribute__((unused)) smc_lock_tick(void) {}
+
+/* UI ownership is covered by the production mixer fixture. Queue extractors
+ * include release/poll but deliberately omit framebuffer and platform time. */
+static struct { uint8_t on, peer; uint32_t until; } __attribute__((unused)) smc_ui;
+#define smc_held(state) 0
+#define plat_ms() 0u
+#define SMC_UI_MS 1200u
+static void __attribute__((unused)) smc_ui_cancel(void) { smc_ui.on = 0; }
+static void __attribute__((unused)) smc_mode_cleanup(void) {} /* tested in mixer_ux_test */
