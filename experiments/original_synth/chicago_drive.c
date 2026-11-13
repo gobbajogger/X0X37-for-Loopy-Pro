@@ -1,6 +1,15 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "chicago_drive.h"
+/* original_drive_table is the same Q15 ramp as x0x_q15_ramp258
+ * (i*258 for i=0..126, 32767 at 127). Rename the pinned static so this
+ * unit does not emit a 256 B copy. The private file is not edited.
+ * LTO previously merged this table with the Chicago linear copy; a
+ * lone global must also serve the drive setter or the merge is lost. */
+#define original_drive_table original_drive_table_unused
 #include "chicago_drive_private.h"
+#undef original_drive_table
+extern const int16_t x0x_q15_ramp258[128];
+#define original_drive_table x0x_q15_ramp258
 #include <limits.h>
 #include <string.h>
 static int32_t si(uint32_t u){return u<=INT32_MAX?(int32_t)u:(int32_t)((int64_t)u-4294967296LL);}

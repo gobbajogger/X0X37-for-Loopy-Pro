@@ -5,6 +5,7 @@
  * chicago_modulation.c. The pinned file is not edited. */
 #define miami_decimator_wet miami_decimator_wet_unused
 #include "miami_decimator_tables_private.h"
+#undef miami_decimator_wet
 extern const int16_t x0x_q15_ramp258[128];
 #define miami_decimator_wet x0x_q15_ramp258
 int miami_decimator_adapter_init(miami_decimator_adapter_t *s)
