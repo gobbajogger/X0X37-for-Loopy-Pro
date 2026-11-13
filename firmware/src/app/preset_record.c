@@ -545,6 +545,11 @@ static int load_into(preset_record_t *out, const uint8_t *buf, uint32_t len)
     }
     nparams = buf[96];
     nsamples = buf[97];
+    /* An envelope can have a valid CRC and fit PRESET_MAX_BYTES while
+     * declaring more elements than the in-memory arrays can hold. Reject
+     * before copy_n / rd_sample, including the structural load-only path. */
+    if (nparams > PRESET_MAX_PARAMS || nsamples > PRESET_MAX_SAMPLES)
+        return PRESET_ERR_PAYLOAD;
     if (rd_u16(buf + 98) != 0 || rd_u16(buf + 10) != 0)
         return PRESET_ERR_FLAGS;
     if (record_size(nparams, nsamples) != total)
@@ -643,6 +648,20 @@ int preset_record_import(preset_record_t *rec, const uint8_t *buf, uint32_t len,
         return PRESET_ERR_ENGINE;
     *rec = tmp;
     return PRESET_OK;
+}
+
+/* File/transport boundary: unlike the internal decoder, do not accept
+ * arbitrary trailing bytes after a complete DNPR record. No slot writes. */
+int preset_record_import_file(preset_record_t *rec, const uint8_t *buf,
+                              uint32_t len, uint16_t target_engine)
+{
+    if (!rec || !buf)
+        return PRESET_ERR_NULL;
+    if (len < PRESET_HEADER_BYTES)
+        return PRESET_ERR_TRUNCATED;
+    if (len > PRESET_MAX_BYTES || rd_u32(buf + 12) != len)
+        return PRESET_ERR_LENGTH;
+    return preset_record_import(rec, buf, len, target_engine);
 }
 
 int preset_record_verify_sample(const preset_record_t *rec, unsigned index,

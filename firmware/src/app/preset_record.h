@@ -240,6 +240,13 @@ int preset_record_decode(preset_record_t *rec, const uint8_t *buf, uint32_t len,
 int preset_record_import(preset_record_t *rec, const uint8_t *buf, uint32_t len,
                          uint16_t target_engine);
 
+/* Strict file/transport entry point. Requires the declared total length to
+ * equal the supplied file length (no hidden suffix), then uses the native
+ * import validation. A failure never mutates *rec. Firmware integration
+ * must still provide stopped/quiet gating and durable storage separately. */
+int preset_record_import_file(preset_record_t *rec, const uint8_t *buf,
+                              uint32_t len, uint16_t target_engine);
+
 int preset_record_verify_sample(const preset_record_t *rec, unsigned index,
                                 uint32_t actual_crc);
 int preset_record_verify_samples(const preset_record_t *rec,

@@ -955,6 +955,98 @@ static void test_808_nsamples_and_crc(void)
               "R5 one sample ok");
 }
 
+
+/* Capacity boundaries: a valid CRC and short total length must not permit
+ * malicious nparams/nsamples to overrun preset_record_t. Both structural
+ * and semantic entry points preserve the destination on any rejection. */
+static void test_untrusted_array_counts(void)
+{
+    static const struct { uint8_t np, ns; } cases[] = {
+        { 193u, 0u }, { 255u, 0u }, { 0u, 17u },
+        { 0u, 25u }, { 144u, 17u }
+    };
+    preset_record_t user;
+    uint8_t buf[PRESET_MAX_BYTES];
+    uint32_t encoded = 0;
+    unsigned i;
+    struct guarded_record {
+        uint8_t before[16];
+        preset_record_t rec;
+        uint8_t after[64];
+    } got, saved;
+
+    make_user(&user, PRESET_ENGINE_808, "bounds");
+    expect_eq(preset_record_encode(buf, sizeof buf, &encoded, &user),
+              PRESET_OK, "bounds seed encode");
+    for (i = 0; i < sizeof cases / sizeof cases[0]; i++) {
+        uint32_t total = PRESET_HEADER_BYTES + PRESET_PAYLOAD_HEAD +
+                         (uint32_t)cases[i].np +
+                         (uint32_t)cases[i].ns * PRESET_SAMPLE_REF_BYTES;
+        expect(total <= sizeof buf, "bounds malicious envelope fits max");
+        if (total > sizeof buf)
+            continue;
+        memset(buf + PRESET_HEADER_BYTES, 0,
+               sizeof buf - PRESET_HEADER_BYTES);
+        buf[96] = cases[i].np;
+        buf[97] = cases[i].ns;
+        buf[12] = (uint8_t)total;
+        buf[13] = (uint8_t)(total >> 8);
+        buf[14] = (uint8_t)(total >> 16);
+        buf[15] = (uint8_t)(total >> 24);
+        rewrite_crc(buf, total);
+        memset(&got, 0xA5, sizeof got);
+        saved = got;
+        expect_eq(preset_record_load(&got.rec, buf, total),
+                  PRESET_ERR_PAYLOAD, "bounds structural load rejects before copy");
+        expect(memcmp(&got, &saved, sizeof got) == 0,
+               "bounds structural load preserves record and canaries");
+        expect_eq(preset_record_decode(&got.rec, buf, total, 0),
+                  PRESET_ERR_PAYLOAD, "bounds decode rejects before copy");
+        expect(memcmp(&got, &saved, sizeof got) == 0,
+               "bounds decode preserves record and canaries");
+        expect_eq(preset_record_import_file(&got.rec, buf, total, PRESET_ENGINE_808),
+                  PRESET_ERR_PAYLOAD, "bounds strict file import rejects");
+        expect(memcmp(&got, &saved, sizeof got) == 0,
+               "bounds file import preserves record and canaries");
+    }
+}
+
+/* The wire record is the file: surplus bytes, a wrong engine, and a newer
+ * schema are refused before any import destination can be changed. */
+static void test_strict_file_import(void)
+{
+    preset_record_t user, got, snapshot;
+    uint8_t buf[PRESET_MAX_BYTES + 1u], export_buf[PRESET_MAX_BYTES];
+    uint32_t n = 0, m = 0;
+    make_user(&user, PRESET_ENGINE_CHICAGO, "strict");
+    expect_eq(preset_record_encode(buf, PRESET_MAX_BYTES, &n, &user),
+              PRESET_OK, "strict file encode");
+    preset_record_clear(&got);
+    expect_eq(preset_record_import_file(&got, buf, n, PRESET_ENGINE_CHICAGO),
+              PRESET_OK, "strict file import matches engine");
+    expect(preset_record_equal(&got, &user), "strict file round-trip state");
+    expect_eq(preset_record_export(export_buf, sizeof export_buf, &m, &got),
+              PRESET_OK, "strict file export nonfactory");
+    expect(m == n && memcmp(buf, export_buf, n) == 0,
+           "strict file byte-identical export");
+    snapshot = got;
+    buf[n] = 0;
+    expect_eq(preset_record_import_file(&got, buf, n + 1u, PRESET_ENGINE_CHICAGO),
+              PRESET_ERR_LENGTH, "strict file trailing bytes rejected");
+    expect(memcmp(&got, &snapshot, sizeof got) == 0,
+           "strict file suffix leaves destination unchanged");
+    expect_eq(preset_record_import_file(&got, buf, n, PRESET_ENGINE_MIAMI),
+              PRESET_ERR_ENGINE, "strict file wrong engine rejected");
+    expect(memcmp(&got, &snapshot, sizeof got) == 0,
+           "strict file engine leaves destination unchanged");
+    buf[8] = 2u;
+    rewrite_crc(buf, n);
+    expect_eq(preset_record_import_file(&got, buf, n, PRESET_ENGINE_CHICAGO),
+              PRESET_ERR_SCHEMA, "strict file future schema rejected");
+    expect(memcmp(&got, &snapshot, sizeof got) == 0,
+           "strict file future schema leaves destination unchanged");
+}
+
 int main(void)
 {
     printf("DNBOX_FACTORY_PRESET_EXPORT=%d\n", (int)DNBOX_FACTORY_PRESET_EXPORT);
@@ -967,6 +1059,8 @@ int main(void)
     test_reject_older_version();
     test_encode_written_after_buffer_check();
     test_808_nsamples_and_crc();
+    test_untrusted_array_counts();
+    test_strict_file_import();
     test_sample_crc();
     test_factory_stable();
     test_project_files();
