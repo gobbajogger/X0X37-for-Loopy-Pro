@@ -573,9 +573,9 @@ p{max-width:76ch}h1,h2,h3{text-wrap:balance}button,a,input,select,summary{touch-
     <div class="capability-list">
       <details><summary>Create and play sounds <span>Drums, acid bass and breaks.</span></summary><ul><li><b>909 / 808:</b> choose from 11 drum voices in each kit, edit their sounds and sequence each voice.</li><li><b>Two 303 parts:</b> make separate bass lines with accents, slides and sound shaping; play live with Free Play. Pitch and mod wheels add temporary tune and cutoff movement on the selected 303.</li><li><b>TB-3PO:</b> generate and mutate acid lines using density, accents, slides, root and scale—useful when you want a starting point to reshape.</li><li><b>Break player:</b> slice a loop into eight pieces, change their sequence and use rolls, fills and retriggers for variation.</li></ul></details>
       <details><summary>Sequence and record <span>Patterns, motion and song.</span></summary><ul><li><b>32 patterns, up to 64 steps per part:</b> give parts different lengths and rates; each can use its own pattern.</li><li><b>Live or step recording:</b> tap drum hits, enter 303 notes or record while playing.</li><li><b>Motion and per-step locks:</b> record knob movement or hold a parameter value on one step for changing timbre and rhythm.</li><li><b>Probability and swing:</b> let selected steps vary between passes and shift the groove away from straight timing.</li><li><b>Chains and Song:</b> chain patterns for a jam or arrange bars with pattern choices and mutes.</li></ul></details>
-      <details><summary>Perform and mix <span>Shape a groove as it plays.</span></summary><ul><li><b>Hands-on levels:</b> keyboard fader banks cover the five parts, reverb, delay and the master filter, with pickup for smooth handovers.</li><li><b>Sound movement:</b> use the performance controls, part mutes, pan and sends; a shared reverb, tape delay and master compressor bring the parts together.</li><li><b>SMC control:</b> expand the surface with eight strips and drum banks. The available firmware and newer UI preview are identified separately.</li><li><b>Loopy clip mode:</b> switch pads from local sequencing to the host's clip grid; return to normal X0X operation with KNOB BANK.</li><li><b>SCALE / CHORD / ARP for Loopy:</b> keep played notes in a scale, build chords with inversions and strum, or create arpeggios with rate, gate, swing, humanize and latch.</li></ul></details>
+      <details><summary>Perform and mix <span>Shape a groove as it plays.</span></summary><ul><li><b>Hands-on levels:</b> keyboard fader banks cover the five parts, reverb, delay and the master filter, with pickup for smooth handovers.</li><li><b>Sound movement:</b> use the performance controls, part mutes, pan and sends; a shared reverb, tape delay and master compressor bring the parts together.</li><li><b>SMC control:</b> expand the surface with eight strips and drum banks. The available firmware and newer UI preview are identified separately.</li><li><b>Loopy clip mode:</b> switch pads from local sequencing to the host's clip grid; return to normal DnBOX operation with KNOB BANK.</li><li><b>SCALE / CHORD / ARP for Loopy:</b> keep played notes in a scale, build chords with inversions and strum, or create arpeggios with rate, gate, swing, humanize and latch.</li></ul></details>
       <details><summary>Use your own loops and keep your work <span>Samples, backups and projects.</span></summary><ul><li><b>Sample management:</b> prepare your own loops, inspect available slots, then explicitly send them to the keyboard. Sample memory is limited; the tool shows what fits.</li><li><b>Backup and restore:</b> save sample slots to a file and restore them through Manage samples.</li><li><b>Project save / load:</b> keep the current sounds, patterns and song; autosave and undo / redo support editing. Sample backup is a separate step.</li><li><b>USB MIDI:</b> use note and clock connections with other apps; choose one clock source for a steady tempo.</li></ul></details>
-      <details><summary>Check the fit for your gear <span>Compatibility and practical limits.</span></summary><p>Supports SMK-37 Elite and Pro; check Install firmware for available packages. Starrykey 37 Play uses the Pro model; choose the name intended for your keyboard. The keyboard's pads and keys play with fixed velocity. SMC uses a single direct Bluetooth MIDI link; Loopy uses USB in the combined setup. No Bluetooth audio or direct multi-SMC connection is offered here.</p><p>A matching stock firmware package can be restored with the original updater; see Restore original firmware.</p><p><a href="../manual/">Open the playing and setup manual</a></p></details>
+      <details><summary>Check the fit for your gear <span>Compatibility and practical limits.</span></summary><p>Supports SMK-37 Elite and Pro; check Install firmware for available packages. Starrykey 37 Play uses the Pro model; choose the name intended for your keyboard. The keyboard's pads and keys play with fixed velocity. SMC uses a single direct Bluetooth MIDI link; Loopy uses USB in the combined setup. No Bluetooth audio or direct multi-SMC connection is offered here.</p><p>A matching stock firmware package can be restored with the original updater, M-VAVE's M-UPGRADE.</p><p><a href="../manual/">Open the playing and setup manual</a></p></details>
     </div></details>
   </section>
 
@@ -681,7 +681,7 @@ function ctlProblem(img) {
   if (!(CTL_RAM_LO <= rlo && rlo < rhi && rhi <= CTL_RAM_HI)) return "RAM outside the controller window";
   if (!(rlo <= slo && slo < shi && shi <= rhi) || shi & 7) return "interrupt stack outside its RAM";
   const ilo = pkU32(img, 48), ihi = pkU32(img, 52);
-  for (const n of CTL_IRQ_TAKEN) if (((n < 32 ? ilo : ihi) >>> (n & 31)) & 1) return `it routes interrupt ${n}, which X0X uses`;
+  for (const n of CTL_IRQ_TAKEN) if (((n < 32 ? ilo : ihi) >>> (n & 31)) & 1) return `it routes interrupt ${n}, which DnBOX uses`;
   return null;
 }
 
@@ -696,7 +696,7 @@ function pkHasSlotMap(d) {
   return false;
 }
 const CTL_NO_BLOCK = "the app code of this package goes into the Bluetooth block (flash 0x8B000-0x9AFFF). "
-  + "It is an X0X from before the block. It takes no controller image (install it without one)";
+  + "It is a DnBOX from before the block. It takes no controller image (install it without one)";
 
 // Shared decoder for insertion and read-only bundled-controller admission.
 // Strict admission checks the complete installed files and nested app CRCs.
@@ -2233,7 +2233,7 @@ const TEXT = {
     bricklink: "SMK の起動・復旧サポート",
     beta: "これはベータ版で、不安定な場合があります。自己責任でお使いください。",
     back: "公式や他のカスタムへ移すには、M-VAVE の M-UPGRADE を使います。",
-    noversion: "まだ公開パッケージがありません。下に .fwsc を落として書き込めます（アップグレード・ダウングレード・純正・他カスタム）。",
+    noversion: "まだ公開パッケージがありません。公開されている NIGHTLY インストーラーを使ってください。",
     stockh: "任意の .fwsc（純正・他カスタム・手元のビルド）",
     stockwhy: "アップグレード・ダウングレード、別のカスタム、純正への復帰は同じ手順です。キーボードの機種名は保たれ、キャリブレーションとペアリングは触りません。スロットが消える場合は先に .x0xslots へ保存します。",
     stock1: "純正が必要なら機種の公式 .fwsc を入手:",
@@ -2847,7 +2847,7 @@ async function loadSelectedPackage() {
     // already checked against the immutable package digest and model identity.
     verifiedDownload = { pkg, model, identity, version: ver.version,
       href: URL.createObjectURL(new Blob([raw], {type: "application/octet-stream"})) };
-    say(`X0X ${ver.version} · ${MODELS[model] || model}`);
+    say(`DnBOX ${ver.version} · ${MODELS[model] || model}`);
     refreshMeta();
   } catch (e) { if (isLatest()) sayK("loadfail", e.message); }
 }
