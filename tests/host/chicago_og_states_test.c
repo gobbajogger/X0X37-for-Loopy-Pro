@@ -175,14 +175,17 @@ int main(void)
         g_restore_chi = g_chi_init = 0;
         now_ms += 16; ui_frame(); /* Cold redraw: check the actual page path. */
         uint32_t first_restore = g_restore_chi, first_init = g_chi_init;
+        uint32_t first_crc = st_crc32(fb, sizeof fb);
         if (p >= 4 && first_restore >= 386) {
             printf("COLD_RESTORE_REGRESSION p=%d restore=%u\n", p, first_restore);
             fails++;
         }
         g_restore_chi = g_chi_init = 0;
         for (int f = 0; f < 8; f++) { now_ms += 16; ui_frame(); }
-        printf("CHICAGO p=%d '%s' cold_restore=%u cold_init=%u steady8_restore=%u steady8_init=%u\n",
-               p, pg.title[p], first_restore, first_init, g_restore_chi, g_chi_init);
+        uint32_t steady_crc = st_crc32(fb, sizeof fb);
+        printf("CHICAGO p=%d '%s' cold_restore=%u cold_init=%u steady8_restore=%u steady8_init=%u frame_crc32=%08x/%08x\n",
+               p, pg.title[p], first_restore, first_init, g_restore_chi, g_chi_init,
+               first_crc, steady_crc);
         if (g_restore_chi || g_chi_init) {
             printf("FAIL: expected 0 restores/inits on a steady frame\n");
             fails++;
