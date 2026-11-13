@@ -1,0 +1,122 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>DnBOX | Preset files</title>
+  <style>
+    :root { color-scheme:dark; --bg:#121512; --panel:#1b211c; --ink:#f0f4ed; --muted:#b2c2af; --edge:#3d5042; --accent:#ecb46a; --fail:#ffada6; --ok:#9ee4b5; }
+    * { box-sizing:border-box; }
+    html { background:var(--bg); }
+    body { margin:0; color:var(--ink); background:radial-gradient(ellipse at 90% 0%,#2c3828 0%,var(--bg) 57%); font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif; }
+    main { max-width:1000px; margin:0 auto; padding:28px clamp(16px,4vw,40px) 72px; }
+    header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; padding-bottom:28px; border-bottom:1px solid var(--edge); }
+    .brand { font-weight:850; font-size:clamp(30px,4vw,44px); letter-spacing:-.07em; line-height:1; }
+    .eyebrow { color:var(--accent); font-size:.75rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    h1 { font-size:clamp(27px,4vw,40px); line-height:1.14; letter-spacing:-.035em; margin:20px 0 10px; }
+    h2 { font-size:1.12rem; margin:0 0 10px; }
+    h3 { font-size:1rem; margin:18px 0 6px; }
+    p { margin:10px 0; max-width:72ch; }
+    .muted, .help { color:var(--muted); font-size:.9rem; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,.9fr); gap:18px; align-items:start; margin-top:22px; }
+    .panel { padding:22px; border:1px solid var(--edge); border-radius:12px; background:var(--panel); min-width:0; }
+    .full { grid-column:1/-1; }
+    .controls { display:grid; gap:14px; }
+    label { font-weight:650; display:block; }
+    label>span { display:block; margin-bottom:5px; }
+    select, input[type=file], button { font:inherit; }
+    select, input[type=file] { border:1px solid var(--edge); border-radius:6px; background:#101710; color:var(--ink); width:100%; min-height:46px; padding:10px; }
+    input[type=file]::file-selector-button { min-height:40px; padding:8px 12px; margin-right:12px; cursor:pointer; border:1px solid var(--edge); border-radius:5px; background:#28362c; color:var(--ink); }
+    button { cursor:pointer; min-height:44px; padding:9px 15px; border-radius:6px; border:1px solid var(--accent); background:var(--accent); color:#1c1e19; font-weight:750; }
+    button.secondary { background:transparent; color:var(--ink); border-color:#718375; }
+    button:disabled { opacity:.48; cursor:not-allowed; }
+    button:focus-visible, select:focus-visible, input:focus-visible, .drop:focus-visible { outline:3px solid #ffe2aa; outline-offset:3px; }
+    .actions { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin-top:18px; }
+    .drop { padding:14px; border:1px dashed #79927d; border-radius:8px; }
+    .drop.over { border-color:var(--accent); background:#2d3529; }
+    #status { min-height:3em; border-left:3px solid var(--edge); padding:12px 14px; background:#141a15; white-space:pre-wrap; overflow-wrap:anywhere; margin:18px 0 0; }
+    #status[data-type=error] { border-color:var(--fail); color:var(--fail); }
+    #status[data-type=ok] { border-color:var(--ok); }
+    .meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 15px; margin:14px 0; }
+    .meta div { border-bottom:1px solid var(--edge); padding:6px 0; min-width:0; overflow-wrap:anywhere; }
+    dt { color:var(--muted); font-size:.8rem; }
+    dd { margin:0; font-weight:600; }
+    .warning { padding:12px; border:1px solid #8a6b45; border-radius:6px; color:#ffdaa2; background:#292319; font-size:.88rem; }
+    .warning ul { padding-left:18px; margin:6px 0; }
+    .preview-records { display:grid; gap:14px; margin:14px 0; }
+    .preview-record { border-top:1px solid var(--edge); padding-top:8px; min-width:0; }
+    .preview-record h3 { margin:2px 0; overflow-wrap:anywhere; }
+    .preview-record .meta { margin:8px 0 6px; }
+    .preview-warning-record { overflow-wrap:anywhere; }
+    .preview-warning-record + .preview-warning-record { border-top:1px solid #8a6b45; margin-top:10px; padding-top:10px; }
+    .records { display:grid; gap:8px; margin-top:14px; }
+    .record { width:100%; text-align:left; border:1px solid var(--edge); background:#111a13; color:var(--ink); display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .record[aria-pressed=true] { border-color:var(--accent); box-shadow:inset 3px 0 0 var(--accent); }
+    .record span { color:var(--muted); font-size:.78rem; }
+    .record b { overflow-wrap:anywhere; }
+    .num { font-variant-numeric:tabular-nums; }
+    .pill { color:var(--accent); padding:5px 8px; font-size:.75rem; font-weight:700; border:1px solid #806846; border-radius:16px; }
+    .cols { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    [hidden] { display:none !important; }
+    @media(max-width:740px) { .layout { grid-template-columns:1fr; } .panel { padding:17px; } .meta { grid-template-columns:1fr 1fr; } }
+    @media(max-width:440px) { .meta { grid-template-columns:1fr; } .actions button { width:100%; } }
+    @media(prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; transition:none !important; } }
+  </style>
+</head>
+<body>
+<main>
+  <header><div class="brand">DnBOX</div><div class="cols"><span class="pill">PRESET FILES</span><span class="muted">DNPR v1 · offline</span></div></header>
+  <h1>Inspect before you load.</h1>
+  <p class="muted">Read, check and back up user-made engine presets without changing the keyboard. The DnBOX device preset transport is not available yet. This page never writes to the instrument or uploads files to a server.</p>
+  <div class="layout">
+    <section class="panel" aria-labelledby="open-title">
+      <h2 id="open-title">01 / Open preset files</h2>
+      <div class="controls">
+        <label for="model"><span>Intended hardware</span>
+          <select id="model"><option value="">Not selected</option><option value="elite">SMK-37 Elite</option><option value="pro">SMK-37 Pro</option></select>
+        </label>
+        <label for="target"><span>Target engine</span>
+          <select id="target"><option value="">Inspect any engine</option><option value="chicago">Chicago</option><option value="miami">Miami</option><option value="juno">Juno</option><option value="drone">Drone</option><option value="909">909</option><option value="808">808</option><option value="break">BREAK</option></select>
+        </label>
+        <div class="drop" id="drop">
+          <label for="files"><span>Choose .dnpr files or .zip of .dnpr files</span></label>
+          <input id="files" type="file" accept=".dnpr,.zip" multiple>
+          <p class="help">Drop files here or use the file picker. Each record is checked for CRC, length, engine, format and schema before being kept in this browser session.</p>
+        </div>
+      </div>
+      <p class="help">Hardware model is not encoded in DNPR v1. An explicit Elite/Pro filename suffix can be checked for conflict, but real model compatibility requires a future device identity handshake. File-only inspection works without a device.</p>
+      <p id="status" role="status" aria-live="polite">Choose a file to inspect. Nothing is sent or saved automatically.</p>
+    </section>
+    <section class="panel" id="preview-panel" aria-labelledby="preview-title">
+      <h2 id="preview-title">02 / Review</h2>
+      <p id="preview-empty" class="muted">A validated file preview will appear here before it enters the session.</p>
+      <div id="preview" hidden>
+        <div id="preview-meta" class="meta"></div>
+        <div id="preview-warnings" class="warning" hidden></div>
+        <p class="help" id="preview-count"></p>
+        <div class="actions"><button id="keep">Keep in browser session</button><button id="discard" class="secondary">Discard preview</button></div>
+      </div>
+    </section>
+    <section class="panel full" aria-labelledby="library-title">
+      <h2 id="library-title">03 / Browser session</h2>
+      <p class="help">Temporary file list, maximum 32 records. No keyboard slots are reserved. Refreshing closes this session; download files you want to keep. Duplicate names never overwrite another file here.</p>
+      <p id="session-empty" class="muted">No validated presets in this session.</p>
+      <div id="session-list" class="records" aria-label="Session presets"></div>
+      <div id="session-detail" hidden>
+        <div id="selected-meta" class="meta"></div>
+        <div id="selected-warnings" class="warning" hidden></div>
+      </div>
+      <div class="actions">
+        <button id="save-file" disabled>Download selected .dnpr</button>
+        <button id="save-zip" class="secondary" disabled>Download session .zip</button>
+        <button id="clear" class="secondary" disabled>Clear browser session</button>
+      </div>
+      <p class="help">Factory or factory-derived exports stay blocked. 909, 808 and BREAK records reference external samples; without a keyboard sample CRC check, the kit is not verified complete. No plugin preset conversion or J6 fidelity is implied.</p>
+    </section>
+  </div>
+</main>
+<script type="module" src="./app.mjs"></script>
+</body>
+</html>
