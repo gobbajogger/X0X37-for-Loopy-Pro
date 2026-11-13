@@ -4,7 +4,7 @@ Date: 2026-11-13. This is an **exact-source host/browser receipt**, not a device
 
 PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/901
 Tested branch: `lane/w3-web-dnpr-20261113`.
-Exact fetched commit: `fa85b9463a3f88df8bad022043722f375a762aee`.
+Exact fetched commit: `bd318e93d01d3c991deda430aec73bc632cf92a1`.
 
 ## Actual Node test command
 
@@ -50,7 +50,7 @@ Browser: Chrome/156.0.8078.79; Puppeteer 25.17.0; Node v24.22.1. The source-loca
 
 ## Screenshot evidence manifest
 
-Full-page PNG screenshots were generated on the authorized DnBOX cloud scratch device at `/workspace/scratch/w3-901-verified-fa85/evidence/`. This PR keeps **text evidence only** and does not commit PNG binaries. File byte counts and SHA-256 hashes support independent identification of the captured images.
+Full-page PNG screenshots were generated on the authorized DnBOX cloud scratch device at `/workspace/scratch/w3-901-verified-bd31/evidence/`. This PR keeps **text evidence only** and does not commit PNG binaries. File byte counts and SHA-256 hashes support independent identification of the captured images.
 
 | Screenshot | Bytes | SHA-256 |
 |---|---:|---|
@@ -79,13 +79,13 @@ One initial browser FAIL came from the **test** measuring hidden Keep before a p
 | test_codec.mjs | `eae908c6d8bdbc95e2a3607309566e8c21e66933` |
 | test_page.mjs | `56f19421f38482bae1cfe06f0b49140a56a3b6b9` |
 | zip.mjs | `d7af5a808c39cfaba609967d27e8374dd2cef34c` |
-| test_browser.mjs | `ff2de3aaf62f79ed3bdb738a18788115d48b1452` |
+| test_browser.mjs | `a60e60739892d956639b1765afdff86dd873d274` |
 
 ## Reproduce
 
 ```sh
 node --test web/presets/test_codec.mjs web/presets/test_page.mjs
-DNBOX_SOURCE_SHA=fa85b9463a3f88df8bad022043722f375a762aee DNBOX_PUPPETEER_MODULE=/workspace/shared/dnbox-rdc/node_modules/puppeteer DNBOX_CHROMIUM=/usr/bin/chromium node web/presets/test_browser.mjs
+DNBOX_SOURCE_SHA=bd318e93d01d3c991deda430aec73bc632cf92a1 DNBOX_PUPPETEER_MODULE=/workspace/shared/dnbox-rdc/node_modules/puppeteer DNBOX_CHROMIUM=/usr/bin/chromium node web/presets/test_browser.mjs
 ```
 
 Install Puppeteer in the test environment if unavailable. The browser test runner contains its own loopback server. The exact commit was downloaded over read-only pinned HTTPS, with no network Git checkout or Git push.
