@@ -66,6 +66,7 @@ footer { color:#aeb9c8; padding-top:.5rem; font-size:.82rem; }
 <option value="installed-reported">Installation reported</option>
 <option value="restart-reported">Restart observed (boot not asserted)</option>
 <option value="restart-and-boot-reported">Restart and normal boot both observed</option>
+<option value="tested-no-issues-reported">Device tested, no issue noticed (report only)</option>
 <option value="tested-with-issue">Tested with an issue</option>
 </select>
 <label for="when">Observation time (ISO 8601, with timezone)</label>
@@ -99,6 +100,8 @@ footer { color:#aeb9c8; padding-top:.5rem; font-size:.82rem; }
 <h2>Current gate evidence</h2>
 <p class="info">This is a dry-run evaluation of readiness, not an action to promote. Green transfer reports cannot substitute for a matching installed-image readback.</p>
 <div id="gateList" aria-live="polite">Select an exact build.</div>
+<button type="button" class="secondary" id="candidateButton">Evaluate candidate (dry-run)</button>
+<pre id="candidateOutput" class="mono" aria-live="polite"></pre>
 </section>
 <section>
 <h2>Evidence boundaries</h2>
