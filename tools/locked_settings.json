@@ -1,0 +1,241 @@
+{
+ "rule": "Hardware-relevant settings. tools/check_locked_settings.py compares the source with these values before each build. To change one: change the source and this file in one commit that names the setting, and add a BLE_ATTEMPTS.md row. Never change a value inside an unrelated commit.",
+ "settings": [
+  {
+   "name": "pwr_ble",
+   "file": "firmware/hal/fm1_ble.h",
+   "regex": "b->pwr_ble = (\\d+);",
+   "why": "BLE TX level 0-11 given to the image (bt_max_pwr_set). Oscuro uses 6.",
+   "history": [
+    "2026-10-15 7f3208b: 11 -> 5 (test 20)",
+    "2026-10-15 9070c21: 5 -> 11, silently inside an unrelated commit",
+    "2026-10-16 de06fd1 (a66): 11 -> 6"
+   ],
+   "value": "6"
+  },
+  {
+   "name": "pwr_max",
+   "file": "firmware/hal/fm1_ble.h",
+   "regex": "b->pwr_max = (\\d+);",
+   "why": "classic max power field of bt_max_pwr_set",
+   "value": "8"
+  },
+  {
+   "name": "osc_type",
+   "file": "firmware/hal/fm1_ble.h",
+   "regex": "b->osc_type = (\\w+);",
+   "why": "crystal type for the RF init",
+   "value": "0"
+  },
+  {
+   "name": "xosc_trim",
+   "file": "firmware/hal/fm1_ble.h",
+   "regex": "b->xosc\\[0\\] = (\\w+);\\s*\\n\\s*b->xosc\\[1\\] = (\\w+);",
+   "why": "crystal trim left, right. Oscuro: 11/11.",
+   "history": [
+    "2026-10-16 94285b5 (a67): fixed 0x0B/0x0B (before: from WLA_CON12, 3/3 on the user's unit)"
+   ],
+   "value": "0x0B,0x0B"
+  },
+  {
+   "name": "xosc_from_wla_con12",
+   "kind": "count",
+   "files": [
+    "firmware/hal/fm1_ble.h"
+   ],
+   "regex": "FM1_BLE_XOSC_REG\\s*>>",
+   "why": "0 = the trim does not come from WLA_CON12 at boot (a67)",
+   "history": [
+    "2026-10-16 94285b5 (a67): 2 -> 0"
+   ],
+   "value": 0
+  },
+  {
+   "name": "pa_trim",
+   "file": "firmware/hal/fm1_ble.h",
+   "regex": "static const uint8_t pa\\[7\\] = \\{([^}]*)\\};",
+   "why": "PA trim table",
+   "value": "1, 7, 4, 7, 11, 1, 7"
+  },
+  {
+   "name": "rf_clocks",
+   "file": "firmware/hal/fm1_ble.h",
+   "regex": "b->sys_clk_hz = (\\w+);\\s*\\n\\s*b->hsb_clk_hz = (\\w+);\\s*\\n\\s*b->lsb_clk_hz = (\\w+);",
+   "why": "clocks given to the image",
+   "value": "360000000u,180000000u,60000000u"
+  },
+  {
+   "name": "adv_interval",
+   "file": "firmware/src/ble/ble_midi_host.c",
+   "regex": "wr16\\(b, (0x[0-9A-Fa-f]+)\\); wr16\\(b \\+ 2, (0x[0-9A-Fa-f]+)\\);",
+   "why": "advertising interval min, max (0.625 ms units): 40-80 ms",
+   "value": "0x40,0x80"
+  },
+  {
+   "name": "adv_type_chmap",
+   "file": "firmware/src/ble/ble_midi_host.c",
+   "regex": "b\\[4\\] = (\\d+); b\\[5\\] = (\\d+); b\\[6\\] = (\\d+);[\\s\\S]{0,80}?b\\[13\\] = (\\d+); b\\[14\\] = (\\d+);",
+   "why": "adv type ADV_IND, own address random, peer type, channel map 7, filter 0",
+   "value": "0,1,0,7,0"
+  },
+  {
+   "name": "local_att_mtu",
+   "file": "firmware/src/ble/ble_midi_host.h",
+   "regex": "#define BLEH_MTU (\\w+)",
+   "why": "our ATT MTU answer",
+   "value": "23u"
+  },
+  {
+   "name": "conn_param_request_calls",
+   "kind": "count",
+   "files": [
+    "firmware/src"
+   ],
+   "exclude": [
+    "firmware/src/ble/ble_midi_host.c",
+    "firmware/src/ble/ble_midi_host.h"
+   ],
+   "regex": "\\bbleh_conn_update\\s*\\(",
+   "why": "0 = the keyboard sends no connection parameter request (user decision 2026-10-16 18:18; tests 31 and 34)",
+   "value": 0
+  },
+  {
+   "name": "ctl_config",
+   "kind": "assign",
+   "file": "ble/ctl/src/config.c",
+   "why": "JieLi controller configuration of the image",
+   "value": {
+    "config_btctler_modules": "BT_MODULE_LE",
+    "config_btctler_le_roles": "LE_ADV | LE_SLAVE",
+    "config_btctler_le_features": "LL_FEAT_ENCRYPTION",
+    "config_btctler_mode": "BT_NORMAL",
+    "config_btctler_hci_standard": "1",
+    "config_btctler_le_hw_nums": "1",
+    "config_btctler_le_rx_nums": "5",
+    "config_btctler_le_acl_packet_length": "27",
+    "config_btctler_le_acl_total_nums": "5",
+    "config_btctler_le_slave_conn_update_winden": "2500",
+    "config_btctler_le_afh_en": "0",
+    "config_btctler_le_master_multilink": "0",
+    "config_btctler_le_tws": "0",
+    "config_btctler_single_carrier_en": "0",
+    "config_vendor_le_bb": "0",
+    "ble_disable_wait_enable": "1",
+    "config_bt_function": "0",
+    "config_btctler_dual_a2dp": "0",
+    "config_btctler_bredr_master": "0",
+    "config_bredr_afh_user": "0",
+    "config_btctler_role_switch_fail_disconnect": "1",
+    "config_btctler_role_switch_fail_back_to_slave": "0",
+    "config_multilink_support_esco_enalbe": "0",
+    "config_bt_security_vulnerability": "0",
+    "config_fix_fre_enable": "0",
+    "config_force_bt_pwr_tab_using_normal_level": "0",
+    "rx_fre_offset_adjust_enable": "1",
+    "CONFIG_BREDR_INQUIRY": "0",
+    "CONFIG_BTCTLER_FAST_CONNECT_ENABLE": "0",
+    "CONFIG_BTCTLER_TWS_ENABLE": "0",
+    "CONFIG_TWS_POWER_BALANCE_ENABLE": "0",
+    "CONFIG_TWS_SUPER_TIMEOUT": "0",
+    "CONFIG_ESCO_MUX_RX_BULK_ENABLE": "0",
+    "CONFIG_INQUIRY_PAGE_OFFSET_ADJUST": "0",
+    "CONFIG_LMP_MASTER_ESCO_ENABLE": "0",
+    "CONFIG_LMP_NAME_REQ_ENABLE": "0",
+    "CONFIG_LMP_PASSKEY_ENABLE": "0",
+    "CONFIG_TEST_DUT_CODE": "0",
+    "CONFIG_TEST_DUT_ONLY_BOX_CODE": "0",
+    "CONFIG_TEST_FCC_CODE": "0",
+    "CONFIG_WIFI_DETECT_ENABLE": "0",
+    "config_update_mode": "0",
+    "config_asser": "0"
+   }
+  },
+  {
+   "name": "ctl_ble_irq_prio",
+   "file": "ble/ctl/src/ctl_port.h",
+   "regex": "#define CTL_BLE_IRQ_PRIO (\\d+)",
+   "why": "BLE interrupt priority on core 1",
+   "value": "7"
+  },
+  {
+   "name": "ram_canary_default",
+   "file": "firmware/src/ble.c",
+   "regex": "#define X0X_RAM_CANARY (\\d+)",
+   "why": "0 = the test-26 RAM canary is off (it wrote over live .pool)",
+   "value": "0"
+  },
+  {
+   "name": "pool_headroom_min",
+   "file": "tools/build.py",
+   "regex": "if 0x54000 - pool < (\\d+):",
+   "why": "minimum free pool bytes",
+   "value": "8192"
+  },
+  {
+   "name": "slot_offsets",
+   "file": "firmware/src/app/slots.c",
+   "regex": "#define SMP_USER_OFF\\(k\\) \\(\\(k\\) == 0u \\? (\\w+) : \\(k\\) == 1u \\? (\\w+) : (\\w+)\\)",
+   "why": "sample slot 1, 2, 3 flash offsets (user data: never move silently)",
+   "value": "0xC2000u,0xD6000u,0xB0000u"
+  },
+  {
+   "name": "slot_sizes",
+   "file": "firmware/src/app/slots.c",
+   "regex": "#define SMP_USER_SIZE\\(k\\) \\(\\(k\\) == 0u \\? (\\w+) : \\(k\\) == 1u \\? (\\w+) : (\\w+)\\)",
+   "why": "sample slot sizes",
+   "value": "0x14000u,0x1E000u,0xB000u"
+  },
+  {
+   "name": "pkg_slotmap",
+   "file": "tools/fm1pkg_make.py",
+   "regex": "^SLOTMAP = \\{\"smk37\": \\[(.*)\\]\\}",
+   "why": "slot map in the package (installer backup/restore)",
+   "value": "(0xC2000, 0x14000), (0xD6000, 0x1E000), (0xB0000, 0xB000)"
+  },
+  {
+   "name": "pkg_ble_block",
+   "file": "tools/fm1pkg_make.py",
+   "regex": "^BLE_LO, BLE_HI = (\\w+), (\\w+)",
+   "why": "Bluetooth block in the package",
+   "value": "0x8B000,0x9B000"
+  },
+  {
+   "name": "flash_map",
+   "kind": "defines",
+   "file": "firmware/hal/fm1_flash_map.h",
+   "prefix": "FL_",
+   "why": "SMK-37 flash map windows",
+   "value": [
+    "FL_HEAD_HI 0x00004000u",
+    "FL_CAL_LO 0x000C0000u",
+    "FL_CAL_HI 0x000C2000u",
+    "FL_USRRES_LO 0x000F4000u",
+    "FL_USRRES_HI 0x000FE000u",
+    "FL_KEYMAC_LO 0x000FF000u",
+    "FL_APP_LO 0x00004000u",
+    "FL_APP_HI 0x0009D000u",
+    "FL_REC_LO 0x0009D000u",
+    "FL_REC_HI 0x000C0000u",
+    "FL_PLAIN_LO 0x0009D000u",
+    "FL_DATA_LO 0x0009D000u",
+    "FL_DATA_HI 0x000B0000u",
+    "FL_SMPV_LO 0x000B0000u",
+    "FL_SMPV_HI 0x000BB000u",
+    "FL_OTA_LO 0x000BB000u",
+    "FL_OTA_HI 0x000C0000u",
+    "FL_SMP_LO 0x000C2000u",
+    "FL_SMP_HI 0x000F4000u",
+    "FL_APP_SLOT_END 0x0009B520u",
+    "FL_BLE_LO 0x0008B000u",
+    "FL_BLE_HI 0x0009B000u",
+    "FL_PLAIN_LO 0x00093000u",
+    "FL_DATA_LO 0x00097000u",
+    "FL_DATA_HI 0x000E0000u",
+    "FL_GLOB_LO 0x000FC000u",
+    "FL_GLOB_HI 0x000FF000u",
+    "FL_OTA_LO 0x000E0000u",
+    "FL_OTA_HI 0x000E5000u"
+   ]
+  }
+ ]
+}
