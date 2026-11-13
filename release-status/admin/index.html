@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>DnBOX | Owner release checks</title>
+<style>
+:root { color-scheme:dark; font-family:system-ui,-apple-system,Segoe UI,sans-serif; background:#10141b; color:#f0f4f9; }
+* { box-sizing:border-box; }
+body { margin:0; }
+header { border-bottom:1px solid #303b4a; padding:1rem max(1rem,calc((100vw - 1080px)/2)); background:#171e28; }
+h1 { margin:0; font-size:1.7rem; letter-spacing:.04em; }
+.sub { color:#bec9d8; margin:.4rem 0 0; font-size:.94rem; }
+main { width:min(1080px,100%); margin:auto; padding:1.4rem 1rem 4rem; }
+.layout { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr); gap:1.2rem; align-items:start; }
+@media(max-width:760px){ .layout{grid-template-columns:1fr} }
+section { background:#1b2431; border:1px solid #354254; border-radius:14px; padding:1.2rem; margin-bottom:1rem; }
+h2 { margin:0 0 1rem; font-size:1.16rem; }
+label { display:block; font-weight:600; font-size:.9rem; margin:.85rem 0 .35rem; }
+select,textarea,input { width:100%; background:#111923; color:#f3f7fb; border:1px solid #56657a; border-radius:8px; padding:.65rem; font:inherit; min-height:42px; }
+textarea { min-height:86px; resize:vertical; }
+select:focus,input:focus,textarea:focus,button:focus { outline:2px solid #7cbaff; outline-offset:2px; }
+button { font:inherit; padding:.68rem 1rem; color:white; background:#235fa7; border:1px solid #6da6e8; border-radius:9px; cursor:pointer; margin:.3rem .5rem .3rem 0; font-weight:650; }
+button:disabled { opacity:.55; cursor:not-allowed; }
+button.secondary { color:#e2ecf9; border-color:#66788e; background:#2b394b; }
+button.danger { border-color:#ffd0ae; background:#9b4422; }
+.info { color:#bfccdb; font-size:.86rem; line-height:1.5; }
+.status { padding:.7rem .8rem; border-left:3px solid #84b8ff; background:#15202e; border-radius:4px; margin-bottom:1rem; }
+.bad { border-color:#ffb7a4; }
+.good { border-color:#87d4ae; }
+.mono { font: .83rem ui-monospace,SFMono-Regular,Consolas,monospace; overflow-wrap:anywhere; }
+dl { display:grid; grid-template-columns:max-content 1fr; gap:.38rem .6rem; margin:0; font-size:.91rem; }
+dt { color:#bfcbd9; } dd { margin:0; overflow-wrap:anywhere; }
+hr { border:0; border-top:1px solid #3a4b60; margin:1rem 0; }
+details { border-top:1px solid #415166; padding:.7rem 0; }
+summary { cursor:pointer; font-weight:600; }
+.gate { display:flex; justify-content:space-between; gap:.6rem; padding:.28rem 0; font-size:.85rem; }
+.gate span { overflow-wrap:anywhere; }
+.pass { color:#8ed6ab; } .missing { color:#ffd493; } .fail { color:#ffafa7; }
+#previewOutput { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.85rem; background:#101922; padding:.85rem; border-radius:8px; min-height:100px; }
+.small { font-size:.8rem; color:#c3d0df; }
+footer { color:#aeb9c8; padding-top:.5rem; font-size:.82rem; }
+</style>
+<script src="./app.js" defer></script>
+</head>
+<body>
+<header>
+<h1>DnBOX <span style="font-weight:400;color:#bdcad9">/ owner release checks</span></h1>
+<p class="sub">Local, authenticated release administration. Exact build and model. No automatic publication.</p>
+</header>
+<main>
+<p id="actorStatus" class="status" role="status">Checking the local owner session…</p>
+<div class="layout">
+<div>
+<section>
+<h2>Record a device outcome</h2>
+<form id="ownerForm" autocomplete="off">
+<label for="build">Exact firmware build</label>
+<select id="build" required></select>
+<label for="model">Device model</label>
+<select id="model" required><option value="elite">SMK-37 Elite</option><option value="pro">SMK-37 Pro</option></select>
+<div id="packageInfo" class="info" aria-live="polite"></div>
+<label for="stage">What was personally observed?</label>
+<select id="stage" required>
+<option value="installed-reported">Installation reported</option>
+<option value="restart-reported">Restart observed (boot not asserted)</option>
+<option value="restart-and-boot-reported">Restart and normal boot both observed</option>
+<option value="tested-with-issue">Tested with an issue</option>
+</select>
+<label for="when">Observation time (ISO 8601, with timezone)</label>
+<input id="when" type="text" required spellcheck="false" aria-describedby="timeHint">
+<div class="small" id="timeHint">Filled with the present UTC time. Correct it to the actual observation time if different.</div>
+<label for="note">What happened? (no device serial or personal data)</label>
+<textarea id="note" maxlength="700" placeholder="Plain observation, not a hardware approval."></textarea>
+<details>
+<summary>Optional directly sourced owner quotation</summary>
+<p class="info">Only use a literal owner statement naming this model. A quotation is not itself a hardware approval.</p>
+<label for="quote">Exact quoted owner words</label>
+<textarea id="quote" maxlength="700"></textarea>
+<label for="source">Direct HTTPS source URL</label>
+<input id="source" type="url" maxlength="800" placeholder="https://…">
+</details>
+<div>
+<button type="submit" id="previewButton">Validate and preview</button>
+<button type="button" class="secondary" id="resetButton">Clear preview</button>
+</div>
+</form>
+</section>
+<section>
+<h2>Preview and commit</h2>
+<p class="info">Preview is always read-only. Confirm writes only when the operator explicitly started this service with <span class="mono">--allow-commit</span> and an exact branch SHA. This panel never releases firmware or upgrades approval.</p>
+<div id="previewOutput" aria-live="polite">No preview prepared.</div>
+<button type="button" class="danger" id="commitButton" disabled>Commit scoped report to PR #883</button>
+</section>
+</div>
+<aside>
+<section>
+<h2>Current gate evidence</h2>
+<p class="info">This is a dry-run evaluation of readiness, not an action to promote. Green transfer reports cannot substitute for a matching installed-image readback.</p>
+<div id="gateList" aria-live="polite">Select an exact build.</div>
+</section>
+<section>
+<h2>Evidence boundaries</h2>
+<dl>
+<dt>Transfer ACK</dt><dd>Browser transfer stage, not installation</dd>
+<dt>Restart</dt><dd>Different from verified normal boot</dd>
+<dt>Installed image</dt><dd>Requires exact build and model hardware proof</dd>
+<dt>Owner approval</dt><dd>Separate quote, time, direct link and per-model approval</dd>
+<dt>Anonymous report</dt><dd>Unverified, never a promotion gate</dd>
+</dl>
+<hr>
+<details>
+<summary>Package identity and all gate details</summary>
+<div id="technicalDetail" class="info mono"></div>
+</details>
+</section>
+</aside>
+</div>
+<footer>This interface runs locally, binds to loopback and uses the server's owner GitHub session. No credentials enter the page. It does not modify the public website or any device.</footer>
+</main>
+</body>
+</html>
