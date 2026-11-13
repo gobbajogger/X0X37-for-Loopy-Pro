@@ -16,6 +16,8 @@ const dom = {
   previewButton: document.getElementById("previewButton"),
   reset: document.getElementById("resetButton"),
   gates: document.getElementById("gateList"),
+  candidateButton: document.getElementById("candidateButton"),
+  candidateOutput: document.getElementById("candidateOutput"),
   detail: document.getElementById("technicalDetail"),
 };
 let session = null;
@@ -52,6 +54,7 @@ function showRecord() {
     ? "Withdrawn build. New test reports are disabled."
     : pkg ? "Selected exact " + dom.model.value + " package: " + pkg.package_sha256
           : "No package for this model.");
+  text(dom.candidateOutput, "No promotion evaluation requested.");
   dom.gates.replaceChildren();
   const gates = rec.gates || {};
   for (const [name, status] of Object.entries(gates)) {
@@ -118,6 +121,29 @@ async function load() {
     : "Owner GitHub identity not verified. Read-only status; outcome editing disabled.");
   showRecord();
 }
+
+dom.candidateButton.addEventListener("click", async () => {
+  const rec = chosen();
+  if (!rec) return;
+  dom.candidateButton.disabled = true;
+  try {
+    const response = await fetch("/api/promotion-candidate?catalog_id=" +
+      encodeURIComponent(rec.catalog_id), {cache:"no-store"});
+    const report = await response.json();
+    if (!response.ok) throw new Error(report.error || "Dry-run endpoint failed");
+    text(dom.candidateOutput, [
+      report.gate_pass ? "Evidence gates passed (no authority)." :
+                         "Not ready. Missing gates:",
+      ...(report.blocking_gates || []).map(v => "• " + v),
+      "Promotion authority: " + report.deployment_authority,
+      "Promotion performed: NO",
+    ].join("\n"));
+  } catch (err) {
+    text(dom.candidateOutput, "Dry-run unavailable: " + err.message);
+  } finally {
+    dom.candidateButton.disabled = false;
+  }
+});
 
 dom.build.addEventListener("change", showRecord);
 dom.model.addEventListener("change", showRecord);
