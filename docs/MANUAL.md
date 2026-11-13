@@ -1,8 +1,6 @@
 # DnBOX
 
-This is the end-user manual for the SMK-37 Elite and the SMK-37 Pro.
-
-The product name is exactly DnBOX. Use that spelling in every player-facing sentence.
+This is the keyboard manual for DnBOX on the SMK-37 Elite and SMK-37 Pro. Start with the four musical tasks in chapter 3.
 
 ## Contents
 
@@ -41,19 +39,11 @@ The bass slots can run Chicago, Miami, Juno or Drone. Chicago is the 303 engine.
 
 Elite and Pro share the same playing surface. The USB product name and the Bluetooth name differ. The controls do not.
 
-**Goal.** A first-time player can hear a sound, write a pattern, and save it. Expert shortcuts stay in chapter 19. This book does not remove them.
+**Version.** This manual describes the **0.0.26 hardware-test candidate** built from source `94197fc8`, as listed in the [nightly installer catalog](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/versions.json). This is **not the stable release**: startup and restart have not been verified on hardware for this exact package. The current stable release is [0.0.25.1](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1); it has Chicago and Miami, but **not** Juno, Drone or held-key chord recording. Do not follow those 0.0.26-only steps on 0.0.25.1.
 
-**Version this book describes.** This manual matches source `94197fc8` (full id `94197fc839b00aff47b98ca02f3c6396e4a6eabf`). That source sits after the published tag `v0.0.25.1`. The Git describe string is `v0.0.25.1-87-g94197fc83`.
+For a first beat, bass line and saved pattern, use chapter 3, then chapters 4–8. Chapter 19 gathers shortcuts. The [browser companion](../web/MANUAL.md) explains installing, samples and project files; it does not replace the keyboard guide.
 
-The open-beta ledger has not allocated a new number. This book does not call the firmware 0.0.26.
-
-A published package must print the same `X0X_VERSION` that the build used. About and the USB product use the same words: `DnBOX` plus that version. About shows a line that starts `DnBOX ` plus the version, then `MEM` and `CPU`. If a build does not pass a version, that line starts `DnBOX DEV`. About can also append a short Git id as `g` plus the SHA when the build provides it.
-
-**How to read this book.** Start with chapter 3 for real musical tasks. Chapters 4 to 8 then take you from a cold start to a saved pattern. Later chapters cover the rest of the instrument. Chapter 19 keeps expert muscle memory in one place.
-
-A companion file, `web/MANUAL.md`, covers install, samples and project files in the browser. That file is not a second control manual.
-
-This book describes the strings and behaviour in source at this SHA. It does not describe proposed screens.
+This book describes the controls in the pinned development source, not proposed screens or a fully device-qualified release.
 
 ---
 
@@ -104,6 +94,8 @@ If record is on and the bass keyboard is on, that word is `SEQ KEYS`. If FREE PL
 On PARA, for a drum or a bass slot, the usual header is compact. It shows the part or engine name, page dots, the play icon, and a 2-pixel save dot if unsaved. It does not show the word `SEQ`. It does not show the word `SOUND`. It does not show the word `UNSAVED`. There is no `EDITING: SOUND` banner, and no `PROJECT SAVED` panel.
 
 The PARA footer points you back to the steps: `SEQ: STEPS`. On a drum part it also says `BLACK: SELECT` and `WHITE: SOUND` (or `KEY SOUND OFF`). On a bass slot it says `KEYS: SOUND`.
+
+**Reading the small symbols.** `NEXT` with a blinking pattern number means the pattern is queued, not playing yet. Amber `CHN` and an underline mark a live pattern chain. A 2-pixel dot on PARA means there are unsaved changes, **not** that saving finished. `SEQ KEYS` is the bass keyboard view; `FREE PLAY` plays without writing notes. `LP` means Loopy clip mode. See chapters 8, 11, 12 and 16 for the matching controls.
 
 ---
 
@@ -237,6 +229,8 @@ Press PARA to shape Miami. The pages are CARRIER, XMOD, FILTER, WOBBLE and OUTPU
 
 The two bass slots are not identical. They can run different engines. Their defaults are already different.
 
+**Sound presets versus projects.** The SOUND page offers the engine and its preset controls. Chicago and Miami have factory presets to recall. The current public packages do **not** import or export user preset files. To back up an entire song or setup, use [Projects](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/) and a portable `.x0xproject` file; that is not an individual sound preset. No Juno/Drone plug-in preset compatibility is claimed.
+
 ### Juno and Drone
 
 Each bass slot can also run Juno or Drone. Choose the engine on the PARA SOUND page (`CHICAGO`, `MIAMI`, `DRONE`, `JUNO`).
@@ -245,7 +239,7 @@ ARP on Juno or Drone also opens TB-3PO, and OCTAVE+ writes a line into that slot
 
 If the selected part is 909, 808 or BREAK, ARP does not open TB-3PO. The toast is `TB-3PO: PICK CHICAGO OR MIAMI`.
 
-Juno and Drone can record a held-key chord. If the chord does not fit, the toast is `CHORD NOT SAVED`.
+On this 0.0.26 candidate, Juno and Drone can record a held-key chord. If the chord does not fit, the toast is `CHORD NOT SAVED`. This is note recording for the current bass slot, not the separate CHORD control in Loopy clip mode. The manual does not promise a chord-name or inversion display.
 
 Do not call Juno or Drone a 303.
 
@@ -541,7 +535,7 @@ In clip mode, NOTE REPEAT is not the mixer:
 
 Do not treat NOTE REPEAT as the mixer while clip mode is on.
 
-DnBOX still identifies itself to Loopy as an APC40 mkII. That identity is a protocol identifier. See Appendix C. It must stay the same. Loopy mappings depend on that identity, not on the USB product string.
+DnBOX identifies itself to Loopy as an APC40 mkII for compatibility. Loopy mappings rely on that identity, not the USB product name. Protocol details are in the [developer reference](PROTOCOL_IDENTIFIERS.md).
 
 ---
 
@@ -555,13 +549,13 @@ A wrong-model write can make the keyboard unusable. Cancel writes nothing. The i
 
 The package identity that admits a write is `SMK-37 Elite_900` or `SMK-37 Pro_900` (release builds append a version code). That identity is not the everyday USB product string. Do not choose Elite or Pro by reading the USB product name.
 
-USB VID and PID, OTA SysEx, and the stock update-record ids must stay the same. See Appendix C. This book does not propose a rename.
+USB names are not sufficient to identify a model for a safe write. Package and loader protocol identifiers are documented separately in the [developer reference](PROTOCOL_IDENTIFIERS.md).
 
 While the unit is in the update loader, the USB product is `SMK-37 Elite Update` or `SMK-37 Pro Update`.
 
 Stop playback and recording before an install. Keep USB connected until the operation ends. If samples are at risk, back them up first, as the installer asks.
 
-MKE-P37 is the same hardware with a third name: USB product `DnBOX ` plus version plus ` MKE-P37`, package identity `MKE-P37_900`, Bluetooth `MKE-P37-` plus four hex digits. Starrykey 37 Play and the SMK-37 + VA mod are the same hardware family. Starrykey 37 Play uses the Pro package. The installer still requires a package that matches the model the keyboard reports. A family match is not enough for a write.
+Current public packages target **SMK-37 Elite and Pro only**. Starrykey 37 Play uses the Pro package. MKE-P37 has a distinct update identity and is **not** a third publicly offered package; do not substitute an Elite or Pro file for an unsupported identity. If the installer cannot confirm the physical model and package match, do not write.
 
 ---
 
@@ -772,28 +766,8 @@ The older book used FM-1 panel drawings and an FM-1 install URL. This book is fo
 
 ---
 
-## Appendix C. Protocol identifiers that must stay the same
+## Appendix C. Technical protocol reference
 
-Player-facing names can say DnBOX. The identifiers below are what installers, M-UPGRADE, Loopy and the editor protocol use. They must stay the same. This book describes what the unit uses today. It does not propose a rename.
+The everyday rule is simple: choose firmware for the **physical model**, then let the installer validate the package and device identity. A matching USB display name is not enough.
 
-| Identifier | Elite | Pro | Must stay? |
-|---|---|---|---|
-| USB product (app) | `DnBOX <version> SMK-37 Elite` | `DnBOX <version> SMK-37 Pro` | Keep the `SMK-37` token. Do not use this string to choose a package. |
-| USB manufacturer (app) | `X0X` | `X0X` | User-visible on some hosts. Changing it can change the port name. This book does not change it. |
-| USB product (update loader) | `SMK-37 Elite Update` | `SMK-37 Pro Update` | Prefer to keep. The loader manufacturer string is `Hügelton Instruments`. |
-| USB VID / PID (app) | `0x1209` / `0x0001` | Same | Yes. Never change. Shared by Elite and Pro. Not a model test. |
-| USB VID / PID (loader) | `0x1209` / `0x0002` | Same | Yes. |
-| Package / OTA identity | `SMK-37 Elite_900` (release adds a version code) | `SMK-37 Pro_900` | Yes. This admits a package. |
-| Loader OTA identity | `ota-SMK-37 Elite_900` | `ota-SMK-37 Pro_900` | Yes. Hosts look for `ota-`. |
-| Stock update-record parm id | `ota-SMK-37 Elite_016` | `ota-SMK-37 Pro_016` | Yes. So a factory package still applies. |
-| Handshake SysEx | Query `F0 00 32 45 …`, command `0x11`. The identity reply is the package id. | Same mechanism | Yes. Port names must not gate discovery. |
-| M-UPGRADE upgrade SysEx | `F0 22 24 35 7F F7` | Same | Yes. Soft key `F0 22 24 35 7D F7`. |
-| BLE advertised / GATT name | `SMK-37 Elite-` plus four hex | `SMK-37 Pro-` plus four hex | The four-hex suffix and address derivation must stay. |
-| BLE-MIDI service UUID | `03B80E5A-EDE8-4B33-A751-6CE34EC4C700` | Same | Yes. Standard BLE-MIDI. |
-| BLE-MIDI characteristic UUID | `7772E5DB-3868-4112-A1A9-F2669D106BF3` | Same | Yes. Standard BLE-MIDI. |
-| APC / Loopy identity | Manufacturer `0x47` (Akai), family `0x29` (APC40 mkII), firmware 1.2, device id `0x7F`. Introduction `F0 47 7F 29 61 …`. | Same | Yes. Loopy mappings depend on this, not on the USB product. |
-| Editor INFO version string | `"X0X "` plus the version (24-char field) | Same | Treat as protocol until tools change with it. |
-| Storage magic | `"X0X0"` and data family `"X0X"` | Same | Yes. |
-| About, crash, boot | `ABOUT DnBOX`, `DnBOX CRASH`, `DnBOX SAFE MODE`, boot `DnBOX` and `909 808 CHICAGO MIAMI` | Same | Display. Already spelled DnBOX. The boot subtitle does not list BREAK, Juno or Drone. |
-
-The onboard package handshake, not the USB display name, is the safe way to identify a unit for a write.
+Developers maintaining the loader, Bluetooth MIDI, Loopy identity and project storage should use [Protocol identifiers](PROTOCOL_IDENTIFIERS.md), pinned to the source described by this manual. They are not extra buttons or steps for performers.
