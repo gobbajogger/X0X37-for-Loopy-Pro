@@ -4,7 +4,7 @@ Firmware version labels are applied at package time. The numbers below are the p
 
 ## 0.0.25.1 — 2026-11-12
 
-Source: `79280e763341d03ba43266d3e25dad66f12de860`.
+Source: `79280e763341d03ba43266d3e25dad66f12de860` on branch `release/0.0.25.1`. That commit is not on `main`; building `main` does not produce 0.0.25.1.
 
 - A pattern-chain slot lasts for the longest playing part in the current pattern (909, 808, both 303s and BREAK), counting length and rate, rounded up to a whole 909 bar.
 - Muted, part-off and empty parts do not extend the slot. Chaining stays live-only and is not saved.
