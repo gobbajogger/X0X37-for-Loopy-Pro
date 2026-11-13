@@ -1,0 +1,48 @@
+# half-sampler layout for Elite 94197fc8
+# NO DWARF on this ELF (.symtab/.strtab only).
+# Addresses: ELF .symtab (nm -S). x0x_dbg field offsets: C struct
+#   in main_fm1.c (all uint32_t, packed, ELF size 52 == 13*4).
+# JB_* names: engine.c enum. ENG_PROF names: engine.h enum.
+# Miami's honest job is JB_A (index 2) when 303A is Miami, JB_B (index 3)
+# when 303B is Miami — not a 0-based index 5. The 5-element array is at eng_job_cost.
+elf_sha256 720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea
+ram_base 0x01c00000
+x0x_dbg 0x01c7c0d8 52
+field magic 0
+field halves 4
+field max_us 8
+field nested 12
+field in_audio 16
+field late 20
+field timer_irqs 24
+field ui_frames 28
+field last_us 32
+field cpu_q8 36
+field boots 40
+field stage 44
+field crash_seen 48
+sym audio_xruns 0x01c0839c 4
+sym audio_peak_pct 0x01c083a4 4
+sym audio_cpu_pct 0x01c08390 4
+sym eng_prof 0x01c088fc 32
+sym eng_prof_frames 0x01c08590 4
+sym eng_job_cost 0x01c087a8 20
+sym eng_plan 0x01c082c0 1
+sym eng_guard_count 0x01c0853c 4
+sym perf_cyc_ok 0x01c083a0 4
+prof PR_909
+prof PR_808
+prof PR_303A
+prof PR_303B
+prof PR_BRK
+prof PR_FX
+prof PR_MST
+prof PR_SEQ
+job JB_909
+job JB_808
+job JB_A
+job JB_B
+job JB_BRK
+c1_text 0x01c00e94 0x01c010f4
+fn run_job 0x0200f440 6470
+fn c1_take_over 0x0200f376 102

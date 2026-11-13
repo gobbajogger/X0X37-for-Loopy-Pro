@@ -1,0 +1,69 @@
+FMB — Phase 1 from Build and Test Runner (same job, Elite first pass not yet run).
+
+Verified here (sha256sum, cmp): Elite ELF 720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea
+(628,872 B) and package 95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6
+are byte-identical to base-94197fc8/build/smk37-elite/x0x.elf and to kept-026.
+Pro ELF 7e67c3b33fe2e690e5f913b5d048727a715c70daca06ddd326a10e37eacb9535 and
+package ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8 likewise.
+Source 94197fc839b00aff47b98ca02f3c6396e4a6eabf, SDK V1.2.14, your REPORT.txt build cmd.
+Owner installed hash still UNPROVEN. Provenance: /workspace/btr-dropout-repro/PROVENANCE.txt
+and PHASE1.md.
+
+Why the gate missed the owner scene: RUN PERF TEST is 3 short factory-sound
+patterns at 125 BPM (1+3 s each), 909+(808 in "harder")+303 TB-3PO+break steps,
+not Chicago-arp + held Juno triad + BREAK + 909 BD with no 808. Duration,
+engines, event timing and counters all differ. "More voices" is not the
+same load. On this image BREAK was likely silent in the gate too
+(X0X_NBREAKS=0). Elite gate: worst 11561 us, 0 late, 0 xrun (48 us under
+11609, 37 us under 11598). Re-parsed only; no gate rerun.
+
+BREAK: NOT_RUN. Factory pack cbfe682a…fe199e is 131152 B; Elite tail free
+is 8440 B — cannot compose into this exact package. I will not substitute
+a different hash. Slot load into emu flash is not ready. Leave-one-out
+"no BREAK" will not be a 5-min duplicate of the full scene while BREAK
+cannot play.
+
+Deadlines applied as you corrected: 11609 us budget and ~11598 us I2S half;
+5.805 ms dropped. Miss = late and audio_xruns. Pass = 0 and 0.
+
+Existing probes I will use (this ELF, no source edit): x0x_dbg
+(halves, max_us, last_us, late, nested, ui_frames, cpu_q8) at 0x01c7c0d8;
+audio_xruns 0x01c0839c; audio_cpu_pct 0x01c08390 (IIR /16, not used as
+the spike figure); audio_peak_pct 0x01c083a4 (PERF screen resets it);
+eng_prof[8] 0x01c088fc and eng_prof_frames; perf_cyc_ok 0x01c083a0;
+eng_guard_count; LCD PERF page (909/808/BASS A/BASS B/BRK/FX/MASTER/SEQ).
+X0X_LCD_TRACE=0 and X0X_DEBUG=0 on this image: no lcd_trace series, no
+x0x_worst, no P99, no first-late time. Raw per-half us series is
+UNMEASURED from firmware. Your probe points are welcome; I cannot bake
+them into this exact ELF. If they need a different build, I will label
+it and not replace 94197fc8.
+
+Measurement fact, not a root cause: PROF_ADD in run_job is `if (!core)`
+only — core 1 work is not in eng_prof / PERF stage. Chicago is kept on
+core 0. Miami and BREAK may be on core 1. I will flag UI meter vs
+eng_prof vs last_us/max_us mismatches, including in playing / idle /
+empty-sequence (your (a) is that empty segment: 808 silent, empty
+sequence, no events).
+
+Scene drive (planned, key timings not yet LCD-validated): USB MIDI
+(--usb, FM1_USB_SEND; SMK-37 has no TRS IN), 303A Chicago patch 0 arp
+ON + held notes, 303B Juno patch 0 held triad, 909 BD four-on-the-floor,
+140 BPM chosen, FX default and FX all-on as two configs. Core Elite
+first-pass (full + leave-one-outs, 5 min playing each) will be reported
+before Miami ON/OFF (b) and Juno-only (c). (c) chorus-off is NOT_RUN
+unless you say that changing the in-DSP chorus path is acceptable.
+(d) UI probes not now. I will not start a 5-min shot on an unvalidated
+key script.
+
+Please send probe points if you want a raw last_us series on this ELF
+without a rebuild (e.g. an emu-side sampler is fine on my side).
+
+Reparse of your existing gate-20261113-202119 RAM dumps (no rerun), with
+scripts/parse_scene.py. Elite max_us 11561 (48 us under 11609, 37 us under
+11598), Pro 11525 (84 and 73 us under); both late 0, xruns 0. perf_cyc_ok=0.
+eng_prof_delta, core 0 only: PR_303A is 0 on BOTH models, even though PERF
+TEST plays a TB-3PO line on 303 A (Miami) in all three scenarios. PR_303B
+(Chicago) is large. PR_BRK is non-zero with no loop bytes. This matches
+PROF_ADD skipping core 1 and is consistent with the owner's "Miami PERF
+shows 0 while playing", but it is not a diagnosis. Logs:
+/workspace/btr-dropout-repro/logs/reparse-gate-20261113-202119/{elite,pro}/scene_result.txt

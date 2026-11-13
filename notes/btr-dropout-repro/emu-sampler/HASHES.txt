@@ -1,0 +1,9 @@
+sampler_fm1_live_sha256  a147b8512fb4bd29170abc957f816a6978feccc2ddfc36bee80df599fb748500
+sampler_path             /workspace/btr-dropout-repro/emu-sampler/fm1-live
+based_on_commit          31157d2 (fm1-live 0.4.0, same as stock)
+branch                   btr/half-sampler (local, not pushed)
+stock_fm1_live_sha256    f3e65ccfa39874168b99494055f9a755342c41bc769257883030d15aef7b54f5
+stock_path               /workspace/emu360-target/release/fm1-live  (UNTOUCHED)
+layout                   /workspace/btr-dropout-repro/emu-sampler/half_layout.txt
+elite_elf_sha256         720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea
+smoke                    logs/sampler-smoke  276 rows, halves 2..277, late 0

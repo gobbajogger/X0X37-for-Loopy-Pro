@@ -1,0 +1,10 @@
+FX all-on (chosen, owner FX is UNKNOWN):
+  All 5 part REV and DLY sends (T_MIX MX_REV, MX_DLY) set to pot 127 (max).
+  Parts in PART_ORDER via MIX PARTS black keys: 909=k6, 808=k8, BRK=k10, 303B=k13, 303A=k15.
+  V_MIX opened with NOTE REPEAT (B_LFO). Knob 3 (e6)=REV, knob 4 (e7)=DLY.
+  Encoder command is e6:+128 and e7:+128 (clamped at 127). Short shot with +127 left
+  mix_dly at [0,1,0,1,0]; short shot with +128 and 3500 ms gaps: mix_rev and mix_dly all 1.0,
+  pots all REV=127 DLY=127. Log: /workspace/btr-dropout-repro/logs/validate-full-fx-allon/
+  Master FX_RV_LEVEL and FX_DL_LEVEL left at factory default 85 (already audible).
+  Other FX pots left at factory defaults.
+  Times after the FX block are +40000 ms vs full-fx-default so play=300s, idle=90s, empty=90s.

@@ -1,0 +1,13 @@
+{
+  "setup_end_ms": 73700,
+  "play_start_ms": 73300,
+  "play_end_ms": 373700,
+  "idle_start_ms": 373700,
+  "idle_end_ms": 463700,
+  "nav_empty_start_ms": 463700,
+  "empty_play_ms": 468200,
+  "shot_ms": 558200,
+  "play_ms": 300000,
+  "idle_ms": 90000,
+  "empty_ms": 90000
+}

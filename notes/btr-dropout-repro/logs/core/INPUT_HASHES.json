@@ -1,0 +1,147 @@
+{
+  "sampler_fm1-live": {
+    "path": "/workspace/btr-dropout-repro/emu-sampler/fm1-live",
+    "sha256": "a147b8512fb4bd29170abc957f816a6978feccc2ddfc36bee80df599fb748500",
+    "size": 4961424
+  },
+  "stock_fm1-live": {
+    "path": "/workspace/emu360-target/release/fm1-live",
+    "sha256": "f3e65ccfa39874168b99494055f9a755342c41bc769257883030d15aef7b54f5",
+    "size": 4930504
+  },
+  "elite_elf": {
+    "path": "/workspace/build-1214/artifacts/elite/x0x.elf",
+    "sha256": "720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea",
+    "size": 628872
+  },
+  "elite_fwsc": {
+    "path": "/workspace/build-1214/artifacts/elite/DnBOX-0.0.26-SMK37-Elite-94197fc8.fwsc",
+    "sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6",
+    "size": 651732
+  },
+  "half_layout": {
+    "path": "/workspace/btr-dropout-repro/emu-sampler/half_layout.txt",
+    "sha256": "44b5a872cf5d44d9eef1557e87a66c11c8a356a6f89fd1552c8d13ba629d561d",
+    "size": 1278
+  },
+  "keys_full-fx-default": {
+    "path": "/workspace/btr-dropout-repro/keys/full-fx-default.keys",
+    "sha256": "ef2a44a23454dea1d74b04c6427693ce65aa5f306264a7e419e66923c4359d9c",
+    "size": 1610
+  },
+  "usb_full-fx-default": {
+    "path": "/workspace/btr-dropout-repro/keys/full-fx-default.usb",
+    "sha256": "02813cbcbf7ae9f0b5c8c7f6e2fb3bf5b0abc96c9a47933fe79818d7abaefbe5",
+    "size": 135
+  },
+  "states_full-fx-default": {
+    "path": "/workspace/btr-dropout-repro/keys/full-fx-default.states.json",
+    "sha256": "eafa4f088b77f9251ee63898601ec1ae83c66a739b50a5e7eb63d85cf47dc9b4",
+    "size": 273
+  },
+  "run_core_config.py": {
+    "path": "/workspace/btr-dropout-repro/scripts/run_core_config.py",
+    "sha256": "34b285b66217e424c82512a6c609c409689e9b5ec62941ce580aaeaa137ec7fc",
+    "size": 4475
+  },
+  "hash_core_logs.py": {
+    "path": "/workspace/btr-dropout-repro/scripts/hash_core_logs.py",
+    "sha256": "31aa574f8a4a70760e85903313724e049519ba749b47978942adc654bcedab65",
+    "size": 6880
+  },
+  "FIRST_PASS_VALIDATED": {
+    "path": "/workspace/btr-dropout-repro/FIRST_PASS_VALIDATED",
+    "sha256": "02ef725c3e2f72d2845b316a02c285cc47fc2fa113a576a30f2f02b488a4b6fe",
+    "size": 1976
+  },
+  "keys_loo-no-juno": {
+    "path": "/workspace/btr-dropout-repro/keys/loo-no-juno.keys",
+    "sha256": "83ef5ef57497e43af088d3f33cdd998e3bd1099974fcb8388eb5faa5653ebf95",
+    "size": 1018
+  },
+  "usb_loo-no-juno": {
+    "path": "/workspace/btr-dropout-repro/keys/loo-no-juno.usb",
+    "sha256": "dd90b1c7bd7fc887c38c59068ccca84d8f2750ad74a3025d330670b4ee5f111d",
+    "size": 54
+  },
+  "states_loo-no-juno": {
+    "path": "/workspace/btr-dropout-repro/keys/loo-no-juno.states.json",
+    "sha256": "eafa4f088b77f9251ee63898601ec1ae83c66a739b50a5e7eb63d85cf47dc9b4",
+    "size": 273
+  },
+  "keys_loo-no-909": {
+    "path": "/workspace/btr-dropout-repro/keys/loo-no-909.keys",
+    "sha256": "ca7b9158325363ccdfb313b8b55e798f7be8d7261b2cc45a306b40d927a67aea",
+    "size": 1446
+  },
+  "usb_loo-no-909": {
+    "path": "/workspace/btr-dropout-repro/keys/loo-no-909.usb",
+    "sha256": "02813cbcbf7ae9f0b5c8c7f6e2fb3bf5b0abc96c9a47933fe79818d7abaefbe5",
+    "size": 135
+  },
+  "states_loo-no-909": {
+    "path": "/workspace/btr-dropout-repro/keys/loo-no-909.states.json",
+    "sha256": "eafa4f088b77f9251ee63898601ec1ae83c66a739b50a5e7eb63d85cf47dc9b4",
+    "size": 273
+  },
+  "RAW_TABLE.tsv": {
+    "path": "/workspace/btr-dropout-repro/logs/core/full-fx-default/RAW_TABLE.tsv",
+    "sha256": "c676cc55a0bcc0bd583290b04f0c8e3377d4da635ad72a2d3ca6cf8df044545f",
+    "size": 4552
+  },
+  "VALIDATION_HASHES.json": {
+    "path": "/workspace/btr-dropout-repro/logs/VALIDATION_HASHES.json",
+    "sha256": "2cf5d39769d5c4ff8c831691f51ade020442c6438963c1da2b4784243850fdf6",
+    "size": 14126
+  },
+  "keys_full-fx-allon": {
+    "path": "/workspace/btr-dropout-repro/keys/full-fx-allon.keys",
+    "sha256": "7751e8d2e23d6ec106597b112f1396021696cce5632ea61fee65dae7c68b0e7b",
+    "size": 1888
+  },
+  "usb_full-fx-allon": {
+    "path": "/workspace/btr-dropout-repro/keys/full-fx-allon.usb",
+    "sha256": "cb311bf3ce44dc62e82cefee39ae67f3a3f66eac76598a1763d23e1faa33524f",
+    "size": 135
+  },
+  "states_full-fx-allon": {
+    "path": "/workspace/btr-dropout-repro/keys/full-fx-allon.states.json",
+    "sha256": "bc667087c39be878a80e6a373d333d4da121de617334a1414224024c1ef9b1d5",
+    "size": 273
+  },
+  "meaning_full-fx-allon": {
+    "path": "/workspace/btr-dropout-repro/keys/full-fx-allon.MEANING.txt",
+    "sha256": "1e3a4b8fbc5479bb87a17c4ecf4166ed6e09ed865f710cd67fe9967a9ed9322d",
+    "size": 775
+  },
+  "keys_loo-no-arp": {
+    "path": "/workspace/btr-dropout-repro/keys/loo-no-arp.keys",
+    "sha256": "989dace6ab7810c190b952a438a84c69a9164b7e48305ee678856ebba8c44abc",
+    "size": 1634
+  },
+  "usb_loo-no-arp": {
+    "path": "/workspace/btr-dropout-repro/keys/loo-no-arp.usb",
+    "sha256": "02813cbcbf7ae9f0b5c8c7f6e2fb3bf5b0abc96c9a47933fe79818d7abaefbe5",
+    "size": 135
+  },
+  "states_loo-no-arp": {
+    "path": "/workspace/btr-dropout-repro/keys/loo-no-arp.states.json",
+    "sha256": "eafa4f088b77f9251ee63898601ec1ae83c66a739b50a5e7eb63d85cf47dc9b4",
+    "size": 273
+  },
+  "meaning_loo-no-arp": {
+    "path": "/workspace/btr-dropout-repro/keys/loo-no-arp.MEANING.txt",
+    "sha256": "d77d6a69f91951ba1023f7467796777933da8a3499e223e9d83386e6a31607ae",
+    "size": 438
+  },
+  "validate_full-fx-allon_keys": {
+    "path": "/workspace/btr-dropout-repro/keys/validate-full-fx-allon.keys",
+    "sha256": "074ae6be04c0c24e71e9d980f9585b270b69950e40702feafbf56dd6af660cf3",
+    "size": 272
+  },
+  "validate_loo-no-arp_keys": {
+    "path": "/workspace/btr-dropout-repro/keys/validate-loo-no-arp.keys",
+    "sha256": "9accb26062582411adbf2042613431e7337669aeb4cf157d126fa208b90cefaf",
+    "size": 768
+  }
+}

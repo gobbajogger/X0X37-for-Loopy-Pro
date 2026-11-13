@@ -1,0 +1,68 @@
+{
+  "dir": "/workspace/btr-dropout-repro/logs/core/full-fx-default",
+  "present": {
+    "META.json": true,
+    "emu.log": true,
+    "half.csv": true,
+    "ram.bin": true,
+    "wall.txt": true,
+    "lcd.png": true,
+    "lcd-2x.png": true,
+    "work/lcd.ppm": true,
+    "core1.csv": true
+  },
+  "missing": [],
+  "sha256": {
+    "META.json": "3a6825e4d80a5b8f577c9a0e56529fda727c5eb6dbe341514784b6367e408c42",
+    "emu.log": "11a25ec48d191fa1aab69388c5fd298de031155b9581a82ca67586408e0aef22",
+    "half.csv": "2324ec1c94f3bcae5f58c597e62f4581c8e8cf55bb155aa51ddf41dcc9b51f41",
+    "ram.bin": "3fed1b65ccf457a0dd9065b7674ce76ff0ad97ebeb0658a425c3fb4fe0c1139a",
+    "wall.txt": "5b217b44e98b009a4fabe9400a3ac18c5e4fe45dd62843adb51eb20141871ccd",
+    "lcd.png": "e0d23c629684393830ded1084052d4ce9464317ae974187ca69ade9d143b6f66",
+    "lcd-2x.png": "6ca673491288c6e040285d4860ddc16236ee203fee032719e99c3e11a6f27238",
+    "work/lcd.ppm": "d724affc259e0de03fdc5390749f95e4ea92e8d185c7a3d0b5c7c83960f7d83d",
+    "core1.csv": "05d41e46e7ef89941ae16b015caaa6bc929d4164a5a0e60e598c10644af14354",
+    "RAW_TABLE.json": "f6fc8e1e915618de41632c64e2240708a3cd65720fdd9e5b089ba09e67096ba2"
+  },
+  "sizes": {
+    "META.json": 1041,
+    "emu.log": 527362,
+    "half.csv": 7156133,
+    "ram.bin": 1048576,
+    "wall.txt": 21,
+    "lcd.png": 9711,
+    "lcd-2x.png": 13892,
+    "work/lcd.ppm": 172815,
+    "core1.csv": 1540728,
+    "RAW_TABLE.json": 15041
+  },
+  "half_header_ok": true,
+  "half_rows": 44587,
+  "half_bad_rows": 0,
+  "halves_monotonic": true,
+  "halves_first": 2,
+  "halves_last": 44588,
+  "t_ms_first": 755.0590345486111,
+  "t_ms_last": 518190.9845324653,
+  "shot_ms": 518200,
+  "t_ms_reaches_shot": true,
+  "wall": "wall_s=935.58\nexit=0",
+  "half_first": {
+    "halves": "2",
+    "last_us": "2241",
+    "max_us": "4028",
+    "late": "0",
+    "audio_xruns": "0",
+    "eng_plan": "4",
+    "emu_cycles": "4349140039"
+  },
+  "half_last": {
+    "halves": "44588",
+    "last_us": "2516",
+    "max_us": "8690",
+    "late": "0",
+    "audio_xruns": "0",
+    "eng_plan": "0",
+    "emu_cycles": "2984780070907"
+  }
+}

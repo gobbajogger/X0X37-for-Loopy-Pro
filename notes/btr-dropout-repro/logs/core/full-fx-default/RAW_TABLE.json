@@ -1,0 +1,882 @@
+{
+  "setup": {
+    "label": "setup",
+    "n": 2805,
+    "t_ms_first": 755.0590345486111,
+    "t_ms_last": 33296.60018958333,
+    "halves_first": 2,
+    "halves_last": 2806,
+    "last_us": {
+      "min": 1441,
+      "max": 3433,
+      "first": 2241,
+      "last": 2428
+    },
+    "max_us": {
+      "min": 4028,
+      "max": 4028,
+      "first": 4028,
+      "last": 4028
+    },
+    "late": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "audio_xruns": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "audio_peak_pct": {
+      "min": 34,
+      "max": 34,
+      "first": 34,
+      "last": 34
+    },
+    "audio_cpu_pct": {
+      "min": 2,
+      "max": 16,
+      "first": 2,
+      "last": 16
+    },
+    "d_PR_909": {
+      "min": 1960,
+      "max": 2754,
+      "first": 2163,
+      "last": 2102
+    },
+    "d_PR_808": {
+      "min": 98,
+      "max": 2732,
+      "first": 511,
+      "last": 188
+    },
+    "d_PR_303A": {
+      "min": 0,
+      "max": 27072,
+      "first": 0,
+      "last": 7378
+    },
+    "d_PR_303B": {
+      "min": 0,
+      "max": 23537,
+      "first": 23501,
+      "last": 18744
+    },
+    "d_PR_BRK": {
+      "min": 398,
+      "max": 953,
+      "first": 609,
+      "last": 430
+    },
+    "d_PR_FX": {
+      "min": 24,
+      "max": 1537,
+      "first": 532,
+      "last": 575
+    },
+    "d_PR_MST": {
+      "min": 13751,
+      "max": 15256,
+      "first": 14275,
+      "last": 13759
+    },
+    "d_PR_SEQ": {
+      "min": 1378,
+      "max": 18414,
+      "first": 3368,
+      "last": 2211
+    },
+    "JB_909": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "JB_808": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "JB_A": {
+      "min": 3578,
+      "max": 18730,
+      "first": 10667,
+      "last": 6499
+    },
+    "JB_B": {
+      "min": 1948,
+      "max": 18087,
+      "first": 18087,
+      "last": 11384
+    },
+    "JB_BRK": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "eng_plan": {
+      "min": 0,
+      "max": 8,
+      "first": 4,
+      "last": 0
+    },
+    "c1_busy_ticks": {
+      "min": 13246299,
+      "max": 74569087,
+      "first": 13246299,
+      "last": 62042862
+    },
+    "c1_job_busy_ticks": {
+      "min": 0,
+      "max": 1176831,
+      "first": 418053,
+      "last": 0
+    },
+    "c1_job_starts": {
+      "min": 0,
+      "max": 5,
+      "first": 3,
+      "last": 0
+    },
+    "c1_ticks": {
+      "min": 13824000,
+      "max": 78007301,
+      "first": 13824000,
+      "last": 66808044
+    },
+    "eng_guard_count": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "perf_cyc_ok": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "ui_frames": {
+      "min": 0,
+      "max": 386,
+      "first": 0,
+      "last": 386
+    },
+    "nested": {
+      "min": 62,
+      "max": 48563,
+      "first": 62,
+      "last": 48563
+    }
+  },
+  "play": {
+    "label": "play",
+    "n": 25884,
+    "t_ms_first": 33309.55903454861,
+    "t_ms_last": 333693.7590345486,
+    "halves_first": 2807,
+    "halves_last": 28690,
+    "last_us": {
+      "min": 3169,
+      "max": 8690,
+      "first": 3719,
+      "last": 7125
+    },
+    "max_us": {
+      "min": 4028,
+      "max": 8690,
+      "first": 4028,
+      "last": 8690
+    },
+    "late": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "audio_xruns": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "audio_peak_pct": {
+      "min": 34,
+      "max": 74,
+      "first": 34,
+      "last": 74
+    },
+    "audio_cpu_pct": {
+      "min": 16,
+      "max": 65,
+      "first": 16,
+      "last": 62
+    },
+    "d_PR_909": {
+      "min": 18547,
+      "max": 24850,
+      "first": 20041,
+      "last": 19905
+    },
+    "d_PR_808": {
+      "min": 189,
+      "max": 1113,
+      "first": 308,
+      "last": 309
+    },
+    "d_PR_303A": {
+      "min": 7574,
+      "max": 83233,
+      "first": 8452,
+      "last": 66622
+    },
+    "d_PR_303B": {
+      "min": 18480,
+      "max": 52782,
+      "first": 18926,
+      "last": 49820
+    },
+    "d_PR_BRK": {
+      "min": 520,
+      "max": 7857,
+      "first": 520,
+      "last": 640
+    },
+    "d_PR_FX": {
+      "min": 212,
+      "max": 3004,
+      "first": 337,
+      "last": 856
+    },
+    "d_PR_MST": {
+      "min": 13993,
+      "max": 16189,
+      "first": 14443,
+      "last": 14325
+    },
+    "d_PR_SEQ": {
+      "min": 2984,
+      "max": 14608,
+      "first": 11744,
+      "last": 4192
+    },
+    "JB_909": {
+      "min": 10289,
+      "max": 21932,
+      "first": 11295,
+      "last": 13642
+    },
+    "JB_808": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "JB_A": {
+      "min": 6829,
+      "max": 74745,
+      "first": 7415,
+      "last": 51468
+    },
+    "JB_B": {
+      "min": 11279,
+      "max": 31108,
+      "first": 11360,
+      "last": 27951
+    },
+    "JB_BRK": {
+      "min": 0,
+      "max": 6539,
+      "first": 0,
+      "last": 6539
+    },
+    "eng_plan": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "c1_busy_ticks": {
+      "min": 55498872,
+      "max": 92386911,
+      "first": 70954563,
+      "last": 61338481
+    },
+    "c1_job_busy_ticks": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "c1_job_starts": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "c1_ticks": {
+      "min": 58752000,
+      "max": 96773097,
+      "first": 74642947,
+      "last": 63698128
+    },
+    "eng_guard_count": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "perf_cyc_ok": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "ui_frames": {
+      "min": 387,
+      "max": 1088,
+      "first": 387,
+      "last": 1088
+    },
+    "nested": {
+      "min": 48601,
+      "max": 2028243,
+      "first": 48601,
+      "last": 2028243
+    }
+  },
+  "idle": {
+    "label": "idle",
+    "n": 7756,
+    "t_ms_first": 333706.3295385417,
+    "t_ms_last": 423699.99999982637,
+    "halves_first": 28691,
+    "halves_last": 36446,
+    "last_us": {
+      "min": 2266,
+      "max": 8123,
+      "first": 7125,
+      "last": 2403
+    },
+    "max_us": {
+      "min": 8690,
+      "max": 8690,
+      "first": 8690,
+      "last": 8690
+    },
+    "late": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "audio_xruns": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "audio_peak_pct": {
+      "min": 74,
+      "max": 74,
+      "first": 74,
+      "last": 74
+    },
+    "audio_cpu_pct": {
+      "min": 19,
+      "max": 62,
+      "first": 62,
+      "last": 19
+    },
+    "d_PR_909": {
+      "min": 1961,
+      "max": 22556,
+      "first": 22168,
+      "last": 2195
+    },
+    "d_PR_808": {
+      "min": 128,
+      "max": 720,
+      "first": 402,
+      "last": 188
+    },
+    "d_PR_303A": {
+      "min": 6327,
+      "max": 81400,
+      "first": 81400,
+      "last": 7745
+    },
+    "d_PR_303B": {
+      "min": 18266,
+      "max": 50947,
+      "first": 50947,
+      "last": 18506
+    },
+    "d_PR_BRK": {
+      "min": 428,
+      "max": 890,
+      "first": 803,
+      "last": 430
+    },
+    "d_PR_FX": {
+      "min": 54,
+      "max": 2030,
+      "first": 1617,
+      "last": 101
+    },
+    "d_PR_MST": {
+      "min": 13094,
+      "max": 15661,
+      "first": 15202,
+      "last": 13729
+    },
+    "d_PR_SEQ": {
+      "min": 1242,
+      "max": 11652,
+      "first": 5987,
+      "last": 1948
+    },
+    "JB_909": {
+      "min": 9792,
+      "max": 15872,
+      "first": 13236,
+      "last": 10493
+    },
+    "JB_808": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "JB_A": {
+      "min": 5609,
+      "max": 57657,
+      "first": 50022,
+      "last": 6708
+    },
+    "JB_B": {
+      "min": 11001,
+      "max": 29284,
+      "first": 27829,
+      "last": 11200
+    },
+    "JB_BRK": {
+      "min": 6539,
+      "max": 6539,
+      "first": 6539,
+      "last": 6539
+    },
+    "eng_plan": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "c1_busy_ticks": {
+      "min": 44236121,
+      "max": 70200813,
+      "first": 69824456,
+      "last": 63264956
+    },
+    "c1_job_busy_ticks": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "c1_job_starts": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "c1_ticks": {
+      "min": 46111853,
+      "max": 72406103,
+      "first": 72406103,
+      "last": 66814937
+    },
+    "eng_guard_count": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "perf_cyc_ok": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "ui_frames": {
+      "min": 1088,
+      "max": 1595,
+      "first": 1088,
+      "last": 1595
+    },
+    "nested": {
+      "min": 2028324,
+      "max": 2216639,
+      "first": 2028324,
+      "last": 2216639
+    }
+  },
+  "empty": {
+    "label": "empty",
+    "n": 7755,
+    "t_ms_first": 428202.7590345486,
+    "t_ms_last": 518190.9845324653,
+    "halves_first": 36834,
+    "halves_last": 44588,
+    "last_us": {
+      "min": 2311,
+      "max": 3184,
+      "first": 2311,
+      "last": 2516
+    },
+    "max_us": {
+      "min": 8690,
+      "max": 8690,
+      "first": 8690,
+      "last": 8690
+    },
+    "late": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "audio_xruns": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "audio_peak_pct": {
+      "min": 74,
+      "max": 74,
+      "first": 74,
+      "last": 74
+    },
+    "audio_cpu_pct": {
+      "min": 19,
+      "max": 20,
+      "first": 19,
+      "last": 20
+    },
+    "d_PR_909": {
+      "min": 1990,
+      "max": 2895,
+      "first": 1990,
+      "last": 2362
+    },
+    "d_PR_808": {
+      "min": 128,
+      "max": 869,
+      "first": 158,
+      "last": 543
+    },
+    "d_PR_303A": {
+      "min": 6676,
+      "max": 11200,
+      "first": 6678,
+      "last": 9994
+    },
+    "d_PR_303B": {
+      "min": 18269,
+      "max": 19711,
+      "first": 18509,
+      "last": 19035
+    },
+    "d_PR_BRK": {
+      "min": 0,
+      "max": 963,
+      "first": 430,
+      "last": 503
+    },
+    "d_PR_FX": {
+      "min": 58,
+      "max": 2321,
+      "first": 347,
+      "last": 1149
+    },
+    "d_PR_MST": {
+      "min": 13422,
+      "max": 14991,
+      "first": 13707,
+      "last": 14056
+    },
+    "d_PR_SEQ": {
+      "min": 1549,
+      "max": 11163,
+      "first": 1549,
+      "last": 4353
+    },
+    "JB_909": {
+      "min": 10493,
+      "max": 10493,
+      "first": 10493,
+      "last": 10493
+    },
+    "JB_808": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "JB_A": {
+      "min": 6243,
+      "max": 18505,
+      "first": 6543,
+      "last": 8360
+    },
+    "JB_B": {
+      "min": 11092,
+      "max": 13803,
+      "first": 11210,
+      "last": 11451
+    },
+    "JB_BRK": {
+      "min": 3002,
+      "max": 6539,
+      "first": 6539,
+      "last": 4336
+    },
+    "eng_plan": {
+      "min": 0,
+      "max": 16,
+      "first": 0,
+      "last": 0
+    },
+    "c1_busy_ticks": {
+      "min": 56388386,
+      "max": 69443061,
+      "first": 64236300,
+      "last": 60192809
+    },
+    "c1_job_busy_ticks": {
+      "min": 0,
+      "max": 1351188,
+      "first": 0,
+      "last": 0
+    },
+    "c1_job_starts": {
+      "min": 0,
+      "max": 3,
+      "first": 0,
+      "last": 0
+    },
+    "c1_ticks": {
+      "min": 62784000,
+      "max": 70850161,
+      "first": 66240000,
+      "last": 68487223
+    },
+    "eng_guard_count": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "perf_cyc_ok": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "ui_frames": {
+      "min": 1653,
+      "max": 2825,
+      "first": 1653,
+      "last": 2825
+    },
+    "nested": {
+      "min": 2225941,
+      "max": 2428517,
+      "first": 2225941,
+      "last": 2428517
+    }
+  },
+  "all": {
+    "label": "all",
+    "n": 44587,
+    "t_ms_first": 755.0590345486111,
+    "t_ms_last": 518190.9845324653,
+    "halves_first": 2,
+    "halves_last": 44588,
+    "last_us": {
+      "min": 1441,
+      "max": 8690,
+      "first": 2241,
+      "last": 2516
+    },
+    "max_us": {
+      "min": 4028,
+      "max": 8690,
+      "first": 4028,
+      "last": 8690
+    },
+    "late": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "audio_xruns": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "audio_peak_pct": {
+      "min": 34,
+      "max": 74,
+      "first": 34,
+      "last": 74
+    },
+    "audio_cpu_pct": {
+      "min": 2,
+      "max": 65,
+      "first": 2,
+      "last": 20
+    },
+    "d_PR_909": {
+      "min": 1960,
+      "max": 24850,
+      "first": 2163,
+      "last": 2362
+    },
+    "d_PR_808": {
+      "min": 98,
+      "max": 2732,
+      "first": 511,
+      "last": 543
+    },
+    "d_PR_303A": {
+      "min": 0,
+      "max": 83233,
+      "first": 0,
+      "last": 9994
+    },
+    "d_PR_303B": {
+      "min": 0,
+      "max": 52782,
+      "first": 23501,
+      "last": 19035
+    },
+    "d_PR_BRK": {
+      "min": 0,
+      "max": 7857,
+      "first": 609,
+      "last": 503
+    },
+    "d_PR_FX": {
+      "min": 24,
+      "max": 3004,
+      "first": 532,
+      "last": 1149
+    },
+    "d_PR_MST": {
+      "min": 13094,
+      "max": 16189,
+      "first": 14275,
+      "last": 14056
+    },
+    "d_PR_SEQ": {
+      "min": 1242,
+      "max": 18414,
+      "first": 3368,
+      "last": 4353
+    },
+    "JB_909": {
+      "min": 0,
+      "max": 21932,
+      "first": 0,
+      "last": 10493
+    },
+    "JB_808": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "JB_A": {
+      "min": 3578,
+      "max": 74745,
+      "first": 10667,
+      "last": 8360
+    },
+    "JB_B": {
+      "min": 1948,
+      "max": 31108,
+      "first": 18087,
+      "last": 11451
+    },
+    "JB_BRK": {
+      "min": 0,
+      "max": 6539,
+      "first": 0,
+      "last": 4336
+    },
+    "eng_plan": {
+      "min": 0,
+      "max": 16,
+      "first": 4,
+      "last": 0
+    },
+    "c1_busy_ticks": {
+      "min": 13246299,
+      "max": 92386911,
+      "first": 13246299,
+      "last": 60192809
+    },
+    "c1_job_busy_ticks": {
+      "min": 0,
+      "max": 1351188,
+      "first": 418053,
+      "last": 0
+    },
+    "c1_job_starts": {
+      "min": 0,
+      "max": 5,
+      "first": 3,
+      "last": 0
+    },
+    "c1_ticks": {
+      "min": 13824000,
+      "max": 96773097,
+      "first": 13824000,
+      "last": 68487223
+    },
+    "eng_guard_count": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "perf_cyc_ok": {
+      "min": 0,
+      "max": 0,
+      "first": 0,
+      "last": 0
+    },
+    "ui_frames": {
+      "min": 0,
+      "max": 2825,
+      "first": 0,
+      "last": 2825
+    },
+    "nested": {
+      "min": 62,
+      "max": 2428517,
+      "first": 62,
+      "last": 2428517
+    }
+  }
+}

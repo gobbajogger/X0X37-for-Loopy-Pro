@@ -1,0 +1,34 @@
+source: 94197fc839b00aff47b98ca02f3c6396e4a6eabf
+elf:    /workspace/build-1214/artifacts/pro/x0x.elf
+elf_sha256: 7e67c3b33fe2e690e5f913b5d048727a715c70daca06ddd326a10e37eacb9535
+fwsc:   /workspace/build-1214/artifacts/pro/DnBOX-0.0.26-SMK37-Pro-94197fc8.fwsc
+fwsc_sha256: ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8
+config: REPARSE-only: prior RUN PERF TEST gate, not the owner scene
+state:  gate-end
+x0x_dbg magic ok: True
+halves: 2173  last_us: 1614  max_us_since_boot: 11525
+late: 0  audio_xruns: 0
+deadlines: budget 11609 us, I2S half ~11598 us  (5.805 ms is NOT a deadline)
+margin last_us: 9995 us vs budget, 9984 us vs I2S
+margin max_us:  84 us vs budget, 73 us vs I2S
+audio_cpu_pct (IIR avg, not the spike figure): 11
+audio_peak_pct (PERF screen resets this): 13
+cpu_q8 load: 11.7 %
+perf_cyc_ok: 0  ui_frames: 259  nested: 91094  guard: 0
+-- at start: halves 518, max_us 4015, late 0
+-- during this shot: halves 1655, late 0, xruns 0
+eng_prof (cumulative plat_cycles, core 0 only; core 1 is not PROF_ADD'd):
+  PR_909: 30821349
+  PR_808: 43543654
+  PR_303A: 0
+  PR_303B: 38270207
+  PR_BRK: 3316232
+  PR_FX: 4240343
+  PR_MST: 24463944
+  PR_SEQ: 8713991
+eng_prof_frames: 1112576
+raw per-half series: UNMEASURED (no lcd_trace/x0x_worst on 94197fc8; last_us is one sample)
+P99: UNMEASURED
+first_late_timestamp: none
+0 late and 0 xrun: True
+no claim that anything is universally dropout-free

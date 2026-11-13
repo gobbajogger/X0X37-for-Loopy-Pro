@@ -1,0 +1,9 @@
+half sampler: writing /workspace/btr-dropout-repro/logs/sampler-smoke/half.csv (layout /workspace/btr-dropout-repro/emu-sampler/half_layout.txt)
+irq levels at the end: [], ie true, skipped 171405226455 cycles
+last 40 ms: 31% of instructions in ISRs = 18.3 M ISR instructions per second (clock 5760 MHz)
+LCD: on the wire 3% of the run (1132 ms of 42900 ms)
+LED on-fractions: 
+SMK-37 pads (1 frames): 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000
+work/lcd.ppm at 42900 ms; LEDs lit: []; audio peak over the last 0.5 s: 0
+half sampler: 3628 rows (last halves 3629)
+flash: 20 erases / programs

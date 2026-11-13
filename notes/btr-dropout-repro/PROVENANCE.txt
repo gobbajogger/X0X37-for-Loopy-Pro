@@ -1,0 +1,108 @@
+# BTR dropout-repro provenance
+# Written 2026-11-13 08:18 America/Chicago (CST, UTC-6).
+# All sha256 values below were computed in this session with sha256sum
+# (see SHA256-VERIFIED.txt). FMB supplied the build facts; hashes were
+# verified here, not taken on trust.
+
+## Source and build (FMB, /workspace/build-1214/REPORT.txt)
+source_commit=94197fc839b00aff47b98ca02f3c6396e4a6eabf
+source_tree=72d28fbc741244d18fa3d18495da16ab0fcb1d24
+copied_from=/workspace/dnbox-94197-rebuild/source/gobbajogger-X0X37-for-Loopy-Pro-94197fc/
+build_tree=/workspace/build-1214/base-94197fc8
+sdk_path=/workspace/build-1214/sdk-v1.2.14
+sdk_tag=AC79NN_SDK_V1.2.14_2026-10-13
+sdk_commit=5fa84a9b2f723a5e9337ad79dc2ad741fc98fe2d
+sdk_tree=8a048c57fa919f6b34cd46c20691303a4266b414
+sdk_archive_tar_sha256=8d6a3ee1e38dbfef9564c4f5158880c386361a071cb7be051999d401291867e6
+compiler=clang 4.0.1 (JIELI_TOOLCHAIN=/home/box/.jieli/toolchain, target pi32v2)
+X0X_DEV_PADCAL=0
+nightly_version=0.0.26
+built=2026-11-13 05:34-05:35 America/Chicago
+
+Build command (Elite; Pro is the same with --model pro and MODEL=pro):
+  unset GIT_DIR GIT_OPTIONAL_LOCKS
+  cd /workspace/build-1214/base-94197fc8
+  export JIELI_TOOLCHAIN=/home/box/.jieli/toolchain
+  export AC79_SDK=/workspace/build-1214/sdk-v1.2.14
+  export X0X_DEV_PADCAL=0 BOARD=smk37 MODEL=elite X0X_JOBS=4
+  python3 -u tools/build.py --board smk37 --model elite \
+    --sdk /workspace/build-1214/sdk-v1.2.14 \
+    --nightly-version 0.0.26 \
+    --git-sha 94197fc839b00aff47b98ca02f3c6396e4a6eabf
+
+Logs: /workspace/build-1214/logs/elite-build.log, pro-build.log
+Maps: recipe does not write a .map; objects in /workspace/build-1214/base-94197fc8/build
+
+## Artifacts — sha256 verified here (byte-identical across the three trees)
+
+Elite ELF 628,872 B
+  sha256 720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea
+  paths (cmp identical):
+    /workspace/build-1214/artifacts/elite/x0x.elf
+    /workspace/build-1214/base-94197fc8/build/smk37-elite/x0x.elf
+    /workspace/kept-026-94197fc8/named-elf/DnBOX-0.0.26-SMK37-Elite-94197fc8.elf
+    /workspace/kept-026-94197fc8/elite/x0x.elf
+
+Elite package 651,732 B
+  sha256 95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6
+  crc32 a5953c62
+  paths (cmp identical):
+    /workspace/build-1214/artifacts/elite/DnBOX-0.0.26-SMK37-Elite-94197fc8.fwsc
+    /workspace/kept-026-94197fc8/elite/DnBOX-0.0.26-SMK37-Elite-94197fc8-hwtest.fwsc
+
+Pro ELF 628,864 B
+  sha256 7e67c3b33fe2e690e5f913b5d048727a715c70daca06ddd326a10e37eacb9535
+  paths (cmp identical):
+    /workspace/build-1214/artifacts/pro/x0x.elf
+    /workspace/build-1214/base-94197fc8/build/smk37/x0x.elf
+    /workspace/kept-026-94197fc8/named-elf/DnBOX-0.0.26-SMK37-Pro-94197fc8.elf
+    /workspace/kept-026-94197fc8/pro/x0x.elf
+
+Pro package 651,730 B
+  sha256 ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8
+  crc32 d8957148
+  paths (cmp identical):
+    /workspace/build-1214/artifacts/pro/DnBOX-0.0.26-SMK37-Pro-94197fc8.fwsc
+    /workspace/kept-026-94197fc8/pro/DnBOX-0.0.26-SMK37-Pro-94197fc8-hwtest.fwsc
+
+Controller bundled in both packages:
+  sha256 a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984
+  size 61552, crc32 564a8f55  (from FMB report / package_nightly --check PASS; not re-extracted here)
+
+## What will be used on the Elite first pass
+fwsc=/workspace/build-1214/artifacts/elite/DnBOX-0.0.26-SMK37-Elite-94197fc8.fwsc
+elf=/workspace/build-1214/artifacts/elite/x0x.elf
+emu=/workspace/emu360-target/release/fm1-live
+emu_version=fm1-live 0.4.0 (31157d25c, 2026-11-12)
+emu_sha256=f3e65ccfa39874168b99494055f9a755342c41bc769257883030d15aef7b54f5
+FM1_STRICT=1
+mhz=360
+# Do NOT use /workspace/fm1-emu/target/release/fm1-live (stale).
+# Do NOT use /workspace/build-1214/artifacts/presets-measure/* (MEASUREMENT-ONLY, different ELF).
+# Do NOT use a nightly image other than these exact bytes (they happen to match nightly, but the input is FMB's V1.2.14 rebuild).
+
+## Owner device
+installed_hash=UNPROVEN
+installed_model=UNPROVEN (Elite inferred by earlier notes, not verified)
+tempo_on_device=UNKNOWN
+patches_on_device=UNKNOWN
+fx_on_device=UNKNOWN
+hardware_report_kept_intact: track 1 Chicago with arp on, track 2 Juno holding a triad, track 3 BREAK playing, track 4 909 BD four-on-the-floor; 808 not used. Relayed via Dot 2026-11-13 ~08:09 America/Chicago.
+
+## BREAK bank
+X0X_NBREAKS=0  (build/gen/x0x_break_bank.h:8; elite-build.log: "break bank: none")
+factory_break_pack=/workspace/build-1214/base-94197fc8/assets/factory-breaks/factory-break-pack.bin
+factory_break_pack_sha256=cbfe682a9c69b51dac4ee96db7ab4605c8ecdb2839230efcc5445aa0a8fe199e
+factory_break_pack_bytes=131152  (CRAMEN, TASTY, HOTPANT)
+elite_app_tail_free=8440 B
+# The pack cannot be composed into this exact package's free app-code tail (131152 > 8440).
+# tools/package_stock_loops.py refuses insufficient space and would produce a different package hash.
+# User sample slots were not present in the FMB artifacts. BREAK for this first pass is NOT_RUN
+# (not "absent load"). See PHASE1.md.
+
+## Gate tooling (read-only, not modified)
+gate.sh   sha256 7d9a95cb0a352693d7e6952b01c5baa2ebe080d4df454024aa155a8fae745dc0
+run_perf.sh sha256 d5f843827c2433368bb77bf487ab4182cd7db771b77f94139d63ec44c5241b91
+parse_perf.py sha256 79ec38cf6c22c8aa6f2df6e3141a4a75a04abf9bbd75039048b9bf1309738ecc
+prior_gate_94197=/workspace/kept-026-94197fc8/gate-20261113-202119
+# (also /workspace/fm1run/gate-20261113-202119)

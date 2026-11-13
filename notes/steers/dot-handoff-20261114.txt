@@ -1,0 +1,23 @@
+Orchestrator handoff to Dot, 2026-11-14 01:43 UTC+10. Repo gobbajogger/X0X37-for-Loopy-Pro unless noted. All bot turns are STOPPED by owner order at 01:41; nothing is running.
+
+ACTIVE WORK (owner / branch / head / Classic thread)
+- FMB dropout (Pro): https://chatgpt.com/g/g-p-ad9d6d4ab04c8191af6aa22fd752707e-loopyx0x37/c/6af72547-dda8-83e9-a278-e95575cc532c . Inputs Elite ELF 720f851c / pkg 95b3195f; Pro ELF 7e67c3b3 / pkg ce67d560.
+- FMB J6 fidelity (Pro): https://chatgpt.com/g/g-p-ad9d6d4ab04c8191af6aa22fd752707e-loopyx0x37/c/6af7259f-50b0-83e9-80b9-f90106e58205 ; study fdaf8f5a.
+- FMB per-pattern engines (Extra High): https://chatgpt.com/g/g-p-ad9d6d4ab04c8191af6aa22fd752707e-loopyx0x37/c/6af72638-bff4-83ea-8cc3-75336d14afba ; source 94197fc8.
+- FMB presets: lane/fmb-presets-format 16f9f9ad (codec linked by default; host test only).
+- FMB combined 0.0.26 measure: lane/fmb-combined-026-measure 527f41eb (on OPT de4c13c4): Elite 8,300 / Pro 8,308 B free. Unqualified, NOT FOR INSTALL. Needs re-measure on OPT ac675fdd + presets 16f9f9ad.
+- Optimizer flash savings (Extra High): https://chatgpt.com/g/g-p-ad9d6d4ab04c8191af6aa22fd752707e-loopyx0x37/c/6af72587-fc18-83ea-8420-78b401c539cc ; lane/opt-flash-savings-026 ac675fdd (fx_beats fix), -2,800 B both, host equivalence PASS; BugBot full suite + quickcheck rerun MISSING.
+- Build and Test Runner dropout repro: Elite 94197fc8 run had BREAK NOT_RUN / not audible, so it is NOT the owner's full scene. Next: existing ELF 720f851c, BREAK actually loaded/audible, full-scene trace (DMA transitions, underruns, slack). Logs /workspace/btr-dropout-repro/logs/core/full-fx-default/ (box). Thread URL not reported.
+- Hypotheses to verify (not the cause): Juno+Chicago both core0; last_us misses bookkeeping/IRQ slack; late counter may miss multiple transitions.
+- Smaller lanes on GitHub: lane/fmb-rec-full-keybed e81b2cf6, lane/fmb-chicago-ui-lag 4b663ba2, lane/fmb-perf-meter-c1 a6f91c17, lane/fmb-gain-juno-drone d451ab10 (owner approved levels), lane/fmb-juno-hoist-v2 1322293e, mod wheel df08c572, chord names parked 7129d48c.
+- ROADMAP draft PR #887 docs/roadmap-owner-sync-20261113 358278e5 (Docs Keeper). Numbering: PERF meter 26.8 -> 26.10.
+- Backups: backup/box-notes-20261114 (notes/audits/reports), backup/box-20261114/* (previously unpushed lanes).
+
+SAFE INDEPENDENT TASKS FOR DIRECT CLASSIC HANDOFF
+- Mod wheel df08c572 CPU/sound review (review only).
+- Box entrance animation fit into 8 KB (still image or small cut), design only; needs owner pick.
+
+RELEASED
+- Nightly #126 is in the SEPARATE nightly website repo (exact repo per Merge Integrator receipt), merged 0fa5ac71, live gh-pages 5734c215; 37 packages, live QA PASS.
+- #880 merged cd345c94, live; main installer offers 0.0.25.1; install/index.html matches 7beaf50f (Installer QA receipt). Not hardware-verified.
+- Owner-tested on SMK-37 Elite: 0.0.25.1 and 0.0.26 (not full qualification; Pro untested).

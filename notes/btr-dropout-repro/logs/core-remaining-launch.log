@@ -1,0 +1,5 @@
+==== remaining core start Sat Nov 14 01:23:03 +10 2026 ====
+BEFORE full-fx-allon disk_free=23549050880 Sat Nov 14 01:23:03 +10 2026
+START full-fx-allon shot=558200 ms (9.30 min emu) -> /workspace/btr-dropout-repro/logs/core/full-fx-allon
+DONE full-fx-allon exit=0 wall=1180.3s
+half.csv rows=48034

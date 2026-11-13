@@ -1,0 +1,16 @@
+verified_at=2026-11-13T14:18:11Z box_local=2026-11-14 00:18:11 +1000
+720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea  /workspace/build-1214/artifacts/elite/x0x.elf
+7e67c3b33fe2e690e5f913b5d048727a715c70daca06ddd326a10e37eacb9535  /workspace/build-1214/artifacts/pro/x0x.elf
+95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6  /workspace/build-1214/artifacts/elite/DnBOX-0.0.26-SMK37-Elite-94197fc8.fwsc
+ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8  /workspace/build-1214/artifacts/pro/DnBOX-0.0.26-SMK37-Pro-94197fc8.fwsc
+720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea  /workspace/build-1214/base-94197fc8/build/smk37-elite/x0x.elf
+7e67c3b33fe2e690e5f913b5d048727a715c70daca06ddd326a10e37eacb9535  /workspace/build-1214/base-94197fc8/build/smk37/x0x.elf
+720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea  /workspace/kept-026-94197fc8/named-elf/DnBOX-0.0.26-SMK37-Elite-94197fc8.elf
+7e67c3b33fe2e690e5f913b5d048727a715c70daca06ddd326a10e37eacb9535  /workspace/kept-026-94197fc8/named-elf/DnBOX-0.0.26-SMK37-Pro-94197fc8.elf
+95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6  /workspace/kept-026-94197fc8/elite/DnBOX-0.0.26-SMK37-Elite-94197fc8-hwtest.fwsc
+ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8  /workspace/kept-026-94197fc8/pro/DnBOX-0.0.26-SMK37-Pro-94197fc8-hwtest.fwsc
+cbfe682a9c69b51dac4ee96db7ab4605c8ecdb2839230efcc5445aa0a8fe199e  /workspace/build-1214/base-94197fc8/assets/factory-breaks/factory-break-pack.bin
+f3e65ccfa39874168b99494055f9a755342c41bc769257883030d15aef7b54f5  /workspace/emu360-target/release/fm1-live
+7d9a95cb0a352693d7e6952b01c5baa2ebe080d4df454024aa155a8fae745dc0  /workspace/zdprobe/dnbox360/gate.sh
+d5f843827c2433368bb77bf487ab4182cd7db771b77f94139d63ec44c5241b91  /workspace/zdprobe/dnbox360/run_perf.sh
+79ec38cf6c22c8aa6f2df6e3141a4a75a04abf9bbd75039048b9bf1309738ecc  /workspace/zdprobe/dnbox360/parse_perf.py

@@ -1,0 +1,29 @@
+{
+  "config": "full-fx-default",
+  "emu": "/workspace/btr-dropout-repro/emu-sampler/fm1-live",
+  "emu_sha256": "a147b8512fb4bd29170abc957f816a6978feccc2ddfc36bee80df599fb748500",
+  "stock_sha256": "f3e65ccfa39874168b99494055f9a755342c41bc769257883030d15aef7b54f5",
+  "stock": "UNTOUCHED",
+  "elf_sha256": "720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea",
+  "fwsc_sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6",
+  "source": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "mhz": 360,
+  "FM1_STRICT": 1,
+  "BREAK": "NOT_RUN",
+  "owner_scene": "partial (BREAK not playable)",
+  "states": {
+    "setup_end_ms": 33700,
+    "play_start_ms": 33300,
+    "play_end_ms": 333700,
+    "idle_start_ms": 333700,
+    "idle_end_ms": 423700,
+    "nav_empty_start_ms": 423700,
+    "empty_play_ms": 428200,
+    "shot_ms": 518200,
+    "play_ms": 300000,
+    "idle_ms": 90000,
+    "empty_ms": 90000
+  },
+  "layout": "/workspace/btr-dropout-repro/emu-sampler/half_layout.txt",
+  "branch": "btr/half-sampler 48d20ab"
+}

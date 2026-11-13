@@ -1,0 +1,460 @@
+{
+  "validate-01-909-tempo": {
+    "emu.log": {
+      "sha256": "2175246f4a4cf9b13fbcfd957b667e177dd4d9c09f78969a7a12b47fe0b97ec0",
+      "size": 464
+    },
+    "lcd-2x.png": {
+      "sha256": "b061395e668a67d6753ddd408c0508b28ff2956f8591dbeb3da34ca1856f0c50",
+      "size": 14995
+    },
+    "lcd.png": {
+      "sha256": "c24d7ed5dbf57145a564d43f336a689bdf0495197e194d33681c79e58d9400bd",
+      "size": 10925
+    },
+    "ram.bin": {
+      "sha256": "45861c069af09d0cfd4a3d27d5a1f1e1b979f57b1905d35e7fab06fbec48d572",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "59c7ad3aeee94b838293967afbb0033c21d6690c1971ab90b8c3fac58a1d1655",
+      "size": 172815
+    }
+  },
+  "validate-02a-303A": {
+    "emu.log": {
+      "sha256": "5a5e4aeedf203f5646d43a17c120848d8c0ae49cbd68a309b706f610b7593a4e",
+      "size": 465
+    },
+    "lcd-2x.png": {
+      "sha256": "9146fc27c0e378f14fbf6ac992fdd433c027f09583c507d140ff3faee4d33f8d",
+      "size": 13210
+    },
+    "lcd.png": {
+      "sha256": "fc442f62658ffe97e6cf63fcb073e7e08e199d91cf604611a445b133569f288a",
+      "size": 10034
+    },
+    "ram.bin": {
+      "sha256": "8cf5189ebfedc69a1951a7c554822f2deb08882c707c0016a48b86872ae6dcc5",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "59c7ad3aeee94b838293967afbb0033c21d6690c1971ab90b8c3fac58a1d1655",
+      "size": 172815
+    }
+  },
+  "validate-02b-303A": {
+    "emu.log": {
+      "sha256": "bb02b851a65b42116f7862625d3c014698165b4ec5154b277ef4d6e530baf229",
+      "size": 464
+    },
+    "lcd-2x.png": {
+      "sha256": "8bd55988a9cd54cfb7d8ab6bf0fb17e906ea719420a00825a00014d92ce487f4",
+      "size": 12793
+    },
+    "lcd.png": {
+      "sha256": "9901fd0eae4434b4477f369428758311f3daa8ac301daccaba4e7a5313641285",
+      "size": 9672
+    },
+    "ram.bin": {
+      "sha256": "28c114c8eb5cf18c9ac1cffb79c917771b3bcb215f7c32fbc0eba33678596ff7",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "4b52c90a27d95d02aa9e7c5e5347cb63ac78927084cf548dcd6c81494a788ad6",
+      "size": 172815
+    }
+  },
+  "validate-03-chicago": {
+    "emu.log": {
+      "sha256": "be905924288e0f1a20e4aab156cffc04f9f8e8a64aa209636491271cec863fe4",
+      "size": 464
+    },
+    "lcd-2x.png": {
+      "sha256": "3f2d1c60994f17bf2a325b36fa0692e1ae46d85d52af5dd53cd152b128d2f70c",
+      "size": 11729
+    },
+    "lcd.png": {
+      "sha256": "334fd03b83bcc29d8707388281f789c8528e03a0910cc77ebab8a4582bd8d1a5",
+      "size": 8746
+    },
+    "ram.bin": {
+      "sha256": "61bfab76ef1337a0791b584207471e2c1c79f6d470b4fb5146198f96e5e954fe",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "efc8b8aaa5904f0be601be3b37e7207a0d8b909e00dc84a29613a4ec930d2a0a",
+      "size": 172815
+    }
+  },
+  "validate-04-scale": {
+    "emu.log": {
+      "sha256": "a0ba5db8420c4dcd2fe27b91330160eae3b6a8d5ba4c1153e5b7fb402be13dc5",
+      "size": 466
+    },
+    "lcd-2x.png": {
+      "sha256": "3abaf1e1cca9959751a151982c9f8b15b08503282283746fd595c7bf9f5c9eaa",
+      "size": 11758
+    },
+    "lcd.png": {
+      "sha256": "c49bee5fa7e241d8fa4abba04d219acfddf950259529afd3ec93de5151dc95e6",
+      "size": 7934
+    },
+    "ram.bin": {
+      "sha256": "6c478658fc9e3c246cc18d15f2336b646874df478d1b818625a90b8996fdcab0",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "3e1c87a68039561fbf3430174e6f13f98669dd33ab676658af5d4aa13184f79a",
+      "size": 172815
+    }
+  },
+  "validate-05-engine-row": {
+    "emu.log": {
+      "sha256": "0c435f162ec3af40b29a9e675aa64c576418598f2579b4c7c27ab6a6ea976822",
+      "size": 467
+    },
+    "lcd-2x.png": {
+      "sha256": "93debaed86175cb9f4613801f0ad121bf81ab0818f9a6833e083932326166478",
+      "size": 11942
+    },
+    "lcd.png": {
+      "sha256": "d5d9a9ff4c9073da4e34c077949932ea4ab2158e6865777677edb1a6c0b1de04",
+      "size": 7475
+    },
+    "ram.bin": {
+      "sha256": "e565c6f9aa1fd8998d456aec1dc4aec45734ebd73ccf90fc70446996d76cafcf",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "4046ba16db2d4c4009c2be737deb21e4ee0165312e02535f918e31d50e6a0c80",
+      "size": 172815
+    }
+  },
+  "validate-06-chicago-eng": {
+    "emu.log": {
+      "sha256": "3f433382cee4bfd14edf6f15368da3f379df7378c5736e566216ff68913bd044",
+      "size": 468
+    },
+    "lcd-2x.png": {
+      "sha256": "93debaed86175cb9f4613801f0ad121bf81ab0818f9a6833e083932326166478",
+      "size": 11942
+    },
+    "lcd.png": {
+      "sha256": "d5d9a9ff4c9073da4e34c077949932ea4ab2158e6865777677edb1a6c0b1de04",
+      "size": 7475
+    },
+    "ram.bin": {
+      "sha256": "c92821b936b1e7b08f2e4b344079e35f9e57fdddfd1fe0040dcb1a8bc878a607",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "4046ba16db2d4c4009c2be737deb21e4ee0165312e02535f918e31d50e6a0c80",
+      "size": 172815
+    }
+  },
+  "validate-06-toast": {
+    "emu.log": {
+      "sha256": "9daf4a866c74e4aecbfbd2a966f8f1a063cb72269b3264912890c70a7267aa69",
+      "size": 468
+    },
+    "lcd-2x.png": {
+      "sha256": "93debaed86175cb9f4613801f0ad121bf81ab0818f9a6833e083932326166478",
+      "size": 11942
+    },
+    "lcd.png": {
+      "sha256": "d5d9a9ff4c9073da4e34c077949932ea4ab2158e6865777677edb1a6c0b1de04",
+      "size": 7475
+    },
+    "ram.bin": {
+      "sha256": "f21d6813401b318f0cda5f54751d822a0b0243cddcc09ad6675c0de4b61feb56",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "4046ba16db2d4c4009c2be737deb21e4ee0165312e02535f918e31d50e6a0c80",
+      "size": 172815
+    }
+  },
+  "validate-07-arrow-patch": {
+    "emu.log": {
+      "sha256": "a8d07aac5c6a04c82447c33e20734cc3abf7bd3e8afc71d022fc23b88cc0f930",
+      "size": 468
+    },
+    "lcd-2x.png": {
+      "sha256": "b29bcc7b7748ec2cf2e31e033ffd79826ad13c7f4df3dacd23c50ae889751a03",
+      "size": 11003
+    },
+    "lcd.png": {
+      "sha256": "6242b4740c43d25ffea717bdbd0167bb83c8b149315dd1c0ed6428cf47230870",
+      "size": 6534
+    },
+    "ram.bin": {
+      "sha256": "e7beedd672f1fef8c29528389c9f236daa7eaab8d11619705d883ad36f7a09f3",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "96683825e49d6f81dd1bee1b171f0080062675ab6cd06d96e18d75d49af3013a",
+      "size": 172815
+    }
+  },
+  "validate-08-arp": {
+    "emu.log": {
+      "sha256": "8a1a6fe4fc8b140c96a9900a354c5e2b82baf2c7258c8a0e7a2228a2db69a196",
+      "size": 468
+    },
+    "lcd-2x.png": {
+      "sha256": "3d7cf2ab7a5211757beb191ff29f88743da3d55383aae5853f0515ccfcbd9ab4",
+      "size": 15533
+    },
+    "lcd.png": {
+      "sha256": "eb69025047ebc91069d558931d868f7d4f6188e208e30ab458be6af09af97116",
+      "size": 11949
+    },
+    "ram.bin": {
+      "sha256": "4185372297cedbe8532fa5d1e0d214574cadc5990e02b175e6341bb67ab7a761",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "8ba3e6b9b1e440924e8b688e56642d511fe5053700e60a3e44bd045a5a585150",
+      "size": 172815
+    }
+  },
+  "validate-08-mid": {
+    "emu.log": {
+      "sha256": "4edc613a7c82fa8f3305618d297dea6218a3b8b324c4f9c5d1a7c0ba4b7f4997",
+      "size": 468
+    },
+    "lcd-2x.png": {
+      "sha256": "05f56bb97bb4797f02a9712b63b66d04932cb09635e8d572d9bbd207b7b6dbbb",
+      "size": 15500
+    },
+    "lcd.png": {
+      "sha256": "17fc49d8b7840d43a44d94729f8019dd33210fa3583b48041b945f43334b05c9",
+      "size": 12031
+    },
+    "ram.bin": {
+      "sha256": "f72420fc8da31bb12e3a2d2cbe7b847333eb383f42cd3f23b7ab781ead844dee",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "bf09110194795055f60f3e3db1b221509decb75d8d3c2aa179ecc6916c0e59fb",
+      "size": 172815
+    }
+  },
+  "validate-09-arppage": {
+    "emu.log": {
+      "sha256": "cff5f19769d32396490c2e634e3cd8ec448639514e09c99a7b34406c35ce8266",
+      "size": 468
+    },
+    "lcd-2x.png": {
+      "sha256": "74965aae2c88a13409e2cd190f694f876528eb248b8d4aa7d709d4edcebaa779",
+      "size": 14858
+    },
+    "lcd.png": {
+      "sha256": "114ef90b94ea05ecd73b467edda6d2ee07a480fa86f4456c83d4b6d16498b2b7",
+      "size": 11433
+    },
+    "ram.bin": {
+      "sha256": "189cab2545220379d04712f53a48f0de6e2878d9fbeac55d290611c3f649cbe2",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "df7f23cff700ab1cb18530055d9d5c694e928498822f51f4959eef0aa936eef8",
+      "size": 172815
+    }
+  },
+  "validate-10-arppage": {
+    "emu.log": {
+      "sha256": "c51f4a3885340a945c1c793f948cae0c7c07d6bfcd285952ec06cb9b85054986",
+      "size": 468
+    },
+    "lcd-2x.png": {
+      "sha256": "b28a040c90cc058295bdf71379edecd41a25673bef56b6238df772043c1c2596",
+      "size": 18587
+    },
+    "lcd.png": {
+      "sha256": "d886edcab5757cd9b3e77b5e506cc824597eabd97d963636acfc7dadd0514fda",
+      "size": 14579
+    },
+    "ram.bin": {
+      "sha256": "049c4142beefb1c672908ef920fc23094f30f2225c4634aea3fe0d3aceb55aa6",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "8518df739ec5cf32ab7d9197d4cd2c53a9362eb2828e7fb77cbf620b818f0464",
+      "size": 172815
+    }
+  },
+  "validate-11-303B-engine": {
+    "emu.log": {
+      "sha256": "117c268435d55b65c5633493669fd9370fd8a1c82fbc34da030bffc7eee93d3f",
+      "size": 468
+    },
+    "lcd-2x.png": {
+      "sha256": "4f0f36e928f80c2f88094359b4dcef526d247d616037a4a6431b2a3e57fae7cf",
+      "size": 11100
+    },
+    "lcd.png": {
+      "sha256": "57564781c6fa2a0f2e372de3bd4d5b2e360690699240725abd08bd1d637a1bd4",
+      "size": 7079
+    },
+    "ram.bin": {
+      "sha256": "3fd25038f0c392571f3e227dd2d2d8bb60503598072b0a7c60939e3b33169ff6",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "3c8ee4c30255e6d5bfa80c27a8835f4886881d551d824e0377dc7b5365033d5b",
+      "size": 172815
+    }
+  },
+  "validate-12-juno": {
+    "emu.log": {
+      "sha256": "ed4b60dda928fcd925b4aed6589b01f5f3dd41907ba15c2ee181d7b7d5b99448",
+      "size": 469
+    },
+    "lcd-2x.png": {
+      "sha256": "dd965df9c41efe1771f3d5bc2edaf821dfac7fbe54012b59032f7b41fe613efc",
+      "size": 11907
+    },
+    "lcd.png": {
+      "sha256": "7c3062b72ff49f2cc2edf7e1758c324d79fa4170e17b74f8997c1e8c51a78b4a",
+      "size": 8029
+    },
+    "ram.bin": {
+      "sha256": "5ce37cc2b99eed31e95ff1690c81d01561cce7ab0185fff528781fe04fdcb354",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "013ac859a11fb84f3bcbe328dd916c506a0a125c4d550aeb171edad8e6ae4a31",
+      "size": 172815
+    }
+  },
+  "validate-13-one-arrow": {
+    "emu.log": {
+      "sha256": "f6421221065a86a872072db5cbb153e7bac8fdc124211225254afd81bb9a229b",
+      "size": 468
+    },
+    "lcd-2x.png": {
+      "sha256": "dd965df9c41efe1771f3d5bc2edaf821dfac7fbe54012b59032f7b41fe613efc",
+      "size": 11907
+    },
+    "lcd.png": {
+      "sha256": "7c3062b72ff49f2cc2edf7e1758c324d79fa4170e17b74f8997c1e8c51a78b4a",
+      "size": 8029
+    },
+    "ram.bin": {
+      "sha256": "bc46560112b46a1e03426472ade46c7283a93b0d44f84c7cfd9f6764d8068ad9",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "013ac859a11fb84f3bcbe328dd916c506a0a125c4d550aeb171edad8e6ae4a31",
+      "size": 172815
+    }
+  },
+  "validate-14-juno": {
+    "emu.log": {
+      "sha256": "eddaac7f45818177e369bc404b14b5539a406b3124f0ae2b47a134bac8de9d77",
+      "size": 469
+    },
+    "lcd-2x.png": {
+      "sha256": "9b807089741240db0c623b152d80d2a6f39c6e91814a0aaa8c73179b06583494",
+      "size": 11940
+    },
+    "lcd.png": {
+      "sha256": "74f35ed46f7e515dfd8cd66730fe31aab474ad885d2a2b4afa8505ffc25c99d3",
+      "size": 7686
+    },
+    "ram.bin": {
+      "sha256": "b39775dbe3fd537ab99660935933441b31bdece3391b552f86f88ed87283ca17",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "a6273fc2614e252ef17bf6ba1a7c59b14fc609e6584d8b3fcff106d8b819cfe1",
+      "size": 172815
+    }
+  },
+  "validate-15-play": {
+    "emu.log": {
+      "sha256": "db8422038894b307dd81ca5bf8a1f6caa6bc6ad2f1ac4b075b643433036d4246",
+      "size": 6208
+    },
+    "lcd-2x.png": {
+      "sha256": "6a4516498781adab9746dd08371a2b4c9381632b627ae6e07bfec2f73c8d1a38",
+      "size": 19881
+    },
+    "lcd.png": {
+      "sha256": "fe7b59c22b7f5e875c69dc9c6d6f8edd7cc734e9c1f76a5d0277af030f134c0d",
+      "size": 15656
+    },
+    "ram.bin": {
+      "sha256": "c25736ed07f854169a7dcf27635e335137461558fb3f92b36f1dd7be3007f733",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "566af3e8b65d97c659418348c74386719f293c7115d0ba7b8f486a091b50576f",
+      "size": 172815
+    }
+  },
+  "validate-16-perf": {
+    "emu.log": {
+      "sha256": "7a36dfa9dfeb6345bc0334a4ade4438af0e8114d83dd0cd49c55c8e850a0dfa4",
+      "size": 465
+    },
+    "lcd-2x.png": {
+      "sha256": "8f2f0728a9f0f48a1bf0b2e951bd418d889f25f3e628922ec1e3ff58f87ab2d4",
+      "size": 17830
+    },
+    "lcd.png": {
+      "sha256": "c3183c90b642e85712ab16f6a1ee8f4f3b95e2adac137623aaec02d312642f2c",
+      "size": 12715
+    },
+    "ram.bin": {
+      "sha256": "603aca6248cf82d70061b6dab437b5596a4a96e53b0718902df7b4f80a905105",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "5485448b5cf4148edc3952db560bf751e2c40cb85cbb3cbfe321775bf6c3728c",
+      "size": 172815
+    }
+  },
+  "validate-boot": {
+    "emu.log": {
+      "sha256": "a7f471031c3cc4f0fca635c8c6157f0a0a0815be9c0d6d88a07cf4c9db2c50f2",
+      "size": 464
+    },
+    "lcd-2x.png": {
+      "sha256": "9b7a9909c8402aa6836508482762766535ef031179e27393e2056c3a14acc41e",
+      "size": 13744
+    },
+    "ram.bin": {
+      "sha256": "1cef2b07d7abe7336b3820c3d7308999b236ae77e633e7faa1f5942c2e56decf",
+      "size": 1048576
+    },
+    "work/lcd.png": {
+      "sha256": "f5607602877422f8f2ae6521eb60ccafa4f64a7dc356539b3d4ff928852c9c9a",
+      "size": 9390
+    },
+    "work/lcd.ppm": {
+      "sha256": "e897514fd8f818f23b32148a72e404aee23c6b54eb47f06aaf0b66d00c1ad810",
+      "size": 172815
+    }
+  },
+  "sampler-smoke": {
+    "emu.log": {
+      "sha256": "1d4cddd67385c20fae18b8888a50c7dcea84719da4384d254fb82ee069942d0d",
+      "size": 650
+    },
+    "half.csv": {
+      "sha256": "4107f8e77961637da42b4da63bb5ca4c896aee149462042661a09ecb7f1f11cf",
+      "size": 39001
+    },
+    "ram.bin": {
+      "sha256": "4f9c45020b695487d459e0b3459c97e0d205db833d8c4bc7fec84cf928f5ddcf",
+      "size": 1048576
+    },
+    "work/lcd.ppm": {
+      "sha256": "e897514fd8f818f23b32148a72e404aee23c6b54eb47f06aaf0b66d00c1ad810",
+      "size": 172815
+    }
+  }
+}

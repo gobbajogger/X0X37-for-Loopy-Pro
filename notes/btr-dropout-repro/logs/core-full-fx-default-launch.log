@@ -1,0 +1,3 @@
+START full-fx-default shot=518200 ms (8.64 min emu) -> /workspace/btr-dropout-repro/logs/core/full-fx-default
+DONE full-fx-default exit=0 wall=935.6s
+half.csv rows=44587

@@ -1,0 +1,5 @@
+loo-no-arp: same as full-fx-default except Chicago ARPEGGIATOR ENABLE is turned OFF.
+After the validated 14700-16700 five e1:+1 clicks (LCD shows AMPLIFIER, knobs 5-6, arp row
+visible and ON), one more e1:+1 at 17200 goes to the ARPEGGIATOR page; e4:-1 at 17800 turns
+ENABLE (knob 1, "ON") to OFF. First short shot with only e4:-1 at 17200 (no 6th page click)
+changed AMPLIFIER ENV/GATE (GATE→ENV) and left arp ON. Durations unchanged.
