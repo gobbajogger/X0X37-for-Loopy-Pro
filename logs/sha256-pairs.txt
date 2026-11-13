@@ -1,0 +1,14 @@
+# sha256 pairs cd9a1948 stage-0 vs 94197fc8  2026-11-13T22:25:16+10:00
+
+720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea  /workspace/qa-runs/cd9a1948/build/smk37-elite/x0x.elf
+c6d651a12a71ea4c8c5280cdeb2b854ebd1400ba57b342a641f236626d70c9ef  /workspace/qa-runs/cd9a1948/build/smk37-elite/x0x.bin
+af1d1c8ac0c66696a89b3b635fa1ba54872a6c9915c93708f68dbd74172ca97c  /workspace/qa-runs/cd9a1948/build/x0x-smk37-elite.fwsc
+95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6  /workspace/qa-runs/cd9a1948/artifacts/elite/DnBOX-0.0.26-SMK37-Elite-94197fc8.fwsc
+0413ab513ab3bbe9661ec9479fc77b237801b2d2067685c02c78ab5048db2e03  /workspace/qa-runs/cd9a1948/build/smk37-elite/loader/ota.bin
+087db868579219b01369ed65e3ec1cb51f4dfa2b36ee540d214f261c2348f27b  /workspace/qa-runs/cd9a1948/build/smk37-elite/loader/loader.elf
+7e67c3b33fe2e690e5f913b5d048727a715c70daca06ddd326a10e37eacb9535  /workspace/qa-runs/cd9a1948/build/smk37/x0x.elf
+b52b29e667384cd796d29e47360e879f5b447702c7e2413828310b28bb7d2dbd  /workspace/qa-runs/cd9a1948/build/smk37/x0x.bin
+1fd4809ef080d5bf177e96fb73914f5c0deb0d9636503dbc0f7532c8f1cefc61  /workspace/qa-runs/cd9a1948/build/x0x-smk37.fwsc
+ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8  /workspace/qa-runs/cd9a1948/artifacts/pro/DnBOX-0.0.26-SMK37-Pro-94197fc8.fwsc
+d5874d17f139fc231275917a041dd2a2c98434ce80dcae26733fb55aae605bd5  /workspace/qa-runs/cd9a1948/build/smk37/loader/ota.bin
+083e69116344fe72bb00ef331b75bccf3f1b75252e6f3726e83f0a00df3d6e28  /workspace/qa-runs/cd9a1948/build/smk37/loader/loader.elf

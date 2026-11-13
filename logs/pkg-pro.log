@@ -1,0 +1,35 @@
+START pkg-pro 2026-11-13T22:24:56+10:00
+{
+  "controller": {
+    "abi": 2,
+    "block_crc32": "297cc0a4",
+    "block_size": 65536,
+    "bundled": true,
+    "crc32": "564a8f55",
+    "flash_offset": 569344,
+    "header_version": 2,
+    "sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+    "size": 61552,
+    "strategy": "bundled"
+  },
+  "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+  "controller_size": 61552,
+  "controller_strategy": "bundled",
+  "firmware_version": "0.0.26",
+  "model": "pro",
+  "product": "SMK-37 Pro_900",
+  "release_display": "0.0.26_openbeta",
+  "schema": "x0x37-bundled-controller-v1",
+  "sha256": "ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8",
+  "size": 651730
+}
+END pkg-pro exit=0 2026-11-13T22:24:59+10:00
+START pkg-pro-check 2026-11-13T22:24:59+10:00
+usage: package_nightly.py [-h] --model {elite,pro}
+                          --controller-sha256 CONTROLLER_SHA256
+                          --controller-size CONTROLLER_SIZE
+                          --firmware-version FIRMWARE_VERSION
+                          [--ledger LEDGER] [--check] [-o OUT]
+                          package [controller]
+package_nightly.py: error: the following arguments are required: --controller-sha256, --controller-size
+END pkg-pro-check exit=2 2026-11-13T22:24:59+10:00
