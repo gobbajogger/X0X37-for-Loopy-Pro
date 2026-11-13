@@ -21,6 +21,7 @@
 #include "../dsp/master.h"
 #include "ui_original_controls.h"
 #include "bass_pattern_preset.h"
+#include "rec_outer_keymap.h"
 #include "ui_original_wave.h"
 #include "../dsp/bass_param_ids.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
@@ -4709,17 +4710,16 @@ X0X_COLD static void input_body(void)
 /* REC feeder for the ten SMK-37 keys outside the FM-1 27-key window (physical
  * 0-4 and 32-36), on a 303 only (kbd_on / is_303). The 27-key plat_keys path
  * and ui_live_key_owner's ui.rec exclusion are unchanged.
- * 909/808/BREAK: the outer keys stay unmapped. Drum voices are the 11 black
- * keys of F3-G5 (NDRUM, KEY_BLACK[NKEYS]); BREAK steps and slices use the
- * same 27-key tables; low outer C3-D#3 already page BREAK via ui_brk_page_keys.
+ * This feeder changes bass REC only. Drum/BREAK outer-key recording remains
+ * PENDING owner acceptance/mapping; preserve their current 27-key tables and
+ * the low BREAK C3-D#3 paging controls until that mapping is specified.
  * See docs/plans/2026-11-13-rec-full-keybed.md. */
-static uint64_t rec_outer_prev, rec_outer_suppress, rec_outer_admitted;
+static uint16_t rec_outer_prev, rec_outer_suppress, rec_outer_admitted;
 static uint8_t rec_outer_armed;
-static const uint8_t rec_outer_idx[10] = {0,1,2,3,4,32,33,34,35,36};
 
 static void rec_outer_keys(void)
 {
-    uint64_t phys = plat_physical_keys();
+    uint16_t phys = rec_outer_bits(plat_physical_keys());
     unsigned i;
     int admit = ui.rec && is_303() && kbd_on() && !project_busy && ui.overlay != O_ASK && !perf_testing();
 #if BOARD_SMK37
@@ -4729,8 +4729,8 @@ static void rec_outer_keys(void)
     if (!admit) {
         if (rec_outer_admitted) {
             for (i = 0; i < 10; i++) {
-                unsigned p = rec_outer_idx[i];
-                uint64_t bit = (uint64_t)1u << p;
+                unsigned p = rec_outer_physical(i);
+                uint16_t bit = (uint16_t)(1u << i);
                 if (rec_outer_admitted & bit)
                     (void)bass_kbd_release((int)live_token(p));
             }
@@ -4748,20 +4748,20 @@ static void rec_outer_keys(void)
         return;
     }
     for (i = 0; i < 10; i++) {
-        unsigned p = rec_outer_idx[i];
-        uint64_t bit = (uint64_t)1u << p;
+        unsigned p = rec_outer_physical(i);
+        uint16_t bit = (uint16_t)(1u << i);
         int on  = !!(phys & bit);
         int was = !!(rec_outer_prev & bit);
         if (on && (rec_outer_suppress & bit))
             continue;
         if (!on)
-            rec_outer_suppress &= ~bit;
+            rec_outer_suppress &= (uint16_t)~bit;
         if (on && !was) {
             bass_kbd_physical((int)p, 36 + (int)p + 12 * ui.oct);
             rec_outer_admitted |= bit;
         } else if (!on && was && (rec_outer_admitted & bit)) {
             (void)bass_kbd_release((int)live_token(p));
-            rec_outer_admitted &= ~bit;
+            rec_outer_admitted &= (uint16_t)~bit;
         }
     }
     rec_outer_prev = phys;
