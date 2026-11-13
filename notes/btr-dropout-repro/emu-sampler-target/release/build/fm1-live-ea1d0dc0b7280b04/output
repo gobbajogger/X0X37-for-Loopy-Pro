@@ -1,0 +1,7 @@
+cargo::rustc-env=FM1_GIT=31157d25c-dirty
+cargo::rustc-env=FM1_GIT_DATE=2026-11-12
+cargo::rerun-if-changed=/workspace/fm1-emu/.git/worktrees/fm1-emu-sampler/HEAD
+cargo::rerun-if-changed=/workspace/fm1-emu/.git/worktrees/fm1-emu-sampler/index
+cargo::rerun-if-changed=/workspace/fm1-emu/.git/packed-refs
+cargo::rerun-if-changed=/workspace/fm1-emu/.git/refs/heads/btr/half-sampler
+cargo::rerun-if-changed=../../crates

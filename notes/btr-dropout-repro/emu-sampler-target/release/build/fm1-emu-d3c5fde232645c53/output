@@ -1,0 +1,7 @@
+cargo::rustc-env=FM1_GIT=3e3fb27df-dirty
+cargo::rustc-env=FM1_GIT_DATE=2026-11-11
+cargo::rerun-if-changed=../../.git/HEAD
+cargo::rerun-if-changed=../../.git/index
+cargo::rerun-if-changed=../../.git/packed-refs
+cargo::rerun-if-changed=../../.git/refs/heads/master
+cargo::rerun-if-changed=../../crates

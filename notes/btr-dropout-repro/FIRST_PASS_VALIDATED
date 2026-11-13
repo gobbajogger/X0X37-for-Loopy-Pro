@@ -1,0 +1,32 @@
+FIRST_PASS_VALIDATED=1
+America/Chicago times are box-local minus 10 hours when the box clock is +10.
+
+Proven by LCD and/or RAM (Elite 94197fc8, stock fm1-live then sampler smoke):
+- 909 BD steps 1,5,9,13 (0x1111), pad LEDs and LCD (validate-01, validate-02b).
+- Tempo 140 BPM (16 SELECT clicks with PATCH held; LCD).
+- 303A = Chicago, factory "BITE BASS", ARPEGGIATOR ON already (validate-10 LCD + RAM kind=0).
+  Chicago arp is ON on factory preset 0; no extra ON gesture required.
+- 303B = Juno (validate-14 LCD "JUNO", RAM kind=3). 303A stays Chicago (RAM kind=0).
+- SEQ PLAY + USB MIDI: Chicago ch2 C3+C4, Juno ch3 C4-E4-G4 held.
+  USB out seen at 33701 ms. Audio peak 6975. last_us 7244, max_us 8645, late 0, xruns 0.
+  PR_303A and PR_303B both nonzero; job_A and job_B set; eng_plan 0 (no Miami, no BREAK).
+- BREAK=NOT_RUN (pack cannot fit). Owner scene is therefore partial.
+
+PERF live page: GLOBE opens GLOBAL; SYSTEM is section 5; SCALE enters; PERFORMANCE is first;
+SCALE runs ACT_PERF. Do NOT press SELECT on the PERF page (that starts PERF TEST).
+A 5-click attempt landed on PROJECT and ran SAVE (ephemeral emu flash, no --flash file).
+Use 6 clicks at 500 ms, or confirm the SYSTEM row on LCD, before SCALE. PERF LCD is
+not yet a captured still; open PERF only after the raw series is already logged
+(PERF resets audio_peak_pct).
+
+Empty sequence: STOP, note-off, ALGORITHM back to 909, toggle BD steps off, PLAY. Avoid
+the GLOBE PROJECT menu (SAVE sits on the first row).
+
+Sampler (core pass):
+  /workspace/btr-dropout-repro/emu-sampler/fm1-live
+  sha256 a147b8512fb4bd29170abc957f816a6978feccc2ddfc36bee80df599fb748500
+  branch btr/half-sampler @ 48d20ab, based on 31157d2
+  stock /workspace/emu360-target/release/fm1-live UNTOUCHED
+    sha256 f3e65ccfa39874168b99494055f9a755342c41bc769257883030d15aef7b54f5
+  layout from ELF .symtab + C structs (no DWARF): emu-sampler/half_layout.txt
+  smoke: 276 raw rows, d_eng_prof_frames=512, eng_plan and c1_job_* present.
