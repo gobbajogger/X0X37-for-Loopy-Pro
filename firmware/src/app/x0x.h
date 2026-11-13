@@ -161,6 +161,8 @@ int ui_project_save(void);
 int ui_boot_flash_busy(void);            /* transport or notes active: refuse boot-screen flash */
 void ui_say(const char *a, const char *b);
 #if BOARD_SMK37
+/* n=1 or 2: snapshot those parts and live values, 900 ms. n=3: UNASSIGNED once. n=0: end unassigned gesture. */
+void ui_wheel_mod(int n, int v0, int live0, int v1, int live1);
 /* BLE TIMER5 producer; smc_poll and smc_frame consume from the main loop. */
 void smc_ble_midi(const uint8_t *msg, uint8_t len);
 void smc_ble_link(int up);

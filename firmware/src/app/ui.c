@@ -6452,6 +6452,148 @@ static UI_DRAW void draw_perf(int band)
 }
 
 /* the readout: the knob being turned, large, across the bottom band */
+#if BOARD_SMK37
+/* Mod-wheel / CC1 readout (Phase 1). State is set from smk_wheels on the
+ * main loop; pixels are painted only here, in ui_frame. */
+enum { WU_MS = 900u, WU_UNA = 3 };
+static struct {
+    uint8_t n, fired, live[2], patch[2];
+    int8_t v[2];
+    uint32_t until;
+} wu;
+#ifdef X0X_HOST
+char ui_wheel_log[192];
+static void wu_log(const char *s)
+{
+    char *q = ui_wheel_log;
+    while (*q) q++;
+    if (q != ui_wheel_log) {
+        if (q >= ui_wheel_log + sizeof ui_wheel_log - 2) return;
+        *q++ = '|';
+    }
+    while (*s && q < ui_wheel_log + sizeof ui_wheel_log - 1)
+        *q++ = *s++;
+    *q = 0;
+}
+#endif
+static int wu_pct(int v) { return (v * 100 + 63) / 127; }
+static int wu_patch(int v)
+{
+    return pref_get(PR(R_ENG, T_303, v, engine_bass_mod_param(v)));
+}
+void ui_wheel_mod(int n, int v0, int live0, int v1, int live1)
+{
+    if (n == 0) { wu.fired = 0; return; }
+    if (n == WU_UNA) {
+        if (wu.fired) return;
+        wu.fired = 1;
+        wu.n = WU_UNA;
+        wu.until = plat_ms() + WU_MS;
+        return;
+    }
+    if (n < 1) return;
+    if (n > 2) n = 2;
+    wu.fired = 0;
+    wu.n = (uint8_t)n;
+    wu.v[0] = (int8_t)v0;
+    wu.live[0] = (uint8_t)(live0 < 0 ? 0 : live0 > 127 ? 127 : live0);
+    wu.patch[0] = (uint8_t)wu_patch(v0);
+    if (n >= 2) {
+        wu.v[1] = (int8_t)v1;
+        wu.live[1] = (uint8_t)(live1 < 0 ? 0 : live1 > 127 ? 127 : live1);
+        wu.patch[1] = (uint8_t)wu_patch(v1);
+    }
+    wu.until = plat_ms() + WU_MS;
+}
+static int wu_active(void)
+{
+    if (!wu.n) return 0;
+    if ((int32_t)(wu.until - plat_ms()) <= 0) { wu.n = 0; return 0; }
+    return 1;
+}
+static void wu_name(char *t, int v)
+{
+    unsigned k = (unsigned)engine_bass_bank(v);
+    char *q = put_s(t, k < 4u ? BENGINE_N[k] : "");
+    *q++ = ' ';
+    *q++ = (char)('A' + (v != 0));
+    *q++ = ' ';
+    *q++ = ' ';
+    put_s(q, ui_original_name(k, (unsigned)engine_bass_mod_param(v)));
+}
+static UI_DRAW void draw_wheel_readout(void)
+{
+    const int32_t bx = 8, by = 14, bw = 224, bh = 50;
+    char nm[24], num[8], tag[16];
+    int n = wu.n, i, v0, live, patch, show_p;
+    int32_t uw, w, ly, row_y, y, h;
+#ifdef X0X_HOST
+    ui_wheel_log[0] = 0;
+#endif
+    box(bx, by, bw, bh, C_BLACK);
+    frame(bx, by, bw, bh, part_col());
+    if (n == WU_UNA) {
+        cv_text(bx + 12, vc(&FONT_B, by, bh), &FONT_B, "UNASSIGNED", C_GRAY);
+#ifdef X0X_HOST
+        wu_log("UNASSIGNED");
+#endif
+        return;
+    }
+    {
+        int vv[2] = { wu.v[0], wu.v[1] };
+        uint8_t lv[2] = { wu.live[0], wu.live[1] }, pv[2] = { wu.patch[0], wu.patch[1] };
+        if (n == 2) {
+            int a = engine_bass_mod_ctl(vv[0]) >= 0, b = engine_bass_mod_ctl(vv[1]) >= 0;
+            if (a && !b) n = 1;
+            else if (!a && b) { vv[0] = vv[1]; lv[0] = lv[1]; pv[0] = pv[1]; n = 1; }
+        }
+        if (n == 2) {
+            row_y = by + (bh - (2 * 16 + 4)) / 2;
+            for (i = 0; i < 2; i++) {
+                wu_name(nm, vv[i]);
+                put_i(num, wu_pct(lv[i]));
+                ly = vc(&FONT_S, row_y + i * 20, 16);
+                uw = tw(&FONT_S, "%") + 3;
+                w = tw(&FONT_S, num);
+                cv_text(bx + 12, ly, &FONT_S, nm, C_GRAY);
+                cv_text(bx + bw - 12 - uw - w, ly, &FONT_S, num, C_WHITE);
+                cv_text(bx + bw - 12 - uw + 3, ly, &FONT_S, "%", C_GRAY);
+#ifdef X0X_HOST
+                wu_log(nm); wu_log(num); wu_log("%");
+#endif
+            }
+            return;
+        }
+        v0 = vv[0];
+        live = lv[0];
+        patch = pv[0];
+    }
+    show_p = wu_pct(live) != wu_pct(patch);
+    y = show_p ? by - 4 : by;
+    h = show_p ? bh - 8 : bh;
+    wu_name(nm, v0);
+    put_i(num, wu_pct(live));
+    uw = tw(&FONT_S, "%") + 3;
+    w = tw(&FONT_M, num);
+    ly = vc(&FONT_M, y, h);
+    cv_text(bx + 12, vc(&FONT_B, y, h), &FONT_B, nm, C_GRAY);
+    cv_text(bx + bw - 12 - uw - w, ly, &FONT_M, num, C_WHITE);
+    cv_text(bx + bw - 12 - uw + 3, base_y(&FONT_M, ly, &FONT_S), &FONT_S, "%", C_GRAY);
+#ifdef X0X_HOST
+    wu_log(nm); wu_log(num); wu_log("%");
+#endif
+    if (show_p) {
+        char *q = put_s(tag, "PATCH  ");
+        q = put_i(q, wu_pct(patch));
+        put_s(q, " %");
+        text_r(bx + bw - 12, by + bh - 4 - FONT_T.h, &FONT_T, tag, C_DIM);
+#ifdef X0X_HOST
+        wu_log(tag);
+#endif
+    }
+}
+#endif
+
 static UI_DRAW void draw_readout(void)
 {
     char num[36], unit[8];
@@ -6819,6 +6961,14 @@ static UI_DRAW void draw_main(void)
     if (!readout)
         ui.touched = -1;
 #if BOARD_SMK37
+    /* One 224x50 box: the latest of a knob detent and a wheel/CC1 move owns it. */
+    int wheel = wu_active() && ui.overlay == O_NONE && !ui.help;
+    if (wheel && readout && (int32_t)(wu.until - ui.touch_until) < 0)
+        wheel = 0;
+    if (wheel)
+        readout = envelope = 0;
+#endif
+#if BOARD_SMK37
     {
         /* Clip mode: the main area shows the clip grid (main_fm1.c smk_clip_lcd_draw).
          * The function returns 0 when no redraw is due (rate limit). On exit, the
@@ -6892,6 +7042,10 @@ static UI_DRAW void draw_main(void)
         if (band == 1 && readout && !envelope &&
             !(ui.view == V_PART && (is_drum() || is_303())))
             draw_readout();
+#if BOARD_SMK37
+        if (band == 1 && wheel)
+            draw_wheel_readout();
+#endif
     }
     cv_band(0, 2 * BAND_H);
     cv_commit_rect(1, 0, MAIN_Y);
