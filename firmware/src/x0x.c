@@ -111,7 +111,7 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
 #include "storage.c"
 
 struct bootguard_s { uint32_t magic, failed, pending; };
-extern struct bootguard_s bootguard;
+extern volatile struct bootguard_s bootguard;
 /* One 4 KiB scratch for main-loop jobs that never use the same bytes at the same time:
  *   0x000-0xFFF  the LZ hash table of a project save (lz.c);
  *   0x000-0x7FF  the read buffers of an update session (ota.c);
