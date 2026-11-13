@@ -342,6 +342,60 @@ def _new_version(commit, verified):
     return version, entry, copies
 
 
+def _keep_checked_numeric_aliases(previous, merge_from, incoming, copies):
+    """Retain old generator URLs for an exactly matching numeric release.
+
+    An old link survives only if its on-disk bytes still match the newly
+    validated Elite/Pro package. Unrecognized paths or broken aliases refuse
+    regeneration rather than silently dropping a previously published URL.
+    """
+    version = incoming.get("firmware_version")
+    if version is None:
+        return
+    firmware = Path(merge_from) / "firmware"
+    same_release = False
+
+    def checked(path, model_record, name):
+        if (path.is_symlink() or not path.is_file()
+                or path.stat().st_size != model_record["size"]
+                or make_pages.sha256_file(path) != model_record["sha256"]):
+            raise NightlyPublishError(f"prior firmware URL {name} is missing or bytes mismatched")
+
+    for old in previous.get("versions", []):
+        if old.get("version") != incoming["version"]:
+            continue
+        if not _version_ok(old) or not _same_numeric_release(old, incoming):
+            raise NightlyPublishError(
+                "catalog version " + str(version) + " already records a different source or package")
+        same_release = True
+        for model, current in incoming["models"].items():
+            prior_url = old["models"][model].get("pkg")
+            prior_name = _pkg_name(prior_url)
+            new_name = _pkg_name(current["pkg"])
+            legacy_name = (f"x0x37-{version}-elite.fwsc" if model == "elite"
+                           else f"x0x37-{version}.fwsc")
+            if (prior_name not in (new_name, legacy_name)
+                    or prior_url not in (f"firmware/{prior_name}", f"../firmware/{prior_name}")):
+                raise NightlyPublishError(f"cannot preserve prior firmware URL for {model}: {prior_url!r}")
+            if old["models"][model].get("size") != current["size"]:
+                raise NightlyPublishError(f"prior firmware URL {prior_name} has mismatched package size")
+            checked(firmware / prior_name, current, prior_name)
+
+    # Old aliases are no longer referenced by the new catalog. Copy them
+    # explicitly so a third (new-to-new) regeneration does not delete them.
+    for model, current in incoming["models"].items():
+        legacy_name = (f"x0x37-{version}-elite.fwsc" if model == "elite"
+                       else f"x0x37-{version}.fwsc")
+        legacy = firmware / legacy_name
+        if legacy.exists() or legacy.is_symlink():
+            if not same_release:
+                raise NightlyPublishError(f"untracked prior firmware alias {legacy_name}")
+            checked(legacy, current, legacy_name)
+            if legacy_name in copies:
+                raise NightlyPublishError(f"duplicate firmware alias {legacy_name}")
+            copies[legacy_name] = legacy
+
+
 def _catalog(commit, verified, merges):
     version, entry, copies = _new_version(commit, verified)
     versions = []
@@ -355,6 +409,7 @@ def _catalog(commit, verified, merges):
                 continue
             seen.add(item["version"])
             versions.append(item)
+        _keep_checked_numeric_aliases(previous, merge, entry, copies)
     versions.append(entry)
     versions.sort(key=lambda item: str(item["version"]), reverse=True)
     catalog = {

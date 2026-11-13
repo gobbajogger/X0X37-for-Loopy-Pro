@@ -8,9 +8,11 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
+import publish_nightly  # noqa: E402
 import dev_validate  # noqa: E402
 import validation_inputs  # noqa: E402
 from firmware_build_labels import inspect_package, version_of_product  # noqa: E402
@@ -269,6 +271,67 @@ class ReleasePublishTest(unittest.TestCase):
         again = json.loads((again_dir / "versions.json").read_text(encoding="utf-8"))
         self.assertEqual([item["version"] for item in again["versions"]], ["0.1.3"])
         self.assertEqual(again["versions"][0]["models"]["elite"]["sha256"], original_sha)
+
+    def test_old_generator_to_new_numeric_republish_keeps_checked_urls(self):
+        # Execute the actual producer twice. On the first pass, restore exactly
+        # the old _new_version filename expression that PR #903 replaced.
+        elite = self.package("old-elite-input.fwsc", "SMK-37 Elite_9000103")
+        pro = self.package("old-pro-input.fwsc", "SMK-37 Pro_9000103")
+        grant(self.repo, "0.1.3")
+        er = write_record(self.repo, "elite", elite, Path(self.tmp.name) / "e-legacy", "0.1.3")
+        pr = write_record(self.repo, "pro", pro, Path(self.tmp.name) / "p-legacy", "0.1.3")
+        bind_models(self.repo, "0.1.3", elite, pro)
+        actual_generator = publish_nightly._new_version
+        old_names = {"elite": "x0x37-0.1.3-elite.fwsc", "pro": "x0x37-0.1.3.fwsc"}
+
+        def old_generator(commit, verified):
+            version, entry, copies = actual_generator(commit, verified)
+            legacy_copies = {}
+            for model in ("elite", "pro"):
+                new_name = Path(entry["models"][model]["pkg"]).name
+                old_name = f"x0x37-{version}-elite.fwsc" if model == "elite" else f"x0x37-{version}.fwsc"
+                legacy_copies[old_name] = copies[new_name]
+                entry["models"][model]["pkg"] = "../firmware/" + old_name
+            return version, entry, legacy_copies
+
+        old_site = Path(self.tmp.name) / "old-generator"
+        with patch.object(publish_nightly, "_new_version", side_effect=old_generator):
+            publish_valid_nightly(self.repo, er, pr, elite, pro, old_site, push=False)
+        old_catalog = json.loads((old_site / "versions.json").read_text())
+        original_bytes = {}
+        for model in ("elite", "pro"):
+            old_name = old_names[model]
+            self.assertEqual(Path(old_catalog["versions"][0]["models"][model]["pkg"]).name, old_name)
+            original_bytes[model] = (old_site / "firmware" / old_name).read_bytes()
+            self.assertEqual(original_bytes[model], {"elite": elite, "pro": pro}[model].read_bytes())
+
+        for generation, prior in (("new-generator", old_site), ("new-generator-again", None)):
+            if prior is None:
+                prior = Path(self.tmp.name) / "new-generator"
+            new_site = Path(self.tmp.name) / generation
+            publish_valid_nightly(self.repo, er, pr, elite, pro, new_site, push=False, merge=prior)
+            new_catalog = json.loads((new_site / "versions.json").read_text())
+            self.assertEqual([v["version"] for v in new_catalog["versions"]], ["0.1.3"])
+            for model, spelled in (("elite", "Elite"), ("pro", "Pro")):
+                expected = f"DnBOX-0.1.3-SMK37-{spelled}-{git(self.repo, 'rev-parse', 'HEAD')[:8]}-hwtest.fwsc"
+                self.assertEqual(Path(new_catalog["versions"][0]["models"][model]["pkg"]).name, expected)
+                self.assertEqual((new_site / "firmware" / expected).read_bytes(), original_bytes[model])
+                self.assertEqual((new_site / "firmware" / old_names[model]).read_bytes(), original_bytes[model])
+
+        # A missing or mutated old public URL is not silently deleted or replaced.
+        alias = old_site / "firmware" / old_names["pro"]
+        original = alias.read_bytes()
+        for fault in ("corrupt", "missing"):
+            if fault == "corrupt":
+                alias.write_bytes(original + b"tamper")
+            else:
+                alias.unlink()
+            denied = Path(self.tmp.name) / ("denied-" + fault)
+            with self.subTest(fault=fault), self.assertRaisesRegex(
+                    NightlyPublishError, "prior firmware|retained alias"):
+                publish_valid_nightly(self.repo, er, pr, elite, pro, denied, push=False, merge=old_site)
+            self.assertFalse(denied.exists(), "invalid old alias must refuse before site creation")
+            alias.write_bytes(original)
 
     def test_null_catalog_product_is_a_structured_refusal(self):
         try:
