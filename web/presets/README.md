@@ -85,7 +85,7 @@ Actual Node CLI and Chromium checks are now verified against pinned W3 source
 - `node --test web/presets/test_codec.mjs web/presets/test_page.mjs`:
   **18/18 Node subtests PASS**, comprising the existing 17 codec cases and
   11 DOM-event scenarios (28 focused cases), with 0 fail / 0 skip.
-- `DNBOX_PUPPETEER_MODULE=/path/to/puppeteer DNBOX_CHROMIUM=/usr/bin/chromium
+- `DNBOX_PUPPETEER_MODULE=/workspace/shared/dnbox-rdc/node_modules/puppeteer DNBOX_CHROMIUM=/usr/bin/chromium
   node web/presets/test_browser.mjs` (Puppeteer 25, Chromium 156):
   **15/15 real browser scenarios PASS**. The runner creates its own isolated
   loopback HTTP server and browser profile, uses browser file chooser/download,
