@@ -7,8 +7,8 @@ Status: DESIGN PROPOSAL, NOT IMPLEMENTED OR HARDWARE-VERIFIED. Design-only branc
 - `ui.c` describes four bands (header, two content bands, knob strip), a dirty-pixel canvas/blit, physical SMK captions, 16 white step keys and 11 black track/slice keys. View enum: HOME/PART/GEN/FX/MIX/GLOBAL/SONG/PERF/SEQ. `PART_N`: 909, 808, BASS A, BASS B, BREAK. `PART_ORDER` is presentation-only and does not remap IDs.
 - `main_fm1.c` describes 512-frame audio DMA halves at 44.1 kHz and UI work outside the audio ISR. This is NOT a measured Chicago page-entry diagnosis.
 - PR #887 identifies U1 as the canonical firmware UX work item, distinct from installer W1/W2 and from modwheel, pattern, dropout, Juno and flash owners.
-- Engine inventory remains **PARTIAL**: above are verified part labels, not an exhaustive list of selectable engines. Chicago/Miami and Juno/Drone are known project work, but their exact selectable current-source enum, availability and persistence require further pinned source reads before declaring a complete engine matrix. Do not infer an engine from a part label.
-- Public Reddit/YouTube/search-interest research: NOT YET COLLECTED. No ratings, popularity, sentiment or analytics claimed.
+- Engine identity inventory now SOURCE-VERIFIED for four selectable original melodic bank kinds: Chicago, Miami, Juno, Drone, with page counts 7/5/4/2 from `ui_original_controls.h`. Five fixed parts remain 909, 808, 303 A, 303 B, BREAK. Actual current firmware selection and persistence acceptance is NOT_RUN. See `u1-engine-renderer-inventory-20261113.md`.
+- Public Reddit research now recorded with individual-level evidence and caveats in `u1-smk-community-evidence-20261113.md`. Video was linked, not independently inspected; numerical search-interest research remains NOT_RUN. No ratings or analytics claimed.
 
 ## Product rules proposed for review
 1. Every page answers: which part, which engine, what is sounding, what action the controls will take, what changed, and how to return. Maintain stable part-colour identity without relying on colour alone.
@@ -37,15 +37,15 @@ Status: DESIGN PROPOSAL, NOT IMPLEMENTED OR HARDWARE-VERIFIED. Design-only branc
 | Chicago parameter entry | Owner-reported lag relative to Miami; not reproduced here | Compare entry latency, repaint area and audio continuity in identical owner scene; no regression against pinned parent |
 
 ## Native-frame journey specification (240 x 240, prototype only)
-All coordinates are DESIGN targets, not claimed current render output. The renderer's real glyph metrics and colour conversion must be read before producing pixel-accurate snapshots.
+Original coordinate guesses were superseded by the actual `gfx.c` 20/138/82 band split: header y0–19, main y20–157, knob strip y158–239. Design targets are not actual UI captures. The source-font proposal frame generator lives at `tools/ux_prototypes/render_u1_frames.py`; its execution and actual BEFORE host screenshots remain NOT_RUN.
 
-- Frame A, HOME: header y0–31: `DnBOX  |  BASS B`; content y32–159: `CHICAGO` text plus meaningful glyph, preset name and playback/dirty state; lower content y160–199: current keybed/part help; knob strip y200–239: four active labels and values.
+- Frame A, HOME: header y0–19: `DnBOX  |  BASS B`; content y20–119: `CHICAGO` text plus meaningful glyph, preset name and playback/dirty state; lower content y120–157: current keybed/part help; knob strip y158–239: four active labels and values.
 - Frame B, SEQ: header identifies part/engine/pattern; content shows step cells with pitch names, current position, note velocities and the best defensible concise chord name (including slash/extension notation) when reliable; knob strip preserves current four mappings. C–Eb–G–Bb shows `Cmin7` alongside all four notes; E–G–C shows `C/E` alongside E G C; plausible extended voicings get a proper short name rather than anonymous notes. Do not print `C minor7`.
 - Frame C, HELD: header and engine retained; center shows 37-key-range held-note visibility and recorded piano-roll on separate visual layers; bottom readout shows last edited target/value. No audio gesture ownership changes.
 - Frame D, PRESET: header shows engine and scope; main region lists factory/user/imported with explicit provenance; lower region previews compatibility/version and overwrite impact; cancel is always visible.
 - Frame E, PARAMETER FEEDBACK: current page stays intact, existing readout area is reused where supported; e.g. `JUNO A  CUTOFF` and actual numeric value. Knob and modwheel use same grammar.
 
-**Before/after render proof is PENDING.** Do not label these specifications as screenshots or real framebuffer captures. Next artifact: source-derived native-resolution frame harness that loads actual fonts and captures baseline/after for the same state, with image diffs and readability review.
+**Actual before/after frame proof remains PENDING.** A host-only source-font 240x240 proposal generator has been pushed, but generated PNG output has not been run or checked. It is not a full firmware renderer capture and never represents a 'before' frame. Baseline must be captured with current host UI at pinned input/state before pixel comparison.
 
 ## Path ownership and implementation slices
 - This branch: `docs/design/firmware-ux-overhaul-20261113.md`, isolated host-side design/frame harness under `tools/ux_prototypes/` after inspecting existing renderer; no firmware runtime changes.
@@ -60,4 +60,4 @@ All coordinates are DESIGN targets, not claimed current render output. The rende
 Both Elite and Pro: linked flash free >=8192 B and pool free >=8192 B; exact-head focused + full integration checks as required; pixel/readability review at 240x240; no UI entry latency regression, missed input, XRUN or dropout in the Chicago arp + Juno triad + audible BREAK + 909 four-on-floor owner scene. No claimed device proof from emulator or host tests.
 
 ## Next checkpoint
-Read exact current engine selection/preset/pattern source and previous SMK custom-firmware research; collect traceable Reddit/YouTube evidence and distinguish observation from inference. Then build source-backed baseline and proposed 240x240 frame journeys with actual font assets, run pixel/layout checks, and request owner review before any invasive UI implementation.
+SOURCE CHECKPOINT: engine selection API and UI page matrix inspected; source-font proposal harness and bounded public community research added. NEXT: execute the harness against repository font assets, capture actual pinned host renderer BEFORE frames at matching input state, run 240x240 clipping/pixel comparison, verify pattern preset recall and full 37-key recording with owning lanes. Owner review before invasive runtime implementation.
