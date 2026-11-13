@@ -1,1000 +1,689 @@
-# X0X
+# DnBOX
 
-X0X turns the M-VAVE FM-1 into a groovebox: a 909, an 808, two 303s and a breakbeat player,
-all playing at once, in stereo. Each part can play its own pattern, you can arrange patterns
-into a song, record knob moves, and give single steps a sound and a chance of their own.
+This is the end-user manual for the SMK-37 Elite and the SMK-37 Pro.
 
-New in this version: see [What's new](https://charlesvestal.github.io/fm1-x0x/new/).
-
-![The FM-1 (a drawing), running X0X, each control labelled](img/fm1-panel.svg)
-
----
+The product name is exactly DnBOX. Use that spelling in every player-facing sentence.
 
 ## Contents
 
-1. Install
-2. Getting started
-3. Controls
-4. The screen
-5. 909 and 808
-6. 303A and 303B
-7. TB-3PO
-8. Break
-9. Patterns
-10. Recording
-11. Knob motion, p-locks and probability
-12. Song
-13. Effects
-14. Mix and master
-15. Settings and saving
-16. MIDI and USB audio
+1. This manual and the firmware version
+2. The panel
+3. First sound
+4. First pattern
+5. First bass line: Chicago, then Miami
+6. First break
+7. Save, and why it waits
+8. Step versus sound
+9. The mixer, the effects and the master
+10. Patterns, chains and song
+11. Recording and free play
+12. Knob motion, p-locks and chance
+13. GLOBE settings
+14. MIDI, USB audio and Bluetooth
+15. Loopy clip mode
+16. Install and update safety
 17. Troubleshooting
-18. Parameters
-19. Credits
+18. Expert shortcuts
+19. Parameters
+20. Credits
+- Appendix A. Same key, different job
+- Appendix B. Names from the older FM-1 build
+- Appendix C. Protocol identifiers that must stay the same
 
 ---
 
-## 1. Install
+## 1. This manual and the firmware version
 
-**Install:** open the [web installer](https://charlesvestal.github.io/fm1-x0x/install/) in Chrome or
-Edge, connect the FM-1 with a USB data cable and press Install. Don't unplug it while it's
-writing; when it finishes, the FM-1 restarts into X0X.
+DnBOX turns an SMK-37 Elite or SMK-37 Pro into a live groovebox. It has a 909, an 808, a BREAK player, and two bass slots.
 
-**Update:** the same way. An update keeps your project: the patterns, sounds, song and settings.
-Installing another firmware does not: it keeps its own things in the same memory, so coming back
-to X0X starts with an empty project.
+The bass slots can run Chicago, Miami, Juno or Drone. Chicago is the 303 engine. Miami is never a 303. Juno and Drone are not 303 engines.
 
-**Your loops and updates.** An update never writes your sample slots. If the new firmware keeps
-its slots in other places (for example an older X0X, which has fewer slots, or the stock
-firmware), the installer tells you which slots would lose their loops. It then saves every slot to a
-`.x0xslots` file in your Downloads, installs, and writes the loops back into the new slots by
-itself. If a loop does not fit anywhere, it tells you. If writing back fails, keep the file and
-restore it with **Restore a backup** on the break loops page. After the stock firmware, restore
-it when X0X is back.
+Elite and Pro share the same playing surface. The USB product name and the Bluetooth name differ. The controls do not.
 
-**Go back:** "Back to the stock firmware", at the bottom of the same page, puts M-VAVE's firmware
-back (download the FM-1 V15 file from the link there, choose it, press the button). M-VAVE's own
-updater, M-UPGRADE, works too.
+**Goal.** A first-time player can hear a sound, write a pattern, and save it. Expert shortcuts stay in chapter 18. This book does not remove them.
 
-> Installing other firmware is at your own risk. If the FM-1 ever won't start, see
-> [Recovering an FM-1 that won't start](#recovering-an-fm-1-that-won-t-start).
+**Version this book describes.** This manual matches source `94197fc8` (full id `94197fc839b00aff47b98ca02f3c6396e4a6eabf`). That source sits after the published tag `v0.0.25.1`. The Git describe string is `v0.0.25.1-87-g94197fc83`.
 
-<details><summary>Install from the command line</summary>
+The open-beta ledger has not allocated a new number. This book does not call the firmware 0.0.26.
 
-Download the firmware file (for example `x0x-1.0.fwsc`) from the
-[releases page](https://github.com/charlesvestal/fm1-x0x/releases), get the X0X source from GitHub,
-install Python 3 with `pip3 install mido python-rtmidi`, and run:
+A published package must print the same `X0X_VERSION` that the build used. About and the USB product use the same words: `DnBOX` plus that version. If a build does not pass a version, About shows `DEV`. About can also append a short Git id as `g` plus the SHA when the build provides it.
 
-```
-python3 tools/fm1_install.py x0x-1.0.fwsc
-```
+**How to read this book.** Start with chapters 3 to 7. Those chapters take you from a cold start to a saved pattern. Later chapters cover the rest of the instrument. Chapter 18 keeps expert muscle memory in one place.
 
-It saves and restores your loops the same way as the web installer. `--backup FILE` chooses
-the file; `--no-slots` skips this.
+A companion file, `web/MANUAL.md`, covers install, samples and project files in the browser. That file is not a second control manual.
 
-(The web installer on hugelton.github.io installs Felucca, not X0X.)
-
-</details>
+This book describes the strings and behaviour in source at this SHA. It does not describe proposed screens.
 
 ---
 
-## 2. Getting started
+## 2. The panel
 
-A five-minute tour, from switching on to saving your first beat. When X0X starts, the screen
-shows the 909 and every part is empty.
+Hold any one button for about one second. A help card names the printed legend and says what the button does here. Then let go. The release does nothing.
 
-1. **Add a kick.** Press black key 1 to pick the bass drum (you'll hear it), then press white
-   keys 1, 5, 9 and 13.
-2. **Press PLAY.** The kick plays on every beat.
-3. **Add a clap.** Press black key 7, then white keys 5 and 13. While the pattern plays, picking
-   a drum is silent, so you don't add a stray hit.
-4. **Add open hats.** Press black key 9, then white keys 3, 7, 11 and 15.
-5. **Write a 303 line.** Turn ALGORITHM two clicks clockwise to 303A and press ARP. Press OCT+:
-   each press writes a new line. Keep going until you like one.
-6. **Shape the 303.** Press EDIT. The knobs are now the 303's filter: KNOB 1 opens and closes it,
-   KNOB 2 sets the resonance.
-7. **Add the break.** Turn ALGORITHM two more clicks to BREAK and press all 16 white keys, so the
-   break plays the whole bar.
-8. **Mute a part.** Press HOME, then black key 5 to mute the break. Press it again to bring it
-   back.
-9. **Record a filter sweep.** Turn ALGORITHM back to 303A and press EDIT. Press REC, slowly turn
-   KNOB 1 for a bar or two, then press REC again. The sweep now plays every time the pattern
-   comes round.
-10. **Save.** Press PLAY to stop, then SAVE. Everything is kept when you switch off. (X0X also
-    saves by itself a few seconds after you stop; see section 15.)
+For BT, the help card comes at about 400 ms. For the other buttons, the hold is 900 ms.
 
-Next: section 9 shows how to make more patterns and switch between them, and section 12 how to
-arrange them into a song.
+Why: many printed words are not the job. BT is Save, not Bluetooth. NOTE REPEAT opens the mixer. KNOB BANK opens Loopy clip mode. The help card uses the word on the plastic.
 
----
+The table below is the glossary for this whole book. The left column is the printed SMK legend. The middle column is the DnBOX function name this book uses. Use one term for one thing.
 
-## 3. Controls
-
-The drawing at the top of the manual names every control. In more detail:
-
-A button that opens a screen always opens the same one; press it again for that screen's next
-page. SEQ, EDIT and ARP show the part you choose with ALGORITHM.
-
-| Control | What it does |
-|---|---|
-| MASTER | Volume. |
-| SELECT | The previous or next page. In a list, up and down. Hold a step and turn it for the step's chance (section 11). |
-| PRESETS | The next pattern: on a part's screen for that part only, on HOME for all five. |
-| ALGORITHM | The part: 909, 808, 303A, 303B or BREAK. In a list, it changes the value. |
-| OCT-, OCT+ | The steps, 16 at a time (1–16 … 49–64). On HOME and SONG, patterns 1–16 or 17–32. On the 303 keyboard, the octave. On TB-3PO, mutate the line or write a new one. |
-| KNOB 1–4 | The four values at the bottom of the screen. Each click is one step, however quickly you turn a few; spin and they speed up. |
-| FX | The reverb and the delay. |
-| SEL | Everything on this screen as a list, including the settings on no page (see Lists). In a question, yes. |
-| ENV | Hold while pressing keys: an accent. |
-| LFO | The mixer and the master. Hold while pressing keys: a slide. |
-| EDIT | The selected part's sound. The keys still write its steps. |
-| GLO | The settings. Press again to close. |
-| HOME | The pattern: all five parts, which pattern they play, mutes. Again: the song, and again back. In a list, back; in a question, no. |
-| SAVE | Save everything (while playing: when you stop). Hold it to copy the pattern; then a white key pastes it. |
-| ARP | TB-3PO, the 303 line generator (on a 303). |
-| SEQ | The selected part's steps, with its LENGTH and RATE (on a 303 also DIRECTION and TRANSPOSE). |
-| PLAY | Start and stop. |
-| REC | Record on and off: drum hits, 303 notes, knob moves, and on the SONG screen the song. On a 303 the keys become a keyboard while it's on. |
-| White keys | Steps. On HOME, patterns. On MASTER and FX they do nothing. |
-| Black keys | Drum tracks, or the break's slices. On HOME they mute parts; on the mixer they pick a channel. |
-
-**Hold HOME** for these: + REC undoes, + PLAY redoes, + SELECT sets the tempo, + a white key picks
-a pattern from any screen, and + a black key mutes a drum track (on the 909 or 808 screen) or a
-channel (on the mixer).
-
-![What the keys do](img/fm1-keys.svg)
-
-(The SEL button is labelled SCL in Felucca.)
-
-### Lists
-
-SEL turns the screen you're on into a list of everything on it: every knob from its pages,
-grouped (on the 909, for example, BD: THIS TRACK and 909: ALL TRACKS), and then **MORE**, the
-settings that are on no page. MORE is where the less used settings live, such as a drum
-track's DRIVE and DIST or the compressor's details.
-
-In a list, SELECT moves, ALGORITHM changes the highlighted value, and SEL runs a row with a
-return arrow (an action). HOME goes back. X0X always asks before doing anything that would lose
-notes: SEL for yes, HOME for no.
-
-![A list](img/screen-list.png)
-![A question](img/screen-ask.png)
-
-> **Not sure what a button does?** Hold it for a second on its own: a card says what it does on
-> the screen you're on, with its combinations. Let go and nothing happens.
-
-### Undo
-
-Hold HOME and press REC to take back your last change; the screen says what it undid, for
-example UNDO 909 P1. HOME + PLAY redoes it. You can go back up to 32 steps (fewer after very big
-changes). A step is whatever you did before pausing for a moment: a few steps tapped in a row,
-one turn of a knob, or a whole recording pass. Undo covers the sounds, patterns, song and knob
-motion, including CLEAR PATTERN, but not the tempo or the settings. Loading a saved project,
-importing a project or choosing RESET PROJECT clears the history; you cannot undo those
-replacements. The history is also cleared when you switch off.
-
-<details><summary>What the key lights show</summary>
-
-The key lights have two levels: bright for what is on or chosen, dim for what is there to
-choose.
-
-| Screen | Bright | Dim |
+| Printed on the SMK | Function name | What it does |
 |---|---|---|
-| HOME | the pattern playing (a cued one blinks); the parts playing | patterns with notes; muted parts |
-| SONG | the bar's pattern; the bar's parts | patterns with notes; the bar's muted parts |
-| 909 / 808 | the track's hits; the track | the other tracks with hits |
-| 303 | notes | ties |
-| 303 with REC on | the keys you hold | the Cs, to find your place |
-| BREAK | the steps it plays | the slice pads 1–8 |
-| Mixer (PARTS, 909 MIX, 808 MIX) | the channel the knobs set (blinking while muted) | the other channels |
+| FX | FX | Reverb and delay. With SEQ: panic (all notes off). |
+| SCALE | SCALE (list / yes) | Opens this screen as a list. Confirms a question. In clip mode, SCALE is a real scale control. |
+| CHORD | CHORD (accent) | Hold plus a key: accent. In clip mode, CHORD is a real chord control. |
+| NOTE REPEAT | NOTE REPEAT — mixer (when clip mode is off) | Mixer and master. Hold plus a key: slide on Chicago. In clip mode: panic. With ARP: LATCH. The lamp means the mixer, not note-repeat. |
+| PARA | PARA (sound) | Sound of the selected part. On a drum part, white keys audition only. They do not write steps. |
+| GLOBE | GLOBE (settings) | Settings. Press again to close. Bluetooth lives here. |
+| PATCH | PATCH — HOME / SONG / back / no | From most views: HOME. Already on HOME: SONG. In a list: back. In a question: no. Hold as a modifier. |
+| BT | BT — Save (not Bluetooth) | Tap: save, or queue until stop. Hold about 250 ms: copy. Hold about 400 ms: help. Bluetooth is GLOBE, then BLUETOOTH. The lamp means unsaved, queued or failed, not wireless. |
+| ARP | ARP (TB-3PO) | Line generator. Chicago or Miami only. |
+| SEQ | SEQ (steps) | Step grid or piano roll. A cold start lands here on the 909. |
+| SEQ PLAY | SEQ PLAY | Start or stop, on press. |
+| SEQ REC | SEQ REC | Record on or off, on press. |
+| OCTAVE− / OCTAVE+ | OCTAVE− / OCTAVE+ | The meaning depends on the screen. See Appendix A. |
+| `<` `>` | `<` `>` (page / list value) | With no list: one page step, no hold-repeat. In a list: the value. Hold-repeat is 400 ms, then 80 ms. |
+| KNOB BANK | KNOB BANK — Loopy clips | One press leaves the instrument UI. The toast is `LOOPY CLIPS` or `LP OFF`. |
+| FADER BANK | FADER BANK | Bank A or bank B. The LED is on for bank B. |
+| K1 | MASTER | Volume. This knob has no taught role. |
+| K2 | K2 (page / chance / tempo) | Page or list row. Held-step chance. PATCH plus K2 sets tempo. |
+| K3 | K3 (part) | Walks 909, then 808, then BREAK, then Chicago, then Miami. In a list: the value. |
+| K4 | K4 (pattern) | Cue a pattern. On HOME, all five parts. On a part screen, this part. This also ends a chain. |
+| K5–K8 | K5–K8 | The four values at the bottom of the screen. |
+| 16 pads | Pads | The pads follow the 16 white keys. |
+| Faders 1–4 | Faders, bank A or B | Bank A: levels for 909, 808, BREAK and Chicago. Bank B: Miami level, reverb return, delay return, and master FILTER. Soft pickup. |
+| Pitch / mod wheels | Pitch wheel / mod wheel | On a Chicago-style slot: bend and cutoff. On Miami: bend and wobble depth. The wheels do not write the saved pots. |
+| 37-key keybed | Keys | The middle 27 keys match the older 27-key layout. The outer ten keys are live. Some outer keys also page BREAK slices. |
 
-</details>
-
----
-
-## 4. The screen
-
-![The 909](img/screen-909.png)
-
-The **top line** shows, from left to right:
-
-- the part, in its colour (909 orange, 808 red, 303A green, 303B blue, BREAK violet), and the
-  screen if it isn't the sound: SEQ, TB-3PO, or KEYS while the 303 keyboard is on;
-- the pattern playing, such as P3. P3 >5 means pattern 5 is coming up next. On a part longer
-  than 16 steps, the steps the white keys show follow (33-48);
-- the tempo, amber when X0X follows an external MIDI clock;
-- a play symbol while playing and a red dot while recording. A small grey dot means there are
-  unsaved changes.
-
-When a button does something, the top line says what for a second, for example SAVED or PARTS
-PASTED TO P5.
-
-The **knobs** sit under a tag that says whose they are: the selected track (BD), the whole
-machine (909 KIT), a 303's sound (303A TONE), the pattern (P3 SEQUENCE), the mixer (PARTS: 303A,
-909 MIX: CP), a held 303 step on SEQ (303A STEP 5), or a p-lock (BD P-LOCK STEP 5). When a
-section has more than one page the tag counts them (BD (1/2)), and the dots at the end of the
-line are all the screen's pages, the current one lit. Settings with only a few choices show a
-row of small squares instead of a ring.
-
-When you turn a knob, its value shows in large type for a second, with whose it is: a track's
-(BD TUNE) or a pattern's (P3 LENGTH). Settings that belong to the pattern change when the
-pattern does, and are copied with it; the sound stays the same whatever pattern plays.
-
-The **footer** at the very bottom says what the keys do on this screen (BLACK: TRACK, WHITE:
-STEP). Until you first press a button it says HOLD ANY BUTTON: WHAT IT DOES.
-
-![Turning a knob](img/screen-readout.png)
+SEQ PLAY and SEQ REC act on press. Almost every other button acts on release, and only if you did not already use it as a modifier.
 
 ---
 
-## 5. 909 and 808
+## 3. First sound
 
-Each drum machine has eleven tracks, one on each black key:
+The unit starts on the 909 step grid (SEQ). Every part is empty. You are already on the right screen. You do not need to press SEQ.
 
-| Key | 909 | 808 |
+Why: a cold start is ready for the first drum pattern. The first sound is a 909 kick on the grid.
+
+Do not press PATCH yet. PATCH leaves SEQ and opens HOME. HOME keys make no sound.
+
+Do not press KNOB BANK yet. KNOB BANK leaves this instrument and opens Loopy clip mode. The toast is `LOOPY CLIPS`.
+
+If you pressed PATCH, you are on HOME. A second PATCH opens SONG, not the grid. Press PATCH again for HOME, then press SEQ to return to the grid.
+
+If you pressed KNOB BANK, press KNOB BANK again. The toast is `LP OFF`.
+
+While the loop does not run, press black key 1. This selects the bass drum (`BD`). You hear it.
+
+Why: KEY SOUND defaults to `STOPPED`. A black key plays the drum only while the loop does not run, or while you record. While the pattern plays, a black key only selects the track. This avoids a stray hit on a live pattern.
+
+Press white keys 1, 5, 9 and 13. These write steps on the selected track.
+
+Why: on SEQ, a white key writes or removes a step. An empty step turns on immediately. A lit step turns off if you tap it for less than 300 ms. A longer hold keeps the step so you can set a p-lock.
+
+Press SEQ PLAY. The loop starts. Press SEQ PLAY again to stop. Transport acts on the press.
+
+---
+
+## 4. First pattern
+
+Stay on 909 SEQ.
+
+Press black key 7. This selects the clap (`CP`). While stopped, you hear it. Press a white key to place a clap step.
+
+Press black key 8. This selects the closed hat (`CH`) on the 909. Place hat steps the same way.
+
+Why: each black key is one drum track. The 909 tracks in order are `BD`, `SD`, `LT`, `MT`, `HT`, `RS`, `CP`, `CH`, `OH`, `CR` and `RD`. The last row on the grid is accent (`AC`).
+
+The 16 pads follow the 16 white keys. You can write the same steps on the pads.
+
+On SEQ, the SEQUENCE page sets LENGTH and RATE on K5 and K6. The default rate names are `1/16`, `1/16T`, `1/32`, `1/8T`, `1/8` and `1/4`. Length can run to 64 steps. OCTAVE+ and OCTAVE− move the visible 16-step page (`1-16`, `17-32`, `33-48`, `49-64`).
+
+Swing for the whole pattern sits on HOME, on the `PERFORM` page (K6), not on this SEQ page.
+
+To mute a track from SEQ, hold PATCH and press that track's black key. If you release PATCH with no key, the view changes to HOME. See chapter 3 for how to return.
+
+---
+
+## 5. First bass line: Chicago, then Miami
+
+Turn K3 clockwise from the 909. The part order is 909, then 808, then BREAK, then Chicago, then Miami.
+
+From 909: one click is 808. Two clicks are BREAK. Three clicks are Chicago. Four clicks are Miami.
+
+Why: the screen follows this display order, not an older "two 303s then a break" tour. Count the clicks against this order.
+
+### Chicago
+
+Chicago is the 303 engine. It is the default engine on bass slot B. On HOME, Chicago sits after BREAK, as the fourth of the five lanes. The default MIDI channel for bass slot B is 3.
+
+On SEQ, the white keys are steps in a piano roll. Hold a step and turn K5–K8 to edit that step. CHORD plus a key writes an accent. NOTE REPEAT plus a key writes a slide. Accent and slide are audible on Chicago.
+
+Press PARA to shape the sound. Chicago's first pages are OSCILLATOR and FILTER 1, then FILTER 2, ENVELOPE, AMPLIFIER, ARPEGGIATOR and EFFECT. The first FILTER 1 knobs are CUTOFF, PEAK and ENV. There is no leftover TONE or VOICE page from an older 303 engine.
+
+Press ARP for TB-3PO, the line generator. On that screen, OCTAVE+ writes a new line. OCTAVE− mutates the line. TB-3PO runs on Chicago or Miami only.
+
+### Miami
+
+Turn K3 one more click to Miami. Miami is never a 303. It is the default engine on bass slot A. On HOME, Miami is the rightmost lane when both slots still have their defaults. The default MIDI channel for bass slot A is 2.
+
+Miami ignores accent and slide. A CHORD or NOTE REPEAT flag that you store still has no Miami accent or slide sound.
+
+Press PARA to shape Miami. The pages are CARRIER, XMOD, FILTER, WOBBLE and OUTPUT. The first FILTER knobs include CUTOFF, CRUSH and WOBBLE. The first sound you hear depends on this engine, not on Chicago's pages.
+
+The two bass slots are not identical. They can run different engines. Their defaults are already different.
+
+### Juno and Drone
+
+Each bass slot can also run Juno or Drone. Choose the engine on the PARA SOUND page (`CHICAGO`, `MIAMI`, `DRONE`, `JUNO`).
+
+ARP does not run on Juno or Drone. If you press ARP there, the toast is `TB-3PO: PICK CHICAGO OR MIAMI`.
+
+Juno and Drone can record a held-key chord. If the chord does not fit, the toast is `CHORD NOT SAVED`.
+
+Do not call Juno or Drone a 303.
+
+### The bass keyboard
+
+When the keyboard is on, the 37 physical keys play the selected bass slot. The keyboard is on in PARA, in record, or in FREE PLAY. FREE PLAY is a SEQ KEYS page. The keys play and write nothing. Strike velocity is in use on this path.
+
+---
+
+## 6. First break
+
+From the 909, turn K3 two clicks clockwise to BREAK. Do not turn four clicks.
+
+On SEQ, the white keys are the bar, not a drum track. This is a sample player. The feel is different from a 909 or 808 grid.
+
+SEQ pages for BREAK include SEQUENCE (RATE: `1/16`, `1/8` or `1/4`), GROOVE and RETRIG.
+
+PARA opens LOOPS. There you pick LOOP A and LOOP B, and you set slice counts (`A SLICES`, `B SLICES`: `4`, `8`, `16`, `32`).
+
+Some outer keys page the BREAK slices. The middle keys still play the live path when the keyboard owns them.
+
+To put your own loops on the unit, use the browser sample tools in `web/MANUAL.md`. This control book does not repeat that procedure.
+
+---
+
+## 7. Save, and why it waits
+
+The printed legend on the Save button is **BT**. A tap of BT saves the project, or queues the save until it is safe.
+
+Bluetooth is not this button. Bluetooth lives in GLOBE, in the BLUETOOTH section.
+
+Why the wait: a flash write stops the audio. The unit does not write during play, during record, or while notes or clip activity are busy. If you tap BT then, the toast is `SAVES WHEN STOPPED`, or `SAVES WHEN QUIET`, or `REC OFF TO SAVE`. The header can show `SAVE AT STOP`, `SAVE WHEN QUIET` or `REC OFF TO SAVE`. On a tight header this shrinks to `Q`, or to a small amber dot.
+
+The unit writes only after you stop and the machine stays quiet. The toast is then `SAVED`. Failure toasts include `SAVE FAILED`, `NEWER DATA: NOT SAVED` and `MEMORY FULL: NOT SAVED`. A toast fills the header for 1300 ms.
+
+The BT lamp stays on while a save waits. It blinks for unsaved edits. It blinks fast after a save fails.
+
+Autosave is on by default. After 4 s of quiet, while stopped, the unit can save on its own, at most every 20 s. The toast is `AUTOSAVED`. You can turn autosave off in GLOBE, under PROJECT.
+
+To load the last saved project, open GLOBE, then PROJECT, then `LOAD SAVED`. If you have unsaved edits, the question is `LOAD SAVED PROJECT?` with `DISCARD UNSAVED EDITS`. SCALE is yes. PATCH is no.
+
+The project does not save a chain. A chain is live only. See chapter 10.
+
+To copy, hold BT about 250 ms. The toast is `CHOOSE PASTE TARGET`. Then press a white key to paste. Hold BT plus OCTAVE to pick the copy bank (`P1-16` or `P17-32`).
+
+---
+
+## 8. Step versus sound
+
+Keep this split. It is easy to confuse, and an older book was wrong here.
+
+| | SEQ (steps) | PARA (sound) |
 |---|---|---|
-| 1 | Bass drum (BD) | Bass drum (BD) |
-| 2 | Snare (SD) | Snare (SD) |
-| 3–5 | Low, mid and high tom | Low, mid and high tom, or congas |
-| 6 | Rim shot (RS) | Rim shot, or claves |
-| 7 | Clap (CP) | Clap, or maracas |
-| 8 | Closed hat (CH) | Cowbell (CB) |
-| 9 | Open hat (OH) | Cymbal (CY) |
-| 10 | Crash (CR) | Open hat (OH) |
-| 11 | Ride (RD) | Closed hat (CH) |
+| Enter | Press SEQ. The SEQ lamp is on. | Press PARA. The PARA lamp is on. |
+| What you see | The drum kit grid, or a bass piano roll. The header mode is `SEQ`. | The sound pages. On a bass slot the header mode is `SOUND`. |
+| White keys on a drum part | Write or remove steps on the selected track. | **Audition only.** The white key plays the selected sound. It never writes a hidden step. The footer is `WHITE: SOUND`. |
+| White keys on a bass slot | Steps in the piano roll, when the keyboard is off. | The keys can play the sound. |
+| Hold a step plus K5–K8 | A p-lock for that step. The tag is `P-LOCK STEP n`. | The same p-lock if you still hold the step. |
 
-The 909's hats and cymbals are samples, as on the original machine; every other sound on both
-machines is synthesized. On the 808, a track's SOUND setting switches it between tom and conga,
-rim and claves, or clap and maracas. On both, the closed hat cuts off the open hat.
+Why the audition rule: PARA white keys must not write steps. A player who opens PARA to change the sound must not also change the pattern. The step stays on SEQ. The sound stays on PARA.
 
-**Writing a beat.** Press a black key to pick a track; while the pattern is stopped you hear it
-too. (While it plays, picking is silent so you don't add a stray hit; GLO > KEY SOUND = ALWAYS
-changes that.) Then press white keys: an empty step turns on, and a tap on a step that's on
-turns it off. Hold ENV while pressing white keys to place accents instead; an accent makes every
-drum on that step louder.
+If you hold a step and then try to leave PARA for SEQ, the toast is `RELEASE STEP FIRST`. Release the step, then press SEQ.
 
-A pattern can be up to 64 steps long. The white keys show 16 at a time: OCT+ moves to the next
-16 and OCT- back, and the top line shows which 16 you're on.
-
-**Muting a track:** hold HOME and press its black key; again to bring it back. A muted track's
-row turns grey. Track mutes aren't saved, and muting the whole part on HOME leaves them as they
-are.
-
-**The pages.** EDIT shows the selected track's sound (one page, two for the 909's kick), then KIT
-with ACCENT, how much louder accented steps are. A track's DRIVE and DIST are in SEL's list,
-under MORE. SEQ has the machine's LENGTH and RATE. SWING is on HOME, because it swings every part.
-
-Each track's level, pan and reverb and delay sends are on the mixer: press LFO and go to 909 MIX
-or 808 MIX, which shows all eleven levels at once. The black keys pick a track and the knobs are
-its LEVEL, PAN, REV and DLY. On the 808 the alternate sounds share their track's pan, so the
-conga sits where the tom does.
+A turned knob replaces the bottom of the screen for 900 ms with a large readout. For a drum, the name looks like `BD  DECAY`. There is no banner that says `EDITING: SOUND` or `EDITING: THIS STEP ONLY`.
 
 ---
 
-## 6. 303A and 303B
+## 9. The mixer, the effects and the master
 
-There are two identical 303s. Each has its own sound and its own line.
+### The mixer (NOTE REPEAT)
 
-![303A](img/screen-303.png)
+When clip mode is off, NOTE REPEAT opens the mixer (MIX). Press NOTE REPEAT again for the next MIX page. The NOTE REPEAT lamp means you are on MIX, not that note-repeat is on.
 
-**Steps.** Press a white key to turn that step on; tap it again to turn it off. To edit a step,
-press SEQ, hold the step's key and turn the knobs: KNOB 1 sets the note, KNOB 2 the gate (REST,
-NOTE or TIE), KNOB 3 the accent and KNOB 4 the slide. OCT- and OCT+ move the held note an octave.
-An empty step turns on as soon as you press it, so you can press, hold and set its note in one
-go. A slide glides from this step's note into the next one. (Holding a step on EDIT gives it a
-sound of its own instead: see P-locks in section 11.)
+The MIX pages are PARTS, 909 MIX, 808 MIX, MASTER and WAVE.
 
-A **tie** holds the note before it through the step, so it doesn't play again. On the screen a
-tied note joins the note it holds in one long bar. Turning KNOB 1 on a tie makes it a note of
-its own.
+On PARTS, black keys 1 to 5 pick the part in display order: 909, 808, BREAK, Chicago, Miami. The knobs are LEVEL, PAN, REV and DLY. The footer is `BLACK 1-5: PART` and `PATCH+BLK: MUTE`.
 
-For a longer bass note, enter a NOTE, then set each following step to TIE with
-KNOB 2. For example, `NOTE C2 | TIE | TIE | REST` sounds one C2 across three
-step positions, with no new attack on the ties. The final tie releases halfway
-through its step, as a normal note does. To glide into a new pitch instead, use
-SLIDE on the step before that NOTE. The part's RATE sets the time between steps;
-adding ties extends a note without changing that rate.
+909 MIX and 808 MIX set Level, Pan, Rev and Dly for the selected drum track.
 
-**Keyboard.** Press REC and all 27 keys become a keyboard (KEYS shows on the top line). The
-notes you play are written: step by step while the pattern is stopped, live while it plays.
-OCT- and OCT+ change the octave. Play a key while still holding another and the 303 slides
-between them. Press REC again to go back to steps.
+MASTER starts with Drive, a one-knob COMP, PUMP and FILTER. Further knobs include THRESH, RATIO, ATTACK, RELEAS, MAKEUP, MIX, PUMP BY, RESO, LIMIT, Dist, GLUE and Volume. WAVE shows the same first four knobs with a scope.
 
-While stopped with REC on, enter the note, then hold LFO and press OCT- or OCT+
-once for each continuation TIE. Hold ENV and press OCT- or OCT+ to insert a REST.
-Live recording currently writes a NOTE when you press a key; holding that key
-does not automatically write ties. Add the ties in SEQ after recording.
+K1 is MASTER volume at all times.
 
-**Free play.** To play the 303 without writing anything, press SEQ, turn SELECT to the KEYS page
-and set FREE PLAY to ON. The keys then play the 303 on every 303 screen, stopped or playing, so
-you can try lines and turn EDIT's knobs as you go; the top line says FREE PLAY. Nothing is
-written until you press REC, which records as above. Set FREE PLAY back to OFF for the steps.
-Each 303 has its own, and both are off at power-on. In FREE PLAY, the SMK keybed's strike
-velocity controls volume and cutoff: soft notes are quieter and darker; hard notes are louder
-and brighter. Incoming MIDI notes use the same response. Velocity 100 is neutral. Overlapping
-notes still slide.
+### Faders
 
-**The pages.** EDIT has TONE (CUTOFF, RESO, ENVMOD, DECAY) and VOICE (ACCENT, WAVE, saw or
-square, DRIVE, SLIDE time); TUNE, VOLUME, DRIVE TYPE (off, soft or RAT) and ACCENT DECAY are in
-SEL's list. FILTER ADSR adds FATTACK (0–2000 ms), DECAY (200–2000 ms), FSUSTAIN (0–100%) and
-FRELEASE (0–4000 ms). In SEL's list, set FENV to ADSR to use these filter controls; 303 keeps
-the original envelope and is the default for existing sounds. DECAY is the same control on
-TONE and FILTER ADSR. ENVMOD sets the filter envelope depth. A slide continues the envelope;
-a fresh note starts it again. These controls affect the filter only: the original volume
-envelope still determines how long the release is audible.
+Press FADER BANK to switch bank A and bank B. The LED is on for bank B. A bank change rearms pickup and toasts `FADERS:` plus the short labels.
 
-SEQ has the line's LENGTH (1–64 steps), RATE, DIRECTION (forward, reverse, ping-pong
-or random) and TRANSPOSE. Each 303's level, pan and sends are on the mixer (LFO).
+Bank A sets levels for the first four displayed parts: 909, 808, BREAK and Chicago.
+
+Bank B sets the fifth displayed part (Miami, when that slot still runs Miami), then reverb return, delay return, and master FILTER.
+
+The faders use soft pickup. Until a fader reaches the saved value, or crosses it, the header shows `PICK Fn UP` or `PICK Fn DOWN`. Pattern and tempo stay visible.
+
+### FX
+
+Press FX for reverb and delay. Press FX again for the next page.
+
+REVERB knobs include DECAY and TONE. DELAY knobs include TIME, FEEDBACK, TONE and TAPE (from clean digital into worn tape). Further knobs include REV LOW CUT, REV RETURN, DLY LOW CUT, DLY RETURN and PING-PONG.
+
+Each part's send levels live on the mixer, not on this FX screen.
+
+### SMC
+
+If you have an SMC mixer on the link, the HOME footer shows `SMC F1-5: PART LEVEL` and `F6: REV  F7: DLY  F8: FILT`. The SMC has its own pickup words. With no SMC mixer on the link, the HOME footer is `WHITE: PATTERN`, `TWO: CHAIN` and `BLACK: MUTE`. Until you press a button, the footer can say `HOLD ANY BUTTON: WHAT IT DOES`.
 
 ---
 
-## 7. TB-3PO
+## 10. Patterns, chains and song
 
-TB-3PO writes 303 lines for you. Pick a 303 with ALGORITHM and press ARP.
+There are 32 patterns, in two banks: 1 to 16 and 17 to 32. On HOME or SONG, OCTAVE+ shows 17–32. OCTAVE− shows 1–16.
 
-![TB-3PO](img/screen-tb3po.png)
+### HOME
 
-Press **OCT+** to write a completely new line, or **OCT-** to mutate the current one (about a
-quarter of its steps change).
+Press PATCH from most views to open HOME. The header word is `HOME`. The screen shows all five parts of the current pattern, in display order: 909, 808, BREAK, Chicago, Miami.
 
-TB-3PO has two pages (press ARP again, or turn SELECT):
+On HOME, a white key (or a pad) selects a pattern. Two white keys make a **chain**. A live chain shows a small amber `CHN`. An amber underline marks chained slots. A chain is live only. The project does not save it.
 
-- GENERATE: DENS, ACCENT and SLIDE set how many steps play, are accented and slide. OCTS sets
-  the range, from 1 to 3 octaves.
-- SCALE: ROOT, SCALE (minor, Phrygian, harmonic minor, minor pentatonic, Dorian or major),
-  OCTAVE, and MUTATE, which mutates the line by itself every 1–16 bars (or never).
+Why: a chain is a performance tool. A saved project must not surprise you with a chain that you did not mean to keep.
 
-These knobs don't change the line you're hearing. They set up the next OCT+ or OCT-, so your
-line stays exactly as it is, hand edits included, until you press one. When the knobs no longer
-match the line, the screen shows NEW LINE with a star. The same settings and seed always give
-the same line, the same one Schwung's TB-3PO module writes.
+One pattern selection ends the chain. K4 also ends the chain. K4 cues a pattern. A pending cue shows a NEXT glyph and a blinking pattern number. After the cue plays, that number is the current pattern.
 
-To edit the line by hand, press SEQ; to shape its sound, EDIT.
+On HOME, black keys mute parts in **display order**. Black key 1 mutes 909. Black key 2 mutes 808. Black key 3 mutes BREAK. Black key 4 mutes Chicago (the fourth displayed part). Black key 5 mutes Miami (the fifth displayed part, by default).
 
----
+The HOME `PERFORM` page has TEMPO, `SWING`, FILTER and PUMP. Default tempo is 125 bpm. The tempo range is 20 to 275 bpm. PATCH plus K2 also sets tempo from other screens.
 
-## 8. Break
+A cue, a mute or a pattern change from HOME does not play a sound on the keys. To write steps again, press SEQ.
 
-The break is a drum loop cut into eight slices, which X0X rearranges as it plays.
+### SONG
 
-![The break, slice 5 playing](img/screen-break.png)
+If you are already on HOME, PATCH opens SONG. The header word is `SONG`. From SONG, PATCH returns to HOME. There is no PATCH path straight back to SEQ. Press SEQ for the grid.
 
-**Steps.** The white keys are the bar's 16 steps: press one to let the break play there, tap it
-again to stop it.
+On SONG, white keys pick the pattern for a song bar. SCALE opens a list with bar length, insert, delete and clear. Song length can run to 192 bars.
 
-**Playing slices.** Hold black keys 1–8 to play those slices yourself; let go and the generator
-takes over again. Hold key 9 to play backwards, key 10 for half speed, key 11 to stutter.
-
-**A step's own slice.** Hold a white key and press black key 1–8: that step now always plays
-that slice of loop A, from its start, and its box shows the slice's number. Press the same black
-key again (holding the step) to give it back to the generator. This way you can fix the kick and
-snare where you want them and let the generator play with the rest.
-
-**The generator.** SEQ has its two pages, GROOVE and RETRIG:
-
-- COMPLEXITY: how often it jumps to a different slice instead of playing the next one. This is
-  the amount: at 0 the loop plays straight, and ROLL and FILL come in with it, at full effect
-  from 25%, so low settings stay close to the loop.
-- ANCHOR: how strongly it keeps the kick and snare slices on beats 1 and 3.
-- ROLL: how often it repeats a slice or moves to the one next to it.
-- FILL: how much the last bar of a phrase breaks these rules.
-- RETRIG 2X, 3X, 4X and 8X: the chance in each bar of stuttering a beat at that rate.
-
-In SEL's list: PHRASE, the length of a phrase (2, 4, 8 or 16 bars, or off), and A LENGTH and B
-LENGTH, how often a new slice is chosen (every 1/4 bar to every 8 bars).
-
-**The loops.** EDIT has LOOP A, LOOP B, B CHANCE (the chance of switching to loop B in the last
-bar of a phrase; with PHRASE off, in any bar) and PITCH; LEVEL and 8 SLICES are in SEL's list.
-8 SLICES is off unless you turn it on. Off, MIDI notes 36–43 on the break's channel play the
-eight slices. On, every MIDI note on that channel plays a slice (the note number divided by 8,
-the remainder picks the slice), so higher and lower notes replay the same eight slices. Loops follow the
-tempo by playing faster or slower, so their pitch follows it too, as on a sampler; PITCH shifts it
-on top. The default app build leaves the loop bank empty; a packaged firmware may include stock
-loops in the free code tail. The installer keeps the selected package's loops by default. You can
-replace them with the three stock loops, CRAMEN, TASTY and HOTPANT, or your own WAV files.
-The stock pack retains complete loops with one-bar metadata; see `assets/factory-breaks/provenance.json`
-for sample lengths and conversion details. Loops uploaded into sample slots follow the installed loops.
-
-All of these, the steps, slices and loops, are saved with the pattern. The break's level, pan
-and sends are on the mixer's PARTS page (LFO, black key 5).
-
-### Your own breaks
-
-Load your own loops with the [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/), in
-Chrome or Edge with the FM-1 connected. They appear after X0X's own loops as BR1, BR2 and so on.
-Loops are sent at full quality, 44.1 kHz. The SMK-37 has three slots: slot 1
-holds about 3.7 seconds, slot 2 about 5.5 seconds and slot 3 about 1.5 seconds,
-about 10.7 seconds in all. The FM-1 has two slots of about 3.7 seconds, about 7.4 seconds in all. A one-bar loop
-at 120 BPM takes 2 seconds. A loop must fit in one slot, so the longest loop on the SMK-37 is
-about 5.5 seconds. The page fills the slots in order and puts a loop that is too long for one
-slot into the next slot that can take it.
-Tick **22 kHz (more room)** to send new loops at half the rate: about twice as much fits, but the
-sound is duller. Tick **Trim silence** to cut the silence at the start and end of each file first.
-
-**Back up your loops.** On the same page, **Back up all slots** saves every slot to a `.x0xslots`
-file. It only reads, it doesn't change anything. **Restore a backup** writes such a file back; it
-replaces the slots it holds. Do a backup before you update the firmware or try something new.
-
-<details><summary>From the command line</summary>
-
-With the FM-1 connected, run:
-
-```
-python3 tools/upload_breaks.py --bars amen.wav think.wav funky.wav ...
-```
-
-`--bars` keeps one bar of each file; without it, each file is sent whole. This replaces all your
-loops. Loops are sent at 44.1 kHz; `--rate 22050` sends them at 22.05 kHz to fit twice as many.
-`--trim` cuts the silence at both ends first. `--dry-run FOLDER` shows what would fit without the FM-1. If you have schwung-breakbeat next
-to X0X, `--bbgen` sends BB Gen's classic breaks. To build loops into the firmware itself, see
-BUILDING.md.
-
-`python3 tools/x0x_slots.py backup my.x0xslots` saves every slot; `python3 tools/x0x_slots.py restore
-my.x0xslots` writes them back (it asks first).
-
-</details>
+If you press SEQ PLAY while the SONG screen is up, song mode stays on even after you leave SONG.
 
 ---
 
-## 9. Patterns
+## 11. Recording and free play
 
-![HOME](img/screen-home.png)
+Press SEQ REC to turn record on or off. This acts on press. The toast is `RECORD ON: KEYS + KNOBS` or `RECORD OFF`. A red record dot shows in the header. The SEQ REC lamp is on while record is on.
 
-There are 32 patterns. A pattern holds each part's steps, length and rate, the break's settings,
-the swing, and any knob motion, p-locks and probabilities. Sounds, effects and master settings
-are not part of a pattern and don't change when the pattern does.
+On a bass slot, the keys play and write notes while record is on. On a drum part, black keys and knob moves record.
 
-Each part plays its own pattern, so the 303s can play pattern 3 while the drums play pattern 7.
+CHORD plus a key writes an accent (on Chicago, an accent is audible). NOTE REPEAT plus a key writes a slide (on Chicago, a slide is audible). On the SEQ keyboard, NOTE REPEAT plus OCTAVE writes a tie. CHORD plus OCTAVE writes a rest.
 
-**HOME** shows patterns 1–16 as boxes, one per white key; OCT+ shows 17–32 (P17-32 appears under
-the boxes) and OCT- goes back. Every fourth box is numbered. In each box, a line for each part
-with notes in that pattern: bright where that part is playing it now, dim otherwise.
+FREE PLAY sits on the SEQ KEYS page. The keys play the bass slot and write nothing. The header mode is `FREE PLAY`. The footer can say `FREE PLAY: KEYS PLAY`. Strike velocity is in use.
 
-**Choosing patterns**
+External MIDI on a part's channel can record that part while record is on. This book does not claim a trial on a specific host.
 
-- **All five parts:** on HOME, press a white key or turn PRESETS. From any other screen, hold
-  HOME and press a white key.
-- **One part:** on that part's screen (SEQ, EDIT, TB-3PO), turn PRESETS.
-- **A chain:** on HOME, hold two white keys at once. All five parts play each pattern from the
-  first to the second, then start again. Each pattern plays for one chain slot: as long as the
-  longest playing part in that pattern (909, 808, both 303s and BREAK), counting each part's
-  length and rate, rounded up to a whole 909 bar. Muted and empty parts do not set the length.
-  The chain is live only and is not saved. Choosing a single pattern ends the chain.
-
-While playing, the new pattern starts when the current bar ends; stopped, it takes over at once.
-A part that changes pattern starts again from step 1; the others carry on.
-
-**Copy and paste.** Hold SAVE: the top line says CHOOSE PASTE TARGET. Press a white key to copy
-the five parts currently playing onto that pattern (PARTS PASTED TO P2). Each part can come from a
-different pattern. If the destination has notes, X0X asks first; the source pattern numbers are
-held from when you pressed the destination key, and their contents are copied when you confirm.
-SAVE does not make a clipboard snapshot. While holding SAVE, OCT- and OCT+ switch between patterns
-1–16 and 17–32.
-
-**Clearing.** Hold SAVE and press REC to clear the selected part in its pattern. GLO > CLEAR
-PATTERN clears all five.
-
-**Muting.** On HOME, black keys 1–5 mute and unmute the parts. Mutes aren't saved, except inside
-a song.
-
-**Lengths and swing.** Parts can have different lengths, so they drift against each other. The
-909's length sets the length of a bar, and the 909's pattern holds the swing, which applies to
-every part. Swing delays every second 16th note: 50% is straight, 75% the most.
-
-HOME's knobs are for playing live: TEMPO, SWING, and the master's FILTER and PUMP.
+If a recorded chord does not fit, the toast is `CHORD NOT SAVED`. Other record toasts include `NOTE SOUND NOT SAVED` and `REC NEEDS FWD/REV`.
 
 ---
 
-## 10. Recording
+## 12. Knob motion, p-locks and chance
 
-Press REC to turn recording on, and again to turn it off.
+Hold a step and turn K5–K8. This writes a p-lock for that step only. The knob tag shows `P-LOCK STEP n`. On a bass step, the roll also shows a `STEP n` line with the note and velocity.
 
-- **Drums:** while the pattern plays, press black keys to record hits (with REC on you always
-  hear them). Hold ENV for accented hits.
-- **303, live:** with REC on, the 303's keys are a keyboard; play while the pattern runs.
-- **303, step by step:** with REC on and the pattern stopped, each key you press fills the next
-  step, from step 1. Hold ENV while pressing a key for an accent, or LFO for a slide. For a rest,
-  hold ENV and press OCT- or OCT+; for a tie, hold LFO and press OCT- or OCT+.
-- **Knob moves:** with REC on and the pattern playing, turn any sound knob (section 11).
-- **The song:** REC + PLAY on the SONG screen (section 12).
+Hold a step and turn K2 to set chance (probability) for that step. On a bass step, hold the step and turn K3 to set velocity.
 
----
+BT plus a knob forgets that knob's motion. BT plus a knob on a p-lock removes the lock.
 
-## 11. Knob motion, p-locks and probability
+With record on, knob moves can record motion. The motion plays back with the pattern.
 
-All three give steps values of their own, and all three are saved with the pattern.
-
-### Knob motion
-
-![A recorded cutoff sweep playing](img/screen-motion.png)
-
-Turn on REC, press PLAY and turn any sound knob. X0X records the knob on the steps where you moved
-it, fills in short pauses so a slow sweep has no gaps, and on playback glides from step to step.
-
-- A knob with motion has a dot in its corner, and its ring follows the recording as it plays.
-- On steps you didn't touch, the knob's own setting plays.
-- Turning the knob without REC takes over for one pass of the pattern; then the recording plays
-  again.
-- **To clear a knob's motion,** hold SAVE and turn the knob.
-- Motion belongs to a part's pattern: the 303's knobs record into the 303's pattern; the effects
-  and master into the 909's. Copying or clearing a pattern copies or clears its motion too.
-- When you stop, every knob goes back to its own setting.
-
-### P-locks
-
-A step can have a sound of its own: a higher tune on one kick, an open filter on one 303 note,
-the break pitched up for one step.
-
-- On EDIT, hold a step that's on and turn a sound knob. That step plays the new value; the
-  others keep the knob's. While you hold the step, the knob row says P-LOCK STEP 5, the knobs
-  show the step's values, and an amber dot marks the locked ones. Stopped, you hear the lock
-  while you hold the step.
-- A tap still turns a step on or off: only a hold with a knob turn makes a lock. An empty step
-  turns on as soon as you press it, so you can press, hold and lock in one go.
-- **To clear one lock,** hold the step, hold SAVE and turn the knob.
-- On SEQ, holding a step locks nothing (on a 303 the knobs set the step's note instead).
-
-### Probability
-
-Hold a step (on SEQ or EDIT) and turn SELECT to set the chance it plays, from 100% down to 5%
-in steps of 5; the top line shows it (STEP 5: 50%). The dice are rolled every time the step comes
-round, so 50% plays about every other pass.
-
-Keep turning past 5% for **cycles**: 1:2, 2:2, 1:3 and so on up to 8:8. A step at 1:4 plays on the
-first of every four times round its part's pattern, 2:4 on the second; nothing random about it.
-Each part counts its own passes, from 1 again whenever you press PLAY or it changes pattern.
-
-- On the 909 and 808 the chance belongs to the selected track's step, so the kick and the hats
-  on one step can each have their own.
-- On a 303 a skipped step is a rest; on the break, a skipped step doesn't fire.
-- A skipped drum hit sends no MIDI note.
-
-### Good to know
-
-- Steps with p-locks or a chance below 100% have a small notch on the step grid.
-- P-locks and probabilities are stored like recorded motion, one "knob" per locked setting per
-  part pattern. There's room for 160 across all patterns; when it's full, the top line says
-  MOTION FULL.
-- Two locked steps next to each other glide from one value to the other, like a recording.
+A chance miss is a rest for both the internal sound and MIDI out.
 
 ---
 
-## 12. Song
+## 13. GLOBE settings
 
-![SONG](img/screen-song.png)
+Press GLOBE to open settings. The list title is `GLOBAL`. Press GLOBE again to close and return to the previous view. PATCH in a subsection goes back one level. PATCH at the root closes.
 
-A song is a list of up to 192 bars. Each bar says which pattern each part plays and which
-parts are muted. To open the song, press HOME twice (HOME again comes back to the pattern).
+SCALE opens a screen as a list, runs a list row, or answers yes to a question.
 
-- **Write bars:** press a white key. The selected bar gets that pattern for all five parts,
-  and the next bar is selected. Pressing keys at the end of the song adds new bars.
-- **Edit a bar:** turn KNOB 1 to select the bar, then use the other knobs to set each part's
-  pattern for that bar.
-- **Mute parts in a bar:** press black keys 1–5.
-- **Repeat a bar:** on the SONG screen's second page (turn SELECT), REPEAT plays the selected bar
-  up to 8 times (x2 … x8 shows at the end of its row), so four bars of the same pattern are one
-  row.
-- **Play the song:** press PLAY on the SONG screen. The song starts at the selected bar and
-  loops, and keeps playing wherever you go (HOME for mutes, EDIT for sounds) until you stop it.
-  While it plays, the top line shows S and the current bar number. PLAY anywhere else plays the
-  patterns: whatever screen you start from decides, and the top line says which (S or P).
-- **Record the song:** on the SONG screen, turn on REC and press PLAY. As it plays, change patterns
-  and mute parts however you like. Each bar is written into the song as it goes by, starting
-  from the bar you started on, and the song grows if you play past its end. Recording
-  replaces what was in those bars before.
+The six sections are `MIDI + CLOCK`, `BLUETOOTH`, `AUDIO`, `KEYS + SCREEN`, `PROJECT` and `SYSTEM`.
 
-Press SEL on the SONG screen for LENGTH, INSERT BAR, DELETE BAR and CLEAR SONG.
+**MIDI + CLOCK.** `CLOCK SOURCE` is `AUTO`, `INTERNAL` or `EXTERNAL`. `CLOCK OUT` and `NOTES OUT` are on or off. Each part has a MIDI channel (see chapter 14). On the SMK there is also `CLIP KEYS CH` for clip mode.
+
+**BLUETOOTH.** `BLUETOOTH` is on or off. `BT ROLE` is `DEVICE` or `SMC HOST`. `SMC PRESET` is `DAW` or `USER`. `STATUS` and `NAME` are read only.
+
+The name is the advertised Bluetooth name (chapter 14). If the controller only starts at power-on, a change can toast `RESTART TO TURN ON`. A later flush can toast `BLUETOOTH SAVED`. This settings bit is separate from the project save on the BT button.
+
+**AUDIO.** `OUTPUT` is `NORMAL` or `LOUD`. `USB AUDIO` is `FOLLOWS KNOB` or `FULL`. `TUNE` is a global bass fine-tune for the slots together. Each part has an on/off row (`909`, `808`, `BASS A`, `BASS B`, `BREAK`). `QUEUE MUTES` and `NOTE LOCK` also live here.
+
+**KEYS + SCREEN.** `LIGHTS` is `OFF`, `ON` or `KEYS`. `KEY SOUND` is `STOPPED` or `ALWAYS`. `THEME` is `GREEN`, `AMBER`, `CYAN`, `RED`, `MONO` or `LIGHT`.
+
+**PROJECT.** `SAVE PROJECT`, `LOAD SAVED`, `AUTOSAVE`, `CLEAR PATTERN` and `RESET PROJECT`. Reset asks `RESET PROJECT?` with `SAMPLES ARE KEPT`.
+
+**SYSTEM.** `PERFORMANCE`, `ABOUT DnBOX` and `BATTERY` (read only). About shows `ABOUT DnBOX` and a line that starts `DnBOX ` plus the version.
 
 ---
 
-## 13. Effects
+## 14. MIDI, USB audio and Bluetooth
 
-![FX](img/screen-fx.png)
+### What the computer shows
 
-There is one reverb and one delay, and every part can send to both: each part's sends are on the
-mixer's PARTS page (LFO), each drum track's on 909 MIX and 808 MIX. FX shows how much every part
-sends, and has two pages:
+The USB product string is `DnBOX ` plus the version plus ` SMK-37 Elite`, or the same with ` SMK-37 Pro`. The USB manufacturer string is `X0X`. Hosts typically show the product string. This pass did not check the exact words on each operating system.
 
-- REVERB: DECAY and TONE. The reverb is stereo: whatever you send it comes back wide.
-- DELAY: TIME (in note values from 1/32 to a dotted half note), FEEDBACK, TONE and TAPE. TAPE at
-  the far left (DIGI) is a clean 12-bit digital delay; turned up, it is a tape delay that wobbles,
-  saturates and wears more the further you turn it, and can feed back on itself at high feedback.
+There is no TRS MIDI IN on the SMK. The SMK TRS jack is a MIDI OUT jack. The firmware does not use it. Do not look for a MIDI IN jack on this keyboard.
 
-In SEL's list, under MORE: each effect's low cut and return level, and PING-PONG, which bounces
-the echoes between left and right.
+### MIDI channels
 
----
+Default channels stay with the slot, not with the engine name:
 
-## 14. Mix and master
+| Slot | Default engine | Default channel |
+|---|---|---|
+| 909 | 909 | 10 |
+| 808 | 808 | 11 |
+| Bass A | Miami | 2 |
+| Bass B | Chicago | 3 |
+| BREAK | BREAK | 4 |
 
-![MIX, with the compressor pumping](img/screen-mix.png)
+A channel of OFF sends and takes no notes. On a bass slot, the on-screen row uses the engine display name plus ` MIDI CH`. The slot itself does not move. Saved data and MIDI maps keep these slot IDs.
 
-Press LFO to open the mixer; press it again (or turn SELECT) for its five pages. The red bar on
-the right is the compressor's gain reduction.
+### Clock
 
-- **PARTS**: a level and a meter for each part. Press black keys 1-5 to pick the 909, 808,
-  303A, 303B or the break; the knobs are its LEVEL, PAN, REV and DLY.
-- **909 MIX** and **808 MIX**: each drum machine's own mixer, every track's level at a glance;
-  the black keys pick a track, and the knobs set its LEVEL, PAN, REV and DLY.
-- **MASTER**: four knobs over the whole mix. The screen shows the output level over the last
-  couple of seconds, so you can see the pump and the compressor working.
-- **WAVE**: the same four master knobs, with a live mid-line plot of the master output (after
-  the compressor, pump, filter and limiter). The compressor's gain-reduction bar stays on the
-  right. Press LFO again from MASTER to open it.
-
-On PARTS, 909 MIX and 808 MIX, hold HOME and press a black key to mute or unmute that channel (a
-part on PARTS, a track on the drum pages). The key lights show it: the channel the knobs set is
-bright (blinking while muted), the others dim, muted ones dark.
-
-Turning ALGORITHM on the mixer goes to that part's page: 909 MIX or 808 MIX for the drum
-machines, PARTS (with the part picked) for the 303s and the break.
-
-| MASTER | What it does |
-|---|---|
-| DRIVE | Saturates the whole mix (the 909's drive stage). |
-| COMP | One knob for the compressor: 0 is off; turning up lowers its threshold, raises its ratio and adds makeup gain together. Three quarters is the factory's hard squeeze (4:1 from -24 dB, +16 dB). |
-| PUMP | Lowers the whole mix each time the kick plays, by up to 24 dB, and lets it swell back up: the big-beat breathing. Accented kicks pump harder. It works even with COMP at 0, and even when the kick is muted, so a silent kick can drive it. Which kick: PUMP BY in SEL's list (the 909's, the 808's or both). |
-| FILTER | One knob: in the middle it's off; to the left a low-pass closes down, to the right a high-pass opens up. |
-
-FILTER and PUMP are also on HOME's PERFORM page, for playing live.
-
-> **The factory mix is set up for big beat:** the break up front with the 909 kick under it, the
-> 303s through RAT distortion into a tape delay, reverb on the clap. For a clean mix, set COMP and
-> PUMP to 0.
-
-<details><summary>The master in detail</summary>
-
-In SEL's list, under MORE: the compressor's THRESH (-48 to 0 dB), RATIO (1:1 to
-20:1 and INF), ATTACK (0.1 to 100 ms), RELEASE (10 to 1500 ms), MAKEUP (0 to 24 dB) and MIX (dry
-to fully compressed, for parallel compression); PUMP BY (the 909's kick, the 808's, or both); the
-filter's RESO; LIMIT, which prevents clipping (leave it on); and the drive stage's DIST type, its
-GLUE compressor and VOLUME. Turning COMP or FILTER sets their details again.
-
-</details>
-
----
-
-## 15. Settings and saving
-
-![GLOBAL](img/screen-global.png)
-
-Press GLO for these settings, in five sections (MIDI, AUDIO, KEYS AND SCREEN, PROJECT, SYSTEM).
-The SMK-37 has a sixth, BLUETOOTH MIDI (see [Bluetooth MIDI](#bluetooth-midi-smk-37)):
-
-| Setting | What it does |
-|---|---|
-| CLOCK OUT | Sends MIDI clock and start/stop messages. |
-| NOTES OUT | Sends the patterns out as MIDI notes. |
-| 909 … BREAK MIDI CH | Each part's MIDI channel, for notes in and out: 1–16, or OFF to ignore incoming notes for that part (and send none). |
-| OUTPUT | NORMAL, or LOUD: 6 dB more at the headphones and line out (and USB audio), for headphones that need it. The master's LIMIT (on by default) keeps it from clipping. |
-| USB AUDIO | FOLLOWS KNOB (the default): USB audio is as loud as the FM-1, MASTER knob and all. FULL: USB audio stays at full level whatever the knob says, so you can record over the cable with the speaker turned down. |
-| LIGHTS | ON: the key lights show the steps, and the unlit buttons glow dimly so they can be read. KEYS: the key lights only. OFF: neither. |
-| KEY SOUND | STOPPED (the default): picking a drum or editing a 303 step is silent while the pattern plays, unless REC is on. ALWAYS: you always hear it. The 303 keyboard always plays either way. |
-| THEME | The screen colour: green, amber, cyan, red or mono. |
-| SAVE PROJECT | Saves everything. |
-| LOAD SAVED | Loads the last saved project. Stop playback and recording first. Asks before discarding unsaved edits. Keeps the sample slots and clears undo history. |
-| AUTOSAVE | ON (the default): while the pattern is stopped, changes are saved by themselves once nothing has been touched for four seconds. OFF: only SAVE saves. |
-| CLEAR PATTERN | Clears all five parts of the current pattern. |
-| RESET PROJECT | Asks before resetting the live project to factory sounds, empty patterns and default settings, with no song or knob motion. Keeps the sample slots and clears undo history. AUTOSAVE returns to ON, so the reset state can replace your saved project automatically. |
-| PERFORMANCE | Opens the performance page (below). |
-| ABOUT X0X | Shows the version, how full the memory for patterns is (MEM), and the audio load. |
-| BATTERY | The battery's charge: FULL, 2/3, 1/3 or EMPTY; USB POWER while a computer powers the FM-1. Read only. |
-| BLUETOOTH | SMK-37 only. OFF (the default) or ON: Bluetooth MIDI. Turning it ON takes effect at the next power-on ("RESTART TO TURN ON"); turning it OFF drops the connection at once. |
-| STATUS | SMK-37 only, read only. NO IMAGE (no Bluetooth controller installed), OFF, RESTART, STARTING, READY (waiting for a connection), CONNECTED, FAILED or BAD IMAGE (the installed controller is damaged or does not fit this X0X). |
-| NAME | SMK-37 only, read only. The name the keyboard shows to Bluetooth apps: X0X- and four characters of its own. |
-
-### Saving
-
-**SAVE** saves the sounds, all 32 patterns, the song, the knob motion, the tempo and the
-settings. UNSAVED in the header and a SAVE button that flashes mean the project needs a save.
-If the header has little space, it shows a small amber mark. You lose unsaved changes when you
-switch off. Hold SAVE to see the current save state.
-
-With **AUTOSAVE** on, X0X saves after you stop the pattern and leave the controls untouched
-for four seconds. AUTOSAVE is on by default. X0X then says AUTOSAVED.
-If REC is on, turn REC off for autosave. Hold SAVE to see this reminder.
-
-> **X0X never saves while the pattern plays.** A save pauses the sound for a moment. The FM-1
-> plays from the same memory that it writes. A press on SAVE while the pattern plays says
-> SAVES WHEN STOPPED and shows SAVE AT STOP in the header. X0X saves when you stop. The SAVE
-> button stays lit until then.
-
-In clip mode while X0X plays, SAVE first shows SAVES WHEN STOPPED and then SAVE AT STOP in the header. Once X0X stops, the header changes to SAVE WHEN QUIET. A SAVE pressed while clip keys or encoders are active shows SAVES WHEN QUIET. X0X waits
-until the transport stops and keybed or control activity stays quiet for four seconds. The
-SAVE button stays lit until the save completes.
-
-If a save fails, the header shows SAVE FAILED (or a red mark when space is tight). The SAVE
-button flashes fast. The warning stays until a save succeeds. A flash write failure also
-shows SAVE FAILED after an autosave.
-
-<details><summary>How much fits</summary>
-
-X0X packs the patterns, the song and the knob motion to fit them in the FM-1's memory; empty
-steps take almost no room, so a typical project uses a small part of it (GLO > ABOUT X0X shows
-how much, as MEM). If a project ever grows too big to fit, X0X says MEMORY FULL: NOT SAVED and
-keeps what was saved before; clearing patterns you don't need makes room. Projects saved by
-earlier versions load as they were, with their steps on 1–32 and their patterns on 1–16.
-
-</details>
-
-### Portable project files
-
-The **Projects** companion page exports and imports `.x0xproject` files over USB MIDI.
-Export includes the project and the original samples by default, preserving their encoded
-bytes and slot positions. A smaller project-only file is also available; it can be imported
-only when every sample slot matches, including empty slots.
-
-Choose **Projects** in the generated site's home page, or serve the repository over localhost
-and open `web/x0x_projects.html`. See the [project files guide](PROJECT_FILES.md) for browser
-requirements, backups, import confirmation and recovery. Import replaces the live project
-and uses the file's autosave setting. Use SAVE to store the new project while stopped.
-
-<details><summary>Performance: how hard the FM-1 is working</summary>
-
-GLO > PERFORMANCE shows how hard the FM-1 is working, updated every second: the audio load and
-its peak, any dropouts, and how much of the processor each part is using.
-
-For a proper measurement, press SEL and choose RUN PERF TEST. X0X plays three patterns of its
-own for about 15 seconds, from a simple loop up to everything as busy as it gets, then puts your
-project back exactly as it was and shows the results. HOME or PLAY stops the test early.
-
-X0X uses both of the FM-1's processor cores: the 808 and the break run on the second, so the 808's
-share on the performance page is the time the first core waits for them, and the whole load is lower: on
-one FM-1 the test's three patterns went from 43%, 83% and 115% on one core to 39%, 54% and 68%,
-and the busiest moment of the worst case from over the limit to 84%.
-
-The top right of the performance page says 2 CORES. On some FM-1s the second core reads its work
-wrongly; X0X notices the first time and carries on with one core, and the page says 1 CORE: BAD
-READS in red. Everything still works, but the busiest patterns may drop out.
-
-When the FM-1 gets close to its limit, X0X lightens the load by itself instead of dropping out:
-the 303s stop oversampling (bright, resonant notes get a touch grittier) and the 808's sounds end
-a little sooner as they fade. While this is happening, GUARD lights up in amber next to the audio
-load; it switches off again after three quiet seconds. The performance page counts how often it
-has kicked in (GUARD 3x).
-
-If X0X drops out on one of your patterns, a photo of the test results and of the pattern is the
-most useful thing you can send.
-
-KNOB 1 turns on some extra counters (STALLS). They're experimental: if the FM-1 acts up with them
-on, switch it off and on again.
-
-</details>
-
----
-
-## 16. MIDI and USB audio
-
-When connected over USB, the FM-1 shows up as a MIDI device called "X0X FM-1".
-
-X0X takes MIDI from USB and from the FM-1's TRS MIDI IN jack, both the same way. Each part
-listens on its own channel; these are the defaults:
-
-| Input | What it plays |
-|---|---|
-| Channel 10 | The 909, with General MIDI drum notes: 36 kick, 38 snare, 41, 45 and 50 toms, 37 rim, 39 clap, 42 closed hat, 46 open hat, 49 crash, 51 ride. |
-| Channel 11 | The 808, with the same notes, plus 56 for the cowbell and 49 for the cymbal. |
-| Channel 2 | 303A. Overlapping notes slide, and a velocity of 100 or more plays an accent. |
-| Channel 3 | 303B, in the same way. |
-| Channel 4 | Notes 36–43 play break slices 1–8. With 8 SLICES on, every note on this channel plays a slice (note mod 8). Notes on this channel do not also play another part. |
-| Clock | X0X follows an incoming MIDI clock automatically, and returns to its own tempo half a second after the clock stops. Start, Stop and Continue start and stop the patterns. |
-
-GLO sets each part's channel (909 MIDI CH and so on), or OFF to ignore its notes, for example when
-another box sends you its clock with notes on the same channels. X0X can also send MIDI: clock and
-start/stop when CLOCK OUT is on, and the patterns as notes on each part's channel when NOTES OUT
-is on.
-
-While X0X follows an external clock, the tempo on the top line is averaged over about a second,
-so it doesn't flicker with every clock.
-
-### Bluetooth MIDI (SMK-37)
-
-The SMK-37 can also send and receive MIDI over Bluetooth (BLE MIDI, as iPads, Macs and most
-music apps use it). Bluetooth audio is not supported.
-
-The Bluetooth controller is a separate program that uses JieLi components. Qualified NIGHTLY
-packages include the matching controller, so select one complete package in the NIGHTLY
-installer. No separate `ctl.img` selection is needed for that path. Availability depends on
-the package checks, applicable component terms and authorized publication; see LICENSING.md.
-
-For an existing unbundled package, supply its exact matching controller explicitly:
-
-1. Run `ble/ctl/build_ctl.sh` from the X0X source (needs the JieLi toolchain and Docker; see
-   BUILDING.md). It downloads JieLi's files from JieLi's own site, checks them and makes `ctl.img`.
-2. Install X0X with `tools/fm1_install.py PACKAGE.fwsc --ctl ctl.img`, or select the
-   matching `ctl.img` in the legacy web installer before you press Install. The installer
-   refuses a current package with an empty controller block when no matching image is supplied.
-3. On the keyboard, set GLO > BLUETOOTH MIDI > BLUETOOTH to ON and switch it off and on again.
-
-STATUS then shows READY. Connect from your app's Bluetooth MIDI settings (on an iPad or a Mac:
-"Bluetooth MIDI" or Audio MIDI Setup), where the keyboard appears under its NAME. There is no
-pairing code. Bluetooth MIDI works like USB MIDI: the same channels, notes and clock come in,
-and what X0X sends over USB (clock and notes, as set in GLO) also goes over Bluetooth. Send clock
-from one place only (USB or Bluetooth), or the tempo doubles. SysEx is not sent or taken over
-Bluetooth.
-
-Bluetooth MIDI is new and not yet tested on the keyboard itself.
+If the unit waits for an external clock, SEQ PLAY blinks slowly and the toast is `WAITING FOR CLOCK`. Tempo in the header is amber when the clock is external.
 
 ### USB audio
 
-Over the same USB cable, the FM-1 also shows up on a computer as an audio input called
-"X0X FM-1": two channels at 44.1 kHz, with no driver to install. It carries what the headphones
-hear, after VOLUME, in stereo.
+USB audio carries the master output, and the host can also send audio back. `USB AUDIO` in GLOBE selects `FOLLOWS KNOB` or `FULL`. The USB product string is the same as for MIDI. This pass did not check exact host wording.
 
-Record it in any audio app, or monitor it live through one. The FM-1 keeps its USB audio in step
-with the computer's clock, so live monitoring doesn't drift or drop out. The first moment after an
-app opens the input can click while the FM-1 settles.
+### Bluetooth
 
-It is also an audio output (two channels, 44.1 kHz): an iPhone, iPad or computer can play through
-it. What the host plays comes out of the headphones and line out, added on top of the DnBOX
-engines; the host's own volume sets its level (the MASTER knob does not). The host's audio is not
-sent back to the USB input, so recording the input while playing through the output does not loop.
+Bluetooth MIDI is in GLOBE, not on the BT button.
+
+The advertised and GATT name is `SMK-37 Elite-` plus four hex digits, or `SMK-37 Pro-` plus four hex digits, for example `SMK-37 Pro-A1B2`. The four-hex suffix comes from a stable address. The `X0X-` prefix is not the SMK name.
+
+The BLE-MIDI service UUID and characteristic UUID are the standard BLE-MIDI values. See Appendix C. Those identifiers must stay the same.
+
+The unit answers APC Device Inquiry over Bluetooth, with the same identity as over USB.
+
+### Wheels and MIDI
+
+On Chicago, the pitch wheel bends pitch, and the mod wheel opens cutoff, without writing saved pots. On Miami, the mod wheel moves wobble depth. A gesture stays with the bass slot it started on. Record can record bend motion.
+
+---
+
+## 15. Loopy clip mode
+
+Press KNOB BANK once. The toast is `LOOPY CLIPS`. The header shows `LP`. This leaves the normal instrument UI.
+
+Why this chapter sits after the first-path chapters: one press of KNOB BANK leaves the normal instrument. SCALE, CHORD, ARP and NOTE REPEAT then belong to the Loopy clip keybed. Know how to leave before you use it live.
+
+Press KNOB BANK again to return. The toast is `LP OFF`.
+
+In clip mode:
+
+- SCALE is a real scale control.
+- CHORD is a real chord control.
+- ARP belongs to the clip keybed.
+- NOTE REPEAT alone, on release, is panic: all notes off, and control change 123. The toast is `PANIC`.
+- NOTE REPEAT plus ARP toggles LATCH. The toast is `LATCH ON` or `LATCH OFF`.
+- PATCH plus SEQ REC and PATCH plus SEQ PLAY are Loopy history, not the DnBOX undo and redo. PATCH release does not change the DnBOX view.
+- Loopy owns the SEQ PLAY and SEQ REC lamps. SEQ PLAY also sends the clip play note unless you hold PATCH.
+
+Do not treat NOTE REPEAT as the mixer while clip mode is on.
+
+DnBOX still identifies itself to Loopy as an APC40 mkII. That identity is a protocol identifier. See Appendix C. It must stay the same. Loopy mappings depend on that identity, not on the USB product string.
+
+---
+
+## 16. Install and update safety
+
+Install from a browser that provides Web MIDI with SysEx. The current installer site is <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/>. The companion file `web/MANUAL.md` describes the browser steps, sample backup and project files.
+
+**Check the model printed on the keyboard**, Elite or Pro, not only the USB name. An older Elite can report Pro. A shared USB name does not prove the physical model.
+
+A wrong-model write can make the keyboard unusable. Cancel writes nothing. The installer already warns in these words. This book repeats that warning because a name mix-up has bricked a unit.
+
+The package identity that admits a write is `SMK-37 Elite_900` or `SMK-37 Pro_900` (release builds append a version code). That identity is not the everyday USB product string. Do not choose Elite or Pro by reading the USB product name.
+
+USB VID and PID, OTA SysEx, and the stock update-record ids must stay the same. See Appendix C. This book does not propose a rename.
+
+While the unit is in the update loader, the USB product is `SMK-37 Elite Update` or `SMK-37 Pro Update`.
+
+Stop playback and recording before an install. Keep USB connected until the operation ends. If samples are at risk, back them up first, as the installer asks.
+
+MKE-P37 is the same hardware with a third name: USB product `DnBOX ` plus version plus ` MKE-P37`, package identity `MKE-P37_900`, Bluetooth `MKE-P37-` plus four hex digits. Starrykey 37 Play uses the Pro package.
 
 ---
 
 ## 17. Troubleshooting
 
-**Update mode:** hold OCT- and OCT+ together for five seconds. A countdown appears; let go
-before it ends to cancel.
+**No sound after you press keys.** You are likely on HOME or SONG. HOME keys select patterns and mute parts. They do not play sound. Press SEQ to return to the grid. If you are on SONG, press PATCH for HOME, then press SEQ.
 
-**Calibration:** if a button or knob does the wrong thing, hold OCT- and OCT+ while you switch
-the FM-1 on. The screen then asks you to press each button and turn each knob in turn.
+**The screen says `LOOPY CLIPS` or shows `LP`.** Press KNOB BANK again for `LP OFF`.
 
-**After a crash:** X0X shows a red CRASH screen and restarts by itself a few seconds later. The
-next start shows RESTARTED AFTER A CRASH and an address (PC ...) for a moment. If you report the
-problem, include that address and what you were doing.
+**The toast is `RELEASE STEP FIRST`.** Release the held step, then press SEQ.
 
-**Safe mode:** if X0X crashes twice in a row while starting, it starts in SAFE MODE instead. There's
-no sound, but USB works, so the web installer can reach it: reinstall X0X, or put the stock
-firmware back from the same page. Press PLAY to try starting X0X normally again. If even safe
-mode fails twice, the FM-1 drops into the chip's own update mode, and only the rescue below can
-reach it.
+**BT did not write immediately.** If the loop was running or you were recording, the unit queues the save. The toast is `SAVES WHEN STOPPED` or a quiet or record variant. Stop, and let the unit go quiet. Then look for `SAVED`.
 
-<details><summary>Stuck on the start screen after changing BRIGHTNESS (0.9-beta and earlier)</summary>
+**You wanted Bluetooth and pressed BT.** BT is Save. Open GLOBE, then BLUETOOTH.
 
-Versions up to 0.9-beta had a brightness setting that could freeze the FM-1, and because the
-setting was saved, it stayed frozen at every start, even after reinstalling. Install 0.10-beta or
-later from the web installer: the setting is gone, the saved value is ignored, and the FM-1 starts
-normally.
+**The toast is `TB-3PO: PICK CHICAGO OR MIAMI`.** The selected slot is Juno or Drone, or another engine that is not Chicago or Miami. Pick Chicago or Miami, or leave ARP.
 
-</details>
+**The toast is `WAITING FOR CLOCK`.** The unit waits for an external clock. Set `CLOCK SOURCE` in GLOBE, or start the host clock.
 
-### Recovering an FM-1 that won't start
+**The screen says `DnBOX CRASH`.** The firmware halted. The title is `DnBOX CRASH`, not an older product name. Power off and on.
 
-Since 0.5-beta, an FM-1 that keeps crashing starts in safe mode (above), where the web installer
-can fix it. Older versions instead dropped into the chip's own update mode after two crashes (0.2-
-beta did this: the X0X screen, a red X0X CRASH screen, then a blank screen). Neither the web
-installer nor M-VAVE's updater can see an FM-1 in that state, but a script can put M-VAVE's
-firmware back, on a Mac, with the USB cable you already have:
+If the unit starts twice and fails, you can reach `DnBOX SAFE MODE`. In safe mode, nothing that makes sound runs. Use the update loader and a verified package for your printed model.
 
-Open Terminal, paste this line and press Return:
+**An install made the unit unusable.** See chapter 16. Use a verified package for the model printed on the keyboard. Do not pick the package from the USB name alone.
 
-```
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/charlesvestal/fm1-x0x/main/tools/fm1_rescue.sh)"
-```
+**Faders do nothing at first.** They wait for pickup. Move each fader to the saved position, or across it. The header shows `PICK Fn UP` or `PICK Fn DOWN` until then.
 
-1. If a window asks to install the command line developer tools, click Install. When it has
-   finished, paste the line again.
-2. If it asks for a password, type your Mac password (nothing shows as you type) and press Return.
-3. When it says it's waiting, plug the FM-1 in and switch it on. It crashes and goes blank, and
-   the script catches it. It checks the chip, saves a backup of the FM-1's memory in the
-   `fm1-rescue` folder in your home folder, and asks before it writes anything.
-4. Type **yes** and press Return. Don't unplug anything until it says it's restarting the FM-1.
-   The FM-1 then starts into its original firmware, and you can install X0X again from there.
-
-The script downloads M-VAVE's FM-1 V15 firmware and JieLi's flash loader, and checks both against
-known fingerprints. It writes only the firmware area of the memory, never the bootloader or the
-FM-1's own settings, and checks everything it writes. Running it again is always safe. If it fails,
-copy everything in the Terminal window and
-[open an issue](https://github.com/charlesvestal/fm1-x0x/issues). If the FM-1 never shows up at
-all, Felucca's [FM-1-transporter](https://github.com/kurogedelic/FM-1-transporter) (a small
-RP2040 board wired to the USB lines) can still reach it.
+**You opened PARA to change a drum pattern and the unit wrote no step.** PARA white keys audition only. Press SEQ, then write the steps.
 
 ---
 
-## 18. Parameters
+## 18. Expert shortcuts
 
-Drum settings range from 0 to 127. DIST, the distortion type, can be DIODE, CLIP, SAT, BFZ,
-PDIST, FOLD or CRUSH. PAN goes from L64 through C (the middle) to R63.
+These shortcuts stay. They are part of live muscle memory. This book documents them. It does not ask for their removal.
 
-Each track's Level, Pan, Rev and Dly are on the mixer (909 MIX, 808 MIX); its Drive and Dist are
-in SEL's list; the rest are its sound pages. Sound-page knobs follow a fixed order across tracks —
-Tune, Tone, Attack, Sound, Decay, then Snappy / Tail / pitch envelope — so the same kind of
-control stays on the same physical knob when you change drum or kit. Tables below list each
-track's settings (including mixer and SEL fields), not the knobs' left-to-right order.
+Transport is on press. Almost every other button is on release. A hold that you use as a modifier consumes the release, so the view does not change. A PATCH release with no modifier does change the view. That is why a missed mute combo can land you on HOME.
 
-<details><summary>909 tracks</summary>
-
-| 909 track | Settings |
+| Shortcut | What it does |
 |---|---|
-| BD | Tune, Attack, Decay, Level, Pitch depth, Pitch, Drive, Dist, Rev, Dly, Pan |
-| SD | Tune, Tone, Snappy, Decay, Level, Drive, Dist, Rev, Dly, Pan |
-| LT, MT, HT | Tune, Decay, Level, Attack, Drive, Dist, Rev, Dly, Pan |
-| RS | Level, Tune, Drive, Dist, Rev, Dly, Pan |
-| CP | Level, Tune, Tail, Drive, Dist, Rev, Dly, Pan |
-| CH, OH | Decay, Level, Tune, Drive, Dist, Rev, Dly, Pan |
-| CR, RD | Tune, Level, Decay, Drive, Dist, Rev, Dly, Pan |
-| KIT | Accent (how much louder accented steps are) |
+| PATCH + SEQ REC | Undo (DnBOX). In clip mode: Loopy undo. |
+| PATCH + SEQ PLAY | Redo (DnBOX). In clip mode: Loopy redo. |
+| PATCH + K2 | Tempo. |
+| PATCH + white key | Select a pattern from any screen. |
+| PATCH + black key | Mute a track or a mixer channel. |
+| BT + white key | Paste, after a copy hold. |
+| BT + knob | Forget that knob's motion, or remove a p-lock. |
+| BT + SEQ REC | Ask to clear this part. |
+| Hold a step + K5–K8 | P-lock. |
+| Hold a step + K2 | Chance. |
+| Hold a bass step + K3 | Velocity. |
+| CHORD + key | Accent. |
+| NOTE REPEAT + key | Slide on Chicago. |
+| NOTE REPEAT + OCTAVE | Tie, on the SEQ keyboard. |
+| CHORD + OCTAVE | Rest, on the SEQ keyboard. |
+| FX + SEQ | Panic, all notes off. The view does not change. |
+| Two white keys on HOME | Chain (live only, not saved). |
+| KNOB BANK | Toggle Loopy clip mode (`LOOPY CLIPS` / `LP OFF`). |
+| K4 | Cue a pattern and end a chain. |
+| Fader move after pickup | Set the same value as the matching knob. |
+| Pitch and mod wheels | Bend or open a filter-related control, without writing saved pots. |
 
-</details>
+OCTAVE+ at power-on together with OCTAVE− starts HARDWARE CALIBRATION. That screen re-teaches every button and K2–K8. It never teaches K1.
 
-<details><summary>808 tracks</summary>
-
-| 808 track | Settings |
-|---|---|
-| BD | Level, Tone, Decay, Tune, Attack, Drive, Dist, Rev, Dly, Pan |
-| SD | Level, Tone, Snappy, Tune, Decay, Drive, Dist, Rev, Dly, Pan |
-| LT, MT, HT | Level, Tune, Decay, Sound, Drive, Dist, Rev, Dly, Pan |
-| RS | Level, Tune, Decay, Sound, Drive, Dist, Rev, Dly, Pan |
-| CP | Level, Tune, Decay, Attack, Sound, Drive, Dist, Rev, Dly, Pan |
-| CB, CH | Level, Tune, Decay, Drive, Dist, Rev, Dly, Pan |
-| CY, OH | Level, Decay, Tune, Drive, Dist, Rev, Dly, Pan |
-| KIT | Accent |
-
-</details>
-
-<details><summary>303</summary>
-
-| 303 setting | Range |
-|---|---|
-| Cutoff, Reso, EnvMod | 0–127 |
-| Decay | 200–2000 ms |
-| Accent | 0–127 |
-| Wave | Saw or square |
-| Tune | A from 400 to 480 Hz; the middle is 440 Hz |
-| Volume | 0–127 |
-| Drive, Drive type | Off, soft or RAT |
-| Slide | 2–360 ms |
-| Accent decay | 30–3000 ms |
-
-</details>
-
-<details><summary>Break</summary>
-
-| Break setting | Range |
-|---|---|
-| Complexity, Anchor, Roll, Fill | 0–100 |
-| Retrig 2x, 3x, 4x, 8x | 0–100 |
-| Phrase | Off, 2, 4, 8 or 16 bars |
-| B chance | 0–100 |
-| A length, B length | 1/4, 1/2, 1, 2, 4 or 8 bars |
-| Level | 0–127 |
-| Pitch | -12 to +12 semitones |
-
-</details>
-
-<details><summary>Effects and master</summary>
-
-| Effect page | Settings |
-|---|---|
-| REVERB | Decay, Tone; in the list: low cut, return level |
-| DELAY | Time (1/32, 1/16T, 1/16, 1/8T, 1/16., 1/8, 1/4T, 1/8., 1/4, 1/2T, 1/4., 1/2, 1/2.), Feedback, Tone, Tape (DIGI, then tape and its wear); in the list: low cut, return level, ping-pong |
-| MASTER | Drive, Comp, Pump, Filter; in the list: the compressor's details, pump by, resonance, limiter, the drive's type, glue and volume |
-
-The delay follows the tempo, including an external MIDI clock. A delay longer than two seconds
-(1/2. below 90 BPM, 1/2 below 60) plays at half that length, which still lands on the beat. With
-PING on, the echoes bounce from left to right, one delay time apart; delays longer than one
-second play in the middle instead.
-
-</details>
+A live bass note cancels if the owner, the arp, or the context changes. This is so a held key does not keep sounding in the wrong place.
 
 ---
 
-## 19. Credits
+## 19. Parameters
 
-X0X is free software under the GNU General Public License, version 3. If you share the
-firmware, you must also share its source code.
+These names come from the control tables at this SHA. They are the words on the PARA and FX pages. They are not an older TONE / VOICE list.
 
-- The platform (hardware layer, USB, update loader, installer and storage) is from
-  **Felucca** by Leo Kuroshita, Hügelton Instruments.
-- The 909 is from **9W9** by athousanddetails, which is based on **ER-99** by Matthew
-  Cieplak. Its hat and cymbal samples are ER-99's.
-- The 808 is from **8W8** by athousanddetails.
-- The 303 is from **schwung-303**, built on Open303 by Robin Schmidt (MIT licence), with
-  extensions based on jc303 and dm-Rat.
-- TB-3PO is from **schwung-tb3po**, which comes from the Phazerville Hemisphere Suite.
-- The break generator is from **BB Gen** by mestela, used with permission.
-- The fonts are Barlow Semi Condensed and Terminus (SIL Open Font License).
+### Chicago (the 303 engine)
 
-M-VAVE and FM-1 are trademarks of their owners, and TR-808, TR-909 and TB-303 are Roland
-trademarks. X0X is not connected with M-VAVE, Roland or Hügelton Instruments.
+| Page | K5–K8 |
+|---|---|
+| OSCILLATOR | WAVE, GLIDE |
+| FILTER 1 | CUTOFF, PEAK, ENV |
+| FILTER 2 | BITE, GNAW |
+| ENVELOPE | ATTACK, DECAY, SUSTAIN, RELEASE |
+| AMPLIFIER | ENV/GATE, LEVEL |
+| ARPEGGIATOR | ON, RANGE, MODE, SPEED |
+| EFFECT | TYPE, EDIT 1, EDIT 2 |
+| SOUND | engine, preset, status |
+
+The ARPEGGIATOR knob order on the page is ON, RANGE, MODE, SPEED.
+
+### Miami (never a 303)
+
+| Page | K5–K8 |
+|---|---|
+| CARRIER | WAVE, LEVEL, SUB, PITCH |
+| XMOD | WAVE, LEVEL, TUNE, DEPTH |
+| FILTER | CUTOFF, CRUSH, WOBBLE |
+| WOBBLE | SHAPE, RATE |
+| OUTPUT | GLIDE, STEREO, OUTPUT |
+| SOUND | engine, preset, status |
+
+### Juno
+
+| Page | K5–K8 |
+|---|---|
+| OSCILLATOR | WAVE, SUB, WIDTH, LEVEL |
+| FILTER | CUTOFF, RES, ENV, HPF |
+| ENVELOPE | ATTACK, DECAY, SUSTAIN, RELEASE |
+| LFO/CHORUS | LFO RATE, LFO DEPTH, CHO RATE, CHORUS |
+| SOUND | engine, preset, status |
+
+### Drone
+
+| Page | K5–K8 |
+|---|---|
+| STRING | REGISTER, BRIGHTNESS, FLUTTER |
+| ENVELOPE | ATTACK, RELEASE, LEVEL |
+| SOUND | engine, preset, status |
+
+### 909 and 808
+
+909 tracks: `BD`, `SD`, `LT`, `MT`, `HT`, `RS`, `CP`, `CH`, `OH`, `CR`, `RD`, then the kit. 808 tracks: `BD`, `SD`, `LT`, `MT`, `HT`, `RS`, `CP`, `CB`, `CY`, `OH`, `CH`, then the kit.
+
+PARA shows that track's sound knobs, four at a time. The named rank order is Tune, Tone, Attack, Sound, Decay, Snappy, Tail, P.Dpth, Pitch. Not every track has every name. For 909 BD, the first PARA page is Tune, Attack, Decay and P.Dpth.
+
+Level, Pan, Rev and Dly for a drum track live on the mixer (909 MIX / 808 MIX). Drive and Dist live in the SCALE list, not on the first PARA page. A KIT page has an ACCENT depth for the kit.
+
+### BREAK
+
+SEQ: SEQUENCE (RATE), GROOVE, RETRIG, and further groove fields in the list. PARA: LOOPS (`LOOP A`, `LOOP B`, `B CHANCE`, and the BREAK level), plus slice counts.
+
+### FX and master
+
+FX REVERB: DECAY, TONE. FX DELAY: TIME, FEEDBACK, TONE, TAPE. Further: REV LOW CUT, REV RETURN, DLY LOW CUT, DLY RETURN, PING-PONG.
+
+MASTER first row: Drive, COMP, PUMP, FILTER. Further: THRESH, RATIO, ATTACK, RELEAS, MAKEUP, MIX, PUMP BY, RESO, LIMIT, Dist, GLUE, Volume.
+
+HOME `PERFORM`: TEMPO (20–275 bpm, default 125), `SWING`, FILTER, PUMP.
+
+### TB-3PO (ARP), Chicago or Miami only
+
+GENERATE: DENS, ACCENT, SLIDE, OCTS. SCALE: ROOT, SCALE, OCTAVE, MUTATE. OCTAVE+ writes a new line. OCTAVE− mutates it.
+
+### SEQ pages
+
+Drums: LENGTH, RATE. Bass: LENGTH, RATE, DIR (`FWD`, `REV`, `PING`, `RND`), TRANSP, then PRESET (`PAT SOUND`) and KEYS (`FREE PLAY`).
+
+---
+
+## 20. Credits
+
+DnBOX firmware is free software under the GNU General Public License, version 3. If you share the firmware, you must also share its source.
+
+The 909 path comes from **9W9** by athousanddetails, based on **ER-99** by Matthew Cieplak. The 808 path comes from **8W8** by athousanddetails. The send reverb, delay and master stage are a port of 9W9 work, under GPL-3.0. The factory break generator comes from **BB Gen** by mestela.
+
+Chicago is the 303-style engine in this firmware. Miami, Juno and Drone are also in this source. This book does not credit an older, removed 303 engine as the current bass sound.
+
+The default UI font is Barlow Semi Condensed (SIL Open Font License).
+
+M-VAVE and SMK-37 are trademarks of their owners. TR-808, TR-909 and TB-303 are Roland trademarks. DnBOX has no tie to M-VAVE, Roland or Hügelton Instruments.
+
+---
+
+## Appendix A. Same key, different job
+
+The same physical control has more than one meaning. This table is the single map. The behaviour stays.
+
+**White keys.** They mean steps on SEQ, patterns on HOME, and song-bar patterns on SONG. They also audition sound on PARA drums, and play bass notes when the keyboard is on. They take a paste while you hold BT. Two white keys on HOME set the ends of a chain.
+
+**Black keys.** They select drum tracks, BREAK slices, and part mutes on HOME, in display order. They also pick a mixer channel on MIX. Hold PATCH and press a black key to mute.
+
+**OCTAVE±.** They move step pages, and they switch pattern banks 1–16 and 17–32. They also set the bass keyboard octave, and the octave of a held step. On TB-3PO they write a new line or mutate it. While you hold BT, they pick the copy bank.
+
+**PATCH.** Back, no, HOME, SONG, and a modifier. One unused release changes the view.
+
+**NOTE REPEAT.** Mixer when clip mode is off. Panic when clip mode is on. With ARP in clip mode: LATCH. Held with a key: slide on Chicago.
+
+**BT.** Save on a tap. Copy invite at about 250 ms. Help at about 400 ms.
+
+**SCALE.** List and yes, except in clip mode, where SCALE is scale.
+
+---
+
+## Appendix B. Names from the older FM-1 build
+
+If you used the older FM-1 build, the printed legends and the book names were different. This appendix is the only place this manual uses those older names. New player text uses the SMK printed legends and the glossary in chapter 2.
+
+| Older book or Felucca name | SMK printed legend | Use this now |
+|---|---|---|
+| EDIT | PARA | PARA (sound) |
+| HOME (the button) | PATCH | PATCH. The HOME screen still uses the header word `HOME`. |
+| SAVE | BT | BT — Save |
+| GLO | GLOBE | GLOBE |
+| SEL | SCALE | SCALE (list / yes) |
+| ENV | CHORD | CHORD (accent) |
+| LFO, MIX, MASTER (as the button) | NOTE REPEAT | NOTE REPEAT — mixer |
+| ALGORITHM | K3 | K3 (part) |
+| PRESETS | K4 | K4 (pattern) |
+| SELECT (the knob) | K2 | K2 |
+| KNOB 1–4 | K5–K8 | K5–K8 |
+| PLAY, REC | SEQ PLAY, SEQ REC | SEQ PLAY, SEQ REC |
+| OCT- / OCT+ | OCTAVE− / OCTAVE+ | OCTAVE− / OCTAVE+ |
+
+The older book also used two player names for the bass slots, and it called both of them 303 engines. That was wrong for this firmware. Chicago is the 303 engine. Miami is never a 303. This book uses Chicago, Miami, Juno, Drone, Bass A and Bass B.
+
+The older book used FM-1 panel drawings and an FM-1 install URL. This book is for the SMK-37 Elite and Pro. It has no FM-1 panel figure.
+
+---
+
+## Appendix C. Protocol identifiers that must stay the same
+
+Player-facing names can say DnBOX. The identifiers below are what installers, M-UPGRADE, Loopy and the editor protocol use. They must stay the same. This book describes what the unit uses today. It does not propose a rename.
+
+| Identifier | Elite | Pro | Must stay? |
+|---|---|---|---|
+| USB product (app) | `DnBOX <version> SMK-37 Elite` | `DnBOX <version> SMK-37 Pro` | Keep the `SMK-37` token. Do not use this string to choose a package. |
+| USB manufacturer (app) | `X0X` | `X0X` | User-visible on some hosts. Changing it can change the port name. This book does not change it. |
+| USB product (update loader) | `SMK-37 Elite Update` | `SMK-37 Pro Update` | Prefer to keep. |
+| USB VID / PID (app) | `0x1209` / `0x0001` | Same | Yes. Never change. Shared by Elite and Pro. Not a model test. |
+| USB VID / PID (loader) | `0x1209` / `0x0002` | Same | Yes. |
+| Package / OTA identity | `SMK-37 Elite_900` (release adds a version code) | `SMK-37 Pro_900` | Yes. This admits a package. |
+| Loader OTA identity | `ota-SMK-37 Elite_900` | `ota-SMK-37 Pro_900` | Yes. Hosts look for `ota-`. |
+| Stock update-record parm id | `ota-SMK-37 Elite_016` | `ota-SMK-37 Pro_016` | Yes. So a factory package still applies. |
+| Handshake SysEx | Identity reply is the package id | Same mechanism | Yes. Port names must not gate discovery. |
+| M-UPGRADE upgrade SysEx | `F0 22 24 35 7F F7` | Same | Yes. Soft key `F0 22 24 35 7D F7`. |
+| BLE advertised / GATT name | `SMK-37 Elite-` plus four hex | `SMK-37 Pro-` plus four hex | The four-hex suffix and address derivation must stay. |
+| BLE-MIDI service UUID | `03B80E5A-EDE8-4B33-A751-6CE34EC4C700` | Same | Yes. Standard BLE-MIDI. |
+| BLE-MIDI characteristic UUID | `7772E5DB-3868-4112-A1A9-F2669D106BF3` | Same | Yes. Standard BLE-MIDI. |
+| APC / Loopy identity | Manufacturer `0x47` (Akai), family `0x29` (APC40 mkII), firmware 1.2, device id `0x7F`. Introduction `F0 47 7F 29 61 …`. | Same | Yes. Loopy mappings depend on this, not on the USB product. |
+| Editor INFO version string | `"X0X "` plus the version (24-char field) | Same | Treat as protocol until tools change with it. |
+| Storage magic | `"X0X0"` and data family `"X0X"` | Same | Yes. |
+| About, crash, boot | `ABOUT DnBOX`, `DnBOX CRASH`, `DnBOX SAFE MODE`, boot `DnBOX` and `909 808 CHICAGO MIAMI` | Same | Display. Already spelled DnBOX. The boot subtitle does not list BREAK, Juno or Drone. |
+
+The onboard package handshake, not the USB display name, is the safe way to identify a unit for a write.
