@@ -12,8 +12,9 @@ const CLOCKS = [60, 80, 100, 120, 160, 200, 240, 360];
 // data-device="smk37">): its catalog, words and panel. A package says which board it runs on, and
 // the panel follows it (an SMK-37 package opened on the FM-1 page gets the SMK-37's).
 const DEVICE = document.documentElement.dataset.device === "smk37" ? "smk37" : "fm1";
+const DNBOX = document.documentElement.dataset.dnbox === "true";
 const DEV = DEVICE === "smk37"
-  ? { product: "M-VAVE SMK-37", board: 1, key: "smk37.", stock: "SMK-37 Pro_016.fwsc", stockFile: /^SMK-37 (Pro|Elite)_\d+( \(\d+\))?\.fwsc$/i,
+  ? { product: "M-VAVE SMK-37", board: 1, key: DNBOX ? "dnbox." : "smk37.", stock: "SMK-37 Pro_016.fwsc", stockFile: /^SMK-37 (Pro|Elite)_\d+( \(\d+\))?\.fwsc$/i,
       other: { name: "FM-1", href: "../" } }
   : { product: "M-VAVE FM-1", board: 0, key: "fm1.", stock: "FM-1.fwsc", stockFile: /^FM-1( \(\d+\))?\.fwsc$/i,
       other: { name: "SMK-37", href: "smk37/" } };
@@ -39,7 +40,7 @@ const EMBED = document.documentElement.hasAttribute("data-embed");
 // ?package=URL: a package on another site (https), for a page that lists firmware this one does not
 // (mutant.cloud's "Try", other hubs, older versions); &name= names it. It plays like a catalog entry,
 // its saved flash kept by its package as every firmware's is, and is not added to the list for later.
-const linked = linkedFirmware(params);
+const linked = DNBOX ? null : linkedFirmware(params);
 if (linked) byId.set(linked.id, linked);
 let fw = linked || byId.get(params.get("fw")) || byId.get(stored(DEV.key + "fw")) || byId.get(catalog.default) || catalog.firmwares[0];
 // ?flash= / ?script=: a try-out of that firmware (web/tryout.js), from this site's own files: a session of its
@@ -220,11 +221,21 @@ async function keptEntry(id) {
   catch (error) { saveFailure(error); return null; }
 }
 async function packageOf(f) {
+  // DnBOX public demo is restricted to the real, model-specific published images.
+  // Verify even IndexedDB-cached packages, not just the first download.
+  const check = async got => {
+    if (DNBOX && (!f.sha256 || got.bytes.length !== f.size ||
+        await packageHash(got.bytes) !== f.sha256)) {
+      throw new Error('firmware bytes failed DnBOX model/version SHA-256 verification');
+    }
+    return got;
+  };
+  if (DNBOX && (f.link || f.byo || f.id === "local")) throw new Error('firmware is not in the DnBOX public trial');
   if (f.id === "local") return { bytes: f.bytes, url: null };
-  if (packages.has(f.id)) return packages.get(f.id);
+  if (packages.has(f.id)) return check(packages.get(f.id));
   const kept = !f.link && await keptEntry(f.id);   // (a link's entry is whichever link ran last)
   if (kept) {
-    const got = { bytes: kept.package, url: kept.url };
+    const got = await check({ bytes: kept.package, url: kept.url });
     packages.set(f.id, got);
     return got;
   }
@@ -237,7 +248,7 @@ async function packageOf(f) {
     packages.set(f.id, got);
     return got;
   }
-  const got = await fetchPackage(f);
+  const got = await check(await fetchPackage(f));
   packages.set(f.id, got);
   noteVersion(f, got.version);
   return got;
@@ -352,6 +363,7 @@ mhzSel.addEventListener("change", () => {
 // a package from this computer: the file picker or a drop on the panel. With M-VAVE's entry
 // chosen, or a file named like theirs, it is that entry's copy and is kept for next time.
 async function openLocal(file) {
+  if (DNBOX) return;  // Do not turn the public try-before-install page into an arbitrary firmware loader.
   if (!file) return;
   const mv = catalog.firmwares.find((f) => f.byo);
   if (mv && (fw.byo || DEV.stockFile.test(file.name))) {
@@ -457,6 +469,26 @@ function setVelocity(f) {
 }
 const NKEY = 37, BTN0 = 37;
 
+// The accessible DnBOX keyboard sends events to exactly the same emulated GPIO,
+// analog multiplexers and encoders as the upstream hit-tested panel. No JS sound.
+if (DNBOX) document.addEventListener('dnbox:input', (e) => {
+  const { kind, id, down: on, value, clicks } = e.detail || {};
+  if (kind === 'key' && Number.isInteger(id) && id >= 0 && id < NKEY) {
+    if (on) setVelocity(.75);
+    if (on) press(id); else unpress(id);
+  } else if (kind === 'button' && Number.isInteger(id) && id >= BTN0 && id <= 54) {
+    if (on) press(id); else unpress(id);
+  } else if (kind === 'pad' && Number.isInteger(id) && id >= 0 && id < 16) {
+    setAnalog(id, on ? 700 : 0);
+  } else if (kind === 'analog' && Number.isInteger(id) && id >= 16 && id <= 21 &&
+    Number.isFinite(value)) {
+    setAnalog(id, value);
+  } else if (kind === 'encoder' && Number.isInteger(id) && id >= 0 && id < 8 &&
+    Number.isInteger(clicks) && Math.abs(clicks) === 1) {
+    turn(id, clicks);
+  }
+});
+
 // pointer: keys and buttons held while pressed (drag across keys: glissando), knobs dragged
 // up / down or scrolled, MASTER as a pot. Every pointer on its own, so on a touch screen
 // several fingers play a chord, or hold a key while one turns a knob.
@@ -556,7 +588,9 @@ function keyId(k) {
 }
 const padKey = (k) => (board === 1 && /^[1-8]$/.test(k) ? Number(k) - 1 : -1);
 addEventListener("keydown", (e) => {
-  if (e.metaKey || e.ctrlKey || e.target instanceof HTMLSelectElement) return;
+  if (e.metaKey || e.ctrlKey || e.target instanceof HTMLSelectElement ||
+      (DNBOX && (e.target?.closest?.('#dnbox-controls') || e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLButtonElement))) return;
   if (ENC_KEYS[e.key]) { e.preventDefault(); turn(...ENC_KEYS[e.key]); return; }
   const pad = padKey(e.key);
   if (pad >= 0) { e.preventDefault(); if (!e.repeat) setAnalog(pad, 700); return; }
@@ -567,6 +601,8 @@ addEventListener("keydown", (e) => {
   setKey(id, true);
 });
 addEventListener("keyup", (e) => {
+  if (DNBOX && (e.target?.closest?.('#dnbox-controls') || e.target instanceof HTMLInputElement ||
+      e.target instanceof HTMLButtonElement || e.target instanceof HTMLSelectElement)) return;
   const pad = padKey(e.key);
   if (pad >= 0) { setAnalog(pad, 0); return; }
   const id = keyId(e.key);
@@ -923,6 +959,7 @@ function boot(options = {}) {
       sessions.set(seq, session);
       loadedUrl = got.url;
       showFirmware();
+      if (DNBOX) document.dispatchEvent(new Event('dnbox:booting'));
       down.fill(0); holds.fill(0); pointers.clear(); encClicks.fill(0);
       frame = last = null;
       booting = seq;
@@ -990,6 +1027,7 @@ function onWorklet(e) {
   const m = e.data;
   if (m.type === "error") {
     if (m.fatal && running?.seq === m.seq) {
+      if (DNBOX) document.dispatchEvent(new Event('dnbox:stopped'));
       running = null;
       for (const [id, pending] of snapshotWaiters) if (pending.seq === m.seq) {
         clearTimeout(pending.timer); snapshotWaiters.delete(id); pending.resolve();
@@ -1032,6 +1070,7 @@ function onWorklet(e) {
       booting = 0;
       setBoard(m.board);
       if (m.board === 1) for (let i = 16; i < 22; i++) send({ type: "analog", idx: i, value: analog[i] });
+      if (DNBOX) document.dispatchEvent(new CustomEvent('dnbox:booted', { detail: { board: m.board } }));
     }
     return;
   }
