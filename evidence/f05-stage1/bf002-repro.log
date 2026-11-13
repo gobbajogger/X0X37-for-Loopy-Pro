@@ -1,0 +1,21 @@
+planner_blob 52f1f06faddea0f6bf6c2c89c9b41c50906a66fd
+TEST_ROUTES_web [('web/', 'breaks-web breaks-page install-slots-web')]
+INPUT ['web/x0x_projects.js']
+SELECTED ['breaks-page', 'breaks-web', 'install-slots-web', 'installer-targets', 'locked-settings', 'smk-flash']
+HAS_projects-web False
+HAS_projects-page False
+INPUT ['web/x0x_projects.html']
+SELECTED ['breaks-page', 'breaks-web', 'install-slots-web', 'locked-settings', 'smk-flash']
+HAS_projects-web False
+HAS_projects-page False
+INPUT ['web/x0x_breaks.js']
+SELECTED ['breaks-page', 'breaks-web', 'install-slots-web', 'locked-settings', 'smk-flash']
+HAS_projects-web False
+HAS_projects-page False
+INPUT ['web/x0x_installer.html']
+SELECTED ['breaks-page', 'breaks-web', 'install-slots-web', 'installer-targets', 'locked-settings', 'smk-flash']
+HAS_projects-web False
+HAS_projects-page False
+BUG_REPRODUCED scoped web/ route omits projects-web and projects-page
+runner_defines_projects-web True
+runner_defines_projects-page True

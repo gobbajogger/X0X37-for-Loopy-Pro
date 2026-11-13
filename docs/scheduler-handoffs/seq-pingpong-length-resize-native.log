@@ -1,0 +1,27 @@
+SCOPED NATIVE TEST: exact next_pos() production source window from Git blob 83b03f73139d8e679c94526c66b390b6e5bc2f39
+Host: Linux x86_64 GCC /usr/bin/gcc Clang /usr/local/swift/usr/bin/clang Python /opt/pyvenv/bin/python3
+Root checkout unavailable (native git DNS resolution failed, connector remote source available).
+
+LOG: baseline-current-test-full
+ping-pong resize source-window: 99498 pass, 79427 fail
+4cbf567c8a7d10ef4175bf0ecfa86b97f2388b33c0f01d72d906e6a6f019a6e3  logs/baseline-current-test-full.log
+LOG: patched-gcc-none
+ping-pong resize source-window: 178925 pass, 0 fail
+f27ab7e2a982e0b92ccab97d4d0b6f4b4ace58191e32e1b125e85274876f4929  logs/patched-gcc-none.log
+LOG: patched-gcc-ubsan
+ping-pong resize source-window: 178925 pass, 0 fail
+b35bfb1bd4d6fabab39c8db54a2f3b6cfe2c4592a81612b72b507eabb5af4e10  logs/patched-gcc-ubsan.log
+LOG: patched-gcc-asan-ubsan
+ping-pong resize source-window: 178925 pass, 0 fail
+2a8dc69459cc1ae0e4c32eb8056857beb400719789b8edda93e56a359210d3de  logs/patched-gcc-asan-ubsan.log
+LOG: patched-clang-none
+ping-pong resize source-window: 178925 pass, 0 fail
+5552036ec0b69d4624134b2079abd5d6113bdb9fcf0a0f1c3cbb1a1a4dc34f6c  logs/patched-clang-none.log
+LOG: patched-clang-asan-ubsan
+ping-pong resize source-window: 178925 pass, 0 fail
+b526da44020954c1285091b93d97d8197ed326c73624453957eff4bbde9824cb  logs/patched-clang-asan-ubsan.log
+LOG: bad-source
+SOURCE WINDOW MISMATCH: next_pos signature/boundary
+f4980fd20c0af004f5a436867467f1ea2ab18c01ef583b0c5fe2f08748e82ed8  logs/bad-source.log
+EXIT codes: baseline 1 (expected), patched gcc plain 0, gcc UBSan 0, gcc ASan+UBSan 0, clang plain 0, clang ASan+UBSan 0, malformed-window 1 (expected).
+Full exact repo seq_test/clk_lock, target builds, physical keyboard and MIDI Note Off integration: NOT RUN.

@@ -1,0 +1,55 @@
+{
+  "overall": "ALL_PASS",
+  "head_sha": "8a74ff52cba842c3f2d8365600286f94e6bccdf0",
+  "engine_blob": "ab6d9667e9cd40ae12cc8c8ece8d7bb12be29216",
+  "engine_blob_expected": "ab6d9667e9cd40ae12cc8c8ece8d7bb12be29216",
+  "engine_blob_match": true,
+  "audited_source_sha_pre_bf004": "6df0f81fbbe0adc3207f67d912d2fe0ab676be04",
+  "branch": "cursor/f08-bf004-stage3-fb90",
+  "subagent_id": "bc-d9a62eaf-b661-5df9-9a5c-893e387d4a33",
+  "engine_noteoff_gate": {
+    "confirmed": true,
+    "proof": "evidence/f08-stage3/engine-noteoff-gate.txt",
+    "notes": "USB/BT Note Off (src<2) gated on src_held[src]; TRS src>=2 not tracked in src_held and still releases; break slices same gate"
+  },
+  "checks": [
+    {
+      "name": "build_host",
+      "command": "sh host/build_host.sh",
+      "exit": 0,
+      "result": "PASS",
+      "log": "evidence/f08-stage3/build_host.log",
+      "notes": "Pillow installed via bash tools/agent_env_install.sh first (evidence/f08-stage3/agent_env_install.log); rebuild then exit 0"
+    },
+    {
+      "name": "midiowner",
+      "command": "build/host/x0x_host tests/scenarios/midiowner.x0x build/scenarios/midiowner",
+      "exit": 0,
+      "result": "PASS",
+      "log": "evidence/f08-stage3/midiowner.log",
+      "notes": "stale non-owner Off leaves hold; owner Off / different-note / same-owner / TRS green"
+    },
+    {
+      "name": "usbnotes",
+      "command": "build/host/x0x_host tests/scenarios/usbnotes.x0x build/scenarios/usbnotes",
+      "exit": 0,
+      "result": "PASS",
+      "log": "evidence/f08-stage3/usbnotes.log"
+    },
+    {
+      "name": "blenotes",
+      "command": "build/host/x0x_host tests/scenarios/blenotes.x0x build/scenarios/blenotes",
+      "exit": 0,
+      "result": "PASS",
+      "log": "evidence/f08-stage3/blenotes.log"
+    },
+    {
+      "name": "engine_noteoff_gate_review",
+      "command": "code review + git rev-parse HEAD:firmware/src/app/engine.c",
+      "exit": 0,
+      "result": "PASS",
+      "log": "evidence/f08-stage3/engine-noteoff-gate.txt"
+    }
+  ],
+  "failures": []
+}

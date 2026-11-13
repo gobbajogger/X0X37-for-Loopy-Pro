@@ -1,0 +1,64 @@
+Cloud stage 2 COMPLETE — 2026-10-20
+
+This completion supersedes the toolchain blocker in ../cloud-stage2-continuation/CONTINUE.txt.
+The owner explicitly supplied and instructed use of the uploaded toolchain.
+Use it for all remaining cloud development/tests. Preserve it outside Git.
+The previous refusal to accept the upload was too broad; no cloud network
+setting change is required to use the supplied file.
+
+Implementation: daa7794. Independently reviewed rule rollout: a9b1b42.
+Build/test input commit: e345d5ffee3196cf726a6a2527a909ff4d4efc1e.
+This completion adds dependency/build evidence only; firmware code is unchanged.
+All original stage-2 reconciliation and host evidence is in
+../cloud-stage2-continuation/. All 25 original transfer hashes match.
+Stage 2 is complete with no deferred approved implementation item.
+
+Saved dependency for all successor threads:
+- /workspace/x0x-deps/downloads/jieli-linux-toolchains-20260730.1.tar.xz
+- SHA-256 a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd
+- 26027508 bytes; user upload file_00000000f06881f4ac2a5fee6ee7ea57
+- JIELI_TOOLCHAIN=/workspace/x0x-deps/jieli/toolchain
+- AC79_SDK=/workspace/x0x-deps/fw-AC79_AIoT_SDK (exact approved tag/inputs)
+- /workspace/x0x-deps/REUSE-TOOLCHAIN.txt and downloads/jieli-toolchain-upload.json
+Archive paths/links were inspected before safe extraction. Compiler reports
+clang 4.0.1. Uploaded-byte hash and compiler hash identify the tested inputs;
+no independent vendor signature or hash was available. Do not redownload or
+add proprietary files to Git/bundles. After workspace loss restore the uploaded
+file through download_file and verify the recorded digest before reuse.
+
+Target commands (native Linux x86-64, this cloud environment):
+CC=cc CXX=c++ X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L
+JIELI_TOOLCHAIN=/workspace/x0x-deps/jieli/toolchain
+AC79_SDK=/workspace/x0x-deps/fw-AC79_AIoT_SDK
+MODEL=elite bash build.sh --board smk37
+MODEL=pro bash build.sh --board smk37
+Both default development configurations pass. Elite code free 2472 B, Pro
+2488 B; static RAM free 524 B and pool headroom 8364 B for both. See build logs
+and input-and-artifact-identity.json for exact artifact SHA-256/CRC32 and compiler.
+
+Built-package focused checks, same environment plus
+X0X_GATE_LOCK=/workspace/x0x-cloud-stage2/build/test.lock X0X_TEST_JOBS=1:
+sh tests/run_tests.sh smk-package smk-ota-entry smk-ota-entry-model1
+smk-ota-entry-model2 smk-update-loader smk-build-package
+smk-build-package-elite ble-package installer
+All nine checks pass, no missing target inputs. built-packages.log is the result.
+
+Completion is stage-2 scoped evidence, not full gate, release-package validation,
+controller-build evidence, installation or physical-device PASS. Stage 4 still
+needs both dev/release configurations, four pinned DSP references, complete
+host checks, controller build, formal gate and exact packages/CRCs/budgets.
+
+Next owner: exactly one fresh cloud stage-3 test/investigation thread, with
+separate scoped helpers. It receives the completion commit containing this
+file, and must preserve fresh-thread-per-stage rules in docs/rules/workflow.md.
+No old chat resumes execution. No stage-3 successor existed at this handoff.
+The successor's identity is recorded outside the checked input in
+/workspace/shared/x0x-stage3-start.json after creation. Check it before retrying.
+Stage 3 changes no firmware code; new source fixes go to a fresh stage-2 thread.
+On successful stage 3, create one fresh stage 4, then one stage 5 sole integrator,
+local stage 6 installer, and stage 7 normal fast-forward private-main push.
+No stage is skipped. Private destination remains
+https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git.
+Checkpoint pushes to the transfer branch are authorized; main remains pending.
+Preserve the onboarding checkout's dirty edits and exclude cancelled histories,
+refs-oscuro, SDK/toolchain and unapproved public publication.

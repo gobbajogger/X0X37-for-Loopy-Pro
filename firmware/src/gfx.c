@@ -1,0 +1,300 @@
+/* SPDX-License-Identifier: GPL-3.0-only
+ * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments */
+/* Small-canvas renderer (no full framebuffer). Draw text/lines into
+ * an off-screen strip, then blit it in one DMA transfer. Pixels are stored
+ * byte-swapped (the panel takes RGB565 big-endian). */
+typedef struct {               /* proportional, see tools/gen_font.py */
+    uint8_t h;
+    uint8_t pad;               /* bitmap starts this many pixels left of the pen */
+    uint8_t first, last;
+    const uint8_t *adv;        /* advance per glyph */
+    const uint8_t *bw;         /* bitmap width per glyph (starts FONT_PAD left of the pen) */
+    const uint16_t *off;       /* byte offset of each glyph */
+    const uint8_t *data;
+} felucca_font_t;
+#include "felucca_font.h"
+
+/* One strip, not a 240x240 frame. The panel is three strips that are never
+ * drawn at the same time: header 20, main area 2*69 = 138, knob row 82
+ * (20+138+82 = 240). The tallest is the main area. The strip used to be 144
+ * rows; the extra 6 moved into the knob row and were still reserved here
+ * (240 * 6 * 2 = 2880 bytes of the pool). */
+#define CV_ROWS 138u
+#define CV_MAX (240u * CV_ROWS)
+_Static_assert(CV_ROWS >= 82u, "screen strip shorter than the knob row");
+static uint16_t cv_px[CV_MAX] __attribute__((section(".pool")));
+static uint32_t cv_w, cv_h;
+static int32_t cv_oy;            /* y offset for graph drawing */
+static int32_t cv_y0, cv_y1;     /* X0X: the rows drawing may touch (cv_band) */
+
+#define RGB(r, g, b) ((uint16_t)((((r) >> 3) << 11) | (((g) >> 2) << 5) | ((b) >> 3)))
+#include "ui_theme.h"
+#define C_BLACK UI_N_BASE
+#define C_WHITE UI_N_WHITE           /* what is being touched / where we are */
+/* The screen's five steps, darkest to brightest, plus white; picked as THEME in GLOBAL. */
+typedef struct {
+    const char *name;
+    uint16_t c[5];
+} palette_t;
+/* X0X: the first three steps are neutral greys in every theme (structure: rules, empty cells,
+ * labels); only the two brightest carry the theme's hue (values, highlights). Colour on the
+ * screen then means something: a part, a value, an alarm. */
+#define NEUTRALS RGB(40,56,61), RGB(128,146,148), RGB(156,170,168)
+static const palette_t PALETTES[] = {
+    {"GREEN", {NEUTRALS, RGB(80, 220, 120), RGB(150, 255, 175)}},
+    {"AMBER", {NEUTRALS, RGB(232, 136, 30), RGB(255, 184, 70)}},
+    {"CYAN", {NEUTRALS, RGB(60, 180, 235), RGB(150, 225, 255)}},
+    {"RED", {NEUTRALS, RGB(232, 76, 60), RGB(255, 132, 112)}},
+    {"MONO", {NEUTRALS, RGB(196, 196, 202), RGB(236, 236, 240)}},
+    {"LIGHT", {RGB(180,193,180), RGB(80,97,77), RGB(64,81,62), RGB(130,84,14), RGB(36,91,43)}},
+};
+#define NPALETTES (sizeof(PALETTES) / sizeof(PALETTES[0]))
+static uint16_t pal[5];
+#define C_LINE pal[0]                /* 1 rules, separators */
+#define C_DIM pal[1]                 /* 2 inactive, empty steps, units */
+#define C_GRAY pal[2]                /* 3 labels */
+#define C_AMB pal[3]                 /* 4 secondary text */
+#define C_HI pal[4]                  /* 5 values, curves */
+
+static void palette_set(uint32_t i)
+{
+    uint32_t k;
+    ui_theme_light = i % NPALETTES == 5u;
+    for (k = 0; k < 5u; k++)
+        pal[k] = PALETTES[i % NPALETTES].c[k];
+}
+
+static inline uint16_t swap16(uint32_t c) { return (uint16_t)(((c >> 8) & 0xFFu) | ((c & 0xFFu) << 8)); }
+
+/* Exact for every RGB565 blend numerator (0..63*15). */
+static inline uint32_t cv_div15(uint32_t x) { return (x * 0x8889u) >> 19; }
+
+static void cv_begin(uint32_t w, uint32_t h, uint16_t bg)
+{
+    uint32_t i, n;
+    uint32_t fill = swap16(bg);
+    if (w * h > CV_MAX)
+        h = CV_MAX / w;
+    lcd_sync();                     /* the last blit may still read cv_px */
+    cv_w = w;
+    cv_h = h;
+    cv_oy = cv_y0 = 0;
+    cv_y1 = (int32_t)h;
+    n = w * h;
+    i = 0;
+    if (n && ((uintptr_t)cv_px & 3u))
+        cv_px[i++] = (uint16_t)fill;
+    fill |= fill << 16;
+    /* Copy object bytes: the host unity build strips type attributes. */
+    for (; i + 1u < n; i += 2u)
+        __builtin_memcpy(__builtin_assume_aligned(cv_px + i, 4), &fill, sizeof fill);
+    if (i < n)
+        cv_px[i] = (uint16_t)fill;
+}
+
+/* X0X: draw the next things as if the canvas were rows y0 .. y0+h-1 alone (one band of a
+ * canvas that holds several, sent in one transfer so the bands change on screen together) */
+static void cv_band(int32_t y0, int32_t h)
+{
+    cv_oy = cv_y0 = y0;
+    cv_y1 = y0 + h;
+}
+
+static void cv_blit(uint32_t x, uint32_t y) { lcd_blit(x, y, cv_w, cv_h, cv_px); }
+
+/* canvas rows r0 .. cv_h-1 only, to screen row y + r0 */
+static void cv_blit_from(uint32_t x, uint32_t y, uint32_t r0)
+{
+    if (r0 < cv_h)
+        lcd_blit(x, y + r0, cv_w, cv_h - r0, cv_px + r0 * cv_w);
+}
+
+static inline void cv_pset(int32_t x, int32_t y, uint16_t c)
+{
+    y += cv_oy;
+    if ((uint32_t)x < cv_w && y >= cv_y0 && y < cv_y1)
+        cv_px[(uint32_t)y * cv_w + (uint32_t)x] = swap16(c);
+}
+
+static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c)
+{
+    int32_t x1 = x + w, y1 = y + h + cv_oy, i;
+    uint16_t sc = swap16(c);
+    y += cv_oy;                             /* clipped once, then filled row by row */
+    if (x < 0)
+        x = 0;
+    if (y < cv_y0)
+        y = cv_y0;
+    if (x1 > (int32_t)cv_w)
+        x1 = (int32_t)cv_w;
+    if (y1 > cv_y1)
+        y1 = cv_y1;
+    for (; y < y1; y++)
+        for (i = x; i < x1; i++)
+            cv_px[(uint32_t)y * cv_w + (uint32_t)i] = sc;
+}
+
+static void cv_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint16_t c)
+{
+    int32_t dx = x1 > x0 ? x1 - x0 : x0 - x1, sx = x0 < x1 ? 1 : -1;
+    int32_t dy = y1 > y0 ? y0 - y1 : y1 - y0, sy = y0 < y1 ? 1 : -1;
+    int32_t err = dx + dy, guard = 2000;
+    while (guard--) {                       /* bounded: a line is never longer than 480 px */
+        int32_t e2 = 2 * err;               /* both tests use the same error value */
+        cv_pset(x0, y0, c);
+        if (x0 == x1 && y0 == y1)
+            break;
+        if (e2 >= dy) {
+            err += dy;
+            x0 += sx;
+        }
+        if (e2 <= dx) {
+            err += dx;
+            y0 += sy;
+        }
+    }
+}
+
+/* glyph index of a character: lower case folds to upper case when the font
+ * has none, anything missing (and C1 controls) draws as '?' */
+static uint32_t glyph(const felucca_font_t *f, uint32_t ch)
+{
+    if (ch >= 'a' && ch <= 'z' && f->last < 'a')
+        ch -= 32u;
+    if (ch < f->first || ch > f->last || (ch >= 127u && ch < 160u))
+        ch = '?';
+    return ch - f->first;
+}
+
+/* text in colour c, each pixel's coverage blended over what is already on the canvas (an
+ * anti-aliased face on a coloured box gets no dark fringe); returns the end x */
+static int32_t cv_text_clip(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c, int32_t clip_left, int32_t clip_right)
+{
+    uint32_t r = c >> 11, g = (c >> 5) & 63u, b = c & 31u;
+    uint16_t sc = swap16(c);
+    for (; *s; s++) {
+        uint32_t gi = glyph(f, (uint8_t)*s), gx, gy, w, height = f->h;
+        uint32_t crop_x = 0, crop_y = 0;
+#ifdef FONT_LZ_CROP
+        uint8_t history[256];
+        uint32_t written = 0, left = 0, distance = 0, byte = 0;
+#elif defined(FONT_PACKBITS)
+        uint32_t left = 0, repeated = 0, byte = 0;
+#else
+        uint32_t bpr;
+#endif
+        const uint8_t *gd;
+        w = f->bw[gi];
+#if !defined(FONT_PACKBITS) && !defined(FONT_LZ_CROP)
+        bpr = (w + 1u) / 2u;
+#endif
+        gd = f->data + f->off[gi];
+#ifdef FONT_LZ_CROP
+        uint32_t rectangle = gd[0] | ((uint32_t)gd[1] << 8) | ((uint32_t)gd[2] << 16);
+        gd += 3;
+        crop_x = rectangle & 63u;
+        crop_y = (rectangle >> 6) & 63u;
+        w = (rectangle >> 12) & 63u;
+        height = rectangle >> 18;
+#endif
+        for (gy = 0; gy < height; gy++)
+            for (gx = 0; gx < w; gx++) {
+                uint32_t a;
+#ifdef FONT_LZ_CROP
+                /* Generated streams never reference before their own glyph;
+                 * the ring is bounded and needs no clear or shared state. */
+                if (!(gx & 1u)) {
+                    if (!left) {
+                        uint32_t token = *gd++;
+                        distance = token & 128u ? *gd++ : 0;
+                        left = (token & 127u) + (distance ? 3u : 1u);
+                    }
+                    byte = distance ? history[(written - distance) & 255u] : *gd++;
+                    history[written++ & 255u] = (uint8_t)byte;
+                    left--;
+                }
+                a = byte;
+#elif defined(FONT_PACKBITS)
+                /* Decode one byte per pixel pair; odd-width rows discard their
+                 * padding nibble exactly as the original bitmap reader did. */
+                if (!(gx & 1u)) {
+                    if (!left) {
+                        uint32_t token = *gd++;
+                        left = (token & 127u) + 1u;
+                        repeated = token & 128u;
+                        if (repeated)
+                            byte = *gd++;
+                    }
+                    if (!repeated)
+                        byte = *gd++;
+                    left--;
+                }
+                a = byte;
+#else
+                a = gd[gy * bpr + gx / 2u];
+#endif
+                int32_t px = x - f->pad + (int32_t)(gx + crop_x), py = y + (int32_t)(gy + crop_y) + cv_oy;
+                a = (gx & 1u) ? (a & 15u) : (a >> 4);
+                if (!a || px < clip_left || px >= clip_right || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)
+                    continue;
+                if (a == 15u) {
+                    cv_px[(uint32_t)py * cv_w + (uint32_t)px] = sc;
+                } else {
+                    uint32_t bg = swap16(cv_px[(uint32_t)py * cv_w + (uint32_t)px]);
+                    uint32_t br = bg >> 11, bgg = (bg >> 5) & 63u, bb = bg & 31u;
+                    uint32_t nr = cv_div15(r * a + br * (15u - a)), ng = cv_div15(g * a + bgg * (15u - a)),
+                             nb = cv_div15(b * a + bb * (15u - a));
+                    cv_px[(uint32_t)py * cv_w + (uint32_t)px] = swap16((nr << 11) | (ng << 5) | nb);
+                }
+            }
+        x += f->adv[gi];
+    }
+    return x;
+}
+
+static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
+{ return cv_text_clip(x,y,f,s,c,0,(int32_t)cv_w); }
+
+static int32_t text_w(const felucca_font_t *f, const char *s)
+{
+    int32_t w = 0;
+    for (; *s; s++)
+        w += f->adv[glyph(f, (uint8_t)*s)];
+    return w;
+}
+
+/* one-shot: text in a box, cleared to black, blitted */
+static void draw_text_box(uint32_t x, uint32_t y, uint32_t w, const felucca_font_t *f, const char *s,
+                          uint16_t c, int align)
+{
+    int32_t tw = text_w(f, s), tx = 0;
+    cv_begin(w, f->h, C_BLACK);
+    if (align == 1)
+        tx = ((int32_t)w - tw) / 2;
+    else if (align == 2)
+        tx = (int32_t)w - tw;
+    cv_text(tx, 0, f, s, c);
+    cv_blit(x, y);
+    lcd_sync();                     /* one-shots (boot, crash, UBOOT, update) finish here */
+}
+
+/* One static frame, using the existing validated still-picture record. */
+#include "app/boot_screen.h"
+static void draw_boot_screen(const uint8_t *pay)
+{
+    char title[13], subtitle[22];
+    int custom = pay && pay[0] == BOOT_KIND_CUSTOM;
+    int picture = custom && (pay[1] & BOOT_F_PIC);
+    boot_lines(pay,title,subtitle);
+    for (int band=0; band<2; ++band) {
+        cv_begin(240,120,C_BLACK);
+        if (picture) for (unsigned y=0; y<BOOT_PIC_H; ++y)
+            for (unsigned x=0; x<BOOT_PIC_W; ++x)
+                if (boot_pix(pay+BOOT_PAY_FIXED,x,y)) cv_pset((int)x,(int)y+20-band*120,C_HI);
+        cv_blit(0,(uint32_t)band*120u);
+    }
+    /* B supports lowercase; M deliberately contains capitals/numbers only. */
+    draw_text_box(0,picture?137:96,240,&FONT_B,title,C_HI,1);
+    draw_text_box(0,picture?164:134,240,&FONT_S,subtitle,C_GRAY,1);
+    if (!custom) draw_text_box(0,154,240,&FONT_S,"BREAK",C_DIM,1);
+}

@@ -1,0 +1,6 @@
+CURSOR_API_KEY unset / unauthenticated create → HTTP 401 Invalid User API Key (two attempts).
+Owner-visible next Stage 1 id NOT pushed. This Stage 1 still owns the handoff.
+Coordinator CreateAgent required:
+  startingRef=cursor/post-tip-stage1-237f
+  prompt=evidence/post-tip-stage1/SUCCESSOR-STAGE1.txt
+Do not use Task as successor. Do not duplicate BF-034 Stage 2 (bc-c8e90cb7…).

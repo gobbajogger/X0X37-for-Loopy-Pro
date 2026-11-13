@@ -1,0 +1,6 @@
+Source review uses exact candidate 3d7b1999a245e84d6d9faf1241dd1078ef335d31 and base 3d7c29bdd4cec0450cfb3a8f319ffa1e1a1611f9
+git diff --exit-code 53d5654 91356e7 -- firmware/src/ble.c firmware/src/ble/ble_midi_central.c ble/ctl/src firmware/hal/fm1_ble.h: PASS, empty diff
+git diff --exit-code 53d5654 3d7b1999a245e84d6d9faf1241dd1078ef335d31 -- ble/ctl/src firmware/hal/fm1_ble.h: PASS, empty diff
+SHA256 of actual existing ctl.img: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+All 13 stage2 source hashes match the inspected files.
+Independent docs check failed as recorded in source-review.json; no source was modified.

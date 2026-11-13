@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "role": "stage6-install",
+  "config": "dev",
+  "branch": "cursor/f13-bf012-stage6-lx73-237f",
+  "firmware_sha": "092589b84fd455355216cb0de93c4782236f7524",
+  "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "X0X_DEV_PADCAL": "1",
+  "models": {
+    "elite": {
+      "package_sha256": "9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5",
+      "record": "evidence/f13-stage5/lx73-devcheck/elite/record.json",
+      "identity": "SMK-37 Elite_900"
+    },
+    "pro": {
+      "package_sha256": "3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07",
+      "record": "evidence/f13-stage5/lx73-devcheck/pro/record.json",
+      "identity": "SMK-37 Pro_900"
+    }
+  },
+  "already_flashed_record": "4cd9e2e9a47b63b1",
+  "note": "LX-73 Elite PASS from prerelease lx73-092589b8-dev attested bytes"
+}

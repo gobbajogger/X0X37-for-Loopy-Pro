@@ -1,0 +1,66 @@
+{
+  "base_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "base_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+  "patch_sha256": "584ea440bc642b5e741d12f69c135a0049056f71cb620b900535930e6d4ea01a",
+  "replayed_updater_sha256": "7e5056036aeae47cf2ce2175de4eef7c255b897349eff8153ef7753c8f775dfa",
+  "checks": [
+    {
+      "check": "transport_boundaries",
+      "exit": 0,
+      "output_sha256": "2d10bbd90230988db0c5132c39852d98ba9a08b794afb331473c1eefefe45b87"
+    },
+    {
+      "check": "tests/install_test.py",
+      "exit": 0,
+      "output_sha256": "08a9ac3cd1e23ae5f34900b1a3dc11d5248c3c59e1256a74b86b0f74e510a1e0"
+    },
+    {
+      "check": "tests/install_ctl_test.py",
+      "exit": 0,
+      "output_sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+    },
+    {
+      "check": "tests/install_slots_test.py",
+      "exit": 0,
+      "output_sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3"
+    },
+    {
+      "check": "tests/x0x_slots_test.py",
+      "exit": 0,
+      "output_sha256": "52e896a1f867167410114a77163f2f3090012bb57ee5d38ca6d9350dddf93621"
+    },
+    {
+      "check": "tests/host/test_dev_validate.py",
+      "exit": 0,
+      "output_sha256": "86ca3ef0dd4ab3ba107cd3175b46a15a3f0ed513440a3148c92dc5a53ce88fd3"
+    },
+    {
+      "check": "tests/host/test_validation_inputs.py",
+      "exit": 0,
+      "output_sha256": "6f41b62c809522200dcf24bc5c9d5b6e8736a57b39246e957d50b89d4881a8d7"
+    },
+    {
+      "check": "tests/host/test_install_head.sh",
+      "exit": 0,
+      "output_sha256": "43c5a6916adf396d7c862d6b99cc95c233ebc0744cd2c2e0124f67d02686345c"
+    },
+    {
+      "check": "tests/host/test_install_gate_guard.sh",
+      "exit": 0,
+      "output_sha256": "aeb72fd5a8cdeba3d8bc7d02d55ab5c255a6544b6b5916ed2e775dafef91d2cb"
+    },
+    {
+      "check": "tests/host/test_queue_guard.sh",
+      "exit": 0,
+      "output_sha256": "bb9d05a9ec026e1a1b4589cdce7c87cc52c6f9b653b56662f700e929f752e59d"
+    }
+  ],
+  "private_fixture_checks": "NOT_RUN",
+  "hardware_io": false,
+  "firmware_build": false,
+  "limitations": [
+    "install_test package/Node parity may skip without a built fixture",
+    "Darwin skips Linux-only dev_validate runner cases",
+    "host simulations do not establish physical-device continuity"
+  ]
+}

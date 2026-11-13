@@ -1,0 +1,602 @@
+  ok   dsp-host-linkage
+  ok   fastmath
+  ok   fastmath-ubsan
+  ok   home-tie-semantics
+  ok   sequencer
+  ok   bass-prob-midi
+  ok   seq-tb3po-bars
+  ok   seq-random-swing
+  ok   seq-random-clock-handoff
+  ok   seq-long-notes
+  ok   seq-pingpong-resize
+  ok   clk-lock
+  ok   seq-random-tie-preview
+  ok   encoder
+  ok   bass-midi-pending-native
+  ok   usb-product-names
+  ok   uac
+  ok   uac-out
+  ok   usb-audio-descriptors
+  ok   trs
+  ok   undo
+  ok   undo-capacity
+  ok   lz
+  ok   motion
+  ok   host-build
+  ok   original-release-integration
+  FAIL original-release-ui (see build/host/original-release-ui.log)
+  FAIL original-build (see build/host/original-build.log)
+           self.assertIn("if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad])", hal)
+       AssertionError: 'if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad])' not found in '/* SPDX-License-Identifier: GPL-3.0-only\n * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments\n * SMK-37 Pro port: Copyright (C) 2026 M. Geisler (genkigenki/makkuro) */\n/* SMK-37 Pro input HAL: velocity keybed, buttons, encoders, button LEDs, pads, faders, wheels.\n * The FM-1 counterpart is fm1_input.h + fm1_adc.h; this header keeps their API (fm1_in, fm1_input_init,\n * fm1_input_tick, fm1_input_scan, fm1_enc_take, fm1_input_edges, fm1_input_note_edges, fm1_led_key) so\n * the UI code compiles unchanged, and adds the SMK\'s extras (velocity, pads, faders, wheels).\n * Hardware (stock v016; hardware notes: https://github.com/genkigenki/fm1-to-smk37):\n *\n *  - 4 x 74HC595 (32 bits) shifted by SPI2 group C (PA3 CLK, PA4 DO; IOMAP_CON1 bit17), latched by\n *    PA1, PA0 low (/OE). Word bits 31..16: column select, active-low one-hot (col 0..7 = bits 31..24,\n *    col 8..15 = bits 23..16); bits 15..0: button LEDs (active low) and the analog mux address (bits 3..5).\n *  - 8 return lines with pull-ups, low = closed: PA2, PA5, PA6, PA7, PA9, PH6, PH8, PH9 = rows 0..7.\n *    Rows 0..4: keybed (2 contacts per key), rows 5..6: 18 buttons, row 7: 8 encoders.\n *  - Button LEDs: 19 positions in two groups, commons on the second USB PHY\'s pads used as GPIO\n *    (pin ids 150/151: SFR 0x16A0C bits 17/18, low = group on).\n *  - SARADC: ch1 = mux A (PA8, pads 0..7), ch8 = mux B (PC9, pads 8..15), ch2 = mux C (PA10: faders,\n *    wheels, pedal, battery), the 3 muxes share the address from the 595 word.\n *\n * Timing: fm1_input_tick() runs from the 10 kHz TIMER5 ISR. Each tick reads the rows of the column\n * latched one tick ago, latches the word shifted during the last tick, starts the next SPI2 DMA (4 bytes,\n * ~3 us) and runs one ADC conversion (read in the next tick). The order is the stock ISR\'s, so the matrix\n * codes (col << 4 | row) of the spec apply unchanged. A frame = 16 ticks = 1.6 ms: keys, buttons, encoders\n * and LEDs are processed once per frame. Analog: 8 mux addresses x 3 channels = 24 ticks per cycle.\n *\n * Key velocity: the stock two-contact algorithm (T = 10 + frames between contact 1 and contact 2, in the\n * stock\'s 0.1 ms frames, from the 24 MHz time base here) and its 5-point curves (trimdata at flash 0xC1000,\n * defaults {5,640,800,920,980}). Our scan samples a key once per 1.6 ms, so fast strikes quantise coarsely. */\n#pragma once\n#include <stdint.h>\n#include "fm1_time.h"\n#include "fm1_gpio.h"\n#include "fm1_cc.h"\n\n#ifndef FM1_INPUT_IDLE\n#define FM1_INPUT_IDLE() ((void)0)\n#endif\n\n#define SMK_SPI2_CON (*(volatile uint32_t *)0x11E00u)\n#define SMK_SPI2_BAUD (*(volatile uint32_t *)0x11E04u)\n#define SMK_SPI2_ADR (*(volatile uint32_t *)0x11E0Cu)\n#define SMK_SPI2_CNT (*(volatile uint32_t *)0x11E10u)\n#define SMK_IOMAP_CON1 (*(volatile uint32_t *)0x51020u)\n#define SMK_USBIO_CON (*(volatile uint32_t *)0x16A0Cu)   /* second USB PHY pads as GPIO (LED commons) */\n#define SMK_ADC_CON (*(volatile uint32_t *)0x13100u)\n#define SMK_ADC_RES (*(volatile uint32_t *)0x13104u)\n#define SMK_WLA_CON0 (*(volatile uint32_t *)0x11900u)\n\n#define FM1_NCOL 16u\n#define FM1_NBTN 18u\n#define FM1_NKEY 37u              /* the keybed */\n#define FM1_NENC 8u\n#define SMK_NPAD 16u\n#define SMK_NLED 19u\n#define SMK_KEY_F3 5u             /* keybed key 5 = F3: keys 5..31 are the FM-1\'s 27 note keys (bits 0..26) */\n#define SMK_DEB_RELEASE 4u        /* frames open in a row: a button release (~6 ms) */\n#define SMK_DEB_PRESS 2u          /* frames closed in a row: a button press (~3 ms) */\n#define SMK_KEY_REL 3u            /* frames with contact 1 open: a key release (~5 ms) */\n#define SMK_ENC_DIV 4             /* decoder counts a step: a detent is a whole quadrature cycle (the stock\'s 2\n                                   * gave two UI steps a click, as the FM-1 has one) */\nenum { FM1_BTN_OCT_DOWN = 4, FM1_BTN_OCT_UP = 5 };\nenum { SMK_BTN_KNOB_BANK = 0, SMK_BTN_FADER_BANK = 1, SMK_BTN_LEFT = 2, SMK_BTN_RIGHT = 3 };   /* (outside the FM-1 panel map) */\n#define FM1_OCT_BOTH (1u << FM1_BTN_OCT_DOWN | 1u << FM1_BTN_OCT_UP)\n\n/* ---------------------------------------------------------------- tables --- */\n/* 595 word per column: active-low one-hot select (stock table) */\n#define SMK_COLW(c) (~((c) < 8u ? 0x01000000u << (c) : 0x00010000u << ((c) - 8u)))\n/* keybed key k: (first contact, second contact) matrix codes, col << 4 | row (stock table) */\nstatic const uint8_t SMK_KEYC[FM1_NKEY][2] = {\n    {0x10, 0x52}, {0x20, 0x72}, {0x30, 0x92}, {0x40, 0xb2}, {0x50, 0xd2}, {0x60, 0xf2}, {0x70, 0xe2},\n    {0x80, 0xc2}, {0x90, 0xa2}, {0xa0, 0x82}, {0xc0, 0x62}, {0xd0, 0x42}, {0xe0, 0x22}, {0xf0, 0x12},\n    {0xb0, 0x32}, {0x11, 0x33}, {0x21, 0x43}, {0x31, 0x53}, {0x41, 0x63}, {0x51, 0x73}, {0x61, 0x83},\n    {0x71, 0x93}, {0x81, 0xa3}, {0x91, 0xb3}, {0xa1, 0xc3}, {0xb1, 0xd3}, {0xc1, 0xe3}, {0xd1, 0x23},\n    {0xe1, 0x13}, {0xf1, 0x14}, {0x64, 0x24}, {0x74, 0x34}, {0x84, 0x44}, {0x94, 0x54}, {0xa4, 0xd4},\n    {0xb4, 0xf4}, {0xc4, 0xe4},\n};\n/* button id -> matrix code (stock table). Printed names (confirmed on a unit, 2026-10-09):\n * 0 KNOB BANK, 1 FADER BANK, 2 <, 3 >, 4 OCTAVE-, 5 OCTAVE+, 6 ARP, 7 NOTE REPEAT, 8 SCALE, 9 CHORD,\n * 10 GLOBE, 11 BT, 12 PATCH, 13 PARA, 14 FX, 15 SEQ, 16 SEQ PLAY, 17 SEQ REC */\nstatic const uint8_t SMK_BTNC[FM1_NBTN] = {0x26, 0x76, 0x96, 0x56, 0x66, 0x36, 0x75, 0x65, 0x25,\n                                            0x45, 0x15, 0x86, 0x95, 0x55, 0x85, 0x35, 0x16, 0x46};\n/* encoder i: A and B matrix codes (stock table; K1..K8 order to confirm) */\nstatic const uint8_t SMK_ENCC[FM1_NENC][2] = {{0x97, 0xa7}, {0x37, 0x47}, {0x17, 0x27}, {0xb7, 0xc7},\n                                               {0x57, 0x67}, {0x77, 0x87}, {0xd7, 0xe7}, {0xf7, 0x07}};\n/* LED i (= button i): group << 4 | bit in the 595 low half (stock table, its order differs at the end).\n * SEQ PLAY has a two-colour LED: 16 = its green, 18 = its red (unused); SEQ REC\'s own red LED is 0x1b\n * (confirmed on a unit: 0x1e lit PLAY red, 0x1b lit SEQ REC) */\nstatic const uint8_t SMK_LEDC[SMK_NLED] = {0x0c, 0x12, 0x00, 0x10, 0x0d, 0x1d, 0x02, 0x01, 0x09, 0x08,\n                                           0x0b, 0x0a, 0x11, 0x19, 0x18, 0x1a, 0x1c, 0x1b, 0x1e};\n/* analog: mux address -> pad on mux A (ch1); mux B (ch8) = the same + 8 (stock table) */\nstatic const uint8_t SMK_PADMUX[8] = {1, 2, 3, 0, 4, 7, 5, 6};\n/* mux C (ch2): address 0..3 -> fader 1,2,3,0; 4, 5 wheels; 6 pedal; 7 battery */\nstatic const uint8_t SMK_FADMUX[4] = {1, 2, 3, 0};\nenum { SMK_ADC_PADA = 1, SMK_ADC_PADB = 8, SMK_ADC_MUXC = 2 };\n/* the pads are the 16 white keys of the FM-1\'s 27 (F3 G3 A3 B3 C4 D4 E4 F4 G4 A4 B4 C5 D5 E5 F5 G5): the step\n * grid, the drum sounds and every layer\'s tiles land on them, low notes at the bottom: the bottom row\n * (hardware pads 8..15, mux B; padtest on a unit, 2026-10-10) white keys 0..7, the top row (pads 0..7, mux A) 8..15 */\nstatic const uint8_t SMK_WHITE_NOTE[SMK_NPAD] = {0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26};\nstatic volatile uint8_t smk_pad_grid;   /* set by the UI: pads as a step grid, white key w on pad w (1-8 top row) */\n#define SMK_PAD_OF_WHITE(w) (smk_pad_grid ? (w) : (w) < 8u ? (w) + 8u : (w) - 8u)   /* white key 0..15 -> hardware pad */\n/* the piano layout (the UI sets smk_pad_piano, e.g. for SCALE): top row C4 D4 E4 F4 G4 A4 B4 C5, bottom row the\n * black keys between them (C#4 D#4 - F#4 G#4 A#4 - C#5); note-key index (0 = F3) by hardware pad, -1 = none */\nstatic const int8_t SMK_PIANO_NOTE[SMK_NPAD] = {7, 9, 11, 12, 14, 16, 18, 19, 8, 10, -1, 13, 15, 17, -1, 20};\nstatic volatile uint8_t smk_pad_piano;\nstatic uint8_t smk_pad_note[SMK_NPAD];   /* the note key a pad pressed (+1; 0 = none): its release ends that one */\n#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE\n/* Press owner, pending hit and held-release ownership copied from 6ae0928. */\nstatic volatile uint8_t smk_div_owner, smk_div_pending;\nstatic uint16_t smk_div_held;\nstatic int smk__division_poll(unsigned owner)\n{\n    int hit = -1;\n    if (owner == smk_div_owner && smk_div_pending)\n        hit = (int)smk_div_pending - 1;\n    smk_div_pending = 0;\n    smk_div_owner = (uint8_t)owner;\n    return hit;\n}\n#endif\n#define SMK_WHITE_OF_PAD(p) (smk_pad_grid ? (p) : (p) < 8u ? (p) + 8u : (p) - 8u)\n\n#define SMK_TRIM_FLASH 0xC1000u   /* USRTRIM: the factory calibration record ("trimdat"), never written here */\n/* 5-point velocity curves (trimdata, flash 0xC1000: +0x08 16 pads x 5 u16, +0xA8 37 keys x 5 u16) */\n#ifndef SMK_BIG\n#define SMK_BIG                   /* (a section for big buffers, e.g. a zero-initialised RAM pool: x0x.c) */\n#endif\nstatic uint16_t smk_trim_pad[SMK_NPAD][5] SMK_BIG, smk_trim_key[FM1_NKEY][5] SMK_BIG;\n\n/* ------------------------------------------------------------------ state --- */\nstatic volatile struct {\n    uint32_t notes;              /* bit n = note key n (0 = F3 .. 26 = G5): keybed keys 5..31 | the pads */\n    uint32_t knotes, pnotes;     /* (the two sources of notes: keybed keys 5..31, pads as white keys) */\n    uint32_t buttons;            /* debounced: bit i = button i (0..17) */\n    uint32_t pressed, released;  /* button edges since the last fm1_input_edges() */\n    uint32_t notes_pressed;      /* note-key press edges since the last fm1_input_note_edges() */\n    uint64_t keys;               /* all 37 keybed keys: bit k = key k (0 = lowest C) */\n    uint8_t key_vel[FM1_NKEY];   /* MIDI velocity 1..127 of each key\'s last press (a pad: its white key\'s) */\n    uint8_t raw[FM1_NCOL];       /* last frame, rows packed, 1 = closed */\n    uint8_t cnt[FM1_NBTN];       /* button debounce */\n    uint8_t ks_last[FM1_NKEY], ks_stab[FM1_NKEY], ks_rel[FM1_NKEY];\n    uint32_t ks_t1[FM1_NKEY];    /* fm1_ticks() when contact 1 closed */\n    uint8_t enc_last[FM1_NENC], enc_hist[FM1_NENC];\n    int16_t enc_cnt[FM1_NENC];   /* transitions, + = B leads */\n    int16_t enc_steps[FM1_NENC];\n    uint16_t pad_raw[SMK_NPAD], pad_base[SMK_NPAD], pad_peak[SMK_NPAD];\n    uint8_t pad_st[SMK_NPAD];    /* 0 idle, 1..SMK_PAD_PEAKN collecting the peak, 0x80 on */\n    uint8_t pad_low[SMK_NPAD];\n    uint8_t pad_vel[SMK_NPAD];   /* last strike, separate from the overlapping keybed velocity */\n    uint8_t pad_press[SMK_NPAD]; /* pressure 0..127 while on */\n    uint16_t fad_acc[4];         /* faders: 0..1023 IIR */\n    uint8_t fader[4];            /* 0..127 */\n    uint16_t wheel[2], pedal, batt;   /* raw 0..1023 (mux C addresses 4, 5, 6, 7) */\n    uint16_t fad_raw[4];         /* (debug: the last raw fader readings) */\n    uint16_t fad_hist[4][2];     /* the two readings before: a median of 3 drops a lone spike */\n    uint32_t adc_ok, adc_miss;   /* (debug: conversions read / not finished within a tick) */\n    uint32_t frames;\n} fm1_in;\n\n/* key events beyond the FM-1\'s 27 (keybed keys 0..4 and 32..36): key << 8 | velocity (0 = release) */\n#define SMK_EXTQ 32u\nstatic volatile uint32_t smk_extq[SMK_EXTQ][2]; /* generation, physical/velocity/pitch */\nstatic volatile uint8_t smk_extq_w, smk_extq_r, smk_extq_overflow, smk_ext_enabled;\nstatic volatile uint32_t smk_ext_epoch;\nstatic volatile int8_t smk_ext_oct;\n\nstatic uint8_t fm1_led[SMK_NLED];     /* 1 = lit (button LED i = button i) */\nstatic volatile uint32_t smk_ledw[2]; /* per LED group: 0xFFFF0000 | low half (LED lines active low) */\nstatic volatile uint32_t smk_muxw = 0xFFFFFFC7u;  /* AND masks over the whole 32-bit word: only the low half */\nstatic uint8_t smk_col, smk_grp, smk_slot, smk_adc_slot = 0xFF;\n\n/* ------------------------------------------------------------------ pins --- */\nstatic void smk__pin_in_pu(uint32_t port, uint32_t m)\n{\n    FM1_PR(port, FM1_DIE) |= m;\n    FM1_PR(port, FM1_DIR) |= m;\n    FM1_PR(port, FM1_PD) &= ~m;\n    FM1_PR(port, FM1_PU) |= m;\n}\nstatic void smk__pin_out(uint32_t port, uint32_t m, int v)\n{\n    FM1_PR(port, FM1_DIE) |= m;\n    FM1_PR(port, FM1_PU) &= ~m;\n    FM1_PR(port, FM1_PD) &= ~m;\n    if (v)\n        FM1_PR(port, FM1_OUT) |= m;\n    else\n        FM1_PR(port, FM1_OUT) &= ~m;\n    FM1_PR(port, FM1_DIR) &= ~m;\n}\nstatic void smk__pin_analog(uint32_t port, uint32_t m)\n{\n    FM1_PR(port, FM1_DIE) &= ~m;\n    FM1_PR(port, FM1_DIR) |= m;\n    FM1_PR(port, FM1_PD) &= ~m;\n    FM1_PR(port, FM1_PU) &= ~m;\n}\nFM1_INLINE void smk__common(uint32_t grp_on)    /* 0 / 1: that group\'s common low, the other high; 2: both off */\n{\n    uint32_t v = SMK_USBIO_CON | 0x1000Fu;      /* (as stock: GPIO mode bits on every write) */\n    v |= (1u << 17) | (1u << 18);\n    if (grp_on < 2u)\n        v &= ~(1u << (17u + grp_on));\n    SMK_USBIO_CON = v;\n}\n\nFM1_INLINE uint32_t smk__rows(void)             /* 1 = closed */\n{\n    uint32_t a = FM1_PR(FM1_PA, FM1_IN), h = FM1_PR(FM1_PH, FM1_IN), r;\n    r = ((a >> 2) & 1u) | ((a >> 4) & 0x0Eu) | ((a >> 5) & 0x10u) |   /* PA2; PA5..7; PA9 */\n        ((h >> 1) & 0x20u) | ((h >> 2) & 0xC0u);                      /* PH6; PH8, PH9 */\n    return ~r & 0xFFu;\n}\n\nFM1_INLINE void smk__shift(uint32_t col)        /* start the DMA of column col\'s word (needs a static buffer) */\n{\n    static uint32_t w;\n    w = SMK_COLW(col) & smk_ledw[smk_grp] & smk_muxw;\n    SMK_SPI2_CON |= 0x4000u;\n    SMK_SPI2_ADR = (uint32_t)(uintptr_t)&w;\n    SMK_SPI2_CNT = 4u;\n}\n\nFM1_INLINE void smk__latch(void)\n{\n    FM1_PR(FM1_PA, FM1_OUT) |= 1u << 1;\n    FM1_PR(FM1_PA, FM1_OUT) &= ~(1u << 1);\n}\n\n/* analog slot s (0..23): mux address s / 3, channel {A, B, C}[s % 3] */\nFM1_INLINE uint32_t smk__slot_addr(uint32_t s) { return s / 3u; }\n\n/* -------------------------------------------------------------- velocity --- */\nstatic uint32_t smk_curve(const uint16_t *t, uint32_t x)   /* stock curve: 5 points -> 1..1023 */\n{\n    uint32_t i = 0, v;\n    while (i < 5u && x > t[i])\n        i++;\n    if (i == 0)\n        return 1;\n    if (i == 5u)\n        return 1023;\n    v = (i - 1u) * 256u + ((x - t[i - 1u]) << 8) / (uint32_t)(t[i] - t[i - 1u]);\n    return v ? v : 1u;\n}\nFM1_INLINE uint8_t smk_vel7(uint32_t v10) { return (uint8_t)(v10 >> 3 ? v10 >> 3 : 1u); }\n\nstatic void smk_trim_defaults(void)\n{\n    static const uint16_t P[5] = {50, 550, 720, 850, 950}, K[5] = {5, 640, 800, 920, 980};\n    uint32_t i, j;\n    for (i = 0; i < SMK_NPAD; i++)\n        for (j = 0; j < 5u; j++)\n            smk_trim_pad[i][j] = P[j];\n    for (i = 0; i < FM1_NKEY; i++)\n        for (j = 0; j < 5u; j++)\n            smk_trim_key[i][j] = K[j];\n}\n\n/* the factory calibration record (0x22C bytes, "trimdat\\0" at +0x224), e.g. read from flash 0xC1000;\n * ignored unless the marker and strictly rising curves check out. Returns 1 if taken. */\nstatic int smk_trim_load(const uint8_t *rec)\n{\n    static const char M[8] = "trimdat";\n    uint32_t i, j, ok = 1;\n    const uint8_t *p;\n    for (i = 0; i < 8u; i++)\n        ok &= rec[0x224u + i] == (uint8_t)M[i];\n    for (i = 0; ok && i < SMK_NPAD + FM1_NKEY; i++) {\n        p = rec + 8u + i * 10u;\n        for (j = 1; j < 5u; j++)\n            ok &= (p[2u * j] | p[2u * j + 1u] << 8) > (p[2u * j - 2u] | p[2u * j - 1u] << 8);\n    }\n    if (!ok)\n        return 0;\n    for (i = 0; i < SMK_NPAD + FM1_NKEY; i++)\n        for (j = 0; j < 5u; j++) {\n            uint16_t v = (uint16_t)(rec[8u + i * 10u + 2u * j] | rec[9u + i * 10u + 2u * j] << 8);\n            if (i < SMK_NPAD)\n                smk_trim_pad[i][j] = v;\n            else\n                smk_trim_key[i - SMK_NPAD][j] = v;\n        }\n    return 1;\n}\n\n/* ------------------------------------------------------------------ init --- */\nstatic void fm1_input_init(void)\n{\n    uint32_t i;\n    smk_trim_defaults();\n    smk__pin_out(FM1_PA, (1u << 0) | (1u << 1), 0);              /* PA0 /OE low, PA1 latch low */\n    smk__pin_out(FM1_PA, (1u << 3) | (1u << 4), 0);              /* SPI2 CLK, DO */\n    smk__pin_in_pu(FM1_PA, (1u << 2) | (1u << 5) | (1u << 6) | (1u << 7) | (1u << 9));\n    smk__pin_in_pu(FM1_PH, (1u << 6) | (1u << 8) | (1u << 9));\n    smk__pin_analog(FM1_PA, (1u << 8) | (1u << 10));             /* ADC ch1, ch2 */\n    smk__pin_analog(FM1_PC, 1u << 9);                            /* ADC ch8 (PC9 never an SPI1 clock) */\n    smk_ledw[0] = smk_ledw[1] = 0xFFFFFFFFu;\n    smk_muxw = 0xFFFFFFC7u;                                      /* mux address 0 (bits 3..5) */\n    smk__common(2);\n    SMK_IOMAP_CON1 = (SMK_IOMAP_CON1 & ~0x30000u) | 0x20000u;    /* SPI2 group C: PA3 / PA4 */\n    SMK_SPI2_CON = 0x4020u;                                      /* master, TX, no IRQ (stock: 0x6020) */\n    SMK_SPI2_BAUD = 5u;\n    SMK_SPI2_CON |= 1u;\n    for (i = 0; i < FM1_NENC; i++)\n        fm1_in.enc_last[i] = 0xFF;\n    for (i = 0; i < SMK_NPAD; i++)\n        fm1_in.pad_base[i] = 100u;                               /* (stock init) */\n    smk_col = 0;\n    smk__shift(0);                                               /* the first word: latched on the first tick */\n}\n\n/* ------------------------------------------------------------------ frame --- */\nFM1_INLINE uint32_t smk__closed(uint32_t code) { return (fm1_in.raw[code >> 4] >> (code & 15u)) & 1u; }\n\nstatic void smk__extq(uint32_t k, uint32_t vel)\n{\n    uint8_t w = smk_extq_w;\n    if ((uint8_t)(w + 1u) % SMK_EXTQ == smk_extq_r) {\n        smk_extq_overflow=1;return;\n    }\n    smk_extq[w][0]=smk_ext_enabled?smk_ext_epoch:0;\n    smk_extq[w][1]=k|(vel<<7)|((uint32_t)(36+(int)k+12*smk_ext_oct)<<14);\n    smk_extq_w = (uint8_t)((w + 1u) % SMK_EXTQ);\n}\n\nstatic void smk__key_event(uint32_t k, uint32_t vel)     /* vel 0 = release */\n{\n    if (vel)\n        fm1_in.key_vel[k] = (uint8_t)vel;\n    if (k >= SMK_KEY_F3 && k < SMK_KEY_F3 + 27u) {\n        uint32_t bit = 1u << (k - SMK_KEY_F3);\n        if (vel) {\n            fm1_in.knotes |= bit;\n            fm1_in.notes_pressed |= bit;\n        } else {\n            fm1_in.knotes &= ~bit;\n        }\n        fm1_in.notes = fm1_in.knotes | fm1_in.pnotes;\n    } else {\n        smk__extq(k, vel);\n    }\n    if (vel)\n        fm1_in.keys |= (uint64_t)1u << k;\n    else\n        fm1_in.keys &= ~((uint64_t)1u << k);\n}\n\nstatic void smk__keys(uint32_t now)\n{\n    uint32_t k;\n    for (k = 0; k < FM1_NKEY; k++) {\n        uint32_t s = smk__closed(SMK_KEYC[k][0]) | smk__closed(SMK_KEYC[k][1]) << 1, st = fm1_in.ks_stab[k];\n        if (s == 2u)                                      /* contact 2 without 1: treat as 1 then 2 */\n            s = 3u;\n        if (s == st) {\n            fm1_in.ks_rel[k] = 0;\n            continue;\n        }\n        if (s == 0u) {                                    /* contact 1 open: a release after a few frames */\n            if (++fm1_in.ks_rel[k] < SMK_KEY_REL)\n                continue;\n            fm1_in.ks_rel[k] = 0;\n            fm1_in.ks_stab[k] = 0;\n            if (st == 3u)\n                smk__key_event(k, 0);\n            continue;\n        }\n        fm1_in.ks_rel[k] = 0;\n        if (st == 0u)\n            fm1_in.ks_t1[k] = now;                        /* contact 1 made (or both in one frame) */\n        if (s == 3u && st != 3u) {                        /* contact 2 made: the note, timed from contact 1 */\n            uint32_t T = 10u + (now - fm1_in.ks_t1[k]) / (100u * FM1_TICKS_PER_US);   /* stock 0.1 ms frames */\n            uint32_t x = T <= 0x3FEu ? 0x3FFu - T : 1u;\n            smk__key_event(k, smk_vel7(smk_curve(smk_trim_key[k], x)));\n        }\n        if (s == 1u && st == 3u)                          /* 3 -> 1: still down */\n            continue;\n        fm1_in.ks_stab[k] = (uint8_t)s;\n    }\n}\n\nstatic void smk__buttons(void)\n{\n    uint32_t i;\n    for (i = 0; i < FM1_NBTN; i++) {\n        uint32_t closed = smk__closed(SMK_BTNC[i]), bit = 1u << i, on = (fm1_in.buttons & bit) != 0u;\n        volatile uint8_t *c = &fm1_in.cnt[i];\n        if (closed == on) {\n            *c = 0;\n            continue;\n        }\n        if (++*c < (on ? SMK_DEB_RELEASE : SMK_DEB_PRESS))\n            continue;\n        *c = 0;\n        fm1_in.buttons ^= bit;\n        if (!on)\n            fm1_in.pressed |= bit;\n        else\n            fm1_in.released |= bit;\n    }\n}\n\nstatic void smk__encoders(void)                    /* stock decoder: 3-state window, 4 counts a cycle */\n{\n    uint32_t e;\n    for (e = 0; e < FM1_NENC; e++) {\n        uint32_t cur = smk__closed(SMK_ENCC[e][0]) | smk__closed(SMK_ENCC[e][1]) << 1, h;\n        if (fm1_in.enc_last[e] == 0xFF) {           /* first frame */\n            fm1_in.enc_last[e] = (uint8_t)cur;\n            fm1_in.enc_hist[e] = (uint8_t)(cur * 0x15u);\n            continue;\n        }\n        if (cur != fm1_in.enc_last[e]) {            /* must hold for two frames */\n            fm1_in.enc_last[e] = (uint8_t)cur;\n            continue;\n        }\n        if (cur == (fm1_in.enc_hist[e] & 3u))\n            continue;\n        h = ((uint32_t)fm1_in.enc_hist[e] << 2 | cur) & 0x3Fu;\n        fm1_in.enc_hist[e] = (uint8_t)h;\n        if (h == 0x07u || h == 0x1Eu || h == 0x21u || h == 0x38u)\n            fm1_in.enc_cnt[e]--;                     /* A leads */\n        else if (h == 0x0Bu || h == 0x12u || h == 0x2Du || h == 0x34u)\n            fm1_in.enc_cnt[e]++;                     /* B leads */\n        if (fm1_in.enc_cnt[e] >= SMK_ENC_DIV || fm1_in.enc_cnt[e] <= -SMK_ENC_DIV) {   /* one step a detent */\n            int32_t s = fm1_in.enc_cnt[e] / SMK_ENC_DIV;\n            fm1_in.enc_steps[e] = (int16_t)(fm1_in.enc_steps[e] + s);\n            fm1_in.enc_cnt[e] = (int16_t)(fm1_in.enc_cnt[e] - s * SMK_ENC_DIV);\n        }\n    }\n}\n\nstatic void smk__leds(void)                        /* the next frame shows the other group */\n{\n    uint32_t g, i, w[2] = {0xFFFFu, 0xFFFFu};\n    for (i = 0; i < SMK_NLED; i++)\n        if (fm1_led[i])\n            w[SMK_LEDC[i] >> 4] &= ~(1u << (SMK_LEDC[i] & 15u));\n    smk_ledw[0] = 0xFFFF0000u | w[0] | 0x38u;       /* (bits 3..5: the mux address, ANDed in) */\n    smk_ledw[1] = 0xFFFF0000u | w[1] | 0x38u;\n    g = smk_grp ^ 1u;\n    smk_grp = (uint8_t)g;\n}\n\nstatic void fm1__frame(void)\n{\n    uint32_t now = fm1_ticks();\n    smk__keys(now);\n    smk__buttons();\n    smk__encoders();\n    smk__leds();\n    fm1_in.frames++;\n}\n\n/* ---------------------------------------------------------------- analog --- */\n#define SMK_PAD_ON 24u            /* above the baseline: a hit starts */\n#define SMK_PAD_OFF 12u           /* below base + this: released */\n#define SMK_PAD_PEAKN 3u          /* samples (2.4 ms apart) for the peak */\n\nstatic void smk__padq(uint32_t pad, uint32_t vel)     /* a pad hit (vel) or release (0): its white key */\n{\n#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE\n    uint16_t owned = (uint16_t)(1u << pad);\n    if (smk_div_held & owned) {\n        if (!vel) smk_div_held &= (uint16_t)~owned;\n        return; /* release belongs to the press-time role */\n    }\n    if (vel && pad < SMK_NPAD && smk_div_owner && !smk_pad_note[pad]) {\n        smk_div_held |= owned;\n        smk_div_pending = (uint8_t)(pad + 1u);\n        return; /* Free Play pads (rate, wobble shape, empty) never create note/keybed velocity */\n    }\n#endif\n    int32_t n0 = smk_pad_piano ? SMK_PIANO_NOTE[pad] : (int32_t)SMK_WHITE_NOTE[SMK_WHITE_OF_PAD(pad)];\n    uint32_t n, bit;\n    if (vel) {\n        if (n0 < 0)\n            return;                                   /* (a gap of the piano layout) */\n        smk_pad_note[pad] = (uint8_t)(n0 + 1);\n    } else {\n        if (!smk_pad_note[pad])\n            return;\n        n0 = smk_pad_note[pad] - 1;                    /* the key it pressed, whatever the layout is now */\n        smk_pad_note[pad] = 0;\n    }\n    n = (uint32_t)n0;\n    bit = 1u << n;\n    if (vel) {\n        fm1_in.pad_vel[pad] = (uint8_t)vel;\n        fm1_in.key_vel[SMK_KEY_F3 + n] = (uint8_t)vel;\n        fm1_in.pnotes |= bit;\n        fm1_in.notes_pressed |= bit;\n    } else {\n        fm1_in.pnotes &= ~bit;\n    }\n    fm1_in.notes = fm1_in.knotes | fm1_in.pnotes;\n}\n\nstatic void smk__pad(uint32_t p, uint32_t raw)\n{\n    uint32_t base = fm1_in.pad_base[p], st = fm1_in.pad_st[p];\n    fm1_in.pad_raw[p] = (uint16_t)raw;\n    if (st == 0u) {\n        if (raw > base + SMK_PAD_ON) {\n            fm1_in.pad_st[p] = 1;\n            fm1_in.pad_peak[p] = (uint16_t)raw;\n        } else if (base > raw) {\n            fm1_in.pad_base[p] = (uint16_t)(base - 1u);     /* the baseline follows (stock) */\n        } else if (base < smk_trim_pad[p][0]) {\n            fm1_in.pad_base[p] = (uint16_t)(base + 2u);\n        }\n        return;\n    }\n    if (st < 0x80u) {                                       /* the peak of the first samples */\n        if (raw > fm1_in.pad_peak[p])\n            fm1_in.pad_peak[p] = (uint16_t)raw;\n        if (++st < SMK_PAD_PEAKN) {\n            fm1_in.pad_st[p] = (uint8_t)st;\n            return;\n        }\n        fm1_in.pad_st[p] = 0x80;\n        fm1_in.pad_low[p] = 0;\n        smk__padq(p, smk_vel7(smk_curve(smk_trim_pad[p], fm1_in.pad_peak[p])));\n        return;\n    }\n    fm1_in.pad_press[p] = (uint8_t)(raw <= 0x200u ? raw >> 4 : (raw - 0x200u) / 4u + 32u > 127u ? 127u\n                                                                      : (raw - 0x200u) / 4u + 32u);\n    if (raw < base + SMK_PAD_OFF) {\n        if (++fm1_in.pad_low[p] >= 2u) {\n            fm1_in.pad_st[p] = 0;\n            fm1_in.pad_press[p] = 0;\n            smk__padq(p, 0);\n        }\n    } else {\n        fm1_in.pad_low[p] = 0;\n    }\n}\n\nstatic void smk__analog(uint32_t slot, uint32_t raw)\n{\n    uint32_t a = smk__slot_addr(slot), ch = slot % 3u;\n    if (ch == 0u) {\n        smk__pad(SMK_PADMUX[a], raw);\n    } else if (ch == 1u) {\n        smk__pad(SMK_PADMUX[a] + 8u, raw);\n    } else if (a < 4u) {\n        uint32_t f = SMK_FADMUX[a], h0 = fm1_in.fad_hist[f][0], h1 = fm1_in.fad_hist[f][1], m, v;\n        int32_t acc = fm1_in.fad_acc[f];\n        fm1_in.fad_raw[f] = (uint16_t)raw;\n        fm1_in.fad_hist[f][1] = (uint16_t)h0;\n        fm1_in.fad_hist[f][0] = (uint16_t)raw;\n        m = raw > h0 ? (h0 > h1 ? h0 : raw > h1 ? h1 : raw) : (raw > h1 ? raw : h0 > h1 ? h1 : h0);   /* median */\n        acc += ((int32_t)m * 16 - acc) / 4;                  /* x16 IIR (signed: it falls as well as rises) */\n        fm1_in.fad_acc[f] = (uint16_t)acc;\n        v = (uint32_t)acc / 16u / 8u;\n        if (v > 127u)\n            v = 127u;\n        if (v > fm1_in.fader[f] + 1u || v + 1u < fm1_in.fader[f] || (v != fm1_in.fader[f] && (v == 0u || v == 127u)))\n            fm1_in.fader[f] = (uint8_t)v;                    /* +-1 dead band, the ends reachable */\n    } else if (a < 6u) {\n        fm1_in.wheel[a - 4u] = (uint16_t)(fm1_in.wheel[a - 4u] + ((int32_t)raw - fm1_in.wheel[a - 4u]) / 4);\n    } else if (a == 6u) {\n        fm1_in.pedal = (uint16_t)raw;\n    } else {\n        fm1_in.batt = (uint16_t)raw;\n    }\n}\n\nFM1_INLINE void smk__adc_start(uint32_t ch)\n{\n    SMK_ADC_CON = 0;\n    if (SMK_WLA_CON0 & (1u << 14))\n        SMK_WLA_CON0 &= ~(1u << 14);\n    /* the stock SMK timing (0x407D without IE): start delay 4 x 8 ADC clocks, divider 0b101; done in ~40 us,\n     * well inside a tick. (The FM-1\'s 0xF04E, delay 15 x 8 at /96, takes ~200 us: it never finished in time.) */\n    SMK_ADC_CON = 0x400Du | ((ch & 0xFu) << 8);\n    SMK_ADC_CON |= 0x10u;\n    SMK_ADC_CON |= 0x40u;\n}\n\n/* ------------------------------------------------------------------- tick --- */\n/* one column per call, from the 10 kHz timer ISR (the stock ISR\'s order, see top) */\nstatic void fm1_input_tick(void)\n{\n    static const uint8_t CH[3] = {SMK_ADC_PADA, SMK_ADC_PADB, SMK_ADC_MUXC};\n    uint32_t col = smk_col, next;\n    if (smk_adc_slot != 0xFF) {                              /* the conversion of the last tick */\n        if (SMK_ADC_CON & 0x80u) {\n            fm1_in.adc_ok++;\n            smk__analog(smk_adc_slot, SMK_ADC_RES & 0x3FFu);\n        } else {\n            fm1_in.adc_miss++;\n        }\n        SMK_ADC_CON = 0x40u;\n        SMK_ADC_CON = 0;\n        smk_adc_slot = 0xFF;\n    }\n    fm1_in.raw[col] = (uint8_t)smk__rows();\n    if (col == 0u)                                           /* a new frame: its LED group */\n        smk__common(smk_grp);\n    smk__latch();                                            /* the word shifted last tick */\n    next = (col + 1u) & 15u;\n    smk_col = (uint8_t)next;\n    /* the mux address for the slot after this one goes out with the next word */\n    {\n        uint32_t s = smk_slot, ns = s + 1u == 24u ? 0u : s + 1u;\n        smk__adc_start(CH[s % 3u]);                          /* this slot: its address was latched now */\n        smk_adc_slot = (uint8_t)s;\n        smk_slot = (uint8_t)ns;\n        smk_muxw = 0xFFFFFFC7u | smk__slot_addr(ns) << 3;\n    }\n    if (next == 0u)\n        fm1__frame();                                        /* (before the shift: column 0 carries the new LED group) */\n    smk__shift(next);\n}\n\n/* one full frame, polled (recovery screen, power-on); calls FM1_INPUT_IDLE() while it waits */\nstatic void fm1_input_scan(void)\n{\n    uint32_t i;\n    for (i = 0; i < FM1_NCOL; i++) {\n        uint32_t t0 = fm1_ticks();\n        fm1_input_tick();\n        while ((uint32_t)(fm1_ticks() - t0) < 100u * FM1_TICKS_PER_US)\n            FM1_INPUT_IDLE();\n    }\n}\n\n/* ------------------------------------------------------- main-loop API --- */\nstatic inline uint32_t fm1__lock(void)\n{\n    __asm__ volatile("cli" ::: "memory");\n    return 0;\n}\nstatic inline void fm1__unlock(uint32_t v)\n{\n    (void)v;\n    __asm__ volatile("csync\\n\\tsti" ::: "memory");\n}\n\nstatic int32_t fm1_enc_take(uint32_t e)\n{\n    uint32_t k = fm1__lock();\n    int32_t s = fm1_in.enc_steps[e];\n    fm1_in.enc_steps[e] = 0;\n    fm1__unlock(k);\n    return s;\n}\n\nstatic uint32_t fm1_input_edges(uint32_t *released)\n{\n    uint32_t k = fm1__lock();\n    uint32_t p = fm1_in.pressed;\n    if (released)\n        *released = fm1_in.released;\n    fm1_in.pressed = fm1_in.released = 0;\n    fm1__unlock(k);\n    return p;\n}\n\nstatic uint32_t fm1_input_note_edges(void)\n{\n    uint32_t k = fm1__lock();\n    uint32_t p = fm1_in.notes_pressed;\n    fm1_in.notes_pressed = 0;\n    fm1__unlock(k);\n    return p;\n}\n\n/* the next outer-key event (keybed key << 8 | velocity, 0 = release), -1 if none */\n\n/* LED of button id (0..17); note keys have no LED on the SMK (the pads show the step grid) */\nstatic void fm1_led_key(uint32_t id, int on)\n{\n    if (id < SMK_NLED)\n        fm1_led[id] = (uint8_t)(on != 0);\n}\n\n/* fm1_adc.h stand-ins for the main loop: the battery comes from mux C; the FM-1\'s MASTER pot is knob K1 here, as\n * a virtual pot (0..1023, 24 a detent; starts at 724: master_q12 2048, the FM-1 build\'s power-on level) */\nenum { FM1_ADC_BATT = 3, FM1_ADC_MASTER = 4 };\n#define SMK_ENC_MASTER 0u          /* K1, where the FM-1 has its MASTER pot (top left) */\nstatic int32_t smk_master = 724;\nstatic void fm1_adc_init(void) {}\nstatic int32_t fm1_enc_take(uint32_t e);\nstatic int32_t fm1_adc_read(uint32_t ch)\n{\n    if (ch == FM1_ADC_BATT)\n        return fm1_in.batt ? (int32_t)fm1_in.batt : -1;\n    if (ch == FM1_ADC_MASTER) {\n        smk_master += fm1_enc_take(SMK_ENC_MASTER) * 24;\n        smk_master = smk_master < 0 ? 0 : smk_master > 1023 ? 1023 : smk_master;\n        return smk_master;\n    }\n    return -1;\n}\n'
+
+       ======================================================================
+       FAIL: test_reference_arithmetic_flags_and_existing_board_flags (__main__.OriginalBuildCompositionTests.test_reference_arithmetic_flags_and_existing_board_flags)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "<repo>/tests/host/test_original_build_composition.py", line 94, in test_reference_arithmetic_flags_and_existing_board_flags
+           self.assertIn(flag, command)
+       AssertionError: '-Os' not found in ('cc', '-O2', '-ffunction-sections', '-fdata-sections', '-fno-builtin', '-Wall', '-Wno-unused-function', '-mcpu=r3', '-mfprev1', '-ffp-contract=off', '-DBOARD_SMK37=1', '-DSMK_MODEL=1', '-DX0X_WOBBLE=0', '-DX0X_DEV_WOBBLE=1', '-DX0X_ORIGINAL_SYNTH=1', '-Iexperiments/original_synth', '-Iexperiments/wobble', '-fno-fast-math', '-ffp-contract=off', '-DNDEBUG', '-DORIGINAL_USE_SOFT_FMA', '-DMIAMI_FX_NO_HOST_FENV', '-DX0X_FAST_FMA', '-c', PosixPath('experiments/original_synth/chicago_arp_control.c'), '-o', PosixPath('<repo>/build/original/chicago_arp_control.o'))
+
+       ----------------------------------------------------------------------
+       Ran 13 tests in 0.047s
+
+       FAILED (failures=2)
+  ok   freeplay-rate-pads
+  ok   freeplay-live-keys
+  ok   freeplay-latency
+  ok   pads-in-settings
+  ok   boot-screen
+  FAIL ui-theme (see build/host/ui-theme.log)
+  ok   project-protocol
+  ok   project-save-preflight
+  FAIL editor-ota-dispatch (see build/host/editor-ota-dispatch.log)
+       In file included from <repo>/tests/host/editor_ota_dispatch_test.c:9:
+       <repo>/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-6big34vs/editor_definitions.inc:15:10: fatal error: ../../../tools/mboot/session_wire.h: No such file or directory
+          15 | #include "../../../tools/mboot/session_wire.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       compilation terminated.
+       Traceback (most recent call last):
+         File "<repo>/tests/host/editor_ota_dispatch_test.py", line 53, in <module>
+           subprocess.run(argv, check=True)
+         File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', '-Wno-unused-variable', '-Wno-sign-compare', '-DBOARD_SMK37=1', '-DT_MODEL=1', '-DED_SERVICE_RETURNS_PENDING=1', '-I', '<repo>/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-6big34vs', '<repo>/tests/host/editor_ota_dispatch_test.c', '-o', '<repo>/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-6big34vs/test']' returned non-zero exit status 1.
+  ok   storage-scratch
+  ok   project-stage
+  ok   project-runtime
+  ok   save-note-quiet
+  ok   font-pack
+  ok   smc-protocol
+  ok   smc-fader
+  ok   smc-buttons
+  FAIL smc-select-mode (see build/host/smc-select-mode.log)
+       <repo>/firmware/src/app/smc_mixer.c:1567:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+        1567 |     int strip = note < 32u ? (note & 7u) : -1;
+             |                                            ^~
+       tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+       tests/host/../../host/../firmware/src/app/ui.c:1032:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+        1032 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+             |                       ~~^~~~~~~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:1033:5: note: here
+        1033 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+             |     ^~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3168:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3168 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       FAIL tests/host/smc_select_mode_test.c:92: smc.fx_effect[SMCFX_303B] == SMCFX_LP
+  ok   smc-fx
+  ok   smc-mixer-edges
+  FAIL smc-action-source (see build/host/smc-action-source.log)
+       <repo>/build/host/smc-action-source/test.c:137:61: error: ‘smc_state_t’ has no member named ‘fx_home_used’
+         137 |             smc_fx_bus_now(note) >= 0 && (note != 6u || !smc.fx_home_used);
+             |                                                             ^
+       <repo>/build/host/smc-action-source/test.c:138:12: error: ‘smc_state_t’ has no member named ‘fx_nav_armed’
+         138 |         smc.fx_nav_armed &= (uint8_t)~bit;
+             |            ^
+       <repo>/build/host/smc-action-source/test.c:148:9: error: ‘smc_fx_tap_nav_once’ undeclared (first use in this function)
+         148 |         smc_fx_tap_nav_once = 1;
+             |         ^~~~~~~~~~~~~~~~~~~
+       Traceback (most recent call last):
+         File "<repo>/tests/host/smc_action_source_test.py", line 49, in <module>
+           subprocess.run(cmd, check=True, cwd=ROOT)
+         File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-pedantic', '-I<repo>/firmware/src', '<repo>/build/host/smc-action-source/test.c', '-o', '<repo>/build/host/smc-action-source/test']' returned non-zero exit status 1.
+  ok   smc-fx-caption
+  ok   smc-fx-page-port
+  ok   smc-fx-two-page-strip
+  ok   smc-fx-peer-view
+  FAIL smc-fx-preset-preserve (see build/host/smc-fx-preset-preserve.log)
+       <repo>/build/host/iso/smc-fx-preset-preserve/tmp/smc-fx-presets-vqoe8xfx/production.c: In function ‘smc_fx_bus’:
+       <repo>/build/host/iso/smc-fx-preset-preserve/tmp/smc-fx-presets-vqoe8xfx/production.c:32:73: error: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Werror=sign-compare]
+          32 | static int smc_fx_bus(uint8_t note) { return note < 32u ? (note & 7u) : -1; }
+             |                                                                         ^~
+       cc1: all warnings being treated as errors
+       Traceback (most recent call last):
+         File "<repo>/tests/host/smc_fx_preset_preserve_test.py", line 352, in <module>
+           main()
+         File "<repo>/tests/host/smc_fx_preset_preserve_test.py", line 347, in main
+           subprocess.run(args, cwd=ROOT, check=True)
+         File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', '-Ifirmware/src', '<repo>/build/host/iso/smc-fx-preset-preserve/tmp/smc-fx-presets-vqoe8xfx/production.c', 'firmware/src/app/smc_fx_map_tables.c', '-o', '<repo>/build/host/iso/smc-fx-preset-preserve/tmp/smc-fx-presets-vqoe8xfx/production']' returned non-zero exit status 1.
+  FAIL smc-queue (see build/host/smc-queue.log)
+       <repo>/build/host/iso/smc-queue/tmp/smc-queue-e_ceos3p/test.c:205:5: error: unknown type name ‘smcfx_strip_t’
+         205 |     smcfx_strip_t fx_strip; /* Independent two-page physical button mappings and hold ownership. */
+             |     ^~~~~~~~~~~~~
+       Traceback (most recent call last):
+         File "<repo>/tests/host/smc_queue_test.py", line 225, in <module>
+           subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-g",
+         File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O2', '-g', '-Wall', '-Wextra', '-Werror', '-I<repo>/firmware/src', '-I<repo>/tests/host', '<repo>/build/host/iso/smc-queue/tmp/smc-queue-e_ceos3p/test.c', '-o', '<repo>/build/host/iso/smc-queue/tmp/smc-queue-e_ceos3p/test']' returned non-zero exit status 1.
+  FAIL smc-solo-overflow (see build/host/smc-solo-overflow.log)
+         421 |             (uint32_t)(plat_ms() - smc.fx_nav_t0[nav]) < SMC_FX_HOLD_MS &&
+             |                                                          ^~~~~~~~~~~~~~
+       <repo>/build/host/iso/smc-solo-overflow/tmp/smc-r10-combined-30inf1b_/test.c:421:58: note: each undeclared identifier is reported only once for each function it appears in
+       <repo>/build/host/iso/smc-solo-overflow/tmp/smc-r10-combined-30inf1b_/test.c:433:9: error: ‘smc_fx_tap_nav_once’ undeclared (first use in this function)
+         433 |         smc_fx_tap_nav_once = 1;
+             |         ^~~~~~~~~~~~~~~~~~~
+       <repo>/build/host/iso/smc-solo-overflow/tmp/smc-r10-combined-30inf1b_/test.c:434:9: error: implicit declaration of function ‘smc_button_apply’ [-Wimplicit-function-declaration]
+         434 |         smc_button_apply(note, 0); /* replay existing navigation handler only */
+             |         ^~~~~~~~~~~~~~~~
+       Traceback (most recent call last):
+         File "<repo>/tests/host/smc_solo_overflow_test.py", line 218, in <module>
+           subprocess.run(command,check=True)
+         File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['gcc', '-std=c99', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-I<repo>/firmware/src', '-I<repo>/tests/host', '<repo>/build/host/iso/smc-solo-overflow/tmp/smc-r10-combined-30inf1b_/test.c', '-o', '<repo>/build/host/iso/smc-solo-overflow/tmp/smc-r10-combined-30inf1b_/test']' returned non-zero exit status 1.
+  ok   engine-cq-rec-overflow
+  ok   engine-cq-isr-preemption
+  ok   engine-cq-boff-overflow
+  ok   engine-cq-brk-overflow
+  ok   engine-cq-bon-overflow
+  ok   engine-cq-drum-overflow
+  FAIL engine-808-scratch-alias (see build/host/engine-808-scratch-alias.log)
+       fatal: invalid object name 'origin/build/0.0.22'.
+  ok   midi-mq-noteoff-overflow
+  ok   midi-mq-rt-overflow
+  ok   midi-overflow-order
+  ok   midi-out-mq-noteoff-overflow
+  ok   ble-out-noteoff-overflow
+  ok   ble-out-rt-overflow
+  ok   usb-sxq-sticky-apc
+  ok   smc-host-data7
+  ok   smc-host-overflow-data7
+  ok   smc-sender-isolation
+  ok   ble-ctl-fail-return
+  ok   smc-ble-payload
+  FAIL smc-link (see build/host/smc-link.log)
+       <repo>/build/host/iso/smc-link/tmp/smc-link-h234t72e/test.c:205:5: error: unknown type name ‘smcfx_strip_t’
+         205 |     smcfx_strip_t fx_strip; /* Independent two-page physical button mappings and hold ownership. */
+             |     ^~~~~~~~~~~~~
+       Traceback (most recent call last):
+         File "<repo>/tests/host/smc_link_test.py", line 188, in <module>
+           subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-g",
+         File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O2', '-g', '-Wall', '-Wextra', '-Werror', '-DLINK_GENERATION', '-I<repo>/firmware/src', '-I<repo>/tests/host', '<repo>/build/host/iso/smc-link/tmp/smc-link-h234t72e/test.c', '-o', '<repo>/build/host/iso/smc-link/tmp/smc-link-h234t72e/test']' returned non-zero exit status 1.
+  FAIL smc-reconnect-epoch (see build/host/smc-reconnect-epoch.log)
+       /tmp/smc-link-epoch-76t_enw9/test.c:216:5: error: unknown type name ‘smcfx_strip_t’
+         216 |     smcfx_strip_t fx_strip; /* Independent two-page physical button mappings and hold ownership. */
+             |     ^~~~~~~~~~~~~
+       Traceback (most recent call last):
+         File "<repo>/tests/host/smc_ble_reconnect_epoch_test.py", line 190, in <module>
+           subprocess.run(args, check=True)
+         File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['gcc', '-std=c99', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-I<repo>/firmware/src', '-I<repo>/tests/host', '/tmp/smc-link-epoch-76t_enw9/test.c', '-o', '/tmp/smc-link-epoch-76t_enw9/test']' returned non-zero exit status 1.
+  FAIL smc-boot-saved-roles (see build/host/smc-boot-saved-roles.log)
+       Traceback (most recent call last):
+         File "<repo>/tests/host/test_smc_boot_saved_roles.py", line 44, in <module>
+           default_bt = unique(r'^\s*pr->set\.bt\s*=\s*\(uint8_t\)\([^\n]*\);', PROJECT, 'production default Bluetooth assignment').group(0)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "<repo>/tests/host/test_smc_boot_saved_roles.py", line 23, in unique
+           assert len(matches) == 1, f'{label}: expected once, found {len(matches)}'
+                  ^^^^^^^^^^^^^^^^^
+       AssertionError: production default Bluetooth assignment: expected once, found 0
+  ok   ble-central-first-notification
+  ok   ble-active-peer-contract
+  ok   ble-smc-outbound-slots
+  ok   ble-one-peer-command
+  ok   ble-single-peer-status
+  ok   ble-dual-peer
+  ok   ble-command-credit
+  ok   ble-controller-heap
+  ok   ble-midi-receive
+  ok   ble-capture-replay
+  ok   ble-acl-start-flags
+  ok   ble-hci-completed
+  ok   ble-acl-zero-credit
+  ok   ble-zero-conn
+  ok   ble-link-epoch-reset
+  ok   ble-disconnect-status
+  ok   smc-reachability
+  ok   smc-pickup-acceptance
+  FAIL smc-lock (see build/host/smc-lock.log)
+             |                                      ^~~~~~~~~~~~~~
+       FAIL tests/host/smc_lock_test.c:347: ui_project_begin() == 0
+       PASS plain unlock: key-up after 900 ms or lock_tick; early key-up stays locked
+       PASS dropped Pause press: no phantom capture; following release is inert and next gesture captures
+       PASS dropped release recovery: Pause, Play and SELECT rearm after full BLE and host queues
+       PASS Select/Play: first select, same-part drum mixer, same-sound return, held edges, frozen lock and Play toggle
+       PASS lock drum identity: both kits/banks, empty strips, frozen edits/mute/Solo, live navigation
+       PASS engine/clip boundaries: original part target survives navigation; unlocked clip fields resume
+       PASS pattern identity: GEN, BRK and bass sequence fields stay on captured pattern slots
+       PASS song identity: captured bar, parked cursor and trimmed-bar invalidation
+       PASS Solo boundaries: bank-one Solo6–8 remain valid; key-up clears original bank before/after lock
+       PASS edge/global scope: held duplicates, release/reconnect, captured-part pattern cues, current-part global REC
+       PASS pickup/display: invalidated transitions, frozen edit, remote edit invalidation, exact 1200ms return
+       PASS captured Pause dispatch: duplicate/release edges, no navigation/overlay, channel isolation, MMC stop, Play toggle, lock persistence and LED route
+       PASS lock knob banks: BANK arrows and drum 1-8/9-16 retarget in the locked context
+  ok   smc-lock-beat
+  FAIL smc-multi-peer (see build/host/smc-multi-peer.log)
+         153 |             smc_inputs[peer].qw=smc_inputs[peer].qr=(uint8_t)start;
+             |                                 ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+       tests/host/smc_multi_peer_test.c:152:33: note: within this loop
+         152 |         for(unsigned peer=0;peer<2;peer++) {
+             |                             ~~~~^~
+       In function ‘independent_feedback’,
+           inlined from ‘main’ at tests/host/smc_multi_peer_test.c:176:53:
+       tests/host/smc_multi_peer_test.c:113:5: warning: ‘memset’ offset 934 is out of the bounds [0, 736] of object ‘smc_states’ with type ‘smc_state_t[1]’ [-Warray-bounds=]
+         113 |     memset(smc_states[1].known,0,sizeof smc_states[1].known);
+             |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       <repo>/firmware/src/app/smc_mixer.c: In function ‘main’:
+       <repo>/firmware/src/app/smc_mixer.c:242:20: note: ‘smc_states’ declared here
+         242 | static smc_state_t smc_states[SMC_PEERS];
+             |                    ^~~~~~~~~~
+       FAIL tests/host/smc_multi_peer_test.c:40: smc_states[0].up && smc_states[1].up
+  FAIL ui-peer-names (see build/host/ui-peer-names.log)
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       <command-line>: warning: "X0X_DEV_WOBBLE" redefined
+       <command-line>: note: this is the location of the previous definition
+       FAIL tests/host/ui_peer_names_test.c:15: name_row
+  ok   ble-device-setting-flow
+  ok   ble-toggle-persistence-gate
+  ok   smc-multi-peer-negative
+  ok   smc-pause-loss
+  ok   smk-wheel-mode
+  ok   miami-table-interpolation
+  ok   legacy-303-project
+  ok   smc-interaction-negative
+  ok   corner-coverage
+  ok   part-order
+  FAIL smc-ui (see build/host/smc-ui.log)
+       tests/host/../../host/../firmware/src/app/ui.c:1032:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+        1032 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+             |                       ~~^~~~~~~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:1033:5: note: here
+        1033 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+             |     ^~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3168:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3168 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       FAIL tests/host/smc_ui_test.c:524: fb[(MAIN_Y + 98) * 240 + n * 30 + 18] == swap16(C_BLACK)
+       PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
+       PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+       PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+       PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+  ok   smc-ui-popup
+  ok   smc-mode-page
+  ok   smc-mixer-page
+  ok   ui-shared-glyph
+  ok   ui-drum-mix-material
+  ok   ui-waveform-truth
+  ok   smc-ui-bounds
+  ok   smc-ui-negative
+  ok   smc-mapping
+  ok   smc-drum-mutes
+  ok   smc-drum-rs
+  ok   smc-performance-abort
+  ok   smc-filter
+  ok   smc-feedback
+  ok   smc-record-feedback
+  ok   smc-part-select
+  FAIL smc-clip-visibility (see build/host/smc-clip-visibility.log)
+       In file included from tests/host/smc_clip_visibility_test.c:64:
+       <repo>/build/host/iso/smc-clip-visibility/tmp/tmp.keHkIFs7pX/smc_input.inc:177:5: error: unknown type name ‘smcfx_strip_t’
+         177 |     smcfx_strip_t fx_strip; /* Independent two-page physical button mappings and hold ownership. */
+             |     ^~~~~~~~~~~~~
+  ok   drum-pan
+  ok   stereo
+  ok   master
+  ok   drum-kit-identity
+  ok   drum909-adpcm
+  not-run drum909 (../schwung-9W9/src/dsp/er99_engine.c)
+  not-run drum808 (../schwung-8W8/src/dsp/sc808_engine.cpp)
+  ok   breaks
+  ok   break-suite-registration
+  ok   adaptive-break-dsp
+  ok   adaptive-break-controls
+  ok   adaptive-break-storage
+  ok   adaptive-break-midi-pair
+  ok   break-performance
+  ok   brk-loops-seamless
+  ok   brk-outline
+  ok   brk-outline-gate
+  ok   chicago-fx-bridge
+  ok   au-compare-align
+  ok   au-compare-battery
+  ok   install-gate-guard
+  ok   queue-guard
+  ok   install-guards
+  ok   install-head
+  ok   release-tree
+  ok   prepush-trim
+  ok   prepush-allow
+  ok   gate-configs
+  ok   gate-trap
+  ok   quickcheck-plan
+  ok   host-failure-summary
+  ok   ctl-compile
+  ok   host-setup
+  ok   gen-nonfont-tables
+  ok   stereo-alone-gen
+  ok   runner-admission
+  ok   update-names
+  ok   gate-reason
+  ok   validation-inputs
+  ok   stage-handoff
+  ok   dev-validate
+  ok   dev-validate-composed
+  ok   nightly-publish
+  ok   gen-cache
+  ok   smk-update-contract
+  ok   gen-order
+  ok   quickcheck-devbug
+  ok   status-lanes
+  ok   status-isolation
+  ok   loop-bars
+  ok   installer
+  ok   installer-f02-bind
+  ok   installer-f02-bind-web
+  ok   ota-request-guards-web
+  ok   installer-six-stage-web
+  ok   locked-settings
+  ok   smk-flash
+  ok   smk-storage
+  ok   smk-apc40-map
+  ok   smk-apc40
+  ok   smk-clip-ble-clear
+  ok   smk-clip-keys
+  ok   smk-chord-recognize
+  ok   smk-clip-chord-display
+  ok   smk-ck-page-layout
+  ok   smk-arrows
+  ok   smk-arrows-owner
+  ok   apc40-tables
+  ok   smk-clip-idle
+  ok   smk-clip-idle-pad
+  ok   apc40-pad-owner
+  ok   smk-padcal
+  ok   padcal-view
+  ok   smk-padcal-export
+  ok   smk-padcal-wiring
+  ok   pad-placement-doc
+  ok   padcal-flag
+  ok   apc40-lcd565-csv
+  ok   apc-palette
+  ok   installer-targets
+  ok   diag-size
+  ok   smk-inlog
+  ok   ble-central-diag
+  ok   ble-role-switch
+  ok   inlog-tool
+  ok   smk-pad-inputs
+  ok   smk-clip-ble-notify
+  ok   smk-clip-dark
+  ok   smk-clip-usb-clear
+  ok   smk-clip-isolation
+  ok   smk-clip-knob
+  ok   smk-fader-pickup
+  ok   smk-clip-wait
+  ok   smk-apc40-violet
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   smk-build-package
+  ok   smk-build-package-elite
+  ok   ble-sysex-bounds
+  ok   ble
+  ok   ble-package
+  ok   upload-images
+  ok   upload-tools
+  FAIL builtin-break-output (see build/host/builtin-break-output.log)
+       F......
+       ======================================================================
+       FAIL: test_current_factory_set_is_preserved (__main__.BuiltinBreakOutput.test_current_factory_set_is_preserved)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "<repo>/tests/host/test_builtin_break_output.py", line 66, in test_current_factory_set_is_preserved
+           self.assertIn(name, (ROOT / "web/factory_break_pack.js").read_text().splitlines()[1])
+       AssertionError: '909 GR' not found in '// Designated stock loops, full IMA ADPCM. Generated by tools/break_pack.py.'
+
+       ----------------------------------------------------------------------
+       Ran 7 tests in 5.917s
+
+       FAILED (failures=1)
+  ok   break-pack
+  ok   break-pack-web
+  ok   breaks-web
+  ok   breaks-page
+  ok   project-adoption-identities
+  ok   projects-web
+  ok   installer-project-handoff
+  ok   projects-page
+  ok   installer-backup-selection
+  ok   slot-build-safe
+  ok   wav-import-integrity
+  ok   slot-backup
+  ok   slot-begin-cancel
+  ok   smp-begin-cancel
+  ok   slot-backup-durable
+  ok   slot-archive-zone
+  ok   slot-verify-order
+  ok   slot-read-reply
+  ok   slot-ack-integrity
+  ok   slot-echo-7bit
+  ok   slot-migration-matching
+  ok   slot-break-menu-migration
+  ok   installer-slots
+  ok   installer-restore-status
+  ok   installer-ota-finish-ack
+  ok   installer-backup-snapshot
+  ok   installer-ctl
+  ok   ctl-read-framing
+  ok   ctl-publish-atomic
+  ok   rec-held-duration
+  ok   original-stale-release
+  ok   rec-endpoint-lifecycle
+  ok   rec-endpoint-storage
+  ok   rec-nonforward-guard
+  ok   rec-live-smk
+  ok   ext-midi-rec-smk
+  ok   copy-semantics
+  ok   song-actions
+  ok   ui-feedback
+  ok   remaining-feature-proof-selftest
+  ok   home-pattern-glyph
+  ok   home-overview
+  FAIL sound-matrix (see build/host/sound-matrix.log)
+             |                                     ^~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:6631:13: note: declared here
+        6631 | static void adsr_values(ui_adsr_t *e,int p)
+             |             ^~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+       tests/host/../../host/../firmware/src/app/ui.c:1032:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+        1032 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+             |                       ~~^~~~~~~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:1033:5: note: here
+        1033 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+             |     ^~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3168:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3168 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+  ok   sound-layout
+  ok   perf-wheel-motion
+  ok   perf-wheel-noise
+  FAIL chicago-presentation (see build/host/chicago-presentation.log)
+             |                                      ^
+       tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+       tests/host/../../host/../firmware/src/app/ui.c:1032:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+        1032 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+             |                       ~~^~~~~~~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:1033:5: note: here
+        1033 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+             |     ^~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3168:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3168 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       FAIL 202: engine_bass_preset_pending(0)
+       PASS current native pages/pixels: both engines/voices, 360 ARP states, seven admitted effects, sparse cells and readout immutability
+       PASS physical PATCH both voices/engine directions: note/wheel/CQ/MIDI and apply race
+  ok   chicago-readout
+  ok   ui-drum-glyph
+  FAIL ui-glyph-polish (see build/host/ui-glyph-polish.log)
+             |                                ^~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:6721:21: note: declared here
+        6721 | static UI_DRAW void draw_adsr_inline(int p,int active,int y,int h,int off)
+             |                     ^~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c: In function ‘unit_value’:
+       tests/host/../../host/../firmware/src/app/ui.c:1032:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+        1032 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+             |                       ~~^~~~~~~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:1033:5: note: here
+        1033 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+             |     ^~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3168:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3168 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+  ok   ui-chicago-env-motion
+  ok   matrix-knob-caption
+  ok   preset-navigation-noop
+  ok   ui-303-entry
+  ok   scenario-arrows
+  ok   scenario-autosave
+  ok   scenario-bleclock
+  ok   scenario-blenotes
+  ok   scenario-brkslice
+  ok   scenario-brkslice_mode_toggle
+  ok   scenario-brkslice_trs_overlap
+  ok   scenario-clip-arrow-menu
+  ok   scenario-clklock
+  ok   scenario-clkmove
+  ok   scenario-clocksrc
+  ok   scenario-drum_bass_ch_consume
+  ok   scenario-edit_midi_rec_guard
+  ok   scenario-edit_oct_no_hidden
+  ok   scenario-extclock
+  ok   scenario-freeplay
+  ok   scenario-getting_started
+  ok   scenario-groove
+  ok   scenario-guard
+  ok   scenario-help
+  ok   scenario-jam
+  ok   scenario-keysound
+  ok   scenario-knobs
+  ok   scenario-midiowner
+  ok   scenario-migrate
+  ok   scenario-migrate0102
+  ok   scenario-patterns
+  ok   scenario-perf
+  ok   scenario-perfsave
+  FAIL scenario-plock (see build/host/scenario-plock.log)
+         ok hit0.0.0 == 0
+         ok hit0.0.0 == 1
+         ok playhead0 == 5
+         ok motion0.0.0 == 54
+         ok playhead0 == 6
+         ok motion0.0.0 == -1
+         ok sound0.0.0 == 34
+         ok lanes == 0
+         ok hit0.0.4 == 1
+         ok lanes == 0
+         ok part == 2
+         ok laneval2.0.1.2 == 95
+         ok sound2.0.1 == 115
+       FAIL expect lanes == 1, got 2
+       host: 4711 ms simulated, 300 blits, render 0.8% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-prob
+  ok   scenario-probcond
+  ok   scenario-probreset
+  ok   scenario-roll_continuation
+  ok   scenario-roll_short_tie
+  ok   scenario-savefeedback
+  ok   scenario-savewait
+  ok   scenario-showcase
+  ok   scenario-slices
+  ok   scenario-song
+  ok   scenario-song_live_mute_save
+  ok   scenario-songrep
+  ok   scenario-sound_matrix_chicago
+  ok   scenario-sound_matrix_chicago_idle
+  ok   scenario-sound_matrix_drum
+  ok   scenario-sound_matrix_lock
+  ok   scenario-sound_matrix_miami
+  ok   scenario-sound_page_split
+  ok   scenario-step303
+  ok   scenario-steps64
+  ok   scenario-stereo
+  ok   scenario-tb3po
+  ok   scenario-tour
+  ok   scenario-trackmute
+  ok   scenario-undo
+  ok   scenario-upload
+  ok   scenario-upload44
+  ok   scenario-usbnotes
+  ok   perf-scratch
+TESTS FAILED

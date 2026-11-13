@@ -1,0 +1,2 @@
+stop at deadline: now=3100 deadline=3100 accepted=1 state=1 conn=80
+Assertion failed: (!sent), function main, file stop-deadline.c, line 19.

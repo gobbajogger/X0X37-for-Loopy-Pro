@@ -1,0 +1,316 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "a1fb92ea42c23821a29409eda41bf73a88a3254dcff35e9974db814f6e116209",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "f27c89e1ac8e11ab57c5ae7e49145ce19b964082bf3ca9a700a99bfa8a97091e",
+      "configuration": {
+        "model": "pro",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "af4947846df7233c68a6be72c4d0c634052a2752",
+          "scope": "F11 BF-007 legacy BD PAN motion migration only (firmware/src/app/project.c blob 240a4b1735166dfb990b52c26686c7ea5ad4317e + tests/host/bugfinder_legacy_bdpan_motion_test.c + legacy-bdpan-motion in tests/run_tests.sh + docs/audit/bugfinder-legacy-bdpan-motion-20261023.md; implement commit 78a0452e; tested implement tip 4f96b0d9). Firmware tree changed vs audited tip af494784 / content tree 1da3bbfb\u2026 (firmware tree bcc21733\u2026 \u2192 5b1a21f0\u2026). Stage 3 ALL_PASS for required BF-007 host regressions (legacy-bdpan-motion 171/171; X0X_TESTS=\"legacy-bdpan-motion project-stage project-protocol project-runtime\" exit 0; sound_bd_sends static PAN post-OBJ_SOUND; sound_bd_sends_lanes after stream/arrange). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-007-affected host checks. A host pass is not a package pass. Do not reopen BF-001\u2013BF-006 or FP-001. Do not implement deferred items.",
+          "checks": [
+            {
+              "reason": "BF-007 host regressions: legacy-bdpan-motion, project-stage, project-protocol, project-runtime must PASS.",
+              "argv": [
+                "bash",
+                "/workspace/evidence/f11-stage4/check-bf007-host.sh"
+              ]
+            },
+            {
+              "reason": "BF-007 project.c must keep static vs lane BD PAN migration order (blob 240a4b17\u2026).",
+              "argv": [
+                "bash",
+                "/workspace/evidence/f11-stage4/check-bdpan-migration.sh"
+              ]
+            }
+          ],
+          "dependencies": [
+            "/workspace/evidence/f11-stage4/check-bf007-host.sh",
+            "/workspace/evidence/f11-stage4/check-bdpan-migration.sh"
+          ]
+        },
+        "dependencies": [
+          "/workspace/evidence/f11-stage4/check-bf007-host.sh",
+          "/workspace/evidence/f11-stage4/check-bdpan-migration.sh"
+        ]
+      },
+      "environment": {
+        "CXX": "c++",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1",
+        "CC": "cc",
+        "MODEL": "pro",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.12.94+"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "88771086fc5daeae12b9fe56617eed458f83c3e5a12d3f3825361d5ddc493b9d",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "0c618c6238d871609647467e8f4a1026a7d927cf57ce0ad118978edc09d24eca",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+          "executable": true
+        },
+        "git": {
+          "sha256": "eb54b535467e0975c1284d4c4d08eea779aeb248a5d34b02e2ee171382e22201",
+          "executable": true
+        },
+        "make": {
+          "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+          "executable": true
+        },
+        "node": {
+          "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "6452af2eea333b8c65e1adb92964fc8f97863ab003fa13f9d12bff5345cd7dbe",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "9276e918e3c26d3aa7ef9dd2232cd8ac692f03d3c1f270bfa5144a2b5492b713",
+          "executable": true
+        },
+        "python": {
+          "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": {
+          "version": "1.26.4",
+          "sha256": "7dd34308cae1f97de5c2648c01086aa1e3d0b248880adf91a114d868237953f8"
+        },
+        "pillow": {
+          "version": "13.0.0",
+          "sha256": "232fc8e16099bee7e0e7755ccdd70edfff3869685d5aafcf305aa55274b168da"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        },
+        "/workspace/evidence/f11-stage4/check-bf007-host.sh": {
+          "sha256": "ebca6fb1e0ee035d98930ba157ade3599554575910df83aa44bc19ee25f367a0",
+          "executable": true
+        },
+        "/workspace/evidence/f11-stage4/check-bdpan-migration.sh": {
+          "sha256": "d9ee6f4f1c3e8510f8e6e5299907d6a267cf8358d6eba23214e5f8b3804e95a5",
+          "executable": true
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "pro",
+  "commit": "4f96b0d9f5f11f700ea3fc935800b8714e11f35d",
+  "tree": "f27c89e1ac8e11ab57c5ae7e49145ce19b964082bf3ca9a700a99bfa8a97091e",
+  "plan": {
+    "base": "af4947846df7233c68a6be72c4d0c634052a2752",
+    "scope": "F11 BF-007 legacy BD PAN motion migration only (firmware/src/app/project.c blob 240a4b1735166dfb990b52c26686c7ea5ad4317e + tests/host/bugfinder_legacy_bdpan_motion_test.c + legacy-bdpan-motion in tests/run_tests.sh + docs/audit/bugfinder-legacy-bdpan-motion-20261023.md; implement commit 78a0452e; tested implement tip 4f96b0d9). Firmware tree changed vs audited tip af494784 / content tree 1da3bbfb\u2026 (firmware tree bcc21733\u2026 \u2192 5b1a21f0\u2026). Stage 3 ALL_PASS for required BF-007 host regressions (legacy-bdpan-motion 171/171; X0X_TESTS=\"legacy-bdpan-motion project-stage project-protocol project-runtime\" exit 0; sound_bd_sends static PAN post-OBJ_SOUND; sound_bd_sends_lanes after stream/arrange). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-007-affected host checks. A host pass is not a package pass. Do not reopen BF-001\u2013BF-006 or FP-001. Do not implement deferred items.",
+    "checks": [
+      {
+        "reason": "BF-007 host regressions: legacy-bdpan-motion, project-stage, project-protocol, project-runtime must PASS.",
+        "argv": [
+          "bash",
+          "/workspace/evidence/f11-stage4/check-bf007-host.sh"
+        ]
+      },
+      {
+        "reason": "BF-007 project.c must keep static vs lane BD PAN migration order (blob 240a4b17\u2026).",
+        "argv": [
+          "bash",
+          "/workspace/evidence/f11-stage4/check-bdpan-migration.sh"
+        ]
+      }
+    ],
+    "dependencies": [
+      "/workspace/evidence/f11-stage4/check-bf007-host.sh",
+      "/workspace/evidence/f11-stage4/check-bdpan-migration.sh"
+    ]
+  },
+  "changed_files": [
+    "docs/audit/bugfinder-legacy-bdpan-motion-20261023.md",
+    "evidence/f10-stage3/CHECKS.md",
+    "evidence/f10-stage3/HANDOFF.md",
+    "evidence/f10-stage3/SUCCESSOR-STAGE4.txt",
+    "evidence/f10-stage3/api-create-stage4-attempt1.json",
+    "evidence/f10-stage3/api-create-stage4-attempt2.json",
+    "evidence/f10-stage3/api-create-stage4-note.txt",
+    "evidence/f10-stage3/bf006-ubsan-compile.log",
+    "evidence/f10-stage3/bf006-ubsan.log",
+    "evidence/f10-stage3/d8-exp2-cr-review.txt",
+    "evidence/f10-stage3/gen-drum-samples.log",
+    "evidence/f10-stage3/host-unit.log",
+    "evidence/f10-stage3/test-run-summary.json",
+    "evidence/f10-stage4/CHECKS.md",
+    "evidence/f10-stage4/HANDOFF.md",
+    "evidence/f10-stage4/SUCCESSOR-STAGE5.txt",
+    "evidence/f10-stage4/api-create-stage5-attempt1.json",
+    "evidence/f10-stage4/api-create-stage5-attempt2.json",
+    "evidence/f10-stage4/api-create-stage5-note.txt",
+    "evidence/f10-stage4/check-bf006-host.sh",
+    "evidence/f10-stage4/check-d8-exp2-cr.sh",
+    "evidence/f10-stage4/dev-plan.json",
+    "evidence/f10-stage4/elite/build.log",
+    "evidence/f10-stage4/elite/check-0.log",
+    "evidence/f10-stage4/elite/check-1.log",
+    "evidence/f10-stage4/elite/controller.log",
+    "evidence/f10-stage4/elite/record.json",
+    "evidence/f10-stage4/pro/build.log",
+    "evidence/f10-stage4/pro/check-0.log",
+    "evidence/f10-stage4/pro/check-1.log",
+    "evidence/f10-stage4/pro/controller.log",
+    "evidence/f10-stage4/pro/record.json",
+    "evidence/f10-stage5/CHECKS.md",
+    "evidence/f10-stage5/HANDOFF.md",
+    "evidence/f10-stage5/SUCCESSOR-STAGE6.txt",
+    "evidence/f10-stage5/SUCCESSOR-STAGE7.txt",
+    "evidence/f10-stage5/api-create-stage7-attempt1.json",
+    "evidence/f10-stage5/api-create-stage7-attempt2.json",
+    "evidence/f10-stage5/gate-tree-check.log",
+    "evidence/f10-stage5/merge-pr253-direct.log",
+    "evidence/f10-stage5/merge-pr253-dry-run.log",
+    "evidence/f10-stage5/merge-pr253-result.json",
+    "evidence/f10-stage5/merge-pr253.log",
+    "evidence/f10-stage5/nightly-ff-refusal.log",
+    "evidence/f10-stage5/nightly-ff-summary.txt",
+    "evidence/f10-stage5/stage6-install-prompt.json",
+    "evidence/f10-stage7/CHECKS.md",
+    "evidence/f10-stage7/HANDOFF.md",
+    "evidence/f10-stage7/SUCCESSOR-STAGE1.txt",
+    "evidence/f10-stage7/SUCCESSOR-STAGE7-RETRY.txt",
+    "evidence/f10-stage7/api-create-stage1-attempt1.json",
+    "evidence/f10-stage7/api-create-stage1-attempt2.json",
+    "evidence/f10-stage7/catalog.json",
+    "evidence/f10-stage7/cloud-gh-pages-403.log",
+    "evidence/f10-stage7/cloud-gh-pages-push.log",
+    "evidence/f10-stage7/gh-pages-parent.txt",
+    "evidence/f10-stage7/gh-pages-prepared-commit.txt",
+    "evidence/f10-stage7/independent-qa-local-review.md",
+    "evidence/f10-stage7/live-verify.log",
+    "evidence/f10-stage7/nightly-npm-test.log",
+    "evidence/f10-stage7/package-manifest.txt",
+    "evidence/f10-stage7/prepare-candidate.log",
+    "evidence/f10-stage7/qualification.json",
+    "evidence/f10-stage7/safety-gates-byte-identity.md",
+    "evidence/f10-stage7/versions.prepared.json",
+    "evidence/f11-stage1/AUDIT.md",
+    "evidence/f11-stage1/CHECKS.md",
+    "evidence/f11-stage1/HANDOFF.md",
+    "evidence/f11-stage1/SUCCESSOR-STAGE2.txt",
+    "evidence/f11-stage1/api-create-stage2-attempt1.json",
+    "evidence/f11-stage1/api-create-stage2-attempt2.json",
+    "evidence/f11-stage1/bf007-definition.md",
+    "evidence/f11-stage1/bf007-scratch-clear.log",
+    "evidence/f11-stage1/bf007-witness.log",
+    "evidence/f11-stage1/bugfinder_legacy_bdpan_motion_test.c",
+    "evidence/f11-stage1/live-verify.log",
+    "evidence/f11-stage1/run_bugfinder_legacy_bdpan_motion.sh",
+    "evidence/f11-stage2/CHECKS.md",
+    "evidence/f11-stage2/DEFERRED.md",
+    "evidence/f11-stage2/HANDOFF.md",
+    "evidence/f11-stage2/SUCCESSOR-STAGE3.txt",
+    "evidence/f11-stage2/api-create-stage3-attempt1.json",
+    "evidence/f11-stage2/api-create-stage3-attempt2.json",
+    "evidence/f11-stage2/bf007-green.log",
+    "evidence/f11-stage2/bf007-red.log",
+    "evidence/f11-stage2/host-unit.log",
+    "evidence/f11-stage2/project-runtime.log",
+    "firmware/src/app/project.c",
+    "tests/host/bugfinder_legacy_bdpan_motion_test.c",
+    "tests/host/run_bugfinder_legacy_bdpan_motion.sh",
+    "tests/run_tests.sh"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 6612,
+    "ram_free": 492,
+    "pool_free": 8324
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "bash",
+        "/workspace/evidence/f11-stage4/check-bf007-host.sh"
+      ],
+      "returncode": 0,
+      "sha256": "6421ac7d9e11f4751c8dbbb40f969123c48916eacca94649f840553daae77827"
+    },
+    "check-1": {
+      "argv": [
+        "bash",
+        "/workspace/evidence/f11-stage4/check-bdpan-migration.sh"
+      ],
+      "returncode": 0,
+      "sha256": "b061c56bfaf62e5f360e331f3081dacd2de323f06937a6897a9b04ad4aac7e6e"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "c928dde08e118a7dc06c34c83ce97c8f7ba565dec86c42c5ced2e737c0ca1b11"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "f7e788ec909561f4619393174da8fcf862bdfc54a44dc1217b4e740b8f1f1a60"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37.fwsc",
+      "sha256": "d2186cb0f3fe74376651cb2804973c8255780532a8cd54c33d2bac09aeda60ec"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}

@@ -1,0 +1,3 @@
+Recovered transport before deadline: state=7 conn=80 attempts=2 accepted_disconnects=1
+Before deadline: state=7 conn=80 attempts=2 accepted_disconnects=1
+At deadline: state=8 conn=80 attempts=2 accepted_disconnects=1

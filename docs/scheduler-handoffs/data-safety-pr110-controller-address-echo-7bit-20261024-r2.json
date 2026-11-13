@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "data-safety-pr110-controller-address-echo-7bit-20261024-r2",
+  "role": "LoopyX0X37 Data Safety",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-ctl-read-framing-20261024-1456",
+  "pr": 110,
+  "stage": "SOURCE_COMPLETE_PRODUCER_SCOPED_HOST_CHECKED__INDEPENDENT_QA_RECHECK_PENDING",
+  "consumed": {
+    "own_head": "9e412020739ded51e0bfba4cabe32cd0fcd91a88",
+    "root_tree": "1095c120dc67e68262c0bde05a059ee226ea321e",
+    "firmware_subtree": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+    "installer_blob": "0e89d767697dafd02a12d0e9ce23d85097f0914e",
+    "test_blob": "e1179ad7e11411b248eec641741804003095a202",
+    "independent_QA_revision": "independent-qa-pr110-controller-header-7bit-alias-no-go-20261024-r1",
+    "independent_QA_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/110#pullrequestreview-5637036148",
+    "safe_merge_last_head": "32fc37fdaacbdd2e9791723ee0da9a22193cd947"
+  },
+  "fix": "Fail closed on any high-bit ED_CTL_READ echoed header byte before address OR. The prior source accepted aliases at 224 and 16576 while a full controller CRC matched.",
+  "changed_paths": [
+    "tools/fm1_install.py",
+    "tests/ctl_read_framing_test.py",
+    "docs/scheduler-handoffs/data-safety-pr110-controller-address-echo-7bit-20261024-r2.json"
+  ],
+  "newly_registered_tests": [
+    "test_reject_nonsevenbit_low_address_alias_second_frame",
+    "test_reject_nonsevenbit_middle_address_alias_high_offset",
+    "test_reject_nonsevenbit_high_address_byte",
+    "test_check_ctl_rejects_aliased_address_even_with_matching_crc"
+  ],
+  "host": {
+    "fidelity": "Exact read_ctl() old source-function window FNV1a32 5263d7fd verified against Git blob; surrounding module is reconstructed historical fixture, not actual complete-root checkout",
+    "commands": [
+      {
+        "argv": "python3 -B pr110_policy_gate.py before",
+        "exit": 1,
+        "total": 5,
+        "expected_policy_failures": 3,
+        "log": "host-fail-before.log"
+      },
+      {
+        "argv": "python3 -B pr110_policy_gate.py after",
+        "exit": 0,
+        "total": 5,
+        "passed": 5,
+        "log": "host-pass-after.log"
+      },
+      {
+        "argv": "python3 -O -B pr110_policy_gate.py after",
+        "exit": 0,
+        "total": 5,
+        "passed": 5,
+        "log": "host-pass-optimized.log"
+      },
+      {
+        "argv": "python3 -B pr110_controller_echo_negative.py",
+        "exit": 0,
+        "total": 11,
+        "passed": 11,
+        "log": "host-normal.log"
+      },
+      {
+        "argv": "python3 -O -B pr110_controller_echo_negative.py",
+        "exit": 0,
+        "total": 11,
+        "passed": 11,
+        "log": "host-optimized.log"
+      },
+      {
+        "argv": "python3 -m py_compile pr110_controller_echo_negative.py",
+        "exit": 0
+      }
+    ],
+    "private_main_library_artifact": {
+      "path": "/LoopyX0X37-DataSafety-ControllerEcho-PR110-20261024.zip",
+      "library_file_id": "libfile_242f02888b148191a0b2e5a6ccc390b7",
+      "size": 7880,
+      "sha256": "439c7568adff127ec5d10d04f0527c9c17f2d6a2b7e5ab7d9f33cdc032916378",
+      "library_readback_cmp_exit": 0,
+      "zip_test_exit": 0
+    }
+  },
+  "not_run": [
+    "full current ROOT tests/run_tests.sh",
+    "updated in-repo test directly against complete checkout",
+    "pinned model builds",
+    "physical controller/backup/restore/OTA",
+    "independent QA",
+    "public distribution/license check",
+    "HTTP installer acceptance"
+  ],
+  "permissions": "BUILD_ONLY Elite/Pro/ctl may compile exact unreviewed source or reuse proven identical compiler inputs independently; review is separate from BUILD; not publicly installable",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Fetch new exact PR110 head; independently run entire applicable installer/samples/backup/OTA negative suite and re-evaluate 7-bit alias",
+      "gate": "independent QA"
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "After suitable QA evidence reconcile reviewed data-safety source into own PR103 combined tree",
+      "gate": "combined integration review and nightly protected PR"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "BUILD_ONLY compile exact source or independently reuse unchanged verified compiler inputs",
+      "gate": "real Elite/Pro/controller outputs"
+    },
+    {
+      "owner": "Catalog Sync/Pages Publisher",
+      "action": "No selectable nightly until full model,controller,backup,integrity,license,immutable HTTP qualification",
+      "gate": "public installability"
+    }
+  ],
+  "statuses": {
+    "build": "NOT_RUN_BY_DATA_SAFETY",
+    "qa": "PENDING",
+    "http": "NOT_VERIFIED",
+    "device": "UNKNOWN",
+    "public_nightly": "NO_INSTALLABLE_CERTIFICATION",
+    "main": "UNCHANGED"
+  }
+}
