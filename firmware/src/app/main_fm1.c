@@ -1094,17 +1094,38 @@ static void smk_wheels(void)
                         engine_bass_mod_param(cut_part), (int)want);
             engine_bass_mod(cut_part, (int)want);
             motion_touch(PR(R_ENG, T_303, cut_part, engine_bass_mod_param(cut_part)));
+#if BOARD_SMK37
+            ui_wheel_mod(1, cut_part, (int)want, 0, 0);
+#endif
             if (!mw)
                 cut_part = -1;
         }
+#if BOARD_SMK37
+        else
+            ui_wheel_mod(mw ? 3 : 0, 0, 0, 0, 0);
+#endif
         mw_now = (int16_t)mw;
     }
     /* External MIDI bend / CC1 on a part's channel record like the wheels. */
-    for (int v = 0; v < NBASS; ++v) {
-        int t = engine_bass_ext_touch(v);
-        if (t & 1) motion_touch(PR(R_ENG, T_303, v, engine_bass_is_wobble(v) ?
-                                   ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND));
-        if (t & 2) motion_touch(PR(R_ENG, T_303, v, engine_bass_mod_param(v)));
+    {
+        int wn = 0, wv0 = 0, wl0 = 0, wv1 = 0, wl1 = 0;
+        for (int v = 0; v < NBASS; ++v) {
+            int t = engine_bass_ext_touch(v);
+            if (t & 1) motion_touch(PR(R_ENG, T_303, v, engine_bass_is_wobble(v) ?
+                                       ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND));
+            if (t & 2) {
+                motion_touch(PR(R_ENG, T_303, v, engine_bass_mod_param(v)));
+#if BOARD_SMK37
+                if (wn == 0) { wv0 = v; wl0 = engine_bass_mod_ctl(v); }
+                else if (wn == 1) { wv1 = v; wl1 = engine_bass_mod_ctl(v); }
+                wn++;
+#endif
+            }
+        }
+#if BOARD_SMK37
+        if (wn)
+            ui_wheel_mod(wn > 2 ? 2 : wn, wv0, wl0, wv1, wl1);
+#endif
     }
 #if X0X_BASS_PRESET_PREVIEW
     engine_bass_wheel_owners((uint8_t)((bend_part >= 0 && bend_part < NBASS ? 1u << bend_part : 0u) |
@@ -2588,6 +2609,43 @@ static void fm1_main(void)
     }
 }
 
+#if DNBOX_PRESET_MEASURE_STAGE
+/* Measurement hook: one init-time reference so --gc-sections and LTO keep
+ * the selected codec stage. The keep[] pointers themselves are volatile
+ * (not the pointed-to type), so the address stores stay live. Not in ui.c,
+ * not in any audio callback, not in the main loop. Results are ignored. */
+#include "preset_record.h"
+__attribute__((used, noinline))
+static void preset_measure_touch(void)
+{
+    void *volatile keep[12];
+    unsigned n = 0;
+    keep[n++] = (void *)preset_record_load;
+#if DNBOX_PRESET_MEASURE_STAGE >= 2
+    keep[n++] = (void *)preset_record_decode;
+    keep[n++] = (void *)preset_record_verify_sample;
+    keep[n++] = (void *)preset_record_verify_samples;
+    keep[n++] = (void *)preset_record_import;
+    keep[n++] = (void *)preset_slot_find_empty;
+#endif
+#if DNBOX_PRESET_MEASURE_STAGE >= 3
+    keep[n++] = (void *)preset_record_encode;
+    keep[n++] = (void *)preset_commit_encode;
+    keep[n++] = (void *)preset_commit_decode;
+    keep[n++] = (void *)preset_commit_winner;
+    keep[n++] = (void *)preset_commit_previous;
+#endif
+#if DNBOX_PRESET_MEASURE_STAGE >= 4
+    keep[n++] = (void *)preset_record_export;
+#endif
+    {
+        void *volatile sink = keep[0];
+        (void)sink;
+        (void)n;
+    }
+}
+#endif
+
 void fm1_cstart(void)
 {
     uint32_t *s, *d, p3, src, wdt;
@@ -2633,6 +2691,9 @@ void fm1_cstart(void)
     fm1_boot.p3_rst = (uint8_t)p3;
     fm1_boot.rst_src = src;
     fm1_boot.wdt_con = (uint8_t)wdt;
+#if DNBOX_PRESET_MEASURE_STAGE
+    preset_measure_touch();             /* once at init; never on the audio path */
+#endif
     fm1_main();
     for (;;)
         ;

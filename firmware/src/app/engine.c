@@ -26,8 +26,20 @@
 /* time per stage of the render, in plat_cycles() units (the CPU's cycles, or the 24 MHz timer):
  * running totals (wrapping; the PERF screen takes differences) and the frames rendered. */
 volatile uint32_t eng_prof[ENG_PROF_N], eng_prof_frames;
+/* C0's join wait for C1. Included in last_us / LOAD. Not a PERF row (layout unchanged). */
+volatile uint32_t eng_prof_wait;
+/* C1 writes only this array; C0 reads and clears it after plat_cpu2_wait.
+ * They never increment the same word. */
+static volatile uint32_t eng_prof_c1[ENG_PROF_N];
 #define PROF_T(v) uint32_t v = plat_cycles()
 #define PROF_ADD(k, t0) (eng_prof[k] += plat_cycles() - (t0))
+#define PROF_ADD_CORE(core, k, t0) do { \
+    uint32_t _dt = plat_cycles() - (t0); \
+    if (!(core)) \
+        eng_prof[k] += _dt; \
+    else \
+        eng_prof_c1[k] += _dt; \
+} while (0)
 
 /* ---------------------------------------------------------------- state --- */
 seq_t seq;
@@ -1244,6 +1256,7 @@ void engine_bass_mod(int v, int val) { cq_put(C_MOD, (uint32_t)v, 0, (uint32_t)v
 int engine_bass_ext_touch(int v)                   /* UI: take the ext-MIDI bend/mod moves */
 { if ((unsigned)v >= NBASS) return 0; int t = ext_touch[v]; ext_touch[v] = 0; return t; }
 int engine_bass_mod_param(int v) { return (unsigned)v < NBASS ? mod_param(v) : -1; }
+int engine_bass_mod_ctl(int v) { return (unsigned)v < NBASS ? mod_ctl[v] : -1; }
 #ifdef X0X_HOST
 int engine_bass_perf(int v, int which, int live) /* host test: 0 bend, 1 damper, 2 mod; last applied or live */
 {
@@ -2345,7 +2358,7 @@ static int body_wait(int core)
     }
 }
 
-/* one job, render and mix; core 1: not timed by the cycle counter (core 0's) */
+/* one job, render and mix; each core times its own work (C1 into eng_prof_c1) */
 static int run_job(int j, int core)
 {
     uint32_t arg = eng_job_arg, n = arg & 0xFFu ? arg & 0xFFu : 256u, i;
@@ -2374,8 +2387,7 @@ static int run_job(int j, int core)
             scale_glide(dly, &mix_glide[PART_909][GL_VDLY], n);
             kit_sends(PART_909, mono, n);
         }
-        if (!core)
-            PROF_ADD(PR_909, p9);
+        PROF_ADD_CORE(core, PR_909, p9);
         eng_sync();
         eng_stage = 1;
     } else if (j == JB_808) {
@@ -2416,8 +2428,7 @@ static int run_job(int j, int core)
             return 0;
         wt = plat_ticks24() - w0;
         mix_808(left808, right808, n, solo_parts);
-        if (!core)
-            PROF_ADD(PR_808, p8);
+        PROF_ADD_CORE(core, PR_808, p8);
         eng_sync();
         eng_stage = 2;
     } else if (j == JB_A || j == JB_B) {
@@ -2443,8 +2454,7 @@ static int run_job(int j, int core)
         int status = original_runtime_render(&original_bass[bv], bv ? &original_workspace_b : &original_workspace,
                                              bb[bv], bb[1-bv], n);
         bass_adapt_post(bv, bb[bv], bb[1-bv], (unsigned)n);
-        if (!core)
-            PROF_ADD(2 + bv, pb);
+        PROF_ADD_CORE(core, 2 + bv, pb);
         bass_render_ok[bv] = (uint8_t)(status == ORIGINAL_RUNTIME_OK);   /* recorder: core 0, after */
         if (status == ORIGINAL_RUNTIME_OK) {
             /* One coherent request decision per sub-block. Once note ownership is
@@ -2534,8 +2544,7 @@ static int run_job(int j, int core)
             bfx_shape(PART_BRK, kbuf, 0, 0, 0, 1, (int)n);
         else
             active = 0;
-        if (!core)
-            PROF_ADD(PR_BRK, pk);
+        PROF_ADD_CORE(core, PR_BRK, pk);
     }
     if (active)
         job_cost(j, plat_ticks24() - tk - wt, n);
@@ -2657,6 +2666,36 @@ static uint32_t plan_pick(uint32_t n)
     return eng_plan & act & ok;
 }
 
+
+/* After plat_cpu2_wait: C1 is idle. C0 folds C1's private totals into eng_prof,
+ * or discards them when C1 failed (takeover will count the rerun on C0). */
+static void prof_c1_fold(int keep)
+{
+    unsigned i;
+    eng_sync();
+    for (i = 0; i < (unsigned)ENG_PROF_N; i++) {
+        uint32_t d = eng_prof_c1[i];
+        eng_prof_c1[i] = 0;
+        if (keep)
+            eng_prof[i] += d;
+    }
+}
+#ifdef X0X_HOST
+void engine_prof_c1_credit(unsigned k, uint32_t ticks)
+{
+    if (k < (unsigned)ENG_PROF_N)
+        eng_prof_c1[k] += ticks;
+}
+uint32_t engine_prof_c1_peek(unsigned k)
+{
+    return k < (unsigned)ENG_PROF_N ? eng_prof_c1[k] : 0u;
+}
+void engine_prof_c1_fold_now(int keep)
+{
+    prof_c1_fold(keep);
+}
+#endif
+
 /* post-mix tail on both cores. L and R cannot be split: the reverb's four combs
  * and the HP are shared (the right is those combs with alternate signs, then its
  * own allpasses); the delay is one line (PING feeds the loop from the right tap);
@@ -2676,8 +2715,12 @@ static void core2_fx(uint32_t arg)
         uint32_t m = n - off;
         if (m > cs)
             m = cs;
-        fxbus_process_st(&fx, dry_l + off, dry_r + off, rev + off, dly + off,
-                         ol + off, orr + off, (int)m);
+        {
+            PROF_T(px);
+            fxbus_process_st(&fx, dry_l + off, dry_r + off, rev + off, dly + off,
+                             ol + off, orr + off, (int)m);
+            eng_prof_c1[PR_FX] += plat_cycles() - px;  /* C1 only; C0 folds after the FX join */
+        }
         off += m;
         eng_sync();
         eng_fx_done = off;
@@ -2734,13 +2777,18 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
             (void)run_job(j, 0);
     if (eng_c1_mask) {
         uint32_t pt = plat_cycles();
+        int c1_fail = 0;
         if (!eng_c1_waited) {
             eng_c1_waited = 1;
-            if (plat_cpu2_wait())
+            if (plat_cpu2_wait()) {
                 eng_c1_waited = 2;
-        }
+                c1_fail = 1;
+            }
+        } else if (eng_c1_waited == 2)
+            c1_fail = 1;
+        eng_prof_wait += plat_cycles() - pt;          /* join only; takeover is job work */
+        prof_c1_fold(!c1_fail);                       /* C0 adds C1's private totals */
         c1_take_over(JB_N + 1u);                      /* failed, or the host: the rest here */
-        PROF_ADD(PR_808, pt);                         /* core 0's wait for core 1 (as before) */
     }
 #if X0X_DEBUG
     eng_dbg_wait += plat_ticks24() - w0;              /* now: core 0's whole job span */
@@ -2781,6 +2829,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         }
         (void)waited;
 #else
+        (void)first;
+        (void)pf;                                     /* first-chunk wall included the wait; C1 FX is folded below */
         eng_fx_ol = out_l;
         eng_fx_or = out_r;
         eng_fx_n = n;
@@ -2811,8 +2861,10 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
                     }
                     ready = eng_fx_done;
                     if (ready < n) {
+                        PROF_T(px);
                         fxbus_process_st(&fx, dry_l + ready, dry_r + ready, rev + ready, dly + ready,
                                          out_l + ready, out_r + ready, (int)(n - ready));
+                        PROF_ADD(PR_FX, px);
                         eng_sync();
                         eng_fx_done = n;
                         ready = n;
@@ -2820,7 +2872,6 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
                 } else
                     continue;
             }
-            if (first) { PROF_ADD(5, pf); first = 0; }
             bfx_flt_shape(out_l + done, out_r + done, (int)(ready - done));
             {
                 PROF_T(pt);
@@ -2831,6 +2882,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         }
         if (!waited)
             (void)plat_cpu2_wait();
+        prof_c1_fold(1);                              /* C1 FX work, after the FX join */
 #endif
         tape_after_fx();
         eng_master_done = 1;

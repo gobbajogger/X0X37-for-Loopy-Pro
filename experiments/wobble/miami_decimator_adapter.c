@@ -1,6 +1,13 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "miami_decimator_adapter.h"
+/* Rename the pinned wet table so this unit does not emit a 256 B copy.
+ * The values are identical to x0x_q15_ramp258, defined in
+ * chicago_modulation.c. The pinned file is not edited. */
+#define miami_decimator_wet miami_decimator_wet_unused
 #include "miami_decimator_tables_private.h"
+#undef miami_decimator_wet
+extern const int16_t x0x_q15_ramp258[128];
+#define miami_decimator_wet x0x_q15_ramp258
 int miami_decimator_adapter_init(miami_decimator_adapter_t *s)
 {
     if (!s) return 0;

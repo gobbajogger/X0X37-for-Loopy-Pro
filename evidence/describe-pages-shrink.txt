@@ -1,0 +1,34 @@
+describe_pages table-driven shrink, lane/fmb-ui-flash-shrink, parent 94197fc8.
+Images NOT FOR INSTALL. Times Asia/Vladivostok (UTC+10).
+Fair --git-sha 94197fc839b00aff47b98ca02f3c6396e4a6eabf, X0X_DEV_PADCAL=0,
+SDK V1.2.14, toolchain /home/box/.jieli.
+
+Host identity (tests/host/describe_pages_dump_test.c):
+  20,832 describe_pages dumps (every view including invalid 99, every part,
+  all 4 engines Chicago/Miami/Drone/Juno on both bass voices including the
+  full 4x4 pair grid, every 909 and 808 track on V_PART and V_MIX, every
+  mixsel on V_MIX, plus corner selection crosses on other views).
+  311,282 query-mode identity checks (each page and the n+1 overflow slot).
+  Real-framebuffer FNV-1a hashes via ui_frame() for all 9 views, 5 parts,
+  4 engines, first and last 909 tracks.
+  Before (unmodified 94197fc8) and after (this tree) dumps are byte-identical:
+  SHA256 dfab2b2a4b2362247046ce135ff795ac14988d9cb1dd5d4607ead1ff3d9881d9
+  (329,679 lines). describe_pages itself has no Elite/Pro ifdef; one host
+  dump covers both models.
+
+JieLi, measure tree /workspace/build-1214/uishrink-measure, 2026-11-14 00:34 +10.
+
+  Model   image      flash free   vs 94197fc8   RAM      pool free
+  Elite   543,920    8,752        -312 B        95,536   8,340
+  Pro     543,912    8,760        -312 B        95,536   8,340
+
+  Baseline Elite 544,232 free 8,440; Pro 544,224 free 8,448.
+  RAM and pool unchanged (pool 335,724 of 344,064).
+  Floor 8,192: this lane alone is ABOVE the floor (headroom Elite 560, Pro 568).
+  describe_pages symbol 2,100 -> 1,338 B; emit_cmds 80; shared MASTER/WAVE
+  row; KIT track via axis; title table. Net image -312 B after the new
+  file-scope tables. Kept: uishrink-measure/kept/{elite,pro}/.
+
+ELF SHA (not for install):
+  Elite bin cea5b36658c26f356a699dc3f58072481dcbf50f655c3948c6948043c98c28f6  /workspace/build-1214/uishrink-measure/kept/elite/x0x.bin
+  Pro   bin 1b0e890558852c6a5e8845f2629094904c66e7b98f2889bd3425ce7fd9509491  /workspace/build-1214/uishrink-measure/kept/pro/x0x.bin

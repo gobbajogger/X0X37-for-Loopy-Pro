@@ -106,6 +106,7 @@ void engine_bass_wheel_owners(uint8_t mask);
 void engine_bass_mod(int v, int val);       /* mod wheel: Chicago cutoff / Miami wobble depth, recordable */
 int engine_bass_mod_param(int v);
 int engine_bass_ext_touch(int v);           /* bit0 bend, bit1 mod moved by ext MIDI since last call */
+int engine_bass_mod_ctl(int v);             /* live wheel/CC1 value, or -1 if the wheel does not own it */
 
 /* Review-only runtime and separately guarded tagged-storage units; defaults OFF. */
 #ifndef X0X_BASS_PRESET_PREVIEW
@@ -179,9 +180,18 @@ int engine_bass_preset_gate(int voice);   /* the request's pattern, -1 none */
 #endif
 
 extern seq_t seq;                      /* the sequencer (its pattern pointer is the project's) */
-/* render stages (the PERF screen): 909, 808, 303 A, 303 B, BREAK, FX, MASTER, SEQ */
+/* render stages (the PERF screen): 909, 808, 303 A, 303 B, BREAK, FX, MASTER, SEQ.
+ * Each share is that stage's work on both cores, against one core's sample budget,
+ * so the eight shares may sum to more than 100%. The page layout is unchanged.
+ * Core 0's join wait is eng_prof_wait (also in last_us / LOAD), not a screen row. */
 enum { PR_909, PR_808, PR_303A, PR_303B, PR_BRK, PR_FX, PR_MST, PR_SEQ, ENG_PROF_N };
 extern volatile uint32_t eng_prof[ENG_PROF_N], eng_prof_frames;
+extern volatile uint32_t eng_prof_wait;
+#ifdef X0X_HOST
+void engine_prof_c1_credit(unsigned k, uint32_t ticks);
+uint32_t engine_prof_c1_peek(unsigned k);
+void engine_prof_c1_fold_now(int keep);
+#endif
 void engine_motion_enable(int on);                          /* off: lanes do not play (the PERF test) */
 void engine_smc_solo(uint8_t mask);                         /* runtime SMC solo mask; 0 = all parts audible */
 void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808); /* union of parts and drum tracks */

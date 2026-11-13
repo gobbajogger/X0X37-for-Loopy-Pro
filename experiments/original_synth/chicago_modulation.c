@@ -4,7 +4,34 @@
 #ifndef ORIGINAL_MODULATION_COEFFICIENTS
 #define ORIGINAL_MODULATION_COEFFICIENTS "modulation_private.h"
 #endif
+/* The pinned mod_linear table is identical to miami_decimator_wet (Q15
+ * ramp: i*258 for i=0..126, 32767 at 127). Rename the pinned static so
+ * this unit does not emit a second 256 B copy. The pinned file is not
+ * edited. One global table is shared with the Miami decimator adapter. */
+#define mod_linear mod_linear_unused
+#define mod_wet mod_wet_unused
 #include ORIGINAL_MODULATION_COEFFICIENTS
+#undef mod_linear
+#undef mod_wet
+const int16_t x0x_q15_ramp258[128] = {
+    0,258,516,774,1032,1290,1548,1806,2064,2322,2580,2838,3096,3354,3612,3870,
+    4128,4386,4644,4902,5160,5418,5676,5934,6192,6450,6708,6966,7224,7482,7740,7998,
+    8256,8514,8772,9030,9288,9546,9804,10062,10320,10578,10836,11094,11352,11610,11868,12126,
+    12384,12642,12900,13158,13416,13674,13932,14190,14448,14706,14964,15222,15480,15738,15996,16254,
+    16512,16770,17028,17286,17544,17802,18060,18318,18576,18834,19092,19350,19608,19866,20124,20382,
+    20640,20898,21156,21414,21672,21930,22188,22446,22704,22962,23220,23478,23736,23994,24252,24510,
+    24768,25026,25284,25542,25800,26058,26316,26574,26832,27090,27348,27606,27864,28122,28380,28638,
+    28896,29154,29412,29670,29928,30186,30444,30702,30960,31218,31476,31734,31992,32250,32508,32767
+};
+#define mod_linear x0x_q15_ramp258
+/* Exact Q15 ramp used by the chorus wet setter: i*1024 for i=0..31,
+ * then 32767. Host microbench of this form is faster than a table load.
+ * The pinned static is unused and is dropped. The process path uses the
+ * stored pending_wet, not a table load. */
+static inline int16_t x0x_q15_ramp1024(unsigned p)
+{
+    return (int16_t)((p >= 32u) ? 32767 : (int32_t)p * 1024);
+}
 #include <string.h>
 #include <limits.h>
 #include <assert.h>
@@ -80,7 +107,7 @@ int original_chicago_chorus_set(original_chicago_chorus *s,unsigned p,unsigned v
  if(!s||v>127||(p!=2&&p!=3))return 0;
  if(p==2)s->edit1=(uint8_t)v;
  else s->edit2=(uint8_t)v;
- s->pending_speed=mod_speed[s->edit1];s->pending_feedback=mod_feedback[s->edit2];s->pending_wet=mod_wet[s->edit2];s->dirty=1;return 1;
+ s->pending_speed=mod_speed[s->edit1];s->pending_feedback=mod_feedback[s->edit2];s->pending_wet=x0x_q15_ramp1024(s->edit2);s->dirty=1;return 1;
 }
 static int32_t feedback_twice(int32_t y){int32_t a=sub(shl(y,1),shl(y,15));for(unsigned j=0;j<2;j++)a=sub(shl(asr(a,15),1),si((uint32_t)a&0xffff8000u));return asr(a,15);}
 int original_chicago_chorus_process(original_chicago_chorus *s,int16_t *l,int16_t *r,uint32_t n){
