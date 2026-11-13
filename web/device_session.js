@@ -12,10 +12,17 @@ export async function withDeviceOperation(action) {
 
 // Opening a port may emit statechange while it remains connected. Only a removed,
 // disconnected or replaced target invalidates the session, even if its name/id is reused.
-export function watchDeviceSession(access, input, output, invalidate) {
+// Optional armed(): once it returns true (the session is identified), any statechange
+// of a bound endpoint also invalidates it. A queued event may see a port that has
+// already reconnected; the earlier implicit-open events precede identification.
+export function watchDeviceSession(access, input, output, invalidate, armed = null) {
   let live = true;
-  const check = () => {
-    if (live && (input.state === 'disconnected' || output.state === 'disconnected' ||
+  const bound = (port) => !!port && [input, output].some((b) => port === b ||
+    (typeof port.id === 'string' && port.id && port.id === b.id &&
+     (port.type === 'input' || port.type === 'output') && port.type === b.type));
+  const check = (event) => {
+    if (live && ((armed?.() && bound(event?.port)) ||
+        input.state === 'disconnected' || output.state === 'disconnected' ||
         access.inputs.get(input.id) !== input || access.outputs.get(output.id) !== output)) {
       live = false;
       invalidate();
