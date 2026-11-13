@@ -6453,8 +6453,8 @@ static UI_DRAW void draw_perf(int band)
 
 /* the readout: the knob being turned, large, across the bottom band */
 #if BOARD_SMK37
-/* Mod-wheel / CC1 readout (Phase 1). State is set from smk_wheels on the
- * main loop; pixels are painted only here, in ui_frame. */
+/* Mod-wheel / CC1 readout (Phase 1). smk_wheels only stores a snapshot;
+ * pixels are painted here, in ui_frame. */
 enum { WU_MS = 900u, WU_UNA = 3 };
 static struct {
     uint8_t n, fired, live[2], patch[2];
@@ -6476,40 +6476,34 @@ static void wu_log(const char *s)
     *q = 0;
 }
 #endif
-static int wu_pct(int v) { return (v * 100 + 63) / 127; }
-static int wu_patch(int v)
+#define WU_PCT(v) (((int)(v) * 100 + 63) / 127)
+static void wu_snap(int i, int v, int live)
 {
-    return pref_get(PR(R_ENG, T_303, v, engine_bass_mod_param(v)));
+    wu.v[i] = (int8_t)v;
+    wu.live[i] = (uint8_t)(live < 0 ? 0 : live > 127 ? 127 : live);
+    wu.patch[i] = (uint8_t)pref_get(PR(R_ENG, T_303, v, engine_bass_mod_param(v)));
 }
 void ui_wheel_mod(int n, int v0, int live0, int v1, int live1)
 {
-    if (n == 0) { wu.fired = 0; return; }
+    if (n <= 0) { if (n == 0) wu.fired = 0; return; }
     if (n == WU_UNA) {
-        if (wu.fired) return;
-        wu.fired = 1;
-        wu.n = WU_UNA;
-        wu.until = plat_ms() + WU_MS;
+        if (!wu.fired) { wu.fired = 1; wu.n = WU_UNA; wu.until = plat_ms() + WU_MS; }
         return;
     }
-    if (n < 1) return;
     if (n > 2) n = 2;
     wu.fired = 0;
     wu.n = (uint8_t)n;
-    wu.v[0] = (int8_t)v0;
-    wu.live[0] = (uint8_t)(live0 < 0 ? 0 : live0 > 127 ? 127 : live0);
-    wu.patch[0] = (uint8_t)wu_patch(v0);
-    if (n >= 2) {
-        wu.v[1] = (int8_t)v1;
-        wu.live[1] = (uint8_t)(live1 < 0 ? 0 : live1 > 127 ? 127 : live1);
-        wu.patch[1] = (uint8_t)wu_patch(v1);
-    }
+    wu_snap(0, v0, live0);
+    if (n > 1) wu_snap(1, v1, live1);
     wu.until = plat_ms() + WU_MS;
 }
-static int wu_active(void)
+/* 1 if the wheel owns the shared 224x50 box: still inside 900 ms, and
+ * either no knob detent is up or the wheel event is at least as late. */
+static int wu_owns(int knob)
 {
     if (!wu.n) return 0;
     if ((int32_t)(wu.until - plat_ms()) <= 0) { wu.n = 0; return 0; }
-    return 1;
+    return !(knob && (int32_t)(wu.until - ui.touch_until) < 0);
 }
 static void wu_name(char *t, int v)
 {
@@ -6521,75 +6515,64 @@ static void wu_name(char *t, int v)
     *q++ = ' ';
     put_s(q, ui_original_name(k, (unsigned)engine_bass_mod_param(v)));
 }
+/* Draw name at left and "nn %" at right, using fn for the name and fv for the number. */
+static void wu_line(int32_t lx, int32_t ly, int32_t ny, const felucca_font_t *fn, const felucca_font_t *fv, const char *nm, int pct)
+{
+    char num[8];
+    int32_t uw, w;
+    put_i(num, pct);
+    uw = tw(&FONT_S, "%") + 3;
+    w = tw(fv, num);
+    cv_text(lx, ly, fn, nm, C_GRAY);
+    cv_text(8 + 224 - 12 - uw - w, ny, fv, num, C_WHITE);
+    cv_text(8 + 224 - 12 - uw + 3, fv == &FONT_M ? base_y(&FONT_M, ny, &FONT_S) : ny, &FONT_S, "%", C_GRAY);
+#ifdef X0X_HOST
+    wu_log(nm); wu_log(num); wu_log("%");
+#endif
+}
 static UI_DRAW void draw_wheel_readout(void)
 {
     const int32_t bx = 8, by = 14, bw = 224, bh = 50;
-    char nm[24], num[8], tag[16];
-    int n = wu.n, i, v0, live, patch, show_p;
-    int32_t uw, w, ly, row_y, y, h;
+    char s[24];
+    int i, two, show_p;
+    int32_t y, h;
 #ifdef X0X_HOST
     ui_wheel_log[0] = 0;
 #endif
     box(bx, by, bw, bh, C_BLACK);
     frame(bx, by, bw, bh, part_col());
-    if (n == WU_UNA) {
+    if (wu.n == WU_UNA) {
         cv_text(bx + 12, vc(&FONT_B, by, bh), &FONT_B, "UNASSIGNED", C_GRAY);
 #ifdef X0X_HOST
         wu_log("UNASSIGNED");
 #endif
         return;
     }
-    {
-        int vv[2] = { wu.v[0], wu.v[1] };
-        uint8_t lv[2] = { wu.live[0], wu.live[1] }, pv[2] = { wu.patch[0], wu.patch[1] };
-        if (n == 2) {
-            int a = engine_bass_mod_ctl(vv[0]) >= 0, b = engine_bass_mod_ctl(vv[1]) >= 0;
-            if (a && !b) n = 1;
-            else if (!a && b) { vv[0] = vv[1]; lv[0] = lv[1]; pv[0] = pv[1]; n = 1; }
-        }
-        if (n == 2) {
-            row_y = by + (bh - (2 * 16 + 4)) / 2;
-            for (i = 0; i < 2; i++) {
-                wu_name(nm, vv[i]);
-                put_i(num, wu_pct(lv[i]));
-                ly = vc(&FONT_S, row_y + i * 20, 16);
-                uw = tw(&FONT_S, "%") + 3;
-                w = tw(&FONT_S, num);
-                cv_text(bx + 12, ly, &FONT_S, nm, C_GRAY);
-                cv_text(bx + bw - 12 - uw - w, ly, &FONT_S, num, C_WHITE);
-                cv_text(bx + bw - 12 - uw + 3, ly, &FONT_S, "%", C_GRAY);
-#ifdef X0X_HOST
-                wu_log(nm); wu_log(num); wu_log("%");
-#endif
-            }
-            return;
-        }
-        v0 = vv[0];
-        live = lv[0];
-        patch = pv[0];
-    }
-    show_p = wu_pct(live) != wu_pct(patch);
+    two = wu.n == 2;
+    show_p = !two && WU_PCT(wu.live[0]) != WU_PCT(wu.patch[0]);
     y = show_p ? by - 4 : by;
     h = show_p ? bh - 8 : bh;
-    wu_name(nm, v0);
-    put_i(num, wu_pct(live));
-    uw = tw(&FONT_S, "%") + 3;
-    w = tw(&FONT_M, num);
-    ly = vc(&FONT_M, y, h);
-    cv_text(bx + 12, vc(&FONT_B, y, h), &FONT_B, nm, C_GRAY);
-    cv_text(bx + bw - 12 - uw - w, ly, &FONT_M, num, C_WHITE);
-    cv_text(bx + bw - 12 - uw + 3, base_y(&FONT_M, ly, &FONT_S), &FONT_S, "%", C_GRAY);
+    if (two) {
+        int32_t row = by + (bh - (2 * 16 + 4)) / 2;
+        for (i = 0; i < 2; i++) {
+            wu_name(s, wu.v[i]);
+            wu_line(bx + 12, vc(&FONT_S, row + i * 20, 16),
+                    vc(&FONT_S, row + i * 20, 16),
+                    &FONT_S, &FONT_S, s, WU_PCT(wu.live[i]));
+        }
+    } else {
+        wu_name(s, wu.v[0]);
+        wu_line(bx + 12, vc(&FONT_B, y, h), vc(&FONT_M, y, h),
+                &FONT_B, &FONT_M, s, WU_PCT(wu.live[0]));
+        if (show_p) {
+            char *q = put_s(s, "PATCH  ");
+            q = put_i(q, WU_PCT(wu.patch[0]));
+            put_s(q, " %");
+            text_r(bx + bw - 12, by + bh - 4 - FONT_T.h, &FONT_T, s, C_DIM);
 #ifdef X0X_HOST
-    wu_log(nm); wu_log(num); wu_log("%");
+            wu_log(s);
 #endif
-    if (show_p) {
-        char *q = put_s(tag, "PATCH  ");
-        q = put_i(q, wu_pct(patch));
-        put_s(q, " %");
-        text_r(bx + bw - 12, by + bh - 4 - FONT_T.h, &FONT_T, tag, C_DIM);
-#ifdef X0X_HOST
-        wu_log(tag);
-#endif
+        }
     }
 }
 #endif
@@ -6961,10 +6944,8 @@ static UI_DRAW void draw_main(void)
     if (!readout)
         ui.touched = -1;
 #if BOARD_SMK37
-    /* One 224x50 box: the latest of a knob detent and a wheel/CC1 move owns it. */
-    int wheel = wu_active() && ui.overlay == O_NONE && !ui.help;
-    if (wheel && readout && (int32_t)(wu.until - ui.touch_until) < 0)
-        wheel = 0;
+    /* One 224x50 box: the later of a knob detent and a wheel/CC1 move owns it. */
+    int wheel = wu_owns(readout) && ui.overlay == O_NONE && !ui.help;
     if (wheel)
         readout = envelope = 0;
 #endif
