@@ -22,7 +22,7 @@ Owner scenario: Chicago parameter-page lag while Chicago arp + held Juno triad +
 
 **S2 (source-proven; high relevance):** V_PART redraw traverses matrix render in main-area bands and knob strip, with repeated per-cell descriptor/value/name/preview work (ui.c:6814-6892, 8319-8345, 5740-5780, 7200-7285). Redundant lookups are source-visible. Whether this dominates elapsed time **unknown**.
 
-**S3 (source-proven; medium relevance):** `original_text_view`/`original_wave_view` repeatedly resolve lock/motion preview across mask bits (ui.c:2893-2925); `pref_value_of` takes `engine_bass_edit_hold` for each original bass value conversion (ui.c:1148-1158). Hold behavior and IRQ wait costs **not yet verified from its defining implementation**. Do not assert it disables IRQs or stalls audio.
+**S3 (source-proven; medium relevance):** `original_text_view`/`original_wave_view` repeatedly resolve lock/motion preview across mask bits (ui.c:2893-2925); `pref_value_of` takes `engine_bass_edit_hold` for each original bass value conversion (ui.c:1148-1158). **Resolved from exact pinned source:** `firmware/src/app/original_presets.inc:259-265` implements `engine_bass_edit_hold` as compiler memory barriers and an increment/decrement of `bass_edit_depth`. No IRQ disable, spin-wait or mutex occurs in this function. `original_presets.inc:347-351` makes a positive depth postpone preset-boundary processing; `original_presets.inc:187-192` similarly gates an onset-driven preset apply. This is a brief publication deferral, not proven foreground waiting or the Chicago page-lag cause.
 
 **S4 (source-proven exclusion):** `knobs_sig` is bypassed on the matrix branch (ui.c:8319-8351). Avoid an irrelevant cache rewrite.
 
@@ -46,4 +46,4 @@ If existing exact-source trace captures exist, compare Chicago and Miami: naviga
 
 ## Ownership and verification
 
-No measured durations, dropouts, locks, IRQ masking or successful remedy claimed. This report is source-only. FMB implements and validates; Firmware UX approves any display design changes. Follow-up investigation should locate actual hold implementation and verify contention assumptions without firmware edits or duplicate builds.
+No measured durations, dropouts, locks, IRQ masking or successful remedy claimed. This report is source-only. FMB implements and validates; Firmware UX approves any display design changes. The hold implementation has now been inspected at the pinned source: it does **not** disable IRQs or wait for a lock. Remaining question is interruption/concurrency timing under load, not a presumed spinlock. Validate only with already-existing exact-source evidence; no firmware edits or duplicate builds.
