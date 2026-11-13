@@ -423,7 +423,7 @@ class _Reducer:
 
 
 def analyze_trace(trace_path, start_ms, end_ms, slot=1, out_dir=None):
-    """Read JSONL once and return a summary; optional output directory must be new."""
+    """Read JSONL once; bind closed output files by hash when a new out_dir is given."""
     with ExitStack() as stack:
         source = stack.enter_context(Path(trace_path).open("rb"))
         out = Path(out_dir) if out_dir is not None else None
@@ -446,9 +446,18 @@ def analyze_trace(trace_path, start_ms, end_ms, slot=1, out_dir=None):
             except (ValueError, TypeError, KeyError, IndexError, UnicodeError) as error:
                 reducer.fail(f"line {line_number}: {error}")
         result = reducer.summary(digest.hexdigest())
-        if out is not None:
-            (out / "summary.json").write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
-        return result
+    # ExitStack has closed/flushed both artifacts before their bytes are hashed.
+    # Stream the files: a long observer trace can have a large store timeline.
+    if out is not None:
+        for filename, key in (("per_half.csv", "per_half_csv_sha256"),
+                              ("stage_events.jsonl", "stage_events_sha256")):
+            digest = hashlib.sha256()
+            with (out / filename).open("rb") as artifact:
+                for chunk in iter(lambda: artifact.read(1 << 20), b""):
+                    digest.update(chunk)
+            result[key] = digest.hexdigest()
+        (out / "summary.json").write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
+    return result
 
 
 def main():

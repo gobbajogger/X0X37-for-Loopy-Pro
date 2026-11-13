@@ -169,3 +169,146 @@ state at captured boundaries before any scene timing qualification.
 The sanitized receipt in `evidence/2026-11-13-initial-rejected.json` records
 the exact artifact, input-script, trace and final-RAM hashes. Raw firmware,
 sample data, RAM and PCM remain private and are not committed.
+
+## Integrated Runner and actual short scene
+
+The physical script now includes the seven initialization/reversal detents
+required by the pinned SMK decoder. Actual readback accepted the correction.
+`representative/scene.json` declares the chosen 140 BPM, Chicago A arp with
+48/52/55 held, Juno B with 60/64/67 held, CRAMEN loop, 909 BD `0x1111`, and
+empty 808 pattern. These are chosen inputs, not the owner's confirmed settings.
+
+The exact Elite package ran for 30 simulated seconds. The explicit 20–29 second
+diagnostic interval produced this **measured emulator evidence**:
+
+| Evidence | Result |
+|---|---|
+| Coherent DMA halves | 775 |
+| Required scene boundary checks | 1,550 matching; zero failures |
+| Fresh 808 activity predicates | 2,052 zero stores across 2,052 stretches |
+| BREAK loaded and contributing to dry mix | All 775 halves |
+| Late / audio_xruns increments | 0 / 0 |
+| Unserviced DMA edges / IRQ deadline misses | 0 / 0 |
+| Maximum `last_us` | 8,824 us |
+| Minimum IRQ-completion slack lower bound | 2,776.033854 us |
+| Observer-off/on PCM, final RAM, final flash | Byte identical |
+| Separate BREAK-only DAC output | Peak 13,129; RMS −23.360787 dBFS |
+
+The exact emulator DMA period is 11,605.333333 us. The worst half's full IRQ
+interval was 8,829.299479 us, so `last_us` alone would omit about 5.30 us of
+the observed tail. The one-emulator-tick completion bound is retained.
+No hardware result, owner reproduction, full five-minute result, or Pro
+execution is claimed. The earlier BREAK=NOT_RUN gate remains unqualified.
+
+The full-scene dry-mix witness and independent BREAK-only DAC witness are
+separate evidence. The latter uses a fresh identical fixture, removes exactly
+the four 909 press/release pairs, and sends no synth USB notes. It establishes
+numerical output under that isolation contract. It does not decompose BREAK
+from the final mixed scene or establish human listening approval.
+
+The 808 predicate excludes its guarded main render and mix in observed
+stretches. It does not imply zero 808-related setup/shared-wait CPU cost or
+exclude an earlier split-body prefix. No state is invented for unobserved
+DMA edges. See `activity.py` for that explicit scope.
+
+The sanitized complete receipt is
+`evidence/2026-11-13-short-scene.json`. It records the exact firmware, ELF,
+observer binary, sample ADPCM, fixture, scripts, trace, CSV, stage-event and
+control-output hashes. The target layout is compiler-derived and checked
+against the retained ELF aggregate sizes; its compact receipt is
+`representative/layout-profile-94197fc8.json`. No host-ABI offsets or DWARF
+are assumed. The layout probe was an unlinked constant-record object, not
+a firmware rebuild.
+
+### What Runner now does
+
+`runner.py` captures and rechecks private input bytes, resolves actual ELF
+symbols, and adds the verified scene and 808 predicate maps. Every execution
+uses a disposable copy of one prepared flash. A failed atomic flash save cannot
+be mislabeled as final state. It combines the following independent checks:
+
+- `trace.py`: coherent DMA/IRQ/counter/stage evidence; output artifact digests.
+- `scene.py`: target-layout scene state at both boundaries, bound to the CSV
+  digest and explicit observed interval. A short trace cannot qualify the
+  declared five-minute interval.
+- `activity.py`: one fresh 808 predicate inside every stage-0-to-stage-2
+  interval, including repeated equal zero stores.
+- `pcm.py`: exact DMA-to-PCM mapping, boot offset, numeric peak/RMS and hashes.
+- `isolation.py`: pinned BREAK-only input derivation and conditional output
+  witness; no arbitrary input may be labeled isolated.
+
+Exit zero with `OBSERVATION_COMPLETE` means the requested diagnostic evidence
+was collected. Deadline misses remain explicit data and do not turn a completed
+diagnosis into a harness error. Missing scene/BREAK evidence or observer output
+differences make the result incomplete. Neither status is a hardware PASS.
+
+### Precise next full-window command
+
+This reuses the already built host emulator and the exact privately materialized
+firmware inputs. It does not build firmware. The output directory must be new.
+The command runs the declared 20–320 second window for control and observed
+executions, then a separate short BREAK-only witness.
+
+```sh
+cd /workspace/scratch/cc2e3d785d40/diag-emulator
+python3 dnbox/dropout/runner.py \
+  --model elite \
+  --emulator /workspace/scratch/cc2e3d785d40/build-tools/cargo-target/release/fm1-live \
+  --elf /workspace/scratch/cc2e3d785d40/private-inputs/exact-94197fc8/Elite/x0x.elf \
+  --fwsc /workspace/scratch/cc2e3d785d40/private-inputs/exact-94197fc8/Elite/DnBOX-0.0.26-SMK37-Elite-94197fc8-hwtest.fwsc \
+  --pack /workspace/scratch/cc2e3d785d40/private-inputs/factory-break-pack-94197fc8.bin \
+  --scene /workspace/scratch/cc2e3d785d40/diag-emulator/dnbox/dropout/representative/scene.json \
+  --out /workspace/scratch/cc2e3d785d40/private-runs/elite-five-minute \
+  --execute
+```
+
+Omit `--execute` for capture/preflight only. Replace that option with `--smoke`
+for an explicitly labeled nine-second diagnostic. This session ran the actual
+short observations and reused their artifacts during reducer development;
+the complete five-minute CLI sequence remains NOT_RUN. The final CLI preflight
+with the real inputs succeeded. Pro inputs were hash-verified, not executed.
+
+### Focused verification at the integrated checkpoint
+
+All 105 Python tests passed, including the real executable guard checks:
+
+```sh
+DNBOX_TEST_EMULATOR=/workspace/scratch/cc2e3d785d40/build-tools/cargo-target/release/fm1-live \
+  python3 -W error::ResourceWarning -m unittest discover -s dnbox/dropout -p 'test_*.py'
+```
+
+The actual `fm1-soc` crate's 19 observer tests also passed. Independent bounded
+reviews covered the host hooks, sample-slot ambiguity, captured-input binding,
+flash-save finality, scene interval/artifact binding, Runner orchestration and
+the conditional isolation checker. These tests support their stated paths;
+they do not manufacture target timing or an owner-scene PASS.
+
+## Diagnosis continuity
+
+**Source-proven:** Chicago and Juno remain core 0 jobs (`engine.c:2618–2626`).
+The short-stretch/master-prefix condition remains at `engine.c:2905–2913`.
+The serial jobs, waits, tail, XIP contention and nested TIMER5 remain relevant
+places to investigate when a matching scene actually misses its deadline.
+This work did not change those paths or replace FMB firmware work.
+
+**Measured:** In the accepted short scene, the end-of-half plan and actual mask
+were both 16 at all 775 boundaries, placing BREAK on core 1. `eng_prof`'s BREAK
+delta was zero while BREAK contributed to every observed half. That is direct
+evidence that zero BREAK PERF attribution can coexist with real audio work.
+The 808 bucket also accumulated ticks while every observed activity predicate
+was zero; its setup/shared-wait scope must not be labeled live 808 DSP.
+
+**Source-proven correction to the original trace wording:** The bass PROF
+interval ends at `engine.c:2447`, before the subsequent quiet scan, fade,
+`bfx_shape`, stage wait and mix. Juno's row is not a complete per-part cost.
+Miami and other core-1 work can be absent from `eng_prof`; the separate FMB
+meter fix remains separate. No Miami or owner Juno percentage was re-measured
+by this scene.
+
+**Hypothesis:** Coincident Chicago arp work, Juno work, short stretches,
+serial FX/master/sequence work, waits and memory/interrupt contention remain
+the carried-forward dropout candidates. This chosen short run did not reproduce
+a miss, so it neither confirms an owner dropout cause nor authorizes a claimed
+cycle saving. No DSP optimization, voice cut, firmware meter patch or sound
+change is included. Guest measurement-code, flash and pool additions are zero;
+the host observer's wall-time cost is separate from emulated firmware time.

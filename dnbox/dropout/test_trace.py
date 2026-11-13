@@ -1,6 +1,7 @@
 """Hand-derived synthetic event tests, never firmware timing measurements."""
 import copy
 import csv
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -143,6 +144,32 @@ class TraceTests(unittest.TestCase):
         self.assertEqual(result["break_evidence"]["audibility"], "UNVERIFIED")
         self.assertFalse(result["owner_scene_exact"])
         self.assertFalse(result["representative_scene_qualified"])
+
+    def test_summary_binds_finished_outputs_and_detects_changed_artifact_bytes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); path = root / "trace.jsonl"
+            path.write_text("".join(json.dumps(event) + "\n" for event in regular_trace()))
+            result = self.mod.analyze_trace(path, 0, 24, out_dir=root / "result")
+            persisted = json.loads((root / "result" / "summary.json").read_text())
+            for filename, key in (("per_half.csv", "per_half_csv_sha256"),
+                                  ("stage_events.jsonl", "stage_events_sha256")):
+                artifact = root / "result" / filename
+                original = artifact.read_bytes()
+                self.assertTrue(original, "the binding must cover flushed data, not an empty buffer")
+                self.assertEqual(result[key], hashlib.sha256(original).hexdigest())
+                self.assertEqual(persisted[key], result[key])
+                artifact.write_bytes(original + b"\n")
+                self.assertNotEqual(result[key], hashlib.sha256(artifact.read_bytes()).hexdigest(),
+                                    "an external checker must reject even a byte-only artifact change")
+
+    def test_summary_without_output_files_does_not_claim_output_hashes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "trace.jsonl"
+            path.write_text("".join(json.dumps(event) + "\n" for event in regular_trace()))
+            result = self.mod.analyze_trace(path, 0, 24)
+            self.assertNotIn("per_half_csv_sha256", result)
+            self.assertNotIn("stage_events_sha256", result)
+            self.assertEqual(result["trace_sha256"], hashlib.sha256(path.read_bytes()).hexdigest())
 
     def test_actual_clock_and_one_tick_completion_uncertainty(self):
         result, rows, _ = self.analyze(regular_trace())
