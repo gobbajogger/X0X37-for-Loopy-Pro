@@ -35,13 +35,11 @@ static const x0x_param_t original_sound_juno_params[18] = {
  {"Width",127,0,0},{"ChoRate",127,0,0},{"Chorus",127,0,0},{"Level",127,0,0},
  {"PBend",127,0,0},{"Damper",127,0,0}
 };
-static const uint8_t original_sound_juno_factories[4][16] = {
- {42,28,70,18,45,8,40,92,40,0,15,8,64,25,45,100},
- {90,18,42,24,35,65,55,95,75,0,12,15,55,40,55,100},
- {15,50,58,36,80,0,35,30,20,5,20,0,64,25,18,110},
- {70,10,105,12,20,0,20,110,15,12,25,5,80,60,50,96}
-};
-static const char *const original_sound_juno_names[4] = {"JUNO POLY", "JUNO PAD", "JUNO PLUCK", "JUNO BRASS"};
+#include "juno_stock_bank.h"
+_Static_assert(sizeof original_sound_juno_factories / sizeof original_sound_juno_factories[0] == ORIGINAL_JUNO_FACTORIES,
+               "Juno factory count must match stored selector range");
+_Static_assert(sizeof original_sound_juno_names / sizeof original_sound_juno_names[0] == ORIGINAL_JUNO_FACTORIES,
+               "Juno factory names must match selector range");
 static const x0x_param_t original_sound_drone_params[ORIGINAL_DRONE_NPARAMS] = {
     {"Register",127,57,0},{"Brightness",127,66,0},
     {"Flutter",127,51,0},{"Attack",127,23,0},
