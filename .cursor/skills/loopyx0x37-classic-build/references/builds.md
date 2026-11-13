@@ -94,7 +94,7 @@ Keep gate work outside `/tmp`. Do not apply the 2026-10-23 replay patches onto a
 
 For each model: command and exit, source commit and root tree, toolchain and SDK identities, package size and SHA-256, CRC, model metadata, app and loader sizes, code, static RAM, pool, and flash headroom, and the matching `ctl.img` size and hash when one was produced. Keep those binaries off the source branch. The assigned `gh-pages` publisher is the path that puts release packages on the site branch. Store the manifest in the pull request and, when the change already records evidence, under `evidence/` as hashes and logs only.
 
-`tools/locked_settings.json` is a build-stopping regression guard. Change a locked value only together with the source, in a commit that names the setting, and update `BLE_ATTEMPTS.md` when the Bluetooth settings move.
+`tools/locked_settings.json` is a build-stopping regression guard. Change a locked value only together with the source, in a commit that names the setting, and update `docs/internal/BLE_ATTEMPTS.md` when the Bluetooth settings move.
 
 ## Labels
 

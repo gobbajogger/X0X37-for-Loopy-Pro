@@ -168,7 +168,7 @@ if [ "$INST" = unknown ]; then
   done <<<"$LROWS"
   if [ -n "$best" ]; then IFS='|' read -r id h dt b n rest <<<"$best"
     INST="${h:0:7} (ledger row $id, installed $dt)"
-    INSTSRC="fallback: BLE_ATTEMPTS.md line $n on branch $b ($INSTTSV is missing or empty)"
+    INSTSRC="fallback: docs/internal/BLE_ATTEMPTS.md (or BLE_ATTEMPTS.md on older branches) line $n on branch $b ($INSTTSV is missing or empty)"
     INSTROW=$(echo "$best" | cut -d'|' -f6-)
     INSTWHY="newest install time (date column + INSTALLED/Installed/Time hh:mm) of all INSTALLED rows of any id on all branches"
   else INST="unknown (source: no INSTALLED.tsv and no ledger row with an install time and a hash)"; fi
@@ -394,7 +394,7 @@ echo "- Hash: $INST."
 echo "- Source: ${INSTSRC:-none}."
 echo "- Why this row: ${INSTWHY:--}."
 echo "- Source row: \`$(echo "${INSTROW:--}" | sed 's/`/'"'"'/g')\`"
-echo "- Method: primary source $INSTTSV (newest row by time). If it is missing or empty: the newest INSTALLED row of any id (a74, b1, ...) in BLE_ATTEMPTS.md on all branches, by date + install time. The device itself is not read."
+echo "- Method: primary source $INSTTSV (newest row by time). If it is missing or empty: the newest INSTALLED row of any id (a74, b1, ...) in docs/internal/BLE_ATTEMPTS.md (or BLE_ATTEMPTS.md on older branches) on all branches, by date + install time. The device itself is not read."
 echo
 echo "## Agents"
 echo
