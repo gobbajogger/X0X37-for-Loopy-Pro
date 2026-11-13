@@ -29,9 +29,13 @@ U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_pa
 case "${X0X_ORIGINAL_SYNTH:-1}" in
     0) U="$U firmware/src/dsp/bass303.c experiments/wobble/wobble.c"
        SYNTH_DEFS='-DX0X_WOBBLE=1 -DX0X_DEV_WOBBLE=1' ;;
+<<<<<<< HEAD
     1) DEV_WOBBLE="${X0X_DEV_WOBBLE:-1}"
        case "$DEV_WOBBLE" in 0|1) ;; *) echo 'X0X_DEV_WOBBLE: 0 or 1' >&2; exit 2 ;; esac
        U="$U $(python3 - <<'PY'
+=======
+    1) U="$U $(python3 - <<'PY'
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
 import importlib.util
 spec = importlib.util.spec_from_file_location('x0x_build', 'tools/build.py')
 build = importlib.util.module_from_spec(spec)
@@ -41,7 +45,11 @@ build.require_original_synth_sources()
 print(' '.join([*build.ORIGINAL_SYNTH_UNITS, *build.ORIGINAL_SYNTH_BACKENDS]))
 PY
 )"
+<<<<<<< HEAD
        SYNTH_DEFS="-DX0X_ORIGINAL_SYNTH=1 -DX0X_WOBBLE=0 -DX0X_DEV_WOBBLE=$DEV_WOBBLE -fno-fast-math -DORIGINAL_USE_SOFT_FMA -DMIAMI_FX_NO_HOST_FENV -Iexperiments/original_synth -Iexperiments/wobble" ;;
+=======
+       SYNTH_DEFS='-DX0X_ORIGINAL_SYNTH=1 -DX0X_WOBBLE=0 -DX0X_DEV_WOBBLE=0 -fno-fast-math -DORIGINAL_USE_SOFT_FMA -DMIAMI_FX_NO_HOST_FENV -Iexperiments/original_synth -Iexperiments/wobble' ;;
+>>>>>>> abe3fb9a (wip(mixer-ux): lane snapshot (#684 engines + mixer-ux work, private headers excluded) from codex/mixer-ux 6c84db92)
     *) echo 'X0X_ORIGINAL_SYNTH: 0 or 1' >&2; exit 2 ;;
 esac
 # shellcheck disable=SC2086

@@ -27,23 +27,26 @@ harness = r'''
 #include <string.h>
 #include "seq/pattern.h"
 enum { R_NONE, R_ENG, R_HDR, R_ACT, R_SPAT, R_SREP, T_909, T_808, T_MIX, T_FX, T_MST,
-       MX_LEVEL, MX_PAN, MX_CUT, FX_RV_DECAY, FX_DL_FDBK, MST_RESO, V_GLO, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, V_HOME, V_MIX, V_PART, V_SEQ,
+       MX_LEVEL, MX_PAN, MX_CUT, MX_REV, MX_DLY, FX_RV_DECAY, FX_DL_FDBK, MST_RESO, V_GLO, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, V_HOME, V_MIX, V_PART, V_SEQ,
        O_NONE, O_LIST, O_ASK, NPARTS=5 };
 typedef struct { uint8_t kind,a,b,c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 #define NONE PR(R_NONE,0,0,0)
-static struct { int help,overlay,list_top,list_n,view,part,sel[2]; } ui;
-static struct { pref_t r[1][4]; } pg;
+typedef struct { int help,overlay,list_top,list_n,view,part,sel[2]; } ui_t; static ui_t ui;
+static struct { pref_t r[1][4]; int n; } pg = {.n=1};
 static pref_t list_rows[12];
 static int kit=-1, clip, stage;
 static struct { pref_t target[8],lock_fader[8],lock_knob[8];
-    uint8_t value[8],picked,pending,seen,locked,lock_kit,lock_bank;
+    uint8_t value[8],picked,pending,seen,locked,lock_kit,lock_bank,knob_bank,lock_view,lock_page;
     uint32_t lock_song_revision; uint16_t lock_song_len; } smc;
 static uint32_t song_structure_revision;
 static struct song_fixture { unsigned len; } song_data;
 static const struct song_fixture *song(void) { return &song_data; }
 static uint8_t smc_scaled(pref_t r) { return r.kind==R_NONE ? 0 : 64; }
 static int cur_page(void) { return 0; }
+static uint8_t page;
+static uint8_t *page_of(int view) { (void)view; return &page; }
+static void smc_capture_bank(int drums) { (void)drums; }
 static int drum_mix_page(void) { return ui.view==V_MIX ? kit : -1; }
 static int smk_clip_mode_on(void) { return clip; }
 #define is_drum() (ui.part < 2)
