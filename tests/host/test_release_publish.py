@@ -165,7 +165,7 @@ class ReleasePublishTest(unittest.TestCase):
                             "0.0.26-dev", "0.0.26/evil", "0.0.100"):
             with self.subTest(version=bad_version), self.assertRaises(NightlyPublishError):
                 _public_package_name(bad_version, "elite", sha)
-        for bad_model in (None, "", "mke", "fm1", "pro ", "Elite"):
+        for bad_model in (None, "", "mke", "fm1", "pro ", "Elite", [], {}):
             with self.subTest(model=bad_model), self.assertRaises(NightlyPublishError):
                 _public_package_name("0.0.26", bad_model, sha)
         for bad_sha in (None, "94197fc8", "A" * 40, "f" * 39, "g" * 40):
@@ -185,6 +185,11 @@ class ReleasePublishTest(unittest.TestCase):
         self.assertNotIn("release_display", entry)
         self.assertEqual(entry["models"]["elite"]["product"], "SMK-37 Elite_900")
         self.assertEqual(entry["models"]["pro"]["product"], "SMK-37 Pro_900")
+        build_id = git(self.repo, "rev-parse", "HEAD")[:12]
+        self.assertEqual(Path(entry["models"]["elite"]["pkg"]).name,
+                         f"x0x37-nightly-{build_id}-elite.fwsc")
+        self.assertEqual(Path(entry["models"]["pro"]["pkg"]).name,
+                         f"x0x37-nightly-{build_id}.fwsc")
 
     def test_wrong_model_version_and_hash_are_refused(self):
         elite = self.package("elite.fwsc", "SMK-37 Elite_9000103")
