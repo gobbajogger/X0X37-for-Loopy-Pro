@@ -215,7 +215,7 @@ the RAM canary default, the pool limit, the sample slots and the flash map.
 `tools/check_locked_settings.py` compares the source with it.
 `tools/build.py`, `ble/ctl/build_ctl.sh` and `tests/run_tests.sh` run it, and a difference stops the build.
 To change a value, change the source and the JSON in one commit that names the setting. Add a
-BLE_ATTEMPTS.md row.
+[docs/internal/BLE_ATTEMPTS.md](docs/internal/BLE_ATTEMPTS.md) row.
 
 ## Agent validation and completion
 

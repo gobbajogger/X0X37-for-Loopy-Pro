@@ -12,7 +12,7 @@ Each setting in the JSON names a file and how to read the value from it:
   "assign"    every "NAME = VALUE;" at file level in a C file, as a dict (a new, lost or changed name fails)
   "defines"   every "#define PREFIX... VALUE" in a C header, as a list in file order
 To change a value: change the source and this JSON in one commit that names the setting, and add a
-BLE_ATTEMPTS.md row. tools/build.py and ble/ctl/build_ctl.sh run this check before they build."""
+docs/internal/BLE_ATTEMPTS.md row. tools/build.py and ble/ctl/build_ctl.sh run this check before they build."""
 import json
 import re
 import sys
@@ -86,7 +86,7 @@ def main():
                 print(f"LOCKED {st['name']}: source {got!r}, locked {want!r} ({st.get('file', st.get('files'))})")
     if bad:
         print(f"check_locked_settings: {bad} setting(s) differ from tools/locked_settings.json. Change the JSON in its "
-              "own commit that names the setting, and add a BLE_ATTEMPTS.md row.")
+              "own commit that names the setting, and add a docs/internal/BLE_ATTEMPTS.md row.")
         return 1
     print(f"check_locked_settings: {len(cfg['settings'])} settings ok")
     return 0
