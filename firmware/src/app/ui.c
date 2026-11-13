@@ -7832,10 +7832,16 @@ static float og_crush(float t,float q){int n=12-(int)(q*10+.5f);float v=og_sin((
     return (float)(int)(v*n+(v<0?-.5f:.5f))/(float)n;}       /* sample-rate + bit reduction */
 static float og_fm(float t,float q){return fm_sinf(6.2831853f*(1.5f*t)+q*1.6f*fm_sinf(6.2831853f*1.5f*t));}
 static UI_DRAW int og_states(pref_t r,int val,int *idx)
-{   /* number of distinct readouts and the index of val among them */
-    char a[16],u[8],prev[16]="";int n=0;*idx=0;
-    for(int v=0;v<=127;v++){pref_value_of(r,v,a,u);if(strcmp_s(a,prev)){n++;put_s(prev,a);}if(v==val)*idx=n-1;}
-    return n;
+{   /* Distinct readout count and val's index among them. Same fields
+     * as the ENV/GATE and RANGE text (original_value_text): one cache
+     * lookup, not a 0..127 pref_value_of scan (that restored the
+     * Chicago program 128 times a call, 386 times a frame on AMP/ARP). */
+    const ui_original_control_view *v=original_text_view(r,val);
+    *idx=0;
+    if(!v) return 0;
+    if(r.c==11){*idx=v->amp_gate?1:0;return 2;}              /* ENV, GATE */
+    if(r.c==15){*idx=v->arp_range==1?0:v->arp_range==2?1:2;return 3;} /* 1 OCT, 2 OCT, FULL */
+    return 0;
 }
 /* Chicago ENV glyph: the knee column for a filter position z (0..1). The knee
  * travels gx+2..gx+OG_W-1-ENV_FALL (19 of 26 px), so a full EG is clear to see. */
