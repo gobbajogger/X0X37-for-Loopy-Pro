@@ -46,35 +46,25 @@ See [ble/README.md](ble/README.md) for Bluetooth MIDI.
 
 ## Versions
 
-**Recommended release: DnBOX 0.0.25.1**, on [GitHub Releases](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). Choose the file for the model printed on your keyboard:
+**Recommended published release (hardware qualification incomplete): DnBOX 0.0.25.1**, on [GitHub Releases](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). The release is published, but does **not** have complete device qualification for Elite or Pro. These are the downloadable files for the physical model printed on your keyboard:
 
 - [SMK-37 Elite: `dnbox-x0x37-0.0.25.1-elite.fwsc`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/v0.0.25.1/dnbox-x0x37-0.0.25.1-elite.fwsc)
 - [SMK-37 Pro: `dnbox-x0x37-0.0.25.1-pro.fwsc`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/v0.0.25.1/dnbox-x0x37-0.0.25.1-pro.fwsc)
 
-The [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/) also lists **0.0.26 from source `94197fc8`**, but marks it **hardware test: boot/restart not yet verified**. An earlier 0.0.26 package was withdrawn after a boot concern. This is not a stable upgrade; use it only for deliberate hardware testing with a retained 0.0.25.1 recovery package.
+The [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/) also lists **0.0.26 from source `94197fc8`**, but marks it **hardware test: boot/restart not yet verified**. An earlier 0.0.26 package was withdrawn after a boot concern. This is **not a verified production upgrade**; use it only for deliberate hardware testing with a retained published 0.0.25.1 package and backups.
 
 The owner reported testing 0.0.25.1 and an earlier 0.0.26 build on an SMK-37 Elite, **without confirming the installed package hash**. That does not validate startup or recovery of the current 0.0.26 candidate. The Pro package has no reported physical test. Neither model has completed full hardware qualification.
 
 ## Install
 
-Use Chrome or Edge on a computer.
-Connect the keyboard with USB.
+On a computer, open [the published DnBOX installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/) in Chrome or Edge. Use a USB data cable, click **Connect**, and allow **MIDI and SysEx** access. If permission is denied, enable it for the site and retry Connect; close other MIDI applications. Check the **physical Elite/Pro label**, not only the USB device name. Starrykey 37 Play uses the Pro package.
 
-- **[Web installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/)**
-- **[Current stable packages (v0.0.25.1)](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/latest)**
-- **[Nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/)** (current 0.0.26, and 0.0.25.1)
+Choose the **visible model and an admitted published 0.0.25.1 entry** in the firmware list, review the package warning, and follow the confirmation. If the installer cannot identify and admit a suitable package, **stop**. The separate **local `.fwsc` / stock chooser is hidden and disabled** on the published main installer. The [GitHub Release downloads](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1) above are real files, **not** an upload method on that page. The [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/) is for deliberately testing unqualified candidates, including the boot-unverified 0.0.26.
 
-Pick the package that matches your model (**Elite** or **Pro**).
-Starrykey 37 Play uses the SMK-37 Pro package.
-**Back up your sample slots before installing, and confirm the downloaded backup exists.** The main installer currently blocks a risky write if a required sample backup fails; the nightly installer may continue with a warning and lose unbacked-up samples. Do not unplug USB during a firmware write.
-
-Get the 0.0.25.1 packages from GitHub Releases.
-Confirm the version name before you write the keyboard.
-You can drop a downloaded `.fwsc` file on the web installer.
-
+**Before the first install or any reinstall while DnBOX still runs**, stop playback, make a `.x0xslots` backup via [Samples](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/), and separately export a portable `.x0xproject` (with samples) via [Projects](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/). Confirm **both files exist** before writing. The main installer blocks a firmware write if a required at-risk sample backup fails; **nightly may warn and continue without a backup**, permanently losing samples. Do not unplug USB during an active write.
 ## Manual and help
 
-- **[SMK-37 keyboard map](SMK37.md)** for the older port; the [0.0.26 control manual (draft)](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/docs/manual-94197fc8/docs/MANUAL.md) explains the newer screens, glyphs, chords and presets, but is **not** a manual for the stable 0.0.25.1 firmware. The [published web manual](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/manual/) still describes the FM-1.
+- **[SMK-37 keyboard map](SMK37.md)** for the older port; the [0.0.26 control manual (draft)](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/docs/manual-94197fc8/docs/MANUAL.md) explains candidate-only screens, glyphs, chords and presets, but does **not** describe the published 0.0.25.1 firmware. The [published web manual](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/manual/) still describes the FM-1.
 - **[Sample importer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/)** — import your own break loops
 - **[Projects](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/)** — save, load and export projects
 
@@ -82,15 +72,14 @@ Repository and Pages URLs still use the previous name, because the GitHub reposi
 
 ## Restore
 
-If an install fails, the keyboard becomes unresponsive, or you want the factory software back:
+The next step depends on what the computer can **actually detect**, not on a momentary disconnect:
 
-1. Keep the USB cable plugged in until any write in progress finishes. Do not unplug during a write.
-2. Download the **stock firmware for your exact physical model** from [M-VAVE](https://www.m-vave.com/download). Use the [web installer's local `.fwsc` option](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/) or follow M-VAVE M-UPGRADE instructions. The installer does **not** bundle a factory firmware image.
-3. If you have a sample-slot backup, restore it after the keyboard runs again. Use the installer or `tools/x0x_slots.py restore`.
+1. **Normal DnBOX app responds.** For a first install or reinstall, create and check **both** backups above, then choose the **listed, admitted** 0.0.25.1 package for the printed model in the [main installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/). Stop if admission fails; a downloaded `.fwsc` cannot be dropped into its hidden local chooser.
+2. **Only the update loader responds after an interrupted write.** The app's sample reader is not running, so **you cannot create a new `.x0xslots` or project backup**. The main installer source supports resuming an interrupted write from the loader with a **listed, admitted and physical-model-matched package**, without an app-side backup. Existing unsaved samples may be lost. If that exact selection is unavailable, stop rather than force a file or guess a hardware recovery gesture.
+3. **Restart is uncertain or no device appears.** Keep USB connected while a write is active. Once the write has ended, reconnect and use **Connect / Rescan** to distinguish the running app from the update loader. Check browser MIDI/SysEx permission and other MIDI applications before deciding; never assume a disconnect proves an install succeeded.
+4. **Return to factory firmware.** Obtain the exact **Elite or Pro stock package** from [M-VAVE](https://www.m-vave.com/download) and follow the official **M-UPGRADE** instructions. The main DnBOX site's stock-file chooser is **not available**. The web installer does not bundle a factory image; stock firmware may not read DnBOX sample slots.
 
-This project does not document a special SMK-37 button gesture for recovery.
-Use the installer and the backup steps above.
-
+**After any write**, the browser's `Done` means a fresh application MIDI identity matched the selected package; it is not proof that the keyboard booted reliably, makes sound or recovered its data. Check the running UI and sound, then the project and sample slots. A partial restore or missing read-back is **not complete**. Keep the `.x0xslots` and `.x0xproject` files until checked. No special SMK-37 recovery button gesture is documented here.
 ## Samples, projects and presets
 
 DnBOX does not ship with recorded breaks, only two loops from its own 909.
@@ -99,7 +88,7 @@ The SMK-37 has three slots of 80, 120 and 32 KiB (about 3.7, 5.5 and 1.5 seconds
 You can ask for 22.05 kHz to fit twice as much at lower quality.
 
 The [sample importer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/) does this from Chrome or Edge.
-The installer can back up the slots and write them back after an update.
+While the normal DnBOX app responds, the Samples page can back up the slots; after an update, the installer attempts to restore compatible slots when a recoverable backup exists. A loader-only recovery cannot make a new backup.
 From the command line:
 
 ```
