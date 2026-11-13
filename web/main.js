@@ -1153,7 +1153,17 @@ async function start(auto = false) {
   // a phone on its side: the synth fills the screen, so bring all of it into view
   if (!auto && matchMedia("(orientation: landscape) and (max-height: 560px)").matches) canvas.scrollIntoView({ block: "center" });
 }
-startBtn.addEventListener("click", () => start());
+startBtn.addEventListener("click", () => start().catch(async error => {
+  // AudioWorklet.addModule(), AudioContext.resume() and device output can fail
+  // after feature detection. Keep a useful retry state, not an inert Start button.
+  status.textContent = 'audio startup failed: ' + (error?.message || String(error));
+  startBtn.disabled = false;
+  startBtn.hidden = false;
+  if (DNBOX) document.dispatchEvent(new Event('dnbox:stopped'));
+  node?.disconnect(); node = null;
+  try { await ac?.close(); } catch { /* a failed context can refuse to close */ }
+  ac = null;
+}));
 if (tryOutError) status.textContent = tryOutError;
 else if (tryOut) {
   saveMessage("A try-out: it starts from the firmware's own flash and is not saved in this browser");
