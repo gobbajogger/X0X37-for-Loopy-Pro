@@ -231,15 +231,23 @@ void engine_motion_reset(void) { mot_release_req = 1; }   /* lanes changed under
  * -50 dB instead of -90 (~2%); after 3 s back under 65% both return. The platform reports each
  * block's load after rendering it (engine_load, same context as engine_render); the change is
  * made at the start of the next block. Off during the PERF test, which measures the full cost. */
+/* Diagnostic only: lock adaptive load shedding off for paired native audio
+ * comparisons. The default keeps release behavior and timing policy unchanged. */
+#ifndef X0X_DIAG_DISABLE_LOAD_GUARD
+#define X0X_DIAG_DISABLE_LOAD_GUARD 0
+#endif
+#if X0X_DIAG_DISABLE_LOAD_GUARD != 0 && X0X_DIAG_DISABLE_LOAD_GUARD != 1
+#error "X0X_DIAG_DISABLE_LOAD_GUARD must be 0 or 1"
+#endif
 #define GUARD_ON_LAST 92u
 #define GUARD_ON_AVG 85u
 #define GUARD_OFF 65u
 #define GUARD_CALM_FRAMES (3u * 44100u)
 extern float drum808_quiet;
-static uint8_t guard_on, guard_applied, guard_enabled = 1;
+static uint8_t guard_on, guard_applied, guard_enabled = !X0X_DIAG_DISABLE_LOAD_GUARD;
 static uint32_t guard_avg_q8, guard_calm;
 volatile uint32_t eng_guard_count;
-void engine_guard_enable(int on) { guard_enabled = (uint8_t)(on != 0); }
+void engine_guard_enable(int on) { guard_enabled = (uint8_t)(!X0X_DIAG_DISABLE_LOAD_GUARD && on != 0); }
 int engine_guard_active(void) { return guard_on; }
 void engine_load(uint32_t pct, uint32_t frames)
 {
@@ -843,6 +851,11 @@ X0X_COLD void engine_apply_sound(const sound_t *s)
                     ) engine_set(t, v, i, s->v[t][v][i]);
 }
 
+#if X0X_DIAG_STATE_TRACE
+static uint32_t diag_consume, diag_command, diag_offset;
+uint32_t engine_diag_render_offset;
+#endif
+
 void engine_drum(int kit, int voice, float vel)
 {
     if ((unsigned)kit < NKIT && SEQ_PART_OFF(&seq, kit)) return;
@@ -910,6 +923,24 @@ void engine_bass_off_note(int part, int note)
 }
 void engine_brk_live(int key, int down) { if (down && SEQ_PART_OFF(&seq, TRK_BRK)) return; cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
 
+/* Opt-in bounded trace: ordinary RAM, never the audio pool. No raw struct
+ * bytes, addresses, wall clock, or DSP floating-point arithmetic enter hashes. */
+#ifndef X0X_DIAG_STATE_TRACE
+#define X0X_DIAG_STATE_TRACE 0
+#endif
+#if X0X_DIAG_STATE_TRACE != 0 && X0X_DIAG_STATE_TRACE != 1
+#error "X0X_DIAG_STATE_TRACE must be 0 or 1"
+#endif
+#if X0X_DIAG_STATE_TRACE
+struct diag_row { uint32_t half, late, key18_tick, key22_tick, consume_tick, command, offset; };
+volatile struct { uint32_t written; struct diag_row row[48]; } x0x_state_trace;
+
+#define diag_event(data) ((void)0)
+
+#else
+#define diag_event(data) ((void)0)
+#endif
+
 /* ------------------------------------------------------- sequencer sink --- */
 /* probability: each part's (and drum track's) chance on the step playing now, set by its T_PROB lane
  * before the step fires (motion_step runs first); 100 = always */
@@ -941,6 +972,7 @@ static int s_drum_seq(void *x, int kit, int v, float vel)
 __attribute__((noinline)) static void s_drum(void *x, int kit, int v, float vel)
 {
     (void)x;
+
     if (v == 0)                          /* BD (both kits' track 1): the master's PUMP key */
         master_key(&mst, kit, vel);
     if ((unsigned)kit < NKIT && (unsigned)v < NDRUM)   /* MIX's drum pages: the track's meter jumps */
@@ -1104,11 +1136,13 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
     int rc = original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)note, (unsigned)velocity);
     if (sl && previous >= 0)
         (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
+
     original_seq_note[p] = (int16_t)note;
     return rc == ORIGINAL_RUNTIME_OK;
 }
 static void s_boff(void *x, int p)
 {
+    diag_event((48u << 24) ^ (uint32_t)p);
     (void)x;
     if ((unsigned)p >= NBASS) return;
     (void)original_runtime_release_source(&original_bass[p], ORIGINAL_INPUT_SEQUENCE);
@@ -1878,8 +1912,12 @@ static void drain(void)
         else if (type == C_BASE) {
             if (a < NTARGETS) apply_base((int)a, (int)b, (int)v);
             else mot_apply(0, (int)a, (int)b, (int)v, mot_base(0, (int)a, (int)b, (int)v));
-        } else if (type == C_DRUM)
+        } else if (type == C_DRUM) {
+#if X0X_DIAG_STATE_TRACE
+            diag_consume = plat_ticks24(); diag_command = c; diag_offset = engine_diag_render_offset;
+#endif
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
+        }
         else if ((type == C_BON || type == C_REC) && a < NBASS) {
             int slide = type == C_REC ? live_rec_legato((int)a, 3) && bass_held[a] != b : (int)((v >> 1) & 1u);
 #ifdef X0X_HOST
@@ -2613,6 +2651,7 @@ static uint32_t plan_pick(uint32_t n)
         k = plan_cost(m, c);
         if (k < bc) { bc = k; best = m; }
     }
+
     if (bc * 8u < cost * 7u || (eng_plan & ~(act & ok)))   /* 1/8 better, or a job of it went idle */
         eng_plan = (uint8_t)best;
     return eng_plan & act & ok;
@@ -2803,6 +2842,20 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         bfx_flt_shape(out_l, out_r, (int)n);
     }
 }
+
+#if X0X_DIAG_STATE_TRACE
+__attribute__((noinline, minsize)) void engine_diag_half(uint32_t half, uint32_t late)
+{
+    if (half >= 174u && half < 222u) {
+        volatile struct diag_row *r = &x0x_state_trace.row[half - 174u];
+        r->half = half; r->late = late;
+        r->key18_tick = plat_diag_key_tick(13); r->key22_tick = plat_diag_key_tick(17);
+        r->consume_tick = diag_consume; r->command = diag_command; r->offset = diag_offset;
+        ++x0x_state_trace.written;
+    }
+    diag_consume = 0;
+}
+#endif
 
 void engine_render(int32_t *out_lr, uint32_t n)
 {
@@ -3163,7 +3216,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     mot_playing = mot_release_req = 0;
     mot_on = mot_was_on = 1;
     guard_on = guard_applied = 0;
-    guard_enabled = 1;
+    guard_enabled = !X0X_DIAG_DISABLE_LOAD_GUARD;
     guard_avg_q8 = guard_calm = 0;
     drum808_quiet = 3.2e-5f;
     smc_solo_state = 0;

@@ -168,3 +168,7 @@ uint32_t plat_irq_stack_used(void);      /* the deepest the interrupts' stack ha
 uint32_t plat_irq_stack_size(void);
 int plat_stalls(uint32_t s[3]);
 void plat_stalls_enable(int on);
+
+#if X0X_DIAG_STATE_TRACE
+uint32_t plat_diag_key_tick(unsigned note);
+#endif

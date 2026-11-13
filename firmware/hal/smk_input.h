@@ -347,6 +347,9 @@ static void smk__key_event(uint32_t k, uint32_t vel)     /* vel 0 = release */
         fm1_in.keys &= ~((uint64_t)1u << k);
 }
 
+#if X0X_DIAG_STATE_TRACE
+static volatile uint32_t smk_diag_key_tick[FM1_NKEY];
+#endif
 static void smk__keys(uint32_t now)
 {
     uint32_t k;
@@ -373,6 +376,9 @@ static void smk__keys(uint32_t now)
         if (s == 3u && st != 3u) {                        /* contact 2 made: the note, timed from contact 1 */
             uint32_t T = 10u + (now - fm1_in.ks_t1[k]) / (100u * FM1_TICKS_PER_US);   /* stock 0.1 ms frames */
             uint32_t x = T <= 0x3FEu ? 0x3FFu - T : 1u;
+#if X0X_DIAG_STATE_TRACE
+            smk_diag_key_tick[k] = now; /* contact-2 recognition, not velocity contact-1 */
+#endif
             smk__key_event(k, smk_vel7(smk_curve(smk_trim_key[k], x)));
         }
         if (s == 1u && st == 3u)                          /* 3 -> 1: still down */
