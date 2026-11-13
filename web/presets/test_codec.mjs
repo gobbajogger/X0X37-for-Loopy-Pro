@@ -122,7 +122,7 @@ test("A8 factory or factory-derived exports always refused, without output", () 
 test("BAD FILE semantic checks: flags, reserved, canonical strings, sample count and refs", () => {
   const c=make("chicago"), b=make("909");
   const mutations=[
-    [c,10,1],[c,98,1],[c,32,65],[c,20,8],[c,22,255],
+    [c,10,1],[c,98,1],[c,62,65],[c,20,8],[c,22,255],
     [b,97,3],[b,100+132+1,1],[b,100+132,4]
   ];
   for(const [base,at,value] of mutations) {const changed=clone(base);changed[at]=value;recalc(changed);
