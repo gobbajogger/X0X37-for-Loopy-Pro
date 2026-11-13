@@ -123,7 +123,7 @@ The working record is `preset_record_t` (HOST sizeof 536 B). It must live on the
 
 This step does **not** add the module to the device link. Device flash and pool delta is 0 B until a later wiring increment.
 
-HOST ONLY staged measurements, before and after a size-optimization pass on this module, are in section 12. Those figures are HOST ESTIMATE, not device sizes. JieLi pi32v2 `-Os` is MISSING. Even the smallest after-pass subset is still larger than the 248 B Elite / 256 B Pro code-flash headroom. The module is not wired. This step does not do general flash savings elsewhere.
+HOST ONLY staged measurements, before and after a size-optimization pass on this module, are in section 12. Those figures are HOST ESTIMATE, not device sizes. JieLi pi32v2 device sizes are in section 14 (BUILD evidence). Even the smallest after-pass subset is still larger than the 248 B Elite / 256 B Pro code-flash headroom. The module is not wired. This step does not do general flash savings elsewhere.
 
 Pool free on the given base is 8,340 B (floor 8,192 B). The module `.bss` is 0.
 
@@ -284,11 +284,11 @@ Golden v1 wire bytes were captured from the 9bda58dd encoder (Chicago 122 B, 909
 
 ### JieLi pi32v2 and the flash / pool headroom
 
-JieLi pi32v2 `-Os` size is MISSING. The V1.2.14 SDK is not on this host, and this step does not run a device build.
+JieLi pi32v2 device sizes from one Elite+Pro pair at `DNBOX_PRESET_MEASURE_STAGE=4` are in section 14 (BUILD evidence). The figures in this section stay HOST ESTIMATE.
 
-The 94197fc8 V1.2.14 base has 248 B Elite and 256 B Pro code-flash headroom, and 148 B pool headroom (floors 8,192 B; this step does not change floors). The after stage-4 HOST ESTIMATE 2,642 B (CRC reused) is still far above that flash headroom. These are host numbers, not device numbers. The module is not added to the device link. Module `.bss` / pool remains 0 B: the 536 B HOST working record is on the stack.
+The 94197fc8 V1.2.14 base has 248 B Elite and 256 B Pro code-flash headroom, and 148 B pool headroom (floors 8,192 B; this step does not change floors). The after-residuals stage-4 HOST ESTIMATE 2,687 B (CRC reused) is still far above that flash headroom. These are host numbers, not device numbers. A default (stage-0) image does not add the module to the device link. Module `.bss` / pool remains 0 B: the 536 B HOST working record is on the stack.
 
-A later wiring step must measure a real JieLi image before this file joins the unity build. This pass does not touch `ui.c`, SEQ code, floors, or the storage map.
+This pass does not touch `ui.c`, SEQ code, floors, or the storage map.
 
 ### After BugBot residuals
 
@@ -303,7 +303,7 @@ Same flags and method. Figures are HOST ESTIMATE, CRC reused (0 added), `.data` 
 
 Stage 1 shrank: `load_into` zeros the working record directly, so `preset_record_clear` drops from a load-only link, and a dead length check was removed.
 
-Stages 2–4 grew a little because `preset_record_import` now decodes into a stack scratch and assigns the caller only on success (a failed WRONG ENGINE import never looks like a filled slot), and because `*written` is set only after the buffer-size check. Those are correctness costs. All four stages stay below the before-pass sums (1,340 / 1,549 / 2,941 / 3,008). The current stage-4 HOST ESTIMATE 2,687 B is still far above the 248 B / 256 B flash headroom. These are host numbers, not device numbers. JieLi pi32v2 is still MISSING. There is no device link. The Optimizer lane `lane/opt-flash-savings-026` is not touched.
+Stages 2–4 grew a little because `preset_record_import` now decodes into a stack scratch and assigns the caller only on success (a failed WRONG ENGINE import never looks like a filled slot), and because `*written` is set only after the buffer-size check. Those are correctness costs. All four stages stay below the before-pass sums (1,340 / 1,549 / 2,941 / 3,008). The current stage-4 HOST ESTIMATE 2,687 B is still far above the 248 B / 256 B flash headroom. These are host numbers, not device numbers. JieLi pi32v2 device sizes are in section 14. A default (stage-0) image does not wire the codec. The Optimizer lane `lane/opt-flash-savings-026` is not touched.
 
 
 ## 13. Safe capacity without a storage-map change
@@ -386,4 +386,134 @@ Another mix: 20 Chicago (2,440 B) and 5 909 (1,480 B) total 3,920 B, 25 slots wi
 - **Power-loss safety.** The planned order stands: write the full new pad to the inactive sector, verify its CRC, then write the 32 B `DNCM` marker last; the valid marker with the higher seq is live; on a seq tie, pad A wins; a torn pad falls back to the other. This needs the A/B layout. A packed no-undo layout cannot keep a previous pad.
 - **Foreign-store clear.** `st_owner_check` already erases this spare when it clears another family's store. Wiring must accept that, or change the clear later. This step does not change it.
 - **What this spare cannot do.** It cannot hold 64 A/B 909-sized slots. A larger bank needs a later flash-reserve decision and a storage-map change, which this step does not make.
+
+
+## 14. JieLi pi32v2 measurement (BUILD evidence)
+
+These are device-level numbers from one JieLi pi32v2 Elite+Pro pair, built from commit `a6770c1e74505f32a7b4f645dda860a731863229` with `DNBOX_PRESET_MEASURE_STAGE=4` and `X0X_DEV_PADCAL=0`. They are not HOST ESTIMATE. The images are **MEASUREMENT ONLY — NOT FOR INSTALL**. The codec is not wired into a default (stage-0) build. Floors, the storage map, `ui.c`, SEQ, and `lane/opt-flash-savings-026` were not changed. No device was written.
+
+The per-stage figures come from one STAGE=4 link per model. Each named `preset_record` symbol in that ELF is assigned to the first stage that needs it (the same membership as the HOST drivers): (1) load-only: `preset_record_load`, `load_into`, and their helpers; (2) plus `decode`, `verify_sample(s)`, `import`, `slot_find_empty`, and `check_*`; (3) plus `encode`, `commit_encode` / `commit_decode`, `decode_ab`, `winner`, `previous`, and write helpers; (4) plus `export` (`factory_derived` is inlined into `export` on this link and has no symbol of its own). CRC (`x0x_crc32`, `x0x_crc32_upd`, `X0X_CRC32_NIBBLE_T`) is already in the 94197fc8 image through the unity include of `crc32_nibble.h` and is not counted again.
+
+### Output sections vs. input sections
+
+`firmware/app.ld` line 32 puts both `*(.text*)` and `*(.rodata*)` into the `.text` XIP output section (`.text : { KEEP(*(.text.crt0)) *(.text*) *(.rodata*) . = ALIGN(4); _etext = .; } > XIP`). There is no separate `.rodata` ELF section. The tables below still report **code (`.text` input)** and **const data (`.rodata` input)** separately for every symbol, and they report the ELF output-section sizes (`.text`, `.data`, `.bss`) as well. `.data` and `.bss` output-section sizes did not change.
+
+Elite and Pro have identical sizes for every codec symbol below.
+
+### Per-symbol sizes (pi32v2, both models)
+
+| Symbol | Input section | Size (B) | First stage |
+| --- | --- | ---: | ---: |
+| `load_into` | .text | 368 | 1 |
+| `preset_record_load` | .text | 36 | 1 |
+| `rd_u32` | .text | 24 | 1 |
+| `rd_w` | .text | 24 | 1 |
+| `zero_n` | .text | 12 | 1 |
+| `copy_n` | .text | 12 | 1 |
+| `rd_u16` | .text | 10 | 1 |
+| `record_size` | .text | 8 | 1 |
+| `k_hdr` | .rodata | 27 | 1 |
+| `k_nsamples` | .rodata | 8 | 1 |
+| `k_nparams` | .rodata | 8 | 1 |
+| `check_loaded` | .text | 92 | 2 |
+| `preset_record_import` | .text | 76 | 2 |
+| `check_counts` | .text | 70 | 2 |
+| `check_origin` | .text | 70 | 2 |
+| `check_samples` | .text | 62 | 2 |
+| `preset_record_verify_samples` | .text | 60 | 2 |
+| `preset_record_decode` | .text | 54 | 2 |
+| `pad_canonical` | .text | 40 | 2 |
+| `preset_record_verify_sample` | .text | 38 | 2 |
+| `preset_slot_find_empty` | .text | 36 | 2 |
+| `k_factory` | .rodata | 8 | 2 |
+| `preset_record_encode` | .text | 382 | 3 |
+| `preset_commit_decode` | .text | 126 | 3 |
+| `decode_ab` | .text | 120 | 3 |
+| `preset_commit_encode` | .text | 118 | 3 |
+| `preset_commit_previous` | .text | 52 | 3 |
+| `preset_commit_winner` | .text | 30 | 3 |
+| `wr_w` | .text | 24 | 3 |
+| `wr_u32` | .text | 16 | 3 |
+| `wr_u16` | .text | 8 | 3 |
+| `preset_record_export` | .text | 30 | 4 |
+
+Inlined into those symbols (no row of their own): `rd_sample`, `wr_sample`, `check_record`, and `preset_record_factory_derived` (into `export`, 30 B). A 48 B `.Lswitch.table.1135` is a renamed existing table (the base already has four 48 B `.Lswitch.table.1131`–`.1134`; the measurement has `.1132`–`.1135`, same count and sizes) and is not codec. A 440 B `.L_MergedGlobals.1160` `.bss` symbol is an LTO rename; the `.bss` output section is unchanged.
+
+The measurement hook `preset_measure_touch` is 108 B of `.text`. The call from `fm1_cstart` adds 4 B. The hook is not part of any stage sum.
+
+### Per-stage sums (codec only; hook excluded)
+
+| Stage | .text (code) | .rodata | .data | .bss | Incremental total | Cumulative total |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 load-only | 494 | 43 | 0 | 0 | 537 | 537 |
+| 2 + validation / import | 598 | 8 | 0 | 0 | 606 | 1,143 |
+| 3 + encode / commit | 876 | 0 | 0 | 0 | 876 | 2,019 |
+| 4 + export | 30 | 0 | 0 | 0 | 30 | 2,049 |
+
+Cumulative at stage 4: **1,998 B `.text` + 51 B `.rodata` = 2,049 B** of named codec symbols, **0 B `.data`, 0 B `.bss`**.
+
+Whole-image `.text` (the XIP output section, which also holds `.rodata`) grew 2,164 B on both models: 2,049 (codec) + 108 (hook) + 4 (`fm1_cstart` call) + 3 (`.text` `ALIGN(4)` pad) = 2,164.
+
+### Whole-image deltas vs the 94197fc8 base
+
+`APP_CODE_MAX` is 552,672 B. Pool cap is 344,064 B. RAM `.data`+`.bss` cap is 98,304 B. Floors are flash free ≥ 8,192 B and pool free ≥ 8,192 B. This step does not change those floors.
+
+| | Elite base | Elite STAGE=4 | Elite Δ | Pro base | Pro STAGE=4 | Pro Δ |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| App image (flash used) | 544,232 | 546,396 | +2,164 | 544,224 | 546,388 | +2,164 |
+| Flash free | 8,440 | 6,276 | −2,164 | 8,448 | 6,284 | −2,164 |
+| ELF `.text` (XIP, includes rodata) | 540,324 | 542,488 | +2,164 | 540,316 | 542,480 | +2,164 |
+| of which new named `.rodata` | — | 51 | +51 | — | 51 | +51 |
+| ELF `.data` | 588 | 588 | 0 | 588 | 588 | 0 |
+| ELF `.bss` | 94,944 | 94,944 | 0 | 94,944 | 94,944 | 0 |
+| `.data`+`.bss` combined | 95,536 / 98,304 | 95,536 / 98,304 | 0 | 95,536 / 98,304 | 95,536 / 98,304 | 0 |
+| Pool used | 335,724 / 344,064 | 335,724 / 344,064 | 0 | 335,724 / 344,064 | 335,724 / 344,064 | 0 |
+| Pool free | 8,340 | 8,340 | 0 | 8,340 | 8,340 | 0 |
+
+### Floors
+
+- **Flash free does not hold.** Elite free 6,276 B is **1,916 B below** the 8,192 B floor. Pro free 6,284 B is **1,908 B below** the 8,192 B floor. (Equivalently, the STAGE=4 image is 1,916 B / 1,908 B over the largest image the floor would allow, 544,480 B.)
+- **Pool free holds.** 8,340 B on both models, 148 B above the 8,192 B floor.
+
+A default stage-0 link (the shipped default) does not add this cost: both the `x0x.c` include and the `main_fm1.c` hook are behind `#if DNBOX_PRESET_MEASURE_STAGE`, which is 0 when the define is unset or default. At stage 0 the device image stays byte-identical to a base built with the same `--git-sha`. This pair used `--git-sha a6770c1e…`, so only the 7-character short SHA display string would differ.
+
+### Recipe, commands, logs, hashes
+
+`tools/build.py` on the branch does not forward `DNBOX_PRESET_MEASURE_STAGE`. The define was added only in the measurement copy `/workspace/build-1214/presets-measure/tools/build.py` (after the `X0X_CDC` flag loop: read the env var, accept `0`..`4`, append `-DDNBOX_PRESET_MEASURE_STAGE={n}`). The branch recipe is unchanged.
+
+SDK `/workspace/build-1214/sdk-v1.2.14`, toolchain `/home/box/.jieli/toolchain`, BT controller the authorized `a334208b` input (not fetched, not needed for ELF/app measurement). Source tree copied to `/workspace/build-1214/presets-measure/`. No SDK was fetched. `/workspace/build-1214/seqchord-measure` was not touched.
+
+Elite, 6:14:39–6:14:47 AM America/Chicago, 13 Nov 2026, exit 0:
+
+```
+unset GIT_DIR GIT_OPTIONAL_LOCKS
+cd /workspace/build-1214/presets-measure
+export JIELI_TOOLCHAIN=/home/box/.jieli/toolchain
+export AC79_SDK=/workspace/build-1214/sdk-v1.2.14
+export X0X_DEV_PADCAL=0
+export DNBOX_PRESET_MEASURE_STAGE=4
+export BOARD=smk37 MODEL=elite X0X_JOBS=4
+python3 -u tools/build.py --board smk37 --model elite --sdk /workspace/build-1214/sdk-v1.2.14 \
+  --nightly-version 0.0.26 --git-sha a6770c1e74505f32a7b4f645dda860a731863229
+```
+
+Pro: the same, with `MODEL=pro` and `--model pro`, 6:15:34–6:15:42 AM America/Chicago, exit 0.
+
+Logs and command scripts:
+
+- `/workspace/build-1214/logs/presets-measure-elite-build.log`
+- `/workspace/build-1214/logs/presets-measure-elite-command.sh`
+- `/workspace/build-1214/logs/presets-measure-pro-build.log`
+- `/workspace/build-1214/logs/presets-measure-pro-command.sh`
+
+Images (MEASUREMENT ONLY — NOT FOR INSTALL), kept under `/workspace/build-1214/artifacts/presets-measure/` and in the build tree:
+
+| Image | Bytes | sha256 |
+| --- | ---: | --- |
+| Elite ELF | 632,432 | `db768cce5035dbe599569a864af570d76e7e9f10a0f41a8d9557d8738cd31392` |
+| Elite app `.bin` | 546,396 | `dc6db6ea842dd2869cf90c226d13b0c29f94a473dfce07d64ebf7b4285bd89da` |
+| Pro ELF | 632,428 | `e30b84cbec07d57bdab9b36b1356c508179c91a7a4eb9bd80eba33402105acee` |
+| Pro app `.bin` | 546,388 | `b252320c90390f52b5d1dead7719c9c96020a4ba75fa03661dabb0f9bbc984e3` |
+
+The hook that kept the STAGE=4 symbols live under LTO and `--gc-sections` is `preset_measure_touch` in `firmware/src/app/main_fm1.c` at line 2598 (`__attribute__((used, noinline))`, `void *volatile keep[]`). It is called once from `fm1_cstart` at line 2674, after the boot fields are set and before `fm1_main()`, not in the `for(;;)` loop, not in `ui.c`, and not on the audio path (audio starts later inside `fm1_main`). The codec is included from `firmware/src/x0x.c` line 214 (`#if DNBOX_PRESET_MEASURE_STAGE`) / line 220 (`#include "app/preset_record.c"`). The default in `firmware/src/app/preset_record.h` lines 13–17 is 0.
 
