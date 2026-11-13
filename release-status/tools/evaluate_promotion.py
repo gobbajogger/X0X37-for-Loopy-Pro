@@ -20,6 +20,8 @@ TOOLS = Path(__file__).resolve().parent
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
+from evidence_policy import approval_errors, installation_for_model, direct_source_link, parse_instant
+
 from validate_release_status import (  # noqa: E402
     HARDWARE_PROMOTION_FLAGS,
     MODEL_PROOF_TYPES,
@@ -356,233 +358,73 @@ def _model_tested_in_history(record: dict, model: str) -> list[dict]:
 
 
 def evaluate_install_verified(record: dict, model: str) -> dict[str, Any]:
-    """Evaluate install-verified for one exact model. Elite never implies Pro."""
+    """An independently scoped hardware receipt, not record-wide or browser proof."""
     gate = f"install-verified:{model}"
     notes = [
         "An Elite verification never implies a Pro verification.",
-        "A USB name or product string is not model proof.",
-        "A confidence flag alone is not a hash.",
-        "A web install success is not install-verified.",
+        "Web transfer acknowledgement and emulation are not device installation proof.",
     ]
-    models = models_of(record)
-    if model not in models:
-        return _result(gate, FAIL, f"{model} is not a model on this record", model=model, hardware=True, notes=notes)
-
-    conf = record.get("identity_confidence") or {}
-    # Per-model history is the right scope. Do not copy another model's proof.
-    events = _model_tested_in_history(record, model)
-    other_events = []
-    for other in models:
-        if other != model:
-            other_events.extend(_model_tested_in_history(record, other))
-
-    if not events and other_events:
-        other_names = [n for n in models if n != model]
-        return _result(
-            gate,
-            MISSING,
-            f"{model} was not tested. A report for {', '.join(other_names)} never implies {model}. Installed hash is absent for {model}.",
-            model=model,
-            hardware=True,
-            notes=notes,
-        )
-
-    # Hardware-field proof and hash must be present and must match this model.
-    # The record-level evidence is empty on seeds; history fields are used.
-    evidence: dict[str, Any] = {}
-    # If a proposal-style evidence block were present it would be evaluated
-    # by the validator; the evaluator uses stored history and identity.
-    stored_hash, hash_how = resolve_installed_hash(evidence, record)
-    # History installed_hash for this model only.
-    hist_hashes = [h.get("installed_hash") for h in events if h.get("installed_hash")]
-    if not stored_hash and hist_hashes:
-        stored_hash = hist_hashes[0]
-        hash_how = "history"
-
-    expected = (models.get(model) or {}).get("image_sha256")
-    hash_c = None
-    for h in events:
-        hash_c = h.get("installed_hash_confidence") or hash_c
-    if hash_c is None:
-        hash_c = conf.get("installed_hash")
-
-    model_c = None
-    for h in events:
-        model_c = h.get("model_confidence") or model_c
-    if model_c is None:
-        model_c = conf.get("model")
-    build_c = None
-    for h in events:
-        build_c = h.get("build_confidence") or build_c
-    if build_c is None:
-        build_c = conf.get("build")
-
-    reasons = []
-    if model_c != "verified":
-        reasons.append(f"model confidence is {model_c!r}, not verified")
-    if build_c != "verified":
-        reasons.append(f"build confidence is {build_c!r}, not verified")
-    if is_usb_or_product_proof(evidence, record):
-        return _result(
-            gate,
-            FAIL,
-            "a USB name or product string must not pass as model proof",
-            model=model,
-            hardware=True,
-            notes=notes,
-        )
-    proof = offered_model_proof(evidence, record)
-    if proof not in MODEL_PROOF_TYPES:
-        reasons.append(
-            "no hardware-field model proof (board_id, model_id, flash_id, mac, firmware_readback, or backup_field)"
-        )
-    if stored_hash and SHA256.fullmatch(str(stored_hash)):
-        if stored_hash != expected:
-            return _result(
-                gate,
-                FAIL,
-                f"installed hash does not equal models.{model}.image_sha256",
-                model=model,
-                hardware=True,
-                notes=notes,
-            )
-    else:
-        readback = firmware_readback_ok(evidence, record)
-        if not readback:
-            reasons.append("installed hash is absent")
-
-    if reasons:
-        # Absence of proof is missing, not a failed contradictory measurement,
-        # unless a bad hash or USB-only proof was offered (handled above).
-        status = MISSING
-        return _result(
-            gate,
-            status,
-            f"{model}: " + "; ".join(reasons) + ". This is not install-verified.",
-            model=model,
-            hardware=True,
-            notes=notes,
-        )
-
-    return _result(
-        gate,
-        PASS,
-        f"{model}: hardware-field model proof and a matching installed hash are present.",
-        model=model,
-        hardware=True,
-        notes=notes,
-    )
+    if model not in models_of(record):
+        return _result(gate, FAIL, f"unknown model {model}", model=model, hardware=True, notes=notes)
+    qualified, reason = installation_for_model(record, model)
+    if not qualified:
+        contradicted = "mismatch" in reason or "USB" in reason
+        return _result(gate, FAIL if contradicted else MISSING,
+                       f"{model}: {reason}. Elite never implies Pro. This is not install-verified.",
+                       model=model, hardware=True, notes=notes)
+    return _result(gate, PASS,
+                   f"{model}: {reason}; model and build proof are independent.",
+                   model=model, hardware=True, notes=notes)
 
 
 def _quoted_owner_history(record: dict, model: str | None = None) -> list[dict]:
-    found = []
-    for h in _history(record):
-        if h.get("quoted") is not True:
-            continue
-        if "owner" not in (h.get("source") or "").lower():
-            continue
-        if model is not None:
-            raw = str(h.get("model") or "").lower()
-            if raw and raw != model.lower() and model.lower() not in raw:
-                continue
-        found.append(h)
-    return found
+    """History is explanatory; no model-less quote may authorize a model."""
+    if model is None:
+        return []
+    return [
+        h for h in _history(record)
+        if h.get("quoted") is True
+        and str(h.get("model") or "").strip().lower() == model.lower()
+        and "owner" in str(h.get("source") or "").lower()
+        and parse_instant(h.get("time")) is not None
+        and direct_source_link(h.get("source_link"))
+    ]
 
 
 def evaluate_owner_hardware_approval(record: dict, model: str) -> dict[str, Any]:
     gate = f"owner-hardware-approval:{model}"
     notes = [
-        "An Elite approval never implies a Pro approval.",
-        "Relayed words with no quotation do not satisfy this gate.",
-        "owner-hardware-approval requires install-verified on the same model.",
-        "A web install success is not hardware approval.",
-        "Emulation is not hardware approval.",
+        "A distinct model-named owner quotation/time/source_link and image identity are mandatory.",
+        "Emulation, transfer ACK and relayed words are not hardware approval.",
+        "Every model must have its own verified installation receipt.",
     ]
     models = models_of(record)
     if model not in models:
-        return _result(gate, FAIL, f"{model} is not a model on this record", model=model, hardware=True, notes=notes)
-
-    # Scoped hardware_approvals on the record, if any.
-    approvals = [a for a in (record.get("hardware_approvals") or []) if isinstance(a, dict)]
-    source_sha = record.get("source_sha")
-    expected = (models.get(model) or {}).get("image_sha256")
-    scoped = []
-    bad = []
-    for item in approvals:
-        if item.get("model") != model:
-            continue
-        if item.get("source_sha") != source_sha:
-            bad.append("hardware approval source_sha does not match this record")
-            continue
-        if item.get("image_sha256") != expected:
-            bad.append("hardware approval image SHA-256 does not match this model")
-            continue
-        if item.get("approved") is True:
-            scoped.append(item)
-    if bad:
-        return _result(gate, FAIL, f"{model}: " + "; ".join(bad), model=model, hardware=True, notes=notes)
-
-    # Cross-model implication is refused.
-    other_approved = [
-        a
-        for a in approvals
-        if a.get("approved") is True and a.get("model") and a.get("model") != model
-    ]
-    quotes = _quoted_owner_history(record, model)
-    other_quotes = []
-    for other in models:
-        if other != model:
-            other_quotes.extend(_quoted_owner_history(record, other))
-
+        return _result(gate, FAIL, f"unknown model {model}", model=model, hardware=True, notes=notes)
+    approvals = [a for a in record.get("hardware_approvals", [])
+                 if isinstance(a, dict) and a.get("model") == model and a.get("approved") is True]
     install = evaluate_install_verified(record, model)
-    if not quotes and not scoped:
-        extra = ""
-        if other_quotes or other_approved:
-            extra = f" An {'/'.join(sorted({a.get('model') for a in other_approved} | {h.get('model') for h in other_quotes if h.get('model')}))} statement never implies {model}."
-        return _result(
-            gate,
-            MISSING,
-            f"no quoted owner hardware approval for {model} on this exact build.{extra} install-verified for {model} is {install['status']}.",
-            model=model,
-            hardware=True,
-            notes=notes,
-        )
-
-    # Quotes exist. They still do not pass without install-verified and a
-    # scoped identity match (exact source and image hash).
+    if not approvals:
+        return _result(gate, MISSING,
+                       f"{model}: no independent owner hardware approval for this exact build; "
+                       f"install-verified is {install['status']}. Elite never implies Pro.",
+                       model=model, hardware=True, notes=notes)
     reasons = []
+    if len(approvals) != 1:
+        reasons.append("multiple approval receipts are ambiguous")
+    for approval in approvals:
+        reasons.extend(approval_errors(approval, record))
     if install["status"] != PASS:
         reasons.append(f"install-verified for {model} is {install['status']}, not pass")
-    has_time = any(h.get("time") for h in quotes) or any(a.get("time") for a in scoped)
-    has_link = any(h.get("ref") or h.get("source") for h in quotes) or any(a.get("ref") for a in scoped)
-    if not has_time:
-        reasons.append("timestamp is missing")
-    if not has_link:
-        reasons.append("direct source is missing")
-    if not scoped:
-        reasons.append(
-            f"no scoped hardware_approvals entry for {model} that names this source SHA and this model's image SHA-256"
-        )
     if reasons:
-        # A quote without install-verified or without a scoped hash match is
-        # not a pass. Treat as missing the remaining required proof, unless
-        # a contradictory scoped entry failed above.
-        return _result(
-            gate,
-            MISSING,
-            f"{model}: " + "; ".join(reasons) + ". This is not owner-hardware-approval.",
-            model=model,
-            hardware=True,
-            notes=notes,
-        )
-    return _result(
-        gate,
-        PASS,
-        f"{model}: quoted owner approval is present, scoped to this exact source and image, and install-verified is pass.",
-        model=model,
-        hardware=True,
-        notes=notes,
-    )
+        status = FAIL if any("does not match" in r or "mismatch" in r for r in reasons) else MISSING
+        return _result(gate, status,
+                       f"{model}: " + "; ".join(reasons) + ". This is not owner-hardware-approval.",
+                       model=model, hardware=True, notes=notes)
+    return _result(gate, PASS,
+                   f"{model}: separately quoted owner approval/time/direct source_link matches this source "
+                   "and image; exact-model install receipt passes.",
+                   model=model, hardware=True, notes=notes)
 
 
 def evaluate_record(record: dict) -> dict[str, Any]:
