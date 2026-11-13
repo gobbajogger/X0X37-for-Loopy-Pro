@@ -1,0 +1,10 @@
+START full-suite 2026-11-13T22:53:55+10:00
+PWD=/workspace/qa-runs/5849cb11 HEAD=5849cb114b20212c22d75b28839d021696fd4d68
+NINEW9_DIR=/workspace/x0x37-refs/schwung/schwung-9W9
+EIGHTW8_DIR=/workspace/x0x37-refs/schwung/schwung-8W8
+SCHWUNG303=/workspace/x0x37-refs/schwung/schwung-303
+TB3PO_REF=/workspace/x0x37-refs/schwung/schwung-tb3po/src/dsp/tb3po.c
+X0X_TEST_JOBS=8 (default)
+CMD: sh tests/run_tests.sh
+STOPPED by BugBot QA at 2026-11-13T22:56:06+10:00: parent asked to stop heavy work (host suite incomplete).
+Process tree rooted at 3879047 was SIGTERM'd. Results below this line are not a finished suite.
