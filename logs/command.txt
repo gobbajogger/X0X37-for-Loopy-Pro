@@ -1,0 +1,1 @@
+PRESET_FACTORY_TABLE_CRC=0xd644a5f5 sh tests/host/preset_record_test.sh /workspace/qa-runs/014e1b67/build

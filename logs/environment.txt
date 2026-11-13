@@ -1,0 +1,10 @@
+cc path: /usr/bin/cc
+cc (Debian 14.2.0-19) 14.2.0
+Copyright (C) 2024 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+uname: Linux grok-bot-vm-458836563 6.12.94+ #1 SMP PREEMPT_DYNAMIC Fri Oct 16 00:53:04 UTC 2026 x86_64 GNU/Linux
+cwd will be: /workspace/qa-runs/014e1b67
+HEAD: 014e1b67b013dae0e93d8b6d5ec095eef1472c32
+TREE: cf846cd34d0845325b144cb8750dcc33972e2595

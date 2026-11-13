@@ -1,0 +1,42 @@
+== switch OFF (default) ==
+DNBOX_FACTORY_PRESET_EXPORT=0
+HOST ONLY sizeof(preset_record_t)=536
+HOST ONLY sizeof(preset_sample_ref_t)=16
+HOST ONLY sizeof(preset_commit_t)=16
+HOST ONLY PRESET_HEADER_BYTES=96 PRESET_MAX_BYTES=548
+factory_table_crc=0xd644a5f5
+PASS checks=148 chicago=81 miami=30 juno=4 drone=4
+== switch ON ==
+DNBOX_FACTORY_PRESET_EXPORT=1
+HOST ONLY sizeof(preset_record_t)=536
+HOST ONLY sizeof(preset_sample_ref_t)=16
+HOST ONLY sizeof(preset_commit_t)=16
+HOST ONLY PRESET_HEADER_BYTES=96 PRESET_MAX_BYTES=548
+factory_table_crc=0xd644a5f5
+PASS checks=132 chicago=81 miami=30 juno=4 drone=4
+== sanitized OFF ==
+DNBOX_FACTORY_PRESET_EXPORT=0
+HOST ONLY sizeof(preset_record_t)=536
+HOST ONLY sizeof(preset_sample_ref_t)=16
+HOST ONLY sizeof(preset_commit_t)=16
+HOST ONLY PRESET_HEADER_BYTES=96 PRESET_MAX_BYTES=548
+factory_table_crc=0xd644a5f5
+PASS checks=148 chicago=81 miami=30 juno=4 drone=4
+HOST ONLY size:
+   text	   data	    bss	    dec	    hex	filename
+   5128	      0	      0	   5128	   1408	/workspace/qa-runs/014e1b67/build/preset_record.o
+HOST ONLY size -A:
+/workspace/qa-runs/014e1b67/build/preset_record.o  :
+section           size   addr
+.text             3821      0
+.data                0      0
+.bss                 0      0
+.rodata.str1.1     251      0
+.rodata            224      0
+.comment            32      0
+.note.GNU-stack      0      0
+.eh_frame          832      0
+Total             5160
+
+
+PASS preset-record
