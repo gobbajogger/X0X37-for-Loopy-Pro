@@ -1,0 +1,32 @@
+E
+======================================================================
+ERROR: test_old_generator_to_new_numeric_republish_keeps_checked_urls (tests.host.test_release_publish.ReleasePublishTest.test_old_generator_to_new_numeric_republish_keeps_checked_urls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/857bb2409f82/n1-pr903-alias-repair-20261113/tests/host/test_release_publish.py", line 357, in test_old_generator_to_new_numeric_republish_keeps_checked_urls
+    self.assertEqual((after_upgrade / "firmware" / old_names[model]).read_bytes(), original_bytes[model])
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 625, in read_bytes
+    with self.open(mode='rb') as f:
+         ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpl30oq_53/after-0.1.4/firmware/x0x37-0.1.3-elite.fwsc'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.730s
+
+FAILED (errors=1)
+site: /tmp/tmpl30oq_53/.nightly-dz7vqeeh: 1 version(s), models [elite, pro], firmware files 2
+nightly handoff 0.1.3 (ce7e70090fb4) -> /tmp/tmpl30oq_53/old-generator
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmpl30oq_53/.nightly-4lr24ij_: 1 version(s), models [elite, pro], firmware files 4
+nightly handoff 0.1.3 (ce7e70090fb4) -> /tmp/tmpl30oq_53/new-generator
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmpl30oq_53/.nightly-fpe2pknf: 1 version(s), models [elite, pro], firmware files 4
+nightly handoff 0.1.3 (ce7e70090fb4) -> /tmp/tmpl30oq_53/new-generator-again
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmpl30oq_53/.nightly-vdw5lib7: 2 version(s), models [elite, pro], firmware files 4
+nightly handoff 0.1.4 (ce7e70090fb4) -> /tmp/tmpl30oq_53/after-0.1.4
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages

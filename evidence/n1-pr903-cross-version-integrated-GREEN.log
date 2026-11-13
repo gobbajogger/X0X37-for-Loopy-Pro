@@ -1,0 +1,32 @@
+........
+----------------------------------------------------------------------
+Ran 8 tests in 2.025s
+
+OK
+site: /tmp/tmp2pyunucx/.nightly-48uxhfxv: 1 version(s), models [elite, pro], firmware files 2
+nightly handoff nightly-ef48d329afca (ef48d329afca) -> /tmp/tmp2pyunucx/page
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmp20mxndgs/.nightly-utyltg1s: 2 version(s), models [elite, pro], firmware files 4
+nightly handoff nightly-94519b5bffc7 (94519b5bffc7) -> /tmp/tmp20mxndgs/null-product
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmp2volv9kx/.nightly-h09oxj_m: 1 version(s), models [elite, pro], firmware files 2
+nightly handoff 0.1.3 (94519b5bffc7) -> /tmp/tmp2volv9kx/old-generator
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmp2volv9kx/.nightly-1nn6cc1m: 1 version(s), models [elite, pro], firmware files 4
+nightly handoff 0.1.3 (94519b5bffc7) -> /tmp/tmp2volv9kx/new-generator
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmp2volv9kx/.nightly-q2_pqpu7: 1 version(s), models [elite, pro], firmware files 4
+nightly handoff 0.1.3 (94519b5bffc7) -> /tmp/tmp2volv9kx/new-generator-again
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmp2volv9kx/.nightly-hguj_72j: 2 version(s), models [elite, pro], firmware files 6
+nightly handoff 0.1.4 (94519b5bffc7) -> /tmp/tmp2volv9kx/after-0.1.4
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmpu1bm1s9f/.nightly-17k3a6p0: 1 version(s), models [elite, pro], firmware files 2
+nightly handoff 0.1.3 (26076209342d) -> /tmp/tmpu1bm1s9f/page
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmpu1bm1s9f/.nightly-lyr9sp0i: 1 version(s), models [elite, pro], firmware files 2
+nightly handoff 0.1.3 (26076209342d) -> /tmp/tmpu1bm1s9f/again
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /tmp/tmpsoetvpur/.nightly-tm_na4qr: 1 version(s), models [elite, pro], firmware files 2
+nightly handoff 0.1.3 (26076209342d) -> /tmp/tmpsoetvpur/page
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
