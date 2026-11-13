@@ -414,6 +414,7 @@ run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
 run part-order sh tests/host/part_order_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
+run mixer-ux sh tests/host/mixer_ux_test.sh   # #688 mixer UX: banks, locked select, clip eighth strip, Unmute pickup, beat
 run smc-ui-popup sh tests/host/smc_ui_popup_test.sh
 run smc-mode-page sh tests/host/smc_mode_page_test.sh
 run smc-mixer-page sh tests/host/smc_mixer_page_test.sh
