@@ -184,6 +184,11 @@ The new module is not in the audio path. This change does not alter engine code.
 | C7 (record) | Encode then decode is equal for every engine. |
 | L6 (format) | The record has no chain field. |
 | Plugin room | `PRESET_PLUGIN_FORMAT` and a version round-trip. Zeros still load. No plugin parser. |
+| Golden v1 bytes | `test_golden_bytes`: Chicago 122 B, 909 296 B, and the 32 B commit marker are byte-identical to the 9bda58dd encoder. |
+| Import leaves a clean slot | `test_import_failed_leaves_slot_clean`: a WRONG ENGINE import does not fill an empty slot and does not clobber a good slot. |
+| Bad magic, older version | `test_reject_bad_magic`, `test_reject_older_version`: `PRESET_ERR_MAGIC` and `PRESET_ERR_OLDER`, both BAD FILE. |
+| `*written` after buffer check | `test_encode_written_after_buffer_check`: a short buffer leaves `*written` and the output unchanged. A size query and a success still set `*written`. |
+| 808 sample refs | `test_808_nsamples_and_crc`: 808 with `nsamples == 2` round-trips; a CRC mismatch is `PRESET_ERR_SAMPLE_CRC`. |
 
 ### Not covered in this step
 
@@ -284,4 +289,19 @@ JieLi pi32v2 `-Os` size is MISSING. The V1.2.14 SDK is not on this host, and thi
 The 94197fc8 V1.2.14 base has 248 B Elite and 256 B Pro code-flash headroom, and 148 B pool headroom (floors 8,192 B; this step does not change floors). The after stage-4 HOST ESTIMATE 2,642 B (CRC reused) is still far above that flash headroom. These are host numbers, not device numbers. The module is not added to the device link. Module `.bss` / pool remains 0 B: the 536 B HOST working record is on the stack.
 
 A later wiring step must measure a real JieLi image before this file joins the unity build. This pass does not touch `ui.c`, SEQ code, floors, or the storage map.
+
+### After BugBot residuals
+
+Same flags and method. Figures are HOST ESTIMATE, CRC reused (0 added), `.data` 0, `.bss` 0.
+
+| Stage | After the size-opt pass | After residuals | Delta vs size-opt |
+| --- | ---: | ---: | ---: |
+| 1 load-only | 702 | 691 | −11 |
+| 2 + validation | 1401 | 1432 | +31 |
+| 3 + encode, commit | 2570 | 2615 | +45 |
+| 4 + export, switch off | 2642 | 2687 | +45 |
+
+Stage 1 shrank: `load_into` zeros the working record directly, so `preset_record_clear` drops from a load-only link, and a dead length check was removed.
+
+Stages 2–4 grew a little because `preset_record_import` now decodes into a stack scratch and assigns the caller only on success (a failed WRONG ENGINE import never looks like a filled slot), and because `*written` is set only after the buffer-size check. Those are correctness costs. All four stages stay below the before-pass sums (1,340 / 1,549 / 2,941 / 3,008). The current stage-4 HOST ESTIMATE 2,687 B is still far above the 248 B / 256 B flash headroom. These are host numbers, not device numbers. JieLi pi32v2 is still MISSING. There is no device link. The Optimizer lane `lane/opt-flash-savings-026` is not touched.
 
