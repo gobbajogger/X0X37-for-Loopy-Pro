@@ -1,60 +1,14 @@
 # DnBOX manual
 
-This page covers install, samples and project files in the browser.
+This companion explains how to install DnBOX, back up samples and work with project files in the browser. Use the [SMK-37 keyboard manual](../docs/MANUAL.md) to play, record and navigate the instrument.
 
-DnBOX turns an SMK-37 Elite or SMK-37 Pro into a groovebox. It has 909 and 808 drums, a BREAK sample player, two bass slots, and Loopy Pro control. At firmware source `94197fc8`, the bass slots can run Chicago, Miami, Juno or Drone. Chicago is the 303 engine. Miami is never a 303.
+It describes the **0.0.26 hardware-test candidate** at source `94197fc8`, **not** the stable [0.0.25.1 release](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). Startup/restart of this exact nightly package remain unverified on hardware. Juno, Drone and held-key chord recording belong to this candidate, not 0.0.25.1. Chicago is the 303 engine; Miami is not.
 
-The browser workspace in this tree imports project revision 13. Keep backups with the firmware version that made them.
+This browser workspace imports project revision 13. Keep a project backup made with the original firmware version; incompatible engines and older project revisions are not silently migrated.
 
-For keyboard controls, read [docs/MANUAL.md](../docs/MANUAL.md). That book matches this source. It is the control manual. This page does not replace it.
+## Start with music
 
-## Quick start: real musical tasks
-
-The control book has a short path through four real musical tasks. Read [Quick start: real musical tasks](../docs/MANUAL.md#3-quick-start-real-musical-tasks) in `docs/MANUAL.md`. That book is the control manual. This page does not replace it.
-
-### Make a drum beat
-
-1. Stay on the 909 step grid, or press SEQ to return to it. See [First sound](../docs/MANUAL.md#4-first-sound).
-2. Do not tap PATCH. A tap of PATCH opens HOME. Do not press KNOB BANK. KNOB BANK opens Loopy clip mode.
-3. While playback does not run, press black key 1. This selects the bass drum (`BD`). You hear it.
-4. Press white keys 1, 5, 9 and 13. These write kick steps on the selected track.
-5. Press black key 7. This selects the clap (`CP`). Press a white key to place a clap step. See [First pattern](../docs/MANUAL.md#5-first-pattern).
-6. Press black key 8. This selects the closed hat (`CH`). Place hat steps the same way.
-7. Press SEQ PLAY to start the pattern. Press SEQ PLAY again to stop.
-
-### Play and record a bass line
-
-1. Turn K3 clockwise from the 909. Three clicks select Chicago. Chicago is the 303 engine. See [First bass line: Chicago, then Miami](../docs/MANUAL.md#6-first-bass-line-chicago-then-miami).
-2. Four clicks select Miami. Miami is never a 303. Use Chicago or Miami for this task.
-3. Press PARA to play the selected bass slot. The 37 keys play that slot.
-4. Press SEQ REC to turn record on. The toast is `RECORD ON: KEYS + KNOBS`. See [Recording and free play](../docs/MANUAL.md#12-recording-and-free-play).
-5. On a bass slot, the keys play and write notes while record is on.
-6. Press SEQ PLAY to start the pattern. Play the bass line on the keys.
-7. Press SEQ REC again to turn record off. The toast is `RECORD OFF`.
-
-### Save a project, and power-off
-
-1. If the pattern runs, press SEQ PLAY to stop. See [Save, and why it waits](../docs/MANUAL.md#8-save-and-why-it-waits).
-2. Tap BT. A tap is a release before 250 ms. BT is Save, not Bluetooth.
-3. If the toast is `SAVES WHEN STOPPED`, `SAVES WHEN QUIET` or `REC OFF TO SAVE`, stop the pattern. Wait until the unit is quiet.
-4. Look for the toast `SAVED`. That toast lasts 1300 ms. The unit writes only after you stop and the machine stays quiet.
-5. Autosave is on by default. After 4 s of quiet, while stopped, the unit can save on its own, at most every 20 s. The toast is `AUTOSAVED`.
-6. Power the unit off, then on. The unit loads the last written project. It does not keep other live edits.
-7. If the unit has no valid saved project, it starts with empty parts.
-8. A chain does not return after power-off. The project does not save a chain. See [Patterns, chains and song](../docs/MANUAL.md#11-patterns-chains-and-song).
-
-### Live set: switch, mute and chain
-
-1. If you are not on HOME, tap PATCH to open HOME. The header word is `HOME`. See [Patterns, chains and song](../docs/MANUAL.md#11-patterns-chains-and-song).
-2. If you are already on HOME, do not tap PATCH again. That tap opens SONG.
-3. Press a white key, or a pad, to select a pattern. There are 32 patterns, in two banks: 1 to 16 and 17 to 32.
-4. On HOME or SONG, press OCTAVE+ for patterns 17–32. Press OCTAVE− for patterns 1–16.
-5. Turn K4 to cue a pattern. A pending cue shows a NEXT glyph and a blinking pattern number.
-6. On HOME, press a black key to mute a part in display order. Black keys 1 to 5 mute 909, 808, BREAK, Chicago and Miami.
-7. Press two white keys to make a chain. A live chain shows a small amber `CHN`.
-8. A chain is live only. The project does not save a chain. A save or a power-off does not keep it.
-9. Press one white key to end the chain. Turn K4 to end the chain as well.
-10. HOME keys make no sound. Press SEQ to return to the grid.
+The [four musical tasks](../docs/MANUAL.md#3-quick-start-real-musical-tasks) take you through a 909 beat, a Chicago/Miami bass line, saving and power-off, then switching and chaining patterns. They use the **printed SMK-37 controls**, not the older FM-1 panel labels. For the control map, see [The panel](../docs/MANUAL.md#2-the-panel). The browser tools below are for installation and file management; navigation here does not play or modify a pattern.
 
 ## Connect and choose firmware
 
@@ -66,17 +20,17 @@ Choose an admitted published version or select your local `.fwsc` file. The file
 
 ## Back up and install
 
-Stop playback and recording. Keep USB connected throughout the operation. If the update puts samples at risk, the installer reads every slot, offers an `.x0xslots` backup, and requires you to select the saved file again. Every byte must match before firmware writing begins.
+Stop playback and recording. Keep USB connected throughout the operation. **Make and verify a separate `.x0xslots` backup before updating.** The [main installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/) currently blocks a risky firmware write if the required recovery backup cannot be secured. The [nightly installer](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/) attempts a backup but may **continue automatically with a warning** if it fails; unbacked-up samples can then be lost permanently. The browser cannot prove a download was saved: check that the backup file exists before proceeding.
 
-The installer checks the selected package and target again immediately before OTA. A changed connection or sample snapshot refuses the operation. On completion it waits for the application to return, then restores compatible sample slots and reads them back. A partial restore is a warning: keep the named archive and resolve every skipped slot. Reconnecting does not erase that warning.
+The installer checks the selected package and target again immediately before OTA. A changed connection or sample snapshot may refuse the write. When a verified backup exists, the installer attempts to restore compatible sample slots after the application returns and checks the restored data. A partial restore is **not** complete: keep the named archive and resolve each skipped slot. If installation continued without backup, there may be no samples to restore.
 
 Browser workspaces on the same origin share an operation lock. Close other MIDI applications too: this firmware does not provide an atomic snapshot-to-OTA ticket against every external client. A last-moment concurrent write from another application remains a limitation.
 
 ## Recovery and older firmware
 
-If the keyboard is already in its update loader, the old application's sample reader is unavailable. Resume only with a verified existing backup, or after confirming that there were no samples to preserve. The explicit recovery prompt is not a claim that a new backup was made.
+If the keyboard is already in its update loader, the old application's sample reader may be unavailable. **No new backup is possible from an unreadable application**. Recover only with a correctly matched package, understanding that existing samples may be lost. Keep any earlier backup for restoration after compatible firmware runs again.
 
-For stock firmware, obtain the exact model's package from the manufacturer and use the visible local-file chooser. Stock firmware may have no DnBOX sample slots. Keep the exported archive for restoration after returning to compatible firmware. Interrupted installation, partial sample restoration and successful firmware transfer are different outcomes.
+For stock firmware, obtain the exact model's package from [M-VAVE](https://www.m-vave.com/download) and use the installer's **local-file chooser**, or follow the manufacturer's M-UPGRADE procedure. The web installer does **not** include a factory firmware package. Stock firmware may have no DnBOX sample slots; keep your archive for use after returning to compatible firmware. A completed firmware transfer does not prove that all samples were restored.
 
 ## Prepare and preview samples
 
@@ -102,10 +56,6 @@ A disconnect invalidates the device session and import preview. Local selected f
 
 ## Keyboard controls
 
-The full keyboard control manual is [docs/MANUAL.md](../docs/MANUAL.md). That book matches firmware source `94197fc8`. It uses the SMK printed legends.
+For playing, control glyphs, chord recording and the difference between factory presets and project backups, read the source-matched [SMK-37 manual](../docs/MANUAL.md). This companion does not reproduce its controls or supersede them.
 
-The part order is 909, 808, BREAK, Chicago, then Miami. The bass engines are Chicago, Miami, Juno and Drone. Chicago is the 303 engine. Miami is never a 303.
-
-This page is the install, samples and projects companion. It is not a second control manual. Do not treat an older `legacy.html` copy as the current control book.
-
-A website build, a host test or a package checksum does not establish hardware acceptance.
+A website build, host test or package checksum does not prove hardware startup, restart or recovery.
