@@ -86,3 +86,11 @@ A missing device leaves installation pending while independently authorized sour
 work continues. Carry existing permission under
 [rule 14](../../x0x37-owner-decisions/SKILL.md); use
 [rule 2](../../x0x37-task/SKILL.md) for authorized context and completion notices.
+
+## Required handoff fields
+Every handoff states:
+1. Destination: the exact repo, branch and path the result goes to.
+2. Decisions: the latest user decisions, each with its source (the user's own words, with date and chat or link). List superseded constraints separately, marked superseded, with what replaced them.
+3. Consumer: the one named downstream owner who acts next on the result.
+4. Independent ready work: work that does not wait on this handoff, with its owner, so it keeps moving.
+No new ledger, schedule or acknowledgment gate.
