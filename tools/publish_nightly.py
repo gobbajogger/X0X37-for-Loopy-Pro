@@ -274,6 +274,24 @@ def _kept_versions(catalog, merge_from, version, incoming):
     return kept
 
 
+def _public_package_name(version, model, source_commit):
+    """Name a new numeric-identity DnBOX package without trusting input filenames.
+
+    This is an output label only. _verify_records must already have checked
+    the internal Elite/Pro identity, version, source and package bytes.
+    """
+    if model not in PRODUCTS:
+        raise NightlyPublishError("DnBOX public package requires Elite or Pro")
+    if not isinstance(source_commit, str) or not HEX40.fullmatch(source_commit):
+        raise NightlyPublishError("DnBOX public package requires a full source commit")
+    try:
+        version = canonical_version(version)
+    except (TypeError, ValueError) as error:
+        raise NightlyPublishError("DnBOX public package requires a numeric internal version") from error
+    model_name = "Elite" if model == "elite" else "Pro"
+    return f"DnBOX-{version}-SMK37-{model_name}-{source_commit[:8]}-hwtest.fwsc"
+
+
 def _new_version(commit, verified):
     embedded = verified[0][1].get("_embedded_version")
     # The catalog version is the machine identity. A filename is not an identity.
@@ -283,7 +301,12 @@ def _new_version(commit, verified):
     models = {}
     copies = {}
     for model, record, fwsc, ctl in verified:
-        name = f"x0x37-{version}-elite.fwsc" if model == "elite" else f"x0x37-{version}.fwsc"
+        if embedded is None:
+            # Legacy _900 preview stays unversioned; keep old paths compatible.
+            # This local-only generator cannot publish it as a numbered release.
+            name = f"x0x37-{version}-elite.fwsc" if model == "elite" else f"x0x37-{version}.fwsc"
+        else:
+            name = _public_package_name(embedded, model, commit)
         raw_size = fwsc.stat().st_size
         entry = {
             "product": record.get("_product") or PRODUCTS[model],
