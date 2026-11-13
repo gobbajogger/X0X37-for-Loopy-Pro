@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an improvement to DnBOX.
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the idea. Please say what you want and why it would help.
+  - type: dropdown
+    id: model
+    attributes:
+      label: Keyboard model this relates to
+      options:
+        - SMK-37 Elite
+        - SMK-37 Pro
+        - FM-1
+        - All / not sure
+    validations:
+      required: true
+  - type: textarea
+    id: request
+    attributes:
+      label: What should change
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it would help
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Extra context
+      description: Optional. Examples, comparisons, or constraints.
