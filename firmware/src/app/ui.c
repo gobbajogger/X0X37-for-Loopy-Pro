@@ -5731,31 +5731,21 @@ static const char *const chord_qual_suf[] = {
 };
 #define CHORD_NQUAL ((int)(sizeof chord_qual_mask / sizeof chord_qual_mask[0]))
 
-/* Hook reserved for a later seq_chord_label (§10 is on HOLD as 10r;
- * not built). First different-quality second fit. Draw does not read this. §9 names
- * and the 0/1 return of seq_chord_symbol are unchanged. Soft duals
- * (C6 + Amin7/C) and true amb (two non-bass) stash a second; aug and
- * dim7 rotations are the same quality and do not. */
-struct seq_chord_hook {
-    uint8_t have, root, type, bass;
-};
-__attribute__((used)) struct seq_chord_hook seq_chord_second;
-
 /* Exact-match §9 symbol. 1: wrote Root+suffix[/Bass] (no octave). 0: show
  * notes; dst is empty. Do not change this 0/1 return or any §9 exact
- * name. §10 is on HOLD (10r); a later wrapper may call this first. */
+ * name. The unused second-fit stash hook (draw never read it) is gone:
+ * a bass-root hit returns that name immediately, which is the same 0/1
+ * result. */
 __attribute__((minsize, noinline))
 int seq_chord_symbol(char *dst, const uint8_t *notes, int n)
 {
     uint16_t pcs = 0;
-    int i, r, t, nfit = 0, bass_t = -1;
+    int i, r, t, nfit = 0;
     uint8_t bass, fit_root = 0, fit_type = 0;
-    uint8_t sec_have = 0, sec_root = 0, sec_type = 0;
 
 #if defined(X0X_HOST)
     seq_chord_namer_calls++;
 #endif
-    seq_chord_second.have = 0;
     if (!dst)
         return 0;
     if (n <= 0 || !notes) {
@@ -5766,8 +5756,7 @@ int seq_chord_symbol(char *dst, const uint8_t *notes, int n)
         pcs |= (uint16_t)(1u << (notes[i] % 12u));
     bass = (uint8_t)(notes[0] % 12u);
 
-    /* Bass first, then upward. Do not return on a bass-root hit before
-     * collecting a different-quality other (hook for seq_chord_label). */
+    /* Bass first, then upward. Bass-root always wins. */
     for (r = 0; r < 12; r++) {
         uint8_t pc = (uint8_t)((unsigned)(bass + r) % 12u);
         uint16_t rel;
@@ -5778,42 +5767,23 @@ int seq_chord_symbol(char *dst, const uint8_t *notes, int n)
             if (rel != chord_qual_mask[t])
                 continue;
             if (pc == bass) {
-                bass_t = t;
                 fit_root = pc;
                 fit_type = (uint8_t)t;
-            } else {
-                if (nfit == 0 && bass_t < 0) {
-                    fit_root = pc;
-                    fit_type = (uint8_t)t;
-                }
-                nfit++;
+                goto write;
             }
-            /* Stash the first different-quality second (not same-suffix
-             * aug / dim7 rotations). */
-            if (!sec_have) {
-                int pri_t = bass_t >= 0 ? bass_t : (nfit >= 1 ? (int)fit_type : -1);
-                if (pri_t >= 0 && t != pri_t) {
-                    sec_have = 1;
-                    sec_root = pc;
-                    sec_type = (uint8_t)t;
-                }
+            if (nfit == 0) {
+                fit_root = pc;
+                fit_type = (uint8_t)t;
             }
+            nfit++;
             break;
         }
     }
-    seq_chord_second.bass = bass;
-    if (sec_have) {
-        seq_chord_second.have = 1;
-        seq_chord_second.root = sec_root;
-        seq_chord_second.type = sec_type;
-    }
-
-    /* §9 result: bass-root always wins; else exactly one non-bass match
-     * slashes; two or more or none → 0, notes (never the first of many). */
-    if (bass_t < 0 && nfit != 1) {
+    if (nfit != 1) {
         dst[0] = 0;
         return 0;
     }
+write:
     {
         char *q = dst;
         q = put_s(q, NOTE_N[fit_root]);
@@ -5949,9 +5919,9 @@ typedef struct {
  * and lab.held. The held line never calls this with compact != 0: it
  * always shows the real notes, even when a chord name is shown. A
  * non-exact or ambiguous set has no name, only those notes. No forced
- * or guessed names. §10 is on HOLD (10r) and is not built; this body
- * stays the §9 count fallback for the NOTE cell. seq_chord_symbol's
- * 0/1 return and the §9 exact names stay unchanged. */
+ * or guessed names. seq_chord_symbol's 0/1 return and the §9 exact
+ * names stay unchanged. */
+__attribute__((minsize, noinline))
 static void chord_label_fallback(char *dst, const uint8_t *sound, int ns,
                                  const char *note_list, int compact)
 {
@@ -5974,13 +5944,7 @@ static void chord_label_fallback(char *dst, const uint8_t *sound, int ns,
     }
 }
 
-/* One swappable formatter for NOTE-cell and held-line chord text.
- * Recognized names: seq_chord_symbol (§9, unchanged) then seq_chord_t3
- * (§10r exact extensions, compile switch). Unrecognized wording for
- * the NOTE cell follows piano-roll.md §10r.3: actual notes if they
- * fit 54 px, then compact C3xN. The held line always shows the real
- * notes; compact only on 232 px overflow. No interval form, no '?',
- * no nearest-tag, no forced name, no dim second reading. */
+#if SEQ_CHORD_LABEL_TIER3
 static int chord_name_lower(const char *s)
 {
     for (; s && *s; s++)
@@ -5988,32 +5952,27 @@ static int chord_name_lower(const char *s)
             return 1;
     return 0;
 }
+#endif
 
 /* FONT_S, FONT_B and FONT_XS keep only abdkmnprstxz as real lowercase
  * (tools/gen_font.py LOWER_KEEP, line 183). The other letters — including
- * i, e, o, h, j, u — share the uppercase bitmap, so "Cmin7" paints as
- * "CmIn7", "Cmaj7" as "CmaJ7", "Csus2" as "CsUs2". A name that contains
- * any of those folded letters is shown in all caps instead, preferring
- * FONT_M when it fits 54 px. Adding the missing glyphs is a font-data
- * cost (HOST ESTIMATE: i,j,u on S+B+XS ≈ 269 B; i,e,o,h ≈ 358 B; all
- * 14 folded letters ≈ 1252 B) and is not taken: the default build is
- * already over the 248/256 B flash headroom. */
+ * i, e, o, h, j, u — share the uppercase bitmap, so "Cmin7" would paint
+ * as "CmIn7". A name that contains any of those folded letters is shown
+ * in all caps instead, preferring FONT_M when it fits 54 px. */
+__attribute__((minsize, noinline))
 static int chord_name_folds(const char *s)
 {
+    /* Bits for a-z that fold on S/B/XS: c e f g h i j l o q u v w y. */
+    const uint32_t fold = 0x01714BF4u;
     for (; s && *s; s++) {
-        char c = *s;
-        if (c >= 'a' && c <= 'z') {
-            const char *k = "abdkmnprstxz";
-            int kept = 0;
-            for (; *k; k++)
-                if (*k == c) { kept = 1; break; }
-            if (!kept)
-                return 1;
-        }
+        unsigned c = (unsigned char)*s;
+        if (c >= 'a' && c <= 'z' && (fold & (1u << (c - 'a'))))
+            return 1;
     }
     return 0;
 }
 
+__attribute__((minsize, noinline))
 static void chord_name_caps(char *dst, const char *s)
 {
     for (; s && *s; s++) {
@@ -6025,9 +5984,12 @@ static void chord_name_caps(char *dst, const char *s)
     *dst = 0;
 }
 
-/* Display form of a compact name for a given face: all-caps when the
- * official suffix would fold on S/B/XS. FONT_M already folds every
- * a–z, so the caps form is what it paints. */
+/* Display form of a compact name: all-caps when the official suffix
+ * would fold on S/B/XS. FONT_M already folds every a-z, so the caps
+ * form is what it paints. *safe = 1 only for a kept-lowercase T3 name
+ * (Cadd9 starts at FONT_S). Every T1 suffix that has a lowercase
+ * letter also folds, so the T1 path always starts at FONT_M. */
+__attribute__((minsize, noinline))
 static const char *chord_name_paint(char *buf, const char *sym, int *safe)
 {
     if (!sym || !sym[0]) {
@@ -6036,10 +5998,15 @@ static const char *chord_name_paint(char *buf, const char *sym, int *safe)
     }
     if (chord_name_folds(sym)) {
         chord_name_caps(buf, sym);
-        if (safe) *safe = 0; /* prefer FONT_M all caps */
+        if (safe) *safe = 0;
         return buf;
     }
-    if (safe) *safe = chord_name_lower(sym); /* Cadd9 starts at FONT_S */
+    if (safe)
+#if SEQ_CHORD_LABEL_TIER3
+        *safe = chord_name_lower(sym);
+#else
+        *safe = 0;
+#endif
     return sym;
 }
 
@@ -6051,24 +6018,71 @@ static int chord_has_slash(const char *s)
     return 0;
 }
 
-static int chord_try_cell(chord_label_t *o, const char *text, int safe)
+static void chord_cut_slash(char *dst, const char *s)
 {
-    const felucca_font_t *faces[3] = { &FONT_M, &FONT_S, &FONT_XS };
+    while (*s && *s != '/')
+        *dst++ = *s++;
+    *dst = 0;
+}
+
+/* One font-fit: f0 then FONT_S then FONT_XS. safe starts at S.
+ * Returns 1 and sets *fout if some face is within maxw. On a miss,
+ * *fout is FONT_XS (caller may still use the text). */
+__attribute__((minsize, noinline))
+static int chord_fit(const char *text, int maxw, int safe,
+                     const felucca_font_t *f0, const felucca_font_t **fout)
+{
+    const felucca_font_t *f[3];
     int i, i0 = safe ? 1 : 0;
+    f[0] = f0;
+    f[1] = &FONT_S;
+    f[2] = &FONT_XS;
+    if (fout)
+        *fout = &FONT_XS;
     if (!text || !text[0])
         return 0;
     for (i = i0; i < 3; i++) {
-        if (tw(faces[i], text) <= 54) {
-            put_s(o->cell, text);
-            o->cell_font = faces[i];
+        if (tw(f[i], text) <= maxw) {
+            if (fout)
+                *fout = f[i];
             return 1;
         }
     }
     return 0;
 }
 
+__attribute__((minsize, noinline))
+static int chord_try_cell(chord_label_t *o, const char *text, int safe)
+{
+    if (!chord_fit(text, 54, safe, &FONT_M, &o->cell_font))
+        return 0;
+    put_s(o->cell, text);
+    return 1;
+}
+
+/* Official name, then the same name without /Bass, through paint + 54 px. */
+__attribute__((minsize, noinline))
+static int chord_try_name(chord_label_t *o, const char *sym)
+{
+    char painted[24], noslash[24];
+    int safe = 0;
+    const char *use;
+    if (!sym || !sym[0])
+        return 0;
+    use = chord_name_paint(painted, sym, &safe);
+    if (chord_try_cell(o, use, safe))
+        return 1;
+    if (!chord_has_slash(use))
+        return 0;
+    chord_cut_slash(noslash, use);
+    use = chord_name_paint(painted, noslash, &safe);
+    return chord_try_cell(o, use, safe);
+}
+
+#if SEQ_CHORD_LABEL_TIER3
 /* Registered NOTE short: only when the official suffix overflows XS
- * even after /Bass is dropped. Held line keeps the official name. */
+ * even after /Bass is dropped. Held line keeps the official name.
+ * T1 qualities never produce minmaj7; this is compiled only for T3. */
 static void chord_note_short(char *dst, const char *sym)
 {
     const char *p, *hit = 0;
@@ -6091,7 +6105,57 @@ static void chord_note_short(char *dst, const char *sym)
     q = put_s(q, "minM7");
     put_s(q, hit + 7);
 }
+#endif
 
+/* Held line: 'STEP n  <symbol>  <notes>  V###'. Real notes ALWAYS;
+ * compact C3xN only if FONT_XS still overflows 232 px. A slashed
+ * official name is kept in full. Prefix and flags are applied here
+ * so the cache key does not include them (NOTE and held share a
+ * hit). */
+__attribute__((minsize, noinline))
+static void chord_compose_held(chord_label_t *o, const char *prefix, const char *flags)
+{
+    int pass, hfit = 0;
+    char *q;
+    for (pass = 0; pass < 2 && !hfit; pass++) {
+        q = o->held;
+        if (prefix)
+            q = put_s(q, prefix);
+        if (o->recognized && o->symbol[0]) {
+            char capsym[16];
+            const char *sym = o->symbol;
+            if (chord_name_folds(sym)) {
+                chord_name_caps(capsym, sym);
+                sym = capsym;
+            }
+            q = put_s(q, sym);
+            q = put_s(q, "  ");
+        }
+        q = put_s(q, pass ? o->fallback : o->notes);
+        if (flags) {
+            const char *f = flags;
+            while (*f == ' ')
+                f++;
+            if (*f) {
+                q = put_s(q, "  ");
+                q = put_s(q, f);
+            }
+        }
+        *q = 0;
+        hfit = chord_fit(o->held, SEQ_CHORD_HELD_MAX, 0, &FONT_B, &o->held_font);
+        if (!hfit)
+            o->held_font = &FONT_XS;
+    }
+}
+
+/* One swappable formatter for NOTE-cell and held-line chord text.
+ * Recognized names: seq_chord_symbol (§9, unchanged) then seq_chord_t3
+ * (§10r exact extensions, compile switch). Unrecognized wording for
+ * the NOTE cell follows piano-roll.md §10r.3: actual notes if they
+ * fit 54 px, then compact C3xN. The held line always shows the real
+ * notes; compact only on 232 px overflow. No interval form, no '?',
+ * no nearest-tag, no forced name, no dim second reading. */
+__attribute__((minsize, noinline))
 static void chord_label_fmt(chord_label_t *o,
                             const uint8_t *sound, int ns,
                             const uint8_t *listed, int nlist,
@@ -6143,37 +6207,16 @@ static void chord_label_fmt(chord_label_t *o,
     o->recognized = rec ? 1 : 0;
 
     fitted = 0;
-    if (o->recognized && o->symbol[0]) {
-        char painted[24], noslash[24], shortened[24], short_ns[24], *cut;
-        int safe = 0;
-        const char *use = chord_name_paint(painted, o->symbol, &safe);
-        fitted = chord_try_cell(o, use, safe);
-        if (!fitted && chord_has_slash(use)) {
-            put_s(noslash, use);
-            cut = noslash;
-            while (*cut && *cut != '/')
-                cut++;
-            *cut = 0;
-            use = chord_name_paint(painted, noslash, &safe);
-            fitted = chord_try_cell(o, use, safe);
-        }
-        if (!fitted) {
-            chord_note_short(shortened, o->symbol);
-            if (shortened[0]) {
-                use = chord_name_paint(painted, shortened, &safe);
-                fitted = chord_try_cell(o, use, safe);
-                if (!fitted && chord_has_slash(use)) {
-                    put_s(short_ns, use);
-                    cut = short_ns;
-                    while (*cut && *cut != '/')
-                        cut++;
-                    *cut = 0;
-                    use = chord_name_paint(painted, short_ns, &safe);
-                    fitted = chord_try_cell(o, use, safe);
-                }
-            }
-        }
+    if (o->recognized)
+        fitted = chord_try_name(o, o->symbol);
+#if SEQ_CHORD_LABEL_TIER3
+    if (!fitted && o->recognized) {
+        char shortened[24];
+        chord_note_short(shortened, o->symbol);
+        if (shortened[0])
+            fitted = chord_try_name(o, shortened);
     }
+#endif
     if (!fitted) {
         /* Unnamed, or the name did not fit: actual notes if they fit 54 px
          * (§10r.3). One distinct MIDI is a single put_note (F6: G9). */
@@ -6185,80 +6228,63 @@ static void chord_label_fmt(chord_label_t *o,
             fitted = chord_try_cell(o, o->notes, 0);
         }
         if (!fitted) {
-            chord_label_fallback(o->cell, sound, ns, o->notes, 1);
-            if (tw(&FONT_M, o->cell) <= 54)
-                o->cell_font = &FONT_M;
-            else if (tw(&FONT_S, o->cell) <= 54)
-                o->cell_font = &FONT_S;
-            else
+            if (!chord_try_cell(o, o->fallback, 0)) {
+                put_s(o->cell, o->fallback);
                 o->cell_font = &FONT_XS;
+            }
         }
     }
 
-    /* Held line: 'STEP n  <symbol>  <notes>  V###'. Real notes ALWAYS,
-     * compact C3xN only if FONT_XS still overflows 232 px. A non-exact
-     * or ambiguous set shows no name, only the notes. A slashed official
-     * name is kept in full. No dim second reading. */
-    {
-        const felucca_font_t *faces[3] = { &FONT_B, &FONT_S, &FONT_XS };
-        int pass, fi, hfit = 0;
-        for (pass = 0; pass < 2 && !hfit; pass++) {
-            q = o->held;
-            if (prefix)
-                q = put_s(q, prefix);
-            if (o->recognized && o->symbol[0]) {
-                char capsym[16];
-                const char *sym = o->symbol;
-                if (chord_name_folds(sym)) {
-                    chord_name_caps(capsym, sym);
-                    sym = capsym;
-                }
-                q = put_s(q, sym);
-                q = put_s(q, "  ");
-            }
-            q = put_s(q, pass ? o->fallback : o->notes);
-            if (flags) {
-                const char *f = flags;
-                while (*f == ' ')
-                    f++;
-                if (*f) {
-                    q = put_s(q, "  ");
-                    q = put_s(q, f);
-                }
-            }
-            *q = 0;
-            for (fi = 0; fi < 3; fi++) {
-                if (tw(faces[fi], o->held) <= SEQ_CHORD_HELD_MAX) {
-                    o->held_font = faces[fi];
-                    hfit = 1;
-                    break;
-                }
-            }
-            if (!hfit)
-                o->held_font = &FONT_XS;
-        }
-    }
+    chord_compose_held(o, prefix, flags);
 }
 
-static int strcmp_s(const char *a, const char *b);
-
 /* Cache: recompute when any input changes, never per column or band.
- * Key covers every F5 field this path can observe: part, pattern
- * (including the same selected step number on another pattern),
- * held/WRITE step, onset index (note_start_of; TIE views still key
- * the viewed step, and extras are read at the onset), engine kind,
- * transpose, the full stored onset set (nstore + bytes; this is the
- * edit and TIE-onset key), and the held-line prefix/flags. There is
- * no Drone voice-state key because the label does not read voice
- * state (F1: no verified source). */
+ * Key covers every F5 field this path can observe: part, pattern,
+ * held/WRITE step, onset index, engine kind, transpose, and the full
+ * stored onset set. Prefix and flags are NOT in the key — they only
+ * affect the held line, which chord_compose_held applies after a hit
+ * — so draw_303 and draw_knobs share one namer result per onset.
+ * There is no Drone voice-state key (F1: no verified source). */
 static struct {
     uint8_t valid, part, pat, step, onset, kind, nstore;
     int16_t trans;
     uint8_t store[HELD_CHORD_NOTES];
-    char prefix[20], flags[32];
-    chord_label_t lab;
+    char cell[32], symbol[16], fallback[12], notes[48];
+    const felucca_font_t *cell_font;
+    uint8_t recognized, nsound;
 } chord_lab_cache;
 
+/* One UI-thread result, used by both draws so neither carries a
+ * ~200-byte chord_label_t on the stack (that prologue cost 96 B
+ * flash at the JieLi link). */
+static chord_label_t chord_paint;
+
+static void chord_cache_store(const chord_label_t *o)
+{
+    put_s(chord_lab_cache.cell, o->cell);
+    put_s(chord_lab_cache.symbol, o->symbol);
+    put_s(chord_lab_cache.fallback, o->fallback);
+    put_s(chord_lab_cache.notes, o->notes);
+    chord_lab_cache.cell_font = o->cell_font;
+    chord_lab_cache.recognized = o->recognized;
+    chord_lab_cache.nsound = o->nsound;
+}
+
+static void chord_cache_load(chord_label_t *o)
+{
+    memset(o, 0, sizeof *o);
+    put_s(o->cell, chord_lab_cache.cell);
+    put_s(o->symbol, chord_lab_cache.symbol);
+    put_s(o->fallback, chord_lab_cache.fallback);
+    put_s(o->notes, chord_lab_cache.notes);
+    o->cell_font = chord_lab_cache.cell_font;
+    o->held_font = &FONT_B;
+    o->recognized = chord_lab_cache.recognized;
+    o->nsound = chord_lab_cache.nsound;
+    o->nstore = chord_lab_cache.nstore;
+}
+
+__attribute__((minsize, noinline))
 static void chord_label_cached(chord_label_t *o, const bpart_t *bp, int s,
                                const int *lk, int have_lk, int poly, int kind,
                                const char *prefix, const char *flags)
@@ -6287,10 +6313,9 @@ static void chord_label_cached(chord_label_t *o, const bpart_t *bp, int s,
         chord_lab_cache.kind == (uint8_t)kind &&
         chord_lab_cache.trans == (int16_t)trans &&
         chord_lab_cache.nstore == (uint8_t)nstore &&
-        memcmp(chord_lab_cache.store, store, (size_t)nstore) == 0 &&
-        strcmp_s(chord_lab_cache.prefix, prefix ? prefix : "") == 0 &&
-        strcmp_s(chord_lab_cache.flags, flags ? flags : "") == 0) {
-        *o = chord_lab_cache.lab;
+        memcmp(chord_lab_cache.store, store, (size_t)nstore) == 0) {
+        chord_cache_load(o);
+        chord_compose_held(o, prefix, flags);
         return;
     }
 #if defined(X0X_HOST)
@@ -6308,9 +6333,7 @@ static void chord_label_cached(chord_label_t *o, const bpart_t *bp, int s,
     chord_lab_cache.trans = (int16_t)trans;
     chord_lab_cache.nstore = (uint8_t)nstore;
     memcpy(chord_lab_cache.store, store, (size_t)nstore);
-    put_s(chord_lab_cache.prefix, prefix ? prefix : "");
-    put_s(chord_lab_cache.flags, flags ? flags : "");
-    chord_lab_cache.lab = *o;
+    chord_cache_store(o);
 }
 
 
@@ -6367,8 +6390,9 @@ static UI_DRAW void draw_303(int band, int gen)
         g = bstep_gate(st);
         if (s == ph)
             cv_rect(x, ROLL_TOP - 4 - o, 12, ROLL_BOT - ROLL_TOP + 10, dim(col, 2));
-        if (g != G_REST && note_start_of(bp, s) >= 0) {
-            int start = note_start_of(bp, s);
+        {
+            int start = (g != G_REST) ? note_start_of(bp, s) : -1;
+            if (start >= 0) {
             uint8_t notes[HELD_CHORD_NOTES];
             int nn = poly ? chord_from_lanes(lk, start, bp->step[start].note, notes) : 1;
             int k, end, width;
@@ -6407,6 +6431,7 @@ static UI_DRAW void draw_303(int band, int gen)
                     cv_line(x + 11, y + 2, x + 14, ny + 2, C_WHITE);
                 }
             }
+            }
         }
         night_mark(x + 1, 101 - o, 10, 4, g && (st->flags & BS_ACCENT) ? C_WHITE : C_LINE,g && (st->flags & BS_ACCENT));   /* its accent, its slide */
         night_mark(x + 1, 113 - o, 10, 4, g && (st->flags & BS_SLIDE) ? col : C_LINE,g && (st->flags & BS_SLIDE));
@@ -6417,7 +6442,6 @@ static UI_DRAW void draw_303(int band, int gen)
         int s = ui.held_step >= 0 ? ui.held_step : ui.wpos[b];
         const bstep_t *st = &bp->step[s];
         char prefix[20], flags[32], *fp;
-        chord_label_t lab;
         q = put_s(prefix, ui.held_step >= 0 ? "STEP " : "WRITE ");
         q = put_i(q, s + 1);
         put_s(q, "  ");
@@ -6429,8 +6453,8 @@ static UI_DRAW void draw_303(int band, int gen)
         if (st->flags & BS_SLIDE)
             fp = put_s(fp, " SLIDE");
         put_i(put_s(fp, " V"), bstep_velocity(st));
-        chord_label_cached(&lab, bp, s, lk, 1, poly, kind, prefix, flags);
-        cv_text(4, vc(lab.held_font, 122, 16) - o, lab.held_font, lab.held, C_WHITE);
+        chord_label_cached(&chord_paint, bp, s, lk, 1, poly, kind, prefix, flags);
+        cv_text(4, vc(chord_paint.held_font, 122, 16) - o, chord_paint.held_font, chord_paint.held, C_WHITE);
     } else {                                           /* else the line's scale and seed */
         char t2[16];
         q = put_s(q, ROOT_N[bp->gen.root % 12]);
@@ -9152,13 +9176,11 @@ static UI_DRAW void draw_knobs(void)
             if (i)
                 cv_rect(i * 60, 14, 1, 50, C_LINE);
             if (i == 0) {
-                chord_label_t lab;
                 int kpoly = seq_bass_poly(&seq, bidx());
                 int kkind = engine_bass_bank(bidx());
-                chord_label_cached(&lab, bp, ui.held_step, 0, 0, kpoly, kkind, 0, 0);
-                put_s(v, lab.cell);
+                chord_label_cached(&chord_paint, bp, ui.held_step, 0, 0, kpoly, kkind, 0, 0);
                 text_c(cx, vc(&FONT_XS, 13, 10), &FONT_XS, SN[i], C_GRAY);
-                text_c(cx, vc(lab.cell_font, 30, 34), lab.cell_font, v, C_WHITE);
+                text_c(cx, vc(chord_paint.cell_font, 30, 34), chord_paint.cell_font, chord_paint.cell, C_WHITE);
                 continue;
             } else if (i == 1)
                 put_s(v, G[bstep_gate(st)]);

@@ -1,0 +1,349 @@
+SEQ chord display — symbol-level flash breakdown
+================================================
+T1 default Elite (TIER1=1, TIER2=0, TIER3=0) vs 94197fc8.
+
+Times: 2026-11-14 00:13 Asia/Vladivostok (UTC+10).
+Worktree: /workspace/seq-chord-001 at 30836aad (tree ee95163d).
+This file is read-only analysis. No shrink is applied in this document;
+proposals at the end were not applied when it was written.
+
+Method
+------
+No .map file is produced by the JieLi link (ld --gc-sections, no -Map).
+The toolchain at /home/box/.jieli/toolchain/pi32v2/bin/ ships GNU nm
+(GNU Binutils 2.26.51.20160621) and objdump, not llvm-nm or readelf.
+Used:
+
+  nm -S --size-sort   on both ELFs
+  /usr/bin/readelf -S (GNU Binutils 2.44) for section totals
+  objdump / the build's x0x.dis for call-site / inlining evidence
+
+ELFs
+----
+  Baseline: /workspace/build-1214/base-94197fc8/build/smk37-elite/x0x.elf
+            x0x.bin 544,232 B  (flash free 8,440; 552,672 − 8,440)
+            mtime 2026-11-13 21:35 Asia/Vladivostok
+  T1 deflt: /workspace/build-1214/seqchord-measure/build/smk37-elite/x0x.elf
+            x0x.bin 547,032 B  (flash free 5,640)
+            Relinked 2026-11-14 00:05 Asia/Vladivostok, same recipe as
+            evidence/after/jieli-sizes.txt (the measure-tree ELF had been
+            overwritten by the later T1+T2+T3 link at 547,536; that T3
+            image is kept at seqchord-measure/kept/elite-t1t2t3/).
+            --board smk37 --model elite --sdk V1.2.14
+            --nightly-version 0.0.26
+            --git-sha 94197fc839b00aff47b98ca02f3c6396e4a6eabf
+            X0X_DEV_PADCAL=0. Image NOT FOR INSTALL.
+
+Section totals (authoritative)
+------------------------------
+  Section       Baseline        T1 default         Delta
+  .text         0x83ea4 540,324  0x84994 543,124   +2,800   (all of the flash)
+  .ram_text     0x00a94   2,708  0x00a94   2,708        0
+  .c1_text      0x00260     608  0x00260     608        0
+  .data         0x0024c     588  0x0024c     588        0
+  .bss          0x172e0  94,944  0x173f4  95,220     +276   (RAM only)
+  .pool         0x51f6c 335,724  0x51f6c 335,724        0
+
+  Image         544,232          547,032           +2,800
+  Flash free    8,440            5,640             −2,800
+  Flag 248 B: OVER by 2,552. Floor 8,192: BELOW by 2,552.
+  RAM .data+.bss 95,536 → 95,812 (+276). Pool free 8,340, unchanged.
+
+  The entire +2,800 B of flash is in .text (this link puts rodata in .text).
+  Named t/T symbols cover 530,592 (base) and 533,348 (T1): coverage
+  delta +2,756. Unnamed gaps (literals + alignment) are 9,732 vs 9,776:
+  residual +44 B. 2,756 + 44 = 2,800.
+
+How symbols were matched
+------------------------
+Exact name for stable source symbols. LLVM locals (.Lswitch.table.N,
+describe_pages.refs.N, process.N, .L.str.N, .L_MergedGlobals.N) are
+renumbered by LTO when ui.c grows; matching them by the numeric suffix
+is a false "grew/new/gone". They were rematched as a multiset of
+(stem, size, type):
+
+  describe_pages.refs  — 24 symbols, 416 B both sides, identical size bag.
+  .Lswitch.table*      — 16 symbols, 496 B both sides, identical size bag.
+  .L.str.*             — 4 symbols, sizes 1, 7, 12, 14 both sides (renumbered).
+  process / note / decimate / inputs / … — same sizes, new suffix only.
+  .L_MergedGlobals     — BSS reshuffle; section .bss +276 is the truth
+                         (chord_lab_cache 268 + seq_chord_second 4 + 4 pad).
+                         Individual MergedGlobals "growth" is not real flash
+                         and is not real RAM growth either.
+
+Those groups net to 0 and are omitted from the table below.
+
+Every function and rodata object that grew, shrank, or is new
+-------------------------------------------------------------
+Flash (.text). Sorted by |delta| descending. "Base" is 0 for a new symbol.
+Gone symbols are shown as a negative delta.
+
+  Rank  Symbol                         Kind     Base      T1    Delta
+  ----  -----------------------------  ----   ------  ------  -------
+     1  chord_label_cached             text        0   1,308   +1,308
+     2  draw_303                       text    1,546   1,930     +384
+     3  seq_chord_symbol               text        0     378     +378
+     4  draw_knobs                     text    5,222   5,452     +230
+     5  held_chord_get                 text        0     100     +100
+     6  chord_from_lanes               text        0      82      +82
+     7  chord_name_paint               text        0      78      +78
+     8  chord_try_cell                 text        0      68      +68
+     9  held_note_by                   text      492     430      −62
+    10  chord_name_folds               text        0      46      +46
+    11  chord_label_fallback           text        0      44      +44
+    12  chord_name_caps                text        0      34      +34
+    13  held_note_of                   text       24       0      −24   (gone; inlined)
+    14  chord_qual_suf                 rodata      0      24      +24   (6 pointers)
+    15  chord_has_slash                text        0      18      +18
+    16  lock_marks                     text      158     170      +12
+    17  .Lchord_label_fmt.faces        rodata      0      12      +12
+    18  .Lchord_try_cell.faces         rodata      0      12      +12
+    19  chord_qual_mask                rodata      0      12      +12   (6 × uint16)
+  ----  -----------------------------  ----   ------  ------  -------
+        Named flash subtotal                               +2,756
+        Unnamed residual (literals + align)                   +44
+        FLASH TOTAL (image / .text)                        +2,800
+
+RAM (not in the 2,800; listed because it was asked):
+
+        chord_lab_cache                bss         0     268     +268
+        seq_chord_second               bss         0       4       +4
+        alignment                                          4       +4
+        RAM TOTAL                                          +276
+
+  put_note is 50 B on both sides (already a shared standalone).
+  night_mark 148 B, note_start_of 62 B, strcmp_s 20 B, X0X_NOTE_N 48 B:
+  unchanged. seq_chord_t3 is absent (T3 stub GC'd, --gc-sections).
+
+  Unchanged functions are omitted (they do not contribute). No other
+  stable source symbol changed size. LTO is on for the smk37 Elite
+  x0x.c TU (−Oz includes ui.c).
+
+Where the 44 B residual goes
+----------------------------
+New C literals that are not inside a sized rodata object (the pointer
+tables only count the pointers). Followed from chord_qual_suf and the
+folds/short helpers:
+
+  "min" 4, "min7" 5, "maj7" is a second copy (ck already has one at
+  0x0206f790; T1 also has 0x0206a425 — not merged), "5" and "7" are
+  shared with existing literals, "minM7" 6, "abdkmnprstxz" 13.
+  Plus a few bytes of .text alignment (gaps 9,732 → 9,776).
+  Together they account for the +44.
+
+  "maj7" is the only real duplicated new-ish literal (5 B extra).
+  "  ", "STEP ", "WRITE ", " TIE", " ACC", " SLIDE" already existed.
+
+Inlining flags
+--------------
+  chord_label_fmt, chord_note_short, chord_lanes_prefetch,
+  onset_chord_of, chord_sounding_clamped, chord_sound_midi,
+  chord_name_lower, chord_lanes_prefetch have NO symbol: they are
+  inlined. chord_label_fmt is inlined into chord_label_cached
+  (1,308 B) — that is the main "inlining" cost. It is a SINGLE call
+  site, so this is one large body, not a duplicated copy.
+
+  draw_303 (+384) and draw_knobs (+230) do NOT inline the namer.
+  T1 x0x.dis: both CALL chord_label_cached. draw_303 also calls
+  chord_from_lanes, put_note, night_mark, lock_marks, note_start_of.
+  The +384 is the required multi-pitch roll (lo/hi over every onset
+  pitch, night_mark per pitch, TIE at each y, slide root-to-root,
+  p-lock on root only, prefetch, held-line prefix/flags + cached
+  call). The +230 is the NOTE-cell call (seq_bass_poly,
+  engine_bass_bank, chord_label_cached, lab.cell / lab.cell_font)
+  plus stack/prologue for a ~200 B chord_label_t on the draw_knobs
+  stack of an already 5 KB UI_DRAW function. Not an inlined-helper
+  blow-up of fmt into the draws.
+
+  held_chord_get is NOW a standalone 100 B (was inlined in 94197fc8).
+  held_note_by calls it and shrank 492 → 430 (−62). held_note_of is
+  gone (−24); onset_chord_of (inlined into cached) calls
+  note_start_of + held_chord_get. Net around this path is small.
+
+  Helpers that DO have their own symbol (put_note, chord_try_cell,
+  chord_name_paint, chord_name_caps, chord_name_folds,
+  chord_has_slash, chord_label_fallback, chord_from_lanes,
+  seq_chord_symbol) are CALLED from the inlined fmt, not inlined
+  again. Sharing put_note is already done.
+
+Cache struct (268 B BSS)
+------------------------
+  Key:  uint8_t valid, part, pat, step, onset, kind, nstore;  /* 7 */
+        int16_t trans; uint8_t store[6];                      /* 8, packed */
+        char prefix[20], flags[32];                           /* 52 */
+  lab:  cell[32], symbol[16], fallback[12], notes[48], held[80]; /* 188 */
+        2 font pointers + recognized/nsound/nstore + pad;        /* ~12 */
+  Total 268. Draw paints only cell/held/fonts. prefix and flags are
+  in the key, so draw_303 ("STEP n  …", " TIE ACC SLIDE V###") and
+  draw_knobs (prefix=0, flags=0) MISS each other every frame and
+  run fmt twice. Pool is not used.
+
+Why this is +2,800, not the HOST ~285 B
+---------------------------------------
+  HOST 285 B was an estimate of the T1 matcher data + match loop
+  only. The linked T1 matcher is close to that: seq_chord_symbol
+  378 + chord_qual_mask 12 + chord_qual_suf 24 = 414 B (an earlier
+  fair link put the namer at +420 on top of TIER1=0).
+
+  The rest is the DISPLAY + FORMATTER, which HOST did not count:
+    chord_label_cached (fmt inlined)     1,308
+    draw_303 / draw_knobs growth           614
+    paint/caps/folds/try/fallback/slash    288
+    held_chord_get / chord_from_lanes      182
+    faces + lock_marks                      36
+    held_note_by / held_note_of           −86
+    residual literals + align               44
+
+  Earlier TIER1=0 (fallback-only, pre-§10r, same recipe, recorded
+  in seqchord-measure/logs/SIZES.txt): image 546,180, flash free
+  6,492, +1,948 vs 94197fc8. That ELF is gone and was not relinked
+  this turn (it predates §10r fmt and caps; a current TIER1=0 would
+  differ). 2,800 − 1,948 = 852 is the later namer + §10r/caps on
+  top of that older fallback-only figure. From the mid-stream
+  1adcde11 image (free 6,136, +2,304) to this T1 is +496.
+
+Pro T1 (recorded, not re-diffed): image 547,020, free 5,652, +2,796.
+
+Top size reductions (NOT applied in this document)
+--------------------------------------------------
+Each keeps exact §9 / §10r.7 / fold-caps behaviour if marked SAFE
+and host tests plus framebuffer identity still pass. Estimates are
+from the T1 Elite nm and a read of ui.c — not from a trial link.
+
+  #  Proposal                                         Est. save    Verdict
+  -- -----------------------------------------------  -----------  ----------
+  1  Restructure fmt: one font-fit loop, one table-
+     driven NOTE-cell candidate order (paint, drop
+     /Bass, short, notes, one-distinct, compact).
+     Replaces the unrolled if-chain inlined into
+     the 1,308 B wrapper. Same §10r.3 order.          120–250 B    SAFE
+                                                       (measure)
+  2  Drop seq_chord_second and its stash loop inside
+     seq_chord_symbol (__attribute__((used)) forces
+     the 4 B object). Draw never reads it. Early-out
+     on a bass-root hit is then legal (same 0/1 and
+     §9 names).                                       40–150 B     SAFE for
+                                                       + 4 B RAM    pixels /
+                                                                    0/1 names.
+                                                                    RISK: the
+                                                                    reserved
+                                                                    hook goes.
+  3  #if SEQ_CHORD_LABEL_TIER3 the minmaj7→minM7
+     short path (chord_note_short + "minM7"). T1
+     qualities never produce minmaj7.                 40–80 B      SAFE on T1
+                                                                    (T3 keeps
+                                                                    it).
+  4  Take prefix/flags out of the cache key; build
+     the held line at the call site with one shared
+     compose+font-fit helper. Cache HIT shared by
+     draw_303 and draw_knobs (today they miss every
+     frame). Drops prefix[20]+flags[32]+held[80]
+     from BSS; smaller memcpy; one namer/frame.       40–80 B flash SAFE if
+                                                       + ~130 B RAM held text
+                                                                    identical;
+                                                                    faster, not
+                                                                    slower.
+  5  One shared font-fit (NOTE 54 px and held 232
+     px); share faces as one table with an index
+     origin (held is B,S,XS; cell is M,S,XS — first
+     pointer differs). Use try-fit for compact too
+     (manual M/S/XS walk at the end of fmt is a
+     duplicate).                                      30–60 B      SAFE
+  6  #if TIER3 chord_name_lower / "start at FONT_S".
+     Every T1 suffix that has lowercase also folds
+     (i,j in min/maj), so T1 always caps and starts
+     at FONT_M.                                       10–20 B      SAFE on T1
+  7  Bitmask for chord_name_folds (drop the 13 B
+     "abdkmnprstxz" scan).                            10–20 B      SAFE
+  8  Tighten draw_303: one note_start_of per cell;
+     no 200 B lab on the draw_knobs / draw_303
+     stack (paint from a pointer after cached()).    20–80 B      SAFE if
+                                                                    frames
+                                                                    match.
+  9  minsize, noinline on chord_label_fmt and
+     cached. x0x.c is already -Oz; Optimizer has
+     seen minsize GROW an image. One call site
+     for fmt, so noinline may be 0 or a loss.         0–400 B or   MEASURE;
+                                                       a growth     do not
+                                                                    ship on
+                                                                    hope.
+ 10  Share put_note — ALREADY a 50 B standalone,
+     called from fallback, fmt, draw_303, knobs.      0            already
+                                                                    done.
+ 11  Pack chord_qual_suf with a "\\0min\\05\\07"
+     blob. Forbidden by §9.8 F9 (octal).              0 (or loss)  DO NOT
+ 12  Shared T1/T3 matcher loop. T3 stub already
+     GC'd on default T1.                              0 on T1      only for
+                                                       150–220 T3  a T3
+                                                                    ship.
+ 13  Do not edit held_chord.h (already one copy).     0            leave it.
+
+  Realistic SAFE total if 1–8 land and 9 does not grow: about
+  300–700 B, maybe a bit more from a tighter fmt. That will not
+  close the 2,552 B overshoot of the 248 B flag. The cost is the
+  feature (fmt, cache, two draw sites, caps), not a leftover table.
+  Closing the floor still needs Optimizer flash, or a scope decision.
+  Do not cut features to make the flag.
+
+  Behaviour-risk items called out above: (2) hook contract;
+  (9) possible size growth. Everything else is SAFE for exact
+  pixels and names if tests and frames stay identical.
+
+Toolchain / images
+------------------
+  nm     /home/box/.jieli/toolchain/pi32v2/bin/nm  (GNU 2.26.51)
+  dumps  /tmp/nm-base-94197fc8-elite.txt
+         /tmp/nm-t1-default-elite.txt
+  T1 ELF kept at
+         /workspace/build-1214/seqchord-measure/kept/elite-t1-default-10r/
+  T3 ELF kept at
+         /workspace/build-1214/seqchord-measure/kept/elite-t1t2t3/
+
+
+Measured shrink (applied after this analysis)
+---------------------------------------------
+Times: 2026-11-14 00:24 Asia/Vladivostok (UTC+10).
+Source: same worktree, after the redesign (not applied in the table
+above). Host tests bit-exact: T1 1,272 PASS, 35/35 after-*.png SHA
+identical to evidence/after; T3 1,365 PASS, 35/35 after-t3 PNG SHA
+identical; T2 1,321; T2+T3 1,414; T0 full 445. PLAYBACK_HASH
+0x4c5a264a. DRAW_TIME interleaved vs the previous T1 host binary is
+within run-to-run spread (no systematic slowdown).
+
+JieLi T1 default (same recipe, --git-sha 94197fc8), images kept at
+seqchord-measure/kept/elite-t1-shrink and kept/pro-t1-shrink.
+NOT FOR INSTALL.
+
+  Elite: image 546,700 (was 547,032, baseline 544,232)
+         flash free 5,972 (was 5,640, baseline 8,440)
+         saved 332 B vs this tree's pre-shrink T1
+         vs 94197fc8 still +2,468 (flag 248: OVER by 2,220)
+         RAM 95,888 (was 95,812; cache 268→132, second hook gone,
+         but a 200 B UI-thread chord_paint buffer avoids a 96 B
+         flash cost of a 200 B stack object on draw_knobs)
+         pool free 8,340 (unchanged)
+  Pro:   image 546,688 (was 547,020, baseline 544,224)
+         flash free 5,984 (was 5,652, baseline 8,448)
+         saved 332 B; vs 94197fc8 +2,464 (flag 256: OVER by 2,208)
+         RAM 95,888, pool 8,340
+
+  nm Elite vs pre-shrink T1 (stable symbols):
+    chord_label_cached     1,308 → 518   −790  (fmt no longer inlined)
+    chord_label_fmt            0 → 300   +300  (minsize, noinline)
+    chord_compose_held         0 → 202   +202
+    chord_try_name             0 → 100   +100
+    chord_fit                  0 →  94    +94
+    seq_chord_symbol         378 → 250   −128  (hook and stash gone;
+                                               bass-root early-out)
+    draw_knobs             5,452 → 5,366  −86
+    draw_303               1,930 → 1,926   −4
+    faces tables (2×12)           gone   −24
+    chord_name_paint          78 →  50   −28
+    chord_lab_cache (BSS)    268 → 132  −136
+    seq_chord_second (BSS)     4 →   0    −4
+    chord_paint (BSS)          0 → 200  +200
+    T3 short path / "minM7" compiled out (TIER3 off).
+
+  332 B is inside the 200–700 B realistic band, not "well beyond" it.
+  The remaining +2,468 vs 94197fc8 is the feature. Closing the 8,192
+  floor still needs Optimizer flash (and presets, if they merge).

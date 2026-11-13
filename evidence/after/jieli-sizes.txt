@@ -44,3 +44,15 @@ Glyph add (not taken): HOST ESTIMATE unique bitmaps, packed data only (OFF/ADV a
   i,e,o,h (UX named) ≈ 358 B
   all 14 folded lowercase ≈ 1,252 B
 Default build is already over headroom; lowercase glyphs were not added.
+
+
+Shrink redesign (2026-11-14 00:24 Asia/Vladivostok), same recipe,
+T1 default. Host frames bit-exact vs the figures above. Images
+NOT FOR INSTALL, kept under seqchord-measure/kept/{elite,pro}-t1-shrink/.
+Logs: elite-t1-shrink.txt, pro-t1-shrink.txt.
+
+  Elite: image 546,700 B; flash free 5,972 B; RAM 95,888 B; pool free 8,340
+         −332 B vs T1 above (547,032). vs 94197fc8 +2,468. OVER 248 by 2,220.
+  Pro:   image 546,688 B; flash free 5,984 B; RAM 95,888 B; pool free 8,340
+         −332 B vs T1 above (547,020). vs 94197fc8 +2,464. OVER 256 by 2,208.
+  Floor 8,192: still below. Not trimmed.
