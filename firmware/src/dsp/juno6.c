@@ -50,7 +50,7 @@ void juno6_render(juno6_t *s, float *out, unsigned n)
    v->phase+=dt;if(v->phase>=1)v->phase-=1;
    v->subphase+=dt*.5f;if(v->subphase>=1)v->subphase-=1;
   }
-  mix*=s->macro[15]/6;
+  mix*=s->macro[15]/1.85f;
   if(s->hpf>0){float y=hp*(s->hp_state+mix-s->hp_input);s->hp_input=mix;s->hp_state=y;mix=y;}
   out[k]=mix;
  }
