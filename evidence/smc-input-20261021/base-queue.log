@@ -1,0 +1,25 @@
+FAIL: route=0 source=0 start=0 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=0 source=0 start=0 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=0 source=0 start=240 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=0 source=0 start=240 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=0 source=0 start=255 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=0 source=0 start=255 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=1 source=0 start=0 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=1 source=0 start=0 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=1 source=0 start=240 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=1 source=0 start=240 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=1 source=0 start=255 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=1 source=0 start=255 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=0 start=0 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=0 start=0 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=0 start=240 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=0 start=240 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=0 start=255 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=0 start=255 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=1 start=0 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=1 start=0 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=1 start=240 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=1 start=240 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=1 start=255 reset=0 event=0: queue slot was overwritten before dispatch
+FAIL: route=2 source=1 start=255 reset=1 event=0: queue slot was overwritten before dispatch
+FAIL: 24/24 SMC queue interleavings: [(['0', '0', '0', '0'], 1), (['0', '0', '0', '1'], 1), (['0', '0', '240', '0'], 1), (['0', '0', '240', '1'], 1), (['0', '0', '255', '0'], 1), (['0', '0', '255', '1'], 1), (['1', '0', '0', '0'], 1), (['1', '0', '0', '1'], 1), (['1', '0', '240', '0'], 1), (['1', '0', '240', '1'], 1), (['1', '0', '255', '0'], 1), (['1', '0', '255', '1'], 1), (['2', '0', '0', '0'], 1), (['2', '0', '0', '1'], 1), (['2', '0', '240', '0'], 1), (['2', '0', '240', '1'], 1), (['2', '0', '255', '0'], 1), (['2', '0', '255', '1'], 1), (['2', '1', '0', '0'], 1), (['2', '1', '0', '1'], 1), (['2', '1', '240', '0'], 1), (['2', '1', '240', '1'], 1), (['2', '1', '255', '0'], 1), (['2', '1', '255', '1'], 1)]

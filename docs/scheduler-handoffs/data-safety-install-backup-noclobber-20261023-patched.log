@@ -1,0 +1,16 @@
+test_archive_preflight_rejects_corruption_before_file_publish (__main__.InstallBackupAtomicTest.test_archive_preflight_rejects_corruption_before_file_publish) ... ok
+test_concurrent_backup_creator_wins_without_clobber (__main__.InstallBackupAtomicTest.test_concurrent_backup_creator_wins_without_clobber) ... ok
+test_device_read_failure_never_changes_previous_backup (__main__.InstallBackupAtomicTest.test_device_read_failure_never_changes_previous_backup) ... ok
+test_directory_destination_is_refused_without_clobbering (__main__.InstallBackupAtomicTest.test_directory_destination_is_refused_without_clobbering) ... ok
+test_disk_full_after_partial_stage_write_does_not_truncate_old_backup (__main__.InstallBackupAtomicTest.test_disk_full_after_partial_stage_write_does_not_truncate_old_backup) ... ok
+test_fresh_install_backup_exists_and_validates (__main__.InstallBackupAtomicTest.test_fresh_install_backup_exists_and_validates) ... ok
+test_fsync_failure_does_not_overwrite_existing_backup (__main__.InstallBackupAtomicTest.test_fsync_failure_does_not_overwrite_existing_backup) ... ok
+test_preexisting_archive_cannot_be_overwritten (__main__.InstallBackupAtomicTest.test_preexisting_archive_cannot_be_overwritten) ... ok
+test_repeated_default_filename_preserves_previous_backup (__main__.InstallBackupAtomicTest.test_repeated_default_filename_preserves_previous_backup) ... ok
+test_symlink_backup_destination_cannot_modify_its_target (__main__.InstallBackupAtomicTest.test_symlink_backup_destination_cannot_modify_its_target) ... ok
+test_temporary_file_readback_failure_does_not_publish (__main__.InstallBackupAtomicTest.test_temporary_file_readback_failure_does_not_publish) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.021s
+
+OK

@@ -1,0 +1,69 @@
+{
+  "result": "PASS",
+  "merge": "dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9",
+  "merge_tree": "4540c0afecc0e6482614fc41aaade8485d565976",
+  "mapping_paths": 41,
+  "central_paths": 518,
+  "overlap": [],
+  "source_manifests": {
+    "source-inputs.json": {
+      "count": 415,
+      "changed": [
+        "firmware/src/app/smc_mixer.c",
+        "tests/host/smc_buttons_test.py",
+        "tests/host/smc_clip_visibility_test.c",
+        "tests/host/smc_clip_visibility_test.sh",
+        "tests/host/smc_filter_test.py",
+        "tests/host/smc_mapping_test.py",
+        "tests/run_tests.sh"
+      ]
+    },
+    "helper-inputs.json": {
+      "count": 224,
+      "changed": []
+    },
+    "stop-inputs.json": {
+      "count": 6,
+      "changed": []
+    }
+  },
+  "saved_logs": 81,
+  "saved_commands": 77,
+  "expected_nonzero": 30,
+  "independent_central_cases": 16,
+  "separate_records": [
+    {
+      "record": "evidence/mapping-stage4/elite/record.json",
+      "commit": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+      "validation_inputs": "61b55058081c83e7a54ac903fa42eaf64c7d128ddeb143d35a55b2094f6ad8a6",
+      "budgets": {
+        "code_free": 1912,
+        "ram_free": 524,
+        "pool_free": 8364
+      }
+    },
+    {
+      "record": "evidence/mapping-stage4/pro/record.json",
+      "commit": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+      "validation_inputs": "2ffb0b0cf077f583c05b12fd6a250d5ff2cf84ffc0c12946a79402c2ce740bda",
+      "budgets": {
+        "code_free": 1928,
+        "ram_free": 524,
+        "pool_free": 8364
+      }
+    },
+    {
+      "record": "evidence/stop-stage4/elite/record.json",
+      "commit": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+      "validation_inputs": "69a610942727173b0a3ebcf63584187f93efae2d00b20ca71ca39c8f072f4cf5",
+      "budgets": {
+        "code_free": 1128,
+        "ram_free": 524,
+        "pool_free": 8364
+      }
+    }
+  ],
+  "host_suites_repeated": false,
+  "combined_replay_required": true,
+  "combined_dev_validation_required": true
+}

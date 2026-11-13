@@ -1,0 +1,5 @@
+PASS: central receive and unchanged peripheral diagnostic formats
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/smc_regression_repair_20261021/tests/ble_central_diag_test.py", line 35, in <module>
+    assert parsed['h_step'] == 0x8605000e
+AssertionError

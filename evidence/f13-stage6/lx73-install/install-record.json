@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "result": "PASS",
+  "record_id": "4cd9e2e9a47b63b1",
+  "identity": "SMK-37 Elite_900",
+  "port": "X0X FM-1",
+  "validated_source_sha": "092589b84fd455355216cb0de93c4782236f7524",
+  "package_sha256": "9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5",
+  "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "controller_crc32_readback": "4a400899",
+  "slots_backup_bytes": 110905,
+  "local_record": "/Users/mac/Library/Application Support/x0x37/unattended-install/records/4cd9e2e9a47b63b1"
+}

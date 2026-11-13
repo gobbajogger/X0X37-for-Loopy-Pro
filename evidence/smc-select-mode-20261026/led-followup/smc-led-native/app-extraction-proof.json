@@ -1,0 +1,30 @@
+{
+  "elite": {
+    "method": "Existing package deinterleave/integrity + packer SFC inverse; app entry CRC16 verified, exact compiled size from verified build log, padding verified erased",
+    "app": {
+      "file": "app-from-package.bin",
+      "bytes": 322164,
+      "sha256": "ccda2659c9d0d39b1a91e2a8b5f36ad2abc094accd5c4277fe8874d92eec63de",
+      "whole_file_crc32": "51c0becd"
+    },
+    "loader": {
+      "bytes": 7339,
+      "sha256": "f72f60d1e48f09781e7d73e6e1cbe1f916aec1f0f0297f0190b88d1d9c0db5cc",
+      "whole_file_crc32": "d1b84637"
+    }
+  },
+  "pro": {
+    "method": "Existing package deinterleave/integrity + packer SFC inverse; app entry CRC16 verified, exact compiled size from verified build log, padding verified erased",
+    "app": {
+      "file": "app-from-package.bin",
+      "bytes": 322148,
+      "sha256": "9486f623406e3d35e1282280b06694ce6ab9d3447dc6e62afc88f51be9ac2239",
+      "whole_file_crc32": "0e0b4f91"
+    },
+    "loader": {
+      "bytes": 7339,
+      "sha256": "cbcc1dd80e1d665fe1a75e93f6139a378d69970b3902bcfeadd9439d3649fb04",
+      "whole_file_crc32": "62d49a0b"
+    }
+  }
+}

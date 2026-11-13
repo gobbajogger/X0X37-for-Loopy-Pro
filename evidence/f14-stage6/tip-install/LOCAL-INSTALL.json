@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "role": "stage6-install",
+  "config": "dev",
+  "branch": "cursor/f14-tip-stage6-16fe",
+  "firmware_sha": "b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a",
+  "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "X0X_DEV_PADCAL": "1",
+  "models": {
+    "elite": {
+      "package_sha256": "4dc49bad6e8b555aefaf3a70f0ccb1579638d2b0e35c30a5f5fee043124f7376",
+      "record": "evidence/f14-tip-packages/elite/record.json",
+      "identity": "SMK-37 Elite_900"
+    },
+    "pro": {
+      "package_sha256": "3f3b5c00148347d2dec8fdaf5933e606cd1755c6c55f80f550d5ef915f5a2980",
+      "record": "evidence/f14-tip-packages/pro/record.json",
+      "identity": "SMK-37 Pro_900"
+    }
+  },
+  "already_flashed_record": "5f32e52e93056553",
+  "note": "F14 tip Elite PASS from prerelease f14-tip-b48cd800-dev attested bytes"
+}

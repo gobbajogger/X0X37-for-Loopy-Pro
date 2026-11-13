@@ -1,0 +1,662 @@
+[
+  {
+    "series": "chicago-env",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-env",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-env",
+    "value_percent": 50,
+    "check": "stationary zero ENV",
+    "pass": true
+  },
+  {
+    "series": "chicago-env",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-env",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-adsr",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-adsr",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-adsr",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-adsr",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-adsr",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-level",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-bite",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "miami-level",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "miami-wobble",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-decay",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-decay",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-decay",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-decay",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-decay",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-tune",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-tune",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-tune",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-tune",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-tune",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-attack",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-attack",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-attack",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-attack",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-attack",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-pitch-depth",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-pitch-depth",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-pitch-depth",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-pitch-depth",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-pitch-depth",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-pitch",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-pitch",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-pitch",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-pitch",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-pitch",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-snappy",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-snappy",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-snappy",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-snappy",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-snappy",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-tone",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-tone",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-tone",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-tone",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-tone",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-level",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-level",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-level",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-level",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-level",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-accent",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-accent",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-accent",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-accent",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "909-accent",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-decay",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-decay",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-decay",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-decay",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-decay",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-tune",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-tune",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-tune",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-tune",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-tune",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-attack",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-attack",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-attack",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-attack",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-attack",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-shell-tone",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-shell-tone",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-shell-tone",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-shell-tone",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-shell-tone",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-sound",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-sound",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-sound",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-sound",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-sound",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-snappy",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-snappy",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-snappy",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-snappy",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-snappy",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-tone",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-tone",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-tone",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-tone",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-tone",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-level",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-level",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-level",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-level",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-level",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-accent",
+    "value_percent": 0,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-accent",
+    "value_percent": 25,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-accent",
+    "value_percent": 50,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-accent",
+    "value_percent": 75,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "808-accent",
+    "value_percent": 100,
+    "check": "live motion",
+    "pass": true
+  },
+  {
+    "series": "chicago-env",
+    "values": [
+      0,
+      25
+    ],
+    "check": "different depth sequences",
+    "pass": true
+  },
+  {
+    "series": "chicago-env",
+    "values": [
+      25,
+      50
+    ],
+    "check": "different depth sequences",
+    "pass": true
+  },
+  {
+    "series": "chicago-env",
+    "values": [
+      50,
+      75
+    ],
+    "check": "different depth sequences",
+    "pass": true
+  },
+  {
+    "series": "chicago-env",
+    "values": [
+      75,
+      100
+    ],
+    "check": "different depth sequences",
+    "pass": true
+  }
+]

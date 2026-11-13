@@ -1,0 +1,68 @@
+{
+  "schema": "x0x37.git-evidence/1",
+  "evidence_revision": "installer-ota-loader-model-20261024-r1",
+  "run_date": "2026-10-24",
+  "role": "Installer Improvements sole browser source producer",
+  "outcome": "DELIVERED",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/installer-nightly-download-guard-20261024",
+  "pr": 102,
+  "consumed_source_commit": "e44eb4c5d12f75ed0d5c9c06286da71a47ad26bd",
+  "consumed_full_root_tree": "b6134094465d1359d64eb0ba9865d9bb5ea95243",
+  "consumed_updater_blob": "014f5fa3490f476554a17b08e941bde04c7eff74",
+  "consumed_registry_blob": "df8f59153da6b1f14ede33ce676979bc10f4b376",
+  "distinct_compiled_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+  "source_paths": [
+    "web/fm1ota.js",
+    "web/test_install_nightly_ota_model.mjs",
+    "web/test_install_slots.mjs"
+  ],
+  "report_path": "docs/installer-nightly-ota-loader-model-20261024.md",
+  "checks": [
+    {
+      "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+      "exit": 128,
+      "status": "DNS_BLOCKED"
+    },
+    {
+      "command": "GitHub-connected V8 old full-source method + registered test via Node-VM shims",
+      "exit": null,
+      "status": "EXPECTED_RED",
+      "evidence": "assert.deepEqual Pro skips unrelated FM-1 loader write target got=[\"ota-FM-1\"] want=[\"ota-SMK-37 Pro\"]"
+    },
+    {
+      "command": "GitHub-connected V8 repaired full-source method + registered test via Node-VM shims",
+      "exit": null,
+      "status": "PASS",
+      "cases": 13
+    },
+    {
+      "command": "node web/test_install_nightly_ota_model.mjs",
+      "exit": null,
+      "status": "NOT_RUN_NATIVE"
+    },
+    {
+      "command": "node web/test_install_slots.mjs",
+      "exit": null,
+      "status": "NOT_RUN_NATIVE"
+    },
+    {
+      "command": "Generated-site Chromium EN/JA 320/390/1280",
+      "exit": null,
+      "status": "NOT_RUN"
+    }
+  ],
+  "disposition": "SOURCE_COMPLETE_SCOPED_PRODUCER_CHECKED_READY_FOR_INDEPENDENT_REVIEW",
+  "build": "NOT_RUN_BROWSER_ONLY",
+  "device": "UNKNOWN_NOT_TESTED",
+  "publication": "NO_GO_EMPTY_APPROVALS",
+  "next_owner": "Independent Firmware QA",
+  "next_action": "Run native complete source Node install-OTA/backup regressions and browser tests; review exact new PR102 head. Sole Safe Merge later; separate website PR1 source owner ports guard.",
+  "remaining_gates": [
+    "independent native Node+full generated-site Chromium QA",
+    "sole firmware Safe Merge",
+    "separate website source/QA/merger",
+    "model/controller/source/license/backup/OTA",
+    "lawful immutable hosted HTTP SHA"
+  ]
+}
