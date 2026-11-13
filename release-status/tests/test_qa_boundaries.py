@@ -137,8 +137,8 @@ class TestQABoundaries(unittest.TestCase):
         legacy = load_jsonl(AUDIT)
         self.assertGreaterEqual(len(legacy), 5)
         self.assertEqual(audit_chronology_errors(legacy), [])
-        self.assertTrue(any("16:00:00" in e["time"] for e in legacy))
-        self.assertTrue(any("11:15:00" in e["time"] for e in legacy))
+        self.assertTrue(any("10:00:00-06:00" in e["time"] for e in legacy))
+        self.assertTrue(any("05:15:00-06:00" in e["time"] for e in legacy))
 
     def test_non_iso_impossible_time_and_append_regression_rejected(self):
         legacy = load_jsonl(AUDIT)
