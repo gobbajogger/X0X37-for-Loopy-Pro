@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Browser-level W3 acceptance: real Chromium + native file upload/download.
-// Run: DNBOX_PUPPETEER_MODULE=/path/to/puppeteer DNBOX_CHROMIUM=/usr/bin/chromium node web/presets/test_browser.mjs
+// Run: node web/presets/test_browser.mjs (requires installed Puppeteer and Chromium).
+// Cloud run: DNBOX_PUPPETEER_MODULE=/workspace/shared/dnbox-rdc/node_modules/puppeteer DNBOX_CHROMIUM=/usr/bin/chromium node web/presets/test_browser.mjs
 // No external network, MIDI/USB, firmware, installation or deployment is used.
 import { createRequire } from "node:module";
 import { createServer } from "node:http";
