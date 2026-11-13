@@ -161,18 +161,11 @@ flush_prefix = r'''
 #include <stdint.h>
 #include <assert.h>
 #include <stdio.h>
-#define NBASS 2
-typedef struct {
- uint8_t bass_slide_valid[2], bass_slide_ch[2], bass_slide_old[2];
- uint8_t bass_out_valid[2], bass_out_ch[2], bass_notes_out[2];
- unsigned bass_slide_off[2];
- uint8_t playing;
-} seq_t;
-typedef struct {void (*midi)(void *,uint8_t,uint8_t,uint8_t);void *ctx;} seq_sink_t;
+#include "seq/sequencer.h"
 static unsigned count;
-static uint32_t output[4];
+static uint32_t output[8];
 static void capture(void *ctx,uint8_t st,uint8_t d1,uint8_t d2) {
- (void)ctx; assert(count<4); output[count++]=st|d1<<8|d2<<16;
+ (void)ctx; assert(count<8); output[count++]=st|d1<<8|d2<<16;
 }
 '''
 # #521/#528 shared Note Off helpers out of bass_midi_flush; extract them too.
@@ -186,13 +179,15 @@ flush_suffix = r'''
 int main(void) {
  seq_t s={.bass_slide_valid={1,1},.bass_slide_ch={2,5},.bass_slide_old={40,50},
           .bass_out_valid={1,1},.bass_out_ch={3,6},.bass_notes_out={42,52},
-          .bass_slide_off={17,23},.playing=1};
- seq_sink_t sink={capture,0};
+          .bass_slide_off={17,23},.playing=1,
+          .chord_out={{64,67},{72}},.chord_out_n={2,1},.chord_out_ch={3,6}};
+ seq_sink_t sink={.midi=capture,.ctx=0};
  seq_midi_flush(&s,&sink);
- assert(count==4 && output[0]==(0x82|40<<8) && output[1]==(0x83|42<<8));
- assert(output[2]==(0x85|50<<8) && output[3]==(0x86|52<<8));
- for(int i=0;i<2;i++) assert(!s.bass_slide_valid[i] && !s.bass_out_valid[i] && !s.bass_slide_off[i]);
- assert(s.playing==1); seq_midi_flush(&s,&sink); assert(count==4);
+ assert(count==7 && output[0]==(0x83|64<<8) && output[1]==(0x83|67<<8));
+ assert(output[2]==(0x82|40<<8) && output[3]==(0x83|42<<8));
+ assert(output[4]==(0x86|72<<8) && output[5]==(0x85|50<<8) && output[6]==(0x86|52<<8));
+ for(int i=0;i<2;i++) assert(!s.bass_slide_valid[i] && !s.bass_out_valid[i] && !s.bass_slide_off[i] && !s.chord_out_n[i]);
+ assert(s.playing==1); seq_midi_flush(&s,&sink); assert(count==7);
  puts("PASS sequencer MIDI flush preserves playback and ends both slide notes");
  return 0;
 }
@@ -208,7 +203,7 @@ with tempfile.TemporaryDirectory(prefix="smk-clip-isolation-") as tmp:
         subprocess.run([str(binary)], check=True)
     source.write_text(flush_prefix + flush_body + flush_suffix)
     binary = Path(tmp) / "flush-test"
-    subprocess.run([os.environ.get("CC", "cc"), "-std=c99", str(source), "-o", str(binary)], check=True)
+    subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-I", str(SRC), str(source), "-o", str(binary)], check=True)
     subprocess.run([str(binary)], check=True)
 
 # A simultaneous mode press must establish routing before either UI input path.

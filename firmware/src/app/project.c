@@ -14,6 +14,8 @@
  * patterns of 32 steps in OBJ_PAT0/1, the song and 32-step lanes in OBJ_SONG/OBJ_MOTION) is
  * converted as it loads: its steps land on steps 1-32, its patterns on 1-16. */
 #include "x0x.h"
+#include "bass_pattern_preset.h"
+#include "../seq/held_chord.h"
 #include "lz.c"
 #include "../crc32_nibble.h"           /* one nibble table shared with storage.c */
 
@@ -23,11 +25,14 @@ project_t project_stage X0X_POOL;
 
 #define PROJ_STREAM 13u                 /* compact Chicago schema2; current raw patterns/arrangement */
 #define PROJ_STREAM_14 14u              /* 13 + per-pattern bass presets (pattern_t.rsv[0..1]) and note locks */
-static int stream_known(uint32_t format) { return format == PROJ_STREAM || format == PROJ_STREAM_14; }
+#define PROJ_STREAM_CHORD 15u /* same byte layout, sparse held-key chord metadata */
+static int stream_known(uint32_t format) { return format == PROJ_STREAM || format == PROJ_STREAM_14 || format == PROJ_STREAM_CHORD; }
 /* Revision 14 only when the project uses what 13 cannot hold, so a project without
  * pattern presets or note locks stays byte-identical and loads on 0.0.24.x. */
 static uint32_t stream_format_of(const project_t *pr)
 {
+    for(int k=0;k<NLANE;k++)
+        if(pr->arr.lane[k].used && pr->arr.lane[k].t==HELD_CHORD_TARGET)return PROJ_STREAM_CHORD;
     for (int p = 0; p < NPAT; p++)
         if (pr->pat[p].rsv[0] | pr->pat[p].rsv[1]) return PROJ_STREAM_14;
     for (int k = 0; k < NLANE; k++)
@@ -409,11 +414,17 @@ static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t fo
     for (k = 0; k < NLANE; k++) {
         const lane_t *l=&arr->lane[k];
         if(!l->used)continue;
+        if(l->t==HELD_CHORD_TARGET) {
+            if(format!=PROJ_STREAM_CHORD || !held_chord_lane_valid(l))return 0;
+            for(int j=0;j<k;j++)if(arr->lane[j].used && arr->lane[j].t==l->t &&
+                arr->lane[j].pat==l->pat && arr->lane[j].part==l->part &&
+                arr->lane[j].v==l->v && arr->lane[j].i==l->i)return 0;
+        }
         if(l->t==0xfeu)return 0; /* frozen historical contract remains unsupported */
         if(l->t==0xfdu) {
 #if X0X_BASS_NOTE_SOUND
             /* A lock on a step that is no longer a note is kept and never plays. */
-            if(format!=PROJ_STREAM_14 || engine_bass_note_validate(l))return 0;
+            if((format!=PROJ_STREAM_14 && format!=PROJ_STREAM_CHORD) || engine_bass_note_validate(l))return 0;
             for(int j=0;j<k;j++)if(arr->lane[j].used && arr->lane[j].t==l->t &&
                 arr->lane[j].pat==l->pat && arr->lane[j].part==l->part && arr->lane[j].v==l->v)return 0;
 #else
@@ -626,9 +637,9 @@ static int project_validate_for(const project_t *p)
         const pattern_t *pat = &p->pat[k];
         if (pat->swing > 100)
             return -1;
-        for (b = 0; b < NBASS; b++) {           /* pattern preset: 0 none, else bank << 7 | preset + 1 */
-            unsigned ps = pat->rsv[b];
-            if (ps && (!(ps & 127u) || (ps & 127u) > original_sound_factories(ps >> 7)))
+        for (b = 0; b < NBASS; b++) {           /* schema-14: same one-byte preset field */
+            unsigned kind, preset;
+            if (!bass_pattern_preset_decode(pat->rsv[b], &kind, &preset))
                 return -1;
         }
         for (b = 0; b < NKIT; b++)
@@ -677,6 +688,13 @@ static int project_validate_for(const project_t *p)
             continue;
         }
 #endif
+        if(l->t==HELD_CHORD_TARGET) {
+            if(!held_chord_lane_valid(l))return -1;
+            for(int j=0;j<k;j++)if(p->arr.lane[j].used && p->arr.lane[j].t==l->t &&
+                p->arr.lane[j].pat==l->pat && p->arr.lane[j].part==l->part &&
+                p->arr.lane[j].v==l->v && p->arr.lane[j].i==l->i)return -1;
+            continue;
+        }
         if (l->t == T_PROB) {
             if ((l->v >> 4) != l->part || (l->v & 15) >= (l->part < NKIT ? NDRUM : 1) || l->i)
                 return -1;
@@ -851,3 +869,4 @@ int project_save(void)
         return -2;
     return save_stream();
 }
+

@@ -3,14 +3,25 @@
 #include <stdint.h>
 #include "app/version.h"
 
-/* This file is included only in the Pro or Elite application, never the loader. */
-#if !BOARD_SMK37 || (defined(X0X_USB_37PRO) == defined(X0X_USB_37ELITE))
-#error USB product name requires exactly one SMK-37 Pro/Elite model
+/* USB display identity only; OTA model admission and USB VID/PID stay unchanged. */
+#if !BOARD_SMK37 || (defined(X0X_USB_37PRO) && defined(X0X_USB_37ELITE))
+#error USB product name requires an SMK board and unambiguous model
 #endif
-#if defined(X0X_USB_37ELITE)
-#define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " 37ELITE"
+#if defined(FELUCCA_LOADER)
+#ifndef SMK_MODEL
+#error SMK_MODEL is required for an SMK loader USB descriptor
+#endif
+#define X0X_USB_PRODUCT_TEXT u"" SMK_MODEL " Update"
+#elif defined(X0X_USB_37ELITE)
+#define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " SMK-37 Elite"
+#elif defined(X0X_USB_37PRO)
+#define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " SMK-37 Pro"
 #else
-#define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " 37PRO"
+#ifndef SMK_MODEL
+#error SMK_MODEL is required for an SMK USB descriptor
+#endif
+/* Direct/MKE builds must not fall back to the legacy non-keyboard name. */
+#define X0X_USB_PRODUCT_TEXT u"DnBOX " X0X_VERSION " " SMK_MODEL
 #endif
 
 enum { X0X_USB_PRODUCT_CHARS = sizeof(X0X_USB_PRODUCT_TEXT) / sizeof(uint16_t) - 1u };

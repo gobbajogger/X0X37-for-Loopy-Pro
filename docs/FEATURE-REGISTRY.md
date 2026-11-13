@@ -107,6 +107,7 @@ Ten historical requirement groups and three #41 acceptance subitems are separate
 | Elite/Pro native packages, SDK 1.2.1 (ID 112) | planned | – | – | – | – | – | – | SDK on owner Mac | – | Integrator |
 | Updated NIGHTLY (111) | planned | – | – | – | – | – | – | – | – | Integrator |
 | Project export/import + format compat (50, 54) | planned | – | – | – | – | – | – | – | – | – |
+| 26.3 Held-key chord recording in sequencer | implementation candidate; integrated poly-engine and final qualification pending | [#866](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/866), `lane/026-held-key-chords` | – | `lane/025-zero-dropout` @ `78f81bad0` | Real-sequencer/store checks PASS; existing long-note 801/801 PASS; production UI/project/admission 21 checks PASS; intermediate Elite/Pro builds PASS, pool 8320 B; full suite pending | no | Actual held pitches; one key stays one note; Chicago mono/Miami unison preserved | Drone/Juno lane integration, final exact-source full suite/builds/perf | [Implementation and integration handoff](engineering-delivery/026-held-chords/README.md) | 0.0.26 |
 | Recovery bootloader plan (73) | planned | – | – | – | – | – | – | – | – | – |
 | Editor: iPhone UI, note groups, scale/snap, device protocol, TouchOSC (97,98,101,104,105) | F6b SOURCE ONLY; UNTESTED | chat/f6b-web-editor-20261101; web/offline-sequencer/F6B-SOURCE-PLAN.txt | #685 already merged; all 22 editor blobs match base | build/0.0.23 @bb190749 | tests authored and registered; NOT_RUN by owner instruction | no | atomic raw-cell groups; mobile/grid; revision13 files; TouchOSC source | row104 owner-bound/CAS firmware transport absent; actual TouchOSC/mobile validation pending | Orchestrator box suite + browser + Elite/Pro + RAM; see F6B-HANDOFF.md | Web |
 | Community song library (119) | F6b SOURCE ONLY; PARTIAL; UNTESTED | chat/f6b-web-editor-20261101; song-library.js/library-ui.js | older #694 deferral superseded for119 by F6b brief | build/0.0.23 @bb190749 | bounded catalog, hashes and stale-preview test sources; NOT_RUN | no | current offline-draft catalog only | no reviewed songs bundled; full device song-chain format not represented | Orchestrator validation; full song integration needs F6a data contract | Web |
@@ -153,3 +154,12 @@ firmware adoption or device proof. Keep production separate from NIGHTLY.
 Rows 73 and 120 remain excluded; row 119 belongs to F6. No bootloader, device,
 publication, integration or merge action is part of this source PR.
 
+
+## SMK identity fallback hardening (2026-11-13)
+
+- Scope: direct/MKE SMK USB builds must not fall back to a non-keyboard product label; direct Elite/MKE OTA identity must use the selected `SMK_MODEL`, not Pro.
+- Base: published 0.0.26 source `600b3b45f8d59c3432d958238b05753eb6f2fcb5`. Its normal Elite/Pro package identities were already correct, but USB names `DnBOX 0.0.26 37PRO/37ELITE` lacked M-Flasher’s SMK discovery token. This is not evidence for the reported slow-boot cause.
+- Status: source candidate. `tests/host/usb_product_names_test.py` compiles and decodes the real USB descriptors and fallback OTA model definitions. Normal Elite/Pro USB names now include the `SMK-37` token required by M-Flasher v0.11 discovery. OTA protocol identity, VID/PID and protected flash behavior remain unchanged. The SMK loader USB display name is now model-specific (`SMK-37 Pro/Elite Update`).
+- Qualification: focused checks PASS; target rebuild and device checks not run for this candidate. No release or hardware-fix claim.
+
+- Bluetooth followup: use `SMK-37 Pro-XXXX` / `SMK-37 Elite-XXXX` for scan response and GAP Device Name. Factory-derived static address, suffix, controller image and pairing behavior are unchanged. Real host HCI/GATT and address-preservation checks pass for both models; target BLERAM/resource qualification remains pending.

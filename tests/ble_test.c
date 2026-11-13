@@ -353,7 +353,7 @@ static void t_glue(void)
     xb_header_t *h = (xb_header_t *)(void *)img;
     bleh_msg_t m;
     uint8_t b[3], a1[6], a2[6];
-    char n1[9], n2[9];
+    char n1[BLE_DEVICE_NAME_SIZE], n2[BLE_DEVICE_NAME_SIZE];
     uint8_t rec[0x22C];
     memset(img, 0xFF, sizeof img);
     CHECK(ble_img_check(img, sizeof img, XB_FLASH_XIP) == BLE_IMG_NONE);   /* an empty block: as before */
@@ -421,7 +421,29 @@ static void t_glue(void)
     memset(rec, 0x33, sizeof rec);
     ble_addr_of(rec, sizeof rec, a1, n1);
     ble_addr_of(rec, sizeof rec, a2, n2);
-    CHECK(!memcmp(a1, a2, 6) && !strcmp(n1, n2) && (a1[5] & 0xC0) == 0xC0 && !strncmp(n1, "X0X-", 4) && strlen(n1) == 8);
+    CHECK(!memcmp(a1, a2, 6) && !strcmp(n1, n2) && (a1[5] & 0xC0) == 0xC0 && !strncmp(n1, BLE_DEVICE_NAME_PREFIX, sizeof(BLE_DEVICE_NAME_PREFIX)-1u) && strlen(n1) == BLE_DEVICE_NAME_SIZE-1u);
+    /* Identity changes must not alter address/pairing or the unique suffix. */
+    uint32_t ca = xb_crc32(0, rec, sizeof rec), cb = xb_crc32(0x5A5A5A5Au, rec, sizeof rec);
+    const uint8_t expected_addr[6] = {(uint8_t)ca, (uint8_t)(ca >> 8), (uint8_t)(ca >> 16),
+        (uint8_t)(ca >> 24), (uint8_t)cb, (uint8_t)((cb >> 8) | 0xC0u)};
+    char suffix[5];
+    snprintf(suffix, sizeof suffix, "%02X%02X", a1[1], a1[0]);
+    CHECK(!memcmp(a1, expected_addr, sizeof a1));
+    CHECK(!strcmp(n1 + sizeof(BLE_DEVICE_NAME_PREFIX)-1u, suffix));
+    /* Verify the real host emits the entire generated name in scan response
+     * and exposes the same bytes through its GAP Device Name attribute. */
+    bleh_t named;
+    const uint8_t *value;
+    bleh_init(&named, fake_send, 0, n1, a1);
+    CHECK(named.namelen == strlen(n1) && named.namelen <= BLEH_NAME_MAX);
+    CHECK(value_of(&named, H_NAME, &value) == strlen(n1) && !memcmp(value, n1, strlen(n1)));
+    nsent = 0;
+    named.step = ST_SCAN;
+    next_cmd(&named);
+    CHECK(nsent == 1 && op_of(0) == OP_SCAN_RSP && sent[0].b[3] == strlen(n1)+2u);
+    CHECK(sent[0].b[5] == 9 && !memcmp(sent[0].b+6, n1, strlen(n1)));
+    CHECK(sent[0].b[6+strlen(n1)] == 0);
+
     rec[100] ^= 1;
     ble_addr_of(rec, sizeof rec, a2, n2);
     CHECK(memcmp(a1, a2, 6) != 0);

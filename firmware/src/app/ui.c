@@ -11,6 +11,7 @@
  * Keys: F3..G5; the 16 white keys are steps (HOME: patterns), the 11 black keys a drum
  * machine's tracks or the break's slice pads (HOME: part mutes). */
 #include "x0x.h"
+#include "../seq/held_chord.h"
 #include "panic_chord.h"
 #include "play_question.h"
 #include "home_pattern_glyph.h" /* HOME complete patterns, per-hit velocity */
@@ -19,6 +20,7 @@
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
 #include "ui_original_controls.h"
+#include "bass_pattern_preset.h"
 #include "ui_original_wave.h"
 #include "../dsp/bass_param_ids.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
@@ -112,6 +114,9 @@ static int part_neighbor(int part, int direction)
 #if X0X_BASS_PRESET_PREVIEW
 static const char *bass_display_name(int bank,int other,int voice)
 {
+    if (bank == ORIGINAL_SOUND_JUNO) return bank == other ? (voice?"JUNO B":"JUNO A"):"JUNO";
+    if (bank == ORIGINAL_SOUND_DRONE) return bank == other ?
+        (voice ? "DRONE B" : "DRONE A") : "DRONE";
     if(bank==other) return bank?(voice?"MIAMI B":"MIAMI A"):(voice?"CHICAGO B":"CHICAGO A");
     return bank?"MIAMI":"CHICAGO";
 }
@@ -129,7 +134,7 @@ static const char *part_display(int part)
 #endif
     return PART_N[part];
 }
-/* A part's shown name: the bass slots name their engine (CHICAGO / MIAMI). */
+/* A part's shown name uses the synth slot's actual engine kind. */
 static const char *part_name(int part)
 {
 #if X0X_BASS_PRESET_PREVIEW
@@ -151,6 +156,9 @@ static const char *part_s(int i)
 #if X0X_BASS_TAGGED_SOUND
         if(engine_bass_sound_bank(&proj.sound,v)<0)return "?";
 #endif
+        if (b == ORIGINAL_SOUND_JUNO) return b == engine_bass_bank(1-v)?(v?"JU-B":"JU-A"):"JUN";
+        if (b == ORIGINAL_SOUND_DRONE) return b == engine_bass_bank(1-v) ?
+            (v ? "DR-B" : "DR-A") : "DRN";
         if(b==engine_bass_bank(1-v)) return b?(v?"MI-B":"MI-A"):(v?"CH-B":"CH-A");
         return b?"MIA":"CHI";
     }
@@ -415,12 +423,13 @@ static uint8_t original_page_bank, original_list_bank;
 static int original_display_value(pref_t r);
 static const ui_original_control_view *original_text_view(pref_t r, int value);
 static void build_pages(void);
-static const char *const BENGINE_N[] = {"CHICAGO", "MIAMI"};
-static const x0x_param_t BENGINE_P = {"ENGINE",1,0,BENGINE_N};
+static const char *const BENGINE_N[] = {"CHICAGO", "MIAMI", "DRONE", "JUNO"};
+static const x0x_param_t BENGINE_P = {"ENGINE",3,0,BENGINE_N};
 static x0x_param_t BPRESET_P = {"PRESET",54,0,0};
 static const x0x_param_t BSTATUS_P = {"STATUS",0,0,0};
 /* per-pattern preset recall (owner 2026-11-12 02:42): 0 OFF, else the preset number in the
- * part's current engine; stored as pattern_t.rsv[part] = bank << 7 | preset + 1 */
+ * part's current engine. Codes 1..81=Chicago, 129..158=Miami and
+ * 193..196=Drone. Reuse the original pattern byte without migration. */
 static x0x_param_t PATSND_P = {"PAT SOUND",54,0,0};
 
 static const char *const RATE_N[] = {"1/16", "1/16T", "1/32", "1/8T", "1/8", "1/4"};   /* M13: index = pattern.h RATE_* */
@@ -663,7 +672,11 @@ static int pref_get(pref_t r)
     case R_MIDICH: return seq.ch[r.a % NPARTS] == SEQ_CH_OFF ? 0 : seq.ch[r.a % NPARTS] + 1;
     case R_PARTON: return !SEQ_PART_OFF(&seq, r.a % NPARTS);
     case R_QUEUEMUTE: return seq.queued_mutes;
-    case R_BPATSND: return pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1] & 127;
+    case R_BPATSND: {
+        uint8_t ps = pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1];
+        unsigned bank, value;
+        return bass_pattern_preset_decode(ps, &bank, &value) ? (int)value : 0;
+    }
     case R_NOTELOCK: return engine_note_lock_capture_on();
     case R_OUTLOUD: return proj.set.out_loud;
     case R_USBFULL: return proj.set.usb_full;
@@ -810,10 +823,12 @@ X0X_COLD static void pref_set_impl(pref_t r, int v, int from_keyboard)
         PROJ_SET_QMUTE(&proj.set, v);
         seq.queued_mutes = (uint8_t)PROJ_QMUTE_OF(&proj.set);
         break;
-    case R_BPATSND:
+    case R_BPATSND: {
+        unsigned bank = (unsigned)engine_bass_requested_bank(r.b);
         pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1] =
-            (uint8_t)(v ? (unsigned)engine_bass_requested_bank(r.b) << 7 | (unsigned)v : 0u);
+            (uint8_t)bass_pattern_preset_encode(bank, (unsigned)v);
         break;
+    }
     case R_NOTELOCK: engine_note_lock_capture(v); break;
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
@@ -1038,7 +1053,10 @@ static const char *original_status_name(int voice)
 }
 static int original_value_text(pref_t r, int value, char *num, char *unit)
 {
-    if (r.kind == R_BENGINE) { put_s(num,BENGINE_N[value == ORIGINAL_SOUND_MIAMI]); return 1; }
+    if (r.kind == R_BENGINE) {
+        put_s(num, value >= 0 && value <= ORIGINAL_SOUND_JUNO ? BENGINE_N[value] : "INVALID");
+        return 1;
+    }
     if (r.kind == R_BPRESET) {
         if (value < 0) put_s(num,"USER");
         else {
@@ -1053,7 +1071,8 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
     unsigned kind = (unsigned)bank, id = r.c;
     const ui_original_control_view *v = 0;
     /* a corrupt patch has no bank: never index a name table through a null view */
-    if (bank != ORIGINAL_SOUND_CHICAGO && bank != ORIGINAL_SOUND_MIAMI) { put_s(num,"INVALID"); return 1; }
+    if (bank != ORIGINAL_SOUND_CHICAGO && bank != ORIGINAL_SOUND_MIAMI && bank != ORIGINAL_SOUND_DRONE && bank != ORIGINAL_SOUND_JUNO) { put_s(num,"INVALID"); return 1; }
+    if (kind == ORIGINAL_SOUND_JUNO || kind == ORIGINAL_SOUND_DRONE) { put_i(num,(value*100+63)/127); put_s(unit,"%"); return 1; }
     if (ui_original_states(kind,id) || (kind == ORIGINAL_SOUND_CHICAGO && id == 4) ||
         (kind == ORIGINAL_SOUND_MIAMI && id == 7)) {
         v = original_text_view(r,value);
@@ -1245,8 +1264,10 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     case R_BPATSND: {
         unsigned ps = pat_of(PART_303A + (r.b & 1))->rsv[r.b & 1];
         if (!ps) { put_s(num, "OFF"); return; }
-        num[0] = (ps >> 7) == ORIGINAL_SOUND_MIAMI ? 'M' : 'C';
-        put_i(num + 1, (int)(ps & 127u));
+        unsigned kind, preset;
+        if (!bass_pattern_preset_decode(ps, &kind, &preset)) { put_s(num, "INVALID"); return; }
+        num[0] = kind == ORIGINAL_SOUND_JUNO ? 'J' : kind == ORIGINAL_SOUND_DRONE ? 'D' : kind == ORIGINAL_SOUND_MIAMI ? 'M' : 'C';
+        put_i(num + 1, (int)preset);
         return;
     }
     case R_SBAR: put_i(num, v + 1); return;
@@ -1489,9 +1510,12 @@ static void describe_pages(pages_t *out, page_query_t *query, int view, int p, i
             int b = p - PART_303A;
             emit->group = GR_SOUND;
             int kind = engine_bass_bank(b), chicago = kind == ORIGINAL_SOUND_CHICAGO;
-            const int8_t (*rows)[4] = chicago ? ui_original_chicago_rows : ui_original_miami_rows;
-            const char *const *titles = chicago ? ui_original_chicago_titles : ui_original_miami_titles;
-            int count = chicago ? UI_ORIGINAL_CHICAGO_PAGES : UI_ORIGINAL_MIAMI_PAGES;
+            const int8_t (*rows)[4] = kind == ORIGINAL_SOUND_JUNO ? ui_original_juno_rows : kind == ORIGINAL_SOUND_DRONE ? ui_original_drone_rows :
+                chicago ? ui_original_chicago_rows : ui_original_miami_rows;
+            const char *const *titles = kind == ORIGINAL_SOUND_JUNO ? ui_original_juno_titles : kind == ORIGINAL_SOUND_DRONE ? ui_original_drone_titles :
+                chicago ? ui_original_chicago_titles : ui_original_miami_titles;
+            int count = kind == ORIGINAL_SOUND_JUNO ? UI_ORIGINAL_JUNO_PAGES : kind == ORIGINAL_SOUND_DRONE ? UI_ORIGINAL_DRONE_PAGES :
+                chicago ? UI_ORIGINAL_CHICAGO_PAGES : UI_ORIGINAL_MIAMI_PAGES;
             for (int row = 0; row < count; row++) {
                 pref_t refs[4];
                 for (int col = 0; col < 4; col++) refs[col] = rows[row][col] < 0 ? NONE : PR(R_ENG,T_303,b,rows[row][col]);
@@ -2870,7 +2894,8 @@ static const ui_original_control_view *original_text_view(pref_t r, int value)
 {
     const uint8_t *cell = proj.sound.v[T_303][r.b];
     unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);
-    uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_TEXT_MASK : UI_ORIGINAL_MIAMI_TEXT_MASK;
+    uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_TEXT_MASK :
+        kind == ORIGINAL_SOUND_MIAMI ? UI_ORIGINAL_MIAMI_TEXT_MASK : 0u;
     uint8_t preview[22] = {0}; uint32_t mask = 0;
     for (unsigned id = 0; id < original_sound_count(kind); id++) if (relevant & (1u<<id)) {
         pref_t ref = PR(R_ENG,T_303,r.b,id);
@@ -2887,6 +2912,7 @@ static const ui_original_wave_cache *original_wave_view(pref_t r, int value)
 {
     const uint8_t *cell = proj.sound.v[T_303][r.b];
     unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);
+    if (kind == ORIGINAL_SOUND_JUNO || kind == ORIGINAL_SOUND_DRONE) return 0; /* drone has no Miami oscillator UI */
     uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_WAVE_MASK : UI_ORIGINAL_MIAMI_WAVE_MASK;
     uint8_t preview[22] = {0}; uint32_t mask = 0;
     for (unsigned id = 0; id < original_sound_count(kind); id++) if (relevant & (1u<<id)) {
@@ -3313,8 +3339,34 @@ static void bass_write(int b, int note, int gate)
         bass_note_clear(proj.arr.lane,seq.ppat[ui.part],b,w);
 #endif
     }
+    (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],b,w,0,0);
     bp->step[w].flags = f;
     ui.wpos[b] = (uint8_t)((w + 1) % len);
+    mark_dirty();
+}
+
+static void bass_write_held_chord(int b)
+{
+    uint8_t notes[HELD_CHORD_NOTES];int n=0;
+    for(unsigned j=0;j<kbd_arp_n[b];j++) {
+        unsigned note=kbd_arp_note[b][j];int at=0;
+        while(at<n && notes[at]<note)at++;
+        if(at<n && notes[at]==note)continue;
+        if(n==HELD_CHORD_NOTES){say("CHORD NOT SAVED",0);return;}
+        for(int q=n;q>at;q--)notes[q]=notes[q-1];
+        notes[at]=(uint8_t)note;n++;
+    }
+    if(!n)return;
+    bpart_t *bp=&cur_pat()->bass[b];int len=bp->len?bp->len:16;
+    int extend=kbd_arp_n[b]>1 && bass_rec_step[b] && bass_rec_pat[b]==seq.ppat[ui.part] && !bass_rec_playing[b];
+    int step=extend?(int)bass_rec_step[b]-1:ui.wpos[b]%len;
+    int reserve=engine_note_lock_capture_on() && bass_note_find(proj.arr.lane,seq.ppat[ui.part],b,step)<0;
+    if(!held_chord_write(proj.arr.lane,seq.ppat[ui.part],b,step,notes,-n,reserve)) {say("CHORD NOT SAVED",0);return;}
+    if(engine_bass_note_capture(proj.arr.lane,seq.ppat[ui.part],b,step,&proj.sound)<0) {say("NOTE SOUND NOT SAVED",0);return;}
+    (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],b,step,notes,n);
+    bp->step[step]=(bstep_t){notes[0],G_NOTE,BASS_VELOCITY_DEFAULT};
+    bass_rec_step[b]=(uint8_t)(step+1);bass_rec_pat[b]=seq.ppat[ui.part];bass_rec_playing[b]=0;
+    if(!extend)ui.wpos[b]=(uint8_t)((step+1)%len);
     mark_dirty();
 }
 
@@ -3338,7 +3390,8 @@ static void bass_kbd(int key, int step_record)
                                 (ui.view == V_PART || (ui.freeplay[b] && !ui.rec)) ?
                                     plat_key_velocity(key) : BASS_VELOCITY_DEFAULT);
     if (step_record && ui.rec && !seq.playing) {
-        bass_write(b, n, G_NOTE);
+        if(engine_bass_sound_bank(&proj.sound,b)>=2)bass_write_held_chord(b);
+        else bass_write(b, n, G_NOTE);
     } else if (step_record && ui.rec && seq.playing) {
         int f = ((ui.btn & (1u << B_ENV)) ? BS_ACCENT : 0) |
                 ((ui.btn & (1u << B_LFO)) ? BS_SLIDE : 0);
@@ -3374,6 +3427,7 @@ static void bass_step_key(int white, int down)
                 bass_step_cancel();say("NOTE SOUND NOT SAVED",0);return;
             }
 #endif
+            (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],b,s,0,0);
             bp->step[s].flags = G_NOTE;
             mark_dirty();
         }
@@ -3384,6 +3438,7 @@ static void bass_step_key(int white, int down)
     } else if (ui.held_step == s && ui.held_step_part == ui.part &&
                ui.held_step_pat == seq.ppat[ui.part]) {
         if (!ui.step_created && !ui.step_edited && plat_ms() - ui.step_t0 < STEP_TAP_MS) {   /* a tap takes it off */
+            (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],b,s,0,0);
             bp->step[s].flags = G_REST;
 #if X0X_BASS_NOTE_SOUND
             bass_note_clear(proj.arr.lane,seq.ppat[ui.part],b,s);
@@ -3425,7 +3480,18 @@ static void held_note_by(int by)
         say("NOTE SOUND NOT SAVED",0);return;
     }
 #endif
-    st->note = (uint8_t)(n < 12 ? 12 : n > 108 ? 108 : n);
+    uint8_t notes[HELD_CHORD_NOTES];
+    int count=held_chord_get(proj.arr.lane,seq.ppat[ui.part],bidx(),ui.held_step,st->note,notes);
+    int newroot=n<12?12:n>108?108:n,delta=newroot-st->note,kept=1;
+    if(bstep_gate(st)==G_NOTE && count>1) {
+        notes[0]=(uint8_t)newroot;
+        for(int j=1;j<count;j++) {
+            int pitch=notes[j]+delta;pitch=pitch<0?0:pitch>127?127:pitch;
+            if(pitch>notes[kept-1])notes[kept++]=(uint8_t)pitch;
+        }
+        (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],bidx(),ui.held_step,notes,kept);
+    } else (void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],bidx(),ui.held_step,0,0);
+    st->note = (uint8_t)newroot;
     if (bstep_gate(st) != G_NOTE)
         st->flags = (uint8_t)((st->flags & (BS_ACCENT | BS_SLIDE)) | G_NOTE);
     ui.step_edited = 1;
@@ -4053,6 +4119,7 @@ X0X_COLD static void button_tap(int b)
                 char t[20];
                 bp->gen.seed = tb3po_new_seed(plat_ms() ^ (ui.frame << 7));
                 tb3po_generate(bp);
+                for(int step=0;step<NSTEPS;step++)(void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],bidx(),step,0,0);
 #if X0X_BASS_NOTE_SOUND
                 for(int step=0;step<NSTEPS;step++)bass_note_clear(proj.arr.lane,seq.ppat[ui.part],bidx(),step);
 #endif
@@ -4062,6 +4129,7 @@ X0X_COLD static void button_tap(int b)
             } else {
                 uint32_t r = bp->gen.seed ^ plat_ms();
                 tb3po_mutate(bp, &r);
+                for(int step=0;step<NSTEPS;step++)(void)held_chord_set(proj.arr.lane,seq.ppat[ui.part],bidx(),step,0,0);
 #if X0X_BASS_NOTE_SOUND
                 for(int step=0;step<NSTEPS;step++)if(bstep_gate(&bp->step[step])!=G_NOTE)
                     bass_note_clear(proj.arr.lane,seq.ppat[ui.part],bidx(),step);
@@ -4379,7 +4447,7 @@ X0X_COLD static void input_body(void)
     }
     if (seq.rec_dirty) { seq.rec_dirty = 0; mark_dirty(); ui.act_t = plat_ms(); }
     if (seq.rec_refused) {
-        say(seq.rec_refused==2?"NOTE SOUND NOT SAVED":"REC NEEDS FWD/REV",0);
+        say(seq.rec_refused==3?"CHORD NOT SAVED":seq.rec_refused==2?"NOTE SOUND NOT SAVED":"REC NEEDS FWD/REV",0);
         seq.rec_refused=0;
     }
     seq.rec_mask = ui.rec && is_303() && ui.view == V_SEQ && ui.overlay == O_NONE ?
@@ -5260,7 +5328,8 @@ static UI_DRAW void draw_header(void)
         ;
     if (cacheable) {
         snapshot.name = part_display(ui.part);
-        if (is_303()) snapshot.name = engine_bass_bank(bidx()) == ORIGINAL_SOUND_MIAMI ?
+        if (is_303()) snapshot.name = engine_bass_bank(bidx()) == ORIGINAL_SOUND_JUNO ? (bidx()?"JUNO B":"JUNO A") : engine_bass_bank(bidx()) == ORIGINAL_SOUND_DRONE ?
+            (bidx() ? "DRONE B" : "DRONE A") : engine_bass_bank(bidx()) == ORIGINAL_SOUND_MIAMI ?
             (bidx() ? "MIAMI B" : "MIAMI A") : (bidx() ? "CHICAGO B" : "CHICAGO A");
         memcpy(snapshot.colours, pal, sizeof pal);
         snapshot.col = matrix_col(); snapshot.light = ui_theme_light;
@@ -5308,7 +5377,9 @@ static UI_DRAW void draw_header(void)
         ) {
         const char *name=part_display(ui.part);
         if(is_303()) {
-            name=engine_bass_bank(bidx())==ORIGINAL_SOUND_MIAMI?(bidx()?"MIAMI B":"MIAMI A"):(bidx()?"CHICAGO B":"CHICAGO A");
+            name=engine_bass_bank(bidx())==ORIGINAL_SOUND_JUNO?(bidx()?"JUNO B":"JUNO A"):engine_bass_bank(bidx())==ORIGINAL_SOUND_DRONE?(bidx()?"DRONE B":"DRONE A"):
+                engine_bass_bank(bidx())==ORIGINAL_SOUND_MIAMI?(bidx()?"MIAMI B":"MIAMI A"):
+                (bidx()?"CHICAGO B":"CHICAGO A");
         }
         int night=matrix_three_rows() || X0X_ORIGINAL_SYNTH;
         if(night) sound_slab(0,0,240,20,0);
@@ -5354,9 +5425,11 @@ static UI_DRAW void draw_header(void)
             else
 #endif
             {
-            int miami = engine_bass_bank(bidx()) == FACTORY_BANK_MIAMI;
-            part_label = miami ? (bidx() ? "MIAMI B" : "MIAMI A") :
-                                 (bidx() ? "CHICAGO B" : "CHICAGO A");
+            int kind = engine_bass_bank(bidx());
+            part_label = kind == ORIGINAL_SOUND_JUNO ? (bidx() ? "JUNO B" : "JUNO A") :
+                         kind == ORIGINAL_SOUND_DRONE ? (bidx() ? "DRONE B" : "DRONE A") :
+                         kind == ORIGINAL_SOUND_MIAMI ? (bidx() ? "MIAMI B" : "MIAMI A") :
+                                                       (bidx() ? "CHICAGO B" : "CHICAGO A");
             }
         }
 #endif
@@ -6863,6 +6936,7 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
  * oscillator mix or the Miami carrier, 1 the Miami modulator, 2 the wobble. */
 static int original_wave_slot(unsigned kind,int p)
 {
+    if (kind == ORIGINAL_SOUND_JUNO || kind == ORIGINAL_SOUND_DRONE) return -1;
     if(p==0)return 0;
     if(kind==ORIGINAL_SOUND_MIAMI)return p==6?1:p==11?2:-1;
     return -1;
@@ -8685,7 +8759,9 @@ static void pattern_sound_tick(void)
         if (seen_pat[b] == pat && seen_val[b] == ps) continue;
         seen_pat[b] = (uint8_t)pat; seen_val[b] = (uint8_t)ps;
         if (!ps) continue;
-        int bank = (int)(ps >> 7), preset = (int)(ps & 127u) - 1;
+        unsigned kind, one_based;
+        if (!bass_pattern_preset_decode(ps, &kind, &one_based) || !one_based) continue;
+        int bank = (int)kind, preset = (int)one_based - 1;
         if (engine_bass_requested_bank(b) == bank && engine_bass_requested_preset(b) == preset &&
             !engine_bass_preset_edited(b) && !engine_bass_preset_pending(b)) continue;
         (void)engine_bass_select_preset_at(b, bank, preset, &proj.sound, pat);
@@ -8823,4 +8899,5 @@ void ui_frame(void)
 void ui_input_only(void) { input(); division_pad_input(); }
 int ui_dirty(void) { return ui.dirty != 0; }
 void ui_say(const char *a, const char *b) { say(a, b); }
+
 

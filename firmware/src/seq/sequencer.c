@@ -9,6 +9,12 @@ __attribute__((weak)) int seq_bass_sound_prepare(seq_t *s, int voice, int pat, i
 __attribute__((weak)) void seq_bass_sound_clear(seq_t *s, int voice, int pat, int step)
 { (void)s; (void)voice; (void)pat; (void)step; }
 
+__attribute__((weak)) int seq_bass_poly(seq_t *s,int b) { (void)s;(void)b;return 0; }
+__attribute__((weak)) int seq_bass_chord_keys(seq_t *s,int b,uint8_t *n) { (void)s;(void)b;(void)n;return 0; }
+__attribute__((weak)) int seq_bass_chord_get(seq_t *s,int b,int p,int st,uint8_t *n) { (void)s;(void)b;(void)p;(void)st;(void)n;return 0; }
+__attribute__((weak)) int seq_bass_chord_set(seq_t *s,int b,int p,int st,const uint8_t *n,int count) { (void)s;(void)b;(void)p;(void)st;(void)n;(void)count;return 1; }
+__attribute__((weak)) void seq_bass_chord_on(seq_t *s,int b,int n,int v) { (void)s;(void)b;(void)n;(void)v; }
+
 #ifndef SEQ_CHAIN_STORE_HOOK
 #define SEQ_CHAIN_STORE_HOOK(s) ((void)0)
 #endif
@@ -161,6 +167,9 @@ __attribute__((noinline)) static void bass_slide_midi_off(seq_t *s, int b, const
 /* noinline: flush glue for seq_midi_flush / release / fire / channel edit. */
 __attribute__((noinline)) static void bass_midi_flush(seq_t *s, int b, const seq_sink_t *o)
 {
+    for (unsigned j=0;j<s->chord_out_n[b];j++)
+        midi_note_off(o,s->chord_out_ch[b],s->chord_out[b][j]);
+    s->chord_out_n[b]=0;
     bass_slide_midi_off(s, b, o);
     if (s->bass_out_valid[b])
         midi_note_off(o, s->bass_out_ch[b], s->bass_notes_out[b]);
@@ -292,7 +301,7 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
     int muted = (s->mute & (1u << (MUTE_BASS0 + b))) != 0;
     if (muted) bass_midi_flush(s, b, o);
     /* A TIE continues an audible note; an orphan TIE is a rest, never an onset. */
-    if (gate == G_REST || (gate == G_TIE && !tr->sounding) || SEQ_PART_OFF(s, TRK_BASS0 + b)) {
+    if ((muted && seq_bass_poly(s,b)) || gate == G_REST || (gate == G_TIE && !tr->sounding) || SEQ_PART_OFF(s, TRK_BASS0 + b)) {
         bass_release(s, b, o);
         tr->held_note = 0;
         return;
@@ -303,7 +312,15 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
         int slide = tr->sounding && prev_slide;
         /* A chance-rejected step is a rest for both the internal 303 and MIDI out.
          * REC's live-hit skip still echoes MIDI (REC-06); it is not a chance miss. */
+        uint8_t chord[6];
+        int poly=seq_bass_poly(s,b);
+        if (poly || s->chord_out_n[b]) bass_midi_flush(s,b,o);
         int played = skip || o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide, bstep_velocity(st));
+        /* bass_on adopts a pattern preset/note lock before its key; use the
+         * resulting engine, not the preceding step's slot kind. */
+        poly=seq_bass_poly(s,b);
+        if(poly) { bass_midi_flush(s,b,o); slide=0; }
+        int nch=poly ? seq_bass_chord_get(s,b,s->ppat[TRK_BASS0+b],p,chord) : 0;
         if (played && !muted && s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
             uint8_t old = s->bass_notes_out[b], ch = s->ch[TRK_BASS0 + b];
             uint8_t had_old = s->bass_out_valid[b], old_ch = s->bass_out_ch[b];
@@ -335,6 +352,26 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
             tr->held_note = 0;
             tr->to_off = 0;
             return;
+        }
+        if (played && poly) {
+            for(int j=1;j<nch;j++) {
+                int cn=(int)chord[j]+(int)bp->transpose-24;
+                cn=cn<0?0:cn>127?127:cn;
+                int duplicate=cn==note;
+                for(int q=1;q<j;q++) {
+                    int prior=(int)chord[q]+(int)bp->transpose-24;
+                    prior=prior<0?0:prior>127?127:prior;
+                    if(prior==cn) duplicate=1;
+                }
+                if(duplicate) continue;
+                if(!skip) seq_bass_chord_on(s,b,cn,bstep_velocity(st));
+                if(!muted && s->send_notes && s->ch[TRK_BASS0+b]!=SEQ_CH_OFF) {
+                    unsigned at=s->chord_out_n[b]++;
+                    s->chord_out[b][at]=(uint8_t)cn;
+                    s->chord_out_ch[b]=s->ch[TRK_BASS0+b];
+                    midi(o,(uint8_t)(0x90|s->chord_out_ch[b]),(uint8_t)cn,bstep_velocity(st));
+                }
+            }
         }
         tr->sounding = 1;
     }
@@ -399,21 +436,25 @@ static int rate_ticks(int rate)
     return (int)TICKS_PER_STEP[(unsigned)rate < NRATES ? (unsigned)rate : RATE_16];
 }
 
-static int drum_plays(const dpart_t *d)
+static int drum_plays(const dpart_t *d, uint32_t muted)
 {
     int len = clamp_steps(d->len), v, s;
     for (v = 0; v < NDRUM; v++)
         for (s = 0; s < len; s++)
-            if (sm_get(d->hit[v], s))
+            if (!(muted & (1u << v)) && sm_get(d->hit[v], s))
                 return 1;
     return 0;
 }
 
-static int bass_plays(const bpart_t *b)
+static int bass_plays(const bpart_t *b, int sounding, int restarted)
 {
     int len = clamp_steps(b->len), s;
+    /* A carried gate only survives a restart if its first played step is TIE. */
+    if (restarted && bstep_gate(&b->step[b->dir == DIR_REV ? len - 1 : 0]) != G_TIE)
+        sounding = 0;
     for (s = 0; s < len; s++)
-        if (bstep_gate(&b->step[s]) != G_REST)
+        if (bstep_gate(&b->step[s]) == G_NOTE ||
+            (sounding && bstep_gate(&b->step[s]) == G_TIE))
             return 1;
     return 0;
 }
@@ -431,29 +472,37 @@ static int brk_plays(const brkpart_t *b)
  * part in the current pattern (length and rate), rounded up to a whole 909
  * pass. Muted, part-off and empty parts do not extend the slot. One 909
  * pass is the minimum (the bar). Computed on the slot-open (bar) path. */
-int seq_chain_slot_len(const seq_t *s)
+static int chain_slot_len(const seq_t *s, uint32_t restarted)
 {
     const pattern_t *p;
     int bar_len, bar_t, max_t, t, n_bars, steps;
 
-    if (!s || !s->pat || s->ppat[TRK_DRUM] >= NPAT) return 1;
+    if (!s || !s->pat) return 1;
+    for (t = 0; t < NTRACKS; t++)
+        if (s->ppat[t] >= NPAT) return 1;
     p = &s->pat[s->ppat[TRK_DRUM]];
     bar_len = clamp_steps(p->drum[0].len);
     bar_t = bar_len * rate_ticks(p->drum[0].rate);
     max_t = bar_t;                                   /* at least one 909 pass */
 
     /* 808 (the 909 sets the bar, already in max_t) */
-    if (!SEQ_PART_OFF(s, 1) && !seq_part_muted(s, 1) && drum_plays(&p->drum[1])) {
+    p = &s->pat[s->ppat[1]];
+    if (!SEQ_PART_OFF(s, 1) && !seq_part_muted(s, 1) &&
+        drum_plays(&p->drum[1], (s->mute | s->vmute) >> NDRUM)) {
         int tt = clamp_steps(p->drum[1].len) * rate_ticks(p->drum[1].rate);
         if (tt > max_t) max_t = tt;
     }
     for (t = 0; t < NBASS; t++) {
         int tr = TRK_BASS0 + t, tt;
-        if (SEQ_PART_OFF(s, tr) || seq_part_muted(s, tr) || !bass_plays(&p->bass[t]))
+        p = &s->pat[s->ppat[tr]];
+        if (SEQ_PART_OFF(s, tr) || seq_part_muted(s, tr) ||
+            !bass_plays(&p->bass[t], s->t[tr].sounding,
+                        !s->t[tr].started || (restarted & (1u << tr))))
             continue;
         tt = clamp_steps(p->bass[t].len) * rate_ticks(p->bass[t].rate);
         if (tt > max_t) max_t = tt;
     }
+    p = &s->pat[s->ppat[TRK_BRK]];
     /* BREAK's sequencer clock is 16 steps at 1/16, even when RATE_8 / RATE_4 group them. */
     if (!SEQ_PART_OFF(s, TRK_BRK) && !seq_part_muted(s, TRK_BRK) && brk_plays(&p->brk)) {
         int tt = 16 * rate_ticks(RATE_16);
@@ -465,7 +514,9 @@ int seq_chain_slot_len(const seq_t *s)
     return steps > 65535 ? 65535 : steps;
 }
 
-__attribute__((noinline)) static void chain_slot_open(seq_t *s)
+int seq_chain_slot_len(const seq_t *s) { return chain_slot_len(s, 0); }
+
+__attribute__((noinline)) static void chain_slot_open(seq_t *s, uint32_t restarted)
 {
     uint16_t chain = s->chain;
     int ca = chain & 255u, cb = chain >> 8, lo, hi, c;
@@ -474,12 +525,12 @@ __attribute__((noinline)) static void chain_slot_open(seq_t *s)
     lo = ca < cb ? ca : cb; hi = ca < cb ? cb : ca;
     c = (int)s->ppat[TRK_DRUM];
     if (c < lo || c > hi) return;
-    s->chain_win = (uint16_t)seq_chain_slot_len(s);
+    s->chain_win = (uint16_t)chain_slot_len(s, restarted);
 }
 
-static int drum_boundary(const seq_t *s, int wrapped)
+static int chain_boundary(const seq_t *s)
 {
-    if (!s->chain_win || (song_plays(s) && !s->song_rec)) return wrapped;
+    if (!s->chain_win || (song_plays(s) && !s->song_rec)) return 1;
     return s->chain_at >= s->chain_win;
 }
 
@@ -526,7 +577,7 @@ static uint32_t bar_end(seq_t *s, int start)
             }
         uint16_t chain = s->chain;                    /* one snapshot of the published pair */
         int ca = chain & 0xFFu, cb = chain >> 8;
-        if (!cued && !start && ca != cb) {
+        if (!cued && !start && ca != cb && chain_boundary(s)) {
             int a = ca < cb ? ca : cb;
             int b = ca < cb ? cb : ca, c = s->ppat[TRK_DRUM];
             c = (c < a || c >= b) ? a : c + 1;
@@ -586,11 +637,12 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
              bpart(s, t - TRK_BASS0)->dir != DIR_RANDOM && p == 0);
     }
     {
-        int bar = t == TRK_DRUM && drum_boundary(s, wrapped);
+        int bar = t == TRK_DRUM && wrapped;
+        int slot = bar && chain_boundary(s);
         if (bar && ((changed = bar_end(s, 0)) & (1u << TRK_DRUM)) != 0) {
             rate = part_rate(s, t); L = seq_step_q8(s, rate); p = 0;
         }
-        if (bar) chain_slot_open(s);
+        if (bar && (slot || (changed & (1u << TRK_DRUM)))) chain_slot_open(s, changed);
         if (bar || !s->fill_req) s->fill_on = s->fill_req;   /* fill: starts on a bar, stops on release */
     }
     if (bass) {
@@ -717,7 +769,7 @@ __attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq
     bass_release_all(s, o);                /* Start/Continue reinitialises timers: release old notes first */
     if (from_top) {
         bar_end(s, 1);
-        chain_slot_open(s);
+        chain_slot_open(s, (1u << NTRACKS) - 1u);
     }
     for (t = 0; t < NTRACKS; t++)
         track_arm(s, t, from_top, 1);
@@ -966,6 +1018,10 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
 {
     int t, guard;
     uint32_t dq = k << 8;
+    for(t=0;t<NBASS;t++) if(seq_bass_poly(s,t) && seq_part_muted(s,TRK_BASS0+t)) {
+        seq_rec_cancel(s,t);
+        bass_release(s,t,o);
+    }
     for (t = 0; t < NBASS; t++)
         if (s->rec_bass[t].active && (s->req_stop || s->req_start ||
             (!((s->rec_mask | s->rec_hold_mask | (s->rec_bass[t].src < 3 ? s->rec_ext_mask : 0u)) & (1u << t)) ||
@@ -1286,6 +1342,21 @@ void seq_rec_bass_end(seq_t *s, int b)
 void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, int flags)
 {
     seq_bass_rec_t *r = &s->rec_bass[b];
+    uint8_t chord[6];
+    int poly=seq_bass_poly(s,b), nch=0;
+    if(poly) {
+        nch=seq_bass_chord_keys(s,b,chord);
+        if(nch<0 || nch>6) { s->rec_refused=3; return; }
+        if(!nch) { seq_rec_bass_end(s,b); return; }
+        if(r->active && r->pat==s->ppat[TRK_BASS0+b]) {
+            uint8_t old[6]; int count=seq_bass_chord_get(s,b,r->pat,r->first,old),same=count==nch;
+            for(int j=0;j<count && j<nch;j++) if(old[j]!=chord[j])same=0;
+            if(same)return;
+        }
+        note=chord[0]; down=1;
+        if(!velocity)velocity=BASS_VELOCITY_DEFAULT;
+        flags &= BS_ACCENT; /* held sets sustain through TIE, never mono glide */
+    }
     if (!down) {
         if (r->active && r->note == note && r->src == src)
             seq_rec_bass_end(s, b);
@@ -1305,6 +1376,9 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
     int overlap = (flags & SEQ_REC_LEGATO) && owned && r->active && r->src == src;
     int t = TRK_BASS0 + b, p = seq_rec_step(s, t);
     int old = r->last == p ? r->prev : r->last, oldpat = r->pat;
+    if(poly && !seq_bass_chord_set(s,b,s->ppat[t],p,chord,-nch)) {
+        s->rec_refused=3; return; /* admission before sound-lock or pattern writes */
+    }
 #if SEQ_BASS_NOTE_SOUND
     int sound_rc = seq_bass_sound_prepare(s,b,s->ppat[t],p);   /* 1: NOTE LOCK off, nothing stored */
     if(sound_rc < 0) {
@@ -1331,6 +1405,7 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
     bp->step[p].note = (uint8_t)note;
     bp->step[p].velocity = (uint8_t)velocity;
     bp->step[p].flags = (uint8_t)(G_NOTE | (flags & (BS_ACCENT | BS_SLIDE)) | 0xF0u);
+    (void)seq_bass_chord_set(s,b,s->ppat[t],p,poly?chord:0,poly?nch:0);
     r->active = 1; r->pat = s->ppat[t]; r->first = r->last = r->prev = (uint8_t)p;
     r->note = (uint8_t)note; r->src = (uint8_t)src;
     s->rec_dirty = 1;

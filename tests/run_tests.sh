@@ -91,7 +91,7 @@ test_class() {
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-zero-conn|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-ctl-fail-return|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
-    composed-features|composed-panic-cutover|panic-clear|composed-ui-identity|composed-smc-panic) TEST_CLASS=G ;;
+    composed-features|composed-panic-cutover|panic-clear|panic-order|panic-mutants|live-key-epoch|midi-epoch-step|roadmap-evidence-check|composed-ui-identity|drone-slot|juno-slot-integration|held-chord-integration|poly-chord-integration|project-rates-companion|composed-smc-panic) TEST_CLASS=G ;;
     rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|freeplay-live-keys|synth-bus-mute|storage-warning|freeplay-latency|pads-in-settings|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|pattern-preset-notelock) TEST_CLASS=G ;;
@@ -296,12 +296,20 @@ fi
 W="-O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror"
 # Composed 0.0.25 regressions exercise the production UI, engine, storage and MIDI paths.
 run composed-features sh tests/host/composed_features_test.sh
+run juno6-runtime sh tests/host/juno6_runtime_test.sh "$OUT/juno6-runtime"
+run juno6-slot sh -c "$CC -std=c99 -O2 -Iexperiments/original_synth tests/host/juno6_slot_test.c firmware/src/app/original_sound.c experiments/original_synth/miami_program.c experiments/original_synth/chicago_program.c experiments/original_synth/fused_reference.c -lm -o $OUT/juno6_slot && $OUT/juno6_slot"
+run drone-string sh -c "$CC -std=c99 -O2 tests/host/drone_string_test.c -lm -o $OUT/drone_string && $OUT/drone_string"
+run juno6-dsp sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/dsp -o $OUT/juno6_test tests/host/juno6_test.c firmware/src/dsp/juno6.c -lm && $OUT/juno6_test"
 run usb-retry sh tests/host/run_usb_retry.sh
 run drum909-tanh-pair sh tests/host/run_drum909_tanh_pair.sh
 run composed-smc-panic env SMC_UI_TEST_FILE=tests/host/composed_smc_panic_test.c SMC_UI_OUT=build/host/composed-smc-panic sh tests/host/smc_ui_test.sh
 run composed-panic-cutover sh tests/host/panic_cutover_integration_test.sh
 run panic-clear sh tests/host/panic_clear_test.sh
 run composed-ui-identity env SMC_UI_TEST_FILE=tests/host/composed_ui_identity_test.c SMC_UI_OUT=build/host/composed-ui sh tests/host/smc_ui_test.sh
+run drone-slot env SMC_UI_TEST_FILE=tests/host/drone_slot_test.c SMC_UI_OUT=build/host/drone-slot sh tests/host/smc_ui_test.sh
+run juno-slot-integration env SMC_UI_TEST_FILE=tests/host/juno_slot_integration_test.c SMC_UI_OUT=build/host/juno-slot sh tests/host/smc_ui_test.sh
+run poly-chord-integration sh tests/host/poly_chord_integration_test.sh
+run project-rates-companion sh tests/host/project_rates_companion_test.sh
 run composed-midi-epoch python3 tests/host/m1_midi_epoch_test.py build/host/composed-midi-epoch --baseline-usb tests/host/reference/usb_before_midi_epoch.c
 run break-retrigger-lut sh -c "$CC -O1 -std=c99 -ffp-contract=off tests/host/break_retrigger_lut_test.c -lm -o $OUT/break_retrigger_lut && $OUT/break_retrigger_lut"
 run dsp-host-linkage sh tests/host/run_dsp_host_linkage.sh
@@ -330,6 +338,8 @@ run seq-tb3po-bars sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_tb3po_bar_test t
 run seq-random-swing sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_swing_test tests/host/seq_random_swing_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_random_swing_test"
 run seq-random-clock-handoff sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_clock_handoff_test tests/host/seq_random_clock_handoff_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_random_clock_handoff_test"
 run seq-eighth-quarter sh tests/host/seq_eighth_quarter_test.sh
+run held-chords sh tests/host/held_chords_test.sh
+run held-chord-integration sh tests/host/held_chord_integration_test.sh
 run queued-mutes sh tests/host/queued_mutes_test.sh
 run break-rate sh tests/host/break_rate_test.sh
 run seq-long-notes sh -c "$CC $W -o $OUT/seq_long_note_test tests/host/seq_long_note_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_long_note_test"
@@ -357,6 +367,8 @@ run chicago-fx2-inserts sh tests/host/chicago_fx2_inserts_test.sh build/chicago_
 run original-sound-cell sh tests/host/original_sound_cell_test.sh build/original-sound-cell
 run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
 run original-build python3 tests/host/test_original_build_composition.py
+run load-guard-diagnostic python3 tests/host/test_load_guard_diagnostic.py
+run state-trace-diagnostic python3 tests/host/test_state_trace_diagnostic.py
 run play-question sh tests/host/play_question_test.sh
 run play-question-ui sh tests/host/play_question_ui_test.sh
 run sound-reset sh tests/host/sound_reset_test.sh
@@ -367,6 +379,12 @@ run panic-notes sh tests/host/panic_notes_test.sh
 run drum-fill sh tests/host/drum_fill_test.sh
 run cq-reclaim sh tests/host/cq_reclaim_test.sh   # 42de2893 accept-order queue repair
 run cq-shift-preempt python3 tests/host/cq_shift_preempt_test.py   # one masked copy; a mid-shift pick sees no tear
+run panic-order sh tests/host/panic_order_test.sh
+run panic-mutants sh tests/host/panic_mutants.sh
+run panic-mutants-runner python3 tests/host/panic_mutants_test.py
+run live-key-epoch python3 tests/host/live_key_epoch_test.py
+run midi-epoch-step python3 tests/host/midi_epoch_step_test.py
+run roadmap-evidence-check sh tests/host/roadmap_evidence_check_test.sh
 run optimization-equivalence sh tests/host/run_optimization_equivalence.sh
 run sdk-pin python3 tests/sdk_pin_test.py   # SDK V1.2.14 pins; a wrong SDK stops the build
 run native-nightly-probe python3 tests/host/test_native_nightly_build_probe.py
@@ -625,6 +643,7 @@ fi
 # the controller image in a package, Python and JavaScript (tests/ble_pkg_test.py, needs the SMK build)
 run ble-sysex-bounds sh -c "$CC -std=c11 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/ble_sysex_bounds_test tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_sysex_bounds_test"
 run ble sh -c "$CC $W -Ifirmware/hal -Ifirmware/src/ble -o $OUT/ble_test tests/ble_test.c -lpthread && $OUT/ble_test"
+run ble-model-identity python3 -B tests/host/ble_identity_test.py
 [ -f build/x0x-smk37.fwsc ] && run ble-package python3 tests/ble_pkg_test.py
 run upload-images sh -c "python3 tests/host/make_test_loops.py build/test_loops && \
     python3 tools/upload_breaks.py --rate 22050 --nslots 2 --dry-run build/test_upload build/test_loops/loop*.wav && \
@@ -652,6 +671,7 @@ run wav-import-integrity python3 -B tests/host/wav_import_safety_test.py  # reje
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run slot-begin-cancel python3 tests/x0x_slots_begin_cancel_test.py  # SMP_BEGIN cancel keeps last-good sample
 run smp-begin-cancel sh tests/host/run_smp_begin_cancel.sh          # firmware editor.c: BEGIN alone keeps last-good
+run sample-integrity-dispatch sh tests/host/run_sample_integrity_dispatch.sh # actual editor frames, NOR retries/recovery/lifecycle
 run slot-backup-durable python3 tests/x0x_slots_durable_backup_test.py   # directory fsync before OTA
 run slot-archive-zone python3 tests/x0x_slots_zone_guard_test.py   # CRC-valid malformed slot zones fail before flash writes
 run slot-verify-order python3 tests/x0x_slots_verify_order_test.py   # fail closed before a later slot write

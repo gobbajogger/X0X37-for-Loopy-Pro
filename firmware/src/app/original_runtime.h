@@ -3,6 +3,8 @@
 #include "original_sound.h"
 #include "../dsp/original_chicago_backend.h"
 #include "../dsp/original_miami_backend.h"
+#include "../dsp/drone_string.h"
+#include "../dsp/juno6.h"
 
 enum { ORIGINAL_INPUT_USB, ORIGINAL_INPUT_BLE, ORIGINAL_INPUT_TRS,
        ORIGINAL_INPUT_KEYS, ORIGINAL_INPUT_SEQUENCE, ORIGINAL_INPUT_COUNT };
@@ -11,6 +13,8 @@ enum { ORIGINAL_RUNTIME_OK = 1, ORIGINAL_RUNTIME_INVALID = 0,
 typedef union {
     original_chicago_backend chicago;
     original_miami_backend miami;
+    struct { juno6_t synth; juno6_chorus_t chorus; } juno;
+    drone_string_t drone; /* third synth kind, never an extra part */
 } original_runtime_backend;
 typedef struct {
     original_runtime_backend dsp;
@@ -59,3 +63,4 @@ int original_runtime_motion_view(const original_runtime_part *, float *phase, fl
 int original_runtime_env_view(const original_runtime_part *, float adsr[4], float *level, int *state);
 int original_runtime_render(original_runtime_part *, original_runtime_workspace *,
     float *left, float *right, unsigned frames);
+

@@ -27,6 +27,36 @@ static const uint8_t original_sound_chicago_factories[ORIGINAL_CHICAGO_FACTORIES
 };
 static const uint8_t original_sound_fx_types[ORIGINAL_CHICAGO_FX_CHOICES] = {0,4,5,10,18,22,24,3,12,13,15,16};
 static const uint8_t original_sound_fx_macros[ORIGINAL_CHICAGO_FX_CHOICES] = {0,5,7,4,2,3,1,6,8,9,10,11};
+/* Drone factories are q127, unlike the binary32 legacy synth factories. */
+static const x0x_param_t original_sound_juno_params[18] = {
+ {"Wave",127,0,0},{"Sub",127,0,0},{"Cutoff",127,0,0},{"Res",127,0,0},
+ {"EnvAmt",127,0,0},{"Attack",127,0,0},{"Decay",127,0,0},{"Sustain",127,0,0},
+ {"Release",127,0,0},{"HPF",127,0,0},{"LFORate",127,0,0},{"LFODep",127,0,0},
+ {"Width",127,0,0},{"ChoRate",127,0,0},{"Chorus",127,0,0},{"Level",127,0,0},
+ {"PBend",127,0,0},{"Damper",127,0,0}
+};
+static const uint8_t original_sound_juno_factories[4][16] = {
+ {42,28,70,18,45,8,40,92,40,0,15,8,64,25,45,100},
+ {90,18,42,24,35,65,55,95,75,0,12,15,55,40,55,100},
+ {15,50,58,36,80,0,35,30,20,5,20,0,64,25,18,110},
+ {70,10,105,12,20,0,20,110,15,12,25,5,80,60,50,96}
+};
+static const char *const original_sound_juno_names[4] = {"JUNO POLY", "JUNO PAD", "JUNO PLUCK", "JUNO BRASS"};
+static const x0x_param_t original_sound_drone_params[ORIGINAL_DRONE_NPARAMS] = {
+    {"Register",127,57,0},{"Brightness",127,66,0},
+    {"Flutter",127,51,0},{"Attack",127,23,0},
+    {"Release",127,83,0},{"Level",127,95,0},
+    {"PBend",127,64,0},{"Damper",127,0,0}
+};
+static const uint8_t original_sound_drone_factories[ORIGINAL_DRONE_FACTORIES][6] = {
+    {57,66,51,23,83,95},   /* Cathedral */
+    {35,39,38,58,108,105}, /* Cloud */
+    {94,97,70,17,72,83},   /* Aurora */
+    {73,75,12,5,55,94}     /* Organ */
+};
+static const char *const original_sound_drone_names[ORIGINAL_DRONE_FACTORIES] = {
+    "Cathedral", "Cloud", "Aurora", "Organ"
+};
 static const x0x_param_t original_sound_miami_params[18] = {
     {"CrWave",127,0,0},{"CrLvl",127,0,0},{"Sub",127,0,0},{"CrPit",127,0,0},
     {"Glide",127,0,0},{"XmLvl",127,0,0},{"XmWave",127,0,0},{"XmTune",127,0,0},
@@ -43,7 +73,9 @@ static int original_sound_centered(unsigned kind, unsigned parameter)
     /* Pitch bend is centred too: control 64 is exactly 0.5 (no bend), as the
      * saved rest value in original_sound_value. */
     return (kind == ORIGINAL_SOUND_CHICAGO && (parameter == 4u || parameter == ORIGINAL_CHICAGO_PITCH_BEND)) ||
-           (kind == ORIGINAL_SOUND_MIAMI && (parameter == 7u || parameter == ORIGINAL_MIAMI_PITCH_BEND));
+           (kind == ORIGINAL_SOUND_MIAMI && (parameter == 7u || parameter == ORIGINAL_MIAMI_PITCH_BEND)) ||
+           (kind == ORIGINAL_SOUND_JUNO && parameter == 16u) ||
+           (kind == ORIGINAL_SOUND_DRONE && parameter == 6u);
 }
 static uint8_t original_sound_display_byte(unsigned kind, unsigned parameter, float value)
 {
@@ -54,9 +86,11 @@ static uint8_t original_sound_display_byte(unsigned kind, unsigned parameter, fl
 }
 
 unsigned original_sound_count(unsigned kind)
-{ return kind == ORIGINAL_SOUND_CHICAGO ? 22u : kind == ORIGINAL_SOUND_MIAMI ? 18u : 0u; }
+{ return kind == ORIGINAL_SOUND_CHICAGO ? 22u : kind == ORIGINAL_SOUND_MIAMI ? 18u :
+    kind == ORIGINAL_SOUND_JUNO ? ORIGINAL_JUNO_NPARAMS : kind == ORIGINAL_SOUND_DRONE ? ORIGINAL_DRONE_NPARAMS : 0u; }
 unsigned original_sound_factories(unsigned kind)
-{ return kind == ORIGINAL_SOUND_CHICAGO ? ORIGINAL_CHICAGO_FACTORIES : kind == ORIGINAL_SOUND_MIAMI ? 30u : 0u; }
+{ return kind == ORIGINAL_SOUND_CHICAGO ? ORIGINAL_CHICAGO_FACTORIES : kind == ORIGINAL_SOUND_MIAMI ? 30u :
+    kind == ORIGINAL_SOUND_JUNO ? ORIGINAL_JUNO_FACTORIES : kind == ORIGINAL_SOUND_DRONE ? ORIGINAL_DRONE_FACTORIES : 0u; }
 int original_sound_factory_source(unsigned kind, unsigned factory)
 {
     if (factory >= original_sound_factories(kind)) return -1;
@@ -137,17 +171,21 @@ int original_sound_control_value(unsigned kind, unsigned parameter, unsigned con
     return 1;
 }
 uint32_t original_sound_engine_id(unsigned kind)
-{ return kind == ORIGINAL_SOUND_CHICAGO ? ORIGINAL_SOUND_CHICAGO_ID : kind == ORIGINAL_SOUND_MIAMI ? ORIGINAL_SOUND_MIAMI_ID : 0u; }
+{ return kind == ORIGINAL_SOUND_CHICAGO ? ORIGINAL_SOUND_CHICAGO_ID : kind == ORIGINAL_SOUND_MIAMI ? ORIGINAL_SOUND_MIAMI_ID :
+    kind == ORIGINAL_SOUND_JUNO ? ORIGINAL_SOUND_JUNO_ID : kind == ORIGINAL_SOUND_DRONE ? ORIGINAL_SOUND_DRONE_ID : 0u; }
 const char *original_sound_name(unsigned kind, unsigned factory)
 {
     int source = original_sound_factory_source(kind, factory);
     if (source < 0) return 0;
-    return kind == ORIGINAL_SOUND_CHICAGO ? original_chicago_program_name((unsigned)source) : original_miami_program_name((unsigned)source);
+    return kind == ORIGINAL_SOUND_CHICAGO ? original_chicago_program_name((unsigned)source) :
+    kind == ORIGINAL_SOUND_MIAMI ? original_miami_program_name((unsigned)source) :
+    kind == ORIGINAL_SOUND_JUNO ? original_sound_juno_names[factory] : original_sound_drone_names[factory];
 }
 const x0x_param_t *original_sound_param(unsigned kind, unsigned parameter)
 {
     if (parameter >= original_sound_count(kind)) return 0;
-    return kind == ORIGINAL_SOUND_CHICAGO ? original_sound_chicago_params + parameter : original_sound_miami_params + parameter;
+    return kind == ORIGINAL_SOUND_CHICAGO ? original_sound_chicago_params + parameter :
+    kind == ORIGINAL_SOUND_MIAMI ? original_sound_miami_params + parameter : kind == ORIGINAL_SOUND_JUNO ? original_sound_juno_params + parameter : original_sound_drone_params + parameter;
 }
 uint32_t original_sound_edit_mask(const uint8_t cell[ORIGINAL_SOUND_BYTES])
 {
@@ -182,11 +220,15 @@ int original_sound_init(uint8_t cell[ORIGINAL_SOUND_BYTES], unsigned kind, unsig
         while (choice < ORIGINAL_CHICAGO_FX_CHOICES && original_sound_fx_types[choice] != routing.fx[1][0]) ++choice;
         if (choice == ORIGINAL_CHICAGO_FX_CHOICES) return 0;
         next[ORIGINAL_CHICAGO_FX_TYPE] = (uint8_t)choice;
-    } else {
+    } else if (kind == ORIGINAL_SOUND_MIAMI) {
         original_miami_program p;
         if (!original_miami_program_init(&p, (unsigned)source)) return 0;
         for (unsigned i = 0; i < 18; ++i) next[i] = original_sound_display_byte(kind, i, p.macro[i]);
-    }
+    } else if (kind == ORIGINAL_SOUND_JUNO) {
+        memcpy(next, original_sound_juno_factories[factory], 16u);
+    } else if (kind == ORIGINAL_SOUND_DRONE) {
+        memcpy(next, original_sound_drone_factories[factory], 6u);
+    } else return 0;
     next[26] = 'O'; next[27] = 'S'; next[28] = ORIGINAL_SOUND_SCHEMA;
     next[29] = (uint8_t)kind; next[30] = (uint8_t)factory;
     memcpy(cell, next, sizeof next);
@@ -241,6 +283,10 @@ int original_sound_value(const uint8_t cell[ORIGINAL_SOUND_BYTES], unsigned para
     if (original_sound_edit_mask(cell) & (UINT32_C(1) << parameter)) {
         if (!original_sound_control_value(cell[29], parameter, cell[parameter], &result)) return 0;
     }
+    else if (cell[29] == ORIGINAL_SOUND_JUNO)
+        result = original_sound_unit_value[original_sound_juno_factories[cell[30]][parameter]];
+    else if (cell[29] == ORIGINAL_SOUND_DRONE)
+        result = original_sound_unit_value[original_sound_drone_factories[cell[30]][parameter]];
     else if (cell[29] == ORIGINAL_SOUND_CHICAGO) {
         original_chicago_program p;
         if (!original_chicago_program_init(&p, (unsigned)original_sound_factory_source(cell[29], cell[30]))) return 0;
@@ -253,3 +299,4 @@ int original_sound_value(const uint8_t cell[ORIGINAL_SOUND_BYTES], unsigned para
     *value = result;
     return 1;
 }
+

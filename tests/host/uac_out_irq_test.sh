@@ -16,6 +16,11 @@ cat > "$OUT/src/app/engine.h" <<'EOF2'
 static struct { volatile uint8_t playing, req_start, req_stop, req_cont; } seq;
 static int engine_project_notes(void) { return 0; }
 EOF2
+# Keep optional USB identity headers from the same source selected for RED runs.
+if [ -f "${SRC:-firmware/src}/usb_product_name.h" ]; then
+    cp "${SRC:-firmware/src}/usb_product_name.h" "$OUT/src/usb_product_name.h"
+    cp "${SRC:-firmware/src}/app/version.h" "$OUT/src/app/version.h"
+fi
 python3 - "${SRC:-firmware/src}/usb.c" "$OUT/src/usb.c" <<'PY'
 from pathlib import Path
 import sys
@@ -27,6 +32,6 @@ if source.count(marker) != 1:
 # Instrument only the temporary copy. Keep production RX, ring and DSP logic.
 Path(sys.argv[2]).write_text(source.replace(marker, marker + "        uac_out_test_tick();\n"))
 PY
-"${CC:-cc}" -std=gnu99 -O2 -w ${CFLAGS:-} -I"$OUT" -o "$OUT/uac_out_irq_test" \
+"${CC:-cc}" -std=gnu99 -O2 -w '-DSMK_MODEL="SMK-37 Pro"' ${CFLAGS:-} -I"$OUT" -o "$OUT/uac_out_irq_test" \
     tests/host/uac_out_irq_test.c -lm
 "$OUT/uac_out_irq_test"

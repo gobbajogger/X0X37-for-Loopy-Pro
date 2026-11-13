@@ -118,7 +118,7 @@ class Keyboard {
         if (this.mode !== 2 || this.offset !== this.project.length) return reply(2);
         try {
           const schema = parseProject(this.staging, this.project.length);
-          if (schema.patternVersion !== this.supportedSchema.patternVersion || schema.soundRevision !== this.supportedSchema.soundRevision)
+          if (schema.projectVersion > this.supportedSchema.projectVersion || schema.patternVersion !== this.supportedSchema.patternVersion || schema.soundRevision !== this.supportedSchema.soundRevision)
             return reply(1); // Firmware also validates the exact staged revision.
         } catch { return reply(4); }
         if (this.staging[32] === 0xEE) return reply(5);
@@ -724,3 +724,106 @@ test("part-off masks round-trip and every one-bit header corruption is rejected"
     }
   }
 });
+
+test("stream 15 chord projects retain every opaque payload byte in backup and restore", async () => {
+  const chord = rawProject(7), v = new DataView(chord.buffer); v.setUint32(20, 15, true);
+  assert.equal(parseProject(chord).patternVersion, 15);
+  for (const portable of [false, true]) {
+    const file = await readProjectFile(await bundle(chord, snapshot(), portable));
+    assert.deepEqual(file.project, chord);
+  }
+  const { device, keyboard } = await connected({ project: chord });
+  const saved = await readProjectSnapshot(device);
+  assert.deepEqual(saved.project, chord);
+  const target = chord.slice(); target[40] ^= 1;
+  new DataView(target.buffer).setUint32(12, crc32(target.subarray(32)), true);
+  const prepared = await prepareProjectImport(device, await bundle(target, snapshot(), false));
+  assert.deepEqual((await readProjectFile(prepared.backupBytes)).project, chord);
+  await applyProjectImport(device, prepared, { confirmed: true });
+  assert.deepEqual(keyboard.project, target);
+  assert.equal(keyboard.sampleWrites().length, 0);
+});
+test("stream 15 on old firmware fails validation before sample mutation or commit", async () => {
+  const chord = rawProject(7); new DataView(chord.buffer).setUint32(20, 15, true);
+  const { device, keyboard } = await connected();
+  const prepared = await prepareProjectImport(device, await bundle(chord, snapshot([alternate, null, third])));
+  await assert.rejects(applyProjectImport(device, prepared, { confirmed: true, backupSaved: true }), /version/);
+  assert.equal(keyboard.sampleWrites().length, 0);
+  assert.equal(keyboard.projectCalls(OP.COMMIT).length, 0);
+  assert.deepEqual(keyboard.project, rawProject());
+  for (const version of [16, 999]) {
+    new DataView(chord.buffer).setUint32(20, version, true);
+    assert.throws(() => parseProject(chord), /incompatible/);
+  }
+});
+
+
+for (const stream of [13, 14, 15]) {
+  test(`format 2 stream ${stream} preserves backup/restore bytes and downgrade safety`, async () => {
+    const raw = rawProject(7), v = new DataView(raw.buffer);
+    v.setUint32(16, 2, true); v.setUint32(20, stream, true);
+    assert.equal(parseProject(raw).projectVersion, 2);
+    for (const portable of [false, true]) {
+      const file = await readProjectFile(await bundle(raw, snapshot(), portable));
+      assert.deepEqual(file.project, raw);
+    }
+    const {device, keyboard} = await connected({project: raw});
+    assert.deepEqual((await readProjectSnapshot(device)).project, raw);
+    const prepared = await prepareProjectImport(device, await bundle(raw));
+    await applyProjectImport(device, prepared, {confirmed: true, backupSaved: true});
+    assert.deepEqual(keyboard.project, raw);
+    const old = raw.slice(); new DataView(old.buffer).setUint32(16, 1, true);
+    const legacy = await connected({project: old});
+    const rejected = await prepareProjectImport(legacy.device, await bundle(raw, snapshot([alternate, null, third])));
+    await assert.rejects(applyProjectImport(legacy.device, rejected, {confirmed: true, backupSaved: true}), /version/);
+    assert.equal(legacy.keyboard.sampleWrites().length, 0);
+    assert.equal(legacy.keyboard.projectCalls(OP.COMMIT).length, 0);
+    assert.deepEqual(legacy.keyboard.project, old);
+    const badCrc = raw.slice(); badCrc[40] ^= 1;
+    assert.throws(() => parseProject(badCrc), /CRC/);
+    const badLength = raw.slice(); new DataView(badLength.buffer).setUint32(8, 1, true);
+    assert.throws(() => parseProject(badLength), /length/);
+    for (const format of [0, 3, 999]) {
+      const bad = raw.slice(); new DataView(bad.buffer).setUint32(16, format, true);
+      assert.throws(() => parseProject(bad), /incompatible/);
+    }
+  });
+}
+test("format 2 rejects historical layouts and offline editing", async () => {
+  const {openProject} = await import('./offline-sequencer/project-adapter.js');
+  for (const [stream,sound] of [[3,4],[3,10],[6,11],[8,11],[9,11],[16,13],[13,14]]) {
+    const raw = rawProject(), v = new DataView(raw.buffer);
+    v.setUint32(16,2,true);v.setUint32(20,stream,true);v.setUint32(24,sound,true);
+    assert.throws(() => parseProject(raw), /incompatible/);
+  }
+  const raw=rawProject();new DataView(raw.buffer).setUint32(16,2,true);
+  assert.throws(() => openProject(raw,{model:'SMK-37 Elite'}), /Extended-rate/);
+});
+
+
+// The registered project-rates-companion test generates these with production C,
+// rather than merely patching version words in a synthetic JavaScript buffer.
+if (process.env.PROJECT_RATE_FIXTURES) {
+  for (const stream of [13,14,15]) for (const rate of [4,5]) for (const part of [0,1,2]) {
+    test(`firmware export stream ${stream} rate ${rate} part ${part} transfers byte-exactly`, async () => {
+      const raw=new Uint8Array(readFileSync(`${process.env.PROJECT_RATE_FIXTURES}/s${stream}-r${rate}-p${part}.bin`));
+      const meta=parseProject(raw);assert.equal(meta.projectVersion,2);assert.equal(meta.patternVersion,stream);
+      for(const portable of [false,true]) {
+        const bytes=await bundle(raw,snapshot(),portable);
+        assert.deepEqual((await readProjectFile(bytes)).project,raw);
+        const {device,keyboard}=await connected({project:raw});
+        assert.deepEqual((await readProjectSnapshot(device)).project,raw);
+        const prepared=await prepareProjectImport(device,bytes);
+        await applyProjectImport(device,prepared,{confirmed:true,backupSaved:true});
+        assert.deepEqual(keyboard.project,raw);
+      }
+      const old=new Uint8Array(readFileSync(`${process.env.PROJECT_RATE_FIXTURES}/old-s${stream}.bin`));
+      assert.equal(parseProject(old).projectVersion,1);
+      const {device,keyboard}=await connected({project:old});
+      const prepared=await prepareProjectImport(device,await bundle(raw,snapshot([alternate,null,third])));
+      await assert.rejects(applyProjectImport(device,prepared,{confirmed:true,backupSaved:true}),/version/);
+      assert.equal(keyboard.sampleWrites().length,0);assert.equal(keyboard.projectCalls(OP.COMMIT).length,0);
+      assert.deepEqual(keyboard.project,old);
+    });
+  }
+}

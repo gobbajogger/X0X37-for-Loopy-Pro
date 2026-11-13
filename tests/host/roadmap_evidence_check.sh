@@ -38,6 +38,16 @@ import json, os, sys, glob
 
 root = os.environ["ROOT"]
 evid = os.environ["EVID"]
+tree_root = os.path.realpath(root)
+
+def tree_file(path):
+    if not isinstance(path, str) or not path or os.path.isabs(path):
+        return False
+    try:
+        full = os.path.realpath(os.path.join(tree_root, path))
+        return os.path.commonpath((tree_root, full)) == tree_root and os.path.isfile(full)
+    except (OSError, ValueError):
+        return False
 
 def strict_main():
     import re
@@ -81,17 +91,6 @@ def strict_main():
         bad(row, "missing_required_json")
     for row in sorted(actual - required):
         bad(row, "unexpected_json")
-
-    tree_root = os.path.realpath(root)
-
-    def tree_file(path):
-        if not isinstance(path, str) or not path or os.path.isabs(path):
-            return False
-        try:
-            full = os.path.realpath(os.path.join(tree_root, path))
-            return os.path.commonpath((tree_root, full)) == tree_root and os.path.isfile(full)
-        except (OSError, ValueError):
-            return False
 
     # Read literal run entries only; never execute the test runner or its commands.
     run_names = set()
@@ -266,6 +265,7 @@ present_ok = present_bad = unproven = 0
 pin_commit = pin_blob = None
 pin_disagree = False
 any_present_bad = False
+schema_bad = False
 
 def fail_why(reasons):
     return ",".join(reasons) if reasons else "unknown"
@@ -302,9 +302,9 @@ for path in files:
             reasons.append("pin_disagree")
 
     if status == "UNPROVEN":
-        if reasons and any(r.startswith("missing_") or r == "row_id_filename_mismatch" for r in reasons):
-            # still report as UNPROVEN but note schema issues in why for visibility
-            print(f"{stem}: UNPROVEN")
+        if reasons:
+            print(f"{stem}: UNPROVEN_BAD:{fail_why(reasons)}")
+            schema_bad = True
         else:
             print(f"{stem}: UNPROVEN")
         unproven += 1
@@ -325,9 +325,8 @@ for path in files:
             if not isinstance(cp, str) or not cp:
                 reasons.append("empty_code_path")
                 continue
-            full = os.path.join(root, cp)
-            if not os.path.isfile(full):
-                reasons.append(f"missing_path:{cp}")
+            if not tree_file(cp):
+                reasons.append(f"missing_or_outside_code_path:{cp}")
 
     test_refs = data.get("test_refs")
     if not isinstance(test_refs, list) or not test_refs:
@@ -372,7 +371,7 @@ rc = 0
 if pin_disagree:
     print("ERROR: evidence files disagree on ROADMAP pin", file=sys.stderr)
     rc = 1
-if any_present_bad or present_bad:
+if schema_bad or any_present_bad or present_bad:
     rc = 1
 sys.exit(rc)
 PY

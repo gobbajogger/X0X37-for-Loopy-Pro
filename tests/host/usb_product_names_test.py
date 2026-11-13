@@ -49,7 +49,16 @@ def compile_one(source, dest, model, version=None, expected=None):
     return subprocess.run(args, cwd=ROOT, capture_output=True, text=True)
 
 
+def mflasher_recognizes(name):
+    # jvitkauskas/m-flasher v0.11.0 src/midi.rs NAMES/unit_of.
+    # This is discovery only; OTA model admission must still verify identity.
+    return any(token in name.lower() for token in
+               ("fm-1", "fm1", "minifm", "smk-37", "smk37", "felucca"))
+
+
 def main():
+    assert not mflasher_recognizes("DnBOX 0.0.26 37PRO")
+    assert not mflasher_recognizes("DnBOX 0.0.26 37ELITE")
     assert build.usb_product_define("smk37", "pro") == "-DX0X_USB_37PRO=1"
     assert build.usb_product_define("smk37", "elite") == "-DX0X_USB_37ELITE=1"
     assert build.usb_product_define("smk37", "mke") is None
@@ -61,24 +70,73 @@ def main():
         for model in ("pro", "elite"):
             for version in (None, "0.1.3", "99.99.99"):
                 label = version if version is not None else "DEV"
-                expected = f"DnBOX {label} 37{model.upper()}"
+                expected = f"DnBOX {label} SMK-37 {model.title()}"
                 result = compile_one(source, binary, model, version, expected)
                 assert result.returncode == 0, result.stderr
                 result = subprocess.run([str(binary)], cwd=ROOT, capture_output=True, text=True)
                 assert result.returncode == 0, result.stdout + result.stderr
                 assert expected in result.stdout, result.stdout
+                # M-Flasher v0.11 discovers USB MIDI units by a model token
+                # in the OS port name (src/midi.rs NAMES/unit_of), not SysEx.
+                assert mflasher_recognizes(expected) and "smk-37" in expected.lower()
+                assert "fm-1" not in expected.lower()
                 print(result.stdout.strip())
+        # Compile the real descriptor without the optional display flags. These
+        # direct/MKE build paths previously fell through to the FM-1 descriptor.
+        for model in ("SMK-37 Pro", "SMK-37 Elite", "MKE-P37"):
+            expected = f"DnBOX DEV {model}"
+            args = ["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                    "-DBOARD_SMK37=1", f'-DSMK_MODEL="{model}"',
+                    f'-DEXPECTED="{expected}"', "-Ifirmware/src", str(source), "-o", str(binary)]
+            result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True)
+            assert result.returncode == 0, result.stderr
+            result = subprocess.run([str(binary)], capture_output=True, text=True)
+            assert result.returncode == 0, result.stdout + result.stderr
+            print(result.stdout.strip())
+        for model in ("SMK-37 Pro", "SMK-37 Elite", "MKE-P37"):
+            expected = model + " Update"
+            result = subprocess.run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                     "-DBOARD_SMK37=1", "-DFELUCCA_LOADER=1", f'-DSMK_MODEL="{model}"',
+                                     f'-DEXPECTED="{expected}"', "-Ifirmware/src", str(source), "-o", str(binary)],
+                                    cwd=ROOT, capture_output=True, text=True)
+            assert result.returncode == 0, result.stderr
+            result = subprocess.run([str(binary)], capture_output=True, text=True)
+            assert result.returncode == 0, result.stdout + result.stderr
+            print(result.stdout.strip())
+        # Exercise the actual fallback OTA definition rather than a duplicate.
+        x0x = (ROOT / "firmware/src/x0x.c").read_text()
+        start = x0x.index("#ifndef FELUCCA_ID")
+        stop = x0x.index('#include "usb.c"', start)
+        ota = Path(tmp) / "ota.c"
+        ota.write_text('#include <stdio.h>\n' + x0x[start:stop] +
+                       '\nint main(void) { puts(FELUCCA_ID); return 0; }\n')
+        for model in ("SMK-37 Pro", "SMK-37 Elite", "MKE-P37"):
+            result = subprocess.run(["cc", "-DBOARD_SMK37=1", f'-DSMK_MODEL="{model}"',
+                                     str(ota), "-o", str(binary)], capture_output=True, text=True)
+            assert result.returncode == 0, result.stderr
+            result = subprocess.run([str(binary)], capture_output=True, text=True)
+            assert result.returncode == 0 and result.stdout.strip() == model + "_900", result.stdout
+            print("PASS fallback OTA identity: " + result.stdout.strip())
+        for defines in (["-DBOARD_SMK37=0", "-DX0X_USB_37PRO=1"],
+                        ["-DBOARD_SMK37=1", "-DX0X_USB_37PRO=1", "-DX0X_USB_37ELITE=1"],
+                        ["-DBOARD_SMK37=1"]):
+            result = subprocess.run(["cc", "-std=c11", *defines, '-DEXPECTED="invalid"',
+                                     "-Ifirmware/src", str(source), "-o", str(binary)],
+                                    cwd=ROOT, capture_output=True, text=True)
+            assert result.returncode != 0, "invalid board/model flags were accepted"
+        print("PASS non-SMK, conflicting and missing model definitions rejected")
         too_long = "1" * 125
-        result = compile_one(source, binary, "elite", too_long, f"DnBOX {too_long} 37ELITE")
+        result = compile_one(source, binary, "elite", too_long, f"DnBOX {too_long} SMK-37 Elite")
         assert result.returncode != 0 and "USB product name exceeds" in result.stderr, result.stderr
         print("PASS oversized USB product name rejected at compile time")
 
     usb = (ROOT / "firmware/src/usb.c").read_text(encoding="utf-8")
-    assert '#include "usb_product_name.h"' in usb
+    assert '#elif BOARD_SMK37\n#include "usb_product_name.h"' in usb
+    assert '#if defined(FELUCCA_LOADER) && BOARD_SMK37\n#include "usb_product_name.h"' in usb
     assert '*d = (const uint8_t *)&STR2;' in usb
     assert '0x09, 0x12, FELUCCA_USB_PID & 0xFF' in usb  # existing VID/PID unchanged
     assert "'F', 0, 'e', 0, 'l', 0, 'u'" in usb  # loader name unchanged
-    print("PASS USB wiring, unchanged VID/PID and loader descriptor")
+    print("PASS USB wiring, unchanged VID/PID and legacy non-SMK loader descriptor")
 
 
 if __name__ == "__main__":

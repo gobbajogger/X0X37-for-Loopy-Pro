@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* X0X audio engine; see engine.h. */
 #include "engine.h"
+#include "../seq/held_chord.h"
 #include "plat.h"
 #include "../x0x_cold.h"
 #include "../dsp/drum909.h"
@@ -114,6 +115,7 @@ static void original_prepare_all(void)
 unsigned engine_original_keys(int v, int latched)
 {
     if ((unsigned)v >= NBASS || original_bass[v].status != ORIGINAL_RUNTIME_OK) return 0;
+    if (original_bass[v].kind == ORIGINAL_SOUND_JUNO || original_bass[v].kind == ORIGINAL_SOUND_DRONE) return 0; /* no arp */
     const chicago_arp_control *keys = original_bass[v].kind == ORIGINAL_SOUND_MIAMI ?
         &original_bass[v].dsp.miami.keys : &original_bass[v].dsp.chicago.keys;
     return latched ? keys->latched_count : keys->physical_count;
@@ -122,7 +124,8 @@ uint32_t engine_original_value_bits(int v, unsigned parameter)
 {
     if ((unsigned)v >= NBASS || parameter >= original_sound_count(original_bass[v].kind) ||
         original_bass[v].status != ORIGINAL_RUNTIME_OK) return UINT32_MAX;
-    float value = original_bass[v].kind == ORIGINAL_SOUND_MIAMI ?
+    float value = original_bass[v].kind == ORIGINAL_SOUND_JUNO ? original_bass[v].dsp.juno.synth.macro[parameter] : original_bass[v].kind == ORIGINAL_SOUND_DRONE ?
+        original_bass[v].dsp.drone.macro[parameter] : original_bass[v].kind == ORIGINAL_SOUND_MIAMI ?
         original_bass[v].dsp.miami.program.macro[parameter] : original_bass[v].dsp.chicago.program.macro[parameter];
     uint32_t bits; __builtin_memcpy(&bits, &value, sizeof bits); return bits;
 }
@@ -228,15 +231,23 @@ void engine_motion_reset(void) { mot_release_req = 1; }   /* lanes changed under
  * -50 dB instead of -90 (~2%); after 3 s back under 65% both return. The platform reports each
  * block's load after rendering it (engine_load, same context as engine_render); the change is
  * made at the start of the next block. Off during the PERF test, which measures the full cost. */
+/* Diagnostic only: lock adaptive load shedding off for paired native audio
+ * comparisons. The default keeps release behavior and timing policy unchanged. */
+#ifndef X0X_DIAG_DISABLE_LOAD_GUARD
+#define X0X_DIAG_DISABLE_LOAD_GUARD 0
+#endif
+#if X0X_DIAG_DISABLE_LOAD_GUARD != 0 && X0X_DIAG_DISABLE_LOAD_GUARD != 1
+#error "X0X_DIAG_DISABLE_LOAD_GUARD must be 0 or 1"
+#endif
 #define GUARD_ON_LAST 92u
 #define GUARD_ON_AVG 85u
 #define GUARD_OFF 65u
 #define GUARD_CALM_FRAMES (3u * 44100u)
 extern float drum808_quiet;
-static uint8_t guard_on, guard_applied, guard_enabled = 1;
+static uint8_t guard_on, guard_applied, guard_enabled = !X0X_DIAG_DISABLE_LOAD_GUARD;
 static uint32_t guard_avg_q8, guard_calm;
 volatile uint32_t eng_guard_count;
-void engine_guard_enable(int on) { guard_enabled = (uint8_t)(on != 0); }
+void engine_guard_enable(int on) { guard_enabled = (uint8_t)(!X0X_DIAG_DISABLE_LOAD_GUARD && on != 0); }
 int engine_guard_active(void) { return guard_on; }
 void engine_load(uint32_t pct, uint32_t frames)
 {
@@ -575,7 +586,8 @@ static uint8_t perf_seen[NBASS][3] = {{64, 0, 0}, {64, 0, 0}};
 static int16_t mod_ctl[NBASS] = {-1, -1};
 static volatile uint8_t ext_touch[NBASS];           /* ISR -> UI: bit0 bend, bit1 mod moved by ext MIDI */
 static int mod_param(int v)
-{ return original_bass[v].kind == ORIGINAL_SOUND_MIAMI ? ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF; }
+{ return original_bass[v].kind == ORIGINAL_SOUND_JUNO ? 2 : original_bass[v].kind == ORIGINAL_SOUND_DRONE ? 1 :
+    original_bass[v].kind == ORIGINAL_SOUND_MIAMI ? ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF; }
 static const float mix_level_values[128] = {
     0x0p+0f,     0x1.a36e2ep-14f,     0x1.a36e2ep-12f,     0x1.d7dbf4p-11f,
     0x1.a36e2ep-10f,     0x1.47ae14p-9f,     0x1.d7dbf4p-9f,     0x1.41205cp-8f,
@@ -839,6 +851,11 @@ X0X_COLD void engine_apply_sound(const sound_t *s)
                     ) engine_set(t, v, i, s->v[t][v][i]);
 }
 
+#if X0X_DIAG_STATE_TRACE
+static uint32_t diag_consume, diag_command, diag_offset;
+uint32_t engine_diag_render_offset;
+#endif
+
 void engine_drum(int kit, int voice, float vel)
 {
     if ((unsigned)kit < NKIT && SEQ_PART_OFF(&seq, kit)) return;
@@ -906,6 +923,24 @@ void engine_bass_off_note(int part, int note)
 }
 void engine_brk_live(int key, int down) { if (down && SEQ_PART_OFF(&seq, TRK_BRK)) return; cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
 
+/* Opt-in bounded trace: ordinary RAM, never the audio pool. No raw struct
+ * bytes, addresses, wall clock, or DSP floating-point arithmetic enter hashes. */
+#ifndef X0X_DIAG_STATE_TRACE
+#define X0X_DIAG_STATE_TRACE 0
+#endif
+#if X0X_DIAG_STATE_TRACE != 0 && X0X_DIAG_STATE_TRACE != 1
+#error "X0X_DIAG_STATE_TRACE must be 0 or 1"
+#endif
+#if X0X_DIAG_STATE_TRACE
+struct diag_row { uint32_t half, late, key18_tick, key22_tick, consume_tick, command, offset; };
+volatile struct { uint32_t written; struct diag_row row[48]; } x0x_state_trace;
+
+#define diag_event(data) ((void)0)
+
+#else
+#define diag_event(data) ((void)0)
+#endif
+
 /* ------------------------------------------------------- sequencer sink --- */
 /* probability: each part's (and drum track's) chance on the step playing now, set by its T_PROB lane
  * before the step fires (motion_step runs first); 100 = always */
@@ -937,6 +972,7 @@ static int s_drum_seq(void *x, int kit, int v, float vel)
 __attribute__((noinline)) static void s_drum(void *x, int kit, int v, float vel)
 {
     (void)x;
+
     if (v == 0)                          /* BD (both kits' track 1): the master's PUMP key */
         master_key(&mst, kit, vel);
     if ((unsigned)kit < NKIT && (unsigned)v < NDRUM)   /* MIX's drum pages: the track's meter jumps */
@@ -1014,7 +1050,7 @@ static void bass_adapt_pre(int b, unsigned n)
             c->cutoff = fm_clampf(c->cutoff + bass_303_sweep_cutoff(bass_c13[b], c->resonance), 0.0f, 1.0f);
         bass_accent_mk_to[b] = bass_303_accent_output(accent, &c->gain.output);
         bass_303_slide_porta(slide, &c->pitch.portamento);
-    } else if (semis != 0.0f) {
+    } else if (original_bass[b].kind == ORIGINAL_SOUND_MIAMI && semis != 0.0f) {
         original_miami_voice_controls *c = &original_bass[b].dsp.miami.controls;
         bass_adapt_saved[b].used = 1;
         bass_adapt_saved[b].chicago = 0;
@@ -1046,6 +1082,37 @@ int engine_bass_accent(int p) { return (unsigned)p < NBASS ? bass_accent[p] : 0;
 int engine_bass_slide(int p) { return (unsigned)p < NBASS ? bass_slide[p] : 0; }
 #endif
 
+/* The new slot kinds are polyphonic; Chicago/Miami preserve mono/unison.
+ * This is intentionally dormant on the 25.1 base until those engines integrate. */
+int seq_bass_poly(seq_t *s,int b)
+{ (void)s;return (unsigned)b<NBASS && original_bass[b].kind>=2 && original_bass[b].kind<=3; }
+int seq_bass_chord_keys(seq_t *s,int b,uint8_t *notes)
+{
+    (void)s;int n=0;
+    for(unsigned key=0;key<128;key++) {
+        unsigned held=0;
+        for(unsigned src=0;src<ORIGINAL_INPUT_SEQUENCE;src++)held|=original_bass[b].keys[src][key];
+        if(held) { if(n==HELD_CHORD_NOTES)return -1;notes[n++]=(uint8_t)key; }
+    }
+    return n;
+}
+int seq_bass_chord_get(seq_t *s,int b,int pat,int step,uint8_t *notes)
+{ return held_chord_get(mot.lane,pat,b,step,s->pat[pat].bass[b].step[step].note,notes); }
+int seq_bass_chord_set(seq_t *s,int b,int pat,int step,const uint8_t *notes,int count)
+{
+    (void)s;
+    if(!mot.lane)return 0;
+    /* Audio owns both operations. A new sound lock can consume one lane
+     * between admission and the chord write, so reserve it in the same check. */
+    int reserve=count<0 && engine_note_lock_capture_on() && bass_note_find(mot.lane,pat,b,step)<0;
+    return held_chord_write(mot.lane,pat,b,step,notes,count,reserve);
+}
+void seq_bass_chord_on(seq_t *s,int b,int note,int velocity)
+{
+    if(seq_bass_poly(s,b))
+        (void)original_runtime_key(&original_bass[b],ORIGINAL_INPUT_SEQUENCE,(unsigned)note,(unsigned)velocity);
+}
+
 static void bass_onset(int v);          /* original_presets.inc: pattern preset, note lock */
 static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
@@ -1059,17 +1126,23 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
         return 0;
     }
     bass_onset(p);
+    if(seq_bass_poly(&seq,p)) {
+        (void)original_runtime_release_source(&original_bass[p],ORIGINAL_INPUT_SEQUENCE);
+        original_seq_note[p]=-1;
+    }
     int previous = original_seq_note[p];
     if (!sl && previous >= 0)
         (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
     int rc = original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)note, (unsigned)velocity);
     if (sl && previous >= 0)
         (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
+
     original_seq_note[p] = (int16_t)note;
     return rc == ORIGINAL_RUNTIME_OK;
 }
 static void s_boff(void *x, int p)
 {
+    diag_event((48u << 24) ^ (uint32_t)p);
     (void)x;
     if ((unsigned)p >= NBASS) return;
     (void)original_runtime_release_source(&original_bass[p], ORIGINAL_INPUT_SEQUENCE);
@@ -1261,7 +1334,7 @@ void engine_motion_clear(int k)
      * removed ramp after the restoration or interleave DSP program writes. */
     if (k < 0 || k >= NLANE || !mot.lane) return;
     lane_t *lane = &mot.lane[k];
-    int restore = lane->used && lane->t != 0xfdu;
+    int restore = lane->used && lane->t != 0xfdu && lane->t != HELD_CHORD_TARGET;
     int t = lane->t, v = lane->v, i = lane->i;
     if (original_motion_performance(t, v, i)) restore = 0;
     lane->used = 0;
@@ -1684,6 +1757,12 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
                     bass_held[k] = d1; bass_held_src[k] = (uint8_t)src;
                     bass_held_count[k] = original_bass[k].keys[src][d1];
                     live_rec_accept(k, src, d1);
+                } else if (seq_bass_poly(&seq,k)) {
+                    seq_rec_bass(&seq,k,d1,0,0,src,0);
+                    if(bass_held_src[k]==src && bass_held[k]==d1) {
+                        bass_held_count[k]=original_bass[k].keys[src][d1];
+                        if(!bass_held_count[k])seq.rec_bass[k].own_ok=0;
+                    }
                 } else if (bass_held_src[k] == (uint8_t)src && bass_held[k] == d1) {
                     bass_held_count[k] = original_bass[k].keys[src][d1];
                     if (!bass_held_count[k]) {
@@ -1833,25 +1912,31 @@ static void drain(void)
         else if (type == C_BASE) {
             if (a < NTARGETS) apply_base((int)a, (int)b, (int)v);
             else mot_apply(0, (int)a, (int)b, (int)v, mot_base(0, (int)a, (int)b, (int)v));
-        } else if (type == C_DRUM)
+        } else if (type == C_DRUM) {
+#if X0X_DIAG_STATE_TRACE
+            diag_consume = plat_ticks24(); diag_command = c; diag_offset = engine_diag_render_offset;
+#endif
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
+        }
         else if ((type == C_BON || type == C_REC) && a < NBASS) {
             int slide = type == C_REC ? live_rec_legato((int)a, 3) && bass_held[a] != b : (int)((v >> 1) & 1u);
 #ifdef X0X_HOST
             bass_attacked[a] = (uint8_t)!slide;
 #endif
+            int poly=seq_bass_poly(&seq,(int)a);
+            if(poly)(void)original_runtime_key(&original_bass[a],ORIGINAL_INPUT_KEYS,b,(v>>2)&127u);
             if (type == C_REC && rec_epoch == (seq.rec_epoch & 127u))
                 seq_rec_bass(&seq, (int)a, (int)b, (int)((v >> 2) & 127u), 1, 3,
                     ((v & 1u) ? BS_ACCENT : 0) | ((v & 512u) ? BS_SLIDE : 0) | (slide ? SEQ_REC_LEGATO : 0));
             v &= 511u; /* the outgoing manual-slide flag is recorder metadata only */
             bass_adapt_flags((int)a, (int)(v & 1u), slide);
-            (void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, v >> 2);
+            if(!poly)(void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, v >> 2);
             bass_held[a] = (uint8_t)b;
             bass_held_count[a] = 1; bass_held_src[a] = 3;
             src_held[0] &= (uint16_t)~(1u << a); src_held[1] &= (uint16_t)~(1u << a); src_held[2] &= (uint16_t)~(1u << a);
             live_rec_accept((int)a, 3, (int)b);
         } else if (type == C_BOFF && a < NBASS && bass_held_src[a] == 3) {
-            if ((!v || b == bass_held[a]) && seq.rec_bass[a].own_src == 3) {
+            if (!seq_bass_poly(&seq,(int)a) && (!v || b == bass_held[a]) && seq.rec_bass[a].own_src == 3) {
                 seq_rec_bass(&seq, (int)a, seq.rec_bass[a].own_note, 0, 0, 3, 0);
                 seq.rec_bass[a].own_ok = 0;
                 bass_held_count[a] = 0;
@@ -1861,6 +1946,7 @@ static void drain(void)
                 (void)original_runtime_release_source(&original_bass[a], ORIGINAL_INPUT_KEYS);
                 __builtin_memset(original_key_pitch[a], 0, sizeof original_key_pitch[a]);
             }
+            if(seq_bass_poly(&seq,(int)a))seq_rec_bass(&seq,(int)a,(int)b,0,0,3,0);
             if (!v || b == bass_held[a]) { bass_held[a] = bass_held_count[a] = 0; bass_slide[a] = 0; }
         } else if (type == C_BOFF && a < NBASS) {
             /* another input owns the voice: still drop the keyboard's own keys,
@@ -1870,6 +1956,7 @@ static void drain(void)
                 (void)original_runtime_release_source(&original_bass[a], ORIGINAL_INPUT_KEYS);
                 __builtin_memset(original_key_pitch[a], 0, sizeof original_key_pitch[a]);
             }
+            if(seq_bass_poly(&seq,(int)a))seq_rec_bass(&seq,(int)a,(int)b,0,0,3,0);
         } else if (type == C_BRK)
             brk_local_event((int)a, (int)b);
     }
@@ -2564,6 +2651,7 @@ static uint32_t plan_pick(uint32_t n)
         k = plan_cost(m, c);
         if (k < bc) { bc = k; best = m; }
     }
+
     if (bc * 8u < cost * 7u || (eng_plan & ~(act & ok)))   /* 1/8 better, or a job of it went idle */
         eng_plan = (uint8_t)best;
     return eng_plan & act & ok;
@@ -2754,6 +2842,20 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         bfx_flt_shape(out_l, out_r, (int)n);
     }
 }
+
+#if X0X_DIAG_STATE_TRACE
+__attribute__((noinline, minsize)) void engine_diag_half(uint32_t half, uint32_t late)
+{
+    if (half >= 174u && half < 222u) {
+        volatile struct diag_row *r = &x0x_state_trace.row[half - 174u];
+        r->half = half; r->late = late;
+        r->key18_tick = plat_diag_key_tick(13); r->key22_tick = plat_diag_key_tick(17);
+        r->consume_tick = diag_consume; r->command = diag_command; r->offset = diag_offset;
+        ++x0x_state_trace.written;
+    }
+    diag_consume = 0;
+}
+#endif
 
 void engine_render(int32_t *out_lr, uint32_t n)
 {
@@ -3114,7 +3216,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     mot_playing = mot_release_req = 0;
     mot_on = mot_was_on = 1;
     guard_on = guard_applied = 0;
-    guard_enabled = 1;
+    guard_enabled = !X0X_DIAG_DISABLE_LOAD_GUARD;
     guard_avg_q8 = guard_calm = 0;
     drum808_quiet = 3.2e-5f;
     smc_solo_state = 0;
@@ -3213,3 +3315,4 @@ void engine_live_key_motion_step(int voice,int step)
 void engine_live_key_pattern_note(int voice,int note)
 { if(note>=0)s_bon(0,voice,note,0,0,100);else s_boff(0,voice); }
 #endif
+

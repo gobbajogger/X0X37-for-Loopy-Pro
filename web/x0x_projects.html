@@ -238,7 +238,7 @@ const slotText = (s) => s.unknown ? "Interrupted transfer" : s.empty ? "Empty" :
 $("prepare").onclick = () => run("Reading the current project and preparing its recovery backup…", async () => {
   previewStale = !!prepared;
   const revision = new DataView(selected.project.buffer, selected.project.byteOffset, selected.project.byteLength);
-  if ((revision.getUint32(20, true) !== 13 && revision.getUint32(20, true) !== 14) || revision.getUint32(24, true) !== 13)
+  if ((revision.getUint32(20, true) !== 13 && revision.getUint32(20, true) !== 14 && revision.getUint32(20, true) !== 15) || revision.getUint32(24, true) !== 13)
     throw new Error("This workspace imports revision 13 only. Use the original firmware for an earlier project; no migration was performed.");
   const next = await prepareProjectImport(device, selected.bytes, { progress });
   clearPreview(); prepared = next;

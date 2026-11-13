@@ -32,6 +32,24 @@ def compile_plan(env):
 
 
 class OriginalBuildCompositionTests(unittest.TestCase):
+    def test_compact_chicago_preserves_hot_unrolling_and_other_boards(self):
+        for board, model, compact in (("smk37", "elite", True),
+                                      ("smk37", "pro", True),
+                                      ("smk37", "mke", False),
+                                      ("fm1", "pro", False)):
+            with mock.patch.object(build, "BOARD", board), mock.patch.object(build, "MODEL", model):
+                _, _, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "1"})
+            for path, command in sources.items():
+                with self.subTest(board=board, model=model, source=path):
+                    self.assertNotIn("-fno-unroll-loops", command)
+                    native_only = Path(path).suffix == ".S" or Path(path).stem in {"chicago_dynamics", "chicago_modulation", "original_runtime"} or path in {"firmware/src/dsp/drum909.c", "firmware/src/dsp/master.c", "firmware/src/dsp/fxbus.c"}
+                    self.assertEqual("-flto" in command, compact and not native_only)
+                    expected = compact and Path(path).stem == "chicago_packed"
+                    self.assertEqual("-DX0X_CHICAGO_COMPACT_HEADERS=1" in command, expected)
+                    if "-O2" in command:
+                        self.assertIn("-ffp-contract=off", command)
+                        self.assertNotIn("-ffast-math", command)
+
     def test_removed_engines_have_no_build_hook(self):
         # Even a currently unreachable build branch can accidentally compile a
         # deleted source after a later selector change. Keep the plan clean.

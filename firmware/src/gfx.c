@@ -173,22 +173,48 @@ static int32_t cv_text_clip(int32_t x, int32_t y, const felucca_font_t *f, const
     uint32_t r = c >> 11, g = (c >> 5) & 63u, b = c & 31u;
     uint16_t sc = swap16(c);
     for (; *s; s++) {
-        uint32_t gi = glyph(f, (uint8_t)*s), gx, gy, w;
-#ifdef FONT_PACKBITS
+        uint32_t gi = glyph(f, (uint8_t)*s), gx, gy, w, height = f->h;
+        uint32_t crop_x = 0, crop_y = 0;
+#ifdef FONT_LZ_CROP
+        uint8_t history[256];
+        uint32_t written = 0, left = 0, distance = 0, byte = 0;
+#elif defined(FONT_PACKBITS)
         uint32_t left = 0, repeated = 0, byte = 0;
 #else
         uint32_t bpr;
 #endif
         const uint8_t *gd;
         w = f->bw[gi];
-#ifndef FONT_PACKBITS
+#if !defined(FONT_PACKBITS) && !defined(FONT_LZ_CROP)
         bpr = (w + 1u) / 2u;
 #endif
         gd = f->data + f->off[gi];
-        for (gy = 0; gy < f->h; gy++)
+#ifdef FONT_LZ_CROP
+        uint32_t rectangle = gd[0] | ((uint32_t)gd[1] << 8) | ((uint32_t)gd[2] << 16);
+        gd += 3;
+        crop_x = rectangle & 63u;
+        crop_y = (rectangle >> 6) & 63u;
+        w = (rectangle >> 12) & 63u;
+        height = rectangle >> 18;
+#endif
+        for (gy = 0; gy < height; gy++)
             for (gx = 0; gx < w; gx++) {
                 uint32_t a;
-#ifdef FONT_PACKBITS
+#ifdef FONT_LZ_CROP
+                /* Generated streams never reference before their own glyph;
+                 * the ring is bounded and needs no clear or shared state. */
+                if (!(gx & 1u)) {
+                    if (!left) {
+                        uint32_t token = *gd++;
+                        distance = token & 128u ? *gd++ : 0;
+                        left = (token & 127u) + (distance ? 3u : 1u);
+                    }
+                    byte = distance ? history[(written - distance) & 255u] : *gd++;
+                    history[written++ & 255u] = (uint8_t)byte;
+                    left--;
+                }
+                a = byte;
+#elif defined(FONT_PACKBITS)
                 /* Decode one byte per pixel pair; odd-width rows discard their
                  * padding nibble exactly as the original bitmap reader did. */
                 if (!(gx & 1u)) {
@@ -207,7 +233,7 @@ static int32_t cv_text_clip(int32_t x, int32_t y, const felucca_font_t *f, const
 #else
                 a = gd[gy * bpr + gx / 2u];
 #endif
-                int32_t px = x - f->pad + (int32_t)gx, py = y + (int32_t)gy + cv_oy;
+                int32_t px = x - f->pad + (int32_t)(gx + crop_x), py = y + (int32_t)(gy + crop_y) + cv_oy;
                 a = (gx & 1u) ? (a & 15u) : (a >> 4);
                 if (!a || px < clip_left || px >= clip_right || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)
                     continue;

@@ -45,6 +45,9 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
     {
         uint32_t k;
         for (k = 0; k < HALF_FRAMES; k += REND_FRAMES) {
+#if X0X_DIAG_STATE_TRACE
+            engine_diag_render_offset = k;
+#endif
             engine_render(o + 2u * k, REND_FRAMES);
 #if FELUCCA_UAC
             uac_tap(o + 2u * k, REND_FRAMES);       /* the USB audio input: the same master output */
@@ -55,6 +58,9 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
 #endif
         }
     }
+#if X0X_DIAG_STATE_TRACE
+    engine_diag_half(x0x_dbg.halves, x0x_dbg.late);
+#endif
     us = (fm1_ticks() - t0) / FM1_TICKS_PER_US;
 #if X0X_LCD_TRACE
     lcd_trace_record(LCD_T_AUDIO, us);
@@ -2210,7 +2216,8 @@ CK_FN static void smk_frame(void)
 
 /* ------------------------------------------------------------- boot --- */
 #define BOOTGUARD_MAGIC 0x42475244u
-struct bootguard_s bootguard __attribute__((section(".noinit")));   /* declared in x0x.c (ota_commit) */
+/* Retained RAM can change outside the C program across reset. Keep its full-width ABI under LTO. */
+volatile struct bootguard_s bootguard __attribute__((section(".noinit")));   /* declared in x0x.c (ota_commit) */
 
 static void hexs(char *b, uint32_t v)
 {
