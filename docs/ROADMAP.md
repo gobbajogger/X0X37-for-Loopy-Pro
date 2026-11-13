@@ -1,212 +1,265 @@
 # X0X37 roadmap
 
-This file tells what we build, what we finished, where we are and what we must still do. Update this file when a step ends or a plan changes. USER_PREFERENCES.md gives the preferences and rules. x0x37/BEHAVIOR.md gives the intended behavior. x0x37-progress-log.md gives the detailed history.
+This is the sole list of owner requests and decisions. Each item is one short line: its number, what the owner wants, his own words as the source (quote and date), status, and a link (PR, thread or commit) when there is one. Test logs, hashes and evidence dumps live in the linked files, not here.
+
+Bots must check this file and `/workspace/steers/owner-decisions-index-20261113.md` before asking the owner anything. Never re-ask a feature or decision he already agreed. A newer owner word wins; mark the older row SUPERSEDED, do not delete it. A removal needs a reason in the owner's own words (rule of 2026-11-12 03:17 UTC+10).
+
+Last sync: 2026-11-13 23:30 UTC+10, branch `docs/roadmap-owner-sync-20261113`, based on `lane/026-combined-20261112` at [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83).
 
 ## The goal
 
-We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has these properties:
+We make DnBOX firmware for the M-Vave SMK-37 (Elite and Pro). The firmware is the product. The website and the installer support it.
 
-1. It has a clip mode that acts as an Akai APC40 mkII for Loopy Pro. The pads start clips, and the pads and the screen show the clip colours.
-2. It keeps all the X0X features (sequencer, synth engines, BREAK mode) at full quality: 44.1 kHz, with no length cuts.
-3. End users can import their own loops for BREAK mode, and the loops stay safe across updates.
-4. It has Bluetooth MIDI (MIDI only), and it stays freely shareable under an open license.
-5. End users install it from a web page, with no toolchain.
+Owner vision, 2026-11-13, relayed from his authenticated ChatGPT: "I want our firmware to be best in class"; "I want to feel proud of our craft"; "It must be reliable tool i can recommend to anyone who has interests in making electronic music with low budget"; "Not just good enough, more than we thought was ever capable on such of a low budget"; "It should feel almost illegal or impossible of what we'll achieve". This is aspiration, not a permission to claim unproved performance.
 
-## Done
+The instrument should:
 
-| Area | What | Where |
-|---|---|---|
-| Clip mode | APC40 mkII emulation for Loopy Pro. The pads send and receive MIDI and show the clip colours. The screen shows the clip view. OCT- and OCT+ move the view down and up. | smk37 branch |
-| Clip mode | Fixes: the firmware drops notes only in clip mode. Loopy Start does not echo back. The screen clip view is not too dark (LCD floor). | 0fbfe07 ... be6fc1d |
-| Docs | BEHAVIOR.md (intended behavior, 200+ items), agent-rules.md, BREAK mode guide, README, licences | 4046fe9, 7269951, c24899f |
-| Colours | Colour tool that calculates the real pad and screen colours from the APC40 palette | 07eb709 |
-| Step 1 | The installer backs up the loop slots and restores them automatically | 39eafa9 ... bd6f9f3 |
-| Step 2 | The firmware stores the 909 ride, crash and hi-hat as IMA ADPCM at 44.1 kHz (no audible difference, about 166 KB free after the change) | 241bd15 ... 936f155 |
-| Step 3 | Factory breaks: 2 bars at 44.1 kHz. The import tools use 44.1 kHz | d3f23c5 ... 25c87bf |
-| Step 4 | New flash layout: one 64 KiB Bluetooth block, 3 loop slots (about 11 s of import space at 44.1 kHz) | 62fc644 ... 81d5f74 |
-| Step 5 | Bluetooth MIDI code: the JieLi controller runs as a separate image on core 1. The end user builds it on a computer. GLOBAL > BLUETOOTH MIDI settings | 07159b6 ... 7972fbb |
-| Installed | The keyboard ran 81d5f74, and all 5 loops of the owner stayed intact | 2026-10-15 |
-| Safety | The installer refuses to add the Bluetooth image to old firmware (the image can overwrite code) | ab44241 (flash_review, ble-stage3) |
-| Safety | Bluetooth start guard: a failed Bluetooth start shows FAILED, and the keyboard starts normally (no crash loop into safe mode). The DIAG command reads the crash and start details | bad7b95, 70a9a5f (flash_review, ble-stage3) |
-| Bluetooth | Bluetooth starts: STATUS shows READY at power-on (6 of 6 automatic rounds) | f0bcb28 (a52) |
-| Bluetooth | The Mac connects over Bluetooth MIDI. MIDI goes in both directions | 79eb477 (a59), 4e6ae9b (a60) |
-| Bluetooth | The iPhone connects over Bluetooth MIDI, and the link holds | 94285b5 (a67) |
-| Clip keys | Knobs 2-8 send CC 48-54 when no clip keys mode is on | 9984344 |
-| Bluetooth | BLE-16: when the Bluetooth link ends, X0X releases the notes that came from Bluetooth (host test tests/scenarios/blenotes.x0x). In the installed build 89f680e | 355f920 |
-| Clip colours | The LCD clip colours are the plain Akai colours as RGB565, from the Akai CSV (CLP-05). In the installed build 89f680e | 453e9c8, 9a0b2c2 |
-| Pad colours | Pad colour calibration (CLP-79, dev builds only). The build option X0X_DEV_PADCAL (default 1) removes it from a release build | d303e4e (in 89f680e), bd254a0 (integration be9a097) |
-| Pad colours | The owner calibrated the pad colours (export of 2026-10-17, 89 entries with owner values). The clip pads use this table APC40_PAD_OWNER in the dev build and in the release build (CLP-13) | 48892fe, 4113ce0 (in the installed build c6bf44a) |
-| Gate | The gate builds and tests the dev configuration and the release configuration. The install guard checks the configuration | 7cef9e4, 2012283 (in f9bcc46) |
+1. Keep a clip mode that acts as an Akai APC40 mkII for Loopy Pro.
+2. Keep the sequencer, the synth engines and BREAK mode at full quality: 44.1 kHz, with no length cuts.
+3. Let people import their own BREAK loops, and keep those loops safe across updates (#51).
+4. Offer Bluetooth MIDI (MIDI only), and stay freely shareable under an open licence.
+5. Install from a web page, with no toolchain.
+6. Be fully usable as a standalone instrument (0.0.26: Drone, Juno, held-key chords).
 
-## Where we are now (2026-10-19)
+## Standing owner rules (short)
 
-- Branches:
-  - Local integration HEAD = 692c935 (batch 11 open). It adds a one-line dev PAD COLOURS waiting-screen redraw fix to f752007. Both Elite local builds and the focused and reference tests pass. The formal batch 11 gate and device test have not run. This local fast-forward has not been pushed to the box; the last box integration record in LIVE_BRANCHES is f752007.
-  - Installed = batch 10 (c6bf44a), release configuration (X0X_DEV_PADCAL=0). Batch 10 contains the batches before it. It remains the installed build.
-  - The gate on c6bf44a gave PASS at 2026-10-17 02:19 (tree b220466e91d0). It built and tested the dev and the release configuration (116 ok, 0 FAIL, 0 skip in each).
-  - Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18).
-  - The side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1), ble-a70 (77fa067) and ble-a71 (9ef7bc2) have builds. Nobody installed them.
-- Keyboard:
-  - The keyboard runs integration c6bf44a (batch 10) in the release configuration. The install time is 2026-10-17 02:25 (INSTALLED.tsv). It has no PAD COLOURS page, and the owner pad colours are in the firmware.
-  - The fwsc CRC32 is c48b5c6e. The ctl.img read-back is eb742dd2 (the same as the file). Slots 1 and 2 did not change, and slot 3 is empty. DIAG shows READY.
-  - Free bytes of the Elite release build at c6bf44a: app code 3864 B, static RAM 5824 B, pool 8196 B.
-  - Device test: PENDING (batch 10). Regression (owner 02:49): in clip mode, the knobs do nothing on the installed build. The batch 11 host fix is in local integration 692c935; the device has not been retested. Tag last-good-hw stays 94285b5.
-- iPhone:
-  - The iPhone works on a67 (owner test PASS 19:18). On a73, the link carries the Loopy clock and Start (20:37 PASS).
-  - History: a65 iPhone test 1 (18:23): the iPhone connected (interval 7.5 ms, MTU 185). Then the link ended with reason 0x08 (connection timeout).
-  - a62 and a62b: the link held for about 2 min at 26.25 ms with 0 connection updates, reason 0x00. a63-15 (d9844a4): iOS dropped the link before any GATT step.
-  - Oct 15: Loopy used the keyboard as its APC40 over Bluetooth (test 30). But some colour notes made sounds, some pads stayed empty and the colours were slow.
-  - A connection parameter request made the iPhone drop the link (test 31) and gave a large MIDI delay (test 34).
-- Mac: the Bluetooth GATT connection works, and MIDI goes in both directions (a59 79eb477, a60). The a59 fix: the host must register its event handler after btstack_task_init, because btstack_task_init removes it.
-- Bluetooth start: the supply must have the stock values (DCDC13, VDC14 1.60 V, SYSVDD 1.38 V) before the RF init (test 27, 56a7452). The controller init runs on core 0 before core 1 starts (83cd4dc). The clock stays at 360 MHz.
-- Release package 0b80994 (SMK-37 Elite only, a64 files: .fwsc CRC32 5ec8b21a, ctl.img CRC32 e9c05144):
-  - The free pool is 4096 B. The free app code is 144 B. The free app RAM is 0 B.
-  - Nobody built the Pro package. Nobody pushed the package. It is for tests only, it is out of date, and it is not for release.
-- Clip keys:
-  - clip-keys-a65 is at 5a89b76. Its changes are in integration (cherry-picked) and in the installed build 89f680e.
-  - It has the KEYS panel and the SCALE, CHORD and ARP pages. Knobs 2-8 send CC 48-54. It has 24 scales, 30 chords, swing, Euclid rhythm, HUMAN and strum.
-  - The host tests pass. The owner did not test it on the hardware.
-- Pool limit: build.sh and the gate require at least 8192 B of free pool (enforced 2026-10-16 21:53). USER_PREFERENCES.md keeps the older 4096 B owner entry.
-- Tools: tools/ble_autotest.py runs the Bluetooth test over USB with no user action. The attempt ledger is BLE_ATTEMPTS.md in the Bluetooth branch (one row for each attempt). The JieLi SDK Bluetooth design compared with our host, with the step plan for the iPhone link, is in ~/Documents/x0x37/ble_split/SDK_DESIGN_COMPARE.md (Mac).
+| # | Rule | Owner source | Status |
+|---|------|--------------|--------|
+| R1 | This ROADMAP is the only tracking list. Every agreed item goes in at once, as one short line. | 2026-11-01: single list, never re-ask agreed features; 2026-11-13 23:23 UTC+10: "did you add all my requests to roadmap so you would have to ask me a ton of stupid questions that were already answered"; 23:24: "can you find all the requests I've made so you can figure out on what's you supposed to work and what am I waiting for"; 23:24: "Some info is unnecessary" | THIS FILE |
+| R2 | A removal or a disable needs a reason in the owner's own words, quoted with date and time. | 2026-11-12 03:17 UTC+10 | STANDING |
+| R3 | Firmware must only get faster. Any slower PR or build is a blocking failure and must not merge or publish. Zero dropouts under heavy load (< 11,609 µs per core). Pool reserve at least 8,192 B. | 2026-11-01 15:49 UTC+10; 2026-10-31 CPU caps; 2026-11-12 07:26 emu gate | STANDING |
+| R4 | The owner installs firmware himself through the site. No agent flashes his keyboard. Publishing a passing nightly needs no extra approval (rule of 2026-11-01 15:42). Main-installer changes still follow their own QA (#880). | 2026-11-01 | STANDING |
+| R5 | Miami is not a 303 and must never be labelled 303B. Chicago is the 303-style bass. | 2026-11-12 02:31 UTC+10 | STANDING |
+| R6 | Non-main source and docs pushes, and draft PR creation, are in the owner's standing scope, subject to actual tool gates. Do not invent a new approval for each one. Nothing merges without his OK. | 2026-11-13, relayed from authenticated ChatGPT | STANDING |
+| R7 | Bots use ChatGPT classic threads in their own signed-in desktop browsers, not the ChatGPT Linux app. | 2026-11-13 22:42 UTC+10: "Instead of app, for reliability" | STANDING |
+| R8 | Closing idle bots' browser windows, when memory is low, is pre-approved and should run automatically. Never close a working bot's browser. | 2026-11-13 widget: "Yes, close idle bots' browser windows"; then "It's should be automatic"; "So work can progress on its own" | STANDING |
+| R9 | Commit author is gobbajogger \<255244738+gobbajogger@users.noreply.github.com\>. | 2026-10-30: "all commits must be authored as gobbajogger" | STANDING |
+| R10 | READMEs are professional product documentation: what DnBOX is, supported SMK models, useful features, correct install/manual/help links, and only current actionable safety warnings. Detailed failures, hashes and test receipts belong in release notes, the nightly page or evidence docs, not the README. | 2026-11-13, relayed from authenticated ChatGPT | STANDING; Docs Keeper [#885](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/885) [#886](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/886) |
 
-## Left to do
+## 0.0.26 (owner requests, 2026-11-12 UTC+10, statuses at 2026-11-13)
 
-1. Mac: test the clock and Start/Stop over Bluetooth, and check for audio dropouts.
-2. Clip mode with Loopy Pro:
-   - Open: CLP-50 FAIL. X0X PLAY does not start or stop Loopy Pro (a73, owner test 20:37-20:39). Capture the outbound MIDI from X0X PLAY, then test the pads, overdub and tempo with Loopy Pro.
-   - Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. The installed build c6bf44a has the owner pad table (48892fe). In c6bf44a, an idle pad sends the full owner table level (4113ce0). Current host tests pass; a device retest is still needed.
-   - Open: CLP-18 FAIL (a74 owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back immediately. The fix (a76) is in the installed build c6bf44a. In c6bf44a, a link end clears only the clip cells of that link (30a08fc, 79de009). Device test: pending.
-   - Open: the owner test of batch 10 (c6bf44a).
-   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. The batch 11 fix is in local integration 692c935; the local builds and tests pass. It needs the formal gate and a device retest. At 03:20, the owner said "Just fix them". The intended result is that knobs 2 to 8 edit the keybed ARP, CHORD and SCALE again, so that Loopy Pro records the keybed (owner 03:26).
-   - Batch 11 (owner 02:49, Second Builder): in clip mode, a tap on MODE latches the MODE UI open, and a second tap closes it. A hold works as before.
-   - Batch 11 (owner 02:50, Second Builder): show a "waiting for Loopy Pro to connect" screen instead of the 8x5 grid.
-   - Batch 11 (owner 02:52, Second Builder): a tap on the stage latches it open, and a tap closes it. FADER BANK also closes it. The screen has no top bar, and it shows a help line at the bottom. The stage is the MODE UI of the 02:49 item. The owner said at 02:51: "The SCALE, CHORD or ARP button" (Second Builder confirmed).
-   - Open: the owner did not test the a74 clock source (MID-13) and PLAY note (MID-14) items yet.
-3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
-4. Run the formal batch 11 gate on integration 692c935 or its later final hash. After the finished set is installed and the owner reports a device PASS, bring that integration hash into the main tree (x0x37, smk37).
-5. Owner checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and the idle clip colours on the screen. Also check that the patterns and settings stayed the same.
-6. Web installer: let the page get the JieLi files and build the Bluetooth image. Or let it guide the end user. If possible, end users need no toolchain.
-7. Release: Merge Integrator builds the Pro and Elite packages from a hash with a gate PASS and a device PASS. It checks the installer hashes and publishes only when the owner asks. The release build has X0X_DEV_PADCAL=0. It has no PAD COLOURS row, and it uses the pad table that the owner calibrated. Pad calibration is only for development (owner, 2026-10-17 00:01). The build option is in the code (bd254a0, BUILDING.md c3cdb5a).
+Source for each row is the owner's own chat words. Combined source is [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) on `lane/026-combined-20261112`, draft [#869](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/869). That tree has Drone, held-key chords, Juno and shared chorus in source. The checkpoint Elite SDK V1.2.14 build overflowed flash by 6,848 B, so this is not a qualified package. The owner's 0.0.26 install and boot on an SMK-37 Elite is a scoped report; the package hash was not confirmed. The earlier line "No 0.0.26 code is written yet" is SUPERSEDED.
+
+Every 0.0.26 item still has to pass the standing rules in R3, and nothing is removed without the owner's words.
+
+| # | Item | Owner source | Status | Link |
+|---|------|--------------|--------|------|
+| 26.1 | Drone synth engine: lightweight, full-featured, majestic sound, runs smoothly under heavy load, so DnBOX can be fully standalone. Search other custom firmware for the best one. | 2026-11-12 03:32 UTC+10: "search other custom firmware to add a drone engine and chords support for it in seq for 26build ... best lightweight but feature full synth ... run it smoothly at hard load and will sound majestically ... fully standalone device" | IN SOURCE on [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) (Plaits String Machine, MIT). Flash overflow at the combined checkpoint; Optimizer is freeing space. Device cost still needs a measured gate. | [#869](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/869), `#865` |
+| 26.2 | The drone is a third synth engine, selected in a synth slot like Chicago and Miami. No 6th part, no song-format change; it uses that slot's level, mute and FX. | 2026-11-12 03:49 UTC+10: "Drone engine is just another synth engine don't you get it?" | IN SOURCE, design as agreed. | [#869](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/869) |
+| 26.3 | Chords in the sequencer from held keys recorded to steps; no one-finger auto-chords. Live checks: chord changes land on the step; held chords sustain across steps and release cleanly on mute, Stop and PANIC; pattern switches leave no hanging notes; predictable voice stealing; CPU safe at full load. | 03:32 "chords support for it in seq"; 03:49 "it shouldn't play chords with 1 note I think, or it can but there's a lot of things to be considered for a live performance" | IN SOURCE (stream 15). Firmware UX's piano-roll/chord thread raised a Drone chord-name issue (read the notes that are actually sounding) and a size check; those went to Main Builder. | [#869](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/869), `#866`; UX thread [SEQ piano roll + chord notation](https://chatgpt.com/g/g-p-ad9d6d4ab04c8191af6aa22fd752707e-loopyx0x37/c/6af70865-6c84-83e9-8f20-b831873de391) |
+| 26.4 | Juno-6-style (or similar classic polysynth) slot engine. | 06:10 "Maybe there's something like a juno6?"; "Or smth cool like it"; 12:50 "I asked for it" | IN SOURCE (Juno-60-style, 6 voices, Plaits analog model, MIT). Same flash-overflow block as 26.1. | [#869](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/869), `#867` |
+| 26.5 | Cheap chorus for that engine, ideally without a big delay line. | "Maybe there's a cheaper way to achieve chorus without delay line"; 12:50, part of the Juno plan | IN SOURCE (one shared short delay). Same flash-overflow block. | [#869](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/869), `#867` |
+| 26.6 | fm1-emu (MIT, 360 MHz, SMK-37 adapter) is the device-accurate CPU gate for every build from 0.0.26 on. | 2026-11-12 03:50, owner approved the plan (thumbs up); 07:26 PASS = worst block < 11,609 µs and 0 late | DONE as the gate for 0.0.25.1 and later. An emulator result is not a hardware result. | `emu/fm1-emu-360mhz` |
+| 26.7 | More synth-slot engines: FM-1 AMB-1 and others. | 2026-11-12 12:50 UTC+10: "And what about other synth eng. and maybe use a fm1-amb synth engine? It sounds so good imo" | DECLINED. Owner 2026-11-12 13:07 UTC+10: "Nah let's stick to the previous plan than". 0.0.26 stays at 26.1–26.5. Research is kept for later. | `/workspace/amb-and-engines-research-026.md` |
+| 26.8 | Save, import and export **engine presets as separate files** (user presets for Chicago, Miami, 909, 808, Juno and Drone; web page and device UI). This is **not** project export (#50, already DONE in [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) via the [projects page](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/)), and **not** the 0.0.25 per-pattern factory recall (#7, SEQ > PRESET > PAT SOUND). User-made presets only; factory Chicago/Miami file export stays off until KORG rights are settled. | Owner already requested this and delegated execution (2026-11-13, relayed from authenticated ChatGPT). Widget 2026-11-13: "Yes, add preset file import/export to ROADMAP". Do not wait on another yes. | BLOCKED on Optimizer flash savings. Format research is on Main Builder's branch. | [`lane/fmb-presets-format`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/lane/fmb-presets-format) at [`e199c7e8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/e199c7e8d); codec [`83e7f92d`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/83e7f92d31112b58cffe5ae21be92dc7168e9202); plan `docs/plans/2026-11-13-preset-file-io-research.md` |
+
+## 0.0.25 owner requests (trimmed; evidence in the 2026-11-12 commits)
+
+Owner 2026-11-11 19:31–19:37 UTC+10: "need to produce a real combined 25 build that is installable through nightly. and it must be up to roadmap and be a real update", "without any regressions", "newer sdk is better". SDK is V1.2.14.
+
+Current published 0.0.25.1 firmware is [`79280e76`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/79280e763341d03ba43266d3e25dad66f12de860), nightly [`nightly-79280e76-dev`](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/), user-facing `DN Box 0.0.25.1 (firmware 0.0.25)`. The previous `nightly-1ec5d683-dev` (0.0.25) stays listed. Full host and emu figures: [ROADMAP at `78f81bad`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/78f81bad07b8e53161326c056a2111c663349772/docs/ROADMAP.md).
+
+Owner-reported use, not a full hardware qualification. The Nov 12 12:54 UTC+10 test ("Tested 25 build and haven't found any issues except that one") was of `1ec5d683` (the pattern-chain bug, fixed in `79280e76`). Later the owner said he used 0.0.25.1 and 0.0.26 on an SMK-37 Elite: 2026-11-13 "Bro I tested a 25,1 and 26 already"; "I used elite"; relayed from authenticated ChatGPT: "i already recovered to 25.1", "25.1 is good", "and yep 25.1 to 26 is smooth". The installed package hash was not confirmed. The Pro package has not been tested on a device. The earlier ROADMAP line that `79280e76` is "DEVICE NOT TESTED" is SUPERSEDED by that scoped Elite report; it is still not a full qualification of either model. The [v0.0.25.1 release note](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1) still has the old "Device not tested" text until the owner says yes on Release Packager's v3 draft (RN1).
+
+| Row | Status | Owner source | Link |
+|---|---|---|---|
+| M1 Global PANIC (keyboard FX+SEQ; SMC BANK L+R in DAW only) | DONE | Owner approved 2026-11-01 15:21; gesture chosen after the help-card conflict on long-HOME | `#853`, `4e036296` |
+| M2 Muted fader takes its level on unmute | DONE | Existing, kept | 0.0.24.5 |
+| M3 Instant tempo | DONE | Existing, kept | 0.0.24.5 |
+| M4 Reset selected part's saved sound with SMC HOME+SELECT | DONE | Meeting item, mockup #815 | `#860` |
+| M5 | QUEUED, no definition | Only "unknown item" in the #812 tracker (`94af36cd`). Nothing invented. Never ask the owner what M5 was (2026-11-01). | — |
+| M6 SMC FX selection / throw, and drum fill | DONE for the approved mockup | 2026-11-12 02:29: "Yes, build the drum fill per the #815 mockup in 0.0.25". Hold FX + < > steps that effect. Drum-bus FX suit 02:33: "Let drums have similar fxs"; "It doesn't sound right that 808 and 909 have different fxs from break". | `311897d7` |
+| Chicago accent, slide, global Tune | DONE | 02:36 audible accent and 303-style slide; 02:38 velocity-to-cutoff SKIPPED; 02:40 one global Tune, GLO > AUDIO > TUNE; 07:31 "Tone accent down to about +6 dB" | [`e29664d3`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/e29664d3f) |
+| Per-pattern preset recall | DONE | = #7, 02:42 | `29296cbd7` |
+| Per-note bass sound lock | DONE | = #8, 02:43 and 03:12 | `29296cbd7` |
+| M7 Part ON/OFF | DONE | GLOBAL > AUDIO toggles per part (#815 item 7) | `4e036296`, `336eaa4f` |
+| M8 PLAY during a question answers NO then plays; HOME+PLAY redo | DONE | Owner approved 2026-11-01 15:21 | `#860` |
+| M9 Integration, including SMC page peek (#737) | DONE for the built 0.0.25 items | Peek: home knobs also peek (2026-10-30); locked SMC page-changes peek and the lock stays on; batch overlay on every screen, old peek as a separate mode | `1b17a7ef0`, merge `8d667efcb` |
+| M10 Pool at least 8,192 B | DONE on 0.0.25.1 images (8,320 B free) | Standing R3 | `1ec5d683` / `79280e76` |
+| M11 NIGHTLY | 0.0.25.1 published; see the scoped Elite report above. Main installer is I1 / #880. | 2026-11-12 12:57: "Push 25 to main. And unify the version names so they are formatted same as dnbox 0.24 and not some abstract legacy dev" (one-time exception to never-push-to-main, for 0.0.25 only). | nightly link above |
+| M12 Completeness gate (#822) | PARTIAL, not adopted | #822 | #822 |
+| M13 Straight 1/8 and 1/4 SEQ rates, including BREAK | DONE | BREAK SEQ RATE is 1/16 (default), 1/8 or 1/4. Format 2 for RATE_8 / RATE_4 so older firmware refuses the file instead of playing it wrong. | `420746f31`, `8d667efcb` |
+| QUEUE MUTES | DONE | GLO > AUDIO > QUEUE MUTES, default off. Owner 2026-10-31. | `e2ecdb045` |
+| SMC ECHO page | DONE | Third SMC FX page ECHO SELECT (ROOM/TIGHT/ECHO), owner 03:12. | `aeb69f71a` |
+| Third imported-loop sample slot | DONE | Owner 2026-11-12 03:23 UTC+10: restore it; its earlier cut had no reason in his words. | `70ccf9723`, merge `acad8006a` |
+| Pattern chain slot = longest playing part | DONE | 2026-11-12 12:33 UTC+10: "Pattern chaining is still only 1 bar instead of using the longest playing pattern". Fixed in `79280e76`. | [`79280e76`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/79280e763341d03ba43266d3e25dad66f12de860) |
+| Autosave | DONE as a setting | 2026-11-01: on/off in settings; when on, save only in silence; when off, only manual save. | settings |
+| Push 0.0.25 to main; unify NIGHTLY names | DONE for 0.0.25 | 12:57 quote under M11. Names show as `DN Box 0.0.N`. | main `ff9518a9d` |
+
+## Later owner requests (2026-11-13)
+
+These are new or restated requests after the 0.0.26 plan. They are not duplicates of #50 or 26.8.
+
+| # | Item | Owner source | Status | Link |
+|---|------|--------------|--------|------|
+| D1 | Rewrite the manual around tasks: make a beat, play a bass line, save and recover after power loss, live moves. Drop unverified claims. | 2026-11-13, Docs Keeper brief accepted in this chat; widget: "Yes, put the manual and both READMEs on GitHub as draft PRs" | IN PROGRESS, Docs Keeper. Draft PR open. Nothing merged. | [#884](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/884) head `9516a218` |
+| D2 | Rewrite the main and nightly READMEs as professional product docs (R10). Fix only verified stale claims. Distinguish withdrawn original 0.0.26 (`600b3b45`) from the corrected candidate (`94197fc8`), stable 0.0.25.1, and the scoped Elite report. Juno/Drone are 0.0.26 features, not 0.0.25.1. | 2026-11-13, relayed from authenticated ChatGPT, then the widget yes on draft PRs | IN PROGRESS, Docs Keeper. Two draft PRs open. Nothing merged. | [#885](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/885), [#886](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/886) |
+| U1 | Holistic firmware UX overhaul: coherent across 909/808/Chicago/Miami/Juno/Drone; keep meaningful existing glyphs (decoded from source, not redrawn) and add missing Juno and Drone glyphs; clear sound/step/save/playing/queued states; real chords and a piano roll with compact names; study real SMK-37 user opinion first; draw 2–3 complete directions at 240×240. | 2026-11-13 vision, relayed from authenticated ChatGPT | IN PROGRESS, Firmware UX. First classic thread (piano roll + chord notation) is done. Next: directions at real size, after the SMK opinion research. | Firmware UX; UX thread linked under 26.3; #881 |
+| U2 | Box entrance: original Blender entrance, shortened, ending on the current home screen, not an old 303A/303B one. Host render, not a device capture. | 2026-11-13 vision, relayed | DONE locally as a host render (`21261737`); last frame matches the current home screen. | box entrance `21261737` |
+| W1 | Website at Baud Girl-level task clarity and craft; dark only; DnBOX is the brand headline (SMK-37 is supported hardware, not the big title); keep the iPhone path; no generic template. | 2026-11-13, owner profile and vision | IN PROGRESS, Website UX. Also #874 (site help and channels). | Website UX; [#874](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/874) |
+| W2 | Depict the SMK-37 keyboard accurately from real hardware photos or captures, not an incorrect drawn layout. | 2026-11-13, owner's own words: "Keyboard layout is wrong" | IN PROGRESS, Website UX, redrawing from real photos or replacing the drawing with labelled emulator captures. Nothing is built until he has seen the corrected version. | Website UX |
+| I1 | Put 0.0.25.1 on the main installer, after QA passes. | Widget 2026-11-13 22:51 UTC+10: "Yes, merge #880 and put 0.0.25.1 on the main installer after QA passes" | IN PROGRESS, Installer QA. Draft [#880](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/880) head `7beaf50f`, base `gh-pages`. Merge only after its exact-input QA and browser checks pass. | #880 |
+| RN1 | Correct the v0.0.25.1 release-note test-status section to the scoped Elite report (board Elite; hash not confirmed; not a full qualification; Pro untested). 0.0.26 boot stays out of that 0.0.25.1 note. | 2026-11-13: "Bro I tested a 25,1 and 26 already"; "I used elite"; relayed "i already recovered to 25.1", "25.1 is good", "25.1 to 26 is smooth" | DRAFT ready, live release NOT edited. Release Packager v3: `/workspace/release/notes-fix-20261113/proposed-body-v3.md`. Needs the owner's yes before any PATCH. | [v0.0.25.1](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1) |
+| P3 | Keep every owner request and decision in this ROADMAP so bots stop re-asking, and publish a short status of what is in work and what is waiting. | 2026-11-13 23:23–23:24 UTC+10, quotes under R1 | IN PROGRESS, this branch. | this PR |
+
+## Owner request list (#1–#122)
+
+Restored from the #812 master tracker ([`94af36cdb`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94af36cdb), 2026-11-01), which the current 0.0.26 ROADMAP had dropped. Titles are the English sense of that tracker. Evidence columns are trimmed to links. Statuses that only said "in 0.0.24" are now "SHIPPED" in the 0.0.25.1 and 0.0.26 source trees, unless a later row says otherwise. That is not a new hardware-qualification claim. Items still marked MISSING have no later proof they shipped; do not treat them as done.
+
+Source for the list itself: the owner's 122-item feature list, recorded in #699 / #739 / #812.
+
+| # | Item | Owner source | Status | Link |
+|---|------|--------------|--------|------|
+| #1 | Two full selectable engines: Chicago and Miami. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #2 | Faithful sound of the original engines. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #3 | Complete and correct control of Chicago and Miami. Panel params are reachable; the 20/16 vs 22/18 gap is Pitch Bend and Damper (#4), not missing knobs. Owner 2026-11-01: invent no new knobs. R003 agreed. | 122-list / #699 / #812 (2026-11-01) | SHIPPED, scoped | #4, #798 |
+| #4 | Pitch bend and pedal on their own physical controls. Physical wheel and pedal. See #3. | 122-list / #699 / #812 (2026-11-01) | SHIPPED | 0.0.25.1 / 0.0.26 source |
+| #5 | All agreed effects, with no hidden cuts. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #6 | Factory presets and convenient sound choice. Chicago 81 and Miami 30 factory presets recall on the device. Saving them as separate files is 26.8, not this row. Factory file-export stays off until KORG rights are settled. | 122-list / #699 / #812 (2026-11-01) | SHIPPED | 0.0.25.1 |
+| #7 | Bind sound and engine to the pattern. SEQ > PRESET > PAT SOUND, per bass part, per pattern. Owner 2026-11-12 02:42 UTC+10. | 122-list / #699 / #812 (2026-11-01) | DONE | [`29296cbd7`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/29296cbd72a7b0a9e764e06ec55bf98e0c389331) |
+| #8 | Full sound lock on a single note. Was missing on 2026-11-01. Owner 2026-11-12 02:43 and 03:12 UTC+10: GLO > AUDIO > NOTE LOCK (runtime, not saved). | 122-list / #699 / #812 (2026-11-01) | DONE | [`29296cbd7`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/29296cbd72a7b0a9e764e06ec55bf98e0c389331) |
+| #9 | Honest replacement of the old engines. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #10 | Real preset names and click-free switching. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #11 | Notes longer than one step. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #12 | Record the actual held duration. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #13 | Musically correct probability. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #14 | RANDOM that matches the preview. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #15 | Keep cutoff locks when navigating. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #16 | A gesture belongs to its original part until release. Was in progress on an external branch at the 2026-11-01 tracker; confirm before treating as finished. | 122-list / #699 / #812 (2026-11-01) | IN SOURCE, confirm | #812 |
+| #17 | Safe motion and recording lifecycle. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #18 | Unified internal and external clock. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #19 | Correct Start, Stop, Continue and MIDI queues. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #20 | Visual metronome from the real clock. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #21 | Synchronous Miami divisions and convenient pad choice. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #22 | Legato while recording becomes slide. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #23 | Keep separate 909 and 808 models. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #24 | Independent adaptive slicing of two loops. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #25 | Clear keyboard navigation through slices. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #26 | Correct BREAKS MIDI output. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #27 | Pitch Bend for BREAKS. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #28 | Jungle stretch instead of HALFTIME. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #29 | Three owner-chosen stock breaks. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #30 | Readable eight-strip mixer. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #31 | Conscious strip and mode choice. Was in progress on an external branch at the 2026-11-01 tracker; confirm before treating as finished. | 122-list / #699 / #812 (2026-11-01) | IN SOURCE, confirm | #812 |
+| #32 | Physical Pause as a context lock, with LED. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #33 | Two independent SMCs over Bluetooth. Was in progress on an external branch at the 2026-11-01 tracker; confirm before treating as finished. | 122-list / #699 / #812 (2026-11-01) | IN SOURCE, confirm | #812 |
+| #34 | Safe SMC disconnect and return. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #35 | Keep SMC and other controllers apart. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #36 | Peer names and connection details. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #37 | Pages use the eighth strip; knob banks only with Up/Down. Was in progress on an external branch at the 2026-11-01 tracker; confirm before treating as finished. | 122-list / #699 / #812 (2026-11-01) | IN SOURCE, confirm | #812 |
+| #38 | Individual drum mixer on a second Select press. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #39 | Knobs do not duplicate faders. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #40 | Select context, and no User mode. Was in progress on an external branch at the 2026-11-01 tracker; confirm before treating as finished. | 122-list / #699 / #812 (2026-11-01) | IN SOURCE, confirm | #812 |
+| #41 | A dedicated effects page on the mixer. Owner-confirmed 41.1–41.3 (momentary FX on SELECT/REC/SOLO/MUTE, HOME/Back remaps that button, page maps) plus 2026-11-12 items: hold FX + < >; drum fill (02:29 "Yes, build the drum fill per the #815 mockup in 0.0.25"); ECHO page (03:12); shared drum FX suit (02:33). Full history: #740. | 122-list / #699 / #812 (2026-11-01) | DONE for the agreed 0.0.25 mockup | [`311897d7`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/311897d7), [`aeb69f71a`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/aeb69f71adaadcc1478f826adb02335a88f8e09b) |
+| #42 | A full temporary SMC screen instead of a yellow bar. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #43 | Quiet change of linked SMC context from the instrument. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #44 | Queue and cancel an expected pattern change. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #45 | Unified pickup and the correct level after Unmute. Muted fader takes its level on unmute (M2). Instant unmute of a sustaining synth was an owner bug-fix (2026-11-01). | 122-list / #699 / #812 (2026-11-01) | DONE | 0.0.25.1 M2 |
+| #46 | Pickup and lock feedback in musical time. Was in progress on an external branch at the 2026-11-01 tracker; confirm before treating as finished. | 122-list / #699 / #812 (2026-11-01) | IN SOURCE, confirm | #812 |
+| #47 | Explicit, reliable Save Project on the keyboard. Save Project on the keyboard. | 122-list / #699 / #812 (2026-11-01) | DONE | 0.0.25.1 / 0.0.26; BEHAVIOR SET |
+| #48 | Explicit, safe Load Project on the keyboard. Load Project on the keyboard. | 122-list / #699 / #812 (2026-11-01) | DONE | 0.0.25.1 / 0.0.26 |
+| #49 | Separate Clear Song and Reset Project. Separate Clear Song and Reset Project; reset keeps samples. | 122-list / #699 / #812 (2026-11-01) | DONE | 0.0.25.1 / 0.0.26 |
+| #50 | Complete portable project export and import. Shipped in [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) via the [projects page](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/projects/): export and import `.x0xproject`, optionally with the original samples. On-device Save/Load are #47 and #48. This is not engine-preset files (26.8). Owner 2026-11-13 23:26 UTC+10: "And project export was already in the roadmap". Was marked missing in the 2026-11-01 tracker. One known weak spot: a power drop while samples are written during import can leave them half-written. | 122-list / #699 / #812 (2026-11-01) | DONE | projects page, `docs/PROJECT_FILES.md`, BEHAVIOR SET-11 |
+| #51 | Reliable sample backup and restore. Load your own BREAK loops over USB MIDI; back them up and restore from the [breaks page](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/) or the installer. Third slot restored 2026-11-12 03:23. No USB disk mode. | 122-list / #699 / #812 (2026-11-01) | DONE | breaks page, installer |
+| #52 | Atomic operations when several clients are connected. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #53 | Do not lose data when the connection changes. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #54 | Explicit policy for old project-format compatibility. Supported revisions only (0.0.25 stream 14, 0.0.26 chord projects stream 15); no silent migration of unsupported legacy files. Format 2 for BREAK 1/8 and 1/4 rates. Was missing on 2026-11-01. | 122-list / #699 / #812 (2026-11-01) | DONE, policy set | `docs/PROJECT_FILES.md` |
+| #55 | Full restoration of all former samples. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #56 | Finish the agreed new UI. Firmware UX is doing a coherent overhaul (glyphs, chords, piano roll, live states). Owner vision 2026-11-13, relayed: firmware must be best in class, judged on real musical tasks. | 122-list / #699 / #812 (2026-11-01) | IN PROGRESS | Firmware UX; #881 |
+| #57 | Overview of the real contents of every pattern. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #58 | Show velocity without losing strong steps. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #59 | More room for musical steps. Was in progress on an external branch at the 2026-11-01 tracker; confirm before treating as finished. | 122-list / #699 / #812 (2026-11-01) | IN SOURCE, confirm | #812 |
+| #60 | Meaningful waveform and morph glyphs. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #61 | Honest envelope and effect glyphs. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #62 | Correct hints for the physical knobs and ROW. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #63 | Safe navigation wrap. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #64 | Structured settings instead of a flat list. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #65 | Animation only from real activity. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #66 | Full ADSR curve while editing. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #67 | The screen stays while interaction continues. Was in progress on an external branch at the 2026-11-01 tracker; confirm before treating as finished. | 122-list / #699 / #812 (2026-11-01) | IN SOURCE, confirm | #812 |
+| #68 | Control matrix with a highlighted active row. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #69 | Separate sequencer and sound-control screens. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #70 | Configurable colour themes, including a light one. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #71 | Consistent DnBOX spelling and a quality visual style. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #72 | Static boot, with no unwanted video. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #73 | Independent recovery bootloader. No independent recovery bootloader. Do not invent a boot gesture. If nothing is verified, point to the installer's backup and restore. Owner asked for correct SMK recovery guidance in the READMEs (2026-11-13). | 122-list / #699 / #812 (2026-11-01) | MISSING | Docs Keeper, READMEs |
+| #74 | Diagnosis of dead SMK-37 pads. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #75 | One clear page for install and data management. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #76 | Song import and export through the site. Song transfer is the projects page (#50), not a second song-only format. Installer links to `/projects/`. | 122-list / #699 / #812 (2026-11-01) | DONE | #50, projects page |
+| #77 | A new DnBOX site and a shared font. Website UX: dark only, DnBOX as the headline, Baud Girl / Felucca as craft references, no generic template. Owner 2026-11-13. | 122-list / #699 / #812 (2026-11-01) | IN PROGRESS | Website UX; also #874 |
+| #78 | A real Manual, What's New and History. Docs Keeper: task-first manual (drum beat, bass line, save and recover, live moves) and professional product READMEs. Owner 2026-11-13: READMEs must be product documentation, not a log of failed builds. | 122-list / #699 / #812 (2026-11-01) | IN PROGRESS | [#884](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/884), [#885](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/885), [#886](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/886) |
+| #79 | Clear connection steps and states. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #80 | A visible local firmware file, with errors next to it. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #81 | Warn early about an unsupported browser. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #82 | Usable on phone and on computer. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #83 | The correct Bluetooth controller inside the package. Controller is the bundled 61,552-byte image, SHA-256 `a334208b…`, in 0.0.25.1 packages. Was missing on 2026-11-01. | 122-list / #699 / #812 (2026-11-01) | DONE | 0.0.25.1 packages |
+| #84 | Keep installable versions and an honest history. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #85 | Robust update and data migration. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #86 | Show capabilities with real UI images. Website UX will use real screen captures, clearly labelled as coming from the emulator, and a keyboard drawn from real hardware photos. Owner 2026-11-13: "Keyboard layout is wrong". | 122-list / #699 / #812 (2026-11-01) | IN PROGRESS | Website UX |
+| #87 | Preview and prepare samples under the installer. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #88 | Several visual site variants and a quality 3D accent. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #89 | Save memory by speeding samples on import. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #90 | Full pattern editing off the device. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #91 | Piano roll for the two synth parts. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #92 | Separate editors for 909, 808 and BREAKS. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #93 | MIDI-file import with an explicit preview. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #94 | No silent loss of musical data on import. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #95 | Local draft save, load and Undo. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #96 | New and Mutate generators. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #97 | A convenient iPhone interface inspired by FunkyBeats. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #98 | Selection and group operations. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #99 | Full part operations and reachable commands. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #100 | Redo and a predictable edit history. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #101 | Grid, scale, snap, ghost and a touch keyboard. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #102 | Correct gestures and cancel on the phone. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #103 | Editor sound controls match the real engine. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #104 | Two-way sync protocol with the instrument. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #105 | A separate, usable TouchOSC project. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #106 | Real idle load not above 20 percent. Owner 2026-10-31 and 2026-11-01: firmware must only get faster; Chicago and Miami at or below 15% CPU while playing; zero dropouts under heavy load. Optimizer owns measured savings. 0.0.25.1 passed the 360 MHz emu gate (not a hardware result). | 122-list / #699 / #812 (2026-11-01) | STANDING RULE | Optimizer; 26.6 |
+| #107 | Reliability under combined load. Zero dropouts at < 11,609 µs per core under heavy load. Same owners as #106. | 122-list / #699 / #812 (2026-11-01) | STANDING RULE | Optimizer; 26.6 |
+| #108 | Do not lose old useful fixes. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #109 | Checks must not report a false pass. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #110 | Everyday-usability check, with no new gaps. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #111 | One complete updated NIGHTLY. 0.0.25.1 is on the nightly installer. 0.0.26 is a candidate, not a qualified NIGHTLY. Putting 0.0.25.1 on the main installer is I1 / #880 (IN PROGRESS, Installer QA). | 122-list / #699 / #812 (2026-11-01) | PARTIAL | [nightly](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/), [#880](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/880) |
+| #112 | Real packages for both models. Elite and Pro packages published for 0.0.25.1. 0.0.26 combined Elite build had a flash overflow at the checkpoint; Optimizer is on it. | 122-list / #699 / #812 (2026-11-01) | DONE for 0.0.25.1 | 0.0.25.1 nightly |
+| #113 | Deliver through the existing installer. Nightly delivery works. Main-installer delivery of 0.0.25.1 is I1 / #880, after QA. Owner 2026-11-13 widget: "Yes, merge #880 and put 0.0.25.1 on the main installer after QA passes". | 122-list / #699 / #812 (2026-11-01) | PARTIAL | [#880](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/880) |
+| #114 | Do not mix readiness states. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #115 | Independent check of the final inputs. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #116 | Forget no request. This file is the sole list. Owner 2026-11-13 23:23 UTC+10: "did you add all my requests to roadmap so you would have to ask me a ton of stupid questions that were already answered"; 23:24: "can you find all the requests I've made so you can figure out on what's you supposed to work and what am I waiting for". | 122-list / #699 / #812 (2026-11-01) | IN PROGRESS | this PR |
+| #117 | Shorten the path from a request to a usable feature. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+| #118 | Production stays separate from NIGHTLY. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #119 | Community song library. Owner deferred. Do not implement as a prerequisite for individual project import (#50). | 122-list / #699 / #812 (2026-11-01) | DEFERRED | 122-list |
+| #120 | Automatic suggestion inbox and the owner's vote. Not built. | 122-list / #699 / #812 (2026-11-01) | MISSING | 122-list |
+| #121 | Useful official M-VAVE firmware and simulator. | 122-list / #699 / #812 (2026-11-01) | SHIPPED (0.0.25.1 / 0.0.26 source) | [`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83) |
+| #122 | Audit of Cursor contributions and review completeness. | 122-list / #699 / #812 (2026-11-01) | MISSING (no later proof it shipped) | [feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md) |
+
+The extra #812 row "recovered #41 owner requests (18 messages)" is folded into #41 above, not given a new number.
+
+## Historical snapshot (2026-10-19) — SUPERSEDED
+
+The October 19 narrative (then-current branches, Bluetooth attempt log, batch 10/11 install, pool figures, leftover clip-mode device tests) is history. It is not the current delivery status. The full text is in [ROADMAP.md at `94af36cdb`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/ROADMAP.md) (and the same section in this file's parent commit [`78f81bad`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/78f81bad07b8e53161326c056a2111c663349772/docs/ROADMAP.md)). Owner items from that "Left to do" and "Done" list live in #1–#122 and in the goal above (clip mode, Bluetooth on/off without a restart, ear/eye checks, web installer, Elite/Pro packages).
+
+The 0.0.25 "Classic continuation" M1–M13 table from 2026-11-08/10, with its long donor-SHA narrative, is SUPERSEDED by the trimmed 0.0.25 table above. The earlier text is at [`78f81bad`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/78f81bad07b8e53161326c056a2111c663349772/docs/ROADMAP.md).
 
 ## Open decisions
 
-- Keep spare flash for growth, or give all of it to the loop slots.
-- Pairing: keep no pairing, or add pairing and a "forget pairing" row (BEHAVIOR.md OQ-11).
-- Installer: add ctl.img to an SMK-37 install by itself, or only with --ctl (BEHAVIOR.md OQ-12).
+Only decisions that are still open and have no later owner word. Do not re-ask these unless work is actually blocked.
+
+- Spare flash for growth, or give it to the loop slots. (Open since 2026-10-19. Slot 3 was restored; this wider choice was not closed.)
+- Bluetooth pairing: keep no pairing, or add pairing and a "forget pairing" row (BEHAVIOR.md OQ-11).
+- Installer: add `ctl.img` to an SMK-37 install by itself, or only with `--ctl` (BEHAVIOR.md OQ-12).
+
+The [v0.0.25.1 release-note](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1) wording (RN1) waits on the owner's yes; the live body is unchanged.
 
 ## Not planned
 
 - FM-1 build. We do not maintain it, and we accept its overflow.
 - Bluetooth audio.
 - Ship JieLi Bluetooth files with the firmware.
+- 26.7 extra slot engines (AMB-1 and others): DECLINED by the owner on 2026-11-12 13:07, see 26.7.
+- Community song library (#119): DEFERRED, see #119.
+- Factory Chicago and Miami sounds as shareable files: on hold until the KORG Gadget provenance is known (see 26.8).
 
-Last update: 2026-10-19.
+## Packaging (standing, not evidence)
 
-
-## Rules
-
-- **Removals need the owner's own words (owner rule, 2026-11-12 03:17 UTC+10).** Every removal or disabling of a feature must carry a written reason sourced from the owner's own words (his chat or his own comment, quoted with date and time). An agent commit message, PR body or audit note that only says "per the owner" is not a reason. A merge never removes or disables a feature: if a conflict seems to need it, keep both versions and report it.
-
-## 0.0.25 Classic continuation (owner request, 2026-11-08; checkpoint 2026-11-10)
-
-The October 19 narrative above is retained as history, not the current delivery status.
-This section reconciles the existing M1–M13 identifiers in this sole ROADMAP;
-it does not create a second backlog or change existing feature/review owners.
-Scope pin: `5f578fc0642a1200a5163802bcd69277c511bfc7:docs/ROADMAP.md`, lines 286–298,
-PR #812. Owner requests at 2026-11-08 21:09 UTC+10 (integrate/test selected built
-0.0.25 features, fixes and optimizations) and 21:16 UTC+10 (continue/help Dot)
-authorize this continuation. Later owner messages select SDK V1.2.14 and ask for
-actual Elite/Pro files, with the owner handling the push. These are source/build
-instructions, not a waiver of the release gates or permission to flash devices.
-
-Local composition retains the verified `8be16486` UI/PARA/LCD delta and ports
-bounded donor changes rather than replacing production files wholesale. Remote
-PR #698 remains at `48e92b76`; this local branch is a candidate, not a claim that
-those remote PRs were merged. SHA-256 manifests and the actual final local Git
-commit identify the exported packages. Existing acceptance is not transferred
-from donor trees to the combination.
-
-| Existing row | Selected source / disposition | Current local status and remaining gate |
-|---|---|---|
-| M1 Global PANIC: keyboard FX+SEQ; same-peer SMC BANK L+R in DAW only; none in MMC | #853 `fc0669cc`; actual engine/MIDI cutover and physical-chord repairs | Implemented locally. The engine regression reproduced 42 failures before repair; final focused checks cover fresh note admission, recording, full queues and real SMC ownership. An uncombined DAW BANK action commits on release, so a chord has no earlier navigation side effect. Device validation and independent final review remain pending. |
-| M2 Muted fader takes its level on unmute | Existing production behavior | Preserved; no replacement feature. |
-| M3 Instant tempo | Existing `R_TEMPO` behavior | Preserved; no replacement feature. |
-| M4 Reset selected part saved sound using SMC HOME+SELECT | #860 `c97587c8` | Sound-only reset, existing undo, part/RESET SOUND/NO SAVED SOUND feedback included. Mixer level/pan/sends/mute retained. |
-| M5 Unknown item | No recorded definition | QUEUED. Nothing invented or implemented. |
-| M6 SMC FX effect selection/throw and proposed drum fill | Approved effect presentation; existing source ownership retained | Unbuilt final effect-presentation work remains QUEUED under M9. Drum-fill proposal is not admitted. Existing FX behavior is retained. |
-| M7 Per-part settings ON/OFF | #854 `8a382001`, M7a core | Core note admission and checked saved-state/header support included; all-ON legacy bytes preserved. Full settings UI remains QUEUED, not claimed delivered. |
-| M8 PLAY during a question answers NO then normal PLAY; HOME+PLAY redo | #860 (overlaps #845; not applied twice) | Included. Question polling preserves physical HOME/PLAY ownership. Real-path tests cover redo priority, one ordinary toggle and held edges. |
-| M9 Approved integration of every selected already-built feature and selected fixes | #853, #860, #861 `ae42441a`, #857 `9435f07b`, #855 `d6b34361`, #854 and current optimization stack | Combined locally: PANIC, reset/PLAY, USB retry/909 lookup, presets, longest chain and part-off core. All 20 production optimization deltas from `a49605bc` are retained/ported, including the exact LZ optimization once. #850/#856/#858 are evidence, not duplicate production patches. Unaccepted engine revision-2 `ca165812` is not silently admitted; independent acceptance remains required. |
-| M10 Both-model free pool at least 8,192 B | Exact current native builds, SDK V1.2.14, PADCAL=0 | Both current integrated builds measure 8,328 B free. Rebuild after any firmware-input change; artifact receipts carry exact final hashes and measurements. |
-| M11 Automatic passing NIGHTLY; no agent install/flash | Owner now handles push | No publication performed. Model/controller/package checks do not waive M12, performance, full qualification or owner-only device operation. |
-| M12 Pinned candidate/ROADMAP completeness and uploader enforcement | Existing #822 owner and scoped acceptance retained | NOT QUALIFIED on this composition. No new independent reviewer or review-budget reset. No source-only acceptance is promoted to final release approval. |
-| M13 Straight 1/8 and 1/4 SEQ rates | #824 scoped timing core only | QUEUED beyond existing core; no additional UI/BREAK/editor/storage/protocol stages or downgrade claims admitted. |
-
-### 0.0.25 real build status (2026-11-12 UTC+10, branch `lane/025-zero-dropout`, firmware `79280e763`)
-
-Owner 2026-11-11 19:31-19:37 UTC+10: "need to produce a real combined 25 build that is
-installable through nightly. and it must be up to roadmap and be a real update",
-"without any regressions", "newer sdk is better". Source = recovered 0.0.25 (`8984a297`,
-superset of 0.0.24.5 `8be16486`) merged onto `42de2893`, with the items below. Firmware images and the official emu360 gate are from [`1ec5d683`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/1ec5d683cd5d70ef99415509ff3460c33152bcca) (test-only `engine-brk-mute` extract on top of `cd3128e45`; ELFs are byte-identical to `cd3128e45` after swapping the 8-character GIT string). Elite 11,496 µs, Pro 11,488 µs, 0 late during the test, both PASS under 11,609 µs. Host suite on that tip: 413 ok, 1 FAIL (`ctl-compile` stdout/stderr order flake, same on two reruns; not a firmware defect), 1 skip, 0 not-run; `engine-brk-mute` PASS.
-
-The current published firmware is [`79280e763`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/79280e763341d03ba43266d3e25dad66f12de860) (tree `ab2e16a61`): the pattern-chain slot lasts for the longest playing part. Official emu360 gate: Elite 11,548 µs, Pro 11,564 µs, 0 late during the test, both PASS under 11,609 µs. Those are 52 µs and 76 µs above the `1ec5d683` figures and sit inside the same-day passing run-to-run range (about 11,484–11,578 µs). Host suite: 415 ok, 0 FAIL, 1 skip, 0 not-run, including `chain-longest-playing` and `ctl-compile`. Published to nightly as [`nightly-79280e76-dev`](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/), user-facing `DN Box 0.0.25.1 (firmware 0.0.25)`, DEVICE NOT TESTED (gh-pages `3767d1d`). The previous `nightly-1ec5d683-dev` (0.0.25) package stays listed.
-
-| Row | Status in this build | Source |
-|---|---|---|
-| M1 PANIC | DONE in source. One implementation (recovered `4e036296`): notes-off runs before fresh onsets, so a Note On accepted after the request plays and records; presses queued before it are dropped before they can record. 42de `notes_off_suppress_rec` (d3510b82) and `midi_seq_take`/`cq_pick` not ported: they fix a same-drain silence this design does not have. Confirmed by `panic-clear` (d3510b82 test, ported; prefix-0 case now expects the same-drain press to sound and record, MIDI pushed through the epoch-stamping host queue): 0 failures, both Chicago and Miami builds. 42de queue accept order on overflow ported. | `4e036296`, merge `a08cbeda` |
-| M2 muted fader | DONE (unchanged) | 0.0.24.5 |
-| M3 instant tempo | DONE (unchanged) | 0.0.24.5 |
-| M4 sound-only reset | DONE | #860 via `4e036296` |
-| M5 | QUEUED: no definition in ROADMAP history (only "unknown item", 94af36cd). Nothing invented. | - |
-| M6 SMC FX effect selection/throw | DONE for the approved effect mockup: held FX key + < > steps that key's effect (existing), approved footer panel (#815 item6-after-effect). Drum fill APPROVED by the owner 2026-11-12 02:29 UTC+10 ("Yes, build the drum fill per the #815 mockup in 0.0.25"): BRK strip REC (SMC note 2) on the FX page, per `item6-after-fill.png`. DONE: hold BRK REC (note 2) on the FX page; from the 909's next bar a 909 snare on every step, 50%..100% over the bar (pattern hits keep their own); release stops at once; stop, panic and leaving the FX page clear it; mute and part-off respected; panel per mockup. Test `drum-fill`. | `311897d7`, this commit |
-| Restored lost features (engine swap, bass303 `c4ecd248` -> Chicago) | DONE (lane/025-small-a, merged). Owner 2026-11-12 02:36 UTC+10: audible accent and 303-style slide on Chicago. Owner 02:38: velocity-to-cutoff SKIPPED (not ported). Owner 02:40: one global Tune for Chicago and Miami, GLO > AUDIO > TUNE, default 0 = concert pitch (bit-exact). Tune and QUEUE MUTES share the spare settings byte: bits 0-6 Tune, bit 7 QUEUE MUTES (settings_t stays 40 B). Integration fix [`4044db77e`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/4044db77e53c680538903e01a2b622cc66a15231): the accent output gain was clamped to the Chicago gain stage's valid 0..1; unclamped, an accented note faulted the bass part (cq-reclaim, audio-stress). Owner 2026-11-12 07:31 UTC+10: "Tone accent down to about +6 dB" (x2.0, `BASS_303_ACCENT_GAIN` 2.0f in `bass_303_adapt.h`; was x3.47, about +10.8 dB). In this combined build via [`e29664d3`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/e29664d3f) merge [`f7280228`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/f7280228b). Test `bass-303-adapt`. | [`465e8bbf6`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/465e8bbf6913f8470ec9ceb673d3e3b23d54a7e2), merge [`b28a35957`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/b28a359577d48e47acd38b4925296d860e62f710), [`8d667efcb`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/8d667efcb6c50d53666b9fb5774c350b1daddea7) |
-| Per-pattern preset recall | DONE. Owner 2026-11-12 02:42 UTC+10. SEQ > PRESET page > PAT SOUND per bass part (its own page after SEQUENCE, so the SOUND page keeps its right-half STATUS cell, [`50c96d2d8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/50c96d2d84929662e3c48fcaf111f0a5b991c4e9)) per pattern (OFF, or a Chicago/Miami factory preset). Stored in pattern_t.rsv[0..1]; kits have no presets, so dpart_t is unchanged. Applied when that pattern becomes the playing one, through the existing preset switch (it waits for a quiet voice, so a long legato line can delay it). Unset = bit-exact. Stream format 14 only when used; a project without it saves as 13 and still loads on 0.0.24.x; a rev-13 project loads with these bytes 0. Test `pattern-preset-notelock`. | [`29296cbd7`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/29296cbd72a7b0a9e764e06ec55bf98e0c389331), merge [`ccd1a646b`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/ccd1a646bf5778d988548584e8ccb8af3318f0b0) |
-| Per-note bass sound lock | DONE. Owner 2026-11-12 02:43, 03:12 UTC+10. Capture restored from `c4ecd248` (`279df014c`/`76f9f88fd`, deleted in `18481a63`) into motion lanes (target 0xfd); new playback applies the locked sound at that note-on and restores the base sound on the next onset or stop. GLO > AUDIO > NOTE LOCK turns capture on (runtime, not saved). Off = bit-exact. Shares the stream-14 bump. | [`29296cbd7`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/29296cbd72a7b0a9e764e06ec55bf98e0c389331), merge [`ccd1a646b`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/ccd1a646bf5778d988548584e8ccb8af3318f0b0) |
-| M6 drum-bus FX suit | Owner decisions 2026-11-12 02:33 UTC+10: "Let drums have similar fxs" and "It doesn't sound right that 808 and 909 have different fxs from break". 909, 808 and BREAK share one suit: REV, DLY, STUT, SHUF, GATE, HP (page 1: REV DLY STUT SHUF; page 2: GATE HP). Supersedes the #370 split (no GATE on 909/808). BREAK stutter is real: one mono ring channel (13 in total). | this commit |
-| M7 part ON/OFF | DONE: core + saved state (#854 via `4e036296`); GLOBAL > AUDIO toggles per part (#815 item 7). | `4e036296`, `336eaa4f` |
-| M8 PLAY answers question, HOME+PLAY redo | DONE | #860 via `4e036296` |
-| M9 integration | DONE for built items on lane/025-small-b: the owner-approved #737 SMC mixer page peek (PICKUP hint and knob ACTIVE, plus a short locked Pause peek) is ported from `08e8d8573`. Peek state is a small byte buffer (no L14 paint cache). The heavy L14 snapshot (`9ffe5d6d`, `13b43154`, `fb6b5827`, +1,888 B .bss) is still not merged. The default build has one SMC peer. | this branch |
-| M10 pool >= 8,192 B | DONE: 8,320 B free on Elite and on Pro (pool 335,744 of 344,064), measured on `1ec5d683` release images | [`1ec5d683`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/1ec5d683cd5d70ef99415509ff3460c33152bcca) |
-| M11 NIGHTLY | Current latest images are from [`79280e763`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/79280e763341d03ba43266d3e25dad66f12de860) (GIT `79280e76`, firmware `0.0.25`). Official emu360 gate: Elite 11,548 µs and Pro 11,564 µs, 0 late during the test, both under 11,609 µs, PASS. Those are 52 µs and 76 µs above the `1ec5d683` figures (11,496 / 11,488) and sit inside the same-day passing run-to-run range (about 11,484–11,578 µs). Catalog id `nightly-79280e76-dev`, user-facing `DN Box 0.0.25.1 (firmware 0.0.25)` (gh-pages `3767d1d`). Elite package SHA-256 `5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a`, Pro `6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf`. The previous `nightly-1ec5d683-dev` (0.0.25) package stays listed. Owner device test 2026-11-12 12:54 UTC+10 (board not stated) was of `1ec5d683`: "Tested 25 build and haven't found any issues except that one" (the one = pattern chain lasts 1 bar instead of the longest playing pattern, 12:33; fixed in `79280e763`, see the Pattern chain slot row). `79280e763` is DEVICE NOT TESTED. The installer slot-map check was fixed first (gh-pages `9fde4db`); this publish does not change `pkHasSlotMap`. | publish |
-| M12 completeness gate | PARTIAL: #822 not adopted. It needs a pinned proof for every required ROADMAP row (2 PRESENT / 144 MISSING at its last audit) and an independently accepted release selection; not populated. | #822 |
-| M13 1/8, 1/4 rates | DONE on lane/025-small-b: timing core and drum/bass selectors retained. BREAK SEQ RATE is 1/16 (default), 1/8 or 1/4; the generator stays on a 16th clock and groups those 16ths. Downgrade policy: a project file that uses RATE_8 or RATE_4 is format 2, so 0.0.24.5 refuses it instead of playing 1/8 as 1/16 and 1/4 as 1/16T (`rate & 3`). Files that only use rates 0-3 stay format 1. Device settings stay format 1. | `2a81b7ff`, `336eaa4f`, this branch |
-| SMC CLIP KEYS tag | DONE: ported from 42de2893 | `03c8f007` |
-| Queued-mutes toggle | DONE (lane/025-small-b, merged): GLO > AUDIO > QUEUE MUTES (default off, bit-exact). On, mute/unmute waits for the next 909 bar; a second press cancels; Stop applies a pending change; stopped presses are immediate. Saved in bit 7 of the spare settings byte (bits 0-6 are Tune). | [`e2ecdb045`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/e2ecdb04578a59187ca29aa04e12cc98227defee), merge [`8d667efcb`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/8d667efcb6c50d53666b9fb5774c350b1daddea7) |
-| SMC ECHO page | DONE (lane/025-small-a, merged): the third SMC FX page ECHO SELECT (ROOM/TIGHT/ECHO) is back per the owner (03:12). | [`aeb69f71a`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/aeb69f71adaadcc1478f826adb02335a88f8e09b), merge [`b28a35957`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/b28a359577d48e47acd38b4925296d860e62f710) |
-| SMC page peek (#737) | DONE (lane/025-small-b, merged): see M9. | [`1b17a7ef0`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/1b17a7ef07c008e913a874c6e12f5c5dff80bd94), merge [`8d667efcb`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/8d667efcb6c50d53666b9fb5774c350b1daddea7) |
-| M13 BREAK rate | DONE (lane/025-small-b, merged): see M13. | [`420746f31`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/420746f3198977f5a21213912ffaeff701754bc9), merge [`8d667efcb`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/8d667efcb6c50d53666b9fb5774c350b1daddea7) |
-| Third imported-loop sample slot | DONE. Owner 2026-11-12 03:23 UTC+10: restore it; its cut (`e758e195` / #351) had no reason in the owner's words. Adapted port of `bb32802e`: slot 3 is 0xB3000-0xBAFFF, 32 KiB (not 44 KiB, because the sector-0 shadows now use 0xB0000-0xB2FFF). Slots 1 and 2 do not move. Installers keep slots 1 and 2 and back up slot 3 on a downgrade. At the slot-3 merge, RAM was 98,172 of 98,304 B. Later bit-exact cuts reduced `.data+.bss` to 95,556 of 98,304 B (2,748 B free) on the `1ec5d683` Elite and Pro release images; pool stayed 8,320 B free. | [`70ccf9723`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/70ccf97234bb4eea3ff59dc35880e55af47a8f3f), [`a6f59c103`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/a6f59c1038fae5cc0dcfd64a6c9ae64d6d819208), merge [`acad8006a`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/acad8006aba95a27694e67894a49d6784aab383d) |
-
-| Pattern chain slot = longest playing part | DONE. Owner 2026-11-12 12:33 UTC+10: "Pattern chaining is still only 1 bar instead of using the longest playing pattern". Cause: `seq_chain_window` (#855) used only the 909 step count, and the longest 909 in the whole chain range, so a 32-step 303 at 1/16 against a 16-step 909 still handed off after one bar. Fix: `seq_chain_slot_len` / `chain_slot_open` latch the longest playing part in the *current* chain pattern (909, 808, both 303s, BREAK), in 24-ppqn ticks (length and rate), rounded up to a whole 909 pass. Muted, part-off and empty parts do not extend the slot; one 909 pass is the minimum. Computed on the slot-open path; the per-step path still only increments `chain_at`. `chain_win`/`chain_at` are uint16 so a 64-step 1/4 part fits (256 909 steps). Chaining stays live-only, not saved. Song mode and cues are unchanged. Host suite: 415 ok, 0 FAIL, 1 skip (Pro package tests, same as before), including `chain-longest-playing` and `ctl-compile`. Official emu360 gate: Elite 11,548 µs, Pro 11,564 µs, 0 late, PASS. Published to nightly as `nightly-79280e76-dev`, user-facing `DN Box 0.0.25.1 (firmware 0.0.25)`, DEVICE NOT TESTED (gh-pages `3767d1d`). Elite package SHA-256 `5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a`, Pro `6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf`. | [`79280e763`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/79280e763341d03ba43266d3e25dad66f12de860) |
-
-### Preserved packaging requirements
-
-Models `SMK-37 Elite_900` and `SMK-37 Pro_900`; `X0X_DEV_PADCAL=0`.
-Owner-selected SDK: V1.2.14; build inputs are hash checked, not accepted on archive
-filename alone. Controller remains 61,552 bytes, SHA-256
-`a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984`, embedded CRC32
-`564a8f55`. No `BTIF`, `USRTRIM`, efuse, key_mac or bootloader operation is
-performed. No `main`, `.github`, nightly catalog or iPhone path is changed.
-
-Full host results are reported with baseline failures and explicit focused
-reruns; old receipts never qualify this new tree. Optimizer audio validation
-compares 17 scenarios / 50 audio-state files before versus after the optimization
-port. Host ABBA15/A-A measurements are separate from native/device timing and
-must report noise or slowdown honestly. Device tests remain NOT_RUN. Exported
-BUILD_ONLY candidates are not a passing NIGHTLY release or a safe-install claim.
-
-## 0.0.26 (owner requests, 2026-11-12 UTC+10)
-
-Source for each row is the owner's own chat words. Status is from the box at 2026-11-12 12:50 UTC+10. No 0.0.26 code is written yet.
-
-| # | Item | Owner source | Status | Link |
-|---|------|--------------|--------|------|
-| 26.1 | Drone synth engine: lightweight, full-featured, majestic sound, runs smoothly under heavy load, so DnBOX can be fully standalone. Search other custom firmware for the best one. | 03:32 "search other custom firmware to add a drone engine and chords support for it in seq for 26build ... best lightweight but feature full synth ... run it smoothly at hard load and will sound majestically ... fully standalone device" | RESEARCH DONE. Pick: Mutable Instruments Plaits String Machine (MIT), about one Chicago voice per sample on the host (36-38 ns/frame); device cost NOT MEASURED. | `/workspace/drone-engine-research-026.md` (box) |
-| 26.2 | The drone is a third synth engine, selected in a synth slot like Chicago and Miami. No 6th part, no song-format change; it uses that slot's level, mute and FX. | 03:49 "Drone engine is just another synth engine don't you get it?" | DESIGN AGREED. | research file, "OWNER CORRECTION" |
-| 26.3 | Chords in the sequencer from held keys recorded to steps; no one-finger auto-chords. Live checks: chord changes land on the step; held chords sustain across steps and release cleanly on mute, Stop and PANIC; pattern switches leave no hanging notes; predictable voice stealing; CPU safe at full load. | 03:32 "chords support for it in seq"; 03:49 "it shouldn't play chords with 1 note I think, or it can but there's a lot of things to be considered for a live performance" | DESIGN AGREED. | research file, "OWNER CORRECTION" |
-| 26.4 | Juno-6-style (or similar classic polysynth) slot engine. | 06:10 "Maybe there's something like a juno6?"; "Or smth cool like it" | AGREED (owner 12:50 "I asked for it"). Plan: Juno-60-style engine on the Plaits analog oscillator/filter model (MIT), 6 voices, about 160 B per voice, host 32-39 ns/sample per voice; still needs osc mix, HPF, envelope, LFO. Ruled out: AMY full library (size), Junox/KR-106/OB-Xd (GPL). | `/workspace/juno-engine-research-026.md` (box) |
-| 26.5 | Cheap chorus for that engine, ideally without a big delay line. | "Maybe there's a cheaper way to achieve chorus without delay line" | AGREED (owner 12:50, part of the Juno plan). Plan: one shared 16-bit short delay, 512 B, Juno-60 chorus I/II range 1.7-5.4 ms, about 11 ns/sample on the host, cost does not grow with voices. Delay-free options sounded like detune or phaser. | `/workspace/juno-engine-research-026.md` (box) |
-| 26.6 | fm1-emu (MIT, 360 MHz, SMK-37 adapter) is the device-accurate CPU gate for every build from 0.0.26 on. | 03:50 owner approved the plan (thumbs up) | DONE for 0.0.25: emulator fixed to 360 MHz and pushed (branch `emu/fm1-emu-360mhz` 8c8fa82); gate `/workspace/zdprobe/dnbox360/gate.sh`, PASS = worst block < 11,609 µs and 0 late (owner 07:26). | `emu/fm1-emu-360mhz` |
-| 26.7 | More synth-slot engines: FM-1 AMB-1 sound and other engines. Research advice: do not port all of AMB, because its plate (138,824 B), tape (124,000 B) and Echoplex (14,200 B) do not fit in RAM (128 B usable headroom). Candidate slot engines, dry into our FX: AMB 1.3.2 pad, Rhodes and Voices (4 voices, 99–107 ns/frame on the host), AMB FM bells (23 ns), FoMni harp (44–70 ns at 1–4 strings). FRASIL is rejected (108–445 ns plus a 128 KiB reverb). | Owner 2026-11-12 12:50 UTC+10: "And what about other synth eng. and maybe use a fm1-amb synth engine? It sounds so good imo" | DECLINED. Owner 2026-11-12 13:07 UTC+10: "Nah let's stick to the previous plan than". 0.0.26 stays at 26.2–26.5 (String Machine drone, chords, Juno plus chorus). Research is kept for later. | `/workspace/amb-and-engines-research-026.md` |
-
-Every 0.0.26 item still has to pass all standing rules: no slower than the previous build, zero dropouts at < 11,609 µs per core under heavy load, no added latency, pool reserve >= 8,192 B, nothing removed without the owner's words.
+Models `SMK-37 Elite_900` and `SMK-37 Pro_900`; `X0X_DEV_PADCAL=0`. Owner-selected SDK: V1.2.14; build inputs are hash-checked. The bundled Bluetooth controller is the required 61,552-byte image (SHA-256 starts `a334208b`, CRC32 `564a8f55`). No `BTIF`, `USRTRIM`, efuse, `key_mac` or bootloader operation is performed. No `.github` change in this file's branch. A device result and an emulator result are stated separately. Exported BUILD_ONLY candidates are not a passing NIGHTLY or a safe-install claim.
