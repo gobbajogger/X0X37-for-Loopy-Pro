@@ -197,7 +197,9 @@ int preset_record_factory_derived(const preset_record_t *rec);
 
 /* Encode a valid record to wire bytes. Does not apply the export gate.
  * If out is 0, *written is the size and the record is only checked.
- * On error, out is left unchanged. The record does not contain a chain. */
+ * On a buffer error, out and *written are left unchanged. *written is
+ * set only after the buffer-size check passes, or on a size-only query.
+ * The record does not contain a chain. */
 int preset_record_encode(uint8_t *out, uint32_t cap, uint32_t *written,
                          const preset_record_t *rec);
 
@@ -225,7 +227,9 @@ int preset_record_decode(preset_record_t *rec, const uint8_t *buf, uint32_t len,
                          uint16_t expected_engine);
 
 /* Import into a target engine. Same decode rules, then original_engine (or
- * engine_id if original_engine is 0) must match target_engine. */
+ * engine_id if original_engine is 0) must match target_engine. Decode is
+ * into scratch: on any failure, including WRONG ENGINE, *rec is unchanged
+ * and never looks like a filled slot. */
 int preset_record_import(preset_record_t *rec, const uint8_t *buf, uint32_t len,
                          uint16_t target_engine);
 
@@ -238,6 +242,7 @@ int preset_record_verify_samples(const preset_record_t *rec,
  * Returns PRESET_ERR_MEMORY_FULL when none is free. Does not evict. */
 int preset_slot_find_empty(const uint8_t *used, unsigned nslots, unsigned *slot);
 
+/* *written is set only after the buffer-size check, or when out is 0. */
 int preset_commit_encode(uint8_t *out, uint32_t cap, uint32_t *written,
                          const preset_commit_t *mark);
 int preset_commit_decode(preset_commit_t *mark, const uint8_t *buf, uint32_t len);
