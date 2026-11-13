@@ -1,0 +1,13 @@
+FAIL scenario=release boundaries check=21 frames=37: full engine/chorus state bytes
+Traceback (most recent call last):
+  File "/workspace/scratch/ae3d1fd5cef1/test-drafts/juno-release/files/tests/host/juno6_exact_test.py", line 101, in <module>
+    main()
+  File "/workspace/scratch/ae3d1fd5cef1/test-drafts/juno-release/files/tests/host/juno6_exact_test.py", line 84, in main
+    proof = subprocess.check_output([str(exe)], text=True, env=env)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/tmp/juno6-exact-hbfroe93/test-Os']' returned non-zero exit status 1.

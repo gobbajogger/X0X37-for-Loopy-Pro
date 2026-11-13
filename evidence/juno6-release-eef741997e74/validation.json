@@ -1,0 +1,157 @@
+{
+  "classification": "source-proven: recomputation of existing files only; no rendering or rebuild",
+  "protocol_hash_matches": true,
+  "driver_hash_matches": true,
+  "runner_hash_matches": true,
+  "runs": [
+    {
+      "configuration": "Os-AB",
+      "raw_rows": 2400,
+      "raw_sha256": "079f81815a1c15aa8c97f2d52a4603c3a02c090350513dfd53e73e925a07760b",
+      "summary_recomputed_equal": true,
+      "same_checksum_per_case": {
+        "idle": [
+          1489983172
+        ],
+        "held-1": [
+          1025157888
+        ],
+        "held-6": [
+          3058067684
+        ],
+        "release-1": [
+          2917414406
+        ],
+        "release-6": [
+          2048525911
+        ]
+      },
+      "cpu_ids": [
+        0
+      ],
+      "median_wall_over_thread_cpu": 1.0015034667582965,
+      "max_wall_over_thread_cpu": 3.233086430386288,
+      "involuntary_context_switches": 57,
+      "voluntary_context_switches": 0,
+      "cpu_leg_ns_min_median_max": [
+        91761,
+        224223.5,
+        8625850
+      ]
+    },
+    {
+      "configuration": "O2-BA",
+      "raw_rows": 2400,
+      "raw_sha256": "bb68ca6073d242aba3ae4be893570fefa32af2cfa824e47e2d1659f8049c9259",
+      "summary_recomputed_equal": true,
+      "same_checksum_per_case": {
+        "idle": [
+          1489983172
+        ],
+        "held-1": [
+          1025157888
+        ],
+        "held-6": [
+          3058067684
+        ],
+        "release-1": [
+          2917414406
+        ],
+        "release-6": [
+          2048525911
+        ]
+      },
+      "cpu_ids": [
+        0
+      ],
+      "median_wall_over_thread_cpu": 1.0015528955030735,
+      "max_wall_over_thread_cpu": 12.59694278851685,
+      "involuntary_context_switches": 28,
+      "voluntary_context_switches": 0,
+      "cpu_leg_ns_min_median_max": [
+        86752,
+        208173.5,
+        13435207
+      ]
+    },
+    {
+      "configuration": "Os-BA",
+      "raw_rows": 2400,
+      "raw_sha256": "8604bf9d74a82c8ce8f9f257752e2f0e51dade4f3e02135b400ed41d0065e483",
+      "summary_recomputed_equal": true,
+      "same_checksum_per_case": {
+        "idle": [
+          1489983172
+        ],
+        "held-1": [
+          1025157888
+        ],
+        "held-6": [
+          3058067684
+        ],
+        "release-1": [
+          2917414406
+        ],
+        "release-6": [
+          2048525911
+        ]
+      },
+      "cpu_ids": [
+        0
+      ],
+      "median_wall_over_thread_cpu": 1.001489584414276,
+      "max_wall_over_thread_cpu": 28.06304114904584,
+      "involuntary_context_switches": 38,
+      "voluntary_context_switches": 0,
+      "cpu_leg_ns_min_median_max": [
+        91710,
+        219199.0,
+        5156595
+      ]
+    },
+    {
+      "configuration": "O2-AB",
+      "raw_rows": 2400,
+      "raw_sha256": "5604a60007bc4e335b59bf877b03c60c56f98306056556a019a2ebd6f7a77238",
+      "summary_recomputed_equal": true,
+      "same_checksum_per_case": {
+        "idle": [
+          1489983172
+        ],
+        "held-1": [
+          1025157888
+        ],
+        "held-6": [
+          3058067684
+        ],
+        "release-1": [
+          2917414406
+        ],
+        "release-6": [
+          2048525911
+        ]
+      },
+      "cpu_ids": [
+        0
+      ],
+      "median_wall_over_thread_cpu": 1.00149992716005,
+      "max_wall_over_thread_cpu": 36.58467229601429,
+      "involuntary_context_switches": 21,
+      "voluntary_context_switches": 0,
+      "cpu_leg_ns_min_median_max": [
+        86792,
+        190426.0,
+        23598021
+      ]
+    }
+  ],
+  "quartets": 9600,
+  "timed_legs": 38400,
+  "timed_frames": 157286400,
+  "case_configurations": 20,
+  "qualified_controls": 0,
+  "result": "INCONCLUSIVE",
+  "checksum_limit": "32-bit work-integrity guard, not a replacement for the reused byte-exact PCM/state tests",
+  "interval_limit": "Nominal iid median intervals; time dependence/nonstationarity can weaken coverage",
+  "python_syntax": "PASS"
+}

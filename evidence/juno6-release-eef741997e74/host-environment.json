@@ -1,0 +1,71 @@
+{
+  "scope": "read-only environment inspection; no timing run",
+  "recorded_utc": "2026-11-13T17:42:40Z",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "cpu_model_reported": "AMD EPYC 7763 64-Core Processor",
+  "hypervisor_flag_reported": true,
+  "cpu_mhz_snapshot_not_locked": "2445.426",
+  "allowed_cpus_before_pinning": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "tools": {
+    "perf": null,
+    "valgrind": null,
+    "clang": null,
+    "cc": "/usr/bin/cc",
+    "taskset": "/usr/bin/taskset",
+    "timeout": "/usr/bin/timeout"
+  },
+  "read_only_files": {
+    "/proc/self/cgroup": {
+      "text": "0::/"
+    },
+    "/sys/fs/cgroup/cpu.max": {
+      "errno": 2,
+      "error": "No such file or directory"
+    },
+    "/sys/fs/cgroup/cpu.stat": {
+      "errno": 2,
+      "error": "No such file or directory"
+    },
+    "/sys/fs/cgroup/cpu.pressure": {
+      "errno": 2,
+      "error": "No such file or directory"
+    },
+    "/proc/pressure/cpu": {
+      "errno": 2,
+      "error": "No such file or directory"
+    },
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": {
+      "errno": 2,
+      "error": "No such file or directory"
+    },
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": {
+      "errno": 2,
+      "error": "No such file or directory"
+    }
+  },
+  "prior_cycle_probe_in_this_session": {
+    "api": "perf_event_open",
+    "syscall_x86_64": 298,
+    "event": "PERF_TYPE_HARDWARE/PERF_COUNT_HW_CPU_CYCLES",
+    "pid": 0,
+    "cpu": -1,
+    "group_fd": -1,
+    "exclude_kernel": true,
+    "exclude_hv": true,
+    "result_fd": -1,
+    "errno": 2,
+    "error": "No such file or directory",
+    "precision_limit": "Counter unavailable through this interface; this does not identify a root cause for clock variance."
+  },
+  "interpretation": "No fixed-frequency or isolated-hypervisor condition demonstrated. Thread CPU time also varies. Scheduler preemption alone is not established as the cause."
+}

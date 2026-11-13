@@ -1,0 +1,351 @@
+{
+  "format": "DnBOX PR895 measurement handoff v1; project evidence format, not a J6 preset schema",
+  "evidence_class": "source-proven unless a field is explicitly a proposed measurement or limitation",
+  "recorded_utc": "2026-11-13T17:46:26Z",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pull_request": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/895",
+  "branch": "lane/j6-exact-release-20261113",
+  "ownership": {
+    "producer": "existing #895 owner; sole source/evidence writer",
+    "consumer": "existing Runner owner designated by the user",
+    "runner_dispatch": "NOT_STARTED; no new emu360 job or duplicate Runner",
+    "runner_consumption": "NOT_VERIFIED",
+    "coordination_ref_probe": {
+      "ref": "coordination/merge-queue",
+      "result": "GitHub connector GET returned HTTP404 in this session; no role/request record asserted"
+    }
+  },
+  "source": {
+    "candidate_commit": "eef741997e743189f17df7e46bf881e472ad254c",
+    "candidate_tree": "f0e8b7d282fc57cfcae18f6f02727f7455df98e8",
+    "baseline_commit": "1322293e89c1582eecb3d9b7950e14db01722065",
+    "baseline_tree": "ee09c9302ba8d1883677596ee996731b8d316a7c",
+    "baseline_branch": "lane/fmb-juno-hoist-v2",
+    "native_artifact_rule": "Native identities remain bound to eef741997e74 even when PR head advances for this evidence-only follow-up. No candidate rebuild requested.",
+    "verified_source_files": [
+      {
+        "path": "firmware/src/dsp/juno6.c",
+        "bytes": 5960,
+        "sha256": "b1e8ab2268a494f469089bb13d6b7bed13b055d8bbb66218617895da6a5422dd",
+        "git_blob_sha1": "223e6bdc5ac269b3d6cac97ae890204b16da185c"
+      },
+      {
+        "path": "firmware/src/dsp/juno6.h",
+        "bytes": 1447,
+        "sha256": "1ab73dc959d62d6a52d3a3e2ee0404c1597f20ddf947b6585c709b00ba46ced2",
+        "git_blob_sha1": "0a2c151ecb75ad226785b347d9f497a00eb8368f"
+      },
+      {
+        "path": "firmware/src/dsp/fastmath.h",
+        "bytes": 8246,
+        "sha256": "fbe052086010b17d8194b9cd3d61d3cb349cc1def3817ae9651a6683d7850b09",
+        "git_blob_sha1": "666d8e1325d32a76f7b4b964f2808420d3987104"
+      },
+      {
+        "path": "tests/host/fixtures/juno6-hoist-parent/juno6.c",
+        "bytes": 5891,
+        "sha256": "b9bd8324ee0c430af6976ccac596c17fbfc80a1efd000930b60b2959bf159404",
+        "git_blob_sha1": "902f96b57cc761f975c32bfbd1a31ebf5326dd9c"
+      },
+      {
+        "path": "tests/host/juno6_exact_test.c",
+        "bytes": 8064,
+        "sha256": "109ecac616e71c7fb324a9d3b46e5637134e7d7f5f1a95fdd70d49796e1b2cef",
+        "git_blob_sha1": "61be9f77b63a6d01c836896480e48a944f59efba"
+      },
+      {
+        "path": "tests/host/juno6_exact_test.py",
+        "bytes": 5428,
+        "sha256": "cfcd7604c1e1b532bdc8fd0e4fb1fbf11c9e0f0a8b2dad4b6f957da6d1b46793",
+        "git_blob_sha1": "db3ff259ae0a5e3b85977fd3e56405ac75615dad"
+      }
+    ]
+  },
+  "native_build_inputs": {
+    "sdk_tag": "AC79NN_SDK_V1.2.14_2026-10-13",
+    "sdk_archive_sha256": "929ec0b652c1e246aa066c5ff4bc6068e1fd145501adce30187b8497b93276b6",
+    "toolchain_archive_sha256": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19",
+    "toolchain_compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "configuration": {
+      "board": "smk37",
+      "nightly_version": "0.0.26",
+      "X0X_DEV_PADCAL": "0",
+      "X0X_ORIGINAL_SYNTH": "1 (default)",
+      "X0X_JOBS": "4",
+      "X0X_FACTORY_BREAKS": "unset (none)",
+      "JIELI_DOCKER": "unset (native Linux)",
+      "git_sha_argument": "eef741997e743189f17df7e46bf881e472ad254c"
+    }
+  },
+  "native_models": [
+    {
+      "model": "elite",
+      "source_commit": "eef741997e743189f17df7e46bf881e472ad254c",
+      "build_reused_without_rebuild": true,
+      "application_and_package_sha256_revalidated": true,
+      "flash_free_bytes": 8408,
+      "pool_free_bytes": 8340,
+      "flash_margin_above_8192_bytes": 216,
+      "pool_margin_above_8192_bytes": 148,
+      "ram_used_bytes": 95536,
+      "ram_capacity_bytes": 98304,
+      "artifacts": {
+        "application": {
+          "path": "build/smk37-elite/x0x.bin",
+          "bytes": 544264,
+          "sha256": "23b6680ab999762024485fc21cc8d62c312ca8785d61dddd535bda010cf7b056"
+        },
+        "elf": {
+          "path": "build/smk37-elite/x0x.elf",
+          "bytes": 628872,
+          "sha256": "a1bc8b6066392e91f714784c9be54caf93a6bf4f23ea714488179c491e6abbda"
+        },
+        "disassembly": {
+          "path": "build/smk37-elite/x0x.dis",
+          "bytes": 8347323,
+          "sha256": "4269bb19b9f832d9d6ef504550594344286d1ade92a5bfb7ba16e1df55f5e886"
+        },
+        "linker_script": {
+          "path": "build/smk37-elite/app.ld",
+          "bytes": 3754,
+          "sha256": "4a45da2deaa8825d1e20c26a92cc5f317f28151d6fc55af28ccbf3e8ee3cefdd"
+        },
+        "package": {
+          "path": "build/x0x-smk37-elite.fwsc",
+          "bytes": 651732,
+          "sha256": "40c142cfd0e738fa339905957270a799fb132227e61aa54aa31ecfb553f5e4f1"
+        }
+      }
+    },
+    {
+      "model": "pro",
+      "source_commit": "eef741997e743189f17df7e46bf881e472ad254c",
+      "build_reused_without_rebuild": true,
+      "application_and_package_sha256_revalidated": true,
+      "flash_free_bytes": 8416,
+      "pool_free_bytes": 8340,
+      "flash_margin_above_8192_bytes": 224,
+      "pool_margin_above_8192_bytes": 148,
+      "ram_used_bytes": 95536,
+      "ram_capacity_bytes": 98304,
+      "artifacts": {
+        "application": {
+          "path": "build/smk37/x0x.bin",
+          "bytes": 544256,
+          "sha256": "97c07d3d1d7a7d9571ffc5cc5a778104605777561027a466bc82d9c017296544"
+        },
+        "elf": {
+          "path": "build/smk37/x0x.elf",
+          "bytes": 628864,
+          "sha256": "d47026ba03b2b6facb5ece839206518a0a87a996ddbcc07ecd099b6e1e053855"
+        },
+        "disassembly": {
+          "path": "build/smk37/x0x.dis",
+          "bytes": 8347227,
+          "sha256": "f645aa60ce0c9c87694bc16cd4d41c617c95370d86500e9258df807e6d9d356f"
+        },
+        "linker_script": {
+          "path": "build/smk37/app.ld",
+          "bytes": 3754,
+          "sha256": "4a45da2deaa8825d1e20c26a92cc5f317f28151d6fc55af28ccbf3e8ee3cefdd"
+        },
+        "package": {
+          "path": "build/x0x-smk37.fwsc",
+          "bytes": 651730,
+          "sha256": "3327d05e77e126a40e365fbea8b85bb30c3d8e04085b62ac41b524fb0f2cdd54"
+        }
+      }
+    }
+  ],
+  "artifact_access": {
+    "producer_checkout": "/workspace/scratch/ae3d1fd5cef1/juno-exact-continuation",
+    "availability": "Candidate binaries and ELF files exist in the producer workspace at the listed paths. Runner access to these exact bytes has not been verified. No binary is included in this Git evidence commit.",
+    "baseline_native_artifacts": "NOT_VERIFIED_OR_SUPPLIED; resolve existing artifacts for exactly 1322293e89c1582eecb3d9b7950e14db01722065 from Runner cache before a matched native comparison.",
+    "reuse_instruction": "Reuse a matching existing artifact/result when its hashes and configuration match. Do not substitute another revision, regenerate the candidate, or start a duplicate emu360 lane."
+  },
+  "reused_evidence": {
+    "files": [
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/elite-build.log",
+        "bytes": 1459,
+        "sha256": "e996cad50f7c0e89d956950608b64a061e31084226f23b77442e55cc317a2604"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/elite-package-check.json",
+        "bytes": 200,
+        "sha256": "f61dac594c82e9468f2de2d77ea390b2673d4f770f9900e7ed4765016ed8ebef"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/exact.jsonl",
+        "bytes": 724,
+        "sha256": "7cbc6c4660e75d3ce898883f2a15bb95358dbf6495497fe4471e73b0ae52e85a"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/host-cpu-timing.jsonl",
+        "bytes": 30466,
+        "sha256": "4d5d97275fb451607a3f3478d810de93030f9a103887ecd09f5b4a77fe91e715"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/host-timing.jsonl",
+        "bytes": 19790,
+        "sha256": "5aad3520c7d825fdfc8c7dba27ae4f6a964c54ad3b3d2b4b2b4cd01e151400fe"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/identical-source-timing-control.jsonl",
+        "bytes": 15350,
+        "sha256": "a0aae805e4384fe21863476a3c146f3bccd3c9931da57dfe04d9961b282a9bf6"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/independent-review.json",
+        "bytes": 4389,
+        "sha256": "767969ffab6e1cef8cab3dcab1badaeac15c598fcea6ce7200b80b09442ceddd"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/native-assembly-commands.json",
+        "bytes": 1770,
+        "sha256": "4dfb4875381d697bdcc5bd9463b26f668d3f3b80791f5155540d466a7cecf39e"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/native-build-receipt.json",
+        "bytes": 2853,
+        "sha256": "9a7821b422501f3d93739d6e51083055a24fb76ca30d87520a9e53f46a13e0a0"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/negative-control.stderr",
+        "bytes": 1060,
+        "sha256": "c35383b4ca2701bee6d86df7c42ed3151297b4cd7b9351dc8fa8c299ebd305ac"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/parent-characterization.jsonl",
+        "bytes": 724,
+        "sha256": "4c724ebf088651f409afc55e8c019d86e5b362ab1a2f3af2eaee06e7378786ba"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/pro-build.log",
+        "bytes": 806,
+        "sha256": "aec17e5b78684e77087cd5a2b8abca9d70a0e38943c283ecee20cd389a70d402"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/pro-package-check.json",
+        "bytes": 196,
+        "sha256": "59ceb701a6dc94aac140fdd000cc710e97fa6c886ec0776b4259179486143798"
+      },
+      {
+        "path": "evidence/juno6-release-eef741997e74/reused/sanitized-final.jsonl",
+        "bytes": 723,
+        "sha256": "8a646908772844fcfc007d4e044c62c65351e0a5de896aa66ff60db5c0128ef5"
+      }
+    ],
+    "pcm_state": "Existing Os/O2 and ASan/UBSan PASS records reused: 19074 byte comparisons over 290875 frames per configuration; synth352B and chorus536B. No PCM/state rerun.",
+    "native_builds": "Existing Elite/Pro native build logs and package checks reused; application/package identities rehashed only.",
+    "prior_review": "Original production change review reused. It found no defects and retained Not ready due to CPU qualification; see unchanged receipt."
+  },
+  "host_followup": {
+    "status": "INCONCLUSIVE",
+    "protocol": "host-matched/protocol.json",
+    "raw_records": [
+      "host-matched/raw-Os-AB.jsonl",
+      "host-matched/raw-O2-BA.jsonl",
+      "host-matched/raw-Os-BA.jsonl",
+      "host-matched/raw-O2-AB.jsonl"
+    ],
+    "summary": "host-matched/summary.json",
+    "record_validation": "validation.json",
+    "environment": "host-environment.json",
+    "qualified_same_function_controls": 0,
+    "case_configurations": 20,
+    "raw_quartets": 9600,
+    "timed_legs": 38400,
+    "timed_frames": 157286400,
+    "stop_reason": "All same-function A/A controls fail the predeclared precision gate. No additional stable-frequency/isolation condition or usable hardware-cycle counter has been identified through the inspected interfaces. This bounded campaign stops rather than collecting more samples until a favorable result appears.",
+    "claims_not_made": [
+      "never slower",
+      "host speedup",
+      "established algorithmic regression",
+      "device CPU pass",
+      "J6 equivalence"
+    ]
+  },
+  "runner_measurement_proposal": {
+    "status": "PROPOSED_NOT_RUN; instruction for existing Runner owner, not a measurement",
+    "prerequisites": [
+      "Resolve matching parent native artifacts or existing exact-parent counter results; record hashes and configuration.",
+      "Confirm Runner can read the exact candidate bytes identified here; do not assume this producer path is shared.",
+      "Use existing calibrated Runner counter/instrumentation. Record whether it is physical hardware or an emulator; report actual clock and measurement scope. No device write or duplicate Runner job is authorized by this manifest."
+    ],
+    "source_of_workload": "tests/host/juno6_matched_bench.c at protocol driver_sha256; this is internal DSP state, not a plugin preset",
+    "sample_rate_hz": 44100,
+    "frames_per_audio_block": 256,
+    "blocks_per_leg": 16,
+    "frames_per_leg": 4096,
+    "initialization": [
+      "Zero complete synth/chorus state. Call juno6_init and juno6_chorus_init with 44100. Call juno6_set(s,8,1.0f). Keep remaining init defaults, including macro[15]/1.85f and chorus 0.8 Hz / 3.4 ms / mix 0.22.",
+      "For N voices, call note_on for notes 48+3*i, i=0..N-1, velocity 100; set each envelope 0.8f, stage 3/gate 1 for held or stage 4/gate 0 for release.",
+      "Copy the same complete initial state before every measured leg outside the timed region. Each leg executes 16 times: render 256 frames, copy mono to right, chorus_process 256 frames. Keep allocations, state reset, logging and checksums outside timing."
+    ],
+    "cases": [
+      {
+        "name": "idle",
+        "voices": 0
+      },
+      {
+        "name": "held-1",
+        "voices": 1,
+        "stage": 3,
+        "gate": 1
+      },
+      {
+        "name": "held-6",
+        "voices": 6,
+        "stage": 3,
+        "gate": 1
+      },
+      {
+        "name": "release-1",
+        "voices": 1,
+        "stage": 4,
+        "gate": 0
+      },
+      {
+        "name": "release-6",
+        "voices": 6,
+        "stage": 4,
+        "gate": 0
+      }
+    ],
+    "fixed_schedule": "Use the existing matched workload if already queued. Otherwise the bounded host schedule is 15 trials per case; 16 alternating ABBA/BAAB quartets plus 16 interleaved same-artifact A/A controls per trial. Rotate case order and warm both variants identically; preserve all raw samples. No repeat-until-pass. Reversing host object link order is a host control, not a change to native binaries.",
+    "minimal_native_output": [
+      "Artifact SHA256 for both variants and models, exact source commits, SDK/compiler/configuration, counter/instrumentation version, physical-device versus emulator identity, actual clock/timebase and interrupt policy.",
+      "Raw ordered repeated cycles or calibrated execution-time measurements for each case and A/A control, with block/voice counts, measurement scope, warmup/reset details and counter wrap handling. If only render is instrumentable, label that scope and do not compare it directly to host render+copy+chorus totals.",
+      "Paired median and tail summaries, control variability, time/cycle resolution and any deadline/XRUN evidence already available from the same run. Absence of such telemetry is NOT a zero-XRUN result.",
+      "Decision: reject an established matched regression; if controls/resolution are insufficient keep INCONCLUSIVE and PR draft. A passing device result does not itself close the separately unresolved host gate."
+    ],
+    "limits": [
+      "A hardware target timing result requires a real target counter or independently validated target-cycle model. Emulator host wall time is not target/device CPU.",
+      "44.1kHz and256frames imply a block period256/44100seconds by arithmetic; this is not a measured latency or deadline margin.",
+      "No device write/install, firmware publication, merge, or schema/preset work is authorized. Source/CPU evidence remains separate from UI frames and J6/plugin preset formats."
+    ]
+  },
+  "next_owner_inputs": [
+    "Existing Runner exact-parent native artifact identity/access for 1322293e89c1582eecb3d9b7950e14db01722065.",
+    "Existing Runner access confirmation for the listed candidate artifact hashes, followed by matched target-counter results (or a precise instrumentation/access limitation).",
+    "A controlled host with qualified same-function controls is still required to close the host gate; this environment cannot currently support that conclusion."
+  ],
+  "acceptance": {
+    "pcm_state": "PASS_REUSED",
+    "native_flash_pool": "PASS_REUSED",
+    "host_cpu": "INCONCLUSIVE",
+    "target_cpu": "NOT_RUN",
+    "draft": "RETAIN",
+    "merge_or_publication": "NOT_AUTHORIZED"
+  },
+  "followup_review": {
+    "receipt": "review/review.json",
+    "status": "complete",
+    "actionable_findings": 0,
+    "delivery_verdict": "Ready for evidence-only update to existing draft PR895",
+    "performance_acceptance": "NOT_QUALIFIED",
+    "scope": "New timing driver/runner and retained timing evidence only; handoff prose validated by owning executor.",
+    "raw_recomputation": "review/raw-verification.json"
+  }
+}

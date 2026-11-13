@@ -1,0 +1,1 @@
+{"bytes": 651730, "model": "pro", "package_crc32": "0fc7ccfe", "payloads": ["flash.bin", "ota.bin"], "product": "SMK-37 Pro_900", "sha256_check": "package header, flash/app and OTA CRC verified"}

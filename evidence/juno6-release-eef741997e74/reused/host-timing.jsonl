@@ -1,0 +1,103 @@
+{"kind": "inputs", "parent_commit": "1322293e89c1582eecb3d9b7950e14db01722065", "parent_blob": "902f96b57cc761f975c32bfbd1a31ebf5326dd9c", "candidate_sha256": "b1e8ab2268a494f469089bb13d6b7bed13b055d8bbb66218617895da6a5422dd", "compiler": "cc (Debian 14.2.0-19) 14.2.0", "host": "Linux-6.18.57-x86_64-with-glibc2.41", "affinity": [0], "sanitize": false}
+{"kind": "equivalence", "status": "PASS", "checks": 19074, "frames": 290875, "sample_rate": 44100, "juno_state_bytes": 352, "chorus_state_bytes": 536, "optimization": "Os"}
+{"kind": "timing", "case": "idle", "pair": 0, "voices": 0, "frames_per_run": 262144, "parent_ns": [7189696, 7125315], "candidate_ns": [9273348, 8370727], "optimization": "Os"}
+{"kind": "timing", "case": "idle", "pair": 1, "voices": 0, "frames_per_run": 262144, "parent_ns": [8628960, 8468640], "candidate_ns": [8791536, 8602410], "optimization": "Os"}
+{"kind": "timing", "case": "idle", "pair": 2, "voices": 0, "frames_per_run": 262144, "parent_ns": [7321293, 8956843], "candidate_ns": [7985515, 8050277], "optimization": "Os"}
+{"kind": "timing", "case": "idle", "pair": 3, "voices": 0, "frames_per_run": 262144, "parent_ns": [7817961, 7939850], "candidate_ns": [8576090, 10364208], "optimization": "Os"}
+{"kind": "timing", "case": "idle", "pair": 4, "voices": 0, "frames_per_run": 262144, "parent_ns": [11807358, 7995284], "candidate_ns": [7593422, 9275542], "optimization": "Os"}
+{"kind": "timing", "case": "idle", "pair": 5, "voices": 0, "frames_per_run": 262144, "parent_ns": [9341083, 9417590], "candidate_ns": [8861315, 7629308], "optimization": "Os"}
+{"kind": "timing", "case": "idle", "pair": 6, "voices": 0, "frames_per_run": 262144, "parent_ns": [8449163, 9085514], "candidate_ns": [8386836, 8611166], "optimization": "Os"}
+{"kind": "timing", "case": "idle", "pair": 7, "voices": 0, "frames_per_run": 262144, "parent_ns": [7408025, 12517787], "candidate_ns": [8987320, 8477296], "optimization": "Os"}
+{"kind": "timing", "case": "idle", "pair": 8, "voices": 0, "frames_per_run": 262144, "parent_ns": [12854942, 8261051], "candidate_ns": [8909915, 10821493], "optimization": "Os"}
+{"kind": "timing", "case": "held-1", "pair": 0, "voices": 1, "frames_per_run": 262144, "parent_ns": [15095564, 14104057], "candidate_ns": [16193557, 22449656], "optimization": "Os"}
+{"kind": "timing", "case": "held-1", "pair": 1, "voices": 1, "frames_per_run": 262144, "parent_ns": [12095257, 23885264], "candidate_ns": [17409646, 14824488], "optimization": "Os"}
+{"kind": "timing", "case": "held-1", "pair": 2, "voices": 1, "frames_per_run": 262144, "parent_ns": [16447052, 16263781], "candidate_ns": [17471930, 15233941], "optimization": "Os"}
+{"kind": "timing", "case": "held-1", "pair": 3, "voices": 1, "frames_per_run": 262144, "parent_ns": [20216382, 17097389], "candidate_ns": [18419059, 18893090], "optimization": "Os"}
+{"kind": "timing", "case": "held-1", "pair": 4, "voices": 1, "frames_per_run": 262144, "parent_ns": [16585200, 27048924], "candidate_ns": [18061913, 14117632], "optimization": "Os"}
+{"kind": "timing", "case": "held-1", "pair": 5, "voices": 1, "frames_per_run": 262144, "parent_ns": [32025162, 15927865], "candidate_ns": [67652566, 13152846], "optimization": "Os"}
+{"kind": "timing", "case": "held-1", "pair": 6, "voices": 1, "frames_per_run": 262144, "parent_ns": [25136777, 15151405], "candidate_ns": [14199806, 18318504], "optimization": "Os"}
+{"kind": "timing", "case": "held-1", "pair": 7, "voices": 1, "frames_per_run": 262144, "parent_ns": [14349757, 13394851], "candidate_ns": [11988687, 14510077], "optimization": "Os"}
+{"kind": "timing", "case": "held-1", "pair": 8, "voices": 1, "frames_per_run": 262144, "parent_ns": [18872522, 12593189], "candidate_ns": [15655827, 15916649], "optimization": "Os"}
+{"kind": "timing", "case": "held-6", "pair": 0, "voices": 6, "frames_per_run": 262144, "parent_ns": [56672564, 36292334], "candidate_ns": [36064637, 48682396], "optimization": "Os"}
+{"kind": "timing", "case": "held-6", "pair": 1, "voices": 6, "frames_per_run": 262144, "parent_ns": [31548424, 42990189], "candidate_ns": [33963414, 31874826], "optimization": "Os"}
+{"kind": "timing", "case": "held-6", "pair": 2, "voices": 6, "frames_per_run": 262144, "parent_ns": [34524805, 42539546], "candidate_ns": [39563483, 39651781], "optimization": "Os"}
+{"kind": "timing", "case": "held-6", "pair": 3, "voices": 6, "frames_per_run": 262144, "parent_ns": [40718076, 62827072], "candidate_ns": [65957155, 143394351], "optimization": "Os"}
+{"kind": "timing", "case": "held-6", "pair": 4, "voices": 6, "frames_per_run": 262144, "parent_ns": [31995481, 39534391], "candidate_ns": [39720709, 31162092], "optimization": "Os"}
+{"kind": "timing", "case": "held-6", "pair": 5, "voices": 6, "frames_per_run": 262144, "parent_ns": [47992981, 33883605], "candidate_ns": [37308004, 43113108], "optimization": "Os"}
+{"kind": "timing", "case": "held-6", "pair": 6, "voices": 6, "frames_per_run": 262144, "parent_ns": [42046898, 32060513], "candidate_ns": [35180092, 29733177], "optimization": "Os"}
+{"kind": "timing", "case": "held-6", "pair": 7, "voices": 6, "frames_per_run": 262144, "parent_ns": [33743753, 32557984], "candidate_ns": [33906298, 32915494], "optimization": "Os"}
+{"kind": "timing", "case": "held-6", "pair": 8, "voices": 6, "frames_per_run": 262144, "parent_ns": [43717714, 32016731], "candidate_ns": [42277495, 33185669], "optimization": "Os"}
+{"kind": "timing", "case": "release-1", "pair": 0, "voices": 1, "frames_per_run": 262144, "parent_ns": [11870497, 11010025], "candidate_ns": [13298859, 9063834], "optimization": "Os"}
+{"kind": "timing", "case": "release-1", "pair": 1, "voices": 1, "frames_per_run": 262144, "parent_ns": [12591606, 8756879], "candidate_ns": [9257425, 8983724], "optimization": "Os"}
+{"kind": "timing", "case": "release-1", "pair": 2, "voices": 1, "frames_per_run": 262144, "parent_ns": [8764643, 8821389], "candidate_ns": [9282973, 9131110], "optimization": "Os"}
+{"kind": "timing", "case": "release-1", "pair": 3, "voices": 1, "frames_per_run": 262144, "parent_ns": [8744716, 8726493], "candidate_ns": [8892112, 8843831], "optimization": "Os"}
+{"kind": "timing", "case": "release-1", "pair": 4, "voices": 1, "frames_per_run": 262144, "parent_ns": [9345070, 12205423], "candidate_ns": [9364346, 10179661], "optimization": "Os"}
+{"kind": "timing", "case": "release-1", "pair": 5, "voices": 1, "frames_per_run": 262144, "parent_ns": [10595951, 29698642], "candidate_ns": [10142582, 19809780], "optimization": "Os"}
+{"kind": "timing", "case": "release-1", "pair": 6, "voices": 1, "frames_per_run": 262144, "parent_ns": [40136403, 21083610], "candidate_ns": [30146041, 20951972], "optimization": "Os"}
+{"kind": "timing", "case": "release-1", "pair": 7, "voices": 1, "frames_per_run": 262144, "parent_ns": [30302583, 9836059], "candidate_ns": [13666087, 22897904], "optimization": "Os"}
+{"kind": "timing", "case": "release-1", "pair": 8, "voices": 1, "frames_per_run": 262144, "parent_ns": [10512134, 10605880], "candidate_ns": [8980828, 11567990], "optimization": "Os"}
+{"kind": "timing", "case": "release-6", "pair": 0, "voices": 6, "frames_per_run": 262144, "parent_ns": [37934546, 59383917], "candidate_ns": [37546009, 41463492], "optimization": "Os"}
+{"kind": "timing", "case": "release-6", "pair": 1, "voices": 6, "frames_per_run": 262144, "parent_ns": [29813728, 39269274], "candidate_ns": [43151701, 40335330], "optimization": "Os"}
+{"kind": "timing", "case": "release-6", "pair": 2, "voices": 6, "frames_per_run": 262144, "parent_ns": [39660157, 35098649], "candidate_ns": [34367010, 47244186], "optimization": "Os"}
+{"kind": "timing", "case": "release-6", "pair": 3, "voices": 6, "frames_per_run": 262144, "parent_ns": [42178980, 33843532], "candidate_ns": [38202609, 35266443], "optimization": "Os"}
+{"kind": "timing", "case": "release-6", "pair": 4, "voices": 6, "frames_per_run": 262144, "parent_ns": [55888452, 35482898], "candidate_ns": [33389060, 43862281], "optimization": "Os"}
+{"kind": "timing", "case": "release-6", "pair": 5, "voices": 6, "frames_per_run": 262144, "parent_ns": [35893476, 36386980], "candidate_ns": [37754601, 38109655], "optimization": "Os"}
+{"kind": "timing", "case": "release-6", "pair": 6, "voices": 6, "frames_per_run": 262144, "parent_ns": [36632941, 35976121], "candidate_ns": [37533155, 39683988], "optimization": "Os"}
+{"kind": "timing", "case": "release-6", "pair": 7, "voices": 6, "frames_per_run": 262144, "parent_ns": [35241700, 42615006], "candidate_ns": [32735857, 38124924], "optimization": "Os"}
+{"kind": "timing", "case": "release-6", "pair": 8, "voices": 6, "frames_per_run": 262144, "parent_ns": [38784501, 57810491], "candidate_ns": [36309225, 66397965], "optimization": "Os"}
+{"kind": "timing_summary", "case": "idle", "optimization": "Os", "median_paired_ratio": 0.9693935052239627, "min_paired_ratio": 0.8518542121803747, "max_paired_ratio": 1.2325575579369097, "interpretation": "host wall-clock evidence; no pass/fail or device-cycle claim"}
+{"kind": "timing_summary", "case": "held-1", "optimization": "Os", "median_paired_ratio": 0.9998483071342146, "min_paired_ratio": 0.7374857577065143, "max_paired_ratio": 1.6850951244433432, "interpretation": "host wall-clock evidence; no pass/fail or device-cycle claim"}
+{"kind": "timing_summary", "case": "held-6", "optimization": "Os", "median_paired_ratio": 0.9909538353430858, "min_paired_ratio": 0.8759349183039197, "max_paired_ratio": 2.0218379136413036, "interpretation": "host wall-clock evidence; no pass/fail or device-cycle claim"}
+{"kind": "timing_summary", "case": "release-1", "optimization": "Os", "median_paired_ratio": 0.9109424030837914, "min_paired_ratio": 0.743334521333917, "max_paired_ratio": 1.0470857212132902, "interpretation": "host wall-clock evidence; no pass/fail or device-cycle claim"}
+{"kind": "timing_summary", "case": "release-6", "optimization": "Os", "median_paired_ratio": 1.0495818676074762, "min_paired_ratio": 0.8118654833256049, "max_paired_ratio": 1.20850322920246, "interpretation": "host wall-clock evidence; no pass/fail or device-cycle claim"}
+{"kind": "equivalence", "status": "PASS", "checks": 19074, "frames": 290875, "sample_rate": 44100, "juno_state_bytes": 352, "chorus_state_bytes": 536, "optimization": "O2"}
+{"kind": "timing", "case": "idle", "pair": 0, "voices": 0, "frames_per_run": 262144, "parent_ns": [9600723, 9486610], "candidate_ns": [9519912, 9363961], "optimization": "O2"}
+{"kind": "timing", "case": "idle", "pair": 1, "voices": 0, "frames_per_run": 262144, "parent_ns": [9602417, 9592458], "candidate_ns": [9687516, 9389198], "optimization": "O2"}
+{"kind": "timing", "case": "idle", "pair": 2, "voices": 0, "frames_per_run": 262144, "parent_ns": [9586907, 9616212], "candidate_ns": [9482873, 9357789], "optimization": "O2"}
+{"kind": "timing", "case": "idle", "pair": 3, "voices": 0, "frames_per_run": 262144, "parent_ns": [9560067, 9789767], "candidate_ns": [9375031, 9323244], "optimization": "O2"}
+{"kind": "timing", "case": "idle", "pair": 4, "voices": 0, "frames_per_run": 262144, "parent_ns": [9532535, 9647000], "candidate_ns": [9562903, 9258753], "optimization": "O2"}
+{"kind": "timing", "case": "idle", "pair": 5, "voices": 0, "frames_per_run": 262144, "parent_ns": [9644585, 9575466], "candidate_ns": [9357118, 9370923], "optimization": "O2"}
+{"kind": "timing", "case": "idle", "pair": 6, "voices": 0, "frames_per_run": 262144, "parent_ns": [9560598, 9640728], "candidate_ns": [9414965, 9515343], "optimization": "O2"}
+{"kind": "timing", "case": "idle", "pair": 7, "voices": 0, "frames_per_run": 262144, "parent_ns": [9661156, 9592238], "candidate_ns": [9387474, 9422108], "optimization": "O2"}
+{"kind": "timing", "case": "idle", "pair": 8, "voices": 0, "frames_per_run": 262144, "parent_ns": [9583572, 9600553], "candidate_ns": [9353300, 9380832], "optimization": "O2"}
+{"kind": "timing", "case": "held-1", "pair": 0, "voices": 1, "frames_per_run": 262144, "parent_ns": [12763975, 12697410], "candidate_ns": [12743256, 13115403], "optimization": "O2"}
+{"kind": "timing", "case": "held-1", "pair": 1, "voices": 1, "frames_per_run": 262144, "parent_ns": [12835309, 12822975], "candidate_ns": [12940366, 12698964], "optimization": "O2"}
+{"kind": "timing", "case": "held-1", "pair": 2, "voices": 1, "frames_per_run": 262144, "parent_ns": [12661042, 13472101], "candidate_ns": [12729270, 12704633], "optimization": "O2"}
+{"kind": "timing", "case": "held-1", "pair": 3, "voices": 1, "frames_per_run": 262144, "parent_ns": [13120132, 12721315], "candidate_ns": [12775927, 12820351], "optimization": "O2"}
+{"kind": "timing", "case": "held-1", "pair": 4, "voices": 1, "frames_per_run": 262144, "parent_ns": [12785676, 12787359], "candidate_ns": [12886364, 12899509], "optimization": "O2"}
+{"kind": "timing", "case": "held-1", "pair": 5, "voices": 1, "frames_per_run": 262144, "parent_ns": [12789202, 12817886], "candidate_ns": [12719792, 12731343], "optimization": "O2"}
+{"kind": "timing", "case": "held-1", "pair": 6, "voices": 1, "frames_per_run": 262144, "parent_ns": [12869443, 12876075], "candidate_ns": [12783512, 12797277], "optimization": "O2"}
+{"kind": "timing", "case": "held-1", "pair": 7, "voices": 1, "frames_per_run": 262144, "parent_ns": [12752444, 12742475], "candidate_ns": [12701077, 12770548], "optimization": "O2"}
+{"kind": "timing", "case": "held-1", "pair": 8, "voices": 1, "frames_per_run": 262144, "parent_ns": [12774264, 12695527], "candidate_ns": [12693973, 12773674], "optimization": "O2"}
+{"kind": "timing", "case": "held-6", "pair": 0, "voices": 6, "frames_per_run": 262144, "parent_ns": [32120051, 32155036], "candidate_ns": [32138635, 32250906], "optimization": "O2"}
+{"kind": "timing", "case": "held-6", "pair": 1, "voices": 6, "frames_per_run": 262144, "parent_ns": [32240166, 31439588], "candidate_ns": [31537329, 32641818], "optimization": "O2"}
+{"kind": "timing", "case": "held-6", "pair": 2, "voices": 6, "frames_per_run": 262144, "parent_ns": [31788360, 31863170], "candidate_ns": [32078342, 31836481], "optimization": "O2"}
+{"kind": "timing", "case": "held-6", "pair": 3, "voices": 6, "frames_per_run": 262144, "parent_ns": [32047175, 31608644], "candidate_ns": [32099192, 32134980], "optimization": "O2"}
+{"kind": "timing", "case": "held-6", "pair": 4, "voices": 6, "frames_per_run": 262144, "parent_ns": [32297253, 32031155], "candidate_ns": [31912692, 31980440], "optimization": "O2"}
+{"kind": "timing", "case": "held-6", "pair": 5, "voices": 6, "frames_per_run": 262144, "parent_ns": [31862569, 32126223], "candidate_ns": [32239644, 32213065], "optimization": "O2"}
+{"kind": "timing", "case": "held-6", "pair": 6, "voices": 6, "frames_per_run": 262144, "parent_ns": [41239373, 31354258], "candidate_ns": [56075207, 34710050], "optimization": "O2"}
+{"kind": "timing", "case": "held-6", "pair": 7, "voices": 6, "frames_per_run": 262144, "parent_ns": [34599322, 52149074], "candidate_ns": [32828267, 35289996], "optimization": "O2"}
+{"kind": "timing", "case": "held-6", "pair": 8, "voices": 6, "frames_per_run": 262144, "parent_ns": [33457676, 32552821], "candidate_ns": [33688216, 35021753], "optimization": "O2"}
+{"kind": "timing", "case": "release-1", "pair": 0, "voices": 1, "frames_per_run": 262144, "parent_ns": [14770321, 14007634], "candidate_ns": [13834539, 14122499], "optimization": "O2"}
+{"kind": "timing", "case": "release-1", "pair": 1, "voices": 1, "frames_per_run": 262144, "parent_ns": [13890564, 17273732], "candidate_ns": [14062276, 17775567], "optimization": "O2"}
+{"kind": "timing", "case": "release-1", "pair": 2, "voices": 1, "frames_per_run": 262144, "parent_ns": [14097753, 14390660], "candidate_ns": [14014496, 13928455], "optimization": "O2"}
+{"kind": "timing", "case": "release-1", "pair": 3, "voices": 1, "frames_per_run": 262144, "parent_ns": [13686522, 13608827], "candidate_ns": [13337950, 13378986], "optimization": "O2"}
+{"kind": "timing", "case": "release-1", "pair": 4, "voices": 1, "frames_per_run": 262144, "parent_ns": [13908868, 13595301], "candidate_ns": [13598527, 13857502], "optimization": "O2"}
+{"kind": "timing", "case": "release-1", "pair": 5, "voices": 1, "frames_per_run": 262144, "parent_ns": [13459597, 13521242], "candidate_ns": [13860768, 13862231], "optimization": "O2"}
+{"kind": "timing", "case": "release-1", "pair": 6, "voices": 1, "frames_per_run": 262144, "parent_ns": [13481980, 13849888], "candidate_ns": [15358312, 14677667], "optimization": "O2"}
+{"kind": "timing", "case": "release-1", "pair": 7, "voices": 1, "frames_per_run": 262144, "parent_ns": [14445202, 31205658], "candidate_ns": [15334948, 16596821], "optimization": "O2"}
+{"kind": "timing", "case": "release-1", "pair": 8, "voices": 1, "frames_per_run": 262144, "parent_ns": [13854186, 13764398], "candidate_ns": [14716912, 13999548], "optimization": "O2"}
+{"kind": "timing", "case": "release-6", "pair": 0, "voices": 6, "frames_per_run": 262144, "parent_ns": [31827643, 35241675], "candidate_ns": [36460246, 35899757], "optimization": "O2"}
+{"kind": "timing", "case": "release-6", "pair": 1, "voices": 6, "frames_per_run": 262144, "parent_ns": [35472708, 36006187], "candidate_ns": [35970149, 37489022], "optimization": "O2"}
+{"kind": "timing", "case": "release-6", "pair": 2, "voices": 6, "frames_per_run": 262144, "parent_ns": [36089933, 35865072], "candidate_ns": [35427733, 35942057], "optimization": "O2"}
+{"kind": "timing", "case": "release-6", "pair": 3, "voices": 6, "frames_per_run": 262144, "parent_ns": [36382189, 35782687], "candidate_ns": [34856844, 36021886], "optimization": "O2"}
+{"kind": "timing", "case": "release-6", "pair": 4, "voices": 6, "frames_per_run": 262144, "parent_ns": [35997771, 35574685], "candidate_ns": [34674163, 36908184], "optimization": "O2"}
+{"kind": "timing", "case": "release-6", "pair": 5, "voices": 6, "frames_per_run": 262144, "parent_ns": [43434092, 34654386], "candidate_ns": [38199663, 35335641], "optimization": "O2"}
+{"kind": "timing", "case": "release-6", "pair": 6, "voices": 6, "frames_per_run": 262144, "parent_ns": [37209879, 35919534], "candidate_ns": [36180493, 38150531], "optimization": "O2"}
+{"kind": "timing", "case": "release-6", "pair": 7, "voices": 6, "frames_per_run": 262144, "parent_ns": [36286120, 36165765], "candidate_ns": [34956149, 36590550], "optimization": "O2"}
+{"kind": "timing", "case": "release-6", "pair": 8, "voices": 6, "frames_per_run": 262144, "parent_ns": [35150605, 31153662], "candidate_ns": [35143571, 36182166], "optimization": "O2"}
+{"kind": "timing_summary", "case": "idle", "optimization": "O2", "median_paired_ratio": 0.9811250974385984, "min_paired_ratio": 0.9663274113876119, "max_paired_ratio": 0.9938441380837333, "interpretation": "host wall-clock evidence; no pass/fail or device-cycle claim"}
+{"kind": "timing_summary", "case": "held-1", "optimization": "O2", "median_paired_ratio": 0.999086327750247, "min_paired_ratio": 0.9732431724725954, "max_paired_ratio": 1.015603000386664, "interpretation": "host wall-clock evidence; no pass/fail or device-cycle claim"}
+{"kind": "timing_summary", "case": "held-6", "optimization": "O2", "median_paired_ratio": 1.0072499727764825, "min_paired_ratio": 0.785239452727172, "max_paired_ratio": 1.2505953449277114, "interpretation": "host wall-clock evidence; no pass/fail or device-cycle claim"}
+{"kind": "timing_summary", "case": "release-1", "optimization": "O2", "median_paired_ratio": 0.9982497198879196, "min_paired_ratio": 0.699477928783817, "max_paired_ratio": 1.0989361941891422, "interpretation": "host wall-clock evidence; no pass/fail or device-cycle claim"}
+{"kind": "timing_summary", "case": "release-6", "optimization": "O2", "median_paired_ratio": 1.0001381956209523, "min_paired_ratio": 0.941692114936598, "max_paired_ratio": 1.0788838347812035, "interpretation": "host wall-clock evidence; no pass/fail or device-cycle claim"}
