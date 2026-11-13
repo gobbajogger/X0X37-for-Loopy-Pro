@@ -2,30 +2,45 @@ JieLi linked sizes — exact-source build, same --git-sha 94197fc839b00aff47b98c
 Images NOT FOR INSTALL.
 Command: python3 -u tools/build.py --board smk37 --model elite|pro --sdk /workspace/build-1214/sdk-v1.2.14 --nightly-version 0.0.26 --git-sha 94197fc839b00aff47b98ca02f3c6396e4a6eabf
 X0X_DEV_PADCAL=0, toolchain /home/box/.jieli/toolchain
-Logs: /workspace/build-1214/seqchord-measure/logs/elite-relink-98.txt, pro-relink-98.txt
-(Asia/Vladivostok UTC+10)
+Logs (Asia/Vladivostok UTC+10):
+  T1     (TIER1=1 TIER2=0 TIER3=0): logs/elite-t1-10r.txt, pro-t1-10r.txt
+  T1+T2  (TIER2=7):                 logs/elite-t1t2-10r.txt, pro-t1t2-10r.txt
+  T1+T2+T3 (TIER3=1):               logs/elite-t1t2t3-10r.txt, pro-t1t2t3-10r.txt
+under /workspace/build-1214/seqchord-measure/. Measure tree only; Optimizer left alone.
 
 Baseline 94197fc8: Elite flash free 8,440 B; Pro 8,448 B; pool free 8,340 B.
+App area 552,672 B. Floor 8,192 B flash and pool. Flag 248 B Elite / 256 B Pro flash, 148 B pool. Do not trim.
 
-After §9.8 / seq_chord_symbol (this tree, TIER1=1 TIER2=0, default):
-  Elite: image 546,536 B of 552,672; flash free 6,136 B; RAM 95,796 B; pool 335,724 of 344,064 (free 8,340)
-  Pro:   image 546,524 B of 552,672; flash free 6,148 B; RAM 95,796 B; pool 335,724 of 344,064 (free 8,340)
-  Elite flash  -2,304 B free (used +2,304). Flag 248 B: OVER by 2,056 B.
-  Pro   flash  -2,300 B free (used +2,300). Flag 256 B: OVER by 2,044 B.
-  Floor 8,192 B flash: BOTH below (Elite 6,136, Pro 6,148). Not trimmed; Optimizer frees flash separately.
-  Pool delta 0 (under 148 B flag). RAM +4 vs prior 95,792 (seq_chord_second 4 B + cache onset byte, aligned).
+This tree, §10r display + caps paint (seq_chord_symbol unchanged):
 
-Earlier T1=1 T2=0 (pre-§9.8 hook, unique-clamp): Elite free 6,072 / Pro 6,084. This tree is 64 B smaller (6136-6072).
+  T1 (default, TIER3 off):
+    Elite: image 547,032 B; flash free 5,640 B; RAM 95,812 B; pool 335,724 of 344,064 (free 8,340)
+    Pro:   image 547,020 B; flash free 5,652 B; RAM 95,812 B; pool free 8,340
+    Elite flash  -2,800 B free (used +2,800). Flag 248 B: OVER by 2,552 B.
+    Pro   flash  -2,796 B free (used +2,796). Flag 256 B: OVER by 2,540 B.
+    Floor 8,192: BOTH below (Elite 5,640, Pro 5,652). Not trimmed.
+    vs 1adcde11 (§9.8 T1): Elite free 6,136 → 5,640 (−496 B). 10r formatter, caps helpers, cell[32], T3 stub.
 
-TIER1=0 TIER2=0 (fallback-only, earlier link): flash free 6,492, image 546,180.
-T1 namer was +420 B on top of the display fix at that link; T2 all seven +72 B (left off).
+  T1+T2 (TIER2=7, TIER3=0):
+    Elite: image 547,104 B; flash free 5,568 B.  +72 B vs T1 (same as the earlier T2-all-seven increment).
+    Pro:   image 547,092 B; flash free 5,580 B.  +72 B vs T1.
+    Elite OVER 248 by 2,624 B. Pro OVER 256 by 2,612 B.
 
-nm -S Elite (this tree):
-  seq_chord_symbol     378 B (0x17a), 124 JieLi instructions (objdump -d)
-  chord_label_cached  1096 B (0x448)
-  chord_label_fallback  44 B (0x2c)
-  chord_from_lanes      82 B (0x52)
-  draw_303            1930 B (0x78a)
-  draw_knobs          5448 B (0x1548)
-  chord_lab_cache      252 B BSS (0xfc)
-  seq_chord_second       4 B BSS (hook reserved; §10 on HOLD, not built)
+  T1+T2+T3 (TIER3=1 at link):
+    Elite: image 547,536 B; flash free 5,136 B.  +432 B vs T1+T2.
+    Pro:   image 547,528 B; flash free 5,144 B.  +436 B vs T1+T2.
+    Elite OVER 248 by 3,056 B. Pro OVER 256 by 3,048 B.
+    HOST T3 data was +82 B (24 B masks + 58 B suffixes) if the existing matcher loop bound grew.
+    seq_chord_symbol is left unchanged (0/1 and §9 names), so T3 is a separate seq_chord_t3:
+      nm Elite T3: seq_chord_t3 260 B (0x104), chord_t3_mask 24 B, chord_t3_suf 48 B (pointers),
+      plus suffix string literals; seq_chord_symbol stays 378 B (0x17a), 124 instructions, unchanged.
+    Linked T3 increment is therefore 432/436 B, not 82 B. Reported honestly; not trimmed.
+    Pool delta 0 on every tier (under 148 B flag). RAM 95,812 on every tier (cell[32], +16 vs 1adcde11 95,796).
+
+TIER1=0 earlier (fallback-only, pre-10r): flash free 6,492, image 546,180.
+
+Glyph add (not taken): HOST ESTIMATE unique bitmaps, packed data only (OFF/ADV already allocated):
+  i,j,u (letters our suffixes need) on S+B+XS ≈ 269 B
+  i,e,o,h (UX named) ≈ 358 B
+  all 14 folded lowercase ≈ 1,252 B
+Default build is already over headroom; lowercase glyphs were not added.

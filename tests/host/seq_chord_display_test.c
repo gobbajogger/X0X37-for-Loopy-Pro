@@ -3,7 +3,7 @@
  * and writes native 240x240 AFTER frames. Inverts the 94197fc8 baseline
  * "extra pitch is absent" checks, adds playback identity, Chicago/Miami
  * mono identity, draw-time, the 41-row chord_name.py §9 acceptance set against seq_chord_symbol
- * / chord_label_fmt (60 §10 rows are skipped; not implemented in this run),
+ * / chord_label_fmt (§10r style R rows run; 15 withdrawn A/B/C/D skipped),
  * and HOST latency evidence (fast notes vs 94197fc8; namer is UI-task only). */
 #define SMC_UI_MAIN unused_smc_ui_main
 #include "smc_ui_test.c"
@@ -289,106 +289,99 @@ static uint32_t playback_hash(void)
     return h;
 }
 
-/* 41-row §9 acceptance from smk-ux/seq-chords/chord_name.py (piano-roll.md
- * sha d0307933…, §9.8 errata). Against the firmware functions
- * seq_chord_symbol (0/1) and chord_label_fmt (sounding MIDI after
- * +transpose-24, clamped events kept — F6). TIER2 is a compile switch:
- * this table lists both T1 and T2 expects. Split pairs (id ending
- * -t1 / -t2) run on one binary each; every other row runs on both.
- * The 60 §10 rows are listed and skipped: §10 is out of this run. */
+/* 41-row §9 + 20 additional §10r (style R) rows from
+ * smk-ux/seq-chords/chord_name.py (piano-roll.md sha e31a049d…,
+ * §9.8 errata kept, §10r.7 display). Against seq_chord_symbol (0/1,
+ * §9 names only — T3 names come from seq_chord_t3 and do not change
+ * that return) and chord_label_fmt (sounding MIDI after +transpose-24,
+ * clamped events kept — F6 NOTE is G9). TIER2 and TIER3 are compile
+ * switches; this table lists T1, T2, T1+T3 and T2+T3 expects. Split
+ * pairs (id ending -t1 / -t2) run on one binary each. The 15
+ * withdrawn A/B/C/D style rows are listed and skipped. */
 #define SEQ_CHORD_HAVE_T2 (SEQ_CHORD_LABEL_TIER2 >= 7)
+#ifndef SEQ_CHORD_LABEL_TIER3
+#define SEQ_CHORD_LABEL_TIER3 0
+#endif
+#define SEQ_CHORD_HAVE_T3 (SEQ_CHORD_LABEL_TIER3)
 
 typedef struct {
     const char *id;
     uint8_t stored[6];
     int n, trans, need_t2;
-    const char *sym_t2, *cell_t2;
-    const char *sym_t1, *cell_t1;
+    const char *sym_t2, *cell_t2, *held_t2;
+    const char *sym_t1, *cell_t1, *held_t1;
+    const char *sym_t2t3, *cell_t2t3, *held_t2t3;
+    const char *sym_t1t3, *cell_t1t3, *held_t1t3;
     const char *notes;
-    const char *held_t2, *held_t1;
 } chord_row_t;
 
 static const chord_row_t CHORD_ROWS[] = {
-    {"maj-root", {48,52,55,0,0,0}, 3, 24, 1, "C", "C", "C", "C", "C3 E3 G3", "STEP 1  C  C3 E3 G3  V100", "STEP 1  C  C3 E3 G3  V100"},
-    {"maj-inv", {52,55,60,0,0,0}, 3, 24, 1, "C/E", "C/E", "C/E", "C/E", "E3 G3 C4", "STEP 1  C/E  E3 G3 C4  V100", "STEP 1  C/E  E3 G3 C4  V100"},
-    {"min7-flats-in", {48,51,55,58,0,0}, 4, 24, 1, "Cmin7", "Cmin7", "Cmin7", "Cmin7", "C3 D#3 G3 A#3", "STEP 1  Cmin7  C3 D#3 G3 A#3  V100", "STEP 1  Cmin7  C3 D#3 G3 A#3  V100"},
-    {"maj-spread", {48,55,60,64,0,0}, 4, 24, 1, "C", "C", "C", "C", "C3 G3 C4 E4", "STEP 1  C  C3 G3 C4 E4  V100", "STEP 1  C  C3 G3 C4 E4  V100"},
-    {"power", {48,55,0,0,0,0}, 2, 24, 1, "C5", "C5", "C5", "C5", "C3 G3", "STEP 1  C5  C3 G3  V100", "STEP 1  C5  C3 G3  V100"},
-    {"CEGA-t2", {48,52,55,57,0,0}, 4, 24, 1, "C6", "C6", "Amin7/C", "Amin7/C", "C3 E3 G3 A3", "STEP 1  C6  C3 E3 G3 A3  V100", "STEP 1  Amin7/C  C3 E3 G3 A3  V100"},
-    {"CEGA-t1", {48,52,55,57,0,0}, 4, 24, 0, "C6", "C6", "Amin7/C", "Amin7/C", "C3 E3 G3 A3", "STEP 1  C6  C3 E3 G3 A3  V100", "STEP 1  Amin7/C  C3 E3 G3 A3  V100"},
-    {"cluster", {48,49,50,0,0,0}, 3, 24, 1, "", "C3x3", "", "C3x3", "C3 C#3 D3", "STEP 1  C3 C#3 D3  V100", "STEP 1  C3 C#3 D3  V100"},
-    {"oct-double", {60,72,0,0,0,0}, 2, 24, 1, "", "C4x2", "", "C4x2", "C4 C5", "STEP 1  C4 C5  V100", "STEP 1  C4 C5  V100"},
-    {"mono", {48,0,0,0,0,0}, 1, 24, 1, "", "C3", "", "C3", "C3", "STEP 1  C3  V100", "STEP 1  C3  V100"},
-    {"maj7-recorded", {48,52,55,59,0,0}, 4, 24, 1, "Cmaj7", "Cmaj7", "Cmaj7", "Cmaj7", "C3 E3 G3 B3", "STEP 1  Cmaj7  C3 E3 G3 B3  V100", "STEP 1  Cmaj7  C3 E3 G3 B3  V100"},
-    {"hex-recorded", {48,52,55,59,62,65}, 6, 24, 1, "", "C3x6", "", "C3x6", "C3 E3 G3 B3 D4 F4", "STEP 1  C3 E3 G3 B3 D4 F4  V100", "STEP 1  C3 E3 G3 B3 D4 F4  V100"},
-    {"min", {48,51,55,0,0,0}, 3, 24, 1, "Cmin", "Cmin", "Cmin", "Cmin", "C3 D#3 G3", "STEP 1  Cmin  C3 D#3 G3  V100", "STEP 1  Cmin  C3 D#3 G3  V100"},
-    {"dom7", {48,52,55,58,0,0}, 4, 24, 1, "C7", "C7", "C7", "C7", "C3 E3 G3 A#3", "STEP 1  C7  C3 E3 G3 A#3  V100", "STEP 1  C7  C3 E3 G3 A#3  V100"},
-    {"aug-root", {48,52,56,0,0,0}, 3, 24, 1, "Caug", "Caug", "", "C3x3", "C3 E3 G#3", "STEP 1  Caug  C3 E3 G#3  V100", "STEP 1  C3 E3 G#3  V100"},
-    {"aug-inv", {52,56,60,0,0,0}, 3, 24, 1, "Eaug", "Eaug", "", "E3x3", "E3 G#3 C4", "STEP 1  Eaug  E3 G#3 C4  V100", "STEP 1  E3 G#3 C4  V100"},
-    {"dim7-root", {48,51,54,57,0,0}, 4, 24, 1, "Cdim7", "Cdim7", "", "C3x4", "C3 D#3 F#3 A3", "STEP 1  Cdim7  C3 D#3 F#3 A3  V100", "STEP 1  C3 D#3 F#3 A3  V100"},
-    {"min7b5-slash", {46,48,51,54,0,0}, 4, 24, 1, "Cmin7b5/A#", "Cmin7b5", "", "A#2x4", "A#2 C3 D#3 F#3", "STEP 1  Cmin7b5/A#  A#2 C3 D#3 F#3  V100", "STEP 1  A#2 C3 D#3 F#3  V100"},
-    {"gs-seven", {44,48,51,54,0,0}, 4, 24, 1, "G#7", "G#7", "G#7", "G#7", "G#2 C3 D#3 F#3", "STEP 1  G#7  G#2 C3 D#3 F#3  V100", "STEP 1  G#7  G#2 C3 D#3 F#3  V100"},
-    {"longest-produced", {44,46,49,52,0,0}, 4, 24, 1, "A#min7b5/G#", "A#min7b5", "", "G#2x4", "G#2 A#2 C#3 E3", "STEP 1  A#min7b5/G#  G#2 A#2 C#3 E3  V100", "STEP 1  G#2 A#2 C#3 E3  V100"},
-    {"sus-ambiguous", {50,55,60,0,0,0}, 3, 24, 1, "", "D3x3", "", "D3x3", "D3 G3 C4", "STEP 1  D3 G3 C4  V100", "STEP 1  D3 G3 C4  V100"},
-    {"dyad-third", {48,52,0,0,0,0}, 2, 24, 1, "", "C3x2", "", "C3x2", "C3 E3", "STEP 1  C3 E3  V100", "STEP 1  C3 E3  V100"},
-    {"transpose-plus12", {48,52,55,0,0,0}, 3, 36, 1, "C", "C", "C", "C", "C4 E4 G4", "STEP 1  C  C4 E4 G4  V100", "STEP 1  C  C4 E4 G4  V100"},
-    {"T20-sus2", {48,50,55,0,0,0}, 3, 24, 1, "Csus2", "Csus2", "", "C3x3", "C3 D3 G3", "STEP 1  Csus2  C3 D3 G3  V100", "STEP 1  C3 D3 G3  V100"},
-    {"T21-sus4", {55,60,62,0,0,0}, 3, 24, 1, "Gsus4", "Gsus4", "", "G3x3", "G3 C4 D4", "STEP 1  Gsus4  G3 C4 D4  V100", "STEP 1  G3 C4 D4  V100"},
-    {"T22-sus-amb", {55,60,65,0,0,0}, 3, 24, 1, "", "G3x3", "", "G3x3", "G3 C4 F4", "STEP 1  G3 C4 F4  V100", "STEP 1  G3 C4 F4  V100"},
-    {"T23-amin7", {45,48,52,55,0,0}, 4, 24, 1, "Amin7", "Amin7", "Amin7", "Amin7", "A2 C3 E3 G3", "STEP 1  Amin7  A2 C3 E3 G3  V100", "STEP 1  Amin7  A2 C3 E3 G3  V100"},
-    {"T24-CEGA-inv-t2", {52,55,57,60,0,0}, 4, 24, 1, "", "E3x4", "Amin7/E", "Amin7/E", "E3 G3 A3 C4", "STEP 1  E3 G3 A3 C4  V100", "STEP 1  Amin7/E  E3 G3 A3 C4  V100"},
-    {"T25-CEGA-inv-t1", {52,55,57,60,0,0}, 4, 24, 0, "", "E3x4", "Amin7/E", "Amin7/E", "E3 G3 A3 C4", "STEP 1  E3 G3 A3 C4  V100", "STEP 1  Amin7/E  E3 G3 A3 C4  V100"},
-    {"T26-CEGA-g", {55,57,60,64,0,0}, 4, 24, 1, "", "G3x4", "Amin7/G", "Amin7/G", "G3 A3 C4 E4", "STEP 1  G3 A3 C4 E4  V100", "STEP 1  Amin7/G  G3 A3 C4 E4  V100"},
-    {"T27-dim", {48,51,54,0,0,0}, 3, 24, 1, "Cdim", "Cdim", "", "C3x3", "C3 D#3 F#3", "STEP 1  Cdim  C3 D#3 F#3  V100", "STEP 1  C3 D#3 F#3  V100"},
-    {"T28-dim-inv", {51,54,60,0,0,0}, 3, 24, 1, "Cdim/D#", "Cdim/D#", "", "D#3x3", "D#3 F#3 C4", "STEP 1  Cdim/D#  D#3 F#3 C4  V100", "STEP 1  D#3 F#3 C4  V100"},
-    {"T29-dim7", {48,51,54,57,0,0}, 4, 24, 1, "Cdim7", "Cdim7", "", "C3x4", "C3 D#3 F#3 A3", "STEP 1  Cdim7  C3 D#3 F#3 A3  V100", "STEP 1  C3 D#3 F#3 A3  V100"},
-    {"T30-dim7-inv", {51,54,57,60,0,0}, 4, 24, 1, "D#dim7", "D#dim7", "", "D#3x4", "D#3 F#3 A3 C4", "STEP 1  D#dim7  D#3 F#3 A3 C4  V100", "STEP 1  D#3 F#3 A3 C4  V100"},
-    {"T31-aug-gs", {44,48,52,0,0,0}, 3, 24, 1, "G#aug", "G#aug", "", "G#2x3", "G#2 C3 E3", "STEP 1  G#aug  G#2 C3 E3  V100", "STEP 1  G#2 C3 E3  V100"},
-    {"T32-min7b5", {48,51,54,58,0,0}, 4, 24, 1, "Cmin7b5", "Cmin7b5", "", "C3x4", "C3 D#3 F#3 A#3", "STEP 1  Cmin7b5  C3 D#3 F#3 A#3  V100", "STEP 1  C3 D#3 F#3 A#3  V100"},
-    {"T33-min7b5-inv", {51,54,58,60,0,0}, 4, 24, 1, "Cmin7b5/D#", "Cmin7b5", "", "D#3x4", "D#3 F#3 A#3 C4", "STEP 1  Cmin7b5/D#  D#3 F#3 A#3 C4  V100", "STEP 1  D#3 F#3 A#3 C4  V100"},
-    {"T34-c5g", {43,48,0,0,0,0}, 2, 24, 0, "C5/G", "C5/G", "C5/G", "C5/G", "G2 C3", "STEP 1  C5/G  G2 C3  V100", "STEP 1  C5/G  G2 C3  V100"},
-    {"T35-foreign", {50,60,64,67,0,0}, 4, 24, 1, "", "D3x4", "", "D3x4", "D3 C4 E4 G4", "STEP 1  D3 C4 E4 G4  V100", "STEP 1  D3 C4 E4 G4  V100"},
-    {"T37-trans-23", {48,52,55,0,0,0}, 3, 23, 1, "B", "B", "B", "B", "B2 D#3 F#3", "STEP 1  B  B2 D#3 F#3  V100", "STEP 1  B  B2 D#3 F#3  V100"},
-    {"F6-clamp-merge", {103,107,110,0,0,0}, 3, 48, 1, "", "G9x3", "", "G9x3", "G9 G9 G9", "STEP 1  G9 G9 G9  V100", "STEP 1  G9 G9 G9  V100"},
+    {"maj-root", {48,52,55,0,0,0}, 3, 24, 1, "C", "C", "STEP 1  C  C3 E3 G3  V100", "C", "C", "STEP 1  C  C3 E3 G3  V100", "C", "C", "STEP 1  C  C3 E3 G3  V100", "C", "C", "STEP 1  C  C3 E3 G3  V100", "C3 E3 G3"},
+    {"maj-inv", {52,55,60,0,0,0}, 3, 24, 1, "C/E", "C/E", "STEP 1  C/E  E3 G3 C4  V100", "C/E", "C/E", "STEP 1  C/E  E3 G3 C4  V100", "C/E", "C/E", "STEP 1  C/E  E3 G3 C4  V100", "C/E", "C/E", "STEP 1  C/E  E3 G3 C4  V100", "E3 G3 C4"},
+    {"min7-flats-in", {48,51,55,58,0,0}, 4, 24, 1, "Cmin7", "CMIN7", "STEP 1  CMIN7  C3 D#3 G3 A#3  V100", "Cmin7", "CMIN7", "STEP 1  CMIN7  C3 D#3 G3 A#3  V100", "Cmin7", "CMIN7", "STEP 1  CMIN7  C3 D#3 G3 A#3  V100", "Cmin7", "CMIN7", "STEP 1  CMIN7  C3 D#3 G3 A#3  V100", "C3 D#3 G3 A#3"},
+    {"maj-spread", {48,55,60,64,0,0}, 4, 24, 1, "C", "C", "STEP 1  C  C3 G3 C4 E4  V100", "C", "C", "STEP 1  C  C3 G3 C4 E4  V100", "C", "C", "STEP 1  C  C3 G3 C4 E4  V100", "C", "C", "STEP 1  C  C3 G3 C4 E4  V100", "C3 G3 C4 E4"},
+    {"power", {48,55,0,0,0,0}, 2, 24, 1, "C5", "C5", "STEP 1  C5  C3 G3  V100", "C5", "C5", "STEP 1  C5  C3 G3  V100", "C5", "C5", "STEP 1  C5  C3 G3  V100", "C5", "C5", "STEP 1  C5  C3 G3  V100", "C3 G3"},
+    {"CEGA-t2", {48,52,55,57,0,0}, 4, 24, 1, "C6", "C6", "STEP 1  C6  C3 E3 G3 A3  V100", "Amin7/C", "AMIN7/C", "STEP 1  AMIN7/C  C3 E3 G3 A3  V100", "C6", "C6", "STEP 1  C6  C3 E3 G3 A3  V100", "Amin7/C", "AMIN7/C", "STEP 1  AMIN7/C  C3 E3 G3 A3  V100", "C3 E3 G3 A3"},
+    {"CEGA-t1", {48,52,55,57,0,0}, 4, 24, 0, "C6", "C6", "STEP 1  C6  C3 E3 G3 A3  V100", "Amin7/C", "AMIN7/C", "STEP 1  AMIN7/C  C3 E3 G3 A3  V100", "C6", "C6", "STEP 1  C6  C3 E3 G3 A3  V100", "Amin7/C", "AMIN7/C", "STEP 1  AMIN7/C  C3 E3 G3 A3  V100", "C3 E3 G3 A3"},
+    {"cluster", {48,49,50,0,0,0}, 3, 24, 1, "", "C3 C#3 D3", "STEP 1  C3 C#3 D3  V100", "", "C3 C#3 D3", "STEP 1  C3 C#3 D3  V100", "", "C3 C#3 D3", "STEP 1  C3 C#3 D3  V100", "", "C3 C#3 D3", "STEP 1  C3 C#3 D3  V100", "C3 C#3 D3"},
+    {"oct-double", {60,72,0,0,0,0}, 2, 24, 1, "", "C4 C5", "STEP 1  C4 C5  V100", "", "C4 C5", "STEP 1  C4 C5  V100", "", "C4 C5", "STEP 1  C4 C5  V100", "", "C4 C5", "STEP 1  C4 C5  V100", "C4 C5"},
+    {"mono", {48,0,0,0,0,0}, 1, 24, 1, "", "C3", "STEP 1  C3  V100", "", "C3", "STEP 1  C3  V100", "", "C3", "STEP 1  C3  V100", "", "C3", "STEP 1  C3  V100", "C3"},
+    {"maj7-recorded", {48,52,55,59,0,0}, 4, 24, 1, "Cmaj7", "CMAJ7", "STEP 1  CMAJ7  C3 E3 G3 B3  V100", "Cmaj7", "CMAJ7", "STEP 1  CMAJ7  C3 E3 G3 B3  V100", "Cmaj7", "CMAJ7", "STEP 1  CMAJ7  C3 E3 G3 B3  V100", "Cmaj7", "CMAJ7", "STEP 1  CMAJ7  C3 E3 G3 B3  V100", "C3 E3 G3 B3"},
+    {"hex-recorded", {48,52,55,59,62,65}, 6, 24, 1, "", "C3x6", "STEP 1  C3 E3 G3 B3 D4 F4  V100", "", "C3x6", "STEP 1  C3 E3 G3 B3 D4 F4  V100", "Cmaj11", "CMAJ11", "STEP 1  CMAJ11  C3 E3 G3 B3 D4 F4  V100", "Cmaj11", "CMAJ11", "STEP 1  CMAJ11  C3 E3 G3 B3 D4 F4  V100", "C3 E3 G3 B3 D4 F4"},
+    {"min", {48,51,55,0,0,0}, 3, 24, 1, "Cmin", "CMIN", "STEP 1  CMIN  C3 D#3 G3  V100", "Cmin", "CMIN", "STEP 1  CMIN  C3 D#3 G3  V100", "Cmin", "CMIN", "STEP 1  CMIN  C3 D#3 G3  V100", "Cmin", "CMIN", "STEP 1  CMIN  C3 D#3 G3  V100", "C3 D#3 G3"},
+    {"dom7", {48,52,55,58,0,0}, 4, 24, 1, "C7", "C7", "STEP 1  C7  C3 E3 G3 A#3  V100", "C7", "C7", "STEP 1  C7  C3 E3 G3 A#3  V100", "C7", "C7", "STEP 1  C7  C3 E3 G3 A#3  V100", "C7", "C7", "STEP 1  C7  C3 E3 G3 A#3  V100", "C3 E3 G3 A#3"},
+    {"aug-root", {48,52,56,0,0,0}, 3, 24, 1, "Caug", "CAUG", "STEP 1  CAUG  C3 E3 G#3  V100", "", "C3 E3 G#3", "STEP 1  C3 E3 G#3  V100", "Caug", "CAUG", "STEP 1  CAUG  C3 E3 G#3  V100", "", "C3 E3 G#3", "STEP 1  C3 E3 G#3  V100", "C3 E3 G#3"},
+    {"aug-inv", {52,56,60,0,0,0}, 3, 24, 1, "Eaug", "EAUG", "STEP 1  EAUG  E3 G#3 C4  V100", "", "E3 G#3 C4", "STEP 1  E3 G#3 C4  V100", "Eaug", "EAUG", "STEP 1  EAUG  E3 G#3 C4  V100", "", "E3 G#3 C4", "STEP 1  E3 G#3 C4  V100", "E3 G#3 C4"},
+    {"dim7-root", {48,51,54,57,0,0}, 4, 24, 1, "Cdim7", "CDIM7", "STEP 1  CDIM7  C3 D#3 F#3 A3  V100", "", "C3x4", "STEP 1  C3 D#3 F#3 A3  V100", "Cdim7", "CDIM7", "STEP 1  CDIM7  C3 D#3 F#3 A3  V100", "", "C3x4", "STEP 1  C3 D#3 F#3 A3  V100", "C3 D#3 F#3 A3"},
+    {"min7b5-slash", {46,48,51,54,0,0}, 4, 24, 1, "Cmin7b5/A#", "CMIN7B5", "STEP 1  CMIN7B5/A#  A#2 C3 D#3 F#3  V100", "", "A#2x4", "STEP 1  A#2 C3 D#3 F#3  V100", "Cmin7b5/A#", "CMIN7B5", "STEP 1  CMIN7B5/A#  A#2 C3 D#3 F#3  V100", "", "A#2x4", "STEP 1  A#2 C3 D#3 F#3  V100", "A#2 C3 D#3 F#3"},
+    {"gs-seven", {44,48,51,54,0,0}, 4, 24, 1, "G#7", "G#7", "STEP 1  G#7  G#2 C3 D#3 F#3  V100", "G#7", "G#7", "STEP 1  G#7  G#2 C3 D#3 F#3  V100", "G#7", "G#7", "STEP 1  G#7  G#2 C3 D#3 F#3  V100", "G#7", "G#7", "STEP 1  G#7  G#2 C3 D#3 F#3  V100", "G#2 C3 D#3 F#3"},
+    {"longest-produced", {44,46,49,52,0,0}, 4, 24, 1, "A#min7b5/G#", "A#MIN7B5", "STEP 1  A#MIN7B5/G#  G#2 A#2 C#3 E3  V100", "", "G#2x4", "STEP 1  G#2 A#2 C#3 E3  V100", "A#min7b5/G#", "A#MIN7B5", "STEP 1  A#MIN7B5/G#  G#2 A#2 C#3 E3  V100", "", "G#2x4", "STEP 1  G#2 A#2 C#3 E3  V100", "G#2 A#2 C#3 E3"},
+    {"sus-ambiguous", {50,55,60,0,0,0}, 3, 24, 1, "", "D3 G3 C4", "STEP 1  D3 G3 C4  V100", "", "D3 G3 C4", "STEP 1  D3 G3 C4  V100", "", "D3 G3 C4", "STEP 1  D3 G3 C4  V100", "", "D3 G3 C4", "STEP 1  D3 G3 C4  V100", "D3 G3 C4"},
+    {"dyad-third", {48,52,0,0,0,0}, 2, 24, 1, "", "C3 E3", "STEP 1  C3 E3  V100", "", "C3 E3", "STEP 1  C3 E3  V100", "", "C3 E3", "STEP 1  C3 E3  V100", "", "C3 E3", "STEP 1  C3 E3  V100", "C3 E3"},
+    {"transpose-plus12", {48,52,55,0,0,0}, 3, 36, 1, "C", "C", "STEP 1  C  C4 E4 G4  V100", "C", "C", "STEP 1  C  C4 E4 G4  V100", "C", "C", "STEP 1  C  C4 E4 G4  V100", "C", "C", "STEP 1  C  C4 E4 G4  V100", "C4 E4 G4"},
+    {"T20-sus2", {48,50,55,0,0,0}, 3, 24, 1, "Csus2", "CSUS2", "STEP 1  CSUS2  C3 D3 G3  V100", "", "C3 D3 G3", "STEP 1  C3 D3 G3  V100", "Csus2", "CSUS2", "STEP 1  CSUS2  C3 D3 G3  V100", "", "C3 D3 G3", "STEP 1  C3 D3 G3  V100", "C3 D3 G3"},
+    {"T21-sus4", {55,60,62,0,0,0}, 3, 24, 1, "Gsus4", "GSUS4", "STEP 1  GSUS4  G3 C4 D4  V100", "", "G3 C4 D4", "STEP 1  G3 C4 D4  V100", "Gsus4", "GSUS4", "STEP 1  GSUS4  G3 C4 D4  V100", "", "G3 C4 D4", "STEP 1  G3 C4 D4  V100", "G3 C4 D4"},
+    {"T22-sus-amb", {55,60,65,0,0,0}, 3, 24, 1, "", "G3 C4 F4", "STEP 1  G3 C4 F4  V100", "", "G3 C4 F4", "STEP 1  G3 C4 F4  V100", "", "G3 C4 F4", "STEP 1  G3 C4 F4  V100", "", "G3 C4 F4", "STEP 1  G3 C4 F4  V100", "G3 C4 F4"},
+    {"T23-amin7", {45,48,52,55,0,0}, 4, 24, 1, "Amin7", "AMIN7", "STEP 1  AMIN7  A2 C3 E3 G3  V100", "Amin7", "AMIN7", "STEP 1  AMIN7  A2 C3 E3 G3  V100", "Amin7", "AMIN7", "STEP 1  AMIN7  A2 C3 E3 G3  V100", "Amin7", "AMIN7", "STEP 1  AMIN7  A2 C3 E3 G3  V100", "A2 C3 E3 G3"},
+    {"T24-CEGA-inv-t2", {52,55,57,60,0,0}, 4, 24, 1, "", "E3x4", "STEP 1  E3 G3 A3 C4  V100", "Amin7/E", "AMIN7/E", "STEP 1  AMIN7/E  E3 G3 A3 C4  V100", "", "E3x4", "STEP 1  E3 G3 A3 C4  V100", "Amin7/E", "AMIN7/E", "STEP 1  AMIN7/E  E3 G3 A3 C4  V100", "E3 G3 A3 C4"},
+    {"T25-CEGA-inv-t1", {52,55,57,60,0,0}, 4, 24, 0, "", "E3x4", "STEP 1  E3 G3 A3 C4  V100", "Amin7/E", "AMIN7/E", "STEP 1  AMIN7/E  E3 G3 A3 C4  V100", "", "E3x4", "STEP 1  E3 G3 A3 C4  V100", "Amin7/E", "AMIN7/E", "STEP 1  AMIN7/E  E3 G3 A3 C4  V100", "E3 G3 A3 C4"},
+    {"T26-CEGA-g", {55,57,60,64,0,0}, 4, 24, 1, "", "G3x4", "STEP 1  G3 A3 C4 E4  V100", "Amin7/G", "AMIN7/G", "STEP 1  AMIN7/G  G3 A3 C4 E4  V100", "", "G3x4", "STEP 1  G3 A3 C4 E4  V100", "Amin7/G", "AMIN7/G", "STEP 1  AMIN7/G  G3 A3 C4 E4  V100", "G3 A3 C4 E4"},
+    {"T27-dim", {48,51,54,0,0,0}, 3, 24, 1, "Cdim", "CDIM", "STEP 1  CDIM  C3 D#3 F#3  V100", "", "C3x3", "STEP 1  C3 D#3 F#3  V100", "Cdim", "CDIM", "STEP 1  CDIM  C3 D#3 F#3  V100", "", "C3x3", "STEP 1  C3 D#3 F#3  V100", "C3 D#3 F#3"},
+    {"T28-dim-inv", {51,54,60,0,0,0}, 3, 24, 1, "Cdim/D#", "CDIM/D#", "STEP 1  CDIM/D#  D#3 F#3 C4  V100", "", "D#3x3", "STEP 1  D#3 F#3 C4  V100", "Cdim/D#", "CDIM/D#", "STEP 1  CDIM/D#  D#3 F#3 C4  V100", "", "D#3x3", "STEP 1  D#3 F#3 C4  V100", "D#3 F#3 C4"},
+    {"T29-dim7", {48,51,54,57,0,0}, 4, 24, 1, "Cdim7", "CDIM7", "STEP 1  CDIM7  C3 D#3 F#3 A3  V100", "", "C3x4", "STEP 1  C3 D#3 F#3 A3  V100", "Cdim7", "CDIM7", "STEP 1  CDIM7  C3 D#3 F#3 A3  V100", "", "C3x4", "STEP 1  C3 D#3 F#3 A3  V100", "C3 D#3 F#3 A3"},
+    {"T30-dim7-inv", {51,54,57,60,0,0}, 4, 24, 1, "D#dim7", "D#DIM7", "STEP 1  D#DIM7  D#3 F#3 A3 C4  V100", "", "D#3x4", "STEP 1  D#3 F#3 A3 C4  V100", "D#dim7", "D#DIM7", "STEP 1  D#DIM7  D#3 F#3 A3 C4  V100", "", "D#3x4", "STEP 1  D#3 F#3 A3 C4  V100", "D#3 F#3 A3 C4"},
+    {"T31-aug-gs", {44,48,52,0,0,0}, 3, 24, 1, "G#aug", "G#AUG", "STEP 1  G#AUG  G#2 C3 E3  V100", "", "G#2 C3 E3", "STEP 1  G#2 C3 E3  V100", "G#aug", "G#AUG", "STEP 1  G#AUG  G#2 C3 E3  V100", "", "G#2 C3 E3", "STEP 1  G#2 C3 E3  V100", "G#2 C3 E3"},
+    {"T32-min7b5", {48,51,54,58,0,0}, 4, 24, 1, "Cmin7b5", "CMIN7B5", "STEP 1  CMIN7B5  C3 D#3 F#3 A#3  V100", "", "C3x4", "STEP 1  C3 D#3 F#3 A#3  V100", "Cmin7b5", "CMIN7B5", "STEP 1  CMIN7B5  C3 D#3 F#3 A#3  V100", "", "C3x4", "STEP 1  C3 D#3 F#3 A#3  V100", "C3 D#3 F#3 A#3"},
+    {"T33-min7b5-inv", {51,54,58,60,0,0}, 4, 24, 1, "Cmin7b5/D#", "CMIN7B5", "STEP 1  CMIN7B5/D#  D#3 F#3 A#3 C4  V100", "", "D#3x4", "STEP 1  D#3 F#3 A#3 C4  V100", "Cmin7b5/D#", "CMIN7B5", "STEP 1  CMIN7B5/D#  D#3 F#3 A#3 C4  V100", "", "D#3x4", "STEP 1  D#3 F#3 A#3 C4  V100", "D#3 F#3 A#3 C4"},
+    {"T34-c5g", {43,48,0,0,0,0}, 2, 24, 0, "C5/G", "C5/G", "STEP 1  C5/G  G2 C3  V100", "C5/G", "C5/G", "STEP 1  C5/G  G2 C3  V100", "C5/G", "C5/G", "STEP 1  C5/G  G2 C3  V100", "C5/G", "C5/G", "STEP 1  C5/G  G2 C3  V100", "G2 C3"},
+    {"T35-foreign", {50,60,64,67,0,0}, 4, 24, 1, "", "D3x4", "STEP 1  D3 C4 E4 G4  V100", "", "D3x4", "STEP 1  D3 C4 E4 G4  V100", "Cadd9/D", "Cadd9/D", "STEP 1  Cadd9/D  D3 C4 E4 G4  V100", "Cadd9/D", "Cadd9/D", "STEP 1  Cadd9/D  D3 C4 E4 G4  V100", "D3 C4 E4 G4"},
+    {"T37-trans-23", {48,52,55,0,0,0}, 3, 23, 1, "B", "B", "STEP 1  B  B2 D#3 F#3  V100", "B", "B", "STEP 1  B  B2 D#3 F#3  V100", "B", "B", "STEP 1  B  B2 D#3 F#3  V100", "B", "B", "STEP 1  B  B2 D#3 F#3  V100", "B2 D#3 F#3"},
+    {"F6-clamp-merge", {103,107,110,0,0,0}, 3, 48, 1, "", "G9", "STEP 1  G9 G9 G9  V100", "", "G9", "STEP 1  G9 G9 G9  V100", "", "G9", "STEP 1  G9 G9 G9  V100", "", "G9", "STEP 1  G9 G9 G9  V100", "G9 G9 G9"},
+    {"r-add9", {48,50,52,55,0,0}, 4, 24, 1, "", "C3x4", "STEP 1  C3 D3 E3 G3  V100", "", "C3x4", "STEP 1  C3 D3 E3 G3  V100", "Cadd9", "Cadd9", "STEP 1  Cadd9  C3 D3 E3 G3  V100", "Cadd9", "Cadd9", "STEP 1  Cadd9  C3 D3 E3 G3  V100", "C3 D3 E3 G3"},
+    {"r-add2", {48,50,52,0,0,0}, 3, 24, 1, "", "C3 D3 E3", "STEP 1  C3 D3 E3  V100", "", "C3 D3 E3", "STEP 1  C3 D3 E3  V100", "Cadd2", "Cadd2", "STEP 1  Cadd2  C3 D3 E3  V100", "Cadd2", "Cadd2", "STEP 1  Cadd2  C3 D3 E3  V100", "C3 D3 E3"},
+    {"r-7sus4", {48,53,55,58,0,0}, 4, 24, 1, "", "C3x4", "STEP 1  C3 F3 G3 A#3  V100", "", "C3x4", "STEP 1  C3 F3 G3 A#3  V100", "C7sus4", "C7SUS4", "STEP 1  C7SUS4  C3 F3 G3 A#3  V100", "C7sus4", "C7SUS4", "STEP 1  C7SUS4  C3 F3 G3 A#3  V100", "C3 F3 G3 A#3"},
+    {"r-9", {48,50,52,55,58,0}, 5, 24, 1, "", "C3x5", "STEP 1  C3 D3 E3 G3 A#3  V100", "", "C3x5", "STEP 1  C3 D3 E3 G3 A#3  V100", "C9", "C9", "STEP 1  C9  C3 D3 E3 G3 A#3  V100", "C9", "C9", "STEP 1  C9  C3 D3 E3 G3 A#3  V100", "C3 D3 E3 G3 A#3"},
+    {"r-min9", {48,50,51,55,58,0}, 5, 24, 1, "", "C3x5", "STEP 1  C3 D3 D#3 G3 A#3  V100", "", "C3x5", "STEP 1  C3 D3 D#3 G3 A#3  V100", "Cmin9", "CMIN9", "STEP 1  CMIN9  C3 D3 D#3 G3 A#3  V100", "Cmin9", "CMIN9", "STEP 1  CMIN9  C3 D3 D#3 G3 A#3  V100", "C3 D3 D#3 G3 A#3"},
+    {"r-11", {48,50,52,53,55,58}, 6, 24, 1, "", "C3x6", "STEP 1  C3 D3 E3 F3 G3 A#3  V100", "", "C3x6", "STEP 1  C3 D3 E3 F3 G3 A#3  V100", "C11", "C11", "STEP 1  C11  C3 D3 E3 F3 G3 A#3  V100", "C11", "C11", "STEP 1  C11  C3 D3 E3 F3 G3 A#3  V100", "C3 D3 E3 F3 G3 A#3"},
+    {"r-69", {48,50,52,55,57,0}, 5, 24, 1, "", "C3x5", "STEP 1  C3 D3 E3 G3 A3  V100", "", "C3x5", "STEP 1  C3 D3 E3 G3 A3  V100", "C69", "C69", "STEP 1  C69  C3 D3 E3 G3 A3  V100", "C69", "C69", "STEP 1  C69  C3 D3 E3 G3 A3  V100", "C3 D3 E3 G3 A3"},
+    {"r-minmaj7", {48,51,55,59,0,0}, 4, 24, 1, "", "C3x4", "STEP 1  C3 D#3 G3 B3  V100", "", "C3x4", "STEP 1  C3 D#3 G3 B3  V100", "Cminmaj7", "CMINMAJ7", "STEP 1  CMINMAJ7  C3 D#3 G3 B3  V100", "Cminmaj7", "CMINMAJ7", "STEP 1  CMINMAJ7  C3 D#3 G3 B3  V100", "C3 D#3 G3 B3"},
+    {"r-min+9", {48,50,51,55,0,0}, 4, 24, 1, "", "C3x4", "STEP 1  C3 D3 D#3 G3  V100", "", "C3x4", "STEP 1  C3 D3 D#3 G3  V100", "Cmin+9", "CMIN+9", "STEP 1  CMIN+9  C3 D3 D#3 G3  V100", "Cmin+9", "CMIN+9", "STEP 1  CMIN+9  C3 D3 D#3 G3  V100", "C3 D3 D#3 G3"},
+    {"r-maj9", {48,50,52,55,59,0}, 5, 24, 1, "", "C3x5", "STEP 1  C3 D3 E3 G3 B3  V100", "", "C3x5", "STEP 1  C3 D3 E3 G3 B3  V100", "Cmaj9", "CMAJ9", "STEP 1  CMAJ9  C3 D3 E3 G3 B3  V100", "Cmaj9", "CMAJ9", "STEP 1  CMAJ9  C3 D3 E3 G3 B3  V100", "C3 D3 E3 G3 B3"},
+    {"r-6min7-amb", {48,50,53,57,0,0}, 4, 24, 1, "", "C3x4", "STEP 1  C3 D3 F3 A3  V100", "Dmin7/C", "DMIN7/C", "STEP 1  DMIN7/C  C3 D3 F3 A3  V100", "", "C3x4", "STEP 1  C3 D3 F3 A3  V100", "Dmin7/C", "DMIN7/C", "STEP 1  DMIN7/C  C3 D3 F3 A3  V100", "C3 D3 F3 A3"},
+    {"r-min7-6-amb", {48,51,53,56,0,0}, 4, 24, 1, "", "C3x4", "STEP 1  C3 D#3 F3 G#3  V100", "Fmin7/C", "FMIN7/C", "STEP 1  FMIN7/C  C3 D#3 F3 G#3  V100", "", "C3x4", "STEP 1  C3 D#3 F3 G#3  V100", "Fmin7/C", "FMIN7/C", "STEP 1  FMIN7/C  C3 D#3 F3 G#3  V100", "C3 D#3 F3 G#3"},
+    {"r-leftover-tri", {48,50,53,0,0,0}, 3, 24, 1, "", "C3 D3 F3", "STEP 1  C3 D3 F3  V100", "", "C3 D3 F3", "STEP 1  C3 D3 F3  V100", "", "C3 D3 F3", "STEP 1  C3 D3 F3  V100", "", "C3 D3 F3", "STEP 1  C3 D3 F3  V100", "C3 D3 F3"},
+    {"r-7plus", {48,52,54,55,0,0}, 4, 24, 1, "", "C3x4", "STEP 1  C3 E3 F#3 G3  V100", "", "C3x4", "STEP 1  C3 E3 F#3 G3  V100", "", "C3x4", "STEP 1  C3 E3 F#3 G3  V100", "", "C3x4", "STEP 1  C3 E3 F#3 G3  V100", "C3 E3 F#3 G3"},
+    {"r-7sharp9-tie", {48,52,55,58,63,0}, 5, 24, 1, "", "C3x5", "STEP 1  C3 E3 G3 A#3 D#4  V100", "", "C3x5", "STEP 1  C3 E3 G3 A#3 D#4  V100", "", "C3x5", "STEP 1  C3 E3 G3 A#3 D#4  V100", "", "C3x5", "STEP 1  C3 E3 G3 A#3 D#4  V100", "C3 E3 G3 A#3 D#4"},
+    {"r-sharp-minmaj7", {44,47,51,55,0,0}, 4, 24, 1, "", "G#2x4", "STEP 1  G#2 B2 D#3 G3  V100", "", "G#2x4", "STEP 1  G#2 B2 D#3 G3  V100", "G#minmaj7", "G#MINM7", "STEP 1  G#MINMAJ7  G#2 B2 D#3 G3  V100", "G#minmaj7", "G#MINM7", "STEP 1  G#MINMAJ7  G#2 B2 D#3 G3  V100", "G#2 B2 D#3 G3"},
+    {"r-drone-voice", {55,59,62,65,0,0}, 4, 24, 1, "G7", "G7", "STEP 1  G7  G3 B3 D4 F4  V100", "G7", "G7", "STEP 1  G7  G3 B3 D4 F4  V100", "G7", "G7", "STEP 1  G7  G3 B3 D4 F4  V100", "G7", "G7", "STEP 1  G7  G3 B3 D4 F4  V100", "G3 B3 D4 F4"},
+    {"r-page2-c4", {60,64,67,0,0,0}, 3, 24, 1, "C", "C", "STEP 1  C  C4 E4 G4  V100", "C", "C", "STEP 1  C  C4 E4 G4  V100", "C", "C", "STEP 1  C  C4 E4 G4  V100", "C", "C", "STEP 1  C  C4 E4 G4  V100", "C4 E4 G4"},
+    {"r-rec-mono-e3", {52,0,0,0,0,0}, 1, 24, 1, "", "E3", "STEP 1  E3  V100", "", "E3", "STEP 1  E3  V100", "", "E3", "STEP 1  E3  V100", "", "E3", "STEP 1  E3  V100", "E3"},
+    {"r-rec-mono-a3", {57,0,0,0,0,0}, 1, 24, 1, "", "A3", "STEP 1  A3  V100", "", "A3", "STEP 1  A3  V100", "", "A3", "STEP 1  A3  V100", "", "A3", "STEP 1  A3  V100", "A3"}
 };
 
+/* Withdrawn §10 A/B/C/D styles (interval, nearest, second reading,
+ * first-upward amb). Not implemented; §10r superseded them. */
 static const char *const SEC10_SKIPPED[] = {
-        "r-maj-root",
-        "r-maj-inv",
-        "r-min7",
-        "r-spread",
-        "r-power",
-        "r-CEGA-t2",
-        "r-CEGA-t1",
-        "r-mono",
-        "r-maj7",
-        "r-aug",
-        "r-min7b5-slash",
-        "r-gs-seven",
-        "r-longest",
-        "r-transpose",
-        "r-cluster",
-        "r-dyad",
-        "r-hex",
-        "r-sus-amb",
-        "r-oct",
-        "r-add9",
-        "r-add2",
-        "r-7sus4",
-        "r-9",
-        "r-min9",
-        "r-11",
-        "r-69",
-        "r-minmaj7",
-        "r-min+9",
-        "r-maj9",
-        "r-6min7-amb",
-        "r-min7-6-amb",
-        "r-sus2-dual",
-        "r-leftover-tri",
-        "r-7plus",
-        "r-7sharp9-tie",
-        "r-sharp-minmaj7",
         "a-cluster",
         "a-sus-amb",
         "a-C6",
@@ -404,15 +397,6 @@ static const char *const SEC10_SKIPPED[] = {
         "d-sus-amb",
         "d-cluster",
         "d-C6",
-        "r-T20",
-        "r-T22",
-        "r-T24",
-        "r-T25",
-        "r-T26",
-        "r-T35",
-        "r-F6-clamp",
-        "r-drone-stored",
-        "r-drone-voice"
 };
 #define N_SEC10 ((int)(sizeof SEC10_SKIPPED / sizeof SEC10_SKIPPED[0]))
 #define N_CHORD_ROWS ((int)(sizeof CHORD_ROWS / sizeof CHORD_ROWS[0]))
@@ -432,7 +416,7 @@ static void acc_row(const chord_row_t *r, int *nrun, int *nwrong)
     uint8_t sound[6];
     int i, trans = r->trans;
     chord_label_t o;
-    const char *want_sym, *want_cell, *want_held;
+    const char *want_sym, *want_cell, *want_held, *want9;
     char symbuf[16];
     int rec;
     if (!chord_row_applies(r))
@@ -445,11 +429,18 @@ static void acc_row(const chord_row_t *r, int *nrun, int *nwrong)
     }
     /* Store is not passed to the namer; sounding MIDI is. Stored values
      * stay as in the table (this test never writes back). Clamped
-     * events are kept, including collisions (F6: 127,127,127 → G9x3). */
+     * events are kept, including collisions (F6: 127,127,127 → NOTE G9). */
     chord_label_fmt(&o, sound, r->n, sound, r->n, "STEP 1  ", " V100");
-    want_sym  = SEQ_CHORD_HAVE_T2 ? r->sym_t2  : r->sym_t1;
+    want9     = SEQ_CHORD_HAVE_T2 ? r->sym_t2  : r->sym_t1;
+#if SEQ_CHORD_HAVE_T3
+    want_sym  = SEQ_CHORD_HAVE_T2 ? r->sym_t2t3  : r->sym_t1t3;
+    want_cell = SEQ_CHORD_HAVE_T2 ? r->cell_t2t3 : r->cell_t1t3;
+    want_held = SEQ_CHORD_HAVE_T2 ? r->held_t2t3 : r->held_t1t3;
+#else
+    want_sym  = want9;
     want_cell = SEQ_CHORD_HAVE_T2 ? r->cell_t2 : r->cell_t1;
     want_held = SEQ_CHORD_HAVE_T2 ? r->held_t2 : r->held_t1;
+#endif
     rec = seq_chord_symbol(symbuf, sound, r->n);
     printf("ACC %s trans=%d t2=%d symbol='%s' cell='%s' notes='%s' held='%s' (want sym='%s' cell='%s' notes='%s') rec=%d\n",
            r->id, trans, SEQ_CHORD_HAVE_T2, o.symbol, o.cell, o.notes, o.held,
@@ -463,32 +454,38 @@ static void acc_row(const chord_row_t *r, int *nrun, int *nwrong)
         strcmp(o.notes, r->notes) != 0 ||
         strcmp(o.held, want_held) != 0 ||
         (want_sym[0] && strchr(o.symbol, '?')) ||
-        rec != (want_sym[0] ? 1 : 0) ||
-        (rec && strcmp(symbuf, want_sym) != 0) ||
+        rec != (want9[0] ? 1 : 0) ||
+        (rec && strcmp(symbuf, want9) != 0) ||
         (!rec && symbuf[0]) ||
+        (o.recognized != (want_sym[0] ? 1 : 0)) ||
         tw(o.cell_font, o.cell) > 54 ||
-        (want_sym[0] && strchr(want_sym, '/') && !strstr(o.held, want_sym))) {
+        (want_sym[0] && strchr(want_sym, '/') && !strstr(o.held, want_sym) && !strstr(o.held, want_held))) {
         (*nwrong)++;
-        printf("  WRONG %s tw=%d\n", r->id, tw(o.cell_font, o.cell));
+        printf("  WRONG %s tw=%d rec9=%d want9='%s'\n", r->id, tw(o.cell_font, o.cell), rec, want9);
     }
     CHECK(strcmp(o.symbol, want_sym) == 0);
     CHECK(strcmp(o.cell, want_cell) == 0);
     CHECK(strcmp(o.notes, r->notes) == 0);
     CHECK(strcmp(o.held, want_held) == 0);
-    /* Hard rule: the held line always shows the real notes, named or not. */
+    /* Hard rule: the held line always shows the real notes, named or not
+     * (this prefix/flags pair does not overflow 232 px). */
     CHECK(strstr(o.held, o.notes) != 0);
     if (want_sym[0])
         CHECK(strchr(o.symbol, '?') == 0);
-    /* seq_chord_symbol 0/1 matches the recognized §9 name. */
-    CHECK(rec == (want_sym[0] ? 1 : 0));
+    /* seq_chord_symbol 0/1 matches the §9 (T1/T2) name only. A T3-only
+     * exact name is written by seq_chord_t3; the 0/1 contract is unchanged. */
+    CHECK(rec == (want9[0] ? 1 : 0));
     if (rec)
-        CHECK(strcmp(symbuf, want_sym) == 0);
+        CHECK(strcmp(symbuf, want9) == 0);
     else
         CHECK(symbuf[0] == 0);
+    CHECK(o.recognized == (want_sym[0] ? 1 : 0));
     /* F8: every NOTE tw() <= 54. A slashed symbol stays on the held line. */
     CHECK(tw(o.cell_font, o.cell) <= 54);
+    /* A slashed official name stays on the held line (all-caps when
+     * FONT_B would fold i/e/o/h/j/u, e.g. AMIN7/C). */
     if (want_sym[0] && strchr(want_sym, '/'))
-        CHECK(strstr(o.held, want_sym) != 0);
+        CHECK(strstr(o.held, "/") != 0);
     /* transpose-plus12: sounding is +12; the stored table is still 48,52,55. */
     if (strcmp(r->id, "transpose-plus12") == 0) {
         CHECK(r->stored[0] == 48 && r->stored[1] == 52 && r->stored[2] == 55);
@@ -501,8 +498,9 @@ static void acc_row(const chord_row_t *r, int *nrun, int *nwrong)
     if (strcmp(r->id, "F6-clamp-merge") == 0) {
         CHECK(sound[0] == 127 && sound[1] == 127 && sound[2] == 127);
         CHECK(o.symbol[0] == 0 && rec == 0);
-        CHECK(strcmp(o.cell, "G9x3") == 0);
+        CHECK(strcmp(o.cell, "G9") == 0);
         CHECK(strcmp(o.notes, "G9 G9 G9") == 0);
+        CHECK(strstr(o.held, "G9 G9 G9") != 0);
     }
 }
 
@@ -572,6 +570,33 @@ static void test_suffix_bytes(void)
 #endif
     printf("suffix-bytes: %d entries, '5'=0x35 '7'=0x37 — PASS\n", n);
     if (meas) fprintf(meas, "suffix-bytes n=%d PASS\n", n);
+}
+#endif
+
+#if SEQ_CHORD_LABEL_TIER3
+static void test_t3_suffix_bytes(void)
+{
+    /* T3 pointer table, not a packed literal. '9' and '11' are digits. */
+    static const char *want[] = {
+        "add2", "add9", "min+9", "7sus4", "9", "min9",
+        "maj9", "11", "min11", "maj11", "69", "minmaj7",
+    };
+    int i, n = (int)(sizeof want / sizeof want[0]);
+    CHECK(n == CHORD_NT3);
+    for (i = 0; i < n; i++) {
+        const char *s = chord_t3_suf[i];
+        int k;
+        CHECK(strcmp(s, want[i]) == 0);
+        for (k = 0; want[i][k]; k++)
+            CHECK((unsigned char)s[k] == (unsigned char)want[i][k]);
+        CHECK(s[k] == 0);
+    }
+    CHECK((unsigned char)chord_t3_suf[4][0] == 0x39); /* '9' */
+    CHECK((unsigned char)chord_t3_suf[7][0] == 0x31); /* '1' of "11" */
+    CHECK((unsigned char)chord_t3_suf[7][1] == 0x31);
+    CHECK((unsigned char)chord_t3_suf[10][0] == 0x36); /* '6' of "69" */
+    printf("t3-suffix-bytes: %d entries, '9'=0x39 '11' digits — PASS\n", n);
+    if (meas) fprintf(meas, "t3-suffix-bytes n=%d PASS\n", n);
 }
 #endif
 
@@ -687,8 +712,8 @@ static void test_symbols(void)
     static const uint8_t hexa[] = {48, 52, 55, 59, 62, 65};
     static const uint8_t dyad[] = {48, 52};
     int b, i, nrun = 0, nwrong = 0;
-    CHECK(N_CHORD_ROWS == 41);
-    CHECK(N_SEC10 == 60);
+    CHECK(N_CHORD_ROWS == 61);
+    CHECK(N_SEC10 == 15);
 #if !SEQ_CHORD_LABEL_TIER1
     /* Fallback-only compile: matcher is out; every multi-note set is compact. */
     {
@@ -700,7 +725,7 @@ static void test_symbols(void)
         char sym[16];
         chord_label_fmt(&o, ceg_fb, 3, ceg_fb, 3, "STEP 1  ", " V100");
         CHECK(!o.recognized && o.symbol[0] == 0);
-        CHECK(strcmp(o.cell, "C3x3") == 0);
+        CHECK(strcmp(o.cell, "C3 E3 G3") == 0);
         CHECK(strcmp(o.held, "STEP 1  C3 E3 G3  V100") == 0);
         CHECK(seq_chord_symbol(sym, ceg_fb, 3) == 0 && sym[0] == 0);
         chord_label_fmt(&o, cmin7_fb, 4, cmin7_fb, 4, "STEP 1  ", " V100");
@@ -710,13 +735,13 @@ static void test_symbols(void)
         CHECK(strcmp(o.cell, "C3") == 0);
         CHECK(strcmp(o.held, "STEP 1  C3  V100") == 0);
         chord_label_fmt(&o, clamp_fb, 3, clamp_fb, 3, "STEP 1  ", " V100");
-        CHECK(strcmp(o.cell, "G9x3") == 0);
+        CHECK(strcmp(o.cell, "G9") == 0);
         CHECK(strcmp(o.notes, "G9 G9 G9") == 0);
         CHECK(o.symbol[0] == 0);
-        printf("fallback-only TIER1=0: CEG C3x3, Cmin7 C3x4, mono C3, F6 G9x3 — PASS\n");
+        printf("fallback-only TIER1=0: CEG notes, Cmin7 C3x4, mono C3, F6 G9 — PASS\n");
         if (meas)
             fprintf(meas, "fallback-only TIER1=0 PASS\n");
-        printf("§10 skipped (%d rows, not implemented):", N_SEC10);
+        printf("§10 A/B/C/D skipped (%d withdrawn styles):", N_SEC10);
         for (i = 0; i < N_SEC10; i++)
             printf(" %s", SEC10_SKIPPED[i]);
         printf("\n");
@@ -728,19 +753,40 @@ static void test_symbols(void)
 #if SEQ_CHORD_LABEL_TIER1
     test_suffix_bytes();
 #endif
+#if SEQ_CHORD_LABEL_TIER3
+    test_t3_suffix_bytes();
+#endif
     for (i = 0; i < N_CHORD_ROWS; i++)
         acc_row(&CHORD_ROWS[i], &nrun, &nwrong);
-    printf("chord_name.py 41-row §9 host: ran %d this compile (TIER1=%d TIER2=%d), %d wrong symbols; 60 §10 rows skipped\n",
-           nrun, SEQ_CHORD_LABEL_TIER1, SEQ_CHORD_LABEL_TIER2, nwrong);
+    printf("chord_name.py 41-row §9 + 20 §10r host: ran %d this compile (TIER1=%d TIER2=%d TIER3=%d), %d wrong; 15 withdrawn A/B/C/D skipped\n",
+           nrun, SEQ_CHORD_LABEL_TIER1, SEQ_CHORD_LABEL_TIER2, SEQ_CHORD_LABEL_TIER3, nwrong);
     if (meas)
-        fprintf(meas, "41-row ran=%d wrong=%d TIER1=%d TIER2=%d sec10_skipped=%d\n",
-                nrun, nwrong, SEQ_CHORD_LABEL_TIER1, SEQ_CHORD_LABEL_TIER2, N_SEC10);
-    printf("§10 skipped (%d rows, not implemented):", N_SEC10);
+        fprintf(meas, "41+20-row ran=%d wrong=%d TIER1=%d TIER2=%d TIER3=%d sec10_skipped=%d\n",
+                nrun, nwrong, SEQ_CHORD_LABEL_TIER1, SEQ_CHORD_LABEL_TIER2, SEQ_CHORD_LABEL_TIER3, N_SEC10);
+    printf("§10 A/B/C/D skipped (%d withdrawn styles):", N_SEC10);
     for (i = 0; i < N_SEC10; i++)
         printf(" %s", SEC10_SKIPPED[i]);
     printf("\n");
     CHECK(nwrong == 0);
-    CHECK(nrun >= 39); /* 39 of 41 on each binary; CEGA and T24/T25 pairs are split */
+    CHECK(nrun >= 59); /* 59 of 61 on each binary; CEGA and T24/T25 pairs are split */
+
+    /* Held overflow: 6 sharp notes + TIE ACC SLIDE exceeds 232 px at
+     * FONT_XS; notes compact to G#2x6. The notes field stays the real list. */
+    {
+        /* Six consecutive chromatics: no exact T1/T2/T3 name, so the
+         * overflow path is not confounded by a compact chord symbol. */
+        static const uint8_t chrom6[] = {48, 49, 50, 51, 52, 53};
+        chord_label_t o;
+        chord_label_fmt(&o, chrom6, 6, chrom6, 6, "STEP 1  ", " TIE ACC SLIDE  V100");
+        printf("HELD_OVERFLOW cell='%s' notes='%s' held='%s'\n", o.cell, o.notes, o.held);
+        CHECK(strcmp(o.notes, "C3 C#3 D3 D#3 E3 F3") == 0);
+        CHECK(strcmp(o.cell, "C3x6") == 0);
+        CHECK(o.symbol[0] == 0 && !o.recognized);
+        CHECK(strcmp(o.held, "STEP 1  C3x6  TIE ACC SLIDE  V100") == 0);
+        CHECK(strstr(o.held, o.notes) == 0); /* compact only on overflow */
+        CHECK(strstr(o.held, "C3x6") != 0);
+        if (meas) fprintf(meas, "HELD_OVERFLOW PASS held='%s'\n", o.held);
+    }
 
     /* F8: 51 px fallbacks have 3 px spare. */
     CHECK(tw(&FONT_S, "Cmin7b5") == 51);
@@ -1107,8 +1153,8 @@ static void test_mono_identity_and_chords(void)
     CHECK(!fb_equal(fb_chi, fb_mia)); /* different engine name in the header */
 
     /* --- Drone 6-note: F1 — no verified voice-state source, so name the
-     * stored set (C3x6, no symbol) and paint every mark in live ink. Do
-     * not assume last-four / G7 / C_DIM. */
+     * stored set (T3 off: notes / C3x6; T3 on: exact Cmaj11) and paint
+     * every mark in live ink. Do not assume last-four / G7 / C_DIM. */
     seq_ready_part(PART_303B, ORIGINAL_SOUND_DRONE, 16, 0);
     b = bidx();
     set_chord(b, 0, hexa, 6, G_NOTE);
@@ -1130,11 +1176,21 @@ static void test_mono_identity_and_chords(void)
         chord_label_fmt(&lab, listed, 6, listed, 6, "STEP 1  ", " V100");
         printf("DRONE hex symbol='%s' cell='%s' notes='%s' held='%s'\n",
                lab.symbol, lab.cell, lab.notes, lab.held);
-        CHECK(lab.symbol[0] == 0);
-        CHECK(strcmp(lab.cell, "C3x6") == 0);
         CHECK(strcmp(lab.notes, "C3 E3 G3 B3 D4 F4") == 0);
+        CHECK(strstr(lab.held, lab.notes) != 0);
         CHECK(seq_chord_symbol(sym, listed, 6) == 0);
         CHECK(sym[0] == 0);
+#if SEQ_CHORD_LABEL_TIER3
+        CHECK(strcmp(lab.symbol, "Cmaj11") == 0); /* official, namer unchanged */
+        CHECK(strcmp(lab.cell, "CMAJ11") == 0);   /* S/B fold j: paint all-caps */
+        CHECK(lab.recognized == 1);
+        CHECK(strstr(lab.held, "CMAJ11") != 0);
+        CHECK(strstr(lab.held, lab.notes) != 0);
+#else
+        CHECK(lab.symbol[0] == 0);
+        CHECK(strcmp(lab.cell, "C3x6") == 0);
+        CHECK(!lab.recognized);
+#endif
     }
     capture("after-drone-hexachord");
 

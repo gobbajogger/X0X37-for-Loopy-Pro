@@ -69,7 +69,7 @@ BLK samples=4048 n=44 held=1 ons=0 dons=0 hash=c3b437b7
 BLK samples=4136 n=88 held=1 ons=0 dons=0 hash=04df6377
 BLK samples=4224 n=88 held=0 ons=0 dons=0 hash=58cae3c1
 BURST notes=32 ev=0 blk=64 samples=4224 ons=0
-HOST_DRAW_TIME chicago-mono iters=80 full_ms=0.154610
-HOST_DRAW_TIME juno-held-triad iters=80 full_ms=0.150734
-HOST_NAMER_COST iters=100000 long_ns=21.6 hex_ns=27.6 clamp_ns=17.4
+HOST_DRAW_TIME chicago-mono iters=80 full_ms=0.144577
+HOST_DRAW_TIME juno-held-triad iters=80 full_ms=0.138525
+HOST_NAMER_COST iters=100000 long_ns=21.9 hex_ns=24.0 clamp_ns=17.1
 HOST_NAMER_CONTEXT seq_chord_symbol / chord_label_cached: UI_DRAW draw_303 (ui.c held/WRITE) and UI_DRAW draw_knobs (NOTE cell), called from ui_frame() in the main loop (main_fm1.c, ~60 fps). Not engine_render, not midi_in, not TIMER5 key scan.
