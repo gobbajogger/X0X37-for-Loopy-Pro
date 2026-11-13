@@ -180,3 +180,12 @@ test("file UI is explicitly offline and does not invoke device or network APIs",
   assert.match(app,/importMany/);assert.match(app,/download/);
   assert.doesNotMatch(app,/\bfetch\s*\(|requestMIDIAccess|navigator\.usb|navigator\.serial|localStorage|sessionStorage|\.send\s*\(/);
 });
+
+test("unassigned drum sample reference is visibly incomplete, not silently complete", () => {
+  const b = encodeDnpr({ engine:"909", name:"Incomplete kit", origin:2,
+    params:new Uint8Array(132),
+    sampleRefs:Array.from({length:4},()=>({source:0,index:0,crc:0,name:""})) });
+  const record = parseDnpr(b);
+  assert.equal(sampleWarnings(record).length,4);
+  assert.match(sampleWarnings(record)[0],/unassigned/);
+});
