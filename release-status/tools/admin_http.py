@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -29,6 +30,7 @@ from admin_action import (
 )
 from admin_outcomes import OutcomeError, prepare_owner_outcome, sanitize_installer_report
 from evaluate_promotion import evaluate_record
+from promotion_candidate import evaluate_candidate
 from validate_release_status import (
     ALLOWED_ACTOR, apply_proposal, build_audit_event, check_proposal_audit_event,
     event_line, find_record, load_json, load_jsonl, load_records,
@@ -196,6 +198,15 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
             return
+        if urlsplit(self.path).path == "/api/promotion-candidate":
+            query = parse_qs(urlsplit(self.path).query, keep_blank_values=False)
+            selected = query.get("catalog_id", [])
+            if len(selected) != 1 or not selected[0]:
+                return self._respond(400, {"error": "one catalog_id is required"})
+            rec = find_record(load_records(RECORDS), selected[0])
+            if rec is None:
+                return self._respond(404, {"error": "exact build not found"})
+            return self._respond(200, evaluate_candidate(rec))
         if self.path == "/api/status":
             records = load_records(RECORDS)
             summaries = []
