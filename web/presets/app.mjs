@@ -84,6 +84,8 @@ async function inspectFiles(files) {
   try {
     const prepared = [];
     for (const file of files) {
+      if (!/\.(dnpr|zip)$/i.test(file.name))
+        throw new PresetError("BAD FILE", "Unsupported file extension; choose .dnpr or .zip");
       if (file.size > ZIP_MAX_INPUT) throw new PresetError("BAD FILE", "Input exceeds 2 MiB");
       const bytes = new Uint8Array(await file.arrayBuffer());
       if (token !== readToken) return;
