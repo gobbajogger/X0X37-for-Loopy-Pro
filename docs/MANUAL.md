@@ -46,7 +46,7 @@ Elite and Pro share the same playing surface. The USB product name and the Bluet
 
 The open-beta ledger has not allocated a new number. This book does not call the firmware 0.0.26.
 
-A published package must print the same `X0X_VERSION` that the build used. About and the USB product use the same words: `DnBOX` plus that version. If a build does not pass a version, About shows `DEV`. About can also append a short Git id as `g` plus the SHA when the build provides it.
+A published package must print the same `X0X_VERSION` that the build used. About and the USB product use the same words: `DnBOX` plus that version. About shows a line that starts `DnBOX ` plus the version, then `MEM` and `CPU`. If a build does not pass a version, that line starts `DnBOX DEV`. About can also append a short Git id as `g` plus the SHA when the build provides it.
 
 **How to read this book.** Start with chapters 3 to 7. Those chapters take you from a cold start to a saved pattern. Later chapters cover the rest of the instrument. Chapter 18 keeps expert muscle memory in one place.
 
@@ -76,7 +76,7 @@ The table below is the glossary for this whole book. The left column is the prin
 | GLOBE | GLOBE (settings) | Settings. Press again to close. Bluetooth lives here. |
 | PATCH | PATCH — HOME / SONG / back / no | A tap (release, with no modifier) toggles HOME and SONG: from HOME it opens SONG, and from SONG it opens HOME. From every other view, that same tap opens HOME first. In a list: back. In a question: no. Hold as a modifier. |
 | BT | BT — Save (not Bluetooth) | A tap (release before 250 ms) saves, or queues the save until stop. At 250 ms, still held alone: the toast is `CHOOSE PASTE TARGET`, then a white key pastes. If you let go after 250 ms and before 400 ms, with no paste, that release still saves. At 400 ms the help card appears, and the release does nothing. Bluetooth is GLOBE, then BLUETOOTH. The lamp means unsaved, queued or failed, not wireless. |
-| ARP | ARP (TB-3PO) | Line generator. Chicago or Miami only. |
+| ARP | ARP (TB-3PO) | Line generator on a bass slot, including Juno or Drone. On 909, 808 or BREAK, the toast is `TB-3PO: PICK CHICAGO OR MIAMI`. |
 | SEQ | SEQ (steps) | Step grid or piano roll. A cold start lands here on the 909. |
 | SEQ PLAY | SEQ PLAY | Start or stop, on press. |
 | SEQ REC | SEQ REC | Record on or off, on press. |
@@ -91,7 +91,7 @@ The table below is the glossary for this whole book. The left column is the prin
 | K5–K8 | K5–K8 | The four values at the bottom of the screen. |
 | 16 pads | Pads | The pads follow the 16 white keys. |
 | Faders 1–4 | Faders, bank A or B | Bank A: levels for 909, 808, BREAK and Chicago. Bank B: Miami level, reverb return, delay return, and master FILTER. Soft pickup. |
-| Pitch / mod wheels | Pitch wheel / mod wheel | On a Chicago-style slot: bend and cutoff. On Miami: bend and wobble depth. The wheels do not write the saved pots. |
+| Pitch / mod wheels | Pitch wheel / mod wheel | Pitch bend on every bass engine. The mod wheel is cutoff on Chicago, wobble depth on Miami, CUTOFF on Juno (parameter 2), and BRIGHTNESS on Drone (parameter 1). The wheels do not write the saved pots. |
 | 37-key keybed | Keys | The middle 27 keys match the older 27-key layout. The outer ten keys are live. Some outer keys also page BREAK slices. |
 
 SEQ PLAY, SEQ REC and KNOB BANK act on the press. KNOB BANK needs only that single press. Almost every other button acts on release, and only if you did not already use it as a modifier.
@@ -120,15 +120,15 @@ If you tapped PATCH, you are on HOME. A second tap of PATCH opens SONG, not the 
 
 If you pressed KNOB BANK, press KNOB BANK once more. The toast is `LP OFF`.
 
-While the loop does not run, press black key 1. This selects the bass drum (`BD`). You hear it.
+While playback does not run, press black key 1. This selects the bass drum (`BD`). You hear it.
 
-Why: KEY SOUND defaults to `STOPPED`. A black key plays the drum only while the loop does not run, or while you record. While the pattern plays, a black key only selects the track. This avoids a stray hit on a live pattern.
+Why: KEY SOUND defaults to `STOPPED`. A black key plays the drum only while playback does not run, or while you record. While the pattern plays, a black key only selects the track. This avoids a stray hit on a live pattern.
 
 Press white keys 1, 5, 9 and 13. These write steps on the selected track.
 
-Why: on SEQ, a white key writes or removes a step. An empty step turns on immediately. A lit step turns off if you tap it for less than 300 ms. A longer hold keeps the step so you can set a p-lock.
+Why: on SEQ, a white key writes or removes a step. An empty step turns on immediately. A lit step turns off if you tap it for less than 300 ms. A longer hold keeps the step so you can edit it.
 
-Press SEQ PLAY. The loop starts. Press SEQ PLAY again to stop. Transport acts on the press.
+Press SEQ PLAY. The pattern starts. Press SEQ PLAY again to stop. Transport acts on the press.
 
 ---
 
@@ -164,11 +164,13 @@ Why: the screen follows this display order, not an older "two 303s then a break"
 
 Chicago is the 303 engine. It is the default engine on bass slot B. On HOME, Chicago sits after BREAK, as the fourth of the five lanes. The default MIDI channel for bass slot B is 3.
 
-On SEQ, the white keys are steps in a piano roll. Hold a step and turn K5–K8 to edit that step. CHORD plus a key writes an accent. NOTE REPEAT plus a key writes a slide. Accent and slide are audible on Chicago.
+On SEQ, the white keys are steps in a piano roll, when the bass keyboard is off. Hold a step: K5 sets the note, K6 the gate (`REST`, `NOTE` or `TIE`), K7 the accent, and K8 the slide. The SEQ bass footer is `HOLD + KNOBS: EDIT`. K2 sets chance. K3 sets velocity.
+
+CHORD plus a key, and NOTE REPEAT plus a key, write accent and slide only when the bass keyboard is on (record or FREE PLAY). They do not write those flags on the SEQ piano-roll keys. Accent and slide are audible on Chicago.
 
 Press PARA to shape the sound. Chicago's first pages are OSCILLATOR and FILTER 1, then FILTER 2, ENVELOPE, AMPLIFIER, ARPEGGIATOR and EFFECT. The first FILTER 1 knobs are CUTOFF, PEAK and ENV. There is no leftover TONE or VOICE page from an older 303 engine.
 
-Press ARP for TB-3PO, the line generator. On that screen, OCTAVE+ writes a new line. OCTAVE− mutates the line. TB-3PO runs on Chicago or Miami only.
+Press ARP for TB-3PO, the line generator. On that screen, OCTAVE+ writes a new line into that slot's pattern. OCTAVE− mutates the line.
 
 ### Miami
 
@@ -184,7 +186,9 @@ The two bass slots are not identical. They can run different engines. Their defa
 
 Each bass slot can also run Juno or Drone. Choose the engine on the PARA SOUND page (`CHICAGO`, `MIAMI`, `DRONE`, `JUNO`).
 
-ARP does not run on Juno or Drone. If you press ARP there, the toast is `TB-3PO: PICK CHICAGO OR MIAMI`.
+ARP on Juno or Drone also opens TB-3PO, and OCTAVE+ writes a line into that slot's pattern. Accent and slide in the generated line follow the engine.
+
+If the selected part is 909, 808 or BREAK, ARP does not open TB-3PO. The toast is `TB-3PO: PICK CHICAGO OR MIAMI`.
 
 Juno and Drone can record a held-key chord. If the chord does not fit, the toast is `CHORD NOT SAVED`.
 
@@ -206,7 +210,11 @@ SEQ pages for BREAK include SEQUENCE (RATE: `1/16`, `1/8` or `1/4`), GROOVE and 
 
 PARA opens LOOPS. There you pick LOOP A and LOOP B, and you set slice counts (`A SLICES`, `B SLICES`: `4`, `8`, `16`, `32`).
 
+Black keys 1 to 8 hold a slice of LOOP A (the footer is `STEP + 1-8: PIN A SLICE`). Black keys 9, 10 and 11 are momentary live keys: 9 is REV, 10 is JUNGLE, and 11 is STUT. The footer is `9 REV 10 JUNGLE 11 STUT`. A press of one of those three starts the effect. A release ends it.
+
 Some outer keys page the BREAK slices. The middle keys still play the live path when the keyboard owns them.
+
+On BREAK, the white keys write the bar on SEQ and also on PARA. The drum audition rule does not apply to BREAK.
 
 To put your own loops on the unit, use the browser sample tools in `web/MANUAL.md`. This control book does not repeat that procedure.
 
@@ -246,7 +254,9 @@ Keep this split. It is easy to confuse, and an older book was wrong here.
 | What you see | The drum kit grid, or a bass piano roll. | The sound pages. The usual header is compact: the part or engine name, and a 2-pixel save dot if unsaved. It does not show `SEQ`, `SOUND` or `UNSAVED`. |
 | White keys on a drum part | Write or remove steps on the selected track. | **Audition only.** The white key plays the selected sound. It never writes a hidden step. The footer is `WHITE: SOUND` (or `KEY SOUND OFF`) and `SEQ: STEPS`. |
 | White keys on a bass slot | Steps in the piano roll, when the keyboard is off. | The keys can play the sound. The footer is `KEYS: SOUND` and `SEQ: STEPS`. |
-| Hold a step plus K5–K8 | A p-lock for that step. The tag is `P-LOCK STEP n`. | The same p-lock if you still hold the step. |
+| White keys on BREAK | Write or remove steps on the bar. | The same write. The drum audition rule does not apply. |
+| Hold a bass step plus K5–K8 | K5 note, K6 gate (`REST` / `NOTE` / `TIE`), K7 accent, K8 slide. Not a p-lock. | A p-lock for that step, including a step you still hold from SEQ. The tag is `P-LOCK STEP n`. |
+| Hold a drum or BREAK step plus K5–K8 | These knobs stay on the SEQUENCE page (LENGTH / RATE). They are not p-locks. Hold the step, press PARA, then turn K5–K8 to lock. | A p-lock. The tag is `P-LOCK STEP n`. |
 
 Why the audition rule: PARA white keys must not write steps. A player who opens PARA to change the sound must not also change the pattern. The step stays on SEQ. The sound stays on PARA.
 
@@ -292,7 +302,21 @@ Each part's send levels live on the mixer, not on this FX screen.
 
 ### SMC
 
-If you have an SMC mixer on the link, the HOME footer shows `SMC F1-5: PART LEVEL` and `F6: REV  F7: DLY  F8: FILT`. The SMC has its own pickup words. With no SMC mixer on the link, the HOME footer is `WHITE: PATTERN`, `TWO: CHAIN` and `BLACK: MUTE`. Until you press a button, the footer can say `HOLD ANY BUTTON: WHAT IT DOES`.
+The SMC is a separate mixer on Bluetooth, not a firmware mode. In GLOBE, set `BT ROLE` to `SMC HOST`, turn Bluetooth on, and restart if the toast is `RESTART TO TURN ON`. Pick the `SMC PRESET` that matches the physical mixer (`DAW` or `USER`).
+
+When an SMC mixer is on the link, the HOME footer shows `SMC F1-5: PART LEVEL` and `F6: REV  F7: DLY  F8: FILT`.
+
+The eight SMC faders, left to right, follow display order: 909, 808, BREAK, Chicago and Miami, then reverb return, delay return, and master FILTER.
+
+Up and Down on the SMC change the SMC encoder bank. They do not change the keyboard page.
+
+Pause locks the SMC targets immediately. The toast is `SMC TARGETS LOCKED`. A later press, held for 900 ms, unlocks. The toast is `SMC FOLLOWS PAGE`. A short press while locked peeks the locked page.
+
+Pause uses the DAW Pause note. MMC STOP is separate: it stops transport, and it does not lock.
+
+On a drum MIX or drum SEQ page, Bank Left selects drums 1 to 8. Bank Right selects drums 9 to 11. The last five strips of that second bank are inactive.
+
+The SMC has its own pickup words: `PICKUP: MOVE UP TO TARGET` and `PICKUP: MOVE DOWN TO TARGET`. Clip mode, a question, or a busy project can toast `SMC LOCK UNAVAILABLE`. With no SMC mixer on the link, the HOME footer is `WHITE: PATTERN`, `TWO: CHAIN` and `BLACK: MUTE`. Until you press a button, the footer can say `HOLD ANY BUTTON: WHAT IT DOES`.
 
 ---
 
@@ -314,6 +338,8 @@ On HOME, black keys mute parts in **display order**. Black key 1 mutes 909. Blac
 
 The HOME `PERFORM` page has TEMPO, `SWING`, FILTER and PUMP. Default tempo is 125 bpm. The tempo range is 20 to 275 bpm. PATCH plus K2 also sets tempo from other screens.
 
+The 909's length is the bar. Other parts can have other lengths, and they can drift. Swing is the 909 pattern's swing, on HOME `PERFORM` K6, and it applies to every part.
+
 A cue, a mute or a pattern change from HOME does not play a sound on the keys. To write steps again, press SEQ.
 
 ### SONG
@@ -332,9 +358,15 @@ Press SEQ REC to turn record on or off. This acts on press. The toast is `RECORD
 
 On a bass slot, the keys play and write notes while record is on. On a drum part, black keys and knob moves record.
 
-CHORD plus a key writes an accent (on Chicago, an accent is audible). NOTE REPEAT plus a key writes a slide (on Chicago, a slide is audible). On the SEQ keyboard, NOTE REPEAT plus OCTAVE writes a tie. CHORD plus OCTAVE writes a rest.
+When the bass keyboard is on (record, or FREE PLAY on SEQ KEYS), CHORD plus a key writes an accent. NOTE REPEAT plus a key writes a slide. On Chicago, those flags are audible. On the SEQ keyboard, NOTE REPEAT plus OCTAVE writes a tie. CHORD plus OCTAVE writes a rest.
+
+On the SEQ piano roll, with the keyboard off, those modifiers do not write flags. Use K7 and K8 on the held step.
 
 FREE PLAY sits on the SEQ KEYS page. The keys play the bass slot and write nothing. The header mode is `FREE PLAY`. The footer can say `FREE PLAY: KEYS PLAY`. Strike velocity is in use.
+
+In Miami FREE PLAY, the top eight pads set wobble RATE. This is on SEQ or PARA, not in record, and not in clip mode. The rates are `1/2`, `1/4`, `1/8`, `1/16`, `1/3`, `1/6`, `1/12` and `1/24`. The footer caption is `PADS: RATE` plus the rate, for example `PADS: RATE 1/16`.
+
+Pads 9 to 12 set wobble SHAPE: `TRI`, `DOWN`, `UP` and `SQR`. Pads 13 to 16 are empty. A press on those four does nothing.
 
 External MIDI on a part's channel can record that part while record is on. This book does not claim a trial on a specific host.
 
@@ -344,9 +376,11 @@ If a recorded chord does not fit, the toast is `CHORD NOT SAVED`. Other record t
 
 ## 12. Knob motion, p-locks and chance
 
-Hold a step and turn K5–K8. This writes a p-lock for that step only. The knob tag shows `P-LOCK STEP n`. On a bass step, the roll also shows a `STEP n` line with the note and velocity.
+A p-lock of a sound knob happens on PARA. Hold the step, and turn K5–K8. The knob tag shows `P-LOCK STEP n`. On a bass step, the roll also shows a `STEP n` line with the note and velocity.
 
-Hold a step and turn K2 to set chance (probability) for that step. On a bass step, hold the step and turn K3 to set velocity.
+On SEQ, those four knobs are not p-locks. On a held bass step they set note, gate, accent and slide. On a held drum or BREAK step they stay on the SEQUENCE page. Hold the step, press PARA, then turn K5–K8 to lock.
+
+Hold a step (on SEQ or PARA) and turn K2 to set chance (probability) for that step. Turn K2 down from 100%. After 5%, the next values are A:B patterns (`1:2`, `2:2`, `1:3` and so on, through `8:8`). The A-th of every B passes. The toast shows `STEP n: 1:2`, or a percent. On a bass step, hold the step and turn K3 to set velocity.
 
 BT plus a knob forgets that knob's motion. BT plus a knob on a p-lock removes the lock.
 
@@ -370,7 +404,9 @@ The six sections are `MIDI + CLOCK`, `BLUETOOTH`, `AUDIO`, `KEYS + SCREEN`, `PRO
 
 The name is the advertised Bluetooth name (chapter 14). If the controller only starts at power-on, a change can toast `RESTART TO TURN ON`. A later flush can toast `BLUETOOTH SAVED`. This settings bit is separate from the project save on the BT button.
 
-**AUDIO.** `OUTPUT` is `NORMAL` or `LOUD`. `USB AUDIO` is `FOLLOWS KNOB` or `FULL`. `TUNE` is a global bass fine-tune for the slots together. Each part has an on/off row (`909`, `808`, `BASS A`, `BASS B`, `BREAK`). `QUEUE MUTES` and `NOTE LOCK` also live here.
+**AUDIO.** `OUTPUT` is `NORMAL` or `LOUD`. `USB AUDIO` is `FOLLOWS KNOB` or `FULL`. `TUNE` is a global bass fine-tune for the slots together. Each part has an on/off row.
+
+The on-screen name is the engine display name. For drums and BREAK, that is `909`, `808` or `BREAK`. For a bass slot, that is `CHICAGO`, `MIAMI`, `JUNO` or `DRONE`. When both slots share an engine, the screen adds a slot letter, for example `CHICAGO A`. `BASS A` and `BASS B` are slot IDs, not the row labels. `QUEUE MUTES` and `NOTE LOCK` also live here.
 
 **KEYS + SCREEN.** `LIGHTS` is `OFF`, `ON` or `KEYS`. `KEY SOUND` is `STOPPED` or `ALWAYS`. `THEME` is `GREEN`, `AMBER`, `CYAN`, `RED`, `MONO` or `LIGHT`.
 
@@ -402,6 +438,10 @@ Default channels stay with the slot, not with the engine name:
 
 A channel of OFF sends and takes no notes. On a bass slot, the on-screen row uses the engine display name plus ` MIDI CH`. The slot itself does not move. Saved data and MIDI maps keep these slot IDs.
 
+On the 909, incoming General MIDI drum notes map as follows. Kick is 36, snare is 38, and the toms are 41, 45 and 50. Rim is 37, clap is 39, closed hat is 42, open hat is 46, crash is 49, and ride is 51.
+
+The 808 uses the same notes for the first six voices. Then cowbell is 56, cymbal is 49, open hat is 46 and closed hat is 42.
+
 ### Clock
 
 If the unit waits for an external clock, SEQ PLAY blinks slowly and the toast is `WAITING FOR CLOCK`. Tempo in the header is amber when the clock is external.
@@ -422,7 +462,7 @@ The unit answers APC Device Inquiry over Bluetooth, with the same identity as ov
 
 ### Wheels and MIDI
 
-On Chicago, the pitch wheel bends pitch, and the mod wheel opens cutoff, without writing saved pots. On Miami, the mod wheel moves wobble depth. A gesture stays with the bass slot it started on. Record can record bend motion.
+On every bass engine, the pitch wheel bends pitch, without writing saved pots. The mod wheel is cutoff on Chicago, wobble depth on Miami, CUTOFF on Juno, and BRIGHTNESS on Drone. A gesture stays with the bass slot it started on. Record can record bend motion.
 
 ---
 
@@ -466,7 +506,7 @@ While the unit is in the update loader, the USB product is `SMK-37 Elite Update`
 
 Stop playback and recording before an install. Keep USB connected until the operation ends. If samples are at risk, back them up first, as the installer asks.
 
-MKE-P37 is the same hardware with a third name: USB product `DnBOX ` plus version plus ` MKE-P37`, package identity `MKE-P37_900`, Bluetooth `MKE-P37-` plus four hex digits. Starrykey 37 Play uses the Pro package.
+MKE-P37 is the same hardware with a third name: USB product `DnBOX ` plus version plus ` MKE-P37`, package identity `MKE-P37_900`, Bluetooth `MKE-P37-` plus four hex digits. Starrykey 37 Play and the SMK-37 + VA mod are the same hardware family. Starrykey 37 Play uses the Pro package. The installer still requires a package that matches the model the keyboard reports. A family match is not enough for a write.
 
 ---
 
@@ -478,17 +518,19 @@ MKE-P37 is the same hardware with a third name: USB product `DnBOX ` plus versio
 
 **The toast is `RELEASE STEP FIRST`.** Release the held step, then press SEQ.
 
-**BT did not write immediately.** If the loop was running or you were recording, the unit queues the save. The toast is `SAVES WHEN STOPPED` or a quiet or record variant. Stop, and let the unit go quiet. Then look for `SAVED`.
+**BT did not write immediately.** If the pattern was running or you were recording, the unit queues the save. The toast is `SAVES WHEN STOPPED` or a quiet or record variant. Stop, and let the unit go quiet. Then look for `SAVED`.
 
 **You wanted Bluetooth and pressed BT.** BT is Save. Open GLOBE, then BLUETOOTH.
 
-**The toast is `TB-3PO: PICK CHICAGO OR MIAMI`.** The selected slot is Juno or Drone, or another engine that is not Chicago or Miami. Pick Chicago or Miami, or leave ARP.
+**The toast is `TB-3PO: PICK CHICAGO OR MIAMI`.** The selected part is 909, 808 or BREAK. Turn K3 to a bass slot (Chicago, Miami, Juno or Drone), then press ARP.
 
 **The toast is `WAITING FOR CLOCK`.** The unit waits for an external clock. Set `CLOCK SOURCE` in GLOBE, or start the host clock.
 
-**The screen says `DnBOX CRASH`.** The firmware halted. The title is `DnBOX CRASH`, not an older product name. Power off and on.
+**The screen says `DnBOX CRASH`.** The firmware halted. The title is `DnBOX CRASH`, not an older product name. The screen stays for 4 s, with diagnostic numbers. Then the unit restarts itself. On the next boot, the unit can show `RESTARTED AFTER A CRASH`, or `THE SECOND CORE CRASHED`.
 
-If the unit starts twice and fails, you can reach `DnBOX SAFE MODE`. In safe mode, nothing that makes sound runs. Use the update loader and a verified package for your printed model.
+If the unit starts twice and fails, you can reach `DnBOX SAFE MODE`. The title is `DnBOX SAFE MODE`. The lines include `IT CRASHED TWICE`, `NO SOUND. USB IS ON:`, `REINSTALL FROM THE WEB INSTALLER.` and `PLAY: TRY AGAIN`.
+
+In safe mode, nothing that makes sound runs. USB is already on for the web installer. Press SEQ PLAY to try the application again. Use a verified package for your printed model.
 
 **An install made the unit unusable.** See chapter 16. Use a verified package for the model printed on the keyboard. Do not pick the package from the USB name alone.
 
@@ -514,11 +556,12 @@ Transport is on press. Almost every other button is on release. A hold that you 
 | BT + white key | Paste, after a copy hold. |
 | BT + knob | Forget that knob's motion, or remove a p-lock. |
 | BT + SEQ REC | Ask to clear this part. |
-| Hold a step + K5–K8 | P-lock. |
-| Hold a step + K2 | Chance. |
+| Hold a bass step on SEQ + K5–K8 | Note, gate, accent, slide. Not a p-lock. |
+| Hold a step on PARA + K5–K8 | P-lock. The tag is `P-LOCK STEP n`. On a drum or BREAK step, hold it on SEQ, press PARA, then turn the knobs. |
+| Hold a step + K2 | Chance. Past 5%, A:B (`1:2` and so on). |
 | Hold a bass step + K3 | Velocity. |
-| CHORD + key | Accent. |
-| NOTE REPEAT + key | Slide on Chicago. |
+| CHORD + key | Accent, when the bass keyboard is on (record or FREE PLAY). |
+| NOTE REPEAT + key | Slide on Chicago, when the bass keyboard is on. |
 | NOTE REPEAT + OCTAVE | Tie, on the SEQ keyboard. |
 | CHORD + OCTAVE | Rest, on the SEQ keyboard. |
 | FX + SEQ | Panic, all notes off. The view does not change. |
@@ -526,9 +569,11 @@ Transport is on press. Almost every other button is on release. A hold that you 
 | KNOB BANK | Toggle Loopy clip mode (`LOOPY CLIPS` / `LP OFF`). |
 | K4 | Cue a pattern and end a chain. |
 | Fader move after pickup | Set the same value as the matching knob. |
-| Pitch and mod wheels | Bend or open a filter-related control, without writing saved pots. |
+| Pitch and mod wheels | Bend, plus cutoff (Chicago), wobble depth (Miami), CUTOFF (Juno) or BRIGHTNESS (Drone), without writing saved pots. |
 
 OCTAVE+ at power-on together with OCTAVE− starts HARDWARE CALIBRATION. That screen re-teaches every button and K2–K8. It never teaches K1.
+
+PATCH plus SEQ REC undoes. PATCH plus SEQ PLAY redoes. Undo keeps up to 32 steps, in a 4 KiB pool. `LOAD SAVED` and `RESET PROJECT` start a new history.
 
 A live bass note cancels if the owner, the arp, or the context changes. This is so a held key does not keep sounding in the wrong place.
 
@@ -602,9 +647,9 @@ MASTER first row: Drive, COMP, PUMP, FILTER. Further: THRESH, RATIO, ATTACK, REL
 
 HOME `PERFORM`: TEMPO (20–275 bpm, default 125), `SWING`, FILTER, PUMP.
 
-### TB-3PO (ARP), Chicago or Miami only
+### TB-3PO (ARP), on a bass slot
 
-GENERATE: DENS, ACCENT, SLIDE, OCTS. SCALE: ROOT, SCALE, OCTAVE, MUTATE. OCTAVE+ writes a new line. OCTAVE− mutates it.
+ARP opens TB-3PO on any bass slot, including Juno or Drone. On 909, 808 or BREAK, ARP does not open it. GENERATE: DENS, ACCENT, SLIDE, OCTS. SCALE: ROOT, SCALE, OCTAVE, MUTATE. OCTAVE+ writes a new line. OCTAVE− mutates it.
 
 ### SEQ pages
 
@@ -632,13 +677,13 @@ The same physical control has more than one meaning. This table is the single ma
 
 **White keys.** They mean steps on SEQ, patterns on HOME, and song-bar patterns on SONG. They also audition sound on PARA drums, and play bass notes when the keyboard is on. They take a paste while you hold BT. Two white keys on HOME set the ends of a chain.
 
-**Black keys.** They select drum tracks, BREAK slices, and part mutes on HOME, in display order. They also pick a mixer channel on MIX. Hold PATCH and press a black key to mute.
+**Black keys.** They select drum tracks, BREAK slices, and part mutes on HOME, in display order. On BREAK, keys 9, 10 and 11 are momentary REV, JUNGLE and STUT. They also pick a mixer channel on MIX. Hold PATCH and press a black key to mute.
 
 **OCTAVE±.** They move step pages, and they switch pattern banks 1–16 and 17–32. They also set the bass keyboard octave, and the octave of a held step. On TB-3PO they write a new line or mutate it. While you hold BT, they pick the copy bank.
 
 **PATCH.** A tap (unused release) toggles HOME and SONG. From any other view, that tap opens HOME. The same button is also back, no, and a modifier.
 
-**NOTE REPEAT.** When clip mode is off, NOTE REPEAT is the mixer. When clip mode is on, a release of NOTE REPEAT alone is panic. With ARP in clip mode: LATCH. Held with a key: slide on Chicago.
+**NOTE REPEAT.** When clip mode is off, NOTE REPEAT is the mixer. When clip mode is on, a release of NOTE REPEAT alone is panic. With ARP in clip mode: LATCH. Held with a key, when the bass keyboard is on: slide on Chicago.
 
 **BT.** A tap (release before 250 ms) saves. At 250 ms, still held alone, the toast is `CHOOSE PASTE TARGET`. A release after 250 ms and before 400 ms, with no paste, still saves. At 400 ms the help card appears, and the release does nothing.
 
