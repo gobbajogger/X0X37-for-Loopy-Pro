@@ -333,6 +333,50 @@ class ReleasePublishTest(unittest.TestCase):
             self.assertFalse(denied.exists(), "invalid old alias must refuse before site creation")
             alias.write_bytes(original)
 
+        # The migrated 0.1.3 catalog now points at DnBOX names. Publishing
+        # 0.1.4 must not discard 0.1.3's unadvertised legacy download URLs.
+        elite_next = self.package("next-elite.fwsc", "SMK-37 Elite_9000104")
+        pro_next = self.package("next-pro.fwsc", "SMK-37 Pro_9000104")
+        grant(self.repo, "0.1.4")
+        next_er = write_record(self.repo, "elite", elite_next, Path(self.tmp.name) / "e-next", "0.1.4")
+        next_pr = write_record(self.repo, "pro", pro_next, Path(self.tmp.name) / "p-next", "0.1.4")
+        bind_models(self.repo, "0.1.4", elite_next, pro_next)
+        migrated = Path(self.tmp.name) / "new-generator-again"
+        after_upgrade = Path(self.tmp.name) / "after-0.1.4"
+        publish_valid_nightly(self.repo, next_er, next_pr, elite_next, pro_next,
+                              after_upgrade, push=False, merge=migrated)
+        after_catalog = json.loads((after_upgrade / "versions.json").read_text(encoding="utf-8"))
+        self.assertEqual({item["version"] for item in after_catalog["versions"]}, {"0.1.3", "0.1.4"})
+        older = next(item for item in after_catalog["versions"] if item["version"] == "0.1.3")
+        newer = next(item for item in after_catalog["versions"] if item["version"] == "0.1.4")
+        for model, spelled in (("elite", "Elite"), ("pro", "Pro")):
+            previous_canonical = f"DnBOX-0.1.3-SMK37-{spelled}-{git(self.repo, 'rev-parse', 'HEAD')[:8]}-hwtest.fwsc"
+            next_canonical = f"DnBOX-0.1.4-SMK37-{spelled}-{git(self.repo, 'rev-parse', 'HEAD')[:8]}-hwtest.fwsc"
+            self.assertEqual(Path(older["models"][model]["pkg"]).name, previous_canonical)
+            self.assertEqual((after_upgrade / "firmware" / previous_canonical).read_bytes(), original_bytes[model])
+            self.assertEqual((after_upgrade / "firmware" / old_names[model]).read_bytes(), original_bytes[model])
+            self.assertEqual(older["models"][model]["compat_alias"], "../firmware/" + old_names[model])
+            self.assertEqual(Path(newer["models"][model]["pkg"]).name, next_canonical)
+            self.assertEqual((after_upgrade / "firmware" / next_canonical).read_bytes(),
+                             {"elite": elite_next, "pro": pro_next}[model].read_bytes())
+
+        # A retained alias recorded in the migrated catalog is mandatory,
+        # even when the next release has a different numeric version.
+        cross_alias = migrated / "firmware" / old_names["pro"]
+        cross_original = cross_alias.read_bytes()
+        for fault in ("corrupt", "missing"):
+            if fault == "corrupt":
+                cross_alias.write_bytes(cross_original + b"tamper")
+            else:
+                cross_alias.unlink()
+            denied = Path(self.tmp.name) / ("retained-denied-" + fault)
+            with self.subTest(fault=fault), self.assertRaisesRegex(
+                    NightlyPublishError, "prior firmware URL"):
+                publish_valid_nightly(self.repo, next_er, next_pr, elite_next, pro_next,
+                                      denied, push=False, merge=migrated)
+            self.assertFalse(denied.exists(), "invalid retained alias must refuse before site creation")
+            cross_alias.write_bytes(cross_original)
+
     def test_null_catalog_product_is_a_structured_refusal(self):
         try:
             version_of_product(None, "elite")
