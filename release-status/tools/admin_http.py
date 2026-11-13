@@ -14,6 +14,8 @@ import json
 import os
 import secrets
 import sys
+import threading
+import time
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -121,9 +123,22 @@ class AdminHTTP(ThreadingHTTPServer):
         self.allow_commit = allow_commit and self.owner_verified and bool(token and expected_head)
         self.expected_head = expected_head
         self.csrf = secrets.token_urlsafe(32)
-        self.pending: dict[str, dict] = {}
+        self.pending: dict[str, tuple[float, dict]] = {}
         self.report_file = report_file
+        self.report_lock = threading.Lock()
         self.seen_reports: dict[str, int] = {}
+        if report_file is not None and report_file.exists():
+            if report_file.stat().st_size > 4_000_000:
+                raise ValueError("existing report file exceeds privacy-minimal size cap")
+            for line in report_file.read_text(encoding="utf-8").splitlines():
+                try:
+                    old = json.loads(line)
+                    run = old.get("run_id")
+                    seq = old.get("sequence")
+                    if isinstance(run, str) and type(seq) is int:
+                        self.seen_reports[run] = max(seq, self.seen_reports.get(run, 0))
+                except (ValueError, AttributeError):
+                    raise ValueError("invalid existing report log: refuse unsafe replay tracking")
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -163,6 +178,24 @@ class Handler(BaseHTTPRequestHandler):
             return self._static("index.html", "text/html; charset=utf-8")
         if self.path == "/app.js":
             return self._static("app.js", "text/javascript; charset=utf-8")
+        if self.path == "/public":
+            body = (ROOT / "public" / "index.html").read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if self.path == "/catalog/catalog.json":
+            body = (ROOT / "catalog" / "catalog.json").read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if self.path == "/api/status":
             records = load_records(RECORDS)
             summaries = []
@@ -215,13 +248,19 @@ class Handler(BaseHTTPRequestHandler):
                 sanitized = sanitize_installer_report(rec, obj)
                 key = sanitized["run_id"]
                 sequence = sanitized["sequence"]
-                if sequence <= self.server.seen_reports.get(key, 0):
-                    raise OutcomeError("duplicate or out-of-order installer report")
-                self.server.seen_reports[key] = sequence
-                path = self.server.report_file
-                path.parent.mkdir(parents=True, exist_ok=True)
-                with path.open("a", encoding="utf-8") as fh:
-                    fh.write(json.dumps(sanitized, sort_keys=True) + "\n")
+                with self.server.report_lock:
+                    if sequence <= self.server.seen_reports.get(key, 0):
+                        raise OutcomeError("duplicate or out-of-order installer report")
+                    if len(self.server.seen_reports) >= 10000 and key not in self.server.seen_reports:
+                        raise OutcomeError("report receiver capacity reached")
+                    path = self.server.report_file
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    if path.exists() and path.stat().st_size > 4_000_000:
+                        raise OutcomeError("report receiver storage cap reached")
+                    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+                    with os.fdopen(fd, "a", encoding="utf-8") as fh:
+                        fh.write(json.dumps(sanitized, sort_keys=True) + "\n")
+                    self.server.seen_reports[key] = sequence
                 return self._respond(202, {
                     "recorded": True, "confidence": "anonymous-unverified",
                     "authorizes_hardware_approval": False, "promoted": False,
@@ -234,14 +273,15 @@ class Handler(BaseHTTPRequestHandler):
             if self.path == "/api/preview":
                 prepared = prepare_preview(obj, owner_login=self.server.owner_login)
                 nonce = secrets.token_urlsafe(18)
-                self.server.pending[nonce] = prepared if prepared["accepted"] else {}
+                self.server.pending[nonce] = (time.monotonic(), prepared if prepared["accepted"] else {})
                 return self._respond(200, {**public_preview(prepared), "preview_id": nonce})
 
             if self.path == "/api/commit":
                 if not self.server.allow_commit:
                     return self._respond(403, {"error": "commit disabled; preview is dry-run"})
                 nonce = obj.get("preview_id")
-                prepared = self.server.pending.pop(nonce, None)
+                pending = self.server.pending.pop(nonce, None)
+                prepared = pending[1] if pending and time.monotonic() - pending[0] <= 300 else None
                 if not prepared or not prepared.get("accepted"):
                     raise OutcomeError("missing, expired or already consumed accepted preview")
                 files = {
