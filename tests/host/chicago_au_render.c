@@ -30,7 +30,6 @@
 #include "../../firmware/src/app/chicago_ens.h"
 #include "../../firmware/src/app/chicago_phaser.h"
 #include "../../firmware/src/app/chicago_sdly.h"
-#define X0X_FX_BEATS_DEFINE
 #include "../../firmware/src/app/chicago_bpmdly.h"
 #include "../../firmware/src/app/chicago_hall.h"
 #include "../../firmware/src/app/chicago_gaterev.h"
