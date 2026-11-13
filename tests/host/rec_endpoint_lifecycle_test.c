@@ -214,10 +214,31 @@ static void test_timestamped_live_duration(void)
 
     capture_reset(16, 0);
     capture_midi(441, 0, 48, 90); capture_frames(6000);
+    bpart_t before_selection = *bp;
+    bpart_t other_bass = proj.pat[0].bass[1];
     ui.part = PART_303B; input(); capture_frames(1);
-    CHECK(!seq.rec_bass[0].active, "selection change finalizes original destination");
+    /* REC-07B: external MIDI follows its channel, independently of selection. */
+    CHECK(seq.rec_bass[0].active, "selection change preserves original external capture");
+    CHECK(seq.rec_bass[0].pat == 0 && seq.rec_bass[0].first == 0 &&
+          seq.rec_bass[0].note == 48 && seq.rec_bass[0].src == 0,
+          "selection change preserves original pattern, onset, note and source");
+    CHECK(!memcmp(bp, &before_selection, sizeof before_selection),
+          "selection change does not finalize or rewrite original captured duration");
+    CHECK(engine_bass_keys_held() & 1, "selection change preserves original live gate");
     capture_midi(9000, 0, 48, 0);
-    CHECK(bstep_gate(&proj.pat[0].bass[1].step[0]) == G_REST, "release after selection does not write new part");
+    CHECK(!seq.rec_bass[0].active && !(engine_bass_keys_held() & 1),
+          "own note-off after selection ends original capture and live gate");
+    CHECK(bstep_gate(&bp->step[0]) == G_NOTE && bp->step[0].note == 48 &&
+          !(bp->step[0].flags >> 4) && bstep_gate(&bp->step[1]) == G_TIE &&
+          (bp->step[1].flags >> 4) == 9 && bstep_gate(&bp->step[2]) == G_REST,
+          "own note-off stores original note with the later terminal endpoint");
+    CHECK(!seq.rec_bass[1].active && !memcmp(&proj.pat[0].bass[1], &other_bass, sizeof other_bass),
+          "selection and release leave the other bass capture and pattern untouched");
+    capture_playback(12000);
+    /* At 120 BPM/44.1 kHz, 9000 is nearest to step one's 9/15 endpoint:
+     * 5512.5 + 9/15 * 5512.5 = 8820, within half a 367.5-sample bin. */
+    CHECK(abs((int)capture_first_off() - 9000) <= 185,
+          "selection preserves playback duration until own note-off within half endpoint bin (off=%u)", capture_first_off());
     capture_reset(16, 0);
     capture_midi(441, 0, 48, 90); capture_frames(6000);
     seq_stop(&seq); capture_frames(1);
