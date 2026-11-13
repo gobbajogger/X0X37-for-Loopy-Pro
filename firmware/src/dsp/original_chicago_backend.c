@@ -3,7 +3,10 @@
 #include "binary32_classify.h"
 #include "binary32_math.h"
 #include "chicago_packed.h"
-#include "motion_tables_private.h"
+/* One shared pitch table: defined in original_miami_backend.c as an alias
+ * of the table in motion_tables_private.h. This file does not include that
+ * header, so the compiler does not emit a second copy. */
+extern const int32_t original_pitch44100[128];
 #include <string.h>
 
 #define BACKEND_READY UINT32_C(0x43484231)
