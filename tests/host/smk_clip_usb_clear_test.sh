@@ -18,5 +18,6 @@ awk '/^#define PADLED_N 16u/{on=1} on && /^#endif/{exit} on' "$SRC/lcd.c" > $OUT
 for f in apc_a apc_b apc_c padled; do
     test -s $OUT/$f.inc || { echo "FAIL: marker for $f.inc not found"; exit 1; }
 done
-${CC:-cc} -std=gnu99 -O1 -w -I"$SRC" -I$OUT -o $OUT/smk_clip_usb_clear_test tests/host/smk_clip_usb_clear_test.c
+# Match the existing BOARD_SMK37 host fixture with an explicit Pro identity.
+${CC:-cc} '-DSMK_MODEL="SMK-37 Pro"' -std=gnu99 -O1 -w -I"$SRC" -I$OUT -o $OUT/smk_clip_usb_clear_test tests/host/smk_clip_usb_clear_test.c
 $OUT/smk_clip_usb_clear_test

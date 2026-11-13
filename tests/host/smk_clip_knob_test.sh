@@ -34,6 +34,7 @@ for f in apc_a apc_b ck_a ck_b autosave padled; do
 done
 [ "$EXTRACT_ONLY" = 0 ] || exit 0
 # CK_RATE_T / ck_arp_pick live in smk_clip_arp_share.c (size share); same link as smk-clip-keys.
-${CC:-cc} -std=gnu99 -O1 -w -I$SRC -Ifirmware/hal -I$OUT -o $OUT/smk_clip_knob_test \
+# Match the existing BOARD_SMK37 host fixture with an explicit Pro identity.
+${CC:-cc} '-DSMK_MODEL="SMK-37 Pro"' -std=gnu99 -O1 -w -I$SRC -Ifirmware/hal -I$OUT -o $OUT/smk_clip_knob_test \
   tests/host/smk_clip_knob_test.c firmware/src/app/smk_clip_arp_share.c
 $OUT/smk_clip_knob_test
