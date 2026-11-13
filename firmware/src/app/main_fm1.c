@@ -1095,20 +1095,22 @@ static void smk_wheels(void)
             engine_bass_mod(cut_part, (int)want);
             motion_touch(PR(R_ENG, T_303, cut_part, engine_bass_mod_param(cut_part)));
 #if BOARD_SMK37
-            ui_wheel_mod(1, cut_part, (int)want, 0, 0);
+            ui_wheel_mod(cut_part, -1, (int)want);
 #endif
             if (!mw)
                 cut_part = -1;
         }
 #if BOARD_SMK37
         else
-            ui_wheel_mod(mw ? 3 : 0, 0, 0, 0, 0);
+            ui_wheel_mod(mw ? -2 : -1, -1, (int)mw);
 #endif
         mw_now = (int16_t)mw;
     }
     /* External MIDI bend / CC1 on a part's channel record like the wheels. */
     {
-        int wn = 0, wv0 = 0, wl0 = 0, wv1 = 0, wl1 = 0;
+#if BOARD_SMK37
+        int wv0 = -1, wv1 = -1;
+#endif
         for (int v = 0; v < NBASS; ++v) {
             int t = engine_bass_ext_touch(v);
             if (t & 1) motion_touch(PR(R_ENG, T_303, v, engine_bass_is_wobble(v) ?
@@ -1116,15 +1118,13 @@ static void smk_wheels(void)
             if (t & 2) {
                 motion_touch(PR(R_ENG, T_303, v, engine_bass_mod_param(v)));
 #if BOARD_SMK37
-                if (wn == 0) { wv0 = v; wl0 = engine_bass_mod_ctl(v); }
-                else if (wn == 1) { wv1 = v; wl1 = engine_bass_mod_ctl(v); }
-                wn++;
+                if (wv0 < 0) wv0 = v;
+                else if (wv1 < 0) wv1 = v;
 #endif
             }
         }
 #if BOARD_SMK37
-        if (wn)
-            ui_wheel_mod(wn > 2 ? 2 : wn, wv0, wl0, wv1, wl1);
+        if (wv0 >= 0) ui_wheel_mod(wv0, wv1, -1);
 #endif
     }
 #if X0X_BASS_PRESET_PREVIEW
