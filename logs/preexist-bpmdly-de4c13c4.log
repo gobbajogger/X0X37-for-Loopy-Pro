@@ -1,0 +1,7 @@
+tests/host/chicago_bpmdly_test.c:6:10: fatal error: bass303.h: No such file or directory
+    6 | #include "bass303.h"
+      |          ^~~~~~~~~~~
+compilation terminated.
+firmware/src/app/chicago_param_tables.c:18:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   18 | {
+      | ^
