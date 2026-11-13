@@ -1,0 +1,43 @@
+===== new commit =====
+commit 354564c3c282477ab3ccc7b09a0f446583746814
+  author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>
+  committer: gobbajogger <255244738+gobbajogger@users.noreply.github.com>
+  date: 2026-11-14 01:02:10 +1000
+  subject: Revert "Share one beat-division table between the Mix delay and Chicago BPM Delay."
+
+This reverts commit de4c13c4f395973e5dc4e4879e41e849ad632580.
+
+===== 94197fc8..354564c3 authors =====
+354564c3 gobbajogger <255244738+gobbajogger@users.noreply.github.com> | gobbajogger <255244738+gobbajogger@users.noreply.github.com> | Revert "Share one beat-division table between the Mix delay and Chicago BPM Delay."
+de4c13c4 gobbajogger <255244738+gobbajogger@users.noreply.github.com> | gobbajogger <255244738+gobbajogger@users.noreply.github.com> | Share one beat-division table between the Mix delay and Chicago BPM Delay.
+fea8f800 gobbajogger <255244738+gobbajogger@users.noreply.github.com> | gobbajogger <255244738+gobbajogger@users.noreply.github.com> | Replace the Chicago chorus wet table with an exact Q15 shift.
+3a2ecd15 gobbajogger <255244738+gobbajogger@users.noreply.github.com> | gobbajogger <255244738+gobbajogger@users.noreply.github.com> | Share the Chicago drive Q15 ramp with the same global table.
+bbf373c8 gobbajogger <255244738+gobbajogger@users.noreply.github.com> | gobbajogger <255244738+gobbajogger@users.noreply.github.com> | Share one Q15 ramp table between Miami wet and Chicago linear.
+1c0f37fd gobbajogger <255244738+gobbajogger@users.noreply.github.com> | gobbajogger <255244738+gobbajogger@users.noreply.github.com> | Share one IMA_ROUND_CORR table between the 909 and BREAK decoders.
+59282a84 gobbajogger <255244738+gobbajogger@users.noreply.github.com> | gobbajogger <255244738+gobbajogger@users.noreply.github.com> | Store EXP pot curves with a linear IEEE-bit predictor.
+5849cb11 gobbajogger <255244738+gobbajogger@users.noreply.github.com> | gobbajogger <255244738+gobbajogger@users.noreply.github.com> | Store EXP pot curves as successive IEEE-bit deltas.
+d99a2588 gobbajogger <255244738+gobbajogger@users.noreply.github.com> | gobbajogger <255244738+gobbajogger@users.noreply.github.com> | Share one pitch table between the Chicago and Miami backends.
+===== files 94197fc8..354564c3 =====
+M	experiments/original_synth/chicago_drive.c
+M	experiments/original_synth/chicago_modulation.c
+M	experiments/wobble/miami_decimator_adapter.c
+M	firmware/src/dsp/ima_adpcm.h
+M	firmware/src/dsp/original_chicago_backend.c
+M	firmware/src/dsp/original_miami_backend.c
+M	tests/host/breaks_reverse_seek_perf_test.c
+M	tests/host/ima_decode_perf_test.c
+M	tests/host/ima_delta_lut_exact_test.c
+M	tools/gen_drum_samples.py
+===== files vs parent =====
+M	firmware/src/app/chicago_bpmdly.h
+M	firmware/src/dsp/fxbus.c
+M	tests/host/chicago_au_render.c
+M	tests/host/chicago_bpmdly_test.c
+M	tests/host/chicago_fx2_inserts_test.c
+===== main/nightly/.github in new commit? =====
+none
+===== branches containing =====
+  lane/opt-flash-savings-026
+===== GitHub =====
+{"message":"Branch not found","documentation_url":"https://docs.github.com/rest/branches/branches#get-a-branch","status":"404"}gh: Branch not found (HTTP 404)
+

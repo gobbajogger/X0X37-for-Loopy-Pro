@@ -1,0 +1,15 @@
+===== git log fea8f800..HEAD =====
+354564c3c282477ab3ccc7b09a0f446583746814
+  author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>
+  committer: gobbajogger <255244738+gobbajogger@users.noreply.github.com>
+  subject: Revert "Share one beat-division table between the Mix delay and Chicago BPM Delay."
+de4c13c4f395973e5dc4e4879e41e849ad632580
+  author: gobbajogger <255244738+gobbajogger@users.noreply.github.com>
+  committer: gobbajogger <255244738+gobbajogger@users.noreply.github.com>
+  subject: Share one beat-division table between the Mix delay and Chicago BPM Delay.
+===== git diff --stat =====
+===== git diff --name-status =====
+===== trees =====
+fea8f800 ca188672ec67ffae8dcf3177d20b941c979633dd
+354564c3 ca188672ec67ffae8dcf3177d20b941c979633dd
+DIFF_CLEAN=1

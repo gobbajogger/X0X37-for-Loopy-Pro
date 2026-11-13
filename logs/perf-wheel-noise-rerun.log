@@ -1,0 +1,5 @@
+START 2026-11-14T01:41:13+10:00 SHA=354564c3c282477ab3ccc7b09a0f446583746814
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   perf-wheel-noise
+all tests passed
+END 2026-11-14T01:41:26+10:00 EXIT=0

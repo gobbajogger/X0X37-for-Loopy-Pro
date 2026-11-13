@@ -1,0 +1,49 @@
+START 2026-11-14T01:05:48+10:00
+KILL_DONE n_killed=20 see /workspace/qa-runs/354564c3/logs/kill-de4c13c4.txt
+HEAD=354564c3c282477ab3ccc7b09a0f446583746814 expected=354564c3c282477ab3ccc7b09a0f446583746814
+ITEM1_DIFF=CLEAN trees_equal=True bit-identity/not-slower CARRY OVER harness NOT re-run
+ITEM5_AUTHOR='gobbajogger <255244738+gobbajogger@users.noreply.github.com>' COMMITTER='gobbajogger <255244738+gobbajogger@users.noreply.github.com>' SUBJECT='Revert "Share one beat-division table between the Mix delay and Chicago BPM Delay."' forbidden_paths=none
+ELITE_BUILD_EXIT=0
+PRO_BUILD_EXIT=0
+ITEM4_ELITE_FREE=11240 expect=11240 PASS
+ITEM4_ELITE_IMAGE=541432 RAM_COMBINED=95536 POOL=335724
+ITEM4_ELITE_ELF_SHA=0b62b3993a3cba688e6a0a2c916487f0e01457fd0b9eea59f410d368af7e09a6 SIZE=626180
+ITEM4_ELITE_BIN_SHA=d1517403a7aa17561b8773fe685f36c630141229d3f1e4bf0f3b21576f1757a6 SIZE=541432
+ITEM4_PRO_FREE=11248 expect=11248 PASS
+ITEM4_PRO_IMAGE=541424 RAM_COMBINED=95536 POOL=335724
+ITEM4_PRO_ELF_SHA=bbfd705390823657ca39e0eba72a26facb018161b3e56b75549c8e1efd87f9c9 SIZE=626176
+ITEM4_PRO_BIN_SHA=650836bc68b360c62c03e02a697c69a9a980cb879479fd002b05954ef5b3fe64 SIZE=541424
+ITEM4_ELITE_NM=
+01c1f530 B _bss_end
+01c08250 B _bss_start
+01c0824c D _data_end
+01c08000 D _data_start
+01c71f6c B _pool_end
+01c20000 B _pool_start
+ITEM4_PRO_NM=
+01c1f530 B _bss_end
+01c08250 B _bss_start
+01c0824c D _data_end
+01c08000 D _data_start
+01c71f6c B _pool_end
+01c20000 B _pool_start
+ITEM4_EXPECT_DATA=588 BSS=94944 RAM=95536 POOL=335724
+ITEM2_OK=440 FAIL=3 SKIP=0 NOTRUN=0
+ITEM2_FAILS:
+  FAIL engine-808-scratch-alias (see build/host/engine-808-scratch-alias.log)
+  FAIL offline-sequencer-browser (see build/host/offline-sequencer-browser.log)
+  FAIL perf-wheel-noise (see build/host/perf-wheel-noise.log)
+ITEM2_SKIPS:
+ITEM2_NOTRUNS:
+ITEM2_EXIT=1
+ITEM2_PASSED_LINE all_passed=False tests_failed=True
+ITEM2_VS_BASE: base was 433 ok / 2 FAIL(env) / 1 skip
+ITEM2_COUNT_MATCH=0
+ITEM2_SUITE_EC=1
+ITEM3_QC_EC=0
+ITEM3_QC_TAIL:
+  START 2026-11-14T01:38:21+10:00
+  X0X_REPO=/workspace/x0x37.git X0X_QC_WORK=/workspace/qa-runs/354564c3/qc-work X0X_QC_BASE=94197fc839b00aff47b98ca02f3c6396e4a6eabf SHA=354564c3c282477ab3ccc7b09a0f446583746814
+  QUICK PASS 354564c 119 s (79 tests ok)
+  END 2026-11-14T01:40:20+10:00 EXIT=0
+END 2026-11-14T01:40:20+10:00 ALL_DONE

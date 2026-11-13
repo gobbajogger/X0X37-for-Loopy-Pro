@@ -1,0 +1,7 @@
+===== elite =====
+01c1f530 B _bss_end
+01c08250 B _bss_start
+01c0824c D _data_end
+01c08000 D _data_start
+01c71f6c B _pool_end
+01c20000 B _pool_start
