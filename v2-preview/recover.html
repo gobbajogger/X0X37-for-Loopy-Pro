@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Recover — DnBOX</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-head">
+    <div class="inner">
+      <a class="wordmark" href="index.html">DnBOX</a>
+      <nav aria-label="Site">
+        <a href="first.html">First pattern</a>
+        <a href="install.html">Install</a>
+        <a href="presets.html">Presets</a>
+        <a href="recover.html" aria-current="page">Recover</a>
+      </nav>
+    </div>
+    <p class="truth-strip">Read this before you start a write, not only after one fails. This page is a guide. It cannot see your keyboard.</p>
+  </header>
+
+  <main id="content">
+    <h1>If the keyboard will not start</h1>
+    <p class="lead">Keep the USB cable connected until any write already in progress has finished. Do not unplug mid-write. A dark display during a write can be normal — do not switch the device off to “fix” it.</p>
+    <p>The nightly SMK manual says to retain the activity log, the selected package version, and the exact model, and to report them. It also says: do not use another device’s stock firmware or recovery instructions, and do not treat the FM-1 recovery procedure as an SMK procedure.</p>
+
+    <ul class="ifthen">
+      <li>
+        <strong>A write is still running, or the display went dark during a write</strong>
+        Leave it. Keep USB connected. A dark display during a write can be normal. Do not power-cycle. When the installer can talk again, finish the <em>same</em> package.
+      </li>
+      <li>
+        <strong>The write stopped, or the USB cable came out</strong>
+        This page cannot tell, from a still screen, whether the keyboard will start on its own. Replug the same cable. Open the installer and finish the same package from update mode. Do not switch to a different package to “rescue” a half-write.
+      </li>
+      <li>
+        <strong>The connected device did not match the package</strong>
+        Nothing should have been written. Look at the name printed on the case — a USB or port name is not confirmation. Choose the Elite or Pro package that matches, and let the installer check the connected device again.
+      </li>
+      <li>
+        <strong>The screen stays black, or Restarting does not end, after a write</strong>
+        Retain the activity log, the package version, and the exact model. Use the installer to restore M-VAVE stock firmware, or use M-VAVE M-UPGRADE with the stock package for <em>this</em> model. Report those three facts. Do not use a stock file for a different keyboard.
+      </li>
+      <li>
+        <strong>Original 0.0.26 (<span class="mono">600b3b45</span>) is already on the device</strong>
+        That package was withdrawn after reports of updates stuck at Restarting and very long or failed startup. Do not reinstall it. Restore stock firmware, then, if you install again, use 0.0.25.1, the known-good fallback.
+      </li>
+      <li>
+        <strong>I only wanted the factory software back</strong>
+        The installer can restore M-VAVE stock firmware. M-UPGRADE, from M-VAVE’s download page, does the same. Use the stock package for the model printed on the case.
+      </li>
+    </ul>
+
+    <div class="callout warn">
+      <h2>What this page will not tell you to do</h2>
+      <p>It will not give you the FM-1 rescue script from the production manual’s section 17. The nightly SMK manual is explicit: do not treat that procedure as an SMK procedure. It will not tell you to install another device’s stock firmware. It will not tell you that the keyboard will start, after a stopped write, because this page cannot know that.</p>
+    </div>
+
+    <p class="actions">
+      <a class="btn" href="install.html">Open the installer</a>
+      <a class="btn-ghost btn" href="install.html#s=err-usb">See a stopped-write example</a>
+    </p>
+    <p class="note">The installer in this prototype is a simulation. It does not connect, and it does not write.</p>
+  </main>
+
+  <footer class="footer">
+    <p>This is a static prototype. Nothing here connects to a device or writes firmware.</p>
+  </footer>
+</body>
+</html>

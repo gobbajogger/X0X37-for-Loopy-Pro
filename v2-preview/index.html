@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>DnBOX — what do you need to do?</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-head">
+    <div class="inner">
+      <a class="wordmark" href="index.html" aria-current="page">DnBOX</a>
+      <nav aria-label="Site">
+        <a href="first.html">First pattern</a>
+        <a href="install.html">Install</a>
+        <a href="presets.html">Presets</a>
+        <a href="recover.html">Recover</a>
+      </nav>
+    </div>
+    <p class="truth-strip">Public package <strong>0.0.25.1</strong> is the known-good fallback. It is software-checked, and not signed off as a physical device test.</p>
+  </header>
+
+  <main id="content">
+    <p class="muted" style="margin-bottom:0.35rem">Firmware for the M-VAVE SMK-37 Elite and Pro</p>
+    <h1>What do you need to do?</h1>
+    <p class="lead">This site is arranged around the jobs on the instrument, not around a product pitch. Pick the next useful step.</p>
+
+    <ol class="tasks">
+      <li>
+        <a class="task" href="first.html">
+          <div>
+            <h2>Play a first pattern</h2>
+            <p>After a first start the screen shows an empty 909. The published tour gets a kick playing, and a save, in a few minutes.</p>
+          </div>
+          <span class="go">Open the tour</span>
+        </a>
+      </li>
+      <li>
+        <a class="task" href="install.html">
+          <div>
+            <h2>Install or update</h2>
+            <p>Choose the keyboard by the name on the case, take the known-good package unless you mean otherwise, back up sample slots, then write. Recovery is on the page before you start.</p>
+          </div>
+          <span class="go">Open the installer</span>
+        </a>
+      </li>
+      <li>
+        <a class="task" href="presets.html">
+          <div>
+            <h2>Back up or load a preset</h2>
+            <p>Save a sound as a <span class="mono">.dnpr</span> file, or check a shared file before anything is overwritten. A live send to the keyboard is not available yet.</p>
+          </div>
+          <span class="go">Open presets</span>
+        </a>
+      </li>
+      <li>
+        <a class="task" href="recover.html">
+          <div>
+            <h2>Recover a keyboard that will not start</h2>
+            <p>If a write stopped, the screen is dark, or Restarting does not end, this is the next safe step — including before you install.</p>
+          </div>
+          <span class="go">Open recovery</span>
+        </a>
+      </li>
+      <li>
+        <a class="task" href="first.html#engines">
+          <div>
+            <h2>Learn the engines</h2>
+            <p>What the published manual and the current preset format each call the parts, without smoothing over the difference.</p>
+          </div>
+          <span class="go">See the engines</span>
+        </a>
+      </li>
+      <li>
+        <a class="task" href="first.html#live">
+          <div>
+            <h2>Get ready to play live</h2>
+            <p>USB MIDI and audio, what SAVE does on stage, and how to read the performance screen when a pattern is busy.</p>
+          </div>
+          <span class="go">Play live</span>
+        </a>
+      </li>
+    </ol>
+
+    <h2>What the first start looks like</h2>
+    <p>The published playing manual says that when the firmware starts, the screen shows the 909 and every part is empty. The picture below is an emulator capture of that screen, not a photograph of a hardware unit.</p>
+    <figure class="lcd">
+      <img src="assets/lcd-909-seq-empty.png" width="720" height="720" alt="Emulator capture of a DnBOX screen: 909 SEQ, pattern 1, 125 BPM, an empty 16-step grid, LENGTH 16 steps, RATE 1/16, and the hint HOLD ANY BUTTON: WHAT IT DOES.">
+      <figcaption>Emulator capture, not hardware. Empty 909 sequencer, from <span class="mono">lcd-elite-360mhz-15001ms-3x.png</span>.</figcaption>
+    </figure>
+
+    <div class="draw-wrap">
+      <img class="smk-draw" src="assets/smk37.svg" width="916" height="362" alt="Authored line drawing of an M-VAVE SMK-37: 37 keys C to C, wheels at the upper left, display and pads, eight encoders in one row, four faders on the right.">
+      <p class="faint" style="margin-top:0.4rem;font-size:0.88rem">Supported hardware, drawn small: M-VAVE SMK-37 Elite and Pro. Authored from the official panel layout. Not a photograph, and not a live device.</p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>This is a static prototype. Nothing here connects to a device, writes firmware, or runs a real DNPR codec.</p>
+    <p>DnBOX is spelled exactly that way. Public package 0.0.25.1 is not a hardware-verified release.</p>
+  </footer>
+</body>
+</html>

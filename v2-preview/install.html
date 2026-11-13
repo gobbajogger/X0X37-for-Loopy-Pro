@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Install DnBOX</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-head">
+    <div class="inner">
+      <a class="wordmark" href="index.html">DnBOX</a>
+      <nav aria-label="Site">
+        <a href="first.html">First pattern</a>
+        <a href="install.html" aria-current="page">Install</a>
+        <a href="presets.html">Presets</a>
+        <a href="recover.html">Recover</a>
+      </nav>
+    </div>
+    <p class="truth-strip">This installer is a simulation. It does not connect to a device and it does not write firmware.</p>
+  </header>
+
+  <div class="stage-wrap">
+    <ol class="stage" id="stage" aria-label="Install stages">
+      <li data-stages="device">Device</li>
+      <li data-stages="version">Version</li>
+      <li data-stages="path">Path</li>
+      <li data-stages="backup">Backup</li>
+      <li data-stages="writing">Write</li>
+      <li data-stages="done">Done</li>
+    </ol>
+  </div>
+
+  <main id="content" class="wide">
+    <div class="card" id="card">
+
+      <!-- DEVICE -->
+      <section data-s="device">
+        <h1>Install DnBOX</h1>
+        <p>Choose the model printed on the keyboard. A USB or port name is not confirmation. The real installer also checks the connected device and stops if they do not match.</p>
+        <fieldset>
+          <legend>Which keyboard is this?</legend>
+          <label class="choice">
+            <input type="radio" name="model" value="elite">
+            <span><strong>SMK-37 Elite</strong>
+              <p class="why">Use the Elite package. Look at the name printed on the case, not the name the computer shows for the USB port.</p>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="model" value="pro">
+            <span><strong>SMK-37 Pro</strong>
+              <p class="why">Use the Pro package. Starrykey 37 Play uses this package too (production README).</p>
+            </span>
+          </label>
+        </fieldset>
+        <div class="callout">
+          <p>The nightly manual: “A connection name is not proof of the board model.” The live installer also notes that an Elite on some builds may report a Pro-like USB name — still use the printed name, and let the installer check. If they disagree, the write must not start.</p>
+        </div>
+        <div class="card-foot">
+          <p><a href="recover.html">If the device does not start</a></p>
+          <button type="button" class="btn" data-next="version" data-need="model">This is the printed name — continue</button>
+        </div>
+      </section>
+
+      <!-- VERSION -->
+      <section data-s="version" hidden>
+        <h1>Which package?</h1>
+        <p>The default is the known-good fallback. A newer candidate is listed only with its limits, and is not selected.</p>
+        <fieldset>
+          <legend>Package version</legend>
+          <label class="choice">
+            <input type="radio" name="ver" value="251" checked>
+            <span><strong>0.0.25.1 — known-good fallback</strong>
+              <span class="tag tag-ok">Known-good fallback</span>
+              <p class="why">On-device label 0.0.25. Source revision <span class="mono">79280e76</span>. Software-checked, not signed off as a physical device test. This is the default.</p>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="ver" value="026">
+            <span><strong>0.0.26 — hardware-test candidate <span class="mono">94197fc8</span></strong>
+              <span class="tag tag-warn">Not verified on hardware</span>
+              <p class="why">For owner-operated testing. Physical startup, restart and recovery are not yet verified. Not a stable-release recommendation. The owner reports tests on the Elite, not on the Pro, and not as full qualification.</p>
+            </span>
+          </label>
+        </fieldset>
+        <p class="note">The original 0.0.26 at <span class="mono">600b3b45</span> was withdrawn after reports of updates stuck at Restarting and very long or failed startup. It is not offered. If that package is already on a device, <a href="recover.html">restore stock</a> — do not reinstall it.</p>
+        <div class="callout warn" id="ack026" hidden>
+          <h2>Confirm you have read the limits</h2>
+          <p>0.0.26 at <span class="mono">94197fc8</span> is not recommended as a stable release. Physical startup is not verified. To use it in this prototype, confirm that you have read that.</p>
+          <label><input type="checkbox" id="ack026box"> I have read that this candidate is not hardware-verified, and is not the known-good fallback.</label>
+        </div>
+        <div class="card-foot">
+          <button type="button" class="btn-ghost btn" data-next="device">Back</button>
+          <button type="button" class="btn" id="ver-next" data-next="path">Use this package</button>
+        </div>
+      </section>
+
+      <!-- PATH -->
+      <section data-s="path" hidden>
+        <h1>Which path are you on?</h1>
+        <p>Both of these are supported. They are equal choices, not a preferred path and a fallback.</p>
+        <fieldset>
+          <legend>How are you installing?</legend>
+          <label class="choice">
+            <input type="radio" name="path" value="computer">
+            <span><strong>Chrome or Edge on a computer</strong>
+              <p class="why">The path named in the nightly and production READMEs, with the keyboard on USB.</p>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="path" value="iphone">
+            <span><strong>From an iPhone, with a compatible app</strong>
+              <span class="tag tag-warn">UNVERIFIED: route pending Installer QA</span>
+              <p class="why">This path is supported. The exact app and the exact steps have not been confirmed by Installer QA. This page does not name an app.</p>
+            </span>
+          </label>
+        </fieldset>
+        <div class="card-foot">
+          <button type="button" class="btn-ghost btn" data-next="version">Back</button>
+          <button type="button" class="btn" data-next="backup" data-need="path">Continue</button>
+        </div>
+      </section>
+
+      <!-- BACKUP -->
+      <section data-s="backup" hidden>
+        <h1>Back up sample slots first</h1>
+        <p>The nightly and production READMEs both say this. The nightly manual: before changing firmware, save important samples and export songs, and keep the exported files. An install that would lose loops may save and restore them, but a backup of your own is still the safe option (production README, FAQ).</p>
+        <fieldset>
+          <legend>Backup</legend>
+          <label class="choice">
+            <input type="radio" name="bak" value="done">
+            <span><strong>I have a backup, or I will make one before a real write</strong>
+              <p class="why">In the real installer this is a sample-slot backup to a <span class="mono">.x0xslots</span> file. This prototype does not talk to a device, so it cannot make that file.</p>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="bak" value="empty">
+            <span><strong>The slots are empty, and I accept that</strong>
+              <p class="why">Only choose this if there is nothing in the slots you want to keep.</p>
+            </span>
+          </label>
+        </fieldset>
+        <div class="card-foot">
+          <button type="button" class="btn-ghost btn" data-next="path">Back</button>
+          <button type="button" class="btn" data-next="writing" data-need="bak">I am ready to write — simulate</button>
+        </div>
+      </section>
+
+      <!-- WRITING -->
+      <section data-s="writing" hidden>
+        <h1>Writing — simulated</h1>
+        <p><span class="tag tag-info">Prototype only</span> This page is not writing to a device. In a real write: keep the USB cable connected throughout writing, verification and restart. A dark display during a write can be normal. Do not switch the device off.</p>
+        <p id="write-summary" class="note"></p>
+        <div class="progress" role="img" aria-label="Simulated progress, not a real write"><span></span></div>
+        <p class="faint">Simulated. Nothing is being sent.</p>
+        <div class="card-foot">
+          <div class="actions" style="margin:0">
+            <button type="button" class="btn-ghost btn" data-next="err-usb">Simulate USB lost</button>
+            <button type="button" class="btn-ghost btn" data-next="err-stopped">Simulate a stopped write</button>
+            <button type="button" class="btn-danger btn" data-next="err-mismatch">Simulate a device mismatch</button>
+          </div>
+          <button type="button" class="btn" data-next="done">Simulate a finished write</button>
+        </div>
+      </section>
+
+      <!-- DONE -->
+      <section data-s="done" hidden>
+        <h1>The write would end here</h1>
+        <p><span class="tag tag-ok">Simulated result</span> This prototype did not write to a device, and has not confirmed a restart.</p>
+        <div class="callout ok">
+          <p>If this had been a real install of <strong>0.0.25.1</strong>, the device would display firmware version <strong>0.0.25</strong>. The package revision distinguishes the update; it is not a different keyboard model (nightly manual).</p>
+          <p>A successful write on one device is not proof of validation for every model (nightly <span class="mono">/new/</span>).</p>
+        </div>
+        <p>Next: play a first pattern. The first start may show “OLD DATA CLEARED,” then an empty 909.</p>
+        <div class="card-foot">
+          <p><a href="recover.html">If the screen stays black, or Restarting does not end</a></p>
+          <a class="btn" href="first.html">Play a first pattern</a>
+        </div>
+      </section>
+
+      <!-- ERRORS -->
+      <section data-s="err-mismatch" hidden>
+        <h1>The connected device does not match this package</h1>
+        <p><span class="tag tag-bad">Write did not start</span> A USB or port name is not confirmation. The installer should stop here and not write.</p>
+        <p>Look at the name printed on the case. Choose the Elite or Pro package that matches that name, and let the installer check the connected device again.</p>
+        <div class="card-foot">
+          <a href="recover.html">If the device does not start</a>
+          <button type="button" class="btn" data-next="device">Choose the package again</button>
+        </div>
+      </section>
+
+      <section data-s="err-usb" hidden>
+        <h1>The USB connection was lost</h1>
+        <p><span class="tag tag-bad">Write stopped</span> This page cannot tell, from a still screen, whether the keyboard will start on its own after a stopped write.</p>
+        <p>Replug the same USB cable. Keep it connected. Finish the <strong>same</strong> package from update mode. A dark display can be normal — do not switch the device off. Do not install a different package to “rescue” a half-write.</p>
+        <div class="card-foot">
+          <a href="recover.html">Full recovery notes</a>
+          <button type="button" class="btn" data-next="writing">Simulate finishing the same package</button>
+        </div>
+      </section>
+
+      <section data-s="err-stopped" hidden>
+        <h1>The write stopped before it finished</h1>
+        <p><span class="tag tag-bad">Write stopped</span> This page cannot tell whether the keyboard will start on its own.</p>
+        <p>Replug, if needed, and finish the same package. Do not switch packages mid-repair. If the screen stays black, go to recovery: restore M-VAVE stock for this model, and keep the activity log, the package version, and the exact model.</p>
+        <div class="card-foot">
+          <a href="recover.html">Full recovery notes</a>
+          <button type="button" class="btn" data-next="writing">Simulate finishing the same package</button>
+        </div>
+      </section>
+
+      <section data-s="err-nostart" hidden>
+        <h1>The screen stayed dark, or Restarting did not end</h1>
+        <p><span class="tag tag-bad">Start not confirmed</span> This is not a successful install.</p>
+        <p>Retain the activity log, the selected package version, and the exact model. Restore M-VAVE stock firmware with the installer, or with M-UPGRADE and the stock package for this model. Do not use another device’s stock firmware. Do not reinstall withdrawn 0.0.26 at <span class="mono">600b3b45</span>.</p>
+        <div class="card-foot">
+          <a class="btn" href="recover.html">Open recovery</a>
+        </div>
+      </section>
+
+      <details class="help" id="help">
+        <summary>Help for this step</summary>
+        <div class="help-body" id="help-body"></div>
+      </details>
+    </div>
+
+    <p class="note"><a href="install.html#s=err-nostart">Show the “did not start” state</a> · <a href="recover.html">Recovery is also a page of its own</a>, reachable before you begin.</p>
+  </main>
+
+  <footer class="footer">
+    <p>This is a static prototype. Buttons do not connect to a device, do not write firmware, and do not run checks.</p>
+  </footer>
+  <script src="install.js"></script>
+</body>
+</html>

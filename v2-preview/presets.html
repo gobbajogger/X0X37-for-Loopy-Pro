@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Presets — DnBOX</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-head">
+    <div class="inner">
+      <a class="wordmark" href="index.html">DnBOX</a>
+      <nav aria-label="Site">
+        <a href="first.html">First pattern</a>
+        <a href="install.html">Install</a>
+        <a href="presets.html" aria-current="page">Presets</a>
+        <a href="recover.html">Recover</a>
+      </nav>
+    </div>
+    <p class="truth-strip">Host files only in this prototype. A live send to the keyboard is not available: the DNPR codec is unwired, blocked on flash headroom.</p>
+  </header>
+
+  <div class="stage-wrap">
+    <ol class="stage" id="stage" aria-label="Preset stages">
+      <li data-stages="browse">Browse</li>
+      <li data-stages="download">Back up</li>
+      <li data-stages="upload">Load</li>
+      <li data-stages="valid">Validate</li>
+      <li data-stages="confirm">Confirm</li>
+      <li data-stages="result">Result</li>
+    </ol>
+  </div>
+
+  <main id="content" class="wide">
+    <div class="card" id="card">
+
+      <section data-s="browse">
+        <h1>Presets</h1>
+        <div class="callout warn">
+          <p><span class="tag tag-warn">Device send blocked</span> The DNPR research document (introduction, R3, §5) says device wiring of the codec is blocked on Optimizer flash savings (+2,164 B; floor 8,192 B). This page must not claim a live device send until the firmware link exists and the flash floor holds. It can already open, check, and save <span class="mono">.dnpr</span> files on the host. This prototype simulates that librarian. It does not run the codec, and it contains no Web MIDI code.</p>
+        </div>
+        <h2>Host files — a simulated library</h2>
+        <p>Filenames follow the contract (research R1): <span class="mono">&lt;name&gt;.&lt;engine&gt;.dnpr</span>. The authoritative name is the 32-byte field inside the record; renaming the file must not break import. Engine tokens: chicago, miami, juno, drone, 909, 808, break.</p>
+        <ul class="slots">
+          <li>
+            <div>
+              <span class="name">acid-bass.chicago.dnpr</span>
+              <span class="meta">Engine Chicago · origin user · display name “acid-bass” · CRC shown as ok in this simulation</span>
+            </div>
+            <a href="#s=download&amp;file=acid-bass.chicago">Back up</a>
+          </li>
+          <li>
+            <div>
+              <span class="name">user-02.miami.dnpr</span>
+              <span class="meta">Engine Miami — not a 303 · origin user · CRC shown as ok in this simulation</span>
+            </div>
+            <a href="#s=download&amp;file=user-02.miami">Back up</a>
+          </li>
+          <li>
+            <div>
+              <span class="name">tight-hats.909.dnpr</span>
+              <span class="meta">Engine 909 · origin user · has sample references · CRC shown as ok in this simulation</span>
+            </div>
+            <a href="#s=download&amp;file=tight-hats.909">Back up</a>
+          </li>
+        </ul>
+        <h2>Device slots</h2>
+        <p class="note"><span class="tag tag-plain">Not available</span> Device slots would appear here when the firmware link exists. Factory rows, if shown then, would not be write targets (research R2). Factory and factory-derived downloads are not offered while the export switch is OFF, which is the default (research §4, R2).</p>
+        <div class="card-foot">
+          <details class="help"><summary>Help for this step</summary>
+            <div class="help-body">A musician’s own sounds leave the keyboard as a raw DNPR v1 file, at most 548 bytes, magic DNPR, one preset per file (research §4). Keep that file. A later failed send must not delete it (research §2.1, §4). Moving a file between an Elite and a Pro is UNVERIFIED: the contract does not define a device-model field.</div>
+          </details>
+          <a class="btn" href="#s=upload">Load a shared file</a>
+        </div>
+      </section>
+
+      <section data-s="download" hidden>
+        <h1>Back up this sound</h1>
+        <p>The downloaded object is the raw v1 DNPR byte record (research §4). This prototype does not emit a real DNPR file — it would be dishonest to offer a fake one. In the real librarian, the suggested name is of the form <span class="mono" id="dl-name">acid-bass.chicago.dnpr</span>.</p>
+        <div class="callout">
+          <p>Keep the file somewhere you can find it. If a later load fails, that file is still yours: failed sends leave the user’s file alone (research §2.1, §4). Factory and factory-derived records are not offered for download while the export switch is OFF.</p>
+        </div>
+        <div class="card-foot">
+          <a class="btn-ghost btn" href="#s=browse">Back to the list</a>
+          <button type="button" class="btn" id="fake-dl">Simulate a download — no file is written</button>
+        </div>
+        <p class="note" id="dl-done" hidden>Simulated. No file was written to your computer. In the real librarian this would save the raw DNPR bytes under that name.</p>
+      </section>
+
+      <section data-s="upload" hidden>
+        <h1>Load a shared preset</h1>
+        <p>Accept a <span class="mono">.dnpr</span> file, or a <span class="mono">.zip</span> of <span class="mono">.dnpr</span> files. The zip is unpacked on the host, and each record is validated on its own (research R3, R4, §4). Validate magic, size (at most 548 bytes), CRC, version, and engine <strong>before</strong> any device send.</p>
+        <p>This prototype does not parse a real codec. The buttons below show each validation result the contract defines, so the words and the consequences can be read. A file picker is here only to show the control; choosing a file does not run a real CRC.</p>
+        <p><label>File <input type="file" accept=".dnpr,.zip,application/zip" id="filepick"></label></p>
+        <p class="note" id="file-note">No file chosen. The results below are simulated contract states, not a codec verdict on a real file.</p>
+        <div class="actions">
+          <a class="btn" href="#s=valid">Simulate a valid user record</a>
+          <a class="btn-ghost btn" href="#s=err-badfile">BAD FILE</a>
+          <a class="btn-ghost btn" href="#s=err-newer">NEWER DATA</a>
+          <a class="btn-ghost btn" href="#s=err-wrongengine">WRONG ENGINE</a>
+          <a class="btn-ghost btn" href="#s=err-memory">MEMORY FULL</a>
+          <a class="btn-ghost btn" href="#s=err-factory">Factory, switch OFF</a>
+          <a class="btn-ghost btn" href="#s=err-sample">Sample missing</a>
+        </div>
+        <div class="card-foot">
+          <details class="help"><summary>Help for this step</summary>
+            <div class="help-body">BAD FILE: truncated, bad magic, bad CRC, or an older unknown format — no slot write. NEWER DATA: a format or schema newer than 1, no partial load. WRONG ENGINE: the record’s engine does not match a given target; the original engine is not rewritten. MEMORY FULL: a bulk send that would overflow is stopped up front; nothing is evicted. Factory records are refused while the export switch is OFF. All of these are from research §4 and R2. The user’s file is never deleted on failure.</div>
+          </details>
+          <a class="btn-ghost btn" href="#s=browse">Cancel</a>
+        </div>
+      </section>
+
+      <section data-s="valid" hidden>
+        <h1>This record would pass validation</h1>
+        <p><span class="tag tag-ok">Simulated — CRC not computed</span> A real librarian would have checked magic <span class="mono">DNPR</span>, a size of at most 548 bytes, the plan CRC, format and schema version 1, and the engine (research §4).</p>
+        <table>
+          <tr><th>Display name</th><td class="mono">acid-bass</td></tr>
+          <tr><th>Engine</th><td>Chicago (token <span class="mono">chicago</span>)</td></tr>
+          <tr><th>Origin</th><td>user</td></tr>
+          <tr><th>Suggested file name</th><td class="mono">acid-bass.chicago.dnpr</td></tr>
+        </table>
+        <p>If a device path existed, the next question would be: is the destination slot free, or does it already hold a user preset? Factory rows are never a write target (research R2).</p>
+        <div class="card-foot">
+          <a class="btn-ghost btn" href="#s=upload">Back</a>
+          <a class="btn" href="#s=confirm">The destination slot is occupied — confirm</a>
+        </div>
+      </section>
+
+      <section data-s="confirm" hidden>
+        <h1>This slot already has a sound</h1>
+        <p>The contract (research R2): an occupied user slot must be confirmed, and one undo is specified after a confirmed overwrite. Failed sends leave the user’s file alone. This page asks for a backup of the current slot <em>before</em> the confirm, so the work already there has a file you can keep.</p>
+        <div class="callout warn">
+          <p>Back up the current slot first. In the real librarian that is a <span class="mono">.dnpr</span> download of what is already there. This prototype cannot write that file, but it will not let the confirm go through without this step being acknowledged.</p>
+          <label><input type="checkbox" id="bak-slot"> I have backed up the current slot, or I would, before a real overwrite.</label>
+        </div>
+        <div class="card-foot">
+          <a class="btn-ghost btn" href="#s=valid">Cancel — leave the slot as it is</a>
+          <button type="button" class="btn" id="do-confirm">Replace the slot — simulated</button>
+        </div>
+      </section>
+
+      <section data-s="result" hidden>
+        <h1>Validated, not written to a keyboard</h1>
+        <p><span class="tag tag-warn">Device send blocked</span> The record passed the simulated checks. It was not sent to a device. The research document (R3, §5) requires the page not to claim a live send until the firmware link exists and the flash floor holds.</p>
+        <p>When that path exists, the later steps are: the device must be stopped and quiet (otherwise SAVES WHEN STOPPED — never apply mid-note); send one record at a time; read back and verify the CRC; on failure, leave the slot clean and do not delete the user’s file (research R2, R3, and the format plan’s import-leaves-a-clean-slot test).</p>
+        <p>Elite versus Pro: this contract does not define a device-model field. Whether the same file can move between an Elite and a Pro is <strong>UNVERIFIED</strong>, and is not offered as a supported action.</p>
+        <div class="card-foot">
+          <a class="btn-ghost btn" href="#s=browse">Back to the list</a>
+        </div>
+      </section>
+
+      <!-- errors -->
+      <section data-s="err-badfile" hidden>
+        <h1>BAD FILE</h1>
+        <p><span class="tag tag-bad">No slot write</span> A truncated buffer, a bad magic, a bad CRC, or an older unknown format is rejected (research R2, §4). There is no partial load. The user’s file is left alone.</p>
+        <div class="card-foot">
+          <details class="help"><summary>What was not changed</summary>
+            <div class="help-body">No device slot was touched. The file you chose is still where you left it. You can try another file, or go back to the list.</div>
+          </details>
+          <a class="btn" href="#s=upload">Try another file</a>
+        </div>
+      </section>
+
+      <section data-s="err-newer" hidden>
+        <h1>NEWER DATA</h1>
+        <p><span class="tag tag-bad">No partial load</span> The format or schema is newer than 1. The contract (research R2, §4) says: show NEWER DATA, and do not load a part of the record. Do not ask anyone to patch version bytes (research §2.2).</p>
+        <div class="card-foot">
+          <a class="btn" href="#s=upload">Try another file</a>
+        </div>
+      </section>
+
+      <section data-s="err-wrongengine" hidden>
+        <h1>WRONG ENGINE</h1>
+        <p><span class="tag tag-bad">Engine does not match</span> If a target engine was given and the record does not match, the error is WRONG ENGINE. The original engine is not rewritten (research §4; format plan §2). A failed WRONG ENGINE import must not fill an empty slot and must not clobber a good one.</p>
+        <div class="card-foot">
+          <a class="btn" href="#s=upload">Try another file</a>
+        </div>
+      </section>
+
+      <section data-s="err-memory" hidden>
+        <h1>MEMORY FULL</h1>
+        <p><span class="tag tag-bad">Nothing was evicted</span> A bulk send that would exceed free slots is stopped up front, with MEMORY FULL language. Nothing is evicted (research §4, R3, R4). The user’s files are not deleted.</p>
+        <div class="card-foot">
+          <a class="btn" href="#s=browse">Back to the list</a>
+        </div>
+      </section>
+
+      <section data-s="err-factory" hidden>
+        <h1>This record is not offered</h1>
+        <p><span class="tag tag-warn">Factory export is OFF</span> Factory and factory-derived records export only when the build-time switch is ON. The default is OFF. The page must not offer those downloads and must not send them while the switch is OFF (research §4, R2, §5). This is not a rights finding; factory-asset provenance is unresolved in the format plan, and this page does not try to settle it.</p>
+        <div class="card-foot">
+          <a class="btn" href="#s=browse">Back to the list</a>
+        </div>
+      </section>
+
+      <section data-s="err-sample" hidden>
+        <h1>The record is valid, with a sample warning</h1>
+        <p><span class="tag tag-warn">Sample missing or changed</span> For 909, 808, and BREAK, if a sample CRC or slot does not match, the page must show a clear warning and must not pretend the kit is complete (research R5). Sample data is a reference, not embedded PCM. The record itself can still be valid.</p>
+        <div class="card-foot">
+          <a class="btn-ghost btn" href="#s=upload">Cancel</a>
+          <a class="btn" href="#s=confirm">Continue, with this warning visible</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>This is a static prototype. It does not run the DNPR codec, does not use Web MIDI, and does not write to a device.</p>
+    <p>Contract: <span class="mono">docs/plans/2026-11-13-preset-file-io-research.md</span> on <span class="mono">lane/fmb-presets-format</span>.</p>
+  </footer>
+  <script src="presets.js"></script>
+</body>
+</html>
