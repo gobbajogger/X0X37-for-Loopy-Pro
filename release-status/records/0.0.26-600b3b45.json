@@ -1,0 +1,89 @@
+{
+  "version": "0.0.26",
+  "catalog_id": "nightly-600b3b45-dev",
+  "source_sha": "600b3b45f8d59c3432d958238b05753eb6f2fcb5",
+  "source_tree": "bcf12a1e20b6f74104f31241a609462926f7c970",
+  "models": {
+    "elite": {
+      "image_sha256": "25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a",
+      "image_size": 651721,
+      "package_sha256": "25b78701e4184f78e3d8b0a02bf25d53a95482803a0239c065284446a40ac68a",
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "controller_size": 61552,
+      "controller_strategy": "bundled",
+      "controller_check": "NOT_RUN"
+    },
+    "pro": {
+      "image_sha256": "528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655",
+      "image_size": 651721,
+      "package_sha256": "528dac38557312bd001529c95383be0232ebc1e751df3e1eb1a8eeafda5f5655",
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "controller_size": 61552,
+      "controller_strategy": "bundled",
+      "controller_check": "NOT_RUN"
+    }
+  },
+  "combined_package_sha256": null,
+  "published_pages_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/",
+  "publish_ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/116",
+  "publish_branch": "publish/nightly-600b3b45-0.0.26",
+  "publish_time": "2026-11-13T01:34:00Z",
+  "gate_evidence": [],
+  "states": {
+    "built": false,
+    "gate-passed": false,
+    "published-nightly": true,
+    "installation-reported": false,
+    "install-verified": false,
+    "boot-restart-reported": false,
+    "owner-hardware-approval": false,
+    "withdrawn": true
+  },
+  "identity_confidence": {
+    "model": "absent",
+    "build": "absent",
+    "installed_hash": "absent"
+  },
+  "current_report_sequence": 2,
+  "history": [
+    {
+      "sequence": 1,
+      "time": "2026-11-13T01:34:00Z",
+      "time_precision": "exact",
+      "order": "earlier",
+      "kind": "publish",
+      "source": "nightly PR #116 merge",
+      "quoted": false,
+      "confidence": "verified",
+      "verified": true,
+      "is_current": false,
+      "text": "PR #116 published this build to gh-pages. The merge time is 13 November 2026, 01:34 UTC (12 November 2026, 19:34 America/Chicago).",
+      "ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/116"
+    },
+    {
+      "sequence": 2,
+      "time": "2026-11-13T05:44:00Z",
+      "time_precision": "exact",
+      "order": "latest",
+      "kind": "withdrawal",
+      "source": "nightly PR #120 merge",
+      "quoted": false,
+      "confidence": "verified",
+      "verified": true,
+      "is_current": true,
+      "text": "PR #120 withdrew the installer selection pending boot fix. The owner requested temporary removal after boot and restart failures. The PR removed the nightly-600b3b45-dev catalog row, restored 0.0.25.1 as latest, and kept the immutable package files.",
+      "ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120"
+    }
+  ],
+  "withdraw_ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/120",
+  "withdraw_reason": "boot and restart failures, pending boot fix",
+  "withdraw_time": "2026-11-13T05:44:00Z",
+  "replaced_by": "nightly-94197fc8-dev",
+  "notes": [
+    "The 94197fc8 description says it replaces this withdrawn 600b build and includes the retained-RAM boot-guard correction.",
+    "built is false because the seed has no package_nightly --check result for 600b (controller_check is NOT_RUN). The validator requires a PASS controller check for built when the package is bundled.",
+    "controller_size 61552 is taken from the same controller SHA-256 as the 94197fc8 record. The 600b catalog section listed the SHA-256 but not the size.",
+    "package_sha256 equals image_sha256, following the 0.0.26 package pattern in the design.",
+    "The validator refuses any promotion of this withdrawn record."
+  ]
+}

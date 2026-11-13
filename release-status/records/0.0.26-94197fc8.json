@@ -1,0 +1,199 @@
+{
+  "version": "0.0.26",
+  "catalog_id": "nightly-94197fc8-dev",
+  "source_sha": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "source_tree": "72d28fbc741244d18fa3d18495da16ab0fcb1d24",
+  "source_branch": "lane/026-combined-20261112",
+  "source_pr": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/869",
+  "models": {
+    "elite": {
+      "image_sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6",
+      "image_size": 651732,
+      "package_sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6",
+      "crc32": "a5953c62",
+      "product": "SMK-37 Elite_900",
+      "package_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6/DnBOX-0.0.26-SMK37-Elite-94197fc8-hwtest.fwsc",
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "controller_size": 61552,
+      "controller_crc32": "564a8f55",
+      "controller_strategy": "bundled",
+      "controller_check": "PASS"
+    },
+    "pro": {
+      "image_sha256": "ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8",
+      "image_size": 651730,
+      "package_sha256": "ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8",
+      "crc32": "d8957148",
+      "product": "SMK-37 Pro_900",
+      "package_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8/DnBOX-0.0.26-SMK37-Pro-94197fc8-hwtest.fwsc",
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "controller_size": 61552,
+      "controller_crc32": "564a8f55",
+      "controller_strategy": "bundled",
+      "controller_check": "PASS"
+    }
+  },
+  "combined_package_sha256": null,
+  "published_pages_url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/",
+  "elf_provenance": {
+    "published": false,
+    "source_sha": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "sdk": "V1.2.14",
+    "padcal": 0,
+    "toolchain": "unknown",
+    "input_zip_sha256": "f344c213a51497a71381c24364d4db17d892b48ca2528b116e549f133b220018",
+    "models": {
+      "elite": {
+        "elf_sha256": "720f851c83a62fbef71fe52ad84e669409a69fde1d1fb313427d7942ed3ca1ea",
+        "elf_size": 628872,
+        "image_sha256": "95b3195f4767ef5df33b365197b01203873e5eec3d7fa497c73e5e509484a4a6",
+        "mapping": "every flash PT_LOAD segment equals the decrypted package app area",
+        "mapping_result": "MATCH"
+      },
+      "pro": {
+        "elf_sha256": "7e67c3b33fe2e690e5f913b5d048727a715c70daca06ddd326a10e37eacb9535",
+        "elf_size": 628864,
+        "image_sha256": "ce67d560eebd03cb8b9087f7723b1e0b71fb7cca256184cdfdd55a8c27c708b8",
+        "mapping": "every flash PT_LOAD segment equals the decrypted package app area",
+        "mapping_result": "MATCH"
+      }
+    }
+  },
+  "gate_evidence": [
+    {
+      "kind": "emu360-strict",
+      "result": "PASS",
+      "elite_worst_us": 11561,
+      "pro_worst_us": 11525,
+      "elite_late": 0,
+      "pro_late": 0,
+      "threshold_us": 11609,
+      "ref": "/workspace/kept-026-94197fc8/GATE-RESULT.txt",
+      "applies_to_image": "exact-image",
+      "board": "smk37",
+      "mhz": 360,
+      "fm1_strict": 1,
+      "gate_id": "gate-20261113-202119",
+      "note": "Elite is 13 us slower than 0.0.25.1 (11548). Pro is 39 us faster than 0.0.25.1 (11564). Both have 0 late. This is an emulator result, not a hardware result. Do not mix with the d408 other-inputs figures (Elite 11406 us, Pro 11410 us)."
+    },
+    {
+      "kind": "bt-controller-bundle",
+      "result": "PASS",
+      "elite_worst_us": null,
+      "pro_worst_us": null,
+      "elite_late": null,
+      "pro_late": null,
+      "threshold_us": null,
+      "ref": "package_nightly --check PASS for both models",
+      "applies_to_image": "exact-image"
+    }
+  ],
+  "states": {
+    "built": true,
+    "gate-passed": true,
+    "published-nightly": true,
+    "installation-reported": true,
+    "install-verified": false,
+    "boot-restart-reported": true,
+    "owner-hardware-approval": false,
+    "withdrawn": false
+  },
+  "identity_confidence": {
+    "model": "inferred",
+    "build": "inferred",
+    "installed_hash": "absent",
+    "model_note": "Elite is inferred from earlier context and has not been checked again.",
+    "build_note": "94197fc8 is inferred from the current nightly. The installed hash has not been verified.",
+    "installed_hash_note": "Installed hash is absent and is NOT verified."
+  },
+  "current_report_sequence": 2,
+  "history": [
+    {
+      "sequence": 1,
+      "time": null,
+      "time_precision": "unknown",
+      "order": "earlier",
+      "kind": "recovery-history",
+      "source": "relayed via Orchestrator, owner words not quoted",
+      "quoted": false,
+      "confidence": "reported",
+      "verified": false,
+      "is_current": false,
+      "text": "0.0.26 got stuck on restart with a black screen for 1-2 min. 0.0.25.1 recovered the device. Upgrade-path cause is not proven. M-Flasher worked. The FM-1 USB label did not prove a wrong model.",
+      "events": [
+        "stuck on restart with a black screen for 1-2 minutes",
+        "0.0.25.1 recovered the device",
+        "upgrade-path cause not proven",
+        "M-Flasher worked",
+        "FM-1 USB label did not prove a wrong model"
+      ],
+      "device": "owner's SMK",
+      "upgrade_path_cause_proven": false,
+      "recovery_build": {
+        "version": "0.0.25.1",
+        "catalog_id": "nightly-79280e76-dev",
+        "source_sha": "79280e763341d03ba43266d3e25dad66f12de860",
+        "source_tree": "ab2e16a61c81abbcb6c4a71bd83bf0b5d943c120",
+        "hashes_from": "gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages versions.json (live catalog, 2026-11-13, 89223 B)",
+        "role": "recovery build reference only",
+        "models": {
+          "elite": {
+            "image_sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+            "image_size": 651721
+          },
+          "pro": {
+            "image_sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+            "image_size": 651721
+          }
+        }
+      },
+      "notes": [
+        "This is an earlier incident, not the current state.",
+        "A USB port name is not model proof. The FM-1 USB label did not prove a wrong model."
+      ]
+    },
+    {
+      "sequence": 2,
+      "time": null,
+      "time_precision": "unknown",
+      "order": "latest",
+      "kind": "install-and-boot-report",
+      "source": "relayed by Dot via Orchestrator, owner words not quoted",
+      "quoted": false,
+      "confidence": "reported",
+      "verified": false,
+      "is_current": true,
+      "text": "Owner-reported install, automatic restart, and boot at normal speed on the owner's SMK.",
+      "events": [
+        "install",
+        "automatic restart",
+        "boot at normal speed"
+      ],
+      "device": "owner's SMK",
+      "model": "Elite",
+      "model_confidence": "inferred",
+      "build": "94197fc8",
+      "build_confidence": "inferred",
+      "build_confidence_reason": "inferred from current nightly",
+      "installed_hash": null,
+      "installed_hash_confidence": "absent",
+      "scope": {
+        "full_functional_suite": false,
+        "hardware_qualification_both_models": false,
+        "promotion": false
+      },
+      "notes": [
+        "This is the latest report and is the current state.",
+        "This report does not satisfy install-verified or owner-hardware-approval.",
+        "Identity is not verified, so boot-restart-reported lacks verification.",
+        "NOT a full functional suite, NOT hardware qualification on both models, and NOT a promotion."
+      ]
+    }
+  ],
+  "notes": [
+    "This SHA replaces withdrawn 600b (nightly-600b3b45-dev). The MAIN installer in PR #880 still keeps 0.0.26 off MAIN. That MAIN fact is not this nightly record.",
+    "The two history events are ordered: earlier recovery-history, then the latest install and boot success, which is the current state. They are not marked as a conflict.",
+    "Exact timestamps for the history events were not in the source, so only sequence and earlier/latest order are recorded.",
+    "Promotion remains blocked: installed hash is absent, model is unverified, and there is no owner hardware approval."
+  ]
+}
