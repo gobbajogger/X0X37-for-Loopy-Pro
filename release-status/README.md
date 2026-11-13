@@ -112,12 +112,140 @@ python3 release-status/tools/evaluate_promotion.py   --records release-status/re
 
 `--json` prints JSON. The report is output only. The evaluator never promotes. It never infers hardware qualification from an upload or from emulation. An Elite result never implies Pro. Channels stay distinct. A withdrawn record cannot be promoted. If every owner-required gate is pass, the owner still decides.
 
+## Owner browser admin, model-scoped outcomes, and promotion dry-run (PR #883 continuation)
+
+The new actual local HTTP admin is under `release-status/admin/` and
+`release-status/tools/admin_http.py`. It is **not a GitHub Pages-only mockup**:
+the browser makes real JSON requests to a loopback service that validates
+record/history/audit proposals, can write a consented anonymous report to a
+private local JSONL file, and optionally prepares an authenticated branch
+commit through the existing GitHub API writer. Nothing runs on a device.
+
+Start the default, non-publishing, non-writing owner console:
+
+```sh
+python3 release-status/tools/admin_http.py --port 8765
+```
+
+Open `http://127.0.0.1:8765/`. A server-side `GH_TOKEN` or `GITHUB_TOKEN`
+environment variable must refer to **the authenticated GitHub account
+gobbajogger** to enable owner editing. No token is accepted from the
+browser and no credential is committed or displayed. Without verified
+owner identity the interface is read-only.
+
+The owner selects an **exact record, Elite/Pro model and package SHA**,
+then separately records install, restart, observed restart *and* boot,
+test with no issue observed, or test with an issue. These are
+**owner-reported history events**, not readback of installed bytes and not
+hardware approval. A form can optionally include a model-explicit owner
+quotation and direct source link. The preview checks the full record and
+an append-only audit event, then shows confidence and gates. By default,
+every operation is a dry-run. An explicit one-time feature-branch commit
+requires both `--allow-commit` and `--expected-head` pinning the **current
+full branch SHA** plus the verified owner GitHub token. There is no
+auto-merge or ref update to `main`, `nightly`, or `gh-pages`.
+
+The public, concise, dark-only release-status view is
+`release-status/public/index.html`. It reads the generated catalog,
+displays tested/reported/missing/withdrawn status for each model,
+and hides package hashes and detailed provenance inside an expandable
+section. It is **not** deployed to the public installer by this PR.
+The owner admin offers an explicit, read-only promotion-candidate
+dry-run: `GET /api/promotion-candidate?catalog_id=nightly-94197fc8-dev`.
+The pure `promotion_candidate.py` reports each model's missing gates.
+Even a passing snapshot always has `deployment_authority=not-confirmed`,
+`promotion_authorized=false` and `promotion_performed=false`. Actual
+promotion authority, publication procedure, reviewer/owner gates and
+branch protections remain separate, outside this thread.
+
+### Optional installer outcome contract
+
+`release-status/installer/outcome-bridge.mjs` is a working, testable
+browser event adapter. In the **authorized installer integration**, load
+the module using a same-origin path and bind
+`createOutcomeReporter({catalogId,model,packageSha256,consent})` to the
+installer's actual transfer callbacks. `attachInstallerEvents(target,reporter)`
+consumes the `dnbox:installer-outcome` event and distinguishes:
+
+- `transfer-started` and `transfer-completed`: browser transport only.
+- `restart-observed`: a separate restart observation **after** transfer.
+- `boot-observed`: only after restart and a separate
+  `bootConfirmation="manual"` or `"device-readback"` callback.
+- `failed`: explicit failure, never turned into boot or approval.
+
+Reports require a live, explicit opt-in and go only to the same-origin
+`/api/installer-report` receiver. That receiver is **disabled by default**;
+for local tests the operator uses `--enable-reports`, writing a
+permissions-restricted JSONL file under the operator's local user account.
+Data is limited to an ephemeral run UUID, ordered bounded event number,
+event type/time, exact catalog/model/package identity and the fixed
+`anonymous-unverified` confidence. No IP, MAC, serial, USB identity,
+raw device proof, cookie, browser fingerprint or firmware bytes are
+persisted. Consent refusal produces no network request. Duplicate or
+out-of-order reports are rejected, including after local service restart,
+and receiver storage is capped at 4 MB.
+
+**Integration still needed:** the separate authorized installer writer
+must wire actual transfer/restart/boot callbacks and a visible opt-in
+control to this adapter, and decide a legitimate HTTPS same-origin
+receiver/auth/retention deployment boundary. A public HTTPS GitHub Pages
+installer must not be assumed to communicate with this development-only
+HTTP loopback service (mixed content and browser network restrictions).
+No credential, new hosting bill, unattended device test, or public
+deployment is introduced here. The existing installer source and the
+independently owned website PR #890 are untouched. An anonymous event
+**never authorizes verified install, owner approval or promotion**.
+
+### Independent QA proof and audit chronology
+
+For `owner-hardware-approval`, every positive
+`hardware_approvals[]` entry now requires its **own** schema-valid
+`model`, matching `source_sha` and that model's `image_sha256`, the
+literal quoted owner words explicitly naming only that model, an actual
+timezone-aware ISO-8601 timestamp, and a direct HTTPS
+`source_link` field. A model-less quotation, a field named `ref` or
+free-form `source`, or an Elite quote attached to Pro cannot pass.
+Receipt presence is not external authentication of quotation provenance;
+human/connector source verification and promotion authority are separate.
+
+A future `install-verified` claim requires **independent** model-specific
+`install_verifications[]` with `claimed_model`, matching
+`model_proof_model`, proof type, proof observation time/direct source,
+verified model and build confidence, and an installed-image hash matching
+the claimed model (or the exact source commit's firmware GIT readback).
+Legacy single-model `install_verification` is accepted only for its own
+claimed model, never copied to the other. USB product labels and browser
+ACK cannot prove hardware identity. Existing owner Elite reports for
+0.0.25.1 and 0.0.26 remain **reported only**; Pro is **untested** and
+installed image hashes are **unconfirmed**.
+
+Append-only JSONL `time` records the **historical event time** and is
+allowed to precede an earlier appended event. Every newly generated
+admin event also stores `appended_at` as the validated, monotonic UTC
+append instant. Both require real timezone-aware ISO-8601 dates. Older
+adopted audit lines remain byte-for-byte immutable; they are not sorted,
+backdated, or silently rewritten.
+
+Focused executable tests:
+
+```sh
+python3 -m unittest discover -s release-status/tests -p 'test_*.py' -v
+node --test release-status/tests/test_outcome_bridge.mjs
+```
+
+No firmware build, device write, emulator or full host suite is relevant
+to this release-status-only change. Do not mislabel these source tests as
+live installer hardware acceptance.
+
 ## Finish line
 
-The finish-line artifacts are the generated catalog and the static status page:
+The finish-line artifacts include the generated catalog, the static public status view, and the local authenticated owner/admin service with the opt-in outcome bridge:
 
 - `release-status/catalog/catalog.json`
 - `release-status/catalog/index.html`
+- `release-status/public/index.html`
+- `release-status/admin/index.html` and `release-status/admin/app.js`
+- `release-status/tools/admin_http.py` and `release-status/installer/outcome-bridge.mjs`
 
 Generate them again with `generate_catalog.py` after a record change. The committed files must match a fresh generation.
 
