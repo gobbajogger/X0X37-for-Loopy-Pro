@@ -2,8 +2,42 @@
   "schema": 2,
   "repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
   "pages": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro",
-  "latest": "dev-20261022-1638-e894804",
+  "latest": "nightly-79280e76-dev",
   "versions": [
+    {
+      "version": "nightly-79280e76-dev",
+      "label": "DEVICE NOT TESTED",
+      "status": "dev-checked",
+      "config": "X0X_DEV_PADCAL=0",
+      "hardware_tested": false,
+      "source_commit": "79280e763341d03ba43266d3e25dad66f12de860",
+      "source_tree": "ab2e16a61c81abbcb6c4a71bd83bf0b5d943c120",
+      "models": {
+        "elite": {
+          "product": "SMK-37 Elite_900",
+          "sha256": "5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a",
+          "size": 651721,
+          "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+          "controller_strategy": "bundled",
+          "controller_size": 61552,
+          "pkg": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/5e24e0d4afccc30906b334fbe73bcad3621df8df3c325790b7af2f94accffb1a/x0x37-elite-dev.fwsc"
+        },
+        "pro": {
+          "product": "SMK-37 Pro_900",
+          "sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+          "size": 651721,
+          "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+          "controller_strategy": "bundled",
+          "controller_size": 61552,
+          "pkg": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/artifacts/nightly-dev/6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf/x0x37-pro-dev.fwsc"
+        }
+      },
+      "display_version": "0.0.25.1",
+      "title": "DnBOX 0.0.25.1 \u00b7 SMK-37 Elite and Pro",
+      "description": "Owner-approved 0.0.25.1 packages. The owner reports successful use and recovery to 25.1; independent exact-package hardware validation for both models is not recorded here. Firmware reports 0.0.25, GIT 79280e76. Bundled Bluetooth controller included. The 600b 0.0.26 build was withdrawn. 0.0.26 at 94197fc8 is a hardware-test build on the nightly; it is not offered here.",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/79280e763341d03ba43266d3e25dad66f12de860",
+      "lifecycle": "current"
+    },
     {
       "version": "dev-20261022-1638-e894804",
       "title": "SMC-07 mixer popup + main help-card merge",
