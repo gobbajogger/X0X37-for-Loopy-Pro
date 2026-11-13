@@ -119,7 +119,8 @@ static void owner_and_freeplay(void)
     project_busy=1;T(ui_live_key_owner()==0);project_busy=0;
     perf_active=1;T(ui_live_key_owner()==0);perf_active=0;
     clip_active=1;T(ui_live_key_owner()==0);clip_active=0;
-    smc_active=1;T(ui_live_key_owner()==0);smc_ara#de   ui.view=V_HOME;T(ui_live_key_owner()==0);
+    smc_active=1;T(ui_live_key_owner()==0);smc_active=0;
+    ui.view=V_HOME;T(ui_live_key_owner()==0);
     ui.view=V_SEQ;T(ui_live_key_owner()==1);
     ui.rec=1;T(ui_live_key_owner()==0);
     scan();ui.rec=0;physical_keys=UINT64_C(1)<<36;
@@ -149,7 +150,7 @@ static void suppress_at_entry_and_switches(void)
     key(36,0);scan();key(36,1);T(active_count()==1);
     perf_active=1;scan();T(active_count()==0);perf_active=0;
     key(36,0);scan();key(36,1);T(active_count()==1);
-    clip_active=1;scan();T(active_count()==0);clip_ara#0;
+    clip_active=1;scan();T(active_count()==0);clip_active=0;
     key(36,0);scan();key(36,1);T(active_count()==1);
     ui.rec=0;scan();T(active_count()==0);
     T(seq.rec_ext_mask==0);T(ui_live_key_owner()==0);
