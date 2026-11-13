@@ -58,9 +58,9 @@ This book describes the strings and behaviour in source at this SHA. It does not
 
 ## 2. The panel
 
-Hold any one button for about one second. A help card names the printed legend and says what the button does here. Then let go. The release does nothing.
+Hold any one button for 900 ms, with no other key or turn. A help card names the printed legend and says what the button does here. Then let go. The release does nothing.
 
-For BT, the help card comes at about 400 ms. For the other buttons, the hold is 900 ms.
+For BT, the help card comes at 400 ms. For every other button, the hold is 900 ms.
 
 Why: many printed words are not the job. BT is Save, not Bluetooth. NOTE REPEAT opens the mixer. KNOB BANK opens Loopy clip mode. The help card uses the word on the plastic.
 
@@ -71,18 +71,18 @@ The table below is the glossary for this whole book. The left column is the prin
 | FX | FX | Reverb and delay. With SEQ: panic (all notes off). |
 | SCALE | SCALE (list / yes) | Opens this screen as a list. Confirms a question. In clip mode, SCALE is a real scale control. |
 | CHORD | CHORD (accent) | Hold plus a key: accent. In clip mode, CHORD is a real chord control. |
-| NOTE REPEAT | NOTE REPEAT — mixer (when clip mode is off) | Mixer and master. Hold plus a key: slide on Chicago. In clip mode: panic. With ARP: LATCH. The lamp means the mixer, not note-repeat. |
+| NOTE REPEAT | NOTE REPEAT — mixer (when clip mode is off) | When clip mode is off, NOTE REPEAT is the mixer (MIX), not note-repeat. Hold plus a key: slide on Chicago. In clip mode, a release of NOTE REPEAT alone is panic. With ARP: LATCH. The lamp means the mixer. |
 | PARA | PARA (sound) | Sound of the selected part. On a drum part, white keys audition only. They do not write steps. |
 | GLOBE | GLOBE (settings) | Settings. Press again to close. Bluetooth lives here. |
-| PATCH | PATCH — HOME / SONG / back / no | From most views: HOME. Already on HOME: SONG. In a list: back. In a question: no. Hold as a modifier. |
-| BT | BT — Save (not Bluetooth) | Tap: save, or queue until stop. Hold about 250 ms: copy. Hold about 400 ms: help. Bluetooth is GLOBE, then BLUETOOTH. The lamp means unsaved, queued or failed, not wireless. |
+| PATCH | PATCH — HOME / SONG / back / no | A tap (release, with no modifier) toggles HOME and SONG: from HOME it opens SONG, and from SONG it opens HOME. From every other view, that same tap opens HOME first. In a list: back. In a question: no. Hold as a modifier. |
+| BT | BT — Save (not Bluetooth) | A tap (release before 250 ms) saves, or queues the save until stop. At 250 ms, still held alone: the toast is `CHOOSE PASTE TARGET`, then a white key pastes. If you let go after 250 ms and before 400 ms, with no paste, that release still saves. At 400 ms the help card appears, and the release does nothing. Bluetooth is GLOBE, then BLUETOOTH. The lamp means unsaved, queued or failed, not wireless. |
 | ARP | ARP (TB-3PO) | Line generator. Chicago or Miami only. |
 | SEQ | SEQ (steps) | Step grid or piano roll. A cold start lands here on the 909. |
 | SEQ PLAY | SEQ PLAY | Start or stop, on press. |
 | SEQ REC | SEQ REC | Record on or off, on press. |
 | OCTAVE− / OCTAVE+ | OCTAVE− / OCTAVE+ | The meaning depends on the screen. See Appendix A. |
 | `<` `>` | `<` `>` (page / list value) | With no list: one page step, no hold-repeat. In a list: the value. Hold-repeat is 400 ms, then 80 ms. |
-| KNOB BANK | KNOB BANK — Loopy clips | One press leaves the instrument UI. The toast is `LOOPY CLIPS` or `LP OFF`. |
+| KNOB BANK | KNOB BANK — Loopy clips | A single press (the moment you press it, not a hold) toggles Loopy clip mode. The toast is `LOOPY CLIPS` or `LP OFF`. |
 | FADER BANK | FADER BANK | Bank A or bank B. The LED is on for bank B. |
 | K1 | MASTER | Volume. This knob has no taught role. |
 | K2 | K2 (page / chance / tempo) | Page or list row. Held-step chance. PATCH plus K2 sets tempo. |
@@ -94,23 +94,31 @@ The table below is the glossary for this whole book. The left column is the prin
 | Pitch / mod wheels | Pitch wheel / mod wheel | On a Chicago-style slot: bend and cutoff. On Miami: bend and wobble depth. The wheels do not write the saved pots. |
 | 37-key keybed | Keys | The middle 27 keys match the older 27-key layout. The outer ten keys are live. Some outer keys also page BREAK slices. |
 
-SEQ PLAY and SEQ REC act on press. Almost every other button acts on release, and only if you did not already use it as a modifier.
+SEQ PLAY, SEQ REC and KNOB BANK act on the press. KNOB BANK needs only that single press. Almost every other button acts on release, and only if you did not already use it as a modifier.
+
+On the step grid, with the keyboard off, the header shows the part chip and the word `SEQ`. A cold start shows the 909 and `SEQ`.
+
+If record is on and the bass keyboard is on, that word is `SEQ KEYS`. If FREE PLAY is on, that word is `FREE PLAY`. On HOME the header word is `HOME`. On SONG it is `SONG`. In clip mode the left chip is `LP`.
+
+On PARA, for a drum or a bass slot, the usual header is compact. It shows the part or engine name, page dots, the play icon, and a 2-pixel save dot if unsaved. It does not show the word `SEQ`. It does not show the word `SOUND`. It does not show the word `UNSAVED`. There is no `EDITING: SOUND` banner, and no `PROJECT SAVED` panel.
+
+The PARA footer points you back to the steps: `SEQ: STEPS`. On a drum part it also says `BLACK: SELECT` and `WHITE: SOUND` (or `KEY SOUND OFF`). On a bass slot it says `KEYS: SOUND`.
 
 ---
 
 ## 3. First sound
 
-The unit starts on the 909 step grid (SEQ). Every part is empty. You are already on the right screen. You do not need to press SEQ.
+The unit starts on the 909 step grid. The header shows the 909 chip and the word `SEQ`. Every part is empty. You are already on the right screen. You do not need to press SEQ.
 
 Why: a cold start is ready for the first drum pattern. The first sound is a 909 kick on the grid.
 
-Do not press PATCH yet. PATCH leaves SEQ and opens HOME. HOME keys make no sound.
+Do not tap PATCH yet. A tap of PATCH (a release with no modifier) leaves SEQ and opens HOME. HOME keys make no sound.
 
-Do not press KNOB BANK yet. KNOB BANK leaves this instrument and opens Loopy clip mode. The toast is `LOOPY CLIPS`.
+Do not press KNOB BANK yet. A single press leaves this instrument and opens Loopy clip mode. The toast is `LOOPY CLIPS`.
 
-If you pressed PATCH, you are on HOME. A second PATCH opens SONG, not the grid. Press PATCH again for HOME, then press SEQ to return to the grid.
+If you tapped PATCH, you are on HOME. A second tap of PATCH opens SONG, not the grid. On HOME and SONG, a tap of PATCH toggles those two screens. Tap PATCH again for HOME, then press SEQ to return to the grid.
 
-If you pressed KNOB BANK, press KNOB BANK again. The toast is `LP OFF`.
+If you pressed KNOB BANK, press KNOB BANK once more. The toast is `LP OFF`.
 
 While the loop does not run, press black key 1. This selects the bass drum (`BD`). You hear it.
 
@@ -210,9 +218,11 @@ The printed legend on the Save button is **BT**. A tap of BT saves the project, 
 
 Bluetooth is not this button. Bluetooth lives in GLOBE, in the BLUETOOTH section.
 
-Why the wait: a flash write stops the audio. The unit does not write during play, during record, or while notes or clip activity are busy. If you tap BT then, the toast is `SAVES WHEN STOPPED`, or `SAVES WHEN QUIET`, or `REC OFF TO SAVE`. The header can show `SAVE AT STOP`, `SAVE WHEN QUIET` or `REC OFF TO SAVE`. On a tight header this shrinks to `Q`, or to a small amber dot.
+Why the wait: a flash write stops the audio. The unit does not write during play, during record, or while notes or clip activity are busy. If you tap BT then, the toast is `SAVES WHEN STOPPED`, or `SAVES WHEN QUIET`, or `REC OFF TO SAVE`.
 
-The unit writes only after you stop and the machine stays quiet. The toast is then `SAVED`. Failure toasts include `SAVE FAILED`, `NEWER DATA: NOT SAVED` and `MEMORY FULL: NOT SAVED`. A toast fills the header for 1300 ms.
+The usual header can show `UNSAVED`, `SAVE AT STOP`, `SAVE WHEN QUIET` or `REC OFF TO SAVE`. If the left side is already full, that shrinks to `*`, `Q` or `!`. A 2-pixel amber (or red) dot stays at the right. On the PARA compact header, only that 2-pixel dot appears. There is no `SAVE QUEUED` title, and no `PROJECT SAVED` panel.
+
+The unit writes only after you stop and the machine stays quiet. The toast is then `SAVED`, for 1300 ms. Failure toasts include `SAVE FAILED`, `NEWER DATA: NOT SAVED` and `MEMORY FULL: NOT SAVED`.
 
 The BT lamp stays on while a save waits. It blinks for unsaved edits. It blinks fast after a save fails.
 
@@ -222,7 +232,7 @@ To load the last saved project, open GLOBE, then PROJECT, then `LOAD SAVED`. If 
 
 The project does not save a chain. A chain is live only. See chapter 10.
 
-To copy, hold BT about 250 ms. The toast is `CHOOSE PASTE TARGET`. Then press a white key to paste. Hold BT plus OCTAVE to pick the copy bank (`P1-16` or `P17-32`).
+To copy, hold BT for 250 ms, still alone. The toast is `CHOOSE PASTE TARGET`. Then press a white key to paste. If you let go after 250 ms and before 400 ms, with no paste target, that release still saves. At 400 ms the help card appears, and the release does not save. Hold BT plus OCTAVE to pick the copy bank (`P1-16` or `P17-32`).
 
 ---
 
@@ -232,10 +242,10 @@ Keep this split. It is easy to confuse, and an older book was wrong here.
 
 | | SEQ (steps) | PARA (sound) |
 |---|---|---|
-| Enter | Press SEQ. The SEQ lamp is on. | Press PARA. The PARA lamp is on. |
-| What you see | The drum kit grid, or a bass piano roll. The header mode is `SEQ`. | The sound pages. On a bass slot the header mode is `SOUND`. |
-| White keys on a drum part | Write or remove steps on the selected track. | **Audition only.** The white key plays the selected sound. It never writes a hidden step. The footer is `WHITE: SOUND`. |
-| White keys on a bass slot | Steps in the piano roll, when the keyboard is off. | The keys can play the sound. |
+| Enter | Press SEQ. The SEQ lamp is on. The header word is `SEQ` (or `SEQ KEYS` / `FREE PLAY`). | Press PARA. The PARA lamp is on. |
+| What you see | The drum kit grid, or a bass piano roll. | The sound pages. The usual header is compact: the part or engine name, and a 2-pixel save dot if unsaved. It does not show `SEQ`, `SOUND` or `UNSAVED`. |
+| White keys on a drum part | Write or remove steps on the selected track. | **Audition only.** The white key plays the selected sound. It never writes a hidden step. The footer is `WHITE: SOUND` (or `KEY SOUND OFF`) and `SEQ: STEPS`. |
+| White keys on a bass slot | Steps in the piano roll, when the keyboard is off. | The keys can play the sound. The footer is `KEYS: SOUND` and `SEQ: STEPS`. |
 | Hold a step plus K5–K8 | A p-lock for that step. The tag is `P-LOCK STEP n`. | The same p-lock if you still hold the step. |
 
 Why the audition rule: PARA white keys must not write steps. A player who opens PARA to change the sound must not also change the pattern. The step stays on SEQ. The sound stays on PARA.
@@ -292,7 +302,7 @@ There are 32 patterns, in two banks: 1 to 16 and 17 to 32. On HOME or SONG, OCTA
 
 ### HOME
 
-Press PATCH from most views to open HOME. The header word is `HOME`. The screen shows all five parts of the current pattern, in display order: 909, 808, BREAK, Chicago, Miami.
+A tap of PATCH (a release with no modifier) opens HOME from most views. The header word is `HOME`. The screen shows all five parts of the current pattern, in display order: 909, 808, BREAK, Chicago, Miami.
 
 On HOME, a white key (or a pad) selects a pattern. Two white keys make a **chain**. A live chain shows a small amber `CHN`. An amber underline marks chained slots. A chain is live only. The project does not save it.
 
@@ -308,7 +318,7 @@ A cue, a mute or a pattern change from HOME does not play a sound on the keys. T
 
 ### SONG
 
-If you are already on HOME, PATCH opens SONG. The header word is `SONG`. From SONG, PATCH returns to HOME. There is no PATCH path straight back to SEQ. Press SEQ for the grid.
+If you are already on HOME, a tap of PATCH opens SONG. The header word is `SONG`. From SONG, a tap of PATCH returns to HOME. That is the toggle: HOME, then SONG, then HOME. There is no PATCH path straight back to SEQ. Press SEQ for the grid.
 
 On SONG, white keys pick the pattern for a song bar. SCALE opens a list with bar length, insert, delete and clear. Song length can run to 192 bars.
 
@@ -418,13 +428,13 @@ On Chicago, the pitch wheel bends pitch, and the mod wheel opens cutoff, without
 
 ## 15. Loopy clip mode
 
-Press KNOB BANK once. The toast is `LOOPY CLIPS`. The header shows `LP`. This leaves the normal instrument UI.
+A single press of KNOB BANK (the moment you press it, not a hold) enters clip mode. The toast is `LOOPY CLIPS`. The header shows `LP`. This leaves the normal instrument UI.
 
-Why this chapter sits after the first-path chapters: one press of KNOB BANK leaves the normal instrument. SCALE, CHORD, ARP and NOTE REPEAT then belong to the Loopy clip keybed. Know how to leave before you use it live.
+Why this chapter sits after the first-path chapters: that one press leaves the normal instrument. SCALE, CHORD, ARP and NOTE REPEAT then belong to the Loopy clip keybed. Know how to leave before you use it live.
 
-Press KNOB BANK again to return. The toast is `LP OFF`.
+A single press of KNOB BANK again returns. The toast is `LP OFF`.
 
-In clip mode:
+In clip mode, NOTE REPEAT is not the mixer:
 
 - SCALE is a real scale control.
 - CHORD is a real chord control.
@@ -626,11 +636,11 @@ The same physical control has more than one meaning. This table is the single ma
 
 **OCTAVE±.** They move step pages, and they switch pattern banks 1–16 and 17–32. They also set the bass keyboard octave, and the octave of a held step. On TB-3PO they write a new line or mutate it. While you hold BT, they pick the copy bank.
 
-**PATCH.** Back, no, HOME, SONG, and a modifier. One unused release changes the view.
+**PATCH.** A tap (unused release) toggles HOME and SONG. From any other view, that tap opens HOME. The same button is also back, no, and a modifier.
 
-**NOTE REPEAT.** Mixer when clip mode is off. Panic when clip mode is on. With ARP in clip mode: LATCH. Held with a key: slide on Chicago.
+**NOTE REPEAT.** When clip mode is off, NOTE REPEAT is the mixer. When clip mode is on, a release of NOTE REPEAT alone is panic. With ARP in clip mode: LATCH. Held with a key: slide on Chicago.
 
-**BT.** Save on a tap. Copy invite at about 250 ms. Help at about 400 ms.
+**BT.** A tap (release before 250 ms) saves. At 250 ms, still held alone, the toast is `CHOOSE PASTE TARGET`. A release after 250 ms and before 400 ms, with no paste, still saves. At 400 ms the help card appears, and the release does nothing.
 
 **SCALE.** List and yes, except in clip mode, where SCALE is scale.
 
@@ -670,13 +680,13 @@ Player-facing names can say DnBOX. The identifiers below are what installers, M-
 |---|---|---|---|
 | USB product (app) | `DnBOX <version> SMK-37 Elite` | `DnBOX <version> SMK-37 Pro` | Keep the `SMK-37` token. Do not use this string to choose a package. |
 | USB manufacturer (app) | `X0X` | `X0X` | User-visible on some hosts. Changing it can change the port name. This book does not change it. |
-| USB product (update loader) | `SMK-37 Elite Update` | `SMK-37 Pro Update` | Prefer to keep. |
+| USB product (update loader) | `SMK-37 Elite Update` | `SMK-37 Pro Update` | Prefer to keep. The loader manufacturer string is `Hügelton Instruments`. |
 | USB VID / PID (app) | `0x1209` / `0x0001` | Same | Yes. Never change. Shared by Elite and Pro. Not a model test. |
 | USB VID / PID (loader) | `0x1209` / `0x0002` | Same | Yes. |
 | Package / OTA identity | `SMK-37 Elite_900` (release adds a version code) | `SMK-37 Pro_900` | Yes. This admits a package. |
 | Loader OTA identity | `ota-SMK-37 Elite_900` | `ota-SMK-37 Pro_900` | Yes. Hosts look for `ota-`. |
 | Stock update-record parm id | `ota-SMK-37 Elite_016` | `ota-SMK-37 Pro_016` | Yes. So a factory package still applies. |
-| Handshake SysEx | Identity reply is the package id | Same mechanism | Yes. Port names must not gate discovery. |
+| Handshake SysEx | Query `F0 00 32 45 …`, command `0x11`. The identity reply is the package id. | Same mechanism | Yes. Port names must not gate discovery. |
 | M-UPGRADE upgrade SysEx | `F0 22 24 35 7F F7` | Same | Yes. Soft key `F0 22 24 35 7D F7`. |
 | BLE advertised / GATT name | `SMK-37 Elite-` plus four hex | `SMK-37 Pro-` plus four hex | The four-hex suffix and address derivation must stay. |
 | BLE-MIDI service UUID | `03B80E5A-EDE8-4B33-A751-6CE34EC4C700` | Same | Yes. Standard BLE-MIDI. |
