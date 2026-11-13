@@ -670,6 +670,7 @@ run wav-import-integrity python3 -B tests/host/wav_import_safety_test.py  # reje
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run slot-begin-cancel python3 tests/x0x_slots_begin_cancel_test.py  # SMP_BEGIN cancel keeps last-good sample
 run smp-begin-cancel sh tests/host/run_smp_begin_cancel.sh          # firmware editor.c: BEGIN alone keeps last-good
+run sample-integrity-dispatch sh tests/host/run_sample_integrity_dispatch.sh # actual editor frames, NOR retries/recovery/lifecycle
 run slot-backup-durable python3 tests/x0x_slots_durable_backup_test.py   # directory fsync before OTA
 run slot-archive-zone python3 tests/x0x_slots_zone_guard_test.py   # CRC-valid malformed slot zones fail before flash writes
 run slot-verify-order python3 tests/x0x_slots_verify_order_test.py   # fail closed before a later slot write

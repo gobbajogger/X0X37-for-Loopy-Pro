@@ -81,20 +81,26 @@ static const uint8_t *smp_user_xip(uint32_t k) { return SMP_USER_XIP(k); }
 /* (re)read slot k: a valid header with sane zones and matching data CRC makes it usable.
  * Without the CRC check, a restored sector-0 header over wiped higher-sector data
  * (mid-rewrite abort past 0x1000) would still set usr_nz. */
-static void smp_user_scan(uint32_t k)
+static int smp_header_valid(const smp_user_hdr_t *h, uint32_t k)
 {
-    const smp_user_hdr_t *h = smp_hdr(smp_user_xip(k));
     uint32_t i;
-    usr_nz[k] = 0;
     if (h->magic != SMP_USER_MAGIC || h->version != 1 || !h->nz || h->nz > 16u ||
         h->data_len > SMP_USER_SIZE(k) - SMP_USER_DATA)
-        return;
+        return 0;
     for (i = 0; i < h->nz; i++) {
         const smp_zone_t *z = &h->zone[i];
         if (z->off > h->data_len || z->n > 2u * SMP_USER_SIZE(k) || z->off + (z->n + 1u) / 2u > h->data_len ||
             z->idx > 88u || !z->rate || z->rate > 4u << 16)
-            return;
+            return 0;
     }
+    return 1;
+}
+static void smp_user_scan(uint32_t k)
+{
+    const smp_user_hdr_t *h = smp_hdr(smp_user_xip(k));
+    usr_nz[k] = 0;
+    if (!smp_header_valid(h, k))
+        return;
     if (smp_data_crc(smp_user_xip(k) + SMP_USER_DATA, h->data_len) != h->crc)
         return;
     usr_nz[k] = h->nz;

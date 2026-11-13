@@ -217,6 +217,7 @@ static int ed_project_samples_locked(void)
 {
     return ed_project.mode == 1 || (ed_project.mode == 2 && !ed_project.valid);
 }
+static void ed_smp_disarm_unused(void);
 static int ed_project_end(int apply)
 {
     if (ed_project.mode) {
@@ -225,6 +226,7 @@ static int ed_project_end(int apply)
             ui_say("SAMPLE RECOVERY NEEDED", "");
             return 2;                               /* never resume old music against partial samples */
         }
+        ed_smp_disarm_unused();
         ed_project.mode = 0;
         ed_project.recovery = 0;
         ui_project_end(apply);
@@ -347,6 +349,16 @@ static uint32_t ed_smp_slot(uint32_t k) { return SMP_USER_OFF(k); }
  * sector erase, so cancel after BEGIN alone keeps the last good sample. */
 static uint8_t smp_importing[SMP_USER_SLOTS];
 static uint8_t smp_sec0_erased[SMP_USER_SLOTS];
+/* Acknowledged contiguous payload extent. Retries below it must match NOR bytes;
+ * no second sector erase or differing reprogram is admitted within an import. */
+static uint32_t smp_write_next[SMP_USER_SLOTS];
+static void ed_smp_disarm_unused(void)
+{
+    uint32_t k;
+    for (k = 0; k < SMP_USER_SLOTS; k++)
+        if (!smp_sec0_erased[k])
+            smp_importing[k] = 0;                    /* retain partial-import recovery state */
+}
 static void ed_smp_inval(uint32_t k)
 {
     fm1_irq_off();
@@ -452,6 +464,7 @@ static int ed_smp_begin(uint32_t k)
         ed_project.changed = 1;
     smp_importing[k] = 1;
     smp_sec0_erased[k] = 0;
+    smp_write_next[k] = SMP_USER_DATA;
     return 0;
 }
 static int ed_smp_erase(uint32_t k, uint32_t all)
@@ -517,8 +530,7 @@ static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
         ed_smp_try_restore(k);
         return 1;
     }
-    if (h->magic != SMP_USER_MAGIC || h->version != 1 || !h->nz || h->nz > 16u ||
-        h->data_len > SMP_USER_SIZE(k) - SMP_USER_DATA) {
+    if (!smp_header_valid(h, k)) {
         ed_smp_try_restore(k);
         return 2;
     }
@@ -542,11 +554,15 @@ static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
     }
     ed_smp_inval(k);
     smp_user_scan(k);
+    if (!usr_nz[k]) {
+        ed_smp_try_restore(k);
+        return 5;
+    }
     smp_importing[k] = 0;
     smp_sec0_erased[k] = 0;
     ed_smp_clear_backup(k);
     engine_brk_loops();
-    return usr_nz[k] ? 0 : 5;
+    return 0;
 }
 
 #ifndef X0X_DEBUG
@@ -911,22 +927,27 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         if (na < 5u || a[0] >= SMP_USER_SLOTS || !flash_ok)
             return;
         off = (uint32_t)a[1] | (uint32_t)a[2] << 7 | (uint32_t)a[3] << 14;
-        len = ed_unpack7(a + 4, na - 4u, ed_smp_buf, 256u);
+        len = ed_unpack_exact(a + 4, na - 4u, ed_smp_buf, 256u);
         if (off < SMP_USER_DATA || (off & 0xFFu) || !len || off + len > SMP_USER_SIZE(a[0]))
             rc = 1;
-        else if (ed_project_samples_locked() ||
-                 (!smp_importing[a[0]] && usr_nz[a[0]]))
+        else if (ed_project_samples_locked() || !smp_importing[a[0]])
             rc = 4;
-        else {
+        else if (off != smp_write_next[a[0]]) {
+            if (off > smp_write_next[a[0]] || len > smp_write_next[a[0]] - off ||
+                memcmp(smp_user_xip(a[0]) + off, ed_smp_buf, len))
+                rc = 1;
+        } else {
             if (ed_project.mode == 2)
                 ed_project.changed = 1;
             if (ed_smp_erase_for_write(a[0], off, &took))
                 rc = 2;
             if (!rc) {
                 /* Sector-0 backup/restore reuses ed_smp_buf; re-unpack after erase. */
-                len = ed_unpack7(a + 4, na - 4u, ed_smp_buf, 256u);
+                len = ed_unpack_exact(a + 4, na - 4u, ed_smp_buf, 256u);
                 if (fl_write(ed_smp_slot(a[0]) + off, ed_smp_buf, len))
                     rc = 3;
+                else
+                    smp_write_next[a[0]] += len;
             }
         }
         ed_b(a[0]);
