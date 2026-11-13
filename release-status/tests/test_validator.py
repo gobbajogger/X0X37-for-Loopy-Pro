@@ -66,16 +66,18 @@ class TestValidator(unittest.TestCase):
         self.assertTrue(states["boot-restart-reported"])
         self.assertFalse(states["owner-hardware-approval"])
         self.assertFalse(states["withdrawn"])
-        self.assertEqual(RECORD_941["identity_confidence"]["model"], "inferred")
+        self.assertEqual(RECORD_941["identity_confidence"]["model"], "reported")
         self.assertEqual(RECORD_941["identity_confidence"]["build"], "inferred")
         self.assertEqual(RECORD_941["identity_confidence"]["installed_hash"], "absent")
-        # Ordered history: earlier recovery, latest success is current. No conflict.
+        # Ordered history: earlier recovery, then the Dot-relay install/boot,
+        # then the current owner-stated Elite update. No conflict.
         self.assertNotIn("conflicts", RECORD_941)
-        self.assertEqual(RECORD_941["current_report_sequence"], 2)
+        self.assertEqual(RECORD_941["current_report_sequence"], 3)
         kinds = [h["kind"] for h in RECORD_941["history"]]
-        self.assertEqual(kinds, ["recovery-history", "install-and-boot-report"])
+        self.assertEqual(kinds, ["recovery-history", "install-and-boot-report", "install-and-boot-report"])
         self.assertFalse(RECORD_941["history"][0]["is_current"])
-        self.assertTrue(RECORD_941["history"][1]["is_current"])
+        self.assertFalse(RECORD_941["history"][1]["is_current"])
+        self.assertTrue(RECORD_941["history"][2]["is_current"])
         self.assertIsNone(RECORD_941["elf_provenance"]["toolchain"])
         self.assertFalse(RECORD_941["elf_provenance"]["published"])
         self.assertEqual(RECORD_941["channel"], "nightly-hardware-test")
@@ -83,6 +85,12 @@ class TestValidator(unittest.TestCase):
         self.assertFalse(RECORD_941["history"][1]["quoted"])
         self.assertIsNone(RECORD_941["history"][1].get("quoted_words"))
         self.assertFalse(RECORD_941["history"][1]["scope"]["full_functional_suite"])
+        self.assertEqual(RECORD_941["history"][2]["source"], "owner in Orchestrator chat, relayed by Orchestrator")
+        self.assertTrue(RECORD_941["history"][2]["quoted"])
+        self.assertEqual(RECORD_941["history"][2]["model"], "Elite")
+        self.assertEqual(RECORD_941["history"][2]["model_confidence"], "reported")
+        self.assertIsNone(RECORD_941["history"][2]["installed_hash"])
+        self.assertFalse(RECORD_941["history"][2]["scope"]["full_functional_suite"])
 
 
     def test_600b_seed_passes_as_withdrawn(self):
@@ -158,7 +166,7 @@ class TestValidator(unittest.TestCase):
 
     def test_audit_seed_uses_github_identity(self):
         events = load_jsonl(AUDIT)
-        self.assertEqual(len(events), 5)
+        self.assertEqual(len(events), 7)
         for event in events:
             self.assertEqual(event["actor"], "gobbajogger")
             self.assertEqual(event["actor_identity"], "github")

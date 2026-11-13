@@ -259,7 +259,7 @@ class TestPromotionGates(unittest.TestCase):
 
     def test_positive_relayed_report_sets_reported_flags_not_verified_or_approval(self):
         # The 94197fc8 seed itself is this positive case, driven by the latest
-        # (current) report. Inferred flags stay. install-verified and
+        # (current) report. Model is now owner-stated (reported). install-verified and
         # owner-hardware-approval stay false.
         issues = validate_record(RECORD_941, SCHEMA)
         self.assertEqual([str(i) for i in issues], [])
@@ -268,14 +268,21 @@ class TestPromotionGates(unittest.TestCase):
         self.assertTrue(states["boot-restart-reported"])
         self.assertFalse(states["install-verified"])
         self.assertFalse(states["owner-hardware-approval"])
-        self.assertEqual(RECORD_941["identity_confidence"]["model"], "inferred")
+        self.assertEqual(RECORD_941["identity_confidence"]["model"], "reported")
         self.assertEqual(RECORD_941["identity_confidence"]["build"], "inferred")
         self.assertEqual(RECORD_941["identity_confidence"]["installed_hash"], "absent")
-        current = RECORD_941["history"][1]
+        earlier = RECORD_941["history"][1]
+        self.assertFalse(earlier["is_current"])
+        self.assertFalse(earlier["quoted"])
+        self.assertEqual(earlier["source"], "owner-reported via Dot relay")
+        self.assertIsNone(earlier.get("quoted_words"))
+        current = RECORD_941["history"][2]
         self.assertTrue(current["is_current"])
-        self.assertFalse(current["quoted"])
-        self.assertEqual(current["source"], "owner-reported via Dot relay")
-        self.assertIsNone(current.get("quoted_words"))
+        self.assertTrue(current["quoted"])
+        self.assertEqual(current["source"], "owner in Orchestrator chat, relayed by Orchestrator")
+        self.assertEqual(current["model"], "Elite")
+        self.assertEqual(current["model_confidence"], "reported")
+        self.assertIsNone(current["installed_hash"])
         self.assertFalse(current["scope"]["full_functional_suite"])
         self.assertEqual(current["confidence"], "reported")
         self.assertIn("automatic restart", current["events"])

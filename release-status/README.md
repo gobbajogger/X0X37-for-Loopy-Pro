@@ -40,6 +40,7 @@ release-status/tools/validate_release_status.py
 release-status/tests/test_schema.py
 release-status/tests/test_validator.py
 release-status/tests/test_promotion_gates.py
+release-status/tests/test_owner_reported_elite.py
 ```
 
 This tree lives on the orphan branch `lane/rp-release-status-workflow-20261113` in `gobbajogger/X0X37-for-Loopy-Pro`. The branch holds only `release-status/`. It is not based on `main`, `nightly`, `gh-pages`, or `wip/one-build`.
@@ -96,12 +97,13 @@ History events are ordered by `sequence`. The current state is the event with `i
 
 Source `94197fc839b00aff47b98ca02f3c6396e4a6eabf`. Exact-image emu360 strict PASS: Elite 11561 µs, Pro 11525 µs, 0 late, with elite and pro image SHA-256 on the evidence item. Controller bundle check PASS. Live nightly catalog latest id.
 
-History, both relayed via Orchestrator, owner words not quoted:
+History:
 
-1. Earlier, recovery-history (not current): stuck on restart with a black screen for 1–2 minutes; 0.0.25.1 recovered the device; upgrade-path cause not proven; M-Flasher worked; the FM-1 USB label did not prove a wrong model. The 0.0.25.1 recovery build is a reference only. Its hashes come from the live nightly `versions.json` (`nightly-79280e76-dev`, source `79280e763341d03ba43266d3e25dad66f12de860`).
-2. Latest, current state: install, automatic restart, and boot at normal speed on the owner's SMK. The event source is `owner-reported via Dot relay`. This is not a quotation of the owner. No exact time was available. Model Elite is inferred and unverified. Installed hash is absent. This is not a full functional suite pass.
+1. Earlier, recovery-history (not current): stuck on restart with a black screen for 1–2 minutes; 0.0.25.1 recovered the device; upgrade-path cause not proven; M-Flasher worked; the FM-1 USB label did not prove a wrong model. Relayed via Orchestrator, owner words not quoted. The 0.0.25.1 recovery build is a reference only. Its hashes come from the live nightly `versions.json` (`nightly-79280e76-dev`, source `79280e763341d03ba43266d3e25dad66f12de860`).
+2. Intermediate, install-and-boot-report (not current): install, automatic restart, and boot at normal speed on the owner's SMK. The event source is `owner-reported via Dot relay`. This is not a quotation of the owner. No exact time was available. Model Elite was inferred at the time of this event. Installed hash is absent.
+3. Latest, current state: the owner stated in the Orchestrator chat that he tested 0.0.25.1 and 0.0.26 and used Elite. Quotes, 2026-11-13, Asia/Vladivostok (UTC+10): at 23:20, "Bro I tested a 25,1 and 26 already"; at 23:22, "I used elite". Relayed by Orchestrator. Model Elite is owner-stated and not hardware-field verified. Installed hash is absent. Pro was not tested. An Elite report never implies Pro. This is not a full functional suite pass.
 
-States: `built`, `gate-passed`, `published-nightly`, `installation-reported`, and `boot-restart-reported` are true. `install-verified` and `owner-hardware-approval` are false. `withdrawn` is false. The channel is `nightly-hardware-test`. This is not a promotion to MAIN.
+States: `built`, `gate-passed`, `published-nightly`, `installation-reported`, and `boot-restart-reported` are true. `install-verified` and `owner-hardware-approval` are false. `withdrawn` is false. Identity confidence: model `reported`, build `inferred`, installed_hash `absent`. The channel is `nightly-hardware-test`. This is not a promotion to MAIN.
 
 ELF provenance is hashes only, `published=false`. The toolchain is `null`. The kept build logs do not name the compiler. The validator does not infer a toolchain. ELF bytes are not in this tree and must not be added.
 
@@ -109,7 +111,11 @@ ELF provenance is hashes only, `published=false`. The toolchain is `null`. The k
 
 Source `79280e763341d03ba43266d3e25dad66f12de860` on branch `release/0.0.25.1`. The channel in this workflow is `stable-MAIN`. This record does not publish. It does not edit the MAIN installer or PR #880.
 
-Hashes come from the live nightly `versions.json` row. `install-verified` and `owner-hardware-approval` are false. The catalog label is DEVICE NOT TESTED.
+Hashes come from the live nightly `versions.json` row.
+
+The owner reported testing 0.0.25.1 on an SMK-37 Elite. Quotes, 2026-11-13, Asia/Vladivostok (UTC+10): at 23:20, "Bro I tested a 25,1 and 26 already"; at 23:22, "I used elite". Source: `owner in Orchestrator chat, relayed by Orchestrator`. The installed package hash was not confirmed. Pro was not tested. An Elite report never implies Pro.
+
+`installation-reported` is true. `install-verified` and `owner-hardware-approval` are false. A test report is not hardware approval. Identity confidence: model `reported`, build `absent`, installed_hash `absent`. The nightly catalog label DEVICE NOT TESTED is unchanged and is not a full hardware qualification.
 
 ### `nightly-600b3b45-dev` (0.0.26, withdrawn)
 

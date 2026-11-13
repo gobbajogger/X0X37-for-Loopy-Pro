@@ -101,14 +101,14 @@
     "withdrawn": false
   },
   "identity_confidence": {
-    "model": "inferred",
+    "model": "reported",
     "build": "inferred",
     "installed_hash": "absent",
-    "model_note": "Elite is inferred from earlier context and has not been checked again.",
-    "build_note": "94197fc8 is inferred from the current nightly. The installed hash has not been verified.",
+    "model_note": "Elite is owner-stated from the owner's own words in the Orchestrator chat on 2026-11-13 at 23:22 UTC+10: \"I used elite\". Relayed by Orchestrator. This is not hardware-field verification. Pro was not tested. An Elite report never implies Pro.",
+    "build_note": "94197fc8 is inferred from the current nightly. The owner named 0.0.26. The installed hash has not been verified.",
     "installed_hash_note": "Installed hash is absent and is NOT verified."
   },
-  "current_report_sequence": 2,
+  "current_report_sequence": 3,
   "history": [
     {
       "sequence": 1,
@@ -158,13 +158,13 @@
       "sequence": 2,
       "time": null,
       "time_precision": "unknown",
-      "order": "latest",
+      "order": "intermediate",
       "kind": "install-and-boot-report",
       "source": "owner-reported via Dot relay",
       "quoted": false,
       "confidence": "reported",
       "verified": false,
-      "is_current": true,
+      "is_current": false,
       "text": "Owner-reported install, automatic restart, and boot at normal speed on the owner's SMK.",
       "events": [
         "install",
@@ -188,7 +188,46 @@
         "This is the latest report and is the current state.",
         "The source is owner-reported via Dot relay. This is not a quotation of the owner.",
         "Installed hash is absent. Model is unverified (Elite is inferred).",
-        "This is not a full functional suite pass. This is not hardware qualification on both models. This is not a promotion."
+        "This is not a full functional suite pass. This is not hardware qualification on both models. This is not a promotion.",
+        "A later event records the owner's own words that the model was Elite. This event itself is not an owner quotation. Model here stays inferred."
+      ]
+    },
+    {
+      "sequence": 3,
+      "time": "2026-11-13T23:22:00+10:00",
+      "time_precision": "exact",
+      "order": "latest",
+      "kind": "install-and-boot-report",
+      "source": "owner in Orchestrator chat, relayed by Orchestrator",
+      "quoted": true,
+      "confidence": "reported",
+      "verified": false,
+      "is_current": true,
+      "text": "The project owner reported testing 0.0.25.1 and 0.0.26 on an SMK-37 Elite. This updates the model on the earlier install, automatic restart, and normal-boot report from inferred to owner-stated Elite. The installed package hash was not confirmed. Pro was not tested.",
+      "events": [
+        "install",
+        "automatic restart",
+        "boot at normal speed"
+      ],
+      "device": "owner's SMK",
+      "model": "Elite",
+      "model_confidence": "reported",
+      "build": "94197fc8",
+      "build_confidence": "inferred",
+      "build_confidence_reason": "The owner named 0.0.26. The build SHA is still inferred from the current nightly. The installed package hash was not confirmed.",
+      "installed_hash": null,
+      "installed_hash_confidence": "absent",
+      "scope": {
+        "full_functional_suite": false,
+        "hardware_qualification_both_models": false,
+        "promotion": false
+      },
+      "notes": [
+        "This is the latest report and is the current state.",
+        "Owner quotes (Orchestrator chat, 2026-11-13, Asia/Vladivostok / UTC+10): at 23:20, \"Bro I tested a 25,1 and 26 already\"; at 23:22, \"I used elite\". Relayed by Orchestrator. These are the owner's own words.",
+        "Installed hash is absent. Model Elite is owner-stated and not hardware-field verified.",
+        "Pro was not tested. An Elite report never implies Pro. There is no Pro event.",
+        "This is not a full functional suite pass. This is not hardware qualification on both models. This is not a promotion. A test report is not owner-hardware-approval."
       ]
     }
   ],
@@ -196,9 +235,9 @@
     "This SHA replaces withdrawn 600b (nightly-600b3b45-dev). The MAIN installer in PR #880 still keeps 0.0.26 off MAIN. That MAIN fact is not this nightly record.",
     "The two history events are ordered: earlier recovery-history, then the latest install and boot success, which is the current state. They are not marked as a conflict.",
     "Exact timestamps for the history events were not in the source, so only sequence and earlier/latest order are recorded.",
-    "Promotion remains blocked: installed hash is absent, model is unverified, and there is no owner hardware approval.",
+    "Promotion remains blocked: installed hash is absent, model Elite is owner-stated but not hardware-field verified, Pro was not tested, and there is no owner hardware approval.",
     "Channel assignment in this workflow: nightly hardware-test build. This is not a promotion to MAIN. 0.0.25.1 is the stable MAIN channel.",
-    "The latest install, automatic restart, and normal-boot event source is 'owner-reported via Dot relay'. It is not an owner quotation."
+    "The earlier install, automatic restart, and normal-boot event source is 'owner-reported via Dot relay'. A later owner quote in the Orchestrator chat at 23:22 UTC+10, \"I used elite\", states the model. Elite never implies Pro."
   ],
   "channel": "nightly-hardware-test"
 }
