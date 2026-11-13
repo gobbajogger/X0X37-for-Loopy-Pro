@@ -323,7 +323,8 @@ int main(int argc, char **argv)
     shot(dir1, "after-single-drone");
     expect_log("DRONE A  BRIGHTNESS", "52", "%");
 
-    /* Rest-0 honesty: live 0, PATCH 55 % (pot 70), pot unchanged. */
+    /* Rest-0 honesty: live 0 %, pot 70 unchanged, never written back.
+     * PATCH line dropped for flash (Elite first link 1,076 B over image). */
     select_kind(0, ORIGINAL_SOUND_JUNO, 0);
     set_pot(0, 70);
     seq_page(PART_303A, 1);
@@ -337,7 +338,8 @@ int main(int argc, char **argv)
     CHECK(proj.sound.v[T_303][0][engine_bass_mod_param(0)] == 70);
     shot(dir1, "after-rest-0");
     expect_log("JUNO A  CUTOFF", "0", "%");
-    CHECK(has_str(ui_wheel_log, "PATCH  55 %"));
+    CHECK(!has_str(ui_wheel_log, "PATCH"));
+    CHECK(!has_str(ui_wheel_log, "SAVED"));
 
     /* ---- 2. Two targets (CC1, shared channel); physical stays single ---- */
     select_kind(0, ORIGINAL_SOUND_JUNO, 0);
