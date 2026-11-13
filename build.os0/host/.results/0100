@@ -1,0 +1,16 @@
+  FAIL smc-feedback (see build/host/smc-feedback.log)
+             |            ^~~~~~~~~~~~~
+       /workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:43:12: error: ‘cur_page’ defined but not used [-Werror=unused-function]
+          43 | static int cur_page(void) { return page; }
+             |            ^~~~~~~~
+       cc1: all warnings being treated as errors
+       Traceback (most recent call last):
+         File "/workspace/sb-aio-fce4dd5/tests/host/smc_feedback_test.py", line 246, in <module>
+           subprocess.run([*shlex.split(os.environ.get("CC", "cc")), "-std=c99", "-Wall", "-Wextra", "-Werror",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           "-I" + str(ROOT / "firmware/src"), str(c), "-o", str(binary)], check=True)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 577, in run
+           raise CalledProcessError(retcode, process.args,
+                                    output=stdout, stderr=stderr)
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-Wall', '-Wextra', '-Werror', '-I/workspace/sb-aio-fce4dd5/firmware/src', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback']' returned non-zero exit status 1.

@@ -1,0 +1,3 @@
+experiments/original_synth/chicago_tuning.c:23:5:original_chicago_tuning_bind	8	static
+experiments/original_synth/chicago_tuning.c:28:5:original_chicago_tuning_target	16	static
+experiments/original_synth/chicago_tuning.c:49:5:original_chicago_master_tune_convert	32	static

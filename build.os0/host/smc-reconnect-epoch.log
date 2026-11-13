@@ -1,0 +1,29 @@
+/tmp/smc-link-epoch-7jl38w09/test.c:202:39: error: ‘MAXPAGES’ undeclared here (not in a function)
+  202 |     uint8_t lock_pages, lock_page_kit[MAXPAGES];
+      |                                       ^~~~~~~~
+/tmp/smc-link-epoch-7jl38w09/test.c:204:24: error: ‘NVIEWS’ undeclared here (not in a function)
+  204 |     uint8_t mixer_page[NVIEWS][NPARTS];
+      |                        ^~~~~~
+/tmp/smc-link-epoch-7jl38w09/test.c:204:32: error: ‘NPARTS’ undeclared here (not in a function)
+  204 |     uint8_t mixer_page[NVIEWS][NPARTS];
+      |                                ^~~~~~
+/tmp/smc-link-epoch-7jl38w09/test.c: In function ‘smc_poll_peer’:
+/tmp/smc-link-epoch-7jl38w09/test.c:505:13: error: ‘smc_ui’ undeclared (first use in this function); did you mean ‘smc_q’?
+  505 |         if (smc_ui.on && smc_ui.peer == smc_slot)
+      |             ^~~~~~
+      |             smc_q
+/tmp/smc-link-epoch-7jl38w09/test.c:505:13: note: each undeclared identifier is reported only once for each function it appears in
+/tmp/smc-link-epoch-7jl38w09/test.c:506:28: error: implicit declaration of function ‘plat_ms’ [-Wimplicit-function-declaration]
+  506 |             smc_ui.until = plat_ms() + SMC_UI_MS;
+      |                            ^~~~~~~
+/tmp/smc-link-epoch-7jl38w09/test.c:506:40: error: ‘SMC_UI_MS’ undeclared (first use in this function)
+  506 |             smc_ui.until = plat_ms() + SMC_UI_MS;
+      |                                        ^~~~~~~~~
+Traceback (most recent call last):
+  File "/workspace/sb-aio-fce4dd5/tests/host/smc_ble_reconnect_epoch_test.py", line 182, in <module>
+    subprocess.run(args, check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['gcc', '-std=c99', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-I/workspace/sb-aio-fce4dd5/firmware/src', '-I/workspace/sb-aio-fce4dd5/tests/host', '/tmp/smc-link-epoch-7jl38w09/test.c', '-o', '/tmp/smc-link-epoch-7jl38w09/test']' returned non-zero exit status 1.

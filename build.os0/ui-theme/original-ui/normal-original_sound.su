@@ -1,0 +1,15 @@
+firmware/src/app/original_sound.c:49:10:original_sound_count	8	static
+firmware/src/app/original_sound.c:51:10:original_sound_factories	8	static
+firmware/src/app/original_sound.c:53:5:original_sound_factory_source	8	static
+firmware/src/app/original_sound.c:58:13:original_sound_fx_name	8	static
+firmware/src/app/original_sound.c:60:5:original_sound_control_value	8	static
+firmware/src/app/original_sound.c:72:10:original_sound_engine_id	8	static
+firmware/src/app/original_sound.c:74:13:original_sound_name	8	static
+firmware/src/app/original_sound.c:80:20:original_sound_param	8	static
+firmware/src/app/original_sound.c:85:10:original_sound_edit_mask	8	static
+firmware/src/app/original_sound.c:94:5:original_sound_valid	8	static
+firmware/src/app/original_sound.c:104:5:original_sound_init	320	static
+firmware/src/app/original_sound.c:128:5:original_sound_set	24	static
+firmware/src/app/original_sound.c:138:5:original_sound_restore_miami	272	static
+firmware/src/app/original_sound.c:152:5:original_sound_restore_chicago	304	static
+firmware/src/app/original_sound.c:166:5:original_sound_value	240	static

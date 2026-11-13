@@ -1,0 +1,2 @@
+  FAIL scenario-clklock (see build/host/scenario-clklock.log)
+       X0X_ORIGINAL_SYNTH: only 1 is supported

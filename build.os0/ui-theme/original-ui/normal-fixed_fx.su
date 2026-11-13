@@ -1,0 +1,5 @@
+experiments/original_synth/fixed_fx.c:18:6:original_fixed_fx_init	8	static
+experiments/original_synth/fixed_fx.c:22:6:original_fixed_fx_internal_enable	8	static
+experiments/original_synth/fixed_fx.c:26:6:original_fixed_fx_parameter16	8	static
+experiments/original_synth/fixed_fx.c:27:6:original_fixed_fx_reset	8	static
+experiments/original_synth/fixed_fx.c:31:5:original_fixed_fx_process	80	static

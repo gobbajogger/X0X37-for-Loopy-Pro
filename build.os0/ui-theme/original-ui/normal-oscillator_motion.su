@@ -1,0 +1,12 @@
+experiments/original_synth/oscillator_motion.c:26:14:prepared_wave	8	static
+experiments/original_synth/oscillator_motion.c:43:12:sample_gains.part.0	128	static
+experiments/original_synth/oscillator_motion.c:32:5:original_waveform	8	static
+experiments/original_synth/oscillator_motion.c:36:5:original_oscillator_prepare	8	static
+experiments/original_synth/oscillator_motion.c:57:5:original_oscillator_sample_prepared	16	static
+experiments/original_synth/oscillator_motion.c:61:5:original_oscillator_sample_gains	16	static
+experiments/original_synth/oscillator_motion.c:66:5:original_oscillator_sample	128	static
+experiments/original_synth/oscillator_motion.c:69:5:original_mg_tempo	8	static
+experiments/original_synth/oscillator_motion.c:76:5:original_glide	80	static
+experiments/original_synth/oscillator_motion.c:82:5:original_pitch_increment	32	static
+experiments/original_synth/oscillator_motion.c:89:5:original_pw_width	8	static
+experiments/original_synth/oscillator_motion.c:95:5:original_xmod_coefficient	32	static

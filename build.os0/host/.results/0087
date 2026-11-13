@@ -1,0 +1,4 @@
+  FAIL smc-interaction-negative (see build/host/smc-interaction-negative.log)
+       pause-unbound: expected runtime assertion, got 1
+       X0X_ORIGINAL_SYNTH: only 1 is supported
+       

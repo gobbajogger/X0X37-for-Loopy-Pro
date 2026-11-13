@@ -1,0 +1,62 @@
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c: In function ‘smc_drum_mix’:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:70:17: error: ‘struct <anonymous>’ has no member named ‘lock_view’; did you mean ‘lock_kit’?
+   70 |         if (smc.lock_view == V_SEQ && smc.lock_part < NKIT)
+      |                 ^~~~~~~~~
+      |                 lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:72:17: error: ‘struct <anonymous>’ has no member named ‘lock_view’; did you mean ‘lock_kit’?
+   72 |         if (smc.lock_view == V_MIX && smc.lock_page < smc.lock_pages)
+      |                 ^~~~~~~~~
+      |                 lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:72:43: error: ‘struct <anonymous>’ has no member named ‘lock_page’; did you mean ‘lock_part’?
+   72 |         if (smc.lock_view == V_MIX && smc.lock_page < smc.lock_pages)
+      |                                           ^~~~~~~~~
+      |                                           lock_part
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:72:59: error: ‘struct <anonymous>’ has no member named ‘lock_pages’; did you mean ‘lock_part’?
+   72 |         if (smc.lock_view == V_MIX && smc.lock_page < smc.lock_pages)
+      |                                                           ^~~~~~~~~~
+      |                                                           lock_part
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:73:29: error: ‘struct <anonymous>’ has no member named ‘lock_page_kit’; did you mean ‘lock_kit’?
+   73 |             return (int)smc.lock_page_kit[smc.lock_page] - 1;
+      |                             ^~~~~~~~~~~~~
+      |                             lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:73:47: error: ‘struct <anonymous>’ has no member named ‘lock_page’; did you mean ‘lock_part’?
+   73 |             return (int)smc.lock_page_kit[smc.lock_page] - 1;
+      |                                               ^~~~~~~~~
+      |                                               lock_part
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:80:23: error: ‘struct <anonymous>’ has no member named ‘title’
+   80 |     const char *t = pg.title[smc_page_now()];
+      |                       ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:80:30: error: implicit declaration of function ‘smc_page_now’ [-Wimplicit-function-declaration]
+   80 |     const char *t = pg.title[smc_page_now()];
+      |                              ^~~~~~~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c: In function ‘smc_button’:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:118:9: error: implicit declaration of function ‘smc_knob_bank’; did you mean ‘smc_bank’? [-Wimplicit-function-declaration]
+  118 |         smc_knob_bank(note == 0x60u ? -1 : 1);
+      |         ^~~~~~~~~~~~~
+      |         smc_bank
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:243:13: error: implicit declaration of function ‘smc_page_set’ [-Wimplicit-function-declaration]
+  243 |             smc_page_set(smc_page_now() + d);
+      |             ^~~~~~~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c: At top level:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:44:17: error: ‘page_of’ defined but not used [-Werror=unused-function]
+   44 | static uint8_t *page_of(int v) { (void)v; return &page; }
+      |                 ^~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:43:12: error: ‘cur_page’ defined but not used [-Werror=unused-function]
+   43 | static int cur_page(void) { return page; }
+      |            ^~~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c:17:12: error: ‘drum_mix_page’ defined but not used [-Werror=unused-function]
+   17 | static int drum_mix_page(void) { return -1; }
+      |            ^~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+Traceback (most recent call last):
+  File "/workspace/sb-aio-fce4dd5/tests/host/smc_buttons_test.py", line 96, in <module>
+    subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror',
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    '-I'+str(root/'firmware'/'src'), '-I'+str(root/'tests'/'host'),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(c),'-o',str(exe)],check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['cc', '-std=c99', '-Wall', '-Wextra', '-Werror', '-I/workspace/sb-aio-fce4dd5/firmware/src', '-I/workspace/sb-aio-fce4dd5/tests/host', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test']' returned non-zero exit status 1.

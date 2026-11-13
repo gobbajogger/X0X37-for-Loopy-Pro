@@ -1,0 +1,11 @@
+experiments/original_synth/chicago_note_context.c:40:12:exit_helper	16	static
+experiments/original_synth/chicago_note_context.c:19:12:mg	320	static
+experiments/original_synth/chicago_note_context.c:6:12:tune	32	static
+experiments/original_synth/chicago_note_context.c:48:13:mg2_notify	8	static
+experiments/original_synth/chicago_note_context.c:42:13:mg1_tick	32	static
+experiments/original_synth/chicago_note_context.c:39:13:seed	8	static
+experiments/original_synth/chicago_note_context.c:35:13:sources	8	static
+experiments/original_synth/chicago_note_context.c:41:33:original_chicago_note_context_callbacks	8	static
+experiments/original_synth/chicago_note_context.c:53:38:original_chicago_note_context_scheduler_callbacks	16	static
+experiments/original_synth/chicago_note_context.c:54:5:original_chicago_note_context_bind	8	static
+experiments/original_synth/chicago_note_context.c:59:5:original_chicago_note_context_sources	8	static

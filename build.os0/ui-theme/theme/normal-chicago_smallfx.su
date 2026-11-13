@@ -1,0 +1,9 @@
+experiments/original_synth/chicago_smallfx.c:4:5:original_chicago_decimator_init	8	static
+experiments/original_synth/chicago_smallfx.c:5:5:original_chicago_decimator_set	8	static
+experiments/original_synth/chicago_smallfx.c:6:6:original_chicago_decimator_reset	8	static
+experiments/original_synth/chicago_smallfx.c:7:5:original_chicago_decimator_bind_events	8	static
+experiments/original_synth/chicago_smallfx.c:11:6:original_chicago_decimator_direct_event	8	static
+experiments/original_synth/chicago_smallfx.c:12:5:original_chicago_decimator_process	80	static
+experiments/original_synth/chicago_smallfx.c:19:5:original_chicago_decimator_advance_zero	8	static
+experiments/original_synth/chicago_smallfx.c:23:9:original_chicago_bypass_parameter	8	static
+experiments/original_synth/chicago_smallfx.c:24:5:original_chicago_bypass_process	8	static

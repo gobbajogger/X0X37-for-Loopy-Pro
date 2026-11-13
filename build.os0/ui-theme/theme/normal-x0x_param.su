@@ -1,0 +1,2 @@
+firmware/src/dsp/x0x_param.c:6:6:x0x_pan_gains	8	static
+firmware/src/dsp/x0x_param.c:18:7:x0x_glide_block	8	static

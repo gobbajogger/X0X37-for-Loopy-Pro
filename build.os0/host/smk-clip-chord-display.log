@@ -1,0 +1,175 @@
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 2316 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 3288 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 4280 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 4374 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 4863 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 3584 B
+font set barlow: 23179 B (approx)
+In file included from tests/host/smk_clip_knob_test.c:87,
+                 from tests/host/smk_clip_chord_display_test.c:4:
+firmware/src/app/smk_clip_keys.h:57:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   57 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:66:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   66 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:73:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   73 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:82:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   82 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:122:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  122 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:128:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  128 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:147:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  147 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:158:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  158 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:175:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  175 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:191:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  191 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:199:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  199 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:207:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  207 | {
+      | ^
+In file included from tests/host/smk_clip_knob_test.c:102:
+build/host/clip_chord/ck_a.inc:38:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   38 | {
+      | ^
+build/host/clip_chord/ck_a.inc:46:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   46 | {
+      | ^
+build/host/clip_chord/ck_a.inc:61:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   61 | {
+      | ^
+build/host/clip_chord/ck_a.inc:69:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   69 | {
+      | ^
+build/host/clip_chord/ck_a.inc:79:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   79 | {
+      | ^
+build/host/clip_chord/ck_a.inc:92:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   92 | {
+      | ^
+build/host/clip_chord/ck_a.inc:99:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   99 | {
+      | ^
+build/host/clip_chord/ck_a.inc:109:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  109 | {
+      | ^
+build/host/clip_chord/ck_a.inc:130:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  130 | {
+      | ^
+build/host/clip_chord/ck_a.inc:142:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  142 | {
+      | ^
+build/host/clip_chord/ck_a.inc:155:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  155 | {
+      | ^
+build/host/clip_chord/ck_a.inc:187:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  187 | {
+      | ^
+build/host/clip_chord/ck_a.inc:201:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  201 | {
+      | ^
+build/host/clip_chord/ck_a.inc:221:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  221 | {
+      | ^
+build/host/clip_chord/ck_a.inc:255:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  255 | {
+      | ^
+build/host/clip_chord/ck_a.inc:278:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  278 | {
+      | ^
+build/host/clip_chord/ck_a.inc:305:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  305 | {
+      | ^
+build/host/clip_chord/ck_a.inc:362:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  362 | {
+      | ^
+build/host/clip_chord/ck_a.inc:366:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  366 | {
+      | ^
+build/host/clip_chord/ck_a.inc:375:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  375 | {
+      | ^
+build/host/clip_chord/ck_a.inc:407:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  407 | {
+      | ^
+build/host/clip_chord/ck_a.inc:480:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  480 | {
+      | ^
+build/host/clip_chord/ck_a.inc:569:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  569 | {
+      | ^
+In file included from tests/host/smk_clip_knob_test.c:103:
+build/host/clip_chord/ck_b.inc:2:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+    2 | {
+      | ^
+In file included from tests/host/smk_clip_chord_display_test.c:41:
+build/host/clip_chord/chord_screen.inc:7:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+    7 | {
+      | ^
+build/host/clip_chord/chord_screen.inc:38:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   38 | {
+      | ^
+build/host/clip_chord/chord_screen.inc:64:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   64 | {
+      | ^
+build/host/clip_chord/chord_screen.inc:69:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   69 | {
+      | ^
+cc1: note: unrecognized command-line option ‘-Wno-unknown-attributes’ may have been intended to silence earlier diagnostics
+In file included from firmware/src/app/smk_clip_arp_share.c:5:
+firmware/src/app/smk_clip_keys.h:57:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   57 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:66:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   66 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:73:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   73 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:82:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   82 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:122:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  122 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:128:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  128 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:147:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  147 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:158:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  158 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:175:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  175 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:191:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  191 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:199:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  199 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:207:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+  207 | {
+      | ^
+firmware/src/app/smk_clip_arp_share.c:11:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+   11 | {
+      | ^
+cc1: note: unrecognized command-line option ‘-Wno-unknown-attributes’ may have been intended to silence earlier diagnostics
+clip chord display: 7049 checks, 7050 captured chord draws passed

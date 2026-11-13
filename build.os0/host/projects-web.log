@@ -1,0 +1,180 @@
+TAP version 13
+# Subtest: portable and project-only containers preserve raw project, all slots and full header bytes
+ok 1 - portable and project-only containers preserve raw project, all slots and full header bytes
+  ---
+  duration_ms: 74.686262
+  ...
+# Subtest: inner project rejects corrupt, truncated, oversized and incompatible schemas
+ok 2 - inner project rejects corrupt, truncated, oversized and incompatible schemas
+  ---
+  duration_ms: 1.08673
+  ...
+# Subtest: outer CRC, version, flags, metadata size and raw unmanifested files are rejected
+ok 3 - outer CRC, version, flags, metadata size and raw unmanifested files are rejected
+  ---
+  duration_ms: 21.067079
+  ...
+# Subtest: strict metadata rejects duplicated entries, overlapping ranges and unreferenced bytes
+ok 4 - strict metadata rejects duplicated entries, overlapping ranges and unreferenced bytes
+  ---
+  duration_ms: 20.461867
+  ...
+# Subtest: sample metadata must match the original header even when both JSON copies and CRCs agree
+ok 5 - sample metadata must match the original header even when both JSON copies and CRCs agree
+  ---
+  duration_ms: 13.5739
+  ...
+# Subtest: sample image rejects data CRC, impossible zone boundaries and rate corruption
+ok 6 - sample image rejects data CRC, impossible zone boundaries and rate corruption
+  ---
+  duration_ms: 0.3945
+  ...
+# Subtest: project-only matching checks every occupied and empty slot and never remaps
+ok 7 - project-only matching checks every occupied and empty slot and never remaps
+  ---
+  duration_ms: 34.724414
+  ...
+# Subtest: portable plans fills, identical skips and backed-up clear/replacement collisions
+ok 8 - portable plans fills, identical skips and backed-up clear/replacement collisions
+  ---
+  duration_ms: 22.419673
+  ...
+# Subtest: non-X0X identity is rejected before any project command
+ok 9 - non-X0X identity is rejected before any project command
+  ---
+  duration_ms: 1.642127
+  ...
+# Subtest: unsupported or malformed query replies are explained clearly
+ok 10 - unsupported or malformed query replies are explained clearly
+  ---
+  duration_ms: 11.76606
+  ...
+# Subtest: export snapshots project plus every original sample and always aborts; no sample writes
+ok 11 - export snapshots project plus every original sample and always aborts; no sample writes
+  ---
+  duration_ms: 64.004012
+  ...
+# Subtest: export aborts interrupted reads and uncertain BEGIN without blind BEGIN retry
+ok 12 - export aborts interrupted reads and uncertain BEGIN without blind BEGIN retry
+  ---
+  duration_ms: 0.661862
+  ...
+# Subtest: READ/WRITE replies correlate operation and offset and validate exact byte lengths
+ok 13 - READ/WRITE replies correlate operation and offset and validate exact byte lengths
+  ---
+  duration_ms: 2.820062
+  ...
+# Subtest: sample reads correlate slot and offset and reject a short reply
+ok 14 - sample reads correlate slot and offset and reject a short reply
+  ---
+  duration_ms: 31.234561
+  ...
+# Subtest: project chunk replay recovers a lost WRITE acknowledgement exactly once
+ok 15 - project chunk replay recovers a lost WRITE acknowledgement exactly once
+  ---
+  duration_ms: 14.31443
+  ...
+# Subtest: complete project-only import preserves every sample byte with zero sample write commands
+ok 16 - complete project-only import preserves every sample byte with zero sample write commands
+  ---
+  duration_ms: 87.240386
+  ...
+# Subtest: confirmation or missing verified recovery acknowledgement refuses all sample mutations
+ok 17 - confirmation or missing verified recovery acknowledgement refuses all sample mutations
+  ---
+  duration_ms: 33.719128
+  ...
+# Subtest: firmware semantic validation fails before sample writes and keeps the previous live project
+ok 18 - firmware semantic validation fails before sample writes and keeps the previous live project
+  ---
+  duration_ms: 20.920122
+  ...
+# Subtest: portable import fills and clears exact positions, skips identical images and preserves 512-byte headers
+ok 19 - portable import fills and clears exact positions, skips identical images and preserves 512-byte headers
+  ---
+  duration_ms: 29.831462
+  ...
+# Subtest: a changed keyboard invalidates the preview before any sample writes
+ok 20 - a changed keyboard invalidates the preview before any sample writes
+  ---
+  duration_ms: 20.819899
+  ...
+# Subtest: sample readback mismatch rolls back exact original bytes before aborting adoption
+ok 21 - sample readback mismatch rolls back exact original bytes before aborting adoption
+  ---
+  duration_ms: 52.035792
+  ...
+# Subtest: lost sample-write acknowledgement is not blindly retried and rollback uses its backup
+ok 22 - lost sample-write acknowledgement is not blindly retried and rollback uses its backup
+  ---
+  duration_ms: 15.017696
+  ...
+# Subtest: failed rollback reports recovery failure concretely and does not claim restoration
+ok 23 - failed rollback reports recovery failure concretely and does not claim restoration
+  ---
+  duration_ms: 22.595346
+  ...
+# Subtest: lost COMMIT reply restores the previous project as well as samples without repeating adoption
+ok 24 - lost COMMIT reply restores the previous project as well as samples without repeating adoption
+  ---
+  duration_ms: 36.642616
+  ...
+# Subtest: QUERY detects retained recovery mode after expiry and rollback restages without releasing its hold
+ok 25 - QUERY detects retained recovery mode after expiry and rollback restages without releasing its hold
+  ---
+  duration_ms: 32.194841
+  ...
+# Subtest: failed recovery retains mode3; reconnect restores a portable backup without reading partial sample images
+ok 26 - failed recovery retains mode3; reconnect restores a portable backup without reading partial sample images
+  ---
+  duration_ms: 71.020593
+  ...
+# Subtest: mode3 refuses project-only recovery and keeps the hold on a failed portable recovery
+ok 27 - mode3 refuses project-only recovery and keeps the hold on a failed portable recovery
+  ---
+  duration_ms: 15.42935
+  ...
+# Subtest: save/load/reset use confirmation tokens, do not touch samples and never retry SAVE blindly
+ok 28 - save/load/reset use confirmation tokens, do not touch samples and never retry SAVE blindly
+  ---
+  duration_ms: 0.651011
+  ...
+# Subtest: MIDI adapter ignores normal playing traffic and bounds idle SysEx buffering
+ok 29 - MIDI adapter ignores normal playing traffic and bounds idle SysEx buffering
+  ---
+  duration_ms: 0.988486
+  ...
+# Subtest: only explicit pattern/sound revision pairs are accepted
+ok 30 - only explicit pattern/sound revision pairs are accepted
+  ---
+  duration_ms: 0.405641
+  ...
+# Subtest: actual current firmware export retains its 3/10 header and every payload byte
+ok 31 - actual current firmware export retains its 3/10 header and every payload byte
+  ---
+  duration_ms: 62.686925
+  ...
+# Subtest: current and endpoint-revision exports pass the real frontend transaction without sample changes
+ok 32 - current and endpoint-revision exports pass the real frontend transaction without sample changes
+  ---
+  duration_ms: 297.590907
+  ...
+# Subtest: current stream-3 firmware refuses endpoint stream-6 data before any sample replacement or adoption
+ok 33 - current stream-3 firmware refuses endpoint stream-6 data before any sample replacement or adoption
+  ---
+  duration_ms: 86.31618
+  ...
+# Subtest: adaptive BREAK stream 8/9 project schemas keep exact bytes and CRC checks
+ok 34 - adaptive BREAK stream 8/9 project schemas keep exact bytes and CRC checks
+  ---
+  duration_ms: 0.835628
+  ...
+1..34
+# tests 34
+# suites 0
+# pass 34
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1255.733688

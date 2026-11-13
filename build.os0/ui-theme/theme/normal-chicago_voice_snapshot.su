@@ -1,0 +1,3 @@
+experiments/original_synth/chicago_voice_snapshot.c:148:5:original_chicago_voice_snapshot_capture	408	static
+experiments/original_synth/chicago_voice_snapshot.c:152:5:original_chicago_voice_snapshot_encode	8	static
+experiments/original_synth/chicago_voice_snapshot.c:153:5:original_chicago_voice_snapshot_decode	544	static

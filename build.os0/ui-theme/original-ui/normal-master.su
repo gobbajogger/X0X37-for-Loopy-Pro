@@ -1,0 +1,3 @@
+experiments/original_synth/master.c:10:6:original_master_init	8	static
+experiments/original_synth/master.c:11:6:original_master_mute	8	static
+experiments/original_synth/master.c:12:5:original_master_process	96	static

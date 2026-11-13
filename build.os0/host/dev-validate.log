@@ -1,0 +1,13 @@
+........REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+..........Preparing worktree (detached HEAD 6e0e133)
+HEAD is now at 6e0e133 fixture
+.Preparing worktree (detached HEAD 6e0e133)
+HEAD is now at 6e0e133 fixture
+.
+----------------------------------------------------------------------
+Ran 20 tests in 16.830s
+
+OK
+DEV CHECKED b39a52f61efe6e1eebb5b06f98d153b6fda91ac9
+DEV OK b39a52f /workspace/sb-aio-fce4dd5/build/host/iso/dev-validate/tmp/tmp3ijcqp7y/result/record.json (config dev; queue: 0 open lines in b39a52f)

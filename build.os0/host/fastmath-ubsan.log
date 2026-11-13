@@ -1,0 +1,17 @@
+In file included from tests/host/fastmath_test.c:5:
+tests/host/../../firmware/src/dsp/fastmath.h:45:14: error: inline function ‘fm_floorf’ declared weak [-Werror=attributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+tests/host/../../firmware/src/dsp/fastmath.h:156:14: error: inline function ‘fm_sin_pi’ declared weak [-Werror=attributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+tests/host/../../firmware/src/dsp/fastmath.h:169:14: error: inline function ‘fm_wrap_pi’ declared weak [-Werror=attributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+tests/host/../../firmware/src/dsp/fastmath.h:175:14: error: inline function ‘fm_sinf’ declared weak [-Werror=attributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+tests/host/../../firmware/src/dsp/fastmath.h:176:14: error: inline function ‘fm_cosf’ declared weak [-Werror=attributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+cc1: all warnings being treated as errors

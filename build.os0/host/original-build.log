@@ -1,0 +1,56 @@
+test_conflicting_or_invalid_selectors_fail (__main__.OriginalBuildCompositionTests.test_conflicting_or_invalid_selectors_fail) ... ok
+test_default_is_original_and_zero_is_rejected (__main__.OriginalBuildCompositionTests.test_default_is_original_and_zero_is_rejected) ... ok
+test_host_build_allows_original_rate_pad_flag_without_legacy_sources (__main__.OriginalBuildCompositionTests.test_host_build_allows_original_rate_pad_flag_without_legacy_sources) ... ok
+test_invalid_external_inputs_fail_before_any_tool_is_called (__main__.OriginalBuildCompositionTests.test_invalid_external_inputs_fail_before_any_tool_is_called) ... ok
+test_legacy_profile_never_builds_even_with_wobble_disabled (__main__.OriginalBuildCompositionTests.test_legacy_profile_never_builds_even_with_wobble_disabled) ... ok
+test_missing_replacement_fails_before_any_tool_is_called (__main__.OriginalBuildCompositionTests.test_missing_replacement_fails_before_any_tool_is_called) ... ok
+test_original_rate_pad_default_and_explicit_opt_out (__main__.OriginalBuildCompositionTests.test_original_rate_pad_default_and_explicit_opt_out) ... 
+  test_original_rate_pad_default_and_explicit_opt_out (__main__.OriginalBuildCompositionTests.test_original_rate_pad_default_and_explicit_opt_out) (options={}) ... FAIL
+  test_original_rate_pad_default_and_explicit_opt_out (__main__.OriginalBuildCompositionTests.test_original_rate_pad_default_and_explicit_opt_out) (options={'X0X_DEV_WOBBLE': '1'}) ... FAIL
+  test_original_rate_pad_default_and_explicit_opt_out (__main__.OriginalBuildCompositionTests.test_original_rate_pad_default_and_explicit_opt_out) (options={'X0X_DEV_WOBBLE': '0'}) ... FAIL
+test_original_rate_pads_do_not_compile_legacy_wobble (__main__.OriginalBuildCompositionTests.test_original_rate_pads_do_not_compile_legacy_wobble) ... FAIL
+test_original_ui_rate_flag_does_not_activate_legacy_dsp_sources (__main__.OriginalBuildCompositionTests.test_original_ui_rate_flag_does_not_activate_legacy_dsp_sources) ... ok
+test_rate_pad_port_preserves_574f_press_ownership_and_native_eight_rates (__main__.OriginalBuildCompositionTests.test_rate_pad_port_preserves_574f_press_ownership_and_native_eight_rates) ... ok
+test_reference_arithmetic_flags_and_existing_board_flags (__main__.OriginalBuildCompositionTests.test_reference_arithmetic_flags_and_existing_board_flags) ... ok
+test_replacement_is_exclusive_and_preserves_independent_sources (__main__.OriginalBuildCompositionTests.test_replacement_is_exclusive_and_preserves_independent_sources) ... ok
+
+======================================================================
+FAIL: test_original_rate_pad_default_and_explicit_opt_out (__main__.OriginalBuildCompositionTests.test_original_rate_pad_default_and_explicit_opt_out) (options={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sb-aio-fce4dd5/tests/host/test_original_build_composition.py", line 193, in test_original_rate_pad_default_and_explicit_opt_out
+    self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '-DX0X_ORIGINAL_SYNTH=1' not found in ('cc', '-c', PosixPath('/workspace/sb-aio-fce4dd5/firmware/crt0.S'), '-o', PosixPath('/workspace/sb-aio-fce4dd5/build/crt0.o'))
+
+======================================================================
+FAIL: test_original_rate_pad_default_and_explicit_opt_out (__main__.OriginalBuildCompositionTests.test_original_rate_pad_default_and_explicit_opt_out) (options={'X0X_DEV_WOBBLE': '1'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sb-aio-fce4dd5/tests/host/test_original_build_composition.py", line 193, in test_original_rate_pad_default_and_explicit_opt_out
+    self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '-DX0X_ORIGINAL_SYNTH=1' not found in ('cc', '-c', PosixPath('/workspace/sb-aio-fce4dd5/firmware/crt0.S'), '-o', PosixPath('/workspace/sb-aio-fce4dd5/build/crt0.o'))
+
+======================================================================
+FAIL: test_original_rate_pad_default_and_explicit_opt_out (__main__.OriginalBuildCompositionTests.test_original_rate_pad_default_and_explicit_opt_out) (options={'X0X_DEV_WOBBLE': '0'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sb-aio-fce4dd5/tests/host/test_original_build_composition.py", line 193, in test_original_rate_pad_default_and_explicit_opt_out
+    self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '-DX0X_ORIGINAL_SYNTH=1' not found in ('cc', '-c', PosixPath('/workspace/sb-aio-fce4dd5/firmware/crt0.S'), '-o', PosixPath('/workspace/sb-aio-fce4dd5/build/crt0.o'))
+
+======================================================================
+FAIL: test_original_rate_pads_do_not_compile_legacy_wobble (__main__.OriginalBuildCompositionTests.test_original_rate_pads_do_not_compile_legacy_wobble)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sb-aio-fce4dd5/tests/host/test_original_build_composition.py", line 115, in test_original_rate_pads_do_not_compile_legacy_wobble
+    self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '-DX0X_ORIGINAL_SYNTH=1' not found in ('cc', '-c', PosixPath('/workspace/sb-aio-fce4dd5/firmware/crt0.S'), '-o', PosixPath('/workspace/sb-aio-fce4dd5/build/crt0.o'))
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.031s
+
+FAILED (failures=4)

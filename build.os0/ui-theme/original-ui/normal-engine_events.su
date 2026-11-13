@@ -1,0 +1,2 @@
+experiments/original_synth/engine_events.c:14:5:original_engine_events_bind	80	static
+experiments/original_synth/engine_events.c:23:5:original_engine_events_frame	48	static

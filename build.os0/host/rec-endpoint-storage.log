@@ -1,0 +1,378 @@
+In file included from tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:23,
+                 from tests/host/../../firmware/src/app/../dsp/fxbus.h:26,
+                 from tests/host/../../firmware/src/app/x0x.h:19,
+                 from tests/host/../../firmware/src/app/project.c:16,
+                 from tests/host/project_stage_test.c:63,
+                 from tests/host/rec_endpoint_storage_test.c:4:
+tests/host/../../firmware/src/app/../dsp/fastmath.h:45:14: error: inline function ‘fm_floorf’ declared weak [-Werror=attributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/fastmath.h:156:14: error: inline function ‘fm_sin_pi’ declared weak [-Werror=attributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/fastmath.h:169:14: error: inline function ‘fm_wrap_pi’ declared weak [-Werror=attributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/fastmath.h:175:14: error: inline function ‘fm_sinf’ declared weak [-Werror=attributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+tests/host/../../firmware/src/app/../dsp/fastmath.h:176:14: error: inline function ‘fm_cosf’ declared weak [-Werror=attributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:153:13: error: inline function ‘d9_biquad_set’ declared weak [-Werror=attributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:203:14: error: inline function ‘d9_tanh’ declared weak [-Werror=attributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:229:13: error: inline function ‘d9_shape_prep’ declared weak [-Werror=attributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+tests/host/project_stage_test.c: In function ‘store_legacy_project’:
+tests/host/project_stage_test.c:479:42: error: ‘ARR1_LEN’ undeclared (first use in this function)
+  479 |     uint8_t payload[PLAT_STORE_MAX], raw[ARR1_LEN];
+      |                                          ^~~~~~~~
+tests/host/project_stage_test.c:479:42: note: each undeclared identifier is reported only once for each function it appears in
+tests/host/project_stage_test.c:480:5: error: unknown type name ‘pattern1_t’; did you mean ‘pattern_t’?
+  480 |     pattern1_t old;
+      |     ^~~~~~~~~~
+      |     pattern_t
+tests/host/project_stage_test.c:491:24: error: request for member ‘drum’ in something not a structure or union
+  491 |                     old.drum[k].hit[v] = pat->drum[k].hit[v][0];
+      |                        ^
+tests/host/project_stage_test.c:492:20: error: request for member ‘drum’ in something not a structure or union
+  492 |                 old.drum[k].accent = pat->drum[k].accent[0];
+      |                    ^
+tests/host/project_stage_test.c:493:20: error: request for member ‘drum’ in something not a structure or union
+  493 |                 old.drum[k].len = pat->drum[k].len;
+      |                    ^
+tests/host/project_stage_test.c:494:20: error: request for member ‘drum’ in something not a structure or union
+  494 |                 old.drum[k].rate = pat->drum[k].rate;
+      |                    ^
+tests/host/project_stage_test.c:497:33: error: ‘NSTEPS1’ undeclared (first use in this function); did you mean ‘NSTEPS’?
+  497 |                 for (i = 0; i < NSTEPS1; i++) {
+      |                                 ^~~~~~~
+      |                                 NSTEPS
+tests/host/project_stage_test.c:498:24: error: request for member ‘bass’ in something not a structure or union
+  498 |                     old.bass[k].step[i].note = pat->bass[k].step[i].note;
+      |                        ^
+tests/host/project_stage_test.c:499:24: error: request for member ‘bass’ in something not a structure or union
+  499 |                     old.bass[k].step[i].flags = pat->bass[k].step[i].flags;
+      |                        ^
+tests/host/project_stage_test.c:501:20: error: request for member ‘bass’ in something not a structure or union
+  501 |                 old.bass[k].len = pat->bass[k].len;
+      |                    ^
+tests/host/project_stage_test.c:502:20: error: request for member ‘bass’ in something not a structure or union
+  502 |                 old.bass[k].rate = pat->bass[k].rate;
+      |                    ^
+tests/host/project_stage_test.c:503:20: error: request for member ‘bass’ in something not a structure or union
+  503 |                 old.bass[k].dir = pat->bass[k].dir;
+      |                    ^
+tests/host/project_stage_test.c:504:20: error: request for member ‘bass’ in something not a structure or union
+  504 |                 old.bass[k].transpose = pat->bass[k].transpose;
+      |                    ^
+tests/host/project_stage_test.c:505:20: error: request for member ‘bass’ in something not a structure or union
+  505 |                 old.bass[k].gen = pat->bass[k].gen;
+      |                    ^
+tests/host/project_stage_test.c:507:16: error: request for member ‘brk’ in something not a structure or union
+  507 |             old.brk.steps = pat->brk.steps;
+      |                ^
+tests/host/project_stage_test.c:508:23: error: request for member ‘brk’ in something not a structure or union
+  508 |             memcpy(old.brk.set, pat->brk.set, sizeof old.brk.set);
+      |                       ^
+tests/host/project_stage_test.c:508:57: error: request for member ‘brk’ in something not a structure or union
+  508 |             memcpy(old.brk.set, pat->brk.set, sizeof old.brk.set);
+      |                                                         ^
+tests/host/project_stage_test.c:509:16: error: request for member ‘brk’ in something not a structure or union
+  509 |             old.brk.slot_a = pat->brk.slot_a;
+      |                ^
+tests/host/project_stage_test.c:510:16: error: request for member ‘brk’ in something not a structure or union
+  510 |             old.brk.slot_b = pat->brk.slot_b;
+      |                ^
+tests/host/project_stage_test.c:511:16: error: request for member ‘swing’ in something not a structure or union
+  511 |             old.swing = pat->swing;
+      |                ^
+tests/host/project_stage_test.c:520:9: error: unknown type name ‘lane1_t’; did you mean ‘lane_t’?
+  520 |         lane1_t old_lane;
+      |         ^~~~~~~
+      |         lane_t
+tests/host/project_stage_test.c:523:17: error: request for member ‘used’ in something not a structure or union
+  523 |         old_lane.used = l->used;
+      |                 ^
+tests/host/project_stage_test.c:524:17: error: request for member ‘gen’ in something not a structure or union
+  524 |         old_lane.gen = l->gen;
+      |                 ^
+tests/host/project_stage_test.c:525:17: error: request for member ‘pat’ in something not a structure or union
+  525 |         old_lane.pat = l->pat;
+      |                 ^
+tests/host/project_stage_test.c:526:17: error: request for member ‘part’ in something not a structure or union
+  526 |         old_lane.part = l->part;
+      |                 ^
+tests/host/project_stage_test.c:527:17: error: request for member ‘t’ in something not a structure or union
+  527 |         old_lane.t = l->t;
+      |                 ^
+tests/host/project_stage_test.c:528:17: error: request for member ‘v’ in something not a structure or union
+  528 |         old_lane.v = l->v;
+      |                 ^
+tests/host/project_stage_test.c:529:17: error: request for member ‘i’ in something not a structure or union
+  529 |         old_lane.i = l->i;
+      |                 ^
+tests/host/project_stage_test.c:530:24: error: request for member ‘val’ in something not a structure or union
+  530 |         memcpy(old_lane.val, l->val, NSTEPS1);
+      |                        ^
+tests/host/project_stage_test.c:533:37: error: ‘ARR1_A’ undeclared (first use in this function)
+  533 |     REQUIRE(save_obj(OBJ_SONG, raw, ARR1_A) == 0);
+      |                                     ^~~~~~
+tests/host/project_stage_test.c:25:46: note: in definition of macro ‘REQUIRE’
+   25 | #define REQUIRE(x) do { int required_ok = !!(x); expect(required_ok, #x, __LINE__); if (!required_ok) exit(2); } while (0)
+      |                                              ^
+tests/host/project_stage_test.c:479:38: error: unused variable ‘raw’ [-Werror=unused-variable]
+  479 |     uint8_t payload[PLAT_STORE_MAX], raw[ARR1_LEN];
+      |                                      ^~~
+tests/host/project_stage_test.c: In function ‘test_legacy_arrangement’:
+tests/host/project_stage_test.c:552:34: error: ‘NSTEPS1’ undeclared (first use in this function); did you mean ‘NSTEPS’?
+  552 |     proj.arr.lane[NLANE - 1].val[NSTEPS1 - 1] = 53;
+      |                                  ^~~~~~~
+      |                                  NSTEPS
+tests/host/project_stage_test.c: In function ‘test_legacy_master_hp_migration’:
+tests/host/project_stage_test.c:725:36: error: ‘MST_MODE’ undeclared (first use in this function)
+  725 |             proj.sound.v[T_MST][0][MST_MODE] = (uint8_t)mode;
+      |                                    ^~~~~~~~
+tests/host/project_stage_test.c:726:36: error: ‘MST_CUTOFF’ undeclared (first use in this function)
+  726 |             proj.sound.v[T_MST][0][MST_CUTOFF] = (uint8_t)c;
+      |                                    ^~~~~~~~~~
+tests/host/project_stage_test.c:733:51: error: ‘MST_DJF’ undeclared (first use in this function)
+  733 |             CHECK(project_stage.sound.v[T_MST][0][MST_DJF] <= 127u);
+      |                                                   ^~~~~~~
+tests/host/project_stage_test.c:24:28: note: in definition of macro ‘CHECK’
+   24 | #define CHECK(x) expect(!!(x), #x, __LINE__)
+      |                            ^
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h: At top level:
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+cc1: all warnings being treated as errors
+In file included from firmware/src/app/../dsp/drum909_dsp.h:23,
+                 from firmware/src/app/../dsp/drum909.h:19,
+                 from firmware/src/app/engine.c:6:
+firmware/src/app/../dsp/fastmath.h:45:14: error: inline function ‘fm_floorf’ declared weak [-Werror=attributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/app/../dsp/fastmath.h:156:14: error: inline function ‘fm_sin_pi’ declared weak [-Werror=attributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/app/../dsp/fastmath.h:169:14: error: inline function ‘fm_wrap_pi’ declared weak [-Werror=attributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/app/../dsp/fastmath.h:175:14: error: inline function ‘fm_sinf’ declared weak [-Werror=attributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/app/../dsp/fastmath.h:176:14: error: inline function ‘fm_cosf’ declared weak [-Werror=attributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:153:13: error: inline function ‘d9_biquad_set’ declared weak [-Werror=attributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:203:14: error: inline function ‘d9_tanh’ declared weak [-Werror=attributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:229:13: error: inline function ‘d9_shape_prep’ declared weak [-Werror=attributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+In file included from firmware/src/app/original_runtime.h:4,
+                 from firmware/src/app/engine.c:9:
+firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: chicago_note_context.h: No such file or directory
+    4 | #include "chicago_note_context.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+cc1: all warnings being treated as errors
+In file included from firmware/src/app/chicago_arp.h:16,
+                 from firmware/src/app/chicago_param_tables.c:6:
+firmware/src/app/smk_clip_keys.h:57:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+   57 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:66:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+   66 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:73:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+   73 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:82:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+   82 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:122:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  122 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:128:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  128 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:147:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  147 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:158:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  158 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:175:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  175 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:191:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  191 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:199:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  199 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:207:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  207 | {
+      | ^
+firmware/src/app/chicago_param_tables.c:13:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+   13 | {
+      | ^
+cc1: all warnings being treated as errors
+In file included from firmware/src/dsp/drum909_dsp.h:23,
+                 from firmware/src/dsp/drum909.h:19,
+                 from firmware/src/dsp/drum909.c:9:
+firmware/src/dsp/fastmath.h:45:14: error: inline function ‘fm_floorf’ declared weak [-Werror=attributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: error: inline function ‘fm_sin_pi’ declared weak [-Werror=attributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: error: inline function ‘fm_wrap_pi’ declared weak [-Werror=attributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: error: inline function ‘fm_sinf’ declared weak [-Werror=attributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: error: inline function ‘fm_cosf’ declared weak [-Werror=attributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:153:13: error: inline function ‘d9_biquad_set’ declared weak [-Werror=attributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:203:14: error: inline function ‘d9_tanh’ declared weak [-Werror=attributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:229:13: error: inline function ‘d9_shape_prep’ declared weak [-Werror=attributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+cc1: all warnings being treated as errors
+In file included from firmware/src/dsp/drum808.c:25:
+firmware/src/dsp/fastmath.h:45:14: error: inline function ‘fm_floorf’ declared weak [-Werror=attributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: error: inline function ‘fm_sin_pi’ declared weak [-Werror=attributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: error: inline function ‘fm_wrap_pi’ declared weak [-Werror=attributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: error: inline function ‘fm_sinf’ declared weak [-Werror=attributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: error: inline function ‘fm_cosf’ declared weak [-Werror=attributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+cc1: all warnings being treated as errors
+In file included from firmware/src/dsp/bass303.c:10:
+firmware/src/dsp/fastmath.h:45:14: error: inline function ‘fm_floorf’ declared weak [-Werror=attributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: error: inline function ‘fm_sin_pi’ declared weak [-Werror=attributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: error: inline function ‘fm_wrap_pi’ declared weak [-Werror=attributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: error: inline function ‘fm_sinf’ declared weak [-Werror=attributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: error: inline function ‘fm_cosf’ declared weak [-Werror=attributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+cc1: all warnings being treated as errors
+In file included from firmware/src/dsp/breaks.c:57:
+firmware/src/dsp/fastmath.h:45:14: error: inline function ‘fm_floorf’ declared weak [-Werror=attributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: error: inline function ‘fm_sin_pi’ declared weak [-Werror=attributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: error: inline function ‘fm_wrap_pi’ declared weak [-Werror=attributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: error: inline function ‘fm_sinf’ declared weak [-Werror=attributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: error: inline function ‘fm_cosf’ declared weak [-Werror=attributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+cc1: all warnings being treated as errors
+In file included from firmware/src/dsp/drum909_dsp.h:23,
+                 from firmware/src/dsp/fxbus.h:26,
+                 from firmware/src/dsp/fxbus.c:4:
+firmware/src/dsp/fastmath.h:45:14: error: inline function ‘fm_floorf’ declared weak [-Werror=attributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: error: inline function ‘fm_sin_pi’ declared weak [-Werror=attributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: error: inline function ‘fm_wrap_pi’ declared weak [-Werror=attributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: error: inline function ‘fm_sinf’ declared weak [-Werror=attributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: error: inline function ‘fm_cosf’ declared weak [-Werror=attributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:153:13: error: inline function ‘d9_biquad_set’ declared weak [-Werror=attributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:203:14: error: inline function ‘d9_tanh’ declared weak [-Werror=attributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:229:13: error: inline function ‘d9_shape_prep’ declared weak [-Werror=attributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+cc1: all warnings being treated as errors
+In file included from firmware/src/dsp/master.c:17:
+firmware/src/dsp/fastmath.h:45:14: error: inline function ‘fm_floorf’ declared weak [-Werror=attributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: error: inline function ‘fm_sin_pi’ declared weak [-Werror=attributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: error: inline function ‘fm_wrap_pi’ declared weak [-Werror=attributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: error: inline function ‘fm_sinf’ declared weak [-Werror=attributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: error: inline function ‘fm_cosf’ declared weak [-Werror=attributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+cc1: all warnings being treated as errors

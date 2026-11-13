@@ -1,0 +1,18 @@
+In file included from firmware/src/dsp/busfx.h:6,
+                 from tests/host/smc_fx_test.c:5:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function ‘fm_floorf’ declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function ‘fm_sin_pi’ declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function ‘fm_wrap_pi’ declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function ‘fm_sinf’ declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function ‘fm_cosf’ declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+PASS smc fx: BPM range, throws, stutter stereo, settling, rhythm, eight-bus map

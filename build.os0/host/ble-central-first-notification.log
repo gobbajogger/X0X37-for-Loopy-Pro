@@ -1,0 +1,3 @@
+SOURCE /workspace/sb-aio-fce4dd5/firmware/src/ble.c
+COMMAND gcc -std=c11 -O1 -g -Wall -Wextra -Werror /tmp/ble-first-notification-6fxnknqj/test.c -o /tmp/ble-first-notification-6fxnknqj/test
+BLE TRANSPORT CALLBACK CHECKS 95 FAILURES 0\n

@@ -1,0 +1,17 @@
+experiments/original_synth/chicago_fx2_compact.c:18:13:queue_to_selected	8	static
+experiments/original_synth/chicago_fx2_compact.c:91:13:begin	8	static
+experiments/original_synth/chicago_fx2_compact.c:92:13:tempo	8	static
+experiments/original_synth/chicago_fx2_compact.c:114:13:retire	8	static
+experiments/original_synth/chicago_fx2_compact.c:61:13:reset	8	static
+experiments/original_synth/chicago_fx2_compact.c:46:13:parameter	8	static
+experiments/original_synth/chicago_fx2_compact.c:94:12:advance_zero	48	static
+experiments/original_synth/chicago_fx2_compact.c:161:13:discard	16	static
+experiments/original_synth/chicago_fx2_compact.c:120:13:activity	8	static
+experiments/original_synth/chicago_fx2_compact.c:75:13:process	16	static
+experiments/original_synth/chicago_fx2_compact.c:133:12:supports	8	static
+experiments/original_synth/chicago_fx2_compact.c:138:43:select_cold	32	static
+experiments/original_synth/chicago_fx2_compact.c:7:5:original_chicago_fx2_compact_supports	8	static
+experiments/original_synth/chicago_fx2_compact.c:171:5:original_chicago_fx2_compact_init	8	static
+experiments/original_synth/chicago_fx2_compact.c:180:33:original_chicago_fx2_compact_owner	8	static
+experiments/original_synth/chicago_fx2_compact.c:186:5:original_chicago_fx2_compact_events	16	static
+experiments/original_synth/chicago_fx2_compact.c:197:6:original_chicago_fx2_compact_direct_event	8	static

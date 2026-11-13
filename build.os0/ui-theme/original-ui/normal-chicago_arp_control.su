@@ -1,0 +1,5 @@
+experiments/original_synth/chicago_arp_control.c:6:6:chicago_arp_control_prepare	48	static
+experiments/original_synth/chicago_arp_control.c:33:6:chicago_arp_damper_apply	48	static
+experiments/original_synth/chicago_arp_control.c:42:6:chicago_arp_clock_prepare	8	static
+experiments/original_synth/chicago_arp_control.c:44:6:chicago_arp_clock_key	8	static
+experiments/original_synth/chicago_arp_control.c:46:6:chicago_arp_clock_tick	48	static

@@ -1,0 +1,11 @@
+experiments/original_synth/chicago_voice_owner.c:5:17:enabled	8	static
+experiments/original_synth/chicago_voice_owner.c:6:17:vca	8	static
+experiments/original_synth/chicago_voice_owner.c:11:12:inputs	208	dynamic,bounded
+experiments/original_synth/chicago_voice_owner.c:26:12:action	16	static
+experiments/original_synth/chicago_voice_owner.c:36:12:resume	208	dynamic,bounded
+experiments/original_synth/chicago_voice_owner.c:49:13:note	192	dynamic,bounded
+experiments/original_synth/chicago_voice_owner.c:7:13:state	8	static
+experiments/original_synth/chicago_voice_owner.c:60:37:original_chicago_voice_owner_callbacks	8	static
+experiments/original_synth/chicago_voice_owner.c:61:5:original_chicago_voice_owner_bind	40	static
+experiments/original_synth/chicago_voice_owner.c:71:5:original_chicago_voice_owner_sample	64	static
+experiments/original_synth/chicago_voice_owner.c:75:5:original_chicago_voice_owner_control_all	64	static

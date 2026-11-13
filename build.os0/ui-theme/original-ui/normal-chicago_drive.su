@@ -1,0 +1,6 @@
+experiments/original_synth/chicago_drive.c:24:16:channel	8	static
+experiments/original_synth/chicago_drive.c:15:6:original_chicago_drive_init	8	static
+experiments/original_synth/chicago_drive.c:16:6:original_chicago_drive_reset	8	static
+experiments/original_synth/chicago_drive.c:17:5:original_chicago_drive_set	8	static
+experiments/original_synth/chicago_drive.c:23:5:original_chicago_drive_activity	8	static
+experiments/original_synth/chicago_drive.c:32:5:original_chicago_drive_process	104	dynamic,bounded

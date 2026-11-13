@@ -1,0 +1,5 @@
+  303 gate / slide / tie / transpose: checked
+all-TIE, both303s,2bars: bass-on events=0
+isolated orphan TIE,both303s,2bars: bass-on events=0
+wrap-held NOTE positive, both303s: onset/sustain/release and data preservation checked
+TIE semantics PASS

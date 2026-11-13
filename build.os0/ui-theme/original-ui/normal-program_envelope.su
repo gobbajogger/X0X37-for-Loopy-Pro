@@ -1,0 +1,4 @@
+experiments/original_synth/program_envelope.c:8:5:original_miami_program_encode	8	static
+experiments/original_synth/program_envelope.c:9:5:original_miami_program_decode	192	static
+experiments/original_synth/program_envelope.c:12:5:original_chicago_program_encode	8	static
+experiments/original_synth/program_envelope.c:13:5:original_chicago_program_decode	224	static

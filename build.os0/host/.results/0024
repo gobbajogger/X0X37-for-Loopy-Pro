@@ -1,0 +1,16 @@
+  FAIL original-build (see build/host/original-build.log)
+       AssertionError: '-DX0X_ORIGINAL_SYNTH=1' not found in ('cc', '-c', PosixPath('/workspace/sb-aio-fce4dd5/firmware/crt0.S'), '-o', PosixPath('/workspace/sb-aio-fce4dd5/build/crt0.o'))
+       
+       ======================================================================
+       FAIL: test_original_rate_pads_do_not_compile_legacy_wobble (__main__.OriginalBuildCompositionTests.test_original_rate_pads_do_not_compile_legacy_wobble)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "/workspace/sb-aio-fce4dd5/tests/host/test_original_build_composition.py", line 115, in test_original_rate_pads_do_not_compile_legacy_wobble
+           self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       AssertionError: '-DX0X_ORIGINAL_SYNTH=1' not found in ('cc', '-c', PosixPath('/workspace/sb-aio-fce4dd5/firmware/crt0.S'), '-o', PosixPath('/workspace/sb-aio-fce4dd5/build/crt0.o'))
+       
+       ----------------------------------------------------------------------
+       Ran 12 tests in 0.031s
+       
+       FAILED (failures=4)

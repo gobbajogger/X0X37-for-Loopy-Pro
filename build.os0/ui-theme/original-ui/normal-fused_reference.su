@@ -1,0 +1,9 @@
+experiments/original_synth/fused_reference.c:9:13:deposit	8	static
+experiments/original_synth/fused_reference.c:49:17:width64	8	static
+experiments/original_synth/fused_reference.c:54:17:trailing64	8	static
+experiments/original_synth/fused_reference.c:19:5:original_fma_finite_bits_reference.part.0	208	static
+experiments/original_synth/fused_reference.c:60:5:original_fma_compact_bits.part.0	48	static
+experiments/original_synth/fused_reference.c:19:5:original_fma_finite_bits_reference	16	static
+experiments/original_synth/fused_reference.c:60:5:original_fma_compact_bits	8	static
+experiments/original_synth/fused_reference.c:100:5:original_fma_finite_bits	48	static
+experiments/original_synth/fused_reference.c:105:7:original_rne_fmaf	64	static

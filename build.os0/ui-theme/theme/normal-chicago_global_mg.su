@@ -1,0 +1,6 @@
+experiments/original_synth/chicago_global_mg.c:8:14:next_random	8	static
+experiments/original_synth/chicago_global_mg.c:28:13:waveform	16	static
+experiments/original_synth/chicago_global_mg.c:39:17:phase	32	static
+experiments/original_synth/chicago_global_mg.c:22:6:original_chicago_global_mg1_tick	8	static
+experiments/original_synth/chicago_global_mg.c:27:6:original_chicago_global_mg2_notify	8	static
+experiments/original_synth/chicago_global_mg.c:46:10:original_chicago_global_mg_after_voices	80	static

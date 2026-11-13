@@ -1,0 +1,8 @@
+firmware/src/app/factory_banks.c:183:23:factory_bank	8	static
+firmware/src/app/factory_banks.c:189:5:factory_bank_count	8	static
+firmware/src/app/factory_banks.c:191:25:factory_preset	8	static
+firmware/src/app/factory_banks.c:203:13:factory_preset_name	8	static
+firmware/src/app/factory_banks.c:213:6:user_bank_clear	8	static
+firmware/src/app/factory_banks.c:223:5:user_bank_import	8	static
+firmware/src/app/factory_banks.c:243:5:user_bank_used_count	8	static
+firmware/src/app/factory_banks.c:251:5:factory_banks_intact	32	static

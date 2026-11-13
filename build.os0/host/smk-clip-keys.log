@@ -1,0 +1,41 @@
+In file included from firmware/src/app/smk_clip_arp_share.c:5:
+firmware/src/app/smk_clip_keys.h:57:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+   57 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:66:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+   66 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:73:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+   73 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:82:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+   82 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:122:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  122 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:128:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  128 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:147:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  147 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:158:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  158 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:175:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  175 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:191:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  191 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:199:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  199 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:207:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+  207 | {
+      | ^
+firmware/src/app/smk_clip_arp_share.c:11:1: error: ‘minsize’ attribute directive ignored [-Werror=attributes]
+   11 | {
+      | ^
+cc1: all warnings being treated as errors

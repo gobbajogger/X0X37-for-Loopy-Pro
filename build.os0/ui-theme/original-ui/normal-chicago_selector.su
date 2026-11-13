@@ -1,0 +1,2 @@
+experiments/original_synth/chicago_selector.c:57:5:original_chicago_selector_step	96	static
+experiments/original_synth/chicago_selector.c:71:6:original_chicago_gate_tick	8	static

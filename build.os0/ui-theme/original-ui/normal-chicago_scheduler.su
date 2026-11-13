@@ -1,0 +1,16 @@
+experiments/original_synth/chicago_scheduler.c:50:17:current_velocity	8	static
+experiments/original_synth/chicago_scheduler.c:91:13:clock_notify	16	static
+experiments/original_synth/chicago_scheduler.c:46:13:finish_disable	8	static
+experiments/original_synth/chicago_scheduler.c:42:13:note_off	8	static
+experiments/original_synth/chicago_scheduler.c:35:13:held_cleanup	8	static
+experiments/original_synth/chicago_scheduler.c:38:13:voice_cleanup	8	static
+experiments/original_synth/chicago_scheduler.c:28:13:spawn_selected	16	static
+experiments/original_synth/chicago_scheduler.c:22:13:release_selected	16	static
+experiments/original_synth/chicago_scheduler.c:62:5:original_chicago_scheduler_bind	8	static
+experiments/original_synth/chicago_scheduler.c:66:5:original_chicago_scheduler_prepare	16	static
+experiments/original_synth/chicago_scheduler.c:71:5:original_chicago_scheduler_damper	32	dynamic,bounded
+experiments/original_synth/chicago_scheduler.c:76:5:original_chicago_scheduler_note	8	static
+experiments/original_synth/chicago_scheduler.c:79:5:original_chicago_scheduler_select	48	static
+experiments/original_synth/chicago_scheduler.c:85:13:clock_step	16	static
+experiments/original_synth/chicago_scheduler.c:97:5:original_chicago_scheduler_after_events	48	static
+experiments/original_synth/chicago_scheduler.c:107:5:original_chicago_scheduler_voice_action	8	static

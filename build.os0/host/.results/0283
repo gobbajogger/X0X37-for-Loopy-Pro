@@ -1,0 +1,2 @@
+  FAIL scenario-sound_matrix_chicago_idle (see build/host/scenario-sound_matrix_chicago_idle.log)
+       X0X_ORIGINAL_SYNTH: only 1 is supported

@@ -1,0 +1,10 @@
+firmware/src/app/original_runtime.c:42:5:original_runtime_prepare	16	static
+firmware/src/app/original_runtime.c:56:5:original_runtime_retire	32	static
+firmware/src/app/original_runtime.c:67:5:original_runtime_param	16	static
+firmware/src/app/original_runtime.c:11:5:original_runtime_init	96	static
+firmware/src/app/original_runtime.c:89:5:original_runtime_key	16	static
+firmware/src/app/original_runtime.c:105:5:original_runtime_release_source	48	static
+firmware/src/app/original_runtime.c:116:5:original_runtime_all_off	16	static
+firmware/src/app/original_runtime.c:129:5:original_runtime_owned	8	static
+firmware/src/app/original_runtime.c:136:5:original_runtime_active	8	static
+firmware/src/app/original_runtime.c:143:5:original_runtime_render	112	dynamic,bounded

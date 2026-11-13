@@ -1,0 +1,16 @@
+  FAIL gen-order (see build/host/gen-order.log)
+                     X0X_ORIGINAL_SYNTH: only 1 is supported
+                ok   drum-pan
+                ok   stereo
+                skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+              TESTS FAILED
+       FAIL jobs=1: want "drum_pan_test gen=yes host=yes", got "drum_pan_test gen=yes host=no"
+       FAIL jobs=1: want "stereo_test gen=yes host=yes", got "stereo_test gen=yes host=no"
+       FAIL jobs=1: run_tests.sh rc=1:
+                FAIL host-build (see build/host/host-build.log)
+                     X0X_ORIGINAL_SYNTH: only 1 is supported
+                ok   drum-pan
+                ok   stereo
+                skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+              TESTS FAILED
+       gen order: 6 FAILED

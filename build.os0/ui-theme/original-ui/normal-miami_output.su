@@ -1,0 +1,5 @@
+experiments/original_synth/miami_output.c:17:13:bypass	8	static
+experiments/original_synth/miami_output.c:14:13:decimate	8	static
+experiments/original_synth/miami_output.c:26:6:original_miami_output_init	16	static
+experiments/original_synth/miami_output.c:27:5:original_miami_output_apply	64	static
+experiments/original_synth/miami_output.c:36:5:original_miami_output_process	176	dynamic,bounded

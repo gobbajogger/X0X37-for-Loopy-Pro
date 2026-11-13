@@ -1,0 +1,7 @@
+experiments/original_synth/miami_geometry.c:3:12:basic	8	static
+experiments/original_synth/miami_geometry.c:8:12:list	56	static
+experiments/original_synth/miami_geometry.c:20:12:lists	32	static
+experiments/original_synth/miami_geometry.c:25:17:learned_count.isra	8	static
+experiments/original_synth/miami_geometry.c:35:5:original_miami_geometry_learn	128	static
+experiments/original_synth/miami_geometry.c:44:5:original_miami_geometry_prepare	160	static
+experiments/original_synth/miami_geometry.c:60:5:original_miami_geometry_restore_map	112	static

@@ -1,0 +1,4 @@
+experiments/original_synth/lossless_table.c:24:12:second_decode.part.0	56	static
+experiments/original_synth/lossless_table.c:3:5:original_lossless_lookup	56	static
+experiments/original_synth/lossless_table.c:56:5:original_lossless_second_lookup	8	static
+experiments/original_synth/lossless_table.c:64:5:original_lossless_second16_lookup	16	static

@@ -1,0 +1,7 @@
+  FAIL smc-multi-peer-negative (see build/host/smc-multi-peer-negative.log)
+       Traceback (most recent call last):
+         File "/workspace/sb-aio-fce4dd5/tests/host/smc_multi_peer_negative_test.py", line 36, in <module>
+           raise RuntimeError('Compiler rejection is not a negative PASS: ' + name + '\n' + result.stdout[-5000:])
+       RuntimeError: Compiler rejection is not a negative PASS: shared-ingress
+       X0X_ORIGINAL_SYNTH: only 1 is supported
+       

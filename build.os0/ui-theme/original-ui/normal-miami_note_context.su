@@ -1,0 +1,16 @@
+experiments/original_synth/miami_note_context.c:4:12:tune	8	static
+experiments/original_synth/miami_note_context.c:32:13:unexpected_free_step	8	static
+experiments/original_synth/miami_note_context.c:33:12:helper_exit	16	static
+experiments/original_synth/miami_note_context.c:8:12:full_mg	96	static
+experiments/original_synth/miami_note_context.c:53:13:mg2	8	static
+experiments/original_synth/miami_note_context.c:38:12:bind_context	64	static
+experiments/original_synth/miami_note_context.c:49:13:mg1	32	static
+experiments/original_synth/miami_note_context.c:58:12:reset_ready	32	static
+experiments/original_synth/miami_note_context.c:63:12:reset_owned	32	static
+experiments/original_synth/miami_note_context.c:31:13:seed	8	static
+experiments/original_synth/miami_note_context.c:37:31:original_miami_note_context_callbacks	8	static
+experiments/original_synth/miami_note_context.c:43:5:original_miami_note_context_bind	64	dynamic,bounded
+experiments/original_synth/miami_note_context.c:46:5:original_miami_note_context_bind_clocked	64	dynamic,bounded
+experiments/original_synth/miami_note_context.c:57:38:original_miami_note_context_scheduler_callbacks	16	static
+experiments/original_synth/miami_note_context.c:73:5:original_miami_note_context_geometry_reset	16	static
+experiments/original_synth/miami_note_context.c:76:5:original_miami_note_context_core_reset	32	static

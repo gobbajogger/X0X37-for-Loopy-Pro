@@ -1,0 +1,15 @@
+site: /workspace/sb-aio-fce4dd5/build/host/iso/nightly-publish/tmp/nightly-publish-8mob7bxa/.nightly-3bj8m00p: 1 version(s), models [elite, pro], firmware files 2
+nightly handoff nightly-a2a1efc822a5 (a2a1efc822a5) -> /workspace/sb-aio-fce4dd5/build/host/iso/nightly-publish/tmp/nightly-publish-8mob7bxa/page
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+site: /workspace/sb-aio-fce4dd5/build/host/iso/nightly-publish/tmp/nightly-publish-8mob7bxa/.nightly-611gwt4i: 1 version(s), models [elite, pro], firmware files 2
+nightly handoff nightly-a2a1efc822a5 (a2a1efc822a5) -> /workspace/sb-aio-fce4dd5/build/host/iso/nightly-publish/tmp/nightly-publish-8mob7bxa/pushed
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+recorded non-force handoff on nightly-pages
+site: /workspace/sb-aio-fce4dd5/build/host/iso/nightly-publish/tmp/nightly-publish-8mob7bxa/.nightly-jhymjg8p: 2 version(s), models [elite, pro], firmware files 4
+nightly handoff nightly-6dc6300ea264 (6dc6300ea264) -> /workspace/sb-aio-fce4dd5/build/host/iso/nightly-publish/tmp/nightly-publish-8mob7bxa/pushed-again
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+recorded non-force handoff on nightly-pages
+site: /workspace/sb-aio-fce4dd5/build/host/iso/nightly-publish/tmp/nightly-publish-8mob7bxa/.nightly-_ppf5_b2: 2 version(s), models [elite, pro], firmware files 2
+nightly handoff nightly-a2a1efc822a5 (a2a1efc822a5) -> /workspace/sb-aio-fce4dd5/build/host/iso/nightly-publish/tmp/nightly-publish-8mob7bxa/merged
+not a live deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages
+PASS nightly publish

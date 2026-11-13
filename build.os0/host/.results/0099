@@ -1,0 +1,16 @@
+  FAIL smc-filter (see build/host/smc-filter.log)
+       /workspace/sb-aio-fce4dd5/build/host/iso/smc-filter/tmp/tmprg7s8m9l/test.c:18:12: error: ‘cur_page’ defined but not used [-Werror=unused-function]
+          18 | static int cur_page(void) { return 0; }
+             |            ^~~~~~~~
+       /workspace/sb-aio-fce4dd5/build/host/iso/smc-filter/tmp/tmprg7s8m9l/test.c:17:12: error: ‘drum_mix_page’ defined but not used [-Werror=unused-function]
+          17 | static int drum_mix_page(void) { return -1; }
+             |            ^~~~~~~~~~~~~
+       cc1: all warnings being treated as errors
+       Traceback (most recent call last):
+         File "/workspace/sb-aio-fce4dd5/tests/host/smc_filter_test.py", line 65, in <module>
+           subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-Wall", "-Wextra", "-Werror", str(c), "-o", str(exe)], check=True)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 577, in run
+           raise CalledProcessError(retcode, process.args,
+                                    output=stdout, stderr=stderr)
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-Wall', '-Wextra', '-Werror', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-filter/tmp/tmprg7s8m9l/test.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-filter/tmp/tmprg7s8m9l/test']' returned non-zero exit status 1.

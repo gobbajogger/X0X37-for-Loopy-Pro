@@ -1,0 +1,3 @@
+  FAIL ble-midi-receive (see build/host/ble-midi-receive.log)
+       ble_midi_central: tests/host/ble_midi_central_test.c:94: main: Assertion `c.state == BLEC_SCANNING && tx[0] == 0x0c' failed.
+       Aborted

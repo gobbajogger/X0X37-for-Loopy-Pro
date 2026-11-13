@@ -1,0 +1,16 @@
+  FAIL ble-role-switch (see build/host/ble-role-switch.log)
+       Traceback (most recent call last):
+         File "/workspace/sb-aio-fce4dd5/tests/host/ble_role_switch_test.py", line 19, in <module>
+           subprocess.run([os.environ.get('CC', 'cc'), '-std=c99', '-g', '-O1',
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           '-Wall', '-Wextra', '-Werror', '-Wno-unused-function',
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ...<2 lines>...
+                           '-I' + str(root / 'firmware/src/ble'),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           str(Path(__file__).with_suffix('.c')), '-o', str(binary)], check=True)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 577, in run
+           raise CalledProcessError(retcode, process.args,
+                                    output=stdout, stderr=stderr)
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-g', '-O1', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I/workspace/sb-aio-fce4dd5/build/host/iso/ble-role-switch/tmp/ble-role-qoakdmwx', '-I/workspace/sb-aio-fce4dd5/firmware/hal', '-I/workspace/sb-aio-fce4dd5/firmware/src/ble', '/workspace/sb-aio-fce4dd5/tests/host/ble_role_switch_test.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/ble-role-switch/tmp/ble-role-qoakdmwx/role']' returned non-zero exit status 1.

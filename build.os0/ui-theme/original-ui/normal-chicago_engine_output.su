@@ -1,0 +1,7 @@
+experiments/original_synth/chicago_engine_output.c:26:13:reset	8	static
+experiments/original_synth/chicago_engine_output.c:25:13:process	16	static
+experiments/original_synth/chicago_engine_output.c:6:13:parameter	16	static
+experiments/original_synth/chicago_engine_output.c:10:5:original_chicago_engine_output_init	48	static
+experiments/original_synth/chicago_engine_output.c:15:5:original_chicago_engine_output_init_cold	48	static
+experiments/original_synth/chicago_engine_output.c:20:5:original_chicago_engine_output_apply	48	static
+experiments/original_synth/chicago_engine_output.c:27:5:original_chicago_engine_output_process	192	dynamic,bounded

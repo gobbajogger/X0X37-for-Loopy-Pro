@@ -1,0 +1,103 @@
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c: In function ‘smc_drum_mix’:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:43:17: error: ‘struct <anonymous>’ has no member named ‘lock_view’; did you mean ‘lock_kit’?
+   43 |         if (smc.lock_view == V_SEQ && smc.lock_part < NKIT)
+      |                 ^~~~~~~~~
+      |                 lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:43:43: error: ‘struct <anonymous>’ has no member named ‘lock_part’; did you mean ‘lock_kit’?
+   43 |         if (smc.lock_view == V_SEQ && smc.lock_part < NKIT)
+      |                                           ^~~~~~~~~
+      |                                           lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:44:24: error: ‘struct <anonymous>’ has no member named ‘lock_part’; did you mean ‘lock_kit’?
+   44 |             return smc.lock_part;
+      |                        ^~~~~~~~~
+      |                        lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:45:17: error: ‘struct <anonymous>’ has no member named ‘lock_view’; did you mean ‘lock_kit’?
+   45 |         if (smc.lock_view == V_MIX && smc.lock_page < smc.lock_pages)
+      |                 ^~~~~~~~~
+      |                 lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:45:43: error: ‘struct <anonymous>’ has no member named ‘lock_page’; did you mean ‘lock_fader’?
+   45 |         if (smc.lock_view == V_MIX && smc.lock_page < smc.lock_pages)
+      |                                           ^~~~~~~~~
+      |                                           lock_fader
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:45:59: error: ‘struct <anonymous>’ has no member named ‘lock_pages’; did you mean ‘lock_fader’?
+   45 |         if (smc.lock_view == V_MIX && smc.lock_page < smc.lock_pages)
+      |                                                           ^~~~~~~~~~
+      |                                                           lock_fader
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:46:29: error: ‘struct <anonymous>’ has no member named ‘lock_page_kit’; did you mean ‘lock_kit’?
+   46 |             return (int)smc.lock_page_kit[smc.lock_page] - 1;
+      |                             ^~~~~~~~~~~~~
+      |                             lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:46:47: error: ‘struct <anonymous>’ has no member named ‘lock_page’; did you mean ‘lock_fader’?
+   46 |             return (int)smc.lock_page_kit[smc.lock_page] - 1;
+      |                                               ^~~~~~~~~
+      |                                               lock_fader
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:52:31: error: ‘struct <anonymous>’ has no member named ‘n’
+   52 |     if (ui.view != V_MIX || pg.n <= 0) return -1;
+      |                               ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:53:23: error: ‘struct <anonymous>’ has no member named ‘title’
+   53 |     const char *t = pg.title[smc_page_now()];
+      |                       ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:53:30: error: implicit declaration of function ‘smc_page_now’ [-Wimplicit-function-declaration]
+   53 |     const char *t = pg.title[smc_page_now()];
+      |                              ^~~~~~~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c: In function ‘smc_page_target’:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:83:36: error: ‘struct <anonymous>’ has no member named ‘knob_bank’
+   83 |         int row = ui.list_top + smc.knob_bank * 8u + n;
+      |                                    ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:86:11: error: ‘struct <anonymous>’ has no member named ‘n’
+   86 |     if (pg.n <= 0) return NONE;
+      |           ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:87:37: error: ‘struct <anonymous>’ has no member named ‘knob_bank’
+   87 |     int page = (smc_page_now() + smc.knob_bank * 2u + n / 4u) % pg.n;
+      |                                     ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:87:67: error: ‘struct <anonymous>’ has no member named ‘n’
+   87 |     int page = (smc_page_now() + smc.knob_bank * 2u + n / 4u) % pg.n;
+      |                                                                   ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c: In function ‘smc_knob_target’:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:128:75: error: ‘struct <anonymous>’ has no member named ‘knob_bank’
+  128 |         return track >= 0 ? find_ref(kit ? T_808 : T_909, track, names[smc.knob_bank % 3u]) : NONE;
+      |                                                                           ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:127:34: error: variable ‘names’ set but not used [-Werror=unused-but-set-variable]
+  127 |         static const char *const names[] = {"Pan", "Rev", "Dly"};
+      |                                  ^~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:132:58: error: ‘MX_REV’ undeclared (first use in this function)
+  132 |         static const uint8_t params[] = {MX_CUT, MX_PAN, MX_REV, MX_DLY};
+      |                                                          ^~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:132:58: note: each undeclared identifier is reported only once for each function it appears in
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:132:66: error: ‘MX_DLY’ undeclared (first use in this function)
+  132 |         static const uint8_t params[] = {MX_CUT, MX_PAN, MX_REV, MX_DLY};
+      |                                                                  ^~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:133:71: error: ‘struct <anonymous>’ has no member named ‘knob_bank’
+  133 |         if (n < NPARTS) return PR(R_ENG, T_MIX, part_at(n), params[smc.knob_bank % 4u]);
+      |                                                                       ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:10:37: note: in definition of macro ‘PR’
+   10 | #define PR(k,a,b,c) ((pref_t){k,a,b,c})
+      |                                     ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:133:9: error: missing initializer for field ‘c’ of ‘pref_t’ [-Werror=missing-field-initializers]
+  133 |         if (n < NPARTS) return PR(R_ENG, T_MIX, part_at(n), params[smc.knob_bank % 4u]);
+      |         ^~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:9:35: note: ‘c’ declared here
+    9 | typedef struct { uint8_t kind,a,b,c; } pref_t;
+      |                                   ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:134:16: error: ‘struct <anonymous>’ has no member named ‘knob_bank’
+  134 |         if (smc.knob_bank) return NONE; /* only bank one owns the 3 main FX tail controls */
+      |                ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:132:30: error: variable ‘params’ set but not used [-Werror=unused-but-set-variable]
+  132 |         static const uint8_t params[] = {MX_CUT, MX_PAN, MX_REV, MX_DLY};
+      |                              ^~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c: At top level:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:24:12: error: ‘drum_mix_page’ defined but not used [-Werror=unused-function]
+   24 | static int drum_mix_page(void) { return ui.view==V_MIX ? kit : -1; }
+      |            ^~~~~~~~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:23:12: error: ‘cur_page’ defined but not used [-Werror=unused-function]
+   23 | static int cur_page(void) { return 0; }
+      |            ^~~~~~~~
+cc1: all warnings being treated as errors
+Traceback (most recent call last):
+  File "/workspace/sb-aio-fce4dd5/tests/host/smc_mapping_test.py", line 124, in <module>
+    subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror','-I'+str(root/'firmware/src'),str(c),'-o',str(exe)],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['cc', '-std=c99', '-Wall', '-Wextra', '-Werror', '-I/workspace/sb-aio-fce4dd5/firmware/src', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test']' returned non-zero exit status 1.

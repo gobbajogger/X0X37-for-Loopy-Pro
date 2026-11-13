@@ -1,0 +1,6 @@
+experiments/original_synth/chicago_mp4.c:38:12:raw_table_read	8	static
+experiments/original_synth/chicago_mp4.c:16:5:original_chicago_feedback	8	static
+experiments/original_synth/chicago_mp4.c:20:5:original_chicago_mp4_init	8	static
+experiments/original_synth/chicago_mp4.c:24:5:original_chicago_mp4_prepare_reader	112	static
+experiments/original_synth/chicago_mp4.c:41:5:original_chicago_mp4_prepare	32	dynamic,bounded
+experiments/original_synth/chicago_mp4.c:45:5:original_chicago_mp4_sample	8	static

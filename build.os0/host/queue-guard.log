@@ -1,0 +1,11 @@
+ok   no queue file: GATE OK d1d8e4e /workspace/sb-aio-fce4dd5/build/host/iso/queue-guard/tmp/qguard.72G1BW/res/6be6540590fc49dac2717148954849f23e7764dc.md (config dev)
+ok   open lines in the history, done line outside: GATE OK d1d8e4e /workspace/sb-aio-fce4dd5/build/host/iso/queue-guard/tmp/qguard.72G1BW/res/6be6540590fc49dac2717148954849f23e7764dc.md (config dev; queue: 2 open lines in d1d8e4e)
+ok   open line not an ancestor: REFUSED d1d8e4e: open queue line cf0f4f1 is not in the install commit d1d8e4e: install only the full set (/workspace/sb-aio-fce4dd5/build/host/iso/queue-guard/tmp/qguard.72G1BW/queue.UKSI5c)
+ok   open line with an unknown commit: REFUSED d1d8e4e: open queue line, commit 0123456789abcdef0123 is not in /workspace/sb-aio-fce4dd5/build/host/iso/queue-guard/tmp/qguard.72G1BW/repo (/workspace/sb-aio-fce4dd5/build/host/iso/queue-guard/tmp/qguard.72G1BW/queue.UKSI5c)
+ok   open line with no commit: REFUSED d1d8e4e: open queue line with no commit in /workspace/sb-aio-fce4dd5/build/host/iso/queue-guard/tmp/qguard.72G1BW/queue.UKSI5c: - [ ] a change with no commit
+ok   fixture no-commit.txt: open lines with no commit (exit 3): REFUSED d1d8e4e: open queue line with no commit in /workspace/sb-aio-fce4dd5/build/host/iso/queue-guard/tmp/qguard.72G1BW/queue.UKSI5c: - [ ] pending Knob regression fix (Firmware Main Builder). No commit yet. This line blocks the install.
+ok   sync copies QUEUE.md
+ok   guard on the Mac copy, open line not an ancestor: REFUSED d1d8e4e: open queue line cf0f4f1a87dc78aa4a58b72b01223e5a87eb846c is not in the install commit d1d8e4e: install only the full set (/workspace/sb-aio-fce4dd5/build/host/iso/queue-guard/tmp/qguard.72G1BW/mac/QUEUE.md)
+ok   scan flags the bad fixture leaky_test.sh
+ok   scan: each test that runs require_gate_pass.sh sets X0X_QUEUE_FILE
+queue guard: 10 of 10 ok

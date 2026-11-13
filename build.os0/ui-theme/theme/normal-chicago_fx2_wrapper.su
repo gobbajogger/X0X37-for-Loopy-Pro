@@ -1,0 +1,9 @@
+experiments/original_synth/chicago_fx2_wrapper.c:11:12:total	8	static
+experiments/original_synth/chicago_fx2_wrapper.c:12:5:original_chicago_fx2_wrapper_init	8	static
+experiments/original_synth/chicago_fx2_wrapper.c:17:5:original_chicago_fx2_wrapper_init_cold	32	static
+experiments/original_synth/chicago_fx2_wrapper.c:23:5:original_chicago_fx2_wrapper_supports	16	static
+experiments/original_synth/chicago_fx2_wrapper.c:28:5:original_chicago_fx2_wrapper_set	32	static
+experiments/original_synth/chicago_fx2_wrapper.c:35:5:original_chicago_fx2_wrapper_tempo	16	static
+experiments/original_synth/chicago_fx2_wrapper.c:39:6:original_chicago_fx2_wrapper_reset	8	static
+experiments/original_synth/chicago_fx2_wrapper.c:45:5:original_chicago_fx2_wrapper_process	96	static
+experiments/original_synth/chicago_fx2_wrapper.c:92:5:original_chicago_fx2_wrapper_advance_zero	64	static

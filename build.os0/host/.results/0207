@@ -1,0 +1,16 @@
+  FAIL smp-begin-cancel (see build/host/smp-begin-cancel.log)
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       /usr/bin/ld: /workspace/sb-aio-fce4dd5/build/host/iso/smp-begin-cancel/tmp/ccXFSVoI.o: in function `ed_handle':
+       smp_begin_cancel_test.c:(.text+0x1a00): undefined reference to `project_storage_unsupported'
+       /usr/bin/ld: smp_begin_cancel_test.c:(.text+0x1a18): undefined reference to `engine_bass_sound_validate'
+       /usr/bin/ld: smp_begin_cancel_test.c:(.text+0x1a31): undefined reference to `engine_bass_preset_pending'
+       /usr/bin/ld: smp_begin_cancel_test.c:(.text+0x1a4a): undefined reference to `engine_bass_preset_pending'
+       collect2: error: ld returned 1 exit status

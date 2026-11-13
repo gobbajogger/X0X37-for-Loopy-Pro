@@ -1,0 +1,37 @@
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-link/tmp/smc-link-v69a75ol/test.c:191:39: error: ‘MAXPAGES’ undeclared here (not in a function)
+  191 |     uint8_t lock_pages, lock_page_kit[MAXPAGES];
+      |                                       ^~~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-link/tmp/smc-link-v69a75ol/test.c:193:24: error: ‘NVIEWS’ undeclared here (not in a function)
+  193 |     uint8_t mixer_page[NVIEWS][NPARTS];
+      |                        ^~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-link/tmp/smc-link-v69a75ol/test.c:193:32: error: ‘NPARTS’ undeclared here (not in a function)
+  193 |     uint8_t mixer_page[NVIEWS][NPARTS];
+      |                                ^~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-link/tmp/smc-link-v69a75ol/test.c: In function ‘smc_poll_peer’:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-link/tmp/smc-link-v69a75ol/test.c:538:13: error: ‘smc_ui’ undeclared (first use in this function); did you mean ‘smc_q’?
+  538 |         if (smc_ui.on && smc_ui.peer == smc_slot)
+      |             ^~~~~~
+      |             smc_q
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-link/tmp/smc-link-v69a75ol/test.c:538:13: note: each undeclared identifier is reported only once for each function it appears in
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-link/tmp/smc-link-v69a75ol/test.c:539:28: error: implicit declaration of function ‘plat_ms’ [-Wimplicit-function-declaration]
+  539 |             smc_ui.until = plat_ms() + SMC_UI_MS;
+      |                            ^~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-link/tmp/smc-link-v69a75ol/test.c:539:40: error: ‘SMC_UI_MS’ undeclared (first use in this function)
+  539 |             smc_ui.until = plat_ms() + SMC_UI_MS;
+      |                                        ^~~~~~~~~
+Traceback (most recent call last):
+  File "/workspace/sb-aio-fce4dd5/tests/host/smc_link_test.py", line 180, in <module>
+    subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-g",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "-Wall", "-Wextra", "-Werror", *flags,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "-I" + str(ROOT / "firmware/src"),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "-I" + str(ROOT / "tests/host"),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(c), "-o", str(executable)], check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O2', '-g', '-Wall', '-Wextra', '-Werror', '-DLINK_GENERATION', '-I/workspace/sb-aio-fce4dd5/firmware/src', '-I/workspace/sb-aio-fce4dd5/tests/host', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-link/tmp/smc-link-v69a75ol/test.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-link/tmp/smc-link-v69a75ol/test']' returned non-zero exit status 1.

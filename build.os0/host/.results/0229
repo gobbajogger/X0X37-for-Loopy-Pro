@@ -1,0 +1,7 @@
+  FAIL copy-semantics (see build/host/copy-semantics.log)
+       In file included from firmware/src/app/original_runtime.h:4,
+                        from firmware/src/app/engine.c:9:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: chicago_note_context.h: No such file or directory
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       compilation terminated.

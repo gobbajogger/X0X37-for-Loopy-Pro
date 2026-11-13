@@ -1,0 +1,7 @@
+  FAIL gen-nonfont-tables (see build/host/gen-nonfont-tables.log)
+                FAIL host-build (see build/host/host-build.log)
+                     X0X_ORIGINAL_SYNTH: only 1 is supported
+                ok   stereo
+                skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+              TESTS FAILED
+       FAIL: host-build/stereo under samples-only + X0X_BREAK_BANK

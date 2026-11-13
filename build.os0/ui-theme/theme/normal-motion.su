@@ -1,0 +1,14 @@
+firmware/src/seq/motion.c:17:39:put	32	static
+firmware/src/seq/motion.c:25:13:restore_base	32	static
+firmware/src/seq/motion.c:31:39:to_base	16	static
+firmware/src/seq/motion.c:6:15:motion_init	8	static
+firmware/src/seq/motion.c:39:6:motion_step	128	static
+firmware/src/seq/motion.c:122:6:motion_tick	48	static
+firmware/src/seq/motion.c:143:6:motion_release	32	static
+firmware/src/seq/motion.c:160:5:motion_value	8	static
+firmware/src/seq/motion.c:167:14:motion_find	8	static
+firmware/src/seq/motion.c:176:14:motion_alloc	8	static
+firmware/src/seq/motion.c:198:15:motion_clear	64	static
+firmware/src/seq/motion.c:218:14:motion_count	8	static
+firmware/src/seq/motion.c:226:15:motion_req_rec	8	static
+firmware/src/seq/motion.c:232:15:motion_req_hold	8	static

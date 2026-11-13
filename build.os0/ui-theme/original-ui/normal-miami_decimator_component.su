@@ -1,0 +1,4 @@
+experiments/wobble/miami_decimator_component.c:19:5:miami_decimator_seed	8	static
+experiments/wobble/miami_decimator_component.c:32:5:miami_decimator_stage_step	8	static
+experiments/wobble/miami_decimator_component.c:39:5:miami_decimator_advance_zero	8	static
+experiments/wobble/miami_decimator_component.c:47:5:miami_decimator_frame	8	static

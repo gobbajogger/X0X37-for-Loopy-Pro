@@ -1,0 +1,2 @@
+  FAIL scenario-extclock (see build/host/scenario-extclock.log)
+       X0X_ORIGINAL_SYNTH: only 1 is supported

@@ -1,0 +1,2 @@
+  FAIL scenario-song_live_mute_save (see build/host/scenario-song_live_mute_save.log)
+       X0X_ORIGINAL_SYNTH: only 1 is supported

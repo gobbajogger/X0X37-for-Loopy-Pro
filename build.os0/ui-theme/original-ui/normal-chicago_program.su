@@ -1,0 +1,5 @@
+experiments/original_synth/chicago_program.c:33:5:original_chicago_program_set	80	static
+experiments/original_synth/chicago_program.c:39:5:original_chicago_program_init	272	static
+experiments/original_synth/chicago_program.c:54:5:original_chicago_program_native	8	static
+experiments/original_synth/chicago_program.c:59:13:original_chicago_program_name	8	static
+experiments/original_synth/chicago_program.c:67:5:original_chicago_program_routing	112	static

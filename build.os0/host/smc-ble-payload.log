@@ -1,0 +1,2 @@
+source: /workspace/sb-aio-fce4dd5/firmware/src/app/smc_mixer.c compiler: gcc -std=c11 -O1 -g -Wall -Wextra -Werror /tmp/smc-ble-payload-2t8ziofu/test.c -o /tmp/smc-ble-payload-2t8ziofu/test
+checks=26 failed=0

@@ -1,0 +1,3 @@
+experiments/original_synth/miami_pitch.c:13:5:original_miami_pitch_init	8	static
+experiments/original_synth/miami_pitch.c:17:5:original_miami_pitch_note	8	static
+experiments/original_synth/miami_pitch.c:22:5:original_miami_pitch_prepare	192	static

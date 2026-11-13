@@ -1,0 +1,4 @@
+experiments/wobble/miami_decimator_adapter.c:4:5:miami_decimator_adapter_init	64	static
+experiments/wobble/miami_decimator_adapter.c:16:5:miami_decimator_adapter_reset	8	static
+experiments/wobble/miami_decimator_adapter.c:23:5:miami_decimator_adapter_set	16	static
+experiments/wobble/miami_decimator_adapter.c:37:5:miami_decimator_adapter_process	112	static

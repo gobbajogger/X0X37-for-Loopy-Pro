@@ -1,0 +1,16 @@
+  FAIL smc-queue (see build/host/smc-queue.log)
+         File "/workspace/sb-aio-fce4dd5/tests/host/smc_queue_test.py", line 217, in <module>
+           subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-g",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           "-Wall", "-Wextra", "-Werror", *flags,
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           "-I" + str(ROOT / "firmware/src"),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           "-I" + str(ROOT / "tests/host"),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           str(c), "-o", str(executable)], check=True)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 577, in run
+           raise CalledProcessError(retcode, process.args,
+                                    output=stdout, stderr=stderr)
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O2', '-g', '-Wall', '-Wextra', '-Werror', '-I/workspace/sb-aio-fce4dd5/firmware/src', '-I/workspace/sb-aio-fce4dd5/tests/host', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-queue/tmp/smc-queue-9gn9oukz/test.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-queue/tmp/smc-queue-9gn9oukz/test']' returned non-zero exit status 1.

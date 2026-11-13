@@ -1,0 +1,5 @@
+experiments/original_synth/voice_gain.c:22:6:original_voice_gain_init	8	static
+experiments/original_synth/voice_gain.c:23:6:original_voice_gain_miami_full_note	8	static
+experiments/original_synth/voice_gain.c:24:5:original_voice_gain_prepare	224	static
+experiments/original_synth/voice_gain.c:54:5:original_voice_gain_oscillator	32	static
+experiments/original_synth/voice_gain.c:60:5:original_voice_gain_stereo	8	static

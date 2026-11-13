@@ -1,0 +1,43 @@
+In file included from tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:23,
+                 from tests/host/../../firmware/src/app/../dsp/fxbus.h:26,
+                 from tests/host/../../firmware/src/app/x0x.h:19,
+                 from tests/host/smp_begin_cancel_test.c:10:
+tests/host/../../firmware/src/app/../dsp/fastmath.h:45:14: warning: inline function ‘fm_floorf’ declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/fastmath.h:156:14: warning: inline function ‘fm_sin_pi’ declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/fastmath.h:169:14: warning: inline function ‘fm_wrap_pi’ declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/fastmath.h:175:14: warning: inline function ‘fm_sinf’ declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+tests/host/../../firmware/src/app/../dsp/fastmath.h:176:14: warning: inline function ‘fm_cosf’ declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:153:13: warning: inline function ‘d9_biquad_set’ declared weak [-Wattributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:203:14: warning: inline function ‘d9_tanh’ declared weak [-Wattributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:229:13: warning: inline function ‘d9_shape_prep’ declared weak [-Wattributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+/usr/bin/ld: /workspace/sb-aio-fce4dd5/build/host/iso/smp-begin-cancel/tmp/ccXFSVoI.o: in function `ed_handle':
+smp_begin_cancel_test.c:(.text+0x1a00): undefined reference to `project_storage_unsupported'
+/usr/bin/ld: smp_begin_cancel_test.c:(.text+0x1a18): undefined reference to `engine_bass_sound_validate'
+/usr/bin/ld: smp_begin_cancel_test.c:(.text+0x1a31): undefined reference to `engine_bass_preset_pending'
+/usr/bin/ld: smp_begin_cancel_test.c:(.text+0x1a4a): undefined reference to `engine_bass_preset_pending'
+collect2: error: ld returned 1 exit status

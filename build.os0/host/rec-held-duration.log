@@ -1,0 +1,10 @@
+tests/host/rec_held_duration_test.c: In function ‘probe_tmp’:
+tests/host/rec_held_duration_test.c:87:20: error: implicit declaration of function ‘unlink’ [-Wimplicit-function-declaration]
+   87 |  f=fdopen(fd,"w+");unlink(path);if(!f) {perror("probe fdopen");exit(2);}
+      |                    ^~~~~~
+In file included from firmware/src/app/original_runtime.h:4,
+                 from firmware/src/app/engine.c:9:
+firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: chicago_note_context.h: No such file or directory
+    4 | #include "chicago_note_context.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.

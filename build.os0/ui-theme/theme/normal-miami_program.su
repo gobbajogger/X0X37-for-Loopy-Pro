@@ -1,0 +1,4 @@
+experiments/original_synth/miami_program.c:35:5:original_miami_program_set	80	static
+experiments/original_synth/miami_program.c:43:5:original_miami_program_init	224	static
+experiments/original_synth/miami_program.c:49:5:original_miami_program_native	8	static
+experiments/original_synth/miami_program.c:55:13:original_miami_program_name	8	static

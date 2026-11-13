@@ -1,0 +1,16 @@
+  FAIL smc-mapping (see build/host/smc-mapping.log)
+       /workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:24:12: error: ‘drum_mix_page’ defined but not used [-Werror=unused-function]
+          24 | static int drum_mix_page(void) { return ui.view==V_MIX ? kit : -1; }
+             |            ^~~~~~~~~~~~~
+       /workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c:23:12: error: ‘cur_page’ defined but not used [-Werror=unused-function]
+          23 | static int cur_page(void) { return 0; }
+             |            ^~~~~~~~
+       cc1: all warnings being treated as errors
+       Traceback (most recent call last):
+         File "/workspace/sb-aio-fce4dd5/tests/host/smc_mapping_test.py", line 124, in <module>
+           subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror','-I'+str(root/'firmware/src'),str(c),'-o',str(exe)],check=True)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 577, in run
+           raise CalledProcessError(retcode, process.args,
+                                    output=stdout, stderr=stderr)
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-Wall', '-Wextra', '-Werror', '-I/workspace/sb-aio-fce4dd5/firmware/src', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-mapping/tmp/tmpxcw0d6us/test']' returned non-zero exit status 1.

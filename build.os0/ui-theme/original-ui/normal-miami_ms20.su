@@ -1,0 +1,7 @@
+experiments/original_synth/miami_ms20.c:16:14:lookup	8	static
+experiments/original_synth/miami_ms20.c:19:5:original_miami_nonlinear	32	static
+experiments/original_synth/miami_ms20.c:26:5:original_miami_mg_shape	48	static
+experiments/original_synth/miami_ms20.c:35:5:original_miami_ms20_init	8	static
+experiments/original_synth/miami_ms20.c:39:5:original_miami_ms20_note_reset	8	static
+experiments/original_synth/miami_ms20.c:44:5:original_miami_ms20_prepare	128	static
+experiments/original_synth/miami_ms20.c:58:5:original_miami_ms20_sample	80	static

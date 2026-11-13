@@ -1,0 +1,11 @@
+firmware/src/seq/tb3po.c:18:43:rng_u32	8	static
+firmware/src/seq/tb3po.c:30:40:rng_f	8	static
+firmware/src/seq/tb3po.c:48:38:clampi	8	static
+firmware/src/seq/tb3po.c:56:38:roll_degree	8	static
+firmware/src/seq/tb3po.c:62:38:roll_oct	8	static
+firmware/src/seq/tb3po.c:69:42:roll_kind	8	static
+firmware/src/seq/tb3po.c:50:42:note_of.isra	8	static
+firmware/src/seq/tb3po.c:35:15:tb3po_defaults	8	static
+firmware/src/seq/tb3po.c:79:15:tb3po_generate	96	static
+firmware/src/seq/tb3po.c:115:6:tb3po_mutate	96	static
+firmware/src/seq/tb3po.c:156:19:tb3po_new_seed	24	static

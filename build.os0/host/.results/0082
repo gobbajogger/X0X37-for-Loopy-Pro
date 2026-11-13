@@ -1,0 +1,2 @@
+  FAIL smc-lock-beat (see build/host/smc-lock-beat.log)
+       X0X_ORIGINAL_SYNTH: only 1 is supported

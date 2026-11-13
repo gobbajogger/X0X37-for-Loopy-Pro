@@ -1,0 +1,4 @@
+experiments/original_synth/chicago_global_stage.c:11:13:unqualified_step	8	static
+experiments/original_synth/chicago_global_stage.c:3:5:original_chicago_selected_global_bind	8	static
+experiments/original_synth/chicago_global_stage.c:7:6:original_chicago_selected_global_seed	8	static
+experiments/original_synth/chicago_global_stage.c:12:5:original_chicago_selected_global_exit	16	static

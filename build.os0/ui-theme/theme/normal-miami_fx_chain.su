@@ -1,0 +1,7 @@
+experiments/original_synth/miami_fx_chain.c:8:13:bypass	8	static
+experiments/original_synth/miami_fx_chain.c:10:13:reset_bypass	8	static
+experiments/original_synth/miami_fx_chain.c:9:13:reset_decimator	8	static
+experiments/original_synth/miami_fx_chain.c:5:13:decimate	8	static
+experiments/original_synth/miami_fx_chain.c:11:6:original_miami_fx_init	16	static
+experiments/original_synth/miami_fx_chain.c:16:6:original_miami_fx_reset	16	static
+experiments/original_synth/miami_fx_chain.c:23:5:original_miami_fx_process	144	dynamic,bounded

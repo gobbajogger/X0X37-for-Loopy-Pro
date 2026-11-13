@@ -1,0 +1,3 @@
+experiments/original_synth/miami_voice_snapshot.c:144:5:original_miami_voice_snapshot_capture	392	static
+experiments/original_synth/miami_voice_snapshot.c:149:5:original_miami_voice_snapshot_encode	8	static
+experiments/original_synth/miami_voice_snapshot.c:150:5:original_miami_voice_snapshot_decode	528	static

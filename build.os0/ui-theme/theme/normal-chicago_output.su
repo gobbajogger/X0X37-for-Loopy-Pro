@@ -1,0 +1,13 @@
+experiments/original_synth/chicago_output.c:39:13:drive_invocation	80	static
+experiments/original_synth/chicago_output.c:15:5:original_chicago_drive_wrapper_init	48	static
+experiments/original_synth/chicago_output.c:21:5:original_chicago_drive_wrapper_set	8	static
+experiments/original_synth/chicago_output.c:28:5:original_chicago_drive_wrapper_events	8	static
+experiments/original_synth/chicago_output.c:33:6:original_chicago_drive_wrapper_direct_event	8	static
+experiments/original_synth/chicago_output.c:34:6:original_chicago_drive_wrapper_reset	8	static
+experiments/original_synth/chicago_output.c:51:5:original_chicago_drive_wrapper_process	96	static
+experiments/original_synth/chicago_output.c:85:5:original_chicago_output_init	16	static
+experiments/original_synth/chicago_output.c:94:5:original_chicago_output_suspend	8	static
+experiments/original_synth/chicago_output.c:100:5:original_chicago_output_enable	8	static
+experiments/original_synth/chicago_output.c:101:6:original_chicago_output_mute	8	static
+experiments/original_synth/chicago_output.c:103:5:original_chicago_output_zero_ready	8	static
+experiments/original_synth/chicago_output.c:121:5:original_chicago_output_process	128	dynamic,bounded

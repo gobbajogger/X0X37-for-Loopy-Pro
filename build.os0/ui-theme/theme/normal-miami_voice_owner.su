@@ -1,0 +1,9 @@
+experiments/original_synth/miami_voice_owner.c:5:17:enabled	8	static
+experiments/original_synth/miami_voice_owner.c:6:17:vca	8	static
+experiments/original_synth/miami_voice_owner.c:11:12:inputs	64	static
+experiments/original_synth/miami_voice_owner.c:7:13:state	8	static
+experiments/original_synth/miami_voice_owner.c:35:12:action	208	dynamic,bounded
+experiments/original_synth/miami_voice_owner.c:43:13:note	192	dynamic,bounded
+experiments/original_synth/miami_voice_owner.c:53:37:original_miami_voice_owner_callbacks	8	static
+experiments/original_synth/miami_voice_owner.c:54:5:original_miami_voice_owner_bind	32	static
+experiments/original_synth/miami_voice_owner.c:58:5:original_miami_voice_owner_control_all	64	static

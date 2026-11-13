@@ -1,0 +1,2 @@
+experiments/original_synth/chicago_program_output.c:8:5:original_chicago_output_init_routing	48	static
+experiments/original_synth/chicago_program_output.c:14:5:original_chicago_output_apply_routing	16	static

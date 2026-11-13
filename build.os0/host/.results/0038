@@ -1,0 +1,16 @@
+  FAIL smc-buttons (see build/host/smc-buttons.log)
+          17 | static int drum_mix_page(void) { return -1; }
+             |            ^~~~~~~~~~~~~
+       cc1: all warnings being treated as errors
+       Traceback (most recent call last):
+         File "/workspace/sb-aio-fce4dd5/tests/host/smc_buttons_test.py", line 96, in <module>
+           subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror',
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           '-I'+str(root/'firmware'/'src'), '-I'+str(root/'tests'/'host'),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           str(c),'-o',str(exe)],check=True)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 577, in run
+           raise CalledProcessError(retcode, process.args,
+                                    output=stdout, stderr=stderr)
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-Wall', '-Wextra', '-Werror', '-I/workspace/sb-aio-fce4dd5/firmware/src', '-I/workspace/sb-aio-fce4dd5/tests/host', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-buttons/tmp/tmpeys35776/test']' returned non-zero exit status 1.

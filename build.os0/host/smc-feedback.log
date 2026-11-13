@@ -1,0 +1,66 @@
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c: In function ‘smc_drum_mix’:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:70:17: error: ‘struct <anonymous>’ has no member named ‘lock_view’; did you mean ‘lock_kit’?
+   70 |         if (smc.lock_view == V_SEQ && smc.lock_part < NKIT)
+      |                 ^~~~~~~~~
+      |                 lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:70:43: error: ‘struct <anonymous>’ has no member named ‘lock_part’; did you mean ‘rec_part’?
+   70 |         if (smc.lock_view == V_SEQ && smc.lock_part < NKIT)
+      |                                           ^~~~~~~~~
+      |                                           rec_part
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:71:24: error: ‘struct <anonymous>’ has no member named ‘lock_part’; did you mean ‘rec_part’?
+   71 |             return smc.lock_part;
+      |                        ^~~~~~~~~
+      |                        rec_part
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:72:17: error: ‘struct <anonymous>’ has no member named ‘lock_view’; did you mean ‘lock_kit’?
+   72 |         if (smc.lock_view == V_MIX && smc.lock_page < smc.lock_pages)
+      |                 ^~~~~~~~~
+      |                 lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:72:43: error: ‘struct <anonymous>’ has no member named ‘lock_page’; did you mean ‘lock_bank’?
+   72 |         if (smc.lock_view == V_MIX && smc.lock_page < smc.lock_pages)
+      |                                           ^~~~~~~~~
+      |                                           lock_bank
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:72:58: error: ‘struct <anonymous>’ has no member named ‘lock_pages’
+   72 |         if (smc.lock_view == V_MIX && smc.lock_page < smc.lock_pages)
+      |                                                          ^
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:73:29: error: ‘struct <anonymous>’ has no member named ‘lock_page_kit’; did you mean ‘lock_kit’?
+   73 |             return (int)smc.lock_page_kit[smc.lock_page] - 1;
+      |                             ^~~~~~~~~~~~~
+      |                             lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:73:47: error: ‘struct <anonymous>’ has no member named ‘lock_page’; did you mean ‘lock_bank’?
+   73 |             return (int)smc.lock_page_kit[smc.lock_page] - 1;
+      |                                               ^~~~~~~~~
+      |                                               lock_bank
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:79:29: error: ‘pg’ undeclared (first use in this function)
+   79 |     if (ui.view != V_MIX || pg.n <= 0) return -1;
+      |                             ^~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:79:29: note: each undeclared identifier is reported only once for each function it appears in
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:80:30: error: implicit declaration of function ‘smc_page_now’ [-Wimplicit-function-declaration]
+   80 |     const char *t = pg.title[smc_page_now()];
+      |                              ^~~~~~~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c: In function ‘smc_led’:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:133:33: error: ‘struct <anonymous>’ has no member named ‘lock_view’; did you mean ‘lock_kit’?
+  133 |     int view = smc.locked ? smc.lock_view : ui.view;
+      |                                 ^~~~~~~~~
+      |                                 lock_kit
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:134:42: error: ‘struct <anonymous>’ has no member named ‘lock_part’; did you mean ‘rec_part’?
+  134 |     int part_selected = smc.locked ? smc.lock_part : ui.part;
+      |                                          ^~~~~~~~~
+      |                                          rec_part
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c: At top level:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:44:12: error: ‘drum_mix_page’ defined but not used [-Werror=unused-function]
+   44 | static int drum_mix_page(void) { return ui.view==V_MIX && page>=1 && page<=NKIT ? page-1 : -1; }
+      |            ^~~~~~~~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c:43:12: error: ‘cur_page’ defined but not used [-Werror=unused-function]
+   43 | static int cur_page(void) { return page; }
+      |            ^~~~~~~~
+cc1: all warnings being treated as errors
+Traceback (most recent call last):
+  File "/workspace/sb-aio-fce4dd5/tests/host/smc_feedback_test.py", line 246, in <module>
+    subprocess.run([*shlex.split(os.environ.get("CC", "cc")), "-std=c99", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "-I" + str(ROOT / "firmware/src"), str(c), "-o", str(binary)], check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['cc', '-std=c99', '-Wall', '-Wextra', '-Werror', '-I/workspace/sb-aio-fce4dd5/firmware/src', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/smc-feedback/tmp/smc-feedback-7bo1b_0u/feedback']' returned non-zero exit status 1.

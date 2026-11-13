@@ -1,0 +1,45 @@
+TAP version 13
+# Subtest: page checks a file before connecting and keeps keyboard actions disabled
+ok 1 - page checks a file before connecting and keeps keyboard actions disabled
+  ---
+  duration_ms: 5.725828
+  ...
+# Subtest: wrong identity and damaged file leave mutation controls unavailable
+ok 2 - wrong identity and damaged file leave mutation controls unavailable
+  ---
+  duration_ms: 3.969744
+  ...
+# Subtest: export defaults portable and project-only option is explicit
+ok 3 - export defaults portable and project-only option is explicit
+  ---
+  duration_ms: 1.969156
+  ...
+# Subtest: collision import requires downloaded recovery, saved acknowledgement and explicit import consent
+ok 4 - collision import requires downloaded recovery, saved acknowledgement and explicit import consent
+  ---
+  duration_ms: 5.17969
+  ...
+# Subtest: failed import retains recovery download and requires a new preview before retry
+ok 5 - failed import retains recovery download and requires a new preview before retry
+  ---
+  duration_ms: 3.573685
+  ...
+# Subtest: load/reset decline sends no action; accepted action invalidates the import preview
+ok 6 - load/reset decline sends no action; accepted action invalidates the import preview
+  ---
+  duration_ms: 1.30058
+  ...
+# Subtest: mode3 recovery explains the hold, disables normal actions and confirms the portable recovery source
+ok 7 - mode3 recovery explains the hold, disables normal actions and confirms the portable recovery source
+  ---
+  duration_ms: 0.913099
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 29.202774

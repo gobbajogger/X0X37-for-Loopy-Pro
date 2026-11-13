@@ -1,0 +1,16 @@
+  FAIL project-save-preflight (see build/host/project-save-preflight.log)
+         203 | D9_ONE float d9_tanh(float u)
+             |              ^~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:229:13: error: inline function ‘d9_shape_prep’ declared weak [-Werror=attributes]
+         229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+             |             ^~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors

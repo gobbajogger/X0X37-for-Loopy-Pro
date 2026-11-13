@@ -1,0 +1,3 @@
+  FAIL sound-layout (see build/host/sound-layout.log)
+       PASS source panel mapping: physical K5..K8 -> logical KNOB1..4; calibration unchanged
+       X0X_ORIGINAL_SYNTH: only 1 is supported

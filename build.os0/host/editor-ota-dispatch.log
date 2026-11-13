@@ -1,0 +1,17 @@
+In file included from /workspace/sb-aio-fce4dd5/tests/host/editor_ota_dispatch_test.c:52:
+/workspace/sb-aio-fce4dd5/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-8bwlbup4/editor_service.inc: In function ‘actual_ed_service’:
+/workspace/sb-aio-fce4dd5/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-8bwlbup4/editor_service.inc:5:9: error: implicit declaration of function ‘ED_MAINTENANCE_HELD’ [-Wimplicit-function-declaration]
+    5 |     if (ED_MAINTENANCE_HELD()) {
+      |         ^~~~~~~~~~~~~~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-8bwlbup4/editor_service.inc:10:19: error: implicit declaration of function ‘ED_MAINTENANCE_ADMIT’; did you mean ‘OTA_MAINTENANCE_ADMIT’? [-Wimplicit-function-declaration]
+   10 |             (void)ED_MAINTENANCE_ADMIT();
+      |                   ^~~~~~~~~~~~~~~~~~~~
+      |                   OTA_MAINTENANCE_ADMIT
+Traceback (most recent call last):
+  File "/workspace/sb-aio-fce4dd5/tests/host/editor_ota_dispatch_test.py", line 53, in <module>
+    subprocess.run(argv, check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', '-Wno-unused-variable', '-Wno-sign-compare', '-DBOARD_SMK37=1', '-DT_MODEL=1', '-DED_SERVICE_RETURNS_PENDING=1', '-I', '/workspace/sb-aio-fce4dd5/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-8bwlbup4', '/workspace/sb-aio-fce4dd5/tests/host/editor_ota_dispatch_test.c', '-o', '/workspace/sb-aio-fce4dd5/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-8bwlbup4/test']' returned non-zero exit status 1.

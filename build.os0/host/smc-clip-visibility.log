@@ -1,0 +1,24 @@
+In file included from tests/host/smc_clip_visibility_test.c:62:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-clip-visibility/tmp/tmp.Fztke3BNLx/smc_input.inc:168:39: error: ‘MAXPAGES’ undeclared here (not in a function)
+  168 |     uint8_t lock_pages, lock_page_kit[MAXPAGES];
+      |                                       ^~~~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-clip-visibility/tmp/tmp.Fztke3BNLx/smc_input.inc:170:24: error: ‘NVIEWS’ undeclared here (not in a function)
+  170 |     uint8_t mixer_page[NVIEWS][NPARTS];
+      |                        ^~~~~~
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-clip-visibility/tmp/tmp.Fztke3BNLx/smc_input.inc:170:32: error: ‘NPARTS’ undeclared here (not in a function)
+  170 |     uint8_t mixer_page[NVIEWS][NPARTS];
+      |                                ^~~~~~
+In file included from tests/host/smc_clip_visibility_test.c:63:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-clip-visibility/tmp/tmp.Fztke3BNLx/smc_turn.inc: In function ‘smc_poll_peer’:
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-clip-visibility/tmp/tmp.Fztke3BNLx/smc_turn.inc:205:9: error: implicit declaration of function ‘smc_spill_apply’; did you mean ‘smc_spill_put’? [-Wimplicit-function-declaration]
+  205 |         smc_spill_apply(&smc_peer_input.spill, smc_qr, allow);
+      |         ^~~~~~~~~~~~~~~
+      |         smc_spill_put
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-clip-visibility/tmp/tmp.Fztke3BNLx/smc_turn.inc:266:13: error: ‘smc_ui’ undeclared (first use in this function); did you mean ‘smc_q’?
+  266 |         if (smc_ui.on && smc_ui.peer == smc_slot)
+      |             ^~~~~~
+      |             smc_q
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-clip-visibility/tmp/tmp.Fztke3BNLx/smc_turn.inc:266:13: note: each undeclared identifier is reported only once for each function it appears in
+/workspace/sb-aio-fce4dd5/build/host/iso/smc-clip-visibility/tmp/tmp.Fztke3BNLx/smc_turn.inc:267:40: error: ‘SMC_UI_MS’ undeclared (first use in this function)
+  267 |             smc_ui.until = plat_ms() + SMC_UI_MS;
+      |                                        ^~~~~~~~~
