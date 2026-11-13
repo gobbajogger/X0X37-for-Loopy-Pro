@@ -85,7 +85,7 @@ One initial browser FAIL came from the **test** measuring hidden Keep before a p
 
 ```sh
 node --test web/presets/test_codec.mjs web/presets/test_page.mjs
-DNBOX_SOURCE_SHA=fa85b9463a3f88df8bad022043722f375a762aee DNBOX_PUPPETEER_MODULE=/path/to/puppeteer DNBOX_CHROMIUM=/usr/bin/chromium node web/presets/test_browser.mjs
+DNBOX_SOURCE_SHA=fa85b9463a3f88df8bad022043722f375a762aee DNBOX_PUPPETEER_MODULE=/workspace/shared/dnbox-rdc/node_modules/puppeteer DNBOX_CHROMIUM=/usr/bin/chromium node web/presets/test_browser.mjs
 ```
 
 Install Puppeteer in the test environment if unavailable. The browser test runner contains its own loopback server. The exact commit was downloaded over read-only pinned HTTPS, with no network Git checkout or Git push.
