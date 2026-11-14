@@ -14,6 +14,19 @@ spec.loader.exec_module(pack)
 
 
 class LayoutTests(unittest.TestCase):
+    def test_lifecycle_markers_start_empty_in_both_artifact_forms(self):
+        for data in (pack.make_xml(HERE), zlib.decompress(pack.make_tosc(HERE))):
+            tree = ET.fromstring(data)
+            buttons = [n for n in tree.findall(".//node") if n.attrib["type"] == "BUTTON"]
+            self.assertEqual(len(buttons), 20)
+            for node in buttons:
+                tags = [p for p in node.findall("./properties/property") if p.findtext("key") == "tag"]
+                self.assertEqual(len(tags), 1)
+                self.assertEqual(tags[0].attrib["type"], "s")
+                self.assertEqual(tags[0].findtext("value"), "")
+            # No outstanding ON may be delivered with a newly generated layout.
+            self.assertNotIn(b"<![CDATA[dnbox-held:", data)
+
     def test_packed_layout_contains_real_scripts_and_distinct_interactive_controls(self):
         # Removing script embedding or reusing an ID must make this fail.
         data = pack.make_tosc(HERE)

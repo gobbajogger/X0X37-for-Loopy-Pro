@@ -1,0 +1,19 @@
+{
+  "stage": "TouchOSC lifecycle D1/D2 source candidate",
+  "status": "BLOCKED_NATIVE_QUALIFICATION",
+  "source_base": "679a2c947db6a5296810190a99148f9edb05cc5d",
+  "branch": "chat/touchosc-lifecycle-d1-d2-20261114",
+  "new_lua_regressions": {"red": "4 of 7 fail on baseline, exit1", "green": "7 of 7 PASS, exit0", "boundary": "Lua5.1.5 with native API model; not app proof"},
+  "new_packing_check": {"status":"PASS", "count":1, "exit":0},
+  "inherited_proof": {"Lua":8,"packing":4,"native_TOSC":206,"native_XML":8,"scope":"Unchanged historical proof retained at source679a2c9; not qualification of changed artifact"},
+  "native_changed_artifact":"NOT_RUN",
+  "D1":"Supported return-only safeguard, NOT native-qualified; editor-time release remains unsupported",
+  "D2":"Native x reset on disarm, Lua regression PASS; real first-tap recovery NOT_RUN on changed candidate",
+  "ALSA_CoreMIDI_IAC_reconnect":"NOT_RUN",
+  "physical_multitouch":"NOT_RUN",
+  "physical_MIDI":"NOT_RUN, prohibited in task",
+  "runtime_blocker":"Official checksum and archive requests returned HTTP403 Cloudflare1010; no alternate binary or denial workaround",
+  "next_consumer":"Creator01a1af1b-2207-7017-b4fb-4e7f6c2c90ea retains integration; assign existing official-runtime executor for native exact-artifact qualification",
+  "merge":"NOT_RUN",
+  "publication":"NOT_RUN"
+}

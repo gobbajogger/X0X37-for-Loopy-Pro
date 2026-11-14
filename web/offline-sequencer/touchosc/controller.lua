@@ -34,26 +34,45 @@ end
 local function release(note)
   local held = active[note]
   if not held then return end
+  -- Retire the debt on this send attempt. This is not a transport retry queue.
+  active[note] = nil
+  local control = root:findByName("note_" .. note)
+  if control then control.tag = "" end
   -- Never use the current channel for a note started on another channel.
   sendMIDI({0x80 + held.channel - 1, note, 0}, connection)
-  active[note] = nil
   colour(note, false)
 end
 
 local function disarm()
+  armed = false
   local notes = {}
   for note in pairs(active) do notes[#notes + 1] = note end
   for _,note in ipairs(notes) do release(note) end
-  armed = false
+  -- A cancelled native pointer can leave x=1 after touch becomes false.
+  -- Reset only after retiring active notes, so reentrant callbacks are inert.
+  for note in pairs(allowed) do
+    local control = root:findByName("note_" .. note)
+    if control then control.values.x = 0 end
+  end
   resetFeedback()
   routeStatus()
 end
 
 function init()
   armed = false
-  active = {}
-  resetFeedback()
-  routeStatus()
+  -- There is no supported pre-stop callback. Recover outstanding local ON
+  -- markers retained by native controls on return (requires native qualification).
+  -- Release BEFORE editing: no script timeout can run while in editor mode.
+  for note in pairs(allowed) do
+    local control = root:findByName("note_" .. note)
+    local saved = control and type(control.tag) == "string"
+      and string.match(control.tag, "^dnbox%-held:(%d+)$")
+    local original = saved and tonumber(saved)
+    if original and original >= 1 and original <= 16 and tostring(original) == saved then
+      active[note] = {channel=original, at=getMillis()}
+    end
+  end
+  disarm()
 end
 
 function onReceiveNotify(key, value)
@@ -81,6 +100,8 @@ function onReceiveNotify(key, value)
   if not pressed then release(note); return end
   if not armed or active[note] then return end
   active[note] = {channel=channel, at=getMillis()}
+  local control = root:findByName(name)
+  if control then control.tag = "dnbox-held:" .. channel end
   sendMIDI({0x90 + channel - 1, note, 100}, connection)
   colour(note, true)
 end

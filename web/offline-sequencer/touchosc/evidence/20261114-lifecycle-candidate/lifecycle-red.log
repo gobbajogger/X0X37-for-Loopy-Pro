@@ -1,0 +1,12 @@
+D1 VM re-entry releases on original channel once: web/offline-sequencer/touchosc/lifecycle.test.lua:34: missing original-channel OFF
+D1 same-VM init releases multiple notes once: web/offline-sequencer/touchosc/lifecycle.test.lua:48: assertion failed!
+D2 timeout resets stale x and first re-armed tap sounds: web/offline-sequencer/touchosc/lifecycle.test.lua:54: timeout left x=1
+RELEASE and channel change clear x without reentrant duplicate OFF: web/offline-sequencer/touchosc/lifecycle.test.lua:60: assertion failed!
+/workspace/touchosc-run/runtime/debian/usr/bin/lua5.1: web/offline-sequencer/touchosc/lifecycle.test.lua:76: 4 of 7 lifecycle scenarios failed
+stack traceback:
+	[C]: in function 'assert'
+	web/offline-sequencer/touchosc/lifecycle.test.lua:76: in main chunk
+	[C]: ?
+receive-only notes never acquire release debt: PASS
+attempted OFF is never retried on re-entry: PASS
+invalid and foreign markers cannot emit MIDI: PASS

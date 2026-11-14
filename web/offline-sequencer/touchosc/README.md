@@ -6,14 +6,20 @@ explicit Arm/Release controls and incoming-note feedback. It sends musical
 Note On/Off messages on **connection 1 only**. It never sends SysEx, transport,
 sample, project, installer or flash commands.
 
-**Partial runtime qualification.** The authorized 2026-11-14 Work/Codex repair
-stage generated `.tosc` and XML, passed the Python packing and Lua 5.1 checks,
-and exercised incoming-feedback resets in genuine Linux TouchOSC 1.5.4.269
-through loopback Bridge MIDI. This is scoped runtime evidence; row 105 remains
-partial. Actual OS endpoint disappearance/reconnection, independent-touch
-held-note RELEASE/channel changes, multitouch, outside-release/cancel/focus
-loss, mobile/macOS and real-device behavior remain unqualified. This companion
-does not implement the missing device pattern/sound synchronization protocol.
+**Partial runtime qualification.** PR #910 source has passing incoming-feedback
+qualification in genuine Linux TouchOSC 1.5.4.269 through loopback Bridge MIDI.
+The later native lifecycle qualification found a lost Note Off across editor
+mode and a silent first tap after focus timeout. This candidate adds a supported
+return-time recovery safeguard and clears stale note values on disarm. Seven
+Lua lifecycle regressions and one new packing check pass. **The changed artifact
+has not been qualified in TouchOSC:** the official runtime download returned
+HTTP 403 in this stage. Native tag persistence and MIDI sending from `init()`
+remain NOT_RUN. This is a source candidate, not a runtime-qualified fix.
+
+Row 105 remains partial. Actual OS endpoint disappearance/reconnection,
+independent-touch held-note RELEASE/channel changes, multitouch, mobile/macOS
+and real-device behavior remain unqualified. The companion does not implement
+the missing device pattern/sound synchronization protocol.
 
 ## Build and check
 
@@ -22,6 +28,7 @@ From the repository root, run in the authorized test environment:
 ```sh
 python3 web/offline-sequencer/touchosc/pack.test.py
 lua5.1 web/offline-sequencer/touchosc/controller.test.lua
+lua5.1 web/offline-sequencer/touchosc/lifecycle.test.lua
 mkdir -p build/touchosc
 python3 web/offline-sequencer/touchosc/pack.py --output build/touchosc/DnBOX-companion.tosc
 python3 web/offline-sequencer/touchosc/pack.py --output build/touchosc/DnBOX-companion.xml
@@ -60,9 +67,11 @@ without echo. They do not substitute for the actual TouchOSC runtime.
    retrigger it. **RELEASE** releases this layout's active notes and disarms.
 5. Changing the channel releases this layout's held notes and disarms it.
    Arm again after verifying the new route. A ten-second hold limit releases
-   active notes and disarms if a touch release is lost. Release notes before
-   switching applications, editing the layout, closing it or changing MIDI
-   endpoints; a disconnected route cannot guarantee delivery of a Note Off.
+   active notes and disarms if a touch release is lost while scripts run.
+   Disarm also resets note values so a cancelled pointer cannot consume the
+   first tap after re-arming. **Press RELEASE before editing, saving, closing,
+   switching applications or changing MIDI endpoints.** A disconnected route
+   cannot guarantee delivery of a Note Off.
 
 Incoming Note On/Off messages on connection 1 and the selected MIDI channel
 update the feedback line and matching key colours. They do not send messages
@@ -88,6 +97,31 @@ Release notes before changing the route or endpoints. Loopback receiver
 restoration does not prove OS endpoint reconnection or delivery while
 disconnected.
 
+## Editor-mode safeguard and its limit
+
+Hexler documents `init()` when returning from editor to control-surface mode,
+but no pre-stop callback. The qualified baseline loses the outstanding Note Off
+when Ctrl+E stops scripts: the ten-second script timeout does not run in editor
+mode. **There is no bounded release guarantee while the editor is open.**
+Release before entering it; if a note is already stuck, use the receiver's own
+note recovery before continuing. Closing, crashes, document replacement and
+network editor updates are not covered by the return safeguard.
+
+The candidate stores the original channel of each locally started note in its
+native note control's reserved `tag` property (`dnbox-held:1` through
+`dnbox-held:16`). On the next `init()`, only valid markers on the allowed note
+controls can create releases. It sends those outstanding OFFs, clears their
+markers, resets note x values and stays disarmed. This return-time behavior is
+API-boundary tested and still needs native qualification. It cannot execute
+while scripts are stopped. Do not edit the reserved tags or save with notes
+held: tags are editable native document properties and can be saved with the
+layout. Newly generated documents have empty tags.
+
+An ordinary release, RELEASE, channel change or timeout retires its marker on
+the existing send attempt. Later initialization does not retry that OFF, even
+if the receiver missed it. No transport replay, endpoint recovery protocol or
+received-note release queue is added. Incoming MIDI never acquires markers.
+
 ## Provenance and limits
 
 The musical route follows the pinned firmware at
@@ -99,7 +133,8 @@ The companion does not reuse the retired editor command table in
 parameters, sample references or project data. No firmware changes are included.
 
 Hexler documents the [root MIDI callbacks and sendMIDI API](https://hexler.net/touchosc/manual/script-examples),
-[control notification API](https://hexler.net/touchosc/manual/script-objects-control),
+[control callbacks and notification API](https://hexler.net/touchosc/manual/script-objects-control),
+[native tag and value properties](https://hexler.net/touchosc/manual/script-properties-and-values),
 [connection configuration](https://hexler.net/touchosc/manual/connections-midi)
 and [XML opening in release 1.5.2.261](https://hexler.net/touchosc/releases).
 Hexler does not publish the `.tosc` XML schema. The factual container/property
