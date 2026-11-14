@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Play a first pattern — DnBOX</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-head">
+    <div class="inner">
+      <a class="wordmark" href="index.html">DnBOX</a>
+      <nav aria-label="Site">
+        <a href="first.html" aria-current="page">First pattern</a>
+        <a href="install.html">Install</a>
+        <a href="presets.html">Presets</a>
+        <a href="recover.html">Recover</a>
+      </nav>
+    </div>
+    <p class="truth-strip">The tour below is from the published playing manual, written for the FM-1. SMK-37 button names are from <span class="mono">SMK37.md</span>. Where a step is not restated for the SMK-37, it is marked UNVERIFIED.</p>
+  </header>
+
+  <main id="content">
+    <h1>Play a first pattern</h1>
+    <p class="lead">A five-minute path from a first start to a kick, a bass line, and a save — then how to keep the work and take it to a set.</p>
+    <p><a href="install.html">If the firmware is not on the keyboard yet, install first.</a></p>
+
+    <h2>What you should see after a first start</h2>
+    <p>The published playing manual (section 2, “Getting started”) says: when the firmware starts, the screen shows the 909 and every part is empty. On a first install the SMK-37 note in <span class="mono">SMK37.md</span> also says the first start clears the stock firmware’s settings in the shared data area. The pictures are emulator captures, not hardware.</p>
+    <figure class="lcd">
+      <img src="assets/lcd-old-data-cleared.png" width="720" height="720" alt="Emulator capture: a banner reading OLD DATA CLEARED over an empty drum grid.">
+      <figcaption>Emulator capture, not hardware. First-start banner “OLD DATA CLEARED.”</figcaption>
+    </figure>
+    <figure class="lcd">
+      <img src="assets/lcd-909-seq-empty.png" width="720" height="720" alt="Emulator capture: 909 SEQ, empty pattern, HOLD ANY BUTTON: WHAT IT DOES.">
+      <figcaption>Emulator capture, not hardware. Empty 909 sequencer. The hint at the bottom matches the manual: hold a button to see what it does on this screen.</figcaption>
+    </figure>
+
+    <h2>Five-minute tour</h2>
+    <p>Musical steps are from the production manual, section 2. On the SMK-37, <kbd>SEQ PLAY</kbd> is PLAY, <kbd>BT</kbd> is SAVE, <kbd>PATCH</kbd> is HOME, <kbd>K3</kbd> is ALGORITHM, <kbd>PARA</kbd> is EDIT, <kbd>K5–K8</kbd> are KNOB 1–4, and <kbd>SEQ REC</kbd> is REC (<span class="mono">SMK37.md</span>).</p>
+    <ol class="tour">
+      <li><div>Pick the bass drum and write kicks on the beats, then press <kbd>SEQ PLAY</kbd>. The manual’s FM-1 wording is “black key 1” for the bass drum, then white keys 1, 5, 9 and 13. <span class="unv">UNVERIFIED on the SMK-37: which exact key is the bass drum. The manual’s tour was written for the FM-1. The nightly SMK manual says older documentation may describe a different control layout.</span></div></li>
+      <li><div>Add a clap, then open hats, while the pattern plays. The manual says that picking a drum is silent while the pattern plays, so you do not add a stray hit (unless KEY SOUND is set otherwise, section 15).</div></li>
+      <li><div>Write a bass line. Turn ALGORITHM (<kbd>K3</kbd>) to the 303-style part — the published manual says <strong>303A</strong>; the current preset format calls that engine <strong>Chicago</strong> — and press <kbd>ARP</kbd>. Press OCT+: each press writes a new line. Keep going until you like one. <span class="unv">Miami is a different engine and is not a 303. Do not call it one. See <a href="#engines">the engines</a>.</span></div></li>
+      <li><div>Shape the filter: press <kbd>PARA</kbd> (EDIT). KNOB 1 opens and closes the filter; KNOB 2 sets the resonance (manual §2).</div></li>
+      <li><div>Add the break: turn ALGORITHM to BREAK and press the sixteen white keys so the break plays the whole bar (manual §2).</div></li>
+      <li><div>Mute a part: press <kbd>PATCH</kbd> (HOME), then the mute for that part. The manual’s FM-1 wording is “black key 5” to mute the break. <span class="unv">UNVERIFIED on the SMK-37: which exact key is that mute. <span class="mono">SMK37.md</span> says pads and keys play, and PATCH is HOME, but does not restated this mute key.</span></div></li>
+      <li><div>Record a filter sweep: back to the 303-style part, EDIT, press <kbd>SEQ REC</kbd>, turn KNOB 1 for a bar or two, press REC again (manual §2).</div></li>
+      <li><div>Stop with <kbd>SEQ PLAY</kbd>, then save with <kbd>BT</kbd> (SAVE). Everything is kept when you switch off. The firmware also saves by itself a few seconds after you stop, if AUTOSAVE is on (manual §2 and §15).</div></li>
+    </ol>
+    <p>Next in the manual: section 9 for more patterns, section 12 for arranging them into a song.</p>
+
+    <h2 id="saving">Saving</h2>
+    <p>From the production manual, section 15. This is what “save” means on the instrument, not a website account.</p>
+    <ul>
+      <li>SAVE stores the sounds, all 32 patterns, the song, the knob motion, the tempo and the settings.</li>
+      <li>AUTOSAVE is on by default. After you stop and leave the controls for four seconds, it saves and says AUTOSAVED. Turn REC off for autosave.</li>
+      <li>It never saves while the pattern plays. SAVE then says SAVES WHEN STOPPED, and it saves when you stop.</li>
+      <li>If a save fails, the header says SAVE FAILED. The previous save is kept. If the project is too large: MEMORY FULL: NOT SAVED; clearing unused patterns makes room.</li>
+      <li>You lose unsaved changes when you switch off. Hold SAVE to see the current save state.</li>
+    </ul>
+
+    <h2 id="engines">The engines</h2>
+    <p>Names below are only those a cited source supports. The nightly SMK manual says the full playing manual is still being reconciled with the current build.</p>
+    <table>
+      <thead>
+        <tr><th>Name</th><th>What the sources say</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>909</td>
+          <td>In the published playing manual (§2, §5) and the production README. Confirmed on the emulator LCD used above (“909 SEQ”).</td>
+        </tr>
+        <tr>
+          <td>808</td>
+          <td>In the published playing manual (§5) and the production README. Eleven tracks, including the 808’s alternative instrument switches.</td>
+        </tr>
+        <tr>
+          <td>Break</td>
+          <td>In the published playing manual (§8) and the production README. A loop cut into slices and rearranged as it plays. Your own loops go in the sample slots; back those up before an install.</td>
+        </tr>
+        <tr>
+          <td>Chicago</td>
+          <td>The 303-style engine in the current preset format (DNPR research R1; format plan: “Chicago is the 303-style engine”). The published playing manual and README still say <strong>303A</strong> / “303 A and B.” This page uses both, and does not pretend the published manual already says Chicago.</td>
+        </tr>
+        <tr>
+          <td>Miami</td>
+          <td>A preset-format engine (DNPR research R1). The format plan states: Miami is not a 303 and must never be called 303 or 303B. It does not appear in the published playing manual. There is no tour for it on this page.</td>
+        </tr>
+        <tr>
+          <td>Juno, Drone</td>
+          <td>Preset-format engine identities (research R1; format plan ids 3 and 4). Not in the published playing manual or the READMEs. How to play them on the SMK-37 is <strong>UNVERIFIED</strong>. This page does not invent a tour.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="live">Get ready to play live</h2>
+    <p>From the production README and the playing manual, sections 15 and 16.</p>
+    <ul>
+      <li>Over USB the keyboard is a MIDI device and an audio interface, with no driver needed (production README).</li>
+      <li>In GLO: CLOCK OUT and NOTES OUT if you are driving or feeding a host; USB AUDIO FOLLOWS KNOB (default) or FULL if you want to record over the cable with the speaker down (manual §15).</li>
+      <li>SAVE still will not run while the pattern plays. On stage, press SAVE so it is armed, then stop when you can; it says SAVES WHEN STOPPED (manual §15). In clip mode it can also wait until the controls are quiet.</li>
+      <li>If a pattern is very busy, the firmware trades a little sound quality to keep playing rather than drop out (production README, “Hardware test status”). GLO &gt; PERFORMANCE shows the load. GUARD means that lightening is happening (manual §15).</li>
+    </ul>
+    <figure class="lcd">
+      <img src="assets/lcd-perf-done.png" width="720" height="720" alt="Emulator capture of the PERF screen: PERF TEST DONE, ALL FIVE 43.0 percent, WORST CASE 61.3 percent, GIT 94197FC8.">
+      <figcaption>Emulator capture, not hardware. Performance test finished, firmware label GIT 94197FC8. “ALL FIVE” is the five parts running together. This is a measurement screen from the emulator, not a claim about a physical keyboard.</figcaption>
+    </figure>
+    <p class="note">Bluetooth MIDI, and clip mode as an Akai APC40 mkII for Loopy Pro, are described in the production README as experimental and not hardware-verified. Bluetooth also needs a matching controller image that cannot be shipped with the public packages. They are not offered as features of a live set on this page.</p>
+    <p class="actions"><a class="btn-ghost btn" href="presets.html">Back up a sound as a file</a> <a class="btn-ghost btn" href="index.html">Back to the tasks</a></p>
+  </main>
+
+  <footer class="footer">
+    <p>This is a static prototype. Nothing here connects to a device or writes firmware.</p>
+    <p>Default MIDI note range of the SMK-37 keybed at power-on is UNVERIFIED. The official hardware manual gives a three-octave C-to-C span, not a MIDI number.</p>
+  </footer>
+</body>
+</html>

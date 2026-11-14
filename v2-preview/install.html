@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Install DnBOX</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-head">
+    <div class="inner">
+      <a class="wordmark" href="index.html">DnBOX</a>
+      <nav aria-label="Site">
+        <a href="first.html">First pattern</a>
+        <a href="install.html" aria-current="page">Install</a>
+        <a href="presets.html">Presets</a>
+        <a href="recover.html">Recover</a>
+      </nav>
+    </div>
+    <p class="truth-strip">DESIGN PREVIEW ONLY. No MIDI access is requested, no device is detected, and no firmware is written. All outcomes are simulated.</p>
+  </header>
+
+  <div class="stage-wrap">
+    <ol class="stage" id="stage" aria-label="Install stages">
+      <li data-stages="device">Device</li>
+      <li data-stages="version">Version</li>
+      <li data-stages="path">Path</li>
+      <li data-stages="permission">MIDI access</li>
+      <li data-stages="backup">Backup</li>
+      <li data-stages="writing">Writing</li>
+      <li data-stages="transfer">Transfer done</li>
+      <li data-stages="restart">Restart</li>
+      <li data-stages="boot">Boot check</li>
+    </ol>
+  </div>
+
+  <main id="content" class="wide">
+    <div class="card" id="card">
+
+      <!-- DEVICE -->
+      <section data-s="device">
+        <h1>Install DnBOX</h1>
+        <p>Choose the model printed on the keyboard. A USB or port name is not confirmation. The real installer also checks the connected device and stops if they do not match.</p>
+        <fieldset>
+          <legend>Which keyboard is this?</legend>
+          <label class="choice">
+            <input type="radio" name="model" value="elite">
+            <span><strong>SMK-37 Elite</strong>
+              <p class="why">Use the Elite package. Look at the name printed on the case, not the name the computer shows for the USB port.</p>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="model" value="pro">
+            <span><strong>SMK-37 Pro</strong>
+              <p class="why">Use the Pro package. Starrykey 37 Play uses this package too (production README).</p>
+            </span>
+          </label>
+        </fieldset>
+        <div class="callout">
+          <p>The nightly manual: “A connection name is not proof of the board model.” The live installer also notes that an Elite on some builds may report a Pro-like USB name — still use the printed name, and let the installer check. If they disagree, the write must not start.</p>
+        </div>
+        <div class="card-foot">
+          <p><a href="recover.html">If the device does not start</a></p>
+          <button type="button" class="btn" data-next="version" data-need="model">This is the printed name — continue</button>
+        </div>
+      </section>
+
+      <!-- VERSION -->
+      <section data-s="version" hidden>
+        <h1>Which package?</h1>
+        <p>0.0.25.1 is the recovery fallback. A 0.0.26 development candidate is available for deliberate testing, but is not a qualified stable release.</p>
+        <fieldset>
+          <legend>Package version</legend>
+          <label class="choice">
+            <input type="radio" name="ver" value="251" checked>
+            <span><strong>0.0.25.1 — known-good fallback</strong>
+              <span class="tag tag-ok">Known-good fallback</span>
+              <p class="why">The owner reports an Elite 0.0.25.1 install. This is the default recovery fallback; the exact installed package hash was not confirmed. This is not a full-function or Pro hardware qualification.</p>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="ver" value="026">
+            <span><strong>0.0.26 — development candidate</strong>
+              <span class="tag tag-warn">Elite boot reported, qualification incomplete</span>
+              <p class="why">The owner reports an SMK-37 Elite install, restart and boot of 0.0.26. The installed package hash was not confirmed. Pro installation, recovery and full musical operation are not qualified. Not a stable-release recommendation.</p>
+            </span>
+          </label>
+        </fieldset>
+        <p class="note">An earlier 0.0.26 build was withdrawn following stalled restarts. It is not offered. If it is on the device, <a href="recover.html">open recovery</a> instead of reinstalling it. <details class="help"><summary>Technical package identifiers</summary><p>Fallback source: <code>79280e76</code>; firmware display: <code>0.0.25</code>. Development source: <code>94197fc8</code>. Withdrawn build: <code>600b3b45</code>. These identify source/packages, not hardware observations.</p></details></p>
+        <div class="callout warn" id="ack026" hidden>
+          <h2>Confirm you have read the limits</h2>
+          <p>This development candidate has an owner-reported Elite boot, not an exact-package or Pro qualification. A completed transfer cannot prove a boot. Acknowledge this before continuing the simulation.</p>
+          <label><input type="checkbox" id="ack026box"> I understand that the development candidate is not fully qualified and has no confirmed Pro install.</label>
+        </div>
+        <div class="card-foot">
+          <button type="button" class="btn-ghost btn" data-next="device">Back</button>
+          <button type="button" class="btn" id="ver-next" data-next="path">Use this package</button>
+        </div>
+      </section>
+
+      <!-- PATH -->
+      <section data-s="path" hidden>
+        <h1>Choose your install route</h1>
+        <p>The documented browser route uses Chrome or Edge on a computer. Mobile routes must not be advertised as tested without an actual device and app result.</p>
+        <fieldset>
+          <legend>How will you install?</legend>
+          <label class="choice"><input type="radio" name="path" value="computer"><span><strong>Chrome or Edge on a computer</strong><p class="why">Documented route. USB cable and a deliberate browser MIDI permission prompt are required for a real install. This preview never requests permission.</p></span></label>
+          <label class="choice"><input type="radio" name="path" value="iphone"><span><strong>iPhone / third-party app</strong> <span class="tag tag-warn">UNVERIFIED route</span><p class="why">No verified app, OS, connection procedure or completed install is available in this evidence. This preview does not offer an installation path on iPhone.</p></span></label>
+        </fieldset>
+        <div class="card-foot"><button type="button" class="btn-ghost btn" data-next="version">Back</button><button type="button" class="btn" id="path-next" data-next="permission" data-need="path">Check the route</button></div>
+      </section>
+
+      <!-- PATH UNVERIFIED -->
+      <section data-s="path-unverified" hidden>
+        <h1>iPhone route not verified</h1>
+        <p><span class="tag tag-warn">No support claim</span> No device/app combination has been validated for this path. That is an evidence gap, not proof that every iPhone method is impossible.</p>
+        <p>Do not rely on this preview to flash over iPhone. Return to the documented computer route, or wait for Installer QA to publish tested, model-specific instructions.</p>
+        <div class="card-foot"><button type="button" class="btn" data-next="path">Choose the documented route</button><a href="recover.html">Recovery guidance</a></div>
+      </section>
+
+      <!-- PERMISSION -->
+      <section data-s="permission" hidden>
+        <p class="eyebrow">Before connection · simulated</p>
+        <h1>Allow browser MIDI access</h1>
+        <p>A real installer must request MIDI access in response to a user action. The browser may show a native permission prompt. Choose the DnBOX installer’s requested access only if you trust the site and recognize the device.</p>
+        <div class="callout"><strong>This is not a permission prompt.</strong> These buttons show possible outcomes. They do not invoke Web MIDI or check whether a keyboard exists.</div>
+        <div class="card-foot"><button type="button" class="btn-ghost btn" data-next="path">Back</button>
+          <div class="actions"><button type="button" class="btn" data-next="backup">Simulate permission granted</button><button type="button" class="btn-ghost btn" data-next="err-midi-denied">Simulate denied</button><button type="button" class="btn-ghost btn" data-next="err-midi-unavailable">Simulate unavailable</button><button type="button" class="btn-ghost btn" data-next="err-midi-device">Simulate no device</button></div>
+        </div>
+      </section>
+
+      <section data-s="err-midi-denied" hidden>
+        <h1>Browser MIDI permission denied</h1>
+        <p><span class="tag tag-bad">No transfer started</span> The browser rejected the request or the user declined. Do not attempt a write. Review site permissions and retry the explicit connection action in the real installer.</p>
+        <div class="card-foot"><button type="button" class="btn" data-next="permission">Retry the simulation</button><a href="recover.html">Recovery guidance</a></div>
+      </section>
+      <section data-s="err-midi-unavailable" hidden>
+        <h1>This browser cannot open MIDI</h1>
+        <p><span class="tag tag-bad">No transfer started</span> Web MIDI may be unavailable because of browser support, insecure context or policy. The real installer should provide the actual reason. Use its documented browser and secure URL.</p>
+        <div class="card-foot"><button type="button" class="btn" data-next="path">Choose another route</button></div>
+      </section>
+      <section data-s="err-midi-device" hidden>
+        <h1>No eligible keyboard was found</h1>
+        <p><span class="tag tag-bad">No transfer started</span> The user may have granted permission, but that does not prove a recognized model. Inspect USB connection and the printed case model; do not bypass the real installer's model check.</p>
+        <div class="card-foot"><button type="button" class="btn" data-next="permission">Retry the simulation</button></div>
+      </section>
+
+      <!-- BACKUP -->
+      <section data-s="backup" hidden>
+        <h1>Protect your samples</h1>
+        <p>Export sample slots and songs you want to keep before updating. The real installer can attempt a slot backup, but a failed backup must produce a <strong>warning, not a mandatory gate</strong>. Without a backup, personal data may be lost. This preview cannot save a file.</p>
+        <fieldset>
+          <legend>Simulate backup outcome</legend>
+          <label class="choice"><input type="radio" name="bak" value="done"><span><strong>Backup completed or already stored safely</strong><p class="why">Keep a copy of the real <code>.x0xslots</code> export independently of the device.</p></span></label>
+          <label class="choice"><input type="radio" name="bak" value="failed"><span><strong>Automatic backup failed</strong><p class="why">A visible, non-blocking warning offers retry or continuation; it must not pretend that samples are safe.</p></span></label>
+          <label class="choice"><input type="radio" name="bak" value="skipped"><span><strong>Proceed without a backup</strong><p class="why">Only after understanding that custom slots might be lost; the real installer's warning cannot silently disappear.</p></span></label>
+        </fieldset>
+        <div class="card-foot"><button type="button" class="btn-ghost btn" data-next="permission">Back</button><button type="button" class="btn" id="backup-next" data-next="backup-warning">Continue simulation</button></div>
+      </section>
+      <section data-s="backup-warning" hidden>
+        <h1>No verified sample-slot backup</h1>
+        <p><span class="tag tag-warn">WARNING · not a block</span> The backup was unavailable, failed, or was skipped. Your personal sample slots may be lost during a real update. The correct installer behavior is to warn and offer retry, but still allow a deliberate install.</p>
+        <p>The mandatory backup gate previously proposed in the review is intentionally not implemented. This is separate from overwriting a preset, which needs an existing-slot backup first.</p>
+        <div class="card-foot"><button type="button" class="btn-ghost btn" data-next="backup">Retry or change choice</button><button type="button" class="btn" data-next="writing">Continue without backup · simulated</button></div>
+      </section>
+
+      <!-- WRITING -->
+      <section data-s="writing" hidden>
+        <h1>Writing — simulated</h1>
+        <p><span class="tag tag-info">Prototype only</span> This page is not writing to a device. In a real write: keep the USB cable connected throughout writing, verification and restart. A dark display during a write can be normal. Do not switch the device off.</p>
+        <p id="write-summary" class="note"></p>
+        <div class="progress" role="img" aria-label="Simulated progress, not a real write"><span></span></div>
+        <p class="faint">Simulated. Nothing is being sent.</p>
+        <div class="card-foot">
+          <div class="actions" style="margin:0">
+            <button type="button" class="btn-ghost btn" data-next="err-usb">Simulate USB lost</button>
+            <button type="button" class="btn-ghost btn" data-next="err-stopped">Simulate a stopped write</button>
+            <button type="button" class="btn-danger btn" data-next="err-mismatch">Simulate a device mismatch</button>
+          </div>
+          <button type="button" class="btn" data-next="transfer">Simulate transfer completion</button>
+        </div>
+      </section>
+
+      <!-- TRANSFER -->
+      <section data-s="transfer" hidden>
+        <h1>Transfer completed. Boot unknown.</h1>
+        <p><span class="tag tag-info">Simulated transfer acknowledgement</span> The bytes may have been transferred, but that does <strong>not</strong> prove restart, firmware boot, sound output, or functionality.</p>
+        <p>Keep USB attached and observe the device. If it stops responding, use recovery. No real device was accessed here.</p>
+        <div class="card-foot"><a href="recover.html">Recovery notes</a><button type="button" class="btn" data-next="restart">Simulate restart observation</button></div>
+      </section>
+      <!-- RESTART -->
+      <section data-s="restart" hidden>
+        <h1>Waiting for boot confirmation</h1>
+        <p><span class="tag tag-warn">Outcome not confirmed</span> Restart and a functioning firmware boot are separate observations. Never call the installation ready based solely on a transfer receipt or an attempted restart.</p>
+        <div class="card-foot"><button type="button" class="btn-ghost btn" data-next="err-nostart">Simulate stalled / dark screen</button><button type="button" class="btn-ghost btn" data-next="transfer">No restart observed</button><button type="button" class="btn" data-next="boot">Simulate observed boot</button></div>
+      </section>
+      <!-- BOOT -->
+      <section data-s="boot" hidden>
+        <h1>Boot reported in this simulation</h1>
+        <p><span class="tag tag-ok">Simulated observation only</span> This is a mock boot confirmation selected by the visitor, not telemetry or proof of a real install. Full musical and hardware functionality has not been tested.</p>
+        <p>The owner separately reported Elite installation, restart and boot for 0.0.25.1 and 0.0.26. Exact installed package hash remains unconfirmed; no Pro or full-function qualification is implied.</p>
+        <div class="card-foot"><a href="recover.html">If your real device did not start</a><a class="btn" href="first.html">Learn your first pattern</a></div>
+      </section>
+
+      <!-- ERRORS -->
+      <section data-s="err-mismatch" hidden>
+        <h1>The connected device does not match this package</h1>
+        <p><span class="tag tag-bad">Write did not start</span> A USB or port name is not confirmation. The installer should stop here and not write.</p>
+        <p>Look at the name printed on the case. Choose the Elite or Pro package that matches that name, and let the installer check the connected device again.</p>
+        <div class="card-foot">
+          <a href="recover.html">If the device does not start</a>
+          <button type="button" class="btn" data-next="device">Choose the package again</button>
+        </div>
+      </section>
+
+      <section data-s="err-usb" hidden>
+        <h1>The USB connection was lost</h1>
+        <p><span class="tag tag-bad">Write stopped</span> This page cannot tell, from a still screen, whether the keyboard will start on its own after a stopped write.</p>
+        <p>Replug the same USB cable. Keep it connected. Finish the <strong>same</strong> package from update mode. A dark display can be normal — do not switch the device off. Do not install a different package to “rescue” a half-write.</p>
+        <div class="card-foot">
+          <a href="recover.html">Full recovery notes</a>
+          <button type="button" class="btn" data-next="writing">Simulate finishing the same package</button>
+        </div>
+      </section>
+
+      <section data-s="err-stopped" hidden>
+        <h1>The write stopped before it finished</h1>
+        <p><span class="tag tag-bad">Write stopped</span> This page cannot tell whether the keyboard will start on its own.</p>
+        <p>Replug, if needed, and finish the same package. Do not switch packages mid-repair. If the screen stays black, go to recovery: restore M-VAVE stock for this model, and keep the activity log, the package version, and the exact model.</p>
+        <div class="card-foot">
+          <a href="recover.html">Full recovery notes</a>
+          <button type="button" class="btn" data-next="writing">Simulate finishing the same package</button>
+        </div>
+      </section>
+
+      <section data-s="err-nostart" hidden>
+        <h1>The screen stayed dark, or Restarting did not end</h1>
+        <p><span class="tag tag-bad">Start not confirmed</span> This is not a successful install.</p>
+        <p>Retain the activity log, the selected package version, and the exact model. Restore M-VAVE stock firmware with the installer, or with M-UPGRADE and the stock package for this model. Do not use another device’s stock firmware. Do not reinstall withdrawn 0.0.26 at <span class="mono">600b3b45</span>.</p>
+        <div class="card-foot">
+          <a class="btn" href="recover.html">Open recovery</a>
+        </div>
+      </section>
+
+      <details class="help" id="help">
+        <summary>Help for this step</summary>
+        <div class="help-body" id="help-body"></div>
+      </details>
+    </div>
+
+    <p class="note"><a href="install.html#s=err-nostart">Show the “did not start” state</a> · <a href="recover.html">Recovery is also a page of its own</a>, reachable before you begin.</p>
+  </main>
+
+  <footer class="footer">
+    <p>DESIGN PREVIEW · all install, permission, transfer, restart and boot states are simulated. No real device detection or write occurs.</p>
+  </footer>
+  <script src="install.js"></script>
+</body>
+</html>
