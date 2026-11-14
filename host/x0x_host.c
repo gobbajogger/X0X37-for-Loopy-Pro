@@ -511,8 +511,8 @@ static double render_ns_total, render_budget_ns_total;
 /* instructions the kernel counted in engine_render (Felucca's tests/regress.c measure: the same
  * on every run, unlike wall time): per sample overall, and the worst block */
 static uint64_t ins_total, ins_frames, ins_block_max;
-/* the engine's stage timing (eng_prof, in plat_cycles() units: here nanoseconds), summed per block
- * while playing; printed with X0X_PROFILE=1 in the environment */
+/* eng_prof has shared 24 MHz TIMER4 elapsed ticks, not host nanoseconds
+ * or core-0 CPU cycles. Display conversion is in X0X_PROFILE below. */
 static uint64_t prof_tot[ENG_PROF_N];
 /* worst blocks while playing (wall ns), with the stage split, for X0X_PROFILE */
 static double blk_worst_ns[8]; static uint32_t blk_worst_ms[8]; static uint32_t blk_worst_pr[8][ENG_PROF_N]; static uint64_t blk_count;
@@ -1238,16 +1238,17 @@ int main(int argc, char **argv)
         int k;
         for (k = 0; k < ENG_PROF_N; k++)
             tot += prof_tot[k];
-        printf("profile (share of the render, ns per sample):");
+        printf("profile (stage elapsed shares, ns per sample at 24 MHz):");
         for (k = 0; k < ENG_PROF_N; k++)
             printf(" %s %.1f%% (%.1f)", N[k], tot ? 100.0 * (double)prof_tot[k] / (double)tot : 0.0,
-                   ins_frames ? (double)prof_tot[k] / (double)ins_frames : 0.0);
+                   ins_frames ? (double)prof_tot[k] * (1e9 / (double)ENG_PROF_TICKS_HZ) / (double)ins_frames : 0.0);
         printf("\n");
         printf("worst blocks (us; deadline %.0f us per 256 frames) of %llu:", 256.0 * 1e6 / 44100.0, (unsigned long long)blk_count);
         for (k = 0; k < 8 && blk_worst_ns[k] > 0; k++) {
             int q;
             printf("\n  %.1f at %u ms:", blk_worst_ns[k] / 1000.0, blk_worst_ms[k]);
-            for (q = 0; q < ENG_PROF_N; q++) printf(" %s %.1f", N[q], blk_worst_pr[k][q] / 1000.0);
+            for (q = 0; q < ENG_PROF_N; q++)
+                printf(" %s %.1f", N[q], (double)blk_worst_pr[k][q] * (1e6 / (double)ENG_PROF_TICKS_HZ));
         }
         printf("\n");
     }

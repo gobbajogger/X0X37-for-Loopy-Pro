@@ -179,9 +179,22 @@ int engine_bass_preset_gate(int voice);   /* the request's pattern, -1 none */
 #endif
 
 extern seq_t seq;                      /* the sequencer (its pattern pointer is the project's) */
-/* render stages (the PERF screen): 909, 808, 303 A, 303 B, BREAK, FX, MASTER, SEQ */
+/* PERF stages: 909, 808, 303 A, 303 B, BREAK, FX, MASTER, SEQ.
+ * Counter unit: elapsed ticks from shared TIMER4, 24 MHz on both cores.
+ * This is NOT a measured C1 cycle/instruction count or exclusive CPU load.
+ * Each stage is elapsed time inside its timed spans / one core's audio budget;
+ * overlapping C0+C1 spans may sum above 100%. LOAD/PEAK still measure the
+ * audio callback deadline, including core joins. eng_prof_wait separately
+ * counts C0's join elapsed ticks; it has no PERF screen row. */
+#define ENG_PROF_TICKS_HZ 24000000u
 enum { PR_909, PR_808, PR_303A, PR_303B, PR_BRK, PR_FX, PR_MST, PR_SEQ, ENG_PROF_N };
 extern volatile uint32_t eng_prof[ENG_PROF_N], eng_prof_frames;
+extern volatile uint32_t eng_prof_wait;
+#ifdef X0X_HOST
+void engine_prof_c1_credit(unsigned k, uint32_t ticks);
+uint32_t engine_prof_c1_peek(unsigned k);
+void engine_prof_c1_fold_now(int keep);
+#endif
 void engine_motion_enable(int on);                          /* off: lanes do not play (the PERF test) */
 void engine_smc_solo(uint8_t mask);                         /* runtime SMC solo mask; 0 = all parts audible */
 void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808); /* union of parts and drum tracks */

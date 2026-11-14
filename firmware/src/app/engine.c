@@ -23,11 +23,28 @@
 #define POOL X0X_POOL
 
 
-/* time per stage of the render, in plat_cycles() units (the CPU's cycles, or the 24 MHz timer):
- * running totals (wrapping; the PERF screen takes differences) and the frames rendered. */
+/* Per-stage elapsed execution spans, measured on BOTH cores against the SAME
+ * free-running 24 MHz TIMER4 (plat_ticks24). C0's CKCNTL (plat_cycles) is NOT
+ * a validated C1 cycle counter. These values are elapsed timer ticks, NOT CPU
+ * instruction counts or exclusive CPU utilization: overlapping C0/C1 spans may
+ * sum to more than one core's audio deadline. Waits are excluded where marked.
+ * Unsigned differences handle TIMER4's 32-bit rollover (~179 seconds).
+ * The UI divides every stage by ENG_PROF_TICKS_HZ / audio sample rate. */
 volatile uint32_t eng_prof[ENG_PROF_N], eng_prof_frames;
-#define PROF_T(v) uint32_t v = plat_cycles()
-#define PROF_ADD(k, t0) (eng_prof[k] += plat_cycles() - (t0))
+/* C0's join elapsed ticks; included in last_us / LOAD, not a PERF stage row. */
+volatile uint32_t eng_prof_wait;
+/* C1 writes only its private totals; C0 folds them after joining, or discards on
+ * failure before replaying that work on C0. Never co-write the same word. */
+static volatile uint32_t eng_prof_c1[ENG_PROF_N];
+#define PROF_T(v) uint32_t v = plat_ticks24()
+#define PROF_ADD(k, t0) (eng_prof[k] += plat_ticks24() - (t0))
+#define PROF_ADD_CORE(core, k, t0) do { \
+    uint32_t _dt = plat_ticks24() - (t0); \
+    if (!(core)) \
+        eng_prof[k] += _dt; \
+    else \
+        eng_prof_c1[k] += _dt; \
+} while (0)
 
 /* ---------------------------------------------------------------- state --- */
 seq_t seq;
@@ -2236,7 +2253,7 @@ static volatile uint32_t eng_fx_done;                  /* frames of FX visible t
 static float *eng_fx_ol, *eng_fx_or;
 static uint32_t eng_fx_n;
 static void c1_take_over(uint32_t s);
-static void d808_body_run(void);
+static void d808_body_run(int core);
 static void core2_fx(uint32_t arg);
 
 /* the second core still working: 1, done: 0, it failed: -1 (fm1: plat_fm1.c). One core: done. */
@@ -2299,15 +2316,17 @@ static int stage_wait(uint32_t s, int core)
 
 /* BD+SD into zeroed buses. Core 1 runs this at the start of the stretch; core 0
  * only if core 1 did not (it failed, or one core). */
-static void d808_body_run(void)
+static void d808_body_run(int core)
 {
     uint32_t arg = eng_job_arg, n = arg & 0xFFu ? arg & 0xFFu : 256u, i;
     uint32_t offset = (arg >> 20) & 0xFFu;
     float *left808 = t0 + offset, *right808 = tr + offset;
+    PROF_T(p8body);
     for (i = 0; i < n; i++)
         left808[i] = right808[i] = t1[i] = t2[i] = 0.0f;
     drum808_render_st_lanes(&d808, left808, right808, t1, t2, (int)n,
                             (uint16_t)(arg >> 9 & 0x7FFu), D8_LANES_BODY);
+    PROF_ADD_CORE(core, PR_808, p8body);         /* BD+SD belongs to 808, even when C1 renders it */
     eng_sync();
     eng_808_body = 1;
     eng_sync();
@@ -2339,13 +2358,13 @@ static int body_wait(int core)
                 (void)plat_cpu2_wait();
             }
             if (!eng_808_body)
-                d808_body_run();
+                d808_body_run(0);
             return eng_808_body ? 0 : 1;
         }
     }
 }
 
-/* one job, render and mix; core 1: not timed by the cycle counter (core 0's) */
+/* one job, render and mix; each core times its own work (C1 into eng_prof_c1) */
 static int run_job(int j, int core)
 {
     uint32_t arg = eng_job_arg, n = arg & 0xFFu ? arg & 0xFFu : 256u, i;
@@ -2374,8 +2393,7 @@ static int run_job(int j, int core)
             scale_glide(dly, &mix_glide[PART_909][GL_VDLY], n);
             kit_sends(PART_909, mono, n);
         }
-        if (!core)
-            PROF_ADD(PR_909, p9);
+        PROF_ADD_CORE(core, PR_909, p9);
         eng_sync();
         eng_stage = 1;
     } else if (j == JB_808) {
@@ -2389,12 +2407,16 @@ static int run_job(int j, int core)
                 float (*raw)[256] = (float (*)[256])(void *)&original_workspace;
                 uint16_t aud = (uint16_t)(arg >> 9 & 0x7FFu);
                 drum808_metal_prepare(&d808, raw, (int)n, aud);
+                PROF_ADD_CORE(core, PR_808, p8);
+                w0 = plat_ticks24();
                 if (body_wait(core)) {
                     eng_sync();
                     eng_808_metal_done = 1;
                     eng_sync();
                     return 0;
                 }
+                wt += plat_ticks24() - w0;
+                p8 = plat_ticks24();                    /* exclude C1 body wait from 808 work */
                 drum808_finish_rest(&d808, (const float (*)[256])raw, left808, right808, t1, t2,
                                     (int)n, aud);
                 bfx_shape(PART_808, left808, right808, t1, t2, 4, (int)n);
@@ -2411,13 +2433,14 @@ static int run_job(int j, int core)
             active = 0;
             drum808_pan_settle(&d808);
         }
+        PROF_ADD_CORE(core, PR_808, p8);         /* actual synth/pan/FX work, before 909 dependency */
         w0 = plat_ticks24();
         if (stage_wait(1, core))
             return 0;
-        wt = plat_ticks24() - w0;
+        wt += plat_ticks24() - w0;
+        p8 = plat_ticks24();                       /* separate actual mix work from stage wait */
         mix_808(left808, right808, n, solo_parts);
-        if (!core)
-            PROF_ADD(PR_808, p8);
+        PROF_ADD_CORE(core, PR_808, p8);
         eng_sync();
         eng_stage = 2;
     } else if (j == JB_A || j == JB_B) {
@@ -2443,8 +2466,8 @@ static int run_job(int j, int core)
         int status = original_runtime_render(&original_bass[bv], bv ? &original_workspace_b : &original_workspace,
                                              bb[bv], bb[1-bv], n);
         bass_adapt_post(bv, bb[bv], bb[1-bv], (unsigned)n);
-        if (!core)
-            PROF_ADD(2 + bv, pb);
+        PROF_ADD_CORE(core, 2 + bv, pb);
+        pb = plat_ticks24();                        /* post-DSP gain/FX is bass work, not idle 808 */
         bass_render_ok[bv] = (uint8_t)(status == ORIGINAL_RUNTIME_OK);   /* recorder: core 0, after */
         if (status == ORIGINAL_RUNTIME_OK) {
             /* One coherent request decision per sub-block. Once note ownership is
@@ -2495,10 +2518,12 @@ static int run_job(int j, int core)
             }
             bfx_shape(p, bb[bv], bb[1-bv], 0, 0, 2, (int)n);
         }
+        PROF_ADD_CORE(core, 2 + bv, pb);          /* post-DSP cost, before dependent-stage wait */
         w0 = plat_ticks24();
         if (stage_wait((uint32_t)(2 + bv), core))         /* A mixes after the 808, B after A */
             return 0;
         wt = plat_ticks24() - w0;
+        pb = plat_ticks24();
         if (status == ORIGINAL_RUNTIME_OK) {
             /* A part that was silent when Solo excluded it must not leak a new
              * note through the 10 ms mix glide-out: start its glides at zero.
@@ -2524,6 +2549,7 @@ static int run_job(int j, int core)
             add_glide(rev, bb[bv], &mix_glide[p][GL_REV], n);
             add_glide(dly, bb[bv], &mix_glide[p][GL_DLY], n);
         }
+        PROF_ADD_CORE(core, 2 + bv, pb);          /* actual bass mixing, excluding stage wait */
         eng_sync();
         eng_stage = (uint32_t)(3 + bv);
     } else {
@@ -2534,8 +2560,7 @@ static int run_job(int j, int core)
             bfx_shape(PART_BRK, kbuf, 0, 0, 0, 1, (int)n);
         else
             active = 0;
-        if (!core)
-            PROF_ADD(PR_BRK, pk);
+        PROF_ADD_CORE(core, PR_BRK, pk);
     }
     if (active)
         job_cost(j, plat_ticks24() - tk - wt, n);
@@ -2549,7 +2574,7 @@ static void core2_jobs(uint32_t arg)
     int j;
     (void)arg;
     if (eng_808_split && !eng_808_body)
-        d808_body_run();
+        d808_body_run(1);
     for (j = eng_c1_next; j < JB_N; j++) {
         if (!(eng_c1_mask & (1u << j)))
             continue;
@@ -2657,6 +2682,36 @@ static uint32_t plan_pick(uint32_t n)
     return eng_plan & act & ok;
 }
 
+
+/* After plat_cpu2_wait: C1 is idle. C0 folds C1's private totals into eng_prof,
+ * or discards them when C1 failed (takeover will count the rerun on C0). */
+static void prof_c1_fold(int keep)
+{
+    unsigned i;
+    eng_sync();
+    for (i = 0; i < (unsigned)ENG_PROF_N; i++) {
+        uint32_t d = eng_prof_c1[i];
+        eng_prof_c1[i] = 0;
+        if (keep)
+            eng_prof[i] += d;
+    }
+}
+#ifdef X0X_HOST
+void engine_prof_c1_credit(unsigned k, uint32_t ticks)
+{
+    if (k < (unsigned)ENG_PROF_N)
+        eng_prof_c1[k] += ticks;
+}
+uint32_t engine_prof_c1_peek(unsigned k)
+{
+    return k < (unsigned)ENG_PROF_N ? eng_prof_c1[k] : 0u;
+}
+void engine_prof_c1_fold_now(int keep)
+{
+    prof_c1_fold(keep);
+}
+#endif
+
 /* post-mix tail on both cores. L and R cannot be split: the reverb's four combs
  * and the HP are shared (the right is those combs with alternate signs, then its
  * own allpasses); the delay is one line (PING feeds the loop from the right tap);
@@ -2676,8 +2731,12 @@ static void core2_fx(uint32_t arg)
         uint32_t m = n - off;
         if (m > cs)
             m = cs;
-        fxbus_process_st(&fx, dry_l + off, dry_r + off, rev + off, dly + off,
-                         ol + off, orr + off, (int)m);
+        {
+            PROF_T(px);
+            fxbus_process_st(&fx, dry_l + off, dry_r + off, rev + off, dly + off,
+                             ol + off, orr + off, (int)m);
+            PROF_ADD_CORE(1, PR_FX, px);              /* C1 timer ticks; fold after FX join */
+        }
         off += m;
         eng_sync();
         eng_fx_done = off;
@@ -2733,14 +2792,19 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         if (!(eng_c1_mask & (1u << j)))
             (void)run_job(j, 0);
     if (eng_c1_mask) {
-        uint32_t pt = plat_cycles();
+        uint32_t pt = plat_ticks24();
+        int c1_fail = 0;
         if (!eng_c1_waited) {
             eng_c1_waited = 1;
-            if (plat_cpu2_wait())
+            if (plat_cpu2_wait()) {
                 eng_c1_waited = 2;
-        }
+                c1_fail = 1;
+            }
+        } else if (eng_c1_waited == 2)
+            c1_fail = 1;
+        eng_prof_wait += plat_ticks24() - pt;         /* join elapsed ticks; takeover is job work */
+        prof_c1_fold(!c1_fail);                       /* C0 adds C1's private totals */
         c1_take_over(JB_N + 1u);                      /* failed, or the host: the rest here */
-        PROF_ADD(PR_808, pt);                         /* core 0's wait for core 1 (as before) */
     }
 #if X0X_DEBUG
     eng_dbg_wait += plat_ticks24() - w0;              /* now: core 0's whole job span */
@@ -2749,6 +2813,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     for (j = 0; j < NBASS; j++)                       /* the recorder (shared with the sequencer): core 0 */
         if (bass_render_ok[j]) original_rec_recover_off(j);
     if (!brk_silent_now) {
+        PROF_T(pbrkmix);
         float g = mix_level[PART_BRK];
         mix_targets(PART_BRK, g, solo_parts);
         add_glide(dry_l, kbuf, &mix_glide[PART_BRK][GL_L], n);
@@ -2756,6 +2821,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         add_glide(rev, kbuf, &mix_glide[PART_BRK][GL_REV], n);
         add_glide(dly, kbuf, &mix_glide[PART_BRK][GL_DLY], n);
         meter(PART_BRK, kbuf, g, n);
+        PROF_ADD(PR_BRK, pbrkmix);              /* BREAK bus glides and metering are part work */
     }
     bfx_send_shape(0, rev, (int)n);
     bfx_send_shape(1, dly, (int)n);
@@ -2781,6 +2847,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         }
         (void)waited;
 #else
+        (void)first;
+        (void)pf;                                     /* first-chunk wall included the wait; C1 FX is folded below */
         eng_fx_ol = out_l;
         eng_fx_or = out_r;
         eng_fx_n = n;
@@ -2811,8 +2879,10 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
                     }
                     ready = eng_fx_done;
                     if (ready < n) {
+                        PROF_T(px);
                         fxbus_process_st(&fx, dry_l + ready, dry_r + ready, rev + ready, dly + ready,
                                          out_l + ready, out_r + ready, (int)(n - ready));
+                        PROF_ADD(PR_FX, px);
                         eng_sync();
                         eng_fx_done = n;
                         ready = n;
@@ -2820,7 +2890,6 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
                 } else
                     continue;
             }
-            if (first) { PROF_ADD(5, pf); first = 0; }
             bfx_flt_shape(out_l + done, out_r + done, (int)(ready - done));
             {
                 PROF_T(pt);
@@ -2831,6 +2900,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         }
         if (!waited)
             (void)plat_cpu2_wait();
+        prof_c1_fold(1);                              /* C1 FX work, after the FX join */
 #endif
         tape_after_fx();
         eng_master_done = 1;
