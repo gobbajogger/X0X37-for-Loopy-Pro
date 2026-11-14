@@ -137,7 +137,7 @@ static uint32_t upd_str(uint32_t c, const char *s)
 }
 
 /* Hash of factory tables via public APIs. Does not copy table bytes into a preset. */
-static uint32_t factory_table_crc(void)
+static uint32_t factory_table_crc(unsigned juno_count)
 {
     uint32_t c = 0xFFFFFFFFu;
     unsigned i, k;
@@ -167,8 +167,8 @@ static uint32_t factory_table_crc(void)
         c = x0x_crc32_upd(c, (const uint8_t *)p.target, (uint32_t)sizeof p.target);
         c = upd_u32(c, p.revision);
     }
-    c = upd_u32(c, PRESET_FACTORY_JUNO_N);
-    for (i = 0; i < PRESET_FACTORY_JUNO_N; i++) {
+    c = upd_u32(c, juno_count);
+    for (i = 0; i < juno_count; i++) {
         c = upd_str(c, original_sound_name(ORIGINAL_SOUND_JUNO, i));
         if (!original_sound_init(cell, ORIGINAL_SOUND_JUNO, i))
             return 0;
@@ -196,7 +196,7 @@ static uint32_t factory_table_crc(void)
     return ~c;
 }
 
-/* Pinned after the first host run on this source. */
+/* Keep the original four Juno identities pinned even when factories append. */
 #ifndef PRESET_FACTORY_TABLE_CRC
 #define PRESET_FACTORY_TABLE_CRC 0xd644a5f5u
 #endif
@@ -387,18 +387,27 @@ static void test_factory_stable(void)
            "miami count original");
     expect(PRESET_FACTORY_JUNO_N == ORIGINAL_JUNO_FACTORIES, "juno count");
     expect(PRESET_FACTORY_DRONE_N == ORIGINAL_DRONE_FACTORIES, "drone count");
-    expect(original_sound_factories(ORIGINAL_SOUND_JUNO) == 4u, "juno 4");
+    expect(ORIGINAL_JUNO_FACTORIES == 4u || ORIGINAL_JUNO_FACTORIES == 8u,
+           "known Juno bank profile");
+    expect(original_sound_factories(ORIGINAL_SOUND_JUNO) == ORIGINAL_JUNO_FACTORIES,
+           "juno count original");
     expect(original_sound_factories(ORIGINAL_SOUND_DRONE) == 4u, "drone 4");
     expect(FACTORY_CHICAGO_NPRESETS == 81, "chicago 81");
     expect(FACTORY_MIAMI_NPRESETS == 30, "miami 30");
-    got = factory_table_crc();
+    got = factory_table_crc(4u);
     printf("factory_table_crc=0x%08x\n", got);
     expect(got != 0, "factory hash nonzero");
 #if PRESET_FACTORY_TABLE_CRC
     expect(got == PRESET_FACTORY_TABLE_CRC, "factory table hash pinned");
 #endif
-    /* Juno/Drone append-only: indices 0-3 are in the hash. A change fails. */
-    expect(preset_record_factory_count(PRESET_ENGINE_JUNO) == 4u, "juno origin max 4");
+    /* The historical pin above still covers Juno/Drone indices 0-3. */
+    if (ORIGINAL_JUNO_FACTORIES == 8u) {
+        uint32_t full = factory_table_crc(8u);
+        printf("expanded_factory_table_crc=0x%08x\n", full);
+        expect(full == 0xf4c1b51eu, "expanded factory table hash pinned");
+    }
+    expect(preset_record_factory_count(PRESET_ENGINE_JUNO) == ORIGINAL_JUNO_FACTORIES,
+           "juno origin max matches bank");
     expect(preset_record_factory_count(PRESET_ENGINE_DRONE) == 4u, "drone origin max 4");
 }
 
@@ -416,7 +425,8 @@ static void test_project_files(void)
     expect(file_crc("tests/host/fixtures/bass_identity/project-v6-sound10.json") == 0xa26387a4u,
            "host fixture v6");
     expect(file_crc("firmware/src/app/factory_banks.c") == 0x500d1152u, "factory_banks.c");
-    expect(file_crc("firmware/src/app/original_sound.c") == 0x07ec7595u, "original_sound.c");
+    /* original_sound.c moved its Juno arrays into juno_stock_bank.h in J1.
+     * Pin actual bank names, cells and values above instead of the text file. */
     expect(file_crc("experiments/original_synth/chicago_program.c") == 0xccc1dcc2u,
            "chicago_program.c");
     expect(file_crc("experiments/original_synth/miami_program.c") == 0x95da36bdu,
@@ -599,11 +609,102 @@ static void test_origin_range(void)
     r.engine_id = PRESET_ENGINE_JUNO;
     r.original_engine = PRESET_ENGINE_JUNO;
     fill_params(&r);
-    r.factory_index = 5;
+    r.factory_index = (uint16_t)(ORIGINAL_JUNO_FACTORIES + 1u);
     expect_eq(preset_record_encode(buf, sizeof buf, &n, &r), PRESET_ERR_ORIGIN,
-              "juno origin 5 rejected (append not in this step)");
-    r.factory_index = 4;
-    expect_eq(preset_record_encode(buf, sizeof buf, &n, &r), PRESET_OK, "juno origin 4 ok");
+              "juno origin beyond bank rejected");
+    r.factory_index = (uint16_t)ORIGINAL_JUNO_FACTORIES;
+    expect_eq(preset_record_encode(buf, sizeof buf, &n, &r), PRESET_OK,
+              "last juno origin accepted");
+}
+
+static void test_juno_invalid_origin(unsigned index)
+{
+    preset_record_t r, out, snapshot;
+    uint8_t buf[PRESET_MAX_BYTES], guard[PRESET_MAX_BYTES];
+    uint32_t n = 0, written = 123u;
+
+    make_user(&r, PRESET_ENGINE_JUNO, "Bad origin");
+    r.factory_index = 1u;
+    expect_eq(preset_record_encode(buf, sizeof buf, &n, &r), PRESET_OK,
+              "juno malformed-origin fixture");
+    buf[22] = (uint8_t)index;
+    buf[23] = (uint8_t)(index >> 8);
+    rewrite_crc(buf, n);
+    memset(&out, 0xA5, sizeof out);
+    memcpy(&snapshot, &out, sizeof out);
+    expect_eq(preset_record_decode(&out, buf, n, PRESET_ENGINE_JUNO), PRESET_ERR_ORIGIN,
+              "juno invalid wire origin rejected");
+    expect(memcmp(&out, &snapshot, sizeof out) == 0,
+           "juno invalid decode preserves destination");
+    expect_eq(preset_record_import_file(&out, buf, n, PRESET_ENGINE_JUNO), PRESET_ERR_ORIGIN,
+              "juno invalid file origin rejected");
+    expect(memcmp(&out, &snapshot, sizeof out) == 0,
+           "juno invalid import preserves destination");
+
+    r.factory_index = (uint16_t)index;
+    memset(buf, 0xA5, sizeof buf);
+    memcpy(guard, buf, sizeof buf);
+    expect_eq(preset_record_encode(buf, sizeof buf, &written, &r), PRESET_ERR_ORIGIN,
+              "juno invalid record origin rejected");
+    expect(written == 123u && memcmp(buf, guard, sizeof buf) == 0,
+           "juno invalid encode preserves buffer and length");
+}
+
+static void test_juno_factory_origins(void)
+{
+    static const uint8_t origins[] = {
+        PRESET_ORIGIN_FACTORY, PRESET_ORIGIN_USER, PRESET_ORIGIN_IMPORTED
+    };
+    preset_record_t r, out;
+    uint8_t cell[ORIGINAL_SOUND_BYTES], buf[PRESET_MAX_BYTES], guard[PRESET_MAX_BYTES];
+    uint32_t n, written;
+    unsigned index, tag;
+    int rc;
+
+    for (index = 0; index < ORIGINAL_JUNO_FACTORIES; index++) {
+        expect(original_sound_init(cell, ORIGINAL_SOUND_JUNO, index),
+               "juno origin fixture bank entry exists");
+        expect(cell[30] == index, "juno bank index remains zero-based");
+        for (tag = 0; tag < sizeof origins / sizeof origins[0]; tag++) {
+            make_user(&r, PRESET_ENGINE_JUNO, original_sound_name(ORIGINAL_SOUND_JUNO, index));
+            r.origin_tag = origins[tag];
+            /* Synthetic codec fixture: a future runtime adapter must preserve
+             * this one-based provenance when capturing or editing the sound. */
+            r.factory_index = (uint16_t)(index + 1u);
+            r.params[0] ^= 1u;
+            preset_record_set_source(&r, "edited Juno");
+            n = 0;
+            rc = preset_record_encode(buf, sizeof buf, &n, &r);
+            expect_eq(rc, PRESET_OK, "juno supported origin encodes");
+            if (rc != PRESET_OK)
+                continue;
+            expect(buf[22] == index + 1u && buf[23] == 0u,
+                   "juno wire origin remains one-based");
+            expect_eq(preset_record_import_file(&out, buf, n, PRESET_ENGINE_JUNO), PRESET_OK,
+                      "juno supported origin imports");
+            expect(preset_record_equal(&r, &out),
+                   "juno edited record preserves provenance and parameters");
+            expect(preset_record_factory_derived(&out), "juno derived status retained");
+
+            memset(buf, 0xA5, sizeof buf);
+            memcpy(guard, buf, sizeof buf);
+            written = 123u;
+            rc = preset_record_export(buf, sizeof buf, &written, &out);
+#if DNBOX_FACTORY_PRESET_EXPORT
+            expect_eq(rc, PRESET_OK, "juno factory-derived export ON");
+            expect_eq(preset_record_import_file(&out, buf, written, PRESET_ENGINE_JUNO), PRESET_OK,
+                      "juno exported origin imports");
+            expect(preset_record_equal(&r, &out), "juno exported provenance unchanged");
+#else
+            expect_eq(rc, PRESET_ERR_EXPORT_FACTORY, "juno factory-derived export OFF");
+            expect(written == 123u && memcmp(buf, guard, sizeof buf) == 0,
+                   "juno blocked export preserves buffer and length");
+#endif
+        }
+    }
+    test_juno_invalid_origin(ORIGINAL_JUNO_FACTORIES + 1u);
+    if (ORIGINAL_JUNO_FACTORIES + 1u != 9u)
+        test_juno_invalid_origin(9u);
 }
 
 
@@ -1068,6 +1169,7 @@ int main(void)
     test_plugin_room();
     test_commit_undo();
     test_origin_range();
+    test_juno_factory_origins();
     test_golden_bytes();
     if (failures) {
         fprintf(stderr, "%d failure(s) in %d checks\n", failures, ran);
