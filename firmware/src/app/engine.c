@@ -123,9 +123,13 @@ unsigned engine_original_keys(int v, int latched)
 uint32_t engine_original_value_bits(int v, unsigned parameter)
 {
     if ((unsigned)v >= NBASS || parameter >= original_sound_count(original_bass[v].kind) ||
-        original_bass[v].status != ORIGINAL_RUNTIME_OK) return UINT32_MAX;
-    float value = original_bass[v].kind == ORIGINAL_SOUND_JUNO ? original_bass[v].dsp.juno.synth.macro[parameter] : original_bass[v].kind == ORIGINAL_SOUND_DRONE ?
-        original_bass[v].dsp.drone.macro[parameter] : original_bass[v].kind == ORIGINAL_SOUND_MIAMI ?
+        original_bass[v].status != ORIGINAL_RUNTIME_OK ||
+        !original_runtime_kind_available(original_bass[v].kind)) return UINT32_MAX;
+    float value = original_bass[v].kind == ORIGINAL_SOUND_JUNO ? original_bass[v].dsp.juno.synth.macro[parameter] :
+#if X0X_DRONE_RUNTIME_ENABLED
+        original_bass[v].kind == ORIGINAL_SOUND_DRONE ? original_bass[v].dsp.drone.macro[parameter] :
+#endif
+        original_bass[v].kind == ORIGINAL_SOUND_MIAMI ?
         original_bass[v].dsp.miami.program.macro[parameter] : original_bass[v].dsp.chicago.program.macro[parameter];
     uint32_t bits; __builtin_memcpy(&bits, &value, sizeof bits); return bits;
 }
@@ -1082,10 +1086,12 @@ int engine_bass_accent(int p) { return (unsigned)p < NBASS ? bass_accent[p] : 0;
 int engine_bass_slide(int p) { return (unsigned)p < NBASS ? bass_slide[p] : 0; }
 #endif
 
-/* The new slot kinds are polyphonic; Chicago/Miami preserve mono/unison.
- * This is intentionally dormant on the 25.1 base until those engines integrate. */
+/* Only admitted runtime kinds are polyphonic. Persisted unavailable kinds
+ * retain their identity without claiming a live held-chord/recorder path. */
 int seq_bass_poly(seq_t *s,int b)
-{ (void)s;return (unsigned)b<NBASS && original_bass[b].kind>=2 && original_bass[b].kind<=3; }
+{ (void)s;return (unsigned)b<NBASS && original_bass[b].status==ORIGINAL_RUNTIME_OK &&
+    original_runtime_kind_available(original_bass[b].kind) &&
+    original_bass[b].kind>=ORIGINAL_SOUND_DRONE && original_bass[b].kind<=ORIGINAL_SOUND_JUNO; }
 int seq_bass_chord_keys(seq_t *s,int b,uint8_t *notes)
 {
     (void)s;int n=0;
@@ -1118,7 +1124,6 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
     if ((unsigned)p >= NBASS) return 0;
     (void)x;
-    bass_adapt_flags(p, acc, sl);
     if (prob_skip(PART_303A + p, 0)) {
         (void)original_runtime_release_source(&original_bass[p], ORIGINAL_INPUT_SEQUENCE);
         original_seq_note[p] = -1;
@@ -1126,6 +1131,9 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
         return 0;
     }
     bass_onset(p);
+    if (original_bass[p].status != ORIGINAL_RUNTIME_OK ||
+        !original_runtime_kind_available(original_bass[p].kind) ||
+        (unsigned)note > 127u || velocity < 1 || velocity > 127) return 0;
     if(seq_bass_poly(&seq,p)) {
         (void)original_runtime_release_source(&original_bass[p],ORIGINAL_INPUT_SEQUENCE);
         original_seq_note[p]=-1;
@@ -1134,11 +1142,13 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
     if (!sl && previous >= 0)
         (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
     int rc = original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)note, (unsigned)velocity);
+    if (rc != ORIGINAL_RUNTIME_OK) return 0;
     if (sl && previous >= 0)
         (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
 
     original_seq_note[p] = (int16_t)note;
-    return rc == ORIGINAL_RUNTIME_OK;
+    bass_adapt_flags(p, acc, sl);
+    return 1;
 }
 static void s_boff(void *x, int p)
 {
@@ -1920,17 +1930,18 @@ static void drain(void)
         }
         else if ((type == C_BON || type == C_REC) && a < NBASS) {
             int slide = type == C_REC ? live_rec_legato((int)a, 3) && bass_held[a] != b : (int)((v >> 1) & 1u);
+            /* Runtime acceptance precedes recorder writes and live ownership.
+             * In particular, a retained unavailable archive is not a press. */
+            if (original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, (v >> 2) & 127u) != ORIGINAL_RUNTIME_OK)
+                continue;
 #ifdef X0X_HOST
             bass_attacked[a] = (uint8_t)!slide;
 #endif
-            int poly=seq_bass_poly(&seq,(int)a);
-            if(poly)(void)original_runtime_key(&original_bass[a],ORIGINAL_INPUT_KEYS,b,(v>>2)&127u);
             if (type == C_REC && rec_epoch == (seq.rec_epoch & 127u))
                 seq_rec_bass(&seq, (int)a, (int)b, (int)((v >> 2) & 127u), 1, 3,
                     ((v & 1u) ? BS_ACCENT : 0) | ((v & 512u) ? BS_SLIDE : 0) | (slide ? SEQ_REC_LEGATO : 0));
             v &= 511u; /* the outgoing manual-slide flag is recorder metadata only */
             bass_adapt_flags((int)a, (int)(v & 1u), slide);
-            if(!poly)(void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, v >> 2);
             bass_held[a] = (uint8_t)b;
             bass_held_count[a] = 1; bass_held_src[a] = 3;
             src_held[0] &= (uint16_t)~(1u << a); src_held[1] &= (uint16_t)~(1u << a); src_held[2] &= (uint16_t)~(1u << a);
