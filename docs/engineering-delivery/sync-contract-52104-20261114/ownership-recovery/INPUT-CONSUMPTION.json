@@ -1,0 +1,38 @@
+{
+  "request_id": "DNBOX-52-104-CONTRACT-20261114",
+  "stage": "read-only ownership/input recovery",
+  "input_commit": "fde38845e7474fffae24ae835907d7ca9197b589",
+  "consumer": "currently executing delegated recovery stage; not the incumbent protocol owner",
+  "first_read_timestamp": null,
+  "first_read_timestamp_note": "The first Git read did not include a timestamp and none was separately captured; do not infer an exact time.",
+  "verification_observed_at": "2026-11-14 06:36:02 UTC",
+  "receipt_recorded_at": "2026-11-14 06:37:51 UTC",
+  "files_actually_read": [
+    {
+      "path": "experiments/sync-contract-52104-20261114/HANDOFF.md",
+      "git_blob": "adcc5448d153770cfa4f962c481bdc314ef4abeb"
+    },
+    {
+      "path": "experiments/sync-contract-52104-20261114/PROTOCOL.md",
+      "git_blob": "4827515858255185aeb74bff55624ceee76b0d73",
+      "sha256": "27205e21bdccb48ed0125eb3264c2a722693939ddbef741705bf8ac15c331dbd"
+    },
+    {
+      "path": "experiments/sync-contract-52104-20261114/inputs.json",
+      "git_blob": "d5592fd5db17bfe71067b962ab6da6f9adba34c1",
+      "sha256": "376ea9065d3e43322422790f8286e8c1cbfaa1b2cc1faeb0fdd86a0b63fe35b4"
+    },
+    {
+      "path": "experiments/sync-contract-52104-20261114/evidence/results.json",
+      "git_blob": "f148b083c832f30f1db7150862d9c2b53e419f8b"
+    },
+    {
+      "path": "experiments/sync-contract-52104-20261114/model.py",
+      "git_blob": "276ae6ecf226b78922285156d1880c6b3c748c8b",
+      "sha256": "18851a2b3a6d3579b3eb7c90a231cee47be97d15af26429bfe91ed1bb517f973"
+    }
+  ],
+  "first_substantive_finding": "Manifest explicitly records protocol_owner_thread=null, current_stream16_sha=null and boundary_acceptance=NOT_ESTABLISHED; HANDOFF says current editor.c and protocol owner remain unverified. Pattern-owner identity is retained, not reassigned.",
+  "first_scoped_action": "Read the four specified files at the exact delivered commit, extract owner/input uncertainties and test evidence, then recover through authorized Git/history readers. No tests repeated.",
+  "incumbent_consumption": "UNKNOWN; this recovery stage receipt is not protocol-owner acceptance."
+}

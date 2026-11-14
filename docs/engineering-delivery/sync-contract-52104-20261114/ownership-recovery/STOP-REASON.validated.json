@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "DNBOX-52-104-CONTRACT-20261114",
+  "run_id": "read-only-recovery-20261114-no-platform-run-id-exposed",
+  "request_stage": "Current protocol-owner and unpublished input recovery after prototype delivery",
+  "input_identity": "gobbajogger/X0X37-for-Loopy-Pro@fde38845e7474fffae24ae835907d7ca9197b589; model SHA-256 18851a2b3a6d3579b3eb7c90a231cee47be97d15af26429bfe91ed1bb517f973; final proposal SHA-256 27205e21bdccb48ed0125eb3264c2a722693939ddbef741705bf8ac15c331dbd",
+  "operation": "Verify the actual incumbent protocol owner, exact current editor.c/unpublished stream16 input, absence of an overlapping writer and incumbent input consumption before boundary-review handoff",
+  "reason_code": "MISSING_REQUIREMENT",
+  "cause_known": true,
+  "reason": "Authorized Git/history reads did not supply a current protocol-owner identity or exact unpublished stream16 input. Pinned documents name only the firmware/protocol role. No supported cloud-thread reader is exposed in this executor; the parent-reported CloudThreadNotFound is not proof of abandonment.",
+  "evidence": [
+    "inputs.json explicitly records protocol_owner_thread=null, current_stream16_sha=null and boundary_acceptance=NOT_ESTABLISHED.",
+    "Trusted user room handoff Sentinel_fc05aab4b50c81918c545fd6ae270afa retains FMB pattern thread 6af72638-bff4-83ea-8cc3-75336d14afba and source 94197fc8, without identifying the current protocol owner.",
+    "Published main@035026fe70059af35e25c7c121b40f318b732fe3 editor blob fc9fc24ccbd8d5dd77f40a5d29d01b38b01ffa8a differs from prototype-input blob 83877daf4bbb111865ad3abf15d00698031870d5; neither pins unpublished stream16.",
+    "Current coordination/merge-queue GET returned GitHub API 404. Bounded history/Git searches and exact prior backup reuse did not provide a current owner/input receipt. Personal Context is unavailable.",
+    "All four original input Git blobs and exact model/final proposal SHA-256 values were verified; completed predecessor tests were not rerun."
+  ],
+  "recovery_result": "Consumed the exact four handoff artifacts; verified their input closure and model hash; recovered trusted historical pattern ownership and current published main source; exhausted relevant bounded Git/history searches and retained unknown incumbent status. Wrote six-question local evidence packet and actual input-consumption receipt. No denied action retried.",
+  "owner": "Existing parent coordinator thread 01a1af1b-2207-7017-b4fb-4e7f6c2c90ea retains recovery routing; existing FMB pattern and #7 owners retain their scopes. Actual protocol-owner identity remains unverified.",
+  "next_action": "Use a supported authorized owner-thread/history source to obtain an authentic timestamped protocol-owner/scope and no-duplicate-writer receipt, current full source pin/editor blob and exact stream16 bytes/hash or incumbent statement that no unpublished input applies; then observe a scoped action consuming the exact proposal/model and six questions.",
+  "resume_condition": "Materially new authentic owner/input evidence verifies the incumbent and exact inputs; fresh boundary-review handoff additionally requires no duplicate writer and observed scoped consumption. Do not repeat unchanged searches or tests.",
+  "independent_work": "The bounded read-only packet, exact-byte identity checks, published-source comparison and first input-consumption receipt are complete. Shared firmware/DeviceSync/ROADMAP implementation, device operations, publication, merge, PR creation and browser lookup are outside this stage.",
+  "user_action": "none",
+  "user_action_detail": "No human approval decision is required for this completed bounded read-only stage. The existing coordinator needs the specified authentic owner/input receipt, not permission to bypass predecessor denials."
+}
