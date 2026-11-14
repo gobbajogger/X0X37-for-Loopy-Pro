@@ -1,0 +1,24 @@
+{
+  "purpose": "Control-ID source reference for bounded fresh review; no exact WASM rebuild claim",
+  "upstreamCommit": "c7e47c4fcbdaafb4beffa40493da1b2b07ffa263",
+  "sourceDomain": "github.com/joakimeriksson/fm1-emu",
+  "paths": [
+    {
+      "source": "crates/fm1-soc/src/smk.rs",
+      "local": "crates_fm1-soc_src_smk.rs",
+      "sha": "772e1a54b7e865516d4da9e5f4e656bb1e0febab"
+    },
+    {
+      "source": "crates/fm1-web/src/lib.rs",
+      "local": "crates_fm1-web_src_lib.rs",
+      "sha": "8f50b167115924a723f69d64b2baa83ee9312729"
+    },
+    {
+      "source": "crates/fm1-live/src/panel_smk.rs",
+      "local": "crates_fm1-live_src_panel_smk.rs",
+      "sha": "c69573197a19a0ae1f7b2877eafcdfbd15e2bc9a"
+    }
+  ],
+  "sourceVerification": "Read through connectedGit fetch from immutable official upstream; retained original bytes. Existing localWASM4fe2 is historical runtime and exact rebuild lineage unestablished.",
+  "license": "UpstreamMIT. Original notices retained; no external redistribution performed."
+}

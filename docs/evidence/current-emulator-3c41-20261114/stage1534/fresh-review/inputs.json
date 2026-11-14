@@ -1,0 +1,27 @@
+[
+  {
+    "path": "mockups921/DnBOX-whole-instrument-WIP-a8986ac2.html",
+    "bytes": 2313065,
+    "sha256": "98f1f7e18e8760a54d6272bc6291b8221799deb5a3c531c5bcb3cb7f53b36e1f"
+  },
+  {
+    "path": "stage1444/native-3c41/artifacts/DnBOX-0.0.26-BUILD_ONLY-3c41ef4b-elite.fwsc",
+    "bytes": 651732,
+    "sha256": "62a35cb1883cc24dbe3149f37583d154ea212dbddfa5afced536b8c5eb895eb2"
+  },
+  {
+    "path": "stage1444/native-3c41/artifacts/DnBOX-0.0.26-BUILD_ONLY-3c41ef4b-pro.fwsc",
+    "bytes": 651730,
+    "sha256": "c38bff0a661e8b4aaaf6b16b153e4ff9ad34fe5e32c4daa5f043db6818ea72e0"
+  },
+  {
+    "path": "emulator-web-poc/audio/fm1_web.wasm",
+    "bytes": 3390407,
+    "sha256": "4fe2aa05511c32d6e230afa8f4027323df41e358d1922ae8a44f47e2b0d5fd14"
+  },
+  {
+    "path": "emulator-web-poc/audio/worklet.js",
+    "bytes": 13777,
+    "sha256": "d2e950a8e721877480389d2707886b0c376587f5dd9c8f841413f457f5d7799c"
+  }
+]

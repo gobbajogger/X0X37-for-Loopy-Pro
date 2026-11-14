@@ -1,0 +1,225 @@
+{
+  "node": "v24.22.1",
+  "valid": true,
+  "imports": [
+    {
+      "module": "env",
+      "name": "fm1_jit_compile",
+      "kind": "function"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory"
+    },
+    {
+      "name": "fm1_ahead",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_alloc",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_analog",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_bench_script",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_board",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_boot",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_boot_fwsc",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_cpu1_fault",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_cpu1_survives",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_enc",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_flash",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_flash_base",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_flash_busy",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_flash_len",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_flash_restore",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_flash_revision",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_halted",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_idle_ms",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_jit",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_jit_selftest",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_jit_selftest_detail",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_key",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_lcd",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_lcd_revision",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_lcd_timed",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_leds",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_load_syx",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_midi",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_minsns",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_ms",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_out_l",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_out_r",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_pads",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_pot",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_profile",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_profile_report",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_render",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_velocity",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_xip",
+      "kind": "function"
+    },
+    {
+      "name": "fm1_xip_len",
+      "kind": "function"
+    },
+    {
+      "name": "panel_board",
+      "kind": "function"
+    },
+    {
+      "name": "panel_draw",
+      "kind": "function"
+    },
+    {
+      "name": "panel_enc_id",
+      "kind": "function"
+    },
+    {
+      "name": "panel_height",
+      "kind": "function"
+    },
+    {
+      "name": "panel_hit",
+      "kind": "function"
+    },
+    {
+      "name": "panel_hit_y",
+      "kind": "function"
+    },
+    {
+      "name": "panel_lcd",
+      "kind": "function"
+    },
+    {
+      "name": "panel_leds",
+      "kind": "function"
+    },
+    {
+      "name": "panel_set",
+      "kind": "function"
+    },
+    {
+      "name": "panel_slide",
+      "kind": "function"
+    },
+    {
+      "name": "panel_width",
+      "kind": "function"
+    },
+    {
+      "name": "__indirect_function_table",
+      "kind": "table"
+    }
+  ]
+}

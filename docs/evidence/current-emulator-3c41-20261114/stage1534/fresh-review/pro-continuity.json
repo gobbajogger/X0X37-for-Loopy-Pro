@@ -1,0 +1,3241 @@
+{
+  "model": "pro",
+  "tag": "continuity",
+  "node": "v24.22.1",
+  "packageSha256": "c38bff0a661e8b4aaaf6b16b153e4ff9ad34fe5e32c4daa5f043db6818ea72e0",
+  "wasmSha256": "4fe2aa05511c32d6e230afa8f4027323df41e358d1922ae8a44f47e2b0d5fd14",
+  "workletSha256": "d2e950a8e721877480389d2707886b0c376587f5dd9c8f841413f457f5d7799c",
+  "board": 1,
+  "wallMs": 5167.120588,
+  "quanta": 3588,
+  "end": {
+    "ms": 10933,
+    "halted": 0,
+    "lcdRevision": 271385,
+    "short": 13,
+    "cpu1Fault": 0,
+    "held": []
+  },
+  "jit": {
+    "regions": 2193,
+    "failed": 0,
+    "error": "",
+    "bytes": 3187228,
+    "tableSlots": 2412,
+    "compileMs": 211.85819100001623,
+    "compileMaxMs": 2.5569319999999607
+  },
+  "messages": [
+    {
+      "type": "booted",
+      "board": 1,
+      "revision": 0
+    }
+  ],
+  "frames": [
+    {
+      "ms": 240,
+      "halted": 0,
+      "playing": false,
+      "short": 12,
+      "lcdChanged": true
+    },
+    {
+      "ms": 592,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 628,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 664,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 699,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 733,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 768,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 802,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 837,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 871,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 908,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 943,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 976,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1010,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 1045,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 1079,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1115,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 1149,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 1185,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 1219,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 1254,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 1289,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1323,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1359,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1393,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1428,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1463,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1497,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1533,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1567,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1602,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1637,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1671,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1707,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1742,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1776,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1811,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1845,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1880,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1916,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1950,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 1985,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2020,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2055,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2090,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2125,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2159,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2194,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2229,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2264,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2298,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2333,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2368,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2403,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 2438,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 2473,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2507,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2542,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2577,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2611,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2647,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2682,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2716,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 2751,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 2786,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 2821,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 2856,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2890,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 2925,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 2960,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 2995,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3029,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3064,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3099,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3134,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3169,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3203,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3239,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3274,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3308,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3343,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3378,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3413,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3447,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3482,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3517,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3552,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3586,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3622,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3657,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3691,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3726,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3760,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 3795,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3831,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3866,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3900,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3935,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 3969,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4005,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4040,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4074,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4109,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4144,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4178,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 4213,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 4248,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 4283,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4317,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4353,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4388,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4422,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4457,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4492,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4527,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4562,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4596,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4631,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4666,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4700,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4736,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4770,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4805,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4840,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4875,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4910,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4944,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 4979,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5014,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5048,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5083,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5119,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5153,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5188,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5223,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5258,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5293,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5327,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5362,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5397,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5432,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5466,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5501,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 5537,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 5572,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 5606,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5641,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 5676,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 5710,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5745,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 5780,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5815,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 5850,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5885,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5919,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 5954,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 5989,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6023,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6059,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6093,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6129,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6163,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6198,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6232,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6268,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6302,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6337,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6372,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6407,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6442,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6477,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6511,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6546,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6580,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6616,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6650,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6685,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6720,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6755,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6790,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6824,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6859,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6894,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6929,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 6964,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 6998,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7033,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7068,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7103,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7138,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7173,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7207,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7242,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7277,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7312,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7347,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7381,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7417,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7451,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7486,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7521,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7555,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7591,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7625,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7660,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7695,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7730,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7764,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7799,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 7834,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7869,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7904,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7939,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 7973,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 8008,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 8043,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 8078,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8112,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8148,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8183,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8217,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8252,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8287,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8322,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8357,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8391,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8426,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8461,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8496,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8530,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8565,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8601,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8635,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8670,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8705,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8739,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8774,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8809,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8844,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8879,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8913,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8948,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 8983,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9018,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9053,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9087,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9122,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9157,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9192,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9226,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 9262,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 9297,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9332,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9366,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9401,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9436,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9470,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9505,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9540,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9575,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9610,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9645,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9680,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9715,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9749,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9784,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9819,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9854,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9888,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9923,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9958,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 9992,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10028,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 10062,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 10097,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10132,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10167,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10202,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10236,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10271,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10306,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": true
+    },
+    {
+      "ms": 10341,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10376,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10410,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10445,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10481,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10515,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10550,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10584,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10620,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10654,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10689,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10724,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10759,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10794,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10828,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10863,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10898,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    },
+    {
+      "ms": 10933,
+      "halted": 0,
+      "playing": true,
+      "short": 13,
+      "lcdChanged": false
+    }
+  ],
+  "actions": [
+    {
+      "action": {
+        "type": "enc",
+        "enc": 2,
+        "count": 4,
+        "clicks": 1,
+        "capture": "01-chicago-b"
+      },
+      "before": {
+        "ms": 2502,
+        "halted": 0,
+        "lcdRevision": 106428,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 3224,
+        "halted": 0,
+        "lcdRevision": 167671,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 63744,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 50,
+        "capture": "02-sound"
+      },
+      "before": {
+        "ms": 3224,
+        "halted": 0,
+        "lcdRevision": 167671,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 3627,
+        "halted": 0,
+        "lcdRevision": 208838,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35584,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 53,
+        "capture": "03-running-empty"
+      },
+      "before": {
+        "ms": 3627,
+        "halted": 0,
+        "lcdRevision": 208838,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 4028,
+        "halted": 0,
+        "lcdRevision": 210671,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "key",
+        "id": 17,
+        "down": true,
+        "ms": 1200,
+        "capture": "04-f4-running-held"
+      },
+      "before": {
+        "ms": 4028,
+        "halted": 0,
+        "lcdRevision": 210671,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 5228,
+        "halted": 0,
+        "lcdRevision": 210826,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "audio": {
+        "samples": 105984,
+        "nonzero": 97044,
+        "sumSq": 567.1009645666927,
+        "max": 0.12078857421875,
+        "rms": 0.07314927730430186
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 47,
+        "capture": "05-global-f4-held"
+      },
+      "before": {
+        "ms": 5228,
+        "halted": 0,
+        "lcdRevision": 210826,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "after": {
+        "ms": 5629,
+        "halted": 0,
+        "lcdRevision": 237041,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 24884,
+        "sumSq": 141.52134910039604,
+        "max": 0.098602294921875,
+        "rms": 0.06329238397319463
+      }
+    },
+    {
+      "action": {
+        "type": "wait",
+        "ms": 2000,
+        "capture": "06-global-stable-f4-held"
+      },
+      "before": {
+        "ms": 5629,
+        "halted": 0,
+        "lcdRevision": 237041,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "after": {
+        "ms": 7631,
+        "halted": 0,
+        "lcdRevision": 241572,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "audio": {
+        "samples": 176640,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 47,
+        "capture": "07-exit-f4-held"
+      },
+      "before": {
+        "ms": 7631,
+        "halted": 0,
+        "lcdRevision": 241572,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "after": {
+        "ms": 8032,
+        "halted": 0,
+        "lcdRevision": 271086,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "wait",
+        "ms": 600,
+        "capture": "08-exit-stable-f4-held"
+      },
+      "before": {
+        "ms": 8032,
+        "halted": 0,
+        "lcdRevision": 271086,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "after": {
+        "ms": 8632,
+        "halted": 0,
+        "lcdRevision": 271086,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "audio": {
+        "samples": 52992,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "key",
+        "id": 17,
+        "down": false,
+        "ms": 400,
+        "capture": "09-released"
+      },
+      "before": {
+        "ms": 8632,
+        "halted": 0,
+        "lcdRevision": 271086,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "after": {
+        "ms": 9032,
+        "halted": 0,
+        "lcdRevision": 271086,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    },
+    {
+      "action": {
+        "type": "key",
+        "id": 17,
+        "down": true,
+        "ms": 800,
+        "capture": "10-fresh-f4"
+      },
+      "before": {
+        "ms": 9032,
+        "halted": 0,
+        "lcdRevision": 271086,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 9833,
+        "halted": 0,
+        "lcdRevision": 271208,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "audio": {
+        "samples": 70656,
+        "nonzero": 60050,
+        "sumSq": 354.3738466389477,
+        "max": 0.121063232421875,
+        "rms": 0.0708200628259514
+      }
+    },
+    {
+      "action": {
+        "type": "key",
+        "id": 17,
+        "down": false,
+        "ms": 400
+      },
+      "before": {
+        "ms": 9833,
+        "halted": 0,
+        "lcdRevision": 271208,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": [
+          17
+        ]
+      },
+      "after": {
+        "ms": 10233,
+        "halted": 0,
+        "lcdRevision": 271330,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 11844,
+        "sumSq": 67.35464084893465,
+        "max": 0.098602294921875,
+        "rms": 0.04366407220549077
+      }
+    },
+    {
+      "action": {
+        "type": "tap",
+        "id": 53,
+        "capture": "11-stop"
+      },
+      "before": {
+        "ms": 10233,
+        "halted": 0,
+        "lcdRevision": 271330,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "after": {
+        "ms": 10633,
+        "halted": 0,
+        "lcdRevision": 271385,
+        "short": 13,
+        "cpu1Fault": 0,
+        "held": []
+      },
+      "audio": {
+        "samples": 35328,
+        "nonzero": 0,
+        "sumSq": 0,
+        "max": 0,
+        "rms": 0
+      }
+    }
+  ],
+  "captures": [
+    {
+      "name": "00-boot",
+      "stem": "pro-continuity-00-boot",
+      "sha256": "b3b9109427b09fc4ef66ee6389eb43e0bcb0c391c9e5522ac4c620f02d2cc4f3",
+      "ms": 2502,
+      "halted": 0,
+      "lcdRevision": 106428,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "01-chicago-b",
+      "stem": "pro-continuity-01-chicago-b",
+      "sha256": "4095b719655733f1b00a6de9c6bef32c58a26a90e04ba486954fe14dc6721b8a",
+      "ms": 3224,
+      "halted": 0,
+      "lcdRevision": 167671,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "02-sound",
+      "stem": "pro-continuity-02-sound",
+      "sha256": "e3ee67d88c5030f4786783f8ccdbcb928a8250522305781daa48ea8b11963e33",
+      "ms": 3627,
+      "halted": 0,
+      "lcdRevision": 208838,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "03-running-empty",
+      "stem": "pro-continuity-03-running-empty",
+      "sha256": "e3351102d3cc35c8f2af55bf546ff6f4bfb2bf1e5c5c32e701b559fc377a7e98",
+      "ms": 4028,
+      "halted": 0,
+      "lcdRevision": 210671,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "04-f4-running-held",
+      "stem": "pro-continuity-04-f4-running-held",
+      "sha256": "dd95c0bdffaabe8452a4d6e05ed65d215ee454cd9126b90966f4e650233f88f3",
+      "ms": 5228,
+      "halted": 0,
+      "lcdRevision": 210826,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [
+        17
+      ],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "05-global-f4-held",
+      "stem": "pro-continuity-05-global-f4-held",
+      "sha256": "698c603804c01a6513e5b6baf2c591b0a8ac77ce612c77233134fb1370c4fb3d",
+      "ms": 5629,
+      "halted": 0,
+      "lcdRevision": 237041,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [
+        17
+      ],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "06-global-stable-f4-held",
+      "stem": "pro-continuity-06-global-stable-f4-held",
+      "sha256": "794931d64f5f146327af1579e2f8e7c41afc6e0387fb9e32ee8f1463d503b63a",
+      "ms": 7631,
+      "halted": 0,
+      "lcdRevision": 241572,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [
+        17
+      ],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "07-exit-f4-held",
+      "stem": "pro-continuity-07-exit-f4-held",
+      "sha256": "46bb1d67a9c9e9fdd8556b7caab0a8f305d6d8c27412b6d0d46a08a83318c341",
+      "ms": 8032,
+      "halted": 0,
+      "lcdRevision": 271086,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [
+        17
+      ],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "08-exit-stable-f4-held",
+      "stem": "pro-continuity-08-exit-stable-f4-held",
+      "sha256": "46bb1d67a9c9e9fdd8556b7caab0a8f305d6d8c27412b6d0d46a08a83318c341",
+      "ms": 8632,
+      "halted": 0,
+      "lcdRevision": 271086,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [
+        17
+      ],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "09-released",
+      "stem": "pro-continuity-09-released",
+      "sha256": "46bb1d67a9c9e9fdd8556b7caab0a8f305d6d8c27412b6d0d46a08a83318c341",
+      "ms": 9032,
+      "halted": 0,
+      "lcdRevision": 271086,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0.5517241358757019,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "10-fresh-f4",
+      "stem": "pro-continuity-10-fresh-f4",
+      "sha256": "dd95c0bdffaabe8452a4d6e05ed65d215ee454cd9126b90966f4e650233f88f3",
+      "ms": 9833,
+      "halted": 0,
+      "lcdRevision": 271208,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [
+        17
+      ],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "11-stop",
+      "stem": "pro-continuity-11-stop",
+      "sha256": "361ed28778a00d03670ab0ea595f8e5d07becd1cb1c9d43aff9bbd6420f216d0",
+      "ms": 10633,
+      "halted": 0,
+      "lcdRevision": 271385,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "zz-released",
+      "stem": "pro-continuity-zz-released",
+      "sha256": "361ed28778a00d03670ab0ea595f8e5d07becd1cb1c9d43aff9bbd6420f216d0",
+      "ms": 10933,
+      "halted": 0,
+      "lcdRevision": 271385,
+      "short": 13,
+      "cpu1Fault": 0,
+      "held": [],
+      "leds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

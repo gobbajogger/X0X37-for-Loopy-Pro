@@ -1,0 +1,71 @@
+[
+  {
+    "type": "enc",
+    "enc": 2,
+    "count": 4,
+    "clicks": 1,
+    "capture": "01-chicago-b"
+  },
+  {
+    "type": "tap",
+    "id": 50,
+    "capture": "02-sound"
+  },
+  {
+    "type": "tap",
+    "id": 53,
+    "capture": "03-running-empty"
+  },
+  {
+    "type": "key",
+    "id": 17,
+    "down": true,
+    "ms": 1200,
+    "capture": "04-f4-running-held"
+  },
+  {
+    "type": "tap",
+    "id": 47,
+    "capture": "05-global-f4-held"
+  },
+  {
+    "type": "wait",
+    "ms": 2000,
+    "capture": "06-global-stable-f4-held"
+  },
+  {
+    "type": "tap",
+    "id": 47,
+    "capture": "07-exit-f4-held"
+  },
+  {
+    "type": "wait",
+    "ms": 600,
+    "capture": "08-exit-stable-f4-held"
+  },
+  {
+    "type": "key",
+    "id": 17,
+    "down": false,
+    "ms": 400,
+    "capture": "09-released"
+  },
+  {
+    "type": "key",
+    "id": 17,
+    "down": true,
+    "ms": 800,
+    "capture": "10-fresh-f4"
+  },
+  {
+    "type": "key",
+    "id": 17,
+    "down": false,
+    "ms": 400
+  },
+  {
+    "type": "tap",
+    "id": 53,
+    "capture": "11-stop"
+  }
+]
