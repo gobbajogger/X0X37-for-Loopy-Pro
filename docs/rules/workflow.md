@@ -9,6 +9,15 @@ at that same revision. Keep the role bootstrap stable: new authorized work updat
 the existing request and acceptance data. Task-specific proof, permissions and
 existing owners still govern.
 
+If that ref or a required file cannot be read, retain the exact failed read and
+route canonical-state recovery to the existing coordinator. Do not treat a
+historical commit, closed PR, or absent branch as current ownership or completed
+adoption. Historical snapshots may recover evidence only. Continue already
+authorized independent work with verified inputs and ownership; do not recreate
+the queue, assign overlapping writers, or wait for this recovery to finish work
+whose prerequisites are satisfied. Close recovery only after a verified current
+canonical location and its accountable writer are recorded and consumed.
+
 For firmware-specific proof, use [project stages](../../skills/x0x37-workflow/references/stages.md) and [local proof](local-proof.md). Device actions and protected merges have separate conditions. A docs-only skill edit does not start a firmware stage.
 
 Earlier automatic stage, successor, install, and publication procedures in this file are historical Git revisions, not current instructions.
