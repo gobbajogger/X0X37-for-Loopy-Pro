@@ -537,6 +537,7 @@ run break-performance sh tests/host/run_break_performance.sh
 run engine-brk-mute python3 -B tests/host/engine_brk_mute_test.py   # real BREAK gate, immediate mute and abrupt-cut control
 run perf-meter-808 python3 -B tests/host/perf_meter_808_source_test.py   # compile production 808 timing slices, no SDK needed
 run perf-meter-shared-clock python3 -B tests/host/perf_meter_shared_clock_test.py   # 24MHz C0/C1 timing, FX concurrency and fallback model (not native proof)
+run perf-meter-window python3 -B tests/host/perf_meter_window_test.py   # compile exact UI shared-clock percent and fallback denominator
 run perf-meter-c1 sh tests/host/perf_meter_c1_test.sh   # C1 work in eng_prof; join wait not billed to PR_808
 run brk-loops-seamless python3 -B tests/host/engine_brk_loops_seamless_gate_test.py   # no brk_hold mute; engine_brk_loops flushes deferred bank publish (#354)
 run brk-outline sh -c "$CC -std=c11 -O1 -Wall -Wextra -Werror -o $OUT/brk_outline_test tests/host/brk_outline_test.c && $OUT/brk_outline_test"   # abs(-32768) outline peaks must not wrap to blank
