@@ -1,0 +1,15 @@
+{
+  "name": "Synthetic mapping fixture",
+  "presets": [
+    {"uid": "p0", "future": {"a/b~c": [-0, 1.2300, "opaque"]}, "parameterValues": [
+      {"identifier": "neonvolumeControl", "value": 1.3200, "futureFlag": true},
+      {"identifier": "neoncutoffLayer1", "value": -0.008403362},
+      {"identifier": "future/~Param", "value": 0.123456789012345678901234567890},
+      {"identifier": "integer", "value": 9007199254740993},
+      {"identifier": "negativeZero", "value": -0},
+      {"identifier": "scientific", "value": 1e-9000}
+    ]},
+    {"uid": "p1", "parameterValues": []}
+  ],
+  "unknownBankField": {"enabled": false}
+}
