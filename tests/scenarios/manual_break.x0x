@@ -1,0 +1,29 @@
+# Candidate 94197fc8. Break steps can be edited with transport stopped or running.
+wait 300
+turn ALGO 2
+expect part 4
+expect playing 0
+tapkey w0
+expect brk0 1
+key w0 down
+tapkey b4
+key w0 up
+expect brkslice0 5
+shot break_slice5_stopped.png
+tap PLAY
+expect playing 1
+wait 60
+expect brknow 5
+shot break_slice5_playing.png
+tapkey w1
+expect brk1 1
+# REC plus a local slice key must not be described as recording a pin.
+tap REC
+expect rec 1
+key b2 down
+wait 130
+key b2 up
+expect brkslice2 0
+tap REC
+tap PLAY
+expect playing 0

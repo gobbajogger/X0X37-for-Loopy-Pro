@@ -1,0 +1,36 @@
+# Candidate 94197fc8: carry a Pattern 5 beat into a song, then set a mixed part.
+wait 300
+tap HOME
+tapkey w4
+expect ppat0 5
+expect ppat2 5
+tap SEQ
+tapkey b0
+tapkey w0
+tapkey w4
+expect hit0.0.0 1
+expect hit0.0.4 1
+turn ALGO 4
+expect part 2
+turn PRESET 1
+expect ppat2 6
+expect ppat0 5
+tap HOME
+shot pattern5_mixed_home.png
+tap HOME
+expect view 6
+tapkey w4
+expect songbar1.0 5
+expect songbar1.2 5
+# SONG page 2 holds 303 B/A per existing song scenario; set 303 A to 6.
+turn K1 -1
+turn SELECT 1
+turn K3 1
+expect songbar1.2 6
+shot pattern5_mixed_song.png
+tap PLAY
+wait 100
+expect ppat0 5
+expect ppat2 6
+expect hit0.0.0 1
+expect hit0.0.4 1

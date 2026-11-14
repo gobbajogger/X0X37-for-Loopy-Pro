@@ -4,7 +4,7 @@ This companion explains how to install DnBOX, back up samples and work with proj
 
 It describes the **0.0.26 hardware-test candidate** at source `94197fc8`, **not** the [recommended published 0.0.25.1 release](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). **Neither is fully hardware-qualified.** Release notes report Elite testing of 0.0.25.1 without a confirmed installed-package hash, and no Pro device test; the exact 0.0.26 candidate's boot/restart remain unverified. Juno, Drone and held-key chord recording belong to the 0.0.26 candidate only. Chicago is the 303 engine; Miami is not.
 
-This browser workspace imports project revision 13. Keep a project backup made with the original firmware version; incompatible engines and older project revisions are not silently migrated.
+At candidate source `94197fc8`, the Projects workspace accepts pattern stream formats 13, 14 and 15 with sound revision 13, subject to validation by the connected firmware. Format 14 carries pattern presets or note locks; format 15 can carry held chords. Older firmware may reject these newer streams. Keep a backup made with the original firmware version; do not assume cross-version compatibility.
 
 ## Start with music
 
@@ -53,11 +53,15 @@ Back up all slots reads every slot and keeps original encoded bytes, playback ra
 
 Restore preserves slot numbering. It lists slots that do not fit and reports a partial result rather than claiming complete success. Complete means every selected slot was read back against its original bytes. This does not prove that an unrelated or incomplete personal archive contains all your earlier samples.
 
+**Send a prepared loop.** From preparation choose **Open Samples workspace**: the processed loop enters its local list. Confirm the entry is there, then Connect, read the keyboard’s slots and retain a backup. Review the existing entry and available space, then choose **Send to the device** and follow its preview and confirmation. **Add loops** is for audio added directly in Samples; adding the prepared file again can duplicate or reprocess it. After the write, check the result; on the keyboard select BREAK, open PARA and choose that loop as LOOP A. Slot order matters to patterns. This describes the candidate workspace; check the actual page and version before a write.
+
 ## Projects
 
 Export a portable project with original samples for a complete project backup. A project-only export contains sample identities and requires matching sample slots at import. The page checks the file before preparing an import preview. A recovery backup is available before replacing occupied slots.
 
-The browser workspace imports revision 13 only. You can inspect earlier files, but this workspace does not migrate engine projects. Keep their original firmware and backups. Import replaces the live project. Save on the keyboard stores it. Load and Reset require explicit confirmation and keep uploaded sample slots.
+At candidate source `94197fc8`, the browser workspace accepts pattern streams 13, 14 and 15 with sound revision 13; the connected firmware must also accept the file. Earlier files can be inspected, but this workspace does not migrate them. Keep their original firmware and backups. Import replaces the live project. Save on the keyboard stores it. Load and Reset require explicit confirmation and keep uploaded sample slots.
+
+**Restore a portable project.** Stop playback, recording and performance mode. On the candidate Projects page, use **Find USB MIDI keyboard**, choose the matching ports and **Connect selected ports**. Choose your `.x0xproject`, then **Prepare import**. Read the preview, including any sample changes, and choose **Download recovery backup** before replacing occupied data. Keep the downloaded file. In the normal connected import flow, if occupied sample slots will be replaced, tick **I saved the recovery backup and can use it to restore this keyboard** after checking the downloaded file. If the preview is acceptable, choose **Import project**; after a successful result choose **Save on keyboard**. Import changes the live project; the final save stores it. If validation or restore reports a problem, retain the recovery file and resolve the reported state before continuing.
 
 A disconnect invalidates the device session and import preview. Local selected files and recovery downloads remain available. Reconnect, read the new target, and prepare a fresh preview. If firmware holds audio after an interrupted sample transfer, use the complete portable recovery backup described by the Projects workspace before playing.
 

@@ -27,7 +27,7 @@ This is the keyboard manual for DnBOX on the SMK-37 Elite and SMK-37 Pro. Start 
 21. Credits
 - Appendix A. Same key, different job
 - Appendix B. Names from the older FM-1 build
-- Appendix C. Protocol identifiers that must stay the same
+- Appendix C. Technical protocol reference
 
 ---
 
@@ -41,7 +41,7 @@ Elite and Pro share the same playing surface. The USB product name and the Bluet
 
 **Version.** This manual describes the **0.0.26 hardware-test candidate** built from source `94197fc8`, as listed in the [nightly installer catalog](https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/versions.json). This is **not a published, hardware-qualified release**: startup and restart have not been verified on hardware for this exact 0.0.26 package. The **recommended published release (hardware qualification incomplete)** is [0.0.25.1](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). Its release notes report Elite testing without a confirmed installed-package hash; Pro has no reported device test. It has Chicago and Miami, but **not** Juno, Drone or held-key chord recording. Do not follow those 0.0.26-only steps on 0.0.25.1.
 
-For a first beat, bass line and saved pattern, use chapter 3, then chapters 4–8. Chapter 19 gathers shortcuts. The [browser companion](../web/MANUAL.md) explains installing, samples and project files; it does not replace the keyboard guide.
+For a first beat, bass line and saved pattern, use chapter 3, then chapters 4–8. Chapter 19 gathers shortcuts. The [browser companion](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/wip/musician-manual-97a88b/web/MANUAL.md) explains installing, samples and project files; it does not replace the keyboard guide.
 
 This book describes the controls in the pinned development source, not proposed screens or a fully device-qualified release.
 
@@ -77,11 +77,11 @@ The table below is the glossary for this whole book. The left column is the prin
 | FADER BANK | FADER BANK | Bank A or bank B. The LED is on for bank B. |
 | K1 | MASTER | Volume. This knob has no taught role. |
 | K2 | K2 (page / chance / tempo) | Page or list row. Held-step chance. PATCH plus K2 sets tempo. |
-| K3 | K3 (part) | Walks 909, then 808, then BREAK, then Chicago, then Miami. In a list: the value. |
-| K4 | K4 (pattern) | Cue a pattern. On HOME, all five parts. On a part screen, this part. This also ends a chain. |
+| K3 | K3 (part) | Walks 909, 808, BREAK, bass slot B and bass slot A. The default bass engines are Chicago and Miami respectively. In a list: the value. |
+| K4 | K4 (pattern) | Cue a pattern. On HOME, all five parts. On a part SEQ screen, this part. This also ends a chain. On a bass PARA engine page, K4 selects a preset instead. |
 | K5–K8 | K5–K8 | The four values at the bottom of the screen. |
 | 16 pads | Pads | The pads follow the 16 white keys. |
-| Faders 1–4 | Faders, bank A or B | Bank A: levels for 909, 808, BREAK and Chicago. Bank B: Miami level, reverb return, delay return, and master FILTER. Soft pickup. |
+| Faders 1–4 | Faders, bank A or B | Bank A: levels for 909, 808, BREAK and bass B (default Chicago). Bank B: bass A (default Miami) level, reverb return, delay return, and master FILTER. Soft pickup. |
 | Pitch / mod wheels | Pitch wheel / mod wheel | Pitch bend on every bass engine. The mod wheel is cutoff on Chicago, wobble depth on Miami, CUTOFF on Juno (parameter 2), and BRIGHTNESS on Drone (parameter 1). The wheels do not write the saved pots. |
 | 37-key keybed | Keys | The middle 27 keys match the older 27-key layout. The outer ten keys are live. Some outer keys also page BREAK slices. |
 
@@ -103,48 +103,48 @@ The PARA footer points you back to the steps: `SEQ: STEPS`. On a drum part it al
 
 This chapter is a short path through four real musical tasks. Each step points to the chapter that states the same fact.
 
-Do these tasks on the SMK-37 after a start. Do not use Loopy clip mode for these tasks. A single press of KNOB BANK leaves this instrument.
+Do these tasks on the SMK-37 after a start. A saved project may already contain music; use an empty pattern if you want to follow the beat exactly, or preserve existing steps and add only the unlit ones you want. A short tap on a lit step removes it. Do not use Loopy clip mode for these tasks. A single press of KNOB BANK leaves this instrument.
 
 ### Make a drum beat
 
-1. Stay on the 909 step grid, or press SEQ to return to it. See [First sound](#4-first-sound).
+1. Stay on the 909 step grid, or press SEQ to return to it. See First sound.
 2. Do not tap PATCH. A tap of PATCH opens HOME. Do not press KNOB BANK. KNOB BANK opens Loopy clip mode.
 3. While playback does not run, press black key 1. This selects the bass drum (`BD`). You hear it.
 4. Press white keys 1, 5, 9 and 13. These write kick steps on the selected track.
-5. Press black key 7. This selects the clap (`CP`). Press a white key to place a clap step. See [First pattern](#5-first-pattern).
+5. Press black key 7. This selects the clap (`CP`). Press a white key to place a clap step. See First pattern.
 6. Press black key 8. This selects the closed hat (`CH`). Place hat steps the same way.
 7. Press SEQ PLAY to start the pattern. Press SEQ PLAY again to stop.
 
 ### Play and record a bass line
 
-1. Turn K3 clockwise from the 909. Three clicks select Chicago. Chicago is the 303 engine. See [First bass line: Chicago, then Miami](#6-first-bass-line-chicago-then-miami).
-2. Four clicks select Miami. Miami is never a 303. Use Chicago or Miami for this task.
+1. Turn K3 clockwise from the 909. Three clicks select bass B (Chicago by default). Chicago is the 303 engine. See First bass line: Chicago, then Miami.
+2. Four clicks select bass A (Miami by default). Miami is never a 303. For this task, choose Chicago or Miami on the slot’s PARA SOUND page if its engine was changed.
 3. Press PARA to play the selected bass slot. The 37 keys play that slot.
-4. Press SEQ REC to turn record on. The toast is `RECORD ON: KEYS + KNOBS`. See [Recording and free play](#12-recording-and-free-play).
-5. On a bass slot, the keys play and write notes while record is on.
+4. Press SEQ to return to the bass step screen. Turn K2 to the SEQUENCE page and set DIR with K7 to `FWD` or `REV` for running recording. Press SEQ REC to turn record on. The toast is `RECORD ON: KEYS + KNOBS`. See Recording and free play.
+5. On SEQ with record on, the bass keys play and write notes. PARA auditions the keys but does not write local key notes into the sequence.
 6. Press SEQ PLAY to start the pattern. Play the bass line on the keys.
 7. Press SEQ REC again to turn record off. The toast is `RECORD OFF`.
 
 ### Save a project, and power-off
 
-1. If the pattern runs, press SEQ PLAY to stop. See [Save, and why it waits](#8-save-and-why-it-waits).
+1. If the pattern runs, press SEQ PLAY to stop. See Save, and why it waits.
 2. Tap BT. A tap is a release before 250 ms. BT is Save, not Bluetooth.
-3. If the toast is `SAVES WHEN STOPPED`, `SAVES WHEN QUIET` or `REC OFF TO SAVE`, stop the pattern. Wait until the unit is quiet.
+3. If the toast is `REC OFF TO SAVE`, press SEQ REC to turn record off. If playback is running, stop it; release held notes and wait until the unit is quiet.
 4. Look for the toast `SAVED`. That toast lasts 1300 ms. The unit writes only after you stop and the machine stays quiet.
 5. Autosave is on by default. After 4 s of quiet, while stopped, the unit can save on its own, at most every 20 s. The toast is `AUTOSAVED`.
 6. Power the unit off, then on. The unit loads the last written project. It does not keep other live edits.
 7. If the unit has no valid saved project, it starts with empty parts.
-8. A chain does not return after power-off. The project does not save a chain. See [Patterns, chains and song](#11-patterns-chains-and-song).
+8. A chain does not return after power-off. The project does not save a chain. See Patterns, chains and song.
 
 ### Live set: switch, mute and chain
 
-1. If you are not on HOME, tap PATCH to open HOME. The header word is `HOME`. See [Patterns, chains and song](#11-patterns-chains-and-song).
+1. If you are not on HOME, tap PATCH to open HOME. The header word is `HOME`. See Patterns, chains and song.
 2. If you are already on HOME, do not tap PATCH again. That tap opens SONG.
-3. Press a white key, or a pad, to select a pattern. There are 32 patterns, in two banks: 1 to 16 and 17 to 32.
+3. Your existing pattern remains selected when you enter HOME. A white key or pad selects that number for **all five parts**: choose it only when you intend that change. There are 32 patterns in two banks: 1–16 and 17–32.
 4. On HOME or SONG, press OCTAVE+ for patterns 17–32. Press OCTAVE− for patterns 1–16.
 5. Turn K4 to cue a pattern. A pending cue shows a NEXT glyph and a blinking pattern number.
-6. On HOME, press a black key to mute a part in display order. Black keys 1 to 5 mute 909, 808, BREAK, Chicago and Miami.
-7. Press two white keys to make a chain. A live chain shows a small amber `CHN`.
+6. On HOME, press a black key to mute a part in display order. Black keys 1 to 5 mute 909, 808, BREAK, bass B and bass A (Chicago and Miami by default).
+7. Hold the first white key and press the second to make a chain. A live chain shows a small amber `CHN`.
 8. A chain is live only. The project does not save a chain. A save or a power-off does not keep it.
 9. Press one white key to end the chain. Turn K4 to end the chain as well.
 10. HOME keys make no sound. Press SEQ to return to the grid.
@@ -201,9 +201,9 @@ To mute a track from SEQ, hold PATCH and press that track's black key. If you re
 
 ## 6. First bass line: Chicago, then Miami
 
-Turn K3 clockwise from the 909. The part order is 909, then 808, then BREAK, then Chicago, then Miami.
+Turn K3 clockwise from the 909. The part order is 909, 808, BREAK, bass B, then bass A. The default bass engines are Chicago and Miami.
 
-From 909: one click is 808. Two clicks are BREAK. Three clicks are Chicago. Four clicks are Miami.
+From 909: one click is 808. Two clicks are BREAK. Three clicks are bass B (default Chicago). Four clicks are bass A (default Miami).
 
 Why: the screen follows this display order, not an older "two 303s then a break" tour. Count the clicks against this order.
 
@@ -213,15 +213,17 @@ Chicago is the 303 engine. It is the default engine on bass slot B. On HOME, Chi
 
 On SEQ, the white keys are steps in a piano roll, when the bass keyboard is off. Hold a step: K5 sets the note, K6 the gate (`REST`, `NOTE` or `TIE`), K7 the accent, and K8 the slide. The SEQ bass footer is `HOLD + KNOBS: EDIT`. K2 sets chance. K3 sets velocity.
 
-CHORD plus a key, and NOTE REPEAT plus a key, write accent and slide only when the bass keyboard is on (record or FREE PLAY). They do not write those flags on the SEQ piano-roll keys. Accent and slide are audible on Chicago.
+While SEQ is running with record on, CHORD plus a key and NOTE REPEAT plus a key write accent and slide. They do not write those flags on the SEQ piano-roll keys. Accent and slide are audible on Chicago.
 
 Press PARA to shape the sound. Chicago's first pages are OSCILLATOR and FILTER 1, then FILTER 2, ENVELOPE, AMPLIFIER, ARPEGGIATOR and EFFECT. The first FILTER 1 knobs are CUTOFF, PEAK and ENV. There is no leftover TONE or VOICE page from an older 303 engine.
+
+Try a filter sweep: with a Chicago line playing, open PARA and use K2 to reach FILTER 1. Turn K5 CUTOFF and K6 PEAK to shape its brightness and resonance, then return the knobs to taste.
 
 Press ARP for TB-3PO, the line generator. On that screen, OCTAVE+ writes a new line into that slot's pattern. OCTAVE− mutates the line.
 
 ### Miami
 
-Turn K3 one more click to Miami. Miami is never a 303. It is the default engine on bass slot A. On HOME, Miami is the rightmost lane when both slots still have their defaults. The default MIDI channel for bass slot A is 2.
+Turn K3 one more click to bass A (Miami by default). Miami is never a 303. It is the default engine on bass slot A. On HOME, Miami is the rightmost lane when both slots still have their defaults. The default MIDI channel for bass slot A is 2.
 
 Miami ignores accent and slide. A CHORD or NOTE REPEAT flag that you store still has no Miami accent or slide sound.
 
@@ -239,13 +241,15 @@ ARP on Juno or Drone also opens TB-3PO, and OCTAVE+ writes a line into that slot
 
 If the selected part is 909, 808 or BREAK, ARP does not open TB-3PO. The toast is `TB-3PO: PICK CHICAGO OR MIAMI`.
 
-On this 0.0.26 candidate, Juno and Drone can record a held-key chord. If the chord does not fit, the toast is `CHORD NOT SAVED`. This is note recording for the current bass slot, not the separate CHORD control in Loopy clip mode. The manual does not promise a chord-name or inversion display.
+On this 0.0.26 candidate, Juno and Drone can record a held-key chord. With the chosen engine on a bass slot, stop playback, open SEQ and turn SEQ REC on. Press and hold one note, then add the other notes without releasing the first; they are grouped into the current step. Release the keys, turn record off and play the pattern. If the chord does not fit, the toast is `CHORD NOT SAVED`. This is note recording for the current bass slot, not the separate CHORD control in Loopy clip mode. The manual does not promise a chord-name or inversion display.
+
+For a Juno chord, open PARA and reach LFO/CHORUS with K2; adjust K8 CHORUS while playing the chord to explore the chorus setting. For Drone, reach STRING and adjust K6 BRIGHTNESS while holding a note or chord; ENVELOPE offers ATTACK and RELEASE for its onset and tail. These are starting points, and the result depends on the sound settings.
 
 Do not call Juno or Drone a 303.
 
 ### The bass keyboard
 
-When the keyboard is on, the 37 physical keys play the selected bass slot. The keyboard is on in PARA, in record, or in FREE PLAY. FREE PLAY is a SEQ KEYS page. The keys play and write nothing. Strike velocity is in use on this path.
+When the keyboard is on, the 37 physical keys play the selected bass slot. The keyboard is on in PARA, in record, or in FREE PLAY. FREE PLAY is a SEQ KEYS page. With record off, the keys play and write nothing; strike velocity is used for auditioning. SEQ note recording uses a fixed velocity.
 
 ---
 
@@ -259,9 +263,12 @@ SEQ pages for BREAK include SEQUENCE (RATE: `1/16`, `1/8` or `1/4`), GROOVE and 
 
 PARA opens LOOPS. There you pick LOOP A and LOOP B, and you set slice counts (`A SLICES`, `B SLICES`: `4`, `8`, `16`, `32`).
 
-Black keys 1 to 8 hold a slice of LOOP A (the footer is `STEP + 1-8: PIN A SLICE`). Black keys 9, 10 and 11 are momentary live keys: 9 is REV, 10 is JUNGLE, and 11 is STUT. The footer is `9 REV 10 JUNGLE 11 STUT`. A press of one of those three starts the effect. A release ends it.
+Black keys 1 to 8 hold a slice of LOOP A (the footer is `STEP + 1-8: PIN A SLICE`). With a loop available and LOOP A set to at least 8 slices, stop playback. Release the slice keys and press the outer C♯3 key until the first slice page is selected. Choose an empty white-key step, hold it and tap black key 5: the step is created and pinned to slice 5. Check for the `STEP n: SLICE 5` toast; an existing step already pinned to slice 5 instead returns to the generator. Start playback to hear it at that step. White keys can also add or remove steps while running. Repeat the held-step and black-key gesture to return that step to generated slice selection. Outer D♯3 moves to the next slice page; black keys 1–8 address that page. Local slice performance keys do not record pins merely because SEQ REC is on. Black keys 9, 10 and 11 are momentary live keys: 9 is REV, 10 is JUNGLE, and 11 is STUT. The footer is `9 REV 10 JUNGLE 11 STUT`. A press of one of those three starts the effect. A release ends it.
 
 Some outer keys page the BREAK slices. The middle keys still play the live path when the keyboard owns them.
+
+![Host simulator at candidate 94197fc8: stopped BREAK, step 1 pinned to slice 5.](img/manual-break-candidate.png)
+![The same BREAK step while playing in the host simulator.](img/manual-break-playing-candidate.png)
 
 On BREAK, the white keys write the bar on SEQ and also on PARA. The drum audition rule does not apply to BREAK.
 
@@ -323,7 +330,7 @@ When clip mode is off, NOTE REPEAT opens the mixer (MIX). Press NOTE REPEAT agai
 
 The MIX pages are PARTS, 909 MIX, 808 MIX, MASTER and WAVE.
 
-On PARTS, black keys 1 to 5 pick the part in display order: 909, 808, BREAK, Chicago, Miami. The knobs are LEVEL, PAN, REV and DLY. The footer is `BLACK 1-5: PART` and `PATCH+BLK: MUTE`.
+On PARTS, black keys 1 to 5 pick the part in display order: 909, 808, BREAK, bass B and bass A (default Chicago and Miami). The knobs are LEVEL, PAN, REV and DLY. The footer is `BLACK 1-5: PART` and `PATCH+BLK: MUTE`.
 
 909 MIX and 808 MIX set Level, Pan, Rev and Dly for the selected drum track.
 
@@ -335,7 +342,7 @@ K1 is MASTER volume at all times.
 
 Press FADER BANK to switch bank A and bank B. The LED is on for bank B. A bank change rearms pickup and toasts `FADERS:` plus the short labels.
 
-Bank A sets levels for the first four displayed parts: 909, 808, BREAK and Chicago.
+Bank A sets levels for the first four displayed parts: 909, 808, BREAK and bass B (Chicago by default).
 
 Bank B sets the fifth displayed part (Miami, when that slot still runs Miami), then reverb return, delay return, and master FILTER.
 
@@ -355,7 +362,7 @@ The SMC is a separate mixer on Bluetooth, not a firmware mode. In GLOBE, set `BT
 
 When an SMC mixer is on the link, the HOME footer shows `SMC F1-5: PART LEVEL` and `F6: REV  F7: DLY  F8: FILT`.
 
-The eight SMC faders, left to right, follow display order: 909, 808, BREAK, Chicago and Miami, then reverb return, delay return, and master FILTER.
+The eight SMC faders, left to right, follow display order: 909, 808, BREAK, bass B and bass A (default Chicago and Miami), then reverb return, delay return, and master FILTER.
 
 Up and Down on the SMC change the SMC encoder bank. They do not change the keyboard page.
 
@@ -375,15 +382,15 @@ There are 32 patterns, in two banks: 1 to 16 and 17 to 32. On HOME or SONG, OCTA
 
 ### HOME
 
-A tap of PATCH (a release with no modifier) opens HOME from most views. The header word is `HOME`. The screen shows all five parts of the current pattern, in display order: 909, 808, BREAK, Chicago, Miami.
+A tap of PATCH (a release with no modifier) opens HOME from most views. The header word is `HOME`. The screen shows all five parts of the current pattern, in display order: 909, 808, BREAK, bass B and bass A (default Chicago and Miami).
 
-On HOME, a white key (or a pad) selects a pattern. Two white keys make a **chain**. A live chain shows a small amber `CHN`. An amber underline marks chained slots. A chain is live only. The project does not save it.
+On HOME, a white key (or a pad) selects that pattern for all five parts. Hold the first white key and press the second to make a **chain**. A live chain shows a small amber `CHN`. An amber underline marks chained slots. A chain is live only. The project does not save it.
 
 Why: a chain is a performance tool. A saved project must not surprise you with a chain that you did not mean to keep.
 
 One pattern selection ends the chain. K4 also ends the chain. K4 cues a pattern. A pending cue shows a NEXT glyph and a blinking pattern number. After the cue plays, that number is the current pattern.
 
-On HOME, black keys mute parts in **display order**. Black key 1 mutes 909. Black key 2 mutes 808. Black key 3 mutes BREAK. Black key 4 mutes Chicago (the fourth displayed part). Black key 5 mutes Miami (the fifth displayed part, by default).
+On HOME, black keys mute parts in **display order**. Black key 1 mutes 909. Black key 2 mutes 808. Black key 3 mutes BREAK. Black key 4 mutes bass B (Chicago by default). Black key 5 mutes bass A (Miami by default).
 
 The HOME `PERFORM` page has TEMPO, `SWING`, FILTER and PUMP. Default tempo is 125 bpm. The tempo range is 20 to 275 bpm. PATCH plus K2 also sets tempo from other screens.
 
@@ -391,11 +398,17 @@ The 909's length is the bar. Other parts can have other lengths, and they can dr
 
 A cue, a mute or a pattern change from HOME does not play a sound on the keys. To write steps again, press SEQ.
 
+**Different patterns for different parts.** Suppose your 909 beat is in pattern 5. On SEQ, use K3 to select a bass part, then turn K4 until that part shows pattern 6. While stopped it changes immediately; the 909 stays on pattern 5. Edit the bass part there. On HOME you can see the combination. A HOME white key changes all five parts, so pressing pattern 1 would leave that combination. On the bass PARA engine page K4 selects a sound preset, not a pattern; return to SEQ for this operation.
+
 ### SONG
 
 If you are already on HOME, a tap of PATCH opens SONG. The header word is `SONG`. From SONG, a tap of PATCH returns to HOME. That is the toggle: HOME, then SONG, then HOME. There is no PATCH path straight back to SEQ. Press SEQ for the grid.
 
-On SONG, white keys pick the pattern for a song bar. SCALE opens a list with bar length, insert, delete and clear. Song length can run to 192 bars.
+On SONG, a white key assigns its pattern number to **all five parts** of the selected bar, then advances to the next bar. Black keys toggle that bar's part mutes. SCALE opens a list with bar length, insert, delete and clear. Song length can run to 192 bars.
+
+**Arrange the pattern 5 beat with a different bass pattern.** Start with the 909 in pattern 5 and a bass part in pattern 6 as above. Stop, open HOME with PATCH, then tap PATCH again for SONG. Press OCTAVE− to select patterns 1–16, then press white key 5 to make a bar with pattern 5 on every part. This overwrites the bar's five pattern choices; it does not preserve the live pattern 6 selection. Turn K5 back to that bar. On the second BAR page, reached with K2, turn the corresponding bass knob (K6 for bass slot B, K7 for bass slot A) until it reads 6. The first BAR page uses K6, K7 and K8 for 909, 808 and BREAK. Now this song bar plays the 909's pattern 5 and that bass slot's pattern 6. Choose another bar with K5 and set its parts as needed. Turn SEQ REC off before playback: SONG recording can write live choices into bars. Select the starting bar with K5, then press SEQ PLAY on SONG. Stop with SEQ PLAY. Save the project with record off and playback stopped to retain the arrangement.
+
+![Host simulator at candidate 94197fc8: SONG bar 1 with 909 pattern 5 and Miami pattern 6.](img/manual-song-candidate.png)
 
 If you press SEQ PLAY while the SONG screen is up, song mode stays on even after you leave SONG.
 
@@ -405,9 +418,9 @@ If you press SEQ PLAY while the SONG screen is up, song mode stays on even after
 
 Press SEQ REC to turn record on or off. This acts on press. The toast is `RECORD ON: KEYS + KNOBS` or `RECORD OFF`. A red record dot shows in the header. The SEQ REC lamp is on while record is on.
 
-On a bass slot, the keys play and write notes while record is on. On a drum part, black keys and knob moves record.
+For local bass keys, press SEQ: with record on, stopped input writes stepwise and running input writes into the pattern. Running note recording requires forward or reverse direction; otherwise `REC NEEDS FWD/REV` appears. PARA keys audition but do not write local key notes into the sequence. On a drum part, black keys and knob moves can record.
 
-When the bass keyboard is on (record, or FREE PLAY on SEQ KEYS), CHORD plus a key writes an accent. NOTE REPEAT plus a key writes a slide. On Chicago, those flags are audible. On the SEQ keyboard, NOTE REPEAT plus OCTAVE writes a tie. CHORD plus OCTAVE writes a rest.
+On SEQ while playing with record on, CHORD plus a key writes an accent and NOTE REPEAT plus a key writes a slide. FREE PLAY with record off does not write these flags. On Chicago, those flags are audible. On the SEQ keyboard, NOTE REPEAT plus OCTAVE writes a tie. CHORD plus OCTAVE writes a rest.
 
 On the SEQ piano roll, with the keyboard off, those modifiers do not write flags. Use K7 and K8 on the held step.
 
@@ -433,7 +446,7 @@ Hold a step (on SEQ or PARA) and turn K2 to set chance (probability) for that st
 
 BT plus a knob forgets that knob's motion. BT plus a knob on a p-lock removes the lock.
 
-With record on, knob moves can record motion. The motion plays back with the pattern.
+To record a sweep, choose a part with notes, open its PARA sound page, turn SEQ REC on and start SEQ PLAY. Move a sound knob as the pattern runs. Turn record off and let the pattern loop: the recorded movement plays back. Moving that knob while not recording takes control for a pass; the stored motion can resume on a later pass. BT plus that knob removes its motion. This is separate from the faders' soft pickup.
 
 A chance miss is a rest for both the internal sound and MIDI out.
 
@@ -493,7 +506,7 @@ The 808 uses the same notes for the first six voices. Then cowbell is 56, cymbal
 
 ### Clock
 
-If the unit waits for an external clock, SEQ PLAY blinks slowly and the toast is `WAITING FOR CLOCK`. Tempo in the header is amber when the clock is external.
+To follow a computer's clock, connect USB, open GLOBE and set `CLOCK SOURCE` under `MIDI + CLOCK` to `EXTERNAL`. In the host, choose the DnBOX MIDI output as a clock destination and enable clock and transport send. Start the host: the unit follows incoming clock. If it waits, SEQ PLAY blinks slowly and the toast is `WAITING FOR CLOCK`; check the host's clock routing. Tempo in the header is amber with external clock. To play independently again, choose `INTERNAL`. Host menu names vary; this is source-based guidance, not a claim of a tested DAW setup.
 
 ### USB audio
 
@@ -535,7 +548,7 @@ In clip mode, NOTE REPEAT is not the mixer:
 
 Do not treat NOTE REPEAT as the mixer while clip mode is on.
 
-DnBOX identifies itself to Loopy as an APC40 mkII for compatibility. Loopy mappings rely on that identity, not the USB product name. Protocol details are in the [developer reference](PROTOCOL_IDENTIFIERS.md).
+DnBOX identifies itself to Loopy as an APC40 mkII for compatibility. Loopy mappings rely on that identity, not the USB product name. Protocol details are in the [developer reference](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/97a88b44539110ded82257ebb20b0444ba4b8b8f/docs/PROTOCOL_IDENTIFIERS.md).
 
 ---
 
@@ -543,7 +556,7 @@ DnBOX identifies itself to Loopy as an APC40 mkII for compatibility. Loopy mappi
 
 **First installation from M-VAVE factory firmware:** No DnBOX app or DnBOX project exists yet. You cannot make a DnBOX `.x0xslots` sample backup or `.x0xproject` project export from the factory app. Preserve any existing factory data through a manufacturer-supported backup method, if available. In desktop Chrome or Edge, connect by USB, allow MIDI/SysEx access, and choose a **listed, admitted** package for the model printed on the keyboard in the [main web installer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/). The installer may refuse a first write if the current firmware cannot provide the required sample-layout preflight; **stop if it refuses** rather than bypassing the check.
 
-**Updating or reinstalling DnBOX:** If DnBOX is already running, save its samples and project as described below before using the same admitted-package workflow. The main site's **local `.fwsc` and stock firmware chooser remains hidden and disabled**; downloading a package from Releases does not make it uploadable there. To return to factory firmware, use the exact-model package and official [M-VAVE M-UPGRADE](https://www.m-vave.com/download) instructions. The [browser companion](../web/MANUAL.md) explains these paths.
+**Updating or reinstalling DnBOX:** If DnBOX is already running, save its samples and project as described below before using the same admitted-package workflow. The main site's **local `.fwsc` and stock firmware chooser remains hidden and disabled**; downloading a package from Releases does not make it uploadable there. To return to factory firmware, use the exact-model package and official [M-VAVE M-UPGRADE](https://www.m-vave.com/download) instructions. The [browser companion](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/wip/musician-manual-97a88b/web/MANUAL.md) explains these paths.
 
 **Check the model printed on the keyboard**, Elite or Pro, not only the USB name. An older Elite can report Pro. A shared USB name does not prove the physical model.
 
@@ -551,7 +564,7 @@ A wrong-model write can make the keyboard unusable. Cancel writes nothing. The i
 
 The package identity that admits a write is `SMK-37 Elite_900` or `SMK-37 Pro_900` (release builds append a version code). That identity is not the everyday USB product string. Do not choose Elite or Pro by reading the USB product name.
 
-USB names are not sufficient to identify a model for a safe write. Package and loader protocol identifiers are documented separately in the [developer reference](PROTOCOL_IDENTIFIERS.md).
+USB names are not sufficient to identify a model for a safe write. Package and loader protocol identifiers are documented separately in the [developer reference](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/97a88b44539110ded82257ebb20b0444ba4b8b8f/docs/PROTOCOL_IDENTIFIERS.md).
 
 While the unit is in the update loader, the USB product is `SMK-37 Elite Update` or `SMK-37 Pro Update`.
 
@@ -585,7 +598,7 @@ If the unit starts twice and fails, you can reach `DnBOX SAFE MODE`. The title i
 
 In safe mode, nothing that makes sound runs. USB is already on for the web installer. Press SEQ PLAY to try the application again. Use a verified package for your printed model.
 
-**An install failed or the unit only shows its update loader.** See chapter 17 and the [recovery decision](../web/MANUAL.md#recovery-and-older-firmware). Check whether the normal app or only `ota-` loader identity responds before selecting a next step. Use only an admitted package for the printed physical model; a matching USB name alone is not enough. The loader does not supply a new sample backup.
+**An install failed or the unit only shows its update loader.** See chapter 17 and the [recovery decision](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/wip/musician-manual-97a88b/web/MANUAL.md#recovery-and-older-firmware). Check whether the normal app or only `ota-` loader identity responds before selecting a next step. Use only an admitted package for the printed physical model; a matching USB name alone is not enough. The loader does not supply a new sample backup.
 
 **Faders do nothing at first.** They wait for pickup. Move each fader to the saved position, or across it. The header shows `PICK Fn UP` or `PICK Fn DOWN` until then.
 
@@ -620,7 +633,7 @@ Transport is on press. Almost every other button is on release. A hold that you 
 | FX + SEQ | Panic, all notes off. The view does not change. |
 | Two white keys on HOME | Chain (live only, not saved). |
 | KNOB BANK | Toggle Loopy clip mode (`LOOPY CLIPS` / `LP OFF`). |
-| K4 | Cue a pattern and end a chain. |
+| K4 | Cue a pattern and end a chain on HOME or a part SEQ screen. On the bass PARA engine page it selects a preset. |
 | Fader move after pickup | Set the same value as the matching knob. |
 | Pitch and mod wheels | Bend, plus cutoff (Chicago), wobble depth (Miami), CUTOFF (Juno) or BRIGHTNESS (Drone), without writing saved pots. |
 
@@ -728,7 +741,7 @@ M-VAVE and SMK-37 are trademarks of their owners. TR-808, TR-909 and TB-303 are 
 
 The same physical control has more than one meaning. This table is the single map. The behaviour stays.
 
-**White keys.** They mean steps on SEQ, patterns on HOME, and song-bar patterns on SONG. They also audition sound on PARA drums, and play bass notes when the keyboard is on. They take a paste while you hold BT. Two white keys on HOME set the ends of a chain.
+**White keys.** They mean steps on SEQ, patterns on HOME, and song-bar patterns on SONG. They also audition sound on PARA drums, and play bass notes when the keyboard is on. They take a paste while you hold BT. On HOME, hold one white key and press another to set the ends of a chain.
 
 **Black keys.** They select drum tracks, BREAK slices, and part mutes on HOME, in display order. On BREAK, keys 9, 10 and 11 are momentary REV, JUNGLE and STUT. They also pick a mixer channel on MIX. Hold PATCH and press a black key to mute.
 
@@ -774,4 +787,4 @@ The older book used FM-1 panel drawings and an FM-1 install URL. This book is fo
 
 The everyday rule is simple: choose firmware for the **physical model**, then let the installer validate the package and device identity. A matching USB display name is not enough.
 
-Developers maintaining the loader, Bluetooth MIDI, Loopy identity and project storage should use [Protocol identifiers](PROTOCOL_IDENTIFIERS.md), pinned to the source described by this manual. They are not extra buttons or steps for performers.
+Developers maintaining the loader, Bluetooth MIDI, Loopy identity and project storage should use [Protocol identifiers](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/97a88b44539110ded82257ebb20b0444ba4b8b8f/docs/PROTOCOL_IDENTIFIERS.md), pinned to the source described by this manual. They are not extra buttons or steps for performers.
