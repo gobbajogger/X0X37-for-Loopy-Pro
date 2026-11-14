@@ -1,0 +1,231 @@
+{
+  "schema": 1,
+  "groups": {
+    "experiment": [
+      {
+        "path": "probe/portable_voice.cpp",
+        "bytes": 16329,
+        "sha256": "987f18732cedf60455dd5f89cbde521a7fd7ecea5493f3e463d013f2b69b1b0c"
+      },
+      {
+        "path": "probe/portable_interface.hpp",
+        "bytes": 9271,
+        "sha256": "85f94a7f2f5c590ddcc83d7021c77be6d72f2647b8761d8f6de7cd32ee0e0963"
+      },
+      {
+        "path": "probe/wave_frequencies.h",
+        "bytes": 189,
+        "sha256": "80cee39150503efd05b1bf5ea8f0e117dea401f8814ecc8a6664cdb2827cf1be"
+      },
+      {
+        "path": "shared-graph/shared_graph.hpp",
+        "bytes": 2583,
+        "sha256": "137576968b44d5508f919ad54a49a717a3bcec0482e25cde64bb3c7a26231bfc"
+      },
+      {
+        "path": "shared-graph/DEPENDENCIES.json",
+        "bytes": 5754,
+        "sha256": "00aa7392ffc13b59deef1a05315cc86cedd751522c54817744319676effc4500"
+      },
+      {
+        "path": "notices/SynthOne-MIT.txt",
+        "bytes": 1075,
+        "sha256": "71ac2b8af8849096ba2d0f3510972b8384204f17517e773bfa52fc755fb0fc49"
+      },
+      {
+        "path": "notices/AudioKit-4.9.2-MIT.txt",
+        "bytes": 1085,
+        "sha256": "b9aad96b49e7afcadb3f351b733de24577924b3ba48c82a3e07393d8b9f96c5e"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/soundpipe.h",
+        "bytes": 51563,
+        "sha256": "f3a87027492c30d73c5d87d964010f3042220dbcd436556c0b47c82119781386"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/SoundpipeExtension/soundpipeextension.h",
+        "bytes": 847,
+        "sha256": "71b6cbe60b8cbc1cba7bf801b10410a33f7f52cf92572e93762b1c9ea9f629a3"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/base.c",
+        "bytes": 4448,
+        "sha256": "65eea7830ffdc039e8e18a6234c676f0b2e31b9cc02d5ee51020d94070bd7296"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/ftbl.c",
+        "bytes": 9100,
+        "sha256": "1f5a6aa4fded5dcceae3859717b0722d8efeb1b9ffa129f6bd7a6425be29e9c0"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/adsr.c",
+        "bytes": 2066,
+        "sha256": "816310221f5ce2e04751d7f284a61cc9057cbabf44deef7366a085c57ca310dc"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/crossfade.c",
+        "bytes": 488,
+        "sha256": "2a472e538671aea47e8db36c671ee6804f176cc6a951c267de27c6344152b906"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/osc.c",
+        "bytes": 1451,
+        "sha256": "630f55b96f50e56d1d9735fd67654b980523023dbca634ae5479f5d0d6aa6b9d"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/fosc.c",
+        "bytes": 2018,
+        "sha256": "bffb48406abd1705f8d9b3ddde5dad449dafabb1fe6ed091b6decac3f76557b6"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/noise.c",
+        "bytes": 524,
+        "sha256": "cf33ac6e9f99b85f386643b96e8de32db717101a4be3a158e9aa75a422a0dbae"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/moogladder.c",
+        "bytes": 3201,
+        "sha256": "d784563da2cd3243ab28f9020aa696db0d2ea208d92924c97ae36a1aba4a01ba"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/butbp.c",
+        "bytes": 1644,
+        "sha256": "35228571e2904402ec60b733713090c768ca84f5dab96521b9fd6b7f74dac867"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/buthp.c",
+        "bytes": 1663,
+        "sha256": "00d71f10b1cd4ae80cbdd8c221dd6f92781231bb0ac43426fe3fc512ab31cadf"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/port.c",
+        "bytes": 1163,
+        "sha256": "2a0451a80fd74ab52805114609bb937df662492858f5768c120da8af7af1a490"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/modules/phasor.c",
+        "bytes": 993,
+        "sha256": "264477d11086f19f4702c598604748ada3b445b58a80ab4e8108cff0d37e3103"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/SoundpipeExtension/modules/oscmorph2d.c",
+        "bytes": 3601,
+        "sha256": "455c56d1f12e3b62d89eea1f83ef9bbd14402b37b14db4b54051383a1d64af0c"
+      },
+      {
+        "path": "audiokit-4.9.2/AudioKit/Core/Soundpipe/lib/dr_wav/dr_wav.h",
+        "bytes": 129191,
+        "sha256": "0189f571847dd300c4749830f66c21003ab1d5ee17f0c64ab56659c3c5351ed2"
+      }
+    ],
+    "controls": [
+      {
+        "path": "parameter_ports.hpp",
+        "bytes": 1836,
+        "sha256": "b533cc60b93da7df64aca34be3f382ff0191ffd2c4f6db6275bffcd06c665f61"
+      },
+      {
+        "path": "parameter_ports.cpp",
+        "bytes": 5199,
+        "sha256": "bdf3ee420d61211849afbdd5de5cb4fe4b027922275b8d8cd9cf828bd21fc86c"
+      },
+      {
+        "path": "generated/parameter_map.hpp",
+        "bytes": 445,
+        "sha256": "c7bc2f49818d4f0c202b6b1c79ea7552f8a70476ff388889636908f7421ca11e"
+      },
+      {
+        "path": "generated/parameter_map.cpp",
+        "bytes": 845,
+        "sha256": "71b50fadd233d7092abec38be6ce92353a734c578ce68f2a0e3ac1f23bc67cae"
+      }
+    ],
+    "master": [
+      {
+        "path": "AudioKitSynthOne/DSP/S1Parameter.h",
+        "bytes": 4436,
+        "sha256": "9598182b88dd9fdc7f31332857647a63913e232cb40d85169978b2ccdf271783"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+toggleKeys.mm",
+        "bytes": 6142,
+        "sha256": "f03340bf1f8a2cc4401db47b4fb55b5b73c1f1d6adf0a9e0bbd65274f6b01b05"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+parameters.mm",
+        "bytes": 2275,
+        "sha256": "ee5c4efde3c30290bc77a5fa692d0ad9751eddb8feccf17ee31d5e86e4e534f3"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+startStopNotes.mm",
+        "bytes": 2743,
+        "sha256": "f9b779fccaec8cae75b20fe54965e512d023b4ba52b3422a6f5f8ee0164a1725"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+destroy.mm",
+        "bytes": 1216,
+        "sha256": "9933d815711e6a278a444e8cf4646bee8796a9296da143949c154b2c48558b3c"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel.hpp",
+        "bytes": 31105,
+        "sha256": "95dd9af314495a56e5d2b9619c5737107b2a6d9ac3b9120ff657034f5b0dac32"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+getSetDependentParameters.mm",
+        "bytes": 3547,
+        "sha256": "16bb9bda9ca14600f790080eee09817e6e2809f5a43ffdbe462d284a6eeec7cb"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel.mm",
+        "bytes": 6707,
+        "sha256": "f62a68604d430eea47c4bc50b1f77570b4ef32e269c88c2afd125862418013d4"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+didChanges.mm",
+        "bytes": 2986,
+        "sha256": "28e57be0acbe288b1448b5730fb6ecb76d6f0076229ca7fb003d2d735c7daa46"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+reset.mm",
+        "bytes": 1135,
+        "sha256": "304a59e8a03da909b9b9c781fa9f566834514ef9d4324a144f2c37f00d87c643"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+getSetSynthParameters.mm",
+        "bytes": 6659,
+        "sha256": "9956b464ef088c068a529fe6bb2b212f1d72208983649049b75bc96db98ba68e"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+MIDI.mm",
+        "bytes": 982,
+        "sha256": "93aff890ae9e2362ccc8f07899546ecb49e1904bed2ff52778436baed9bdf4c5"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+setup.mm",
+        "bytes": 1929,
+        "sha256": "76038a633b0e9dffd96347be33746ef9301e47519064c060404e55a61addf3d1"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+tapers.mm",
+        "bytes": 1807,
+        "sha256": "bb55a0afc03d5526756ee0f08ee5e5e0eae90c794c157c9f7fe28ffe23dd5809"
+      },
+      {
+        "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+process.mm",
+        "bytes": 13463,
+        "sha256": "3fa142e20a4e51869b796743a61e58e04c34e73f81ca6736f5c456a81cadce53"
+      }
+    ]
+  },
+  "table_payload": {
+    "bytes": 852176,
+    "sha256": "0d35b5422cb5d3e0e349a66c9e0a50f2980b6287e68f8d94f55640d3f8168bd5"
+  },
+  "scope": "Pinned changed-input source dependencies only; no preset-bank values or audio.",
+  "controls_binding": {
+    "path": "experiments/synthone-port-feasibility-20261114/parameter-ports",
+    "scope": "The four exact public portable compiler source files; runner/docs changes in the supplier package do not alter these pins.",
+    "source_difference": "Only documentation comments differ in the two public headers. C++ bodies and map.cpp match the original producer proof. No include or arithmetic adaptation is applied."
+  }
+}

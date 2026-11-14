@@ -1,0 +1,385 @@
+{
+  "schema": 1,
+  "kind": "actual-upstream-direct-scheduler-extraction",
+  "upstream": {
+    "repository": "AudioKit/AudioKitSynthOne",
+    "commit": "6466a3715c96b7ecf1dd255a218cbd571408a314"
+  },
+  "contract_sha256": "8125bf7e84651291620c6a64d30a49d0db12fecc8c8635a06eaf1c195cce326c",
+  "source_receipt_sha256": "bcc78cf484067a5863ae041efca070a1e74c124e42c6c5ead7196331b362e823",
+  "inputs": [
+    {
+      "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+toggleKeys.mm",
+      "bytes": 6142,
+      "git_blob_sha": "dbffc5a69ae0ee4da88b67291d50b52386a8947d",
+      "sha256": "f03340bf1f8a2cc4401db47b4fb55b5b73c1f1d6adf0a9e0bbd65274f6b01b05"
+    },
+    {
+      "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+startStopNotes.mm",
+      "bytes": 2743,
+      "git_blob_sha": "ad445754be0a4041bab70a12a1341ef67bb5da20",
+      "sha256": "f9b779fccaec8cae75b20fe54965e512d023b4ba52b3422a6f5f8ee0164a1725"
+    },
+    {
+      "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+reset.mm",
+      "bytes": 1135,
+      "git_blob_sha": "0672082715066745750541804009745821725389",
+      "sha256": "304a59e8a03da909b9b9c781fa9f566834514ef9d4324a144f2c37f00d87c643"
+    },
+    {
+      "path": "AudioKitSynthOne/DSP/Kernel/S1DSPKernel+process.mm",
+      "bytes": 13463,
+      "git_blob_sha": "4299be29a55fd89d5f264bce28bfe155307c3ca6",
+      "sha256": "3fa142e20a4e51869b796743a61e58e04c34e73f81ca6736f5c456a81cadce53"
+    }
+  ],
+  "extractions": [
+    {
+      "path": "S1DSPKernel+toggleKeys.mm",
+      "signature": "turnOnKey(int noteNumber, int velocity)",
+      "lines": [
+        15,
+        21
+      ],
+      "extracted_sha256": "7adb55f6fb2e2ee60c932a98fe9a16af64b8d191880e075e3753866bc6d39daa",
+      "adapted_sha256": "1914806bcc21bcf851717c0d88ed5a7e990e95fa37973328844c3aa9f5954e4a",
+      "substitutions": [
+        {
+          "reason": "bind actual body to oracle class",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::",
+          "to": "void Oracle::"
+        }
+      ]
+    },
+    {
+      "path": "S1DSPKernel+toggleKeys.mm",
+      "signature": "turnOnKey(int noteNumber, int velocity, float frequency)",
+      "lines": [
+        24,
+        81
+      ],
+      "extracted_sha256": "2920fdc23795d06a8084bd36407dad88b8018ed92f26a90baabbda0b51589868",
+      "adapted_sha256": "b7a59e23e5bdce9702af99055a355b28bedc3fb9cc86e0e9992b0f785d6d2905",
+      "substitutions": [
+        {
+          "reason": "bind actual body to oracle class",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::",
+          "to": "void Oracle::"
+        }
+      ]
+    },
+    {
+      "path": "S1DSPKernel+toggleKeys.mm",
+      "signature": "turnOffKey(int noteNumber)",
+      "lines": [
+        84,
+        163
+      ],
+      "extracted_sha256": "3ebde7088ddd3d7926a1289c19f91ccb61f0227e045e812289f559f9cc7d0465",
+      "adapted_sha256": "f38591af532927bee9cfcc44f7859d44a5b4dfcaa6fcd28ec47b3f2194460f6e",
+      "substitutions": [
+        {
+          "reason": "bind actual body to oracle class",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::",
+          "to": "void Oracle::"
+        }
+      ]
+    },
+    {
+      "path": "S1DSPKernel+startStopNotes.mm",
+      "signature": "startNote(int noteNumber, int velocity)",
+      "lines": [
+        16,
+        21
+      ],
+      "extracted_sha256": "672087df839968b3a4def26d55dce4a4d6b61aec57421484eab820a6aef1e899",
+      "adapted_sha256": "be0ed7cfb4f90631237ec73926206685854249c09c2c32b09182612c907461b7",
+      "substitutions": [
+        {
+          "reason": "bind actual body to oracle class",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::",
+          "to": "void Oracle::"
+        }
+      ]
+    },
+    {
+      "path": "S1DSPKernel+startStopNotes.mm",
+      "signature": "startNote(int noteNumber, int velocity, float frequency)",
+      "lines": [
+        25,
+        53
+      ],
+      "extracted_sha256": "a61796dd903e8f9a7b0acb6feb4d3a047a4e8706517216151874cf845a1a88b0",
+      "adapted_sha256": "630460e1d0215360713acf8bd1ab68c4edcbaa18f59f4cf2fa73c42fcb4b3007",
+      "substitutions": [
+        {
+          "reason": "bind actual body to oracle class",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::",
+          "to": "void Oracle::"
+        },
+        {
+          "reason": "read fixed held-record value instead of NSValue copy",
+          "expected_occurrences": 1,
+          "from": "NSValue* value = heldNoteNumbers[i];\n        [value getValue:&existingNote];",
+          "to": "existingNote = heldNoteNumbers[i];"
+        },
+        {
+          "reason": "remove held record by index",
+          "expected_occurrences": 1,
+          "from": "[heldNoteNumbers removeObjectAtIndex:i];",
+          "to": "heldNoteNumbers.remove(i);"
+        },
+        {
+          "reason": "copy NoteNumber into held-record head",
+          "expected_occurrences": 1,
+          "from": "NSValue *value = [NSValue valueWithBytes:&note objCType:@encode(NoteNumber)];\n    [heldNoteNumbers insertObject:value atIndex:0];",
+          "to": "heldNoteNumbers.insert(note, 0);"
+        },
+        {
+          "reason": "sequential snapshot copy preserving held-record iteration order",
+          "expected_occurrences": 1,
+          "from": "[heldNoteNumbersAE updateWithContentsOfArray:heldNoteNumbers];",
+          "to": "heldNoteNumbersAE = heldNoteNumbers;"
+        }
+      ]
+    },
+    {
+      "path": "S1DSPKernel+startStopNotes.mm",
+      "signature": "stopNote(int noteNumber)",
+      "lines": [
+        57,
+        81
+      ],
+      "extracted_sha256": "29d2721452cad590f1f719844ca37d1ca981adc71bfd8c5cea1848303ef7b755",
+      "adapted_sha256": "c97a9654efe69b5e6bf13b22e72f671c0b023fa957fa0a546fee7b063e91967c",
+      "substitutions": [
+        {
+          "reason": "bind actual body to oracle class",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::",
+          "to": "void Oracle::"
+        },
+        {
+          "reason": "read fixed held-record value instead of NSValue copy",
+          "expected_occurrences": 1,
+          "from": "NSValue* value = heldNoteNumbers[i];\n        [value getValue:&existingNote];",
+          "to": "existingNote = heldNoteNumbers[i];"
+        },
+        {
+          "reason": "portable signed held-record index",
+          "expected_occurrences": 1,
+          "from": "NSInteger index = -1;",
+          "to": "int index = -1;"
+        },
+        {
+          "reason": "remove held record by index",
+          "expected_occurrences": 1,
+          "from": "[heldNoteNumbers removeObjectAtIndex:index];",
+          "to": "heldNoteNumbers.remove(index);"
+        },
+        {
+          "reason": "sequential snapshot copy preserving held-record iteration order",
+          "expected_occurrences": 1,
+          "from": "[heldNoteNumbersAE updateWithContentsOfArray: heldNoteNumbers];",
+          "to": "heldNoteNumbersAE = heldNoteNumbers;"
+        }
+      ]
+    },
+    {
+      "path": "S1DSPKernel+startStopNotes.mm",
+      "signature": "stopAllNotes()",
+      "lines": [
+        86,
+        95
+      ],
+      "extracted_sha256": "960b0bd368af8d3ebdfc22d0e20a256da498e027e3600dc845c12cceb985d4fa",
+      "adapted_sha256": "33fa58e3e0ccb948f1664b66412b6c5c61d4a5911104615dc4f100d0812b322c",
+      "substitutions": [
+        {
+          "reason": "bind actual body to oracle class",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::",
+          "to": "void Oracle::"
+        },
+        {
+          "reason": "clear fixed held-record list",
+          "expected_occurrences": 1,
+          "from": "[heldNoteNumbers removeAllObjects];",
+          "to": "heldNoteNumbers.clear();"
+        },
+        {
+          "reason": "sequential snapshot copy preserving held-record iteration order",
+          "expected_occurrences": 1,
+          "from": "[heldNoteNumbersAE updateWithContentsOfArray:heldNoteNumbers];",
+          "to": "heldNoteNumbersAE = heldNoteNumbers;"
+        }
+      ]
+    },
+    {
+      "path": "S1DSPKernel+reset.mm",
+      "signature": "resetDSP()",
+      "lines": [
+        14,
+        28
+      ],
+      "extracted_sha256": "65f728111938febbaf3356c9a23dbe581aacb20eb746a38c283256d721b33d0d",
+      "adapted_sha256": "62b8bdbf1007e295d218b49cffa7bb6a86237ad974dd9e28db7c118fab46193e",
+      "substitutions": [
+        {
+          "reason": "bind actual body to oracle class",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::",
+          "to": "void Oracle::"
+        },
+        {
+          "reason": "clear fixed held-record list",
+          "expected_occurrences": 1,
+          "from": "[heldNoteNumbers removeAllObjects];",
+          "to": "heldNoteNumbers.clear();"
+        },
+        {
+          "reason": "sequential snapshot copy preserving held-record iteration order",
+          "expected_occurrences": 1,
+          "from": "[heldNoteNumbersAE updateWithContentsOfArray:heldNoteNumbers];",
+          "to": "heldNoteNumbersAE = heldNoteNumbers;"
+        }
+      ]
+    },
+    {
+      "path": "S1DSPKernel+reset.mm",
+      "signature": "reset()",
+      "lines": [
+        30,
+        39
+      ],
+      "extracted_sha256": "04c7f7c93a099097aaad86938d1959ff35f5819736e92bd749295ac34b12d64e",
+      "adapted_sha256": "a46f887b2cb584bed97d5b06f589f677dabd66faedc02356b7dd5d29762badbe",
+      "substitutions": [
+        {
+          "reason": "bind actual body to oracle class",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::",
+          "to": "void Oracle::"
+        }
+      ]
+    },
+    {
+      "path": "S1DSPKernel+reset.mm",
+      "signature": "resetSequencer()",
+      "lines": [
+        41,
+        47
+      ],
+      "extracted_sha256": "8973861fce6189ff3d58b56130b985ec1b54fd9a40c63d00c2cf2758b7dc8bfb",
+      "adapted_sha256": "1964a54e8f226450cf0e877e87e92c850aff051481005d601984cd46693dc558",
+      "substitutions": [
+        {
+          "reason": "bind actual body to oracle class",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::",
+          "to": "void Oracle::"
+        }
+      ]
+    },
+    {
+      "path": "S1DSPKernel+process.mm",
+      "signature": "process(AUAudioFrameCount frameCount, AUAudioFrameCount bufferOffset)",
+      "whole_method_lines": [
+        15,
+        314
+      ],
+      "whole_method_sha256": "540759227c10bb64637ee1b98c2e93f55f451354a31fde16c1aa4b5850609c62",
+      "prefix_lines": [
+        15,
+        141
+      ],
+      "extracted_sha256": "bd1c367e76e1bffaf000b0606624faba8133e54ab6bfca817c5e6a1655da3f72",
+      "adapted_sha256": "1cb2b2ac2f803826e861c4e2463f56dd496b06e77cb99f15f55b7176cd117efb",
+      "substitutions": [
+        {
+          "reason": "portable output-buffer ABI",
+          "expected_occurrences": 1,
+          "from": "void S1DSPKernel::process(AUAudioFrameCount frameCount, AUAudioFrameCount bufferOffset) {",
+          "to": "void Oracle::process(unsigned frameCount, unsigned bufferOffset, float* outputL, float* outputR) {"
+        },
+        {
+          "reason": "pass left base output pointer explicitly",
+          "expected_occurrences": 1,
+          "from": "float* outL = (float*)outBufferListPtr->mBuffers[0].mData + bufferOffset;",
+          "to": "float* outL = outputL + bufferOffset;"
+        },
+        {
+          "reason": "pass right base output pointer explicitly",
+          "expected_occurrences": 1,
+          "from": "float* outR = (float*)outBufferListPtr->mBuffers[1].mData + bufferOffset;",
+          "to": "float* outR = outputR + bufferOffset;"
+        },
+        {
+          "reason": "portable frame count type",
+          "expected_occurrences": 1,
+          "from": "for (AUAudioFrameCount frameIndex = 0;",
+          "to": "for (unsigned frameIndex = 0;"
+        },
+        {
+          "reason": "portable null pointer",
+          "expected_occurrences": 1,
+          "from": "sp_phasor_compute(sp, lfo1Phasor, nil, &lfo1);",
+          "to": "sp_phasor_compute(sp, lfo1Phasor, nullptr, &lfo1);"
+        },
+        {
+          "reason": "portable null pointer",
+          "expected_occurrences": 1,
+          "from": "sp_phasor_compute(sp, lfo2Phasor, nil, &lfo2);",
+          "to": "sp_phasor_compute(sp, lfo2Phasor, nullptr, &lfo2);"
+        },
+        {
+          "reason": "comparison-only observer at block boundary",
+          "expected_occurrences": 1,
+          "from": "    ///MARK: RENDER LOOP: Render one audio frame",
+          "to": "    trace(0, 0); // comparison-only observer after actual block prologue\n\n    ///MARK: RENDER LOOP: Render one audio frame"
+        }
+      ],
+      "appended": "comparison-only frame observer and two lexical closing braces"
+    }
+  ],
+  "generated": [
+    {
+      "path": "oracle.hpp",
+      "sha256": "c856ac499d87f24ff6d1d239ddaf333e298c486c61cf4aca9579c7d195c38b64"
+    },
+    {
+      "path": "oracle.cpp",
+      "sha256": "7526b71d59063dca29c9dbd41a64e01414f46fe31974784e3eb18e1d505e498c"
+    }
+  ],
+  "preconditions": [
+    "Sequential direct-event calls only; no cross-thread AEArray timing claim",
+    "Arp disabled and original sequencer.reset(true) leaves no pending notes before processing",
+    "Caller enforces held capacity of 128 distinct valid MIDI pitches",
+    "Source-compatible State supplies actual per-note DSP, shared tables/LFOs/PRNG, independent actual parameter ports and no-op notification methods"
+  ],
+  "exclusions": [
+    "Global FX suffix after eligible-note render",
+    "Four variable-delay reset functions are explicit pre-FX no-ops",
+    "AEManagedValue and Objective-C cross-thread snapshot timing",
+    "Arpeggiator/pending-event execution",
+    "AU event slicing, sustain/app wrapper and MIDI-origin policy",
+    "CPU/resource/native/device or complete engine acceptance"
+  ],
+  "local_adapters": [
+    "AEArray token is the address of the independently copied Held snapshot; item returns the corresponding NoteNumber address",
+    "Direct-event domain constants are MIDI 128, six poly slots and source 0.01f release threshold",
+    "Namespaced sp_vdelay_reset(sp_data*,void*) is the documented pre-FX no-op"
+  ],
+  "notes": [
+    "No scheduler/allocation/ADSR/frequency/LFO arithmetic rewritten",
+    "Source body comments preserved",
+    "Traces observe state only and must not mutate it",
+    "State is caller-owned common adaptation; its initialization and helper closure require separate verification"
+  ]
+}

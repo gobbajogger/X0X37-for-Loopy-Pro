@@ -1,0 +1,4 @@
+/build/
+/independent-review/
+*.log
+*.o

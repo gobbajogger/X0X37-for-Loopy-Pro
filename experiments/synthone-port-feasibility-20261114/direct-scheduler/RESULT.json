@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "scope": "Direct-event pre-FX host source stage only",
+  "upstream_synthone_commit": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+  "upstream_audiokit_commit": "03fecf80a66be88f6ac0356cd532c72dbe09922d",
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "variants": {
+    "o2": {
+      "cases": 48,
+      "checks": 54626311,
+      "frames": 17889,
+      "state_snapshots": 18939,
+      "events": 630,
+      "heap_calls_during_actions": 0,
+      "failures": 0
+    },
+    "os": {
+      "cases": 48,
+      "checks": 54626311,
+      "frames": 17889,
+      "state_snapshots": 18939,
+      "events": 630,
+      "heap_calls_during_actions": 0,
+      "failures": 0
+    },
+    "sanitize": {
+      "cases": 48,
+      "checks": 54626311,
+      "frames": 17889,
+      "state_snapshots": 18939,
+      "events": 630,
+      "heap_calls_during_actions": 0,
+      "failures": 0
+    }
+  },
+  "negative_controls": [
+    {
+      "mutation": "per_frame_sparse_holes",
+      "compiled": true,
+      "runtime_exit": 1,
+      "detected": true
+    },
+    {
+      "mutation": "release_threshold_inclusive",
+      "compiled": true,
+      "runtime_exit": 1,
+      "detected": true
+    },
+    {
+      "mutation": "missing_poly_extra_adsr",
+      "compiled": true,
+      "runtime_exit": 1,
+      "detected": true
+    },
+    {
+      "mutation": "normalized_mono_reset",
+      "compiled": true,
+      "runtime_exit": 1,
+      "detected": true
+    },
+    {
+      "mutation": "fallback_noise_cleanup",
+      "compiled": true,
+      "runtime_exit": 1,
+      "detected": true
+    },
+    {
+      "mutation": "wrong_steal_cursor",
+      "compiled": true,
+      "runtime_exit": 1,
+      "detected": true
+    },
+    {
+      "mutation": "reset_prng",
+      "compiled": true,
+      "runtime_exit": 1,
+      "detected": true
+    },
+    {
+      "mutation": "late_parameter_tick",
+      "compiled": true,
+      "runtime_exit": 1,
+      "detected": true
+    },
+    {
+      "mutation": "fresh_inverse_lfo_one",
+      "compiled": true,
+      "runtime_exit": 1,
+      "detected": true
+    },
+    {
+      "mutation": "unclamped_oracle_output_half_time",
+      "compiled": true,
+      "runtime_exit": 1,
+      "detected": true
+    }
+  ],
+  "retained_setup_or_review_failures": [
+    "Initial strict warning build rejected unchanged upstream base.c sign comparison; unchanged upstream warnings remain visible and nonfatal.",
+    "Oracle object setup initially omitted existing dr_wav include; include closure corrected.",
+    "Review reproduced fixed8192-byte snapshot capacity failure at128heldpitches; fixture enlarged and boundary case added.",
+    "Review reproduced unlisted quoted-header shadowing; runner now stages only authenticated compiler input bytes.",
+    "Review source comparison found initial inverseLFO values differed before first frame; source zeros restored.",
+    "Source inspection found oracle current-output half-time omitted original clamp; repaired and minimum-current-output mutation detected."
+  ],
+  "not_claimed": [
+    "Full engine/globalFX",
+    "Arp/pending sequencer scheduling",
+    "AU event slicing or AEArraythreadtiming",
+    "Presetbank or J6semantic/fidelity acceptance",
+    "TargetCPU/flash/RAM or native build",
+    "Firmware integration/device/release acceptance"
+  ],
+  "compiler_input_isolation": {
+    "authenticated_staged_inputs_only": true,
+    "source_adjacent_shadow_header": "Independently excluded; all19compilerdependencyclosures checked",
+    "ambient_include_variables_cleared": [
+      "CPATH",
+      "C_INCLUDE_PATH",
+      "CPLUS_INCLUDE_PATH",
+      "OBJC_INCLUDE_PATH"
+    ],
+    "poisoned_ambient_stdint_header_o2": "PASS48cases/17889frames; all4variables pointed to deliberately failing header"
+  },
+  "retained_variants_scope": "The 48-case variant results above belong to the original scheduler source/input freeze 5a507c9cac27fb63f58544072dc79df85a9af8dd13eb8f53b56cff0e29c5fa59. They were not rerun against the public control-header pins.",
+  "portable_controls_consumer": {
+    "scope": "Changed public-header dependency/portable consumer boundary only",
+    "controls": [
+      {
+        "path": "parameter_ports.hpp",
+        "bytes": 1836,
+        "sha256": "b533cc60b93da7df64aca34be3f382ff0191ffd2c4f6db6275bffcd06c665f61"
+      },
+      {
+        "path": "parameter_ports.cpp",
+        "bytes": 5199,
+        "sha256": "bdf3ee420d61211849afbdd5de5cb4fe4b027922275b8d8cd9cf828bd21fc86c"
+      },
+      {
+        "path": "generated/parameter_map.hpp",
+        "bytes": 445,
+        "sha256": "c7bc2f49818d4f0c202b6b1c79ea7552f8a70476ff388889636908f7421ca11e"
+      },
+      {
+        "path": "generated/parameter_map.cpp",
+        "bytes": 845,
+        "sha256": "71b50fadd233d7092abec38be6ce92353a734c578ce68f2a0e3ac1f23bc67cae"
+      }
+    ],
+    "variants": {
+      "o2": {
+        "scope": "portable-controls-consumer-smoke",
+        "cases": 3,
+        "frames": 144,
+        "state_snapshots": 189,
+        "events": 18,
+        "heap_calls_during_actions": 0,
+        "failures": 0
+      },
+      "sanitize": {
+        "scope": "portable-controls-consumer-smoke",
+        "cases": 3,
+        "frames": 144,
+        "state_snapshots": 189,
+        "events": 18,
+        "heap_calls_during_actions": 0,
+        "failures": 0
+      }
+    },
+    "staged_include_adaptation": "none; exact authenticated public source bytes compiled",
+    "old_private_header_root_rejected_before_build": true,
+    "prior_scheduler_runtime_sha256": "d092837529cc71a167de00f1d7861a73fceda4f03a5e72848a0013aa4c8e068b"
+  }
+}
