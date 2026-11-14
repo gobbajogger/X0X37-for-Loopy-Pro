@@ -486,26 +486,6 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 |---|---|---|---|---|
 | I3 | Nightly **manual notice** that 0.0.26 is the current `94197fc8` development test build (600b withdrawn; Elite test scoped; Pro untested). Merging updates the live nightly site. | Fits the owner-authored website publish rule for reviewed installer/sample-importer website updates after applicable checks; not a firmware release. Do not invent a new owner question; honor an actual tool gate if present. | DRAFT #128; review current live wording against exact candidate, then apply existing scoped website authority and actual tool gates. No fabricated blanket owner-yes wait. | [nightly #128](https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/128) |
 
-## REC1
-
-**Live Git read (2026-11-14 11:20 UTC):** [PR #896](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/896), head `8b0b6d311577fcc303212016423dd4f5ea4e8184`, branch `wip/rec37-compact-continuation-20261113`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
-
-**Current disposition:** Isolated eight-line inner BREAK correction completed and independently APPROVED; accepted patch is private, NOT PUSHED. Exporter verified source intake but first public blob action was denied. Root requested exact owner approval at 11:48 UTC; no approval receipt is established here. Dispatcher successor admitted, substantive intake unverified.
-
-**Owner:** [Correction producer](https://chatgpt.com/c/6af843d3-a504-8191-a6c0-644931c010d7) completed and relinquished isolated ownership; [exporter](https://chatgpt.com/c/6af8478f-b70c-8191-bb87-fbd47f7b20ca) stopped and released after denial. Incumbent REC source integration remains unchanged. [Dispatcher harness task](https://chatgpt.com/c/6af84949-932c-8191-b490-aa624dc650cb) owns new isolated tests only, not accepted correction bytes.
-
-**Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
-
-**Next action:** Wait only on the specific export action for the required owner authorization; do not retry or indirectly publish that denied payload. Independently verify dispatcher input consumption and first substantive action, then scoped host composition/review. After authorization, reconcile existing export owner/admission and target head before one ordinary permitted export; no duplicate writers.
-
-**Accepted private evidence:** patch SHA-256 `27f77692ba55c5a1ce8bbf62debe1d4b4b2e69ca8fbd57401cf62b66634dd77d`; packet SHA-256 `c257533ca20a71ade414317e0ea862de78685416644c1aa753d7ead44dbcd96a`; candidate ui.c blob `3cf59062c52f883b10fd89cb48dab82995535a91`. Producer reports red exit 1, green 29,968 mocked-intent and 28,034 extracted pattern-write assertions; prior 59,354 admission proof reused, not rerun. Whole dispatcher/native/audio/device acceptance remains unrun. Export receipt identifies proposed `chat/rec37-inner-break-capture-20261114`, target #896 `8b0b6d311577fcc303212016423dd4f5ea4e8184`, intended parent `beb4f2d54ccb068f604773fd5a4fce390c089266`, local tree `a4085b3f374399970e72d96c79536490d2b14fb1`. These are proposed/local identities, not Git delivery. First denied public blob was ACCEPTED-RESULTS.json; no Git retry or PR occurred. Direct 11:49–11:50 UTC reads show dispatcher inProgress with assignment only; admission time is not inferred.
-
-**Preserved source section:** Later owner requests (2026-11-13)
-
-| # | Item | Owner source | Status | Link |
-|---|---|---|---|---|
-| REC1 | REC records only FM-1-layout keys; full SMK-37 37-key keybed must record. Full 37-key REC applies to all keybed REC paths, including drum/BREAK, keeping the actual drum mapping. | Owner via authenticated ChatGPT (Dot), 2026-11-13 07:55 CST. | ACTIVE [REC Classic](https://chatgpt.com/c/6af7403f-bfdc-83ea-bb52-798b9d71fec5), continuing `e81b2cf6`; reported Chicago 37-key focused checks, but reported free flash 8,092/8,104 B fails 8,192 B bar. All keybed REC paths and latest combined size need acceptance. Outer keys with no current drum/BREAK mapping remain an explicit unresolved behavior case, not a full-keybed PASS. Current #896 is `8b0b6d31`. A separate read-only all-part physical-key/record/release coverage disposition completed on exact `8b0b6d31`; the coordinator consumed its source-pinned report. Inner BREAK live-record coverage, outer-key view admission, held-inventory cancellation and fixture-predicate findings are routed for independent correctness review before correction. The existing implementation writer is retained; source findings, not repeated tests, determine the next repair. | `lane/fmb-rec-full-keybed`; delivery plan below |
-
 ## DROP1
 
 **Live Git read (2026-11-14 11:20 UTC):** [PR #892](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/892), head `ba83317aa55cbcdb2830c5da97d5f64b763499e2`, branch `diag/dropout-observer-20261113`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
@@ -726,11 +706,11 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Retain existing firmware protocol ownership and `fde38845e7474fffae24ae835907d7ca9197b589` proposal; do not enable DeviceSync from synthetic or companion evidence. A separate bounded browser performance companion is admitted; verify its actual intake and first implementation without taking over protocol, TouchOSC, offline editor or W3 ownership.
+**Next action:** Retain existing firmware protocol ownership and `fde38845e7474fffae24ae835907d7ca9197b589` proposal; do not enable DeviceSync from synthetic or companion evidence. Separate companion substantive intake is now recorded under [COMP1](Working.md#comp1); this does not establish firmware protocol work or acceptance.
 
 **Preservation verified:** [Git archive](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e2d36dba34a2fed3bdb192d509687679674ccd7e/experiments/smk37-browser-contract-20261114/ARCHIVE.md) at `e2d36dba34a2fed3bdb192d509687679674ccd7e`; archive blob `2b7ed8f3d94f20559a9c9d6acfa8a82a7938c063`. Root verified export; this coordinator read commit paths, archive and NEXT_STAGE. All 56 original packet members plus manifest are retained; original manifest SHA-256 `c249ddeaed196401578183513d9e02e451410ef80f595421a98c70ecd98d4fa8`, transport SHA-256 `6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489`. Existing 16 producer/22 independent Node and 25 Chromium results are reused historical fake-endpoint proof, not new runs. Old NOT PUSHED/owner text is historical; no successor admission or consumption established by export.
 
-**Separate companion admission (not protocol completion):** [task 6af84a14-5e20-8191-ae31-792e6bd880e1](https://chatgpt.com/c/6af84a14-5e20-8191-ae31-792e6bd880e1), direct 11:50 UTC read shows inProgress and assignment only. Assigned source packet SHA-256 `ebcdfaf851783693d4a5d8e4f4a8ef9f311c70efe05e780db87fb48df013985e`; branded synthetic adapter `a33b5d7d1bea49654d853c5cf2617bc04dae5002cd2368cf97d6dbfa09bf7940` is not a real-adapter qualification. New isolated companion path is distinct; tests must use injected fake MIDI with no permission request or physical traffic. Admission is not input consumption, usable product or device acceptance.
+**Separate companion progression:** The earlier admission-only state is superseded by [COMP1](Working.md#comp1). Protocol #52/#104 remains Pending with its existing owner; companion notes/transport and fake-MIDI evidence do not enable DeviceSync or prove two-way sync.
 
 **Preserved source section:** Owner request list (#1–#122)
 
@@ -930,26 +910,6 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 |---|---|---|---|---|
 | #101 | Grid, scale, snap, ghost and a touch keyboard. | 122-list / #699 / #812 (2026-11-01) | PARTIAL RUNTIME QUALIFICATION at 94197fc8: tested snap/ghost/local-pitch tasks passed; MIDI replacement defaults fail at rates 1/8 and 1/4 (R1). Manual valid window succeeds; real iPhone accessibility remains unverified. |[feature-check-734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/feature-check-734.md); [musical grid](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/musical-grid.js); [editor integration](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/web/offline-sequencer/editor.js) |
 
-## #103
-
-**Live Git read (2026-11-14 11:20 UTC):** [PR #913](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/913), head `f65de4148cdbbadefa896f2b59f6c156f7e5ed74`, branch `chat/offline-sound-parity-evidence-20261114`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
-
-**Current disposition:** Juno/Drone model/schema stage has an accepted private packet; bounded actual editor-controls successor admitted. Direct 11:50 UTC task read shows assignment/inProgress only, not source consumption or implementation. Existing public-export denial remains binding.
-
-**Owner:** [Juno/Drone UI task](https://chatgpt.com/c/6af84a83-48d8-8191-aeef-62c85b3be0db) owns isolated changed controls and focused tests. Existing editor/shared source, website, W3 and companion owners remain separate.
-
-**Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
-
-**Next action:** Verify packet/hash intake and first actual control implementation; implement/review candidate-schema controls with persistent versus runtime semantics. Keep project-adapter.js fail-closed and preserve original project bytes. Private accepted delivery only while inherited public-export denial persists; no workaround or denied retry.
-
-**Admitted input, consumption unverified:** S103 archive SHA-256 `5664a4cce007bc4ca8f777dcacd7a775ca5de7805997f9fb22d1ec5701e5b9f8`, patch `13196607186759a026b673ad3860d219a6f6600906937f812b19479302477a71`, virtual tree `da2b1f159dadf24005caaf75755765d116595331`. Frozen candidate is `94197fc839b00aff47b98ca02f3c6396e4a6eabf`, not claimed current-nightly/native compatibility. Existing 37 scoped and 16 independent model tests are prior proof; new changed-control browser/source review is still required.
-
-**Preserved source section:** Owner request list (#1–#122)
-
-| # | Item | Owner source | Status | Link |
-|---|---|---|---|---|
-| #103 | Editor sound controls match the real engine. | 122-list / #699 / #812 (2026-11-01) | PARTIAL OFFLINE SOURCE: bounded local sound descriptors exist; device-negotiated controls and exact engine/DSP/format parity remain unverified. Historical editor QA covers unchanged modules only. A completed exact-94197fc8 source audit distinguishes metadata matches from engine/DSP fidelity. The documentation-only preservation stage consumed the findings and obtained independent review; two citation gaps are being corrected before review acceptance and permitted public delivery. No application writer or repeated source qualification was created. |[`94197fc8`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc83); [accepted evidence map](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d5c8c9d2f653066c01ecad7fb5a5a7ad2310a1a6/docs/evidence/roadmap-122-reconciliation-20261114.md) |
-
 ## #104
 
 **Current disposition:** Protocol/device-sync acceptance remains unfinished. The separate fake-endpoint browser-contract packet is now preserved on Git; this resolves its export stage only, not protocol integration, real MIDI or hardware acceptance.
@@ -958,11 +918,11 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Retain existing firmware protocol ownership and `fde38845e7474fffae24ae835907d7ca9197b589` proposal; do not enable DeviceSync from synthetic or companion evidence. A separate bounded browser performance companion is admitted; verify its actual intake and first implementation without taking over protocol, TouchOSC, offline editor or W3 ownership.
+**Next action:** Retain existing firmware protocol ownership and `fde38845e7474fffae24ae835907d7ca9197b589` proposal; do not enable DeviceSync from synthetic or companion evidence. Separate companion substantive intake is now recorded under [COMP1](Working.md#comp1); this does not establish firmware protocol work or acceptance.
 
 **Preservation verified:** [Git archive](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e2d36dba34a2fed3bdb192d509687679674ccd7e/experiments/smk37-browser-contract-20261114/ARCHIVE.md) at `e2d36dba34a2fed3bdb192d509687679674ccd7e`; archive blob `2b7ed8f3d94f20559a9c9d6acfa8a82a7938c063`. Root verified export; this coordinator read commit paths, archive and NEXT_STAGE. All 56 original packet members plus manifest are retained; original manifest SHA-256 `c249ddeaed196401578183513d9e02e451410ef80f595421a98c70ecd98d4fa8`, transport SHA-256 `6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489`. Existing 16 producer/22 independent Node and 25 Chromium results are reused historical fake-endpoint proof, not new runs. Old NOT PUSHED/owner text is historical; no successor admission or consumption established by export.
 
-**Separate companion admission (not protocol completion):** [task 6af84a14-5e20-8191-ae31-792e6bd880e1](https://chatgpt.com/c/6af84a14-5e20-8191-ae31-792e6bd880e1), direct 11:50 UTC read shows inProgress and assignment only. Assigned source packet SHA-256 `ebcdfaf851783693d4a5d8e4f4a8ef9f311c70efe05e780db87fb48df013985e`; branded synthetic adapter `a33b5d7d1bea49654d853c5cf2617bc04dae5002cd2368cf97d6dbfa09bf7940` is not a real-adapter qualification. New isolated companion path is distinct; tests must use injected fake MIDI with no permission request or physical traffic. Admission is not input consumption, usable product or device acceptance.
+**Separate companion progression:** The earlier admission-only state is superseded by [COMP1](Working.md#comp1). Protocol #52/#104 remains Pending with its existing owner; companion notes/transport and fake-MIDI evidence do not enable DeviceSync or prove two-way sync.
 
 **Preserved source section:** Owner request list (#1–#122)
 
