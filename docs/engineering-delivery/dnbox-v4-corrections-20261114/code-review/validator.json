@@ -1,0 +1,19 @@
+{
+  "verdicts": [
+    {
+      "#": 1,
+      "validated": true,
+      "reason": "Independent Chromium expanded bass details at scrollY 471, then navigated away and Back: details closed and scroll clamped to 294 because no disclosure state is saved."
+    },
+    {
+      "#": 2,
+      "validated": true,
+      "reason": "Independent Chromium location.hash assignment rendered learn/bass with history.state null and focus on the skip anchor, bypassing entry initialization and heading focus."
+    },
+    {
+      "#": 3,
+      "validated": true,
+      "reason": "Independent Chromium focused #recovery at scrollY 0, then Back and Forward restored BODY focus because focus changes are not recorded."
+    }
+  ]
+}

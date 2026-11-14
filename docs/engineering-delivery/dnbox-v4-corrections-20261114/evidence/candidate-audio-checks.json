@@ -1,0 +1,74 @@
+[
+  {
+    "src": "http://127.0.0.1:4321/assets/audio/808-groove.wav",
+    "time": 0.166289,
+    "ready": 4,
+    "error": null,
+    "paused": false,
+    "duration": 6.083628
+  },
+  {
+    "src": "http://127.0.0.1:4321/assets/audio/parts-performance.wav",
+    "time": 0.135618,
+    "ready": 4,
+    "error": null,
+    "paused": false,
+    "duration": 12.469116
+  },
+  {
+    "src": "http://127.0.0.1:4321/assets/audio/length-before.wav",
+    "time": 0.126825,
+    "ready": 4,
+    "error": null,
+    "paused": false,
+    "duration": 5.01551
+  },
+  {
+    "src": "http://127.0.0.1:4321/assets/audio/length-chance.wav",
+    "time": 0.16297,
+    "ready": 4,
+    "error": null,
+    "paused": false,
+    "duration": 8.103764
+  },
+  {
+    "src": "http://127.0.0.1:4321/assets/audio/motion-record.wav",
+    "time": 0.135574,
+    "ready": 4,
+    "error": null,
+    "paused": false,
+    "duration": 9.195102
+  },
+  {
+    "src": "http://127.0.0.1:4321/assets/audio/motion-takeover.wav",
+    "time": 0.169088,
+    "ready": 4,
+    "error": null,
+    "paused": false,
+    "duration": 8.428844
+  },
+  {
+    "src": "http://127.0.0.1:4321/assets/audio/break-straight.wav",
+    "time": 0.134207,
+    "ready": 4,
+    "error": null,
+    "paused": false,
+    "duration": 6.130068
+  },
+  {
+    "src": "http://127.0.0.1:4321/assets/audio/break-phrase.wav",
+    "time": 0.143235,
+    "ready": 4,
+    "error": null,
+    "paused": false,
+    "duration": 8.034104
+  },
+  {
+    "src": "http://127.0.0.1:4321/assets/audio/song-two-bars.wav",
+    "time": 0.132193,
+    "ready": 4,
+    "error": null,
+    "paused": false,
+    "duration": 9.961361
+  }
+]

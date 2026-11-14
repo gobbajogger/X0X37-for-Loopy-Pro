@@ -1,0 +1,305 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "scope": {
+    "base": "explicit baseline archive /workspace/website-v4-inputs/DnBOX-v4-product-and-evidence-20261114/DnBOX-v4/site",
+    "branch": "wip/dnbox-v4-corrections-20261114",
+    "head_sha": "035026fe70059af35e25c7c121b40f318b732fe3",
+    "pr_url": null,
+    "files_changed": 8,
+    "source_hashes": "source-hashes.json"
+  },
+  "intent": "Add truthful recorded musical examples, concise version-matched musical journeys and adjacent install backup warnings; preserve native initial keyboard navigation and restore route/history focus and position.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "adversarial",
+    "julik-frontend-races"
+  ],
+  "findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "file": "docs/website-v4-corrections-20261114/site/navigation.js",
+      "first_evidence": "docs/website-v4-corrections-20261114/site/navigation.js:22 --  render();renderedURL=location.href;",
+      "independent_reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "line": 22,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Include open details identifiers or stable indices in each entry snapshot, capture toggle events, and apply that state immediately after render() and before focus/scroll restoration. Verify expanded bass and sample disclosures across Back/Forward at desktop and narrow widths.",
+      "title": "Restore disclosure state before scroll",
+      "why_it_matters": "Returning to an expanded musical task closes its disclosure and can jump the reader to a different position. Re-rendering discards open details before the saved scroll is applied, so the shorter page clamps the requested position; the scroll listener then overwrites the history entry with that wrong position. Preserve each entry\u2019s open disclosures and restore them before measuring or scrolling.",
+      "evidence": [
+        "docs/website-v4-corrections-20261114/site/navigation.js:22 --  render();renderedURL=location.href;",
+        "docs/website-v4-corrections-20261114/site/navigation.js:29 --    focus?.focus({preventScroll:true});scrollTo(0,saved?.y||0);restoringRoute=false;",
+        "Independent Chromium reproduction at 1440x900: open #learn/bass directly, expand Let the phrase drift, scroll the next-task link into view. Before leaving, scrollY=471, document max scroll=471, details.open=true. Follow next-task link and Back: details.open=false, max scroll=294, scrollY=294; history entry is overwritten with y=294.",
+        "Reproduced against http://127.0.0.1:4321/#learn/bass with Playwright Chromium: open details; scroll footer Home into view; before={y:1057,height:1757,open:true}; click footer Home; browser Back; after={y:817,height:1517,open:false}. The saved entry is then overwritten with the clamped y=817 by the subsequent scroll snapshot."
+      ]
+    },
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 100,
+      "file": "docs/website-v4-corrections-20261114/site/navigation.js",
+      "first_evidence": "docs/website-v4-corrections-20261114/site/navigation.js:50 -- window.addEventListener('popstate',()=>showRoute('history'));",
+      "independent_reviewers": [],
+      "line": 50,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "orchestrator"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Distinguish popstate for a newly created fragment entry without dnboxRoute state from a saved traversal. Initialize the entry and use navigate mode so the heading receives focus; test address-bar and location.hash navigation plus subsequent Back/Forward.",
+      "title": "Initialize entries for direct hash navigation",
+      "why_it_matters": "A newly assigned fragment route can render without focusing its heading and without receiving history state. Chromium fires popstate with null state before hashchange for location.hash navigation; the popstate handler uses history mode and marks renderedURL current, so the later hashchange returns without initializing the entry. The page keeps the prior focused navigation element and cannot record its new reading position.",
+      "evidence": [
+        "docs/website-v4-corrections-20261114/site/navigation.js:50 -- window.addEventListener('popstate',()=>showRoute('history'));",
+        "docs/website-v4-corrections-20261114/site/navigation.js:53 --  if(renderedURL===location.href)return;",
+        "Independent Chromium seam: focused skip anchor, then location.hash=learn/bass; route renders with A focus and history.state=null. See independent-browser-seams.json."
+      ]
+    },
+    {
+      "#": 3,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "file": "docs/website-v4-corrections-20261114/site/navigation.js",
+      "first_evidence": "docs/website-v4-corrections-20261114/site/navigation.js:50 -- window.addEventListener('popstate',()=>showRoute('history'));",
+      "independent_reviewers": [
+        "correctness",
+        "adversarial",
+        "testing",
+        "julik-frontend-races"
+      ],
+      "line": 50,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness",
+        "adversarial",
+        "testing",
+        "julik-frontend-races"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Add a focusin listener that snapshots the current entry outside restoration, using the existing rememberRoutePosition helper; ensure focused controls and route headings receive stable restoration locators, then test focus-only changes followed by Back/Forward.",
+      "title": "Persist focus before browser history traversal",
+      "why_it_matters": "Keyboard users lose their place when they focus a control and then use browser Back and Forward without scrolling. The entry is saved only on link clicks, scroll and pagehide; same-document history traversal emits no pagehide, so the focused control never enters the saved state and Forward returns focus to BODY. Persist focus changes as they occur, while suppressing restoration-generated snapshots.",
+      "evidence": [
+        "docs/website-v4-corrections-20261114/site/navigation.js:50 -- window.addEventListener('popstate',()=>showRoute('history'));",
+        "docs/website-v4-corrections-20261114/site/navigation.js:49 -- window.addEventListener('pagehide',rememberRoutePosition);",
+        "Independent Chromium reproduction at 1440x900: #home -> nav Guide -> #learn/beat; focus #teacher-next while scrollY=0. Before Back, history.state.dnboxRoute={y:0,focus:null}. Back then Forward restores #learn/beat with document.activeElement.tagName=BODY, id empty, scrollY=0.",
+        "docs/website-v4-corrections-20261114/site/navigation.js:47 --  scrollSnapshotPending=true;requestAnimationFrame(()=>{scrollSnapshotPending=false;if(!restoringRoute)rememberRoutePosition();});",
+        "Reproduced with real Playwright keyboard input at 1440\u00d7900: open #home, click header Guide, press Shift+Tab four times -> activeElement href #files, y=0, history focus null. Browser Back then Forward -> activeElement href #learn, y=0, history focus remains null. Same-document traversal does not dispatch pagehide.",
+        "site/navigation.js:50 -- window.addEventListener('popstate',()=>showRoute('history'));",
+        "site/navigation.js:42 snapshots focus only for intercepted route-link clicks; lines 45-49 otherwise update on scroll and pagehide, with no focusin handler.",
+        "tests/navigation.py:11 records document.activeElement.outerHTML on Back but asserts only scroll position; line 12 likewise asserts Forward scroll only.",
+        "Independent Chromium reproduction against the candidate at http://127.0.0.1:4321: companion main breadcrumb focused at y=0; history.state.dnboxRoute.focus remained null; Back then Forward restored #nav a[href='#companion'] instead.",
+        "docs/website-v4-corrections-20261114/site/navigation.js:42 --  event.preventDefault();rememberRoutePosition();",
+        "Independent Chromium reproduction against the runnable candidate on http://127.0.0.1:4321: click footer Recovery help, focus #recovery, wait, Back, wait, Forward, wait. Before Back: activeElement.id=recovery, scrollY=0, history.state.dnboxRoute.focus=null. After Forward: activeElement is <a href=\"#help/recover\">Recovery help</a>, scrollY=0. Repeated with 150 ms and 300 ms waits."
+      ]
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "file": "docs/website-v4-corrections-20261114/site/navigation.js",
+      "first_evidence": "docs/website-v4-corrections-20261114/site/navigation.js:22 --  render();renderedURL=location.href;",
+      "independent_reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "line": 22,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Include open details identifiers or stable indices in each entry snapshot, capture toggle events, and apply that state immediately after render() and before focus/scroll restoration. Verify expanded bass and sample disclosures across Back/Forward at desktop and narrow widths.",
+      "title": "Restore disclosure state before scroll",
+      "why_it_matters": "Returning to an expanded musical task closes its disclosure and can jump the reader to a different position. Re-rendering discards open details before the saved scroll is applied, so the shorter page clamps the requested position; the scroll listener then overwrites the history entry with that wrong position. Preserve each entry\u2019s open disclosures and restore them before measuring or scrolling.",
+      "evidence": [
+        "docs/website-v4-corrections-20261114/site/navigation.js:22 --  render();renderedURL=location.href;",
+        "docs/website-v4-corrections-20261114/site/navigation.js:29 --    focus?.focus({preventScroll:true});scrollTo(0,saved?.y||0);restoringRoute=false;",
+        "Independent Chromium reproduction at 1440x900: open #learn/bass directly, expand Let the phrase drift, scroll the next-task link into view. Before leaving, scrollY=471, document max scroll=471, details.open=true. Follow next-task link and Back: details.open=false, max scroll=294, scrollY=294; history entry is overwritten with y=294.",
+        "Reproduced against http://127.0.0.1:4321/#learn/bass with Playwright Chromium: open details; scroll footer Home into view; before={y:1057,height:1757,open:true}; click footer Home; browser Back; after={y:817,height:1517,open:false}. The saved entry is then overwritten with the clamped y=817 by the subsequent scroll snapshot."
+      ]
+    },
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 100,
+      "file": "docs/website-v4-corrections-20261114/site/navigation.js",
+      "first_evidence": "docs/website-v4-corrections-20261114/site/navigation.js:50 -- window.addEventListener('popstate',()=>showRoute('history'));",
+      "independent_reviewers": [],
+      "line": 50,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "orchestrator"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Distinguish popstate for a newly created fragment entry without dnboxRoute state from a saved traversal. Initialize the entry and use navigate mode so the heading receives focus; test address-bar and location.hash navigation plus subsequent Back/Forward.",
+      "title": "Initialize entries for direct hash navigation",
+      "why_it_matters": "A newly assigned fragment route can render without focusing its heading and without receiving history state. Chromium fires popstate with null state before hashchange for location.hash navigation; the popstate handler uses history mode and marks renderedURL current, so the later hashchange returns without initializing the entry. The page keeps the prior focused navigation element and cannot record its new reading position.",
+      "evidence": [
+        "docs/website-v4-corrections-20261114/site/navigation.js:50 -- window.addEventListener('popstate',()=>showRoute('history'));",
+        "docs/website-v4-corrections-20261114/site/navigation.js:53 --  if(renderedURL===location.href)return;",
+        "Independent Chromium seam: focused skip anchor, then location.hash=learn/bass; route renders with A focus and history.state=null. See independent-browser-seams.json."
+      ]
+    },
+    {
+      "#": 3,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "file": "docs/website-v4-corrections-20261114/site/navigation.js",
+      "first_evidence": "docs/website-v4-corrections-20261114/site/navigation.js:50 -- window.addEventListener('popstate',()=>showRoute('history'));",
+      "independent_reviewers": [
+        "correctness",
+        "adversarial",
+        "testing",
+        "julik-frontend-races"
+      ],
+      "line": 50,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness",
+        "adversarial",
+        "testing",
+        "julik-frontend-races"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Add a focusin listener that snapshots the current entry outside restoration, using the existing rememberRoutePosition helper; ensure focused controls and route headings receive stable restoration locators, then test focus-only changes followed by Back/Forward.",
+      "title": "Persist focus before browser history traversal",
+      "why_it_matters": "Keyboard users lose their place when they focus a control and then use browser Back and Forward without scrolling. The entry is saved only on link clicks, scroll and pagehide; same-document history traversal emits no pagehide, so the focused control never enters the saved state and Forward returns focus to BODY. Persist focus changes as they occur, while suppressing restoration-generated snapshots.",
+      "evidence": [
+        "docs/website-v4-corrections-20261114/site/navigation.js:50 -- window.addEventListener('popstate',()=>showRoute('history'));",
+        "docs/website-v4-corrections-20261114/site/navigation.js:49 -- window.addEventListener('pagehide',rememberRoutePosition);",
+        "Independent Chromium reproduction at 1440x900: #home -> nav Guide -> #learn/beat; focus #teacher-next while scrollY=0. Before Back, history.state.dnboxRoute={y:0,focus:null}. Back then Forward restores #learn/beat with document.activeElement.tagName=BODY, id empty, scrollY=0.",
+        "docs/website-v4-corrections-20261114/site/navigation.js:47 --  scrollSnapshotPending=true;requestAnimationFrame(()=>{scrollSnapshotPending=false;if(!restoringRoute)rememberRoutePosition();});",
+        "Reproduced with real Playwright keyboard input at 1440\u00d7900: open #home, click header Guide, press Shift+Tab four times -> activeElement href #files, y=0, history focus null. Browser Back then Forward -> activeElement href #learn, y=0, history focus remains null. Same-document traversal does not dispatch pagehide.",
+        "site/navigation.js:50 -- window.addEventListener('popstate',()=>showRoute('history'));",
+        "site/navigation.js:42 snapshots focus only for intercepted route-link clicks; lines 45-49 otherwise update on scroll and pagehide, with no focusin handler.",
+        "tests/navigation.py:11 records document.activeElement.outerHTML on Back but asserts only scroll position; line 12 likewise asserts Forward scroll only.",
+        "Independent Chromium reproduction against the candidate at http://127.0.0.1:4321: companion main breadcrumb focused at y=0; history.state.dnboxRoute.focus remained null; Back then Forward restored #nav a[href='#companion'] instead.",
+        "docs/website-v4-corrections-20261114/site/navigation.js:42 --  event.preventDefault();rememberRoutePosition();",
+        "Independent Chromium reproduction against the runnable candidate on http://127.0.0.1:4321: click footer Recovery help, focus #recovery, wait, Back, wait, Forward, wait. Before Back: activeElement.id=recovery, scrollY=0, history.state.dnboxRoute.focus=null. After Forward: activeElement is <a href=\"#help/recover\">Recovery help</a>, scrollY=0. Repeated with 150 ms and 300 ms waits."
+      ]
+    }
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan_source": "explicit task-local PLAN.md, legacy requirements-level numbered plan",
+    "source_requirements": [
+      {
+        "requirement": "Adjacent backup-failure warning",
+        "status": "met"
+      },
+      {
+        "requirement": "Authentic recorded examples and source/version-matched musical tasks",
+        "status": "met in source review; no hardware/acoustic qualification claimed"
+      },
+      {
+        "requirement": "Version distinction and sample expectations",
+        "status": "met in source review"
+      },
+      {
+        "requirement": "Native initial focus and intentional/history navigation",
+        "status": "partially addressed; findings 1-3 require correction"
+      }
+    ],
+    "process_boundaries": "Independent review is complete; source-owner repair, subsequent qualification, Library/Git delivery and sole-publisher deployment remain separate stages."
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [],
+  "testing_gaps": [],
+  "coverage": {
+    "depth": "full",
+    "scope_note": "Eight explicitly authorized archive files reviewed despite untracked status; unrelated canonical checkout excluded. Exact baseline directory diff is authoritative. Bundled review-scope.py ran against HEAD and found zero tracked changes, lite_eligible=false; depth:full independently forbids lite.",
+    "standards": "Root AGENTS.md fallback governs all eight files; no applicable CODING_STANDARDS.md or matching solutions corpus/config.",
+    "conditional_reasons": {
+      "testing": "New route/history state and audio behavior; checked relevant current tests.",
+      "maintainability": "New navigation and content abstractions.",
+      "adversarial": "History persistence and event-ordering composition.",
+      "julik-frontend-races": "DOM replacement, focus restoration and animation-frame/event ordering."
+    },
+    "cross_model_pass": "not run: host Codex; only Codex CLI installed; no attestably different installed route. Local adversarial fallback completed. No peer job started.",
+    "validator_shortcuts": 0,
+    "validator_batch": {
+      "status": "complete",
+      "selected": 3,
+      "validated": 3,
+      "dropped": 0,
+      "verdicts": [
+        {
+          "#": 1,
+          "validated": true,
+          "reason": "Independent Chromium expanded bass details at scrollY 471, then navigated away and Back: details closed and scroll clamped to 294 because no disclosure state is saved."
+        },
+        {
+          "#": 2,
+          "validated": true,
+          "reason": "Independent Chromium location.hash assignment rendered learn/bass with history.state null and focus on the skip anchor, bypassing entry initialization and heading focus."
+        },
+        {
+          "#": 3,
+          "validated": true,
+          "reason": "Independent Chromium focused #recovery at scrollY 0, then Back and Forward restored BODY focus because focus changes are not recorded."
+        }
+      ]
+    },
+    "mechanics": "Bundled findings-mechanics.py validated compact returns; semantic duplicates reconciled and mechanics rerun. Seven admitted candidates became three findings.",
+    "suppressed_by_confidence": {},
+    "malformed_findings": 0,
+    "malformed_returns": 0,
+    "mode_aware_demotions": 0,
+    "failed_reviewers": [],
+    "agent_capacity": "Initial maintainability spawn hit thread-cap backpressure; queued pass completed in the standards reviewer after its empty standards pass. No findings corroborated by those two passes.",
+    "independent_runtime_checks": [
+      "Chromium focus-only Back/Forward, direct new hash routes, expanded-disclosure restoration",
+      "Six JavaScript files parse with node --check",
+      "All ten WAV files decode, contain nonzero PCM and have finite durations"
+    ],
+    "limits": [
+      "No firmware builds, native host suite, hardware/device operations, acoustic listening qualification, public deployment or certificate changes.",
+      "Parent-reported route counts were context, not accepted as independently passed.",
+      "Review source hashes rechecked unchanged before final artifact write."
+    ],
+    "evidence_files": [
+      "independent-browser-seams.json",
+      "independent-static-audio-checks.json",
+      "source-hashes.json",
+      "source-detail-map.json",
+      "mechanical-findings.json",
+      "reconciled-mechanics.json",
+      "validator.json"
+    ]
+  },
+  "artifact_path": "/workspace/X0X37-for-Loopy-Pro/docs/website-v4-corrections-20261114/code-review",
+  "run_id": "website-v4-code-review-20261114"
+}

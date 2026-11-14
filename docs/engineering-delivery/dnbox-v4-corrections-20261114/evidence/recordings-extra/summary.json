@@ -1,0 +1,42 @@
+[
+  {
+    "name": "length-before",
+    "description": "909 four kicks plus Chicago four A2 notes at steps 1/4/7/10, both 16 steps.",
+    "peak": 0.292236328125,
+    "seconds": 5.015510204081632,
+    "wav_sha256": "36d0eaccacc711b25ab6a865f0c97ffaad60060a4d841b10a10f28139906ae66",
+    "raw_sha256": "580bd48e3051412c032485387d97b30e27c2f5bf7a3feead287f4d21b4d79e88"
+  },
+  {
+    "name": "length-chance",
+    "description": "Same 909 + Chicago, Chicago LENGTH reduced by four detents; held step10 chance reduced by ten detents. Actual LCD is retained, values require review.",
+    "peak": 0.3333740234375,
+    "seconds": 8.103764172335602,
+    "wav_sha256": "4faf44cb6129b2c7f75288ba0efa0120550df4a7916c88ee69b36567af012221",
+    "raw_sha256": "b4957b19a7c28ae83c84460a5549c198464a0a43a833defc4133fbba11caef72"
+  },
+  {
+    "name": "motion-record",
+    "description": "Actual Chicago K5 cutoff moves recorded with SEQ REC on, then REC off and four seconds playback.",
+    "peak": 0.33428955078125,
+    "seconds": 9.195102040816327,
+    "wav_sha256": "7b2ea85c9fcba8fe639062c8342f736fad94f5a97beeee2bdf1963e3bec20e2d",
+    "raw_sha256": "906ea62491bab3d56b85fa1177489fa1fbcea5473e9c1d2d695933307227a9ea"
+  },
+  {
+    "name": "motion-takeover",
+    "description": "REC off, K5 cutoff manually lowered by16 detents; uninterrupted playback lets recorded motion return after one pattern pass.",
+    "peak": 0.3433837890625,
+    "seconds": 8.428843537414966,
+    "wav_sha256": "80bca9bafcf32ac0f02941ee6cab3c6a306585f4deb68c1e4d910f61fb137a76",
+    "raw_sha256": "5d8120ca23f8b0bad9667a82601c128e40d1d4815e33f4e9ed38e6a4875f66e5"
+  },
+  {
+    "name": "song-two-bars",
+    "description": "Actual two-bar SONG: Pattern1 on both bars, Chicago muted in bar2; started from selected bar1. LCD/table retained for qualification.",
+    "peak": 0.33648681640625,
+    "seconds": 9.961360544217687,
+    "wav_sha256": "df32de16549a3c0f91eafca24e0e4f8c7b0e54d92a84ff610805575a8dbbb476",
+    "raw_sha256": "d2b4d742280d24860ea4e41d17c876e59525dd342b7b419fa604a3614e2c3191"
+  }
+]

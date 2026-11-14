@@ -1,0 +1,494 @@
+[
+  {
+    "path": "COMMANDS.txt",
+    "pass_hash": true
+  },
+  {
+    "path": "LOCAL_RAW_CAPTURE_HASHES.json",
+    "pass_hash": true
+  },
+  {
+    "path": "README.txt",
+    "pass_hash": true
+  },
+  {
+    "path": "ROADMAP-c834b5b0.md",
+    "pass_hash": true
+  },
+  {
+    "path": "browser-qualification.cjs",
+    "pass_hash": true
+  },
+  {
+    "path": "browser-run.log",
+    "pass_hash": true
+  },
+  {
+    "path": "browser-run2.log",
+    "pass_hash": true
+  },
+  {
+    "path": "build-provenance.json",
+    "pass_hash": true
+  },
+  {
+    "path": "cramen-slot-receipt.json",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-909-lcd-startup-offset-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-909-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-boot.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-break-lcd-partial-no909.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-break-lcd-trs-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-break-only-lcd-startup-offset-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-break-only-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-break-setup-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-break_only.wav",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-browser-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-chicago-lcd-startup-offset-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-chicago-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-controls.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-heavy-break-lcd-startup-offset-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-heavy-break-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-heavy-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-heavy-partial-no909-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-heavy-startup-offset-failed-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-heavy-trs-failed-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-heavy.wav",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-lifecycle.json",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-miami-lcd-startup-offset-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-miami-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-reloaded-panel.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-reset-panel.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-saved-panel.png",
+    "pass_hash": true
+  },
+  {
+    "path": "elite-scene-events.json",
+    "pass_hash": true
+  },
+  {
+    "path": "factory-mix-fx-defaults.txt",
+    "pass_hash": true
+  },
+  {
+    "path": "factory-pattern-defaults.txt",
+    "pass_hash": true
+  },
+  {
+    "path": "heavy-observed.cjs",
+    "pass_hash": true
+  },
+  {
+    "path": "heavy-observed.log",
+    "pass_hash": true
+  },
+  {
+    "path": "heavy-qualification.cjs",
+    "pass_hash": true
+  },
+  {
+    "path": "heavy-run-partial-no909.log",
+    "pass_hash": true
+  },
+  {
+    "path": "heavy-run-startup-offset-failed.log",
+    "pass_hash": true
+  },
+  {
+    "path": "heavy-run-trs-failed.log",
+    "pass_hash": true
+  },
+  {
+    "path": "independent-browser-qa.json",
+    "pass_hash": true
+  },
+  {
+    "path": "independent-browser-qa.md",
+    "pass_hash": true
+  },
+  {
+    "path": "independent-qa-pro-playing.png",
+    "pass_hash": true
+  },
+  {
+    "path": "independent-qa-smoke.cjs",
+    "pass_hash": true
+  },
+  {
+    "path": "independent-qa-smoke.json",
+    "pass_hash": true
+  },
+  {
+    "path": "independent-qa-smoke.log",
+    "pass_hash": true
+  },
+  {
+    "path": "lifecycle-qualification.cjs",
+    "pass_hash": true
+  },
+  {
+    "path": "lifecycle-run.log",
+    "pass_hash": true
+  },
+  {
+    "path": "make-scene-partial-no909.py",
+    "pass_hash": true
+  },
+  {
+    "path": "make-scene-startup-offset-failed.py",
+    "pass_hash": true
+  },
+  {
+    "path": "make-scene-trs-failed.py",
+    "pass_hash": true
+  },
+  {
+    "path": "playwright-install.log",
+    "pass_hash": true
+  },
+  {
+    "path": "playwright-install2.log",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-909-lcd-startup-offset-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-909-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-boot.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-break-lcd-partial-no909.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-break-lcd-trs-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-break-only-lcd-startup-offset-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-break-only-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-break-setup-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-break_only.wav",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-browser-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-chicago-lcd-startup-offset-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-chicago-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-controls.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-heavy-break-lcd-startup-offset-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-heavy-break-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-heavy-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-heavy-partial-no909-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-heavy-startup-offset-failed-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-heavy-trs-failed-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-heavy.wav",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-lifecycle.json",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-miami-lcd-startup-offset-failed.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-miami-lcd.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-reloaded-panel.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-reset-panel.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-saved-panel.png",
+    "pass_hash": true
+  },
+  {
+    "path": "pro-scene-events.json",
+    "pass_hash": true
+  },
+  {
+    "path": "production-summary.json",
+    "pass_hash": true
+  },
+  {
+    "path": "qualification-report.md",
+    "pass_hash": true
+  },
+  {
+    "path": "qualification-summary.json",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/LICENSE",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/cramen-slot-sectors.bin",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/base.css",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/controls.js",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/entry.js",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/firmwares.json",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/fm1_web.wasm",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/fwsc.js",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/identity.mjs",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/index.html",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/jit.js",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/main.js",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/persistence.js",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/style.css",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/tryout.js",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/dnbox/worklet.js",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/qa-register.js",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/qa-worklet.js",
+    "pass_hash": true
+  },
+  {
+    "path": "runtime/qualification.html",
+    "pass_hash": true
+  },
+  {
+    "path": "rust-install.log",
+    "pass_hash": true
+  },
+  {
+    "path": "scene-events-partial-no909.json",
+    "pass_hash": true
+  },
+  {
+    "path": "scene-events-startup-offset-failed.json",
+    "pass_hash": true
+  },
+  {
+    "path": "scene-events-trs-failed.json",
+    "pass_hash": true
+  },
+  {
+    "path": "scene-generation.log",
+    "pass_hash": true
+  },
+  {
+    "path": "scene-receipt-partial-no909.json",
+    "pass_hash": true
+  },
+  {
+    "path": "scene-receipt-startup-offset-failed.json",
+    "pass_hash": true
+  },
+  {
+    "path": "scene-receipt-trs-failed.json",
+    "pass_hash": true
+  },
+  {
+    "path": "scene-receipt.json",
+    "pass_hash": true
+  },
+  {
+    "path": "stock-sample-provenance/NOTICE",
+    "pass_hash": true
+  },
+  {
+    "path": "stock-sample-provenance/README.md",
+    "pass_hash": true
+  },
+  {
+    "path": "stock-sample-provenance/provenance.json",
+    "pass_hash": true
+  },
+  {
+    "path": "summarize.py",
+    "pass_hash": true
+  },
+  {
+    "path": "summary-generation.log",
+    "pass_hash": true
+  },
+  {
+    "path": "tamper-browser-compact.json",
+    "pass_hash": true
+  },
+  {
+    "path": "wasm-build.log",
+    "pass_hash": true
+  },
+  {
+    "path": "write-independent-receipt.py",
+    "pass_hash": true
+  }
+]

@@ -1,0 +1,150 @@
+{
+  "kind": "bounded actual unchanged firmware emulator and source verification",
+  "final_guide": {
+    "path": "/workspace/X0X37-for-Loopy-Pro/docs/website-v4-corrections-20261114/site/journeys.js",
+    "sha256": "1f4075e2887b0f9b1c1af017c9fb84f4f35410a1e896fd251fa402ee53f5f6e5"
+  },
+  "inputs": {
+    "/workspace/website-v4-inputs/PR899-runtime-431d0db8-handoff/runtime/fixture-pro.fwsc": {
+      "sha256": "6f135a3d03bb1a2a4d09d63040c719313612b85590a6af69b293a928e22285bf",
+      "bytes": 651721
+    },
+    "/workspace/website-v4-inputs/PR899-runtime-431d0db8-handoff/runtime/dnbox/fm1_web.wasm": {
+      "sha256": "8f053c488056eed4d3f71d77901ef796e42e055f64eb04fc71a476dd0b58c33d",
+      "bytes": 3391184
+    },
+    "/workspace/website-v4-inputs/PR899-runtime-431d0db8-handoff/runtime/qualification.html": {
+      "sha256": "b2d82299e57e13cb1b60994a64e8984b5e1e4eeb62990f03a751bbc5300c0de4",
+      "bytes": 2705
+    },
+    "/workspace/website-v4-inputs/DnBOX-v4-product-and-evidence-20261114/DnBOX-v4/evidence/ui-79280e76.c": {
+      "sha256": "61c2e8211ddd15b11d2aae383f1b748e17a06426291242d6e7c0309694a34fd5",
+      "bytes": 385098
+    },
+    "/workspace/X0X37-for-Loopy-Pro/docs/website-v4-corrections-20261114/site/journeys.js": {
+      "sha256": "d352a66fda384245842fb8c76b8361460f32fa49f4eaf9c04feabd1c921265fe",
+      "bytes": 11404
+    }
+  },
+  "statuses": {
+    "old_recipe_defect_reproduced": "PASS",
+    "mixed_pattern_assignments_and_bar2_break_mute": "PASS",
+    "common_p5_assignments_and_bar2_chicago_mute": "PASS",
+    "fixed_raw_encoder_count_assumption": "FAIL",
+    "supplementary_p6_p7_song_continuity": "NOT_RUN",
+    "physical_device": "NOT_RUN",
+    "isolated_per_part_listening_ab": "NOT_RUN"
+  },
+  "selected_evidence": {
+    "03-p5-playing": {
+      ".png": "fc41c8a8d9156ce7ece5e6056c018cf700b5f797c91acf36eb21ccbac734c3be",
+      ".json": "30ab672939245779666a457528c48b3f634566cd0fffa285965fd26d26080ca6"
+    },
+    "05-old-f3-twice-overwrites-p1": {
+      ".png": "b9c122586d72b7cfd6468a96c1cf086f7600e0962098dbcb1b9827870f019ce5",
+      ".json": "192c7574ac8fa88ca70f75c6ef8947ccc7f2dc44d628334957b966de4146a3ad"
+    },
+    "06-old-song-p1-playing": {
+      ".png": "c3553a9465255c1f1261d001e45b4a45014d806bcc7fdb8b786388cffdc7838d",
+      ".json": "f75325664f746ffde8dd609cd18f9cbe4e21541636373d55a0cf20abcd0343ec"
+    },
+    "37-mixed-restored-bar1": {
+      ".png": "2baaf5809f99ba56d96b0e4f01660410a722649422015a4e61e1bf8acfdaa25d",
+      ".json": "6d828fb1dc8b7704f3c917c702afb17221253752cbe40013b8d26713634d1e18"
+    },
+    "38-mixed-other-bar-page": {
+      ".png": "54221a505eba19be5cfe08f62985991d160562a5841ccfbd0c451d3085d2558e",
+      ".json": "efd866010f368943a50331e1653c89a352e840119a2a690d704f5a5df6f7c3a3"
+    },
+    "40-mixed-second-page-chi-restored": {
+      ".png": "54221a505eba19be5cfe08f62985991d160562a5841ccfbd0c451d3085d2558e",
+      ".json": "1247b4d98757de58c5f3ed0b380fa090cb54ca09e196ebb48c4e31aeca4db713"
+    },
+    "43-mixed-bar2-restored": {
+      ".png": "29004025b8da63708d8658015269a1d050fb7d6c41503261d15c7c8281961551",
+      ".json": "e27ea1cfb8f1bb4326cb6ce848da3967d929b1eff88a146049af35d2f0a4dab5"
+    },
+    "44-mixed-bar2-break-muted": {
+      ".png": "bb8e71b061f7b6d854610f7b9cbe7e444e4886f14d204b53bb7dd34ddd180927",
+      ".json": "cd77c5c1e2279f211f2dcb7aa3eee287e4529bae85f094447b0f422b70a0b1d4"
+    },
+    "45-mixed-bar2-second-page": {
+      ".png": "121927faa13d7de268fa587a33f30e5e6f62829e1a232e038ea66592ccf34749",
+      ".json": "e9097783733d7223db0e25c11bbd8db365d098c1e650168bdbeafeb443f2a1f5"
+    },
+    "47-mixed-playing-a": {
+      ".png": "2dfc32a03c7c06d174f2f7cab448bfcda720bf34be280399001fe5b8106e5620",
+      ".json": "7e73f5299b4c4c5969903d24cee3c71677bac7a84b4372a88725f46d3b921bc1"
+    },
+    "48-mixed-playing-b": {
+      ".png": "2dfc32a03c7c06d174f2f7cab448bfcda720bf34be280399001fe5b8106e5620",
+      ".json": "195efa446f23bdc8f6a0b86a2e43485e0938510a04220527ff8142d5aa6dba23"
+    },
+    "49-mixed-playing-c": {
+      ".png": "2dfc32a03c7c06d174f2f7cab448bfcda720bf34be280399001fe5b8106e5620",
+      ".json": "d7dd52bec7cdce419e6873f51cfcade871a6af65e8ef58c1ad5d5739774c8166"
+    },
+    "64-common-two-bars-p5": {
+      ".png": "8b40adae08954aa428de2a8fac20d036b5bd1596850c8840e287433bb23c7bee",
+      ".json": "3ad4e29ae026c5c5c72920ee85c0d5163a23efc3df7a67ae5c6c5f6943c73eed"
+    },
+    "65-common-bar2-chi-muted": {
+      ".png": "c5b4f0b873c95ff5d9a54ff39ca5bdf3cd25746ef034d5fbaea560698d981d5b",
+      ".json": "45eaa2dfc98205e75f5d772f5ab3837b9d89b51197225363359b95e1bfba7475"
+    },
+    "66-common-bar1-chi-unmuted": {
+      ".png": "8c0834e7ae89a45758e6d490f33497a1d19a660606fa9332ed833a061b9a76b7",
+      ".json": "8c87e9e7c87bd62ba9b231e418adcf33ece5c2981b347f2fafec26a1daaa9ec9"
+    },
+    "67-common-song-running": {
+      ".png": "1c8d9ab4cea0cdc53752e010ab66256f7d351c6b92103d902a8699306cd634ca",
+      ".json": "57d3f7c9a22c38ee5e42e7434a544b714cbe0735cf500c3acd3602806af8ce7f"
+    },
+    "68-common-song-running-later": {
+      ".png": "1c8d9ab4cea0cdc53752e010ab66256f7d351c6b92103d902a8699306cd634ca",
+      ".json": "85503b7984df2e940dab03e3b52e5e7ba43558fd37b1289169cd6423c8b87c2c"
+    }
+  },
+  "audio_measurements": {
+    "03-p5-playing": {
+      "phase": "audible-common-p5",
+      "blocks": 196,
+      "peak": 0.236083984375,
+      "max_rms": 0.12904124799056485,
+      "errors": []
+    },
+    "06-old-song-p1-playing": {
+      "phase": "old-song-p1-playing",
+      "blocks": 184,
+      "peak": 0,
+      "max_rms": 0,
+      "errors": []
+    },
+    "49-mixed-playing-c": {
+      "phase": "verified-mixed-song",
+      "blocks": 472,
+      "peak": 0.326263427734375,
+      "max_rms": 0.14390251657701347,
+      "errors": []
+    },
+    "69-common-song-stopped": {
+      "phase": "final-common-song",
+      "blocks": 399,
+      "peak": 0.31060791015625,
+      "max_rms": 0.13391327915339574,
+      "errors": []
+    }
+  },
+  "limitations": [
+    "Playback stills show actual playing bar2; first-bar return is source-supported, not directly captured in a playback still.",
+    "Mixed BREAK scenario proves the bar mute and underlying P7 assignment; BREAK steps were not newly entered in that scenario.",
+    "No new musical asset, no pixel alteration, no source/runtime/device/deployment mutation."
+  ],
+  "additional_source_read": {
+    "path": "/workspace/website-v4-inputs/DnBOX-V4-independent-assessment-and-evidence/evidence/source/firmware/src/seq/sequencer.c",
+    "sha256": "3f28ca5c772a51e04dfd854b305199adbfe4a8bfea39aee4e7ab6c6a5f8d16e7",
+    "version_association": "Existing assessment ASSESSMENT.md associates firmware implementation with 79280e76; source-copy receipt distinct from observed emulator proof.",
+    "lines": "495-520",
+    "result": "bar_end wraps to bar0 when k reaches song length"
+  }
+}

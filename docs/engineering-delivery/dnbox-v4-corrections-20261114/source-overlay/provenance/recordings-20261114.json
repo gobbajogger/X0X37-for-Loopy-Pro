@@ -1,0 +1,92 @@
+[
+  {
+    "file": "parts-performance.wav",
+    "sha256": "4bbdd1a198b0695a8ef58f273c5dd3e80c6e082554033962ec6ebfb9f7ad4938",
+    "seconds": 12.469115646258503,
+    "peak": 0.40087890625,
+    "errors": [],
+    "emulated_ms": 12428,
+    "wall_ms": 12989.0,
+    "short_delta": 0
+  },
+  {
+    "file": "808-groove.wav",
+    "sha256": "315f37f0b748a950eb0c4edd6ce1996192bf24e90ee5a1b704eda3f74eb84c15",
+    "seconds": 6.0836281179138325,
+    "peak": 0.400146484375,
+    "errors": [],
+    "emulated_ms": 6058,
+    "wall_ms": 6101.900000000023,
+    "short_delta": 0
+  },
+  {
+    "file": "break-straight.wav",
+    "sha256": "c3cb19997a6f3c8d61bc32eaa115d069b0c11b158386883d9f65bb036a71db0e",
+    "seconds": 6.130068027210885,
+    "peak": 0.40057373046875,
+    "errors": [],
+    "emulated_ms": 6093,
+    "wall_ms": 6083.800000000047,
+    "short_delta": 0
+  },
+  {
+    "file": "break-phrase.wav",
+    "sha256": "a01435da2b796fc9cd5b2c4f6e9691ab258361314cd206829b45241e7f28b2e5",
+    "seconds": 8.034104308390022,
+    "peak": 0.40057373046875,
+    "errors": [],
+    "emulated_ms": 8009,
+    "wall_ms": 8078.100000000093,
+    "short_delta": 0
+  },
+  {
+    "file": "song-two-bars.wav",
+    "sha256": "df32de16549a3c0f91eafca24e0e4f8c7b0e54d92a84ff610805575a8dbbb476",
+    "seconds": 9.961360544217687,
+    "peak": 0.33648681640625,
+    "errors": [],
+    "emulated_ms": 9924,
+    "wall_ms": 10066.099999999977,
+    "short_delta": 0
+  },
+  {
+    "file": "motion-takeover.wav",
+    "sha256": "80bca9bafcf32ac0f02941ee6cab3c6a306585f4deb68c1e4d910f61fb137a76",
+    "seconds": 8.428843537414966,
+    "peak": 0.3433837890625,
+    "errors": [],
+    "emulated_ms": 8391,
+    "wall_ms": 8464.800000000047,
+    "short_delta": 0
+  },
+  {
+    "file": "motion-record.wav",
+    "sha256": "7b2ea85c9fcba8fe639062c8342f736fad94f5a97beeee2bdf1963e3bec20e2d",
+    "seconds": 9.195102040816327,
+    "peak": 0.33428955078125,
+    "errors": [],
+    "emulated_ms": 9156,
+    "wall_ms": 9169.79999999993,
+    "short_delta": 0
+  },
+  {
+    "file": "length-chance.wav",
+    "sha256": "4faf44cb6129b2c7f75288ba0efa0120550df4a7916c88ee69b36567af012221",
+    "seconds": 8.103764172335602,
+    "peak": 0.3333740234375,
+    "errors": [],
+    "emulated_ms": 8078,
+    "wall_ms": 8079.900000000023,
+    "short_delta": 0
+  },
+  {
+    "file": "length-before.wav",
+    "sha256": "36d0eaccacc711b25ab6a865f0c97ffaad60060a4d841b10a10f28139906ae66",
+    "seconds": 5.015510204081632,
+    "peak": 0.292236328125,
+    "errors": [],
+    "emulated_ms": 4979,
+    "wall_ms": 5085.0,
+    "short_delta": 0
+  }
+]

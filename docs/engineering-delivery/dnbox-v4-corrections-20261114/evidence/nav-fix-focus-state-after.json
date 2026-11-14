@@ -1,0 +1,146 @@
+{
+  "navigation_sha256": "d29344dd2f46a80e2ef0edfe30fb770e4ad7493bde12b8ce422bbd7175807485",
+  "checks": [
+    {
+      "case": "Forward restores intentional no-ID H1 focus",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "case": "Forward restores no-ID native button without a link exit",
+      "width": 1440,
+      "passed": true,
+      "saved": {
+        "tag": "BUTTON",
+        "index": 12
+      }
+    },
+    {
+      "case": "Back restores the exact repeated-href link",
+      "width": 1440,
+      "passed": true,
+      "saved": {
+        "href": "#files",
+        "index": 3
+      }
+    },
+    {
+      "case": "Repeated route entries keep independent disclosure state and summary focus",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "case": "Same-origin full-document Back restores disclosure, summary focus and position",
+      "width": 1440,
+      "passed": true,
+      "before": 471,
+      "after": 471,
+      "navigation_type": "back_forward"
+    },
+    {
+      "case": "Control-click retains native new-tab navigation",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "case": "No page errors",
+      "width": 1440,
+      "passed": true,
+      "errors": []
+    },
+    {
+      "case": "Forward restores intentional no-ID H1 focus",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "case": "Forward restores no-ID native button without a link exit",
+      "width": 390,
+      "passed": true,
+      "saved": {
+        "tag": "BUTTON",
+        "index": 12
+      }
+    },
+    {
+      "case": "Back restores the exact repeated-href link",
+      "width": 390,
+      "passed": true,
+      "saved": {
+        "href": "#files",
+        "index": 3
+      }
+    },
+    {
+      "case": "Repeated route entries keep independent disclosure state and summary focus",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "case": "Same-origin full-document Back restores disclosure, summary focus and position",
+      "width": 390,
+      "passed": true,
+      "before": 857,
+      "after": 857,
+      "navigation_type": "back_forward"
+    },
+    {
+      "case": "Control-click retains native new-tab navigation",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "case": "No page errors",
+      "width": 390,
+      "passed": true,
+      "errors": []
+    },
+    {
+      "case": "Forward restores intentional no-ID H1 focus",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "case": "Forward restores no-ID native button without a link exit",
+      "width": 320,
+      "passed": true,
+      "saved": {
+        "tag": "BUTTON",
+        "index": 12
+      }
+    },
+    {
+      "case": "Back restores the exact repeated-href link",
+      "width": 320,
+      "passed": true,
+      "saved": {
+        "href": "#files",
+        "index": 3
+      }
+    },
+    {
+      "case": "Repeated route entries keep independent disclosure state and summary focus",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "case": "Same-origin full-document Back restores disclosure, summary focus and position",
+      "width": 320,
+      "passed": true,
+      "before": 1033,
+      "after": 1033,
+      "navigation_type": "back_forward"
+    },
+    {
+      "case": "Control-click retains native new-tab navigation",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "case": "No page errors",
+      "width": 320,
+      "passed": true,
+      "errors": []
+    }
+  ]
+}

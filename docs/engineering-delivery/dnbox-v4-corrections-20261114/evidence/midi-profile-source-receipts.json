@@ -1,0 +1,24 @@
+{
+  "source_reads": [
+    {
+      "pin": "83fc6d60289869116f93352cf845a9a7e271cdba",
+      "path": "firmware/src/app/engine.c",
+      "git_blob": "89e457446ca76e2be7b59e799c5c7a07ec09fc56",
+      "midi_dispatch_start_line": 1152,
+      "excerpt": "engine-83fc6-midi-in.txt",
+      "excerpt_sha256": "046bd64a1867580fe25f6e66743cd548ea13729753eb05c66c685b8cc13d563b",
+      "finding": "generic dispatcher supports notes/routedtransport; no CC1/64/bend handlers in bass input loop"
+    },
+    {
+      "pin": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+      "path": "firmware/src/app/engine.c",
+      "git_blob": "dddc38dcc3e4ac28fc995fb1e4438703942c5570",
+      "midi_dispatch_start_line": 1635,
+      "excerpt": "engine-94197-midi-in.txt",
+      "excerpt_sha256": "1bb17867613e4e132a3ed67d16d9602f047b19154af5ca20eacbc5465f32cdec",
+      "finding": "explicit CC1/CC64/bend dispatch present under matching part/channel/context"
+    }
+  ],
+  "physical_device": "NOT_RUN",
+  "website_only_change": "profile limits clarified; no companion/MIDI/firmware source changed"
+}

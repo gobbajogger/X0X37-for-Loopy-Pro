@@ -1,0 +1,34 @@
+[
+  {
+    "name": "808-groove",
+    "description": "808 BD on 1/5/9/13, SD on 5/13, CH on 3/7/11/15. Other parts empty.",
+    "peak": 0.400146484375,
+    "seconds": 6.0836281179138325,
+    "wav_sha256": "315f37f0b748a950eb0c4edd6ce1996192bf24e90ee5a1b704eda3f74eb84c15",
+    "raw_sha256": "f9699eb766ee8574e7be2723b9829b9da301508d49ee1165fff8c6e3d8003a85"
+  },
+  {
+    "name": "break-straight",
+    "description": "BREAK alone, CRAMEN separately loaded, all steps on, GROOVE complexity/anchor/roll/fill set minimum.",
+    "peak": 0.40057373046875,
+    "seconds": 6.130068027210885,
+    "wav_sha256": "c3cb19997a6f3c8d61bc32eaa115d069b0c11b158386883d9f65bb036a71db0e",
+    "raw_sha256": "b56d7784f894868a65217416b83fc214b9e64ed2dfb6c1bc417019d7f551a7b6"
+  },
+  {
+    "name": "break-phrase",
+    "description": "Same BREAK sequence, GROOVE complexity +18, roll +25, fill +30 encoder detents from minimum; screenshot supplies actual values.",
+    "peak": 0.40057373046875,
+    "seconds": 8.034104308390022,
+    "wav_sha256": "a01435da2b796fc9cd5b2c4f6e9691ab258361314cd206829b45241e7f28b2e5",
+    "raw_sha256": "fdbd80fc9f1c7a166f55a012bd137bedcae47901175bf86219845d085e08e95e"
+  },
+  {
+    "name": "parts-performance",
+    "description": "Continuous HOME performance: 808 + Chicago; add BREAK; mute Chicago; restore Chicago. HOME part mutes use actual physical F#3/G#3/A#3/C#4/D#4 order.",
+    "peak": 0.40087890625,
+    "seconds": 12.469115646258503,
+    "wav_sha256": "4bbdd1a198b0695a8ef58f273c5dd3e80c6e082554033962ec6ebfb9f7ad4938",
+    "raw_sha256": "b6ded6bd7c61341b3a5e2238210b3638c2c807ceb80944718c6bcbe85f36e7b3"
+  }
+]

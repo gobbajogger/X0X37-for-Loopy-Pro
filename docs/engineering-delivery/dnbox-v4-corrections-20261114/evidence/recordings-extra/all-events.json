@@ -1,0 +1,641 @@
+[
+  {
+    "t": 492,
+    "ms": null,
+    "phase": "boot",
+    "type": "boot",
+    "seq": 1,
+    "wasm": {},
+    "package": {},
+    "sectors": {},
+    "script": {},
+    "mhz": 360,
+    "ahead": 512,
+    "jit": true
+  },
+  {
+    "t": 12259.20000000007,
+    "ms": 12026,
+    "phase": "boot",
+    "type": "key",
+    "id": 6,
+    "down": true
+  },
+  {
+    "t": 12412.900000000023,
+    "ms": 12131,
+    "phase": "boot",
+    "type": "key",
+    "id": 6,
+    "down": false
+  },
+  {
+    "t": 12557.900000000023,
+    "ms": 12305,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 0,
+    "value": 700
+  },
+  {
+    "t": 12705,
+    "ms": 12479,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 0,
+    "value": 0
+  },
+  {
+    "t": 12849.900000000023,
+    "ms": 12618,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 4,
+    "value": 700
+  },
+  {
+    "t": 12994.900000000023,
+    "ms": 12757,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 4,
+    "value": 0
+  },
+  {
+    "t": 13140.600000000093,
+    "ms": 12897,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 8,
+    "value": 700
+  },
+  {
+    "t": 13286.800000000047,
+    "ms": 13036,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 8,
+    "value": 0
+  },
+  {
+    "t": 13434.20000000007,
+    "ms": 13210,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 12,
+    "value": 700
+  },
+  {
+    "t": 13580.600000000093,
+    "ms": 13350,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 12,
+    "value": 0
+  },
+  {
+    "t": 13727.20000000007,
+    "ms": 13489,
+    "phase": "boot",
+    "type": "enc",
+    "enc": 2,
+    "clicks": 1
+  },
+  {
+    "t": 14127.300000000047,
+    "ms": 13872,
+    "phase": "boot",
+    "type": "enc",
+    "enc": 2,
+    "clicks": 1
+  },
+  {
+    "t": 14526.300000000047,
+    "ms": 14290,
+    "phase": "boot",
+    "type": "enc",
+    "enc": 2,
+    "clicks": 1
+  },
+  {
+    "t": 14925.300000000047,
+    "ms": 14672,
+    "phase": "boot",
+    "type": "enc",
+    "enc": 2,
+    "clicks": 1
+  },
+  {
+    "t": 15322.800000000047,
+    "ms": 15090,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 0,
+    "value": 700
+  },
+  {
+    "t": 15468.800000000047,
+    "ms": 15125,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 0,
+    "value": 0
+  },
+  {
+    "t": 15614.100000000093,
+    "ms": 15333,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 3,
+    "value": 700
+  },
+  {
+    "t": 15758.70000000007,
+    "ms": 15508,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 3,
+    "value": 0
+  },
+  {
+    "t": 15902.5,
+    "ms": 15647,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 6,
+    "value": 700
+  },
+  {
+    "t": 16046.70000000007,
+    "ms": 15786,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 6,
+    "value": 0
+  },
+  {
+    "t": 16192.400000000023,
+    "ms": 15926,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 9,
+    "value": 700
+  },
+  {
+    "t": 16338.300000000047,
+    "ms": 16065,
+    "phase": "boot",
+    "type": "analog",
+    "idx": 9,
+    "value": 0
+  },
+  {
+    "t": 16490.20000000007,
+    "ms": 16239,
+    "phase": "boot",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 16635.100000000093,
+    "ms": 16344,
+    "phase": "boot",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 16782.600000000093,
+    "ms": 16517,
+    "phase": "length-before"
+  },
+  {
+    "t": 26373.20000000007,
+    "ms": 25988,
+    "phase": "length-before",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 26517.70000000007,
+    "ms": 26161,
+    "phase": "length-before",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 26661.800000000047,
+    "ms": 26301,
+    "phase": "length-before",
+    "type": "enc",
+    "enc": 4,
+    "clicks": -4
+  },
+  {
+    "t": 27058.70000000007,
+    "ms": 26684,
+    "phase": "length-before",
+    "type": "analog",
+    "idx": 9,
+    "value": 700
+  },
+  {
+    "t": 27203.5,
+    "ms": 26823,
+    "phase": "length-before",
+    "type": "enc",
+    "enc": 1,
+    "clicks": -10
+  },
+  {
+    "t": 27704.5,
+    "ms": 27345,
+    "phase": "length-before",
+    "type": "analog",
+    "idx": 9,
+    "value": 0
+  },
+  {
+    "t": 27848.70000000007,
+    "ms": 27484,
+    "phase": "length-before",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 27995.300000000047,
+    "ms": 27624,
+    "phase": "length-before",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 28139.600000000093,
+    "ms": 27763,
+    "phase": "length-chance"
+  },
+  {
+    "t": 42085.10000000009,
+    "ms": 41690,
+    "phase": "length-chance",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 42230.10000000009,
+    "ms": 41863,
+    "phase": "length-chance",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 42376.90000000002,
+    "ms": 42003,
+    "phase": "length-chance",
+    "type": "key",
+    "id": 50,
+    "down": true
+  },
+  {
+    "t": 42522.20000000007,
+    "ms": 42142,
+    "phase": "length-chance",
+    "type": "key",
+    "id": 50,
+    "down": false
+  },
+  {
+    "t": 42666.60000000009,
+    "ms": 42281,
+    "phase": "length-chance",
+    "type": "key",
+    "id": 40,
+    "down": true
+  },
+  {
+    "t": 42810.20000000007,
+    "ms": 42420,
+    "phase": "length-chance",
+    "type": "key",
+    "id": 40,
+    "down": false
+  },
+  {
+    "t": 43035.20000000007,
+    "ms": 42664,
+    "phase": "length-chance",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 43179.20000000007,
+    "ms": 42803,
+    "phase": "length-chance",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 43323.40000000002,
+    "ms": 42943,
+    "phase": "length-chance",
+    "type": "key",
+    "id": 54,
+    "down": true
+  },
+  {
+    "t": 43467.80000000005,
+    "ms": 43082,
+    "phase": "length-chance",
+    "type": "key",
+    "id": 54,
+    "down": false
+  },
+  {
+    "t": 43612.20000000007,
+    "ms": 43221,
+    "phase": "motion-record"
+  },
+  {
+    "t": 43614,
+    "ms": 43221,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 44012.20000000007,
+    "ms": 43639,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 44411.20000000007,
+    "ms": 44023,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 44807,
+    "ms": 44440,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 45204.60000000009,
+    "ms": 44823,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 45600.80000000005,
+    "ms": 45206,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 46000.10000000009,
+    "ms": 45624,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 46408.30000000005,
+    "ms": 46007,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 46807.20000000007,
+    "ms": 46424,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 47215.20000000007,
+    "ms": 46808,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 47612.40000000002,
+    "ms": 47225,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 48014.20000000007,
+    "ms": 47608,
+    "phase": "motion-record",
+    "type": "enc",
+    "enc": 4,
+    "clicks": 1
+  },
+  {
+    "t": 48413.5,
+    "ms": 48026,
+    "phase": "motion-record",
+    "type": "key",
+    "id": 54,
+    "down": true
+  },
+  {
+    "t": 48560,
+    "ms": 48165,
+    "phase": "motion-record",
+    "type": "key",
+    "id": 54,
+    "down": false
+  },
+  {
+    "t": 60236.60000000009,
+    "ms": 59794,
+    "phase": "motion-takeover"
+  },
+  {
+    "t": 60239.10000000009,
+    "ms": 59794,
+    "phase": "motion-takeover",
+    "type": "enc",
+    "enc": 4,
+    "clicks": -16
+  },
+  {
+    "t": 74207.6000000001,
+    "ms": 73685,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 74350.90000000002,
+    "ms": 73824,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 74494.80000000005,
+    "ms": 73999,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 49,
+    "down": true
+  },
+  {
+    "t": 74641.6000000001,
+    "ms": 74137,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 49,
+    "down": false
+  },
+  {
+    "t": 74785.70000000007,
+    "ms": 74277,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 49,
+    "down": true
+  },
+  {
+    "t": 74929.5,
+    "ms": 74417,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 49,
+    "down": false
+  },
+  {
+    "t": 75076,
+    "ms": 74521,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 5,
+    "down": true
+  },
+  {
+    "t": 75222,
+    "ms": 74695,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 5,
+    "down": false
+  },
+  {
+    "t": 75366.40000000002,
+    "ms": 74834,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 5,
+    "down": true
+  },
+  {
+    "t": 75510.40000000002,
+    "ms": 75008,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 5,
+    "down": false
+  },
+  {
+    "t": 75657.40000000002,
+    "ms": 75147,
+    "phase": "motion-takeover",
+    "type": "enc",
+    "enc": 4,
+    "clicks": -1
+  },
+  {
+    "t": 76053,
+    "ms": 75531,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 13,
+    "down": true
+  },
+  {
+    "t": 76197.30000000005,
+    "ms": 75670,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 13,
+    "down": false
+  },
+  {
+    "t": 76341.90000000002,
+    "ms": 75844,
+    "phase": "motion-takeover",
+    "type": "enc",
+    "enc": 4,
+    "clicks": -1
+  },
+  {
+    "t": 76839.80000000005,
+    "ms": 76332,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 76985.80000000005,
+    "ms": 76471,
+    "phase": "motion-takeover",
+    "type": "key",
+    "id": 53,
+    "down": false
+  },
+  {
+    "t": 77131.5,
+    "ms": 76610,
+    "phase": "song-two-bars"
+  },
+  {
+    "t": 94969.30000000005,
+    "ms": 94261,
+    "phase": "song-two-bars",
+    "type": "key",
+    "id": 53,
+    "down": true
+  },
+  {
+    "t": 95113.5,
+    "ms": 94401,
+    "phase": "song-two-bars",
+    "type": "key",
+    "id": 53,
+    "down": false
+  }
+]

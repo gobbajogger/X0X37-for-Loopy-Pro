@@ -1,0 +1,81 @@
+{
+  "status": "complete",
+  "verdict": "PASS for the three navigation fixes",
+  "completed_at": "2026-11-14T12:37:22.534421+00:00",
+  "original_review": "review.json",
+  "scope": "Focused requalification of validated findings 1, 2 and 3; manual scan of navigation corrections for introduced regressions. No new review roster.",
+  "candidate": {
+    "manifest_file": "site/MANIFEST.sha256",
+    "manifest_sha256": "f93aa4c97fc5989cf4f7aae941814a1f3794b2529c06a0ddcab627d59c862c17",
+    "site_files": 69,
+    "manifest_entries": 68,
+    "all_manifest_entries_verified": true,
+    "navigation_sha256": "d29344dd2f46a80e2ef0edfe30fb770e4ad7493bde12b8ce422bbd7175807485",
+    "served_navigation_sha256_verified_at_each_width": true,
+    "hashes_rechecked_after_tests": true
+  },
+  "resolved_findings": [
+    {
+      "#": 1,
+      "status": "resolved",
+      "evidence": "Expanded bass disclosure stays open and Back restores scrollY exactly: 471 at width 1440, 857 at 390, 1033 at 320."
+    },
+    {
+      "#": 2,
+      "status": "resolved",
+      "evidence": "Direct location.hash navigation receives dnboxRoute state and H1 focus; Forward restores H1. Verified at all three widths."
+    },
+    {
+      "#": 3,
+      "status": "resolved",
+      "evidence": "Focus-only #recovery selection survives Back/Forward at unchanged scrollY=0. No-ID controls and exact repeated-href links also restore."
+    }
+  ],
+  "unresolved_findings": [],
+  "new_actionable_findings": [],
+  "independent_browser": {
+    "engine": "Headless /usr/bin/chromium through Python Playwright",
+    "widths": [
+      1440,
+      390,
+      320
+    ],
+    "height": 900,
+    "checks": 36,
+    "passed": 36,
+    "failed": 0,
+    "page_errors": 0,
+    "reduced_motion": "reduce for deterministic position comparisons",
+    "evidence": "requalification-browser.json",
+    "script": "requalify_navigation.py",
+    "extra_seams": [
+      "Fresh initial Tab -> skip",
+      "Intentional no-ID H1 focus after Forward",
+      "No-ID native button focus",
+      "Independent disclosure state across repeated route entries",
+      "Summary focus",
+      "Exact duplicate-href restoration",
+      "Full-document Back reload restores disclosure, focus and position",
+      "Queued fragment events retain final route heading and initialized state"
+    ]
+  },
+  "manual_diff_scan": {
+    "artifact": "navigation-requalification.diff",
+    "result": "No new actionable regression found. Inspected focus locator encoding/lookup, focus cache reset, disclosure snapshot and restore ordering, null-state fragment initialization, generation guards, pagehide/pageshow and full-document Back handling.",
+    "syntax": "node --check navigation.js PASS"
+  },
+  "boundaries": [
+    "Source unchanged throughout checks.",
+    "No Git writes, public writes, review-job dispatch, deployment, device action or certificate mutation.",
+    "Journey and recording-label changes remain with the full-product reviewer.",
+    "Parent test counts were context; all 36 recorded checks above were run independently here.",
+    "Chromium-focused proof; other browser engines and hardware/acoustic behavior were not qualified."
+  ],
+  "artifacts": [
+    "requalification.json",
+    "requalification.md",
+    "requalification-browser.json",
+    "requalify_navigation.py",
+    "navigation-requalification.diff"
+  ]
+}
