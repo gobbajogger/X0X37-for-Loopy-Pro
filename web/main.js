@@ -484,17 +484,24 @@ function setVelocity(f) {
 }
 const NKEY = 37, BTN0 = 37;
 
-// The accessible DnBOX keyboard sends events to exactly the same emulated GPIO,
-// analog multiplexers and encoders as the upstream hit-tested panel. No JS sound.
+// The DnBOX page uses the same tested hold registry for canvas, accessible
+// controls, computer keyboard and optional Web MIDI. It emits a hardware
+// transition only on first press and final release of each key/button/pad.
+// Non-DnBOX FM-1 and SMK-37 pages keep their original event routing.
+const dnboxHolds = DNBOX ? (await import('./controls.js')).heldRouter(({ kind, id, down: on }) => {
+  if (kind === 'pad') setAnalog(id, on ? 700 : 0);
+  else setKey(id, on);
+}) : null;
 if (DNBOX) document.addEventListener('dnbox:input', (e) => {
   const { kind, id, down: on, value, clicks } = e.detail || {};
+  const token = 'access:' + kind + ':' + id;
   if (kind === 'key' && Number.isInteger(id) && id >= 0 && id < NKEY) {
     if (on) setVelocity(.75);
-    if (on) press(id); else unpress(id);
+    if (on) press(id, token); else unpress(id, token);
   } else if (kind === 'button' && Number.isInteger(id) && id >= BTN0 && id <= 54) {
-    if (on) press(id); else unpress(id);
+    if (on) press(id, token); else unpress(id, token);
   } else if (kind === 'pad' && Number.isInteger(id) && id >= 0 && id < 16) {
-    setAnalog(id, on ? 700 : 0);
+    if (on) pressPad(id, token); else unpressPad(id, token);
   } else if (kind === 'analog' && Number.isInteger(id) && id >= 16 && id <= 21 &&
     Number.isFinite(value)) {
     setAnalog(id, value);
@@ -511,25 +518,41 @@ const at = (e) => {
   const r = canvas.getBoundingClientRect();
   return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
 };
-const holds = new Uint8Array(64);          // pointers holding each key / button
-function press(id) { if (holds[id]++ === 0) setKey(id, true); }
-function unpress(id) { if (holds[id] && --holds[id] === 0) setKey(id, false); }
-const pointers = new Map();                // pointerId -> { grab, lastY, acc, held }
+const holds = new Uint8Array(64);          // original FM-1/SMK-37 pointer refcounts
+function press(id, token) {
+  if (DNBOX) return dnboxHolds.press(token, id < NKEY ? 'key' : 'button', id);
+  if (holds[id]++ === 0) setKey(id, true);
+}
+function unpress(id, token) {
+  if (DNBOX) return dnboxHolds.release(token);
+  if (holds[id] && --holds[id] === 0) setKey(id, false);
+}
+function pressPad(id, token) {
+  if (DNBOX) return dnboxHolds.press(token, 'pad', id);
+  setAnalog(id, 700);
+}
+function unpressPad(id, token) {
+  if (DNBOX) return dnboxHolds.release(token);
+  setAnalog(id, 0);
+}
+const pointers = new Map();                // pointerId -> { token, grab, lastY, acc, held }
 canvas.addEventListener("pointerdown", (e) => {
+  if (pointers.has(e.pointerId) || (DNBOX && (booting || !running))) return;
   const [x, y] = at(e);
-  const p = { grab: ui.panel_hit(x, y), lastY: y, acc: 0, held: -1 };
+  const p = { grab: ui.panel_hit(x, y), lastY: y, acc: 0, held: -1,
+    token: 'canvas:pointer:' + e.pointerId };
   pointers.set(e.pointerId, p);
   canvas.setPointerCapture(e.pointerId);
   if (p.grab >= 100 && p.grab < 200) {
     p.held = p.grab - 100;
     // SMK-37: a key hit further down sounds harder
     if (board === 1 && p.held < NKEY) setVelocity(ui.panel_hit_y());
-    press(p.held);
+    press(p.held, p.token);
   } else if (board === 1 && p.grab >= 200) slide(p, y);
 });
 // SMK-37: a pad pressed (harder the lower it is hit), a fader or a wheel dragged
 function slide(p, y) {
-  if (p.grab < 300) setAnalog(p.grab - 200, 700);
+  if (p.grab < 300) pressPad(p.grab - 200, p.token);
   else if (p.grab < 400) setAnalog(16 + p.grab - 300, ui.panel_slide(p.grab - 300, y));
   else setAnalog(p.grab === 400 ? 20 : 21, ui.panel_slide(p.grab === 400 ? 4 : 5, y));
 }
@@ -541,10 +564,10 @@ canvas.addEventListener("pointermove", (e) => {
   if (p.grab >= 100 && p.grab < 200 && p.held >= keys[0] && p.held < keys[1]) {
     const h = ui.panel_hit(x, y);              // glissando over the note keys
     if (h >= 100 + keys[0] && h < 100 + keys[1] && h - 100 !== p.held) {
-      unpress(p.held);
+      unpress(p.held, p.token);
       p.held = h - 100;
       if (board === 1) setVelocity(ui.panel_hit_y());
-      press(p.held);
+      press(p.held, p.token);
     }
   } else if (board === 1 && p.grab >= 300) {
     slide(p, y);
@@ -560,8 +583,8 @@ canvas.addEventListener("pointermove", (e) => {
 const release = (e) => {
   const p = pointers.get(e.pointerId);
   if (!p) return;
-  if (p.held >= 0) unpress(p.held);
-  if (board === 1 && p.grab >= 200 && p.grab < 216) setAnalog(p.grab - 200, 0);   // a pad let go
+  if (p.held >= 0) unpress(p.held, p.token);
+  if (board === 1 && p.grab >= 200 && p.grab < 216) unpressPad(p.grab - 200, p.token);
   if (board === 1 && p.grab === 400) setAnalog(20, PITCH_REST);                   // the pitch wheel springs back
   pointers.delete(e.pointerId);
 };
