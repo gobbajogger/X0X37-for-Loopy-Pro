@@ -21,7 +21,7 @@ Old plans, rosters, logs, and archives are evidence. They do not assign work or 
 
 ### Rule 2: process and edit ownership
 
-Use an isolated lane per task and finish it with its accountable owner. A fresh receiver is needed only for a real transfer under the [continuation contract](../x0x37-workflow/references/handoff.md); do not create another copy.
+Use an isolated lane per task and finish it with its accountable owner. Use meaningful stage threads and handoffs under the [continuation contract](../x0x37-workflow/references/handoff.md); do not create another copy per task.
 At task start, check other project chats. Read their current scopes before shared work; refresh stale information.
 Before thread contact, shared changes, or process cleanup, read [ownership](references/ownership.md).
 It defines context requests, completion notices, task handoffs, process ownership, and permitted contact.

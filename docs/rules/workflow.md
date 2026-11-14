@@ -1,5 +1,8 @@
 # Workflow routing
 
+Read the [current owner contract](current-owner-contract.md) for the later cloud,
+Grok ownership and meaningful-stage instructions before applying this workflow.
+
 The maintained code and PR workflow is [x0x37-workflow](../../skills/x0x37-workflow/SKILL.md). Start with [AGENTS.md](../../AGENTS.md), then load the selected project skill. Sol Loop, Full Send, and Full Stop require distinct explicit requests. Current owner instructions and action-specific permission govern every step.
 
 For recurring work, resolve the live `coordination/merge-queue` ref and read the
