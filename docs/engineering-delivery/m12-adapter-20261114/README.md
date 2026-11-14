@@ -66,7 +66,23 @@ The following is a **synthetic shape**, not an accepted DnBOX release selection.
 
 The root ROADMAP must link all three canonical queue files. Each selected request is matched to one unique `##` canonical record, its `Preserved source section` identity and one exact original table-row first cell. The explicit original row supports reviewed historical aliases without interpreting arbitrary PR numbers in prose as request IDs. Duplicate canonical records, missing/ambiguous rows, duplicate policy/report obligations and duplicate JSON keys refuse validation. Code-fenced examples do not create records.
 
-Non-table canonical records remain visible but cannot be selected by this table-backed schema. At the pinned current ROADMAP this applies to COMP1. A future policy requiring COMP1 needs an independently reviewed non-table identity extension; leaving it unselected is not permission to waive an already-required obligation.
+A non-table canonical record may instead use this additive selector, alongside unchanged table-backed selections in the same policy:
+
+```json
+{
+  "request_id": "COMP1",
+  "identity": {
+    "kind": "request-source",
+    "document": "docs/roadmap/Working.md",
+    "sha256": "SHA256_OF_EXACT_REQUEST_SOURCE_VALUE"
+  },
+  "obligations": [{"id": "source", "level": "source", "paths": ["synthetic/feature.c"]}]
+}
+```
+
+This is also a synthetic shape, not a product selection. `document` must equal the request's actual pinned canonical queue. The SHA-256 covers the exact nonempty LF/CRLF-delimited value after `**Request/source:** `, encoded in UTF-8 without a newline. Do not trim its leading or trailing value whitespace or normalize Unicode. Unicode/control separators inside a logical line remain part of its exact UTF-8 value, never an ignored suffix. There must be exactly one visible source field, with that marker and separating space; missing, empty, duplicate, indented or fenced-only source metadata refuses validation. Indented field occurrences count as malformed metadata rather than disappearing from uniqueness checks. Fenced examples are ignored, not treated as provenance.
+
+This selector is permitted only without any preserved source-section identity or original preserved table rows. Its conservative provenance guard also rejects visible indented/malformed preserved-source markers and pipe-leading table-shaped lines, including orphan tables or unrelated table-shaped content. A record with such content needs explicit provenance review; it does not receive a non-table fallback. This guard does not broaden the existing strict table selector. It cannot replace a table identity even if that identity is malformed or the expected historical row is missing. A selection containing `identity` must not also contain `source_section` or `row`, including null values. Wrong identity kinds, documents or digests refuse validation. All candidate, ROADMAP, queue, policy, evidence-level and receipt rules still apply. Selecting COMP1 proves neither the companion implementation nor real MIDI, publication or device acceptance. Leaving an independently required obligation unselected is not permission to waive it.
 
 The accepted policy, not `REQUIRED_ROWS.txt` or the evidence's row count, defines every required obligation. Missing evidence produces `NOT_RUN` and a nonzero exit. Unselected records remain listed with their current disposition; they are not deleted or called complete. Current owner-held IDs `#119`, `26.7` and `M5` cannot be selected by this implementation. The tool cannot reopen deferred/declined work or define M5.
 
