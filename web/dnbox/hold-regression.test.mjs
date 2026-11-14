@@ -12,7 +12,7 @@ const last = source.indexOf('// ------------------------------------------------
 assert(first >= 0 && last > first, 'could not find the production input event handlers');
 const snippet = source.slice(first, last);
 assert.match(snippet, /await import\('\.\/controls\.js'\)/);
-const injected = snippet.replace("await import('./controls.js')", 'Promise.resolve({heldRouter})');
+const injected = snippet.replace("await import('./controls.js')", 'await Promise.resolve({heldRouter})');
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 async function mount() {
