@@ -630,7 +630,6 @@ int preset_record_import(preset_record_t *rec, const uint8_t *buf, uint32_t len,
 {
     preset_record_t tmp;
     int rc;
-    uint16_t have;
     if (!target_engine)
         return PRESET_ERR_ENGINE;
     if (!rec)
@@ -640,12 +639,11 @@ int preset_record_import(preset_record_t *rec, const uint8_t *buf, uint32_t len,
     rc = load_into(&tmp, buf, len);
     if (rc != PRESET_OK)
         return rc;
-    rc = check_loaded(&tmp, 0);
+    /* Actual engine_id owns the parameter schema. original_engine is
+     * provenance metadata, not permission to load a different engine. */
+    rc = check_loaded(&tmp, target_engine);
     if (rc != PRESET_OK)
         return rc;
-    have = tmp.original_engine ? tmp.original_engine : tmp.engine_id;
-    if (have != target_engine)
-        return PRESET_ERR_ENGINE;
     *rec = tmp;
     return PRESET_OK;
 }

@@ -233,10 +233,10 @@ int preset_record_load(preset_record_t *rec, const uint8_t *buf, uint32_t len);
 int preset_record_decode(preset_record_t *rec, const uint8_t *buf, uint32_t len,
                          uint16_t expected_engine);
 
-/* Import into a target engine. Same decode rules, then original_engine (or
- * engine_id if original_engine is 0) must match target_engine. Decode is
- * into scratch: on any failure, including WRONG ENGINE, *rec is unchanged
- * and never looks like a filled slot. */
+/* Import into a target engine. The encoded engine_id owns the parameter
+ * schema and must match target_engine. original_engine is provenance only,
+ * preserved on success (even if different). Decode is into scratch:
+ * on any failure, including WRONG ENGINE, *rec stays unchanged. */
 int preset_record_import(preset_record_t *rec, const uint8_t *buf, uint32_t len,
                          uint16_t target_engine);
 

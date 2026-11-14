@@ -65,8 +65,7 @@ static int validate_file(const uint8_t *bytes, uint32_t len,
         return PRESET_ERR_TRUNCATED;
     target = (uint16_t)requested_engine;
     if (!target)
-        target = bytes[21] ? bytes[21] :
-                 (uint16_t)((uint16_t)bytes[6] | ((uint16_t)bytes[7] << 8));
+        target = (uint16_t)((uint16_t)bytes[6] | ((uint16_t)bytes[7] << 8));
     err = preset_record_import_file(out, bytes, len, target);
     return err;
 }
