@@ -37,7 +37,9 @@ test('accessible controls feed physical GPIO/ADC and receive boot lifecycle, not
   assert.match(page, /dnbox:booted/);
   assert.match(page, /dnbox:stopped/);
   assert.match(page, /setAnalog\(id, on \? 700 : 0\)/);
-  assert.match(page, /if \(on\) press\(id\); else unpress\(id\);/);
+  assert.match(page, /if \(on\) press\(id, token\); else unpress\(id, token\);/);
+  assert.match(page, /dnboxHolds\.releaseAll\(\)/);
+  assert.match(page, /pressPad\(id, token\)/);
   assert.doesNotMatch(from('./controls.js'), /OscillatorNode|createOscillator|AudioBufferSourceNode/);
 });
 test('sampled input round-trip and audio shortfall are measured, not acoustic claims', () => {
