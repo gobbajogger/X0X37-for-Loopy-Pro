@@ -1,0 +1,21 @@
+PI32V2_C_MODULE_COMPILE_PASS objects=19
+   text	   data	    bss	    dec	    hex	filename
+    428	      0	      0	    428	    1ac	pi32v2/adsr.o
+    850	      0	      0	    850	    352	pi32v2/base.o
+    394	      0	      0	    394	    18a	pi32v2/butbp.o
+    368	      0	      0	    368	    170	pi32v2/buthp.o
+    566	      0	      0	    566	    236	pi32v2/compressor.o
+     72	      0	      0	     72	     48	pi32v2/crossfade.o
+    140	      0	      0	    140	     8c	pi32v2/delay.o
+    268	      0	      0	    268	    10c	pi32v2/fosc.o
+   2008	      0	      0	   2008	    7d8	pi32v2/ftbl.o
+    830	      0	      0	    830	    33e	pi32v2/moogladder.o
+     96	      0	      0	     96	     60	pi32v2/noise.o
+    204	      0	      0	    204	     cc	pi32v2/osc.o
+    674	      0	      0	    674	    2a2	pi32v2/oscmorph2d.o
+    440	      0	      0	    440	    1b8	pi32v2/pan2.o
+   2264	      0	      0	   2264	    8d8	pi32v2/phaser.o
+    128	      0	      0	    128	     80	pi32v2/phasor.o
+    168	      0	      0	    168	     a8	pi32v2/port.o
+   1522	      0	      0	   1522	    5f2	pi32v2/revsc.o
+    474	      0	      0	    474	    1da	pi32v2/vdelay.o

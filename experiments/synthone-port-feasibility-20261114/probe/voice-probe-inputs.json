@@ -1,0 +1,22 @@
+{
+  "synthone_sha": "6466a3715c96b7ecf1dd255a218cbd571408a314",
+  "archive_sha256": "68ad8b5fa0adca8b5da2b03f9303e9321c6a20907f5945e3fe879bc6494009a4",
+  "banks": {
+    "Synth one/Sound of Izrael.json": 101,
+    "Synth one/Red Sky Lullaby.json": 100,
+    "Synth one/Francis Preve.json": 26,
+    "Synth one/Starter Bank.json": 15,
+    "Synth one/BankA.json": 135,
+    "Synth one/Sound of Izrael 2.json": 51,
+    "Synth one/Spidericemidas.json": 61,
+    "Synth one/Brice Beasley.json": 46,
+    "Synth one/Synth Tutorials.json": 42,
+    "Synth one/JEC.json": 88,
+    "Synth one/DJ Puzzle.json": 28,
+    "Synth one/Wabi Sabi Waves.json": 170,
+    "Synth one/Electronisounds.json": 43
+  },
+  "records": 906,
+  "source_setter_mappings": 96,
+  "scope": "static control-value per-note and LFO probe; no global FX, smoothing, sequencer or AU"
+}
