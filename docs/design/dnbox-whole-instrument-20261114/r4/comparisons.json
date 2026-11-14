@@ -1,0 +1,50 @@
+[
+  {
+    "id": "drum",
+    "title": "Drum identity without losing the sequencer",
+    "before": "elite-musical2-03-running-grid.png",
+    "fixture": "drum",
+    "retained": "11 tracks plus accent,16 columns, length/rate, physical selection/write/mute routes.",
+    "changed": "Recognizable percussion pictures replace abbreviations; selected full name uses only unmapped K7/K8 area.808 order and conga pitch ranks are distinct.",
+    "why": "Seek recognition without an extra navigation gesture.",
+    "cost": "Recognition benefit is unmeasured. Running playhead phase is not synchronized. Values describe a controlled fixture, not a firmware project.",
+    "sequence": "SEQ: black selects track; pad toggles its step; K5 length/K6 rate.",
+    "count": "No added navigation on modeled routes; no timed benefit claimed."
+  },
+  {
+    "id": "chicago",
+    "title": "Meaningful cues and neighboring sound groups",
+    "before": "elite-navigation2-17-sound-page-next.png",
+    "fixture": "chicago",
+    "retained": "Four rows, sparse K5\u20138 positions, eight-page cycle including SOUND, source clamp/page memory.",
+    "changed": "Value-sensitive saw/pulse, glide ramp, lowpass/ENV, soft clip/fold and source-law envelope replace generic pictures.",
+    "why": "Picture and value share engine/parameter identity and lock/motion/base owner. Accepted edits now update their feedback.",
+    "cost": "Qualitative controlled q-value schematics; not byte-identical native factory/cache reconstruction or audio traces.",
+    "sequence": "K2/PARA select row; K5\u20138 edit fixed columns; SCALE lists; PATCH returns.",
+    "count": "Source logical routes retained in scoped validation, without mechanical-detent or timing claims."
+  },
+  {
+    "id": "home",
+    "title": "Retain the playing context and actual engine identity",
+    "before": "elite-musical2-04-home-running.png",
+    "fixture": "home",
+    "retained": "16 pattern tiles,5 part lanes, all4 PERFORM controls, useful dirty/transport context.",
+    "changed": "Home identities now follow slot engine assignments; K3 clamps in source display order and retains page memory. WAIT keeps the same controls.",
+    "why": "The view must identify the part the player hears/edits and preserve the return path.",
+    "cost": "Known-active fixture only; CP1 pending/unavailable result ownership and CP2/CP3 remain open. Pattern lane contents and capture phase are not all synchronized.",
+    "sequence": "K3 selects part by sign; K7 filter/K8 pump stay direct.",
+    "count": "No added page; source clamp and remembered pages are demonstrated, not speed measured."
+  },
+  {
+    "id": "song",
+    "title": "Retain neighboring bars and both control pages",
+    "before": "elite-navigation2-13-song.png",
+    "fixture": "song",
+    "retained": "Manual arrangement neighbors,empty entry,per-part BAR controls and repeats.",
+    "changed": "Lane names follow actual engine slots rather than hardcoded Chicago A/B.",
+    "why": "Arrangement identity must agree with Home, PART and MIX.",
+    "cost": "Manual authoring fixture only. Recording strategy/lifecycle and complete entry/editing transactions remain unmodeled.",
+    "sequence": "PATCH Home\u2192Song; K2 changes BAR page; PATCH returns.",
+    "count": "Existing navigation only; no recorder/capture success claim."
+  }
+]

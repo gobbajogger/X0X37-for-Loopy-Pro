@@ -1,0 +1,100 @@
+{
+  "source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "frames": [
+    {
+      "path": "reference/elite-envelope-20-envelope-baseline.png",
+      "bytes": 11625,
+      "sha256": "8bcb7b7a8a2d7ae07a0f911fe38125510dba1bf30eccb60291552ee4d6ed7ad3",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "706f0e2e92b4467fd4788777596662932dcfe69c21273677f49e63e11dc8e865"
+    },
+    {
+      "path": "reference/elite-envelope-21-envelope-attack-changed.png",
+      "bytes": 12459,
+      "sha256": "63dc7be5a1b8d51db1faf7b2fdd3f74f24f15bcab04d8504eb1bf3bc228f3f56",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "706f0e2e92b4467fd4788777596662932dcfe69c21273677f49e63e11dc8e865"
+    },
+    {
+      "path": "reference/elite-envelope-22-envelope-settled.png",
+      "bytes": 11655,
+      "sha256": "8789f98376666e715cc8601cdc184f31030a3381295812bd12caa6506192bb26",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "706f0e2e92b4467fd4788777596662932dcfe69c21273677f49e63e11dc8e865"
+    },
+    {
+      "path": "reference/elite-focused-04-mix-909.png",
+      "bytes": 9091,
+      "sha256": "38fda7434d6d339fa92beea88a07839fd654f2c1de256b5f9dc19c24a7781e95",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "706f0e2e92b4467fd4788777596662932dcfe69c21273677f49e63e11dc8e865"
+    },
+    {
+      "path": "reference/elite-focused-05-k3-lower-bound.png",
+      "bytes": 10257,
+      "sha256": "e18b0ab743df9bd923e1f88b9aecbffcdc79aa6f87f6a43b4ebcf9f14eab534f",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "706f0e2e92b4467fd4788777596662932dcfe69c21273677f49e63e11dc8e865"
+    },
+    {
+      "path": "reference/elite-musical2-03-running-grid.png",
+      "bytes": 10001,
+      "sha256": "7e8bca276b1de1a4260c91c84e73215188d76a0ae062070dde525c836c42c575",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "3b9eb28b9bcd895605afd657fc0332cfe498ec1f90383d6869343598c125034a"
+    },
+    {
+      "path": "reference/elite-musical2-04-home-running.png",
+      "bytes": 10304,
+      "sha256": "75d962113023624e6bc6d0b005e21859ec2cf14275bc3bca9a991ee4ceef7c64",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "3b9eb28b9bcd895605afd657fc0332cfe498ec1f90383d6869343598c125034a"
+    },
+    {
+      "path": "reference/elite-musical2-12-step-cutoff-lock.png",
+      "bytes": 12704,
+      "sha256": "998e7dcdbc45273765f5f3627ffc427d80c1a07d9665ad356a302a23ca636f71",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "3b9eb28b9bcd895605afd657fc0332cfe498ec1f90383d6869343598c125034a"
+    },
+    {
+      "path": "reference/elite-musical2-13-lock-released.png",
+      "bytes": 12152,
+      "sha256": "e4eb7e9e2cf6f13e20e349e68acaadccd3fb30c2e1ca39e8791b90cae51116c4",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "3b9eb28b9bcd895605afd657fc0332cfe498ec1f90383d6869343598c125034a"
+    },
+    {
+      "path": "reference/elite-navigation2-13-song.png",
+      "bytes": 11256,
+      "sha256": "f9db49a97142ceb0e57b21850ef96969c00938293379321c9b885ef87d1a31c8",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "3b9eb28b9bcd895605afd657fc0332cfe498ec1f90383d6869343598c125034a"
+    },
+    {
+      "path": "reference/elite-navigation2-17-sound-page-next.png",
+      "bytes": 12132,
+      "sha256": "25195fcd68788c2f40b9e51d62eab62b9d9f6d71d8a9d9c8c8babf60d3f0e18a",
+      "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "class": "Actual existing Elite emulator LCD; not R4 firmware execution",
+      "producer_report_sha256": "3b9eb28b9bcd895605afd657fc0332cfe498ec1f90383d6869343598c125034a"
+    }
+  ],
+  "runtime_inputs": {
+    "Elite_FWSC_SHA256": "62a35cb1883cc24dbe3149f37583d154ea212dbddfa5afced536b8c5eb895eb2",
+    "Pro_FWSC_SHA256": "c38bff0a661e8b4aaaf6b16b153e4ff9ad34fe5e32c4daa5f043db6818ea72e0",
+    "WASM_SHA256": "4fe2aa05511c32d6e230afa8f4027323df41e358d1922ae8a44f47e2b0d5fd14",
+    "worklet_SHA256": "d2e950a8e721877480389d2707886b0c376587f5dd9c8f841413f457f5d7799c",
+    "class": "Hashes from verified prior independent execution receipts; private runtime/package bytes excluded"
+  }
+}

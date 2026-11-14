@@ -1,0 +1,1171 @@
+{
+  "role": "Read-only diagnostic follow-up, not independent acceptance review, implementation or a new reviewer.",
+  "firmware_source": {
+    "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "tree_parent_supplied": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d"
+  },
+  "frozen_proposal": {
+    "commit": "96b4f43498a089b326e463097b2e9641458e4589",
+    "tree_existing_receipt": "d72d27822f95a70fc113cf07c56009b55aadb472",
+    "path": "docs/design/dnbox-whole-instrument-20261114/r3/proposal.js",
+    "blob_sha": "0ddc54b6d27bc80d8d379b1bfcc6ba26726a908a",
+    "bytes": 26265,
+    "sha256": "14d061b50e0c03ce9ae0c7802b549e58d3d9a75c5ec53ee182f6318a74bddb1f",
+    "intake": "Read through GitHub connector at exact frozen commit; local Git blob and bytes match; no frozen edit."
+  },
+  "effective_model_effort": "Not exposed; no effective setting claim.",
+  "findings": [
+    {
+      "id": "CUE-CHI-SUBSTITUTE",
+      "status": "CONFIRMED_BY_CODE_AND_EXISTING_PNG_VIEW",
+      "proposal_lines": "51-63;96-103",
+      "actual": "Chicago WAVE has native restored shape/gain/width projection; GLIDE has value-width pitch ramp/live pitch snapshot; BITE has q-dependent soft-clip curve.",
+      "proposal": "Label regex: WAVE fixed sine; GLIDE and BITE generic center marker. matrix calls graph without val, default50; cue not connected to its displayed/source value."
+    },
+    {
+      "id": "CUE-JUNO-MISSING",
+      "status": "UNFULFILLED_PROPOSAL_ENHANCEMENT",
+      "proposal_lines": "96;102",
+      "actual": "No dedicated Juno waveform/ADSR glyph is admitted in current3c41; source control semantics are real.",
+      "proposal": "Juno branch bypasses graph; every untouched scalar shows50% and half bar. No requested Juno semantic glyphs."
+    },
+    {
+      "id": "JUNO-WAVE-ENUM",
+      "status": "PROPOSAL_MODEL_MISMATCH_NOT_RUNTIME_DEFECT",
+      "proposal_lines": "130;155",
+      "actual": "Juno WAVE q0..127 is continuous mix; ui_original_states has no Juno enum.",
+      "proposal": "Every WAVE label is frozen as a fixed enum fixture; that condition also catches Juno."
+    },
+    {
+      "id": "FIXTURE-AND-SCOPE",
+      "status": "NEEDS_EXPLICIT_BOUND_VALUES_IN_CHANGED_PROPOSAL",
+      "proposal_lines": "96;101-102;130;155",
+      "actual": "matrix_value chooses held lock, else active motion, else base; source q127 bounds and special discrete semantics are engine/id dependent.",
+      "proposal": "Value labels/scalar fixtures, static ADSR and generic cues are incomplete models; all50 Juno is not JUNO POLY. Scalar edits increment unbounded percentages, not a full source editor."
+    },
+    {
+      "id": "DRONE-WITHDRAWN",
+      "status": "WITHDRAWN_ACTIVE_CAPABILITY_SAVED_UNAVAILABLE_HANDLING",
+      "owner": "Existing firmware existing firmware owner; no replacement runtime writer.",
+      "next_contract": "Consume admitted active-removal/stable-ID/saved-retention availability contract. Do not redesign active Drone glyph pages or auto-substitute an engine. Exact unavailable state remains with source/CP1 producer boundaries."
+    }
+  ],
+  "chicago_reusable_paths": [
+    {
+      "parameter_id": 0,
+      "label": "WAVE",
+      "page": "OSCILLATOR",
+      "knob": "K5",
+      "q_range": [
+        0,
+        127
+      ],
+      "semantics": "Raw oscillator cue from original native shape1/9,gain3/11,width22 snapshot; not filtered/effected audio.",
+      "dependencies": "original_sound_restore_chicago plus lock/motion preview; untouched factory binary32 values must not be replaced by arbitrary rounded fixture bytes.",
+      "paths": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "2911-2926",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "meaning": "Source preview transaction",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2911"
+        },
+        {
+          "path": "firmware/src/app/ui_original_wave.h",
+          "lines": "64-95",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "meaning": "Native waveform projection",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_wave.h#L64"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "6915-6970",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "meaning": "Shape gate, slot and draw",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6915"
+        }
+      ]
+    },
+    {
+      "parameter_id": 1,
+      "label": "GLIDE",
+      "page": "OSCILLATOR",
+      "knob": "K6",
+      "q_range": [
+        0,
+        127
+      ],
+      "semantics": "Ramp width1+round(18*q/127). Traveling dot only from valid current/target pitch snapshot; not a calibrated time axis.",
+      "paths": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "7888-7905",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "meaning": "Value/live-pitch cue",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7888"
+        },
+        {
+          "path": "firmware/src/app/engine.c",
+          "lines": "106-107",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "meaning": "Motion-view wrapper",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L106"
+        },
+        {
+          "path": "firmware/src/app/original_runtime.c",
+          "lines": "320-328",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "meaning": "Chicago pitch snapshot, not available for Juno",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L320"
+        }
+      ]
+    },
+    {
+      "parameter_id": 5,
+      "label": "BITE",
+      "page": "FILTER 2",
+      "knob": "K5",
+      "q_range": [
+        0,
+        127
+      ],
+      "semantics": "g=.3+6*q/127; tanh(g*sin(2*pi*1.5*t))/tanh(g),26\u00d719 qualitative control glyph, not captured audio.",
+      "paths": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "7815-7830",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "meaning": "Curve sampling and soft-clip cue",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7815"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "lines": "7906-7907",
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "meaning": "BITE/GNAW dispatch",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7906"
+        }
+      ]
+    }
+  ],
+  "juno_glyph_admission": {
+    "existing_source": "wave_shape rejects Juno, original_wave_slot returns-1, original_wave_view returns0, orig_strip_slot has Chicago/Miami only, adsr_row admits Chicago only.",
+    "paths": [
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "6915-6946",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Waveform admission",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6915"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "2913-2926",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Source cache excludes Juno/Drone",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2913"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7733-7742",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Existing strip families",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7733"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7371-7377",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Chicago-only ADSR graph",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7371"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "lines": "7281-7298",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Current Juno value text and neutral bar fallback",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7281"
+      }
+    ],
+    "new_art_requirement": "Use the exact per-id native semantics below, preserve current slots/readouts/scopes and mark new cue art as proposed. No borrowing Chicago native parser, bipolar ENV or live pitch view for Juno.",
+    "shared_display_source": {
+      "path": "firmware/src/app/ui.c",
+      "lines": "1071-1077",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "meaning": "Actual Juno rounded-percent readout",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1071"
+    },
+    "shared_value_source": {
+      "path": "firmware/src/app/ui.c",
+      "lines": "7042-7054",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "meaning": "Held-lock / active-motion / base ownership",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7042"
+    },
+    "runtime_live_limit": "Juno voice_view exposes loudest active envelope/gate/stage, not oscillator/LFO/pitch trace; runtime_motion_view rejects Juno. Do not animate a measured LFO/pitch cursor from absent data.",
+    "runtime_live_paths": [
+      {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "292-295",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Available Juno envelope summary",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L292"
+      },
+      {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "320-324",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "No Juno motion snapshot",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L320"
+      }
+    ]
+  },
+  "juno_controls": [
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 0,
+      "source_label": "WAVE",
+      "page": "OSCILLATOR",
+      "physical_knob": "K5",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 42,
+        "x": 0.33070866141732286,
+        "display_percent": 33
+      },
+      "source_law": "x=q/127; oscillator=(1-x)*saw+x*pulse before.7 gain; no display enum",
+      "cue_meaning_for_new_proposal": "Continuous saw/pulse blend with source pulse width and optional PWM. The stored waveform=(uint8_t)(x*2.99) member is not read by juno6_render; do not freeze it as a three-state selector.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "19-45;88-94",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L19"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 1,
+      "source_label": "SUB",
+      "page": "OSCILLATOR",
+      "physical_knob": "K6",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 28,
+        "x": 0.2204724409448819,
+        "display_percent": 22
+      },
+      "source_law": "sub_gain=.5*x; sub oscillator phase advances at half the main increment",
+      "cue_meaning_for_new_proposal": "Square sub one octave lower; x controls gain. Not a sine or another independent pitch selector.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "39-45;58-59;93",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L39"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 12,
+      "source_label": "WIDTH",
+      "page": "OSCILLATOR",
+      "physical_knob": "K7",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 64,
+        "x": 0.5039370078740157,
+        "display_percent": 50
+      },
+      "source_law": "base_width=.1+.8*x; effective_width=clamp(base_width+triangle_LFO*macro11*.2,.05,.95)",
+      "cue_meaning_for_new_proposal": "Pulse duty10\u201390% before PWM. Cue should distinguish base position from hypothetical or actual instantaneous modulation.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "30;40-43;101",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L30;40"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 15,
+      "source_label": "LEVEL",
+      "page": "OSCILLATOR",
+      "physical_knob": "K8",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 100,
+        "x": 0.7874015748031497,
+        "display_percent": 79
+      },
+      "source_law": "output_gain=x/1.85 after six-voice summation",
+      "cue_meaning_for_new_proposal": "Output level control, not an observed meter unless a qualified live-level snapshot exists.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "29;57;61",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L29;57;61"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 2,
+      "source_label": "CUTOFF",
+      "page": "FILTER",
+      "physical_knob": "K5",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 70,
+        "x": 0.5511811023622047,
+        "display_percent": 55
+      },
+      "source_law": "nominal_base=35+12000*x*x; a=clamp(2*pi*(base+voice_envelope*7000*macro4)/sr,.001,.75)",
+      "cue_meaning_for_new_proposal": "Lowpass coefficient control. Formula is not proof of exact measured cutoff Hz or physical response.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "25-26;53-56;94",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L25"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 3,
+      "source_label": "RES",
+      "page": "FILTER",
+      "physical_knob": "K6",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 18,
+        "x": 0.14173228346456693,
+        "display_percent": 14
+      },
+      "source_law": "res_feedback=.8*x in first state update",
+      "cue_meaning_for_new_proposal": "Lowpass resonance/feedback amount. Not a proven Q/dB unit.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "31;53-56;95",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L31;53"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 4,
+      "source_label": "ENV",
+      "page": "FILTER",
+      "physical_knob": "K7",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 45,
+        "x": 0.3543307086614173,
+        "display_percent": 35
+      },
+      "source_law": "filter_envelope_addition=7000*x*voice_envelope",
+      "cue_meaning_for_new_proposal": "Unipolar positive filter-envelope depth. Do not borrow Chicago bipolar sign or its native ENV interpreter.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "26;53-54",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L26;53"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 9,
+      "source_label": "HPF",
+      "page": "FILTER",
+      "physical_knob": "K8",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 0,
+        "x": 0.0,
+        "display_percent": 0
+      },
+      "source_law": "if x==0 bypass; else hp=1/(1+2*pi*(15+2000*x*x)/sr); y=hp*(last_y+mix-last_mix)",
+      "cue_meaning_for_new_proposal": "Bypass at0, continuously varying highpass above0. No source four-position hardware switch.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "27;62;100",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L27;62;100"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 5,
+      "source_label": "ATTACK",
+      "page": "ENVELOPE",
+      "physical_knob": "K5",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 8,
+        "x": 0.06299212598425197,
+        "display_percent": 6
+      },
+      "source_law": "attack_seconds=.002+3*x*x; envelope +=1/max(1,attack_seconds*sr) until1",
+      "cue_meaning_for_new_proposal": "Linear rise; value changes rise duration. No Chicago RC attack law.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "22;46;96",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L22;46;96"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 6,
+      "source_label": "DECAY",
+      "page": "ENVELOPE",
+      "physical_knob": "K6",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 40,
+        "x": 0.31496062992125984,
+        "display_percent": 31
+      },
+      "source_law": "decay_seconds=.01+3*x*x; envelope -=(1-sustain)/max(1,decay_seconds*sr) until sustain",
+      "cue_meaning_for_new_proposal": "Linear decay toward the selected sustain level. No generic falling-time axis claimed.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "23;47;97",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L23;47;97"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 7,
+      "source_label": "SUSTAIN",
+      "page": "ENVELOPE",
+      "physical_knob": "K7",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 92,
+        "x": 0.7244094488188977,
+        "display_percent": 72
+      },
+      "source_law": "sustain=x",
+      "cue_meaning_for_new_proposal": "Held envelope plateau height. Not elapsed time.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "23;47;98",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L23;47;98"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 8,
+      "source_label": "RELEASE",
+      "page": "ENVELOPE",
+      "physical_knob": "K8",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 40,
+        "x": 0.31496062992125984,
+        "display_percent": 31
+      },
+      "source_law": "release_parameter_seconds=.01+4*x*x; envelope -=envelope/max(1,release_parameter_seconds*sr); retire below1e-5",
+      "cue_meaning_for_new_proposal": "Exponential tail. Parameter is not total audible release duration; threshold and starting envelope affect that duration.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "24;48-52;99",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L24;48"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 10,
+      "source_label": "LFO RATE",
+      "page": "LFO/CHORUS",
+      "physical_knob": "K5",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 15,
+        "x": 0.11811023622047244,
+        "display_percent": 12
+      },
+      "source_law": "rate_hz=.1+8*x*x; triangle=1-4*abs(lfo_phase-.5)",
+      "cue_meaning_for_new_proposal": "Triangle PWM LFO rate. Not sine, audio oscillation or a tempo-sync enum.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "28;34-35;40",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L28;34"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 11,
+      "source_label": "LFO DEPTH",
+      "page": "LFO/CHORUS",
+      "physical_knob": "K6",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 8,
+        "x": 0.06299212598425197,
+        "display_percent": 6
+      },
+      "source_law": "pulse_width_offset=triangle_LFO*.2*x, then effective-width clamp.05..95",
+      "cue_meaning_for_new_proposal": "PWM amount. No source filter-LFO or source-selection enum.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "34-35;40",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L34"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 13,
+      "source_label": "CHO RATE",
+      "page": "LFO/CHORUS",
+      "physical_knob": "K7",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 25,
+        "x": 0.1968503937007874,
+        "display_percent": 20
+      },
+      "source_law": "shared_chorus_rate_hz=.1+4.9*x; fixed_depth_parameter=5.4ms; delay=1.7ms+span*(.5+.5*sin(phase))",
+      "cue_meaning_for_new_proposal": "Separate sine-modulated shared short-delay rate; not the PWM triangle LFO.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "66-80",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L66"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    },
+    {
+      "engine_kind_id": 3,
+      "parameter_id": 14,
+      "source_label": "CHORUS",
+      "page": "LFO/CHORUS",
+      "physical_knob": "K8",
+      "range": {
+        "min": 0,
+        "max": 127,
+        "kind": "continuous q127 patch macro",
+        "enum": null
+      },
+      "existing_lcd_units": "rounded percent only; (q*100+63)//127",
+      "JUNO_POLY_factory0": {
+        "q": 45,
+        "x": 0.3543307086614173,
+        "display_percent": 35
+      },
+      "source_law": "wet=.5*x; dry=1-wet; left=dry*left+wet*delayed; right=dry*right-wet*delayed",
+      "cue_meaning_for_new_proposal": "Continuous shared chorus wet amount. No source OFF/I/II/I+II selector.",
+      "glyph_status": "No dedicated actual Juno glyph in3c41. A derived cue is new proposal art, not an existing source picture.",
+      "dsp_source": {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "66-80",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Actual Juno DSP control law",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L66"
+      },
+      "adapter_source": {
+        "path": "firmware/src/app/original_runtime.c",
+        "lines": "96-102",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Adapter applies macros; chorus amount/rate separate from synth LFO",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_runtime.c#L96"
+      },
+      "slot_source": {
+        "path": "firmware/src/app/ui_original_controls.h",
+        "lines": "18-21",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Fixed page and physical knob positions",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui_original_controls.h#L18"
+      }
+    }
+  ],
+  "juno_performance_only": {
+    "ids": [
+      16,
+      17
+    ],
+    "names": [
+      "PBend",
+      "Damper"
+    ],
+    "patch_editable": false,
+    "page_presence": "No patch matrix cells; runtime inputs only.",
+    "law": [
+      "bend=(x-.5)*4 semitones; neutral saved control64 maps exactly to.5 through centered conversion",
+      "damper thresholdx>=.5; releasing damper retires ungated voice tails"
+    ],
+    "paths": [
+      {
+        "path": "firmware/src/app/original_sound.h",
+        "lines": "31-38",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Performance IDs not patch controls",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/original_sound.h#L31"
+      },
+      {
+        "path": "firmware/src/dsp/juno6.c",
+        "lines": "102-103",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Runtime laws",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.c#L102"
+      }
+    ]
+  },
+  "juno_factories": {
+    "data_source": {
+      "path": "firmware/src/app/juno_stock_bank.h",
+      "lines": "1-22",
+      "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+      "meaning": "Native q127 factory vectors and exact stored names",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/juno_stock_bank.h#L1"
+    },
+    "not_imported": "Header explicitly says not imported Roland/plug-in patches; do not claim AudioKitJ6 preset/bank fidelity.",
+    "stable_identity": "First4 entries must not be reordered/altered; additions append only. Drone removal must preserve source owner stable IDs.",
+    "items": [
+      {
+        "index0": 0,
+        "name": "JUNO POLY",
+        "q127_controls0_to15": [
+          42,
+          28,
+          70,
+          18,
+          45,
+          8,
+          40,
+          92,
+          40,
+          0,
+          15,
+          8,
+          64,
+          25,
+          45,
+          100
+        ]
+      },
+      {
+        "index0": 1,
+        "name": "JUNO PAD",
+        "q127_controls0_to15": [
+          90,
+          18,
+          42,
+          24,
+          35,
+          65,
+          55,
+          95,
+          75,
+          0,
+          12,
+          15,
+          55,
+          40,
+          55,
+          100
+        ]
+      },
+      {
+        "index0": 2,
+        "name": "JUNO PLUCK",
+        "q127_controls0_to15": [
+          15,
+          50,
+          58,
+          36,
+          80,
+          0,
+          35,
+          30,
+          20,
+          5,
+          20,
+          0,
+          64,
+          25,
+          18,
+          110
+        ]
+      },
+      {
+        "index0": 3,
+        "name": "JUNO BRASS",
+        "q127_controls0_to15": [
+          70,
+          10,
+          105,
+          12,
+          20,
+          0,
+          20,
+          110,
+          15,
+          12,
+          25,
+          5,
+          80,
+          60,
+          50,
+          96
+        ]
+      },
+      {
+        "index0": 4,
+        "name": "SUB BASS",
+        "q127_controls0_to15": [
+          94,
+          85,
+          42,
+          9,
+          20,
+          0,
+          24,
+          104,
+          21,
+          0,
+          6,
+          0,
+          64,
+          20,
+          0,
+          44
+        ]
+      },
+      {
+        "index0": 5,
+        "name": "WARM KEYS",
+        "q127_controls0_to15": [
+          45,
+          14,
+          59,
+          18,
+          26,
+          4,
+          54,
+          68,
+          44,
+          5,
+          15,
+          6,
+          63,
+          29,
+          30,
+          95
+        ]
+      },
+      {
+        "index0": 6,
+        "name": "PULSE LEAD",
+        "q127_controls0_to15": [
+          113,
+          17,
+          90,
+          13,
+          58,
+          1,
+          28,
+          111,
+          26,
+          0,
+          24,
+          9,
+          40,
+          25,
+          12,
+          55
+        ]
+      },
+      {
+        "index0": 7,
+        "name": "SLOW STR",
+        "q127_controls0_to15": [
+          32,
+          20,
+          67,
+          15,
+          35,
+          43,
+          65,
+          99,
+          70,
+          2,
+          19,
+          20,
+          71,
+          37,
+          49,
+          88
+        ]
+      }
+    ]
+  },
+  "fidelity_limits": {
+    "proved_here": "Current source control/DSP laws, actual bank contents and source glyph admission; no DSP/voice/audio execution.",
+    "unproved": [
+      "AudioKit J6 source-port fidelity",
+      "AudioKit J6 or Roland preset descriptors/bank parity",
+      "Hardware Juno parity",
+      "Audible quality or current emulation behavior"
+    ],
+    "source_provenance": [
+      {
+        "path": "firmware/src/dsp/juno6.h",
+        "lines": "1-4",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Original equations informed by Plaits approach; explicitly no Plaits source copied",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/dsp/juno6.h#L1"
+      },
+      {
+        "path": "firmware/src/app/juno_stock_bank.h",
+        "lines": "1-4",
+        "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+        "meaning": "Native factory provenance",
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/juno_stock_bank.h#L1"
+      }
+    ],
+    "older_doc_limit": "026 continuation describes4 presets and historical gates; current exact code/bank contains8. Do not turn old test prose into fresh/current evidence."
+  },
+  "not_run": [
+    "Emulator exercise",
+    "Firmware or tests/builds",
+    "Audio/DSP execution",
+    "New render generation",
+    "Fresh acceptance review",
+    "Device/host",
+    "Runtime/Settings/CP1 changes",
+    "Source/Git publication"
+  ],
+  "next_owner_action": "Existing whole-design owner applies a bounded cue delta from these semantic paths, then uses already admitted independent reviewer route; source existing firmware owner supplies Drone availability contract. Frozen96b4 stays retained."
+}

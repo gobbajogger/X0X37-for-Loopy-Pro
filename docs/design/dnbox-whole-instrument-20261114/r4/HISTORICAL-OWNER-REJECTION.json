@@ -1,0 +1,45 @@
+{
+  "state": "OWNER_REJECTED_DIRECTION; WHOLE_DESIGN_REOPENED",
+  "input_design_commit": "a8986ac2d364bb59a38e068381e18ca068fe7c8d",
+  "input_html_sha256": "98f1f7e18e8760a54d6272bc6291b8221799deb5a3c531c5bcb3cb7f53b36e1f",
+  "current_source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "current_source_tree": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+  "owner_critique_relayed": [
+    "Use glyphs over text was a rule and instead of using glyphs for drum sounds you decided to continue using \u201cbd\u201d, \u201csd\u201d etc, and removed the bottom row of actually useful stuff and I didn\u2019t see how you solved that. Than you decided to make parameter pages worse and harder to navigate, maybe glyphs are looking better than before but sacrificing for what reason? Just to make navigation harder?!",
+    "overall ui now looks like shit and overcrowded with text and looks cheap"
+  ],
+  "required_changes": [
+    "Recognizable drum glyphs replace BD/SD labels",
+    "Retain every useful bottom-row function or demonstrate equallydiscoverable/equallyfast replacement",
+    "Restore fast parameter access and simultaneous context; enumerate every displaced control/function and interaction-count delta",
+    "Reduce on-screen text; one coherent whole-instrument grammar",
+    "Revise exhaustive plan,functionalmap and interactive proposal before production-design implementation",
+    "Equivalent current-firmware before/after comparison at native scale plus live/edge/error tasks"
+  ],
+  "first_action": "Source-backed drum/bottom-row and parameter-route loss ledger at exactcurrent source,then first revised native proposals preserving those controls",
+  "runtime_dependency_request": "Superseded by parent fresh current-package report: obtain existing stage1534 REVIEW/LAUNCH/native-capture bytes through a supported shared absolute path or private Library reference, plus exact package/model/harness pins and incumbent reviewer identity. Do not rebuild, rerun completed review, create duplicate reviewer, or publish private package inputs.",
+  "review_route": "Root reconciling existing fresh emulator reviewer; no reviewer created here",
+  "boundaries": [
+    "Sole whole-design integrator retained",
+    "ReservedSettingscomponent and sevenCP1producer/shared891 boundaries retained",
+    "No runtime implementation/build/device/release/merge",
+    "Historical79280e76 captures cannot be current-candidate proof",
+    "Rejection does not cancel authorizeddesignrevision; no ownerresponsewait"
+  ],
+  "evidence_reuse": "Priorchecks/reviews describe rejectedinputonly; never imply revisedacceptance",
+  "primary_criterion": "Using firmware must become easier; improvements outweigh tradeoffs, and every tradeoff must be insignificant in actual use. Retain current behavior when this cannot be demonstrated.",
+  "screen_budget": "Recognizable glyphs by default; text only where materially clearer. Every area must serve useful context, controls, feedback, or necessary legibility/physical mapping. No decorative whitespace displacing function.",
+  "owner_delivery": "Direct native PNGs and iOS-openable PDF required; interactive HTML retained for validation, not sole owner-facing delivery.",
+  "review_status": "No new acceptance reviewer; root still reconciling independent emulator route.",
+  "parent_fresh_emulator_handoff": {
+    "reported": "Node AudioWorklet harness freshly booted/exercised exact3c41Elite/Pro; stage1534/fresh-review/REVIEW.md andLAUNCH.md",
+    "findings_relayed": [
+      "ClipLOADdisplaysSCALEYESwhilephysicalSCALEmasked",
+      "HeldChicagoNote becomes silentonGlobalentry"
+    ],
+    "evidence_class": "Parent-reported bounded emulation;notdevice proof",
+    "actual_receipt_bytes": "NOT_RECEIVED; relativepaths notpresent in this workspace",
+    "needed_result_route": "Exactsharedabsolute path or privateLibraryID/materialization receipt and hashes; packages remain private",
+    "execution_policy": "Do not rerun completedreview or publishpackage inputs"
+  }
+}

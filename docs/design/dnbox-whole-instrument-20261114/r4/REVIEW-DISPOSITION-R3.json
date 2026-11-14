@@ -1,0 +1,16 @@
+{
+  "reviewed_input": "96b4f43498a089b326e463097b2e9641458e4589",
+  "report_sha256": "706f0e2e92b4467fd4788777596662932dcfe69c21273677f49e63e11dc8e865",
+  "independent_disposition": "Revise bounded packet for its own glyph/feedback/context/route defects; future hardware gates were not the reason.",
+  "correction_status": "Producer corrections and affected validation complete; exact R4 successor requires the same independent reviewer affected recheck. Not accepted.",
+  "findings": [
+    "Meaningful source cues substituted; missing Juno glyphs",
+    "Accepted envelope edit leaves static readout/curve",
+    "Wrong drum MIX layout/target and pad ownership",
+    "K3 wrap/page-memory and engine/slot identity errors",
+    "Indistinguishable conga ranks"
+  ],
+  "resolution_ledger": "CHANGE-RETENTION-R4.json",
+  "later_scope": "Owner withdraws active Drone design; stable IDs/saved-data availability contract remains incumbent firmware-owner dependency. This does not retroactively accept R3.",
+  "execution_boundary": "Independent actual current Elite/Pro emulator exercise is retained in original receipts. R4 model/browser/PNG/PDF checks are producer-only; no R4 firmware execution."
+}

@@ -1,0 +1,29 @@
+{
+  "html_sha256": "34448892bbb370aaef057d140cd890230e06ba1d7f6821d82d4d13e646fabc6b",
+  "renderer_sha256": "981e50f5fb857ff341d4469a24589905df906866582aac06804eac29e831c1fd",
+  "source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "reviewed_predecessor": "96b4f43498a089b326e463097b2e9641458e4589",
+  "current_references": [
+    {
+      "file": "elite-musical2-03-running-grid.png",
+      "sha256": "7e8bca276b1de1a4260c91c84e73215188d76a0ae062070dde525c836c42c575",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-navigation2-17-sound-page-next.png",
+      "sha256": "25195fcd68788c2f40b9e51d62eab62b9d9f6d71d8a9d9c8c8babf60d3f0e18a",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-musical2-04-home-running.png",
+      "sha256": "75d962113023624e6bc6d0b005e21859ec2cf14275bc3bca9a991ee4ceef7c64",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    },
+    {
+      "file": "elite-navigation2-13-song.png",
+      "sha256": "f9db49a97142ceb0e57b21850ef96969c00938293379321c9b885ef87d1a31c8",
+      "evidence": "Actual pre-existing3c41 Elite emulator LCD; not proposal execution"
+    }
+  ],
+  "evidence": "Proposal model only; exact successor independent review pending"
+}

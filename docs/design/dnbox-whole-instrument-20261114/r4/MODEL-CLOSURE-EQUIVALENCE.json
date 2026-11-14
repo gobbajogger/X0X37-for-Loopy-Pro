@@ -1,0 +1,10 @@
+{
+  "tested_HTML_sha256": "0831e42623fc0cb75003bd6f78743ebb2cef58482793eaedcb52b175a98ac129",
+  "delivered_HTML_sha256": "34448892bbb370aaef057d140cd890230e06ba1d7f6821d82d4d13e646fabc6b",
+  "renderer_sha256": "981e50f5fb857ff341d4469a24589905df906866582aac06804eac29e831c1fd",
+  "same_exact_renderer_in_both": true,
+  "same_exact_D_core_excluding_comparison_images": true,
+  "only_change": "Embedded static Chicago comparison PNG refreshed to match the generated exact current proposal. No control/fixture/source-data change.",
+  "all4_embedded_PNGs_exact": true,
+  "reused_proof": "43 affected producer checks and35 native frames on exact unchanged renderer/core. Final HTML browser/static image checks are separate."
+}
