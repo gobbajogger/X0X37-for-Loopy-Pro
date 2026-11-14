@@ -1,0 +1,36 @@
+{
+  "cancellation_boundary": {
+    "ref": "fbe9f79f0c0f21400dc5d77cf3febf58d22479d6f65a247917cd9ff7e954f348",
+    "scope_hash": "524555e2dcff5820ac4c2f17f2899bebc6a864bad0b847a31031176b6c3a4b57"
+  },
+  "capacity_zero_proposal_digest": "52ae95c4e78e3e64e617af3e1966a8b34d30f289bc948d2d9e1ea501a210ccec",
+  "checks": {
+    "cancellation_retained": true,
+    "capacity_zero": true,
+    "deterministic_identity": true,
+    "existing_not_reenqueued": true,
+    "explicit_reauthorization": true,
+    "inputs_unchanged": true,
+    "missing_tracked_issue_blocks": true,
+    "multiple_existing_requests": true,
+    "reopen_requires_new_authority": true,
+    "tombstone_reserved": true
+  },
+  "current_acceptance": false,
+  "existing_request_ids": [
+    "LX-REQ-001",
+    "LX-REQ-002",
+    "LX-REQ-028"
+  ],
+  "historical_commit": "4a35a6cdaa0f112db6b3f577542138afd170c20d",
+  "input_file_sha256": {
+    "/workspace/intake-integration/historical/coordination/requests/requests.json": "ea7bae9470f4197d1d907975b877dfcb28005ddd5968b8d163248334647afdca"
+  },
+  "ledger_canonical_digest": "fc72b38b4a5d31d37171fedc7b97b7e88d85b8620b3333948b543bcbfa94a4ad",
+  "new_request_id": "LX-REQ-039",
+  "observation_digest": "2cc9a1d2245d9c0d5d642b6e3f0409dd6596aee83a08ce7267d9210bb867e329",
+  "remaining": "Existing writer must supply authenticated current ledger/checkpoint and authority/context receipts.",
+  "schema": 1,
+  "state": "PASS_HISTORICAL_REPLAY_ONLY",
+  "synthetic_authority_and_checkpoint": true
+}

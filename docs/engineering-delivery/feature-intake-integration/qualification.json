@@ -1,0 +1,130 @@
+{
+  "as_of_utc": "2026-11-14T08:30:09.900712+00:00",
+  "consumed_source_commit": "7f27a97bed3d123a5e0b0bb02e9a5a9250737626",
+  "consumed_source_tree": "72f65cfb03f6035e705a50b94b67efae104652cc",
+  "current_acceptance": false,
+  "current_capacity_zero_dry_run": "NOT_RUN: authentic continuity absent",
+  "current_continuity": {
+    "accepted_checkpoint_authenticated": false,
+    "complete_live_thread_roster_available": false,
+    "coordination_ref_get": 404,
+    "full_main_tree_has_coordination": false,
+    "full_nightly_tree_has_coordination": false,
+    "historical_role_visibility_means_inactive": false,
+    "historical_role_visible": false,
+    "ledger_authenticated": false,
+    "sole_writer": "NOT_RECOVERED; standing ownership preserved"
+  },
+  "current_operational_observation": "NOT_RUN: authentic continuity absent; prior observation proof reused",
+  "first_consumed_historical_inputs": {
+    "coordination/automation/roles.json": {
+      "git_blob": "ec8deb362da558719f805fee217cf3904687f3bd",
+      "sha256": "8fa891c377db61b61e69b43db2de60921932f38c96ea183e01d442c6bdec7fa5"
+    },
+    "coordination/automation/runtime-contract.md": {
+      "git_blob": "f3cfbee01f5e23834616c0d60116bb2be4fb88ab",
+      "sha256": "1a2e0c8754b1e8a6ccb9061ce7149c6f7cffc7154b4261f35adbb1b3f8f1459e"
+    },
+    "coordination/merge-queue/current-delivery.json": {
+      "git_blob": "4ad868915c21393615cc062dddc56bc00f916cc5",
+      "sha256": "a93e4dd243bb88d43abbf9040a7b605628bb508b01f9df520d0ecb1e1fe9e38a"
+    },
+    "coordination/requests/continuity-registry.json": {
+      "git_blob": "5e2515840940b72b53e5a9b5a26e2a488d0a88ea",
+      "sha256": "a9ace4df39961c7ded1c8be459f762c1fef146d37bcdacc3e1cb05e6cfd0ea9f"
+    },
+    "coordination/requests/requests.json": {
+      "git_blob": "5f833681cf9c286f2156db651c4aecd7bc5730cf",
+      "sha256": "ea7bae9470f4197d1d907975b877dfcb28005ddd5968b8d163248334647afdca"
+    },
+    "coordination/requests/validation-receipt.json": {
+      "git_blob": "7daa687d993958c3fc1246a93be0471ccba18d7d",
+      "sha256": "f414680b20650de594d2a5c4884761e551479088a0dcf36486e559f0bc8d70cc"
+    }
+  },
+  "first_consumed_source": {
+    "coordination/requests/FEATURE_INTAKE.md": {
+      "git_blob": "6f5a981b649800e219f08218188d4551d6fb97a9",
+      "sha256": "5a643a11af174ece8bba05dc03422d015ee531abb837a6c19539a77c9a77f9e3"
+    },
+    "coordination/requests/feature_intake.py": {
+      "git_blob": "bea2ffb2abe39065c8eaf61cbaa6562afd6e33e8",
+      "sha256": "b5504ec1c2b8387e5c182c8fab7c8f245005e9c624921679745d073870f38744"
+    },
+    "coordination/requests/github_observation.py": {
+      "git_blob": "46aed6b0cb1ddf5009a4f0130ad2e48042281090",
+      "sha256": "49b4b905954c5219c2c21bec1107be9b290ba79eee2a98ccb4b78d74df316c3e"
+    },
+    "docs/engineering-delivery/feature-intake-observer/PLAN.md": {
+      "git_blob": "5b7688a730f34c280876538fb70b56ef55b4e8f5",
+      "sha256": "c35d6b97161865d8631dce6a6d59c214352563cee38ffcc891a0ba618ab9eef2"
+    },
+    "docs/engineering-delivery/feature-intake-observer/README.md": {
+      "git_blob": "ecd05705a818fe8c28423a35b19d2bee8125a076",
+      "sha256": "5c4f747b0ca19e3c00c3e3bb445b7cc40277b4e9771666574a2c4c0eb90bd614"
+    },
+    "docs/engineering-delivery/feature-intake-observer/qualification.json": {
+      "git_blob": "9b52d9e9d794b8e41b193452a1ab729fa95e3943",
+      "sha256": "f9616f8ca9916dab3b454876c85f3b50bd005047b39c5d6d97e33828d2edb96d"
+    },
+    "tests/feature_intake_test.py": {
+      "git_blob": "7a8aa10750ddf0d9f10d7a314817c1c10570011e",
+      "sha256": "e82aed897fdf2bcb1fd4d1689d2df605cad7f2b22b536604c314818082f6f42f"
+    },
+    "tests/github_observation_test.py": {
+      "git_blob": "b35823639dc98a55721678ed0ccb748aa1f54599",
+      "sha256": "c00c2aa62cce799644aba251ad7bc55ff21b88f9e189d251143d4022b2d9c3a1"
+    }
+  },
+  "historical_commit": "4a35a6cdaa0f112db6b3f577542138afd170c20d",
+  "historical_ledger_records": 38,
+  "independent_review": {
+    "disposition": "PASS for historical fallback only",
+    "record": "REVIEW.md",
+    "reviewer": "/root/reconciliation_review",
+    "scope": "PLAN.md, reconcile.py, reconcile_test.py and exact historical ledger"
+  },
+  "new_verification": {
+    "command": "python3 docs/engineering-delivery/feature-intake-integration/reconcile_test.py HISTORICAL_LEDGER",
+    "exit_code": 0,
+    "fail": 0,
+    "historical_behaviour_checks": 10,
+    "inputs_unchanged": true,
+    "negative_cli_probes": [
+      "missing accepted checkpoint: exit2/no proposed checkpoint",
+      "altered historical bytes: exit2",
+      "mixed historical/operational arguments: exit2"
+    ],
+    "skip": 0,
+    "tests": 2
+  },
+  "remaining_prerequisite": "Existing sole writer supplies authenticated current ledger and accepted checkpoint/revisions, assignment/result route, and scope/source/authority/cancellation context; then fresh read-only observation and capacity-zero comparison. Do not bootstrap missing continuity.",
+  "result": "PASS_HISTORICAL_FALLBACK_ONLY",
+  "reused_producer_proof": {
+    "adapter_and_helper_source_and_test_bytes_unchanged": true,
+    "adapter_tests": 28,
+    "authentic_gets": 34,
+    "full_suites_repeated": false,
+    "helper_tests": 26,
+    "independent_extra_probes": 8
+  },
+  "schema": 1,
+  "scope": {
+    "device_actions": 0,
+    "github_directory_changes": 0,
+    "issues_or_votes": 0,
+    "ledger_or_checkpoint_writes": 0,
+    "merges": 0,
+    "publications": 0,
+    "scheduler_changes": 0,
+    "shared_source_changes": 0
+  },
+  "successor": {
+    "consumption_verified": false,
+    "created": false,
+    "route": "Return exact packet to existing creator; supervisor liveness unverified",
+    "standard_creation_tool_available": false,
+    "standard_thread_reader_available": false
+  },
+  "task": "ROADMAP #120 isolated coordinator integration qualification"
+}

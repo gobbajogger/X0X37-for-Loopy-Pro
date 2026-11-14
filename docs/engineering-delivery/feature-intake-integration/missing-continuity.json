@@ -1,0 +1,10 @@
+{
+  "claims": [],
+  "current_acceptance": false,
+  "input_file_sha256": {
+    "/workspace/intake-integration/comparison-fixture.json": "67d6291b301412df4a6ca7808aeafac9d0587b06ece3c68e72bab0157cd9d52c",
+    "/workspace/intake-integration/historical/coordination/requests/requests.json": "ea7bae9470f4197d1d907975b877dfcb28005ddd5968b8d163248334647afdca"
+  },
+  "reason": "authenticated accepted checkpoint required; no bootstrap",
+  "state": "BLOCKED"
+}
