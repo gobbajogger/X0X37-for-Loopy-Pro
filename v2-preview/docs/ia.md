@@ -1,8 +1,12 @@
 # DnBOX website v2 — information architecture
 
-One task-led instrument site. This is a design direction, not a published site, and not a pick among the earlier A, B and C options. Those remain in `/workspace/website-ux/options/` as a record; they are not offered as a choice here.
+**HISTORICAL, UNAPPROVED IA.** The current source-backed website plan is [journeys-20261114.md](journeys-20261114.md), under ROADMAP W1/W2/W3 (#887) and firmware UX owner #891. Earlier A/B/C drafts and the six later concept directions are **rejected/unapproved and preserved**. They are not options for implementation or publication.
 
 Fetched 13 November 2026, Asia/Vladivostok (UTC+10). Feature and engine facts are taken only from the sources named below. Anything not in those sources is marked UNVERIFIED or stated as this author’s judgment.
+
+## Current planning authority / evidence boundary
+
+Use [journeys-20261114.md](journeys-20261114.md) for the **12 observable task contracts**. This historical document is retained for provenance, not an approved design. #906 R01–R10 and #890 review comments [6861864052](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/890#issuecomment-6861864052)/[6862054957](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/890#issuecomment-6862054957) distinguish already-fixed *inert preview* cases from unchanged live main/nightly issues, missing sample-warning persistence, wrong tutorial mutes and focus/Back gaps. Firmware UI owner #891 and the owner must approve behavior before product imagery/website publication.
 
 ## Sources
 
@@ -19,7 +23,7 @@ Fetched 13 November 2026, Asia/Vladivostok (UTC+10). Feature and engine facts ar
 
 ## Site map
 
-Pages are ordered by what a musician actually has to do, not by marketing sections. The home page is a task hub. There is no product-hero plate and no feature-card grid.
+This earlier site map began with a task hub, which is **not the approved entry journey**. A visitor may neither own an SMK-37 nor know what DnBOX does. The new plan first establishes concrete musical purpose and model/version scope, then separates first beat, install, files, recovery and an eventual qualified emulator. Final layout waits for firmware UX approval.
 
 ```
 /                  Task hub
@@ -30,7 +34,7 @@ Pages are ordered by what a musician actually has to do, not by marketing sectio
 /recover           If the keyboard will not start (reachable before an install starts)
 ```
 
-Navigation, always present: **DnBOX** (home), First pattern, Install, Presets, Recover. A quiet text mention of the published manual. No “Presets: coming” slot — presets are a real flow. No competing Studio / Simulator / Try as equal actions. An emulator mention, if any, is secondary and tagged as a proposal.
+Earlier preview navigation (not approved): **DnBOX**, First pattern, Install, Presets, Recover. Proposed navigation and prominence must come from the new journeys. This preview's preset page is inert; #901 separately provides a real **file-only** DNPR librarian, not device transfer. #899 has emulator source but no qualified real browser boot/audio, so no playable Try promise.
 
 The SMK-37 is supported hardware, named in supporting copy (“for the M-VAVE SMK-37 Elite and Pro”), never as a giant hardware label. The brand, spelled exactly **DnBOX**, sits in the navigation as a wordmark, not as the page’s main headline.
 
@@ -38,9 +42,9 @@ The SMK-37 is supported hardware, named in supporting copy (“for the M-VAVE SM
 
 ### 1. Home — “What do you need to do?”
 
-**Musician task.** Choose the next useful job: play a first pattern, install or update, back up or load a preset, recover a keyboard that will not start.
+**Musician task (revised).** First tell a newcomer what musical experience DnBOX enables and why an SMK-37 is relevant; offer a first-pattern explanation. Existing owners can then go directly to install/update, projects, samples, presets or recovery.
 
-**Why this helps.** A musician opening this site already has, or is about to have, a keyboard. They are not looking for a product story. A task hub puts the job first and keeps every other route one step away. The first view of options A, B and C led with a brand plate and a hardware drawing; the owner called those generic, and earlier asked “Why big smk37??”.
+**Why this helps (assumption removed).** No evidence shows that visitors already own, want or understand the keyboard. DnBOX must communicate musical purpose before presenting installer and file-management terminology. Prior generic hero/task-list feedback was about execution, **not proof that a product story is unnecessary**. Preserve direct routes for returning owners.
 
 **Reference.** Baud Girl’s product page, as recorded in `AUDIT.md` (“What is actually on screen”): “A small body paragraph and a pair of modest actions follow, not five equally important feature cards.” The task list is this author’s judgment extending that reason — hierarchy by job, not by feature — rather than a copy of Baud Girl’s name-as-graphic hero, which would repeat the “big name” problem.
 
@@ -52,7 +56,7 @@ The SMK-37 is supported hardware, named in supporting copy (“for the M-VAVE SM
 
 **Musician task.** After a first start, make a sound within a few minutes, then keep it, then know what matters for a live set.
 
-**Why this helps.** The published playing manual already contains a five-minute tour. Putting that tour on the site, with SMK-37 button names and an honest limit about the FM-1 origin of the text, is more useful than a feature list. Baud Girl’s “copy names the user's purpose” (`AUDIT.md`) applies: the page is “put a kick on the 909 and press PLAY,” not “explore the sequencer architecture.”
+**Why this helps (source priority corrected).** Do not teach the old FM-1 tour as if it were SMK-37. At 0.0.25.1 source `79280e76` and 0.0.26 candidate `94197fc8`, the actual SMK mapping has black key 1 for kick, white/pads 1/5/9/13 for four steps, SEQ PLAY for transport, and BREAK as **HOME black key 3**, not black key 5. Draft #884 documents this; device execution is NOT_RUN. No unsupported five-minute speed claim.
 
 **Reference.** Production manual, section 2, “Getting started”: “A five-minute tour, from switching on to saving your first beat. When X0X starts, the screen shows the 909 and every part is empty.” The empty 909 SEQ is also what the emulator LCD shows at 15 s (`lcd-elite-360mhz-15001ms-3x.png`). The first-start banner “OLD DATA CLEARED” is on `lcd-elite-360mhz-2003ms-3x.png`. SMK-37 control names come from `SMK37.md` (SEQ PLAY is PLAY, BT is SAVE, PATCH is HOME, K3 is ALGORITHM, and so on). The nightly manual warns that older X0X documentation may describe a different device or control layout; each FM-1-specific step is labelled, and any SMK-37 key-to-drum assignment not stated in `SMK37.md` is **UNVERIFIED**.
 
@@ -84,7 +88,7 @@ The SMK-37 is supported hardware, named in supporting copy (“for the M-VAVE SM
 - Computer path: Chrome or Edge on a computer (nightly and production READMEs).
 - iPhone path: **UNVERIFIED, not claimed supported**. No verified app/OS/device route or completed installation evidence. Offer the documented computer route instead; do not conclude that every possible iPhone route is universally impossible. This 13 November owner instruction supersedes the earlier provisional 31 October proposal recorded in `reading.md`.
 - Package 0.0.25.1 displays 0.0.25 on the device; the package revision is not a different keyboard model (nightly `/manual/`).
-- Restore to M-VAVE stock from the installer or M-UPGRADE (both READMEs; nightly `/manual/` says do not use another device’s stock firmware or recovery instructions; do not treat the FM-1 recovery procedure as an SMK procedure).
+- **Corrected recovery scope:** the published main installer's local stock-file chooser is hidden (#884 current draft source audit); do not promise main-site stock upload. Restore stock through manufacturer M-UPGRADE using the matching model-specific package; a nightly local-file chooser may be visible but is not proof of a safe supported recovery. Do not apply an FM-1 rescue method to an SMK-37.
 
 The stepped states and failure branches are in `flow.md`.
 
@@ -98,7 +102,7 @@ The stepped states and failure branches are in `flow.md`.
 
 **Reference.** Baud Girl Help-in-context, as above. Nightly `/manual/`, “Connection and recovery.” Production README, “Restore and rescue.” The FM-1 “Recovering an FM-1 that won't start” script in the production manual §17 is **not** presented as an SMK-37 procedure (nightly `/manual/` explicit warning).
 
-**On the page.** Reachable from the hub, from a persistent Help control on every install state, and from every failure card. Covers: dark display during a write can be normal — do not switch the device off; unplug mid-write is unsafe; replug and finish the same package; device mismatch — stop, do not write; original 0.0.26 (`600b3b45`) already on a device — restore stock, do not reinstall that package; if the screen stays black after a write, retain the log, package and model, and use the installer’s restore to M-VAVE stock or M-UPGRADE. This page cannot tell, from a still screen, whether the keyboard will start on its own after a stopped write.
+**On the future recovery page (unapproved):** app / loader-only / no device / stalled restart / wrong model / incomplete sample restoration each require a separate observed-state response. Do not promise the hidden main stock-file uploader. Preserve log/model/package and route manufacturer stock recovery to M-UPGRADE; do not reuse withdrawn `600b3b45`. Transfer alone is never a boot confirmation. The current `recover.html` mock still needs wording correction, recorded in the new plan.
 
 ---
 
