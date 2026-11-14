@@ -1,0 +1,23 @@
+{
+  "negative_controls": [
+    {
+      "mutation": "publication_cas_removed",
+      "returncode": 1,
+      "detected": true,
+      "test": "test_local_edit_after_validation_stales_commit"
+    },
+    {
+      "mutation": "owner_gate_removed",
+      "returncode": 1,
+      "detected": true,
+      "test": "test_busy_begin_grants_no_abort_authority"
+    },
+    {
+      "mutation": "cancelled_request_resurrected",
+      "returncode": 1,
+      "detected": true,
+      "test": "test_cancellation_tombstone_precedes_delayed_begin"
+    }
+  ],
+  "all_detected": true
+}

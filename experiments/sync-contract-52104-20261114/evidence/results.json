@@ -1,0 +1,97 @@
+{
+  "started_at": "2026-11-14T06:27:16.166858+00:00",
+  "evidence_class": "synthetic semantic prototype",
+  "python": "3.12.14",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "source_sha256": {
+    "model.py": "18851a2b3a6d3579b3eb7c90a231cee47be97d15af26429bfe91ed1bb517f973",
+    "test_model.py": "3a036b06a056c72b6a83569b057d7ec3e5f9f20e0952ffcb2d26f48b99051d6e",
+    "explore.py": "90c5a4f144f780aa2aa46436bed697b656a25e60f14b67787c100b9f0ab8f72d",
+    "negative_controls.py": "6b144f2e40fffa971476d549814d060fccada468a9327545656abd17a0c07ffe",
+    "run_checks.py": "52f1f3f9a0ca6a7c0806663931a156e543af70ca9864d7105339523fbe89abc4",
+    "PROTOCOL.md": "a6c10ba98f223abfd467bad098be13ab0ddbda83642473f126100f5b8275358c",
+    "review/adversarial_test.py": "7d33a3bb6a80e2698afcf8f872605e5f0fe4598c7bfd8cf71de68b65164b8eca",
+    "review/adversarial_interleavings.py": "2770f193bbeab7e17d81842ff54a9bf8c94bb3128d4ec3856c3981af7eba3e5e"
+  },
+  "checks": [
+    {
+      "name": "focused",
+      "command": "python3 -m unittest -v test_model.py",
+      "returncode": 0,
+      "status": "PASS",
+      "log": "evidence/focused.log",
+      "test_methods": 18
+    },
+    {
+      "name": "adversarial",
+      "command": "python3 review/adversarial_test.py",
+      "returncode": 0,
+      "status": "PASS",
+      "log": "evidence/adversarial.log",
+      "test_methods": 29
+    },
+    {
+      "name": "interleavings",
+      "command": "python3 explore.py",
+      "returncode": 0,
+      "status": "PASS",
+      "log": "evidence/interleavings.log",
+      "result": {
+        "schedules": 38610,
+        "checked_events": 2304810,
+        "observed_commits": 30532,
+        "final_uncommitted_stale_transactions": 17262,
+        "invariant_failures": 0,
+        "clients": 2,
+        "progress_events_per_client": 8,
+        "local_write_cuts": [
+          0,
+          8,
+          16
+        ],
+        "evidence": "synthetic semantic model only"
+      }
+    },
+    {
+      "name": "adversarial-interleavings",
+      "command": "python3 review/adversarial_interleavings.py",
+      "returncode": 0,
+      "status": "PASS",
+      "log": "evidence/adversarial-interleavings.log",
+      "schedules": 3150,
+      "assertions": 191932
+    },
+    {
+      "name": "negative-controls",
+      "command": "python3 negative_controls.py",
+      "returncode": 0,
+      "status": "PASS",
+      "log": "evidence/negative-controls.log",
+      "result": {
+        "negative_controls": [
+          {
+            "mutation": "publication_cas_removed",
+            "returncode": 1,
+            "detected": true,
+            "test": "test_local_edit_after_validation_stales_commit"
+          },
+          {
+            "mutation": "owner_gate_removed",
+            "returncode": 1,
+            "detected": true,
+            "test": "test_busy_begin_grants_no_abort_authority"
+          },
+          {
+            "mutation": "cancelled_request_resurrected",
+            "returncode": 1,
+            "detected": true,
+            "test": "test_cancellation_tombstone_precedes_delayed_begin"
+          }
+        ],
+        "all_detected": true
+      }
+    }
+  ],
+  "finished_at": "2026-11-14T06:27:20.520901+00:00",
+  "all_passed": true
+}

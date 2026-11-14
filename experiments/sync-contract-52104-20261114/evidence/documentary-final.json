@@ -1,0 +1,35 @@
+{
+  "prior_execution_proposal_sha256": "a6c10ba98f223abfd467bad098be13ab0ddbda83642473f126100f5b8275358c",
+  "final_proposal_sha256": "27205e21bdccb48ed0125eb3264c2a722693939ddbef741705bf8ac15c331dbd",
+  "delta": "Documentation only: legacy PROJECT bodies containing OP return [OP,2]; bodies without OP drop without timer/state effect.",
+  "executable_hashes_unchanged_from_final_run": true,
+  "wire_size_arithmetic": "295 raw / 338 packed / 345 framed, checked",
+  "local_markdown_links": [
+    {
+      "file": "README.md",
+      "target": "PROTOCOL.md",
+      "exists": true
+    },
+    {
+      "file": "README.md",
+      "target": "review/protocol-analysis.md",
+      "exists": true
+    },
+    {
+      "file": "README.md",
+      "target": "review/adversarial-review.md",
+      "exists": true
+    },
+    {
+      "file": "README.md",
+      "target": "evidence/results.json",
+      "exists": true
+    },
+    {
+      "file": "README.md",
+      "target": "HANDOFF.md",
+      "exists": true
+    }
+  ],
+  "firmware_wire_parser_tested": false
+}

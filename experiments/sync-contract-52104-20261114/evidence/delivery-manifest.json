@@ -1,0 +1,159 @@
+{
+  "owned_directory": "experiments/sync-contract-52104-20261114",
+  "base_commit": "66073c68dd80d51a7053432c2c161a8b720a1341",
+  "model_sha256": "18851a2b3a6d3579b3eb7c90a231cee47be97d15af26429bfe91ed1bb517f973",
+  "files_excluding_this_manifest": [
+    {
+      "path": "HANDOFF.md",
+      "bytes": 5679,
+      "sha256": "9ac9cd4f4d10b18a88613f30360520918bdc30f74224e474ac52416d684a67d6",
+      "git_blob": "adcc5448d153770cfa4f962c481bdc314ef4abeb"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 2220,
+      "sha256": "b7c7b93b04b69f4dc4f30238348693c672577ee2b854c295357dc6e55e6f7d42",
+      "git_blob": "e9cd2697658e3530f077115057130fa30f5f1864"
+    },
+    {
+      "path": "PROTOCOL.md",
+      "bytes": 15042,
+      "sha256": "27205e21bdccb48ed0125eb3264c2a722693939ddbef741705bf8ac15c331dbd",
+      "git_blob": "4827515858255185aeb74bff55624ceee76b0d73"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2094,
+      "sha256": "971d57650e76b758722693b3e5f6ff547dd8c1c023647d3b13240f7cae21244d",
+      "git_blob": "655d029ef9ae35dcfbb15666460673f115b764a0"
+    },
+    {
+      "path": "evidence/adversarial-interleavings.log",
+      "bytes": 92,
+      "sha256": "69b16afa53e7fac2004ddc572772ffd5e5f9fb1f6273e625e6d0e0bbd53e4b38",
+      "git_blob": "7495a5b80dc3aaa3f968d95746f2174acbde44f5"
+    },
+    {
+      "path": "evidence/adversarial.log",
+      "bytes": 3788,
+      "sha256": "79c6b28b82408226da9150c526befda94f99bc956b5f27e4b58fb21c62de0ebf",
+      "git_blob": "79d79752e485c62d936a8e5fbbd08d827f01d69d"
+    },
+    {
+      "path": "evidence/documentary-final.json",
+      "bytes": 1039,
+      "sha256": "6ae68440b124d539b2e7db49d5b473a4aff14c676ff1ecca51ed823dbd526222",
+      "git_blob": "aa920636d56be5e4086f4d8986550b197753d8f2"
+    },
+    {
+      "path": "evidence/focused.log",
+      "bytes": 2367,
+      "sha256": "b92e2a3fc103b8e66a7595a539177566ee44fd7b5e3419f3e96dc48879e6d3e6",
+      "git_blob": "015da07442c9ff74ccacdcbedb8541215958ad7e"
+    },
+    {
+      "path": "evidence/interleavings.json",
+      "bytes": 307,
+      "sha256": "aaf7760fdf299838e662b16fd7136c3b0594e2ab3eb2926512e053bb18953b4a",
+      "git_blob": "b93e49323a1183060a609f44c7610e7aea0221cd"
+    },
+    {
+      "path": "evidence/interleavings.log",
+      "bytes": 307,
+      "sha256": "aaf7760fdf299838e662b16fd7136c3b0594e2ab3eb2926512e053bb18953b4a",
+      "git_blob": "b93e49323a1183060a609f44c7610e7aea0221cd"
+    },
+    {
+      "path": "evidence/negative-controls.json",
+      "bytes": 560,
+      "sha256": "2743a6e2628aeed18f6410bdcf315dca8de04d95b54dfa39e9e944a8a57aa816",
+      "git_blob": "477d1b0db22359272c66b8e8a417873ba1eaa954"
+    },
+    {
+      "path": "evidence/negative-controls.log",
+      "bytes": 560,
+      "sha256": "2743a6e2628aeed18f6410bdcf315dca8de04d95b54dfa39e9e944a8a57aa816",
+      "git_blob": "477d1b0db22359272c66b8e8a417873ba1eaa954"
+    },
+    {
+      "path": "evidence/results.json",
+      "bytes": 3212,
+      "sha256": "4af687652833f67b296a26b8a85acb641542514838bb4f0b379ff606b1902abb",
+      "git_blob": "f148b083c832f30f1db7150862d9c2b53e419f8b"
+    },
+    {
+      "path": "explore.py",
+      "bytes": 4884,
+      "sha256": "90c5a4f144f780aa2aa46436bed697b656a25e60f14b67787c100b9f0ab8f72d",
+      "git_blob": "29a15a7763a03dfe8993e7e925d3958361b1d5bd"
+    },
+    {
+      "path": "inputs.json",
+      "bytes": 1247,
+      "sha256": "376ea9065d3e43322422790f8286e8c1cbfaa1b2cc1faeb0fdd86a0b63fe35b4",
+      "git_blob": "d5592fd5db17bfe71067b962ab6da6f9adba34c1"
+    },
+    {
+      "path": "model.py",
+      "bytes": 16701,
+      "sha256": "18851a2b3a6d3579b3eb7c90a231cee47be97d15af26429bfe91ed1bb517f973",
+      "git_blob": "276ae6ecf226b78922285156d1880c6b3c748c8b"
+    },
+    {
+      "path": "negative_controls.py",
+      "bytes": 2437,
+      "sha256": "6b144f2e40fffa971476d549814d060fccada468a9327545656abd17a0c07ffe",
+      "git_blob": "96f67e59b86de907aa3536265a0af0b9e0e0bff0"
+    },
+    {
+      "path": "review/adversarial-first-run.log",
+      "bytes": 18715,
+      "sha256": "29fd5d4e3d9ef4840632ee2e62849762aefa4be0bd87fa49886ee7298feed520",
+      "git_blob": "1f564ffe727731cea2d63b59ad5ae50df869facd"
+    },
+    {
+      "path": "review/adversarial-review.md",
+      "bytes": 8494,
+      "sha256": "bbc58e2cdb33781f80ee095d54577669aa9192eb0b9fccdb5d2520ee8da72f6c",
+      "git_blob": "1cbfa2edfeef98ff1963fdd3608d2041b81cbb63"
+    },
+    {
+      "path": "review/adversarial_interleavings.py",
+      "bytes": 4465,
+      "sha256": "2770f193bbeab7e17d81842ff54a9bf8c94bb3128d4ec3856c3981af7eba3e5e",
+      "git_blob": "1fcc60c6ba7e3c240716af74ed8404e419682ecf"
+    },
+    {
+      "path": "review/adversarial_test.py",
+      "bytes": 17111,
+      "sha256": "7d33a3bb6a80e2698afcf8f872605e5f0fe4598c7bfd8cf71de68b65164b8eca",
+      "git_blob": "2666f474855906cfa79ad65d88c42eb61cf77000"
+    },
+    {
+      "path": "review/protocol-analysis.md",
+      "bytes": 11084,
+      "sha256": "7264d3c0f1db5ed6f35f496f32f0ee9df456a73c34cc888b0882f842d3f85399",
+      "git_blob": "0e3c9622b678b53935f42d81987b8c7350d2bcbc"
+    },
+    {
+      "path": "review/protocol-final-review.md",
+      "bytes": 7084,
+      "sha256": "371384cbdbcf3e2bb14a87a3c1562687f7cbbd9cab6f4862baffa6123c46752b",
+      "git_blob": "a4183911a3bcf77b26a10a0d00ce46ef7cc7ad6f"
+    },
+    {
+      "path": "run_checks.py",
+      "bytes": 2974,
+      "sha256": "52f1f3f9a0ca6a7c0806663931a156e543af70ca9864d7105339523fbe89abc4",
+      "git_blob": "b4328b16f7f6a871c946d3770c17cc71b74caf7c"
+    },
+    {
+      "path": "test_model.py",
+      "bytes": 9297,
+      "sha256": "3a036b06a056c72b6a83569b057d7ec3e5f9f20e0952ffcb2d26f48b99051d6e",
+      "git_blob": "fe3b24d73ccb8e104eb9d2ec5fc5d9ac4e175157"
+    }
+  ],
+  "contains_firmware_runtime_changes": false,
+  "contains_device_adapter": false
+}

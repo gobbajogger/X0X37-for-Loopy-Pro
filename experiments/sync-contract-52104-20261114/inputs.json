@@ -1,0 +1,17 @@
+{
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "inputs": [
+    {"path": "docs/ROADMAP.md", "commit": "12e72b586c31e7ed412b6f4315bdf408c6f712b0", "git_blob": "923cf5a243ab4d6abe59ed493b506c3a928ca661"},
+    {"path": "web/offline-sequencer/SYNC.md", "commit": "94197fc839b00aff47b98ca02f3c6396e4a6eabf", "git_blob": "4b376cd6650ce3dec77c37bb77f9092db18b7754"},
+    {"path": "firmware/src/app/editor.c", "commit": "94197fc839b00aff47b98ca02f3c6396e4a6eabf", "git_blob": "83877daf4bbb111865ad3abf15d00698031870d5"},
+    {"path": "docs/FEATURE-REGISTRY.md", "commit": "94197fc839b00aff47b98ca02f3c6396e4a6eabf", "git_blob": "9fff09e3251a0d2d65c2a0ce93857125ca543a9a"}
+  ],
+  "policy_commit": "66073c68dd80d51a7053432c2c161a8b720a1341",
+  "input_verification": "Exact recovered bytes matched all four Git blob hashes before experiments; two independent reviewers verified the three task inputs.",
+  "prototype_source_owner": "delegated Codex thread 6af7fcac-2fc0-8191-942b-a34e7f09b0e8",
+  "pattern_owner_thread": "https://chatgpt.com/c/6af72638-bff4-83ea-8cc3-75336d14afba",
+  "protocol_owner_thread": null,
+  "current_stream16_sha": null,
+  "boundary_acceptance": "NOT_ESTABLISHED",
+  "proof_scope": "synthetic isolated semantic model only"
+}

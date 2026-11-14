@@ -1,0 +1,15 @@
+{
+  "schedules": 38610,
+  "checked_events": 2304810,
+  "observed_commits": 30532,
+  "final_uncommitted_stale_transactions": 17262,
+  "invariant_failures": 0,
+  "clients": 2,
+  "progress_events_per_client": 8,
+  "local_write_cuts": [
+    0,
+    8,
+    16
+  ],
+  "evidence": "synthetic semantic model only"
+}

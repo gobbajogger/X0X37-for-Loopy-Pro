@@ -1,0 +1,23 @@
+test_aba_edit_is_still_stale (test_model.ContractTests.test_aba_edit_is_still_stale) ... ok
+test_busy_begin_grants_no_abort_authority (test_model.ContractTests.test_busy_begin_grants_no_abort_authority) ... ok
+test_cancellation_tombstone_precedes_delayed_begin (test_model.ContractTests.test_cancellation_tombstone_precedes_delayed_begin) ... ok
+test_chunk_retries_are_exact (test_model.ContractTests.test_chunk_retries_are_exact) ... ok
+test_counter_configuration_is_bounded_and_canonical (test_model.ContractTests.test_counter_configuration_is_bounded_and_canonical) ... ok
+test_epoch_change_never_replays_uncertain_transaction (test_model.ContractTests.test_epoch_change_never_replays_uncertain_transaction) ... ok
+test_expiry_then_foreign_begin_then_old_abort (test_model.ContractTests.test_expiry_then_foreign_begin_then_old_abort) ... ok
+test_foreign_malformed_and_legacy_packets_do_not_renew (test_model.ContractTests.test_foreign_malformed_and_legacy_packets_do_not_renew) ... ok
+test_hard_deadline_wins_over_keepalives (test_model.ContractTests.test_hard_deadline_wins_over_keepalives) ... ok
+test_legacy_resource_interlock_and_revision_coverage (test_model.ContractTests.test_legacy_resource_interlock_and_revision_coverage) ... ok
+test_local_edit_after_validation_stales_commit (test_model.ContractTests.test_local_edit_after_validation_stales_commit) ... ok
+test_lost_begin_and_commit_replies_are_retryable (test_model.ContractTests.test_lost_begin_and_commit_replies_are_retryable) ... ok
+test_manifest_and_semantic_validation_both_required (test_model.ContractTests.test_manifest_and_semantic_validation_both_required) ... ok
+test_no_silent_receipt_eviction_or_counter_wrap (test_model.ContractTests.test_no_silent_receipt_eviction_or_counter_wrap) ... ok
+test_reconnect_fences_delayed_frames_and_lost_resume_reply (test_model.ContractTests.test_reconnect_fences_delayed_frames_and_lost_resume_reply) ... ok
+test_snapshot_and_publication_are_distinct (test_model.ContractTests.test_snapshot_and_publication_are_distinct) ... ok
+test_terminal_identity_cannot_resurrect (test_model.ContractTests.test_terminal_identity_cannot_resurrect) ... ok
+test_unsupported_server_is_fail_closed (test_model.ContractTests.test_unsupported_server_is_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.001s
+
+OK

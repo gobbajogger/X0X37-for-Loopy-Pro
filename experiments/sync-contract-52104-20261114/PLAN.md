@@ -1,0 +1,11 @@
+# Isolated #52 / #104 contract stage
+
+Own only this directory and a new experiments/sync-contract-52104-20261114 delivery directory, if pushed. No shared firmware, web runtime, DeviceSync, persistence, stream16, #7, ROADMAP, SDK, device or protected-ref edits.
+
+1. Verify immutable inputs, maintained policy, retained ownership and opcode history before model experiments. Exact ROADMAP/SYNC/editor/registry blobs are recovered. Existing pattern owner is preserved. Current protocol-owner identity and unpublished stream16 pin remain unverified after safe source/history searches; no shared implementation or opcode reservation follows from this stage.
+2. Specify an additive, fail-closed protocol proposal, including immutable snapshot, owner capability, boot epoch, revision CAS, idempotent retries, terminal outcomes, reconnect binding and cancellation tombstones. Separate volatile publication from durability and bearer isolation from peer authentication.
+3. Implement a standalone deterministic Python state machine with no transport/device adapter. Use synthetic opaque bytes and an explicit validation oracle. Run focused cases and bounded two-client interleavings, with invariants checked after every event.
+4. Independent protocol analyst owns review/protocol-analysis.md. Independent adversarial validator owns review/adversarial*.py and adversarial-review.md. Implementation stays with this writer. Resolve demonstrated model defects and re-review changed behavior.
+5. Deliver exact proposal, executable tests, source hashes, real exit receipts and limits for incumbent boundary acceptance. Preserve NOT_RUN firmware/host-app/native/browser/emulator/device gates. If owner-thread/successor tools remain unavailable, give parent a precise packet; do not invent acceptance or a launched successor.
+
+Acceptance: synthetic-model tests demonstrate that only validated, owner-bound, current-revision commits change live bytes; conflicting, foreign, expired, cancelled and delayed requests cannot write or roll back an accepted commit. Retained snapshots/local candidates remain available to callers on conflict. Proof is bounded to the executable model and its assumptions; firmware acceptance is a separate gate.

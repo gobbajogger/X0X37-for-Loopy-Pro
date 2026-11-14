@@ -1,0 +1,34 @@
+test_abort_before_commit_prevents_late_commit (__main__.AdversarialTests.test_abort_before_commit_prevents_late_commit) ... ok
+test_authorized_keepalive_cannot_defeat_hard_expiry (__main__.AdversarialTests.test_authorized_keepalive_cannot_defeat_hard_expiry) ... ok
+test_bad_numeric_fields_do_not_renew_lease (__main__.AdversarialTests.test_bad_numeric_fields_do_not_renew_lease) ... ok
+test_cancel_before_delayed_begin_is_tombstone (__main__.AdversarialTests.test_cancel_before_delayed_begin_is_tombstone) ... ok
+test_committed_receipt_rejects_different_intent (__main__.AdversarialTests.test_committed_receipt_rejects_different_intent) ... ok
+test_expire_then_foreign_owner_then_late_old_frames (__main__.AdversarialTests.test_expire_then_foreign_owner_then_late_old_frames) ... ok
+test_failed_validation_does_not_change_music (__main__.AdversarialTests.test_failed_validation_does_not_change_music) ... ok
+test_foreign_attempts_do_not_touch_owner_or_lease (__main__.AdversarialTests.test_foreign_attempts_do_not_touch_owner_or_lease) ... ok
+test_foreign_cancel_cannot_cancel_owner (__main__.AdversarialTests.test_foreign_cancel_cannot_cancel_owner) ... ok
+test_foreign_epoch_token_cannot_alias_new_serial (__main__.AdversarialTests.test_foreign_epoch_token_cannot_alias_new_serial) ... ok
+test_full_project_sized_opaque_bytes_and_hidden_tail_copy (__main__.AdversarialTests.test_full_project_sized_opaque_bytes_and_hidden_tail_copy) ... ok
+test_incomplete_changed_duplicate_and_out_of_order_chunks (__main__.AdversarialTests.test_incomplete_changed_duplicate_and_out_of_order_chunks) ... ok
+test_legacy_ops_do_not_change_or_renew_v2 (__main__.AdversarialTests.test_legacy_ops_do_not_change_or_renew_v2) ... ok
+test_local_aba_edit_still_conflicts (__main__.AdversarialTests.test_local_aba_edit_still_conflicts) ... ok
+test_local_edit_during_staging_causes_final_conflict (__main__.AdversarialTests.test_local_edit_during_staging_causes_final_conflict) ... ok
+test_lost_begin_reply_retries_same_transaction (__main__.AdversarialTests.test_lost_begin_reply_retries_same_transaction) ... ok
+test_lost_commit_reply_and_cancel_after_commit (__main__.AdversarialTests.test_lost_commit_reply_and_cancel_after_commit) ... ok
+test_malformed_commit_revision_cannot_publish (__main__.AdversarialTests.test_malformed_commit_revision_cannot_publish) ... ok
+test_malformed_revision_cannot_alias_zero (__main__.AdversarialTests.test_malformed_revision_cannot_alias_zero) ... ok
+test_noncanonical_token_serials_do_not_alias (__main__.AdversarialTests.test_noncanonical_token_serials_do_not_alias) ... ok
+test_reconnect_rebind_idempotent_and_old_frames_revoked (__main__.AdversarialTests.test_reconnect_rebind_idempotent_and_old_frames_revoked) ... ok
+test_resume_capacity_and_stale_retry_fail_closed (__main__.AdversarialTests.test_resume_capacity_and_stale_retry_fail_closed) ... ok
+test_revision_exhaustion_never_wraps (__main__.AdversarialTests.test_revision_exhaustion_never_wraps) ... ok
+test_snapshot_remains_original_despite_local_edit (__main__.AdversarialTests.test_snapshot_remains_original_despite_local_edit) ... ok
+test_terminal_capacity_fails_closed (__main__.AdversarialTests.test_terminal_capacity_fails_closed) ... ok
+test_two_clients_and_stale_cached_revision (__main__.AdversarialTests.test_two_clients_and_stale_cached_revision) ... ok
+test_unsupported_never_acquires_or_mutates (__main__.AdversarialTests.test_unsupported_never_acquires_or_mutates) ... ok
+test_v2_does_not_release_legacy_hold (__main__.AdversarialTests.test_v2_does_not_release_legacy_hold) ... ok
+test_validate_retry_does_not_renew_lease (__main__.AdversarialTests.test_validate_retry_does_not_renew_lease) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.005s
+
+OK
