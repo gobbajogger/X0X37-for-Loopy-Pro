@@ -13,5 +13,5 @@ test("DnBOX W3 file-only page interactions", async () => {
   const htmlSource = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   const result = await checkPresetPage({ appSource, htmlSource, codec, zip });
   assert.deepEqual(result.failures, [], result.failures.join("\n"));
-  assert.equal(result.passed.length, 15, "Keep all 11 existing and 4 multi-record interaction checks active");
+  assert.equal(result.passed.length, 17, "Retain 15 existing and 2 target/provenance interaction checks");
 });

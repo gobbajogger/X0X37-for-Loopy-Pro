@@ -66,16 +66,78 @@ test("A3 newer format and schema reject with NEWER DATA, older unknown rejects B
   const old=clone(b);old[4]=0; recalc(old);expectCode(()=>parseDnpr(old),"BAD FILE");
 });
 
-test("A4 both engine ID and original engine are checked before target import", () => {
+test("A4 actual engine controls target import while recognized provenance is preserved", () => {
   const b=make("chicago");
   expectCode(()=>parseDnpr(b,{expectedEngine:"miami"}),"WRONG ENGINE");
   expectCode(()=>parseDnpr(make("miami"),{expectedEngine:"chicago"}),"WRONG ENGINE");
   expectCode(()=>parseDnpr(b,{expectedEngine:"909"}),"WRONG ENGINE");
   const inconsistent=clone(b); inconsistent[21]=2; recalc(inconsistent);
-  assert.equal(parseDnpr(inconsistent).originalEngine,2); // preview only, do not relabel.
-  expectCode(()=>parseDnpr(inconsistent,{expectedEngine:"chicago"}),"WRONG ENGINE");
+  assert.equal(parseDnpr(inconsistent).originalEngine,2);
+  assert.deepEqual(ensureExportable(parseDnpr(inconsistent,{expectedEngine:"chicago"})),inconsistent);
   expectCode(()=>parseDnpr(inconsistent,{expectedEngine:"miami"}),"WRONG ENGINE");
 });
+
+for (const [label, engine, actual, provenance, wrong] of [
+  ["P1", "chicago", 1, 2, "miami"],
+  ["P2", "miami", 2, 1, "chicago"]
+]) {
+  const fixture = () => { const b=make(engine); b[21]=provenance; return recalc(b); };
+  test(label + " explicit actual-engine and implicit imports preserve original bytes and provenance", () => {
+    const b=fixture(), before=clone(b);
+    for (const options of [{expectedEngine:engine}, {expectedEngine:actual}, {}]) {
+      const record=parseDnpr(b,options);
+      assert.equal(record.engineId,actual); assert.equal(record.originalEngine,provenance);
+      assert.deepEqual(record.params,b.slice(100));
+      assert.deepEqual(ensureExportable(record),before);
+      const bank=new PresetSession(2);
+      const entry=bank.importMany([{name:"provenance.dnpr",bytes:b}],options)[0];
+      assert.equal(entry.record.originalEngine,provenance);
+      assert.deepEqual(bank.exportOne(entry.id).bytes,before);
+    }
+    assert.deepEqual(b,before);
+  });
+  test(label + " wrong actual-engine and invalid provenance/schema/CRC refusals are atomic", () => {
+    const b=fixture(), badProvenance=clone(b), badSchema=clone(b), badCount=clone(b), badCrc=clone(b);
+    badProvenance[21]=255; recalc(badProvenance);
+    badSchema[8]=2; recalc(badSchema);
+    badCount[96]-=1; recalc(badCount);
+    badCrc[100]^=1;
+    for (const [bytes,options,code] of [
+      [b,{expectedEngine:wrong},"WRONG ENGINE"],
+      [badProvenance,{expectedEngine:engine},"BAD FILE"],
+      [badSchema,{expectedEngine:engine},"NEWER DATA"],
+      [badCount,{expectedEngine:engine},"BAD FILE"],
+      [badCrc,{expectedEngine:engine},"BAD FILE"]
+    ]) {
+      const before=clone(bytes);
+      expectCode(()=>parseDnpr(bytes,options),code);
+      for (const occupied of [false,true]) {
+        const bank=new PresetSession(4);
+        if (occupied) bank.importMany([{name:"existing.dnpr",bytes:make(engine)}]);
+        const entries=bank.entries.slice(), nextId=bank.nextId;
+        // First item is valid for the selected target; a later refusal cannot partly insert it.
+        const good=make(options.expectedEngine);
+        expectCode(()=>bank.importMany([{name:"good.dnpr",bytes:good},{name:"bad.dnpr",bytes}],options),code);
+        assert.deepEqual(bank.entries,entries); assert.equal(bank.nextId,nextId);
+        if (occupied) assert.deepEqual(bank.exportOne(entries[0].id).bytes,make(engine));
+      }
+      assert.deepEqual(bytes,before);
+    }
+  });
+  test(label + " explicit target acceptance cannot bypass factory and derived export guards", () => {
+    for (const origin of [1,2,3]) {
+      const b=fixture(); b[20]=origin; b[22]=1; recalc(b);
+      const record=parseDnpr(b,{expectedEngine:engine});
+      assert.equal(record.originalEngine,provenance);
+      assert.deepEqual(record.bytes,b);
+      expectCode(()=>ensureExportable(record),"FACTORY EXPORT OFF");
+      const bank=new PresetSession(1);
+      const entry=bank.importMany([{name:"derived.dnpr",bytes:b}],{expectedEngine:engine})[0];
+      expectCode(()=>bank.exportOne(entry.id),"FACTORY EXPORT OFF");
+      assert.deepEqual(entry.record.bytes,b);
+    }
+  });
+}
 
 test("A5 capacity preflight preserves every existing record and avoids partial ZIP staging", () => {
   const bank=new PresetSession(2), a=make("chicago"), b=make("miami");
