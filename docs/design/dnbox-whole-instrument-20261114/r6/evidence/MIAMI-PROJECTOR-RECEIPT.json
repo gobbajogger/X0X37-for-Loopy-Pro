@@ -1,0 +1,268 @@
+{
+  "status": "Output-only analytical candidate; integration-owner export-scope audit still required",
+  "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "default_profile_provenance": "Public engine_sound_defaults voice0\u2192MIAMI visible factory0, engine.c770\u2013787; no private factory cell exported",
+  "public_input_identities": [
+    {
+      "path": "experiments/original_synth/binary32_classify.h",
+      "bytes": 1926,
+      "sha256": "8e663524ecd11c5c29460368f410c88628ad28b880547d5b26c1fea960a6212d",
+      "git_blob": "ea30a78de9aed93f5820792fef18c3b5c6e855a2"
+    },
+    {
+      "path": "experiments/original_synth/chicago_program.c",
+      "bytes": 4019,
+      "sha256": "685938fc3362e0e2f6d1194b75814b0eef24c6b284411f6c0a33d144c719e430",
+      "git_blob": "a6fd3ae523069b8357ac6a6fb30d11cf23723740"
+    },
+    {
+      "path": "experiments/original_synth/chicago_program.h",
+      "bytes": 1896,
+      "sha256": "70ee6efa0552db32fc17fba9af8750db6a378de319e47a6c344523fb02f15bd3",
+      "git_blob": "6e5021eb2cb8b6495fbdfc6201f58a575c95c419"
+    },
+    {
+      "path": "experiments/original_synth/miami_program.c",
+      "bytes": 2207,
+      "sha256": "d372e1a80f7b65075a35ccfe7d2756ab6e7acd91c16ebf0e082f4ad9896509b4",
+      "git_blob": "3c0133d81c7049946faf2e751fb5a4f11ec5e80f"
+    },
+    {
+      "path": "experiments/original_synth/miami_program.h",
+      "bytes": 1296,
+      "sha256": "5e64dd9588ced099485fad57fdd3f910ef13dbbf1f206f50ddd745935c2c49ee",
+      "git_blob": "5b55afcab4be454731b1371e90e3c291dfc7ae3f"
+    },
+    {
+      "path": "firmware/src/app/juno_stock_bank.h",
+      "bytes": 1263,
+      "sha256": "fb8836c3944d28b0a55fb5a1cafd832c7bcbed92d890aeb879394cc4820ce933",
+      "git_blob": "9c17efdbbb03b7de55cd9b4fab650dc1e1c7b013"
+    },
+    {
+      "path": "firmware/src/app/original_sound.c",
+      "bytes": 17413,
+      "sha256": "b8ddda881f05521c5ecc945d22868cfcfee163f66fe5a1a9b7d3cc4a146fc54e",
+      "git_blob": "a250a77f9d20fb1973b1251dd9f9b5c205776b45"
+    },
+    {
+      "path": "firmware/src/app/original_sound.h",
+      "bytes": 4476,
+      "sha256": "6f3ffc5cbb84480a737490d1943632981512f7f5bf2497d5cad4d0394eab1f8f",
+      "git_blob": "ef386dc8c50ad7bde53006201cf85bcfa50866f8"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "bytes": 390311,
+      "sha256": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846",
+      "git_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e"
+    },
+    {
+      "path": "firmware/src/app/ui_original_controls.h",
+      "bytes": 7799,
+      "sha256": "f0e2e083af4612fcc20203720d96b24d8c4952df8f568bcec7654da0ebcf2350",
+      "git_blob": "afd18e4d0bc5ed1c58ce92002bfb916cfe530627"
+    },
+    {
+      "path": "firmware/src/app/ui_original_wave.h",
+      "bytes": 5894,
+      "sha256": "c48cd6b043a13cd8b00191958b09b55f631b430eea47e968c1decf14a87e1910",
+      "git_blob": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f"
+    },
+    {
+      "path": "firmware/src/dsp/x0x_param.h",
+      "bytes": 1761,
+      "sha256": "a9341e448f8e2e7c880734f6758df46c0e43669b4c6252b429f7070425b4c800",
+      "git_blob": "79d0f38d30190eceeda1226f58e631921e29d06f"
+    },
+    {
+      "path": "firmware/src/gfx.c",
+      "bytes": 11955,
+      "sha256": "c561f3cf12e6e4757a2185c21bf6cdf8a2a98303c63a3e6fc2162f9917cefd68",
+      "git_blob": "20c865191ef7a270271fc13a32b2bc9c80016c06"
+    },
+    {
+      "path": "firmware/src/app/engine.c",
+      "bytes": 143240,
+      "sha256": "9d8e011e5b87e2e82bf791e5a16f632aaa3f78a13f35c3b1c3f7ed91cb62bde1",
+      "git_blob": "dddc38dcc3e4ac28fc995fb1e4438703942c5570"
+    }
+  ],
+  "restricted_dependencies_metadata_only": [
+    {
+      "name": "chicago_program_private.h",
+      "bytes": 21311,
+      "sha256": "b95ed765e55886ed7d1e52ebb06b43d5026743ec6dd17d9a9cf6cc34e9dcc309",
+      "git_blob": "4f386aa0be5aee61744964bfa0c7214940b0b655",
+      "payload_included": false
+    },
+    {
+      "name": "miami_program_private.h",
+      "bytes": 15451,
+      "sha256": "5b950f6441f38e68c36d303a55361ce1d1e75c23ec05d7a5314fa2c32c3aa460",
+      "git_blob": "0e6589f19b24afee30ea2220f0dca0baee79534d",
+      "payload_included": false
+    }
+  ],
+  "unchanged_public_functions": [
+    {
+      "name": "put_s",
+      "bytes": 108,
+      "sha256": "3b3c16ddd3b8d16ddab5ac8b91b1570fa10768a36f7fa620865314abccf05954",
+      "source_first_line": 366,
+      "body_changed": false
+    },
+    {
+      "name": "put_i",
+      "bytes": 305,
+      "sha256": "08df8e0074d0d6e58729d8889b53ac847ed0ea3f8d549320d626efcbc5f98441",
+      "source_first_line": 373,
+      "body_changed": false
+    },
+    {
+      "name": "original_text_view",
+      "bytes": 921,
+      "sha256": "f322d060f10117fda669415d2cba5a47c9a20d94114e2fa44f120c8e7ba2e757",
+      "source_first_line": 2895,
+      "body_changed": false
+    },
+    {
+      "name": "original_switch_turn",
+      "bytes": 602,
+      "sha256": "76545d47a8baee322b685b9de9206836a816b9b0cd34340c4e602598b4b0e364",
+      "source_first_line": 2875,
+      "body_changed": false
+    },
+    {
+      "name": "original_value_text",
+      "bytes": 3286,
+      "sha256": "6ff172b01fae4d0a7c2e2fd6c26909bdecc4251815219c26138069f33cbfaf70",
+      "source_first_line": 1056,
+      "body_changed": false
+    }
+  ],
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "host_machine": "x86_64",
+  "flags": [
+    "-std=c99",
+    "-O2",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "-Wall",
+    "-Wextra"
+  ],
+  "program_math": "Explicit public-program fmaf uses host libm; no target/software-FMA execution or device parity qualification.",
+  "tools": [
+    {
+      "path": "private/export_miami_ui.c",
+      "bytes": 4582,
+      "sha256": "4ebe521d6b3d53c4a4562fac336789bbd58c9c3e6a33ed0a4073c001a07c856e",
+      "git_blob": "884c15cf264edc6fc2e5db9b437ccf009e34766b"
+    },
+    {
+      "path": "private/miami-ui-exporter",
+      "bytes": 52584,
+      "sha256": "ae856168b895174f9c90b52c885e8d949479e40b2b14ab59681a75ffb67a865c",
+      "git_blob": "8e5c3e1f9393d3ae351718b206e8f87982a0799a"
+    },
+    {
+      "path": "private/audit_miami_dependencies.c",
+      "bytes": 629,
+      "sha256": "0f6da3bb6908378cd8bbcadc8c322d5f2d65be70ece2c6b8e86d5f449b846717",
+      "git_blob": "c5028489ae739eb2cb2f8f2ad2773946ac50d10a"
+    },
+    {
+      "path": "private/miami-dependency-auditor",
+      "bytes": 16272,
+      "sha256": "bab29893302d214c1aa65045249f9ff5aa19b5fc3104c73686e9175953af8ce8",
+      "git_blob": "efb5ad9c71f37a397d0579e1baa16aa79c4ceb41"
+    },
+    {
+      "path": "private/public_ui_functions.inc",
+      "bytes": 5231,
+      "sha256": "708025200224c224c1b1b4db57e2a7877d0f107221afd9f1bc442ce5d611517b",
+      "git_blob": "61e17a5ce18a376c0f68591cfb8fc7bdcbd0f4ab"
+    },
+    {
+      "path": "private/package_miami_ui.py",
+      "bytes": 11990,
+      "sha256": "9161d80aa30c06aaf9527004bf40617e1c4f1383e99a731dd02ab2d0de8db16e",
+      "git_blob": "4e1d1383b42babae92f752e0c43d26e24ff83139"
+    }
+  ],
+  "results": {
+    "host_samples": 4404,
+    "failures": 0,
+    "family_counts": {
+      "untouched_factory0": 1,
+      "explicit_q_edit": 2048,
+      "explicit_q_preview": 2304,
+      "first_unit_turn": 32,
+      "equal_display_byte_explicit_preview": 16,
+      "held_without_lock": 1,
+      "motion_equal_display_byte": 1,
+      "released_to_initial": 1
+    },
+    "explicit_edit_preview_matches": 2048,
+    "all_other_control_text_unchanged": true,
+    "single_parameter_preview_states": 2304,
+    "other_nonwave_parameter_preview_states": 1920,
+    "other_relevant_wave_mask_preview_states": 768,
+    "other_wave_fields_unchanged": true,
+    "structural_dependency": "Only each corresponding waveform macro owns its native shape; pulse-width field has no macro owner. Carrier pitch, XMOD tune and rate text fields are independent.",
+    "tune_nativeinitial": "+0.91",
+    "edited_q75": "+0.87",
+    "edited_q76": "+0.95",
+    "edited_plus0point91_states": 0,
+    "held_without_lock_retains_nativeinitial": true,
+    "explicit_equal_byte_preview_converts_tune_readout": true,
+    "release_restores_nativeinitial": true,
+    "input_cells_unchanged": true,
+    "raw_cell_native_float_snapshots_serialized": false
+  },
+  "actual_frame_comparison": {
+    "path_in_DnBOX": "/workspace/scratch/857bb2409f82/pr921-r6-producer-recording/elite-default-A-v1-01-default-A-sound-native.png",
+    "inspection": "Personally viewed through supported read-only DnBOX file reader; first four-row visible text matches source output including SUB100% and TUNE+0.91.",
+    "reader_image_payload_bytes": 13981,
+    "reader_image_payload_sha256": "e3d4e10fdbe2262fab32323178dd38c6a98c7f563aaf4f5f871dc40870861c31",
+    "frame_hash_limit": "Hash covers the PNG image payload received from supported file reader. Producer/root owns original remote-file/receipt readback; helper did not launch a remote hashing process.",
+    "limits": "Analytical program is not emulator execution or complete framebuffer parity. Actual frame supplied as fresh3c41 by parent; no claim of R6 firmware execution."
+  },
+  "output_file": {
+    "path": "output-only/miami-factory0-native-and-edited-q-ui.json",
+    "bytes": 60665,
+    "sha256": "6b1078574f73adbc2daa0f3333aa1a557d5f77f713e56a4347cfe456f87e0866",
+    "git_blob": "04c22264ddc13baecd27a8a0e47d8edce254f411"
+  },
+  "preview_pngs": [
+    {
+      "path": "output-only/native-factory0-carrier-SQR-29x19.png",
+      "bytes": 120,
+      "sha256": "47ffdf12fc4aeb9091a83f546e7c5717574298012eb7b152fce12a14e9e28c6a",
+      "git_blob": "9d604a955db2a55740e62312f9924eede217d019"
+    },
+    {
+      "path": "output-only/native-factory0-wobble-SQR-29x19.png",
+      "bytes": 106,
+      "sha256": "d9676e83d08be8e68d39325a29e9f93466bc0b10aed2a9253c362930b76985cd",
+      "git_blob": "dee0ed44c99e798acbbc1781c0ae4a609d66129b"
+    },
+    {
+      "path": "output-only/native-factory0-xmod-SAW-29x19.png",
+      "bytes": 130,
+      "sha256": "aeea76f258b43dca580b9931d4761eb6a26c4717cac31c12b634f80afcc81b63",
+      "git_blob": "43780dd1a752afd0b03f95c4c943792e4048d95d"
+    }
+  ],
+  "png_rasterization": "29x19 monochrome coordinate preview. Adapter follows exact public gfx.c cv_line integer decisions, with gray zero guide and white ink. Theme colors, text glyphs and full LCD composition are not reproduced.",
+  "initial_editor_position_boundary": "NOT_EXPORTED: protected factory q positions and substitutes encoding them are excluded. Initial native readout/geometry is distinct from known-q edited fixtures.",
+  "model_limit": "R6 may compose a static same-state native factory0 body and separately model an explicitly authored known-q editor. That editor does not execute untouched factory0 or retain hidden exactnativeparameter bindings.",
+  "not_run": [
+    "Target firmware build/package",
+    "DSP audio/backend/voice execution",
+    "Emulator/device/physical tests",
+    "Independent review",
+    "Candidate/renderer/Settings/CP1 changes"
+  ],
+  "effective_model_effort": "Not exposed"
+}

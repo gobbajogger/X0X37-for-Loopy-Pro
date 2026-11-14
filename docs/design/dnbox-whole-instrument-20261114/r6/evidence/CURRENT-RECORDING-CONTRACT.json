@@ -1,0 +1,263 @@
+{
+  "kind": "CURRENT_POLICY_RECORDING_SOURCE_CONTRACT_AND_UNRUN_CAPTURE_PLAN",
+  "source": {
+    "accepted_commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "accepted_tree": "0b966725cb55713dcf8817156130cc3f57f61e06",
+    "parent": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "parent_tree": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+    "comparison": "Authenticated GitHub compare shows d158 adds13 DSP/generator/test paths;ui.c,engine.c,sequencer.c,pattern.h,panel.c,smk_input.h andplat_fm1.c are not changed.",
+    "ui": {
+      "blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+      "sha256": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846"
+    },
+    "engine": {
+      "blob": "dddc38dcc3e4ac28fc995fb1e4438703942c5570"
+    },
+    "sequencer": {
+      "blob": "1c92a17d43a444d067a8aff60eb0f3a5e8e3fc8f",
+      "sha256": "40a393b76de9f11d41bf99828fab99f87f91e29ed3b21f672c9ab1cf984b8156"
+    },
+    "pattern_h": {
+      "blob": "9810f8977dccb726e09d34666657f1e01bf83b1e",
+      "sha256": "39ba28ac063a3df864d498f1cce5ae153b0037767ffdf82315e7827411421191"
+    },
+    "sequencer_h": {
+      "blob": "f4b5d83735db10bc6cf16abdf70241d1093117ca",
+      "sha256": "1fffaf171bf1ec6d7575486dbb2d2c8bffc0801c6bf1cab0a213ddc072d1f3cd"
+    },
+    "hal": {
+      "blob": "46ac1cb1ec4d33e1618be8c6057625f48de6a39a",
+      "sha256": "054cfaebb766119d6ca41b6632bbae3e2ec6dbb1f1f11387eebec4ae6a7e98d9"
+    },
+    "panel": {
+      "blob": "60ca44f92557d8682227cdfe5d1ccd1e5c1bac54",
+      "sha256": "bc8863de58fcec03c5e5b2caf184659b5216f30558f99b44e48764c87cf10c22"
+    },
+    "plat_fm1": {
+      "blob": "78f46798c2316d989b12bfe0d5e7d8140dd0033d",
+      "sha256": "7c8d2a2a53a189fa7e73172a7defdb7bead62ff4f5b974f8c3361ebecac668f7"
+    },
+    "hash_limit": "Remote Git blob identities consumed at accepted source. UI/HAL/panel SHA256 are exact same-blob prior source receipts;sequence/pattern SHA256 independently computed from identical local blobs. No candidate package was executed."
+  },
+  "controls": {
+    "scheme": "Node keybed IDs 0..36;physical button ID=37+SMK button ID. Default panel mapping only;calibrated devices can differ.",
+    "buttons": {
+      "KNOB_BANK": 37,
+      "OCTAVE_MINUS": 41,
+      "OCTAVE_PLUS": 42,
+      "NOTE_REPEAT": 44,
+      "SCALE": 45,
+      "CHORD": 46,
+      "GLOBE": 47,
+      "BT": 48,
+      "PATCH": 49,
+      "PARA": 50,
+      "FX": 51,
+      "SEQ": 52,
+      "SEQ_PLAY": 53,
+      "SEQ_REC": 54
+    },
+    "encoders": {
+      "K2": 1,
+      "K3": 2,
+      "K5": 4,
+      "K6": 5,
+      "K7": 6,
+      "K8": 7
+    },
+    "keys": {
+      "physicalF4": 17,
+      "physicalG4": 19,
+      "physicalGSharp4": 20,
+      "physicalA4": 21,
+      "W1_step01": 5,
+      "W3_step03": 9,
+      "W5_step05": 12
+    },
+    "pitch": "Central physicalp5..31\u2192logical k=p\u22125\u2192stored note41+k+12*ui.oct. At ui.oct0:IDs17/19/20/21 store53/55/56/57. Actual replay pitch additionally uses bpart.transpose\u221224. Physical legend octave naming is not substituted for numeric MIDI data."
+  },
+  "current_policy": {
+    "physical_extent": "Full 37 live-key owner exists only with REC off,in melodic SEQ FreePlay orPARA,and other admission guards. REC-on returns no full 37 owner. Current recording key_event sees27 logical keys from physical 5..31 plus mapped 16pads. Outer 0..4/32..36 are not a promised37-key recorder.",
+    "stopped": {
+      "admission": "V_SEQ melodic part,ui.rec1,seq.playing0. PARA plays but does not start a new step-record onset.",
+      "cursor": "REC-on resets selected melodic ui.wpos to0. Every mono note/rest/tie writes wpos%len then advances modulo len. Entry order is forward indices regardless of playback direction. No auto-length extension.",
+      "velocity": "Each stopped note stores100. Chord root also stores100. Physical hold duration is not captured here;gate uses legacy authored form with endpoint nibble0.",
+      "notes": "Mono each accepted down writes a note;CHORD-held adds ACCENT,NOTE_REPEAT-held adds SLIDE. CHORD+eitherOCTAVE writes REST;NOTE_REPEAT+eitherOCTAVE writes TIE and consumes modifier release.",
+      "chords": "Available poly kind stores up to6 sorted unique pitches. First onset advances once;additional keydowns while keys remain held can replace/extend that same recorded chord cell. Releasing all then a fresh onset advances next cell. A key release alone is not a universal stopped-chord commit event.",
+      "overwrite": "Only visited cells are replaced;rearming is not a new take object or automatic erasure of the whole pattern."
+    },
+    "running": {
+      "admission": "Current melodic V_SEQ mask andui.rec;FWD/REV only. External channels/masks are separate current paths. A pre-held press does not become a fresh recorded onset merely by arming.",
+      "quantisation": "Nearest actual playing step:half-step decision uses swung internal span or accepted external tick state. Before first step,FWD targets0 andREV targetslen\u22121.",
+      "velocity": "Panel bass_kbd submits100 toengine_bass_record. External MIDI can submit incoming velocity;do not generalise it to physical panel capture.",
+      "duration": "Accepted onset writesNOTE and endpoint15;held continuation writesTIE. Release finalises last cell endpoint1..15 (1/15 of current slot,plus block/input batching). Periodic capture saturates one traversal;no extra loop count.",
+      "direction": "PINGPONG/RANDOM refuse before pattern write and emitREC NEEDS FWD/REV. Audition/transport can remain;heard is not recorded.",
+      "chords": "Poly held-set changes are distinct recorder onsets;unchanged held set does not re-record. >6/failed chord allocation emitsCHORD NOT SAVED;note-lock capture refusal emitsNOTE SOUND NOT SAVED.",
+      "lifecycle": "REC-off/STOP/clear/target-pattern or admission change finalises/cancels original recorder owner. Generation/epoch gates prevent stale queued REC commands and old releases adopting a new take."
+    },
+    "correction": {
+      "route": "REC off,FreePlayoff,V_SEQ,page containing existing target. Hold original white step \u2265300ms;read stored STEP/note/V100;OCTAVE+ adds12semitones exactly;release original owner. Short unedited existing-step tap <300ms deletes it.",
+      "knobs": "While held K2=probability,K3=velocity1..127,K5=note,K6=REST/NOTE/TIE cycle,K7=accent toggle,K8=slide toggle. K6 reconstructs flags and clears captured endpoint nibble;it is a gate correction,not duration preservation.",
+      "scope": "A step held fromSEQ can move toPARA for eligible sound lock;returnSEQ requires releasing first. The minimal note-correction plans staySEQ and avoid reserved sound/Keep interfaces."
+    }
+  },
+  "feedback": {
+    "REC": "Physical REC own redLED tracksui.rec arm only;not accepted/stored proof.",
+    "PLAY": "GreenPLAY follows current source beat or slow externalWAIT blink. RedPLAY channel unused. PLAY is press-driven;ordinary unused navigation taps dispatch on release.",
+    "pads": "REC off/FreePlayoff melodicSEQ shows note cells bright,ties dim,playhead inversion;REC on keyboard mode showsC anchors dim and held logicalkeys bright. Mapping can beGRID versus row-swapped NOTE. No piano-key LEDs.",
+    "stored_lcd": "draw_bass reads selected bstep directly for STEP,note,TIE,ACC,SLIDE,Vn. It is an observable in-memory data view,not a portable/raw/durable dump.",
+    "refusals": "REC NEEDS FWD/REV,CHORD NOT SAVED,NOTE SOUND NOT SAVED are current transient feedback. No new persistent pass-loss UI is invented."
+  },
+  "baseline_fixture": {
+    "isolated": "Fresh nonpersistent3c41 Node instance;bootV_SEQ909,REC off,emptyP1,ui.oct0,length16,rate1/16,FWD,FreePlayoff,no part mute/pattern preset/note lock or external clock competing. Verify actualLCD;do not reset/load user data or infer fixture from candidate art.",
+    "select": "K3 encoderindex2,count3,separate + sign events from 909 reaches BASS B through 808/BREAK. Fresh current 3c41 receipts identifyChicagoB there. If identity/defaults differ,stop interpretation and record mismatch;do not silently select preset.",
+    "phrase_takeA": [
+      {
+        "step": 1,
+        "gate": "NOTE",
+        "note": 53,
+        "velocity": 100
+      },
+      {
+        "step": 2,
+        "gate": "TIE",
+        "note": "resolved from preceding onset;raw note byte not asserted"
+      },
+      {
+        "step": 3,
+        "gate": "NOTE",
+        "note": 55,
+        "velocity": 100
+      },
+      {
+        "step": 4,
+        "gate": "REST",
+        "note": "ignored"
+      },
+      {
+        "step": 5,
+        "gate": "NOTE",
+        "note": 57,
+        "velocity": 100
+      }
+    ],
+    "after_write": "wpos5,displayWRITE6;remaining cells remain prior fixture rests.",
+    "correction": "Hold physicalW3/id9,thenOCTAVE+/id42 changes step3 note55\u219267;V100 andother steps remain.",
+    "repeat_takeB": "Rearm resetswpos0. Write sameNOTE/TIE/NOTE/REST/NOTE slots usingmiddle keyid20:step3 becomes56,velocity100;visited rest/tie explicit,unvisited cells retained."
+  },
+  "plans": {
+    "stopped": "stopped-phrase-correct-repeat.plan.json",
+    "running": "running-entry-correct-repeat.plan.json",
+    "schema": "Exact existing exercise-current.cjs JSONarray of tap/key/enc/analog/wait/capture. Plans contain no unsupported assertions or direct-memory mutation.",
+    "running_expectation": "Three pulses near0/240/480ms at verified125 BPM,1/16,FWD targetsteps1/3/5 under normal source input scheduling. This is an expected schedule,not a measured placement or endpoint. If actual clock/input phase differs,qualify observed quantised cells from actualLCD/timestamps;do not claim an exact known endpoint fromwalltime.",
+    "duration_ms": "Both plans remain belowexisting180000ms per-run bound;executor must use fresh output tag."
+  },
+  "harness": {
+    "remote_cloud": "DnBOX cloud read-only helper/device a8abe64c-d7df-4575-9a4d-61f783af919d",
+    "path": "stage1534/fresh-review/exercise-current.cjs",
+    "bytes": 4783,
+    "sha256_reused_receipt": "cf2f9ff34dda0d40198f830372ef2eef691e061be592ae246b02fdb31542ac38",
+    "read_this_task": "Read exact harness andmusical-qualified-plan.json through supported read_multiple_files;no process started or emulator executed.",
+    "evidence": "RGB565 LCD,emulatedms,held inputs,LEDarray,halt/fault/JITmessages,per-action samples/nonzero/RMS/peak.",
+    "missing": "No raw bstep/chord/durable-object dump,noMIDI-event sequence receipt,noPCM/WAV export in this exact harness. RMS/nonzero proves signalactivity only,not correct pitches/timing or musical success.",
+    "narrow_extension": "If audible replay assessment is required,existing emulator owner may retain outputPCM as evidence fromsame128-frame loop,without changing firmware. Raw cell proof additionally needs exact supported symbol/map/observer binding;do not guess addresses or patch firmware.",
+    "provenance_limit": "Existing local WASM/worklet hashes are pinned;current upstream mapping/source reads do not establish byte-for-byte rebuild provenance of that WASM. Harness hash is reused from the original mapping receipt;code was read now,not rehashed remotely."
+  },
+  "reused": {
+    "receipts": [
+      "elite-musical2.json",
+      "pro-musical2.json",
+      "elite-navigation2.json",
+      "pro-navigation2.json"
+    ],
+    "original_traces": "102actions/84captures acrossfourreceipts;each retained action_sequence containszero REC(id54) events.",
+    "use": "Reuse mapping,PLAY/held-step andnative capture route evidence only. They do not establish a recorded phrase,correction/repeatedtake or currentR5 execution.",
+    "local_receipt_root": "revision-r3/current-emulator-intake/"
+  },
+  "package_plan_inputs": [
+    {
+      "path": "stage1444/native-3c41/artifacts/DnBOX-0.0.26-BUILD_ONLY-3c41ef4b-elite.fwsc",
+      "bytes": 651732,
+      "sha256": "62a35cb1883cc24dbe3149f37583d154ea212dbddfa5afced536b8c5eb895eb2"
+    },
+    {
+      "path": "stage1444/native-3c41/artifacts/DnBOX-0.0.26-BUILD_ONLY-3c41ef4b-pro.fwsc",
+      "bytes": 651730,
+      "sha256": "c38bff0a661e8b4aaaf6b16b153e4ff9ad34fe5e32c4daa5f043db6818ea72e0"
+    },
+    {
+      "path": "emulator-web-poc/audio/fm1_web.wasm",
+      "bytes": 3390407,
+      "sha256": "4fe2aa05511c32d6e230afa8f4027323df41e358d1922ae8a44f47e2b0d5fd14"
+    },
+    {
+      "path": "emulator-web-poc/audio/worklet.js",
+      "bytes": 13777,
+      "sha256": "d2e950a8e721877480389d2707886b0c376587f5dd9c8f841413f457f5d7799c"
+    }
+  ],
+  "execution_limits": [
+    "Plan execution would be3c41 BUILD_ONLY baseline,not d158/candidateR5/physicalfirmware execution.",
+    "Historical0.0.25.1/source79280e76 remains separate.",
+    "CP1 seven cases andSettings untouched;CP2 strategy not selected;CP3 not frozen.",
+    "No reviews/tests/builds/emulator/device-instrument operation or publication performed.",
+    "Effective model/effort not exposed."
+  ],
+  "source_anchors": {
+    "ui": [
+      "345",
+      "2141\u20132148",
+      "2773\u20132777",
+      "3297\u20133407",
+      "3412\u20133450",
+      "3472\u20133504",
+      "3632\u20133702",
+      "3806\u20133812",
+      "4009\u20134042",
+      "4116\u20134165",
+      "4281\u20134296",
+      "4450\u20134465",
+      "4516\u20134524",
+      "4538\u20134543",
+      "4575\u20134587",
+      "4651\u20134664",
+      "5647\u20135661",
+      "6789\u20136800",
+      "8467\u20138478",
+      "8543\u20138572"
+    ],
+    "engine": [
+      "1367\u20131424",
+      "1864\u20131968"
+    ],
+    "sequencer": [
+      "251\u2013318",
+      "1017\u20131029",
+      "1255\u20131290",
+      "1303\u20131426"
+    ],
+    "pattern_h": [
+      "13\u201337"
+    ],
+    "hal": [
+      "51\u201356,78\u2013104"
+    ],
+    "plat_h": [
+      "42"
+    ]
+  },
+  "plan_content_arithmetic": {
+    "stopped-phrase-correct-repeat.plan.json": {
+      "actions": 51,
+      "named_plan_captures": 16,
+      "estimated_emulated_ms_including_boot_and_release": 22370,
+      "arithmetic_limit": "Input-duration arithmetic only;emulated time can overshoot by render quanta and is not execution."
+    },
+    "running-entry-correct-repeat.plan.json": {
+      "actions": 44,
+      "named_plan_captures": 14,
+      "estimated_emulated_ms_including_boot_and_release": 21970,
+      "arithmetic_limit": "Input-duration arithmetic only;emulated time can overshoot by render quanta and is not execution."
+    }
+  }
+}

@@ -1,0 +1,599 @@
+{
+  "classification": "READ_ONLY_SOURCE_CONTRACT_ASSIST; NOT_INDEPENDENT_PROPOSAL_ACCEPTANCE",
+  "date": "2026-11-14",
+  "owner": "/root/r3_drum_bottom_inventory; parent remains sole integrator",
+  "requested_model_effort": "Sol6.1/Astra ultra",
+  "effective_model_effort": "Not exposed",
+  "scope": "R6 LED/source metadata and associated button/held-input routes only. No candidate changes, renders, tests, emulator, audio, firmware/device execution, aesthetics review, new helper/reviewer, Git writes or reserved-lane edits.",
+  "source_identity": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "source_tree": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+    "compatible_source_point": {
+      "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+      "tree": "0b966725cb55713dcf8817156130cc3f57f61e06",
+      "scope": "Relevant public UI/control closure identical; not execution evidence."
+    },
+    "source_files": [
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r3/helpers/drums/current-source/firmware/src/app/ui.c",
+        "bytes": 390311,
+        "sha256": "6083a134562af8b774c268b858b7d5ddf132cfa1a30440e2e6f7a944b9f12846"
+      },
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r3/helpers/drums/current-source/firmware/src/app/main_fm1.c",
+        "bytes": 117039,
+        "sha256": "f9255b9630c0835a08198a77e5f9a26022127f88c5c327ed37a5167151df7d65"
+      },
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r3/helpers/drums/current-source/firmware/src/app/plat_fm1.c",
+        "bytes": 15628,
+        "sha256": "7c8d2a2a53a189fa7e73172a7defdb7bead62ff4f5b974f8c3361ebecac668f7"
+      },
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r3/helpers/drums/current-source/firmware/hal/smk_input.h",
+        "bytes": 31352,
+        "sha256": "054cfaebb766119d6ca41b6632bbae3e2ec6dbb1f1f11387eebec4ae6a7e98d9"
+      }
+    ]
+  },
+  "input_observations": {
+    "initial": {
+      "proposal.js": {
+        "bytes": 91547,
+        "sha256": "2498775a442c02817a5da8e2131aef62e6e46d6403bf85fe6e68c25495307906"
+      },
+      "led-feedback-map.json": {
+        "bytes": 65344,
+        "sha256": "fc126b3912465494d8c48fcdd29a483af168b4af5dfe209a4dd9f28f64e96496"
+      },
+      "DISPLACEMENT-AND-ACCESS.json": {
+        "bytes": 3454,
+        "sha256": "102dca2248470d06c26257e578ba041761449c58bb5e912e153246b3719124cc"
+      }
+    },
+    "targeted_readback": {
+      "proposal.js": {
+        "bytes": 92313,
+        "sha256": "08d91f7fcc3893e78900d8684820777a44ad5284ad7fa38aa847f10d4142074b",
+        "scope": "Parent correction readback of accent owner and BT/PATCH predicates only; not a fresh broad inspection."
+      }
+    },
+    "read_at_report_assembly": [
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r6/proposal.js",
+        "bytes": 93120,
+        "sha256": "5e0797e6b403dd078f2a4bb011e8f0eff6e7d776e651a8607db8ddbccd89016b"
+      },
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r6/led-feedback-map.json",
+        "bytes": 65344,
+        "sha256": "fc126b3912465494d8c48fcdd29a483af168b4af5dfe209a4dd9f28f64e96496"
+      },
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r6/DISPLACEMENT-AND-ACCESS.json",
+        "bytes": 3454,
+        "sha256": "102dca2248470d06c26257e578ba041761449c58bb5e912e153246b3719124cc"
+      },
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r6/workbench.html",
+        "bytes": 1755684,
+        "sha256": "e40d5bc7d9451b2ab8e96808498c38d3cc5e72600ebbb223294142857cd35c51"
+      }
+    ],
+    "mutated_during_inspection": true,
+    "freeze_limit": "Parent is editing the authorized R6 correction. Hash observations are temporal snapshots. Later bytes are not silently accepted or inferred from earlier inspection; parent must bind its final freeze separately.",
+    "final_targeted_observation": {
+      "proposal.js": {
+        "bytes": 93120,
+        "sha256": "5e0797e6b403dd078f2a4bb011e8f0eff6e7d776e651a8607db8ddbccd89016b",
+        "scope": "Targeted static source-shape readback of central white-key alias OR, BT/PATCH and stored accent fields. Not proposal execution, a new broad audit or frozen candidate acceptance."
+      }
+    },
+    "seal_observation": [
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r6/proposal.js",
+        "bytes": 93120,
+        "sha256": "5e0797e6b403dd078f2a4bb011e8f0eff6e7d776e651a8607db8ddbccd89016b"
+      },
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r6/led-feedback-map.json",
+        "bytes": 65344,
+        "sha256": "fc126b3912465494d8c48fcdd29a483af168b4af5dfe209a4dd9f28f64e96496"
+      },
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r6/DISPLACEMENT-AND-ACCESS.json",
+        "bytes": 3454,
+        "sha256": "102dca2248470d06c26257e578ba041761449c58bb5e912e153246b3719124cc"
+      },
+      {
+        "path": "/workspace/dnbox-whole-design/revision-r6/workbench.html",
+        "bytes": 1755684,
+        "sha256": "e40d5bc7d9451b2ab8e96808498c38d3cc5e72600ebbb223294142857cd35c51"
+      }
+    ],
+    "seal_policy": "Sealed report retains exact observed snapshots while parent edits; no chasing later candidate changes. Source inventory and partial projection are separate. Parent alone owns any final candidate freeze, affected validation and independent-review handoff."
+  },
+  "findings": [
+    {
+      "id": "R6-LIGHT-01",
+      "kind": "SOURCE_PROJECTION_GAP_AT_INITIAL_INPUT",
+      "disposition": "SUPERSEDED_IN_TARGETED_STATIC_READBACK",
+      "title": "Shared drum accent owner initially absent from pad projection and write route",
+      "initial_proposal_anchor": "proposal.js:398,363-375 at2498775a",
+      "metadata_pointers": [
+        "/normal_pad_states/0/accent_modifier",
+        "/normal_pad_states/3/content",
+        "/preservation_constraints/0"
+      ],
+      "observed_initial": "The model read selected voice hits irrespective of CHORD and stored no per-pattern shared accent field. CHORD+pad could enter the ordinary hit route in SEQ/MIX. This did not implement the baseline accent owner promised by the copied source ledger.",
+      "source_contract": {
+        "owner": "pat_of(kit)->drum[kit].accent; shared by the eleven voices; absolute ui.spage*16+white index",
+        "display": "B_ENV selects shared accent bits instead of hit[ui.sel[kit]], then applies length/content and playhead inversion. Visible drum MIX kit owns it independently of ui.part.",
+        "seq_input": "SEQ white input calls drum_step(ui.part,w,down) on both edges.",
+        "mix_input": "Drum MIX white input calls drum_step(drum_mix_page(),w,down) on both edges, including LIST/HELP after ASK/HOME/SAVE priorities.",
+        "part_input": "Fresh PART white down only auditions selected sound when key_sounds(); no hidden hit/accent write. A prior SEQ-held step has a separate early release path in PART.",
+        "down_priority": "In drum_step, release handling precedes the ENV check. On ENV down, flip d->accent[s], mark B_ENV used and project dirty, return without creating a new normal hit hold.",
+        "release_priority": "Ordinary captured hit release can delete only matching same-step/kit/voice/pattern existing unused short tap (<300ms); an accent press itself creates no normal hold. Do not repurpose every PART release as an accent write."
+      },
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 3252,
+          "end_line": 3295,
+          "claim": "drum_step exact press/release/accent order",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3252"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 3645,
+          "end_line": 3655,
+          "claim": "original held-step release in PART",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3645"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 3700,
+          "end_line": 3704,
+          "claim": "ASK rejects musical key input before subsequent branches",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3700"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 3782,
+          "end_line": 3805,
+          "claim": "MIX versus SEQ/PART input distinction",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3782"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8445,
+          "end_line": 8456,
+          "claim": "shared accent/hit LED bit owner",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8445"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8521,
+          "end_line": 8535,
+          "claim": "MIX and ordinary drum LED dispatch",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8521"
+        }
+      ],
+      "targeted_readback": {
+        "proposal_sha256": "08d91f7fcc3893e78900d8684820777a44ad5284ad7fa38aa847f10d4142074b",
+        "observed": "Static readback sees stored k.accent, shared-accent rendering and CHORD SEQ/MIX down route; fresh PART audition early return remains. Parent is sole correction writer.",
+        "not_claimed": "No execution, interaction result, final freeze or independent acceptance."
+      },
+      "affected_cases_if_integrator_validates": [
+        "SEQ selected-voice hit and accent masks differ; hold/release CHORD and inspect original hit preservation",
+        "Drum MIX kit differs from ui.part; CHORD+pad writes visible kit shared accent only",
+        "PART fresh CHORD+pad auditions without hidden accent/hit write",
+        "SEQ-held existing hit then PART release preserves original short/long/used release rules",
+        "Length/page bounds, playhead inversion and physical held pad retain source priority"
+      ]
+    },
+    {
+      "id": "R6-LIGHT-02",
+      "kind": "SOURCE_BUTTON_FEEDBACK_OMISSION_AT_INITIAL_INPUT",
+      "disposition": "PREDICATES_MATCH_IN_TARGETED_STATIC_READBACK",
+      "title": "BT save feedback and song-active PATCH phase were initially omitted",
+      "initial_proposal_anchor": "proposal.js:400 at2498775a",
+      "metadata_pointers": [
+        "/button_leds/2",
+        "/button_leds/11",
+        "/phase_and_owner_priority/frame_phases/0",
+        "/phase_and_owner_priority/frame_phases/1"
+      ],
+      "observed_initial": "BT was absent from the button state object and therefore rendered off; PATCH only checked HOME/SONG, omitting song_on blink in other views. Both were labelled source LED output.",
+      "source_predicates": {
+        "blink": "(ui.frame & 8u) != 0",
+        "PATCH": "ui.view==V_HOME || ui.view==V_SONG || (seq.song_on && blink)",
+        "BT": "SAVE_QUEUED || (SAVE_FAILED ? (ui.frame & 2u) : SAVE_UNSAVED && blink)",
+        "PLAY": "seq_clock_waiting ? (ui.frame & 32u)!=0 : seq.playing && eng_step[TRK_DRUM]%4==0",
+        "REC": "ui.rec",
+        "OCTAVE+": "HOME/SONG ? ui.pbank != 0 : ui.spage != 0"
+      },
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8462,
+          "end_line": 8499,
+          "claim": "exact source phase and button predicates",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8462"
+        }
+      ],
+      "targeted_readback": {
+        "proposal_sha256": "08d91f7fcc3893e78900d8684820777a44ad5284ad7fa38aa847f10d4142074b",
+        "anchors": [
+          "proposal.js:207 modelSaveState",
+          "proposal.js:402 updateLights button map"
+        ],
+        "observed": "BT queued/failed/unsaved bit predicates and PATCH songOn frame8 condition now match source boolean laws. The model save-state classifier is fixture state; no storage lifecycle/history was qualified.",
+        "not_claimed": "No save completion, durability, timing, new test result, physical output, final freeze or independent acceptance."
+      },
+      "affected_cases_if_integrator_validates": [
+        "Explicit QUEUED/FAILED/UNSAVED/SAVED fixtures at frame0,2,8; do not infer save result from dirty alone",
+        "songOn outside HOME/SONG at frame0/8; HOME/SONG stays on",
+        "PLAY uses source909 step rather than whichever part is selected; WAIT frame32 has priority"
+      ]
+    },
+    {
+      "id": "R6-LIGHT-03",
+      "kind": "MISSING_MODEL_LIMIT_OR_OVERBROAD_PRESERVATION_CLAIM",
+      "disposition": "SUPERSEDED_IN_TARGETED_STATIC_READBACK; INTERACTION_NOT_RUN",
+      "title": "The held white input law extends beyond tracked physical pad holds",
+      "proposal_anchor": "proposal.js:101-108,398-401 at08d91f7f; workbench physical-light explanatory text",
+      "metadata_pointers": [
+        "/phase_and_owner_priority/normal_pad_priority/2",
+        "/normal_pad_states/8/content"
+      ],
+      "observed": "The final OR in the inspected proposal only checks S.physicalPadsHeld. Keyboard liveNotes contribute inside a lightsEnabled keyboard branch. Source ui.keys is the normal logical key mask from central physical keybed keys OR pad inputs; held mapped white keys can therefore force pads bright even when LIGHTS is OFF. The prototype has separate physical-key and pad-origin bookkeeping without this complete normal logical mask projection.",
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/hal/smk_input.h",
+          "start_line": 328,
+          "end_line": 340,
+          "claim": "central keybed input adds knotes and unions it with pnotes",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L328"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/hal/smk_input.h",
+          "start_line": 494,
+          "end_line": 504,
+          "claim": "pad input unions pnotes with knotes",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L494"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/plat_fm1.c",
+          "start_line": 48,
+          "end_line": 48,
+          "claim": "plat_keys exposes the logical union",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L48"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 4535,
+          "end_line": 4539,
+          "claim": "ui.keys takes normal logical key mask before key events",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4535"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8572,
+          "end_line": 8583,
+          "claim": "held logical mask ORs after content and LIGHTS gate; division owner can replace it",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8572"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/main_fm1.c",
+          "start_line": 868,
+          "end_line": 879,
+          "claim": "only mapped white logical bits project to16 RGB pads",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L868"
+        }
+      ],
+      "qualification": "This is a source/model extent gap, not proof of an audible defect or a physical keyboard lamp. The37-key keybed has no lights; ten outer keys do not acquire a normal X0X white-key RGB projection. Full37 live-key ownership and normal27-key logical input are distinct.",
+      "minimum_handoff": "Parent binds its final changed input and validates only affected alias/hold cases through its existing route. Retain the older source-projection gap as superseded history, not a current frozen defect.",
+      "affected_cases_if_integrator_validates": [
+        "Normal mapped central white key versus corresponding pad alias, both held and released in either order",
+        "LIGHTS OFF with held normal mapped white input",
+        "Division owner replacing the normal mask, including LIGHTS OFF",
+        "Scope the outer37 live-key route separately"
+      ],
+      "targeted_readback": {
+        "proposal_sha256": "5e0797e6b403dd078f2a4bb011e8f0eff6e7d776e651a8607db8ddbccd89016b",
+        "bytes": 93120,
+        "anchor": "proposal.js:402",
+        "observed": "The sole integrator added Object.keys(S.keyOrigins[5+WHITE_LOGICAL[i]]??{}).length alongside S.physicalPadsHeld, after content/LIGHTS gating, excluding clip/division owners. This matches the source normal central white logical mask shape. No keybed LED was introduced.",
+        "not_claimed": "Alias release, role-specific musical key handling, physical input timing, independent acceptance or broader37-key model fidelity were not executed/assessed."
+      }
+    },
+    {
+      "id": "R6-LIGHT-04",
+      "kind": "STALE_METADATA_PROVENANCE_POINTER",
+      "disposition": "OPEN_AT_INSPECTED_LED_METADATA",
+      "title": "Copied source ledger points to a missing sibling manifest and has no R6 projection coverage",
+      "metadata_pointers": [
+        "/identity/purpose",
+        "/identity/source_manifest",
+        "/identity/classification"
+      ],
+      "observed": "R6 led-feedback-map.json is byte-identical to the original read-only helper inventory (65344bytes;fc126b39…). Its identity/source_manifest is the relative led-source-intake.json, which does not exist beside the R6 copy. It correctly says SOURCE_DERIVED_ONLY and NOT_RUN, but does not establish what R6 implements.",
+      "actual_existing_source_manifest": {
+        "path": "/workspace/dnbox-whole-design/revision-r3/helpers/drums/led-source-intake.json",
+        "bytes": 3925,
+        "sha256": "f2292cb3a3446239372395eda0afbd384cb91b4b88484467a1c37140343ad2cd"
+      },
+      "minimum_handoff": "Retain source-only classification, make the manifest retrieval pointer resolve inside the delivered packet, and separately state implemented/unmodeled/intentional-change R6 projection coverage. Do not relabel this source inventory as proposal test or acceptance proof.",
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8445,
+          "end_line": 8583,
+          "claim": "source ledger describes these source laws; it is not R6 execution",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8445"
+        }
+      ]
+    },
+    {
+      "id": "R6-LIGHT-05",
+      "kind": "MISSING_PHYSICAL_CONTROL_EXTENT_QUALIFICATION",
+      "disposition": "OPEN_AT_INSPECTED_MODEL_SCOPE",
+      "title": "Interactive button row is14 of18 physical positions",
+      "proposal_anchor": "workbench.html panelButtons constructor; proposal button-state map",
+      "observed": "The inspected panel row contains KNOB BANK,PATCH,SEQ,PARA,SCALE,FX,NOTE REPEAT,GLOBE,SEQ PLAY,SEQ REC,BT,CHORD,OCTAVE-/+. ARP,FADER BANK,<,> are absent. No FADER BANK state is modeled by updateLights. This is not an eighteen-button projection even though the source ledger inventories all physical positions.",
+      "source_contract": "HAL defines18 button positions and19 LED channels. FADER BANK has independent physical bank LED via smk_fbank; ARP has generator view lamp. Default < and > have no assigned on-state, but are physical controls. GLOBE/Settings remains component-owned and its lamp must not be guessed from this host function.",
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/hal/smk_input.h",
+          "start_line": 51,
+          "end_line": 63,
+          "claim": "counts and fixed bank/arrow IDs",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L51"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/hal/smk_input.h",
+          "start_line": 78,
+          "end_line": 90,
+          "claim": "immutable physical caption/LED channel mapping",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/hal/smk_input.h#L78"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8486,
+          "end_line": 8493,
+          "claim": "ARP/GEN and GLOBE/GLO predicates",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8486"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/plat_fm1.c",
+          "start_line": 168,
+          "end_line": 178,
+          "claim": "FADER BANK lamp outside taught B roles",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L168"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/main_fm1.c",
+          "start_line": 1118,
+          "end_line": 1154,
+          "claim": "ordinary physical arrow route and gating",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1118"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/main_fm1.c",
+          "start_line": 887,
+          "end_line": 917,
+          "claim": "FADER BANK rising edge/pickup routing",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L887"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 4071,
+          "end_line": 4078,
+          "claim": "ARP generator entry/current-page role",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4071"
+        }
+      ],
+      "minimum_handoff": "Explicitly bound the walkthrough button projection and zero-action deltas to the included controls. Retain the source ledger for omitted controls without claiming their interactive preservation. Settings component ownership and generator/controller scope remain with incumbents.",
+      "affected_cases_if_integrator_validates": [
+        "No new aesthetic/source test requested; only add affected controls if the existing integrator elects to model them",
+        "Distinguish omitted/unmodeled FADER BANK and ARP from intentionally source-off KNOB BANK/< />/CHORD states"
+      ],
+      "retained_unmodeled_source_routes": {
+        "arrows": "main_fm1.c1118–1124 documents menu value editing/hold-repeat (actions do not run), normal no-menu SELECT back/forward, clip no-menu delegated to Clip Keys, never Loopy viewport; HOME-held does nothing.1125–1154 implements busy disarm, taught-panel collision masking, menu/clip/HOME route, menu change rearm, ui_menu_arrow or SELECT encoder injection. No new model controls were authored by this helper.",
+        "fader_bank": "main_fm1.c887–917 rising edge toggles smk_fbank with pickup reset, then updates banks; plat_fm1.c175 physical lamp indicates bankB. No fader scalar states/pickup were qualified in this model.",
+        "arp": "ui.c4071–4078 generator entry/page role is distinct from source physical caption and GEN lamp; this bounded model does not expose ARP control."
+      }
+    },
+    {
+      "id": "R6-LIGHT-06",
+      "kind": "UNMODELED_CONNECTED_CONTEXT_REQUIRES_FIELD_LEVEL_QUALIFICATION",
+      "disposition": "LIMIT_ALREADY_PARTLY_DECLARED; NOT_A_HOST_DEFECT",
+      "title": "Clip no-host fixture does not project source host-feedback ownership",
+      "proposal_anchor": "proposal.js:317-319,398-402 at08d91f7f",
+      "observed": "S.clipOn forces all pads off while the returned button object still uses local view/REC/WAIT/909 expressions. Per-button aria labels do say clip feedback unmodeled; the generic returned evidence and owner/RGB fields still describe a source layer without a connected-owner completeness flag. An all-dark no-host fixture is not itself a wrong clip state, but it cannot prove current host feedback or normal transport ownership in clip mode.",
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8472,
+          "end_line": 8477,
+          "claim": "clip feedback overrides standalone PLAY/REC",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8472"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/main_fm1.c",
+          "start_line": 845,
+          "end_line": 866,
+          "claim": "host viewport/palette/queue feedback owns every clip pad and bypasses normal hue",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L845"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 4200,
+          "end_line": 4219,
+          "claim": "division owner is build-gated and excludes clip/SMC/busy/calibration contexts",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4200"
+        }
+      ],
+      "minimum_handoff": "Keep clip pads/buttons/host response explicitly unmodeled or no-host-only at field level; do not infer host launch, transport acknowledgement, selected-part hue or normal held-pad overlay. Do not invent missing host/scalar/SMC histories.",
+      "reserved_limits": "Connected SMC, Settings, CP1 fault detail and pending sound decisions are not assessed or taken over."
+    }
+  ],
+  "source_consistent_elements_at_initial_input": [
+    {
+      "element": "Drum MIX kit hue/content ownership",
+      "observed": "mixKit()/selectedKit() use visible kit, with drum step display in MIX. No old blanket MIX-dark guard is present.",
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8521,
+          "end_line": 8532,
+          "claim": "drum MIX versus PARTS/MASTER/FX owner context",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8521"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/main_fm1.c",
+          "start_line": 868,
+          "end_line": 879,
+          "claim": "visible kit controls normal RGB hue",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L868"
+        }
+      ]
+    },
+    {
+      "element": "HOME/SONG current versus used pattern",
+      "observed": "HOME pattern/queued getters are anchored to source909 outside PART/SEQ/GEN. Valid selected Song bar can brighten its909 pattern; empty/END Song has no HOME current fallback. Used-only patterns remain dim. HOME queued pad still uses frame8 without playing/WAIT suppression.",
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8501,
+          "end_line": 8519,
+          "claim": "current/used/queued/END semantics",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8501"
+        }
+      ]
+    },
+    {
+      "element": "PLAY/REC/OCTAVE+",
+      "observed": "PLAY uses playheads[0]909 rather than selected part, WAIT frame32 takes priority; REC armed state and HOME/SONG patternBank versus other stepPage lamp are source-consistent boolean projections.",
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8467,
+          "end_line": 8470,
+          "claim": "PLAY/REC",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8467"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8496,
+          "end_line": 8497,
+          "claim": "bank/page indicator",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8496"
+        }
+      ]
+    },
+    {
+      "element": "Brightness and physical limits",
+      "observed": "Normal dark-theme RGB bytes and quarter-of-bright dim ratio match source half/eighth channel arithmetic. No physical keybed lamps or RGB button-light claims were found. Workbench explicitly bounds browser colour/brightness and button outlines. Light-theme bytes are in source inventory but this model does not establish theme coverage.",
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/main_fm1.c",
+          "start_line": 868,
+          "end_line": 879,
+          "claim": "normal hue/brightness",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L868"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/plat_fm1.c",
+          "start_line": 157,
+          "end_line": 178,
+          "claim": "no keybed lamps and binary buttons",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L157"
+        }
+      ]
+    },
+    {
+      "element": "Source phase not wall-clock performance",
+      "observed": "frame snapshots are source bit predicates; parent should retain NOT_RUN physical/perceptual timing limits. Busy UI can retain prior LED output.",
+      "refs": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8823,
+          "end_line": 8835,
+          "claim": "busy returns before normal LED stage",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8823"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8893,
+          "end_line": 8898,
+          "claim": "LED stage/frame increment",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8893"
+        }
+      ]
+    }
+  ],
+  "displacement_and_access_assessment": {
+    "file_sha256": "102dca2248470d06c26257e578ba041761449c58bb5e912e153246b3719124cc",
+    "result": "No new numeric action-count regression established by this static light audit. The existing actions_delta0 entries are scoped presentation/gesture assertions, not proof of18-button fidelity, preserved key aliases, live timing, musical success or whole-design acceptance. Header reflow, static STOP/WAIT LCD cue treatment, new per-part arrows, queued-mute marks and panic toast are proposals/intent, not existing source behavior merely because their controls are retained.",
+    "home_limit": "Native HOME pad cue uses909 frame8 even STOP/WAIT; LCD source cue uses frame16. Proposed static STOP/WAIT LCD pending identity must remain separately labelled; this audit does not overwrite the retained design disposition."
+  },
+  "version_and_execution_limits": [
+    "The current source ledger is explicitly3c41. At e581/ea10 the SCALE question lamp gains action_key_cue()[0] guard; unconditional3c41 SCALE is not falsely claimed as that later closure. Do not silently broaden a3c41/d158 source statement.",
+    "Historical79280e76 captures are not current3c41 execution. Existing current3c41 emulator evidence is reused only as already-labeled actual-before evidence; no new emulator result generated here.",
+    "R6 HTML/canvas/interaction model is a proposal, not candidate firmware execution; no R6 firmware or physical acceptance follows from these source statements.",
+    "NOT_RUN: proposal execution, emulator, host/firmware tests, render generation, audio, device LEDs, physical brightness/colour/timing/glare/recognition and independent review."
+  ],
+  "receiving_owner": "Existing parent /root sole design integrator; incumbent independent reviewer stays separate. Settings/CP1/CP2/CP3/comparator/DF1 ownership preserved.",
+  "status_summary": {
+    "source_inventory": "Unchanged source-only ledger correctly preserves explicit NOT_RUN and no-keybed-light/binary-button limits, with unresolved relative manifest pointer at the inspected bytes.",
+    "corrections_read_back_only": [
+      "Shared drum accent projection/input owner",
+      "BT save-state phase predicate",
+      "PATCH song-active phase predicate",
+      "Normal central white-key alias held OR outside LIGHTS content gate"
+    ],
+    "unmodeled_or_remaining_metadata_limits": [
+      "R6 relative led-source-intake.json retrieval pointer",
+      "14-of18 exposed physical buttons; ARP/FADER BANK/arrows not exposed",
+      "Connected host-feedback/clip owner fields not projected by the no-host fixture",
+      "Reserved Settings/GLOBE owner and contextual gates; no physical or runtime acceptance"
+    ],
+    "acceptance": "NOT_ASSESSED; not the incumbent independent reviewer"
+  }
+}

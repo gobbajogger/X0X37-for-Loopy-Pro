@@ -1,0 +1,104 @@
+{
+  "state": "R6_FROZEN_FOR_EXISTING_AFFECTED_REVIEW; WHOLE_OVERHAUL_INCOMPLETE",
+  "owner": "Existing sole #921 design owner",
+  "effective_model_effort_service": "Not exposed",
+  "reviewed_predecessor": "78f861af8dbda894152a355b1fb42a2efee7b3c7",
+  "R5_full_report_sha256": "e0412c26d535fee223e05a18254c4bdfbe14866b59ca3be8dad6b60070b8ecc1",
+  "primary": [
+    {
+      "file": "workbench.html",
+      "bytes": 1755468,
+      "sha256": "bd6639d421c699755397fbe40f4426d666f0e5b6f2d5c1157fc65864e972e13d"
+    },
+    {
+      "file": "proposal.js",
+      "bytes": 93108,
+      "sha256": "28c274f93a8f2e902e2aaf002e18996bfcb621d51c3f25d0f3e31de19699248f"
+    },
+    {
+      "file": "DnBOX-R6-musical-workflows.pdf",
+      "bytes": 324992,
+      "sha256": "5a490fed1b7bc73dda7d3798298d27b2661fd15ecfe227047f93d0a546c88da2"
+    },
+    {
+      "file": "CURATED-NATIVE-MANIFEST.json",
+      "bytes": 797794,
+      "sha256": "64357e904b0625d9477efd009cfafaf4555aabac00a2f5dba71ba676e7052de2"
+    }
+  ],
+  "scope": "Concrete connected musical proposal and source-conservation repairs, not whole-design or runtime acceptance",
+  "new_candidate_checks": [
+    {
+      "file": "review-correction-checks.json",
+      "passed": 19,
+      "total": 19,
+      "sha256": "350c955a1bdcf4b5f6a9b1b9affd88b2e177b4aae9041465c604a477b0b0cbe7"
+    },
+    {
+      "file": "delivery-route-checks.json",
+      "passed": 62,
+      "total": 62,
+      "sha256": "c778aec829fa1a06fe56578f37ca4b096af2fa4cad517e1ac0c52be6bc01e757"
+    },
+    {
+      "file": "asset-checks.json",
+      "passed": 141,
+      "total": 141,
+      "sha256": "495f34fc325a7de55b471af30dd67e9e6f9854d9187b8563331f11b08b23b268"
+    }
+  ],
+  "retained_model_proof": {
+    "file": "musical-journey-checks.json",
+    "passed": 53,
+    "total": 53,
+    "renderer": "5e0797e6b403dd078f2a4bb011e8f0eff6e7d776e651a8607db8ddbccd89016b",
+    "reuse_receipt": "evidence/MODEL-PROOF-REUSE.json",
+    "limit": "Final executable difference only native Song drawing fill; no relabeled final-renderer execution of the53 traces"
+  },
+  "curation": {
+    "pair_count": 13,
+    "guided_musical_journeys": 6,
+    "pdf_pages": 15,
+    "native_inspection_inventory_frames": 39,
+    "owner_presentation": "Distinct workflows, not all verification states/contact sheets"
+  },
+  "personal_inspection": "Producer inspected all13 curated native frames and15 PDF page layouts; final Song native/PDF tile correction re-inspected. This is not independent review.",
+  "actual_version": "Current3c41 Elite BUILD_ONLY; accepted d158 same relevant UI source, not executed d158; unchanged Pro proof reused; historical25.x/79280 and SettingsR2 separate",
+  "actual_inputs": {
+    "elite_package_sha256": "62a35cb1883cc24dbe3149f37583d154ea212dbddfa5afced536b8c5eb895eb2",
+    "wasm_sha256": "4fe2aa05511c32d6e230afa8f4027323df41e358d1922ae8a44f47e2b0d5fd14",
+    "worklet_sha256": "d2e950a8e721877480389d2707886b0c376587f5dd9c8f841413f457f5d7799c",
+    "receipts": [
+      "evidence/CURRENT-CAPTURE-INTAKE.json",
+      "evidence/CURRENT-MIAMI-CAPTURE-ADDENDUM.json"
+    ],
+    "private_route": "Authenticated Dot cloud /workspace/scratch/857bb2409f82/pr921-r6-producer-recording/; no runnable payload publication"
+  },
+  "next_review": {
+    "incumbent": "/root/pr921_latest/r3_fresh_review",
+    "reader": "01a1af1b-2207-7017-b4fb-4e7f6c2c90ea",
+    "admission": "Not claimed by this writer; parent resumes the single incumbent",
+    "work": "Personally exercise exact frozen proposal and legitimate current package in affected scope; no scores or desired target. Existing current exercise is separate. No duplicate reviewer."
+  },
+  "next_design_work": "While R6 remains immutable: source-native GEN NEW/MUTATE and Undo/correction comparison; full FX/controller and valid BREAK fixture work; consume incumbent reserved interfaces when supplied. No owner-aesthetic wait.",
+  "uncovered": [
+    "GEN native before/after plus history",
+    "full live FX/MIX and meters",
+    "valid populated BREAK musical pin/live/release",
+    "SMC real peer and preserved header",
+    "Loopy real host/scalar/viewport/original-cell release",
+    "external-clock loss/rejoin fixture",
+    "full running/poly/duration recording and durable recovery",
+    "seven reserved CP1 -> selectedCP2 -> CP3",
+    "Settings shared header and held-note continuity",
+    "same-hardware comparator adoption",
+    "physical recognition/glare/timing/resources and whole audible DF1"
+  ],
+  "delivery_limits": [
+    "Standard PDF parsed/rasterized with exact native embedded pixels; actual iOS device NOT_RUN",
+    "No R6 firmware exists; no target build/device/release/merge",
+    "No private FWSC/WASM/SDK/toolchain/raw factory/native field snapshots published",
+    "Library prepared-upload401 before session creation remains preserved; no session/retry/alternate uploader",
+    "Earlier file-URI denial not retried; separate owner-authorized Git route used"
+  ]
+}

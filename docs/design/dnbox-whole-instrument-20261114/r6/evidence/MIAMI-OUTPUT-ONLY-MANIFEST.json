@@ -1,0 +1,37 @@
+{
+  "status": "Pending integration-owner export-scope audit",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 4762,
+      "sha256": "a1cb0c0be403068cdf52103722cff6a19d04b4c9117762f38fdb50fecf65dada"
+    },
+    {
+      "path": "output-only/METADATA-ONLY-RECEIPT.json",
+      "bytes": 10954,
+      "sha256": "e89f8d8a055078104a2ee8de28b86fded176104e83e9a4f92d77d2aa15978af2"
+    },
+    {
+      "path": "output-only/miami-factory0-native-and-edited-q-ui.json",
+      "bytes": 60665,
+      "sha256": "6b1078574f73adbc2daa0f3333aa1a557d5f77f713e56a4347cfe456f87e0866"
+    },
+    {
+      "path": "output-only/native-factory0-carrier-SQR-29x19.png",
+      "bytes": 120,
+      "sha256": "47ffdf12fc4aeb9091a83f546e7c5717574298012eb7b152fce12a14e9e28c6a"
+    },
+    {
+      "path": "output-only/native-factory0-wobble-SQR-29x19.png",
+      "bytes": 106,
+      "sha256": "d9676e83d08be8e68d39325a29e9f93466bc0b10aed2a9253c362930b76985cd"
+    },
+    {
+      "path": "output-only/native-factory0-xmod-SAW-29x19.png",
+      "bytes": 130,
+      "sha256": "aeea76f258b43dca580b9931d4761eb6a26c4717cac31c12b634f80afcc81b63"
+    }
+  ],
+  "private_tree_included": false,
+  "schema_source_checks": "Read back verified; no execution acceptance"
+}

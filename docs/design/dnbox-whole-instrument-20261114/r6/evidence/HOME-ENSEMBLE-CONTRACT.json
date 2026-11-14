@@ -1,0 +1,526 @@
+{
+  "identity": {
+    "scope": "Read-only continuation evidence helper; sole design owner remains parent",
+    "source": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "source_tree": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+    "frozen_r5_commit": "78f861af8dbda894152a355b1fb42a2efee7b3c7",
+    "frozen_r5_tree": "9341f35c2e107e7b2237eec04d823616555750ad",
+    "requested_model_effort": "Sol6.1 / ultra",
+    "effective_model_effort": "not exposed"
+  },
+  "result": "Actual HOME has content-derived ensemble/thumbnail/assignment/phase information missing from R5 model. Existing actual four-kick frame is a narrow fixture, not populated whole-instrument proof.",
+  "contracts": [
+    {
+      "id": "identity",
+      "data": "Stored part IDs are9090,8081,BassA2,BassB3,BREAK4. Presentation order is[0,1,4,3,2]. Names come from current engine/sound identity, with short stable labels when full names exceed49px.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 97,
+          "end_line": 130,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L97"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5973,
+          "end_line": 5985,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5973"
+        }
+      ],
+      "r5": "SOURCE_PART mapping and laneName retain the order. A single global pattern scalar does not preserve independent per-part assignment."
+    },
+    {
+      "id": "thumbnail-full-length",
+      "data": "For each displayed bank pattern and each part, project the whole stored valid length1..64 into8 bins with floor(step*8/length). Invalid stored lengths project as16; BREAK always uses16. Each bin keeps the strongest event across all relevant tracks/steps.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/home_pattern_glyph.h",
+          "start_line": 11,
+          "end_line": 29,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/home_pattern_glyph.h#L11"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/home_pattern_glyph.h",
+          "start_line": 36,
+          "end_line": 74,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/home_pattern_glyph.h#L36"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 6000,
+          "end_line": 6021,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6000"
+        }
+      ],
+      "r5": "home() hardcodes onlyP1 bins0,2,4,6; patternPicture() checks drum hits using floor((step-1)/2), so it assumes16 steps and has no other patterns or bass/BREAK rows.",
+      "r5_source": [
+        {
+          "commit": "78f861af8dbda894152a355b1fb42a2efee7b3c7",
+          "path": "proposal.js",
+          "start_line": 120,
+          "end_line": 124,
+          "claim": ""
+        },
+        {
+          "commit": "78f861af8dbda894152a355b1fb42a2efee7b3c7",
+          "path": "proposal.js",
+          "start_line": 359,
+          "end_line": 365,
+          "claim": ""
+        }
+      ]
+    },
+    {
+      "id": "drum-velocity",
+      "data": "Aggregate all11 drum voices. Default strength is127 on shared accent, otherwise saved accent_q7 (zero coerced to1). The first matching used T_VEL lane for pattern,part,(part<<4|voice),i0 supplies a valid1..127 step override; MOT_NONE/invalid falls back. Max aggregation occurs after velocity resolution.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/home_pattern_glyph.h",
+          "start_line": 43,
+          "end_line": 68,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/home_pattern_glyph.h#L43"
+        }
+      ],
+      "r5": "No saved per-hit velocity/accent data participates in HOME. Uniform marks are occupancy only, even when source projection differs by saved velocity."
+    },
+    {
+      "id": "bass-note-tie-velocity",
+      "data": "HOME strength follows NOTE velocity and carries it through valid TIEs until REST. A leading wrapped TIE can inherit the last real NOTE. All-TIE and orphan-TIE runs remain silent. Velocity0 decodes as100; >127 clamps127. Pitch, transpose, BS_SLIDE, accent flag and release fraction are not encoded by this HOME projector.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/home_pattern_glyph.h",
+          "start_line": 76,
+          "end_line": 94,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/home_pattern_glyph.h#L76"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/seq/pattern.h",
+          "start_line": 23,
+          "end_line": 36,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/pattern.h#L23"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5560,
+          "end_line": 5571,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5560"
+        }
+      ],
+      "r5": "HOME has no bass step/gate/velocity data. Do not describe missing pitch/slide pictures as an existing visual feature that was removed: source HOME never showed them."
+    },
+    {
+      "id": "brightness",
+      "data": "For nonzero strengthv: t=4+floor((v*12+63)/127); current assigned part uses t/16 of its part colour; noncurrent uses floor((t*9+8)/16)/16. Zero emits no mark. The1x3 column height is fixed; brightness, not column height, carries strength.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/home_pattern_glyph.h",
+          "start_line": 16,
+          "end_line": 29,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/home_pattern_glyph.h#L16"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5964,
+          "end_line": 5971,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5964"
+        }
+      ],
+      "r5": "Fixed-height uniform full-colour marks omit saved velocity and current/noncurrent brightness law."
+    },
+    {
+      "id": "used-vs-content",
+      "data": "part_used tests all64 drum bits or real G_NOTE anywhere, regardless current length; BREAK any stored step. pattern_used instead counts any nonREST bass gate, including orphan/allTIE. Thus physical used-pad dim is not identical to a sounding thumbnail. Off-loop hit can make part_used/current tick true while all projected bins remain zero.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 1805,
+          "end_line": 1830,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1805"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 6011,
+          "end_line": 6021,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6011"
+        }
+      ],
+      "r5": "usedPatterns is a manually maintained list, not derived from shared pattern content. Do not silently equate assigned/current/used/audible."
+    },
+    {
+      "id": "thumbnail-assignment-cue-chain",
+      "data": "Each used lane gets a current marker only when seq.ppat[part]==thatpattern; each part can differ. Queued909 target gets a separate frame at ui.frame&16 when different from current909. Chain endpoints underline their inclusive min..max interval. The printed pattern number uses seq.ppat[ui.part], while the normal HOME header and physical current pad anchor909.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 6000,
+          "end_line": 6029,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6000"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5471,
+          "end_line": 5482,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5471"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8500,
+          "end_line": 8519,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8500"
+        }
+      ],
+      "r5": "Only S.pattern and S.queued exist; no per-part assignments, chain or bank. The queue frame is static. It can highlight target content only after a real pattern store exists."
+    },
+    {
+      "id": "ensemble-lanes",
+      "data": "Each of five ensemble lanes reads its own current pattern. Drum occupancy ORs all11voices. Bass occupancy includes NOTE and valid carried TIE via note_start_of. BREAK uses raw16 step mask. Running drums/bass select base=eng_step[track]&~15; stopped shows first16. Current16-step lane is not the full-length8-bin thumbnail.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5920,
+          "end_line": 5936,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5920"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5975,
+          "end_line": 5995,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5975"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 6031,
+          "end_line": 6046,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6031"
+        }
+      ],
+      "r5": "home() ignores shared kit steps and hardcodes four909kick marks; all other rows remain blank after editing their actual model data. No bass/BREAK note store exists for HOME."
+    },
+    {
+      "id": "ensemble-cursor-mute",
+      "data": "Each row uses its own eng_step[track] for a white underline when seq.playing, including empty/muted rows. Source whole-part mute dims left accent/name and occupied cells; thumbnail content retains stored part colours. Partial drum-track mute is not individually resolved by HOME occupancy; stored hit content remains.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 3463,
+          "end_line": 3465,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3463"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5975,
+          "end_line": 5995,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5975"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 6031,
+          "end_line": 6046,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6031"
+        }
+      ],
+      "r5": "No lane playhead is drawn. Mute merely underlines the name and uses one S.muted array also used elsewhere for track mute, conflating distinct owners."
+    },
+    {
+      "id": "header-priority",
+      "data": "A live transient message replaces the header first (NEXT message includes a target miniature), except pickup remains a left hint with normal context. Normal HOME shows909 current+pending cue or SONG bar, tempo, metro phase, REC/save. ui.frame&16 changes pending cue ink even stopped; the separate PART header cue uses live-step phase. These paths must not be conflated.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5313,
+          "end_line": 5374,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5313"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5412,
+          "end_line": 5420,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5412"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5471,
+          "end_line": 5504,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5471"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 5285,
+          "end_line": 5302,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5285"
+        }
+      ],
+      "r5": "header() always uses one scalar pattern and adds a global patternPicture; lacks temporary NEXT message, all-part target preview, chain and per-part context. Future stopped/WAIT disposition remains a design intent, not current-source assertion."
+    },
+    {
+      "id": "home-controls",
+      "data": "HOME white/pad down cues all5parts; second overlapping white press defines chain, release clears chain-first owner. K4 on nonpart HOME cues allparts. K3 selects global part and thereby selected-part identity/colour; it does not rewrite current pattern assignments. OCTAVE chooses bank0/1. Black1..5 toggles whole-part mute or pending bar mute, not track selection.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 3735,
+          "end_line": 3754,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3735"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 3786,
+          "end_line": 3789,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3786"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 4158,
+          "end_line": 4160,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4158"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 4589,
+          "end_line": 4625,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4589"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 3523,
+          "end_line": 3541,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3523"
+        }
+      ],
+      "r5": "padDown sets S.queued=n+1, without bank, all-part ownership, chain/adoption. OCTAVE routing only handles drum SEQ. black() toggles S.muted immediately and does not represent pending mute."
+    },
+    {
+      "id": "home-vs-song",
+      "data": "SONG white/pad writes all5 pattern IDs to the selected bar through song_fill, marks dirty and advances selection if another bar fits. It does not cue playback. SONG black toggles selected-bar mute bits. PATCH held bypasses that branch and follows HOME pattern-cue/chain route. Valid selected bar and END/empty differ for current-pad priority.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 3718,
+          "end_line": 3754,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3718"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8500,
+          "end_line": 8519,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8500"
+        }
+      ],
+      "r5": "padDown HOME/SONG shared branch queues target in both. This packet records the contrast only; the incumbent Song helper owns full song/K5 contract."
+    }
+  ],
+  "pad_button_priority": [
+    {
+      "order": 1,
+      "owner": "Button state",
+      "rule": "PLAY uses WAIT ui.frame&32 before normal playing909 step%4. REC reflects arm. PATCH on HOME/SONG or blinking active SONG elsewhere. View buttons identify current view; SCALE overlay; OCTAVE+ uses pattern bank in HOME/SONG; BT queued steady/failed bit2/unsaved bit8. Clip mode overrides PLAY/REC with host feedback.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8460,
+          "end_line": 8499,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8460"
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "owner": "Normal HOME/SONG logical content when LIGHTS enabled",
+      "rule": "Mark every pattern_used in current16-bank dim. HOME current909 bright even empty. SONG valid selected-bar909 bright; END/empty has no current fallback. HOME queued909 adds bright on bit8; no queued pattern blink on SONG. Logical black masks show whole-part/selected-bar mute but are not physical keybed lamps.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8500,
+          "end_line": 8519,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8500"
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "owner": "Held inputs",
+      "rule": "OR ui.keys after LIGHTS-gated content. A held physical pad can therefore be bright even LIGHTS off. Bright wins over dim through d&~k. Division owner can replace masks in its gated context; it is not a HOME owner.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 8572,
+          "end_line": 8583,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8572"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 4200,
+          "end_line": 4213,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4200"
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "owner": "SMK physical projection",
+      "rule": "Only16 logical white positions reach RGB pads. HOME hue is selected global part, not a colour per pattern or per contained part. Bright is RGB565 decoded channels>>1; dim>>3; off0. Binary buttons map panel.btn; fader-bank is separately set. No37-keybed lights, glow or redPLAY on SMK.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/plat_fm1.c",
+          "start_line": 157,
+          "end_line": 179,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L157"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/main_fm1.c",
+          "start_line": 868,
+          "end_line": 880,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L868"
+        }
+      ]
+    },
+    {
+      "order": 5,
+      "owner": "Alternative physical pad mode",
+      "rule": "Clip mode owns pad colours/transport feedback instead of normal HOME. Development pad calibration can replace the normal frame path. Preserve these external owners; do not reinterpret their colours as local pattern-state acceptance.",
+      "source": [
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/main_fm1.c",
+          "start_line": 845,
+          "end_line": 867,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L845"
+        },
+        {
+          "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+          "path": "firmware/src/app/ui.c",
+          "start_line": 3690,
+          "end_line": 3702,
+          "claim": "",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3690"
+        }
+      ]
+    }
+  ],
+  "canonical_input_requirements": [
+    {
+      "owner": "pattern_store",
+      "required": "Bank16 thumbnails plus each current per-part pattern (up to32): drum11x2word hits, accent2words, len/rate; bass64 steps note/flags/velocity,len/rate/dir/transpose; BREAK16rawsteps/rate/slice state; swing. Preserve unused fields as unknown when not present rather than zeroing them.",
+      "why": "One canonical music store must serve HOME/SEQ/MIX and future arrangement, with stable source IDs."
+    },
+    {
+      "owner": "velocity_lanes",
+      "required": "The ordered lane pool used,pat,part,t,v,i,val64, including MOT_NONE; saved accent_q7; caller T_VEL identity. Preserve first-match ordering.",
+      "why": "Saved strength must agree across thumbnail and selected-pattern edits without inventing uniform velocity."
+    },
+    {
+      "owner": "assignments_and_transport",
+      "required": "seq.ppat5, pcue5 or sentinel, playing, external WAIT, eng_step5, seq.metro_view, ui.frame, ui.part, ui.pbank, chain endpoints, song mode/selection/bar assignments.",
+      "why": "Selected, assigned/current, pending, playing cursor and stopped/WAIT are distinct state owners."
+    },
+    {
+      "owner": "mute_state",
+      "required": "seq.mute, seq.vmute, queued_mutes, mute_q, vmute_q; selected Song bar mute; separate source bitmasks vs display indices.",
+      "why": "Current mute, pending mute and track-vs-part mute cannot share one untyped array."
+    },
+    {
+      "owner": "physical_and_context",
+      "required": "keyled, ui.keys, held pad logical key, clip/calibration/division owner flags and model gates, SMC connection; active view/overlay/help; save state and transient header message.",
+      "why": "Pads/buttons/header must project one coherent instrument state without inventing keybed lamps or losing connected-control meaning."
+    },
+    {
+      "owner": "engine_identity_and_limits",
+      "required": "Sound identity perBassA/B, availability label and sample/engine status when relevant, read from allowed public identity interfaces; no synth coefficients needed.",
+      "why": "HOME note content is stored-pattern activity, not measured audible engine output."
+    }
+  ],
+  "minimal_fixture": "MINIMAL-SOURCE-FIXTURE.json",
+  "evidence": "REUSED-EVIDENCE.json",
+  "next_concrete_integration": [
+    "Parent defines a canonical pattern/assignment/mute/transport fixture once, then binds HOME, SEQ, PARA, MIX, pad/button projection and Song interfaces to it.",
+    "Use retained actual four-kick frame for its qualified scenario. Use explicitly labelled source-authored test fixture for broader projection design, with no claim of new emulator execution or musical arrangement.",
+    "Inventory every existing data cue and direct control before changing layout; distinguish retained occupancy/velocity projection from a proposed note/slide view.",
+    "Incumbent Song helper owns bar editor/K5 contract. Existing reviewer admission and immutableR5 remain untouched. Parent owns anyR6 change/review/validation."
+  ],
+  "limits": [
+    "No R5/source/Git/runtime edit, no new render/emulator/host/review/audio/device run, no new agent.",
+    "No private synth coefficient/header bytes retrieved.",
+    "No notes, per-hit velocities, slide flags or muted/cued captured state invented from pixels.",
+    "Saved note content is not proof of sounding/available engine output, probability outcome or musical success.",
+    "Reserved CP1 producer ownership remains intact; this is generic existing HOME source semantics and the Song interface, not replacement CP1 admission."
+  ]
+}

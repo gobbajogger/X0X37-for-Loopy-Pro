@@ -1,0 +1,13 @@
+{
+  "classification": "Reuse only unchanged musical model proof; not a rerun or independent acceptance",
+  "prior_renderer_sha256": "5e0797e6b403dd078f2a4bb011e8f0eff6e7d776e651a8607db8ddbccd89016b",
+  "final_renderer_sha256": "28c274f93a8f2e902e2aaf002e18996bfcb621d51c3f25d0f3e31de19699248f",
+  "changed_executable_region": "songCardGlyph body only: native7x7 filled identity tiles replace6x6 outline substitution",
+  "non_executable_change": "Withdrawn Juno heading-thumbnail comment corrected",
+  "all_other_executable_bytes_identical": true,
+  "executable_without_song_glyph_sha256": "178093708a682bf8d8a43e4cd8f703c31ff15d27c0d031df21915a28ce7ad708",
+  "retained_receipt": "musical-journey-checks.json",
+  "retained_receipt_sha256": "24c1bae1ffc687868cd033c2c074ea605b5479cd26b8a1db5a664831df7c351e",
+  "affected_rechecks": "19 review corrections including Song; new native identity fill check; final DOM/composition; curated/PDF assets",
+  "scope_limit": "53 musical traces were run on the preceding renderer; this receipt does not relabel their execution as final-renderer execution"
+}

@@ -1,0 +1,24 @@
+{
+  "classification": "Actual current3c41 fresh MiamiA native factory0 body; not candidate firmware",
+  "package_sha256": "62a35cb1883cc24dbe3149f37583d154ea212dbddfa5afced536b8c5eb895eb2",
+  "wasm_sha256": "4fe2aa05511c32d6e230afa8f4027323df41e358d1922ae8a44f47e2b0d5fd14",
+  "worklet_sha256": "d2e950a8e721877480389d2707886b0c376587f5dd9c8f841413f457f5d7799c",
+  "harness_sha256": "a2f9fbc2c01abbe5a748a58ef621d125de5f0a37aac72b8a2830ae4662d73bee",
+  "plan_sha256": "9e5f685c5af1db348be19863e0874a219bf3aed533dfed512257dd018c4c042e",
+  "receipt_sha256": "09cabc2ff2f08ad3d43585cb6a55583feb39ab72938732c92247e8ee2a5ba128",
+  "native_frame": {
+    "path": "elite-default-A-v1-01-default-A-sound-native.png",
+    "bytes": 13981,
+    "sha256": "e3d4e10fdbe2262fab32323178dd38c6a98c7f563aaf4f5f871dc40870861c31",
+    "raw_rgb565_sha256": "1ceaf85cf0038c190aa06786f80faaa97c9460d8a88aa0e6cc8a5d2f5a4ceb0f"
+  },
+  "end": {
+    "ms": 5510,
+    "halted": 0,
+    "lcdRevision": 211886,
+    "short": 13,
+    "cpu1Fault": 0,
+    "held": []
+  },
+  "limit": "Untouched native factory readouts/geometry; not exported raw native/cell binding; authored q editor remains separate"
+}

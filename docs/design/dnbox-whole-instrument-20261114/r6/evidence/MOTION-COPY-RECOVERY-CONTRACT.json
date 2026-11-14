@@ -1,0 +1,659 @@
+{
+  "role": "Read-only public-source contract extraction; not implementation, design acceptance or independent review",
+  "effective_model_effort": "Not exposed",
+  "source_commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+  "source_tree_parent_supplied": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+  "accepted_ui_equivalence": {
+    "commit": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+    "ui_git_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+    "meaning": "ui.c exact byte equivalence previously connector-verified; supporting motion/engine/SMC/clip files pinned here at3c41 only",
+    "prior_receipt": "/workspace/dnbox-whole-design/revision-r3/helpers/parameters/public-931-compare/source-and-function-manifest.json"
+  },
+  "motion": {
+    "identity": {
+      "pool_lanes": 160,
+      "steps_per_lane": 64,
+      "parts": 5,
+      "key": [
+        "pattern",
+        "owning_part",
+        "target",
+        "voice",
+        "parameter_id"
+      ],
+      "no_value_sentinel": "MOT_NONE=255 means base, not zero",
+      "gesture_gap_steps": 4,
+      "refs": [
+        {
+          "path": "firmware/src/seq/motion.h",
+          "first_line": 3,
+          "last_line": 29,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/motion.h#L3"
+        },
+        {
+          "path": "firmware/src/seq/motion.c",
+          "first_line": 170,
+          "last_line": 201,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/motion.c#L170"
+        }
+      ]
+    },
+    "ownership": {
+      "T_909": "PART_909=0",
+      "T_808": "PART_808=1",
+      "T_303": "PART_303A+(voice&1), canonical2/3",
+      "T_BRK": "PART_BRK=4",
+      "T_MIX": "voice when voice<5; otherwise909",
+      "T_PROB_T_VEL": "voice>>4 when <5; otherwise909",
+      "T_FX_T_MST_other": "909, the bar",
+      "refs": [
+        {
+          "path": "firmware/src/app/engine.c",
+          "first_line": 1314,
+          "last_line": 1326,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L1314"
+        }
+      ]
+    },
+    "write": {
+      "entry": "A writable R_ENG control is turned through turn_ref. Source updates its base through pref_set_impl first, then calls motion_touch.",
+      "eligibility": "motion_touch returns unless R_ENG and seq.playing. ui.rec selects recording; stationary controls make no request. It has no independent capture-class mode.",
+      "destination": "Current seq.ppat[engine_motion_part(target,voice)], that owning part, and the target/voice/id triple; not necessarily the selected visible part.",
+      "allocation": "Find existing lane or allocate first unused pool slot. Allocation initializes every step to MOT_NONE, increments generation and publishes used last.",
+      "step_write": "rec_req is a flag. On the next matching active-part step, capture the then-current base; several between-step moves coalesce into the latest base. That step is written; untouched steps retain their data.",
+      "interpolation": "For a continuing gesture, d=(step-rec_last+pass)%pass. If2<=d<=4 and prior written value exists, fill the intervening positions with integer linear interpolation. Do not infer reverse/random interpolation beyond this exact source formula.",
+      "audible_owner": "During recording gesture, applied=MOT_NONE and ramps are disabled, so the knob/base owns sound. After more than4 quiet matching-part steps the gesture ends and lane playback resumes.",
+      "full_pool": "MOTION FULL is a1300ms source message. New lane allocation fails, but base editing happened earlier and is not rolled back by this failure.",
+      "refs": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 2783,
+          "last_line": 2800,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2783"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 3100,
+          "last_line": 3141,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3100"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 404,
+          "last_line": 410,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L404"
+        },
+        {
+          "path": "firmware/src/seq/motion.c",
+          "first_line": 78,
+          "last_line": 118,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/motion.c#L78"
+        },
+        {
+          "path": "firmware/src/seq/motion.c",
+          "first_line": 181,
+          "last_line": 201,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/motion.c#L181"
+        }
+      ]
+    },
+    "live_override": {
+      "entry": "Playing, REC off, turn a writable R_ENG control that already has a lane. Base edits first, then hold_req is set. No existing lane means ordinary base edit only.",
+      "duration": "Next matching-part step sets hold_left=pass and suppresses lane/ramp for pass matching active-part step events. A new turn renews the request. This is one part pass, not a fixed wall-clock interval.",
+      "persistent_consequence": "Temporary suppression of lane playback does not make the base edit temporary. The new base remains and is used at MOT_NONE positions and when the lane releases.",
+      "refs": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 2784,
+          "last_line": 2800,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2784"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 3100,
+          "last_line": 3141,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3100"
+        },
+        {
+          "path": "firmware/src/seq/motion.c",
+          "first_line": 78,
+          "last_line": 118,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/motion.c#L78"
+        }
+      ]
+    },
+    "playback_and_release": {
+      "playback": "Only active pattern lanes apply. Departing pattern lanes restore first and discard queued rec/hold requests. An explicit value applies at the step; a MOT_NONE step restores exact base when the restore callback exists.",
+      "ramp": "Ramp only when current and next positions are both explicit and unequal. motion_tick interpolates over the measured previous even/odd step length. No length yet means no first-step ramp.",
+      "clock": "Engine calls motion_tick only while motion is enabled, transport is playing and external clock is not waiting. A WAIT condition is not a completed motion write.",
+      "stop_reset": "motion_release restores eligible applied controls, cancels recording/hold/ramp history and resets measured step times; it does not delete saved lane data. Engine invokes it on playing\u2192stopped, disabled motion, or motion reset.",
+      "base": "Original synth controls restore exact source base rather than a rounded display q. Performance bend/damper restore their live wheel state. Other targets restore source sound values; probability defaults100 and drum-velocity override defaults0/legacy accent.",
+      "refs": [
+        {
+          "path": "firmware/src/seq/motion.c",
+          "first_line": 39,
+          "last_line": 163,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/motion.c#L39"
+        },
+        {
+          "path": "firmware/src/app/engine.c",
+          "first_line": 1231,
+          "last_line": 1312,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L1231"
+        },
+        {
+          "path": "firmware/src/app/engine.c",
+          "first_line": 2878,
+          "last_line": 2902,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L2878"
+        },
+        {
+          "path": "firmware/src/app/engine.c",
+          "first_line": 2921,
+          "last_line": 2929,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L2921"
+        }
+      ]
+    },
+    "whole_lane_clear": {
+      "gesture": "With no eligible held-step lock, hold physical BT and turn its current-page assigned K5\u2013K8 control. K2/K3/K4 are not this clear gesture.",
+      "priority": "Held-step lock handling comes first; synth held-step locking is disabled while REC is on. SEQ held-note editing also comes before BT lane clear.",
+      "effect": "If lane exists, engine_motion_clear marks unused, cancels queued requests/ramp and queues eligible base restore; UI restores base, marks dirty and says MOTION CLEARED: <parameter>. No lane says NO MOTION ON <parameter>.",
+      "release": "BT is marked used before the clear attempt, including no-lane outcome. Its release cannot trigger the ordinary tap-to-save action.",
+      "refs": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 2802,
+          "last_line": 2818,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2802"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 2847,
+          "last_line": 2854,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2847"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 4624,
+          "last_line": 4675,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4624"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 4518,
+          "last_line": 4526,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4518"
+        },
+        {
+          "path": "firmware/src/app/engine.c",
+          "first_line": 1330,
+          "last_line": 1346,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L1330"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 705,
+          "last_line": 712,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L705"
+        }
+      ]
+    },
+    "single_step_clear": {
+      "gesture": "In PART, hold an eligible step, hold BT and turn its assigned K5\u2013K8 parameter.",
+      "scope": "Only that lane position becomes MOT_NONE; other positions stay. If no explicit positions remain, free the lane. If no lane or no position existed, stop without deleting anything else.",
+      "preview": "Stopped lock edit previews through engine_set until release; stopped clear restores base. UI lock scope suppresses motion even when held step has no lock. Release returns to base or currently applied motion as appropriate.",
+      "refs": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 2838,
+          "last_line": 2863,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2838"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 2930,
+          "last_line": 2993,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2930"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 2887,
+          "last_line": 2926,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2887"
+        }
+      ]
+    },
+    "lcd_and_lights": {
+      "readout_priority": "Held lock if present; otherwise held base with motion suppressed. Without eligible held step, show applied motion when value>=0, otherwise base.",
+      "ordinary_strip": "Held lock: amber dot; held eligible control without lock: line-colored dot. Existing motion lane: white dot while applied, dim dot when no value is being applied. Value follows the same priority.",
+      "part_matrix": "Existing2x2 mark when locked or, without held scope, when motion lane exists; the matrix does not prove a separate live-override caption. Drum/303/BREAK sequence views retain source lock/value notches.",
+      "rec_led": "SEQ REC logical LED follows ui.rec. PLAY is beat indication while running or slow WAIT indication. No dedicated motion-write/override lamp was found in the examined path.",
+      "bt_led": "Existing SAVE state indicates queued/failed/unsaved according to source blink rules; clearing marks project dirty. Do not invent a new successful-flash result from it.",
+      "refs": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 7042,
+          "last_line": 7055,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7042"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 7300,
+          "last_line": 7303,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L7300"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 8406,
+          "last_line": 8418,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8406"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 3082,
+          "last_line": 3098,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3082"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 5520,
+          "last_line": 5549,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5520"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 5620,
+          "last_line": 5624,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5620"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 5877,
+          "last_line": 5881,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5877"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 8460,
+          "last_line": 8500,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8460"
+        }
+      ]
+    }
+  },
+  "panic_recovery": {
+    "keyboard": {
+      "gesture": "Physical FX + physical SEQ, in either order; fire when the second member becomes held. These are not SEQ PLAY or SEQ REC.",
+      "priority": "input calls keyboard_panic before normal button dispatch and consumes chord member edges through final release. Normal FX/SEQ navigation occurs on unconsumed release; successful chord does not navigate those pages.",
+      "rearm": "Fires once per chord. Both members must be released before another fire. Unrelated held controls are ignored. Controls held across project transfer are inhibited until all chord members release.",
+      "feedback": "This keyboard source route does not call say(), change view, toggle REC/PLAY, or define a dedicated panic LED. Existing view/transport LEDs remain source-controlled.",
+      "refs": [
+        {
+          "path": "firmware/src/app/panic_chord.h",
+          "first_line": 21,
+          "last_line": 55,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/panic_chord.h#L21"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 4174,
+          "last_line": 4196,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4174"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 4476,
+          "last_line": 4495,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4476"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 4518,
+          "last_line": 4526,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4518"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 269,
+          "last_line": 279,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L269"
+        }
+      ]
+    },
+    "retired_scope": {
+      "sequencer": "Cancel active note recorder ownership, clear fill_on and release sequencer bass/BREAK owners. seq_notes_off explicitly does not stop, rewind or send MIDI Stop.",
+      "engine": "At the audio boundary release both original synth runtimes and local-key ownership, clear held note counts, MIDI/BREAK ownership and held slices, and call drum909_all_off/drum808_all_off. Request clip-key notes-off on SMK.",
+      "queue": "Capture command/MIDI cutoffs; retire live key generations immediately. Old queued drum/bass/record/off/BREAK events before cutoff are discarded, fresh admitted onsets survive. Queued control commands still execute.",
+      "preserved": "No project pattern/sound/lane delete, transport stop/rewind, REC toggle or effects-tail reset appears in the inspected panic route. Running sequence may generate later notes. It is not an unconditional global-silence or external-device-reset promise.",
+      "fresh_recovery": "After releasing the chord, a new legitimate note acquires fresh ownership. Existing generation/context maximum explicitly blocks an owner rather than wrapping; source safety and musical recovery execution remain untested here.",
+      "refs": [
+        {
+          "path": "firmware/src/seq/sequencer.c",
+          "first_line": 748,
+          "last_line": 758,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L748"
+        },
+        {
+          "path": "firmware/src/app/engine.c",
+          "first_line": 891,
+          "last_line": 916,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L891"
+        },
+        {
+          "path": "firmware/src/app/engine.c",
+          "first_line": 1830,
+          "last_line": 1857,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L1830"
+        },
+        {
+          "path": "firmware/src/app/engine.c",
+          "first_line": 1863,
+          "last_line": 1907,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L1863"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "first_line": 1176,
+          "last_line": 1176,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1176"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "first_line": 1939,
+          "last_line": 1944,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1939"
+        }
+      ]
+    },
+    "smc": {
+      "gesture": "Same physical SMC peer BANK L(0x2E)+BANK R(0x2F), explicit DAW mode only. Channel arrows are not members. Two peers cannot jointly form a chord.",
+      "single_tap": "A DAW bank press waits for its real release before normal bank navigation, so first-member navigation cannot escape ahead of a chord. No timer threshold is used.",
+      "contexts": "User mode/raw User NoteOn and MMC are ineligible; mode changes inhibit an already-held member until all release. Blocked restoration/test routing still processes bank releases to retire ownership.",
+      "effect": "Eligible chord calls the same engine_request_notes_off. It is not Loopy stop or a full MIDI device reset.",
+      "refs": [
+        {
+          "path": "firmware/src/app/smc_mixer.c",
+          "first_line": 2279,
+          "last_line": 2357,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/smc_mixer.c#L2279"
+        },
+        {
+          "path": "firmware/src/app/smc_mixer.c",
+          "first_line": 2425,
+          "last_line": 2436,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/smc_mixer.c#L2425"
+        },
+        {
+          "path": "firmware/src/app/smc_mixer.c",
+          "first_line": 2501,
+          "last_line": 2513,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/smc_mixer.c#L2501"
+        },
+        {
+          "path": "firmware/src/app/panic_chord.h",
+          "first_line": 21,
+          "last_line": 55,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/panic_chord.h#L21"
+        }
+      ]
+    },
+    "clip_keys": {
+      "gesture": "In active clip-key context, press and release NOTE REPEAT alone. It fires on release only if it was not used with ARP for LATCH.",
+      "effect": "ck_all_off drains queued human notes, sends key note-offs, stops the current arp note and clears the arp/live-note list. Then send MIDI CC123 value0 on the configured clip-key channel and display PANIC.",
+      "limits": "This is the clip-key MIDI route; it is not the normal NOTE REPEAT\u2192MIX tap and does not establish Loopy transport stop, FX-tail kill or external device response.",
+      "refs": [
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "first_line": 1300,
+          "last_line": 1309,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1300"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "first_line": 1638,
+          "last_line": 1674,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1638"
+        },
+        {
+          "path": "firmware/src/app/main_fm1.c",
+          "first_line": 1940,
+          "last_line": 1965,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1940"
+        }
+      ]
+    },
+    "undo_recovery": {
+      "gesture": "Normal local context PATCH+SEQ REC undoes; PATCH+SEQ PLAY redoes. Clip history/transport interceptors run before normal local transport handling and retain their own scope.",
+      "grouping": "Undo normally groups edits between400ms quiet moments or a recording pass. do_undo first finishes note recorder ownership and commits the current snapshot. Motion changes set undo_lanes and request engine_motion_reset, releasing old applied motion.",
+      "limits": "Tagged-sound/CP1 admission and pending outcomes remain with incumbent; this extraction does not resolve them. No persistence round trip or audible recovery was executed.",
+      "refs": [
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 2043,
+          "last_line": 2090,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2043"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 2140,
+          "last_line": 2159,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2140"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 2209,
+          "last_line": 2223,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2209"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 4009,
+          "last_line": 4035,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4009"
+        },
+        {
+          "path": "firmware/src/app/ui.c",
+          "first_line": 4498,
+          "last_line": 4513,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4498"
+        }
+      ]
+    }
+  },
+  "five_part_copy": {
+    "entry": "Normal non-clip routing: hold BT; choose destination white key/pad mapped to one of16 pattern positions in current bank. BT+OCTAVE\u2212 selects patterns1\u201316; BT+OCTAVE+ selects17\u201332.",
+    "invitation": "After BT alone250ms, with no keys/other buttons/turn after press and no question, show CHOOSE PASTE TARGET. No source snapshot exists at this stage; releasing an otherwise unused BT still follows tap-save.",
+    "source_capture": "At destination key-down, first mark BT used. If all five current seq.ppat equal destination, return with no copy. Otherwise store the five current sounding/adopted seq.ppat IDs in ui.paste_src; queued pcue targets are not selected. The tuple is stable through confirmation, not an early raw-byte snapshot.",
+    "occupied": "pattern_used tests musical drum hits, synth gates/ties and BREAK steps. Used destination asks PASTE OVER Pn? / IT HAS NOTES. SCALE confirms; PATCH restores caller and says CANCELLED. SEQ PLAY cancels normal question then performs transport start/stop; clip exception retains its separate interceptor.",
+    "empty": "No occupied-note question: run ACT_COPY immediately. Motion-only destination data does not itself satisfy pattern_used, so owned destination lanes may still be replaced without an occupied-note question.",
+    "copied": "Loop canonical parts0..4:909,808,synthA,synthB,BREAK. For each differing source/destination, clone its complete part structure and all used source-owned lanes.909 also brings the source pattern swing. Global project sound/FX settings are not copied by this function.",
+    "capacity": "Each part preflights all required source lanes against unused pool slots plus that destination part lanes. If insufficient, that part remains unchanged. Successful parts clear/rebuild destination-owned lanes. The overall five-part loop is sequential, not transactional; earlier/later parts can succeed while another fails.",
+    "result": "Success says PARTS PASTED TO Pn; any part failure says MOTION FULL: NOT ALL PASTED. ACT_COPY finishes active note recorder ownership first and marks dirty. The used BT release does not issue an extra save.",
+    "playback": "Copy does not cue or select destination and does not switch seq.ppat. Hearing the copy needs the existing separate pattern-selection gesture and its stopped/running adoption policy.",
+    "refs": [
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 1998,
+        "last_line": 2019,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1998"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 3700,
+        "last_line": 3720,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3700"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 3454,
+        "last_line": 3461,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3454"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 1820,
+        "last_line": 1829,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1820"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 1847,
+        "last_line": 1889,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1847"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 2618,
+        "last_line": 2627,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2618"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 4000,
+        "last_line": 4007,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4000"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 3963,
+        "last_line": 3986,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3963"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 4110,
+        "last_line": 4116,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4110"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 4518,
+        "last_line": 4526,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4518"
+      },
+      {
+        "path": "firmware/src/app/ui.c",
+        "first_line": 3681,
+        "last_line": 3696,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3681"
+      }
+    ]
+  },
+  "count_convention": "Button presses and knob detents counted separately; releases shown explicitly and page/part navigation setup excluded. Counts are source-derived, not timed or executed. Automatic audio/step/confirmation boundaries are not extra presses.",
+  "action_counts": [
+    {
+      "id": "motion-write-ready",
+      "prerequisite": "Target/page known; playing, REC on, clock supplies a next step; writable R_ENG",
+      "button_presses": 0,
+      "knob_detents_min": 1,
+      "button_or_step_releases": 0,
+      "automatic_boundary": "Next matching active-part step captures latest base; no stationary write"
+    },
+    {
+      "id": "motion-write-arm-start",
+      "prerequisite": "Target/page known; stopped, REC off; normal local context",
+      "button_presses": 2,
+      "knob_detents_min": 1,
+      "button_or_step_releases": 2,
+      "automatic_boundary": "SEQ REC press + SEQ PLAY press +turn; broader current REC semantics remain, no new capture class"
+    },
+    {
+      "id": "motion-override-ready",
+      "prerequisite": "Playing, REC off, known parameter with existing lane",
+      "button_presses": 0,
+      "knob_detents_min": 1,
+      "button_or_step_releases": 0,
+      "automatic_boundary": "Hold starts next matching step; resumes after pass matching steps; base edit persists"
+    },
+    {
+      "id": "clear-whole-lane",
+      "prerequisite": "Known K5\u2013K8 target; no eligible held step; existing lane",
+      "button_presses": 1,
+      "knob_detents_min": 1,
+      "button_or_step_releases": 1,
+      "automatic_boundary": "BT held+turn; used BT release has no save"
+    },
+    {
+      "id": "clear-one-lock",
+      "prerequisite": "Known PART page; eligible existing step; no step held initially",
+      "button_presses": 2,
+      "knob_detents_min": 1,
+      "button_or_step_releases": 2,
+      "automatic_boundary": "Step down+BT down+turn; leaves other step values"
+    },
+    {
+      "id": "keyboard-panic",
+      "prerequisite": "Both FX/SEQ initially released, eligible local input",
+      "button_presses": 2,
+      "knob_detents_min": 0,
+      "button_or_step_releases": 2,
+      "automatic_boundary": "Fire second member press; both releases rearm; playback may continue"
+    },
+    {
+      "id": "smc-daw-panic",
+      "prerequisite": "Same admitted peer, DAW mode, both BANK members released",
+      "button_presses": 2,
+      "knob_detents_min": 0,
+      "button_or_step_releases": 2,
+      "automatic_boundary": "Fire second member press; both releases rearm"
+    },
+    {
+      "id": "clip-key-panic",
+      "prerequisite": "Active clip-key context; NOTE REPEAT unused with ARP",
+      "button_presses": 1,
+      "knob_detents_min": 0,
+      "button_or_step_releases": 1,
+      "automatic_boundary": "Fire on NOTE REPEAT release"
+    },
+    {
+      "id": "copy-empty-destination",
+      "prerequisite": "Bank already selected; target not pattern_used; not all_on target; no modal/clip owner",
+      "button_presses": 2,
+      "knob_detents_min": 0,
+      "button_or_step_releases": 2,
+      "automatic_boundary": "BT down+destination down; source tuple captured at target press"
+    },
+    {
+      "id": "copy-occupied-confirm",
+      "prerequisite": "Same setup; occupied destination",
+      "button_presses": 3,
+      "knob_detents_min": 0,
+      "button_or_step_releases": 3,
+      "automatic_boundary": "BT down+destination down+SCALE tap; confirm runs on SCALE release"
+    },
+    {
+      "id": "copy-occupied-cancel",
+      "prerequisite": "Same setup; occupied destination",
+      "button_presses": 3,
+      "knob_detents_min": 0,
+      "button_or_step_releases": 3,
+      "automatic_boundary": "BT down+destination down+PATCH tap; no copy"
+    },
+    {
+      "id": "copy-bank-change-addition",
+      "prerequisite": "BT already held; target bank differs",
+      "button_presses": 1,
+      "knob_detents_min": 0,
+      "button_or_step_releases": 1,
+      "automatic_boundary": "One OCTAVE\u2212 or+ tap; then destination"
+    },
+    {
+      "id": "undo-or-redo",
+      "prerequisite": "Normal local context; available admitted history; PATCH+SEQ REC or PATCH+SEQ PLAY",
+      "button_presses": 2,
+      "knob_detents_min": 0,
+      "button_or_step_releases": 2,
+      "automatic_boundary": "Transport/history member acts on press; tagged sound admission not resolved here"
+    }
+  ],
+  "not_run": [
+    "Firmware or proposal code execution",
+    "Emulator, browser interaction or audio playback",
+    "Tests/builds/device/package",
+    "Independent review or acceptance",
+    "CP1 pending-sound/Keep cases or producer takeover",
+    "Candidate, runtime, Settings or shared plan edits"
+  ],
+  "dependencies": "Future selected capture strategy CP2 and lifecycle CP3 remain unresolved; this is current-source baseline only. Settings reserved; no private numerical headers accessed or copied in this stage."
+}

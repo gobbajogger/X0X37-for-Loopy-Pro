@@ -1,0 +1,2458 @@
+{
+  "scope": "Existing current public-source contracts only; no blanket requirement acceptance",
+  "documents": [
+    {
+      "name": "home",
+      "path": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "bytes": 28186,
+      "sha256": "f1cca51bc60fb838cbe6d51a874d6c2f0352a89e5df51b5c1973d0190649fdb9"
+    },
+    {
+      "name": "seq",
+      "path": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "bytes": 74360,
+      "sha256": "2a7f38ffa17d7c74b7de202c3e2b8a95c392fa3c95c43f254753ced976dcb3d5"
+    },
+    {
+      "name": "motion",
+      "path": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "bytes": 36408,
+      "sha256": "a5658c946fa428fffa49d58e975f053e7258ab1a9e354c80f2085934944513a7"
+    },
+    {
+      "name": "flows",
+      "path": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/contracts.json",
+      "bytes": 24531,
+      "sha256": "1c0471e66d0c3e054c86a4971a50753553f93d2b3043d560422e7f59d317cf6a"
+    },
+    {
+      "name": "connected",
+      "path": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/connected-layout-contract.json",
+      "bytes": 19793,
+      "sha256": "8662f5649449d0570cb799f370ef5e1d7d2506de7a31616e6f1cbc09eefac55b"
+    },
+    {
+      "name": "recording",
+      "path": "/workspace/dnbox-whole-design/continuation-evidence/current-recording/source-contract.json",
+      "bytes": 14318,
+      "sha256": "d41a1abd0e220ee2bdaa46e49b4727fdfeddd4651eab3f14e84cee323a5fb5e9"
+    },
+    {
+      "name": "song",
+      "path": "/workspace/dnbox-whole-design/continuation-evidence/current-recording/song-authoring.json",
+      "bytes": 6947,
+      "sha256": "9c763b6545337870cf6d026ff7a70e91055a178d2ac1d75f011b8855bf350624"
+    }
+  ],
+  "contracts": [
+    {
+      "code": "HID",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/0",
+      "known_source_scope": "Stored part IDs are9090,8081,BassA2,BassB3,BREAK4. Presentation order is[0,1,4,3,2]. Names come from current engine/sound identity, with short stable labels when full names exceed49px.",
+      "payload": {
+        "id": "identity",
+        "data": "Stored part IDs are9090,8081,BassA2,BassB3,BREAK4. Presentation order is[0,1,4,3,2]. Names come from current engine/sound identity, with short stable labels when full names exceed49px.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 97,
+            "end_line": 130,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L97"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5973,
+            "end_line": 5985,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5973"
+          }
+        ],
+        "r5": "SOURCE_PART mapping and laneName retain the order. A single global pattern scalar does not preserve independent per-part assignment."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HTHUMB",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/1",
+      "known_source_scope": "For each displayed bank pattern and each part, project the whole stored valid length1..64 into8 bins with floor(step*8/length). Invalid stored lengths project as16; BREAK always uses16. Each bin keeps the strongest event across all relevant tracks/steps.",
+      "payload": {
+        "id": "thumbnail-full-length",
+        "data": "For each displayed bank pattern and each part, project the whole stored valid length1..64 into8 bins with floor(step*8/length). Invalid stored lengths project as16; BREAK always uses16. Each bin keeps the strongest event across all relevant tracks/steps.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/home_pattern_glyph.h",
+            "start_line": 11,
+            "end_line": 29,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/home_pattern_glyph.h#L11"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/home_pattern_glyph.h",
+            "start_line": 36,
+            "end_line": 74,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/home_pattern_glyph.h#L36"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 6000,
+            "end_line": 6021,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6000"
+          }
+        ],
+        "r5": "home() hardcodes onlyP1 bins0,2,4,6; patternPicture() checks drum hits using floor((step-1)/2), so it assumes16 steps and has no other patterns or bass/BREAK rows.",
+        "r5_source": [
+          {
+            "commit": "78f861af8dbda894152a355b1fb42a2efee7b3c7",
+            "path": "proposal.js",
+            "start_line": 120,
+            "end_line": 124,
+            "claim": ""
+          },
+          {
+            "commit": "78f861af8dbda894152a355b1fb42a2efee7b3c7",
+            "path": "proposal.js",
+            "start_line": 359,
+            "end_line": 365,
+            "claim": ""
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HDRUM",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/2",
+      "known_source_scope": "Aggregate all11 drum voices. Default strength is127 on shared accent, otherwise saved accent_q7 (zero coerced to1). The first matching used T_VEL lane for pattern,part,(part<<4|voice),i0 supplies a valid1..127 step override; MOT_NONE/invalid falls back. Max aggregation occurs after velocity resolution.",
+      "payload": {
+        "id": "drum-velocity",
+        "data": "Aggregate all11 drum voices. Default strength is127 on shared accent, otherwise saved accent_q7 (zero coerced to1). The first matching used T_VEL lane for pattern,part,(part<<4|voice),i0 supplies a valid1..127 step override; MOT_NONE/invalid falls back. Max aggregation occurs after velocity resolution.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/home_pattern_glyph.h",
+            "start_line": 43,
+            "end_line": 68,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/home_pattern_glyph.h#L43"
+          }
+        ],
+        "r5": "No saved per-hit velocity/accent data participates in HOME. Uniform marks are occupancy only, even when source projection differs by saved velocity."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HBASS",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/3",
+      "known_source_scope": "HOME strength follows NOTE velocity and carries it through valid TIEs until REST. A leading wrapped TIE can inherit the last real NOTE. All-TIE and orphan-TIE runs remain silent. Velocity0 decodes as100; >127 clamps127. Pitch, transpose, BS_SLIDE, accent flag and release fraction are not encoded by this HOME projector.",
+      "payload": {
+        "id": "bass-note-tie-velocity",
+        "data": "HOME strength follows NOTE velocity and carries it through valid TIEs until REST. A leading wrapped TIE can inherit the last real NOTE. All-TIE and orphan-TIE runs remain silent. Velocity0 decodes as100; >127 clamps127. Pitch, transpose, BS_SLIDE, accent flag and release fraction are not encoded by this HOME projector.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/home_pattern_glyph.h",
+            "start_line": 76,
+            "end_line": 94,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/home_pattern_glyph.h#L76"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/seq/pattern.h",
+            "start_line": 23,
+            "end_line": 36,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/pattern.h#L23"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5560,
+            "end_line": 5571,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5560"
+          }
+        ],
+        "r5": "HOME has no bass step/gate/velocity data. Do not describe missing pitch/slide pictures as an existing visual feature that was removed: source HOME never showed them."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HBRIGHT",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/4",
+      "known_source_scope": "For nonzero strengthv: t=4+floor((v*12+63)/127); current assigned part uses t/16 of its part colour; noncurrent uses floor((t*9+8)/16)/16. Zero emits no mark. The1x3 column height is fixed; brightness, not column height, carries strength.",
+      "payload": {
+        "id": "brightness",
+        "data": "For nonzero strengthv: t=4+floor((v*12+63)/127); current assigned part uses t/16 of its part colour; noncurrent uses floor((t*9+8)/16)/16. Zero emits no mark. The1x3 column height is fixed; brightness, not column height, carries strength.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/home_pattern_glyph.h",
+            "start_line": 16,
+            "end_line": 29,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/home_pattern_glyph.h#L16"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5964,
+            "end_line": 5971,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5964"
+          }
+        ],
+        "r5": "Fixed-height uniform full-colour marks omit saved velocity and current/noncurrent brightness law."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HUSED",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/5",
+      "known_source_scope": "part_used tests all64 drum bits or real G_NOTE anywhere, regardless current length; BREAK any stored step. pattern_used instead counts any nonREST bass gate, including orphan/allTIE. Thus physical used-pad dim is not identical to a sounding thumbnail. Off-loop hit can make part_used/current tick true while all projected bins remain zero.",
+      "payload": {
+        "id": "used-vs-content",
+        "data": "part_used tests all64 drum bits or real G_NOTE anywhere, regardless current length; BREAK any stored step. pattern_used instead counts any nonREST bass gate, including orphan/allTIE. Thus physical used-pad dim is not identical to a sounding thumbnail. Off-loop hit can make part_used/current tick true while all projected bins remain zero.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 1805,
+            "end_line": 1830,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1805"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 6011,
+            "end_line": 6021,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6011"
+          }
+        ],
+        "r5": "usedPatterns is a manually maintained list, not derived from shared pattern content. Do not silently equate assigned/current/used/audible."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HASSIGN",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/6",
+      "known_source_scope": "Each used lane gets a current marker only when seq.ppat[part]==thatpattern; each part can differ. Queued909 target gets a separate frame at ui.frame&16 when different from current909. Chain endpoints underline their inclusive min..max interval. The printed pattern number uses seq.ppat[ui.part], while the normal HOME header and physical current pad anchor909.",
+      "payload": {
+        "id": "thumbnail-assignment-cue-chain",
+        "data": "Each used lane gets a current marker only when seq.ppat[part]==thatpattern; each part can differ. Queued909 target gets a separate frame at ui.frame&16 when different from current909. Chain endpoints underline their inclusive min..max interval. The printed pattern number uses seq.ppat[ui.part], while the normal HOME header and physical current pad anchor909.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 6000,
+            "end_line": 6029,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6000"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5471,
+            "end_line": 5482,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5471"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 8500,
+            "end_line": 8519,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8500"
+          }
+        ],
+        "r5": "Only S.pattern and S.queued exist; no per-part assignments, chain or bank. The queue frame is static. It can highlight target content only after a real pattern store exists."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HLANES",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/7",
+      "known_source_scope": "Each of five ensemble lanes reads its own current pattern. Drum occupancy ORs all11voices. Bass occupancy includes NOTE and valid carried TIE via note_start_of. BREAK uses raw16 step mask. Running drums/bass select base=eng_step[track]&~15; stopped shows first16. Current16-step lane is not the full-length8-bin thumbnail.",
+      "payload": {
+        "id": "ensemble-lanes",
+        "data": "Each of five ensemble lanes reads its own current pattern. Drum occupancy ORs all11voices. Bass occupancy includes NOTE and valid carried TIE via note_start_of. BREAK uses raw16 step mask. Running drums/bass select base=eng_step[track]&~15; stopped shows first16. Current16-step lane is not the full-length8-bin thumbnail.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5920,
+            "end_line": 5936,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5920"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5975,
+            "end_line": 5995,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5975"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 6031,
+            "end_line": 6046,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6031"
+          }
+        ],
+        "r5": "home() ignores shared kit steps and hardcodes four909kick marks; all other rows remain blank after editing their actual model data. No bass/BREAK note store exists for HOME."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HCURSOR",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/8",
+      "known_source_scope": "Each row uses its own eng_step[track] for a white underline when seq.playing, including empty/muted rows. Source whole-part mute dims left accent/name and occupied cells; thumbnail content retains stored part colours. Partial drum-track mute is not individually resolved by HOME occupancy; stored hit content remains.",
+      "payload": {
+        "id": "ensemble-cursor-mute",
+        "data": "Each row uses its own eng_step[track] for a white underline when seq.playing, including empty/muted rows. Source whole-part mute dims left accent/name and occupied cells; thumbnail content retains stored part colours. Partial drum-track mute is not individually resolved by HOME occupancy; stored hit content remains.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3463,
+            "end_line": 3465,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3463"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5975,
+            "end_line": 5995,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5975"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 6031,
+            "end_line": 6046,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6031"
+          }
+        ],
+        "r5": "No lane playhead is drawn. Mute merely underlines the name and uses one S.muted array also used elsewhere for track mute, conflating distinct owners."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HHDR",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/9",
+      "known_source_scope": "A live transient message replaces the header first (NEXT message includes a target miniature), except pickup remains a left hint with normal context. Normal HOME shows909 current+pending cue or SONG bar, tempo, metro phase, REC/save. ui.frame&16 changes pending cue ink even stopped; the separate PART header cue uses live-step phase. These paths must not be conflated.",
+      "payload": {
+        "id": "header-priority",
+        "data": "A live transient message replaces the header first (NEXT message includes a target miniature), except pickup remains a left hint with normal context. Normal HOME shows909 current+pending cue or SONG bar, tempo, metro phase, REC/save. ui.frame&16 changes pending cue ink even stopped; the separate PART header cue uses live-step phase. These paths must not be conflated.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5313,
+            "end_line": 5374,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5313"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5412,
+            "end_line": 5420,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5412"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5471,
+            "end_line": 5504,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5471"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5285,
+            "end_line": 5302,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5285"
+          }
+        ],
+        "r5": "header() always uses one scalar pattern and adds a global patternPicture; lacks temporary NEXT message, all-part target preview, chain and per-part context. Future stopped/WAIT disposition remains a design intent, not current-source assertion."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HCTRL",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/10",
+      "known_source_scope": "HOME white/pad down cues all5parts; second overlapping white press defines chain, release clears chain-first owner. K4 on nonpart HOME cues allparts. K3 selects global part and thereby selected-part identity/colour; it does not rewrite current pattern assignments. OCTAVE chooses bank0/1. Black1..5 toggles whole-part mute or pending bar mute, not track selection.",
+      "payload": {
+        "id": "home-controls",
+        "data": "HOME white/pad down cues all5parts; second overlapping white press defines chain, release clears chain-first owner. K4 on nonpart HOME cues allparts. K3 selects global part and thereby selected-part identity/colour; it does not rewrite current pattern assignments. OCTAVE chooses bank0/1. Black1..5 toggles whole-part mute or pending bar mute, not track selection.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3735,
+            "end_line": 3754,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3735"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3786,
+            "end_line": 3789,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3786"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4158,
+            "end_line": 4160,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4158"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4589,
+            "end_line": 4625,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4589"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3523,
+            "end_line": 3541,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3523"
+          }
+        ],
+        "r5": "padDown sets S.queued=n+1, without bank, all-part ownership, chain/adoption. OCTAVE routing only handles drum SEQ. black() toggles S.muted immediately and does not represent pending mute."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "HSONG",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/home-ensemble/HOME-ENSEMBLE-CONTRACT.json",
+      "json_pointer": "/contracts/11",
+      "known_source_scope": "SONG white/pad writes all5 pattern IDs to the selected bar through song_fill, marks dirty and advances selection if another bar fits. It does not cue playback. SONG black toggles selected-bar mute bits. PATCH held bypasses that branch and follows HOME pattern-cue/chain route. Valid selected bar and END/empty differ for current-pad priority.",
+      "payload": {
+        "id": "home-vs-song",
+        "data": "SONG white/pad writes all5 pattern IDs to the selected bar through song_fill, marks dirty and advances selection if another bar fits. It does not cue playback. SONG black toggles selected-bar mute bits. PATCH held bypasses that branch and follows HOME pattern-cue/chain route. Valid selected bar and END/empty differ for current-pad priority.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3718,
+            "end_line": 3754,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3718"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 8500,
+            "end_line": 8519,
+            "claim": "",
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8500"
+          }
+        ],
+        "r5": "padDown HOME/SONG shared branch queues target in both. This packet records the contrast only; the incumbent Song helper owns full song/K5 contract."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SPAGE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/0",
+      "known_source_scope": "Keep view parameter page, ui.spage sixteen-step window and ui.pbank pattern bank independent. View page memory is per part for PART/SEQ/GEN and global per other view. ui.spage is shared across parts; selecting another part does not reset it.",
+      "payload": {
+        "id": "three-page-identities",
+        "rule": "Keep view parameter page, ui.spage sixteen-step window and ui.pbank pattern bank independent. View page memory is per part for PART/SEQ/GEN and global per other view. ui.spage is shared across parts; selecting another part does not reset it.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 1427,
+            "end_line": 1431,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1427"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4158,
+            "end_line": 4166,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4158"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4589,
+            "end_line": 4607,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4589"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SWIN",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/1",
+      "known_source_scope": "SEQ uses absolute step = ui.spage*16 + white index. Windows 0..3 are bounded, do not wrap and do not follow playback. Grid and pad content use that window. HOME ensemble separately follows each playing part eng_step&~15.",
+      "payload": {
+        "id": "manual-window",
+        "rule": "SEQ uses absolute step = ui.spage*16 + white index. Windows 0..3 are bounded, do not wrap and do not follow playback. Grid and pad content use that window. HOME ensemble separately follows each playing part eng_step&~15.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3255,
+            "end_line": 3261,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3255"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3412,
+            "end_line": 3417,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3412"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4158,
+            "end_line": 4166,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4158"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5509,
+            "end_line": 5518,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5509"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 6035,
+            "end_line": 6046,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6035"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 8445,
+            "end_line": 8456,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8445"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SOCT",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/2",
+      "known_source_scope": "OCT priority: BT+OCT selects copy bank; held melodic step in PART/SEQ with REC off changes its pitch by an octave; GEN generates/mutates; REC/FREE PLAY changes keyboard octave or writes TIE/REST through modifiers; HOME/SONG selects pattern bank; only the remaining route selects the step window.",
+      "payload": {
+        "id": "octave-priority",
+        "rule": "OCT priority: BT+OCT selects copy bank; held melodic step in PART/SEQ with REC off changes its pitch by an octave; GEN generates/mutates; REC/FREE PLAY changes keyboard octave or writes TIE/REST through modifiers; HOME/SONG selects pattern bank; only the remaining route selects the step window.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4108,
+            "end_line": 4166,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4108"
+          }
+        ],
+        "constraint": "A source-faithful page plan must state normal grid mode, no held melodic step/modifier and REC/FREEPLAY conditions."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SLEN",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/3",
+      "known_source_scope": "Drum SEQ K5 length 1..64, K6 rate, K7/K8 unmapped. Melodic SEQ first page K5 length, K6 rate, K7 direction, K8 transpose ±24 semitones. Length is stored as value+1. These controls edit the current assigned part pattern, never the pending target.",
+      "payload": {
+        "id": "length-rate-direction",
+        "rule": "Drum SEQ K5 length 1..64, K6 rate, K7/K8 unmapped. Melodic SEQ first page K5 length, K6 rate, K7 direction, K8 transpose ±24 semitones. Length is stored as value+1. These controls edit the current assigned part pattern, never the pending target.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 437,
+            "end_line": 457,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L437"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 620,
+            "end_line": 641,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L620"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 765,
+            "end_line": 772,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L765"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 1475,
+            "end_line": 1490,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1475"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SRATE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/4",
+      "known_source_scope": "Rate order 1/16, 1/16T, 1/32, 1/8T, 1/8, 1/4 has 24-ppqn tick counts 6,4,3,8,12,24. Named controls move one enum value per accepted event; length and transpose accelerate. Four positive rate value events reach 1/8 from 1/16; physical turn sessions are unqualified.",
+      "payload": {
+        "id": "rate-values",
+        "rule": "Rate order 1/16, 1/16T, 1/32, 1/8T, 1/8, 1/4 has 24-ppqn tick counts 6,4,3,8,12,24. Named controls move one enum value per accepted event; length and transpose accelerate. Four positive rate value events reach 1/8 from 1/16; physical turn sessions are unqualified.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 437,
+            "end_line": 455,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L437"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3100,
+            "end_line": 3131,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3100"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 27,
+            "end_line": 27,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L27"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 61,
+            "end_line": 99,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L61"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SDIR",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/5",
+      "known_source_scope": "Only melodic patterns have FWD, REV, PING and RND. FWD=(p+1)%len; REV=(p-1+len)%len. PING reflects without repeated endpoints and returns directly to the new endpoint after live length shrink. RANDOM commits an RNG choice; lookahead assumes forward. A random pass counts LEN played slots, not visits to position zero. First fire after a top restart is zero-based step0 except REV, which starts atlen-1; RANDOM does not make an RNG choice on that first fire.",
+      "payload": {
+        "id": "direction-values",
+        "rule": "Only melodic patterns have FWD, REV, PING and RND. FWD=(p+1)%len; REV=(p-1+len)%len. PING reflects without repeated endpoints and returns directly to the new endpoint after live length shrink. RANDOM commits an RNG choice; lookahead assumes forward. A random pass counts LEN played slots, not visits to position zero. First fire after a top restart is zero-based step0 except REV, which starts atlen-1; RANDOM does not make an RNG choice on that first fire.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 439,
+            "end_line": 455,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L439"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 112,
+            "end_line": 143,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L112"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 648,
+            "end_line": 664,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L648"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 620,
+            "end_line": 638,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L620"
+          }
+        ],
+        "limit": "Source rules, not measured timing or deterministic random event outcomes."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SLIVE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/6",
+      "known_source_scope": "UI writes length/rate immediately without resetting the current scheduled timer. Internal timing reads the new value at the next step calculation; the accepted external-clock path reads new rate/ticks-per-step. No page jump or stored-hit deletion occurs. PING explicitly handles an old head beyond new length; other directions use their stated formula.",
+      "payload": {
+        "id": "live-length-rate-boundary",
+        "rule": "UI writes length/rate immediately without resetting the current scheduled timer. Internal timing reads the new value at the next step calculation; the accepted external-clock path reads new rate/ticks-per-step. No page jump or stored-hit deletion occurs. PING explicitly handles an old head beyond new length; other directions use their stated formula.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 765,
+            "end_line": 772,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L765"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 77,
+            "end_line": 87,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L77"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 112,
+            "end_line": 143,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L112"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 620,
+            "end_line": 698,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L620"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 840,
+            "end_line": 864,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L840"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SDPRESS",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/7",
+      "known_source_scope": "Drum empty step creates on down. Existing step removes only on matching step/kit/voice/pattern release under 300ms with !created && !used. A long hold keeps it. CHORD+white toggles shared accent. Input rejects >=64, not >=length: hidden off-loop hits can exist without extending the loop.",
+      "payload": {
+        "id": "drum-press-release",
+        "rule": "Drum empty step creates on down. Existing step removes only on matching step/kit/voice/pattern release under 300ms with !created && !used. A long hold keeps it. CHORD+white toggles shared accent. Input rejects >=64, not >=length: hidden off-loop hits can exist without extending the loop.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3252,
+            "end_line": 3295,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3252"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5514,
+            "end_line": 5549,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5514"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SBPRESS",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/8",
+      "known_source_scope": "Normal melodic grid press captures part, pattern and absolute step; creates NOTE from REST; and may preview under KEY SOUND policy. An existing untouched short tap removes it. Input checks >=64 rather than current length. Input processing explicitly cancels a held bass step if its part/pattern changed.",
+      "payload": {
+        "id": "bass-press-release",
+        "rule": "Normal melodic grid press captures part, pattern and absolute step; creates NOTE from REST; and may preview under KEY SOUND policy. An existing untouched short tap removes it. Input checks >=64 rather than current length. Input processing explicitly cancels a held bass step if its part/pattern changed.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3411,
+            "end_line": 3451,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3411"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4460,
+            "end_line": 4465,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4460"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SCHANCE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/9",
+      "known_source_scope": "Held K2 chance works on PART/SEQ with no overlay; melodic REC suppresses it. Owner is current pattern, part, T_PROB, encoded (part<<4|drum voice or0), index0. Negative events move 100→95→...→5 then 1:2,2:2,1:3...8:8; positive reverses. 100 stores MOT_NONE and frees an otherwise empty lane. UI offers no 0%. Allocation failure says MOTION FULL; its already-set used flag preserves the held existing hit.",
+      "payload": {
+        "id": "held-probability",
+        "rule": "Held K2 chance works on PART/SEQ with no overlay; melodic REC suppresses it. Owner is current pattern, part, T_PROB, encoded (part<<4|drum voice or0), index0. Negative events move 100→95→...→5 then 1:2,2:2,1:3...8:8; positive reverses. 100 stores MOT_NONE and frees an otherwise empty lane. UI offers no 0%. Allocation failure says MOTION FULL; its already-set used flag preserves the held existing hit.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3032,
+            "end_line": 3079,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3032"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4554,
+            "end_line": 4556,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4554"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.h",
+            "start_line": 56,
+            "end_line": 69,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.h#L56"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SPROB",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/10",
+      "known_source_scope": "Probability applies after motion step and before the hit. Percentage RNG outcome is not predictable from a mockup. A:B compares part pass counter modulo B; drums/BREAK count wraps, melodic RANDOM counts LEN played slots. T_PROB does not erase stored hit/NOTE content.",
+      "payload": {
+        "id": "probability-playback",
+        "rule": "Probability applies after motion step and before the hit. Percentage RNG outcome is not predictable from a mockup. A:B compares part pass counter modulo B; drums/BREAK count wraps, melodic RANDOM counts LEN played slots. T_PROB does not erase stored hit/NOTE content.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/engine.c",
+            "start_line": 945,
+            "end_line": 967,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L945"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 648,
+            "end_line": 674,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L648"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.h",
+            "start_line": 56,
+            "end_line": 69,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.h#L56"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SLCK",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/11",
+      "known_source_scope": "SEQ→PARA preserves a held gesture. PART→SEQ while held refuses RELEASE STEP FIRST. In PART with no overlay, K5–8 lock typed sound owner. BT+knob clears that step value only. Normal playing controls use base/motion policy. Stopped release restores the row parameter bases.",
+      "payload": {
+        "id": "held-para-lock",
+        "rule": "SEQ→PARA preserves a held gesture. PART→SEQ while held refuses RELEASE STEP FIRST. In PART with no overlay, K5–8 lock typed sound owner. BT+knob clears that step value only. Normal playing controls use base/motion policy. Stopped release restores the row parameter bases.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 2754,
+            "end_line": 2800,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2754"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 2840,
+            "end_line": 2861,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2840"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 2929,
+            "end_line": 3006,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2929"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3645,
+            "end_line": 3656,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3645"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4630,
+            "end_line": 4665,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4630"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SMHELD",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/12",
+      "known_source_scope": "For a held melodic SEQ step, K5 edits pitch, K6 cycles REST/NOTE/TIE, K7 toggles accent, K8 toggles slide and K3 edits velocity 1..127. These replace the normal sequence controls while held. OCT changes note octave. A release in PART completes the original SEQ gesture.",
+      "payload": {
+        "id": "melodic-held-seq-controls",
+        "rule": "For a held melodic SEQ step, K5 edits pitch, K6 cycles REST/NOTE/TIE, K7 toggles accent, K8 toggles slide and K3 edits velocity 1..127. These replace the normal sequence controls while held. OCT changes note octave. A release in PART completes the original SEQ gesture.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3645,
+            "end_line": 3656,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3645"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4116,
+            "end_line": 4117,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4116"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4575,
+            "end_line": 4587,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4575"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4651,
+            "end_line": 4665,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4651"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SDPAGE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/13",
+      "known_source_scope": "A drum OCT page change does not cancel its captured absolute held step. Hold step16, move to17–32: lock/chance owner remains step16 if otherwise valid. Release computes current page+white, so matching-step test fails; it deletes neither old16 nor new32, then clears hold. It does not create step32 without a new down.",
+      "payload": {
+        "id": "drum-held-page-boundary",
+        "rule": "A drum OCT page change does not cancel its captured absolute held step. Hold step16, move to17–32: lock/chance owner remains step16 if otherwise valid. Release computes current page+white, so matching-step test fails; it deletes neither old16 nor new32, then clears hold. It does not create step32 without a new down.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 2840,
+            "end_line": 2843,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2840"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3255,
+            "end_line": 3295,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3255"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4162,
+            "end_line": 4166,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4162"
+          }
+        ],
+        "classification": "Direct code consequence; not reproduced in this task."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SBPAGE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/14",
+      "known_source_scope": "With a held melodic step and REC off, OCT transposes that note instead of changing window. Release before paging. Valid TIE continuation across visible16→17 and loop wrap is drawn; only a real NOTE can seed it. SLIDE curve is drawn only within the visible row; separate SL flags remain.",
+      "payload": {
+        "id": "melodic-held-page-boundary",
+        "rule": "With a held melodic step and REC off, OCT transposes that note instead of changing window. Release before paging. Valid TIE continuation across visible16→17 and loop wrap is drawn; only a real NOTE can seed it. SLIDE curve is drawn only within the visible row; separate SL flags remain.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4116,
+            "end_line": 4117,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4116"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5560,
+            "end_line": 5565,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5560"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5624,
+            "end_line": 5646,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5624"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SADOPT",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/15",
+      "known_source_scope": "Pending cues leave edits on the current pattern. After adoption, melodic hold cancels explicitly. Drum held_drum_step fails when captured pattern differs from new seq.ppat; no blanket drum cancel runs there. A later PART knob event can consequently take the normal base/motion route after lock_step becomes -1. An old release cannot short-tap delete the new pattern.",
+      "payload": {
+        "id": "held-cue-adoption",
+        "rule": "Pending cues leave edits on the current pattern. After adoption, melodic hold cancels explicitly. Drum held_drum_step fails when captured pattern differs from new seq.ppat; no blanket drum cancel runs there. A later PART knob event can consequently take the normal base/motion route after lock_step becomes -1. An old release cannot short-tap delete the new pattern.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 2840,
+            "end_line": 2853,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2840"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3262,
+            "end_line": 3275,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3262"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4464,
+            "end_line": 4465,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4464"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4630,
+            "end_line": 4674,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4630"
+          }
+        ],
+        "constraint": "Do not promise a lock remains armed across adoption. The integrator must disposition and validate this affected interaction; this helper does not fix source."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SOWNER",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/16",
+      "known_source_scope": "ui.part/track selection, seq.ppat current assignment, seq.pcue pending target, eng_step and actual sounding runtime are separate. K3 part change cancels holds. K4 on PART/SEQ/GEN increments that part pending target/current assignment; elsewhere, including HOME/MIX, it cues all five. K4 clears chain.",
+      "payload": {
+        "id": "selected-current-queued",
+        "rule": "ui.part/track selection, seq.ppat current assignment, seq.pcue pending target, eng_step and actual sounding runtime are separate. K3 part change cancels holds. K4 on PART/SEQ/GEN increments that part pending target/current assignment; elsewhere, including HOME/MIX, it cues all five. K4 clears chain.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 339,
+            "end_line": 342,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L339"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4589,
+            "end_line": 4625,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4589"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 1242,
+            "end_line": 1254,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L1242"
+          }
+        ],
+        "audibility": "Current assignment does not prove audible output; mute, part-off, WAIT, empty content, probability and engine availability remain independent."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SHOME",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/17",
+      "known_source_scope": "HOME white/pad down cues all parts and clears chain. A second overlapping white establishes chain endpoints. Releases clear the first-press owner. Pattern index is ui.pbank*16+white; OCT chooses bank0/1. Per-part cues can differ; HOME pending display/pad anchors909, so another part pending cue may be invisible there.",
+      "payload": {
+        "id": "home-cue-chain-bank",
+        "rule": "HOME white/pad down cues all parts and clears chain. A second overlapping white establishes chain endpoints. Releases clear the first-press owner. Pattern index is ui.pbank*16+white; OCT chooses bank0/1. Per-part cues can differ; HOME pending display/pad anchors909, so another part pending cue may be invisible there.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3700,
+            "end_line": 3702,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3700"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3735,
+            "end_line": 3754,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3735"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 4158,
+            "end_line": 4160,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4158"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5471,
+            "end_line": 5482,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5471"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 6000,
+            "end_line": 6029,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6000"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 8500,
+            "end_line": 8519,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8500"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SBOUND",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/18",
+      "known_source_scope": "At909 wrap or Start: song playback reads bar and clears pcues; otherwise every pending per-part cue is copied to next assignment and cleared. Any cued part suppresses chain advance at that boundary. Without cue, chain advances only at its slot boundary. Queued mutes apply; changed assignments commit; changed non909 tracks restart. Motion/p-lock sink runs before that step hit.",
+      "payload": {
+        "id": "boundary-priority",
+        "rule": "At909 wrap or Start: song playback reads bar and clears pcues; otherwise every pending per-part cue is copied to next assignment and cleared. Any cued part suppresses chain advance at that boundary. Without cue, chain advances only at its slot boundary. Queued mutes apply; changed assignments commit; changed non909 tracks restart. Motion/p-lock sink runs before that step hit.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 538,
+            "end_line": 606,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L538"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 620,
+            "end_line": 674,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L620"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 707,
+            "end_line": 731,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L707"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 1117,
+            "end_line": 1131,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L1117"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SCHAIN",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/19",
+      "known_source_scope": "A chain slot lasts the longest playing part length×rate, rounded up to whole909 passes; minimum one909 pass. Muted, part-off and empty parts do not extend it. Explicit per-part cues adopt at next909 bar even if the chain slot is longer. Do not equate a sixteen-step window,909 bar and chain slot.",
+      "payload": {
+        "id": "chain-slot-length",
+        "rule": "A chain slot lasts the longest playing part length×rate, rounded up to whole909 passes; minimum one909 pass. Muted, part-off and empty parts do not extend it. Explicit per-part cues adopt at next909 bar even if the chain slot is longer. Do not equate a sixteen-step window,909 bar and chain slot.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 439,
+            "end_line": 535,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L439"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 571,
+            "end_line": 587,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L571"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SMUTE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/20",
+      "known_source_scope": "HOME black1–5 toggles whole-part mute; PATCH+black in drum views toggles track mute. With queued_mutes && playing, requests XOR mute_q/vmute_q instead of current masks. Repeating cancels. At boundary queues clear and XOR current masks. These are global part/voice masks, not pattern-owned: cue adoption and mute can apply together to the new pattern. Whole-part unmute preserves independent vmute bits.",
+      "payload": {
+        "id": "mute-owner-and-collision",
+        "rule": "HOME black1–5 toggles whole-part mute; PATCH+black in drum views toggles track mute. With queued_mutes && playing, requests XOR mute_q/vmute_q instead of current masks. Repeating cancels. At boundary queues clear and XOR current masks. These are global part/voice masks, not pattern-owned: cue adoption and mute can apply together to the new pattern. Whole-part unmute preserves independent vmute bits.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3463,
+            "end_line": 3465,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3463"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3523,
+            "end_line": 3541,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3523"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3560,
+            "end_line": 3572,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3560"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3756,
+            "end_line": 3762,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3756"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 3786,
+            "end_line": 3797,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3786"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 537,
+            "end_line": 545,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L537"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SSTOP",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/21",
+      "known_source_scope": "Stop applies queued mutes without a clock/bar wait. The stopped advance path adopts pending pcues without clocks. Start from top processes bar_end before arming tracks. EXTERNAL WAIT keeps playing true but pauses steps; ordinary cues/mutes wait for an accepted boundary unless Stop/Start consumes them. WAIT is EXTERNAL && playing && ext_since>FS/2; metro is neutral in STOP/WAIT.",
+      "payload": {
+        "id": "stop-start-wait",
+        "rule": "Stop applies queued mutes without a clock/bar wait. The stopped advance path adopts pending pcues without clocks. Start from top processes bar_end before arming tracks. EXTERNAL WAIT keeps playing true but pauses steps; ordinary cues/mutes wait for an accepted boundary unless Stop/Start consumes them. WAIT is EXTERNAL && playing && ext_since>FS/2; metro is neutral in STOP/WAIT.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 766,
+            "end_line": 801,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L766"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 988,
+            "end_line": 997,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L988"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 1030,
+            "end_line": 1103,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L1030"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/seq/sequencer.c",
+            "start_line": 1238,
+            "end_line": 1240,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/sequencer.c#L1238"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SHDR",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/22",
+      "known_source_scope": "Normal part SEQ header shows current and pending target. Step-range text appears only without pending cue, without active chain and with length>16. Cue can hide range while the manual window remains unchanged. Transient messages take header priority. HOME header anchors909; the number under its thumbnail follows the selected part assignment.",
+      "payload": {
+        "id": "header-range-priority",
+        "rule": "Normal part SEQ header shows current and pending target. Step-range text appears only without pending cue, without active chain and with length>16. Cue can hide range while the manual window remains unchanged. Transient messages take header priority. HOME header anchors909; the number under its thumbnail follows the selected part assignment.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5347,
+            "end_line": 5371,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5347"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 5471,
+            "end_line": 5482,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L5471"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 6024,
+            "end_line": 6027,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L6024"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SLED",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/sequence-cue/SEQUENCE-CUE-CONTRACT.json",
+      "json_pointer": "/source_contracts/23",
+      "known_source_scope": "Normal drum SEQ pads show selected voice or CHORD accent in the manual window, bounded by length; playing head inverts content; held keys OR afterwards even with LIGHTS off. HOME used dim/current909 bright/cue909 bright on bit8. SONG bright uses valid selected bar; END has no fallback or cue blink. Bright wins over dim. Hue is selected part except visible drum MIX kit. PLAY uses WAIT bit32 before normal beat; REC shows arm; OCTAVE+ means bank in HOME/SONG, otherwise ui.spage; BT uses save phases. Clip owns its feedback separately; there are no37-keybed lamps.",
+      "payload": {
+        "id": "pad-button-lights",
+        "rule": "Normal drum SEQ pads show selected voice or CHORD accent in the manual window, bounded by length; playing head inverts content; held keys OR afterwards even with LIGHTS off. HOME used dim/current909 bright/cue909 bright on bit8. SONG bright uses valid selected bar; END has no fallback or cue blink. Bright wins over dim. Hue is selected part except visible drum MIX kit. PLAY uses WAIT bit32 before normal beat; REC shows arm; OCTAVE+ means bank in HOME/SONG, otherwise ui.spage; BT uses save phases. Clip owns its feedback separately; there are no37-keybed lamps.",
+        "source": [
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/ui.c",
+            "start_line": 8445,
+            "end_line": 8583,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L8445"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/main_fm1.c",
+            "start_line": 845,
+            "end_line": 880,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L845"
+          },
+          {
+            "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+            "also_identical_at": "d158444101d569f9ee64ba05d7cb54f24de1be30",
+            "path": "firmware/src/app/plat_fm1.c",
+            "start_line": 157,
+            "end_line": 179,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/plat_fm1.c#L157"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "MWRITE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/motion/write",
+      "known_source_scope": "Current writable R_ENG base update then eligible playing REC motion request; not exclusive capture strategy.",
+      "payload": {
+        "entry": "A writable R_ENG control is turned through turn_ref. Source updates its base through pref_set_impl first, then calls motion_touch.",
+        "eligibility": "motion_touch returns unless R_ENG and seq.playing. ui.rec selects recording; stationary controls make no request. It has no independent capture-class mode.",
+        "destination": "Current seq.ppat[engine_motion_part(target,voice)], that owning part, and the target/voice/id triple; not necessarily the selected visible part.",
+        "allocation": "Find existing lane or allocate first unused pool slot. Allocation initializes every step to MOT_NONE, increments generation and publishes used last.",
+        "step_write": "rec_req is a flag. On the next matching active-part step, capture the then-current base; several between-step moves coalesce into the latest base. That step is written; untouched steps retain their data.",
+        "interpolation": "For a continuing gesture, d=(step-rec_last+pass)%pass. If2<=d<=4 and prior written value exists, fill the intervening positions with integer linear interpolation. Do not infer reverse/random interpolation beyond this exact source formula.",
+        "audible_owner": "During recording gesture, applied=MOT_NONE and ramps are disabled, so the knob/base owns sound. After more than4 quiet matching-part steps the gesture ends and lane playback resumes.",
+        "full_pool": "MOTION FULL is a1300ms source message. New lane allocation fails, but base editing happened earlier and is not rolled back by this failure.",
+        "refs": [
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2783,
+            "last_line": 2800,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2783"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 3100,
+            "last_line": 3141,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3100"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 404,
+            "last_line": 410,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L404"
+          },
+          {
+            "path": "firmware/src/seq/motion.c",
+            "first_line": 78,
+            "last_line": 118,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/motion.c#L78"
+          },
+          {
+            "path": "firmware/src/seq/motion.c",
+            "first_line": 181,
+            "last_line": 201,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/motion.c#L181"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "MOVERRIDE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/motion/live_override",
+      "known_source_scope": "Current REC-off live hold over an existing lane, not saved destructive replacement.",
+      "payload": {
+        "entry": "Playing, REC off, turn a writable R_ENG control that already has a lane. Base edits first, then hold_req is set. No existing lane means ordinary base edit only.",
+        "duration": "Next matching-part step sets hold_left=pass and suppresses lane/ramp for pass matching active-part step events. A new turn renews the request. This is one part pass, not a fixed wall-clock interval.",
+        "persistent_consequence": "Temporary suppression of lane playback does not make the base edit temporary. The new base remains and is used at MOT_NONE positions and when the lane releases.",
+        "refs": [
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2784,
+            "last_line": 2800,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2784"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 3100,
+            "last_line": 3141,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3100"
+          },
+          {
+            "path": "firmware/src/seq/motion.c",
+            "first_line": 78,
+            "last_line": 118,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/motion.c#L78"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "MRELEASE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/motion/playback_and_release",
+      "known_source_scope": "Current lane playback/base restoration and request lifecycle.",
+      "payload": {
+        "playback": "Only active pattern lanes apply. Departing pattern lanes restore first and discard queued rec/hold requests. An explicit value applies at the step; a MOT_NONE step restores exact base when the restore callback exists.",
+        "ramp": "Ramp only when current and next positions are both explicit and unequal. motion_tick interpolates over the measured previous even/odd step length. No length yet means no first-step ramp.",
+        "clock": "Engine calls motion_tick only while motion is enabled, transport is playing and external clock is not waiting. A WAIT condition is not a completed motion write.",
+        "stop_reset": "motion_release restores eligible applied controls, cancels recording/hold/ramp history and resets measured step times; it does not delete saved lane data. Engine invokes it on playing→stopped, disabled motion, or motion reset.",
+        "base": "Original synth controls restore exact source base rather than a rounded display q. Performance bend/damper restore their live wheel state. Other targets restore source sound values; probability defaults100 and drum-velocity override defaults0/legacy accent.",
+        "refs": [
+          {
+            "path": "firmware/src/seq/motion.c",
+            "first_line": 39,
+            "last_line": 163,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/seq/motion.c#L39"
+          },
+          {
+            "path": "firmware/src/app/engine.c",
+            "first_line": 1231,
+            "last_line": 1312,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L1231"
+          },
+          {
+            "path": "firmware/src/app/engine.c",
+            "first_line": 2878,
+            "last_line": 2902,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L2878"
+          },
+          {
+            "path": "firmware/src/app/engine.c",
+            "first_line": 2921,
+            "last_line": 2929,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L2921"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "MCLEAR",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/motion/whole_lane_clear",
+      "known_source_scope": "BT+mapped knob clears current pattern parameter lane; current held-lock priority remains.",
+      "payload": {
+        "gesture": "With no eligible held-step lock, hold physical BT and turn its current-page assigned K5–K8 control. K2/K3/K4 are not this clear gesture.",
+        "priority": "Held-step lock handling comes first; synth held-step locking is disabled while REC is on. SEQ held-note editing also comes before BT lane clear.",
+        "effect": "If lane exists, engine_motion_clear marks unused, cancels queued requests/ramp and queues eligible base restore; UI restores base, marks dirty and says MOTION CLEARED: <parameter>. No lane says NO MOTION ON <parameter>.",
+        "release": "BT is marked used before the clear attempt, including no-lane outcome. Its release cannot trigger the ordinary tap-to-save action.",
+        "refs": [
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2802,
+            "last_line": 2818,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2802"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2847,
+            "last_line": 2854,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2847"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 4624,
+            "last_line": 4675,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4624"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 4518,
+            "last_line": 4526,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4518"
+          },
+          {
+            "path": "firmware/src/app/engine.c",
+            "first_line": 1330,
+            "last_line": 1346,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L1330"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 705,
+            "last_line": 712,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L705"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "MSTEP",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/motion/single_step_clear",
+      "known_source_scope": "Current single-step lock clearing, distinct from whole-lane clear.",
+      "payload": {
+        "gesture": "In PART, hold an eligible step, hold BT and turn its assigned K5–K8 parameter.",
+        "scope": "Only that lane position becomes MOT_NONE; other positions stay. If no explicit positions remain, free the lane. If no lane or no position existed, stop without deleting anything else.",
+        "preview": "Stopped lock edit previews through engine_set until release; stopped clear restores base. UI lock scope suppresses motion even when held step has no lock. Release returns to base or currently applied motion as appropriate.",
+        "refs": [
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2838,
+            "last_line": 2863,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2838"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2930,
+            "last_line": 2993,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2930"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2887,
+            "last_line": 2926,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2887"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "MOWNER",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/motion/ownership",
+      "known_source_scope": "Current target/voice to part ownership.",
+      "payload": {
+        "T_909": "PART_909=0",
+        "T_808": "PART_808=1",
+        "T_303": "PART_303A+(voice&1), canonical2/3",
+        "T_BRK": "PART_BRK=4",
+        "T_MIX": "voice when voice<5; otherwise909",
+        "T_PROB_T_VEL": "voice>>4 when <5; otherwise909",
+        "T_FX_T_MST_other": "909, the bar",
+        "refs": [
+          {
+            "path": "firmware/src/app/engine.c",
+            "first_line": 1314,
+            "last_line": 1326,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/engine.c#L1314"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "PKEY",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/panic_recovery/keyboard",
+      "known_source_scope": "FX+SEQ chord, consumed releases and rearm; no dedicated current panic LCD receipt.",
+      "payload": {
+        "gesture": "Physical FX + physical SEQ, in either order; fire when the second member becomes held. These are not SEQ PLAY or SEQ REC.",
+        "priority": "input calls keyboard_panic before normal button dispatch and consumes chord member edges through final release. Normal FX/SEQ navigation occurs on unconsumed release; successful chord does not navigate those pages.",
+        "rearm": "Fires once per chord. Both members must be released before another fire. Unrelated held controls are ignored. Controls held across project transfer are inhibited until all chord members release.",
+        "feedback": "This keyboard source route does not call say(), change view, toggle REC/PLAY, or define a dedicated panic LED. Existing view/transport LEDs remain source-controlled.",
+        "refs": [
+          {
+            "path": "firmware/src/app/panic_chord.h",
+            "first_line": 21,
+            "last_line": 55,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/panic_chord.h#L21"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 4174,
+            "last_line": 4196,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4174"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 4476,
+            "last_line": 4495,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4476"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 4518,
+            "last_line": 4526,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4518"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 269,
+            "last_line": 279,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L269"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "PSMC",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/panic_recovery/smc",
+      "known_source_scope": "Explicit DAW-only SMC chord; this is not every SMC routing rule.",
+      "payload": {
+        "gesture": "Same physical SMC peer BANK L(0x2E)+BANK R(0x2F), explicit DAW mode only. Channel arrows are not members. Two peers cannot jointly form a chord.",
+        "single_tap": "A DAW bank press waits for its real release before normal bank navigation, so first-member navigation cannot escape ahead of a chord. No timer threshold is used.",
+        "contexts": "User mode/raw User NoteOn and MMC are ineligible; mode changes inhibit an already-held member until all release. Blocked restoration/test routing still processes bank releases to retire ownership.",
+        "effect": "Eligible chord calls the same engine_request_notes_off. It is not Loopy stop or a full MIDI device reset.",
+        "refs": [
+          {
+            "path": "firmware/src/app/smc_mixer.c",
+            "first_line": 2279,
+            "last_line": 2357,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/smc_mixer.c#L2279"
+          },
+          {
+            "path": "firmware/src/app/smc_mixer.c",
+            "first_line": 2425,
+            "last_line": 2436,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/smc_mixer.c#L2425"
+          },
+          {
+            "path": "firmware/src/app/smc_mixer.c",
+            "first_line": 2501,
+            "last_line": 2513,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/smc_mixer.c#L2501"
+          },
+          {
+            "path": "firmware/src/app/panic_chord.h",
+            "first_line": 21,
+            "last_line": 55,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/panic_chord.h#L21"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "PCLIP",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/panic_recovery/clip_keys",
+      "known_source_scope": "Clip Keys all-off path and its separate scope.",
+      "payload": {
+        "gesture": "In active clip-key context, press and release NOTE REPEAT alone. It fires on release only if it was not used with ARP for LATCH.",
+        "effect": "ck_all_off drains queued human notes, sends key note-offs, stops the current arp note and clears the arp/live-note list. Then send MIDI CC123 value0 on the configured clip-key channel and display PANIC.",
+        "limits": "This is the clip-key MIDI route; it is not the normal NOTE REPEAT→MIX tap and does not establish Loopy transport stop, FX-tail kill or external device response.",
+        "refs": [
+          {
+            "path": "firmware/src/app/main_fm1.c",
+            "first_line": 1300,
+            "last_line": 1309,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1300"
+          },
+          {
+            "path": "firmware/src/app/main_fm1.c",
+            "first_line": 1638,
+            "last_line": 1674,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1638"
+          },
+          {
+            "path": "firmware/src/app/main_fm1.c",
+            "first_line": 1940,
+            "last_line": 1965,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/main_fm1.c#L1940"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "PUNDO",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/panic_recovery/undo_recovery",
+      "known_source_scope": "Current scoped history and admission, not automatic take objects.",
+      "payload": {
+        "gesture": "Normal local context PATCH+SEQ REC undoes; PATCH+SEQ PLAY redoes. Clip history/transport interceptors run before normal local transport handling and retain their own scope.",
+        "grouping": "Undo normally groups edits between400ms quiet moments or a recording pass. do_undo first finishes note recorder ownership and commits the current snapshot. Motion changes set undo_lanes and request engine_motion_reset, releasing old applied motion.",
+        "limits": "Tagged-sound/CP1 admission and pending outcomes remain with incumbent; this extraction does not resolve them. No persistence round trip or audible recovery was executed.",
+        "refs": [
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2043,
+            "last_line": 2090,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2043"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2140,
+            "last_line": 2159,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2140"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2209,
+            "last_line": 2223,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2209"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 4009,
+            "last_line": 4035,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4009"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 4498,
+            "last_line": 4513,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4498"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "COPY",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/motion-copy-recovery/contracts.json",
+      "json_pointer": "/five_part_copy",
+      "known_source_scope": "Native BT+destination all-five-part copy, occupancy question, per-part source tuple and partial capacity limits.",
+      "payload": {
+        "entry": "Normal non-clip routing: hold BT; choose destination white key/pad mapped to one of16 pattern positions in current bank. BT+OCTAVE− selects patterns1–16; BT+OCTAVE+ selects17–32.",
+        "invitation": "After BT alone250ms, with no keys/other buttons/turn after press and no question, show CHOOSE PASTE TARGET. No source snapshot exists at this stage; releasing an otherwise unused BT still follows tap-save.",
+        "source_capture": "At destination key-down, first mark BT used. If all five current seq.ppat equal destination, return with no copy. Otherwise store the five current sounding/adopted seq.ppat IDs in ui.paste_src; queued pcue targets are not selected. The tuple is stable through confirmation, not an early raw-byte snapshot.",
+        "occupied": "pattern_used tests musical drum hits, synth gates/ties and BREAK steps. Used destination asks PASTE OVER Pn? / IT HAS NOTES. SCALE confirms; PATCH restores caller and says CANCELLED. SEQ PLAY cancels normal question then performs transport start/stop; clip exception retains its separate interceptor.",
+        "empty": "No occupied-note question: run ACT_COPY immediately. Motion-only destination data does not itself satisfy pattern_used, so owned destination lanes may still be replaced without an occupied-note question.",
+        "copied": "Loop canonical parts0..4:909,808,synthA,synthB,BREAK. For each differing source/destination, clone its complete part structure and all used source-owned lanes.909 also brings the source pattern swing. Global project sound/FX settings are not copied by this function.",
+        "capacity": "Each part preflights all required source lanes against unused pool slots plus that destination part lanes. If insufficient, that part remains unchanged. Successful parts clear/rebuild destination-owned lanes. The overall five-part loop is sequential, not transactional; earlier/later parts can succeed while another fails.",
+        "result": "Success says PARTS PASTED TO Pn; any part failure says MOTION FULL: NOT ALL PASTED. ACT_COPY finishes active note recorder ownership first and marks dirty. The used BT release does not issue an extra save.",
+        "playback": "Copy does not cue or select destination and does not switch seq.ppat. Hearing the copy needs the existing separate pattern-selection gesture and its stopped/running adoption policy.",
+        "refs": [
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 1998,
+            "last_line": 2019,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1998"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 3700,
+            "last_line": 3720,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3700"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 3454,
+            "last_line": 3461,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3454"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 1820,
+            "last_line": 1829,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1820"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 1847,
+            "last_line": 1889,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L1847"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 2618,
+            "last_line": 2627,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L2618"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 4000,
+            "last_line": 4007,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4000"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 3963,
+            "last_line": 3986,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3963"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 4110,
+            "last_line": 4116,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4110"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 4518,
+            "last_line": 4526,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L4518"
+          },
+          {
+            "path": "firmware/src/app/ui.c",
+            "first_line": 3681,
+            "last_line": 3696,
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/3c41ef4bedf9701f549ce2752b73306e2fab1eb8/firmware/src/app/ui.c#L3681"
+          }
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "GEN",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/contracts.json",
+      "json_pointer": "/flows/0",
+      "known_source_scope": "Create or mutate the current bass-slot line, inspect it and return to SEQ",
+      "payload": {
+        "id": "W07-GENERATE",
+        "goal": "Create or mutate the current bass-slot line, inspect it and return to SEQ",
+        "route": [
+          "Select the intended bass slot by an accepted K3 direction event, verifying the native owner.",
+          "Unused ARP tap enters TB-3PO; another ARP tap cycles its two pages. K2/ordinary page arrows clamp at either end in V_GEN.",
+          "GENERATE: K5 density, K6 accent, K7 slide, K8 octave range. SCALE: K5 root, K6 scale, K7 base octave, K8 auto-mutate interval.",
+          "OCTAVE+ immediately generates NEW LINE; OCTAVE− immediately MUTATEs. SEQ returns to step view. PATCH+REC invokes existing Undo only when its admission/history permits."
+        ],
+        "consequence": [
+          "R_GEN controls except auto-mutate interval mark gen_stale; changing them prepares the next generation rather than rewriting the current line immediately.",
+          "NEW LINE resets all 64 step cells, including hidden cells beyond current length; generated velocity 0 resolves default 100. It generates only within active length and guarantees a note anchor if all generated gates are rests. UI clears all 64 chord and note-sound records.",
+          "MUTATE probabilistically changes only active-length steps and preserves an intentionally all-rest line. UI then clears all 64 chord records and note-sound entries whose cells are not NOTE. Manual mutate uses seed XOR wall time; visible stored seed alone does not reproduce the exact mutation history.",
+          "Length/rate/direction and unrelated motion are not claimed reset by these calls. Auto-mutate interval can mutate during playback at source traversal boundaries."
+        ],
+        "exact_limit": "The executable entry guard is bass-slot-based: is_303=part_is_303, with no current engine-kind check. Help/refusal text still names Chicago/Miami. This does not establish an arp capability or tested musical usefulness for Juno/archived Drone.",
+        "current_reuse": [
+          "Actual piano roll showing note height, ties, accents, slides, captured endpoints and locks.",
+          "Four live generator controls, existing source labels and parameter units.",
+          "Root/scale and SEED line; gen_stale star plus OCTAVE+: NEW LINE / OCTAVE−: MUTATE footer.",
+          "Existing NEW LINE seed / MUTATED header toast and ARP view LED."
+        ],
+        "unmodeled": [
+          "No inert preview, compare-original buffer, explicit Apply/Reject transaction or guaranteed whole-generation undo is implemented by this route.",
+          "R22 random-preview/adopt remains a future capability; no staging/memory choice is made.",
+          "Current broad REC/motion/external masks still apply; generator authoring is not a selected CP2 capture class.",
+          "Automatic mutation calls tb3po_mutate from sequencer traversal without this manual UI cleanup loop; no equivalence of chord/note-sound cleanup or musical result is asserted."
+        ],
+        "anchors": [
+          "ui.c344,1536–1542,773–786,4071–4079,4118–4142,6774–6777,6886–6891",
+          "tb3po.c79–113,115–153",
+          "sequencer.c609–615"
+        ],
+        "action_count": "From an eligible non-generator view: ARP + one OCTAVE action = 2 gestures. Already in generator: 1 OCTAVE action. Owner/page/config navigation is additional; accepted source events are not raw Gray-protocol cycles."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "PRESET",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/contracts.json",
+      "json_pointer": "/flows/1",
+      "known_source_scope": "Find the actual engine-specific controls and assign a factory or pattern recall",
+      "payload": {
+        "id": "PRESET-BASIC",
+        "goal": "Find the actual engine-specific controls and assign a factory or pattern recall",
+        "route": [
+          "PARA enters the remembered native sound page. K2 wraps through that engine's full page cycle; the trailing SOUND page is part of the current topology.",
+          "On SOUND K5 edits ENGINE, K6 edits PRESET; K7 is STATUS and K8 is unmapped. K4 is preset selection only in this exact SOUND context; elsewhere it cues patterns.",
+          "SEQ has a separate PRESET page: K5 assigns this pattern's bass recall, OFF or a bounded one-based factory value for the selected/requested bank."
+        ],
+        "consequence": [
+          "Basic factory turns submit requests, not a universal inert browser or reversible audition. Native dynamic engine labels, existing ADSR/glyph pages and sparse columns already exist.",
+          "Per-pattern recall is stored in existing rsv[slot] byte. OFF makes no recall request. Invalid encodings remain invalid; numeric bounds come from original_sound_factories(kind), not stale comment counts.",
+          "pattern_sound_tick observes a cued/current pattern and its encoded value and requests recall once with that pattern gate. Actual completion/pending details remain with incumbent CP1."
+        ],
+        "current_reuse": [
+          "Complete native engine-specific page/glyph matrix.",
+          "SOUND ENGINE/PRESET/STATUS and sparse unmapped column.",
+          "SEQ PRESET page's OFF or bank-letter/one-based numeric recall value.",
+          "Current header part/engine/pattern and existing edited marker."
+        ],
+        "unmodeled": [
+          "Seven CP1 access/pending/Keep cases are excluded; no new status or fault-detail variant is produced.",
+          "No native Keep-slot destination, user-name browser, preset portability or universal audition/Cancel/return-to-original promise.",
+          "#931 preserves Drone archive identity while default DSP is disabled; do not invent a new current LCD engine label or say every recognized archive engine sounds."
+        ],
+        "anchors": [
+          "ui.c538–548,628–633,730–746,1048–1070,1266–1273,1480–1487,1509–1526,4610–4625,8753–8769",
+          "bass_pattern_preset.h16–39"
+        ],
+        "action_count": "PARA = 1 press to remembered sound page; K2 page turns depend on remembered topology. One admitted PRESET turn submits a request. No fixed request-completion count or timing guarantee."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SAVE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/contracts.json",
+      "json_pointer": "/flows/2",
+      "known_source_scope": "Preserve the live idea, distinguish request/result, or undo/reset only the intended sound",
+      "payload": {
+        "id": "SAVE-RECOVER",
+        "goal": "Preserve the live idea, distinguish request/result, or undo/reset only the intended sound",
+        "route": [
+          "Short unused BT release requests project save. To reach readiness from RUN/REC, stop and disarm, then release actual note/transfer/clip owners; quiet and availability checks remain source-owned.",
+          "BT hold plus destination white key/pad performs the existing all-five-part copy route; occupied destination asks. Used BT release does not also save.",
+          "PATCH+REC and PATCH+PLAY invoke current Undo/Redo admission; they are not guaranteed take objects.",
+          "SMC HOME held plus eligible part SELECT opens RESET SOUND. It is factory reset of that part's sound, not loading the last durable sound. Its normal confirmation/cancel belongs to existing modal policy."
+        ],
+        "consequence": [
+          "Source SAVED/UNSAVED/QUEUED/FAILED, SAVE AT STOP, REC OFF TO SAVE and SAVE WHEN QUIET already exist. Explicit save keeps the request until readiness; acknowledgment alone is not persistence.",
+          "Save failure leaves ui.dirty and sets save_failed. This is not a proof that every last durable object survives every write/power fault.",
+          "Copy takes each part from its actual current source slot and can report partial motion capacity; no audio snapshot or sample portability is implied.",
+          "RESET SOUND restores factory sound cells/tag with scoped history; preceding mixer edits are committed separately. Mixer level/pan/sends/mute remain. Readiness/undo capacity can refuse; current source can keep the question for retry.",
+          "After a project load is initiated by its reserved component, only a successful stage applies/reinitializes to 909 SEQ. Refusal/invalid stage keeps the existing project; this helper adds no Settings route."
+        ],
+        "current_reuse": [
+          "Existing save badge in header gap or fallback dot; BT's current steady/blink/off policy.",
+          "Existing BT help describing save/copy/motion scope, not a newly invented status-only hold.",
+          "Current exact destination/confirmation wording and result toast region.",
+          "RESET SOUND modal, exact part name and existing Undo result messages."
+        ],
+        "unmodeled": [
+          "No Settings redesign or seven CP1 transaction/result-case duplication.",
+          "No new atomicity/retry-generation/last-durable guarantee, power-loss proof, portable sample backup or device restore qualification.",
+          "CP2/CP3 strategy is not needed to describe this current save/copy/reset behavior, and is not selected here."
+        ],
+        "anchors": [
+          "ui.c281–303,1958–1971,2141–2218,2224–2296,2522–2589,2618–2625,3700–3716,4009–4034,8498–8499,8635–8712,8773–8819",
+          "smc_mixer.c2195–2204",
+          "sound_reset.h2–33"
+        ],
+        "action_count": "Unused BT tap/release = 1 save-request gesture. Copy = hold BT + destination press, plus occupied-destination confirmation when present. RESET SOUND admission needs HOME held + eligible part SELECT, followed by the actual question response."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SMC",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/contracts.json",
+      "json_pointer": "/flows/3",
+      "known_source_scope": "Keep a captured controller target, shape a held effect and return to the original page",
+      "payload": {
+        "id": "W15-SMC",
+        "goal": "Keep a captured controller target, shape a held effect and return to the original page",
+        "route": [
+          "Physical SMC Pause Note 0x5D press while following captures targets immediately. Short press begun while locked peeks; a fresh locked hold ≥900 ms unlocks. MMC STOP remains transport.",
+          "Controller Page/knob banks and navigation remain source-owned; fader/knob targets can stay locked while buttons navigate.",
+          "On FX, each physical strip/button uses its current independent assignment. Hold one effect and use eligible arrow route to change that held assignment; ambiguous multiple holds consume arrows without remapping another target.",
+          "HOME held plus page-left/right selects ROOM/TIGHT/ECHO by source route. Current FX/navigation dual-role buttons may run FX while held; short taps can navigate.",
+          "BRK strip REC Note2 is momentary fill: request next 909 bar, show active only when fill_on&&fill_req, release or leavingFX ends it."
+        ],
+        "consequence": [
+          "Pause captures target descriptors and selection bank, not transport pause. Lock can refuse during transaction/perf/question/clip contexts.",
+          "Peek lasts 1200 ms and restores prior UI/cursors; a second peer retains its original targets. Pickup remains distinct from ACTIVE.",
+          "FX release uses the original held bus/page/assignment. New selected page or another peer does not license ending unrelated effects.",
+          "REC buttons still toggle broad ui.rec; no exclusive future capture class is implied."
+        ],
+        "current_reuse": [
+          "Existing eight physical strip grid: encoder above, fader at left, M/S/R/SELECT functions in fixed columns.",
+          "Actual Lock/knob/control glyphs, routed captions, scalar formatting and pickup marker.",
+          "Existing peek header: control/target/value on first line, ACTIVE or PICKUP direction on second, over the real page.",
+          "Existing held-FX lower card with FX+< > and previous/next glyphs.",
+          "Existing fill request/active glyph and eight-segment progress panel."
+        ],
+        "unmodeled": [
+          "Supported-build peer count is conditional; no universal two-peer promise or physical controller qualification.",
+          "No new controller-light colour, persistent overlay redesign or guarantee that changing FX page is inaudible.",
+          "Independent CP1 fault details and Settings remain excluded."
+        ],
+        "anchors": [
+          "smc_mixer.c732–786,1082–1178,1206–1233,1236–1443,1450–1508,1820–1847,1930–2079,2190–2272,2359–2459",
+          "smc_fx_map_tables.c8–46"
+        ],
+        "action_count": "Lock = 1 Pause press; peek = 1 short tap begun locked; unlock = 1 fresh locked hold ≥900 ms. Known held FX/fill = 1 press/release; navigation, peer selection and pickup are contextual."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "LOOPY",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/contracts.json",
+      "json_pointer": "/flows/4",
+      "known_source_scope": "Enter host clip control, use the legal viewport and release exactly the original target",
+      "payload": {
+        "id": "W16-LOOPY",
+        "goal": "Enter host clip control, use the legal viewport and release exactly the original target",
+        "route": [
+          "KNOB BANK rising press toggles clip mode when its current gate permits. It is not a hold gesture.",
+          "Fresh occupied pad press sends its visible cell's note with pad velocity; original clip_pad_note owns note-off even after viewport movement.",
+          "OCTAVE−/+ moves the bounded local viewport. Outside a menu, < > belongs to Clip Keys field editing, not viewport paging.",
+          "SCALE/CHORD/ARP presses open/close their current Clip Keys pages; opening a page is separate from its ON field. NOTE REPEAT+ARP toggles latch.",
+          "PLAY/REC send clip transport notes. PATCH+REC/PLAY sends Loopy Undo/Redo notes over USB for user binding, before ordinary UI transport.",
+          "Exit releases owned clip pad/key notes and disables Clip Keys modes per current source."
+        ],
+        "consequence": [
+          "Sixteen physical pads view host APC cells; no off-viewport access or all-host-clips promise.",
+          "No host feedback and no Clip Keys page produces actual WAITING FOR LOOPY PRO / USB OR BLUETOOTH body.",
+          "Host palette/queued flags drive grid; visible viewport has white border and queued cells a dot. Local transport presses optimistically update local feedback, so a lamp does not prove host launch/recording.",
+          "Clip queued RGB can blink on accepted clock or 250 ms fallback; fallback is not measured host beat. No view-specific held RGB overlay is invented."
+        ],
+        "current_reuse": [
+          "LP mode chip and source clock indication.",
+          "Actual host wait body.",
+          "Existing complete clip grid, viewport white outlines, idle marks and queued dots.",
+          "Actual Clip Keys bottom 82 px: SCALE/CHORD/ARP/LATCH buttons, active-page underline, sounding logical-note keyboard, scale/chord/arp fields.",
+          "Actual Loopy Undo/Redo and PANIC toasts, with their exact scope."
+        ],
+        "unmodeled": [
+          "No host binding, launch/audio/recording success, feedback freshness or musical rejoin was executed here.",
+          "#930 clip-question affordance correction is separate source context; no Settings/modal lane is reauthored.",
+          "Current clip REC/PLAY protocol is not the proposed CP2/CP3 standalone capture lifecycle."
+        ],
+        "anchors": [
+          "main_fm1.c518–549,642–715,773–844,1637–1695,1732–1917,1931–1969,2098–2123,2150–2210",
+          "smk_clip_keys.h153–196"
+        ],
+        "action_count": "Enter/exit = 1 KNOB BANK rising press each; occupied visible launch/hold = 1 pad gesture; each legal OCTAVE viewport move = 1 press. Host acknowledgment/audio is not counted as completed."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "PANIC",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/contracts.json",
+      "json_pointer": "/flows/5",
+      "known_source_scope": "Retire the correct notes, release the chord and play a fresh phrase",
+      "payload": {
+        "id": "W18-PANIC",
+        "goal": "Retire the correct notes, release the chord and play a fresh phrase",
+        "route": [
+          "Keyboard FX+SEQ chord requests instrument notes-off; both releases are consumed and both controls must be released before another panic can fire.",
+          "SMC BankL 0x2E+BankR 0x2F is panic only in explicit DAW mode with the hook enabled; USER and MMC are not that chord route.",
+          "In clip mode, unused NOTE REPEAT release runs ck_all_off, sends CC123 on the Clip Keys channel and shows PANIC. NOTE REPEAT+ARP is latch and consumes that standalone panic release.",
+          "Use PLAY/STOP separately when transport stop is desired. Fresh input after retirement must acquire its new owner."
+        ],
+        "consequence": [
+          "Keyboard/SMC helper requests notes-off and does not change transport. It does not guarantee global silence, FX-tail cutoff or an external-device reset.",
+          "Current keyboard/SMC chord path does not itself display a dedicated PANIC receipt. Do not relabel the clip PANIC toast as a current universal keyboard screen.",
+          "Clip all-off flushes queued Clip Keys HUMAN onsets before their matching offs; it is not a promise that no MIDI is emitted.",
+          "Inactive mode/held-member changes inhibit false rearming. Old releases cannot be treated as a new panic chord."
+        ],
+        "current_reuse": [
+          "Existing source header, current view and transport indication remain after consumed keyboard chord; this is evidence to retain, not a new status card.",
+          "Actual clip PANIC toast.",
+          "Existing Clip Keys sounding-note model and mode badges.",
+          "Existing bounded play/stop/record/lock glyph family can express current controller actions without inventing a new visual language."
+        ],
+        "unmodeled": [
+          "No physical or audio recovery test, global silence claim or new panic gesture.",
+          "No candidate dedicated keyboard-panic outcome view is presented as existing.",
+          "Future CP3 disarm/token policy is not inferred from this current notes-off route."
+        ],
+        "anchors": [
+          "ui.c4174–4195,4484–4494",
+          "panic_chord.h21–51",
+          "smc_mixer.c2299–2357",
+          "main_fm1.c1300–1309,1653–1672",
+          "engine.c886–917"
+        ],
+        "action_count": "Keyboard or admitted SMC panic = 2 physical button presses as one chord, then both releases to rearm. Fresh played note = 1 further gesture. Clip unused NOTE REPEAT release is its separate route."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "FXX",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/contracts.json",
+      "json_pointer": "/default_fx_select",
+      "known_source_scope": "Actual default/fallback SELECT assignments only; not all four button rows or remaps.",
+      "payload": {
+        "class": "CURRENT DEFAULT/FALLBACK SELECT ASSIGNMENTS ONLY; actual per-button remaps remain routed by smcfx_strip",
+        "physical_columns": [
+          "909",
+          "808",
+          "BREAK",
+          "BASS B",
+          "BASS A",
+          "REVERB",
+          "DELAY",
+          "MASTER (grid header FLT)"
+        ],
+        "ROOM": [
+          "SHUF",
+          "SHUF",
+          "HPF",
+          "REV",
+          "LPF",
+          "TRNC",
+          "G16",
+          "STUT"
+        ],
+        "TIGHT": [
+          "DLY",
+          "REV",
+          "HPF",
+          "DLY",
+          "HPF",
+          "G16",
+          "STUT",
+          "TRNC"
+        ],
+        "ECHO": [
+          "DLY",
+          "REV",
+          "DLY",
+          "REV",
+          "REV",
+          "STUT",
+          "SHUF",
+          "G8"
+        ],
+        "physical_source": "smc_fx_bus maps strip 0..4 through part_at; SMCFX_PAGE is indexed by logicalengine bus. Do not copy logical table order directly into physical columns.",
+        "limits": "REC/SOLO/MUTE/SELECT buttons have independent assignments; this table is not a mapping of every button. BRK REC is the explicit fill exception."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SMCBODY",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/connected-layout-contract.json",
+      "json_pointer": "/smc/body",
+      "known_source_scope": "Eight native columns, target values/fader/knob geometry and source mapping subsets.",
+      "payload": {
+        "source": "smc_mixer.c1070–1178",
+        "physical_columns": "8 fixed 30 px columns. Normal labels: 909,808,BREAK,BASS B,BASS A,RVB,DLY,FLT. Drum context instead shows actual voice names or track numbers; unavailable trailing drum tracks remain--.",
+        "fields": [
+          "Selected title localy0..12; selection follows that SMC context, while LOCK separately denotes capture.",
+          "Encoder target label y14; authoritative scalar arc center y36,r8; value y46. Value width is trimmed to27px; labels can use FONT_XS.",
+          "Fader travel x=column+3,y64..114, actual target marker, and fine white physical-position pickup marker while unpicked and metro condition permits; value y122.",
+          "MUTE/SOLO/REC positional rows localy62/74/86, from notes16+n/8+n/0+n; an extra SELECT row y98 appears in eligible FX view. Normal overlay renders three rows, not four.",
+          "Touch highlight C_HI applies to the touched fader or knob; title selection, touch, held-FX ownership and pickup are separate signals."
+        ],
+        "targets": [
+          "Faders: drum SEQ or drum MIX maps the selected eight-track bank to voice Level; otherwise source main mix levels for five presentation-ordered parts, reverb Level, delay Level, and master DJF/filter.",
+          "HOME or MIX page0 knobs: five part Cut/Pan/Rev/Dly banks. Only bank0 provides reverb Decay, delay Feedback and master Resonance tail knobs; other tail slots are NONE.",
+          "Drum knobs: selected bank's Pan/Rev/Dly. Other views use two authoritative descriptor pages over eight knobs, suppress duplicated fader/knob targets, and respect captured/peek contexts.",
+          "O_ASK maps targets to NONE. Captured engine-bank mismatch or removed song bar must not silently retarget."
+        ],
+        "target_anchors": "smc_mixer.c453–463,479–509,592–706"
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SMCLOWER",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/connected-layout-contract.json",
+      "json_pointer": "/smc/lower",
+      "known_source_scope": "Native current-control/held-FX/fill panels and boolean LED intent; not physical confirmation.",
+      "payload": {
+        "source": "smc_mixer.c1304–1400",
+        "ordinary": "Target name y4; authoritative numeric value/unit or positional action toggle around y22..46; status/page or pickup arrow+target around y49.",
+        "held_fx": "Card x5,y5,w230,h72: HOLD plus effect glyph, FX + < >, full effect name and previous/next glyphs; no ordinary four-knob strip underneath.",
+        "fill": "Two panels localx5/125,y7..73: request line/icon, HOLD versus PLAY, eight progress segments from actual drum position only when fill_on&&fill_req, and underlying held assignment with previous/next.",
+        "lights": "smc_led() supplies source boolean feedback. Drum REC is ui.rec plus selected track, SOLO is solo bit, MUTE is actual mute, SELECT is context selection. Main rows use presentation part_at; FX SELECT follows held bus. Pause0x5D is locked or beat indication; PLAY0x5E is seq.playing; REC0x5F is ui.rec. Outgoing Mackie NoteOn velocity127/0 is source intent, not verified physical LED colour/identity.",
+        "light_anchors": "smc_mixer.c2775–2849"
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SMCPEEK",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/connected-layout-contract.json",
+      "json_pointer": "/smc/peek",
+      "known_source_scope": "Existing1200ms peek paints actual underlying body/knobs; distinct from all overlay lifetime rules.",
+      "payload": {
+        "source": "smc_mixer.c1405–1442; SMC_PEEK_MS=1200",
+        "body_lower": "Paint actual draw_main and draw_knobs, preserving the real page content/meters.",
+        "header": "Repaint full 20 px black. First10px line: SMC K/F<one-basedstrip>, resolved label and current value, character-trimmed to 232 px. Second10px line: ACTIVE or PICKUP: MOVE UP/DOWN TO TARGET.",
+        "consequence": "No guaranteed unused header corner; normal header is covered even though draw_header ran first."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SMCPEERS",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/connected-layout-contract.json",
+      "json_pointer": "/smc/peer_limit",
+      "known_source_scope": "Default one peer; conditional two-peer source only. No connection/session acceptance.",
+      "payload": "Default SMC_PEERS=1; BLEC_TWO_PEER enables2. No peer/host operation was exercised by this helper.",
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "LOOPYHEAD",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/remaining-journeys/connected-layout-contract.json",
+      "json_pointer": "/loopy/header",
+      "known_source_scope": "Current LP/header source fields and priority; not measured host transport.",
+      "payload": {
+        "source": "ui.c5347–5371,5412–5418,5452–5505; main_fm1.c1815–1818",
+        "retained_fields": [
+          "1300 ms full-width action toast can temporarily replace the header.",
+          "LP mode chip at x4 after toast, except an active pickup hint occupies the left-chip route.",
+          "Existing save badge can occupy only the dynamic gap before x130, with fallback short flag; unsaved/failed dot at237,3 remains.",
+          "INT/EXT starts x132 and means Clip Keys arp accepted-clock recency (tick within 500 ms), not verified host audio.",
+          "Tempo is right-aligned x212 from seq_tempo(&seq); play pictogram x217,y4 uses seq.metro_view; REC dot x231,y9 uses ui.rec. These generic source fields must not be relabelled host launch/record confirmation."
+        ]
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "REXTENT",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/current-recording/source-contract.json",
+      "json_pointer": "/current_policy/physical_extent",
+      "known_source_scope": "Current full37-key live owner REC-off guard; recording still27 logical keys plus pads.",
+      "payload": "Full 37 live-key owner exists only with REC off,in melodic SEQ FreePlay orPARA,and other admission guards. REC-on returns no full 37 owner. Current recording key_event sees27 logical keys from physical 5..31 plus mapped 16pads. Outer 0..4/32..36 are not a promised37-key recorder.",
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "RSTOP",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/current-recording/source-contract.json",
+      "json_pointer": "/current_policy/stopped",
+      "known_source_scope": "Current stopped note/rest/tie/chord authoring and fixed100 velocity; not held duration capture.",
+      "payload": {
+        "admission": "V_SEQ melodic part,ui.rec1,seq.playing0. PARA plays but does not start a new step-record onset.",
+        "cursor": "REC-on resets selected melodic ui.wpos to0. Every mono note/rest/tie writes wpos%len then advances modulo len. Entry order is forward indices regardless of playback direction. No auto-length extension.",
+        "velocity": "Each stopped note stores100. Chord root also stores100. Physical hold duration is not captured here;gate uses legacy authored form with endpoint nibble0.",
+        "notes": "Mono each accepted down writes a note;CHORD-held adds ACCENT,NOTE_REPEAT-held adds SLIDE. CHORD+eitherOCTAVE writes REST;NOTE_REPEAT+eitherOCTAVE writes TIE and consumes modifier release.",
+        "chords": "Available poly kind stores up to6 sorted unique pitches. First onset advances once;additional keydowns while keys remain held can replace/extend that same recorded chord cell. Releasing all then a fresh onset advances next cell. A key release alone is not a universal stopped-chord commit event.",
+        "overwrite": "Only visited cells are replaced;rearming is not a new take object or automatic erasure of the whole pattern."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "RRUN",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/current-recording/source-contract.json",
+      "json_pointer": "/current_policy/running",
+      "known_source_scope": "Current running quantization, duration, FWD/REV admission and original recorder lifecycle.",
+      "payload": {
+        "admission": "Current melodic V_SEQ mask andui.rec;FWD/REV only. External channels/masks are separate current paths. A pre-held press does not become a fresh recorded onset merely by arming.",
+        "quantisation": "Nearest actual playing step:half-step decision uses swung internal span or accepted external tick state. Before first step,FWD targets0 andREV targetslen−1.",
+        "velocity": "Panel bass_kbd submits100 toengine_bass_record. External MIDI can submit incoming velocity;do not generalise it to physical panel capture.",
+        "duration": "Accepted onset writesNOTE and endpoint15;held continuation writesTIE. Release finalises last cell endpoint1..15 (1/15 of current slot,plus block/input batching). Periodic capture saturates one traversal;no extra loop count.",
+        "direction": "PINGPONG/RANDOM refuse before pattern write and emitREC NEEDS FWD/REV. Audition/transport can remain;heard is not recorded.",
+        "chords": "Poly held-set changes are distinct recorder onsets;unchanged held set does not re-record. >6/failed chord allocation emitsCHORD NOT SAVED;note-lock capture refusal emitsNOTE SOUND NOT SAVED.",
+        "lifecycle": "REC-off/STOP/clear/target-pattern or admission change finalises/cancels original recorder owner. Generation/epoch gates prevent stale queued REC commands and old releases adopting a new take."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "RRELEASE",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/current-recording/source-contract.json",
+      "json_pointer": "/current_policy/running/lifecycle",
+      "known_source_scope": "Recorder finalization/cancellation and epoch ownership; not every menu-held-note behavior.",
+      "payload": "REC-off/STOP/clear/target-pattern or admission change finalises/cancels original recorder owner. Generation/epoch gates prevent stale queued REC commands and old releases adopting a new take.",
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "RCORRECT",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/current-recording/source-contract.json",
+      "json_pointer": "/current_policy/correction",
+      "known_source_scope": "Current held-step pitch/gate/velocity/accent/slide correction.",
+      "payload": {
+        "route": "REC off,FreePlayoff,V_SEQ,page containing existing target. Hold original white step ≥300ms;read stored STEP/note/V100;OCTAVE+ adds12semitones exactly;release original owner. Short unedited existing-step tap <300ms deletes it.",
+        "knobs": "While held K2=probability,K3=velocity1..127,K5=note,K6=REST/NOTE/TIE cycle,K7=accent toggle,K8=slide toggle. K6 reconstructs flags and clears captured endpoint nibble;it is a gate correction,not duration preservation.",
+        "scope": "A step held fromSEQ can move toPARA for eligible sound lock;returnSEQ requires releasing first. The minimal note-correction plans staySEQ and avoid reserved sound/Keep interfaces."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "RFEEDBACK",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/current-recording/source-contract.json",
+      "json_pointer": "/feedback",
+      "known_source_scope": "Current REC/PLAY/pad/stored-LCD/refusal meanings.",
+      "payload": {
+        "REC": "Physical REC own redLED tracksui.rec arm only;not accepted/stored proof.",
+        "PLAY": "GreenPLAY follows current source beat or slow externalWAIT blink. RedPLAY channel unused. PLAY is press-driven;ordinary unused navigation taps dispatch on release.",
+        "pads": "REC off/FreePlayoff melodicSEQ shows note cells bright,ties dim,playhead inversion;REC on keyboard mode showsC anchors dim and held logicalkeys bright. Mapping can beGRID versus row-swapped NOTE. No piano-key LEDs.",
+        "stored_lcd": "draw_bass reads selected bstep directly for STEP,note,TIE,ACC,SLIDE,Vn. It is an observable in-memory data view,not a portable/raw/durable dump.",
+        "refusals": "REC NEEDS FWD/REV,CHORD NOT SAVED,NOTE SOUND NOT SAVED are current transient feedback. No new persistent pass-loss UI is invented."
+      },
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    },
+    {
+      "code": "SONG",
+      "document": "/workspace/dnbox-whole-design/continuation-evidence/current-recording/song-authoring.json",
+      "json_pointer": "/native_controls",
+      "known_source_scope": "Existing two BAR pages, shared cursor and part/repeat controls; full Song file is the external helper contract.",
+      "payload": [
+        {
+          "page_index": 0,
+          "title": "BAR",
+          "K5": "R_SBAR current bar cursor",
+          "K6": "R_SPAT PART_909",
+          "K7": "R_SPAT PART_808",
+          "K8": "R_SPAT PART_BRK"
+        },
+        {
+          "page_index": 1,
+          "title": "BAR",
+          "K5": "R_SBAR same cursor",
+          "K6": "R_SPAT PART_303B",
+          "K7": "R_SPAT PART_303A",
+          "K8": "R_SREP encoded0..7→displayx1..x8"
+        }
+      ],
+      "relation_limit": "Source law/reference only. Link does not establish the whole exact requirement, R6 implementation, execution or acceptance."
+    }
+  ],
+  "interpretation": "A linked subsection is narrow evidence, often only one atom of a compound exact requirement. Read the per-row gap, original status and reserved ownership."
+}

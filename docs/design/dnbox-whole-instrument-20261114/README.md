@@ -1,19 +1,11 @@
-# Current whole-instrument proposal: R5
+# DnBOX whole-instrument design: R6 review input
 
-[Open the R5 PDF](r5/DnBOX-R5-whole-instrument-comparison.pdf), [native comparisons](r5/frame-manifest.json), [interactive inspection](r5/workbench.html) and [full39-journey design](r5/WHOLE-INSTRUMENT-DESIGN.md).
+[Open the R6 comparison PDF](r6/DnBOX-R6-musical-workflows.pdf), [native PNG inventory](r6/CURATED-NATIVE-MANIFEST.json), [interactive walkthrough](r6/workbench.html), [whole-instrument design](r6/WHOLE-INSTRUMENT-DESIGN.md) and [exact manifest](r6/ARTIFACT-MANIFEST.json).
 
-R5 is frozen for the same incumbent reviewer; it is not whole-design or runtime acceptance. Current actual3c41 captures, accepted d158 identical UI/glyph source, and proposal pixels remain distinct. Settings/CP1/CP2/CP3/comparator/DF1 interfaces stay explicit. No firmware implementation, build, device action, release or merge.
+R6 is a frozen proposal for the same incumbent affected reviewer. It is **not the completed whole overhaul, independent acceptance or runtime implementation**. The13 distinct comparisons and six guided scripts cover concrete64-step, motion, copy, cue/mute, phrase/correction/repeated-entry and scoped-panic workflows. They retain current useful controls, native ADSR/Juno vocabulary, large bright values and actual light meanings. Existing firmware behavior and prototype corrections are identified separately from proposed improvements.
 
-Earlier R4/R3/a898 material below is historical; it is not the current proposal.
+Actual current3c41 LCD/audio receipts, accepted d158 identical UI source, bounded graphical projections and proposal execution remain distinct. Settings R2 is composed unchanged and remains component-owned. The seven CP1 cases, selected CP2→CP3, comparator and DF1 remain open with incumbents. Concrete GEN, full FX/controller, valid BREAK, host/peer and durable recovery work remains unfinished. Counts do not establish acceptance.
 
-# DnBOX whole-instrument design studies
+See [readiness and exact limits](r6/READINESS-AND-LIMITS.json), [displacement/access ledger](r6/DISPLACEMENT-AND-ACCESS.json), [review intake](r6/REVIEW-INTAKE.json) and [next owner/interfaces](r6/NEXT-INPUT-INTERFACES.md). No firmware edit/build, executable-package publication, device operation, release or merge is approved. The old Library401 was not retried; Git has separate owner authorization.
 
-The current correction input is [R4](r4/README.md). Start with [the seven-page PDF](r4/DnBOX-R4-workflow-comparison.pdf) and distinct native PNGs: [drums](r4/native/drum.png), [Chicago](r4/native/chicago.png), [Juno](r4/native/juno.png), [909 MIX](r4/native/mix909.png), [Home](r4/native/home.png), [WAIT](r4/native/wait.png), [Song](r4/native/song-neighbors.png) and [808 variants](r4/native/808variant.png).
-
-R4 corrects confirmed proposal defects in envelope feedback, meaningful cues, mixer context/pad ownership, part/page routes and slot identities. Before references are genuine current3c41 emulator captures, with explicit state differences; proposed pixels are a separate input model. Juno glyphs are new art with no AudioKitJ6 fidelity claim. ActiveDrone work is deferred without renumbering engines or converting saved data.
-
-The same independent reviewer must reassess this exact successor. Producer proof covers43 affected model checks,13 final HTML checks and35 native proposal frames. These counts do not establish independent or whole-design acceptance. The [change ledger](r4/CHANGE-RETENTION-R4.json), [revised plan](r4/REVISION-PLAN.md), [exact manifest](r4/ARTIFACT-MANIFEST.json) and [interactive workbench](r4/workbench.html) retain scope and limits. Native PNG/PDF delivery is primary; downloaded HTML is no longer the only owner-facing route. Actual iOS-device opening remains untested.
-
-Previous96b4 R3 is a frozen defective review input. Earlier a898 and e592 studies are rejected/historical. Their reviews and artifact counts do not accept R4. They remain preserved for provenance, not as the current solution.
-
-Settings,sevenCP1cases and shared source ownership remain reserved. CP2 strategy precedesCP3 lifecycle; comparator adoption andDF1 remain open. No firmware implementation,build,device operation,release ormerge. The separate Library prepared-upload401 remains preserved, with no retry or substitute uploader.
+Previous [R5](r5/README.md), [R4](r4/README.md), [R3](r3/README.md) and earlier studies are immutable history. R5's independent disposition was useful conservation/correction study, incomplete whole design and partial fidelity. These earlier proposals and reviews do not accept R6.

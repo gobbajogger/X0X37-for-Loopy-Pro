@@ -1,0 +1,881 @@
+[
+  {
+    "id": "64",
+    "title": "Correct step64 without losing page or lock scope",
+    "start": "Prepared909 P1,64steps, kicks1/64; P2 is an empty variation; REC off.",
+    "benefit": "Absolute range stays available while a pending cue occupies the native header; one selected row names the held target.",
+    "count": "Current gestures retained:3 OCTAVE presses; hold pad15+K2 turn; PARA+K5 turn; original release. Model boundary controls are fixture events, not extra firmware actions.",
+    "stages": [
+      {
+        "label": "Reach49\u201364",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "OCTAVE+",
+              1
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "OCTAVE+",
+              1
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "OCTAVE+",
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Hold actual step64, set95%",
+        "actions": [
+          {
+            "op": "pad",
+            "args": [
+              15,
+              true
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "K2",
+              -1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Edit its Tune lock on PARA",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "PARA",
+              1
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "K5",
+              4
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Release original owner; return toSEQ",
+        "actions": [
+          {
+            "op": "release",
+            "args": [
+              800
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "SEQ",
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Start and cue P2; range remains visible",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "SEQ PLAY",
+              1
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "K4",
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Apply explicit model909 boundary",
+        "actions": [
+          {
+            "op": "boundary",
+            "args": [
+              "909 wrap"
+            ]
+          }
+        ]
+      }
+    ],
+    "limit": "No physical timing or probability outcome. Current source hidden content is retained when length shrinks. Cue adoption and old drum-owner scope remain explicit."
+  },
+  {
+    "id": "motion",
+    "title": "Write, override one pass, clear one parameter",
+    "start": "Chicago B FILTER1, playing, REC off. Controlled source-value fixture; explicit model step events.",
+    "benefit": "Existing dots remain; a small one-pass counter tells when lane playback will retake the edited control.",
+    "count": "Ready source route: REC+turn, later RECoff+turn; BT+assigned turn clears lane. No extra firmware page or mode.",
+    "stages": [
+      {
+        "label": "Arm current broadREC and move Cutoff",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "SEQ REC",
+              1
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "K5",
+              8
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Next matching step captures latest base",
+        "actions": [
+          {
+            "op": "step",
+            "args": [
+              3,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Move again; short gap interpolates",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "K5",
+              32
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              2
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Disarm, override, observe remaining pass",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "SEQ REC",
+              1
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "K5",
+              1
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Resume saved lane after pass",
+        "actions": [
+          {
+            "op": "step",
+            "args": [
+              3,
+              4
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              5
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              6
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              7
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              8
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              9
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              10
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              11
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              12
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              13
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              14
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              15
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              0
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              1
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              2
+            ]
+          },
+          {
+            "op": "step",
+            "args": [
+              3,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Clear whole named lane; usedBT does not save",
+        "actions": [
+          {
+            "op": "buttonDown",
+            "args": [
+              "BT"
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "K5",
+              1
+            ]
+          },
+          {
+            "op": "buttonUp",
+            "args": [
+              "BT"
+            ]
+          }
+        ]
+      }
+    ],
+    "limit": "Logical source-step model, without measured ramps/audio. Base edit remains after override. Pool-full may refuse lane after changing base. CP2 is not selected."
+  },
+  {
+    "id": "copy",
+    "title": "Inspect the five sources before overwriting",
+    "start": "HOME stopped; source tupleP1/P2/P3/P4/P5 in canonical order; occupied destinationP6. Designer-authored fixture, separate from actual simpleP1\u2192P2 comparison.",
+    "benefit": "The existing confirmation now shows all five frozen source IDs, destination content and owned-lane counts; queued targets are excluded.",
+    "count": "BT+destination is2 presses; occupied confirm/cancel adds1, same as current. Empty destination remains immediate.",
+    "stages": [
+      {
+        "label": "HoldBT; choose occupied destinationP6",
+        "actions": [
+          {
+            "op": "buttonDown",
+            "args": [
+              "BT"
+            ]
+          },
+          {
+            "op": "pad",
+            "args": [
+              5
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Release usedBT; preview remains frozen",
+        "actions": [
+          {
+            "op": "buttonUp",
+            "args": [
+              "BT"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Confirm the existing question",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "SCALE",
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Cue the destination separately",
+        "actions": [
+          {
+            "op": "pad",
+            "args": [
+              5
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Start adopts it; browser has no audio",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "SEQ PLAY",
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "limit": "Per-part capacity preflight can leave a partial five-part result. Copy does not copy global sounds/FX or select destination. Motion-only destination still does not ask in current policy."
+  },
+  {
+    "id": "cue",
+    "title": "See independent next patterns and mute timing",
+    "start": "909 P1,64steps, playing. Queued-mute setting explicitlyON in this source-derived fixture; fresh actual capture usesOFF.",
+    "benefit": "Every part gets a steady pending arrow on its target tile; queued mutes get a dashed mark without dimming current content early.",
+    "count": "Same K4 part route, HOME black mute and909 boundary; no new pad colours or confirmation.",
+    "stages": [
+      {
+        "label": "Cue909 P2",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "K4",
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Select808 and cue itsP3",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "K3",
+              1
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "K4",
+              1
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "K4",
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "HOME; request808 mute",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "PATCH",
+              1
+            ]
+          },
+          {
+            "op": "black",
+            "args": [
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Apply cues and mute at909 wrap",
+        "actions": [
+          {
+            "op": "boundary",
+            "args": [
+              "909 wrap"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Two requests cancel before adoption",
+        "actions": [
+          {
+            "op": "black",
+            "args": [
+              1
+            ]
+          },
+          {
+            "op": "black",
+            "args": [
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "limit": "Pattern IDs, current/pending mute and manual/playback windows are separate. Physical lights retain source priority. No host/device timing qualification."
+  },
+  {
+    "id": "record",
+    "title": "Enter a phrase, correct it, replay, replace visited cells",
+    "start": "Chicago B SEQ emptyP1,16steps,FWD,REC off,FreePlay off. Current stopped-entry policy.",
+    "benefit": "Cursor and direct lower controls stay; REWRITE1\u2013LEN makes the existing replacement consequence explicit at rearm.",
+    "count": "REC, three note presses, two modifier+OCT tie/rest gestures; disarm. Correction remains holdstep3+OCT, release. No new take object or selected capture class.",
+    "stages": [
+      {
+        "label": "Arm; source write cursor resets",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "SEQ REC",
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "EnterNOTE53,TIE,NOTE55,REST,NOTE57",
+        "actions": [
+          {
+            "op": "noteDown",
+            "args": [
+              17
+            ]
+          },
+          {
+            "op": "noteUp",
+            "args": [
+              17
+            ]
+          },
+          {
+            "op": "buttonDown",
+            "args": [
+              "NOTE REPEAT"
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "OCTAVE+",
+              1
+            ]
+          },
+          {
+            "op": "buttonUp",
+            "args": [
+              "NOTE REPEAT"
+            ]
+          },
+          {
+            "op": "noteDown",
+            "args": [
+              19
+            ]
+          },
+          {
+            "op": "noteUp",
+            "args": [
+              19
+            ]
+          },
+          {
+            "op": "buttonDown",
+            "args": [
+              "CHORD"
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "OCTAVE+",
+              1
+            ]
+          },
+          {
+            "op": "buttonUp",
+            "args": [
+              "CHORD"
+            ]
+          },
+          {
+            "op": "noteDown",
+            "args": [
+              21
+            ]
+          },
+          {
+            "op": "noteUp",
+            "args": [
+              21
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Disarm; inspect storedstep3",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "SEQ REC",
+              1
+            ]
+          },
+          {
+            "op": "pad",
+            "args": [
+              2,
+              true
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Correct by exactly12semitones",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "OCTAVE+",
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Release and start replay",
+        "actions": [
+          {
+            "op": "release",
+            "args": [
+              800
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "SEQ PLAY",
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Stop; rearm replaces visited slots",
+        "actions": [
+          {
+            "op": "event",
+            "args": [
+              "SEQ PLAY",
+              1
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "SEQ REC",
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Repeat using middle56, then inspect",
+        "actions": [
+          {
+            "op": "noteDown",
+            "args": [
+              17
+            ]
+          },
+          {
+            "op": "noteUp",
+            "args": [
+              17
+            ]
+          },
+          {
+            "op": "buttonDown",
+            "args": [
+              "NOTE REPEAT"
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "OCTAVE+",
+              1
+            ]
+          },
+          {
+            "op": "buttonUp",
+            "args": [
+              "NOTE REPEAT"
+            ]
+          },
+          {
+            "op": "noteDown",
+            "args": [
+              20
+            ]
+          },
+          {
+            "op": "noteUp",
+            "args": [
+              20
+            ]
+          },
+          {
+            "op": "buttonDown",
+            "args": [
+              "CHORD"
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "OCTAVE+",
+              1
+            ]
+          },
+          {
+            "op": "buttonUp",
+            "args": [
+              "CHORD"
+            ]
+          },
+          {
+            "op": "noteDown",
+            "args": [
+              21
+            ]
+          },
+          {
+            "op": "noteUp",
+            "args": [
+              21
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "SEQ REC",
+              1
+            ]
+          },
+          {
+            "op": "pad",
+            "args": [
+              2,
+              true
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Release and replay repeated phrase",
+        "actions": [
+          {
+            "op": "release",
+            "args": [
+              800
+            ]
+          },
+          {
+            "op": "event",
+            "args": [
+              "SEQ PLAY",
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "limit": "Browser records data only. Actual3c41 PCM/LCD receipts are separate. Current REC is central27/V100; running quantization/poly chords not modeled. CP1\u2192CP2\u2192CP3 unresolved. ActualG4/G3 capture discrepancy is disclosed."
+  },
+  {
+    "id": "panic",
+    "title": "Retire notes and play again without stopping transport",
+    "start": "Chicago B PART, playing; one physical note held.",
+    "benefit": "A brief notes-off acknowledgement names that transport continues; same source chord and release ownership.",
+    "count": "FX+SEQ2 presses, both releases; fresh note1 press. No extra navigation.",
+    "stages": [
+      {
+        "label": "Hold a live key",
+        "actions": [
+          {
+            "op": "noteDown",
+            "args": [
+              17
+            ]
+          }
+        ]
+      },
+      {
+        "label": "PressFX thenSEQ; note ownership retires",
+        "actions": [
+          {
+            "op": "buttonDown",
+            "args": [
+              "FX"
+            ]
+          },
+          {
+            "op": "buttonDown",
+            "args": [
+              "SEQ"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Release both chord members and old key",
+        "actions": [
+          {
+            "op": "buttonUp",
+            "args": [
+              "FX"
+            ]
+          },
+          {
+            "op": "buttonUp",
+            "args": [
+              "SEQ"
+            ]
+          },
+          {
+            "op": "noteUp",
+            "args": [
+              17
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Play a fresh admitted key",
+        "actions": [
+          {
+            "op": "noteDown",
+            "args": [
+              19
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Release original fresh key",
+        "actions": [
+          {
+            "op": "noteUp",
+            "args": [
+              19
+            ]
+          }
+        ]
+      }
+    ],
+    "limit": "Notes-off is not transport stop, FX-tail kill or guaranteed external silence. SMC same-peer DAW chord and Clip Keys NOTE REPEAT panic remain separate routes."
+  }
+]
