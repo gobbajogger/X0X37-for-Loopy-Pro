@@ -324,6 +324,29 @@ Source for the list itself: the owner's 122-item feature list, recorded in #699 
 
 The extra #812 row "recovered #41 owner requests (18 messages)" is folded into #41 above, not given a new number.
 
+
+## Workflow improvement: owner-integrated 2026-11-14
+
+This protocol implements the owner's request to improve speed and artifact reliability. Dot remains the accountable ROADMAP writer; existing lane owners, IDs, valid plans and authorization gates are unchanged. It does not make the older status snapshot current or qualify unfinished product work.
+
+- Coalesce Git events by repository, PR, exact head and stage. A push prompts inspection; a stable producer receipt establishes review-ready input. Reuse a pending handoff for that input, then advance the already-authorized next stage promptly rather than wait for another polling interval.
+- Let existing owners use bounded, disjoint subagents or capable Codex/Work threads for substantive work and independent validation. Keep one writer per shared scope and a separate reviewer. Select supported model/effort to suit task difficulty; do not claim a setting was applied without evidence or interrupt an active owner just to retune it.
+- When a thread finishes and work remains, start a concise new successor with exact context: purpose, input SHA/artifact hashes, owned paths, completed evidence, remaining action, acceptance, limits and next consumer. Preserve active owners and verify the predecessor has released shared writes. Close completed tabs only after preserving outputs; never discard active or unsaved work.
+- Record the next consumer's first observed action/result on the exact inputs. A sent prompt or Working indicator proves neither input consumption nor completion. Recover an existing owner first; appoint one successor only when needed, with no duplicate writer or coordinator.
+- Keep source-ready, scoped-review accepted, host/native/browser/device qualified, merged, published and owner-testable states separate. Recheck exact inputs at transition, reuse unchanged proof and rerun only invalidated behavior and affected dependents. Verify rendered desktop/mobile artifacts and claimed interactions before presenting success; an inert mockup is not interactive.
+- For fresh firmware/web workflow assessments, pass tasks, version and evidence but no prior scores or target. Preserve actionable findings and repeat assessment after relevant changes. The firmware plan-and-owner-approval gate, stopped-Grok restriction, protections and action-specific merge/publication/device gates remain intact.
+- In existing delivery receipts, record UTC `ready_at`, `handoff_sent_at`, `input_consumed_at` and `accepted_at` only when observed, with evidence URI, exact inputs, owner and remaining coverage. Derive latency only from matching stage/input receipts; unknown is not zero. Track observed duplicated assignments/retests and stale-input reviews without inventing historical counts. No separate tracker.
+- Prefer supported connector/result readers; serialize unavoidable shared-browser work. Diagnose the exact failed action and preserve uncertain drafts rather than repeat failed navigation or a mutation blindly. A local dependency must not stop unrelated authorized work.
+
+### Measured baseline and limits
+
+| Transition | Verified evidence | Elapsed and limits |
+|---|---|---|
+| #900 producer ready to scoped review acceptance, exact `d963c3925a5b05f329e24c1a793a6326118fa466` | [Ready receipt](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/900#issuecomment-6869324346), 2026-11-14 01:25:41Z; [review](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/900#issuecomment-6869385190), 01:30:07Z | **4m26s**, including review, not pure handoff latency. Exact-source inspection; producer's 180 executable assertions not independently rerun. Native/transport/device qualification not established. |
+| Nightly-repo #129 scoped acceptance to merge, exact `79582d817778aeac90f114ec15ee95eec7bab717` | [Review](https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/129#pullrequestreview-5900382169), 2026-11-14 01:22:59Z; [merge](https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/129), 01:48:47Z | **25m48s**, including action-specific authority resolution, not all avoidable idle. README-only integration, not firmware qualification or website publication. |
+
+Earlier receipts lack exact receiver-consumption timestamps, so ready-to-consumption baseline is unknown. Begin measuring at the next real transition; do not restart completed work to manufacture a baseline. These observations do not yet demonstrate a speed improvement.
+
 ## Historical snapshot (2026-10-19) — SUPERSEDED
 
 The October 19 narrative (then-current branches, Bluetooth attempt log, batch 10/11 install, pool figures, leftover clip-mode device tests) is history. It is not the current delivery status. The full text is in [ROADMAP.md at `94af36cdb`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94af36cdb/docs/ROADMAP.md) (and the same section in this file's parent commit [`78f81bad`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/78f81bad07b8e53161326c056a2111c663349772/docs/ROADMAP.md)). Owner items from that "Left to do" and "Done" list live in #1–#122 and in the goal above (clip mode, Bluetooth on/off without a restart, ear/eye checks, web installer, Elite/Pro packages).
