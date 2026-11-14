@@ -1,6 +1,6 @@
 # DnBOX manual
 
-This companion explains how to install DnBOX, back up samples and work with project files in the browser. Use the [SMK-37 keyboard manual](legacy.html) to play, record and navigate the instrument.
+This companion explains how to install DnBOX, back up samples and work with project files in the browser. Use the [SMK-37 keyboard manual](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md) to play, record and navigate the instrument.
 
 It describes the **0.0.26 hardware-test candidate** at source `94197fc8`, **not** the [recommended published 0.0.25.1 release](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/v0.0.25.1). **Neither is fully hardware-qualified.** Release notes report Elite testing of 0.0.25.1 without a confirmed installed-package hash, and no Pro device test; the exact 0.0.26 candidate's boot/restart remain unverified. Juno, Drone and held-key chord recording belong to the 0.0.26 candidate only. Chicago is the 303 engine; Miami is not.
 
@@ -8,7 +8,7 @@ At candidate source `94197fc8`, the Projects workspace accepts pattern stream fo
 
 ## Start with music
 
-The [four musical tasks](legacy.html#s3) take you through a 909 beat, a Chicago/Miami bass line, saving and power-off, then switching and chaining patterns. They use the **printed SMK-37 controls**, not the older FM-1 panel labels. For the control map, see [The panel](legacy.html#s2). The browser tools below are for installation and file management; navigation here does not play or modify a pattern.
+The [four musical tasks](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md#3-quick-start-real-musical-tasks) take you through a 909 beat, a Chicago/Miami bass line, saving and power-off, then switching and chaining patterns. They use the **printed SMK-37 controls**, not the older FM-1 panel labels. For the control map, see [The panel](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md#2-the-panel). The browser tools below are for installation and file management; navigation here does not play or modify a pattern.
 
 ## Connect and choose firmware
 
@@ -67,6 +67,6 @@ A disconnect invalidates the device session and import preview. Local selected f
 
 ## Keyboard controls
 
-For playing, control glyphs, chord recording and the difference between factory presets and project backups, read the source-matched [SMK-37 manual](legacy.html). This companion does not reproduce its controls or supersede them.
+For playing, control glyphs, chord recording and the difference between factory presets and project backups, read the source-matched [SMK-37 manual](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/a19da721c25ab2323bb818851ab4d92e8ca3aa15/docs/MANUAL.md). This companion does not reproduce its controls or supersede them.
 
 A website build, host test, matching USB identity or package checksum does not prove hardware startup, restart, audio, or sample recovery.
