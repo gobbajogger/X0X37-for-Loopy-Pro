@@ -1,0 +1,2088 @@
+{
+  "schema": "dnbox-f5-807-historical-object-disposition-v1",
+  "scope": "Only the 10 F5 patch paths against original parent, exact changed hunks and narrowly named dependency identities. No firmware/host test, build or UX/device execution.",
+  "pins": {
+    "base": "02c5224d12c7a96c0061fea71f13de04de58741b",
+    "reviewed": "34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a",
+    "final": "6508d90a14a4c25a0f72a0c0c39e285f1074ddcb",
+    "combined": "94197fc839b00aff47b98ca02f3c6396e4a6eabf"
+  },
+  "trees": {
+    "reviewed": "eff7db1b708054cebabd8e6f681c61e176184e65",
+    "final": "ce522b4977cddfff64cfaa097af4394909f6094e",
+    "combined": "72d28fbc741244d18fa3d18495da16ab0fcb1d24",
+    "base": "7568ad94ed45ce62ab3e0cb98526923a50b29b91"
+  },
+  "tree_recovery": {
+    "all_recursive_responses_untruncated": true,
+    "counts": {
+      "reviewed": 5247,
+      "final": 5301,
+      "combined": 5811
+    },
+    "note": "Final tree was resolved through Git commit endpoint to ce522b49; no synthetic PR merge object used."
+  },
+  "inputs": {
+    "parent_commit": "d5c8c9d2f653066c01ecad7fb5a5a7ad2310a1a6",
+    "reconciliation_blob": "af5ad1c03d7abd4c8bd2ffa97ce7f36a3787cda5",
+    "map_blob": "18bd3b923921c0db9df5bb998ba7cede7001c1b2",
+    "inventory_blob": "bd6ec51280d8ad9625e0cb274d5b9f55e49e47b6"
+  },
+  "counts": {
+    "paths": 10,
+    "hunks": 27,
+    "whole_blobs_same_all_three": 5
+  },
+  "files": [
+    {
+      "path": "docs/FEATURE-REGISTRY.md",
+      "blobs": {
+        "base": {
+          "sha": "c898c9b0d1dfa336e90f8e979545d738ac4c0966",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/02c5224d12c7a96c0061fea71f13de04de58741b/docs/FEATURE-REGISTRY.md"
+        },
+        "reviewed": {
+          "sha": "66508239e620a755ceb6f2079469db0e90482df2",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/docs/FEATURE-REGISTRY.md"
+        },
+        "final": {
+          "sha": "5938bf0a8d344fd7c525881493dc482ce3870845",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/docs/FEATURE-REGISTRY.md"
+        },
+        "combined": {
+          "sha": "9fff09e3251a0d2d65c2a0ce93857125ca543a9a",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/docs/FEATURE-REGISTRY.md"
+        }
+      },
+      "whole_blob_same_all_three": false
+    },
+    {
+      "path": "docs/engineering-delivery/f5-waveform-cache-023/PICTURES.md",
+      "blobs": {
+        "base": null,
+        "reviewed": {
+          "sha": "a29803d89f344c6391bfaa7ed8c060eddabb9349",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/docs/engineering-delivery/f5-waveform-cache-023/PICTURES.md"
+        },
+        "final": {
+          "sha": "a29803d89f344c6391bfaa7ed8c060eddabb9349",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/docs/engineering-delivery/f5-waveform-cache-023/PICTURES.md"
+        },
+        "combined": {
+          "sha": "a29803d89f344c6391bfaa7ed8c060eddabb9349",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/docs/engineering-delivery/f5-waveform-cache-023/PICTURES.md"
+        }
+      },
+      "whole_blob_same_all_three": true
+    },
+    {
+      "path": "docs/engineering-delivery/f5-waveform-cache-023/README.md",
+      "blobs": {
+        "base": null,
+        "reviewed": {
+          "sha": "22bdc682d5a436e5a42cc5c707520f6cc020ae58",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/docs/engineering-delivery/f5-waveform-cache-023/README.md"
+        },
+        "final": {
+          "sha": "22bdc682d5a436e5a42cc5c707520f6cc020ae58",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/docs/engineering-delivery/f5-waveform-cache-023/README.md"
+        },
+        "combined": {
+          "sha": "22bdc682d5a436e5a42cc5c707520f6cc020ae58",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/docs/engineering-delivery/f5-waveform-cache-023/README.md"
+        }
+      },
+      "whole_blob_same_all_three": true
+    },
+    {
+      "path": "docs/engineering-delivery/f5-waveform-cache-023/REVIEW.md",
+      "blobs": {
+        "base": null,
+        "reviewed": {
+          "sha": "baaf100a19ca1fa448ea30beadb4a8cccc921e2b",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/docs/engineering-delivery/f5-waveform-cache-023/REVIEW.md"
+        },
+        "final": {
+          "sha": "baaf100a19ca1fa448ea30beadb4a8cccc921e2b",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/docs/engineering-delivery/f5-waveform-cache-023/REVIEW.md"
+        },
+        "combined": {
+          "sha": "baaf100a19ca1fa448ea30beadb4a8cccc921e2b",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/docs/engineering-delivery/f5-waveform-cache-023/REVIEW.md"
+        }
+      },
+      "whole_blob_same_all_three": true
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "blobs": {
+        "base": {
+          "sha": "1d14710acfa6a06bd5fc4c730cdb8d27203ae09b",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/02c5224d12c7a96c0061fea71f13de04de58741b/firmware/src/app/ui.c"
+        },
+        "reviewed": {
+          "sha": "446e991383bcc36ae2ddd8c458ec3b65e3981cf9",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/firmware/src/app/ui.c"
+        },
+        "final": {
+          "sha": "c8b3f54fcfcf5a66a8785064f9f973d50268823f",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/firmware/src/app/ui.c"
+        },
+        "combined": {
+          "sha": "eb911f58db83e417c67dd71576331803fa6c829e",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui.c"
+        }
+      },
+      "whole_blob_same_all_three": false
+    },
+    {
+      "path": "firmware/src/app/ui_original_wave.h",
+      "blobs": {
+        "base": null,
+        "reviewed": {
+          "sha": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/firmware/src/app/ui_original_wave.h"
+        },
+        "final": {
+          "sha": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/firmware/src/app/ui_original_wave.h"
+        },
+        "combined": {
+          "sha": "568bcf906655b7dc4eae7b22e0ae1b72369cf63f",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui_original_wave.h"
+        }
+      },
+      "whole_blob_same_all_three": true
+    },
+    {
+      "path": "tests/host/chicago_adsr_graph_test.c",
+      "blobs": {
+        "base": {
+          "sha": "52c1fa5a6b3f203e227590004c06cb67ac556222",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/02c5224d12c7a96c0061fea71f13de04de58741b/tests/host/chicago_adsr_graph_test.c"
+        },
+        "reviewed": {
+          "sha": "1571d8f9e71da04f7d3bef2107ed3b732e72e6dc",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/tests/host/chicago_adsr_graph_test.c"
+        },
+        "final": {
+          "sha": "eab3d8aa6b4f92d594efa9ead573e9120e16055a",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/tests/host/chicago_adsr_graph_test.c"
+        },
+        "combined": {
+          "sha": "eab3d8aa6b4f92d594efa9ead573e9120e16055a",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/tests/host/chicago_adsr_graph_test.c"
+        }
+      },
+      "whole_blob_same_all_three": false
+    },
+    {
+      "path": "tests/host/original_release_ui_test.c",
+      "blobs": {
+        "base": {
+          "sha": "c2508ff8c580c7469ca3c531de23326ba5a105b5",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/02c5224d12c7a96c0061fea71f13de04de58741b/tests/host/original_release_ui_test.c"
+        },
+        "reviewed": {
+          "sha": "3860e54632d4afc725377c11a6ff1a6561196500",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/tests/host/original_release_ui_test.c"
+        },
+        "final": {
+          "sha": "5da2afc12bbeed86418492649e7e532b27d83fff",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/tests/host/original_release_ui_test.c"
+        },
+        "combined": {
+          "sha": "bcc411437acc9daad392c2bbb4c569a9f76e5646",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/tests/host/original_release_ui_test.c"
+        }
+      },
+      "whole_blob_same_all_three": false
+    },
+    {
+      "path": "tests/host/ui_picture_capture.c",
+      "blobs": {
+        "base": null,
+        "reviewed": {
+          "sha": "f66f24d0b967ddaba81f81a3aa94e5aeb8db7208",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/tests/host/ui_picture_capture.c"
+        },
+        "final": {
+          "sha": "f66f24d0b967ddaba81f81a3aa94e5aeb8db7208",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/tests/host/ui_picture_capture.c"
+        },
+        "combined": {
+          "sha": "f66f24d0b967ddaba81f81a3aa94e5aeb8db7208",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/tests/host/ui_picture_capture.c"
+        }
+      },
+      "whole_blob_same_all_three": true
+    },
+    {
+      "path": "tests/run_tests.sh",
+      "blobs": {
+        "base": {
+          "sha": "2f78d1a410c8ee40bdef9cf0a409e5c1debbb99e",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/02c5224d12c7a96c0061fea71f13de04de58741b/tests/run_tests.sh"
+        },
+        "reviewed": {
+          "sha": "1d00394a96f5d68fd8a2345b47568f7033f4cfb7",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/tests/run_tests.sh"
+        },
+        "final": {
+          "sha": "cf8245fa8697dbfb3ce99526c8e00efc3d7a9190",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/tests/run_tests.sh"
+        },
+        "combined": {
+          "sha": "b8f64f303a58464aac3df1237bdd9b9c34669e08",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/tests/run_tests.sh"
+        }
+      },
+      "whole_blob_same_all_three": false
+    }
+  ],
+  "hunks": [
+    {
+      "id": "docs/FEATURE-REGISTRY.md#H1",
+      "path": "docs/FEATURE-REGISTRY.md",
+      "base_range": {
+        "start": 19,
+        "count": 6
+      },
+      "reviewed_range": {
+        "start": 19,
+        "count": 7
+      },
+      "original_unified_hunk": "@@ -19,6 +19,7 @@ Ten historical requirement groups and three #41 acceptance subitems are separate\n ## Registry\n | Feature | Status | Best source (PR, branch @ SHA) | Other copies / superseded | Base, behind/ahead | Test / QA evidence | HW-verified? | Owner spec notes | Blockers | Next step | Lane |\n |---|---|---|---|---|---|---|---|---|---|---|\n+| F5 waveform cache, glyph status/navigation + suite entries (rows 60, 63/64/66 coverage) | source candidate; execution NOT_RUN | [#807](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/807), chat/f5-waveform-cache-023, pinned parent #789 @02c5224d12c7a96c0061fea71f13de04de58741b | waveform source archive/box-restore-features-9e237cce @9e237cce304dd021792ea80e7426d5f3bbb2a671; existing #693 SELECT handler retained | draft into build/0.0.23; owner authorized pinned-parent work | [Port, tests and qualification handoff](engineering-delivery/f5-waveform-cache-023/README.md); no Codex builds/tests | no | only cached waveform port and three runner entries; no Miami ADSR | Orchestrator exact-head host/Elite/Pro/RAM box verification; no preview or visual-approval wait | source pushed to #807; Orchestrator verifies on box | F5 |\n | Mixer FX page, full (ID 41) + mixer UX 16,20,31,37,39-46,67 | in progress (port to #734) | [#736](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/736) chat/mixer-fx-page-port @18f04579 (draft, into integration/all-in-one) | source [#688](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/688) wip/mixer-ux @7b2d1726; codex/mixer-ux @6c84db92; [#686](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/686) chat/mixer-ux @c4658725 | integration/all-in-one @c54d9f9b | #736 FX peer-hold/caption/clock-wrap 67/67 PASS (GCC, Clang, UBSan), caption 76/76 PASS, static 10/0; before/after SVG mockups on branch | no | feature list ID 41; docs/mixer-ux-proposal.md | experiments/ files must not ship | QA #736, then merge into integration/all-in-one (#734) | ChatGPT thread |\n | **41.1 All four SMC button rows momentary** | **PARTIAL; UNTESTED** (SELECT built; REC/SOLO/MUTE FX mappings not recovered, archive check running) | #734 `636c1f7013a1cf02e34b8d23031086777d898e7b`, `firmware/src/app/smc_mixer.c:smc_fx_try` (line pin missing); forced LPF at `smc_mixer.c:1215–1216`; historical #366–#372 | [#741](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/741) sole held-SELECT publisher repair | #734 frozen | Full 32-button builds **NOT_RUN**; #741 SELECT-only host 502 PASS Clang/UBSan | no | Chosen FX on hold, OFF on release, no forced LPF | REC/SOLO/MUTE source/defaults TBD; owner approval | [Canonical mockup #740](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/87edd5f6da16a686e451024089f69233fc285086/docs/engineering-delivery/feature41-1-momentary-fx-before-after.png) | Audit |\n | **41.2 HOME/Back maps each button individually** | **PARTIAL; UNTESTED** (SELECT-only HOME/Back remap built) | #734 `636c1f7013a1cf02e34b8d23031086777d898e7b`, `smc_fx_map.h:smcfx_cycle` per bus (line pin missing) | #368/#369 suit lists; no verified all-button storage | #734 frozen | 32-control host/Elite/Pro **NOT_RUN** | no | Only tapped button changes on current page | Source/defaults TBD; owner approval | [Canonical mockup #740](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/87edd5f6da16a686e451024089f69233fc285086/docs/engineering-delivery/feature41-2-individual-mapping-before-after.png) | Audit |\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 22,
+              "reviewed_end": 22,
+              "target_start": 22,
+              "target_end": 22
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 22,
+              "reviewed_end": 22,
+              "target_start": 49,
+              "target_end": 49
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        }
+      }
+    },
+    {
+      "id": "docs/engineering-delivery/f5-waveform-cache-023/PICTURES.md#H1",
+      "path": "docs/engineering-delivery/f5-waveform-cache-023/PICTURES.md",
+      "base_range": {
+        "start": 0,
+        "count": 0
+      },
+      "reviewed_range": {
+        "start": 1,
+        "count": 49
+      },
+      "original_unified_hunk": "@@ -0,0 +1,49 @@\n+# Pictures and glyphs on F5 screens\n+\n+Owner direction: use pictures, glyphs and small activity-based animations wherever\n+they communicate the on-screen action clearly. Keep the existing #807 branch and\n+same PR. Latest owner instruction: no previews and no visual approval wait for\n+this change. Finish and push; the Orchestrator verifies on the box. No builds or\n+tests in Codex.\n+\n+## Design and implementation plan\n+\n+Reuse the existing HOME content projection, `pat_glyph_row`, `play_icon`, matrix\n+arrows and sequencer direction glyphs. The chosen approach keeps the current\n+screen strips, font assets and input routing; no new image atlas or animation\n+buffer is needed. Engine/control names, values, units and physical button names\n+remain where pictures alone would be ambiguous.\n+\n+- Replace the normal header's P-prefix with a framed, eight-column real-content\n+  pattern badge and slot number. Use a drawn arrow and the queued pattern badge\n+  instead of text/punctuation for the pending cue. The sound-matrix header gets\n+  the same queued badge in its unused status area when pads do not own that area.\n+- Reuse the play triangle and show a square when stopped. Keep external-clock\n+  waiting feedback. A queued arrow may pulse only with actual playing steps;\n+  stopped headers stay still as wall time and UI frame count advance.\n+- Replace ROW/NEXT/BACK words in sound-matrix hints with row-stack/page/arrow\n+  pictures. Keep physical panel legends and numeric bank ranges. Held-step and\n+  pending-preset ownership retain their existing routing and precedence.\n+- The sequencer already draws forward, reverse, ping-pong and random direction\n+  pictures. Suppress their duplicate FWD/REV/PING/RND value text on the normal\n+  knob strip; retain precise text in lists and Help. Do not invent REW/FWD inputs.\n+\n+## Verification handoff\n+\n+The registered `original-release-ui` selector includes the real-content badge,\n+last-slot, absent/equal cue, stopped stability, actual-step response, transport,\n+composed row/page hint, state-preservation and direction-picture assertions.\n+No tests or builds have run in Codex; no runtime PASS is claimed.\n+\n+The candidate reuses the existing content and transport painters and adds no\n+persistent state, timer, framebuffer, image atlas or pool allocation. The original\n+waveform cache's expected 156-byte pool cost is unchanged. Elite/Pro RAM remains\n+NOT_MEASURED and is part of the Orchestrator's exact-head box verification.\n+\n+The prior preview-image production and owner visual-approval steps are removed\n+for this change by the latest owner instruction. Do not wait for previews or\n+visual approval. The existing capture-only utility is not a delivery prerequisite.\n+\n+The Orchestrator verifies on the box, including the physical-caption configuration\n+(`X0X_SMK_CAPTIONS=1`), pending-preset/back hints, division-pad-owned headers and\n+composed layout bounds. Keep the existing source review and test checks intact.\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 1,
+              "reviewed_end": 49,
+              "target_start": 1,
+              "target_end": 49
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 49,
+          "matched_added_lines": 49
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 1,
+              "reviewed_end": 49,
+              "target_start": 1,
+              "target_end": 49
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 49,
+          "matched_added_lines": 49
+        }
+      }
+    },
+    {
+      "id": "docs/engineering-delivery/f5-waveform-cache-023/README.md#H1",
+      "path": "docs/engineering-delivery/f5-waveform-cache-023/README.md",
+      "base_range": {
+        "start": 0,
+        "count": 0
+      },
+      "reviewed_range": {
+        "start": 1,
+        "count": 121
+      },
+      "original_unified_hunk": "@@ -0,0 +1,121 @@\n+# F5 waveform cache and host-suite registration\n+\n+This is a bounded source delivery for rows 60 and 63/64/66 test registration.\n+It does not close all F5 rows or establish visual, build or hardware acceptance.\n+\n+Owner picture-first follow-up: [pictures, regressions and capture fixture](PICTURES.md).\n+This replaces suitable status/navigation words with existing glyph families on\n+the affected screens. Latest owner instruction: no previews or separate visual\n+approval wait for this change. Finish source delivery; the Orchestrator verifies\n+on the box.\n+\n+## Base and plan\n+\n+Owner-authorized pinned base: PR #789 head\n+`02c5224d12c7a96c0061fea71f13de04de58741b`, root tree\n+`7568ad94ed45ce62ab3e0cb98526923a50b29b91`. The owner explicitly authorized\n+working on this head before #789 merges. One owned branch, one draft PR into\n+`build/0.0.23`; no merge or auto-merge.\n+\n+1. Carry the archived waveform regressions into the existing original UI test.\n+2. Port the waveform cache and painter from `9e237cce304dd021792ea80e7426d5f3bbb2a671`.\n+3. Register the existing navigation, ADSR graph and grouped-settings scripts.\n+4. Review the exact diff, deliver the draft and defer execution to the authorized\n+   box stage. No builds or tests run in Codex, including a red/green claim.\n+\n+## Provenance and exclusions\n+\n+- Source branch: `archive/box-restore-features-9e237cce`, verified at\n+  `9e237cce304dd021792ea80e7426d5f3bbb2a671`.\n+- `firmware/src/app/ui_original_wave.h` is byte-identical to archive blob\n+  `568bcf906655b7dc4eae7b22e0ae1b72369cf63f`. It restores the native programs\n+  into temporary storage, applies relevant lock/motion previews and caches\n+  29-pixel projections for Chicago's oscillator mix and Miami's carrier,\n+  modulator and wobble. It does not edit the sound or advance a voice.\n+- `original_wave_view`, `original_wave_slot` and `draw_original_wave` are ported\n+  from that commit. The existing widget retains its geometry and readout helper;\n+  the archived waveform painter replaces its fixed shape cue when projection\n+  succeeds. The old fallback remains for an unavailable projection.\n+- Only the waveform portion of the archive's `restored_cases` is carried over,\n+  with cache invalidation, malformed input and held-step nonmutation coverage.\n+- The archive's PERF uint16 change and touch-only ADSR schematic are excluded:\n+  the owner requested the waveform cache, and the base already has the newer\n+  Chicago inline ADSR renderer, stage highlighting and live cursor. No Miami ADSR.\n+- `f5e1be1b76c0a94e6774df606dec80c417fddfb2` and\n+  `b51303f681f33d45f06f1aa213550e5b84979201` have equivalent glyph/ADSR behavior\n+  in the pinned source; they are not cherry-picked again.\n+- The SELECT handler from `4f039829352d7dc805ebd2865b073d34f397cb6e` is already\n+  source-present at base `ui.c:4230`; this patch registers its existing test.\n+- These source histories diverge from #789. GitHub ancestry comparison is not\n+  patch equivalence, and no whole-commit merge or completed cherry-pick is claimed.\n+- PR #764's DSP inserts, PR #738's alternate SMC popup, and `d7f156ec`'s\n+  selected-note storage are excluded from this waveform/runner patch.\n+\n+## Tests written and registered\n+\n+`tests/host/original_release_ui_test.c:restored_wave_cases` covers the four\n+waveform slots, projection bounds, source-cell preservation, preview changes,\n+held-step locks and restoration, voice-key invalidation, invalid masks/values/\n+identity, and literal TRI/DOWN/UP modulation geometry. The existing\n+`original-release-ui` selector runs it in normal and sanitizer modes and compares\n+the real framebuffer PNGs. No new standalone harness is introduced.\n+\n+New runner entries in `tests/run_tests.sh`:\n+\n+| Selector | Existing script | Class |\n+| --- | --- | --- |\n+| `ui-page-wrap` | `tests/host/ui_page_wrap_test.py` | P: isolated extracted handler |\n+| `chicago-adsr-graph` | `tests/host/chicago_adsr_graph_test.sh` | G: shared generated inputs |\n+| `ui-settings-sections` | `tests/host/ui_settings_sections_test.sh` | G: shared generated inputs |\n+\n+The ADSR graph regression previously expected its top at row Y + 14, before the\n+base reserved eight pixels for K5-K8 readouts. It now checks row Y + 22, matching\n+the existing production painter. Bounds, monotonicity, minimum stage widths,\n+sustain height, inactive row and live-playhead assertions remain. No check is\n+deleted or failure count relaxed.\n+\n+The original UI test also retained a pre-ADSR cache/view size guard of 76/14\n+bytes. The base already added four native ADSR floats to the view. The guard is\n+corrected to 92/32 bytes (14 metadata bytes, two alignment bytes and 16 float\n+bytes; cache prefix 60 bytes). The old guard exits before the new waveform cases;\n+the new guard accounts for existing fields rather than removing the size check.\n+\n+## Memory\n+\n+The restored single shared cache is placed in `X0X_POOL`, like the existing text\n+cache. Its layout is expected to occupy 156 bytes with 32-bit alignment. Written\n+reason for that additional pool use: retain exact factory/native dependencies\n+and lock/motion preview keys plus three small waveform projections so unchanged\n+draws reuse the projection. There is no per-part array or framebuffer allocation.\n+\n+Elite and Pro free static RAM: **NOT_MEASURED**. Required comparison is against\n+2352 B for 0.0.23 and the actual stacked parent. #789 reports 2432 B static free\n+and 8536 B pool free; these are upstream receipts, not measurements of this patch.\n+Record any candidate reduction and its reason before acceptance.\n+\n+## Validation handoff\n+\n+No build, host test, target compile, framebuffer capture or hardware action ran\n+in Codex, per the owner's instruction and AGENTS.md. Source/blob/diff inspection\n+does not establish a test PASS. The review receipt is separate from execution.\n+\n+On the exact delivered head in the authorized box environment:\n+\n+```sh\n+X0X_TEST_JOBS=1 X0X_TESTS='original-release-ui ui-page-wrap chicago-adsr-graph ui-settings-sections ui-waveform-truth ui-theme' sh tests/run_tests.sh\n+```\n+\n+Then run the full host suite and both Elite/Pro SDK V1.2.1 builds with\n+`X0X_DEV_PADCAL=0`, and report static RAM and pool free for each. Use package\n+identity/model ID, never the USB name. No FM-1 target or `main_fm1.c` edit.\n+\n+## Owner disposition and box verification\n+\n+The latest owner instruction supersedes the earlier screenshot/approval workflow\n+for this change: **no previews and no visual approval wait**. Source work is\n+finished and pushed to #807. The Orchestrator verifies the exact delivered head\n+on the box, including the existing host, Elite/Pro V1.2.1 and RAM requirements.\n+No builds or tests run in Codex. No merge or auto-merge is performed here.\n+\n+No main, .github, Actions, BTIF, USRTRIM, efuse, key_mac, bootloader, installer,\n+controller or device changes belong to this delivery.\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 1,
+              "reviewed_end": 121,
+              "target_start": 1,
+              "target_end": 121
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 121,
+          "matched_added_lines": 121
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 1,
+              "reviewed_end": 121,
+              "target_start": 1,
+              "target_end": 121
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 121,
+          "matched_added_lines": 121
+        }
+      }
+    },
+    {
+      "id": "docs/engineering-delivery/f5-waveform-cache-023/REVIEW.md#H1",
+      "path": "docs/engineering-delivery/f5-waveform-cache-023/REVIEW.md",
+      "base_range": {
+        "start": 0,
+        "count": 0
+      },
+      "reviewed_range": {
+        "start": 1,
+        "count": 76
+      },
+      "original_unified_hunk": "@@ -0,0 +1,76 @@\n+# Source review receipt\n+\n+Run: `f5-waveform-cache-023`. Base: #789\n+`02c5224d12c7a96c0061fea71f13de04de58741b`.\n+\n+Superpowers and Compound Engineering skills were used. Three simplification\n+reviewers found no worthwhile behavior-preserving change to this existing port.\n+The `ce-code-review` correctness, project-standards, testing, adversarial and\n+performance reviewers independently inspected the candidate source. Findings\n+mechanics reported zero primary findings, zero malformed findings and zero\n+malformed returns. No validator was selected because no primary finding remained.\n+No different-provider CLI was installed; the adversarial pass used an independent\n+subagent of the session model, not a cross-model reviewer.\n+\n+## Actionable Findings\n+\n+None remain in the source patch. A direct test prerequisite found during review\n+was corrected: the existing original-control cache/view size assertion still\n+expected 76/14 bytes despite the base's `float vca[4]` fields. Independent testing\n+follow-up confirmed 92/32 by source arithmetic. The size guard remains present.\n+See README.md for the old/new ADSR geometry expectations and this size correction.\n+\n+## Coverage\n+\n+The review covered waveform cache keys, source-cell preservation, projection\n+failure, painter integration, runner selection/failure propagation, shared-input\n+serialization, the written 156-byte expected pool cost and prohibited paths.\n+`git diff --check`, shell syntax inspection and archive blob identity were checked.\n+\n+No builds, tests, compiler probes, mutation tests or real-framebuffer captures ran\n+in Codex. No red/green or target RAM result is claimed. Live playback motion,\n+cross-factory/model framebuffer changes and independent native geometry vectors\n+remain coverage limits for the authorized box qualification. The full F5 row\n+set is not claimed complete.\n+\n+## Verdict\n+\n+Source review complete. Source delivery is handed off to the Orchestrator for\n+exact-head box verification: host tests, Elite/Pro SDK V1.2.1 builds with\n+`X0X_DEV_PADCAL=0` and RAM measurements. The latest owner instruction removes\n+previews and the visual approval wait for this change. Keep the requested draft;\n+no merge or auto-merge is performed here.\n+\n+## Picture-first follow-up source review\n+\n+Run `f5-pictures-023`, increment from previous #807 head\n+`de80f7b67e0a6ec8d97d42b166bb373de4582504`. Six independent `ce-code-review`\n+passes covered correctness, project standards, testing, adversarial behavior,\n+performance and maintainability. Three simplification passes produced one\n+behavior-preserving branch-readability improvement, which was applied. Review\n+found no retained actionable source finding. The testing follow-up confirmed\n+strengthened composed-footer, sound-header cue and blank direction-value checks\n+by source inspection. These are not executed test results.\n+\n+The added pictures reuse the existing content projection, play triangle and\n+direction glyphs. The follow-up adds no persistent state, buffer or timer.\n+Header projections are bounded, but CPU timing and Elite/Pro RAM remain\n+NOT_MEASURED. The different-provider review route remains unavailable; local\n+adversarial review is not represented as cross-model corroboration.\n+\n+Actionable Findings: none. Coverage limits: physical-caption execution,\n+pending-preset back hints, division-pad-owned headers, composed readability and\n+frame timing. No builds, tests, compiler probes, mutation tests or actual renders\n+ran in Codex. Verdict: source review complete; finish and push, with verification\n+owned by the Orchestrator on the box. The latest owner instruction supersedes\n+the earlier preview/visual-approval requirement for this change. No previews or\n+visual approval wait. Existing test and target qualification requirements remain.\n+\n+## Owner disposition follow-up\n+\n+The owner expressly directed: \"No previews or visual approval wait\" and \"Finish\n+and push; the Orchestrator verifies on the box.\" This documentation-only follow-up\n+propagates that instruction; it changes no code, tests, assertions or build checks.\n+Code review: skipped (mechanical diff) — direct propagation of the current owner\n+instruction into the handoff documents. Static diff/content inspection only;\n+no builds or tests run in Codex.\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 1,
+              "reviewed_end": 76,
+              "target_start": 1,
+              "target_end": 76
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 76,
+          "matched_added_lines": 76
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 1,
+              "reviewed_end": 76,
+              "target_start": 1,
+              "target_end": 76
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 76,
+          "matched_added_lines": 76
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H1",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 16,
+        "count": 6
+      },
+      "reviewed_range": {
+        "start": 16,
+        "count": 7
+      },
+      "original_unified_hunk": "@@ -16,6 +16,7 @@\n #include \"../dsp/fastmath.h\"\n #include \"../dsp/master.h\"\n #include \"ui_original_controls.h\"\n+#include \"ui_original_wave.h\"\n #include \"../dsp/bass_param_ids.h\"                    /* BASS303_* (the 303's pages) */\n #include \"chicago_arp.h\"                       /* CHI_ARP_* (Chicago live arp page) */\n #include \"chicago_fx.h\"                        /* CHI_FX_* SEND FX + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert */\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Waveform include retained."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 19,
+              "reviewed_end": 19,
+              "target_start": 20,
+              "target_end": 20
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 19,
+              "reviewed_end": 19,
+              "target_start": 24,
+              "target_end": 24
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H2",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 385,
+        "count": 6
+      },
+      "reviewed_range": {
+        "start": 386,
+        "count": 7
+      },
+      "original_unified_hunk": "@@ -385,6 +386,7 @@ typedef struct { uint8_t kind, a, b, c; } pref_t;\n \n static const char *const GLOBAL_SECTIONS[6] = {\"MIDI + CLOCK\", \"BLUETOOTH\", \"AUDIO\", \"KEYS + SCREEN\", \"PROJECT\", \"SYSTEM\"};\n static ui_original_control_cache original_controls X0X_POOL;\n+static ui_original_wave_cache original_wave X0X_POOL;   /* engine waveform cue (ca8299b6 / 9e237cce) */\n static uint8_t original_page_bank, original_list_bank;\n static int original_display_value(pref_t r);\n static const ui_original_control_view *original_text_view(pref_t r, int value);\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "One shared original_wave X0X_POOL cache retained."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 389,
+              "reviewed_end": 389,
+              "target_start": 390,
+              "target_end": 390
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 389,
+              "reviewed_end": 389,
+              "target_start": 421,
+              "target_end": 421
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H3",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 2705,
+        "count": 6
+      },
+      "reviewed_range": {
+        "start": 2707,
+        "count": 23
+      },
+      "original_unified_hunk": "@@ -2705,6 +2707,23 @@ static const ui_original_control_view *original_text_view(pref_t r, int value)\n     return ui_original_controls_update(&original_controls,r.b,cell,preview,mask) ? &original_controls.view : 0;\n }\n \n+/* The engine waveform of an oscillator control, with the same lock/motion\n+ * preview as the text readout. 0 when the slot has no waveform. */\n+static const ui_original_wave_cache *original_wave_view(pref_t r, int value)\n+{\n+    const uint8_t *cell = proj.sound.v[T_303][r.b];\n+    unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);\n+    uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_WAVE_MASK : UI_ORIGINAL_MIAMI_WAVE_MASK;\n+    uint8_t preview[22] = {0}; uint32_t mask = 0;\n+    for (unsigned id = 0; id < original_sound_count(kind); id++) if (relevant & (1u<<id)) {\n+        pref_t ref = PR(R_ENG,T_303,r.b,id);\n+        int q = lock_step() >= 0 ? lock_of(ref,lock_step()) : motion_now(ref);\n+        if (q >= 0) { preview[id] = (uint8_t)q; mask |= 1u<<id; }\n+    }\n+    if ((relevant & (1u<<r.c)) && value != cell[r.c]) { preview[r.c]=(uint8_t)value; mask |= 1u<<r.c; }\n+    return ui_original_wave_update(&original_wave,r.b,cell,preview,mask) ? &original_wave : 0;\n+}\n+\n static void lock_turn(pref_t r, int e, int role)\n {\n     int s = lock_step(), part = ui.part, k, cur, nv;\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "changed",
+        "explanation": "original_wave_view retains original body; combined adds JUNO/DRONE return-0 guard."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 2710,
+              "reviewed_end": 2726,
+              "target_start": 2712,
+              "target_end": 2728
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 17,
+          "matched_added_lines": 17
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 2710,
+              "reviewed_end": 2715,
+              "target_start": 2909,
+              "target_end": 2914
+            },
+            {
+              "reviewed_start": 2716,
+              "reviewed_end": 2726,
+              "target_start": 2916,
+              "target_end": 2926
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 17,
+          "matched_added_lines": 17
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H4",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 4823,
+        "count": 6
+      },
+      "reviewed_range": {
+        "start": 4842,
+        "count": 50
+      },
+      "original_unified_hunk": "@@ -4823,6 +4842,50 @@ static void night_label_c(int cx,int y,const felucca_font_t *f,const char *s,uin\n }\n #define sound_slab night_panel\n \n+static void pat_glyph_row(int32_t x,int32_t y,const uint8_t strength[8],uint16_t c,int current);\n+/* Shared, bounded pictures for status and the existing physical controls. */\n+static UI_DRAW void nav_arrow(int x,int y,int direction,uint16_t ink)\n+{\n+    int tip=x+(direction>0?5:0),tail=x+(direction>0?0:5),back=tip-direction*3;\n+    cv_line(tail,y+3,tip,y+3,ink);\n+    cv_line(back,y,tip,y+3,ink);cv_line(tip,y+3,back,y+6,ink);\n+}\n+static UI_DRAW void row_picture(int x,int y,uint16_t ink)\n+{\n+    for(int row=0;row<3;row++)cv_rect(x,y+1+row*3,10,row==1?2:1,ink);\n+}\n+static UI_DRAW void page_picture(int x,int y,uint16_t ink)\n+{\n+    cv_rect(x,y,8,1,ink);cv_rect(x,y+9,8,1,ink);\n+    cv_rect(x,y,1,10,ink);cv_rect(x+7,y,1,10,ink);\n+    nav_arrow(x+11,y+1,1,ink);\n+}\n+static UI_DRAW void header_pattern_badge(int x,int part,int pattern,int current,uint16_t ink)\n+{\n+    uint8_t strength[8];char number[4];\n+    if(part<0 || part>=NPARTS || pattern<0 || pattern>=NPAT)return;\n+    frame(x,6,10,7,ink);\n+    home_pattern_strength8(&proj.pat[pattern],proj.arr.lane,pattern,part,\n+                          proj.set.accent_q7,T_VEL,strength);\n+    pat_glyph_row(x+1,8,strength,PART_COL[part],current);\n+    put_i(number,pattern+1);cv_text(x+12,vc(&FONT_T,1,17),&FONT_T,number,ink);\n+}\n+static UI_DRAW void header_pattern_cue(int x,int part)\n+{\n+    int cue=seq_cue_of(&seq,part);\n+    if(seq.song_on || cue<0 || cue==seq.ppat[part])return;\n+    /* A live sequencer step may pulse the arrow. Wall time alone never does. */\n+    uint16_t ink=seq.playing && (eng_step[TRK_DRUM]&1)?C_WHITE:C_AMB;\n+    nav_arrow(x,6,1,ink);header_pattern_badge(x+8,part,cue,0,C_GRAY);\n+}\n+static UI_DRAW void header_transport(int x,int compact)\n+{\n+    if(seq.playing) {\n+        if(!seq_clock_waiting(&seq) || (ui.frame&32u))\n+            play_icon(x,4,compact?C_HI:(eng_step[TRK_DRUM]&3)==0?C_WHITE:C_HI);\n+    } else cv_rect(x,6,8,8,C_DIM);\n+}\n+\n static UI_DRAW void draw_header(void)\n {\n #if BOARD_SMK37\n",
+      "disposition": {
+        "final": "partly_superseded",
+        "combined": "partly_superseded",
+        "explanation": "nav_arrow, row_picture, header_pattern_badge and header_pattern_cue retained; page_picture and header_transport omitted, with replacement callers described in supplement."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 4845,
+              "reviewed_end": 4856,
+              "target_start": 4884,
+              "target_end": 4895
+            },
+            {
+              "reviewed_start": 4863,
+              "reviewed_end": 4880,
+              "target_start": 4896,
+              "target_end": 4913
+            },
+            {
+              "reviewed_start": 4888,
+              "reviewed_end": 4888,
+              "target_start": 4914,
+              "target_end": 4914
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 4857,
+              "text": "static UI_DRAW void page_picture(int x,int y,uint16_t ink)"
+            },
+            {
+              "reviewed_line": 4858,
+              "text": "{"
+            },
+            {
+              "reviewed_line": 4859,
+              "text": "    cv_rect(x,y,8,1,ink);cv_rect(x,y+9,8,1,ink);"
+            },
+            {
+              "reviewed_line": 4860,
+              "text": "    cv_rect(x,y,1,10,ink);cv_rect(x+7,y,1,10,ink);"
+            },
+            {
+              "reviewed_line": 4861,
+              "text": "    nav_arrow(x+11,y+1,1,ink);"
+            },
+            {
+              "reviewed_line": 4862,
+              "text": "}"
+            },
+            {
+              "reviewed_line": 4881,
+              "text": "static UI_DRAW void header_transport(int x,int compact)"
+            },
+            {
+              "reviewed_line": 4882,
+              "text": "{"
+            },
+            {
+              "reviewed_line": 4883,
+              "text": "    if(seq.playing) {"
+            },
+            {
+              "reviewed_line": 4884,
+              "text": "        if(!seq_clock_waiting(&seq) || (ui.frame&32u))"
+            },
+            {
+              "reviewed_line": 4885,
+              "text": "            play_icon(x,4,compact?C_HI:(eng_step[TRK_DRUM]&3)==0?C_WHITE:C_HI);"
+            },
+            {
+              "reviewed_line": 4886,
+              "text": "    } else cv_rect(x,6,8,8,C_DIM);"
+            },
+            {
+              "reviewed_line": 4887,
+              "text": "}"
+            }
+          ],
+          "added_lines": 44,
+          "matched_added_lines": 31
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 4845,
+              "reviewed_end": 4856,
+              "target_start": 5271,
+              "target_end": 5282
+            },
+            {
+              "reviewed_start": 4863,
+              "reviewed_end": 4880,
+              "target_start": 5283,
+              "target_end": 5300
+            },
+            {
+              "reviewed_start": 4888,
+              "reviewed_end": 4888,
+              "target_start": 5310,
+              "target_end": 5310
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 4857,
+              "text": "static UI_DRAW void page_picture(int x,int y,uint16_t ink)"
+            },
+            {
+              "reviewed_line": 4858,
+              "text": "{"
+            },
+            {
+              "reviewed_line": 4859,
+              "text": "    cv_rect(x,y,8,1,ink);cv_rect(x,y+9,8,1,ink);"
+            },
+            {
+              "reviewed_line": 4860,
+              "text": "    cv_rect(x,y,1,10,ink);cv_rect(x+7,y,1,10,ink);"
+            },
+            {
+              "reviewed_line": 4861,
+              "text": "    nav_arrow(x+11,y+1,1,ink);"
+            },
+            {
+              "reviewed_line": 4862,
+              "text": "}"
+            },
+            {
+              "reviewed_line": 4881,
+              "text": "static UI_DRAW void header_transport(int x,int compact)"
+            },
+            {
+              "reviewed_line": 4882,
+              "text": "{"
+            },
+            {
+              "reviewed_line": 4883,
+              "text": "    if(seq.playing) {"
+            },
+            {
+              "reviewed_line": 4884,
+              "text": "        if(!seq_clock_waiting(&seq) || (ui.frame&32u))"
+            },
+            {
+              "reviewed_line": 4885,
+              "text": "            play_icon(x,4,compact?C_HI:(eng_step[TRK_DRUM]&3)==0?C_WHITE:C_HI);"
+            },
+            {
+              "reviewed_line": 4886,
+              "text": "    } else cv_rect(x,6,8,8,C_DIM);"
+            },
+            {
+              "reviewed_line": 4887,
+              "text": "}"
+            }
+          ],
+          "added_lines": 44,
+          "matched_added_lines": 31
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H5",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 4868,
+        "count": 7
+      },
+      "reviewed_range": {
+        "start": 4931,
+        "count": 8
+      },
+      "original_unified_hunk": "@@ -4868,7 +4931,8 @@ static UI_DRAW void draw_header(void)\n                 if (i != cur_page() / 4) dot(dx, 9, 1, night?SOUND_FACE:C_BLACK);\n             }\n         }\n-        if(seq.playing) play_icon(175,4,C_HI);\n+        if(!division_pad_owner()) header_pattern_cue(132,ui.part);\n+        header_transport(175,1);\n         if(ui.rec) dot(190,9,3,RGB(255,50,50));\n         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);\n         cv_commit(0,0,0);\n",
+      "disposition": {
+        "final": "partly_superseded",
+        "combined": "partly_superseded",
+        "explanation": "Sound-header queued-content cue retained (later comment added); header_transport replaced by seq.metro_view play_icon. Combined also changes header commit/cache plumbing."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 4934,
+              "text": "        if(!division_pad_owner()) header_pattern_cue(132,ui.part);"
+            },
+            {
+              "reviewed_line": 4935,
+              "text": "        header_transport(175,1);"
+            }
+          ],
+          "added_lines": 2,
+          "matched_added_lines": 0
+        },
+        "combined": {
+          "matching_added_line_runs": [],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 4934,
+              "text": "        if(!division_pad_owner()) header_pattern_cue(132,ui.part);"
+            },
+            {
+              "reviewed_line": 4935,
+              "text": "        header_transport(175,1);"
+            }
+          ],
+          "added_lines": 2,
+          "matched_added_lines": 0
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H6",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 4937,
+        "count": 16
+      },
+      "reviewed_range": {
+        "start": 5001,
+        "count": 13
+      },
+      "original_unified_hunk": "@@ -4937,16 +5001,13 @@ static UI_DRAW void draw_header(void)\n             put_i(b + 1, (seq.playing ? seq.song_pos : ui.song_sel) + 1);\n             x = cv_text(132, vc(&FONT_B, 1, 17), &FONT_B, b, seq.song_rec ? RGB(255, 90, 80) : C_AMB);\n         } else {\n-            b[0] = 'P';\n-            put_i(b + 1, seq.ppat[part] + 1);\n-            x = cv_text(132, vc(&FONT_B, 1, 17), &FONT_B, b, C_WHITE);\n+            header_pattern_badge(132,part,seq.ppat[part],1,C_WHITE);\n+            x=154;\n         }\n         if (cue >= 0 && cue != seq.ppat[part] && !seq.song_on) {\n-            b[0] = '>';\n-            put_i(b + 1, cue + 1);\n-            cv_text(x + 2, vc(&FONT_S, 1, 17), &FONT_S, b, (ui.frame & 16u) ? C_WHITE : C_GRAY);\n+            header_pattern_cue(156,part);\n         } else if (seq.chain_a != seq.chain_b && !seq.song_on) {\n-            cv_text(x + 3, vc(&FONT_XS, 1, 17), &FONT_XS, \"CHN\", C_AMB);\n+            frame(x+4,6,8,6,C_AMB);frame(x+10,9,8,6,C_AMB);\n         } else if (steps_view() && steps_len() > 16) {   /* the 16 steps the keys show */\n             put_i(put_s(put_i(b, ui.spage * 16 + 1), \"-\"), ui.spage * 16 + 16);\n             cv_text(x + 4, vc(&FONT_XS, 1, 17), &FONT_XS, b, C_GRAY);\n",
+      "disposition": {
+        "final": "superseded",
+        "combined": "superseded",
+        "explanation": "Ordinary current/queued content badges replaced by ui_position_badge and frame-bit cue colour; chain pictures replaced by CHN text."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 5004,
+              "text": "            header_pattern_badge(132,part,seq.ppat[part],1,C_WHITE);"
+            },
+            {
+              "reviewed_line": 5005,
+              "text": "            x=154;"
+            },
+            {
+              "reviewed_line": 5008,
+              "text": "            header_pattern_cue(156,part);"
+            },
+            {
+              "reviewed_line": 5010,
+              "text": "            frame(x+4,6,8,6,C_AMB);frame(x+10,9,8,6,C_AMB);"
+            }
+          ],
+          "added_lines": 4,
+          "matched_added_lines": 0
+        },
+        "combined": {
+          "matching_added_line_runs": [],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 5004,
+              "text": "            header_pattern_badge(132,part,seq.ppat[part],1,C_WHITE);"
+            },
+            {
+              "reviewed_line": 5005,
+              "text": "            x=154;"
+            },
+            {
+              "reviewed_line": 5008,
+              "text": "            header_pattern_cue(156,part);"
+            },
+            {
+              "reviewed_line": 5010,
+              "text": "            frame(x+4,6,8,6,C_AMB);frame(x+10,9,8,6,C_AMB);"
+            }
+          ],
+          "added_lines": 4,
+          "matched_added_lines": 0
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H7",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 4965,
+        "count": 8
+      },
+      "reviewed_range": {
+        "start": 5026,
+        "count": 7
+      },
+      "original_unified_hunk": "@@ -4965,8 +5026,7 @@ static UI_DRAW void draw_header(void)\n         put_i(b, shown);\n     }\n     text_r(212, vc(&FONT_S, 1, 17), &FONT_S, b, seq.ext ? C_AMB : C_HI);\n-    if (seq.playing && (!seq_clock_waiting(&seq) || (ui.frame & 32u)))   /* EXTERNAL waits: it blinks */\n-        play_icon(217, 4, (eng_step[TRK_DRUM] & 3) == 0 ? C_WHITE : C_HI);\n+    header_transport(217,0);\n     if (ui.rec)\n         dot(231, 9, 4, RGB(255, 50, 50));\n     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */\n",
+      "disposition": {
+        "final": "superseded",
+        "combined": "superseded",
+        "explanation": "Ordinary header_transport call replaced by seq.metro_view play_icon."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 5029,
+              "text": "    header_transport(217,0);"
+            }
+          ],
+          "added_lines": 1,
+          "matched_added_lines": 0
+        },
+        "combined": {
+          "matching_added_line_runs": [],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 5029,
+              "text": "    header_transport(217,0);"
+            }
+          ],
+          "added_lines": 1,
+          "matched_added_lines": 0
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H8",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 5151,
+        "count": 8
+      },
+      "reviewed_range": {
+        "start": 5211,
+        "count": 8
+      },
+      "original_unified_hunk": "@@ -5151,8 +5211,8 @@ static UI_DRAW int matrix_row_hint(int x,int y,uint16_t c)\n     cv_text(x,y,&FONT_T,UI_CAP_ARROWS,c);\n     x+=tw(&FONT_T,UI_CAP_ARROWS)+4;\n     matrix_glyph(x,y,GL_BOTH,c,C_BLACK);\n-    cv_text(x+14,y,&FONT_T,\"ROW\",c);\n-    return x+14+tw(&FONT_T,\"ROW\");\n+    row_picture(x+14,y,c);\n+    return x+24;\n }\n \n static UI_DRAW int matrix_touch_matches(pref_t r, int i)\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "matrix_row_hint row picture and return width retained."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 5214,
+              "reviewed_end": 5215,
+              "target_start": 5259,
+              "target_end": 5260
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 2,
+          "matched_added_lines": 2
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 5214,
+              "reviewed_end": 5215,
+              "target_start": 5683,
+              "target_end": 5684
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 2,
+          "matched_added_lines": 2
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H9",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 5260,
+        "count": 8
+      },
+      "reviewed_range": {
+        "start": 5320,
+        "count": 9
+      },
+      "original_unified_hunk": "@@ -5260,8 +5320,9 @@ static UI_DRAW void draw_part_sound(int band)\n     }\n     if(night) sound_slab(0,207-off,240,13,0);\n     if (lock_step()>=0) {\n-        char t[48];put_s(put_i(put_s(t,\"STEP \"),lock_step()+1),\" \" UI_CAP_ARROWS \": CHANCE \" UI_CAP_EDIT \":ROW\");\n-        cv_text(7,208-off,&FONT_T,t,C_AMB);\n+        char t[48];put_s(put_i(put_s(t,\"STEP \"),lock_step()+1),\" \" UI_CAP_ARROWS \": CHANCE \" UI_CAP_EDIT);\n+        int x=cv_text(7,208-off,&FONT_T,t,C_AMB);\n+        row_picture(x+4,208-off,C_AMB);\n     } else\n #if X0X_BASS_PRESET_PREVIEW\n     if (pg.r[page][0].kind==R_BENGINE && engine_bass_preset_pending(bidx()))\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Held-step row-picture footer retained."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 5323,
+              "reviewed_end": 5325,
+              "target_start": 5380,
+              "target_end": 5382
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 3,
+          "matched_added_lines": 3
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 5323,
+              "reviewed_end": 5325,
+              "target_start": 5804,
+              "target_end": 5806
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 3,
+          "matched_added_lines": 3
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H10",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 5270,
+        "count": 14
+      },
+      "reviewed_range": {
+        "start": 5331,
+        "count": 19
+      },
+      "original_unified_hunk": "@@ -5270,14 +5331,19 @@ static UI_DRAW void draw_part_sound(int band)\n #endif\n     {\n         int x=matrix_row_hint(7,208-off,gray);\n-        cv_text(x+8,208-off,&FONT_T,UI_CAP_EDIT \": NEXT\",gray);\n+        x=cv_text(x+8,208-off,&FONT_T,UI_CAP_EDIT,gray);\n+        page_picture(x+4,208-off,gray);\n     }\n #if X0X_BASS_PRESET_PREVIEW\n     if (pg.r[page][0].kind==R_BENGINE) {\n         if (lock_step()<0) {\n             if(engine_bass_preset_pending(bidx()))\n-                matrix_row_hint(234-tw(&FONT_T,UI_CAP_ARROWS)-18-tw(&FONT_T,\"ROW\"),208-off,hint);\n-            else text_r(234,208-off,&FONT_T,UI_CAP_HOME \": BACK\",hint);\n+                matrix_row_hint(234-tw(&FONT_T,UI_CAP_ARROWS)-28,208-off,hint);\n+            else {\n+                int x=234-tw(&FONT_T,UI_CAP_HOME)-10;\n+                x=cv_text(x,208-off,&FONT_T,UI_CAP_HOME,hint);\n+                nav_arrow(x+4,210-off,-1,hint);\n+            }\n         }\n     } else\n #endif\n",
+      "disposition": {
+        "final": "partly_superseded",
+        "combined": "partly_superseded",
+        "explanation": "F5 page_picture call replaced by F1 matrix_next_hint; pending-preset row positioning and HOME-back nav_arrow retained."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 5341,
+              "reviewed_end": 5346,
+              "target_start": 5397,
+              "target_end": 5402
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 5334,
+              "text": "        x=cv_text(x+8,208-off,&FONT_T,UI_CAP_EDIT,gray);"
+            },
+            {
+              "reviewed_line": 5335,
+              "text": "        page_picture(x+4,208-off,gray);"
+            }
+          ],
+          "added_lines": 8,
+          "matched_added_lines": 6
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 5341,
+              "reviewed_end": 5346,
+              "target_start": 5821,
+              "target_end": 5826
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 5334,
+              "text": "        x=cv_text(x+8,208-off,&FONT_T,UI_CAP_EDIT,gray);"
+            },
+            {
+              "reviewed_line": 5335,
+              "text": "        page_picture(x+4,208-off,gray);"
+            }
+          ],
+          "added_lines": 8,
+          "matched_added_lines": 6
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H11",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 6349,
+        "count": 6
+      },
+      "reviewed_range": {
+        "start": 6415,
+        "count": 21
+      },
+      "original_unified_hunk": "@@ -6349,6 +6415,21 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)\n     *mix = q == 0 ? 0 : 127; return q == 3 ? 3 : 2;          /* TRI, SQR, PUL */\n }\n \n+/* Engine waveform cue (restored from ca8299b6): slot 0 is the Chicago\n+ * oscillator mix or the Miami carrier, 1 the Miami modulator, 2 the wobble. */\n+static int original_wave_slot(unsigned kind,int p)\n+{\n+    if(p==0)return 0;\n+    if(kind==ORIGINAL_SOUND_MIAMI)return p==6?1:p==11?2:-1;\n+    return -1;\n+}\n+static UI_DRAW void draw_original_wave(int cx,int y,const ui_original_wave_cache *v,int slot,uint16_t ink,uint16_t face)\n+{\n+    cv_rect(cx-14,y+v->zero[slot],UI_ORIGINAL_WAVE_W,1,blend(face,ink,3));\n+    for(int i=1;i<UI_ORIGINAL_WAVE_W;i++)\n+        cv_line(cx-15+i,y+v->wave[slot][i-1],cx-14+i,y+v->wave[slot][i],ink);\n+}\n+\n enum { MIAMI_WAVE_HEIGHT=19, MIAMI_WAVE_ZERO=9, MIAMI_WAVE_GAIN=8 };\n /* One affine projection per supported range. The pulse zero is near its low\n  * rail, not the midpoint: preserve its +1 / -1/9 relative amplitudes. */\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "changed",
+        "explanation": "original_wave_slot gains JUNO/DRONE return-minus-1 guard in combined; draw_original_wave remains exact."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 6418,
+              "reviewed_end": 6432,
+              "target_start": 6476,
+              "target_end": 6490
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 15,
+          "matched_added_lines": 15
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 6418,
+              "reviewed_end": 6421,
+              "target_start": 6935,
+              "target_end": 6938
+            },
+            {
+              "reviewed_start": 6422,
+              "reviewed_end": 6432,
+              "target_start": 6940,
+              "target_end": 6950
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 15,
+          "matched_added_lines": 15
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H12",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 6670,
+        "count": 7
+      },
+      "reviewed_range": {
+        "start": 6751,
+        "count": 11
+      },
+      "original_unified_hunk": "@@ -6670,7 +6751,11 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act\n         else strip_value(x+45,y+28,num,unit,ink);     /* starts >= x+32: 3 px clear of the glyph */\n     } else\n     if(shape) {\n-        draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));\n+        int slot=original_wave_slot((unsigned)engine_bass_sound_bank(&proj.sound,r.b),r.c);\n+        const ui_original_wave_cache *wave=slot>=0?original_wave_view(r,val):0;\n+        uint16_t face=night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE);\n+        if(wave) draw_original_wave(cx-10,y+25,wave,slot,ink,face);\n+        else draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,face);\n         pref_value_of(r,val,num,unit);           /* original readout text */\n         strip_value(cx+17,y+28,num,unit,ink);\n     } else {\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Waveform selection, native projection painter, fallback and readout block retained."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 6754,
+              "reviewed_end": 6758,
+              "target_start": 6812,
+              "target_end": 6816
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 5,
+          "matched_added_lines": 5
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 6754,
+              "reviewed_end": 6758,
+              "target_start": 7272,
+              "target_end": 7276
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 5,
+          "matched_added_lines": 5
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H13",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 7763,
+        "count": 10
+      },
+      "reviewed_range": {
+        "start": 7848,
+        "count": 11
+      },
+      "original_unified_hunk": "@@ -7763,10 +7848,11 @@ static UI_DRAW void draw_knobs(void)\n         }\n         if ((r.kind == R_ENG && r.a == T_303) || r.kind == R_BENGINE || r.kind == R_BPRESET || r.kind == R_BSTATUS)\n             original_cell_value(cx,vc(&FONT_B,53,13),num,unit,touched ? C_WHITE : C_HI);\n-        else\n-        /* Barlow number/unit ink is 0.5–1px right of the PUMP card center. */\n-        cell_value(cx-(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP),\n-                   vc(&FONT_B,53,13),num,unit,touched?C_WHITE:C_HI);\n+        /* Existing FWD/REV/PING/RND pictures already show the direction.\n+         * Barlow number/unit ink is 0.5–1px right of the PUMP card center. */\n+        else if(r.kind!=R_BDIR)\n+            cell_value(cx-(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP),\n+                       vc(&FONT_B,53,13),num,unit,touched?C_WHITE:C_HI);\n     }\n     cv_commit_knobs(3);\n }\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "R_BDIR duplicate value suppression retained."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 7851,
+              "reviewed_end": 7855,
+              "target_start": 7973,
+              "target_end": 7977
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 5,
+          "matched_added_lines": 5
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 7851,
+              "reviewed_end": 7855,
+              "target_start": 8433,
+              "target_end": 8437
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 5,
+          "matched_added_lines": 5
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui.c#H14",
+      "path": "firmware/src/app/ui.c",
+      "base_range": {
+        "start": 7924,
+        "count": 6
+      },
+      "reviewed_range": {
+        "start": 8010,
+        "count": 7
+      },
+      "original_unified_hunk": "@@ -7924,6 +8010,7 @@ X0X_COLD void ui_init(void)\n     memset(&ui, 0, sizeof ui);\n     (void)plat_division_pad(0);\n     original_controls.valid = 0;\n+    original_wave.valid = 0;\n     memset(kbd_held_note, 0, sizeof kbd_held_note);\n     memset(kbd_held_key, 0, sizeof kbd_held_key);\n     memset(kbd_arp_n, 0, sizeof kbd_arp_n);\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "original_wave.valid reset retained."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 8013,
+              "reviewed_end": 8013,
+              "target_start": 8135,
+              "target_end": 8135
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 8013,
+              "reviewed_end": 8013,
+              "target_start": 8596,
+              "target_end": 8596
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        }
+      }
+    },
+    {
+      "id": "firmware/src/app/ui_original_wave.h#H1",
+      "path": "firmware/src/app/ui_original_wave.h",
+      "base_range": {
+        "start": 0,
+        "count": 0
+      },
+      "reviewed_range": {
+        "start": 1,
+        "count": 122
+      },
+      "original_unified_hunk": "@@ -0,0 +1,122 @@\n+/* SPDX-License-Identifier: GPL-3.0-only */\n+#pragma once\n+/* Engine waveform cue for the original-synth oscillator controls.\n+ * Restored from ca8299b6 (ui_original.h): a small integer projection of\n+ * oscillator_motion.c at 128 samples per cycle. It is a raw shape cue, not\n+ * audio after modulation, filter or effects. It is sampled only when the\n+ * shown cell or its lock/motion preview changes, never per pixel or frame.\n+ * Include after ui_original_controls.h. */\n+enum { UI_ORIGINAL_WAVE_W=29, UI_ORIGINAL_WAVE_H=19 };\n+/* The preview masks of ca8299b6: a superset of the macros that move the\n+ * native fields read below (Chicago shapes 1/9, gains 3/11, width 22;\n+ * Miami shapes 1/5/43, width 22). */\n+#define UI_ORIGINAL_CHICAGO_WAVE_MASK ((1u<<0)|(1u<<2)|(1u<<3)|(1u<<4)|(1u<<11)|(1u<<13)|(1u<<14)|(1u<<15)|(1u<<16)|(1u<<21))\n+#define UI_ORIGINAL_MIAMI_WAVE_MASK ((1u<<0)|(1u<<3)|(1u<<6)|(1u<<7)|(1u<<9)|(1u<<10)|(1u<<11)|(1u<<13)|(1u<<17))\n+typedef struct {\n+    uint8_t cell[ORIGINAL_SOUND_BYTES], preview[22], voice, valid, kind;\n+    uint32_t preview_mask;\n+    uint8_t wave[3][UI_ORIGINAL_WAVE_W], zero[3];\n+} ui_original_wave_cache;\n+\n+static int32_t ui_original_saw(int32_t p)\n+{\n+    int32_t edge=p*64;\n+    if(edge>65536)edge=65536;\n+    if(edge< -65536)edge= -65536;\n+    return p-edge;\n+}\n+static int32_t ui_original_wave(unsigned shape,int32_t p,int32_t width)\n+{\n+    if(shape==0)return (65536-2*(p<0?-p:p))/4;\n+    int32_t z=ui_original_saw(p);\n+    if(shape>=2){int32_t q=p+2*width;if(q>65536)q-=131072;z-=ui_original_saw(q);}\n+    return z/4;\n+}\n+static int32_t ui_original_mg(unsigned shape,int32_t p)\n+{\n+    if(shape==0)return (65536-2*(p<0?-p:p))/4;\n+    if(shape==1)return -p/4;\n+    if(shape==2)return p/4;\n+    return p>=0?-16384:16384;\n+}\n+static uint8_t ui_original_plot(int32_t z,int32_t lo,int32_t hi)\n+{\n+    int32_t y=1+((hi-z)*16+(hi-lo)/2)/(hi-lo);\n+    return (uint8_t)(y<0?0:y>=UI_ORIGINAL_WAVE_H?UI_ORIGINAL_WAVE_H-1:y);\n+}\n+static void ui_original_curve(ui_original_wave_cache *v,unsigned slot,unsigned shape,int32_t width,int mg)\n+{\n+    int32_t lo=-16384,hi=16384;\n+    if(!mg && shape>=2){lo=-width/2;hi=32768-width/2;}\n+    v->zero[slot]=ui_original_plot(0,lo,hi);\n+    for(unsigned i=0;i<UI_ORIGINAL_WAVE_W;i++){\n+        int32_t phase=65536-(int32_t)(131072u*i/(UI_ORIGINAL_WAVE_W-1u));\n+        int32_t z=mg?ui_original_mg(shape,-phase):ui_original_wave(shape,phase,width);\n+        v->wave[slot][i]=ui_original_plot(z,lo,hi);\n+    }\n+}\n+static int32_t ui_original_width(unsigned shape,float native_width)\n+{\n+    if(native_width<.01f)native_width=.01f;\n+    if(native_width>.99f)native_width=.99f;\n+    return shape<2?0:shape==2?32768:(int32_t)((1.0f-native_width)*65536.0f+.5f);\n+}\n+static int ui_original_wave_project(ui_original_wave_cache *out,const uint8_t cell[ORIGINAL_SOUND_BYTES],\n+                                    const uint8_t preview[22],uint32_t mask)\n+{\n+    if(!out || !original_sound_valid(cell))return 0;\n+    unsigned kind=cell[29],n=original_sound_count(kind);\n+    if(mask>>n)return 0;\n+    for(unsigned i=0;i<n;i++)if((mask&(1u<<i)) && preview[i]>original_sound_param(kind,i)->max)return 0;\n+    union { original_chicago_program chicago; original_miami_program miami; } program;\n+    out->kind=(uint8_t)kind;\n+    float x;\n+    if(kind==ORIGINAL_SOUND_CHICAGO){\n+        original_chicago_program *p=&program.chicago;\n+        if(!original_sound_restore_chicago(p,cell))return 0;\n+        for(unsigned i=0;i<n;i++)if(mask&(1u<<i)){\n+            if(!original_sound_control_value(kind,i,preview[i],&x) || !original_chicago_program_set(p,i,x))return 0;\n+        }\n+        float na,nb,ga,gb,w;\n+        if(!original_chicago_program_native(p,1,&na) || !original_chicago_program_native(p,9,&nb) ||\n+           !original_chicago_program_native(p,3,&ga) || !original_chicago_program_native(p,11,&gb) ||\n+           !original_chicago_program_native(p,22,&w))return 0;\n+        unsigned a=ui_original_quant(na,5),b=ui_original_quant(nb,5);\n+        if(a>3 || b>3)return 0;\n+        int gain=(int)(ga*32768.0f+.5f),other=(int)(gb*32768.0f+.5f);\n+        if(gain<0 || gain>32768 || other<0 || other>32768)return 0;\n+        int32_t wa=ui_original_width(a,w),wb=ui_original_width(b,w);\n+        out->zero[0]=9;\n+        for(unsigned i=0;i<UI_ORIGINAL_WAVE_W;i++){\n+            int32_t phase=65536-(int32_t)(131072u*i/(UI_ORIGINAL_WAVE_W-1u));\n+            /* Prehalving keeps each product <= 2^29 and the sum in int32_t. */\n+            int32_t z=((ui_original_wave(a,phase,wa)/2)*gain+(ui_original_wave(b,phase,wb)/2)*other)/16384;\n+            out->wave[0][i]=ui_original_plot(z,-16384,16384);\n+        }\n+    }else{\n+        original_miami_program *p=&program.miami;\n+        if(!original_sound_restore_miami(p,cell))return 0;\n+        for(unsigned i=0;i<n;i++)if(mask&(1u<<i)){\n+            if(!original_sound_control_value(kind,i,preview[i],&x) || !original_miami_program_set(p,i,x))return 0;\n+        }\n+        float w;\n+        if(!original_miami_program_native(p,22,&w))return 0;\n+        const unsigned ids[3]={1,5,43};\n+        for(unsigned s=0;s<3;s++){\n+            if(!original_miami_program_native(p,ids[s],&x))return 0;\n+            unsigned shape=ui_original_quant(x,5);if(shape>3)return 0;\n+            ui_original_curve(out,s,shape,ui_original_width(shape,w),s==2);\n+        }\n+    }\n+    return 1;\n+}\n+static int ui_original_wave_update(ui_original_wave_cache *cache,unsigned voice,\n+    const uint8_t cell[ORIGINAL_SOUND_BYTES],const uint8_t preview[22],uint32_t mask)\n+{\n+    if(cache->valid && cache->voice==voice && cache->preview_mask==mask &&\n+       !memcmp(cache->cell,cell,ORIGINAL_SOUND_BYTES) && !memcmp(cache->preview,preview,22))return 1;\n+    cache->valid=0;\n+    if(voice>1 || !ui_original_wave_project(cache,cell,preview,mask))return 0;\n+    memcpy(cache->cell,cell,ORIGINAL_SOUND_BYTES);memcpy(cache->preview,preview,22);\n+    cache->preview_mask=mask;cache->voice=(uint8_t)voice;cache->valid=1;return 1;\n+}\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 1,
+              "reviewed_end": 122,
+              "target_start": 1,
+              "target_end": 122
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 122,
+          "matched_added_lines": 122
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 1,
+              "reviewed_end": 122,
+              "target_start": 1,
+              "target_end": 122
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 122,
+          "matched_added_lines": 122
+        }
+      }
+    },
+    {
+      "id": "tests/host/chicago_adsr_graph_test.c#H1",
+      "path": "tests/host/chicago_adsr_graph_test.c",
+      "base_range": {
+        "start": 144,
+        "count": 7
+      },
+      "reviewed_range": {
+        "start": 144,
+        "count": 7
+      },
+      "original_unified_hunk": "@@ -144,7 +144,7 @@ static void layout(int xs[5], float dur[3], ui_adsr_t *e)\n }\n static int curve_y(int x, uint16_t c)  /* topmost curve pixel in a column, or -1 */\n {\n-    for (int y = ROW_Y + 14; y <= ROW_Y + ROW_H - 5; y++)\n+    for (int y = ROW_Y + 22; y <= ROW_Y + ROW_H - 5; y++)\n         if (fb[(MAIN_Y + y) * 240 + x] == swap16(c)) return y;\n     return -1;\n }\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 147,
+              "reviewed_end": 147,
+              "target_start": 150,
+              "target_end": 150
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 147,
+              "reviewed_end": 147,
+              "target_start": 150,
+              "target_end": 150
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        }
+      }
+    },
+    {
+      "id": "tests/host/chicago_adsr_graph_test.c#H2",
+      "path": "tests/host/chicago_adsr_graph_test.c",
+      "base_range": {
+        "start": 155,
+        "count": 7
+      },
+      "reviewed_range": {
+        "start": 155,
+        "count": 7
+      },
+      "original_unified_hunk": "@@ -155,7 +155,7 @@ static void render_check(int a, int d, int s, int r)\n     ui.touched = -1; now_ms += 50; ui_frame();\n     layout(xs, dur, &e);\n     uint16_t c = matrix_col();\n-    int top = ROW_Y + 14, y0 = ROW_Y + ROW_H - 5;\n+    int top = ROW_Y + 22, y0 = ROW_Y + ROW_H - 5; /* K5-K8 readouts reserve the upper 8 px. */\n     /* Layout: ordered, every timed stage visible, fixed right edge. */\n     CHECK(xs[0] == GX0 && xs[4] == GX0 + GW);\n     for (int k = 0; k < 4; k++) CHECK(xs[k + 1] > xs[k]);\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 158,
+              "reviewed_end": 158,
+              "target_start": 161,
+              "target_end": 161
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 158,
+              "reviewed_end": 158,
+              "target_start": 161,
+              "target_end": 161
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        }
+      }
+    },
+    {
+      "id": "tests/host/chicago_adsr_graph_test.c#H3",
+      "path": "tests/host/chicago_adsr_graph_test.c",
+      "base_range": {
+        "start": 215,
+        "count": 7
+      },
+      "reviewed_range": {
+        "start": 215,
+        "count": 7
+      },
+      "original_unified_hunk": "@@ -215,7 +215,7 @@ int main(void)\n         *page_of(V_PART) = 0; build_pages(); ui.touched = -1; now_ms += 50; ui_frame();\n         CHECK(adsr_row(p) && cur_page() != p);\n         int lit = 0, xs[5]; float dur[3]; ui_adsr_t e; layout(xs, dur, &e);\n-        int top = ROW_Y + 14, y0 = ROW_Y + ROW_H - 5;\n+        int top = ROW_Y + 22, y0 = ROW_Y + ROW_H - 5;\n         int ys = y0 - (int)(e.sustain * (float)(y0 - top) + 0.5f);\n         for (int x = xs[2] + 2; x < xs[3] - 1; x++) lit += fb[(MAIN_Y + ys) * 240 + x] == swap16(SOUND_WHITE);\n         CHECK(lit >= xs[3] - xs[2] - 4);\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 218,
+              "reviewed_end": 218,
+              "target_start": 221,
+              "target_end": 221
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 218,
+              "reviewed_end": 218,
+              "target_start": 221,
+              "target_end": 221
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        }
+      }
+    },
+    {
+      "id": "tests/host/original_release_ui_test.c#H1",
+      "path": "tests/host/original_release_ui_test.c",
+      "base_range": {
+        "start": 102,
+        "count": 7
+      },
+      "reviewed_range": {
+        "start": 102,
+        "count": 8
+      },
+      "original_unified_hunk": "@@ -102,7 +102,8 @@ static void projection_cases(void)\n     preview[4]=cell[4]; CHECK(ui_original_controls_update(&cache,1,cell,preview,1u<<4)); CHECK(cache.preview_mask==(1u<<4));\n     CHECK(!ui_original_controls_project(&cache.view,cell,preview,1u<<22));\n     cell[28]=0; CHECK(!ui_original_controls_update(&cache,1,cell,preview,0) && !cache.valid);\n-    CHECK(sizeof(ui_original_control_cache)==76 && sizeof(ui_original_control_view)==14);\n+    /* Native ADSR controls added vca[4]: retain the size guard for that view. */\n+    CHECK(sizeof(ui_original_control_cache)==92 && sizeof(ui_original_control_view)==32);\n }\n static void pages_and_edits(void)\n {\n",
+      "disposition": {
+        "final": "retained_with_comment_change",
+        "combined": "retained_with_comment_change",
+        "explanation": "92/32 assertion retained; explanatory comment reworded after review."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 106,
+              "reviewed_end": 106,
+              "target_start": 110,
+              "target_end": 110
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 105,
+              "text": "    /* Native ADSR controls added vca[4]: retain the size guard for that view. */"
+            }
+          ],
+          "added_lines": 2,
+          "matched_added_lines": 1
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 106,
+              "reviewed_end": 106,
+              "target_start": 110,
+              "target_end": 110
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 105,
+              "text": "    /* Native ADSR controls added vca[4]: retain the size guard for that view. */"
+            }
+          ],
+          "added_lines": 2,
+          "matched_added_lines": 1
+        }
+      }
+    },
+    {
+      "id": "tests/host/original_release_ui_test.c#H2",
+      "path": "tests/host/original_release_ui_test.c",
+      "base_range": {
+        "start": 223,
+        "count": 13
+      },
+      "reviewed_range": {
+        "start": 224,
+        "count": 159
+      },
+      "original_unified_hunk": "@@ -223,13 +224,159 @@ static void image_cases(void)\n     uint8_t saved[32]; memcpy(saved,proj.sound.v[T_303][1],32); button_tap(B_EDIT); block();\n     CHECK(!engine_bass_preset_pending(1) && !memcmp(saved,proj.sound.v[T_303][1],32)); engine_bass_off(1);\n }\n+/* Waveform cases ported from 9e237cce; cache/preview checks prevent stale\n+ * factory, voice and held-step projections without editing the sound. */\n+static void restored_wave_cases(void)\n+{\n+    unsigned waves=0;\n+    for(unsigned kind=0;kind<2;kind++){\n+        unsigned voice=kind?0:1; choose(voice,kind,0);\n+        screen(V_PART,PART_303A+voice,0);\n+        uint8_t saved[ORIGINAL_SOUND_BYTES];\n+        memcpy(saved,proj.sound.v[T_303][voice],sizeof saved);\n+        for(int id=0;id<32;id++){\n+            int slot=original_wave_slot(kind,id),want=id==0?0:kind&&id==6?1:kind&&id==11?2:-1;\n+            CHECK(slot==want); waves+=slot>=0;\n+            if(slot>=0){\n+                pref_t r=PR(R_ENG,T_303,voice,id);\n+                const ui_original_wave_cache *v=original_wave_view(r,pref_get(r));\n+                CHECK(v && v->valid && v->voice==voice && v->kind==kind);\n+                for(int i=0;i<UI_ORIGINAL_WAVE_W;i++) CHECK(v->wave[slot][i]<UI_ORIGINAL_WAVE_H);\n+            }\n+        }\n+        CHECK(!memcmp(saved,proj.sound.v[T_303][voice],sizeof saved));\n+        pref_t r=PR(R_ENG,T_303,voice,kind?11:0);\n+        ui_original_wave_cache low=*original_wave_view(r,0);\n+        const ui_original_wave_cache *high=original_wave_view(r,127);\n+        CHECK(high && memcmp(low.wave[ kind?2:0 ],high->wave[ kind?2:0 ],UI_ORIGINAL_WAVE_W));\n+        CHECK(!memcmp(saved,proj.sound.v[T_303][voice],sizeof saved));\n+        /* A held step must supply the same explicit preview as its readout. */\n+        ui.held_step=0; ui.held_step_part=PART_303A+voice;\n+        ui.held_step_pat=seq.ppat[PART_303A+voice];\n+        lock_turn(r,1,EN_K1); block();\n+        int locked=lock_of(r,0); CHECK(locked>=0);\n+        const ui_original_wave_cache *locked_wave=original_wave_view(r,original_display_value(r));\n+        CHECK(locked_wave && (locked_wave->preview_mask&(1u<<r.c)) && locked_wave->preview[r.c]==locked);\n+        CHECK(!memcmp(saved,proj.sound.v[T_303][voice],sizeof saved));\n+        lock_release(); ui.held_step=-1;\n+        int lane=motion_find(proj.arr.lane,seq.ppat[PART_303A+voice],PART_303A+voice,T_303,voice,r.c);\n+        CHECK(lane>=0); engine_motion_clear(lane); block();\n+        const ui_original_wave_cache *base=original_wave_view(r,pref_get(r));\n+        CHECK(base && !(base->preview_mask&(1u<<r.c)));\n+    }\n+    CHECK(waves==4);\n+    /* Literal geometry from the original modulation laws: DOWN falls on the\n+     * display, UP rises, and TRI returns to its starting level. */\n+    ui_original_wave_cache v={0};\n+    ui_original_curve(&v,2,1,0,1);\n+    CHECK(v.wave[2][0]==1 && v.wave[2][14]==9 && v.wave[2][28]==17);\n+    ui_original_curve(&v,2,2,0,1);\n+    CHECK(v.wave[2][0]==17 && v.wave[2][14]==9 && v.wave[2][28]==1);\n+    ui_original_curve(&v,2,0,0,1);\n+    CHECK(v.wave[2][0]==17 && v.wave[2][14]==1 && v.wave[2][28]==17);\n+    uint8_t cell[ORIGINAL_SOUND_BYTES],preview[22]={0};\n+    CHECK(original_sound_init(cell,ORIGINAL_SOUND_MIAMI,0));\n+    CHECK(ui_original_wave_update(&v,0,cell,preview,0));\n+    CHECK(ui_original_wave_update(&v,1,cell,preview,0) && v.voice==1);\n+    CHECK(!ui_original_wave_update(&v,2,cell,preview,0) && !v.valid);\n+    CHECK(!ui_original_wave_project(&v,cell,preview,1u<<31));\n+    preview[0]=128; CHECK(!ui_original_wave_project(&v,cell,preview,1u)); preview[0]=0;\n+    cell[29]=255; CHECK(!ui_original_wave_update(&v,0,cell,preview,0) && !v.valid);\n+    choose(1,0,0); capture(\"restored-chicago-wave\",V_PART,PART_303B,0);\n+    choose(0,1,0); capture(\"restored-miami-wave\",V_PART,PART_303A,0);\n+    capture(\"restored-miami-xmod-wave\",V_PART,PART_303A,1);\n+    capture(\"restored-miami-wobble-wave\",V_PART,PART_303A,3);\n+}\n+static uint32_t picture_pixels(const uint16_t *p,int x,int y,int w,int h)\n+{\n+    uint32_t sum=2166136261u;\n+    for(int row=y;row<y+h;row++)for(int col=x;col<x+w;col++)sum=(sum^p[row*240+col])*16777619u;\n+    return sum;\n+}\n+static void picture_rule_cases(void)\n+{\n+    screen(V_HOME,PART_909,0); seq.playing=seq.song_on=seq.chain_a=seq.chain_b=0;\n+    for(int p=NPAT-2;p<NPAT;p++)pattern_init(&proj.pat[p],1,2);\n+    proj.set.accent_q7=127;\n+    sm_set(proj.pat[NPAT-1].drum[PART_909].hit[0],0);\n+    sm_set(proj.pat[NPAT-1].drum[PART_909].hit[0],8);\n+    sm_set(proj.pat[NPAT-2].drum[PART_909].hit[0],2);\n+    seq.ppat[PART_909]=NPAT-1; seq.pcue[PART_909]=NPAT-2;\n+    project_t *saved=malloc(sizeof proj); CHECK(saved); *saved=proj;\n+    seq_t before=seq;\n+    for(int theme=0;theme<=5;theme+=5){\n+        palette_set(theme); ui.msg_until=0; draw_header();\n+        /* Eight columns cover all saved steps: current {0,8} -> 0x11;\n+         * queued {2} -> 0x02. Header badges must show content, not assignment. */\n+        for(int i=0;i<8;i++)for(int y=8;y<=10;y++){\n+            uint16_t current=(0x11u&(1u<<i))?dim(PART_COL[PART_909],16):SOUND_FACE;\n+            uint16_t queued=(0x02u&(1u<<i))?dim(PART_COL[PART_909],9):SOUND_FACE;\n+            CHECK(fb[y*240+133+i]==swap16(current));\n+            CHECK(fb[y*240+165+i]==swap16(queued));\n+        }\n+        uint32_t idle=picture_pixels(fb,132,0,108,HDR_H);\n+        now_ms+=1000; ui.frame+=32; draw_header();\n+        CHECK(picture_pixels(fb,132,0,108,HDR_H)==idle);\n+        seq.pcue[PART_909]=0xff; draw_header(); uint32_t no_cue=picture_pixels(fb,156,0,30,HDR_H);\n+        seq.pcue[PART_909]=NPAT-1; draw_header();\n+        CHECK(picture_pixels(fb,156,0,30,HDR_H)==no_cue);\n+        seq.pcue[PART_909]=NPAT-2;\n+        seq.playing=1; eng_step[TRK_DRUM]=0; draw_header(); uint32_t step=picture_pixels(fb,156,6,6,7);\n+        eng_step[TRK_DRUM]=1; draw_header();\n+        CHECK(picture_pixels(fb,156,6,6,7)!=step);\n+        seq.playing=0;\n+    }\n+    CHECK(!memcmp(saved,&proj,sizeof proj)); CHECK(!memcmp(&before,&seq,sizeof seq)); free(saved);\n+    palette_set(proj.set.palette);\n+    /* A stop square and a play triangle are distinct, bounded status pictures. */\n+    cv_begin(240,HDR_H,C_BLACK); header_transport(10,0); uint32_t stopped=picture_pixels(cv_px,10,4,9,11);\n+    for(int y=0;y<HDR_H;y++)for(int x=0;x<240;x++)if(cv_px[y*240+x]!=swap16(C_BLACK))CHECK(x>=10&&x<19&&y>=4&&y<15);\n+    seq.playing=1; cv_begin(240,HDR_H,C_BLACK); header_transport(10,0);\n+    CHECK(picture_pixels(cv_px,10,4,9,11)!=stopped); seq.playing=0;\n+    for(int p=PART_303A;p<=PART_303B;p++){\n+        screen(V_PART,p,0); uint8_t page=cur_page(),view=ui.view,part=ui.part;\n+        cv_begin(240,KNOB_H,C_BLACK); int end=matrix_row_hint(7,50,C_HI);\n+        CHECK(end+8+tw(&FONT_T,UI_CAP_EDIT)+4+18<190);\n+        for(int y=0;y<KNOB_H;y++)for(int x=0;x<240;x++)if(cv_px[y*240+x]!=swap16(C_BLACK))CHECK(x>=7&&x<end&&y>=50&&y<62);\n+        CHECK(page==cur_page()&&view==ui.view&&part==ui.part);\n+        /* Exercise the composed footer, including the physical panel caption\n+         * when built with X0X_SMK_CAPTIONS=1, not just its row helper. */\n+        draw_knobs(); int next_x=end+8+tw(&FONT_T,UI_CAP_EDIT)+4;\n+        for(int x=next_x;x<next_x+8;x++)CHECK(fb[(KNOB_Y+70)*240+x]==swap16(SOUND_GRAY));\n+        ui.held_step=0;ui.held_step_part=(uint8_t)p;ui.held_step_pat=seq.ppat[p];draw_knobs();\n+        char held[48];snprintf(held,sizeof held,\"STEP 1 %s: CHANCE %s\",UI_CAP_ARROWS,UI_CAP_EDIT);\n+        int row_x=7+tw(&FONT_T,held)+4;\n+        for(int x=row_x;x<row_x+10;x++)CHECK(fb[(KNOB_Y+74)*240+x]==swap16(C_AMB));\n+        ui.held_step=-1;\n+        seq.ppat[p]=NPAT-1;seq.pcue[p]=NPAT-2;draw_header();\n+        CHECK(fb[9*240+137]==swap16(C_AMB));\n+        seq.pcue[p]=0xff;draw_header();CHECK(fb[9*240+137]==swap16(SOUND_FACE));\n+        seq.pcue[p]=NPAT-1;draw_header();CHECK(fb[9*240+137]==swap16(SOUND_FACE));\n+    }\n+    /* Preserve the exact direction text for lists/Help; the strip's existing\n+     * pictures distinguish the same four states without duplicate readouts. */\n+    screen(V_SEQ,PART_303B,0); int page=-1,slot=-1;\n+    for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++)if(pg.r[p][k].kind==R_BDIR){page=p;slot=k;}\n+    CHECK(page>=0); *page_of(V_SEQ)=(uint8_t)page; build_pages();\n+    uint32_t direction[4];\n+    for(int d=0;d<4;d++){\n+        pref_t r=pg.r[page][slot]; pref_set(r,d); char value[16],unit[8]; pref_value(r,value,unit);\n+        CHECK(!strcmp(value,DIR_N[d])); ui.touched=-1; blit_hash[3]=0; draw_knobs();\n+        /* This area used to contain the duplicate FWD/REV/PING/RND value.\n+         * Reintroducing that text must fail even if the arrows are unchanged. */\n+        for(int y=53;y<64;y++)for(int x=slot*60+12;x<slot*60+48;x++)\n+            CHECK(fb[(KNOB_Y+y)*240+x]==swap16(SOUND_FACE));\n+        direction[d]=picture_pixels(fb,slot*60+10,KNOB_Y+26,40,24);\n+        for(int j=0;j<d;j++)CHECK(direction[d]!=direction[j]);\n+    }\n+}\n #ifndef ORIGINAL_UI_MAIN\n #define ORIGINAL_UI_MAIN main\n #endif\n int ORIGINAL_UI_MAIN(int argc,char **argv)\n {\n     image_dir=argc==2?argv[1]:0; projection_cases(); load_force=0; boot(); settle();\n-    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases();\n+    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases(); restored_wave_cases(); picture_rule_cases();\n     printf(\"PASS original_release_ui checks=%u captures=%u cache=%zu view=%zu ui=%zu pages=%zu freeplay=%zu\\n\",\n            checks,captures,sizeof original_controls,sizeof original_controls.view,sizeof ui,sizeof pg,sizeof live_keys+sizeof live_outer);\n     return 0;\n",
+      "disposition": {
+        "final": "retained_with_other_lane_additions",
+        "combined": "partly_superseded",
+        "explanation": "restored_wave_cases and picture_pixels exact; final retains picture_rule_cases despite removed transport helper; combined rewrites HOME/PART content and transport checks. Call list additionally gains F1 fx_picture_cases."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 227,
+              "reviewed_end": 372,
+              "target_start": 272,
+              "target_end": 417
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 379,
+              "text": "    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases(); restored_wave_cases(); picture_rule_cases();"
+            }
+          ],
+          "added_lines": 147,
+          "matched_added_lines": 146
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 227,
+              "reviewed_end": 307,
+              "target_start": 272,
+              "target_end": 352
+            },
+            {
+              "reviewed_start": 311,
+              "reviewed_end": 311,
+              "target_start": 365,
+              "target_end": 365
+            },
+            {
+              "reviewed_start": 313,
+              "reviewed_end": 313,
+              "target_start": 366,
+              "target_end": 366
+            },
+            {
+              "reviewed_start": 316,
+              "reviewed_end": 316,
+              "target_start": 368,
+              "target_end": 368
+            },
+            {
+              "reviewed_start": 318,
+              "reviewed_end": 318,
+              "target_start": 370,
+              "target_end": 370
+            },
+            {
+              "reviewed_start": 321,
+              "reviewed_end": 321,
+              "target_start": 373,
+              "target_end": 373
+            },
+            {
+              "reviewed_start": 323,
+              "reviewed_end": 323,
+              "target_start": 375,
+              "target_end": 375
+            },
+            {
+              "reviewed_start": 325,
+              "reviewed_end": 325,
+              "target_start": 377,
+              "target_end": 377
+            },
+            {
+              "reviewed_start": 327,
+              "reviewed_end": 330,
+              "target_start": 379,
+              "target_end": 382
+            },
+            {
+              "reviewed_start": 333,
+              "reviewed_end": 333,
+              "target_start": 386,
+              "target_end": 386
+            },
+            {
+              "reviewed_start": 336,
+              "reviewed_end": 372,
+              "target_start": 391,
+              "target_end": 427
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [
+            {
+              "reviewed_line": 308,
+              "text": "        palette_set(theme); ui.msg_until=0; draw_header();"
+            },
+            {
+              "reviewed_line": 309,
+              "text": "        /* Eight columns cover all saved steps: current {0,8} -> 0x11;"
+            },
+            {
+              "reviewed_line": 310,
+              "text": "         * queued {2} -> 0x02. Header badges must show content, not assignment. */"
+            },
+            {
+              "reviewed_line": 312,
+              "text": "            uint16_t current=(0x11u&(1u<<i))?dim(PART_COL[PART_909],16):SOUND_FACE;"
+            },
+            {
+              "reviewed_line": 314,
+              "text": "            CHECK(fb[y*240+133+i]==swap16(current));"
+            },
+            {
+              "reviewed_line": 315,
+              "text": "            CHECK(fb[y*240+165+i]==swap16(queued));"
+            },
+            {
+              "reviewed_line": 317,
+              "text": "        uint32_t idle=picture_pixels(fb,132,0,108,HDR_H);"
+            },
+            {
+              "reviewed_line": 319,
+              "text": "        CHECK(picture_pixels(fb,132,0,108,HDR_H)==idle);"
+            },
+            {
+              "reviewed_line": 320,
+              "text": "        seq.pcue[PART_909]=0xff; draw_header(); uint32_t no_cue=picture_pixels(fb,156,0,30,HDR_H);"
+            },
+            {
+              "reviewed_line": 322,
+              "text": "        CHECK(picture_pixels(fb,156,0,30,HDR_H)==no_cue);"
+            },
+            {
+              "reviewed_line": 324,
+              "text": "        seq.playing=1; eng_step[TRK_DRUM]=0; draw_header(); uint32_t step=picture_pixels(fb,156,6,6,7);"
+            },
+            {
+              "reviewed_line": 326,
+              "text": "        CHECK(picture_pixels(fb,156,6,6,7)!=step);"
+            },
+            {
+              "reviewed_line": 331,
+              "text": "    /* A stop square and a play triangle are distinct, bounded status pictures. */"
+            },
+            {
+              "reviewed_line": 332,
+              "text": "    cv_begin(240,HDR_H,C_BLACK); header_transport(10,0); uint32_t stopped=picture_pixels(cv_px,10,4,9,11);"
+            },
+            {
+              "reviewed_line": 334,
+              "text": "    seq.playing=1; cv_begin(240,HDR_H,C_BLACK); header_transport(10,0);"
+            },
+            {
+              "reviewed_line": 335,
+              "text": "    CHECK(picture_pixels(cv_px,10,4,9,11)!=stopped); seq.playing=0;"
+            },
+            {
+              "reviewed_line": 379,
+              "text": "    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases(); restored_wave_cases(); picture_rule_cases();"
+            }
+          ],
+          "added_lines": 147,
+          "matched_added_lines": 130
+        }
+      }
+    },
+    {
+      "id": "tests/host/ui_picture_capture.c#H1",
+      "path": "tests/host/ui_picture_capture.c",
+      "base_range": {
+        "start": 0,
+        "count": 0
+      },
+      "reviewed_range": {
+        "start": 1,
+        "count": 57
+      },
+      "original_unified_hunk": "@@ -0,0 +1,57 @@\n+/* SPDX-License-Identifier: GPL-3.0-only */\n+/* Capture-only fixture: uses APIs present on both #807's previous head and the\n+ * candidate. No proposed drawing is embedded here; every pixel is the firmware\n+ * host renderer's real 240x240 RGB565 framebuffer. Run only on the authorized box. */\n+#define X0X_SMK_CAPTIONS 1\n+#define main simulator_main\n+#include \"../../host/x0x_host.c\"\n+#undef main\n+\n+static const char *capture_dir,*capture_theme;\n+static void capture_picture(const char *name,int view,int part,int page,int playing)\n+{\n+    char path[1024];\n+    ui.view=(uint8_t)view;ui.part=(uint8_t)part;ui.overlay=O_NONE;ui.help=0;\n+    ui.touched=-1;ui.touch_until=ui.msg_until=0;ui.msg[0]=0;\n+    ui.held_step=ui.hold_step=-1;ui.btn=ui.keys=ui.rec=0;\n+    ui.page[view][view==V_PART||view==V_SEQ||view==V_GEN?part:0]=(uint8_t)page;\n+    seq.playing=(uint8_t)playing;seq.song_on=0;any_button=1;\n+    eng_step[TRK_DRUM]=eng_step[TRK_DRUM+1]=eng_step[TRK_BASS0]=eng_step[TRK_BASS0+1]=1;\n+    build_pages();memset(blit_hash,0,sizeof blit_hash);\n+    draw_header();draw_main();draw_knobs();\n+    int n=snprintf(path,sizeof path,\"%s/%s-%s.png\",capture_dir,capture_theme,name);\n+    if(n<0 || (size_t)n>=sizeof path)exit(1);\n+    png_write(path);\n+}\n+int main(int argc,char **argv)\n+{\n+    if(argc!=2){fprintf(stderr,\"usage: ui_picture_capture OUTDIR\\n\");return 2;}\n+    capture_dir=argv[1];load_force=0;boot();now_ms=1000;\n+    proj.set.autosave_off=1;\n+    if(engine_bass_select_preset(0,ORIGINAL_SOUND_MIAMI,0,&proj.sound) ||\n+       engine_bass_select_preset(1,ORIGINAL_SOUND_CHICAGO,0,&proj.sound))return 1;\n+    for(int i=0;i<12;i++){int32_t audio[512];engine_render(audio,256);}\n+    for(int p=NPAT-2;p<NPAT;p++)pattern_init(&proj.pat[p],1,2);\n+    for(int p=0;p<NPARTS;p++){seq.ppat[p]=NPAT-1;seq.pcue[p]=NPAT-2;}\n+    sm_set(proj.pat[NPAT-1].drum[0].hit[0],0);sm_set(proj.pat[NPAT-1].drum[0].hit[0],8);\n+    sm_set(proj.pat[NPAT-2].drum[0].hit[0],2);seq.chain_a=seq.chain_b=0;\n+    for(int theme=0;theme<=5;theme+=5){\n+        palette_set(theme);capture_theme=theme?\"light\":\"dark\";\n+        capture_picture(\"home-stopped-queued\",V_HOME,PART_909,0,0);\n+        capture_picture(\"chicago-oscillator-playing-queued\",V_PART,PART_303B,0,1);\n+        capture_picture(\"miami-carrier-stopped-queued\",V_PART,PART_303A,0,0);\n+        capture_picture(\"miami-xmod-playing\",V_PART,PART_303A,1,1);\n+        capture_picture(\"miami-wobble-playing\",V_PART,PART_303A,3,1);\n+        capture_picture(\"chicago-envelope-playing\",V_PART,PART_303B,3,1);\n+        ui.view=V_SEQ;ui.part=PART_303B;build_pages();\n+        int page=-1,slot=-1;\n+        for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++)if(pg.r[p][k].kind==R_BDIR){page=p;slot=k;}\n+        if(page<0)return 1;\n+        for(int direction=0;direction<4;direction++){\n+            char name[40];pref_set(pg.r[page][slot],direction);\n+            snprintf(name,sizeof name,\"sequencer-direction-%d\",direction);\n+            capture_picture(name,V_SEQ,PART_303B,page,0);\n+        }\n+    }\n+    return 0;\n+}\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 1,
+              "reviewed_end": 57,
+              "target_start": 1,
+              "target_end": 57
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 57,
+          "matched_added_lines": 57
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 1,
+              "reviewed_end": 57,
+              "target_start": 1,
+              "target_end": 57
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 57,
+          "matched_added_lines": 57
+        }
+      }
+    },
+    {
+      "id": "tests/run_tests.sh#H1",
+      "path": "tests/run_tests.sh",
+      "base_range": {
+        "start": 95,
+        "count": 6
+      },
+      "reviewed_range": {
+        "start": 95,
+        "count": 7
+      },
+      "original_unified_hunk": "@@ -95,6 +95,7 @@ test_class() {\n     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;\n     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-two-page-strip|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|smc-popup-engine|smc-audit-core|smc-audit-contract|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;\n     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;\n+    chicago-adsr-graph|ui-settings-sections) TEST_CLASS=G ;;\n     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;\n     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios\n     *) TEST_CLASS=P ;;\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 98,
+              "reviewed_end": 98,
+              "target_start": 98,
+              "target_end": 98
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 98,
+              "reviewed_end": 98,
+              "target_start": 103,
+              "target_end": 103
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 1,
+          "matched_added_lines": 1
+        }
+      }
+    },
+    {
+      "id": "tests/run_tests.sh#H2",
+      "path": "tests/run_tests.sh",
+      "base_range": {
+        "start": 423,
+        "count": 6
+      },
+      "reviewed_range": {
+        "start": 424,
+        "count": 9
+      },
+      "original_unified_hunk": "@@ -423,6 +424,9 @@ run smc-mixer-page sh tests/host/smc_mixer_page_test.sh\n run ui-shared-glyph sh tests/host/ui_shared_glyph_test.sh  # shared glyphs across live UI pages\n run ui-drum-mix-material sh tests/host/ui_drum_mix_material_test.sh  # 808/909 captions, rails and pan\n run ui-waveform-truth sh tests/host/ui_waveform_truth_test.sh  # Miami TRI/SQR/PUL value-cell shapes\n+run ui-page-wrap python3 tests/host/ui_page_wrap_test.py  # production SELECT handler; no generated inputs\n+run chicago-adsr-graph sh tests/host/chicago_adsr_graph_test.sh\n+run ui-settings-sections sh tests/host/ui_settings_sections_test.sh\n run smc-ui-bounds sh tests/host/smc_ui_bounds_test.sh\n run smc-ui-negative python3 tests/host/smc_ui_negative_test.py\n run smc-mapping python3 tests/host/smc_mapping_test.py\n",
+      "disposition": {
+        "final": "retained",
+        "combined": "retained",
+        "explanation": "Original changed hunk retained; whole file can have other changes."
+      },
+      "alignment": {
+        "final": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 427,
+              "reviewed_end": 429,
+              "target_start": 432,
+              "target_end": 434
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 3,
+          "matched_added_lines": 3
+        },
+        "combined": {
+          "matching_added_line_runs": [
+            {
+              "reviewed_start": 427,
+              "reviewed_end": 429,
+              "target_start": 505,
+              "target_end": 507
+            }
+          ],
+          "not_matched_by_ordered_line_alignment": [],
+          "added_lines": 3,
+          "matched_added_lines": 3
+        }
+      }
+    }
+  ],
+  "named_dependency_identities": [
+    {
+      "path": "firmware/src/app/ui_original_controls.h",
+      "blobs": {
+        "reviewed": {
+          "sha": "91f7cb204bf2ca2e5405f1715dd7c73a57dde3ac",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/firmware/src/app/ui_original_controls.h"
+        },
+        "final": {
+          "sha": "91f7cb204bf2ca2e5405f1715dd7c73a57dde3ac",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/firmware/src/app/ui_original_controls.h"
+        },
+        "combined": {
+          "sha": "afd18e4d0bc5ed1c58ce92002bfb916cfe530627",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui_original_controls.h"
+        }
+      },
+      "all_equal": false
+    },
+    {
+      "path": "firmware/src/app/original_sound.c",
+      "blobs": {
+        "reviewed": {
+          "sha": "530a63d2759a5a44ce5dcab60d5978433bf4aa5f",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/firmware/src/app/original_sound.c"
+        },
+        "final": {
+          "sha": "603bb12cbc0a0237469d3fdcf3daddc6ba186973",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/firmware/src/app/original_sound.c"
+        },
+        "combined": {
+          "sha": "6268b4191c9f348d7d78354a92d95c87b6341e63",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/original_sound.c"
+        }
+      },
+      "all_equal": false
+    },
+    {
+      "path": "firmware/src/app/original_sound.h",
+      "blobs": {
+        "reviewed": {
+          "sha": "3720c5152d9c8115e73c4172e9ce920d56da57ff",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/firmware/src/app/original_sound.h"
+        },
+        "final": {
+          "sha": "863c2d12bb95e0d001766695600ddfa98d865638",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/firmware/src/app/original_sound.h"
+        },
+        "combined": {
+          "sha": "c715ca3ad06228158a725128332ba680ae5a930c",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/original_sound.h"
+        }
+      },
+      "all_equal": false
+    },
+    {
+      "path": "firmware/src/app/factory_banks.c",
+      "blobs": {
+        "reviewed": {
+          "sha": "33b233f550720fbac3f25c301b84af342d459bc7",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/firmware/src/app/factory_banks.c"
+        },
+        "final": {
+          "sha": "340d87fc51e53ddcce3c9484b2e1b1529aeabf14",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/firmware/src/app/factory_banks.c"
+        },
+        "combined": {
+          "sha": "340d87fc51e53ddcce3c9484b2e1b1529aeabf14",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/factory_banks.c"
+        }
+      },
+      "all_equal": false
+    },
+    {
+      "path": "firmware/src/app/factory_banks.h",
+      "blobs": {
+        "reviewed": {
+          "sha": "eb064e99b0a6c88766898656a24f0f230e51f1fc",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/firmware/src/app/factory_banks.h"
+        },
+        "final": {
+          "sha": "f617cacefe5fd3f4ec97454dd148e913d2f4fb30",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/firmware/src/app/factory_banks.h"
+        },
+        "combined": {
+          "sha": "f617cacefe5fd3f4ec97454dd148e913d2f4fb30",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/factory_banks.h"
+        }
+      },
+      "all_equal": false
+    },
+    {
+      "path": "experiments/original_synth/chicago_fx2_compact.c",
+      "blobs": {
+        "reviewed": {
+          "sha": "30fc39a45ec66a5745e9ace863a0a89b6ccc4fd5",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/experiments/original_synth/chicago_fx2_compact.c"
+        },
+        "final": {
+          "sha": "896c12b6b966af98aa2a998323edb0ae8de65ef6",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/experiments/original_synth/chicago_fx2_compact.c"
+        },
+        "combined": {
+          "sha": "896c12b6b966af98aa2a998323edb0ae8de65ef6",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/experiments/original_synth/chicago_fx2_compact.c"
+        }
+      },
+      "all_equal": false
+    },
+    {
+      "path": "experiments/original_synth/chicago_fx2_compact.h",
+      "blobs": {
+        "reviewed": {
+          "sha": "d80be9b160093103c8398404e5b187f4958ac63f",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/experiments/original_synth/chicago_fx2_compact.h"
+        },
+        "final": {
+          "sha": "1ddbe826fe31f8a30f5f4ad00ea072eb841b31b1",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/experiments/original_synth/chicago_fx2_compact.h"
+        },
+        "combined": {
+          "sha": "1ddbe826fe31f8a30f5f4ad00ea072eb841b31b1",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/experiments/original_synth/chicago_fx2_compact.h"
+        }
+      },
+      "all_equal": false
+    },
+    {
+      "path": "tests/host/original_release_ui_test.sh",
+      "blobs": {
+        "reviewed": {
+          "sha": "d38511ff6730210d12a805b7d0e6f37c7a253937",
+          "mode": "100755",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/tests/host/original_release_ui_test.sh"
+        },
+        "final": {
+          "sha": "d38511ff6730210d12a805b7d0e6f37c7a253937",
+          "mode": "100755",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/tests/host/original_release_ui_test.sh"
+        },
+        "combined": {
+          "sha": "d38511ff6730210d12a805b7d0e6f37c7a253937",
+          "mode": "100755",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/tests/host/original_release_ui_test.sh"
+        }
+      },
+      "all_equal": true
+    },
+    {
+      "path": "tests/host/ui_page_wrap_test.py",
+      "blobs": {
+        "reviewed": {
+          "sha": "fe885f4f5851e74b9267f0551bca83839bffa6d6",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/tests/host/ui_page_wrap_test.py"
+        },
+        "final": {
+          "sha": "fe885f4f5851e74b9267f0551bca83839bffa6d6",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/tests/host/ui_page_wrap_test.py"
+        },
+        "combined": {
+          "sha": "fe885f4f5851e74b9267f0551bca83839bffa6d6",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/tests/host/ui_page_wrap_test.py"
+        }
+      },
+      "all_equal": true
+    },
+    {
+      "path": "tests/host/chicago_adsr_graph_test.sh",
+      "blobs": {
+        "reviewed": {
+          "sha": "de037f8fed434aeb28ccab4702408f486f0c0842",
+          "mode": "100755",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/tests/host/chicago_adsr_graph_test.sh"
+        },
+        "final": {
+          "sha": "de037f8fed434aeb28ccab4702408f486f0c0842",
+          "mode": "100755",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/tests/host/chicago_adsr_graph_test.sh"
+        },
+        "combined": {
+          "sha": "de037f8fed434aeb28ccab4702408f486f0c0842",
+          "mode": "100755",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/tests/host/chicago_adsr_graph_test.sh"
+        }
+      },
+      "all_equal": true
+    },
+    {
+      "path": "tests/host/ui_settings_sections_test.sh",
+      "blobs": {
+        "reviewed": {
+          "sha": "62af2b00bdd0096c4b01bcc449ad1060590dc76f",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/tests/host/ui_settings_sections_test.sh"
+        },
+        "final": {
+          "sha": "62af2b00bdd0096c4b01bcc449ad1060590dc76f",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb/tests/host/ui_settings_sections_test.sh"
+        },
+        "combined": {
+          "sha": "62af2b00bdd0096c4b01bcc449ad1060590dc76f",
+          "mode": "100644",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/tests/host/ui_settings_sections_test.sh"
+        }
+      },
+      "all_equal": true
+    }
+  ],
+  "alignment_method": "Git --unified=3 defines original 27 hunks. difflib SequenceMatcher(autojunk=False) maps original added line occurrences in order to final/combined; a missing match alone is not semantic loss. Human disposition identifies replacements; exact original text and target blob links are supplied. A retained hunk does not establish unchanged transitive dependencies or runtime acceptance.",
+  "review_status": {
+    "documented_original_review": "Historical source-only receipt retained; PR body identifies reviewed head. Not independently reauthenticated original reviewer execution.",
+    "formal_pr_reviews": [],
+    "changed_scope_review_receipt": "NOT_RECOVERED in bounded F5/F1/F4 documentary and PR807 receipt set; no project-wide absence claim.",
+    "this_supplement_independent_check": "See sibling roadmap-122-f5-807-independent-check-20261114.md; independent artifact hashes and documentary verdict recorded there."
+  },
+  "consumption": "NOT_OBSERVED",
+  "runtime": "NOT_RUN"
+}

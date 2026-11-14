@@ -1,0 +1,73 @@
+# #122 supplement: #807 F5 reviewed-object disposition
+
+The documented F5 input can now be traced to the final #807 head and the combined tree at hunk level. **Five of ten whole F5 patch blobs remain identical at all three pins; the surrounding UI and fixture changed.** The original source review can be cited for its retained byte scope. It cannot establish review or runtime acceptance of the later conflict resolutions, guards or changed dependencies.
+
+This append-only supplement owns only the #807 provenance gap identified in the completed [#122 reconciliation](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d5c8c9d2f653066c01ecad7fb5a5a7ad2310a1a6/docs/evidence/roadmap-122-reconciliation-20261114.md). Its plan is to verify those inputs, recover the original patch and successor blobs, classify every original hunk, obtain an independent documentary check, and return the result to **Dot, sole ROADMAP writer in #887**. No implementation, shared ROADMAP change, owner reassignment, 122-row replay, build/test execution, musical UX audit, quota API or device operation belongs to this stage.
+
+## Exact input closure
+
+Both requested files were read at `d5c8c9d2f653066c01ecad7fb5a5a7ad2310a1a6`; locally recomputed Git blob identities match the remote file identities:
+
+| Input | Verified blob |
+|---|---|
+| [Reconciliation](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d5c8c9d2f653066c01ecad7fb5a5a7ad2310a1a6/docs/evidence/roadmap-122-reconciliation-20261114.md) | `af5ad1c03d7abd4c8bd2ffa97ce7f36a3787cda5` |
+| [122-row evidence map](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d5c8c9d2f653066c01ecad7fb5a5a7ad2310a1a6/docs/evidence/roadmap-122-evidence-20261114.json) | `18bd3b923921c0db9df5bb998ba7cede7001c1b2` |
+| [Historical inventory at combined](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/docs/one-build-integration-inventory.json) | `bd6ec51280d8ad9625e0cb274d5b9f55e49e47b6` |
+
+| Role | Commit | Root tree |
+|---|---|---|
+| Original pinned #789 parent | [`02c5224d12c7a96c0061fea71f13de04de58741b`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/02c5224d12c7a96c0061fea71f13de04de58741b) | `7568ad94ed45ce62ab3e0cb98526923a50b29b91` |
+| Documented review input | [`34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a) | `eff7db1b708054cebabd8e6f681c61e176184e65` |
+| Final #807 head | [`6508d90a14a4c25a0f72a0c0c39e285f1074ddcb`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb) | `ce522b4977cddfff64cfaa097af4394909f6094e` |
+| Combined source | [`94197fc839b00aff47b98ca02f3c6396e4a6eabf`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94197fc839b00aff47b98ca02f3c6396e4a6eabf) | `72d28fbc741244d18fa3d18495da16ab0fcb1d24` |
+
+Git commit endpoints bind these tree identities. Recursive reviewed/final/combined tree reads were untruncated: 5,247 / 5,301 / 5,811 entries. All **30 scoped blobs** (10 paths × three pins) were recovered and their actual bytes matched their remote Git tree identities. The [machine supplement](roadmap-122-f5-807-disposition-20261114.json) supplies each path, mode, blob SHA, exact source link, all **27 original `git diff --unified=3` hunks**, human dispositions and ordered line mappings. It also records the original parent's existing blobs and absent new files. This is authenticated scoped source, not a reconstructed full build checkout or full dependency-equivalence claim.
+
+The [live #807 record](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/807) reports `state=closed`, `merged=false`, `merged_at=null`, head `6508d90a…`. Its body still identifies `34a72b3d…` as delivered/reviewed input. Its non-null `merge_commit_sha=94072e1f81ecf13a28b162dd3f920f20f9042e7f` is **not evidence of a merge**. [The closure comment](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/807#issuecomment-6813755498) says the work is present through #864; that is a disposition claim. [GitHub comparison](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/compare/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a...6508d90a14a4c25a0f72a0c0c39e285f1074ddcb) establishes reviewed → final ancestry (32 commits ahead, none behind), and [final → combined comparison](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/compare/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb...94197fc839b00aff47b98ca02f3c6396e4a6eabf) establishes final ancestry (356 ahead, none behind). Ancestry does not prove unchanged hunks or an accepted PR merge.
+
+## Retained blobs and exact hunk exceptions
+
+The following whole blobs are identical at reviewed, final and combined: `PICTURES.md` `a29803d89f344c6391bfaa7ed8c060eddabb9349`; `README.md` `22bdc682d5a436e5a42cc5c707520f6cc020ae58`; `REVIEW.md` `baaf100a19ca1fa448ea30beadb4a8cccc921e2b`; `ui_original_wave.h` `568bcf906655b7dc4eae7b22e0ae1b72369cf63f`; and `ui_picture_capture.c` `f66f24d0b967ddaba81f81a3aa94e5aeb8db7208`. The waveform header also matches the directly recovered [archive donor at `9e237cce…`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9e237cce304dd021792ea80e7426d5f3bbb2a671/firmware/src/app/ui_original_wave.h). The F5 registry row remains exact inside its otherwise changed file.
+
+`ui.c` blobs are reviewed `446e991383bcc36ae2ddd8c458ec3b65e3981cf9`, final `c8b3f54fcfcf5a66a8785064f9f973d50268823f`, combined `eb911f58db83e417c67dd71576331803fa6c829e`. Its 14 original hunks have these dispositions; H numbers refer to the exact hunks in the machine supplement:
+
+| Original hunk | Final head and combined disposition |
+|---|---|
+| H1–H2 | Waveform include and single `original_wave X0X_POOL` cache retained. |
+| H3 | `original_wave_view` is exact at final. [Combined line 2915](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui.c#L2915) adds `if (kind == ORIGINAL_SOUND_JUNO || kind == ORIGINAL_SOUND_DRONE) return 0;`; the remaining body is exact. |
+| H4 | `nav_arrow`, `row_picture`, `header_pattern_badge` and `header_pattern_cue` bodies retained. **`page_picture` and `header_transport` definitions omitted** at final and combined; their callers have explicit successors below. |
+| H5 | Sound-header `header_pattern_cue(132,ui.part)` retained, with a later comment. The transport call is replaced by `seq.metro_view`-coloured `play_icon(175,4,…)`. Combined additionally uses header commit/cache plumbing. [Combined block](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui.c#L5400). |
+| H6 | Ordinary current/queued **content badges superseded** by `ui_position_badge(UI_G_SONG/UI_G_PATTERN,…)`. Its queued colour again uses `(ui.frame & 16u)`; F5's two chain rectangles are superseded by `CHN` text. The sound-header content cue remains a separate path. [Combined block](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui.c#L5470). |
+| H7 | Ordinary `header_transport(217,0)` superseded by `seq.metro_view`-coloured `play_icon(217,4,…)`. No retained stopped-square helper. [Combined block](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui.c#L5496). |
+| H8–H9 | `matrix_row_hint` row picture and held-step row-picture footer retained. |
+| H10 | `page_picture` call superseded by F1 `matrix_next_hint`; pending-preset row positioning and HOME-back `nav_arrow` retained. [Combined footer](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui.c#L5814). |
+| H11 | `original_wave_slot` exact at final; [combined line 6939](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/firmware/src/app/ui.c#L6939) adds the JUNO/DRONE `return -1` guard. `draw_original_wave` remains exact. |
+| H12–H14 | Widget waveform selection/painter/fallback/readout block, `R_BDIR` duplicate-value suppression and `original_wave.valid=0` reset retained. |
+
+The [F1 merge commit `6eec9306…`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/6eec9306b0f091b8416de15fe0ad0b58c0227c11) expressly records keeping `matrix_next_hint` with F5 pictures. The [F4 merge commit `314f181f…`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/314f181f92e3f52f7a13587f4e3ac30d2f75468a) records the F4 badge/metro icon with the F5 cue picture. These real commits in #807's history explain changed bytes; their messages alone do not establish independent review of conflict resolutions.
+
+The three original ADSR test hunks retain the `Y+14 → Y+22` expectations. [Final commit `6508d90a…`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/6508d90a14a4c25a0f72a0c0c39e285f1074ddcb) adds the three-line comment/call `run_ms(12)` to let envelope edits reach the engine. Final and combined ADSR blob are both `eab3d8aa6b4f92d594efa9ead573e9120e16055a`; this addition was outside the original documented review input.
+
+For `original_release_ui_test.c`, the 92/32 size assertion is retained (comment reworded). `restored_wave_cases` and `picture_pixels` are exact through combined. Final still calls removed `header_transport` inside its retained `picture_rule_cases`: this is a static source inconsistency, **not a failure executed here**. [Combined fixture](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/tests/host/original_release_ui_test.c#L354) supersedes those header checks with HOME content plates, PART queued-content coordinates, a dim triangle and actual `seq.metro_view` checks. The call list also gains F1 `fx_picture_cases`. This rewritten fixture is not byte-equivalent to the documented review input.
+
+Both original runner hunks survive: G classification of `chicago-adsr-graph|ui-settings-sections` and [all three registered invocations](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/94197fc839b00aff47b98ca02f3c6396e4a6eabf/tests/run_tests.sh#L505). The four launchers `original_release_ui_test.sh`, `ui_page_wrap_test.py`, `chicago_adsr_graph_test.sh` and `ui_settings_sections_test.sh` have identical blobs at all three pins. This preserves registration/source identity, not executed PASS or unchanged behavior under all newer runner scheduling.
+
+## Review limits and the smallest unsupported receipt
+
+The unchanged [F5 REVIEW.md](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a/docs/engineering-delivery/f5-waveform-cache-023/REVIEW.md) documents source-only review and explicitly excludes execution, rendering, timing and target RAM. It identifies the original base and picture increment from `de80f7b6…`; the PR body links the delivered `34a72b3d…` snapshot. This investigation reconstructs those documented inputs; it does not reauthenticate the historical reviewer processes. Live PR review-submission enumeration returned `reviews=[]`, so the documentary receipt is not a formal GitHub APPROVED review.
+
+An unchanged waveform header does not establish its full native dependency closure is equivalent. The manifest records changed `ui_original_controls.h`, `original_sound.c/.h`, factory banks and Chicago compact source/header identities. For example, reviewed → final expands Chicago factories 55 → 81 and FX choices 7 → 12. Combined also has later engine support. No blanket native dependency or whole-head review carry-forward is justified by the retained header.
+
+**Smallest unsupported receipt:** an attributable, exact-input source-review/disposition that consumes the **changed F5 boundary** at combined `94197fc8…`: F1/F4 header/footer/transport resolutions, the two added waveform-kind guards, rewritten picture fixture, the ADSR `run_ms(12)` addition and their changed named native inputs. It should reuse unchanged reviewed bodies and identify which later exact-input reviews cover each exception. No such consumption receipt was recovered in this bounded F5/F1/F4 documentary and #807 review set. This is not proof that none exists elsewhere. Runtime, musical UX and device qualification remain with their existing owners; they are not prerequisites to completing this documentary supplement.
+
+The historical inventory is `PLAN_ONLY_NOT_INTEGRATION_ACCEPTANCE` at `094bb1a55c159aefb0e2bfa39790a1b4b74cee40`. Its `cursor/master-waveform-ui-stage2-973f@49d2adecba722c853debd0b303fa1ccb0f8a4d3f` and `cursor/miami-waveform-corr-4040@5d5a4807adc87f75b5ab515364a6e197403cd660` entries remain **HELD/UNVERIFIED**. Their presence is not #807 review evidence. Historical `ui_waveform.h` is a different path/blob from this `ui_original_wave.h`; no guessed donor equivalence or additional branch adoption is claimed.
+
+## Independent check and handoff
+
+See [independent check receipt](roadmap-122-f5-807-independent-check-20261114.md) for the exact artifact hashes, checks and verdict. Artifact checks are documentary identity/hunk/link checks only. Firmware builds, host tests, renderer execution, musical UX, CPU/RAM and device operations are **NOT_RUN**.
+
+**Dot's next action:** consume this supplement and its machine map in the existing #887 ROADMAP lane. Replace the broad #807 head-mismatch question with the retained-byte closure and the small changed-scope review-receipt gap above. Preserve #891 musical UX ownership and all other existing gates. Please report the first scoped action that uses these pinned inputs; delivery of this pointer alone is not observed consumption. **Consumption: NOT_OBSERVED.** This evidence worker releases only its bounded #807 evidence scope after remote artifact readback.
+
+No supported fresh top-level Work/Codex thread-creation or parent-thread-send tool is exposed in this environment. An independent child documentary checker is not a top-level successor. Parent completion notification is the available return route.
+
+Precise next-stage request for the parent, after checking current owners: **Start a fresh Work/Codex read-only evidence-recovery stage from this supplement. Recover only an attributable exact-input review/disposition of the enumerated changed F5 boundary at `94197fc839b00aff47b98ca02f3c6396e4a6eabf`, or identify the smallest still-unsupported exception. Reuse the 27-hunk map and unchanged review proof; append evidence and return it to Dot. Do not repeat #122 reconciliation, run tests/builds or UX/device work, change source/shared ROADMAP/owners, or reuse this finished evidence thread.**
