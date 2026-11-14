@@ -262,15 +262,15 @@ New/resumed threads and subagents use only Sol 6.1 or Astra where selectable; re
 
 ## U1
 
-**Live Git read (2026-11-14 11:20 UTC):** [PR #891](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/891), head `362b61ccf831458986b782442d2a1253ee731494`, branch `design/firmware-ux-overhaul-20261113`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
+**Live Git read (2026-11-14 14:19 UTC):** [PR #921](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/921), head `c416a45f9bdab5be43a78e92fc82d92e4851e4db`, tree `510f4da23f59a9ed54347ecfe33173f4a5b0bda0`, branch `design/dnbox-whole-instrument-20261114`, open, draft, unmerged. Four design-only files; no runtime implementation or whole-design acceptance. Historical #891 and its source row remain preserved below. A Git state is not worker liveness.
 
-**Current disposition:** Mockups authorized now by owner after R22 review. CP1 creation errored without ID; admission uncertain, designer intake unconfirmed. Runtime implementation still gated.
+**Current disposition:** Bounded mockups were authorized after R22. Whole-instrument design source is delivered in #921; scoped review is not whole-design acceptance. CP1 external cases, CP2 capture strategy, dependent CP3 lifecycle, Settings visual integration, comparator and DF1 remain open. Runtime implementation still requires design approval.
 
-**Owner:** Dot coordinates; retain the existing lane writer linked in the original row and ROADMAP execution plan. Current implementation-writer liveness is unverified.
+**Owner:** Existing whole-instrument design owner retains design integration; the incumbent whole-firmware program owner retains downstream source integration. Dot coordinates this receipt, not a second designer or firmware writer.
 
-**Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
+**Exact input/evidence:** #921's four files preserve the walkthrough, README, export manifest and scoped independent review; source baseline `94197fc839b00aff47b98ca02f3c6396e4a6eabf`, export HTML SHA-256 `da9fc7e193ddc138e68675d99621dd12fb878108915b1946772bfdb1007d3418`. Settings R2 SHA-256 `3ba167e0b01c21e08a14eb84d87d2c3b074d46b16b8960319e81c66aabaabc9d` was separately verified by the design owner; it is a supplement, not visually merged into #921. Existing 152 affected and 103 browser-state checks are reused producer evidence, not new runs. Firmware owner was already sent the exact design source; actual first use remained NOT_OBSERVED at 14:19 UTC.
 
-**Next action:** Reconcile existing CP1 admission and exact plan input, confirm one designer and actual intake, produce bounded 240×240 mockups; independent reviewer must exercise available emulator. Do not wait for another plan approval.
+**Next action:** Existing design owner resolves the open CP1–CP3, comparator/DF1 and Settings visual/LOAD footer dependencies, explicitly retaining normal start/stop consequences and the clip-mode exception. Reconcile uncertain CP1 admission before any replacement. Existing firmware owner binds #921 to the same integration crosswalk and records actual first use; do not repeat the already sent steer, old tests or plan-approval wait. Independent reviewers exercise available emulator and state limits before design acceptance; runtime/native/device qualification stays separate.
 
 **Preserved source section:** Later owner requests (2026-11-13)
 
