@@ -64,6 +64,10 @@ static uint8_t stream_previous; /* per-object older-copy selection during recove
 static uint8_t device_bt_pending;       /* independent of UI dirty/autosave and project reset/load */
 static uint8_t settings_read_failed;    /* defaults must not replace unread stored settings */
 static uint8_t settings_load_failed;    /* a Bluetooth retry alone cannot adopt fallback defaults */
+/* Staged music can be adopted before a boot-time settings read recovers, but
+ * that must not authorize overwriting this keyboard's still-unread roles. */
+enum { DEVICE_BT_UNREAD = 1, DEVICE_BT_ADOPTED = 2 };
+static uint8_t device_bt_recovery, device_bt_intent;
 static uint32_t packed_len;             /* the last save's (or load's) packed stream, bytes */
 
 /* SMK-37 clip mode keybed settings (main_fm1.c), ck_ch .. ck_x2: channel 2, C MAJOR NEAR, MAJ root position,
@@ -188,6 +192,32 @@ static int load_settings(settings_t *dst)
     return 0;
 }
 
+/* Called only at an explicit adoption boundary or its admitted save retry.
+ * A readable missing/damaged object may be replaced by that adoption; a
+ * transient I/O failure must retain the original object for another retry. */
+static int recover_device_bt(void)
+{
+    settings_t saved;
+    int rc = load_settings(&saved);
+    if (rc == -2 || rc == -8) return -8;
+    if (!rc && saved.magic == PROJ_MAGIC && saved.format == PROJ_FORMAT &&
+        saved.stereo == PROJ_STEREO) {
+        /* Explicit device edits win even when a round trip ends at the same
+         * value as fallback. The independent BT flush may still be pending. */
+        uint8_t old_bt = proj.set.bt;
+        uint8_t mask = (uint8_t)(PROJ_DEVICE_BT & ~device_bt_intent);
+        if (device_bt_pending) mask &= (uint8_t)~1u;
+        proj.set.bt = (uint8_t)((proj.set.bt & ~mask) | (saved.bt & mask));
+#if X0X_BLE
+        if ((old_bt ^ proj.set.bt) & 1u) plat_ble_set(proj.set.bt & 1u);
+#else
+        (void)old_bt;
+#endif
+    }
+    device_bt_recovery = 0;
+    return 0;
+}
+
 static int save_obj(uint32_t obj, const void *src, uint32_t len)
 {
     if (len + 4u > sizeof io_buf)
@@ -215,13 +245,17 @@ static int save_settings(const settings_t *set, uint8_t part_off)
  * settings, preserving unsaved project edits and every other payload byte.
  * The UI calls the flush only after holding the engine and admitting safe flash.
  * (Restored from 0e58b960.) */
+void project_device_roles_set(uint8_t mask, uint8_t bits)
+{
+    mask &= PROJ_DEVICE_BT;
+    if (device_bt_recovery) device_bt_intent |= mask;
+    proj.set.bt = (uint8_t)((proj.set.bt & ~mask) | (bits & mask));
+}
 void project_device_bt_set(int on)
 {
-    uint8_t next = (uint8_t)((proj.set.bt & ~1u) | (on ? 1u : 0u));
-    if (next != proj.set.bt) {
-        proj.set.bt = next;
-        device_bt_pending = 1;
-    }
+    uint8_t old_bt = proj.set.bt;
+    project_device_roles_set(1u, on ? 1u : 0u);
+    if (old_bt != proj.set.bt) device_bt_pending = 1;
 }
 int project_device_bt_pending(void) { return device_bt_pending; }
 int project_device_bt_save(void)
@@ -585,6 +619,8 @@ int project_load(void)
 {
     project_incompatible = 0;
     int rc = read_project(&proj);
+    device_bt_recovery = (uint8_t)(settings_read_failed && (rc == -2 || rc == -8) ? DEVICE_BT_UNREAD : 0);
+    device_bt_intent = 0;
     if (!rc) settings_load_failed = 0;
     if (rc == -9
 #if X0X_BASS_TAGGED_SOUND
@@ -741,14 +777,17 @@ int project_load_stage(void)
 
 void project_commit_stage(void)
 {
+    if (device_bt_recovery) {
+        device_bt_recovery = DEVICE_BT_ADOPTED;
+        (void)recover_device_bt();
+    }
     /* Device roles belong to this keyboard; loading music must not change its
      * Bluetooth connection or opt-in control surface mode. */
     project_stage.set.bt = (uint8_t)((project_stage.set.bt & ~PROJ_DEVICE_BT) | (proj.set.bt & PROJ_DEVICE_BT));
     __builtin_memcpy(&proj, &project_stage, sizeof proj);
     part_off_live = part_off_staged;
     project_incompatible = 0; /* explicitly validated import/reset is the recovery boundary */
-    settings_load_failed = 0;
-    settings_read_failed = 0;
+    settings_load_failed = settings_read_failed = (uint8_t)(device_bt_recovery != 0);
     (void)measure_project(&proj, &packed_len);
 }
 
@@ -854,12 +893,16 @@ int project_save(void)
 #endif
     if (project_incompatible || !stream_layout_ok(&proj, stream_format_of(&proj)))
         return -9; /* not one settings/sound/pattern object may be rewritten */
-    if (settings_read_failed || settings_load_failed) return -8; /* retry load before saving fallback defaults */
 #ifndef X0X_HOST
     extern int store_stage_held(void);
     if (store_stage_held())                          /* boot upload is using the store buffer */
         return -8;
 #endif
+    if (device_bt_recovery == DEVICE_BT_ADOPTED) {
+        if (recover_device_bt()) return -8;
+        settings_read_failed = settings_load_failed = 0;
+    }
+    if (settings_read_failed || settings_load_failed) return -8; /* retry load before saving fallback defaults */
     capture_settings(&proj.set, &part_off_live);
     if (measure_project(&proj, &packed_len))
         return -7;

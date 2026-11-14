@@ -126,6 +126,7 @@ extern project_t proj;
 extern project_t project_stage;          /* exclusive staging, otherwise the UI undo shadow */
 
 void project_defaults(void);
+void project_device_roles_set(uint8_t mask, uint8_t bits); /* explicit local role intent, including unchanged values */
 void project_device_bt_set(int on);     /* live now; saved by project_device_bt_save */
 int project_device_bt_pending(void);
 int project_device_bt_save(void);          /* caller must hold engine and admit safe flash */
