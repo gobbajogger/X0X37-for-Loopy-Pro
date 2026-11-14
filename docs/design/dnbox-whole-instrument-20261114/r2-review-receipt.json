@@ -1,0 +1,142 @@
+{
+  "disposition": "SCOPED_REVIEW_READY_AFTER_TWO_REPAIRS",
+  "whole_design_acceptance": false,
+  "assessed_original_sha256": "f6182a97aba6a642f2533e5f8498aba53e218bf38d35221d25209e8aa7049ba0",
+  "rechecked_successor_sha256": "98f1f7e18e8760a54d6272bc6291b8221799deb5a3c531c5bcb3cb7f53b36e1f",
+  "component_sha256": "edaf4eb27b6fc2c8199d8d00fbc2492d10600dabe25870ccbb8491f6a23bb2a6",
+  "findings": [
+    {
+      "id": "R2-HOST-STATUS",
+      "state": "REPAIRED_RECHECKED"
+    },
+    {
+      "id": "LOAD-SOURCE-LOCATOR",
+      "state": "REPAIRED_RECHECKED"
+    }
+  ],
+  "limits": [
+    "historical emulator receipt reused; no fresh emulator execution",
+    "overlapping-key/parent-pointer departure diagnostic NOT_QUALIFIED",
+    "physical LCD/audio/storage/device/current runtime NOT_RUN",
+    "instrument visual grammar/PERFORM/persistent Settings power unresolved",
+    "HOME/F5 disposition separate pending appendix"
+  ],
+  "effective_settings": "not exposed",
+  "files": [
+    {
+      "name": "battery-actual.png",
+      "bytes": 11050,
+      "sha256": "5f7427c9a930421553700a0dca1aa81f2e0e2773b04f1ab34b51c7a209c56eea"
+    },
+    {
+      "name": "battery-proposed.png",
+      "bytes": 17150,
+      "sha256": "c03f8122edd55adc2d2fdd0601d24cc7b562fe5bff345a588b5e3d7504f9c363"
+    },
+    {
+      "name": "browser-inspection-native.png",
+      "bytes": 14768,
+      "sha256": "d1c9bead3ce46232be4c54d63d370452870972ba037fe6926a4c675425d1014a"
+    },
+    {
+      "name": "browser-load-native.png",
+      "bytes": 12966,
+      "sha256": "aa9c18791f817c2ea82d9c16edd127ba583c8513db73e800feb33fa378b95322"
+    },
+    {
+      "name": "browser-observations.json",
+      "bytes": 17686,
+      "sha256": "da96ddca45afe54a57614d46babcb7ecda383dfae9d72e760b875a4a72adf412"
+    },
+    {
+      "name": "departure-diagnostic.json",
+      "bytes": 722,
+      "sha256": "0cbb20a505870afbdbcbe4edf0eeb2d032e62f73ed003645d729dd80003702fb"
+    },
+    {
+      "name": "desktop-battery-pair.png",
+      "bytes": 124350,
+      "sha256": "fcc8a0dbaf5468accc48589f114a69b3e0b0714df713b1f35148745a28eae778"
+    },
+    {
+      "name": "exercise_composition.py",
+      "bytes": 8873,
+      "sha256": "b22267499a6cf6f5a638a38371279e4477171972181f48b3269127e9403813f9"
+    },
+    {
+      "name": "find-actual.png",
+      "bytes": 12753,
+      "sha256": "988b44c3bfb4ebf190a94d04ea3b0197d27f68c5bbc9c9b1147ea6bada2d8f2d"
+    },
+    {
+      "name": "find-proposed.png",
+      "bytes": 21111,
+      "sha256": "22fae81975b2a762c587b2b2a9201e1feef1acec690d3549f01b411a2f553460"
+    },
+    {
+      "name": "intake.json",
+      "bytes": 3902,
+      "sha256": "2a084ecde3409d035a7b88af0491b375ae9b8d9db2234acee79374a149434e26"
+    },
+    {
+      "name": "peers-actual.png",
+      "bytes": 11770,
+      "sha256": "4458d111975272e7612c36a643addf17272d38ce032c1b7d596d4115ac138acf"
+    },
+    {
+      "name": "peers-proposed.png",
+      "bytes": 17068,
+      "sha256": "c56e1768045d82e97dd91b1a3fb4413f76850b1e18527c91a0502dfa9f226412"
+    },
+    {
+      "name": "playing-actual.png",
+      "bytes": 11739,
+      "sha256": "cb52fd2b07eb821ca5a29b47973568fc162e889856c07c6ca6f29e2b96e70c9a"
+    },
+    {
+      "name": "playing-proposed.png",
+      "bytes": 19873,
+      "sha256": "e65a0f830037b6f4a299066cdddcafd34df053ce4eb954ec5de9e5aeeaba7df4"
+    },
+    {
+      "name": "question-actual.png",
+      "bytes": 11453,
+      "sha256": "6a800a6b86fef6a69687b3e2362d28b7c0172520761227fac8fa7496667d1539"
+    },
+    {
+      "name": "question-proposed.png",
+      "bytes": 20442,
+      "sha256": "471c99bf11791e4a6791416461ec922c8778c93a399409654e33d80a93dc530c"
+    },
+    {
+      "name": "recheck_successor.py",
+      "bytes": 4116,
+      "sha256": "daa97a50af35c71e5ee05c5d67ad1373541359c967acfabd9ba8b298e5976fbc"
+    },
+    {
+      "name": "review.md",
+      "bytes": 8965,
+      "sha256": "94b4925eba89272478056a77c3a910e3d688a6df65a4fa3331d2bd1dc9bf67f5"
+    },
+    {
+      "name": "save-actual.png",
+      "bytes": 13459,
+      "sha256": "80fea58a9b6ca2291fff5cd57a0aea510ec3673294baa49d03d5e8c3059e9ea0"
+    },
+    {
+      "name": "save-proposed.png",
+      "bytes": 21259,
+      "sha256": "f7c0bf7f56c9425fe245b4793c3db4949764b694da96bf9a5b11810c6b111a68"
+    },
+    {
+      "name": "settings-component-original.html",
+      "bytes": 34582,
+      "sha256": "edaf4eb27b6fc2c8199d8d00fbc2492d10600dabe25870ccbb8491f6a23bb2a6"
+    },
+    {
+      "name": "successor-recheck.json",
+      "bytes": 3045,
+      "sha256": "2c12f3078f9990c95473b69f30bfd406acc83957a3cc6e65583a2de52b695949"
+    }
+  ]
+}

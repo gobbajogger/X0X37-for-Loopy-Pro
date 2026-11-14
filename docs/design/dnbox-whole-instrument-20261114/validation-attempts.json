@@ -1,0 +1,26 @@
+{
+  "attempts": [
+    {
+      "candidate_sha256": "98f1f7e18e8760a54d6272bc6291b8221799deb5a3c531c5bcb3cb7f53b36e1f",
+      "validator_sha256": "6cac3f348dfb49eb0ddf4f0aa4731c314ec28dbf5a21ff584069fb95a446dc96",
+      "outcome": "INTERRUPTED_NOT_COMPLETED",
+      "exit_code": 130,
+      "point": "await page.mouse.up() after held child arrow pointer capture and programmatic parent tab click destroyed iframe",
+      "method": "Chromium/Playwright mouse protocol did not return; root interrupted its own validator with SIGINT",
+      "claim": "No PASS or physical defect established for overlapping pointer/frame teardown; candidate unchanged",
+      "scope_followup": "Use keyboard-owned repeat teardown; retain overlapping real pointer gesture as NOT_QUALIFIED"
+    },
+    {
+      "candidate_sha256": "98f1f7e18e8760a54d6272bc6291b8221799deb5a3c531c5bcb3cb7f53b36e1f",
+      "outcome": "HARNESS_FAILURE",
+      "exit_code": 1,
+      "passed_checks_recorded": 47,
+      "error": "Locator.click Timeout30000ms: #showLoad element is not visible",
+      "cause": "Validator omitted opening the native HTML details disclosure before activating its contained button",
+      "correction": "Open Settings LOAD disclosure first; candidate bytes unchanged",
+      "retained_evidence": "affected-attempt-2-progress.json"
+    }
+  ],
+  "final": "r2-affected-validation.json",
+  "candidate_unchanged_during_validator_corrections": true
+}

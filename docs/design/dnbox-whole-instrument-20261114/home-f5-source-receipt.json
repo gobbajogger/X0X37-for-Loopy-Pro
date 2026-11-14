@@ -1,0 +1,110 @@
+{
+  "kind": "READ_ONLY_DESIGN_INTENT_DISPOSITION",
+  "date": "2026-11-14",
+  "model_and_effort": "NOT_EXPOSED",
+  "candidate": {
+    "commit": "3c41ef4bedf9701f549ce2752b73306e2fab1eb8",
+    "tree": "fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d",
+    "ui_blob": "0d1fb3962b3d2773fde935bf032c2167551b321e",
+    "test_blob": "bcc411437acc9daad392c2bbb4c569a9f76e5646",
+    "sequencer_blob": "1c92a17d43a444d067a8aff60eb0f3a5e8e3fc8f"
+  },
+  "design_baseline": {
+    "commit": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+    "tree": "72d28fbc741244d18fa3d18495da16ab0fcb1d24",
+    "ui_blob": "eb911f58db83e417c67dd71576331803fa6c829e"
+  },
+  "historical_emulator": {
+    "source": "79280e763341d03ba43266d3e25dad66f12de860",
+    "candidate_equivalence": false,
+    "execution_this_task": "NOT_RUN",
+    "requested_display_label": "0.0.25.1 Elite",
+    "registry_version": "0.0.25"
+  },
+  "retained_f5": {
+    "pictures_blob": "a29803d89f344c6391bfaa7ed8c060eddabb9349",
+    "reviewed": "34a72b3d93ebe7eedb42e2f4b7c5ad3d223cb15a",
+    "final": "6508d90a14a4c25a0f72a0c0c39e285f1074ddcb",
+    "intent_lines": "PICTURES.md21\u201323"
+  },
+  "supplement": {
+    "commit": "76860bd1c693bf2fb6370703fda7ae92e122200d",
+    "document_blob": "f72ef31c72a82eb1ad61aa690fa80fcf478ce876",
+    "machine_map_blob": "511785b4fe8a72c2346df7fe1ec7865ce9c66019",
+    "selected_hunks": [
+      "firmware/src/app/ui.c#H4",
+      "firmware/src/app/ui.c#H6",
+      "firmware/src/app/ui.c#H7"
+    ]
+  },
+  "report_source": {
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/921#issuecomment-6879020090",
+    "id": 6879020090,
+    "created_at": "2026-11-14T14:41:34Z",
+    "updated_at": "2026-11-14T14:41:34Z",
+    "scope": "Reported HOST P2 observation consumed through authenticated GitHub connector; not reproduced here."
+  },
+  "disposition": "KEEP_STATIC_STOP_WAIT_PENDING_CUE; RETAIN_CURRENT_IDENTITY_BADGE_AND_AUDIO_OWNED_METRO",
+  "purposeful_motion": "Optional pending-cue pulse only on admitted actual playing steps; stable geometry/text remains readable in both phases. Pending is not progress. Do not use ui.frame to imply progress while STOP/WAIT. Only genuinely pending targets persist; actual adoption/cancellation clears or updates them.",
+  "static_scope": [
+    "Current/selected pattern and part/engine identity absent a real state change.",
+    "Queued target arrow/number and pending reason while STOP/WAIT.",
+    "Clock/transport symbol in neutral stopped/wait state; tempo label remains readable."
+  ],
+  "allowed_real_changes": [
+    "Accepted cue adoption or cancellation updates identity once even while STOP.",
+    "Input acknowledgement, real live input/audio tails, actual storage transaction state and explicit fault transitions may update despite stopped pattern transport.",
+    "Separate hardware WAIT LED policy is outside this LCD-only disposition; do not infer all instrument lights must freeze."
+  ],
+  "source_mapping": [
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "5295\u20135301",
+      "fact": "PART header cue changes ink only from seq.playing and drum step parity."
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "5471\u20135477",
+      "fact": "Ordinary HOME/header passes frame-bit16 colour to queued arrow/number without stopped gate."
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "lines": "5204\u20135220,5498\u20135505",
+      "fact": "Complete position badge and audio-owned metro are current successors; no need to restore obsolete F5 helper/layout."
+    },
+    {
+      "path": "firmware/src/seq/sequencer.c",
+      "lines": "992\u20131014",
+      "fact": "Metronome observer is neutral in STOP/WAIT and advances external phase only from accepted clocks."
+    },
+    {
+      "path": "firmware/src/seq/sequencer.c",
+      "lines": "1094\u20131103,1242\u20131254",
+      "fact": "Cue is a pending target; stopped sequencer applies and clears it next audio advance, so sustained stopped pending is not established."
+    },
+    {
+      "path": "tests/host/original_release_ui_test.c",
+      "lines": "341\u2013378",
+      "fact": "Fixture switches to PART before stability comparison and increments ui.frame by32. A32-frame increment preserves bit16 phase; it cannot independently qualify ordinary HOME frame0/16 stability."
+    },
+    {
+      "path": "plan/design-admission.md",
+      "lines": "7,13\u201327",
+      "fact": "R22 requires stopped/WAIT musical indicator static and pending state persistent; optional breathing does not require pending animation or override specific retained F5 intent."
+    }
+  ],
+  "limits": [
+    "No render, framebuffer, emulator, host test, firmware build or device operation ran.",
+    "HOST P2 changing pixels are reported evidence, not independently reproduced here.",
+    "The source exception is consistent with the reported pixel change but does not establish an enduring physical STOP flashing symptom.",
+    "No candidate firmware execution is inferred from historical0.0.25.1 captures.",
+    "No runtime defect fix, test expectation relaxation or old F5 helper restoration is prescribed.",
+    "No root design, Settings, runtime, shared#891 or Git write. Only this receipt directory is written."
+  ],
+  "next_owner": "Existing whole-design integrator records this intent; incumbent runtime owner later dispositions exact-source implementation and affected qualification. No new runtime writer.",
+  "derived_from_source_receipt_sha256": "ea7849375c3b82ea079515bceb62e908c502f3fe88821dc030154059573a9081",
+  "integration_refinements": [
+    "Pending persists only until actual adoption/cancel; no frozen lifecycle",
+    "Separate requested display label25.1 from registry package0.0.25/source79280e76"
+  ]
+}

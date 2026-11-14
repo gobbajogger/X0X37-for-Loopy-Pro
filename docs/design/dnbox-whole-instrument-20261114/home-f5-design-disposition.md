@@ -1,0 +1,16 @@
+# HOME pending cue: F5 design disposition
+
+While a target remains genuinely pending, keep its arrow and number visible and steady in STOP or WAIT. Actual adoption or cancellation clears or updates that pending target; stability never freezes the cue lifecycle. Retain the current complete position badge, selected musical identity and audio-owned metronome. A queued cue may pulse with actual playing steps, while its arrow, number and pending meaning remain readable in both phases. Frame-count or wall-time motion adds no useful musical information when the clock is not progressing.
+
+This preserves the specific F5 intent in `PICTURES.md21–23`: stopped headers stay still and queued-arrow pulse follows actual playing steps. The retained document is blob `a29803d89f344c6391bfaa7ed8c060eddabb9349`. R22 independently requires a static stopped/WAIT musical indicator and persistent pending state. Its optional queued breathing treatment does not require motion or supersede this more specific cue intent.
+
+At candidate `3c41ef4bedf9701f549ce2752b73306e2fab1eb8`, tree `fa0c3fe75483534f12839eeb8f5e29ec9cb52c6d`, PART uses actual-step parity (`ui.c5295–5301`). Ordinary HOME still colours the queued arrow/number from `ui.frame & 16u` (`ui.c5471–5477`). That source explains the reported HOST P2 difference between frame0 and16, but this task did not reproduce it. The [current handoff comment](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/921#issuecomment-6879020090) was read through the connected GitHub tool.
+
+Do not restore the older F5 stop square, content-badge layout or removed helper. The supplement at `76860bd1c693bf2fb6370703fda7ae92e122200d` explicitly records their later successors (H4/H6/H7). The current dim triangle driven by `seq.metro_view` can remain, provided STOP/WAIT is explicit and neutral; its source observer is static in those states (`sequencer.c992–1014`).
+
+Two limits matter. First, the rewritten picture fixture switches to PART before checking stability (`original_release_ui_test.c364–371`); its `frame += 32` also preserves bit16 phase. Reusing that result does not qualify ordinary HOME frame0/16 stability. This is a coverage limitation, not a new test failure claim. Second, stopped cues apply and clear on the next audio advance (`sequencer.c1094–1103`). A frozen HOST pending fixture does not establish persistent stopped flashing on a device.
+
+Stability means no autonomous change from time alone while the relevant musical and transaction state is unchanged. Real cue adoption/cancellation, fresh input, live audio tails, genuine storage progress and faults may still update while pattern transport is stopped. Preserve separate WAIT LED policy; this disposition concerns the LCD pending cue.
+
+Next action stays with the existing integrator and runtime owner: record this design intent, then disposition the exact implementation and affected qualification in their authorized stage. No source correction, expectation relaxation or runtime assignment is made here. No render, emulator, test, build, device operation or Git write ran. Historical requested/display label0.0.25.1 refers to registry package0.0.25/source79280e76; neither is current-candidate execution. Effective model and effort are not exposed.
+

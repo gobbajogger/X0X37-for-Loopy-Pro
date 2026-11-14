@@ -1,12 +1,50 @@
 {
-  "original_html_sha256": "e5924da7e2b065344c2cba547efa54ce72be17e2a0c760bb329884792139c54d",
-  "sanitization": "Replace one internal Settings thread UUID with Settings source owner; no render or interaction changes",
+  "kind": "DESIGN_ONLY_R2_COMPOSITION_EXPORT",
+  "parent_design_commit": "c416a45f9bdab5be43a78e92fc82d92e4851e4db",
+  "candidate_html_sha256": "98f1f7e18e8760a54d6272bc6291b8221799deb5a3c531c5bcb3cb7f53b36e1f",
+  "original_whole_review_input_sha256": "e5924da7e2b065344c2cba547efa54ce72be17e2a0c760bb329884792139c54d",
   "files": [
     {
       "path": "README.md",
-      "bytes": 3586,
-      "sha256": "9f739352b72bd99890def47cfa305ee0050f7ebb1dfacef73bbfae2100fb6b56",
-      "git_blob": "b2932298acb4c8242ed801b10baf7af26f60b94e"
+      "bytes": 7446,
+      "sha256": "8bd60db350c52513bd3575e939e97d98fd7a7ec5e50ad83c8bb1baf62b7fd8a5",
+      "git_blob": "461b76baf51832469c1195bb0a22e7551f2af981"
+    },
+    {
+      "path": "candidate-manifest.json",
+      "bytes": 4903,
+      "sha256": "55e0820c635bb18dba9ff2d679a3970ddf7424bbe5e46b7feb1ad3ec2149dcfe",
+      "git_blob": "a493b39c7533318cad3dce41fd95b7c6fb65a263"
+    },
+    {
+      "path": "check_composition.py",
+      "bytes": 10531,
+      "sha256": "05f923854f6332e41744d7bd6e0548a02d9cda89abbd6546c22327bb285a9f42",
+      "git_blob": "581f5410e5e2ece218929c5091d3e1a681b3759a"
+    },
+    {
+      "path": "home-f5-design-disposition.md",
+      "bytes": 3278,
+      "sha256": "16d17f4272b029fe2f5369d4d6938493d0d4e6b39ff50d70de3c62ef60936023",
+      "git_blob": "ebed55adefbf783a1c79068991ce6f97537a8418"
+    },
+    {
+      "path": "home-f5-independent-appendix.md",
+      "bytes": 5230,
+      "sha256": "613717646e0c8e477d36e25224e976704aa7e32a92dbeadf2104e08e6fc2fa84",
+      "git_blob": "f8a3845c64a30f5d49e638892e9f5ab40c93ce99"
+    },
+    {
+      "path": "home-f5-independent-wording-receipt.json",
+      "bytes": 1735,
+      "sha256": "64a028bbe682bdd4aa7380078b4c1e5306620df42f7065de2651369444c21da1",
+      "git_blob": "f5161a299d5319849bd376ae41b8be61ed46964b"
+    },
+    {
+      "path": "home-f5-source-receipt.json",
+      "bytes": 5736,
+      "sha256": "c1ca1b7ee04531a9983b1bd6a85fe15f307e396cfbf56d8c9a2305d2af33bd50",
+      "git_blob": "0c2974c40cc385fa5a20723bd4f0e970b48056bc"
     },
     {
       "path": "independent-review.md",
@@ -15,10 +53,51 @@
       "git_blob": "85a53a860d9040828b911e6fe425dc43c4a28f2d"
     },
     {
+      "path": "r2-affected-validation.json",
+      "bytes": 8417,
+      "sha256": "0802e356d74feff695a3565abdd9a5061f2474b6df4f7eb0854e01c80a3974ad",
+      "git_blob": "97d93a71cafb4a640ee3b242dc7231bf67e85ddb"
+    },
+    {
+      "path": "r2-independent-review.md",
+      "bytes": 8965,
+      "sha256": "94b4925eba89272478056a77c3a910e3d688a6df65a4fa3331d2bd1dc9bf67f5",
+      "git_blob": "f43dd9256341ac7f6342b582852fb2e1f7ee5d81"
+    },
+    {
+      "path": "r2-review-receipt.json",
+      "bytes": 4561,
+      "sha256": "a2aecdc309b13823349242bd6f44813e42968f3f7ed0914fcac2416aea81427e",
+      "git_blob": "cc6e9a2bd649b4511d062171f5b02a520933ced6"
+    },
+    {
+      "path": "settings-host.js",
+      "bytes": 5781,
+      "sha256": "cc548a307c086d82f3e1664fc19b6d10d178d8556c910585b35f7bbf7e6e8e96",
+      "git_blob": "f3d2580539d75d50506bf990343cdf42f1b01dd7"
+    },
+    {
+      "path": "settings-section.html",
+      "bytes": 2052,
+      "sha256": "a25d2c27680cd3968597b30a3c3e2cb45c1b09d2ec491e58bb2f9248b492eef4",
+      "git_blob": "dd7418fefff843c599b2367b2c2abe9d16204633"
+    },
+    {
+      "path": "validation-attempts.json",
+      "bytes": 1427,
+      "sha256": "566787bd0cd0d94699f626f4c1f8c5229e9c4973d7ff58f9110c41cf614a7aff",
+      "git_blob": "70a0be2ea175356542fb91c8e69f37ddab07a963"
+    },
+    {
       "path": "walkthrough.html",
-      "bytes": 1957122,
-      "sha256": "da9fc7e193ddc138e68675d99621dd12fb878108915b1946772bfdb1007d3418",
-      "git_blob": "800064f06ed8a6ec2a9eec602e0a268fa0ef054b"
+      "bytes": 2313065,
+      "sha256": "98f1f7e18e8760a54d6272bc6291b8221799deb5a3c531c5bcb3cb7f53b36e1f",
+      "git_blob": "1be0bd606748882843c59e9d0b78e4a8cc2dbb81"
     }
-  ]
+  ],
+  "self_excluded": true,
+  "scope": "Six accepted R2 native pairs and unchanged interaction component composed; one conditional LOAD native frame; current HOME F5 design intent only",
+  "preserved_private": "Original whole/R2 archives, raw internal receipts and original failed upload evidence unchanged; no Library retry",
+  "sanitization": "No private workspace, Library, message or thread identifiers; two machine receipt path fields use delivered basenames; all embedded component and native image bytes pinned",
+  "whole_design_acceptance": false
 }

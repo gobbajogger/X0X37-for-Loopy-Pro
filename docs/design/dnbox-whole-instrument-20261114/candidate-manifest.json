@@ -1,0 +1,204 @@
+{
+  "baseline_html_sha256": "e5924da7e2b065344c2cba547efa54ce72be17e2a0c760bb329884792139c54d",
+  "candidate_html_sha256": "98f1f7e18e8760a54d6272bc6291b8221799deb5a3c531c5bcb3cb7f53b36e1f",
+  "candidate_html_bytes": 2313065,
+  "r2_zip_sha256": "3ba167e0b01c21e08a14eb84d87d2c3b074d46b16b8960319e81c66aabaabc9d",
+  "r2_component_sha256": "edaf4eb27b6fc2c8199d8d00fbc2492d10600dabe25870ccbb8491f6a23bb2a6",
+  "r2_overview_sha256": "0678eb8da19260acd6a9ea2c141f9ba68af8057ce9b0c2d977cadb26ae2b8fba",
+  "settings_visual_intake": [
+    {
+      "path": "qa/comparison/find-actual.png",
+      "bytes": 12753,
+      "sha256": "988b44c3bfb4ebf190a94d04ea3b0197d27f68c5bbc9c9b1147ea6bada2d8f2d"
+    },
+    {
+      "path": "qa/comparison/find-proposed.png",
+      "bytes": 21111,
+      "sha256": "22fae81975b2a762c587b2b2a9201e1feef1acec690d3549f01b411a2f553460"
+    },
+    {
+      "path": "qa/comparison/save-actual.png",
+      "bytes": 13459,
+      "sha256": "80fea58a9b6ca2291fff5cd57a0aea510ec3673294baa49d03d5e8c3059e9ea0"
+    },
+    {
+      "path": "qa/comparison/save-proposed.png",
+      "bytes": 21259,
+      "sha256": "f7c0bf7f56c9425fe245b4793c3db4949764b694da96bf9a5b11810c6b111a68"
+    },
+    {
+      "path": "qa/comparison/question-actual.png",
+      "bytes": 11453,
+      "sha256": "6a800a6b86fef6a69687b3e2362d28b7c0172520761227fac8fa7496667d1539"
+    },
+    {
+      "path": "qa/comparison/question-proposed.png",
+      "bytes": 20442,
+      "sha256": "471c99bf11791e4a6791416461ec922c8778c93a399409654e33d80a93dc530c"
+    },
+    {
+      "path": "qa/comparison/peers-actual.png",
+      "bytes": 11770,
+      "sha256": "4458d111975272e7612c36a643addf17272d38ce032c1b7d596d4115ac138acf"
+    },
+    {
+      "path": "qa/comparison/peers-proposed.png",
+      "bytes": 17068,
+      "sha256": "c56e1768045d82e97dd91b1a3fb4413f76850b1e18527c91a0502dfa9f226412"
+    },
+    {
+      "path": "qa/comparison/battery-actual.png",
+      "bytes": 11050,
+      "sha256": "5f7427c9a930421553700a0dca1aa81f2e0e2773b04f1ab34b51c7a209c56eea"
+    },
+    {
+      "path": "qa/comparison/battery-proposed.png",
+      "bytes": 17150,
+      "sha256": "c03f8122edd55adc2d2fdd0601d24cc7b562fe5bff345a588b5e3d7504f9c363"
+    },
+    {
+      "path": "qa/comparison/playing-actual.png",
+      "bytes": 11739,
+      "sha256": "cb52fd2b07eb821ca5a29b47973568fc162e889856c07c6ca6f29e2b96e70c9a"
+    },
+    {
+      "path": "qa/comparison/playing-proposed.png",
+      "bytes": 19873,
+      "sha256": "e65a0f830037b6f4a299066cdddcafd34df053ce4eb954ec5de9e5aeeaba7df4"
+    }
+  ],
+  "native_change": {
+    "id": "LOAD-QUESTION",
+    "path": "walkthrough.html embedded LOAD-QUESTION image",
+    "width": 240,
+    "height": 240,
+    "sha256": "dd24e14a15aef1f3cf10e063390c5d03cfaa34152d39f88b4b6e72a2740a2d75",
+    "text_boxes": [
+      [
+        "909  /  909",
+        10,
+        7,
+        50.33,
+        12
+      ],
+      [
+        "DISCARD TRIAL?",
+        10,
+        27,
+        63.56,
+        10
+      ],
+      [
+        "PATTERNS STOP",
+        10,
+        45,
+        63.41,
+        10
+      ],
+      [
+        "INT 125",
+        202.05,
+        45,
+        27.95,
+        10
+      ],
+      [
+        "Load saved project?",
+        10,
+        72,
+        114.09,
+        17
+      ],
+      [
+        "BASELINE QUESTION / re-layout",
+        10,
+        94,
+        123.69,
+        12
+      ],
+      [
+        "Destination",
+        11,
+        114,
+        49.48,
+        11
+      ],
+      [
+        "WHOLE PROJECT",
+        154.17,
+        114,
+        74.83,
+        11
+      ],
+      [
+        "Unsaved edits",
+        11,
+        136,
+        60.61,
+        11
+      ],
+      [
+        "DISCARD IF LOADED",
+        142.7,
+        136,
+        86.3,
+        11
+      ],
+      [
+        "PATCH",
+        11,
+        158,
+        27.7,
+        11
+      ],
+      [
+        "CANCEL",
+        193.42,
+        158,
+        35.58,
+        11
+      ],
+      [
+        "SCALE",
+        11,
+        180,
+        28.25,
+        11
+      ],
+      [
+        "CONFIRM LOAD",
+        163.78,
+        180,
+        65.22,
+        11
+      ],
+      [
+        "SEQ PLAY: cancel + start",
+        10,
+        214,
+        86.2,
+        10
+      ],
+      [
+        "CLIP: transport; question stays",
+        10,
+        226,
+        109.12,
+        11
+      ]
+    ],
+    "class": "PROPOSED DESIGN PNG; not firmware framebuffer",
+    "changed_pixel_bounds": [
+      10,
+      139,
+      212,
+      237
+    ]
+  },
+  "unchanged_whole_frames": 90,
+  "unchanged_whole_journeys": 22,
+  "settings_component_edit": "NONE; original index bytes plus separate appended host adapter",
+  "test_scope": "Changed composition/navigation/lifecycle and LOAD hint only; prior whole152/103 and Settings105 proof reused",
+  "runtime": "NOT RUN; proposal only",
+  "private_candidate_manifest_sha256": "68e831aec00604192d4024097a764ddea078e153677c86d3d85b47bf3571d654"
+}
