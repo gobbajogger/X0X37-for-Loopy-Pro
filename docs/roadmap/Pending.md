@@ -198,7 +198,7 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 ## M12
 
-**Current disposition:** Root reports M12/browser-contract exporters recorded inProgress but unresponsive; respective branches remain 94197fc8 source-only. Actual liveness/intake unknown; Library packet is not remote Git delivery.
+**Current disposition:** Root reports M12 exporter recorded inProgress but unresponsive; its branch remains 94197fc8 source-only. Actual liveness/intake unknown; Library packet is not remote Git delivery. Browser-contract export is separately verified under #52/#104 and does not resolve M12.
 
 **Owner:** Dot coordinates; retain the existing lane writer linked in the original row and ROADMAP execution plan. Current implementation-writer liveness is unverified.
 
@@ -350,24 +350,6 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 |---|---|---|---|---|
 | F2 | Chicago/Miami **plugin-format compatibility** and **user-owned preset** round-trip (formats, versions, fidelity evidence). Factory KORG redistribution stays off and does not block this. Gap doc lists missing evidence. Further work waits on owner inputs U1–U3 in that doc: AU capability log from his Mac, his own saved `.aupreset` files, and the plugin version. AudioKit Juno compatibility is a 26.8b extension (FMB; Dot evidence), not a second F2 copy. | 2026-11-13: distinguish user-preset compatibility from factory redistribution. | EVIDENCE PARTIAL; former Main Builder stopped. Dot routes direct Classic continuation; gap doc exists. Exact plugin validation waits only on unavailable gap-doc inputs U1–U3 after checking accessible evidence, not on factory rights; native presets continue. | 26.8b; FMB; [`e0c42135`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/e0c42135); `docs/plans/2026-11-13-chicago-miami-plugin-compat-gaps.md` |
 
-## W3
-
-**Live Git read (2026-11-14 11:20 UTC):** [PR #901](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/901), head `7bece9b819790600bb755e2900817b249d875567`, branch `lane/w3-web-dnpr-20261113`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
-
-**Current disposition:** Parity Work 6af841f4 admitted/in progress per root receipt; actual input consumption not exposed. Kept Pending rather than calling admission verified work.
-
-**Owner:** Dot coordinates; retain the existing lane writer linked in the original row and ROADMAP execution plan. Current implementation-writer liveness is unverified.
-
-**Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
-
-**Next action:** Recover the linked exact-candidate receipt and current owner activity; continue only the uncovered acceptance/action stated below. Do not recreate completed work or appoint an overlapping writer.
-
-**Preserved source section:** Later owner requests (2026-11-13)
-
-| # | Item | Owner source | Status | Link |
-|---|---|---|---|---|
-| W3 | Website and installer **preset file transfer**: upload and download of `.dnpr` files, plus the firmware-to-web contract. Draft implementation exists in #901; integrated system acceptance remains open. Installer QA retains acceptance criteria A1–A8 for integrated system acceptance. Web implementation is independent of plugin captures; Dot coordinates routing, not the transport implementation. | Same request as 26.8. An earlier research doc wrongly named Dot. | DRAFT #901 `7bece9b819790600bb755e2900817b249d875567`; proposal semantics/feasibility scoped PASS 6870119278. This proposal's actual visual/layout/browser behavior unassessed; rendered proposals need accessible internal review. Historical baseline tests are reused only within unchanged scope. Device handshake/storage/A1–A8 acceptance remains pending; implementation-consumption not established. The same F1/W3 seam disposition owns only uncovered cross-lane identity, precision, validation and round-trip questions. It does not establish device transfer or visual acceptance; admission is not receiver execution. | 26.8b; Website UX; FMB DNPR A1–A8 at [`e0c42135`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/e0c42135) |
-
 ## I2
 
 **Current disposition:** Unfinished or current activity/acceptance unverified. Historical ACTIVE wording below is not a current execution claim.
@@ -508,13 +490,13 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 **Live Git read (2026-11-14 11:20 UTC):** [PR #896](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/896), head `8b0b6d311577fcc303212016423dd4f5ea4e8184`, branch `wip/rec37-compact-continuation-20261113`, open, draft, unmerged. This supersedes older source pins for candidate inspection, not scoped proof. Review changed inputs before reusing evidence. A Git state is not worker liveness.
 
-**Current disposition:** Unfinished or current activity/acceptance unverified. Historical ACTIVE wording below is not a current execution claim.
+**Current disposition:** Bounded isolated REC correction admitted; input consumption not yet visible. Direct task read at 11:25 UTC shows inProgress and the assignment only. Remains Pending, not falsely Working or accepted.
 
-**Owner:** Dot coordinates; retain the existing lane writer linked in the original row and ROADMAP execution plan. Current implementation-writer liveness is unverified.
+**Owner:** [Bounded correction task](https://chatgpt.com/c/6af843d3-a504-8191-a6c0-644931c010d7) owns an isolated candidate for already-mapped inner BREAK realtime capture only; no takeover of incumbent REC branch or shared ui.c ownership.
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Recover the linked exact-candidate receipt and current owner activity; continue only the uncovered acceptance/action stated below. Do not recreate completed work or appoint an overlapping writer.
+**Next action:** Verify substantive intake of #896 `8b0b6d311577fcc303212016423dd4f5ea4e8184` / ui.c blob `5af70e36fe02e05287760a8e182c80d828d650b9` and reviewed test-only input `beb4f2d54ccb068f604773fd5a4fce390c089266`. Producer then makes only the accepted inner-slice capture correction, focused red/green regression and independent exact-candidate review; preserve no-shared-branch/no-device boundaries. Admission is not source consumption.
 
 **Preserved source section:** Later owner requests (2026-11-13)
 
@@ -736,13 +718,15 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 ## #52
 
-**Current disposition:** Root reports M12/browser-contract exporters recorded inProgress but unresponsive; respective branches remain 94197fc8 source-only. Actual liveness/intake unknown; Library packet is not remote Git delivery.
+**Current disposition:** Protocol/device-sync acceptance remains unfinished. The separate fake-endpoint browser-contract packet is now preserved on Git; this resolves its export stage only, not protocol integration, real MIDI or hardware acceptance.
 
 **Owner:** Dot coordinates; retain the existing lane writer linked in the original row and ROADMAP execution plan. Current implementation-writer liveness is unverified.
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Reconcile exporter admission/ownership and exact retained packet before one bounded successor; verify remote head and relevant bytes after export. Continue independent authorized work.
+**Next action:** Retain existing protocol ownership and `fde38845e7474fffae24ae835907d7ca9197b589` proposal; do not enable DeviceSync from synthetic browser evidence. Dot reconciles the browser packet creator/current adapter owner before any separate bounded synthetic-MIDIAccess successor, verifies actual packet consumption, and reuses unchanged checks.
+
+**Preservation verified:** [Git archive](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e2d36dba34a2fed3bdb192d509687679674ccd7e/experiments/smk37-browser-contract-20261114/ARCHIVE.md) at `e2d36dba34a2fed3bdb192d509687679674ccd7e`; archive blob `2b7ed8f3d94f20559a9c9d6acfa8a82a7938c063`. Root verified export; this coordinator read commit paths, archive and NEXT_STAGE. All 56 original packet members plus manifest are retained; original manifest SHA-256 `c249ddeaed196401578183513d9e02e451410ef80f595421a98c70ecd98d4fa8`, transport SHA-256 `6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489`. Existing 16 producer/22 independent Node and 25 Chromium results are reused historical fake-endpoint proof, not new runs. Old NOT PUSHED/owner text is historical; no successor admission or consumption established by export.
 
 **Preserved source section:** Owner request list (#1–#122)
 
@@ -962,13 +946,15 @@ These are canonical records, not copies of another active tracker. Read [ROADMAP
 
 ## #104
 
-**Current disposition:** Root reports M12/browser-contract exporters recorded inProgress but unresponsive; respective branches remain 94197fc8 source-only. Actual liveness/intake unknown; Library packet is not remote Git delivery.
+**Current disposition:** Protocol/device-sync acceptance remains unfinished. The separate fake-endpoint browser-contract packet is now preserved on Git; this resolves its export stage only, not protocol integration, real MIDI or hardware acceptance.
 
 **Owner:** Dot coordinates; retain the existing lane writer linked in the original row and ROADMAP execution plan. Current implementation-writer liveness is unverified.
 
 **Exact input/evidence:** original row below and [execution/acceptance plan](../ROADMAP.md#current-execution-plans-and-ownership); historical pins are not current live heads.
 
-**Next action:** Reconcile exporter admission/ownership and exact retained packet before one bounded successor; verify remote head and relevant bytes after export. Continue independent authorized work.
+**Next action:** Retain existing protocol ownership and `fde38845e7474fffae24ae835907d7ca9197b589` proposal; do not enable DeviceSync from synthetic browser evidence. Dot reconciles the browser packet creator/current adapter owner before any separate bounded synthetic-MIDIAccess successor, verifies actual packet consumption, and reuses unchanged checks.
+
+**Preservation verified:** [Git archive](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e2d36dba34a2fed3bdb192d509687679674ccd7e/experiments/smk37-browser-contract-20261114/ARCHIVE.md) at `e2d36dba34a2fed3bdb192d509687679674ccd7e`; archive blob `2b7ed8f3d94f20559a9c9d6acfa8a82a7938c063`. Root verified export; this coordinator read commit paths, archive and NEXT_STAGE. All 56 original packet members plus manifest are retained; original manifest SHA-256 `c249ddeaed196401578183513d9e02e451410ef80f595421a98c70ecd98d4fa8`, transport SHA-256 `6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489`. Existing 16 producer/22 independent Node and 25 Chromium results are reused historical fake-endpoint proof, not new runs. Old NOT PUSHED/owner text is historical; no successor admission or consumption established by export.
 
 **Preserved source section:** Owner request list (#1–#122)
 
