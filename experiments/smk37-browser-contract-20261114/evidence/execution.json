@@ -1,0 +1,42 @@
+[
+  {
+    "name": "producer",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "transport.test.mjs"
+    ],
+    "cwd": "/workspace/smk37-browser-contract",
+    "started": "2026-11-14T09:49:44.237238+00:00",
+    "exit": 0,
+    "source_sha256": {
+      "transport.mjs": "6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489",
+      "transport.test.mjs": "6918418b438d3d40b5cd431722167e9505326329a920954413707716788fff4c"
+    },
+    "unchanged_during_run": true,
+    "stdout": "producer.stdout",
+    "stderr": "producer.stderr"
+  },
+  {
+    "name": "browser",
+    "command": [
+      "python3",
+      "browser.test.py"
+    ],
+    "cwd": "/workspace/smk37-browser-contract",
+    "started": "2026-11-14T09:49:44.385203+00:00",
+    "exit": 0,
+    "source_sha256": {
+      "transport.mjs": "6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489",
+      "fixture.mjs": "0a19c297683fe94deafd3745a49b774249f74712e82b92144a96acc8ab62c5cd",
+      "index.html": "09d79c1ca93443634beffeb976e4e251bfa87aa876b5c652076007e72e9083bb",
+      "fixture.css": "61ded21d7bb61c4bdfac2e868ea58f1c403cd43e81650d020b320fbe9dc97651",
+      "serve.py": "72e2b032f771efa4e29040d6a4c0fbfcea37754f411255a82e997196e8dd7e4e",
+      "browser.test.py": "3c3c81770c6ed63af8cf0cb458d79509c95b16bc9f6ab6347c67a368efea5536"
+    },
+    "unchanged_during_run": true,
+    "stdout": "browser.stdout",
+    "stderr": "browser.stderr"
+  }
+]

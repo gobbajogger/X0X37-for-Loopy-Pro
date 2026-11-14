@@ -1,0 +1,106 @@
+TAP version 13
+# Subtest: initial state and fake-only admission
+ok 1 - initial state and fake-only admission
+  ---
+  duration_ms: 3.436154
+  type: 'test'
+  ...
+# Subtest: exact musical bytes and duplicate local press
+ok 2 - exact musical bytes and duplicate local press
+  ---
+  duration_ms: 0.719516
+  type: 'test'
+  ...
+# Subtest: channel change releases notes and performance controls on old channel
+ok 3 - channel change releases notes and performance controls on old channel
+  ---
+  duration_ms: 0.508176
+  type: 'test'
+  ...
+# Subtest: explicit cleanup owns only its tracked notes and transport
+ok 4 - explicit cleanup owns only its tracked notes and transport
+  ---
+  duration_ms: 0.319002
+  type: 'test'
+  ...
+# Subtest: all four realtime bytes; F2 and non allowlisted operations reject
+ok 5 - all four realtime bytes; F2 and non allowlisted operations reject
+  ---
+  duration_ms: 0.355827
+  type: 'test'
+  ...
+# Subtest: unsupported controls and invalid values do not mutate or transmit
+ok 6 - unsupported controls and invalid values do not mutate or transmit
+  ---
+  duration_ms: 0.546715
+  type: 'test'
+  ...
+# Subtest: input feedback has no echo, no ownership effect and clears on lifecycle
+ok 7 - input feedback has no echo, no ownership effect and clears on lifecycle
+  ---
+  duration_ms: 0.505723
+  type: 'test'
+  ...
+# Subtest: observation and logs are bounded and returned arrays are defensive copies
+ok 8 - observation and logs are bounded and returned arrays are defensive copies
+  ---
+  duration_ms: 2.448374
+  type: 'test'
+  ...
+# Subtest: planned disconnect releases before detaching and reconnect requires arm
+ok 9 - planned disconnect releases before detaching and reconnect requires arm
+  ---
+  duration_ms: 0.359652
+  type: 'test'
+  ...
+# Subtest: abrupt loss exposes uncertainty and old session never replays
+ok 10 - abrupt loss exposes uncertainty and old session never replays
+  ---
+  duration_ms: 0.381335
+  type: 'test'
+  ...
+# Subtest: send-then-throw triggers safety release and faults until reconnect
+ok 11 - send-then-throw triggers safety release and faults until reconnect
+  ---
+  duration_ms: 3.508052
+  type: 'test'
+  ...
+# Subtest: cleanup continues after an independent release failure
+ok 12 - cleanup continues after an independent release failure
+  ---
+  duration_ms: 0.167312
+  type: 'test'
+  ...
+# Subtest: endpoint replacement cleans original then ignores old input
+ok 13 - endpoint replacement cleans original then ignores old input
+  ---
+  duration_ms: 0.211629
+  type: 'test'
+  ...
+# Subtest: 10 second absolute lease covers held controls and cannot be prolonged by traffic or arm
+ok 14 - 10 second absolute lease covers held controls and cannot be prolonged by traffic or arm
+  ---
+  duration_ms: 0.17245
+  type: 'test'
+  ...
+# Subtest: clock rollback releases instead of extending lease
+ok 15 - clock rollback releases instead of extending lease
+  ---
+  duration_ms: 0.167383
+  type: 'test'
+  ...
+# Subtest: lifecycle guards survive replacement and detached guards cannot release
+ok 16 - lifecycle guards survive replacement and detached guards cannot release
+  ---
+  duration_ms: 0.325571
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 102.635959

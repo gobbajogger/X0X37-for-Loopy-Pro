@@ -1,0 +1,71 @@
+{
+  "before": {
+    "transport.mjs": "6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489",
+    "fixture.mjs": "0a19c297683fe94deafd3745a49b774249f74712e82b92144a96acc8ab62c5cd",
+    "index.html": "09d79c1ca93443634beffeb976e4e251bfa87aa876b5c652076007e72e9083bb",
+    "review/browser-cancel.py": "d4a5792c28c085fd197ec1d7ba628753702643c0f7535d6a2d8665f55b8ed70e"
+  },
+  "browser": "system Chromium",
+  "scope": "fake endpoint pointer cancellation only",
+  "observed": {
+    "status": {
+      "state": "connected-disarmed",
+      "endpoint": "FAKE ONLY",
+      "channel": 2,
+      "armed": false,
+      "held": [],
+      "releaseUnconfirmed": false,
+      "lastIncident": null,
+      "fault": null,
+      "feedback": [],
+      "acknowledgement": "none; fake enqueue and received stream are not device state"
+    },
+    "sent": [
+      [
+        177,
+        64,
+        127
+      ],
+      [
+        225,
+        127,
+        127
+      ],
+      [
+        250
+      ],
+      [
+        145,
+        60,
+        100
+      ],
+      [
+        129,
+        60,
+        0
+      ],
+      [
+        177,
+        64,
+        0
+      ],
+      [
+        225,
+        0,
+        64
+      ],
+      [
+        252
+      ]
+    ],
+    "permissions": 0
+  },
+  "result": "PASS",
+  "after": {
+    "transport.mjs": "6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489",
+    "fixture.mjs": "0a19c297683fe94deafd3745a49b774249f74712e82b92144a96acc8ab62c5cd",
+    "index.html": "09d79c1ca93443634beffeb976e4e251bfa87aa876b5c652076007e72e9083bb",
+    "review/browser-cancel.py": "d4a5792c28c085fd197ec1d7ba628753702643c0f7535d6a2d8665f55b8ed70e"
+  },
+  "stable": true
+}

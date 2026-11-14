@@ -1,0 +1,177 @@
+TAP version 13
+# Subtest: replacement releases notes, pedal, bend and locally started transport on old route only
+ok 1 - replacement releases notes, pedal, bend and locally started transport on old route only
+  ---
+  duration_ms: 3.965254
+  type: 'test'
+  ...
+# Subtest: channel transition and duplicate downs preserve a balanced original-channel release
+ok 2 - channel transition and duplicate downs preserve a balanced original-channel release
+  ---
+  duration_ms: 0.698965
+  type: 'test'
+  ...
+# Subtest: invalid values and unsupported semantic operations leave bytes and state unchanged
+ok 3 - invalid values and unsupported semantic operations leave bytes and state unchanged
+  ---
+  duration_ms: 0.677702
+  type: 'test'
+  ...
+# Subtest: prototype property names are unsupported real-time operations
+ok 4 - prototype property names are unsupported real-time operations
+  ---
+  duration_ms: 0.480675
+  type: 'test'
+  ...
+# Subtest: fake-only admission rejects duck typing and prototype-copy objects
+ok 5 - fake-only admission rejects duck typing and prototype-copy objects
+  ---
+  duration_ms: 0.491932
+  type: 'test'
+  ...
+# Subtest: fake-only execution cannot dispatch a subclass override
+ok 6 - fake-only execution cannot dispatch a subclass override
+  ---
+  duration_ms: 0.243317
+  type: 'test'
+  ...
+# Subtest: fake-only execution cannot dispatch a patched send method
+ok 7 - fake-only execution cannot dispatch a patched send method
+  ---
+  duration_ms: 0.319402
+  type: 'test'
+  ...
+# Subtest: Note On before-enqueue exception attempts OFF and keeps uncertainty across reconnect
+ok 8 - Note On before-enqueue exception attempts OFF and keeps uncertainty across reconnect
+  ---
+  duration_ms: 0.415567
+  type: 'test'
+  ...
+# Subtest: Note On after-enqueue exception attempts OFF and keeps uncertainty across reconnect
+ok 9 - Note On after-enqueue exception attempts OFF and keeps uncertainty across reconnect
+  ---
+  duration_ms: 0.299241
+  type: 'test'
+  ...
+# Subtest: first cleanup failure does not skip remaining obligations
+ok 10 - first cleanup failure does not skip remaining obligations
+  ---
+  duration_ms: 0.613556
+  type: 'test'
+  ...
+# Subtest: lost endpoint yields truthful uncertainty and never replays cleanup on replacement
+ok 11 - lost endpoint yields truthful uncertainty and never replays cleanup on replacement
+  ---
+  duration_ms: 0.42393
+  type: 'test'
+  ...
+# Subtest: looped input is observation-only and is never tracked as a local release obligation
+ok 12 - looped input is observation-only and is never tracked as a local release obligation
+  ---
+  duration_ms: 0.411551
+  type: 'test'
+  ...
+# Subtest: wrong-channel, unsupported and malformed inbound messages cannot mutate observations
+ok 13 - wrong-channel, unsupported and malformed inbound messages cannot mutate observations
+  ---
+  duration_ms: 0.310859
+  type: 'test'
+  ...
+# Subtest: observations are bounded and defensive copies cannot mutate internal state
+ok 14 - observations are bounded and defensive copies cannot mutate internal state
+  ---
+  duration_ms: 1.78256
+  type: 'test'
+  ...
+# Subtest: absolute arm lease bounds note even during continuous clock and repeated arm
+ok 15 - absolute arm lease bounds note even during continuous clock and repeated arm
+  ---
+  duration_ms: 0.210257
+  type: 'test'
+  ...
+# Subtest: absolute arm lease bounds pedal even during continuous clock and repeated arm
+ok 16 - absolute arm lease bounds pedal even during continuous clock and repeated arm
+  ---
+  duration_ms: 0.156497
+  type: 'test'
+  ...
+# Subtest: absolute arm lease bounds bend even during continuous clock and repeated arm
+ok 17 - absolute arm lease bounds bend even during continuous clock and repeated arm
+  ---
+  duration_ms: 0.074663
+  type: 'test'
+  ...
+# Subtest: absolute arm lease bounds transport even during continuous clock and repeated arm
+ok 18 - absolute arm lease bounds transport even during continuous clock and repeated arm
+  ---
+  duration_ms: 0.090306
+  type: 'test'
+  ...
+# Subtest: clock rollback disarms and releases tracked obligations
+ok 19 - clock rollback disarms and releases tracked obligations
+  ---
+  duration_ms: 0.134433
+  type: 'test'
+  ...
+# Subtest: fresh sends enforce the arm lease even before the next periodic poll
+not ok 20 - fresh sends enforce the arm lease even before the next periodic poll
+  ---
+  duration_ms: 0.700747
+  type: 'test'
+  location: '/workspace/smk37-browser-contract/review/hostile.test.mjs:137:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/smk37-browser-contract/review/hostile.test.mjs:139:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1382:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+    Test.postRun (node:internal/test_runner/test:1522:19)
+    Test.run (node:internal/test_runner/test:1447:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+  ...
+# Subtest: lifecycle binding remains effective after replacement and detach removes it
+not ok 21 - lifecycle binding remains effective after replacement and detach removes it
+  ---
+  duration_ms: 0.680146
+  type: 'test'
+  location: '/workspace/smk37-browser-contract/review/hostile.test.mjs:143:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/smk37-browser-contract/review/hostile.test.mjs:148:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1382:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+    Test.postRun (node:internal/test_runner/test:1522:19)
+    Test.run (node:internal/test_runner/test:1447:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+  ...
+# Subtest: Escape and pagehide disarm without echo or untracked releases
+ok 22 - Escape and pagehide disarm without echo or untracked releases
+  ---
+  duration_ms: 0.251269
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 20
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 101.769097

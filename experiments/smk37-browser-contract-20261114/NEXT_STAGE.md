@@ -1,0 +1,13 @@
+# Next stage packet: synthetic browser-port adapter
+
+Return to creator `6af7f604-8f70-8191-9f4d-de14954850c8`. That creator is the single accountable intake owner until it verifies a transfer to one named browser-transport executor. No successor or new execution owner has been created here. Preserve any actual incumbent discovered before assigning a new writer.
+
+Start by reading REPORT.md, CAPABILITIES.md, transport.mjs and review/REVIEW.md from this packet. Verify MANIFEST.json with `python3 verify_packet.py`. Transport SHA-256 must be `6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489`; source baseline is `94197fc839b00aff47b98ca02f3c6396e4a6eabf`. Reuse the 38 passing Node cases, 25 Chromium checks and independent cancellation receipt; repeat only invalidated behavior.
+
+Implement one isolated adapter against an injected **synthetic MIDIAccess** object. Keep the sealed fake transport intact as the qualified reference; introduce a separately owned adapter/contract for asynchronous port behavior. Cover same-name ports with different IDs, explicit input/output choice, pending open and replacement, wrong/stale callbacks, close/disconnect during open/send, no auto-reconnect arm, no echo, and original-route cleanup with sticky unknown delivery. Keep status explicit about selected port, opened fake link, arming, observation and lack of firmware identity/ACK. Do not infer hardware model, mode or channel assignments from a port name.
+
+Finish with runnable synthetic adapter tests and one fake browser flow, independent exact-source review, hashes/commands/exits and the smallest remaining gap. The first intake receipt must name the manifest and transport hash and show a substantive scoped action, such as the synthetic pending-open test executing; a delivered prompt alone is not consumption.
+
+No `navigator.requestMIDIAccess`, real ports, device permission prompt/traffic, raw SysEx, firmware/UI integration, publication or shared-branch changes. This stage is distinct from TouchOSC, offline editor, emulator and DNPR file librarian. #52/#104 remains with the existing protocol owner and proposal `fde38845e7474fffae24ae835907d7ca9197b589`; do not implement its firmware work or enable DeviceSync. #900/#901 compatibility and firmware integration retain their active owners. Do not repeat the copied sync handoff’s denied remote browser-tab metadata lookup.
+
+Thread creation capability was not exposed here. The creator must use its supported create/read route, check actual input consumption, and preserve a pending packet if no receiver can be verified. This document is the handoff, not evidence that a successor exists.

@@ -1,0 +1,32 @@
+{
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "baseline": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "nightly": "66073c68dd80d51a7053432c2c161a8b720a1341",
+  "main": "035026fe70059af35e25c7c121b40f318b732fe3",
+  "lane026": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "roadmap": {
+    "commit": "32b0cacd17c89f23bb2f16915732750d158b33e7",
+    "blob": "b3682dcbc5a720b99cadf67089e3f50393fb3e2d"
+  },
+  "syncProposal": {
+    "commit": "fde38845e7474fffae24ae835907d7ca9197b589",
+    "modelTests": "Prior results consumed, not rerun; no integration ownership taken"
+  },
+  "queue": "documented coordination/merge-queue lookup returned404, does not establish inactive owners",
+  "sourceClosure": {
+    "blobs": 5345,
+    "truncated": false,
+    "allMatch": true
+  },
+  "firstConsumption": {
+    "root": "Read exact archive's web/EDITOR_PROTOCOL.md and web/offline-sequencer/SYNC.md; source archive matched GitHub blobs",
+    "investigator": "firmware/src/app/engine.c:1635",
+    "reviewer": "PLAN.md and firmware/src/app/engine.c:1635-1795"
+  },
+  "toolDiscovery": {
+    "thread_management_create_thread": false,
+    "successor": "not created"
+  },
+  "sharedCheckouts": "both clean before and after; no mutations",
+  "ownership": "This isolated prototype only. Creator retains routing; incumbent firmware/protocol, pattern, #900/#901, TouchOSC, emulator and UI owners preserved."
+}

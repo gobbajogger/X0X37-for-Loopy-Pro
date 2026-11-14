@@ -1,0 +1,431 @@
+{
+  "schema": 1,
+  "purpose": "export-only preservation, no implementation/test rerun",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "wip/smk37-browser-contract-archive-20261114",
+  "parent": "94197fc839b00aff47b98ca02f3c6396e4a6eabf",
+  "prefix": "experiments/smk37-browser-contract-20261114",
+  "original_manifest_sha256": "c249ddeaed196401578183513d9e02e451410ef80f595421a98c70ecd98d4fa8",
+  "original_packet_entries": 56,
+  "included_original_packet_entries": 56,
+  "excluded_original_packet_entries": [],
+  "original_library_zip_sha256": "df4689de844dae38e69839a89bdb1cd105c46227abedca57941aca4a10adc009",
+  "included": [
+    {
+      "path": "CAPABILITIES.md",
+      "size": 14416,
+      "sha256": "f87e30213e40f1e41622eecff5d86d37c56698c0dfce7ea4a4c3d50b416f88f1",
+      "git_blob": "72bc8485208aeef3fb262a6e9913ccdb4d25a37c",
+      "archive_path": "experiments/smk37-browser-contract-20261114/CAPABILITIES.md"
+    },
+    {
+      "path": "NEXT_STAGE.md",
+      "size": 2662,
+      "sha256": "5da31a0e6517ab69ff0e4fa13a9bae20db25c1ba423c01558f5d849751127295",
+      "git_blob": "8f30de028d4f859b12dfd8f1513d5de9050d1d66",
+      "archive_path": "experiments/smk37-browser-contract-20261114/NEXT_STAGE.md"
+    },
+    {
+      "path": "PLAN.md",
+      "size": 3284,
+      "sha256": "4012063786c0388590ba9f20de16384ce8844157a5163d8f231219f34f6ae1e5",
+      "git_blob": "fa302759d8556a679d447c0c1f3cb5b96de9d455",
+      "archive_path": "experiments/smk37-browser-contract-20261114/PLAN.md"
+    },
+    {
+      "path": "README.md",
+      "size": 1998,
+      "sha256": "b403f1073eeb4f8b6dceeedef8621b0d603fbf3e52b67b7dc0e3d28121419505",
+      "git_blob": "1799129dd0971a88c046ab7dfb71926ab4b76332",
+      "archive_path": "experiments/smk37-browser-contract-20261114/README.md"
+    },
+    {
+      "path": "REPORT.md",
+      "size": 6455,
+      "sha256": "dedfc7c31ab75e8a9b165d7fadb108d715a8603bf606233f39ce6445cd119aae",
+      "git_blob": "9aed5d49af5059dead260498291b472db680b053",
+      "archive_path": "experiments/smk37-browser-contract-20261114/REPORT.md"
+    },
+    {
+      "path": "browser.test.py",
+      "size": 5795,
+      "sha256": "3c3c81770c6ed63af8cf0cb458d79509c95b16bc9f6ab6347c67a368efea5536",
+      "git_blob": "af94db2fcab381e52e94de2d5d57bdb085469a18",
+      "archive_path": "experiments/smk37-browser-contract-20261114/browser.test.py"
+    },
+    {
+      "path": "evidence/all-source-blobs.json",
+      "size": 1227773,
+      "sha256": "e71911b4c76c323f614ea3fbc1388be66eb02294423ec6984eac5b3d8212ea01",
+      "git_blob": "4b78f7e3129547a197a678d98be14503889082a2",
+      "archive_path": "experiments/smk37-browser-contract-20261114/evidence/all-source-blobs.json"
+    },
+    {
+      "path": "evidence/browser.stderr",
+      "size": 275,
+      "sha256": "aef9109cc4f882120f8dd8ab5bbc206dc2a8e627f8aa8f6cc39cfc6379ce6722",
+      "git_blob": "21ae4ce27abd253720683648eb5a8881bb7b5105",
+      "archive_path": "experiments/smk37-browser-contract-20261114/evidence/browser.stderr"
+    },
+    {
+      "path": "evidence/browser.stdout",
+      "size": 2502,
+      "sha256": "ef35cf6da5133a2f1202c19e17f895344a55b3dda861cf9422803c9e1cca0d35",
+      "git_blob": "0ae7707fe036babbc428159116723853bdbf1675",
+      "archive_path": "experiments/smk37-browser-contract-20261114/evidence/browser.stdout"
+    },
+    {
+      "path": "evidence/execution.json",
+      "size": 1448,
+      "sha256": "2b098e024d029ec042f76af9088db2e881cd918d86c9b1ccd0e2e481493f4c19",
+      "git_blob": "1c0a606c1f3c86b952a85565a20ba5b4bb2ac83a",
+      "archive_path": "experiments/smk37-browser-contract-20261114/evidence/execution.json"
+    },
+    {
+      "path": "evidence/initial-browser-failure.md",
+      "size": 783,
+      "sha256": "78c2c6d2dd70b9079cccffc6340c33ead4c548a16831ebc5a36a5a2c14d4adeb",
+      "git_blob": "66a6fbdbaf158d56bb4d95a87f73aabbd3df0232",
+      "archive_path": "experiments/smk37-browser-contract-20261114/evidence/initial-browser-failure.md"
+    },
+    {
+      "path": "evidence/intake.json",
+      "size": 1391,
+      "sha256": "0343b2d675a3f6cc691e63d5d7843e15aa9366f4118851b01f5c616826903f10",
+      "git_blob": "bf1091329361023df712796dfb5381e6d24a5a12",
+      "archive_path": "experiments/smk37-browser-contract-20261114/evidence/intake.json"
+    },
+    {
+      "path": "evidence/producer.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "archive_path": "experiments/smk37-browser-contract-20261114/evidence/producer.stderr"
+    },
+    {
+      "path": "evidence/producer.stdout",
+      "size": 3268,
+      "sha256": "b931e16e323162fb01c4ed48c49c8a50c7667e87da56e2e44a704b3028271801",
+      "git_blob": "15ec91f738c1b35de9e7631a7e635ce058bcb36a",
+      "archive_path": "experiments/smk37-browser-contract-20261114/evidence/producer.stdout"
+    },
+    {
+      "path": "evidence/provenance.json",
+      "size": 1296,
+      "sha256": "1fdb6aca483e370773860b66ea442d01a4917de54bcaf92b35aefea34c82836f",
+      "git_blob": "0d3ce7bbdd8b5005a34a1619a2eb29c74075a8b3",
+      "archive_path": "experiments/smk37-browser-contract-20261114/evidence/provenance.json"
+    },
+    {
+      "path": "evidence/source-closure.json",
+      "size": 4382,
+      "sha256": "125815845ad8680672816e81d7915acbb7df9d4c170a79f3cc599e0e4b98885c",
+      "git_blob": "5546aef504ee016a817ea66d1f389c92eb04b823",
+      "archive_path": "experiments/smk37-browser-contract-20261114/evidence/source-closure.json"
+    },
+    {
+      "path": "fixture.css",
+      "size": 299,
+      "sha256": "61ded21d7bb61c4bdfac2e868ea58f1c403cd43e81650d020b320fbe9dc97651",
+      "git_blob": "5099c3160166b6705c5f41414527e9cfe9acf672",
+      "archive_path": "experiments/smk37-browser-contract-20261114/fixture.css"
+    },
+    {
+      "path": "fixture.mjs",
+      "size": 2873,
+      "sha256": "0a19c297683fe94deafd3745a49b774249f74712e82b92144a96acc8ab62c5cd",
+      "git_blob": "810688d1e2bede8616d0ee77dd0a3209ae1c8c0c",
+      "archive_path": "experiments/smk37-browser-contract-20261114/fixture.mjs"
+    },
+    {
+      "path": "index.html",
+      "size": 2272,
+      "sha256": "09d79c1ca93443634beffeb976e4e251bfa87aa876b5c652076007e72e9083bb",
+      "git_blob": "e4c52a927c17a26de4969c3899b6ea26f9e0d6aa",
+      "archive_path": "experiments/smk37-browser-contract-20261114/index.html"
+    },
+    {
+      "path": "inputs/ROADMAP.md",
+      "size": 118265,
+      "sha256": "3200946a248a573f40ccc6469d8c024b7438d15be839c1eb81ca0995d65e332f",
+      "git_blob": "b3682dcbc5a720b99cadf67089e3f50393fb3e2d",
+      "archive_path": "experiments/smk37-browser-contract-20261114/inputs/ROADMAP.md"
+    },
+    {
+      "path": "inputs/sync-HANDOFF.md",
+      "size": 5679,
+      "sha256": "9ac9cd4f4d10b18a88613f30360520918bdc30f74224e474ac52416d684a67d6",
+      "git_blob": "adcc5448d153770cfa4f962c481bdc314ef4abeb",
+      "archive_path": "experiments/smk37-browser-contract-20261114/inputs/sync-HANDOFF.md"
+    },
+    {
+      "path": "inputs/sync-PROTOCOL.md",
+      "size": 15042,
+      "sha256": "27205e21bdccb48ed0125eb3264c2a722693939ddbef741705bf8ac15c331dbd",
+      "git_blob": "4827515858255185aeb74bff55624ceee76b0d73",
+      "archive_path": "experiments/smk37-browser-contract-20261114/inputs/sync-PROTOCOL.md"
+    },
+    {
+      "path": "review/FINAL_PACKET_REVIEW.md",
+      "size": 3229,
+      "sha256": "7c5a0f1ab1bb4213632c8753c6f5679049aaf607df6bdef34a2d4779dece330e",
+      "git_blob": "fe8d0f30b385d3233106fd7a0472e78efd14775a",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/FINAL_PACKET_REVIEW.md"
+    },
+    {
+      "path": "review/REVIEW.md",
+      "size": 6244,
+      "sha256": "42b384890263329398e19241e998ffe8d1997f981ec8e0b4d0366c32d8cd55d1",
+      "git_blob": "6ff5812200e59b9c802bb207ca73e3b839b995fc",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/REVIEW.md"
+    },
+    {
+      "path": "review/browser-cancel-run.json",
+      "size": 1669,
+      "sha256": "1ab68f2d2134cf953f4533db0c305935b5191ccdb1698a6d1ab4592fc083372f",
+      "git_blob": "dd574774bb7d46599f25f7dc6da39104b4faa3c0",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/browser-cancel-run.json"
+    },
+    {
+      "path": "review/browser-cancel.py",
+      "size": 2731,
+      "sha256": "d4a5792c28c085fd197ec1d7ba628753702643c0f7535d6a2d8665f55b8ed70e",
+      "git_blob": "caefa9ff0348a0d9f3c9f994d7470ca6a155cac9",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/browser-cancel.py"
+    },
+    {
+      "path": "review/design-review.md",
+      "size": 2261,
+      "sha256": "c3c8406d2e55970e92a05234dc8a32c17d0f4a6b17712e9541e76d6c0b4c1160",
+      "git_blob": "cd8b311cee245f8bad7e260716c68baeba532717",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/design-review.md"
+    },
+    {
+      "path": "review/final-run.json",
+      "size": 591,
+      "sha256": "50a3c12351d9ff22c30feba82bf95b3d9975eac23473c3e467e2d5253eaeb604",
+      "git_blob": "776bb8a34c3c97bec1a4c06a09f2d31060ace8af",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/final-run.json"
+    },
+    {
+      "path": "review/final-run.tap",
+      "size": 4907,
+      "sha256": "e0522d6df79205639d5d74f3e92a0f10c48806ec0479af5bd2f68ab443bc8c04",
+      "git_blob": "016bce28f6bff588780b77a68f91b83dad1c34d1",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/final-run.tap"
+    },
+    {
+      "path": "review/first-run.tap",
+      "size": 2948,
+      "sha256": "a48e2ca93f4fbc143f5d24510e96ff2b67192d5fd117feea599c43180d286960",
+      "git_blob": "a27c510915a0918c169bda3ccbbfc3d50105818b",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/first-run.tap"
+    },
+    {
+      "path": "review/hostile-acceptance-plan.md",
+      "size": 1822,
+      "sha256": "7165c55903961e9db4c0fe4629e4dd550e35898fa17406eed081fb3283ff5a28",
+      "git_blob": "b56af72b8029e85fa4cefeaf1ed543f9e0d3096a",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/hostile-acceptance-plan.md"
+    },
+    {
+      "path": "review/hostile.test.mjs",
+      "size": 9684,
+      "sha256": "50a205e0cb51ae8646080ab15ec45839cbd215fb1ffa52605d057ac882da2159",
+      "git_blob": "6744b379b4b2d519847e8212874819dbf5bad4ea",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/hostile.test.mjs"
+    },
+    {
+      "path": "review/second-run.json",
+      "size": 591,
+      "sha256": "938a5289ccf3b1c279e0036fecb4db9d3e0c6da7aab61a07f097a50245c14203",
+      "git_blob": "6cf78817b4d85d6d221e020f8e178be668fc2a6e",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/second-run.json"
+    },
+    {
+      "path": "review/second-run.tap",
+      "size": 6411,
+      "sha256": "c7d41dbab3d58e1051305d0ca990c1725eb09aa4039874e97821398cef794ee5",
+      "git_blob": "2f03c0ada56c8a5ff9fc5a35f6ddefa0b30ff484",
+      "archive_path": "experiments/smk37-browser-contract-20261114/review/second-run.tap"
+    },
+    {
+      "path": "serve.py",
+      "size": 639,
+      "sha256": "72e2b032f771efa4e29040d6a4c0fbfcea37754f411255a82e997196e8dd7e4e",
+      "git_blob": "28626e2303f24b2f2b0265254441b6376fb55402",
+      "archive_path": "experiments/smk37-browser-contract-20261114/serve.py"
+    },
+    {
+      "path": "source-evidence/AGENTS.md",
+      "size": 7353,
+      "sha256": "a0d879a2bad29536d6d02a1b609688a8585675273c0362df56c247e20ebf8d33",
+      "git_blob": "3700e0a11507897c5f5041c76198e09e9ea01694",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/AGENTS.md"
+    },
+    {
+      "path": "source-evidence/LICENSE",
+      "size": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "git_blob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/LICENSE"
+    },
+    {
+      "path": "source-evidence/docs/FEATURE-REGISTRY.md",
+      "size": 49204,
+      "sha256": "30b247d26f711b8296d48c82da565b8ba0e674ad6322d92bfabb6c57ee527395",
+      "git_blob": "9fff09e3251a0d2d65c2a0ce93857125ca543a9a",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/docs/FEATURE-REGISTRY.md"
+    },
+    {
+      "path": "source-evidence/firmware/src/app/editor.c",
+      "size": 41553,
+      "sha256": "fd83de8044131af033138e75478574e1db99c6e3c33a7b4ee6db7090df5502b3",
+      "git_blob": "83877daf4bbb111865ad3abf15d00698031870d5",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/app/editor.c"
+    },
+    {
+      "path": "source-evidence/firmware/src/app/engine.c",
+      "size": 143240,
+      "sha256": "9d8e011e5b87e2e82bf791e5a16f632aaa3f78a13f35c3b1c3f7ed91cb62bde1",
+      "git_blob": "dddc38dcc3e4ac28fc995fb1e4438703942c5570",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/app/engine.c"
+    },
+    {
+      "path": "source-evidence/firmware/src/app/main_fm1.c",
+      "size": 115641,
+      "sha256": "20b8614282b833f8bcbdec3c800adcdd80c3407f083746883790b7d1d86d3fe6",
+      "git_blob": "85fe641796f734744e5745f8f26017f851fb9e49",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/app/main_fm1.c"
+    },
+    {
+      "path": "source-evidence/firmware/src/app/plat.h",
+      "size": 10595,
+      "sha256": "426e69bb62645a072f3a5f828aeb175fa9854ec9106cc014f8e22b96734019cd",
+      "git_blob": "b57f2737c5090feac762286794c3f4b9fa1b28ae",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/app/plat.h"
+    },
+    {
+      "path": "source-evidence/firmware/src/app/plat_fm1.c",
+      "size": 15628,
+      "sha256": "7c8d2a2a53a189fa7e73172a7defdb7bead62ff4f5b974f8c3361ebecac668f7",
+      "git_blob": "78f46798c2316d989b12bfe0d5e7d8140dd0033d",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/app/plat_fm1.c"
+    },
+    {
+      "path": "source-evidence/firmware/src/app/project.c",
+      "size": 34961,
+      "sha256": "6e6d692942b6823130b67f978528d1d7ac5fb7ed8783cf194a0c807d546fe190",
+      "git_blob": "8d69214ce9840865a1a007e7fc9d6033a09961d0",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/app/project.c"
+    },
+    {
+      "path": "source-evidence/firmware/src/app/smc_mixer.c",
+      "size": 117548,
+      "sha256": "e5707a2b0bcdff8d50d21597d27f708fc61d15da81fb765e01f2284e6cf32e1a",
+      "git_blob": "8942c49681e9bd15f39b4cfd3745826ba58b4a16",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/app/smc_mixer.c"
+    },
+    {
+      "path": "source-evidence/firmware/src/app/smc_protocol.h",
+      "size": 1663,
+      "sha256": "51211b7778da8cc6700204df88bbe30288e606ea91acc6bec232646b363a530e",
+      "git_blob": "03a642226aae01ffb9bc29888e0f5802d72ced26",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/app/smc_protocol.h"
+    },
+    {
+      "path": "source-evidence/firmware/src/seq/sequencer.c",
+      "size": 59772,
+      "sha256": "40a393b76de9f11d41bf99828fab99f87f91e29ed3b21f672c9ab1cf984b8156",
+      "git_blob": "1c92a17d43a444d067a8aff60eb0f3a5e8e3fc8f",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/seq/sequencer.c"
+    },
+    {
+      "path": "source-evidence/firmware/src/seq/sequencer.h",
+      "size": 17858,
+      "sha256": "1fffaf171bf1ec6d7575486dbb2d2c8bffc0801c6bf1cab0a213ddc072d1f3cd",
+      "git_blob": "f4b5d83735db10bc6cf16abdf70241d1093117ca",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/seq/sequencer.h"
+    },
+    {
+      "path": "source-evidence/firmware/src/usb.c",
+      "size": 61802,
+      "sha256": "dd9fdc38bee178f98510995c418fc45b1891fbb8004b5556122c73f2e7f61844",
+      "git_blob": "bb4dba222064b7d3542e7ceeebb3bcfc641ec15a",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/firmware/src/usb.c"
+    },
+    {
+      "path": "source-evidence/web/EDITOR_PROTOCOL.md",
+      "size": 21613,
+      "sha256": "0dcc027513efd4316a1b7cf527f1f8bbb36d8566fc5bf8e32b4490a4bbad3745",
+      "git_blob": "2ff1217c83de2515bea2876a2a12acdb55d53439",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/web/EDITOR_PROTOCOL.md"
+    },
+    {
+      "path": "source-evidence/web/offline-sequencer/README.md",
+      "size": 9307,
+      "sha256": "105b25e044d293b05f5e1db895aab6900cd1e3a8c661b8b427f64a77ef637875",
+      "git_blob": "7fefe836fffb2d7ac609d6b6dbbf8829c77b7492",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/web/offline-sequencer/README.md"
+    },
+    {
+      "path": "source-evidence/web/offline-sequencer/SYNC.md",
+      "size": 5283,
+      "sha256": "b555692f2c2613c20045897473e7a72955a527cd6330203afc5a9c50ff156229",
+      "git_blob": "4b376cd6650ce3dec77c37bb77f9092db18b7754",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/web/offline-sequencer/SYNC.md"
+    },
+    {
+      "path": "source-evidence/web/offline-sequencer/device-sync.js",
+      "size": 2669,
+      "sha256": "88bc2e27488b02fcdaae010ac26aebd2a594bf1d3e6620bd8bbc2b6a5388bbe6",
+      "git_blob": "0c7abdf50b484bff21fec5dac1b3950d4cca370c",
+      "archive_path": "experiments/smk37-browser-contract-20261114/source-evidence/web/offline-sequencer/device-sync.js"
+    },
+    {
+      "path": "transport.mjs",
+      "size": 9718,
+      "sha256": "6bed0640913053805aba5518ab236609b517c6e21812b4120618aeb57ed1e489",
+      "git_blob": "52cad9273a304ce98cc263410a3bca0135c617ce",
+      "archive_path": "experiments/smk37-browser-contract-20261114/transport.mjs"
+    },
+    {
+      "path": "transport.test.mjs",
+      "size": 7288,
+      "sha256": "6918418b438d3d40b5cd431722167e9505326329a920954413707716788fff4c",
+      "git_blob": "3f13309f6d7c1e7a626a73463f83d871cf4e955f",
+      "archive_path": "experiments/smk37-browser-contract-20261114/transport.test.mjs"
+    },
+    {
+      "path": "verify_packet.py",
+      "size": 607,
+      "sha256": "a3bb292b81c19d7fa1ae6a9e0cd883d9853a33de8d06c9adc6184953cd06606e",
+      "git_blob": "70e3503f6f47df4e6cb7cabbbd18d8f7ad8a2ce1",
+      "archive_path": "experiments/smk37-browser-contract-20261114/verify_packet.py"
+    },
+    {
+      "path": "MANIFEST.json",
+      "size": 9153,
+      "sha256": "c249ddeaed196401578183513d9e02e451410ef80f595421a98c70ecd98d4fa8",
+      "git_blob": "1a25496b43c3750a78397c0b69cf602a3fd98c12",
+      "archive_path": "experiments/smk37-browser-contract-20261114/MANIFEST.json"
+    },
+    {
+      "path": "ARCHIVE.md",
+      "size": 3761,
+      "sha256": "3a058f8114aac6fa4eae789e0a3da4610b23abcea632e6cfea70d850d1b7f146",
+      "git_blob": "2b7ed8f3d94f20559a9c9d6acfa8a82a7938c063",
+      "archive_path": "experiments/smk37-browser-contract-20261114/ARCHIVE.md"
+    }
+  ],
+  "excluded_outside_packet": [
+    "original ZIP container",
+    "full source archive/extraction",
+    "Python caches",
+    "local Library identity/xattrs/delivery receipt",
+    "export workspace/control receipts"
+  ],
+  "no_tests_run": true,
+  "no_shared_paths_changed": true,
+  "manifest_self_excluded": true
+}

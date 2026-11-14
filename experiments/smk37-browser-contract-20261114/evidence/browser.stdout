@@ -1,0 +1,109 @@
+{
+  "browser": "154.0.8037.57",
+  "cases": [
+    {
+      "case": "permission blocked by response policy",
+      "result": "PASS"
+    },
+    {
+      "case": "initial disconnected status and zero MIDI requests",
+      "result": "PASS"
+    },
+    {
+      "case": "connected fake and explicit arm required",
+      "result": "PASS"
+    },
+    {
+      "case": "disarmed send rejects visibly with no bytes",
+      "result": "PASS"
+    },
+    {
+      "case": "real pointer down encodes note",
+      "result": "PASS"
+    },
+    {
+      "case": "outside pointer release uses capture",
+      "result": "PASS"
+    },
+    {
+      "case": "keyboard note has matching on/off",
+      "result": "PASS"
+    },
+    {
+      "case": "channel change releases original channel and disarms",
+      "result": "PASS"
+    },
+    {
+      "case": "actual control buttons emit selected-channel bytes",
+      "result": "PASS"
+    },
+    {
+      "case": "incoming is observation only",
+      "result": "PASS"
+    },
+    {
+      "case": "#unsupported rejection has zero transmit",
+      "result": "PASS"
+    },
+    {
+      "case": "#seek rejection has zero transmit",
+      "result": "PASS"
+    },
+    {
+      "case": "#sysex rejection has zero transmit",
+      "result": "PASS"
+    },
+    {
+      "case": "release resets used sustain and bend and clears observations",
+      "result": "PASS"
+    },
+    {
+      "case": "focus loss releases and disarms",
+      "result": "PASS"
+    },
+    {
+      "case": "pagehide remains bound after reconnect",
+      "result": "PASS"
+    },
+    {
+      "case": "abrupt loss shows disconnected and unconfirmed releases",
+      "result": "PASS"
+    },
+    {
+      "case": "replacement never replays stale obligations",
+      "result": "PASS"
+    },
+    {
+      "case": "ambiguous enqueue faults and disarms",
+      "result": "PASS"
+    },
+    {
+      "case": "Escape releases fake note",
+      "result": "PASS"
+    },
+    {
+      "case": "pointer cancellation releases and disarms",
+      "result": "PASS"
+    },
+    {
+      "case": "390px fixture is readable without horizontal page overflow",
+      "result": "PASS"
+    },
+    {
+      "case": "1280px fixture is readable without horizontal page overflow",
+      "result": "PASS"
+    },
+    {
+      "case": "no Web MIDI permission request throughout",
+      "result": "PASS"
+    },
+    {
+      "case": "no browser script errors",
+      "result": "PASS"
+    }
+  ],
+  "pass": 25,
+  "fail": 0,
+  "physical_midi": "NOT_RUN",
+  "permission_requests": 0
+}

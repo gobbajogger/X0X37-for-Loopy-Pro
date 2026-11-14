@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'none'">
+<link rel="stylesheet" href="./fixture.css">
+<title>SMK-37 fake MIDI contract harness</title>
+<h1>FAKE ENDPOINT ONLY</h1>
+<p>Engineering acceptance fixture. No physical MIDI, device permissions, audio or firmware state. Fake enqueue is not a device ACK. Arm expires after ten seconds; focus loss releases and disarms.</p>
+<p>Firmware pin: <code>94197fc839b00aff47b98ca02f3c6396e4a6eabf</code>. Notes, CC1, CC64 and bend depend on the actual part channels, routing, mute/record state and performance mode. Clock commands depend on AUTO/EXTERNAL and the current input owner.</p>
+<fieldset><legend>Fake connection</legend>
+<button id="connect">Connect new fake endpoint</button>
+<button id="disconnect">Disconnect with releases</button>
+<button id="lose">Simulate abrupt endpoint loss</button>
+<button id="arm">Arm fake sends</button>
+<button id="disarm">Release and disarm</button>
+<label>Outgoing human channel <select id="channel"></select></label>
+</fieldset>
+<fieldset><legend>Musical wire probes</legend>
+<button id="note">Hold C4 (MIDI 60)</button>
+<button id="mod">CC1 = 75</button><button id="pedal">CC64 = 127</button><button id="bend">Pitch bend = 16383</button>
+<button data-rt="clock">One F8 tick</button><button data-rt="start">Start</button><button data-rt="continue">Continue</button><button data-rt="stop">Stop</button>
+</fieldset>
+<fieldset><legend>Contract rejection and observation probes</legend>
+<button id="incoming">Inject fake incoming note</button><button id="unsupported">Reject cutoff CC74</button><button id="seek">Reject sequencer seek F2</button>
+<button id="sysex">Reject historical WATCH</button><button id="failure">Fail next fake send after enqueue</button>
+</fieldset>
+<p id="result" role="status" aria-live="polite">No operation attempted.</p>
+<h2>Connection status and observed input</h2><pre id="status"></pre>
+<h2>Fake outgoing bytes</h2><pre id="sent"></pre>
+<h2>Transport event log (last 128)</h2><pre id="log"></pre>
+<script type="module" src="./fixture.mjs"></script>
+</html>

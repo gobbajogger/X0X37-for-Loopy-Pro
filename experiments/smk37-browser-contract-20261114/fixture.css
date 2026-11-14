@@ -1,0 +1,5 @@
+/* Plain diagnostic fixture, separate from product UI. */
+body { max-width: 70rem; margin: 1rem; font-family: system-ui, sans-serif; }
+pre, code { white-space: pre-wrap; overflow-wrap: anywhere; }
+button, select { margin: .25rem; min-height: 2rem; }
+fieldset { margin-block: .75rem; min-width: 0; }
