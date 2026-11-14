@@ -1,0 +1,87 @@
+{
+  "html_sha256": "b5b2dca5898a7c71b4730364c7c8d4c800ca691ed3498260091d9583a24d86e3",
+  "model_checks": 33,
+  "model_scope": "proposal source-state reducer; not firmware or emulator",
+  "static_pair_pngs_match": [
+    "drum",
+    "chicago",
+    "home",
+    "song"
+  ],
+  "pdf": {
+    "sha256": "b162dbdc13447ab4d9210bd91afd7259a728a6f92c2ea447d0bd87cbb1c03987",
+    "bytes": 99253,
+    "pages": [
+      {
+        "page": 1,
+        "text_inside_page": true,
+        "image_sizes": [
+          [
+            240,
+            240
+          ],
+          [
+            240,
+            240
+          ]
+        ]
+      },
+      {
+        "page": 2,
+        "text_inside_page": true,
+        "image_sizes": [
+          [
+            240,
+            240
+          ],
+          [
+            240,
+            240
+          ]
+        ]
+      },
+      {
+        "page": 3,
+        "text_inside_page": true,
+        "image_sizes": [
+          [
+            240,
+            240
+          ],
+          [
+            240,
+            240
+          ]
+        ]
+      },
+      {
+        "page": 4,
+        "text_inside_page": true,
+        "image_sizes": [
+          [
+            240,
+            240
+          ],
+          [
+            240,
+            240
+          ]
+        ]
+      },
+      {
+        "page": 5,
+        "text_inside_page": true,
+        "image_sizes": []
+      },
+      {
+        "page": 6,
+        "text_inside_page": true,
+        "image_sizes": []
+      }
+    ],
+    "iOS_device_open": "NOT_RUN; standard PDF parsed/rendered with native240images"
+  },
+  "independent_R3_acceptance": "PENDING existing parent-reconciled reviewer",
+  "current_capture_intake": "Stage1534 report relayed; files not visible locally; no receipt bytes consumed",
+  "portable_rebuild": "Exact HTML and PDF bytes reproduced from public source/input layout; initial path-dependent PDF naming fixed"
+}

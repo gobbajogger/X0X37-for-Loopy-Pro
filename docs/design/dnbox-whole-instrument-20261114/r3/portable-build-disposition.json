@@ -1,0 +1,1 @@
+{"initial":"HTML reproduced; PDF bytes differed because ReportLab names image objects from source paths","fix":"ImageReader uses exact bytes rather than path-derived image names; invariant metadata enabled","scope":"Artifact packaging only, no renderer or firmware change"}
